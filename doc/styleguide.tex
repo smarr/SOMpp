@@ -1,0 +1,429 @@
+%
+% the CPPSOM Style Guide
+%
+% $Id: styleguide.tex 169 2008-29-10 17:41:48Z arne.bergmann $
+%
+\documentclass{scrartcl}
+\usepackage{listings}
+\begin{document}
+
+\section{CPPSOM Style Guidelines}
+\label{sec:cppsom-style-guid}
+
+\subsection{Common Rules}
+\label{sec:common-rules}
+\begin{itemize}
+\item A line shall have at most 80 columns.
+\item Each file shall start with copyright and licensing information.
+  Just before both, the string \texttt{\$Id\$} shall be placed as a
+  comment.
+\item The sole language of coding and documentation is
+  \emph{English}.
+\item A file shall end with a new line.
+\end{itemize}
+
+
+\subsection{Rules for C++}
+\label{sec:rules-cpp}
+
+The following rules apply to all CPP sourcecode files.
+
+\begin{itemize}
+\item The language used is C++ with STL. The target compiler is GNU
+ g++ 4. The author strongly promotes maintaining code compatibility
+ with Microsoft's Visual Studio 2008 cl compiler.
+\item \emph{Avoid code duplication.}
+\item All \lstinline|#endif|-statement shall be appended with a
+  name. For mactros encpasulation a header file, this is the filename
+  formatted as \lstinline|FILENAME_H_|.
+\lstinline|#ifdef ... #endif| blocks shall start a new indentation
+level.
+\begin{lstlisting}
+// do this
+#ifdef DEBUG
+    i = 10;
+#endif DEBUG
+
+// not this
+#ifdef DEBUG
+    i = 10;
+#endif /*DEBUG*/
+
+// nor this
+#ifdef DEBUG
+i = 10;
+#endif
+\end{lstlisting}
+
+\item The following applies to all header file class definitions
+\begin{itemize}
+\item Every CPPSOM header shall be marked with \emph{\#pragma once}
+ AND be marked with \emph{\#ifndef/\#define/\#endif} guards.
+\item CPPSOM classes used in header files shall be defined using
+ forward declaration. The \#include is to be done in the .cpp file.
+ This does not apply to the base class of the class.
+\begin{lstlisting}
+//do this
+#include <vmobjects/VMObject.h>
+
+class VMArray;
+
+class MyVMObject : VMObject
+{
+public:
+    MyVMObject(VMArray*) : VMObject();
+    /* ... more public members */
+private:
+		VMArray* embeddedArray;
+}
+
+//not this
+#include <vmobjects/VMObject.h>
+
+#include <vmobjects/VMArray>
+
+class MyVMObject : VMObject
+{
+public:
+    MyVMObject(VMArray*) : VMObject();
+    /* ... more public members */
+private:
+		VMArray* embeddedArray;
+}
+\end{lstlisting}
+\item There shall be exactly one space between the word class and
+ the class' name.
+\item There shall be exactly one space before and after the colon
+ ':' that separates the class name from the name of the base class.
+\item All class definitions should state members and methods in order
+ of their visibility. Start with public, then protected and finally
+ private. The visibility qualifiers shall be at indentation level 0.
+\item Member declaration within one visibility should be done in the
+ order: static methods, static fields), constructors, methods, fields.
+\item Methods shall only be implemented in the header if it is a
+ getter or setter function without further functionality besides
+ getting or setting the value of a member variable.
+\end{itemize}
+\item There shall be exactly one space between a method's type and
+  its name.
+\begin{lstlisting}
+// do this
+void SomeClass::SomeMethod(String fmt, ...)
+{
+    ...
+}
+
+// not this
+void    SomeClass::SomeMethod(String fmt, ...)
+{
+    ...
+}
+\end{lstlisting}
+\item When definig methods, in a method signature, the opening
+  brace \lstinline|{| shall be on the  next line after the corresponding
+  closing paren \lstinline|)| at the same indentation level as the 
+  method's return type.
+\begin{lstlisting}
+// do this
+void SomeClass::SomeMethod(char *fmt, ...) 
+{
+    ...
+}
+
+// not this
+void SomeClass::SomeMethod(String fmt, ...) {
+    ...
+}
+
+// nor this
+void SomeClass::SomeMethod(String fmt, ...){
+    ...
+}
+
+// and not this
+void SomeClass::SomeMethod(String fmt, ...)
+        {
+    ...
+        }
+\end{lstlisting}
+\item An opening paren \lstinline|(| shall not be appended, a closing
+  paren \lstinline|)| shall not be prepended with a space.
+\begin{lstlisting}
+// do this
+bool right = ((a || b) && (c ^^ d)) || (e > f);
+
+// not this
+bool right = ( ( a || b ) && ( c ^^ d ) ) || ( e > f ) ;
+\end{lstlisting}
+\item Functions shall not start with empty lines. Code or comments
+  shall start immediately.
+\begin{lstlisting}
+// do this
+void print(char *fmt, ...) 
+{
+    int i=0;
+    ...
+}
+
+// not this
+void print(char *fmt, ...) 
+{
+
+    int i=0;
+    ...
+}
+\end{lstlisting}
+\item Each function definition is preceded and followed by two blank lines.
+\begin{lstlisting}
+// do this
+
+
+void foo1(...) 
+{
+    ...
+}
+
+
+void foo2(...) 
+{
+    ...
+}
+
+
+//not this
+void foo1(...) 
+{
+    ...
+}
+void foo2(...) 
+{
+    ...
+}
+\end{lstlisting}
+\item \lstinline|**| and \lstinline|*| shall not be unnecessarily
+  surrounded by spaces.
+\begin{lstlisting}
+// do this
+array = *another;
+
+// not this
+array = * another;
+\end{lstlisting}
+\item When casting, the closing paren \lstinline|)| after the target type shall not
+  be appended by a space.
+\begin{lstlisting}
+// do this
+foo = (char*)bar;
+
+// not this
+foo = (char*) bar;
+\end{lstlisting}
+\item Redundant parens shall be avoided.
+\begin{lstlisting}
+// do this
+return 0 == (a - b);
+
+// not this
+return (0 == (a - b));
+\end{lstlisting}
+\item In pointer definitions, the asterisk \lstinline|*| shall be
+  aligned to the type not to the variable's name.
+\begin{lstlisting}
+// do this
+int* foo;
+
+// not this
+int *foo;
+
+// nor this
+int * foo;
+\end{lstlisting}
+\item Comments like \lstinline|//end of somefile.c| shall be avoided.
+\item A space shall be placed behind commas \lstinline|,| in parameter
+  lists, base class lists et al.
+\begin{lstlisting}
+// do this
+foo(a, b, c);
+
+// not this
+foo(a,b,c);
+
+// nor this
+foo(a ,b ,c);
+foo(a , b , c);
+\end{lstlisting}
+\item Binary operators, shall be surrounded by spaces.
+\begin{lstlisting}
+// do this
+bool right = !((++a | b) && (c ^^ d));
+
+// not this
+bool right=! ((++ a|b)&&(c^^d));
+\end{lstlisting}
+\item \lstinline|#pragma mark| code separators are preceded and followed by two blank lines.
+\begin{lstlisting}
+//do this
+void foo(...) 
+{
+    ...
+}
+
+
+#pragma mark Helper functions
+
+
+int helper(...) 
+{
+    ...
+}
+
+// not this
+void foo(...) 
+{
+    ...
+}
+#pragma mark Helper functions
+int helper(...) 
+{
+    ...
+}
+\end{lstlisting}
+\item Backslashes \lstinline|\| shall be prepended by a space if
+  encountered on line endings.
+  \begin{lstlisting}
+// do this
+#define MY_LONG_MACRO_FORMAT \
+    int i; \
+    int j; \
+    int k
+
+// not this
+#define MY_LONG_MACRO_FORMAT\
+    int i;\
+    int j;\
+    int k
+\end{lstlisting}
+\item There shall not be a space between \lstinline|if/for/while/anyFunctionName|
+  and the following opening paren \lstinline|(|.
+  \begin{lstlisting}
+// do this
+if(a == b) 
+{
+    while(x > 2) 
+    {
+        z = foo(x);
+    }
+}
+
+// not this
+if (a == b) 
+{
+    while (x > 2) 
+    {
+        z = foo (x);
+    }
+}
+\end{lstlisting}
+\item \lstinline|#define| blocks shall not end with semi colon
+  \lstinline|;| if the macro defined will be used with semi colons
+  later on. This apllies especially to the \lstinline|_FORMAT|
+  macros.
+  \begin{lstlisting}
+// do this
+#define MY_LONG_MACRO_FORMAT \
+    int i; \
+    int j; \
+    int k
+
+// not this
+#define MY_LONG_MACRO_FORMAT \
+    int i; \
+    int j; \
+    int k;
+\end{lstlisting}
+\item Function comments shall be written in \verb|javadoc|-style,
+  i.~e. at least
+  \begin{lstlisting}
+/**
+ * brief description of what the function does
+ */
+\end{lstlisting}They are \emph{immediately} followed by the function header without any blank lines.
+\item Each block of line comments shall start and end with a empty comment
+  line. Such blocks are also preceded and followed by two blank lines.
+\begin{lstlisting}
+// do this
+
+
+//
+// some useful commentary
+//
+
+
+// not this
+// some less useful commentary
+\end{lstlisting}
+\item There are no TABs (i.~e. no ASCII character 09). The indentation
+  width shall be 4 spaces.
+\begin{lstlisting}[showspaces]
+// do this
+void foo(void) 
+{
+    int i;
+    if(a == ...) 
+    {
+        while(true) 
+        {
+            ...
+        }
+        ...
+    }
+}
+\end{lstlisting}
+\lstinputlisting[showtabs]{tab.c}
+\item Lines which are too long to fit the 80 columns shall be split, such
+  that it remains sensefully grouped. For assignation, this means to try
+  to keep the right side of it together.
+  \begin{lstlisting}
+// do this
+int foo =
+    object->SomeFunctionName(first_parameter, second_parameter, third_parameter);
+
+// not this
+int foo =  object->SomeFunctionName(first_parameter, second_parameter,
+    third_parameter);
+  \end{lstlisting}
+\item When using includes from different CPPSOM-directories, they shall
+  be grouped and parted by empty lines.
+  \begin{lstlisting}
+// do this
+#include <memory/gc.h>
+
+#include <misc/String.h>
+
+#include <vmobjects/VMFrame.h>
+#include <vmobjects/VMBigInteger.h>
+#include <vmobjects/VMMethod.h>
+
+#include <compiler/Parser.h>
+
+// not this
+#include <compiler/Parser.h>
+#include <misc/String.h>
+#include <vmobjects/VMBigInteger.h>
+#include <vmobjects/VMMethod.h>
+#include <memory/gc.h>
+#include <vmobjects/VMFrame.h>
+\end{lstlisting}
+\end{itemize}
+
+\subsection{Rules fom SOM}
+\label{sec:rules-fom-som}
+
+\subsection{Rules for Make et al.}
+\label{sec:rules-make-et}
+
+\begin{itemize}
+\item \emph{Do not use recursive makes.}
+\end{itemize}
+
+\end{document}
