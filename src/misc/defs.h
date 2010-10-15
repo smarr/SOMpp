@@ -30,6 +30,9 @@ THE SOFTWARE.
 
 
 #include <string>
+
+#include <stdint.h>
+#include <stdio.h>
 //
 // error codes
 //
