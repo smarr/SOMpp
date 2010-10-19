@@ -69,7 +69,6 @@ public:
     virtual int        ArgumentStackIndex(int index) const;
     virtual void       CopyArgumentsFrom(pVMFrame frame);
     
-    virtual void       MarkReferences();
     virtual void       PrintStack() const;
     virtual inline     pVMInteger GetStackPointer() const;
     virtual int        RemainingStackSize() const;

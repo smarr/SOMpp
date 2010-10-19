@@ -58,7 +58,17 @@ VMPrimitive::VMPrimitive(pVMSymbol signature) : VMInvokable(VMPrimitiveNumberOfF
 }
 
 
+void VMPrimitive::WalkObjects(pVMObject (*walk)(pVMObject)) {
+    // The fields VMPrimitive adds to those of VMInvokable MUST NOT be traversed
+    // during the GC's mark phase as they are not pointers the GC could possibly
+    // interpret. Hence, they are omitted from the mark phase by adjusting the
+    // upper bound of the following traversal loop.
+    for( int i = 0; i < this->GetNumberOfFields() - VMPrimitiveNumberOfFields; ++i) {
+        walk(GetField(i));
+    }
+}
 
+/*
 void VMPrimitive::MarkReferences() {
     if (gcfield) return;
 
@@ -71,6 +81,7 @@ void VMPrimitive::MarkReferences() {
         GetField(i)->MarkReferences();
     }
 }
+*/
 
 
 void VMPrimitive::EmptyRoutine( pVMObject _self, pVMFrame /*frame*/ ) {

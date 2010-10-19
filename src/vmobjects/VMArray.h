@@ -37,7 +37,7 @@ public:
     VMArray(int size, int nof = 0);
 	//virtual ~VMArray();
 
-	virtual void 		WalkObjects(pVMObject *(pVMObject));
+	virtual void 		WalkObjects(pVMObject (pVMObject));
 	virtual int         GetNumberOfIndexableFields() const;
 	pVMArray    CopyAndExtendWith(pVMObject) const;
 	void        CopyIndexableFieldsTo(pVMArray) const;

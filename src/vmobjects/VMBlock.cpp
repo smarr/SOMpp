@@ -47,13 +47,6 @@ pVMMethod VMBlock::GetMethod() const {
 }
 
 
-void VMBlock::MarkReferences() {
-    if (gcfield) return;
-    VMObject::MarkReferences();    
-}
-
-
-
 pVMEvaluationPrimitive VMBlock::GetEvaluationPrimitive(int numberOfArguments) {
     return new (_HEAP) VMEvaluationPrimitive(numberOfArguments);
 }

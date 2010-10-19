@@ -54,7 +54,7 @@ public:
     virtual pVMObject GetConstant(int indx) const; 
     virtual uint8_t   GetBytecode(int indx) const; 
     virtual void      SetBytecode(int indx, uint8_t); 
-	virtual void      MarkReferences();
+	virtual void	  WalkObjects(pVMObject (pVMObject));
     virtual int       GetNumberOfIndexableFields() const;
 
     void              SetIndexableField(int idx, pVMObject item);

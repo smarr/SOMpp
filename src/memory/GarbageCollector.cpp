@@ -76,8 +76,8 @@ void GarbageCollector::Collect() {
         //everything in the heap is an vmobject
         VMObject* curObject = (VMObject*) pointer;
         if (curObject->GetGCField() != -1) {
-            //current object is not marked as being unused
-            if (curObject->GetGCField() == 1) {
+            //current object is dot marked as being unused
+            if (curObject->GetGCField() == 3456) {
                 //found alive object
                 ++numLive;
                 spcLive += curObject->GetObjectSize();
@@ -126,10 +126,10 @@ void GarbageCollector::Collect() {
 
 pVMObject markObject(pVMObject obj) {
     if (obj->GetGCField())
-        return obj;
-    obj->SetGCField(1);
-    obj->WalkObjects(&markObject);
-    return obj;
+        return (pVMObject) 0xdeadbeef;
+    obj->SetGCField(3456);
+    obj->WalkObjects(markObject);
+    return  (pVMObject) 0xdeadbeef;
 }
 
 
@@ -137,7 +137,7 @@ void GarbageCollector::markReachableObjects() {
 	map<pVMSymbol, pVMObject> globals = Universe::GetUniverse()->GetGlobals();
     for (map<pVMSymbol, pVMObject>::iterator it = globals.begin(); 
                                         it!= globals.end(); ++it) {
-        (&(*it->first))->MarkReferences();
+        markObject((&(*it->first))); // XXX use result value
 
         //The NULL check for the second entry is necessary because for
         //some reason the True, False, Boolean, and System classes
@@ -145,14 +145,14 @@ void GarbageCollector::markReachableObjects() {
         //I tried to find out why, I never did... :( They are not entered
         //into the map using Universe::SetGlobal and there is no other way
         //to enter them into that map....
-        if (&(*it->second) != NULL) (&(*it->second))->WalkObjects(&markObject);
+        if (&(*it->second) != NULL) markObject(&(*it->second));
 	}
     // Get the current frame and mark it.
 	// Since marking is done recursively, this automatically
 	// marks the whole stack
     pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
     if (currentFrame != NULL) {
-        ((pVMObject)currentFrame)->WalkObjects(&markObject);
+        markObject(((pVMObject)currentFrame));
     }
 }
 

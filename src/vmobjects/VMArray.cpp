@@ -80,6 +80,6 @@ void VMArray::WalkObjects(pVMObject (*walk)(pVMObject)) {
     VMObject::WalkObjects(walk);
 	for (int i = 0 ; i < GetNumberOfIndexableFields() ; ++i) {
 		if (theEntries(i) != NULL)
-			theEntries(i) = walk(theEntries(i));
+			walk(theEntries(i));
 	}
 }

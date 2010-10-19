@@ -39,7 +39,6 @@ class VMBlock : public VMObject {
 public:
     VMBlock();
     //virtual ~VMBlock();
-    virtual void MarkReferences();
 
     void        SetMethod(pVMMethod);
     pVMMethod   GetMethod() const;

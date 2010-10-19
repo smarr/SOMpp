@@ -24,7 +24,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
   */
 
-
+#include "assert.h"
 #include "VMEvaluationPrimitive.h"
 #include "VMSymbol.h"
 #include "VMObject.h"
@@ -45,15 +45,16 @@ VMEvaluationPrimitive::VMEvaluationPrimitive(int argc) :
                                &VMEvaluationPrimitive::evaluationRoutine));
     this->SetEmpty(false);
     this->numberOfArguments = _UNIVERSE->NewInteger(argc);
+	assert ((int)this->numberOfArguments != 1);
     _HEAP->EndUninterruptableAllocation();
 }
 
 
-void VMEvaluationPrimitive::MarkReferences() {
-    VMPrimitive::MarkReferences();
-    this->numberOfArguments->MarkReferences();
+void VMEvaluationPrimitive::WalkObjects(pVMObject (*walk)(pVMObject)) {
+	VMPrimitive::WalkObjects(walk);
+	assert((int)this->numberOfArguments != 1);
+	this->numberOfArguments->WalkObjects(walk);
 }
-
 
 
 pVMSymbol VMEvaluationPrimitive::computeSignatureString(int argc){

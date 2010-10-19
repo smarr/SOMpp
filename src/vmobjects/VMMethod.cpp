@@ -66,14 +66,15 @@ void      VMMethod::SetSignature(pVMSymbol sig) {
     SetNumberOfArguments(Signature::GetNumberOfArguments(signature));
 }
 
-void VMMethod::MarkReferences() {
-    if (gcfield) return;
-    VMInvokable::MarkReferences();
-    for (int i = 0 ; i < GetNumberOfIndexableFields() ; ++i) {
+
+void VMMethod::WalkObjects(pVMObject (*walk)(pVMObject)) {
+    VMInvokable::WalkObjects(walk);
+	for (int i = 0 ; i < GetNumberOfIndexableFields() ; ++i) {
 		if (theEntries(i) != NULL)
-			theEntries(i)->MarkReferences();
+			walk(theEntries(i));
 	}
 }
+
 
 int VMMethod::GetNumberOfLocals() const {
     return numberOfLocals->GetEmbeddedInteger(); 

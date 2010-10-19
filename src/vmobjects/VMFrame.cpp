@@ -235,8 +235,3 @@ void      VMFrame::CopyArgumentsFrom(pVMFrame frame) {
     }
 }
 
-
-void VMFrame::MarkReferences() {
-    if (gcfield) return;
-     VMArray::MarkReferences();
-}

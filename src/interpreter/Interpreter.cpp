@@ -64,6 +64,7 @@ Interpreter::~Interpreter() {
 
 void Interpreter::Start() {
     while (true) {
+		_UNIVERSE->GetHeap()->FullGC();
         int bytecodeIndex = _FRAME->GetBytecodeIndex();
 
         pVMMethod method = this->GetMethod();
