@@ -124,6 +124,14 @@ void GarbageCollector::Collect() {
     }
 }
 
+pVMObject markObject(pVMObject obj) {
+    if (obj->GetGCField())
+        return obj;
+    obj->SetGCField(1);
+    obj->WalkObjects(&markObject);
+    return obj;
+}
+
 
 void GarbageCollector::markReachableObjects() {
 	map<pVMSymbol, pVMObject> globals = Universe::GetUniverse()->GetGlobals();
@@ -137,14 +145,14 @@ void GarbageCollector::markReachableObjects() {
         //I tried to find out why, I never did... :( They are not entered
         //into the map using Universe::SetGlobal and there is no other way
         //to enter them into that map....
-        if (&(*it->second) != NULL) (&(*it->second))->MarkReferences();
+        if (&(*it->second) != NULL) (&(*it->second))->WalkObjects(&markObject);
 	}
     // Get the current frame and mark it.
 	// Since marking is done recursively, this automatically
 	// marks the whole stack
     pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
     if (currentFrame != NULL) {
-        ((pVMObject)currentFrame)->MarkReferences();
+        ((pVMObject)currentFrame)->WalkObjects(&markObject);
     }
 }
 

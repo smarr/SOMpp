@@ -36,8 +36,8 @@ class VMArray : public VMObject {
 public:
     VMArray(int size, int nof = 0);
 	//virtual ~VMArray();
-	virtual void MarkReferences();
 
+	virtual void 		WalkObjects(pVMObject *(pVMObject));
 	virtual int         GetNumberOfIndexableFields() const;
 	pVMArray    CopyAndExtendWith(pVMObject) const;
 	void        CopyIndexableFieldsTo(pVMArray) const;

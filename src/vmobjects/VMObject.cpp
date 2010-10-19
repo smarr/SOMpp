@@ -138,12 +138,9 @@ int VMObject::GetAdditionalSpaceConsumption() const
 }
 
 
-void VMObject::MarkReferences() {
-    if (this->gcfield) return;
-	this->SetGCField(1);
+void VMObject::WalkObjects(pVMObject (*walk)(pVMObject)) {
     for( int i = 0; i < this->GetNumberOfFields(); ++i) {
-        pVMObject o = (FIELDS[i]);
-        o->MarkReferences();
+        FIELDS[i] = walk(FIELDS[i]);
     }
 
 }

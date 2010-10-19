@@ -76,10 +76,7 @@ public:
 	virtual pVMObject   GetField(int index) const;
     virtual void        Assert(bool value) const;
 	virtual void        SetField(int index, pVMObject value);
-	virtual void        MarkReferences();
-
-    virtual void        IncreaseGCCount() {};
-    virtual void        DecreaseGCCount() {};
+	virtual void 		WalkObjects(pVMObject *(pVMObject));
 
     int32_t     GetHash() const { return hash; };
     int32_t     GetObjectSize() const;

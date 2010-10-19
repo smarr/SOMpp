@@ -76,12 +76,10 @@ int VMArray::GetNumberOfIndexableFields() const {
     return this->GetAdditionalSpaceConsumption() / sizeof(pVMObject);
 }
 
-void VMArray::MarkReferences() {
-    if (gcfield) return;
-    VMObject::MarkReferences();
+void VMArray::WalkObjects(pVMObject (*walk)(pVMObject)) {
+    VMObject::WalkObjects(walk);
 	for (int i = 0 ; i < GetNumberOfIndexableFields() ; ++i) {
 		if (theEntries(i) != NULL)
-			theEntries(i)->MarkReferences();
+			theEntries(i) = walk(theEntries(i));
 	}
-    
 }
