@@ -53,7 +53,7 @@ VMEvaluationPrimitive::VMEvaluationPrimitive(int argc) :
 void VMEvaluationPrimitive::WalkObjects(pVMObject (*walk)(pVMObject)) {
 	VMPrimitive::WalkObjects(walk);
 	assert((int)this->numberOfArguments != 1);
-	this->numberOfArguments->WalkObjects(walk);
+	walk(this->numberOfArguments);
 }
 
 
