@@ -60,6 +60,7 @@ MEMORY_DIR 		= $(SRC_DIR)/memory
 MISC_DIR 		= $(SRC_DIR)/misc
 VM_DIR 			= $(SRC_DIR)/vm
 VMOBJECTS_DIR 	= $(SRC_DIR)/vmobjects
+UNITTEST_DIR 	= $(SRC_DIR)/unitTests
 
 COMPILER_SRC	= $(wildcard $(COMPILER_DIR)/*.cpp)
 COMPILER_OBJ	= $(COMPILER_SRC:.cpp=.o)
@@ -73,6 +74,9 @@ VM_SRC			= $(wildcard $(VM_DIR)/*.cpp)
 VM_OBJ			= $(VM_SRC:.cpp=.o)
 VMOBJECTS_SRC	= $(wildcard $(VMOBJECTS_DIR)/*.cpp)
 VMOBJECTS_OBJ	= $(VMOBJECTS_SRC:.cpp=.o)
+UNITTEST_SRC	= $(wildcard $(UNITTEST_DIR)/*.cpp)
+UNITTEST_OBJ	= $(UNITTEST_SRC:.cpp=.o)
+
 
 MAIN_SRC		= $(wildcard $(SRC_DIR)/*.cpp)
 #$(SRC_DIR)/Main.cpp
@@ -102,7 +106,7 @@ LIBRARIES		=-L$(ROOT_DIR)
 CSOM_OBJ		=  $(MEMORY_OBJ) $(MISC_OBJ) $(VMOBJECTS_OBJ) \
 				$(COMPILER_OBJ) $(INTERPRETER_OBJ) $(VM_OBJ)
 
-OBJECTS			= $(CSOM_OBJ) $(PRIMITIVESCORE_OBJ) $(PRIMITIVES_OBJ) $(MAIN_OBJ)
+OBJECTS			= $(CSOM_OBJ) $(PRIMITIVESCORE_OBJ) $(PRIMITIVES_OBJ) $(MAIN_OBJ) $(UNITTEST_OBJ)
 
 SOURCES			=  $(COMPILER_SRC) $(INTERPRETER_SRC) $(MEMORY_SRC) \
 				$(MISC_SRC) $(VM_SRC) $(VMOBJECTS_SRC)  \
@@ -129,7 +133,7 @@ CLEAN			= $(OBJECTS) \
 all: $(CSOM_NAME)\
 	$(CSOM_NAME).$(SHARED_EXTENSION) \
 	$(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION) \
-	CORE
+	CORE unittests
 
 
 debug : DBG_FLAGS=-DDEBUG -g
@@ -202,7 +206,11 @@ install: all
 #
 console: all
 	./$(CSOM_NAME) -cp ./Smalltalk
-
+	
+unittests: $(UNITTEST_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION)
+	$(CC) $(LIBRARIES) $(UNITTEST_OBJ) SOM++.so -lcppunit -o unittest
+	
+	
 #
 # test: run the standard test suite
 #
