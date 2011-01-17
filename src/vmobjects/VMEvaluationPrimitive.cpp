@@ -24,7 +24,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
   */
 
-#include "assert.h"
 #include "VMEvaluationPrimitive.h"
 #include "VMSymbol.h"
 #include "VMObject.h"
@@ -52,7 +51,6 @@ VMEvaluationPrimitive::VMEvaluationPrimitive(int argc) :
 
 void VMEvaluationPrimitive::WalkObjects(pVMObject (*walk)(pVMObject)) {
 	VMPrimitive::WalkObjects(walk);
-	assert((int)this->numberOfArguments != 1);
 	walk(this->numberOfArguments);
 }
 
