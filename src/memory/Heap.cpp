@@ -50,6 +50,14 @@ Heap* Heap::GetHeap() {
     return theHeap;
 }
 
+void Heap::triggerGC(void) {
+	gcTriggered = true;
+}
+
+bool Heap::isCollectionTriggered(void) {
+	return gcTriggered;
+}
+
 void Heap::InitializeHeap( int objectSpaceSize ) {
     if (theHeap) {
         cout << "Warning, reinitializing already initialized Heap, " 
@@ -130,23 +138,6 @@ void* Heap::Allocate(size_t size) {
 #ifdef HEAPDEBUG 
     std::cout << "allocating: " << (int)size << "bytes" << std::endl;
 #endif
-    //if there is not enough free heap size and we are not inside an uninterruptable
-    //section of allocation, start garbage collection
-	if (sizeOfFreeHeap <= buffersizeForUninterruptable &&
-		uninterruptableCounter <= 0)  {
-#ifdef HEAPDEBUG
-        cout << "Not enough free memory, only: " << sizeOfFreeHeap 
-             << " bytes left." << endl
-             << "Starting Garbage Collection" << endl;
-#endif
-		gc->Collect();
-        
-        //
-        //reset allocation stats
-        //
-        numAlloc = 0;
-        spcAlloc = 0;
-	}
 	
 	VMObject* result = NULL;
     VMFreeObject* cur = freeListStart;
@@ -183,15 +174,7 @@ void* Heap::Allocate(size_t size) {
             last->SetNext(replaceEntry);
             replaceEntry->SetPrevious(last);
         }
-    } else {
-        //problem... might lose data here
-        cout << "Not enough heap, data loss is possible" << endl;
-        gc->Collect();
-        this->numAlloc = 0;
-        this->spcAlloc = 0;
-        result = (VMObject*)this->Allocate(size);
     }
-
     if (result == NULL) {
         cout << "alloc failed" << endl;
         PrintFreeList();
@@ -201,6 +184,11 @@ void* Heap::Allocate(size_t size) {
     memset(result, 0, size);
     result->SetObjectSize(size);
     this->sizeOfFreeHeap -= size;
+
+    //if we run out of memory, trigger a garbage collection
+    if (sizeOfFreeHeap <= buffersizeForUninterruptable) {
+    	this->triggerGC();
+    }
 
     return result;
     

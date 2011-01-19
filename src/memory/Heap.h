@@ -63,6 +63,8 @@ public:
 	void* Allocate(size_t size);
     void Free(void* ptr);
 	void Destroy(VMObject*);
+	void triggerGC(void);
+	bool isCollectionTriggered(void);
 	
     void StartUninterruptableAllocation() { ++uninterruptableCounter; } ;
     void EndUninterruptableAllocation() { --uninterruptableCounter; } ;
@@ -88,6 +90,8 @@ private:
 	int buffersizeForUninterruptable;
 	int uninterruptableCounter;
 	int sizeOfFreeHeap;
+	//flag that shows if a Collection is triggered
+	bool gcTriggered;
 
 	GarbageCollector* gc;
 

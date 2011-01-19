@@ -57,6 +57,9 @@ GarbageCollector::~GarbageCollector() {
 
 
 void GarbageCollector::Collect() {
+	//reset collection trigger
+	_HEAP->gcTriggered = false;
+
     ++numCollections;
 	numLive = 0;
 	spcLive = 0;

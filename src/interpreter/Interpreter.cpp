@@ -64,7 +64,11 @@ Interpreter::~Interpreter() {
 
 void Interpreter::Start() {
     while (true) {
-		_UNIVERSE->GetHeap()->FullGC();
+    	//we reached a safe collection point
+    	// perform collection if triggered
+    	if (_HEAP->isCollectionTriggered()) //temporarily always perform a collection, while working on the GC
+    		_HEAP->FullGC();
+
         int bytecodeIndex = _FRAME->GetBytecodeIndex();
 
         pVMMethod method = this->GetMethod();

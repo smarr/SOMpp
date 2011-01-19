@@ -706,8 +706,3 @@ pVMSymbol Universe::SymbolForChars( const char* str) {
 void Universe::SetGlobal(pVMSymbol name, VMObject *val) {
     globals[name] = val;
 }
-
-void Universe::FullGC() {
-    heap->FullGC();
-}
-

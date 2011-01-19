@@ -145,8 +145,6 @@ public:
     pVMClass      LoadClassBasic(pVMSymbol, pVMClass);
     pVMClass      LoadShellClass(StdString&);
     
-    void          FullGC();
-    
     Universe();
 	~Universe();
     //
