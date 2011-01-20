@@ -220,16 +220,16 @@ void WalkObjectsTest::testWalkMethod() {
 	pVMMethod method = _UNIVERSE->NewMethod(methodSymbol, 0, 0);
 	method->WalkObjects(collectMembers);
 
-	CPPUNIT_ASSERT_EQUAL(NoOfFields_Method, walkedObjects.size());
 	CPPUNIT_ASSERT(WalkerHasFound(method->GetClass()));
-	CPPUNIT_ASSERT(WalkerHasFound(method->GetHolder()));
-	CPPUNIT_ASSERT(WalkerHasFound(method->GetSignature()));
 	//the following fields had no getters -> had to become friend
 	CPPUNIT_ASSERT(WalkerHasFound(method->numberOfLocals));
 	CPPUNIT_ASSERT(WalkerHasFound(method->bcLength));
 	CPPUNIT_ASSERT(WalkerHasFound(method->maximumNumberOfStackElements));
 	CPPUNIT_ASSERT(WalkerHasFound(method->numberOfArguments));
 	CPPUNIT_ASSERT(WalkerHasFound(method->numberOfConstants));
+	CPPUNIT_ASSERT(WalkerHasFound(method->GetHolder()));
+	CPPUNIT_ASSERT(WalkerHasFound(method->GetSignature()));
+	CPPUNIT_ASSERT_EQUAL(NoOfFields_Method, walkedObjects.size());
 	_UNIVERSE->GetHeap()->EndUninterruptableAllocation();
 }
 

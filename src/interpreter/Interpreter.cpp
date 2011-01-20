@@ -24,7 +24,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
   */
 
-
+#define protected public
 #include "Interpreter.h"
 #include "bytecodes.h"
 
@@ -332,10 +332,14 @@ void Interpreter::doSend( int bytecodeIndex ) {
     pVMMethod method = _METHOD;
     
     pVMSymbol signature = (pVMSymbol) method->GetConstant(bytecodeIndex);
+    char* sig = signature->GetChars();
 
     int numOfArgs = Signature::GetNumberOfArguments(signature);
 
     pVMObject receiver = _FRAME->GetStackElement(numOfArgs-1);
+
+    VMClass* c = receiver->clazz;
+    VMObject* c2 = receiver->GetField(0);
 
     this->send(signature, receiver->GetClass());
 }

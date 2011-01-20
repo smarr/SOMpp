@@ -28,6 +28,7 @@ THE SOFTWARE.
 #include <vector>
 #include <map>
 #include <string.h>
+#include <assert.h>
 
 #include "GarbageCollector.h"
 #include "Heap.h"
@@ -58,73 +59,115 @@ GarbageCollector::~GarbageCollector() {
 
 void GarbageCollector::Collect() {
 	//reset collection trigger
-	_HEAP->gcTriggered = false;
+	heap->gcTriggered = false;
 
     ++numCollections;
 	numLive = 0;
 	spcLive = 0;
 	numFreed = 0;
 	spcFreed = 0;
+
+//	stack<pVMObject>* test = heap->allocatedObjects;
+//	heap->allocatedObjects = new std::stack<pVMObject>();
+//	while (test->size() > 0) {
+//		pVMObject obj = test->top();
+//		heap->allocatedObjects->push(obj);
+//		if (obj->GetGCField() != 0)
+//			throw "gcfield not null before marking";
+//		test->pop();
+//	}
+
+
 	markReachableObjects();
-	void* pointer = heap->objectSpace;
-    VMFreeObject* lastUnusedObject = NULL;
-	long bytesToSkip = 0;
 
-    //reset freeList, will be rebuilt during sweeping
-    heap->freeListStart = NULL;
 
-    //start sweeping
-    //iterate through the whole heap
-    do { //end of heap not reached yet?
-        //everything in the heap is an vmobject
-        VMObject* curObject = (VMObject*) pointer;
-        if (curObject->GetGCField() != -1) {
-            //current object is dot marked as being unused
-            if (curObject->GetGCField() == 3456) {
-                //found alive object
-                ++numLive;
-                spcLive += curObject->GetObjectSize();
-                curObject->SetGCField(0);
-            } else {
-                //found trash
-                ++numFreed;
-                int freedBytes = curObject->GetObjectSize();
-                spcFreed += freedBytes;
-                memset(curObject, 0, freedBytes);
+	//cout << "start sweeping" << std::endl;
 
-                //mark object as unused
-                curObject->SetGCField(-1);
-                curObject->SetObjectSize(freedBytes);
-                VMFreeObject* curFree = (VMFreeObject*) curObject;
-                if (heap->freeListStart == NULL) {
-                    heap->freeListStart = curFree;
-                } else  {
-                    lastUnusedObject->SetNext(curFree);
-                }
-                curFree->SetPrevious(lastUnusedObject);
-                lastUnusedObject = curFree;
-                
-            }
-        } else {
-            VMFreeObject* curFree = (VMFreeObject*)curObject;
-            //store the unused object for merging purposes
-            if (heap->freeListStart == NULL) 
-                heap->freeListStart = curFree;
-            else
-                lastUnusedObject->SetNext(curFree);
-            curFree->SetPrevious(lastUnusedObject);
-            lastUnusedObject = curFree;
-        }
-        pointer = (void*)((long)pointer + curObject->GetObjectSize());
-    }while((long)pointer  < ((long)(void*)heap->objectSpace) + heap->objectSpaceSize);
-    
-    mergeFreeSpaces();
+	//in this survivors stack we will remember all objects that survived
+	//TODO: maybe don't create new stack every time -> keep second stack in heap
+	stack<pVMObject>* survivors = new stack<pVMObject>();
+	int32_t survivorsSize = 0;
+	while (heap->allocatedObjects->size() > 0) {
+		pVMObject obj = heap->allocatedObjects->top();
+		if (obj->GetGCField() == 3456) {
+			survivors->push(obj);
+			survivorsSize += obj->GetObjectSize();
+			obj->SetGCField(0);
+		}
+		else {
+			heap->freeObject(obj);
+		}
+		heap->allocatedObjects->pop();
+	}
+	delete heap->allocatedObjects;
+	heap->allocatedObjects = survivors;
+	heap->spcAlloc = survivorsSize;
+	//TODO: Maybe choose another constant here
+	heap->collectionLimit = 2 * survivorsSize;
 
-    if(gcVerbosity > 1)
-        this->PrintCollectStat();
-    if(gcVerbosity > 2) {
-        cerr << "TODO: dump heap" << endl;
-    }
+	//cout << "finished sweeping" << std::endl;
+
+
+
+//	void* pointer = heap->objectSpace;
+//    VMFreeObject* lastUnusedObject = NULL;
+//	long bytesToSkip = 0;
+//
+//    //reset freeList, will be rebuilt during sweeping
+//    heap->freeListStart = NULL;
+//
+//    //start sweeping
+//    //iterate through the whole heap
+//    do { //end of heap not reached yet?
+//        //everything in the heap is an vmobject
+//        VMObject* curObject = (VMObject*) pointer;
+//        if (curObject->GetGCField() != -1) {
+//            //current object is dot marked as being unused
+//            if (curObject->GetGCField() == 3456) {
+//                //found alive object
+//                ++numLive;
+//                spcLive += curObject->GetObjectSize();
+//                curObject->SetGCField(0);
+//            } else {
+//                //found trash
+//                ++numFreed;
+//                int freedBytes = curObject->GetObjectSize();
+//                spcFreed += freedBytes;
+//                memset(curObject, 0, freedBytes);
+//
+//                //mark object as unused
+//                curObject->SetGCField(-1);
+//                curObject->SetObjectSize(freedBytes);
+//                VMFreeObject* curFree = (VMFreeObject*) curObject;
+//                if (heap->freeListStart == NULL) {
+//                    heap->freeListStart = curFree;
+//                } else  {
+//                    lastUnusedObject->SetNext(curFree);
+//                }
+//                curFree->SetPrevious(lastUnusedObject);
+//                lastUnusedObject = curFree;
+//
+//            }
+//        } else {
+//            VMFreeObject* curFree = (VMFreeObject*)curObject;
+//            //store the unused object for merging purposes
+//            if (heap->freeListStart == NULL)
+//                heap->freeListStart = curFree;
+//            else
+//                lastUnusedObject->SetNext(curFree);
+//            curFree->SetPrevious(lastUnusedObject);
+//            lastUnusedObject = curFree;
+//        }
+//        pointer = (void*)((long)pointer + curObject->GetObjectSize());
+//    }while((long)pointer  < ((long)(void*)heap->objectSpace) + heap->objectSpaceSize);
+//
+//    mergeFreeSpaces();
+//
+//    if(gcVerbosity > 1)
+//        this->PrintCollectStat();
+//    if(gcVerbosity > 2) {
+//        cerr << "TODO: dump heap" << endl;
+//    }
 }
 
 pVMObject markObject(pVMObject obj) {

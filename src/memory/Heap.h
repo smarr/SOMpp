@@ -30,11 +30,10 @@ THE SOFTWARE.
 
 
 #include <vector>
+#include <stack>
 
 #include "GarbageCollector.h"
-
 #include "../misc/defs.h"
-
 #include "../vmobjects/ObjectFormats.h"
 
 class VMObject;
@@ -76,6 +75,9 @@ public:
     
 private:
     static Heap* theHeap;
+    std::stack<pVMObject>* allocatedObjects;
+
+    void freeObject(pVMObject);
 
     void internalFree(void* ptr);
 	void* internalAllocate(size_t size);
@@ -97,6 +99,7 @@ private:
 
     uint32_t numAlloc;
     uint32_t spcAlloc;
+    uint32_t collectionLimit;
     uint32_t numAllocTotal;
 };
 

@@ -71,9 +71,16 @@ void Heap::DestroyHeap() {
     if (theHeap) delete theHeap;
 }
 
+void Heap::freeObject(pVMObject o) {
+	free(o);
+}
+
 
 
 Heap::Heap(int objectSpaceSize) {
+	//our initial collection limit is 90% of objectSpaceSize
+	collectionLimit = objectSpaceSize * 0.9;
+
 	objectSpace = malloc(objectSpaceSize);
 	if (!objectSpace) {
 		std::cout << "Failed to allocate the initial "<< objectSpaceSize 
@@ -84,6 +91,8 @@ Heap::Heap(int objectSpaceSize) {
 	sizeOfFreeHeap = objectSpaceSize;
 	this->objectSpaceSize = objectSpaceSize;
 	this->buffersizeForUninterruptable = (int) (objectSpaceSize * 0.1);
+
+	allocatedObjects = new std::stack<pVMObject>();
     
     uninterruptableCounter = 0;
 	numAlloc = 0;
@@ -119,14 +128,32 @@ Heap::~Heap() {
 }
 
 VMObject* Heap::AllocateObject(size_t size) {
-    //add padding, so objects are word aligned
-    size_t paddedSize = size + PAD_BYTES(size);
-    VMObject* vmo = (VMObject*) Allocate(paddedSize);
+//    //add padding, so objects are word aligned
+//    size_t paddedSize = size + PAD_BYTES(size);
+//    //TODO: PADDING jetzt doch überflüssig, oder?
+//    VMObject* vmo = (VMObject*) Allocate(paddedSize);
+//
+//    ++numAlloc;
+//    ++numAllocTotal;
+//    spcAlloc += paddedSize;
+//    return vmo;
 
-    ++numAlloc;
-    ++numAllocTotal;
-    spcAlloc += paddedSize;
-    return vmo;
+	//TODO: PADDING jetzt doch überflüssig, oder?
+	size_t paddedSize = size + PAD_BYTES(size);
+	pVMObject newObject = (pVMObject) malloc(paddedSize);
+	if (newObject == NULL) {
+		cout << "Failed to allocate " << size << " Bytes." << endl;
+		_UNIVERSE->Quit(-1);
+	}
+	numAlloc++;
+	spcAlloc += paddedSize;
+	memset(newObject, 0, paddedSize);
+	newObject->SetObjectSize(paddedSize);
+	allocatedObjects->push(newObject);
+	//let's see if we have to trigger the GC
+	if (spcAlloc >= collectionLimit)
+		triggerGC();
+	return newObject;
 }
 
 void* Heap::Allocate(size_t size) {
@@ -189,9 +216,7 @@ void* Heap::Allocate(size_t size) {
     if (sizeOfFreeHeap <= buffersizeForUninterruptable) {
     	this->triggerGC();
     }
-
     return result;
-    
 }
 
 void Heap::PrintFreeList() {
