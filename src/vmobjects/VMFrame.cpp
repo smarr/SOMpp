@@ -62,11 +62,9 @@ const int VMFrame::VMFrameNumberOfFields = 6;
 
 VMFrame::VMFrame(int size, int nof) : VMArray(size, 
                                               nof + VMFrameNumberOfFields) {
-    _HEAP->StartUninterruptableAllocation();
     this->localOffset = _UNIVERSE->NewInteger(0);
     this->bytecodeIndex = _UNIVERSE->NewInteger(0);
     this->stackPointer = _UNIVERSE->NewInteger(0);
-    _HEAP->EndUninterruptableAllocation();
 }
 
 pVMMethod VMFrame::GetMethod() const {

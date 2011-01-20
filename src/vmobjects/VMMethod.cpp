@@ -48,7 +48,6 @@ const int VMMethod::VMMethodNumberOfFields = 5;
 
 VMMethod::VMMethod(int bcCount, int numberOfConstants, int nof) 
                     : VMInvokable(nof + VMMethodNumberOfFields) {
-    _HEAP->StartUninterruptableAllocation();
     bcLength = _UNIVERSE->NewInteger( bcCount );
     numberOfLocals = _UNIVERSE->NewInteger(0);
     maximumNumberOfStackElements = _UNIVERSE->NewInteger(0);
@@ -57,7 +56,6 @@ VMMethod::VMMethod(int bcCount, int numberOfConstants, int nof)
     for (int i = 0; i < numberOfConstants ; ++i) {
         this->SetIndexableField(i, nilObject);
     }
-    _HEAP->EndUninterruptableAllocation();
 }
 
 void      VMMethod::SetSignature(pVMSymbol sig) { 

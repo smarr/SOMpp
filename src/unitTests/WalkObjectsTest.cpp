@@ -17,7 +17,6 @@
 #include "vmobjects/VMArray.h"
 #include "vmobjects/VMMethod.h"
 #include "vmobjects/VMBlock.h"
-#include "vmobjects/VMFreeObject.h"
 #include "vmobjects/VMPrimitive.h"
 #include "vmobjects/VMFrame.h"
 #include "vmobjects/VMEvaluationPrimitive.h"
@@ -34,7 +33,6 @@ static const size_t NoOfFields_Method = 5 + NoOfFields_Invokable;
 static const size_t NoOfFields_Class = 4 + NoOfFields_Object;
 static const size_t NoOfFields_Frame = 6 + NoOfFields_Array;
 static const size_t NoOfFields_Block = 2 + NoOfFields_Object;
-static const size_t NoOfFields_FreeObject = NoOfFields_Object;
 static const size_t NoOfFields_Primitive = NoOfFields_Invokable;
 static const size_t NoOfFields_EvaluationPrimitive = 1 + NoOfFields_Primitive;
 
@@ -55,48 +53,37 @@ bool WalkerHasFound(pVMObject obj) {
 
 void WalkObjectsTest::testWalkInteger() {
 	walkedObjects.clear();
-	//We don't want the GC to clean up our objects we test with
-	_UNIVERSE->GetHeap()->StartUninterruptableAllocation();
 	pVMInteger int1 = _UNIVERSE->NewInteger(42);
 	int1->WalkObjects(collectMembers);
 
 	//Integers should only have one member -> Class
 	CPPUNIT_ASSERT_EQUAL(NoOfFields_String, walkedObjects.size());
 	CPPUNIT_ASSERT(WalkerHasFound(int1->GetClass()));
-	_UNIVERSE->GetHeap()->EndUninterruptableAllocation();
 }
 
 void WalkObjectsTest::testWalkBigInteger() {
 	walkedObjects.clear();
-	//We don't want the GC to clean up our objects we test with
-	_UNIVERSE->GetHeap()->StartUninterruptableAllocation();
 	pVMBigInteger int1 = _UNIVERSE->NewBigInteger(4711);
 	int1->WalkObjects(collectMembers);
 
 	//BigIntegers should only have one member -> Class
 	CPPUNIT_ASSERT_EQUAL(NoOfFields_BigInteger, walkedObjects.size());
 	CPPUNIT_ASSERT(WalkerHasFound(int1->GetClass()));
-	_UNIVERSE->GetHeap()->EndUninterruptableAllocation();
 }
 
 void WalkObjectsTest::testWalkDouble() {
 	walkedObjects.clear();
-	//We don't want the GC to clean up our objects we test with
-	_UNIVERSE->GetHeap()->StartUninterruptableAllocation();
 	pVMDouble d1 = _UNIVERSE->NewDouble(432.1);
 	d1->WalkObjects(collectMembers);
 
 	//Doubles should only have one member -> Class
 	CPPUNIT_ASSERT_EQUAL(NoOfFields_Double, walkedObjects.size());
 	CPPUNIT_ASSERT(WalkerHasFound(d1->GetClass()));
-	_UNIVERSE->GetHeap()->EndUninterruptableAllocation();
 }
 
 void WalkObjectsTest::testWalkEvaluationPrimitive() {
 	walkedObjects.clear();
 
-	//We don't want the GC to clean up our objects we test with
-	_UNIVERSE->GetHeap()->StartUninterruptableAllocation();
 	pVMEvaluationPrimitive evPrim = new (_UNIVERSE->GetHeap()) VMEvaluationPrimitive(1);
 	evPrim->WalkObjects(collectMembers);
 
@@ -105,13 +92,10 @@ void WalkObjectsTest::testWalkEvaluationPrimitive() {
 	CPPUNIT_ASSERT(WalkerHasFound(evPrim->GetSignature()));
 	CPPUNIT_ASSERT(WalkerHasFound(evPrim->GetHolder()));
 	CPPUNIT_ASSERT_EQUAL(NoOfFields_EvaluationPrimitive, walkedObjects.size());
-	_UNIVERSE->GetHeap()->EndUninterruptableAllocation();
 }
 
 void WalkObjectsTest::testWalkObject() {
 	walkedObjects.clear();
-	//We don't want the GC to clean up our objects we test with
-	_UNIVERSE->GetHeap()->StartUninterruptableAllocation();
 
 	pVMObject obj = new (_UNIVERSE->GetHeap()) VMObject();
 	obj->WalkObjects(collectMembers);
@@ -119,39 +103,30 @@ void WalkObjectsTest::testWalkObject() {
 	//Objects should only have one member -> Class
 	CPPUNIT_ASSERT_EQUAL(NoOfFields_Object, walkedObjects.size());
 	CPPUNIT_ASSERT(WalkerHasFound(obj->GetClass()));
-	_UNIVERSE->GetHeap()->EndUninterruptableAllocation();
 }
 
 void WalkObjectsTest::testWalkString() {
 	walkedObjects.clear();
-	//We don't want the GC to clean up our objects we test with
-	_UNIVERSE->GetHeap()->StartUninterruptableAllocation();
 	pVMString str1 = _UNIVERSE->NewString("str1");
 	str1->WalkObjects(collectMembers);
 
 	//Strings should only have one member -> Class
 	CPPUNIT_ASSERT_EQUAL(NoOfFields_String, walkedObjects.size());
 	CPPUNIT_ASSERT(WalkerHasFound(str1->GetClass()));
-	_UNIVERSE->GetHeap()->EndUninterruptableAllocation();
 }
 
 void WalkObjectsTest::testWalkSymbol() {
 	walkedObjects.clear();
-	//We don't want the GC to clean up our objects we test with
-	_UNIVERSE->GetHeap()->StartUninterruptableAllocation();
 	pVMSymbol sym = _UNIVERSE->NewSymbol("symbol");
 	sym->WalkObjects(collectMembers);
 
 	//Symbols should only have one member -> Class
 	CPPUNIT_ASSERT_EQUAL(NoOfFields_Symbol, walkedObjects.size());
 	CPPUNIT_ASSERT(WalkerHasFound(sym->GetClass()));
-	_UNIVERSE->GetHeap()->EndUninterruptableAllocation();
 }
 
 void WalkObjectsTest::testWalkClass() {
 	walkedObjects.clear();
-	//We don't want the GC to clean up our objects we test with
-	_UNIVERSE->GetHeap()->StartUninterruptableAllocation();
 	pVMClass meta = _UNIVERSE->NewMetaclassClass();
 	meta->WalkObjects(collectMembers);
 
@@ -162,37 +137,19 @@ void WalkObjectsTest::testWalkClass() {
 	CPPUNIT_ASSERT(WalkerHasFound(meta->GetName()));
 	CPPUNIT_ASSERT(WalkerHasFound(meta->GetInstanceFields()));
 	CPPUNIT_ASSERT(WalkerHasFound(meta->GetInstanceInvokables()));
-	_UNIVERSE->GetHeap()->EndUninterruptableAllocation();
 }
 
 void WalkObjectsTest::testWalkPrimitive() {
 	walkedObjects.clear();
-	//We don't want the GC to clean up our objects we test with
-	_UNIVERSE->GetHeap()->StartUninterruptableAllocation();
 	pVMSymbol primitiveSymbol = _UNIVERSE->NewSymbol("myPrimitive");
 	pVMPrimitive prim = VMPrimitive::GetEmptyPrimitive(primitiveSymbol);
 
 	//TODO: check if it's okay that walkObjects returns 0 fields
 	CPPUNIT_ASSERT_EQUAL((size_t)0, walkedObjects.size());
-	_UNIVERSE->GetHeap()->EndUninterruptableAllocation();
-}
-
-void WalkObjectsTest::testWalkFreeObject() {
-	walkedObjects.clear();
-	//We don't want the GC to clean up our objects we test with
-	_UNIVERSE->GetHeap()->StartUninterruptableAllocation();
-	VMFreeObject* freeObj = new (_UNIVERSE->GetHeap()) VMFreeObject();
-	freeObj->WalkObjects(collectMembers);
-
-	CPPUNIT_ASSERT(WalkerHasFound(freeObj->GetClass()));
-	CPPUNIT_ASSERT_EQUAL(NoOfFields_FreeObject, walkedObjects.size());
-	_UNIVERSE->GetHeap()->EndUninterruptableAllocation();
 }
 
 void WalkObjectsTest::testWalkFrame() {
 	walkedObjects.clear();
-	//We don't want the GC to clean up our objects we test with
-	_UNIVERSE->GetHeap()->StartUninterruptableAllocation();
 	pVMSymbol methodSymbol = _UNIVERSE->NewSymbol("frameMethod");
 	pVMMethod method = _UNIVERSE->NewMethod(methodSymbol, 0, 0);
 	pVMFrame frame = _UNIVERSE->NewFrame(NULL, method);
@@ -209,13 +166,10 @@ void WalkObjectsTest::testWalkFrame() {
 	CPPUNIT_ASSERT(WalkerHasFound(frame->localOffset));
 	CPPUNIT_ASSERT(WalkerHasFound(dummyArg));
 	CPPUNIT_ASSERT_EQUAL(NoOfFields_Frame + method->GetNumberOfArguments(), walkedObjects.size());
-	_UNIVERSE->GetHeap()->EndUninterruptableAllocation();
 }
 
 void WalkObjectsTest::testWalkMethod() {
 	walkedObjects.clear();
-	//We don't want the GC to clean up our objects we test with
-	_UNIVERSE->GetHeap()->StartUninterruptableAllocation();
 	pVMSymbol methodSymbol = _UNIVERSE->NewSymbol("myMethod");
 	pVMMethod method = _UNIVERSE->NewMethod(methodSymbol, 0, 0);
 	method->WalkObjects(collectMembers);
@@ -230,13 +184,10 @@ void WalkObjectsTest::testWalkMethod() {
 	CPPUNIT_ASSERT(WalkerHasFound(method->GetHolder()));
 	CPPUNIT_ASSERT(WalkerHasFound(method->GetSignature()));
 	CPPUNIT_ASSERT_EQUAL(NoOfFields_Method, walkedObjects.size());
-	_UNIVERSE->GetHeap()->EndUninterruptableAllocation();
 }
 
 void WalkObjectsTest::testWalkBlock() {
 	walkedObjects.clear();
-	//We don't want the GC to clean up our objects we test with
-	_UNIVERSE->GetHeap()->StartUninterruptableAllocation();
 	pVMSymbol methodSymbol = _UNIVERSE->NewSymbol("someMethod");
 	pVMMethod method = _UNIVERSE->NewMethod(methodSymbol, 0, 0);
 	pVMBlock block = _UNIVERSE->NewBlock(method,
@@ -247,13 +198,10 @@ void WalkObjectsTest::testWalkBlock() {
 	CPPUNIT_ASSERT(WalkerHasFound(block->GetClass()));
 	CPPUNIT_ASSERT(WalkerHasFound(block->GetContext()));
 	CPPUNIT_ASSERT(WalkerHasFound(method));
-	_UNIVERSE->GetHeap()->EndUninterruptableAllocation();
 }
 
 void WalkObjectsTest::testWalkArray() {
 	walkedObjects.clear();
-	//We don't want the GC to clean up our objects we test with
-	_UNIVERSE->GetHeap()->StartUninterruptableAllocation();
 	pVMString str1 = _UNIVERSE->NewString("str1");
 	pVMInteger int1 = _UNIVERSE->NewInteger(42);
 	pVMArray a = _UNIVERSE->NewArray(2);
@@ -265,5 +213,4 @@ void WalkObjectsTest::testWalkArray() {
 	CPPUNIT_ASSERT(WalkerHasFound(a->GetClass()));
 	CPPUNIT_ASSERT(WalkerHasFound(str1));
 	CPPUNIT_ASSERT(WalkerHasFound(int1));
-	_UNIVERSE->GetHeap()->EndUninterruptableAllocation();
 }

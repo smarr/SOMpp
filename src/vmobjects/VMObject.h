@@ -103,11 +103,11 @@ public:
 
 	void operator delete(void* self, Heap* heap, 
                          unsigned int /*additional_bytes*/) {
-		heap->Destroy((VMObject*)self);
+		heap->FreeObject((pVMObject)self);
 	}
 
 	 void operator delete( void* self, Heap* heap) {
-		 heap->Destroy((VMObject*)self); 
+		 heap->FreeObject((pVMObject)self);
 	 } 
 
 	

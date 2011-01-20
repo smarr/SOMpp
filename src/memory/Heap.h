@@ -37,16 +37,9 @@ THE SOFTWARE.
 #include "../vmobjects/ObjectFormats.h"
 
 class VMObject;
-class VMFreeObject;
 
 //macro to access the heap
 #define _HEAP Heap::GetHeap()
-
-struct FreeListEntry 
-{
-    size_t size;
-} ;
-
 
 class Heap
 {
@@ -59,48 +52,21 @@ public:
 	Heap(int objectSpaceSize = 1048576);
 	~Heap();
     VMObject* AllocateObject(size_t size);
-	void* Allocate(size_t size);
-    void Free(void* ptr);
-	void Destroy(VMObject*);
+    void FreeObject(pVMObject);
 	void triggerGC(void);
 	bool isCollectionTriggered(void);
-	
-    void StartUninterruptableAllocation() { ++uninterruptableCounter; } ;
-    void EndUninterruptableAllocation() { --uninterruptableCounter; } ;
-
-    void PrintFreeList();
-    
     void FullGC();
 	
     
 private:
     static Heap* theHeap;
     std::stack<pVMObject>* allocatedObjects;
-
-    void freeObject(pVMObject);
-
-    void internalFree(void* ptr);
-	void* internalAllocate(size_t size);
-
-	void* objectSpace;
-
-	VMFreeObject* freeListStart;
-    
-    
-	
-    int objectSpaceSize;
-	int buffersizeForUninterruptable;
-	int uninterruptableCounter;
-	int sizeOfFreeHeap;
+    std::stack<pVMObject>* otherAllocatedObjects;
 	//flag that shows if a Collection is triggered
 	bool gcTriggered;
-
 	GarbageCollector* gc;
-
-    uint32_t numAlloc;
     uint32_t spcAlloc;
     uint32_t collectionLimit;
-    uint32_t numAllocTotal;
 };
 
 #endif

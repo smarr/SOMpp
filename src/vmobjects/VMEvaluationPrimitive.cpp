@@ -39,12 +39,10 @@ THE SOFTWARE.
 
 VMEvaluationPrimitive::VMEvaluationPrimitive(int argc) : 
                        VMPrimitive(computeSignatureString(argc)) {
-    _HEAP->StartUninterruptableAllocation();
     this->SetRoutine(new Routine<VMEvaluationPrimitive>(this, 
                                &VMEvaluationPrimitive::evaluationRoutine));
     this->SetEmpty(false);
     this->numberOfArguments = _UNIVERSE->NewInteger(argc);
-    _HEAP->EndUninterruptableAllocation();
 }
 
 

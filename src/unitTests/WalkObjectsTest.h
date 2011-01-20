@@ -27,7 +27,6 @@ class WalkObjectsTest: public CPPUNIT_NS::TestCase {
 	CPPUNIT_TEST(testWalkDouble);
 	CPPUNIT_TEST(testWalkEvaluationPrimitive);
 	CPPUNIT_TEST(testWalkFrame);
-	CPPUNIT_TEST(testWalkFreeObject);
 	CPPUNIT_TEST(testWalkInteger);
 	CPPUNIT_TEST(testWalkBigInteger);
 	CPPUNIT_TEST(testWalkString);

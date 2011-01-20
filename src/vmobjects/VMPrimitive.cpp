@@ -46,15 +46,12 @@ pVMPrimitive VMPrimitive::GetEmptyPrimitive( pVMSymbol sig ) {
 const int VMPrimitive::VMPrimitiveNumberOfFields = 2; 
 
 VMPrimitive::VMPrimitive(pVMSymbol signature) : VMInvokable(VMPrimitiveNumberOfFields) {
-    _HEAP->StartUninterruptableAllocation();
     //the only class that explicitly does this.
     this->SetClass(primitiveClass);
     
     this->SetSignature(signature);
     this->routine = NULL;
     this->empty = false;
-
-    _HEAP->EndUninterruptableAllocation();
 }
 
 
