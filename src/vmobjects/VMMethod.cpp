@@ -58,6 +58,11 @@ VMMethod::VMMethod(int bcCount, int numberOfConstants, int nof)
     }
 }
 
+pVMMethod VMMethod::Clone() const {
+	pVMMethod clone = new (_HEAP, GetAdditionalSpaceConsumption())VMMethod(*this);
+	return clone;
+}
+
 void      VMMethod::SetSignature(pVMSymbol sig) { 
     VMInvokable::SetSignature(sig);
     

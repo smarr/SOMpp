@@ -45,6 +45,10 @@ VMEvaluationPrimitive::VMEvaluationPrimitive(int argc) :
     this->numberOfArguments = _UNIVERSE->NewInteger(argc);
 }
 
+pVMEvaluationPrimitive VMEvaluationPrimitive::Clone() const {
+	pVMEvaluationPrimitive evPrim = new (_UNIVERSE->GetHeap()) VMEvaluationPrimitive(*this);
+}
+
 
 void VMEvaluationPrimitive::WalkObjects(pVMObject (*walk)(pVMObject)) {
 	VMPrimitive::WalkObjects(walk);

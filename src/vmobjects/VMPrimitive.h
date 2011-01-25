@@ -46,6 +46,7 @@ public:
     virtual inline void    SetRoutine(PrimitiveRoutine* rtn);
 	virtual void 		WalkObjects(pVMObject (pVMObject));
     virtual void    SetEmpty(bool value) { empty = value; };
+    virtual pVMPrimitive Clone() const;
 
     //-----------VMInvokable-------//
     //operator "()" to invoke the primitive

@@ -54,6 +54,10 @@ VMPrimitive::VMPrimitive(pVMSymbol signature) : VMInvokable(VMPrimitiveNumberOfF
     this->empty = false;
 }
 
+pVMPrimitive VMPrimitive::Clone() const {
+	return new (_HEAP, GetAdditionalSpaceConsumption()) VMPrimitive(*this);
+}
+
 
 void VMPrimitive::WalkObjects(pVMObject (*walk)(pVMObject)) {
     // The fields VMPrimitive adds to those of VMInvokable MUST NOT be traversed

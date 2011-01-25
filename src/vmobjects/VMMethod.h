@@ -56,6 +56,7 @@ public:
     virtual void      SetBytecode(int indx, uint8_t); 
 	virtual void	  WalkObjects(pVMObject (pVMObject));
     virtual int       GetNumberOfIndexableFields() const;
+    virtual pVMMethod Clone() const;
 
     void              SetIndexableField(int idx, pVMObject item);
 

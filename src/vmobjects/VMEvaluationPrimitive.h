@@ -39,6 +39,7 @@ class VMEvaluationPrimitive : public VMPrimitive {
 public:
     VMEvaluationPrimitive(int argc);
 	virtual void 		WalkObjects(pVMObject (pVMObject));
+	virtual pVMEvaluationPrimitive Clone() const;
 private:
     static pVMSymbol computeSignatureString(int argc);
     void evaluationRoutine(pVMObject object, pVMFrame frame);

@@ -35,12 +35,14 @@ THE SOFTWARE.
 class VMArray : public VMObject {
 public:
     VMArray(int size, int nof = 0);
+    VMArray(const VMArray& orig);
 	//virtual ~VMArray();
 
 	virtual void 		WalkObjects(pVMObject (pVMObject));
 	virtual int         GetNumberOfIndexableFields() const;
 	pVMArray    CopyAndExtendWith(pVMObject) const;
 	void        CopyIndexableFieldsTo(pVMArray) const;
+	pVMArray    Clone() const;
 
 	pVMObject& operator[](int idx) const;
 

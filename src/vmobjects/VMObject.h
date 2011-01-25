@@ -77,6 +77,7 @@ public:
     virtual void        Assert(bool value) const;
 	virtual void        SetField(int index, pVMObject value);
 	virtual void 		WalkObjects(pVMObject (pVMObject));
+	virtual pVMObject   Clone() const;
 
     int32_t     GetHash() const { return hash; };
     int32_t     GetObjectSize() const;

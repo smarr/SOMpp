@@ -49,7 +49,6 @@ private:
 	void testWalkDouble();
 	void testWalkEvaluationPrimitive();
 	void testWalkFrame();
-	void testWalkFreeObject();
 	void testWalkInteger();
 	void testWalkBigInteger();
 	void testWalkString();

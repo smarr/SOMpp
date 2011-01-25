@@ -40,7 +40,6 @@ public:
     VMInvokable(int nof = 0) : VMObject(nof + 2){};
     //virtual operator "()" to invoke the invokable
     virtual void      operator()(pVMFrame) = 0;
-
     virtual bool      IsPrimitive() const;
 	virtual pVMSymbol GetSignature() const;
 	virtual void      SetSignature(pVMSymbol sig);

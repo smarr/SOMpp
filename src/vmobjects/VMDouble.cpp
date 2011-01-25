@@ -38,5 +38,7 @@ VMDouble::VMDouble(double val) : VMObject(VMDoubleNumberOfFields) {
     this->embeddedDouble = val;
 }
 
-
+pVMDouble VMDouble::Clone() const {
+	return new (_HEAP, GetAdditionalSpaceConsumption()) VMDouble(*this);
+}
 

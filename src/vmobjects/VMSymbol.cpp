@@ -38,6 +38,10 @@ VMSymbol::VMSymbol(const char* str) : VMString(str) {
 VMSymbol::VMSymbol( const StdString& s ): VMString(s) {
 }
 
+pVMSymbol VMSymbol::Clone() const {
+	return new (_HEAP, GetAdditionalSpaceConsumption()) VMSymbol(*this);
+}
+
 
 StdString VMSymbol::GetPlainString() const {
     ostringstream str;

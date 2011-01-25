@@ -66,6 +66,10 @@ const int VMClass::VMClassNumberOfFields = 4;
 VMClass::VMClass() : VMObject(VMClassNumberOfFields) {
 }
 
+pVMClass VMClass::Clone() const {
+	new (_HEAP, this->GetAdditionalSpaceConsumption())VMClass(*this);
+}
+
 
 VMClass::VMClass( int numberOfFields ) : VMObject(numberOfFields + VMClassNumberOfFields) {
 }

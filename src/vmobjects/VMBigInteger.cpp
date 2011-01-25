@@ -38,3 +38,7 @@ VMBigInteger::VMBigInteger(int64_t val) : VMObject(VMBigIntegerNumberOfFields) {
     this->embeddedInteger = val;
 }
 
+pVMBigInteger VMBigInteger::Clone() const {
+	return new (_HEAP) VMBigInteger(*this);
+}
+

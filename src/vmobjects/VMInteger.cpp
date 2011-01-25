@@ -38,6 +38,10 @@ VMInteger::VMInteger(int32_t val) : VMObject(VMIntegerNumberOfFields) {
     embeddedInteger = val;
 }
 
+pVMInteger VMInteger::Clone() const {
+	return new (_HEAP) VMInteger(*this);
+}
+
 
 
 

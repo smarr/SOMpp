@@ -40,6 +40,11 @@ VMArray::VMArray(int size, int nof) : VMObject(nof + VMArrayNumberOfFields) {
     }
 }
 
+VMArray::VMArray(const VMArray& orig) : VMObject(orig) {
+	for (int i = 0; i < orig.GetNumberOfIndexableFields(); ++i)
+		(*this)[i] = orig[i];
+}
+
 
 pVMArray VMArray::CopyAndExtendWith(pVMObject item) const {
     size_t fields = GetNumberOfIndexableFields();
@@ -47,6 +52,10 @@ pVMArray VMArray::CopyAndExtendWith(pVMObject item) const {
     this->CopyIndexableFieldsTo(result);
 	(*result)[fields] = item;
 	return result;
+}
+
+pVMArray VMArray::Clone() const {
+	return new (_HEAP, this->GetAdditionalSpaceConsumption())VMArray(*this);
 }
 
 

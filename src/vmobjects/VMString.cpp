@@ -48,6 +48,19 @@ VMString::VMString(const char* str) : VMObject(VMStringNumberOfFields) {
 	
 }
 
+VMString::VMString(const VMString& other)  : VMObject(other) {
+	chars = (char*)&chars + sizeof(char*);
+	int toCopy = strlen(other.chars) + 1; //also copy \0
+	for (int i=0; i < toCopy; ++i)
+		chars[i] = other.chars[i];
+
+}
+
+pVMString VMString::Clone() const {
+	return new (_HEAP, GetAdditionalSpaceConsumption()) VMString(*this);
+
+}
+
 
 VMString::VMString( const StdString& s ): VMObject(VMStringNumberOfFields) {
     //set the chars-pointer to point at the position of the first character

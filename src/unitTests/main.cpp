@@ -17,8 +17,10 @@
 #include "vm/Universe.h"
 
 #include "WalkObjectsTest.h"
+#include "CloneObjectsTest.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(WalkObjectsTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(CloneObjectsTest);
 
 int main( int ac, char **av )
 {

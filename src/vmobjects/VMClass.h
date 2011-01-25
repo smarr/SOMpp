@@ -71,6 +71,7 @@ public:
     virtual int       GetNumberOfInstanceFields() const; 
     virtual bool      HasPrimitives() const; 
     virtual void      LoadPrimitives(const vector<StdString>&);
+    virtual pVMClass Clone() const;
 	
 
 private:

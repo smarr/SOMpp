@@ -33,7 +33,7 @@ THE SOFTWARE.
 
 
 //clazz is the only field of VMObject so
-const int VMObject::VMObjectNumberOfFields = 1; 
+const int VMObject::VMObjectNumberOfFields = 1;
 
 VMObject::VMObject( int numberOfFields ) {
     //this line would be needed if the VMObject** is used instead of the macro:
@@ -44,6 +44,9 @@ VMObject::VMObject( int numberOfFields ) {
     //Object size is set by the heap
 }
 
+pVMObject VMObject::Clone() const {
+	return new (_HEAP, this->GetAdditionalSpaceConsumption()) VMObject(*this);
+}
 
 void VMObject::SetNumberOfFields(int nof) {
     this->numberOfFields = nof;
@@ -136,7 +139,6 @@ int VMObject::GetAdditionalSpaceConsumption() const
     return (objectSize - (sizeof(VMObject) + 
                           sizeof(pVMObject) * (this->GetNumberOfFields() - 1)));
 }
-
 
 void VMObject::WalkObjects(pVMObject (*walk)(pVMObject)) {
     for( int i = 0; i < this->GetNumberOfFields(); ++i) {

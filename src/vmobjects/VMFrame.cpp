@@ -57,6 +57,9 @@ pVMFrame VMFrame::EmergencyFrameFrom( pVMFrame from, int extraLength ) {
     return result;
 }
 
+pVMFrame VMFrame::Clone() const{
+	return new (_HEAP, GetAdditionalSpaceConsumption()) VMFrame(*this);
+}
 
 const int VMFrame::VMFrameNumberOfFields = 6; 
 

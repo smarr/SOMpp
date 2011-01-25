@@ -40,7 +40,6 @@ pVMSymbol VMInvokable::GetSignature() const {
     return signature; 
 }
 
-
 void      VMInvokable::SetSignature(pVMSymbol sig)  { 
     signature = sig;
 }

@@ -41,6 +41,7 @@ public:
 
     inline void SetEmbeddedInteger(int64_t);
     inline int64_t GetEmbeddedInteger() const;
+    virtual pVMBigInteger Clone() const;
 
 private:
     int64_t embeddedInteger;

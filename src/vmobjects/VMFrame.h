@@ -68,6 +68,7 @@ public:
     virtual void       PrintStackTrace() const;
     virtual int        ArgumentStackIndex(int index) const;
     virtual void       CopyArgumentsFrom(pVMFrame frame);
+    virtual pVMFrame   Clone() const;
     
     virtual void       PrintStack() const;
     virtual inline     pVMInteger GetStackPointer() const;
