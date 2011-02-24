@@ -65,7 +65,7 @@ void VMPrimitive::WalkObjects(pVMObject (*walk)(pVMObject)) {
     // interpret. Hence, they are omitted from the mark phase by adjusting the
     // upper bound of the following traversal loop.
     for( int i = 0; i < this->GetNumberOfFields() - VMPrimitiveNumberOfFields; ++i) {
-        walk(GetField(i));
+        FIELDS[i] = walk(GetField(i));
     }
 }
 

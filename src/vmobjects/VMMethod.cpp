@@ -74,7 +74,7 @@ void VMMethod::WalkObjects(pVMObject (*walk)(pVMObject)) {
     VMInvokable::WalkObjects(walk);
 	for (int i = 0 ; i < GetNumberOfIndexableFields() ; ++i) {
 		if (theEntries(i) != NULL)
-			walk(theEntries(i));
+			theEntries(i) = walk(theEntries(i));
 	}
 }
 

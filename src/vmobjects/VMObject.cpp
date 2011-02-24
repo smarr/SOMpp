@@ -142,7 +142,7 @@ int VMObject::GetAdditionalSpaceConsumption() const
 
 void VMObject::WalkObjects(pVMObject (*walk)(pVMObject)) {
     for( int i = 0; i < this->GetNumberOfFields(); ++i) {
-        walk(FIELDS[i]);
+        FIELDS[i] = walk(FIELDS[i]);
     }
 
 }

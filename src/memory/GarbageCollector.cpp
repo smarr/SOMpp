@@ -38,7 +38,7 @@ THE SOFTWARE.
 #include "../vmobjects/VMMethod.h"
 #include "../vmobjects/VMObject.h"
 #include "../vmobjects/VMSymbol.h"
-
+#define GC_MARKED 3456
 
 GarbageCollector::GarbageCollector(Heap* h) {
 	heap = h;
@@ -61,7 +61,7 @@ void GarbageCollector::Collect() {
 	int32_t survivorsSize = 0;
 	while (heap->allocatedObjects->size() > 0) {
 		pVMObject obj = heap->allocatedObjects->top();
-		if (obj->GetGCField() == 3456) {
+		if (obj->GetGCField() == GC_MARKED) {
 			survivors->push(obj);
 			survivorsSize += obj->GetObjectSize();
 			obj->SetGCField(0);
@@ -80,10 +80,10 @@ void GarbageCollector::Collect() {
 
 pVMObject markObject(pVMObject obj) {
     if (obj->GetGCField())
-        return (pVMObject) 0xdeadbeef;
-    obj->SetGCField(3456);
+        return obj;
+    obj->SetGCField(GC_MARKED);
     obj->WalkObjects(markObject);
-    return  (pVMObject) 0xdeadbeef;
+    return obj;
 }
 
 
@@ -91,7 +91,8 @@ void GarbageCollector::markReachableObjects() {
 	map<pVMSymbol, pVMObject> globals = Universe::GetUniverse()->GetGlobals();
     for (map<pVMSymbol, pVMObject>::iterator it = globals.begin(); 
                                         it!= globals.end(); ++it) {
-        markObject((&(*it->first))); // XXX use result value
+        pVMSymbol sym = (pVMSymbol)markObject((&(*it->first))); // XXX use result value
+
 
         //The NULL check for the second entry is necessary because for
         //some reason the True, False, Boolean, and System classes
@@ -99,14 +100,18 @@ void GarbageCollector::markReachableObjects() {
         //I tried to find out why, I never did... :( They are not entered
         //into the map using Universe::SetGlobal and there is no other way
         //to enter them into that map....
-        if (&(*it->second) != NULL) markObject(&(*it->second));
+	pVMObject obj = &(*it->second);
+
+        if (&(*it->second) != NULL) obj = markObject(&(*it->second));
+	_UNIVERSE->SetGlobal(sym, obj); 
 	}
     // Get the current frame and mark it.
 	// Since marking is done recursively, this automatically
 	// marks the whole stack
     pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
     if (currentFrame != NULL) {
-        markObject(((pVMObject)currentFrame));
+        currentFrame = (pVMFrame) markObject((pVMObject)currentFrame);
+	_UNIVERSE->GetInterpreter()->SetFrame(currentFrame);
     }
 }
 

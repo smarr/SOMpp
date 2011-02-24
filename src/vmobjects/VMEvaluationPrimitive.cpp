@@ -52,7 +52,7 @@ pVMEvaluationPrimitive VMEvaluationPrimitive::Clone() const {
 
 void VMEvaluationPrimitive::WalkObjects(pVMObject (*walk)(pVMObject)) {
 	VMPrimitive::WalkObjects(walk);
-	walk(this->numberOfArguments);
+	this->numberOfArguments = dynamic_cast<pVMInteger>(walk(this->numberOfArguments));
 }
 
 
