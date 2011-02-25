@@ -42,6 +42,7 @@ static vector<pVMObject> walkedObjects;
  */
 pVMObject collectMembers(pVMObject obj) {
 	walkedObjects.push_back(obj);
+	return obj;
 }
 /*
  * Helper function that searches the result vector for a field
