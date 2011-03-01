@@ -133,7 +133,7 @@ CLEAN			= $(OBJECTS) \
 all: $(CSOM_NAME)\
 	$(CSOM_NAME).$(SHARED_EXTENSION) \
 	$(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION) \
-	CORE unittests
+	CORE units
 
 
 debug : DBG_FLAGS=-DDEBUG -g
@@ -206,9 +206,11 @@ install: all
 #
 console: all
 	./$(CSOM_NAME) -cp ./Smalltalk
-	
-unittests: $(UNITTEST_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION)
+
+units: $(UNITTEST_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION)
 	$(CC) $(LIBRARIES) $(UNITTEST_OBJ) SOM++.so -lcppunit -o unittest
+	
+unittests: units
 	./unittest -cp ./Smalltalk ./Examples/Hello/Hello.som
 	
 #
