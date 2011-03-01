@@ -209,7 +209,7 @@ console: all
 	
 unittests: $(UNITTEST_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION)
 	$(CC) $(LIBRARIES) $(UNITTEST_OBJ) SOM++.so -lcppunit -o unittest
-	
+	./unittest -cp ./Smalltalk ./Examples/Hello/Hello.som
 	
 #
 # test: run the standard test suite
