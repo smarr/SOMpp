@@ -51,10 +51,10 @@ public:
     virtual void      SetNumberOfArguments(int);
     virtual int       GetNumberOfBytecodes() const;
     virtual void      SetHolderAll(pVMClass hld); 
-    virtual pVMObject GetConstant(int indx) const; 
+    virtual AbstractVMObject* GetConstant(int indx) const;
     virtual uint8_t   GetBytecode(int indx) const; 
     virtual void      SetBytecode(int indx, uint8_t); 
-	virtual void	  WalkObjects(pVMObject (pVMObject));
+	virtual void	  WalkObjects(AbstractVMObject* (AbstractVMObject*));
     virtual int       GetNumberOfIndexableFields() const;
     virtual pVMMethod Clone() const;
 
@@ -81,7 +81,7 @@ public:
 
 
 private:
-    pVMObject   GetIndexableField(int idx) const;
+    AbstractVMObject*   GetIndexableField(int idx) const;
 
     pVMInteger numberOfLocals;
     pVMInteger maximumNumberOfStackElements;

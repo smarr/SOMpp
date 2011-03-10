@@ -24,7 +24,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
   */
 
-#define protected public
+#include <assert.h>
+
 #include "Interpreter.h"
 #include "bytecodes.h"
 
@@ -136,7 +137,7 @@ pVMMethod Interpreter::GetMethod() {
 }
 
 
-pVMObject Interpreter::GetSelf() {
+AbstractVMObject* Interpreter::GetSelf() {
     pVMFrame context = _FRAME->GetOuterContext();
     return context->GetArgument(0,0);
 }
@@ -152,7 +153,7 @@ pVMFrame Interpreter::popFrame() {
 }
 
 
-void Interpreter::popFrameAndPushResult( pVMObject result ) {
+void Interpreter::popFrameAndPushResult( AbstractVMObject* result ) {
     pVMFrame prevFrame = this->popFrame();
 
     pVMMethod method = prevFrame->GetMethod();
@@ -174,15 +175,15 @@ void Interpreter::send( pVMSymbol signature, pVMClass receiverClass) {
         //doesNotUnderstand
         int numberOfArgs = Signature::GetNumberOfArguments(signature);
 
-        pVMObject receiver = _FRAME->GetStackElement(numberOfArgs-1);
+        AbstractVMObject* receiver = _FRAME->GetStackElement(numberOfArgs-1);
 
         pVMArray argumentsArray = _UNIVERSE->NewArray(numberOfArgs);
 
         for (int i = numberOfArgs - 1; i >= 0; --i) {
-            pVMObject o = _FRAME->Pop();
+            AbstractVMObject* o = _FRAME->Pop();
             (*argumentsArray)[i] = o; 
         }
-        pVMObject arguments[] = { (pVMObject)signature, 
+        AbstractVMObject* arguments[] = { (pVMObject)signature,
                                   (pVMObject)argumentsArray };
 
         //check if current frame is big enough for this unplanned Send
@@ -199,7 +200,7 @@ void Interpreter::send( pVMSymbol signature, pVMClass receiverClass) {
 
 
 void Interpreter::doDup() {
-    pVMObject elem = _FRAME->GetStackElement(0);
+    AbstractVMObject* elem = _FRAME->GetStackElement(0);
     _FRAME->Push(elem);
 }
 
@@ -209,7 +210,7 @@ void Interpreter::doPushLocal( int bytecodeIndex ) {
     uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
 
-    pVMObject local = _FRAME->GetLocal(bc1, bc2);
+    AbstractVMObject* local = _FRAME->GetLocal(bc1, bc2);
 
     _FRAME->Push(local);
 }
@@ -220,7 +221,7 @@ void Interpreter::doPushArgument( int bytecodeIndex ) {
     uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
 
-    pVMObject argument = _FRAME->GetArgument(bc1, bc2);
+    AbstractVMObject* argument = _FRAME->GetArgument(bc1, bc2);
 
     _FRAME->Push(argument);
 }
@@ -231,10 +232,11 @@ void Interpreter::doPushField( int bytecodeIndex ) {
 
     pVMSymbol fieldName = (pVMSymbol) method->GetConstant(bytecodeIndex);
 
-    pVMObject self = _SELF;
+    pVMObject self = dynamic_cast<pVMObject>(_SELF);
+    assert(self != NULL);
     int fieldIndex = self->GetFieldIndex(fieldName);
 
-    pVMObject o = self->GetField(fieldIndex);
+    AbstractVMObject* o = self->GetField(fieldIndex);
 
     _FRAME->Push(o);
 }
@@ -255,7 +257,7 @@ void Interpreter::doPushBlock( int bytecodeIndex ) {
 void Interpreter::doPushConstant( int bytecodeIndex ) {
     pVMMethod method = _METHOD;
 
-    pVMObject constant = method->GetConstant(bytecodeIndex);
+    AbstractVMObject* constant = method->GetConstant(bytecodeIndex);
     _FRAME->Push(constant);
 }
 
@@ -267,13 +269,13 @@ void Interpreter::doPushGlobal( int bytecodeIndex) {
 
     pVMSymbol globalName = (pVMSymbol) method->GetConstant(bytecodeIndex);
 
-    pVMObject global = _UNIVERSE->GetGlobal(globalName);
+    AbstractVMObject* global = _UNIVERSE->GetGlobal(globalName);
 
     if(global != NULL)
         _FRAME->Push(global);
     else {
-        pVMObject arguments[] = { (pVMObject) globalName };
-        pVMObject self = _SELF;
+        AbstractVMObject* arguments[] = { (pVMObject) globalName };
+        AbstractVMObject* self = _SELF;
 
         //check if there is enough space on the stack for this unplanned Send
         //unknowGlobal: needs 2 slots, one for "this" and one for the argument
@@ -299,7 +301,7 @@ void Interpreter::doPopLocal( int bytecodeIndex ) {
     uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
 
-    pVMObject o = _FRAME->Pop();
+    AbstractVMObject* o = _FRAME->Pop();
 
     _FRAME->SetLocal(bc1, bc2, o);
 }
@@ -311,7 +313,7 @@ void Interpreter::doPopArgument( int bytecodeIndex ) {
     uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
 
-    pVMObject o = _FRAME->Pop();
+    AbstractVMObject* o = _FRAME->Pop();
     _FRAME->SetArgument(bc1, bc2, o);
 }
 
@@ -320,10 +322,10 @@ void Interpreter::doPopField( int bytecodeIndex ) {
     pVMMethod method = _METHOD;
     pVMSymbol field_name = (pVMSymbol) method->GetConstant(bytecodeIndex);
 
-    pVMObject self = _SELF;
+    pVMObject self = dynamic_cast<pVMObject>(_SELF);
     int field_index = self->GetFieldIndex(field_name);
 
-    pVMObject o = _FRAME->Pop();
+    AbstractVMObject* o = _FRAME->Pop();
     self->SetField(field_index, o);
 }
 
@@ -336,10 +338,10 @@ void Interpreter::doSend( int bytecodeIndex ) {
 
     int numOfArgs = Signature::GetNumberOfArguments(signature);
 
-    pVMObject receiver = _FRAME->GetStackElement(numOfArgs-1);
+    pVMObject receiver = dynamic_cast<pVMObject>(_FRAME->GetStackElement(numOfArgs-1));
+    assert(receiver != NULL);
 
-    VMClass* c = receiver->clazz;
-    VMObject* c2 = receiver->GetField(0);
+    AbstractVMObject* c2 = receiver->GetField(0);
 
     this->send(signature, receiver->GetClass());
 }
@@ -359,14 +361,14 @@ void Interpreter::doSuperSend( int bytecodeIndex ) {
         (*invokable)(_FRAME);
     else {
         int numOfArgs = Signature::GetNumberOfArguments(signature);
-        pVMObject receiver = _FRAME->GetStackElement(numOfArgs - 1);
+        AbstractVMObject* receiver = _FRAME->GetStackElement(numOfArgs - 1);
         pVMArray argumentsArray = _UNIVERSE->NewArray(numOfArgs);
 
         for (int i = numOfArgs - 1; i >= 0; --i) {
-            pVMObject o = _FRAME->Pop();
+            AbstractVMObject* o = _FRAME->Pop();
             (*argumentsArray)[i] = o; 
         }
-        pVMObject arguments[] = { (pVMObject)signature, 
+        AbstractVMObject* arguments[] = { (pVMObject)signature,
                                   (pVMObject) argumentsArray };
         receiver->Send(dnu, arguments, 2);
     }
@@ -374,14 +376,14 @@ void Interpreter::doSuperSend( int bytecodeIndex ) {
 
 
 void Interpreter::doReturnLocal() {
-    pVMObject result = _FRAME->Pop();
+    AbstractVMObject* result = _FRAME->Pop();
 
     this->popFrameAndPushResult(result);
 }
 
 
 void Interpreter::doReturnNonLocal() {
-    pVMObject result = _FRAME->Pop();
+    AbstractVMObject* result = _FRAME->Pop();
 
     pVMFrame context = _FRAME->GetOuterContext();
 
@@ -389,8 +391,8 @@ void Interpreter::doReturnNonLocal() {
         pVMBlock block = (pVMBlock) _FRAME->GetArgument(0, 0);
         pVMFrame prevFrame = _FRAME->GetPreviousFrame();
         pVMFrame outerContext = prevFrame->GetOuterContext();
-        pVMObject sender = outerContext->GetArgument(0, 0);
-        pVMObject arguments[] = { (pVMObject)block };
+        AbstractVMObject* sender = outerContext->GetArgument(0, 0);
+        AbstractVMObject* arguments[] = { (pVMObject)block };
 
         this->popFrame();
 

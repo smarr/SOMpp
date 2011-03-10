@@ -55,14 +55,14 @@ void  _System::Global_(pVMObject /*object*/, pVMFrame frame) {
     pVMSymbol arg = (pVMSymbol)frame->Pop();
     /*pVMObject self = */
     frame->Pop();
-    pVMObject result = _UNIVERSE->GetGlobal(arg);
+    AbstractVMObject* result = _UNIVERSE->GetGlobal(arg);
     
     frame->Push( result ? result : nilObject);    
 }
 
 
 void  _System::Global_put_(pVMObject /*object*/, pVMFrame frame) {
-    pVMObject value = frame->Pop();
+    AbstractVMObject* value = frame->Pop();
     pVMSymbol arg = (pVMSymbol)frame->Pop();
     _UNIVERSE->SetGlobal(arg, value);    
 }

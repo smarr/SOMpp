@@ -61,7 +61,7 @@ public:
     virtual inline pVMArray  GetInstanceInvokables() const; 
     virtual void      SetInstanceInvokables(pVMArray); 
     virtual int       GetNumberOfInstanceInvokables() const; 
-    virtual pVMObject GetInstanceInvokable(int) const; 
+    virtual AbstractVMObject* GetInstanceInvokable(int) const;
     virtual void      SetInstanceInvokable(int, pVMObject); 
     virtual pVMObject LookupInvokable(pVMSymbol) const; 
     virtual int       LookupFieldIndex(pVMSymbol) const; 

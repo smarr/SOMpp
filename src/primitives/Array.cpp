@@ -52,13 +52,13 @@ void _Array::At_(pVMObject /*object*/, pVMFrame frame) {
     pVMInteger index = (pVMInteger) frame->Pop();
     pVMArray self = (pVMArray) frame->Pop();
     int i = index->GetEmbeddedInteger();
-    pVMObject elem = (*self)[i-1];
+    AbstractVMObject* elem = (*self)[i-1];
     frame->Push(elem);
 }
 
 
 void _Array::At_Put_(pVMObject /*object*/, pVMFrame frame) {
-    pVMObject value = frame->Pop();
+    AbstractVMObject* value = frame->Pop();
     pVMInteger index = (pVMInteger)frame->Pop();
     pVMArray self = (pVMArray)frame->GetStackElement(0);
     int i = index->GetEmbeddedInteger();

@@ -33,6 +33,7 @@ THE SOFTWARE.
 
 #include "../vmobjects/ObjectFormats.h"
 
+class AbstractVMObject;
 class VMMethod;
 class VMFrame;
 class VMMethod;
@@ -49,7 +50,7 @@ public:
     void SetFrame(pVMFrame frame);
     pVMFrame GetFrame();
     pVMMethod GetMethod();
-    pVMObject GetSelf();
+    AbstractVMObject* GetSelf();
 private:
     pVMFrame frame;
     StdString uG;
@@ -57,7 +58,7 @@ private:
     StdString eB;
 
     pVMFrame popFrame();
-    void popFrameAndPushResult(pVMObject result);
+    void popFrameAndPushResult(AbstractVMObject* result);
     void send(pVMSymbol signature, pVMClass receiverClass);
     
     void doDup();

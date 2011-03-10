@@ -118,14 +118,14 @@ int VMFrame::RemainingStackSize() const {
            stackPointer->GetEmbeddedInteger() - 1;
 }
 
-pVMObject VMFrame::Pop() {
+AbstractVMObject* VMFrame::Pop() {
     int32_t sp = this->stackPointer->GetEmbeddedInteger();
     this->stackPointer->SetEmbeddedInteger(sp-1);
     return (*this)[sp];
 }
 
 
-void      VMFrame::Push(pVMObject obj) {
+void      VMFrame::Push(AbstractVMObject* obj) {
     int32_t sp = this->stackPointer->GetEmbeddedInteger() + 1;
     this->stackPointer->SetEmbeddedInteger(sp);
     (*this)[sp] = obj; 
@@ -135,7 +135,7 @@ void      VMFrame::Push(pVMObject obj) {
 void VMFrame::PrintStack() const {
     cout << "SP: " << this->stackPointer->GetEmbeddedInteger() << endl;
     for (int i = 0; i < this->GetNumberOfIndexableFields()+1; ++i) {
-        pVMObject vmo = (*this)[i];
+        AbstractVMObject* vmo = (*this)[i];
         cout << i << ": ";
         if (vmo == NULL) 
             cout << "NULL" << endl;
@@ -174,26 +174,26 @@ void      VMFrame::SetBytecodeIndex(int index) {
 }
 
 
-pVMObject VMFrame::GetStackElement(int index) const {
+AbstractVMObject* VMFrame::GetStackElement(int index) const {
     int sp = this->stackPointer->GetEmbeddedInteger();
     return (*this)[sp-index];
 }
 
 
-void      VMFrame::SetStackElement(int index, pVMObject obj) {
+void      VMFrame::SetStackElement(int index, AbstractVMObject* obj) {
     int sp = this->stackPointer->GetEmbeddedInteger();
     (*this)[sp-index] = obj; 
 }
 
 
-pVMObject VMFrame::GetLocal(int index, int contextLevel) {
+AbstractVMObject* VMFrame::GetLocal(int index, int contextLevel) {
     pVMFrame context = this->GetContextLevel(contextLevel);
     int32_t lo = context->localOffset->GetEmbeddedInteger();
     return (*context)[lo+index];
 }
 
 
-void      VMFrame::SetLocal(int index, int contextLevel, pVMObject value) {
+void      VMFrame::SetLocal(int index, int contextLevel, AbstractVMObject* value) {
     pVMFrame context = this->GetContextLevel(contextLevel);
     size_t lo = context->localOffset->GetEmbeddedInteger();
     (*context)[lo+index] = value; 
@@ -201,14 +201,14 @@ void      VMFrame::SetLocal(int index, int contextLevel, pVMObject value) {
 
 
 
-pVMObject VMFrame::GetArgument(int index, int contextLevel) {
+AbstractVMObject* VMFrame::GetArgument(int index, int contextLevel) {
     // get the context
     pVMFrame context = this->GetContextLevel(contextLevel);
     return (*context)[index];
 }
 
 
-void      VMFrame::SetArgument(int index, int contextLevel, pVMObject value) {
+void      VMFrame::SetArgument(int index, int contextLevel, AbstractVMObject* value) {
     pVMFrame context = this->GetContextLevel(contextLevel);
     (*context)[index] = value; 
 }
@@ -231,7 +231,7 @@ void      VMFrame::CopyArgumentsFrom(pVMFrame frame) {
     pVMMethod meth = this->GetMethod();
     int num_args = meth->GetNumberOfArguments();
     for(int i=0; i < num_args; ++i) {
-        pVMObject stackElem = frame->GetStackElement(num_args - 1 - i);
+        AbstractVMObject* stackElem = frame->GetStackElement(num_args - 1 - i);
         (*this)[i] = stackElem;
     }
 }

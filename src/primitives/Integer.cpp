@@ -122,7 +122,7 @@ void _Integer::resendAsBigInteger(pVMObject /*object*/,
         _UNIVERSE->NewBigInteger((int64_t)left->GetEmbeddedInteger());
     
     // Resend message:
-    pVMObject operands[] = { (pVMObject)right };
+    AbstractVMObject* operands[] = { (pVMObject)right };
     
     leftBigInteger->Send(op, operands, 1);
     // no reference
@@ -134,7 +134,7 @@ void _Integer::resendAsDouble(pVMObject /*object*/, const char* op,
 ) {
     pVMDouble leftDouble =
         _UNIVERSE->NewDouble((double)left->GetEmbeddedInteger());
-    pVMObject operands[] = { (pVMObject)right };
+    AbstractVMObject* operands[] = { (pVMObject)right };
     
     leftDouble->Send(op, operands, 1);
 }
@@ -147,7 +147,7 @@ void _Integer::resendAsDouble(pVMObject /*object*/, const char* op,
 
 
 void  _Integer::Plus(pVMObject object, pVMFrame frame) {
-    pVMObject rightObj = frame->Pop();
+    AbstractVMObject* rightObj = frame->Pop();
     pVMInteger left = (pVMInteger)frame->Pop();
     
     CHECK_COERCION(rightObj, left, "+");
@@ -162,7 +162,7 @@ void  _Integer::Plus(pVMObject object, pVMFrame frame) {
 
 
 void  _Integer::Minus(pVMObject object, pVMFrame frame) {
-    pVMObject rightObj = frame->Pop();
+    AbstractVMObject* rightObj = frame->Pop();
     pVMInteger left = (pVMInteger)frame->Pop();
     
     CHECK_COERCION(rightObj, left, "-");
@@ -177,7 +177,7 @@ void  _Integer::Minus(pVMObject object, pVMFrame frame) {
 
 
 void  _Integer::Star(pVMObject object, pVMFrame frame) {
-    pVMObject rightObj = frame->Pop();
+    AbstractVMObject* rightObj = frame->Pop();
     pVMInteger left = (pVMInteger)frame->Pop();
     
     CHECK_COERCION(rightObj, left, "*");
@@ -192,7 +192,7 @@ void  _Integer::Star(pVMObject object, pVMFrame frame) {
 
 
 void  _Integer::Slashslash(pVMObject object, pVMFrame frame) {
-    pVMObject rightObj = frame->Pop();
+    AbstractVMObject* rightObj = frame->Pop();
     pVMInteger left = (pVMInteger)frame->Pop();
     
     CHECK_COERCION(rightObj, left, "/");
@@ -207,7 +207,7 @@ void  _Integer::Slashslash(pVMObject object, pVMFrame frame) {
 
 
 void  _Integer::Slash(pVMObject object, pVMFrame frame) {
-    pVMObject rightObj = frame->Pop();
+    AbstractVMObject* rightObj = frame->Pop();
     pVMInteger left = (pVMInteger)frame->Pop();
     
     CHECK_COERCION(rightObj, left, "/");
@@ -222,7 +222,7 @@ void  _Integer::Slash(pVMObject object, pVMFrame frame) {
 
 
 void  _Integer::Percent(pVMObject object, pVMFrame frame) {
-    pVMObject rightObj = frame->Pop();
+    AbstractVMObject* rightObj = frame->Pop();
     pVMInteger left = (pVMInteger)frame->Pop();
     
     CHECK_COERCION(rightObj, left, "%");
@@ -237,7 +237,7 @@ void  _Integer::Percent(pVMObject object, pVMFrame frame) {
 
 
 void  _Integer::And(pVMObject object, pVMFrame frame) {
-    pVMObject rightObj = frame->Pop();
+    AbstractVMObject* rightObj = frame->Pop();
     pVMInteger left = (pVMInteger)frame->Pop();
     
     CHECK_COERCION(rightObj, left, "&");
@@ -252,7 +252,7 @@ void  _Integer::And(pVMObject object, pVMFrame frame) {
 
 
 void  _Integer::Equal(pVMObject object, pVMFrame frame) {
-    pVMObject rightObj = frame->Pop();
+    AbstractVMObject* rightObj = frame->Pop();
     pVMInteger left = (pVMInteger)frame->Pop();
     
     CHECK_COERCION(rightObj, left, "=");
@@ -282,7 +282,7 @@ void  _Integer::Equal(pVMObject object, pVMFrame frame) {
 
 
 void  _Integer::Lowerthan(pVMObject object, pVMFrame frame) {
-    pVMObject rightObj = frame->Pop();
+    AbstractVMObject* rightObj = frame->Pop();
     pVMInteger left = (pVMInteger)frame->Pop();
     
     CHECK_COERCION(rightObj, left, "<");

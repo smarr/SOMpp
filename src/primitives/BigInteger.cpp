@@ -97,7 +97,7 @@ _BigInteger::_BigInteger( ) : PrimitiveContainer(){
 
 
 void  _BigInteger::Plus(pVMObject /*object*/, pVMFrame frame) {
-    pVMObject rightObj  = frame->Pop();
+    AbstractVMObject* rightObj  = frame->Pop();
     pVMBigInteger right = NULL;
     pVMBigInteger left  = (pVMBigInteger)frame->Pop();
     
@@ -111,7 +111,7 @@ void  _BigInteger::Plus(pVMObject /*object*/, pVMFrame frame) {
 
 
 void  _BigInteger::Minus(pVMObject /*object*/, pVMFrame frame) {
-    pVMObject rightObj  = frame->Pop();
+    AbstractVMObject* rightObj  = frame->Pop();
     pVMBigInteger right = NULL;
     pVMBigInteger left  = (pVMBigInteger)frame->Pop();
     
@@ -125,7 +125,7 @@ void  _BigInteger::Minus(pVMObject /*object*/, pVMFrame frame) {
 
 
 void  _BigInteger::Star(pVMObject /*object*/, pVMFrame frame) {
-   pVMObject rightObj  = frame->Pop();
+   AbstractVMObject* rightObj  = frame->Pop();
     pVMBigInteger right = NULL;
     pVMBigInteger left  = (pVMBigInteger)frame->Pop();
     
@@ -139,7 +139,7 @@ void  _BigInteger::Star(pVMObject /*object*/, pVMFrame frame) {
 
 
 void  _BigInteger::Slash(pVMObject /*object*/, pVMFrame frame) {
-    pVMObject rightObj  = frame->Pop();
+    AbstractVMObject* rightObj  = frame->Pop();
     pVMBigInteger right = NULL;
     pVMBigInteger left  = (pVMBigInteger)frame->Pop();
     
@@ -153,7 +153,7 @@ void  _BigInteger::Slash(pVMObject /*object*/, pVMFrame frame) {
 
 
 void  _BigInteger::Percent(pVMObject /*object*/, pVMFrame frame) {
-    pVMObject rightObj  = frame->Pop();
+    AbstractVMObject* rightObj  = frame->Pop();
     pVMBigInteger right = NULL;
     pVMBigInteger left  = (pVMBigInteger)frame->Pop();
     
@@ -168,7 +168,7 @@ void  _BigInteger::Percent(pVMObject /*object*/, pVMFrame frame) {
 
 
 void  _BigInteger::And(pVMObject /*object*/, pVMFrame frame) {
-    pVMObject rightObj  = frame->Pop();
+    AbstractVMObject* rightObj  = frame->Pop();
     pVMBigInteger right = NULL;
     pVMBigInteger left  = (pVMBigInteger)frame->Pop();
     
@@ -183,7 +183,7 @@ void  _BigInteger::And(pVMObject /*object*/, pVMFrame frame) {
 
 
 void  _BigInteger::Equal(pVMObject /*object*/, pVMFrame frame) {
-    pVMObject rightObj  = frame->Pop();
+    AbstractVMObject* rightObj  = frame->Pop();
     pVMBigInteger right = NULL;
     pVMBigInteger left  = (pVMBigInteger)frame->Pop();
     
@@ -198,7 +198,7 @@ void  _BigInteger::Equal(pVMObject /*object*/, pVMFrame frame) {
 
 
 void  _BigInteger::Lowerthan(pVMObject /*object*/, pVMFrame frame) {
-    pVMObject rightObj  = frame->Pop();
+    AbstractVMObject* rightObj  = frame->Pop();
     pVMBigInteger right = NULL;
     pVMBigInteger left  = (pVMBigInteger)frame->Pop();
     

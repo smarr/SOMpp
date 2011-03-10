@@ -45,22 +45,22 @@ _Object::_Object( ) : PrimitiveContainer() {
 }
 
 void  _Object::Equalequal(pVMObject /*object*/, pVMFrame frame) {
-    pVMObject op1 = frame->Pop();
-    pVMObject op2 = frame->Pop();
+    AbstractVMObject* op1 = frame->Pop();
+    AbstractVMObject* op2 = frame->Pop();
     
     frame->Push( op1 == op2 ? trueObject : falseObject );
 }
 
 
 void  _Object::ObjectSize(pVMObject /*object*/, pVMFrame frame) {
-    pVMObject self = frame->Pop();
+	AbstractVMObject* self = frame->Pop();
 
     frame->Push( (pVMObject)_UNIVERSE->NewInteger(self->GetObjectSize()) );
 }
 
 
 void  _Object::Hashcode(pVMObject /*object*/, pVMFrame frame) {
-    pVMObject self = frame->Pop();
+	AbstractVMObject* self = frame->Pop();
     frame->Push( (pVMObject)_UNIVERSE->NewInteger(self->GetHash()) );
 }
 

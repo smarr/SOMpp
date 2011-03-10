@@ -56,23 +56,6 @@ void VMObject::SetNumberOfFields(int nof) {
     }
 }
 
-
-
-
-void VMObject::Send(StdString selectorString, pVMObject* arguments, int argc) {
-    pVMSymbol selector = _UNIVERSE->SymbolFor(selectorString);
-    pVMFrame frame = _UNIVERSE->GetInterpreter()->GetFrame();
-    frame->Push(this);
-
-    for(int i = 0; i < argc; ++i) {
-        frame->Push(arguments[i]);
-    }
-
-    pVMClass cl = this->GetClass();
-    pVMInvokable invokable = (pVMInvokable)(cl->LookupInvokable(selector));
-    (*invokable)(frame);
-}
-
 pVMClass VMObject::GetClass() const {
 	return clazz;
 }
@@ -97,16 +80,6 @@ int32_t VMObject::GetObjectSize() const {
     return objectSize;
 }
 
-
-int32_t VMObject::GetGCField() const {
-    return gcfield;
-}
-
-	
-void VMObject::SetGCField(int32_t value) { 
-    gcfield = value; 
-}
-
 void VMObject::SetObjectSize(size_t size) {
     objectSize = size; 
 }
@@ -116,12 +89,12 @@ void VMObject::Assert(bool value) const {
 }
 
 
-pVMObject VMObject::GetField(int index) const {
+AbstractVMObject* VMObject::GetField(int index) const {
     return FIELDS[index]; 
 }
 
 
-void VMObject::SetField(int index, pVMObject value) {
+void VMObject::SetField(int index, AbstractVMObject* value) {
      FIELDS[index] = value;
 }
 
@@ -135,7 +108,7 @@ int VMObject::GetAdditionalSpaceConsumption() const
                           sizeof(pVMObject) * (this->GetNumberOfFields() - 1)));
 }
 
-void VMObject::WalkObjects(pVMObject (*walk)(pVMObject)) {
+void VMObject::WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*)) {
     for( int i = 0; i < this->GetNumberOfFields(); ++i) {
         FIELDS[i] = walk(FIELDS[i]);
     }

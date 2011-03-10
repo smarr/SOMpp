@@ -78,7 +78,7 @@ void GarbageCollector::Collect() {
 	heap->collectionLimit = 2 * survivorsSize;
 }
 
-pVMObject markObject(pVMObject obj) {
+AbstractVMObject* markObject(AbstractVMObject* obj) {
     if (obj->GetGCField())
         return obj;
     obj->SetGCField(GC_MARKED);
@@ -88,8 +88,8 @@ pVMObject markObject(pVMObject obj) {
 
 
 void GarbageCollector::markReachableObjects() {
-	map<pVMSymbol, pVMObject> globals = Universe::GetUniverse()->GetGlobals();
-    for (map<pVMSymbol, pVMObject>::iterator it = globals.begin(); 
+	map<pVMSymbol, AbstractVMObject*> globals = Universe::GetUniverse()->GetGlobals();
+    for (map<pVMSymbol, AbstractVMObject*>::iterator it = globals.begin();
                                         it!= globals.end(); ++it) {
         pVMSymbol sym = (pVMSymbol)markObject((&(*it->first))); // XXX use result value
 
@@ -100,7 +100,7 @@ void GarbageCollector::markReachableObjects() {
         //I tried to find out why, I never did... :( They are not entered
         //into the map using Universe::SetGlobal and there is no other way
         //to enter them into that map....
-	pVMObject obj = &(*it->second);
+	AbstractVMObject* obj = &(*it->second);
 
         if (&(*it->second) != NULL) obj = markObject(&(*it->second));
 	_UNIVERSE->SetGlobal(sym, obj); 

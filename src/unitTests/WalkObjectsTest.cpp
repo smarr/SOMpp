@@ -36,11 +36,11 @@ static const size_t NoOfFields_Block = 2 + NoOfFields_Object;
 static const size_t NoOfFields_Primitive = NoOfFields_Invokable;
 static const size_t NoOfFields_EvaluationPrimitive = 1 + NoOfFields_Primitive;
 
-static vector<pVMObject> walkedObjects;
+static vector<AbstractVMObject*> walkedObjects;
 /*
  * This method simply pushes all objects into the vector walkedObjects
  */
-pVMObject collectMembers(pVMObject obj) {
+AbstractVMObject* collectMembers(AbstractVMObject* obj) {
 	walkedObjects.push_back(obj);
 	return obj;
 }

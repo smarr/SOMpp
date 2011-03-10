@@ -132,9 +132,9 @@ void VMObjectsInterfaceTest::testGetNumberOfFields() {
 
 void testGetSetFieldHelper(pVMObject obj, StdString name) {
 	for (int32_t i = 0; i <= obj->GetNumberOfFields(); i++) {
-		pVMObject oldVal = obj->GetField(i);
+		AbstractVMObject* oldVal = obj->GetField(i);
 		//set field to another value and check if it has changed
-		pVMObject otherObject = oldVal == integerClass ? stringClass
+		AbstractVMObject* otherObject = oldVal == integerClass ? stringClass
 				: integerClass;
 		obj->SetField(i, otherObject);
 		CPPUNIT_ASSERT_EQUAL_MESSAGE(

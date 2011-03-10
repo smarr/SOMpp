@@ -32,18 +32,22 @@ THE SOFTWARE.
 #include <vector>
 #include <iostream>
 
+#include "AbstractObject.h"
+
 #include "../misc/defs.h"
 #include "../memory/Heap.h"
 #include "../vm/Universe.h"
+
 
 #include "ObjectFormats.h"
 
 class VMSymbol;
 class VMClass;
 
-#define FIELDS ((pVMObject*)&clazz)
+#define FIELDS ((AbstractVMObject**)&clazz)
 
-/*
+/* chbol: this table is not correct anymore because of introduction of
+ * class AbstractVMObject
  **************************VMOBJECT****************************
  * __________________________________________________________ *
  *| vtable*          |   0x00 - 0x03                         |*
@@ -58,7 +62,7 @@ class VMClass;
  **************************************************************
  */
 
-class VMObject {
+class VMObject : public AbstractVMObject{
 
 public:
     /* Constructor */
@@ -71,17 +75,12 @@ public:
 	virtual int         GetFieldIndex(pVMSymbol fieldName) const;
 	virtual int         GetNumberOfFields() const;
 	virtual void        SetNumberOfFields(int nof);
-	virtual void        Send(StdString, pVMObject*, int);
-	virtual pVMObject   GetField(int index) const;
+	virtual AbstractVMObject*   GetField(int index) const;
     virtual void        Assert(bool value) const;
-	virtual void        SetField(int index, pVMObject value);
-	virtual void 		WalkObjects(pVMObject (pVMObject));
+	virtual void        SetField(int index, AbstractVMObject* value);
+	virtual void 		WalkObjects(AbstractVMObject* (AbstractVMObject*));
 	virtual pVMObject   Clone() const;
-
-    int32_t     GetHash() const { return hash; };
-    int32_t     GetObjectSize() const;
-	int32_t     GetGCField() const;
-	void        SetGCField(int32_t value);
+    virtual int32_t     GetObjectSize() const;
     void        SetObjectSize(size_t size);
 	
     /* Operators */
@@ -114,10 +113,9 @@ public:
 protected:
     int GetAdditionalSpaceConsumption() const;
     //VMObject essentials
-	int32_t     hash;
+	int32_t     hash; ///XXX chbol:Hash not needed anymore.. to be deleted later
     int32_t     objectSize; //set by the heap at allocation time
     int32_t     numberOfFields;
-    int32_t     gcfield;
 
     //pVMObject* FIELDS;
     //Start of fields. All members beyond this point are indexable 

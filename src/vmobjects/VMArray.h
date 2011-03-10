@@ -38,13 +38,13 @@ public:
     VMArray(const VMArray& orig);
 	//virtual ~VMArray();
 
-	virtual void 		WalkObjects(pVMObject (pVMObject));
+	virtual void 		WalkObjects(AbstractVMObject* (AbstractVMObject*));
 	virtual int         GetNumberOfIndexableFields() const;
 	pVMArray    CopyAndExtendWith(pVMObject) const;
 	void        CopyIndexableFieldsTo(pVMArray) const;
 	pVMArray    Clone() const;
 
-	pVMObject& operator[](int idx) const;
+	AbstractVMObject*& operator[](int idx) const;
 
 private:
     static const int VMArrayNumberOfFields;
