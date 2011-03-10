@@ -8,6 +8,19 @@
 #ifndef WALKOBJECTSTEST_H_
 #define WALKOBJECTSTEST_H_
 
+#include "WalkObjectsTest.h"
+#include "vmobjects/VMSymbol.h"
+#include "vmobjects/VMClass.h"
+#include "vmobjects/VMDouble.h"
+#include "vmobjects/VMBigInteger.h"
+#include "vmobjects/VMInteger.h"
+#include "vmobjects/VMArray.h"
+#include "vmobjects/VMMethod.h"
+#include "vmobjects/VMBlock.h"
+#include "vmobjects/VMPrimitive.h"
+#include "vmobjects/VMFrame.h"
+#include "vmobjects/VMEvaluationPrimitive.h"
+
 /*
  * WalkObjectsTest.cpp
  *

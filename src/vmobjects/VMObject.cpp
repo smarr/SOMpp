@@ -73,11 +73,6 @@ void VMObject::Send(StdString selectorString, pVMObject* arguments, int argc) {
     (*invokable)(frame);
 }
 
-
-int VMObject::GetDefaultNumberOfFields() const {
-	return VMObjectNumberOfFields; 
-}
-
 pVMClass VMObject::GetClass() const {
 	return clazz;
 }

@@ -71,7 +71,6 @@ public:
 	virtual int         GetFieldIndex(pVMSymbol fieldName) const;
 	virtual int         GetNumberOfFields() const;
 	virtual void        SetNumberOfFields(int nof);
-	virtual int         GetDefaultNumberOfFields() const;
 	virtual void        Send(StdString, pVMObject*, int);
 	virtual pVMObject   GetField(int index) const;
     virtual void        Assert(bool value) const;
