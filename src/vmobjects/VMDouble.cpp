@@ -47,7 +47,3 @@ pVMClass VMDouble::GetClass() const {
 int32_t VMDouble::GetObjectSize() const {
 	return sizeof(VMDouble) + PAD_BYTES(sizeof(VMDouble));
 }
-
-void VMDouble::WalkObjects(AbstractVMObject* (*)(AbstractVMObject*)) {
-	return;
-}

@@ -31,7 +31,10 @@ public:
 	int32_t GetGCField() const;
 	void SetGCField(int32_t);
 	virtual int32_t GetObjectSize() const = 0;
-	virtual void WalkObjects(AbstractVMObject* (AbstractVMObject*)) = 0;
+
+	inline virtual void WalkObjects(AbstractVMObject* (AbstractVMObject*)) {
+		return;
+	}
 
 	void* operator new(size_t numBytes, Heap* heap,
 			unsigned int additionalBytes = 0) {

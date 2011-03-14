@@ -48,7 +48,3 @@ int32_t VMInteger::GetObjectSize() const {
 	return sizeof(VMInteger) + PAD_BYTES(sizeof(VMInteger));
 }
 
-void VMInteger::WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*)) {
-	return;
-}
-

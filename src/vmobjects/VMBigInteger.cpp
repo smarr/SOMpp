@@ -26,19 +26,26 @@ THE SOFTWARE.
 
 
 #include "VMBigInteger.h"
+#include "../vm/Universe.h"
 
-const int VMBigInteger::VMBigIntegerNumberOfFields = 0; 
-
-VMBigInteger::VMBigInteger() : VMObject(VMBigIntegerNumberOfFields) {
+VMBigInteger::VMBigInteger() {
     this->embeddedInteger = 0;
 }
 
 
-VMBigInteger::VMBigInteger(int64_t val) : VMObject(VMBigIntegerNumberOfFields) {
+VMBigInteger::VMBigInteger(int64_t val) {
     this->embeddedInteger = val;
 }
 
 pVMBigInteger VMBigInteger::Clone() const {
 	return new (_HEAP) VMBigInteger(*this);
+}
+
+int32_t VMBigInteger::GetObjectSize() const {
+	return sizeof(VMBigInteger) + PAD_BYTES(sizeof(VMBigInteger));
+}
+
+pVMClass VMBigInteger::GetClass() const {
+	return bigIntegerClass;
 }
 

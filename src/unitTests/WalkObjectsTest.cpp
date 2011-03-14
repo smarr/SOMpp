@@ -26,7 +26,7 @@ static const size_t NoOfFields_String = NoOfFields_Object;
 static const size_t NoOfFields_Symbol = NoOfFields_Object;
 static const size_t NoOfFields_Double = 0;
 static const size_t NoOfFields_Integer = 0;
-static const size_t NoOfFields_BigInteger = NoOfFields_Object;
+static const size_t NoOfFields_BigInteger = 0;
 static const size_t NoOfFields_Array = NoOfFields_Object;
 static const size_t NoOfFields_Invokable = 2 + NoOfFields_Object;
 static const size_t NoOfFields_Method = 5 + NoOfFields_Invokable;
@@ -66,9 +66,8 @@ void WalkObjectsTest::testWalkBigInteger() {
 	pVMBigInteger int1 = _UNIVERSE->NewBigInteger(4711);
 	int1->WalkObjects(collectMembers);
 
-	//BigIntegers should only have one member -> Class
+	//Integers have no additional members
 	CPPUNIT_ASSERT_EQUAL(NoOfFields_BigInteger, walkedObjects.size());
-	CPPUNIT_ASSERT(WalkerHasFound(int1->GetClass()));
 }
 
 void WalkObjectsTest::testWalkDouble() {

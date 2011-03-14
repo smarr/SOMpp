@@ -546,10 +546,7 @@ pVMArray Universe::NewArrayList(ExtendedList<pVMObject>& list ) const {
 
 
 pVMBigInteger Universe::NewBigInteger( int64_t value) const {
-    pVMBigInteger result = new (_HEAP) VMBigInteger(value);
-    result->SetClass(bigIntegerClass);
-
-    return result;
+    return new (_HEAP) VMBigInteger(value);
 }
 
 

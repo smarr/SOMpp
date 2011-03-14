@@ -62,7 +62,7 @@ void VMObjectsInterfaceTest::testGetSetObjectSize() {
 	testObjectSizeHelper(pMethod, "method size", 52);
 	testObjectSizeHelper(pBlock, "block size", 32);
 	testObjectSizeHelper(pPrimitive, "primitive size", 40);
-	testObjectSizeHelper(pBigInteger, "big integer size", 32);
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("big integer size", 16, pBigInteger->GetObjectSize());
 	testObjectSizeHelper(pClass, "class size", 44);
 	testObjectSizeHelper(pFrame, "frame size", 60);
 	testObjectSizeHelper(pEvaluationPrimitive, "evaluation primitive size", 44);
@@ -124,7 +124,7 @@ void VMObjectsInterfaceTest::testGetNumberOfFields() {
 	testNumberOfFieldsHelper("method", 8, pMethod->Clone());
 	testNumberOfFieldsHelper("block", 3, pBlock->Clone());
 	testNumberOfFieldsHelper("primitive", 5, pPrimitive->Clone());
-	testNumberOfFieldsHelper("big integer", 1, pBigInteger->Clone());
+	//testNumberOfFieldsHelper("big integer", 1, pBigInteger->Clone());
 	testNumberOfFieldsHelper("class", 6, pClass->Clone());
 	testNumberOfFieldsHelper("frame", 7, pFrame->Clone());
 	testNumberOfFieldsHelper("evaluation primitive", 5,
@@ -171,7 +171,7 @@ void VMObjectsInterfaceTest::testGetSetField() {
 	testGetSetFieldHelper(pMethod, "method");
 	testGetSetFieldHelper(pBlock, "block");
 	testGetSetFieldHelper(pPrimitive, "primitive");
-	testGetSetFieldHelper(pBigInteger, "big integer");
+	//testGetSetFieldHelper(pBigInteger, "big integer");
 	testGetSetFieldHelper(pClass, "class");
 	testGetSetFieldHelper(pFrame, "frame");
 	testGetSetFieldHelper(pEvaluationPrimitive, "evaluation primitive");
@@ -236,6 +236,7 @@ void VMObjectsInterfaceTest::testGetSetClass() {
 	//There is no setter for Integer and Double classes anymore
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("integer not instance of Integer class", getGlobalClass("Integer"), pInteger->GetClass());
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("double not instance of Double class", getGlobalClass("Double"), pDouble->GetClass());
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("big integer not instance of big integer class", getGlobalClass("BigInteger"), pBigInteger->GetClass());
 	testGetSetClassHelper("string", pString, getGlobalClass("String"),
 			getGlobalClass("Integer"));
 	testGetSetClassHelper("symbol", pSymbol, getGlobalClass("Symbol"),
@@ -248,8 +249,6 @@ void VMObjectsInterfaceTest::testGetSetClass() {
 			getGlobalClass("String"));
 	testGetSetClassHelper("primitive", pPrimitive, getGlobalClass("Primitive"),
 			getGlobalClass("String"));
-	testGetSetClassHelper("big integer", pBigInteger, getGlobalClass(
-			"BigInteger"), getGlobalClass("String"));
 	// pClass is created as Integer -> Integer should be correct
 	testGetSetClassHelper("class", pClass, getGlobalClass("Integer"),
 			getGlobalClass("String"));

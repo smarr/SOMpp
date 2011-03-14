@@ -42,7 +42,6 @@ public:
     inline double  GetEmbeddedDouble() const;
     virtual pVMClass GetClass() const;
     virtual int32_t GetObjectSize() const;
-    virtual void WalkObjects(AbstractVMObject* (AbstractVMObject*));
 private:
     double embeddedDouble;
 };
