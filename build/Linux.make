@@ -136,7 +136,7 @@ all: $(CSOM_NAME)\
 	CORE units
 
 
-debug : DBG_FLAGS=-DDEBUG -g
+debug : DBG_FLAGS=-DDEBUG -O -g
 debug: all
 
 profiling : DBG_FLAGS=-g -pg

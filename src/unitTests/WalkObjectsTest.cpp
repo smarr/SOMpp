@@ -25,7 +25,7 @@ static const size_t NoOfFields_Object = 1;
 static const size_t NoOfFields_String = NoOfFields_Object;
 static const size_t NoOfFields_Symbol = NoOfFields_Object;
 static const size_t NoOfFields_Double = NoOfFields_Object;
-static const size_t NoOfFields_Integer = NoOfFields_Object;
+static const size_t NoOfFields_Integer = 0;
 static const size_t NoOfFields_BigInteger = NoOfFields_Object;
 static const size_t NoOfFields_Array = NoOfFields_Object;
 static const size_t NoOfFields_Invokable = 2 + NoOfFields_Object;
@@ -47,7 +47,7 @@ AbstractVMObject* collectMembers(AbstractVMObject* obj) {
 /*
  * Helper function that searches the result vector for a field
  */
-bool WalkerHasFound(pVMObject obj) {
+bool WalkerHasFound(AbstractVMObject* obj) {
 	return find(walkedObjects.begin(), walkedObjects.end(), obj)
 			!= walkedObjects.end();
 }
@@ -57,9 +57,8 @@ void WalkObjectsTest::testWalkInteger() {
 	pVMInteger int1 = _UNIVERSE->NewInteger(42);
 	int1->WalkObjects(collectMembers);
 
-	//Integers should only have one member -> Class
-	CPPUNIT_ASSERT_EQUAL(NoOfFields_String, walkedObjects.size());
-	CPPUNIT_ASSERT(WalkerHasFound(int1->GetClass()));
+	//Integers have no additional members
+	CPPUNIT_ASSERT_EQUAL(NoOfFields_Integer, walkedObjects.size());
 }
 
 void WalkObjectsTest::testWalkBigInteger() {

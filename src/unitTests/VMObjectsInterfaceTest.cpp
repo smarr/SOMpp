@@ -53,7 +53,8 @@ void testObjectSizeHelper(pVMObject obj, StdString msg, int32_t expectedSize) {
 
 void VMObjectsInterfaceTest::testGetSetObjectSize() {
 	testObjectSizeHelper(pObject, "plain object size", 24);
-	testObjectSizeHelper(pInteger, "integer size", 28);
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("integer size", 12, pInteger->GetObjectSize());
+	//testObjectSizeHelper(pInteger, "integer size", 28);
 	testObjectSizeHelper(pDouble, "double size", 32);
 	testObjectSizeHelper(pString, "string size", 36);
 	testObjectSizeHelper(pSymbol, "symbol size", 36);
@@ -68,7 +69,7 @@ void VMObjectsInterfaceTest::testGetSetObjectSize() {
 	testObjectSizeHelper(pEvaluationPrimitive, "evaluation primitive size", 44);
 }
 
-void testGCFieldHelper(pVMObject obj, StdString name) {
+void testGCFieldHelper(AbstractVMObject* obj, StdString name) {
 	int32_t oldval = obj->GetGCField();
 	obj->SetGCField(0xaffe);
 	CPPUNIT_ASSERT_EQUAL_MESSAGE(StdString("setting GCField failed for ")
@@ -114,7 +115,8 @@ void testNumberOfFieldsHelper(StdString name, int32_t expectedNumberOfFields,
 void VMObjectsInterfaceTest::testGetNumberOfFields() {
 	//when setting the number of fields, all fields are nulled -> so use cloned objects instead
 	testNumberOfFieldsHelper("plain object", 1, pObject->Clone());
-	testNumberOfFieldsHelper("integer", 1, pInteger->Clone());
+	//Integer has no fields anymore
+	//testNumberOfFieldsHelper("integer", 1, pInteger->Clone());
 	testNumberOfFieldsHelper("double", 1, pDouble->Clone());
 	testNumberOfFieldsHelper("string", 1, pString->Clone());
 	testNumberOfFieldsHelper("symbol", 1, pSymbol->Clone());
@@ -160,7 +162,8 @@ void VMObjectsInterfaceTest::testGetFieldName() {
 
 void VMObjectsInterfaceTest::testGetSetField() {
 	testGetSetFieldHelper(pObject, "plain object");
-	testGetSetFieldHelper(pInteger, "integer");
+	//Integer has no fields anymore
+	//testGetSetFieldHelper(pInteger, "integer");
 	testGetSetFieldHelper(pDouble, "double");
 	testGetSetFieldHelper(pString, "string");
 	testGetSetFieldHelper(pSymbol, "symbol");
@@ -231,8 +234,8 @@ void testGetSetClassHelper(StdString name, pVMObject obj,
 void VMObjectsInterfaceTest::testGetSetClass() {
 	//Don't touch GetClass of Object -> Not set to anything -> Danger
 	//CPPUNIT_ASSERT_EQUAL_MESSAGE("plain object class wrong!!!", getGlobalClass("Metaclass"), pObject->GetClass());
-	testGetSetClassHelper("integer", pInteger, getGlobalClass("Integer"),
-			getGlobalClass("String"));
+	//There is no setter for IntegerClass anymore
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("integer not instance of Integer class", getGlobalClass("Integer"), pInteger->GetClass());
 	testGetSetClassHelper("double", pDouble, getGlobalClass("Double"),
 			getGlobalClass("String"));
 	testGetSetClassHelper("string", pString, getGlobalClass("String"),

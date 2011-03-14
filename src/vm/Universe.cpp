@@ -618,7 +618,7 @@ pVMObject Universe::NewInstance( pVMClass  classOfInstance) const {
 
 pVMInteger Universe::NewInteger( int32_t value) const {
     pVMInteger result = new (_HEAP) VMInteger(value);
-    result->SetClass(integerClass);
+    //result->SetClass(integerClass);
     return result;
 }
 

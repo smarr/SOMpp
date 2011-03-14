@@ -33,11 +33,11 @@ ObjectSizeTest = (
                 harness
                     fail: self
                     because: 'Plain object does not have size 6.' ].
-        42 objectSize / 4 = 7
+        42 objectSize / 4 = 3
             ifFalse: [
                 harness
                     fail: self
-                    because: 'Integer object does not have size 7.' ].
+                    because: 'Integer object does not have size 3.' ].
         'hello' objectSize / 4 = 9
             ifFalse: [
                 harness

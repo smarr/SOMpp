@@ -29,7 +29,6 @@ THE SOFTWARE.
 #include <iostream>
 
 #include "VMString.h"
-#include "VMInteger.h"
 
 //this macro could replace the chars member variable
 //#define CHARS ((char*)&clazz+sizeof(pVMObject))

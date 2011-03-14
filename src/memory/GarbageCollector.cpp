@@ -57,10 +57,10 @@ void GarbageCollector::Collect() {
 	markReachableObjects();
 
 	//in this survivors stack we will remember all objects that survived
-	stack<pVMObject>* survivors = heap->otherAllocatedObjects;
+	stack<AbstractVMObject*>* survivors = heap->otherAllocatedObjects;
 	int32_t survivorsSize = 0;
 	while (heap->allocatedObjects->size() > 0) {
-		pVMObject obj = heap->allocatedObjects->top();
+		AbstractVMObject* obj = heap->allocatedObjects->top();
 		if (obj->GetGCField() == GC_MARKED) {
 			survivors->push(obj);
 			survivorsSize += obj->GetObjectSize();

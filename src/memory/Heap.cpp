@@ -33,11 +33,6 @@ THE SOFTWARE.
 #include "../vmobjects/VMObject.h"
 #include "../vm/Universe.h"
 
-/*
- * macro for padding - only word-aligned memory must be allocated
- */
-#define PAD_BYTES(N) ((sizeof(void*) - ((N) % sizeof(void*))) % sizeof(void*))
-
 Heap* Heap::theHeap = NULL;
 
 Heap* Heap::GetHeap() {
@@ -68,15 +63,15 @@ void Heap::DestroyHeap() {
     if (theHeap) delete theHeap;
 }
 
-void Heap::FreeObject(pVMObject o) {
+void Heap::FreeObject(AbstractVMObject* o) {
 	free(o);
 }
 
 Heap::Heap(int objectSpaceSize) {
 	//our initial collection limit is 90% of objectSpaceSize
 	collectionLimit = objectSpaceSize * 0.9;
-	allocatedObjects = new std::stack<pVMObject>();
-	otherAllocatedObjects = new std::stack<pVMObject>();
+	allocatedObjects = new std::stack<AbstractVMObject*>();
+	otherAllocatedObjects = new std::stack<AbstractVMObject*>();
     spcAlloc = 0;
 	gc = new GarbageCollector(this);
 }
@@ -88,17 +83,18 @@ Heap::~Heap() {
 
 }
 
-VMObject* Heap::AllocateObject(size_t size) {
+AbstractVMObject* Heap::AllocateObject(size_t size) {
 	//TODO: PADDING wird eigentlich auch durch malloc erledigt
 	size_t paddedSize = size + PAD_BYTES(size);
-	pVMObject newObject = (pVMObject) malloc(paddedSize);
+	AbstractVMObject* newObject = (AbstractVMObject*) malloc(paddedSize);
 	if (newObject == NULL) {
 		cout << "Failed to allocate " << size << " Bytes." << endl;
 		_UNIVERSE->Quit(-1);
 	}
 	spcAlloc += paddedSize;
 	memset(newObject, 0, paddedSize);
-	newObject->SetObjectSize(paddedSize);
+	//AbstractObjects (Integer,...) have no Size field anymore -> set within VMObject's new operator
+	//newObject->SetObjectSize(paddedSize);
 	allocatedObjects->push(newObject);
 	//let's see if we have to trigger the GC
 	if (spcAlloc >= collectionLimit)

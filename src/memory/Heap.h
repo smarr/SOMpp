@@ -36,7 +36,7 @@ THE SOFTWARE.
 #include "../misc/defs.h"
 #include "../vmobjects/ObjectFormats.h"
 
-class VMObject;
+class AbstractVMObject;
 
 //macro to access the heap
 #define _HEAP Heap::GetHeap()
@@ -51,8 +51,8 @@ public:
     static void DestroyHeap();
 	Heap(int objectSpaceSize = 1048576);
 	~Heap();
-    VMObject* AllocateObject(size_t size);
-    void FreeObject(pVMObject);
+    AbstractVMObject* AllocateObject(size_t size);
+    void FreeObject(AbstractVMObject*);
 	void triggerGC(void);
 	bool isCollectionTriggered(void);
     void FullGC();
@@ -60,8 +60,8 @@ public:
     
 private:
     static Heap* theHeap;
-    std::stack<pVMObject>* allocatedObjects;
-    std::stack<pVMObject>* otherAllocatedObjects;
+    std::stack<AbstractVMObject*>* allocatedObjects;
+    std::stack<AbstractVMObject*>* otherAllocatedObjects;
 	//flag that shows if a Collection is triggered
 	bool gcTriggered;
 	GarbageCollector* gc;
