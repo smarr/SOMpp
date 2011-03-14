@@ -54,8 +54,7 @@ void testObjectSizeHelper(pVMObject obj, StdString msg, int32_t expectedSize) {
 void VMObjectsInterfaceTest::testGetSetObjectSize() {
 	testObjectSizeHelper(pObject, "plain object size", 24);
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("integer size", 12, pInteger->GetObjectSize());
-	//testObjectSizeHelper(pInteger, "integer size", 28);
-	testObjectSizeHelper(pDouble, "double size", 32);
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("double size", 16, pDouble->GetObjectSize());
 	testObjectSizeHelper(pString, "string size", 36);
 	testObjectSizeHelper(pSymbol, "symbol size", 36);
 	testObjectSizeHelper(pArray, "array size", 24);
@@ -115,9 +114,9 @@ void testNumberOfFieldsHelper(StdString name, int32_t expectedNumberOfFields,
 void VMObjectsInterfaceTest::testGetNumberOfFields() {
 	//when setting the number of fields, all fields are nulled -> so use cloned objects instead
 	testNumberOfFieldsHelper("plain object", 1, pObject->Clone());
-	//Integer has no fields anymore
+	//Integer and doubles have no fields anymore
 	//testNumberOfFieldsHelper("integer", 1, pInteger->Clone());
-	testNumberOfFieldsHelper("double", 1, pDouble->Clone());
+	//testNumberOfFieldsHelper("double", 1, pDouble->Clone());
 	testNumberOfFieldsHelper("string", 1, pString->Clone());
 	testNumberOfFieldsHelper("symbol", 1, pSymbol->Clone());
 	testNumberOfFieldsHelper("array", 1, pArray->Clone());
@@ -162,9 +161,9 @@ void VMObjectsInterfaceTest::testGetFieldName() {
 
 void VMObjectsInterfaceTest::testGetSetField() {
 	testGetSetFieldHelper(pObject, "plain object");
-	//Integer has no fields anymore
+	//Integer and Doubles have no fields anymore
 	//testGetSetFieldHelper(pInteger, "integer");
-	testGetSetFieldHelper(pDouble, "double");
+	//testGetSetFieldHelper(pDouble, "double");
 	testGetSetFieldHelper(pString, "string");
 	testGetSetFieldHelper(pSymbol, "symbol");
 	testGetSetFieldHelper(pArray, "array");
@@ -234,10 +233,9 @@ void testGetSetClassHelper(StdString name, pVMObject obj,
 void VMObjectsInterfaceTest::testGetSetClass() {
 	//Don't touch GetClass of Object -> Not set to anything -> Danger
 	//CPPUNIT_ASSERT_EQUAL_MESSAGE("plain object class wrong!!!", getGlobalClass("Metaclass"), pObject->GetClass());
-	//There is no setter for IntegerClass anymore
+	//There is no setter for Integer and Double classes anymore
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("integer not instance of Integer class", getGlobalClass("Integer"), pInteger->GetClass());
-	testGetSetClassHelper("double", pDouble, getGlobalClass("Double"),
-			getGlobalClass("String"));
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("double not instance of Double class", getGlobalClass("Double"), pDouble->GetClass());
 	testGetSetClassHelper("string", pString, getGlobalClass("String"),
 			getGlobalClass("Integer"));
 	testGetSetClassHelper("symbol", pSymbol, getGlobalClass("Symbol"),

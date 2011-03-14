@@ -29,10 +29,10 @@ THE SOFTWARE.
   */
 
 
-#include "VMObject.h"
+#include "AbstractObject.h"
 
 
-class VMDouble : public VMObject {
+class VMDouble : public AbstractVMObject {
 public:
     VMDouble();
     VMDouble(double);
@@ -40,10 +40,11 @@ public:
     virtual pVMDouble Clone() const;
     inline void    SetEmbeddedDouble(double);
     inline double  GetEmbeddedDouble() const;
+    virtual pVMClass GetClass() const;
+    virtual int32_t GetObjectSize() const;
+    virtual void WalkObjects(AbstractVMObject* (AbstractVMObject*));
 private:
     double embeddedDouble;
-
-    static const int VMDoubleNumberOfFields;
 };
 
 void VMDouble::SetEmbeddedDouble(double val) {

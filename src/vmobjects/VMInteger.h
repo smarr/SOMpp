@@ -28,7 +28,7 @@
  THE SOFTWARE.
  */
 
-#include "VMObject.h"
+#include "AbstractObject.h"
 
 #include "../misc/defs.h"
 

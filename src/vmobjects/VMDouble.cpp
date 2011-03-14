@@ -26,19 +26,28 @@ THE SOFTWARE.
 
 
 #include "VMDouble.h"
+#include "../vm/Universe.h"
 
-const int VMDouble::VMDoubleNumberOfFields = 0; 
-
-VMDouble::VMDouble() : VMObject(VMDoubleNumberOfFields) {
-    this->embeddedDouble = 0.0f;
+VMDouble::VMDouble(){
+    this->embeddedDouble = 0.0;
 }
 
-
-VMDouble::VMDouble(double val) : VMObject(VMDoubleNumberOfFields) {
+VMDouble::VMDouble(double val) {
     this->embeddedDouble = val;
 }
 
 pVMDouble VMDouble::Clone() const {
-	return new (_HEAP, GetAdditionalSpaceConsumption()) VMDouble(*this);
+	return new (_HEAP) VMDouble(*this);
 }
 
+pVMClass VMDouble::GetClass() const {
+	return doubleClass;
+}
+
+int32_t VMDouble::GetObjectSize() const {
+	return sizeof(VMDouble) + PAD_BYTES(sizeof(VMDouble));
+}
+
+void VMDouble::WalkObjects(AbstractVMObject* (*)(AbstractVMObject*)) {
+	return;
+}

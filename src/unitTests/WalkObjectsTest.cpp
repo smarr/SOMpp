@@ -24,7 +24,7 @@
 static const size_t NoOfFields_Object = 1;
 static const size_t NoOfFields_String = NoOfFields_Object;
 static const size_t NoOfFields_Symbol = NoOfFields_Object;
-static const size_t NoOfFields_Double = NoOfFields_Object;
+static const size_t NoOfFields_Double = 0;
 static const size_t NoOfFields_Integer = 0;
 static const size_t NoOfFields_BigInteger = NoOfFields_Object;
 static const size_t NoOfFields_Array = NoOfFields_Object;
@@ -76,9 +76,8 @@ void WalkObjectsTest::testWalkDouble() {
 	pVMDouble d1 = _UNIVERSE->NewDouble(432.1);
 	d1->WalkObjects(collectMembers);
 
-	//Doubles should only have one member -> Class
+	//Doubles have no additional members
 	CPPUNIT_ASSERT_EQUAL(NoOfFields_Double, walkedObjects.size());
-	CPPUNIT_ASSERT(WalkerHasFound(d1->GetClass()));
 }
 
 void WalkObjectsTest::testWalkEvaluationPrimitive() {
