@@ -62,7 +62,8 @@ void VMObjectsInterfaceTest::testGetSetObjectSize() {
 	testObjectSizeHelper(pMethod, "method size", 52);
 	testObjectSizeHelper(pBlock, "block size", 32);
 	testObjectSizeHelper(pPrimitive, "primitive size", 40);
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("big integer size", 16, pBigInteger->GetObjectSize());
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("big integer size", 16,
+			pBigInteger->GetObjectSize());
 	testObjectSizeHelper(pClass, "class size", 44);
 	testObjectSizeHelper(pFrame, "frame size", 60);
 	testObjectSizeHelper(pEvaluationPrimitive, "evaluation primitive size", 44);
@@ -131,6 +132,34 @@ void VMObjectsInterfaceTest::testGetNumberOfFields() {
 			pEvaluationPrimitive->Clone());
 }
 
+void testGetClassFieldHelper(pVMObject obj, StdString name) {
+	pVMSymbol sym = _UNIVERSE->SymbolFor("class");
+	int fieldNo = obj->GetFieldIndex(sym);
+	CPPUNIT_ASSERT_EQUAL_MESSAGE(name + StdString(
+			" does not have 'class' as first field"), 0, fieldNo);
+	CPPUNIT_ASSERT_EQUAL_MESSAGE(name + StdString(
+			"does not support 'class' field"), (pVMClass)obj->GetField(fieldNo),
+			obj->GetClass());
+}
+
+void VMObjectsInterfaceTest::testGetClassField() {
+	testGetClassFieldHelper(pObject, "plain object");
+	testGetClassFieldHelper(pInteger, "integer");
+	testGetClassFieldHelper(pDouble, "double");
+	testGetClassFieldHelper(pString, "string");
+	testGetClassFieldHelper(pSymbol, "symbol");
+	testGetClassFieldHelper(pArray, "array");
+	testGetClassFieldHelper(pArray3, "array(3)");
+	testGetClassFieldHelper(pMethod, "method");
+	testGetClassFieldHelper(pBlock, "block");
+	testGetClassFieldHelper(pPrimitive, "primitive");
+	testGetClassFieldHelper(pBigInteger, "big integer");
+	testGetClassFieldHelper(pClass, "class");
+	testGetClassFieldHelper(pFrame, "frame");
+	testGetClassFieldHelper(pEvaluationPrimitive, "evaluation primitive");
+
+}
+
 void testGetSetFieldHelper(pVMObject obj, StdString name) {
 	for (int32_t i = 0; i <= obj->GetNumberOfFields(); i++) {
 		AbstractVMObject* oldVal = obj->GetField(i);
@@ -149,14 +178,16 @@ void testGetSetFieldHelper(pVMObject obj, StdString name) {
 	}
 }
 
-void testFieldNameHelper(pVMObject obj, StdString objectName, int32_t index, StdString expectedName) {
+void testFieldNameHelper(pVMObject obj, StdString objectName, int32_t index,
+		StdString expectedName) {
 	std::stringstream message;
 	message << objectName << " field " << index;
-	CPPUNIT_ASSERT_EQUAL_MESSAGE(message.str(), expectedName, StdString(obj->GetFieldName(index)->GetChars()));
+	CPPUNIT_ASSERT_EQUAL_MESSAGE(message.str(), expectedName, StdString(
+			obj->GetFieldName(index)->GetChars()));
 }
 
 void VMObjectsInterfaceTest::testGetFieldName() {
-//	testFieldNameHelper(pObject, "plain object", 0, "class");
+	//	testFieldNameHelper(pObject, "plain object", 0, "class");
 }
 
 void VMObjectsInterfaceTest::testGetSetField() {
@@ -234,9 +265,13 @@ void VMObjectsInterfaceTest::testGetSetClass() {
 	//Don't touch GetClass of Object -> Not set to anything -> Danger
 	//CPPUNIT_ASSERT_EQUAL_MESSAGE("plain object class wrong!!!", getGlobalClass("Metaclass"), pObject->GetClass());
 	//There is no setter for Integer and Double classes anymore
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("integer not instance of Integer class", getGlobalClass("Integer"), pInteger->GetClass());
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("double not instance of Double class", getGlobalClass("Double"), pDouble->GetClass());
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("big integer not instance of big integer class", getGlobalClass("BigInteger"), pBigInteger->GetClass());
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("integer not instance of Integer class",
+			getGlobalClass("Integer"), pInteger->GetClass());
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("double not instance of Double class",
+			getGlobalClass("Double"), pDouble->GetClass());
+	CPPUNIT_ASSERT_EQUAL_MESSAGE(
+			"big integer not instance of big integer class", getGlobalClass(
+					"BigInteger"), pBigInteger->GetClass());
 	testGetSetClassHelper("string", pString, getGlobalClass("String"),
 			getGlobalClass("Integer"));
 	testGetSetClassHelper("symbol", pSymbol, getGlobalClass("Symbol"),

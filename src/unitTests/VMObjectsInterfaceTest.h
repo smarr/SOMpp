@@ -33,6 +33,7 @@ class VMObjectsInterfaceTest: public CPPUNIT_NS::TestCase {
 	CPPUNIT_TEST(testGetHash);
 	CPPUNIT_TEST(testGetSetField);
 	CPPUNIT_TEST(testGetFieldName);
+	CPPUNIT_TEST(testGetClassField);
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -61,6 +62,7 @@ private:
 	void testGetSetClass();
 	void testGetFieldName();
 	void testGetHash();
+	void testGetClassField();
 };
 
 #endif /* VMOBJECTSINTERFACETEST_H_ */
