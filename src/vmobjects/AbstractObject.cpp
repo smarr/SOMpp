@@ -24,7 +24,7 @@ void AbstractVMObject::SetGCField(int32_t value) {
 	gcfield = value;
 }
 
-void AbstractVMObject::Send(StdString selectorString, AbstractVMObject** arguments, int argc) {
+void AbstractVMObject::Send(StdString selectorString, pVMObject* arguments, int argc) {
     pVMSymbol selector = _UNIVERSE->SymbolFor(selectorString);
     pVMFrame frame = _UNIVERSE->GetInterpreter()->GetFrame();
     frame->Push(this);
@@ -36,4 +36,12 @@ void AbstractVMObject::Send(StdString selectorString, AbstractVMObject** argumen
     pVMClass cl = this->GetClass();
     pVMInvokable invokable = (pVMInvokable)(cl->LookupInvokable(selector));
     (*invokable)(frame);
+}
+int AbstractVMObject::GetFieldIndex(pVMSymbol fieldName) const {
+	return this->GetClass()->LookupFieldIndex(fieldName);
+}
+pVMObject AbstractVMObject::GetField(int index) const {
+	//we have to emulate field 0 = class
+	if (index==0)
+		return this->GetClass();
 }

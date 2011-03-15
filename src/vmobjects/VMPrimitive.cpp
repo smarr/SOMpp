@@ -59,7 +59,7 @@ pVMPrimitive VMPrimitive::Clone() const {
 }
 
 
-void VMPrimitive::WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*)) {
+void VMPrimitive::WalkObjects(pVMObject (*walk)(pVMObject)) {
     // The fields VMPrimitive adds to those of VMInvokable MUST NOT be traversed
     // during the GC's mark phase as they are not pointers the GC could possibly
     // interpret. Hence, they are omitted from the mark phase by adjusting the

@@ -45,7 +45,7 @@ THE SOFTWARE.
  * This function coerces any right-hand parameter to a double, regardless of its
  * true nature. This is to make sure that all Double operations return Doubles.
  */
-double _Double::coerceDouble(AbstractVMObject* x) {
+double _Double::coerceDouble(pVMObject x) {
     if(dynamic_cast<pVMDouble>(x) != NULL)
         return ((pVMDouble)x)->GetEmbeddedDouble();
     else if(dynamic_cast<pVMInteger>(x) != NULL)

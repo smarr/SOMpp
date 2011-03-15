@@ -50,7 +50,7 @@ public:
     void SetFrame(pVMFrame frame);
     pVMFrame GetFrame();
     pVMMethod GetMethod();
-    AbstractVMObject* GetSelf();
+    pVMObject GetSelf();
 private:
     pVMFrame frame;
     StdString uG;
@@ -58,7 +58,7 @@ private:
     StdString eB;
 
     pVMFrame popFrame();
-    void popFrameAndPushResult(AbstractVMObject* result);
+    void popFrameAndPushResult(pVMObject result);
     void send(pVMSymbol signature, pVMClass receiverClass);
     
     void doDup();

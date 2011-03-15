@@ -36,18 +36,18 @@ static const size_t NoOfFields_Block = 2 + NoOfFields_Object;
 static const size_t NoOfFields_Primitive = NoOfFields_Invokable;
 static const size_t NoOfFields_EvaluationPrimitive = 1 + NoOfFields_Primitive;
 
-static vector<AbstractVMObject*> walkedObjects;
+static vector<pVMObject> walkedObjects;
 /*
  * This method simply pushes all objects into the vector walkedObjects
  */
-AbstractVMObject* collectMembers(AbstractVMObject* obj) {
+pVMObject collectMembers(pVMObject obj) {
 	walkedObjects.push_back(obj);
 	return obj;
 }
 /*
  * Helper function that searches the result vector for a field
  */
-bool WalkerHasFound(AbstractVMObject* obj) {
+bool WalkerHasFound(pVMObject obj) {
 	return find(walkedObjects.begin(), walkedObjects.end(), obj)
 			!= walkedObjects.end();
 }

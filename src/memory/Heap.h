@@ -60,8 +60,8 @@ public:
     
 private:
     static Heap* theHeap;
-    std::stack<AbstractVMObject*>* allocatedObjects;
-    std::stack<AbstractVMObject*>* otherAllocatedObjects;
+    std::stack<pVMObject>* allocatedObjects;
+    std::stack<pVMObject>* otherAllocatedObjects;
 	//flag that shows if a Collection is triggered
 	bool gcTriggered;
 	GarbageCollector* gc;

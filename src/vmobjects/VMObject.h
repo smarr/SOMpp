@@ -43,7 +43,7 @@
 class VMSymbol;
 class VMClass;
 
-#define FIELDS ((AbstractVMObject**)&clazz)
+#define FIELDS ((pVMObject*)&clazz)
 
 /* chbol: this table is not correct anymore because of introduction of
  * class AbstractVMObject
@@ -71,16 +71,15 @@ public:
 	virtual pVMClass GetClass() const;
 	virtual void SetClass(pVMClass cl);
 	virtual pVMSymbol GetFieldName(int index) const;
-	virtual int GetFieldIndex(pVMSymbol fieldName) const;
 	virtual int GetNumberOfFields() const;
 	virtual void SetNumberOfFields(int nof);
-	virtual AbstractVMObject* GetField(int index) const;
+	virtual pVMObject GetField(int index) const;
 	virtual void Assert(bool value) const;
-	virtual void SetField(int index, AbstractVMObject* value);
-	virtual void WalkObjects(AbstractVMObject* (AbstractVMObject*));
+	virtual void SetField(int index, pVMObject value);
+	virtual void WalkObjects(pVMObject (pVMObject));
 	virtual pVMObject Clone() const;
 	virtual int32_t GetObjectSize() const;
-	void SetObjectSize(size_t size);
+	virtual void SetObjectSize(size_t size);
 
 	/* Operators */
 
@@ -97,7 +96,7 @@ public:
 			unsigned int additionalBytes = 0) {
 		void* mem = (void*) heap->AllocateObject(numBytes + additionalBytes);
 		size_t objSize = numBytes + additionalBytes;
-		((pVMObject) mem)->objectSize = objSize + PAD_BYTES(objSize);
+		((VMObject*) mem)->objectSize = objSize + PAD_BYTES(objSize);
 		return mem;
 	}
 

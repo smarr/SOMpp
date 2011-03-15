@@ -99,7 +99,7 @@ public:
 
 	//Globals accessor (only for GC, could be considered be
 	//declared as a private friend method for the GC)
-	map<pVMSymbol, AbstractVMObject*> GetGlobals() {
+	map<pVMSymbol, pVMObject> GetGlobals() {
 		return globals;
 	}
 	Heap* GetHeap() {
@@ -137,8 +137,8 @@ public:
 
 	void InitializeSystemClass(pVMClass, pVMClass, const char*);
 
-	AbstractVMObject* GetGlobal(pVMSymbol);
-	void SetGlobal(pVMSymbol name, AbstractVMObject* val);
+	pVMObject GetGlobal(pVMSymbol);
+	void SetGlobal(pVMSymbol name, pVMObject val);
 	bool HasGlobal(pVMSymbol);
 	void InitializeGlobals();
 	pVMClass GetBlockClass(void) const;
@@ -166,7 +166,7 @@ private:
 
 	Heap* heap;
 	int heapSize;
-	map<pVMSymbol, AbstractVMObject*> globals;
+	map<pVMSymbol, pVMObject> globals;
 	vector<StdString> classPath;
 
 	Symboltable* symboltable;

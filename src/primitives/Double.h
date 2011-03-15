@@ -50,7 +50,7 @@ public:
     void  AsString(pVMObject object, pVMFrame frame);
     void  Sqrt(pVMObject object, pVMFrame frame);
 private:
-    double coerceDouble(AbstractVMObject* x);
+    double coerceDouble(pVMObject x);
 };
 
 

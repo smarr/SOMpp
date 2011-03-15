@@ -39,7 +39,7 @@ THE SOFTWARE.
 #define pVMInteger VMInteger* 
 #define pVMInvokable VMInvokable*
 #define pVMMethod VMMethod* 
-#define pVMObject VMObject* 
+#define pVMObject AbstractVMObject*
 #define pVMPrimitive VMPrimitive* 
 #define pVMString VMString* 
 #define pVMSymbol VMSymbol* 

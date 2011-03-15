@@ -70,7 +70,7 @@ void      VMMethod::SetSignature(pVMSymbol sig) {
 }
 
 
-void VMMethod::WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*)) {
+void VMMethod::WalkObjects(pVMObject (*walk)(pVMObject)) {
     VMInvokable::WalkObjects(walk);
 	for (int i = 0 ; i < GetNumberOfIndexableFields() ; ++i) {
 		if (theEntries(i) != NULL)
@@ -122,7 +122,7 @@ void VMMethod::operator()(pVMFrame frame) {
 
 void VMMethod::SetHolderAll(pVMClass hld) {
     for (int i = 0; i < this->GetNumberOfIndexableFields(); ++i) {
-        AbstractVMObject* o = GetIndexableField(i);
+        pVMObject o = GetIndexableField(i);
         pVMInvokable vmi = dynamic_cast<pVMInvokable>(o);
         if ( vmi != NULL)  {
             vmi->SetHolder(hld);
@@ -131,7 +131,7 @@ void VMMethod::SetHolderAll(pVMClass hld) {
 }
 
 
-AbstractVMObject* VMMethod::GetConstant(int indx) const {
+pVMObject VMMethod::GetConstant(int indx) const {
     uint8_t bc = _BC[indx+1];
     if (bc >= this->GetNumberOfIndexableFields()) {
         cout << "Error: Constant index out of range" << endl;
@@ -164,7 +164,7 @@ pVMArray VMMethod::CopyAndExtendWith(pVMObject item) const {
 }
 
 
-AbstractVMObject* VMMethod::GetIndexableField(int idx) const {
+pVMObject VMMethod::GetIndexableField(int idx) const {
     if (idx > this->GetNumberOfIndexableFields()-1 || idx < 0) {
         cout << "Array index out of bounds: Accessing " << idx
              << ", but only " << GetNumberOfIndexableFields()-1

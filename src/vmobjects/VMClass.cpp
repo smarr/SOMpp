@@ -129,7 +129,7 @@ void      VMClass::SetInstanceInvokables(pVMArray invokables) {
 	instanceInvokables = invokables;
 
     for (int i = 0; i < this->GetNumberOfInstanceInvokables(); ++i) {
-        AbstractVMObject* invo = (*instanceInvokables)[i];
+        pVMObject invo = (*instanceInvokables)[i];
         //check for Nil object
         if (invo != nilObject) {
             //not Nil, so this actually is an invokable
@@ -146,7 +146,7 @@ int       VMClass::GetNumberOfInstanceInvokables() const {
 }
 
 
-AbstractVMObject* VMClass::GetInstanceInvokable(int index) const {
+pVMObject VMClass::GetInstanceInvokable(int index) const {
     return (*instanceInvokables)[index];
 }
 

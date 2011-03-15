@@ -94,7 +94,7 @@ void  _String::Length(pVMObject /*object*/, pVMFrame frame) {
 
 
 void  _String::Equal(pVMObject /*object*/, pVMFrame frame) {
-    AbstractVMObject* op1 = frame->Pop();
+    pVMObject op1 = frame->Pop();
     pVMString op2 = (pVMString)frame->Pop();
     
     if(op1->GetClass() == op2->GetClass()) {

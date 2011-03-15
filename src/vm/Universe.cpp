@@ -399,7 +399,7 @@ pVMClass Universe::GetBlockClassWithArgs( int numberOfArguments) {
 
 
 
-AbstractVMObject* Universe::GetGlobal( pVMSymbol name) {
+pVMObject Universe::GetGlobal( pVMSymbol name) {
     if (HasGlobal(name))
         return (pVMObject)globals[name];
 

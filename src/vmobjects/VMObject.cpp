@@ -68,10 +68,6 @@ pVMSymbol VMObject::GetFieldName(int index) const {
     return this->clazz->GetInstanceFieldName(index);
 }
 
-int VMObject::GetFieldIndex(pVMSymbol fieldName) const {
-    return this->clazz->LookupFieldIndex(fieldName);
-}
-
 int VMObject::GetNumberOfFields() const {
     return this->numberOfFields;
 }
@@ -89,12 +85,12 @@ void VMObject::Assert(bool value) const {
 }
 
 
-AbstractVMObject* VMObject::GetField(int index) const {
+pVMObject VMObject::GetField(int index) const {
     return FIELDS[index]; 
 }
 
 
-void VMObject::SetField(int index, AbstractVMObject* value) {
+void VMObject::SetField(int index, pVMObject value) {
      FIELDS[index] = value;
 }
 
@@ -108,7 +104,7 @@ int VMObject::GetAdditionalSpaceConsumption() const
                           sizeof(pVMObject) * (this->GetNumberOfFields() - 1)));
 }
 
-void VMObject::WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*)) {
+void VMObject::WalkObjects(pVMObject (*walk)(pVMObject)) {
     for( int i = 0; i < this->GetNumberOfFields(); ++i) {
         FIELDS[i] = walk(FIELDS[i]);
     }

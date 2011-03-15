@@ -27,9 +27,12 @@ void CloneObjectsTest::testCloneObject() {
 	pVMObject orig = new (_UNIVERSE->GetHeap()) VMObject();
 	pVMObject clone = orig->Clone();
 	CPPUNIT_ASSERT((int)orig != (int)clone);
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("objectSize differs!!", orig->objectSize, clone->objectSize);
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfFields differs!!", orig->numberOfFields, clone->numberOfFields);
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->GetClass(),
+			clone->GetClass());
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("objectSize differs!!", orig->GetObjectSize(),
+			clone->GetObjectSize());
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfFields differs!!",
+			orig->GetNumberOfFields(), clone->GetNumberOfFields());
 }
 
 void CloneObjectsTest::testCloneInteger() {
