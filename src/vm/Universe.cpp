@@ -696,6 +696,6 @@ pVMSymbol Universe::SymbolForChars( const char* str) {
 }
 
 
-void Universe::SetGlobal(pVMSymbol name, AbstractVMObject *val) {
+void Universe::SetGlobal(pVMSymbol name, pVMObject val) {
     globals[name] = val;
 }

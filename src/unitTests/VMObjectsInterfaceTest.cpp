@@ -143,7 +143,7 @@ void testGetClassFieldHelper(pVMObject obj, StdString name) {
 }
 
 void VMObjectsInterfaceTest::testGetClassField() {
-	testGetClassFieldHelper(pObject, "plain object");
+	//Don't touch CLASS of plain Object -> Not set to anything -> Danger
 	testGetClassFieldHelper(pInteger, "integer");
 	testGetClassFieldHelper(pDouble, "double");
 	testGetClassFieldHelper(pString, "string");

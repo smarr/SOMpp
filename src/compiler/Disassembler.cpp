@@ -27,7 +27,6 @@ THE SOFTWARE.
 
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
 
 #include "Disassembler.h"
 
@@ -315,8 +314,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
         }
         case BC_PUSH_FIELD: {
             pVMFrame ctxt = frame->GetOuterContext();
-            pVMObject arg = dynamic_cast<pVMObject>(ctxt->GetArgument(0, 0));
-            assert(arg != NULL);
+            pVMObject arg = ctxt->GetArgument(0, 0);
             pVMSymbol name = (pVMSymbol)(method->GetConstant(bc_idx));
             int field_index = arg->GetFieldIndex(name);
            
