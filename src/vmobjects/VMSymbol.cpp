@@ -26,10 +26,13 @@ THE SOFTWARE.
 
 
 #include <sstream>
+#include <string.h>
 
 #include "VMSymbol.h"
 #include "VMInteger.h"
 
+
+extern pVMClass symbolClass;
 
 VMSymbol::VMSymbol(const char* str) : VMString(str) {
 }
@@ -39,9 +42,12 @@ VMSymbol::VMSymbol( const StdString& s ): VMString(s) {
 }
 
 pVMSymbol VMSymbol::Clone() const {
-	return new (_HEAP, GetAdditionalSpaceConsumption()) VMSymbol(*this);
+	return new (_HEAP, strlen(chars) + 1) VMSymbol(*this);
 }
 
+pVMClass VMSymbol::GetClass() const {
+	return symbolClass;
+}
 
 StdString VMSymbol::GetPlainString() const {
     ostringstream str;

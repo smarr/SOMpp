@@ -55,8 +55,10 @@ void VMObjectsInterfaceTest::testGetSetObjectSize() {
 	testObjectSizeHelper(pObject, "plain object size", 24);
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("integer size", 12, pInteger->GetObjectSize());
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("double size", 16, pDouble->GetObjectSize());
-	testObjectSizeHelper(pString, "string size", 36);
-	testObjectSizeHelper(pSymbol, "symbol size", 36);
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("string size", 12, pString->GetObjectSize());
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("symbol size", 12, pSymbol->GetObjectSize());
+	//testObjectSizeHelper(pString, "string size", 12);
+	//testObjectSizeHelper(pSymbol, "symbol size", 12);
 	testObjectSizeHelper(pArray, "array size", 24);
 	testObjectSizeHelper(pArray3, "array(3) size", 36);
 	testObjectSizeHelper(pMethod, "method size", 52);
@@ -118,8 +120,8 @@ void VMObjectsInterfaceTest::testGetNumberOfFields() {
 	//Integer and doubles have no fields anymore
 	//testNumberOfFieldsHelper("integer", 1, pInteger->Clone());
 	//testNumberOfFieldsHelper("double", 1, pDouble->Clone());
-	testNumberOfFieldsHelper("string", 1, pString->Clone());
-	testNumberOfFieldsHelper("symbol", 1, pSymbol->Clone());
+	//testNumberOfFieldsHelper("string", 1, pString->Clone());
+	//testNumberOfFieldsHelper("symbol", 1, pSymbol->Clone());
 	testNumberOfFieldsHelper("array", 1, pArray->Clone());
 	testNumberOfFieldsHelper("array(3)", 1, pArray3->Clone());
 	testNumberOfFieldsHelper("method", 8, pMethod->Clone());
@@ -195,8 +197,8 @@ void VMObjectsInterfaceTest::testGetSetField() {
 	//Integer and Doubles have no fields anymore
 	//testGetSetFieldHelper(pInteger, "integer");
 	//testGetSetFieldHelper(pDouble, "double");
-	testGetSetFieldHelper(pString, "string");
-	testGetSetFieldHelper(pSymbol, "symbol");
+	//testGetSetFieldHelper(pString, "string");
+	//testGetSetFieldHelper(pSymbol, "symbol");
 	testGetSetFieldHelper(pArray, "array");
 	testGetSetFieldHelper(pArray3, "array(3)");
 	testGetSetFieldHelper(pMethod, "method");
@@ -272,10 +274,10 @@ void VMObjectsInterfaceTest::testGetSetClass() {
 	CPPUNIT_ASSERT_EQUAL_MESSAGE(
 			"big integer not instance of big integer class", getGlobalClass(
 					"BigInteger"), pBigInteger->GetClass());
-	testGetSetClassHelper("string", pString, getGlobalClass("String"),
-			getGlobalClass("Integer"));
-	testGetSetClassHelper("symbol", pSymbol, getGlobalClass("Symbol"),
-			getGlobalClass("String"));
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("string not instance of String class",
+			getGlobalClass("String"), pString->GetClass());
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("symbol not instance of Symbol class",
+			getGlobalClass("Symbol"), pSymbol->GetClass());
 	testGetSetClassHelper("array", pArray, getGlobalClass("Array"),
 			getGlobalClass("String"));
 	testGetSetClassHelper("method", pMethod, getGlobalClass("Method"),

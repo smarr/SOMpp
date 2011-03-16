@@ -29,9 +29,9 @@ THE SOFTWARE.
   */
 
 
-#include "VMObject.h"
+#include "AbstractObject.h"
 
-class VMString : public VMObject {
+class VMString : public AbstractVMObject {
 public:
 	VMString( const char* str );
 	VMString( const StdString& s );
@@ -41,13 +41,12 @@ public:
 	StdString GetStdString() const;
     int         GetStringLength() const;
     virtual pVMString Clone() const;
+	virtual pVMClass GetClass() const;
+	virtual int32_t GetObjectSize() const;
 protected:
     //this could be replaced by the CHARS macro in VMString.cpp
     //in order to decrease the object size
 	char* chars; 
-
-private:
-    static const int VMStringNumberOfFields;
 };
 
 char* VMString::GetChars() const {

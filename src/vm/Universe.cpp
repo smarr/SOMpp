@@ -645,11 +645,7 @@ pVMString Universe::NewString( const StdString& str) const {
 }
 
 pVMString Universe::NewString( const char* str) const {
-    //string needs space for str.length characters plus one byte for '\0'
-    int additionalBytes = strlen(str) + 1;
-    pVMString result = new (_HEAP, additionalBytes) VMString(str);
-    result->SetClass(stringClass);
-
+    pVMString result = new (_HEAP, strlen(str) + 1) VMString(str);
     return result;
 }
 
@@ -658,13 +654,8 @@ pVMSymbol Universe::NewSymbol( const StdString& str) {
 }
 
 pVMSymbol Universe::NewSymbol( const char* str ) {
-    //symbol needs space for str.length characters plus one byte for '\0'
-    int additionalBytes = strlen(str) + 1;
-    pVMSymbol result = new (_HEAP, additionalBytes) VMSymbol(str);
-    result->SetClass(symbolClass);
-
+    pVMSymbol result = new (_HEAP, strlen(str)+1) VMSymbol(str);
     symboltable->insert(result);
-
     return result;
 }
 

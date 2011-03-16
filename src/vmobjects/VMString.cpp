@@ -30,12 +30,12 @@ THE SOFTWARE.
 
 #include "VMString.h"
 
+extern pVMClass stringClass;
+
 //this macro could replace the chars member variable
 //#define CHARS ((char*)&clazz+sizeof(pVMObject))
 
-const int VMString::VMStringNumberOfFields = 0; 
-
-VMString::VMString(const char* str) : VMObject(VMStringNumberOfFields) {
+VMString::VMString(const char* str) {
 	//set the chars-pointer to point at the position of the first character
     chars = (char*)&chars+sizeof(char*);
 	
@@ -47,7 +47,7 @@ VMString::VMString(const char* str) : VMObject(VMStringNumberOfFields) {
 	
 }
 
-VMString::VMString(const VMString& other)  : VMObject(other) {
+VMString::VMString(const VMString& other) {
 	chars = (char*)&chars + sizeof(char*);
 	int toCopy = strlen(other.chars) + 1; //also copy \0
 	for (int i=0; i < toCopy; ++i)
@@ -56,12 +56,12 @@ VMString::VMString(const VMString& other)  : VMObject(other) {
 }
 
 pVMString VMString::Clone() const {
-	return new (_HEAP, GetAdditionalSpaceConsumption()) VMString(*this);
+	return new (_HEAP, strlen(chars)+1) VMString(*this);
 
 }
 
 
-VMString::VMString( const StdString& s ): VMObject(VMStringNumberOfFields) {
+VMString::VMString( const StdString& s ) {
     //set the chars-pointer to point at the position of the first character
 	chars = (char*)&chars+sizeof(char*);
 	size_t i = 0;
@@ -71,10 +71,18 @@ VMString::VMString( const StdString& s ): VMObject(VMStringNumberOfFields) {
 	chars[i] = '\0';
 } 
 
+int32_t VMString::GetObjectSize() const {
+	return sizeof(VMString);
+}
+
+pVMClass VMString::GetClass() const {
+	return stringClass;
+}
+
 int VMString::GetStringLength() const {
     //get the additional memory allocated by this object and substract one
     //for the '0' character and four for the char*
-    return this->GetAdditionalSpaceConsumption() - 4 - 1;
+    return strlen(chars);
 }
 
 

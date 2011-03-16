@@ -43,6 +43,7 @@ public:
 	VMSymbol( const StdString& s );
     virtual StdString GetPlainString() const;
     virtual pVMSymbol Clone() const;
+	virtual pVMClass GetClass() const;
 
 };
 

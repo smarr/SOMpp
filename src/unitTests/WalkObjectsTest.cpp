@@ -22,8 +22,8 @@
 #include "vmobjects/VMEvaluationPrimitive.h"
 
 static const size_t NoOfFields_Object = 1;
-static const size_t NoOfFields_String = NoOfFields_Object;
-static const size_t NoOfFields_Symbol = NoOfFields_Object;
+static const size_t NoOfFields_String = 0; 
+static const size_t NoOfFields_Symbol = 0;
 static const size_t NoOfFields_Double = 0;
 static const size_t NoOfFields_Integer = 0;
 static const size_t NoOfFields_BigInteger = 0;
@@ -108,9 +108,7 @@ void WalkObjectsTest::testWalkString() {
 	pVMString str1 = _UNIVERSE->NewString("str1");
 	str1->WalkObjects(collectMembers);
 
-	//Strings should only have one member -> Class
 	CPPUNIT_ASSERT_EQUAL(NoOfFields_String, walkedObjects.size());
-	CPPUNIT_ASSERT(WalkerHasFound(str1->GetClass()));
 }
 
 void WalkObjectsTest::testWalkSymbol() {
@@ -118,9 +116,7 @@ void WalkObjectsTest::testWalkSymbol() {
 	pVMSymbol sym = _UNIVERSE->NewSymbol("symbol");
 	sym->WalkObjects(collectMembers);
 
-	//Symbols should only have one member -> Class
 	CPPUNIT_ASSERT_EQUAL(NoOfFields_Symbol, walkedObjects.size());
-	CPPUNIT_ASSERT(WalkerHasFound(sym->GetClass()));
 }
 
 void WalkObjectsTest::testWalkClass() {
