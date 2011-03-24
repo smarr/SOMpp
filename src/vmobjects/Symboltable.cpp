@@ -37,6 +37,10 @@ pVMSymbol Symboltable::lookup(const StdString& restrict) {
     return symtab[restrict];
 }
 
+map<StdString, pVMSymbol>& Symboltable::getSymbolsMap() {
+    return symtab;
+}
+
 
 void      Symboltable::insert(pVMSymbol sym) {
     symtab[sym->GetStdString()] = sym;

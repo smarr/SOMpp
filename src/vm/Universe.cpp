@@ -625,6 +625,46 @@ pVMClass Universe::NewMetaclassClass() const {
     return result;
 }
 
+void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
+	nilObject = walk(nilObject);
+	trueObject = walk(trueObject);
+	falseObject = walk(falseObject);
+
+	objectClass = dynamic_cast<pVMClass>(walk(objectClass));
+	classClass = dynamic_cast<pVMClass>(walk(classClass));
+	metaClassClass =  dynamic_cast<pVMClass>(walk(metaClassClass));
+
+	nilClass = dynamic_cast<pVMClass>(walk(nilClass));
+	integerClass = dynamic_cast<pVMClass>(walk(integerClass));
+	bigIntegerClass = dynamic_cast<pVMClass>(walk(bigIntegerClass));
+	arrayClass = dynamic_cast<pVMClass>(walk(arrayClass));
+	methodClass = dynamic_cast<pVMClass>(walk(methodClass));
+	symbolClass = dynamic_cast<pVMClass>(walk(symbolClass));
+	frameClass = dynamic_cast<pVMClass>(walk(frameClass));
+	primitiveClass = dynamic_cast<pVMClass>(walk(primitiveClass));
+	stringClass = dynamic_cast<pVMClass>(walk(stringClass));
+	systemClass = dynamic_cast<pVMClass>(walk(systemClass));
+	blockClass = dynamic_cast<pVMClass>(walk(blockClass));
+	doubleClass = dynamic_cast<pVMClass>(walk(doubleClass));
+
+	//walk all entries in globals map
+	map<pVMSymbol, pVMObject> globs = globals;
+	globals.clear();
+	map<pVMSymbol, pVMObject>::iterator iter;
+	for (iter = globs.begin(); iter != globs.end(); iter++) {
+		if (iter->second == NULL)
+			continue;
+		pVMSymbol key = dynamic_cast<pVMSymbol>(walk(iter->first));
+		pVMObject val = walk(iter->second);
+		globals[key] = val;
+	}
+	//walk all entries in symbols map
+	map<StdString, pVMSymbol>::iterator symbolIter;
+	for (symbolIter = symboltable->getSymbolsMap().begin(); symbolIter != symboltable->getSymbolsMap().end(); symbolIter++)
+        //insert overwrites old entries inside the internal map
+		symboltable->insert(dynamic_cast<pVMSymbol>(walk(symbolIter->second)));
+}
+
 
 pVMMethod Universe::NewMethod( pVMSymbol signature, 
                     size_t numberOfBytecodes, size_t numberOfConstants) const {

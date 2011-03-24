@@ -126,6 +126,7 @@ public:
 	pVMMethod NewMethod(pVMSymbol, size_t, size_t) const;
 	pVMObject NewInstance(pVMClass) const;
 	pVMInteger NewInteger(int32_t) const;
+    void WalkGlobals(pVMObject (*walk)(pVMObject));
 	pVMBigInteger NewBigInteger(int64_t) const;
 	pVMDouble NewDouble(double) const;
 	pVMClass NewMetaclassClass(void) const;

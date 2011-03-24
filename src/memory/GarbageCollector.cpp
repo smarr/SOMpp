@@ -38,6 +38,7 @@ THE SOFTWARE.
 #include "../vmobjects/VMMethod.h"
 #include "../vmobjects/VMObject.h"
 #include "../vmobjects/VMSymbol.h"
+#include "../vmobjects/VMFrame.h"
 #define GC_MARKED 3456
 
 GarbageCollector::GarbageCollector(Heap* h) {
@@ -88,30 +89,15 @@ pVMObject markObject(pVMObject obj) {
 
 
 void GarbageCollector::markReachableObjects() {
-	map<pVMSymbol, pVMObject> globals = Universe::GetUniverse()->GetGlobals();
-    for (map<pVMSymbol, pVMObject>::iterator it = globals.begin();
-                                        it!= globals.end(); ++it) {
-        pVMSymbol sym = (pVMSymbol)markObject((&(*it->first))); // XXX use result value
+	_UNIVERSE->WalkGlobals(markObject);
 
-
-        //The NULL check for the second entry is necessary because for
-        //some reason the True, False, Boolean, and System classes
-        //get into the globals map although they shouldn't. Although 
-        //I tried to find out why, I never did... :( They are not entered
-        //into the map using Universe::SetGlobal and there is no other way
-        //to enter them into that map....
-	pVMObject obj = &(*it->second);
-
-        if (&(*it->second) != NULL) obj = markObject(&(*it->second));
-	_UNIVERSE->SetGlobal(sym, obj); 
-	}
     // Get the current frame and mark it.
 	// Since marking is done recursively, this automatically
 	// marks the whole stack
     pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
     if (currentFrame != NULL) {
-        currentFrame = (pVMFrame) markObject((pVMObject)currentFrame);
-	_UNIVERSE->GetInterpreter()->SetFrame(currentFrame);
+        currentFrame = dynamic_cast<pVMFrame>(markObject(currentFrame));
+		_UNIVERSE->GetInterpreter()->SetFrame(currentFrame);
     }
 }
 

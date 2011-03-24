@@ -40,6 +40,7 @@ public:
 
     Symboltable();
     ~Symboltable();
+    map<StdString, pVMSymbol>& getSymbolsMap();
 private:
     map<StdString, pVMSymbol> symtab;
 };
