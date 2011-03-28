@@ -32,6 +32,7 @@
 
 #include <vector>
 #include <iostream>
+#include <cstring>
 
 #include "AbstractObject.h"
 

@@ -35,7 +35,6 @@ bool      VMInvokable::IsPrimitive() const {
     return false;
 }
 
-
 pVMSymbol VMInvokable::GetSignature() const { 
     return signature; 
 }

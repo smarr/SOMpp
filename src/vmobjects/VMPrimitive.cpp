@@ -55,40 +55,19 @@ VMPrimitive::VMPrimitive(pVMSymbol signature) : VMInvokable(VMPrimitiveNumberOfF
 }
 
 pVMPrimitive VMPrimitive::Clone() const {
-	return new (_HEAP, GetAdditionalSpaceConsumption()) VMPrimitive(*this);
+	return new (_HEAP) VMPrimitive(*this);
 }
 
 
 void VMPrimitive::WalkObjects(pVMObject (*walk)(pVMObject)) {
-    // The fields VMPrimitive adds to those of VMInvokable MUST NOT be traversed
-    // during the GC's mark phase as they are not pointers the GC could possibly
-    // interpret. Hence, they are omitted from the mark phase by adjusting the
-    // upper bound of the following traversal loop.
-    for( int i = 0; i < this->GetNumberOfFields() - VMPrimitiveNumberOfFields; ++i) {
-        FIELDS[i] = walk(GetField(i));
-    }
+	clazz = (pVMClass)walk(clazz);
+	signature = (pVMSymbol)walk(signature);
+	holder = (pVMClass)walk(holder);
 }
-
-/*
-void VMPrimitive::MarkReferences() {
-    if (gcfield) return;
-
-    this->SetGCField(1);
-    // The fields VMPrimitive adds to those of VMInvokable MUST NOT be traversed
-    // during the GC's mark phase as they are not pointers the GC could possibly
-    // interpret. Hence, they are omitted from the mark phase by adjusting the
-    // upper bound of the following traversal loop.
-    for( int i = 0; i < this->GetNumberOfFields() - VMPrimitiveNumberOfFields; ++i) {
-        GetField(i)->MarkReferences();
-    }
-}
-*/
-
 
 void VMPrimitive::EmptyRoutine( pVMObject _self, pVMFrame /*frame*/ ) {
     pVMInvokable self = (pVMInvokable)( _self );
     pVMSymbol sig = self->GetSignature();
     cout << "undefined primitive called: " << sig->GetChars() << endl;
 }
-
 

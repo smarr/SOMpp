@@ -57,8 +57,15 @@ pVMFrame VMFrame::EmergencyFrameFrom( pVMFrame from, int extraLength ) {
     return result;
 }
 
-pVMFrame VMFrame::Clone() const{
-	return new (_HEAP, GetAdditionalSpaceConsumption()) VMFrame(*this);
+pVMFrame VMFrame::Clone() const {
+	int32_t addSpace = objectSize - sizeof(VMFrame);
+	pVMFrame clone = new (_HEAP, addSpace) VMFrame(*this);
+	//memcpy(&(clone->clazz), &clazz, addSpace + sizeof(pVMObject));
+	for (int32_t i = 0; i < GetNumberOfFields(); i++)
+		clone->SetField(i, GetField(i));
+	for (int32_t i = 0; i < GetNumberOfIndexableFields(); i++)
+		(*clone)[i] = (*this)[i];
+	return clone;
 }
 
 const int VMFrame::VMFrameNumberOfFields = 6; 
@@ -82,9 +89,6 @@ void      VMFrame::SetMethod(pVMMethod method) {
 bool     VMFrame::HasPreviousFrame() const {
     return this->previousFrame != nilObject;
 }
-
-
-
 
 bool     VMFrame::HasContext() const {
     return this->context !=  nilObject; 

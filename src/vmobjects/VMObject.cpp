@@ -45,7 +45,10 @@ VMObject::VMObject( int numberOfFields ) {
 }
 
 pVMObject VMObject::Clone() const {
-	return new (_HEAP, this->GetAdditionalSpaceConsumption()) VMObject(*this);
+	VMObject* clone = new (_HEAP, objectSize - sizeof(VMObject)) VMObject(*this);
+	for (int32_t i = 0; i < GetNumberOfFields(); i++)
+		clone->SetField(i, GetField(i));
+	return clone;
 }
 
 void VMObject::SetNumberOfFields(int nof) {

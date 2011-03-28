@@ -59,7 +59,12 @@ VMMethod::VMMethod(int bcCount, int numberOfConstants, int nof)
 }
 
 pVMMethod VMMethod::Clone() const {
-	pVMMethod clone = new (_HEAP, GetAdditionalSpaceConsumption())VMMethod(*this);
+	pVMMethod clone = new (_HEAP, objectSize - sizeof(VMMethod)) VMMethod(*this);
+	//also copy all additional fields
+	for (int32_t i = 0; i < GetNumberOfIndexableFields(); i++)
+		clone->SetIndexableField(i, GetIndexableField(i));
+	for (int32_t i = 0; i < GetNumberOfBytecodes(); i++)
+		clone->SetBytecode(i, GetBytecode(i));
 	return clone;
 }
 

@@ -40,12 +40,6 @@ VMArray::VMArray(int size, int nof) : VMObject(nof + VMArrayNumberOfFields) {
     }
 }
 
-VMArray::VMArray(const VMArray& orig) : VMObject(orig) {
-	for (int i = 0; i < orig.GetNumberOfIndexableFields(); ++i)
-		(*this)[i] = orig[i];
-}
-
-
 pVMArray VMArray::CopyAndExtendWith(pVMObject item) const {
     size_t fields = GetNumberOfIndexableFields();
 	pVMArray result = _UNIVERSE->NewArray(fields+1);
@@ -55,7 +49,14 @@ pVMArray VMArray::CopyAndExtendWith(pVMObject item) const {
 }
 
 pVMArray VMArray::Clone() const {
-	return new (_HEAP, this->GetAdditionalSpaceConsumption())VMArray(*this);
+	int32_t addSpace = objectSize - sizeof(VMArray);
+	pVMArray clone = new (_HEAP, addSpace) VMArray(*this);
+	//memcpy(&(clone->clazz), &clazz, addSpace + sizeof(pVMObject));
+	for (int32_t i = 0; i < GetNumberOfFields(); i++)
+		clone->SetField(i, GetField(i));
+	for (int32_t i = 0; i < GetNumberOfIndexableFields(); i++)
+		(*clone)[i] = (*this)[i];
+	return clone;
 }
 
 
@@ -82,9 +83,10 @@ int VMArray::GetNumberOfIndexableFields() const {
 }
 
 void VMArray::WalkObjects(pVMObject (*walk)(pVMObject)) {
-    VMObject::WalkObjects(walk);
-	for (int i = 0 ; i < GetNumberOfIndexableFields() ; ++i) {
-		if (theEntries(i) != NULL)
-			theEntries(i) = walk(theEntries(i));
-	}
+	int32_t noOfFields = GetNumberOfFields();
+    for (int32_t i = 0; i < noOfFields; i++)
+	    SetField(i, walk(GetField(i)));
+    for (int32_t i = 0; i < GetNumberOfIndexableFields(); i++)
+	    if ((*this)[i] != NULL)
+		    (*this)[i] = walk((*this)[i]);
 }

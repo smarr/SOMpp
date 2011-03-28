@@ -70,17 +70,12 @@ void Heap::FreeObject(AbstractVMObject* o) {
 Heap::Heap(int objectSpaceSize) {
 	//our initial collection limit is 90% of objectSpaceSize
 	collectionLimit = objectSpaceSize * 0.9;
-	allocatedObjects = new std::stack<AbstractVMObject*>();
-	otherAllocatedObjects = new std::stack<AbstractVMObject*>();
     spcAlloc = 0;
 	gc = new GarbageCollector(this);
 }
 
 Heap::~Heap() {
-	delete allocatedObjects;
-	delete otherAllocatedObjects;
 	delete gc;
-
 }
 
 AbstractVMObject* Heap::AllocateObject(size_t size) {
@@ -95,7 +90,7 @@ AbstractVMObject* Heap::AllocateObject(size_t size) {
 	memset(newObject, 0, paddedSize);
 	//AbstractObjects (Integer,...) have no Size field anymore -> set within VMObject's new operator
 	//newObject->SetObjectSize(paddedSize);
-	allocatedObjects->push(newObject);
+	allocatedObjects.push_back(newObject);
 	//let's see if we have to trigger the GC
 	if (spcAlloc >= collectionLimit)
 		triggerGC();

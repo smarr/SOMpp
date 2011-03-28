@@ -47,12 +47,13 @@ VMEvaluationPrimitive::VMEvaluationPrimitive(int argc) :
 
 pVMEvaluationPrimitive VMEvaluationPrimitive::Clone() const {
 	pVMEvaluationPrimitive evPrim = new (_UNIVERSE->GetHeap()) VMEvaluationPrimitive(*this);
+	return evPrim;
 }
 
 
 void VMEvaluationPrimitive::WalkObjects(pVMObject (*walk)(pVMObject)) {
 	VMPrimitive::WalkObjects(walk);
-	this->numberOfArguments = dynamic_cast<pVMInteger>(walk(this->numberOfArguments));
+	numberOfArguments = (pVMInteger)walk(numberOfArguments);
 }
 
 

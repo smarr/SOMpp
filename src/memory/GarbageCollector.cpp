@@ -29,6 +29,7 @@ THE SOFTWARE.
 #include <map>
 #include <string.h>
 #include <assert.h>
+#include <cstdlib>
 
 #include "GarbageCollector.h"
 #include "Heap.h"
@@ -39,6 +40,11 @@ THE SOFTWARE.
 #include "../vmobjects/VMObject.h"
 #include "../vmobjects/VMSymbol.h"
 #include "../vmobjects/VMFrame.h"
+#include "../vmobjects/VMBlock.h"
+#include "../vmobjects/VMPrimitive.h"
+#include "../vmobjects/VMClass.h"
+#include "../vmobjects/VMEvaluationPrimitive.h"
+
 #define GC_MARKED 3456
 
 GarbageCollector::GarbageCollector(Heap* h) {
@@ -51,37 +57,77 @@ GarbageCollector::~GarbageCollector() {
 }
 
 
+map<int, int> movedObjects;
+
+void moveSome(vector<pVMObject>& allocatedObjects) {
+	movedObjects.clear();
+	pair<map<int, int>::iterator, bool> ret;
+
+	int32_t noObjects = allocatedObjects.size();
+	for (int32_t i = 0; i < min(100, noObjects); i++) {
+		pVMObject obj = allocatedObjects[i/*rand() % noObjects*/];
+	/*	if (dynamic_cast<VMFrame*>(obj) != NULL)
+			continue;*/
+		/*if (dynamic_cast<VMClass*>(obj) != NULL)
+			continue;*/
+		pVMObject clone = obj->Clone();
+		ret = movedObjects.insert(pair<int, int>((int)obj,(int)clone));
+		if (ret.second == false)
+		{
+			cout << "object was already moved!!" << endl;
+			cout.flush();
+			throw "object was already moved!!!";
+		}
+	}
+}
+
+
 void GarbageCollector::Collect() {
 	//reset collection trigger
 	heap->gcTriggered = false;
 
+	//move some objects
+	moveSome(heap->allocatedObjects);
+	//now mark all reachables
 	markReachableObjects();
 
+	for (map<int, int>::iterator i = movedObjects.begin(); i != movedObjects.end(); i++)
+		assert(((pVMObject)(i->first))->GetGCField() == 0);
 	//in this survivors stack we will remember all objects that survived
-	stack<pVMObject>* survivors = heap->otherAllocatedObjects;
+	vector<pVMObject> survivors;
 	int32_t survivorsSize = 0;
-	while (heap->allocatedObjects->size() > 0) {
-		pVMObject obj = heap->allocatedObjects->top();
-		if (obj->GetGCField() == GC_MARKED) {
-			survivors->push(obj);
-			survivorsSize += obj->GetObjectSize();
-			obj->SetGCField(0);
+
+	vector<pVMObject>::iterator iter;
+	for (iter = heap->allocatedObjects.begin(); iter !=
+			heap->allocatedObjects.end(); iter++) {
+		if ((*iter)->GetGCField() == GC_MARKED) {
+			//object ist marked -> let it survive
+			survivors.push_back(*iter);
+			survivorsSize += (*iter)->GetObjectSize();
+			(*iter)->SetGCField(0);
+		} else {
+			//not marked -> kill it
+			heap->FreeObject(*iter);
 		}
-		else {
-			heap->FreeObject(obj);
-		}
-		heap->allocatedObjects->pop();
 	}
-	heap->otherAllocatedObjects =heap->allocatedObjects;
+
 	heap->allocatedObjects = survivors;
+
 	heap->spcAlloc = survivorsSize;
 	//TODO: Maybe choose another constant to calculate new collectionLimit here
 	heap->collectionLimit = 2 * survivorsSize;
 }
 
 pVMObject markObject(pVMObject obj) {
+
+    int size = movedObjects.size();
+
+    map<int, int>::iterator moIter = movedObjects.find((int)obj);
+    if (moIter != movedObjects.end())
+	    obj = (pVMObject)(moIter->second);
     if (obj->GetGCField())
         return obj;
+
     obj->SetGCField(GC_MARKED);
     obj->WalkObjects(markObject);
     return obj;
@@ -91,13 +137,14 @@ pVMObject markObject(pVMObject obj) {
 void GarbageCollector::markReachableObjects() {
 	_UNIVERSE->WalkGlobals(markObject);
 
+
     // Get the current frame and mark it.
 	// Since marking is done recursively, this automatically
 	// marks the whole stack
     pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
     if (currentFrame != NULL) {
-        currentFrame = dynamic_cast<pVMFrame>(markObject(currentFrame));
-		_UNIVERSE->GetInterpreter()->SetFrame(currentFrame);
+		pVMFrame newFrame = (pVMFrame)markObject(currentFrame);
+		_UNIVERSE->GetInterpreter()->SetFrame(newFrame);
     }
 }
 

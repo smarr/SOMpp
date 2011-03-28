@@ -30,14 +30,13 @@ THE SOFTWARE.
 
 
 #include <vector>
-#include <stack>
 
 #include "GarbageCollector.h"
 #include "../misc/defs.h"
 #include "../vmobjects/ObjectFormats.h"
 
 class AbstractVMObject;
-
+using namespace std;
 //macro to access the heap
 #define _HEAP Heap::GetHeap()
 
@@ -60,8 +59,7 @@ public:
     
 private:
     static Heap* theHeap;
-    std::stack<pVMObject>* allocatedObjects;
-    std::stack<pVMObject>* otherAllocatedObjects;
+    vector<pVMObject> allocatedObjects;
 	//flag that shows if a Collection is triggered
 	bool gcTriggered;
 	GarbageCollector* gc;

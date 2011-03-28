@@ -34,10 +34,7 @@ THE SOFTWARE.
 
 class VMArray : public VMObject {
 public:
-    VMArray(int size, int nof = 0);
-    VMArray(const VMArray& orig);
-	//virtual ~VMArray();
-
+    VMArray(int size, int32_t nof=0);
 	virtual void 		WalkObjects(pVMObject (pVMObject));
 	virtual int         GetNumberOfIndexableFields() const;
 	pVMArray    CopyAndExtendWith(pVMObject) const;
@@ -49,6 +46,4 @@ public:
 private:
     static const int VMArrayNumberOfFields;
 };
-
-
 #endif

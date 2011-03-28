@@ -55,7 +55,7 @@ bool WalkerHasFound(pVMObject obj) {
 void WalkObjectsTest::testWalkInteger() {
 	walkedObjects.clear();
 	pVMInteger int1 = _UNIVERSE->NewInteger(42);
-	int1->Clone()->WalkObjects(collectMembers);
+	int1->WalkObjects(collectMembers);
 
 	//Integers have no additional members
 	CPPUNIT_ASSERT_EQUAL(NoOfFields_Integer, walkedObjects.size());
@@ -64,7 +64,7 @@ void WalkObjectsTest::testWalkInteger() {
 void WalkObjectsTest::testWalkBigInteger() {
 	walkedObjects.clear();
 	pVMBigInteger int1 = _UNIVERSE->NewBigInteger(4711);
-	int1->Clone()->WalkObjects(collectMembers);
+	int1->WalkObjects(collectMembers);
 
 	//Integers have no additional members
 	CPPUNIT_ASSERT_EQUAL(NoOfFields_BigInteger, walkedObjects.size());
@@ -73,7 +73,7 @@ void WalkObjectsTest::testWalkBigInteger() {
 void WalkObjectsTest::testWalkDouble() {
 	walkedObjects.clear();
 	pVMDouble d1 = _UNIVERSE->NewDouble(432.1);
-	d1->Clone()->WalkObjects(collectMembers);
+	d1->WalkObjects(collectMembers);
 
 	//Doubles have no additional members
 	CPPUNIT_ASSERT_EQUAL(NoOfFields_Double, walkedObjects.size());
@@ -83,7 +83,7 @@ void WalkObjectsTest::testWalkEvaluationPrimitive() {
 	walkedObjects.clear();
 
 	pVMEvaluationPrimitive evPrim = new (_UNIVERSE->GetHeap()) VMEvaluationPrimitive(1);
-	evPrim->Clone()->WalkObjects(collectMembers);
+	evPrim->WalkObjects(collectMembers);
 
 	CPPUNIT_ASSERT(WalkerHasFound(evPrim->numberOfArguments));
 	CPPUNIT_ASSERT(WalkerHasFound(evPrim->GetClass()));
@@ -96,7 +96,7 @@ void WalkObjectsTest::testWalkObject() {
 	walkedObjects.clear();
 
 	pVMObject obj = new (_UNIVERSE->GetHeap()) VMObject();
-	obj->Clone()->WalkObjects(collectMembers);
+	obj->WalkObjects(collectMembers);
 
 	//Objects should only have one member -> Class
 	CPPUNIT_ASSERT_EQUAL(NoOfFields_Object, walkedObjects.size());
@@ -106,7 +106,7 @@ void WalkObjectsTest::testWalkObject() {
 void WalkObjectsTest::testWalkString() {
 	walkedObjects.clear();
 	pVMString str1 = _UNIVERSE->NewString("str1");
-	str1->Clone()->WalkObjects(collectMembers);
+	str1->WalkObjects(collectMembers);
 
 	CPPUNIT_ASSERT_EQUAL(NoOfFields_String, walkedObjects.size());
 }
@@ -114,7 +114,7 @@ void WalkObjectsTest::testWalkString() {
 void WalkObjectsTest::testWalkSymbol() {
 	walkedObjects.clear();
 	pVMSymbol sym = _UNIVERSE->NewSymbol("symbol");
-	sym->Clone()->WalkObjects(collectMembers);
+	sym->WalkObjects(collectMembers);
 
 	CPPUNIT_ASSERT_EQUAL(NoOfFields_Symbol, walkedObjects.size());
 }
@@ -122,7 +122,7 @@ void WalkObjectsTest::testWalkSymbol() {
 void WalkObjectsTest::testWalkClass() {
 	walkedObjects.clear();
 	pVMClass meta = _UNIVERSE->NewMetaclassClass();
-	meta->Clone()->WalkObjects(collectMembers);
+	meta->WalkObjects(collectMembers);
 
 	//Now check if we found all class fields
 	CPPUNIT_ASSERT_EQUAL(NoOfFields_Class, walkedObjects.size());
@@ -152,7 +152,7 @@ void WalkObjectsTest::testWalkFrame() {
 	pVMFrame frame = _UNIVERSE->NewFrame(NULL, method);
 	pVMInteger dummyArg = _UNIVERSE->NewInteger(1111);
 	frame->SetArgument(0, 0, dummyArg);
-	frame->Clone()->WalkObjects(collectMembers);
+	frame->WalkObjects(collectMembers);
 
 	CPPUNIT_ASSERT(WalkerHasFound(frame->GetClass()));
 	CPPUNIT_ASSERT(WalkerHasFound(frame->GetPreviousFrame()));
@@ -169,7 +169,7 @@ void WalkObjectsTest::testWalkMethod() {
 	walkedObjects.clear();
 	pVMSymbol methodSymbol = _UNIVERSE->NewSymbol("myMethod");
 	pVMMethod method = _UNIVERSE->NewMethod(methodSymbol, 0, 0);
-	method->Clone()->WalkObjects(collectMembers);
+	method->WalkObjects(collectMembers);
 
 	CPPUNIT_ASSERT(WalkerHasFound(method->GetClass()));
 	//the following fields had no getters -> had to become friend
@@ -190,7 +190,7 @@ void WalkObjectsTest::testWalkBlock() {
 	pVMBlock block = _UNIVERSE->NewBlock(method,
 			_UNIVERSE->GetInterpreter()->GetFrame(),
 			method->GetNumberOfArguments());
-	block->Clone()->WalkObjects(collectMembers);
+	block->WalkObjects(collectMembers);
 	CPPUNIT_ASSERT_EQUAL(NoOfFields_Block, walkedObjects.size());
 	CPPUNIT_ASSERT(WalkerHasFound(block->GetClass()));
 	CPPUNIT_ASSERT(WalkerHasFound(block->GetContext()));
@@ -204,7 +204,7 @@ void WalkObjectsTest::testWalkArray() {
 	pVMArray a = _UNIVERSE->NewArray(2);
 	(*a)[0] = str1;
 	(*a)[1] = int1;
-	a->Clone()->WalkObjects(collectMembers);
+	a->WalkObjects(collectMembers);
 
 	CPPUNIT_ASSERT_EQUAL(NoOfFields_Array + 2, walkedObjects.size());
 	CPPUNIT_ASSERT(WalkerHasFound(a->GetClass()));

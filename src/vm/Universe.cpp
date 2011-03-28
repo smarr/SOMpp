@@ -630,22 +630,22 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 	trueObject = walk(trueObject);
 	falseObject = walk(falseObject);
 
-	objectClass = dynamic_cast<pVMClass>(walk(objectClass));
-	classClass = dynamic_cast<pVMClass>(walk(classClass));
-	metaClassClass =  dynamic_cast<pVMClass>(walk(metaClassClass));
+	objectClass = (pVMClass)(walk(objectClass));
+	classClass = (pVMClass)(walk(classClass));
+	metaClassClass =  (pVMClass)(walk(metaClassClass));
 
-	nilClass = dynamic_cast<pVMClass>(walk(nilClass));
-	integerClass = dynamic_cast<pVMClass>(walk(integerClass));
-	bigIntegerClass = dynamic_cast<pVMClass>(walk(bigIntegerClass));
-	arrayClass = dynamic_cast<pVMClass>(walk(arrayClass));
-	methodClass = dynamic_cast<pVMClass>(walk(methodClass));
-	symbolClass = dynamic_cast<pVMClass>(walk(symbolClass));
-	frameClass = dynamic_cast<pVMClass>(walk(frameClass));
-	primitiveClass = dynamic_cast<pVMClass>(walk(primitiveClass));
-	stringClass = dynamic_cast<pVMClass>(walk(stringClass));
-	systemClass = dynamic_cast<pVMClass>(walk(systemClass));
-	blockClass = dynamic_cast<pVMClass>(walk(blockClass));
-	doubleClass = dynamic_cast<pVMClass>(walk(doubleClass));
+	nilClass = (pVMClass)(walk(nilClass));
+	integerClass = (pVMClass)(walk(integerClass));
+	bigIntegerClass = (pVMClass)(walk(bigIntegerClass));
+	arrayClass = (pVMClass)(walk(arrayClass));
+	methodClass = (pVMClass)(walk(methodClass));
+	symbolClass = (pVMClass)(walk(symbolClass));
+	frameClass = (pVMClass)(walk(frameClass));
+	primitiveClass = (pVMClass)(walk(primitiveClass));
+	stringClass = (pVMClass)(walk(stringClass));
+	systemClass = (pVMClass)(walk(systemClass));
+	blockClass = (pVMClass)(walk(blockClass));
+	doubleClass = (pVMClass)(walk(doubleClass));
 
 	//walk all entries in globals map
 	map<pVMSymbol, pVMObject> globs = globals;
@@ -654,7 +654,7 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 	for (iter = globs.begin(); iter != globs.end(); iter++) {
 		if (iter->second == NULL)
 			continue;
-		pVMSymbol key = dynamic_cast<pVMSymbol>(walk(iter->first));
+		pVMSymbol key = (pVMSymbol)(walk(iter->first));
 		pVMObject val = walk(iter->second);
 		globals[key] = val;
 	}
@@ -662,7 +662,7 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 	map<StdString, pVMSymbol>::iterator symbolIter;
 	for (symbolIter = symboltable->getSymbolsMap().begin(); symbolIter != symboltable->getSymbolsMap().end(); symbolIter++)
         //insert overwrites old entries inside the internal map
-		symboltable->insert(dynamic_cast<pVMSymbol>(walk(symbolIter->second)));
+		symboltable->insert((pVMSymbol)(walk(symbolIter->second)));
 }
 
 
