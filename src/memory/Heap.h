@@ -59,7 +59,7 @@ public:
     
 private:
     static Heap* theHeap;
-    vector<pVMObject> allocatedObjects;
+    vector<pVMObject>* allocatedObjects;
 	//flag that shows if a Collection is triggered
 	bool gcTriggered;
 	GarbageCollector* gc;

@@ -46,8 +46,9 @@ VMObject::VMObject( int numberOfFields ) {
 
 pVMObject VMObject::Clone() const {
 	VMObject* clone = new (_HEAP, objectSize - sizeof(VMObject)) VMObject(*this);
-	for (int32_t i = 0; i < GetNumberOfFields(); i++)
-		clone->SetField(i, GetField(i));
+	memcpy(&(clone->clazz), &clazz,
+			objectSize - sizeof(VMObject) + sizeof(pVMObject));
+	clone->hash = (int32_t)&clone;
 	return clone;
 }
 

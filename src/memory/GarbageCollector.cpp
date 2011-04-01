@@ -57,27 +57,15 @@ GarbageCollector::~GarbageCollector() {
 }
 
 
-map<int, int> movedObjects;
+map<pVMObject, pVMObject> movedObjects;
 
-void moveSome(vector<pVMObject>& allocatedObjects) {
+void moveSome(vector<pVMObject>* allocatedObjects) {
 	movedObjects.clear();
-	pair<map<int, int>::iterator, bool> ret;
-
-	int32_t noObjects = allocatedObjects.size();
+	int32_t noObjects = allocatedObjects->size();
 	for (int32_t i = 0; i < min(100, noObjects); i++) {
-		pVMObject obj = allocatedObjects[i/*rand() % noObjects*/];
-	/*	if (dynamic_cast<VMFrame*>(obj) != NULL)
-			continue;*/
-		/*if (dynamic_cast<VMClass*>(obj) != NULL)
-			continue;*/
+		pVMObject obj = (*allocatedObjects)[i];
 		pVMObject clone = obj->Clone();
-		ret = movedObjects.insert(pair<int, int>((int)obj,(int)clone));
-		if (ret.second == false)
-		{
-			cout << "object was already moved!!" << endl;
-			cout.flush();
-			throw "object was already moved!!!";
-		}
+		movedObjects.insert(pair<pVMObject, pVMObject>(obj,clone));
 	}
 }
 
@@ -91,18 +79,16 @@ void GarbageCollector::Collect() {
 	//now mark all reachables
 	markReachableObjects();
 
-	for (map<int, int>::iterator i = movedObjects.begin(); i != movedObjects.end(); i++)
-		assert(((pVMObject)(i->first))->GetGCField() == 0);
 	//in this survivors stack we will remember all objects that survived
-	vector<pVMObject> survivors;
+	vector<pVMObject>* survivors = new vector<pVMObject>();
 	int32_t survivorsSize = 0;
 
 	vector<pVMObject>::iterator iter;
-	for (iter = heap->allocatedObjects.begin(); iter !=
-			heap->allocatedObjects.end(); iter++) {
+	for (iter = heap->allocatedObjects->begin(); iter !=
+			heap->allocatedObjects->end(); iter++) {
 		if ((*iter)->GetGCField() == GC_MARKED) {
 			//object ist marked -> let it survive
-			survivors.push_back(*iter);
+			survivors->push_back(*iter);
 			survivorsSize += (*iter)->GetObjectSize();
 			(*iter)->SetGCField(0);
 		} else {
@@ -119,12 +105,9 @@ void GarbageCollector::Collect() {
 }
 
 pVMObject markObject(pVMObject obj) {
-
-    int size = movedObjects.size();
-
-    map<int, int>::iterator moIter = movedObjects.find((int)obj);
+    map<pVMObject, pVMObject>::iterator moIter = movedObjects.find(obj);
     if (moIter != movedObjects.end())
-	    obj = (pVMObject)(moIter->second);
+	    obj = moIter->second;
     if (obj->GetGCField())
         return obj;
 

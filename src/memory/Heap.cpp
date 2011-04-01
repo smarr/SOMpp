@@ -72,6 +72,7 @@ Heap::Heap(int objectSpaceSize) {
 	collectionLimit = objectSpaceSize * 0.9;
     spcAlloc = 0;
 	gc = new GarbageCollector(this);
+	allocatedObjects = new vector<pVMObject>();
 }
 
 Heap::~Heap() {
@@ -90,7 +91,7 @@ AbstractVMObject* Heap::AllocateObject(size_t size) {
 	memset(newObject, 0, paddedSize);
 	//AbstractObjects (Integer,...) have no Size field anymore -> set within VMObject's new operator
 	//newObject->SetObjectSize(paddedSize);
-	allocatedObjects.push_back(newObject);
+	allocatedObjects->push_back(newObject);
 	//let's see if we have to trigger the GC
 	if (spcAlloc >= collectionLimit)
 		triggerGC();
