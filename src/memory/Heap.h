@@ -51,20 +51,24 @@ public:
 	Heap(int objectSpaceSize = 1048576);
 	~Heap();
     AbstractVMObject* AllocateObject(size_t size);
-    void FreeObject(AbstractVMObject*);
 	void triggerGC(void);
 	bool isCollectionTriggered(void);
     void FullGC();
-	
-    
 private:
     static Heap* theHeap;
-    vector<pVMObject>* allocatedObjects;
+
+	//members for moving GC
+	void* buffers[2];
+	void* currentBuffer;
+	void* oldBuffer;
+	void* currentBufferEnd;
+	void* nextFreePosition;
+	void switchBuffers(void);
+
 	//flag that shows if a Collection is triggered
 	bool gcTriggered;
 	GarbageCollector* gc;
-    uint32_t spcAlloc;
-    uint32_t collectionLimit;
+    void* collectionLimit;
 };
 
 #endif

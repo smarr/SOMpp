@@ -42,6 +42,7 @@ public:
 	VMSymbol( const char* str );
 	VMSymbol( const StdString& s );
     virtual StdString GetPlainString() const;
+	virtual int32_t GetObjectSize() const;
     virtual pVMSymbol Clone() const;
 	virtual pVMClass GetClass() const;
 

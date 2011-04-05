@@ -44,7 +44,6 @@ public:
     void PrintCollectStat() const;
 
 private:
-	void markReachableObjects();
 	Heap* heap;
 };
 

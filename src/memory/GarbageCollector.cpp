@@ -45,7 +45,6 @@ THE SOFTWARE.
 #include "../vmobjects/VMClass.h"
 #include "../vmobjects/VMEvaluationPrimitive.h"
 
-#define GC_MARKED 3456
 
 GarbageCollector::GarbageCollector(Heap* h) {
 	heap = h;
@@ -56,79 +55,40 @@ GarbageCollector::~GarbageCollector() {
     //Heap is deleted by Universe
 }
 
-
-map<pVMObject, pVMObject> movedObjects;
-
-void moveSome(vector<pVMObject>* allocatedObjects) {
-	movedObjects.clear();
-	int32_t noObjects = allocatedObjects->size();
-	for (int32_t i = 0; i < min(100, noObjects); i++) {
-		pVMObject obj = (*allocatedObjects)[i];
-		pVMObject clone = obj->Clone();
-		movedObjects.insert(pair<pVMObject, pVMObject>(obj,clone));
-	}
+pVMObject copy_if_necessary(pVMObject obj) {
+	//GCField is abused as forwarding pointer here
+	//if someone has moved before, return the moved object
+	int32_t gcField = obj->GetGCField();
+	if (gcField != 0) {
+		return (pVMObject)gcField;}
+	//we have to clone ourselves
+	pVMObject newObj = obj->Clone();
+	obj->SetGCField((int32_t)newObj);
+	return newObj;
 }
-
 
 void GarbageCollector::Collect() {
 	//reset collection trigger
 	heap->gcTriggered = false;
 
-	//move some objects
-	moveSome(heap->allocatedObjects);
-	//now mark all reachables
-	markReachableObjects();
+	_HEAP->switchBuffers();
+	_UNIVERSE->WalkGlobals(copy_if_necessary);
+        pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
+        if (currentFrame != NULL) {
+  		pVMFrame newFrame = (pVMFrame)copy_if_necessary(currentFrame);
+		_UNIVERSE->GetInterpreter()->SetFrame(newFrame);
+        }
 
-	//in this survivors stack we will remember all objects that survived
-	vector<pVMObject>* survivors = new vector<pVMObject>();
-	int32_t survivorsSize = 0;
-
-	vector<pVMObject>::iterator iter;
-	for (iter = heap->allocatedObjects->begin(); iter !=
-			heap->allocatedObjects->end(); iter++) {
-		if ((*iter)->GetGCField() == GC_MARKED) {
-			//object ist marked -> let it survive
-			survivors->push_back(*iter);
-			survivorsSize += (*iter)->GetObjectSize();
-			(*iter)->SetGCField(0);
-		} else {
-			//not marked -> kill it
-			heap->FreeObject(*iter);
-		}
+	//now copy all objects that are referenced by the objects we have moved so far
+	pVMObject curObject = (pVMObject)(_HEAP->currentBuffer);
+	while (curObject < _HEAP->nextFreePosition) {
+		curObject->WalkObjects(copy_if_necessary);
+		//assert(dynamic_cast<pVMObject>(curObject) != NULL);
+		curObject = (pVMObject)((int32_t)curObject + curObject->GetObjectSize());
 	}
 
-	heap->allocatedObjects = survivors;
-
-	heap->spcAlloc = survivorsSize;
-	//TODO: Maybe choose another constant to calculate new collectionLimit here
-	heap->collectionLimit = 2 * survivorsSize;
-}
-
-pVMObject markObject(pVMObject obj) {
-    map<pVMObject, pVMObject>::iterator moIter = movedObjects.find(obj);
-    if (moIter != movedObjects.end())
-	    obj = moIter->second;
-    if (obj->GetGCField())
-        return obj;
-
-    obj->SetGCField(GC_MARKED);
-    obj->WalkObjects(markObject);
-    return obj;
-}
-
-
-void GarbageCollector::markReachableObjects() {
-	_UNIVERSE->WalkGlobals(markObject);
-
-
-    // Get the current frame and mark it.
-	// Since marking is done recursively, this automatically
-	// marks the whole stack
-    pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
-    if (currentFrame != NULL) {
-		pVMFrame newFrame = (pVMFrame)markObject(currentFrame);
-		_UNIVERSE->GetInterpreter()->SetFrame(newFrame);
-    }
+	//clear the old buffer now
+	memset(_HEAP->oldBuffer, 0x0, (int32_t)(_HEAP->currentBufferEnd) - (int32_t)(_HEAP->currentBuffer));
 }
 
 #define _KB(B) (B/1024)

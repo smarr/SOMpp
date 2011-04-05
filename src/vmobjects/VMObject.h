@@ -101,14 +101,6 @@ public:
 		return mem;
 	}
 
-	void operator delete(void* self, Heap* heap, unsigned int /*additional_bytes*/) {
-		heap->FreeObject((pVMObject) self);
-	}
-
-	void operator delete(void* self, Heap* heap) {
-		heap->FreeObject((pVMObject) self);
-	}
-
 protected:
 	int GetAdditionalSpaceConsumption() const;
 	//VMObject essentials

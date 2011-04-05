@@ -63,37 +63,54 @@ void Heap::DestroyHeap() {
     if (theHeap) delete theHeap;
 }
 
-void Heap::FreeObject(AbstractVMObject* o) {
-	free(o);
-}
-
 Heap::Heap(int objectSpaceSize) {
 	//our initial collection limit is 90% of objectSpaceSize
-	collectionLimit = objectSpaceSize * 0.9;
-    spcAlloc = 0;
+	//collectionLimit = objectSpaceSize * 0.9;
 	gc = new GarbageCollector(this);
-	allocatedObjects = new vector<pVMObject>();
+
+	size_t bufSize = 100*1024*1024;
+	buffers[0] = malloc(bufSize);
+	buffers[1] = malloc(bufSize);
+	currentBuffer = buffers[0];
+	oldBuffer = buffers[1];
+	memset(currentBuffer, 0x0, bufSize);
+	memset(oldBuffer, 0x0, bufSize);
+	currentBufferEnd = (void*)((int32_t)currentBuffer + bufSize);
+	collectionLimit = (void*)((int32_t)currentBuffer + ((int32_t)(bufSize *
+					0.9)));
+	nextFreePosition = currentBuffer;
 }
 
 Heap::~Heap() {
 	delete gc;
 }
 
+void Heap::switchBuffers() {
+	int32_t bufSize = (int32_t)currentBufferEnd - (int32_t)currentBuffer;
+	if (currentBuffer == buffers[0]) {
+		currentBuffer = buffers[1];
+		oldBuffer = buffers[0];
+	}
+	else {
+		currentBuffer = buffers[0];
+		oldBuffer = buffers[1];
+	}
+	currentBufferEnd = (void*)((int32_t)currentBuffer + bufSize);
+	nextFreePosition = currentBuffer;
+	collectionLimit = (void*)((int32_t)currentBuffer + (int32_t)(0.9 *
+				bufSize));
+}
+
 AbstractVMObject* Heap::AllocateObject(size_t size) {
-	//TODO: PADDING wird eigentlich auch durch malloc erledigt
 	size_t paddedSize = size + PAD_BYTES(size);
-	AbstractVMObject* newObject = (AbstractVMObject*) malloc(paddedSize);
-	if (newObject == NULL) {
+	AbstractVMObject* newObject = (AbstractVMObject*) nextFreePosition;
+	nextFreePosition = nextFreePosition + paddedSize;
+	if (nextFreePosition > currentBufferEnd) {
 		cout << "Failed to allocate " << size << " Bytes." << endl;
 		_UNIVERSE->Quit(-1);
 	}
-	spcAlloc += paddedSize;
-	memset(newObject, 0, paddedSize);
-	//AbstractObjects (Integer,...) have no Size field anymore -> set within VMObject's new operator
-	//newObject->SetObjectSize(paddedSize);
-	allocatedObjects->push_back(newObject);
 	//let's see if we have to trigger the GC
-	if (spcAlloc >= collectionLimit)
+	if (nextFreePosition > collectionLimit)
 		triggerGC();
 	return newObject;
 }

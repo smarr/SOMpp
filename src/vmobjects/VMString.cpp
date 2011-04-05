@@ -72,7 +72,8 @@ VMString::VMString( const StdString& s ) {
 } 
 
 int32_t VMString::GetObjectSize() const {
-	return sizeof(VMString);
+	int32_t size = sizeof(VMString) + strlen(chars) + 1;
+	return size + PAD_BYTES(size);
 }
 
 pVMClass VMString::GetClass() const {

@@ -41,6 +41,11 @@ VMSymbol::VMSymbol(const char* str) : VMString(str) {
 VMSymbol::VMSymbol( const StdString& s ): VMString(s) {
 }
 
+int32_t VMSymbol::GetObjectSize() const {
+	int32_t size = sizeof(VMSymbol) + strlen(chars) + 1;
+	return size + PAD_BYTES(size);
+}
+
 pVMSymbol VMSymbol::Clone() const {
 	return new (_HEAP, strlen(chars) + 1) VMSymbol(*this);
 }
