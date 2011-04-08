@@ -38,11 +38,11 @@ ObjectSizeTest = (
                 harness
                     fail: self
                     because: 'Integer object does not have size 3.' ].
-        'hello' objectSize / 4 = 3
+        'hello' objectSize / 4 = 5
             ifFalse: [
                 harness
                     fail: self
-                    because: 'hello String object does not have size 3.' ].
+                    because: 'hello String object does not have size 5.' ].
         Array new objectSize / 4 = 6
             ifFalse: [
                 harness

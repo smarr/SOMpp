@@ -68,7 +68,7 @@ Heap::Heap(int objectSpaceSize) {
 	//collectionLimit = objectSpaceSize * 0.9;
 	gc = new GarbageCollector(this);
 
-	size_t bufSize = 100*1024*1024;
+	size_t bufSize = objectSpaceSize;
 	buffers[0] = malloc(bufSize);
 	buffers[1] = malloc(bufSize);
 	currentBuffer = buffers[0];
