@@ -106,6 +106,12 @@ void  _Double::And(pVMObject /*object*/, pVMFrame frame) {
                                               (int64_t)right)));
 }
 
+void  _Double::BitwiseXor(pVMObject /*object*/, pVMFrame frame) {
+    PREPARE_OPERANDS;
+    frame->Push(_UNIVERSE->NewDouble((double)((int64_t)left ^ 
+                                              (int64_t)right)));
+}
+
 
 
 /*
@@ -177,5 +183,8 @@ _Double::_Double( ) : PrimitiveContainer() {
 
     this->SetPrimitive("sqrt", new 
         Routine<_Double>(this, &_Double::Sqrt));
+
+    this->SetPrimitive("bitXor_", new 
+        Routine<_Double>(this, &_Double::BitwiseXor));
 }
 
