@@ -72,6 +72,9 @@ _Integer::_Integer( ) : PrimitiveContainer() {
     this->SetPrimitive("star", new 
         Routine<_Integer>(this, &_Integer::Star));
 
+    this->SetPrimitive("bitAnd_", new 
+        Routine<_Integer>(this, &_Integer::BitwiseAnd));
+
     this->SetPrimitive("slash", new 
         Routine<_Integer>(this, &_Integer::Slash));
 
@@ -157,6 +160,14 @@ void  _Integer::Plus(pVMObject object, pVMFrame frame) {
     
     int64_t result = (int64_t)left->GetEmbeddedInteger() + 
         (int64_t)right->GetEmbeddedInteger();
+    pushResult(object, frame, result);
+}
+
+void  _Integer::BitwiseAnd(pVMObject object, pVMFrame frame) {
+    pVMInteger right = (pVMInteger)frame->Pop();
+    pVMInteger left = (pVMInteger)frame->Pop();
+    
+    int64_t result = (int64_t)left->GetEmbeddedInteger() & (int64_t)right->GetEmbeddedInteger();
     pushResult(object, frame, result);
 }
 

@@ -33,8 +33,10 @@ IntegerTest = (
         b := 42.
         a = b ifFalse: [
             harness fail: self because: '42 and 42 are not equal' ].
-        a == b ifFalse: [
-            harness fail: self because: '42 and 42 are not identical' ]
+        "a == b ifFalse: [
+            harness fail: self because: '42 and 42 are not identical' ]."
+        (a bitAnd: b) = 42 ifFalse: [
+            harness fail: self because: '42 bitAnd: 42 should be 42 too.' ].
     )
     
 )

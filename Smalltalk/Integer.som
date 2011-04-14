@@ -39,6 +39,7 @@ Integer = (
     
     "Random numbers"
     atRandom = primitive
+    bitAnd: argument = primitive
     
     "Comparing"
     =  argument = primitive
