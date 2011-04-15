@@ -104,7 +104,7 @@ void Heap::switchBuffers() {
 AbstractVMObject* Heap::AllocateObject(size_t size) {
 	size_t paddedSize = size + PAD_BYTES(size);
 	AbstractVMObject* newObject = (AbstractVMObject*) nextFreePosition;
-	nextFreePosition = nextFreePosition + paddedSize;
+	nextFreePosition = (void*)((int32_t)nextFreePosition + (int32_t)paddedSize);
 	if (nextFreePosition > currentBufferEnd) {
 		cout << "Failed to allocate " << size << " Bytes." << endl;
 		_UNIVERSE->Quit(-1);

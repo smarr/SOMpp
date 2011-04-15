@@ -209,6 +209,9 @@ console: all
 
 units: $(UNITTEST_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION)
 	$(CC) $(LIBRARIES) $(UNITTEST_OBJ) SOM++.so -lcppunit -o unittest
+
+richards: all
+	./$(CSOM_NAME) -cp ./Smalltalk ./Examples/Benchmarks/Richards/RichardsBenchmarks.som
 	
 unittests: all units
 	./unittest -cp ./Smalltalk ./Examples/Hello/Hello.som
