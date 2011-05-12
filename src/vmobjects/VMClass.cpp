@@ -90,7 +90,7 @@ bool VMClass::AddInstanceInvokable(pVMObject ptr) {
     }
     //Check whether an invokable with the same signature exists and replace it if that's the case
 	for (int i = 0; i < instanceInvokables->GetNumberOfIndexableFields(); ++i) {
-        pVMInvokable inv = dynamic_cast<pVMInvokable>( (*instanceInvokables)[i] );
+        pVMInvokable inv = dynamic_cast<pVMInvokable>(instanceInvokables->GetIndexableField(i));
 		if (inv != NULL) {
             if (newInvokable->GetSignature() == inv->GetSignature()) {
                 this->SetInstanceInvokable(i, ptr);
@@ -118,7 +118,7 @@ void VMClass::AddInstancePrimitive(pVMPrimitive ptr) {
 pVMSymbol VMClass::GetInstanceFieldName(int index) const {
 	if (index >= numberOfSuperInstanceFields()) {
 		index -= numberOfSuperInstanceFields();
-		return (pVMSymbol) (*instanceFields)[index];
+		return (pVMSymbol) instanceFields->GetIndexableField(index);
 	}
 	
 	return superClass->GetInstanceFieldName(index);
@@ -132,7 +132,7 @@ void      VMClass::SetInstanceInvokables(pVMArray invokables) {
 	instanceInvokables = invokables;
 
     for (int i = 0; i < this->GetNumberOfInstanceInvokables(); ++i) {
-        pVMObject invo = (*instanceInvokables)[i];
+        pVMObject invo = instanceInvokables->GetIndexableField(i);
         //check for Nil object
         if (invo != nilObject) {
             //not Nil, so this actually is an invokable
@@ -150,12 +150,12 @@ int       VMClass::GetNumberOfInstanceInvokables() const {
 
 
 pVMObject VMClass::GetInstanceInvokable(int index) const {
-    return (*instanceInvokables)[index];
+    return instanceInvokables->GetIndexableField(index);
 }
 
 
 void      VMClass::SetInstanceInvokable(int index, pVMObject invokable) {
-	(*instanceInvokables)[index] = invokable;
+	instanceInvokables->SetIndexableField(index, invokable);
     if (invokable != nilObject) {
         pVMInvokable inv = dynamic_cast<pVMInvokable>( invokable );
         inv->SetHolder(this);

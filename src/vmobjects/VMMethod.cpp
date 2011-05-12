@@ -39,10 +39,8 @@ THE SOFTWARE.
 #include "../compiler/MethodGenerationContext.h"
 
 //this method's bytecodes
+#define FIELDS ((pVMObject*)&clazz)
 #define _BC ((uint8_t*)&FIELDS[this->GetNumberOfFields() + this->GetNumberOfIndexableFields()])
-
-//this method's literals (-> VMArray)
-#define theEntries(i) FIELDS[this->GetNumberOfFields()+i]
 
 const int VMMethod::VMMethodNumberOfFields = 5; 
 
@@ -78,8 +76,8 @@ void      VMMethod::SetSignature(pVMSymbol sig) {
 void VMMethod::WalkObjects(pVMObject (*walk)(pVMObject)) {
     VMInvokable::WalkObjects(walk);
 	for (int i = 0 ; i < GetNumberOfIndexableFields() ; ++i) {
-		if (theEntries(i) != NULL)
-			theEntries(i) = walk(theEntries(i));
+		if (GetIndexableField(i) != NULL)
+			SetIndexableField(i, walk(GetIndexableField(i)));
 	}
 }
 
@@ -164,7 +162,7 @@ pVMArray VMMethod::CopyAndExtendWith(pVMObject item) const {
     size_t fields = this->GetNumberOfIndexableFields();
 	pVMArray result = _UNIVERSE->NewArray(fields+1);
     this->CopyIndexableFieldsTo(result);
-	(*result)[fields] = item;
+	result->SetIndexableField(fields, item);
 	return result;
 }
 
@@ -176,13 +174,13 @@ pVMObject VMMethod::GetIndexableField(int idx) const {
              << " entries are available\n";
         _UNIVERSE->ErrorExit("Array index out of bounds exception");
     }
-    return theEntries(idx);
+	return GetField(this->GetNumberOfFields()+idx);
 }
 
 
 void VMMethod::CopyIndexableFieldsTo(pVMArray to) const {
 	for (int i = 0; i < this->GetNumberOfIndexableFields(); ++i) {
-        (*to)[i] = this->GetIndexableField(i);
+        to->SetIndexableField(i, GetIndexableField(i));
 	}
 	
 }
@@ -195,7 +193,7 @@ void VMMethod::SetIndexableField(int idx, pVMObject item) {
              << " entries available\n";
         _UNIVERSE->ErrorExit("Array index out of bounds exception");
     }
-   	theEntries(idx) = item;
+	SetField(this->GetNumberOfFields()+idx, item);
 }
 
 

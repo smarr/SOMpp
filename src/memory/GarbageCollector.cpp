@@ -50,10 +50,11 @@ GarbageCollector::GarbageCollector(Heap* h) {
 	heap = h;
 }
 
-
 GarbageCollector::~GarbageCollector() {
     //Heap is deleted by Universe
 }
+
+
 
 pVMObject copy_if_necessary(pVMObject obj) {
 	//GCField is abused as forwarding pointer here

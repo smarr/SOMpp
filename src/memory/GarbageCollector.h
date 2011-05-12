@@ -28,10 +28,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
   */
 
-
 #include "../vmobjects/ObjectFormats.h"
 #include "../misc/defs.h"
 
+#include <vector>
+class AbstractVMObject;
 class VMObject;
 class Heap;
 
@@ -45,6 +46,7 @@ public:
 
 private:
 	Heap* heap;
+
 };
 
 #endif

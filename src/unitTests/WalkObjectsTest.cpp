@@ -202,8 +202,8 @@ void WalkObjectsTest::testWalkArray() {
 	pVMString str1 = _UNIVERSE->NewString("str1");
 	pVMInteger int1 = _UNIVERSE->NewInteger(42);
 	pVMArray a = _UNIVERSE->NewArray(2);
-	(*a)[0] = str1;
-	(*a)[1] = int1;
+	a->SetIndexableField(0, str1);
+	a->SetIndexableField(1, int1);
 	a->WalkObjects(collectMembers);
 
 	CPPUNIT_ASSERT_EQUAL(NoOfFields_Array + 2, walkedObjects.size());

@@ -46,6 +46,10 @@ void Heap::triggerGC(void) {
 	gcTriggered = true;
 }
 
+void Heap::addToList(pVMObject obj) {
+    oldObjsWithRefToYoungObjs.push_back(obj);    
+}
+
 bool Heap::isCollectionTriggered(void) {
 	return gcTriggered;
 }

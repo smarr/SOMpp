@@ -94,9 +94,9 @@ void CloneObjectsTest::testCloneBigInteger() {
 
 void CloneObjectsTest::testCloneArray() {
 	pVMArray orig = _UNIVERSE->NewArray(3);
-	(*orig)[0] = _UNIVERSE->NewString("foobar42");
-	(*orig)[1] = _UNIVERSE->NewString("foobar43");
-	(*orig)[2] = _UNIVERSE->NewString("foobar44");
+	orig->SetIndexableField(0, _UNIVERSE->NewString("foobar42"));
+	orig->SetIndexableField(1, _UNIVERSE->NewString("foobar43"));
+	orig->SetIndexableField(2, _UNIVERSE->NewString("foobar44"));
 	pVMArray clone = orig->Clone();
 
 	CPPUNIT_ASSERT((int)orig != (int)clone);
@@ -106,7 +106,8 @@ void CloneObjectsTest::testCloneArray() {
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfFields differs!!", orig->GetNumberOfIndexableFields(), clone->GetNumberOfIndexableFields());
 
 	for (int i = 0; i < 3; ++i)
-		CPPUNIT_ASSERT((*orig)[i] == (*clone)[i]);
+		CPPUNIT_ASSERT(orig->GetIndexableField(i) ==
+				clone->GetIndexableField(i));
 }
 
 void CloneObjectsTest::testCloneBlock() {

@@ -54,8 +54,10 @@ public:
 	void triggerGC(void);
 	bool isCollectionTriggered(void);
     void FullGC();
+	void writeBarrier(pVMObject holder, pVMObject referencedObject);
 private:
     static Heap* theHeap;
+    void addToList(pVMObject holder);
 
 	//members for moving GC
 	void* buffers[2];
@@ -69,6 +71,16 @@ private:
 	bool gcTriggered;
 	GarbageCollector* gc;
     void* collectionLimit;
+	std::vector<pVMObject> oldObjsWithRefToYoungObjs;
 };
 
+inline void Heap::writeBarrier(pVMObject holder, pVMObject referencedObject) {
+	//we have to add this item to the list if holder is an "old" object and referenced object is a "young" object
+	//   we can return if holder is located inside the buffer or referencedObject is not located inside the buffer 
+        if  (referencedObject > this->nextFreePosition || referencedObject <
+				this->currentBuffer
+             || (holder >= this->currentBuffer && holder < this->nextFreePosition))
+		return;
+	addToList(holder);
+}
 #endif

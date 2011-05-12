@@ -44,8 +44,6 @@
 class VMSymbol;
 class VMClass;
 
-#define FIELDS ((pVMObject*)&clazz)
-
 /* chbol: this table is not correct anymore because of introduction of
  * class AbstractVMObject
  **************************VMOBJECT****************************

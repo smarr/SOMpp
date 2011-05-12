@@ -31,6 +31,7 @@ THE SOFTWARE.
 #include "VMFrame.h"
 #include "VMInvokable.h"
 
+#define FIELDS ((pVMObject*)&clazz)
 
 //clazz is the only field of VMObject so
 const int VMObject::VMObjectNumberOfFields = 1;
