@@ -47,8 +47,10 @@ VMObject::VMObject( int numberOfFields ) {
 
 pVMObject VMObject::Clone() const {
 	VMObject* clone = new (_HEAP, objectSize - sizeof(VMObject)) VMObject(*this);
-	memcpy(&(clone->clazz), &clazz,
-			objectSize - sizeof(VMObject) + sizeof(pVMObject));
+
+    for( int i = 0; i < this->GetNumberOfFields(); ++i)
+        clone->SetField(i, GetField(i));
+
 	clone->hash = (int32_t)&clone;
 	return clone;
 }
@@ -67,6 +69,7 @@ pVMClass VMObject::GetClass() const {
 
 void VMObject::SetClass(pVMClass cl) {
 	clazz = cl;
+	_HEAP->writeBarrier(this, cl);
 }
 
 pVMSymbol VMObject::GetFieldName(int index) const {
@@ -97,6 +100,7 @@ pVMObject VMObject::GetField(int index) const {
 
 void VMObject::SetField(int index, pVMObject value) {
      FIELDS[index] = value;
+	 _HEAP->writeBarrier(this, value);
 }
 
 //returns the Object's additional memory used (e.g. for Array fields)
@@ -111,7 +115,7 @@ int VMObject::GetAdditionalSpaceConsumption() const
 
 void VMObject::WalkObjects(pVMObject (*walk)(pVMObject)) {
     for( int i = 0; i < this->GetNumberOfFields(); ++i) {
-        FIELDS[i] = walk(FIELDS[i]);
+		SetField(i, walk(GetField(i)));
     }
 
 }

@@ -46,7 +46,7 @@ void Heap::triggerGC(void) {
 	gcTriggered = true;
 }
 
-void Heap::addToList(pVMObject obj) {
+void Heap::addToList(const pVMObject obj) {
     oldObjsWithRefToYoungObjs.push_back(obj);    
 }
 

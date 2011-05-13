@@ -43,6 +43,7 @@ VMEvaluationPrimitive::VMEvaluationPrimitive(int argc) :
                                &VMEvaluationPrimitive::evaluationRoutine));
     this->SetEmpty(false);
     this->numberOfArguments = _UNIVERSE->NewInteger(argc);
+	_HEAP->writeBarrier(this, numberOfArguments);
 }
 
 pVMEvaluationPrimitive VMEvaluationPrimitive::Clone() const {
@@ -54,6 +55,7 @@ pVMEvaluationPrimitive VMEvaluationPrimitive::Clone() const {
 void VMEvaluationPrimitive::WalkObjects(pVMObject (*walk)(pVMObject)) {
 	VMPrimitive::WalkObjects(walk);
 	numberOfArguments = (pVMInteger)walk(numberOfArguments);
+	_HEAP->writeBarrier(this, numberOfArguments);
 }
 
 

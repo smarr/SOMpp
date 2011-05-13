@@ -61,8 +61,11 @@ pVMPrimitive VMPrimitive::Clone() const {
 
 void VMPrimitive::WalkObjects(pVMObject (*walk)(pVMObject)) {
 	clazz = (pVMClass)walk(clazz);
+	_HEAP->writeBarrier(this, clazz);
 	signature = (pVMSymbol)walk(signature);
+	_HEAP->writeBarrier(this, signature);
 	holder = (pVMClass)walk(holder);
+	_HEAP->writeBarrier(this, holder);
 }
 
 void VMPrimitive::EmptyRoutine( pVMObject _self, pVMFrame /*frame*/ ) {

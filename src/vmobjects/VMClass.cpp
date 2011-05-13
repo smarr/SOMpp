@@ -96,13 +96,13 @@ bool VMClass::AddInstanceInvokable(pVMObject ptr) {
                 this->SetInstanceInvokable(i, ptr);
                 return false;
             }
-			
         } else {
             _UNIVERSE->ErrorExit("Invokables array corrupted. Either NULL pointer added or pointer to non-invokable.");
         }
 	}
     //it's a new invokable so we need to expand the invokables array.
     instanceInvokables = instanceInvokables->CopyAndExtendWith(ptr);
+	_HEAP->writeBarrier(this, instanceInvokables);
 
 	return true;
 }
@@ -120,7 +120,6 @@ pVMSymbol VMClass::GetInstanceFieldName(int index) const {
 		index -= numberOfSuperInstanceFields();
 		return (pVMSymbol) instanceFields->GetIndexableField(index);
 	}
-	
 	return superClass->GetInstanceFieldName(index);
 }
 
@@ -130,6 +129,7 @@ pVMSymbol VMClass::GetInstanceFieldName(int index) const {
 void      VMClass::SetInstanceInvokables(pVMArray invokables) {
 
 	instanceInvokables = invokables;
+	_HEAP->writeBarrier(this, instanceInvokables);
 
     for (int i = 0; i < this->GetNumberOfInstanceInvokables(); ++i) {
         pVMObject invo = instanceInvokables->GetIndexableField(i);

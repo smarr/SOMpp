@@ -59,6 +59,7 @@ private:
 
 void VMBlock::SetContext(pVMFrame contxt) {
     context = contxt;
+    _HEAP->writeBarrier(this, (pVMObject)contxt);
 }
 
 

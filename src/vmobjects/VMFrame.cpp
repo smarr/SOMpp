@@ -51,8 +51,11 @@ pVMFrame VMFrame::EmergencyFrameFrom( pVMFrame from, int extraLength ) {
     result->SetMethod(from->GetMethod());
     result->SetContext(from->GetContext());
     result->stackPointer = from->GetStackPointer();
+	_HEAP->writeBarrier(result, result->stackPointer);
     result->bytecodeIndex = from->bytecodeIndex;
+	_HEAP->writeBarrier(result, result->bytecodeIndex);
     result->localOffset = from->localOffset;
+	_HEAP->writeBarrier(result, result->localOffset);
 
     return result;
 }
@@ -73,8 +76,12 @@ const int VMFrame::VMFrameNumberOfFields = 6;
 VMFrame::VMFrame(int size, int nof) : VMArray(size, 
                                               nof + VMFrameNumberOfFields) {
     this->localOffset = _UNIVERSE->NewInteger(0);
+	_HEAP->writeBarrier(this, localOffset);
     this->bytecodeIndex = _UNIVERSE->NewInteger(0);
+	_HEAP->writeBarrier(this, bytecodeIndex);
     this->stackPointer = _UNIVERSE->NewInteger(0);
+	_HEAP->writeBarrier(this, stackPointer);
+
 }
 
 pVMMethod VMFrame::GetMethod() const {
@@ -84,6 +91,7 @@ pVMMethod VMFrame::GetMethod() const {
 
 void      VMFrame::SetMethod(pVMMethod method) {
     this->method = method;
+	_HEAP->writeBarrier(this, method);
 }
 
 bool     VMFrame::HasPreviousFrame() const {

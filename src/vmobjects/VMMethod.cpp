@@ -47,10 +47,15 @@ const int VMMethod::VMMethodNumberOfFields = 5;
 VMMethod::VMMethod(int bcCount, int numberOfConstants, int nof) 
                     : VMInvokable(nof + VMMethodNumberOfFields) {
     bcLength = _UNIVERSE->NewInteger( bcCount );
+    _HEAP->writeBarrier(this, bcLength);
     numberOfLocals = _UNIVERSE->NewInteger(0);
+    _HEAP->writeBarrier(this, numberOfLocals);
     maximumNumberOfStackElements = _UNIVERSE->NewInteger(0);
+    _HEAP->writeBarrier(this, maximumNumberOfStackElements);
     numberOfArguments = _UNIVERSE->NewInteger(0);
+    _HEAP->writeBarrier(this, numberOfArguments);
     this->numberOfConstants = _UNIVERSE->NewInteger(numberOfConstants);
+    _HEAP->writeBarrier(this, this->numberOfConstants);
     for (int i = 0; i < numberOfConstants ; ++i) {
         this->SetIndexableField(i, nilObject);
     }

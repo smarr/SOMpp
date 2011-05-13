@@ -74,7 +74,7 @@ public:
     virtual pVMClass Clone() const;
 	
 
-private:
+	private:
 	
     
     StdString genLoadstring(const StdString& cp, 
@@ -106,6 +106,7 @@ pVMClass VMClass::GetSuperClass() const {
 
 void VMClass::SetSuperClass(pVMClass sup) {
 	superClass = sup;
+	_HEAP->writeBarrier(this, sup);
 }
 
 
@@ -116,6 +117,7 @@ pVMSymbol VMClass::GetName()  const {
 
 void VMClass::SetName(pVMSymbol nam) {
 	name = nam;
+	_HEAP->writeBarrier(this, (pVMObject)nam);
 }
 
 
@@ -126,6 +128,7 @@ pVMArray VMClass::GetInstanceFields() const {
 
 void VMClass::SetInstanceFields(pVMArray instFields) {
 	instanceFields = instFields;
+	_HEAP->writeBarrier(this, (pVMClass)instFields);
 }
 
 

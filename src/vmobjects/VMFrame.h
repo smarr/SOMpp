@@ -94,6 +94,7 @@ pVMFrame VMFrame::GetContext() const {
 
 void     VMFrame::SetContext(pVMFrame frm) {
     this->context = frm;
+    _HEAP->writeBarrier(this, frm);
 }
 
 pVMInteger VMFrame::GetStackPointer() const {
@@ -109,10 +110,12 @@ pVMFrame VMFrame::GetPreviousFrame() const {
 
 void     VMFrame::SetPreviousFrame(pVMObject frm) {
     this->previousFrame = (pVMFrame)frm;
+    _HEAP->writeBarrier(this, frm);
 }
 
 void     VMFrame::ClearPreviousFrame() {
     this->previousFrame = (pVMFrame)nilObject;
+    _HEAP->writeBarrier(this, nilObject);
 }
 
 

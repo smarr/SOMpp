@@ -41,6 +41,7 @@ pVMSymbol VMInvokable::GetSignature() const {
 
 void      VMInvokable::SetSignature(pVMSymbol sig)  { 
     signature = sig;
+	_HEAP->writeBarrier(this, sig);
 }
 
 
@@ -50,5 +51,6 @@ pVMClass VMInvokable::GetHolder()  const {
 
 
 void      VMInvokable::SetHolder(pVMClass hld) {
-    holder = hld; 
+    holder = hld;
+	_HEAP->writeBarrier(this, hld);
 }

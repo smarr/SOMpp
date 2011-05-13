@@ -39,6 +39,7 @@ VMBlock::VMBlock() : VMObject(VMBlockNumberOfFields) {
 
 void VMBlock::SetMethod(pVMMethod bMethod) {
     blockMethod = (bMethod);
+    _HEAP->writeBarrier(this, bMethod);
 }
 
 pVMBlock VMBlock::Clone() const {

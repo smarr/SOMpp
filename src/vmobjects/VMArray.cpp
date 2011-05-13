@@ -57,7 +57,7 @@ void VMArray::SetIndexableField(int32_t idx, pVMObject value) {
              << endl;
         _UNIVERSE->ErrorExit("Array index out of bounds");
     }
-	SetField(this->GetNumberOfFields()+idx, value);
+    SetField(this->GetNumberOfFields()+idx, value);
 }
 
 pVMArray VMArray::CopyAndExtendWith(pVMObject item) const {
@@ -94,9 +94,8 @@ pVMArray VMArray::Clone() const {
 
 void VMArray::CopyIndexableFieldsTo(pVMArray to) const {
 	for (int i = 0; i < this->GetNumberOfIndexableFields(); ++i) {
-        to->SetIndexableField(i, GetIndexableField(i));
-	}
-	
+		to->SetIndexableField(i, GetIndexableField(i));
+	}	
 }
 
 int VMArray::GetNumberOfIndexableFields() const {
