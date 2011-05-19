@@ -62,7 +62,10 @@ VMMethod::VMMethod(int bcCount, int numberOfConstants, int nof)
 }
 
 pVMMethod VMMethod::Clone() const {
-	pVMMethod clone = new (_HEAP, objectSize - sizeof(VMMethod)) VMMethod(*this);
+    pVMMethod clone = _UNIVERSE->NewMethod(GetSignature(), GetNumberOfBytecodes(),
+			numberOfConstants->GetEmbeddedInteger());
+    for (int i = 0; i < VMMethodNumberOfFields + 2; i++) //2 fields for VMInvokable
+        clone->SetField(i, GetField(i));
 	//also copy all additional fields
 	for (int32_t i = 0; i < GetNumberOfIndexableFields(); i++)
 		clone->SetIndexableField(i, GetIndexableField(i));
@@ -71,9 +74,8 @@ pVMMethod VMMethod::Clone() const {
 	return clone;
 }
 
-void      VMMethod::SetSignature(pVMSymbol sig) { 
+void VMMethod::SetSignature(pVMSymbol sig) { 
     VMInvokable::SetSignature(sig);
-    
     SetNumberOfArguments(Signature::GetNumberOfArguments(signature));
 }
 
@@ -187,7 +189,6 @@ void VMMethod::CopyIndexableFieldsTo(pVMArray to) const {
 	for (int i = 0; i < this->GetNumberOfIndexableFields(); ++i) {
         to->SetIndexableField(i, GetIndexableField(i));
 	}
-	
 }
 
 void VMMethod::SetIndexableField(int idx, pVMObject item) {

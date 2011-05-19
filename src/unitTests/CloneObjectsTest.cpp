@@ -184,11 +184,21 @@ void CloneObjectsTest::testCloneMethod() {
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("objectSize differs!!", orig->objectSize, clone->objectSize);
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfFields differs!!", orig->numberOfFields, clone->numberOfFields);
 
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfLocals differs!!", orig->numberOfLocals, clone->numberOfLocals);
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("bcLength differs!!", orig->bcLength, clone->bcLength);
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("maximumNumberOfStackElements differs!!", orig->maximumNumberOfStackElements, clone->maximumNumberOfStackElements);
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfArguments differs!!", orig->numberOfArguments, clone->numberOfArguments);
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfConstants differs!!", orig->numberOfConstants, clone->numberOfConstants);
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfLocals differs!!",
+            orig->numberOfLocals->GetEmbeddedInteger(),
+            clone->numberOfLocals->GetEmbeddedInteger());
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("bcLength differs!!",
+            orig->bcLength->GetEmbeddedInteger(),
+            clone->bcLength->GetEmbeddedInteger());
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("maximumNumberOfStackElements differs!!",
+            orig->maximumNumberOfStackElements->GetEmbeddedInteger(),
+            clone->maximumNumberOfStackElements->GetEmbeddedInteger());
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfArguments differs!!",
+            orig->numberOfArguments->GetEmbeddedInteger(),
+            clone->numberOfArguments->GetEmbeddedInteger());
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfConstants differs!!",
+            orig->numberOfConstants->GetEmbeddedInteger(),
+            clone->numberOfConstants->GetEmbeddedInteger());
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("GetHolder() differs!!", orig->GetHolder(), clone->GetHolder());
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("GetSignature() differs!!", orig->GetSignature(), clone->GetSignature());
 }

@@ -30,7 +30,7 @@ THE SOFTWARE.
 
 
 #include <vector>
-
+#include <set>
 #include "GarbageCollector.h"
 #include "../misc/defs.h"
 #include "../vmobjects/ObjectFormats.h"
@@ -55,6 +55,9 @@ public:
 	bool isCollectionTriggered(void);
     void FullGC();
 	void writeBarrier(const pVMObject holder, const pVMObject referencedObject);
+#ifdef DEBUG
+	std::set<pair<const pVMObject, const pVMObject> > writeBarrierCalledOn;
+#endif
 private:
     static Heap* theHeap;
     void addToList(const pVMObject holder);
@@ -72,9 +75,14 @@ private:
 	GarbageCollector* gc;
     void* collectionLimit;
 	std::vector<const pVMObject> oldObjsWithRefToYoungObjs;
+
 };
 
 inline void Heap::writeBarrier(const pVMObject holder, const pVMObject referencedObject) {
+#ifdef DEBUG
+	writeBarrierCalledOn.insert(make_pair(holder, referencedObject));
+#endif
+
 	//we have to add this item to the list if holder is an "old" object and referenced object is a "young" object
 	//   we can return if holder is located inside the buffer or referencedObject is not located inside the buffer 
         if  (referencedObject > this->nextFreePosition || referencedObject <

@@ -19,10 +19,12 @@
 #include "WalkObjectsTest.h"
 #include "CloneObjectsTest.h"
 #include "VMObjectsInterfaceTest.h"
+#include "WriteBarrierTest.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(WalkObjectsTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(CloneObjectsTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(VMObjectsInterfaceTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(WriteBarrierTest);
 
 int main( int ac, char **av )
 {

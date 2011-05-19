@@ -45,7 +45,7 @@ public:
 	virtual void      SetSignature(pVMSymbol sig);
 	virtual pVMClass  GetHolder() const;
 	virtual void      SetHolder(pVMClass hld);
-    
+
 protected:
 	pVMSymbol signature;
 	pVMClass holder;

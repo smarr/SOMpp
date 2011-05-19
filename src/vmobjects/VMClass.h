@@ -72,11 +72,8 @@ public:
     virtual bool      HasPrimitives() const; 
     virtual void      LoadPrimitives(const vector<StdString>&);
     virtual pVMClass Clone() const;
-	
 
 	private:
-	
-    
     StdString genLoadstring(const StdString& cp, 
                        const StdString& cname
                        ) const;
@@ -86,8 +83,6 @@ public:
     void* loadLib(const StdString& path) const;
     bool isResponsible(void* handle, const StdString& cl) const;
     void setPrimitives(void* handle, const StdString& cname);
-   
-    
     int numberOfSuperInstanceFields() const;
 
 	pVMClass  superClass; 
