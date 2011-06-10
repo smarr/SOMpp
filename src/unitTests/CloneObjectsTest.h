@@ -18,12 +18,12 @@ class CloneObjectsTest: public CPPUNIT_NS::TestCase  {
 	CPPUNIT_TEST(testCloneString);
 	CPPUNIT_TEST(testCloneSymbol);
 	CPPUNIT_TEST(testCloneArray);
+	CPPUNIT_TEST(testCloneMethod);
 	CPPUNIT_TEST(testCloneBlock);
 	CPPUNIT_TEST(testClonePrimitive);
 	CPPUNIT_TEST(testCloneBigInteger);
 	CPPUNIT_TEST(testCloneClass);
 	CPPUNIT_TEST(testCloneFrame);
-	CPPUNIT_TEST(testCloneMethod);
 	CPPUNIT_TEST(testCloneEvaluationPrimitive);
 	CPPUNIT_TEST_SUITE_END();
 

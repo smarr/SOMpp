@@ -653,15 +653,22 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 	for (iter = globs.begin(); iter != globs.end(); iter++) {
 		if (iter->second == NULL)
 			continue;
+
 		pVMSymbol key = (pVMSymbol)(walk(iter->first));
 		pVMObject val = walk(iter->second);
 		globals[key] = val;
 	}
 	//walk all entries in symbols map
 	map<StdString, pVMSymbol>::iterator symbolIter;
-	for (symbolIter = symboltable->getSymbolsMap().begin(); symbolIter != symboltable->getSymbolsMap().end(); symbolIter++)
-        //insert overwrites old entries inside the internal map
-		symboltable->insert((pVMSymbol)(walk(symbolIter->second)));
+	for (symbolIter = symboltable->getSymbolsMap().begin(); symbolIter !=
+			symboltable->getSymbolsMap().end(); symbolIter++) {
+		pVMSymbol oldSymbol = symbolIter->second;
+		pVMSymbol newSymbol = (pVMSymbol)walk(symbolIter->second);
+		cout.flush();
+		assert(oldSymbol->GetStdString() == newSymbol->GetStdString());
+		//insert overwrites old entries inside the internal map
+		symboltable->insert(newSymbol);
+	}
 }
 
 

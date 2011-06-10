@@ -37,7 +37,7 @@ VMDouble::VMDouble(double val) {
 }
 
 pVMDouble VMDouble::Clone() const {
-	return new (_HEAP) VMDouble(*this);
+	return new (_HEAP, 0, true) VMDouble(*this);
 }
 
 pVMClass VMDouble::GetClass() const {

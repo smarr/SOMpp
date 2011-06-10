@@ -41,9 +41,7 @@ class VMArray : public VMObject {
 		pVMObject   GetIndexableField(int32_t idx) const;
 		void        SetIndexableField(int32_t idx, pVMObject value);
 		void        CopyIndexableFieldsTo(pVMArray) const;
-		pVMArray    Clone() const;
-
-		//pVMObject& operator[](int idx) const;
+		virtual pVMArray Clone() const;
 
 	private:
 		static const int VMArrayNumberOfFields;

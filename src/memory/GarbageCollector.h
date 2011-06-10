@@ -46,6 +46,8 @@ public:
 
 private:
 	Heap* heap;
+	void MajorCollection();
+	void MinorCollection();
 
 };
 

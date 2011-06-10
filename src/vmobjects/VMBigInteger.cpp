@@ -38,7 +38,7 @@ VMBigInteger::VMBigInteger(int64_t val) {
 }
 
 pVMBigInteger VMBigInteger::Clone() const {
-	return new (_HEAP) VMBigInteger(*this);
+	return new (_HEAP, 0, true) VMBigInteger(*this);
 }
 
 int32_t VMBigInteger::GetObjectSize() const {

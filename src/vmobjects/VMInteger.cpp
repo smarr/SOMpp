@@ -36,7 +36,7 @@ VMInteger::VMInteger(int32_t val) {
 }
 
 pVMInteger VMInteger::Clone() const {
-	return new (_HEAP) VMInteger(*this);
+	return new (_HEAP, 0, true) VMInteger(*this);
 }
 
 pVMClass VMInteger::GetClass() const {

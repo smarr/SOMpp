@@ -45,6 +45,8 @@ THE SOFTWARE.
 #include "../vmobjects/VMClass.h"
 #include "../vmobjects/VMEvaluationPrimitive.h"
 
+#define GC_MARKED 3456
+
 
 GarbageCollector::GarbageCollector(Heap* h) {
 	heap = h;
@@ -60,36 +62,91 @@ pVMObject copy_if_necessary(pVMObject obj) {
 	//GCField is abused as forwarding pointer here
 	//if someone has moved before, return the moved object
 	int32_t gcField = obj->GetGCField();
-	if (gcField != 0) {
-		return (pVMObject)gcField;}
+	if (gcField != 0)
+		return (pVMObject)gcField;
+	//we also don't have to copy, if we are not inside the nursery
+	if (_HEAP->isObjectInNursery(obj) == false)
+		return obj;
 	//we have to clone ourselves
 	pVMObject newObj = obj->Clone();
+	newObj->SetGCField(0); //XXX: Shouldbe 0 anyway -->just for testing
 	obj->SetGCField((int32_t)newObj);
+    //walk recursively
+    newObj->WalkObjects(copy_if_necessary);
 	return newObj;
 }
 
+pVMObject mark_object(pVMObject obj) {
+    if (obj->GetGCField() == GC_MARKED)
+        return (obj);
+    obj->SetGCField(GC_MARKED);
+    obj->WalkObjects(&mark_object);
+    return obj;
+}
+
+void GarbageCollector::MinorCollection() {
+    //walk all globals
+    _UNIVERSE->WalkGlobals(&copy_if_necessary);
+    //and the current frame
+    pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
+    if (currentFrame != NULL) {
+        pVMFrame newFrame = (pVMFrame)copy_if_necessary(currentFrame);
+		assert(_HEAP->isObjectInNursery(newFrame) == false);
+        _UNIVERSE->GetInterpreter()->SetFrame(newFrame);
+    }
+
+    //and also all objects that have been detected by the write barriers
+    for (vector<int>::iterator objIter =
+			_HEAP->oldObjsWithRefToYoungObjs->begin(); objIter !=
+			_HEAP->oldObjsWithRefToYoungObjs->end(); objIter++)
+		//content of oldObjsWithRefToYoungObjs is not altered while iteration,
+		// because copy_if_necessary returns old objs only -> ignored by
+		// write_barrier
+        ((pVMObject)(*objIter))->WalkObjects(&copy_if_necessary);
+	_HEAP->oldObjsWithRefToYoungObjs->clear();
+
+    //clear the nursery now
+    memset(_HEAP->nursery, 0xFF, _HEAP->nurserySize);
+	_HEAP->nextFreePosition = _HEAP->nursery;
+}
+
+void GarbageCollector::MajorCollection() {
+    //first we have to mark all objects (globals and current frame recursively)
+    _UNIVERSE->WalkGlobals(&mark_object);
+    //and the current frame
+    pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
+    if (currentFrame != NULL) {
+        pVMFrame newFrame = (pVMFrame)mark_object(currentFrame);
+        _UNIVERSE->GetInterpreter()->SetFrame(newFrame);
+    }
+
+    //now that all objects are marked we can safely delete all allocated objects that are not marked
+    vector<pVMObject>* survivors = new vector<pVMObject>();
+	for (vector<pVMObject>::iterator objIter =
+			_HEAP->allocatedObjects->begin(); objIter !=
+			_HEAP->allocatedObjects->end(); objIter++) {
+		if ((*objIter)->GetGCField() == GC_MARKED) {
+			survivors->push_back(*objIter);
+			(*objIter)->SetGCField(0);
+		}
+		else {
+			_HEAP->FreeObject(*objIter);
+		}
+    }
+	delete _HEAP->allocatedObjects;
+	_HEAP->allocatedObjects = survivors;
+}
+
+
 void GarbageCollector::Collect() {
 	//reset collection trigger
-	heap->gcTriggered = false;
+    heap->gcTriggered = false;
 
-	_HEAP->switchBuffers();
-	_UNIVERSE->WalkGlobals(copy_if_necessary);
-        pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
-        if (currentFrame != NULL) {
-  		pVMFrame newFrame = (pVMFrame)copy_if_necessary(currentFrame);
-		_UNIVERSE->GetInterpreter()->SetFrame(newFrame);
-        }
+    MinorCollection();
+    if (true) //XXX need useful condition for major collection here
+        MajorCollection();
 
-	//now copy all objects that are referenced by the objects we have moved so far
-	pVMObject curObject = (pVMObject)(_HEAP->currentBuffer);
-	while (curObject < _HEAP->nextFreePosition) {
-		curObject->WalkObjects(copy_if_necessary);
-		//assert(dynamic_cast<pVMObject>(curObject) != NULL);
-		curObject = (pVMObject)((int32_t)curObject + curObject->GetObjectSize());
-	}
 
-	//clear the old buffer now
-	memset(_HEAP->oldBuffer, 0x0, (int32_t)(_HEAP->currentBufferEnd) - (int32_t)(_HEAP->currentBuffer));
 }
 
 #define _KB(B) (B/1024)

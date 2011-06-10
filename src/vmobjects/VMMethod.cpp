@@ -62,15 +62,11 @@ VMMethod::VMMethod(int bcCount, int numberOfConstants, int nof)
 }
 
 pVMMethod VMMethod::Clone() const {
-    pVMMethod clone = _UNIVERSE->NewMethod(GetSignature(), GetNumberOfBytecodes(),
-			numberOfConstants->GetEmbeddedInteger());
-    for (int i = 0; i < VMMethodNumberOfFields + 2; i++) //2 fields for VMInvokable
-        clone->SetField(i, GetField(i));
-	//also copy all additional fields
-	for (int32_t i = 0; i < GetNumberOfIndexableFields(); i++)
-		clone->SetIndexableField(i, GetIndexableField(i));
-	for (int32_t i = 0; i < GetNumberOfBytecodes(); i++)
-		clone->SetBytecode(i, GetBytecode(i));
+	pVMMethod clone = new (_HEAP, GetObjectSize() - sizeof(VMMethod), true)
+		VMMethod(*this);
+	memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,
+				sizeof(VMObject)), GetObjectSize() -
+			sizeof(VMObject));
 	return clone;
 }
 

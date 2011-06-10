@@ -55,7 +55,7 @@ VMPrimitive::VMPrimitive(pVMSymbol signature) : VMInvokable(VMPrimitiveNumberOfF
 }
 
 pVMPrimitive VMPrimitive::Clone() const {
-	return new (_HEAP) VMPrimitive(*this);
+	return new (_HEAP, 0, true) VMPrimitive(*this);
 }
 
 

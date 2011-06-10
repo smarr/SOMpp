@@ -67,9 +67,10 @@ VMClass::VMClass() : VMObject(VMClassNumberOfFields) {
 }
 
 pVMClass VMClass::Clone() const {
-	pVMClass clone = new (_HEAP, objectSize - sizeof(VMClass))VMClass(*this);
-	for (int32_t i = 0; i < numberOfFields; i++)
-		clone->SetField(i, GetField(i));
+	pVMClass clone = new (_HEAP, objectSize - sizeof(VMClass), true)VMClass(*this);
+	memcpy(SHIFTED_PTR(clone,sizeof(VMObject)),
+			SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() -
+			sizeof(VMObject));
 	return clone;
 }
 

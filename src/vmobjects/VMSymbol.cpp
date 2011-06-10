@@ -47,7 +47,10 @@ int32_t VMSymbol::GetObjectSize() const {
 }
 
 pVMSymbol VMSymbol::Clone() const {
-	return new (_HEAP, strlen(chars) + 1) VMSymbol(*this);
+	pVMSymbol clone =  new (_HEAP, strlen(chars) + 1, true)
+		VMSymbol(GetStdString());
+	assert(clone->GetStdString() == GetStdString());
+	return clone;
 }
 
 pVMClass VMSymbol::GetClass() const {

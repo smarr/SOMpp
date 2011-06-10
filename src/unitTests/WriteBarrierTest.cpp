@@ -85,17 +85,6 @@ void WriteBarrierTest::testWriteFrame() {
         _HEAP->writeBarrierCalledOn.clear();
 
         pVMFrame frame = _UNIVERSE->GetInterpreter()->GetFrame()->Clone();
-        TEST_WB_CALLED("VMFrame failed to call writeBarrier when cloning", frame, frame->GetPreviousFrame());
-        TEST_WB_CALLED("VMFrame failed to call writeBarrier when cloning", frame, frame->GetContext());
-        TEST_WB_CALLED("VMFrame failed to call writeBarrier when cloning", frame, frame->GetMethod());
-        TEST_WB_CALLED("VMFrame failed to call writeBarrier when cloning", frame, frame->GetStackPointer());
-        TEST_WB_CALLED("VMFrame failed to call writeBarrier when cloning", frame, frame->bytecodeIndex);
-        TEST_WB_CALLED("VMFrame failed to call writeBarrier when cloning", frame, frame->localOffset);
-        TEST_WB_CALLED("VMFrame failed to call writeBarrier when cloning", frame, frame->GetClass());
-        for (int i = 0; i < _UNIVERSE->GetInterpreter()->GetFrame()->GetNumberOfIndexableFields(); i++)
-                TEST_WB_CALLED("VMFrame failed to call writeBarrier when cloning", frame, frame->GetIndexableField(i));
-
-        _HEAP->writeBarrierCalledOn.clear();
 
         frame->SetPreviousFrame(_UNIVERSE->GetInterpreter()->GetFrame());
         TEST_WB_CALLED("VMFrame failed to call writeBarrier on SetPreviousFrame", frame, _UNIVERSE->GetInterpreter()->GetFrame());
@@ -113,16 +102,6 @@ void WriteBarrierTest::testWriteMethod() {
         //reset set...
         _HEAP->writeBarrierCalledOn.clear();
         pVMMethod method = _UNIVERSE->GetInterpreter()->GetFrame()->GetMethod()->Clone();
-        TEST_WB_CALLED("VMMethod failed to call writeBarrier when cloning", method, method->GetHolder());
-        TEST_WB_CALLED("VMMethod failed to call writeBarrier when cloning", method, method->GetSignature());
-        TEST_WB_CALLED("VMMethod failed to call writeBarrier when cloning", method, method->numberOfLocals);
-        TEST_WB_CALLED("VMMethod failed to call writeBarrier when cloning", method, method->maximumNumberOfStackElements);
-        TEST_WB_CALLED("VMMethod failed to call writeBarrier when cloning", method, method->bcLength);
-        TEST_WB_CALLED("VMMethod failed to call writeBarrier when cloning", method, method->numberOfArguments);
-        TEST_WB_CALLED("VMMethod failed to call writeBarrier when cloning", method, method->numberOfConstants);
-
-        _HEAP->writeBarrierCalledOn.clear();
-
         method->SetHolder(integerClass);
         TEST_WB_CALLED("VMMethod failed to call writeBarrier on SetHolder", method, integerClass);
         method->SetSignature(method->GetSignature());
@@ -150,18 +129,6 @@ void WriteBarrierTest::testWriteClass() {
         //reset set...
         _HEAP->writeBarrierCalledOn.clear();
         pVMClass cl = integerClass->Clone();
-        //after cloning several writebarriers should have been called
-        TEST_WB_CALLED("VMClass failed to call writeBarrier when cloning", cl,
-                        cl->GetClass());
-        TEST_WB_CALLED("VMClass failed to call writeBarrier when cloning", cl,
-                        cl->GetSuperClass());
-        TEST_WB_CALLED("VMClass failed to call writeBarrier when cloning", cl,
-                        cl->GetName());
-        TEST_WB_CALLED("VMClass failed to call writeBarrier when cloning", cl,
-                        cl->GetInstanceFields());
-        TEST_WB_CALLED("VMClass failed to call writeBarrier when cloning", cl,
-                        cl->GetInstanceInvokables());
-
         //now test all methods that change members
         cl->SetSuperClass(integerClass);
         TEST_WB_CALLED("VMClass failed to call writeBarrier on SetSuperClass", cl,

@@ -35,6 +35,9 @@ public:
 	int32_t GetGCField() const;
 	void SetGCField(int32_t);
 	virtual int32_t GetObjectSize() const = 0;
+	AbstractVMObject() {
+		gcfield = 0;
+	}
 	inline virtual void SetObjectSize(size_t size) {
 		cout << "this object doesn't support SetObjectSize" << endl;
 		throw "this object doesn't support SetObjectSize";
@@ -66,9 +69,11 @@ public:
 	}
 
 	void* operator new(size_t numBytes, Heap* heap,
-			unsigned int additionalBytes = 0) {
-		void* mem = (void*) heap->AllocateObject(numBytes + additionalBytes);
-		return mem;
+			unsigned int additionalBytes = 0, bool outsideNursery = false) {
+		if (outsideNursery)
+			return (void*) heap->AllocateMatureObject(numBytes +
+					additionalBytes);
+		return (void*) heap->AllocateNurseryObject(numBytes + additionalBytes);
 	}
 };
 

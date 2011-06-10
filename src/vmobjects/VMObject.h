@@ -44,6 +44,9 @@
 class VMSymbol;
 class VMClass;
 
+//this macro returns a shifted ptr by offset bytes
+#define SHIFTED_PTR(ptr, offset) ((void*)((int)(ptr)+(int)(offset)))
+
 /* chbol: this table is not correct anymore because of introduction of
  * class AbstractVMObject
  **************************VMOBJECT****************************
@@ -92,9 +95,14 @@ public:
 	 *   - fields in VMMethod, a_b must be set to (number_of_bc + number_of_csts*sizeof(pVMObject))
 	 */
 	void* operator new(size_t numBytes, Heap* heap,
-			unsigned int additionalBytes = 0) {
-		void* mem = (void*) heap->AllocateObject(numBytes + additionalBytes);
+			unsigned int additionalBytes = 0, bool outsideNursery = false) {
+		void* mem = NULL;
 		size_t objSize = numBytes + additionalBytes;
+		if (outsideNursery)
+			mem = (void*) heap->AllocateMatureObject(objSize);
+		else
+			mem = (void*) heap->AllocateNurseryObject(objSize);
+
 		((VMObject*) mem)->objectSize = objSize + PAD_BYTES(objSize);
 		return mem;
 	}

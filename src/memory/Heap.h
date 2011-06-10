@@ -39,6 +39,14 @@ class AbstractVMObject;
 using namespace std;
 //macro to access the heap
 #define _HEAP Heap::GetHeap()
+#ifdef DEBUG
+struct VMObjectCompare {
+  bool operator() (pair<const pVMObject, const pVMObject> lhs, pair<const
+		  pVMObject, const pVMObject> rhs) const
+  {return (int32_t)lhs.first<(int32_t)rhs.first &&
+	  (int32_t)lhs.second<(int32_t)rhs.second ;}
+};
+#endif
 
 class Heap
 {
@@ -50,33 +58,41 @@ public:
     static void DestroyHeap();
 	Heap(int objectSpaceSize = 1048576);
 	~Heap();
-    AbstractVMObject* AllocateObject(size_t size);
+    AbstractVMObject* AllocateNurseryObject(size_t size);
+	AbstractVMObject* AllocateMatureObject(size_t size);
+	void FreeObject(pVMObject obj);
 	void triggerGC(void);
 	bool isCollectionTriggered(void);
     void FullGC();
 	void writeBarrier(const pVMObject holder, const pVMObject referencedObject);
+	inline bool isObjectInNursery(const pVMObject obj);
 #ifdef DEBUG
-	std::set<pair<const pVMObject, const pVMObject> > writeBarrierCalledOn;
+	std::set<pair<const pVMObject, const pVMObject>, VMObjectCompare > writeBarrierCalledOn;
 #endif
 private:
     static Heap* theHeap;
     void addToList(const pVMObject holder);
 
+
 	//members for moving GC
-	void* buffers[2];
-	void* currentBuffer;
-	void* oldBuffer;
-	void* currentBufferEnd;
+	void* nursery;
 	void* nextFreePosition;
-	void switchBuffers(void);
+	int32_t nurserySize;
 
 	//flag that shows if a Collection is triggered
 	bool gcTriggered;
 	GarbageCollector* gc;
     void* collectionLimit;
-	std::vector<const pVMObject> oldObjsWithRefToYoungObjs;
+	vector<int>* oldObjsWithRefToYoungObjs;
+	vector<pVMObject>* allocatedObjects;
 
 };
+
+
+inline bool Heap::isObjectInNursery(const pVMObject obj) {
+	return (int32_t) obj >= (int)nursery && (int32_t) obj < ((int32_t)nursery +
+			nurserySize);
+}
 
 inline void Heap::writeBarrier(const pVMObject holder, const pVMObject referencedObject) {
 #ifdef DEBUG
@@ -84,11 +100,8 @@ inline void Heap::writeBarrier(const pVMObject holder, const pVMObject reference
 #endif
 
 	//we have to add this item to the list if holder is an "old" object and referenced object is a "young" object
-	//   we can return if holder is located inside the buffer or referencedObject is not located inside the buffer 
-        if  (referencedObject > this->nextFreePosition || referencedObject <
-				this->currentBuffer
-             || (holder >= this->currentBuffer && holder < this->nextFreePosition))
-		return;
-	addToList(holder);
+	//   we can return if holder is located inside the buffer or referencedObject is not located inside the buffer
+	if  (isObjectInNursery(referencedObject) && !isObjectInNursery(holder))
+		addToList(holder);
 }
 #endif

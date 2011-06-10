@@ -35,8 +35,6 @@ class VMString : public AbstractVMObject {
 public:
 	VMString( const char* str );
 	VMString( const StdString& s );
-	VMString(const VMString& other);
-
     inline char*       GetChars() const;
 	StdString GetStdString() const;
     int         GetStringLength() const;

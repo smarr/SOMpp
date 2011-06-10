@@ -43,7 +43,7 @@ void VMBlock::SetMethod(pVMMethod bMethod) {
 }
 
 pVMBlock VMBlock::Clone() const {
-	return new (_HEAP, GetAdditionalSpaceConsumption()) VMBlock(*this);
+	return new (_HEAP, GetAdditionalSpaceConsumption(), true) VMBlock(*this);
 }
 
 pVMMethod VMBlock::GetMethod() const {

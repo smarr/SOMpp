@@ -47,7 +47,7 @@ void Heap::triggerGC(void) {
 }
 
 void Heap::addToList(const pVMObject obj) {
-    oldObjsWithRefToYoungObjs.push_back(obj);    
+    oldObjsWithRefToYoungObjs->push_back((int)obj);    
 }
 
 bool Heap::isCollectionTriggered(void) {
@@ -72,50 +72,47 @@ Heap::Heap(int objectSpaceSize) {
 	//collectionLimit = objectSpaceSize * 0.9;
 	gc = new GarbageCollector(this);
 
-	size_t bufSize = objectSpaceSize;
-	buffers[0] = malloc(bufSize);
-	buffers[1] = malloc(bufSize);
-	currentBuffer = buffers[0];
-	oldBuffer = buffers[1];
-	memset(currentBuffer, 0x0, bufSize);
-	memset(oldBuffer, 0x0, bufSize);
-	currentBufferEnd = (void*)((int32_t)currentBuffer + bufSize);
-	collectionLimit = (void*)((int32_t)currentBuffer + ((int32_t)(bufSize *
+	nursery = malloc(objectSpaceSize);
+	nurserySize = objectSpaceSize;
+	memset(nursery, 0x0, objectSpaceSize);
+	collectionLimit = (void*)((int32_t)nursery + ((int32_t)(objectSpaceSize *
 					0.9)));
-	nextFreePosition = currentBuffer;
+	nextFreePosition = nursery;
+	allocatedObjects = new vector<pVMObject>();
+	oldObjsWithRefToYoungObjs = new vector<int>();
 }
 
 Heap::~Heap() {
 	delete gc;
 }
 
-void Heap::switchBuffers() {
-	int32_t bufSize = (int32_t)currentBufferEnd - (int32_t)currentBuffer;
-	if (currentBuffer == buffers[0]) {
-		currentBuffer = buffers[1];
-		oldBuffer = buffers[0];
-	}
-	else {
-		currentBuffer = buffers[0];
-		oldBuffer = buffers[1];
-	}
-	currentBufferEnd = (void*)((int32_t)currentBuffer + bufSize);
-	nextFreePosition = currentBuffer;
-	collectionLimit = (void*)((int32_t)currentBuffer + (int32_t)(0.9 *
-				bufSize));
+void Heap::FreeObject(pVMObject obj) {
+	delete obj;
+	//free(obj);
 }
 
-AbstractVMObject* Heap::AllocateObject(size_t size) {
+AbstractVMObject* Heap::AllocateNurseryObject(size_t size) {
 	size_t paddedSize = size + PAD_BYTES(size);
 	AbstractVMObject* newObject = (AbstractVMObject*) nextFreePosition;
 	nextFreePosition = (void*)((int32_t)nextFreePosition + (int32_t)paddedSize);
-	if (nextFreePosition > currentBufferEnd) {
+	if ((int32_t)nextFreePosition > (int32_t)nursery + nurserySize) {
 		cout << "Failed to allocate " << size << " Bytes." << endl;
 		_UNIVERSE->Quit(-1);
 	}
 	//let's see if we have to trigger the GC
 	if (nextFreePosition > collectionLimit)
 		triggerGC();
+	return newObject;
+}
+
+AbstractVMObject* Heap::AllocateMatureObject(size_t size) {
+	size_t paddedSize = size + PAD_BYTES(size);
+	pVMObject newObject = (pVMObject)malloc(paddedSize);
+	if (newObject == NULL) {
+		cout << "Failed to allocate " << size << " Bytes." << endl;
+		_UNIVERSE->Quit(-1);
+	}
+	allocatedObjects->push_back(newObject);
 	return newObject;
 }
 

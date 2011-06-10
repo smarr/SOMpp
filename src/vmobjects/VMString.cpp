@@ -47,17 +47,8 @@ VMString::VMString(const char* str) {
 	
 }
 
-VMString::VMString(const VMString& other) {
-	chars = (char*)&chars + sizeof(char*);
-	int toCopy = strlen(other.chars) + 1; //also copy \0
-	for (int i=0; i < toCopy; ++i)
-		chars[i] = other.chars[i];
-
-}
-
 pVMString VMString::Clone() const {
-	return new (_HEAP, strlen(chars)+1) VMString(*this);
-
+	return new (_HEAP, strlen(chars)+1, true) VMString(chars);
 }
 
 

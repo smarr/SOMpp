@@ -62,12 +62,13 @@ pVMFrame VMFrame::EmergencyFrameFrom( pVMFrame from, int extraLength ) {
 
 pVMFrame VMFrame::Clone() const {
 	int32_t addSpace = objectSize - sizeof(VMFrame);
-	pVMFrame clone = new (_HEAP, addSpace) VMFrame(*this);
-	//memcpy(&(clone->clazz), &clazz, addSpace + sizeof(pVMObject));
-	for (int32_t i = 0; i < GetNumberOfFields(); i++)
-		clone->SetField(i, GetField(i));
-	for (int32_t i = 0; i < GetNumberOfIndexableFields(); i++)
-		clone->SetIndexableField(i, GetIndexableField(i));
+	pVMFrame clone = new (_HEAP, addSpace, true) VMFrame(*this);
+	assert(_HEAP->isObjectInNursery(clone) == false);
+
+	void* destination = SHIFTED_PTR(clone, sizeof(VMFrame));
+	const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
+	size_t noBytes = GetObjectSize() - sizeof(VMFrame);
+	memcpy(destination, source, noBytes);
 	return clone;
 }
 

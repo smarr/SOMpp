@@ -47,7 +47,7 @@ VMEvaluationPrimitive::VMEvaluationPrimitive(int argc) :
 }
 
 pVMEvaluationPrimitive VMEvaluationPrimitive::Clone() const {
-	pVMEvaluationPrimitive evPrim = new (_UNIVERSE->GetHeap()) VMEvaluationPrimitive(*this);
+	pVMEvaluationPrimitive evPrim = new (_HEAP, 0, true) VMEvaluationPrimitive(*this);
 	return evPrim;
 }
 
