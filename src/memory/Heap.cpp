@@ -74,6 +74,7 @@ Heap::Heap(int objectSpaceSize) {
 
 	nursery = malloc(objectSpaceSize);
 	nurserySize = objectSpaceSize;
+	matureObjectsSize = 0;
 	memset(nursery, 0x0, objectSpaceSize);
 	collectionLimit = (void*)((int32_t)nursery + ((int32_t)(objectSpaceSize *
 					0.9)));
@@ -87,8 +88,8 @@ Heap::~Heap() {
 }
 
 void Heap::FreeObject(pVMObject obj) {
+	matureObjectsSize -= obj->GetObjectSize();
 	delete obj;
-	//free(obj);
 }
 
 AbstractVMObject* Heap::AllocateNurseryObject(size_t size) {
@@ -113,6 +114,7 @@ AbstractVMObject* Heap::AllocateMatureObject(size_t size) {
 		_UNIVERSE->Quit(-1);
 	}
 	allocatedObjects->push_back(newObject);
+	matureObjectsSize += paddedSize;
 	return newObject;
 }
 

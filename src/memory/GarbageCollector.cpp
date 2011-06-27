@@ -45,12 +45,17 @@ THE SOFTWARE.
 #include "../vmobjects/VMClass.h"
 #include "../vmobjects/VMEvaluationPrimitive.h"
 
+#define _KB(B) (B/1024)
+#define _MB(B) ((double)B/(1024.0*1024.0))
 #define GC_MARKED 3456
+#define INITIAL_MAJOR_COLLECTION_THRESHOLD (5 * 1024 * 1024) //5 MB
 
 
 GarbageCollector::GarbageCollector(Heap* h) {
 	heap = h;
-}
+	majorCollectionThreshold = INITIAL_MAJOR_COLLECTION_THRESHOLD; 
+	matureObjectsSize = 0;
+	}
 
 GarbageCollector::~GarbageCollector() {
     //Heap is deleted by Universe
@@ -143,11 +148,14 @@ void GarbageCollector::Collect() {
     heap->gcTriggered = false;
 
     MinorCollection();
-    if (true) //XXX need useful condition for major collection here
-        MajorCollection();
+    if (_HEAP->matureObjectsSize > majorCollectionThreshold)
+	{
+		MajorCollection();
+		majorCollectionThreshold = 2 * _HEAP->matureObjectsSize;
+
+	}
 
 
 }
 
-#define _KB(B) (B/1024)
-#define _MB(B) ((double)B/(1024.0*1024.0))
+

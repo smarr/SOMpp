@@ -46,6 +46,8 @@ public:
 
 private:
 	Heap* heap;
+	int32_t majorCollectionThreshold;
+	int32_t matureObjectsSize;
 	void MajorCollection();
 	void MinorCollection();
 

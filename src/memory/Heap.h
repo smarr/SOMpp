@@ -78,6 +78,7 @@ private:
 	void* nursery;
 	void* nextFreePosition;
 	int32_t nurserySize;
+	int32_t matureObjectsSize;
 
 	//flag that shows if a Collection is triggered
 	bool gcTriggered;
