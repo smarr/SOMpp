@@ -47,7 +47,6 @@ THE SOFTWARE.
 
 #define _KB(B) (B/1024)
 #define _MB(B) ((double)B/(1024.0*1024.0))
-#define GC_MARKED 3456
 #define INITIAL_MAJOR_COLLECTION_THRESHOLD (5 * 1024 * 1024) //5 MB
 
 
@@ -64,27 +63,28 @@ GarbageCollector::~GarbageCollector() {
 
 
 pVMObject copy_if_necessary(pVMObject obj) {
+
+	int32_t gcField = obj->GetGCField();
+	//if this is an old object already, we don't have to copy
+	if (gcField & MASK_OBJECT_IS_OLD)
+		return obj;
 	//GCField is abused as forwarding pointer here
 	//if someone has moved before, return the moved object
-	int32_t gcField = obj->GetGCField();
 	if (gcField != 0)
 		return (pVMObject)gcField;
-	//we also don't have to copy, if we are not inside the nursery
-	if (_HEAP->isObjectInNursery(obj) == false)
-		return obj;
 	//we have to clone ourselves
 	pVMObject newObj = obj->Clone();
-	newObj->SetGCField(0); //XXX: Shouldbe 0 anyway -->just for testing
 	obj->SetGCField((int32_t)newObj);
+	newObj->SetGCField(MASK_OBJECT_IS_OLD);
     //walk recursively
     newObj->WalkObjects(copy_if_necessary);
 	return newObj;
 }
 
 pVMObject mark_object(pVMObject obj) {
-    if (obj->GetGCField() == GC_MARKED)
+    if (obj->GetGCField() & MASK_OBJECT_IS_MARKED)
         return (obj);
-    obj->SetGCField(GC_MARKED);
+    obj->SetGCField(MASK_OBJECT_IS_OLD | MASK_OBJECT_IS_MARKED);
     obj->WalkObjects(&mark_object);
     return obj;
 }
@@ -103,15 +103,15 @@ void GarbageCollector::MinorCollection() {
     //and also all objects that have been detected by the write barriers
     for (vector<int>::iterator objIter =
 			_HEAP->oldObjsWithRefToYoungObjs->begin(); objIter !=
-			_HEAP->oldObjsWithRefToYoungObjs->end(); objIter++)
+			_HEAP->oldObjsWithRefToYoungObjs->end(); objIter++) {
 		//content of oldObjsWithRefToYoungObjs is not altered while iteration,
 		// because copy_if_necessary returns old objs only -> ignored by
 		// write_barrier
-        ((pVMObject)(*objIter))->WalkObjects(&copy_if_necessary);
+		pVMObject obj = (pVMObject)(*objIter);
+		obj->SetGCField(MASK_OBJECT_IS_OLD);
+        obj->WalkObjects(&copy_if_necessary);
+	}
 	_HEAP->oldObjsWithRefToYoungObjs->clear();
-
-    //clear the nursery now
-    memset(_HEAP->nursery, 0xFF, _HEAP->nurserySize);
 	_HEAP->nextFreePosition = _HEAP->nursery;
 }
 
@@ -130,9 +130,9 @@ void GarbageCollector::MajorCollection() {
 	for (vector<pVMObject>::iterator objIter =
 			_HEAP->allocatedObjects->begin(); objIter !=
 			_HEAP->allocatedObjects->end(); objIter++) {
-		if ((*objIter)->GetGCField() == GC_MARKED) {
+		if ((*objIter)->GetGCField() & MASK_OBJECT_IS_MARKED) {
 			survivors->push_back(*objIter);
-			(*objIter)->SetGCField(0);
+			(*objIter)->SetGCField(MASK_OBJECT_IS_OLD);
 		}
 		else {
 			_HEAP->FreeObject(*objIter);

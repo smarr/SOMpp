@@ -96,13 +96,9 @@ public:
 	 */
 	void* operator new(size_t numBytes, Heap* heap,
 			unsigned int additionalBytes = 0, bool outsideNursery = false) {
-		void* mem = NULL;
-		size_t objSize = numBytes + additionalBytes;
-		if (outsideNursery)
-			mem = (void*) heap->AllocateMatureObject(objSize);
-		else
-			mem = (void*) heap->AllocateNurseryObject(objSize);
-
+		void* mem = AbstractVMObject::operator new(numBytes, heap,
+				additionalBytes, outsideNursery);
+		int32_t objSize = additionalBytes + numBytes;
 		((VMObject*) mem)->objectSize = objSize + PAD_BYTES(objSize);
 		return mem;
 	}

@@ -16,14 +16,6 @@ int32_t AbstractVMObject::GetHash() {
 	return (int32_t)this;
 }
 
-int32_t AbstractVMObject::GetGCField() const {
-	return gcfield;
-}
-
-void AbstractVMObject::SetGCField(int32_t value) {
-	gcfield = value;
-}
-
 void AbstractVMObject::Send(StdString selectorString, pVMObject* arguments, int argc) {
     pVMSymbol selector = _UNIVERSE->SymbolFor(selectorString);
     pVMFrame frame = _UNIVERSE->GetInterpreter()->GetFrame();
@@ -37,6 +29,7 @@ void AbstractVMObject::Send(StdString selectorString, pVMObject* arguments, int 
     pVMInvokable invokable = (pVMInvokable)(cl->LookupInvokable(selector));
     (*invokable)(frame);
 }
+
 int AbstractVMObject::GetFieldIndex(pVMSymbol fieldName) const {
 	return this->GetClass()->LookupFieldIndex(fieldName);
 }

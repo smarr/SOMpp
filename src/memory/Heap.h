@@ -60,24 +60,28 @@ public:
 	~Heap();
     AbstractVMObject* AllocateNurseryObject(size_t size);
 	AbstractVMObject* AllocateMatureObject(size_t size);
+	int32_t GetMaxNurseryObjectSize();
 	void FreeObject(pVMObject obj);
 	void triggerGC(void);
 	bool isCollectionTriggered(void);
     void FullGC();
-	void writeBarrier(const pVMObject holder, const pVMObject referencedObject);
+	void writeBarrier(pVMObject holder, const pVMObject referencedObject);
 	inline bool isObjectInNursery(const pVMObject obj);
 #ifdef DEBUG
 	std::set<pair<const pVMObject, const pVMObject>, VMObjectCompare > writeBarrierCalledOn;
 #endif
 private:
     static Heap* theHeap;
-    void addToList(const pVMObject holder);
+	void writeBarrier_OldHolder(pVMObject holder, const pVMObject
+			referencedObject);
 
 
 	//members for moving GC
 	void* nursery;
+	int32_t nursery_end;
 	void* nextFreePosition;
 	int32_t nurserySize;
+	int32_t maxNurseryObjSize;
 	int32_t matureObjectsSize;
 
 	//flag that shows if a Collection is triggered
@@ -95,14 +99,17 @@ inline bool Heap::isObjectInNursery(const pVMObject obj) {
 			nurserySize);
 }
 
-inline void Heap::writeBarrier(const pVMObject holder, const pVMObject referencedObject) {
+inline int32_t Heap::GetMaxNurseryObjectSize() {
+	return maxNurseryObjSize;
+}
+
+inline void Heap::writeBarrier(pVMObject holder, const pVMObject referencedObject) {
 #ifdef DEBUG
-	writeBarrierCalledOn.insert(make_pair(holder, referencedObject));
+	//XXX Disabled because of speed reasons --> causes some tests to fail
+	//writeBarrierCalledOn.insert(make_pair(holder, referencedObject));
 #endif
 
-	//we have to add this item to the list if holder is an "old" object and referenced object is a "young" object
-	//   we can return if holder is located inside the buffer or referencedObject is not located inside the buffer
-	if  (isObjectInNursery(referencedObject) && !isObjectInNursery(holder))
-		addToList(holder);
+	if ((int32_t)holder < (int32_t)nursery || (int32_t)holder > nursery_end)
+		writeBarrier_OldHolder(holder, referencedObject);
 }
 #endif

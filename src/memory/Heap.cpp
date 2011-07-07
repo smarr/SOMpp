@@ -46,10 +46,6 @@ void Heap::triggerGC(void) {
 	gcTriggered = true;
 }
 
-void Heap::addToList(const pVMObject obj) {
-    oldObjsWithRefToYoungObjs->push_back((int)obj);    
-}
-
 bool Heap::isCollectionTriggered(void) {
 	return gcTriggered;
 }
@@ -74,6 +70,8 @@ Heap::Heap(int objectSpaceSize) {
 
 	nursery = malloc(objectSpaceSize);
 	nurserySize = objectSpaceSize;
+	maxNurseryObjSize = objectSpaceSize / 2;
+	nursery_end = (int32_t)nursery + nurserySize;
 	matureObjectsSize = 0;
 	memset(nursery, 0x0, objectSpaceSize);
 	collectionLimit = (void*)((int32_t)nursery + ((int32_t)(objectSpaceSize *
@@ -81,6 +79,14 @@ Heap::Heap(int objectSpaceSize) {
 	nextFreePosition = nursery;
 	allocatedObjects = new vector<pVMObject>();
 	oldObjsWithRefToYoungObjs = new vector<int>();
+}
+void Heap::writeBarrier_OldHolder(pVMObject holder, const pVMObject
+		referencedObject) {
+	if (isObjectInNursery(referencedObject)
+			&& ((holder->GetGCField() & MASK_SEEN_BY_WRITE_BARRIER) ==false)) {
+		oldObjsWithRefToYoungObjs->push_back((int32_t)holder);
+		holder->SetGCField(holder->GetGCField() | MASK_SEEN_BY_WRITE_BARRIER);
+	}
 }
 
 Heap::~Heap() {
@@ -97,7 +103,7 @@ AbstractVMObject* Heap::AllocateNurseryObject(size_t size) {
 	AbstractVMObject* newObject = (AbstractVMObject*) nextFreePosition;
 	nextFreePosition = (void*)((int32_t)nextFreePosition + (int32_t)paddedSize);
 	if ((int32_t)nextFreePosition > (int32_t)nursery + nurserySize) {
-		cout << "Failed to allocate " << size << " Bytes." << endl;
+		cout << "Failed to allocate " << size << " Bytes in nursery." << endl;
 		_UNIVERSE->Quit(-1);
 	}
 	//let's see if we have to trigger the GC

@@ -10,7 +10,7 @@
 #include "../misc/defs.h"
 #include "ObjectFormats.h"
 #include "../memory/Heap.h"
-
+#include "VMObjectBase.h"
 /*
  * macro for padding - only word-aligned memory must be allocated
  */
@@ -21,19 +21,16 @@ class VMObject;
 class VMSymbol;
 
 #include <iostream>
+#include <assert.h>
 using namespace std;
 
 //this is the base class for all VMObjects
-class AbstractVMObject {
-protected:
-	int32_t gcfield;
+class AbstractVMObject : public VMObjectBase {
 public:
 	virtual int32_t GetHash();
 	virtual pVMClass GetClass() const = 0;
 	virtual pVMObject Clone() const = 0;
 	virtual void Send(StdString, pVMObject*, int);
-	int32_t GetGCField() const;
-	void SetGCField(int32_t);
 	virtual int32_t GetObjectSize() const = 0;
 	AbstractVMObject() {
 		gcfield = 0;
@@ -70,9 +67,12 @@ public:
 
 	void* operator new(size_t numBytes, Heap* heap,
 			unsigned int additionalBytes = 0, bool outsideNursery = false) {
+		//if outsideNursery flag is set or object is too big for nursery, we
+		// allocate a mature object
 		if (outsideNursery)
 			return (void*) heap->AllocateMatureObject(numBytes +
 					additionalBytes);
+		assert(numBytes + additionalBytes < _HEAP->GetMaxNurseryObjectSize());
 		return (void*) heap->AllocateNurseryObject(numBytes + additionalBytes);
 	}
 };

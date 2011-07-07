@@ -130,9 +130,15 @@ vector<StdString> Universe::handleArguments( int argc, char** argv ) {
             ++dumpBytecodes;
         } else if (strncmp(argv[i], "-g", 2) == 0) {
             ++gcVerbosity;
-        } else if (argv[i][0] == '-' && argv[i][1] == 'H') {
-            int heap_size = atoi(argv[i] + 2);
-            heapSize = heap_size;
+        } else if (strncmp(argv[i], "-H",2) == 0) {
+            int heap_size = 0;
+			if (sscanf(argv[i],"-H%dMB", &heap_size) == 1)
+				heapSize = heap_size * 1024 * 1024;
+			else if (sscanf(argv[i],"-H%dKB", &heap_size) == 1)
+				heapSize = heap_size * 1024;
+			else
+				printUsageAndExit(argv[0]);
+
         } else if ((strncmp(argv[i], "-h", 2) == 0) ||
             (strncmp(argv[i], "--help", 6) == 0)) {
                 printUsageAndExit(argv[0]);
@@ -219,7 +225,8 @@ void Universe::printUsageAndExit( char* executable ) const {
                     "        2x - print statistics upon each collection" << endl <<
                     "        3x - print statistics and dump _HEAP upon each "  << endl <<
                     "collection" << endl;
-    cout << "    -Hx set the _HEAP size to x MB (default: 1 MB)" << endl;
+    cout << "    -HxMB set the _HEAP size to x MB (default: 1 MB)" << endl;
+    cout << "    -HxKB set the _HEAP size to x KB (default: 1 MB)" << endl;
     cout << "    -h  show this help" << endl;
 
     Quit(ERR_SUCCESS);
@@ -234,7 +241,7 @@ Universe::Universe(){
 
 
 void Universe::initialize(int _argc, char** _argv) {
-    heapSize = 1048576;
+    heapSize = 1 * 1024 * 1024;
 
     vector<StdString> argv = this->handleArguments(_argc, _argv);
 
@@ -511,7 +518,14 @@ void Universe::LoadSystemClass( pVMClass systemClass) {
 
 pVMArray Universe::NewArray( int size) const {
     int additionalBytes = size*sizeof(pVMObject);
-    pVMArray result = new (_HEAP, additionalBytes) VMArray(size);
+	//if the array is too big for the nursery, we will directly allocate a
+	// mature object
+	bool outsideNursery = 
+		additionalBytes+sizeof(VMArray) > _HEAP->GetMaxNurseryObjectSize();
+
+    pVMArray result = new (_HEAP, additionalBytes, outsideNursery) VMArray(size);
+	if (outsideNursery)
+		result->SetGCField(MASK_OBJECT_IS_OLD);
     result->SetClass(arrayClass);
     return result;
 }
@@ -662,12 +676,8 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 	map<StdString, pVMSymbol>::iterator symbolIter;
 	for (symbolIter = symboltable->getSymbolsMap().begin(); symbolIter !=
 			symboltable->getSymbolsMap().end(); symbolIter++) {
-		pVMSymbol oldSymbol = symbolIter->second;
-		pVMSymbol newSymbol = (pVMSymbol)walk(symbolIter->second);
-		cout.flush();
-		assert(oldSymbol->GetStdString() == newSymbol->GetStdString());
 		//insert overwrites old entries inside the internal map
-		symboltable->insert(newSymbol);
+		symboltable->insert((pVMSymbol)walk(symbolIter->second));
 	}
 }
 
