@@ -80,7 +80,11 @@ void  _System::Load_(pVMObject /*object*/, pVMFrame frame) {
 
 void  _System::Exit_(pVMObject /*object*/, pVMFrame frame) {
     pVMInteger err = (pVMInteger)frame->Pop();
+#ifdef USE_TAGGING
+    int32_t err_no = (int32_t)err;
+#else
     int32_t err_no = err->GetEmbeddedInteger();
+#endif
 
     if(err_no != ERR_SUCCESS)
         frame->PrintStackTrace();
@@ -111,7 +115,11 @@ void  _System::Time(pVMObject /*object*/, pVMFrame frame) {
         ((now->tv_sec - start_time->tv_sec) * 1000) + //seconds
         ((now->tv_usec - start_time->tv_usec) / 1000); // µseconds
 
+#ifdef USE_TAGGING
+    frame->Push((pVMObject)pVMInteger((int32_t)diff));
+#else
     frame->Push((pVMObject)_UNIVERSE->NewInteger((int32_t)diff));
+#endif
 
     delete(now);
 }

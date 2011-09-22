@@ -81,7 +81,11 @@ void  _String::AsSymbol(pVMObject /*object*/, pVMFrame frame) {
 
 void  _String::Hashcode(pVMObject /*object*/, pVMFrame frame) {
     pVMString self = (pVMString)frame->Pop();
+#ifdef USE_TAGGING
+    frame->Push((pVMObject)pVMInteger(self->GetHash()));
+#else
     frame->Push((pVMObject)_UNIVERSE->NewInteger(self->GetHash()));
+#endif
 }
 
 
@@ -89,7 +93,11 @@ void  _String::Length(pVMObject /*object*/, pVMFrame frame) {
     pVMString self = (pVMString)frame->Pop();
     
     size_t len = self->GetStringLength();
+#ifdef USE_TAGGING
+    frame->Push(pVMInteger((int32_t)len));
+#else
     frame->Push(_UNIVERSE->NewInteger((int32_t)len));
+#endif
 }
 
 
@@ -118,8 +126,13 @@ void  _String::PrimSubstringFrom_To_(pVMObject /*object*/, pVMFrame frame) {
     pVMString self = (pVMString)frame->Pop();
     
     StdString str = self->GetStdString();
+#ifdef USE_TAGGING
+    int s = (int32_t)start;
+    int e = (int32_t)end;
+#else
     int s = start->GetEmbeddedInteger();
     int e = end->GetEmbeddedInteger();
+#endif
     
     StdString result = str.substr(s, e - s);
 

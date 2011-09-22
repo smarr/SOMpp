@@ -45,6 +45,9 @@ THE SOFTWARE.
 #include "../vmobjects/VMBigInteger.h"
 #include "../vmobjects/VMEvaluationPrimitive.h"
 #include "../vmobjects/Symboltable.h"
+#ifdef USE_TAGGING
+#include "../vmobjects/VMPointerConverter.h"
+#endif
 
 #include "../interpreter/bytecodes.h"
 
@@ -287,7 +290,12 @@ void Universe::initialize(int _argc, char** _argv) {
     bootstrapFrame->Push((pVMObject)argumentsArray);
 
     pVMInvokable initialize = 
+#ifdef USE_TAGGING
+        DynamicConvert<VMInvokable, VMObject>(
+            systemClass->LookupInvokable(this->SymbolForChars("initialize:")));
+#else
         dynamic_cast<pVMInvokable>(systemClass->LookupInvokable(this->SymbolForChars("initialize:")));
+#endif
     (*initialize)(bootstrapFrame);
     
     // reset "-d" indicator
@@ -456,7 +464,11 @@ void Universe::InitializeSystemClass( pVMClass systemClass,
 
 pVMClass Universe::LoadClass( pVMSymbol name) {
    if (HasGlobal(name))
+#ifdef USE_TAGGING
+       return DynamicConvert<VMClass, VMObject>(GetGlobal(name));
+#else
        return dynamic_cast<pVMClass>(GetGlobal(name));
+#endif
 
    pVMClass result = LoadClassBasic(name, NULL);
 
@@ -624,7 +636,11 @@ pVMObject Universe::NewInstance( pVMClass  classOfInstance) const {
     return result;
 }
 
+#ifdef USE_TAGGING
+VMPointer<VMInteger> Universe::NewInteger( int32_t value) const {
+#else
 pVMInteger Universe::NewInteger( int32_t value) const {
+#endif
     return new (_HEAP) VMInteger(value);
 }
 
@@ -638,10 +654,35 @@ pVMClass Universe::NewMetaclassClass() const {
     return result;
 }
 
+#ifdef USE_TAGGING
+void Universe::WalkGlobals(AbstractVMObject* (*walk)(AbstractVMObject*)) {
+#else
 void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
+#endif
 	nilObject = walk(nilObject);
 	trueObject = walk(trueObject);
 	falseObject = walk(falseObject);
+
+#ifdef USE_TAGGING
+	GlobalBox::updateIntegerBox(dynamic_cast<VMInteger*>(walk(GlobalBox::IntegerBox())));
+
+	objectClass = DynamicConvert<VMClass, AbstractVMObject>(walk(objectClass));
+	classClass = DynamicConvert<VMClass,AbstractVMObject>(walk(classClass));
+	metaClassClass =  DynamicConvert<VMClass,AbstractVMObject>(walk(metaClassClass));
+
+	nilClass = DynamicConvert<VMClass,AbstractVMObject>(walk(nilClass));
+	integerClass = DynamicConvert<VMClass,AbstractVMObject>(walk(integerClass));
+	bigIntegerClass = DynamicConvert<VMClass,AbstractVMObject>(walk(bigIntegerClass));
+	arrayClass = DynamicConvert<VMClass,AbstractVMObject>(walk(arrayClass));
+	methodClass = DynamicConvert<VMClass,AbstractVMObject>(walk(methodClass));
+	symbolClass = DynamicConvert<VMClass,AbstractVMObject>(walk(symbolClass));
+	frameClass = DynamicConvert<VMClass,AbstractVMObject>(walk(frameClass));
+	primitiveClass = DynamicConvert<VMClass,AbstractVMObject>(walk(primitiveClass));
+	stringClass = DynamicConvert<VMClass,AbstractVMObject>(walk(stringClass));
+	systemClass = DynamicConvert<VMClass,AbstractVMObject>(walk(systemClass));
+	blockClass = DynamicConvert<VMClass,AbstractVMObject>(walk(blockClass));
+	doubleClass = DynamicConvert<VMClass,AbstractVMObject>(walk(doubleClass));
+#else
 
 	objectClass = (pVMClass)(walk(objectClass));
 	classClass = (pVMClass)(walk(classClass));
@@ -659,6 +700,7 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 	systemClass = (pVMClass)(walk(systemClass));
 	blockClass = (pVMClass)(walk(blockClass));
 	doubleClass = (pVMClass)(walk(doubleClass));
+#endif
 
 	//walk all entries in globals map
 	map<pVMSymbol, pVMObject> globs = globals;
@@ -668,7 +710,12 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 		if (iter->second == NULL)
 			continue;
 
+#ifdef USE_TAGGING
+		pVMSymbol key =
+			DynamicConvert<VMSymbol,AbstractVMObject>(walk(iter->first.GetPointer()));
+#else
 		pVMSymbol key = (pVMSymbol)(walk(iter->first));
+#endif
 		pVMObject val = walk(iter->second);
 		globals[key] = val;
 	}
@@ -677,7 +724,11 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 	for (symbolIter = symboltable->getSymbolsMap().begin(); symbolIter !=
 			symboltable->getSymbolsMap().end(); symbolIter++) {
 		//insert overwrites old entries inside the internal map
+#ifdef USE_TAGGING
+		symboltable->insert(DynamicConvert<VMSymbol,AbstractVMObject>(walk(symbolIter->second)));
+#else
 		symboltable->insert((pVMSymbol)walk(symbolIter->second));
+#endif
 	}
 }
 

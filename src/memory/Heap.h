@@ -34,6 +34,9 @@ THE SOFTWARE.
 #include "GarbageCollector.h"
 #include "../misc/defs.h"
 #include "../vmobjects/ObjectFormats.h"
+#ifdef USE_TAGGING
+#include "../vmobjects/VMPointer.h"
+#endif
 
 class AbstractVMObject;
 using namespace std;
@@ -41,8 +44,13 @@ using namespace std;
 #define _HEAP Heap::GetHeap()
 #ifdef DEBUG
 struct VMObjectCompare {
+#ifdef USE_TAGGING
+  bool operator() (pair<const AbstractVMObject*, const AbstractVMObject*> lhs, pair<const
+		  AbstractVMObject*, const AbstractVMObject*> rhs) const
+#else
   bool operator() (pair<const pVMObject, const pVMObject> lhs, pair<const
 		  pVMObject, const pVMObject> rhs) const
+#endif
   {return (int32_t)lhs.first<(int32_t)rhs.first &&
 	  (int32_t)lhs.second<(int32_t)rhs.second ;}
 };
@@ -65,15 +73,29 @@ public:
 	void triggerGC(void);
 	bool isCollectionTriggered(void);
     void FullGC();
+#ifdef USE_TAGGING
+	void writeBarrier(AbstractVMObject* holder, const AbstractVMObject* referencedObject);
+	inline bool isObjectInNursery(const AbstractVMObject* obj);
+#else
 	void writeBarrier(pVMObject holder, const pVMObject referencedObject);
 	inline bool isObjectInNursery(const pVMObject obj);
+#endif
 #ifdef DEBUG
+#ifdef USE_TAGGING
+	std::set<pair<const AbstractVMObject*, const AbstractVMObject*>, VMObjectCompare > writeBarrierCalledOn;
+#else
 	std::set<pair<const pVMObject, const pVMObject>, VMObjectCompare > writeBarrierCalledOn;
+#endif
 #endif
 private:
     static Heap* theHeap;
+#ifdef USE_TAGGING
+	void writeBarrier_OldHolder(AbstractVMObject* holder, const
+			AbstractVMObject* referencedObject);
+#else
 	void writeBarrier_OldHolder(pVMObject holder, const pVMObject
 			referencedObject);
+#endif
 
 
 	//members for moving GC
@@ -93,8 +115,12 @@ private:
 
 };
 
+#ifdef USE_TAGGING
+inline bool Heap::isObjectInNursery(const AbstractVMObject* obj) {
+#else
 
 inline bool Heap::isObjectInNursery(const pVMObject obj) {
+#endif
 	return (int32_t) obj >= (int)nursery && (int32_t) obj < ((int32_t)nursery +
 			nurserySize);
 }
@@ -102,8 +128,12 @@ inline bool Heap::isObjectInNursery(const pVMObject obj) {
 inline int32_t Heap::GetMaxNurseryObjectSize() {
 	return maxNurseryObjSize;
 }
+#ifdef USE_TAGGING
+inline void Heap::writeBarrier(AbstractVMObject* holder, const AbstractVMObject* referencedObject) {
+#else
 
 inline void Heap::writeBarrier(pVMObject holder, const pVMObject referencedObject) {
+#endif
 #ifdef DEBUG
 	//XXX Disabled because of speed reasons --> causes some tests to fail
 	//writeBarrierCalledOn.insert(make_pair(holder, referencedObject));

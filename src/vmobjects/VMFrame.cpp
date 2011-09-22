@@ -60,9 +60,17 @@ pVMFrame VMFrame::EmergencyFrameFrom( pVMFrame from, int extraLength ) {
     return result;
 }
 
+#ifdef USE_TAGGING
+VMFrame* VMFrame::Clone() const {
+#else
 pVMFrame VMFrame::Clone() const {
+#endif
 	int32_t addSpace = objectSize - sizeof(VMFrame);
+#ifdef USE_TAGGING
+	VMFrame* clone = new (_HEAP, addSpace, true) VMFrame(*this);
+#else
 	pVMFrame clone = new (_HEAP, addSpace, true) VMFrame(*this);
+#endif
 	assert(_HEAP->isObjectInNursery(clone) == false);
 
 	void* destination = SHIFTED_PTR(clone, sizeof(VMFrame));
@@ -74,13 +82,22 @@ pVMFrame VMFrame::Clone() const {
 
 const int VMFrame::VMFrameNumberOfFields = 6; 
 
+#ifdef USE_TAGGING
+VMFrame::VMFrame(int size, int nof) : VMArray(size,	nof +
+		VMFrameNumberOfFields), previousFrame(nilObject), context(nilObject), method(nilObject){
+	_HEAP->writeBarrier(this, nilObject);
+    this->localOffset = 0;
+    this->bytecodeIndex = 0;
+    this->stackPointer = 0;
+#else
 VMFrame::VMFrame(int size, int nof) : VMArray(size, 
                                               nof + VMFrameNumberOfFields) {
     this->localOffset = _UNIVERSE->NewInteger(0);
-	_HEAP->writeBarrier(this, localOffset);
     this->bytecodeIndex = _UNIVERSE->NewInteger(0);
-	_HEAP->writeBarrier(this, bytecodeIndex);
     this->stackPointer = _UNIVERSE->NewInteger(0);
+#endif
+	_HEAP->writeBarrier(this, localOffset);
+	_HEAP->writeBarrier(this, bytecodeIndex);
 	_HEAP->writeBarrier(this, stackPointer);
 
 }
@@ -128,25 +145,43 @@ int VMFrame::RemainingStackSize() const {
     // - 1 because the stack pointer points at the top entry,
     // so the next entry would be put at stackPointer+1
     return this->GetNumberOfIndexableFields() -
+#ifdef USE_TAGGING
+           (int32_t)stackPointer - 1;
+#else
            stackPointer->GetEmbeddedInteger() - 1;
+#endif
 }
 
 pVMObject VMFrame::Pop() {
+#ifdef USE_TAGGING
+    int32_t sp = (int32_t)this->stackPointer;
+    this->stackPointer = sp - 1;
+#else
     int32_t sp = this->stackPointer->GetEmbeddedInteger();
     this->stackPointer->SetEmbeddedInteger(sp-1);
+#endif
     return this->GetIndexableField(sp);
 }
 
 
 void      VMFrame::Push(pVMObject obj) {
+#ifdef USE_TAGGING
+    int32_t sp = (int32_t)this->stackPointer + 1;
+    this->stackPointer = sp;
+#else
     int32_t sp = this->stackPointer->GetEmbeddedInteger() + 1;
     this->stackPointer->SetEmbeddedInteger(sp);
+#endif
     SetIndexableField(sp, obj);
 }
 
 
 void VMFrame::PrintStack() const {
+#ifdef USE_TAGGING
+    cout << "SP: " << (int32_t)this->stackPointer << endl;
+#else
     cout << "SP: " << this->stackPointer->GetEmbeddedInteger() << endl;
+#endif
     for (int i = 0; i < this->GetNumberOfIndexableFields()+1; ++i) {
         pVMObject vmo = this->GetIndexableField(i);
         cout << i << ": ";
@@ -169,46 +204,78 @@ void      VMFrame::ResetStackPointer() {
     // arguments are stored in front of local variables
     pVMMethod meth = this->GetMethod();
     size_t lo = meth->GetNumberOfArguments();
+#ifdef USE_TAGGING
+    this->localOffset = lo;
+#else
     this->localOffset->SetEmbeddedInteger(lo);
+#endif
   
     // Set the stack pointer to its initial value thereby clearing the stack
     size_t numLocals = meth->GetNumberOfLocals();
+#ifdef USE_TAGGING
+    this->stackPointer = lo + numLocals - 1;
+#else
     this->stackPointer->SetEmbeddedInteger(lo + numLocals - 1);
+#endif
 }
 
 
 int       VMFrame::GetBytecodeIndex() const {
+#ifdef USE_TAGGING
+    return (int32_t)this->bytecodeIndex;
+#else
     return this->bytecodeIndex->GetEmbeddedInteger();
+#endif
 }
 
 
 void      VMFrame::SetBytecodeIndex(int index) {
+#ifdef USE_TAGGING
+    this->bytecodeIndex = index;
+#else
     this->bytecodeIndex->SetEmbeddedInteger(index);
+#endif
 }
 
 
 pVMObject VMFrame::GetStackElement(int index) const {
+#ifdef USE_TAGGING
+    int sp = (int32_t)this->stackPointer;
+#else
     int sp = this->stackPointer->GetEmbeddedInteger();
+#endif
     return GetIndexableField(sp-index);
 }
 
 
 void      VMFrame::SetStackElement(int index, pVMObject obj) {
+#ifdef USE_TAGGING
+    int sp = (int32_t)this->stackPointer;
+#else
     int sp = this->stackPointer->GetEmbeddedInteger();
+#endif
 	SetIndexableField(sp-index, obj);
 }
 
 
 pVMObject VMFrame::GetLocal(int index, int contextLevel) {
     pVMFrame context = this->GetContextLevel(contextLevel);
+#ifdef USE_TAGGING
+    int32_t lo = (int32_t)context->localOffset;
+#else
     int32_t lo = context->localOffset->GetEmbeddedInteger();
+#endif
     return context->GetIndexableField(lo+index);
 }
 
 
 void      VMFrame::SetLocal(int index, int contextLevel, pVMObject value) {
     pVMFrame context = this->GetContextLevel(contextLevel);
+#ifdef USE_TAGGING
+    size_t lo = (int32_t)context->localOffset;
+#else
     size_t lo = context->localOffset->GetEmbeddedInteger();
+#endif
     context->SetIndexableField(lo+index, value);
 }
 

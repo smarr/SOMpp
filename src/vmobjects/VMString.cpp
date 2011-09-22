@@ -47,7 +47,11 @@ VMString::VMString(const char* str) {
 	
 }
 
+#ifdef USE_TAGGING
+VMString* VMString::Clone() const {
+#else
 pVMString VMString::Clone() const {
+#endif
 	return new (_HEAP, strlen(chars)+1, true) VMString(chars);
 }
 

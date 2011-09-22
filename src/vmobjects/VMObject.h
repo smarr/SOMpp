@@ -78,8 +78,13 @@ public:
 	virtual pVMObject GetField(int index) const;
 	virtual void Assert(bool value) const;
 	virtual void SetField(int index, pVMObject value);
+#ifdef USE_TAGGING
+	virtual void WalkObjects(AbstractVMObject* (AbstractVMObject*));
+	virtual VMObject* Clone() const;
+#else
 	virtual void WalkObjects(pVMObject (pVMObject));
 	virtual pVMObject Clone() const;
+#endif
 	virtual int32_t GetObjectSize() const;
 	virtual void SetObjectSize(size_t size);
 

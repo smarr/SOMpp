@@ -55,12 +55,20 @@ void  _Object::Equalequal(pVMObject /*object*/, pVMFrame frame) {
 void  _Object::ObjectSize(pVMObject /*object*/, pVMFrame frame) {
 	pVMObject self = frame->Pop();
 
+#ifdef USE_TAGGING
+    frame->Push( (pVMObject)pVMInteger(self->GetObjectSize()) );
+#else
     frame->Push( (pVMObject)_UNIVERSE->NewInteger(self->GetObjectSize()) );
+#endif
 }
 
 
 void  _Object::Hashcode(pVMObject /*object*/, pVMFrame frame) {
 	pVMObject self = frame->Pop();
+#ifdef USE_TAGGING
+    frame->Push( (pVMObject)pVMInteger(self->GetHash()) );
+#else
     frame->Push( (pVMObject)_UNIVERSE->NewInteger(self->GetHash()) );
+#endif
 }
 

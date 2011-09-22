@@ -27,7 +27,7 @@
 # THE SOFTWARE.
 
 CC			=g++
-CFLAGS		=-Wno-endif-labels -O3 $(DBG_FLAGS) $(INCLUDES)
+CFLAGS		=-Wno-endif-labels -O3 $(DBG_FLAGS) $(TAG_FLAGS) $(INCLUDES)
 LDFLAGS		=$(DBG_FLAGS) $(LIBRARIES)
 
 INSTALL		=install
@@ -138,6 +138,9 @@ all: $(CSOM_NAME)\
 
 debug : DBG_FLAGS=-DDEBUG -O0 -g
 debug: all
+
+tagging : TAG_FLAGS=-DUSE_TAGGING
+tagging: all
 
 profiling : DBG_FLAGS=-g -pg
 profiling : LDFLAGS+=-pg

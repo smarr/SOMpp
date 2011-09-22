@@ -28,6 +28,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
   */
 
+#ifdef USE_TAGGING
+#define pVMArray VMPointer<VMArray>
+#define pVMBigInteger VMPointer<VMBigInteger>
+#define pVMBlock VMPointer<VMBlock>
+#define pVMClass VMPointer<VMClass>
+#define pVMDouble VMPointer<VMDouble>
+#define pVMEvaluationPrimitive VMPointer<VMEvaluationPrimitive>
+#define pVMFrame VMPointer<VMFrame>
+#define pVMInteger VMIntPointer
+#define pVMInvokable VMPointer<VMInvokable>
+#define pVMMethod VMPointer<VMMethod>
+#define pVMObject VMPointer<AbstractVMObject>
+#define pVMPrimitive VMPointer<VMPrimitive>
+#define pVMString VMPointer<VMString>
+#define pVMSymbol VMPointer<VMSymbol>
+#else
 
 #define pVMArray VMArray*
 #define pVMBigInteger VMBigInteger*
@@ -43,6 +59,7 @@ THE SOFTWARE.
 #define pVMPrimitive VMPrimitive* 
 #define pVMString VMString* 
 #define pVMSymbol VMSymbol* 
+#endif
 
 
 

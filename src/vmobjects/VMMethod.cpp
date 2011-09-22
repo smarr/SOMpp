@@ -33,6 +33,9 @@ THE SOFTWARE.
 #include "VMObject.h"
 #include "VMInteger.h"
 #include "Signature.h"
+#ifdef USE_TAGGING
+#include "VMPointerConverter.h"
+#endif
 
 #include "../vm/Universe.h"
 
@@ -46,23 +49,36 @@ const int VMMethod::VMMethodNumberOfFields = 5;
 
 VMMethod::VMMethod(int bcCount, int numberOfConstants, int nof) 
                     : VMInvokable(nof + VMMethodNumberOfFields) {
+#ifdef USE_TAGGING
+    bcLength = bcCount ;
+    numberOfLocals = 0;
+    maximumNumberOfStackElements = 0;
+    numberOfArguments = 0;
+    this->numberOfConstants = numberOfConstants;
+#else
     bcLength = _UNIVERSE->NewInteger( bcCount );
-    _HEAP->writeBarrier(this, bcLength);
     numberOfLocals = _UNIVERSE->NewInteger(0);
-    _HEAP->writeBarrier(this, numberOfLocals);
     maximumNumberOfStackElements = _UNIVERSE->NewInteger(0);
-    _HEAP->writeBarrier(this, maximumNumberOfStackElements);
     numberOfArguments = _UNIVERSE->NewInteger(0);
-    _HEAP->writeBarrier(this, numberOfArguments);
     this->numberOfConstants = _UNIVERSE->NewInteger(numberOfConstants);
+#endif
+    _HEAP->writeBarrier(this, bcLength);
+    _HEAP->writeBarrier(this, numberOfLocals);
+    _HEAP->writeBarrier(this, maximumNumberOfStackElements);
+    _HEAP->writeBarrier(this, numberOfArguments);
     _HEAP->writeBarrier(this, this->numberOfConstants);
     for (int i = 0; i < numberOfConstants ; ++i) {
         this->SetIndexableField(i, nilObject);
     }
 }
 
+#ifdef USE_TAGGING
+VMMethod* VMMethod::Clone() const {
+	VMMethod* clone = new (_HEAP, GetObjectSize() - sizeof(VMMethod), true)
+#else
 pVMMethod VMMethod::Clone() const {
 	pVMMethod clone = new (_HEAP, GetObjectSize() - sizeof(VMMethod), true)
+#endif
 		VMMethod(*this);
 	memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,
 				sizeof(VMObject)), GetObjectSize() -
@@ -76,7 +92,11 @@ void VMMethod::SetSignature(pVMSymbol sig) {
 }
 
 
+#ifdef USE_TAGGING
+void VMMethod::WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*)) {
+#else
 void VMMethod::WalkObjects(pVMObject (*walk)(pVMObject)) {
+#endif
     VMInvokable::WalkObjects(walk);
 	for (int i = 0 ; i < GetNumberOfIndexableFields() ; ++i) {
 		if (GetIndexableField(i) != NULL)
@@ -86,37 +106,65 @@ void VMMethod::WalkObjects(pVMObject (*walk)(pVMObject)) {
 
 
 int VMMethod::GetNumberOfLocals() const {
+#ifdef USE_TAGGING
+    return (int32_t)numberOfLocals; 
+#else
     return numberOfLocals->GetEmbeddedInteger(); 
+#endif
 }
 
 
 void VMMethod::SetNumberOfLocals(int nol) {
+#ifdef USE_TAGGING
+    numberOfLocals = nol;
+#else
     numberOfLocals->SetEmbeddedInteger(nol); 
+#endif
 }
 
 
 int VMMethod::GetMaximumNumberOfStackElements() const {
+#ifdef USE_TAGGING
+    return (int32_t)maximumNumberOfStackElements;
+#else
     return maximumNumberOfStackElements->GetEmbeddedInteger(); 
+#endif
 }
 
 
 void VMMethod::SetMaximumNumberOfStackElements(int stel) {
+#ifdef USE_TAGGING
+    maximumNumberOfStackElements = stel;
+#else
     maximumNumberOfStackElements->SetEmbeddedInteger(stel); 
+#endif
 }
 
 
 int VMMethod::GetNumberOfArguments() const {
+#ifdef USE_TAGGING
+    return (int32_t)numberOfArguments; 
+#else
     return numberOfArguments->GetEmbeddedInteger(); 
+#endif
 }
 
 
 void VMMethod::SetNumberOfArguments(int noa) {
+#ifdef USE_TAGGING
+    numberOfArguments = noa;
+#else
     numberOfArguments->SetEmbeddedInteger(noa); 
+#endif
 }
 
 
 int VMMethod::GetNumberOfBytecodes() const {
+#ifdef USE_TAGGING
+    return (int32_t)bcLength;
+#else
     return bcLength->GetEmbeddedInteger();
+#endif
 }
 
 
@@ -129,7 +177,11 @@ void VMMethod::operator()(pVMFrame frame) {
 void VMMethod::SetHolderAll(pVMClass hld) {
     for (int i = 0; i < this->GetNumberOfIndexableFields(); ++i) {
         pVMObject o = GetIndexableField(i);
+#ifdef USE_TAGGING
+        pVMInvokable vmi = DynamicConvert<VMInvokable, VMObject>(o);
+#else
         pVMInvokable vmi = dynamic_cast<pVMInvokable>(o);
+#endif
         if ( vmi != NULL)  {
             vmi->SetHolder(hld);
         }
@@ -202,6 +254,10 @@ void VMMethod::SetIndexableField(int idx, pVMObject item) {
 int VMMethod::GetNumberOfIndexableFields() const {
     //cannot be done using GetAdditionalSpaceConsumption,
     //as bytecodes need space, too, and there might be padding
+#ifdef USE_TAGGING
+    return (int32_t)this->numberOfConstants;
+#else
     return this->numberOfConstants->GetEmbeddedInteger();
+#endif
 }
 

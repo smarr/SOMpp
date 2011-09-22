@@ -70,9 +70,17 @@ pVMArray VMArray::CopyAndExtendWith(pVMObject item) const {
 
 
 
+#ifdef USE_TAGGING
+VMArray* VMArray::Clone() const {
+#else
 pVMArray VMArray::Clone() const {
+#endif
 	int32_t addSpace = objectSize - sizeof(VMArray);
+#ifdef USE_TAGGING
+	VMArray* clone = new (_HEAP, addSpace, true) VMArray(*this);
+#else
 	pVMArray clone = new (_HEAP, addSpace, true) VMArray(*this);
+#endif
 	void* destination = SHIFTED_PTR(clone, sizeof(VMArray));
 	const void* source = SHIFTED_PTR(this, sizeof(VMArray));
 	size_t noBytes = GetObjectSize() - sizeof(VMArray);
@@ -90,7 +98,11 @@ int VMArray::GetNumberOfIndexableFields() const {
     return this->GetAdditionalSpaceConsumption() / sizeof(pVMObject);
 }
 
+#ifdef USE_TAGGING
+void VMArray::WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*)) {
+#else
 void VMArray::WalkObjects(pVMObject (*walk)(pVMObject)) {
+#endif
 	int32_t noOfFields = GetNumberOfFields();
     for (int32_t i = 0; i < noOfFields; i++)
 	    SetField(i, walk(GetField(i)));

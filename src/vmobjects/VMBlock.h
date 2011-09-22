@@ -44,7 +44,11 @@ public:
     pVMMethod   GetMethod() const;
     inline void        SetContext(pVMFrame);
     inline pVMFrame    GetContext() const;
+#ifdef USE_TAGGING
+    virtual VMBlock* Clone() const;
+#else
     virtual pVMBlock Clone() const;
+#endif
 
     static pVMEvaluationPrimitive GetEvaluationPrimitive(int);
 private:

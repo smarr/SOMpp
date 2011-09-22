@@ -39,7 +39,11 @@ public:
 
 	inline void SetEmbeddedInteger(int64_t);
 	inline int64_t GetEmbeddedInteger() const;
+#ifdef USE_TAGGING
+	virtual VMBigInteger* Clone() const;
+#else
 	virtual pVMBigInteger Clone() const;
+#endif
 	virtual pVMClass GetClass() const;
 	virtual int32_t GetObjectSize() const;
 

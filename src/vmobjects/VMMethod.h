@@ -31,6 +31,9 @@ THE SOFTWARE.
 #include <iostream>
 
 #include "VMInvokable.h"
+#ifdef USE_TAGGING
+#include "VMIntPointer.h"
+#endif
 
 class VMArray;
 class VMObject;
@@ -53,10 +56,18 @@ public:
     virtual void      SetHolderAll(pVMClass hld); 
     virtual pVMObject GetConstant(int indx) const;
     virtual uint8_t   GetBytecode(int indx) const; 
-    virtual void      SetBytecode(int indx, uint8_t); 
+    virtual void      SetBytecode(int indx, uint8_t);
+#ifdef USE_TAGGING
+	virtual void	  WalkObjects(AbstractVMObject* (AbstractVMObject*));
+#else
 	virtual void	  WalkObjects(pVMObject (pVMObject));
+#endif
     virtual int       GetNumberOfIndexableFields() const;
+#ifdef USE_TAGGING
+    virtual VMMethod* Clone() const;
+#else
     virtual pVMMethod Clone() const;
+#endif
 
     void              SetIndexableField(int idx, pVMObject item);
 

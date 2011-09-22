@@ -29,7 +29,11 @@ class AbstractVMObject : public VMObjectBase {
 public:
 	virtual int32_t GetHash();
 	virtual pVMClass GetClass() const = 0;
+#ifdef USE_TAGGING
+	virtual AbstractVMObject* Clone() const = 0;
+#else
 	virtual pVMObject Clone() const = 0;
+#endif
 	virtual void Send(StdString, pVMObject*, int);
 	virtual int32_t GetObjectSize() const = 0;
 	AbstractVMObject() {
@@ -57,7 +61,11 @@ public:
 		throw "this object doesn't support SetField";
 	}
 	virtual pVMObject GetField(int index) const;
+#ifdef USE_TAGGING
+	inline virtual void WalkObjects(AbstractVMObject* (AbstractVMObject*)) {
+#else
 	inline virtual void WalkObjects(pVMObject (pVMObject)) {
+#endif
 		return;
 	}
 	inline virtual pVMSymbol GetFieldName(int index) const {

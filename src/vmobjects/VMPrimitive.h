@@ -44,9 +44,15 @@ public:
     
     virtual inline bool    IsEmpty() const;
     virtual inline void    SetRoutine(PrimitiveRoutine* rtn);
+#ifdef USE_TAGGING
+	virtual void 		WalkObjects(AbstractVMObject* (AbstractVMObject*));
+    virtual void    SetEmpty(bool value) { empty = (bool*)value; };
+    virtual VMPrimitive* Clone() const;
+#else
 	virtual void 		WalkObjects(pVMObject (pVMObject));
     virtual void    SetEmpty(bool value) { empty = value; };
     virtual pVMPrimitive Clone() const;
+#endif
 
     //-----------VMInvokable-------//
     //operator "()" to invoke the primitive
@@ -58,14 +64,22 @@ private:
     void EmptyRoutine(pVMObject self, pVMFrame frame);
 
     PrimitiveRoutine* routine;
+#ifdef USE_TAGGING
+    bool* empty;
+#else
     bool empty;
+#endif
 
     static const int VMPrimitiveNumberOfFields;
     
 };
 
 bool VMPrimitive::IsEmpty() const {
+#ifdef USE_TAGGING
+    return (bool)empty;
+#else
     return empty;
+#endif
 }
 
 

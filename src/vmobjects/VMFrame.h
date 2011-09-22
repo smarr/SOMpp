@@ -31,6 +31,9 @@ THE SOFTWARE.
 
 
 #include "VMArray.h"
+#ifdef USE_TAGGING
+#include "VMIntPointer.h"
+#endif
 class VMMethod;
 class VMObject;
 class VMInteger;
@@ -68,7 +71,11 @@ public:
     virtual void       PrintStackTrace() const;
     virtual int        ArgumentStackIndex(int index) const;
     virtual void       CopyArgumentsFrom(pVMFrame frame);
+#ifdef USE_TAGGING
+    virtual VMFrame*   Clone() const;
+#else
     virtual pVMFrame   Clone() const;
+#endif
     
     virtual void       PrintStack() const;
     virtual inline     pVMInteger GetStackPointer() const;

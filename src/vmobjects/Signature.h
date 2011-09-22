@@ -32,6 +32,9 @@ THE SOFTWARE.
 class VMSymbol;
 #include "../vmobjects/ObjectFormats.h"
 
+#ifdef USE_TAGGING
+#include "../vmobjects/VMPointer.h"
+#endif
 
 class Signature {
 public:

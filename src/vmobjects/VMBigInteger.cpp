@@ -37,7 +37,11 @@ VMBigInteger::VMBigInteger(int64_t val) {
     this->embeddedInteger = val;
 }
 
+#ifdef USE_TAGGING
+VMBigInteger* VMBigInteger::Clone() const {
+#else
 pVMBigInteger VMBigInteger::Clone() const {
+#endif
 	return new (_HEAP, 0, true) VMBigInteger(*this);
 }
 

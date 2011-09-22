@@ -8,10 +8,18 @@
 #include "../src/vmobjects/VMFrame.h"
 #include "../src/vmobjects/VMEvaluationPrimitive.h"
 
+
+#ifdef USE_TAGGING
+#define TEST_WB_CALLED(msg, hld, ref) \
+        CPPUNIT_ASSERT_MESSAGE(msg, \
+                        _HEAP->writeBarrierCalledOn.find(make_pair((const AbstractVMObject*)hld,\
+                        (const AbstractVMObject*)ref)) != _HEAP->writeBarrierCalledOn.end());
+#else
 #define TEST_WB_CALLED(msg, hld, ref) \
         CPPUNIT_ASSERT_MESSAGE(msg, \
                         _HEAP->writeBarrierCalledOn.find(make_pair(hld, ref)) != \
                         _HEAP->writeBarrierCalledOn.end());
+#endif
 
 void WriteBarrierTest::testWriteArray() {
 #ifdef DEBUG

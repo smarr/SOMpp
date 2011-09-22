@@ -35,7 +35,11 @@ VMInteger::VMInteger(int32_t val) {
 	embeddedInteger = val;
 }
 
+#ifdef USE_TAGGING
+VMInteger* VMInteger::Clone() const {
+#else
 pVMInteger VMInteger::Clone() const {
+#endif
 	return new (_HEAP, 0, true) VMInteger(*this);
 }
 

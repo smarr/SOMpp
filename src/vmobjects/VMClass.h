@@ -71,7 +71,11 @@ public:
     virtual int       GetNumberOfInstanceFields() const; 
     virtual bool      HasPrimitives() const; 
     virtual void      LoadPrimitives(const vector<StdString>&);
+#ifdef USE_TAGGING
+    virtual VMClass* Clone() const;
+#else
     virtual pVMClass Clone() const;
+#endif
 
 	private:
     StdString genLoadstring(const StdString& cp, 

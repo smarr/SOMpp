@@ -35,6 +35,9 @@ THE SOFTWARE.
 #include <vmobjects/VMDouble.h>
 #include <vmobjects/VMInteger.h>
 #include <vmobjects/VMBigInteger.h>
+#ifdef USE_TAGGING
+#include <vmobjects/VMPointerConverter.h>
+#endif
 
 #include <vm/Universe.h>
  
@@ -46,12 +49,24 @@ THE SOFTWARE.
  * true nature. This is to make sure that all Double operations return Doubles.
  */
 double _Double::coerceDouble(pVMObject x) {
+#ifdef USE_TAGGING
+    pVMDouble dx;
+    pVMInteger ix;
+    pVMBigInteger bix;
+    if((dx = DynamicConvert<VMDouble, AbstractVMObject>(x)) != NULL)
+        return dx->GetEmbeddedDouble();
+    else if(!(ix = ConvertToInteger<AbstractVMObject>(x)).IsNull())
+        return (double)(int32_t)ix;
+    else if((bix = DynamicConvert<VMBigInteger, AbstractVMObject>(x)) != NULL)
+        return (double)bix->GetEmbeddedInteger();
+#else
     if(dynamic_cast<pVMDouble>(x) != NULL)
         return ((pVMDouble)x)->GetEmbeddedDouble();
     else if(dynamic_cast<pVMInteger>(x) != NULL)
         return (double)((pVMInteger)x)->GetEmbeddedInteger();
     else if(dynamic_cast<pVMBigInteger>(x) != NULL)
         return (double)((pVMBigInteger)x)->GetEmbeddedInteger();
+#endif
     else
         _UNIVERSE->ErrorExit("Attempt to apply Double operation to non-number.");
 

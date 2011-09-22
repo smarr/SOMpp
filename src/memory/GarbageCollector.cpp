@@ -35,7 +35,9 @@ THE SOFTWARE.
 #include "Heap.h"
 
 #include "../vm/Universe.h"
-
+#ifdef USE_TAGGING
+#include "../vmobjects/VMIntPointer.h"
+#endif
 #include "../vmobjects/VMMethod.h"
 #include "../vmobjects/VMObject.h"
 #include "../vmobjects/VMSymbol.h"
@@ -61,8 +63,14 @@ GarbageCollector::~GarbageCollector() {
 }
 
 
-
+#ifdef USE_TAGGING
+AbstractVMObject* copy_if_necessary(AbstractVMObject* obj) {
+	//don't process tagged objects
+	if ((int32_t)((void*)obj) & 0x1)
+		return obj;
+#else
 pVMObject copy_if_necessary(pVMObject obj) {
+#endif
 
 	int32_t gcField = obj->GetGCField();
 	//if this is an old object already, we don't have to copy
@@ -71,9 +79,17 @@ pVMObject copy_if_necessary(pVMObject obj) {
 	//GCField is abused as forwarding pointer here
 	//if someone has moved before, return the moved object
 	if (gcField != 0)
+#ifdef USE_TAGGING
+		return (AbstractVMObject*)gcField;
+#else
 		return (pVMObject)gcField;
+#endif
 	//we have to clone ourselves
+#ifdef USE_TAGGING
+	AbstractVMObject* newObj = obj->Clone();
+#else
 	pVMObject newObj = obj->Clone();
+#endif
 	obj->SetGCField((int32_t)newObj);
 	newObj->SetGCField(MASK_OBJECT_IS_OLD);
     //walk recursively
@@ -81,7 +97,13 @@ pVMObject copy_if_necessary(pVMObject obj) {
 	return newObj;
 }
 
+#ifdef USE_TAGGING
+AbstractVMObject* mark_object(AbstractVMObject* obj) {
+	if ((int32_t)((void*)obj) & 1)
+		return obj;
+#else
 pVMObject mark_object(pVMObject obj) {
+#endif
     if (obj->GetGCField() & MASK_OBJECT_IS_MARKED)
         return (obj);
     obj->SetGCField(MASK_OBJECT_IS_OLD | MASK_OBJECT_IS_MARKED);
@@ -95,7 +117,11 @@ void GarbageCollector::MinorCollection() {
     //and the current frame
     pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
     if (currentFrame != NULL) {
+#ifdef USE_TAGGING
+        pVMFrame newFrame =	(VMFrame*)copy_if_necessary(currentFrame.GetPointer());
+#else
         pVMFrame newFrame = (pVMFrame)copy_if_necessary(currentFrame);
+#endif
 		assert(_HEAP->isObjectInNursery(newFrame) == false);
         _UNIVERSE->GetInterpreter()->SetFrame(newFrame);
     }
@@ -107,7 +133,11 @@ void GarbageCollector::MinorCollection() {
 		//content of oldObjsWithRefToYoungObjs is not altered while iteration,
 		// because copy_if_necessary returns old objs only -> ignored by
 		// write_barrier
+#ifdef USE_TAGGING
+		AbstractVMObject* obj = (AbstractVMObject*)(*objIter);
+#else
 		pVMObject obj = (pVMObject)(*objIter);
+#endif
 		obj->SetGCField(MASK_OBJECT_IS_OLD);
         obj->WalkObjects(&copy_if_necessary);
 	}
@@ -121,7 +151,11 @@ void GarbageCollector::MajorCollection() {
     //and the current frame
     pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
     if (currentFrame != NULL) {
+#ifdef USE_TAGGING
+        VMFrame* newFrame = (VMFrame*)mark_object(currentFrame);
+#else
         pVMFrame newFrame = (pVMFrame)mark_object(currentFrame);
+#endif
         _UNIVERSE->GetInterpreter()->SetFrame(newFrame);
     }
 

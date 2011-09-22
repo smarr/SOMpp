@@ -42,19 +42,34 @@ VMEvaluationPrimitive::VMEvaluationPrimitive(int argc) :
     this->SetRoutine(new Routine<VMEvaluationPrimitive>(this, 
                                &VMEvaluationPrimitive::evaluationRoutine));
     this->SetEmpty(false);
+#ifdef USE_TAGGING
+    this->numberOfArguments = argc;
+#else
     this->numberOfArguments = _UNIVERSE->NewInteger(argc);
+#endif
 	_HEAP->writeBarrier(this, numberOfArguments);
 }
 
+#ifdef USE_TAGGING
+VMEvaluationPrimitive* VMEvaluationPrimitive::Clone() const {
+#else
 pVMEvaluationPrimitive VMEvaluationPrimitive::Clone() const {
+#endif
 	pVMEvaluationPrimitive evPrim = new (_HEAP, 0, true) VMEvaluationPrimitive(*this);
 	return evPrim;
 }
 
 
+#ifdef USE_TAGGING
+void VMEvaluationPrimitive::WalkObjects(AbstractVMObject*
+		(*walk)(AbstractVMObject*)) {
+	VMPrimitive::WalkObjects(walk);
+	numberOfArguments = (VMInteger*)walk(numberOfArguments);
+#else
 void VMEvaluationPrimitive::WalkObjects(pVMObject (*walk)(pVMObject)) {
 	VMPrimitive::WalkObjects(walk);
 	numberOfArguments = (pVMInteger)walk(numberOfArguments);
+#endif
 	_HEAP->writeBarrier(this, numberOfArguments);
 }
 
@@ -88,7 +103,11 @@ void VMEvaluationPrimitive::evaluationRoutine(pVMObject object, pVMFrame frame){
     pVMEvaluationPrimitive self = (pVMEvaluationPrimitive) object;
 
      // Get the block (the receiver) from the stack
+#ifdef USE_TAGGING
+    int numArgs = (int32_t)self->numberOfArguments;
+#else
     int numArgs = self->numberOfArguments->GetEmbeddedInteger();
+#endif
     pVMBlock block = (pVMBlock) frame->GetStackElement(numArgs - 1);
     
     // Get the context of the block...

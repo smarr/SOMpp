@@ -46,7 +46,11 @@ int32_t VMSymbol::GetObjectSize() const {
 	return size + PAD_BYTES(size);
 }
 
+#ifdef USE_TAGGING
+VMSymbol* VMSymbol::Clone() const {
+#else
 pVMSymbol VMSymbol::Clone() const {
+#endif
 	pVMSymbol clone =  new (_HEAP, strlen(chars) + 1, true)
 		VMSymbol(GetStdString());
 	assert(clone->GetStdString() == GetStdString());

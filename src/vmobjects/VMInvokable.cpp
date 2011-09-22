@@ -29,6 +29,12 @@ THE SOFTWARE.
 #include "VMSymbol.h"
 #include "VMClass.h"
 
+#ifdef USE_TAGGING
+VMInvokable::VMInvokable(int nof) : VMObject(nof + 2),
+            signature(nilObject), holder(nilObject) {
+    _HEAP->writeBarrier(this, nilObject);
+}
+#endif
 
 
 bool      VMInvokable::IsPrimitive() const {

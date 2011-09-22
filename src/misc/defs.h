@@ -29,10 +29,9 @@ THE SOFTWARE.
   */
 
 
-#include <string>
-
 #include <stdint.h>
 #include <stdio.h>
+#include <string>
 //
 // error codes
 //

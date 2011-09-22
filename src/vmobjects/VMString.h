@@ -38,7 +38,11 @@ public:
     inline char*       GetChars() const;
 	StdString GetStdString() const;
     int         GetStringLength() const;
+#ifdef USE_TAGGING
+    virtual VMString* Clone() const;
+#else
     virtual pVMString Clone() const;
+#endif
 	virtual pVMClass GetClass() const;
 	virtual int32_t GetObjectSize() const;
 protected:

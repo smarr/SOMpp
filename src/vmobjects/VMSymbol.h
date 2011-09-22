@@ -43,7 +43,11 @@ public:
 	VMSymbol( const StdString& s );
     virtual StdString GetPlainString() const;
 	virtual int32_t GetObjectSize() const;
+#ifdef USE_TAGGING
+    virtual VMSymbol* Clone() const;
+#else
     virtual pVMSymbol Clone() const;
+#endif
 	virtual pVMClass GetClass() const;
 
 };

@@ -80,7 +80,11 @@ Heap::Heap(int objectSpaceSize) {
 	allocatedObjects = new vector<pVMObject>();
 	oldObjsWithRefToYoungObjs = new vector<int>();
 }
+#ifdef USE_TAGGING
+void Heap::writeBarrier_OldHolder(AbstractVMObject* holder, const AbstractVMObject*
+#else
 void Heap::writeBarrier_OldHolder(pVMObject holder, const pVMObject
+#endif
 		referencedObject) {
 	if (isObjectInNursery(referencedObject)
 			&& ((holder->GetGCField() & MASK_SEEN_BY_WRITE_BARRIER) ==false)) {
@@ -114,7 +118,11 @@ AbstractVMObject* Heap::AllocateNurseryObject(size_t size) {
 
 AbstractVMObject* Heap::AllocateMatureObject(size_t size) {
 	size_t paddedSize = size + PAD_BYTES(size);
+#ifdef USE_TAGGING
+	AbstractVMObject* newObject = (AbstractVMObject*)malloc(paddedSize);
+#else
 	pVMObject newObject = (pVMObject)malloc(paddedSize);
+#endif
 	if (newObject == NULL) {
 		cout << "Failed to allocate " << size << " Bytes." << endl;
 		_UNIVERSE->Quit(-1);

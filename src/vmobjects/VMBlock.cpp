@@ -34,7 +34,12 @@ THE SOFTWARE.
 
 const int VMBlock::VMBlockNumberOfFields = 2; 
 
+#ifdef USE_TAGGING
+VMBlock::VMBlock() : VMObject(VMBlockNumberOfFields),
+blockMethod(nilObject), context(nilObject) {
+#else
 VMBlock::VMBlock() : VMObject(VMBlockNumberOfFields) {
+#endif
 }
 
 void VMBlock::SetMethod(pVMMethod bMethod) {
@@ -42,7 +47,11 @@ void VMBlock::SetMethod(pVMMethod bMethod) {
     _HEAP->writeBarrier(this, bMethod);
 }
 
+#ifdef USE_TAGGING
+VMBlock* VMBlock::Clone() const {
+#else
 pVMBlock VMBlock::Clone() const {
+#endif
 	return new (_HEAP, GetAdditionalSpaceConsumption(), true) VMBlock(*this);
 }
 

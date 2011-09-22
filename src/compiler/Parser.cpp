@@ -416,9 +416,9 @@ void Parser::blockBody(MethodGenerationContext* mgenc, bool seen_period) {
 		
 		mgenc->SetFinished();
     } else if(sym == EndTerm) {
-        // it does not matter whether a period has been seen, as the end of the
-        // method has been found (EndTerm) - so it is safe to emit a "return
-        // self"
+        if(seen_period)
+            // we can be sure it's a method we're parsing, not a block, so the
+            // PUSH_ARGUMENT can be created immediately
         bcGen->EmitPUSHARGUMENT(mgenc, 0, 0);
 		bcGen->EmitRETURNLOCAL(mgenc);
 		mgenc->SetFinished();
@@ -662,8 +662,12 @@ void Parser::literalNumber(MethodGenerationContext* mgenc) {
         val = negativeDecimal();
     else
         val = literalDecimal();
-    
+
+#ifdef USE_TAGGING
+    pVMInteger lit = val;
+#else
     pVMInteger lit = _UNIVERSE->NewInteger(val);
+#endif
 	mgenc->AddLiteralIfAbsent((pVMObject)lit);
     bcGen->EmitPUSHCONSTANT(mgenc, (pVMObject)lit);
 }

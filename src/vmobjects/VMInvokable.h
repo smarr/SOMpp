@@ -37,7 +37,11 @@ class VMFrame;
 
 class VMInvokable : public VMObject {
 public:
+#ifdef USE_TAGGING
+    VMInvokable(int nof = 0);
+#else
     VMInvokable(int nof = 0) : VMObject(nof + 2){};
+#endif
     //virtual operator "()" to invoke the invokable
     virtual void      operator()(pVMFrame) = 0;
     virtual bool      IsPrimitive() const;

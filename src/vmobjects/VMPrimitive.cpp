@@ -36,9 +36,12 @@ THE SOFTWARE.
 
 
 pVMPrimitive VMPrimitive::GetEmptyPrimitive( pVMSymbol sig ) {
-    
     pVMPrimitive prim = new (_HEAP) VMPrimitive(sig);
+#ifdef USE_TAGGING
+    prim->empty = (bool*)1;
+#else
     prim->empty = true;
+#endif
     prim->SetRoutine(new Routine<VMPrimitive>(prim, &VMPrimitive::EmptyRoutine));
     return prim;
 }
@@ -51,20 +54,35 @@ VMPrimitive::VMPrimitive(pVMSymbol signature) : VMInvokable(VMPrimitiveNumberOfF
     
     this->SetSignature(signature);
     this->routine = NULL;
+#ifdef USE_TAGGING
+    this->empty = (bool*)0;
+#else
     this->empty = false;
+#endif
 }
 
+#ifdef USE_TAGGING
+VMPrimitive* VMPrimitive::Clone() const {
+#else
 pVMPrimitive VMPrimitive::Clone() const {
+#endif
 	return new (_HEAP, 0, true) VMPrimitive(*this);
 }
 
 
+#ifdef USE_TAGGING
+void VMPrimitive::WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*)) {
+	clazz = (VMClass*)walk(clazz);
+	signature = (VMSymbol*)walk(signature);
+	holder = (VMClass*)walk(holder);
+#else
 void VMPrimitive::WalkObjects(pVMObject (*walk)(pVMObject)) {
 	clazz = (pVMClass)walk(clazz);
-	_HEAP->writeBarrier(this, clazz);
 	signature = (pVMSymbol)walk(signature);
-	_HEAP->writeBarrier(this, signature);
 	holder = (pVMClass)walk(holder);
+#endif
+	_HEAP->writeBarrier(this, clazz);
+	_HEAP->writeBarrier(this, signature);
 	_HEAP->writeBarrier(this, holder);
 }
 

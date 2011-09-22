@@ -36,6 +36,9 @@
 #include "../misc/ExtendedList.h"
 
 #include "../vmobjects/ObjectFormats.h"
+#ifdef USE_TAGGING
+#include "../vmobjects/VMPointer.h"
+#endif
 
 #include "../interpreter/Interpreter.h"
 
@@ -99,15 +102,9 @@ public:
 
 	//Globals accessor (only for GC, could be considered be
 	//declared as a private friend method for the GC)
-	map<pVMSymbol, pVMObject> GetGlobals() {
-		return globals;
-	}
-	Heap* GetHeap() {
-		return heap;
-	}
-	Interpreter* GetInterpreter() {
-		return interpreter;
-	}
+	map<pVMSymbol, pVMObject>  GetGlobals() {return globals;}
+	Heap* GetHeap() {return heap;}
+    Interpreter* GetInterpreter() {return interpreter;}
 
 	//
 
@@ -125,8 +122,13 @@ public:
 	pVMFrame NewFrame(pVMFrame, pVMMethod) const;
 	pVMMethod NewMethod(pVMSymbol, size_t, size_t) const;
 	pVMObject NewInstance(pVMClass) const;
+#ifdef USE_TAGGING
+    VMPointer<VMInteger> NewInteger(int32_t) const;
+    void WalkGlobals(AbstractVMObject* (*walk)(AbstractVMObject*));
+#else
 	pVMInteger NewInteger(int32_t) const;
     void WalkGlobals(pVMObject (*walk)(pVMObject));
+#endif
 	pVMBigInteger NewBigInteger(int64_t) const;
 	pVMDouble NewDouble(double) const;
 	pVMClass NewMetaclassClass(void) const;

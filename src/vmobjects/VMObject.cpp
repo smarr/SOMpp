@@ -45,7 +45,11 @@ VMObject::VMObject( int numberOfFields ) {
     //Object size is set by the heap
 }
 
+#ifdef USE_TAGGING
+VMObject* VMObject::Clone() const {
+#else
 pVMObject VMObject::Clone() const {
+#endif
 	VMObject* clone = new (_HEAP, objectSize - sizeof(VMObject), true) VMObject(*this);
 	memcpy(SHIFTED_PTR(clone, sizeof(VMObject)),
 			SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() -
@@ -112,7 +116,11 @@ int VMObject::GetAdditionalSpaceConsumption() const
                           sizeof(pVMObject) * (this->GetNumberOfFields() - 1)));
 }
 
+#ifdef USE_TAGGING
+void VMObject::WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*)) {
+#else
 void VMObject::WalkObjects(pVMObject (*walk)(pVMObject)) {
+#endif
     for( int i = 0; i < this->GetNumberOfFields(); ++i) {
 		SetField(i, walk(GetField(i)));
     }

@@ -36,6 +36,9 @@ THE SOFTWARE.
 #include "../vmobjects/VMSymbol.h"
 #include "../vmobjects/VMInvokable.h"
 #include "../vmobjects/Signature.h"
+#ifdef USE_TAGGING
+#include "../vmobjects/VMPointerConverter.h"
+#endif
 
 #include "../compiler/Disassembler.h"
 
@@ -165,8 +168,12 @@ void Interpreter::popFrameAndPushResult( pVMObject result ) {
 
 
 void Interpreter::send( pVMSymbol signature, pVMClass receiverClass) {
-    pVMInvokable invokable = 
+    pVMInvokable invokable =
+#ifdef USE_TAGGING
+                DynamicConvert<VMInvokable, AbstractVMObject>( receiverClass->LookupInvokable(signature) );
+#else
                 dynamic_cast<pVMInvokable>( receiverClass->LookupInvokable(signature) );
+#endif
 
     if (invokable != NULL) {
         (*invokable)(_FRAME);
@@ -187,7 +194,7 @@ void Interpreter::send( pVMSymbol signature, pVMClass receiverClass) {
 
         //check if current frame is big enough for this unplanned Send
         //doesNotUnderstand: needs 3 slots, one for this, one for method name, one for args
-        int additionalStackSlots = 3 - _FRAME->RemainingStackSize();       
+        int additionalStackSlots = 3 - _FRAME->RemainingStackSize();
         if (additionalStackSlots > 0) {
             //copy current frame into a bigger one and replace the current frame
             this->SetFrame(VMFrame::EmergencyFrameFrom(_FRAME, additionalStackSlots));
@@ -332,7 +339,6 @@ void Interpreter::doSend( int bytecodeIndex ) {
     pVMMethod method = _METHOD;
     
     pVMSymbol signature = (pVMSymbol) method->GetConstant(bytecodeIndex);
-    char* sig = signature->GetChars();
 
     int numOfArgs = Signature::GetNumberOfArguments(signature);
 
@@ -350,7 +356,12 @@ void Interpreter::doSuperSend( int bytecodeIndex ) {
     pVMMethod realMethod = ctxt->GetMethod();
     pVMClass holder = realMethod->GetHolder();
     pVMClass super = holder->GetSuperClass();
+#ifdef USE_TAGGING
+    pVMInvokable invokable = DynamicConvert<VMInvokable, VMObject>(
+                                    super->LookupInvokable(signature) );
+#else
     pVMInvokable invokable = dynamic_cast<pVMInvokable>( super->LookupInvokable(signature) );
+#endif
 
     if (invokable != NULL)
         (*invokable)(_FRAME);
