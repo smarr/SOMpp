@@ -26,31 +26,23 @@ THE SOFTWARE.
 Benchmark = (
 
     run = (
-        | startTime elapsedTime measuredTime minTime iterations |
-        
-        (('Starting ' + (self name)) + ' benchmark ... ') println.
-        
+        | startTime elapsedTime measuredTime minTime iterations resultString|
         iterations := elapsedTime := 0.
         minTime := 100000.
-        
-        [ elapsedTime < 2000 or: [ iterations < 5 ] ]
+        resultString := ('{' + (self name) + ' ').
+        [iterations < 1]
             whileTrue: [
                 system fullGC.
                 startTime  := system time.
                 self benchmark.
                 measuredTime := system time - startTime.
+                resultString := resultString + measuredTime + ' '.
                 elapsedTime := elapsedTime + measuredTime.
                 minTime > measuredTime ifTrue: [ minTime := measuredTime ].
                 iterations := iterations + 1. ].
-        
-        ('   Iterations: ' + iterations + ' (elapsed time ' + elapsedTime
-            + ' ms)') println.
-        ('   RESULT: ' + minTime + ' ms') println.
-        '' println.
+        (resultString + '}') println.
         ^minTime
     )
-    
     benchmark  = ( self subclassResponsibility )
     name       = ( ^self class name asString )
-    
 )
