@@ -66,9 +66,6 @@ void VMObject::SetNumberOfFields(int nof) {
     }
 }
 
-pVMClass VMObject::GetClass() const {
-	return clazz;
-}
 
 void VMObject::SetClass(pVMClass cl) {
 	clazz = cl;
@@ -79,17 +76,6 @@ pVMSymbol VMObject::GetFieldName(int index) const {
     return this->clazz->GetInstanceFieldName(index);
 }
 
-int VMObject::GetNumberOfFields() const {
-    return this->numberOfFields;
-}
-
-int32_t VMObject::GetObjectSize() const {
-    return objectSize;
-}
-
-void VMObject::SetObjectSize(size_t size) {
-    objectSize = size; 
-}
 
 void VMObject::Assert(bool value) const {
     _UNIVERSE->Assert(value);

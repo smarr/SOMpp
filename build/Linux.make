@@ -215,10 +215,10 @@ units: $(UNITTEST_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION)
 
 richards: all
 	./$(CSOM_NAME) -cp ./Smalltalk ./Examples/Benchmarks/Richards/RichardsBenchmarks.som
-	
+
 unittests: all units
 	./unittest -cp ./Smalltalk ./Examples/Hello/Hello.som
-	
+
 #
 # test: run the standard test suite
 #

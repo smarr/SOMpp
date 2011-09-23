@@ -393,21 +393,21 @@ pVMClass Universe::GetBlockClass() const {
 
 
 pVMClass Universe::GetBlockClassWithArgs( int numberOfArguments) {
-    this->Assert(numberOfArguments < 10);
+	map<int, pVMClass>::iterator it =
+		blockClassesByNoOfArgs.find(numberOfArguments);
+	if (it != blockClassesByNoOfArgs.end())
+		return it->second;
 
+
+    this->Assert(numberOfArguments < 10);
     ostringstream Str;
     Str << "Block" << numberOfArguments ;
-    StdString blockName(Str.str());
-    pVMSymbol name = SymbolFor(blockName);
-
-    if (HasGlobal(name))
-        return (pVMClass)GetGlobal(name);
-
+    pVMSymbol name = SymbolFor(Str.str());
     pVMClass result = LoadClassBasic(name, NULL);
-
     result->AddInstancePrimitive(new (_HEAP) VMEvaluationPrimitive(numberOfArguments) );
-
     SetGlobal(name, (pVMObject) result);
+
+	blockClassesByNoOfArgs[numberOfArguments] = result;
 
     return result;
 }
@@ -729,6 +729,12 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 #else
 		symboltable->insert((pVMSymbol)walk(symbolIter->second));
 #endif
+	}
+
+	map<int, pVMClass>::iterator bcIter;
+	for (bcIter = blockClassesByNoOfArgs.begin(); bcIter !=
+			blockClassesByNoOfArgs.end(); bcIter++) {
+		blockClassesByNoOfArgs[bcIter->first] = (pVMClass)walk(bcIter->second);
 	}
 }
 

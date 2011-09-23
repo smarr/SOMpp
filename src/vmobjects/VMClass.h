@@ -51,25 +51,25 @@ public:
 	VMClass();
     VMClass(int numberOfFields);
 
-	virtual inline pVMClass  GetSuperClass() const; 
-    virtual inline void      SetSuperClass(pVMClass); 
-    virtual bool             HasSuperClass() const;  
-    virtual inline pVMSymbol GetName() const; 
-    virtual inline void      SetName(pVMSymbol);  
-    virtual inline pVMArray  GetInstanceFields() const; 
-    virtual inline void      SetInstanceFields(pVMArray); 
-    virtual inline pVMArray  GetInstanceInvokables() const; 
-    virtual void      SetInstanceInvokables(pVMArray); 
-    virtual int       GetNumberOfInstanceInvokables() const; 
+	virtual inline pVMClass  GetSuperClass() const;
+    virtual inline void      SetSuperClass(pVMClass);
+    virtual inline bool             HasSuperClass() const;
+    virtual inline pVMSymbol GetName() const;
+    virtual inline void      SetName(pVMSymbol);
+    virtual inline pVMArray  GetInstanceFields() const;
+    virtual inline void      SetInstanceFields(pVMArray);
+    virtual inline pVMArray  GetInstanceInvokables() const;
+    virtual void      SetInstanceInvokables(pVMArray);
+    virtual int       GetNumberOfInstanceInvokables() const;
     virtual pVMObject GetInstanceInvokable(int) const;
-    virtual void      SetInstanceInvokable(int, pVMObject); 
-    virtual pVMObject LookupInvokable(pVMSymbol) const; 
-    virtual int       LookupFieldIndex(pVMSymbol) const; 
-    virtual bool      AddInstanceInvokable(pVMObject); 
-    virtual void      AddInstancePrimitive(pVMPrimitive); 
-    virtual pVMSymbol GetInstanceFieldName(int)const; 
-    virtual int       GetNumberOfInstanceFields() const; 
-    virtual bool      HasPrimitives() const; 
+    virtual void      SetInstanceInvokable(int, pVMObject);
+    virtual pVMObject LookupInvokable(pVMSymbol) const;
+    virtual int       LookupFieldIndex(pVMSymbol) const;
+    virtual bool      AddInstanceInvokable(pVMObject);
+    virtual void      AddInstancePrimitive(pVMPrimitive);
+    virtual pVMSymbol GetInstanceFieldName(int)const;
+    virtual int       GetNumberOfInstanceFields() const;
+    virtual bool      HasPrimitives() const;
     virtual void      LoadPrimitives(const vector<StdString>&);
 #ifdef USE_TAGGING
     virtual VMClass* Clone() const;
@@ -78,7 +78,7 @@ public:
 #endif
 
 	private:
-    StdString genLoadstring(const StdString& cp, 
+    StdString genLoadstring(const StdString& cp,
                        const StdString& cname
                        ) const;
 
@@ -89,9 +89,9 @@ public:
     void setPrimitives(void* handle, const StdString& cname);
     int numberOfSuperInstanceFields() const;
 
-	pVMClass  superClass; 
-    pVMSymbol name; 
-    pVMArray  instanceFields; 
+	pVMClass  superClass;
+    pVMSymbol name;
+    pVMArray  instanceFields;
     pVMArray  instanceInvokables;
 
     static const int VMClassNumberOfFields;
@@ -117,6 +117,10 @@ pVMSymbol VMClass::GetName()  const {
 void VMClass::SetName(pVMSymbol nam) {
 	name = nam;
 	_HEAP->writeBarrier(this, (pVMObject)nam);
+}
+
+bool VMClass::HasSuperClass() const {
+    return superClass != nilObject;
 }
 
 

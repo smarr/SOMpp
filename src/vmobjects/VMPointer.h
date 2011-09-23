@@ -60,16 +60,10 @@ public:
 
     //member access operator
     inline T* operator ->() {
-        if (((int)pointer & 1) != 0) {
-            return (T*)GlobalBox::IntegerBox();
-        }
         return pointer;
     };
     //member access operator for const methods
     inline T* operator ->() const{
-        if (((int)pointer & 1) != 0) {
-            return (T*)GlobalBox::IntegerBox();
-        }
         return pointer;
     };
     //assignments
@@ -137,10 +131,22 @@ protected:
 
 };
 
+class AbstractVMObject;
 
+//we need to specialize operator-> if template argument is AbstractVMObject
+template<> inline AbstractVMObject* VMPointer<AbstractVMObject>::operator ->() const {
+        if (((int)pointer & 1) != 0) {
+            return (AbstractVMObject*)GlobalBox::IntegerBox();
+        }
+        return pointer;
+    };
+template<> inline AbstractVMObject* VMPointer<AbstractVMObject>::operator ->(){
+        if (((int)pointer & 1) != 0) {
+            return (AbstractVMObject*)GlobalBox::IntegerBox();
+        }
+        return pointer;
+    };
 
-//#include "VMIntPointer.h"
-//#include "VMBigInteger.h"
 template < class T > std::ostream& operator <<(std::ostream& os, const VMPointer<T>& obj)
 {
       os << obj.GetPointer();

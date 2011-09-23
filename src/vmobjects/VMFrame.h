@@ -55,7 +55,7 @@ public:
     virtual bool       HasContext() const;
     virtual pVMFrame   GetContextLevel(int);
     virtual pVMFrame   GetOuterContext();
-    virtual pVMMethod  GetMethod() const;
+    virtual inline pVMMethod  GetMethod() const;
     virtual void       SetMethod(pVMMethod);
     virtual pVMObject  Pop();
     virtual void       Push(pVMObject);
@@ -125,5 +125,7 @@ void     VMFrame::ClearPreviousFrame() {
     _HEAP->writeBarrier(this, nilObject);
 }
 
-
+pVMMethod VMFrame::GetMethod() const {
+    return this->method;
+}
 #endif

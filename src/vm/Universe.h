@@ -170,6 +170,7 @@ private:
 	Heap* heap;
 	int heapSize;
 	map<pVMSymbol, pVMObject> globals;
+	map<int,pVMClass> blockClassesByNoOfArgs;
 	vector<StdString> classPath;
 
 	Symboltable* symboltable;

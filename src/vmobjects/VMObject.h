@@ -70,10 +70,10 @@ public:
 	VMObject(int numberOfFields = 0);
 
 	/* Virtual member functions */
-	virtual pVMClass GetClass() const;
+	virtual inline pVMClass GetClass() const;
 	virtual void SetClass(pVMClass cl);
 	virtual pVMSymbol GetFieldName(int index) const;
-	virtual int GetNumberOfFields() const;
+	virtual inline int GetNumberOfFields() const;
 	virtual void SetNumberOfFields(int nof);
 	virtual pVMObject GetField(int index) const;
 	virtual void Assert(bool value) const;
@@ -85,8 +85,8 @@ public:
 	virtual void WalkObjects(pVMObject (pVMObject));
 	virtual pVMObject Clone() const;
 #endif
-	virtual int32_t GetObjectSize() const;
-	virtual void SetObjectSize(size_t size);
+	virtual inline int32_t GetObjectSize() const;
+	virtual inline void SetObjectSize(size_t size);
 
 	/* Operators */
 
@@ -111,7 +111,7 @@ public:
 protected:
 	int GetAdditionalSpaceConsumption() const;
 	//VMObject essentials
-	int32_t hash; ///XXX chbol:Hash not needed anymore.. to be deleted later
+	int32_t hash; 
 	int32_t objectSize; //set by the heap at allocation time
 	int32_t numberOfFields;
 
@@ -123,5 +123,22 @@ protected:
 private:
 	static const int VMObjectNumberOfFields;
 };
+
+int32_t VMObject::GetObjectSize() const {
+    return objectSize;
+}
+
+void VMObject::SetObjectSize(size_t size) {
+    objectSize = size; 
+}
+
+pVMClass VMObject::GetClass() const {
+	return clazz;
+}
+
+int VMObject::GetNumberOfFields() const {
+    return this->numberOfFields;
+}
+
 
 #endif

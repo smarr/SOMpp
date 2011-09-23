@@ -35,11 +35,17 @@ THE SOFTWARE.
 const int VMArray::VMArrayNumberOfFields = 0; 
 
 VMArray::VMArray(int size, int nof) : VMObject(nof + VMArrayNumberOfFields) {
+	//initialize fields with nilObject
+	//SetIndexableField is not used to prevent the write barrier to be called
+	//   too often
+	pVMObject* arrFields = (pVMObject*)&clazz + GetNumberOfFields();
     for (int i = 0; i < size ; ++i) {
-        SetIndexableField(i, nilObject);
+		arrFields[i] = nilObject;
     }
+	// now call the write barrier once manually
+	_HEAP->writeBarrier(this, nilObject);
 }
-	
+
 pVMObject VMArray::GetIndexableField(int32_t idx) const {
     if (idx > GetNumberOfIndexableFields()-1 || idx < 0) {
         cout << "Array index out of bounds: Accessing " << idx 
@@ -91,7 +97,7 @@ pVMArray VMArray::Clone() const {
 void VMArray::CopyIndexableFieldsTo(pVMArray to) const {
 	for (int i = 0; i < this->GetNumberOfIndexableFields(); ++i) {
 		to->SetIndexableField(i, GetIndexableField(i));
-	}	
+	}
 }
 
 int VMArray::GetNumberOfIndexableFields() const {
@@ -106,7 +112,10 @@ void VMArray::WalkObjects(pVMObject (*walk)(pVMObject)) {
 	int32_t noOfFields = GetNumberOfFields();
     for (int32_t i = 0; i < noOfFields; i++)
 	    SetField(i, walk(GetField(i)));
-    for (int32_t i = 0; i < GetNumberOfIndexableFields(); i++)
-	    if (this->GetIndexableField(i) != NULL)
-		    SetIndexableField(i, walk(GetIndexableField(i)));
+	int32_t noIndexableFields = GetNumberOfIndexableFields();
+    for (int32_t i = 0; i < noIndexableFields; i++) {
+		pVMObject field = GetIndexableField(i);
+	    if (field != NULL)
+		    SetIndexableField(i, walk(field));
+	}
 }

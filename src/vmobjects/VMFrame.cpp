@@ -82,16 +82,15 @@ pVMFrame VMFrame::Clone() const {
 
 const int VMFrame::VMFrameNumberOfFields = 6; 
 
+VMFrame::VMFrame(int size, int nof) :
+		VMArray(size, nof + VMFrameNumberOfFields),
+		previousFrame((pVMFrame)nilObject), context((pVMFrame)nilObject),
+		method((pVMMethod)nilObject) {
 #ifdef USE_TAGGING
-VMFrame::VMFrame(int size, int nof) : VMArray(size,	nof +
-		VMFrameNumberOfFields), previousFrame(nilObject), context(nilObject), method(nilObject){
-	_HEAP->writeBarrier(this, nilObject);
     this->localOffset = 0;
     this->bytecodeIndex = 0;
     this->stackPointer = 0;
 #else
-VMFrame::VMFrame(int size, int nof) : VMArray(size, 
-                                              nof + VMFrameNumberOfFields) {
     this->localOffset = _UNIVERSE->NewInteger(0);
     this->bytecodeIndex = _UNIVERSE->NewInteger(0);
     this->stackPointer = _UNIVERSE->NewInteger(0);
@@ -99,13 +98,8 @@ VMFrame::VMFrame(int size, int nof) : VMArray(size,
 	_HEAP->writeBarrier(this, localOffset);
 	_HEAP->writeBarrier(this, bytecodeIndex);
 	_HEAP->writeBarrier(this, stackPointer);
-
 }
 
-pVMMethod VMFrame::GetMethod() const {
-  
-    return this->method;
-}
 
 void      VMFrame::SetMethod(pVMMethod method) {
     this->method = method;
