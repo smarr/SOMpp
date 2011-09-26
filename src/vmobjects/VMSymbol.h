@@ -50,20 +50,20 @@ public:
 #endif
 	virtual pVMClass GetClass() const;
 private:
-	const pVMClass cachedClass;
+	const VMClass* cachedClass;
 	int32_t cachedIndex;
-	inline int32_t GetCachedIndex(const pVMClass) const;
-	inline void UpdateCachedIndex(const pVMClass, int32_t);
+	inline int32_t GetCachedIndex(const VMClass*) const;
+	inline void UpdateCachedIndex(const VMClass*, int32_t);
 	friend class VMClass;
 };
 
-int32_t VMSymbol::GetCachedIndex(const pVMClass cls) const {
+int32_t VMSymbol::GetCachedIndex(const VMClass* cls) const {
 	if (cls == cachedClass)
 		return cachedIndex;
 	return -1;
 }
 
-void VMSymbol::UpdateCachedIndex(const pVMClass cls, int32_t idx) {
+void VMSymbol::UpdateCachedIndex(const VMClass* cls, int32_t idx) {
 	cachedIndex = idx;
 	cachedClass = cls;
 }
