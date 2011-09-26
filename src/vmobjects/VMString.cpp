@@ -57,13 +57,14 @@ pVMString VMString::Clone() const {
 
 
 VMString::VMString( const StdString& s ) {
-    //set the chars-pointer to point at the position of the first character
-	chars = (char*)&chars+sizeof(char*);
-	size_t i = 0;
-	for (; i < s.length(); ++i) {
-		chars[i] = s[i];
-	}
-	chars[i] = '\0';
+	VMString(s.c_str());
+    ////set the chars-pointer to point at the position of the first character
+	//chars = (char*)&chars+sizeof(char*);
+	//size_t i = 0;
+	//for (; i < s.length(); ++i) {
+	//	chars[i] = s[i];
+	//}
+	//chars[i] = '\0';
 } 
 
 int32_t VMString::GetObjectSize() const {

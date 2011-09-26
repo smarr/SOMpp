@@ -60,10 +60,10 @@ pVMObject VMObject::Clone() const {
 
 void VMObject::SetNumberOfFields(int nof) {
     this->numberOfFields = nof;
-
-    for (int i = 0; i < nof ; ++i) {
-        this->SetField(i, nilObject);
-    }
+	//initialize fields with NilObject
+    for (int i = 0; i < nof ; ++i)
+		FIELDS[i] = nilObject;
+	_HEAP->writeBarrier(this, nilObject);
 }
 
 

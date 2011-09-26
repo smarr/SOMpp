@@ -34,11 +34,20 @@ THE SOFTWARE.
 
 extern pVMClass symbolClass;
 
-VMSymbol::VMSymbol(const char* str) : VMString(str) {
+
+VMSymbol::VMSymbol(const char* str){
+	//set the chars-pointer to point at the position of the first character
+    chars = (char*)&chars+sizeof(char*) + sizeof(int32_t) + sizeof(pVMClass);
+    size_t i = 0;
+	for (; i < strlen(str); ++i) {
+		chars[i] = str[i];
+	}
+	chars[i] = '\0';
 }
 
 
-VMSymbol::VMSymbol( const StdString& s ): VMString(s) {
+VMSymbol::VMSymbol( const StdString& s ){
+	VMSymbol(s.c_str());
 }
 
 int32_t VMSymbol::GetObjectSize() const {
@@ -52,7 +61,7 @@ VMSymbol* VMSymbol::Clone() const {
 pVMSymbol VMSymbol::Clone() const {
 #endif
 	pVMSymbol clone =  new (_HEAP, strlen(chars) + 1, true)
-		VMSymbol(GetStdString());
+		VMSymbol(chars);
 	assert(clone->GetStdString() == GetStdString());
 	return clone;
 }

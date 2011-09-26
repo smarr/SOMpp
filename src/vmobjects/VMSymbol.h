@@ -49,8 +49,24 @@ public:
     virtual pVMSymbol Clone() const;
 #endif
 	virtual pVMClass GetClass() const;
-
+private:
+	const pVMClass cachedClass;
+	int32_t cachedIndex;
+	inline int32_t GetCachedIndex(const pVMClass) const;
+	inline void UpdateCachedIndex(const pVMClass, int32_t);
+	friend class VMClass;
 };
+
+int32_t VMSymbol::GetCachedIndex(const pVMClass cls) const {
+	if (cls == cachedClass)
+		return cachedIndex;
+	return -1;
+}
+
+void VMSymbol::UpdateCachedIndex(const pVMClass cls, int32_t idx) {
+	cachedIndex = idx;
+	cachedClass = cls;
+}
 
 
 #endif
