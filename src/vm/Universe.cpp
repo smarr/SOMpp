@@ -734,7 +734,11 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 	map<int, pVMClass>::iterator bcIter;
 	for (bcIter = blockClassesByNoOfArgs.begin(); bcIter !=
 			blockClassesByNoOfArgs.end(); bcIter++) {
+#ifdef USE_TAGGING
+		blockClassesByNoOfArgs[bcIter->first] = DynamicConvert<VMClass,	AbstractVMObject>(walk(bcIter->second));
+#else
 		blockClassesByNoOfArgs[bcIter->first] = (pVMClass)walk(bcIter->second);
+#endif
 	}
 }
 
