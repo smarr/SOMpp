@@ -42,9 +42,6 @@ Heap* Heap::GetHeap() {
     return theHeap;
 }
 
-void Heap::triggerGC(void) {
-	gcTriggered = true;
-}
 
 bool Heap::isCollectionTriggered(void) {
 	return gcTriggered;

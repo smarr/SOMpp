@@ -70,7 +70,7 @@ public:
 	AbstractVMObject* AllocateMatureObject(size_t size);
 	int32_t GetMaxNurseryObjectSize();
 	void FreeObject(pVMObject obj);
-	void triggerGC(void);
+	inline void triggerGC(void);
 	bool isCollectionTriggered(void);
     void FullGC();
 #ifdef USE_TAGGING
@@ -143,3 +143,8 @@ inline void Heap::writeBarrier(pVMObject holder, const pVMObject referencedObjec
 		writeBarrier_OldHolder(holder, referencedObject);
 }
 #endif
+
+void Heap::triggerGC(void) {
+	gcTriggered = true;
+}
+
