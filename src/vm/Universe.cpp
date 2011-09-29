@@ -107,6 +107,7 @@ void Universe::Start(int argc, char** argv) {
 
 
 void Universe::Quit(int err) {
+	cout << "Time spent in GC: [" << Timer::GCTimer->GetTotalTime() << "] msec" << endl;
     if (theUniverse) delete(theUniverse);
 
     exit(err);

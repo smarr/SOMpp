@@ -28,7 +28,7 @@
 
 CC			=g++
 CFLAGS		=-Wno-endif-labels -O3 $(DBG_FLAGS) $(TAG_FLAGS) $(INCLUDES)
-LDFLAGS		=$(DBG_FLAGS) $(LIBRARIES)
+LDFLAGS		=$(DBG_FLAGS) -ltcmalloc -lrt $(LIBRARIES)
 
 INSTALL		=install
 

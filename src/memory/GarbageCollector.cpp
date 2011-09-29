@@ -178,6 +178,7 @@ void GarbageCollector::MajorCollection() {
 
 
 void GarbageCollector::Collect() {
+	Timer::GCTimer->Resume();
 	//reset collection trigger
     heap->gcTriggered = false;
 
@@ -188,8 +189,7 @@ void GarbageCollector::Collect() {
 		majorCollectionThreshold = 2 * _HEAP->matureObjectsSize;
 
 	}
-
-
+	Timer::GCTimer->Halt();
 }
 
 
