@@ -36,11 +36,11 @@ class VMArray : public VMObject {
 	public:
 		VMArray(int size, int32_t nof=0);
 #ifdef USE_TAGGING
-		virtual void 		WalkObjects(AbstractVMObject* (AbstractVMObject*));
+		virtual void WalkObjects(AbstractVMObject* (AbstractVMObject*));
 #else
-		virtual void 		WalkObjects(pVMObject (pVMObject));
+		virtual void WalkObjects(pVMObject (pVMObject));
 #endif
-		virtual int         GetNumberOfIndexableFields() const;
+		inline int GetNumberOfIndexableFields() const;
 		pVMArray    CopyAndExtendWith(pVMObject) const;
 		pVMObject   GetIndexableField(int32_t idx) const;
 		void        SetIndexableField(int32_t idx, pVMObject value);
@@ -54,4 +54,15 @@ class VMArray : public VMObject {
 	private:
 		static const int VMArrayNumberOfFields;
 };
+
+int VMArray::GetNumberOfIndexableFields() const {
+	static const void* cachedArray = NULL;
+	static int noOfIndexableFields = -1;
+
+	if(this != cachedArray) {
+		noOfIndexableFields = this->GetAdditionalSpaceConsumption() / sizeof(pVMObject);
+		cachedArray = this;
+	}
+	return noOfIndexableFields;
+}
 #endif

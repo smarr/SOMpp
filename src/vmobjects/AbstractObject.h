@@ -84,5 +84,4 @@ public:
 		return (void*) heap->AllocateNurseryObject(numBytes + additionalBytes);
 	}
 };
-
 #endif /* ABSTRACTOBJECT_H_ */

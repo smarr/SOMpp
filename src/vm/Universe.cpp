@@ -44,7 +44,6 @@ THE SOFTWARE.
 #include "../vmobjects/VMString.h"
 #include "../vmobjects/VMBigInteger.h"
 #include "../vmobjects/VMEvaluationPrimitive.h"
-#include "../vmobjects/Symboltable.h"
 #ifdef USE_TAGGING
 #include "../vmobjects/VMPointerConverter.h"
 #endif
@@ -82,6 +81,9 @@ pVMClass stringClass;
 pVMClass systemClass;
 pVMClass blockClass;
 pVMClass doubleClass;
+
+
+std::map<std::string, pVMSymbol> symbolsMap;
 
 //Singleton accessor
 Universe* Universe::GetUniverse() {
@@ -239,7 +241,6 @@ void Universe::printUsageAndExit( char* executable ) const {
 
 Universe::Universe(){
 	this->compiler = NULL;
-	this->symboltable = NULL;
 	this->interpreter = NULL;
 };
 
@@ -252,7 +253,6 @@ void Universe::initialize(int _argc, char** _argv) {
     Heap::InitializeHeap(heapSize);
     heap = _HEAP;
 
-    symboltable = new Symboltable();
     compiler = new SourcecodeCompiler();
     interpreter = new Interpreter();
     
@@ -311,8 +311,6 @@ Universe::~Universe() {
         delete(interpreter);
     if (compiler) 
         delete(compiler);
-    if (symboltable) 
-        delete(symboltable);
 
 	// check done inside
     Heap::DestroyHeap();
@@ -722,13 +720,13 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 	}
 	//walk all entries in symbols map
 	map<StdString, pVMSymbol>::iterator symbolIter;
-	for (symbolIter = symboltable->getSymbolsMap().begin(); symbolIter !=
-			symboltable->getSymbolsMap().end(); symbolIter++) {
+	for (symbolIter = symbolsMap.begin(); symbolIter !=
+			symbolsMap.end(); symbolIter++) {
 		//insert overwrites old entries inside the internal map
 #ifdef USE_TAGGING
-		symboltable->insert(DynamicConvert<VMSymbol,AbstractVMObject>(walk(symbolIter->second)));
+		symbolIter->second = DynamicConvert<VMSymbol,AbstractVMObject>(walk(symbolIter->second));
 #else
-		symboltable->insert((pVMSymbol)walk(symbolIter->second));
+		symbolIter->second = (pVMSymbol)walk(symbolIter->second);
 #endif
 	}
 
@@ -736,9 +734,9 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 	for (bcIter = blockClassesByNoOfArgs.begin(); bcIter !=
 			blockClassesByNoOfArgs.end(); bcIter++) {
 #ifdef USE_TAGGING
-		blockClassesByNoOfArgs[bcIter->first] = DynamicConvert<VMClass,	AbstractVMObject>(walk(bcIter->second));
+		bcIter->second = DynamicConvert<VMClass, AbstractVMObject>(walk(bcIter->second));
 #else
-		blockClassesByNoOfArgs[bcIter->first] = (pVMClass)walk(bcIter->second);
+		bcIter->second = (pVMClass)walk(bcIter->second);
 #endif
 	}
 }
@@ -773,7 +771,7 @@ pVMSymbol Universe::NewSymbol( const StdString& str) {
 
 pVMSymbol Universe::NewSymbol( const char* str ) {
     pVMSymbol result = new (_HEAP, strlen(str)+1) VMSymbol(str);
-    symboltable->insert(result);
+	symbolsMap[str] = result;
     return result;
 }
 
@@ -791,17 +789,13 @@ pVMClass Universe::NewSystemClass() const {
 
 
 pVMSymbol Universe::SymbolFor( const StdString& str) {
-    return SymbolForChars(str.c_str());
-    
+	map<string,pVMSymbol>::iterator it = symbolsMap.find(str);
+    return (it == symbolsMap.end()) ? NewSymbol(str) : it->second;
 }
 
 
 pVMSymbol Universe::SymbolForChars( const char* str) {
-    pVMSymbol result = symboltable->lookup(str);
-    
-    return (result != NULL) ?
-           result :
-           NewSymbol(str);
+	return SymbolFor(str);
 }
 
 

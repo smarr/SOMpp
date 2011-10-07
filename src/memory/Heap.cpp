@@ -26,7 +26,6 @@ THE SOFTWARE.
 
 
 #include <iostream>
-#include <stdlib.h>
 #include <string.h>
 
 #include "Heap.h"
@@ -92,11 +91,6 @@ void Heap::writeBarrier_OldHolder(pVMObject holder, const pVMObject
 
 Heap::~Heap() {
 	delete gc;
-}
-
-void Heap::FreeObject(pVMObject obj) {
-	matureObjectsSize -= obj->GetObjectSize();
-	delete obj;
 }
 
 AbstractVMObject* Heap::AllocateNurseryObject(size_t size) {

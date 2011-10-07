@@ -30,7 +30,7 @@ THE SOFTWARE.
 #include "../vm/Universe.h"
 
 
-#define theEntries(i) FIELDS[this->GetNumberOfFields()+i]
+#define theEntries(i) FIELDS[VMObject::GetNumberOfFields()+i]
 
 const int VMArray::VMArrayNumberOfFields = 0; 
 
@@ -98,10 +98,6 @@ void VMArray::CopyIndexableFieldsTo(pVMArray to) const {
 	for (int i = 0; i < this->GetNumberOfIndexableFields(); ++i) {
 		to->SetIndexableField(i, GetIndexableField(i));
 	}
-}
-
-int VMArray::GetNumberOfIndexableFields() const {
-    return this->GetAdditionalSpaceConsumption() / sizeof(pVMObject);
 }
 
 #ifdef USE_TAGGING

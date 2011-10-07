@@ -45,7 +45,7 @@ public:
     inline void    SetEmbeddedDouble(double);
     inline double  GetEmbeddedDouble() const;
     virtual pVMClass GetClass() const;
-    virtual int32_t GetObjectSize() const;
+    inline virtual int32_t GetObjectSize() const;
 private:
     double embeddedDouble;
 };
@@ -57,6 +57,10 @@ void VMDouble::SetEmbeddedDouble(double val) {
 
 double VMDouble::GetEmbeddedDouble() const {
     return this->embeddedDouble;
+}
+
+int32_t VMDouble::GetObjectSize() const {
+	return sizeof(VMDouble);
 }
 
 #endif

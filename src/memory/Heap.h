@@ -31,6 +31,7 @@ THE SOFTWARE.
 
 #include <vector>
 #include <set>
+#include <cstdlib>
 #include "GarbageCollector.h"
 #include "../misc/defs.h"
 #include "../vmobjects/ObjectFormats.h"
@@ -69,7 +70,7 @@ public:
     AbstractVMObject* AllocateNurseryObject(size_t size);
 	AbstractVMObject* AllocateMatureObject(size_t size);
 	int32_t GetMaxNurseryObjectSize();
-	void FreeObject(pVMObject obj);
+	inline void FreeObject(AbstractVMObject* obj);
 	inline void triggerGC(void);
 	bool isCollectionTriggered(void);
     void FullGC();
@@ -146,5 +147,9 @@ inline void Heap::writeBarrier(pVMObject holder, const pVMObject referencedObjec
 
 void Heap::triggerGC(void) {
 	gcTriggered = true;
+}
+
+void Heap::FreeObject(AbstractVMObject* o) {
+	free(o);
 }
 

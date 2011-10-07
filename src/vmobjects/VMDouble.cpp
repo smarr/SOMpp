@@ -47,7 +47,3 @@ pVMDouble VMDouble::Clone() const {
 pVMClass VMDouble::GetClass() const {
 	return doubleClass;
 }
-
-int32_t VMDouble::GetObjectSize() const {
-	return sizeof(VMDouble) + PAD_BYTES(sizeof(VMDouble));
-}

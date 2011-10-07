@@ -45,7 +45,7 @@ public:
 	virtual pVMInteger Clone() const;
 #endif
 	virtual pVMClass GetClass() const;
-	virtual int32_t GetObjectSize() const;
+	virtual inline int32_t GetObjectSize() const;
 
 private:
 	int32_t embeddedInteger;
@@ -59,4 +59,8 @@ int32_t VMInteger::GetEmbeddedInteger() const {
 	return this->embeddedInteger;
 }
 
+int32_t VMInteger::GetObjectSize() const {
+	//no need to pad -> sizeof returns padded size anyway
+	return sizeof(VMInteger);
+}
 #endif

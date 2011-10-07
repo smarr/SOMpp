@@ -8,14 +8,14 @@ class VMObjectBase {
 protected:
 	int32_t gcfield;
 public:
-	int32_t GetGCField() const;
-	void SetGCField(int32_t);
+	inline int32_t GetGCField() const;
+	inline void SetGCField(int32_t);
 };
 
-inline int32_t VMObjectBase::GetGCField() const {
+int32_t VMObjectBase::GetGCField() const {
     return gcfield;
 }
-inline void VMObjectBase::SetGCField(int32_t val) {
+void VMObjectBase::SetGCField(int32_t val) {
     gcfield = val;
 }
 

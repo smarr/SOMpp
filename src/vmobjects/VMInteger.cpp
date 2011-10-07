@@ -46,9 +46,3 @@ pVMInteger VMInteger::Clone() const {
 pVMClass VMInteger::GetClass() const {
 	return integerClass;
 }
-
-int32_t VMInteger::GetObjectSize() const {
-	//padded size is allocated, so we have to return padded
-	return sizeof(VMInteger) + PAD_BYTES(sizeof(VMInteger));
-}
-

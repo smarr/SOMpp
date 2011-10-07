@@ -57,7 +57,6 @@ class VMInteger;
 class VMMethod;
 class VMString;
 class VMBigInteger;
-class Symboltable;
 class SourcecodeCompiler;
 
 //Convenience macro for Singleton access
@@ -173,7 +172,6 @@ class Universe {
 		map<int,pVMClass> blockClassesByNoOfArgs;
 		vector<StdString> classPath;
 
-		Symboltable* symboltable;
 		SourcecodeCompiler* compiler;
 		Interpreter* interpreter;
 };
