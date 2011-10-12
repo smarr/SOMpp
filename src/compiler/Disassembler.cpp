@@ -393,7 +393,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
 #ifdef USE_TAGGING
             size_t sp = (int32_t)frame->GetStackPointer();
 #else
-            size_t sp = frame->GetStackPointer()->GetEmbeddedInteger();
+            size_t sp = frame->GetStackPointer();
 #endif
             pVMObject o = ((pVMArray)frame)->GetIndexableField(sp);
             pVMClass c = o->GetClass();
@@ -409,7 +409,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
 #ifdef USE_TAGGING
             size_t sp = (int32_t)frame->GetStackPointer();
 #else
-            size_t sp = frame->GetStackPointer()->GetEmbeddedInteger();
+            size_t sp = frame->GetStackPointer();
 #endif
             pVMObject o = ((pVMArray)frame)->GetIndexableField(sp);
             pVMClass c = o->GetClass();
@@ -426,7 +426,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
 #ifdef USE_TAGGING
             size_t sp = (int32_t)frame->GetStackPointer();
 #else
-            size_t sp = frame->GetStackPointer()->GetEmbeddedInteger();
+            size_t sp = frame->GetStackPointer();
 #endif
             pVMObject o = ((pVMArray)frame)->GetIndexableField(sp);
             pVMClass c = o->GetClass();
@@ -442,7 +442,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
 #ifdef USE_TAGGING
             size_t sp = (int32_t)frame->GetStackPointer();
 #else
-            size_t sp = frame->GetStackPointer()->GetEmbeddedInteger();
+            size_t sp = frame->GetStackPointer();
 #endif
             pVMObject o = ((pVMArray)frame)->GetIndexableField(sp);
             pVMSymbol name = (pVMSymbol)(method->GetConstant(bc_idx));

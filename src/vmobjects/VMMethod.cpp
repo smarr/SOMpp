@@ -118,7 +118,8 @@ void VMMethod::SetNumberOfLocals(int nol) {
 #ifdef USE_TAGGING
     numberOfLocals = nol;
 #else
-    numberOfLocals->SetEmbeddedInteger(nol); 
+    numberOfLocals = _UNIVERSE->NewInteger(nol);
+    _HEAP->writeBarrier(this, numberOfLocals);
 #endif
 }
 
@@ -136,7 +137,8 @@ void VMMethod::SetMaximumNumberOfStackElements(int stel) {
 #ifdef USE_TAGGING
     maximumNumberOfStackElements = stel;
 #else
-    maximumNumberOfStackElements->SetEmbeddedInteger(stel); 
+    maximumNumberOfStackElements = _UNIVERSE->NewInteger(stel);
+    _HEAP->writeBarrier(this, maximumNumberOfStackElements);
 #endif
 }
 
@@ -154,7 +156,8 @@ void VMMethod::SetNumberOfArguments(int noa) {
 #ifdef USE_TAGGING
     numberOfArguments = noa;
 #else
-    numberOfArguments->SetEmbeddedInteger(noa); 
+    numberOfArguments = _UNIVERSE->NewInteger(noa);
+    _HEAP->writeBarrier(this, numberOfArguments);
 #endif
 }
 

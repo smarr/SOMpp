@@ -49,6 +49,9 @@ THE SOFTWARE.
 #define _METHOD this->GetMethod()
 #define _SELF this->GetSelf()
 
+//with this define, caching the BytecodeIndex can be turned on(=1) and off(=0)
+#define CACHE_BCINDEX 1
+
 
 Interpreter::Interpreter() {
     this->frame = NULL;
@@ -65,49 +68,70 @@ Interpreter::~Interpreter() {
 }
 
 
+int32_t bytecodeIndex;
+int32_t nextBytecodeIndex;
+
 void Interpreter::Start() {
-    while (true) {
-    	//we reached a safe collection point
-    	// perform collection if triggered
-    	if (_HEAP->isCollectionTriggered()) //temporarily always perform a collection, while working on the GC
-    		_HEAP->FullGC();
+  while (true) {
+    //we reached a safe collection point
+    // perform collection if triggered
+    if (_HEAP->isCollectionTriggered())
+      _HEAP->FullGC();
 
-        int bytecodeIndex = _FRAME->GetBytecodeIndex();
+#if CACHE_BCINDEX == 0
+    bytecodeIndex = _FRAME->GetBytecodeIndex();
+#endif
 
-        pVMMethod method = this->GetMethod();
-        uint8_t bytecode = method->GetBytecode(bytecodeIndex);
+    pVMMethod method = this->GetMethod();
+    uint8_t bytecode = method->GetBytecode(bytecodeIndex);
 
-        int bytecodeLength = Bytecode::GetBytecodeLength(bytecode);
+    int bytecodeLength = Bytecode::GetBytecodeLength(bytecode);
 
-        if(dumpBytecodes >1)
-            Disassembler::DumpBytecode(_FRAME, method, bytecodeIndex);
+    if(dumpBytecodes >1)
+      Disassembler::DumpBytecode(_FRAME, method, bytecodeIndex);
 
-        int nextBytecodeIndex = bytecodeIndex + bytecodeLength;
+    nextBytecodeIndex = bytecodeIndex + bytecodeLength;
 
-        _FRAME->SetBytecodeIndex(nextBytecodeIndex);
+#if CACHE_BCINDEX == 0
+    _FRAME->SetBytecodeIndex(nextBytecodeIndex);
+#endif
 
-// Handle the current bytecode
-        switch(bytecode) {
-            case BC_HALT:             return; // handle the halt bytecode
-            case BC_DUP:              doDup();  break;
-            case BC_PUSH_LOCAL:       doPushLocal(bytecodeIndex); break;
-            case BC_PUSH_ARGUMENT:    doPushArgument(bytecodeIndex); break;
-            case BC_PUSH_FIELD:       doPushField(bytecodeIndex); break;
-            case BC_PUSH_BLOCK:       doPushBlock(bytecodeIndex); break;
-            case BC_PUSH_CONSTANT:    doPushConstant(bytecodeIndex); break;
-            case BC_PUSH_GLOBAL:      doPushGlobal(bytecodeIndex); break;
-            case BC_POP:              doPop(); break;
-            case BC_POP_LOCAL:        doPopLocal(bytecodeIndex); break;
-            case BC_POP_ARGUMENT:     doPopArgument(bytecodeIndex); break;
-            case BC_POP_FIELD:        doPopField(bytecodeIndex); break;
-            case BC_SEND:             doSend(bytecodeIndex); break;
-            case BC_SUPER_SEND:       doSuperSend(bytecodeIndex); break;
-            case BC_RETURN_LOCAL:     doReturnLocal(); break;
-            case BC_RETURN_NON_LOCAL: doReturnNonLocal(); break;
-            default:                  _UNIVERSE->ErrorExit(
-                                           "Interpreter: Unexpected bytecode"); 
-        } // switch
-    } // while
+    // Handle the current bytecode
+    switch(bytecode) {
+      case BC_HALT:             return; // handle the halt bytecode
+      case BC_DUP:              doDup(); break;
+      case BC_PUSH_LOCAL:       doPushLocal(bytecodeIndex); break;
+      case BC_PUSH_ARGUMENT:    doPushArgument(bytecodeIndex); break;
+      case BC_PUSH_FIELD:       doPushField(bytecodeIndex); break;
+      case BC_PUSH_BLOCK:       doPushBlock(bytecodeIndex); break;
+      case BC_PUSH_CONSTANT:    doPushConstant(bytecodeIndex); break;
+      case BC_PUSH_GLOBAL:      doPushGlobal(bytecodeIndex); break;
+      case BC_POP:              doPop(); break;
+      case BC_POP_LOCAL:        doPopLocal(bytecodeIndex); break;
+      case BC_POP_ARGUMENT:     doPopArgument(bytecodeIndex); break;
+      case BC_POP_FIELD:        doPopField(bytecodeIndex); break;
+#if CACHE_BCINDEX == 1
+      case BC_SEND:             _FRAME->SetBytecodeIndex(nextBytecodeIndex);
+                                doSend(bytecodeIndex);
+                                nextBytecodeIndex = _FRAME->GetBytecodeIndex();
+                                break;
+      case BC_SUPER_SEND:       _FRAME->SetBytecodeIndex(nextBytecodeIndex);
+                                doSuperSend(bytecodeIndex);
+                                nextBytecodeIndex = _FRAME->GetBytecodeIndex();
+                                break;
+#else
+      case BC_SEND:             doSend(bytecodeIndex); break;
+      case BC_SUPER_SEND:       doSuperSend(bytecodeIndex); break;
+#endif
+      case BC_RETURN_LOCAL:     doReturnLocal(); break;
+      case BC_RETURN_NON_LOCAL: doReturnNonLocal(); break;
+      default:                  _UNIVERSE->ErrorExit(
+                                    "Interpreter: Unexpected bytecode"); 
+    } // switch
+#if CACHE_BCINDEX == 1
+    bytecodeIndex = nextBytecodeIndex;
+#endif
+  } // while
 }
 
 
@@ -118,7 +142,14 @@ pVMFrame Interpreter::PushNewFrame( pVMMethod method ) {
 
 
 void Interpreter::SetFrame( pVMFrame frame ) {
-    this->frame = frame;   
+#if CACHE_BCINDEX == 1
+  if (this->frame != NULL)
+    this->frame->SetBytecodeIndex(nextBytecodeIndex);
+#endif
+  this->frame = frame;   
+#if CACHE_BCINDEX == 1
+  nextBytecodeIndex = frame->GetBytecodeIndex();
+#endif
 }
 
 
@@ -128,14 +159,7 @@ pVMFrame Interpreter::GetFrame() {
 
 
 pVMMethod Interpreter::GetMethod() {
-    pVMMethod method = _FRAME->GetMethod();
-   /* cout << "bytecodes: ";
-      for (int i = 0; i < method->BytecodeLength(); ++i)
-    {
-        cout  << (int)(*method)[i] << " ";
-    }
-    cout << endl;*/
-    return method;
+    return _FRAME->GetMethod();
 }
 
 
@@ -168,40 +192,42 @@ void Interpreter::popFrameAndPushResult( pVMObject result ) {
 
 
 void Interpreter::send( pVMSymbol signature, pVMClass receiverClass) {
-    pVMInvokable invokable =
+  pVMInvokable invokable =
 #ifdef USE_TAGGING
-                DynamicConvert<VMInvokable, AbstractVMObject>( receiverClass->LookupInvokable(signature) );
+      DynamicConvert<VMInvokable, AbstractVMObject>( receiverClass->LookupInvokable(signature) );
 #else
-                dynamic_cast<pVMInvokable>( receiverClass->LookupInvokable(signature) );
+  dynamic_cast<pVMInvokable>( receiverClass->LookupInvokable(signature) );
 #endif
 
-    if (invokable != NULL) {
-        (*invokable)(_FRAME);
-    } else {
-        //doesNotUnderstand
-        int numberOfArgs = Signature::GetNumberOfArguments(signature);
+  if (invokable != NULL) {
+    (*invokable)(_FRAME);
+  } else {
+    //doesNotUnderstand
+    int numberOfArgs = Signature::GetNumberOfArguments(signature);
 
-        pVMObject receiver = _FRAME->GetStackElement(numberOfArgs-1);
+    pVMObject receiver = _FRAME->GetStackElement(numberOfArgs-1);
 
-        pVMArray argumentsArray = _UNIVERSE->NewArray(numberOfArgs);
+    pVMArray argumentsArray = _UNIVERSE->NewArray(numberOfArgs);
 
-        for (int i = numberOfArgs - 1; i >= 0; --i) {
-            pVMObject o = _FRAME->Pop();
-            argumentsArray->SetIndexableField(i, o);
-        }
-        pVMObject arguments[] = { (pVMObject)signature, 
-                                  (pVMObject)argumentsArray };
-
-        //check if current frame is big enough for this unplanned Send
-        //doesNotUnderstand: needs 3 slots, one for this, one for method name, one for args
-        int additionalStackSlots = 3 - _FRAME->RemainingStackSize();
-        if (additionalStackSlots > 0) {
-            //copy current frame into a bigger one and replace the current frame
-            this->SetFrame(VMFrame::EmergencyFrameFrom(_FRAME, additionalStackSlots));
-        }
-
-        receiver->Send(dnu, arguments, 2);
+    for (int i = numberOfArgs - 1; i >= 0; --i) {
+      pVMObject o = _FRAME->Pop();
+      argumentsArray->SetIndexableField(i, o);
     }
+    pVMObject arguments[] = { (pVMObject)signature, 
+      (pVMObject)argumentsArray };
+
+    //check if current frame is big enough for this unplanned Send
+    //doesNotUnderstand: needs 3 slots, one for this, one for method name, one for args
+    int additionalStackSlots = 3 - _FRAME->RemainingStackSize();
+    if (additionalStackSlots > 0) {
+      //before creating the emergency frame, we have to update the  current frame's bcIndex which is cached
+      _FRAME->SetBytecodeIndex(nextBytecodeIndex);
+      //copy current frame into a bigger one and replace the current frame
+      this->SetFrame(VMFrame::EmergencyFrameFrom(_FRAME, additionalStackSlots));
+    }
+
+    receiver->Send(dnu, arguments, 2);
+  }
 }
 
 
@@ -268,31 +294,28 @@ void Interpreter::doPushConstant( int bytecodeIndex ) {
 
 
 void Interpreter::doPushGlobal( int bytecodeIndex) {
-    
+  pVMMethod method = _METHOD;
+  pVMSymbol globalName = (pVMSymbol) method->GetConstant(bytecodeIndex);
+  pVMObject global = _UNIVERSE->GetGlobal(globalName);
 
-    pVMMethod method = _METHOD;
+  if(global != NULL)
+    _FRAME->Push(global);
+  else {
+    pVMObject arguments[] = { (pVMObject) globalName };
+    pVMObject self = _SELF;
 
-    pVMSymbol globalName = (pVMSymbol) method->GetConstant(bytecodeIndex);
-
-    pVMObject global = _UNIVERSE->GetGlobal(globalName);
-
-    if(global != NULL)
-        _FRAME->Push(global);
-    else {
-        pVMObject arguments[] = { (pVMObject) globalName };
-        pVMObject self = _SELF;
-
-        //check if there is enough space on the stack for this unplanned Send
-        //unknowGlobal: needs 2 slots, one for "this" and one for the argument
-        int additionalStackSlots = 2 - _FRAME->RemainingStackSize();       
-        if (additionalStackSlots > 0) {
-            //copy current frame into a bigger one and replace the current frame
-            this->SetFrame(VMFrame::EmergencyFrameFrom(_FRAME,
-                           additionalStackSlots));
-        }
-
-        self->Send(uG, arguments, 1);
+    //check if there is enough space on the stack for this unplanned Send
+    //unknowGlobal: needs 2 slots, one for "this" and one for the argument
+    int additionalStackSlots = 2 - _FRAME->RemainingStackSize();       
+    if (additionalStackSlots > 0) {
+      //before creating the emergency frame, we have to update the  current frame's bcIndex which is cached
+      _FRAME->SetBytecodeIndex(nextBytecodeIndex);
+      //copy current frame into a bigger one and replace the current frame
+      this->SetFrame(VMFrame::EmergencyFrameFrom(_FRAME,
+                                                 additionalStackSlots));
     }
+    self->Send(uG, arguments, 1);
+  }
 }
 
 

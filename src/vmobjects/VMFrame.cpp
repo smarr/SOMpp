@@ -38,26 +38,29 @@ THE SOFTWARE.
 //be necessary, as these cases are not taken into account when the stack
 //depth is calculated. In that case this method is called.
 pVMFrame VMFrame::EmergencyFrameFrom( pVMFrame from, int extraLength ) {
-    int length = from->GetNumberOfIndexableFields() + extraLength;
-    int additionalBytes = length * sizeof(pVMObject);
-    pVMFrame result = new (_HEAP, additionalBytes) VMFrame(length);
-    
-    result->SetClass(from->GetClass());
-    //copy arguments, locals and the stack
-    from->CopyIndexableFieldsTo(result);
+  int length = from->GetNumberOfIndexableFields() + extraLength;
+  int additionalBytes = length * sizeof(pVMObject);
+  pVMFrame result = new (_HEAP, additionalBytes) VMFrame(length);
 
-    //set Frame members
-    result->SetPreviousFrame(from->GetPreviousFrame());
-    result->SetMethod(from->GetMethod());
-    result->SetContext(from->GetContext());
-    result->stackPointer = from->GetStackPointer();
-	_HEAP->writeBarrier(result, result->stackPointer);
-    result->bytecodeIndex = from->bytecodeIndex;
-	_HEAP->writeBarrier(result, result->bytecodeIndex);
-    result->localOffset = from->localOffset;
-	_HEAP->writeBarrier(result, result->localOffset);
+  result->SetClass(from->GetClass());
+  //copy arguments, locals and the stack
+  from->CopyIndexableFieldsTo(result);
 
-    return result;
+  //set Frame members
+  result->SetPreviousFrame(from->GetPreviousFrame());
+  result->SetMethod(from->GetMethod());
+  result->SetContext(from->GetContext());
+  
+  result->stackPointer = _UNIVERSE->NewInteger(from->GetStackPointer());
+  _HEAP->writeBarrier(result, result->stackPointer);
+
+  result->bytecodeIndex = _UNIVERSE->NewInteger(from->bytecodeIndex->GetEmbeddedInteger());
+  _HEAP->writeBarrier(result, result->bytecodeIndex);
+
+  result->localOffset = _UNIVERSE->NewInteger(from->localOffset->GetEmbeddedInteger());
+  _HEAP->writeBarrier(result, result->localOffset);
+
+  return result;
 }
 
 #ifdef USE_TAGGING
@@ -148,23 +151,25 @@ int VMFrame::RemainingStackSize() const {
 
 pVMObject VMFrame::Pop() {
 #ifdef USE_TAGGING
-    int32_t sp = (int32_t)this->stackPointer;
-    this->stackPointer = sp - 1;
+    int32_t sp = stackPointer;
+    stackPointer = sp - 1;
 #else
-    int32_t sp = this->stackPointer->GetEmbeddedInteger();
-    this->stackPointer->SetEmbeddedInteger(sp-1);
+    int32_t sp = stackPointer->GetEmbeddedInteger();
+    stackPointer = _UNIVERSE->NewInteger(sp-1);
+    _HEAP->writeBarrier(this, stackPointer);
 #endif
-    return this->GetIndexableField(sp);
+    return GetIndexableField(sp);
 }
 
 
 void      VMFrame::Push(pVMObject obj) {
 #ifdef USE_TAGGING
-    int32_t sp = (int32_t)this->stackPointer + 1;
-    this->stackPointer = sp;
+    int32_t sp = (int32_t)stackPointer + 1;
+    stackPointer = sp;
 #else
-    int32_t sp = this->stackPointer->GetEmbeddedInteger() + 1;
-    this->stackPointer->SetEmbeddedInteger(sp);
+    int32_t sp = stackPointer->GetEmbeddedInteger() + 1;
+    stackPointer = _UNIVERSE->NewInteger(sp);
+    _HEAP->writeBarrier(this, stackPointer);
 #endif
     SetIndexableField(sp, obj);
 }
@@ -201,7 +206,8 @@ void      VMFrame::ResetStackPointer() {
 #ifdef USE_TAGGING
     this->localOffset = lo;
 #else
-    this->localOffset->SetEmbeddedInteger(lo);
+    localOffset = _UNIVERSE->NewInteger(lo);
+    _HEAP->writeBarrier(this, localOffset);
 #endif
   
     // Set the stack pointer to its initial value thereby clearing the stack
@@ -209,7 +215,8 @@ void      VMFrame::ResetStackPointer() {
 #ifdef USE_TAGGING
     this->stackPointer = lo + numLocals - 1;
 #else
-    this->stackPointer->SetEmbeddedInteger(lo + numLocals - 1);
+    stackPointer = _UNIVERSE->NewInteger(lo + numLocals - 1);
+    _HEAP->writeBarrier(this, stackPointer);
 #endif
 }
 
@@ -225,9 +232,11 @@ int       VMFrame::GetBytecodeIndex() const {
 
 void      VMFrame::SetBytecodeIndex(int index) {
 #ifdef USE_TAGGING
-    this->bytecodeIndex = index;
+  bytecodeIndex = index;
 #else
-    this->bytecodeIndex->SetEmbeddedInteger(index);
+  // Replace with _UNIVERSE->NewInteger()
+  bytecodeIndex = _UNIVERSE->NewInteger(index);
+  _HEAP->writeBarrier(this, bytecodeIndex);
 #endif
 }
 

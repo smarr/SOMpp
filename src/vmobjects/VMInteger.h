@@ -37,7 +37,6 @@ public:
 	VMInteger();
 	VMInteger(int32_t);
 
-	inline void SetEmbeddedInteger(int32_t);
 	inline int32_t GetEmbeddedInteger() const;
 #ifdef USE_TAGGING
 	virtual VMInteger* Clone() const;
@@ -50,10 +49,6 @@ public:
 private:
 	int32_t embeddedInteger;
 };
-
-void VMInteger::SetEmbeddedInteger(int32_t val) {
-	this->embeddedInteger = val;
-}
 
 int32_t VMInteger::GetEmbeddedInteger() const {
 	return this->embeddedInteger;

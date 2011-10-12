@@ -53,6 +53,13 @@ THE SOFTWARE.
 #include "../compiler/Disassembler.h"
 #include "../compiler/SourcecodeCompiler.h"
 
+#define CACHE_INTEGER
+#ifdef CACHE_INTEGER
+#define INT_CACHE_MIN_VALUE (-5)
+#define INT_CACHE_MAX_VALUE (100)
+pVMInteger prebuildInts[INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE + 1];
+#endif
+
 // Here we go:
 
 short dumpBytecodes;
@@ -64,7 +71,7 @@ Universe* Universe::theUniverse = NULL;
 pVMObject nilObject;
 pVMObject trueObject;
 pVMObject falseObject;
-      
+     
 pVMClass objectClass;
 pVMClass classClass;
 pVMClass metaClassClass;
@@ -246,15 +253,24 @@ Universe::Universe(){
 
 
 void Universe::initialize(int _argc, char** _argv) {
+
     heapSize = 1 * 1024 * 1024;
 
     vector<StdString> argv = this->handleArguments(_argc, _argv);
 
     Heap::InitializeHeap(heapSize);
+
     heap = _HEAP;
 
     compiler = new SourcecodeCompiler();
     interpreter = new Interpreter();
+
+#ifdef CACHE_INTEGER
+  //create prebuilt integers
+  for (int32_t it = INT_CACHE_MIN_VALUE; it <= INT_CACHE_MAX_VALUE; ++it) {
+    prebuildInts[(uint32_t)(it - INT_CACHE_MIN_VALUE)] = new (_HEAP) VMInteger(it);
+  }
+#endif
     
     InitializeGlobals();
 
@@ -638,10 +654,25 @@ pVMObject Universe::NewInstance( pVMClass  classOfInstance) const {
 #ifdef USE_TAGGING
 VMPointer<VMInteger> Universe::NewInteger( int32_t value) const {
 #else
-pVMInteger Universe::NewInteger( int32_t value) const {
+  pVMInteger Universe::NewInteger( int32_t value) const {
+#endif
+
+#ifdef CACHE_INTEGER
+    //index = r_uint(x - lower)
+    //if index >= r_uint(upper - lower):
+    //    w_res = instantiate(W_IntObject)
+    //else:
+    //    w_res = W_IntObject.PREBUILT[index]
+
+
+    uint32_t index = (uint32_t)value - (uint32_t)INT_CACHE_MIN_VALUE;
+    if (index < (uint32_t)(INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE)) {
+      return prebuildInts[index];
+    }
 #endif
     return new (_HEAP) VMInteger(value);
-}
+
+  }
 
 pVMClass Universe::NewMetaclassClass() const {
     pVMClass result = new (_HEAP) VMClass;
@@ -699,6 +730,11 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 	systemClass = (pVMClass)(walk(systemClass));
 	blockClass = (pVMClass)(walk(blockClass));
 	doubleClass = (pVMClass)(walk(doubleClass));
+#endif
+
+#ifdef CACHE_INTEGER
+  for (int32_t i = 0; i < (INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE); i++)
+    prebuildInts[i] = (pVMInteger)walk(prebuildInts[i]);
 #endif
 
 	//walk all entries in globals map

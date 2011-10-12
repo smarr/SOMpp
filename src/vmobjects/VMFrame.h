@@ -78,7 +78,7 @@ public:
 #endif
     
     virtual void       PrintStack() const;
-    virtual inline     pVMInteger GetStackPointer() const;
+    virtual inline int32_t GetStackPointer() const;
     virtual int        RemainingStackSize() const;
 private:
     pVMFrame   previousFrame;
@@ -104,8 +104,8 @@ void     VMFrame::SetContext(pVMFrame frm) {
     _HEAP->writeBarrier(this, frm);
 }
 
-pVMInteger VMFrame::GetStackPointer() const {
-    return stackPointer;
+int32_t VMFrame::GetStackPointer() const {
+    return stackPointer->GetEmbeddedInteger();
 }
 
 
