@@ -53,7 +53,7 @@ THE SOFTWARE.
 #include "../compiler/Disassembler.h"
 #include "../compiler/SourcecodeCompiler.h"
 
-#define CACHE_INTEGER
+#define CACHE_INTEG
 #ifdef CACHE_INTEGER
 #define INT_CACHE_MIN_VALUE (-5)
 #define INT_CACHE_MAX_VALUE (100)
@@ -734,7 +734,11 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 
 #ifdef CACHE_INTEGER
   for (int32_t i = 0; i < (INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE); i++)
+#ifdef USE_TAGGING
+    prebuildInts[i] = INT_CACHE_MIN_VALUE + i;
+#else
     prebuildInts[i] = (pVMInteger)walk(prebuildInts[i]);
+#endif
 #endif
 
 	//walk all entries in globals map

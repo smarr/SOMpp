@@ -105,7 +105,11 @@ void     VMFrame::SetContext(pVMFrame frm) {
 }
 
 int32_t VMFrame::GetStackPointer() const {
+#ifdef USE_TAGGING
+  return (int32_t)stackPointer;
+#else
     return stackPointer->GetEmbeddedInteger();
+#endif
 }
 
 

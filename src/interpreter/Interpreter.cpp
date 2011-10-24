@@ -50,7 +50,7 @@ THE SOFTWARE.
 #define _SELF this->GetSelf()
 
 //with this define, caching the BytecodeIndex can be turned on(=1) and off(=0)
-#define CACHE_BCINDEX 1
+#define CACHE_BCINDEX 0
 
 
 Interpreter::Interpreter() {

@@ -54,10 +54,17 @@ pVMFrame VMFrame::EmergencyFrameFrom( pVMFrame from, int extraLength ) {
   result->stackPointer = _UNIVERSE->NewInteger(from->GetStackPointer());
   _HEAP->writeBarrier(result, result->stackPointer);
 
+#ifdef USE_TAGGING
+  result->bytecodeIndex = (int32_t)(from->bytecodeIndex);
+#else
   result->bytecodeIndex = _UNIVERSE->NewInteger(from->bytecodeIndex->GetEmbeddedInteger());
+#endif
   _HEAP->writeBarrier(result, result->bytecodeIndex);
-
+#ifdef USE_TAGGING
+  result->localOffset = from->localOffset;
+#else
   result->localOffset = _UNIVERSE->NewInteger(from->localOffset->GetEmbeddedInteger());
+#endif
   _HEAP->writeBarrier(result, result->localOffset);
 
   return result;
@@ -156,8 +163,8 @@ pVMObject VMFrame::Pop() {
 #else
     int32_t sp = stackPointer->GetEmbeddedInteger();
     stackPointer = _UNIVERSE->NewInteger(sp-1);
-    _HEAP->writeBarrier(this, stackPointer);
 #endif
+    _HEAP->writeBarrier(this, stackPointer);
     return GetIndexableField(sp);
 }
 
@@ -169,8 +176,8 @@ void      VMFrame::Push(pVMObject obj) {
 #else
     int32_t sp = stackPointer->GetEmbeddedInteger() + 1;
     stackPointer = _UNIVERSE->NewInteger(sp);
-    _HEAP->writeBarrier(this, stackPointer);
 #endif
+    _HEAP->writeBarrier(this, stackPointer);
     SetIndexableField(sp, obj);
 }
 
@@ -207,8 +214,8 @@ void      VMFrame::ResetStackPointer() {
     this->localOffset = lo;
 #else
     localOffset = _UNIVERSE->NewInteger(lo);
-    _HEAP->writeBarrier(this, localOffset);
 #endif
+    _HEAP->writeBarrier(this, localOffset);
   
     // Set the stack pointer to its initial value thereby clearing the stack
     size_t numLocals = meth->GetNumberOfLocals();
@@ -216,8 +223,8 @@ void      VMFrame::ResetStackPointer() {
     this->stackPointer = lo + numLocals - 1;
 #else
     stackPointer = _UNIVERSE->NewInteger(lo + numLocals - 1);
-    _HEAP->writeBarrier(this, stackPointer);
 #endif
+    _HEAP->writeBarrier(this, stackPointer);
 }
 
 
@@ -234,10 +241,9 @@ void      VMFrame::SetBytecodeIndex(int index) {
 #ifdef USE_TAGGING
   bytecodeIndex = index;
 #else
-  // Replace with _UNIVERSE->NewInteger()
   bytecodeIndex = _UNIVERSE->NewInteger(index);
-  _HEAP->writeBarrier(this, bytecodeIndex);
 #endif
+  _HEAP->writeBarrier(this, bytecodeIndex);
 }
 
 
