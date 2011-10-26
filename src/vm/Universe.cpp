@@ -53,7 +53,6 @@ THE SOFTWARE.
 #include "../compiler/Disassembler.h"
 #include "../compiler/SourcecodeCompiler.h"
 
-#define CACHE_INTEG
 #ifdef CACHE_INTEGER
 #define INT_CACHE_MIN_VALUE (-5)
 #define INT_CACHE_MAX_VALUE (100)

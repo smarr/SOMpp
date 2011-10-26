@@ -27,7 +27,7 @@
 # THE SOFTWARE.
 
 CC			=g++
-CFLAGS		=-Wno-endif-labels -O3 $(DBG_FLAGS) $(TAG_FLAGS) $(INCLUDES)
+CFLAGS		=-Wno-endif-labels -O3 $(DBG_FLAGS) $(FEATURE_FLAGS) $(INCLUDES)
 LDFLAGS		=$(DBG_FLAGS) -ltcmalloc -lrt $(LIBRARIES)
 
 INSTALL		=install
@@ -44,7 +44,7 @@ SHARED_EXTENSION    =so
 
 ROOT_DIR	?= $(PWD)/..
 SRC_DIR		?= $(ROOT_DIR)/src
-BUILD_DIR   ?= $(ROOT_DIR)/build
+BUILD_DIR 	?= $(ROOT_DIR)/build
 DEST_DIR	?= $(ROOT_DIR)/build.out
 
 ST_DIR		?= $(ROOT_DIR)/Smalltalk
@@ -130,6 +130,16 @@ CLEAN			= $(OBJECTS) \
 
 .PHONY: clean clobber test
 
+#
+# set feature flags 
+#
+ifeq ($(TAGGING),true)
+FEATURE_FLAGS+=-DUSE_TAGGING
+endif
+ifeq ($(CACHE_INTEGER),true)
+FEATURE_FLAGS+=-DCACHE_INTEGER
+endif
+
 all: $(CSOM_NAME)\
 	$(CSOM_NAME).$(SHARED_EXTENSION) \
 	$(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION) \
@@ -138,9 +148,6 @@ all: $(CSOM_NAME)\
 
 debug : DBG_FLAGS=-DDEBUG -O0 -g
 debug: all
-
-tagging : TAG_FLAGS=-DUSE_TAGGING
-tagging: all
 
 profiling : DBG_FLAGS=-g -pg
 profiling : LDFLAGS+=-pg
