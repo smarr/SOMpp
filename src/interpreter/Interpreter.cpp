@@ -50,8 +50,6 @@ THE SOFTWARE.
 #define _SELF this->GetSelf()
 
 //with this define, caching the BytecodeIndex can be turned on(=1) and off(=0)
-#define CACHE_BCINDEX 0
-
 
 Interpreter::Interpreter() {
     this->frame = NULL;
@@ -78,7 +76,7 @@ void Interpreter::Start() {
     if (_HEAP->isCollectionTriggered())
       _HEAP->FullGC();
 
-#if CACHE_BCINDEX == 0
+#ifndef CACHE_BCINDEX
     bytecodeIndex = _FRAME->GetBytecodeIndex();
 #endif
 
@@ -92,7 +90,7 @@ void Interpreter::Start() {
 
     nextBytecodeIndex = bytecodeIndex + bytecodeLength;
 
-#if CACHE_BCINDEX == 0
+#ifndef CACHE_BCINDEX
     _FRAME->SetBytecodeIndex(nextBytecodeIndex);
 #endif
 
@@ -110,7 +108,7 @@ void Interpreter::Start() {
       case BC_POP_LOCAL:        doPopLocal(bytecodeIndex); break;
       case BC_POP_ARGUMENT:     doPopArgument(bytecodeIndex); break;
       case BC_POP_FIELD:        doPopField(bytecodeIndex); break;
-#if CACHE_BCINDEX == 1
+#ifdef CACHE_BCINDEX
       case BC_SEND:             _FRAME->SetBytecodeIndex(nextBytecodeIndex);
                                 doSend(bytecodeIndex);
                                 nextBytecodeIndex = _FRAME->GetBytecodeIndex();
@@ -128,7 +126,7 @@ void Interpreter::Start() {
       default:                  _UNIVERSE->ErrorExit(
                                     "Interpreter: Unexpected bytecode"); 
     } // switch
-#if CACHE_BCINDEX == 1
+#ifdef CACHE_BCINDEX
     bytecodeIndex = nextBytecodeIndex;
 #endif
   } // while
@@ -142,12 +140,12 @@ pVMFrame Interpreter::PushNewFrame( pVMMethod method ) {
 
 
 void Interpreter::SetFrame( pVMFrame frame ) {
-#if CACHE_BCINDEX == 1
+#ifdef CACHE_BCINDEX
   if (this->frame != NULL)
     this->frame->SetBytecodeIndex(nextBytecodeIndex);
 #endif
   this->frame = frame;   
-#if CACHE_BCINDEX == 1
+#ifdef CACHE_BCINDEX
   nextBytecodeIndex = frame->GetBytecodeIndex();
 #endif
 }

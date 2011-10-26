@@ -45,41 +45,41 @@ public:
 
     VMFrame(int size, int nof = 0);
     
-    virtual inline pVMFrame   GetPreviousFrame() const;
-    virtual inline void       SetPreviousFrame(pVMObject);
-    virtual inline void       ClearPreviousFrame();
-    virtual bool       HasPreviousFrame() const;
-    virtual inline bool       IsBootstrapFrame() const;
-    virtual inline pVMFrame   GetContext() const;
-    virtual inline void       SetContext(pVMFrame);
-    virtual bool       HasContext() const;
-    virtual pVMFrame   GetContextLevel(int);
-    virtual pVMFrame   GetOuterContext();
-    virtual inline pVMMethod  GetMethod() const;
-    virtual void       SetMethod(pVMMethod);
-    virtual pVMObject  Pop();
-    virtual void       Push(pVMObject);
-    virtual void       ResetStackPointer();
-    virtual int        GetBytecodeIndex() const;
-    virtual void       SetBytecodeIndex(int);
-    virtual pVMObject  GetStackElement(int) const;
-    virtual void       SetStackElement(int, pVMObject);
-    virtual pVMObject  GetLocal(int, int);
-    virtual void       SetLocal(int, int, pVMObject);
-    virtual pVMObject GetArgument(int, int);
-    virtual void       SetArgument(int, int, pVMObject);
-    virtual void       PrintStackTrace() const;
-    virtual int        ArgumentStackIndex(int index) const;
-    virtual void       CopyArgumentsFrom(pVMFrame frame);
+    inline pVMFrame   GetPreviousFrame() const;
+    inline void       SetPreviousFrame(pVMObject);
+    inline void       ClearPreviousFrame();
+    bool       HasPreviousFrame() const;
+    inline bool       IsBootstrapFrame() const;
+    inline pVMFrame   GetContext() const;
+    inline void       SetContext(pVMFrame);
+    bool       HasContext() const;
+    pVMFrame   GetContextLevel(int);
+    pVMFrame   GetOuterContext();
+    inline pVMMethod  GetMethod() const;
+    void       SetMethod(pVMMethod);
+    pVMObject  Pop();
+    void       Push(pVMObject);
+    void       ResetStackPointer();
+    int        GetBytecodeIndex() const;
+    void       SetBytecodeIndex(int);
+    pVMObject  GetStackElement(int) const;
+    void       SetStackElement(int, pVMObject);
+    pVMObject  GetLocal(int, int);
+    void       SetLocal(int, int, pVMObject);
+    pVMObject GetArgument(int, int);
+    void       SetArgument(int, int, pVMObject);
+    void       PrintStackTrace() const;
+    int        ArgumentStackIndex(int index) const;
+    void       CopyArgumentsFrom(pVMFrame frame);
 #ifdef USE_TAGGING
     virtual VMFrame*   Clone() const;
 #else
     virtual pVMFrame   Clone() const;
 #endif
     
-    virtual void       PrintStack() const;
-    virtual inline int32_t GetStackPointer() const;
-    virtual int        RemainingStackSize() const;
+    void       PrintStack() const;
+    inline int32_t GetStackPointer() const;
+    int        RemainingStackSize() const;
 private:
     pVMFrame   previousFrame;
     pVMFrame   context;
