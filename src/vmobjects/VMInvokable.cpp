@@ -32,7 +32,9 @@ THE SOFTWARE.
 #ifdef USE_TAGGING
 VMInvokable::VMInvokable(int nof) : VMObject(nof + 2),
             signature(nilObject), holder(nilObject) {
+#if GC_TYPE==GENERATIONAL
     _HEAP->writeBarrier(this, nilObject);
+#endif
 }
 #endif
 
@@ -47,7 +49,9 @@ pVMSymbol VMInvokable::GetSignature() const {
 
 void      VMInvokable::SetSignature(pVMSymbol sig)  { 
     signature = sig;
+#if GC_TYPE==GENERATIONAL
 	_HEAP->writeBarrier(this, sig);
+#endif
 }
 
 
@@ -58,5 +62,7 @@ pVMClass VMInvokable::GetHolder()  const {
 
 void      VMInvokable::SetHolder(pVMClass hld) {
     holder = hld;
+#if GC_TYPE==GENERATIONAL
 	_HEAP->writeBarrier(this, hld);
+#endif
 }

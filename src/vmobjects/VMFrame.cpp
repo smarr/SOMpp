@@ -52,20 +52,24 @@ pVMFrame VMFrame::EmergencyFrameFrom( pVMFrame from, int extraLength ) {
   result->SetContext(from->GetContext());
   
   result->stackPointer = _UNIVERSE->NewInteger(from->GetStackPointer());
-  _HEAP->writeBarrier(result, result->stackPointer);
 
 #ifdef USE_TAGGING
   result->bytecodeIndex = (int32_t)(from->bytecodeIndex);
 #else
   result->bytecodeIndex = _UNIVERSE->NewInteger(from->bytecodeIndex->GetEmbeddedInteger());
 #endif
-  _HEAP->writeBarrier(result, result->bytecodeIndex);
+  
 #ifdef USE_TAGGING
-  result->localOffset = from->localOffset;
+  result->localOffset = (int32_t)(from->localOffset);
 #else
   result->localOffset = _UNIVERSE->NewInteger(from->localOffset->GetEmbeddedInteger());
 #endif
+
+#if GC_TYPE==GENETATIONAL
+  _HEAP->writeBarrier(result, result->stackPointer);
   _HEAP->writeBarrier(result, result->localOffset);
+  _HEAP->writeBarrier(result, result->bytecodeIndex);
+#endif
 
   return result;
 }
@@ -77,12 +81,18 @@ pVMFrame VMFrame::Clone() const {
 #endif
 	int32_t addSpace = objectSize - sizeof(VMFrame);
 #ifdef USE_TAGGING
+#if GC_TYPE==GENERATIONAL
 	VMFrame* clone = new (_HEAP, addSpace, true) VMFrame(*this);
 #else
-	pVMFrame clone = new (_HEAP, addSpace, true) VMFrame(*this);
+	VMFrame* clone = new (_HEAP, addSpace) VMFrame(*this);
 #endif
-	assert(_HEAP->isObjectInNursery(clone) == false);
-
+#else
+#if GC_TYPE==GENERATIONAL
+	pVMFrame clone = new (_HEAP, addSpace, true) VMFrame(*this);
+#else
+	pVMFrame clone = new (_HEAP, addSpace) VMFrame(*this);
+#endif
+#endif
 	void* destination = SHIFTED_PTR(clone, sizeof(VMFrame));
 	const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
 	size_t noBytes = GetObjectSize() - sizeof(VMFrame);
@@ -105,15 +115,19 @@ VMFrame::VMFrame(int size, int nof) :
     this->bytecodeIndex = _UNIVERSE->NewInteger(0);
     this->stackPointer = _UNIVERSE->NewInteger(0);
 #endif
+#if GC_TYPE==GENERATIONAL
 	_HEAP->writeBarrier(this, localOffset);
 	_HEAP->writeBarrier(this, bytecodeIndex);
 	_HEAP->writeBarrier(this, stackPointer);
+#endif
 }
 
 
 void      VMFrame::SetMethod(pVMMethod method) {
     this->method = method;
+#if GC_TYPE==GENERATIONAL
 	_HEAP->writeBarrier(this, method);
+#endif
 }
 
 bool     VMFrame::HasPreviousFrame() const {
@@ -164,7 +178,9 @@ pVMObject VMFrame::Pop() {
     int32_t sp = stackPointer->GetEmbeddedInteger();
     stackPointer = _UNIVERSE->NewInteger(sp-1);
 #endif
+#if GC_TYPE==GENERATIONAL
     _HEAP->writeBarrier(this, stackPointer);
+#endif
     return GetIndexableField(sp);
 }
 
@@ -177,7 +193,9 @@ void      VMFrame::Push(pVMObject obj) {
     int32_t sp = stackPointer->GetEmbeddedInteger() + 1;
     stackPointer = _UNIVERSE->NewInteger(sp);
 #endif
+#if GC_TYPE==GENERATIONAL
     _HEAP->writeBarrier(this, stackPointer);
+#endif
     SetIndexableField(sp, obj);
 }
 
@@ -215,7 +233,9 @@ void      VMFrame::ResetStackPointer() {
 #else
     localOffset = _UNIVERSE->NewInteger(lo);
 #endif
+#if GC_TYPE==GENERATIONAL
     _HEAP->writeBarrier(this, localOffset);
+#endif
   
     // Set the stack pointer to its initial value thereby clearing the stack
     size_t numLocals = meth->GetNumberOfLocals();
@@ -224,7 +244,9 @@ void      VMFrame::ResetStackPointer() {
 #else
     stackPointer = _UNIVERSE->NewInteger(lo + numLocals - 1);
 #endif
+#if GC_TYPE==GENERATIONAL
     _HEAP->writeBarrier(this, stackPointer);
+#endif
 }
 
 
@@ -243,7 +265,9 @@ void      VMFrame::SetBytecodeIndex(int index) {
 #else
   bytecodeIndex = _UNIVERSE->NewInteger(index);
 #endif
+#if GC_TYPE==GENERATIONAL
   _HEAP->writeBarrier(this, bytecodeIndex);
+#endif
 }
 
 

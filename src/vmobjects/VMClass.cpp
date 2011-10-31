@@ -74,10 +74,18 @@ superClass((pVMClass)nilObject), name((pVMSymbol)nilObject),
 
 #ifdef USE_TAGGING
 VMClass* VMClass::Clone() const {
+#if GC_TYPE==GENERATIONAL
 	VMClass* clone = new (_HEAP, objectSize - sizeof(VMClass), true)VMClass(*this);
 #else
+	VMClass* clone = new (_HEAP, objectSize - sizeof(VMClass))VMClass(*this);
+#endif
+#else
 pVMClass VMClass::Clone() const {
+#if GC_TYPE==GENERATIONAL
 	pVMClass clone = new (_HEAP, objectSize - sizeof(VMClass), true)VMClass(*this);
+#else
+	pVMClass clone = new (_HEAP, objectSize - sizeof(VMClass))VMClass(*this);
+#endif
 #endif
 	memcpy(SHIFTED_PTR(clone,sizeof(VMObject)),
 			SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() -
@@ -126,7 +134,9 @@ bool VMClass::AddInstanceInvokable(pVMObject ptr) {
 	}
     //it's a new invokable so we need to expand the invokables array.
     instanceInvokables = instanceInvokables->CopyAndExtendWith(ptr);
+#if GC_TYPE==GENERATIONAL
 	_HEAP->writeBarrier(this, instanceInvokables);
+#endif
 
 	return true;
 }
@@ -154,7 +164,9 @@ pVMSymbol VMClass::GetInstanceFieldName(int index) const {
 void      VMClass::SetInstanceInvokables(pVMArray invokables) {
 
 	instanceInvokables = invokables;
+#if GC_TYPE==GENERATIONAL
 	_HEAP->writeBarrier(this, instanceInvokables);
+#endif
 
     for (int i = 0; i < this->GetNumberOfInstanceInvokables(); ++i) {
         pVMObject invo = instanceInvokables->GetIndexableField(i);

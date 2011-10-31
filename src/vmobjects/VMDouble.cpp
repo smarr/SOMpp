@@ -41,7 +41,11 @@ VMDouble* VMDouble::Clone() const {
 #else
 pVMDouble VMDouble::Clone() const {
 #endif
+#if GC_TYPE==GENERATIONAL
 	return new (_HEAP, 0, true) VMDouble(*this);
+#else
+	return new (_HEAP) VMDouble(*this);
+#endif
 }
 
 pVMClass VMDouble::GetClass() const {

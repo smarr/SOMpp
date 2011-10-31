@@ -60,10 +60,11 @@ VMSymbol* VMSymbol::Clone() const {
 #else
 pVMSymbol VMSymbol::Clone() const {
 #endif
-	pVMSymbol clone =  new (_HEAP, strlen(chars) + 1, true)
-		VMSymbol(chars);
-	assert(clone->GetStdString() == GetStdString());
-	return clone;
+#if GC_TYPE==GENERATIONAL
+	return new (_HEAP, strlen(chars) + 1, true)	VMSymbol(chars);
+#else
+	return new (_HEAP, strlen(chars) + 1) VMSymbol(chars);
+#endif
 }
 
 pVMClass VMSymbol::GetClass() const {

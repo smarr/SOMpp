@@ -42,7 +42,11 @@ VMBigInteger* VMBigInteger::Clone() const {
 #else
 pVMBigInteger VMBigInteger::Clone() const {
 #endif
+#if GC_TYPE==GENERATIONAL
 	return new (_HEAP, 0, true) VMBigInteger(*this);
+#else
+	return new (_HEAP) VMBigInteger(*this);
+#endif
 }
 
 int32_t VMBigInteger::GetObjectSize() const {

@@ -42,8 +42,10 @@ VMArray::VMArray(int size, int nof) : VMObject(nof + VMArrayNumberOfFields) {
     for (int i = 0; i < size ; ++i) {
 		arrFields[i] = nilObject;
     }
+#if GC_TYPE==GENERATIONAL
 	// now call the write barrier once manually
 	_HEAP->writeBarrier(this, nilObject);
+#endif
 }
 
 pVMObject VMArray::GetIndexableField(int32_t idx) const {
@@ -83,9 +85,17 @@ pVMArray VMArray::Clone() const {
 #endif
 	int32_t addSpace = objectSize - sizeof(VMArray);
 #ifdef USE_TAGGING
+#if GC_TYPE==GENERATIONAL
 	VMArray* clone = new (_HEAP, addSpace, true) VMArray(*this);
 #else
+	VMArray* clone = new (_HEAP, addSpace) VMArray(*this);
+#endif
+#else
+#if GC_TYPE==GENERATIONAL
 	pVMArray clone = new (_HEAP, addSpace, true) VMArray(*this);
+#else
+	pVMArray clone = new (_HEAP, addSpace) VMArray(*this);
+#endif
 #endif
 	void* destination = SHIFTED_PTR(clone, sizeof(VMArray));
 	const void* source = SHIFTED_PTR(this, sizeof(VMArray));
@@ -95,7 +105,8 @@ pVMArray VMArray::Clone() const {
 }
 
 void VMArray::CopyIndexableFieldsTo(pVMArray to) const {
-	for (int i = 0; i < this->GetNumberOfIndexableFields(); ++i) {
+    int32_t noIndexableFields = this->GetNumberOfIndexableFields();
+	for (int i = 0; i < noIndexableFields; ++i) {
 		to->SetIndexableField(i, GetIndexableField(i));
 	}
 }
@@ -106,9 +117,9 @@ void VMArray::WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*)) {
 void VMArray::WalkObjects(pVMObject (*walk)(pVMObject)) {
 #endif
 	int32_t noOfFields = GetNumberOfFields();
+	int32_t noIndexableFields = GetNumberOfIndexableFields();
     for (int32_t i = 0; i < noOfFields; i++)
 	    SetField(i, walk(GetField(i)));
-	int32_t noIndexableFields = GetNumberOfIndexableFields();
     for (int32_t i = 0; i < noIndexableFields; i++) {
 		pVMObject field = GetIndexableField(i);
 	    if (field != NULL)

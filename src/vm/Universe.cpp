@@ -544,6 +544,7 @@ void Universe::LoadSystemClass( pVMClass systemClass) {
 
 pVMArray Universe::NewArray( int size) const {
     int additionalBytes = size*sizeof(pVMObject);
+#if GC_TYPE==GENERATIONAL
 	//if the array is too big for the nursery, we will directly allocate a
 	// mature object
 	bool outsideNursery = 
@@ -552,6 +553,9 @@ pVMArray Universe::NewArray( int size) const {
     pVMArray result = new (_HEAP, additionalBytes, outsideNursery) VMArray(size);
 	if (outsideNursery)
 		result->SetGCField(MASK_OBJECT_IS_OLD);
+#else
+    pVMArray result = new (_HEAP, additionalBytes) VMArray(size);
+#endif
     result->SetClass(arrayClass);
     return result;
 }
@@ -657,20 +661,12 @@ VMPointer<VMInteger> Universe::NewInteger( int32_t value) const {
 #endif
 
 #ifdef CACHE_INTEGER
-    //index = r_uint(x - lower)
-    //if index >= r_uint(upper - lower):
-    //    w_res = instantiate(W_IntObject)
-    //else:
-    //    w_res = W_IntObject.PREBUILT[index]
-
-
     uint32_t index = (uint32_t)value - (uint32_t)INT_CACHE_MIN_VALUE;
     if (index < (uint32_t)(INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE)) {
       return prebuildInts[index];
     }
 #endif
     return new (_HEAP) VMInteger(value);
-
   }
 
 pVMClass Universe::NewMetaclassClass() const {

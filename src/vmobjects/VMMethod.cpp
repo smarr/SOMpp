@@ -62,11 +62,13 @@ VMMethod::VMMethod(int bcCount, int numberOfConstants, int nof)
     numberOfArguments = _UNIVERSE->NewInteger(0);
     this->numberOfConstants = _UNIVERSE->NewInteger(numberOfConstants);
 #endif
+#if GC_TYPE==GENERATIONAL
     _HEAP->writeBarrier(this, bcLength);
     _HEAP->writeBarrier(this, numberOfLocals);
     _HEAP->writeBarrier(this, maximumNumberOfStackElements);
     _HEAP->writeBarrier(this, numberOfArguments);
     _HEAP->writeBarrier(this, this->numberOfConstants);
+#endif
     for (int i = 0; i < numberOfConstants ; ++i) {
         this->SetIndexableField(i, nilObject);
     }
@@ -74,10 +76,18 @@ VMMethod::VMMethod(int bcCount, int numberOfConstants, int nof)
 
 #ifdef USE_TAGGING
 VMMethod* VMMethod::Clone() const {
+#if GC_TYPE==GENERATIONAL
 	VMMethod* clone = new (_HEAP, GetObjectSize() - sizeof(VMMethod), true)
 #else
+	VMMethod* clone = new (_HEAP, GetObjectSize() - sizeof(VMMethod))
+#endif
+#else
 pVMMethod VMMethod::Clone() const {
+#if GC_TYPE==GENERATIONAL
 	pVMMethod clone = new (_HEAP, GetObjectSize() - sizeof(VMMethod), true)
+#else
+	pVMMethod clone = new (_HEAP, objectSize - sizeof(VMMethod))
+#endif
 #endif
 		VMMethod(*this);
 	memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,
@@ -119,7 +129,9 @@ void VMMethod::SetNumberOfLocals(int nol) {
     numberOfLocals = nol;
 #else
     numberOfLocals = _UNIVERSE->NewInteger(nol);
+#if GC_TYPE==GENERATIONAL
     _HEAP->writeBarrier(this, numberOfLocals);
+#endif
 #endif
 }
 
@@ -138,7 +150,9 @@ void VMMethod::SetMaximumNumberOfStackElements(int stel) {
     maximumNumberOfStackElements = stel;
 #else
     maximumNumberOfStackElements = _UNIVERSE->NewInteger(stel);
+#if GC_TYPE==GENERATIONAL
     _HEAP->writeBarrier(this, maximumNumberOfStackElements);
+#endif
 #endif
 }
 
@@ -157,7 +171,9 @@ void VMMethod::SetNumberOfArguments(int noa) {
     numberOfArguments = noa;
 #else
     numberOfArguments = _UNIVERSE->NewInteger(noa);
+#if GC_TYPE==GENERATIONAL
     _HEAP->writeBarrier(this, numberOfArguments);
+#endif
 #endif
 }
 

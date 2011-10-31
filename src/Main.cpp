@@ -44,7 +44,27 @@ THE SOFTWARE.
 
 int main(int argc, char** argv) {
 
-    cout << "This is SOM++.\n" << endl;
+    cout << "This is SOM++" << endl;
+#if GC_TYPE==GENERATIONAL
+    cout << "\tgarbage collector: generational" << endl;
+#elif GC_TYPE==COPYING
+    cout << "\tgarbage collector: copying" << endl;
+#endif
+
+#ifdef USE_TAGGING
+    cout << "\twith tagged integers" << endl;
+#else
+    cout << "\tnot tagging integers" << endl;
+#endif
+
+#ifdef CACHE_INTEGER
+    cout << "\tcaching integers" << endl;
+#else
+    cout << "\tnot pooling integers" << endl;
+#endif
+
+    cout << "--------------------------------------" << endl;
+
 
     Universe::Start(argc, argv);
 

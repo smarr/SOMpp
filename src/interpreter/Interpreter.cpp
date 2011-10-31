@@ -49,7 +49,6 @@ THE SOFTWARE.
 #define _METHOD this->GetMethod()
 #define _SELF this->GetSelf()
 
-//with this define, caching the BytecodeIndex can be turned on(=1) and off(=0)
 
 Interpreter::Interpreter() {
     this->frame = NULL;

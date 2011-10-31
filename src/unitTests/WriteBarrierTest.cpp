@@ -1,3 +1,4 @@
+
 #include "WriteBarrierTest.h"
 #include "../src/vmobjects/VMSymbol.h"
 #include "../src/vmobjects/VMDouble.h"
@@ -8,6 +9,8 @@
 #include "../src/vmobjects/VMFrame.h"
 #include "../src/vmobjects/VMEvaluationPrimitive.h"
 
+
+#if GC_TYPE==GENERATIONAL
 
 #ifdef USE_TAGGING
 #define TEST_WB_CALLED(msg, hld, ref) \
@@ -157,4 +160,5 @@ void WriteBarrierTest::testWriteClass() {
         CPPUNIT_FAIL("WriteBarrier tests only work in DEBUG builds for speed reasons");
 #endif
 }
+#endif
 

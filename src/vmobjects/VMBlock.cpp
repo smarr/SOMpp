@@ -44,7 +44,9 @@ VMBlock::VMBlock() : VMObject(VMBlockNumberOfFields) {
 
 void VMBlock::SetMethod(pVMMethod bMethod) {
     blockMethod = (bMethod);
+#if GC_TYPE==GENERATIONAL
     _HEAP->writeBarrier(this, bMethod);
+#endif
 }
 
 #ifdef USE_TAGGING
@@ -52,7 +54,11 @@ VMBlock* VMBlock::Clone() const {
 #else
 pVMBlock VMBlock::Clone() const {
 #endif
+#if GC_TYPE==GENERATIONAL
 	return new (_HEAP, GetAdditionalSpaceConsumption(), true) VMBlock(*this);
+#else
+	return new (_HEAP, GetAdditionalSpaceConsumption()) VMBlock(*this);
+#endif
 }
 
 pVMMethod VMBlock::GetMethod() const {

@@ -56,6 +56,10 @@ THE SOFTWARE.
 #define pathSeparator ':'
 #define fileSeparator '/'
 
+#define GENERATIONAL 1
+#define COPYING 2
+#define MARK_SWEEP 3
+
 typedef std::string StdString;
 
 #if defined(_MSC_VER)

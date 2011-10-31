@@ -40,7 +40,11 @@ VMInteger* VMInteger::Clone() const {
 #else
 pVMInteger VMInteger::Clone() const {
 #endif
+#if GC_TYPE==GENERATIONAL
 	return new (_HEAP, 0, true) VMInteger(*this);
+#else
+  return new (_HEAP) VMInteger(*this);
+#endif
 }
 
 pVMClass VMInteger::GetClass() const {

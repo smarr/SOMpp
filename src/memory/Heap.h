@@ -43,6 +43,7 @@ class AbstractVMObject;
 using namespace std;
 //macro to access the heap
 #define _HEAP Heap::GetHeap()
+#if GC_TYPE==GENERATIONAL
 #ifdef DEBUG
 struct VMObjectCompare {
 #ifdef USE_TAGGING
@@ -56,6 +57,7 @@ struct VMObjectCompare {
 	  (int32_t)lhs.second<(int32_t)rhs.second ;}
 };
 #endif
+#endif
 
 class Heap
 {
@@ -67,13 +69,18 @@ public:
     static void DestroyHeap();
 	Heap(int objectSpaceSize = 1048576);
 	~Heap();
+#if GC_TYPE==GENERATIONAL
     AbstractVMObject* AllocateNurseryObject(size_t size);
 	AbstractVMObject* AllocateMatureObject(size_t size);
 	int32_t GetMaxNurseryObjectSize();
 	inline void FreeObject(AbstractVMObject* obj);
+#else
+    AbstractVMObject* AllocateObject(size_t size);
+#endif
 	inline void triggerGC(void);
 	bool isCollectionTriggered(void);
     void FullGC();
+#if GC_TYPE==GENERATIONAL
 #ifdef USE_TAGGING
 	void writeBarrier(AbstractVMObject* holder, const AbstractVMObject* referencedObject);
 	inline bool isObjectInNursery(const AbstractVMObject* obj);
@@ -88,8 +95,12 @@ public:
 	std::set<pair<const pVMObject, const pVMObject>, VMObjectCompare > writeBarrierCalledOn;
 #endif
 #endif
+#else
+	inline void FreeObject(AbstractVMObject* o);
+#endif
 private:
     static Heap* theHeap;
+#if GC_TYPE==GENERATIONAL
 #ifdef USE_TAGGING
 	void writeBarrier_OldHolder(AbstractVMObject* holder, const
 			AbstractVMObject* referencedObject);
@@ -97,25 +108,35 @@ private:
 	void writeBarrier_OldHolder(pVMObject holder, const pVMObject
 			referencedObject);
 #endif
-
+#endif
 
 	//members for moving GC
+#if GC_TYPE==GENERATIONAL
 	void* nursery;
 	int32_t nursery_end;
-	void* nextFreePosition;
 	int32_t nurserySize;
 	int32_t maxNurseryObjSize;
 	int32_t matureObjectsSize;
+#else
+	void* currentBuffer;
+	void* oldBuffer;
+	void* currentBufferEnd;
+	void switchBuffers(void);
+#endif
+	void* nextFreePosition;
 
 	//flag that shows if a Collection is triggered
 	bool gcTriggered;
 	GarbageCollector* gc;
     void* collectionLimit;
+#if GC_TYPE==GENERATIONAL
 	vector<int>* oldObjsWithRefToYoungObjs;
 	vector<pVMObject>* allocatedObjects;
+#endif
 
 };
 
+#if GC_TYPE==GENERATIONAL
 #ifdef USE_TAGGING
 inline bool Heap::isObjectInNursery(const AbstractVMObject* obj) {
 #else
@@ -143,6 +164,7 @@ inline void Heap::writeBarrier(pVMObject holder, const pVMObject referencedObjec
 	if ((int32_t)holder < (int32_t)nursery || (int32_t)holder > nursery_end)
 		writeBarrier_OldHolder(holder, referencedObject);
 }
+#endif
 #endif
 
 void Heap::triggerGC(void) {

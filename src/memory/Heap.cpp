@@ -64,6 +64,7 @@ Heap::Heap(int objectSpaceSize) {
 	//collectionLimit = objectSpaceSize * 0.9;
 	gc = new GarbageCollector(this);
 
+#if GC_TYPE==GENERATIONAL
 	nursery = malloc(objectSpaceSize);
 	nurserySize = objectSpaceSize;
 	maxNurseryObjSize = objectSpaceSize / 2;
@@ -75,7 +76,20 @@ Heap::Heap(int objectSpaceSize) {
 	nextFreePosition = nursery;
 	allocatedObjects = new vector<pVMObject>();
 	oldObjsWithRefToYoungObjs = new vector<int>();
+#else
+size_t bufSize = objectSpaceSize;
+	currentBuffer = malloc(bufSize);
+	oldBuffer = malloc(bufSize);
+	memset(currentBuffer, 0x0, bufSize);
+	memset(oldBuffer, 0x0, bufSize);
+	currentBufferEnd = (void*)((int32_t)currentBuffer + bufSize);
+	collectionLimit = (void*)((int32_t)currentBuffer + ((int32_t)(bufSize *
+					0.9)));
+	nextFreePosition = currentBuffer;
+#endif
 }
+
+#if GC_TYPE==GENERATIONAL
 #ifdef USE_TAGGING
 void Heap::writeBarrier_OldHolder(AbstractVMObject* holder, const AbstractVMObject*
 #else
@@ -88,11 +102,40 @@ void Heap::writeBarrier_OldHolder(pVMObject holder, const pVMObject
 		holder->SetGCField(holder->GetGCField() | MASK_SEEN_BY_WRITE_BARRIER);
 	}
 }
+#endif
 
 Heap::~Heap() {
 	delete gc;
 }
 
+#if GC_TYPE==COPYING
+void Heap::switchBuffers() {
+	int32_t bufSize = (int32_t)currentBufferEnd - (int32_t)currentBuffer;
+	void* tmp = oldBuffer;
+	oldBuffer = currentBuffer;
+	currentBuffer = tmp;
+	currentBufferEnd = (void*)((int32_t)currentBuffer + bufSize);
+	nextFreePosition = currentBuffer;
+	collectionLimit = (void*)((int32_t)currentBuffer + (int32_t)(0.9 *
+				bufSize));
+}
+
+AbstractVMObject* Heap::AllocateObject(size_t size) {
+	size_t paddedSize = size + PAD_BYTES(size);
+	AbstractVMObject* newObject = (AbstractVMObject*) nextFreePosition;
+	nextFreePosition = (void*)((int32_t)nextFreePosition + paddedSize);
+	if (nextFreePosition > currentBufferEnd) {
+		cout << "Failed to allocate " << size << " Bytes." << endl;
+		_UNIVERSE->Quit(-1);
+	}
+	//let's see if we have to trigger the GC
+	if (nextFreePosition > collectionLimit)
+		triggerGC();
+	return newObject;
+}
+#endif
+
+#if GC_TYPE==GENERATIONAL
 AbstractVMObject* Heap::AllocateNurseryObject(size_t size) {
 	size_t paddedSize = size + PAD_BYTES(size);
 	AbstractVMObject* newObject = (AbstractVMObject*) nextFreePosition;
@@ -122,6 +165,7 @@ AbstractVMObject* Heap::AllocateMatureObject(size_t size) {
 	matureObjectsSize += paddedSize;
 	return newObject;
 }
+#endif
 
 void Heap::FullGC() {
     gc->Collect();

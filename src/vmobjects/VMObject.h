@@ -100,10 +100,15 @@ public:
 	 *   - fields in VMMethod, a_b must be set to (number_of_bc + number_of_csts*sizeof(pVMObject))
 	 */
 	void* operator new(size_t numBytes, Heap* heap,
+#if GC_TYPE==GENERATIONAL
 			unsigned int additionalBytes = 0, bool outsideNursery = false) {
 		void* mem = AbstractVMObject::operator new(numBytes, heap,
 				additionalBytes, outsideNursery);
-		int32_t objSize = additionalBytes + numBytes;
+#else
+			unsigned int additionalBytes = 0) {
+		void* mem = (void*) heap->AllocateObject(numBytes + additionalBytes);
+#endif
+		size_t objSize = numBytes + additionalBytes;
 		((VMObject*) mem)->objectSize = objSize + PAD_BYTES(objSize);
 		return mem;
 	}

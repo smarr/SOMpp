@@ -52,7 +52,12 @@ VMString* VMString::Clone() const {
 #else
 pVMString VMString::Clone() const {
 #endif
+
+#if GC_TYPE==GENERATIONAL
 	return new (_HEAP, strlen(chars)+1, true) VMString(chars);
+#else
+	return new (_HEAP, strlen(chars)+1) VMString(chars);
+#endif
 }
 
 

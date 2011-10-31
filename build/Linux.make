@@ -130,6 +130,12 @@ CLEAN			= $(OBJECTS) \
 
 .PHONY: clean clobber test
 
+# some defaults
+TAGGING=false
+GC_TYPE=generational
+CACHE_INTEGER=true
+CACHE_BCINDEX=true
+
 #
 # set feature flags 
 #
@@ -141,6 +147,15 @@ FEATURE_FLAGS+=-DCACHE_INTEGER
 endif
 ifeq ($(CACHE_BCINDEX),true)
 FEATURE_FLAGS+=-DCACHE_BCINDEX
+endif
+ifeq ($(GC_TYPE),copying)
+FEATURE_FLAGS+=-DGC_TYPE=COPYING
+endif
+ifeq ($(GC_TYPE),mark_sweep)
+FEATURE_FLAGS+=-DGC_TYPE=MARK_SWEEP
+endif
+ifeq ($(GC_TYPE),generational)
+FEATURE_FLAGS+=-DGC_TYPE=GENERATIONAL
 endif
 
 all: $(CSOM_NAME)\

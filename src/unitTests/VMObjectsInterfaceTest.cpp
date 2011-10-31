@@ -56,7 +56,7 @@ void VMObjectsInterfaceTest::testGetSetObjectSize() {
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("integer size", 12, pInteger->GetObjectSize());
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("double size", 16, pDouble->GetObjectSize());
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("string size", 20, pString->GetObjectSize());
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("symbol size", 20, pSymbol->GetObjectSize());
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("symbol size", 28, pSymbol->GetObjectSize());
 	//testObjectSizeHelper(pString, "string size", 12);
 	//testObjectSizeHelper(pSymbol, "symbol size", 12);
 	testObjectSizeHelper(pArray, "array size", 24);

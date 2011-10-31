@@ -66,7 +66,11 @@ VMPrimitive* VMPrimitive::Clone() const {
 #else
 pVMPrimitive VMPrimitive::Clone() const {
 #endif
+#if GC_TYPE==GENERATIONAL
 	return new (_HEAP, 0, true) VMPrimitive(*this);
+#else
+	return new (_HEAP) VMPrimitive(*this);
+#endif
 }
 
 
@@ -81,9 +85,11 @@ void VMPrimitive::WalkObjects(pVMObject (*walk)(pVMObject)) {
 	signature = (pVMSymbol)walk(signature);
 	holder = (pVMClass)walk(holder);
 #endif
+#if GC_TYPE==GENERATIONAL
 	_HEAP->writeBarrier(this, clazz);
 	_HEAP->writeBarrier(this, signature);
 	_HEAP->writeBarrier(this, holder);
+#endif
 }
 
 void VMPrimitive::EmptyRoutine( pVMObject _self, pVMFrame /*frame*/ ) {

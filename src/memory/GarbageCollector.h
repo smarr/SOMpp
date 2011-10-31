@@ -31,26 +31,26 @@ THE SOFTWARE.
 #include "../vmobjects/ObjectFormats.h"
 #include "../misc/defs.h"
 
-#include <vector>
-class AbstractVMObject;
-class VMObject;
 class Heap;
 
 class GarbageCollector {
-public:
-	GarbageCollector(Heap* h);
-	~GarbageCollector();
-	void Collect();
-    void PrintGCStat() const;
-    void PrintCollectStat() const;
+ public:
+  GarbageCollector(Heap* h);
+  ~GarbageCollector();
+  void Collect();
+  void PrintGCStat() const;
+  void PrintCollectStat() const;
 
-private:
-	Heap* heap;
-	int32_t majorCollectionThreshold;
-	int32_t matureObjectsSize;
-	void MajorCollection();
-	void MinorCollection();
-
+ private:
+  Heap* heap;
+#if GC_TYPE==GENERATIONAL
+  int32_t majorCollectionThreshold;
+  int32_t matureObjectsSize;
+  void MajorCollection();
+  void MinorCollection();
+#elif GC_TYPE==COPYING
+  void CopyCollect();
+#endif
 };
 
 #endif

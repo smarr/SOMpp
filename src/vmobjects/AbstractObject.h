@@ -73,6 +73,7 @@ public:
 		throw "this object doesn't support GetFieldName";
 	}
 
+#if GC_TYPE==GENERATIONAL
 	void* operator new(size_t numBytes, Heap* heap,
 			unsigned int additionalBytes = 0, bool outsideNursery = false) {
 		//if outsideNursery flag is set or object is too big for nursery, we
@@ -83,5 +84,12 @@ public:
 		assert(numBytes + additionalBytes < _HEAP->GetMaxNurseryObjectSize());
 		return (void*) heap->AllocateNurseryObject(numBytes + additionalBytes);
 	}
+#else
+	void* operator new(size_t numBytes, Heap* heap,
+			unsigned int additionalBytes = 0) {
+		void* mem = (void*) heap->AllocateObject(numBytes + additionalBytes);
+		return mem;
+	}
+#endif
 };
 #endif /* ABSTRACTOBJECT_H_ */

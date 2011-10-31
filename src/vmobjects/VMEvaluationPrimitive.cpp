@@ -47,7 +47,9 @@ VMEvaluationPrimitive::VMEvaluationPrimitive(int argc) :
 #else
     this->numberOfArguments = _UNIVERSE->NewInteger(argc);
 #endif
+#if GC_TYPE==GENERATIONAL
 	_HEAP->writeBarrier(this, numberOfArguments);
+#endif
 }
 
 #ifdef USE_TAGGING
@@ -55,7 +57,11 @@ VMEvaluationPrimitive* VMEvaluationPrimitive::Clone() const {
 #else
 pVMEvaluationPrimitive VMEvaluationPrimitive::Clone() const {
 #endif
+#if GC_TYPE==GENERATIONAL
 	pVMEvaluationPrimitive evPrim = new (_HEAP, 0, true) VMEvaluationPrimitive(*this);
+#else
+	pVMEvaluationPrimitive evPrim = new (_HEAP) VMEvaluationPrimitive(*this);
+#endif
 	return evPrim;
 }
 
@@ -70,7 +76,9 @@ void VMEvaluationPrimitive::WalkObjects(pVMObject (*walk)(pVMObject)) {
 	VMPrimitive::WalkObjects(walk);
 	numberOfArguments = (pVMInteger)walk(numberOfArguments);
 #endif
+#if GC_TYPE==GENERATIONAL
 	_HEAP->writeBarrier(this, numberOfArguments);
+#endif
 }
 
 

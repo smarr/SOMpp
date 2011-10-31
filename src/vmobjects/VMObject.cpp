@@ -37,12 +37,12 @@ THE SOFTWARE.
 const int VMObject::VMObjectNumberOfFields = 1;
 
 VMObject::VMObject( int numberOfFields ) {
-    //this line would be needed if the VMObject** is used instead of the macro:
-    //FIELDS = (pVMObject*)&clazz; 
-    this->SetNumberOfFields(numberOfFields + VMObjectNumberOfFields);
-    gcfield = 0; 
-	hash = (int32_t)this;
-    //Object size is set by the heap
+  //this line would be needed if the VMObject** is used instead of the macro:
+  //FIELDS = (pVMObject*)&clazz; 
+  this->SetNumberOfFields(numberOfFields + VMObjectNumberOfFields);
+  gcfield = 0; 
+  hash = (int32_t)this;
+  //Object size is set by the heap
 }
 
 #ifdef USE_TAGGING
@@ -50,26 +50,36 @@ VMObject* VMObject::Clone() const {
 #else
 pVMObject VMObject::Clone() const {
 #endif
-	VMObject* clone = new (_HEAP, objectSize - sizeof(VMObject), true) VMObject(*this);
-	memcpy(SHIFTED_PTR(clone, sizeof(VMObject)),
-			SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() -
-			sizeof(VMObject));
-	clone->hash = (int32_t)&clone;
-	return clone;
-}
+#if GC_TYPE==GENERATIONAL
+    VMObject* clone = new (_HEAP, objectSize - sizeof(VMObject), true) VMObject(*this);
+    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)),
+           SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() -
+           sizeof(VMObject));
+#else
+    VMObject* clone = new (_HEAP, objectSize - sizeof(VMObject)) VMObject(*this);
+    memcpy(&(clone->clazz), &clazz,
+           objectSize - sizeof(VMObject) + sizeof(pVMObject));
+#endif
+    clone->hash = (int32_t)&clone;
+    return clone;
+  }
 
 void VMObject::SetNumberOfFields(int nof) {
-    this->numberOfFields = nof;
-	//initialize fields with NilObject
-    for (int i = 0; i < nof ; ++i)
-		FIELDS[i] = nilObject;
-	_HEAP->writeBarrier(this, nilObject);
+  this->numberOfFields = nof;
+  //initialize fields with NilObject
+  for (int i = 0; i < nof ; ++i)
+    FIELDS[i] = nilObject;
+#if GC_TYPE==GENERATIONAL
+  _HEAP->writeBarrier(this, nilObject);
+#endif
 }
 
 
 void VMObject::SetClass(pVMClass cl) {
 	clazz = cl;
+#if GC_TYPE==GENERATIONAL
 	_HEAP->writeBarrier(this, cl);
+#endif
 }
 
 pVMSymbol VMObject::GetFieldName(int index) const {
@@ -89,7 +99,9 @@ pVMObject VMObject::GetField(int index) const {
 
 void VMObject::SetField(int index, pVMObject value) {
      FIELDS[index] = value;
+#if GC_TYPE==GENERATIONAL
 	 _HEAP->writeBarrier(this, value);
+#endif
 }
 
 //returns the Object's additional memory used (e.g. for Array fields)
