@@ -106,7 +106,7 @@ public:
 				additionalBytes, outsideNursery);
 #else
 			unsigned int additionalBytes = 0) {
-		void* mem = (void*) heap->AllocateObject(numBytes + additionalBytes);
+		void* mem = (void*) ((CopyingHeap*)heap)->AllocateObject(numBytes + additionalBytes);
 #endif
 		size_t objSize = numBytes + additionalBytes;
 		((VMObject*) mem)->objectSize = objSize + PAD_BYTES(objSize);

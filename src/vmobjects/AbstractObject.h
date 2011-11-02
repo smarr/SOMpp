@@ -9,7 +9,13 @@
 #define ABSTRACTOBJECT_H_
 #include "../misc/defs.h"
 #include "ObjectFormats.h"
+#if GC_TYPE==GENERATIONAL
+#include "../memory/GenerationalHeap.h"
+#elif GC_TYPE==COPYING
+#include "../memory/CopyingHeap.h"
+#else
 #include "../memory/Heap.h"
+#endif
 #include "VMObjectBase.h"
 /*
  * macro for padding - only word-aligned memory must be allocated
@@ -79,13 +85,12 @@ public:
 		//if outsideNursery flag is set or object is too big for nursery, we
 		// allocate a mature object
 		if (outsideNursery)
-			return (void*) heap->AllocateMatureObject(numBytes +
+			return (void*) ((GenerationalHeap*)heap)->AllocateMatureObject(numBytes +
 					additionalBytes);
-		assert(numBytes + additionalBytes < _HEAP->GetMaxNurseryObjectSize());
-		return (void*) heap->AllocateNurseryObject(numBytes + additionalBytes);
+		return (void*) ((GenerationalHeap*)heap)->AllocateNurseryObject(numBytes + additionalBytes);
 	}
 #else
-	void* operator new(size_t numBytes, Heap* heap,
+	void* operator new(size_t numBytes, HEAP_CLS* heap,
 			unsigned int additionalBytes = 0) {
 		void* mem = (void*) heap->AllocateObject(numBytes + additionalBytes);
 		return mem;

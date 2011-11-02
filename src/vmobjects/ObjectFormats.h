@@ -43,6 +43,7 @@ THE SOFTWARE.
 #define pVMPrimitive VMPointer<VMPrimitive>
 #define pVMString VMPointer<VMString>
 #define pVMSymbol VMPointer<VMSymbol>
+#define VMOBJECT_PTR AbstractVMObject*
 #else
 
 #define pVMArray VMArray*
@@ -59,6 +60,7 @@ THE SOFTWARE.
 #define pVMPrimitive VMPrimitive* 
 #define pVMString VMString* 
 #define pVMSymbol VMSymbol* 
+#define VMOBJECT_PTR pVMObject
 #endif
 
 

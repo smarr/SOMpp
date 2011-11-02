@@ -37,20 +37,11 @@ class GarbageCollector {
  public:
   GarbageCollector(Heap* h);
   ~GarbageCollector();
-  void Collect();
+  virtual void Collect() = 0;
   void PrintGCStat() const;
   void PrintCollectStat() const;
-
- private:
+ protected:
   Heap* heap;
-#if GC_TYPE==GENERATIONAL
-  int32_t majorCollectionThreshold;
-  int32_t matureObjectsSize;
-  void MajorCollection();
-  void MinorCollection();
-#elif GC_TYPE==COPYING
-  void CopyCollect();
-#endif
 };
 
 #endif
