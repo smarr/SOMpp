@@ -51,8 +51,9 @@ class GenerationalHeap;
 #elif GC_TYPE == COPYING
 class CopyingHeap;
 #define HEAP_CLS CopyingHeap
-#else
-#define HEAP_CLS Heap
+#elif GC_TYPE == MARK_SWEEP
+class MarkSweepHeap;
+#define HEAP_CLS MarkSweepHeap
 #endif
 
 class Heap

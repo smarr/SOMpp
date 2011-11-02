@@ -104,9 +104,12 @@ public:
 			unsigned int additionalBytes = 0, bool outsideNursery = false) {
 		void* mem = AbstractVMObject::operator new(numBytes, heap,
 				additionalBytes, outsideNursery);
-#else
+#elif GC_TYPE==COPYING
 			unsigned int additionalBytes = 0) {
 		void* mem = (void*) ((CopyingHeap*)heap)->AllocateObject(numBytes + additionalBytes);
+#elif GC_TYPE==MARK_SWEEP
+			unsigned int additionalBytes = 0) {
+		void* mem = (void*) ((MarkSweepHeap*)heap)->AllocateObject(numBytes + additionalBytes);
 #endif
 		size_t objSize = numBytes + additionalBytes;
 		((VMObject*) mem)->objectSize = objSize + PAD_BYTES(objSize);

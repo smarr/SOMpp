@@ -13,8 +13,8 @@
 #include "../memory/GenerationalHeap.h"
 #elif GC_TYPE==COPYING
 #include "../memory/CopyingHeap.h"
-#else
-#include "../memory/Heap.h"
+#elif GC_TYPE==MARK_SWEEP
+#include "../memory/MarkSweepHeap.h"
 #endif
 #include "VMObjectBase.h"
 /*

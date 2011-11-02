@@ -59,7 +59,6 @@ void Heap::DestroyHeap() {
 }
 
 Heap::Heap(int objectSpaceSize) {
-
 }
 
 Heap::~Heap() {
