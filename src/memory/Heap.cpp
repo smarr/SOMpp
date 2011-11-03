@@ -34,13 +34,6 @@ THE SOFTWARE.
 
 HEAP_CLS* Heap::theHeap = NULL;
 
-HEAP_CLS* Heap::GetHeap() {
-    if (!theHeap)
-      _UNIVERSE->ErrorExit("Trying to access uninitialized Heap");
-    return theHeap;
-}
-
-
 bool Heap::isCollectionTriggered(void) {
 	return gcTriggered;
 }

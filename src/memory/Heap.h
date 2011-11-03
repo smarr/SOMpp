@@ -61,7 +61,7 @@ class Heap
 	friend class GarbageCollector;
 
 public:
-    static HEAP_CLS* GetHeap();
+    static inline HEAP_CLS* GetHeap();
     static void InitializeHeap(int objectSpaceSize = 1048576);
     static void DestroyHeap();
 	Heap(int objectSpaceSize = 1048576);
@@ -78,7 +78,11 @@ private:
 	//flag that shows if a Collection is triggered
 	bool gcTriggered;
 };
-#endif
+
+
+HEAP_CLS* Heap::GetHeap() {
+    return theHeap;
+}
 
 void Heap::triggerGC(void) {
 	gcTriggered = true;
@@ -91,3 +95,4 @@ void Heap::resetGCTrigger(void) {
 void Heap::FreeObject(AbstractVMObject* obj) {
   free(obj);
 }
+#endif

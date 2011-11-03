@@ -72,8 +72,10 @@ void Interpreter::Start() {
   while (true) {
     //we reached a safe collection point
     // perform collection if triggered
-    if (_HEAP->isCollectionTriggered())
+    if (_HEAP->isCollectionTriggered()) {
+      _FRAME->SetBytecodeIndex(nextBytecodeIndex);
       _HEAP->FullGC();
+    }
 
 #ifndef CACHE_BCINDEX
     bytecodeIndex = _FRAME->GetBytecodeIndex();

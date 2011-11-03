@@ -74,7 +74,6 @@ void GenerationalCollector::MinorCollection() {
 #else
         pVMFrame newFrame = (pVMFrame)copy_if_necessary(currentFrame);
 #endif
-		assert(_HEAP->isObjectInNursery(newFrame) == false);
         _UNIVERSE->GetInterpreter()->SetFrame(newFrame);
     }
 

@@ -46,12 +46,11 @@ void MarkSweepCollector::Collect() {
 	Timer::GCTimer->Halt();
 }
 
+
+VMOBJECT_PTR mark_object(VMOBJECT_PTR obj) {
 #ifdef USE_TAGGING
-AbstractVMObject* mark_object(AbstractVMObject* obj) {
 	if ((int32_t)((void*)obj) & 1)
 		return obj;
-#else
-pVMObject mark_object(pVMObject obj) {
 #endif
     if (obj->GetGCField())
         return obj;
