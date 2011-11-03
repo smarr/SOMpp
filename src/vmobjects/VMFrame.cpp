@@ -53,11 +53,7 @@ pVMFrame VMFrame::EmergencyFrameFrom( pVMFrame from, int extraLength ) {
   
   result->stackPointer = _UNIVERSE->NewInteger(from->GetStackPointer());
 
-#ifdef USE_TAGGING
-  result->bytecodeIndex = (int32_t)(from->bytecodeIndex);
-#else
-  result->bytecodeIndex = _UNIVERSE->NewInteger(from->bytecodeIndex->GetEmbeddedInteger());
-#endif
+  result->bytecodeIndex = from->bytecodeIndex;
   
 #ifdef USE_TAGGING
   result->localOffset = (int32_t)(from->localOffset);
@@ -112,12 +108,11 @@ VMFrame::VMFrame(int size, int nof) :
     this->stackPointer = 0;
 #else
     this->localOffset = _UNIVERSE->NewInteger(0);
-    this->bytecodeIndex = _UNIVERSE->NewInteger(0);
+    this->bytecodeIndex = 0;
     this->stackPointer = _UNIVERSE->NewInteger(0);
 #endif
 #if GC_TYPE==GENERATIONAL
 	_HEAP->writeBarrier(this, localOffset);
-	_HEAP->writeBarrier(this, bytecodeIndex);
 	_HEAP->writeBarrier(this, stackPointer);
 #endif
 }
@@ -155,6 +150,27 @@ pVMFrame VMFrame::GetOuterContext() {
         current = current->GetContext();
     }
     return current;
+}
+
+
+#ifdef USE_TAGGING
+void VMFrame::WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*)) {
+#else
+void VMFrame::WalkObjects(pVMObject (*walk)(pVMObject)) {
+#endif
+  clazz = (VMClass*)walk(clazz);
+  previousFrame = (VMFrame*)walk(previousFrame);
+  context = (VMFrame*)walk(context);
+  method = (VMMethod*)walk(method);
+  stackPointer = (VMInteger*)walk(stackPointer);
+  localOffset = (VMInteger*)walk(localOffset);
+
+	int32_t noIndexableFields = GetNumberOfIndexableFields();
+    for (int32_t i = 0; i < noIndexableFields; i++) {
+		pVMObject field = GetIndexableField(i);
+	    if (field != NULL)
+		    SetIndexableField(i, walk(field));
+	}
 }
 
 
@@ -246,27 +262,6 @@ void      VMFrame::ResetStackPointer() {
 #endif
 #if GC_TYPE==GENERATIONAL
     _HEAP->writeBarrier(this, stackPointer);
-#endif
-}
-
-
-int       VMFrame::GetBytecodeIndex() const {
-#ifdef USE_TAGGING
-    return (int32_t)this->bytecodeIndex;
-#else
-    return this->bytecodeIndex->GetEmbeddedInteger();
-#endif
-}
-
-
-void      VMFrame::SetBytecodeIndex(int index) {
-#ifdef USE_TAGGING
-  bytecodeIndex = index;
-#else
-  bytecodeIndex = _UNIVERSE->NewInteger(index);
-#endif
-#if GC_TYPE==GENERATIONAL
-  _HEAP->writeBarrier(this, bytecodeIndex);
 #endif
 }
 

@@ -637,7 +637,8 @@ pVMFrame Universe::NewFrame( pVMFrame previousFrame, pVMMethod method) const {
         result->SetPreviousFrame(previousFrame);
 
     result->ResetStackPointer();
-    result->SetBytecodeIndex(0);
+    //chbol: bytecodeIndex is 0 by default anyway
+    //result->SetBytecodeIndex(0);
 
     return result;
 }

@@ -60,8 +60,8 @@ public:
     pVMObject  Pop();
     void       Push(pVMObject);
     void       ResetStackPointer();
-    int        GetBytecodeIndex() const;
-    void       SetBytecodeIndex(int);
+    inline int        GetBytecodeIndex() const;
+    inline void       SetBytecodeIndex(int);
     pVMObject  GetStackElement(int) const;
     void       SetStackElement(int, pVMObject);
     pVMObject  GetLocal(int, int);
@@ -71,9 +71,12 @@ public:
     void       PrintStackTrace() const;
     int        ArgumentStackIndex(int index) const;
     void       CopyArgumentsFrom(pVMFrame frame);
+	  inline virtual pVMObject GetField(int index) const;
 #ifdef USE_TAGGING
     virtual VMFrame*   Clone() const;
+		virtual void WalkObjects(AbstractVMObject* (AbstractVMObject*));
 #else
+		virtual void WalkObjects(pVMObject (pVMObject));
     virtual pVMFrame   Clone() const;
 #endif
     
@@ -85,11 +88,27 @@ private:
     pVMFrame   context;
     pVMMethod  method;
     pVMInteger stackPointer;
-    pVMInteger bytecodeIndex;
+    int32_t    bytecodeIndex;
     pVMInteger localOffset;
 
     static const int VMFrameNumberOfFields;
 };
+
+pVMObject VMFrame::GetField(int32_t index) const {
+  if (index==5)
+    return _UNIVERSE->NewInteger(bytecodeIndex);
+  return VMArray::GetField(index);
+}
+
+
+int       VMFrame::GetBytecodeIndex() const {
+  return bytecodeIndex;
+}
+
+
+void      VMFrame::SetBytecodeIndex(int index) {
+  bytecodeIndex = index;
+}
 
 bool     VMFrame::IsBootstrapFrame() const {
     return !HasPreviousFrame();
