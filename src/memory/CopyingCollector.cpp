@@ -10,29 +10,20 @@
 
 #include "CopyingCollector.h"
 
+
+VMOBJECT_PTR copy_if_necessary(VMOBJECT_PTR obj) {
 #ifdef USE_TAGGING
-AbstractVMObject* copy_if_necessary(AbstractVMObject* obj) {
 	//don't process tagged objects
 	if ((int32_t)((void*)obj) & 0x1)
 		return obj;
-#else
-pVMObject copy_if_necessary(pVMObject obj) {
 #endif
 	int32_t gcField = obj->GetGCField();
 	//GCField is abused as forwarding pointer here
 	//if someone has moved before, return the moved object
 	if (gcField != 0)
-#ifdef USE_TAGGING
-		return (AbstractVMObject*)gcField;
-#else
-		return (pVMObject)gcField;
-#endif
+		return (VMOBJECT_PTR)gcField;
 	//we have to clone ourselves
-#ifdef USE_TAGGING
-	AbstractVMObject* newObj = obj->Clone();
-#else
-	pVMObject newObj = obj->Clone();
-#endif
+	VMOBJECT_PTR newObj = obj->Clone();
 	obj->SetGCField((int32_t)newObj);
 	return newObj;
 }
@@ -77,18 +68,10 @@ void CopyingCollector::Collect() {
 	}
 
 	//now copy all objects that are referenced by the objects we have moved so far
-#ifdef USE_TAGGING
-	AbstractVMObject* curObject = (AbstractVMObject*)(_HEAP->currentBuffer);
-#else
-	pVMObject curObject = (pVMObject)(_HEAP->currentBuffer);
-#endif
+	VMOBJECT_PTR curObject = (VMOBJECT_PTR)(_HEAP->currentBuffer);
 	while (curObject < _HEAP->nextFreePosition) {
 		curObject->WalkObjects(copy_if_necessary);
-#ifdef USE_TAGGING
-		curObject = (AbstractVMObject*)((int32_t)curObject + curObject->GetObjectSize());
-#else
-		curObject = (pVMObject)((int32_t)curObject + curObject->GetObjectSize());
-#endif
+		curObject = (VMOBJECT_PTR)((int32_t)curObject + curObject->GetObjectSize());
 	}
 	//increase memory if scheduled in collection before
 	if (increaseMemory)

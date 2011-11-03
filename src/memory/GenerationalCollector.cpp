@@ -42,25 +42,25 @@ VMOBJECT_PTR mark_object(VMOBJECT_PTR obj) {
 
 VMOBJECT_PTR copy_if_necessary(VMOBJECT_PTR obj) {
 #ifdef USE_TAGGING
-	//don't process tagged objects
-	if ((int32_t)((void*)obj) & 0x1)
-		return obj;
+  //don't process tagged objects
+  if ((int32_t)((void*)obj) & 0x1)
+    return obj;
 #endif
-	int32_t gcField = obj->GetGCField();
-	//if this is an old object already, we don't have to copy
-	if (gcField & MASK_OBJECT_IS_OLD)
-		return obj;
-	//GCField is abused as forwarding pointer here
-	//if someone has moved before, return the moved object
-	if (gcField != 0)
-		return (VMOBJECT_PTR)gcField;
-	//we have to clone ourselves
-	VMOBJECT_PTR newObj = obj->Clone();
-	obj->SetGCField((int32_t)newObj);
-	newObj->SetGCField(MASK_OBJECT_IS_OLD);
-    //walk recursively
-    newObj->WalkObjects(copy_if_necessary);
-	return newObj;
+  int32_t gcField = obj->GetGCField();
+  //if this is an old object already, we don't have to copy
+  if (gcField & MASK_OBJECT_IS_OLD)
+    return obj;
+  //GCField is abused as forwarding pointer here
+  //if someone has moved before, return the moved object
+  if (gcField != 0)
+    return (VMOBJECT_PTR)gcField;
+  //we have to clone ourselves
+  VMOBJECT_PTR newObj = obj->Clone();
+  obj->SetGCField((int32_t)newObj);
+  newObj->SetGCField(MASK_OBJECT_IS_OLD);
+  //walk recursively
+  newObj->WalkObjects(copy_if_necessary);
+  return newObj;
 }
 
 void GenerationalCollector::MinorCollection() {

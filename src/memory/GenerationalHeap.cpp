@@ -45,11 +45,7 @@ AbstractVMObject* GenerationalHeap::AllocateNurseryObject(size_t size) {
 
 AbstractVMObject* GenerationalHeap::AllocateMatureObject(size_t size) {
 	size_t paddedSize = size + PAD_BYTES(size);
-#ifdef USE_TAGGING
-	AbstractVMObject* newObject = (AbstractVMObject*)malloc(paddedSize);
-#else
-	pVMObject newObject = (pVMObject)malloc(paddedSize);
-#endif
+	VMOBJECT_PTR newObject = (VMOBJECT_PTR)malloc(paddedSize);
 	if (newObject == NULL) {
 		cout << "Failed to allocate " << size << " Bytes." << endl;
 		_UNIVERSE->Quit(-1);
@@ -60,17 +56,13 @@ AbstractVMObject* GenerationalHeap::AllocateMatureObject(size_t size) {
 }
 #endif
 
-#ifdef USE_TAGGING
-void GenerationalHeap::writeBarrier_OldHolder(AbstractVMObject* holder, const AbstractVMObject*
-#else
-void GenerationalHeap::writeBarrier_OldHolder(pVMObject holder, const pVMObject
-#endif
-		referencedObject) {
-	if (isObjectInNursery(referencedObject)
-			&& ((holder->GetGCField() & MASK_SEEN_BY_WRITE_BARRIER) ==false)) {
-		oldObjsWithRefToYoungObjs->push_back((int32_t)holder);
-		holder->SetGCField(holder->GetGCField() | MASK_SEEN_BY_WRITE_BARRIER);
-	}
+void GenerationalHeap::writeBarrier_OldHolder(VMOBJECT_PTR holder, const VMOBJECT_PTR
+                                              referencedObject) {
+  if (isObjectInNursery(referencedObject)
+      && ((holder->GetGCField() & MASK_SEEN_BY_WRITE_BARRIER) ==false)) {
+    oldObjsWithRefToYoungObjs->push_back((int32_t)holder);
+    holder->SetGCField(holder->GetGCField() | MASK_SEEN_BY_WRITE_BARRIER);
+  }
 }
 
 #endif
