@@ -65,30 +65,29 @@ Interpreter::~Interpreter() {
 }
 
 
+// The following three variables are needed for caching
 int32_t bytecodeIndex;
 int32_t nextBytecodeIndex;
+pVMMethod method = NULL;
 
 void Interpreter::Start() {
+  method = _FRAME->GetMethod();
   while (true) {
     //we reached a safe collection point
     // perform collection if triggered
     if (_HEAP->isCollectionTriggered()) {
       _FRAME->SetBytecodeIndex(nextBytecodeIndex);
       _HEAP->FullGC();
+      method = _FRAME->GetMethod();
     }
 
 #ifndef CACHE_BCINDEX
     bytecodeIndex = _FRAME->GetBytecodeIndex();
 #endif
-
-    pVMMethod method = this->GetMethod();
     uint8_t bytecode = method->GetBytecode(bytecodeIndex);
-
     int bytecodeLength = Bytecode::GetBytecodeLength(bytecode);
-
     if(dumpBytecodes >1)
       Disassembler::DumpBytecode(_FRAME, method, bytecodeIndex);
-
     nextBytecodeIndex = bytecodeIndex + bytecodeLength;
 
 #ifndef CACHE_BCINDEX
@@ -149,6 +148,7 @@ void Interpreter::SetFrame( pVMFrame frame ) {
 #ifdef CACHE_BCINDEX
   nextBytecodeIndex = frame->GetBytecodeIndex();
 #endif
+  method = frame->GetMethod();
 }
 
 
@@ -199,6 +199,15 @@ void Interpreter::send( pVMSymbol signature, pVMClass receiverClass) {
 #endif
 
   if (invokable != NULL) {
+#ifdef LOG_RECEIVER_TYPES
+    StdString name = receiverClass->GetName()->GetStdString();
+    if (_UNIVERSE->callStats.find(name) == _UNIVERSE->callStats.end())
+      _UNIVERSE->callStats[name] = {0,0};
+    _UNIVERSE->callStats[name].noCalls++;
+    if (invokable->IsPrimitive())
+      _UNIVERSE->callStats[name].noPrimitiveCalls++;
+#endif
+
     (*invokable)(_FRAME);
   } else {
     //doesNotUnderstand
@@ -237,7 +246,6 @@ void Interpreter::doDup() {
 
 
 void Interpreter::doPushLocal( int bytecodeIndex ) {
-    pVMMethod method = _METHOD;
     uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
 
@@ -248,7 +256,6 @@ void Interpreter::doPushLocal( int bytecodeIndex ) {
 
 
 void Interpreter::doPushArgument( int bytecodeIndex ) {
-    pVMMethod method = _METHOD;
     uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
 
@@ -259,8 +266,6 @@ void Interpreter::doPushArgument( int bytecodeIndex ) {
 
 
 void Interpreter::doPushField( int bytecodeIndex ) {
-    pVMMethod method = _METHOD;
-
     pVMSymbol fieldName = (pVMSymbol) method->GetConstant(bytecodeIndex);
 
     pVMObject self = _SELF;
@@ -273,8 +278,6 @@ void Interpreter::doPushField( int bytecodeIndex ) {
 
 
 void Interpreter::doPushBlock( int bytecodeIndex ) {
-    pVMMethod method = _METHOD;
-
     pVMMethod blockMethod = (pVMMethod)(method->GetConstant(bytecodeIndex));
 
     int numOfArgs = blockMethod->GetNumberOfArguments();
@@ -285,15 +288,12 @@ void Interpreter::doPushBlock( int bytecodeIndex ) {
 
 
 void Interpreter::doPushConstant( int bytecodeIndex ) {
-    pVMMethod method = _METHOD;
-
     pVMObject constant = method->GetConstant(bytecodeIndex);
     _FRAME->Push(constant);
 }
 
 
 void Interpreter::doPushGlobal( int bytecodeIndex) {
-  pVMMethod method = _METHOD;
   pVMSymbol globalName = (pVMSymbol) method->GetConstant(bytecodeIndex);
   pVMObject global = _UNIVERSE->GetGlobal(globalName);
 
@@ -324,7 +324,6 @@ void Interpreter::doPop() {
 
 
 void Interpreter::doPopLocal( int bytecodeIndex ) {
-    pVMMethod method = _METHOD;
     uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
 
@@ -335,8 +334,6 @@ void Interpreter::doPopLocal( int bytecodeIndex ) {
 
 
 void Interpreter::doPopArgument( int bytecodeIndex ) {
-    pVMMethod method = _METHOD;
-
     uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
 
@@ -346,7 +343,6 @@ void Interpreter::doPopArgument( int bytecodeIndex ) {
 
 
 void Interpreter::doPopField( int bytecodeIndex ) {
-    pVMMethod method = _METHOD;
     pVMSymbol field_name = (pVMSymbol) method->GetConstant(bytecodeIndex);
 
     pVMObject self = _SELF;
@@ -358,20 +354,21 @@ void Interpreter::doPopField( int bytecodeIndex ) {
 
 
 void Interpreter::doSend( int bytecodeIndex ) {
-    pVMMethod method = _METHOD;
-    
     pVMSymbol signature = (pVMSymbol) method->GetConstant(bytecodeIndex);
 
     int numOfArgs = Signature::GetNumberOfArguments(signature);
 
     pVMObject receiver = _FRAME->GetStackElement(numOfArgs-1);
 
+#ifdef LOG_RECEIVER_TYPES
+    _UNIVERSE->receiverTypes[receiver->GetClass()->GetName()->GetStdString()]++;
+#endif
+
     this->send(signature, receiver->GetClass());
 }
 
 
 void Interpreter::doSuperSend( int bytecodeIndex ) {
-    pVMMethod method = _METHOD;
     pVMSymbol signature = (pVMSymbol) method->GetConstant(bytecodeIndex);
 
     pVMFrame ctxt = _FRAME->GetOuterContext();

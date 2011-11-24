@@ -153,6 +153,14 @@ class Universe {
 
 		Universe();
 		~Universe();
+#ifdef LOG_RECEIVER_TYPES
+    struct stat_data{
+      int32_t noCalls;
+      int32_t noPrimitiveCalls;
+    };
+    map<StdString, int> receiverTypes;
+    map<StdString, stat_data> callStats;
+#endif
 		//
 	private:
 		vector<StdString> handleArguments(int argc, char** argv);
