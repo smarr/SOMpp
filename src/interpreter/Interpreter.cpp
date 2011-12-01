@@ -63,92 +63,129 @@ Interpreter::Interpreter() {
 Interpreter::~Interpreter() {
     
 }
-
+#define PROLOGUE() {\
+  if (_HEAP->isCollectionTriggered()) {\
+    _FRAME->SetBytecodeIndex(bytecodeIndex_global);\
+    _HEAP->FullGC();\
+  }\
+  if (dumpBytecodes > 1) Disassembler::DumpBytecode(_FRAME, method, bytecodeIndex_global);\
+}
+#define DISPATCH(bc_size) {bytecodeIndex_global += bc_size; goto *loopTargets[method->GetBytecode(bytecodeIndex_global)];}
 
 // The following three variables are needed for caching
-int32_t bytecodeIndex;
-int32_t nextBytecodeIndex;
+int32_t bytecodeIndex_global;
 pVMMethod method = NULL;
 
 void Interpreter::Start() {
-  method = _FRAME->GetMethod();
-  while (true) {
-    //we reached a safe collection point
-    // perform collection if triggered
-    if (_HEAP->isCollectionTriggered()) {
-      _FRAME->SetBytecodeIndex(nextBytecodeIndex);
-      _HEAP->FullGC();
-      method = _FRAME->GetMethod();
-    }
+//initialization
+  method = this->GetMethod();
 
-#ifndef CACHE_BCINDEX
-    bytecodeIndex = _FRAME->GetBytecodeIndex();
-#endif
-    uint8_t bytecode = method->GetBytecode(bytecodeIndex);
-    int bytecodeLength = Bytecode::GetBytecodeLength(bytecode);
-    if(dumpBytecodes >1)
-      Disassembler::DumpBytecode(_FRAME, method, bytecodeIndex);
-    nextBytecodeIndex = bytecodeIndex + bytecodeLength;
+  void* loopTargets[] = {
+    &&LABEL_BC_HALT,
+    &&LABEL_BC_DUP, 
+    &&LABEL_BC_PUSH_LOCAL, 
+    &&LABEL_BC_PUSH_ARGUMENT, 
+    &&LABEL_BC_PUSH_FIELD,
+    &&LABEL_BC_PUSH_BLOCK,
+    &&LABEL_BC_PUSH_CONSTANT,
+    &&LABEL_BC_PUSH_GLOBAL,
+    &&LABEL_BC_POP,
+    &&LABEL_BC_POP_LOCAL,
+    &&LABEL_BC_POP_ARGUMENT,
+    &&LABEL_BC_POP_FIELD,
+    &&LABEL_BC_SEND,
+    &&LABEL_BC_SUPER_SEND,
+    &&LABEL_BC_RETURN_LOCAL,
+    &&LABEL_BC_RETURN_NON_LOCAL
+  };
 
-#ifndef CACHE_BCINDEX
-    _FRAME->SetBytecodeIndex(nextBytecodeIndex);
-#endif
+  goto *loopTargets[method->GetBytecode(bytecodeIndex_global)];
 
-    // Handle the current bytecode
-    switch(bytecode) {
-      case BC_HALT:             return; // handle the halt bytecode
-      case BC_DUP:              doDup(); break;
-      case BC_PUSH_LOCAL:       doPushLocal(bytecodeIndex); break;
-      case BC_PUSH_ARGUMENT:    doPushArgument(bytecodeIndex); break;
-      case BC_PUSH_FIELD:       doPushField(bytecodeIndex); break;
-      case BC_PUSH_BLOCK:       doPushBlock(bytecodeIndex); break;
-      case BC_PUSH_CONSTANT:    doPushConstant(bytecodeIndex); break;
-      case BC_PUSH_GLOBAL:      doPushGlobal(bytecodeIndex); break;
-      case BC_POP:              doPop(); break;
-      case BC_POP_LOCAL:        doPopLocal(bytecodeIndex); break;
-      case BC_POP_ARGUMENT:     doPopArgument(bytecodeIndex); break;
-      case BC_POP_FIELD:        doPopField(bytecodeIndex); break;
-#ifdef CACHE_BCINDEX
-      case BC_SEND:             _FRAME->SetBytecodeIndex(nextBytecodeIndex);
-                                doSend(bytecodeIndex);
-                                nextBytecodeIndex = _FRAME->GetBytecodeIndex();
-                                break;
-      case BC_SUPER_SEND:       _FRAME->SetBytecodeIndex(nextBytecodeIndex);
-                                doSuperSend(bytecodeIndex);
-                                nextBytecodeIndex = _FRAME->GetBytecodeIndex();
-                                break;
-#else
-      case BC_SEND:             doSend(bytecodeIndex); break;
-      case BC_SUPER_SEND:       doSuperSend(bytecodeIndex); break;
-#endif
-      case BC_RETURN_LOCAL:     doReturnLocal(); break;
-      case BC_RETURN_NON_LOCAL: doReturnNonLocal(); break;
-      default:                  _UNIVERSE->ErrorExit(
-                                    "Interpreter: Unexpected bytecode"); 
-    } // switch
-#ifdef CACHE_BCINDEX
-    bytecodeIndex = nextBytecodeIndex;
-#endif
-  } // while
+//
+// THIS IS THE former interpretation loop
+LABEL_BC_HALT:
+  PROLOGUE();
+    return; // handle the halt bytecode
+LABEL_BC_DUP: 
+    PROLOGUE();
+    doDup();
+    DISPATCH(1);
+LABEL_BC_PUSH_LOCAL:       
+    PROLOGUE();
+    doPushLocal(bytecodeIndex_global);
+    DISPATCH(3);
+LABEL_BC_PUSH_ARGUMENT:
+    PROLOGUE();
+    doPushArgument(bytecodeIndex_global);
+    DISPATCH(3);
+LABEL_BC_PUSH_FIELD:
+    PROLOGUE();
+    doPushField(bytecodeIndex_global);
+    DISPATCH(2);
+LABEL_BC_PUSH_BLOCK:
+    PROLOGUE();
+    doPushBlock(bytecodeIndex_global);
+    DISPATCH(2);
+LABEL_BC_PUSH_CONSTANT:
+    PROLOGUE();
+    doPushConstant(bytecodeIndex_global);
+    DISPATCH(2);
+LABEL_BC_PUSH_GLOBAL:
+    PROLOGUE();
+    bytecodeIndex_global += 2;
+    doPushGlobal(bytecodeIndex_global - 2);
+    goto *loopTargets[method->GetBytecode(bytecodeIndex_global)];
+LABEL_BC_POP:
+    PROLOGUE();
+    doPop();
+    DISPATCH(1);
+LABEL_BC_POP_LOCAL:
+    PROLOGUE();
+    doPopLocal(bytecodeIndex_global);
+    DISPATCH(3);
+LABEL_BC_POP_ARGUMENT:
+    PROLOGUE();
+    doPopArgument(bytecodeIndex_global);
+    DISPATCH(3);
+LABEL_BC_POP_FIELD:
+    PROLOGUE();
+    doPopField(bytecodeIndex_global);
+    DISPATCH(2);
+LABEL_BC_SEND:
+    PROLOGUE();
+    bytecodeIndex_global += 2;
+    doSend(bytecodeIndex_global - 2);
+    goto *loopTargets[method->GetBytecode(bytecodeIndex_global)];
+LABEL_BC_SUPER_SEND:       
+    PROLOGUE();
+    bytecodeIndex_global += 2;
+    doSuperSend(bytecodeIndex_global - 2);
+    goto *loopTargets[method->GetBytecode(bytecodeIndex_global)];
+LABEL_BC_RETURN_LOCAL:
+    PROLOGUE();
+    bytecodeIndex_global += 1;
+    doReturnLocal();
+    goto *loopTargets[method->GetBytecode(bytecodeIndex_global)];
+LABEL_BC_RETURN_NON_LOCAL: 
+    PROLOGUE();
+    bytecodeIndex_global += 1;
+    doReturnNonLocal();
+    goto *loopTargets[method->GetBytecode(bytecodeIndex_global)];
 }
 
 
 pVMFrame Interpreter::PushNewFrame( pVMMethod method ) {
-    _SETFRAME(_UNIVERSE->NewFrame(_FRAME, method));
+    SetFrame(_UNIVERSE->NewFrame(_FRAME, method));
     return _FRAME;
 }
 
 
 void Interpreter::SetFrame( pVMFrame frame ) {
-#ifdef CACHE_BCINDEX
   if (this->frame != NULL)
-    this->frame->SetBytecodeIndex(nextBytecodeIndex);
-#endif
-  this->frame = frame;   
-#ifdef CACHE_BCINDEX
-  nextBytecodeIndex = frame->GetBytecodeIndex();
-#endif
+    this->frame->SetBytecodeIndex(bytecodeIndex_global);
+  this->frame = frame;
   method = frame->GetMethod();
+  bytecodeIndex_global = frame->GetBytecodeIndex();
 }
 
 
@@ -207,8 +244,11 @@ void Interpreter::send( pVMSymbol signature, pVMClass receiverClass) {
     if (invokable->IsPrimitive())
       _UNIVERSE->callStats[name].noPrimitiveCalls++;
 #endif
-
+    //since an invokable is able to change/use the frame, we have to write
+    //cached values before, and read cached values after calling
+    _FRAME->SetBytecodeIndex(bytecodeIndex_global);
     (*invokable)(_FRAME);
+    bytecodeIndex_global = _FRAME->GetBytecodeIndex();
   } else {
     //doesNotUnderstand
     int numberOfArgs = Signature::GetNumberOfArguments(signature);
@@ -228,8 +268,6 @@ void Interpreter::send( pVMSymbol signature, pVMClass receiverClass) {
     //doesNotUnderstand: needs 3 slots, one for this, one for method name, one for args
     int additionalStackSlots = 3 - _FRAME->RemainingStackSize();
     if (additionalStackSlots > 0) {
-      //before creating the emergency frame, we have to update the  current frame's bcIndex which is cached
-      _FRAME->SetBytecodeIndex(nextBytecodeIndex);
       //copy current frame into a bigger one and replace the current frame
       this->SetFrame(VMFrame::EmergencyFrameFrom(_FRAME, additionalStackSlots));
     }
@@ -293,8 +331,8 @@ void Interpreter::doPushConstant( int bytecodeIndex ) {
 }
 
 
-void Interpreter::doPushGlobal( int bytecodeIndex) {
-  pVMSymbol globalName = (pVMSymbol) method->GetConstant(bytecodeIndex);
+void Interpreter::doPushGlobal( int bcIdx) {
+  pVMSymbol globalName = (pVMSymbol) method->GetConstant(bcIdx);
   pVMObject global = _UNIVERSE->GetGlobal(globalName);
 
   if(global != NULL)
@@ -307,12 +345,12 @@ void Interpreter::doPushGlobal( int bytecodeIndex) {
     //unknowGlobal: needs 2 slots, one for "this" and one for the argument
     int additionalStackSlots = 2 - _FRAME->RemainingStackSize();       
     if (additionalStackSlots > 0) {
-      //before creating the emergency frame, we have to update the  current frame's bcIndex which is cached
-      _FRAME->SetBytecodeIndex(nextBytecodeIndex);
+      _FRAME->SetBytecodeIndex(bytecodeIndex_global);
       //copy current frame into a bigger one and replace the current frame
       this->SetFrame(VMFrame::EmergencyFrameFrom(_FRAME,
                                                  additionalStackSlots));
     }
+
     self->Send(uG, arguments, 1);
   }
 }

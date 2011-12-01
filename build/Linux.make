@@ -27,7 +27,7 @@
 # THE SOFTWARE.
 
 CC			=g++
-CFLAGS		=-Wno-endif-labels -O3 $(DBG_FLAGS) $(FEATURE_FLAGS) $(INCLUDES)
+CFLAGS		=-Wno-endif-labels -O3 -fno-gcse $(DBG_FLAGS) $(FEATURE_FLAGS) $(INCLUDES)
 LDFLAGS		=$(DBG_FLAGS) -ltcmalloc -lrt $(LIBRARIES)
 
 INSTALL		=install
