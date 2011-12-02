@@ -41,7 +41,10 @@ class VMInteger;
 class MethodGenerationContext;
 class VMFrame;
 
+class Interpreter;
+
 class VMMethod :  public VMInvokable {
+  friend class Interpreter;
 
 public:
 	VMMethod(int bcCount, int numberOfConstants, int nof = 0);
@@ -55,7 +58,7 @@ public:
     virtual int       GetNumberOfBytecodes() const;
     virtual void      SetHolderAll(pVMClass hld); 
     virtual pVMObject GetConstant(int indx) const;
-    virtual uint8_t   GetBytecode(int indx) const; 
+    virtual uint8_t   GetBytecode(int indx) const;
     virtual void      SetBytecode(int indx, uint8_t);
 #ifdef USE_TAGGING
 	virtual void	  WalkObjects(AbstractVMObject* (AbstractVMObject*));
@@ -92,6 +95,7 @@ public:
 
 
 private:
+    uint8_t* GetBytecodes() const;
     pVMObject   GetIndexableField(int idx) const;
 
     pVMInteger numberOfLocals;

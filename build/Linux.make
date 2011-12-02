@@ -27,7 +27,7 @@
 # THE SOFTWARE.
 
 CC			=g++
-CFLAGS		=-Wno-endif-labels -O3 -fno-gcse $(DBG_FLAGS) $(FEATURE_FLAGS) $(INCLUDES)
+CFLAGS		=-Wno-endif-labels -O3 $(DBG_FLAGS) $(FEATURE_FLAGS) $(INCLUDES)
 LDFLAGS		=$(DBG_FLAGS) -ltcmalloc -lrt $(LIBRARIES)
 
 INSTALL		=install
@@ -134,7 +134,6 @@ CLEAN			= $(OBJECTS) \
 TAGGING=false
 GC_TYPE=generational
 CACHE_INTEGER=true
-CACHE_BCINDEX=true
 
 #
 # set feature flags 
@@ -144,9 +143,6 @@ FEATURE_FLAGS+=-DUSE_TAGGING
 endif
 ifeq ($(CACHE_INTEGER),true)
 FEATURE_FLAGS+=-DCACHE_INTEGER
-endif
-ifeq ($(CACHE_BCINDEX),true)
-FEATURE_FLAGS+=-DCACHE_BCINDEX
 endif
 ifeq ($(GC_TYPE),copying)
 FEATURE_FLAGS+=-DGC_TYPE=COPYING
@@ -196,6 +192,8 @@ $(CSOM_NAME): $(CSOM_NAME).$(SHARED_EXTENSION) $(MAIN_OBJ)
 	@echo CSOM done.
 
 $(CSOM_NAME).$(SHARED_EXTENSION): $(CSOM_OBJ)
+	@echo "Recompile interpreter/Interpreter.cpp with -fno-gcse option (we're using computed gotos)"
+	$(CC) $(CFLAGS) -fno-gcse -c $(INTERPRETER_DIR)/Interpreter.cpp -o $(INTERPRETER_DIR)/Interpreter.o
 	@echo Linking $(CSOM_NAME) Dynamic Library
 	$(CC) $(LDFLAGS) -shared \
 		-o $(CSOM_NAME).$(SHARED_EXTENSION) $(CSOM_OBJ) $(CSOM_LIBS)

@@ -74,6 +74,10 @@ VMMethod::VMMethod(int bcCount, int numberOfConstants, int nof)
     }
 }
 
+uint8_t* VMMethod::GetBytecodes() const {
+  return (uint8_t*)(&FIELDS[GetNumberOfFields() + GetNumberOfIndexableFields()]);
+}
+
 #ifdef USE_TAGGING
 VMMethod* VMMethod::Clone() const {
 #if GC_TYPE==GENERATIONAL

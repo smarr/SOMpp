@@ -66,12 +66,12 @@ Interpreter::~Interpreter() {
 
 
 #define PROLOGUE(bc_count) {\
-  if (dumpBytecodes > 1) Disassembler::DumpBytecode(_FRAME, method, bytecodeIndex_global);\
+  if (dumpBytecodes > 1) Disassembler::DumpBytecode(_FRAME, _FRAME->GetMethod(), bytecodeIndex_global);\
   bytecodeIndex_global += bc_count;\
 }
 
 #define DISPATCH_NOGC() {\
-  goto *loopTargets[method->GetBytecode(bytecodeIndex_global)];\
+  goto *loopTargets[current_bytecodes[bytecodeIndex_global]];\
 }
 
 #define DISPATCH_GC() {\
@@ -79,16 +79,18 @@ Interpreter::~Interpreter() {
     _FRAME->SetBytecodeIndex(bytecodeIndex_global);\
     _HEAP->FullGC();\
   }\
-  goto *loopTargets[method->GetBytecode(bytecodeIndex_global)];\
+  goto *loopTargets[current_bytecodes[bytecodeIndex_global]];\
 }
 
 // The following three variables are needed for caching
 int32_t bytecodeIndex_global;
-pVMMethod method = NULL;
+pVMMethod method;
+uint8_t* current_bytecodes;
 
 void Interpreter::Start() {
 //initialization
-  method = this->GetMethod();
+  method = GetMethod();
+  current_bytecodes = GetMethod()->GetBytecodes(); 
 
   void* loopTargets[] = {
     &&LABEL_BC_HALT,
@@ -109,7 +111,7 @@ void Interpreter::Start() {
     &&LABEL_BC_RETURN_NON_LOCAL
   };
 
-  goto *loopTargets[method->GetBytecode(bytecodeIndex_global)];
+  goto *loopTargets[current_bytecodes[bytecodeIndex_global]];
 
 //
 // THIS IS THE former interpretation loop
@@ -189,6 +191,7 @@ void Interpreter::SetFrame( pVMFrame frame ) {
     this->frame->SetBytecodeIndex(bytecodeIndex_global);
   this->frame = frame;
   method = frame->GetMethod();
+  current_bytecodes = method->GetBytecodes();
   bytecodeIndex_global = frame->GetBytecodeIndex();
 }
 
