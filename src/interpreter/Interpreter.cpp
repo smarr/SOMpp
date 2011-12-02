@@ -63,14 +63,24 @@ Interpreter::Interpreter() {
 Interpreter::~Interpreter() {
     
 }
-#define PROLOGUE() {\
+
+
+#define PROLOGUE(bc_count) {\
+  if (dumpBytecodes > 1) Disassembler::DumpBytecode(_FRAME, method, bytecodeIndex_global);\
+  bytecodeIndex_global += bc_count;\
+}
+
+#define DISPATCH_NOGC() {\
+  goto *loopTargets[method->GetBytecode(bytecodeIndex_global)];\
+}
+
+#define DISPATCH_GC() {\
   if (_HEAP->isCollectionTriggered()) {\
     _FRAME->SetBytecodeIndex(bytecodeIndex_global);\
     _HEAP->FullGC();\
   }\
-  if (dumpBytecodes > 1) Disassembler::DumpBytecode(_FRAME, method, bytecodeIndex_global);\
+  goto *loopTargets[method->GetBytecode(bytecodeIndex_global)];\
 }
-#define DISPATCH(bc_size) {bytecodeIndex_global += bc_size; goto *loopTargets[method->GetBytecode(bytecodeIndex_global)];}
 
 // The following three variables are needed for caching
 int32_t bytecodeIndex_global;
@@ -104,73 +114,67 @@ void Interpreter::Start() {
 //
 // THIS IS THE former interpretation loop
 LABEL_BC_HALT:
-  PROLOGUE();
-    return; // handle the halt bytecode
+  return; // handle the halt bytecode
 LABEL_BC_DUP: 
-    PROLOGUE();
-    doDup();
-    DISPATCH(1);
+  PROLOGUE(1);
+  doDup();
+  DISPATCH_NOGC();
 LABEL_BC_PUSH_LOCAL:       
-    PROLOGUE();
-    doPushLocal(bytecodeIndex_global);
-    DISPATCH(3);
+  PROLOGUE(3);
+  doPushLocal(bytecodeIndex_global - 3);
+  DISPATCH_NOGC();
 LABEL_BC_PUSH_ARGUMENT:
-    PROLOGUE();
-    doPushArgument(bytecodeIndex_global);
-    DISPATCH(3);
+  PROLOGUE(3);
+  doPushArgument(bytecodeIndex_global - 3);
+  DISPATCH_NOGC();
 LABEL_BC_PUSH_FIELD:
-    PROLOGUE();
-    doPushField(bytecodeIndex_global);
-    DISPATCH(2);
+  PROLOGUE(2);
+  doPushField(bytecodeIndex_global - 2);
+  DISPATCH_NOGC();
 LABEL_BC_PUSH_BLOCK:
-    PROLOGUE();
-    doPushBlock(bytecodeIndex_global);
-    DISPATCH(2);
+  PROLOGUE(2);
+  doPushBlock(bytecodeIndex_global - 2);
+  DISPATCH_GC();
 LABEL_BC_PUSH_CONSTANT:
-    PROLOGUE();
-    doPushConstant(bytecodeIndex_global);
-    DISPATCH(2);
+  PROLOGUE(2);
+  doPushConstant(bytecodeIndex_global - 2);
+  DISPATCH_NOGC();
 LABEL_BC_PUSH_GLOBAL:
-    PROLOGUE();
-    bytecodeIndex_global += 2;
-    doPushGlobal(bytecodeIndex_global - 2);
-    goto *loopTargets[method->GetBytecode(bytecodeIndex_global)];
+  PROLOGUE(2);
+  doPushGlobal(bytecodeIndex_global - 2);
+  DISPATCH_GC();
 LABEL_BC_POP:
-    PROLOGUE();
-    doPop();
-    DISPATCH(1);
+  PROLOGUE(1);
+  doPop();
+  DISPATCH_NOGC();
 LABEL_BC_POP_LOCAL:
-    PROLOGUE();
-    doPopLocal(bytecodeIndex_global);
-    DISPATCH(3);
+  PROLOGUE(3);
+  doPopLocal(bytecodeIndex_global - 3);
+  DISPATCH_NOGC();
 LABEL_BC_POP_ARGUMENT:
-    PROLOGUE();
-    doPopArgument(bytecodeIndex_global);
-    DISPATCH(3);
+  PROLOGUE(3);
+  doPopArgument(bytecodeIndex_global - 3);
+  DISPATCH_NOGC();
 LABEL_BC_POP_FIELD:
-    PROLOGUE();
-    doPopField(bytecodeIndex_global);
-    DISPATCH(2);
+  PROLOGUE(2);
+  doPopField(bytecodeIndex_global - 2);
+  DISPATCH_NOGC();
 LABEL_BC_SEND:
-    PROLOGUE();
-    bytecodeIndex_global += 2;
-    doSend(bytecodeIndex_global - 2);
-    goto *loopTargets[method->GetBytecode(bytecodeIndex_global)];
+  PROLOGUE(2);
+  doSend(bytecodeIndex_global - 2);
+  DISPATCH_GC();
 LABEL_BC_SUPER_SEND:       
-    PROLOGUE();
-    bytecodeIndex_global += 2;
-    doSuperSend(bytecodeIndex_global - 2);
-    goto *loopTargets[method->GetBytecode(bytecodeIndex_global)];
+  PROLOGUE(2);
+  doSuperSend(bytecodeIndex_global - 2);
+  DISPATCH_GC();
 LABEL_BC_RETURN_LOCAL:
-    PROLOGUE();
-    bytecodeIndex_global += 1;
-    doReturnLocal();
-    goto *loopTargets[method->GetBytecode(bytecodeIndex_global)];
+  PROLOGUE(1);
+  doReturnLocal();
+  DISPATCH_NOGC();
 LABEL_BC_RETURN_NON_LOCAL: 
-    PROLOGUE();
-    bytecodeIndex_global += 1;
-    doReturnNonLocal();
-    goto *loopTargets[method->GetBytecode(bytecodeIndex_global)];
+  PROLOGUE(1);
+  doReturnNonLocal();
+  DISPATCH_NOGC();
 }
 
 
