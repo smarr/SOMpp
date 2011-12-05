@@ -78,6 +78,8 @@ Interpreter::~Interpreter() {
   if (_HEAP->isCollectionTriggered()) {\
     _FRAME->SetBytecodeIndex(bytecodeIndex_global);\
     _HEAP->FullGC();\
+    method = GetMethod();\
+    current_bytecodes = GetMethod()->GetBytecodes(); \
   }\
   goto *loopTargets[current_bytecodes[bytecodeIndex_global]];\
 }
