@@ -246,13 +246,13 @@ pVMArray VMMethod::CopyAndExtendWith(pVMObject item) const {
 
 
 pVMObject VMMethod::GetIndexableField(int idx) const {
-    if (idx > this->GetNumberOfIndexableFields()-1 || idx < 0) {
-        cout << "Array index out of bounds: Accessing " << idx
-             << ", but only " << GetNumberOfIndexableFields()-1
-             << " entries are available\n";
-        _UNIVERSE->ErrorExit("Array index out of bounds exception");
-    }
-	return GetField(this->GetNumberOfFields()+idx);
+  if ((uint32_t)idx > this->GetNumberOfIndexableFields()-1) {
+    cout << "Array index out of bounds: Accessing " << idx
+        << ", but only " << GetNumberOfIndexableFields()-1
+        << " entries are available\n";
+    _UNIVERSE->ErrorExit("Array index out of bounds exception");
+  }
+  return GetField(this->GetNumberOfFields()+idx);
 }
 
 
@@ -263,7 +263,7 @@ void VMMethod::CopyIndexableFieldsTo(pVMArray to) const {
 }
 
 void VMMethod::SetIndexableField(int idx, pVMObject item) {
-    if (idx > this->GetNumberOfIndexableFields()-1 || idx < 0) {
+    if ((uint32_t)idx > this->GetNumberOfIndexableFields()-1) {
         cout << "Array index out of bounds: Accessing " << idx 
              << ", but there is only space for " 
              << this->GetNumberOfIndexableFields() 
@@ -271,16 +271,5 @@ void VMMethod::SetIndexableField(int idx, pVMObject item) {
         _UNIVERSE->ErrorExit("Array index out of bounds exception");
     }
 	SetField(this->GetNumberOfFields()+idx, item);
-}
-
-
-int VMMethod::GetNumberOfIndexableFields() const {
-    //cannot be done using GetAdditionalSpaceConsumption,
-    //as bytecodes need space, too, and there might be padding
-#ifdef USE_TAGGING
-    return (int32_t)this->numberOfConstants;
-#else
-    return this->numberOfConstants->GetEmbeddedInteger();
-#endif
 }
 

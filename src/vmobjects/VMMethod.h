@@ -31,6 +31,7 @@ THE SOFTWARE.
 #include <iostream>
 
 #include "VMInvokable.h"
+#include "VMInteger.h"
 #ifdef USE_TAGGING
 #include "VMIntPointer.h"
 #endif
@@ -46,66 +47,76 @@ class Interpreter;
 class VMMethod :  public VMInvokable {
   friend class Interpreter;
 
-public:
-	VMMethod(int bcCount, int numberOfConstants, int nof = 0);
-   
-    virtual int       GetNumberOfLocals() const;
-    virtual void      SetNumberOfLocals(int nol);
-    virtual int       GetMaximumNumberOfStackElements() const;
-    virtual void      SetMaximumNumberOfStackElements(int stel);
-    virtual int       GetNumberOfArguments() const;
-    virtual void      SetNumberOfArguments(int);
-    virtual int       GetNumberOfBytecodes() const;
-    virtual void      SetHolderAll(pVMClass hld); 
-    virtual pVMObject GetConstant(int indx) const;
-    virtual uint8_t   GetBytecode(int indx) const;
-    virtual void      SetBytecode(int indx, uint8_t);
+ public:
+  VMMethod(int bcCount, int numberOfConstants, int nof = 0);
+
+  int       GetNumberOfLocals() const;
+  void      SetNumberOfLocals(int nol);
+  int       GetMaximumNumberOfStackElements() const;
+  void      SetMaximumNumberOfStackElements(int stel);
+  int       GetNumberOfArguments() const;
+  void      SetNumberOfArguments(int);
+  int       GetNumberOfBytecodes() const;
+  void      SetHolderAll(pVMClass hld); 
+  pVMObject GetConstant(int indx) const;
+  uint8_t   GetBytecode(int indx) const;
+  void      SetBytecode(int indx, uint8_t);
 #ifdef USE_TAGGING
-	virtual void	  WalkObjects(AbstractVMObject* (AbstractVMObject*));
+  virtual void	  WalkObjects(AbstractVMObject* (AbstractVMObject*));
 #else
-	virtual void	  WalkObjects(pVMObject (pVMObject));
+  virtual void	  WalkObjects(pVMObject (pVMObject));
 #endif
-    virtual int       GetNumberOfIndexableFields() const;
+  inline int       GetNumberOfIndexableFields() const;
 #ifdef USE_TAGGING
-    virtual VMMethod* Clone() const;
+  virtual VMMethod* Clone() const;
 #else
-    virtual pVMMethod Clone() const;
+  virtual pVMMethod Clone() const;
 #endif
 
-    void              SetIndexableField(int idx, pVMObject item);
+  void              SetIndexableField(int idx, pVMObject item);
 
-    //VMArray Methods....
-    
-	
-	pVMArray    CopyAndExtendWith(pVMObject) const;
-	void        CopyIndexableFieldsTo(pVMArray) const;
-
-    /// Methods are considered byte arrays with meta data.
-    // So the index operator returns the bytecode at the index.
-    // Not really used because it violates the C++ idiom to
-    // implement operators in a "natural" way. Does not really
-    // seem so natural to do this.
-    uint8_t& operator[](int indx) const;
-
-    //-----------VMInvokable-------------//
-    //operator "()" to invoke the method
-    virtual void	  operator()(pVMFrame frame);
-
-	virtual void      SetSignature(pVMSymbol sig);
+  //VMArray Methods....
 
 
-private:
-    uint8_t* GetBytecodes() const;
-    pVMObject   GetIndexableField(int idx) const;
+  pVMArray    CopyAndExtendWith(pVMObject) const;
+  void        CopyIndexableFieldsTo(pVMArray) const;
 
-    pVMInteger numberOfLocals;
-    pVMInteger maximumNumberOfStackElements;
-    pVMInteger bcLength;
-    pVMInteger numberOfArguments;
-    pVMInteger numberOfConstants;
+  /// Methods are considered byte arrays with meta data.
+  // So the index operator returns the bytecode at the index.
+  // Not really used because it violates the C++ idiom to
+  // implement operators in a "natural" way. Does not really
+  // seem so natural to do this.
+  uint8_t& operator[](int indx) const;
 
-    static const int VMMethodNumberOfFields;
+  //-----------VMInvokable-------------//
+  //operator "()" to invoke the method
+  virtual void	  operator()(pVMFrame frame);
+
+  void      SetSignature(pVMSymbol sig);
+
+
+ private:
+  uint8_t* GetBytecodes() const;
+  pVMObject   GetIndexableField(int idx) const;
+
+  pVMInteger numberOfLocals;
+  pVMInteger maximumNumberOfStackElements;
+  pVMInteger bcLength;
+  pVMInteger numberOfArguments;
+  pVMInteger numberOfConstants;
+
+  static const int VMMethodNumberOfFields;
 };
+
+int VMMethod::GetNumberOfIndexableFields() const {
+    //cannot be done using GetAdditionalSpaceConsumption,
+    //as bytecodes need space, too, and there might be padding
+#ifdef USE_TAGGING
+    return (int32_t)this->numberOfConstants;
+#else
+    return this->numberOfConstants->GetEmbeddedInteger();
+#endif
+}
 
 
 #endif

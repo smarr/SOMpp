@@ -49,7 +49,7 @@ VMArray::VMArray(int size, int nof) : VMObject(nof + VMArrayNumberOfFields) {
 }
 
 pVMObject VMArray::GetIndexableField(int32_t idx) const {
-    if (idx > GetNumberOfIndexableFields()-1 || idx < 0) {
+    if ((uint32_t)idx > GetNumberOfIndexableFields()-1) {
         cout << "Array index out of bounds: Accessing " << idx 
              << ", but array size is only " << GetNumberOfIndexableFields()-1 
              << endl;
@@ -59,7 +59,7 @@ pVMObject VMArray::GetIndexableField(int32_t idx) const {
 }
 
 void VMArray::SetIndexableField(int32_t idx, pVMObject value) {
-    if (idx > GetNumberOfIndexableFields()-1 || idx < 0) {
+    if ((uint32_t)idx > GetNumberOfIndexableFields()-1) {
         cout << "Array index out of bounds: Accessing " << idx 
              << ", but array size is only " << GetNumberOfIndexableFields()-1 
              << endl;
