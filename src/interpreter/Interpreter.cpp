@@ -192,6 +192,7 @@ void Interpreter::SetFrame( pVMFrame frame ) {
   if (this->frame != NULL)
     this->frame->SetBytecodeIndex(bytecodeIndex_global);
   this->frame = frame;
+  //update cached values
   method = frame->GetMethod();
   current_bytecodes = method->GetBytecodes();
   bytecodeIndex_global = frame->GetBytecodeIndex();
