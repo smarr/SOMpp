@@ -35,6 +35,7 @@ THE SOFTWARE.
 #include "VMObject.h"
 
 class VMInteger;
+class VMInvokable;
 
 class VMSymbol : public VMString {
 
@@ -50,22 +51,42 @@ public:
 #endif
 	virtual pVMClass GetClass() const;
 private:
-	const VMClass* cachedClass;
+	const VMClass* cachedClass_index;
+	const VMClass* cachedClass_invokable[3];
 	int32_t cachedIndex;
+  int32_t nextCachePos;
+  pVMInvokable cachedInvokable[3];
 	inline int32_t GetCachedIndex(const VMClass*) const;
+  inline pVMInvokable GetCachedInvokable(const VMClass*) const;
 	inline void UpdateCachedIndex(const VMClass*, int32_t);
+	inline void UpdateCachedInvokable(const VMClass*, VMInvokable* invo);
 	friend class VMClass;
 };
 
+pVMInvokable VMSymbol::GetCachedInvokable(const VMClass* cls) const {
+	if (cls == cachedClass_invokable[0])
+		return cachedInvokable[0];
+  else if (cls == cachedClass_invokable[1])
+		return cachedInvokable[1];
+  else if (cls == cachedClass_invokable[2])
+		return cachedInvokable[2];
+	return NULL;
+}
+
 int32_t VMSymbol::GetCachedIndex(const VMClass* cls) const {
-	if (cls == cachedClass)
+	if (cls == cachedClass_index)
 		return cachedIndex;
 	return -1;
 }
 
 void VMSymbol::UpdateCachedIndex(const VMClass* cls, int32_t idx) {
 	cachedIndex = idx;
-	cachedClass = cls;
+	cachedClass_index = cls;
+}
+void VMSymbol::UpdateCachedInvokable(const VMClass* cls, VMInvokable* invo) {
+  cachedInvokable[nextCachePos] = invo;
+	cachedClass_invokable[nextCachePos] = cls;
+  nextCachePos = (nextCachePos + 1) % 3;
 }
 
 

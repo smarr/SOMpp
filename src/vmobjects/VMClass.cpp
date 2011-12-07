@@ -196,32 +196,38 @@ pVMObject VMClass::GetInstanceInvokable(int index) const {
 
 
 void      VMClass::SetInstanceInvokable(int index, pVMObject invokable) {
-	instanceInvokables->SetIndexableField(index, invokable);
-    if (invokable != nilObject) {
+  instanceInvokables->SetIndexableField(index, invokable);
+  if (invokable != nilObject) {
 #ifdef USE_TAGGING
-        pVMInvokable inv = DynamicConvert<VMInvokable, VMObject>( invokable );
+    pVMInvokable inv = DynamicConvert<VMInvokable, VMObject>( invokable );
 #else
-        pVMInvokable inv = dynamic_cast<pVMInvokable>( invokable );
+    pVMInvokable inv = dynamic_cast<pVMInvokable>( invokable );
 #endif
-        inv->SetHolder(this);
-    }
+    inv->SetHolder(this);
+  }
 }
 
 
 pVMObject VMClass::LookupInvokable(pVMSymbol name) const {
-    pVMInvokable invokable = NULL;
-	int32_t noInstanceInvokables = GetNumberOfInstanceInvokables();
-    for (int i = 0; i < noInstanceInvokables; ++i) {
-        invokable = (pVMInvokable)(GetInstanceInvokable(i));
-        if (invokable->GetSignature() == name) 
-            return (pVMObject)(invokable);
+  //pVMInvokable invokable = NULL;
+  pVMInvokable invokable = name->GetCachedInvokable(this);
+  if (invokable != NULL)
+    return invokable;
+  int32_t noInstanceInvokables = GetNumberOfInstanceInvokables();
+  for (int i = 0; i < noInstanceInvokables; ++i) {
+    invokable = (pVMInvokable)(GetInstanceInvokable(i));
+    if (invokable->GetSignature() == name) {
+      name->UpdateCachedInvokable(this, invokable);
+      return (pVMObject)(invokable);
     }
-    invokable = NULL;
-    //look in super class
-    if (this->HasSuperClass())  {
-        invokable = (pVMInvokable)(this->superClass->LookupInvokable(name));
-    }
-	return (pVMObject)(invokable);
+  }
+  invokable = NULL;
+  //look in super class
+  if (this->HasSuperClass())  {
+    invokable = (pVMInvokable)(this->superClass->LookupInvokable(name));
+  }
+  name->UpdateCachedInvokable(this, invokable);
+  return (pVMObject)(invokable);
 }
 
 

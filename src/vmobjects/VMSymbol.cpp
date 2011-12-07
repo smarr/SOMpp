@@ -36,8 +36,12 @@ extern pVMClass symbolClass;
 
 
 VMSymbol::VMSymbol(const char* str){
+  nextCachePos = 0;
 	//set the chars-pointer to point at the position of the first character
-    chars = (char*)&chars+sizeof(char*) + sizeof(int32_t) + sizeof(pVMClass);
+    chars = (char*)&chars+sizeof(char*) 
+        + 2 * sizeof(int32_t) 
+        + 4 * sizeof(pVMClass) 
+        + 3 * sizeof(pVMInvokable);
     size_t i = 0;
 	for (; i < strlen(str); ++i) {
 		chars[i] = str[i];
