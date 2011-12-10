@@ -2,76 +2,38 @@
 #ifndef VMFRAME_H_
 #define VMFRAME_H_
 
-/*
- *
- *
-Copyright (c) 2007 Michael Haupt, Tobias Pape, Arne Bergmann
-Software Architecture Group, Hasso Plattner Institute, Potsdam, Germany
-http://www.hpi.uni-potsdam.de/swa/
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-  */
-
-
-
-#include "VMArray.h"
-#ifdef USE_TAGGING
+#include "VMObject.h"
 #include "VMIntPointer.h"
-#endif
-class VMMethod;
-class VMObject;
-class VMInteger;
 
-
-class VMFrame : public VMArray {
-public:
-    static pVMFrame EmergencyFrameFrom(pVMFrame from, int extraLength);
-
-    VMFrame(int size, int nof = 0);
-    
-    inline pVMFrame   GetPreviousFrame() const;
-    inline void       SetPreviousFrame(pVMObject);
-    inline void       ClearPreviousFrame();
-    bool       HasPreviousFrame() const;
-    inline bool       IsBootstrapFrame() const;
-    inline pVMFrame   GetContext() const;
-    inline void       SetContext(pVMFrame);
-    bool       HasContext() const;
-    pVMFrame   GetContextLevel(int);
-    pVMFrame   GetOuterContext();
-    inline pVMMethod  GetMethod() const;
-    void       SetMethod(pVMMethod);
-    pVMObject  Pop();
-    void       Push(pVMObject);
-    void       ResetStackPointer();
-    inline int        GetBytecodeIndex() const;
-    inline void       SetBytecodeIndex(int);
-    pVMObject  GetStackElement(int) const;
-    void       SetStackElement(int, pVMObject);
-    pVMObject  GetLocal(int, int);
-    void       SetLocal(int, int, pVMObject);
-    pVMObject GetArgument(int, int);
-    void       SetArgument(int, int, pVMObject);
-    void       PrintStackTrace() const;
-    int        ArgumentStackIndex(int index) const;
-    void       CopyArgumentsFrom(pVMFrame frame);
-	  inline virtual pVMObject GetField(int index) const;
+class VMFrame : public VMObject {
+ public:
+  VMFrame(pVMMethod); 
+  void       SetLocal(int, int, pVMObject);
+  void       SetArgument(int, int, pVMObject);
+  void       SetMethod(pVMMethod);
+  inline void       SetPreviousFrame(pVMObject);
+  void       ResetStackPointer();
+  inline bool HasPreviousFrame() const;
+  void       PrintStackTrace() const;
+  void Push(pVMObject);
+  pVMObject  GetStackElement(int) const;
+  void       CopyArgumentsFrom(pVMFrame frame);
+  inline void SetContext(pVMFrame);
+  pVMObject  GetLocal(int, int);
+  pVMObject GetArgument(int, int);
+  pVMFrame   GetOuterContext();
+  inline int32_t GetStackPointer() const;
+  inline pVMMethod  GetMethod() const;
+  pVMObject  Pop();
+  inline void       SetBytecodeIndex(int);
+  inline int        GetBytecodeIndex() const;
+  inline pVMFrame   GetPreviousFrame() const;
+  inline void       ClearPreviousFrame();
+  int        RemainingStackSize() const;
+  inline pVMFrame   GetContext() const;
+  bool       HasContext() const;
+  static pVMFrame EmergencyFrameFrom(pVMFrame from, int extraLength);
+  void       SetStackElement(int, pVMObject);
 #ifdef USE_TAGGING
     virtual VMFrame*   Clone() const;
 		virtual void WalkObjects(AbstractVMObject* (AbstractVMObject*));
@@ -79,72 +41,28 @@ public:
 		virtual void WalkObjects(pVMObject (pVMObject));
     virtual pVMFrame   Clone() const;
 #endif
-    
-    void       PrintStack() const;
-    inline int32_t GetStackPointer() const;
-    int        RemainingStackSize() const;
-private:
-    pVMFrame   previousFrame;
-    pVMFrame   context;
-    pVMMethod  method;
-    pVMInteger stackPointer;
-    int32_t    bytecodeIndex;
-    pVMInteger localOffset;
-
-    static const int VMFrameNumberOfFields;
+ private:
+  int32_t bytecodeIndex;
+  pVMInteger stackPointer;
+  pVMMethod method;
+  pVMFrame previousFrame;
+  pVMFrame context;
+  pVMObject* arguments;
+  pVMObject* locals;
+  pVMObject* stackElements;
+  static const int VMFrameNumberOfFields;
 };
 
-pVMObject VMFrame::GetField(int32_t index) const {
-  if (index==5)
-    return _UNIVERSE->NewInteger(bytecodeIndex);
-  return VMArray::GetField(index);
-}
-
-
-int       VMFrame::GetBytecodeIndex() const {
-  return bytecodeIndex;
-}
-
-
-void      VMFrame::SetBytecodeIndex(int index) {
-  bytecodeIndex = index;
-}
-
-bool     VMFrame::IsBootstrapFrame() const {
-    return !HasPreviousFrame();
+pVMMethod VMFrame::GetMethod() const {
+  return method;
 }
 
 pVMFrame VMFrame::GetContext() const {
     return this->context;
 }
 
-void     VMFrame::SetContext(pVMFrame frm) {
-    this->context = frm;
-#if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, frm);
-#endif
-}
-
-int32_t VMFrame::GetStackPointer() const {
-#ifdef USE_TAGGING
-  return (int32_t)stackPointer;
-#else
-    return stackPointer->GetEmbeddedInteger();
-#endif
-}
-
-
-
-pVMFrame VMFrame::GetPreviousFrame() const {
-    return (pVMFrame) this->previousFrame;
-}
-
-
-void     VMFrame::SetPreviousFrame(pVMObject frm) {
-    this->previousFrame = (pVMFrame)frm;
-#if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, frm);
-#endif
+void VMFrame::SetBytecodeIndex(int32_t bcIndex) {
+  bytecodeIndex = bcIndex;
 }
 
 void     VMFrame::ClearPreviousFrame() {
@@ -154,7 +72,34 @@ void     VMFrame::ClearPreviousFrame() {
 #endif
 }
 
-pVMMethod VMFrame::GetMethod() const {
-    return this->method;
+pVMFrame VMFrame::GetPreviousFrame() const {
+  return previousFrame;
 }
+
+int32_t VMFrame::GetBytecodeIndex() const {
+  return bytecodeIndex;
+}
+
+int32_t VMFrame::GetStackPointer() const {
+  return stackPointer->GetEmbeddedInteger();
+}
+
+bool     VMFrame::HasPreviousFrame() const {
+  return this->previousFrame != nilObject;
+}
+
+void     VMFrame::SetPreviousFrame(pVMObject frm) {
+    this->previousFrame = (pVMFrame)frm;
+#if GC_TYPE==GENERATIONAL
+    _HEAP->writeBarrier(this, frm);
+#endif
+}
+
+void     VMFrame::SetContext(pVMFrame frm) {
+    this->context = frm;
+#if GC_TYPE==GENERATIONAL
+    _HEAP->writeBarrier(this, frm);
+#endif
+}
+
 #endif

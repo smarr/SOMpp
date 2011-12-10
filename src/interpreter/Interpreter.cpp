@@ -34,6 +34,7 @@ THE SOFTWARE.
 #include "../vmobjects/VMClass.h"
 #include "../vmobjects/VMObject.h"
 #include "../vmobjects/VMSymbol.h"
+#include "../vmobjects/VMArray.h"
 #include "../vmobjects/VMInvokable.h"
 #include "../vmobjects/Signature.h"
 #ifdef USE_TAGGING

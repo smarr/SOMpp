@@ -659,7 +659,7 @@ pVMFrame Universe::NewFrame( pVMFrame previousFrame, pVMMethod method) const {
                  method->GetMaximumNumberOfStackElements(); 
    
     int additionalBytes = length * sizeof(pVMObject);
-    pVMFrame result = new (_HEAP, additionalBytes) VMFrame(length);
+    pVMFrame result = new (_HEAP, additionalBytes) VMFrame(method);
     result->SetClass(frameClass);
 
     result->SetMethod(method);
