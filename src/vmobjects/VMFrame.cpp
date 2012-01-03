@@ -53,16 +53,24 @@ pVMFrame VMFrame::EmergencyFrameFrom( pVMFrame from, int extraLength ) {
   result->SetPreviousFrame(from->GetPreviousFrame());
   result->SetMethod(method);
   result->SetContext(from->GetContext());
-  
+#ifdef USE_TAGGING
+  result->stack_ptr = (pVMObject*)SHIFTED_PTR(result.GetPointer(), (int32_t)from->stack_ptr - (int32_t)from.GetPointer());
+#else
   result->stack_ptr = (pVMObject*)SHIFTED_PTR(result, (int32_t)from->stack_ptr - (int32_t)from);
+#endif
   result->bytecodeIndex = from->bytecodeIndex;
 //result->arguments is set in VMFrame constructor
   result->locals = result->arguments + result->method->GetNumberOfArguments();
 
   //all other fields are indexable via arguments
   // --> until end of Frame
+#ifdef USE_TAGGING
+  pVMObject* from_end = (pVMObject*) SHIFTED_PTR(from.GetPointer(), from->GetObjectSize());
+  pVMObject* result_end = (pVMObject*) SHIFTED_PTR(result.GetPointer(), result->GetObjectSize());
+#else
   pVMObject* from_end = (pVMObject*) SHIFTED_PTR(from, from->GetObjectSize());
   pVMObject* result_end = (pVMObject*) SHIFTED_PTR(result, result->GetObjectSize());
+#endif
 
   int32_t i = 0;
   //copy all fields from other frame
