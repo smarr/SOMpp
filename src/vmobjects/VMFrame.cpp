@@ -117,7 +117,7 @@ pVMFrame VMFrame::Clone() const {
 const int VMFrame::VMFrameNumberOfFields = 7; 
 
 VMFrame::VMFrame(int size, int nof) :
-		VMArray(size, nof + VMFrameNumberOfFields),
+		VMObject(nof + VMFrameNumberOfFields),
 		previousFrame((pVMFrame)nilObject), context((pVMFrame)nilObject),
 		method((pVMMethod)nilObject) {
 #ifdef USE_TAGGING
@@ -128,6 +128,19 @@ VMFrame::VMFrame(int size, int nof) :
   arguments = (pVMObject*)&(stack_ptr)+1;
   locals = arguments;
   stack_ptr = locals;
+
+  //initilize all other fields
+  // --> until end of Frame
+  pVMObject* end = (pVMObject*) SHIFTED_PTR(this, objectSize);
+  int32_t i = 0;
+  while (arguments + i < end) {
+      arguments[i] = nilObject;
+    i++;
+  }
+#if GC_TYPE==GENERATIONAL
+	_HEAP->writeBarrier(this, nilObject);
+#endif
+
 }
 
 

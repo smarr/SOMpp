@@ -39,7 +39,7 @@ class VMObject;
 class VMInteger;
 
 
-class VMFrame : public VMArray {
+class VMFrame : public VMObject {
 public:
     static pVMFrame EmergencyFrameFrom(pVMFrame from, int extraLength);
 
@@ -98,7 +98,7 @@ private:
 pVMObject VMFrame::GetField(int32_t index) const {
   if (index==4)
     return _UNIVERSE->NewInteger(bytecodeIndex);
-  return VMArray::GetField(index);
+  return VMObject::GetField(index);
 }
 
 bool     VMFrame::HasContext() const {
