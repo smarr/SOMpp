@@ -38,28 +38,49 @@ THE SOFTWARE.
 //be necessary, as these cases are not taken into account when the stack
 //depth is calculated. In that case this method is called.
 pVMFrame VMFrame::EmergencyFrameFrom( pVMFrame from, int extraLength ) {
-  int length = from->GetNumberOfIndexableFields() + extraLength;
+  pVMMethod method = from->GetMethod();
+  int length = method->GetNumberOfArguments()
+      + method->GetNumberOfLocals()
+      + method->GetMaximumNumberOfStackElements()
+      + extraLength;
+
   int additionalBytes = length * sizeof(pVMObject);
   pVMFrame result = new (_HEAP, additionalBytes) VMFrame(length);
 
   result->SetClass(from->GetClass());
-  //copy arguments, locals and the stack
-  from->CopyIndexableFieldsTo(result);
 
   //set Frame members
   result->SetPreviousFrame(from->GetPreviousFrame());
-  result->SetMethod(from->GetMethod());
+  result->SetMethod(method);
   result->SetContext(from->GetContext());
   
   result->stack_ptr = (pVMObject*)SHIFTED_PTR(result, (int32_t)from->stack_ptr - (int32_t)from);
-
   result->bytecodeIndex = from->bytecodeIndex;
-  
 //result->arguments is set in VMFrame constructor
   result->locals = result->arguments + result->method->GetNumberOfArguments();
 
-#if GC_TYPE==GENETATIONAL
-  _HEAP->writeBarrier(result, result->bytecodeIndex);
+  //all other fields are indexable via arguments
+  // --> until end of Frame
+  pVMObject* from_end = (pVMObject*) SHIFTED_PTR(from, from->GetObjectSize());
+  pVMObject* result_end = (pVMObject*) SHIFTED_PTR(result, result->GetObjectSize());
+
+  int32_t i = 0;
+  //copy all fields from other frame
+  while (from->arguments + i < from_end) {
+      result->arguments[i] = from->arguments[i];
+#if GC_TYPE==GENERATIONAL
+      _HEAP->writeBarrier(result, from->arguments[i]);
+#endif
+    i++;
+  }
+  //initialize others with nilObject
+  while (result->arguments + i < result_end) {
+    result->arguments[i] = nilObject;
+    i++;
+  }
+
+#if GC_TYPE==GENERATIONAL
+  _HEAP->writeBarrier(result, nilObject); //for extra fields
 #endif
   return result;
 }
@@ -87,7 +108,7 @@ pVMFrame VMFrame::Clone() const {
 	const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
 	size_t noBytes = GetObjectSize() - sizeof(VMFrame);
 	memcpy(destination, source, noBytes);
-  clone->arguments = (pVMObject*)&(clone->stack_ptr)+1;
+  clone->arguments = (pVMObject*)&(clone->stack_ptr)+1;//field after stack_ptr
   clone->locals = clone->arguments + clone->method->GetNumberOfArguments();
   clone->stack_ptr = (pVMObject*)SHIFTED_PTR(clone, (int32_t)stack_ptr - (int32_t)this);
 	return clone;
@@ -117,13 +138,6 @@ void      VMFrame::SetMethod(pVMMethod method) {
 #endif
 }
 
-bool     VMFrame::HasPreviousFrame() const {
-    return this->previousFrame != nilObject;
-}
-
-bool     VMFrame::HasContext() const {
-    return this->context !=  nilObject; 
-}
 
 
 pVMFrame VMFrame::GetContextLevel(int lvl) {
@@ -155,12 +169,15 @@ void VMFrame::WalkObjects(pVMObject (*walk)(pVMObject)) {
   context = (VMFrame*)walk(context);
   method = (VMMethod*)walk(method);
 
-	int32_t noIndexableFields = GetNumberOfIndexableFields();
-    for (int32_t i = 0; i < noIndexableFields; i++) {
-		pVMObject field = GetIndexableField(i);
-	    if (field != NULL)
-		    SetIndexableField(i, walk(field));
-	}
+  //all other fields are indexable via arguments array
+  // --> until end of Frame
+  pVMObject* end = (pVMObject*) SHIFTED_PTR(this, objectSize);
+  int32_t i = 0;
+  while (arguments + i < end) {
+    if (arguments[i] != NULL)
+      arguments[i] = walk(arguments[i]);
+    i++;
+  }
 }
 
 
@@ -168,23 +185,20 @@ void VMFrame::WalkObjects(pVMObject (*walk)(pVMObject)) {
 int VMFrame::RemainingStackSize() const {
     // - 1 because the stack pointer points at the top entry,
     // so the next entry would be put at stackPointer+1
-    int32_t res2 = ((int32_t)this+objectSize - int32_t(stack_ptr))/ sizeof(pVMObject);
-    res2-= 1;
-           return res2;
+    int32_t size = ((int32_t)this+objectSize - int32_t(stack_ptr))/ sizeof(pVMObject);
+    return size - 1;
 }
 
 pVMObject VMFrame::Pop() {
-    stack_ptr--;
-    return *(stack_ptr+1);
+  return *stack_ptr--;
 }
 
 
 void      VMFrame::Push(pVMObject obj) {
-    stack_ptr++;
 #if GC_TYPE==GENERATIONAL
     _HEAP->writeBarrier(this, obj);
 #endif
-    *stack_ptr = obj;
+    *(++stack_ptr) = obj;
 }
 
 
@@ -194,33 +208,35 @@ void VMFrame::PrintStack() const {
 #else
     cout << "SP: " << this->GetStackPointer() << endl;
 #endif
-    for (int i = 0; i < this->GetNumberOfIndexableFields()+1; ++i) {
-        pVMObject vmo = this->GetIndexableField(i);
-        cout << i << ": ";
-        if (vmo == NULL) 
-            cout << "NULL" << endl;
-        if (vmo == nilObject) 
-            cout << "NIL_OBJECT" << endl;
-        if (vmo->GetClass() == NULL) 
-            cout << "VMObject with Class == NULL" << endl;
-        if (vmo->GetClass() == nilObject) 
-            cout << "VMObject with Class == NIL_OBJECT" << endl;
-        else 
-            cout << "index: " << i << " object:" 
-                 << vmo->GetClass()->GetName()->GetChars() << endl;
-    }
+  //all other fields are indexable via arguments array
+  // --> until end of Frame
+  pVMObject* end = (pVMObject*) SHIFTED_PTR(this, objectSize);
+  int32_t i = 0;
+  while (arguments + i < end) {
+    pVMObject vmo = arguments[i];
+    cout << i << ": ";
+    if (vmo == NULL) 
+      cout << "NULL" << endl;
+    if (vmo == nilObject) 
+      cout << "NIL_OBJECT" << endl;
+    if (vmo->GetClass() == NULL) 
+      cout << "VMObject with Class == NULL" << endl;
+    if (vmo->GetClass() == nilObject) 
+      cout << "VMObject with Class == NIL_OBJECT" << endl;
+    else 
+      cout << "index: " << i << " object:" 
+          << vmo->GetClass()->GetName()->GetChars() << endl;
+    i++;
+  }
 }
 
 
 void      VMFrame::ResetStackPointer() {
     // arguments are stored in front of local variables
     pVMMethod meth = this->GetMethod();
-    size_t lo = meth->GetNumberOfArguments();
-    locals = arguments + lo;
-  
+    locals = arguments + meth->GetNumberOfArguments();
     // Set the stack pointer to its initial value thereby clearing the stack
-    size_t numLocals = meth->GetNumberOfLocals();
-    stack_ptr = locals + numLocals - 1;
+    stack_ptr = locals + meth->GetNumberOfLocals() - 1;
 }
 
 
@@ -280,8 +296,7 @@ void      VMFrame::CopyArgumentsFrom(pVMFrame frame) {
     // copy arguments from frame:
     // - arguments are at the top of the stack of frame.
     // - copy them into the argument area of the current frame
-    pVMMethod meth = this->GetMethod();
-    int num_args = meth->GetNumberOfArguments();
+    int num_args = GetMethod()->GetNumberOfArguments();
     for(int i=0; i < num_args; ++i) {
         pVMObject stackElem = frame->GetStackElement(num_args - 1 - i);
         SetArgument(i, 0, stackElem);

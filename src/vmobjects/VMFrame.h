@@ -48,11 +48,11 @@ public:
     inline pVMFrame   GetPreviousFrame() const;
     inline void       SetPreviousFrame(pVMObject);
     inline void       ClearPreviousFrame();
-    bool       HasPreviousFrame() const;
+    inline bool       HasPreviousFrame() const;
     inline bool       IsBootstrapFrame() const;
     inline pVMFrame   GetContext() const;
     inline void       SetContext(pVMFrame);
-    bool       HasContext() const;
+    inline bool       HasContext() const;
     pVMFrame   GetContextLevel(int);
     pVMFrame   GetOuterContext();
     inline pVMMethod  GetMethod() const;
@@ -101,11 +101,17 @@ pVMObject VMFrame::GetField(int32_t index) const {
   return VMArray::GetField(index);
 }
 
+bool     VMFrame::HasContext() const {
+    return this->context !=  nilObject; 
+}
+
+bool     VMFrame::HasPreviousFrame() const {
+    return this->previousFrame != nilObject;
+}
 
 int       VMFrame::GetBytecodeIndex() const {
   return bytecodeIndex;
 }
-
 
 void      VMFrame::SetBytecodeIndex(int index) {
   bytecodeIndex = index;
