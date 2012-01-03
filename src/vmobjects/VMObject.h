@@ -128,6 +128,7 @@ protected:
 	//through FIELDS-macro instead of the member above.
 	//So clazz == FIELDS[0]
 	pVMClass clazz;
+private:
 	static const int VMObjectNumberOfFields;
 };
 
