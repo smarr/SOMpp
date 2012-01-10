@@ -281,7 +281,7 @@ void      VMFrame::SetLocal(int index, int contextLevel, pVMObject value) {
     pVMFrame context = this->GetContextLevel(contextLevel);
     context->locals[index] = value;
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, value);
+    _HEAP->writeBarrier(context, value);
 #endif
 }
 
@@ -296,9 +296,9 @@ pVMObject VMFrame::GetArgument(int index, int contextLevel) {
 
 void      VMFrame::SetArgument(int index, int contextLevel, pVMObject value) {
     pVMFrame context = this->GetContextLevel(contextLevel);
-    arguments[index] = value;
+    context->arguments[index] = value;
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, value);
+    _HEAP->writeBarrier(context, value);
 #endif
 }
 
