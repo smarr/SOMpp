@@ -4,3 +4,10 @@ syntax: glob
 *~
 *.o
 *.so
+*.pyc
+*.swp
+bin/*
+CORE
+SOM++
+*.csp
+unittest
