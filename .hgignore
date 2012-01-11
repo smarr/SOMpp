@@ -6,8 +6,9 @@ syntax: glob
 *.so
 *.pyc
 *.swp
-bin/*
+bin
 CORE
 SOM++
 *.csp
 unittest
+benchmark_results

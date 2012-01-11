@@ -9,7 +9,6 @@ regex_gc_time = re.compile("\[(\d+.\d+)\]", re.MULTILINE)
 
 class Benchmark(object):
     def __init__(self, directory, benchmark, iterations):
-        print directory
         self.directory = directory
         self.benchmark = benchmark
         self.iterations = iterations
@@ -17,11 +16,17 @@ class Benchmark(object):
     def get_name(self):
         return self.benchmark[self.benchmark.rfind("/")+1 : self.benchmark.find(".")]
 
+    def calc_avg_times(self):
+        return (sum(self.times) / len(self.times),
+                0.0,
+                sum(self.gc_times) / len(self.gc_times),
+                0.0)
+
     def run(self):
         try:
             exe = "%s/SOM++ -cp %s/Smalltalk " % (self.directory, self.directory)
             cl = exe + " " + self.benchmark
-            print "Executuing: ", self.get_name(),
+            print self.get_name(),
             sys.stdout.flush()
             self.times = []
             self.gc_times = []
@@ -32,7 +37,7 @@ class Benchmark(object):
                     bufsize=2048,stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                     env={"LD_LIBRARY_PATH" : self.directory})
                 data=proc.communicate()[0]
-                self.times.append(time.time() - start_time)
+                self.times.append((time.time() - start_time) * 1000)
                 gc_res = regex_gc_time.search(data)
                 self.gc_times.append(float(gc_res.groups(0)[0]))
                 sys.stdout.write(".")
@@ -42,4 +47,9 @@ class Benchmark(object):
             raise Exception("Error when executing benchmark: " + cl)
 
     def get_csv(self):
-        return self.get_name()+ ", " + ", ".join([str(t) for t in self.times])
+        time_strings = [str(self.times[i]) +", "+str(self.gc_times[i]) for i in
+                xrange(self.iterations)]
+        avgs = self.calc_avg_times()
+        s = "%s, %f, %f, %f, %f, " % (self.get_name(), avgs[0], avgs[1],
+                avgs[2], avgs[3])
+        return s + ", ".join(time_strings)
