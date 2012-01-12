@@ -3,9 +3,11 @@ import sys
 import time
 import subprocess
 import re
+import math
 
 regex_bm_time = re.compile(r"\{(\D*)(\d+)\s+\}", re.MULTILINE)
 regex_gc_time = re.compile("\[(\d+.\d+)\]", re.MULTILINE)
+Z=1.96
 
 class Benchmark(object):
     def __init__(self, directory, benchmark, iterations):
@@ -17,10 +19,17 @@ class Benchmark(object):
         return self.benchmark[self.benchmark.rfind("/")+1 : self.benchmark.find(".")]
 
     def calc_avg_times(self):
-        return (sum(self.times) / len(self.times),
-                0.0,
-                sum(self.gc_times) / len(self.gc_times),
-                0.0)
+        avg = sum(self.times) / len(self.times)
+        gc_avg = sum(self.times) / len(self.times)
+        std_dev = math.sqrt((sum((x-avg)**2 for x in self.times))/len(self.times))
+        conf_int = Z * (std_dev / math.sqrt(self.iterations))
+        gc_std_dev = math.sqrt((sum((x-avg)**2 for x in
+            self.gc_times))/len(self.gc_times))
+        gc_conf_int = Z * (gc_std_dev / math.sqrt(self.iterations))
+        return (avg,
+                conf_int,
+                gc_avg,
+                gc_conf_int)
 
     def run(self):
         try:

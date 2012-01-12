@@ -20,7 +20,7 @@ def merge(columns, files):
     #now merge
     res = []
     #generate new header
-    header = ["name"]
+    header = ["#name"]
     for i in xrange(len(files)):
         for col in columns:
             f_name = files[i]
@@ -40,7 +40,7 @@ def merge(columns, files):
 
 
 if __name__ == "__main__":
-    print merge((1,3),
+    print merge((1,2,3,4),
             [   base_path+"/benchmark_results/generational_nocache_noTagging_som.csv",
                 base_path+"/benchmark_results/generational_nocache_tagging_som.csv",
                 base_path+"/benchmark_results/copying_nocache_noTagging_som.csv",
