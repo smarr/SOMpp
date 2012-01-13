@@ -9,10 +9,9 @@ set ylabel "Average execution time (ms)"
 set style data histograms  #plot histogram style
 set style fill solid 1.00 border 0 #fill bars
 set style histogram errorbars gap 2 lw 1
-plot 'benchmark_results/som_benchmarks.csv' \
-	using 2:3:xtic(1) ti "SOM++ generational", \
-	'' using 6:7 ti "SOM++ generational (tagging)", \
-	'' using 10:11 ti "SOM++ copying", \
-	'' using 14:15 ti "SOM++ copying (tagging)", \
-	'' using 18:19 ti "SOM++ mark-sweep", \
-	'' using 22:23 ti "SOM++ mark-sweep (tagging)"
+plot "benchmark_results/generational_nocache_noTagging_som.csv" using 2:3:xtic(1) ti "SOM++ generational", \
+     "benchmark_results/generational_nocache_tagging_som.csv" using 2:3 ti "SOM++ generational (tagging)", \
+     "benchmark_results/copying_nocache_noTagging_som.csv" using 2:3 ti "SOM++ copying", \
+     "benchmark_results/copying_nocache_tagging_som.csv" using 2:3 ti "SOM++ copying (tagging)", \
+     "benchmark_results/mark_sweep_nocache_noTagging_som.csv" using 2:3 ti "SOM++ mark-sweep", \
+     "benchmark_results/mark_sweep_nocache_tagging_som.csv" using 2:3 ti "SOM++ mark-sweep (tagging)"
