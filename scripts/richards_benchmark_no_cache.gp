@@ -1,8 +1,5 @@
-reset
-#set term pdf font ",5" 
-#set output "richards_benchmarks.pdf"
 set terminal postscript eps enhanced solid color
-set output "richards_benchmark.eps"
+set output "richards_benchmark_no_cache.eps"
 set title "Richards Benchmark"
 set datafile separator "," #csv is comma separated
 set yrange [0:]      #plot starting from 0

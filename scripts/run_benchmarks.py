@@ -19,14 +19,17 @@ VMS = [
 "/bin/generational_nocache_noTagging",
 "/bin/generational_nocache_tagging",
 "/bin/generational_cache_noTagging",
+"/bin/generational_cache_tagging",
 "/bin/copying_badcache_noTagging",
 "/bin/copying_nocache_noTagging",
 "/bin/copying_nocache_tagging",
 "/bin/copying_cache_noTagging",
+"/bin/copying_cache_tagging",
 "/bin/mark_sweep_badcache_noTagging",
 "/bin/mark_sweep_nocache_noTagging",
 "/bin/mark_sweep_nocache_tagging",
-"/bin/mark_sweep_cache_noTagging"]
+"/bin/mark_sweep_cache_noTagging",
+"/bin/mark_sweep_cache_tagging"]
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
