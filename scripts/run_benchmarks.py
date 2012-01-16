@@ -79,6 +79,7 @@ if __name__ == "__main__":
         Benchmark(p, "Examples/Benchmarks/All.som", 1).run()
         os.rename("integer_histogram.csv", base_path +
                 "/benchmark_results/integer_histogram_som.csv")
+        Benchmark(p, "Examples/Benchmarks/Fibonacci.som", 1).run()
         os.rename("receiver_types.csv", base_path +
                 "/benchmark_results/receiver_types_som.csv")
         os.rename("send_types.csv", base_path +
