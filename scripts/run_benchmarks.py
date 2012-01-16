@@ -2,6 +2,7 @@
 import os
 import sys
 
+from Benchmark import Benchmark
 from BenchmarkRunner import BenchmarkRunner
 import os.path
 
@@ -71,5 +72,26 @@ if __name__ == "__main__":
             csv_file = open(out_path + vm_name + "_gcbench.csv","w")
             csv_file.write(runner.get_csv())
             csv_file.close()
+
+    if "H" in arguments:
+        #SOM Benchmarks
+        p = base_path + "/bin/cppsom_statistics"
+        Benchmark(p, "Examples/Benchmarks/All.som", 1).run()
+        os.rename("integer_histogram.csv", base_path +
+                "/benchmark_results/integer_histogram_som.csv")
+        os.rename("receiver_types.csv", base_path +
+                "/benchmark_results/receiver_types_som.csv")
+        os.rename("send_types.csv", base_path +
+                "/benchmark_results/send_types_som.csv")
+
+        #Richards Benchmark
+        Benchmark(p, "Examples/Benchmarks/Richards/RichardsBenchmarks.som", 1).run()
+        os.rename("integer_histogram.csv", base_path +
+                "/benchmark_results/integer_histogram_richards.csv")
+        os.rename("receiver_types.csv", base_path +
+                "/benchmark_results/receiver_types_richards.csv")
+        os.rename("send_types.csv", base_path +
+                "/benchmark_results/send_types_richards.csv")
+
 
 

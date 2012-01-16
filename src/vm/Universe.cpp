@@ -126,31 +126,21 @@ void Universe::Start(int argc, char** argv) {
 void Universe::Quit(int err) {
   cout << "Time spent in GC: [" << Timer::GCTimer->GetTotalTime() << "] msec" << endl;
 #ifdef GENERATE_INTEGER_HISTOGRAM
-  fstream hist("integer.hist", ios::out);
-  fstream hist_csv("integet_hist.csv", ios::out);
-  hist << "xlabel=integer value" << endl;
-  hist << "ylabel=number of created objects" << endl;
-  hist << "logscaley=10" << endl;
+  fstream hist_csv("integer_histogram.csv", ios::out);
 
   for (map<int, long>::iterator it = integerHist.begin(); it != integerHist.end(); it++) {
     hist_csv << it->first << ", " << it->second << endl;
-    hist << it->first * INT_HIST_SIZE << "-" << (it->first +1) * INT_HIST_SIZE - 1 << " " << it->second << endl;
   }
 #endif
 
 #ifdef LOG_RECEIVER_TYPES
-  fstream receivers("receiver_types", ios::out);
-  receivers << "xlabel=receiver class" << endl;
-  receivers << "ylabel=number of sends" << endl;
+  fstream receivers("receiver_types.csv", ios::out);
   for (map<StdString, int>::iterator it = theUniverse->receiverTypes.begin(); it != theUniverse->receiverTypes.end(); it++)
-    receivers << it->first << " " << it->second << endl;
+    receivers << it->first << ",  " << it->second << endl;
 
-  fstream send_stat("send_types", ios::out);
-  send_stat << "xlabel=receiver class" << endl;
-  send_stat << "ylabel=percentage sends implemented by primitives" << endl;
-  send_stat << "yformat=%g" << endl;
+  fstream send_stat("send_types.csv", ios::out);
   for (map<StdString, Universe::stat_data>::iterator it = theUniverse->callStats.begin(); it != theUniverse->callStats.end(); it++)
-    send_stat << it->first << " " << setiosflags(ios::fixed) << setprecision(2) << (double)(it->second.noPrimitiveCalls) / (double)(it->second.noCalls) << endl;
+    send_stat << it->first << ", " << setiosflags(ios::fixed) << setprecision(2) << (double)(it->second.noPrimitiveCalls) / (double)(it->second.noCalls) << endl;
 #endif
   if (theUniverse) delete(theUniverse);
   exit(err);

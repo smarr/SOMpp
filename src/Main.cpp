@@ -60,9 +60,10 @@ int main(int argc, char** argv) {
 #endif
 
 #ifdef CACHE_INTEGER
-    cout << "\tcaching integers" << endl;
+    cout << "\tcaching integers from " << INT_CACHE_MIN_VALUE
+        << " to " << INT_CACHE_MAX_VALUE << endl;
 #else
-    cout << "\tnot pooling integers" << endl;
+    cout << "\tnot caching integers" << endl;
 #endif
 
     cout << "--------------------------------------" << endl;

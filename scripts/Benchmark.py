@@ -54,6 +54,10 @@ class Benchmark(object):
             print ""
         except OSError:
             raise Exception("Error when executing benchmark: " + cl)
+        except AttributeError:
+            raise Exception("Unable to parse benchmark results! Result was:\n"
+                    + data)
+
 
     def get_csv(self):
         time_strings = [str(self.times[i]) +", "+str(self.gc_times[i]) for i in

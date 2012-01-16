@@ -6,6 +6,7 @@ syntax: glob
 *.so
 *.pyc
 *.swp
+*.eps
 bin
 CORE
 SOM++
