@@ -12,15 +12,9 @@ set offset 0,2,0,0
 
 set title "Clusters of stacked histograms"
 
-plot newhistogram "Machine A" lt 1, \
-     'stack+cluster.dat' index 0 u 2:xtic(1) title "col 2", \
-     '' index 0 u 3 title "col 3", \
-     '' index 0 u 4 title "col 4", \
-     '' index 0 u 5 title "col 5", \
-     '' index 0 u 6 title "col 6", \
-     newhistogram "Machine B" lt 1, \
-     'stack+cluster.dat' index 1 u 2:xtic(1) notitle, \
-     '' index 1 u 3 notitle, \
-     '' index 1 u 4 notitle, \
-     '' index 1 u 5 notitle, \
-     '' index 1 u 6 notitle
+plot newhistogram "generational+cache" lt 1, \
+       'benchmark_results/generational_cache_noTagging_richards.csv' using 2:xtic(1) title "interpretation time", \
+       '' using 4 title "gc time", \
+     newhistogram "generational+cache+tagging" lt 1, \
+       'benchmark_results/generational_cache_tagging_richards.csv' using 2:xtic(1), \
+       '' using 4

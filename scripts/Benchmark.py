@@ -20,7 +20,7 @@ class Benchmark(object):
 
     def calc_avg_times(self):
         avg = sum(self.times) / len(self.times)
-        gc_avg = sum(self.times) / len(self.times)
+        gc_avg = sum(self.gc_times) / len(self.gc_times)
         std_dev = math.sqrt((sum((x-avg)**2 for x in self.times))/len(self.times))
         conf_int = Z * (std_dev / math.sqrt(self.iterations))
         gc_std_dev = math.sqrt((sum((x-avg)**2 for x in

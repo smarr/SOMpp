@@ -141,7 +141,7 @@ LOG_RECEIVER_TYPES=false
 #
 # set feature flags 
 #
-ifeq ($(TAGGING),true)
+ifeq ($(USE_TAGGING),true)
   FEATURE_FLAGS+=-DUSE_TAGGING
 endif
 ifeq ($(CACHE_INTEGER),true)
