@@ -61,6 +61,8 @@ class VMMethod :  public VMInvokable {
   pVMObject GetConstant(int indx) const;
   uint8_t   GetBytecode(int indx) const;
   void      SetBytecode(int indx, uint8_t);
+  inline void      SetCachedFrame(pVMFrame frame); 
+  inline pVMFrame  GetCachedFrame() const;
 #ifdef USE_TAGGING
   virtual void	  WalkObjects(AbstractVMObject* (AbstractVMObject*));
 #else
@@ -104,10 +106,21 @@ class VMMethod :  public VMInvokable {
   pVMInteger bcLength;
   pVMInteger numberOfArguments;
   pVMInteger numberOfConstants;
+  pVMFrame   cachedFrame;
 
   static const int VMMethodNumberOfFields;
 };
 
+pVMFrame VMMethod::GetCachedFrame() const {
+  return cachedFrame;
+}
+
+void VMMethod::SetCachedFrame(pVMFrame frame) {
+  cachedFrame = frame;
+#if GC_TYPE == GENERATIONAL
+  _HEAP->writeBarrier((AbstractVMObject*)this, (AbstractVMObject*)cachedFrame);
+#endif
+}
 int VMMethod::GetNumberOfIndexableFields() const {
     //cannot be done using GetAdditionalSpaceConsumption,
     //as bytecodes need space, too, and there might be padding

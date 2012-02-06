@@ -222,6 +222,9 @@ pVMFrame Interpreter::popFrame() {
 
     result->ClearPreviousFrame();
 
+    //remember this frame as free frame
+    result->GetMethod()->SetCachedFrame(result);
+
     return result;
 }
 
