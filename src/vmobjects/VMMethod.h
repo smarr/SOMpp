@@ -118,7 +118,11 @@ pVMFrame VMMethod::GetCachedFrame() const {
 void VMMethod::SetCachedFrame(pVMFrame frame) {
   cachedFrame = frame;
 #if GC_TYPE == GENERATIONAL
+#ifdef USE_TAGGING
+  _HEAP->writeBarrier((AbstractVMObject*)this, (AbstractVMObject*)cachedFrame.GetPointer());
+#else
   _HEAP->writeBarrier((AbstractVMObject*)this, (AbstractVMObject*)cachedFrame);
+#endif
 #endif
 }
 int VMMethod::GetNumberOfIndexableFields() const {
