@@ -1,5 +1,5 @@
 set terminal postscript eps enhanced solid color
-set output "receiver_types_fibonacci.eps"
+set output "receiver_types_som.eps"
 set title "Receiver types (Fibonacci Benchmarks)"
 set xtics rotate by -90    #rotate labels
 set datafile separator "," #csv is comma separated
