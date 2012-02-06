@@ -80,6 +80,7 @@ if __name__ == "__main__":
         runner = BenchmarkRunner(base_path + "/bin/cppsom_statistics", 1)
         for bm_name in SOM_BENCHMARKS:
             runner.add_benchmark("Examples/Benchmarks/"+bm_name)
+        runner.add_benchmark("Examples/Benchmarks/All.som")
         runner.run_benchmarks()
 
         #SOM Benchmarks

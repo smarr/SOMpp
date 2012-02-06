@@ -7,5 +7,5 @@ set ylabel "Number of Integers created"
 set logscale x
 set logscale y
 set yrange [1:]
-plot "benchmark_results/integer_histogram_som.csv" using ($1 < 1 ? 1/0 : $1):2 ti "positive" with points, \
+plot "benchmark_results/All_integer_histogram.csv" using ($1 < 1 ? 1/0 : $1):2 ti "positive" with points, \
      "" using (-$1):2 ti "negative" with points

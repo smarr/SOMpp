@@ -7,4 +7,4 @@ set ylabel "Number of Integers created"
 set logscale x
 set logscale y
 set yrange [1:]
-plot "benchmark_results/integer_histogram_richards.csv" using 1:2 ti "positive" with points
+plot "benchmark_results/RichardsBenchmarks_integer_histogram.csv" using 1:2 ti "positive" with points

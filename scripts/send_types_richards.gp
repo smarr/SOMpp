@@ -7,4 +7,4 @@ set style fill solid 1.00 border 0 #fill bars
 set boxwidth 0.6
 set ylabel "percentage"
 #set logscale y
-plot "benchmark_results/send_types_richards.csv" using 2:xtic(1) ti "sends implemented by primitives" with boxes
+plot "benchmark_results/RichardsBenchmarks_send_types.csv" using 2:xtic(1) ti "sends implemented by primitives" with boxes

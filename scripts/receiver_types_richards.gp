@@ -7,4 +7,4 @@ set style fill solid 1.00 border 0 #fill bars
 set boxwidth 0.6
 set ylabel "Number of sends"
 #set logscale y
-plot "benchmark_results/receiver_types_richards.csv" using 2:xtic(1) ti "number of sends" with boxes
+plot "benchmark_results/RichardsBenchmarks_receivers.csv" using 2:xtic(1) ti "number of sends" with boxes
