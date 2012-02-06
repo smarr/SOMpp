@@ -1,6 +1,8 @@
 #! /usr/bin/python
 import os
 import sys
+from os import listdir
+from os import rename
 
 from Benchmark import Benchmark
 from BenchmarkRunner import BenchmarkRunner
@@ -34,7 +36,7 @@ VMS = [
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        arguments = "SRG"
+        arguments = "SRGH"
     else:
         arguments = sys.argv[1]
 
@@ -75,24 +77,19 @@ if __name__ == "__main__":
 
     if "H" in arguments:
         #SOM Benchmarks
-        p = base_path + "/bin/cppsom_statistics"
-        Benchmark(p, "Examples/Benchmarks/All.som", 1).run()
-        os.rename("integer_histogram.csv", base_path +
-                "/benchmark_results/integer_histogram_som.csv")
-        Benchmark(p, "Examples/Benchmarks/Fibonacci.som", 1).run()
-        os.rename("receiver_types.csv", base_path +
-                "/benchmark_results/receiver_types_som.csv")
-        os.rename("send_types.csv", base_path +
-                "/benchmark_results/send_types_som.csv")
+        runner = BenchmarkRunner(base_path + "/bin/cppsom_statistics", 1)
+        for bm_name in SOM_BENCHMARKS:
+            runner.add_benchmark("Examples/Benchmarks/"+bm_name)
+        runner.run_benchmarks()
 
-        #Richards Benchmark
-        Benchmark(p, "Examples/Benchmarks/Richards/RichardsBenchmarks.som", 1).run()
-        os.rename("integer_histogram.csv", base_path +
-                "/benchmark_results/integer_histogram_richards.csv")
-        os.rename("receiver_types.csv", base_path +
-                "/benchmark_results/receiver_types_richards.csv")
-        os.rename("send_types.csv", base_path +
-                "/benchmark_results/send_types_richards.csv")
+        #SOM Benchmarks
+        runner = BenchmarkRunner(base_path + "/bin/cppsom_statistics", 1)
+        runner.add_benchmark("Examples/Benchmarks/Richards/RichardsBenchmarks.som")
+        runner.run_benchmarks()
 
+        #now copy all generated csv files
+        csv_files=[s for s in listdir("./") if s.endswith(".csv")]
+        for f in csv_files:
+            rename(f, out_path+f)
 
 
