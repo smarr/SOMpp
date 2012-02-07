@@ -45,10 +45,20 @@ THE SOFTWARE.
 #define FIELDS ((pVMObject*)&clazz)
 #define _BC ((uint8_t*)&FIELDS[this->GetNumberOfFields() + this->GetNumberOfIndexableFields()])
 
-const int VMMethod::VMMethodNumberOfFields = 5; 
+#ifdef UNSAFE_FRAME_OPTIMIZATION
+const int VMMethod::VMMethodNumberOfFields = 6;
+#else
+const int VMMethod::VMMethodNumberOfFields = 5;
+#endif
 
-VMMethod::VMMethod(int bcCount, int numberOfConstants, int nof) 
-                    : VMInvokable(nof + VMMethodNumberOfFields) {
+VMMethod::VMMethod(int bcCount, int numberOfConstants, int nof)
+  : VMInvokable(nof + VMMethodNumberOfFields) {
+#ifdef UNSAFE_FRAME_OPTIMIZATION
+    cachedFrame = (pVMFrame)nilObject;
+#if GC_TYPE==GENERATIONAL
+    _HEAP->writeBarrier(this, nilObject);
+#endif
+#endif
 #ifdef USE_TAGGING
     bcLength = bcCount ;
     numberOfLocals = 0;
@@ -70,9 +80,9 @@ VMMethod::VMMethod(int bcCount, int numberOfConstants, int nof)
     _HEAP->writeBarrier(this, this->numberOfConstants);
 #endif
     for (int i = 0; i < numberOfConstants ; ++i) {
-        this->SetIndexableField(i, nilObject);
+      this->SetIndexableField(i, nilObject);
     }
-}
+  }
 
 uint8_t* VMMethod::GetBytecodes() const {
   return (uint8_t*)(&FIELDS[GetNumberOfFields() + GetNumberOfIndexableFields()]);
@@ -111,7 +121,7 @@ void VMMethod::WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*)) {
 #else
 void VMMethod::WalkObjects(pVMObject (*walk)(pVMObject)) {
 #endif
-    VMInvokable::WalkObjects(walk);
+  VMInvokable::WalkObjects(walk);
 	for (int i = 0 ; i < GetNumberOfIndexableFields() ; ++i) {
 		if (GetIndexableField(i) != NULL)
 			SetIndexableField(i, walk(GetIndexableField(i)));

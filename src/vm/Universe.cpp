@@ -98,6 +98,14 @@ pVMClass doubleClass;
 
 
 std::map<std::string, pVMSymbol> symbolsMap;
+
+std::string bm_name;
+#ifdef GENERATE_ALLOCATION_STATISTICS
+struct alloc_data {long noObjects; long sizeObjects;};
+std::map<std::string, struct alloc_data> allocationStats;
+#define LOG_ALLOCATION(TYPE,SIZE) {struct alloc_data tmp=allocationStats[TYPE];tmp.noObjects++;tmp.sizeObjects+=(SIZE);allocationStats[TYPE]=tmp;}
+#endif
+
 map<int, long> integerHist;
 
 //Singleton accessor
@@ -126,7 +134,9 @@ void Universe::Start(int argc, char** argv) {
 void Universe::Quit(int err) {
   cout << "Time spent in GC: [" << Timer::GCTimer->GetTotalTime() << "] msec" << endl;
 #ifdef GENERATE_INTEGER_HISTOGRAM
-  fstream hist_csv("integer_histogram.csv", ios::out);
+  std::string file_name_hist = std::string(bm_name);
+  file_name_hist.append("_integer_histogram.csv");
+  fstream hist_csv(file_name_hist.c_str(), ios::out);
 
   for (map<int, long>::iterator it = integerHist.begin(); it != integerHist.end(); it++) {
     hist_csv << it->first << ", " << it->second << endl;
@@ -134,13 +144,29 @@ void Universe::Quit(int err) {
 #endif
 
 #ifdef LOG_RECEIVER_TYPES
-  fstream receivers("receiver_types.csv", ios::out);
+  std::string file_name_receivers = std::string(bm_name);
+  file_name_receivers.append("_receivers.csv");
+  fstream receivers(file_name_receivers.c_str(), ios::out);
   for (map<StdString, int>::iterator it = theUniverse->receiverTypes.begin(); it != theUniverse->receiverTypes.end(); it++)
     receivers << it->first << ",  " << it->second << endl;
 
-  fstream send_stat("send_types.csv", ios::out);
+  std::string file_name_send_types = std::string(bm_name);
+  file_name_send_types.append("_send_types.csv");
+  fstream send_stat(file_name_send_types.c_str(), ios::out);
   for (map<StdString, Universe::stat_data>::iterator it = theUniverse->callStats.begin(); it != theUniverse->callStats.end(); it++)
     send_stat << it->first << ", " << setiosflags(ios::fixed) << setprecision(2) << (double)(it->second.noPrimitiveCalls) / (double)(it->second.noCalls) << endl;
+#endif
+
+#ifdef GENERATE_ALLOCATION_STATISTICS
+  std::string file_name_allocation = std::string(bm_name);
+  file_name_allocation.append("_allocation_statistics.csv");
+
+  fstream file_alloc_stats(file_name_allocation.c_str(), ios::out);
+  map<std::string, struct alloc_data>::iterator iter;
+  for (iter = allocationStats.begin(); iter != allocationStats.end(); iter++)
+  {
+    file_alloc_stats << iter->first << ", " << iter->second.noObjects << ", " << iter->second.sizeObjects << std::endl;
+  }
 #endif
   if (theUniverse) delete(theUniverse);
   exit(err);
@@ -277,10 +303,15 @@ Universe::Universe(){
 
 
 void Universe::initialize(int _argc, char** _argv) {
+#ifdef GENERATE_ALLOCATION_STATISTICS
+  allocationStats["VMArray"] = {0,0};
+#endif
 
     heapSize = 1 * 1024 * 1024;
 
     vector<StdString> argv = this->handleArguments(_argc, _argv);
+//remember file that was executed (for writing statistics)
+    bm_name = argv[0];
 
     Heap::InitializeHeap(heapSize);
 
@@ -582,6 +613,9 @@ pVMArray Universe::NewArray( int size) const {
     pVMArray result = new (_HEAP, additionalBytes) VMArray(size);
 #endif
     result->SetClass(arrayClass);
+#ifdef GENERATE_ALLOCATION_STATISTICS
+    LOG_ALLOCATION("VMArray", result->GetObjectSize());
+#endif
     return result;
 }
 
@@ -614,6 +648,9 @@ pVMArray Universe::NewArrayList(ExtendedList<pVMObject>& list ) const {
 
 
 pVMBigInteger Universe::NewBigInteger( int64_t value) const {
+#ifdef GENERATE_ALLOCATION_STATISTICS
+    LOG_ALLOCATION("VMBigInteger", sizeof(VMBigInteger));
+#endif
     return new (_HEAP) VMBigInteger(value);
 }
 
@@ -624,6 +661,9 @@ pVMBlock Universe::NewBlock( pVMMethod method, pVMFrame context, int arguments) 
 
     result->SetMethod(method);
     result->SetContext(context);
+#ifdef GENERATE_ALLOCATION_STATISTICS
+    LOG_ALLOCATION("VMBlock", result->GetObjectSize());
+#endif
 
     return result;
 }
@@ -637,35 +677,66 @@ pVMClass Universe::NewClass( pVMClass classOfClass) const {
     else result = new (_HEAP) VMClass;
 
     result->SetClass(classOfClass);
+#ifdef GENERATE_ALLOCATION_STATISTICS
+    LOG_ALLOCATION("VMClass", result->GetObjectSize());
+#endif
 
     return result;
 }
 
 
 pVMDouble Universe::NewDouble( double value) const {
+#ifdef GENERATE_ALLOCATION_STATISTICS
+    LOG_ALLOCATION("VMDouble", sizeof(VMDouble));
+#endif
     return new (_HEAP) VMDouble(value);
 }
 
 
 pVMFrame Universe::NewFrame( pVMFrame previousFrame, pVMMethod method) const {
+#ifdef UNSAFE_FRAME_OPTIMIZATION
+  pVMFrame result = method->GetCachedFrame();
+  if (result != nilObject) {
+    method->SetCachedFrame((pVMFrame)nilObject);
+    result->SetMethod(method);
+    result->SetClass(frameClass);
+    result->SetContext((pVMFrame)nilObject);
+    result->SetBytecodeIndex(0);
+    if (previousFrame != NULL)
+      result->SetPreviousFrame(previousFrame);
+    result->ResetStackPointer();
+    return result;
+  }
     int length = method->GetNumberOfArguments() +
                  method->GetNumberOfLocals()+
-                 method->GetMaximumNumberOfStackElements(); 
-   
+                 method->GetMaximumNumberOfStackElements();
+
+    int additionalBytes = length * sizeof(pVMObject);
+    result = new (_HEAP, additionalBytes) VMFrame(length);
+#else
+    int length = method->GetNumberOfArguments() +
+                 method->GetNumberOfLocals()+
+                 method->GetMaximumNumberOfStackElements();
+
     int additionalBytes = length * sizeof(pVMObject);
     pVMFrame result = new (_HEAP, additionalBytes) VMFrame(length);
+#endif
     result->SetClass(frameClass);
 
     result->SetMethod(method);
+#ifdef GENERATE_ALLOCATION_STATISTICS
+    LOG_ALLOCATION("VMFrame", result->GetObjectSize());
+#endif
 
-    if (previousFrame != NULL) 
-        result->SetPreviousFrame(previousFrame);
+    if (previousFrame != NULL)
+      result->SetPreviousFrame(previousFrame);
 
     result->ResetStackPointer();
     //chbol: bytecodeIndex is 0 by default anyway
     //result->SetBytecodeIndex(0);
 
     return result;
+
 }
 
 
@@ -677,6 +748,9 @@ pVMObject Universe::NewInstance( pVMClass  classOfInstance) const {
     int additionalBytes = numOfFields * sizeof(pVMObject);
     pVMObject result = new (_HEAP, additionalBytes) VMObject(numOfFields);
     result->SetClass(classOfInstance);
+#ifdef GENERATE_ALLOCATION_STATISTICS
+    LOG_ALLOCATION(classOfInstance->GetName()->GetStdString(), result->GetObjectSize());
+#endif
     return result;
 }
 
@@ -696,6 +770,10 @@ VMPointer<VMInteger> Universe::NewInteger( int32_t value) const {
       return prebuildInts[index];
     }
 #endif
+#ifdef GENERATE_ALLOCATION_STATISTICS
+    LOG_ALLOCATION("VMInteger", sizeof(VMInteger));
+#endif
+
     return new (_HEAP) VMInteger(value);
   }
 
@@ -705,6 +783,9 @@ pVMClass Universe::NewMetaclassClass() const {
 
     pVMClass mclass = result->GetClass();
     mclass->SetClass(result);
+#ifdef GENERATE_ALLOCATION_STATISTICS
+    LOG_ALLOCATION("VMClass", result->GetObjectSize());
+#endif
 
     return result;
 }
@@ -817,6 +898,9 @@ pVMMethod Universe::NewMethod( pVMSymbol signature,
     result->SetClass(methodClass);
 
     result->SetSignature(signature);
+#ifdef GENERATE_ALLOCATION_STATISTICS
+    LOG_ALLOCATION("VMMethod", result->GetObjectSize());
+#endif
 
     return result;
 }
@@ -827,6 +911,9 @@ pVMString Universe::NewString( const StdString& str) const {
 
 pVMString Universe::NewString( const char* str) const {
     pVMString result = new (_HEAP, strlen(str) + 1) VMString(str);
+#ifdef GENERATE_ALLOCATION_STATISTICS
+    LOG_ALLOCATION("VMString", result->GetObjectSize());
+#endif
     return result;
 }
 
@@ -837,6 +924,9 @@ pVMSymbol Universe::NewSymbol( const StdString& str) {
 pVMSymbol Universe::NewSymbol( const char* str ) {
     pVMSymbol result = new (_HEAP, strlen(str)+1) VMSymbol(str);
 	symbolsMap[str] = result;
+#ifdef GENERATE_ALLOCATION_STATISTICS
+    LOG_ALLOCATION("VMSymbol", result->GetObjectSize());
+#endif
     return result;
 }
 
@@ -848,6 +938,9 @@ pVMClass Universe::NewSystemClass() const {
     pVMClass mclass = systemClass->GetClass();
     
     mclass->SetClass(metaClassClass);
+#ifdef GENERATE_ALLOCATION_STATISTICS
+    LOG_ALLOCATION("VMClass", systemClass->GetObjectSize());
+#endif
 
     return systemClass;
 }
