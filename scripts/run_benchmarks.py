@@ -83,9 +83,14 @@ if __name__ == "__main__":
         runner.add_benchmark("Examples/Benchmarks/All.som")
         runner.run_benchmarks()
 
-        #SOM Benchmarks
+        #Richards Benchmarks
         runner = BenchmarkRunner(base_path + "/bin/cppsom_statistics", 1)
         runner.add_benchmark("Examples/Benchmarks/Richards/RichardsBenchmarks.som")
+        runner.run_benchmarks()
+
+        # GCBench Benchmarks
+        runner = BenchmarkRunner(base_path + "/bin/cppsom_statistics", 1)
+        runner.add_benchmark("Examples/Benchmarks/GCBenchmark/GCBench.som")
         runner.run_benchmarks()
 
         #now copy all generated csv files
