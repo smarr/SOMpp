@@ -331,12 +331,25 @@ void Interpreter::doPushField( int bytecodeIndex ) {
 
 
 void Interpreter::doPushBlock( int bytecodeIndex ) {
-    pVMMethod blockMethod = (pVMMethod)(method->GetConstant(bytecodeIndex));
 
-    int numOfArgs = blockMethod->GetNumberOfArguments();
+  if (current_bytecodes[bytecodeIndex_global] == BC_SEND) {
+    if (_FRAME->GetStackElement(0) == falseObject && strcmp(((VMSymbol*)method->GetConstant(bytecodeIndex_global))->chars, "ifTrue:") == 0) {
+      _FRAME->Push(nilObject);
+      return;
+    }
+    else if (_FRAME->GetStackElement(0) == trueObject && strcmp(((VMSymbol*)method->GetConstant(bytecodeIndex_global))->chars, "ifFalse:") == 0) {
+      _FRAME->Push(nilObject);
+      return;
+    }
+  }
 
-    _FRAME->Push((pVMObject) _UNIVERSE->NewBlock(blockMethod, _FRAME,
-                                                 numOfArgs));
+
+  pVMMethod blockMethod = (pVMMethod)(method->GetConstant(bytecodeIndex));
+
+  int numOfArgs = blockMethod->GetNumberOfArguments();
+
+  _FRAME->Push((pVMObject) _UNIVERSE->NewBlock(blockMethod, _FRAME,
+                                               numOfArgs));
 }
 
 

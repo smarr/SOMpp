@@ -6,7 +6,7 @@ import re
 import math
 
 regex_bm_time = re.compile(r"\{(\D*)(\d+)\s+\}", re.MULTILINE)
-regex_gc_time = re.compile("\[(\d+.\d+)\]", re.MULTILINE)
+regex_gc_time = re.compile("\[(\d+(.\d+)?)\]", re.MULTILINE)
 Z=1.96
 
 class Benchmark(object):
