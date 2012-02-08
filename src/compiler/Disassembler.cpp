@@ -243,6 +243,16 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
                     name->GetChars());
                 break;
             }
+            case BC_JUMP_IF_FALSE:
+            case BC_JUMP: {
+              int target = 0;
+              target |= method->GetBytecode(bc_idx + 1);
+              target |= method->GetBytecode(bc_idx + 2) << 8;
+              target |= method->GetBytecode(bc_idx + 3) << 16;
+              target |= method->GetBytecode(bc_idx + 4) << 24;
+              DebugPrint("(target: %d)\n", target);
+              break;
+            }
             default:
                 DebugPrint("<incorrect bytecode>\n");
         }
@@ -254,245 +264,233 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
  * Dump bytecode from the frame running
  */
 void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
-    static long long indentc = 0;
-    static char      ikind   = '@';
-    uint8_t          bc      = BC_0;
-    pVMObject        clo   = method->GetHolder();
+  static long long indentc = 0;
+  static char      ikind   = '@';
+  uint8_t          bc      = BC_0;
+  pVMObject        clo   = method->GetHolder();
 #ifdef USE_TAGGING
-    pVMClass cl = DynamicConvert<VMClass, VMObject>(clo);
+  pVMClass cl = DynamicConvert<VMClass, VMObject>(clo);
 #else
-    pVMClass cl = dynamic_cast<pVMClass>(clo);
+  pVMClass cl = dynamic_cast<pVMClass>(clo);
 #endif
-    // Determine Context: Class or Block?
-    if(cl != NULL) {
-        pVMSymbol cname = cl->GetName();
-        pVMSymbol sig = method->GetSignature();
-        
-        DebugTrace("%20s>>%-20s% 10lld %c %04d: %s\t",
-                    cname->GetChars(), sig->GetChars(),
-                    indentc, ikind, bc_idx,
-                    Bytecode::GetBytecodeName(bc));        
-    } else {
-        pVMSymbol sig = method->GetSignature();
-        
-        DebugTrace("%-42s% 10lld %c %04d: %s\t", 
-                    sig->GetChars(),
-                    indentc, ikind, bc_idx,
-                    Bytecode::GetBytecodeName(bc));
-    }
-    // reset send indicator
-    if(ikind != '@') ikind = '@';
-    
-    switch(bc) {
-        case BC_HALT: {
-            DebugPrint("<halting>\n\n\n");
-            break;
-        }
-        case BC_DUP: {
-            pVMObject o = frame->GetStackElement(0);
-            if(o) {
-                pVMClass c = o->GetClass();
-                pVMSymbol cname = c->GetName();
-                
-                DebugPrint("<to dup: (%s) ", cname->GetChars());
-                //dispatch
-                dispatch(o);
-            } else
-                DebugPrint("<to dup: address: %p", (void*)o);
-            DebugPrint(">\n");                        
-            break;
-        }
-        case BC_PUSH_LOCAL: {
-            uint8_t bc1 = BC_1, bc2 = BC_2;
-            pVMObject o = frame->GetLocal(bc1, bc2);
-            pVMClass c = o->GetClass();
-            pVMSymbol cname = c->GetName();
-            
-            DebugPrint("local: %d, context: %d <(%s) ", 
-                        BC_1, BC_2, cname->GetChars());
-            //dispatch
-            dispatch(o);
-            DebugPrint(">\n");                        
-            break;
-        }
-        case BC_PUSH_ARGUMENT: {
-            uint8_t bc1 = BC_1, bc2 = BC_2;
-            pVMObject o = frame->GetArgument(bc1, bc2);
-            DebugPrint("argument: %d, context: %d", bc1, bc2);
-#ifdef USE_TAGGING
-            if(DynamicConvert<VMClass, VMObject>(cl) != NULL) {
-#else
-            if(dynamic_cast<pVMClass>(cl) != NULL) {
-#endif
-                pVMClass c = o->GetClass();
-                pVMSymbol cname = c->GetName();
-                
-                DebugPrint("<(%s) ", cname->GetChars());
-                //dispatch
-                dispatch(o);                
-                DebugPrint(">");                        
-            }            
-            DebugPrint("\n");
-            break;
-        }
-        case BC_PUSH_FIELD: {
-            pVMFrame ctxt = frame->GetOuterContext();
-            pVMObject arg = ctxt->GetArgument(0, 0);
-            pVMSymbol name = (pVMSymbol)(method->GetConstant(bc_idx));
-            int field_index = arg->GetFieldIndex(name);
-           
-            pVMObject o = arg->GetField(field_index);
-            pVMClass c = o->GetClass();
-            pVMSymbol cname = c->GetName();
-            
-            DebugPrint("(index: %d) field: %s <(%s) ", BC_1,
-                        name->GetChars(), cname->GetChars());
-            //dispatch
-            dispatch(o);                
-            DebugPrint(">\n");                        
-            break;
-        }
-        case BC_PUSH_BLOCK: {
-            DebugPrint("block: (index: %d) ", BC_1);
-            pVMMethod meth = (pVMMethod)(method->GetConstant(bc_idx));
-            DumpMethod(meth, "$");
-            break;
-        }
-        case BC_PUSH_CONSTANT: {
-        	pVMObject constant = method->GetConstant(bc_idx);
-            pVMClass c = constant->GetClass();
-            pVMSymbol cname = c->GetName();
-            
-            DebugPrint("(index: %d) value: (%s) ", BC_1, 
-                        cname->GetChars());
-            dispatch(constant);
-            DebugPrint("\n");
-            break;
-        }
-        case BC_PUSH_GLOBAL: {
-            pVMSymbol name = (pVMSymbol)(method->GetConstant(bc_idx));
-            pVMObject o = _UNIVERSE->GetGlobal(name);
-            pVMSymbol cname;
-            
-            char*   c_cname;
-            if(o) {
-                pVMClass c = o->GetClass();
-                cname = c->GetName();
-                
-                c_cname = cname->GetChars();
-            } else
-                c_cname = "NULL";
-            
-            DebugPrint("(index: %d)value: %s <(%s) ", BC_1,
-                        name->GetChars(), c_cname);
-            dispatch(o);
-            DebugPrint(">\n");
-            break;
-        }
-        case BC_POP: {
-#ifdef USE_TAGGING
-            size_t sp = (int32_t)frame->GetStackPointer();
-#else
-            size_t sp = frame->GetStackPointer();
-#endif
-            pVMObject o = ((pVMArray)frame)->GetIndexableField(sp);
-            pVMClass c = o->GetClass();
-            pVMSymbol cname = c->GetName();
-            
-            DebugPrint("popped <(%s) ", cname->GetChars());
-            //dispatch
-            dispatch(o);
-            DebugPrint(">\n");                        
-            break;            
-        }            
-        case BC_POP_LOCAL: {
-#ifdef USE_TAGGING
-            size_t sp = (int32_t)frame->GetStackPointer();
-#else
-            size_t sp = frame->GetStackPointer();
-#endif
-            pVMObject o = ((pVMArray)frame)->GetIndexableField(sp);
-            pVMClass c = o->GetClass();
-            pVMSymbol cname = c->GetName();
-            
-            DebugPrint("popped local: %d, context: %d <(%s) ", BC_1, BC_2,
-                        cname->GetChars());
-            //dispatch
-            dispatch(o);            
-            DebugPrint(">\n");                        
-            break;            
-        }
-        case BC_POP_ARGUMENT: {
-#ifdef USE_TAGGING
-            size_t sp = (int32_t)frame->GetStackPointer();
-#else
-            size_t sp = frame->GetStackPointer();
-#endif
-            pVMObject o = ((pVMArray)frame)->GetIndexableField(sp);
-            pVMClass c = o->GetClass();
-            pVMSymbol cname = c->GetName();
-            DebugPrint("argument: %d, context: %d <(%s) ", BC_1, BC_2,
-                        cname->GetChars());
-            //dispatch
-            dispatch(o);
-            DebugPrint(">\n");                        
-            break;
-        }
-        case BC_POP_FIELD: {
-#ifdef USE_TAGGING
-            size_t sp = (int32_t)frame->GetStackPointer();
-#else
-            size_t sp = frame->GetStackPointer();
-#endif
-            pVMObject o = ((pVMArray)frame)->GetIndexableField(sp);
-            pVMSymbol name = (pVMSymbol)(method->GetConstant(bc_idx));
-            pVMClass c = o->GetClass();
-            pVMSymbol cname = c->GetName();
-            
-            DebugPrint("(index: %d) field: %s <(%s) ",  BC_1,
-                        name->GetChars(),
-                        cname->GetChars());
-            dispatch(o);
-            DebugPrint(">\n");                        
-            break;
-        }
-        case BC_SUPER_SEND:
-        case BC_SEND: {
-            pVMSymbol sel = (pVMSymbol)(method->GetConstant(bc_idx));
+  // Determine Context: Class or Block?
+  if(cl != NULL) {
+    pVMSymbol cname = cl->GetName();
+    pVMSymbol sig = method->GetSignature();
 
-            DebugPrint("(index: %d) signature: %s (", BC_1,
-                        sel->GetChars());
-            //handle primitives, they don't increase call-depth
-            pVMObject elem = _UNIVERSE->GetInterpreter()->GetFrame()->
-                                   GetStackElement(
-                                       Signature::GetNumberOfArguments(sel)-1);
-            pVMClass elemClass = elem->GetClass();
-#ifdef USE_TAGGING
-            pVMInvokable inv =  DynamicConvert<VMInvokable, VMObject>(
-#else
-            pVMInvokable inv =  dynamic_cast<pVMInvokable>(
-#endif
-                                            elemClass->LookupInvokable(sel));
-            
-            if(inv != NULL && inv->IsPrimitive()) 
-                DebugPrint("*)\n");
-            else {
-                DebugPrint("\n");    
-                indentc++; ikind='>'; // visual
-            }
-                break;
-        }            
-        case BC_RETURN_LOCAL:
-        case BC_RETURN_NON_LOCAL: {
-            DebugPrint(")\n");
-            indentc--; ikind='<'; //visual
-            break;
-        }
-        default:
-            DebugPrint("<incorrect bytecode>\n");
-            break;
+    DebugTrace("%20s>>%-20s% 10lld %c %04d: %s\t",
+               cname->GetChars(), sig->GetChars(),
+               indentc, ikind, bc_idx,
+               Bytecode::GetBytecodeName(bc));        
+  } else {
+    pVMSymbol sig = method->GetSignature();
+
+    DebugTrace("%-42s% 10lld %c %04d: %s\t", 
+               sig->GetChars(),
+               indentc, ikind, bc_idx,
+               Bytecode::GetBytecodeName(bc));
+  }
+  // reset send indicator
+  if(ikind != '@') ikind = '@';
+
+  switch(bc) {
+    case BC_HALT: {
+      DebugPrint("<halting>\n\n\n");
+      break;
     }
-}
+    case BC_DUP: {
+      pVMObject o = frame->GetStackElement(0);
+      if(o) {
+        pVMClass c = o->GetClass();
+        pVMSymbol cname = c->GetName();
+
+        DebugPrint("<to dup: (%s) ", cname->GetChars());
+        //dispatch
+        dispatch(o);
+      } else
+        DebugPrint("<to dup: address: %p", (void*)o);
+      DebugPrint(">\n");                        
+      break;
+    }
+    case BC_PUSH_LOCAL: {
+      uint8_t bc1 = BC_1, bc2 = BC_2;
+      pVMObject o = frame->GetLocal(bc1, bc2);
+      pVMClass c = o->GetClass();
+      pVMSymbol cname = c->GetName();
+
+      DebugPrint("local: %d, context: %d <(%s) ", 
+                 BC_1, BC_2, cname->GetChars());
+      //dispatch
+      dispatch(o);
+      DebugPrint(">\n");                        
+      break;
+    }
+    case BC_PUSH_ARGUMENT: {
+      uint8_t bc1 = BC_1, bc2 = BC_2;
+      pVMObject o = frame->GetArgument(bc1, bc2);
+      DebugPrint("argument: %d, context: %d", bc1, bc2);
+#ifdef USE_TAGGING
+      if(DynamicConvert<VMClass, VMObject>(cl) != NULL) {
+#else
+        if(dynamic_cast<pVMClass>(cl) != NULL) {
+#endif
+          pVMClass c = o->GetClass();
+          pVMSymbol cname = c->GetName();
+
+          DebugPrint("<(%s) ", cname->GetChars());
+          //dispatch
+          dispatch(o);                
+          DebugPrint(">");                        
+        }            
+        DebugPrint("\n");
+        break;
+      }
+      case BC_PUSH_FIELD: {
+        pVMFrame ctxt = frame->GetOuterContext();
+        pVMObject arg = ctxt->GetArgument(0, 0);
+        pVMSymbol name = (pVMSymbol)(method->GetConstant(bc_idx));
+        int field_index = arg->GetFieldIndex(name);
+
+        pVMObject o = arg->GetField(field_index);
+        pVMClass c = o->GetClass();
+        pVMSymbol cname = c->GetName();
+
+        DebugPrint("(index: %d) field: %s <(%s) ", BC_1,
+                   name->GetChars(), cname->GetChars());
+        //dispatch
+        dispatch(o);                
+        DebugPrint(">\n");                        
+        break;
+      }
+      case BC_PUSH_BLOCK: {
+        DebugPrint("block: (index: %d) ", BC_1);
+        pVMMethod meth = (pVMMethod)(method->GetConstant(bc_idx));
+        DumpMethod(meth, "$");
+        break;
+      }
+      case BC_PUSH_CONSTANT: {
+        pVMObject constant = method->GetConstant(bc_idx);
+        pVMClass c = constant->GetClass();
+        pVMSymbol cname = c->GetName();
+
+        DebugPrint("(index: %d) value: (%s) ", BC_1, 
+                   cname->GetChars());
+        dispatch(constant);
+        DebugPrint("\n");
+        break;
+      }
+      case BC_PUSH_GLOBAL: {
+        pVMSymbol name = (pVMSymbol)(method->GetConstant(bc_idx));
+        pVMObject o = _UNIVERSE->GetGlobal(name);
+        pVMSymbol cname;
+
+        char*   c_cname;
+        if(o) {
+          pVMClass c = o->GetClass();
+          cname = c->GetName();
+
+          c_cname = cname->GetChars();
+        } else
+          c_cname = "NULL";
+
+        DebugPrint("(index: %d)value: %s <(%s) ", BC_1,
+                   name->GetChars(), c_cname);
+        dispatch(o);
+        DebugPrint(">\n");
+        break;
+      }
+      case BC_POP: {
+        pVMObject o = frame->GetStackElement(0);
+        pVMClass c = o->GetClass();
+        pVMSymbol cname = c->GetName();
+
+        DebugPrint("popped <(%s) ", cname->GetChars());
+        //dispatch
+        dispatch(o);
+        DebugPrint(">\n");                        
+        break;            
+      }            
+      case BC_POP_LOCAL: {
+        pVMObject o = frame->GetStackElement(0);
+        pVMClass c = o->GetClass();
+        pVMSymbol cname = c->GetName();
+
+        DebugPrint("popped local: %d, context: %d <(%s) ", BC_1, BC_2,
+                   cname->GetChars());
+        //dispatch
+        dispatch(o);            
+        DebugPrint(">\n");                        
+        break;            
+      }
+      case BC_POP_ARGUMENT: {
+        pVMObject o = frame->GetStackElement(0);
+        pVMClass c = o->GetClass();
+        pVMSymbol cname = c->GetName();
+        DebugPrint("argument: %d, context: %d <(%s) ", BC_1, BC_2,
+                   cname->GetChars());
+        //dispatch
+        dispatch(o);
+        DebugPrint(">\n");
+        break;
+      }
+      case BC_POP_FIELD: {
+        pVMObject o = frame->GetStackElement(0);
+        pVMSymbol name = (pVMSymbol)(method->GetConstant(bc_idx));
+        pVMClass c = o->GetClass();
+        pVMSymbol cname = c->GetName();
+
+        DebugPrint("(index: %d) field: %s <(%s) ",  BC_1,
+                   name->GetChars(),
+                   cname->GetChars());
+        dispatch(o);
+        DebugPrint(">\n");
+        break;
+      }
+      case BC_SUPER_SEND:
+      case BC_SEND: {
+        pVMSymbol sel = (pVMSymbol)(method->GetConstant(bc_idx));
+
+        DebugPrint("(index: %d) signature: %s (", BC_1,
+                   sel->GetChars());
+        //handle primitives, they don't increase call-depth
+        pVMObject elem = _UNIVERSE->GetInterpreter()->GetFrame()->
+            GetStackElement(
+                Signature::GetNumberOfArguments(sel)-1);
+        pVMClass elemClass = elem->GetClass();
+#ifdef USE_TAGGING
+        pVMInvokable inv =  DynamicConvert<VMInvokable, VMObject>(elemClass->LookupInvokable(sel));
+#else
+        pVMInvokable inv =  dynamic_cast<pVMInvokable>(elemClass->LookupInvokable(sel));
+#endif
+        if(inv != NULL && inv->IsPrimitive())
+          DebugPrint("*)\n");
+        else {
+          DebugPrint("\n");
+          indentc++; ikind='>'; // visual
+        }
+        break;
+      }
+      case BC_RETURN_LOCAL:
+      case BC_RETURN_NON_LOCAL: {
+        DebugPrint(")\n");
+        indentc--; ikind='<'; //visual
+        break;
+      }
+      case BC_JUMP_IF_FALSE:
+      case BC_JUMP: {
+        int target = 0;
+        target |= method->GetBytecode(bc_idx + 1);
+        target |= method->GetBytecode(bc_idx + 2) << 8;
+        target |= method->GetBytecode(bc_idx + 3) << 16;
+        target |= method->GetBytecode(bc_idx + 4) << 24;
+        DebugPrint("(target: %d)\n", target);
+        break;
+      }
+      default:
+      DebugPrint("<incorrect bytecode>\n");
+      break;
+    }
+  }
 
 // EOF: diassembler.c
 

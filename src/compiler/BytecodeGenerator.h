@@ -60,6 +60,8 @@ public:
 	void EmitSUPERSEND(MethodGenerationContext* mgenc, pVMSymbol msg);
 	void EmitRETURNLOCAL(MethodGenerationContext* mgenc);
 	void EmitRETURNNONLOCAL(MethodGenerationContext* mgenc);
+  size_t EmitJUMP_IF_FALSE(MethodGenerationContext* mgenc);
+  size_t EmitJUMP(MethodGenerationContext* mgenc);
 };
 
 #endif

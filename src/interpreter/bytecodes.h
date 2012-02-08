@@ -49,6 +49,8 @@ THE SOFTWARE.
 #define BC_SUPER_SEND        13
 #define BC_RETURN_LOCAL      14
 #define BC_RETURN_NON_LOCAL  15
+#define BC_JUMP_IF_FALSE     16
+#define BC_JUMP              17
 
 // bytecode lengths
 

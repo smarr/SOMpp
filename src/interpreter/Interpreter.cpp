@@ -111,7 +111,9 @@ void Interpreter::Start() {
     &&LABEL_BC_SEND,
     &&LABEL_BC_SUPER_SEND,
     &&LABEL_BC_RETURN_LOCAL,
-    &&LABEL_BC_RETURN_NON_LOCAL
+    &&LABEL_BC_RETURN_NON_LOCAL,
+    &&LABEL_BC_JUMP_IF_FALSE,
+    &&LABEL_BC_JUMP
   };
 
   goto *loopTargets[current_bytecodes[bytecodeIndex_global]];
@@ -119,6 +121,7 @@ void Interpreter::Start() {
 //
 // THIS IS THE former interpretation loop
 LABEL_BC_HALT:
+  PROLOGUE(1);
   return; // handle the halt bytecode
 LABEL_BC_DUP: 
   PROLOGUE(1);
@@ -168,7 +171,7 @@ LABEL_BC_SEND:
   PROLOGUE(2);
   doSend(bytecodeIndex_global - 2);
   DISPATCH_GC();
-LABEL_BC_SUPER_SEND:       
+LABEL_BC_SUPER_SEND:
   PROLOGUE(2);
   doSuperSend(bytecodeIndex_global - 2);
   DISPATCH_GC();
@@ -176,9 +179,17 @@ LABEL_BC_RETURN_LOCAL:
   PROLOGUE(1);
   doReturnLocal();
   DISPATCH_NOGC();
-LABEL_BC_RETURN_NON_LOCAL: 
+LABEL_BC_RETURN_NON_LOCAL:
   PROLOGUE(1);
   doReturnNonLocal();
+  DISPATCH_NOGC();
+LABEL_BC_JUMP_IF_FALSE:
+  PROLOGUE(5);
+  doJumpIfFalse(bytecodeIndex_global - 5);
+  DISPATCH_NOGC();
+LABEL_BC_JUMP:
+  PROLOGUE(5);
+  doJump(bytecodeIndex_global - 5);
   DISPATCH_NOGC();
 }
 
@@ -494,5 +505,21 @@ void Interpreter::doReturnNonLocal() {
     while (_FRAME != context) this->popFrame();
 
     this->popFrameAndPushResult(result);
+}
+
+void Interpreter::doJumpIfFalse(int bytecodeIndex) {
+  pVMObject value = _FRAME->Pop();
+  if (value == falseObject)
+    doJump(bytecodeIndex);
+}
+
+void Interpreter::doJump(int bytecodeIndex) {
+  int target = 0;
+  target |= method->GetBytecode(bytecodeIndex + 1);
+  target |= method->GetBytecode(bytecodeIndex + 2) << 8;
+  target |= method->GetBytecode(bytecodeIndex + 3) << 16;
+  target |= method->GetBytecode(bytecodeIndex + 4) << 24;
+  //springen
+  bytecodeIndex_global = target;
 }
 

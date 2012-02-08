@@ -112,48 +112,50 @@ int MethodGenerationContext::GetNumberOfArguments() {
 }
 
 uint8_t MethodGenerationContext::ComputeStackDepth() {
-	uint8_t depth = 0;
-    uint8_t maxDepth = 0;
-    unsigned int i = 0;
-    
-    while(i < bytecode.size()) {
-        switch(bytecode[i]) {
-            case BC_HALT             :          i++;    break;
-            case BC_DUP              : depth++; i++;    break;
-            case BC_PUSH_LOCAL       :
-            case BC_PUSH_ARGUMENT    : depth++; i += 3; break;
-            case BC_PUSH_FIELD       :
-            case BC_PUSH_BLOCK       :
-            case BC_PUSH_CONSTANT    :
-            case BC_PUSH_GLOBAL      : depth++; i += 2; break;
-            case BC_POP              : depth--; i++;    break;
-            case BC_POP_LOCAL        :
-            case BC_POP_ARGUMENT     : depth--; i += 3; break;
-            case BC_POP_FIELD        : depth--; i += 2; break;
-            case BC_SEND             :
-            case BC_SUPER_SEND       : {
-                // these are special: they need to look at the number of
-                // arguments (extractable from the signature)
-                pVMSymbol sig = (pVMSymbol)literals.Get(bytecode[i + 1]);
-                
-                depth -= Signature::GetNumberOfArguments(sig);
-                
-				depth++; // return value
-                i += 2;
-                break;
-            }
-            case BC_RETURN_LOCAL     :
-            case BC_RETURN_NON_LOCAL :          i++;    break;
-            default                  :
-                cout << "Illegal bytecode: " << bytecode[i];
-                _UNIVERSE->Quit(1);
-        }
-        
-        if(depth > maxDepth)
-            maxDepth = depth;
+  uint8_t depth = 0;
+  uint8_t maxDepth = 0;
+  unsigned int i = 0;
+
+  while(i < bytecode.size()) {
+    switch(bytecode[i]) {
+      case BC_HALT             :          i++;    break;
+      case BC_DUP              : depth++; i++;    break;
+      case BC_PUSH_LOCAL       :
+      case BC_PUSH_ARGUMENT    : depth++; i += 3; break;
+      case BC_PUSH_FIELD       :
+      case BC_PUSH_BLOCK       :
+      case BC_PUSH_CONSTANT    :
+      case BC_PUSH_GLOBAL      : depth++; i += 2; break;
+      case BC_POP              : depth--; i++;    break;
+      case BC_POP_LOCAL        :
+      case BC_POP_ARGUMENT     : depth--; i += 3; break;
+      case BC_POP_FIELD        : depth--; i += 2; break;
+      case BC_SEND             :
+      case BC_SUPER_SEND       : {
+        // these are special: they need to look at the number of
+        // arguments (extractable from the signature)
+        pVMSymbol sig = (pVMSymbol)literals.Get(bytecode[i + 1]);
+
+        depth -= Signature::GetNumberOfArguments(sig);
+
+        depth++; // return value
+        i += 2;
+        break;
+      }
+      case BC_RETURN_LOCAL     :
+      case BC_RETURN_NON_LOCAL :          i++;    break;
+      case BC_JUMP_IF_FALSE    : depth--; i += 5; break;
+      case BC_JUMP             :          i += 5; break;
+      default                  :
+                                          cout << "Illegal bytecode: " << bytecode[i];
+                                          _UNIVERSE->Quit(1);
     }
-    
-    return maxDepth;
+
+    if(depth > maxDepth)
+      maxDepth = depth;
+  }
+
+  return maxDepth;
 }
 
 
@@ -234,6 +236,15 @@ bool MethodGenerationContext::IsFinished() {
 	return finished;
 }
 
-void MethodGenerationContext::AddBytecode(uint8_t bc) {
+size_t MethodGenerationContext::AddBytecode(uint8_t bc) {
 	bytecode.push_back(bc);
+  return bytecode.size();
+}
+
+void MethodGenerationContext::PatchJumpTarget(size_t jumpPosition) {
+  size_t jump_target = bytecode.size();
+  bytecode[jumpPosition] = (uint8_t)jump_target;
+  bytecode[jumpPosition+1] = (uint8_t)(jump_target >> 8);
+  bytecode[jumpPosition+2] = (uint8_t)(jump_target >> 16);
+  bytecode[jumpPosition+3] = (uint8_t)(jump_target >> 24);
 }

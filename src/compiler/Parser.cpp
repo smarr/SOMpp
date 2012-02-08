@@ -43,10 +43,10 @@ THE SOFTWARE.
 
 
 #define GETSYM sym = lexer->GetSym(); \
-			   text = lexer->GetText()
+                     text = lexer->GetText()
 
 #define PEEK nextSym = lexer->Peek(); \
-			 nextText = lexer->GetNextText()
+                       nextText = lexer->GetNextText()
 
 Parser::Parser(istream& file) {
     sym = NONE;
@@ -58,8 +58,8 @@ Parser::Parser(istream& file) {
 }
 
 Parser::~Parser() {
-    delete(lexer);
-    delete(bcGen);
+  delete(lexer);
+  delete(bcGen);
 }
 
 //
@@ -68,28 +68,28 @@ Parser::~Parser() {
 
 
 bool Parser::symIn(Symbol* ss) {
-    while(*ss)
-        if(*ss++ == sym)
-            return true;
-    return false;
+  while(*ss)
+    if(*ss++ == sym)
+      return true;
+  return false;
 }
 
 
 bool Parser::accept(Symbol s) {
-    if(sym == s) {
-        GETSYM;
-        return true;
-    }
-    return false;
+  if(sym == s) {
+    GETSYM;
+    return true;
+  }
+  return false;
 }
 
 
 bool Parser::acceptOneOf(Symbol* ss) {
-    if(symIn(ss)) {
-        GETSYM;
-        return true;
-    }
-    return false;
+  if(symIn(ss)) {
+    GETSYM;
+    return true;
+  }
+  return false;
 }
 
 
@@ -97,75 +97,75 @@ bool Parser::acceptOneOf(Symbol* ss) {
 
 
 bool Parser::expect(Symbol s) {
-    if(accept(s))
-        return true;
-    fprintf(stderr, "Error: unexpected symbol in line %d. Expected %s, but found %s", 
-            lexer->GetCurrentLineNumber(), symnames[s], symnames[sym]);
-    if(_PRINTABLE_SYM)
-        fprintf(stderr, " (%s)", text.c_str());
-	fprintf(stderr, ": %s\n", lexer->GetRawBuffer().c_str());
-    return false;
+  if(accept(s))
+    return true;
+  fprintf(stderr, "Error: unexpected symbol in line %d. Expected %s, but found %s", 
+          lexer->GetCurrentLineNumber(), symnames[s], symnames[sym]);
+  if(_PRINTABLE_SYM)
+    fprintf(stderr, " (%s)", text.c_str());
+  fprintf(stderr, ": %s\n", lexer->GetRawBuffer().c_str());
+  return false;
 }
 
 
 bool Parser::expectOneOf(Symbol* ss) {
-    if(acceptOneOf(ss))
-        return true;
-    fprintf(stderr, "Error: unexpected symbol in line %d. Expected one of ",
-            lexer->GetCurrentLineNumber());
-    while(*ss)
-        fprintf(stderr, "%s, ", symnames[*ss++]);
-    fprintf(stderr, "but found %s", symnames[sym]);
-    if(_PRINTABLE_SYM)
-        fprintf(stderr, " (%s)", text.c_str());
-	fprintf(stderr, ": %s\n", lexer->GetRawBuffer().c_str());
-    return false;
+  if(acceptOneOf(ss))
+    return true;
+  fprintf(stderr, "Error: unexpected symbol in line %d. Expected one of ",
+          lexer->GetCurrentLineNumber());
+  while(*ss)
+    fprintf(stderr, "%s, ", symnames[*ss++]);
+  fprintf(stderr, "but found %s", symnames[sym]);
+  if(_PRINTABLE_SYM)
+    fprintf(stderr, " (%s)", text.c_str());
+  fprintf(stderr, ": %s\n", lexer->GetRawBuffer().c_str());
+  return false;
 }
 
 
 
 
 void Parser::genPushVariable(MethodGenerationContext* mgenc, const StdString& var) {
-    // The purpose of this function is to find out whether the variable to be
-    // pushed on the stack is a local variable, argument, or object field. This
-    // is done by examining all available lexical contexts, starting with the
-    // innermost (i.e., the one represented by mgenc).
-    int index = 0;
-    int context = 0;
-    bool is_argument = false;
-    
-    if(mgenc->FindVar(var, &index, &context, &is_argument)) {
-		if(is_argument) 
-            bcGen->EmitPUSHARGUMENT(mgenc, index, context);
-        else 
-            bcGen->EmitPUSHLOCAL(mgenc, index, context);
-    } else if(mgenc->FindField(var)) {
-        pVMSymbol fieldName = _UNIVERSE->SymbolFor(var);
-		mgenc->AddLiteralIfAbsent((pVMObject)fieldName);
-        bcGen->EmitPUSHFIELD(mgenc, fieldName);
-    } else {
-        
-        pVMSymbol global = _UNIVERSE->SymbolFor(var);
-		mgenc->AddLiteralIfAbsent((pVMObject)global);
-        
-        bcGen->EmitPUSHGLOBAL(mgenc, global);
-    }
+  // The purpose of this function is to find out whether the variable to be
+  // pushed on the stack is a local variable, argument, or object field. This
+  // is done by examining all available lexical contexts, starting with the
+  // innermost (i.e., the one represented by mgenc).
+  int index = 0;
+  int context = 0;
+  bool is_argument = false;
+
+  if(mgenc->FindVar(var, &index, &context, &is_argument)) {
+    if(is_argument) 
+      bcGen->EmitPUSHARGUMENT(mgenc, index, context);
+    else 
+      bcGen->EmitPUSHLOCAL(mgenc, index, context);
+  } else if(mgenc->FindField(var)) {
+    pVMSymbol fieldName = _UNIVERSE->SymbolFor(var);
+    mgenc->AddLiteralIfAbsent((pVMObject)fieldName);
+    bcGen->EmitPUSHFIELD(mgenc, fieldName);
+  } else {
+
+    pVMSymbol global = _UNIVERSE->SymbolFor(var);
+    mgenc->AddLiteralIfAbsent((pVMObject)global);
+
+    bcGen->EmitPUSHGLOBAL(mgenc, global);
+  }
 }
 
 
 void Parser::genPopVariable(MethodGenerationContext* mgenc, const StdString& var){
-    // The purpose of this function is to find out whether the variable to be
-    // popped off the stack is a local variable, argument, or object field. This
-    // is done by examining all available lexical contexts, starting with the
-    // innermost (i.e., the one represented by mgenc).
-    int index = 0;
-    int context = 0;
-    bool is_argument = false;
-	
-    if(mgenc->FindVar(var, &index, &context, &is_argument)) {
-        if(is_argument) bcGen->EmitPOPARGUMENT(mgenc, index, context);
-        else bcGen->EmitPOPLOCAL(mgenc, index, context);
-    } else bcGen->EmitPOPFIELD(mgenc, _UNIVERSE->SymbolFor(var));
+  // The purpose of this function is to find out whether the variable to be
+  // popped off the stack is a local variable, argument, or object field. This
+  // is done by examining all available lexical contexts, starting with the
+  // innermost (i.e., the one represented by mgenc).
+  int index = 0;
+  int context = 0;
+  bool is_argument = false;
+
+  if(mgenc->FindVar(var, &index, &context, &is_argument)) {
+    if(is_argument) bcGen->EmitPOPARGUMENT(mgenc, index, context);
+    else bcGen->EmitPOPLOCAL(mgenc, index, context);
+  } else bcGen->EmitPOPFIELD(mgenc, _UNIVERSE->SymbolFor(var));
 }
 
 
@@ -175,13 +175,13 @@ void Parser::genPopVariable(MethodGenerationContext* mgenc, const StdString& var
 
 
 Symbol singleOpSyms[] = {
-    Not, And, Or, Star, Div, Mod, Plus, Equal, More, Less, Comma, At, Per, NONE
+  Not, And, Or, Star, Div, Mod, Plus, Equal, More, Less, Comma, At, Per, NONE
 };
 
 
 Symbol binaryOpSyms[] = {
-    Or, Comma, Minus, Equal, Not, And, Or, Star, Div, Mod, Plus, Equal,
-    More, Less, Comma, At, Per, NONE
+  Or, Comma, Minus, Equal, Not, And, Or, Star, Div, Mod, Plus, Equal,
+  More, Less, Comma, At, Per, NONE
 };
 
 
@@ -191,599 +191,645 @@ Symbol keywordSelectorSyms[] = { Keyword, KeywordSequence };
 
 
 void Parser::Classdef(ClassGenerationContext* cgenc) {
-	cgenc->SetName(_UNIVERSE->SymbolFor(text));
-    expect(Identifier);
-    
-    expect(Equal);
-    
-    if(sym == Identifier) {
-		cgenc->SetSuperName(_UNIVERSE->SymbolFor(text));
-        accept(Identifier);
-    } else cgenc->SetSuperName(_UNIVERSE->SymbolFor("Object"));
-    
-    expect(NewTerm);
-    instanceFields(cgenc);
-    while(sym == Identifier || sym == Keyword || sym == OperatorSequence ||
+  cgenc->SetName(_UNIVERSE->SymbolFor(text));
+  expect(Identifier);
+
+  expect(Equal);
+
+  if(sym == Identifier) {
+    cgenc->SetSuperName(_UNIVERSE->SymbolFor(text));
+    accept(Identifier);
+  } else cgenc->SetSuperName(_UNIVERSE->SymbolFor("Object"));
+
+  expect(NewTerm);
+  instanceFields(cgenc);
+  while(sym == Identifier || sym == Keyword || sym == OperatorSequence ||
         symIn(binaryOpSyms)) {
-		
-        MethodGenerationContext* mgenc = new MethodGenerationContext();
-		mgenc->SetHolder(cgenc);
-		mgenc->AddArgument("self");
-    
-        method(mgenc);
-        
-		if(mgenc->IsPrimitive())
-            cgenc->AddInstanceMethod((pVMObject)(mgenc->AssemblePrimitive()));
-        else
-			cgenc->AddInstanceMethod((pVMObject)(mgenc->Assemble()));
-        delete(mgenc);
-    }
-    
-    if(accept(Separator)) {
-        cgenc->SetClassSide(true);
-        classFields(cgenc);
-        while(sym == Identifier || sym == Keyword || sym == OperatorSequence ||
-                symIn(binaryOpSyms)) {
-            MethodGenerationContext* mgenc = new MethodGenerationContext();
-			mgenc->SetHolder(cgenc);
-			mgenc->AddArgument("self");
-            
-            method(mgenc);
-            
-			if(mgenc->IsPrimitive())
-                cgenc->AddClassMethod((pVMObject)mgenc->AssemblePrimitive());
-            else
-				cgenc->AddClassMethod((pVMObject)mgenc->Assemble());
-            delete(mgenc);
-        }    
-    }
-    expect(EndTerm);
+
+    MethodGenerationContext* mgenc = new MethodGenerationContext();
+    mgenc->SetHolder(cgenc);
+    mgenc->AddArgument("self");
+
+    method(mgenc);
+
+    if(mgenc->IsPrimitive())
+      cgenc->AddInstanceMethod((pVMObject)(mgenc->AssemblePrimitive()));
+    else
+      cgenc->AddInstanceMethod((pVMObject)(mgenc->Assemble()));
+    delete(mgenc);
+  }
+
+  if(accept(Separator)) {
+    cgenc->SetClassSide(true);
+    classFields(cgenc);
+    while(sym == Identifier || sym == Keyword || sym == OperatorSequence ||
+          symIn(binaryOpSyms)) {
+      MethodGenerationContext* mgenc = new MethodGenerationContext();
+      mgenc->SetHolder(cgenc);
+      mgenc->AddArgument("self");
+
+      method(mgenc);
+
+      if(mgenc->IsPrimitive())
+        cgenc->AddClassMethod((pVMObject)mgenc->AssemblePrimitive());
+      else
+        cgenc->AddClassMethod((pVMObject)mgenc->Assemble());
+      delete(mgenc);
+    }    
+  }
+  expect(EndTerm);
 }
 
 
 void Parser::instanceFields(ClassGenerationContext* cgenc) {
-    if(accept(Or)) {
-        while(sym == Identifier) {
-            StdString var = variable();
-            cgenc->AddInstanceField((pVMObject)_UNIVERSE->SymbolFor(var));
-        }
-        expect(Or);
+  if(accept(Or)) {
+    while(sym == Identifier) {
+      StdString var = variable();
+      cgenc->AddInstanceField((pVMObject)_UNIVERSE->SymbolFor(var));
     }
+    expect(Or);
+  }
 }
 
 
 void Parser::classFields(ClassGenerationContext* cgenc) {
-    if(accept(Or)) {
-        while(sym == Identifier) {
-            StdString var = variable();
-			cgenc->AddClassField((pVMObject)_UNIVERSE->SymbolFor(var));
-        }
-        expect(Or);
+  if(accept(Or)) {
+    while(sym == Identifier) {
+      StdString var = variable();
+      cgenc->AddClassField((pVMObject)_UNIVERSE->SymbolFor(var));
     }
+    expect(Or);
+  }
 }
 
 
 void Parser::method(MethodGenerationContext* mgenc) {
-    pattern(mgenc);
-    
-    expect(Equal);
-    if(sym == Primitive) {
-		mgenc->SetPrimitive(true);
-        primitiveBlock();
-    } else
-        methodBlock(mgenc);
+  pattern(mgenc);
+
+  expect(Equal);
+  if(sym == Primitive) {
+    mgenc->SetPrimitive(true);
+    primitiveBlock();
+  } else
+    methodBlock(mgenc);
 }
 
 
 void Parser::primitiveBlock(void) {
-    expect(Primitive);
+  expect(Primitive);
 }
 
 
 void Parser::pattern(MethodGenerationContext* mgenc) {
-    switch(sym) {
-        case Identifier: 
-            unaryPattern(mgenc);
-            break;
-        case Keyword: 
-            keywordPattern(mgenc);
-            break;
-        default: 
-            binaryPattern(mgenc);
-            break;
-    }
+  switch(sym) {
+    case Identifier: 
+      unaryPattern(mgenc);
+      break;
+    case Keyword: 
+      keywordPattern(mgenc);
+      break;
+    default: 
+      binaryPattern(mgenc);
+      break;
+  }
 }
 
 
 void Parser::unaryPattern(MethodGenerationContext* mgenc) {
-    mgenc->SetSignature(unarySelector());
+  mgenc->SetSignature(unarySelector());
 }
 
 
 void Parser::binaryPattern(MethodGenerationContext* mgenc) {
-    mgenc->SetSignature(binarySelector());
-	mgenc->AddArgumentIfAbsent(argument());
+  mgenc->SetSignature(binarySelector());
+  mgenc->AddArgumentIfAbsent(argument());
 }
 
 
 void Parser::keywordPattern(MethodGenerationContext* mgenc) {
-    StdString kw;
-    do {
-        kw.append(keyword());
-		mgenc->AddArgumentIfAbsent(argument());
-    } while(sym == Keyword);
-    
-    mgenc->SetSignature(_UNIVERSE->SymbolFor(kw));
+  StdString kw;
+  do {
+    kw.append(keyword());
+    mgenc->AddArgumentIfAbsent(argument());
+  } while(sym == Keyword);
+
+  mgenc->SetSignature(_UNIVERSE->SymbolFor(kw));
 }
 
 
 void Parser::methodBlock(MethodGenerationContext* mgenc){
-    expect(NewTerm);
-    blockContents(mgenc);
-    // if no return has been generated so far, we can be sure there was no .
-    // terminating the last expression, so the last expression's value must be
-    // popped off the stack and a ^self be generated
-    if(!mgenc->IsFinished()) {
-        bcGen->EmitPOP(mgenc);
-        bcGen->EmitPUSHARGUMENT(mgenc, 0, 0);
-        bcGen->EmitRETURNLOCAL(mgenc);
-        mgenc->SetFinished();
-    }
-    
-    expect(EndTerm);
+  expect(NewTerm);
+  blockContents(mgenc);
+  // if no return has been generated so far, we can be sure there was no .
+  // terminating the last expression, so the last expression's value must be
+  // popped off the stack and a ^self be generated
+  if(!mgenc->IsFinished()) {
+    bcGen->EmitPOP(mgenc);
+    bcGen->EmitPUSHARGUMENT(mgenc, 0, 0);
+    bcGen->EmitRETURNLOCAL(mgenc);
+    mgenc->SetFinished();
+  }
+
+  expect(EndTerm);
 }
 
 
 pVMSymbol Parser::unarySelector(void) {
-    return _UNIVERSE->SymbolFor(identifier());
+  return _UNIVERSE->SymbolFor(identifier());
 }
 
 
 pVMSymbol Parser::binarySelector(void) {
-    StdString s(text);
-    
-    if(accept(Or))
-        ;
-    else if(accept(Comma))
-        ;
-    else if(accept(Minus))
-        ;
-    else if(accept(Equal))
-        ;
-    else if(acceptOneOf(singleOpSyms))
-        ;
-    else if(accept(OperatorSequence))
-        ;
-    else
-        expect(NONE);
-    
-    pVMSymbol symb = _UNIVERSE->SymbolFor(s);
-    return symb;
+  StdString s(text);
+
+  if(accept(Or))
+    ;
+  else if(accept(Comma))
+    ;
+  else if(accept(Minus))
+    ;
+  else if(accept(Equal))
+    ;
+  else if(acceptOneOf(singleOpSyms))
+    ;
+  else if(accept(OperatorSequence))
+    ;
+  else
+    expect(NONE);
+
+  pVMSymbol symb = _UNIVERSE->SymbolFor(s);
+  return symb;
 }
 
 
 StdString Parser::identifier(void) {
-    StdString s(text);
-    if(accept(Primitive))
-        ; // text is set
-    else
-        expect(Identifier);
-    
-    return s;
+  StdString s(text);
+  if(accept(Primitive))
+    ; // text is set
+  else
+    expect(Identifier);
+
+  return s;
 }
 
 
 StdString Parser::keyword(void) {
-    StdString s(text);
-    expect(Keyword);
-    
-    return s;
+  StdString s(text);
+  expect(Keyword);
+
+  return s;
 }
 
 
 StdString Parser::argument(void) {
-    return variable();
+  return variable();
 }
 
 
 void Parser::blockContents(MethodGenerationContext* mgenc) {
-    if(accept(Or)) {
-        locals(mgenc);
-        expect(Or);
-    }
-    blockBody(mgenc, false);
+  if(accept(Or)) {
+    locals(mgenc);
+    expect(Or);
+  }
+  blockBody(mgenc, false);
 }
 
 
 void Parser::locals(MethodGenerationContext* mgenc)
 {
-    while(sym == Identifier) 
-		mgenc->AddLocalIfAbsent(variable());
+  while(sym == Identifier) 
+    mgenc->AddLocalIfAbsent(variable());
 }
 
 
 void Parser::blockBody(MethodGenerationContext* mgenc, bool seen_period) {
-    if(accept(Exit))
-        result(mgenc);
-    else if(sym == EndBlock) {
-		if(seen_period) {
-            // a POP has been generated which must be elided (blocks always
-            // return the value of the last expression, regardless of whether it
-            // was terminated with a . or not)
-            mgenc->RemoveLastBytecode();
-		}
-        bcGen->EmitRETURNLOCAL(mgenc);
-		
-		mgenc->SetFinished();
-    } else if(sym == EndTerm) {
-        // it does not matter whether a period has been seen, as the end of the
-        // method has been found (EndTerm) - so it is safe to emit a "return
-        // self"
-        bcGen->EmitPUSHARGUMENT(mgenc, 0, 0);
-		bcGen->EmitRETURNLOCAL(mgenc);
-		mgenc->SetFinished();
-    } else {
-        expression(mgenc);
-        if(accept(Period)) {
-            bcGen->EmitPOP(mgenc);
-            blockBody(mgenc, true);
-        }
+  if(accept(Exit))
+    result(mgenc);
+  else if(sym == EndBlock) {
+    if(seen_period) {
+      // a POP has been generated which must be elided (blocks always
+      // return the value of the last expression, regardless of whether it
+      // was terminated with a . or not)
+      mgenc->RemoveLastBytecode();
     }
+    bcGen->EmitRETURNLOCAL(mgenc);
+
+    mgenc->SetFinished();
+  } else if(sym == EndTerm) {
+    // it does not matter whether a period has been seen, as the end of the
+    // method has been found (EndTerm) - so it is safe to emit a "return
+    // self"
+    bcGen->EmitPUSHARGUMENT(mgenc, 0, 0);
+    bcGen->EmitRETURNLOCAL(mgenc);
+    mgenc->SetFinished();
+  } else {
+    expression(mgenc);
+    if(accept(Period)) {
+      bcGen->EmitPOP(mgenc);
+      blockBody(mgenc, true);
+    }
+  }
 }
 
 
 void Parser::result(MethodGenerationContext* mgenc) {
-    expression(mgenc);
-	
-	if(mgenc->IsBlockMethod()) bcGen->EmitRETURNNONLOCAL(mgenc);
-	else bcGen->EmitRETURNLOCAL(mgenc);
-    
-    mgenc->SetFinished(true);
-	accept(Period);
+  expression(mgenc);
+
+  if(mgenc->IsBlockMethod()) bcGen->EmitRETURNNONLOCAL(mgenc);
+  else bcGen->EmitRETURNLOCAL(mgenc);
+
+  mgenc->SetFinished(true);
+  accept(Period);
 }
 
 
 void Parser::expression(MethodGenerationContext* mgenc) {
-    PEEK;
-    if(nextSym == Assign)
-        assignation(mgenc);
-    else
-        evaluation(mgenc);
+  PEEK;
+  if(nextSym == Assign)
+    assignation(mgenc);
+  else
+    evaluation(mgenc);
 }
 
 
 void Parser::assignation(MethodGenerationContext* mgenc) {
-	list<StdString> l;
-    
-    assignments(mgenc, l);
-    evaluation(mgenc);
-    list<StdString>::iterator i;
-    for(i=l.begin(); i != l.end(); ++i)
-        bcGen->EmitDUP(mgenc);
-    for(i=l.begin(); i != l.end(); ++i)
-        genPopVariable(mgenc, (*i));
-    
+  list<StdString> l;
+
+  assignments(mgenc, l);
+  evaluation(mgenc);
+  list<StdString>::iterator i;
+  for(i=l.begin(); i != l.end(); ++i)
+    bcGen->EmitDUP(mgenc);
+  for(i=l.begin(); i != l.end(); ++i)
+    genPopVariable(mgenc, (*i));
+
 }
 
 
 void Parser::assignments(MethodGenerationContext* mgenc, list<StdString>& l) {
-    if(sym == Identifier) {
-        l.push_back(assignment(mgenc));
-        PEEK;
-        if(nextSym == Assign)
-            assignments(mgenc, l);
-    }
+  if(sym == Identifier) {
+    l.push_back(assignment(mgenc));
+    PEEK;
+    if(nextSym == Assign)
+      assignments(mgenc, l);
+  }
 }
 
 
 StdString Parser::assignment(MethodGenerationContext* mgenc) {
-    StdString v = variable();
-    pVMSymbol var = _UNIVERSE->SymbolFor(v);
-	mgenc->AddLiteralIfAbsent((pVMObject)var);
-    
-    expect(Assign);
-    
-    return v;
+  StdString v = variable();
+  pVMSymbol var = _UNIVERSE->SymbolFor(v);
+  mgenc->AddLiteralIfAbsent((pVMObject)var);
+
+  expect(Assign);
+
+  return v;
 }
 
 
 void Parser::evaluation(MethodGenerationContext* mgenc) {
-    bool super;
-    primary(mgenc, &super);
-    if(sym == Identifier || sym == Keyword || sym == OperatorSequence ||
-        symIn(binaryOpSyms)) {       
-        messages(mgenc, super);
-    }
+  bool super;
+  primary(mgenc, &super);
+  if(sym == Identifier || sym == Keyword || sym == OperatorSequence ||
+     symIn(binaryOpSyms)) {       
+    messages(mgenc, super);
+  }
 }
 
 
 void Parser::primary(MethodGenerationContext* mgenc, bool* super) {
-    *super = false;
-    switch(sym) {
-        case Identifier: {
-            StdString v = variable();
-			if(v == "super") { 
-                *super = true;
-                // sends to super push self as the receiver
-                v = StdString("self");
-            }
-            
-            genPushVariable(mgenc, v);
-            break;
-        }
-        case NewTerm:
-            nestedTerm(mgenc);
-            break;
-        case NewBlock: {
-            MethodGenerationContext* bgenc = new MethodGenerationContext();
-			bgenc->SetIsBlockMethod(true);
-			bgenc->SetHolder(mgenc->GetHolder());
-			bgenc->SetOuter(mgenc);
-            
-            nestedBlock(bgenc);
-            
-            pVMMethod block_method = bgenc->Assemble();
-			mgenc->AddLiteral(block_method);
-            bcGen->EmitPUSHBLOCK(mgenc, block_method);
-			delete(bgenc);
-            break;
-        }
-        default:
-            literal(mgenc);
-            break;
+  *super = false;
+  switch(sym) {
+    case Identifier: {
+      StdString v = variable();
+      if(v == "super") { 
+        *super = true;
+        // sends to super push self as the receiver
+        v = StdString("self");
+      }
+
+      genPushVariable(mgenc, v);
+      break;
     }
+    case NewTerm:
+      nestedTerm(mgenc);
+      break;
+    case NewBlock: {
+      MethodGenerationContext* bgenc = new MethodGenerationContext();
+      bgenc->SetIsBlockMethod(true);
+      bgenc->SetHolder(mgenc->GetHolder());
+      bgenc->SetOuter(mgenc);
+
+      nestedBlock(bgenc);
+
+      pVMMethod block_method = bgenc->Assemble();
+      mgenc->AddLiteral(block_method);
+      bcGen->EmitPUSHBLOCK(mgenc, block_method);
+      delete(bgenc);
+      break;
+    }
+    default:
+      literal(mgenc);
+      break;
+  }
 }
 
 
 StdString Parser::variable(void) {
-    return identifier();
+  return identifier();
 }
 
 
 void Parser::messages(MethodGenerationContext* mgenc, bool super) {
-    if(sym == Identifier) {
-        do {
-            // only the first message in a sequence can be a super send
-            unaryMessage(mgenc, super);
-            super = false;
-        } while(sym == Identifier);
-        
-        while(sym == OperatorSequence || symIn(binaryOpSyms)) {
-            binaryMessage(mgenc, false);
-        }
-        
-        if(sym == Keyword) {
-            keywordMessage(mgenc, false);
-        }
-    } else if(sym == OperatorSequence || symIn(binaryOpSyms)) {
-        do {
-            // only the first message in a sequence can be a super send
-            binaryMessage(mgenc, super);
-            super = false;
-        } while(sym == OperatorSequence || symIn(binaryOpSyms));
-        
-        if(sym == Keyword) {
-            keywordMessage(mgenc, false);
-        }
-    } else
-        keywordMessage(mgenc, super);
+  if(sym == Identifier) {
+    do {
+      // only the first message in a sequence can be a super send
+      unaryMessage(mgenc, super);
+      super = false;
+    } while(sym == Identifier);
+
+    while(sym == OperatorSequence || symIn(binaryOpSyms)) {
+      binaryMessage(mgenc, false);
+    }
+
+    if(sym == Keyword) {
+      keywordMessage(mgenc, false);
+    }
+  } else if(sym == OperatorSequence || symIn(binaryOpSyms)) {
+    do {
+      // only the first message in a sequence can be a super send
+      binaryMessage(mgenc, super);
+      super = false;
+    } while(sym == OperatorSequence || symIn(binaryOpSyms));
+
+    if(sym == Keyword) {
+      keywordMessage(mgenc, false);
+    }
+  } else
+    keywordMessage(mgenc, super);
 }
 
 
 void Parser::unaryMessage(MethodGenerationContext* mgenc, bool super) {
-    pVMSymbol msg = unarySelector();
-	mgenc->AddLiteralIfAbsent((pVMObject)msg);
-    
-    if(super) bcGen->EmitSUPERSEND(mgenc, msg);
-    else bcGen->EmitSEND(mgenc, msg);
-	
+  pVMSymbol msg = unarySelector();
+  mgenc->AddLiteralIfAbsent((pVMObject)msg);
+
+  if(super) bcGen->EmitSUPERSEND(mgenc, msg);
+  else bcGen->EmitSEND(mgenc, msg);
+
 }
 
 
 void Parser::binaryMessage(MethodGenerationContext* mgenc, bool super) {
-    pVMSymbol msg = binarySelector();
-	mgenc->AddLiteralIfAbsent((pVMObject)msg);
-    
-    
-    bool tmp_bool = false;
-    binaryOperand(mgenc, &tmp_bool);
-    
-    if(super)
-        bcGen->EmitSUPERSEND(mgenc, msg);
-    else
-        bcGen->EmitSEND(mgenc, msg);
-	
+  pVMSymbol msg = binarySelector();
+  mgenc->AddLiteralIfAbsent((pVMObject)msg);
+
+
+  bool tmp_bool = false;
+  binaryOperand(mgenc, &tmp_bool);
+
+  if(super)
+    bcGen->EmitSUPERSEND(mgenc, msg);
+  else
+    bcGen->EmitSEND(mgenc, msg);
+
 }
 
 
 void Parser::binaryOperand(MethodGenerationContext* mgenc, bool* super) {
-    primary(mgenc, super);
-    
-    while(sym == Identifier)
-        unaryMessage(mgenc, *super);
+  primary(mgenc, super);
+
+  while(sym == Identifier)
+    unaryMessage(mgenc, *super);
 }
 
 
 void Parser::keywordMessage(MethodGenerationContext* mgenc, bool super) {
-    StdString kw;
-    do {
-        kw.append(keyword());
+  StdString kw = keyword();
+  if (//mgenc->GetHolder()->GetName()->GetStdString() == "Fibonacci" &&
+      !super && kw == "ifTrue:") {
+    int false_block_pos = bcGen->EmitJUMP_IF_FALSE(mgenc);
+    if (sym == NewBlock){
+      expect(NewBlock);
+      blockContents(mgenc);
+      expect(EndBlock);
+    }
+    else {
+      formula(mgenc);
+      pVMSymbol msg = _UNIVERSE->SymbolFor("value");
+      mgenc->AddLiteralIfAbsent((pVMObject)msg);
+      bcGen->EmitSEND(mgenc, msg);
+    }
+
+    int after_pos = bcGen->EmitJUMP(mgenc);
+    mgenc->PatchJumpTarget(false_block_pos);
+
+    if (sym == Keyword) {
+      StdString ifFalse = keyword();
+      assert(ifFalse == "ifFalse:");
+      if (sym == NewBlock){
+        expect(NewBlock);
+        blockContents(mgenc);
+        expect(EndBlock);
+      }
+      else {
         formula(mgenc);
-    } while(sym == Keyword);
-    
-    pVMSymbol msg = _UNIVERSE->SymbolFor(kw);
-    
-	mgenc->AddLiteralIfAbsent((pVMObject)msg);
-    
-    
-    if(super) bcGen->EmitSUPERSEND(mgenc, msg);
-    else bcGen->EmitSEND(mgenc, msg);
-	
+        pVMSymbol msg = _UNIVERSE->SymbolFor("value");
+        mgenc->AddLiteralIfAbsent((pVMObject)msg);
+        bcGen->EmitSEND(mgenc, msg);
+      }
+    }
+    else {
+      pVMSymbol global = _UNIVERSE->SymbolFor("nil");
+      mgenc->AddLiteralIfAbsent((pVMObject)global);
+
+      bcGen->EmitPUSHGLOBAL(mgenc, global);
+    }
+    mgenc->PatchJumpTarget(after_pos);
+    mgenc->SetFinished(false);
+
+    assert(sym != Keyword);
+    return;
+  }
+  formula(mgenc);
+  while(sym == Keyword) {
+    kw.append(keyword());
+    formula(mgenc);
+  }
+
+  pVMSymbol msg = _UNIVERSE->SymbolFor(kw);
+
+  mgenc->AddLiteralIfAbsent((pVMObject)msg);
+
+
+  if(super) bcGen->EmitSUPERSEND(mgenc, msg);
+  else bcGen->EmitSEND(mgenc, msg);
+
 }
 
 
 void Parser::formula(MethodGenerationContext* mgenc) {
-    bool super;
-    binaryOperand(mgenc, &super);
-    
-    // only the first message in a sequence can be a super send
-    if(sym == OperatorSequence || symIn(binaryOpSyms))
-        binaryMessage(mgenc, super);
-    while(sym == OperatorSequence || symIn(binaryOpSyms))
-        binaryMessage(mgenc, false);
+  bool super;
+  binaryOperand(mgenc, &super);
+
+  // only the first message in a sequence can be a super send
+  if(sym == OperatorSequence || symIn(binaryOpSyms))
+    binaryMessage(mgenc, super);
+  while(sym == OperatorSequence || symIn(binaryOpSyms))
+    binaryMessage(mgenc, false);
 }
 
 
 void Parser::nestedTerm(MethodGenerationContext* mgenc) {
-    expect(NewTerm);
-    expression(mgenc);
-    expect(EndTerm);
+  expect(NewTerm);
+  expression(mgenc);
+  expect(EndTerm);
 }
 
 
 void Parser::literal(MethodGenerationContext* mgenc) {
-    switch(sym) {
-        case Pound: 
-            literalSymbol(mgenc);
-            break;
-        case STString: 
-            literalString(mgenc);
-            break;
-        default: 
-            literalNumber(mgenc);
-            break;
-    }
+  switch(sym) {
+    case Pound: 
+      literalSymbol(mgenc);
+      break;
+    case STString: 
+      literalString(mgenc);
+      break;
+    default: 
+      literalNumber(mgenc);
+      break;
+  }
 }
 
 
 void Parser::literalNumber(MethodGenerationContext* mgenc) {
-    int32_t val;
-    if(sym == Minus)
-        val = negativeDecimal();
-    else
-        val = literalDecimal();
+  int32_t val;
+  if(sym == Minus)
+    val = negativeDecimal();
+  else
+    val = literalDecimal();
 
 #ifdef USE_TAGGING
-    pVMInteger lit = val;
+  pVMInteger lit = val;
 #else
-    pVMInteger lit = _UNIVERSE->NewInteger(val);
+  pVMInteger lit = _UNIVERSE->NewInteger(val);
 #endif
-	mgenc->AddLiteralIfAbsent((pVMObject)lit);
-    bcGen->EmitPUSHCONSTANT(mgenc, (pVMObject)lit);
+  mgenc->AddLiteralIfAbsent((pVMObject)lit);
+  bcGen->EmitPUSHCONSTANT(mgenc, (pVMObject)lit);
 }
 
 
 uint32_t Parser::literalDecimal(void) {
-    return literalInteger();
+  return literalInteger();
 }
 
 
 int32_t Parser::negativeDecimal(void) {
-    expect(Minus);
-    return  -((int32_t)literalInteger());
+  expect(Minus);
+  return  -((int32_t)literalInteger());
 }
 
 
 uint32_t Parser::literalInteger(void) {
-    uint32_t i = (uint32_t) strtoul(text.c_str(), NULL, 10);
-    expect(Integer);
-    return i;
+  uint32_t i = (uint32_t) strtoul(text.c_str(), NULL, 10);
+  expect(Integer);
+  return i;
 }
 
 
 void Parser::literalSymbol(MethodGenerationContext* mgenc) {
-    pVMSymbol symb;
-    expect(Pound);
-    if(sym == STString) {
-        StdString s = _string();
-        symb = _UNIVERSE->SymbolFor(s);
-        
-    } else
-        symb = selector();
-	mgenc->AddLiteralIfAbsent((pVMObject)symb);
-    
-    bcGen->EmitPUSHCONSTANT(mgenc, (pVMObject)symb);
+  pVMSymbol symb;
+  expect(Pound);
+  if(sym == STString) {
+    StdString s = _string();
+    symb = _UNIVERSE->SymbolFor(s);
+
+  } else
+    symb = selector();
+  mgenc->AddLiteralIfAbsent((pVMObject)symb);
+
+  bcGen->EmitPUSHCONSTANT(mgenc, (pVMObject)symb);
 }
 
 
 void Parser::literalString(MethodGenerationContext* mgenc) {
-    StdString s = _string();
-	
-    pVMString str = _UNIVERSE->NewString(s);
-    mgenc->AddLiteralIfAbsent((pVMObject)str);
-    
-    bcGen->EmitPUSHCONSTANT(mgenc,(pVMObject)str);
-    
+  StdString s = _string();
+
+  pVMString str = _UNIVERSE->NewString(s);
+  mgenc->AddLiteralIfAbsent((pVMObject)str);
+
+  bcGen->EmitPUSHCONSTANT(mgenc,(pVMObject)str);
+
 }
 
 
 pVMSymbol Parser::selector(void) {
-    if(sym == OperatorSequence || symIn(singleOpSyms))
-        return binarySelector();
-    else if(sym == Keyword || sym == KeywordSequence)
-        return keywordSelector();
-    else
-        return unarySelector();
+  if(sym == OperatorSequence || symIn(singleOpSyms))
+    return binarySelector();
+  else if(sym == Keyword || sym == KeywordSequence)
+    return keywordSelector();
+  else
+    return unarySelector();
 }
 
 
 pVMSymbol Parser::keywordSelector(void) {
-    StdString s(text);
-    expectOneOf(keywordSelectorSyms);
-    pVMSymbol symb = _UNIVERSE->SymbolFor(s);
-    return symb;
+  StdString s(text);
+  expectOneOf(keywordSelectorSyms);
+  pVMSymbol symb = _UNIVERSE->SymbolFor(s);
+  return symb;
 }
 
 
 StdString Parser::_string(void) {
-    StdString s(text); 
-    expect(STString);    
-    return s; // <-- Literal strings are At Most BUFSIZ chars long.
+  StdString s(text); 
+  expect(STString);    
+  return s; // <-- Literal strings are At Most BUFSIZ chars long.
 }
 
 
 void Parser::nestedBlock(MethodGenerationContext* mgenc) {
-    #define BLOCK_METHOD_S "$block method"
-    #define BLOCK_METHOD_LEN (13)
-	mgenc->AddArgumentIfAbsent("$block self");
-    
-    expect(NewBlock);
-    if(sym == Colon)
-        blockPattern(mgenc);
-    
-    // generate Block signature
-    StdString block_sig = StdString(BLOCK_METHOD_S);
-	size_t arg_size = mgenc->GetNumberOfArguments();
-    for(size_t i = 1; i < arg_size; i++)
-		block_sig += ":";
+#define BLOCK_METHOD_S "$block method"
+#define BLOCK_METHOD_LEN (13)
+  mgenc->AddArgumentIfAbsent("$block self");
 
-    mgenc->SetSignature(_UNIVERSE->SymbolFor(block_sig));
-    
-    blockContents(mgenc);
-    
-    // if no return has been generated, we can be sure that the last expression
-    // in the block was not terminated by ., and can generate a return
-    if(!mgenc->IsFinished()) {
-		bcGen->EmitRETURNLOCAL(mgenc);
-        mgenc->SetFinished(true);
-    }
-    
-    expect(EndBlock);
+  expect(NewBlock);
+  if(sym == Colon)
+    blockPattern(mgenc);
+
+  // generate Block signature
+  StdString block_sig = StdString(BLOCK_METHOD_S);
+  size_t arg_size = mgenc->GetNumberOfArguments();
+  for(size_t i = 1; i < arg_size; i++)
+    block_sig += ":";
+
+  mgenc->SetSignature(_UNIVERSE->SymbolFor(block_sig));
+
+  blockContents(mgenc);
+
+  // if no return has been generated, we can be sure that the last expression
+  // in the block was not terminated by ., and can generate a return
+  if(!mgenc->IsFinished()) {
+    bcGen->EmitRETURNLOCAL(mgenc);
+    mgenc->SetFinished(true);
+  }
+
+  expect(EndBlock);
 }
 
 
 void Parser::blockPattern(MethodGenerationContext* mgenc) {
-    blockArguments(mgenc);
-    expect(Or);
+  blockArguments(mgenc);
+  expect(Or);
 }
 
 
 void Parser::blockArguments(MethodGenerationContext* mgenc) {
-    do {
-        expect(Colon);
-		mgenc->AddArgumentIfAbsent(argument());
-        
-    } while(sym == Colon);
+  do {
+    expect(Colon);
+    mgenc->AddArgumentIfAbsent(argument());
+
+  } while(sym == Colon);
 }
 
 

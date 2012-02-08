@@ -142,3 +142,20 @@ void BytecodeGenerator::EmitRETURNNONLOCAL(
                 MethodGenerationContext* mgenc ) {
     EMIT1(BC_RETURN_NON_LOCAL);
 }
+
+size_t BytecodeGenerator::EmitJUMP_IF_FALSE(MethodGenerationContext* mgenc) {
+  size_t pos = mgenc->AddBytecode(BC_JUMP_IF_FALSE);
+  EMIT1(0);
+  EMIT1(0);
+  EMIT1(0);
+  EMIT1(0);
+  return pos;
+}
+size_t BytecodeGenerator::EmitJUMP(MethodGenerationContext* mgenc) {
+  size_t pos = mgenc->AddBytecode(BC_JUMP);
+  EMIT1(0);
+  EMIT1(0);
+  EMIT1(0);
+  EMIT1(0);
+  return pos;
+}
