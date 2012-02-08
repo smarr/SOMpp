@@ -96,6 +96,9 @@ pVMClass systemClass;
 pVMClass blockClass;
 pVMClass doubleClass;
 
+pVMSymbol symbolIfTrue;
+pVMSymbol symbolIfFalse;
+
 
 std::map<std::string, pVMSymbol> symbolsMap;
 
@@ -337,6 +340,8 @@ void Universe::initialize(int _argc, char** _argv) {
     this->SetGlobal(SymbolForChars("system"), systemObject);
     this->SetGlobal(SymbolForChars("System"), systemClass);
     this->SetGlobal(SymbolForChars("Block"), blockClass);
+    symbolIfTrue = SymbolForChars("ifTrue:");
+    symbolIfFalse = SymbolForChars("ifFalse:");
     
     pVMMethod bootstrapMethod = NewMethod(SymbolForChars("bootstrap"), 1, 0);
     bootstrapMethod->SetBytecode(0, BC_HALT);
@@ -885,6 +890,10 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 		bcIter->second = (pVMClass)walk(bcIter->second);
 #endif
 	}
+
+  //reassign ifTrue ifFalse Symbols
+  symbolIfTrue = symbolsMap["ifTrue:"];
+  symbolIfFalse = symbolsMap["ifFalse:"];
 }
 
 

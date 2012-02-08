@@ -333,11 +333,11 @@ void Interpreter::doPushField( int bytecodeIndex ) {
 void Interpreter::doPushBlock( int bytecodeIndex ) {
 
   if (current_bytecodes[bytecodeIndex_global] == BC_SEND) {
-    if (_FRAME->GetStackElement(0) == falseObject && strcmp(((VMSymbol*)method->GetConstant(bytecodeIndex_global))->chars, "ifTrue:") == 0) {
+    if (_FRAME->GetStackElement(0) == falseObject && method->GetConstant(bytecodeIndex_global) == symbolIfTrue) {
       _FRAME->Push(nilObject);
       return;
     }
-    else if (_FRAME->GetStackElement(0) == trueObject && strcmp(((VMSymbol*)method->GetConstant(bytecodeIndex_global))->chars, "ifFalse:") == 0) {
+    else if (_FRAME->GetStackElement(0) == trueObject && method->GetConstant(bytecodeIndex_global) == symbolIfFalse) {
       _FRAME->Push(nilObject);
       return;
     }
