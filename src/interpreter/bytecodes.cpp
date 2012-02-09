@@ -45,6 +45,7 @@ const uint8_t Bytecode::bytecodeLengths[] = {
     1, // BC_RETURN_LOCAL
     1,  // BC_RETURN_NON_LOCAL
     5,  // JUMP_IF_FALSE
+    5,  // JUMP_IF_TRUE
     5   // JUMP
 };
 
@@ -66,6 +67,7 @@ const char* Bytecode::bytecodeNames[] = {
     "RETURN_LOCAL    ",
     "RETURN_NON_LOCAL",
     "JUMP_IF_FALSE   ",
+    "JUMP_IF_TRUE    ",
     "JUMP            "
 };
 

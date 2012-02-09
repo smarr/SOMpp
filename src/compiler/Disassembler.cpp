@@ -244,6 +244,7 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
                 break;
             }
             case BC_JUMP_IF_FALSE:
+            case BC_JUMP_IF_TRUE:
             case BC_JUMP: {
               int target = 0;
               target |= method->GetBytecode(bc_idx + 1);
@@ -477,6 +478,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
         break;
       }
       case BC_JUMP_IF_FALSE:
+      case BC_JUMP_IF_TRUE:
       case BC_JUMP: {
         int target = 0;
         target |= method->GetBytecode(bc_idx + 1);

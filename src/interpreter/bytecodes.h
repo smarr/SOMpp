@@ -50,7 +50,8 @@ THE SOFTWARE.
 #define BC_RETURN_LOCAL      14
 #define BC_RETURN_NON_LOCAL  15
 #define BC_JUMP_IF_FALSE     16
-#define BC_JUMP              17
+#define BC_JUMP_IF_TRUE      17
+#define BC_JUMP              18
 
 // bytecode lengths
 

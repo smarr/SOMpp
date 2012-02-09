@@ -113,6 +113,7 @@ void Interpreter::Start() {
     &&LABEL_BC_RETURN_LOCAL,
     &&LABEL_BC_RETURN_NON_LOCAL,
     &&LABEL_BC_JUMP_IF_FALSE,
+    &&LABEL_BC_JUMP_IF_TRUE,
     &&LABEL_BC_JUMP
   };
 
@@ -186,6 +187,10 @@ LABEL_BC_RETURN_NON_LOCAL:
 LABEL_BC_JUMP_IF_FALSE:
   PROLOGUE(5);
   doJumpIfFalse(bytecodeIndex_global - 5);
+  DISPATCH_NOGC();
+LABEL_BC_JUMP_IF_TRUE:
+  PROLOGUE(5);
+  doJumpIfTrue(bytecodeIndex_global - 5);
   DISPATCH_NOGC();
 LABEL_BC_JUMP:
   PROLOGUE(5);
@@ -510,6 +515,12 @@ void Interpreter::doReturnNonLocal() {
 void Interpreter::doJumpIfFalse(int bytecodeIndex) {
   pVMObject value = _FRAME->Pop();
   if (value == falseObject)
+    doJump(bytecodeIndex);
+}
+
+void Interpreter::doJumpIfTrue(int bytecodeIndex) {
+  pVMObject value = _FRAME->Pop();
+  if (value == trueObject)
     doJump(bytecodeIndex);
 }
 
