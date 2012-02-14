@@ -102,11 +102,11 @@ pVMObject VMFrame::GetField(int32_t index) const {
 }
 
 bool     VMFrame::HasContext() const {
-    return this->context !=  nilObject; 
+    return this->context !=  NULL; 
 }
 
 bool     VMFrame::HasPreviousFrame() const {
-    return this->previousFrame != nilObject;
+    return this->previousFrame != NULL;
 }
 
 int       VMFrame::GetBytecodeIndex() const {

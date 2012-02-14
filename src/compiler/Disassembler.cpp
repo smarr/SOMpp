@@ -69,28 +69,28 @@ void Disassembler::dispatch(pVMObject o) {
         DebugPrint("{True}");
     else if(o == falseObject)
         DebugPrint("{False}"); 
-    else if((pVMClass)o == systemClass)
+    else if(o == systemClass)
         DebugPrint("{System Class object}");
-    else if((pVMClass)o == blockClass)
+    else if(o == blockClass)
         DebugPrint("{Block Class object}");
     else if(o == _UNIVERSE->GetGlobal(_UNIVERSE->SymbolForChars("system")))
         DebugPrint("{System}");
     else {
         pVMClass c = o->GetClass();
         if(c == stringClass) {
-            DebugPrint("\"%s\"", ((pVMString)o)->GetChars());
+            DebugPrint("\"%s\"", dynamic_cast<pVMString>(o)->GetChars());
         } else if(c == doubleClass)
-            DebugPrint("%g", ((pVMDouble)o)->GetEmbeddedDouble());
+            DebugPrint("%g", dynamic_cast<pVMDouble>(o)->GetEmbeddedDouble());
         else if(c == bigIntegerClass)
-            DebugPrint("%lld", ((pVMBigInteger)o)->GetEmbeddedInteger());
+            DebugPrint("%lld", dynamic_cast<pVMBigInteger>(o)->GetEmbeddedInteger());
         else if(c == integerClass)
 #ifdef USE_TAGGING
-            DebugPrint("%d", (int32_t)((pVMInteger)o));
+            DebugPrint("%d", (int32_t)o);
 #else
-            DebugPrint("%d", ((pVMInteger)o)->GetEmbeddedInteger());
+            DebugPrint("%d", dynamic_cast<pVMInteger>(o)->GetEmbeddedInteger());
 #endif
         else if(c == symbolClass) {
-            DebugPrint("#%s", ((pVMSymbol)o)->GetChars());
+            DebugPrint("#%s", dynamic_cast<pVMSymbol>(o)->GetChars());
         } else
             DebugPrint("address: %p", (void*)o);
     }
@@ -101,7 +101,7 @@ void Disassembler::dispatch(pVMObject o) {
  */
 void Disassembler::Dump(pVMClass cl) {
     for(int i = 0; i < cl->GetNumberOfInstanceInvokables(); ++i) {
-        pVMInvokable inv = (pVMInvokable)(cl->GetInstanceInvokable(i));
+        pVMInvokable inv = dynamic_cast<pVMInvokable>(cl->GetInstanceInvokable(i));
         // output header and skip if the Invokable is a Primitive
         pVMSymbol sig = inv->GetSignature();
         pVMSymbol cname = cl->GetName();
@@ -111,7 +111,7 @@ void Disassembler::Dump(pVMClass cl) {
             continue;
         }
         // output actual method
-        DumpMethod((pVMMethod)(inv), "\t");
+        DumpMethod(dynamic_cast<pVMMethod>(inv), "\t");
     }
 }
 
@@ -185,7 +185,7 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
                 sprintf(nindent, "%s\t", indent);
                 
                 Disassembler::DumpMethod(
-                    (pVMMethod)(method->GetConstant(bc_idx)), nindent);
+                    dynamic_cast<pVMMethod>(method->GetConstant(bc_idx)), nindent);
                 break;
             }            
             case BC_PUSH_CONSTANT: {
@@ -224,20 +224,20 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
                 DebugPrint("argument: %d, context: %d\n", BC_1, BC_2);
                 break;
             case BC_POP_FIELD: {
-                pVMSymbol name = (pVMSymbol)(method->GetConstant(bc_idx));
+                pVMSymbol name = dynamic_cast<pVMSymbol>(method->GetConstant(bc_idx));
                 
                 DebugPrint("(index: %d) field: %s\n", BC_1, name->GetChars());
                 break;
             }
             case BC_SEND: {
-                pVMSymbol name = (pVMSymbol)(method->GetConstant(bc_idx));
+                pVMSymbol name = dynamic_cast<pVMSymbol>(method->GetConstant(bc_idx));
                 
                 DebugPrint("(index: %d) signature: %s\n", BC_1,
                     name->GetChars());
                 break;
             }
             case BC_SUPER_SEND: {
-                pVMSymbol name = (pVMSymbol)(method->GetConstant(bc_idx));
+                pVMSymbol name = dynamic_cast<pVMSymbol>(method->GetConstant(bc_idx));
                 
                 DebugPrint("(index: %d) signature: %s\n", BC_1,
                     name->GetChars());
@@ -338,7 +338,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
         case BC_PUSH_FIELD: {
             pVMFrame ctxt = frame->GetOuterContext();
             pVMObject arg = ctxt->GetArgument(0, 0);
-            pVMSymbol name = (pVMSymbol)(method->GetConstant(bc_idx));
+            pVMSymbol name = dynamic_cast<pVMSymbol>(method->GetConstant(bc_idx));
             int field_index = arg->GetFieldIndex(name);
            
             pVMObject o = arg->GetField(field_index);
@@ -354,7 +354,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
         }
         case BC_PUSH_BLOCK: {
             DebugPrint("block: (index: %d) ", BC_1);
-            pVMMethod meth = (pVMMethod)(method->GetConstant(bc_idx));
+            pVMMethod meth = dynamic_cast<pVMMethod>(method->GetConstant(bc_idx));
             DumpMethod(meth, "$");
             break;
         }
@@ -370,7 +370,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
             break;
         }
         case BC_PUSH_GLOBAL: {
-            pVMSymbol name = (pVMSymbol)(method->GetConstant(bc_idx));
+            pVMSymbol name = dynamic_cast<pVMSymbol>(method->GetConstant(bc_idx));
             pVMObject o = _UNIVERSE->GetGlobal(name);
             pVMSymbol cname;
             
@@ -390,12 +390,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
             break;
         }
         case BC_POP: {
-#ifdef USE_TAGGING
-            size_t sp = (int32_t)frame->GetStackPointer();
-#else
-            size_t sp = frame->GetStackPointer();
-#endif
-            pVMObject o = ((pVMArray)frame)->GetIndexableField(sp);
+            pVMObject o = frame->GetStackElement(0);
             pVMClass c = o->GetClass();
             pVMSymbol cname = c->GetName();
             
@@ -406,12 +401,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
             break;            
         }            
         case BC_POP_LOCAL: {
-#ifdef USE_TAGGING
-            size_t sp = (int32_t)frame->GetStackPointer();
-#else
-            size_t sp = frame->GetStackPointer();
-#endif
-            pVMObject o = ((pVMArray)frame)->GetIndexableField(sp);
+            pVMObject o = frame->GetStackElement(0);
             pVMClass c = o->GetClass();
             pVMSymbol cname = c->GetName();
             
@@ -423,12 +413,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
             break;            
         }
         case BC_POP_ARGUMENT: {
-#ifdef USE_TAGGING
-            size_t sp = (int32_t)frame->GetStackPointer();
-#else
-            size_t sp = frame->GetStackPointer();
-#endif
-            pVMObject o = ((pVMArray)frame)->GetIndexableField(sp);
+            pVMObject o = frame->GetStackElement(0);
             pVMClass c = o->GetClass();
             pVMSymbol cname = c->GetName();
             DebugPrint("argument: %d, context: %d <(%s) ", BC_1, BC_2,
@@ -439,13 +424,8 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
             break;
         }
         case BC_POP_FIELD: {
-#ifdef USE_TAGGING
-            size_t sp = (int32_t)frame->GetStackPointer();
-#else
-            size_t sp = frame->GetStackPointer();
-#endif
-            pVMObject o = ((pVMArray)frame)->GetIndexableField(sp);
-            pVMSymbol name = (pVMSymbol)(method->GetConstant(bc_idx));
+            pVMObject o = frame->GetStackElement(0);
+            pVMSymbol name = dynamic_cast<pVMSymbol>(method->GetConstant(bc_idx));
             pVMClass c = o->GetClass();
             pVMSymbol cname = c->GetName();
             
@@ -458,7 +438,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
         }
         case BC_SUPER_SEND:
         case BC_SEND: {
-            pVMSymbol sel = (pVMSymbol)(method->GetConstant(bc_idx));
+            pVMSymbol sel = dynamic_cast<pVMSymbol>(method->GetConstant(bc_idx));
 
             DebugPrint("(index: %d) signature: %s (", BC_1,
                         sel->GetChars());

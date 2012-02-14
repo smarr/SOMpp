@@ -45,6 +45,7 @@ class VMSymbol;
 class VMArray;
 class VMPrimitive;
 class ClassGenerationContext;
+class VMInvokable;
 
 class VMClass : public VMObject {
  public:
@@ -61,9 +62,9 @@ class VMClass : public VMObject {
   inline pVMArray  GetInstanceInvokables() const;
   void      SetInstanceInvokables(pVMArray);
   int       GetNumberOfInstanceInvokables() const;
-  pVMObject GetInstanceInvokable(int) const;
+  pVMInvokable GetInstanceInvokable(int) const;
   void      SetInstanceInvokable(int, pVMObject);
-  pVMObject LookupInvokable(pVMSymbol) const;
+  pVMInvokable LookupInvokable(pVMSymbol) const;
   int       LookupFieldIndex(pVMSymbol) const;
   bool      AddInstanceInvokable(pVMObject);
   void      AddInstancePrimitive(pVMPrimitive);

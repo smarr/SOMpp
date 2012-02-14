@@ -28,6 +28,7 @@ THE SOFTWARE.
 
 #include "../vmobjects/VMObject.h"
 #include "../vmobjects/VMMethod.h"
+#include "../vmobjects/VMSymbol.h"
 
 
 #define EMIT1(BC) \
@@ -69,13 +70,13 @@ void BytecodeGenerator::EmitPUSHARGUMENT(
 
 void BytecodeGenerator::EmitPUSHFIELD(
                 MethodGenerationContext* mgenc, pVMSymbol field ) {
-    EMIT2(BC_PUSH_FIELD, mgenc->FindLiteralIndex((pVMObject)field));
+    EMIT2(BC_PUSH_FIELD, mgenc->FindLiteralIndex(field));
 }
 
 
 void BytecodeGenerator::EmitPUSHBLOCK(
                 MethodGenerationContext* mgenc, pVMMethod block ) {
-    EMIT2(BC_PUSH_BLOCK, mgenc->FindLiteralIndex((pVMObject)(block)));
+    EMIT2(BC_PUSH_BLOCK, mgenc->FindLiteralIndex((block)));
 }
 
 
@@ -87,13 +88,13 @@ void BytecodeGenerator::EmitPUSHCONSTANT(
 
 void BytecodeGenerator::EmitPUSHCONSTANTString( 
                 MethodGenerationContext* mgenc, pVMString str ){
-   EMIT2(BC_PUSH_CONSTANT, mgenc->FindLiteralIndex((pVMObject)str));
+   EMIT2(BC_PUSH_CONSTANT, mgenc->FindLiteralIndex(str));
 }
 
 
 void BytecodeGenerator::EmitPUSHGLOBAL(
                 MethodGenerationContext* mgenc, pVMSymbol global ) {
-    EMIT2(BC_PUSH_GLOBAL, mgenc->FindLiteralIndex((pVMObject)global));
+    EMIT2(BC_PUSH_GLOBAL, mgenc->FindLiteralIndex(global));
 }
 
 
@@ -116,19 +117,19 @@ void BytecodeGenerator::EmitPOPARGUMENT(
 
 void BytecodeGenerator::EmitPOPFIELD(
                 MethodGenerationContext* mgenc, pVMSymbol field ) {
-    EMIT2(BC_POP_FIELD, mgenc->FindLiteralIndex((pVMObject)field));
+    EMIT2(BC_POP_FIELD, mgenc->FindLiteralIndex(field));
 }
 
 
 void BytecodeGenerator::EmitSEND(
                 MethodGenerationContext* mgenc, pVMSymbol msg ) {
-    EMIT2(BC_SEND, mgenc->FindLiteralIndex((pVMObject)msg));
+    EMIT2(BC_SEND, mgenc->FindLiteralIndex(msg));
 }
 
 
 void BytecodeGenerator::EmitSUPERSEND(
                 MethodGenerationContext* mgenc, pVMSymbol msg ) {
-    EMIT2(BC_SUPER_SEND, mgenc->FindLiteralIndex((pVMObject)msg));
+    EMIT2(BC_SUPER_SEND, mgenc->FindLiteralIndex(msg));
 }
 
 

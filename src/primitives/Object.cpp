@@ -56,9 +56,9 @@ void  _Object::ObjectSize(pVMObject /*object*/, pVMFrame frame) {
 	pVMObject self = frame->Pop();
 
 #ifdef USE_TAGGING
-    frame->Push( (pVMObject)pVMInteger(self->GetObjectSize()) );
+    frame->Push(pVMInteger(self->GetObjectSize()) );
 #else
-    frame->Push( (pVMObject)_UNIVERSE->NewInteger(self->GetObjectSize()) );
+    frame->Push(_UNIVERSE->NewInteger(self->GetObjectSize()) );
 #endif
 }
 
@@ -66,9 +66,9 @@ void  _Object::ObjectSize(pVMObject /*object*/, pVMFrame frame) {
 void  _Object::Hashcode(pVMObject /*object*/, pVMFrame frame) {
 	pVMObject self = frame->Pop();
 #ifdef USE_TAGGING
-    frame->Push( (pVMObject)pVMInteger(self->GetHash()) );
+    frame->Push(pVMInteger(self->GetHash()) );
 #else
-    frame->Push( (pVMObject)_UNIVERSE->NewInteger(self->GetHash()) );
+    frame->Push(_UNIVERSE->NewInteger(self->GetHash()) );
 #endif
 }
 

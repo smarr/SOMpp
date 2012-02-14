@@ -143,7 +143,7 @@ bool VMClass::AddInstanceInvokable(pVMObject ptr) {
 
 
 void VMClass::AddInstancePrimitive(pVMPrimitive ptr) {
-	if (AddInstanceInvokable((pVMObject)ptr)) {
+	if (AddInstanceInvokable(ptr)) {
 		//cout << "Warn: Primitive "<<ptr->GetSignature<<" is not in class definition for class " << name->GetStdString() << endl;
 	}
 }
@@ -153,7 +153,7 @@ pVMSymbol VMClass::GetInstanceFieldName(int index) const {
 	int32_t noSuperInstanceFields = numberOfSuperInstanceFields();
 	if (index >= noSuperInstanceFields) {
 		index -= noSuperInstanceFields;
-		return (pVMSymbol) instanceFields->GetIndexableField(index);
+		return static_cast<pVMSymbol>(instanceFields->GetIndexableField(index));
 	}
 	return superClass->GetInstanceFieldName(index);
 }
@@ -190,8 +190,8 @@ int       VMClass::GetNumberOfInstanceInvokables() const {
 }
 
 
-pVMObject VMClass::GetInstanceInvokable(int index) const {
-    return instanceInvokables->GetIndexableField(index);
+pVMInvokable VMClass::GetInstanceInvokable(int index) const {
+    return static_cast<pVMInvokable>(instanceInvokables->GetIndexableField(index));
 }
 
 
@@ -208,26 +208,26 @@ void      VMClass::SetInstanceInvokable(int index, pVMObject invokable) {
 }
 
 
-pVMObject VMClass::LookupInvokable(pVMSymbol name) const {
+pVMInvokable VMClass::LookupInvokable(pVMSymbol name) const {
   //pVMInvokable invokable = NULL;
   pVMInvokable invokable = name->GetCachedInvokable(this);
   if (invokable != NULL)
     return invokable;
   int32_t noInstanceInvokables = GetNumberOfInstanceInvokables();
   for (int i = 0; i < noInstanceInvokables; ++i) {
-    invokable = (pVMInvokable)(GetInstanceInvokable(i));
+    invokable = GetInstanceInvokable(i);
     if (invokable->GetSignature() == name) {
       name->UpdateCachedInvokable(this, invokable);
-      return (pVMObject)(invokable);
+      return invokable;
     }
   }
   invokable = NULL;
   //look in super class
   if (this->HasSuperClass())  {
-    invokable = (pVMInvokable)(this->superClass->LookupInvokable(name));
+    invokable = this->superClass->LookupInvokable(name);
   }
   name->UpdateCachedInvokable(this, invokable);
-  return (pVMObject)(invokable);
+  return invokable;
 }
 
 
@@ -255,7 +255,7 @@ int       VMClass::GetNumberOfInstanceFields() const {
 bool      VMClass::HasPrimitives() const {
 	int32_t noInstanceInvokables = GetNumberOfInstanceInvokables();
 	for (int i = 0; i < noInstanceInvokables; ++i) {
-        pVMInvokable invokable = (pVMInvokable)(GetInstanceInvokable(i));
+        pVMInvokable invokable = GetInstanceInvokable(i);
         if (invokable->IsPrimitive()) return true;
     }
     return false;
@@ -434,7 +434,7 @@ void VMClass::setPrimitives(void* dlhandle, const StdString& cname) {
     // iterate invokables
     for(int i = 0; i < this->GetNumberOfInstanceInvokables(); i++)  {
         
-        anInvokable = (pVMInvokable)(this->GetInstanceInvokable(i));
+        anInvokable = this->GetInstanceInvokable(i);
 #ifdef __DEBUG
         cout << "cname: >" << cname << "<"<< endl;
         cout << an_invokable->GetSignature()->GetStdString() << endl;
@@ -443,7 +443,7 @@ void VMClass::setPrimitives(void* dlhandle, const StdString& cname) {
 #ifdef __DEBUG
             cout << "... is a primitive, and is going to be loaded now" << endl;
 #endif
-            thePrimitive = (pVMPrimitive)( anInvokable );
+            thePrimitive = static_cast<pVMPrimitive>( anInvokable );
             //
             // we have a primitive to load
             // get it's selector

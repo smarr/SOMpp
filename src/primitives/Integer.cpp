@@ -36,6 +36,7 @@ THE SOFTWARE.
 #include <vmobjects/VMFrame.h>
 #include <vmobjects/VMDouble.h>
 #include <vmobjects/VMInteger.h>
+#include <vmobjects/VMString.h>
 #include <vmobjects/VMBigInteger.h>
 #ifdef USE_TAGGING
 #include <vmobjects/VMPointerConverter.h>
@@ -71,11 +72,11 @@ THE SOFTWARE.
 #define CHECK_COERCION(obj,receiver,op) { \
     if(dynamic_cast<pVMBigInteger>(obj) != NULL) { \
         resendAsBigInteger( \
-            object, (op), (receiver), (pVMBigInteger)(obj)); \
+            object, (op), (receiver), static_cast<pVMBigInteger>(obj)); \
         return; \
     } else if(dynamic_cast<pVMDouble>(obj) != NULL) { \
         resendAsDouble( \
-            object, (op), (receiver), (pVMDouble)(obj)); \
+            object, (op), (receiver), static_cast<pVMDouble>(obj)); \
         return; \
     } \
 }
@@ -132,12 +133,12 @@ void _Integer::pushResult(pVMObject /*object*/, pVMFrame frame,
     int32_t i32min = INT32_MIN;
     // Check with integer bounds and push:
     if(result > INT32_MAX || result < i32min)
-        frame->Push((pVMObject)_UNIVERSE->NewBigInteger(result));
+        frame->Push(_UNIVERSE->NewBigInteger(result));
     else
 #ifdef USE_TAGGING
-        frame->Push((pVMObject)pVMInteger(result));
+        frame->Push(pVMInteger(result));
 #else
-        frame->Push((pVMObject)_UNIVERSE->NewInteger((int32_t)result));
+        frame->Push(_UNIVERSE->NewInteger((int32_t)result));
 #endif
 }
 
@@ -154,7 +155,7 @@ void _Integer::resendAsBigInteger(pVMObject /*object*/,
 #endif
     
     // Resend message:
-    pVMObject operands[] = { (pVMObject)right };
+    pVMObject operands[] = { right };
     
     leftBigInteger->Send(op, operands, 1);
     // no reference
@@ -170,7 +171,7 @@ void _Integer::resendAsDouble(pVMObject /*object*/, const char* op,
 #else
         _UNIVERSE->NewDouble((double)left->GetEmbeddedInteger());
 #endif
-    pVMObject operands[] = { (pVMObject)right };
+    pVMObject operands[] = { right };
     
     leftDouble->Send(op, operands, 1);
 }
@@ -184,12 +185,12 @@ void _Integer::resendAsDouble(pVMObject /*object*/, const char* op,
 
 void  _Integer::Plus(pVMObject object, pVMFrame frame) {
     pVMObject rightObj = frame->Pop();
-    pVMInteger left = (pVMInteger)frame->Pop();
+    pVMInteger left = static_cast<pVMInteger>(frame->Pop());
     
     CHECK_COERCION(rightObj, left, "+");
 
     // Do operation:
-    pVMInteger right = (pVMInteger)rightObj;
+    pVMInteger right = dynamic_cast<pVMInteger>(rightObj);
     
 #ifdef USE_TAGGING
     int64_t result = (int64_t)(int32_t)left + 
@@ -202,8 +203,8 @@ void  _Integer::Plus(pVMObject object, pVMFrame frame) {
 }
 
 void  _Integer::BitwiseAnd(pVMObject object, pVMFrame frame) {
-    pVMInteger right = (pVMInteger)frame->Pop();
-    pVMInteger left = (pVMInteger)frame->Pop();
+    pVMInteger right = static_cast<pVMInteger>(frame->Pop());
+    pVMInteger left = static_cast<pVMInteger>(frame->Pop());
 
 #ifdef USE_TAGGING
     int64_t result = (int64_t)left & (int64_t)right;
@@ -216,12 +217,12 @@ void  _Integer::BitwiseAnd(pVMObject object, pVMFrame frame) {
 
 void  _Integer::Minus(pVMObject object, pVMFrame frame) {
     pVMObject rightObj = frame->Pop();
-    pVMInteger left = (pVMInteger)frame->Pop();
+    pVMInteger left = static_cast<pVMInteger>(frame->Pop());
     
     CHECK_COERCION(rightObj, left, "-");
 
     // Do operation:
-    pVMInteger right = (pVMInteger)rightObj;
+    pVMInteger right = dynamic_cast<pVMInteger>(rightObj);
     
 #ifdef USE_TAGGING
     int64_t result = (int64_t)(int32_t)left - 
@@ -236,12 +237,12 @@ void  _Integer::Minus(pVMObject object, pVMFrame frame) {
 
 void  _Integer::Star(pVMObject object, pVMFrame frame) {
     pVMObject rightObj = frame->Pop();
-    pVMInteger left = (pVMInteger)frame->Pop();
+    pVMInteger left = static_cast<pVMInteger>(frame->Pop());
     
     CHECK_COERCION(rightObj, left, "*");
 
     // Do operation:
-    pVMInteger right = (pVMInteger)rightObj;
+    pVMInteger right = dynamic_cast<pVMInteger>(rightObj);
     
 #ifdef USE_TAGGING
     int64_t result = (int64_t)(int32_t)left * 
@@ -256,12 +257,12 @@ void  _Integer::Star(pVMObject object, pVMFrame frame) {
 
 void  _Integer::Slashslash(pVMObject object, pVMFrame frame) {
     pVMObject rightObj = frame->Pop();
-    pVMInteger left = (pVMInteger)frame->Pop();
+    pVMInteger left = static_cast<pVMInteger>(frame->Pop());
     
     CHECK_COERCION(rightObj, left, "/");
 
     // Do operation:
-    pVMInteger right = (pVMInteger)rightObj;
+    pVMInteger right = dynamic_cast<pVMInteger>(rightObj);
     
 #ifdef USE_TAGGING
     double result = (double)(int32_t)left /
@@ -276,12 +277,12 @@ void  _Integer::Slashslash(pVMObject object, pVMFrame frame) {
 
 void  _Integer::Slash(pVMObject object, pVMFrame frame) {
     pVMObject rightObj = frame->Pop();
-    pVMInteger left = (pVMInteger)frame->Pop();
+    pVMInteger left = static_cast<pVMInteger>(frame->Pop());
     
     CHECK_COERCION(rightObj, left, "/");
 
     // Do operation:
-    pVMInteger right = (pVMInteger)rightObj;
+    pVMInteger right = dynamic_cast<pVMInteger>(rightObj);
     
 #ifdef USE_TAGGING
     int64_t result = (int64_t)(int32_t)left / 
@@ -296,12 +297,12 @@ void  _Integer::Slash(pVMObject object, pVMFrame frame) {
 
 void  _Integer::Percent(pVMObject object, pVMFrame frame) {
     pVMObject rightObj = frame->Pop();
-    pVMInteger left = (pVMInteger)frame->Pop();
+    pVMInteger left = static_cast<pVMInteger>(frame->Pop());
     
     CHECK_COERCION(rightObj, left, "%");
 
     // Do operation:
-    pVMInteger right = (pVMInteger)rightObj;
+    pVMInteger right = dynamic_cast<pVMInteger>(rightObj);
 
 #ifdef USE_TAGGING
     int64_t result = (int64_t)(int32_t)left %
@@ -316,12 +317,12 @@ void  _Integer::Percent(pVMObject object, pVMFrame frame) {
 
 void  _Integer::And(pVMObject object, pVMFrame frame) {
     pVMObject rightObj = frame->Pop();
-    pVMInteger left = (pVMInteger)frame->Pop();
+    pVMInteger left = static_cast<pVMInteger>(frame->Pop());
     
     CHECK_COERCION(rightObj, left, "&");
 
     // Do operation:
-    pVMInteger right = (pVMInteger)rightObj;
+    pVMInteger right = dynamic_cast<pVMInteger>(rightObj);
     
 #ifdef USE_TAGGING
     int64_t result = (int64_t)(int32_t)left & 
@@ -336,7 +337,7 @@ void  _Integer::And(pVMObject object, pVMFrame frame) {
 
 void  _Integer::Equal(pVMObject object, pVMFrame frame) {
     pVMObject rightObj = frame->Pop();
-    pVMInteger left = (pVMInteger)frame->Pop();
+    pVMInteger left = static_cast<pVMInteger>(frame->Pop());
     
     CHECK_COERCION(rightObj, left, "=");
 
@@ -358,7 +359,7 @@ void  _Integer::Equal(pVMObject object, pVMFrame frame) {
 #else
     if(dynamic_cast<pVMInteger>(rightObj) != NULL) {
         // Second operand was Integer:
-        pVMInteger right = (pVMInteger)rightObj;
+        pVMInteger right = dynamic_cast<pVMInteger>(rightObj);
         
         if(left->GetEmbeddedInteger()
             == right->GetEmbeddedInteger())
@@ -367,7 +368,7 @@ void  _Integer::Equal(pVMObject object, pVMFrame frame) {
             frame->Push(falseObject);
     } else if(dynamic_cast<pVMDouble>(rightObj) != NULL) {
         // Second operand was Double:
-        pVMDouble right = (pVMDouble)rightObj;
+        pVMDouble right = static_cast<pVMDouble>(rightObj);
         
         if((double)left->GetEmbeddedInteger()
             == right->GetEmbeddedDouble())
@@ -383,11 +384,11 @@ void  _Integer::Equal(pVMObject object, pVMFrame frame) {
 
 void  _Integer::Lowerthan(pVMObject object, pVMFrame frame) {
     pVMObject rightObj = frame->Pop();
-    pVMInteger left = (pVMInteger)frame->Pop();
+    pVMInteger left = static_cast<pVMInteger>(frame->Pop());
     
     CHECK_COERCION(rightObj, left, "<");
 
-    pVMInteger right = (pVMInteger)rightObj;
+    pVMInteger right = dynamic_cast<pVMInteger>(rightObj);
     
 #ifdef USE_TAGGING
     if((int32_t)left < (int32_t)right)
@@ -401,7 +402,7 @@ void  _Integer::Lowerthan(pVMObject object, pVMFrame frame) {
 
 
 void  _Integer::AsString(pVMObject /*object*/, pVMFrame frame) {
-    pVMInteger self = (pVMInteger)frame->Pop();
+    pVMInteger self = static_cast<pVMInteger>(frame->Pop());
     
 #ifdef USE_TAGGING
     int32_t integer = (int32_t)self;
@@ -410,29 +411,29 @@ void  _Integer::AsString(pVMObject /*object*/, pVMFrame frame) {
 #endif
     ostringstream Str;
     Str << integer;
-    frame->Push( (pVMObject)_UNIVERSE->NewString( Str.str() ) );   
+    frame->Push( _UNIVERSE->NewString( Str.str() ) );   
 }
 
 
 void  _Integer::Sqrt(pVMObject /*object*/, pVMFrame frame) {
-    pVMInteger self = (pVMInteger)frame->Pop();
+    pVMInteger self = static_cast<pVMInteger>(frame->Pop());
 #ifdef USE_TAGGING
     double result = sqrt((double)(int32_t)self);
 #else
     double result = sqrt((double)self->GetEmbeddedInteger());
 #endif
-    frame->Push((pVMObject)_UNIVERSE->NewDouble(result));
+    frame->Push(_UNIVERSE->NewDouble(result));
 }
 
 
 void  _Integer::AtRandom(pVMObject /*object*/, pVMFrame frame) {
-    pVMInteger self = (pVMInteger)frame->Pop();
+    pVMInteger self = static_cast<pVMInteger>(frame->Pop());
 #ifdef USE_TAGGING
     int32_t result = ((int32_t)self * rand())%INT32_MAX;
-    frame->Push((pVMObject) pVMInteger(result));
+    frame->Push( pVMInteger(result));
 #else
     int32_t result = (self->GetEmbeddedInteger() * rand())%INT32_MAX;
-    frame->Push((pVMObject) _UNIVERSE->NewInteger(result));
+    frame->Push( _UNIVERSE->NewInteger(result));
 #endif
 }
 

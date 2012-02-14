@@ -54,7 +54,7 @@ const int VMMethod::VMMethodNumberOfFields = 5;
 VMMethod::VMMethod(int bcCount, int numberOfConstants, int nof)
   : VMInvokable(nof + VMMethodNumberOfFields) {
 #ifdef UNSAFE_FRAME_OPTIMIZATION
-    cachedFrame = (pVMFrame)nilObject;
+    cachedFrame = NULL;
 #if GC_TYPE==GENERATIONAL
     _HEAP->writeBarrier(this, nilObject);
 #endif
@@ -122,11 +122,39 @@ void VMMethod::WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*)) {
 void VMMethod::WalkObjects(pVMObject (*walk)(pVMObject)) {
 #endif
   VMInvokable::WalkObjects(walk);
+
+  numberOfLocals = dynamic_cast<pVMInteger>(walk(numberOfLocals));
+  maximumNumberOfStackElements = dynamic_cast<pVMInteger>(walk(maximumNumberOfStackElements));
+  bcLength = dynamic_cast<pVMInteger>(walk(bcLength));
+  numberOfArguments = dynamic_cast<pVMInteger>(walk(numberOfArguments));
+  numberOfConstants = dynamic_cast<pVMInteger>(walk(numberOfConstants));
+#ifdef UNSAFE_FRAME_OPTIMIZATION
+  if (cachedFrame != NULL)
+    cachedFrame = dynamic_cast<VMFrame*>(walk(cachedFrame));
+#endif
+    
 	for (int i = 0 ; i < GetNumberOfIndexableFields() ; ++i) {
 		if (GetIndexableField(i) != NULL)
 			SetIndexableField(i, walk(GetIndexableField(i)));
 	}
 }
+
+#ifdef UNSAFE_FRAME_OPTIMIZATION
+pVMFrame VMMethod::GetCachedFrame() const {
+  return cachedFrame;
+}
+
+void VMMethod::SetCachedFrame(pVMFrame frame) {
+  cachedFrame = frame;
+#if GC_TYPE == GENERATIONAL
+#ifdef USE_TAGGING
+  _HEAP->writeBarrier(this, cachedFrame.GetPointer());
+#else
+  _HEAP->writeBarrier(this, cachedFrame);
+#endif
+#endif
+}
+#endif
 
 
 int VMMethod::GetNumberOfLocals() const {

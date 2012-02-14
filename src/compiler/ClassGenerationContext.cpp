@@ -58,7 +58,7 @@ bool ClassGenerationContext::FindField(const StdString& field) {
 	ExtendedList<pVMObject> fields = IsClassSide() ?
         classFields :
         instanceFields;
-    return fields.IndexOf( (pVMObject)_UNIVERSE->SymbolFor(field)) != -1;
+    return fields.IndexOf(_UNIVERSE->SymbolFor(field)) != -1;
 
 }
 

@@ -69,9 +69,9 @@ void MarkSweepCollector::markReachableObjects() {
   pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
   if (currentFrame != NULL) {
 #ifdef USE_TAGGING
-    pVMFrame newFrame = (VMFrame*)mark_object(currentFrame);
+    pVMFrame newFrame = static_cast<VMFrame*>(mark_object(currentFrame));
 #else
-    pVMFrame newFrame = (pVMFrame)mark_object(currentFrame);
+    pVMFrame newFrame = static_cast<pVMFrame>(mark_object(currentFrame));
 #endif
     _UNIVERSE->GetInterpreter()->SetFrame(newFrame);
   }

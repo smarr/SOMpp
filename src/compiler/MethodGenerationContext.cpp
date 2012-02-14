@@ -134,7 +134,7 @@ uint8_t MethodGenerationContext::ComputeStackDepth() {
             case BC_SUPER_SEND       : {
                 // these are special: they need to look at the number of
                 // arguments (extractable from the signature)
-                pVMSymbol sig = (pVMSymbol)literals.Get(bytecode[i + 1]);
+                pVMSymbol sig = dynamic_cast<pVMSymbol>(literals.Get(bytecode[i + 1]));
                 
                 depth -= Signature::GetNumberOfArguments(sig);
                 

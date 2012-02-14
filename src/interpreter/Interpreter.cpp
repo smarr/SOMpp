@@ -37,6 +37,7 @@ THE SOFTWARE.
 #include "../vmobjects/VMArray.h"
 #include "../vmobjects/VMInvokable.h"
 #include "../vmobjects/Signature.h"
+#include "../vmobjects/VMBlock.h"
 #ifdef USE_TAGGING
 #include "../vmobjects/VMPointerConverter.h"
 #endif
@@ -276,8 +277,7 @@ void Interpreter::send( pVMSymbol signature, pVMClass receiverClass) {
       pVMObject o = _FRAME->Pop();
       argumentsArray->SetIndexableField(i, o);
     }
-    pVMObject arguments[] = { (pVMObject)signature, 
-      (pVMObject)argumentsArray };
+    pVMObject arguments[] = {signature, argumentsArray};
 
     //check if current frame is big enough for this unplanned Send
     //doesNotUnderstand: needs 3 slots, one for this, one for method name, one for args
@@ -319,7 +319,7 @@ void Interpreter::doPushArgument( int bytecodeIndex ) {
 
 
 void Interpreter::doPushField( int bytecodeIndex ) {
-    pVMSymbol fieldName = (pVMSymbol) method->GetConstant(bytecodeIndex);
+    pVMSymbol fieldName = dynamic_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));
 
     pVMObject self = _SELF;
     int fieldIndex = self->GetFieldIndex(fieldName);
@@ -344,12 +344,11 @@ void Interpreter::doPushBlock( int bytecodeIndex ) {
   }
 
 
-  pVMMethod blockMethod = (pVMMethod)(method->GetConstant(bytecodeIndex));
+  pVMMethod blockMethod = dynamic_cast<pVMMethod>(method->GetConstant(bytecodeIndex));
 
   int numOfArgs = blockMethod->GetNumberOfArguments();
 
-  _FRAME->Push((pVMObject) _UNIVERSE->NewBlock(blockMethod, _FRAME,
-                                               numOfArgs));
+  _FRAME->Push(_UNIVERSE->NewBlock(blockMethod, _FRAME, numOfArgs));
 }
 
 
@@ -360,13 +359,13 @@ void Interpreter::doPushConstant( int bytecodeIndex ) {
 
 
 void Interpreter::doPushGlobal( int bcIdx) {
-  pVMSymbol globalName = (pVMSymbol) method->GetConstant(bcIdx);
+  pVMSymbol globalName = dynamic_cast<pVMSymbol>(method->GetConstant(bcIdx));
   pVMObject global = _UNIVERSE->GetGlobal(globalName);
 
   if(global != NULL)
     _FRAME->Push(global);
   else {
-    pVMObject arguments[] = { (pVMObject) globalName };
+    pVMObject arguments[] = { globalName };
     pVMObject self = _SELF;
 
     //check if there is enough space on the stack for this unplanned Send
@@ -409,7 +408,7 @@ void Interpreter::doPopArgument( int bytecodeIndex ) {
 
 
 void Interpreter::doPopField( int bytecodeIndex ) {
-    pVMSymbol field_name = (pVMSymbol) method->GetConstant(bytecodeIndex);
+    pVMSymbol field_name = dynamic_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));;
 
     pVMObject self = _SELF;
     int field_index = self->GetFieldIndex(field_name);
@@ -420,7 +419,7 @@ void Interpreter::doPopField( int bytecodeIndex ) {
 
 
 void Interpreter::doSend( int bytecodeIndex ) {
-    pVMSymbol signature = (pVMSymbol) method->GetConstant(bytecodeIndex);
+    pVMSymbol signature = dynamic_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));;
 
     int numOfArgs = Signature::GetNumberOfArguments(signature);
 
@@ -435,7 +434,7 @@ void Interpreter::doSend( int bytecodeIndex ) {
 
 
 void Interpreter::doSuperSend( int bytecodeIndex ) {
-    pVMSymbol signature = (pVMSymbol) method->GetConstant(bytecodeIndex);
+    pVMSymbol signature = dynamic_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));;
 
     pVMFrame ctxt = _FRAME->GetOuterContext();
     pVMMethod realMethod = ctxt->GetMethod();
@@ -459,8 +458,7 @@ void Interpreter::doSuperSend( int bytecodeIndex ) {
             pVMObject o = _FRAME->Pop();
             argumentsArray->SetIndexableField(i, o);
         }
-        pVMObject arguments[] = { (pVMObject)signature, 
-                                  (pVMObject) argumentsArray };
+        pVMObject arguments[] = { signature, argumentsArray };
         receiver->Send(dnu, arguments, 2);
     }
 }
@@ -479,11 +477,11 @@ void Interpreter::doReturnNonLocal() {
     pVMFrame context = _FRAME->GetOuterContext();
 
     if (!context->HasPreviousFrame()) {
-        pVMBlock block = (pVMBlock) _FRAME->GetArgument(0, 0);
+        pVMBlock block = dynamic_cast<pVMBlock>(_FRAME->GetArgument(0, 0));
         pVMFrame prevFrame = _FRAME->GetPreviousFrame();
         pVMFrame outerContext = prevFrame->GetOuterContext();
         pVMObject sender = outerContext->GetArgument(0, 0);
-        pVMObject arguments[] = { (pVMObject)block };
+        pVMObject arguments[] = { block };
 
         this->popFrame();
 

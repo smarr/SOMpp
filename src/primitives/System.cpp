@@ -31,7 +31,8 @@ THE SOFTWARE.
 
 #include <vmobjects/VMObject.h>
 #include <vmobjects/VMFrame.h>
-#include <vmobjects/VMString.h>
+#include <vmobjects/VMSymbol.h>
+#include <vmobjects/VMClass.h>
 #include <vmobjects/VMInteger.h>
 
 #include <vm/Universe.h>
@@ -52,7 +53,7 @@ THE SOFTWARE.
 _System* System_;
 
 void  _System::Global_(pVMObject /*object*/, pVMFrame frame) {
-    pVMSymbol arg = (pVMSymbol)frame->Pop();
+    pVMSymbol arg = static_cast<pVMSymbol>(frame->Pop());
     /*pVMObject self = */
     frame->Pop();
     pVMObject result = _UNIVERSE->GetGlobal(arg);
@@ -63,23 +64,23 @@ void  _System::Global_(pVMObject /*object*/, pVMFrame frame) {
 
 void  _System::Global_put_(pVMObject /*object*/, pVMFrame frame) {
     pVMObject value = frame->Pop();
-    pVMSymbol arg = (pVMSymbol)frame->Pop();
+    pVMSymbol arg = static_cast<pVMSymbol>(frame->Pop());
     _UNIVERSE->SetGlobal(arg, value);    
 }
 
 
 void  _System::Load_(pVMObject /*object*/, pVMFrame frame) {
-    pVMSymbol arg = (pVMSymbol)frame->Pop();
+    pVMSymbol arg = static_cast<pVMSymbol>(frame->Pop());
     /*pVMObject self = */
     frame->Pop();
     pVMClass result = _UNIVERSE->LoadClass(arg);
 
-    frame->Push( result? (pVMObject)result : nilObject);
+    frame->Push( result ? result : nilObject);
 }
 
 
 void  _System::Exit_(pVMObject /*object*/, pVMFrame frame) {
-    pVMInteger err = (pVMInteger)frame->Pop();
+    pVMInteger err = static_cast<pVMInteger>(frame->Pop());
 #ifdef USE_TAGGING
     int32_t err_no = (int32_t)err;
 #else
@@ -93,7 +94,7 @@ void  _System::Exit_(pVMObject /*object*/, pVMFrame frame) {
 
 
 void  _System::PrintString_(pVMObject /*object*/, pVMFrame frame) {
-    pVMString arg = (pVMString)frame->Pop();
+    pVMString arg = static_cast<pVMString>(frame->Pop());
     std::string str = arg->GetStdString();
     cout << str;
 }
@@ -116,9 +117,9 @@ void  _System::Time(pVMObject /*object*/, pVMFrame frame) {
         ((now->tv_usec - start_time->tv_usec) / 1000); // µseconds
 
 #ifdef USE_TAGGING
-    frame->Push((pVMObject)pVMInteger((int32_t)diff));
+    frame->Push(pVMInteger((int32_t)diff));
 #else
-    frame->Push((pVMObject)_UNIVERSE->NewInteger((int32_t)diff));
+    frame->Push(_UNIVERSE->NewInteger((int32_t)diff));
 #endif
 
     delete(now);

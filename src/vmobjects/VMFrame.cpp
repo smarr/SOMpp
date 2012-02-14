@@ -126,8 +126,8 @@ const int VMFrame::VMFrameNumberOfFields = 7;
 
 VMFrame::VMFrame(int size, int nof) :
 		VMObject(nof + VMFrameNumberOfFields),
-		previousFrame((pVMFrame)nilObject), context((pVMFrame)nilObject),
-		method((pVMMethod)nilObject) {
+		previousFrame(NULL), context(NULL),
+		method(NULL) {
 #ifdef USE_TAGGING
     this->bytecodeIndex = 0;
 #else
@@ -186,8 +186,10 @@ void VMFrame::WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*)) {
 void VMFrame::WalkObjects(pVMObject (*walk)(pVMObject)) {
 #endif
   clazz = (VMClass*)walk(clazz);
-  previousFrame = (VMFrame*)walk(previousFrame);
-  context = (VMFrame*)walk(context);
+  if (previousFrame)
+    previousFrame = (VMFrame*)walk(previousFrame);
+  if (context)
+    context = (VMFrame*)walk(context);
   method = (VMMethod*)walk(method);
 
   //all other fields are indexable via arguments array
