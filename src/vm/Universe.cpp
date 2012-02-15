@@ -371,7 +371,7 @@ void Universe::initialize(int _argc, char** _argv) {
         DynamicConvert<VMInvokable, VMObject>(
             systemClass->LookupInvokable(this->SymbolForChars("initialize:")));
 #else
-        dynamic_cast<pVMInvokable>(systemClass->LookupInvokable(this->SymbolForChars("initialize:")));
+        static_cast<pVMInvokable>(systemClass->LookupInvokable(this->SymbolForChars("initialize:")));
 #endif
     (*initialize)(bootstrapFrame);
     
@@ -541,7 +541,7 @@ pVMClass Universe::LoadClass( pVMSymbol name) {
 #ifdef USE_TAGGING
        return DynamicConvert<VMClass, VMObject>(GetGlobal(name));
 #else
-       return dynamic_cast<pVMClass>(GetGlobal(name));
+       return static_cast<pVMClass>(GetGlobal(name));
 #endif
 
    pVMClass result = LoadClassBasic(name, NULL);
@@ -803,7 +803,7 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 	falseObject = walk(falseObject);
 
 #ifdef USE_TAGGING
-	GlobalBox::updateIntegerBox(dynamic_cast<VMInteger*>(walk(GlobalBox::IntegerBox())));
+	GlobalBox::updateIntegerBox(static_cast<VMInteger*>(walk(GlobalBox::IntegerBox())));
 
 	objectClass = DynamicConvert<VMClass, AbstractVMObject>(walk(objectClass));
 	classClass = DynamicConvert<VMClass,AbstractVMObject>(walk(classClass));
@@ -823,22 +823,22 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 	doubleClass = DynamicConvert<VMClass,AbstractVMObject>(walk(doubleClass));
 #else
 
-	objectClass = dynamic_cast<pVMClass>(walk(objectClass));
-	classClass = dynamic_cast<pVMClass>(walk(classClass));
-	metaClassClass =  dynamic_cast<pVMClass>(walk(metaClassClass));
+	objectClass = static_cast<pVMClass>(walk(objectClass));
+	classClass = static_cast<pVMClass>(walk(classClass));
+	metaClassClass =  static_cast<pVMClass>(walk(metaClassClass));
 
-	nilClass = dynamic_cast<pVMClass>(walk(nilClass));
-	integerClass = dynamic_cast<pVMClass>(walk(integerClass));
-	bigIntegerClass = dynamic_cast<pVMClass>(walk(bigIntegerClass));
-	arrayClass = dynamic_cast<pVMClass>(walk(arrayClass));
-	methodClass = dynamic_cast<pVMClass>(walk(methodClass));
-	symbolClass = dynamic_cast<pVMClass>(walk(symbolClass));
-	frameClass = dynamic_cast<pVMClass>(walk(frameClass));
-	primitiveClass = dynamic_cast<pVMClass>(walk(primitiveClass));
-	stringClass = dynamic_cast<pVMClass>(walk(stringClass));
-	systemClass = dynamic_cast<pVMClass>(walk(systemClass));
-	blockClass = dynamic_cast<pVMClass>(walk(blockClass));
-	doubleClass = dynamic_cast<pVMClass>(walk(doubleClass));
+	nilClass = static_cast<pVMClass>(walk(nilClass));
+	integerClass = static_cast<pVMClass>(walk(integerClass));
+	bigIntegerClass = static_cast<pVMClass>(walk(bigIntegerClass));
+	arrayClass = static_cast<pVMClass>(walk(arrayClass));
+	methodClass = static_cast<pVMClass>(walk(methodClass));
+	symbolClass = static_cast<pVMClass>(walk(symbolClass));
+	frameClass = static_cast<pVMClass>(walk(frameClass));
+	primitiveClass = static_cast<pVMClass>(walk(primitiveClass));
+	stringClass = static_cast<pVMClass>(walk(stringClass));
+	systemClass = static_cast<pVMClass>(walk(systemClass));
+	blockClass = static_cast<pVMClass>(walk(blockClass));
+	doubleClass = static_cast<pVMClass>(walk(doubleClass));
 #endif
 
 #ifdef CACHE_INTEGER
@@ -846,7 +846,7 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 #ifdef USE_TAGGING
     prebuildInts[i] = INT_CACHE_MIN_VALUE + i;
 #else
-    prebuildInts[i] = dynamic_cast<pVMInteger>(walk(prebuildInts[i]));
+    prebuildInts[i] = static_cast<pVMInteger>(walk(prebuildInts[i]));
 #endif
 #endif
 
@@ -862,7 +862,7 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 		pVMSymbol key =
 			DynamicConvert<VMSymbol,AbstractVMObject>(walk(iter->first.GetPointer()));
 #else
-		pVMSymbol key = dynamic_cast<pVMSymbol>(walk(iter->first));
+		pVMSymbol key = static_cast<pVMSymbol>(walk(iter->first));
 #endif
 		pVMObject val = walk(iter->second);
 		globals[key] = val;
@@ -875,7 +875,7 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 #ifdef USE_TAGGING
 		symbolIter->second = DynamicConvert<VMSymbol,AbstractVMObject>(walk(symbolIter->second));
 #else
-		symbolIter->second = dynamic_cast<pVMSymbol>(walk(symbolIter->second));
+		symbolIter->second = static_cast<pVMSymbol>(walk(symbolIter->second));
 #endif
 	}
 
@@ -885,7 +885,7 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 #ifdef USE_TAGGING
 		bcIter->second = DynamicConvert<VMClass, AbstractVMObject>(walk(bcIter->second));
 #else
-		bcIter->second = dynamic_cast<pVMClass>(walk(bcIter->second));
+		bcIter->second = static_cast<pVMClass>(walk(bcIter->second));
 #endif
 	}
 

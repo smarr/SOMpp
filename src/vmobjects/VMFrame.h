@@ -139,19 +139,19 @@ int32_t VMFrame::GetStackPointer() const {
 
 
 pVMFrame VMFrame::GetPreviousFrame() const {
-    return (pVMFrame) this->previousFrame;
+    return this->previousFrame;
 }
 
 
 void     VMFrame::SetPreviousFrame(pVMObject frm) {
-    this->previousFrame = (pVMFrame)frm;
+    this->previousFrame = static_cast<pVMFrame>(frm);
 #if GC_TYPE==GENERATIONAL
     _HEAP->writeBarrier(this, frm);
 #endif
 }
 
 void     VMFrame::ClearPreviousFrame() {
-    this->previousFrame = (pVMFrame)nilObject;
+    this->previousFrame = NULL;
 #if GC_TYPE==GENERATIONAL
     _HEAP->writeBarrier(this, nilObject);
 #endif

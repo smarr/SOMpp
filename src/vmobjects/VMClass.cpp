@@ -68,8 +68,8 @@ const int VMClass::VMClassNumberOfFields = 4;
 
 
 VMClass::VMClass() : VMObject(VMClassNumberOfFields),
-superClass((pVMClass)nilObject), name((pVMSymbol)nilObject),
-	instanceFields((pVMArray)nilObject), instanceInvokables((pVMArray)nilObject) {
+superClass(NULL), name(NULL),
+	instanceFields(NULL), instanceInvokables(NULL) {
 }
 
 #ifdef USE_TAGGING
@@ -96,21 +96,35 @@ pVMClass VMClass::Clone() const {
 
 #ifdef USE_TAGGING
 VMClass::VMClass( int numberOfFields ) : VMObject(numberOfFields + VMClassNumberOfFields),
-superClass(nilObject), name(nilObject), instanceFields(nilObject), instanceInvokables(nilObject) {
+superClass(NULL), name(NULL), instanceFields(nilObject), instanceInvokables(nilObject) {
 #else
 VMClass::VMClass( int numberOfFields ) : VMObject(numberOfFields + VMClassNumberOfFields) {
 #endif
 }
 
 
+#ifdef USE_TAGGING
+void VMClass::WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*)) {
+#else
+void VMClass::WalkObjects(pVMObject (*walk)(pVMObject)) {
+#endif
+  clazz = static_cast<pVMClass>(walk(clazz));
+  if (superClass)
+    superClass = static_cast<pVMClass>(walk(superClass));
+  name = static_cast<pVMSymbol>(walk(name));
+  instanceFields = static_cast<pVMArray>(walk(instanceFields));
+  instanceInvokables = static_cast<pVMArray>(walk(instanceInvokables));
 
+  for (int i = VMClassNumberOfFields + 1/*VMObjectNumberOfFields*/; i < numberOfFields; i++)
+    SetField(i, walk(GetField(i)));
+}
 
 
 bool VMClass::AddInstanceInvokable(pVMObject ptr) {
 #ifdef USE_TAGGING
     pVMInvokable newInvokable = DynamicConvert<VMInvokable, VMObject>(ptr);
 #else
-    pVMInvokable newInvokable = dynamic_cast<pVMInvokable>(ptr);
+    pVMInvokable newInvokable = static_cast<pVMInvokable>(ptr);
 #endif
     if (newInvokable == NULL) {
         _UNIVERSE->ErrorExit("Error: trying to add non-invokable to invokables array");
@@ -121,7 +135,7 @@ bool VMClass::AddInstanceInvokable(pVMObject ptr) {
         pVMInvokable inv = DynamicConvert<VMInvokable, VMObject>(
 				(*instanceInvokables).GetIndexableField(i) );
 #else
-        pVMInvokable inv = dynamic_cast<pVMInvokable>(instanceInvokables->GetIndexableField(i));
+        pVMInvokable inv = static_cast<pVMInvokable>(instanceInvokables->GetIndexableField(i));
 #endif
 		if (inv != NULL) {
             if (newInvokable->GetSignature() == inv->GetSignature()) {
@@ -176,7 +190,7 @@ void      VMClass::SetInstanceInvokables(pVMArray invokables) {
 #ifdef USE_TAGGING
             pVMInvokable inv = DynamicConvert<VMInvokable, VMObject>(invo);
 #else
-            pVMInvokable inv = dynamic_cast<pVMInvokable>(invo);
+            pVMInvokable inv = static_cast<pVMInvokable>(invo);
 #endif
             inv->SetHolder(this);
         }
@@ -201,7 +215,7 @@ void      VMClass::SetInstanceInvokable(int index, pVMObject invokable) {
 #ifdef USE_TAGGING
     pVMInvokable inv = DynamicConvert<VMInvokable, VMObject>( invokable );
 #else
-    pVMInvokable inv = dynamic_cast<pVMInvokable>( invokable );
+    pVMInvokable inv = static_cast<pVMInvokable>( invokable );
 #endif
     inv->SetHolder(this);
   }

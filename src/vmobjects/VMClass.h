@@ -32,6 +32,8 @@ THE SOFTWARE.
 #include <vector>
 
 #include "VMObject.h"
+#include "VMSymbol.h"
+#include "VMArray.h"
 
 #include "../misc/defs.h"
 
@@ -74,8 +76,10 @@ class VMClass : public VMObject {
   void      LoadPrimitives(const vector<StdString>&);
 #ifdef USE_TAGGING
   virtual VMClass* Clone() const;
+  void WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*));
 #else
-  virtual pVMClass Clone() const;
+    virtual pVMClass Clone() const;
+    void WalkObjects(pVMObject (*walk)(pVMObject));
 #endif
 
  private:
@@ -120,12 +124,12 @@ pVMSymbol VMClass::GetName()  const {
 void VMClass::SetName(pVMSymbol nam) {
   name = nam;
 #if GC_TYPE==GENERATIONAL
-  _HEAP->writeBarrier(this, (pVMObject)nam);
+  _HEAP->writeBarrier(this, nam);
 #endif
 }
 
 bool VMClass::HasSuperClass() const {
-  return superClass != nilObject;
+  return superClass != NULL;
 }
 
 
@@ -137,7 +141,7 @@ pVMArray VMClass::GetInstanceFields() const {
 void VMClass::SetInstanceFields(pVMArray instFields) {
   instanceFields = instFields;
 #if GC_TYPE==GENERATIONAL
-  _HEAP->writeBarrier(this, (pVMClass)instFields);
+  _HEAP->writeBarrier(this, instFields);
 #endif
 }
 

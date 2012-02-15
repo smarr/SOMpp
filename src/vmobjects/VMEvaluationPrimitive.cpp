@@ -108,7 +108,7 @@ pVMSymbol VMEvaluationPrimitive::computeSignatureString(int argc){
 }
 
 void VMEvaluationPrimitive::evaluationRoutine(pVMObject object, pVMFrame frame){
-    pVMEvaluationPrimitive self = dynamic_cast<pVMEvaluationPrimitive>(object);
+    pVMEvaluationPrimitive self = static_cast<pVMEvaluationPrimitive>(object);
 
      // Get the block (the receiver) from the stack
 #ifdef USE_TAGGING
@@ -116,7 +116,7 @@ void VMEvaluationPrimitive::evaluationRoutine(pVMObject object, pVMFrame frame){
 #else
     int numArgs = self->numberOfArguments->GetEmbeddedInteger();
 #endif
-    pVMBlock block = dynamic_cast<pVMBlock>(frame->GetStackElement(numArgs - 1));
+    pVMBlock block = static_cast<pVMBlock>(frame->GetStackElement(numArgs - 1));
     
     // Get the context of the block...
     pVMFrame context = block->GetContext();

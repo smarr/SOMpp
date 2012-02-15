@@ -123,14 +123,14 @@ void VMMethod::WalkObjects(pVMObject (*walk)(pVMObject)) {
 #endif
   VMInvokable::WalkObjects(walk);
 
-  numberOfLocals = dynamic_cast<pVMInteger>(walk(numberOfLocals));
-  maximumNumberOfStackElements = dynamic_cast<pVMInteger>(walk(maximumNumberOfStackElements));
-  bcLength = dynamic_cast<pVMInteger>(walk(bcLength));
-  numberOfArguments = dynamic_cast<pVMInteger>(walk(numberOfArguments));
-  numberOfConstants = dynamic_cast<pVMInteger>(walk(numberOfConstants));
+  numberOfLocals = static_cast<pVMInteger>(walk(numberOfLocals));
+  maximumNumberOfStackElements = static_cast<pVMInteger>(walk(maximumNumberOfStackElements));
+  bcLength = static_cast<pVMInteger>(walk(bcLength));
+  numberOfArguments = static_cast<pVMInteger>(walk(numberOfArguments));
+  numberOfConstants = static_cast<pVMInteger>(walk(numberOfConstants));
 #ifdef UNSAFE_FRAME_OPTIMIZATION
   if (cachedFrame != NULL)
-    cachedFrame = dynamic_cast<VMFrame*>(walk(cachedFrame));
+    cachedFrame = static_cast<VMFrame*>(walk(cachedFrame));
 #endif
     
 	for (int i = 0 ; i < GetNumberOfIndexableFields() ; ++i) {

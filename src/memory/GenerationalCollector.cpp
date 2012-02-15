@@ -70,9 +70,9 @@ void GenerationalCollector::MinorCollection() {
     pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
     if (currentFrame != NULL) {
 #ifdef USE_TAGGING
-        pVMFrame newFrame =	dynamic_cast<VMFrame*>(copy_if_necessary(currentFrame.GetPointer()));
+        pVMFrame newFrame =	static_cast<VMFrame*>(copy_if_necessary(currentFrame.GetPointer()));
 #else
-        pVMFrame newFrame = dynamic_cast<pVMFrame>(copy_if_necessary(currentFrame));
+        pVMFrame newFrame = static_cast<pVMFrame>(copy_if_necessary(currentFrame));
 #endif
         _UNIVERSE->GetInterpreter()->SetFrame(newFrame);
     }
@@ -99,9 +99,9 @@ void GenerationalCollector::MajorCollection() {
     pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
     if (currentFrame != NULL) {
 #ifdef USE_TAGGING
-        VMFrame* newFrame = dynamic_cast<VMFrame*>(mark_object(currentFrame));
+        VMFrame* newFrame = static_cast<VMFrame*>(mark_object(currentFrame));
 #else
-        pVMFrame newFrame = dynamic_cast<pVMFrame>(mark_object(currentFrame));
+        pVMFrame newFrame = static_cast<pVMFrame>(mark_object(currentFrame));
 #endif
         _UNIVERSE->GetInterpreter()->SetFrame(newFrame);
     }
