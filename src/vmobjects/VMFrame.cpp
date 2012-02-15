@@ -142,11 +142,11 @@ VMFrame::VMFrame(int size, int nof) :
   pVMObject* end = (pVMObject*) SHIFTED_PTR(this, objectSize);
   int32_t i = 0;
   while (arguments + i < end) {
-      arguments[i] = nilObject;
+    arguments[i] = nilObject;
     i++;
   }
 #if GC_TYPE==GENERATIONAL
-	_HEAP->writeBarrier(this, nilObject);
+  _HEAP->writeBarrier(this, nilObject);
 #endif
 
 }
