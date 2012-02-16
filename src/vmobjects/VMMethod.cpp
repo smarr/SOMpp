@@ -147,11 +147,13 @@ pVMFrame VMMethod::GetCachedFrame() const {
 void VMMethod::SetCachedFrame(pVMFrame frame) {
   cachedFrame = frame;
 #if GC_TYPE == GENERATIONAL
+  if (frame != NULL) {
 #ifdef USE_TAGGING
-  _HEAP->writeBarrier(this, cachedFrame.GetPointer());
+    _HEAP->writeBarrier(this, cachedFrame.GetPointer());
 #else
-  _HEAP->writeBarrier(this, cachedFrame);
+    _HEAP->writeBarrier(this, cachedFrame);
 #endif
+  }
 #endif
 }
 #endif

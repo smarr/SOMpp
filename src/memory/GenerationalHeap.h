@@ -86,7 +86,7 @@ inline void GenerationalHeap::writeBarrier(pVMObject holder, const pVMObject ref
 #endif
 
   int gcfield = *(((int32_t*)holder)+1);
-  if (gcfield & (1<<1))
+  if ((gcfield & 6) == 2)
 		writeBarrier_OldHolder(holder, referencedObject);
 }
 

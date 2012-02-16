@@ -58,8 +58,7 @@ AbstractVMObject* GenerationalHeap::AllocateMatureObject(size_t size) {
 
 void GenerationalHeap::writeBarrier_OldHolder(VMOBJECT_PTR holder, const VMOBJECT_PTR
                                               referencedObject) {
-  if (isObjectInNursery(referencedObject)
-      && ((holder->GetGCField() & MASK_SEEN_BY_WRITE_BARRIER) ==false)) {
+  if (isObjectInNursery(referencedObject)) {
     oldObjsWithRefToYoungObjs->push_back((int32_t)holder);
     holder->SetGCField(holder->GetGCField() | MASK_SEEN_BY_WRITE_BARRIER);
   }

@@ -55,8 +55,11 @@ VMOBJECT_PTR copy_if_necessary(VMOBJECT_PTR obj) {
   if (gcField != 0)
     return (VMOBJECT_PTR)gcField;
   //we have to clone ourselves
-  VMOBJECT_PTR newObj = obj->Clone();
-  obj->SetGCField((int32_t)newObj);
+  VMOBJECT_PTR newObj = obj;
+  if (_HEAP->isObjectInNursery(obj)) {
+    newObj = obj->Clone();
+    obj->SetGCField((int32_t)newObj);
+  }
   newObj->SetGCField(MASK_OBJECT_IS_OLD);
   //walk recursively
   newObj->WalkObjects(copy_if_necessary);
@@ -74,6 +77,7 @@ void GenerationalCollector::MinorCollection() {
 #else
         pVMFrame newFrame = static_cast<pVMFrame>(copy_if_necessary(currentFrame));
 #endif
+        newFrame->SetGCField(0);
         _UNIVERSE->GetInterpreter()->SetFrame(newFrame);
     }
 

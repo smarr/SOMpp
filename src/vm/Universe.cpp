@@ -701,6 +701,9 @@ pVMFrame Universe::NewFrame( pVMFrame previousFrame, pVMMethod method) const {
 #ifdef UNSAFE_FRAME_OPTIMIZATION
   pVMFrame result = method->GetCachedFrame();
   if (result != NULL) {
+#if GC_TYPE==generational
+    result->SetGCField(0);
+#endif
     method->SetCachedFrame(NULL);
     result->SetMethod(method);
     result->SetClass(frameClass);
