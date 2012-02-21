@@ -705,12 +705,7 @@ pVMFrame Universe::NewFrame( pVMFrame previousFrame, pVMMethod method) const {
     result->SetGCField(0);
 #endif
     method->SetCachedFrame(NULL);
-    result->SetMethod(method);
-    result->SetClass(frameClass);
-    result->SetContext(NULL);
-    result->SetBytecodeIndex(0);
     result->SetPreviousFrame(previousFrame);
-    result->ResetStackPointer();
     return result;
   }
     int length = method->GetNumberOfArguments() +
@@ -728,19 +723,12 @@ pVMFrame Universe::NewFrame( pVMFrame previousFrame, pVMMethod method) const {
     pVMFrame result = new (_HEAP, additionalBytes) VMFrame(length);
 #endif
     result->SetClass(frameClass);
-
     result->SetMethod(method);
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION("VMFrame", result->GetObjectSize());
 #endif
-
-    if (previousFrame != NULL)
-      result->SetPreviousFrame(previousFrame);
-
+    result->SetPreviousFrame(previousFrame);
     result->ResetStackPointer();
-    //chbol: bytecodeIndex is 0 by default anyway
-    //result->SetBytecodeIndex(0);
-
     return result;
 
 }

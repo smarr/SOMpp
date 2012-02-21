@@ -180,7 +180,7 @@ all: $(CSOM_NAME)\
 	CORE units
 
 
-debug : DBG_FLAGS=-DDEBUG -O3 -g
+debug : DBG_FLAGS=-DDEBUG -O0 -g
 debug: all
 
 profiling : DBG_FLAGS=-g -pg

@@ -322,7 +322,10 @@ void      VMFrame::CopyArgumentsFrom(pVMFrame frame) {
     int num_args = GetMethod()->GetNumberOfArguments();
     for(int i=0; i < num_args; ++i) {
         pVMObject stackElem = frame->GetStackElement(num_args - 1 - i);
-        SetArgument(i, 0, stackElem);
+        arguments[i] = stackElem;
+#if GC_TYPE==GENERATIONAL
+        _HEAP->writeBarrier(this, stackElem);
+#endif
     }
 }
 
