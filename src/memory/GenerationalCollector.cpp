@@ -93,8 +93,6 @@ void GenerationalCollector::MinorCollection() {
   }
   _HEAP->oldObjsWithRefToYoungObjs->clear();
   _HEAP->nextFreePosition = _HEAP->nursery;
-  assert(_UNIVERSE->GetInterpreter()->GetFrame()->GetGCField() == 2);
-  _UNIVERSE->GetInterpreter()->GetFrame()->SetGCField(0);
 }
 
 void GenerationalCollector::MajorCollection() {

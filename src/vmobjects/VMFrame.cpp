@@ -194,9 +194,8 @@ void VMFrame::WalkObjects(pVMObject (*walk)(pVMObject)) {
 
   //all other fields are indexable via arguments array
   // --> until end of Frame
-  pVMObject* end = (pVMObject*) SHIFTED_PTR(this, objectSize);
   int32_t i = 0;
-  while (arguments + i < end) {
+  while (arguments + i <= stack_ptr) {
     if (arguments[i] != NULL)
       arguments[i] = walk(arguments[i]);
     i++;
