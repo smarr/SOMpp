@@ -76,14 +76,14 @@ pVMPrimitive VMPrimitive::Clone() const {
 
 #ifdef USE_TAGGING
 void VMPrimitive::WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*)) {
-	clazz = (VMClass*)walk(clazz);
-	signature = (VMSymbol*)walk(signature);
-	holder = (VMClass*)walk(holder);
+	clazz = static_cast<VMClass*>(walk(clazz));
+	signature = static_cast<VMSymbol*>(walk(signature));
+	holder = static_cast<VMClass*>(walk(holder));
 #else
 void VMPrimitive::WalkObjects(pVMObject (*walk)(pVMObject)) {
-	clazz = (pVMClass)walk(clazz);
-	signature = (pVMSymbol)walk(signature);
-	holder = (pVMClass)walk(holder);
+	clazz = static_cast<pVMClass>(walk(clazz));
+	signature = static_cast<pVMSymbol>(walk(signature));
+	holder = static_cast<pVMClass>(walk(holder));
 #endif
 #if GC_TYPE==GENERATIONAL
 	_HEAP->writeBarrier(this, clazz);
@@ -93,7 +93,7 @@ void VMPrimitive::WalkObjects(pVMObject (*walk)(pVMObject)) {
 }
 
 void VMPrimitive::EmptyRoutine( pVMObject _self, pVMFrame /*frame*/ ) {
-    pVMInvokable self = (pVMInvokable)( _self );
+    pVMInvokable self = static_cast<pVMInvokable>(_self);
     pVMSymbol sig = self->GetSignature();
     cout << "undefined primitive called: " << sig->GetChars() << endl;
 }

@@ -30,25 +30,17 @@ THE SOFTWARE.
 
 
 int Signature::GetNumberOfArguments(pVMSymbol sig) {
-    // check default binaries
-    if(Signature::IsBinary(sig)) return 2;
-    else {
-        char* str = sig->GetChars();
+  // check default binaries
+  if(Signature::IsBinary(sig)) return 2;
+  char* str = sig->GetChars();
 
-        // colons in str
-        int numColons =0;
-
-        // search the str
-        size_t slen = strlen(str);
-        for(unsigned int i=0 ; i<=slen; ++i)
-            if(str[i]==':')
-                // additional colon found
-                numColons++;
-
-        // The number of arguments is equal to the number of colons plus one
-        // (->> SELF)
-        return numColons + 1;
-    }
+  // colons in str
+  int numColons =0;
+  int i = 0;
+  while (str[i] != '\0')
+    if (str[i++] == ':')
+      numColons++;
+  return numColons + 1;
 }
 
 

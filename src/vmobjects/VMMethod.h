@@ -62,8 +62,8 @@ class VMMethod :  public VMInvokable {
   uint8_t   GetBytecode(int indx) const;
   void      SetBytecode(int indx, uint8_t);
 #ifdef UNSAFE_FRAME_OPTIMIZATION
-  inline void      SetCachedFrame(pVMFrame frame); 
-  inline pVMFrame  GetCachedFrame() const;
+  void      SetCachedFrame(pVMFrame frame); 
+  pVMFrame  GetCachedFrame() const;
 #endif
 #ifdef USE_TAGGING
   virtual void	  WalkObjects(AbstractVMObject* (AbstractVMObject*));
@@ -115,22 +115,6 @@ class VMMethod :  public VMInvokable {
   static const int VMMethodNumberOfFields;
 };
 
-#ifdef UNSAFE_FRAME_OPTIMIZATION
-pVMFrame VMMethod::GetCachedFrame() const {
-  return cachedFrame;
-}
-
-void VMMethod::SetCachedFrame(pVMFrame frame) {
-  cachedFrame = frame;
-#if GC_TYPE == GENERATIONAL
-#ifdef USE_TAGGING
-  _HEAP->writeBarrier((AbstractVMObject*)this, (AbstractVMObject*)cachedFrame.GetPointer());
-#else
-  _HEAP->writeBarrier((AbstractVMObject*)this, (AbstractVMObject*)cachedFrame);
-#endif
-#endif
-}
-#endif
 
 
 int VMMethod::GetNumberOfIndexableFields() const {

@@ -33,6 +33,7 @@ THE SOFTWARE.
 #include <vmobjects/VMObject.h>
 #include <vmobjects/VMFrame.h>
 #include <vmobjects/VMDouble.h>
+#include <vmobjects/VMString.h>
 #include <vmobjects/VMInteger.h>
 #include <vmobjects/VMBigInteger.h>
 #ifdef USE_TAGGING
@@ -61,11 +62,11 @@ double _Double::coerceDouble(pVMObject x) {
         return (double)bix->GetEmbeddedInteger();
 #else
     if(dynamic_cast<pVMDouble>(x) != NULL)
-        return ((pVMDouble)x)->GetEmbeddedDouble();
+        return static_cast<pVMDouble>(x)->GetEmbeddedDouble();
     else if(dynamic_cast<pVMInteger>(x) != NULL)
-        return (double)((pVMInteger)x)->GetEmbeddedInteger();
+        return (double)static_cast<pVMInteger>(x)->GetEmbeddedInteger();
     else if(dynamic_cast<pVMBigInteger>(x) != NULL)
-        return (double)((pVMBigInteger)x)->GetEmbeddedInteger();
+        return (double)static_cast<pVMBigInteger>(x)->GetEmbeddedInteger();
 #endif
     else
         _UNIVERSE->ErrorExit("Attempt to apply Double operation to non-number.");
@@ -82,31 +83,31 @@ double _Double::coerceDouble(pVMObject x) {
  */
 #define PREPARE_OPERANDS \
     double right = coerceDouble(frame->Pop()); \
-    pVMDouble leftObj = (pVMDouble)frame->Pop(); \
+    pVMDouble leftObj = static_cast<pVMDouble>(frame->Pop()); \
     double left = leftObj->GetEmbeddedDouble();
 
 
 void  _Double::Plus(pVMObject /*object*/, pVMFrame frame) {
     PREPARE_OPERANDS;
-    frame->Push((pVMObject)_UNIVERSE->NewDouble(left + right));
+    frame->Push(_UNIVERSE->NewDouble(left + right));
 }
 
 
 void  _Double::Minus(pVMObject /*object*/, pVMFrame frame) {
     PREPARE_OPERANDS;
-    frame->Push((pVMObject)_UNIVERSE->NewDouble(left - right));
+    frame->Push(_UNIVERSE->NewDouble(left - right));
 }
 
 
 void  _Double::Star(pVMObject /*object*/, pVMFrame frame) {
     PREPARE_OPERANDS;
-    frame->Push((pVMObject)_UNIVERSE->NewDouble(left * right));
+    frame->Push(_UNIVERSE->NewDouble(left * right));
 }
 
 
 void  _Double::Slashslash(pVMObject /*object*/, pVMFrame frame) {
     PREPARE_OPERANDS;
-    frame->Push((pVMObject)_UNIVERSE->NewDouble(left / right));
+    frame->Push(_UNIVERSE->NewDouble(left / right));
 }
 
 
@@ -152,20 +153,20 @@ void  _Double::Lowerthan(pVMObject /*object*/, pVMFrame frame) {
 
 
 void  _Double::AsString(pVMObject /*object*/, pVMFrame frame) {
-    pVMDouble self = (pVMDouble)frame->Pop();
+    pVMDouble self = static_cast<pVMDouble>(frame->Pop());
     
     double dbl = self->GetEmbeddedDouble();
     ostringstream Str;
     Str.precision(17);
     Str << dbl;
-    frame->Push( (pVMObject)_UNIVERSE->NewString( Str.str().c_str() ) );
+    frame->Push( _UNIVERSE->NewString( Str.str().c_str() ) );
 }
 
 
 void _Double::Sqrt(pVMObject /*object*/, pVMFrame frame) {
-    pVMDouble self = (pVMDouble)frame->Pop();
+    pVMDouble self = static_cast<pVMDouble>(frame->Pop());
     pVMDouble result = _UNIVERSE->NewDouble( sqrt(self->GetEmbeddedDouble()) );
-    frame->Push((pVMObject)result);
+    frame->Push(result);
 }
 
 _Double::_Double( ) : PrimitiveContainer() {

@@ -52,6 +52,7 @@ void Heap::DestroyHeap() {
 }
 
 Heap::Heap(int objectSpaceSize) {
+  gcTriggered = false;
 }
 
 Heap::~Heap() {

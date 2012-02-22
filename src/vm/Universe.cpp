@@ -364,14 +364,14 @@ void Universe::initialize(int _argc, char** _argv) {
     
     pVMFrame bootstrapFrame = interpreter->PushNewFrame(bootstrapMethod);
     bootstrapFrame->Push(systemObject);
-    bootstrapFrame->Push((pVMObject)argumentsArray);
+    bootstrapFrame->Push(argumentsArray);
 
     pVMInvokable initialize = 
 #ifdef USE_TAGGING
         DynamicConvert<VMInvokable, VMObject>(
             systemClass->LookupInvokable(this->SymbolForChars("initialize:")));
 #else
-        dynamic_cast<pVMInvokable>(systemClass->LookupInvokable(this->SymbolForChars("initialize:")));
+        static_cast<pVMInvokable>(systemClass->LookupInvokable(this->SymbolForChars("initialize:")));
 #endif
     (*initialize)(bootstrapFrame);
     
@@ -480,9 +480,9 @@ pVMClass Universe::GetBlockClassWithArgs( int numberOfArguments) {
     pVMSymbol name = SymbolFor(Str.str());
     pVMClass result = LoadClassBasic(name, NULL);
     result->AddInstancePrimitive(new (_HEAP) VMEvaluationPrimitive(numberOfArguments) );
-    SetGlobal(name, (pVMObject) result);
+    SetGlobal(name, result);
 
-	blockClassesByNoOfArgs[numberOfArguments] = result;
+    blockClassesByNoOfArgs[numberOfArguments] = result;
 
     return result;
 }
@@ -491,8 +491,7 @@ pVMClass Universe::GetBlockClassWithArgs( int numberOfArguments) {
 
 pVMObject Universe::GetGlobal( pVMSymbol name) {
     if (HasGlobal(name))
-        return (pVMObject)globals[name];
-
+        return globals[name];
     return NULL;
 }
 
@@ -531,7 +530,7 @@ void Universe::InitializeSystemClass( pVMClass systemClass,
     StdString classClassName(Str.str());
     sysClassClass->SetName(SymbolFor(classClassName));
 
-    SetGlobal(systemClass->GetName(), (pVMObject)systemClass);
+    SetGlobal(systemClass->GetName(), systemClass);
 
 
 }
@@ -542,7 +541,7 @@ pVMClass Universe::LoadClass( pVMSymbol name) {
 #ifdef USE_TAGGING
        return DynamicConvert<VMClass, VMObject>(GetGlobal(name));
 #else
-       return dynamic_cast<pVMClass>(GetGlobal(name));
+       return static_cast<pVMClass>(GetGlobal(name));
 #endif
 
    pVMClass result = LoadClassBasic(name, NULL);
@@ -701,15 +700,9 @@ pVMDouble Universe::NewDouble( double value) const {
 pVMFrame Universe::NewFrame( pVMFrame previousFrame, pVMMethod method) const {
 #ifdef UNSAFE_FRAME_OPTIMIZATION
   pVMFrame result = method->GetCachedFrame();
-  if (result != nilObject) {
-    method->SetCachedFrame((pVMFrame)nilObject);
-    result->SetMethod(method);
-    result->SetClass(frameClass);
-    result->SetContext((pVMFrame)nilObject);
-    result->SetBytecodeIndex(0);
-    if (previousFrame != NULL)
-      result->SetPreviousFrame(previousFrame);
-    result->ResetStackPointer();
+  if (result != NULL) {
+    method->SetCachedFrame(NULL);
+    result->SetPreviousFrame(previousFrame);
     return result;
   }
     int length = method->GetNumberOfArguments() +
@@ -727,19 +720,12 @@ pVMFrame Universe::NewFrame( pVMFrame previousFrame, pVMMethod method) const {
     pVMFrame result = new (_HEAP, additionalBytes) VMFrame(length);
 #endif
     result->SetClass(frameClass);
-
     result->SetMethod(method);
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION("VMFrame", result->GetObjectSize());
 #endif
-
-    if (previousFrame != NULL)
-      result->SetPreviousFrame(previousFrame);
-
+    result->SetPreviousFrame(previousFrame);
     result->ResetStackPointer();
-    //chbol: bytecodeIndex is 0 by default anyway
-    //result->SetBytecodeIndex(0);
-
     return result;
 
 }
@@ -805,7 +791,7 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 	falseObject = walk(falseObject);
 
 #ifdef USE_TAGGING
-	GlobalBox::updateIntegerBox(dynamic_cast<VMInteger*>(walk(GlobalBox::IntegerBox())));
+	GlobalBox::updateIntegerBox(static_cast<VMInteger*>(walk(GlobalBox::IntegerBox())));
 
 	objectClass = DynamicConvert<VMClass, AbstractVMObject>(walk(objectClass));
 	classClass = DynamicConvert<VMClass,AbstractVMObject>(walk(classClass));
@@ -825,22 +811,22 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 	doubleClass = DynamicConvert<VMClass,AbstractVMObject>(walk(doubleClass));
 #else
 
-	objectClass = (pVMClass)(walk(objectClass));
-	classClass = (pVMClass)(walk(classClass));
-	metaClassClass =  (pVMClass)(walk(metaClassClass));
+	objectClass = static_cast<pVMClass>(walk(objectClass));
+	classClass = static_cast<pVMClass>(walk(classClass));
+	metaClassClass =  static_cast<pVMClass>(walk(metaClassClass));
 
-	nilClass = (pVMClass)(walk(nilClass));
-	integerClass = (pVMClass)(walk(integerClass));
-	bigIntegerClass = (pVMClass)(walk(bigIntegerClass));
-	arrayClass = (pVMClass)(walk(arrayClass));
-	methodClass = (pVMClass)(walk(methodClass));
-	symbolClass = (pVMClass)(walk(symbolClass));
-	frameClass = (pVMClass)(walk(frameClass));
-	primitiveClass = (pVMClass)(walk(primitiveClass));
-	stringClass = (pVMClass)(walk(stringClass));
-	systemClass = (pVMClass)(walk(systemClass));
-	blockClass = (pVMClass)(walk(blockClass));
-	doubleClass = (pVMClass)(walk(doubleClass));
+	nilClass = static_cast<pVMClass>(walk(nilClass));
+	integerClass = static_cast<pVMClass>(walk(integerClass));
+	bigIntegerClass = static_cast<pVMClass>(walk(bigIntegerClass));
+	arrayClass = static_cast<pVMClass>(walk(arrayClass));
+	methodClass = static_cast<pVMClass>(walk(methodClass));
+	symbolClass = static_cast<pVMClass>(walk(symbolClass));
+	frameClass = static_cast<pVMClass>(walk(frameClass));
+	primitiveClass = static_cast<pVMClass>(walk(primitiveClass));
+	stringClass = static_cast<pVMClass>(walk(stringClass));
+	systemClass = static_cast<pVMClass>(walk(systemClass));
+	blockClass = static_cast<pVMClass>(walk(blockClass));
+	doubleClass = static_cast<pVMClass>(walk(doubleClass));
 #endif
 
 #ifdef CACHE_INTEGER
@@ -848,7 +834,7 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 #ifdef USE_TAGGING
     prebuildInts[i] = INT_CACHE_MIN_VALUE + i;
 #else
-    prebuildInts[i] = (pVMInteger)walk(prebuildInts[i]);
+    prebuildInts[i] = static_cast<pVMInteger>(walk(prebuildInts[i]));
 #endif
 #endif
 
@@ -864,7 +850,7 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 		pVMSymbol key =
 			DynamicConvert<VMSymbol,AbstractVMObject>(walk(iter->first.GetPointer()));
 #else
-		pVMSymbol key = (pVMSymbol)(walk(iter->first));
+		pVMSymbol key = static_cast<pVMSymbol>(walk(iter->first));
 #endif
 		pVMObject val = walk(iter->second);
 		globals[key] = val;
@@ -877,7 +863,7 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 #ifdef USE_TAGGING
 		symbolIter->second = DynamicConvert<VMSymbol,AbstractVMObject>(walk(symbolIter->second));
 #else
-		symbolIter->second = (pVMSymbol)walk(symbolIter->second);
+		symbolIter->second = static_cast<pVMSymbol>(walk(symbolIter->second));
 #endif
 	}
 
@@ -887,7 +873,7 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 #ifdef USE_TAGGING
 		bcIter->second = DynamicConvert<VMClass, AbstractVMObject>(walk(bcIter->second));
 #else
-		bcIter->second = (pVMClass)walk(bcIter->second);
+		bcIter->second = static_cast<pVMClass>(walk(bcIter->second));
 #endif
 	}
 

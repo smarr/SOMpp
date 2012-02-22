@@ -74,7 +74,7 @@ void VMEvaluationPrimitive::WalkObjects(AbstractVMObject*
 #else
 void VMEvaluationPrimitive::WalkObjects(pVMObject (*walk)(pVMObject)) {
 	VMPrimitive::WalkObjects(walk);
-	numberOfArguments = (pVMInteger)walk(numberOfArguments);
+	numberOfArguments = static_cast<pVMInteger>(walk(numberOfArguments));
 #endif
 #if GC_TYPE==GENERATIONAL
 	_HEAP->writeBarrier(this, numberOfArguments);
@@ -108,7 +108,7 @@ pVMSymbol VMEvaluationPrimitive::computeSignatureString(int argc){
 }
 
 void VMEvaluationPrimitive::evaluationRoutine(pVMObject object, pVMFrame frame){
-    pVMEvaluationPrimitive self = (pVMEvaluationPrimitive) object;
+    pVMEvaluationPrimitive self = static_cast<pVMEvaluationPrimitive>(object);
 
      // Get the block (the receiver) from the stack
 #ifdef USE_TAGGING
@@ -116,7 +116,7 @@ void VMEvaluationPrimitive::evaluationRoutine(pVMObject object, pVMFrame frame){
 #else
     int numArgs = self->numberOfArguments->GetEmbeddedInteger();
 #endif
-    pVMBlock block = (pVMBlock) frame->GetStackElement(numArgs - 1);
+    pVMBlock block = static_cast<pVMBlock>(frame->GetStackElement(numArgs - 1));
     
     // Get the context of the block...
     pVMFrame context = block->GetContext();

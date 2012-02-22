@@ -29,7 +29,7 @@ THE SOFTWARE.
 
 #include <vmobjects/VMObject.h>
 #include <vmobjects/VMFrame.h>
-#include <vmobjects/VMString.h>
+#include <vmobjects/VMSymbol.h>
 #include <vmobjects/VMInteger.h>
 
 #include <vm/Universe.h>
@@ -60,37 +60,36 @@ _String::_String( ) : PrimitiveContainer() {
 }
 
 void  _String::Concatenate_(pVMObject /*object*/, pVMFrame frame) {
-
-    pVMString arg = (pVMString)frame->Pop();
-    pVMString self = (pVMString)frame->Pop();
+    pVMString arg = static_cast<pVMString>(frame->Pop());
+    pVMString self = static_cast<pVMString>(frame->Pop());
     StdString a = arg->GetChars();
     StdString s = self->GetChars();
     
     StdString result = s + a;
 
-    frame->Push((pVMObject)_UNIVERSE->NewString(result));
+    frame->Push(_UNIVERSE->NewString(result));
 }
 
 
 void  _String::AsSymbol(pVMObject /*object*/, pVMFrame frame) {
-    pVMString self = (pVMString)frame->Pop();
+    pVMString self = static_cast<pVMString>(frame->Pop());
     StdString result = self->GetStdString();
-    frame->Push((pVMObject)_UNIVERSE->SymbolFor(result));
+    frame->Push(_UNIVERSE->SymbolFor(result));
 }
 
 
 void  _String::Hashcode(pVMObject /*object*/, pVMFrame frame) {
-    pVMString self = (pVMString)frame->Pop();
+    pVMString self = static_cast<pVMString>(frame->Pop());
 #ifdef USE_TAGGING
-    frame->Push((pVMObject)pVMInteger(self->GetHash()));
+    frame->Push(pVMInteger(self->GetHash()));
 #else
-    frame->Push((pVMObject)_UNIVERSE->NewInteger(self->GetHash()));
+    frame->Push(_UNIVERSE->NewInteger(self->GetHash()));
 #endif
 }
 
 
 void  _String::Length(pVMObject /*object*/, pVMFrame frame) {
-    pVMString self = (pVMString)frame->Pop();
+    pVMString self = static_cast<pVMString>(frame->Pop());
     
     size_t len = self->GetStringLength();
 #ifdef USE_TAGGING
@@ -103,11 +102,11 @@ void  _String::Length(pVMObject /*object*/, pVMFrame frame) {
 
 void  _String::Equal(pVMObject /*object*/, pVMFrame frame) {
     pVMObject op1 = frame->Pop();
-    pVMString op2 = (pVMString)frame->Pop();
+    pVMString op2 = static_cast<pVMString>(frame->Pop());
     
     if(op1->GetClass() == op2->GetClass()) {
         
-        StdString s1 = ((pVMString)op1)->GetStdString();
+        StdString s1 = static_cast<pVMString>(op1)->GetStdString();
         StdString s2 = op2->GetStdString();
 
         if(s1 == s2) {
@@ -120,10 +119,10 @@ void  _String::Equal(pVMObject /*object*/, pVMFrame frame) {
 
 
 void  _String::PrimSubstringFrom_To_(pVMObject /*object*/, pVMFrame frame) {
-    pVMInteger end = (pVMInteger)frame->Pop();
-    pVMInteger start = (pVMInteger)frame->Pop();
+    pVMInteger end = static_cast<pVMInteger>(frame->Pop());
+    pVMInteger start = static_cast<pVMInteger>(frame->Pop());
     
-    pVMString self = (pVMString)frame->Pop();
+    pVMString self = static_cast<pVMString>(frame->Pop());
     
     StdString str = self->GetStdString();
 #ifdef USE_TAGGING
@@ -136,7 +135,7 @@ void  _String::PrimSubstringFrom_To_(pVMObject /*object*/, pVMFrame frame) {
     
     StdString result = str.substr(s, e - s);
 
-    frame->Push((pVMObject) _UNIVERSE->NewString(result));
+    frame->Push( _UNIVERSE->NewString(result));
 }
 
 

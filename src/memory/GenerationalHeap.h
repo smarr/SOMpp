@@ -1,9 +1,11 @@
 #pragma once
 
 #include "../misc/defs.h"
+#include <assert.h>
 #if GC_TYPE ==GENERATIONAL
 
 #include "Heap.h"
+#include "../vmobjects/VMObjectBase.h"
 
 #ifdef DEBUG
 struct VMObjectCompare {
@@ -83,7 +85,8 @@ inline void GenerationalHeap::writeBarrier(pVMObject holder, const pVMObject ref
 	//writeBarrierCalledOn.insert(make_pair(holder, referencedObject));
 #endif
 
-	if ((int32_t)holder < (int32_t)nursery || (int32_t)holder > nursery_end)
+  int gcfield = *(((int32_t*)holder)+1);
+  if ((gcfield & 6) == 2)
 		writeBarrier_OldHolder(holder, referencedObject);
 }
 

@@ -56,7 +56,7 @@ VMOBJECT_PTR copy_if_necessary(VMOBJECT_PTR obj) {
     return (VMOBJECT_PTR)gcField;
   //we have to clone ourselves
   VMOBJECT_PTR newObj = obj->Clone();
-  obj->SetGCField((int32_t)newObj);
+    obj->SetGCField((int32_t)newObj);
   newObj->SetGCField(MASK_OBJECT_IS_OLD);
   //walk recursively
   newObj->WalkObjects(copy_if_necessary);
@@ -64,32 +64,32 @@ VMOBJECT_PTR copy_if_necessary(VMOBJECT_PTR obj) {
 }
 
 void GenerationalCollector::MinorCollection() {
-    //walk all globals
-    _UNIVERSE->WalkGlobals(&copy_if_necessary);
-    //and the current frame
-    pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
-    if (currentFrame != NULL) {
+  //walk all globals
+  _UNIVERSE->WalkGlobals(&copy_if_necessary);
+  //and the current frame
+  pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
+  if (currentFrame != NULL) {
 #ifdef USE_TAGGING
-        pVMFrame newFrame =	(VMFrame*)copy_if_necessary(currentFrame.GetPointer());
+    pVMFrame newFrame =	static_cast<VMFrame*>(copy_if_necessary(currentFrame.GetPointer()));
 #else
-        pVMFrame newFrame = (pVMFrame)copy_if_necessary(currentFrame);
+    pVMFrame newFrame = static_cast<pVMFrame>(copy_if_necessary(currentFrame));
 #endif
-        _UNIVERSE->GetInterpreter()->SetFrame(newFrame);
-    }
+    _UNIVERSE->GetInterpreter()->SetFrame(newFrame);
+  }
 
-    //and also all objects that have been detected by the write barriers
-    for (vector<int>::iterator objIter =
-			_HEAP->oldObjsWithRefToYoungObjs->begin(); objIter !=
-			_HEAP->oldObjsWithRefToYoungObjs->end(); objIter++) {
-		//content of oldObjsWithRefToYoungObjs is not altered while iteration,
-		// because copy_if_necessary returns old objs only -> ignored by
-		// write_barrier
-		VMOBJECT_PTR obj = (VMOBJECT_PTR)(*objIter);
-		obj->SetGCField(MASK_OBJECT_IS_OLD);
-        obj->WalkObjects(&copy_if_necessary);
-	}
-	_HEAP->oldObjsWithRefToYoungObjs->clear();
-	_HEAP->nextFreePosition = _HEAP->nursery;
+  //and also all objects that have been detected by the write barriers
+  for (vector<int>::iterator objIter =
+       _HEAP->oldObjsWithRefToYoungObjs->begin(); objIter !=
+       _HEAP->oldObjsWithRefToYoungObjs->end(); objIter++) {
+    //content of oldObjsWithRefToYoungObjs is not altered while iteration,
+    // because copy_if_necessary returns old objs only -> ignored by
+    // write_barrier
+    VMOBJECT_PTR obj = (VMOBJECT_PTR)(*objIter);
+    obj->SetGCField(MASK_OBJECT_IS_OLD);
+    obj->WalkObjects(&copy_if_necessary);
+  }
+  _HEAP->oldObjsWithRefToYoungObjs->clear();
+  _HEAP->nextFreePosition = _HEAP->nursery;
 }
 
 void GenerationalCollector::MajorCollection() {
@@ -99,9 +99,9 @@ void GenerationalCollector::MajorCollection() {
     pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
     if (currentFrame != NULL) {
 #ifdef USE_TAGGING
-        VMFrame* newFrame = (VMFrame*)mark_object(currentFrame);
+        VMFrame* newFrame = static_cast<VMFrame*>(mark_object(currentFrame));
 #else
-        pVMFrame newFrame = (pVMFrame)mark_object(currentFrame);
+        pVMFrame newFrame = static_cast<pVMFrame>(mark_object(currentFrame));
 #endif
         _UNIVERSE->GetInterpreter()->SetFrame(newFrame);
     }

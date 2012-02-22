@@ -29,7 +29,7 @@ void AbstractVMObject::Send(StdString selectorString, pVMObject* arguments, int 
     }
 
     pVMClass cl = this->GetClass();
-    pVMInvokable invokable = (pVMInvokable)(cl->LookupInvokable(selector));
+    pVMInvokable invokable = static_cast<pVMInvokable>(cl->LookupInvokable(selector));
     (*invokable)(frame);
 }
 

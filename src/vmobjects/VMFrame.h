@@ -102,11 +102,11 @@ pVMObject VMFrame::GetField(int32_t index) const {
 }
 
 bool     VMFrame::HasContext() const {
-    return this->context !=  nilObject; 
+    return this->context !=  NULL; 
 }
 
 bool     VMFrame::HasPreviousFrame() const {
-    return this->previousFrame != nilObject;
+    return this->previousFrame != NULL;
 }
 
 int       VMFrame::GetBytecodeIndex() const {
@@ -139,19 +139,19 @@ int32_t VMFrame::GetStackPointer() const {
 
 
 pVMFrame VMFrame::GetPreviousFrame() const {
-    return (pVMFrame) this->previousFrame;
+    return this->previousFrame;
 }
 
 
 void     VMFrame::SetPreviousFrame(pVMObject frm) {
-    this->previousFrame = (pVMFrame)frm;
+    this->previousFrame = static_cast<pVMFrame>(frm);
 #if GC_TYPE==GENERATIONAL
     _HEAP->writeBarrier(this, frm);
 #endif
 }
 
 void     VMFrame::ClearPreviousFrame() {
-    this->previousFrame = (pVMFrame)nilObject;
+    this->previousFrame = NULL;
 #if GC_TYPE==GENERATIONAL
     _HEAP->writeBarrier(this, nilObject);
 #endif

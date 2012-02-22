@@ -126,8 +126,8 @@ const int VMFrame::VMFrameNumberOfFields = 7;
 
 VMFrame::VMFrame(int size, int nof) :
 		VMObject(nof + VMFrameNumberOfFields),
-		previousFrame((pVMFrame)nilObject), context((pVMFrame)nilObject),
-		method((pVMMethod)nilObject) {
+		previousFrame(NULL), context(NULL),
+		method(NULL) {
 #ifdef USE_TAGGING
     this->bytecodeIndex = 0;
 #else
@@ -142,11 +142,11 @@ VMFrame::VMFrame(int size, int nof) :
   pVMObject* end = (pVMObject*) SHIFTED_PTR(this, objectSize);
   int32_t i = 0;
   while (arguments + i < end) {
-      arguments[i] = nilObject;
+    arguments[i] = nilObject;
     i++;
   }
 #if GC_TYPE==GENERATIONAL
-	_HEAP->writeBarrier(this, nilObject);
+  _HEAP->writeBarrier(this, nilObject);
 #endif
 
 }
@@ -186,15 +186,16 @@ void VMFrame::WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*)) {
 void VMFrame::WalkObjects(pVMObject (*walk)(pVMObject)) {
 #endif
   clazz = (VMClass*)walk(clazz);
-  previousFrame = (VMFrame*)walk(previousFrame);
-  context = (VMFrame*)walk(context);
+  if (previousFrame)
+    previousFrame = (VMFrame*)walk(previousFrame);
+  if (context)
+    context = (VMFrame*)walk(context);
   method = (VMMethod*)walk(method);
 
   //all other fields are indexable via arguments array
   // --> until end of Frame
-  pVMObject* end = (pVMObject*) SHIFTED_PTR(this, objectSize);
   int32_t i = 0;
-  while (arguments + i < end) {
+  while (arguments + i <= stack_ptr) {
     if (arguments[i] != NULL)
       arguments[i] = walk(arguments[i]);
     i++;
@@ -320,7 +321,10 @@ void      VMFrame::CopyArgumentsFrom(pVMFrame frame) {
     int num_args = GetMethod()->GetNumberOfArguments();
     for(int i=0; i < num_args; ++i) {
         pVMObject stackElem = frame->GetStackElement(num_args - 1 - i);
-        SetArgument(i, 0, stackElem);
+        arguments[i] = stackElem;
+#if GC_TYPE==GENERATIONAL
+        _HEAP->writeBarrier(this, stackElem);
+#endif
     }
 }
 

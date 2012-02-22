@@ -68,8 +68,8 @@ const int VMClass::VMClassNumberOfFields = 4;
 
 
 VMClass::VMClass() : VMObject(VMClassNumberOfFields),
-superClass((pVMClass)nilObject), name((pVMSymbol)nilObject),
-	instanceFields((pVMArray)nilObject), instanceInvokables((pVMArray)nilObject) {
+superClass(NULL), name(NULL),
+	instanceFields(NULL), instanceInvokables(NULL) {
 }
 
 #ifdef USE_TAGGING
@@ -96,21 +96,35 @@ pVMClass VMClass::Clone() const {
 
 #ifdef USE_TAGGING
 VMClass::VMClass( int numberOfFields ) : VMObject(numberOfFields + VMClassNumberOfFields),
-superClass(nilObject), name(nilObject), instanceFields(nilObject), instanceInvokables(nilObject) {
+superClass(NULL), name(NULL), instanceFields(nilObject), instanceInvokables(nilObject) {
 #else
 VMClass::VMClass( int numberOfFields ) : VMObject(numberOfFields + VMClassNumberOfFields) {
 #endif
 }
 
 
+#ifdef USE_TAGGING
+void VMClass::WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*)) {
+#else
+void VMClass::WalkObjects(pVMObject (*walk)(pVMObject)) {
+#endif
+  clazz = static_cast<pVMClass>(walk(clazz));
+  if (superClass)
+    superClass = static_cast<pVMClass>(walk(superClass));
+  name = static_cast<pVMSymbol>(walk(name));
+  instanceFields = static_cast<pVMArray>(walk(instanceFields));
+  instanceInvokables = static_cast<pVMArray>(walk(instanceInvokables));
 
+  for (int i = VMClassNumberOfFields + 1/*VMObjectNumberOfFields*/; i < numberOfFields; i++)
+    SetField(i, walk(GetField(i)));
+}
 
 
 bool VMClass::AddInstanceInvokable(pVMObject ptr) {
 #ifdef USE_TAGGING
     pVMInvokable newInvokable = DynamicConvert<VMInvokable, VMObject>(ptr);
 #else
-    pVMInvokable newInvokable = dynamic_cast<pVMInvokable>(ptr);
+    pVMInvokable newInvokable = static_cast<pVMInvokable>(ptr);
 #endif
     if (newInvokable == NULL) {
         _UNIVERSE->ErrorExit("Error: trying to add non-invokable to invokables array");
@@ -121,7 +135,7 @@ bool VMClass::AddInstanceInvokable(pVMObject ptr) {
         pVMInvokable inv = DynamicConvert<VMInvokable, VMObject>(
 				(*instanceInvokables).GetIndexableField(i) );
 #else
-        pVMInvokable inv = dynamic_cast<pVMInvokable>(instanceInvokables->GetIndexableField(i));
+        pVMInvokable inv = static_cast<pVMInvokable>(instanceInvokables->GetIndexableField(i));
 #endif
 		if (inv != NULL) {
             if (newInvokable->GetSignature() == inv->GetSignature()) {
@@ -143,7 +157,7 @@ bool VMClass::AddInstanceInvokable(pVMObject ptr) {
 
 
 void VMClass::AddInstancePrimitive(pVMPrimitive ptr) {
-	if (AddInstanceInvokable((pVMObject)ptr)) {
+	if (AddInstanceInvokable(ptr)) {
 		//cout << "Warn: Primitive "<<ptr->GetSignature<<" is not in class definition for class " << name->GetStdString() << endl;
 	}
 }
@@ -153,7 +167,7 @@ pVMSymbol VMClass::GetInstanceFieldName(int index) const {
 	int32_t noSuperInstanceFields = numberOfSuperInstanceFields();
 	if (index >= noSuperInstanceFields) {
 		index -= noSuperInstanceFields;
-		return (pVMSymbol) instanceFields->GetIndexableField(index);
+		return static_cast<pVMSymbol>(instanceFields->GetIndexableField(index));
 	}
 	return superClass->GetInstanceFieldName(index);
 }
@@ -176,7 +190,7 @@ void      VMClass::SetInstanceInvokables(pVMArray invokables) {
 #ifdef USE_TAGGING
             pVMInvokable inv = DynamicConvert<VMInvokable, VMObject>(invo);
 #else
-            pVMInvokable inv = dynamic_cast<pVMInvokable>(invo);
+            pVMInvokable inv = static_cast<pVMInvokable>(invo);
 #endif
             inv->SetHolder(this);
         }
@@ -190,8 +204,8 @@ int       VMClass::GetNumberOfInstanceInvokables() const {
 }
 
 
-pVMObject VMClass::GetInstanceInvokable(int index) const {
-    return instanceInvokables->GetIndexableField(index);
+pVMInvokable VMClass::GetInstanceInvokable(int index) const {
+    return static_cast<pVMInvokable>(instanceInvokables->GetIndexableField(index));
 }
 
 
@@ -201,33 +215,33 @@ void      VMClass::SetInstanceInvokable(int index, pVMObject invokable) {
 #ifdef USE_TAGGING
     pVMInvokable inv = DynamicConvert<VMInvokable, VMObject>( invokable );
 #else
-    pVMInvokable inv = dynamic_cast<pVMInvokable>( invokable );
+    pVMInvokable inv = static_cast<pVMInvokable>( invokable );
 #endif
     inv->SetHolder(this);
   }
 }
 
 
-pVMObject VMClass::LookupInvokable(pVMSymbol name) const {
+pVMInvokable VMClass::LookupInvokable(pVMSymbol name) const {
   //pVMInvokable invokable = NULL;
   pVMInvokable invokable = name->GetCachedInvokable(this);
   if (invokable != NULL)
     return invokable;
   int32_t noInstanceInvokables = GetNumberOfInstanceInvokables();
   for (int i = 0; i < noInstanceInvokables; ++i) {
-    invokable = (pVMInvokable)(GetInstanceInvokable(i));
+    invokable = GetInstanceInvokable(i);
     if (invokable->GetSignature() == name) {
       name->UpdateCachedInvokable(this, invokable);
-      return (pVMObject)(invokable);
+      return invokable;
     }
   }
   invokable = NULL;
   //look in super class
   if (this->HasSuperClass())  {
-    invokable = (pVMInvokable)(this->superClass->LookupInvokable(name));
+    invokable = this->superClass->LookupInvokable(name);
   }
   name->UpdateCachedInvokable(this, invokable);
-  return (pVMObject)(invokable);
+  return invokable;
 }
 
 
@@ -255,7 +269,7 @@ int       VMClass::GetNumberOfInstanceFields() const {
 bool      VMClass::HasPrimitives() const {
 	int32_t noInstanceInvokables = GetNumberOfInstanceInvokables();
 	for (int i = 0; i < noInstanceInvokables; ++i) {
-        pVMInvokable invokable = (pVMInvokable)(GetInstanceInvokable(i));
+        pVMInvokable invokable = GetInstanceInvokable(i);
         if (invokable->IsPrimitive()) return true;
     }
     return false;
@@ -434,7 +448,7 @@ void VMClass::setPrimitives(void* dlhandle, const StdString& cname) {
     // iterate invokables
     for(int i = 0; i < this->GetNumberOfInstanceInvokables(); i++)  {
         
-        anInvokable = (pVMInvokable)(this->GetInstanceInvokable(i));
+        anInvokable = this->GetInstanceInvokable(i);
 #ifdef __DEBUG
         cout << "cname: >" << cname << "<"<< endl;
         cout << an_invokable->GetSignature()->GetStdString() << endl;
@@ -443,7 +457,7 @@ void VMClass::setPrimitives(void* dlhandle, const StdString& cname) {
 #ifdef __DEBUG
             cout << "... is a primitive, and is going to be loaded now" << endl;
 #endif
-            thePrimitive = (pVMPrimitive)( anInvokable );
+            thePrimitive = static_cast<pVMPrimitive>( anInvokable );
             //
             // we have a primitive to load
             // get it's selector

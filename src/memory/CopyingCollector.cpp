@@ -60,9 +60,9 @@ void CopyingCollector::Collect() {
 	pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
 	if (currentFrame != NULL) {
 #ifdef USE_TAGGING
-		pVMFrame newFrame = (VMFrame*)copy_if_necessary(currentFrame);
+		pVMFrame newFrame = static_cast<VMFrame*>(copy_if_necessary(currentFrame));
 #else
-		pVMFrame newFrame = (pVMFrame)copy_if_necessary(currentFrame);
+		pVMFrame newFrame = static_cast<pVMFrame>(copy_if_necessary(currentFrame));
 #endif
 		_UNIVERSE->GetInterpreter()->SetFrame(newFrame);
 	}
