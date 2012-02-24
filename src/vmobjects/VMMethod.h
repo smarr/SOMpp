@@ -50,11 +50,11 @@ class VMMethod :  public VMInvokable {
  public:
   VMMethod(int bcCount, int numberOfConstants, int nof = 0);
 
-  int       GetNumberOfLocals() const;
+  inline int GetNumberOfLocals() const;
   void      SetNumberOfLocals(int nol);
   int       GetMaximumNumberOfStackElements() const;
   void      SetMaximumNumberOfStackElements(int stel);
-  int       GetNumberOfArguments() const;
+  inline int GetNumberOfArguments() const;
   void      SetNumberOfArguments(int);
   int       GetNumberOfBytecodes() const;
   void      SetHolderAll(pVMClass hld); 
@@ -78,12 +78,6 @@ class VMMethod :  public VMInvokable {
 #endif
 
   void              SetIndexableField(int idx, pVMObject item);
-
-  //VMArray Methods....
-
-
-  pVMArray    CopyAndExtendWith(pVMObject) const;
-  void        CopyIndexableFieldsTo(pVMArray) const;
 
   /// Methods are considered byte arrays with meta data.
   // So the index operator returns the bytecode at the index.
@@ -115,6 +109,13 @@ class VMMethod :  public VMInvokable {
   static const int VMMethodNumberOfFields;
 };
 
+inline int VMMethod::GetNumberOfLocals() const {
+#ifdef USE_TAGGING
+    return (int32_t)numberOfLocals; 
+#else
+    return numberOfLocals->GetEmbeddedInteger(); 
+#endif
+}
 
 
 int VMMethod::GetNumberOfIndexableFields() const {
@@ -127,5 +128,12 @@ int VMMethod::GetNumberOfIndexableFields() const {
 #endif
 }
 
+inline int VMMethod::GetNumberOfArguments() const {
+#ifdef USE_TAGGING
+    return (int32_t)numberOfArguments; 
+#else
+    return numberOfArguments->GetEmbeddedInteger(); 
+#endif
+}
 
 #endif

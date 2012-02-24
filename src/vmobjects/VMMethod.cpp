@@ -162,13 +162,7 @@ void VMMethod::SetCachedFrame(pVMFrame frame) {
 #endif
 
 
-int VMMethod::GetNumberOfLocals() const {
-#ifdef USE_TAGGING
-    return (int32_t)numberOfLocals; 
-#else
-    return numberOfLocals->GetEmbeddedInteger(); 
-#endif
-}
+
 
 
 void VMMethod::SetNumberOfLocals(int nol) {
@@ -202,16 +196,6 @@ void VMMethod::SetMaximumNumberOfStackElements(int stel) {
 #endif
 #endif
 }
-
-
-int VMMethod::GetNumberOfArguments() const {
-#ifdef USE_TAGGING
-    return (int32_t)numberOfArguments; 
-#else
-    return numberOfArguments->GetEmbeddedInteger(); 
-#endif
-}
-
 
 void VMMethod::SetNumberOfArguments(int noa) {
 #ifdef USE_TAGGING
@@ -277,17 +261,6 @@ void VMMethod::SetBytecode(int indx, uint8_t val) {
     _BC[indx] = val;
 }
 
-
-//VMArray Methods
-pVMArray VMMethod::CopyAndExtendWith(pVMObject item) const {
-    size_t fields = this->GetNumberOfIndexableFields();
-	pVMArray result = _UNIVERSE->NewArray(fields+1);
-    this->CopyIndexableFieldsTo(result);
-	result->SetIndexableField(fields, item);
-	return result;
-}
-
-
 pVMObject VMMethod::GetIndexableField(int idx) const {
   if ((uint32_t)idx > this->GetNumberOfIndexableFields()-1) {
     cout << "Array index out of bounds: Accessing " << idx
@@ -296,13 +269,6 @@ pVMObject VMMethod::GetIndexableField(int idx) const {
     _UNIVERSE->ErrorExit("Array index out of bounds exception");
   }
   return GetField(this->GetNumberOfFields()+idx);
-}
-
-
-void VMMethod::CopyIndexableFieldsTo(pVMArray to) const {
-	for (int i = 0; i < this->GetNumberOfIndexableFields(); ++i) {
-        to->SetIndexableField(i, GetIndexableField(i));
-	}
 }
 
 void VMMethod::SetIndexableField(int idx, pVMObject item) {
