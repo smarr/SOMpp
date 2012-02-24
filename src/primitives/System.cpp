@@ -74,8 +74,10 @@ void  _System::Load_(pVMObject /*object*/, pVMFrame frame) {
     /*pVMObject self = */
     frame->Pop();
     pVMClass result = _UNIVERSE->LoadClass(arg);
-
-    frame->Push( result ? result : nilObject);
+    if (result)
+      frame->Push(result);
+    else
+      frame->Push(nilObject);
 }
 
 

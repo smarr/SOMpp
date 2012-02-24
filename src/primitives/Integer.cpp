@@ -190,7 +190,7 @@ void  _Integer::Plus(pVMObject object, pVMFrame frame) {
     CHECK_COERCION(rightObj, left, "+");
 
     // Do operation:
-    pVMInteger right = dynamic_cast<pVMInteger>(rightObj);
+    pVMInteger right = static_cast<pVMInteger>(rightObj);
     
 #ifdef USE_TAGGING
     int64_t result = (int64_t)(int32_t)left + 
@@ -222,7 +222,7 @@ void  _Integer::Minus(pVMObject object, pVMFrame frame) {
     CHECK_COERCION(rightObj, left, "-");
 
     // Do operation:
-    pVMInteger right = dynamic_cast<pVMInteger>(rightObj);
+    pVMInteger right = static_cast<pVMInteger>(rightObj);
     
 #ifdef USE_TAGGING
     int64_t result = (int64_t)(int32_t)left - 
@@ -242,7 +242,7 @@ void  _Integer::Star(pVMObject object, pVMFrame frame) {
     CHECK_COERCION(rightObj, left, "*");
 
     // Do operation:
-    pVMInteger right = dynamic_cast<pVMInteger>(rightObj);
+    pVMInteger right = static_cast<pVMInteger>(rightObj);
     
 #ifdef USE_TAGGING
     int64_t result = (int64_t)(int32_t)left * 
@@ -262,7 +262,7 @@ void  _Integer::Slashslash(pVMObject object, pVMFrame frame) {
     CHECK_COERCION(rightObj, left, "/");
 
     // Do operation:
-    pVMInteger right = dynamic_cast<pVMInteger>(rightObj);
+    pVMInteger right = static_cast<pVMInteger>(rightObj);
     
 #ifdef USE_TAGGING
     double result = (double)(int32_t)left /
@@ -282,7 +282,7 @@ void  _Integer::Slash(pVMObject object, pVMFrame frame) {
     CHECK_COERCION(rightObj, left, "/");
 
     // Do operation:
-    pVMInteger right = dynamic_cast<pVMInteger>(rightObj);
+    pVMInteger right = static_cast<pVMInteger>(rightObj);
     
 #ifdef USE_TAGGING
     int64_t result = (int64_t)(int32_t)left / 
@@ -302,7 +302,7 @@ void  _Integer::Percent(pVMObject object, pVMFrame frame) {
     CHECK_COERCION(rightObj, left, "%");
 
     // Do operation:
-    pVMInteger right = dynamic_cast<pVMInteger>(rightObj);
+    pVMInteger right = static_cast<pVMInteger>(rightObj);
 
 #ifdef USE_TAGGING
     int64_t result = (int64_t)(int32_t)left %
@@ -322,7 +322,7 @@ void  _Integer::And(pVMObject object, pVMFrame frame) {
     CHECK_COERCION(rightObj, left, "&");
 
     // Do operation:
-    pVMInteger right = dynamic_cast<pVMInteger>(rightObj);
+    pVMInteger right = static_cast<pVMInteger>(rightObj);
     
 #ifdef USE_TAGGING
     int64_t result = (int64_t)(int32_t)left & 
@@ -388,7 +388,7 @@ void  _Integer::Lowerthan(pVMObject object, pVMFrame frame) {
     
     CHECK_COERCION(rightObj, left, "<");
 
-    pVMInteger right = dynamic_cast<pVMInteger>(rightObj);
+    pVMInteger right = static_cast<pVMInteger>(rightObj);
     
 #ifdef USE_TAGGING
     if((int32_t)left < (int32_t)right)

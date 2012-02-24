@@ -123,11 +123,11 @@ void VMMethod::WalkObjects(pVMObject (*walk)(pVMObject)) {
 #endif
   VMInvokable::WalkObjects(walk);
 
-  numberOfLocals = static_cast<pVMInteger>(walk(numberOfLocals));
-  maximumNumberOfStackElements = static_cast<pVMInteger>(walk(maximumNumberOfStackElements));
-  bcLength = static_cast<pVMInteger>(walk(bcLength));
-  numberOfArguments = static_cast<pVMInteger>(walk(numberOfArguments));
-  numberOfConstants = static_cast<pVMInteger>(walk(numberOfConstants));
+  numberOfLocals = static_cast<VMInteger*>(walk(numberOfLocals));
+  maximumNumberOfStackElements = static_cast<VMInteger*>(walk(maximumNumberOfStackElements));
+  bcLength = static_cast<VMInteger*>(walk(bcLength));
+  numberOfArguments = static_cast<VMInteger*>(walk(numberOfArguments));
+  numberOfConstants = static_cast<VMInteger*>(walk(numberOfConstants));
 #ifdef UNSAFE_FRAME_OPTIMIZATION
   if (cachedFrame != NULL)
     cachedFrame = static_cast<VMFrame*>(walk(cachedFrame));

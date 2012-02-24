@@ -49,7 +49,11 @@ public:
 	virtual void      SetSignature(pVMSymbol sig);
 	virtual pVMClass  GetHolder() const;
 	virtual void      SetHolder(pVMClass hld);
-	virtual void WalkObjects(pVMObject (pVMObject));
+#ifdef USE_TAGGING
+  void WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*));
+#else
+  void WalkObjects(pVMObject (*walk)(pVMObject));
+#endif
 
 protected:
 	pVMSymbol signature;

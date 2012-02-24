@@ -59,10 +59,10 @@ void VMInvokable::WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*)) {
 #else
 void VMInvokable::WalkObjects(pVMObject (*walk)(pVMObject)) {
 #endif
-  clazz = static_cast<pVMClass>(walk(clazz));
-  signature = static_cast<pVMSymbol>(walk(signature));
+  clazz = static_cast<VMClass*>(walk(clazz));
+  signature = static_cast<VMSymbol*>(walk(signature));
   if (holder)
-    holder = static_cast<pVMClass>(walk(holder));
+    holder = static_cast<VMClass*>(walk(holder));
 }
 
 

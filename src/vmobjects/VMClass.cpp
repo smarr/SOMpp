@@ -105,15 +105,21 @@ VMClass::VMClass( int numberOfFields ) : VMObject(numberOfFields + VMClassNumber
 
 #ifdef USE_TAGGING
 void VMClass::WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*)) {
+  clazz = VMPointer<VMClass>(static_cast<VMClass*>(walk(clazz)));
+  if (superClass)
+    superClass = VMPointer<VMClass>(static_cast<VMClass*>(walk(superClass)));
+  name = VMPointer<VMSymbol>(static_cast<VMSymbol*>(walk(name)));
+  instanceFields = VMPointer<VMArray>(static_cast<VMArray*>(walk(instanceFields)));
+  instanceInvokables = VMPointer<VMArray>(static_cast<VMArray*>(walk(instanceInvokables)));
 #else
 void VMClass::WalkObjects(pVMObject (*walk)(pVMObject)) {
-#endif
   clazz = static_cast<pVMClass>(walk(clazz));
   if (superClass)
     superClass = static_cast<pVMClass>(walk(superClass));
   name = static_cast<pVMSymbol>(walk(name));
   instanceFields = static_cast<pVMArray>(walk(instanceFields));
   instanceInvokables = static_cast<pVMArray>(walk(instanceInvokables));
+#endif
 
   for (int i = VMClassNumberOfFields + 1/*VMObjectNumberOfFields*/; i < numberOfFields; i++)
     SetField(i, walk(GetField(i)));
