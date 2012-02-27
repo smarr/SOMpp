@@ -149,6 +149,7 @@ void VMMethod::SetIndexableField(int idx, pVMObject item) {
   indexableFields[idx] = item;
 #if GC_TYPE==generational
   _HEAP->writeBarrier(this, item);
+#endif
 }
 uint8_t VMMethod::GetBytecode(int indx) const {
     return bytecodes[indx];
@@ -159,5 +160,4 @@ void VMMethod::SetBytecode(int indx, uint8_t val) {
     bytecodes[indx] = val;
 }
 
-#endif
 #endif
