@@ -32,9 +32,6 @@ THE SOFTWARE.
 #ifdef USE_TAGGING
 VMInvokable::VMInvokable(int nof) : VMObject(nof + 2),
             signature(nilObject), holder(nilObject) {
-#if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, nilObject);
-#endif
 }
 #endif
 

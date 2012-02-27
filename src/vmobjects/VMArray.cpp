@@ -42,10 +42,6 @@ VMArray::VMArray(int size, int nof) : VMObject(nof + VMArrayNumberOfFields) {
     for (int i = 0; i < size ; ++i) {
 		arrFields[i] = nilObject;
     }
-#if GC_TYPE==GENERATIONAL
-	// now call the write barrier once manually
-	_HEAP->writeBarrier(this, nilObject);
-#endif
 }
 
 pVMObject VMArray::GetIndexableField(int32_t idx) const {

@@ -55,9 +55,6 @@ VMMethod::VMMethod(int bcCount, int numberOfConstants, int nof)
   : VMInvokable(nof + VMMethodNumberOfFields) {
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     cachedFrame = NULL;
-#if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, nilObject);
-#endif
 #endif
 #ifdef USE_TAGGING
     bcLength = bcCount ;

@@ -152,9 +152,6 @@ void     VMFrame::SetPreviousFrame(pVMObject frm) {
 
 void     VMFrame::ClearPreviousFrame() {
     this->previousFrame = NULL;
-#if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, nilObject);
-#endif
 }
 
 pVMMethod VMFrame::GetMethod() const {

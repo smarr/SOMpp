@@ -86,10 +86,6 @@ pVMFrame VMFrame::EmergencyFrameFrom( pVMFrame from, int extraLength ) {
     result->arguments[i] = nilObject;
     i++;
   }
-
-#if GC_TYPE==GENERATIONAL
-  _HEAP->writeBarrier(result, nilObject); //for extra fields
-#endif
   return result;
 }
 
@@ -145,10 +141,6 @@ VMFrame::VMFrame(int size, int nof) :
     arguments[i] = nilObject;
     i++;
   }
-#if GC_TYPE==GENERATIONAL
-  _HEAP->writeBarrier(this, nilObject);
-#endif
-
 }
 
 

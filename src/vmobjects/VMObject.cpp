@@ -69,9 +69,6 @@ void VMObject::SetNumberOfFields(int nof) {
   //initialize fields with NilObject
   for (int i = 0; i < nof ; ++i)
     FIELDS[i] = nilObject;
-#if GC_TYPE==GENERATIONAL
-  _HEAP->writeBarrier(this, nilObject);
-#endif
 }
 
 
