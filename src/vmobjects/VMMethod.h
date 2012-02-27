@@ -59,8 +59,8 @@ class VMMethod :  public VMInvokable {
   int       GetNumberOfBytecodes() const;
   void      SetHolderAll(pVMClass hld); 
   pVMObject GetConstant(int indx) const;
-  uint8_t   GetBytecode(int indx) const;
-  void      SetBytecode(int indx, uint8_t);
+  inline uint8_t   GetBytecode(int indx) const;
+  inline void      SetBytecode(int indx, uint8_t);
 #ifdef UNSAFE_FRAME_OPTIMIZATION
   void      SetCachedFrame(pVMFrame frame); 
   pVMFrame  GetCachedFrame() const;
@@ -77,7 +77,7 @@ class VMMethod :  public VMInvokable {
   virtual pVMMethod Clone() const;
 #endif
 
-  void              SetIndexableField(int idx, pVMObject item);
+  inline void              SetIndexableField(int idx, pVMObject item);
 
   /// Methods are considered byte arrays with meta data.
   // So the index operator returns the bytecode at the index.
@@ -94,8 +94,8 @@ class VMMethod :  public VMInvokable {
 
 
  private:
-  uint8_t* GetBytecodes() const;
-  pVMObject   GetIndexableField(int idx) const;
+  inline uint8_t* GetBytecodes() const;
+  inline pVMObject   GetIndexableField(int idx) const;
 
   pVMInteger numberOfLocals;
   pVMInteger maximumNumberOfStackElements;
@@ -105,7 +105,8 @@ class VMMethod :  public VMInvokable {
 #ifdef UNSAFE_FRAME_OPTIMIZATION
   pVMFrame   cachedFrame;
 #endif
-
+  pVMObject* indexableFields;
+  uint8_t* bytecodes;
   static const int VMMethodNumberOfFields;
 };
 
@@ -128,6 +129,10 @@ int VMMethod::GetNumberOfIndexableFields() const {
 #endif
 }
 
+uint8_t* VMMethod::GetBytecodes() const {
+  return bytecodes;
+}
+
 inline int VMMethod::GetNumberOfArguments() const {
 #ifdef USE_TAGGING
     return (int32_t)numberOfArguments; 
@@ -136,4 +141,23 @@ inline int VMMethod::GetNumberOfArguments() const {
 #endif
 }
 
+pVMObject VMMethod::GetIndexableField(int idx) const {
+  return indexableFields[idx];
+}
+
+void VMMethod::SetIndexableField(int idx, pVMObject item) {
+  indexableFields[idx] = item;
+#if GC_TYPE==generational
+  _HEAP->writeBarrier(this, item);
+}
+uint8_t VMMethod::GetBytecode(int indx) const {
+    return bytecodes[indx];
+}
+
+
+void VMMethod::SetBytecode(int indx, uint8_t val) {
+    bytecodes[indx] = val;
+}
+
+#endif
 #endif
