@@ -42,13 +42,13 @@ THE SOFTWARE.
 #include "../compiler/MethodGenerationContext.h"
 
 //this method's bytecodes
-#define FIELDS ((pVMObject*)&clazz)
-#define _BC ((uint8_t*)&FIELDS[this->GetNumberOfFields() + this->GetNumberOfIndexableFields()])
+//#define FIELDS ((pVMObject*)&clazz)
+//#define _BC ((uint8_t*)&FIELDS[this->GetNumberOfFields() + this->GetNumberOfIndexableFields()])
 
 #ifdef UNSAFE_FRAME_OPTIMIZATION
-const int VMMethod::VMMethodNumberOfFields = 6;
+const int VMMethod::VMMethodNumberOfFields = 8;
 #else
-const int VMMethod::VMMethodNumberOfFields = 5;
+const int VMMethod::VMMethodNumberOfFields = 7;
 #endif
 
 VMMethod::VMMethod(int bcCount, int numberOfConstants, int nof)
@@ -76,14 +76,15 @@ VMMethod::VMMethod(int bcCount, int numberOfConstants, int nof)
     _HEAP->writeBarrier(this, numberOfArguments);
     _HEAP->writeBarrier(this, this->numberOfConstants);
 #endif
+    indexableFields = (pVMObject*)(&indexableFields + 2);
     for (int i = 0; i < numberOfConstants ; ++i) {
-      this->SetIndexableField(i, nilObject);
+      indexableFields[i] = nilObject;
+      //no need for write barrier (nilObject is found anyway)
     }
+    bytecodes = (uint8_t*)(&indexableFields + 2 + GetNumberOfIndexableFields());
   }
 
-uint8_t* VMMethod::GetBytecodes() const {
-  return (uint8_t*)(&FIELDS[GetNumberOfFields() + GetNumberOfIndexableFields()]);
-}
+
 
 #ifdef USE_TAGGING
 VMMethod* VMMethod::Clone() const {
@@ -104,6 +105,8 @@ pVMMethod VMMethod::Clone() const {
 	memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,
 				sizeof(VMObject)), GetObjectSize() -
 			sizeof(VMObject));
+  clone->indexableFields = (pVMObject*)(&(clone->indexableFields) + 2);
+  clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + GetNumberOfIndexableFields());
 	return clone;
 }
 
@@ -237,45 +240,18 @@ void VMMethod::SetHolderAll(pVMClass hld) {
 
 
 pVMObject VMMethod::GetConstant(int indx) const {
-    uint8_t bc = _BC[indx+1];
-    if (bc >= this->GetNumberOfIndexableFields()) {
+    if (bytecodes[indx+1] >= this->GetNumberOfIndexableFields()) {
         cout << "Error: Constant index out of range" << endl;
         return NULL;
     }
-    return this->GetIndexableField(bc);
+    return this->GetIndexableField(bytecodes[indx+1]);
 }
 
 uint8_t& VMMethod::operator[](int indx) const {
-	return _BC[indx];
-}
-
-uint8_t VMMethod::GetBytecode(int indx) const {
-    return _BC[indx];
+	return bytecodes[indx];
 }
 
 
-void VMMethod::SetBytecode(int indx, uint8_t val) {
-    _BC[indx] = val;
-}
 
-pVMObject VMMethod::GetIndexableField(int idx) const {
-  if ((uint32_t)idx > this->GetNumberOfIndexableFields()-1) {
-    cout << "Array index out of bounds: Accessing " << idx
-        << ", but only " << GetNumberOfIndexableFields()-1
-        << " entries are available\n";
-    _UNIVERSE->ErrorExit("Array index out of bounds exception");
-  }
-  return GetField(this->GetNumberOfFields()+idx);
-}
 
-void VMMethod::SetIndexableField(int idx, pVMObject item) {
-    if ((uint32_t)idx > this->GetNumberOfIndexableFields()-1) {
-        cout << "Array index out of bounds: Accessing " << idx 
-             << ", but there is only space for " 
-             << this->GetNumberOfIndexableFields() 
-             << " entries available\n";
-        _UNIVERSE->ErrorExit("Array index out of bounds exception");
-    }
-	SetField(this->GetNumberOfFields()+idx, item);
-}
 
