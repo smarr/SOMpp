@@ -245,6 +245,17 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
                     name->GetChars());
                 break;
             }
+            case BC_JUMP_IF_FALSE:
+            case BC_JUMP_IF_TRUE:
+            case BC_JUMP: {
+              int target = 0;
+              target |= method->GetBytecode(bc_idx + 1);
+              target |= method->GetBytecode(bc_idx + 2) << 8;
+              target |= method->GetBytecode(bc_idx + 3) << 16;
+              target |= method->GetBytecode(bc_idx + 4) << 24;
+              DebugPrint("(target: %d)\n", target);
+              break;
+            }
             default:
                 DebugPrint("<incorrect bytecode>\n");
         }
@@ -468,6 +479,17 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
         case BC_RETURN_NON_LOCAL: {
             DebugPrint(")\n");
             indentc--; ikind='<'; //visual
+        break;
+      }
+      case BC_JUMP_IF_FALSE:
+      case BC_JUMP_IF_TRUE:
+      case BC_JUMP: {
+        int target = 0;
+        target |= method->GetBytecode(bc_idx + 1);
+        target |= method->GetBytecode(bc_idx + 2) << 8;
+        target |= method->GetBytecode(bc_idx + 3) << 16;
+        target |= method->GetBytecode(bc_idx + 4) << 24;
+        DebugPrint("(target: %d)\n", target);
             break;
         }
         default:

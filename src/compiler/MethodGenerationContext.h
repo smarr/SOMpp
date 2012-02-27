@@ -76,7 +76,9 @@ public:
 	bool            IsFinished();
 	void            RemoveLastBytecode() { bytecode.pop_back(); };
 	int             GetNumberOfArguments();
-	void            AddBytecode(uint8_t bc);
+	size_t            AddBytecode(uint8_t bc);
+  void PatchJumpTarget(size_t jump_position);
+
 private:
 	ClassGenerationContext*    holderGenc;
     MethodGenerationContext*   outerGenc;

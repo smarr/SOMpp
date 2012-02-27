@@ -144,6 +144,9 @@ uint8_t MethodGenerationContext::ComputeStackDepth() {
             }
             case BC_RETURN_LOCAL     :
             case BC_RETURN_NON_LOCAL :          i++;    break;
+      case BC_JUMP_IF_FALSE    : depth--; i += 5; break;
+      case BC_JUMP_IF_TRUE     : depth--; i += 5; break;
+      case BC_JUMP             :          i += 5; break;
             default                  :
                 cout << "Illegal bytecode: " << bytecode[i];
                 _UNIVERSE->Quit(1);
@@ -234,6 +237,15 @@ bool MethodGenerationContext::IsFinished() {
 	return finished;
 }
 
-void MethodGenerationContext::AddBytecode(uint8_t bc) {
+size_t MethodGenerationContext::AddBytecode(uint8_t bc) {
 	bytecode.push_back(bc);
+  return bytecode.size();
+}
+
+void MethodGenerationContext::PatchJumpTarget(size_t jumpPosition) {
+  size_t jump_target = bytecode.size();
+  bytecode[jumpPosition] = (uint8_t)jump_target;
+  bytecode[jumpPosition+1] = (uint8_t)(jump_target >> 8);
+  bytecode[jumpPosition+2] = (uint8_t)(jump_target >> 16);
+  bytecode[jumpPosition+3] = (uint8_t)(jump_target >> 24);
 }

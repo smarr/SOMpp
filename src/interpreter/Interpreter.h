@@ -79,6 +79,9 @@ private:
     void doSuperSend(int bytecodeIndex);
     void doReturnLocal();
     void doReturnNonLocal();
+    void doJumpIfFalse(int bytecodeIndex);
+    void doJumpIfTrue(int bytecodeIndex);
+    void doJump(int bytecodeIndex);
 };
 
 #endif
