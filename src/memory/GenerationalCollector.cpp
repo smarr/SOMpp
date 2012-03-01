@@ -30,7 +30,7 @@ GenerationalCollector::GenerationalCollector(Heap* heap) : GarbageCollector(heap
 VMOBJECT_PTR mark_object(VMOBJECT_PTR obj) {
 #ifdef USE_TAGGING
 	//don't process tagged objects
-	if ((int32_t)((void*)obj) & 1)
+	if ((size_t)((void*)obj) & 1)
 		return obj;
 #endif
     if (obj->GetGCField() & MASK_OBJECT_IS_MARKED)
@@ -43,10 +43,10 @@ VMOBJECT_PTR mark_object(VMOBJECT_PTR obj) {
 VMOBJECT_PTR copy_if_necessary(VMOBJECT_PTR obj) {
 #ifdef USE_TAGGING
   //don't process tagged objects
-  if ((int32_t)((void*)obj) & 0x1)
+  if ((size_t)((void*)obj) & 0x1)
     return obj;
 #endif
-  int32_t gcField = obj->GetGCField();
+  size_t gcField = obj->GetGCField();
   //if this is an old object already, we don't have to copy
   if (gcField & MASK_OBJECT_IS_OLD)
     return obj;
@@ -56,7 +56,7 @@ VMOBJECT_PTR copy_if_necessary(VMOBJECT_PTR obj) {
     return (VMOBJECT_PTR)gcField;
   //we have to clone ourselves
   VMOBJECT_PTR newObj = obj->Clone();
-    obj->SetGCField((int32_t)newObj);
+    obj->SetGCField((size_t)newObj);
   newObj->SetGCField(MASK_OBJECT_IS_OLD);
   //walk recursively
   newObj->WalkObjects(copy_if_necessary);
@@ -78,7 +78,7 @@ void GenerationalCollector::MinorCollection() {
   }
 
   //and also all objects that have been detected by the write barriers
-  for (vector<int>::iterator objIter =
+  for (vector<size_t>::iterator objIter =
        _HEAP->oldObjsWithRefToYoungObjs->begin(); objIter !=
        _HEAP->oldObjsWithRefToYoungObjs->end(); objIter++) {
     //content of oldObjsWithRefToYoungObjs is not altered while iteration,

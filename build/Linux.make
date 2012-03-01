@@ -27,8 +27,8 @@
 # THE SOFTWARE.
 
 CC			=g++
-CFLAGS		=-Wno-endif-labels -O3 $(DBG_FLAGS) $(FEATURE_FLAGS) $(INCLUDES)
-LDFLAGS		=$(DBG_FLAGS) -ltcmalloc -lrt $(LIBRARIES)
+CFLAGS		=-Wno-endif-labels -O3 -fPIC $(DBG_FLAGS) $(FEATURE_FLAGS) $(INCLUDES)
+LDFLAGS		=$(DBG_FLAGS) $(LIBRARIES)
 
 INSTALL		=install
 
@@ -177,7 +177,7 @@ endif
 all: $(CSOM_NAME)\
 	$(CSOM_NAME).$(SHARED_EXTENSION) \
 	$(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION) \
-	CORE units
+	CORE
 
 
 debug : DBG_FLAGS=-DDEBUG -O0 -g
@@ -208,7 +208,7 @@ clean:
 $(CSOM_NAME): $(CSOM_NAME).$(SHARED_EXTENSION) $(MAIN_OBJ)
 	@echo Linking $(CSOM_NAME) loader
 	$(CC) $(LDFLAGS) \
-		-o $(CSOM_NAME) $(MAIN_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION) -ldl
+		-o $(CSOM_NAME) $(MAIN_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION) -ldl -lrt
 	@echo CSOM done.
 
 $(CSOM_NAME).$(SHARED_EXTENSION): $(CSOM_OBJ)

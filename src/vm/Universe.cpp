@@ -917,12 +917,12 @@ pVMSymbol Universe::NewSymbol( const StdString& str) {
 }
 
 pVMSymbol Universe::NewSymbol( const char* str ) {
-    pVMSymbol result = new (_HEAP, strlen(str)+1) VMSymbol(str);
+  pVMSymbol result = new (_HEAP, strlen(str)+1) VMSymbol(str);
 	symbolsMap[str] = result;
 #ifdef GENERATE_ALLOCATION_STATISTICS
-    LOG_ALLOCATION("VMSymbol", result->GetObjectSize());
+  LOG_ALLOCATION("VMSymbol", result->GetObjectSize());
 #endif
-    return result;
+  return result;
 }
 
 
@@ -943,7 +943,7 @@ pVMClass Universe::NewSystemClass() const {
 
 pVMSymbol Universe::SymbolFor( const StdString& str) {
 	map<string,pVMSymbol>::iterator it = symbolsMap.find(str);
-    return (it == symbolsMap.end()) ? NewSymbol(str) : it->second;
+  return (it == symbolsMap.end()) ? NewSymbol(str) : it->second;
 }
 
 

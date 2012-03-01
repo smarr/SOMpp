@@ -34,7 +34,7 @@ THE SOFTWARE.
 
 class VMArray : public VMObject {
 	public:
-		VMArray(int size, int32_t nof=0);
+		VMArray(int size, int nof=0);
 #ifdef USE_TAGGING
 		virtual void WalkObjects(AbstractVMObject* (AbstractVMObject*));
 #else
@@ -42,8 +42,8 @@ class VMArray : public VMObject {
 #endif
 		inline int GetNumberOfIndexableFields() const;
 		pVMArray    CopyAndExtendWith(pVMObject) const;
-		pVMObject   GetIndexableField(int32_t idx) const;
-		void        SetIndexableField(int32_t idx, pVMObject value);
+		pVMObject   GetIndexableField(long idx) const;
+		void        SetIndexableField(long idx, pVMObject value);
 		void        CopyIndexableFieldsTo(pVMArray) const;
 #ifdef USE_TAGGING
 		virtual VMArray* Clone() const;

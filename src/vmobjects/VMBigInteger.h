@@ -45,7 +45,7 @@ public:
 	virtual pVMBigInteger Clone() const;
 #endif
 	virtual pVMClass GetClass() const;
-	virtual int32_t GetObjectSize() const;
+	virtual size_t GetObjectSize() const;
 
 private:
 	int64_t embeddedInteger;

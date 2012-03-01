@@ -41,7 +41,7 @@ VMObject::VMObject( int numberOfFields ) {
   //FIELDS = (pVMObject*)&clazz; 
   this->SetNumberOfFields(numberOfFields + VMObjectNumberOfFields);
   gcfield = 0; 
-  hash = (int32_t)this;
+  hash = (size_t)this;
   //Object size is set by the heap
 }
 
@@ -60,7 +60,7 @@ pVMObject VMObject::Clone() const {
     memcpy(&(clone->clazz), &clazz,
            objectSize - sizeof(VMObject) + sizeof(pVMObject));
 #endif
-    clone->hash = (int32_t)&clone;
+    clone->hash = (size_t)&clone;
     return clone;
   }
 

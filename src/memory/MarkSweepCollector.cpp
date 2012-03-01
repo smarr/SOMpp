@@ -49,7 +49,7 @@ void MarkSweepCollector::Collect() {
 
 VMOBJECT_PTR mark_object(VMOBJECT_PTR obj) {
 #ifdef USE_TAGGING
-	if ((int32_t)((void*)obj) & 1)
+	if ((size_t)((void*)obj) & 1)
 		return obj;
 #endif
     if (obj->GetGCField())

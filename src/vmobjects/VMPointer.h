@@ -135,13 +135,13 @@ class AbstractVMObject;
 
 //we need to specialize operator-> if template argument is AbstractVMObject
 template<> inline AbstractVMObject* VMPointer<AbstractVMObject>::operator ->() const {
-        if (((int)pointer & 1) != 0) {
+        if (((intptr_t)pointer & 1) != 0) {
             return (AbstractVMObject*)GlobalBox::IntegerBox();
         }
         return pointer;
     };
 template<> inline AbstractVMObject* VMPointer<AbstractVMObject>::operator ->(){
-        if (((int)pointer & 1) != 0) {
+        if (((intptr_t)pointer & 1) != 0) {
             return (AbstractVMObject*)GlobalBox::IntegerBox();
         }
         return pointer;
