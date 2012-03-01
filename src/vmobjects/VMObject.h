@@ -45,7 +45,7 @@ class VMSymbol;
 class VMClass;
 
 //this macro returns a shifted ptr by offset bytes
-#define SHIFTED_PTR(ptr, offset) ((void*)((int)(ptr)+(int)(offset)))
+#define SHIFTED_PTR(ptr, offset) ((void*)((size_t)(ptr)+(size_t)(offset)))
 
 /* chbol: this table is not correct anymore because of introduction of
  * class AbstractVMObject
@@ -85,7 +85,7 @@ public:
 	virtual void WalkObjects(pVMObject (pVMObject));
 	virtual pVMObject Clone() const;
 #endif
-	virtual inline int32_t GetObjectSize() const;
+	virtual inline size_t GetObjectSize() const;
 	virtual inline void SetObjectSize(size_t size);
 
 	/* Operators */
@@ -119,9 +119,9 @@ public:
 protected:
 	int GetAdditionalSpaceConsumption() const;
 	//VMObject essentials
-	int32_t hash; 
-	int32_t objectSize; //set by the heap at allocation time
-	int32_t numberOfFields;
+	long hash; 
+	size_t objectSize; //set by the heap at allocation time
+	long numberOfFields;
 
 	//pVMObject* FIELDS;
 	//Start of fields. All members beyond this point are indexable
@@ -132,7 +132,7 @@ private:
 	static const int VMObjectNumberOfFields;
 };
 
-int32_t VMObject::GetObjectSize() const {
+size_t VMObject::GetObjectSize() const {
     return objectSize;
 }
 

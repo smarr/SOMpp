@@ -54,9 +54,9 @@ pVMFrame VMFrame::EmergencyFrameFrom( pVMFrame from, int extraLength ) {
   result->SetMethod(method);
   result->SetContext(from->GetContext());
 #ifdef USE_TAGGING
-  result->stack_ptr = (pVMObject*)SHIFTED_PTR(result.GetPointer(), (int32_t)from->stack_ptr - (int32_t)from.GetPointer());
+  result->stack_ptr = (pVMObject*)SHIFTED_PTR(result.GetPointer(), (size_t)from->stack_ptr - (size_t)from.GetPointer());
 #else
-  result->stack_ptr = (pVMObject*)SHIFTED_PTR(result, (int32_t)from->stack_ptr - (int32_t)from);
+  result->stack_ptr = (pVMObject*)SHIFTED_PTR(result, (size_t)from->stack_ptr - (size_t)from);
 #endif
   result->bytecodeIndex = from->bytecodeIndex;
 //result->arguments is set in VMFrame constructor
@@ -72,7 +72,7 @@ pVMFrame VMFrame::EmergencyFrameFrom( pVMFrame from, int extraLength ) {
   pVMObject* result_end = (pVMObject*) SHIFTED_PTR(result, result->GetObjectSize());
 #endif
 
-  int32_t i = 0;
+  long i = 0;
   //copy all fields from other frame
   while (from->arguments + i < from_end) {
       result->arguments[i] = from->arguments[i];
@@ -94,7 +94,7 @@ VMFrame* VMFrame::Clone() const {
 #else
 pVMFrame VMFrame::Clone() const {
 #endif
-	int32_t addSpace = objectSize - sizeof(VMFrame);
+	size_t addSpace = objectSize - sizeof(VMFrame);
 #ifdef USE_TAGGING
 #if GC_TYPE==GENERATIONAL
 	VMFrame* clone = new (_HEAP, addSpace, true) VMFrame(*this);
@@ -114,7 +114,7 @@ pVMFrame VMFrame::Clone() const {
 	memcpy(destination, source, noBytes);
   clone->arguments = (pVMObject*)&(clone->stack_ptr)+1;//field after stack_ptr
   clone->locals = clone->arguments + clone->method->GetNumberOfArguments();
-  clone->stack_ptr = (pVMObject*)SHIFTED_PTR(clone, (int32_t)stack_ptr - (int32_t)this);
+  clone->stack_ptr = (pVMObject*)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
 	return clone;
 }
 
@@ -136,7 +136,7 @@ VMFrame::VMFrame(int size, int nof) :
   //initilize all other fields
   // --> until end of Frame
   pVMObject* end = (pVMObject*) SHIFTED_PTR(this, objectSize);
-  int32_t i = 0;
+  long i = 0;
   while (arguments + i < end) {
     arguments[i] = nilObject;
     i++;
@@ -186,7 +186,7 @@ void VMFrame::WalkObjects(pVMObject (*walk)(pVMObject)) {
 
   //all other fields are indexable via arguments array
   // --> until end of Frame
-  int32_t i = 0;
+  long i = 0;
   while (arguments + i <= stack_ptr) {
     if (arguments[i] != NULL)
       arguments[i] = walk(arguments[i]);
@@ -199,7 +199,7 @@ void VMFrame::WalkObjects(pVMObject (*walk)(pVMObject)) {
 int VMFrame::RemainingStackSize() const {
     // - 1 because the stack pointer points at the top entry,
     // so the next entry would be put at stackPointer+1
-    int32_t size = ((int32_t)this+objectSize - int32_t(stack_ptr))/ sizeof(pVMObject);
+    size_t size = ((size_t)this+objectSize - size_t(stack_ptr))/ sizeof(pVMObject);
     return size - 1;
 }
 
@@ -218,14 +218,14 @@ void      VMFrame::Push(pVMObject obj) {
 
 void VMFrame::PrintStack() const {
 #ifdef USE_TAGGING
-    cout << "SP: " << (int32_t)this->GetStackPointer() << endl;
+    cout << "SP: " << (size_t)this->GetStackPointer() << endl;
 #else
     cout << "SP: " << this->GetStackPointer() << endl;
 #endif
   //all other fields are indexable via arguments array
   // --> until end of Frame
   pVMObject* end = (pVMObject*) SHIFTED_PTR(this, objectSize);
-  int32_t i = 0;
+  long i = 0;
   while (arguments + i < end) {
     pVMObject vmo = arguments[i];
     cout << i << ": ";

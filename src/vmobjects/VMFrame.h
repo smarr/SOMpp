@@ -81,7 +81,7 @@ public:
 #endif
     
     void       PrintStack() const;
-    inline int32_t GetStackPointer() const;
+    inline void* GetStackPointer() const;
     int        RemainingStackSize() const;
 private:
     pVMFrame   previousFrame;
@@ -132,8 +132,8 @@ void     VMFrame::SetContext(pVMFrame frm) {
 #endif
 }
 
-int32_t VMFrame::GetStackPointer() const {
-  return (int32_t)stack_ptr;
+void* VMFrame::GetStackPointer() const {
+  return stack_ptr;
 }
 
 

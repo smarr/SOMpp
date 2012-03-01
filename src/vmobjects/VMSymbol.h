@@ -43,7 +43,7 @@ public:
 	VMSymbol( const char* str );
 	VMSymbol( const StdString& s );
     virtual StdString GetPlainString() const;
-	virtual int32_t GetObjectSize() const;
+	virtual size_t GetObjectSize() const;
 #ifdef USE_TAGGING
     virtual VMSymbol* Clone() const;
 #else

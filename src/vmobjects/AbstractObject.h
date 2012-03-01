@@ -33,7 +33,7 @@ using namespace std;
 //this is the base class for all VMObjects
 class AbstractVMObject : public VMObjectBase {
 public:
-	virtual int32_t GetHash();
+	virtual size_t GetHash();
 	virtual pVMClass GetClass() const = 0;
 #ifdef USE_TAGGING
 	virtual AbstractVMObject* Clone() const = 0;
@@ -41,7 +41,7 @@ public:
 	virtual pVMObject Clone() const = 0;
 #endif
 	virtual void Send(StdString, pVMObject*, int);
-	virtual int32_t GetObjectSize() const = 0;
+	virtual size_t GetObjectSize() const = 0;
 	AbstractVMObject() {
 		gcfield = 0;
 	}
