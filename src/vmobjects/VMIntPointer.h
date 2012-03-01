@@ -35,46 +35,46 @@ public:
     VMIntPointer(VMPointer<T> ptr) : VMPointer<VMInteger>(ptr) {};
 
     //int initialization constructor
-    VMIntPointer(int32_t val) : VMPointer<VMInteger>() { SetIntegerValue(val); };
+    VMIntPointer(long val) : VMPointer<VMInteger>() { SetIntegerValue(val); };
     
     //implicit conversion to int - either unmarshals the tagged integer or calls GetEmbeddedInteger()
-    operator int32_t() const{
+    operator long() const{
         return GetIntegerValue();
     };
 
     //Assignment from int
-    inline VMIntPointer& operator =(const int32_t value){
+    inline VMIntPointer& operator =(const long value){
         //if (pointer) pointer->DecreaseGCCount();
         this->SetIntegerValue(value);
         return *this;
     };
     
-    inline bool operator==(const int32_t val) {
+    inline bool operator==(const long val) {
         return GetIntegerValue() == val;
     };
     
-    inline bool operator!=(const int32_t val) {
+    inline bool operator!=(const long val) {
         return GetIntegerValue() != val;
     };
 
 
 private:
     inline bool IsTaggedInteger() const{
-        return (((int32_t)pointer & 1) != 0);
+        return (((long)pointer & 1) != 0);
     };
 
-    inline int32_t GetIntegerValue() const{ 
+    inline long GetIntegerValue() const{ 
         if (IsTaggedInteger())  //lowest bit set?
         {
             //clear lowest bit and return int
-            return (int32_t)((int32_t)pointer >> 1);
+            return (long)((long)pointer >> 1);
         }
         //it's a VMInteger object, so we need call GetEmbeddedInteger().
         return pointer->GetEmbeddedInteger();
         
     };
 
-    void SetIntegerValue(int32_t value){
+    void SetIntegerValue(long value){
         // Check with tagged integer border
         if(value < VMTAGGEDINTEGER_MIN || value > VMTAGGEDINTEGER_MAX ) {
             //it's too big, so we need an actual Object
