@@ -9,8 +9,8 @@ class GenerationalCollector : public GarbageCollector {
   GenerationalCollector(Heap* heap);
   void Collect();
  private:
-  int32_t majorCollectionThreshold;
-  int32_t matureObjectsSize;
+  intptr_t majorCollectionThreshold;
+  size_t matureObjectsSize;
   void MajorCollection();
   void MinorCollection();  
 };

@@ -28,7 +28,7 @@
 
 CC			=g++
 CFLAGS		=-Wno-endif-labels -O3 -fPIC $(DBG_FLAGS) $(FEATURE_FLAGS) $(INCLUDES)
-LDFLAGS		=$(DBG_FLAGS) $(LIBRARIES)
+LDFLAGS		=$(DBG_FLAGS) -ltcmalloc $(LIBRARIES)
 
 INSTALL		=install
 
@@ -177,7 +177,7 @@ endif
 all: $(CSOM_NAME)\
 	$(CSOM_NAME).$(SHARED_EXTENSION) \
 	$(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION) \
-	CORE
+	CORE units
 
 
 debug : DBG_FLAGS=-DDEBUG -O0 -g
@@ -255,7 +255,7 @@ console: all
 	./$(CSOM_NAME) -cp ./Smalltalk
 
 units: $(UNITTEST_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION)
-	$(CC) $(LIBRARIES) $(UNITTEST_OBJ) SOM++.so -lcppunit -o unittest
+	$(CC) $(LIBRARIES) $(UNITTEST_OBJ) SOM++.so -lcppunit -lrt -o unittest
 
 richards: all
 	./$(CSOM_NAME) -cp ./Smalltalk ./Examples/Benchmarks/Richards/RichardsBenchmarks.som

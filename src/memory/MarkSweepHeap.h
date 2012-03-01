@@ -13,8 +13,8 @@ class MarkSweepHeap : public Heap {
   AbstractVMObject* AllocateObject(size_t size);
  private:
     vector<pVMObject>* allocatedObjects;
-    uint32_t spcAlloc;
-    uint32_t collectionLimit;
+    size_t spcAlloc;
+    long collectionLimit;
 
 };
 

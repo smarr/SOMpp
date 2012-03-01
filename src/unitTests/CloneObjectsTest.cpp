@@ -27,9 +27,9 @@ void CloneObjectsTest::testCloneObject() {
 	pVMObject orig = new (_UNIVERSE->GetHeap()) VMObject();
 	pVMObject clone = orig->Clone();
 #ifdef USE_TAGGING
-	CPPUNIT_ASSERT((int)orig.GetPointer() != (int)clone.GetPointer());
+	CPPUNIT_ASSERT((intptr_t)orig.GetPointer() != (intptr_t)clone.GetPointer());
 #else
-	CPPUNIT_ASSERT((int)orig != (int)clone);
+	CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
 #endif
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->GetClass(),
 			clone->GetClass());
@@ -44,9 +44,9 @@ void CloneObjectsTest::testCloneInteger() {
 	pVMInteger clone = orig->Clone();
 
 #ifdef USE_TAGGING
-	CPPUNIT_ASSERT((int)orig.GetPointer() != (int)clone.GetPointer());
+	CPPUNIT_ASSERT((intptr_t)orig.GetPointer() != (intptr_t)clone.GetPointer());
 #else
-	CPPUNIT_ASSERT((int)orig != (int)clone);
+	CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
 #endif
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->GetClass(), clone->GetClass());
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("integer value differs!!", orig->embeddedInteger, clone->embeddedInteger);
@@ -57,9 +57,9 @@ void CloneObjectsTest::testCloneDouble() {
 	pVMDouble clone = orig->Clone();
 
 #ifdef USE_TAGGING
-	CPPUNIT_ASSERT((int)orig.GetPointer() != (int)clone.GetPointer());
+	CPPUNIT_ASSERT((intptr_t)orig.GetPointer() != (intptr_t)clone.GetPointer());
 #else
-	CPPUNIT_ASSERT((int)orig != (int)clone);
+	CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
 #endif
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->GetClass(), clone->GetClass());
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("double value differs!!", orig->embeddedDouble, clone->embeddedDouble);
@@ -70,9 +70,9 @@ void CloneObjectsTest::testCloneString() {
 	pVMString clone = orig->Clone();
 
 #ifdef USE_TAGGING
-	CPPUNIT_ASSERT((int)orig.GetPointer() != (int)clone.GetPointer());
+	CPPUNIT_ASSERT((intptr_t)orig.GetPointer() != (intptr_t)clone.GetPointer());
 #else
-	CPPUNIT_ASSERT((int)orig != (int)clone);
+	CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
 #endif
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->GetClass(),
 			clone->GetClass());
@@ -80,7 +80,7 @@ void CloneObjectsTest::testCloneString() {
 			clone->GetObjectSize());
 	//CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfFields differs!!", orig->numberOfFields, clone->numberOfFields);
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("string differs!!!", orig->GetStdString(), clone->GetStdString());
-	//CPPUNIT_ASSERT_MESSAGE("internal string was not copied", (int)orig->chars != (int)clone->chars);
+	//CPPUNIT_ASSERT_MESSAGE("internal string was not copied", (intptr_t)orig->chars != (intptr_t)clone->chars);
 	orig->chars[0] = 'm';
 	CPPUNIT_ASSERT_MESSAGE("string differs!!!", orig->GetStdString() != clone->GetStdString());
 
@@ -91,9 +91,9 @@ void CloneObjectsTest::testCloneSymbol() {
 	pVMSymbol clone = orig->Clone();
 
 #ifdef USE_TAGGING
-	CPPUNIT_ASSERT((int)orig.GetPointer() != (int)clone.GetPointer());
+	CPPUNIT_ASSERT((intptr_t)orig.GetPointer() != (intptr_t)clone.GetPointer());
 #else
-	CPPUNIT_ASSERT((int)orig != (int)clone);
+	CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
 #endif
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->GetClass(),
 			clone->GetClass());
@@ -108,9 +108,9 @@ void CloneObjectsTest::testCloneBigInteger() {
 	pVMBigInteger clone = orig->Clone();
 
 #ifdef USE_TAGGING
-	CPPUNIT_ASSERT((int)orig.GetPointer() != (int)clone.GetPointer());
+	CPPUNIT_ASSERT((intptr_t)orig.GetPointer() != (intptr_t)clone.GetPointer());
 #else
-	CPPUNIT_ASSERT((int)orig != (int)clone);
+	CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
 #endif
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->GetClass(), clone->GetClass());
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("bigint value differs!!", orig->embeddedInteger, clone->embeddedInteger);
@@ -124,9 +124,9 @@ void CloneObjectsTest::testCloneArray() {
 	pVMArray clone = orig->Clone();
 
 #ifdef USE_TAGGING
-	CPPUNIT_ASSERT((int)orig.GetPointer() != (int)clone.GetPointer());
+	CPPUNIT_ASSERT((intptr_t)orig.GetPointer() != (intptr_t)clone.GetPointer());
 #else
-	CPPUNIT_ASSERT((int)orig != (int)clone);
+	CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
 #endif
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("objectSize differs!!", orig->objectSize, clone->objectSize);
@@ -151,9 +151,9 @@ void CloneObjectsTest::testCloneBlock() {
 	pVMBlock clone = orig->Clone();
 
 #ifdef USE_TAGGING
-	CPPUNIT_ASSERT((int)orig.GetPointer() != (int)clone.GetPointer());
+	CPPUNIT_ASSERT((intptr_t)orig.GetPointer() != (intptr_t)clone.GetPointer());
 #else
-	CPPUNIT_ASSERT((int)orig != (int)clone);
+	CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
 #endif
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("objectSize differs!!", orig->objectSize, clone->objectSize);
@@ -197,9 +197,9 @@ void CloneObjectsTest::testCloneFrame() {
 	pVMFrame clone = orig->Clone();
 
 #ifdef USE_TAGGING
-	CPPUNIT_ASSERT((int)orig.GetPointer() != (int)clone.GetPointer());
+	CPPUNIT_ASSERT((intptr_t)orig.GetPointer() != (intptr_t)clone.GetPointer());
 #else
-	CPPUNIT_ASSERT((int)orig != (int)clone);
+	CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
 #endif
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("objectSize differs!!", orig->objectSize, clone->objectSize);
@@ -217,9 +217,9 @@ void CloneObjectsTest::testCloneMethod() {
 	pVMMethod clone = orig->Clone();
 
 #ifdef USE_TAGGING
-	CPPUNIT_ASSERT((int)orig.GetPointer() != (int)clone.GetPointer());
+	CPPUNIT_ASSERT((intptr_t)orig.GetPointer() != (intptr_t)clone.GetPointer());
 #else
-	CPPUNIT_ASSERT((int)orig != (int)clone);
+	CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
 #endif
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("objectSize differs!!", orig->objectSize, clone->objectSize);
@@ -253,9 +253,9 @@ void CloneObjectsTest::testCloneClass() {
 	pVMClass clone = orig->Clone();
 
 #ifdef USE_TAGGING
-	CPPUNIT_ASSERT((int)orig.GetPointer() != (int)clone.GetPointer());
+	CPPUNIT_ASSERT((intptr_t)orig.GetPointer() != (intptr_t)clone.GetPointer());
 #else
-	CPPUNIT_ASSERT((int)orig != (int)clone);
+	CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
 #endif
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("objectSize differs!!", orig->objectSize, clone->objectSize);

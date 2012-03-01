@@ -21,7 +21,7 @@ void MarkSweepCollector::Collect() {
 
 	//in this survivors stack we will remember all objects that survived
 	vector<pVMObject>* survivors = new vector<pVMObject>();
-	int32_t survivorsSize = 0;
+	size_t survivorsSize = 0;
 
 	vector<pVMObject>::iterator iter;
 	for (iter = heap->allocatedObjects->begin(); iter !=

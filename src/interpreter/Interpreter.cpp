@@ -87,7 +87,7 @@ Interpreter::~Interpreter() {
 }
 
 // The following three variables are needed for caching
-int32_t bytecodeIndex_global;
+long bytecodeIndex_global;
 pVMMethod method;
 uint8_t* current_bytecodes;
 
