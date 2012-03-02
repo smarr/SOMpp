@@ -93,9 +93,9 @@ void  _String::Length(pVMObject /*object*/, pVMFrame frame) {
     
     size_t len = self->GetStringLength();
 #ifdef USE_TAGGING
-    frame->Push(pVMInteger((int32_t)len));
+    frame->Push(pVMInteger((long)len));
 #else
-    frame->Push(_UNIVERSE->NewInteger((int32_t)len));
+    frame->Push(_UNIVERSE->NewInteger((long)len));
 #endif
 }
 
@@ -126,8 +126,8 @@ void  _String::PrimSubstringFrom_To_(pVMObject /*object*/, pVMFrame frame) {
     
     StdString str = self->GetStdString();
 #ifdef USE_TAGGING
-    int s = (int32_t)start;
-    int e = (int32_t)end;
+    int s = (long)start;
+    int e = (long)end;
 #else
     int s = start->GetEmbeddedInteger();
     int e = end->GetEmbeddedInteger();

@@ -387,7 +387,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
             pVMObject o = _UNIVERSE->GetGlobal(name);
             pVMSymbol cname;
             
-            char*   c_cname;
+            const char*   c_cname;
             if(o) {
                 pVMClass c = o->GetClass();
                 cname = c->GetName();

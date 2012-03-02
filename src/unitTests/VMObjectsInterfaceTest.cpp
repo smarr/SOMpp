@@ -98,10 +98,10 @@ void VMObjectsInterfaceTest::testGetSetGCField() {
 	testGCFieldHelper(pEvaluationPrimitive, "evaluation primitive");
 }
 
-void testNumberOfFieldsHelper(StdString name, int32_t expectedNumberOfFields,
+void testNumberOfFieldsHelper(StdString name, long expectedNumberOfFields,
 		pVMObject obj) {
 	//only decrease the size, otherwise we might access uninitialized memory and crash
-	int32_t targetSize = (expectedNumberOfFields > 0) ? expectedNumberOfFields
+	long targetSize = (expectedNumberOfFields > 0) ? expectedNumberOfFields
 			- 1 : 0;
 	obj->SetNumberOfFields(targetSize);
 	CPPUNIT_ASSERT_EQUAL_MESSAGE(name + StdString(
@@ -163,7 +163,7 @@ void VMObjectsInterfaceTest::testGetClassField() {
 }
 
 void testGetSetFieldHelper(pVMObject obj, StdString name) {
-	for (int32_t i = 0; i <= obj->GetNumberOfFields(); i++) {
+	for (long i = 0; i <= obj->GetNumberOfFields(); i++) {
 		AbstractVMObject* oldVal = obj->GetField(i);
 		//set field to another value and check if it has changed
 		AbstractVMObject* otherObject = oldVal == integerClass ? stringClass
@@ -188,7 +188,7 @@ void testGetSetFieldHelper(pVMObject obj, StdString name) {
 	}
 }
 
-void testFieldNameHelper(pVMObject obj, StdString objectName, int32_t index,
+void testFieldNameHelper(pVMObject obj, StdString objectName, long index,
 		StdString expectedName) {
 	std::stringstream message;
 	message << objectName << " field " << index;

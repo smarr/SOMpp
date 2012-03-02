@@ -6,7 +6,7 @@
 #include "../vmobjects/AbstractObject.h"
 #include "../vm/Universe.h"
 
-CopyingHeap::CopyingHeap(int objectSpaceSize) : Heap(objectSpaceSize) {
+CopyingHeap::CopyingHeap(long objectSpaceSize) : Heap(objectSpaceSize) {
 	gc = new CopyingCollector(this);
   size_t bufSize = objectSpaceSize;
 	currentBuffer = malloc(bufSize);

@@ -39,7 +39,7 @@ class VMFrame;
 
 class VMEvaluationPrimitive: public VMPrimitive {
 public:
-	VMEvaluationPrimitive(int argc);
+	VMEvaluationPrimitive(long argc);
 #ifdef USE_TAGGING
 	virtual void WalkObjects(AbstractVMObject* (AbstractVMObject*));
 	virtual VMEvaluationPrimitive* Clone() const;
@@ -48,7 +48,7 @@ public:
 	virtual pVMEvaluationPrimitive Clone() const;
 #endif
 private:
-	static pVMSymbol computeSignatureString(int argc);
+	static pVMSymbol computeSignatureString(long argc);
 	void evaluationRoutine(pVMObject object, pVMFrame frame);
 	pVMInteger numberOfArguments;
 

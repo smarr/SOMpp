@@ -9,7 +9,7 @@
 class MarkSweepHeap : public Heap {
   friend class MarkSweepCollector;
  public:
-  MarkSweepHeap(int objectSpaceSize = 1048576);
+  MarkSweepHeap(long objectSpaceSize = 1048576);
   AbstractVMObject* AllocateObject(size_t size);
  private:
     vector<pVMObject>* allocatedObjects;

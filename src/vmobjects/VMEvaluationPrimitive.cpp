@@ -37,7 +37,7 @@ THE SOFTWARE.
 #include "../primitivesCore/Routine.h"
 
 
-VMEvaluationPrimitive::VMEvaluationPrimitive(int argc) : 
+VMEvaluationPrimitive::VMEvaluationPrimitive(long argc) : 
                        VMPrimitive(computeSignatureString(argc)) {
     this->SetRoutine(new Routine<VMEvaluationPrimitive>(this, 
                                &VMEvaluationPrimitive::evaluationRoutine));
@@ -82,7 +82,7 @@ void VMEvaluationPrimitive::WalkObjects(pVMObject (*walk)(pVMObject)) {
 }
 
 
-pVMSymbol VMEvaluationPrimitive::computeSignatureString(int argc){
+pVMSymbol VMEvaluationPrimitive::computeSignatureString(long argc){
 #define VALUE_S "value"
 #define VALUE_LEN 5
 #define WITH_S    "with:"
@@ -112,9 +112,9 @@ void VMEvaluationPrimitive::evaluationRoutine(pVMObject object, pVMFrame frame){
 
      // Get the block (the receiver) from the stack
 #ifdef USE_TAGGING
-    int numArgs = (int32_t)self->numberOfArguments;
+    long numArgs = (long)self->numberOfArguments;
 #else
-    int numArgs = self->numberOfArguments->GetEmbeddedInteger();
+    long numArgs = self->numberOfArguments->GetEmbeddedInteger();
 #endif
     pVMBlock block = static_cast<pVMBlock>(frame->GetStackElement(numArgs - 1));
     

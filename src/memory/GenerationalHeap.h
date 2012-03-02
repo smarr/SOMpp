@@ -25,7 +25,7 @@ struct VMObjectCompare {
 class GenerationalHeap : public Heap {
   friend class GenerationalCollector;
  public:
-	GenerationalHeap(int objectSpaceSize = 1048576);
+	GenerationalHeap(long objectSpaceSize = 1048576);
   AbstractVMObject* AllocateNurseryObject(size_t size);
   AbstractVMObject* AllocateMatureObject(size_t size);
   size_t GetMaxNurseryObjectSize();
@@ -85,7 +85,7 @@ inline void GenerationalHeap::writeBarrier(pVMObject holder, const pVMObject ref
 	//writeBarrierCalledOn.insert(make_pair(holder, referencedObject));
 #endif
 
-  int gcfield = *(((size_t*)holder)+1);
+  size_t gcfield = *(((size_t*)holder)+1);
   if ((gcfield & 6) == 2)
 		writeBarrier_OldHolder(holder, referencedObject);
 }

@@ -62,9 +62,9 @@ class Heap
 
 public:
     static inline HEAP_CLS* GetHeap();
-    static void InitializeHeap(int objectSpaceSize = 1048576);
+    static void InitializeHeap(long objectSpaceSize = 1048576);
     static void DestroyHeap();
-	Heap(int objectSpaceSize = 1048576);
+	Heap(long objectSpaceSize = 1048576);
 	~Heap();
 	inline void triggerGC(void);
   inline void resetGCTrigger(void);

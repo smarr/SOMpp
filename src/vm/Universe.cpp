@@ -109,7 +109,7 @@ std::map<std::string, struct alloc_data> allocationStats;
 #define LOG_ALLOCATION(TYPE,SIZE) {struct alloc_data tmp=allocationStats[TYPE];tmp.noObjects++;tmp.sizeObjects+=(SIZE);allocationStats[TYPE]=tmp;}
 #endif
 
-map<int, long> integerHist;
+map<long, long> integerHist;
 
 //Singleton accessor
 Universe* Universe::GetUniverse() {
@@ -128,20 +128,20 @@ Universe* Universe::operator->() {
 }
 
 
-void Universe::Start(int argc, char** argv) {
+void Universe::Start(long argc, char** argv) {
 	theUniverse = new Universe();
     theUniverse->initialize(argc, argv);
 }
 
 
-void Universe::Quit(int err) {
+void Universe::Quit(long err) {
   cout << "Time spent in GC: [" << Timer::GCTimer->GetTotalTime() << "] msec" << endl;
 #ifdef GENERATE_INTEGER_HISTOGRAM
   std::string file_name_hist = std::string(bm_name);
   file_name_hist.append("_integer_histogram.csv");
   fstream hist_csv(file_name_hist.c_str(), ios::out);
 
-  for (map<int, long>::iterator it = integerHist.begin(); it != integerHist.end(); it++) {
+  for (map<long, long>::iterator it = integerHist.begin(); it != integerHist.end(); it++) {
     hist_csv << it->first << ", " << it->second << endl;
   }
 #endif
@@ -181,12 +181,12 @@ void Universe::ErrorExit( const char* err) {
     Quit(ERR_FAIL);
 }
 
-vector<StdString> Universe::handleArguments( int argc, char** argv ) {
+vector<StdString> Universe::handleArguments( long argc, char** argv ) {
 
     vector<StdString> vmArgs = vector<StdString>();
     dumpBytecodes = 0;
     gcVerbosity = 0;
-    for (int i = 1; i < argc ; ++i) {
+    for (long i = 1; i < argc ; ++i) {
         
         if (strncmp(argv[i], "-cp", 3) == 0) {
             if ((argc == i + 1) || classPath.size() > 0)
@@ -197,7 +197,7 @@ vector<StdString> Universe::handleArguments( int argc, char** argv ) {
         } else if (strncmp(argv[i], "-g", 2) == 0) {
             ++gcVerbosity;
         } else if (strncmp(argv[i], "-H",2) == 0) {
-            int heap_size = 0;
+            long heap_size = 0;
 			if (sscanf(argv[i],"-H%dMB", &heap_size) == 1)
 				heapSize = heap_size * 1024 * 1024;
 			else if (sscanf(argv[i],"-H%dKB", &heap_size) == 1)
@@ -229,11 +229,11 @@ vector<StdString> Universe::handleArguments( int argc, char** argv ) {
     return vmArgs;
 }
 
-int Universe::getClassPathExt(vector<StdString>& tokens,const StdString& arg ) const {
+long Universe::getClassPathExt(vector<StdString>& tokens,const StdString& arg ) const {
 #define EXT_TOKENS 2
-    int result = ERR_SUCCESS;
-    int fpIndex = arg.find_last_of(fileSeparator);
-    int ssepIndex = arg.find(".som");
+    long result = ERR_SUCCESS;
+    long fpIndex = arg.find_last_of(fileSeparator);
+    long ssepIndex = arg.find(".som");
 
     if (fpIndex == StdString::npos) { //no new path
         //different from CSOM (see also HandleArguments):
@@ -255,12 +255,12 @@ int Universe::getClassPathExt(vector<StdString>& tokens,const StdString& arg ) c
 }
 
 
-int Universe::setupClassPath( const StdString& cp ) {
+long Universe::setupClassPath( const StdString& cp ) {
     try {
         std::stringstream ss ( cp );
         StdString token;
 
-        int i = 0;
+        long i = 0;
         while( getline(ss, token, pathSeparator) ) {
             classPath.push_back(token);
             ++i;
@@ -273,7 +273,7 @@ int Universe::setupClassPath( const StdString& cp ) {
 }
 
 
-int Universe::addClassPath( const StdString& cp ) {
+long Universe::addClassPath( const StdString& cp ) {
     classPath.push_back(cp);
     return ERR_SUCCESS;
 }
@@ -305,7 +305,7 @@ Universe::Universe(){
 };
 
 
-void Universe::initialize(int _argc, char** _argv) {
+void Universe::initialize(long _argc, char** _argv) {
 #ifdef GENERATE_ALLOCATION_STATISTICS
   allocationStats["VMArray"] = {0,0};
 #endif
@@ -325,8 +325,8 @@ void Universe::initialize(int _argc, char** _argv) {
 
 #ifdef CACHE_INTEGER
   //create prebuilt integers
-  for (int32_t it = INT_CACHE_MIN_VALUE; it <= INT_CACHE_MAX_VALUE; ++it) {
-    prebuildInts[(uint32_t)(it - INT_CACHE_MIN_VALUE)] = new (_HEAP) VMInteger(it);
+  for (long it = INT_CACHE_MIN_VALUE; it <= INT_CACHE_MAX_VALUE; ++it) {
+    prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = new (_HEAP) VMInteger(it);
   }
 #endif
     
@@ -467,8 +467,8 @@ pVMClass Universe::GetBlockClass() const {
 }
 
 
-pVMClass Universe::GetBlockClassWithArgs( int numberOfArguments) {
-	map<int, pVMClass>::iterator it =
+pVMClass Universe::GetBlockClassWithArgs( long numberOfArguments) {
+	map<long, pVMClass>::iterator it =
 		blockClassesByNoOfArgs.find(numberOfArguments);
 	if (it != blockClassesByNoOfArgs.end())
 		return it->second;
@@ -602,8 +602,8 @@ void Universe::LoadSystemClass( pVMClass systemClass) {
 }
 
 
-pVMArray Universe::NewArray( int size) const {
-    int additionalBytes = size*sizeof(pVMObject);
+pVMArray Universe::NewArray( long size) const {
+    long additionalBytes = size*sizeof(pVMObject);
 #if GC_TYPE==GENERATIONAL
 	//if the array is too big for the nursery, we will directly allocate a
 	// mature object
@@ -626,7 +626,7 @@ pVMArray Universe::NewArray( int size) const {
 
 pVMArray Universe::NewArrayFromArgv( const vector<StdString>& argv) const {
     pVMArray result = NewArray(argv.size());
-    int j = 0;
+    long j = 0;
     for (vector<StdString>::const_iterator i = argv.begin();
          i != argv.end(); ++i) {
         result->SetIndexableField(j, NewString(*i));
@@ -638,11 +638,11 @@ pVMArray Universe::NewArrayFromArgv( const vector<StdString>& argv) const {
 
 
 pVMArray Universe::NewArrayList(ExtendedList<pVMObject>& list ) const {
-    int size = list.Size();
+    long size = list.Size();
     pVMArray result = NewArray(size);
 
     if (result)  {
-        for (int i = 0; i < size; ++i) {
+        for (long i = 0; i < size; ++i) {
             pVMObject elem = list.Get(i);
             result->SetIndexableField(i, elem);
         }
@@ -659,7 +659,7 @@ pVMBigInteger Universe::NewBigInteger( int64_t value) const {
 }
 
 
-pVMBlock Universe::NewBlock( pVMMethod method, pVMFrame context, int arguments) {
+pVMBlock Universe::NewBlock( pVMMethod method, pVMFrame context, long arguments) {
     pVMBlock result = new (_HEAP) VMBlock;
     result->SetClass(this->GetBlockClassWithArgs(arguments));
 
@@ -674,9 +674,9 @@ pVMBlock Universe::NewBlock( pVMMethod method, pVMFrame context, int arguments) 
 
 
 pVMClass Universe::NewClass( pVMClass classOfClass) const {
-    int numFields = classOfClass->GetNumberOfInstanceFields();
+    long numFields = classOfClass->GetNumberOfInstanceFields();
     pVMClass result;
-    int additionalBytes = numFields * sizeof(pVMObject);
+    long additionalBytes = numFields * sizeof(pVMObject);
     if (numFields) result = new (_HEAP, additionalBytes) VMClass(numFields);
     else result = new (_HEAP) VMClass;
 
@@ -705,18 +705,18 @@ pVMFrame Universe::NewFrame( pVMFrame previousFrame, pVMMethod method) const {
     result->SetPreviousFrame(previousFrame);
     return result;
   }
-    int length = method->GetNumberOfArguments() +
+    long length = method->GetNumberOfArguments() +
                  method->GetNumberOfLocals()+
                  method->GetMaximumNumberOfStackElements();
 
-    int additionalBytes = length * sizeof(pVMObject);
+    long additionalBytes = length * sizeof(pVMObject);
     result = new (_HEAP, additionalBytes) VMFrame(length);
 #else
-    int length = method->GetNumberOfArguments() +
+    long length = method->GetNumberOfArguments() +
                  method->GetNumberOfLocals()+
                  method->GetMaximumNumberOfStackElements();
 
-    int additionalBytes = length * sizeof(pVMObject);
+    long additionalBytes = length * sizeof(pVMObject);
     pVMFrame result = new (_HEAP, additionalBytes) VMFrame(length);
 #endif
     result->SetClass(frameClass);
@@ -734,9 +734,9 @@ pVMFrame Universe::NewFrame( pVMFrame previousFrame, pVMMethod method) const {
 pVMObject Universe::NewInstance( pVMClass  classOfInstance) const {
     //the number of fields for allocation. We have to calculate the clazz
     //field out of this, because it is already taken care of by VMObject
-    int numOfFields = classOfInstance->GetNumberOfInstanceFields() - 1;
+    long numOfFields = classOfInstance->GetNumberOfInstanceFields() - 1;
     //the additional space needed is calculated from the number of fields
-    int additionalBytes = numOfFields * sizeof(pVMObject);
+    long additionalBytes = numOfFields * sizeof(pVMObject);
     pVMObject result = new (_HEAP, additionalBytes) VMObject(numOfFields);
     result->SetClass(classOfInstance);
 #ifdef GENERATE_ALLOCATION_STATISTICS
@@ -746,9 +746,9 @@ pVMObject Universe::NewInstance( pVMClass  classOfInstance) const {
 }
 
 #ifdef USE_TAGGING
-VMPointer<VMInteger> Universe::NewInteger( int32_t value) const {
+VMPointer<VMInteger> Universe::NewInteger( long value) const {
 #else
-  pVMInteger Universe::NewInteger( int32_t value) const {
+  pVMInteger Universe::NewInteger( long value) const {
 #endif
 
 #ifdef GENERATE_INTEGER_HISTOGRAM
@@ -756,8 +756,8 @@ VMPointer<VMInteger> Universe::NewInteger( int32_t value) const {
 #endif
 
 #ifdef CACHE_INTEGER
-    uint32_t index = (uint32_t)value - (uint32_t)INT_CACHE_MIN_VALUE;
-    if (index < (uint32_t)(INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE)) {
+   unsigned long index = (unsigned long)value - (unsigned long)INT_CACHE_MIN_VALUE;
+    if (index < (unsigned long)(INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE)) {
       return prebuildInts[index];
     }
 #endif
@@ -830,7 +830,7 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 #endif
 
 #ifdef CACHE_INTEGER
-  for (int32_t i = 0; i < (INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE); i++)
+  for (unsigned long i = 0; i < (INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE); i++)
 #ifdef USE_TAGGING
     prebuildInts[i] = INT_CACHE_MIN_VALUE + i;
 #else
@@ -867,7 +867,7 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 #endif
 	}
 
-	map<int, pVMClass>::iterator bcIter;
+	map<long, pVMClass>::iterator bcIter;
 	for (bcIter = blockClassesByNoOfArgs.begin(); bcIter !=
 			blockClassesByNoOfArgs.end(); bcIter++) {
 #ifdef USE_TAGGING
@@ -886,7 +886,7 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 pVMMethod Universe::NewMethod( pVMSymbol signature, 
                     size_t numberOfBytecodes, size_t numberOfConstants) const {
     //Method needs space for the bytecodes and the pointers to the constants
-    int additionalBytes = numberOfBytecodes + 
+    long additionalBytes = numberOfBytecodes + 
                 numberOfConstants*sizeof(pVMObject);
     pVMMethod result = new (_HEAP,additionalBytes) 
                 VMMethod(numberOfBytecodes, numberOfConstants);

@@ -65,23 +65,23 @@ private:
     void send(pVMSymbol signature, pVMClass receiverClass);
     
     void doDup();
-    void doPushLocal(int bytecodeIndex);
-    void doPushArgument(int bytecodeIndex);
-    void doPushField(int bytecodeIndex);
-    void doPushBlock(int bytecodeIndex);
-    void doPushConstant(int bytecodeIndex);
-    void doPushGlobal(int bytecodeIndex);
+    void doPushLocal(long bytecodeIndex);
+    void doPushArgument(long bytecodeIndex);
+    void doPushField(long bytecodeIndex);
+    void doPushBlock(long bytecodeIndex);
+    void doPushConstant(long bytecodeIndex);
+    void doPushGlobal(long bytecodeIndex);
     void doPop(void);
-    void doPopLocal(int bytecodeIndex);
-    void doPopArgument(int bytecodeIndex);
-    void doPopField(int bytecodeIndex);
-    void doSend(int bytecodeIndex);
-    void doSuperSend(int bytecodeIndex);
+    void doPopLocal(long bytecodeIndex);
+    void doPopArgument(long bytecodeIndex);
+    void doPopField(long bytecodeIndex);
+    void doSend(long bytecodeIndex);
+    void doSuperSend(long bytecodeIndex);
     void doReturnLocal();
     void doReturnNonLocal();
-    void doJumpIfFalse(int bytecodeIndex);
-    void doJumpIfTrue(int bytecodeIndex);
-    void doJump(int bytecodeIndex);
+    void doJumpIfFalse(long bytecodeIndex);
+    void doJumpIfTrue(long bytecodeIndex);
+    void doJump(long bytecodeIndex);
 };
 
 #endif

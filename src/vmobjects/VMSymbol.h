@@ -53,12 +53,12 @@ public:
 private:
 	const VMClass* cachedClass_index;
 	const VMClass* cachedClass_invokable[3];
-	int32_t cachedIndex;
-  int32_t nextCachePos;
+	long cachedIndex;
+  long nextCachePos;
   pVMInvokable cachedInvokable[3];
-	inline int32_t GetCachedIndex(const VMClass*) const;
+	inline long GetCachedIndex(const VMClass*) const;
   inline pVMInvokable GetCachedInvokable(const VMClass*) const;
-	inline void UpdateCachedIndex(const VMClass*, int32_t);
+	inline void UpdateCachedIndex(const VMClass*, long);
 	inline void UpdateCachedInvokable(const VMClass*, VMInvokable* invo);
 	friend class VMClass;
 };
@@ -73,13 +73,13 @@ pVMInvokable VMSymbol::GetCachedInvokable(const VMClass* cls) const {
 	return NULL;
 }
 
-int32_t VMSymbol::GetCachedIndex(const VMClass* cls) const {
+long VMSymbol::GetCachedIndex(const VMClass* cls) const {
 	if (cls == cachedClass_index)
 		return cachedIndex;
 	return -1;
 }
 
-void VMSymbol::UpdateCachedIndex(const VMClass* cls, int32_t idx) {
+void VMSymbol::UpdateCachedIndex(const VMClass* cls, long idx) {
 	cachedIndex = idx;
 	cachedClass_index = cls;
 }

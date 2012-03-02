@@ -52,7 +52,7 @@ class VMInvokable;
 class VMClass : public VMObject {
  public:
   VMClass();
-  VMClass(int numberOfFields);
+  VMClass(long numberOfFields);
 
   inline pVMClass  GetSuperClass() const;
   inline void      SetSuperClass(pVMClass);
@@ -63,15 +63,15 @@ class VMClass : public VMObject {
   inline void      SetInstanceFields(pVMArray);
   inline pVMArray  GetInstanceInvokables() const;
   void      SetInstanceInvokables(pVMArray);
-  int       GetNumberOfInstanceInvokables() const;
-  pVMInvokable GetInstanceInvokable(int) const;
-  void      SetInstanceInvokable(int, pVMObject);
+  long       GetNumberOfInstanceInvokables() const;
+  pVMInvokable GetInstanceInvokable(long) const;
+  void      SetInstanceInvokable(long, pVMObject);
   pVMInvokable LookupInvokable(pVMSymbol) const;
-  int       LookupFieldIndex(pVMSymbol) const;
+  long       LookupFieldIndex(pVMSymbol) const;
   bool      AddInstanceInvokable(pVMObject);
   void      AddInstancePrimitive(pVMPrimitive);
-  pVMSymbol GetInstanceFieldName(int)const;
-  int       GetNumberOfInstanceFields() const;
+  pVMSymbol GetInstanceFieldName(long)const;
+  long       GetNumberOfInstanceFields() const;
   bool      HasPrimitives() const;
   void      LoadPrimitives(const vector<StdString>&);
 #ifdef USE_TAGGING
@@ -92,14 +92,14 @@ class VMClass : public VMObject {
   void* loadLib(const StdString& path) const;
   bool isResponsible(void* handle, const StdString& cl) const;
   void setPrimitives(void* handle, const StdString& cname);
-  int numberOfSuperInstanceFields() const;
+  long numberOfSuperInstanceFields() const;
 
   pVMClass  superClass;
   pVMSymbol name;
   pVMArray  instanceFields;
   pVMArray  instanceInvokables;
 
-  static const int VMClassNumberOfFields;
+  static const long VMClassNumberOfFields;
 };
 
 

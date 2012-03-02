@@ -37,14 +37,14 @@ THE SOFTWARE.
 //when doesNotUnderstand or UnknownGlobal is sent, additional stack slots might
 //be necessary, as these cases are not taken into account when the stack
 //depth is calculated. In that case this method is called.
-pVMFrame VMFrame::EmergencyFrameFrom( pVMFrame from, int extraLength ) {
+pVMFrame VMFrame::EmergencyFrameFrom( pVMFrame from, long extraLength ) {
   pVMMethod method = from->GetMethod();
-  int length = method->GetNumberOfArguments()
+  long length = method->GetNumberOfArguments()
       + method->GetNumberOfLocals()
       + method->GetMaximumNumberOfStackElements()
       + extraLength;
 
-  int additionalBytes = length * sizeof(pVMObject);
+  long additionalBytes = length * sizeof(pVMObject);
   pVMFrame result = new (_HEAP, additionalBytes) VMFrame(length);
 
   result->SetClass(from->GetClass());
@@ -118,9 +118,9 @@ pVMFrame VMFrame::Clone() const {
 	return clone;
 }
 
-const int VMFrame::VMFrameNumberOfFields = 7; 
+const long VMFrame::VMFrameNumberOfFields = 7; 
 
-VMFrame::VMFrame(int size, int nof) :
+VMFrame::VMFrame(long size, long nof) :
 		VMObject(nof + VMFrameNumberOfFields),
 		previousFrame(NULL), context(NULL),
 		method(NULL) {
@@ -153,7 +153,7 @@ void      VMFrame::SetMethod(pVMMethod method) {
 
 
 
-pVMFrame VMFrame::GetContextLevel(int lvl) {
+pVMFrame VMFrame::GetContextLevel(long lvl) {
     pVMFrame current = this;
     while (lvl > 0) {
         current = current->GetContext();
@@ -196,7 +196,7 @@ void VMFrame::WalkObjects(pVMObject (*walk)(pVMObject)) {
 
 
 
-int VMFrame::RemainingStackSize() const {
+long VMFrame::RemainingStackSize() const {
     // - 1 because the stack pointer points at the top entry,
     // so the next entry would be put at stackPointer+1
     size_t size = ((size_t)this+objectSize - size_t(stack_ptr))/ sizeof(pVMObject);
@@ -254,23 +254,23 @@ void      VMFrame::ResetStackPointer() {
 }
 
 
-pVMObject VMFrame::GetStackElement(int index) const {
+pVMObject VMFrame::GetStackElement(long index) const {
     return stack_ptr[-index];
 }
 
 
-void      VMFrame::SetStackElement(int index, pVMObject obj) {
+void      VMFrame::SetStackElement(long index, pVMObject obj) {
   stack_ptr[-index]= obj;
 }
 
 
-pVMObject VMFrame::GetLocal(int index, int contextLevel) {
+pVMObject VMFrame::GetLocal(long index, long contextLevel) {
     pVMFrame context = this->GetContextLevel(contextLevel);
     return context->locals[index];
 }
 
 
-void      VMFrame::SetLocal(int index, int contextLevel, pVMObject value) {
+void      VMFrame::SetLocal(long index, long contextLevel, pVMObject value) {
     pVMFrame context = this->GetContextLevel(contextLevel);
     context->locals[index] = value;
 #if GC_TYPE==GENERATIONAL
@@ -280,14 +280,14 @@ void      VMFrame::SetLocal(int index, int contextLevel, pVMObject value) {
 
 
 
-pVMObject VMFrame::GetArgument(int index, int contextLevel) {
+pVMObject VMFrame::GetArgument(long index, long contextLevel) {
     // get the context
     pVMFrame context = this->GetContextLevel(contextLevel);
     return context->arguments[index];
 }
 
 
-void      VMFrame::SetArgument(int index, int contextLevel, pVMObject value) {
+void      VMFrame::SetArgument(long index, long contextLevel, pVMObject value) {
     pVMFrame context = this->GetContextLevel(contextLevel);
     context->arguments[index] = value;
 #if GC_TYPE==GENERATIONAL
@@ -300,7 +300,7 @@ void      VMFrame::PrintStackTrace() const {
     //TODO
 }
 
-int       VMFrame::ArgumentStackIndex(int index) const {
+long       VMFrame::ArgumentStackIndex(long index) const {
     pVMMethod meth = this->GetMethod();
     return meth->GetNumberOfArguments() - index - 1;
 }
@@ -310,8 +310,8 @@ void      VMFrame::CopyArgumentsFrom(pVMFrame frame) {
     // copy arguments from frame:
     // - arguments are at the top of the stack of frame.
     // - copy them into the argument area of the current frame
-    int num_args = GetMethod()->GetNumberOfArguments();
-    for(int i=0; i < num_args; ++i) {
+    long num_args = GetMethod()->GetNumberOfArguments();
+    for(long i=0; i < num_args; ++i) {
         pVMObject stackElem = frame->GetStackElement(num_args - 1 - i);
         arguments[i] = stackElem;
 #if GC_TYPE==GENERATIONAL

@@ -10,7 +10,7 @@
 
 using namespace std;
 
-GenerationalHeap::GenerationalHeap(int objectSpaceSize) {
+GenerationalHeap::GenerationalHeap(long objectSpaceSize) {
 	//our initial collection limit is 90% of objectSpaceSize
 	//collectionLimit = objectSpaceSize * 0.9;
 	gc = new GenerationalCollector(this);

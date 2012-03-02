@@ -67,17 +67,17 @@ class VMObject: public AbstractVMObject {
 
 public:
 	/* Constructor */
-	VMObject(int numberOfFields = 0);
+	VMObject(long numberOfFields = 0);
 
 	/* Virtual member functions */
 	virtual inline pVMClass GetClass() const;
 	virtual void SetClass(pVMClass cl);
-	virtual pVMSymbol GetFieldName(int index) const;
-	virtual inline int GetNumberOfFields() const;
-	virtual void SetNumberOfFields(int nof);
-	virtual pVMObject GetField(int index) const;
+	virtual pVMSymbol GetFieldName(long index) const;
+	virtual inline long GetNumberOfFields() const;
+	virtual void SetNumberOfFields(long nof);
+	virtual pVMObject GetField(long index) const;
 	virtual void Assert(bool value) const;
-	virtual void SetField(int index, pVMObject value);
+	virtual void SetField(long index, pVMObject value);
 #ifdef USE_TAGGING
 	virtual void WalkObjects(AbstractVMObject* (AbstractVMObject*));
 	virtual VMObject* Clone() const;
@@ -101,14 +101,14 @@ public:
 	 */
 	void* operator new(size_t numBytes, Heap* heap,
 #if GC_TYPE==GENERATIONAL
-			unsigned int additionalBytes = 0, bool outsideNursery = false) {
+			unsigned long additionalBytes = 0, bool outsideNursery = false) {
 		void* mem = AbstractVMObject::operator new(numBytes, heap,
 				additionalBytes, outsideNursery);
 #elif GC_TYPE==COPYING
-			unsigned int additionalBytes = 0) {
+			unsigned long additionalBytes = 0) {
 		void* mem = (void*) ((CopyingHeap*)heap)->AllocateObject(numBytes + additionalBytes);
 #elif GC_TYPE==MARK_SWEEP
-			unsigned int additionalBytes = 0) {
+			unsigned long additionalBytes = 0) {
 		void* mem = (void*) ((MarkSweepHeap*)heap)->AllocateObject(numBytes + additionalBytes);
 #endif
 		size_t objSize = numBytes + additionalBytes;
@@ -117,7 +117,7 @@ public:
 	}
 
 protected:
-	int GetAdditionalSpaceConsumption() const;
+	long GetAdditionalSpaceConsumption() const;
 	//VMObject essentials
 	long hash; 
 	size_t objectSize; //set by the heap at allocation time
@@ -129,7 +129,7 @@ protected:
 	//So clazz == FIELDS[0]
 	pVMClass clazz;
 private:
-	static const int VMObjectNumberOfFields;
+	static const long VMObjectNumberOfFields;
 };
 
 size_t VMObject::GetObjectSize() const {
@@ -144,7 +144,7 @@ pVMClass VMObject::GetClass() const {
 	return clazz;
 }
 
-int VMObject::GetNumberOfFields() const {
+long VMObject::GetNumberOfFields() const {
     return this->numberOfFields;
 }
 
