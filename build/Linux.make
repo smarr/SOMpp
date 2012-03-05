@@ -28,11 +28,11 @@
 
 CC			=g++
 CFLAGS		=-Wno-endif-labels -O3 -fPIC $(DBG_FLAGS) $(FEATURE_FLAGS) $(INCLUDES)
-LDFLAGS		=$(DBG_FLAGS) -ltcmalloc $(LIBRARIES)
+LDFLAGS		=$(DBG_FLAGS) $(LIBRARIES)
 
 INSTALL		=install
 
-CSOM_LIBS	=
+CSOM_LIBS	=-ltcmalloc
 CORE_LIBS	=-lm
 
 CSOM_NAME	=SOM++
