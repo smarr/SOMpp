@@ -32,20 +32,20 @@ THE SOFTWARE.
 
 #define theEntries(i) FIELDS[VMObject::GetNumberOfFields()+i]
 
-const int VMArray::VMArrayNumberOfFields = 0; 
+const long VMArray::VMArrayNumberOfFields = 0; 
 
-VMArray::VMArray(int size, int nof) : VMObject(nof + VMArrayNumberOfFields) {
+VMArray::VMArray(long size, long nof) : VMObject(nof + VMArrayNumberOfFields) {
 	//initialize fields with nilObject
 	//SetIndexableField is not used to prevent the write barrier to be called
 	//   too often
 	pVMObject* arrFields = (pVMObject*)&clazz + GetNumberOfFields();
-    for (int i = 0; i < size ; ++i) {
+    for (long i = 0; i < size ; ++i) {
 		arrFields[i] = nilObject;
     }
 }
 
-pVMObject VMArray::GetIndexableField(int32_t idx) const {
-    if ((uint32_t)idx > GetNumberOfIndexableFields()-1) {
+pVMObject VMArray::GetIndexableField(long idx) const {
+    if ((long)idx > GetNumberOfIndexableFields()-1) {
         cout << "Array index out of bounds: Accessing " << idx 
              << ", but array size is only " << GetNumberOfIndexableFields()-1 
              << endl;
@@ -54,8 +54,8 @@ pVMObject VMArray::GetIndexableField(int32_t idx) const {
 	return GetField(this->GetNumberOfFields()+idx);
 }
 
-void VMArray::SetIndexableField(int32_t idx, pVMObject value) {
-    if ((uint32_t)idx > GetNumberOfIndexableFields()-1) {
+void VMArray::SetIndexableField(long idx, pVMObject value) {
+    if ((long)idx > GetNumberOfIndexableFields()-1) {
         cout << "Array index out of bounds: Accessing " << idx 
              << ", but array size is only " << GetNumberOfIndexableFields()-1 
              << endl;
@@ -79,7 +79,7 @@ VMArray* VMArray::Clone() const {
 #else
 pVMArray VMArray::Clone() const {
 #endif
-	int32_t addSpace = objectSize - sizeof(VMArray);
+	long addSpace = objectSize - sizeof(VMArray);
 #ifdef USE_TAGGING
 #if GC_TYPE==GENERATIONAL
 	VMArray* clone = new (_HEAP, addSpace, true) VMArray(*this);
@@ -101,8 +101,8 @@ pVMArray VMArray::Clone() const {
 }
 
 void VMArray::CopyIndexableFieldsTo(pVMArray to) const {
-    int32_t noIndexableFields = this->GetNumberOfIndexableFields();
-	for (int i = 0; i < noIndexableFields; ++i) {
+    long noIndexableFields = this->GetNumberOfIndexableFields();
+	for (long i = 0; i < noIndexableFields; ++i) {
 		to->SetIndexableField(i, GetIndexableField(i));
 	}
 }
@@ -112,11 +112,11 @@ void VMArray::WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*)) {
 #else
 void VMArray::WalkObjects(pVMObject (*walk)(pVMObject)) {
 #endif
-	int32_t noOfFields = GetNumberOfFields();
-	int32_t noIndexableFields = GetNumberOfIndexableFields();
-    for (int32_t i = 0; i < noOfFields; i++)
+	long noOfFields = GetNumberOfFields();
+	long noIndexableFields = GetNumberOfIndexableFields();
+    for (long i = 0; i < noOfFields; i++)
 	    SetField(i, walk(GetField(i)));
-    for (int32_t i = 0; i < noIndexableFields; i++) {
+    for (long i = 0; i < noIndexableFields; i++) {
 		pVMObject field = GetIndexableField(i);
 	    if (field != NULL)
 		    SetIndexableField(i, walk(field));

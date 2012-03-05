@@ -8,7 +8,7 @@
 class CopyingHeap : public Heap {
   friend class CopyingCollector;
  public:
-  CopyingHeap(int heapSize);
+  CopyingHeap(long heapSize);
   AbstractVMObject* AllocateObject(size_t size);
  private:
   void* currentBuffer;

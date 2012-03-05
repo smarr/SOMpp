@@ -10,7 +10,7 @@
 
 using namespace std;
 
-GenerationalHeap::GenerationalHeap(int objectSpaceSize) {
+GenerationalHeap::GenerationalHeap(long objectSpaceSize) {
 	//our initial collection limit is 90% of objectSpaceSize
 	//collectionLimit = objectSpaceSize * 0.9;
 	gc = new GenerationalCollector(this);
@@ -18,30 +18,31 @@ GenerationalHeap::GenerationalHeap(int objectSpaceSize) {
 	nursery = malloc(objectSpaceSize);
 	nurserySize = objectSpaceSize;
 	maxNurseryObjSize = objectSpaceSize / 2;
-	nursery_end = (int32_t)nursery + nurserySize;
+	nursery_end = (size_t)nursery + nurserySize;
 	matureObjectsSize = 0;
 	memset(nursery, 0x0, objectSpaceSize);
-	collectionLimit = (void*)((int32_t)nursery + ((int32_t)(objectSpaceSize *
+	collectionLimit = (void*)((size_t)nursery + ((size_t)(objectSpaceSize *
 					0.9)));
 	nextFreePosition = nursery;
 	allocatedObjects = new vector<pVMObject>();
-	oldObjsWithRefToYoungObjs = new vector<int>();
+	oldObjsWithRefToYoungObjs = new vector<size_t>();
 }
 
-#if GC_TYPE==GENERATIONAL
+
 AbstractVMObject* GenerationalHeap::AllocateNurseryObject(size_t size) {
-	size_t paddedSize = size + PAD_BYTES(size);
-	AbstractVMObject* newObject = (AbstractVMObject*) nextFreePosition;
-	nextFreePosition = (void*)((int32_t)nextFreePosition + (int32_t)paddedSize);
-	if ((int32_t)nextFreePosition > (int32_t)nursery + nurserySize) {
-		cout << "Failed to allocate " << size << " Bytes in nursery." << endl;
-		_UNIVERSE->Quit(-1);
-	}
-	//let's see if we have to trigger the GC
-	if (nextFreePosition > collectionLimit)
-		triggerGC();
-	return newObject;
+  size_t paddedSize = size + PAD_BYTES(size);
+  AbstractVMObject* newObject = (AbstractVMObject*) nextFreePosition;
+  nextFreePosition = (void*)((size_t)nextFreePosition + (size_t)paddedSize);
+  if ((size_t)nextFreePosition > (size_t)nursery + nurserySize) {
+    cout << "Failed to allocate " << size << " Bytes in nursery." << endl;
+    _UNIVERSE->Quit(-1);
+  }
+  //let's see if we have to trigger the GC
+  if (nextFreePosition > collectionLimit)
+    triggerGC();
+  return newObject;
 }
+
 
 AbstractVMObject* GenerationalHeap::AllocateMatureObject(size_t size) {
 	size_t paddedSize = size + PAD_BYTES(size);
@@ -54,12 +55,12 @@ AbstractVMObject* GenerationalHeap::AllocateMatureObject(size_t size) {
 	matureObjectsSize += paddedSize;
 	return newObject;
 }
-#endif
+
 
 void GenerationalHeap::writeBarrier_OldHolder(VMOBJECT_PTR holder, const VMOBJECT_PTR
                                               referencedObject) {
   if (isObjectInNursery(referencedObject)) {
-    oldObjsWithRefToYoungObjs->push_back((int32_t)holder);
+    oldObjsWithRefToYoungObjs->push_back((size_t)holder);
     holder->SetGCField(holder->GetGCField() | MASK_SEEN_BY_WRITE_BARRIER);
   }
 }

@@ -38,7 +38,7 @@ bool Heap::isCollectionTriggered(void) {
 	return gcTriggered;
 }
 
-void Heap::InitializeHeap( int objectSpaceSize ) {
+void Heap::InitializeHeap( long objectSpaceSize ) {
     if (theHeap) {
         cout << "Warning, reinitializing already initialized Heap, " 
              << "all data will be lost!" << endl;
@@ -51,7 +51,7 @@ void Heap::DestroyHeap() {
     if (theHeap) delete theHeap;
 }
 
-Heap::Heap(int objectSpaceSize) {
+Heap::Heap(long objectSpaceSize) {
   gcTriggered = false;
 }
 

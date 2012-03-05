@@ -64,7 +64,7 @@ THE SOFTWARE.
 // as in AClass::anInstanceMethod_
 
 
-const int VMClass::VMClassNumberOfFields = 4; 
+const long VMClass::VMClassNumberOfFields = 4; 
 
 
 VMClass::VMClass() : VMObject(VMClassNumberOfFields),
@@ -95,10 +95,10 @@ pVMClass VMClass::Clone() const {
 
 
 #ifdef USE_TAGGING
-VMClass::VMClass( int numberOfFields ) : VMObject(numberOfFields + VMClassNumberOfFields),
+VMClass::VMClass( long numberOfFields ) : VMObject(numberOfFields + VMClassNumberOfFields),
 superClass(NULL), name(NULL), instanceFields(nilObject), instanceInvokables(nilObject) {
 #else
-VMClass::VMClass( int numberOfFields ) : VMObject(numberOfFields + VMClassNumberOfFields) {
+VMClass::VMClass( long numberOfFields ) : VMObject(numberOfFields + VMClassNumberOfFields) {
 #endif
 }
 
@@ -121,7 +121,7 @@ void VMClass::WalkObjects(pVMObject (*walk)(pVMObject)) {
   instanceInvokables = static_cast<pVMArray>(walk(instanceInvokables));
 #endif
 
-  for (int i = VMClassNumberOfFields + 1/*VMObjectNumberOfFields*/; i < numberOfFields; i++)
+  for (long i = VMClassNumberOfFields + 1/*VMObjectNumberOfFields*/; i < numberOfFields; i++)
     SetField(i, walk(GetField(i)));
 }
 
@@ -136,7 +136,7 @@ bool VMClass::AddInstanceInvokable(pVMObject ptr) {
         _UNIVERSE->ErrorExit("Error: trying to add non-invokable to invokables array");
     }
     //Check whether an invokable with the same signature exists and replace it if that's the case
-	for (int i = 0; i < instanceInvokables->GetNumberOfIndexableFields(); ++i) {
+	for (long i = 0; i < instanceInvokables->GetNumberOfIndexableFields(); ++i) {
 #ifdef USE_TAGGING
         pVMInvokable inv = DynamicConvert<VMInvokable, VMObject>(
 				(*instanceInvokables).GetIndexableField(i) );
@@ -169,8 +169,8 @@ void VMClass::AddInstancePrimitive(pVMPrimitive ptr) {
 }
 
 
-pVMSymbol VMClass::GetInstanceFieldName(int index) const {
-	int32_t noSuperInstanceFields = numberOfSuperInstanceFields();
+pVMSymbol VMClass::GetInstanceFieldName(long index) const {
+	long noSuperInstanceFields = numberOfSuperInstanceFields();
 	if (index >= noSuperInstanceFields) {
 		index -= noSuperInstanceFields;
 		return static_cast<pVMSymbol>(instanceFields->GetIndexableField(index));
@@ -188,7 +188,7 @@ void      VMClass::SetInstanceInvokables(pVMArray invokables) {
 	_HEAP->writeBarrier(this, instanceInvokables);
 #endif
 
-    for (int i = 0; i < this->GetNumberOfInstanceInvokables(); ++i) {
+    for (long i = 0; i < this->GetNumberOfInstanceInvokables(); ++i) {
         pVMObject invo = instanceInvokables->GetIndexableField(i);
         //check for Nil object
         if (invo != nilObject) {
@@ -205,17 +205,17 @@ void      VMClass::SetInstanceInvokables(pVMArray invokables) {
 }
 
 
-int       VMClass::GetNumberOfInstanceInvokables() const {
+long       VMClass::GetNumberOfInstanceInvokables() const {
 	return instanceInvokables->GetNumberOfIndexableFields();
 }
 
 
-pVMInvokable VMClass::GetInstanceInvokable(int index) const {
+pVMInvokable VMClass::GetInstanceInvokable(long index) const {
     return static_cast<pVMInvokable>(instanceInvokables->GetIndexableField(index));
 }
 
 
-void      VMClass::SetInstanceInvokable(int index, pVMObject invokable) {
+void      VMClass::SetInstanceInvokable(long index, pVMObject invokable) {
   instanceInvokables->SetIndexableField(index, invokable);
   if (invokable != nilObject) {
 #ifdef USE_TAGGING
@@ -233,8 +233,8 @@ pVMInvokable VMClass::LookupInvokable(pVMSymbol name) const {
   pVMInvokable invokable = name->GetCachedInvokable(this);
   if (invokable != NULL)
     return invokable;
-  int32_t noInstanceInvokables = GetNumberOfInstanceInvokables();
-  for (int i = 0; i < noInstanceInvokables; ++i) {
+  long noInstanceInvokables = GetNumberOfInstanceInvokables();
+  for (long i = 0; i < noInstanceInvokables; ++i) {
     invokable = GetInstanceInvokable(i);
     if (invokable->GetSignature() == name) {
       name->UpdateCachedInvokable(this, invokable);
@@ -251,12 +251,12 @@ pVMInvokable VMClass::LookupInvokable(pVMSymbol name) const {
 }
 
 
-int       VMClass::LookupFieldIndex(pVMSymbol name) const {
-	int32_t index = name->GetCachedIndex(this);
+long       VMClass::LookupFieldIndex(pVMSymbol name) const {
+	long index = name->GetCachedIndex(this);
 	if (index != -1)
 		return index;
-	int32_t noInstanceFields = GetNumberOfInstanceFields();
-	for (int i = 0; i <= noInstanceFields; ++i)
+	long noInstanceFields = GetNumberOfInstanceFields();
+	for (long i = 0; i <= noInstanceFields; ++i)
 		//even with GetNumberOfInstanceFields == 0 there is the class field
 		if (name == GetInstanceFieldName(i)) {
 			name->UpdateCachedIndex(this, i);
@@ -266,15 +266,15 @@ int       VMClass::LookupFieldIndex(pVMSymbol name) const {
 }
 
 
-int       VMClass::GetNumberOfInstanceFields() const {
+long       VMClass::GetNumberOfInstanceFields() const {
 	return instanceFields->GetNumberOfIndexableFields()
            + this->numberOfSuperInstanceFields();
 }
 
 
 bool      VMClass::HasPrimitives() const {
-	int32_t noInstanceInvokables = GetNumberOfInstanceInvokables();
-	for (int i = 0; i < noInstanceInvokables; ++i) {
+	long noInstanceInvokables = GetNumberOfInstanceInvokables();
+	for (long i = 0; i < noInstanceInvokables; ++i) {
         pVMInvokable invokable = GetInstanceInvokable(i);
         if (invokable->IsPrimitive()) return true;
     }
@@ -349,7 +349,7 @@ void      VMClass::LoadPrimitives(const vector<StdString>& cp) {
     GetClass()->setPrimitives(dlhandle, cname);
 }
 
-int VMClass::numberOfSuperInstanceFields() const {
+long VMClass::numberOfSuperInstanceFields() const {
 	if (this->HasSuperClass()) 
         return this->superClass->GetNumberOfInstanceFields();
 	return 0;
@@ -452,7 +452,7 @@ void VMClass::setPrimitives(void* dlhandle, const StdString& cname) {
     PrimitiveRoutine*   routine=NULL;
     pVMInvokable anInvokable;
     // iterate invokables
-    for(int i = 0; i < this->GetNumberOfInstanceInvokables(); i++)  {
+    for(long i = 0; i < this->GetNumberOfInstanceInvokables(); i++)  {
         
         anInvokable = this->GetInstanceInvokable(i);
 #ifdef __DEBUG

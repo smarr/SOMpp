@@ -45,7 +45,7 @@ class VMSymbol;
 class VMClass;
 
 //this macro returns a shifted ptr by offset bytes
-#define SHIFTED_PTR(ptr, offset) ((void*)((int)(ptr)+(int)(offset)))
+#define SHIFTED_PTR(ptr, offset) ((void*)((size_t)(ptr)+(size_t)(offset)))
 
 /* chbol: this table is not correct anymore because of introduction of
  * class AbstractVMObject
@@ -67,17 +67,17 @@ class VMObject: public AbstractVMObject {
 
 public:
 	/* Constructor */
-	VMObject(int numberOfFields = 0);
+	VMObject(long numberOfFields = 0);
 
 	/* Virtual member functions */
 	virtual inline pVMClass GetClass() const;
 	virtual void SetClass(pVMClass cl);
-	virtual pVMSymbol GetFieldName(int index) const;
-	virtual inline int GetNumberOfFields() const;
-	virtual void SetNumberOfFields(int nof);
-	virtual pVMObject GetField(int index) const;
+	virtual pVMSymbol GetFieldName(long index) const;
+	virtual inline long GetNumberOfFields() const;
+	virtual void SetNumberOfFields(long nof);
+	virtual pVMObject GetField(long index) const;
 	virtual void Assert(bool value) const;
-	virtual void SetField(int index, pVMObject value);
+	virtual void SetField(long index, pVMObject value);
 #ifdef USE_TAGGING
 	virtual void WalkObjects(AbstractVMObject* (AbstractVMObject*));
 	virtual VMObject* Clone() const;
@@ -85,7 +85,7 @@ public:
 	virtual void WalkObjects(pVMObject (pVMObject));
 	virtual pVMObject Clone() const;
 #endif
-	virtual inline int32_t GetObjectSize() const;
+	virtual inline size_t GetObjectSize() const;
 	virtual inline void SetObjectSize(size_t size);
 
 	/* Operators */
@@ -101,14 +101,14 @@ public:
 	 */
 	void* operator new(size_t numBytes, Heap* heap,
 #if GC_TYPE==GENERATIONAL
-			unsigned int additionalBytes = 0, bool outsideNursery = false) {
+			unsigned long additionalBytes = 0, bool outsideNursery = false) {
 		void* mem = AbstractVMObject::operator new(numBytes, heap,
 				additionalBytes, outsideNursery);
 #elif GC_TYPE==COPYING
-			unsigned int additionalBytes = 0) {
+			unsigned long additionalBytes = 0) {
 		void* mem = (void*) ((CopyingHeap*)heap)->AllocateObject(numBytes + additionalBytes);
 #elif GC_TYPE==MARK_SWEEP
-			unsigned int additionalBytes = 0) {
+			unsigned long additionalBytes = 0) {
 		void* mem = (void*) ((MarkSweepHeap*)heap)->AllocateObject(numBytes + additionalBytes);
 #endif
 		size_t objSize = numBytes + additionalBytes;
@@ -117,11 +117,11 @@ public:
 	}
 
 protected:
-	int GetAdditionalSpaceConsumption() const;
+	long GetAdditionalSpaceConsumption() const;
 	//VMObject essentials
-	int32_t hash; 
-	int32_t objectSize; //set by the heap at allocation time
-	int32_t numberOfFields;
+	long hash; 
+	size_t objectSize; //set by the heap at allocation time
+	long numberOfFields;
 
 	//pVMObject* FIELDS;
 	//Start of fields. All members beyond this point are indexable
@@ -129,10 +129,10 @@ protected:
 	//So clazz == FIELDS[0]
 	pVMClass clazz;
 private:
-	static const int VMObjectNumberOfFields;
+	static const long VMObjectNumberOfFields;
 };
 
-int32_t VMObject::GetObjectSize() const {
+size_t VMObject::GetObjectSize() const {
     return objectSize;
 }
 
@@ -144,7 +144,7 @@ pVMClass VMObject::GetClass() const {
 	return clazz;
 }
 
-int VMObject::GetNumberOfFields() const {
+long VMObject::GetNumberOfFields() const {
     return this->numberOfFields;
 }
 

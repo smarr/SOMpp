@@ -41,9 +41,9 @@ class VMInteger;
 
 class VMFrame : public VMObject {
 public:
-    static pVMFrame EmergencyFrameFrom(pVMFrame from, int extraLength);
+    static pVMFrame EmergencyFrameFrom(pVMFrame from, long extraLength);
 
-    VMFrame(int size, int nof = 0);
+    VMFrame(long size, long nof = 0);
     
     inline pVMFrame   GetPreviousFrame() const;
     inline void       SetPreviousFrame(pVMObject);
@@ -53,25 +53,25 @@ public:
     inline pVMFrame   GetContext() const;
     inline void       SetContext(pVMFrame);
     inline bool       HasContext() const;
-    pVMFrame   GetContextLevel(int);
+    pVMFrame   GetContextLevel(long);
     pVMFrame   GetOuterContext();
     inline pVMMethod  GetMethod() const;
     void       SetMethod(pVMMethod);
     pVMObject  Pop();
     void       Push(pVMObject);
     void       ResetStackPointer();
-    inline int        GetBytecodeIndex() const;
-    inline void       SetBytecodeIndex(int);
-    pVMObject  GetStackElement(int) const;
-    void       SetStackElement(int, pVMObject);
-    pVMObject  GetLocal(int, int);
-    void       SetLocal(int, int, pVMObject);
-    pVMObject GetArgument(int, int);
-    void       SetArgument(int, int, pVMObject);
+    inline long        GetBytecodeIndex() const;
+    inline void       SetBytecodeIndex(long);
+    pVMObject  GetStackElement(long) const;
+    void       SetStackElement(long, pVMObject);
+    pVMObject  GetLocal(long, long);
+    void       SetLocal(long, long, pVMObject);
+    pVMObject GetArgument(long, long);
+    void       SetArgument(long, long, pVMObject);
     void       PrintStackTrace() const;
-    int        ArgumentStackIndex(int index) const;
+    long        ArgumentStackIndex(long index) const;
     void       CopyArgumentsFrom(pVMFrame frame);
-	  inline virtual pVMObject GetField(int index) const;
+	  inline virtual pVMObject GetField(long index) const;
 #ifdef USE_TAGGING
     virtual VMFrame*   Clone() const;
 		virtual void WalkObjects(AbstractVMObject* (AbstractVMObject*));
@@ -81,21 +81,21 @@ public:
 #endif
     
     void       PrintStack() const;
-    inline int32_t GetStackPointer() const;
-    int        RemainingStackSize() const;
+    inline void* GetStackPointer() const;
+    long        RemainingStackSize() const;
 private:
     pVMFrame   previousFrame;
     pVMFrame   context;
     pVMMethod  method;
-    int32_t    bytecodeIndex;
+    long    bytecodeIndex;
     pVMObject* arguments;
     pVMObject* locals;
     pVMObject* stack_ptr;
 
-    static const int VMFrameNumberOfFields;
+    static const long VMFrameNumberOfFields;
 };
 
-pVMObject VMFrame::GetField(int32_t index) const {
+pVMObject VMFrame::GetField(long index) const {
   if (index==4)
     return _UNIVERSE->NewInteger(bytecodeIndex);
   return VMObject::GetField(index);
@@ -109,11 +109,11 @@ bool     VMFrame::HasPreviousFrame() const {
     return this->previousFrame != NULL;
 }
 
-int       VMFrame::GetBytecodeIndex() const {
+long       VMFrame::GetBytecodeIndex() const {
   return bytecodeIndex;
 }
 
-void      VMFrame::SetBytecodeIndex(int index) {
+void      VMFrame::SetBytecodeIndex(long index) {
   bytecodeIndex = index;
 }
 
@@ -132,8 +132,8 @@ void     VMFrame::SetContext(pVMFrame frm) {
 #endif
 }
 
-int32_t VMFrame::GetStackPointer() const {
-  return (int32_t)stack_ptr;
+void* VMFrame::GetStackPointer() const {
+  return stack_ptr;
 }
 
 

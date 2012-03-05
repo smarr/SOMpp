@@ -15,16 +15,16 @@
 #include "VMClass.h"
 #include "VMInvokable.h"
 
-int32_t AbstractVMObject::GetHash() {
-	return (int32_t)this;
+size_t AbstractVMObject::GetHash() {
+	return (size_t)this;
 }
 
-void AbstractVMObject::Send(StdString selectorString, pVMObject* arguments, int argc) {
+void AbstractVMObject::Send(StdString selectorString, pVMObject* arguments, long argc) {
     pVMSymbol selector = _UNIVERSE->SymbolFor(selectorString);
     pVMFrame frame = _UNIVERSE->GetInterpreter()->GetFrame();
     frame->Push(this);
 
-    for(int i = 0; i < argc; ++i) {
+    for(long i = 0; i < argc; ++i) {
         frame->Push(arguments[i]);
     }
 
@@ -33,10 +33,10 @@ void AbstractVMObject::Send(StdString selectorString, pVMObject* arguments, int 
     (*invokable)(frame);
 }
 
-int AbstractVMObject::GetFieldIndex(pVMSymbol fieldName) const {
+long AbstractVMObject::GetFieldIndex(pVMSymbol fieldName) const {
 	return this->GetClass()->LookupFieldIndex(fieldName);
 }
-pVMObject AbstractVMObject::GetField(int index) const {
+pVMObject AbstractVMObject::GetField(long index) const {
 	//we have to emulate field 0 = class
 	if (index==0)
 		return this->GetClass();

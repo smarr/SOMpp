@@ -34,14 +34,14 @@ THE SOFTWARE.
 #define FIELDS ((pVMObject*)&clazz)
 
 //clazz is the only field of VMObject so
-const int VMObject::VMObjectNumberOfFields = 1;
+const long VMObject::VMObjectNumberOfFields = 1;
 
-VMObject::VMObject( int numberOfFields ) {
+VMObject::VMObject( long numberOfFields ) {
   //this line would be needed if the VMObject** is used instead of the macro:
   //FIELDS = (pVMObject*)&clazz; 
   this->SetNumberOfFields(numberOfFields + VMObjectNumberOfFields);
   gcfield = 0; 
-  hash = (int32_t)this;
+  hash = (size_t)this;
   //Object size is set by the heap
 }
 
@@ -60,14 +60,14 @@ pVMObject VMObject::Clone() const {
     memcpy(&(clone->clazz), &clazz,
            objectSize - sizeof(VMObject) + sizeof(pVMObject));
 #endif
-    clone->hash = (int32_t)&clone;
+    clone->hash = (size_t)&clone;
     return clone;
   }
 
-void VMObject::SetNumberOfFields(int nof) {
+void VMObject::SetNumberOfFields(long nof) {
   this->numberOfFields = nof;
   //initialize fields with NilObject
-  for (int i = 0; i < nof ; ++i)
+  for (long i = 0; i < nof ; ++i)
     FIELDS[i] = nilObject;
 }
 
@@ -79,7 +79,7 @@ void VMObject::SetClass(pVMClass cl) {
 #endif
 }
 
-pVMSymbol VMObject::GetFieldName(int index) const {
+pVMSymbol VMObject::GetFieldName(long index) const {
     return this->clazz->GetInstanceFieldName(index);
 }
 
@@ -89,12 +89,12 @@ void VMObject::Assert(bool value) const {
 }
 
 
-pVMObject VMObject::GetField(int index) const {
+pVMObject VMObject::GetField(long index) const {
     return FIELDS[index]; 
 }
 
 
-void VMObject::SetField(int index, pVMObject value) {
+void VMObject::SetField(long index, pVMObject value) {
      FIELDS[index] = value;
 #if GC_TYPE==GENERATIONAL
 	 _HEAP->writeBarrier(this, value);
@@ -102,7 +102,7 @@ void VMObject::SetField(int index, pVMObject value) {
 }
 
 //returns the Object's additional memory used (e.g. for Array fields)
-int VMObject::GetAdditionalSpaceConsumption() const
+long VMObject::GetAdditionalSpaceConsumption() const
 {
     //The VM*-Object's additional memory used needs to be calculated.
     //It's      the total object size   MINUS   sizeof(VMObject) for basic
@@ -116,7 +116,7 @@ void VMObject::WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*)) {
 #else
 void VMObject::WalkObjects(pVMObject (*walk)(pVMObject)) {
 #endif
-    for( int i = 0; i < this->GetNumberOfFields(); ++i) {
+    for( long i = 0; i < this->GetNumberOfFields(); ++i) {
 		SetField(i, walk(GetField(i)));
     }
 

@@ -16,8 +16,8 @@ struct VMObjectCompare {
   bool operator() (pair<const pVMObject, const pVMObject> lhs, pair<const
 		  pVMObject, const pVMObject> rhs) const
 #endif
-  {return (int32_t)lhs.first<(int32_t)rhs.first &&
-	  (int32_t)lhs.second<(int32_t)rhs.second ;}
+  {return (size_t)lhs.first<(size_t)rhs.first &&
+	  (size_t)lhs.second<(size_t)rhs.second ;}
 };
 #endif
 
@@ -25,10 +25,10 @@ struct VMObjectCompare {
 class GenerationalHeap : public Heap {
   friend class GenerationalCollector;
  public:
-	GenerationalHeap(int objectSpaceSize = 1048576);
+	GenerationalHeap(long objectSpaceSize = 1048576);
   AbstractVMObject* AllocateNurseryObject(size_t size);
   AbstractVMObject* AllocateMatureObject(size_t size);
-  int32_t GetMaxNurseryObjectSize();
+  size_t GetMaxNurseryObjectSize();
 #ifdef USE_TAGGING
 	void writeBarrier(AbstractVMObject* holder, const AbstractVMObject* referencedObject);
 	inline bool isObjectInNursery(const AbstractVMObject* obj);
@@ -45,10 +45,10 @@ class GenerationalHeap : public Heap {
 #endif
  private:
 	void* nursery;
-	int32_t nursery_end;
-	int32_t nurserySize;
-	int32_t maxNurseryObjSize;
-	int32_t matureObjectsSize;
+	size_t nursery_end;
+	size_t nurserySize;
+	size_t maxNurseryObjSize;
+	size_t matureObjectsSize;
 	void* nextFreePosition;
 #ifdef USE_TAGGING
 	void writeBarrier_OldHolder(AbstractVMObject* holder, const
@@ -58,7 +58,7 @@ class GenerationalHeap : public Heap {
 			referencedObject);
 #endif
   void* collectionLimit;
-	vector<int>* oldObjsWithRefToYoungObjs;
+	vector<size_t>* oldObjsWithRefToYoungObjs;
   vector<pVMObject>* allocatedObjects;
 };
 
@@ -67,11 +67,11 @@ inline bool GenerationalHeap::isObjectInNursery(const AbstractVMObject* obj) {
 #else
 inline bool GenerationalHeap::isObjectInNursery(const pVMObject obj) {
 #endif
-	return (int32_t) obj >= (int)nursery && (int32_t) obj < ((int32_t)nursery +
+	return (size_t) obj >= (size_t)nursery && (size_t) obj < ((size_t)nursery +
 			nurserySize);
 }
 
-inline int32_t GenerationalHeap::GetMaxNurseryObjectSize() {
+inline size_t GenerationalHeap::GetMaxNurseryObjectSize() {
 	return maxNurseryObjSize;
 }
 
@@ -85,7 +85,7 @@ inline void GenerationalHeap::writeBarrier(pVMObject holder, const pVMObject ref
 	//writeBarrierCalledOn.insert(make_pair(holder, referencedObject));
 #endif
 
-  int gcfield = *(((int32_t*)holder)+1);
+  size_t gcfield = *(((size_t*)holder)+1);
   if ((gcfield & 6) == 2)
 		writeBarrier_OldHolder(holder, referencedObject);
 }

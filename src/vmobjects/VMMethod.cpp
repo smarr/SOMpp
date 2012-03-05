@@ -46,12 +46,12 @@ THE SOFTWARE.
 //#define _BC ((uint8_t*)&FIELDS[this->GetNumberOfFields() + this->GetNumberOfIndexableFields()])
 
 #ifdef UNSAFE_FRAME_OPTIMIZATION
-const int VMMethod::VMMethodNumberOfFields = 8;
+const long VMMethod::VMMethodNumberOfFields = 8;
 #else
-const int VMMethod::VMMethodNumberOfFields = 7;
+const long VMMethod::VMMethodNumberOfFields = 7;
 #endif
 
-VMMethod::VMMethod(int bcCount, int numberOfConstants, int nof)
+VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof)
   : VMInvokable(nof + VMMethodNumberOfFields) {
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     cachedFrame = NULL;
@@ -77,7 +77,7 @@ VMMethod::VMMethod(int bcCount, int numberOfConstants, int nof)
     _HEAP->writeBarrier(this, this->numberOfConstants);
 #endif
     indexableFields = (pVMObject*)(&indexableFields + 2);
-    for (int i = 0; i < numberOfConstants ; ++i) {
+    for (long i = 0; i < numberOfConstants ; ++i) {
       indexableFields[i] = nilObject;
       //no need for write barrier (nilObject is found anyway)
     }
@@ -133,7 +133,7 @@ void VMMethod::WalkObjects(pVMObject (*walk)(pVMObject)) {
     cachedFrame = static_cast<VMFrame*>(walk(cachedFrame));
 #endif
     
-	for (int i = 0 ; i < GetNumberOfIndexableFields() ; ++i) {
+	for (long i = 0 ; i < GetNumberOfIndexableFields() ; ++i) {
 		if (GetIndexableField(i) != NULL)
 			SetIndexableField(i, walk(GetIndexableField(i)));
 	}
@@ -165,7 +165,7 @@ void VMMethod::SetCachedFrame(pVMFrame frame) {
 
 
 
-void VMMethod::SetNumberOfLocals(int nol) {
+void VMMethod::SetNumberOfLocals(long nol) {
 #ifdef USE_TAGGING
     numberOfLocals = nol;
 #else
@@ -177,16 +177,16 @@ void VMMethod::SetNumberOfLocals(int nol) {
 }
 
 
-int VMMethod::GetMaximumNumberOfStackElements() const {
+long VMMethod::GetMaximumNumberOfStackElements() const {
 #ifdef USE_TAGGING
-    return (int32_t)maximumNumberOfStackElements;
+    return (long)maximumNumberOfStackElements;
 #else
     return maximumNumberOfStackElements->GetEmbeddedInteger(); 
 #endif
 }
 
 
-void VMMethod::SetMaximumNumberOfStackElements(int stel) {
+void VMMethod::SetMaximumNumberOfStackElements(long stel) {
 #ifdef USE_TAGGING
     maximumNumberOfStackElements = stel;
 #else
@@ -197,7 +197,7 @@ void VMMethod::SetMaximumNumberOfStackElements(int stel) {
 #endif
 }
 
-void VMMethod::SetNumberOfArguments(int noa) {
+void VMMethod::SetNumberOfArguments(long noa) {
 #ifdef USE_TAGGING
     numberOfArguments = noa;
 #else
@@ -209,9 +209,9 @@ void VMMethod::SetNumberOfArguments(int noa) {
 }
 
 
-int VMMethod::GetNumberOfBytecodes() const {
+long VMMethod::GetNumberOfBytecodes() const {
 #ifdef USE_TAGGING
-    return (int32_t)bcLength;
+    return (long)bcLength;
 #else
     return bcLength->GetEmbeddedInteger();
 #endif
@@ -225,7 +225,7 @@ void VMMethod::operator()(pVMFrame frame) {
 
 
 void VMMethod::SetHolderAll(pVMClass hld) {
-    for (int i = 0; i < this->GetNumberOfIndexableFields(); ++i) {
+    for (long i = 0; i < this->GetNumberOfIndexableFields(); ++i) {
         pVMObject o = GetIndexableField(i);
 #ifdef USE_TAGGING
         pVMInvokable vmi = DynamicConvert<VMInvokable, VMObject>(o);
@@ -239,7 +239,7 @@ void VMMethod::SetHolderAll(pVMClass hld) {
 }
 
 
-pVMObject VMMethod::GetConstant(int indx) const {
+pVMObject VMMethod::GetConstant(long indx) const {
     if (bytecodes[indx+1] >= this->GetNumberOfIndexableFields()) {
         cout << "Error: Constant index out of range" << endl;
         return NULL;
@@ -247,7 +247,7 @@ pVMObject VMMethod::GetConstant(int indx) const {
     return this->GetIndexableField(bytecodes[indx+1]);
 }
 
-uint8_t& VMMethod::operator[](int indx) const {
+uint8_t& VMMethod::operator[](long indx) const {
 	return bytecodes[indx];
 }
 

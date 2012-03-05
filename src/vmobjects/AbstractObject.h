@@ -33,15 +33,15 @@ using namespace std;
 //this is the base class for all VMObjects
 class AbstractVMObject : public VMObjectBase {
 public:
-	virtual int32_t GetHash();
+	virtual size_t GetHash();
 	virtual pVMClass GetClass() const = 0;
 #ifdef USE_TAGGING
 	virtual AbstractVMObject* Clone() const = 0;
 #else
 	virtual pVMObject Clone() const = 0;
 #endif
-	virtual void Send(StdString, pVMObject*, int);
-	virtual int32_t GetObjectSize() const = 0;
+	virtual void Send(StdString, pVMObject*, long);
+	virtual size_t GetObjectSize() const = 0;
 	AbstractVMObject() {
 		gcfield = 0;
 	}
@@ -49,11 +49,11 @@ public:
 		cout << "this object doesn't support SetObjectSize" << endl;
 		throw "this object doesn't support SetObjectSize";
 	}
-	inline virtual int GetNumberOfFields() const {
+	inline virtual long GetNumberOfFields() const {
 		cout << "this object doesn't support GetNumberOfFields" << endl;
 		throw "this object doesn't support GetNumberOfFields";
 	}
-	virtual void SetNumberOfFields(int nof) {
+	virtual void SetNumberOfFields(long nof) {
 		cout << "this object doesn't support SetNumberOfFields" << endl;
 		throw "this object doesn't support SetNumberOfFields";
 	}
@@ -61,12 +61,12 @@ public:
 		cout << "this object doesn't support SetClass" << endl;
 		throw "this object doesn't support SetClass";
 	}
-	int GetFieldIndex(pVMSymbol fieldName) const;
-	inline virtual void SetField(int index, pVMObject value) {
+	long GetFieldIndex(pVMSymbol fieldName) const;
+	inline virtual void SetField(long index, pVMObject value) {
 		cout << "this object doesn't support SetField" << endl;
 		throw "this object doesn't support SetField";
 	}
-	virtual pVMObject GetField(int index) const;
+	virtual pVMObject GetField(long index) const;
 #ifdef USE_TAGGING
 	inline virtual void WalkObjects(AbstractVMObject* (AbstractVMObject*)) {
 #else
@@ -74,14 +74,14 @@ public:
 #endif
 		return;
 	}
-	inline virtual pVMSymbol GetFieldName(int index) const {
+	inline virtual pVMSymbol GetFieldName(long index) const {
 		cout << "this object doesn't support GetFieldName" << endl;
 		throw "this object doesn't support GetFieldName";
 	}
 
 #if GC_TYPE==GENERATIONAL
 	void* operator new(size_t numBytes, Heap* heap,
-			unsigned int additionalBytes = 0, bool outsideNursery = false) {
+			unsigned long additionalBytes = 0, bool outsideNursery = false) {
 		//if outsideNursery flag is set or object is too big for nursery, we
 		// allocate a mature object
 		if (outsideNursery)
@@ -91,7 +91,7 @@ public:
 	}
 #else
 	void* operator new(size_t numBytes, HEAP_CLS* heap,
-			unsigned int additionalBytes = 0) {
+			unsigned long additionalBytes = 0) {
 		void* mem = (void*) heap->AllocateObject(numBytes + additionalBytes);
 		return mem;
 	}

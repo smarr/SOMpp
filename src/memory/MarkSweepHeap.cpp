@@ -8,7 +8,7 @@
 #include "../vmobjects/AbstractObject.h"
 #include "../vm/Universe.h"
 
-MarkSweepHeap::MarkSweepHeap(int objectSpaceSize) {
+MarkSweepHeap::MarkSweepHeap(long objectSpaceSize) {
 	//our initial collection limit is 90% of objectSpaceSize
 	collectionLimit = objectSpaceSize * 0.9;
     spcAlloc = 0;

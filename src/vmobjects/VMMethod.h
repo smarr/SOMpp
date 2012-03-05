@@ -48,19 +48,19 @@ class VMMethod :  public VMInvokable {
   friend class Interpreter;
 
  public:
-  VMMethod(int bcCount, int numberOfConstants, int nof = 0);
+  VMMethod(long bcCount, long numberOfConstants, long nof = 0);
 
-  inline int GetNumberOfLocals() const;
-  void      SetNumberOfLocals(int nol);
-  int       GetMaximumNumberOfStackElements() const;
-  void      SetMaximumNumberOfStackElements(int stel);
-  inline int GetNumberOfArguments() const;
-  void      SetNumberOfArguments(int);
-  int       GetNumberOfBytecodes() const;
+  inline long GetNumberOfLocals() const;
+  void      SetNumberOfLocals(long nol);
+  long       GetMaximumNumberOfStackElements() const;
+  void      SetMaximumNumberOfStackElements(long stel);
+  inline long GetNumberOfArguments() const;
+  void      SetNumberOfArguments(long);
+  long       GetNumberOfBytecodes() const;
   void      SetHolderAll(pVMClass hld); 
-  pVMObject GetConstant(int indx) const;
-  inline uint8_t   GetBytecode(int indx) const;
-  inline void      SetBytecode(int indx, uint8_t);
+  pVMObject GetConstant(long indx) const;
+  inline uint8_t   GetBytecode(long indx) const;
+  inline void      SetBytecode(long indx, uint8_t);
 #ifdef UNSAFE_FRAME_OPTIMIZATION
   void      SetCachedFrame(pVMFrame frame); 
   pVMFrame  GetCachedFrame() const;
@@ -70,21 +70,21 @@ class VMMethod :  public VMInvokable {
 #else
   virtual void	  WalkObjects(pVMObject (pVMObject));
 #endif
-  inline int       GetNumberOfIndexableFields() const;
+  inline long       GetNumberOfIndexableFields() const;
 #ifdef USE_TAGGING
   virtual VMMethod* Clone() const;
 #else
   virtual pVMMethod Clone() const;
 #endif
 
-  inline void              SetIndexableField(int idx, pVMObject item);
+  inline void              SetIndexableField(long idx, pVMObject item);
 
   /// Methods are considered byte arrays with meta data.
   // So the index operator returns the bytecode at the index.
   // Not really used because it violates the C++ idiom to
   // implement operators in a "natural" way. Does not really
   // seem so natural to do this.
-  uint8_t& operator[](int indx) const;
+  uint8_t& operator[](long indx) const;
 
   //-----------VMInvokable-------------//
   //operator "()" to invoke the method
@@ -95,7 +95,7 @@ class VMMethod :  public VMInvokable {
 
  private:
   inline uint8_t* GetBytecodes() const;
-  inline pVMObject   GetIndexableField(int idx) const;
+  inline pVMObject   GetIndexableField(long idx) const;
 
   pVMInteger numberOfLocals;
   pVMInteger maximumNumberOfStackElements;
@@ -107,23 +107,23 @@ class VMMethod :  public VMInvokable {
 #endif
   pVMObject* indexableFields;
   uint8_t* bytecodes;
-  static const int VMMethodNumberOfFields;
+  static const long VMMethodNumberOfFields;
 };
 
-inline int VMMethod::GetNumberOfLocals() const {
+inline long VMMethod::GetNumberOfLocals() const {
 #ifdef USE_TAGGING
-    return (int32_t)numberOfLocals; 
+    return (long)numberOfLocals; 
 #else
     return numberOfLocals->GetEmbeddedInteger(); 
 #endif
 }
 
 
-int VMMethod::GetNumberOfIndexableFields() const {
+long VMMethod::GetNumberOfIndexableFields() const {
     //cannot be done using GetAdditionalSpaceConsumption,
     //as bytecodes need space, too, and there might be padding
 #ifdef USE_TAGGING
-    return (int32_t)this->numberOfConstants;
+    return (long)this->numberOfConstants;
 #else
     return this->numberOfConstants->GetEmbeddedInteger();
 #endif
@@ -133,30 +133,30 @@ uint8_t* VMMethod::GetBytecodes() const {
   return bytecodes;
 }
 
-inline int VMMethod::GetNumberOfArguments() const {
+inline long VMMethod::GetNumberOfArguments() const {
 #ifdef USE_TAGGING
-    return (int32_t)numberOfArguments; 
+    return (long)numberOfArguments; 
 #else
     return numberOfArguments->GetEmbeddedInteger(); 
 #endif
 }
 
-pVMObject VMMethod::GetIndexableField(int idx) const {
+pVMObject VMMethod::GetIndexableField(long idx) const {
   return indexableFields[idx];
 }
 
-void VMMethod::SetIndexableField(int idx, pVMObject item) {
+void VMMethod::SetIndexableField(long idx, pVMObject item) {
   indexableFields[idx] = item;
 #if GC_TYPE==generational
   _HEAP->writeBarrier(this, item);
 #endif
 }
-uint8_t VMMethod::GetBytecode(int indx) const {
+uint8_t VMMethod::GetBytecode(long indx) const {
     return bytecodes[indx];
 }
 
 
-void VMMethod::SetBytecode(int indx, uint8_t val) {
+void VMMethod::SetBytecode(long indx, uint8_t val) {
     bytecodes[indx] = val;
 }
 

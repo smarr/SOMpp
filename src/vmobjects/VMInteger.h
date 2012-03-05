@@ -35,26 +35,26 @@
 class VMInteger: public AbstractVMObject {
 public:
 	VMInteger();
-	VMInteger(int32_t);
+	VMInteger(long);
 
-	inline int32_t GetEmbeddedInteger() const;
+	inline long GetEmbeddedInteger() const;
 #ifdef USE_TAGGING
 	virtual VMInteger* Clone() const;
 #else
 	virtual pVMInteger Clone() const;
 #endif
 	virtual pVMClass GetClass() const;
-	virtual inline int32_t GetObjectSize() const;
+	virtual inline size_t GetObjectSize() const;
 
 private:
-	int32_t embeddedInteger;
+	long embeddedInteger;
 };
 
-int32_t VMInteger::GetEmbeddedInteger() const {
+long VMInteger::GetEmbeddedInteger() const {
 	return this->embeddedInteger;
 }
 
-int32_t VMInteger::GetObjectSize() const {
+size_t VMInteger::GetObjectSize() const {
 	//no need to pad -> sizeof returns padded size anyway
 	return sizeof(VMInteger);
 }

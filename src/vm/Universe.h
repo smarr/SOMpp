@@ -98,8 +98,8 @@ class Universe {
 
 		//static methods
 		static Universe* GetUniverse();
-		static void Start(int argc, char** argv);
-		static void Quit(int);
+		static void Start(long argc, char** argv);
+		static void Quit(long);
 		static void ErrorExit(const char*);
 
 		//Globals accessor (only for GC, could be considered be
@@ -116,19 +116,19 @@ class Universe {
 		pVMSymbol SymbolForChars(const char*);
 
 		//VMObject instanciation methods. These should probably be refactored to a new class
-		pVMArray NewArray(int) const;
+		pVMArray NewArray(long) const;
 		pVMArray NewArrayList(ExtendedList<pVMObject>& list) const;
 		pVMArray NewArrayFromArgv(const vector<StdString>&) const;
-		pVMBlock NewBlock(pVMMethod, pVMFrame, int);
+		pVMBlock NewBlock(pVMMethod, pVMFrame, long);
 		pVMClass NewClass(pVMClass) const;
 		pVMFrame NewFrame(pVMFrame, pVMMethod) const;
 		pVMMethod NewMethod(pVMSymbol, size_t, size_t) const;
 		pVMObject NewInstance(pVMClass) const;
 #ifdef USE_TAGGING
-		VMPointer<VMInteger> NewInteger(int32_t) const;
+		VMPointer<VMInteger> NewInteger(long) const;
 		void WalkGlobals(AbstractVMObject* (*walk)(AbstractVMObject*));
 #else
-		pVMInteger NewInteger(int32_t) const;
+		pVMInteger NewInteger(long) const;
 		void WalkGlobals(pVMObject (*walk)(pVMObject));
 #endif
 		pVMBigInteger NewBigInteger(int64_t) const;
@@ -147,7 +147,7 @@ class Universe {
 		bool HasGlobal(pVMSymbol);
 		void InitializeGlobals();
 		pVMClass GetBlockClass(void) const;
-		pVMClass GetBlockClassWithArgs(int);
+		pVMClass GetBlockClassWithArgs(long);
 
 		pVMClass LoadClass(pVMSymbol);
 		void LoadSystemClass(pVMClass);
@@ -158,29 +158,29 @@ class Universe {
 		~Universe();
 #ifdef LOG_RECEIVER_TYPES
     struct stat_data{
-      int32_t noCalls;
-      int32_t noPrimitiveCalls;
+      long noCalls;
+      long noPrimitiveCalls;
     };
-    map<StdString, int> receiverTypes;
+    map<StdString, long> receiverTypes;
     map<StdString, stat_data> callStats;
 #endif
 		//
 	private:
-		vector<StdString> handleArguments(int argc, char** argv);
-		int getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;
+		vector<StdString> handleArguments(long argc, char** argv);
+		long getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;
 
 		static Universe* theUniverse;
 
-		int setupClassPath(const StdString& cp);
-		int addClassPath(const StdString& cp);
+		long setupClassPath(const StdString& cp);
+		long addClassPath(const StdString& cp);
 		void printUsageAndExit(char* executable) const;
 
-		void initialize(int, char**);
+		void initialize(long, char**);
 
 		Heap* heap;
-		int heapSize;
+		long heapSize;
 		map<pVMSymbol, pVMObject> globals;
-		map<int,pVMClass> blockClassesByNoOfArgs;
+		map<long,pVMClass> blockClassesByNoOfArgs;
 		vector<StdString> classPath;
 
 		SourcecodeCompiler* compiler;

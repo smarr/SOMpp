@@ -43,20 +43,20 @@ void VMObjectsInterfaceTest::tearDown() {
 
 }
 
-void testObjectSizeHelper(pVMObject obj, StdString msg, int32_t expectedSize) {
+void testObjectSizeHelper(pVMObject obj, StdString msg, size_t expectedSize) {
 	CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expectedSize, obj->GetObjectSize());
 	obj->SetObjectSize(7654);
-	CPPUNIT_ASSERT_EQUAL_MESSAGE(msg + StdString(" (modified)"), 7654,
+	CPPUNIT_ASSERT_EQUAL_MESSAGE(msg + StdString(" (modified)"), (size_t)7654,
 			obj->GetObjectSize());
 	obj->SetObjectSize(expectedSize);
 }
 
 void VMObjectsInterfaceTest::testGetSetObjectSize() {
 	testObjectSizeHelper(pObject, "plain object size", 24);
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("integer size", 12, pInteger->GetObjectSize());
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("double size", 16, pDouble->GetObjectSize());
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("string size", 20, pString->GetObjectSize());
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("symbol size", 28, pSymbol->GetObjectSize());
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("integer size", (size_t)12, pInteger->GetObjectSize());
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("double size", (size_t)16, pDouble->GetObjectSize());
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("string size", (size_t)20, pString->GetObjectSize());
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("symbol size", (size_t)28, pSymbol->GetObjectSize());
 	//testObjectSizeHelper(pString, "string size", 12);
 	//testObjectSizeHelper(pSymbol, "symbol size", 12);
 	testObjectSizeHelper(pArray, "array size", 24);
@@ -64,7 +64,7 @@ void VMObjectsInterfaceTest::testGetSetObjectSize() {
 	testObjectSizeHelper(pMethod, "method size", 52);
 	testObjectSizeHelper(pBlock, "block size", 32);
 	testObjectSizeHelper(pPrimitive, "primitive size", 40);
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("big integer size", 16,
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("big integer size", (size_t)16,
 			pBigInteger->GetObjectSize());
 	testObjectSizeHelper(pClass, "class size", 44);
 	testObjectSizeHelper(pFrame, "frame size", 60);
@@ -72,10 +72,10 @@ void VMObjectsInterfaceTest::testGetSetObjectSize() {
 }
 
 void testGCFieldHelper(AbstractVMObject* obj, StdString name) {
-	int32_t oldval = obj->GetGCField();
-	obj->SetGCField(0xaffe);
+	size_t oldval = obj->GetGCField();
+	obj->SetGCField((size_t)0xaffe);
 	CPPUNIT_ASSERT_EQUAL_MESSAGE(StdString("setting GCField failed for ")
-			+ name, 0xaffe, obj->GetGCField());
+			+ name, (size_t)0xaffe, obj->GetGCField());
 	obj->SetGCField(oldval);
 	CPPUNIT_ASSERT_EQUAL_MESSAGE(StdString("setting GCField failed for ")
 			+ name, oldval, obj->GetGCField());
@@ -98,10 +98,10 @@ void VMObjectsInterfaceTest::testGetSetGCField() {
 	testGCFieldHelper(pEvaluationPrimitive, "evaluation primitive");
 }
 
-void testNumberOfFieldsHelper(StdString name, int32_t expectedNumberOfFields,
+void testNumberOfFieldsHelper(StdString name, long expectedNumberOfFields,
 		pVMObject obj) {
 	//only decrease the size, otherwise we might access uninitialized memory and crash
-	int32_t targetSize = (expectedNumberOfFields > 0) ? expectedNumberOfFields
+	long targetSize = (expectedNumberOfFields > 0) ? expectedNumberOfFields
 			- 1 : 0;
 	obj->SetNumberOfFields(targetSize);
 	CPPUNIT_ASSERT_EQUAL_MESSAGE(name + StdString(
@@ -163,7 +163,7 @@ void VMObjectsInterfaceTest::testGetClassField() {
 }
 
 void testGetSetFieldHelper(pVMObject obj, StdString name) {
-	for (int32_t i = 0; i <= obj->GetNumberOfFields(); i++) {
+	for (long i = 0; i <= obj->GetNumberOfFields(); i++) {
 		AbstractVMObject* oldVal = obj->GetField(i);
 		//set field to another value and check if it has changed
 		AbstractVMObject* otherObject = oldVal == integerClass ? stringClass
@@ -188,7 +188,7 @@ void testGetSetFieldHelper(pVMObject obj, StdString name) {
 	}
 }
 
-void testFieldNameHelper(pVMObject obj, StdString objectName, int32_t index,
+void testFieldNameHelper(pVMObject obj, StdString objectName, long index,
 		StdString expectedName) {
 	std::stringstream message;
 	message << objectName << " field " << index;
@@ -219,34 +219,34 @@ void VMObjectsInterfaceTest::testGetSetField() {
 }
 
 void VMObjectsInterfaceTest::testGetHash() {
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("plain object hash wrong", (int32_t) pObject,
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("plain object hash wrong", (size_t) pObject,
 			pObject->GetHash());
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("integer hash wrong", (int32_t) pInteger,
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("integer hash wrong", (size_t) pInteger,
 			pInteger->GetHash());
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("double hash wrong", (int32_t) pDouble,
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("double hash wrong", (size_t) pDouble,
 			pDouble->GetHash());
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("string hash wrong", (int32_t) pString,
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("string hash wrong", (size_t) pString,
 			pString->GetHash());
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("symbol hash wrong", (int32_t) pSymbol,
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("symbol hash wrong", (size_t) pSymbol,
 			pSymbol->GetHash());
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("array hash wrong", (int32_t) pArray,
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("array hash wrong", (size_t) pArray,
 			pArray->GetHash());
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("array(3) hash wrong", (int32_t) pArray3,
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("array(3) hash wrong", (size_t) pArray3,
 			pArray3->GetHash());
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("method hash wrong", (int32_t) pMethod,
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("method hash wrong", (size_t) pMethod,
 			pMethod->GetHash());
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("block hash wrong", (int32_t) pBlock,
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("block hash wrong", (size_t) pBlock,
 			pBlock->GetHash());
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("primitive hash wrong", (int32_t) pPrimitive,
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("primitive hash wrong", (size_t) pPrimitive,
 			pPrimitive->GetHash());
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("big integer hash wrong",
-			(int32_t) pBigInteger, pBigInteger->GetHash());
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("class hash wrong", (int32_t) pClass,
+			(size_t) pBigInteger, pBigInteger->GetHash());
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("class hash wrong", (size_t) pClass,
 			pClass->GetHash());
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("frame hash wrong", (int32_t) pFrame,
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("frame hash wrong", (size_t) pFrame,
 			pFrame->GetHash());
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("evaluation primitive hash wrong",
-			(int32_t) pEvaluationPrimitive, pEvaluationPrimitive->GetHash());
+			(size_t) pEvaluationPrimitive, pEvaluationPrimitive->GetHash());
 
 }
 
