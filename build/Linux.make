@@ -27,7 +27,11 @@
 # THE SOFTWARE.
 
 CC			=g++
-CFLAGS		=-Wno-endif-labels -O3 -fPIC $(DBG_FLAGS) $(FEATURE_FLAGS) $(INCLUDES)
+CFLAGS		=-Wno-endif-labels -O3 $(DBG_FLAGS) $(FEATURE_FLAGS) $(INCLUDES)
+LBITS := $(shell getconf LONG_BIT)
+ifeq ($(LBITS),64)
+	CFLAGS += -fno-PIC -mcmodel=large
+endif
 LDFLAGS		=$(DBG_FLAGS) $(LIBRARIES)
 
 INSTALL		=install
@@ -98,7 +102,7 @@ PRIMITIVES_OBJ	= $(PRIMITIVES_SRC:.cpp=.pic.o)
 ############# include path
 
 INCLUDES		=-I$(SRC_DIR)
-LIBRARIES		=-L$(ROOT_DIR)
+LIBRARIES		=-L$(ROOT_DIR) -Lgperftools-2.0/.libs -Wl,-rpath,gperftools-2.0/.libs -Wl,-rpath,.
 
 ##############
 ############## Collections.
@@ -177,7 +181,7 @@ endif
 all: $(CSOM_NAME)\
 	$(CSOM_NAME).$(SHARED_EXTENSION) \
 	$(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION) \
-	CORE units
+	CORE
 
 
 debug : DBG_FLAGS=-DDEBUG -O0 -g
