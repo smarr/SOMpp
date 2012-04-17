@@ -7,10 +7,8 @@ from os import rename
 from Benchmark import Benchmark
 from BenchmarkRunner import BenchmarkRunner
 import os.path
-
+import argparse
 base_path = os.path.abspath(os.path.dirname(sys.argv[0]) + "/../")
-
-ITERATIONS = 20
 
 SOM_BENCHMARKS = [
 "Bounce.som", "BubbleSort.som", "Dispatch.som", "Fibonacci.som",
@@ -35,10 +33,10 @@ VMS = [
 "/bin/mark_sweep_cache_tagging"]
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        arguments = "SRGH"
-    else:
-        arguments = sys.argv[1]
+    parser = argparse.ArgumentParser(description='Run Benchmarks for all SOM++ VMs')
+    parser.add_argument("benchmarks", nargs="*", default = ["S", "R", "G", "H"])
+    parser.add_argument("-i", "--iterations", type=int, default=20)
+    args = parser.parse_args()
 
     out_path = base_path+"/benchmark_results/"
     if not os.path.isdir(out_path):
@@ -48,8 +46,8 @@ if __name__ == "__main__":
         vm_name = vm[vm.rfind("/")+1:]
 
         #SOM Benchmarks
-        if "S" in arguments:
-            runner = BenchmarkRunner(base_path + vm, ITERATIONS)
+        if "S" in args.benchmarks:
+            runner = BenchmarkRunner(base_path + vm, args.iterations)
             for bm_name in SOM_BENCHMARKS:
                 runner.add_benchmark("Examples/Benchmarks/"+bm_name)
             runner.run_benchmarks()
@@ -58,8 +56,8 @@ if __name__ == "__main__":
             csv_file.close()
 
         #Richards Benchmark
-        if "R" in arguments:
-            runner = BenchmarkRunner(base_path + vm, ITERATIONS)
+        if "R" in args.benchmarks:
+            runner = BenchmarkRunner(base_path + vm, args.iterations)
             runner.add_benchmark("Examples/Benchmarks/Richards/RichardsBenchmarks.som")
             runner.run_benchmarks()
             csv_file = open(out_path + vm_name + "_richards.csv","w")
@@ -67,15 +65,15 @@ if __name__ == "__main__":
             csv_file.close()
 
         #GC Bench
-        if "G" in arguments:
-            runner = BenchmarkRunner(base_path + vm, ITERATIONS)
+        if "G" in args.benchmarks:
+            runner = BenchmarkRunner(base_path + vm, args.iterations)
             runner.add_benchmark("Examples/Benchmarks/GCBenchmark/GCBench.som")
             runner.run_benchmarks()
             csv_file = open(out_path + vm_name + "_gcbench.csv","w")
             csv_file.write(runner.get_csv())
             csv_file.close()
 
-    if "H" in arguments:
+    if "H" in args.benchmarks:
         #SOM Benchmarks
         runner = BenchmarkRunner(base_path + "/bin/cppsom_statistics", 1)
         for bm_name in SOM_BENCHMARKS:
