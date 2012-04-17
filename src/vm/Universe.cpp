@@ -150,7 +150,7 @@ void Universe::Quit(long err) {
   std::string file_name_receivers = std::string(bm_name);
   file_name_receivers.append("_receivers.csv");
   fstream receivers(file_name_receivers.c_str(), ios::out);
-  for (map<StdString, int>::iterator it = theUniverse->receiverTypes.begin(); it != theUniverse->receiverTypes.end(); it++)
+  for (map<StdString, long>::iterator it = theUniverse->receiverTypes.begin(); it != theUniverse->receiverTypes.end(); it++)
     receivers << it->first << ",  " << it->second << endl;
 
   std::string file_name_send_types = std::string(bm_name);
