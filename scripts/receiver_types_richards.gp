@@ -1,4 +1,4 @@
-set terminal postscript eps enhanced solid color
+set terminal postscript eps enhanced solid
 set output "receiver_types_richards.eps"
 set title "Receiver types (Richards Benchmark)"
 set xtics rotate by -90    #rotate labels

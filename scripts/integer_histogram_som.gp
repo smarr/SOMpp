@@ -1,4 +1,5 @@
-set terminal postscript eps enhanced solid color
+set term postscript eps enhanced monochrome
+set size 0.7,0.7
 set output "integer_histogram_som.eps"
 set title "Integer histogram (SOM Benchmarks)"
 set datafile separator "," #csv is comma separated
