@@ -44,7 +44,7 @@ class Benchmark(object):
                 start_time=time.time()
                 proc = subprocess.Popen(cl.split(), shell=False,
                     bufsize=2048,stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                    env={"LD_LIBRARY_PATH" : self.directory})
+                    env={"LD_LIBRARY_PATH" : self.directory},cwd=self.directory)
                 data=proc.communicate()[0]
                 self.times.append((time.time() - start_time) * 1000)
                 gc_res = regex_gc_time.search(data)
@@ -55,6 +55,9 @@ class Benchmark(object):
         except OSError:
             raise Exception("Error when executing benchmark: " + cl)
         except AttributeError:
+            print "LD_LIBRARY_PATH: ", self.directory
+
+            print "Command: ", cl
             raise Exception("Unable to parse benchmark results! Result was:\n"
                     + data)
 
