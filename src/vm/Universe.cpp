@@ -156,8 +156,10 @@ void Universe::Quit(long err) {
   std::string file_name_send_types = std::string(bm_name);
   file_name_send_types.append("_send_types.csv");
   fstream send_stat(file_name_send_types.c_str(), ios::out);
+  send_stat << "#name, percentage_primitive_calls, no_primitive_calls, no_non_primitive_calls" << endl;
   for (map<StdString, Universe::stat_data>::iterator it = theUniverse->callStats.begin(); it != theUniverse->callStats.end(); it++)
-    send_stat << it->first << ", " << setiosflags(ios::fixed) << setprecision(2) << (double)(it->second.noPrimitiveCalls) / (double)(it->second.noCalls) << endl;
+    send_stat << it->first << ", " << setiosflags(ios::fixed) << setprecision(2) << (double)(it->second.noPrimitiveCalls) / (double)(it->second.noCalls) <<
+        ", " << it->second.noPrimitiveCalls << ", " << it->second.noCalls - it->second.noPrimitiveCalls << endl;
 #endif
 
 #ifdef GENERATE_ALLOCATION_STATISTICS
