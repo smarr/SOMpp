@@ -57,11 +57,7 @@ size_t VMSymbol::GetObjectSize() const {
 	return size + PAD_BYTES(size);
 }
 
-#ifdef USE_TAGGING
-VMSymbol* VMSymbol::Clone() const {
-#else
 pVMSymbol VMSymbol::Clone() const {
-#endif
 #if GC_TYPE==GENERATIONAL
 	return new (_HEAP, strlen(chars) + 1, true)	VMSymbol(chars);
 #else

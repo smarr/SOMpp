@@ -49,7 +49,7 @@ void MarkSweepCollector::Collect() {
 
 VMOBJECT_PTR mark_object(VMOBJECT_PTR obj) {
 #ifdef USE_TAGGING
-	if ((size_t)((void*)obj) & 1)
+	if (IS_TAGGED(obj))
 		return obj;
 #endif
     if (obj->GetGCField())
@@ -68,11 +68,7 @@ void MarkSweepCollector::markReachableObjects() {
   // marks the whole stack
   pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
   if (currentFrame != NULL) {
-#ifdef USE_TAGGING
-    pVMFrame newFrame = static_cast<VMFrame*>(mark_object(currentFrame));
-#else
     pVMFrame newFrame = static_cast<pVMFrame>(mark_object(currentFrame));
-#endif
     _UNIVERSE->GetInterpreter()->SetFrame(newFrame);
   }
 }

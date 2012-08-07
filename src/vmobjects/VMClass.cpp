@@ -68,20 +68,11 @@ superClass(NULL), name(NULL),
 	instanceFields(NULL), instanceInvokables(NULL) {
 }
 
-#ifdef USE_TAGGING
-VMClass* VMClass::Clone() const {
-#if GC_TYPE==GENERATIONAL
-	VMClass* clone = new (_HEAP, objectSize - sizeof(VMClass), true)VMClass(*this);
-#else
-	VMClass* clone = new (_HEAP, objectSize - sizeof(VMClass))VMClass(*this);
-#endif
-#else
 pVMClass VMClass::Clone() const {
 #if GC_TYPE==GENERATIONAL
 	pVMClass clone = new (_HEAP, objectSize - sizeof(VMClass), true)VMClass(*this);
 #else
 	pVMClass clone = new (_HEAP, objectSize - sizeof(VMClass))VMClass(*this);
-#endif
 #endif
 	memcpy(SHIFTED_PTR(clone,sizeof(VMObject)),
 			SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() -

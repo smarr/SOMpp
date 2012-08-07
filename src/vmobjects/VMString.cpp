@@ -47,11 +47,7 @@ VMString::VMString(const char* str) {
 	
 }
 
-#ifdef USE_TAGGING
-VMString* VMString::Clone() const {
-#else
 pVMString VMString::Clone() const {
-#endif
 
 #if GC_TYPE==GENERATIONAL
 	return new (_HEAP, strlen(chars)+1, true) VMString(chars);

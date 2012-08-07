@@ -69,13 +69,8 @@ public:
     long        ArgumentStackIndex(long index) const;
     void       CopyArgumentsFrom(pVMFrame frame);
 	  inline virtual pVMObject GetField(long index) const;
-#ifdef USE_TAGGING
-    virtual VMFrame*   Clone() const;
-		virtual void WalkObjects(AbstractVMObject* (AbstractVMObject*));
-#else
-		virtual void WalkObjects(pVMObject (pVMObject));
+		virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
     virtual pVMFrame   Clone() const;
-#endif
     
     void       PrintStack() const;
     inline void* GetStackPointer() const;

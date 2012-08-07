@@ -188,11 +188,7 @@ void      VMFrame::Push(pVMObject obj) {
 
 
 void VMFrame::PrintStack() const {
-#ifdef USE_TAGGING
-    cout << "SP: " << (size_t)this->GetStackPointer() << endl;
-#else
     cout << "SP: " << this->GetStackPointer() << endl;
-#endif
   //all other fields are indexable via arguments array
   // --> until end of Frame
   pVMObject* end = (pVMObject*) SHIFTED_PTR(this, objectSize);

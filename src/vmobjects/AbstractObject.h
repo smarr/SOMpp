@@ -35,11 +35,7 @@ class AbstractVMObject : public VMObjectBase {
 public:
 	virtual size_t GetHash();
 	virtual pVMClass GetClass() const = 0;
-#ifdef USE_TAGGING
 	virtual AbstractVMObject* Clone() const = 0;
-#else
-	virtual pVMObject Clone() const = 0;
-#endif
 	virtual void Send(StdString, pVMObject*, long);
 	virtual size_t GetObjectSize() const = 0;
 	AbstractVMObject() {

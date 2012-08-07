@@ -58,7 +58,7 @@ THE SOFTWARE.
 #ifdef USE_TAGGING
 #define CLASS_OF(X) (IS_TAGGED(X)?integerClass:GET_POINTER(X)->GetClass())
 #else
-#define CLASS_OF(X) (x->GetClass())
+#define CLASS_OF(X) (X->GetClass())
 #endif
 
 /** 

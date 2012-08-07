@@ -29,24 +29,15 @@
  */
 
 #include "VMPrimitive.h"
-#ifdef USE_TAGGING
-class VMIntPointer;
-#else
 class VMInteger;
-#endif
 class VMObject;
 class VMFrame;
 
 class VMEvaluationPrimitive: public VMPrimitive {
 public:
 	VMEvaluationPrimitive(long argc);
-#ifdef USE_TAGGING
-	virtual void WalkObjects(AbstractVMObject* (AbstractVMObject*));
-	virtual VMEvaluationPrimitive* Clone() const;
-#else
-	virtual void WalkObjects(pVMObject (pVMObject));
+	virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
 	virtual pVMEvaluationPrimitive Clone() const;
-#endif
 private:
 	static pVMSymbol computeSignatureString(long argc);
 	void evaluationRoutine(pVMObject object, pVMFrame frame);

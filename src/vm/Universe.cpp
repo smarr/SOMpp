@@ -768,11 +768,7 @@ pVMClass Universe::NewMetaclassClass() const {
     return result;
 }
 
-#ifdef USE_TAGGING
-void Universe::WalkGlobals(AbstractVMObject* (*walk)(AbstractVMObject*)) {
-#else
-void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
-#endif
+void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
 	nilObject = (VMObject*)walk(nilObject);
 	trueObject = (VMObject*)walk(trueObject);
 	falseObject = (VMObject*)walk(falseObject);

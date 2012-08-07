@@ -35,11 +35,7 @@ VMInteger::VMInteger(long val) {
 	embeddedInteger = val;
 }
 
-#ifdef USE_TAGGING
-VMInteger* VMInteger::Clone() const {
-#else
 pVMInteger VMInteger::Clone() const {
-#endif
 #if GC_TYPE==GENERATIONAL
 	return new (_HEAP, 0, true) VMInteger(*this);
 #else

@@ -29,7 +29,9 @@ THE SOFTWARE.
 #include <vmobjects/VMFrame.h>
 
 #include <vm/Universe.h>
+#ifdef USE_TAGGING
 #include "../vmobjects/IntegerBox.h"
+#endif
  
 #include "../primitivesCore/Routine.h"
 #include "Object.h"

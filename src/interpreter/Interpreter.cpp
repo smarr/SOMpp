@@ -345,15 +345,15 @@ void Interpreter::doPushField( long bytecodeIndex ) {
 #ifdef USE_TAGGING
     if (IS_TAGGED(self)) {
       long fieldIndex = GlobalBox::IntegerBox()->GetFieldIndex(fieldName);
-      pVMObject o = GlobalBox::IntegerBox()->GetField(fieldIndex);
+      o = GlobalBox::IntegerBox()->GetField(fieldIndex);
     }
     else {
       long fieldIndex = GET_POINTER(self)->GetFieldIndex(fieldName);
-      pVMObject o = GET_POINTER(self)->GetField(fieldIndex);
+      o = GET_POINTER(self)->GetField(fieldIndex);
     }
 #else
     long fieldIndex = self->GetFieldIndex(fieldName);
-    pVMObject o = self->GetField(fieldIndex);
+    o = self->GetField(fieldIndex);
 #endif
 
     _FRAME->Push(o);

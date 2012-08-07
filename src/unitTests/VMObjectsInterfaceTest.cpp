@@ -171,20 +171,12 @@ void testGetSetFieldHelper(pVMObject obj, StdString name) {
 		obj->SetField(i, otherObject);
 		CPPUNIT_ASSERT_EQUAL_MESSAGE(
 				"getField doesn't return what was set before", otherObject,
-#ifdef USE_TAGGING
-				obj->GetField(i).GetPointer());
-#else
 				obj->GetField(i));
-#endif
 		//now reset the field and check again
 		obj->SetField(i, oldVal);
 		CPPUNIT_ASSERT_EQUAL_MESSAGE(
 				"getField doesn't return what was set before", oldVal,
-#ifdef USE_TAGGING
-				obj->GetField(i).GetPointer());
-#else
 				obj->GetField(i));
-#endif
 	}
 }
 

@@ -83,20 +83,11 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof)
 
 
 
-#ifdef USE_TAGGING
-VMMethod* VMMethod::Clone() const {
-#if GC_TYPE==GENERATIONAL
-	VMMethod* clone = new (_HEAP, GetObjectSize() - sizeof(VMMethod), true)
-#else
-	VMMethod* clone = new (_HEAP, GetObjectSize() - sizeof(VMMethod))
-#endif
-#else
 pVMMethod VMMethod::Clone() const {
 #if GC_TYPE==GENERATIONAL
 	pVMMethod clone = new (_HEAP, GetObjectSize() - sizeof(VMMethod), true)
 #else
 	pVMMethod clone = new (_HEAP, objectSize - sizeof(VMMethod))
-#endif
 #endif
 		VMMethod(*this);
 	memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,
@@ -200,7 +191,7 @@ void VMMethod::SetNumberOfArguments(long noa) {
 
 long VMMethod::GetNumberOfBytecodes() const {
 #ifdef USE_TAGGING
-    return (long)bcLength;
+    return UNTAG_INTEGER(bcLength);
 #else
     return bcLength->GetEmbeddedInteger();
 #endif

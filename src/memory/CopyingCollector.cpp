@@ -14,7 +14,7 @@
 VMOBJECT_PTR copy_if_necessary(VMOBJECT_PTR obj) {
 #ifdef USE_TAGGING
 	//don't process tagged objects
-	if ((size_t)((void*)obj) & 0x1)
+	if (IS_TAGGED(obj))
 		return obj;
 #endif
 	long gcField = obj->GetGCField();
@@ -59,11 +59,7 @@ void CopyingCollector::Collect() {
 	_UNIVERSE->WalkGlobals(copy_if_necessary);
 	pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
 	if (currentFrame != NULL) {
-#ifdef USE_TAGGING
-		pVMFrame newFrame = static_cast<VMFrame*>(copy_if_necessary(currentFrame));
-#else
 		pVMFrame newFrame = static_cast<pVMFrame>(copy_if_necessary(currentFrame));
-#endif
 		_UNIVERSE->GetInterpreter()->SetFrame(newFrame);
 	}
 

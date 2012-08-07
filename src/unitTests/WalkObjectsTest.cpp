@@ -36,30 +36,18 @@ static const size_t NoOfFields_Block = 2 + NoOfFields_Object;
 static const size_t NoOfFields_Primitive = NoOfFields_Invokable;
 static const size_t NoOfFields_EvaluationPrimitive = 1 + NoOfFields_Primitive;
 
-#ifdef USE_TAGGING
-static vector<AbstractVMObject*> walkedObjects;
-#else
-static vector<pVMObject> walkedObjects;
-#endif
+static vector<VMOBJECT_PTR> walkedObjects;
 /*
  * This method simply pushes all objects into the vector walkedObjects
  */
-#ifdef USE_TAGGING
-AbstractVMObject* collectMembers(AbstractVMObject* obj) {
-#else
-pVMObject collectMembers(pVMObject obj) {
-#endif
+pVMObject collectMembers(VMOBJECT_PTR obj) {
 	walkedObjects.push_back(obj);
 	return obj;
 }
 /*
  * Helper function that searches the result vector for a field
  */
-#ifdef USE_TAGGING
-bool WalkerHasFound(AbstractVMObject* obj) {
-#else
-bool WalkerHasFound(pVMObject obj) {
-#endif
+bool WalkerHasFound(VMOBJECT_PTR obj) {
 	return find(walkedObjects.begin(), walkedObjects.end(), obj)
 			!= walkedObjects.end();
 }

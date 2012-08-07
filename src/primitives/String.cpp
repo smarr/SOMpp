@@ -111,7 +111,7 @@ void  _String::Equal(pVMObject /*object*/, pVMFrame frame) {
     }
     pVMClass otherClass = GET_POINTER(op1)->GetClass();
 #else
-    pVMClass otherClass = op1->GetClass;
+    pVMClass otherClass = op1->GetClass();
 #endif
     if(otherClass == stringClass) {
         
@@ -135,8 +135,8 @@ void  _String::PrimSubstringFrom_To_(pVMObject /*object*/, pVMFrame frame) {
     
     StdString str = self->GetStdString();
 #ifdef USE_TAGGING
-    int s = (long)start;
-    int e = (long)end;
+    int s = UNTAG_INTEGER(start);
+    int e = UNTAG_INTEGER(end);
 #else
     int s = start->GetEmbeddedInteger();
     int e = end->GetEmbeddedInteger();

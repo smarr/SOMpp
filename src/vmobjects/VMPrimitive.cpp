@@ -37,11 +37,7 @@ THE SOFTWARE.
 
 pVMPrimitive VMPrimitive::GetEmptyPrimitive( pVMSymbol sig ) {
     pVMPrimitive prim = new (_HEAP) VMPrimitive(sig);
-#ifdef USE_TAGGING
-    prim->empty = (bool*)1;
-#else
     prim->empty = true;
-#endif
     prim->SetRoutine(new Routine<VMPrimitive>(prim, &VMPrimitive::EmptyRoutine));
     return prim;
 }
@@ -54,18 +50,10 @@ VMPrimitive::VMPrimitive(pVMSymbol signature) : VMInvokable(VMPrimitiveNumberOfF
     
     this->SetSignature(signature);
     this->routine = NULL;
-#ifdef USE_TAGGING
-    this->empty = (bool*)0;
-#else
     this->empty = false;
-#endif
 }
 
-#ifdef USE_TAGGING
-VMPrimitive* VMPrimitive::Clone() const {
-#else
 pVMPrimitive VMPrimitive::Clone() const {
-#endif
 #if GC_TYPE==GENERATIONAL
 	return new (_HEAP, 0, true) VMPrimitive(*this);
 #else
@@ -74,17 +62,10 @@ pVMPrimitive VMPrimitive::Clone() const {
 }
 
 
-#ifdef USE_TAGGING
-void VMPrimitive::WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*)) {
-	clazz = static_cast<VMClass*>(walk(clazz));
-	signature = static_cast<VMSymbol*>(walk(signature));
-	holder = static_cast<VMClass*>(walk(holder));
-#else
-void VMPrimitive::WalkObjects(pVMObject (*walk)(pVMObject)) {
+void VMPrimitive::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
 	clazz = static_cast<pVMClass>(walk(clazz));
 	signature = static_cast<pVMSymbol>(walk(signature));
 	holder = static_cast<pVMClass>(walk(holder));
-#endif
 #if GC_TYPE==GENERATIONAL
 	_HEAP->writeBarrier(this, clazz);
 	_HEAP->writeBarrier(this, signature);

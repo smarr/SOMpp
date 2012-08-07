@@ -36,11 +36,7 @@ VMDouble::VMDouble(double val) {
     this->embeddedDouble = val;
 }
 
-#ifdef USE_TAGGING
-VMDouble* VMDouble::Clone() const {
-#else
 pVMDouble VMDouble::Clone() const {
-#endif
 #if GC_TYPE==GENERATIONAL
 	return new (_HEAP, 0, true) VMDouble(*this);
 #else
