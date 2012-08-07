@@ -5,9 +5,6 @@
 
 #include "Heap.h"
 #include "../vm/Universe.h"
-#ifdef USE_TAGGING
-#include "../vmobjects/VMIntPointer.h"
-#endif
 #include "../vmobjects/VMMethod.h"
 #include "../vmobjects/VMObject.h"
 #include "../vmobjects/VMSymbol.h"

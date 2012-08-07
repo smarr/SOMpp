@@ -33,9 +33,6 @@ THE SOFTWARE.
 #include "VMObject.h"
 #include "VMInteger.h"
 #include "Signature.h"
-#ifdef USE_TAGGING
-#include "VMPointerConverter.h"
-#endif
 
 #include "../vm/Universe.h"
 

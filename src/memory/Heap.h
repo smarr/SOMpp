@@ -35,9 +35,6 @@ THE SOFTWARE.
 #include "GarbageCollector.h"
 #include "../misc/defs.h"
 #include "../vmobjects/ObjectFormats.h"
-#ifdef USE_TAGGING
-#include "../vmobjects/VMPointer.h"
-#endif
 
 class AbstractVMObject;
 using namespace std;

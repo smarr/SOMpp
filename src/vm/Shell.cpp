@@ -35,9 +35,6 @@ THE SOFTWARE.
 #include "../vmobjects/VMFrame.h"
 #include "../vmobjects/VMObject.h"
 #include "../vmobjects/VMInvokable.h"
-#ifdef USE_TAGGING
-#include "../vmobjects/VMPointerConverter.h"
-#endif
 
 // maximal length of an input line from the shell
 #define INPUT_MAX_SIZE BUFSIZ
@@ -129,11 +126,7 @@ void Shell::Start() {
         
         // Lookup the run: method
         pVMInvokable initialize =
-#ifdef USE_TAGGING 
-            DynamicConvert<VMInvokable, AbstractVMObject>(runClass->LookupInvokable(
-#else
             dynamic_cast<pVMInvokable>(runClass->LookupInvokable(
-#endif
                                     _UNIVERSE->SymbolFor("run:")));
         
         // Invoke the run method

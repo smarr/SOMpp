@@ -31,9 +31,6 @@ THE SOFTWARE.
 
 
 #include "VMArray.h"
-#ifdef USE_TAGGING
-#include "VMIntPointer.h"
-#endif
 class VMMethod;
 class VMObject;
 class VMInteger;

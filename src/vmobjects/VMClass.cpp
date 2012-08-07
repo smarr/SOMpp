@@ -30,10 +30,6 @@ THE SOFTWARE.
 #include "VMInvokable.h"
 #include "VMPrimitive.h"
 #include "PrimitiveRoutine.h"
-#ifdef USE_TAGGING
-#include "VMPointerConverter.h"
-#endif
-
 #include <fstream>
 #include <typeinfo>
 

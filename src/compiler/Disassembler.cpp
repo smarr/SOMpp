@@ -50,10 +50,6 @@ THE SOFTWARE.
 #include "../vmobjects/VMString.h"
 #include "../vmobjects/VMSymbol.h"
 #include "../vmobjects/Signature.h"
-#ifdef USE_TAGGING
-#include "../vmobjects/VMPointerConverter.h"
-#endif
-
 #include "../misc/debug.h"
 #include "../misc/defs.h"
 
@@ -332,9 +328,9 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
             pVMObject o = frame->GetArgument(bc1, bc2);
             DebugPrint("argument: %d, context: %d", bc1, bc2);
 #ifdef USE_TAGGING
-            if(DynamicConvert<VMClass, VMObject>(cl) != NULL) {
+            if(dynamic_cast<pVMClass>(GET_POINTER(cl)) != NULL) {
 #else
-            if(dynamic_cast(VMClass,cl) != NULL) {
+            if(dynamic_cast<pVMClass>(cl) != NULL) {
 #endif
                 pVMClass c = CLASS_OF(o);
                 pVMSymbol cname = c->GetName();

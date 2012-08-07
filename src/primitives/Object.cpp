@@ -29,6 +29,7 @@ THE SOFTWARE.
 #include <vmobjects/VMFrame.h>
 
 #include <vm/Universe.h>
+#include "../vmobjects/IntegerBox.h"
  
 #include "../primitivesCore/Routine.h"
 #include "Object.h"

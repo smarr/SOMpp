@@ -38,10 +38,6 @@ THE SOFTWARE.
 #include <vmobjects/VMInteger.h>
 #include <vmobjects/VMString.h>
 #include <vmobjects/VMBigInteger.h>
-#ifdef USE_TAGGING
-#include <vmobjects/VMPointerConverter.h>
-#endif
-
 #include <vm/Universe.h>
  
 #include "Integer.h"

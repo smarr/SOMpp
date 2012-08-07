@@ -31,18 +31,11 @@
 //#define __DEBUG
 #include <map>
 #include <vector>
-
 #include "../misc/defs.h"
 #include "../misc/Timer.h"
 #include "../misc/ExtendedList.h"
-
 #include "../vmobjects/ObjectFormats.h"
-#ifdef USE_TAGGING
-#include "../vmobjects/VMPointer.h"
-#endif
-
 #include "../interpreter/Interpreter.h"
-
 #include "../memory/Heap.h"
 
 class AbstractVMObject;

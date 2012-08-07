@@ -46,14 +46,12 @@ THE SOFTWARE.
 #include "../vmobjects/VMString.h"
 #include "../vmobjects/VMBigInteger.h"
 #include "../vmobjects/VMEvaluationPrimitive.h"
-#ifdef USE_TAGGING
-#include "../vmobjects/VMPointerConverter.h"
-#endif
-
 #include "../interpreter/bytecodes.h"
-
 #include "../compiler/Disassembler.h"
 #include "../compiler/SourcecodeCompiler.h"
+#ifdef USE_TAGGING
+#include "../vmobjects/IntegerBox.h"
+#endif
 
 #ifdef CACHE_INTEGER
 #ifndef INT_CACHE_MIN_VALUE
@@ -200,9 +198,9 @@ vector<StdString> Universe::handleArguments( long argc, char** argv ) {
             ++gcVerbosity;
         } else if (strncmp(argv[i], "-H",2) == 0) {
             long heap_size = 0;
-			if (sscanf(argv[i],"-H%dMB", &heap_size) == 1)
+			if (sscanf(argv[i],"-H%ldMB", &heap_size) == 1)
 				heapSize = heap_size * 1024 * 1024;
-			else if (sscanf(argv[i],"-H%dKB", &heap_size) == 1)
+			else if (sscanf(argv[i],"-H%ldKB", &heap_size) == 1)
 				heapSize = heap_size * 1024;
 			else
 				printUsageAndExit(argv[0]);
@@ -369,12 +367,7 @@ void Universe::initialize(long _argc, char** _argv) {
     bootstrapFrame->Push(argumentsArray);
 
     pVMInvokable initialize = 
-#ifdef USE_TAGGING
-        DynamicConvert<VMInvokable, VMObject>(
-            systemClass->LookupInvokable(this->SymbolForChars("initialize:")));
-#else
         static_cast<pVMInvokable>(systemClass->LookupInvokable(this->SymbolForChars("initialize:")));
-#endif
     (*initialize)(bootstrapFrame);
     
     // reset "-d" indicator
@@ -831,21 +824,13 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 	for (symbolIter = symbolsMap.begin(); symbolIter !=
 			symbolsMap.end(); symbolIter++) {
 		//insert overwrites old entries inside the internal map
-#ifdef USE_TAGGING
-		symbolIter->second = DynamicConvert<VMSymbol,AbstractVMObject>(walk(symbolIter->second));
-#else
 		symbolIter->second = static_cast<pVMSymbol>(walk(symbolIter->second));
-#endif
 	}
 
 	map<long, pVMClass>::iterator bcIter;
 	for (bcIter = blockClassesByNoOfArgs.begin(); bcIter !=
 			blockClassesByNoOfArgs.end(); bcIter++) {
-#ifdef USE_TAGGING
-		bcIter->second = DynamicConvert<VMClass, AbstractVMObject>(walk(bcIter->second));
-#else
 		bcIter->second = static_cast<pVMClass>(walk(bcIter->second));
-#endif
 	}
 
   //reassign ifTrue ifFalse Symbols

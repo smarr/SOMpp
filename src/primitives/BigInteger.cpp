@@ -39,10 +39,6 @@ THE SOFTWARE.
 #include "../vmobjects/VMBigInteger.h"
 #include "../vmobjects/VMSymbol.h"
 #include "../vmobjects/VMDouble.h"
-#ifdef USE_TAGGING
-#include "../vmobjects/VMPointerConverter.h"
-#endif
-
 #include "../vm/Universe.h"
 
 

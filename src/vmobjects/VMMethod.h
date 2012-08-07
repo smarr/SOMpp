@@ -32,9 +32,6 @@ THE SOFTWARE.
 
 #include "VMInvokable.h"
 #include "VMInteger.h"
-#ifdef USE_TAGGING
-#include "VMIntPointer.h"
-#endif
 
 class VMArray;
 class VMObject;
