@@ -69,11 +69,7 @@ void GenerationalCollector::MinorCollection() {
   //and the current frame
   pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
   if (currentFrame != NULL) {
-#ifdef USE_TAGGING
-    pVMFrame newFrame =	static_cast<VMFrame*>(copy_if_necessary(currentFrame.GetPointer()));
-#else
     pVMFrame newFrame = static_cast<pVMFrame>(copy_if_necessary(currentFrame));
-#endif
     _UNIVERSE->GetInterpreter()->SetFrame(newFrame);
   }
 
@@ -98,17 +94,13 @@ void GenerationalCollector::MajorCollection() {
     //and the current frame
     pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
     if (currentFrame != NULL) {
-#ifdef USE_TAGGING
-        VMFrame* newFrame = static_cast<VMFrame*>(mark_object(currentFrame));
-#else
         pVMFrame newFrame = static_cast<pVMFrame>(mark_object(currentFrame));
-#endif
         _UNIVERSE->GetInterpreter()->SetFrame(newFrame);
     }
 
     //now that all objects are marked we can safely delete all allocated objects that are not marked
-    vector<pVMObject>* survivors = new vector<pVMObject>();
-	for (vector<pVMObject>::iterator objIter =
+    vector<VMOBJECT_PTR>* survivors = new vector<VMOBJECT_PTR>();
+	for (vector<VMOBJECT_PTR>::iterator objIter =
 			_HEAP->allocatedObjects->begin(); objIter !=
 			_HEAP->allocatedObjects->end(); objIter++) {
 		if ((*objIter)->GetGCField() & MASK_OBJECT_IS_MARKED) {

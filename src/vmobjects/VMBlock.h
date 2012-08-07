@@ -44,11 +44,7 @@ public:
     pVMMethod   GetMethod() const;
     inline void        SetContext(pVMFrame);
     inline pVMFrame    GetContext() const;
-#ifdef USE_TAGGING
-    virtual VMBlock* Clone() const;
-#else
     virtual pVMBlock Clone() const;
-#endif
 
     static pVMEvaluationPrimitive GetEvaluationPrimitive(int);
 private:
@@ -64,7 +60,7 @@ private:
 void VMBlock::SetContext(pVMFrame contxt) {
     context = contxt;
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, (pVMObject)contxt);
+    _HEAP->writeBarrier(this, (AbstractVMObject*)contxt);
 #endif
 }
 

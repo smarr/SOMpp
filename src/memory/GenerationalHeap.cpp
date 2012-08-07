@@ -24,7 +24,7 @@ GenerationalHeap::GenerationalHeap(long objectSpaceSize) {
 	collectionLimit = (void*)((size_t)nursery + ((size_t)(objectSpaceSize *
 					0.9)));
 	nextFreePosition = nursery;
-	allocatedObjects = new vector<pVMObject>();
+	allocatedObjects = new vector<VMOBJECT_PTR>();
 	oldObjsWithRefToYoungObjs = new vector<size_t>();
 }
 

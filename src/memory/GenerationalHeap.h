@@ -59,7 +59,7 @@ class GenerationalHeap : public Heap {
 #endif
   void* collectionLimit;
 	vector<size_t>* oldObjsWithRefToYoungObjs;
-  vector<pVMObject>* allocatedObjects;
+  vector<VMOBJECT_PTR>* allocatedObjects;
 };
 
 #ifdef USE_TAGGING

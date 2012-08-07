@@ -50,11 +50,8 @@ THE SOFTWARE.
 #ifdef USE_TAGGING
 #define CHECK_BIGINT(object, result) { \
     /* Check second parameter type: */\
-    pVMInteger ptr = ConvertToInteger<VMObject>(object);\
-    if(!ptr.IsNull()) {\
-        /* Second operand was Integer*/\
-        int32_t i = (int32_t)ptr; \
-        result = _UNIVERSE->NewBigInteger((int64_t)i);\
+  if (IS_TAGGED(object)) {\
+    result = _UNIVERSE->NewBigInteger((int64_t)UNTAG_INTEGER(object));\
     } else\
         result = static_cast<pVMBigInteger>(object);\
 }
@@ -78,7 +75,7 @@ pVMInteger ptr;\
     if(result > INT32_MAX ||result < INT32_MIN) \
         frame->Push(_UNIVERSE->NewBigInteger((result))); \
     else \
-        frame->Push(pVMInteger(result)); \
+        frame->Push(TAG_INTEGER(result)); \
 }
 #else
 #define PUSH_INT_OR_BIGINT(result) { \

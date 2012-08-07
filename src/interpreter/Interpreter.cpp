@@ -39,7 +39,7 @@ THE SOFTWARE.
 #include "../vmobjects/Signature.h"
 #include "../vmobjects/VMBlock.h"
 #ifdef USE_TAGGING
-#include "../vmobjects/VMPointerConverter.h"
+#include "../vmobjects/IntegerBox.h"
 #endif
 
 #include "../compiler/Disassembler.h"
@@ -261,11 +261,7 @@ void Interpreter::popFrameAndPushResult( pVMObject result ) {
 
 void Interpreter::send( pVMSymbol signature, pVMClass receiverClass) {
   pVMInvokable invokable =
-#ifdef USE_TAGGING
-      DynamicConvert<VMInvokable, AbstractVMObject>( receiverClass->LookupInvokable(signature) );
-#else
   dynamic_cast<pVMInvokable>( receiverClass->LookupInvokable(signature) );
-#endif
 
   if (invokable != NULL) {
 #ifdef LOG_RECEIVER_TYPES
@@ -303,7 +299,14 @@ void Interpreter::send( pVMSymbol signature, pVMClass receiverClass) {
       this->SetFrame(VMFrame::EmergencyFrameFrom(_FRAME, additionalStackSlots));
     }
 
+#ifdef USE_TAGGING
+    if (IS_TAGGED(receiver))
+      GlobalBox::IntegerBox()->Send(dnu, arguments, 2);
+    else
+      GET_POINTER(receiver)->Send(dnu, arguments, 2);
+#else
     receiver->Send(dnu, arguments, 2);
+#endif
   }
 }
 
@@ -338,9 +341,20 @@ void Interpreter::doPushField( long bytecodeIndex ) {
     pVMSymbol fieldName = static_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));
 
     pVMObject self = _SELF;
+    pVMObject o = NULL;
+#ifdef USE_TAGGING
+    if (IS_TAGGED(self)) {
+      long fieldIndex = GlobalBox::IntegerBox()->GetFieldIndex(fieldName);
+      pVMObject o = GlobalBox::IntegerBox()->GetField(fieldIndex);
+    }
+    else {
+      long fieldIndex = GET_POINTER(self)->GetFieldIndex(fieldName);
+      pVMObject o = GET_POINTER(self)->GetField(fieldIndex);
+    }
+#else
     long fieldIndex = self->GetFieldIndex(fieldName);
-
     pVMObject o = self->GetField(fieldIndex);
+#endif
 
     _FRAME->Push(o);
 }
@@ -394,7 +408,14 @@ void Interpreter::doPushGlobal( long bcIdx) {
                                                  additionalStackSlots));
     }
 
+#ifdef USE_TAGGING
+    if (IS_TAGGED(self))
+      GlobalBox::IntegerBox()->Send(uG, arguments, 1);
+    else
+      GET_POINTER(self)->Send(uG, arguments, 1);
+#else
     self->Send(uG, arguments, 1);
+#endif
   }
 }
 
@@ -427,10 +448,20 @@ void Interpreter::doPopField( long bytecodeIndex ) {
     pVMSymbol field_name = static_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));
 
     pVMObject self = _SELF;
-    long field_index = self->GetFieldIndex(field_name);
-
     pVMObject o = _FRAME->Pop();
+#ifdef USE_TAGGING
+    if (IS_TAGGED(self)) {
+      long field_index = GlobalBox::IntegerBox()->GetFieldIndex(field_name);
+      GlobalBox::IntegerBox()->SetField(field_index, o);
+    }
+    else {
+      long field_index = GET_POINTER(self)->GetFieldIndex(field_name);
+      GET_POINTER(self)->SetField(field_index, o);
+    }
+#else
+    long field_index = self->GetFieldIndex(field_name);
     self->SetField(field_index, o);
+#endif
 }
 
 
@@ -440,12 +471,17 @@ void Interpreter::doSend( long bytecodeIndex ) {
     long numOfArgs = Signature::GetNumberOfArguments(signature);
 
     pVMObject receiver = _FRAME->GetStackElement(numOfArgs-1);
-
-#ifdef LOG_RECEIVER_TYPES
-    _UNIVERSE->receiverTypes[receiver->GetClass()->GetName()->GetStdString()]++;
+#ifdef USE_TAGGING
+    pVMClass receiverClass = IS_TAGGED(receiver) ? integerClass : GET_POINTER(receiver)->GetClass();
+#else
+    pVMClass receiverClass = receiver->GetClass();
 #endif
 
-    this->send(signature, receiver->GetClass());
+#ifdef LOG_RECEIVER_TYPES
+    _UNIVERSE->receiverTypes[receiverClass->GetName()->GetStdString()]++;
+#endif
+
+    this->send(signature, receiverClass);
 }
 
 
@@ -456,12 +492,7 @@ void Interpreter::doSuperSend( long bytecodeIndex ) {
     pVMMethod realMethod = ctxt->GetMethod();
     pVMClass holder = realMethod->GetHolder();
     pVMClass super = holder->GetSuperClass();
-#ifdef USE_TAGGING
-    pVMInvokable invokable = DynamicConvert<VMInvokable, VMObject>(
-                                    super->LookupInvokable(signature) );
-#else
-    pVMInvokable invokable = static_cast<pVMInvokable>( super->LookupInvokable(signature) );
-#endif
+    pVMInvokable invokable = static_cast<pVMInvokable>(super->LookupInvokable(signature));
 
     if (invokable != NULL)
         (*invokable)(_FRAME);
@@ -475,7 +506,14 @@ void Interpreter::doSuperSend( long bytecodeIndex ) {
             argumentsArray->SetIndexableField(i, o);
         }
         pVMObject arguments[] = { signature, argumentsArray };
+#ifdef USE_TAGGING
+        if (IS_TAGGED(receiver))
+          GlobalBox::IntegerBox()->Send(dnu, arguments, 2);
+        else
+          GET_POINTER(receiver)->Send(dnu, arguments, 2);
+#else
         receiver->Send(dnu, arguments, 2);
+#endif
     }
 }
 
@@ -501,7 +539,14 @@ void Interpreter::doReturnNonLocal() {
 
         this->popFrame();
 
+#ifdef USE_TAGGING
+        if (IS_TAGGED(sender))
+          GlobalBox::IntegerBox()->Send(eB, arguments, 1);
+        else
+          GET_POINTER(sender)->Send(eB, arguments, 1);
+#else
         sender->Send(eB, arguments, 1);
+#endif
         return;
     }
 

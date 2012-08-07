@@ -57,11 +57,11 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof)
     cachedFrame = NULL;
 #endif
 #ifdef USE_TAGGING
-    bcLength = bcCount ;
-    numberOfLocals = 0;
-    maximumNumberOfStackElements = 0;
-    numberOfArguments = 0;
-    this->numberOfConstants = numberOfConstants;
+    bcLength = TAG_INTEGER(bcCount);
+    numberOfLocals = TAG_INTEGER(0);
+    maximumNumberOfStackElements = TAG_INTEGER(0);
+    numberOfArguments = TAG_INTEGER(0);
+    this->numberOfConstants = TAG_INTEGER(numberOfConstants);
 #else
     bcLength = _UNIVERSE->NewInteger( bcCount );
     numberOfLocals = _UNIVERSE->NewInteger(0);
@@ -116,11 +116,7 @@ void VMMethod::SetSignature(pVMSymbol sig) {
 }
 
 
-#ifdef USE_TAGGING
-void VMMethod::WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*)) {
-#else
-void VMMethod::WalkObjects(pVMObject (*walk)(pVMObject)) {
-#endif
+void VMMethod::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
   VMInvokable::WalkObjects(walk);
 
   numberOfLocals = static_cast<VMInteger*>(walk(numberOfLocals));
@@ -135,7 +131,7 @@ void VMMethod::WalkObjects(pVMObject (*walk)(pVMObject)) {
     
 	for (long i = 0 ; i < GetNumberOfIndexableFields() ; ++i) {
 		if (GetIndexableField(i) != NULL)
-			SetIndexableField(i, walk(GetIndexableField(i)));
+			SetIndexableField(i, walk((VMOBJECT_PTR)GetIndexableField(i)));
 	}
 }
 
@@ -151,11 +147,7 @@ void VMMethod::SetCachedFrame(pVMFrame frame) {
     frame->SetBytecodeIndex(0);
     frame->ResetStackPointer();
 #if GC_TYPE == GENERATIONAL
-#ifdef USE_TAGGING
-    _HEAP->writeBarrier(this, cachedFrame.GetPointer());
-#else
     _HEAP->writeBarrier(this, cachedFrame);
-#endif
 #endif
   }
 }
@@ -167,19 +159,19 @@ void VMMethod::SetCachedFrame(pVMFrame frame) {
 
 void VMMethod::SetNumberOfLocals(long nol) {
 #ifdef USE_TAGGING
-    numberOfLocals = nol;
+    numberOfLocals = TAG_INTEGER(nol);
 #else
     numberOfLocals = _UNIVERSE->NewInteger(nol);
+#endif
 #if GC_TYPE==GENERATIONAL
     _HEAP->writeBarrier(this, numberOfLocals);
-#endif
 #endif
 }
 
 
 long VMMethod::GetMaximumNumberOfStackElements() const {
 #ifdef USE_TAGGING
-    return (long)maximumNumberOfStackElements;
+    return UNTAG_INTEGER(maximumNumberOfStackElements);
 #else
     return maximumNumberOfStackElements->GetEmbeddedInteger(); 
 #endif
@@ -188,23 +180,23 @@ long VMMethod::GetMaximumNumberOfStackElements() const {
 
 void VMMethod::SetMaximumNumberOfStackElements(long stel) {
 #ifdef USE_TAGGING
-    maximumNumberOfStackElements = stel;
+    maximumNumberOfStackElements = TAG_INTEGER(stel);
 #else
     maximumNumberOfStackElements = _UNIVERSE->NewInteger(stel);
+#endif
 #if GC_TYPE==GENERATIONAL
     _HEAP->writeBarrier(this, maximumNumberOfStackElements);
-#endif
 #endif
 }
 
 void VMMethod::SetNumberOfArguments(long noa) {
 #ifdef USE_TAGGING
-    numberOfArguments = noa;
+    numberOfArguments = TAG_INTEGER(noa);
 #else
     numberOfArguments = _UNIVERSE->NewInteger(noa);
+#endif
 #if GC_TYPE==GENERATIONAL
     _HEAP->writeBarrier(this, numberOfArguments);
-#endif
 #endif
 }
 
@@ -227,13 +219,11 @@ void VMMethod::operator()(pVMFrame frame) {
 void VMMethod::SetHolderAll(pVMClass hld) {
     for (long i = 0; i < this->GetNumberOfIndexableFields(); ++i) {
         pVMObject o = GetIndexableField(i);
-#ifdef USE_TAGGING
-        pVMInvokable vmi = DynamicConvert<VMInvokable, VMObject>(o);
-#else
-        pVMInvokable vmi = dynamic_cast<pVMInvokable>(o);
-#endif
-        if ( vmi != NULL)  {
+        if (!IS_TAGGED(o)) {
+          pVMInvokable vmi = dynamic_cast<pVMInvokable>(GET_POINTER(o));
+          if ( vmi != NULL)  {
             vmi->SetHolder(hld);
+          }
         }
     }
 }

@@ -75,9 +75,9 @@ short gcVerbosity;
 
 Universe* Universe::theUniverse = NULL;
 
-pVMObject nilObject;
-pVMObject trueObject;
-pVMObject falseObject;
+VMObject* nilObject;
+VMObject* trueObject;
+VMObject* falseObject;
      
 pVMClass objectClass;
 pVMClass classClass;
@@ -450,8 +450,8 @@ void Universe::InitializeGlobals() {
 
     blockClass = LoadClass(_UNIVERSE->SymbolForChars("Block"));
 
-    trueObject = NewInstance(_UNIVERSE->LoadClass(_UNIVERSE->SymbolForChars("True")));
-    falseObject = NewInstance(_UNIVERSE->LoadClass(_UNIVERSE->SymbolForChars("False")));
+    trueObject = (VMObject*)NewInstance(_UNIVERSE->LoadClass(_UNIVERSE->SymbolForChars("True")));
+    falseObject = (VMObject*)NewInstance(_UNIVERSE->LoadClass(_UNIVERSE->SymbolForChars("False")));
 
     systemClass = LoadClass(_UNIVERSE->SymbolForChars("System"));
 }
@@ -540,11 +540,7 @@ void Universe::InitializeSystemClass( pVMClass systemClass,
 
 pVMClass Universe::LoadClass( pVMSymbol name) {
    if (HasGlobal(name))
-#ifdef USE_TAGGING
-       return DynamicConvert<VMClass, VMObject>(GetGlobal(name));
-#else
        return static_cast<pVMClass>(GetGlobal(name));
-#endif
 
    pVMClass result = LoadClassBasic(name, NULL);
 
@@ -739,7 +735,7 @@ pVMObject Universe::NewInstance( pVMClass  classOfInstance) const {
     long numOfFields = classOfInstance->GetNumberOfInstanceFields() - 1;
     //the additional space needed is calculated from the number of fields
     long additionalBytes = numOfFields * sizeof(pVMObject);
-    pVMObject result = new (_HEAP, additionalBytes) VMObject(numOfFields);
+    VMObject* result = new (_HEAP, additionalBytes) VMObject(numOfFields);
     result->SetClass(classOfInstance);
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION(classOfInstance->GetName()->GetStdString(), result->GetObjectSize());
@@ -747,11 +743,7 @@ pVMObject Universe::NewInstance( pVMClass  classOfInstance) const {
     return result;
 }
 
-#ifdef USE_TAGGING
-VMPointer<VMInteger> Universe::NewInteger( long value) const {
-#else
   pVMInteger Universe::NewInteger( long value) const {
-#endif
 
 #ifdef GENERATE_INTEGER_HISTOGRAM
     integerHist[value/INT_HIST_SIZE] = integerHist[value/INT_HIST_SIZE]+1;
@@ -788,30 +780,13 @@ void Universe::WalkGlobals(AbstractVMObject* (*walk)(AbstractVMObject*)) {
 #else
 void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 #endif
-	nilObject = walk(nilObject);
-	trueObject = walk(trueObject);
-	falseObject = walk(falseObject);
+	nilObject = (VMObject*)walk(nilObject);
+	trueObject = (VMObject*)walk(trueObject);
+	falseObject = (VMObject*)walk(falseObject);
 
 #ifdef USE_TAGGING
 	GlobalBox::updateIntegerBox(static_cast<VMInteger*>(walk(GlobalBox::IntegerBox())));
-
-	objectClass = DynamicConvert<VMClass, AbstractVMObject>(walk(objectClass));
-	classClass = DynamicConvert<VMClass,AbstractVMObject>(walk(classClass));
-	metaClassClass =  DynamicConvert<VMClass,AbstractVMObject>(walk(metaClassClass));
-
-	nilClass = DynamicConvert<VMClass,AbstractVMObject>(walk(nilClass));
-	integerClass = DynamicConvert<VMClass,AbstractVMObject>(walk(integerClass));
-	bigIntegerClass = DynamicConvert<VMClass,AbstractVMObject>(walk(bigIntegerClass));
-	arrayClass = DynamicConvert<VMClass,AbstractVMObject>(walk(arrayClass));
-	methodClass = DynamicConvert<VMClass,AbstractVMObject>(walk(methodClass));
-	symbolClass = DynamicConvert<VMClass,AbstractVMObject>(walk(symbolClass));
-	frameClass = DynamicConvert<VMClass,AbstractVMObject>(walk(frameClass));
-	primitiveClass = DynamicConvert<VMClass,AbstractVMObject>(walk(primitiveClass));
-	stringClass = DynamicConvert<VMClass,AbstractVMObject>(walk(stringClass));
-	systemClass = DynamicConvert<VMClass,AbstractVMObject>(walk(systemClass));
-	blockClass = DynamicConvert<VMClass,AbstractVMObject>(walk(blockClass));
-	doubleClass = DynamicConvert<VMClass,AbstractVMObject>(walk(doubleClass));
-#else
+#endif
 
 	objectClass = static_cast<pVMClass>(walk(objectClass));
 	classClass = static_cast<pVMClass>(walk(classClass));
@@ -829,12 +804,11 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 	systemClass = static_cast<pVMClass>(walk(systemClass));
 	blockClass = static_cast<pVMClass>(walk(blockClass));
 	doubleClass = static_cast<pVMClass>(walk(doubleClass));
-#endif
 
 #ifdef CACHE_INTEGER
   for (unsigned long i = 0; i < (INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE); i++)
 #ifdef USE_TAGGING
-    prebuildInts[i] = INT_CACHE_MIN_VALUE + i;
+    prebuildInts[i] = TAG_INTEGER(INT_CACHE_MIN_VALUE + i);
 #else
     prebuildInts[i] = static_cast<pVMInteger>(walk(prebuildInts[i]));
 #endif
@@ -848,13 +822,8 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 		if (iter->second == NULL)
 			continue;
 
-#ifdef USE_TAGGING
-		pVMSymbol key =
-			DynamicConvert<VMSymbol,AbstractVMObject>(walk(iter->first.GetPointer()));
-#else
 		pVMSymbol key = static_cast<pVMSymbol>(walk(iter->first));
-#endif
-		pVMObject val = walk(iter->second);
+		pVMObject val = walk((VMOBJECT_PTR)iter->second);
 		globals[key] = val;
 	}
 	//walk all entries in symbols map

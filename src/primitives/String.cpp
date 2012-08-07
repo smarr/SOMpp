@@ -81,7 +81,7 @@ void  _String::AsSymbol(pVMObject /*object*/, pVMFrame frame) {
 void  _String::Hashcode(pVMObject /*object*/, pVMFrame frame) {
     pVMString self = static_cast<pVMString>(frame->Pop());
 #ifdef USE_TAGGING
-    frame->Push(pVMInteger(self->GetHash()));
+    frame->Push(TAG_INTEGER(GET_POINTER(self)->GetHash()));
 #else
     frame->Push(_UNIVERSE->NewInteger(self->GetHash()));
 #endif
@@ -93,7 +93,7 @@ void  _String::Length(pVMObject /*object*/, pVMFrame frame) {
     
     size_t len = self->GetStringLength();
 #ifdef USE_TAGGING
-    frame->Push(pVMInteger((long)len));
+    frame->Push(TAG_INTEGER(len));
 #else
     frame->Push(_UNIVERSE->NewInteger((long)len));
 #endif
@@ -103,8 +103,17 @@ void  _String::Length(pVMObject /*object*/, pVMFrame frame) {
 void  _String::Equal(pVMObject /*object*/, pVMFrame frame) {
     pVMObject op1 = frame->Pop();
     pVMString op2 = static_cast<pVMString>(frame->Pop());
-    
-    if(op1->GetClass() == op2->GetClass()) {
+
+#ifdef USE_TAGGING
+    if (IS_TAGGED(op1)) {
+      frame->Push(falseObject);
+      return;
+    }
+    pVMClass otherClass = GET_POINTER(op1)->GetClass();
+#else
+    pVMClass otherClass = op1->GetClass;
+#endif
+    if(otherClass == stringClass) {
         
         StdString s1 = static_cast<pVMString>(op1)->GetStdString();
         StdString s2 = op2->GetStdString();

@@ -51,23 +51,16 @@ THE SOFTWARE.
  */
 double _Double::coerceDouble(pVMObject x) {
 #ifdef USE_TAGGING
-    pVMDouble dx;
-    pVMInteger ix;
-    pVMBigInteger bix;
-    if((dx = DynamicConvert<VMDouble, AbstractVMObject>(x)) != NULL)
-        return dx->GetEmbeddedDouble();
-    else if(!(ix = ConvertToInteger<AbstractVMObject>(x)).IsNull())
-        return (double)(int32_t)ix;
-    else if((bix = DynamicConvert<VMBigInteger, AbstractVMObject>(x)) != NULL)
-        return (double)bix->GetEmbeddedInteger();
-#else
-    if(dynamic_cast<pVMDouble>(x) != NULL)
-        return static_cast<pVMDouble>(x)->GetEmbeddedDouble();
-    else if(dynamic_cast<pVMInteger>(x) != NULL)
-        return (double)static_cast<pVMInteger>(x)->GetEmbeddedInteger();
-    else if(dynamic_cast<pVMBigInteger>(x) != NULL)
-        return (double)static_cast<pVMBigInteger>(x)->GetEmbeddedInteger();
+  if (IS_TAGGED(x))
+    return (double)UNTAG_INTEGER(x);
 #endif
+  pVMClass cl = ((AbstractVMObject*)x)->GetClass();
+    if(cl == doubleClass)
+        return static_cast<pVMDouble>(x)->GetEmbeddedDouble();
+    else if(cl == integerClass)
+        return (double)static_cast<pVMInteger>(x)->GetEmbeddedInteger();
+    else if(cl == bigIntegerClass)
+        return (double)static_cast<pVMBigInteger>(x)->GetEmbeddedInteger();
     else
         _UNIVERSE->ErrorExit("Attempt to apply Double operation to non-number.");
 

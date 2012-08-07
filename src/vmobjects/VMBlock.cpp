@@ -34,12 +34,8 @@ THE SOFTWARE.
 
 const int VMBlock::VMBlockNumberOfFields = 2; 
 
-#ifdef USE_TAGGING
 VMBlock::VMBlock() : VMObject(VMBlockNumberOfFields),
-blockMethod(nilObject), context(nilObject) {
-#else
-VMBlock::VMBlock() : VMObject(VMBlockNumberOfFields) {
-#endif
+blockMethod(), context() {
 }
 
 void VMBlock::SetMethod(pVMMethod bMethod) {
@@ -49,11 +45,7 @@ void VMBlock::SetMethod(pVMMethod bMethod) {
 #endif
 }
 
-#ifdef USE_TAGGING
-VMBlock* VMBlock::Clone() const {
-#else
 pVMBlock VMBlock::Clone() const {
-#endif
 #if GC_TYPE==GENERATIONAL
 	return new (_HEAP, GetAdditionalSpaceConsumption(), true) VMBlock(*this);
 #else

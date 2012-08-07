@@ -67,9 +67,9 @@ extern short dumpBytecodes;
 extern short gcVerbosity;
 
 //global VMObjects
-extern pVMObject nilObject;
-extern pVMObject trueObject;
-extern pVMObject falseObject;
+extern VMObject* nilObject;
+extern VMObject* trueObject;
+extern VMObject* falseObject;
 
 extern pVMClass objectClass;
 extern pVMClass classClass;
@@ -124,13 +124,8 @@ class Universe {
 		pVMFrame NewFrame(pVMFrame, pVMMethod) const;
 		pVMMethod NewMethod(pVMSymbol, size_t, size_t) const;
 		pVMObject NewInstance(pVMClass) const;
-#ifdef USE_TAGGING
-		VMPointer<VMInteger> NewInteger(long) const;
-		void WalkGlobals(AbstractVMObject* (*walk)(AbstractVMObject*));
-#else
 		pVMInteger NewInteger(long) const;
-		void WalkGlobals(pVMObject (*walk)(pVMObject));
-#endif
+		void WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
 		pVMBigInteger NewBigInteger(int64_t) const;
 		pVMDouble NewDouble(double) const;
 		pVMClass NewMetaclassClass(void) const;

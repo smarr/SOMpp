@@ -97,7 +97,7 @@ pVMObject VMObject::GetField(long index) const {
 void VMObject::SetField(long index, pVMObject value) {
      FIELDS[index] = value;
 #if GC_TYPE==GENERATIONAL
-	 _HEAP->writeBarrier(this, value);
+	 _HEAP->writeBarrier(this, (VMOBJECT_PTR)value);
 #endif
 }
 
@@ -117,7 +117,7 @@ void VMObject::WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*)) {
 void VMObject::WalkObjects(pVMObject (*walk)(pVMObject)) {
 #endif
     for( long i = 0; i < this->GetNumberOfFields(); ++i) {
-		SetField(i, walk(GetField(i)));
+		SetField(i, walk((VMOBJECT_PTR)GetField(i)));
     }
 
 }

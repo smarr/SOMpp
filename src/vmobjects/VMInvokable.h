@@ -37,11 +37,7 @@ class VMFrame;
 
 class VMInvokable : public VMObject {
 public:
-#ifdef USE_TAGGING
-    VMInvokable(int nof = 0);
-#else
     VMInvokable(int nof = 0) : VMObject(nof + 2){};
-#endif
     //virtual operator "()" to invoke the invokable
     virtual void      operator()(pVMFrame) = 0;
     virtual bool      IsPrimitive() const;
@@ -49,11 +45,7 @@ public:
 	virtual void      SetSignature(pVMSymbol sig);
 	virtual pVMClass  GetHolder() const;
 	virtual void      SetHolder(pVMClass hld);
-#ifdef USE_TAGGING
-  void WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*));
-#else
-  void WalkObjects(pVMObject (*walk)(pVMObject));
-#endif
+  void WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
 
 protected:
 	pVMSymbol signature;

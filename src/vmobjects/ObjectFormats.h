@@ -27,24 +27,22 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
   */
+//some MACROS for integer tagging
+/**
+ * max value for tagged integers
+ * 01111111 11111111 11111111 1111111X  
+ */
+#define VMTAGGEDINTEGER_MAX  1073741823
 
-#ifdef USE_TAGGING
-#define pVMArray VMPointer<VMArray>
-#define pVMBigInteger VMPointer<VMBigInteger>
-#define pVMBlock VMPointer<VMBlock>
-#define pVMClass VMPointer<VMClass>
-#define pVMDouble VMPointer<VMDouble>
-#define pVMEvaluationPrimitive VMPointer<VMEvaluationPrimitive>
-#define pVMFrame VMPointer<VMFrame>
-#define pVMInteger VMIntPointer
-#define pVMInvokable VMPointer<VMInvokable>
-#define pVMMethod VMPointer<VMMethod>
-#define pVMObject VMPointer<AbstractVMObject>
-#define pVMPrimitive VMPointer<VMPrimitive>
-#define pVMString VMPointer<VMString>
-#define pVMSymbol VMPointer<VMSymbol>
-#define VMOBJECT_PTR AbstractVMObject*
-#else
+/**
+ * min value for tagged integers
+ * 10000000 00000000 00000000 0000000X  
+ */
+#define VMTAGGEDINTEGER_MIN -1073741824
+#define GET_POINTER(X) ((AbstractVMObject*)X)
+#define TAG_INTEGER(X) ((X >= VMTAGGEDINTEGER_MIN && X <= VMTAGGEDINTEGER_MAX) ? ((pVMInteger)((X << 1) | 1)) : (_UNIVERSE->NewInteger(X)))
+#define UNTAG_INTEGER(X) (((long)X&1) ? ((long)X>>1) : (((VMInteger*)X)->GetEmbeddedInteger()))
+#define IS_TAGGED(X) ((long)X&1)
 
 #define pVMArray VMArray*
 #define pVMBigInteger VMBigInteger*
@@ -56,15 +54,13 @@ THE SOFTWARE.
 #define pVMInteger VMInteger* 
 #define pVMInvokable VMInvokable*
 #define pVMMethod VMMethod* 
+#ifdef USE_TAGGING
+#define pVMObject void*
+#else
 #define pVMObject AbstractVMObject*
+#endif
 #define pVMPrimitive VMPrimitive* 
 #define pVMString VMString* 
 #define pVMSymbol VMSymbol* 
-#define VMOBJECT_PTR pVMObject
-#endif
-
-
-
-
-
+#define VMOBJECT_PTR AbstractVMObject*
 #endif OBJECTFORMATS_H_

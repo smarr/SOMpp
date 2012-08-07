@@ -29,12 +29,6 @@ THE SOFTWARE.
 #include "VMSymbol.h"
 #include "VMClass.h"
 
-#ifdef USE_TAGGING
-VMInvokable::VMInvokable(int nof) : VMObject(nof + 2),
-            signature(nilObject), holder(nilObject) {
-}
-#endif
-
 
 bool      VMInvokable::IsPrimitive() const {
     return false;
@@ -51,11 +45,7 @@ void      VMInvokable::SetSignature(pVMSymbol sig)  {
 #endif
 }
 
-#ifdef USE_TAGGING
-void VMInvokable::WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*)) {
-#else
-void VMInvokable::WalkObjects(pVMObject (*walk)(pVMObject)) {
-#endif
+void VMInvokable::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
   clazz = static_cast<VMClass*>(walk(clazz));
   signature = static_cast<VMSymbol*>(walk(signature));
   if (holder)

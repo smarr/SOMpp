@@ -67,11 +67,7 @@ public:
 		throw "this object doesn't support SetField";
 	}
 	virtual pVMObject GetField(long index) const;
-#ifdef USE_TAGGING
-	inline virtual void WalkObjects(AbstractVMObject* (AbstractVMObject*)) {
-#else
-	inline virtual void WalkObjects(pVMObject (pVMObject)) {
-#endif
+	inline virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR)) {
 		return;
 	}
 	inline virtual pVMSymbol GetFieldName(long index) const {

@@ -753,7 +753,7 @@ void Parser::literalNumber(MethodGenerationContext* mgenc) {
         val = literalDecimal();
 
 #ifdef USE_TAGGING
-    pVMInteger lit = val;
+    pVMInteger lit = TAG_INTEGER(val);
 #else
     pVMInteger lit = _UNIVERSE->NewInteger(val);
 #endif

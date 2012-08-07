@@ -53,31 +53,22 @@ pVMFrame VMFrame::EmergencyFrameFrom( pVMFrame from, long extraLength ) {
   result->SetPreviousFrame(from->GetPreviousFrame());
   result->SetMethod(method);
   result->SetContext(from->GetContext());
-#ifdef USE_TAGGING
-  result->stack_ptr = (pVMObject*)SHIFTED_PTR(result.GetPointer(), (size_t)from->stack_ptr - (size_t)from.GetPointer());
-#else
   result->stack_ptr = (pVMObject*)SHIFTED_PTR(result, (size_t)from->stack_ptr - (size_t)from);
-#endif
   result->bytecodeIndex = from->bytecodeIndex;
 //result->arguments is set in VMFrame constructor
   result->locals = result->arguments + result->method->GetNumberOfArguments();
 
   //all other fields are indexable via arguments
   // --> until end of Frame
-#ifdef USE_TAGGING
-  pVMObject* from_end = (pVMObject*) SHIFTED_PTR(from.GetPointer(), from->GetObjectSize());
-  pVMObject* result_end = (pVMObject*) SHIFTED_PTR(result.GetPointer(), result->GetObjectSize());
-#else
   pVMObject* from_end = (pVMObject*) SHIFTED_PTR(from, from->GetObjectSize());
   pVMObject* result_end = (pVMObject*) SHIFTED_PTR(result, result->GetObjectSize());
-#endif
 
   long i = 0;
   //copy all fields from other frame
   while (from->arguments + i < from_end) {
       result->arguments[i] = from->arguments[i];
 #if GC_TYPE==GENERATIONAL
-      _HEAP->writeBarrier(result, from->arguments[i]);
+      _HEAP->writeBarrier(result, (VMOBJECT_PTR)from->arguments[i]);
 #endif
     i++;
   }
@@ -89,24 +80,12 @@ pVMFrame VMFrame::EmergencyFrameFrom( pVMFrame from, long extraLength ) {
   return result;
 }
 
-#ifdef USE_TAGGING
-VMFrame* VMFrame::Clone() const {
-#else
 pVMFrame VMFrame::Clone() const {
-#endif
 	size_t addSpace = objectSize - sizeof(VMFrame);
-#ifdef USE_TAGGING
-#if GC_TYPE==GENERATIONAL
-	VMFrame* clone = new (_HEAP, addSpace, true) VMFrame(*this);
-#else
-	VMFrame* clone = new (_HEAP, addSpace) VMFrame(*this);
-#endif
-#else
 #if GC_TYPE==GENERATIONAL
 	pVMFrame clone = new (_HEAP, addSpace, true) VMFrame(*this);
 #else
 	pVMFrame clone = new (_HEAP, addSpace) VMFrame(*this);
-#endif
 #endif
 	void* destination = SHIFTED_PTR(clone, sizeof(VMFrame));
 	const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
@@ -124,11 +103,7 @@ VMFrame::VMFrame(long size, long nof) :
 		VMObject(nof + VMFrameNumberOfFields),
 		previousFrame(NULL), context(NULL),
 		method(NULL) {
-#ifdef USE_TAGGING
     this->bytecodeIndex = 0;
-#else
-    this->bytecodeIndex = 0;
-#endif
   arguments = (pVMObject*)&(stack_ptr)+1;
   locals = arguments;
   stack_ptr = locals;
@@ -172,11 +147,7 @@ pVMFrame VMFrame::GetOuterContext() {
 }
 
 
-#ifdef USE_TAGGING
-void VMFrame::WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*)) {
-#else
-void VMFrame::WalkObjects(pVMObject (*walk)(pVMObject)) {
-#endif
+void VMFrame::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
   clazz = (VMClass*)walk(clazz);
   if (previousFrame)
     previousFrame = (VMFrame*)walk(previousFrame);
@@ -189,7 +160,7 @@ void VMFrame::WalkObjects(pVMObject (*walk)(pVMObject)) {
   long i = 0;
   while (arguments + i <= stack_ptr) {
     if (arguments[i] != NULL)
-      arguments[i] = walk(arguments[i]);
+      arguments[i] = walk((VMOBJECT_PTR)arguments[i]);
     i++;
   }
 }
@@ -210,7 +181,7 @@ pVMObject VMFrame::Pop() {
 
 void      VMFrame::Push(pVMObject obj) {
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, obj);
+    _HEAP->writeBarrier(this, (VMOBJECT_PTR)obj);
 #endif
     *(++stack_ptr) = obj;
 }
@@ -233,6 +204,20 @@ void VMFrame::PrintStack() const {
       cout << "NULL" << endl;
     if (vmo == nilObject) 
       cout << "NIL_OBJECT" << endl;
+#ifdef USE_TAGGING
+    if (IS_TAGGED(vmo)) {
+      cout << "index: " << i << " object: VMInteger" << endl;
+    }
+    else {
+      if (((VMOBJECT_PTR)vmo)->GetClass() == NULL) 
+        cout << "VMObject with Class == NULL" << endl;
+      if (((VMOBJECT_PTR)vmo)->GetClass() == nilObject) 
+        cout << "VMObject with Class == NIL_OBJECT" << endl;
+      else 
+        cout << "index: " << i << " object:" 
+            << ((VMOBJECT_PTR)vmo)->GetClass()->GetName()->GetChars() << endl;
+    }
+#else
     if (vmo->GetClass() == NULL) 
       cout << "VMObject with Class == NULL" << endl;
     if (vmo->GetClass() == nilObject) 
@@ -240,6 +225,7 @@ void VMFrame::PrintStack() const {
     else 
       cout << "index: " << i << " object:" 
           << vmo->GetClass()->GetName()->GetChars() << endl;
+#endif
     i++;
   }
 }
@@ -274,7 +260,7 @@ void      VMFrame::SetLocal(long index, long contextLevel, pVMObject value) {
     pVMFrame context = this->GetContextLevel(contextLevel);
     context->locals[index] = value;
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(context, value);
+    _HEAP->writeBarrier(context, (VMOBJECT_PTR)value);
 #endif
 }
 
@@ -291,7 +277,7 @@ void      VMFrame::SetArgument(long index, long contextLevel, pVMObject value) {
     pVMFrame context = this->GetContextLevel(contextLevel);
     context->arguments[index] = value;
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(context, value);
+    _HEAP->writeBarrier(context, (VMOBJECT_PTR)value);
 #endif
 }
 
@@ -315,7 +301,7 @@ void      VMFrame::CopyArgumentsFrom(pVMFrame frame) {
         pVMObject stackElem = frame->GetStackElement(num_args - 1 - i);
         arguments[i] = stackElem;
 #if GC_TYPE==GENERATIONAL
-        _HEAP->writeBarrier(this, stackElem);
+        _HEAP->writeBarrier(this, (VMOBJECT_PTR)stackElem);
 #endif
     }
 }
