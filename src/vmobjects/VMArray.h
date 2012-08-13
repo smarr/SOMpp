@@ -35,7 +35,7 @@ THE SOFTWARE.
 class VMArray : public VMObject {
 	public:
 		VMArray(long size, long nof=0);
-		virtual void WalkObjects(pVMObject (pVMObject));
+		virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
 		inline long GetNumberOfIndexableFields() const;
 		pVMArray    CopyAndExtendWith(pVMObject) const;
 		pVMObject   GetIndexableField(long idx) const;
