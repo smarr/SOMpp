@@ -13,7 +13,7 @@ MarkSweepHeap::MarkSweepHeap(long objectSpaceSize) {
 	collectionLimit = objectSpaceSize * 0.9;
     spcAlloc = 0;
 	gc = new MarkSweepCollector(this);
-	allocatedObjects = new vector<pVMObject>();
+	allocatedObjects = new vector<VMOBJECT_PTR>();
 }
 
 AbstractVMObject* MarkSweepHeap::AllocateObject(size_t size) {

@@ -12,7 +12,7 @@ class MarkSweepHeap : public Heap {
   MarkSweepHeap(long objectSpaceSize = 1048576);
   AbstractVMObject* AllocateObject(size_t size);
  private:
-    vector<pVMObject>* allocatedObjects;
+    vector<VMOBJECT_PTR>* allocatedObjects;
     size_t spcAlloc;
     long collectionLimit;
 

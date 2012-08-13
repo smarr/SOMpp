@@ -20,10 +20,10 @@ void MarkSweepCollector::Collect() {
 	markReachableObjects();
 
 	//in this survivors stack we will remember all objects that survived
-	vector<pVMObject>* survivors = new vector<pVMObject>();
+	vector<VMOBJECT_PTR>* survivors = new vector<VMOBJECT_PTR>();
 	size_t survivorsSize = 0;
 
-	vector<pVMObject>::iterator iter;
+	vector<VMOBJECT_PTR>::iterator iter;
 	for (iter = heap->allocatedObjects->begin(); iter !=
 			heap->allocatedObjects->end(); iter++) {
 		if ((*iter)->GetGCField() == GC_MARKED) {
