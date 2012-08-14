@@ -89,6 +89,7 @@ void WriteBarrierTest::testWriteFrame() {
         _HEAP->writeBarrierCalledOn.clear();
 
         pVMFrame frame = _UNIVERSE->GetInterpreter()->GetFrame()->Clone();
+        frame->SetContext(frame->Clone());
 
         frame->SetPreviousFrame(_UNIVERSE->GetInterpreter()->GetFrame());
         TEST_WB_CALLED("VMFrame failed to call writeBarrier on SetPreviousFrame", frame, _UNIVERSE->GetInterpreter()->GetFrame());

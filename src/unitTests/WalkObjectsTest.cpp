@@ -31,7 +31,7 @@ static const size_t NoOfFields_Array = NoOfFields_Object;
 static const size_t NoOfFields_Invokable = 2 + NoOfFields_Object;
 static const size_t NoOfFields_Method = 5 + NoOfFields_Invokable;
 static const size_t NoOfFields_Class = 4 + NoOfFields_Object;
-static const size_t NoOfFields_Frame = 6 + NoOfFields_Array;
+static const size_t NoOfFields_Frame = 3 + NoOfFields_Array;
 static const size_t NoOfFields_Block = 2 + NoOfFields_Object;
 static const size_t NoOfFields_Primitive = NoOfFields_Invokable;
 static const size_t NoOfFields_EvaluationPrimitive = 1 + NoOfFields_Primitive;
@@ -40,7 +40,7 @@ static vector<VMOBJECT_PTR> walkedObjects;
 /*
  * This method simply pushes all objects into the vector walkedObjects
  */
-pVMObject collectMembers(VMOBJECT_PTR obj) {
+VMOBJECT_PTR collectMembers(VMOBJECT_PTR obj) {
 	walkedObjects.push_back(obj);
 	return obj;
 }
@@ -95,7 +95,7 @@ void WalkObjectsTest::testWalkEvaluationPrimitive() {
 void WalkObjectsTest::testWalkObject() {
 	walkedObjects.clear();
 
-	pVMObject obj = new (_UNIVERSE->GetHeap()) VMObject();
+	VMObject* obj = new (_UNIVERSE->GetHeap()) VMObject();
 	obj->WalkObjects(collectMembers);
 
 	//Objects should only have one member -> Class
@@ -122,15 +122,16 @@ void WalkObjectsTest::testWalkSymbol() {
 void WalkObjectsTest::testWalkClass() {
 	walkedObjects.clear();
 	pVMClass meta = _UNIVERSE->NewMetaclassClass();
+  meta->superClass = stringClass;
 	meta->WalkObjects(collectMembers);
 
 	//Now check if we found all class fields
-	CPPUNIT_ASSERT_EQUAL(NoOfFields_Class, walkedObjects.size());
 	CPPUNIT_ASSERT(WalkerHasFound(meta->GetClass()));
 	CPPUNIT_ASSERT(WalkerHasFound(meta->GetSuperClass()));
 	CPPUNIT_ASSERT(WalkerHasFound(meta->GetName()));
 	CPPUNIT_ASSERT(WalkerHasFound(meta->GetInstanceFields()));
 	CPPUNIT_ASSERT(WalkerHasFound(meta->GetInstanceInvokables()));
+	CPPUNIT_ASSERT_EQUAL(NoOfFields_Class, walkedObjects.size());
 }
 
 void WalkObjectsTest::testWalkPrimitive() {
@@ -150,6 +151,8 @@ void WalkObjectsTest::testWalkFrame() {
 	pVMSymbol methodSymbol = _UNIVERSE->NewSymbol("frameMethod");
 	pVMMethod method = _UNIVERSE->NewMethod(methodSymbol, 0, 0);
 	pVMFrame frame = _UNIVERSE->NewFrame(NULL, method);
+  frame->SetPreviousFrame(frame->Clone());
+  frame->SetContext(frame->Clone());
 	pVMInteger dummyArg = _UNIVERSE->NewInteger(1111);
 	frame->SetArgument(0, 0, dummyArg);
 	frame->WalkObjects(collectMembers);
@@ -160,7 +163,7 @@ void WalkObjectsTest::testWalkFrame() {
 	CPPUNIT_ASSERT(WalkerHasFound(frame->GetMethod()));
 	//CPPUNIT_ASSERT(WalkerHasFound(frame->bytecodeIndex));
 	CPPUNIT_ASSERT(WalkerHasFound(dummyArg));
-	CPPUNIT_ASSERT_EQUAL(NoOfFields_Frame + method->GetNumberOfArguments(), walkedObjects.size());
+	CPPUNIT_ASSERT_EQUAL((long)(NoOfFields_Frame + method->GetNumberOfArguments()), (long)walkedObjects.size());
 }
 
 void WalkObjectsTest::testWalkMethod() {
