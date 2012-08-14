@@ -89,7 +89,11 @@ private:
 
 pVMObject VMFrame::GetField(long index) const {
   if (index==4)
+#ifdef USE_TAGGING
+    return TAG_INTEGER(bytecodeIndex);
+#else
     return _UNIVERSE->NewInteger(bytecodeIndex);
+#endif
   return VMObject::GetField(index);
 }
 
