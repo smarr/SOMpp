@@ -46,7 +46,7 @@ pVMBigInteger VMBigInteger::Clone() const {
 }
 
 size_t VMBigInteger::GetObjectSize() const {
-	return sizeof(VMBigInteger) + PAD_BYTES(sizeof(VMBigInteger));
+	return sizeof(VMBigInteger);
 }
 
 pVMClass VMBigInteger::GetClass() const {

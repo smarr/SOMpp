@@ -87,7 +87,7 @@ pVMMethod VMMethod::Clone() const {
 #if GC_TYPE==GENERATIONAL
 	pVMMethod clone = new (_HEAP, GetObjectSize() - sizeof(VMMethod), true)
 #else
-	pVMMethod clone = new (_HEAP, objectSize - sizeof(VMMethod))
+	pVMMethod clone = new (_HEAP, GetObjectSize() - sizeof(VMMethod))
 #endif
 		VMMethod(*this);
 	memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,

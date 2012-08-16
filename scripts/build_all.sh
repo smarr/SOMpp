@@ -25,3 +25,5 @@ make clean; make DEST_DIR=bin/mark_sweep_nocache_tagging GC_TYPE=mark_sweep CACH
 make clean; make DEST_DIR=bin/mark_sweep_badcache_noTagging GC_TYPE=mark_sweep CACHE_INTEGER=true INT_CACHE_MIN_VALUE=100000 INT_CACHE_MAX_VALUE=100105 USE_TAGGING=false UNSAFE_FRAME_OPTIMIZATION=true install -j5
 
 make clean; make DEST_DIR=bin/cppsom_statistics GC_TYPE=generational CACHE_INTEGER=false USE_TAGGING=false LOG_RECEIVER_TYPES=true GENERATE_INTEGER_HISTOGRAM=true GENERATE_ALLOCATION_STATISTICS=true UNSAFE_FRAME_OPTIMIZATION=true install -j5
+
+make clean

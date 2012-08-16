@@ -30,10 +30,9 @@ GenerationalHeap::GenerationalHeap(long objectSpaceSize) {
 
 
 AbstractVMObject* GenerationalHeap::AllocateNurseryObject(size_t size) {
-  size_t paddedSize = size + PAD_BYTES(size);
   AbstractVMObject* newObject = (AbstractVMObject*) nextFreePosition;
-  nextFreePosition = (void*)((size_t)nextFreePosition + (size_t)paddedSize);
-  if ((size_t)nextFreePosition > (size_t)nursery + nurserySize) {
+  nextFreePosition = (void*)((size_t)nextFreePosition + size);
+  if ((size_t)nextFreePosition > nursery_end) {
     cout << "Failed to allocate " << size << " Bytes in nursery." << endl;
     _UNIVERSE->Quit(-1);
   }
@@ -45,14 +44,13 @@ AbstractVMObject* GenerationalHeap::AllocateNurseryObject(size_t size) {
 
 
 AbstractVMObject* GenerationalHeap::AllocateMatureObject(size_t size) {
-	size_t paddedSize = size + PAD_BYTES(size);
-	VMOBJECT_PTR newObject = (VMOBJECT_PTR)malloc(paddedSize);
+	VMOBJECT_PTR newObject = (VMOBJECT_PTR)malloc(size);
 	if (newObject == NULL) {
 		cout << "Failed to allocate " << size << " Bytes." << endl;
 		_UNIVERSE->Quit(-1);
 	}
 	allocatedObjects->push_back(newObject);
-	matureObjectsSize += paddedSize;
+	matureObjectsSize += size;
 	return newObject;
 }
 

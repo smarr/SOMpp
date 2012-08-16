@@ -20,7 +20,7 @@
 /*
  * macro for padding - only word-aligned memory must be allocated
  */
-#define PAD_BYTES(N) ((sizeof(void*) - ((N) % sizeof(void*))) % sizeof(void*))
+#define PADDED_SIZE(N) ((((uint32_t)N)+(sizeof(void*)-1) & ~(sizeof(void*)-1)))
 
 class VMClass;
 class VMObject;

@@ -98,16 +98,16 @@ public:
 #if GC_TYPE==GENERATIONAL
 			unsigned long additionalBytes = 0, bool outsideNursery = false) {
 		void* mem = AbstractVMObject::operator new(numBytes, heap,
-				additionalBytes, outsideNursery);
+				PADDED_SIZE(additionalBytes), outsideNursery);
 #elif GC_TYPE==COPYING
 			unsigned long additionalBytes = 0) {
-		void* mem = (void*) ((CopyingHeap*)heap)->AllocateObject(numBytes + additionalBytes);
+		void* mem = (void*) ((CopyingHeap*)heap)->AllocateObject(numBytes + PADDED_SIZE(additionalBytes));
 #elif GC_TYPE==MARK_SWEEP
 			unsigned long additionalBytes = 0) {
-		void* mem = (void*) ((MarkSweepHeap*)heap)->AllocateObject(numBytes + additionalBytes);
+		void* mem = (void*) ((MarkSweepHeap*)heap)->AllocateObject(numBytes + PADDED_SIZE(additionalBytes));
 #endif
-		size_t objSize = numBytes + additionalBytes;
-		((VMObject*) mem)->objectSize = objSize + PAD_BYTES(objSize);
+		size_t objSize = numBytes + PADDED_SIZE(additionalBytes);
+		((VMObject*) mem)->objectSize = objSize;
 		return mem;
 	}
 

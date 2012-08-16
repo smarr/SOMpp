@@ -50,9 +50,9 @@ VMString::VMString(const char* str) {
 pVMString VMString::Clone() const {
 
 #if GC_TYPE==GENERATIONAL
-	return new (_HEAP, strlen(chars)+1, true) VMString(chars);
+	return new (_HEAP, PADDED_SIZE(strlen(chars)+1), true) VMString(chars);
 #else
-	return new (_HEAP, strlen(chars)+1) VMString(chars);
+	return new (_HEAP, PADDED_SIZE(strlen(chars)+1)) VMString(chars);
 #endif
 }
 
@@ -69,8 +69,8 @@ VMString::VMString( const StdString& s ) {
 } 
 
 size_t VMString::GetObjectSize() const {
-	size_t size = sizeof(VMString) + strlen(chars) + 1;
-	return size + PAD_BYTES(size);
+	size_t size = sizeof(VMString) + PADDED_SIZE(strlen(chars) + 1);
+	return size;
 }
 
 pVMClass VMString::GetClass() const {

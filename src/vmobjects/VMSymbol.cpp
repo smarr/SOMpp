@@ -53,15 +53,15 @@ VMSymbol::VMSymbol( const StdString& s ){
 }
 
 size_t VMSymbol::GetObjectSize() const {
-	size_t size = sizeof(VMSymbol) + strlen(chars) + 1;
-	return size + PAD_BYTES(size);
+	size_t size = sizeof(VMSymbol) + PADDED_SIZE(strlen(chars) + 1);
+	return size;
 }
 
 pVMSymbol VMSymbol::Clone() const {
 #if GC_TYPE==GENERATIONAL
-	return new (_HEAP, strlen(chars) + 1, true)	VMSymbol(chars);
+	return new (_HEAP, PADDED_SIZE(strlen(chars) + 1), true)	VMSymbol(chars);
 #else
-	return new (_HEAP, strlen(chars) + 1) VMSymbol(chars);
+	return new (_HEAP, PADDED_SIZE(strlen(chars) + 1)) VMSymbol(chars);
 #endif
 }
 

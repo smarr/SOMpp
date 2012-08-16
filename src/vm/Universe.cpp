@@ -857,7 +857,7 @@ pVMString Universe::NewString( const StdString& str) const {
 }
 
 pVMString Universe::NewString( const char* str) const {
-    pVMString result = new (_HEAP, strlen(str) + 1) VMString(str);
+    pVMString result = new (_HEAP, PADDED_SIZE(strlen(str) + 1)) VMString(str);
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION("VMString", result->GetObjectSize());
 #endif
@@ -869,7 +869,7 @@ pVMSymbol Universe::NewSymbol( const StdString& str) {
 }
 
 pVMSymbol Universe::NewSymbol( const char* str ) {
-  pVMSymbol result = new (_HEAP, strlen(str)+1) VMSymbol(str);
+  pVMSymbol result = new (_HEAP, PADDED_SIZE(strlen(str)+1)) VMSymbol(str);
 	symbolsMap[str] = result;
 #ifdef GENERATE_ALLOCATION_STATISTICS
   LOG_ALLOCATION("VMSymbol", result->GetObjectSize());
