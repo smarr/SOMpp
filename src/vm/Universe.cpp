@@ -689,27 +689,21 @@ pVMDouble Universe::NewDouble( double value) const {
 
 
 pVMFrame Universe::NewFrame( pVMFrame previousFrame, pVMMethod method) const {
+  pVMFrame result = NULL;
 #ifdef UNSAFE_FRAME_OPTIMIZATION
-  pVMFrame result = method->GetCachedFrame();
+  result = method->GetCachedFrame();
   if (result != NULL) {
     method->SetCachedFrame(NULL);
     result->SetPreviousFrame(previousFrame);
     return result;
   }
+#endif
     long length = method->GetNumberOfArguments() +
                  method->GetNumberOfLocals()+
                  method->GetMaximumNumberOfStackElements();
 
     long additionalBytes = length * sizeof(pVMObject);
     result = new (_HEAP, additionalBytes) VMFrame(length);
-#else
-    long length = method->GetNumberOfArguments() +
-                 method->GetNumberOfLocals()+
-                 method->GetMaximumNumberOfStackElements();
-
-    long additionalBytes = length * sizeof(pVMObject);
-    pVMFrame result = new (_HEAP, additionalBytes) VMFrame(length);
-#endif
     result->SetClass(frameClass);
     result->SetMethod(method);
 #ifdef GENERATE_ALLOCATION_STATISTICS
@@ -838,10 +832,14 @@ void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
 pVMMethod Universe::NewMethod( pVMSymbol signature, 
                     size_t numberOfBytecodes, size_t numberOfConstants) const {
     //Method needs space for the bytecodes and the pointers to the constants
-    long additionalBytes = numberOfBytecodes + 
-                numberOfConstants*sizeof(pVMObject);
+    long additionalBytes = PADDED_SIZE(numberOfBytecodes + numberOfConstants*sizeof(pVMObject));
+#if GC_TYPE==GENERATIONAL
+    pVMMethod result = new (_HEAP,additionalBytes, true) 
+                VMMethod(numberOfBytecodes, numberOfConstants);
+#else
     pVMMethod result = new (_HEAP,additionalBytes) 
                 VMMethod(numberOfBytecodes, numberOfConstants);
+#endif
     result->SetClass(methodClass);
 
     result->SetSignature(signature);

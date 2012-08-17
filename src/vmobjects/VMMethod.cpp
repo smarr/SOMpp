@@ -119,7 +119,7 @@ void VMMethod::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     
 	for (long i = 0 ; i < GetNumberOfIndexableFields() ; ++i) {
 		if (GetIndexableField(i) != NULL)
-			SetIndexableField(i, walk((VMOBJECT_PTR)GetIndexableField(i)));
+			indexableFields[i] = walk(GET_POINTER(GetIndexableField(i)));
 	}
 }
 
