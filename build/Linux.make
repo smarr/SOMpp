@@ -28,7 +28,11 @@
 
 CC			=g++
 CFLAGS		=-Wno-endif-labels -O3 $(DBG_FLAGS) $(FEATURE_FLAGS) $(INCLUDES)
-LDFLAGS		=$(DBG_FLAGS) -ltcmalloc -lrt $(LIBRARIES)
+LBITS := $(shell getconf LONG_BIT)
+ifeq ($(LBITS),64)
+	CFLAGS += -fno-PIC -mcmodel=large
+endif
+LDFLAGS		=$(DBG_FLAGS) $(LIBRARIES)
 
 INSTALL		=install
 
@@ -98,7 +102,7 @@ PRIMITIVES_OBJ	= $(PRIMITIVES_SRC:.cpp=.pic.o)
 ############# include path
 
 INCLUDES		=-I$(SRC_DIR)
-LIBRARIES		=-L$(ROOT_DIR)
+LIBRARIES		=-L$(ROOT_DIR) -lrt
 
 ##############
 ############## Collections.
@@ -114,8 +118,7 @@ SOURCES			=  $(COMPILER_SRC) $(INTERPRETER_SRC) $(MEMORY_SRC) \
 
 ############# Things to clean
 
-CLEAN			= $(OBJECTS) \
-				$(DIST_DIR) $(DEST_DIR) CORE
+CLEAN			= $(OBJECTS) $(DIST_DIR) $(DEST_DIR) CORE
 ############# Tools
 
 #OSTOOL			= $(BUILD_DIR)/ostool
@@ -196,6 +199,10 @@ profiling: all
 
 clean:
 	rm -Rf $(CLEAN)
+	#just to be sure delete again
+	find -name "*.o" -delete
+	rm -Rf $(CORE_NAME).csp $(ST_DIR)/$(CORE_NAME).csp
+	rm -Rf *.so
 
 
 
