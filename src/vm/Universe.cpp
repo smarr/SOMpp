@@ -182,51 +182,55 @@ void Universe::ErrorExit( const char* err) {
 }
 
 vector<StdString> Universe::handleArguments( long argc, char** argv ) {
+  vector<StdString> vmArgs = vector<StdString>();
+  dumpBytecodes = 0;
+  gcVerbosity = 0;
+  for (long i = 1; i < argc ; ++i) {
 
-    vector<StdString> vmArgs = vector<StdString>();
-    dumpBytecodes = 0;
-    gcVerbosity = 0;
-    for (long i = 1; i < argc ; ++i) {
-        
-        if (strncmp(argv[i], "-cp", 3) == 0) {
-            if ((argc == i + 1) || classPath.size() > 0)
-                printUsageAndExit(argv[0]);
-            setupClassPath(StdString(argv[++i]));
-        } else if (strncmp(argv[i], "-d", 2) == 0) {
-            ++dumpBytecodes;
-        } else if (strncmp(argv[i], "-g", 2) == 0) {
-            ++gcVerbosity;
-        } else if (strncmp(argv[i], "-H",2) == 0) {
-            long heap_size = 0;
-			if (sscanf(argv[i],"-H%ldMB", &heap_size) == 1)
-				heapSize = heap_size * 1024 * 1024;
-			else if (sscanf(argv[i],"-H%ldKB", &heap_size) == 1)
-				heapSize = heap_size * 1024;
-			else
-				printUsageAndExit(argv[0]);
+    if (strncmp(argv[i], "-cp", 3) == 0) {
+      if ((argc == i + 1) || classPath.size() > 0)
+        printUsageAndExit(argv[0]);
+      setupClassPath(StdString(argv[++i]));
+    } else if (strncmp(argv[i], "-d", 2) == 0) {
+      ++dumpBytecodes;
+    } else if (strncmp(argv[i], "-g", 2) == 0) {
+      ++gcVerbosity;
+    } else if (strncmp(argv[i], "-H",2) == 0) {
+      long heap_size = 0;
+      char* unit = (char*)malloc(3);
+      if (sscanf(argv[i],"-H%ld%2s", &heap_size, unit) == 2) {
+        if (strcmp(unit, "KB") == 0)
+          heapSize = heap_size * 1024;
+        else if (strcmp(unit, "MB") == 0)
+          heapSize = heap_size * 1024 * 1024;
 
-        } else if ((strncmp(argv[i], "-h", 2) == 0) ||
-            (strncmp(argv[i], "--help", 6) == 0)) {
-                printUsageAndExit(argv[0]);
-        } else {
-            vector<StdString> extPathTokens = vector<StdString>(2);
-            StdString tmpString = StdString(argv[i]);
-            if (this->getClassPathExt(extPathTokens, tmpString) ==
-                                        ERR_SUCCESS) {
-                this->addClassPath(extPathTokens[0]);
-            }
-            //Different from CSOM!!!:
-            //In CSOM there is an else, where the original filename is pushed into the vm_args.
-            //But unlike the class name in extPathTokens (extPathTokens[1]) that could
-            //still have the .som suffix though.
-            //So in SOM++ getClassPathExt will strip the suffix and add it to extPathTokens
-            //even if there is no new class path present. So we can in any case do the following:
-            vmArgs.push_back(extPathTokens[1]);
-        }
+      }
+      else
+        printUsageAndExit(argv[0]);
+      delete unit;
+
+    } else if ((strncmp(argv[i], "-h", 2) == 0) ||
+               (strncmp(argv[i], "--help", 6) == 0)) {
+      printUsageAndExit(argv[0]);
+    } else {
+      vector<StdString> extPathTokens = vector<StdString>(2);
+      StdString tmpString = StdString(argv[i]);
+      if (this->getClassPathExt(extPathTokens, tmpString) ==
+          ERR_SUCCESS) {
+        this->addClassPath(extPathTokens[0]);
+      }
+      //Different from CSOM!!!:
+      //In CSOM there is an else, where the original filename is pushed into the vm_args.
+      //But unlike the class name in extPathTokens (extPathTokens[1]) that could
+      //still have the .som suffix though.
+      //So in SOM++ getClassPathExt will strip the suffix and add it to extPathTokens
+      //even if there is no new class path present. So we can in any case do the following:
+      vmArgs.push_back(extPathTokens[1]);
     }
-    addClassPath(StdString("."));
+  }
+  addClassPath(StdString("."));
 
-    return vmArgs;
+  return vmArgs;
 }
 
 long Universe::getClassPathExt(vector<StdString>& tokens,const StdString& arg ) const {
