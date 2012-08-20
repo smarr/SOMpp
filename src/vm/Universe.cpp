@@ -489,9 +489,7 @@ pVMClass Universe::GetBlockClassWithArgs( long numberOfArguments) {
 
 
 pVMObject Universe::GetGlobal( pVMSymbol name) {
-    if (HasGlobal(name))
-        return globals[name];
-    return NULL;
+  return globals[name];
 }
 
 
