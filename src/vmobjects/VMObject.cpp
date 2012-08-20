@@ -109,7 +109,6 @@ long VMObject::GetAdditionalSpaceConsumption() const
 
 void VMObject::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
   for( long i = 0; i < this->GetNumberOfFields(); ++i) {
-    SetField(i, walk((VMOBJECT_PTR)GetField(i)));
+    FIELDS[i] = walk((VMOBJECT_PTR)GetField(i));
   }
-
 }

@@ -66,11 +66,6 @@ void VMPrimitive::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
 	clazz = static_cast<pVMClass>(walk(clazz));
 	signature = static_cast<pVMSymbol>(walk(signature));
 	holder = static_cast<pVMClass>(walk(holder));
-#if GC_TYPE==GENERATIONAL
-	_HEAP->writeBarrier(this, clazz);
-	_HEAP->writeBarrier(this, signature);
-	_HEAP->writeBarrier(this, holder);
-#endif
 }
 
 void VMPrimitive::EmptyRoutine( pVMObject _self, pVMFrame /*frame*/ ) {

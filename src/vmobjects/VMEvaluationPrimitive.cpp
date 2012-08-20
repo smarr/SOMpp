@@ -65,9 +65,6 @@ pVMEvaluationPrimitive VMEvaluationPrimitive::Clone() const {
 void VMEvaluationPrimitive::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
 	VMPrimitive::WalkObjects(walk);
 	numberOfArguments = static_cast<pVMInteger>(walk(numberOfArguments));
-#if GC_TYPE==GENERATIONAL
-	_HEAP->writeBarrier(this, numberOfArguments);
-#endif
 }
 
 
