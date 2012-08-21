@@ -47,9 +47,6 @@ VMEvaluationPrimitive::VMEvaluationPrimitive(long argc) :
 #else
     this->numberOfArguments = _UNIVERSE->NewInteger(argc);
 #endif
-#if GC_TYPE==GENERATIONAL
-	_HEAP->writeBarrier(this, numberOfArguments);
-#endif
 }
 
 pVMEvaluationPrimitive VMEvaluationPrimitive::Clone() const {

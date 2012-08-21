@@ -66,17 +66,9 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof)
     numberOfArguments = _UNIVERSE->NewInteger(0);
     this->numberOfConstants = _UNIVERSE->NewInteger(numberOfConstants);
 #endif
-#if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, bcLength);
-    _HEAP->writeBarrier(this, numberOfLocals);
-    _HEAP->writeBarrier(this, maximumNumberOfStackElements);
-    _HEAP->writeBarrier(this, numberOfArguments);
-    _HEAP->writeBarrier(this, this->numberOfConstants);
-#endif
     indexableFields = (pVMObject*)(&indexableFields + 2);
     for (long i = 0; i < numberOfConstants ; ++i) {
       indexableFields[i] = nilObject;
-      //no need for write barrier (nilObject is found anyway)
     }
     bytecodes = (uint8_t*)(&indexableFields + 2 + GetNumberOfIndexableFields());
   }
