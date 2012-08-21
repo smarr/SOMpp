@@ -34,9 +34,11 @@ THE SOFTWARE.
 class VMMethod;
 class VMObject;
 class VMInteger;
+class Universe;
 
 
 class VMFrame : public VMObject {
+  friend class Universe;
 public:
     static pVMFrame EmergencyFrameFrom(pVMFrame from, long extraLength);
 

@@ -706,12 +706,12 @@ pVMFrame Universe::NewFrame( pVMFrame previousFrame, pVMMethod method) const {
 
     long additionalBytes = length * sizeof(pVMObject);
     result = new (_HEAP, additionalBytes) VMFrame(length);
-    result->SetClass(frameClass);
-    result->SetMethod(method);
+    result->clazz = frameClass;
+    result->method = method;
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION("VMFrame", result->GetObjectSize());
 #endif
-    result->SetPreviousFrame(previousFrame);
+    result->previousFrame = previousFrame;
     result->ResetStackPointer();
     return result;
 
