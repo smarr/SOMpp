@@ -45,6 +45,8 @@ VMSymbol::VMSymbol(const char* str){
 		chars[i] = str[i];
 	}
 	chars[i] = '\0';
+  //clear caching fields
+  memset(&cachedClass_index, 0, 7 * sizeof(void*) + 2*sizeof(long));
 }
 
 

@@ -835,13 +835,13 @@ pVMMethod Universe::NewMethod( pVMSymbol signature,
                     size_t numberOfBytecodes, size_t numberOfConstants) const {
     //Method needs space for the bytecodes and the pointers to the constants
     long additionalBytes = PADDED_SIZE(numberOfBytecodes + numberOfConstants*sizeof(pVMObject));
-#if GC_TYPE==GENERATIONAL
-    pVMMethod result = new (_HEAP,additionalBytes, true) 
-                VMMethod(numberOfBytecodes, numberOfConstants);
-#else
+//#if GC_TYPE==GENERATIONAL
+//    pVMMethod result = new (_HEAP,additionalBytes, true) 
+//                VMMethod(numberOfBytecodes, numberOfConstants);
+//#else
     pVMMethod result = new (_HEAP,additionalBytes) 
                 VMMethod(numberOfBytecodes, numberOfConstants);
-#endif
+//#endif
     result->SetClass(methodClass);
 
     result->SetSignature(signature);
