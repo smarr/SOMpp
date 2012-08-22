@@ -67,9 +67,6 @@ pVMFrame VMFrame::EmergencyFrameFrom( pVMFrame from, long extraLength ) {
   //copy all fields from other frame
   while (from->arguments + i < from_end) {
       result->arguments[i] = from->arguments[i];
-#if GC_TYPE==GENERATIONAL
-      _HEAP->writeBarrier(result, (VMOBJECT_PTR)from->arguments[i]);
-#endif
     i++;
   }
   //initialize others with nilObject
