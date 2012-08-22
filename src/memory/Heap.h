@@ -85,6 +85,10 @@ void Heap::triggerGC(void) {
 	gcTriggered = true;
 }
 
+inline bool Heap::isCollectionTriggered(void) {
+  return gcTriggered;
+}
+
 void Heap::resetGCTrigger(void) {
 	gcTriggered = false;
 }

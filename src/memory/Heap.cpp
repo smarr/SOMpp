@@ -34,10 +34,6 @@ THE SOFTWARE.
 
 HEAP_CLS* Heap::theHeap = NULL;
 
-bool Heap::isCollectionTriggered(void) {
-	return gcTriggered;
-}
-
 void Heap::InitializeHeap( long objectSpaceSize ) {
     if (theHeap) {
         cout << "Warning, reinitializing already initialized Heap, " 
