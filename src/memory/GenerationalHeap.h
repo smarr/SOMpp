@@ -44,8 +44,7 @@ class GenerationalHeap : public Heap {
 };
 
 inline bool GenerationalHeap::isObjectInNursery(const pVMObject obj) {
-	return (size_t) obj >= (size_t)nursery && (size_t) obj < ((size_t)nursery +
-			nurserySize);
+	return (size_t) obj >= (size_t)nursery && (size_t) obj < nursery_end;
 }
 
 inline size_t GenerationalHeap::GetMaxNurseryObjectSize() {
