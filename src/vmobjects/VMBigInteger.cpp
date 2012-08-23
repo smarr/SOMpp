@@ -37,11 +37,7 @@ VMBigInteger::VMBigInteger(int64_t val) {
     this->embeddedInteger = val;
 }
 
-#ifdef USE_TAGGING
-VMBigInteger* VMBigInteger::Clone() const {
-#else
 pVMBigInteger VMBigInteger::Clone() const {
-#endif
 #if GC_TYPE==GENERATIONAL
 	return new (_HEAP, 0, true) VMBigInteger(*this);
 #else
@@ -50,7 +46,7 @@ pVMBigInteger VMBigInteger::Clone() const {
 }
 
 size_t VMBigInteger::GetObjectSize() const {
-	return sizeof(VMBigInteger) + PAD_BYTES(sizeof(VMBigInteger));
+	return sizeof(VMBigInteger);
 }
 
 pVMClass VMBigInteger::GetClass() const {

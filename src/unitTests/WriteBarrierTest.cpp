@@ -12,17 +12,10 @@
 
 #if GC_TYPE==GENERATIONAL
 
-#ifdef USE_TAGGING
-#define TEST_WB_CALLED(msg, hld, ref) \
-        CPPUNIT_ASSERT_MESSAGE(msg, \
-                        _HEAP->writeBarrierCalledOn.find(make_pair((const AbstractVMObject*)hld,\
-                        (const AbstractVMObject*)ref)) != _HEAP->writeBarrierCalledOn.end());
-#else
 #define TEST_WB_CALLED(msg, hld, ref) \
         CPPUNIT_ASSERT_MESSAGE(msg, \
                         _HEAP->writeBarrierCalledOn.find(make_pair(hld, ref)) != \
                         _HEAP->writeBarrierCalledOn.end());
-#endif
 
 void WriteBarrierTest::testWriteArray() {
 #ifdef DEBUG
@@ -96,6 +89,7 @@ void WriteBarrierTest::testWriteFrame() {
         _HEAP->writeBarrierCalledOn.clear();
 
         pVMFrame frame = _UNIVERSE->GetInterpreter()->GetFrame()->Clone();
+        frame->SetContext(frame->Clone());
 
         frame->SetPreviousFrame(_UNIVERSE->GetInterpreter()->GetFrame());
         TEST_WB_CALLED("VMFrame failed to call writeBarrier on SetPreviousFrame", frame, _UNIVERSE->GetInterpreter()->GetFrame());

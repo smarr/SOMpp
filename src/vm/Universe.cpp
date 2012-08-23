@@ -46,14 +46,12 @@ THE SOFTWARE.
 #include "../vmobjects/VMString.h"
 #include "../vmobjects/VMBigInteger.h"
 #include "../vmobjects/VMEvaluationPrimitive.h"
-#ifdef USE_TAGGING
-#include "../vmobjects/VMPointerConverter.h"
-#endif
-
 #include "../interpreter/bytecodes.h"
-
 #include "../compiler/Disassembler.h"
 #include "../compiler/SourcecodeCompiler.h"
+#ifdef USE_TAGGING
+#include "../vmobjects/IntegerBox.h"
+#endif
 
 #ifdef CACHE_INTEGER
 #ifndef INT_CACHE_MIN_VALUE
@@ -75,9 +73,9 @@ short gcVerbosity;
 
 Universe* Universe::theUniverse = NULL;
 
-pVMObject nilObject;
-pVMObject trueObject;
-pVMObject falseObject;
+VMObject* nilObject;
+VMObject* trueObject;
+VMObject* falseObject;
      
 pVMClass objectClass;
 pVMClass classClass;
@@ -184,51 +182,55 @@ void Universe::ErrorExit( const char* err) {
 }
 
 vector<StdString> Universe::handleArguments( long argc, char** argv ) {
+  vector<StdString> vmArgs = vector<StdString>();
+  dumpBytecodes = 0;
+  gcVerbosity = 0;
+  for (long i = 1; i < argc ; ++i) {
 
-    vector<StdString> vmArgs = vector<StdString>();
-    dumpBytecodes = 0;
-    gcVerbosity = 0;
-    for (long i = 1; i < argc ; ++i) {
-        
-        if (strncmp(argv[i], "-cp", 3) == 0) {
-            if ((argc == i + 1) || classPath.size() > 0)
-                printUsageAndExit(argv[0]);
-            setupClassPath(StdString(argv[++i]));
-        } else if (strncmp(argv[i], "-d", 2) == 0) {
-            ++dumpBytecodes;
-        } else if (strncmp(argv[i], "-g", 2) == 0) {
-            ++gcVerbosity;
-        } else if (strncmp(argv[i], "-H",2) == 0) {
-            long heap_size = 0;
-			if (sscanf(argv[i],"-H%dMB", &heap_size) == 1)
-				heapSize = heap_size * 1024 * 1024;
-			else if (sscanf(argv[i],"-H%dKB", &heap_size) == 1)
-				heapSize = heap_size * 1024;
-			else
-				printUsageAndExit(argv[0]);
+    if (strncmp(argv[i], "-cp", 3) == 0) {
+      if ((argc == i + 1) || classPath.size() > 0)
+        printUsageAndExit(argv[0]);
+      setupClassPath(StdString(argv[++i]));
+    } else if (strncmp(argv[i], "-d", 2) == 0) {
+      ++dumpBytecodes;
+    } else if (strncmp(argv[i], "-g", 2) == 0) {
+      ++gcVerbosity;
+    } else if (strncmp(argv[i], "-H",2) == 0) {
+      long heap_size = 0;
+      char* unit = (char*)malloc(3);
+      if (sscanf(argv[i],"-H%ld%2s", &heap_size, unit) == 2) {
+        if (strcmp(unit, "KB") == 0)
+          heapSize = heap_size * 1024;
+        else if (strcmp(unit, "MB") == 0)
+          heapSize = heap_size * 1024 * 1024;
 
-        } else if ((strncmp(argv[i], "-h", 2) == 0) ||
-            (strncmp(argv[i], "--help", 6) == 0)) {
-                printUsageAndExit(argv[0]);
-        } else {
-            vector<StdString> extPathTokens = vector<StdString>(2);
-            StdString tmpString = StdString(argv[i]);
-            if (this->getClassPathExt(extPathTokens, tmpString) ==
-                                        ERR_SUCCESS) {
-                this->addClassPath(extPathTokens[0]);
-            }
-            //Different from CSOM!!!:
-            //In CSOM there is an else, where the original filename is pushed into the vm_args.
-            //But unlike the class name in extPathTokens (extPathTokens[1]) that could
-            //still have the .som suffix though.
-            //So in SOM++ getClassPathExt will strip the suffix and add it to extPathTokens
-            //even if there is no new class path present. So we can in any case do the following:
-            vmArgs.push_back(extPathTokens[1]);
-        }
+      }
+      else
+        printUsageAndExit(argv[0]);
+      delete unit;
+
+    } else if ((strncmp(argv[i], "-h", 2) == 0) ||
+               (strncmp(argv[i], "--help", 6) == 0)) {
+      printUsageAndExit(argv[0]);
+    } else {
+      vector<StdString> extPathTokens = vector<StdString>(2);
+      StdString tmpString = StdString(argv[i]);
+      if (this->getClassPathExt(extPathTokens, tmpString) ==
+          ERR_SUCCESS) {
+        this->addClassPath(extPathTokens[0]);
+      }
+      //Different from CSOM!!!:
+      //In CSOM there is an else, where the original filename is pushed into the vm_args.
+      //But unlike the class name in extPathTokens (extPathTokens[1]) that could
+      //still have the .som suffix though.
+      //So in SOM++ getClassPathExt will strip the suffix and add it to extPathTokens
+      //even if there is no new class path present. So we can in any case do the following:
+      vmArgs.push_back(extPathTokens[1]);
     }
-    addClassPath(StdString("."));
+  }
+  addClassPath(StdString("."));
 
-    return vmArgs;
+  return vmArgs;
 }
 
 long Universe::getClassPathExt(vector<StdString>& tokens,const StdString& arg ) const {
@@ -369,12 +371,7 @@ void Universe::initialize(long _argc, char** _argv) {
     bootstrapFrame->Push(argumentsArray);
 
     pVMInvokable initialize = 
-#ifdef USE_TAGGING
-        DynamicConvert<VMInvokable, VMObject>(
-            systemClass->LookupInvokable(this->SymbolForChars("initialize:")));
-#else
         static_cast<pVMInvokable>(systemClass->LookupInvokable(this->SymbolForChars("initialize:")));
-#endif
     (*initialize)(bootstrapFrame);
     
     // reset "-d" indicator
@@ -450,8 +447,8 @@ void Universe::InitializeGlobals() {
 
     blockClass = LoadClass(_UNIVERSE->SymbolForChars("Block"));
 
-    trueObject = NewInstance(_UNIVERSE->LoadClass(_UNIVERSE->SymbolForChars("True")));
-    falseObject = NewInstance(_UNIVERSE->LoadClass(_UNIVERSE->SymbolForChars("False")));
+    trueObject = (VMObject*)NewInstance(_UNIVERSE->LoadClass(_UNIVERSE->SymbolForChars("True")));
+    falseObject = (VMObject*)NewInstance(_UNIVERSE->LoadClass(_UNIVERSE->SymbolForChars("False")));
 
     systemClass = LoadClass(_UNIVERSE->SymbolForChars("System"));
 }
@@ -492,9 +489,7 @@ pVMClass Universe::GetBlockClassWithArgs( long numberOfArguments) {
 
 
 pVMObject Universe::GetGlobal( pVMSymbol name) {
-    if (HasGlobal(name))
-        return globals[name];
-    return NULL;
+  return globals[name];
 }
 
 
@@ -540,11 +535,7 @@ void Universe::InitializeSystemClass( pVMClass systemClass,
 
 pVMClass Universe::LoadClass( pVMSymbol name) {
    if (HasGlobal(name))
-#ifdef USE_TAGGING
-       return DynamicConvert<VMClass, VMObject>(GetGlobal(name));
-#else
        return static_cast<pVMClass>(GetGlobal(name));
-#endif
 
    pVMClass result = LoadClassBasic(name, NULL);
 
@@ -700,33 +691,27 @@ pVMDouble Universe::NewDouble( double value) const {
 
 
 pVMFrame Universe::NewFrame( pVMFrame previousFrame, pVMMethod method) const {
+  pVMFrame result = NULL;
 #ifdef UNSAFE_FRAME_OPTIMIZATION
-  pVMFrame result = method->GetCachedFrame();
+  result = method->GetCachedFrame();
   if (result != NULL) {
     method->SetCachedFrame(NULL);
     result->SetPreviousFrame(previousFrame);
     return result;
   }
+#endif
     long length = method->GetNumberOfArguments() +
                  method->GetNumberOfLocals()+
                  method->GetMaximumNumberOfStackElements();
 
     long additionalBytes = length * sizeof(pVMObject);
     result = new (_HEAP, additionalBytes) VMFrame(length);
-#else
-    long length = method->GetNumberOfArguments() +
-                 method->GetNumberOfLocals()+
-                 method->GetMaximumNumberOfStackElements();
-
-    long additionalBytes = length * sizeof(pVMObject);
-    pVMFrame result = new (_HEAP, additionalBytes) VMFrame(length);
-#endif
-    result->SetClass(frameClass);
-    result->SetMethod(method);
+    result->clazz = frameClass;
+    result->method = method;
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION("VMFrame", result->GetObjectSize());
 #endif
-    result->SetPreviousFrame(previousFrame);
+    result->previousFrame = previousFrame;
     result->ResetStackPointer();
     return result;
 
@@ -739,7 +724,7 @@ pVMObject Universe::NewInstance( pVMClass  classOfInstance) const {
     long numOfFields = classOfInstance->GetNumberOfInstanceFields() - 1;
     //the additional space needed is calculated from the number of fields
     long additionalBytes = numOfFields * sizeof(pVMObject);
-    pVMObject result = new (_HEAP, additionalBytes) VMObject(numOfFields);
+    VMObject* result = new (_HEAP, additionalBytes) VMObject(numOfFields);
     result->SetClass(classOfInstance);
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION(classOfInstance->GetName()->GetStdString(), result->GetObjectSize());
@@ -747,11 +732,7 @@ pVMObject Universe::NewInstance( pVMClass  classOfInstance) const {
     return result;
 }
 
-#ifdef USE_TAGGING
-VMPointer<VMInteger> Universe::NewInteger( long value) const {
-#else
   pVMInteger Universe::NewInteger( long value) const {
-#endif
 
 #ifdef GENERATE_INTEGER_HISTOGRAM
     integerHist[value/INT_HIST_SIZE] = integerHist[value/INT_HIST_SIZE]+1;
@@ -783,35 +764,14 @@ pVMClass Universe::NewMetaclassClass() const {
     return result;
 }
 
-#ifdef USE_TAGGING
-void Universe::WalkGlobals(AbstractVMObject* (*walk)(AbstractVMObject*)) {
-#else
-void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
-#endif
-	nilObject = walk(nilObject);
-	trueObject = walk(trueObject);
-	falseObject = walk(falseObject);
+void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
+	nilObject = (VMObject*)walk(nilObject);
+	trueObject = (VMObject*)walk(trueObject);
+	falseObject = (VMObject*)walk(falseObject);
 
 #ifdef USE_TAGGING
 	GlobalBox::updateIntegerBox(static_cast<VMInteger*>(walk(GlobalBox::IntegerBox())));
-
-	objectClass = DynamicConvert<VMClass, AbstractVMObject>(walk(objectClass));
-	classClass = DynamicConvert<VMClass,AbstractVMObject>(walk(classClass));
-	metaClassClass =  DynamicConvert<VMClass,AbstractVMObject>(walk(metaClassClass));
-
-	nilClass = DynamicConvert<VMClass,AbstractVMObject>(walk(nilClass));
-	integerClass = DynamicConvert<VMClass,AbstractVMObject>(walk(integerClass));
-	bigIntegerClass = DynamicConvert<VMClass,AbstractVMObject>(walk(bigIntegerClass));
-	arrayClass = DynamicConvert<VMClass,AbstractVMObject>(walk(arrayClass));
-	methodClass = DynamicConvert<VMClass,AbstractVMObject>(walk(methodClass));
-	symbolClass = DynamicConvert<VMClass,AbstractVMObject>(walk(symbolClass));
-	frameClass = DynamicConvert<VMClass,AbstractVMObject>(walk(frameClass));
-	primitiveClass = DynamicConvert<VMClass,AbstractVMObject>(walk(primitiveClass));
-	stringClass = DynamicConvert<VMClass,AbstractVMObject>(walk(stringClass));
-	systemClass = DynamicConvert<VMClass,AbstractVMObject>(walk(systemClass));
-	blockClass = DynamicConvert<VMClass,AbstractVMObject>(walk(blockClass));
-	doubleClass = DynamicConvert<VMClass,AbstractVMObject>(walk(doubleClass));
-#else
+#endif
 
 	objectClass = static_cast<pVMClass>(walk(objectClass));
 	classClass = static_cast<pVMClass>(walk(classClass));
@@ -829,12 +789,11 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 	systemClass = static_cast<pVMClass>(walk(systemClass));
 	blockClass = static_cast<pVMClass>(walk(blockClass));
 	doubleClass = static_cast<pVMClass>(walk(doubleClass));
-#endif
 
 #ifdef CACHE_INTEGER
   for (unsigned long i = 0; i < (INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE); i++)
 #ifdef USE_TAGGING
-    prebuildInts[i] = INT_CACHE_MIN_VALUE + i;
+    prebuildInts[i] = TAG_INTEGER(INT_CACHE_MIN_VALUE + i);
 #else
     prebuildInts[i] = static_cast<pVMInteger>(walk(prebuildInts[i]));
 #endif
@@ -848,13 +807,8 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 		if (iter->second == NULL)
 			continue;
 
-#ifdef USE_TAGGING
-		pVMSymbol key =
-			DynamicConvert<VMSymbol,AbstractVMObject>(walk(iter->first.GetPointer()));
-#else
 		pVMSymbol key = static_cast<pVMSymbol>(walk(iter->first));
-#endif
-		pVMObject val = walk(iter->second);
+		pVMObject val = walk((VMOBJECT_PTR)iter->second);
 		globals[key] = val;
 	}
 	//walk all entries in symbols map
@@ -862,21 +816,13 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 	for (symbolIter = symbolsMap.begin(); symbolIter !=
 			symbolsMap.end(); symbolIter++) {
 		//insert overwrites old entries inside the internal map
-#ifdef USE_TAGGING
-		symbolIter->second = DynamicConvert<VMSymbol,AbstractVMObject>(walk(symbolIter->second));
-#else
 		symbolIter->second = static_cast<pVMSymbol>(walk(symbolIter->second));
-#endif
 	}
 
 	map<long, pVMClass>::iterator bcIter;
 	for (bcIter = blockClassesByNoOfArgs.begin(); bcIter !=
 			blockClassesByNoOfArgs.end(); bcIter++) {
-#ifdef USE_TAGGING
-		bcIter->second = DynamicConvert<VMClass, AbstractVMObject>(walk(bcIter->second));
-#else
 		bcIter->second = static_cast<pVMClass>(walk(bcIter->second));
-#endif
 	}
 
   //reassign ifTrue ifFalse Symbols
@@ -888,10 +834,14 @@ void Universe::WalkGlobals(pVMObject (*walk)(pVMObject)) {
 pVMMethod Universe::NewMethod( pVMSymbol signature, 
                     size_t numberOfBytecodes, size_t numberOfConstants) const {
     //Method needs space for the bytecodes and the pointers to the constants
-    long additionalBytes = numberOfBytecodes + 
-                numberOfConstants*sizeof(pVMObject);
+    long additionalBytes = PADDED_SIZE(numberOfBytecodes + numberOfConstants*sizeof(pVMObject));
+//#if GC_TYPE==GENERATIONAL
+//    pVMMethod result = new (_HEAP,additionalBytes, true) 
+//                VMMethod(numberOfBytecodes, numberOfConstants);
+//#else
     pVMMethod result = new (_HEAP,additionalBytes) 
                 VMMethod(numberOfBytecodes, numberOfConstants);
+//#endif
     result->SetClass(methodClass);
 
     result->SetSignature(signature);
@@ -907,7 +857,7 @@ pVMString Universe::NewString( const StdString& str) const {
 }
 
 pVMString Universe::NewString( const char* str) const {
-    pVMString result = new (_HEAP, strlen(str) + 1) VMString(str);
+    pVMString result = new (_HEAP, PADDED_SIZE(strlen(str) + 1)) VMString(str);
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION("VMString", result->GetObjectSize());
 #endif
@@ -919,7 +869,7 @@ pVMSymbol Universe::NewSymbol( const StdString& str) {
 }
 
 pVMSymbol Universe::NewSymbol( const char* str ) {
-  pVMSymbol result = new (_HEAP, strlen(str)+1) VMSymbol(str);
+  pVMSymbol result = new (_HEAP, PADDED_SIZE(strlen(str)+1)) VMSymbol(str);
 	symbolsMap[str] = result;
 #ifdef GENERATE_ALLOCATION_STATISTICS
   LOG_ALLOCATION("VMSymbol", result->GetObjectSize());

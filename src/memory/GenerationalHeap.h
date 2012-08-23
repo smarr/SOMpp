@@ -9,13 +9,8 @@
 
 #ifdef DEBUG
 struct VMObjectCompare {
-#ifdef USE_TAGGING
-  bool operator() (pair<const AbstractVMObject*, const AbstractVMObject*> lhs, pair<const
-		  AbstractVMObject*, const AbstractVMObject*> rhs) const
-#else
   bool operator() (pair<const pVMObject, const pVMObject> lhs, pair<const
 		  pVMObject, const pVMObject> rhs) const
-#endif
   {return (size_t)lhs.first<(size_t)rhs.first &&
 	  (size_t)lhs.second<(size_t)rhs.second ;}
 };
@@ -29,19 +24,10 @@ class GenerationalHeap : public Heap {
   AbstractVMObject* AllocateNurseryObject(size_t size);
   AbstractVMObject* AllocateMatureObject(size_t size);
   size_t GetMaxNurseryObjectSize();
-#ifdef USE_TAGGING
-	void writeBarrier(AbstractVMObject* holder, const AbstractVMObject* referencedObject);
-	inline bool isObjectInNursery(const AbstractVMObject* obj);
-#else
-	void writeBarrier(pVMObject holder, const pVMObject referencedObject);
+	void writeBarrier(VMOBJECT_PTR holder, const VMOBJECT_PTR referencedObject);
 	inline bool isObjectInNursery(const pVMObject obj);
-#endif
 #ifdef DEBUG
-#ifdef USE_TAGGING
-	std::set<pair<const AbstractVMObject*, const AbstractVMObject*>, VMObjectCompare > writeBarrierCalledOn;
-#else
-	std::set<pair<const pVMObject, const pVMObject>, VMObjectCompare > writeBarrierCalledOn;
-#endif
+	std::set<pair<const VMOBJECT_PTR, const VMOBJECT_PTR>, VMObjectCompare > writeBarrierCalledOn;
 #endif
  private:
 	void* nursery;
@@ -50,36 +36,22 @@ class GenerationalHeap : public Heap {
 	size_t maxNurseryObjSize;
 	size_t matureObjectsSize;
 	void* nextFreePosition;
-#ifdef USE_TAGGING
-	void writeBarrier_OldHolder(AbstractVMObject* holder, const
-			AbstractVMObject* referencedObject);
-#else
-	void writeBarrier_OldHolder(pVMObject holder, const pVMObject
+	void writeBarrier_OldHolder(VMOBJECT_PTR holder, const VMOBJECT_PTR
 			referencedObject);
-#endif
   void* collectionLimit;
 	vector<size_t>* oldObjsWithRefToYoungObjs;
-  vector<pVMObject>* allocatedObjects;
+  vector<VMOBJECT_PTR>* allocatedObjects;
 };
 
-#ifdef USE_TAGGING
-inline bool GenerationalHeap::isObjectInNursery(const AbstractVMObject* obj) {
-#else
 inline bool GenerationalHeap::isObjectInNursery(const pVMObject obj) {
-#endif
-	return (size_t) obj >= (size_t)nursery && (size_t) obj < ((size_t)nursery +
-			nurserySize);
+	return (size_t) obj >= (size_t)nursery && (size_t) obj < nursery_end;
 }
 
 inline size_t GenerationalHeap::GetMaxNurseryObjectSize() {
 	return maxNurseryObjSize;
 }
 
-#ifdef USE_TAGGING
-inline void GenerationalHeap::writeBarrier(AbstractVMObject* holder, const AbstractVMObject* referencedObject) {
-#else
-inline void GenerationalHeap::writeBarrier(pVMObject holder, const pVMObject referencedObject) {
-#endif
+inline void GenerationalHeap::writeBarrier(VMOBJECT_PTR holder, const VMOBJECT_PTR referencedObject) {
 #ifdef DEBUG
 	//XXX Disabled because of speed reasons --> causes some tests to fail
 	//writeBarrierCalledOn.insert(make_pair(holder, referencedObject));

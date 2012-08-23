@@ -13,21 +13,20 @@ MarkSweepHeap::MarkSweepHeap(long objectSpaceSize) {
 	collectionLimit = objectSpaceSize * 0.9;
     spcAlloc = 0;
 	gc = new MarkSweepCollector(this);
-	allocatedObjects = new vector<pVMObject>();
+	allocatedObjects = new vector<VMOBJECT_PTR>();
 }
 
 AbstractVMObject* MarkSweepHeap::AllocateObject(size_t size) {
 	//TODO: PADDING wird eigentlich auch durch malloc erledigt
-	size_t paddedSize = size + PAD_BYTES(size);
-	AbstractVMObject* newObject = (AbstractVMObject*) malloc(paddedSize);
+	AbstractVMObject* newObject = (AbstractVMObject*) malloc(size);
 	if (newObject == NULL) {
 		cout << "Failed to allocate " << size << " Bytes." << endl;
 		_UNIVERSE->Quit(-1);
 	}
-	spcAlloc += paddedSize;
-	memset(newObject, 0, paddedSize);
+	spcAlloc += size;
+	memset(newObject, 0, size);
 	//AbstractObjects (Integer,...) have no Size field anymore -> set within VMObject's new operator
-	//newObject->SetObjectSize(paddedSize);
+	//newObject->SetObjectSize(size);
 	allocatedObjects->push_back(newObject);
 	//let's see if we have to trigger the GC
 	if (spcAlloc >= collectionLimit)

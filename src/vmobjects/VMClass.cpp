@@ -30,10 +30,6 @@ THE SOFTWARE.
 #include "VMInvokable.h"
 #include "VMPrimitive.h"
 #include "PrimitiveRoutine.h"
-#ifdef USE_TAGGING
-#include "VMPointerConverter.h"
-#endif
-
 #include <fstream>
 #include <typeinfo>
 
@@ -72,20 +68,11 @@ superClass(NULL), name(NULL),
 	instanceFields(NULL), instanceInvokables(NULL) {
 }
 
-#ifdef USE_TAGGING
-VMClass* VMClass::Clone() const {
-#if GC_TYPE==GENERATIONAL
-	VMClass* clone = new (_HEAP, objectSize - sizeof(VMClass), true)VMClass(*this);
-#else
-	VMClass* clone = new (_HEAP, objectSize - sizeof(VMClass))VMClass(*this);
-#endif
-#else
 pVMClass VMClass::Clone() const {
 #if GC_TYPE==GENERATIONAL
 	pVMClass clone = new (_HEAP, objectSize - sizeof(VMClass), true)VMClass(*this);
 #else
 	pVMClass clone = new (_HEAP, objectSize - sizeof(VMClass))VMClass(*this);
-#endif
 #endif
 	memcpy(SHIFTED_PTR(clone,sizeof(VMObject)),
 			SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() -
@@ -94,55 +81,33 @@ pVMClass VMClass::Clone() const {
 }
 
 
-#ifdef USE_TAGGING
-VMClass::VMClass( long numberOfFields ) : VMObject(numberOfFields + VMClassNumberOfFields),
-superClass(NULL), name(NULL), instanceFields(nilObject), instanceInvokables(nilObject) {
-#else
 VMClass::VMClass( long numberOfFields ) : VMObject(numberOfFields + VMClassNumberOfFields) {
-#endif
 }
 
 
-#ifdef USE_TAGGING
-void VMClass::WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*)) {
-  clazz = VMPointer<VMClass>(static_cast<VMClass*>(walk(clazz)));
-  if (superClass)
-    superClass = VMPointer<VMClass>(static_cast<VMClass*>(walk(superClass)));
-  name = VMPointer<VMSymbol>(static_cast<VMSymbol*>(walk(name)));
-  instanceFields = VMPointer<VMArray>(static_cast<VMArray*>(walk(instanceFields)));
-  instanceInvokables = VMPointer<VMArray>(static_cast<VMArray*>(walk(instanceInvokables)));
-#else
-void VMClass::WalkObjects(pVMObject (*walk)(pVMObject)) {
+void VMClass::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
   clazz = static_cast<pVMClass>(walk(clazz));
   if (superClass)
     superClass = static_cast<pVMClass>(walk(superClass));
   name = static_cast<pVMSymbol>(walk(name));
   instanceFields = static_cast<pVMArray>(walk(instanceFields));
   instanceInvokables = static_cast<pVMArray>(walk(instanceInvokables));
-#endif
+
+pVMObject* fields = (pVMObject*)(&clazz);
 
   for (long i = VMClassNumberOfFields + 1/*VMObjectNumberOfFields*/; i < numberOfFields; i++)
-    SetField(i, walk(GetField(i)));
+    fields[i] = walk(GET_POINTER(fields[i]));
 }
 
 
 bool VMClass::AddInstanceInvokable(pVMObject ptr) {
-#ifdef USE_TAGGING
-    pVMInvokable newInvokable = DynamicConvert<VMInvokable, VMObject>(ptr);
-#else
     pVMInvokable newInvokable = static_cast<pVMInvokable>(ptr);
-#endif
     if (newInvokable == NULL) {
         _UNIVERSE->ErrorExit("Error: trying to add non-invokable to invokables array");
     }
     //Check whether an invokable with the same signature exists and replace it if that's the case
 	for (long i = 0; i < instanceInvokables->GetNumberOfIndexableFields(); ++i) {
-#ifdef USE_TAGGING
-        pVMInvokable inv = DynamicConvert<VMInvokable, VMObject>(
-				(*instanceInvokables).GetIndexableField(i) );
-#else
         pVMInvokable inv = static_cast<pVMInvokable>(instanceInvokables->GetIndexableField(i));
-#endif
 		if (inv != NULL) {
             if (newInvokable->GetSignature() == inv->GetSignature()) {
                 this->SetInstanceInvokable(i, ptr);
@@ -193,11 +158,7 @@ void      VMClass::SetInstanceInvokables(pVMArray invokables) {
         //check for Nil object
         if (invo != nilObject) {
             //not Nil, so this actually is an invokable
-#ifdef USE_TAGGING
-            pVMInvokable inv = DynamicConvert<VMInvokable, VMObject>(invo);
-#else
             pVMInvokable inv = static_cast<pVMInvokable>(invo);
-#endif
             inv->SetHolder(this);
         }
     }
@@ -218,11 +179,7 @@ pVMInvokable VMClass::GetInstanceInvokable(long index) const {
 void      VMClass::SetInstanceInvokable(long index, pVMObject invokable) {
   instanceInvokables->SetIndexableField(index, invokable);
   if (invokable != nilObject) {
-#ifdef USE_TAGGING
-    pVMInvokable inv = DynamicConvert<VMInvokable, VMObject>( invokable );
-#else
     pVMInvokable inv = static_cast<pVMInvokable>( invokable );
-#endif
     inv->SetHolder(this);
   }
 }

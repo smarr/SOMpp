@@ -34,10 +34,6 @@ class AbstractVMObject;
 class VMClass;
 
 #include "../vmobjects/ObjectFormats.h"
-#ifdef USE_TAGGING
-#include "../vmobjects/VMPointer.h"
-#endif
-
 #include "../misc/defs.h"
 #include "../misc/ExtendedList.h"
 

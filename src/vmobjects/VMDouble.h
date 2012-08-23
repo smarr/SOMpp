@@ -37,11 +37,7 @@ public:
     VMDouble();
     VMDouble(double);
     
-#ifdef USE_TAGGING
-    virtual VMDouble* Clone() const;
-#else
     virtual pVMDouble Clone() const;
-#endif
     inline void    SetEmbeddedDouble(double);
     inline double  GetEmbeddedDouble() const;
     virtual pVMClass GetClass() const;

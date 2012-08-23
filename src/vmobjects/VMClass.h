@@ -74,13 +74,8 @@ class VMClass : public VMObject {
   long       GetNumberOfInstanceFields() const;
   bool      HasPrimitives() const;
   void      LoadPrimitives(const vector<StdString>&);
-#ifdef USE_TAGGING
-  virtual VMClass* Clone() const;
-  void WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*));
-#else
-    virtual pVMClass Clone() const;
-    void WalkObjects(pVMObject (*walk)(pVMObject));
-#endif
+  virtual pVMClass Clone() const;
+  void WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
 
  private:
   StdString genLoadstring(const StdString& cp,

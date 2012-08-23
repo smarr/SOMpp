@@ -38,11 +38,7 @@ public:
 	VMInteger(long);
 
 	inline long GetEmbeddedInteger() const;
-#ifdef USE_TAGGING
-	virtual VMInteger* Clone() const;
-#else
 	virtual pVMInteger Clone() const;
-#endif
 	virtual pVMClass GetClass() const;
 	virtual inline size_t GetObjectSize() const;
 

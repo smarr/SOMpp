@@ -42,13 +42,9 @@ class VMSymbol : public VMString {
 public:
 	VMSymbol( const char* str );
 	VMSymbol( const StdString& s );
-    virtual StdString GetPlainString() const;
+  virtual StdString GetPlainString() const;
 	virtual size_t GetObjectSize() const;
-#ifdef USE_TAGGING
-    virtual VMSymbol* Clone() const;
-#else
-    virtual pVMSymbol Clone() const;
-#endif
+  virtual pVMSymbol Clone() const;
 	virtual pVMClass GetClass() const;
 private:
 	const VMClass* cachedClass_index;

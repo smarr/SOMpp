@@ -5,9 +5,6 @@
 
 #include "Heap.h"
 #include "../vm/Universe.h"
-#ifdef USE_TAGGING
-#include "../vmobjects/VMIntPointer.h"
-#endif
 #include "../vmobjects/VMMethod.h"
 #include "../vmobjects/VMObject.h"
 #include "../vmobjects/VMSymbol.h"
@@ -30,7 +27,7 @@ GenerationalCollector::GenerationalCollector(Heap* heap) : GarbageCollector(heap
 VMOBJECT_PTR mark_object(VMOBJECT_PTR obj) {
 #ifdef USE_TAGGING
 	//don't process tagged objects
-	if ((size_t)((void*)obj) & 1)
+	if (IS_TAGGED(obj))
 		return obj;
 #endif
     if (obj->GetGCField() & MASK_OBJECT_IS_MARKED)
@@ -43,7 +40,7 @@ VMOBJECT_PTR mark_object(VMOBJECT_PTR obj) {
 VMOBJECT_PTR copy_if_necessary(VMOBJECT_PTR obj) {
 #ifdef USE_TAGGING
   //don't process tagged objects
-  if ((size_t)((void*)obj) & 0x1)
+  if (IS_TAGGED(obj))
     return obj;
 #endif
   size_t gcField = obj->GetGCField();
@@ -69,11 +66,7 @@ void GenerationalCollector::MinorCollection() {
   //and the current frame
   pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
   if (currentFrame != NULL) {
-#ifdef USE_TAGGING
-    pVMFrame newFrame =	static_cast<VMFrame*>(copy_if_necessary(currentFrame.GetPointer()));
-#else
     pVMFrame newFrame = static_cast<pVMFrame>(copy_if_necessary(currentFrame));
-#endif
     _UNIVERSE->GetInterpreter()->SetFrame(newFrame);
   }
 
@@ -98,17 +91,13 @@ void GenerationalCollector::MajorCollection() {
     //and the current frame
     pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
     if (currentFrame != NULL) {
-#ifdef USE_TAGGING
-        VMFrame* newFrame = static_cast<VMFrame*>(mark_object(currentFrame));
-#else
         pVMFrame newFrame = static_cast<pVMFrame>(mark_object(currentFrame));
-#endif
         _UNIVERSE->GetInterpreter()->SetFrame(newFrame);
     }
 
     //now that all objects are marked we can safely delete all allocated objects that are not marked
-    vector<pVMObject>* survivors = new vector<pVMObject>();
-	for (vector<pVMObject>::iterator objIter =
+    vector<VMOBJECT_PTR>* survivors = new vector<VMOBJECT_PTR>();
+	for (vector<VMOBJECT_PTR>::iterator objIter =
 			_HEAP->allocatedObjects->begin(); objIter !=
 			_HEAP->allocatedObjects->end(); objIter++) {
 		if ((*objIter)->GetGCField() & MASK_OBJECT_IS_MARKED) {

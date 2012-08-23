@@ -36,7 +36,7 @@ LDFLAGS		=$(DBG_FLAGS) $(LIBRARIES)
 
 INSTALL		=install
 
-CSOM_LIBS	=-ltcmalloc
+CSOM_LIBS	=
 CORE_LIBS	=-lm
 
 CSOM_NAME	=SOM++
@@ -102,7 +102,7 @@ PRIMITIVES_OBJ	= $(PRIMITIVES_SRC:.cpp=.pic.o)
 ############# include path
 
 INCLUDES		=-I$(SRC_DIR)
-LIBRARIES		=-L$(ROOT_DIR) -Lgperftools-2.0/.libs -Wl,-rpath,gperftools-2.0/.libs -Wl,-rpath,.
+LIBRARIES		=-L$(ROOT_DIR) -lrt
 
 ##############
 ############## Collections.
@@ -118,8 +118,7 @@ SOURCES			=  $(COMPILER_SRC) $(INTERPRETER_SRC) $(MEMORY_SRC) \
 
 ############# Things to clean
 
-CLEAN			= $(OBJECTS) \
-				$(DIST_DIR) $(DEST_DIR) CORE
+CLEAN			= $(OBJECTS) $(DIST_DIR) $(DEST_DIR) CORE
 ############# Tools
 
 #OSTOOL			= $(BUILD_DIR)/ostool
@@ -181,7 +180,7 @@ endif
 all: $(CSOM_NAME)\
 	$(CSOM_NAME).$(SHARED_EXTENSION) \
 	$(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION) \
-	CORE
+	CORE units
 
 
 debug : DBG_FLAGS=-DDEBUG -O0 -g
@@ -200,6 +199,10 @@ profiling: all
 
 clean:
 	rm -Rf $(CLEAN)
+	#just to be sure delete again
+	find -name "*.o" -delete
+	rm -Rf $(CORE_NAME).csp $(ST_DIR)/$(CORE_NAME).csp
+	rm -Rf *.so
 
 
 
@@ -212,7 +215,7 @@ clean:
 $(CSOM_NAME): $(CSOM_NAME).$(SHARED_EXTENSION) $(MAIN_OBJ)
 	@echo Linking $(CSOM_NAME) loader
 	$(CC) $(LDFLAGS) \
-		-o $(CSOM_NAME) $(MAIN_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION) -ldl -lrt
+		-o $(CSOM_NAME) $(MAIN_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION) -ldl
 	@echo CSOM done.
 
 $(CSOM_NAME).$(SHARED_EXTENSION): $(CSOM_OBJ)
@@ -259,7 +262,7 @@ console: all
 	./$(CSOM_NAME) -cp ./Smalltalk
 
 units: $(UNITTEST_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION)
-	$(CC) $(LIBRARIES) $(UNITTEST_OBJ) SOM++.so -lcppunit -lrt -o unittest
+	$(CC) $(LIBRARIES) $(UNITTEST_OBJ) SOM++.so -lcppunit -o unittest
 
 richards: all
 	./$(CSOM_NAME) -cp ./Smalltalk ./Examples/Benchmarks/Richards/RichardsBenchmarks.som

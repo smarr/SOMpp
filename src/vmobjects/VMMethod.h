@@ -32,9 +32,6 @@ THE SOFTWARE.
 
 #include "VMInvokable.h"
 #include "VMInteger.h"
-#ifdef USE_TAGGING
-#include "VMIntPointer.h"
-#endif
 
 class VMArray;
 class VMObject;
@@ -65,17 +62,9 @@ class VMMethod :  public VMInvokable {
   void      SetCachedFrame(pVMFrame frame); 
   pVMFrame  GetCachedFrame() const;
 #endif
-#ifdef USE_TAGGING
-  virtual void	  WalkObjects(AbstractVMObject* (AbstractVMObject*));
-#else
-  virtual void	  WalkObjects(pVMObject (pVMObject));
-#endif
+  virtual void	  WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
   inline long       GetNumberOfIndexableFields() const;
-#ifdef USE_TAGGING
-  virtual VMMethod* Clone() const;
-#else
   virtual pVMMethod Clone() const;
-#endif
 
   inline void              SetIndexableField(long idx, pVMObject item);
 
@@ -112,7 +101,7 @@ class VMMethod :  public VMInvokable {
 
 inline long VMMethod::GetNumberOfLocals() const {
 #ifdef USE_TAGGING
-    return (long)numberOfLocals; 
+    return UNTAG_INTEGER(numberOfLocals); 
 #else
     return numberOfLocals->GetEmbeddedInteger(); 
 #endif
@@ -123,7 +112,7 @@ long VMMethod::GetNumberOfIndexableFields() const {
     //cannot be done using GetAdditionalSpaceConsumption,
     //as bytecodes need space, too, and there might be padding
 #ifdef USE_TAGGING
-    return (long)this->numberOfConstants;
+    return UNTAG_INTEGER(this->numberOfConstants);
 #else
     return this->numberOfConstants->GetEmbeddedInteger();
 #endif
@@ -135,7 +124,7 @@ uint8_t* VMMethod::GetBytecodes() const {
 
 inline long VMMethod::GetNumberOfArguments() const {
 #ifdef USE_TAGGING
-    return (long)numberOfArguments; 
+    return UNTAG_INTEGER(numberOfArguments); 
 #else
     return numberOfArguments->GetEmbeddedInteger(); 
 #endif

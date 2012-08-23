@@ -74,24 +74,12 @@ pVMArray VMArray::CopyAndExtendWith(pVMObject item) const {
 
 
 
-#ifdef USE_TAGGING
-VMArray* VMArray::Clone() const {
-#else
 pVMArray VMArray::Clone() const {
-#endif
 	long addSpace = objectSize - sizeof(VMArray);
-#ifdef USE_TAGGING
-#if GC_TYPE==GENERATIONAL
-	VMArray* clone = new (_HEAP, addSpace, true) VMArray(*this);
-#else
-	VMArray* clone = new (_HEAP, addSpace) VMArray(*this);
-#endif
-#else
 #if GC_TYPE==GENERATIONAL
 	pVMArray clone = new (_HEAP, addSpace, true) VMArray(*this);
 #else
 	pVMArray clone = new (_HEAP, addSpace) VMArray(*this);
-#endif
 #endif
 	void* destination = SHIFTED_PTR(clone, sizeof(VMArray));
 	const void* source = SHIFTED_PTR(this, sizeof(VMArray));
@@ -107,18 +95,11 @@ void VMArray::CopyIndexableFieldsTo(pVMArray to) const {
 	}
 }
 
-#ifdef USE_TAGGING
-void VMArray::WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*)) {
-#else
-void VMArray::WalkObjects(pVMObject (*walk)(pVMObject)) {
-#endif
+void VMArray::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
 	long noOfFields = GetNumberOfFields();
 	long noIndexableFields = GetNumberOfIndexableFields();
-    for (long i = 0; i < noOfFields; i++)
-	    SetField(i, walk(GetField(i)));
-    for (long i = 0; i < noIndexableFields; i++) {
-		pVMObject field = GetIndexableField(i);
-	    if (field != NULL)
-		    SetIndexableField(i, walk(field));
-	}
+  pVMObject* fields = (pVMObject*)(&clazz);
+  for (long i = 0; i < noOfFields + noIndexableFields; i++) {
+    fields[i] = walk(GET_POINTER(fields[i]));
+  }
 }

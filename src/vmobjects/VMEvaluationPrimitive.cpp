@@ -43,20 +43,13 @@ VMEvaluationPrimitive::VMEvaluationPrimitive(long argc) :
                                &VMEvaluationPrimitive::evaluationRoutine));
     this->SetEmpty(false);
 #ifdef USE_TAGGING
-    this->numberOfArguments = argc;
+    this->numberOfArguments = TAG_INTEGER(argc);
 #else
     this->numberOfArguments = _UNIVERSE->NewInteger(argc);
 #endif
-#if GC_TYPE==GENERATIONAL
-	_HEAP->writeBarrier(this, numberOfArguments);
-#endif
 }
 
-#ifdef USE_TAGGING
-VMEvaluationPrimitive* VMEvaluationPrimitive::Clone() const {
-#else
 pVMEvaluationPrimitive VMEvaluationPrimitive::Clone() const {
-#endif
 #if GC_TYPE==GENERATIONAL
 	pVMEvaluationPrimitive evPrim = new (_HEAP, 0, true) VMEvaluationPrimitive(*this);
 #else
@@ -66,19 +59,9 @@ pVMEvaluationPrimitive VMEvaluationPrimitive::Clone() const {
 }
 
 
-#ifdef USE_TAGGING
-void VMEvaluationPrimitive::WalkObjects(AbstractVMObject*
-		(*walk)(AbstractVMObject*)) {
-	VMPrimitive::WalkObjects(walk);
-	numberOfArguments = (VMInteger*)walk(numberOfArguments);
-#else
-void VMEvaluationPrimitive::WalkObjects(pVMObject (*walk)(pVMObject)) {
+void VMEvaluationPrimitive::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
 	VMPrimitive::WalkObjects(walk);
 	numberOfArguments = static_cast<pVMInteger>(walk(numberOfArguments));
-#endif
-#if GC_TYPE==GENERATIONAL
-	_HEAP->writeBarrier(this, numberOfArguments);
-#endif
 }
 
 
@@ -112,7 +95,7 @@ void VMEvaluationPrimitive::evaluationRoutine(pVMObject object, pVMFrame frame){
 
      // Get the block (the receiver) from the stack
 #ifdef USE_TAGGING
-    long numArgs = (long)self->numberOfArguments;
+    long numArgs = UNTAG_INTEGER(self->numberOfArguments);
 #else
     long numArgs = self->numberOfArguments->GetEmbeddedInteger();
 #endif

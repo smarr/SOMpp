@@ -32,9 +32,6 @@ THE SOFTWARE.
 #include "../misc/defs.h"
 
 #include "../vmobjects/ObjectFormats.h"
-#ifdef USE_TAGGING
-#include "../vmobjects/VMPointer.h"
-#endif
 
 class VMMethod;
 class VMFrame;

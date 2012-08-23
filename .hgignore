@@ -8,6 +8,7 @@ syntax: glob
 *.swp
 *.eps
 *.png
+*.orig
 bin
 CORE
 SOM++

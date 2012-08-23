@@ -8,9 +8,6 @@
 #include "AbstractObject.h"
 
 #include "../vm/Universe.h"
-#ifdef USE_TAGGING
-#include "VMIntPointer.h"
-#endif
 #include "VMFrame.h"
 #include "VMClass.h"
 #include "VMInvokable.h"

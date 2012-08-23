@@ -35,9 +35,6 @@ THE SOFTWARE.
 #include "GarbageCollector.h"
 #include "../misc/defs.h"
 #include "../vmobjects/ObjectFormats.h"
-#ifdef USE_TAGGING
-#include "../vmobjects/VMPointer.h"
-#endif
 
 class AbstractVMObject;
 using namespace std;
@@ -86,6 +83,10 @@ HEAP_CLS* Heap::GetHeap() {
 
 void Heap::triggerGC(void) {
 	gcTriggered = true;
+}
+
+inline bool Heap::isCollectionTriggered(void) {
+  return gcTriggered;
 }
 
 void Heap::resetGCTrigger(void) {

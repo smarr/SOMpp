@@ -20,7 +20,7 @@
 /*
  * macro for padding - only word-aligned memory must be allocated
  */
-#define PAD_BYTES(N) ((sizeof(void*) - ((N) % sizeof(void*))) % sizeof(void*))
+#define PADDED_SIZE(N) ((((uint32_t)N)+(sizeof(void*)-1) & ~(sizeof(void*)-1)))
 
 class VMClass;
 class VMObject;
@@ -35,11 +35,7 @@ class AbstractVMObject : public VMObjectBase {
 public:
 	virtual size_t GetHash();
 	virtual pVMClass GetClass() const = 0;
-#ifdef USE_TAGGING
 	virtual AbstractVMObject* Clone() const = 0;
-#else
-	virtual pVMObject Clone() const = 0;
-#endif
 	virtual void Send(StdString, pVMObject*, long);
 	virtual size_t GetObjectSize() const = 0;
 	AbstractVMObject() {
@@ -67,11 +63,7 @@ public:
 		throw "this object doesn't support SetField";
 	}
 	virtual pVMObject GetField(long index) const;
-#ifdef USE_TAGGING
-	inline virtual void WalkObjects(AbstractVMObject* (AbstractVMObject*)) {
-#else
-	inline virtual void WalkObjects(pVMObject (pVMObject)) {
-#endif
+	inline virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR)) {
 		return;
 	}
 	inline virtual pVMSymbol GetFieldName(long index) const {

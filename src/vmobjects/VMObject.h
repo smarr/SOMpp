@@ -78,13 +78,8 @@ public:
 	virtual pVMObject GetField(long index) const;
 	virtual void Assert(bool value) const;
 	virtual void SetField(long index, pVMObject value);
-#ifdef USE_TAGGING
-	virtual void WalkObjects(AbstractVMObject* (AbstractVMObject*));
+	virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
 	virtual VMObject* Clone() const;
-#else
-	virtual void WalkObjects(pVMObject (pVMObject));
-	virtual pVMObject Clone() const;
-#endif
 	virtual inline size_t GetObjectSize() const;
 	virtual inline void SetObjectSize(size_t size);
 
@@ -103,16 +98,16 @@ public:
 #if GC_TYPE==GENERATIONAL
 			unsigned long additionalBytes = 0, bool outsideNursery = false) {
 		void* mem = AbstractVMObject::operator new(numBytes, heap,
-				additionalBytes, outsideNursery);
+				PADDED_SIZE(additionalBytes), outsideNursery);
 #elif GC_TYPE==COPYING
 			unsigned long additionalBytes = 0) {
-		void* mem = (void*) ((CopyingHeap*)heap)->AllocateObject(numBytes + additionalBytes);
+		void* mem = (void*) ((CopyingHeap*)heap)->AllocateObject(numBytes + PADDED_SIZE(additionalBytes));
 #elif GC_TYPE==MARK_SWEEP
 			unsigned long additionalBytes = 0) {
-		void* mem = (void*) ((MarkSweepHeap*)heap)->AllocateObject(numBytes + additionalBytes);
+		void* mem = (void*) ((MarkSweepHeap*)heap)->AllocateObject(numBytes + PADDED_SIZE(additionalBytes));
 #endif
-		size_t objSize = numBytes + additionalBytes;
-		((VMObject*) mem)->objectSize = objSize + PAD_BYTES(objSize);
+		size_t objSize = numBytes + PADDED_SIZE(additionalBytes);
+		((VMObject*) mem)->objectSize = objSize;
 		return mem;
 	}
 

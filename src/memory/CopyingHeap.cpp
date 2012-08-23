@@ -33,9 +33,8 @@ void CopyingHeap::switchBuffers() {
 
 
 AbstractVMObject* CopyingHeap::AllocateObject(size_t size) {
-	size_t paddedSize = size + PAD_BYTES(size);
 	AbstractVMObject* newObject = (AbstractVMObject*) nextFreePosition;
-	nextFreePosition = (void*)((size_t)nextFreePosition + paddedSize);
+	nextFreePosition = (void*)((size_t)nextFreePosition + size);
 	if (nextFreePosition > currentBufferEnd) {
 		cout << "Failed to allocate " << size << " Bytes." << endl;
 		_UNIVERSE->Quit(-1);

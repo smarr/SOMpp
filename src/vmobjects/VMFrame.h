@@ -31,15 +31,14 @@ THE SOFTWARE.
 
 
 #include "VMArray.h"
-#ifdef USE_TAGGING
-#include "VMIntPointer.h"
-#endif
 class VMMethod;
 class VMObject;
 class VMInteger;
+class Universe;
 
 
 class VMFrame : public VMObject {
+  friend class Universe;
 public:
     static pVMFrame EmergencyFrameFrom(pVMFrame from, long extraLength);
 
@@ -72,13 +71,8 @@ public:
     long        ArgumentStackIndex(long index) const;
     void       CopyArgumentsFrom(pVMFrame frame);
 	  inline virtual pVMObject GetField(long index) const;
-#ifdef USE_TAGGING
-    virtual VMFrame*   Clone() const;
-		virtual void WalkObjects(AbstractVMObject* (AbstractVMObject*));
-#else
-		virtual void WalkObjects(pVMObject (pVMObject));
+		virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
     virtual pVMFrame   Clone() const;
-#endif
     
     void       PrintStack() const;
     inline void* GetStackPointer() const;
@@ -97,7 +91,11 @@ private:
 
 pVMObject VMFrame::GetField(long index) const {
   if (index==4)
+#ifdef USE_TAGGING
+    return TAG_INTEGER(bytecodeIndex);
+#else
     return _UNIVERSE->NewInteger(bytecodeIndex);
+#endif
   return VMObject::GetField(index);
 }
 
@@ -146,7 +144,7 @@ pVMFrame VMFrame::GetPreviousFrame() const {
 void     VMFrame::SetPreviousFrame(pVMObject frm) {
     this->previousFrame = static_cast<pVMFrame>(frm);
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, frm);
+    _HEAP->writeBarrier(this, GET_POINTER(frm));
 #endif
 }
 

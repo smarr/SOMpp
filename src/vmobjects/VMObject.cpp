@@ -45,11 +45,7 @@ VMObject::VMObject( long numberOfFields ) {
   //Object size is set by the heap
 }
 
-#ifdef USE_TAGGING
 VMObject* VMObject::Clone() const {
-#else
-pVMObject VMObject::Clone() const {
-#endif
 #if GC_TYPE==GENERATIONAL
     VMObject* clone = new (_HEAP, objectSize - sizeof(VMObject), true) VMObject(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)),
@@ -97,7 +93,7 @@ pVMObject VMObject::GetField(long index) const {
 void VMObject::SetField(long index, pVMObject value) {
      FIELDS[index] = value;
 #if GC_TYPE==GENERATIONAL
-	 _HEAP->writeBarrier(this, value);
+	 _HEAP->writeBarrier(this, (VMOBJECT_PTR)value);
 #endif
 }
 
@@ -111,13 +107,8 @@ long VMObject::GetAdditionalSpaceConsumption() const
                           sizeof(pVMObject) * (this->GetNumberOfFields() - 1)));
 }
 
-#ifdef USE_TAGGING
-void VMObject::WalkObjects(AbstractVMObject* (*walk)(AbstractVMObject*)) {
-#else
-void VMObject::WalkObjects(pVMObject (*walk)(pVMObject)) {
-#endif
-    for( long i = 0; i < this->GetNumberOfFields(); ++i) {
-		SetField(i, walk(GetField(i)));
-    }
-
+void VMObject::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
+  for( long i = 0; i < this->GetNumberOfFields(); ++i) {
+    FIELDS[i] = walk((VMOBJECT_PTR)GetField(i));
+  }
 }

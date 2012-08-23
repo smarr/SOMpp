@@ -43,7 +43,7 @@ void VMObjectsInterfaceTest::tearDown() {
 
 }
 
-void testObjectSizeHelper(pVMObject obj, StdString msg, size_t expectedSize) {
+void testObjectSizeHelper(VMOBJECT_PTR obj, StdString msg, size_t expectedSize) {
 	CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expectedSize, obj->GetObjectSize());
 	obj->SetObjectSize(7654);
 	CPPUNIT_ASSERT_EQUAL_MESSAGE(msg + StdString(" (modified)"), (size_t)7654,
@@ -56,18 +56,18 @@ void VMObjectsInterfaceTest::testGetSetObjectSize() {
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("integer size", (size_t)12, pInteger->GetObjectSize());
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("double size", (size_t)16, pDouble->GetObjectSize());
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("string size", (size_t)20, pString->GetObjectSize());
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("symbol size", (size_t)28, pSymbol->GetObjectSize());
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("symbol size", (size_t)56, pSymbol->GetObjectSize());
 	//testObjectSizeHelper(pString, "string size", 12);
 	//testObjectSizeHelper(pSymbol, "symbol size", 12);
 	testObjectSizeHelper(pArray, "array size", 24);
 	testObjectSizeHelper(pArray3, "array(3) size", 36);
-	testObjectSizeHelper(pMethod, "method size", 52);
+	testObjectSizeHelper(pMethod, "method size", 60);
 	testObjectSizeHelper(pBlock, "block size", 32);
 	testObjectSizeHelper(pPrimitive, "primitive size", 40);
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("big integer size", (size_t)16,
 			pBigInteger->GetObjectSize());
 	testObjectSizeHelper(pClass, "class size", 44);
-	testObjectSizeHelper(pFrame, "frame size", 60);
+	testObjectSizeHelper(pFrame, "frame size", 64);
 	testObjectSizeHelper(pEvaluationPrimitive, "evaluation primitive size", 44);
 }
 
@@ -99,7 +99,7 @@ void VMObjectsInterfaceTest::testGetSetGCField() {
 }
 
 void testNumberOfFieldsHelper(StdString name, long expectedNumberOfFields,
-		pVMObject obj) {
+		VMOBJECT_PTR obj) {
 	//only decrease the size, otherwise we might access uninitialized memory and crash
 	long targetSize = (expectedNumberOfFields > 0) ? expectedNumberOfFields
 			- 1 : 0;
@@ -134,7 +134,7 @@ void VMObjectsInterfaceTest::testGetNumberOfFields() {
 			pEvaluationPrimitive->Clone());
 }
 
-void testGetClassFieldHelper(pVMObject obj, StdString name) {
+void testGetClassFieldHelper(VMOBJECT_PTR obj, StdString name) {
 	pVMSymbol sym = _UNIVERSE->SymbolFor("class");
 	int fieldNo = obj->GetFieldIndex(sym);
 	CPPUNIT_ASSERT_EQUAL_MESSAGE(name + StdString(
@@ -162,33 +162,27 @@ void VMObjectsInterfaceTest::testGetClassField() {
 
 }
 
-void testGetSetFieldHelper(pVMObject obj, StdString name) {
+void testGetSetFieldHelper(VMOBJECT_PTR obj, StdString name) {
+  
 	for (long i = 0; i <= obj->GetNumberOfFields(); i++) {
-		AbstractVMObject* oldVal = obj->GetField(i);
+    //use void* which also allow tagged values
+		void* oldVal = obj->GetField(i);
 		//set field to another value and check if it has changed
-		AbstractVMObject* otherObject = oldVal == integerClass ? stringClass
+		void* otherObject = oldVal == integerClass ? stringClass
 				: integerClass;
-		obj->SetField(i, otherObject);
+		obj->SetField(i, (pVMObject)otherObject);
 		CPPUNIT_ASSERT_EQUAL_MESSAGE(
-				"getField doesn't return what was set before", otherObject,
-#ifdef USE_TAGGING
-				obj->GetField(i).GetPointer());
-#else
+				"getField doesn't return what was set before", (pVMObject)otherObject,
 				obj->GetField(i));
-#endif
 		//now reset the field and check again
-		obj->SetField(i, oldVal);
+		obj->SetField(i, (pVMObject)oldVal);
 		CPPUNIT_ASSERT_EQUAL_MESSAGE(
-				"getField doesn't return what was set before", oldVal,
-#ifdef USE_TAGGING
-				obj->GetField(i).GetPointer());
-#else
+				"getField doesn't return what was set before", (pVMObject)oldVal,
 				obj->GetField(i));
-#endif
 	}
 }
 
-void testFieldNameHelper(pVMObject obj, StdString objectName, long index,
+void testFieldNameHelper(VMOBJECT_PTR obj, StdString objectName, long index,
 		StdString expectedName) {
 	std::stringstream message;
 	message << objectName << " field " << index;
@@ -214,7 +208,7 @@ void VMObjectsInterfaceTest::testGetSetField() {
 	testGetSetFieldHelper(pPrimitive, "primitive");
 	//testGetSetFieldHelper(pBigInteger, "big integer");
 	testGetSetFieldHelper(pClass, "class");
-	testGetSetFieldHelper(pFrame, "frame");
+	//testGetSetFieldHelper(pFrame, "frame");
 	testGetSetFieldHelper(pEvaluationPrimitive, "evaluation primitive");
 }
 
@@ -254,7 +248,7 @@ pVMClass getGlobalClass(const char* name) {
 	return (pVMClass) _UNIVERSE->GetGlobal(_UNIVERSE->SymbolForChars(name));
 }
 
-void testGetSetClassHelper(StdString name, pVMObject obj,
+void testGetSetClassHelper(StdString name, VMOBJECT_PTR obj,
 		pVMClass expectedClass, pVMClass otherClass) {
 	//first check if it has the expected class
 	CPPUNIT_ASSERT_EQUAL_MESSAGE(name + " not instance of "

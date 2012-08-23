@@ -50,18 +50,17 @@ THE SOFTWARE.
 #include "../vmobjects/VMString.h"
 #include "../vmobjects/VMSymbol.h"
 #include "../vmobjects/Signature.h"
-#ifdef USE_TAGGING
-#include "../vmobjects/VMPointerConverter.h"
-#endif
-
 #include "../misc/debug.h"
 #include "../misc/defs.h"
 
+
+//some helping macros
 #ifdef USE_TAGGING
-#define DYNAMIC_CAST(TO_CLASS, OBJECT) (DynamicConvert<TO_CLASS, AbstractVMObject>(OBJECT))
+#define CLASS_OF(X) (IS_TAGGED(X)?integerClass:GET_POINTER(X)->GetClass())
 #else
-#define DYNAMIC_CAST(TO_CLASS, OBJECT) (dynamic_cast<TO_CLASS*>(OBJECT))
+#define CLASS_OF(X) (X->GetClass())
 #endif
+
 /** 
  * Dispatch an object to its content and write out
  */
@@ -82,17 +81,21 @@ void Disassembler::dispatch(pVMObject o) {
     else if(o == _UNIVERSE->GetGlobal(_UNIVERSE->SymbolForChars("system")))
         DebugPrint("{System}");
     else {
-        pVMClass c = o->GetClass();
+      pVMClass c = CLASS_OF(o);
         if(c == stringClass) {
-            DebugPrint("\"%s\"", DYNAMIC_CAST(VMString, o)->GetChars());
+            DebugPrint("\"%s\"", static_cast<VMString*>(o)->GetChars());
         } else if(c == doubleClass)
-            DebugPrint("%g", DYNAMIC_CAST(VMDouble,o)->GetEmbeddedDouble());
+            DebugPrint("%g", static_cast<VMDouble*>(o)->GetEmbeddedDouble());
         else if(c == bigIntegerClass)
-            DebugPrint("%lld", DYNAMIC_CAST(VMBigInteger,o)->GetEmbeddedInteger());
+            DebugPrint("%lld", static_cast<VMBigInteger*>(o)->GetEmbeddedInteger());
         else if(c == integerClass)
-            DebugPrint("%d", DYNAMIC_CAST(VMInteger,o)->GetEmbeddedInteger());
+#ifdef USE_TAGGING
+            DebugPrint("%d", UNTAG_INTEGER(o));
+#else
+            DebugPrint("%d", static_cast<VMInteger*>(o)->GetEmbeddedInteger());
+#endif
         else if(c == symbolClass) {
-            DebugPrint("#%s", DYNAMIC_CAST(VMSymbol,o)->GetChars());
+            DebugPrint("#%s", static_cast<VMSymbol*>(o)->GetChars());
         } else
             DebugPrint("address: %p", (void*)o);
     }
@@ -103,7 +106,7 @@ void Disassembler::dispatch(pVMObject o) {
  */
 void Disassembler::Dump(pVMClass cl) {
     for(int i = 0; i < cl->GetNumberOfInstanceInvokables(); ++i) {
-        pVMInvokable inv = DYNAMIC_CAST(VMInvokable,cl->GetInstanceInvokable(i));
+        pVMInvokable inv = static_cast<VMInvokable*>(cl->GetInstanceInvokable(i));
         // output header and skip if the Invokable is a Primitive
         pVMSymbol sig = inv->GetSignature();
         pVMSymbol cname = cl->GetName();
@@ -113,7 +116,7 @@ void Disassembler::Dump(pVMClass cl) {
             continue;
         }
         // output actual method
-        DumpMethod(DYNAMIC_CAST(VMMethod,inv), "\t");
+        DumpMethod(static_cast<VMMethod*>(inv), "\t");
     }
 }
 
@@ -168,9 +171,9 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
                 
                 if (cst != NULL) {
 #ifdef USE_TAGGING
-                    pVMSymbol name = DynamicConvert<VMSymbol, VMObject>(cst);
+                    pVMSymbol name = dynamic_cast<VMSymbol*>(GET_POINTER(cst));
 #else
-                    pVMSymbol name = DYNAMIC_CAST(VMSymbol,cst);
+                    pVMSymbol name = dynamic_cast<VMSymbol*>(cst);
 #endif
                     if (name != NULL) {
                         DebugPrint("(index: %d) field: %s\n", BC_1, 
@@ -187,12 +190,12 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
                 sprintf(nindent, "%s\t", indent);
                 
                 Disassembler::DumpMethod(
-                    DYNAMIC_CAST(VMMethod,method->GetConstant(bc_idx)), nindent);
+                    static_cast<VMMethod*>(method->GetConstant(bc_idx)), nindent);
                 break;
             }            
             case BC_PUSH_CONSTANT: {
                 pVMObject constant = method->GetConstant(bc_idx);
-                pVMClass cl = constant->GetClass();
+                pVMClass cl = CLASS_OF(constant);
                 pVMSymbol cname = cl->GetName();
                 
                 DebugPrint("(index: %d) value: (%s) ", 
@@ -204,11 +207,7 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
                 pVMObject cst = method->GetConstant(bc_idx);
                 
                 if (cst != NULL) {
-#ifdef USE_TAGGING
-                    pVMSymbol name = DynamicConvert<VMSymbol, VMObject>(cst);
-#else
-                    pVMSymbol name = DYNAMIC_CAST(VMSymbol,cst);
-#endif
+                    pVMSymbol name = static_cast<VMSymbol*>(cst);
                     if (name != NULL) {
                         DebugPrint("(index: %d) value: %s\n", BC_1, 
                                                             name->GetChars());
@@ -226,20 +225,20 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
                 DebugPrint("argument: %d, context: %d\n", BC_1, BC_2);
                 break;
             case BC_POP_FIELD: {
-                pVMSymbol name = DYNAMIC_CAST(VMSymbol,method->GetConstant(bc_idx));
+                pVMSymbol name = static_cast<VMSymbol*>(method->GetConstant(bc_idx));
                 
                 DebugPrint("(index: %d) field: %s\n", BC_1, name->GetChars());
                 break;
             }
             case BC_SEND: {
-                pVMSymbol name = DYNAMIC_CAST(VMSymbol,method->GetConstant(bc_idx));
+                pVMSymbol name = static_cast<VMSymbol*>(method->GetConstant(bc_idx));
                 
                 DebugPrint("(index: %d) signature: %s\n", BC_1,
                     name->GetChars());
                 break;
             }
             case BC_SUPER_SEND: {
-                pVMSymbol name = DYNAMIC_CAST(VMSymbol,method->GetConstant(bc_idx));
+                pVMSymbol name = static_cast<VMSymbol*>(method->GetConstant(bc_idx));
                 
                 DebugPrint("(index: %d) signature: %s\n", BC_1,
                     name->GetChars());
@@ -270,12 +269,8 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
     static long long indentc = 0;
     static char      ikind   = '@';
     uint8_t          bc      = BC_0;
-    pVMObject        clo   = method->GetHolder();
-#ifdef USE_TAGGING
-    pVMClass cl = DynamicConvert<VMClass, VMObject>(clo);
-#else
-    pVMClass cl = DYNAMIC_CAST(VMClass,clo);
-#endif
+    VMOBJECT_PTR        clo   = method->GetHolder();
+    pVMClass cl = dynamic_cast<VMClass*>(clo);
     // Determine Context: Class or Block?
     if(cl != NULL) {
         pVMSymbol cname = cl->GetName();
@@ -304,7 +299,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
         case BC_DUP: {
             pVMObject o = frame->GetStackElement(0);
             if(o) {
-                pVMClass c = o->GetClass();
+                pVMClass c = CLASS_OF(o);
                 pVMSymbol cname = c->GetName();
                 
                 DebugPrint("<to dup: (%s) ", cname->GetChars());
@@ -318,7 +313,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
         case BC_PUSH_LOCAL: {
             uint8_t bc1 = BC_1, bc2 = BC_2;
             pVMObject o = frame->GetLocal(bc1, bc2);
-            pVMClass c = o->GetClass();
+            pVMClass c = CLASS_OF(o);
             pVMSymbol cname = c->GetName();
             
             DebugPrint("local: %d, context: %d <(%s) ", 
@@ -333,11 +328,11 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
             pVMObject o = frame->GetArgument(bc1, bc2);
             DebugPrint("argument: %d, context: %d", bc1, bc2);
 #ifdef USE_TAGGING
-            if(DynamicConvert<VMClass, VMObject>(cl) != NULL) {
+            if(dynamic_cast<pVMClass>(GET_POINTER(cl)) != NULL) {
 #else
-            if(DYNAMIC_CAST(VMClass,cl) != NULL) {
+            if(dynamic_cast<pVMClass>(cl) != NULL) {
 #endif
-                pVMClass c = o->GetClass();
+                pVMClass c = CLASS_OF(o);
                 pVMSymbol cname = c->GetName();
                 
                 DebugPrint("<(%s) ", cname->GetChars());
@@ -351,11 +346,16 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
         case BC_PUSH_FIELD: {
             pVMFrame ctxt = frame->GetOuterContext();
             pVMObject arg = ctxt->GetArgument(0, 0);
-            pVMSymbol name = DYNAMIC_CAST(VMSymbol,method->GetConstant(bc_idx));
+#ifdef USE_TAGGING
+            pVMSymbol name = static_cast<VMSymbol*>(GET_POINTER(method->GetConstant(bc_idx)));
+            int field_index = GET_POINTER(arg)->GetFieldIndex(name);
+            pVMObject o = GET_POINTER(arg)->GetField(field_index);
+#else
+            pVMSymbol name = static_cast<VMSymbol*>(method->GetConstant(bc_idx));
             int field_index = arg->GetFieldIndex(name);
-           
             pVMObject o = arg->GetField(field_index);
-            pVMClass c = o->GetClass();
+#endif
+            pVMClass c = CLASS_OF(o);
             pVMSymbol cname = c->GetName();
             
             DebugPrint("(index: %d) field: %s <(%s) ", BC_1,
@@ -367,13 +367,17 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
         }
         case BC_PUSH_BLOCK: {
             DebugPrint("block: (index: %d) ", BC_1);
-            pVMMethod meth = DYNAMIC_CAST(VMMethod,method->GetConstant(bc_idx));
+#ifdef USE_TAGGING
+            pVMMethod meth = dynamic_cast<VMMethod*>(GET_POINTER(method->GetConstant(bc_idx)));
+#else
+            pVMMethod meth = dynamic_cast<VMMethod*>(method->GetConstant(bc_idx));
+#endif
             DumpMethod(meth, "$");
             break;
         }
         case BC_PUSH_CONSTANT: {
         	pVMObject constant = method->GetConstant(bc_idx);
-            pVMClass c = constant->GetClass();
+            pVMClass c = CLASS_OF(constant);
             pVMSymbol cname = c->GetName();
             
             DebugPrint("(index: %d) value: (%s) ", BC_1, 
@@ -383,13 +387,17 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
             break;
         }
         case BC_PUSH_GLOBAL: {
-            pVMSymbol name = DYNAMIC_CAST(VMSymbol,method->GetConstant(bc_idx));
+#ifdef USE_TAGGING
+            pVMSymbol name = static_cast<VMSymbol*>(GET_POINTER(method->GetConstant(bc_idx)));
+#else
+            pVMSymbol name = static_cast<VMSymbol*>(method->GetConstant(bc_idx));
+#endif
             pVMObject o = _UNIVERSE->GetGlobal(name);
             pVMSymbol cname;
             
             const char*   c_cname;
             if(o) {
-                pVMClass c = o->GetClass();
+                pVMClass c = CLASS_OF(o);
                 cname = c->GetName();
                 
                 c_cname = cname->GetChars();
@@ -404,7 +412,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
         }
         case BC_POP: {
             pVMObject o = frame->GetStackElement(0);
-            pVMClass c = o->GetClass();
+            pVMClass c = CLASS_OF(o);
             pVMSymbol cname = c->GetName();
             
             DebugPrint("popped <(%s) ", cname->GetChars());
@@ -415,7 +423,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
         }            
         case BC_POP_LOCAL: {
             pVMObject o = frame->GetStackElement(0);
-            pVMClass c = o->GetClass();
+            pVMClass c = CLASS_OF(o);
             pVMSymbol cname = c->GetName();
             
             DebugPrint("popped local: %d, context: %d <(%s) ", BC_1, BC_2,
@@ -427,7 +435,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
         }
         case BC_POP_ARGUMENT: {
             pVMObject o = frame->GetStackElement(0);
-            pVMClass c = o->GetClass();
+            pVMClass c = CLASS_OF(o);
             pVMSymbol cname = c->GetName();
             DebugPrint("argument: %d, context: %d <(%s) ", BC_1, BC_2,
                         cname->GetChars());
@@ -438,8 +446,12 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
         }
         case BC_POP_FIELD: {
             pVMObject o = frame->GetStackElement(0);
-            pVMSymbol name = DYNAMIC_CAST(VMSymbol,method->GetConstant(bc_idx));
-            pVMClass c = o->GetClass();
+#ifdef USE_TAGGING
+            pVMSymbol name = static_cast<VMSymbol*>(GET_POINTER(method->GetConstant(bc_idx)));
+#else
+            pVMSymbol name = static_cast<VMSymbol*>(method->GetConstant(bc_idx));
+#endif
+            pVMClass c = CLASS_OF(o);
             pVMSymbol cname = c->GetName();
             
             DebugPrint("(index: %d) field: %s <(%s) ",  BC_1,
@@ -451,7 +463,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
         }
         case BC_SUPER_SEND:
         case BC_SEND: {
-            pVMSymbol sel = DYNAMIC_CAST(VMSymbol,method->GetConstant(bc_idx));
+            pVMSymbol sel = static_cast<VMSymbol*>(method->GetConstant(bc_idx));
 
             DebugPrint("(index: %d) signature: %s (", BC_1,
                         sel->GetChars());
@@ -459,13 +471,8 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
             pVMObject elem = _UNIVERSE->GetInterpreter()->GetFrame()->
                                    GetStackElement(
                                        Signature::GetNumberOfArguments(sel)-1);
-            pVMClass elemClass = elem->GetClass();
-#ifdef USE_TAGGING
-            pVMInvokable inv =  DynamicConvert<VMInvokable, VMObject>(
-#else
-            pVMInvokable inv =  DYNAMIC_CAST(VMInvokable,
-#endif
-                                            elemClass->LookupInvokable(sel));
+            pVMClass elemClass = CLASS_OF(elem);
+            pVMInvokable inv =  dynamic_cast<VMInvokable*>(elemClass->LookupInvokable(sel));
             
             if(inv != NULL && inv->IsPrimitive()) 
                 DebugPrint("*)\n");
