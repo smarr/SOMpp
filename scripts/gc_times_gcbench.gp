@@ -1,5 +1,5 @@
 set terminal postscript eps enhanced solid color
-set output "gc_times_richards.eps"
+set output "gc_times_gcbench.eps"
 set style data histogram
 set style histogram rowstacked
 set style fill solid

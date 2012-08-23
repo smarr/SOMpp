@@ -1,6 +1,6 @@
 set terminal postscript eps enhanced solid color
-set output "gcbench_benchmark_bad_cache.eps"
-set title "Richards Benchmark"
+set output "gcbench_bad_cache.eps"
+set title "GCBench Benchmark"
 set datafile separator "," #csv is comma separated
 set yrange [0:]      #plot starting from 0
 set ylabel "Average execution time (ms)"

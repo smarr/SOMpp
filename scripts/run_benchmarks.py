@@ -95,5 +95,9 @@ if __name__ == "__main__":
         csv_files=[s for s in listdir("./") if s.endswith(".csv")]
         for f in csv_files:
             rename(f, out_path+f)
+        #also in statistics folder
+        csv_files=[s for s in listdir("./bin/cppsom_statistics/") if s.endswith(".csv")]
+        for f in csv_files:
+            rename("./bin/cppsom_statistics/"+f, out_path+f)
 
 
