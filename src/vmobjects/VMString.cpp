@@ -56,6 +56,10 @@ pVMString VMString::Clone() const {
 #endif
 }
 
+void VMString::WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR)) {
+  //nothing to do
+}
+
 
 VMString::VMString( const StdString& s ) {
 	VMString(s.c_str());

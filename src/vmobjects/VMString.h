@@ -41,6 +41,8 @@ public:
   virtual pVMString Clone() const;
   virtual pVMClass GetClass() const;
 	virtual size_t GetObjectSize() const;
+	virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
+
 protected:
     //this could be replaced by the CHARS macro in VMString.cpp
     //in order to decrease the object size
