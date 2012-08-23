@@ -13,11 +13,11 @@ if __name__=="__main__":
         command = "sed 's/bench_name/%s/g;s/csv_file/%s/g;s/out_file/%s/g' < scripts/allocation_statistics_no_template.gpl | gnuplot" % (name, csv_file.replace("/","\/"), out_file)
         print "Executing: %s" % command
         call(command, shell=True)
-        png_file = out_file.replace(".eps", ".png")
-        call(["convert", "-density", "300", out_file, png_file])
+        #png_file = out_file.replace(".eps", ".png")
+        #call(["convert", "-density", "300", out_file, png_file])
         out_file = "allocation_statistics_size_" + name + ".eps"
         command = "sed 's/bench_name/%s/g;s/csv_file/%s/g;s/out_file/%s/g' < scripts/allocation_statistics_size_template.gpl | gnuplot" % (name, csv_file.replace("/","\/"), out_file)
         print "Executing: %s" % command
         call(command, shell=True)
-        png_file = out_file.replace(".eps", ".png")
-        call(["convert", "-density", "300", out_file, png_file])
+        #png_file = out_file.replace(".eps", ".png")
+        #call(["convert", "-density", "300", out_file, png_file])
