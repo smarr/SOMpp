@@ -100,6 +100,6 @@ void VMArray::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
 	long noIndexableFields = GetNumberOfIndexableFields();
   pVMObject* fields = (pVMObject*)(&clazz);
   for (long i = 0; i < noOfFields + noIndexableFields; i++) {
-    fields[i] = walk(GET_POINTER(fields[i]));
+    fields[i] = walk(AS_POINTER(fields[i]));
   }
 }

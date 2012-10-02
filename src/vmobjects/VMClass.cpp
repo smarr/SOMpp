@@ -96,7 +96,7 @@ void VMClass::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
 pVMObject* fields = (pVMObject*)(&clazz);
 
   for (long i = VMClassNumberOfFields + 1/*VMObjectNumberOfFields*/; i < numberOfFields; i++)
-    fields[i] = walk(GET_POINTER(fields[i]));
+    fields[i] = walk(AS_POINTER(fields[i]));
 }
 
 

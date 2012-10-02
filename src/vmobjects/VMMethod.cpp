@@ -111,7 +111,7 @@ void VMMethod::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     
 	for (long i = 0 ; i < GetNumberOfIndexableFields() ; ++i) {
 		if (GetIndexableField(i) != NULL)
-			indexableFields[i] = walk(GET_POINTER(GetIndexableField(i)));
+			indexableFields[i] = walk(AS_POINTER(GetIndexableField(i)));
 	}
 }
 
@@ -200,7 +200,7 @@ void VMMethod::SetHolderAll(pVMClass hld) {
     for (long i = 0; i < this->GetNumberOfIndexableFields(); ++i) {
         pVMObject o = GetIndexableField(i);
         if (!IS_TAGGED(o)) {
-          pVMInvokable vmi = dynamic_cast<pVMInvokable>(GET_POINTER(o));
+          pVMInvokable vmi = dynamic_cast<pVMInvokable>(AS_POINTER(o));
           if ( vmi != NULL)  {
             vmi->SetHolder(hld);
           }

@@ -56,7 +56,7 @@ THE SOFTWARE.
 
 //some helping macros
 #ifdef USE_TAGGING
-#define CLASS_OF(X) (IS_TAGGED(X)?integerClass:GET_POINTER(X)->GetClass())
+#define CLASS_OF(X) (IS_TAGGED(X)?integerClass:AS_POINTER(X)->GetClass())
 #else
 #define CLASS_OF(X) (X->GetClass())
 #endif
@@ -171,7 +171,7 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
                 
                 if (cst != NULL) {
 #ifdef USE_TAGGING
-                    pVMSymbol name = dynamic_cast<VMSymbol*>(GET_POINTER(cst));
+                    pVMSymbol name = dynamic_cast<VMSymbol*>(AS_POINTER(cst));
 #else
                     pVMSymbol name = dynamic_cast<VMSymbol*>(cst);
 #endif
@@ -328,7 +328,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
             pVMObject o = frame->GetArgument(bc1, bc2);
             DebugPrint("argument: %d, context: %d", bc1, bc2);
 #ifdef USE_TAGGING
-            if(dynamic_cast<pVMClass>(GET_POINTER(cl)) != NULL) {
+            if(dynamic_cast<pVMClass>(AS_POINTER(cl)) != NULL) {
 #else
             if(dynamic_cast<pVMClass>(cl) != NULL) {
 #endif
@@ -347,9 +347,9 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
             pVMFrame ctxt = frame->GetOuterContext();
             pVMObject arg = ctxt->GetArgument(0, 0);
 #ifdef USE_TAGGING
-            pVMSymbol name = static_cast<VMSymbol*>(GET_POINTER(method->GetConstant(bc_idx)));
-            int field_index = GET_POINTER(arg)->GetFieldIndex(name);
-            pVMObject o = GET_POINTER(arg)->GetField(field_index);
+            pVMSymbol name = static_cast<VMSymbol*>(AS_POINTER(method->GetConstant(bc_idx)));
+            int field_index = AS_POINTER(arg)->GetFieldIndex(name);
+            pVMObject o = AS_POINTER(arg)->GetField(field_index);
 #else
             pVMSymbol name = static_cast<VMSymbol*>(method->GetConstant(bc_idx));
             int field_index = arg->GetFieldIndex(name);
@@ -368,7 +368,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
         case BC_PUSH_BLOCK: {
             DebugPrint("block: (index: %d) ", BC_1);
 #ifdef USE_TAGGING
-            pVMMethod meth = dynamic_cast<VMMethod*>(GET_POINTER(method->GetConstant(bc_idx)));
+            pVMMethod meth = dynamic_cast<VMMethod*>(AS_POINTER(method->GetConstant(bc_idx)));
 #else
             pVMMethod meth = dynamic_cast<VMMethod*>(method->GetConstant(bc_idx));
 #endif
@@ -388,7 +388,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
         }
         case BC_PUSH_GLOBAL: {
 #ifdef USE_TAGGING
-            pVMSymbol name = static_cast<VMSymbol*>(GET_POINTER(method->GetConstant(bc_idx)));
+            pVMSymbol name = static_cast<VMSymbol*>(AS_POINTER(method->GetConstant(bc_idx)));
 #else
             pVMSymbol name = static_cast<VMSymbol*>(method->GetConstant(bc_idx));
 #endif
@@ -447,7 +447,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
         case BC_POP_FIELD: {
             pVMObject o = frame->GetStackElement(0);
 #ifdef USE_TAGGING
-            pVMSymbol name = static_cast<VMSymbol*>(GET_POINTER(method->GetConstant(bc_idx)));
+            pVMSymbol name = static_cast<VMSymbol*>(AS_POINTER(method->GetConstant(bc_idx)));
 #else
             pVMSymbol name = static_cast<VMSymbol*>(method->GetConstant(bc_idx));
 #endif

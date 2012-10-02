@@ -51,7 +51,7 @@ THE SOFTWARE.
  */
 #ifdef USE_TAGGING
 #define CHECK_COERCION(obj,receiver,op) {\
-  pVMClass cl = (IS_TAGGED(obj) ? integerClass : GET_POINTER(obj)->GetClass());\
+  pVMClass cl = (IS_TAGGED(obj) ? integerClass : AS_POINTER(obj)->GetClass());\
   if(cl== bigIntegerClass) { \
     resendAsBigInteger( \
                        object, (op), (receiver), static_cast<pVMBigInteger>(obj)); \
@@ -337,13 +337,13 @@ void  _Integer::Equal(pVMObject object, pVMFrame frame) {
     CHECK_COERCION(rightObj, left, "=");
 
 #ifdef USE_TAGGING
-    if (IS_TAGGED(rightObj) || GET_POINTER(rightObj)->GetClass() == integerClass) {
+    if (IS_TAGGED(rightObj) || AS_POINTER(rightObj)->GetClass() == integerClass) {
       if (UNTAG_INTEGER(left) == UNTAG_INTEGER(rightObj))
         frame->Push(trueObject);
       else
         frame->Push(falseObject);
     }
-    else if (GET_POINTER(rightObj)->GetClass() == doubleClass) {
+    else if (AS_POINTER(rightObj)->GetClass() == doubleClass) {
       assert(false);
     }
     else

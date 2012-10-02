@@ -81,7 +81,7 @@ void  _String::AsSymbol(pVMObject /*object*/, pVMFrame frame) {
 void  _String::Hashcode(pVMObject /*object*/, pVMFrame frame) {
     pVMString self = static_cast<pVMString>(frame->Pop());
 #ifdef USE_TAGGING
-    frame->Push(TAG_INTEGER(GET_POINTER(self)->GetHash()));
+    frame->Push(TAG_INTEGER(AS_POINTER(self)->GetHash()));
 #else
     frame->Push(_UNIVERSE->NewInteger(self->GetHash()));
 #endif
@@ -109,7 +109,7 @@ void  _String::Equal(pVMObject /*object*/, pVMFrame frame) {
       frame->Push(falseObject);
       return;
     }
-    pVMClass otherClass = GET_POINTER(op1)->GetClass();
+    pVMClass otherClass = AS_POINTER(op1)->GetClass();
 #else
     pVMClass otherClass = op1->GetClass();
 #endif

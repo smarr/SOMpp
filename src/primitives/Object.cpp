@@ -62,7 +62,7 @@ void  _Object::ObjectSize(pVMObject /*object*/, pVMFrame frame) {
   if IS_TAGGED(self)
     frame->Push(TAG_INTEGER(GlobalBox::IntegerBox()->GetObjectSize()));
   else
-    frame->Push(TAG_INTEGER(GET_POINTER(self)->GetObjectSize()));
+    frame->Push(TAG_INTEGER(AS_POINTER(self)->GetObjectSize()));
 #else
     frame->Push(_UNIVERSE->NewInteger(self->GetObjectSize()) );
 #endif
@@ -75,7 +75,7 @@ void  _Object::Hashcode(pVMObject /*object*/, pVMFrame frame) {
   if (IS_TAGGED(self))
     frame->Push(self);
   else
-    frame->Push(TAG_INTEGER(GET_POINTER(self)->GetHash()));
+    frame->Push(TAG_INTEGER(AS_POINTER(self)->GetHash()));
 #else
     frame->Push(_UNIVERSE->NewInteger(self->GetHash()) );
 #endif

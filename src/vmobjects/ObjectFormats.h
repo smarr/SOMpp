@@ -39,7 +39,7 @@ THE SOFTWARE.
  * 10000000 00000000 00000000 0000000X  
  */
 #define VMTAGGEDINTEGER_MIN -1073741824
-#define GET_POINTER(X) ((AbstractVMObject*)X)
+#define AS_POINTER(X) ((AbstractVMObject*)X)
 #define TAG_INTEGER(X) ((X >= VMTAGGEDINTEGER_MIN && X <= VMTAGGEDINTEGER_MAX) ? ((pVMInteger)((X << 1) | 1)) : (_UNIVERSE->NewInteger(X)))
 #define UNTAG_INTEGER(X) (((long)X&1) ? ((long)X>>1) : (((VMInteger*)X)->GetEmbeddedInteger()))
 #define IS_TAGGED(X) ((long)X&1)

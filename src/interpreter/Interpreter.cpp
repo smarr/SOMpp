@@ -303,7 +303,7 @@ void Interpreter::send( pVMSymbol signature, pVMClass receiverClass) {
     if (IS_TAGGED(receiver))
       GlobalBox::IntegerBox()->Send(dnu, arguments, 2);
     else
-      GET_POINTER(receiver)->Send(dnu, arguments, 2);
+      AS_POINTER(receiver)->Send(dnu, arguments, 2);
 #else
     receiver->Send(dnu, arguments, 2);
 #endif
@@ -348,8 +348,8 @@ void Interpreter::doPushField( long bytecodeIndex ) {
       o = GlobalBox::IntegerBox()->GetField(fieldIndex);
     }
     else {
-      long fieldIndex = GET_POINTER(self)->GetFieldIndex(fieldName);
-      o = GET_POINTER(self)->GetField(fieldIndex);
+      long fieldIndex = AS_POINTER(self)->GetFieldIndex(fieldName);
+      o = AS_POINTER(self)->GetField(fieldIndex);
     }
 #else
     long fieldIndex = self->GetFieldIndex(fieldName);
@@ -412,7 +412,7 @@ void Interpreter::doPushGlobal( long bcIdx) {
     if (IS_TAGGED(self))
       GlobalBox::IntegerBox()->Send(uG, arguments, 1);
     else
-      GET_POINTER(self)->Send(uG, arguments, 1);
+      AS_POINTER(self)->Send(uG, arguments, 1);
 #else
     self->Send(uG, arguments, 1);
 #endif
@@ -455,8 +455,8 @@ void Interpreter::doPopField( long bytecodeIndex ) {
       GlobalBox::IntegerBox()->SetField(field_index, o);
     }
     else {
-      long field_index = GET_POINTER(self)->GetFieldIndex(field_name);
-      GET_POINTER(self)->SetField(field_index, o);
+      long field_index = AS_POINTER(self)->GetFieldIndex(field_name);
+      AS_POINTER(self)->SetField(field_index, o);
     }
 #else
     long field_index = self->GetFieldIndex(field_name);
@@ -472,7 +472,7 @@ void Interpreter::doSend( long bytecodeIndex ) {
 
     pVMObject receiver = _FRAME->GetStackElement(numOfArgs-1);
 #ifdef USE_TAGGING
-    pVMClass receiverClass = IS_TAGGED(receiver) ? integerClass : GET_POINTER(receiver)->GetClass();
+    pVMClass receiverClass = IS_TAGGED(receiver) ? integerClass : AS_POINTER(receiver)->GetClass();
 #else
     pVMClass receiverClass = receiver->GetClass();
 #endif
@@ -510,7 +510,7 @@ void Interpreter::doSuperSend( long bytecodeIndex ) {
         if (IS_TAGGED(receiver))
           GlobalBox::IntegerBox()->Send(dnu, arguments, 2);
         else
-          GET_POINTER(receiver)->Send(dnu, arguments, 2);
+          AS_POINTER(receiver)->Send(dnu, arguments, 2);
 #else
         receiver->Send(dnu, arguments, 2);
 #endif
@@ -543,7 +543,7 @@ void Interpreter::doReturnNonLocal() {
         if (IS_TAGGED(sender))
           GlobalBox::IntegerBox()->Send(eB, arguments, 1);
         else
-          GET_POINTER(sender)->Send(eB, arguments, 1);
+          AS_POINTER(sender)->Send(eB, arguments, 1);
 #else
         sender->Send(eB, arguments, 1);
 #endif

@@ -144,7 +144,7 @@ pVMFrame VMFrame::GetPreviousFrame() const {
 void     VMFrame::SetPreviousFrame(pVMObject frm) {
     this->previousFrame = static_cast<pVMFrame>(frm);
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, GET_POINTER(frm));
+    _HEAP->writeBarrier(this, AS_POINTER(frm));
 #endif
 }
 
