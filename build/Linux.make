@@ -215,7 +215,7 @@ clean:
 $(CSOM_NAME): $(CSOM_NAME).$(SHARED_EXTENSION) $(MAIN_OBJ)
 	@echo Linking $(CSOM_NAME) loader
 	$(CC) $(LDFLAGS) \
-		-o $(CSOM_NAME) $(MAIN_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION) -ldl
+		-o $(CSOM_NAME) $(MAIN_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION) -ldl -lrt
 	@echo CSOM done.
 
 $(CSOM_NAME).$(SHARED_EXTENSION): $(CSOM_OBJ)
@@ -262,7 +262,7 @@ console: all
 	./$(CSOM_NAME) -cp ./Smalltalk
 
 units: $(UNITTEST_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION)
-	$(CC) $(LIBRARIES) $(UNITTEST_OBJ) SOM++.so -lcppunit -o unittest
+	$(CC) $(LIBRARIES) $(UNITTEST_OBJ) SOM++.so -lcppunit -lrt -o unittest
 
 richards: all
 	./$(CSOM_NAME) -cp ./Smalltalk ./Examples/Benchmarks/Richards/RichardsBenchmarks.som
