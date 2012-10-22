@@ -40,7 +40,13 @@ THE SOFTWARE.
  */
 #define VMTAGGEDINTEGER_MIN -1073741824
 #define AS_POINTER(X) ((AbstractVMObject*)X)
+
+#ifdef ADDITIONAL_ALLOCATION
+#define TAG_INTEGER(X) ((X >= VMTAGGEDINTEGER_MIN && X <= VMTAGGEDINTEGER_MAX && _UNIVERSE->NewInteger()) ? ((pVMInteger)((X << 1) | 1)) : (_UNIVERSE->NewInteger(X)))
+#else
 #define TAG_INTEGER(X) ((X >= VMTAGGEDINTEGER_MIN && X <= VMTAGGEDINTEGER_MAX) ? ((pVMInteger)((X << 1) | 1)) : (_UNIVERSE->NewInteger(X)))
+#endif
+
 #define UNTAG_INTEGER(X) (((long)X&1) ? ((long)X>>1) : (((VMInteger*)X)->GetEmbeddedInteger()))
 #define IS_TAGGED(X) ((long)X&1)
 
