@@ -29,9 +29,16 @@
 CC			=g++
 CFLAGS		=-Wno-endif-labels -O3 $(DBG_FLAGS) $(FEATURE_FLAGS) $(INCLUDES)
 LBITS := $(shell getconf LONG_BIT)
+ARCH := $(shell arch)
 ifeq ($(LBITS),64)
 	CFLAGS += -fno-PIC -mcmodel=large
 endif
+ifeq ($(ARCH),armv7l)
+        #https://bugs.launchpad.net/ubuntu/+source/gcc-4.4/+bug/503448/comments/12
+	CFLAGS += -mword-relocations
+endif
+
+
 LDFLAGS		=$(DBG_FLAGS) $(LIBRARIES)
 
 INSTALL		=install
@@ -180,7 +187,7 @@ endif
 all: $(CSOM_NAME)\
 	$(CSOM_NAME).$(SHARED_EXTENSION) \
 	$(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION) \
-	CORE units
+	CORE
 
 
 debug : DBG_FLAGS=-DDEBUG -O0 -g
