@@ -1,5 +1,5 @@
 set terminal postscript eps enhanced solid color
-set output "som_benchmarks_bad_cache.eps"
+set output "som_benchmarks_bad_cache_generational.eps"
 set title "SOM Benchmarks"
 set datafile separator "," #csv is comma separated
 set yrange [0:]      #plot starting from 0
