@@ -15,17 +15,13 @@ if __name__=="__main__":
     files=[s for s in listdir("scripts") if s.endswith(".gp")]
     for gp_file in files:
         src_file = "scripts/" + gp_file
-        eps_file = OUT_DIR + gp_file[:gp_file.rfind(".")]+".eps"
-        png_file = OUT_DIR + gp_file[:gp_file.rfind(".")]+".png"
+        eps_file = OUT_DIR + gp_file.replace(".gp",".eps")
+        png_file = OUT_DIR + gp_file.replace(".gp",".png")
         print "creating %s from %s" % (" and ".join(args.output_types), src_file)
-
-        #generate eps
         call(["gnuplot", src_file])
-        shutil.move(gp_file[:gp_file.rfind(".")]+".eps", eps_file)
-        #generate png if necessary
+        shutil.move(gp_file.replace(".gp",".eps"), eps_file)
         if "png" in args.output_types:
             call(["convert", "-density", "300", eps_file, png_file])
-        #generate pdf if necessary
         if "pdf" in args.output_types:
             print "epstopdf %s" % eps_file
             call(["epstopdf %s" % eps_file], shell=True)
