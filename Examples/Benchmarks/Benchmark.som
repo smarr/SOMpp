@@ -28,7 +28,7 @@ Benchmark = (
     run = (
         |startTime measuredTime|
 	startTime  := system time.
-	self benchmark.
+	5 timesRepeat: [self benchmark].
 	measuredTime := system time - startTime.
 	('{' + (self name) + ' ' + measuredTime + '}') println.
 	^measuredTime.
