@@ -12,5 +12,5 @@ unset xtics
 
 set title "Clusters of stacked histograms"
 
-plot 'benchmark_results/gcbench_benchmark.csv' using 2:xtic(1) title "interpretation time", \
+plot 'benchmark_results/gcbench_benchmark.csv' using ($2-$4):xtic(1) title "interpretation time", \
        '' using 4 title "gc time"

@@ -14,50 +14,50 @@ set xtics   ("Bounce" 0*7+2, "BubbleSort" 1*7+2, "Dispatch" 2*7+2, "Fibonacci" 3
 	     "TreeSort" 15*7+2)
 
 plot newhistogram lt 1, \
-     "benchmark_results/som_benchmarks.csv" index 0 u 2 title "interpreter", \
+     "benchmark_results/som_benchmarks.csv" index 0 u ($2-$4) title "remaining", \
      "" index 0 u 4 title "gc", \
      newhistogram lt 1, \
-     "" index 1 u 2 notitle, \
+     "" index 1 u ($2-$4) notitle, \
      "" index 1 u 4 notitle, \
      newhistogram lt 1, \
-     "" index 2 u 2 notitle, \
+     "" index 2 u ($2-$4) notitle, \
      "" index 2 u 4 notitle, \
      newhistogram lt 1, \
-     "" index 3 u 2 notitle, \
+     "" index 3 u ($2-$4) notitle, \
      "" index 3 u 4 notitle, \
      newhistogram lt 1, \
-     "" index 4 u 2 notitle, \
+     "" index 4 u ($2-$4) notitle, \
      "" index 4 u 4 notitle, \
      newhistogram lt 1, \
-     "" index 5 u 2 notitle, \
+     "" index 5 u ($2-$4) notitle, \
      "" index 5 u 4 notitle, \
      newhistogram lt 1, \
-     "" index 6 u 2 notitle, \
+     "" index 6 u ($2-$4) notitle, \
      "" index 6 u 4 notitle, \
      newhistogram lt 1, \
-     "" index 7 u 2 notitle, \
+     "" index 7 u ($2-$4) notitle, \
      "" index 7 u 4 notitle, \
      newhistogram lt 1, \
-     "" index 8 u 2 notitle, \
+     "" index 8 u ($2-$4) notitle, \
      "" index 8 u 4 notitle, \
      newhistogram lt 1, \
-     "" index 9 u 2 notitle, \
+     "" index 9 u ($2-$4) notitle, \
      "" index 9 u 4 notitle, \
      newhistogram lt 1, \
-     "" index 10 u 2 notitle, \
+     "" index 10 u ($2-$4) notitle, \
      "" index 10 u 4 notitle, \
      newhistogram lt 1, \
-     "" index 11 u 2 notitle, \
+     "" index 11 u ($2-$4) notitle, \
      "" index 11 u 4 notitle, \
      newhistogram lt 1, \
-     "" index 12 u 2 notitle, \
+     "" index 12 u ($2-$4) notitle, \
      "" index 12 u 4 notitle, \
      newhistogram lt 1, \
-     "" index 13 u 2 notitle, \
+     "" index 13 u ($2-$4) notitle, \
      "" index 13 u 4 notitle, \
      newhistogram lt 1, \
-     "" index 14 u 2 notitle, \
+     "" index 14 u ($2-$4) notitle, \
      "" index 14 u 4 notitle, \
      newhistogram lt 1, \
-     "" index 15 u 2 notitle, \
+     "" index 15 u ($2-$4) notitle, \
      "" index 15 u 4 notitle 
