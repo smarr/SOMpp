@@ -3,6 +3,7 @@ set output "som_benchmarks_bad_cache_generational.eps"
 set title "SOM Benchmarks"
 set datafile separator "," #csv is comma separated
 set yrange [0:]      #plot starting from 0
+set xtics rotate by -45    #rotate labels
 set ylabel "Average execution time (ms)"
 set style data histograms  #plot histogram style
 set style fill solid 1.00 border 0 #fill bars
