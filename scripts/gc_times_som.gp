@@ -4,7 +4,7 @@ set style data histogram
 set style histogram rowstacked
 set style fill solid
 set boxwidth 0.7
-set title "Clusters of stacked histograms"
+set title "Garbage collection times for SOM benchmarks"
 set xlabel  offset character 0, -2, 0 font "" textcolor lt -1 norotate
 set xtics nomirror rotate by -45
 
@@ -14,8 +14,8 @@ set xtics   ("Bounce" 0*7+2, "BubbleSort" 1*7+2, "Dispatch" 2*7+2, "Fibonacci" 3
 	     "TreeSort" 15*7+2)
 
 plot newhistogram lt 1, \
-     "benchmark_results/som_benchmarks.csv" index 0 u ($2-$4) title "remaining", \
-     "" index 0 u 4 title "gc", \
+     "benchmark_results/som_benchmarks.csv" index 0 u ($2-$4) title "remaining time", \
+     "" index 0 u 4 title "gc time", \
      newhistogram lt 1, \
      "" index 1 u ($2-$4) notitle, \
      "" index 1 u 4 notitle, \

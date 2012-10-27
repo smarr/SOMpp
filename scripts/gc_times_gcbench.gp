@@ -10,7 +10,7 @@ set bmargin 3
 set offset 0,2,0,0
 unset xtics
 
-set title "Clusters of stacked histograms"
+set title "Garbage collection times for GCBench"
 
-plot 'benchmark_results/gcbench.csv' using ($2-$4):xtic(1) title "interpretation time", \
-       '' using 4 title "gc time"
+plot 'benchmark_results/gcbench.csv' using (($2-$4)/1000):xtic(1) title "remaining time", \
+       '' using ($4/1000) title "gc time"
