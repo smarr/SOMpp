@@ -56,5 +56,21 @@ if __name__ == "__main__":
     f.close()
 
 
+    #GCBench
+    # - comparation of non-tagging vs tagging version (without int cache)
+    csv = merge((1,2,3,4),
+            [
+                base_path+"/benchmark_results/generational_nocache_noTagging_gcbench.csv",
+                base_path+"/benchmark_results/generational_nocache_tagging_gcbench.csv",
+                base_path+"/benchmark_results/copying_nocache_noTagging_gcbench.csv",
+                base_path+"/benchmark_results/copying_nocache_tagging_gcbench.csv",
+                base_path+"/benchmark_results/mark_sweep_nocache_noTagging_gcbench.csv",
+                base_path+"/benchmark_results/mark_sweep_nocache_tagging_gcbench.csv"
+                ])
+    f = file(base_path+"/benchmark_results/gcbench.csv", "w")
+    f.write(csv)
+    f.close()
+
+
 
 
