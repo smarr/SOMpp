@@ -19,8 +19,8 @@ class Benchmark(object):
         return self.benchmark[self.benchmark.rfind("/")+1 : self.benchmark.find(".")]
 
     def calc_avg_times(self):
-        avg = sum(self.times) / len(self.times)
-        gc_avg = sum(self.gc_times) / len(self.gc_times)
+        avg = (reduce(lambda x, y: x*y, self.times))**(1.0/len(self.times))
+        gc_avg = (reduce(lambda x, y: x*y, self.gc_times))**(1.0/len(self.gc_times))
         std_dev = math.sqrt((sum((x-avg)**2 for x in self.times))/len(self.times))
         conf_int = Z * (std_dev / math.sqrt(self.iterations))
         gc_std_dev = math.sqrt((sum((x-avg)**2 for x in
