@@ -1,9 +1,11 @@
-set term postscript eps enhanced solid color
+reset
+set terminal postscript enhanced eps solid color
 set output "integer_histogram_richards.eps"
-set title "Integer histogram (Richards Benchmark)"
+set title "Integer histogram for Richards benchmark" font "Helvetica,26"
 set datafile separator "," #csv is comma separated
 set yrange [0:]      #plot starting from 0
-set ylabel "Number of Integers created"
+set ylabel "Number of integers created" font "Helvetiva,20"
+set xlabel "Integer value" font "Helvetiva,20"
 set logscale x
 set logscale y
 set yrange [1:]

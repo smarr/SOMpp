@@ -2,11 +2,14 @@ set terminal postscript eps enhanced solid color
 set output "gc_times_som.eps"
 set style data histogram
 set style histogram rowstacked
-set style fill solid
-set boxwidth 0.7
-set title "Garbage collection times for SOM benchmarks"
+set style fill solid 1.00 border 0 #fill bars
+set boxwidth 0.9
+set title "Garbage collection times for SOM benchmarks" font "Helvetica,26"
 set xlabel  offset character 0, -2, 0 font "" textcolor lt -1 norotate
+set ylabel "Average execution time (ms)" font "Helvetica,20"
 set xtics nomirror rotate by -45
+
+set grid ytics
 
 set xtics   ("Bounce" 0*7+2, "BubbleSort" 1*7+2, "Dispatch" 2*7+2, "Fibonacci" 3*7+2, "IntegerLoop" 4*7+2,\
              "List" 5*7+2, "Loop" 6*7+2, "Permute" 7*7+2, "Queens" 8*7+2, "QuickSort" 9*7+2,\
