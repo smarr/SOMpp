@@ -118,8 +118,9 @@ void  _System::Time(pVMObject /*object*/, pVMFrame frame) {
 
 
 void _System::FullGC(pVMObject /*object*/, pVMFrame frame) {
-    // The stack will not be manipulated - leave it untouched.
+    frame->Pop();
     _UNIVERSE->FullGC();
+    frame->Push(trueObject);
 }
 
 
