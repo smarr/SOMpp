@@ -13,3 +13,7 @@ SOM++
 unittest
 benchmark_results
 generated_images
+
+SOM.xcodeproj/project.xcworkspace
+SOM.xcodeproj/xcuserdata
+
