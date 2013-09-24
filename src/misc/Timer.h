@@ -3,70 +3,44 @@
 #define TIMER_H
 
 #include <time.h>
+#include <stdint.h>
+#include <sys/time.h>
+
+static int64_t get_microseconds() {
+    #if defined(CLOCK_PROCESS_CPUTIME_ID)
+        // this is for Linux
+        timespec now;
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now);
+    
+        return (now.tv_sec * 1000 * 1000) +  // seconds
+               (now.tv_nsec / 1000);         // nanoseconds
+    #else
+        // this is for OSX, might work on other platforms
+        struct timeval now;
+        gettimeofday(&now, NULL);
+
+        return (now.tv_sec * 1000 * 1000) +  // seconds
+                now.tv_usec;                 // microseconds
+    #endif
+}
 
 class Timer {
     private:
-        timespec total;
-        timespec last_start;
+        int64_t total;
+        int64_t last_start;
     public:
         static Timer* GCTimer;
         inline void Resume() {
-            clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &last_start);
+            last_start = get_microseconds();
         }
         inline void Halt() {
-            timespec end;
-            clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);
-            total.tv_sec += end.tv_sec - last_start.tv_sec;
-            total.tv_nsec += end.tv_nsec - last_start.tv_nsec;
-            if (total.tv_nsec < 0) {
-                total.tv_nsec += 1000000000;
-                total.tv_sec--;
-            }
-            else if (total.tv_nsec >= 1000000000) {
-                total.tv_nsec -= 1000000000;
-                total.tv_sec++;
-            }
+            int64_t end  = get_microseconds();
+            
+            total = end - last_start;
         }
 
         double GetTotalTime() {
-            return total.tv_sec*1000 + total.tv_nsec / 1000000.0;
-        }
-
-};
-
-#endif
-#pragma once
-#ifndef TIMER_H
-#define TIMER_H
-
-#include <time.h>
-
-class Timer {
-    private:
-        timespec total;
-        timespec last_start;
-    public:
-        static Timer* GCTimer;
-        inline void Resume() {
-            clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &last_start);
-        }
-        inline void Halt() {
-            timespec end;
-            clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);
-            total.tv_sec += end.tv_sec - last_start.tv_sec;
-            total.tv_nsec += end.tv_nsec - last_start.tv_nsec;
-            if (total.tv_nsec < 0) {
-                total.tv_nsec += 1000000000;
-                total.tv_sec--;
-            }
-            else if (total.tv_nsec >= 1000000000) {
-                total.tv_nsec -= 1000000000;
-                total.tv_sec++;
-            }
-        }
-
-        double GetTotalTime() {
-            return total.tv_sec*1000 + total.tv_nsec / 1000000.0;
+            return total / 1000.0;
         }
 
 };
