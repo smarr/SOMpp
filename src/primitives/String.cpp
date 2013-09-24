@@ -55,8 +55,8 @@ _String::_String( ) : PrimitiveContainer() {
     this->SetPrimitive("equal", new 
         Routine<_String>(this, &_String::Equal));
 
-    this->SetPrimitive("primSubstringFrom_To_", new 
-        Routine<_String>(this, &_String::PrimSubstringFrom_To_));
+    this->SetPrimitive("primSubstringFrom_to_", new
+        Routine<_String>(this, &_String::PrimSubstringFrom_to_));
 }
 
 void  _String::Concatenate_(pVMObject /*object*/, pVMFrame frame) {
@@ -127,7 +127,7 @@ void  _String::Equal(pVMObject /*object*/, pVMFrame frame) {
 }
 
 
-void  _String::PrimSubstringFrom_To_(pVMObject /*object*/, pVMFrame frame) {
+void  _String::PrimSubstringFrom_to_(pVMObject /*object*/, pVMFrame frame) {
     pVMInteger end = static_cast<pVMInteger>(frame->Pop());
     pVMInteger start = static_cast<pVMInteger>(frame->Pop());
     
@@ -135,14 +135,14 @@ void  _String::PrimSubstringFrom_To_(pVMObject /*object*/, pVMFrame frame) {
     
     StdString str = self->GetStdString();
 #ifdef USE_TAGGING
-    int s = UNTAG_INTEGER(start);
-    int e = UNTAG_INTEGER(end);
+    int s = UNTAG_INTEGER(start) - 1;
+    int e = UNTAG_INTEGER(end) - 1;
 #else
-    int s = start->GetEmbeddedInteger();
-    int e = end->GetEmbeddedInteger();
+    int s = start->GetEmbeddedInteger() - 1;
+    int e = end->GetEmbeddedInteger() - 1;
 #endif
     
-    StdString result = str.substr(s, e - s);
+    StdString result = str.substr(s, e - s + 1);
 
     frame->Push( _UNIVERSE->NewString(result));
 }

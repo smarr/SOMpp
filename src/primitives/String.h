@@ -43,7 +43,7 @@ public:
     void  Hashcode(pVMObject object, pVMFrame frame);
     void  Length(pVMObject object, pVMFrame frame);
     void  Equal(pVMObject object, pVMFrame frame);
-    void  PrimSubstringFrom_To_(pVMObject object, pVMFrame frame);
+    void  PrimSubstringFrom_to_(pVMObject object, pVMFrame frame);
 };
 
 
