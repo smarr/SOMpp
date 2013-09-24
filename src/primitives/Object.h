@@ -41,6 +41,17 @@ public:
     void  Equalequal(pVMObject object, pVMFrame frame);
     void  ObjectSize(pVMObject object, pVMFrame frame);
     void  Hashcode(pVMObject object, pVMFrame frame);
+    void  Inspect(pVMObject object, pVMFrame frame);
+    void  Halt(pVMObject object, pVMFrame frame);
+    
+    void  Perform(pVMObject object, pVMFrame frame);
+    void  PerformWithArguments(pVMObject object, pVMFrame frame);
+    void  PerformInSuperclass(pVMObject object, pVMFrame frame);
+    void  PerformWithArgumentsInSuperclass(pVMObject object, pVMFrame frame);
+    
+    void  InstVarAt(pVMObject object, pVMFrame frame);
+    void  InstVarAtPut(pVMObject object, pVMFrame frame);
+    void  InstVarNamed(pVMObject object, pVMFrame frame);
 };
 
 #endif

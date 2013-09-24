@@ -27,6 +27,8 @@ THE SOFTWARE.
 
 #include <vmobjects/VMObject.h>
 #include <vmobjects/VMFrame.h>
+#include <vmobjects/VMClass.h>
+#include <vmobjects/VMInvokable.h>
 
 #include <vm/Universe.h>
 #ifdef USE_TAGGING
@@ -45,6 +47,28 @@ _Object::_Object( ) : PrimitiveContainer() {
 
     this->SetPrimitive("hashcode", new 
         Routine<_Object>(this, &_Object::Hashcode));
+    
+    this->SetPrimitive("inspect", new
+        Routine<_Object>(this, &_Object::Inspect));
+    
+    this->SetPrimitive("halt", new
+                       Routine<_Object>(this, &_Object::Halt));
+    
+    this->SetPrimitive("perform_", new
+                       Routine<_Object>(this, &_Object::Perform));
+    this->SetPrimitive("perform_withArguments_", new
+                       Routine<_Object>(this, &_Object::PerformWithArguments));
+    this->SetPrimitive("perform_inSuperclass_", new
+                       Routine<_Object>(this, &_Object::PerformInSuperclass));
+    this->SetPrimitive("perform_withArguments_inSuperclass_", new
+                       Routine<_Object>(this, &_Object::PerformWithArgumentsInSuperclass));
+    
+    this->SetPrimitive("instVarAt_", new
+                       Routine<_Object>(this, &_Object::InstVarAt));
+    this->SetPrimitive("instVarAt_put_", new
+                       Routine<_Object>(this, &_Object::InstVarAtPut));
+    this->SetPrimitive("instVarNamed_", new
+                       Routine<_Object>(this, &_Object::InstVarNamed));
 }
 
 void  _Object::Equalequal(pVMObject /*object*/, pVMFrame frame) {
@@ -81,3 +105,98 @@ void  _Object::Hashcode(pVMObject /*object*/, pVMFrame frame) {
 #endif
 }
 
+void _Object::Inspect(pVMObject, pVMFrame frame) {
+    // not implemeted
+    frame->Pop();
+    frame->Push(falseObject);
+}
+
+void _Object::Halt(pVMObject, pVMFrame frame) {
+    // not implemeted
+    frame->Pop();
+    frame->Push(falseObject);
+}
+
+
+void  _Object::Perform(pVMObject, pVMFrame frame) {
+    pVMSymbol selector = (pVMSymbol)frame->Pop();
+    pVMObject self = frame->GetStackElement(0);
+    
+    pVMClass clazz = self->GetClass();
+    pVMInvokable invokable = clazz->LookupInvokable(selector);
+    
+    (*invokable)(frame);
+}
+
+void  _Object::PerformInSuperclass(pVMObject object, pVMFrame frame) {
+    pVMClass  clazz    = (pVMClass) frame->Pop();
+    pVMSymbol selector = (pVMSymbol)frame->Pop();
+    
+    pVMInvokable invokable = clazz->LookupInvokable(selector);
+    
+    (*invokable)(frame);
+}
+
+void  _Object::PerformWithArguments(pVMObject object, pVMFrame frame) {
+    pVMArray  args     = (pVMArray) frame->Pop();
+    pVMSymbol selector = (pVMSymbol)frame->Pop();
+    pVMObject self = frame->GetStackElement(0);
+    
+    size_t num_args = args->GetNumberOfIndexableFields();
+    for (size_t i = 0; i < num_args; i++) {
+        pVMObject arg = args->GetIndexableField(i);
+        frame->Push(arg);
+    }
+    
+    pVMClass clazz = self->GetClass();
+    pVMInvokable invokable = clazz->LookupInvokable(selector);
+    
+    (*invokable)(frame);
+}
+
+void  _Object::PerformWithArgumentsInSuperclass(pVMObject object, pVMFrame frame) {
+    pVMClass  clazz    = (pVMClass) frame->Pop();
+    pVMArray  args     = (pVMArray) frame->Pop();
+    pVMSymbol selector = (pVMSymbol)frame->Pop();
+    
+    size_t num_args = args->GetNumberOfIndexableFields();
+    for (size_t i = 0; i < num_args; i++) {
+        pVMObject arg = args->GetIndexableField(i);
+        frame->Push(arg);
+    }
+    
+    pVMInvokable invokable = clazz->LookupInvokable(selector);
+    
+    (*invokable)(frame);
+}
+
+void _Object::InstVarAt(pVMObject object, pVMFrame frame) {
+    pVMInteger idx = (pVMInteger) frame->Pop();
+    pVMObject  self = frame->Pop();
+    
+    int32_t field_idx = idx->GetEmbeddedInteger() - 1;
+    pVMObject value   = self->GetField(field_idx);
+    
+    frame->Push(value);
+}
+
+void _Object::InstVarAtPut(pVMObject object, pVMFrame frame) {
+    pVMObject  value = frame->Pop();
+    pVMInteger idx   = (pVMInteger) frame->Pop();
+    pVMObject  self  = frame->GetStackElement(0);
+    
+    int32_t field_idx = idx->GetEmbeddedInteger() - 1;
+    
+    
+    self->SetField(field_idx, value);
+}
+
+void _Object::InstVarNamed(pVMObject object, pVMFrame frame) {
+    pVMSymbol name = (pVMSymbol) frame->Pop();
+    pVMObject self = frame->Pop();
+    
+    int32_t field_idx = self->GetFieldIndex(name);
+    pVMObject value   = self->GetField(field_idx);
+    
+    frame->Push(value);
+}
