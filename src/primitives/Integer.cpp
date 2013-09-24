@@ -37,6 +37,7 @@ THE SOFTWARE.
 #include <vmobjects/VMDouble.h>
 #include <vmobjects/VMInteger.h>
 #include <vmobjects/VMBigInteger.h>
+#include <vmobjects/VMString.h>
 
 #include <vm/Universe.h>
  
@@ -99,6 +100,9 @@ _Integer::_Integer( ) : PrimitiveContainer() {
 
     this->SetPrimitive("atRandom", 
         new Routine<_Integer>(this, &_Integer::AtRandom));
+
+    this->SetPrimitive("fromString_",
+                       new Routine<_Integer>(this, &_Integer::FromString));
 }
 
 //
@@ -344,4 +348,18 @@ void  _Integer::AtRandom(pVMObject /*object*/, pVMFrame frame) {
 }
 
 
+void _Integer::FromString(pVMObject, pVMFrame frame) {
+    pVMString self = (pVMString) frame->Pop();
+    frame->Pop();
+    
+    int32_t integer = atoi(self->GetChars());
+    
+    #ifdef USE_TAGGING
+        pVMInteger new_int = TAG_INTEGER(integer);
+    #else
+        pVMInteger new_int = _UNIVERSE->NewInteger(integer);
+    #endif
+
+    frame->Push(new_int);
+}
 
