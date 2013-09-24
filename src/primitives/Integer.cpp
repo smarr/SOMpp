@@ -406,14 +406,18 @@ void  _Integer::AsString(pVMObject /*object*/, pVMFrame frame) {
 }
 
 
-void  _Integer::Sqrt(pVMObject /*object*/, pVMFrame frame) {
+void  _Integer::Sqrt(pVMObject object, pVMFrame frame) {
     pVMInteger self = static_cast<pVMInteger>(frame->Pop());
 #ifdef USE_TAGGING
     double result = sqrt((double)UNTAG_INTEGER(self));
 #else
     double result = sqrt((double)self->GetEmbeddedInteger());
 #endif
-    frame->Push(_UNIVERSE->NewDouble(result));
+    
+    if (result == rint(result))
+        pushResult(object, frame, result);
+    else
+        frame->Push(_UNIVERSE->NewDouble(result));
 }
 
 
