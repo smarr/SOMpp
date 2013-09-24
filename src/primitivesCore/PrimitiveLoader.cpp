@@ -60,7 +60,7 @@ PrimitiveRoutine* PrimitiveLoader::GetPrimitiveRoutine( const std::string& cname
     }
     result = primitive->GetPrimitive(mname);
     if (!result) {
-        cout << "method " << mname << " not found in class" << cname << endl;
+        cout << "method " << mname << " not found in class " << cname << endl;
         return NULL;
     }
     return result;
