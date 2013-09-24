@@ -158,6 +158,22 @@ void _Double::Sqrt(pVMObject /*object*/, pVMFrame frame) {
     frame->Push(result);
 }
 
+void _Double::Round(pVMObject /*object*/, pVMFrame frame) {
+    pVMDouble self = (pVMDouble)frame->Pop();
+    long int rounded = lround(self->GetEmbeddedDouble());
+    
+    // Check with integer bounds and push:
+    if (rounded > INT32_MAX || rounded < INT32_MIN)
+        frame->Push(_UNIVERSE->NewBigInteger(rounded));
+    else {
+      #ifdef USE_TAGGING
+        frame->Push(TAG_INTEGER((int32_t)rounded));
+      #else
+        frame->Push(_UNIVERSE->NewInteger((int32_t)rounded));
+      #endif
+    }
+}
+
 _Double::_Double( ) : PrimitiveContainer() {
     this->SetPrimitive("plus", new 
         Routine<_Double>(this, &_Double::Plus));
@@ -191,5 +207,8 @@ _Double::_Double( ) : PrimitiveContainer() {
 
     this->SetPrimitive("bitXor_", new 
         Routine<_Double>(this, &_Double::BitwiseXor));
+    
+    this->SetPrimitive("round", new
+        Routine<_Double>(this, &_Double::Round));
 }
 
