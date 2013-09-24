@@ -1,0 +1,15 @@
+*~
+*.o
+*.so
+*.pyc
+*.swp
+*.eps
+*.png
+*.orig
+bin
+CORE
+SOM++
+*.csp
+unittest
+benchmark_results
+generated_images
