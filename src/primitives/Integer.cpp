@@ -326,10 +326,14 @@ void  _Integer::AsString(pVMObject /*object*/, pVMFrame frame) {
 }
 
 
-void  _Integer::Sqrt(pVMObject /*object*/, pVMFrame frame) {
+void  _Integer::Sqrt(pVMObject object, pVMFrame frame) {
     pVMInteger self = (pVMInteger)frame->Pop();
     double result = sqrt((double)self->GetEmbeddedInteger());
-    frame->Push((pVMObject)_UNIVERSE->NewDouble(result));
+
+    if (result == rint(result))
+        pushResult(object, frame, result);
+    else
+        frame->Push(_UNIVERSE->NewDouble(result));
 }
 
 
