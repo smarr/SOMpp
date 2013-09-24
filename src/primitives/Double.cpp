@@ -73,25 +73,23 @@ double _Double::coerceDouble(pVMObject x) {
 
 void  _Double::Plus(pVMObject /*object*/, pVMFrame frame) {
     PREPARE_OPERANDS;
-    frame->Push((pVMObject)_UNIVERSE->NewDouble(left + right));
+    frame->Push(_UNIVERSE->NewDouble(left + right));
 }
-
 
 void  _Double::Minus(pVMObject /*object*/, pVMFrame frame) {
     PREPARE_OPERANDS;
-    frame->Push((pVMObject)_UNIVERSE->NewDouble(left - right));
+    frame->Push(_UNIVERSE->NewDouble(left - right));
 }
-
 
 void  _Double::Star(pVMObject /*object*/, pVMFrame frame) {
     PREPARE_OPERANDS;
-    frame->Push((pVMObject)_UNIVERSE->NewDouble(left * right));
+    frame->Push(_UNIVERSE->NewDouble(left * right));
+    frame->Push((pVMObject)_UNIVERSE->NewDouble(left / right));
 }
-
 
 void  _Double::Slashslash(pVMObject /*object*/, pVMFrame frame) {
     PREPARE_OPERANDS;
-    frame->Push((pVMObject)_UNIVERSE->NewDouble(left / right));
+    frame->Push(_UNIVERSE->NewDouble(left / right));
 }
 
 
@@ -100,12 +98,17 @@ void  _Double::Percent(pVMObject /*object*/, pVMFrame frame) {
     frame->Push(_UNIVERSE->NewDouble((double)((int64_t)left % 
                                               (int64_t)right)));
 }
-void  _Double::And(pVMObject /*object*/, pVMFrame frame) {
-    PREPARE_OPERANDS;
-    frame->Push(_UNIVERSE->NewDouble((double)((int64_t)left & 
+
+void  _Double::BitwiseXor(pVMObject /*object*/, pVMFrame frame) {
+    frame->Push(_UNIVERSE->NewDouble((double)((int64_t)left ^ 
                                               (int64_t)right)));
 }
 
+void  _Double::And(pVMObject /*object*/, pVMFrame frame) {
+    PREPARE_OPERANDS;
+    frame->Push(_UNIVERSE->NewDouble((double)((int64_t)left &
+                                              (int64_t)right)));
+}
 
 
 /*
@@ -125,7 +128,7 @@ void  _Double::Lowerthan(pVMObject /*object*/, pVMFrame frame) {
     PREPARE_OPERANDS;
     if(left < right)
         frame->Push(trueObject);
-    else
+    pVMDouble self = (pVMDouble)frame->Pop();
         frame->Push(falseObject);
 }
 
@@ -142,10 +145,28 @@ void  _Double::AsString(pVMObject /*object*/, pVMFrame frame) {
 
 
 void _Double::Sqrt(pVMObject /*object*/, pVMFrame frame) {
-    pVMDouble self = (pVMDouble)frame->Pop();
+    pVMDouble self = static_cast<pVMDouble>(frame->Pop());
     pVMDouble result = _UNIVERSE->NewDouble( sqrt(self->GetEmbeddedDouble()) );
-    frame->Push((pVMObject)result);
+    frame->Push(result);
 }
+
+
+void _Double::Round(pVMObject /*object*/, pVMFrame frame) {
+    pVMDouble self = (pVMDouble)frame->Pop();
+    long int rounded = lround(self->GetEmbeddedDouble());
+    
+    // Check with integer bounds and push:
+    if (rounded > INT32_MAX || rounded < INT32_MIN)
+        frame->Push(_UNIVERSE->NewBigInteger(rounded));
+    else {
+      #ifdef USE_TAGGING
+        frame->Push(TAG_INTEGER((int32_t)rounded));
+      #else
+        frame->Push(_UNIVERSE->NewInteger((int32_t)rounded));
+      #endif
+    }
+}
+
 
 _Double::_Double( ) : PrimitiveContainer() {
     this->SetPrimitive("plus", new 
@@ -177,5 +198,11 @@ _Double::_Double( ) : PrimitiveContainer() {
 
     this->SetPrimitive("sqrt", new 
         Routine<_Double>(this, &_Double::Sqrt));
+
+    this->SetPrimitive("bitXor_", new 
+        Routine<_Double>(this, &_Double::BitwiseXor));
+    
+    this->SetPrimitive("round", new
+        Routine<_Double>(this, &_Double::Round));
 }
 
