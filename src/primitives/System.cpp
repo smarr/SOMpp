@@ -103,17 +103,29 @@ void  _System::PrintNewline(pVMObject /*object*/, pVMFrame /*frame*/) {
 void  _System::Time(pVMObject /*object*/, pVMFrame frame) {
     /*pVMObject self = */
     frame->Pop();
-    timeval* now = new timeval();
+    struct timeval now;
 
-    gettimeofday(now, NULL);
+    gettimeofday(&now, NULL);
 
     long long diff = 
-        ((now->tv_sec - start_time->tv_sec) * 1000) + //seconds
-        ((now->tv_usec - start_time->tv_usec) / 1000); // µseconds
+        ((now.tv_sec  - start_time.tv_sec)  * 1000) + //seconds
+        ((now.tv_usec - start_time.tv_usec) / 1000);  // µseconds
 
-    frame->Push((pVMObject)_UNIVERSE->NewInteger((int32_t)diff));
+    frame->Push(_UNIVERSE->NewInteger((int32_t)diff));
+}
 
-    delete(now);
+void  _System::Ticks(pVMObject /*object*/, pVMFrame frame) {
+    /*pVMObject self = */
+    frame->Pop();
+    struct timeval now;
+    
+    gettimeofday(&now, NULL);
+    
+    long long diff =
+        ((now.tv_sec  - start_time.tv_sec) * 1000 * 1000) + //seconds
+        ((now.tv_usec - start_time.tv_usec));               // µseconds
+    
+    frame->Push((pVMObject)_UNIVERSE->NewBigInteger(diff));
 }
 
 
@@ -125,8 +137,7 @@ void _System::FullGC(pVMObject /*object*/, pVMFrame frame) {
 
 
 _System::_System(void) : PrimitiveContainer() {
-    start_time = new timeval();
-    gettimeofday(start_time, NULL);
+    gettimeofday(&start_time, NULL);
 
     this->SetPrimitive("global_", 
         static_cast<PrimitiveRoutine*>(new 
@@ -156,14 +167,13 @@ _System::_System(void) : PrimitiveContainer() {
         static_cast<PrimitiveRoutine*>(new 
         Routine<_System>(this, &_System::Time)));
     
+    this->SetPrimitive("ticks",
+        static_cast<PrimitiveRoutine*>(new
+        Routine<_System>(this, &_System::Ticks)));
+    
     this->SetPrimitive("fullGC",
         static_cast<PrimitiveRoutine*>(new
         Routine<_System>(this, &_System::FullGC)));
 }
 
-_System::~_System()
-{
-    delete(start_time);
-}
-
-
+_System::~_System() {}
