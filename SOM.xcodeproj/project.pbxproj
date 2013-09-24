@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 45;
+	objectVersion = 46;
 	objects = {
 
 /* Begin PBXFileReference section */
@@ -551,9 +551,16 @@
 /* Begin PBXProject section */
 		3F5202740FA661D900E75857 /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0500;
+			};
 			buildConfigurationList = 3F5202770FA661D900E75857 /* Build configuration list for PBXProject "SOM" */;
-			compatibilityVersion = "Xcode 3.1";
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
 			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
 			mainGroup = 3F5202720FA661D900E75857;
 			projectDirPath = "";
 			projectRoot = "";
@@ -569,6 +576,7 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				MAKE_ARGS = debug;
+				ONLY_ACTIVE_ARCH = YES;
 			};
 			name = Debug;
 		};
