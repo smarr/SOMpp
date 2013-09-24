@@ -300,12 +300,19 @@ void  _Integer::Percent(pVMObject object, pVMFrame frame) {
     pVMInteger right = static_cast<pVMInteger>(rightObj);
 
 #ifdef USE_TAGGING
-    int64_t result = (int64_t)UNTAG_INTEGER(left) %
-        (int64_t)UNTAG_INTEGER(right);
+    int64_t l = (int64_t)UNTAG_INTEGER(left);
+    int64_t r = (int64_t)UNTAG_INTEGER(right);
 #else
-    int64_t result = (int64_t)left->GetEmbeddedInteger() %
-        (int64_t)right->GetEmbeddedInteger();
+    int64_t l = (int64_t)left->GetEmbeddedInteger();
+    int64_t r = (int64_t)right->GetEmbeddedInteger();
 #endif
+    
+    int64_t result = l % r;
+    
+    if (l > 0 && r < 0) {
+        result += r;
+    }
+    
     pushResult(object, frame, result); 
 }
 
