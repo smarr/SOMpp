@@ -211,9 +211,9 @@ profiling: all
 clean:
 	rm -Rf $(CLEAN)
 	#just to be sure delete again
-	find -name "*.o" -delete
-	rm -Rf $(CORE_NAME).csp $(ST_DIR)/$(CORE_NAME).csp
-	rm -Rf *.so
+	find . -name "*.o" -delete
+	-rm -Rf $(CORE_NAME).csp $(ST_DIR)/$(CORE_NAME).csp
+	-rm -Rf *.so
 
 
 
