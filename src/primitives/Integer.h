@@ -56,6 +56,8 @@ public:
     void  AsString(pVMObject object, pVMFrame frame);
     void  Sqrt(pVMObject object, pVMFrame frame);
     void  AtRandom(pVMObject object, pVMFrame frame);
+    
+    void  FromString(pVMObject object, pVMFrame frame);
 
     _Integer(void);
 
