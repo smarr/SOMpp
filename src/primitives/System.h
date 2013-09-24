@@ -50,11 +50,12 @@ public:
     void PrintString_(pVMObject object, pVMFrame frame);
     void PrintNewline(pVMObject object, pVMFrame frame);
     void Time(pVMObject object, pVMFrame frame);
+    void Ticks(pVMObject object, pVMFrame frame);
     void FullGC(pVMObject object, pVMFrame frame);
 
     
 private:
-    timeval* start_time;
+    struct timeval start_time;
 };
 
 #endif
