@@ -129,10 +129,9 @@ void  _System::Time(pVMObject /*object*/, pVMFrame frame) {
 
 
 void _System::FullGC(pVMObject /*object*/, pVMFrame frame) {
-    // The stack will not be manipulated - leave it untouched.
-    //_UNIVERSE->FullGC();
-    //just trigger a FullGC instead of performing one immediately
-    _HEAP->triggerGC();
+    frame->Pop();
+    _HEAP->triggerGC(); // not safe to do it immediatly, will be done when it is ok, i.e., in the interpreter loop
+    frame->Push(trueObject);
 }
 
 
