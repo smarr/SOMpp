@@ -55,8 +55,8 @@ _String::_String( ) : PrimitiveContainer() {
     this->SetPrimitive("equal", new 
         Routine<_String>(this, &_String::Equal));
 
-    this->SetPrimitive("primSubstringFrom_To_", new 
-        Routine<_String>(this, &_String::PrimSubstringFrom_To_));
+    this->SetPrimitive("primSubstringFrom_to_", new
+        Routine<_String>(this, &_String::PrimSubstringFrom_to_));
 }
 
 void  _String::Concatenate_(pVMObject /*object*/, pVMFrame frame) {
@@ -111,19 +111,19 @@ void  _String::Equal(pVMObject /*object*/, pVMFrame frame) {
 }
 
 
-void  _String::PrimSubstringFrom_To_(pVMObject /*object*/, pVMFrame frame) {
-    pVMInteger end = (pVMInteger)frame->Pop();
-    pVMInteger start = (pVMInteger)frame->Pop();
+void  _String::PrimSubstringFrom_to_(pVMObject /*object*/, pVMFrame frame) {
+    pVMInteger end = static_cast<pVMInteger>(frame->Pop());
+    pVMInteger start = static_cast<pVMInteger>(frame->Pop());
     
-    pVMString self = (pVMString)frame->Pop();
-    
+    pVMString self = static_cast<pVMString>(frame->Pop());
     StdString str = self->GetStdString();
-    int s = start->GetEmbeddedInteger();
-    int e = end->GetEmbeddedInteger();
-    
-    StdString result = str.substr(s, e - s);
 
-    frame->Push((pVMObject) _UNIVERSE->NewString(result));
+    int s = start->GetEmbeddedInteger() - 1;
+    int e = end->GetEmbeddedInteger() - 1;
+    
+    StdString result = str.substr(s, e - s + 1);
+
+    frame->Push( _UNIVERSE->NewString(result));
 }
 
 
