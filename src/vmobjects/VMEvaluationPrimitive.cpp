@@ -74,7 +74,7 @@ pVMSymbol VMEvaluationPrimitive::computeSignatureString(int argc){
         --argc;
         while(--argc) 
             // Add extra value: selector elements if necessary
-            signatureString + WITH_S;
+            signatureString += WITH_S;
     }
 
     // Return the signature string
