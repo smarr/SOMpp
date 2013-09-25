@@ -50,19 +50,11 @@ VMString::VMString(const char* str) : VMObject(VMStringNumberOfFields) {
 
 
 VMString::VMString( const StdString& s ): VMObject(VMStringNumberOfFields) {
-    //set the chars-pointer to point at the position of the first character
-	chars = (char*)&chars+sizeof(char*);
-	size_t i = 0;
-	for (; i < s.length(); ++i) {
-		chars[i] = s[i];
-	}
-	chars[i] = '\0';
+    VMString(s.c_str());
 } 
 
 int VMString::GetStringLength() const {
-    //get the additional memory allocated by this object and substract one
-    //for the '0' character and four for the char*
-    return this->GetAdditionalSpaceConsumption() - 4 - 1;
+    return strlen(chars);
 }
 
 
