@@ -373,7 +373,7 @@ void VMClass::setPrimitives(void* dlhandle, const StdString& cname) {
         anInvokable = (pVMInvokable)(this->GetInstanceInvokable(i));
 #ifdef __DEBUG
         cout << "cname: >" << cname << "<"<< endl;
-        cout << an_invokable->GetSignature()->GetStdString() << endl;
+        cout << anInvokable->GetSignature()->GetStdString() << endl;
 #endif
         if(anInvokable->IsPrimitive()) {
 #ifdef __DEBUG
