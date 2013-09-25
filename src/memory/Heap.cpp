@@ -50,7 +50,7 @@ Heap* Heap::GetHeap() {
     return theHeap;
 }
 
-void Heap::InitializeHeap( int objectSpaceSize ) {
+void Heap::InitializeHeap( size_t objectSpaceSize ) {
     if (theHeap) {
         cout << "Warning, reinitializing already initialized Heap, " 
              << "all data will be lost!" << endl;
@@ -65,7 +65,7 @@ void Heap::DestroyHeap() {
 
 
 
-Heap::Heap(int objectSpaceSize) {
+Heap::Heap(size_t objectSpaceSize) {
 	objectSpace = malloc(objectSpaceSize);
 	if (!objectSpace) {
 		std::cout << "Failed to allocate the initial "<< objectSpaceSize 
@@ -75,7 +75,7 @@ Heap::Heap(int objectSpaceSize) {
 	memset(objectSpace, 0, objectSpaceSize);
 	sizeOfFreeHeap = objectSpaceSize;
 	this->objectSpaceSize = objectSpaceSize;
-	this->buffersizeForUninterruptable = (int) (objectSpaceSize * 0.1);
+	this->buffersizeForUninterruptable = (size_t) (objectSpaceSize * 0.1);
     
     uninterruptableCounter = 0;
 	numAlloc = 0;
@@ -128,7 +128,7 @@ void* Heap::Allocate(size_t size) {
         return internalAllocate(size);
     }
 #ifdef HEAPDEBUG 
-    std::cout << "allocating: " << (int)size << "bytes" << std::endl;
+    std::cout << "allocating: " << size << "bytes" << std::endl;
 #endif
     //if there is not enough free heap size and we are not inside an uninterruptable
     //section of allocation, start garbage collection
@@ -169,7 +169,7 @@ void* Heap::Allocate(size_t size) {
         result = cur;
     } else if (cur->GetObjectSize() >= size + sizeof(VMFreeObject)) {
         //found an entry that is big enough
-        int oldSize = cur->GetObjectSize();
+        size_t oldSize = cur->GetObjectSize();
         VMFreeObject* oldNext = cur->GetNext();
         result = cur;
         VMFreeObject* replaceEntry = (VMFreeObject*) ((intptr_t)cur + size);
@@ -208,7 +208,7 @@ void* Heap::Allocate(size_t size) {
 
 void Heap::PrintFreeList() {
     VMFreeObject* curEntry = freeListStart;
-    int i =0;
+    size_t i = 0;
     while (curEntry != NULL) {
         cout << "i: " << curEntry->GetObjectSize() << endl;
         ++i;
@@ -229,7 +229,7 @@ void Heap::Free(void* ptr) {
 
 void Heap::Destroy(VMObject* _object) {
     
-    int freedBytes = _object->GetObjectSize();
+    size_t freedBytes = _object->GetObjectSize();
     memset(_object, 0, freedBytes);
     VMFreeObject* object = (VMFreeObject*) _object;
 

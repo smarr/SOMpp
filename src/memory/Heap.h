@@ -55,9 +55,9 @@ class Heap
 
 public:
     static Heap* GetHeap();
-    static void InitializeHeap(int objectSpaceSize = 1048576);
+    static void InitializeHeap(size_t objectSpaceSize = 1048576);
     static void DestroyHeap();
-	Heap(int objectSpaceSize = 1048576);
+	Heap(size_t objectSpaceSize = 1048576);
 	~Heap();
     VMObject* AllocateObject(size_t size);
 	void* Allocate(size_t size);
@@ -84,10 +84,10 @@ private:
     
     
 	
-    int objectSpaceSize;
-	int buffersizeForUninterruptable;
+    size_t objectSpaceSize;
+	size_t buffersizeForUninterruptable;
 	int uninterruptableCounter;
-	int sizeOfFreeHeap;
+	size_t sizeOfFreeHeap;
 
 	GarbageCollector* gc;
 

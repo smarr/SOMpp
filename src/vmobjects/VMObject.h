@@ -81,8 +81,8 @@ public:
     virtual void        IncreaseGCCount() {};
     virtual void        DecreaseGCCount() {};
 
-    int32_t     GetHash() const { return hash; };
-    int32_t     GetObjectSize() const;
+    intptr_t    GetHash() const { return hash; };
+    size_t      GetObjectSize() const;
 	int32_t     GetGCField() const;
 	void        SetGCField(int32_t value);
     void        SetObjectSize(size_t size);
@@ -117,8 +117,8 @@ public:
 protected:
     int GetAdditionalSpaceConsumption() const;
     //VMObject essentials
-	int32_t     hash;
-    int32_t     objectSize; //set by the heap at allocation time
+	intptr_t    hash;
+    size_t      objectSize; //set by the heap at allocation time
     int32_t     numberOfFields;
     int32_t     gcfield;
 

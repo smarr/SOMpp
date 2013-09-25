@@ -95,7 +95,7 @@ int VMObject::GetNumberOfFields() const {
     return this->numberOfFields;
 }
 
-int32_t VMObject::GetObjectSize() const {
+size_t VMObject::GetObjectSize() const {
     return objectSize;
 }
 
