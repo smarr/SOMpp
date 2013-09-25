@@ -40,7 +40,7 @@ VMObject::VMObject( int numberOfFields ) {
     //FIELDS = (pVMObject*)&clazz; 
     this->SetNumberOfFields(numberOfFields + VMObjectNumberOfFields);
     gcfield = 0; 
-	hash = (int32_t)this;
+	hash = (intptr_t)this;
     //Object size is set by the heap
 }
 

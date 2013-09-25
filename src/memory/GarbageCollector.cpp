@@ -154,8 +154,8 @@ void GarbageCollector::mergeFreeSpaces() {
     VMFreeObject* last = NULL;
 	heap->sizeOfFreeHeap = 0;
 	while (currentEntry->GetNext() != NULL) {
-		if((int)currentEntry + (int)currentEntry->GetObjectSize() == 
-                                        (int)currentEntry->GetNext()) {
+		if((intptr_t)currentEntry + (intptr_t)currentEntry->GetObjectSize() ==
+                                        (intptr_t)currentEntry->GetNext()) {
             int newEntrySize = currentEntry->GetObjectSize() +
                                         currentEntry->GetNext()->GetObjectSize();
 			currentEntry->SetObjectSize(newEntrySize);

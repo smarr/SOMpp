@@ -172,7 +172,7 @@ void* Heap::Allocate(size_t size) {
         int oldSize = cur->GetObjectSize();
         VMFreeObject* oldNext = cur->GetNext();
         result = cur;
-        VMFreeObject* replaceEntry = (VMFreeObject*) ((int)cur + size);
+        VMFreeObject* replaceEntry = (VMFreeObject*) ((intptr_t)cur + size);
         replaceEntry->SetObjectSize(oldSize - size);
         replaceEntry->SetGCField(-1);
         replaceEntry->SetNext(oldNext);
@@ -221,8 +221,8 @@ void Heap::FullGC() {
 }
 
 void Heap::Free(void* ptr) {
-    if ( ((int)ptr < (int) this->objectSpace) &&
-        ((int)ptr > (int) this->objectSpace + this->objectSpaceSize)) {
+    if ( ((intptr_t)ptr < (intptr_t) this->objectSpace) &&
+        ((intptr_t)ptr > (intptr_t) this->objectSpace + this->objectSpaceSize)) {
         internalFree(ptr);
     }
 }
@@ -234,7 +234,7 @@ void Heap::Destroy(VMObject* _object) {
     VMFreeObject* object = (VMFreeObject*) _object;
 
     //see if there's an adjoining unused object behind this object
-    VMFreeObject* next = (VMFreeObject*)((int)object + (int)freedBytes);
+    VMFreeObject* next = (VMFreeObject*)((intptr_t)object + (intptr_t)freedBytes);
     if (next->GetGCField() == -1) {
         //yes, there is, so we can join them
         object->SetObjectSize(next->GetObjectSize() + freedBytes);
