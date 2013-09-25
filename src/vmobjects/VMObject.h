@@ -119,7 +119,7 @@ protected:
     //VMObject essentials
 	intptr_t    hash;
     size_t      objectSize; //set by the heap at allocation time
-    int32_t     numberOfFields;
+    intptr_t    numberOfFields;
     int32_t     gcfield;
 
     //pVMObject* FIELDS;
