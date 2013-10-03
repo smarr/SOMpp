@@ -14,6 +14,9 @@ unittest
 benchmark_results
 generated_images
 
+PrimitiveCore.dll
+SOM++.dll
+
 SOM.xcodeproj/project.xcworkspace
 SOM.xcodeproj/xcuserdata
 
