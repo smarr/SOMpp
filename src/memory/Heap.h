@@ -5,29 +5,28 @@
 /*
  *
  *
-Copyright (c) 2007 Michael Haupt, Tobias Pape, Arne Bergmann
-Software Architecture Group, Hasso Plattner Institute, Potsdam, Germany
-http://www.hpi.uni-potsdam.de/swa/
+ Copyright (c) 2007 Michael Haupt, Tobias Pape, Arne Bergmann
+ Software Architecture Group, Hasso Plattner Institute, Potsdam, Germany
+ http://www.hpi.uni-potsdam.de/swa/
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-  */
-
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 
 #include <vector>
 
@@ -43,53 +42,53 @@ class VMFreeObject;
 //macro to access the heap
 #define _HEAP Heap::GetHeap()
 
-struct FreeListEntry 
-{
+struct FreeListEntry {
     size_t size;
-} ;
+};
 
-
-class Heap
-{
-	friend class GarbageCollector;
+class Heap {
+    friend class GarbageCollector;
 
 public:
     static Heap* GetHeap();
     static void InitializeHeap(size_t objectSpaceSize = 1048576);
     static void DestroyHeap();
-	Heap(size_t objectSpaceSize = 1048576);
-	~Heap();
+    Heap(size_t objectSpaceSize = 1048576);
+    ~Heap();
     VMObject* AllocateObject(size_t size);
-	void* Allocate(size_t size);
+    void* Allocate(size_t size);
     void Free(void* ptr);
-	void Destroy(VMObject*);
-	
-    void StartUninterruptableAllocation() { ++uninterruptableCounter; } ;
-    void EndUninterruptableAllocation() { --uninterruptableCounter; } ;
+    void Destroy(VMObject*);
+
+    void StartUninterruptableAllocation() {
+        ++uninterruptableCounter;
+    }
+    ;
+    void EndUninterruptableAllocation() {
+        --uninterruptableCounter;
+    }
+    ;
 
     void PrintFreeList();
-    
+
     void FullGC();
-	
-    
+
 private:
     static Heap* theHeap;
 
     void internalFree(void* ptr);
-	void* internalAllocate(size_t size);
+    void* internalAllocate(size_t size);
 
-	void* objectSpace;
+    void* objectSpace;
 
-	VMFreeObject* freeListStart;
-    
-    
-	
+    VMFreeObject* freeListStart;
+
     size_t objectSpaceSize;
-	size_t buffersizeForUninterruptable;
-	int uninterruptableCounter;
-	size_t sizeOfFreeHeap;
+    size_t buffersizeForUninterruptable;
+    int uninterruptableCounter;
+    size_t sizeOfFreeHeap;
 
-	GarbageCollector* gc;
+    GarbageCollector* gc;
 
     uint32_t numAlloc;
     uint32_t spcAlloc;

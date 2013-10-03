@@ -1,29 +1,28 @@
 /*
  *
  *
-Copyright (c) 2007 Michael Haupt, Tobias Pape, Arne Bergmann
-Software Architecture Group, Hasso Plattner Institute, Potsdam, Germany
-http://www.hpi.uni-potsdam.de/swa/
+ Copyright (c) 2007 Michael Haupt, Tobias Pape, Arne Bergmann
+ Software Architecture Group, Hasso Plattner Institute, Potsdam, Germany
+ http://www.hpi.uni-potsdam.de/swa/
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-  */
-
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 
 #include <iostream>
 #include <stdlib.h>
@@ -50,35 +49,34 @@ Heap* Heap::GetHeap() {
     return theHeap;
 }
 
-void Heap::InitializeHeap( size_t objectSpaceSize ) {
+void Heap::InitializeHeap(size_t objectSpaceSize) {
     if (theHeap) {
-        cout << "Warning, reinitializing already initialized Heap, " 
-             << "all data will be lost!" << endl;
+        cout << "Warning, reinitializing already initialized Heap, "
+                << "all data will be lost!" << endl;
         delete theHeap;
     }
     theHeap = new Heap(objectSpaceSize);
 }
 
 void Heap::DestroyHeap() {
-    if (theHeap) delete theHeap;
+    if (theHeap)
+        delete theHeap;
 }
 
-
-
 Heap::Heap(size_t objectSpaceSize) {
-	objectSpace = malloc(objectSpaceSize);
-	if (!objectSpace) {
-		std::cout << "Failed to allocate the initial "<< objectSpaceSize 
-                  << " bytes for the Heap. Panic.\n" << std::endl;
-		exit(1);
-	}
-	memset(objectSpace, 0, objectSpaceSize);
-	sizeOfFreeHeap = objectSpaceSize;
-	this->objectSpaceSize = objectSpaceSize;
-	this->buffersizeForUninterruptable = (size_t) (objectSpaceSize * 0.1);
-    
+    objectSpace = malloc(objectSpaceSize);
+    if (!objectSpace) {
+        std::cout << "Failed to allocate the initial " << objectSpaceSize
+                << " bytes for the Heap. Panic.\n" << std::endl;
+        exit(1);
+    }
+    memset(objectSpace, 0, objectSpaceSize);
+    sizeOfFreeHeap = objectSpaceSize;
+    this->objectSpaceSize = objectSpaceSize;
+    this->buffersizeForUninterruptable = (size_t) (objectSpaceSize * 0.1);
+
     uninterruptableCounter = 0;
-	numAlloc = 0;
+    numAlloc = 0;
     spcAlloc = 0;
     numAllocTotal = 0;
     freeListStart = (VMFreeObject*) objectSpace;
@@ -86,28 +84,29 @@ Heap::Heap(size_t objectSpaceSize) {
     freeListStart->SetNext(NULL);
     freeListStart->SetPrevious(NULL);
     freeListStart->SetGCField(-1);
-	/*freeListStart = (FreeListEntry*) objectSpace;
-	freeListStart->size = objectSpaceSize;
-	freeListStart->next = NULL;*/
-	gc = new GarbageCollector(this);
+    /*freeListStart = (FreeListEntry*) objectSpace;
+     freeListStart->size = objectSpaceSize;
+     freeListStart->next = NULL;*/
+    gc = new GarbageCollector(this);
 }
 
 Heap::~Heap() {
     if (gcVerbosity > 0) {
         cout << "-- Heap statistics --" << endl;
         cout << "Total number of allocations: " << numAllocTotal << endl;
-        cout << "Number of allocations since last collection: " 
-             << numAlloc << endl;
+        cout << "Number of allocations since last collection: " << numAlloc
+                << endl;
         std::streamsize p = cout.precision();
         cout.precision(3);
-        cout << "Used memory: " << spcAlloc << "/" 
-             << this->objectSpaceSize << " (" 
-             << ((double)spcAlloc/(double)this->objectSpaceSize)*100 << "%)" << endl;
+        cout << "Used memory: " << spcAlloc << "/" << this->objectSpaceSize
+                << " ("
+                << ((double) spcAlloc / (double) this->objectSpaceSize) * 100
+                << "%)" << endl;
         cout.precision(p);
         gc->PrintGCStat();
     }
-	free(objectSpace);
-    
+    free(objectSpace);
+
 }
 
 VMObject* Heap::AllocateObject(size_t size) {
@@ -122,8 +121,9 @@ VMObject* Heap::AllocateObject(size_t size) {
 }
 
 void* Heap::Allocate(size_t size) {
-	if (size == 0) return NULL;
-    if (size < sizeof(VMObject))  {
+    if (size == 0)
+        return NULL;
+    if (size < sizeof(VMObject)) {
         //this will never happen, as all allocation is done for VMObjects
         return internalAllocate(size);
     }
@@ -132,30 +132,30 @@ void* Heap::Allocate(size_t size) {
 #endif
     //if there is not enough free heap size and we are not inside an uninterruptable
     //section of allocation, start garbage collection
-	if (sizeOfFreeHeap <= buffersizeForUninterruptable &&
-		uninterruptableCounter <= 0)  {
+    if (sizeOfFreeHeap <= buffersizeForUninterruptable
+            && uninterruptableCounter <= 0) {
 #ifdef HEAPDEBUG
-        cout << "Not enough free memory, only: " << sizeOfFreeHeap 
-             << " bytes left." << endl
-             << "Starting Garbage Collection" << endl;
+        cout << "Not enough free memory, only: " << sizeOfFreeHeap
+        << " bytes left." << endl
+        << "Starting Garbage Collection" << endl;
 #endif
-		gc->Collect();
-        
+        gc->Collect();
+
         //
         //reset allocation stats
         //
         numAlloc = 0;
         spcAlloc = 0;
-	}
-	
-	VMObject* result = NULL;
+    }
+
+    VMObject* result = NULL;
     VMFreeObject* cur = freeListStart;
     VMFreeObject* last = NULL;
-    while(cur->GetObjectSize() != size &&
-          cur->GetObjectSize() < size+sizeof(VMObject) &&
-          cur->GetNext() != NULL) {
-              last = cur;
-              cur = cur->GetNext();
+    while (cur->GetObjectSize() != size
+            && cur->GetObjectSize() < size + sizeof(VMObject)
+            && cur->GetNext() != NULL) {
+        last = cur;
+        cur = cur->GetNext();
     }
     if (cur->GetObjectSize() == size) {
         //perfect fit
@@ -172,7 +172,7 @@ void* Heap::Allocate(size_t size) {
         size_t oldSize = cur->GetObjectSize();
         VMFreeObject* oldNext = cur->GetNext();
         result = cur;
-        VMFreeObject* replaceEntry = (VMFreeObject*) ((intptr_t)cur + size);
+        VMFreeObject* replaceEntry = (VMFreeObject*) ((intptr_t) cur + size);
         replaceEntry->SetObjectSize(oldSize - size);
         replaceEntry->SetGCField(-1);
         replaceEntry->SetNext(oldNext);
@@ -189,7 +189,7 @@ void* Heap::Allocate(size_t size) {
         gc->Collect();
         this->numAlloc = 0;
         this->spcAlloc = 0;
-        result = (VMObject*)this->Allocate(size);
+        result = (VMObject*) this->Allocate(size);
     }
 
     if (result == NULL) {
@@ -203,7 +203,7 @@ void* Heap::Allocate(size_t size) {
     this->sizeOfFreeHeap -= size;
 
     return result;
-    
+
 }
 
 void Heap::PrintFreeList() {
@@ -221,20 +221,22 @@ void Heap::FullGC() {
 }
 
 void Heap::Free(void* ptr) {
-    if ( ((intptr_t)ptr < (intptr_t) this->objectSpace) &&
-        ((intptr_t)ptr > (intptr_t) this->objectSpace + this->objectSpaceSize)) {
+    if (((intptr_t) ptr < (intptr_t) this->objectSpace)
+            && ((intptr_t) ptr
+                    > (intptr_t) this->objectSpace + this->objectSpaceSize)) {
         internalFree(ptr);
     }
 }
 
 void Heap::Destroy(VMObject* _object) {
-    
+
     size_t freedBytes = _object->GetObjectSize();
     memset(_object, 0, freedBytes);
     VMFreeObject* object = (VMFreeObject*) _object;
 
     //see if there's an adjoining unused object behind this object
-    VMFreeObject* next = (VMFreeObject*)((intptr_t)object + (intptr_t)freedBytes);
+    VMFreeObject* next = (VMFreeObject*) ((intptr_t) object
+            + (intptr_t) freedBytes);
     if (next->GetGCField() == -1) {
         //yes, there is, so we can join them
         object->SetObjectSize(next->GetObjectSize() + freedBytes);
@@ -258,9 +260,10 @@ void Heap::internalFree(void* ptr) {
 }
 
 void* Heap::internalAllocate(size_t size) {
-    if (size == 0) return NULL;
+    if (size == 0)
+        return NULL;
     void* result = malloc(size);
-    if(!result) {
+    if (!result) {
         cout << "Failed to allocate " << size << " Bytes." << endl;
         _UNIVERSE->Quit(-1);
     }
