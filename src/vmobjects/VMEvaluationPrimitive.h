@@ -35,13 +35,13 @@ class VMFrame;
 
 class VMEvaluationPrimitive: public VMPrimitive {
 public:
-	VMEvaluationPrimitive(long argc);
-	virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
-	virtual pVMEvaluationPrimitive Clone() const;
+    VMEvaluationPrimitive(long argc);
+    virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
+    virtual pVMEvaluationPrimitive Clone() const;
 private:
-	static pVMSymbol computeSignatureString(long argc);
-	void evaluationRoutine(pVMObject object, pVMFrame frame);
-	pVMInteger numberOfArguments;
+    static pVMSymbol computeSignatureString(long argc);
+    void evaluationRoutine(pVMObject object, pVMFrame frame);
+    pVMInteger numberOfArguments;
 
 };
 

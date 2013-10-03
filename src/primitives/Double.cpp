@@ -1,29 +1,28 @@
 /*
  *
  *
-Copyright (c) 2007 Michael Haupt, Tobias Pape, Arne Bergmann
-Software Architecture Group, Hasso Plattner Institute, Potsdam, Germany
-http://www.hpi.uni-potsdam.de/swa/
+ Copyright (c) 2007 Michael Haupt, Tobias Pape, Arne Bergmann
+ Software Architecture Group, Hasso Plattner Institute, Potsdam, Germany
+ http://www.hpi.uni-potsdam.de/swa/
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-  */
-
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 
 #include <stdio.h>
 #include <iostream>
@@ -37,7 +36,7 @@ THE SOFTWARE.
 #include <vmobjects/VMInteger.h>
 #include <vmobjects/VMBigInteger.h>
 #include <vm/Universe.h>
- 
+
 #include "Double.h"
 #include "../primitivesCore/Routine.h"
 
@@ -47,22 +46,21 @@ THE SOFTWARE.
  */
 double _Double::coerceDouble(pVMObject x) {
 #ifdef USE_TAGGING
-  if (IS_TAGGED(x))
+    if (IS_TAGGED(x))
     return (double)UNTAG_INTEGER(x);
 #endif
-  pVMClass cl = ((AbstractVMObject*)x)->GetClass();
+    pVMClass cl = ((AbstractVMObject*)x)->GetClass();
     if(cl == doubleClass)
-        return static_cast<pVMDouble>(x)->GetEmbeddedDouble();
+    return static_cast<pVMDouble>(x)->GetEmbeddedDouble();
     else if(cl == integerClass)
-        return (double)static_cast<pVMInteger>(x)->GetEmbeddedInteger();
+    return (double)static_cast<pVMInteger>(x)->GetEmbeddedInteger();
     else if(cl == bigIntegerClass)
-        return (double)static_cast<pVMBigInteger>(x)->GetEmbeddedInteger();
+    return (double)static_cast<pVMBigInteger>(x)->GetEmbeddedInteger();
     else
-        _UNIVERSE->ErrorExit("Attempt to apply Double operation to non-number.");
+    _UNIVERSE->ErrorExit("Attempt to apply Double operation to non-number.");
 
     return 0.0f;
 }
-
 
 /*
  * The following standard functionality is performed in all arithmetic
@@ -75,82 +73,72 @@ double _Double::coerceDouble(pVMObject x) {
     pVMDouble leftObj = static_cast<pVMDouble>(frame->Pop()); \
     double left = leftObj->GetEmbeddedDouble();
 
-
-void  _Double::Plus(pVMObject /*object*/, pVMFrame frame) {
+void _Double::Plus(pVMObject /*object*/, pVMFrame frame) {
     PREPARE_OPERANDS;
     frame->Push(_UNIVERSE->NewDouble(left + right));
 }
 
-
-void  _Double::Minus(pVMObject /*object*/, pVMFrame frame) {
+void _Double::Minus(pVMObject /*object*/, pVMFrame frame) {
     PREPARE_OPERANDS;
     frame->Push(_UNIVERSE->NewDouble(left - right));
 }
 
-
-void  _Double::Star(pVMObject /*object*/, pVMFrame frame) {
+void _Double::Star(pVMObject /*object*/, pVMFrame frame) {
     PREPARE_OPERANDS;
     frame->Push(_UNIVERSE->NewDouble(left * right));
 }
 
-
-void  _Double::Slashslash(pVMObject /*object*/, pVMFrame frame) {
+void _Double::Slashslash(pVMObject /*object*/, pVMFrame frame) {
     PREPARE_OPERANDS;
     frame->Push(_UNIVERSE->NewDouble(left / right));
 }
 
-
-void  _Double::Percent(pVMObject /*object*/, pVMFrame frame) {
+void _Double::Percent(pVMObject /*object*/, pVMFrame frame) {
     PREPARE_OPERANDS;
-    frame->Push(_UNIVERSE->NewDouble((double)((int64_t)left % 
-                                              (int64_t)right)));
+    frame->Push(_UNIVERSE->NewDouble((double)((int64_t)left %
+                    (int64_t)right)));
 }
-void  _Double::And(pVMObject /*object*/, pVMFrame frame) {
+void _Double::And(pVMObject /*object*/, pVMFrame frame) {
     PREPARE_OPERANDS;
-    frame->Push(_UNIVERSE->NewDouble((double)((int64_t)left & 
-                                              (int64_t)right)));
-}
-
-void  _Double::BitwiseXor(pVMObject /*object*/, pVMFrame frame) {
-    PREPARE_OPERANDS;
-    frame->Push(_UNIVERSE->NewDouble((double)((int64_t)left ^ 
-                                              (int64_t)right)));
+    frame->Push(_UNIVERSE->NewDouble((double)((int64_t)left &
+                    (int64_t)right)));
 }
 
-
+void _Double::BitwiseXor(pVMObject /*object*/, pVMFrame frame) {
+    PREPARE_OPERANDS;
+    frame->Push(_UNIVERSE->NewDouble((double)((int64_t)left ^
+                    (int64_t)right)));
+}
 
 /*
  * This function implements strict (bit-wise) equality and is therefore
  * inaccurate.
  */
-void  _Double::Equal(pVMObject /*object*/, pVMFrame frame) {
+void _Double::Equal(pVMObject /*object*/, pVMFrame frame) {
     PREPARE_OPERANDS;
     if(left == right)
-        frame->Push(trueObject);
+    frame->Push(trueObject);
     else
-        frame->Push(falseObject);
+    frame->Push(falseObject);
 }
 
-
-void  _Double::Lowerthan(pVMObject /*object*/, pVMFrame frame) {
+void _Double::Lowerthan(pVMObject /*object*/, pVMFrame frame) {
     PREPARE_OPERANDS;
     if(left < right)
-        frame->Push(trueObject);
+    frame->Push(trueObject);
     else
-        frame->Push(falseObject);
+    frame->Push(falseObject);
 }
 
-
-void  _Double::AsString(pVMObject /*object*/, pVMFrame frame) {
+void _Double::AsString(pVMObject /*object*/, pVMFrame frame) {
     pVMDouble self = static_cast<pVMDouble>(frame->Pop());
-    
+
     double dbl = self->GetEmbeddedDouble();
     ostringstream Str;
     Str.precision(17);
     Str << dbl;
     frame->Push( _UNIVERSE->NewString( Str.str().c_str() ) );
 }
-
 
 void _Double::Sqrt(pVMObject /*object*/, pVMFrame frame) {
     pVMDouble self = static_cast<pVMDouble>(frame->Pop());
@@ -161,54 +149,48 @@ void _Double::Sqrt(pVMObject /*object*/, pVMFrame frame) {
 void _Double::Round(pVMObject /*object*/, pVMFrame frame) {
     pVMDouble self = (pVMDouble)frame->Pop();
     long int rounded = lround(self->GetEmbeddedDouble());
-    
+
     // Check with integer bounds and push:
     if (rounded > INT32_MAX || rounded < INT32_MIN)
-        frame->Push(_UNIVERSE->NewBigInteger(rounded));
+    frame->Push(_UNIVERSE->NewBigInteger(rounded));
     else {
-      #ifdef USE_TAGGING
+#ifdef USE_TAGGING
         frame->Push(TAG_INTEGER((int32_t)rounded));
-      #else
+#else
         frame->Push(_UNIVERSE->NewInteger((int32_t)rounded));
-      #endif
+#endif
     }
 }
 
-_Double::_Double( ) : PrimitiveContainer() {
-    this->SetPrimitive("plus", new 
-        Routine<_Double>(this, &_Double::Plus));
+_Double::_Double() :
+        PrimitiveContainer() {
+    this->SetPrimitive("plus", new Routine<_Double>(this, &_Double::Plus));
 
-    this->SetPrimitive("minus", new 
-        Routine<_Double>(this, &_Double::Minus));
+    this->SetPrimitive("minus", new Routine<_Double>(this, &_Double::Minus));
 
-    this->SetPrimitive("star", new 
-        Routine<_Double>(this, &_Double::Star));
+    this->SetPrimitive("star", new Routine<_Double>(this, &_Double::Star));
 
-    this->SetPrimitive("slashslash", new 
-        Routine<_Double>(this, &_Double::Slashslash));
+    this->SetPrimitive("slashslash",
+            new Routine<_Double>(this, &_Double::Slashslash));
 
-    this->SetPrimitive("percent", new 
-        Routine<_Double>(this, &_Double::Percent));
+    this->SetPrimitive("percent",
+            new Routine<_Double>(this, &_Double::Percent));
 
-    this->SetPrimitive("and", new 
-        Routine<_Double>(this, &_Double::And));
+    this->SetPrimitive("and", new Routine<_Double>(this, &_Double::And));
 
-    this->SetPrimitive("equal", new 
-        Routine<_Double>(this, &_Double::Equal));
+    this->SetPrimitive("equal", new Routine<_Double>(this, &_Double::Equal));
 
-    this->SetPrimitive("lowerthan", new 
-        Routine<_Double>(this, &_Double::Lowerthan));
+    this->SetPrimitive("lowerthan",
+            new Routine<_Double>(this, &_Double::Lowerthan));
 
-    this->SetPrimitive("asString", new 
-        Routine<_Double>(this, &_Double::AsString));
+    this->SetPrimitive("asString",
+            new Routine<_Double>(this, &_Double::AsString));
 
-    this->SetPrimitive("sqrt", new 
-        Routine<_Double>(this, &_Double::Sqrt));
+    this->SetPrimitive("sqrt", new Routine<_Double>(this, &_Double::Sqrt));
 
-    this->SetPrimitive("bitXor_", new 
-        Routine<_Double>(this, &_Double::BitwiseXor));
-    
-    this->SetPrimitive("round", new
-        Routine<_Double>(this, &_Double::Round));
+    this->SetPrimitive("bitXor_",
+            new Routine<_Double>(this, &_Double::BitwiseXor));
+
+    this->SetPrimitive("round", new Routine<_Double>(this, &_Double::Round));
 }
 

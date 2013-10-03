@@ -31,62 +31,62 @@ class VMSymbol;
 using namespace std;
 
 //this is the base class for all VMObjects
-class AbstractVMObject : public VMObjectBase {
+class AbstractVMObject: public VMObjectBase {
 public:
-	virtual size_t GetHash();
-	virtual pVMClass GetClass() const = 0;
-	virtual AbstractVMObject* Clone() const = 0;
-	virtual void Send(StdString, pVMObject*, long);
-	virtual size_t GetObjectSize() const = 0;
-	AbstractVMObject() {
-		gcfield = 0;
-	}
-	inline virtual void SetObjectSize(size_t size) {
-		cout << "this object doesn't support SetObjectSize" << endl;
-		throw "this object doesn't support SetObjectSize";
-	}
-	inline virtual long GetNumberOfFields() const {
-		cout << "this object doesn't support GetNumberOfFields" << endl;
-		throw "this object doesn't support GetNumberOfFields";
-	}
-	virtual void SetNumberOfFields(long nof) {
-		cout << "this object doesn't support SetNumberOfFields" << endl;
-		throw "this object doesn't support SetNumberOfFields";
-	}
-	inline virtual void SetClass(pVMClass cl) {
-		cout << "this object doesn't support SetClass" << endl;
-		throw "this object doesn't support SetClass";
-	}
-	long GetFieldIndex(pVMSymbol fieldName) const;
-	inline virtual void SetField(long index, pVMObject value) {
-		cout << "this object doesn't support SetField" << endl;
-		throw "this object doesn't support SetField";
-	}
-	virtual pVMObject GetField(long index) const;
-	inline virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR)) {
-		return;
-	}
-	inline virtual pVMSymbol GetFieldName(long index) const {
-		cout << "this object doesn't support GetFieldName" << endl;
-		throw "this object doesn't support GetFieldName";
-	}
+    virtual size_t GetHash();
+    virtual pVMClass GetClass() const = 0;
+    virtual AbstractVMObject* Clone() const = 0;
+    virtual void Send(StdString, pVMObject*, long);
+    virtual size_t GetObjectSize() const = 0;
+    AbstractVMObject() {
+        gcfield = 0;
+    }
+    inline virtual void SetObjectSize(size_t size) {
+        cout << "this object doesn't support SetObjectSize" << endl;
+        throw "this object doesn't support SetObjectSize";
+    }
+    inline virtual long GetNumberOfFields() const {
+        cout << "this object doesn't support GetNumberOfFields" << endl;
+        throw "this object doesn't support GetNumberOfFields";
+    }
+    virtual void SetNumberOfFields(long nof) {
+        cout << "this object doesn't support SetNumberOfFields" << endl;
+        throw "this object doesn't support SetNumberOfFields";
+    }
+    inline virtual void SetClass(pVMClass cl) {
+        cout << "this object doesn't support SetClass" << endl;
+        throw "this object doesn't support SetClass";
+    }
+    long GetFieldIndex(pVMSymbol fieldName) const;
+    inline virtual void SetField(long index, pVMObject value) {
+        cout << "this object doesn't support SetField" << endl;
+        throw "this object doesn't support SetField";
+    }
+    virtual pVMObject GetField(long index) const;
+    inline virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR)) {
+        return;
+    }
+    inline virtual pVMSymbol GetFieldName(long index) const {
+        cout << "this object doesn't support GetFieldName" << endl;
+        throw "this object doesn't support GetFieldName";
+    }
 
 #if GC_TYPE==GENERATIONAL
-	void* operator new(size_t numBytes, Heap* heap,
-			unsigned long additionalBytes = 0, bool outsideNursery = false) {
-		//if outsideNursery flag is set or object is too big for nursery, we
-		// allocate a mature object
-		if (outsideNursery)
-			return (void*) ((GenerationalHeap*)heap)->AllocateMatureObject(numBytes +
-					additionalBytes);
-		return (void*) ((GenerationalHeap*)heap)->AllocateNurseryObject(numBytes + additionalBytes);
-	}
+    void* operator new(size_t numBytes, Heap* heap,
+            unsigned long additionalBytes = 0, bool outsideNursery = false) {
+        //if outsideNursery flag is set or object is too big for nursery, we
+        // allocate a mature object
+        if (outsideNursery)
+        return (void*) ((GenerationalHeap*)heap)->AllocateMatureObject(numBytes +
+                additionalBytes);
+        return (void*) ((GenerationalHeap*)heap)->AllocateNurseryObject(numBytes + additionalBytes);
+    }
 #else
-	void* operator new(size_t numBytes, HEAP_CLS* heap,
-			unsigned long additionalBytes = 0) {
-		void* mem = (void*) heap->AllocateObject(numBytes + additionalBytes);
-		return mem;
-	}
+    void* operator new(size_t numBytes, HEAP_CLS* heap,
+            unsigned long additionalBytes = 0) {
+        void* mem = (void*) heap->AllocateObject(numBytes + additionalBytes);
+        return mem;
+    }
 #endif
 };
 #endif /* ABSTRACTOBJECT_H_ */

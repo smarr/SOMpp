@@ -5,56 +5,56 @@
 /*
  *
  *
-Copyright (c) 2007 Michael Haupt, Tobias Pape, Arne Bergmann
-Software Architecture Group, Hasso Plattner Institute, Potsdam, Germany
-http://www.hpi.uni-potsdam.de/swa/
+ Copyright (c) 2007 Michael Haupt, Tobias Pape, Arne Bergmann
+ Software Architecture Group, Hasso Plattner Institute, Potsdam, Germany
+ http://www.hpi.uni-potsdam.de/swa/
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-  */
-
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 
 #include "VMObject.h"
 #include "VMInteger.h"
 
-class VMArray : public VMObject {
-	public:
-		VMArray(long size, long nof=0);
-		virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
-		inline long GetNumberOfIndexableFields() const;
-		pVMArray    CopyAndExtendWith(pVMObject) const;
-		pVMObject   GetIndexableField(long idx) const;
-		void        SetIndexableField(long idx, pVMObject value);
-		void        CopyIndexableFieldsTo(pVMArray) const;
-		virtual pVMArray Clone() const;
+class VMArray: public VMObject {
+public:
+    VMArray(long size, long nof = 0);
+    virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
+    inline long GetNumberOfIndexableFields() const;
+    pVMArray CopyAndExtendWith(pVMObject) const;
+    pVMObject GetIndexableField(long idx) const;
+    void SetIndexableField(long idx, pVMObject value);
+    void CopyIndexableFieldsTo(pVMArray) const;
+    virtual pVMArray Clone() const;
 
-	private:
-		static const long VMArrayNumberOfFields;
+private:
+    static const long VMArrayNumberOfFields;
 };
 
 long VMArray::GetNumberOfIndexableFields() const {
-	static const void* cachedArray = NULL;
-	static long noOfIndexableFields = -1;
+    static const void* cachedArray = NULL;
+    static long noOfIndexableFields = -1;
 
-	if(this != cachedArray) {
-		noOfIndexableFields = this->GetAdditionalSpaceConsumption() / sizeof(pVMObject);
-		cachedArray = this;
-	}
-	return noOfIndexableFields;
+    if (this != cachedArray) {
+        noOfIndexableFields = this->GetAdditionalSpaceConsumption()
+                / sizeof(pVMObject);
+        cachedArray = this;
+    }
+    return noOfIndexableFields;
 }
 #endif

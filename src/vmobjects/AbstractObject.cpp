@@ -13,7 +13,7 @@
 #include "VMInvokable.h"
 
 size_t AbstractVMObject::GetHash() {
-	return (size_t)this;
+    return (size_t) this;
 }
 
 void AbstractVMObject::Send(StdString selectorString, pVMObject* arguments, long argc) {
@@ -31,10 +31,10 @@ void AbstractVMObject::Send(StdString selectorString, pVMObject* arguments, long
 }
 
 long AbstractVMObject::GetFieldIndex(pVMSymbol fieldName) const {
-	return this->GetClass()->LookupFieldIndex(fieldName);
+    return this->GetClass()->LookupFieldIndex(fieldName);
 }
 pVMObject AbstractVMObject::GetField(long index) const {
-	//we have to emulate field 0 = class
-	if (index==0)
-		return this->GetClass();
+    //we have to emulate field 0 = class
+    if (index==0)
+    return this->GetClass();
 }

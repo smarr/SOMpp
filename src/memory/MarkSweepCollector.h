@@ -6,12 +6,12 @@
 #include "GarbageCollector.h"
 
 class MarkSweepCollector : public GarbageCollector {
- public:
-  MarkSweepCollector(Heap* heap) : GarbageCollector(heap) {
-  }
-	void Collect();
- private:
-	void markReachableObjects();
+public:
+    MarkSweepCollector(Heap* heap) : GarbageCollector(heap) {
+    }
+    void Collect();
+private:
+    void markReachableObjects();
 };
 
 #endif

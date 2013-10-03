@@ -1,29 +1,28 @@
 /*
  *
  *
-Copyright (c) 2007 Michael Haupt, Tobias Pape, Arne Bergmann
-Software Architecture Group, Hasso Plattner Institute, Potsdam, Germany
-http://www.hpi.uni-potsdam.de/swa/
+ Copyright (c) 2007 Michael Haupt, Tobias Pape, Arne Bergmann
+ Software Architecture Group, Hasso Plattner Institute, Potsdam, Germany
+ http://www.hpi.uni-potsdam.de/swa/
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-  */
-
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 
 #include <string.h>
 #include <iostream>
@@ -36,49 +35,48 @@ extern pVMClass stringClass;
 //#define CHARS ((char*)&clazz+sizeof(pVMObject))
 
 VMString::VMString(const char* str) {
-	//set the chars-pointer to point at the position of the first character
-    chars = (char*)&chars+sizeof(char*);
-	
+    //set the chars-pointer to point at the position of the first character
+    chars = (char*) &chars + sizeof(char*);
+
     size_t i = 0;
-	for (; i < strlen(str); ++i) {
-		chars[i] = str[i];
-	}
-	chars[i] = '\0';
-	
+    for (; i < strlen(str); ++i) {
+        chars[i] = str[i];
+    }
+    chars[i] = '\0';
+
 }
 
 pVMString VMString::Clone() const {
 
 #if GC_TYPE==GENERATIONAL
-	return new (_HEAP, PADDED_SIZE(strlen(chars)+1), true) VMString(chars);
+    return new (_HEAP, PADDED_SIZE(strlen(chars)+1), true) VMString(chars);
 #else
-	return new (_HEAP, PADDED_SIZE(strlen(chars)+1)) VMString(chars);
+    return new (_HEAP, PADDED_SIZE(strlen(chars)+1)) VMString(chars);
 #endif
 }
 
 void VMString::WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR)) {
-  //nothing to do
+    //nothing to do
 }
 
-
-VMString::VMString( const StdString& s ) {
-	VMString(s.c_str());
+VMString::VMString(const StdString& s) {
+    VMString(s.c_str());
     ////set the chars-pointer to point at the position of the first character
-	//chars = (char*)&chars+sizeof(char*);
-	//size_t i = 0;
-	//for (; i < s.length(); ++i) {
-	//	chars[i] = s[i];
-	//}
-	//chars[i] = '\0';
-} 
+    //chars = (char*)&chars+sizeof(char*);
+    //size_t i = 0;
+    //for (; i < s.length(); ++i) {
+    //	chars[i] = s[i];
+    //}
+    //chars[i] = '\0';
+}
 
 size_t VMString::GetObjectSize() const {
-	size_t size = sizeof(VMString) + PADDED_SIZE(strlen(chars) + 1);
-	return size;
+    size_t size = sizeof(VMString) + PADDED_SIZE(strlen(chars) + 1);
+    return size;
 }
 
 pVMClass VMString::GetClass() const {
-	return stringClass;
+    return stringClass;
 }
 
 int VMString::GetStringLength() const {
@@ -87,12 +85,9 @@ int VMString::GetStringLength() const {
     return strlen(chars);
 }
 
-
 StdString VMString::GetStdString() const {
-    if (chars == 0) return StdString("");
-	return StdString(chars);
+    if (chars == 0)
+        return StdString("");
+    return StdString(chars);
 }
-
-
-
 

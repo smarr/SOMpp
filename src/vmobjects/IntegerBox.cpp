@@ -8,8 +8,7 @@ void GlobalBox::updateIntegerBox(VMInteger* newValue) {
     integerBox = newValue;
 }
 
-VMInteger* GlobalBox::IntegerBox()
-{
+VMInteger* GlobalBox::IntegerBox() {
     if (integerBox == NULL) {
         integerBox = _UNIVERSE->NewInteger(1);
     }

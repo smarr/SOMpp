@@ -83,96 +83,101 @@ extern pVMClass doubleClass;
 extern pVMSymbol symbolIfTrue;
 extern pVMSymbol symbolIfFalse;
 
-
 using namespace std;
 class Universe {
-	public:
-		Universe* operator->();
+public:
+    Universe* operator->();
 
-		//static methods
-		static Universe* GetUniverse();
-		static void Start(long argc, char** argv);
-		static void Quit(long);
-		static void ErrorExit(const char*);
+    //static methods
+    static Universe* GetUniverse();
+    static void Start(long argc, char** argv);
+    static void Quit(long);
+    static void ErrorExit(const char*);
 
-		//Globals accessor (only for GC, could be considered be
-		//declared as a private friend method for the GC)
-		map<pVMSymbol, pVMObject>  GetGlobals() {return globals;}
-		Heap* GetHeap() {return heap;}
-		Interpreter* GetInterpreter() {return interpreter;}
+    //Globals accessor (only for GC, could be considered be
+    //declared as a private friend method for the GC)
+    map<pVMSymbol, pVMObject> GetGlobals() {
+        return globals;
+    }
+    Heap* GetHeap() {
+        return heap;
+    }
+    Interpreter* GetInterpreter() {
+        return interpreter;
+    }
 
-		//
+    //
 
-		void Assert(bool) const;
+    void Assert(bool) const;
 
-		pVMSymbol SymbolFor(const StdString&);
-		pVMSymbol SymbolForChars(const char*);
+    pVMSymbol SymbolFor(const StdString&);
+    pVMSymbol SymbolForChars(const char*);
 
-		//VMObject instanciation methods. These should probably be refactored to a new class
-		pVMArray NewArray(long) const;
-		pVMArray NewArrayList(ExtendedList<pVMObject>& list) const;
-		pVMArray NewArrayFromArgv(const vector<StdString>&) const;
-		pVMBlock NewBlock(pVMMethod, pVMFrame, long);
-		pVMClass NewClass(pVMClass) const;
-		pVMFrame NewFrame(pVMFrame, pVMMethod) const;
-		pVMMethod NewMethod(pVMSymbol, size_t, size_t) const;
-		pVMObject NewInstance(pVMClass) const;
-		pVMInteger NewInteger(long) const;
-		void WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
-		pVMBigInteger NewBigInteger(int64_t) const;
-		pVMDouble NewDouble(double) const;
-		pVMClass NewMetaclassClass(void) const;
-		pVMString NewString(const StdString&) const;
-		pVMSymbol NewSymbol(const StdString&);
-		pVMString NewString(const char*) const;
-		pVMSymbol NewSymbol(const char*);
-		pVMClass NewSystemClass(void) const;
+    //VMObject instanciation methods. These should probably be refactored to a new class
+    pVMArray NewArray(long) const;
+    pVMArray NewArrayList(ExtendedList<pVMObject>& list) const;
+    pVMArray NewArrayFromArgv(const vector<StdString>&) const;
+    pVMBlock NewBlock(pVMMethod, pVMFrame, long);
+    pVMClass NewClass(pVMClass) const;
+    pVMFrame NewFrame(pVMFrame, pVMMethod) const;
+    pVMMethod NewMethod(pVMSymbol, size_t, size_t) const;
+    pVMObject NewInstance(pVMClass) const;
+    pVMInteger NewInteger(long) const;
+    void WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
+    pVMBigInteger NewBigInteger(int64_t) const;
+    pVMDouble NewDouble(double) const;
+    pVMClass NewMetaclassClass(void) const;
+    pVMString NewString(const StdString&) const;
+    pVMSymbol NewSymbol(const StdString&);
+    pVMString NewString(const char*) const;
+    pVMSymbol NewSymbol(const char*);
+    pVMClass NewSystemClass(void) const;
 
-		void InitializeSystemClass(pVMClass, pVMClass, const char*);
+    void InitializeSystemClass(pVMClass, pVMClass, const char*);
 
-		pVMObject GetGlobal(pVMSymbol);
-		void SetGlobal(pVMSymbol name, pVMObject val);
-		bool HasGlobal(pVMSymbol);
-		void InitializeGlobals();
-		pVMClass GetBlockClass(void) const;
-		pVMClass GetBlockClassWithArgs(long);
+    pVMObject GetGlobal(pVMSymbol);
+    void SetGlobal(pVMSymbol name, pVMObject val);
+    bool HasGlobal(pVMSymbol);
+    void InitializeGlobals();
+    pVMClass GetBlockClass(void) const;
+    pVMClass GetBlockClassWithArgs(long);
 
-		pVMClass LoadClass(pVMSymbol);
-		void LoadSystemClass(pVMClass);
-		pVMClass LoadClassBasic(pVMSymbol, pVMClass);
-		pVMClass LoadShellClass(StdString&);
+    pVMClass LoadClass(pVMSymbol);
+    void LoadSystemClass(pVMClass);
+    pVMClass LoadClassBasic(pVMSymbol, pVMClass);
+    pVMClass LoadShellClass(StdString&);
 
-		Universe();
-		~Universe();
+    Universe();
+    ~Universe();
 #ifdef LOG_RECEIVER_TYPES
-    struct stat_data{
-      long noCalls;
-      long noPrimitiveCalls;
+    struct stat_data {
+        long noCalls;
+        long noPrimitiveCalls;
     };
     map<StdString, long> receiverTypes;
     map<StdString, stat_data> callStats;
 #endif
-		//
-	private:
-		vector<StdString> handleArguments(long argc, char** argv);
-		long getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;
+    //
+private:
+    vector<StdString> handleArguments(long argc, char** argv);
+    long getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;
 
-		static Universe* theUniverse;
+    static Universe* theUniverse;
 
-		long setupClassPath(const StdString& cp);
-		long addClassPath(const StdString& cp);
-		void printUsageAndExit(char* executable) const;
+    long setupClassPath(const StdString& cp);
+    long addClassPath(const StdString& cp);
+    void printUsageAndExit(char* executable) const;
 
-		void initialize(long, char**);
+    void initialize(long, char**);
 
-		Heap* heap;
-		long heapSize;
-		map<pVMSymbol, pVMObject> globals;
-		map<long,pVMClass> blockClassesByNoOfArgs;
-		vector<StdString> classPath;
+    Heap* heap;
+    long heapSize;
+    map<pVMSymbol, pVMObject> globals;
+    map<long,pVMClass> blockClassesByNoOfArgs;
+    vector<StdString> classPath;
 
-		SourcecodeCompiler* compiler;
-		Interpreter* interpreter;
+    SourcecodeCompiler* compiler;
+    Interpreter* interpreter;
 };
 
 #endif

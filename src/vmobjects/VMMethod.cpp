@@ -1,29 +1,28 @@
 /*
  *
  *
-Copyright (c) 2007 Michael Haupt, Tobias Pape, Arne Bergmann
-Software Architecture Group, Hasso Plattner Institute, Potsdam, Germany
-http://www.hpi.uni-potsdam.de/swa/
+ Copyright (c) 2007 Michael Haupt, Tobias Pape, Arne Bergmann
+ Software Architecture Group, Hasso Plattner Institute, Potsdam, Germany
+ http://www.hpi.uni-potsdam.de/swa/
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-  */
-
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 
 #include "VMMethod.h"
 #include "VMFrame.h"
@@ -48,8 +47,8 @@ const long VMMethod::VMMethodNumberOfFields = 8;
 const long VMMethod::VMMethodNumberOfFields = 7;
 #endif
 
-VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof)
-  : VMInvokable(nof + VMMethodNumberOfFields) {
+VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
+        VMInvokable(nof + VMMethodNumberOfFields) {
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     cachedFrame = NULL;
 #endif
@@ -67,75 +66,68 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof)
     this->numberOfConstants = _UNIVERSE->NewInteger(numberOfConstants);
 #endif
     indexableFields = (pVMObject*)(&indexableFields + 2);
-    for (long i = 0; i < numberOfConstants ; ++i) {
-      indexableFields[i] = nilObject;
+    for (long i = 0; i < numberOfConstants; ++i) {
+        indexableFields[i] = nilObject;
     }
     bytecodes = (uint8_t*)(&indexableFields + 2 + GetNumberOfIndexableFields());
-  }
-
-
+}
 
 pVMMethod VMMethod::Clone() const {
 #if GC_TYPE==GENERATIONAL
-	pVMMethod clone = new (_HEAP, GetObjectSize() - sizeof(VMMethod), true)
+    pVMMethod clone = new (_HEAP, GetObjectSize() - sizeof(VMMethod), true)
 #else
-	pVMMethod clone = new (_HEAP, GetObjectSize() - sizeof(VMMethod))
+    pVMMethod clone = new (_HEAP, GetObjectSize() - sizeof(VMMethod))
 #endif
-		VMMethod(*this);
-	memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,
-				sizeof(VMObject)), GetObjectSize() -
-			sizeof(VMObject));
-  clone->indexableFields = (pVMObject*)(&(clone->indexableFields) + 2);
-  clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + GetNumberOfIndexableFields());
-	return clone;
+    VMMethod(*this);
+    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,
+                    sizeof(VMObject)), GetObjectSize() -
+            sizeof(VMObject));
+    clone->indexableFields = (pVMObject*)(&(clone->indexableFields) + 2);
+    clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + GetNumberOfIndexableFields());
+    return clone;
 }
 
-void VMMethod::SetSignature(pVMSymbol sig) { 
+void VMMethod::SetSignature(pVMSymbol sig) {
     VMInvokable::SetSignature(sig);
     SetNumberOfArguments(Signature::GetNumberOfArguments(signature));
 }
 
-
 void VMMethod::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-  VMInvokable::WalkObjects(walk);
+    VMInvokable::WalkObjects(walk);
 
-  numberOfLocals = static_cast<VMInteger*>(walk(numberOfLocals));
-  maximumNumberOfStackElements = static_cast<VMInteger*>(walk(maximumNumberOfStackElements));
-  bcLength = static_cast<VMInteger*>(walk(bcLength));
-  numberOfArguments = static_cast<VMInteger*>(walk(numberOfArguments));
-  numberOfConstants = static_cast<VMInteger*>(walk(numberOfConstants));
+    numberOfLocals = static_cast<VMInteger*>(walk(numberOfLocals));
+    maximumNumberOfStackElements = static_cast<VMInteger*>(walk(maximumNumberOfStackElements));
+    bcLength = static_cast<VMInteger*>(walk(bcLength));
+    numberOfArguments = static_cast<VMInteger*>(walk(numberOfArguments));
+    numberOfConstants = static_cast<VMInteger*>(walk(numberOfConstants));
 #ifdef UNSAFE_FRAME_OPTIMIZATION
-  if (cachedFrame != NULL)
+    if (cachedFrame != NULL)
     cachedFrame = static_cast<VMFrame*>(walk(cachedFrame));
 #endif
-    
-	for (long i = 0 ; i < GetNumberOfIndexableFields() ; ++i) {
-		if (GetIndexableField(i) != NULL)
-			indexableFields[i] = walk(AS_POINTER(GetIndexableField(i)));
-	}
+
+    for (long i = 0; i < GetNumberOfIndexableFields(); ++i) {
+        if (GetIndexableField(i) != NULL)
+        indexableFields[i] = walk(AS_POINTER(GetIndexableField(i)));
+    }
 }
 
 #ifdef UNSAFE_FRAME_OPTIMIZATION
 pVMFrame VMMethod::GetCachedFrame() const {
-  return cachedFrame;
+    return cachedFrame;
 }
 
 void VMMethod::SetCachedFrame(pVMFrame frame) {
-  cachedFrame = frame;
-  if (frame != NULL) {
-    frame->SetContext(NULL);
-    frame->SetBytecodeIndex(0);
-    frame->ResetStackPointer();
+    cachedFrame = frame;
+    if (frame != NULL) {
+        frame->SetContext(NULL);
+        frame->SetBytecodeIndex(0);
+        frame->ResetStackPointer();
 #if GC_TYPE == GENERATIONAL
-    _HEAP->writeBarrier(this, cachedFrame);
+        _HEAP->writeBarrier(this, cachedFrame);
 #endif
-  }
+    }
 }
 #endif
-
-
-
-
 
 void VMMethod::SetNumberOfLocals(long nol) {
 #ifdef USE_TAGGING
@@ -148,15 +140,13 @@ void VMMethod::SetNumberOfLocals(long nol) {
 #endif
 }
 
-
 long VMMethod::GetMaximumNumberOfStackElements() const {
 #ifdef USE_TAGGING
     return UNTAG_INTEGER(maximumNumberOfStackElements);
 #else
-    return maximumNumberOfStackElements->GetEmbeddedInteger(); 
+    return maximumNumberOfStackElements->GetEmbeddedInteger();
 #endif
 }
-
 
 void VMMethod::SetMaximumNumberOfStackElements(long stel) {
 #ifdef USE_TAGGING
@@ -180,7 +170,6 @@ void VMMethod::SetNumberOfArguments(long noa) {
 #endif
 }
 
-
 long VMMethod::GetNumberOfBytecodes() const {
 #ifdef USE_TAGGING
     return UNTAG_INTEGER(bcLength);
@@ -189,25 +178,22 @@ long VMMethod::GetNumberOfBytecodes() const {
 #endif
 }
 
-
 void VMMethod::operator()(pVMFrame frame) {
     pVMFrame frm = _UNIVERSE->GetInterpreter()->PushNewFrame(this);
     frm->CopyArgumentsFrom(frame);
 }
 
-
 void VMMethod::SetHolderAll(pVMClass hld) {
     for (long i = 0; i < this->GetNumberOfIndexableFields(); ++i) {
         pVMObject o = GetIndexableField(i);
         if (!IS_TAGGED(o)) {
-          pVMInvokable vmi = dynamic_cast<pVMInvokable>(AS_POINTER(o));
-          if ( vmi != NULL)  {
-            vmi->SetHolder(hld);
-          }
+            pVMInvokable vmi = dynamic_cast<pVMInvokable>(AS_POINTER(o));
+            if ( vmi != NULL) {
+                vmi->SetHolder(hld);
+            }
         }
     }
 }
-
 
 pVMObject VMMethod::GetConstant(long indx) const {
     if (bytecodes[indx+1] >= this->GetNumberOfIndexableFields()) {
@@ -218,10 +204,6 @@ pVMObject VMMethod::GetConstant(long indx) const {
 }
 
 uint8_t& VMMethod::operator[](long indx) const {
-	return bytecodes[indx];
+    return bytecodes[indx];
 }
-
-
-
-
 

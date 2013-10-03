@@ -7,69 +7,66 @@
 #include "../vmobjects/AbstractObject.h"
 #include "../vmobjects/VMFrame.h"
 
-
 #define GC_MARKED 3456
 
 void MarkSweepCollector::Collect() {
-  MarkSweepHeap* heap = _HEAP;
-	Timer::GCTimer->Resume();
-	//reset collection trigger
-	heap->resetGCTrigger();
+    MarkSweepHeap* heap = _HEAP;
+    Timer::GCTimer->Resume();
+    //reset collection trigger
+    heap->resetGCTrigger();
 
-	//now mark all reachables
-	markReachableObjects();
+    //now mark all reachables
+    markReachableObjects();
 
-	//in this survivors stack we will remember all objects that survived
-	vector<VMOBJECT_PTR>* survivors = new vector<VMOBJECT_PTR>();
-	size_t survivorsSize = 0;
+    //in this survivors stack we will remember all objects that survived
+    vector<VMOBJECT_PTR>* survivors = new vector<VMOBJECT_PTR>();
+    size_t survivorsSize = 0;
 
-	vector<VMOBJECT_PTR>::iterator iter;
-	for (iter = heap->allocatedObjects->begin(); iter !=
-			heap->allocatedObjects->end(); iter++) {
-		if ((*iter)->GetGCField() == GC_MARKED) {
-			//object ist marked -> let it survive
-			survivors->push_back(*iter);
-			survivorsSize += (*iter)->GetObjectSize();
-			(*iter)->SetGCField(0);
-		} else {
-			//not marked -> kill it
-			heap->FreeObject(*iter);
-		}
-	}
+    vector<VMOBJECT_PTR>::iterator iter;
+    for (iter = heap->allocatedObjects->begin(); iter !=
+            heap->allocatedObjects->end(); iter++) {
+        if ((*iter)->GetGCField() == GC_MARKED) {
+            //object ist marked -> let it survive
+            survivors->push_back(*iter);
+            survivorsSize += (*iter)->GetObjectSize();
+            (*iter)->SetGCField(0);
+        } else {
+            //not marked -> kill it
+            heap->FreeObject(*iter);
+        }
+    }
 
-	delete heap->allocatedObjects;
-	heap->allocatedObjects = survivors;
+    delete heap->allocatedObjects;
+    heap->allocatedObjects = survivors;
 
-	heap->spcAlloc = survivorsSize;
-	//TODO: Maybe choose another constant to calculate new collectionLimit here
-	heap->collectionLimit = 2 * survivorsSize;
-	Timer::GCTimer->Halt();
+    heap->spcAlloc = survivorsSize;
+    //TODO: Maybe choose another constant to calculate new collectionLimit here
+    heap->collectionLimit = 2 * survivorsSize;
+    Timer::GCTimer->Halt();
 }
-
 
 VMOBJECT_PTR mark_object(VMOBJECT_PTR obj) {
 #ifdef USE_TAGGING
-	if (IS_TAGGED(obj))
-		return obj;
+    if (IS_TAGGED(obj))
+    return obj;
 #endif
     if (obj->GetGCField())
-        return obj;
+    return obj;
 
     obj->SetGCField(GC_MARKED);
     obj->WalkObjects(mark_object);
     return obj;
 }
 
-
 void MarkSweepCollector::markReachableObjects() {
-  _UNIVERSE->WalkGlobals(mark_object);
-  // Get the current frame and mark it.
-  // Since marking is done recursively, this automatically
-  // marks the whole stack
-  pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
-  if (currentFrame != NULL) {
-    pVMFrame newFrame = static_cast<pVMFrame>(mark_object(currentFrame));
-    _UNIVERSE->GetInterpreter()->SetFrame(newFrame);
-  }
+    _UNIVERSE->WalkGlobals(mark_object);
+    // Get the current frame and mark it.
+    // Since marking is done recursively, this automatically
+    // marks the whole stack
+    pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
+    if (currentFrame != NULL) {
+        pVMFrame newFrame = static_cast<pVMFrame>(mark_object(currentFrame));
+        _UNIVERSE->GetInterpreter()->SetFrame(newFrame);
+    }
 }
 #endif

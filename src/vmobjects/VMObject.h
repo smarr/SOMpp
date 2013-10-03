@@ -66,82 +66,81 @@ class VMClass;
 class VMObject: public AbstractVMObject {
 
 public:
-	/* Constructor */
-	VMObject(long numberOfFields = 0);
+    /* Constructor */
+    VMObject(long numberOfFields = 0);
 
-	/* Virtual member functions */
-	virtual inline pVMClass GetClass() const;
-	virtual void SetClass(pVMClass cl);
-	virtual pVMSymbol GetFieldName(long index) const;
-	virtual inline long GetNumberOfFields() const;
-	virtual void SetNumberOfFields(long nof);
-	virtual pVMObject GetField(long index) const;
-	virtual void Assert(bool value) const;
-	virtual void SetField(long index, pVMObject value);
-	virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
-	virtual VMObject* Clone() const;
-	virtual inline size_t GetObjectSize() const;
-	virtual inline void SetObjectSize(size_t size);
+    /* Virtual member functions */
+    virtual inline pVMClass GetClass() const;
+    virtual void SetClass(pVMClass cl);
+    virtual pVMSymbol GetFieldName(long index) const;
+    virtual inline long GetNumberOfFields() const;
+    virtual void SetNumberOfFields(long nof);
+    virtual pVMObject GetField(long index) const;
+    virtual void Assert(bool value) const;
+    virtual void SetField(long index, pVMObject value);
+    virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
+    virtual VMObject* Clone() const;
+    virtual inline size_t GetObjectSize() const;
+    virtual inline void SetObjectSize(size_t size);
 
-	/* Operators */
+    /* Operators */
 
-	/**
-	 * usage: new( <heap> [, <additional_bytes>] ) VMObject( <constructor params> )
-	 * num_bytes parameter is set by the compiler.
-	 * parameter additional_bytes (a_b) is used for:
-	 *   - fields in VMObject, a_b must be set to (numberOfFields*sizeof(pVMObject))
-	 *   - chars in VMString/VMSymbol, a_b must be set to (Stringlength + 1)
-	 *   - array size in VMArray; a_b must be set to (size_of_array*sizeof(VMObect*))
-	 *   - fields in VMMethod, a_b must be set to (number_of_bc + number_of_csts*sizeof(pVMObject))
-	 */
-	void* operator new(size_t numBytes, Heap* heap,
+    /**
+     * usage: new( <heap> [, <additional_bytes>] ) VMObject( <constructor params> )
+     * num_bytes parameter is set by the compiler.
+     * parameter additional_bytes (a_b) is used for:
+     *   - fields in VMObject, a_b must be set to (numberOfFields*sizeof(pVMObject))
+     *   - chars in VMString/VMSymbol, a_b must be set to (Stringlength + 1)
+     *   - array size in VMArray; a_b must be set to (size_of_array*sizeof(VMObect*))
+     *   - fields in VMMethod, a_b must be set to (number_of_bc + number_of_csts*sizeof(pVMObject))
+     */
+    void* operator new(size_t numBytes, Heap* heap,
 #if GC_TYPE==GENERATIONAL
-			unsigned long additionalBytes = 0, bool outsideNursery = false) {
-		void* mem = AbstractVMObject::operator new(numBytes, heap,
-				PADDED_SIZE(additionalBytes), outsideNursery);
+            unsigned long additionalBytes = 0, bool outsideNursery = false) {
+        void* mem = AbstractVMObject::operator new(numBytes, heap,
+                PADDED_SIZE(additionalBytes), outsideNursery);
 #elif GC_TYPE==COPYING
-			unsigned long additionalBytes = 0) {
-		void* mem = (void*) ((CopyingHeap*)heap)->AllocateObject(numBytes + PADDED_SIZE(additionalBytes));
+        unsigned long additionalBytes = 0) {
+            void* mem = (void*) ((CopyingHeap*)heap)->AllocateObject(numBytes + PADDED_SIZE(additionalBytes));
 #elif GC_TYPE==MARK_SWEEP
-			unsigned long additionalBytes = 0) {
-		void* mem = (void*) ((MarkSweepHeap*)heap)->AllocateObject(numBytes + PADDED_SIZE(additionalBytes));
+            unsigned long additionalBytes = 0) {
+                void* mem = (void*) ((MarkSweepHeap*)heap)->AllocateObject(numBytes + PADDED_SIZE(additionalBytes));
 #endif
-		size_t objSize = numBytes + PADDED_SIZE(additionalBytes);
-		((VMObject*) mem)->objectSize = objSize;
-		return mem;
-	}
+                size_t objSize = numBytes + PADDED_SIZE(additionalBytes);
+                ((VMObject*) mem)->objectSize = objSize;
+                return mem;
+}
 
 protected:
-	long GetAdditionalSpaceConsumption() const;
-	//VMObject essentials
-	long hash; 
-	size_t objectSize; //set by the heap at allocation time
-	long numberOfFields;
+long GetAdditionalSpaceConsumption() const;
+ //VMObject essentials
+long hash;
+size_t objectSize; //set by the heap at allocation time
+long numberOfFields;
 
-	//pVMObject* FIELDS;
-	//Start of fields. All members beyond this point are indexable
-	//through FIELDS-macro instead of the member above.
-	//So clazz == FIELDS[0]
-	pVMClass clazz;
+ //pVMObject* FIELDS;
+ //Start of fields. All members beyond this point are indexable
+ //through FIELDS-macro instead of the member above.
+ //So clazz == FIELDS[0]
+pVMClass clazz;
 private:
-	static const long VMObjectNumberOfFields;
+static const long VMObjectNumberOfFields;
 };
 
 size_t VMObject::GetObjectSize() const {
-    return objectSize;
+return objectSize;
 }
 
 void VMObject::SetObjectSize(size_t size) {
-    objectSize = size; 
+objectSize = size;
 }
 
 pVMClass VMObject::GetClass() const {
-	return clazz;
+return clazz;
 }
 
 long VMObject::GetNumberOfFields() const {
     return this->numberOfFields;
 }
-
 
 #endif

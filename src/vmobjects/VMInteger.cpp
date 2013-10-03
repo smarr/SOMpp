@@ -28,21 +28,21 @@
 #include "../vm/Universe.h"
 
 VMInteger::VMInteger() {
-	embeddedInteger = 0;
+    embeddedInteger = 0;
 }
 
 VMInteger::VMInteger(long val) {
-	embeddedInteger = val;
+    embeddedInteger = val;
 }
 
 pVMInteger VMInteger::Clone() const {
 #if GC_TYPE==GENERATIONAL
-	return new (_HEAP, 0, true) VMInteger(*this);
+    return new (_HEAP, 0, true) VMInteger(*this);
 #else
-  return new (_HEAP) VMInteger(*this);
+    return new (_HEAP) VMInteger(*this);
 #endif
 }
 
 pVMClass VMInteger::GetClass() const {
-	return integerClass;
+    return integerClass;
 }
