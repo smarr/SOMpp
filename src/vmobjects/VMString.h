@@ -34,9 +34,11 @@ class VMString: public AbstractVMObject {
 public:
     VMString(const char* str);
     VMString(const StdString& s);
+
     inline char* GetChars() const;
     StdString GetStdString() const;
     int GetStringLength() const;
+
     virtual pVMString Clone() const;
     virtual pVMClass GetClass() const;
     virtual size_t GetObjectSize() const;

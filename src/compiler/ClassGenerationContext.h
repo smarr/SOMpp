@@ -33,6 +33,7 @@ class AbstractVMObject;
 class VMClass;
 
 #include "../vmobjects/ObjectFormats.h"
+
 #include "../misc/defs.h"
 #include "../misc/ExtendedList.h"
 

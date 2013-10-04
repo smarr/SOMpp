@@ -5,8 +5,6 @@
 #include <assert.h>
 
 /*
- *
- *
  Copyright (c) 2007 Michael Haupt, Tobias Pape, Arne Bergmann
  Software Architecture Group, Hasso Plattner Institute, Potsdam, Germany
  http://www.hpi.uni-potsdam.de/swa/
@@ -109,22 +107,22 @@ public:
                 size_t objSize = numBytes + PADDED_SIZE(additionalBytes);
                 ((VMObject*) mem)->objectSize = objSize;
                 return mem;
-}
+            }
 
 protected:
-long GetAdditionalSpaceConsumption() const;
- //VMObject essentials
-long hash;
-size_t objectSize; //set by the heap at allocation time
-long numberOfFields;
+    long GetAdditionalSpaceConsumption() const;
+    //VMObject essentials
+    long hash;
+    size_t objectSize; //set by the heap at allocation time
+    long numberOfFields;
 
- //pVMObject* FIELDS;
- //Start of fields. All members beyond this point are indexable
- //through FIELDS-macro instead of the member above.
- //So clazz == FIELDS[0]
-pVMClass clazz;
+    //pVMObject* FIELDS;
+    //Start of fields. All members beyond this point are indexable
+    //through FIELDS-macro instead of the member above.
+    //So clazz == FIELDS[0]
+    pVMClass clazz;
 private:
-static const long VMObjectNumberOfFields;
+    static const long VMObjectNumberOfFields;
 };
 
 size_t VMObject::GetObjectSize() const {

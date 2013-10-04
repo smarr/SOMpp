@@ -26,9 +26,9 @@
 
 #include "BytecodeGenerator.h"
 
-#include "../vmobjects/VMObject.h"
-#include "../vmobjects/VMMethod.h"
-#include "../vmobjects/VMSymbol.h"
+#include <vmobjects/VMObject.h>
+#include <vmobjects/VMMethod.h>
+#include <vmobjects/VMSymbol.h>
 
 #define EMIT1(BC) \
     mgenc->AddBytecode(BC)
@@ -65,7 +65,7 @@ void BytecodeGenerator::EmitPUSHFIELD(MethodGenerationContext* mgenc, pVMSymbol 
 }
 
 void BytecodeGenerator::EmitPUSHBLOCK(MethodGenerationContext* mgenc, pVMMethod block ) {
-    EMIT2(BC_PUSH_BLOCK, mgenc->FindLiteralIndex((block)));
+    EMIT2(BC_PUSH_BLOCK, mgenc->FindLiteralIndex(block));
 }
 
 void BytecodeGenerator::EmitPUSHCONSTANT(MethodGenerationContext* mgenc,

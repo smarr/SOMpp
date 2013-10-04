@@ -31,11 +31,15 @@
 //#define __DEBUG
 #include <map>
 #include <vector>
+
 #include "../misc/defs.h"
 #include "../misc/Timer.h"
 #include "../misc/ExtendedList.h"
+
 #include "../vmobjects/ObjectFormats.h"
+
 #include "../interpreter/Interpreter.h"
+
 #include "../memory/Heap.h"
 
 class AbstractVMObject;
@@ -60,9 +64,9 @@ extern short dumpBytecodes;
 extern short gcVerbosity;
 
 //global VMObjects
-extern VMObject* nilObject;
-extern VMObject* trueObject;
-extern VMObject* falseObject;
+extern pVMObject nilObject;
+extern pVMObject trueObject;
+extern pVMObject falseObject;
 
 extern pVMClass objectClass;
 extern pVMClass classClass;

@@ -330,12 +330,10 @@ void _Integer::Equal(pVMObject object, pVMFrame frame) {
         frame->Push(trueObject);
         else
         frame->Push(falseObject);
-    }
-    else if (AS_POINTER(rightObj)->GetClass() == doubleClass) {
+    } else if (AS_POINTER(rightObj)->GetClass() == doubleClass) {
         assert(false);
-    }
-    else
-    frame->Push(falseObject);
+    } else
+        frame->Push(falseObject);
 #else
     if (rightObj->GetClass() == integerClass) {
         pVMInteger right = static_cast<pVMInteger>(rightObj);
@@ -348,7 +346,7 @@ void _Integer::Equal(pVMObject object, pVMFrame frame) {
         assert(false);
     }
     else
-    frame->Push(falseObject);
+        frame->Push(falseObject);
 #endif
 
 }
@@ -381,7 +379,7 @@ void _Integer::AsString(pVMObject /*object*/, pVMFrame frame) {
 #endif
     ostringstream Str;
     Str << integer;
-    frame->Push( _UNIVERSE->NewString( Str.str() ) );
+    frame->Push(_UNIVERSE->NewString( Str.str()));
 }
 
 void _Integer::Sqrt(pVMObject object, pVMFrame frame) {

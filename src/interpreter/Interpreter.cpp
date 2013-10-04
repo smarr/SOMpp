@@ -24,25 +24,24 @@
  THE SOFTWARE.
  */
 
-#define protected public
 #include "Interpreter.h"
 #include "bytecodes.h"
 
-#include "../vmobjects/VMMethod.h"
-#include "../vmobjects/VMFrame.h"
-#include "../vmobjects/VMMethod.h"
-#include "../vmobjects/VMClass.h"
-#include "../vmobjects/VMObject.h"
-#include "../vmobjects/VMSymbol.h"
-#include "../vmobjects/VMArray.h"
-#include "../vmobjects/VMInvokable.h"
-#include "../vmobjects/Signature.h"
-#include "../vmobjects/VMBlock.h"
+#include <vmobjects/VMMethod.h>
+#include <vmobjects/VMFrame.h>
+#include <vmobjects/VMMethod.h>
+#include <vmobjects/VMClass.h>
+#include <vmobjects/VMObject.h>
+#include <vmobjects/VMSymbol.h>
+#include <vmobjects/VMArray.h>
+#include <vmobjects/VMInvokable.h>
+#include <vmobjects/Signature.h>
+#include <vmobjects/VMBlock.h>
 #ifdef USE_TAGGING
-#include "../vmobjects/IntegerBox.h"
+#include <vmobjects/IntegerBox.h>
 #endif
 
-#include "../compiler/Disassembler.h"
+#include <compiler/Disassembler.h>
 
 // convenience macros for frequently used function invocations
 #define _FRAME this->GetFrame()
@@ -197,13 +196,13 @@ DISPATCH_NOGC();
 }
 
 pVMFrame Interpreter::PushNewFrame( pVMMethod method ) {
-SetFrame(_UNIVERSE->NewFrame(_FRAME, method));
-return _FRAME;
+    SetFrame(_UNIVERSE->NewFrame(_FRAME, method));
+    return _FRAME;
 }
 
 void Interpreter::SetFrame( pVMFrame frame ) {
     if (this->frame != NULL)
-    this->frame->SetBytecodeIndex(bytecodeIndex_global);
+        this->frame->SetBytecodeIndex(bytecodeIndex_global);
     this->frame = frame;
     //update cached values
     method = frame->GetMethod();
@@ -471,7 +470,7 @@ void Interpreter::doSuperSend(long bytecodeIndex) {
     pVMInvokable invokable = static_cast<pVMInvokable>(super->LookupInvokable(signature));
 
     if (invokable != NULL)
-    (*invokable)(_FRAME);
+        (*invokable)(_FRAME);
     else {
         long numOfArgs = Signature::GetNumberOfArguments(signature);
         pVMObject receiver = _FRAME->GetStackElement(numOfArgs - 1);
@@ -484,9 +483,9 @@ void Interpreter::doSuperSend(long bytecodeIndex) {
         pVMObject arguments[] = {signature, argumentsArray};
 #ifdef USE_TAGGING
         if (IS_TAGGED(receiver))
-        GlobalBox::IntegerBox()->Send(dnu, arguments, 2);
+            GlobalBox::IntegerBox()->Send(dnu, arguments, 2);
         else
-        AS_POINTER(receiver)->Send(dnu, arguments, 2);
+            AS_POINTER(receiver)->Send(dnu, arguments, 2);
 #else
         receiver->Send(dnu, arguments, 2);
 #endif
@@ -515,9 +514,9 @@ void Interpreter::doReturnNonLocal() {
 
 #ifdef USE_TAGGING
         if (IS_TAGGED(sender))
-        GlobalBox::IntegerBox()->Send(eB, arguments, 1);
+            GlobalBox::IntegerBox()->Send(eB, arguments, 1);
         else
-        AS_POINTER(sender)->Send(eB, arguments, 1);
+            AS_POINTER(sender)->Send(eB, arguments, 1);
 #else
         sender->Send(eB, arguments, 1);
 #endif
@@ -532,7 +531,7 @@ void Interpreter::doReturnNonLocal() {
 void Interpreter::doJumpIfFalse(long bytecodeIndex) {
     pVMObject value = _FRAME->Pop();
     if (value == falseObject)
-    doJump(bytecodeIndex);
+        doJump(bytecodeIndex);
 }
 
 void Interpreter::doJumpIfTrue(long bytecodeIndex) {

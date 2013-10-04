@@ -35,6 +35,7 @@
 #include <vmobjects/VMString.h>
 #include <vmobjects/VMInteger.h>
 #include <vmobjects/VMBigInteger.h>
+
 #include <vm/Universe.h>
 
 #include "Double.h"
@@ -50,14 +51,14 @@ double _Double::coerceDouble(pVMObject x) {
     return (double)UNTAG_INTEGER(x);
 #endif
     pVMClass cl = ((AbstractVMObject*)x)->GetClass();
-    if(cl == doubleClass)
-    return static_cast<pVMDouble>(x)->GetEmbeddedDouble();
+    if (cl == doubleClass)
+        return static_cast<pVMDouble>(x)->GetEmbeddedDouble();
     else if(cl == integerClass)
-    return (double)static_cast<pVMInteger>(x)->GetEmbeddedInteger();
+        return (double)static_cast<pVMInteger>(x)->GetEmbeddedInteger();
     else if(cl == bigIntegerClass)
-    return (double)static_cast<pVMBigInteger>(x)->GetEmbeddedInteger();
+        return (double)static_cast<pVMBigInteger>(x)->GetEmbeddedInteger();
     else
-    _UNIVERSE->ErrorExit("Attempt to apply Double operation to non-number.");
+        _UNIVERSE->ErrorExit("Attempt to apply Double operation to non-number.");
 
     return 0.0f;
 }
@@ -98,6 +99,7 @@ void _Double::Percent(pVMObject /*object*/, pVMFrame frame) {
     frame->Push(_UNIVERSE->NewDouble((double)((int64_t)left %
                     (int64_t)right)));
 }
+
 void _Double::And(pVMObject /*object*/, pVMFrame frame) {
     PREPARE_OPERANDS;
     frame->Push(_UNIVERSE->NewDouble((double)((int64_t)left &
@@ -125,9 +127,9 @@ void _Double::Equal(pVMObject /*object*/, pVMFrame frame) {
 void _Double::Lowerthan(pVMObject /*object*/, pVMFrame frame) {
     PREPARE_OPERANDS;
     if(left < right)
-    frame->Push(trueObject);
+        frame->Push(trueObject);
     else
-    frame->Push(falseObject);
+        frame->Push(falseObject);
 }
 
 void _Double::AsString(pVMObject /*object*/, pVMFrame frame) {

@@ -54,7 +54,7 @@ pVMFrame VMFrame::EmergencyFrameFrom( pVMFrame from, long extraLength ) {
     result->SetContext(from->GetContext());
     result->stack_ptr = (pVMObject*)SHIFTED_PTR(result, (size_t)from->stack_ptr - (size_t)from);
     result->bytecodeIndex = from->bytecodeIndex;
-//result->arguments is set in VMFrame constructor
+    //result->arguments is set in VMFrame constructor
     result->locals = result->arguments + result->method->GetNumberOfArguments();
 
 //all other fields are indexable via arguments

@@ -71,9 +71,9 @@ short gcVerbosity;
 
 Universe* Universe::theUniverse = NULL;
 
-VMObject* nilObject;
-VMObject* trueObject;
-VMObject* falseObject;
+pVMObject nilObject;
+pVMObject trueObject;
+pVMObject falseObject;
 
 pVMClass objectClass;
 pVMClass classClass;
@@ -364,7 +364,7 @@ void Universe::initialize(long _argc, char** _argv) {
     bootstrapFrame->Push(argumentsArray);
 
     pVMInvokable initialize =
-    static_cast<pVMInvokable>(systemClass->LookupInvokable(this->SymbolForChars("initialize:")));
+        static_cast<pVMInvokable>(systemClass->LookupInvokable(this->SymbolForChars("initialize:")));
     (*initialize)(bootstrapFrame);
 
     // reset "-d" indicator
@@ -440,8 +440,8 @@ void Universe::InitializeGlobals() {
 
     blockClass = LoadClass(_UNIVERSE->SymbolForChars("Block"));
 
-    trueObject = (VMObject*)NewInstance(_UNIVERSE->LoadClass(_UNIVERSE->SymbolForChars("True")));
-    falseObject = (VMObject*)NewInstance(_UNIVERSE->LoadClass(_UNIVERSE->SymbolForChars("False")));
+    trueObject  = NewInstance(_UNIVERSE->LoadClass(_UNIVERSE->SymbolForChars("True")));
+    falseObject = NewInstance(_UNIVERSE->LoadClass(_UNIVERSE->SymbolForChars("False")));
 
     systemClass = LoadClass(_UNIVERSE->SymbolForChars("System"));
 }
@@ -461,7 +461,7 @@ pVMClass Universe::GetBlockClassWithArgs( long numberOfArguments) {
     map<long, pVMClass>::iterator it =
     blockClassesByNoOfArgs.find(numberOfArguments);
     if (it != blockClassesByNoOfArgs.end())
-    return it->second;
+        return it->second;
 
     this->Assert(numberOfArguments < 10);
     ostringstream Str;
@@ -476,7 +476,7 @@ pVMClass Universe::GetBlockClassWithArgs( long numberOfArguments) {
     return result;
 }
 
-pVMObject Universe::GetGlobal( pVMSymbol name) {
+pVMObject Universe::GetGlobal(pVMSymbol name) {
     return globals[name];
 }
 
@@ -519,7 +519,7 @@ pVMClass superClass, const char* name) {
 
 pVMClass Universe::LoadClass( pVMSymbol name) {
     if (HasGlobal(name))
-    return static_cast<pVMClass>(GetGlobal(name));
+        return static_cast<pVMClass>(GetGlobal(name));
 
     pVMClass result = LoadClassBasic(name, NULL);
 
@@ -696,7 +696,7 @@ pVMObject Universe::NewInstance( pVMClass classOfInstance) const {
     long numOfFields = classOfInstance->GetNumberOfInstanceFields() - 1;
     //the additional space needed is calculated from the number of fields
     long additionalBytes = numOfFields * sizeof(pVMObject);
-    VMObject* result = new (_HEAP, additionalBytes) VMObject(numOfFields);
+    pVMObject result = new (_HEAP, additionalBytes) VMObject(numOfFields);
     result->SetClass(classOfInstance);
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION(classOfInstance->GetName()->GetStdString(), result->GetObjectSize());
@@ -862,12 +862,12 @@ pVMClass Universe::NewSystemClass() const {
     return systemClass;
 }
 
-pVMSymbol Universe::SymbolFor( const StdString& str) {
+pVMSymbol Universe::SymbolFor(const StdString& str) {
     map<string,pVMSymbol>::iterator it = symbolsMap.find(str);
     return (it == symbolsMap.end()) ? NewSymbol(str) : it->second;
 }
 
-pVMSymbol Universe::SymbolForChars( const char* str) {
+pVMSymbol Universe::SymbolForChars(const char* str) {
     return SymbolFor(str);
 }
 

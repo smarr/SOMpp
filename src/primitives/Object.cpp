@@ -87,7 +87,7 @@ void _Object::ObjectSize(pVMObject /*object*/, pVMFrame frame) {
     else
     frame->Push(TAG_INTEGER(AS_POINTER(self)->GetObjectSize()));
 #else
-    frame->Push(_UNIVERSE->NewInteger(self->GetObjectSize()) );
+    frame->Push(_UNIVERSE->NewInteger(self->GetObjectSize()));
 #endif
 }
 
@@ -99,7 +99,7 @@ void _Object::Hashcode(pVMObject /*object*/, pVMFrame frame) {
     else
     frame->Push(TAG_INTEGER(AS_POINTER(self)->GetHash()));
 #else
-    frame->Push(_UNIVERSE->NewInteger(self->GetHash()) );
+    frame->Push(_UNIVERSE->NewInteger(self->GetHash()));
 #endif
 }
 

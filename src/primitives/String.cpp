@@ -58,7 +58,7 @@ _String::_String() :
 }
 
 void _String::Concatenate_(pVMObject /*object*/, pVMFrame frame) {
-    pVMString arg = static_cast<pVMString>(frame->Pop());
+    pVMString arg  = static_cast<pVMString>(frame->Pop());
     pVMString self = static_cast<pVMString>(frame->Pop());
     StdString a = arg->GetChars();
     StdString s = self->GetChars();

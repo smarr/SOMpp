@@ -42,11 +42,13 @@ public:
     ;
     //virtual operator "()" to invoke the invokable
     virtual void operator()(pVMFrame) = 0;
+
     virtual bool IsPrimitive() const;
     virtual pVMSymbol GetSignature() const;
     virtual void SetSignature(pVMSymbol sig);
     virtual pVMClass GetHolder() const;
     virtual void SetHolder(pVMClass hld);
+
     void WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
 
 protected:

@@ -30,19 +30,21 @@
 #include <sstream>
 
 #include "../primitivesCore/Routine.h"
+
 #include "BigInteger.h"
 
-#include "../vmobjects/VMObject.h"
-#include "../vmobjects/VMFrame.h"
-#include "../vmobjects/VMInteger.h"
-#include "../vmobjects/VMBigInteger.h"
-#include "../vmobjects/VMSymbol.h"
-#include "../vmobjects/VMDouble.h"
-#include "../vm/Universe.h"
+#include <vmobjects/VMObject.h>
+#include <vmobjects/VMFrame.h>
+#include <vmobjects/VMInteger.h>
+#include <vmobjects/VMBigInteger.h>
+#include <vmobjects/VMSymbol.h>
+#include <vmobjects/VMDouble.h>
+
+#include <vm/Universe.h>
 
 #ifdef USE_TAGGING
 #define CHECK_BIGINT(object, result) { \
-    /* Check second parameter type: */\
+    /* Check second parameter type: */ \
   if (IS_TAGGED(object)) {\
     result = _UNIVERSE->NewBigInteger((int64_t)UNTAG_INTEGER(object));\
     } else\
@@ -55,9 +57,9 @@ pVMInteger ptr;\
     if((ptr = dynamic_cast<pVMInteger>(object)) != NULL) { \
         /* Second operand was Integer*/ \
         int32_t i = ptr->GetEmbeddedInteger(); \
-        (result) = _UNIVERSE->NewBigInteger((int64_t)i);\
+        (result) = _UNIVERSE->NewBigInteger((int64_t)i); \
     } else\
-        result = static_cast<pVMBigInteger>(object);\
+        result = static_cast<pVMBigInteger>(object); \
 }
 #endif
 
@@ -183,8 +185,8 @@ void _BigInteger::Percent(pVMObject /*object*/, pVMFrame frame) {
     CHECK_BIGINT(rightObj, right);
 
     // Do operation and perform conversion to Integer if required
-    pVMBigInteger result = _UNIVERSE->NewBigInteger( left->GetEmbeddedInteger()
-    % right->GetEmbeddedInteger());
+    pVMBigInteger result = _UNIVERSE->NewBigInteger(  left->GetEmbeddedInteger()
+                                                    % right->GetEmbeddedInteger());
     frame->Push(result);
 }
 
@@ -196,8 +198,8 @@ void _BigInteger::And(pVMObject /*object*/, pVMFrame frame) {
     CHECK_BIGINT(rightObj, right);
 
     // Do operation and perform conversion to Integer if required
-    pVMBigInteger result = _UNIVERSE->NewBigInteger( left->GetEmbeddedInteger()
-    & right->GetEmbeddedInteger());
+    pVMBigInteger result = _UNIVERSE->NewBigInteger(  left->GetEmbeddedInteger()
+                                                    & right->GetEmbeddedInteger());
     frame->Push(result);
 }
 
@@ -224,9 +226,9 @@ void _BigInteger::Lowerthan(pVMObject /*object*/, pVMFrame frame) {
 
     // Do operation:
     if(left->GetEmbeddedInteger() < right->GetEmbeddedInteger())
-    frame->Push(trueObject);
+        frame->Push(trueObject);
     else
-    frame->Push(falseObject);
+        frame->Push(falseObject);
 }
 
 void _BigInteger::AsString(pVMObject /*object*/, pVMFrame frame) {

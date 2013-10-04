@@ -30,6 +30,7 @@
 #include "VMInvokable.h"
 #include "VMPrimitive.h"
 #include "PrimitiveRoutine.h"
+
 #include <fstream>
 #include <typeinfo>
 
@@ -175,7 +176,8 @@ pVMInvokable VMClass::LookupInvokable(pVMSymbol name) const {
     //pVMInvokable invokable = NULL;
     pVMInvokable invokable = name->GetCachedInvokable(this);
     if (invokable != NULL)
-    return invokable;
+        return invokable;
+
     long noInstanceInvokables = GetNumberOfInstanceInvokables();
     for (long i = 0; i < noInstanceInvokables; ++i) {
         invokable = GetInstanceInvokable(i);
@@ -196,7 +198,7 @@ pVMInvokable VMClass::LookupInvokable(pVMSymbol name) const {
 long VMClass::LookupFieldIndex(pVMSymbol name) const {
     long index = name->GetCachedIndex(this);
     if (index != -1)
-    return index;
+        return index;
     long noInstanceFields = GetNumberOfInstanceFields();
     for (long i = 0; i <= noInstanceFields; ++i)
     //even with GetNumberOfInstanceFields == 0 there is the class field

@@ -57,6 +57,6 @@ pVMClass VMInvokable::GetHolder() const {
 void VMInvokable::SetHolder(pVMClass hld) {
     holder = hld;
 #if GC_TYPE==GENERATIONAL
-        _HEAP->writeBarrier(this, hld);
+    _HEAP->writeBarrier(this, hld);
 #endif
-    }
+}

@@ -167,13 +167,13 @@ uint8_t MethodGenerationContext::ComputeStackDepth() {
         case BC_JUMP_IF_TRUE : depth--; i += 5; break;
         case BC_JUMP : i += 5; break;
         default :
-        cout << "Illegal bytecode: " << bytecode[i];
-        _UNIVERSE->Quit(1);
-    }
+            cout << "Illegal bytecode: " << bytecode[i];
+            _UNIVERSE->Quit(1);
+        }
 
-    if(depth > maxDepth)
-    maxDepth = depth;
-}
+        if (depth > maxDepth)
+            maxDepth = depth;
+    }
 
     return maxDepth;
 }

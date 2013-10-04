@@ -42,7 +42,7 @@ public:
     VMFrame(long size, long nof = 0);
 
     inline pVMFrame GetPreviousFrame() const;
-    inline void SetPreviousFrame(pVMObject);
+    inline void SetPreviousFrame(pVMFrame);
     inline void ClearPreviousFrame();
     inline bool HasPreviousFrame() const;
     inline bool IsBootstrapFrame() const;
@@ -135,8 +135,8 @@ pVMFrame VMFrame::GetPreviousFrame() const {
     return this->previousFrame;
 }
 
-void VMFrame::SetPreviousFrame(pVMObject frm) {
-    this->previousFrame = static_cast<pVMFrame>(frm);
+void VMFrame::SetPreviousFrame(pVMFrame frm) {
+    this->previousFrame = frm;
 #if GC_TYPE==GENERATIONAL
     _HEAP->writeBarrier(this, AS_POINTER(frm));
 #endif
