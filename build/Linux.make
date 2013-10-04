@@ -28,7 +28,7 @@
 
 CC			=g++
 CFLAGS		=-Wno-endif-labels -O3 $(DBG_FLAGS) $(INCLUDES)
-LDFLAGS		=$(LIBRARIES)
+LDFLAGS		=$(DBG_FLAGS) $(LIBRARIES)
 
 INSTALL		=install
 
@@ -60,6 +60,7 @@ MEMORY_DIR 		= $(SRC_DIR)/memory
 MISC_DIR 		= $(SRC_DIR)/misc
 VM_DIR 			= $(SRC_DIR)/vm
 VMOBJECTS_DIR 	= $(SRC_DIR)/vmobjects
+UNITTEST_DIR 	= $(SRC_DIR)/unitTests
 
 COMPILER_SRC	= $(wildcard $(COMPILER_DIR)/*.cpp)
 COMPILER_OBJ	= $(COMPILER_SRC:.cpp=.o)
@@ -73,6 +74,9 @@ VM_SRC			= $(wildcard $(VM_DIR)/*.cpp)
 VM_OBJ			= $(VM_SRC:.cpp=.o)
 VMOBJECTS_SRC	= $(wildcard $(VMOBJECTS_DIR)/*.cpp)
 VMOBJECTS_OBJ	= $(VMOBJECTS_SRC:.cpp=.o)
+UNITTEST_SRC	= $(wildcard $(UNITTEST_DIR)/*.cpp)
+UNITTEST_OBJ	= $(UNITTEST_SRC:.cpp=.o)
+
 
 MAIN_SRC		= $(wildcard $(SRC_DIR)/*.cpp)
 #$(SRC_DIR)/Main.cpp
@@ -102,7 +106,7 @@ LIBRARIES		=-L$(ROOT_DIR)
 CSOM_OBJ		=  $(MEMORY_OBJ) $(MISC_OBJ) $(VMOBJECTS_OBJ) \
 				$(COMPILER_OBJ) $(INTERPRETER_OBJ) $(VM_OBJ)
 
-OBJECTS			= $(CSOM_OBJ) $(PRIMITIVESCORE_OBJ) $(PRIMITIVES_OBJ) $(MAIN_OBJ)
+OBJECTS			= $(CSOM_OBJ) $(PRIMITIVESCORE_OBJ) $(PRIMITIVES_OBJ) $(MAIN_OBJ) $(UNITTEST_OBJ)
 
 SOURCES			=  $(COMPILER_SRC) $(INTERPRETER_SRC) $(MEMORY_SRC) \
 				$(MISC_SRC) $(VM_SRC) $(VMOBJECTS_SRC)  \
@@ -110,8 +114,7 @@ SOURCES			=  $(COMPILER_SRC) $(INTERPRETER_SRC) $(MEMORY_SRC) \
 
 ############# Things to clean
 
-CLEAN			= $(OBJECTS) \
-				$(DIST_DIR) $(DEST_DIR) CORE
+CLEAN			= $(OBJECTS) $(DIST_DIR) $(DEST_DIR) CORE
 ############# Tools
 
 #OSTOOL			= $(BUILD_DIR)/ostool
@@ -132,7 +135,7 @@ all: $(CSOM_NAME)\
 	CORE
 
 
-debug : DBG_FLAGS=-DDEBUG -g
+debug : DBG_FLAGS=-DDEBUG -O0 -g
 debug: all
 
 profiling : DBG_FLAGS=-g -pg
@@ -148,6 +151,10 @@ profiling: all
 
 clean:
 	rm -Rf $(CLEAN)
+	#just to be sure delete again
+	find . -name "*.o" -delete
+	-rm -Rf $(CORE_NAME).csp $(ST_DIR)/$(CORE_NAME).csp
+	-rm -Rf *.so
 
 
 
@@ -192,6 +199,7 @@ install: all
 	@echo installing CSOM into build
 	$(INSTALL) -d $(DEST_DIR)
 	$(INSTALL) $(CSOM_NAME) $(DEST_DIR)
+	$(INSTALL) $(CSOM_NAME).$(SHARED_EXTENSION) $(DEST_DIR)
 	@echo CSOM.
 	cp -Rpf $(ST_DIR) $(EX_DIR) $(TEST_DIR)  $(DEST_DIR)
 	@echo Library.
@@ -202,6 +210,12 @@ install: all
 #
 console: all
 	./$(CSOM_NAME) -cp ./Smalltalk
+
+units: $(UNITTEST_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION)
+	$(CC) $(LIBRARIES) $(UNITTEST_OBJ) SOM++.so -lcppunit -lrt -o unittest
+
+unittests: all units
+	./unittest -cp ./Smalltalk ./Examples/Hello/Hello.som
 
 #
 # test: run the standard test suite

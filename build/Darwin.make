@@ -28,7 +28,7 @@
 
 CC			=g++
 CFLAGS		=-Wno-endif-labels -O3 $(DBG_FLAGS) $(INCLUDES)
-LDFLAGS		=$(LIBRARIES)
+LDFLAGS		=$(DBG_FLAGS) $(LIBRARIES)
 
 SHAREDFLAGS =-fPIC -mmacosx-version-min=10.4 -undefined dynamic_lookup \
                 -dynamiclib -Wl,-single_module -Wl,-Y,1455
@@ -135,7 +135,7 @@ all: $(CSOM_NAME)\
 	CORE
 
 
-debug : DBG_FLAGS=-DDEBUG -g
+debug : DBG_FLAGS=-DDEBUG -O0 -g
 debug: all
 
 profiling : DBG_FLAGS=-g -pg
@@ -151,6 +151,10 @@ profiling: all
 
 clean:
 	rm -Rf $(CLEAN)
+	#just to be sure delete again
+	find . -name "*.o" -delete
+	-rm -Rf $(CORE_NAME).csp $(ST_DIR)/$(CORE_NAME).csp
+	-rm -Rf *.so
 
 
 
