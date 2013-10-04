@@ -378,6 +378,15 @@ void Interpreter::doReturnNonLocal() {
         pVMObject arguments[] = {block};
 
         this->popFrame();
+        
+        //check if there is enough space on the stack for this unplanned Send
+        //escapedBlock: needs 2 slots, one for "this" and one for the argument
+        int additionalStackSlots = 2 - _FRAME->RemainingStackSize();
+        if (additionalStackSlots > 0) {
+            //copy current frame into a bigger one and replace the current frame
+            this->SetFrame(VMFrame::EmergencyFrameFrom(_FRAME,
+                                                       additionalStackSlots));
+        }
 
         sender->Send(eB, arguments, 1);
         return;
