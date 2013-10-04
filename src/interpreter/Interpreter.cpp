@@ -145,14 +145,7 @@ pVMFrame Interpreter::GetFrame() {
 }
 
 pVMMethod Interpreter::GetMethod() {
-    pVMMethod method = _FRAME->GetMethod();
-    /* cout << "bytecodes: ";
-     for (int i = 0; i < method->BytecodeLength(); ++i)
-     {
-     cout  << (int)(*method)[i] << " ";
-     }
-     cout << endl;*/
-    return method;
+    return _FRAME->GetMethod();
 }
 
 pVMObject Interpreter::GetSelf() {
