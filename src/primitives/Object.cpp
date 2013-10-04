@@ -78,12 +78,12 @@ void _Object::Equalequal(pVMObject /*object*/, pVMFrame frame) {
 void _Object::ObjectSize(pVMObject /*object*/, pVMFrame frame) {
     pVMObject self = frame->Pop();
 
-    frame->Push( (pVMObject)_UNIVERSE->NewInteger(self->GetObjectSize()) );
+    frame->Push(_UNIVERSE->NewInteger(self->GetObjectSize()));
 }
 
 void _Object::Hashcode(pVMObject /*object*/, pVMFrame frame) {
     pVMObject self = frame->Pop();
-    frame->Push( (pVMObject)_UNIVERSE->NewInteger(self->GetHash()) );
+    frame->Push(_UNIVERSE->NewInteger(self->GetHash()));
 }
 
 void _Object::Inspect(pVMObject, pVMFrame frame) {
@@ -103,7 +103,7 @@ void _Object::Perform(pVMObject, pVMFrame frame) {
     pVMObject self = frame->GetStackElement(0);
 
     pVMClass clazz = self->GetClass();
-    pVMInvokable invokable = (pVMInvokable)clazz->LookupInvokable(selector);
+    pVMInvokable invokable = clazz->LookupInvokable(selector);
 
     (*invokable)(frame);
 }
@@ -112,7 +112,7 @@ void _Object::PerformInSuperclass(pVMObject object, pVMFrame frame) {
     pVMClass clazz = (pVMClass) frame->Pop();
     pVMSymbol selector = (pVMSymbol)frame->Pop();
 
-    pVMInvokable invokable = (pVMInvokable)clazz->LookupInvokable(selector);
+    pVMInvokable invokable = clazz->LookupInvokable(selector);
 
     (*invokable)(frame);
 }
@@ -129,7 +129,7 @@ void _Object::PerformWithArguments(pVMObject object, pVMFrame frame) {
     }
 
     pVMClass clazz = self->GetClass();
-    pVMInvokable invokable = (pVMInvokable)clazz->LookupInvokable(selector);
+    pVMInvokable invokable = clazz->LookupInvokable(selector);
 
     (*invokable)(frame);
 }
@@ -145,7 +145,7 @@ void _Object::PerformWithArgumentsInSuperclass(pVMObject object, pVMFrame frame)
         frame->Push(arg);
     }
 
-    pVMInvokable invokable = (pVMInvokable)clazz->LookupInvokable(selector);
+    pVMInvokable invokable = clazz->LookupInvokable(selector);
 
     (*invokable)(frame);
 }

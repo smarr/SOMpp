@@ -1,6 +1,4 @@
 /*
- *
- *
  Copyright (c) 2007 Michael Haupt, Tobias Pape, Arne Bergmann
  Software Architecture Group, Hasso Plattner Institute, Potsdam, Germany
  http://www.hpi.uni-potsdam.de/swa/

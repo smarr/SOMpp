@@ -40,6 +40,6 @@ _Class::_Class() :
 }
 
 void _Class::New(pVMObject /*object*/, pVMFrame frame) {
-    pVMClass self = (pVMClass)frame->Pop();
+    pVMClass self = static_cast<pVMClass>(frame->Pop());
     frame->Push(_UNIVERSE->NewInstance(self));
 }

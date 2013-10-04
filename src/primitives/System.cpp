@@ -30,7 +30,8 @@
 
 #include <vmobjects/VMObject.h>
 #include <vmobjects/VMFrame.h>
-#include <vmobjects/VMString.h>
+#include <vmobjects/VMSymbol.h>
+#include <vmobjects/VMClass.h>
 #include <vmobjects/VMInteger.h>
 
 #include <vm/Universe.h>
@@ -51,7 +52,7 @@
 _System* System_;
 
 void _System::Global_(pVMObject /*object*/, pVMFrame frame) {
-    pVMSymbol arg = (pVMSymbol)frame->Pop();
+    pVMSymbol arg = static_cast<pVMSymbol>(frame->Pop());
     /*pVMObject self = */
     frame->Pop();
     pVMObject result = _UNIVERSE->GetGlobal(arg);
@@ -61,21 +62,23 @@ void _System::Global_(pVMObject /*object*/, pVMFrame frame) {
 
 void _System::Global_put_(pVMObject /*object*/, pVMFrame frame) {
     pVMObject value = frame->Pop();
-    pVMSymbol arg = (pVMSymbol)frame->Pop();
+    pVMSymbol arg = static_cast<pVMSymbol>(frame->Pop());
     _UNIVERSE->SetGlobal(arg, value);
 }
 
 void _System::Load_(pVMObject /*object*/, pVMFrame frame) {
-    pVMSymbol arg = (pVMSymbol)frame->Pop();
+    pVMSymbol arg = static_cast<pVMSymbol>(frame->Pop());
     /*pVMObject self = */
     frame->Pop();
     pVMClass result = _UNIVERSE->LoadClass(arg);
-
-    frame->Push( result? (pVMObject)result : nilObject);
+    if (result)
+        frame->Push(result);
+    else
+        frame->Push(nilObject);
 }
 
 void _System::Exit_(pVMObject /*object*/, pVMFrame frame) {
-    pVMInteger err = (pVMInteger)frame->Pop();
+    pVMInteger err = static_cast<pVMInteger>(frame->Pop());
     int32_t err_no = err->GetEmbeddedInteger();
 
     if(err_no != ERR_SUCCESS)
@@ -84,7 +87,7 @@ void _System::Exit_(pVMObject /*object*/, pVMFrame frame) {
 }
 
 void _System::PrintString_(pVMObject /*object*/, pVMFrame frame) {
-    pVMString arg = (pVMString)frame->Pop();
+    pVMString arg = static_cast<pVMString>(frame->Pop());
     std::string str = arg->GetStdString();
     cout << str;
 }

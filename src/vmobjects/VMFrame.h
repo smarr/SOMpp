@@ -40,7 +40,7 @@ public:
     VMFrame(int size, int nof = 0);
 
     virtual inline pVMFrame GetPreviousFrame() const;
-    virtual inline void SetPreviousFrame(pVMObject);
+    virtual inline void SetPreviousFrame(pVMFrame);
     virtual inline void ClearPreviousFrame();
     virtual bool HasPreviousFrame() const;
     virtual inline bool IsBootstrapFrame() const;
@@ -98,15 +98,15 @@ pVMInteger VMFrame::GetStackPointer() const {
 }
 
 pVMFrame VMFrame::GetPreviousFrame() const {
-    return (pVMFrame) this->previousFrame;
+    return this->previousFrame;
 }
 
-void VMFrame::SetPreviousFrame(pVMObject frm) {
-    this->previousFrame = (pVMFrame)frm;
+void VMFrame::SetPreviousFrame(pVMFrame frm) {
+    this->previousFrame = frm;
 }
 
 void VMFrame::ClearPreviousFrame() {
-    this->previousFrame = (pVMFrame) nilObject;
+    this->previousFrame = static_cast<pVMFrame>(nilObject);
 }
 
 #endif

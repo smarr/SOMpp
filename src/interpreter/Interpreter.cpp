@@ -27,16 +27,18 @@
 #include "Interpreter.h"
 #include "bytecodes.h"
 
-#include "../vmobjects/VMMethod.h"
-#include "../vmobjects/VMFrame.h"
-#include "../vmobjects/VMMethod.h"
-#include "../vmobjects/VMClass.h"
-#include "../vmobjects/VMObject.h"
-#include "../vmobjects/VMSymbol.h"
-#include "../vmobjects/VMInvokable.h"
-#include "../vmobjects/Signature.h"
+#include <vmobjects/VMMethod.h>
+#include <vmobjects/VMFrame.h>
+#include <vmobjects/VMMethod.h>
+#include <vmobjects/VMClass.h>
+#include <vmobjects/VMObject.h>
+#include <vmobjects/VMSymbol.h>
+#include <vmobjects/VMArray.h>
+#include <vmobjects/VMInvokable.h>
+#include <vmobjects/Signature.h>
+#include <vmobjects/VMBlock.h>
 
-#include "../compiler/Disassembler.h"
+#include <compiler/Disassembler.h>
 
 // convenience macros for frequently used function invocations
 #define _FRAME this->GetFrame()
@@ -196,8 +198,7 @@ void Interpreter::send( pVMSymbol signature, pVMClass receiverClass) {
             pVMObject o = _FRAME->Pop();
             (*argumentsArray)[i] = o;
         }
-        pVMObject arguments[] = {(pVMObject)signature,
-            (pVMObject)argumentsArray};
+        pVMObject arguments[] = {signature, argumentsArray};
 
         //check if current frame is big enough for this unplanned Send
         //doesNotUnderstand: needs 3 slots, one for this, one for method name, one for args
@@ -239,7 +240,7 @@ void Interpreter::doPushArgument(int bytecodeIndex) {
 void Interpreter::doPushField(int bytecodeIndex) {
     pVMMethod method = _METHOD;
 
-    pVMSymbol fieldName = (pVMSymbol) method->GetConstant(bytecodeIndex);
+    pVMSymbol fieldName = static_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));
 
     pVMObject self = _SELF;
     int fieldIndex = self->GetFieldIndex(fieldName);
@@ -252,12 +253,11 @@ void Interpreter::doPushField(int bytecodeIndex) {
 void Interpreter::doPushBlock(int bytecodeIndex) {
     pVMMethod method = _METHOD;
 
-    pVMMethod blockMethod = (pVMMethod)(method->GetConstant(bytecodeIndex));
+    pVMMethod blockMethod = static_cast<pVMMethod>(method->GetConstant(bytecodeIndex));
 
     int numOfArgs = blockMethod->GetNumberOfArguments();
 
-    _FRAME->Push((pVMObject) _UNIVERSE->NewBlock(blockMethod, _FRAME,
-                    numOfArgs));
+    _FRAME->Push(_UNIVERSE->NewBlock(blockMethod, _FRAME, numOfArgs));
 }
 
 void Interpreter::doPushConstant(int bytecodeIndex) {
@@ -268,17 +268,16 @@ void Interpreter::doPushConstant(int bytecodeIndex) {
 }
 
 void Interpreter::doPushGlobal(int bytecodeIndex) {
-
     pVMMethod method = _METHOD;
 
-    pVMSymbol globalName = (pVMSymbol) method->GetConstant(bytecodeIndex);
+    pVMSymbol globalName = static_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));
 
     pVMObject global = _UNIVERSE->GetGlobal(globalName);
 
     if(global != NULL)
-    _FRAME->Push(global);
+        _FRAME->Push(global);
     else {
-        pVMObject arguments[] = {(pVMObject) globalName};
+        pVMObject arguments[] = {globalName};
         pVMObject self = _SELF;
 
         //check if there is enough space on the stack for this unplanned Send
@@ -320,7 +319,7 @@ void Interpreter::doPopArgument(int bytecodeIndex) {
 
 void Interpreter::doPopField(int bytecodeIndex) {
     pVMMethod method = _METHOD;
-    pVMSymbol field_name = (pVMSymbol) method->GetConstant(bytecodeIndex);
+    pVMSymbol field_name = static_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));
 
     pVMObject self = _SELF;
     int field_index = self->GetFieldIndex(field_name);
@@ -332,7 +331,7 @@ void Interpreter::doPopField(int bytecodeIndex) {
 void Interpreter::doSend(int bytecodeIndex) {
     pVMMethod method = _METHOD;
 
-    pVMSymbol signature = (pVMSymbol) method->GetConstant(bytecodeIndex);
+    pVMSymbol signature = static_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));
 
     int numOfArgs = Signature::GetNumberOfArguments(signature);
 
@@ -343,16 +342,16 @@ void Interpreter::doSend(int bytecodeIndex) {
 
 void Interpreter::doSuperSend(int bytecodeIndex) {
     pVMMethod method = _METHOD;
-    pVMSymbol signature = (pVMSymbol) method->GetConstant(bytecodeIndex);
+    pVMSymbol signature = static_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));
 
     pVMFrame ctxt = _FRAME->GetOuterContext();
     pVMMethod realMethod = ctxt->GetMethod();
     pVMClass holder = realMethod->GetHolder();
     pVMClass super = holder->GetSuperClass();
-    pVMInvokable invokable = dynamic_cast<pVMInvokable>( super->LookupInvokable(signature) );
+    pVMInvokable invokable = static_cast<pVMInvokable>(super->LookupInvokable(signature));
 
     if (invokable != NULL)
-    (*invokable)(_FRAME);
+        (*invokable)(_FRAME);
     else {
         int numOfArgs = Signature::GetNumberOfArguments(signature);
         pVMObject receiver = _FRAME->GetStackElement(numOfArgs - 1);
@@ -362,8 +361,7 @@ void Interpreter::doSuperSend(int bytecodeIndex) {
             pVMObject o = _FRAME->Pop();
             (*argumentsArray)[i] = o;
         }
-        pVMObject arguments[] = {(pVMObject)signature,
-            (pVMObject) argumentsArray};
+        pVMObject arguments[] = {signature, argumentsArray};
         receiver->Send(dnu, arguments, 2);
     }
 }
@@ -380,11 +378,11 @@ void Interpreter::doReturnNonLocal() {
     pVMFrame context = _FRAME->GetOuterContext();
 
     if (!context->HasPreviousFrame()) {
-        pVMBlock block = (pVMBlock) _FRAME->GetArgument(0, 0);
+        pVMBlock block = static_cast<pVMBlock>(_FRAME->GetArgument(0, 0));
         pVMFrame prevFrame = _FRAME->GetPreviousFrame();
         pVMFrame outerContext = prevFrame->GetOuterContext();
         pVMObject sender = outerContext->GetArgument(0, 0);
-        pVMObject arguments[] = {(pVMObject)block};
+        pVMObject arguments[] = {block};
 
         this->popFrame();
 

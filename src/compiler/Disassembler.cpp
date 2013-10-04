@@ -60,31 +60,31 @@ void Disassembler::dispatch(pVMObject o) {
     // can't switch() objects, so:
     if(!o) return;// NULL isn't interesting.
     else if(o == nilObject)
-    DebugPrint("{Nil}");
+        DebugPrint("{Nil}");
     else if(o == trueObject)
-    DebugPrint("{True}");
+        DebugPrint("{True}");
     else if(o == falseObject)
-    DebugPrint("{False}");
-    else if((pVMClass)o == systemClass)
-    DebugPrint("{System Class object}");
-    else if((pVMClass)o == blockClass)
-    DebugPrint("{Block Class object}");
+        DebugPrint("{False}");
+    else if(o == systemClass)
+        DebugPrint("{System Class object}");
+    else if(o == blockClass)
+        DebugPrint("{Block Class object}");
     else if(o == _UNIVERSE->GetGlobal(_UNIVERSE->SymbolForChars("system")))
-    DebugPrint("{System}");
+        DebugPrint("{System}");
     else {
         pVMClass c = o->GetClass();
-        if(c == stringClass) {
-            DebugPrint("\"%s\"", ((pVMString)o)->GetChars());
+        if (c == stringClass) {
+            DebugPrint("\"%s\"", static_cast<pVMString>(o)->GetChars());
         } else if(c == doubleClass)
-        DebugPrint("%g", ((pVMDouble)o)->GetEmbeddedDouble());
+            DebugPrint("%g", static_cast<pVMDouble>(o)->GetEmbeddedDouble());
         else if(c == bigIntegerClass)
-        DebugPrint("%lld", ((pVMBigInteger)o)->GetEmbeddedInteger());
+            DebugPrint("%lld", static_cast<pVMBigInteger>(o)->GetEmbeddedInteger());
         else if(c == integerClass)
-        DebugPrint("%d", ((pVMInteger)o)->GetEmbeddedInteger());
+            DebugPrint("%d", static_cast<pVMInteger>(o)->GetEmbeddedInteger());
         else if(c == symbolClass) {
-            DebugPrint("#%s", ((pVMSymbol)o)->GetChars());
+            DebugPrint("#%s", static_cast<pVMSymbol>(o)->GetChars());
         } else
-        DebugPrint("address: %p", (void*)o);
+            DebugPrint("address: %p", (void*)o);
     }
 }
 
@@ -92,18 +92,18 @@ void Disassembler::dispatch(pVMObject o) {
  * Dump a class and all subsequent methods.
  */
 void Disassembler::Dump(pVMClass cl) {
-    for(int i = 0; i < cl->GetNumberOfInstanceInvokables(); ++i) {
-        pVMInvokable inv = (pVMInvokable)(cl->GetInstanceInvokable(i));
+    for (int i = 0; i < cl->GetNumberOfInstanceInvokables(); ++i) {
+        pVMInvokable inv = static_cast<pVMInvokable>(cl->GetInstanceInvokable(i));
         // output header and skip if the Invokable is a Primitive
         pVMSymbol sig = inv->GetSignature();
         pVMSymbol cname = cl->GetName();
         DebugDump("%s>>%s = ", cname->GetChars(), sig->GetChars());
-        if(inv->IsPrimitive()) {
+        if (inv->IsPrimitive()) {
             DebugPrint("<primitive>\n");
             continue;
         }
         // output actual method
-        DumpMethod((pVMMethod)(inv), "\t");
+        DumpMethod(static_cast<pVMMethod>(inv), "\t");
     }
 }
 
@@ -133,9 +133,9 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
     cout << endl;
 #endif
     // output bytecodes
-    for(int bc_idx = 0;
-    bc_idx < method->GetNumberOfBytecodes();
-    bc_idx += Bytecode::GetBytecodeLength(method->GetBytecode(bc_idx)) ) {
+    for (int bc_idx = 0;
+         bc_idx < method->GetNumberOfBytecodes();
+         bc_idx += Bytecode::GetBytecodeLength(method->GetBytecode(bc_idx))) {
         // the bytecode.
         uint8_t bytecode = BC_0;
         // indent, bytecode index, bytecode mnemonic
@@ -148,9 +148,9 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
         }
         switch(bytecode) {
             case BC_PUSH_LOCAL:
-            DebugPrint("local: %d, context: %d\n", BC_1, BC_2); break;
+                DebugPrint("local: %d, context: %d\n", BC_1, BC_2); break;
             case BC_PUSH_ARGUMENT:
-            DebugPrint("argument: %d, context %d\n", BC_1, BC_2); break;
+                DebugPrint("argument: %d, context %d\n", BC_1, BC_2); break;
             case BC_PUSH_FIELD: {
                 pVMObject cst = method->GetConstant(bc_idx);
 
@@ -171,7 +171,7 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
                 sprintf(nindent, "%s\t", indent);
 
                 Disassembler::DumpMethod(
-                (pVMMethod)(method->GetConstant(bc_idx)), nindent);
+                static_cast<pVMMethod>(method->GetConstant(bc_idx)), nindent);
                 break;
             }
             case BC_PUSH_CONSTANT: {
@@ -188,7 +188,7 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
                 pVMObject cst = method->GetConstant(bc_idx);
 
                 if (cst != NULL) {
-                    pVMSymbol name = dynamic_cast<pVMSymbol>(cst);
+                    pVMSymbol name = static_cast<pVMSymbol>(cst);
                     if (name != NULL) {
                         DebugPrint("(index: %d) value: %s\n", BC_1,
                         name->GetChars());
@@ -200,33 +200,33 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
                 break;
             }
             case BC_POP_LOCAL:
-            DebugPrint("local: %d, context: %d\n", BC_1, BC_2);
-            break;
+                DebugPrint("local: %d, context: %d\n", BC_1, BC_2);
+                break;
             case BC_POP_ARGUMENT:
-            DebugPrint("argument: %d, context: %d\n", BC_1, BC_2);
-            break;
+                DebugPrint("argument: %d, context: %d\n", BC_1, BC_2);
+                break;
             case BC_POP_FIELD: {
-                pVMSymbol name = (pVMSymbol)(method->GetConstant(bc_idx));
+                pVMSymbol name = static_cast<pVMSymbol>(method->GetConstant(bc_idx));
 
                 DebugPrint("(index: %d) field: %s\n", BC_1, name->GetChars());
                 break;
             }
             case BC_SEND: {
-                pVMSymbol name = (pVMSymbol)(method->GetConstant(bc_idx));
+                pVMSymbol name = static_cast<pVMSymbol>(method->GetConstant(bc_idx));
 
                 DebugPrint("(index: %d) signature: %s\n", BC_1,
                 name->GetChars());
                 break;
             }
             case BC_SUPER_SEND: {
-                pVMSymbol name = (pVMSymbol)(method->GetConstant(bc_idx));
+                pVMSymbol name = static_cast<pVMSymbol>(method->GetConstant(bc_idx));
 
                 DebugPrint("(index: %d) signature: %s\n", BC_1,
                 name->GetChars());
                 break;
             }
             default:
-            DebugPrint("<incorrect bytecode>\n");
+                DebugPrint("<incorrect bytecode>\n");
         }
     }
     DebugDump("%s)\n", indent);
@@ -241,212 +241,213 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
     uint8_t bc = BC_0;
     pVMObject clo = method->GetHolder();
     pVMClass cl = dynamic_cast<pVMClass>(clo);
+
     // Determine Context: Class or Block?
-        if(cl != NULL) {
-            pVMSymbol cname = cl->GetName();
-            pVMSymbol sig = method->GetSignature();
+    if (cl != NULL) {
+        pVMSymbol cname = cl->GetName();
+        pVMSymbol sig = method->GetSignature();
 
-            DebugTrace("%20s>>%-20s% 10lld %c %04d: %s\t",
-            cname->GetChars(), sig->GetChars(),
-            indentc, ikind, bc_idx,
-            Bytecode::GetBytecodeName(bc));
-        } else {
-            pVMSymbol sig = method->GetSignature();
+        DebugTrace("%20s>>%-20s% 10lld %c %04d: %s\t",
+        cname->GetChars(), sig->GetChars(),
+        indentc, ikind, bc_idx,
+        Bytecode::GetBytecodeName(bc));
+    } else {
+        pVMSymbol sig = method->GetSignature();
 
-            DebugTrace("%-42s% 10lld %c %04d: %s\t",
-            sig->GetChars(),
-            indentc, ikind, bc_idx,
-            Bytecode::GetBytecodeName(bc));
-        }
-        // reset send indicator
-        if(ikind != '@') ikind = '@';
+        DebugTrace("%-42s% 10lld %c %04d: %s\t",
+        sig->GetChars(),
+        indentc, ikind, bc_idx,
+        Bytecode::GetBytecodeName(bc));
+    }
+    // reset send indicator
+    if(ikind != '@') ikind = '@';
 
-        switch(bc) {
-            case BC_HALT: {
-                DebugPrint("<halting>\n\n\n");
-                break;
-            }
-            case BC_DUP: {
-                pVMObject o = frame->GetStackElement(0);
-                if(o) {
-                    pVMClass c = o->GetClass();
-                    pVMSymbol cname = c->GetName();
-
-                    DebugPrint("<to dup: (%s) ", cname->GetChars());
-                    //dispatch
-                    dispatch(o);
-                } else
-                DebugPrint("<to dup: address: %p", (void*)o);
-                DebugPrint(">\n");
-                break;
-            }
-            case BC_PUSH_LOCAL: {
-                uint8_t bc1 = BC_1, bc2 = BC_2;
-                pVMObject o = frame->GetLocal(bc1, bc2);
-                pVMClass c = o->GetClass();
-                pVMSymbol cname = c->GetName();
-
-                DebugPrint("local: %d, context: %d <(%s) ",
-                BC_1, BC_2, cname->GetChars());
-                //dispatch
-                dispatch(o);
-                DebugPrint(">\n");
-                break;
-            }
-            case BC_PUSH_ARGUMENT: {
-                uint8_t bc1 = BC_1, bc2 = BC_2;
-                pVMObject o = frame->GetArgument(bc1, bc2);
-                DebugPrint("argument: %d, context: %d", bc1, bc2);
-                if(dynamic_cast<pVMClass>(cl) != NULL) {
-                    pVMClass c = o->GetClass();
-                    pVMSymbol cname = c->GetName();
-
-                    DebugPrint("<(%s) ", cname->GetChars());
-                    //dispatch
-                    dispatch(o);
-                    DebugPrint(">");
-                }
-                DebugPrint("\n");
-                break;
-            }
-            case BC_PUSH_FIELD: {
-                pVMFrame ctxt = frame->GetOuterContext();
-                pVMObject arg = ctxt->GetArgument(0, 0);
-                pVMSymbol name = (pVMSymbol)(method->GetConstant(bc_idx));
-                int field_index = arg->GetFieldIndex(name);
-
-                pVMObject o = arg->GetField(field_index);
-                pVMClass c = o->GetClass();
-                pVMSymbol cname = c->GetName();
-
-                DebugPrint("(index: %d) field: %s <(%s) ", BC_1,
-                name->GetChars(), cname->GetChars());
-                //dispatch
-                dispatch(o);
-                DebugPrint(">\n");
-                break;
-            }
-            case BC_PUSH_BLOCK: {
-                DebugPrint("block: (index: %d) ", BC_1);
-                pVMMethod meth = (pVMMethod)(method->GetConstant(bc_idx));
-                DumpMethod(meth, "$");
-                break;
-            }
-            case BC_PUSH_CONSTANT: {
-                pVMObject constant = method->GetConstant(bc_idx);
-                pVMClass c = constant->GetClass();
-                pVMSymbol cname = c->GetName();
-
-                DebugPrint("(index: %d) value: (%s) ", BC_1,
-                cname->GetChars());
-                dispatch(constant);
-                DebugPrint("\n");
-                break;
-            }
-            case BC_PUSH_GLOBAL: {
-                pVMSymbol name = (pVMSymbol)(method->GetConstant(bc_idx));
-                pVMObject o = _UNIVERSE->GetGlobal(name);
-                pVMSymbol cname;
-
-                char* c_cname;
-                if(o) {
-                    pVMClass c = o->GetClass();
-                    cname = c->GetName();
-
-                    c_cname = cname->GetChars();
-                } else
-                c_cname = "NULL";
-
-                DebugPrint("(index: %d)value: %s <(%s) ", BC_1,
-                name->GetChars(), c_cname);
-                dispatch(o);
-                DebugPrint(">\n");
-                break;
-            }
-            case BC_POP: {
-                size_t sp = frame->GetStackPointer()->GetEmbeddedInteger();
-                pVMObject o = (*(pVMArray)frame)[sp];
-                pVMClass c = o->GetClass();
-                pVMSymbol cname = c->GetName();
-
-                DebugPrint("popped <(%s) ", cname->GetChars());
-                //dispatch
-                dispatch(o);
-                DebugPrint(">\n");
-                break;
-            }
-            case BC_POP_LOCAL: {
-                size_t sp = frame->GetStackPointer()->GetEmbeddedInteger();
-                pVMObject o = (*(pVMArray)frame)[sp];
-                pVMClass c = o->GetClass();
-                pVMSymbol cname = c->GetName();
-
-                DebugPrint("popped local: %d, context: %d <(%s) ", BC_1, BC_2,
-                cname->GetChars());
-                //dispatch
-                dispatch(o);
-                DebugPrint(">\n");
-                break;
-            }
-            case BC_POP_ARGUMENT: {
-                size_t sp = frame->GetStackPointer()->GetEmbeddedInteger();
-                pVMObject o = (*(pVMArray)frame)[sp];
-                pVMClass c = o->GetClass();
-                pVMSymbol cname = c->GetName();
-                DebugPrint("argument: %d, context: %d <(%s) ", BC_1, BC_2,
-                cname->GetChars());
-                //dispatch
-                dispatch(o);
-                DebugPrint(">\n");
-                break;
-            }
-            case BC_POP_FIELD: {
-                size_t sp = frame->GetStackPointer()->GetEmbeddedInteger();
-                pVMObject o = (*(pVMArray)frame)[sp];
-                pVMSymbol name = (pVMSymbol)(method->GetConstant(bc_idx));
-                pVMClass c = o->GetClass();
-                pVMSymbol cname = c->GetName();
-
-                DebugPrint("(index: %d) field: %s <(%s) ", BC_1,
-                name->GetChars(),
-                cname->GetChars());
-                dispatch(o);
-                DebugPrint(">\n");
-                break;
-            }
-            case BC_SUPER_SEND:
-            case BC_SEND: {
-                pVMSymbol sel = (pVMSymbol)(method->GetConstant(bc_idx));
-
-                DebugPrint("(index: %d) signature: %s (", BC_1,
-                sel->GetChars());
-                //handle primitives, they don't increase call-depth
-                pVMObject elem = _UNIVERSE->GetInterpreter()->GetFrame()->
-                GetStackElement(
-                Signature::GetNumberOfArguments(sel)-1);
-                pVMClass elemClass = elem->GetClass();
-                pVMInvokable inv = dynamic_cast<pVMInvokable>(
-                elemClass->LookupInvokable(sel));
-
-                if(inv != NULL && inv->IsPrimitive())
-                DebugPrint("*)\n");
-                else {
-                    DebugPrint("\n");
-                    indentc++; ikind='>'; // visual
-                }
-                break;
-            }
-            case BC_RETURN_LOCAL:
-            case BC_RETURN_NON_LOCAL: {
-                DebugPrint(")\n");
-                indentc--; ikind='<'; //visual
-                break;
-            }
-            default:
-            DebugPrint("<incorrect bytecode>\n");
+    switch(bc) {
+        case BC_HALT: {
+            DebugPrint("<halting>\n\n\n");
             break;
         }
+        case BC_DUP: {
+            pVMObject o = frame->GetStackElement(0);
+            if (o) {
+                pVMClass c = o->GetClass();
+                pVMSymbol cname = c->GetName();
+
+                DebugPrint("<to dup: (%s) ", cname->GetChars());
+                //dispatch
+                dispatch(o);
+            } else
+                DebugPrint("<to dup: address: %p", (void*)o);
+            DebugPrint(">\n");
+            break;
+        }
+        case BC_PUSH_LOCAL: {
+            uint8_t bc1 = BC_1, bc2 = BC_2;
+            pVMObject o = frame->GetLocal(bc1, bc2);
+            pVMClass c = o->GetClass();
+            pVMSymbol cname = c->GetName();
+
+            DebugPrint("local: %d, context: %d <(%s) ",
+            BC_1, BC_2, cname->GetChars());
+            //dispatch
+            dispatch(o);
+            DebugPrint(">\n");
+            break;
+        }
+        case BC_PUSH_ARGUMENT: {
+            uint8_t bc1 = BC_1, bc2 = BC_2;
+            pVMObject o = frame->GetArgument(bc1, bc2);
+            DebugPrint("argument: %d, context: %d", bc1, bc2);
+            if(dynamic_cast<pVMClass>(cl) != NULL) {
+                pVMClass c = o->GetClass();
+                pVMSymbol cname = c->GetName();
+
+                DebugPrint("<(%s) ", cname->GetChars());
+                //dispatch
+                dispatch(o);
+                DebugPrint(">");
+            }
+            DebugPrint("\n");
+            break;
+        }
+        case BC_PUSH_FIELD: {
+            pVMFrame ctxt = frame->GetOuterContext();
+            pVMObject arg = ctxt->GetArgument(0, 0);
+            pVMSymbol name = static_cast<pVMSymbol>(method->GetConstant(bc_idx));
+            int field_index = arg->GetFieldIndex(name);
+
+            pVMObject o = arg->GetField(field_index);
+            pVMClass c = o->GetClass();
+            pVMSymbol cname = c->GetName();
+
+            DebugPrint("(index: %d) field: %s <(%s) ", BC_1,
+            name->GetChars(), cname->GetChars());
+            //dispatch
+            dispatch(o);
+            DebugPrint(">\n");
+            break;
+        }
+        case BC_PUSH_BLOCK: {
+            DebugPrint("block: (index: %d) ", BC_1);
+            pVMMethod meth = dynamic_cast<pVMMethod>(method->GetConstant(bc_idx));
+            DumpMethod(meth, "$");
+            break;
+        }
+        case BC_PUSH_CONSTANT: {
+            pVMObject constant = method->GetConstant(bc_idx);
+            pVMClass c = constant->GetClass();
+            pVMSymbol cname = c->GetName();
+
+            DebugPrint("(index: %d) value: (%s) ", BC_1,
+            cname->GetChars());
+            dispatch(constant);
+            DebugPrint("\n");
+            break;
+        }
+        case BC_PUSH_GLOBAL: {
+            pVMSymbol name = static_cast<pVMSymbol>(method->GetConstant(bc_idx));
+            pVMObject o = _UNIVERSE->GetGlobal(name);
+            pVMSymbol cname;
+
+            const char* c_cname;
+            if (o) {
+                pVMClass c = o->GetClass();
+                cname = c->GetName();
+
+                c_cname = cname->GetChars();
+            } else
+                c_cname = "NULL";
+
+            DebugPrint("(index: %d)value: %s <(%s) ", BC_1,
+            name->GetChars(), c_cname);
+            dispatch(o);
+            DebugPrint(">\n");
+            break;
+        }
+        case BC_POP: {
+            size_t sp = frame->GetStackPointer()->GetEmbeddedInteger();
+            pVMObject o = (*(pVMArray)frame)[sp];
+            pVMClass c = o->GetClass();
+            pVMSymbol cname = c->GetName();
+
+            DebugPrint("popped <(%s) ", cname->GetChars());
+            //dispatch
+            dispatch(o);
+            DebugPrint(">\n");
+            break;
+        }
+        case BC_POP_LOCAL: {
+            size_t sp = frame->GetStackPointer()->GetEmbeddedInteger();
+            pVMObject o = (*(pVMArray)frame)[sp];
+            pVMClass c = o->GetClass();
+            pVMSymbol cname = c->GetName();
+
+            DebugPrint("popped local: %d, context: %d <(%s) ", BC_1, BC_2,
+            cname->GetChars());
+            //dispatch
+            dispatch(o);
+            DebugPrint(">\n");
+            break;
+        }
+        case BC_POP_ARGUMENT: {
+            size_t sp = frame->GetStackPointer()->GetEmbeddedInteger();
+            pVMObject o = (*(pVMArray)frame)[sp];
+            pVMClass c = o->GetClass();
+            pVMSymbol cname = c->GetName();
+            DebugPrint("argument: %d, context: %d <(%s) ", BC_1, BC_2,
+            cname->GetChars());
+            //dispatch
+            dispatch(o);
+            DebugPrint(">\n");
+            break;
+        }
+        case BC_POP_FIELD: {
+            size_t sp = frame->GetStackPointer()->GetEmbeddedInteger();
+            pVMObject o = (*(pVMArray)frame)[sp];
+            pVMSymbol name = static_cast<pVMSymbol>(method->GetConstant(bc_idx));
+            pVMClass c = o->GetClass();
+            pVMSymbol cname = c->GetName();
+
+            DebugPrint("(index: %d) field: %s <(%s) ", BC_1,
+            name->GetChars(),
+            cname->GetChars());
+            dispatch(o);
+            DebugPrint(">\n");
+            break;
+        }
+        case BC_SUPER_SEND:
+        case BC_SEND: {
+            pVMSymbol sel = static_cast<pVMSymbol>(method->GetConstant(bc_idx));
+
+            DebugPrint("(index: %d) signature: %s (", BC_1,
+            sel->GetChars());
+            //handle primitives, they don't increase call-depth
+            pVMObject elem = _UNIVERSE->GetInterpreter()->GetFrame()->
+            GetStackElement(
+            Signature::GetNumberOfArguments(sel)-1);
+            pVMClass elemClass = elem->GetClass();
+            pVMInvokable inv = dynamic_cast<pVMInvokable>(
+            elemClass->LookupInvokable(sel));
+
+            if(inv != NULL && inv->IsPrimitive())
+                DebugPrint("*)\n");
+            else {
+                DebugPrint("\n");
+                indentc++; ikind='>'; // visual
+            }
+            break;
+        }
+        case BC_RETURN_LOCAL:
+        case BC_RETURN_NON_LOCAL: {
+            DebugPrint(")\n");
+            indentc--; ikind='<'; //visual
+            break;
+        }
+        default:
+            DebugPrint("<incorrect bytecode>\n");
+            break;
     }
+}
 
 // EOF: diassembler.c
 

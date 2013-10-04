@@ -30,9 +30,9 @@
 
 #include "MethodGenerationContext.h"
 
-#include "../interpreter/bytecodes.h"
+#include <interpreter/bytecodes.h>
 
-#include "../misc/defs.h"
+#include <misc/defs.h>
 
 class VMMethod;
 class VMSymbol;

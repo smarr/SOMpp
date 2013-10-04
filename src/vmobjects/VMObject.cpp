@@ -134,5 +134,4 @@ void VMObject::MarkReferences() {
         pVMObject o = (FIELDS[i]);
         o->MarkReferences();
     }
-
 }

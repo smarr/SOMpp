@@ -41,7 +41,6 @@ public:
     VMSymbol(const char* str);
     VMSymbol(const StdString& s);
     virtual StdString GetPlainString() const;
-
 };
 
 #endif

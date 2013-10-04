@@ -34,7 +34,6 @@
 #include "../primitivesCore/Routine.h"
 
 pVMPrimitive VMPrimitive::GetEmptyPrimitive( pVMSymbol sig ) {
-
     pVMPrimitive prim = new (_HEAP) VMPrimitive(sig);
     prim->empty = true;
     prim->SetRoutine(new Routine<VMPrimitive>(prim, &VMPrimitive::EmptyRoutine));
@@ -71,7 +70,7 @@ void VMPrimitive::MarkReferences() {
 }
 
 void VMPrimitive::EmptyRoutine( pVMObject _self, pVMFrame /*frame*/) {
-    pVMInvokable self = (pVMInvokable)( _self );
+    pVMInvokable self = static_cast<pVMInvokable>(_self);
     pVMSymbol sig = self->GetSignature();
     cout << "undefined primitive called: " << sig->GetChars() << endl;
 }

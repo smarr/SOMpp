@@ -271,10 +271,10 @@ void Universe::initialize(int _argc, char** _argv) {
 
     pVMFrame bootstrapFrame = interpreter->PushNewFrame(bootstrapMethod);
     bootstrapFrame->Push(systemObject);
-    bootstrapFrame->Push((pVMObject) argumentsArray);
+    bootstrapFrame->Push(argumentsArray);
 
     pVMInvokable initialize =
-    dynamic_cast<pVMInvokable>(systemClass->LookupInvokable(this->SymbolForChars("initialize:")));
+        static_cast<pVMInvokable>(systemClass->LookupInvokable(this->SymbolForChars("initialize:")));
     (*initialize)(bootstrapFrame);
 
     // reset "-d" indicator
@@ -352,7 +352,7 @@ void Universe::InitializeGlobals() {
 
     blockClass = LoadClass(_UNIVERSE->SymbolForChars("Block"));
 
-    trueObject = NewInstance(_UNIVERSE->LoadClass(_UNIVERSE->SymbolForChars("True")));
+    trueObject  = NewInstance(_UNIVERSE->LoadClass(_UNIVERSE->SymbolForChars("True")));
     falseObject = NewInstance(_UNIVERSE->LoadClass(_UNIVERSE->SymbolForChars("False")));
 
     systemClass = LoadClass(_UNIVERSE->SymbolForChars("System"));
@@ -378,7 +378,7 @@ pVMClass Universe::GetBlockClassWithArgs( int numberOfArguments) {
     pVMSymbol name = SymbolFor(blockName);
 
     if (HasGlobal(name))
-    return (pVMClass)GetGlobal(name);
+        return (pVMClass)GetGlobal(name);
 
     pVMClass result = LoadClassBasic(name, NULL);
 
@@ -389,9 +389,9 @@ pVMClass Universe::GetBlockClassWithArgs( int numberOfArguments) {
     return result;
 }
 
-pVMObject Universe::GetGlobal( pVMSymbol name) {
+pVMObject Universe::GetGlobal(pVMSymbol name) {
     if (HasGlobal(name))
-    return (pVMObject)globals[name];
+        return (pVMObject)globals[name];
 
     return NULL;
 }
@@ -429,13 +429,13 @@ pVMClass superClass, const char* name) {
     StdString classClassName(Str.str());
     sysClassClass->SetName(SymbolFor(classClassName));
 
-    SetGlobal(systemClass->GetName(), (pVMObject)systemClass);
+    SetGlobal(systemClass->GetName(), systemClass);
 
 }
 
 pVMClass Universe::LoadClass( pVMSymbol name) {
     if (HasGlobal(name))
-    return dynamic_cast<pVMClass>(GetGlobal(name));
+        return static_cast<pVMClass>(GetGlobal(name));
 
     pVMClass result = LoadClassBasic(name, NULL);
 
@@ -541,7 +541,7 @@ pVMBlock Universe::NewBlock( pVMMethod method, pVMFrame context, int arguments) 
     return result;
 }
 
-pVMClass Universe::NewClass( pVMClass classOfClass) const {
+pVMClass Universe::NewClass(pVMClass classOfClass) const {
     int numFields = classOfClass->GetNumberOfInstanceFields();
     pVMClass result;
     int additionalBytes = numFields * sizeof(pVMObject);
@@ -553,13 +553,13 @@ pVMClass Universe::NewClass( pVMClass classOfClass) const {
     return result;
 }
 
-pVMDouble Universe::NewDouble( double value) const {
+pVMDouble Universe::NewDouble(double value) const {
     pVMDouble result = new (_HEAP) VMDouble(value);
     result->SetClass(doubleClass);
     return result;
 }
 
-pVMFrame Universe::NewFrame( pVMFrame previousFrame, pVMMethod method) const {
+pVMFrame Universe::NewFrame(pVMFrame previousFrame, pVMMethod method) const {
     int length = method->GetNumberOfArguments() +
     method->GetNumberOfLocals()+
     method->GetMaximumNumberOfStackElements();
@@ -659,20 +659,18 @@ pVMClass Universe::NewSystemClass() const {
     return systemClass;
 }
 
-pVMSymbol Universe::SymbolFor( const StdString& str) {
+pVMSymbol Universe::SymbolFor(const StdString& str) {
     return SymbolForChars(str.c_str());
 
 }
 
-pVMSymbol Universe::SymbolForChars( const char* str) {
+pVMSymbol Universe::SymbolForChars(const char* str) {
     pVMSymbol result = symboltable->lookup(str);
 
-    return (result != NULL) ?
-    result :
-    NewSymbol(str);
+    return (result != NULL) ? result : NewSymbol(str);
 }
 
-void Universe::SetGlobal(pVMSymbol name, VMObject *val) {
+void Universe::SetGlobal(pVMSymbol name, pVMObject val) {
     globals[name] = val;
 }
 

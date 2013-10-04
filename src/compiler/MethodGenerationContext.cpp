@@ -153,7 +153,7 @@ uint8_t MethodGenerationContext::ComputeStackDepth() {
         case BC_SUPER_SEND: {
             // these are special: they need to look at the number of
             // arguments (extractable from the signature)
-            pVMSymbol sig = (pVMSymbol)literals.Get(bytecode[i + 1]);
+            pVMSymbol sig = static_cast<pVMSymbol>(literals.Get(bytecode[i + 1]));
 
             depth -= Signature::GetNumberOfArguments(sig);
 
@@ -164,13 +164,13 @@ uint8_t MethodGenerationContext::ComputeStackDepth() {
         case BC_RETURN_LOCAL :
         case BC_RETURN_NON_LOCAL : i++; break;
         default :
-        cout << "Illegal bytecode: " << bytecode[i];
-        _UNIVERSE->Quit(1);
-    }
+            cout << "Illegal bytecode: " << bytecode[i];
+            _UNIVERSE->Quit(1);
+        }
 
-    if(depth > maxDepth)
-    maxDepth = depth;
-}
+        if (depth > maxDepth)
+            maxDepth = depth;
+    }
 
     return maxDepth;
 }

@@ -37,10 +37,10 @@
 _Symbol* Symbol;
 
 void _Symbol::AsString(pVMObject /*object*/, pVMFrame frame) {
-    pVMSymbol sym = (pVMSymbol) frame->Pop();
+    pVMSymbol sym = static_cast<pVMSymbol>(frame->Pop());
 
     StdString str = sym->GetStdString();
-    frame->Push((pVMObject)_UNIVERSE->NewString(str));
+    frame->Push(_UNIVERSE->NewString(str));
 }
 
 _Symbol::_Symbol() :
