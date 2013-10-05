@@ -162,7 +162,7 @@ pVMFrame Interpreter::popFrame() {
     return result;
 }
 
-void Interpreter::popFrameAndPushResult( pVMObject result ) {
+void Interpreter::popFrameAndPushResult(pVMObject result ) {
     pVMFrame prevFrame = this->popFrame();
 
     pVMMethod method = prevFrame->GetMethod();
@@ -173,9 +173,9 @@ void Interpreter::popFrameAndPushResult( pVMObject result ) {
     _FRAME->Push(result);
 }
 
-void Interpreter::send( pVMSymbol signature, pVMClass receiverClass) {
     pVMInvokable invokable =
     dynamic_cast<pVMInvokable>( receiverClass->LookupInvokable(signature) );
+void Interpreter::send(pVMSymbol signature, pVMClass receiverClass) {
 
     if (invokable != NULL) {
         (*invokable)(_FRAME);
