@@ -369,12 +369,12 @@ void Interpreter::doPushConstant(long bytecodeIndex) {
     _FRAME->Push(constant);
 }
 
-void Interpreter::doPushGlobal(long bcIdx) {
-    pVMSymbol globalName = static_cast<pVMSymbol>(method->GetConstant(bcIdx));
+void Interpreter::doPushGlobal(long bytecodeIndex) {
+    pVMSymbol globalName = static_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));
     pVMObject global = _UNIVERSE->GetGlobal(globalName);
 
     if(global != NULL)
-    _FRAME->Push(global);
+        _FRAME->Push(global);
     else {
         pVMObject arguments[] = {globalName};
         pVMObject self = _SELF;

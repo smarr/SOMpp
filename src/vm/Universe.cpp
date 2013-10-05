@@ -457,7 +457,7 @@ pVMClass Universe::GetBlockClass() const {
     return blockClass;
 }
 
-pVMClass Universe::GetBlockClassWithArgs( long numberOfArguments) {
+pVMClass Universe::GetBlockClassWithArgs(long numberOfArguments) {
     map<long, pVMClass>::iterator it =
     blockClassesByNoOfArgs.find(numberOfArguments);
     if (it != blockClassesByNoOfArgs.end())
@@ -628,7 +628,7 @@ pVMBigInteger Universe::NewBigInteger( int64_t value) const {
     return new (_HEAP) VMBigInteger(value);
 }
 
-pVMBlock Universe::NewBlock( pVMMethod method, pVMFrame context, long arguments) {
+pVMBlock Universe::NewBlock(pVMMethod method, pVMFrame context, long arguments) {
     pVMBlock result = new (_HEAP) VMBlock;
     result->SetClass(this->GetBlockClassWithArgs(arguments));
 
@@ -641,7 +641,7 @@ pVMBlock Universe::NewBlock( pVMMethod method, pVMFrame context, long arguments)
     return result;
 }
 
-pVMClass Universe::NewClass( pVMClass classOfClass) const {
+pVMClass Universe::NewClass(pVMClass classOfClass) const {
     long numFields = classOfClass->GetNumberOfInstanceFields();
     pVMClass result;
     long additionalBytes = numFields * sizeof(pVMObject);

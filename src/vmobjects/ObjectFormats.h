@@ -69,4 +69,5 @@
 #define pVMString VMString* 
 #define pVMSymbol VMSymbol* 
 #define VMOBJECT_PTR AbstractVMObject*
+
 #endif OBJECTFORMATS_H_

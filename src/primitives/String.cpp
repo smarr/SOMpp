@@ -125,18 +125,17 @@ void _String::PrimSubstringFrom_to_(pVMObject /*object*/, pVMFrame frame) {
     pVMInteger start = static_cast<pVMInteger>(frame->Pop());
 
     pVMString self = static_cast<pVMString>(frame->Pop());
-
     StdString str = self->GetStdString();
 #ifdef USE_TAGGING
-        int s = UNTAG_INTEGER(start) - 1;
-        int e = UNTAG_INTEGER(end) - 1;
+    int s = UNTAG_INTEGER(start) - 1;
+    int e = UNTAG_INTEGER(end) - 1;
 #else
-        int s = start->GetEmbeddedInteger() - 1;
-        int e = end->GetEmbeddedInteger() - 1;
+    int s = start->GetEmbeddedInteger() - 1;
+    int e = end->GetEmbeddedInteger() - 1;
 #endif
 
-        StdString result = str.substr(s, e - s + 1);
+    StdString result = str.substr(s, e - s + 1);
 
-        frame->Push( _UNIVERSE->NewString(result));
-    }
+    frame->Push( _UNIVERSE->NewString(result));
+}
 

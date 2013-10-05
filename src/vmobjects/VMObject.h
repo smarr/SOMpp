@@ -126,15 +126,15 @@ private:
 };
 
 size_t VMObject::GetObjectSize() const {
-return objectSize;
+    return objectSize;
 }
 
 void VMObject::SetObjectSize(size_t size) {
-objectSize = size;
+    objectSize = size;
 }
 
 pVMClass VMObject::GetClass() const {
-return clazz;
+    return clazz;
 }
 
 long VMObject::GetNumberOfFields() const {

@@ -403,7 +403,7 @@ void _Integer::AtRandom(pVMObject /*object*/, pVMFrame frame) {
     frame->Push(TAG_INTEGER(result));
 #else
     int32_t result = (self->GetEmbeddedInteger() * rand())%INT32_MAX;
-    frame->Push( _UNIVERSE->NewInteger(result));
+    frame->Push(_UNIVERSE->NewInteger(result));
 #endif
 }
 
