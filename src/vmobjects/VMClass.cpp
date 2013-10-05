@@ -137,7 +137,7 @@ pVMInvokable VMClass::GetInstanceInvokable(int index) const {
 void VMClass::SetInstanceInvokable(int index, pVMObject invokable) {
     (*instanceInvokables)[index] = invokable;
     if (invokable != nilObject) {
-        pVMInvokable inv = dynamic_cast<pVMInvokable>( invokable );
+        pVMInvokable inv = static_cast<pVMInvokable>( invokable );
         inv->SetHolder(this);
     }
 }

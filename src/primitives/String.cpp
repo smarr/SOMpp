@@ -76,7 +76,7 @@ void _String::AsSymbol(pVMObject /*object*/, pVMFrame frame) {
 
 void _String::Hashcode(pVMObject /*object*/, pVMFrame frame) {
     pVMString self = static_cast<pVMString>(frame->Pop());
-    frame->Push((pVMObject)_UNIVERSE->NewInteger(self->GetHash()));
+    frame->Push(_UNIVERSE->NewInteger(self->GetHash()));
 }
 
 void _String::Length(pVMObject /*object*/, pVMFrame frame) {

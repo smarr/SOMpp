@@ -384,7 +384,7 @@ pVMClass Universe::GetBlockClassWithArgs( int numberOfArguments) {
 
     result->AddInstancePrimitive(new (_HEAP) VMEvaluationPrimitive(numberOfArguments) );
 
-    SetGlobal(name, (pVMObject) result);
+    SetGlobal(name, result);
 
     return result;
 }

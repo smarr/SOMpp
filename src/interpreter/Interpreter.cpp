@@ -75,7 +75,7 @@ void Interpreter::Start() {
 
         _FRAME->SetBytecodeIndex(nextBytecodeIndex);
 
-// Handle the current bytecode
+        // Handle the current bytecode
         switch (bytecode) {
         case BC_HALT:
             return; // handle the halt bytecode

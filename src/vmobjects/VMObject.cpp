@@ -60,7 +60,7 @@ void VMObject::Send(StdString selectorString, pVMObject* arguments, int argc) {
     }
 
     pVMClass cl = this->GetClass();
-    pVMInvokable invokable = (pVMInvokable)(cl->LookupInvokable(selector));
+    pVMInvokable invokable = cl->LookupInvokable(selector);
     (*invokable)(frame);
 }
 
