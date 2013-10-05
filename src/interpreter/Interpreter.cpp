@@ -173,9 +173,8 @@ void Interpreter::popFrameAndPushResult(pVMObject result ) {
     _FRAME->Push(result);
 }
 
-    pVMInvokable invokable =
-    dynamic_cast<pVMInvokable>( receiverClass->LookupInvokable(signature) );
 void Interpreter::send(pVMSymbol signature, pVMClass receiverClass) {
+    pVMInvokable invokable = receiverClass->LookupInvokable(signature);
 
     if (invokable != NULL) {
         (*invokable)(_FRAME);

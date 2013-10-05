@@ -50,13 +50,14 @@
  * of an Integer operation).
  */
 #define CHECK_COERCION(obj,receiver,op) { \
-    if(dynamic_cast<pVMBigInteger>(obj) != NULL) { \
+    pVMClass cl = obj->GetClass(); \
+    if (cl == bigIntegerClass) { \
         resendAsBigInteger( \
-            object, (op), (receiver), (pVMBigInteger)(obj)); \
+            object, (op), (receiver), static_cast<pVMBigInteger>(obj)); \
         return; \
-    } else if(dynamic_cast<pVMDouble>(obj) != NULL) { \
+    } else if (cl== doubleClass) { \
         resendAsDouble( \
-            object, (op), (receiver), (pVMDouble)(obj)); \
+            object, (op), (receiver), static_cast<pVMDouble>(obj)); \
         return; \
     } \
 }
@@ -259,23 +260,21 @@ void _Integer::Equal(pVMObject object, pVMFrame frame) {
 
     CHECK_COERCION(rightObj, left, "=");
 
-    if (dynamic_cast<pVMInteger>(rightObj) != NULL) {
+    if (rightObj->GetClass() == integerClass) {
         // Second operand was Integer:
-        pVMInteger right = (pVMInteger)rightObj;
-
-        if(left->GetEmbeddedInteger()
-        == right->GetEmbeddedInteger())
-        frame->Push(trueObject);
+        pVMInteger right = static_cast<pVMInteger>(rightObj);
+        if (left->GetEmbeddedInteger() == right->GetEmbeddedInteger())
+            frame->Push(trueObject);
         else
-        frame->Push(falseObject);
-    } else if(dynamic_cast<pVMDouble>(rightObj) != NULL) {
+            frame->Push(falseObject);
+    } else if (rightObj->GetClass() == doubleClass) {
         // Second operand was Double:
         pVMDouble right = (pVMDouble)rightObj;
 
         if ((double)left->GetEmbeddedInteger() == right->GetEmbeddedDouble())
-        frame->Push(trueObject);
+            frame->Push(trueObject);
         else
-        frame->Push(falseObject);
+            frame->Push(falseObject);
     }
     else
         frame->Push(falseObject);

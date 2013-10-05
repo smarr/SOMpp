@@ -46,12 +46,13 @@
  * true nature. This is to make sure that all Double operations return Doubles.
  */
 double _Double::coerceDouble(pVMObject x) {
-    if (dynamic_cast<pVMDouble>(x) != NULL)
-        return ((pVMDouble)x)->GetEmbeddedDouble();
-    else if(dynamic_cast<pVMInteger>(x) != NULL)
-        return (double)((pVMInteger)x)->GetEmbeddedInteger();
-    else if(dynamic_cast<pVMBigInteger>(x) != NULL)
-        return (double)((pVMBigInteger)x)->GetEmbeddedInteger();
+    pVMClass cl = x->GetClass();
+    if (cl == doubleClass)
+        return static_cast<pVMDouble>(x)->GetEmbeddedDouble();
+    else if(cl == integerClass)
+        return (double)static_cast<pVMInteger>(x)->GetEmbeddedInteger();
+    else if(cl == bigIntegerClass)
+        return (double)static_cast<pVMBigInteger>(x)->GetEmbeddedInteger();
     else
         _UNIVERSE->ErrorExit("Attempt to apply Double operation to non-number.");
 
