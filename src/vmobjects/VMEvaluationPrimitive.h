@@ -35,11 +35,11 @@ class VMFrame;
 
 class VMEvaluationPrimitive: public VMPrimitive {
 public:
-    VMEvaluationPrimitive(int argc);
+    VMEvaluationPrimitive(long argc);
 
     virtual void MarkReferences();
 private:
-    static pVMSymbol computeSignatureString(int argc);
+    static pVMSymbol computeSignatureString(long argc);
     void evaluationRoutine(pVMObject object, pVMFrame frame);
     pVMInteger numberOfArguments;
 

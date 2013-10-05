@@ -35,9 +35,9 @@ class VMInteger;
 
 class VMFrame: public VMArray {
 public:
-    static pVMFrame EmergencyFrameFrom(pVMFrame from, int extraLength);
+    static pVMFrame EmergencyFrameFrom(pVMFrame from, long extraLength);
 
-    VMFrame(int size, int nof = 0);
+    VMFrame(long size, long nof = 0);
 
     virtual inline pVMFrame GetPreviousFrame() const;
     virtual inline void SetPreviousFrame(pVMFrame);
@@ -47,29 +47,29 @@ public:
     virtual inline pVMFrame GetContext() const;
     virtual inline void SetContext(pVMFrame);
     virtual bool HasContext() const;
-    virtual pVMFrame GetContextLevel(int);
+    virtual pVMFrame GetContextLevel(long);
     virtual pVMFrame GetOuterContext();
     virtual pVMMethod GetMethod() const;
     virtual void SetMethod(pVMMethod);
     virtual pVMObject Pop();
     virtual void Push(pVMObject);
     virtual void ResetStackPointer();
-    virtual int GetBytecodeIndex() const;
-    virtual void SetBytecodeIndex(int);
-    virtual pVMObject GetStackElement(int) const;
-    virtual void SetStackElement(int, pVMObject);
-    virtual pVMObject GetLocal(int, int);
-    virtual void SetLocal(int, int, pVMObject);
-    virtual pVMObject GetArgument(int, int);
-    virtual void SetArgument(int, int, pVMObject);
+    virtual long GetBytecodeIndex() const;
+    virtual void SetBytecodeIndex(long);
+    virtual pVMObject GetStackElement(long) const;
+    virtual void SetStackElement(long, pVMObject);
+    virtual pVMObject GetLocal(long, long);
+    virtual void SetLocal(long, long, pVMObject);
+    virtual pVMObject GetArgument(long, long);
+    virtual void SetArgument(long, long, pVMObject);
     virtual void PrintStackTrace() const;
-    virtual int ArgumentStackIndex(int index) const;
+    virtual long ArgumentStackIndex(long index) const;
     virtual void CopyArgumentsFrom(pVMFrame frame);
 
     virtual void MarkReferences();
     virtual void PrintStack() const;
     virtual inline pVMInteger GetStackPointer() const;
-    virtual int RemainingStackSize() const;
+    virtual long RemainingStackSize() const;
 private:
     pVMFrame previousFrame;
     pVMFrame context;
@@ -78,7 +78,7 @@ private:
     pVMInteger bytecodeIndex;
     pVMInteger localOffset;
 
-    static const int VMFrameNumberOfFields;
+    static const long VMFrameNumberOfFields;
 };
 
 bool VMFrame::IsBootstrapFrame() const {

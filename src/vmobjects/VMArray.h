@@ -33,17 +33,18 @@
 
 class VMArray: public VMObject {
 public:
-    VMArray(int size, int nof = 0);
+    VMArray(long size, long nof = 0);
     //virtual ~VMArray();
     virtual void MarkReferences();
 
-    virtual int GetNumberOfIndexableFields() const;pVMArray CopyAndExtendWith(pVMObject) const;
+    virtual long GetNumberOfIndexableFields() const;
+    pVMArray CopyAndExtendWith(pVMObject) const;
     void CopyIndexableFieldsTo(pVMArray) const;
 
-    pVMObject& operator[](int idx) const;
+    pVMObject& operator[](long idx) const;
 
 private:
-    static const int VMArrayNumberOfFields;
+    static const long VMArrayNumberOfFields;
 };
 
 #endif

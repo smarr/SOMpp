@@ -33,7 +33,7 @@ VMInteger::VMInteger() :
     embeddedInteger = 0;
 }
 
-VMInteger::VMInteger(int32_t val) :
+VMInteger::VMInteger(long val) :
         VMObject(VMIntegerNumberOfFields) {
     embeddedInteger = val;
 }

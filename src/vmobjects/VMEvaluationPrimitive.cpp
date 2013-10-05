@@ -36,7 +36,7 @@
 //needed to instanciate the Routine object for the evaluation routine
 #include "../primitivesCore/Routine.h"
 
-VMEvaluationPrimitive::VMEvaluationPrimitive(int argc) :
+VMEvaluationPrimitive::VMEvaluationPrimitive(long argc) :
         VMPrimitive(computeSignatureString(argc)) {
     _HEAP->StartUninterruptableAllocation();
     this->SetRoutine(new Routine<VMEvaluationPrimitive>(this,
@@ -51,7 +51,7 @@ void VMEvaluationPrimitive::MarkReferences() {
     this->numberOfArguments->MarkReferences();
 }
 
-pVMSymbol VMEvaluationPrimitive::computeSignatureString(int argc) {
+pVMSymbol VMEvaluationPrimitive::computeSignatureString(long argc) {
 #define VALUE_S "value"
 #define VALUE_LEN 5
 #define WITH_S    "with:"
@@ -80,7 +80,7 @@ void VMEvaluationPrimitive::evaluationRoutine(pVMObject object, pVMFrame frame) 
     pVMEvaluationPrimitive self = static_cast<pVMEvaluationPrimitive>(object);
 
     // Get the block (the receiver) from the stack
-        int numArgs = self->numberOfArguments->GetEmbeddedInteger();
+        long numArgs = self->numberOfArguments->GetEmbeddedInteger();
         pVMBlock block = static_cast<pVMBlock>(frame->GetStackElement(numArgs - 1));
 
         // Get the context of the block...

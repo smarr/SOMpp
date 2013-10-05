@@ -45,7 +45,7 @@ protected:
     char* chars;
 
 private:
-    static const int VMStringNumberOfFields;
+    static const long VMStringNumberOfFields;
 };
 
 char* VMString::GetChars() const {

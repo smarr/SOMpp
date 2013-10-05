@@ -92,8 +92,8 @@ public:
 
     //static methods
     static Universe* GetUniverse();
-    static void Start(int argc, char** argv);
-    static void Quit(int);
+    static void Start(long argc, char** argv);
+    static void Quit(long);
     static void ErrorExit(const char*);
 
     //Globals accessor (only for GC, could be considered be 
@@ -116,15 +116,15 @@ public:
     pVMSymbol SymbolForChars(const char*);
 
     //VMObject instanciation methods. These should probably be refactored to a new class
-    pVMArray NewArray(int) const;
+    pVMArray NewArray(long) const;
     pVMArray NewArrayList(ExtendedList<pVMObject>& list) const;
     pVMArray NewArrayFromArgv(const vector<StdString>&) const;
-    pVMBlock NewBlock(pVMMethod, pVMFrame, int);
+    pVMBlock NewBlock(pVMMethod, pVMFrame, long);
     pVMClass NewClass(pVMClass) const;
     pVMFrame NewFrame(pVMFrame, pVMMethod) const;
     pVMMethod NewMethod(pVMSymbol, size_t, size_t) const;
     pVMObject NewInstance(pVMClass) const;
-    pVMInteger NewInteger(int32_t) const;
+    pVMInteger NewInteger(long) const;
     pVMBigInteger NewBigInteger(int64_t) const;
     pVMDouble NewDouble(double) const;
     pVMClass NewMetaclassClass(void) const;
@@ -141,7 +141,7 @@ public:
     bool HasGlobal(pVMSymbol);
     void InitializeGlobals();
     pVMClass GetBlockClass(void) const;
-    pVMClass GetBlockClassWithArgs(int);
+    pVMClass GetBlockClassWithArgs(long);
 
     pVMClass LoadClass(pVMSymbol);
     void LoadSystemClass(pVMClass);
@@ -154,19 +154,19 @@ public:
     ~Universe();
     //
 private:
-    vector<StdString> handleArguments(int argc, char** argv);
-    int getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;
+    vector<StdString> handleArguments(long argc, char** argv);
+    long getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;
 
     static Universe* theUniverse;
 
-    int setupClassPath(const StdString& cp);
-    int addClassPath(const StdString& cp);
+    long setupClassPath(const StdString& cp);
+    long addClassPath(const StdString& cp);
     void printUsageAndExit(char* executable) const;
 
-    void initialize(int, char**);
+    void initialize(long, char**);
 
     Heap* heap;
-    int heapSize;
+    long heapSize;
     map<pVMSymbol, pVMObject> globals;
     vector<StdString> classPath;
 

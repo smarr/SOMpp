@@ -30,13 +30,13 @@
 
 #define theEntries(i) FIELDS[this->GetNumberOfFields()+i]
 
-const int VMArray::VMArrayNumberOfFields = 0;
+const long VMArray::VMArrayNumberOfFields = 0;
 
-VMArray::VMArray(int size, int nof) :
+VMArray::VMArray(long size, long nof) :
         VMObject(nof + VMArrayNumberOfFields) {
     _HEAP->StartUninterruptableAllocation();
 
-    for (int i = 0; i < size; ++i) {
+    for (long i = 0; i < size; ++i) {
         (*this)[i] = nilObject;
     }
     _HEAP->EndUninterruptableAllocation();
@@ -51,7 +51,7 @@ pVMArray VMArray::CopyAndExtendWith(pVMObject item) const {
     return result;
 }
 
-pVMObject& VMArray::operator[](int idx) const {
+pVMObject& VMArray::operator[](long idx) const {
     if (idx > GetNumberOfIndexableFields()-1 || idx < 0) {
         cout << "Array index out of bounds: Accessing " << idx
         << ", but array size is only " << GetNumberOfIndexableFields()-1
@@ -62,13 +62,13 @@ pVMObject& VMArray::operator[](int idx) const {
 }
 
 void VMArray::CopyIndexableFieldsTo(pVMArray to) const {
-    for (int i = 0; i < this->GetNumberOfIndexableFields(); ++i) {
+    for (long i = 0; i < this->GetNumberOfIndexableFields(); ++i) {
         (*to)[i] = (*this)[i];
     }
 
 }
 
-int VMArray::GetNumberOfIndexableFields() const {
+long VMArray::GetNumberOfIndexableFields() const {
     return this->GetAdditionalSpaceConsumption() / sizeof(pVMObject);
 }
 

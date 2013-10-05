@@ -26,7 +26,7 @@
 
 #include "VMDouble.h"
 
-const int VMDouble::VMDoubleNumberOfFields = 0;
+const long VMDouble::VMDoubleNumberOfFields = 0;
 
 VMDouble::VMDouble() :
         VMObject(VMDoubleNumberOfFields) {

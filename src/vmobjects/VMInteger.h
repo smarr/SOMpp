@@ -35,21 +35,21 @@
 class VMInteger: public VMObject {
 public:
     VMInteger();
-    VMInteger(int32_t);
+    VMInteger(long);
 
-    inline void SetEmbeddedInteger(int32_t);
-    inline int32_t GetEmbeddedInteger() const;
+    inline void SetEmbeddedInteger(long);
+    inline long GetEmbeddedInteger() const;
 private:
-    int32_t embeddedInteger;
+    long embeddedInteger;
 
     static const int VMIntegerNumberOfFields;
 };
 
-void VMInteger::SetEmbeddedInteger(int32_t val) {
+void VMInteger::SetEmbeddedInteger(long val) {
     this->embeddedInteger = val;
 }
 
-int32_t VMInteger::GetEmbeddedInteger() const {
+long VMInteger::GetEmbeddedInteger() const {
     return this->embeddedInteger;
 }
 

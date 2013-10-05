@@ -63,7 +63,7 @@ void VMPrimitive::MarkReferences() {
     // during the GC's mark phase as they are not pointers the GC could possibly
     // interpret. Hence, they are omitted from the mark phase by adjusting the
     // upper bound of the following traversal loop.
-    for (int i = 0; i < this->GetNumberOfFields() - VMPrimitiveNumberOfFields;
+    for (long i = 0; i < this->GetNumberOfFields() - VMPrimitiveNumberOfFields;
             ++i) {
         GetField(i)->MarkReferences();
     }

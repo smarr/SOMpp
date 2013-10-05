@@ -59,20 +59,20 @@ class VMObject {
 
 public:
     /* Constructor */
-    VMObject(int numberOfFields = 0);
+    VMObject(long numberOfFields = 0);
 
     /* Virtual member functions */
     virtual pVMClass GetClass() const;
     virtual void SetClass(pVMClass cl);
-    virtual pVMSymbol GetFieldName(int index) const;
-    virtual int GetFieldIndex(pVMSymbol fieldName) const;
-    virtual int GetNumberOfFields() const;
-    virtual void SetNumberOfFields(int nof);
-    virtual int GetDefaultNumberOfFields() const;
-    virtual void Send(StdString, pVMObject*, int);
-    virtual pVMObject GetField(int index) const;
+    virtual pVMSymbol GetFieldName(long index) const;
+    virtual long GetFieldIndex(pVMSymbol fieldName) const;
+    virtual long GetNumberOfFields() const;
+    virtual void SetNumberOfFields(long nof);
+    virtual long GetDefaultNumberOfFields() const;
+    virtual void Send(StdString, pVMObject*, long);
+    virtual pVMObject GetField(long index) const;
     virtual void Assert(bool value) const;
-    virtual void SetField(int index, pVMObject value);
+    virtual void SetField(long index, pVMObject value);
     virtual void MarkReferences();
 
     virtual void IncreaseGCCount() {};
@@ -95,8 +95,8 @@ public:
      *   - array size in VMArray; a_b must be set to (size_of_array*sizeof(VMObect*))
      *   - fields in VMMethod, a_b must be set to (number_of_bc + number_of_csts*sizeof(pVMObject))
      */
-    void* operator new( size_t numBytes, Heap* heap,
-            unsigned int additionalBytes = 0) {
+    void* operator new(size_t numBytes, Heap* heap,
+            unsigned long additionalBytes = 0) {
         void* mem = (void*)heap->AllocateObject(numBytes + additionalBytes);
         return mem;
     }
@@ -111,20 +111,20 @@ public:
     }
 
 protected:
-    int GetAdditionalSpaceConsumption() const;
+    long GetAdditionalSpaceConsumption() const;
     //VMObject essentials
     intptr_t hash;
     size_t objectSize;//set by the heap at allocation time
-    intptr_t numberOfFields;
+    long numberOfFields;
     int32_t gcfield;
 
     //pVMObject* FIELDS;
-    //Start of fields. All members beyond this point are indexable 
-    //through FIELDS-macro instead of the member above. 
+    //Start of fields. All members beyond this point are indexable
+    //through FIELDS-macro instead of the member above.
     //So clazz == FIELDS[0]
     pVMClass clazz;
 private:
-    static const int VMObjectNumberOfFields;
+    static const long VMObjectNumberOfFields;
 };
 
 #endif

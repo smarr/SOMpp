@@ -47,7 +47,7 @@ class VMInvokable;
 class VMClass: public VMObject {
 public:
     VMClass();
-    VMClass(int numberOfFields);
+    VMClass(long numberOfFields);
 
     virtual inline pVMClass GetSuperClass() const;
     virtual inline void SetSuperClass(pVMClass);
@@ -58,15 +58,15 @@ public:
     virtual inline void SetInstanceFields(pVMArray);
     virtual inline pVMArray GetInstanceInvokables() const;
     virtual void SetInstanceInvokables(pVMArray);
-    virtual int GetNumberOfInstanceInvokables() const;
-    virtual pVMInvokable GetInstanceInvokable(int) const;
-    virtual void SetInstanceInvokable(int, pVMObject);
+    virtual long GetNumberOfInstanceInvokables() const;
+    virtual pVMInvokable GetInstanceInvokable(long) const;
+    virtual void SetInstanceInvokable(long, pVMObject);
     virtual pVMInvokable LookupInvokable(pVMSymbol) const;
-    virtual int LookupFieldIndex(pVMSymbol) const;
+    virtual long LookupFieldIndex(pVMSymbol) const;
     virtual bool AddInstanceInvokable(pVMObject);
     virtual void AddInstancePrimitive(pVMPrimitive);
-    virtual pVMSymbol GetInstanceFieldName(int)const;
-    virtual int GetNumberOfInstanceFields() const;
+    virtual pVMSymbol GetInstanceFieldName(long)const;
+    virtual long GetNumberOfInstanceFields() const;
     virtual bool HasPrimitives() const;
     virtual void LoadPrimitives(const vector<StdString>&);
 
@@ -81,15 +81,14 @@ private:
     void* loadLib(const StdString& path) const;
     bool isResponsible(void* handle, const StdString& cl) const;
     void setPrimitives(void* handle, const StdString& cname);
-
-    int numberOfSuperInstanceFields() const;
+    long numberOfSuperInstanceFields() const;
 
     pVMClass superClass;
     pVMSymbol name;
     pVMArray instanceFields;
     pVMArray instanceInvokables;
 
-    static const int VMClassNumberOfFields;
+    static const long VMClassNumberOfFields;
 };
 
 pVMClass VMClass::GetSuperClass() const {

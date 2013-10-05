@@ -61,17 +61,17 @@ Interpreter::~Interpreter() {
 
 void Interpreter::Start() {
     while (true) {
-        int bytecodeIndex = _FRAME->GetBytecodeIndex();
+        long bytecodeIndex = _FRAME->GetBytecodeIndex();
 
         pVMMethod method = this->GetMethod();
         uint8_t bytecode = method->GetBytecode(bytecodeIndex);
 
-        int bytecodeLength = Bytecode::GetBytecodeLength(bytecode);
+        uint8_t bytecodeLength = Bytecode::GetBytecodeLength(bytecode);
 
         if (dumpBytecodes > 1)
             Disassembler::DumpBytecode(_FRAME, method, bytecodeIndex);
 
-        int nextBytecodeIndex = bytecodeIndex + bytecodeLength;
+        long nextBytecodeIndex = bytecodeIndex + bytecodeLength;
 
         _FRAME->SetBytecodeIndex(nextBytecodeIndex);
 
@@ -166,9 +166,9 @@ void Interpreter::popFrameAndPushResult( pVMObject result ) {
     pVMFrame prevFrame = this->popFrame();
 
     pVMMethod method = prevFrame->GetMethod();
-    int numberOfArgs = method->GetNumberOfArguments();
+    long numberOfArgs = method->GetNumberOfArguments();
 
-    for (int i = 0; i < numberOfArgs; ++i) _FRAME->Pop();
+    for (long i = 0; i < numberOfArgs; ++i) _FRAME->Pop();
 
     _FRAME->Push(result);
 }
@@ -181,13 +181,13 @@ void Interpreter::send( pVMSymbol signature, pVMClass receiverClass) {
         (*invokable)(_FRAME);
     } else {
         //doesNotUnderstand
-        int numberOfArgs = Signature::GetNumberOfArguments(signature);
+        long numberOfArgs = Signature::GetNumberOfArguments(signature);
 
         pVMObject receiver = _FRAME->GetStackElement(numberOfArgs-1);
 
         pVMArray argumentsArray = _UNIVERSE->NewArray(numberOfArgs);
 
-        for (int i = numberOfArgs - 1; i >= 0; --i) {
+        for (long i = numberOfArgs - 1; i >= 0; --i) {
             pVMObject o = _FRAME->Pop();
             (*argumentsArray)[i] = o;
         }
@@ -195,7 +195,7 @@ void Interpreter::send( pVMSymbol signature, pVMClass receiverClass) {
 
         //check if current frame is big enough for this unplanned Send
         //doesNotUnderstand: needs 3 slots, one for this, one for method name, one for args
-        int additionalStackSlots = 3 - _FRAME->RemainingStackSize();
+        long additionalStackSlots = 3 - _FRAME->RemainingStackSize();
         if (additionalStackSlots > 0) {
             //copy current frame into a bigger one and replace the current frame
             this->SetFrame(VMFrame::EmergencyFrameFrom(_FRAME, additionalStackSlots));
@@ -210,7 +210,7 @@ void Interpreter::doDup() {
     _FRAME->Push(elem);
 }
 
-void Interpreter::doPushLocal(int bytecodeIndex) {
+void Interpreter::doPushLocal(long bytecodeIndex) {
     pVMMethod method = _METHOD;
     uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
@@ -220,7 +220,7 @@ void Interpreter::doPushLocal(int bytecodeIndex) {
     _FRAME->Push(local);
 }
 
-void Interpreter::doPushArgument(int bytecodeIndex) {
+void Interpreter::doPushArgument(long bytecodeIndex) {
     pVMMethod method = _METHOD;
     uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
@@ -230,37 +230,37 @@ void Interpreter::doPushArgument(int bytecodeIndex) {
     _FRAME->Push(argument);
 }
 
-void Interpreter::doPushField(int bytecodeIndex) {
+void Interpreter::doPushField(long bytecodeIndex) {
     pVMMethod method = _METHOD;
 
     pVMSymbol fieldName = static_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));
 
     pVMObject self = _SELF;
-    int fieldIndex = self->GetFieldIndex(fieldName);
+    long fieldIndex = self->GetFieldIndex(fieldName);
 
     pVMObject o = self->GetField(fieldIndex);
 
     _FRAME->Push(o);
 }
 
-void Interpreter::doPushBlock(int bytecodeIndex) {
+void Interpreter::doPushBlock(long bytecodeIndex) {
     pVMMethod method = _METHOD;
 
     pVMMethod blockMethod = static_cast<pVMMethod>(method->GetConstant(bytecodeIndex));
 
-    int numOfArgs = blockMethod->GetNumberOfArguments();
+    long numOfArgs = blockMethod->GetNumberOfArguments();
 
     _FRAME->Push(_UNIVERSE->NewBlock(blockMethod, _FRAME, numOfArgs));
 }
 
-void Interpreter::doPushConstant(int bytecodeIndex) {
+void Interpreter::doPushConstant(long bytecodeIndex) {
     pVMMethod method = _METHOD;
 
     pVMObject constant = method->GetConstant(bytecodeIndex);
     _FRAME->Push(constant);
 }
 
-void Interpreter::doPushGlobal(int bytecodeIndex) {
+void Interpreter::doPushGlobal(long bytecodeIndex) {
     pVMMethod method = _METHOD;
 
     pVMSymbol globalName = static_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));
@@ -275,7 +275,7 @@ void Interpreter::doPushGlobal(int bytecodeIndex) {
 
         //check if there is enough space on the stack for this unplanned Send
         //unknowGlobal: needs 2 slots, one for "this" and one for the argument
-        int additionalStackSlots = 2 - _FRAME->RemainingStackSize();
+        long additionalStackSlots = 2 - _FRAME->RemainingStackSize();
         if (additionalStackSlots > 0) {
             //copy current frame into a bigger one and replace the current frame
             this->SetFrame(VMFrame::EmergencyFrameFrom(_FRAME,
@@ -290,7 +290,7 @@ void Interpreter::doPop() {
     _FRAME->Pop();
 }
 
-void Interpreter::doPopLocal(int bytecodeIndex) {
+void Interpreter::doPopLocal(long bytecodeIndex) {
     pVMMethod method = _METHOD;
     uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
@@ -300,7 +300,7 @@ void Interpreter::doPopLocal(int bytecodeIndex) {
     _FRAME->SetLocal(bc1, bc2, o);
 }
 
-void Interpreter::doPopArgument(int bytecodeIndex) {
+void Interpreter::doPopArgument(long bytecodeIndex) {
     pVMMethod method = _METHOD;
 
     uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
@@ -310,30 +310,30 @@ void Interpreter::doPopArgument(int bytecodeIndex) {
     _FRAME->SetArgument(bc1, bc2, o);
 }
 
-void Interpreter::doPopField(int bytecodeIndex) {
+void Interpreter::doPopField(long bytecodeIndex) {
     pVMMethod method = _METHOD;
     pVMSymbol field_name = static_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));
 
     pVMObject self = _SELF;
-    int field_index = self->GetFieldIndex(field_name);
+    long field_index = self->GetFieldIndex(field_name);
 
     pVMObject o = _FRAME->Pop();
     self->SetField(field_index, o);
 }
 
-void Interpreter::doSend(int bytecodeIndex) {
+void Interpreter::doSend(long bytecodeIndex) {
     pVMMethod method = _METHOD;
 
     pVMSymbol signature = static_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));
 
-    int numOfArgs = Signature::GetNumberOfArguments(signature);
+    long numOfArgs = Signature::GetNumberOfArguments(signature);
 
     pVMObject receiver = _FRAME->GetStackElement(numOfArgs-1);
 
     this->send(signature, receiver->GetClass());
 }
 
-void Interpreter::doSuperSend(int bytecodeIndex) {
+void Interpreter::doSuperSend(long bytecodeIndex) {
     pVMMethod method = _METHOD;
     pVMSymbol signature = static_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));
 
@@ -346,11 +346,11 @@ void Interpreter::doSuperSend(int bytecodeIndex) {
     if (invokable != NULL)
         (*invokable)(_FRAME);
     else {
-        int numOfArgs = Signature::GetNumberOfArguments(signature);
+        long numOfArgs = Signature::GetNumberOfArguments(signature);
         pVMObject receiver = _FRAME->GetStackElement(numOfArgs - 1);
         pVMArray argumentsArray = _UNIVERSE->NewArray(numOfArgs);
 
-        for (int i = numOfArgs - 1; i >= 0; --i) {
+        for (long i = numOfArgs - 1; i >= 0; --i) {
             pVMObject o = _FRAME->Pop();
             (*argumentsArray)[i] = o;
         }
@@ -381,7 +381,7 @@ void Interpreter::doReturnNonLocal() {
         
         //check if there is enough space on the stack for this unplanned Send
         //escapedBlock: needs 2 slots, one for "this" and one for the argument
-        int additionalStackSlots = 2 - _FRAME->RemainingStackSize();
+        long additionalStackSlots = 2 - _FRAME->RemainingStackSize();
         if (additionalStackSlots > 0) {
             //copy current frame into a bigger one and replace the current frame
             this->SetFrame(VMFrame::EmergencyFrameFrom(_FRAME,

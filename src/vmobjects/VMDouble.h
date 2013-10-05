@@ -40,7 +40,7 @@ public:
 private:
     double embeddedDouble;
 
-    static const int VMDoubleNumberOfFields;
+    static const long VMDoubleNumberOfFields;
 };
 
 void VMDouble::SetEmbeddedDouble(double val) {

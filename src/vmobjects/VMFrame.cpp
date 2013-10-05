@@ -36,9 +36,9 @@
 //when doesNotUnderstand or UnknownGlobal is sent, additional stack slots might
 //be necessary, as these cases are not taken into account when the stack
 //depth is calculated. In that case this method is called.
-pVMFrame VMFrame::EmergencyFrameFrom( pVMFrame from, int extraLength ) {
-    int length = from->GetNumberOfIndexableFields() + extraLength;
-    int additionalBytes = length * sizeof(pVMObject);
+pVMFrame VMFrame::EmergencyFrameFrom( pVMFrame from, long extraLength ) {
+    long length = from->GetNumberOfIndexableFields() + extraLength;
+    long additionalBytes = length * sizeof(pVMObject);
     pVMFrame result = new (_HEAP, additionalBytes) VMFrame(length);
 
     result->SetClass(from->GetClass());
@@ -56,9 +56,9 @@ pVMFrame VMFrame::EmergencyFrameFrom( pVMFrame from, int extraLength ) {
     return result;
 }
 
-const int VMFrame::VMFrameNumberOfFields = 6;
+const long VMFrame::VMFrameNumberOfFields = 6;
 
-VMFrame::VMFrame(int size, int nof) :
+VMFrame::VMFrame(long size, long nof) :
         VMArray(size, nof + VMFrameNumberOfFields) {
     _HEAP->StartUninterruptableAllocation();
     this->localOffset = _UNIVERSE->NewInteger(0);
@@ -84,7 +84,7 @@ bool VMFrame::HasContext() const {
     return this->context != nilObject;
 }
 
-pVMFrame VMFrame::GetContextLevel(int lvl) {
+pVMFrame VMFrame::GetContextLevel(long lvl) {
     pVMFrame current = this;
     while (lvl > 0) {
         current = current->GetContext();
@@ -101,7 +101,7 @@ pVMFrame VMFrame::GetOuterContext() {
     return current;
 }
 
-int VMFrame::RemainingStackSize() const {
+long VMFrame::RemainingStackSize() const {
     // - 1 because the stack pointer points at the top entry,
     // so the next entry would be put at stackPointer+1
     return this->GetNumberOfIndexableFields()
@@ -150,43 +150,43 @@ void VMFrame::ResetStackPointer() {
     this->stackPointer->SetEmbeddedInteger(lo + numLocals - 1);
 }
 
-int VMFrame::GetBytecodeIndex() const {
+long VMFrame::GetBytecodeIndex() const {
     return this->bytecodeIndex->GetEmbeddedInteger();
 }
 
-void VMFrame::SetBytecodeIndex(int index) {
+void VMFrame::SetBytecodeIndex(long index) {
     this->bytecodeIndex->SetEmbeddedInteger(index);
 }
 
-pVMObject VMFrame::GetStackElement(int index) const {
+pVMObject VMFrame::GetStackElement(long index) const {
     int sp = this->stackPointer->GetEmbeddedInteger();
     return (*this)[sp-index];
 }
 
-void VMFrame::SetStackElement(int index, pVMObject obj) {
+void VMFrame::SetStackElement(long index, pVMObject obj) {
     int sp = this->stackPointer->GetEmbeddedInteger();
     (*this)[sp-index] = obj;
 }
 
-pVMObject VMFrame::GetLocal(int index, int contextLevel) {
+pVMObject VMFrame::GetLocal(long index, long contextLevel) {
     pVMFrame context = this->GetContextLevel(contextLevel);
-    int32_t lo = context->localOffset->GetEmbeddedInteger();
+    long lo = context->localOffset->GetEmbeddedInteger();
     return (*context)[lo+index];
 }
 
-void VMFrame::SetLocal(int index, int contextLevel, pVMObject value) {
+void VMFrame::SetLocal(long index, long contextLevel, pVMObject value) {
     pVMFrame context = this->GetContextLevel(contextLevel);
     size_t lo = context->localOffset->GetEmbeddedInteger();
     (*context)[lo+index] = value;
 }
 
-pVMObject VMFrame::GetArgument(int index, int contextLevel) {
+pVMObject VMFrame::GetArgument(long index, long contextLevel) {
     // get the context
     pVMFrame context = this->GetContextLevel(contextLevel);
     return (*context)[index];
 }
 
-void VMFrame::SetArgument(int index, int contextLevel, pVMObject value) {
+void VMFrame::SetArgument(long index, long contextLevel, pVMObject value) {
     pVMFrame context = this->GetContextLevel(contextLevel);
     (*context)[index] = value;
 }
@@ -195,7 +195,7 @@ void VMFrame::PrintStackTrace() const {
     //TODO
 }
 
-int VMFrame::ArgumentStackIndex(int index) const {
+long VMFrame::ArgumentStackIndex(long index) const {
     pVMMethod meth = this->GetMethod();
     return meth->GetNumberOfArguments() - index - 1;
 }
@@ -205,8 +205,8 @@ void VMFrame::CopyArgumentsFrom(pVMFrame frame) {
     // - arguments are at the top of the stack of frame.
     // - copy them into the argument area of the current frame
     pVMMethod meth = this->GetMethod();
-    int num_args = meth->GetNumberOfArguments();
-    for(int i=0; i < num_args; ++i) {
+    long num_args = meth->GetNumberOfArguments();
+    for(long i=0; i < num_args; ++i) {
         pVMObject stackElem = frame->GetStackElement(num_args - 1 - i);
         (*this)[i] = stackElem;
     }

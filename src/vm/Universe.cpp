@@ -93,12 +93,12 @@ Universe* Universe::operator->() {
     return theUniverse;
 }
 
-void Universe::Start(int argc, char** argv) {
+void Universe::Start(long argc, char** argv) {
     theUniverse = new Universe();
     theUniverse->initialize(argc, argv);
 }
 
-void Universe::Quit(int err) {
+void Universe::Quit(long err) {
     if (theUniverse)
         delete (theUniverse);
 
@@ -110,12 +110,11 @@ void Universe::ErrorExit(const char* err) {
     Quit(ERR_FAIL);
 }
 
-vector<StdString> Universe::handleArguments(int argc, char** argv) {
-
+vector<StdString> Universe::handleArguments(long argc, char** argv) {
     vector<StdString> vmArgs = vector<StdString>();
     dumpBytecodes = 0;
     gcVerbosity = 0;
-    for (int i = 1; i < argc; ++i) {
+    for (long i = 1; i < argc; ++i) {
 
         if (strncmp(argv[i], "-cp", 3) == 0) {
             if ((argc == i + 1) || classPath.size() > 0)
@@ -126,7 +125,7 @@ vector<StdString> Universe::handleArguments(int argc, char** argv) {
         } else if (strncmp(argv[i], "-g", 2) == 0) {
             ++gcVerbosity;
         } else if (argv[i][0] == '-' && argv[i][1] == 'H') {
-            int heap_size = atoi(argv[i] + 2);
+            long heap_size = atoi(argv[i] + 2);
             heapSize = heap_size;
         } else if ((strncmp(argv[i], "-h", 2) == 0)
                 || (strncmp(argv[i], "--help", 6) == 0)) {
@@ -152,12 +151,12 @@ vector<StdString> Universe::handleArguments(int argc, char** argv) {
     return vmArgs;
 }
 
-int Universe::getClassPathExt(vector<StdString>& tokens,
+long Universe::getClassPathExt(vector<StdString>& tokens,
         const StdString& arg) const {
 #define EXT_TOKENS 2
-    int result = ERR_SUCCESS;
-    int fpIndex = arg.find_last_of(fileSeparator);
-    int ssepIndex = arg.find(".som");
+    long result = ERR_SUCCESS;
+    long fpIndex = arg.find_last_of(fileSeparator);
+    long ssepIndex = arg.find(".som");
 
     if (fpIndex == StdString::npos) { //no new path
         //different from CSOM (see also HandleArguments):
@@ -179,12 +178,12 @@ int Universe::getClassPathExt(vector<StdString>& tokens,
     return result;
 }
 
-int Universe::setupClassPath(const StdString& cp) {
+long Universe::setupClassPath(const StdString& cp) {
     try {
         std::stringstream ss(cp);
         StdString token;
 
-        int i = 0;
+        long i = 0;
         while (getline(ss, token, pathSeparator)) {
             classPath.push_back(token);
             ++i;
@@ -196,7 +195,7 @@ int Universe::setupClassPath(const StdString& cp) {
     }
 }
 
-int Universe::addClassPath(const StdString& cp) {
+long Universe::addClassPath(const StdString& cp) {
     classPath.push_back(cp);
     return ERR_SUCCESS;
 }
@@ -226,8 +225,8 @@ Universe::Universe() {
 }
 ;
 
-void Universe::initialize(int _argc, char** _argv) {
-    heapSize = 1048576;
+void Universe::initialize(long _argc, char** _argv) {
+    heapSize = 1 * 1024 * 1024;
 
     vector<StdString> argv = this->handleArguments(_argc, _argv);
 
@@ -369,7 +368,7 @@ pVMClass Universe::GetBlockClass() const {
     return blockClass;
 }
 
-pVMClass Universe::GetBlockClassWithArgs( int numberOfArguments) {
+pVMClass Universe::GetBlockClassWithArgs(long numberOfArguments) {
     this->Assert(numberOfArguments < 10);
 
     ostringstream Str;
@@ -491,8 +490,8 @@ void Universe::LoadSystemClass( pVMClass systemClass) {
     result->LoadPrimitives(classPath);
 }
 
-pVMArray Universe::NewArray( int size) const {
-    int additionalBytes = size*sizeof(pVMObject);
+pVMArray Universe::NewArray(long size) const {
+    long additionalBytes = size*sizeof(pVMObject);
     pVMArray result = new (_HEAP, additionalBytes) VMArray(size);
     result->SetClass(arrayClass);
     return result;
@@ -500,7 +499,7 @@ pVMArray Universe::NewArray( int size) const {
 
 pVMArray Universe::NewArrayFromArgv( const vector<StdString>& argv) const {
     pVMArray result = NewArray(argv.size());
-    int j = 0;
+    long j = 0;
     for (vector<StdString>::const_iterator i = argv.begin();
             i != argv.end(); ++i) {
         (*result)[j] = NewString(*i);
@@ -511,11 +510,11 @@ pVMArray Universe::NewArrayFromArgv( const vector<StdString>& argv) const {
 }
 
 pVMArray Universe::NewArrayList(ExtendedList<pVMObject>& list ) const {
-    int size = list.Size();
+    long size = list.Size();
     pVMArray result = NewArray(size);
 
     if (result) {
-        for (int i = 0; i < size; ++i) {
+        for (long i = 0; i < size; ++i) {
             pVMObject elem = list.Get(i);
 
             (*result)[i] = elem;
@@ -531,7 +530,7 @@ pVMBigInteger Universe::NewBigInteger( int64_t value) const {
     return result;
 }
 
-pVMBlock Universe::NewBlock( pVMMethod method, pVMFrame context, int arguments) {
+pVMBlock Universe::NewBlock(pVMMethod method, pVMFrame context, long arguments) {
     pVMBlock result = new (_HEAP) VMBlock;
     result->SetClass(this->GetBlockClassWithArgs(arguments));
 
@@ -542,9 +541,9 @@ pVMBlock Universe::NewBlock( pVMMethod method, pVMFrame context, int arguments) 
 }
 
 pVMClass Universe::NewClass(pVMClass classOfClass) const {
-    int numFields = classOfClass->GetNumberOfInstanceFields();
+    long numFields = classOfClass->GetNumberOfInstanceFields();
     pVMClass result;
-    int additionalBytes = numFields * sizeof(pVMObject);
+    long additionalBytes = numFields * sizeof(pVMObject);
     if (numFields) result = new (_HEAP, additionalBytes) VMClass(numFields);
     else result = new (_HEAP) VMClass;
 
@@ -560,11 +559,11 @@ pVMDouble Universe::NewDouble(double value) const {
 }
 
 pVMFrame Universe::NewFrame(pVMFrame previousFrame, pVMMethod method) const {
-    int length = method->GetNumberOfArguments() +
+    long length = method->GetNumberOfArguments() +
     method->GetNumberOfLocals()+
     method->GetMaximumNumberOfStackElements();
 
-    int additionalBytes = length * sizeof(pVMObject);
+    long additionalBytes = length * sizeof(pVMObject);
     pVMFrame result = new (_HEAP, additionalBytes) VMFrame(length);
     result->SetClass(frameClass);
 
@@ -582,15 +581,15 @@ pVMFrame Universe::NewFrame(pVMFrame previousFrame, pVMMethod method) const {
 pVMObject Universe::NewInstance( pVMClass classOfInstance) const {
     //the number of fields for allocation. We have to calculate the clazz
     //field out of this, because it is already taken care of by VMObject
-    int numOfFields = classOfInstance->GetNumberOfInstanceFields() - 1;
+    long numOfFields = classOfInstance->GetNumberOfInstanceFields() - 1;
     //the additional space needed is calculated from the number of fields
-    int additionalBytes = numOfFields * sizeof(pVMObject);
+    long additionalBytes = numOfFields * sizeof(pVMObject);
     pVMObject result = new (_HEAP, additionalBytes) VMObject(numOfFields);
     result->SetClass(classOfInstance);
     return result;
 }
 
-pVMInteger Universe::NewInteger( int32_t value) const {
+pVMInteger Universe::NewInteger(long value) const {
     pVMInteger result = new (_HEAP) VMInteger(value);
     result->SetClass(integerClass);
     return result;
@@ -609,8 +608,7 @@ pVMClass Universe::NewMetaclassClass() const {
 pVMMethod Universe::NewMethod( pVMSymbol signature,
         size_t numberOfBytecodes, size_t numberOfConstants) const {
     //Method needs space for the bytecodes and the pointers to the constants
-    int additionalBytes = numberOfBytecodes +
-    numberOfConstants*sizeof(pVMObject);
+    long additionalBytes = numberOfBytecodes + numberOfConstants*sizeof(pVMObject);
     pVMMethod result = new (_HEAP,additionalBytes)
     VMMethod(numberOfBytecodes, numberOfConstants);
     result->SetClass(methodClass);
@@ -626,7 +624,7 @@ pVMString Universe::NewString( const StdString& str) const {
 
 pVMString Universe::NewString( const char* str) const {
     //string needs space for str.length characters plus one byte for '\0'
-    int additionalBytes = strlen(str) + 1;
+    long additionalBytes = strlen(str) + 1;
     pVMString result = new (_HEAP, additionalBytes) VMString(str);
     result->SetClass(stringClass);
 
@@ -639,7 +637,7 @@ pVMSymbol Universe::NewSymbol( const StdString& str) {
 
 pVMSymbol Universe::NewSymbol( const char* str ) {
     //symbol needs space for str.length characters plus one byte for '\0'
-    int additionalBytes = strlen(str) + 1;
+    long additionalBytes = strlen(str) + 1;
     pVMSymbol result = new (_HEAP, additionalBytes) VMSymbol(str);
     result->SetClass(symbolClass);
 

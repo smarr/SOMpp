@@ -43,9 +43,9 @@
 //this method's literals (-> VMArray)
 #define theEntries(i) FIELDS[this->GetNumberOfFields()+i]
 
-const int VMMethod::VMMethodNumberOfFields = 5;
+const long VMMethod::VMMethodNumberOfFields = 5;
 
-VMMethod::VMMethod(int bcCount, int numberOfConstants, int nof) :
+VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
         VMInvokable(nof + VMMethodNumberOfFields) {
     _HEAP->StartUninterruptableAllocation();
     bcLength = _UNIVERSE->NewInteger( bcCount );
@@ -53,7 +53,7 @@ VMMethod::VMMethod(int bcCount, int numberOfConstants, int nof) :
     maximumNumberOfStackElements = _UNIVERSE->NewInteger(0);
     numberOfArguments = _UNIVERSE->NewInteger(0);
     this->numberOfConstants = _UNIVERSE->NewInteger(numberOfConstants);
-    for (int i = 0; i < numberOfConstants; ++i) {
+    for (long i = 0; i < numberOfConstants; ++i) {
         this->SetIndexableField(i, nilObject);
     }
     _HEAP->EndUninterruptableAllocation();
@@ -75,31 +75,31 @@ void VMMethod::MarkReferences() {
     }
 }
 
-int VMMethod::GetNumberOfLocals() const {
+long VMMethod::GetNumberOfLocals() const {
     return numberOfLocals->GetEmbeddedInteger();
 }
 
-void VMMethod::SetNumberOfLocals(int nol) {
+void VMMethod::SetNumberOfLocals(long nol) {
     numberOfLocals->SetEmbeddedInteger(nol);
 }
 
-int VMMethod::GetMaximumNumberOfStackElements() const {
+long VMMethod::GetMaximumNumberOfStackElements() const {
     return maximumNumberOfStackElements->GetEmbeddedInteger();
 }
 
-void VMMethod::SetMaximumNumberOfStackElements(int stel) {
+void VMMethod::SetMaximumNumberOfStackElements(long stel) {
     maximumNumberOfStackElements->SetEmbeddedInteger(stel);
 }
 
-int VMMethod::GetNumberOfArguments() const {
+long VMMethod::GetNumberOfArguments() const {
     return numberOfArguments->GetEmbeddedInteger();
 }
 
-void VMMethod::SetNumberOfArguments(int noa) {
+void VMMethod::SetNumberOfArguments(long noa) {
     numberOfArguments->SetEmbeddedInteger(noa);
 }
 
-int VMMethod::GetNumberOfBytecodes() const {
+long VMMethod::GetNumberOfBytecodes() const {
     return bcLength->GetEmbeddedInteger();
 }
 
@@ -109,7 +109,7 @@ void VMMethod::operator()(pVMFrame frame) {
 }
 
 void VMMethod::SetHolderAll(pVMClass hld) {
-    for (int i = 0; i < this->GetNumberOfIndexableFields(); ++i) {
+    for (long i = 0; i < this->GetNumberOfIndexableFields(); ++i) {
         pVMObject o = GetIndexableField(i);
         pVMInvokable vmi = dynamic_cast<pVMInvokable>(o);
         if ( vmi != NULL) {
@@ -118,7 +118,7 @@ void VMMethod::SetHolderAll(pVMClass hld) {
     }
 }
 
-pVMObject VMMethod::GetConstant(int indx) const {
+pVMObject VMMethod::GetConstant(long indx) const {
     uint8_t bc = _BC[indx+1];
     if (bc >= this->GetNumberOfIndexableFields()) {
         cout << "Error: Constant index out of range" << endl;
@@ -127,15 +127,15 @@ pVMObject VMMethod::GetConstant(int indx) const {
     return this->GetIndexableField(bc);
 }
 
-uint8_t& VMMethod::operator[](int indx) const {
+uint8_t& VMMethod::operator[](long indx) const {
     return _BC[indx];
 }
 
-uint8_t VMMethod::GetBytecode(int indx) const {
+uint8_t VMMethod::GetBytecode(long indx) const {
     return _BC[indx];
 }
 
-void VMMethod::SetBytecode(int indx, uint8_t val) {
+void VMMethod::SetBytecode(long indx, uint8_t val) {
     _BC[indx] = val;
 }
 
@@ -148,7 +148,7 @@ pVMArray VMMethod::CopyAndExtendWith(pVMObject item) const {
     return result;
 }
 
-pVMObject VMMethod::GetIndexableField(int idx) const {
+pVMObject VMMethod::GetIndexableField(long idx) const {
     if (idx > this->GetNumberOfIndexableFields()-1 || idx < 0) {
         cout << "Array index out of bounds: Accessing " << idx
         << ", but only " << GetNumberOfIndexableFields()-1
@@ -165,7 +165,7 @@ void VMMethod::CopyIndexableFieldsTo(pVMArray to) const {
 
 }
 
-void VMMethod::SetIndexableField(int idx, pVMObject item) {
+void VMMethod::SetIndexableField(long idx, pVMObject item) {
     if (idx > this->GetNumberOfIndexableFields()-1 || idx < 0) {
         cout << "Array index out of bounds: Accessing " << idx
         << ", but there is only space for "
@@ -176,7 +176,7 @@ void VMMethod::SetIndexableField(int idx, pVMObject item) {
     theEntries(idx) = item;
 }
 
-int VMMethod::GetNumberOfIndexableFields() const {
+long VMMethod::GetNumberOfIndexableFields() const {
     //cannot be done using GetAdditionalSpaceConsumption,
     //as bytecodes need space, too, and there might be padding
     return this->numberOfConstants->GetEmbeddedInteger();

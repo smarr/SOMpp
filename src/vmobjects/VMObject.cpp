@@ -31,9 +31,9 @@
 #include "VMInvokable.h"
 
 //clazz is the only field of VMObject so
-const int VMObject::VMObjectNumberOfFields = 1;
+const long VMObject::VMObjectNumberOfFields = 1;
 
-VMObject::VMObject(int numberOfFields) {
+VMObject::VMObject(long numberOfFields) {
     //this line would be needed if the VMObject** is used instead of the macro:
     //FIELDS = (pVMObject*)&clazz; 
     this->SetNumberOfFields(numberOfFields + VMObjectNumberOfFields);
@@ -42,20 +42,20 @@ VMObject::VMObject(int numberOfFields) {
     //Object size is set by the heap
 }
 
-void VMObject::SetNumberOfFields(int nof) {
+void VMObject::SetNumberOfFields(long nof) {
     this->numberOfFields = nof;
 
-    for (int i = 0; i < nof; ++i) {
+    for (long i = 0; i < nof; ++i) {
         this->SetField(i, nilObject);
     }
 }
 
-void VMObject::Send(StdString selectorString, pVMObject* arguments, int argc) {
+void VMObject::Send(StdString selectorString, pVMObject* arguments, long argc) {
     pVMSymbol selector = _UNIVERSE->SymbolFor(selectorString);
     pVMFrame frame = _UNIVERSE->GetInterpreter()->GetFrame();
     frame->Push(this);
 
-    for(int i = 0; i < argc; ++i) {
+    for (long i = 0; i < argc; ++i) {
         frame->Push(arguments[i]);
     }
 
@@ -64,7 +64,7 @@ void VMObject::Send(StdString selectorString, pVMObject* arguments, int argc) {
     (*invokable)(frame);
 }
 
-int VMObject::GetDefaultNumberOfFields() const {
+long VMObject::GetDefaultNumberOfFields() const {
     return VMObjectNumberOfFields;
 }
 
@@ -76,15 +76,15 @@ void VMObject::SetClass(pVMClass cl) {
     clazz = cl;
 }
 
-pVMSymbol VMObject::GetFieldName(int index) const {
+pVMSymbol VMObject::GetFieldName(long index) const {
     return this->clazz->GetInstanceFieldName(index);
 }
 
-int VMObject::GetFieldIndex(pVMSymbol fieldName) const {
+long VMObject::GetFieldIndex(pVMSymbol fieldName) const {
     return this->clazz->LookupFieldIndex(fieldName);
 }
 
-int VMObject::GetNumberOfFields() const {
+long VMObject::GetNumberOfFields() const {
     return this->numberOfFields;
 }
 
@@ -108,16 +108,16 @@ void VMObject::Assert(bool value) const {
     _UNIVERSE->Assert(value);
 }
 
-pVMObject VMObject::GetField(int index) const {
+pVMObject VMObject::GetField(long index) const {
     return FIELDS[index];
 }
 
-void VMObject::SetField(int index, pVMObject value) {
+void VMObject::SetField(long index, pVMObject value) {
     FIELDS[index] = value;
 }
 
 //returns the Object's additional memory used (e.g. for Array fields)
-int VMObject::GetAdditionalSpaceConsumption() const {
+long VMObject::GetAdditionalSpaceConsumption() const {
     //The VM*-Object's additional memory used needs to be calculated.
     //It's      the total object size   MINUS   sizeof(VMObject) for basic
     //VMObject  MINUS   the number of fields times sizeof(pVMObject)
@@ -130,7 +130,7 @@ void VMObject::MarkReferences() {
     if (this->gcfield)
         return;
     this->SetGCField(1);
-    for (int i = 0; i < this->GetNumberOfFields(); ++i) {
+    for (long i = 0; i < this->GetNumberOfFields(); ++i) {
         pVMObject o = (FIELDS[i]);
         o->MarkReferences();
     }

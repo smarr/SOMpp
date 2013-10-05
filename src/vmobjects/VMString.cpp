@@ -33,7 +33,7 @@
 //this macro could replace the chars member variable
 //#define CHARS ((char*)&clazz+sizeof(pVMObject))
 
-const int VMString::VMStringNumberOfFields = 0;
+const long VMString::VMStringNumberOfFields = 0;
 
 VMString::VMString(const char* str) :
         VMObject(VMStringNumberOfFields) {

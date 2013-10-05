@@ -41,52 +41,52 @@ class VMFrame;
 class VMMethod: public VMInvokable {
 
 public:
-    VMMethod(int bcCount, int numberOfConstants, int nof = 0);
+    VMMethod(long bcCount, long numberOfConstants, long nof = 0);
 
-    virtual int GetNumberOfLocals() const;
-    virtual void SetNumberOfLocals(int nol);
-    virtual int GetMaximumNumberOfStackElements() const;
-    virtual void SetMaximumNumberOfStackElements(int stel);
-    virtual int GetNumberOfArguments() const;
-    virtual void SetNumberOfArguments(int);
-    virtual int GetNumberOfBytecodes() const;
+    virtual long GetNumberOfLocals() const;
+    virtual void SetNumberOfLocals(long nol);
+    virtual long GetMaximumNumberOfStackElements() const;
+    virtual void SetMaximumNumberOfStackElements(long stel);
+    virtual long GetNumberOfArguments() const;
+    virtual void SetNumberOfArguments(long);
+    virtual long GetNumberOfBytecodes() const;
     virtual void SetHolderAll(pVMClass hld);
-    virtual pVMObject GetConstant(int indx) const;
-    virtual uint8_t GetBytecode(int indx) const;
-    virtual void SetBytecode(int indx, uint8_t);
+    virtual pVMObject GetConstant(long indx) const;
+    virtual uint8_t GetBytecode(long indx) const;
+    virtual void SetBytecode(long indx, uint8_t);
     virtual void MarkReferences();
-    virtual int GetNumberOfIndexableFields() const;
+    virtual long GetNumberOfIndexableFields() const;
 
-    void SetIndexableField(int idx, pVMObject item);
+    void SetIndexableField(long idx, pVMObject item);
 
     //VMArray Methods....
 
-            pVMArray CopyAndExtendWith(pVMObject) const;
-            void CopyIndexableFieldsTo(pVMArray) const;
+    pVMArray CopyAndExtendWith(pVMObject) const;
+    void CopyIndexableFieldsTo(pVMArray) const;
 
-            /// Methods are considered byte arrays with meta data.
-            // So the index operator returns the bytecode at the index.
-            // Not really used because it violates the C++ idiom to
-            // implement operators in a "natural" way. Does not really
-            // seem so natural to do this.
-            uint8_t& operator[](int indx) const;
+    /// Methods are considered byte arrays with meta data.
+    // So the index operator returns the bytecode at the index.
+    // Not really used because it violates the C++ idiom to
+    // implement operators in a "natural" way. Does not really
+    // seem so natural to do this.
+    uint8_t& operator[](long indx) const;
 
-            //-----------VMInvokable-------------//
-            //operator "()" to invoke the method
-            virtual void operator()(pVMFrame frame);
+    //-----------VMInvokable-------------//
+    //operator "()" to invoke the method
+    virtual void operator()(pVMFrame frame);
 
-            virtual void SetSignature(pVMSymbol sig);
+    virtual void SetSignature(pVMSymbol sig);
 
-        private:
-            pVMObject GetIndexableField(int idx) const;
+private:
+    pVMObject GetIndexableField(long idx) const;
 
-            pVMInteger numberOfLocals;
-            pVMInteger maximumNumberOfStackElements;
-            pVMInteger bcLength;
-            pVMInteger numberOfArguments;
-            pVMInteger numberOfConstants;
+    pVMInteger numberOfLocals;
+    pVMInteger maximumNumberOfStackElements;
+    pVMInteger bcLength;
+    pVMInteger numberOfArguments;
+    pVMInteger numberOfConstants;
 
-            static const int VMMethodNumberOfFields;
-        };
+    static const long VMMethodNumberOfFields;
+};
 
 #endif
