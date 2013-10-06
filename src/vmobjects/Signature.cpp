@@ -29,27 +29,22 @@
 
 int Signature::GetNumberOfArguments(pVMSymbol sig) {
     // check default binaries
-    if(Signature::IsBinary(sig)) return 2;
-    else {
-        StdString str = sig->GetStdString();
+    if (Signature::IsBinary(sig))
+        return 2;
 
-        // colons in str
-        int numColons =0;
+    char* str = sig->GetChars();
 
-        // search the str
-        for(unsigned int i=0; i<=str.length(); ++i)
-        if(str[i]==':')
-        // additional colon found
-        numColons++;
-
-        // The number of arguments is equal to the number of colons plus one
-        // (->> SELF)
-        return numColons + 1;
-    }
+    // colons in str
+    int numColons = 0;
+    int i = 0;
+    while (str[i] != '\0')
+        if (str[i++] == ':')
+            numColons++;
+    return numColons + 1;
 }
 
 bool Signature::IsBinary(pVMSymbol sig) {
-    StdString sigstr = sig->GetStdString();
+    char* sigstr = sig->GetChars();
     switch(sigstr[0]) {
         case '~' :
         case '&' :
