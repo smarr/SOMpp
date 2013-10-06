@@ -196,7 +196,7 @@ vector<StdString> Universe::handleArguments(long argc, char** argv) {
             ++gcVerbosity;
         } else if (strncmp(argv[i], "-H", 2) == 0) {
             long heap_size = 0;
-            char* unit = (char*) malloc(3);
+            char unit[3];
             if (sscanf(argv[i], "-H%ld%2s", &heap_size, unit) == 2) {
                 if (strcmp(unit, "KB") == 0)
                     heapSize = heap_size * 1024;
@@ -204,7 +204,6 @@ vector<StdString> Universe::handleArguments(long argc, char** argv) {
                     heapSize = heap_size * 1024 * 1024;
             } else
                 printUsageAndExit(argv[0]);
-            delete unit;
 
         } else if ((strncmp(argv[i], "-h", 2) == 0)
                 || (strncmp(argv[i], "--help", 6) == 0)) {
