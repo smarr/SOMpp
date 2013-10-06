@@ -33,13 +33,10 @@
 #include "VMInteger.h"
 #include "Signature.h"
 
-#include "../vm/Universe.h"
+#include <vm/Universe.h>
 
-#include "../compiler/MethodGenerationContext.h"
+#include <compiler/MethodGenerationContext.h>
 
-//this method's bytecodes
-//#define FIELDS ((pVMObject*)&clazz)
-//#define _BC ((uint8_t*)&FIELDS[this->GetNumberOfFields() + this->GetNumberOfIndexableFields()])
 
 #ifdef UNSAFE_FRAME_OPTIMIZATION
 const long VMMethod::VMMethodNumberOfFields = 8;
@@ -190,7 +187,7 @@ void VMMethod::SetHolderAll(pVMClass hld) {
         pVMObject o = GetIndexableField(i);
         if (!IS_TAGGED(o)) {
             pVMInvokable vmi = dynamic_cast<pVMInvokable>(AS_POINTER(o));
-            if ( vmi != NULL) {
+            if (vmi != NULL) {
                 vmi->SetHolder(hld);
             }
         }

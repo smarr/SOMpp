@@ -131,6 +131,7 @@ void VMMethod::SetIndexableField(long idx, pVMObject item) {
     _HEAP->writeBarrier(this, item);
 #endif
 }
+
 uint8_t VMMethod::GetBytecode(long indx) const {
     return bytecodes[indx];
 }

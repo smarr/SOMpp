@@ -171,6 +171,7 @@ void Universe::Quit(long err) {
 #endif
     if (theUniverse)
         delete (theUniverse);
+
     exit(err);
 }
 
@@ -201,7 +202,6 @@ vector<StdString> Universe::handleArguments(long argc, char** argv) {
                     heapSize = heap_size * 1024;
                 else if (strcmp(unit, "MB") == 0)
                     heapSize = heap_size * 1024 * 1024;
-
             } else
                 printUsageAndExit(argv[0]);
             delete unit;
@@ -312,7 +312,7 @@ void Universe::initialize(long _argc, char** _argv) {
     heapSize = 1 * 1024 * 1024;
 
     vector<StdString> argv = this->handleArguments(_argc, _argv);
-//remember file that was executed (for writing statistics)
+    // remember file that was executed (for writing statistics)
     bm_name = argv[0];
 
     Heap::InitializeHeap(heapSize);
@@ -339,7 +339,8 @@ void Universe::initialize(long _argc, char** _argv) {
     this->SetGlobal(SymbolForChars("system"), systemObject);
     this->SetGlobal(SymbolForChars("System"), systemClass);
     this->SetGlobal(SymbolForChars("Block"), blockClass);
-    symbolIfTrue = SymbolForChars("ifTrue:");
+
+    symbolIfTrue  = SymbolForChars("ifTrue:");
     symbolIfFalse = SymbolForChars("ifFalse:");
 
     pVMMethod bootstrapMethod = NewMethod(SymbolForChars("bootstrap"), 1, 0);
@@ -467,13 +468,15 @@ pVMClass Universe::GetBlockClassWithArgs(long numberOfArguments) {
         return it->second;
 
     this->Assert(numberOfArguments < 10);
+
     ostringstream Str;
     Str << "Block" << numberOfArguments;
     pVMSymbol name = SymbolFor(Str.str());
     pVMClass result = LoadClassBasic(name, NULL);
-    result->AddInstancePrimitive(new (_HEAP) VMEvaluationPrimitive(numberOfArguments) );
-    SetGlobal(name, result);
 
+    result->AddInstancePrimitive(new (_HEAP) VMEvaluationPrimitive(numberOfArguments) );
+
+    SetGlobal(name, result);
     blockClassesByNoOfArgs[numberOfArguments] = result;
 
     return result;
@@ -484,8 +487,10 @@ pVMObject Universe::GetGlobal(pVMSymbol name) {
 }
 
 bool Universe::HasGlobal( pVMSymbol name) {
-    if (globals[name] != NULL) return true;
-    else return false;
+    if (globals[name] != NULL)
+        return true;
+    else
+        return false;
 }
 
 void Universe::InitializeSystemClass( pVMClass systemClass,
