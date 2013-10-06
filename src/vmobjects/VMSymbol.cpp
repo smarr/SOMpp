@@ -40,7 +40,8 @@ VMSymbol::VMSymbol(const StdString& s) :
 StdString VMSymbol::GetPlainString() const {
     ostringstream str;
     char* chars = this->GetChars();
-    for (size_t i = 0; i <= (size_t) this->GetStringLength(); i++) {
+    size_t length = GetStringLength();
+    for (size_t i = 0; i <= length; i++) {
         char c = chars[i];
         switch (c) {
         case '~':

@@ -92,7 +92,8 @@ void Disassembler::dispatch(pVMObject o) {
  * Dump a class and all subsequent methods.
  */
 void Disassembler::Dump(pVMClass cl) {
-    for (int i = 0; i < cl->GetNumberOfInstanceInvokables(); ++i) {
+    long numInvokables = cl->GetNumberOfInstanceInvokables();
+    for (long i = 0; i < numInvokables; ++i) {
         pVMInvokable inv = static_cast<pVMInvokable>(cl->GetInstanceInvokable(i));
         // output header and skip if the Invokable is a Primitive
         pVMSymbol sig = inv->GetSignature();
@@ -127,14 +128,16 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
     }
 #ifdef _DEBUG
     cout << "bytecodes: ";
-    for (int i = 0; i < method->GetNumberOfBytecodes(); ++i) {
+    long numBytecodes = method->GetNumberOfBytecodes();
+    for (long i = 0; i < numBytecodes; ++i) {
         cout << (int)(*method)[i] << " ";
     }
     cout << endl;
 #endif
     // output bytecodes
-    for (int bc_idx = 0;
-         bc_idx < method->GetNumberOfBytecodes();
+    long numBytecodes = method->GetNumberOfBytecodes();
+    for (long bc_idx = 0;
+         bc_idx < numBytecodes;
          bc_idx += Bytecode::GetBytecodeLength(method->GetBytecode(bc_idx))) {
         // the bytecode.
         uint8_t bytecode = BC_0;

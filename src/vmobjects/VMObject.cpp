@@ -130,7 +130,8 @@ void VMObject::MarkReferences() {
     if (this->gcfield)
         return;
     this->SetGCField(1);
-    for (long i = 0; i < this->GetNumberOfFields(); ++i) {
+    long numFields = GetNumberOfFields();
+    for (long i = 0; i < numFields; ++i) {
         pVMObject o = (FIELDS[i]);
         o->MarkReferences();
     }

@@ -69,9 +69,10 @@ void VMMethod::MarkReferences() {
     if (gcfield)
         return;
     VMInvokable::MarkReferences();
-    for (int i = 0; i < GetNumberOfIndexableFields(); ++i) {
-        if (theEntries(i)!= NULL)
-        theEntries(i)->MarkReferences();
+    long numIndexableFields = GetNumberOfIndexableFields();
+    for (long i = 0; i < numIndexableFields; ++i) {
+        if (theEntries(i) != NULL)
+            theEntries(i)->MarkReferences();
     }
 }
 
@@ -109,7 +110,8 @@ void VMMethod::operator()(pVMFrame frame) {
 }
 
 void VMMethod::SetHolderAll(pVMClass hld) {
-    for (long i = 0; i < this->GetNumberOfIndexableFields(); ++i) {
+    long numIndexableFields = GetNumberOfIndexableFields();
+    for (long i = 0; i < numIndexableFields; ++i) {
         pVMObject o = GetIndexableField(i);
         pVMInvokable vmi = dynamic_cast<pVMInvokable>(o);
         if ( vmi != NULL) {
@@ -155,7 +157,8 @@ pVMObject VMMethod::GetIndexableField(long idx) const {
 }
 
 void VMMethod::CopyIndexableFieldsTo(pVMArray to) const {
-    for (int i = 0; i < this->GetNumberOfIndexableFields(); ++i) {
+    long numIndexableFields = GetNumberOfIndexableFields();
+    for (int i = 0; i < numIndexableFields; ++i) {
         to->SetIndexableField(i, GetIndexableField(i));
     }
 

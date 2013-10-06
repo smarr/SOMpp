@@ -72,7 +72,8 @@ pVMArray VMArray::CopyAndExtendWith(pVMObject item) const {
 }
 
 void VMArray::CopyIndexableFieldsTo(pVMArray to) const {
-    for (long i = 0; i < GetNumberOfIndexableFields(); ++i) {
+    long numIndexableFields = GetNumberOfIndexableFields();
+    for (long i = 0; i < numIndexableFields; ++i) {
         to->SetIndexableField(i, GetIndexableField(i));
     }
 }
@@ -85,7 +86,8 @@ void VMArray::MarkReferences() {
     if (gcfield)
         return;
     VMObject::MarkReferences();
-    for (long i = 0; i < GetNumberOfIndexableFields(); ++i) {
+    long numIndexableFields = GetNumberOfIndexableFields();
+    for (long i = 0; i < numIndexableFields; ++i) {
         pVMObject o = GetIndexableField(i);
         if (o != NULL)
             o->MarkReferences();
