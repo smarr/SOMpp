@@ -76,10 +76,6 @@ void VMMethod::MarkReferences() {
     }
 }
 
-long VMMethod::GetNumberOfLocals() const {
-    return numberOfLocals->GetEmbeddedInteger();
-}
-
 void VMMethod::SetNumberOfLocals(long nol) {
     numberOfLocals->SetEmbeddedInteger(nol);
 }
@@ -90,10 +86,6 @@ long VMMethod::GetMaximumNumberOfStackElements() const {
 
 void VMMethod::SetMaximumNumberOfStackElements(long stel) {
     maximumNumberOfStackElements->SetEmbeddedInteger(stel);
-}
-
-long VMMethod::GetNumberOfArguments() const {
-    return numberOfArguments->GetEmbeddedInteger();
 }
 
 void VMMethod::SetNumberOfArguments(long noa) {
@@ -129,14 +121,6 @@ pVMObject VMMethod::GetConstant(long indx) const {
     return this->GetIndexableField(bc);
 }
 
-uint8_t VMMethod::GetBytecode(long indx) const {
-    return _BC[indx];
-}
-
-void VMMethod::SetBytecode(long indx, uint8_t val) {
-    _BC[indx] = val;
-}
-
 //VMArray Methods
 pVMArray VMMethod::CopyAndExtendWith(pVMObject item) const {
     size_t fields = this->GetNumberOfIndexableFields();
@@ -162,22 +146,5 @@ void VMMethod::CopyIndexableFieldsTo(pVMArray to) const {
         to->SetIndexableField(i, GetIndexableField(i));
     }
 
-}
-
-void VMMethod::SetIndexableField(long idx, pVMObject item) {
-    if (idx > this->GetNumberOfIndexableFields()-1 || idx < 0) {
-        cout << "Array index out of bounds: Accessing " << idx
-        << ", but there is only space for "
-        << this->GetNumberOfIndexableFields()
-        << " entries available\n";
-        _UNIVERSE->ErrorExit("Array index out of bounds exception");
-    }
-    theEntries(idx) = item;
-}
-
-long VMMethod::GetNumberOfIndexableFields() const {
-    //cannot be done using GetAdditionalSpaceConsumption,
-    //as bytecodes need space, too, and there might be padding
-    return this->numberOfConstants->GetEmbeddedInteger();
 }
 

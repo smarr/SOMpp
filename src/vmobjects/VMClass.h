@@ -52,7 +52,7 @@ public:
 
     inline pVMClass     GetSuperClass() const;
     inline void         SetSuperClass(pVMClass);
-           bool         HasSuperClass() const;
+    inline bool         HasSuperClass() const;
     inline pVMSymbol    GetName() const;
     inline void         SetName(pVMSymbol);
     inline pVMArray     GetInstanceFields() const;
@@ -98,6 +98,10 @@ pVMClass VMClass::GetSuperClass() const {
 
 void VMClass::SetSuperClass(pVMClass sup) {
     superClass = sup;
+}
+
+bool VMClass::HasSuperClass() const {
+    return (superClass != NULL && superClass != nilObject);
 }
 
 pVMSymbol VMClass::GetName() const {

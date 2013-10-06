@@ -31,6 +31,7 @@
 #include <iostream>
 
 #include "VMInvokable.h"
+#include "VMInteger.h"
 
 class VMArray;
 class VMObject;
@@ -43,21 +44,20 @@ class VMMethod: public VMInvokable {
 public:
     VMMethod(long bcCount, long numberOfConstants, long nof = 0);
 
-            long      GetNumberOfLocals() const;
+    inline  long      GetNumberOfLocals() const;
             void      SetNumberOfLocals(long nol);
             long      GetMaximumNumberOfStackElements() const;
             void      SetMaximumNumberOfStackElements(long stel);
-            long      GetNumberOfArguments() const;
+    inline  long      GetNumberOfArguments() const;
             void      SetNumberOfArguments(long);
             long      GetNumberOfBytecodes() const;
             void      SetHolderAll(pVMClass hld);
             pVMObject GetConstant(long indx) const;
-            uint8_t   GetBytecode(long indx) const;
-            void      SetBytecode(long indx, uint8_t);
+    inline  uint8_t   GetBytecode(long indx) const;
+    inline  void      SetBytecode(long indx, uint8_t);
     virtual void      MarkReferences();
-            long      GetNumberOfIndexableFields() const;
-
-    void SetIndexableField(long idx, pVMObject item);
+    inline  long      GetNumberOfIndexableFields() const;
+    inline  void      SetIndexableField(long idx, pVMObject item);
 
     //VMArray Methods....
 
@@ -81,5 +81,47 @@ private:
 
     static const long VMMethodNumberOfFields;
 };
+
+inline long VMMethod::GetNumberOfLocals() const {
+    return numberOfLocals->GetEmbeddedInteger();
+}
+
+long VMMethod::GetNumberOfIndexableFields() const {
+    //cannot be done using GetAdditionalSpaceConsumption,
+    //as bytecodes need space, too, and there might be padding
+    return numberOfConstants->GetEmbeddedInteger();
+}
+
+
+inline long VMMethod::GetNumberOfArguments() const {
+    return numberOfArguments->GetEmbeddedInteger();
+}
+
+#define theEntries(i) FIELDS[this->GetNumberOfFields()+i]
+
+void VMMethod::SetIndexableField(long idx, pVMObject item) {
+    if (idx > GetNumberOfIndexableFields() - 1 || idx < 0) {
+        cout << "Array index out of bounds: Accessing " << idx
+        << ", but there is only space for "
+        << this->GetNumberOfIndexableFields()
+        << " entries available\n";
+        _UNIVERSE->ErrorExit("Array index out of bounds exception");
+    }
+    theEntries(idx) = item;
+}
+
+#undef theEntries
+
+#define _BC ((uint8_t*)&FIELDS[this->GetNumberOfFields() + this->GetNumberOfIndexableFields()])
+
+uint8_t VMMethod::GetBytecode(long indx) const {
+    return _BC[indx];
+}
+
+void VMMethod::SetBytecode(long indx, uint8_t val) {
+    _BC[indx] = val;
+}
+
+#undef _BC
 
 #endif

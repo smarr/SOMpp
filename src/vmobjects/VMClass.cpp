@@ -69,10 +69,6 @@ VMClass::VMClass(long numberOfFields) :
         VMObject(numberOfFields + VMClassNumberOfFields) {
 }
 
-bool VMClass::HasSuperClass() const {
-    return (superClass != NULL && superClass != nilObject);
-}
-
 bool VMClass::AddInstanceInvokable(pVMObject ptr) {
     pVMInvokable newInvokable = static_cast<pVMInvokable>(ptr);
     if (newInvokable == NULL) {

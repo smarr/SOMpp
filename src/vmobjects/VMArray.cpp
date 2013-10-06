@@ -78,10 +78,6 @@ void VMArray::CopyIndexableFieldsTo(pVMArray to) const {
     }
 }
 
-long VMArray::GetNumberOfIndexableFields() const {
-    return this->GetAdditionalSpaceConsumption() / sizeof(pVMObject);
-}
-
 void VMArray::MarkReferences() {
     if (gcfield)
         return;

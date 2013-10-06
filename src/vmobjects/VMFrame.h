@@ -42,20 +42,20 @@ public:
     inline pVMFrame  GetPreviousFrame() const;
     inline void      SetPreviousFrame(pVMFrame);
     inline void      ClearPreviousFrame();
-           bool      HasPreviousFrame() const;
+    inline bool      HasPreviousFrame() const;
     inline bool      IsBootstrapFrame() const;
     inline pVMFrame  GetContext() const;
     inline void      SetContext(pVMFrame);
-           bool      HasContext() const;
+    inline bool      HasContext() const;
            pVMFrame  GetContextLevel(long) const;
            pVMFrame  GetOuterContext() const;
-           pVMMethod GetMethod() const;
+    inline pVMMethod GetMethod() const;
            void      SetMethod(pVMMethod);
            pVMObject Pop();
            void      Push(pVMObject);
            void      ResetStackPointer();
-           long      GetBytecodeIndex() const;
-           void      SetBytecodeIndex(long);
+    inline long      GetBytecodeIndex() const;
+    inline void      SetBytecodeIndex(long);
            pVMObject GetStackElement(long) const;
            void      SetStackElement(long, pVMObject);
            pVMObject GetLocal(long, long) const;
@@ -81,6 +81,22 @@ private:
 
     static const long VMFrameNumberOfFields;
 };
+
+bool VMFrame::HasContext() const {
+    return this->context != nilObject;
+}
+
+bool VMFrame::HasPreviousFrame() const {
+    return this->previousFrame != nilObject;
+}
+
+long VMFrame::GetBytecodeIndex() const {
+    return bytecodeIndex->GetEmbeddedInteger();
+}
+
+void VMFrame::SetBytecodeIndex(long index) {
+    bytecodeIndex->SetEmbeddedInteger(index);
+}
 
 bool VMFrame::IsBootstrapFrame() const {
     return !HasPreviousFrame();
@@ -108,6 +124,10 @@ void VMFrame::SetPreviousFrame(pVMFrame frm) {
 
 void VMFrame::ClearPreviousFrame() {
     this->previousFrame = static_cast<pVMFrame>(nilObject);
+}
+
+pVMMethod VMFrame::GetMethod() const {
+    return this->method;
 }
 
 #endif

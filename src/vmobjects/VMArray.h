@@ -37,7 +37,7 @@ public:
 
     virtual void MarkReferences();
 
-    virtual long GetNumberOfIndexableFields() const;
+    inline  long GetNumberOfIndexableFields() const;
     pVMArray CopyAndExtendWith(pVMObject) const;
     pVMObject GetIndexableField(long idx) const;
     void SetIndexableField(long idx, pVMObject value);
@@ -46,5 +46,9 @@ public:
 private:
     static const long VMArrayNumberOfFields;
 };
+
+long VMArray::GetNumberOfIndexableFields() const {
+    return GetAdditionalSpaceConsumption() / sizeof(pVMObject);
+}
 
 #endif

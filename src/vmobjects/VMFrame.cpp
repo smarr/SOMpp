@@ -67,21 +67,8 @@ VMFrame::VMFrame(long size, long nof) :
     _HEAP->EndUninterruptableAllocation();
 }
 
-pVMMethod VMFrame::GetMethod() const {
-
-    return this->method;
-}
-
 void VMFrame::SetMethod(pVMMethod method) {
     this->method = method;
-}
-
-bool VMFrame::HasPreviousFrame() const {
-    return this->previousFrame != nilObject;
-}
-
-bool VMFrame::HasContext() const {
-    return this->context != nilObject;
 }
 
 pVMFrame VMFrame::GetContextLevel(long lvl) const {
@@ -149,14 +136,6 @@ void VMFrame::ResetStackPointer() {
     // Set the stack pointer to its initial value thereby clearing the stack
     size_t numLocals = meth->GetNumberOfLocals();
     this->stackPointer->SetEmbeddedInteger(lo + numLocals - 1);
-}
-
-long VMFrame::GetBytecodeIndex() const {
-    return this->bytecodeIndex->GetEmbeddedInteger();
-}
-
-void VMFrame::SetBytecodeIndex(long index) {
-    this->bytecodeIndex->SetEmbeddedInteger(index);
 }
 
 pVMObject VMFrame::GetStackElement(long index) const {
