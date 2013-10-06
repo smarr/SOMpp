@@ -185,7 +185,8 @@ void VMMethod::operator()(pVMFrame frame) {
 }
 
 void VMMethod::SetHolderAll(pVMClass hld) {
-    for (long i = 0; i < this->GetNumberOfIndexableFields(); ++i) {
+    long numIndexableFields = GetNumberOfIndexableFields();
+    for (long i = 0; i < numIndexableFields; ++i) {
         pVMObject o = GetIndexableField(i);
         if (!IS_TAGGED(o)) {
             pVMInvokable vmi = dynamic_cast<pVMInvokable>(AS_POINTER(o));
@@ -197,9 +198,10 @@ void VMMethod::SetHolderAll(pVMClass hld) {
 }
 
 pVMObject VMMethod::GetConstant(long indx) const {
-    if (bytecodes[indx+1] >= this->GetNumberOfIndexableFields()) {
+    uint8_t bc = bytecodes[indx + 1];
+    if (bc >= this->GetNumberOfIndexableFields()) {
         cout << "Error: Constant index out of range" << endl;
         return NULL;
     }
-    return this->GetIndexableField(bytecodes[indx+1]);
+    return this->GetIndexableField(bc);
 }
