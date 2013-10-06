@@ -63,33 +63,34 @@ Interpreter::~Interpreter() {
 }
 
 #define PROLOGUE(bc_count) {\
-  if (dumpBytecodes > 1) Disassembler::DumpBytecode(_FRAME, _FRAME->GetMethod(), bytecodeIndex_global);\
-  bytecodeIndex_global += bc_count;\
+  if (dumpBytecodes > 1) Disassembler::DumpBytecode(_FRAME, _FRAME->GetMethod(), bytecodeIndexGlobal);\
+  bytecodeIndexGlobal += bc_count;\
 }
 
 #define DISPATCH_NOGC() {\
-  goto *loopTargets[current_bytecodes[bytecodeIndex_global]];\
+  goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]]; \
 }
 
 #define DISPATCH_GC() {\
   if (_HEAP->isCollectionTriggered()) {\
-    _FRAME->SetBytecodeIndex(bytecodeIndex_global);\
+    _FRAME->SetBytecodeIndex(bytecodeIndexGlobal);\
     _HEAP->FullGC();\
     method = GetMethod();\
-    current_bytecodes = GetMethod()->GetBytecodes(); \
+    currentBytecodes = GetMethod()->GetBytecodes(); \
   }\
-  goto *loopTargets[current_bytecodes[bytecodeIndex_global]];\
+  goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];\
 }
 
-// The following three variables are needed for caching
-long bytecodeIndex_global;
+// The following three variables are used to cache main parts of the
+// current execution context
+long      bytecodeIndexGlobal;
 pVMMethod method;
-uint8_t* current_bytecodes;
+uint8_t*  currentBytecodes;
 
 void Interpreter::Start() {
-//initialization
+    // initialization
     method = GetMethod();
-    current_bytecodes = GetMethod()->GetBytecodes();
+    currentBytecodes = method->GetBytecodes();
 
 void* loopTargets[] = {
     &&LABEL_BC_HALT,
@@ -114,7 +115,7 @@ void* loopTargets[] = {
 }
 ;
 
-goto *loopTargets[current_bytecodes[bytecodeIndex_global]];
+goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];
 
 //
 // THIS IS THE former interpretation loop
@@ -127,27 +128,27 @@ doDup();
   DISPATCH_NOGC();
 LABEL_BC_PUSH_LOCAL:       
   PROLOGUE(3);
-doPushLocal(bytecodeIndex_global - 3);
+doPushLocal(bytecodeIndexGlobal - 3);
   DISPATCH_NOGC();
 LABEL_BC_PUSH_ARGUMENT:
   PROLOGUE(3);
-doPushArgument(bytecodeIndex_global - 3);
+doPushArgument(bytecodeIndexGlobal - 3);
   DISPATCH_NOGC();
 LABEL_BC_PUSH_FIELD:
   PROLOGUE(2);
-doPushField(bytecodeIndex_global - 2);
+doPushField(bytecodeIndexGlobal - 2);
   DISPATCH_NOGC();
 LABEL_BC_PUSH_BLOCK:
   PROLOGUE(2);
-doPushBlock(bytecodeIndex_global - 2);
+doPushBlock(bytecodeIndexGlobal - 2);
   DISPATCH_GC();
 LABEL_BC_PUSH_CONSTANT:
   PROLOGUE(2);
-doPushConstant(bytecodeIndex_global - 2);
+doPushConstant(bytecodeIndexGlobal - 2);
   DISPATCH_NOGC();
 LABEL_BC_PUSH_GLOBAL:
   PROLOGUE(2);
-doPushGlobal(bytecodeIndex_global - 2);
+doPushGlobal(bytecodeIndexGlobal - 2);
   DISPATCH_GC();
 LABEL_BC_POP:
   PROLOGUE(1);
@@ -155,23 +156,23 @@ doPop();
   DISPATCH_NOGC();
 LABEL_BC_POP_LOCAL:
   PROLOGUE(3);
-doPopLocal(bytecodeIndex_global - 3);
+doPopLocal(bytecodeIndexGlobal - 3);
   DISPATCH_NOGC();
 LABEL_BC_POP_ARGUMENT:
   PROLOGUE(3);
-doPopArgument(bytecodeIndex_global - 3);
+doPopArgument(bytecodeIndexGlobal - 3);
   DISPATCH_NOGC();
 LABEL_BC_POP_FIELD:
   PROLOGUE(2);
-doPopField(bytecodeIndex_global - 2);
+doPopField(bytecodeIndexGlobal - 2);
   DISPATCH_NOGC();
 LABEL_BC_SEND:
   PROLOGUE(2);
-doSend(bytecodeIndex_global - 2);
+doSend(bytecodeIndexGlobal - 2);
   DISPATCH_GC();
 LABEL_BC_SUPER_SEND:
   PROLOGUE(2);
-doSuperSend(bytecodeIndex_global - 2);
+doSuperSend(bytecodeIndexGlobal - 2);
   DISPATCH_GC();
 LABEL_BC_RETURN_LOCAL:
   PROLOGUE(1);
@@ -183,15 +184,15 @@ doReturnNonLocal();
   DISPATCH_NOGC();
 LABEL_BC_JUMP_IF_FALSE:
   PROLOGUE(5);
-doJumpIfFalse(bytecodeIndex_global - 5);
+doJumpIfFalse(bytecodeIndexGlobal - 5);
   DISPATCH_NOGC();
 LABEL_BC_JUMP_IF_TRUE:
   PROLOGUE(5);
-doJumpIfTrue(bytecodeIndex_global - 5);
+doJumpIfTrue(bytecodeIndexGlobal - 5);
   DISPATCH_NOGC();
 LABEL_BC_JUMP:
   PROLOGUE(5);
-doJump(bytecodeIndex_global - 5);
+doJump(bytecodeIndexGlobal - 5);
 DISPATCH_NOGC();
 }
 
@@ -202,12 +203,14 @@ pVMFrame Interpreter::PushNewFrame( pVMMethod method ) {
 
 void Interpreter::SetFrame( pVMFrame frame ) {
     if (this->frame != NULL)
-        this->frame->SetBytecodeIndex(bytecodeIndex_global);
+        this->frame->SetBytecodeIndex(bytecodeIndexGlobal);
+
     this->frame = frame;
-    //update cached values
-    method = frame->GetMethod();
-    current_bytecodes = method->GetBytecodes();
-    bytecodeIndex_global = frame->GetBytecodeIndex();
+
+    // update cached values
+    method              = frame->GetMethod();
+    bytecodeIndexGlobal = frame->GetBytecodeIndex();
+    currentBytecodes    = method->GetBytecodes();
 }
 
 pVMFrame Interpreter::GetFrame() {
@@ -259,11 +262,11 @@ void Interpreter::send(pVMSymbol signature, pVMClass receiverClass) {
         if (invokable->IsPrimitive())
         _UNIVERSE->callStats[name].noPrimitiveCalls++;
 #endif
-        //since an invokable is able to change/use the frame, we have to write
-        //cached values before, and read cached values after calling
-        _FRAME->SetBytecodeIndex(bytecodeIndex_global);
+        // since an invokable is able to change/use the frame, we have to write
+        // cached values before, and read cached values after calling
+        _FRAME->SetBytecodeIndex(bytecodeIndexGlobal);
         (*invokable)(_FRAME);
-        bytecodeIndex_global = _FRAME->GetBytecodeIndex();
+        bytecodeIndexGlobal = _FRAME->GetBytecodeIndex();
     } else {
         //doesNotUnderstand
         long numberOfArgs = Signature::GetNumberOfArguments(signature);
@@ -343,14 +346,14 @@ void Interpreter::doPushField(long bytecodeIndex) {
 }
 
 void Interpreter::doPushBlock(long bytecodeIndex) {
-
-    if (current_bytecodes[bytecodeIndex_global] == BC_SEND) {
-        if (_FRAME->GetStackElement(0) == falseObject
-                && method->GetConstant(bytecodeIndex_global) == symbolIfTrue) {
+    // Short cut the negative case of #ifTrue: and #ifFalse:
+    if (currentBytecodes[bytecodeIndexGlobal] == BC_SEND) {
+        if (_FRAME->GetStackElement(0) == falseObject &&
+            method->GetConstant(bytecodeIndexGlobal) == symbolIfTrue) {
             _FRAME->Push(nilObject);
             return;
-        } else if (_FRAME->GetStackElement(0) == trueObject
-                && method->GetConstant(bytecodeIndex_global) == symbolIfFalse) {
+        } else if (_FRAME->GetStackElement(0) == trueObject &&
+                   method->GetConstant(bytecodeIndexGlobal) == symbolIfFalse) {
             _FRAME->Push(nilObject);
             return;
         }
@@ -382,7 +385,7 @@ void Interpreter::doPushGlobal(long bytecodeIndex) {
         //unknowGlobal: needs 2 slots, one for "this" and one for the argument
         long additionalStackSlots = 2 - _FRAME->RemainingStackSize();
         if (additionalStackSlots > 0) {
-            _FRAME->SetBytecodeIndex(bytecodeIndex_global);
+            _FRAME->SetBytecodeIndex(bytecodeIndexGlobal);
             //copy current frame into a bigger one and replace the current frame
             this->SetFrame(VMFrame::EmergencyFrameFrom(_FRAME,
                             additionalStackSlots));
@@ -545,7 +548,8 @@ void Interpreter::doJump(long bytecodeIndex) {
     target |= method->GetBytecode(bytecodeIndex + 2) << 8;
     target |= method->GetBytecode(bytecodeIndex + 3) << 16;
     target |= method->GetBytecode(bytecodeIndex + 4) << 24;
-    //springen
-    bytecodeIndex_global = target;
+
+    // do the jump
+    bytecodeIndexGlobal = target;
 }
 
