@@ -84,17 +84,17 @@ pVMArray VMArray::Clone() const {
 }
 
 void VMArray::CopyIndexableFieldsTo(pVMArray to) const {
-    long noIndexableFields = this->GetNumberOfIndexableFields();
-    for (long i = 0; i < noIndexableFields; ++i) {
+    long numIndexableFields = GetNumberOfIndexableFields();
+    for (long i = 0; i < numIndexableFields; ++i) {
         to->SetIndexableField(i, GetIndexableField(i));
     }
 }
 
 void VMArray::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     long noOfFields = GetNumberOfFields();
-    long noIndexableFields = GetNumberOfIndexableFields();
+    long numIndexableFields = GetNumberOfIndexableFields();
     pVMObject* fields = (pVMObject*)(&clazz);
-    for (long i = 0; i < noOfFields + noIndexableFields; i++) {
+    for (long i = 0; i < noOfFields + numIndexableFields; i++) {
         fields[i] = walk(AS_POINTER(fields[i]));
     }
 }

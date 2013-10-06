@@ -49,14 +49,14 @@ private:
 };
 
 long VMArray::GetNumberOfIndexableFields() const {
-    static const void* cachedArray = NULL;
-    static long noOfIndexableFields = -1;
+    static const pVMArray cachedArray = NULL;
+    static long numIndexableFields = -1;
 
     if (this != cachedArray) {
-        noOfIndexableFields = this->GetAdditionalSpaceConsumption()
-                / sizeof(pVMObject);
+        numIndexableFields = GetAdditionalSpaceConsumption() / sizeof(pVMObject);
         cachedArray = this;
     }
-    return noOfIndexableFields;
+    return numIndexableFields;
 }
+
 #endif

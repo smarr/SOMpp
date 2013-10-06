@@ -130,9 +130,9 @@ void VMClass::AddInstancePrimitive(pVMPrimitive ptr) {
 }
 
 pVMSymbol VMClass::GetInstanceFieldName(long index) const {
-    long noSuperInstanceFields = numberOfSuperInstanceFields();
-    if (index >= noSuperInstanceFields) {
-        index -= noSuperInstanceFields;
+    long numSuperInstanceFields = numberOfSuperInstanceFields();
+    if (index >= numSuperInstanceFields) {
+        index -= numSuperInstanceFields;
         return static_cast<pVMSymbol>(instanceFields->GetIndexableField(index));
     }
     return superClass->GetInstanceFieldName(index);
@@ -179,8 +179,8 @@ pVMInvokable VMClass::LookupInvokable(pVMSymbol name) const {
     if (invokable != NULL)
         return invokable;
 
-    long noInstanceInvokables = GetNumberOfInstanceInvokables();
-    for (long i = 0; i < noInstanceInvokables; ++i) {
+    long numInvokables = GetNumberOfInstanceInvokables();
+    for (long i = 0; i < numInvokables; ++i) {
         invokable = GetInstanceInvokable(i);
         if (invokable->GetSignature() == name) {
             name->UpdateCachedInvokable(this, invokable);
@@ -200,13 +200,13 @@ long VMClass::LookupFieldIndex(pVMSymbol name) const {
     long index = name->GetCachedIndex(this);
     if (index != -1)
         return index;
-    long noInstanceFields = GetNumberOfInstanceFields();
-    for (long i = 0; i <= noInstanceFields; ++i)
-    //even with GetNumberOfInstanceFields == 0 there is the class field
-    if (name == GetInstanceFieldName(i)) {
-        name->UpdateCachedIndex(this, i);
-        return i;
-    }
+    long numInstanceFields = GetNumberOfInstanceFields();
+    for (long i = 0; i <= numInstanceFields; ++i)
+        // even with GetNumberOfInstanceFields == 0 there is the class field
+        if (name == GetInstanceFieldName(i)) {
+            name->UpdateCachedIndex(this, i);
+            return i;
+        }
     return -1;
 }
 
@@ -216,8 +216,8 @@ long VMClass::GetNumberOfInstanceFields() const {
 }
 
 bool VMClass::HasPrimitives() const {
-    long noInstanceInvokables = GetNumberOfInstanceInvokables();
-    for (long i = 0; i < noInstanceInvokables; ++i) {
+    long numInvokables = GetNumberOfInstanceInvokables();
+    for (long i = 0; i < numInvokables; ++i) {
         pVMInvokable invokable = GetInstanceInvokable(i);
         if (invokable->IsPrimitive()) return true;
     }
