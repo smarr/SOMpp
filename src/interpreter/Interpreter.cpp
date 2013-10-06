@@ -218,7 +218,7 @@ pVMFrame Interpreter::GetFrame() {
 }
 
 pVMMethod Interpreter::GetMethod() {
-    return _FRAME->GetMethod();
+    return method;
 }
 
 pVMObject Interpreter::GetSelf() {
