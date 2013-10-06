@@ -34,7 +34,8 @@
 
 #include "../misc/defs.h"
 
-#if defined(_MSC_VER)   //Visual Studio#include <windows.h> 
+#if defined(_MSC_VER)   //Visual Studio
+#include <windows.h> 
 #include "../primitives/Core.h"
 #endif
 

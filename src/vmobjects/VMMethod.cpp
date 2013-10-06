@@ -114,7 +114,7 @@ void VMMethod::SetHolderAll(pVMClass hld) {
     for (long i = 0; i < numIndexableFields; ++i) {
         pVMObject o = GetIndexableField(i);
         pVMInvokable vmi = dynamic_cast<pVMInvokable>(o);
-        if ( vmi != NULL) {
+        if (vmi != NULL) {
             vmi->SetHolder(hld);
         }
     }

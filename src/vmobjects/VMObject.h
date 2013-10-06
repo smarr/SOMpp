@@ -75,9 +75,6 @@ public:
     virtual void SetField(long index, pVMObject value);
     virtual void MarkReferences();
 
-    virtual void IncreaseGCCount() {};
-    virtual void DecreaseGCCount() {};
-
     intptr_t GetHash() const {return hash;};
     size_t GetObjectSize() const;
     int32_t GetGCField() const;

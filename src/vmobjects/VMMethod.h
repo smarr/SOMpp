@@ -62,7 +62,7 @@ public:
     //VMArray Methods....
 
     pVMArray CopyAndExtendWith(pVMObject) const;
-    void CopyIndexableFieldsTo(pVMArray) const;
+    void     CopyIndexableFieldsTo(pVMArray) const;
 
     //-----------VMInvokable-------------//
     //operator "()" to invoke the method

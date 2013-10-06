@@ -48,7 +48,7 @@ public:
 
 protected:
     pVMSymbol signature;
-    pVMClass holder;
+    pVMClass  holder;
 };
 
 #endif
