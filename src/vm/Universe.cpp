@@ -43,7 +43,6 @@
 #include "../vmobjects/VMString.h"
 #include "../vmobjects/VMBigInteger.h"
 #include "../vmobjects/VMEvaluationPrimitive.h"
-#include "../vmobjects/Symboltable.h"
 
 #include "../interpreter/bytecodes.h"
 
@@ -77,6 +76,8 @@ pVMClass stringClass;
 pVMClass systemClass;
 pVMClass blockClass;
 pVMClass doubleClass;
+
+std::map<std::string, pVMSymbol> symbolsMap;
 
 //Singleton accessor
 Universe* Universe::GetUniverse() {
@@ -220,7 +221,6 @@ void Universe::printUsageAndExit(char* executable) const {
 
 Universe::Universe() {
     this->compiler = NULL;
-    this->symboltable = NULL;
     this->interpreter = NULL;
 }
 ;
@@ -233,7 +233,6 @@ void Universe::initialize(long _argc, char** _argv) {
     Heap::InitializeHeap(heapSize);
     heap = _HEAP;
 
-    symboltable = new Symboltable();
     compiler = new SourcecodeCompiler();
     interpreter = new Interpreter();
 
@@ -288,8 +287,6 @@ Universe::~Universe() {
         delete (interpreter);
     if (compiler)
         delete (compiler);
-    if (symboltable)
-        delete (symboltable);
 
     // check done inside
     Heap::DestroyHeap();
@@ -640,7 +637,7 @@ pVMSymbol Universe::NewSymbol( const char* str ) {
     pVMSymbol result = new (_HEAP, additionalBytes) VMSymbol(str);
     result->SetClass(symbolClass);
 
-    symboltable->insert(result);
+    symbolsMap[str] = result;
 
     return result;
 }
@@ -657,14 +654,12 @@ pVMClass Universe::NewSystemClass() const {
 }
 
 pVMSymbol Universe::SymbolFor(const StdString& str) {
-    return SymbolForChars(str.c_str());
-
+    map<string,pVMSymbol>::iterator it = symbolsMap.find(str);
+    return (it == symbolsMap.end()) ? NewSymbol(str) : it->second;
 }
 
 pVMSymbol Universe::SymbolForChars(const char* str) {
-    pVMSymbol result = symboltable->lookup(str);
-
-    return (result != NULL) ? result : NewSymbol(str);
+    return SymbolFor(str);
 }
 
 void Universe::SetGlobal(pVMSymbol name, pVMObject val) {
