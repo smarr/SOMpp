@@ -64,13 +64,6 @@ public:
     pVMArray CopyAndExtendWith(pVMObject) const;
     void CopyIndexableFieldsTo(pVMArray) const;
 
-    /// Methods are considered byte arrays with meta data.
-    // So the index operator returns the bytecode at the index.
-    // Not really used because it violates the C++ idiom to
-    // implement operators in a "natural" way. Does not really
-    // seem so natural to do this.
-    uint8_t& operator[](long indx) const;
-
     //-----------VMInvokable-------------//
     //operator "()" to invoke the method
     virtual void operator()(pVMFrame frame);
