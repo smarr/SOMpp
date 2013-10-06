@@ -79,7 +79,7 @@ bool VMClass::AddInstanceInvokable(pVMObject ptr) {
     }
     //Check whether an invokable with the same signature exists and replace it if that's the case
     for (long i = 0; i < instanceInvokables->GetNumberOfIndexableFields(); ++i) {
-        pVMInvokable inv = static_cast<pVMInvokable>( (*instanceInvokables)[i] );
+        pVMInvokable inv = static_cast<pVMInvokable>(instanceInvokables->GetIndexableField(i));
         if (inv != NULL) {
             if (newInvokable->GetSignature() == inv->GetSignature()) {
                 this->SetInstanceInvokable(i, ptr);
@@ -104,7 +104,7 @@ void VMClass::AddInstancePrimitive(pVMPrimitive ptr) {
 pVMSymbol VMClass::GetInstanceFieldName(long index) const {
     if (index >= numberOfSuperInstanceFields()) {
         index -= numberOfSuperInstanceFields();
-        return static_cast<pVMSymbol>((*instanceFields)[index]);
+        return static_cast<pVMSymbol>(instanceFields->GetIndexableField(index));
     }
     return superClass->GetInstanceFieldName(index);
 }
@@ -114,7 +114,7 @@ void VMClass::SetInstanceInvokables(pVMArray invokables) {
     instanceInvokables = invokables;
 
     for (long i = 0; i < this->GetNumberOfInstanceInvokables(); ++i) {
-        pVMObject invo = (*instanceInvokables)[i];
+        pVMObject invo = instanceInvokables->GetIndexableField(i);
         //check for Nil object
         if (invo != nilObject) {
             //not Nil, so this actually is an invokable
@@ -130,11 +130,11 @@ long VMClass::GetNumberOfInstanceInvokables() const {
 }
 
 pVMInvokable VMClass::GetInstanceInvokable(long index) const {
-    return static_cast<pVMInvokable>((*instanceInvokables)[index]);
+    return static_cast<pVMInvokable>(instanceInvokables->GetIndexableField(index));
 }
 
 void VMClass::SetInstanceInvokable(long index, pVMObject invokable) {
-    (*instanceInvokables)[index] = invokable;
+    instanceInvokables->SetIndexableField(index, invokable);
     if (invokable != nilObject) {
         pVMInvokable inv = static_cast<pVMInvokable>( invokable );
         inv->SetHolder(this);

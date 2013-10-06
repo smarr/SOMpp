@@ -124,7 +124,7 @@ void _Object::PerformWithArguments(pVMObject object, pVMFrame frame) {
 
     size_t num_args = args->GetNumberOfIndexableFields();
     for (size_t i = 0; i < num_args; i++) {
-        pVMObject arg = (*args)[i];
+        pVMObject arg = args->GetIndexableField(i);
         frame->Push(arg);
     }
 
@@ -141,7 +141,7 @@ void _Object::PerformWithArgumentsInSuperclass(pVMObject object, pVMFrame frame)
 
     size_t num_args = args->GetNumberOfIndexableFields();
     for (size_t i = 0; i < num_args; i++) {
-        pVMObject arg = (*args)[i];
+        pVMObject arg = args->GetIndexableField(i);
         frame->Push(arg);
     }
 

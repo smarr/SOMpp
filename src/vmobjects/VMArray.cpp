@@ -26,46 +26,55 @@
 
 #include "VMArray.h"
 
-#include "../vm/Universe.h"
-
-#define theEntries(i) FIELDS[this->GetNumberOfFields()+i]
+#include <vm/Universe.h>
 
 const long VMArray::VMArrayNumberOfFields = 0;
 
 VMArray::VMArray(long size, long nof) :
         VMObject(nof + VMArrayNumberOfFields) {
     _HEAP->StartUninterruptableAllocation();
-
+    // initialize fields with nilObject
+    // SetIndexableField is not used to prevent the write barrier to be called
+    // too often
+    pVMObject* arrFields = (pVMObject*)&clazz + GetNumberOfFields();
     for (long i = 0; i < size; ++i) {
-        (*this)[i] = nilObject;
+        arrFields[i] = nilObject;
     }
     _HEAP->EndUninterruptableAllocation();
+}
 
+pVMObject VMArray::GetIndexableField(long idx) const {
+    if (idx > GetNumberOfIndexableFields() - 1 || idx < 0) {
+        cout << "Array index out of bounds: Accessing " << idx
+        << ", but array size is only " << GetNumberOfIndexableFields() - 1
+        << endl;
+        _UNIVERSE->ErrorExit("Array index out of bounds");
+    }
+    return GetField(GetNumberOfFields() + idx);
+}
+
+void VMArray::SetIndexableField(long idx, pVMObject value) {
+    if (idx > GetNumberOfIndexableFields() - 1 || idx < 0) {
+        cout << "Array index out of bounds: Accessing " << idx
+        << ", but array size is only " << GetNumberOfIndexableFields() - 1
+        << endl;
+        _UNIVERSE->ErrorExit("Array index out of bounds");
+    }
+    SetField(GetNumberOfFields() + idx, value);
 }
 
 pVMArray VMArray::CopyAndExtendWith(pVMObject item) const {
     size_t fields = GetNumberOfIndexableFields();
     pVMArray result = _UNIVERSE->NewArray(fields+1);
     this->CopyIndexableFieldsTo(result);
-    (*result)[fields] = item;
+    result->SetIndexableField(fields, item);
     return result;
 }
 
-pVMObject& VMArray::operator[](long idx) const {
-    if (idx > GetNumberOfIndexableFields()-1 || idx < 0) {
-        cout << "Array index out of bounds: Accessing " << idx
-        << ", but array size is only " << GetNumberOfIndexableFields()-1
-        << endl;
-        _UNIVERSE->ErrorExit("Array index out of bounds");
-    }
-    return theEntries(idx);
-}
-
 void VMArray::CopyIndexableFieldsTo(pVMArray to) const {
-    for (long i = 0; i < this->GetNumberOfIndexableFields(); ++i) {
-        (*to)[i] = (*this)[i];
+    for (long i = 0; i < GetNumberOfIndexableFields(); ++i) {
+        to->SetIndexableField(i, GetIndexableField(i));
     }
-
 }
 
 long VMArray::GetNumberOfIndexableFields() const {
@@ -76,9 +85,9 @@ void VMArray::MarkReferences() {
     if (gcfield)
         return;
     VMObject::MarkReferences();
-    for (int i = 0; i < GetNumberOfIndexableFields(); ++i) {
-        if (theEntries(i)!= NULL)
-        theEntries(i)->MarkReferences();
+    for (long i = 0; i < GetNumberOfIndexableFields(); ++i) {
+        pVMObject o = GetIndexableField(i);
+        if (o != NULL)
+            o->MarkReferences();
     }
-
 }

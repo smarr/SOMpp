@@ -366,7 +366,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
         }
         case BC_POP: {
             size_t sp = frame->GetStackPointer()->GetEmbeddedInteger();
-            pVMObject o = (*(pVMArray)frame)[sp];
+            pVMObject o = frame->GetIndexableField(sp);
             pVMClass c = o->GetClass();
             pVMSymbol cname = c->GetName();
 
@@ -378,7 +378,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
         }
         case BC_POP_LOCAL: {
             size_t sp = frame->GetStackPointer()->GetEmbeddedInteger();
-            pVMObject o = (*(pVMArray)frame)[sp];
+            pVMObject o = frame->GetIndexableField(sp);
             pVMClass c = o->GetClass();
             pVMSymbol cname = c->GetName();
 
@@ -391,7 +391,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
         }
         case BC_POP_ARGUMENT: {
             size_t sp = frame->GetStackPointer()->GetEmbeddedInteger();
-            pVMObject o = (*(pVMArray)frame)[sp];
+            pVMObject o = frame->GetIndexableField(sp);
             pVMClass c = o->GetClass();
             pVMSymbol cname = c->GetName();
             DebugPrint("argument: %d, context: %d <(%s) ", BC_1, BC_2,
@@ -403,7 +403,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
         }
         case BC_POP_FIELD: {
             size_t sp = frame->GetStackPointer()->GetEmbeddedInteger();
-            pVMObject o = (*(pVMArray)frame)[sp];
+            pVMObject o = frame->GetIndexableField(sp);
             pVMSymbol name = static_cast<pVMSymbol>(method->GetConstant(bc_idx));
             pVMClass c = o->GetClass();
             pVMSymbol cname = c->GetName();

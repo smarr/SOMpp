@@ -39,9 +39,9 @@ public:
 
     virtual long GetNumberOfIndexableFields() const;
     pVMArray CopyAndExtendWith(pVMObject) const;
+    pVMObject GetIndexableField(long idx) const;
+    void SetIndexableField(long idx, pVMObject value);
     void CopyIndexableFieldsTo(pVMArray) const;
-
-    pVMObject& operator[](long idx) const;
 
 private:
     static const long VMArrayNumberOfFields;

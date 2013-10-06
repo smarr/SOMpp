@@ -55,7 +55,7 @@ void _Array::At_(pVMObject /*object*/, pVMFrame frame) {
     pVMInteger index = static_cast<pVMInteger>(frame->Pop());
     pVMArray self = static_cast<pVMArray>(frame->Pop());
     long i = index->GetEmbeddedInteger();
-    pVMObject elem = (*self)[i-1];
+    pVMObject elem = self->GetIndexableField(i - 1);
     frame->Push(elem);
 }
 
@@ -64,13 +64,12 @@ void _Array::At_Put_(pVMObject /*object*/, pVMFrame frame) {
     pVMInteger index = static_cast<pVMInteger>(frame->Pop());
     pVMArray self = static_cast<pVMArray>(frame->GetStackElement(0));
     long i = index->GetEmbeddedInteger();
-    (*self)[i - 1] = value;
+    self->SetIndexableField(i - 1, value);
 }
 
 void _Array::Length(pVMObject /*object*/, pVMFrame frame) {
     pVMArray self = static_cast<pVMArray>(frame->Pop());
-    pVMInteger new_int =
-    _UNIVERSE->NewInteger(self->GetNumberOfIndexableFields());
+    pVMInteger new_int = _UNIVERSE->NewInteger(self->GetNumberOfIndexableFields());
     frame->Push(new_int);
 }
 

@@ -111,19 +111,19 @@ long VMFrame::RemainingStackSize() const {
 pVMObject VMFrame::Pop() {
     int32_t sp = this->stackPointer->GetEmbeddedInteger();
     this->stackPointer->SetEmbeddedInteger(sp-1);
-    return (*this)[sp];
+    return GetIndexableField(sp);
 }
 
 void VMFrame::Push(pVMObject obj) {
     int32_t sp = this->stackPointer->GetEmbeddedInteger() + 1;
     this->stackPointer->SetEmbeddedInteger(sp);
-    (*this)[sp] = obj;
+    SetIndexableField(sp, obj);
 }
 
 void VMFrame::PrintStack() const {
     cout << "SP: " << this->stackPointer->GetEmbeddedInteger() << endl;
     for (int i = 0; i < this->GetNumberOfIndexableFields() + 1; ++i) {
-        pVMObject vmo = (*this)[i];
+        pVMObject vmo = GetIndexableField(i);
         cout << i << ": ";
         if (vmo == NULL)
         cout << "NULL" << endl;
@@ -160,35 +160,35 @@ void VMFrame::SetBytecodeIndex(long index) {
 
 pVMObject VMFrame::GetStackElement(long index) const {
     int sp = this->stackPointer->GetEmbeddedInteger();
-    return (*this)[sp-index];
+    return GetIndexableField(sp - index);
 }
 
 void VMFrame::SetStackElement(long index, pVMObject obj) {
     int sp = this->stackPointer->GetEmbeddedInteger();
-    (*this)[sp-index] = obj;
+    SetIndexableField(sp - index, obj);
 }
 
 pVMObject VMFrame::GetLocal(long index, long contextLevel) {
     pVMFrame context = this->GetContextLevel(contextLevel);
     long lo = context->localOffset->GetEmbeddedInteger();
-    return (*context)[lo+index];
+    return context->GetIndexableField(lo + index);
 }
 
 void VMFrame::SetLocal(long index, long contextLevel, pVMObject value) {
     pVMFrame context = this->GetContextLevel(contextLevel);
     size_t lo = context->localOffset->GetEmbeddedInteger();
-    (*context)[lo+index] = value;
+    context->SetIndexableField(lo + index, value);
 }
 
 pVMObject VMFrame::GetArgument(long index, long contextLevel) {
     // get the context
     pVMFrame context = this->GetContextLevel(contextLevel);
-    return (*context)[index];
+    return context->GetIndexableField(index);
 }
 
 void VMFrame::SetArgument(long index, long contextLevel, pVMObject value) {
     pVMFrame context = this->GetContextLevel(contextLevel);
-    (*context)[index] = value;
+    context->SetIndexableField(index, value);
 }
 
 void VMFrame::PrintStackTrace() const {
@@ -208,7 +208,7 @@ void VMFrame::CopyArgumentsFrom(pVMFrame frame) {
     long num_args = meth->GetNumberOfArguments();
     for(long i=0; i < num_args; ++i) {
         pVMObject stackElem = frame->GetStackElement(num_args - 1 - i);
-        (*this)[i] = stackElem;
+        SetIndexableField(i, stackElem);
     }
 }
 

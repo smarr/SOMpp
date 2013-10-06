@@ -188,7 +188,7 @@ void Interpreter::send(pVMSymbol signature, pVMClass receiverClass) {
 
         for (long i = numberOfArgs - 1; i >= 0; --i) {
             pVMObject o = _FRAME->Pop();
-            (*argumentsArray)[i] = o;
+            argumentsArray->SetIndexableField(i, o);
         }
         pVMObject arguments[] = {signature, argumentsArray};
 
@@ -351,7 +351,7 @@ void Interpreter::doSuperSend(long bytecodeIndex) {
 
         for (long i = numOfArgs - 1; i >= 0; --i) {
             pVMObject o = _FRAME->Pop();
-            (*argumentsArray)[i] = o;
+            argumentsArray->SetIndexableField(i, o);
         }
         pVMObject arguments[] = {signature, argumentsArray};
         receiver->Send(dnu, arguments, 2);

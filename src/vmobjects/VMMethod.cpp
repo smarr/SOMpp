@@ -144,7 +144,7 @@ pVMArray VMMethod::CopyAndExtendWith(pVMObject item) const {
     size_t fields = this->GetNumberOfIndexableFields();
     pVMArray result = _UNIVERSE->NewArray(fields+1);
     this->CopyIndexableFieldsTo(result);
-    (*result)[fields] = item;
+    result->SetIndexableField(fields, item);
     return result;
 }
 
@@ -160,7 +160,7 @@ pVMObject VMMethod::GetIndexableField(long idx) const {
 
 void VMMethod::CopyIndexableFieldsTo(pVMArray to) const {
     for (int i = 0; i < this->GetNumberOfIndexableFields(); ++i) {
-        (*to)[i] = this->GetIndexableField(i);
+        to->SetIndexableField(i, GetIndexableField(i));
     }
 
 }
