@@ -39,7 +39,8 @@ VMString::VMString(const char* str) {
     chars = (char*) &chars + sizeof(char*);
 
     size_t i = 0;
-    for (; i < strlen(str); ++i) {
+    size_t len = strlen(str);
+    for (; i < len; ++i) {
         chars[i] = str[i];
     }
     chars[i] = '\0';

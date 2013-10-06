@@ -102,7 +102,8 @@ bool VMClass::AddInstanceInvokable(pVMObject ptr) {
         _UNIVERSE->ErrorExit("Error: trying to add non-invokable to invokables array");
     }
     //Check whether an invokable with the same signature exists and replace it if that's the case
-    for (long i = 0; i < instanceInvokables->GetNumberOfIndexableFields(); ++i) {
+    long numIndexableFields = instanceInvokables->GetNumberOfIndexableFields();
+    for (long i = 0; i < numIndexableFields; ++i) {
         pVMInvokable inv = static_cast<pVMInvokable>(instanceInvokables->GetIndexableField(i));
         if (inv != NULL) {
             if (newInvokable->GetSignature() == inv->GetSignature()) {
@@ -144,7 +145,8 @@ void VMClass::SetInstanceInvokables(pVMArray invokables) {
     _HEAP->writeBarrier(this, instanceInvokables);
 #endif
 
-    for (long i = 0; i < this->GetNumberOfInstanceInvokables(); ++i) {
+    long numInvokables = GetNumberOfInstanceInvokables();
+    for (long i = 0; i < numInvokables; ++i) {
         pVMObject invo = instanceInvokables->GetIndexableField(i);
         //check for Nil object
         if (invo != nilObject) {
@@ -382,11 +384,11 @@ bool VMClass::isResponsible(void* dlhandle, const StdString& cl) const {
  */
 void VMClass::setPrimitives(void* dlhandle, const StdString& cname) {
     pVMPrimitive thePrimitive;
-    PrimitiveRoutine* routine=NULL;
+    PrimitiveRoutine* routine = NULL;
     pVMInvokable anInvokable;
     // iterate invokables
-    for(long i = 0; i < this->GetNumberOfInstanceInvokables(); i++) {
-
+    long numInvokables = GetNumberOfInstanceInvokables();
+    for (long i = 0; i < numInvokables; i++) {
         anInvokable = this->GetInstanceInvokable(i);
 #ifdef __DEBUG
         cout << "cname: >" << cname << "<"<< endl;

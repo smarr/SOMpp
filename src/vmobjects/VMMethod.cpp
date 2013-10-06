@@ -105,9 +105,10 @@ void VMMethod::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     cachedFrame = static_cast<VMFrame*>(walk(cachedFrame));
 #endif
 
-    for (long i = 0; i < GetNumberOfIndexableFields(); ++i) {
+    long numIndexableFields = GetNumberOfIndexableFields();
+    for (long i = 0; i < numIndexableFields; ++i) {
         if (GetIndexableField(i) != NULL)
-        indexableFields[i] = walk(AS_POINTER(GetIndexableField(i)));
+            indexableFields[i] = walk(AS_POINTER(GetIndexableField(i)));
     }
 }
 
