@@ -157,7 +157,7 @@ pVMInvokable VMClass::LookupInvokable(pVMSymbol name) const {
 }
 
 long VMClass::LookupFieldIndex(pVMSymbol name) const {
-    for (long i = 0; i <=GetNumberOfInstanceFields(); ++i) {
+    for (long i = 0; i <= GetNumberOfInstanceFields(); ++i) {
         //even with GetNumberOfInstanceFields == 0 there is the class field 
         if (name == this->GetInstanceFieldName(i) ||
         name->GetStdString() == this->GetInstanceFieldName(i)->GetStdString())

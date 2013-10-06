@@ -34,7 +34,7 @@
 class VMArray: public VMObject {
 public:
     VMArray(long size, long nof = 0);
-    //virtual ~VMArray();
+
     virtual void MarkReferences();
 
     virtual long GetNumberOfIndexableFields() const;

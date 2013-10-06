@@ -34,11 +34,9 @@
 // abstract base class
 class PrimitiveRoutine {
 public:
-    PrimitiveRoutine() {
-    }
-    ;
+    PrimitiveRoutine() {};
 
-    virtual void operator()(pVMObject, pVMFrame)=0;  // call using operator
+    virtual void operator()(pVMObject, pVMFrame) = 0;  // call using operator
 };
 
 // Typedefs for Primitive loading
