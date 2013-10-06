@@ -96,7 +96,7 @@ public:
     static void Quit(long);
     static void ErrorExit(const char*);
 
-    //Globals accessor (only for GC, could be considered be 
+    //Globals accessor (only for GC, could be considered be
     //declared as a private friend method for the GC)
     map<pVMSymbol, pVMObject> GetGlobals() {
         return globals;
