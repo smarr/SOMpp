@@ -173,7 +173,6 @@ void VMClass::SetInstanceInvokable(long index, pVMObject invokable) {
 }
 
 pVMInvokable VMClass::LookupInvokable(pVMSymbol name) const {
-    //pVMInvokable invokable = NULL;
     pVMInvokable invokable = name->GetCachedInvokable(this);
     if (invokable != NULL)
         return invokable;

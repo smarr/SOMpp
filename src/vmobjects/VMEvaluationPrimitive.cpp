@@ -73,13 +73,13 @@ pVMSymbol VMEvaluationPrimitive::computeSignatureString(long argc) {
     StdString signatureString;
 
     // Compute the signature string
-    if(argc==1) {
+    if (argc==1) {
         signatureString += VALUE_S;
     } else {
         signatureString += VALUE_S;
         signatureString += COLON_S;
         --argc;
-        while(--argc)
+        while (--argc)
             // Add extra value: selector elements if necessary
             signatureString += WITH_S;
     }

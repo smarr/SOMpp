@@ -40,10 +40,10 @@ public:
 
     VMPrimitive(pVMSymbol sig);
 
-    virtual inline bool IsEmpty() const;
-    virtual inline void SetRoutine(PrimitiveRoutine* rtn);
+    inline  bool IsEmpty() const;
+    inline  void SetRoutine(PrimitiveRoutine* rtn);
     virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
-    virtual void SetEmpty(bool value) {empty = value;};
+            void SetEmpty(bool value) {empty = value;};
     virtual pVMPrimitive Clone() const;
 
     //-----------VMInvokable-------//

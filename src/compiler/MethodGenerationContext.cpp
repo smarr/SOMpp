@@ -61,12 +61,13 @@ pVMMethod MethodGenerationContext::Assemble() {
     meth->SetMaximumNumberOfStackElements(this->ComputeStackDepth());
 
     // copy literals into the method
-    for(int i = 0; i < numLiterals; i++) {
+    for (int i = 0; i < numLiterals; i++) {
         pVMObject l = literals.Get(i);
         meth->SetIndexableField(i, l);
     }
     // copy bytecodes into method
-    for(size_t i = 0; i < bytecode.size(); i++) {
+    size_t bc_size = bytecode.size();
+    for (size_t i = 0; i < bc_size; i++) {
         meth->SetBytecode(i, bytecode[i]);
     }
     // return the method - the holder field is to be set later on!

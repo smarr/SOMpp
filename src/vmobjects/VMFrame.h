@@ -149,4 +149,5 @@ void VMFrame::ClearPreviousFrame() {
 pVMMethod VMFrame::GetMethod() const {
     return this->method;
 }
+
 #endif

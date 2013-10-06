@@ -33,21 +33,24 @@
 #include "Universe.h"
 #include "Shell.h"
 
-#include "../vmobjects/VMSymbol.h"
-#include "../vmobjects/VMObject.h"
-#include "../vmobjects/VMMethod.h"
-#include "../vmobjects/VMClass.h"
-#include "../vmobjects/VMFrame.h"
-#include "../vmobjects/VMArray.h"
-#include "../vmobjects/VMBlock.h"
-#include "../vmobjects/VMDouble.h"
-#include "../vmobjects/VMInteger.h"
-#include "../vmobjects/VMString.h"
-#include "../vmobjects/VMBigInteger.h"
-#include "../vmobjects/VMEvaluationPrimitive.h"
-#include "../interpreter/bytecodes.h"
-#include "../compiler/Disassembler.h"
-#include "../compiler/SourcecodeCompiler.h"
+#include <vmobjects/VMSymbol.h>
+#include <vmobjects/VMObject.h>
+#include <vmobjects/VMMethod.h>
+#include <vmobjects/VMClass.h>
+#include <vmobjects/VMFrame.h>
+#include <vmobjects/VMArray.h>
+#include <vmobjects/VMBlock.h>
+#include <vmobjects/VMDouble.h>
+#include <vmobjects/VMInteger.h>
+#include <vmobjects/VMString.h>
+#include <vmobjects/VMBigInteger.h>
+#include <vmobjects/VMEvaluationPrimitive.h>
+
+#include <interpreter/bytecodes.h>
+
+#include <compiler/Disassembler.h>
+#include <compiler/SourcecodeCompiler.h>
+
 #ifdef USE_TAGGING
 #include "../vmobjects/IntegerBox.h"
 #endif
@@ -575,7 +578,7 @@ void Universe::LoadSystemClass( pVMClass systemClass) {
     result->LoadPrimitives(classPath);
 }
 
-pVMArray Universe::NewArray( long size) const {
+pVMArray Universe::NewArray(long size) const {
     long additionalBytes = size*sizeof(pVMObject);
 #if GC_TYPE==GENERATIONAL
     //if the array is too big for the nursery, we will directly allocate a
@@ -656,14 +659,14 @@ pVMClass Universe::NewClass(pVMClass classOfClass) const {
     return result;
 }
 
-pVMDouble Universe::NewDouble( double value) const {
+pVMDouble Universe::NewDouble(double value) const {
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION("VMDouble", sizeof(VMDouble));
 #endif
     return new (_HEAP) VMDouble(value);
 }
 
-pVMFrame Universe::NewFrame( pVMFrame previousFrame, pVMMethod method) const {
+pVMFrame Universe::NewFrame(pVMFrame previousFrame, pVMMethod method) const {
     pVMFrame result = NULL;
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     result = method->GetCachedFrame();

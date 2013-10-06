@@ -47,33 +47,26 @@ class VMMethod: public VMInvokable {
 public:
     VMMethod(long bcCount, long numberOfConstants, long nof = 0);
 
-    inline long GetNumberOfLocals() const;
-    void SetNumberOfLocals(long nol);
-    long GetMaximumNumberOfStackElements() const;
-    void SetMaximumNumberOfStackElements(long stel);
-    inline long GetNumberOfArguments() const;
-    void SetNumberOfArguments(long);
-    long GetNumberOfBytecodes() const;
-    void SetHolderAll(pVMClass hld);
-    pVMObject GetConstant(long indx) const;
-    inline uint8_t GetBytecode(long indx) const;
-    inline void SetBytecode(long indx, uint8_t);
+    inline  long      GetNumberOfLocals() const;
+            void      SetNumberOfLocals(long nol);
+            long      GetMaximumNumberOfStackElements() const;
+            void      SetMaximumNumberOfStackElements(long stel);
+    inline  long      GetNumberOfArguments() const;
+            void      SetNumberOfArguments(long);
+            long      GetNumberOfBytecodes() const;
+            void      SetHolderAll(pVMClass hld);
+            pVMObject GetConstant(long indx) const;
+    inline  uint8_t   GetBytecode(long indx) const;
+    inline  void      SetBytecode(long indx, uint8_t);
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     void SetCachedFrame(pVMFrame frame);
     pVMFrame GetCachedFrame() const;
 #endif
     virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
-    inline long GetNumberOfIndexableFields() const;
+    inline  long      GetNumberOfIndexableFields() const;
     virtual pVMMethod Clone() const;
 
-    inline void SetIndexableField(long idx, pVMObject item);
-
-    /// Methods are considered byte arrays with meta data.
-    // So the index operator returns the bytecode at the index.
-    // Not really used because it violates the C++ idiom to
-    // implement operators in a "natural" way. Does not really
-    // seem so natural to do this.
-    uint8_t& operator[](long indx) const;
+    inline  void      SetIndexableField(long idx, pVMObject item);
 
     //-----------VMInvokable-------------//
     //operator "()" to invoke the method

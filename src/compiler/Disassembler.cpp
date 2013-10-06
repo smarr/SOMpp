@@ -268,6 +268,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
     uint8_t bc = BC_0;
     VMOBJECT_PTR clo = method->GetHolder();
     pVMClass cl = dynamic_cast<pVMClass>(clo);
+
     // Determine Context: Class or Block?
     if (cl != NULL) {
         pVMSymbol cname = cl->GetName();

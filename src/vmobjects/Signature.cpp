@@ -29,15 +29,17 @@
 
 int Signature::GetNumberOfArguments(pVMSymbol sig) {
     // check default binaries
-    if(Signature::IsBinary(sig)) return 2;
+    if (Signature::IsBinary(sig))
+        return 2;
+
     char* str = sig->GetChars();
 
     // colons in str
-    int numColons =0;
+    int numColons = 0;
     int i = 0;
     while (str[i] != '\0')
-    if (str[i++] == ':')
-    numColons++;
+        if (str[i++] == ':')
+            numColons++;
     return numColons + 1;
 }
 

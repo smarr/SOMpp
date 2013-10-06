@@ -202,8 +202,3 @@ pVMObject VMMethod::GetConstant(long indx) const {
     }
     return this->GetIndexableField(bytecodes[indx+1]);
 }
-
-uint8_t& VMMethod::operator[](long indx) const {
-    return bytecodes[indx];
-}
-

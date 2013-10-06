@@ -37,7 +37,6 @@ class VMEvaluationPrimitive;
 class VMBlock: public VMObject {
 public:
     VMBlock();
-    //virtual ~VMBlock();
 
     void SetMethod(pVMMethod);pVMMethod GetMethod() const;
     inline void SetContext(pVMFrame);

@@ -79,7 +79,7 @@ void Shell::Start() {
     /**
      * Main Shell Loop
      */
-    while(!cin.eof()) {
+    while (!cin.eof()) {
         // initialize empty strings
         StdString statement;
         StdString inp;
@@ -120,9 +120,8 @@ void Shell::Start() {
         currentFrame->Push(it);
 
         // Lookup the run: method
-        pVMInvokable initialize =
-        dynamic_cast<pVMInvokable>(runClass->LookupInvokable(
-                        _UNIVERSE->SymbolFor("run:")));
+        pVMInvokable initialize = runClass->LookupInvokable(
+                                        _UNIVERSE->SymbolFor("run:"));
 
         // Invoke the run method
         (*initialize)(currentFrame);

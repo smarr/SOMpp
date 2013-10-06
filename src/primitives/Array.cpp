@@ -59,7 +59,7 @@ void _Array::At_(pVMObject /*object*/, pVMFrame frame) {
 #else
     long i = index->GetEmbeddedInteger();
 #endif
-    pVMObject elem = self->GetIndexableField(i-1);
+    pVMObject elem = self->GetIndexableField(i - 1);
     frame->Push(elem);
 }
 
@@ -89,10 +89,10 @@ void _Array::New_(pVMObject /*object*/, pVMFrame frame) {
     pVMInteger length = static_cast<pVMInteger>(frame->Pop());
     frame->Pop();
 #ifdef USE_TAGGING
-        long size = UNTAG_INTEGER(length);
+    long size = UNTAG_INTEGER(length);
 #else
-        long size = length->GetEmbeddedInteger();
+    long size = length->GetEmbeddedInteger();
 #endif
-        frame->Push(_UNIVERSE->NewArray(size));
-    }
+    frame->Push(_UNIVERSE->NewArray(size));
+}
 

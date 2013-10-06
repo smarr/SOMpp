@@ -270,7 +270,7 @@ void VMFrame::CopyArgumentsFrom(pVMFrame frame) {
     // - arguments are at the top of the stack of frame.
     // - copy them into the argument area of the current frame
     long num_args = GetMethod()->GetNumberOfArguments();
-    for(long i=0; i < num_args; ++i) {
+    for (long i = 0; i < num_args; ++i) {
         pVMObject stackElem = frame->GetStackElement(num_args - 1 - i);
         arguments[i] = stackElem;
 #if GC_TYPE==GENERATIONAL

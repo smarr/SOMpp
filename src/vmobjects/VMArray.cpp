@@ -26,17 +26,15 @@
 
 #include "VMArray.h"
 
-#include "../vm/Universe.h"
-
-#define theEntries(i) FIELDS[VMObject::GetNumberOfFields()+i]
+#include <vm/Universe.h>
 
 const long VMArray::VMArrayNumberOfFields = 0;
 
 VMArray::VMArray(long size, long nof) :
         VMObject(nof + VMArrayNumberOfFields) {
-    //initialize fields with nilObject
-    //SetIndexableField is not used to prevent the write barrier to be called
-    //   too often
+    // initialize fields with nilObject
+    // SetIndexableField is not used to prevent the write barrier to be called
+    // too often
     pVMObject* arrFields = (pVMObject*)&clazz + GetNumberOfFields();
     for (long i = 0; i < size; ++i) {
         arrFields[i] = nilObject;
@@ -44,23 +42,23 @@ VMArray::VMArray(long size, long nof) :
 }
 
 pVMObject VMArray::GetIndexableField(long idx) const {
-    if ((long)idx > GetNumberOfIndexableFields()-1) {
+    if (idx > GetNumberOfIndexableFields() - 1) {
         cout << "Array index out of bounds: Accessing " << idx
-        << ", but array size is only " << GetNumberOfIndexableFields()-1
+        << ", but array size is only " << GetNumberOfIndexableFields() - 1
         << endl;
         _UNIVERSE->ErrorExit("Array index out of bounds");
     }
-    return GetField(this->GetNumberOfFields()+idx);
+    return GetField(GetNumberOfFields() + idx);
 }
 
 void VMArray::SetIndexableField(long idx, pVMObject value) {
-    if ((long)idx > GetNumberOfIndexableFields()-1) {
+    if (idx > GetNumberOfIndexableFields() - 1) {
         cout << "Array index out of bounds: Accessing " << idx
-        << ", but array size is only " << GetNumberOfIndexableFields()-1
+        << ", but array size is only " << GetNumberOfIndexableFields() - 1
         << endl;
         _UNIVERSE->ErrorExit("Array index out of bounds");
     }
-    SetField(this->GetNumberOfFields()+idx, value);
+    SetField(GetNumberOfFields() + idx, value);
 }
 
 pVMArray VMArray::CopyAndExtendWith(pVMObject item) const {

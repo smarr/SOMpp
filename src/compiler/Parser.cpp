@@ -190,7 +190,7 @@ void Parser::Classdef(ClassGenerationContext* cgenc) {
 
     expect(NewTerm);
     instanceFields(cgenc);
-    while(sym == Identifier || sym == Keyword || sym == OperatorSequence ||
+    while (sym == Identifier || sym == Keyword || sym == OperatorSequence ||
     symIn(binaryOpSyms)) {
 
         MethodGenerationContext* mgenc = new MethodGenerationContext();
@@ -209,7 +209,7 @@ void Parser::Classdef(ClassGenerationContext* cgenc) {
     if(accept(Separator)) {
         cgenc->SetClassSide(true);
         classFields(cgenc);
-        while(sym == Identifier || sym == Keyword || sym == OperatorSequence ||
+        while (sym == Identifier || sym == Keyword || sym == OperatorSequence ||
         symIn(binaryOpSyms)) {
             MethodGenerationContext* mgenc = new MethodGenerationContext();
             mgenc->SetHolder(cgenc);
