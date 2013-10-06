@@ -40,10 +40,10 @@ public:
 
     VMPrimitive(pVMSymbol sig);
 
-    virtual inline bool IsEmpty() const;
-    virtual inline void SetRoutine(PrimitiveRoutine* rtn);
+    inline  bool IsEmpty() const;
+    inline  void SetRoutine(PrimitiveRoutine* rtn);
     virtual void MarkReferences();
-    virtual void SetEmpty(bool value) {empty = value;};
+            void SetEmpty(bool value) {empty = value;};
 
     //-----------VMInvokable-------//
     //operator "()" to invoke the primitive

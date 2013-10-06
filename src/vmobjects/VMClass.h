@@ -49,26 +49,26 @@ public:
     VMClass();
     VMClass(long numberOfFields);
 
-    virtual inline pVMClass GetSuperClass() const;
-    virtual inline void SetSuperClass(pVMClass);
-    virtual bool HasSuperClass() const;
-    virtual inline pVMSymbol GetName() const;
-    virtual inline void SetName(pVMSymbol);
-    virtual inline pVMArray GetInstanceFields() const;
-    virtual inline void SetInstanceFields(pVMArray);
-    virtual inline pVMArray GetInstanceInvokables() const;
-    virtual void SetInstanceInvokables(pVMArray);
-    virtual long GetNumberOfInstanceInvokables() const;
-    virtual pVMInvokable GetInstanceInvokable(long) const;
-    virtual void SetInstanceInvokable(long, pVMObject);
-    virtual pVMInvokable LookupInvokable(pVMSymbol) const;
-    virtual long LookupFieldIndex(pVMSymbol) const;
-    virtual bool AddInstanceInvokable(pVMObject);
-    virtual void AddInstancePrimitive(pVMPrimitive);
-    virtual pVMSymbol GetInstanceFieldName(long)const;
-    virtual long GetNumberOfInstanceFields() const;
-    virtual bool HasPrimitives() const;
-    virtual void LoadPrimitives(const vector<StdString>&);
+    inline pVMClass     GetSuperClass() const;
+    inline void         SetSuperClass(pVMClass);
+           bool         HasSuperClass() const;
+    inline pVMSymbol    GetName() const;
+    inline void         SetName(pVMSymbol);
+    inline pVMArray     GetInstanceFields() const;
+    inline void         SetInstanceFields(pVMArray);
+    inline pVMArray     GetInstanceInvokables() const;
+           void         SetInstanceInvokables(pVMArray);
+           long         GetNumberOfInstanceInvokables() const;
+           pVMInvokable GetInstanceInvokable(long) const;
+           void         SetInstanceInvokable(long, pVMObject);
+           pVMInvokable LookupInvokable(pVMSymbol) const;
+           long         LookupFieldIndex(pVMSymbol) const;
+           bool         AddInstanceInvokable(pVMObject);
+           void         AddInstancePrimitive(pVMPrimitive);
+           pVMSymbol    GetInstanceFieldName(long)const;
+           long         GetNumberOfInstanceFields() const;
+           bool         HasPrimitives() const;
+           void         LoadPrimitives(const vector<StdString>&);
 
 private:
 

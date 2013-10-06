@@ -43,19 +43,19 @@ class VMMethod: public VMInvokable {
 public:
     VMMethod(long bcCount, long numberOfConstants, long nof = 0);
 
-    virtual long GetNumberOfLocals() const;
-    virtual void SetNumberOfLocals(long nol);
-    virtual long GetMaximumNumberOfStackElements() const;
-    virtual void SetMaximumNumberOfStackElements(long stel);
-    virtual long GetNumberOfArguments() const;
-    virtual void SetNumberOfArguments(long);
-    virtual long GetNumberOfBytecodes() const;
-    virtual void SetHolderAll(pVMClass hld);
-    virtual pVMObject GetConstant(long indx) const;
-    virtual uint8_t GetBytecode(long indx) const;
-    virtual void SetBytecode(long indx, uint8_t);
-    virtual void MarkReferences();
-    virtual long GetNumberOfIndexableFields() const;
+            long      GetNumberOfLocals() const;
+            void      SetNumberOfLocals(long nol);
+            long      GetMaximumNumberOfStackElements() const;
+            void      SetMaximumNumberOfStackElements(long stel);
+            long      GetNumberOfArguments() const;
+            void      SetNumberOfArguments(long);
+            long      GetNumberOfBytecodes() const;
+            void      SetHolderAll(pVMClass hld);
+            pVMObject GetConstant(long indx) const;
+            uint8_t   GetBytecode(long indx) const;
+            void      SetBytecode(long indx, uint8_t);
+    virtual void      MarkReferences();
+            long      GetNumberOfIndexableFields() const;
 
     void SetIndexableField(long idx, pVMObject item);
 

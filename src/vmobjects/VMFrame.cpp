@@ -84,21 +84,21 @@ bool VMFrame::HasContext() const {
     return this->context != nilObject;
 }
 
-pVMFrame VMFrame::GetContextLevel(long lvl) {
-    pVMFrame current = this;
+pVMFrame VMFrame::GetContextLevel(long lvl) const {
+    const pVMFrame current = this;
     while (lvl > 0) {
         current = current->GetContext();
         --lvl;
     }
-    return current;
+    return const_cast<pVMFrame>(current);
 }
 
-pVMFrame VMFrame::GetOuterContext() {
-    pVMFrame current = this;
+pVMFrame VMFrame::GetOuterContext() const {
+    const pVMFrame current = this;
     while (current->HasContext()) {
         current = current->GetContext();
     }
-    return current;
+    return const_cast<pVMFrame>(current);
 }
 
 long VMFrame::RemainingStackSize() const {
@@ -169,7 +169,7 @@ void VMFrame::SetStackElement(long index, pVMObject obj) {
     SetIndexableField(sp - index, obj);
 }
 
-pVMObject VMFrame::GetLocal(long index, long contextLevel) {
+pVMObject VMFrame::GetLocal(long index, long contextLevel) const {
     pVMFrame context = this->GetContextLevel(contextLevel);
     long lo = context->localOffset->GetEmbeddedInteger();
     return context->GetIndexableField(lo + index);
@@ -181,7 +181,7 @@ void VMFrame::SetLocal(long index, long contextLevel, pVMObject value) {
     context->SetIndexableField(lo + index, value);
 }
 
-pVMObject VMFrame::GetArgument(long index, long contextLevel) {
+pVMObject VMFrame::GetArgument(long index, long contextLevel) const {
     // get the context
     pVMFrame context = this->GetContextLevel(contextLevel);
     return context->GetIndexableField(index);

@@ -39,37 +39,38 @@ public:
 
     VMFrame(long size, long nof = 0);
 
-    virtual inline pVMFrame GetPreviousFrame() const;
-    virtual inline void SetPreviousFrame(pVMFrame);
-    virtual inline void ClearPreviousFrame();
-    virtual bool HasPreviousFrame() const;
-    virtual inline bool IsBootstrapFrame() const;
-    virtual inline pVMFrame GetContext() const;
-    virtual inline void SetContext(pVMFrame);
-    virtual bool HasContext() const;
-    virtual pVMFrame GetContextLevel(long);
-    virtual pVMFrame GetOuterContext();
-    virtual pVMMethod GetMethod() const;
-    virtual void SetMethod(pVMMethod);
-    virtual pVMObject Pop();
-    virtual void Push(pVMObject);
-    virtual void ResetStackPointer();
-    virtual long GetBytecodeIndex() const;
-    virtual void SetBytecodeIndex(long);
-    virtual pVMObject GetStackElement(long) const;
-    virtual void SetStackElement(long, pVMObject);
-    virtual pVMObject GetLocal(long, long);
-    virtual void SetLocal(long, long, pVMObject);
-    virtual pVMObject GetArgument(long, long);
-    virtual void SetArgument(long, long, pVMObject);
-    virtual void PrintStackTrace() const;
-    virtual long ArgumentStackIndex(long index) const;
-    virtual void CopyArgumentsFrom(pVMFrame frame);
+    inline pVMFrame  GetPreviousFrame() const;
+    inline void      SetPreviousFrame(pVMFrame);
+    inline void      ClearPreviousFrame();
+           bool      HasPreviousFrame() const;
+    inline bool      IsBootstrapFrame() const;
+    inline pVMFrame  GetContext() const;
+    inline void      SetContext(pVMFrame);
+           bool      HasContext() const;
+           pVMFrame  GetContextLevel(long) const;
+           pVMFrame  GetOuterContext() const;
+           pVMMethod GetMethod() const;
+           void      SetMethod(pVMMethod);
+           pVMObject Pop();
+           void      Push(pVMObject);
+           void      ResetStackPointer();
+           long      GetBytecodeIndex() const;
+           void      SetBytecodeIndex(long);
+           pVMObject GetStackElement(long) const;
+           void      SetStackElement(long, pVMObject);
+           pVMObject GetLocal(long, long) const;
+           void      SetLocal(long, long, pVMObject);
+           pVMObject GetArgument(long, long) const;
+           void      SetArgument(long, long, pVMObject);
+           void      PrintStackTrace() const;
+           long      ArgumentStackIndex(long index) const;
+           void      CopyArgumentsFrom(pVMFrame frame);
 
     virtual void MarkReferences();
-    virtual void PrintStack() const;
-    virtual inline pVMInteger GetStackPointer() const;
-    virtual long RemainingStackSize() const;
+
+           void       PrintStack() const;
+    inline pVMInteger GetStackPointer() const;
+           long       RemainingStackSize() const;
 private:
     pVMFrame previousFrame;
     pVMFrame context;
