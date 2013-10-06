@@ -36,7 +36,8 @@
 
 #if defined(__GNUC__)
 #   include <dlfcn.h>
-#else   //Visual Studio/**
+#else   //Visual Studio
+/**
  * Emualting the dl-interface with win32 means
  */
 #   define WIN32_LEAN_AND_MEAN

@@ -263,7 +263,6 @@ void Interpreter::doPushGlobal(long bytecodeIndex) {
     pVMMethod method = _METHOD;
 
     pVMSymbol globalName = static_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));
-
     pVMObject global = _UNIVERSE->GetGlobal(globalName);
 
     if(global != NULL)

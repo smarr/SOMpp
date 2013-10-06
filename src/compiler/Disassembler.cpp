@@ -425,8 +425,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
             GetStackElement(
             Signature::GetNumberOfArguments(sel)-1);
             pVMClass elemClass = elem->GetClass();
-            pVMInvokable inv = dynamic_cast<pVMInvokable>(
-            elemClass->LookupInvokable(sel));
+            pVMInvokable inv = dynamic_cast<pVMInvokable>(elemClass->LookupInvokable(sel));
 
             if(inv != NULL && inv->IsPrimitive())
                 DebugPrint("*)\n");

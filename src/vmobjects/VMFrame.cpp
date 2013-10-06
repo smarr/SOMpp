@@ -207,7 +207,7 @@ void VMFrame::CopyArgumentsFrom(pVMFrame frame) {
     // - copy them into the argument area of the current frame
     pVMMethod meth = this->GetMethod();
     long num_args = meth->GetNumberOfArguments();
-    for(long i=0; i < num_args; ++i) {
+    for (long i = 0; i < num_args; ++i) {
         pVMObject stackElem = frame->GetStackElement(num_args - 1 - i);
         SetIndexableField(i, stackElem);
     }

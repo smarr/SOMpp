@@ -61,7 +61,7 @@ pVMMethod MethodGenerationContext::Assemble() {
     meth->SetMaximumNumberOfStackElements(this->ComputeStackDepth());
 
     // copy literals into the method
-    for(int i = 0; i < numLiterals; i++) {
+    for (int i = 0; i < numLiterals; i++) {
         pVMObject l = literals.Get(i);
         meth->SetIndexableField(i, l);
     }

@@ -31,23 +31,23 @@
 #include "Universe.h"
 #include "Shell.h"
 
-#include "../vmobjects/VMSymbol.h"
-#include "../vmobjects/VMObject.h"
-#include "../vmobjects/VMMethod.h"
-#include "../vmobjects/VMClass.h"
-#include "../vmobjects/VMFrame.h"
-#include "../vmobjects/VMArray.h"
-#include "../vmobjects/VMBlock.h"
-#include "../vmobjects/VMDouble.h"
-#include "../vmobjects/VMInteger.h"
-#include "../vmobjects/VMString.h"
-#include "../vmobjects/VMBigInteger.h"
-#include "../vmobjects/VMEvaluationPrimitive.h"
+#include <vmobjects/VMSymbol.h>
+#include <vmobjects/VMObject.h>
+#include <vmobjects/VMMethod.h>
+#include <vmobjects/VMClass.h>
+#include <vmobjects/VMFrame.h>
+#include <vmobjects/VMArray.h>
+#include <vmobjects/VMBlock.h>
+#include <vmobjects/VMDouble.h>
+#include <vmobjects/VMInteger.h>
+#include <vmobjects/VMString.h>
+#include <vmobjects/VMBigInteger.h>
+#include <vmobjects/VMEvaluationPrimitive.h>
 
-#include "../interpreter/bytecodes.h"
+#include <interpreter/bytecodes.h>
 
-#include "../compiler/Disassembler.h"
-#include "../compiler/SourcecodeCompiler.h"
+#include <compiler/Disassembler.h>
+#include <compiler/SourcecodeCompiler.h>
 
 // Here we go:
 
