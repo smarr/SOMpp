@@ -68,7 +68,6 @@ void _System::Global_put_(pVMObject /*object*/, pVMFrame frame) {
 
 void _System::Load_(pVMObject /*object*/, pVMFrame frame) {
     pVMSymbol arg = static_cast<pVMSymbol>(frame->Pop());
-    /*pVMObject self = */
     frame->Pop();
     pVMClass result = _UNIVERSE->LoadClass(arg);
     if (result)
@@ -85,8 +84,8 @@ void _System::Exit_(pVMObject /*object*/, pVMFrame frame) {
     int32_t err_no = err->GetEmbeddedInteger();
 #endif
 
-    if(err_no != ERR_SUCCESS)
-    frame->PrintStackTrace();
+    if (err_no != ERR_SUCCESS)
+        frame->PrintStackTrace();
     _UNIVERSE->Quit(err_no);
 }
 

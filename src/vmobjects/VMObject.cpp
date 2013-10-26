@@ -41,7 +41,7 @@ VMObject::VMObject(long numberOfFields) {
     this->SetNumberOfFields(numberOfFields + VMObjectNumberOfFields);
     gcfield = 0;
     hash = (size_t) this;
-    //Object size is set by the heap
+    // Object size was already set by the heap on allocation
 }
 
 pVMObject VMObject::Clone() const {

@@ -91,7 +91,7 @@ public:
         //if outsideNursery flag is set or object is too big for nursery, we
         // allocate a mature object
         if (outsideNursery)
-        return (void*) ((GenerationalHeap*)heap)->AllocateMatureObject(numBytes +
+            return (void*) ((GenerationalHeap*)heap)->AllocateMatureObject(numBytes +
                 additionalBytes);
         return (void*) ((GenerationalHeap*)heap)->AllocateNurseryObject(numBytes + additionalBytes);
     }

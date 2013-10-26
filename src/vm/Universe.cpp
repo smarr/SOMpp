@@ -183,7 +183,8 @@ void Universe::ErrorExit(const char* err) {
 vector<StdString> Universe::handleArguments(long argc, char** argv) {
     vector<StdString> vmArgs = vector<StdString>();
     dumpBytecodes = 0;
-    gcVerbosity = 0;
+    gcVerbosity   = 0;
+
     for (long i = 1; i < argc; ++i) {
 
         if (strncmp(argv[i], "-cp", 3) == 0) {
@@ -311,6 +312,7 @@ void Universe::initialize(long _argc, char** _argv) {
     heapSize = 1 * 1024 * 1024;
 
     vector<StdString> argv = this->handleArguments(_argc, _argv);
+    
     // remember file that was executed (for writing statistics)
     bm_name = argv[0];
 
@@ -485,7 +487,7 @@ pVMObject Universe::GetGlobal(pVMSymbol name) {
     return globals[name];
 }
 
-bool Universe::HasGlobal( pVMSymbol name) {
+bool Universe::HasGlobal(pVMSymbol name) {
     if (globals[name] != NULL)
         return true;
     else
@@ -524,9 +526,9 @@ pVMClass superClass, const char* name) {
 
 }
 
-pVMClass Universe::LoadClass( pVMSymbol name) {
     if (HasGlobal(name))
         return static_cast<pVMClass>(GetGlobal(name));
+pVMClass Universe::LoadClass(pVMSymbol name) {
 
     pVMClass result = LoadClassBasic(name, NULL);
 
@@ -541,7 +543,7 @@ pVMClass Universe::LoadClass( pVMSymbol name) {
     return result;
 }
 
-pVMClass Universe::LoadClassBasic( pVMSymbol name, pVMClass systemClass) {
+pVMClass Universe::LoadClassBasic(pVMSymbol name, pVMClass systemClass) {
     StdString s_name = name->GetStdString();
     //cout << s_name.c_str() << endl;
     pVMClass result;
@@ -583,23 +585,26 @@ void Universe::LoadSystemClass( pVMClass systemClass) {
 }
 
 pVMArray Universe::NewArray(long size) const {
-    long additionalBytes = size*sizeof(pVMObject);
+    long additionalBytes = size * sizeof(pVMObject);
+    
 #if GC_TYPE==GENERATIONAL
-    //if the array is too big for the nursery, we will directly allocate a
+    // if the array is too big for the nursery, we will directly allocate a
     // mature object
-    bool outsideNursery =
-    additionalBytes+sizeof(VMArray) > _HEAP->GetMaxNurseryObjectSize();
+    bool outsideNursery = additionalBytes + sizeof(VMArray) > _HEAP->GetMaxNurseryObjectSize();
 
     pVMArray result = new (_HEAP, additionalBytes, outsideNursery) VMArray(size);
     if (outsideNursery)
-    result->SetGCField(MASK_OBJECT_IS_OLD);
+        result->SetGCField(MASK_OBJECT_IS_OLD);
 #else
     pVMArray result = new (_HEAP, additionalBytes) VMArray(size);
 #endif
+
     result->SetClass(arrayClass);
+    
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION("VMArray", result->GetObjectSize());
 #endif
+    
     return result;
 }
 
@@ -615,7 +620,7 @@ pVMArray Universe::NewArrayFromArgv( const vector<StdString>& argv) const {
     return result;
 }
 
-pVMArray Universe::NewArrayList(ExtendedList<pVMObject>& list ) const {
+pVMArray Universe::NewArrayList(ExtendedList<pVMObject>& list) const {
     long size = list.Size();
     pVMArray result = NewArray(size);
 
@@ -778,7 +783,7 @@ void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
 #endif
 #endif
 
-    //walk all entries in globals map
+    // walk all entries in globals map
     map<pVMSymbol, pVMObject> globs = globals;
     globals.clear();
     map<pVMSymbol, pVMObject>::iterator iter;
@@ -790,7 +795,8 @@ void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
         pVMObject val = walk((VMOBJECT_PTR)iter->second);
         globals[key] = val;
     }
-    //walk all entries in symbols map
+    
+    // walk all entries in symbols map
     map<StdString, pVMSymbol>::iterator symbolIter;
     for (symbolIter = symbolsMap.begin(); symbolIter !=
     symbolsMap.end(); symbolIter++) {

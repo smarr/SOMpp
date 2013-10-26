@@ -25,12 +25,14 @@ VMOBJECT_PTR mark_object(VMOBJECT_PTR obj) {
 #ifdef USE_TAGGING
     //don't process tagged objects
     if (IS_TAGGED(obj))
-    return obj;
+        return obj;
 #endif
     if (obj->GetGCField() & MASK_OBJECT_IS_MARKED)
-    return (obj);
+        return (obj);
+
     obj->SetGCField(MASK_OBJECT_IS_OLD | MASK_OBJECT_IS_MARKED);
     obj->WalkObjects(&mark_object);
+    
     return obj;
 }
 
@@ -41,18 +43,22 @@ VMOBJECT_PTR copy_if_necessary(VMOBJECT_PTR obj) {
     return obj;
 #endif
     size_t gcField = obj->GetGCField();
-    //if this is an old object already, we don't have to copy
+
+    // if this is an old object already, we don't have to copy
     if (gcField & MASK_OBJECT_IS_OLD)
-    return obj;
-    //GCField is abused as forwarding pointer here
-    //if someone has moved before, return the moved object
+        return obj;
+
+    // GCField is abused as forwarding pointer here
+    // if someone has moved before, return the moved object
     if (gcField != 0)
-    return (VMOBJECT_PTR)gcField;
-    //we have to clone ourselves
+        return (VMOBJECT_PTR) gcField;
+    
+    // we have to clone ourselves
     VMOBJECT_PTR newObj = obj->Clone();
     obj->SetGCField((size_t)newObj);
     newObj->SetGCField(MASK_OBJECT_IS_OLD);
-    //walk recursively
+
+    // walk recursively
     newObj->WalkObjects(copy_if_necessary);
     return newObj;
 }

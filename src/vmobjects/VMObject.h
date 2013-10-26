@@ -34,8 +34,8 @@
 
 #include "AbstractObject.h"
 
-#include "../misc/defs.h"
-#include "../vm/Universe.h"
+#include <misc/defs.h>
+#include <vm/Universe.h>
 
 #include "ObjectFormats.h"
 

@@ -154,7 +154,6 @@ void VMClass::SetInstanceInvokables(pVMArray invokables) {
             inv->SetHolder(this);
         }
     }
-
 }
 
 long VMClass::GetNumberOfInstanceInvokables() const {

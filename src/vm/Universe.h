@@ -110,7 +110,7 @@ public:
     Interpreter* GetInterpreter() {
         return interpreter;
     }
-
+    
     //
 
     void Assert(bool) const;
