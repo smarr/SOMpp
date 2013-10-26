@@ -565,87 +565,98 @@ void Parser::binaryOperand(MethodGenerationContext* mgenc, bool* super) {
         unaryMessage(mgenc, *super);
 }
 
+void Parser::ifTrueMessage(MethodGenerationContext* mgenc) {
+    int false_block_pos = bcGen->EmitJUMP_IF_FALSE(mgenc);
+    if (sym == NewBlock) {
+        expect(NewBlock);
+        blockContents(mgenc);
+        expect(EndBlock);
+    } else {
+        formula(mgenc);
+        pVMSymbol msg = _UNIVERSE->SymbolFor("value");
+        mgenc->AddLiteralIfAbsent((pVMObject) msg);
+        bcGen->EmitSEND(mgenc, msg);
+    }
+    
+    int after_pos = bcGen->EmitJUMP(mgenc);
+    mgenc->PatchJumpTarget(false_block_pos);
+    
+    if (sym == Keyword) {
+        StdString ifFalse = keyword();
+        assert(ifFalse == "ifFalse:");
+        if (sym == NewBlock) {
+            expect(NewBlock);
+            blockContents(mgenc);
+            expect(EndBlock);
+        } else {
+            formula(mgenc);
+            pVMSymbol msg = _UNIVERSE->SymbolFor("value");
+            mgenc->AddLiteralIfAbsent((pVMObject) msg);
+            bcGen->EmitSEND(mgenc, msg);
+        }
+    } else {
+        pVMSymbol global = _UNIVERSE->SymbolFor("nil");
+        mgenc->AddLiteralIfAbsent((pVMObject)global);
+        
+        bcGen->EmitPUSHGLOBAL(mgenc, global);
+    }
+    mgenc->PatchJumpTarget(after_pos);
+    mgenc->SetFinished(false);
+    
+    assert(sym != Keyword);
+}
+
+void Parser::ifFalseMessage(MethodGenerationContext* mgenc) {
+    int false_block_pos = bcGen->EmitJUMP_IF_TRUE(mgenc);
+    if (sym == NewBlock) {
+        expect(NewBlock);
+        blockContents(mgenc);
+        expect(EndBlock);
+    } else {
+        formula(mgenc);
+        pVMSymbol msg = _UNIVERSE->SymbolFor("value");
+        mgenc->AddLiteralIfAbsent((pVMObject) msg);
+        bcGen->EmitSEND(mgenc, msg);
+    }
+    
+    int after_pos = bcGen->EmitJUMP(mgenc);
+    mgenc->PatchJumpTarget(false_block_pos);
+    
+    if (sym == Keyword) {
+        StdString ifFalse = keyword();
+        assert(ifFalse == "ifTrue:");
+        if (sym == NewBlock) {
+            expect(NewBlock);
+            blockContents(mgenc);
+            expect(EndBlock);
+        } else {
+            formula(mgenc);
+            pVMSymbol msg = _UNIVERSE->SymbolFor("value");
+            mgenc->AddLiteralIfAbsent((pVMObject) msg);
+            bcGen->EmitSEND(mgenc, msg);
+        }
+    } else {
+        pVMSymbol global = _UNIVERSE->SymbolFor("nil");
+        mgenc->AddLiteralIfAbsent((pVMObject)global);
+        
+        bcGen->EmitPUSHGLOBAL(mgenc, global);
+    }
+    mgenc->PatchJumpTarget(after_pos);
+    mgenc->SetFinished(false);
+    
+    assert(sym != Keyword);
+
+}
+
 void Parser::keywordMessage(MethodGenerationContext* mgenc, bool super) {
     StdString kw = keyword();
+    
+    // special compilation for ifTrue and ifFalse
     if (!super && kw == "ifTrue:") {
-        int false_block_pos = bcGen->EmitJUMP_IF_FALSE(mgenc);
-        if (sym == NewBlock) {
-            expect(NewBlock);
-            blockContents(mgenc);
-            expect(EndBlock);
-        } else {
-            formula(mgenc);
-            pVMSymbol msg = _UNIVERSE->SymbolFor("value");
-            mgenc->AddLiteralIfAbsent((pVMObject) msg);
-            bcGen->EmitSEND(mgenc, msg);
-        }
-
-        int after_pos = bcGen->EmitJUMP(mgenc);
-        mgenc->PatchJumpTarget(false_block_pos);
-
-        if (sym == Keyword) {
-            StdString ifFalse = keyword();
-            assert(ifFalse == "ifFalse:");
-            if (sym == NewBlock) {
-                expect(NewBlock);
-                blockContents(mgenc);
-                expect(EndBlock);
-            } else {
-                formula(mgenc);
-                pVMSymbol msg = _UNIVERSE->SymbolFor("value");
-                mgenc->AddLiteralIfAbsent((pVMObject) msg);
-                bcGen->EmitSEND(mgenc, msg);
-            }
-        } else {
-            pVMSymbol global = _UNIVERSE->SymbolFor("nil");
-            mgenc->AddLiteralIfAbsent((pVMObject)global);
-
-            bcGen->EmitPUSHGLOBAL(mgenc, global);
-        }
-        mgenc->PatchJumpTarget(after_pos);
-        mgenc->SetFinished(false);
-
-        assert(sym != Keyword);
+        ifTrueMessage(mgenc);
         return;
     } else if (!super && kw == "ifFalse:") {
-        int false_block_pos = bcGen->EmitJUMP_IF_TRUE(mgenc);
-        if (sym == NewBlock) {
-            expect(NewBlock);
-            blockContents(mgenc);
-            expect(EndBlock);
-        } else {
-            formula(mgenc);
-            pVMSymbol msg = _UNIVERSE->SymbolFor("value");
-            mgenc->AddLiteralIfAbsent((pVMObject) msg);
-            bcGen->EmitSEND(mgenc, msg);
-        }
-
-        int after_pos = bcGen->EmitJUMP(mgenc);
-        mgenc->PatchJumpTarget(false_block_pos);
-
-        if (sym == Keyword) {
-            StdString ifFalse = keyword();
-            assert(ifFalse == "ifTrue:");
-            if (sym == NewBlock) {
-                expect(NewBlock);
-                blockContents(mgenc);
-                expect(EndBlock);
-            } else {
-                formula(mgenc);
-                pVMSymbol msg = _UNIVERSE->SymbolFor("value");
-                mgenc->AddLiteralIfAbsent((pVMObject) msg);
-                bcGen->EmitSEND(mgenc, msg);
-            }
-        } else {
-            pVMSymbol global = _UNIVERSE->SymbolFor("nil");
-            mgenc->AddLiteralIfAbsent((pVMObject)global);
-
-            bcGen->EmitPUSHGLOBAL(mgenc, global);
-        }
-        mgenc->PatchJumpTarget(after_pos);
-        mgenc->SetFinished(false);
-
-        assert(sym != Keyword);
+        ifFalseMessage(mgenc);
         return;
     }
     formula(mgenc);

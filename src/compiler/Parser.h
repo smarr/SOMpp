@@ -82,6 +82,10 @@ private:
     void binaryMessage(MethodGenerationContext* mgenc, bool super);
     void binaryOperand(MethodGenerationContext* mgenc, bool* super);
     void keywordMessage(MethodGenerationContext* mgenc, bool super);
+    
+    void ifTrueMessage(MethodGenerationContext* mgenc);
+    void ifFalseMessage(MethodGenerationContext* mgenc);
+    
     void formula(MethodGenerationContext* mgenc);
     void nestedTerm(MethodGenerationContext* mgenc);
     void literal(MethodGenerationContext* mgenc);
