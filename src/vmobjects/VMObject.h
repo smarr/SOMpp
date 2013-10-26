@@ -116,10 +116,8 @@ protected:
     size_t objectSize; //set by the heap at allocation time
     long numberOfFields;
 
-    //pVMObject* FIELDS;
-    //Start of fields. All members beyond this point are indexable
-    //through FIELDS-macro instead of the member above.
-    //So clazz == FIELDS[0]
+    // Start of fields. All members beyond this point are indexable.
+    // clazz has index 0.
     pVMClass clazz;
 private:
     static const long VMObjectNumberOfFields;
