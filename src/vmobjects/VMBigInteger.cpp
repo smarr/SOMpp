@@ -25,7 +25,8 @@
  */
 
 #include "VMBigInteger.h"
-#include "../vm/Universe.h"
+
+#include <vm/Universe.h>
 
 VMBigInteger::VMBigInteger() {
     this->embeddedInteger = 0;
@@ -50,4 +51,3 @@ size_t VMBigInteger::GetObjectSize() const {
 pVMClass VMBigInteger::GetClass() const {
     return bigIntegerClass;
 }
-

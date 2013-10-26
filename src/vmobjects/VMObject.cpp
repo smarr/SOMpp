@@ -62,7 +62,7 @@ VMObject* VMObject::Clone() const {
 
 void VMObject::SetNumberOfFields(long nof) {
     this->numberOfFields = nof;
-    //initialize fields with NilObject
+    // initialize fields with NilObject
     for (long i = 0; i < nof; ++i)
         FIELDS[i] = nilObject;
 }

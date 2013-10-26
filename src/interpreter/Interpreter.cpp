@@ -45,7 +45,6 @@
 
 // convenience macros for frequently used function invocations
 #define _FRAME this->GetFrame()
-#define _SETFRAME(f) this->SetFrame(f)
 #define _METHOD this->GetMethod()
 #define _SELF this->GetSelf()
 

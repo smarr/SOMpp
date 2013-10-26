@@ -52,28 +52,28 @@ public:
     VMClass();
     VMClass(long numberOfFields);
 
-    inline pVMClass GetSuperClass() const;
-    inline void SetSuperClass(pVMClass);
-    inline bool HasSuperClass() const;
-    inline pVMSymbol GetName() const;
-    inline void SetName(pVMSymbol);
-    inline pVMArray GetInstanceFields() const;
-    inline void SetInstanceFields(pVMArray);
-    inline pVMArray GetInstanceInvokables() const;
-    void SetInstanceInvokables(pVMArray);
-    long GetNumberOfInstanceInvokables() const;
-    pVMInvokable GetInstanceInvokable(long) const;
-    void SetInstanceInvokable(long, pVMObject);
-    pVMInvokable LookupInvokable(pVMSymbol) const;
-    long LookupFieldIndex(pVMSymbol) const;
-    bool AddInstanceInvokable(pVMObject);
-    void AddInstancePrimitive(pVMPrimitive);
-    pVMSymbol GetInstanceFieldName(long)const;
-    long GetNumberOfInstanceFields() const;
-    bool HasPrimitives() const;
-    void LoadPrimitives(const vector<StdString>&);
-    virtual pVMClass Clone() const;
-    void WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
+    inline pVMClass     GetSuperClass() const;
+    inline void         SetSuperClass(pVMClass);
+    inline bool         HasSuperClass() const;
+    inline pVMSymbol    GetName() const;
+    inline void         SetName(pVMSymbol);
+    inline pVMArray     GetInstanceFields() const;
+    inline void         SetInstanceFields(pVMArray);
+    inline pVMArray     GetInstanceInvokables() const;
+           void         SetInstanceInvokables(pVMArray);
+           long         GetNumberOfInstanceInvokables() const;
+           pVMInvokable GetInstanceInvokable(long) const;
+           void         SetInstanceInvokable(long, pVMObject);
+           pVMInvokable LookupInvokable(pVMSymbol) const;
+           long         LookupFieldIndex(pVMSymbol) const;
+           bool         AddInstanceInvokable(pVMObject);
+           void         AddInstancePrimitive(pVMPrimitive);
+           pVMSymbol    GetInstanceFieldName(long)const;
+           long         GetNumberOfInstanceFields() const;
+           bool         HasPrimitives() const;
+           void         LoadPrimitives(const vector<StdString>&);
+    virtual pVMClass    Clone() const;
+           void         WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
 
 private:
     StdString genLoadstring(const StdString& cp,

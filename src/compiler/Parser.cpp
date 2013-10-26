@@ -27,18 +27,20 @@
 #include "Parser.h"
 #include "BytecodeGenerator.h"
 
-#include "../vmobjects/VMMethod.h"
-#include "../vmobjects/VMPrimitive.h"
-#include "../vmobjects/VMObject.h"
-#include "../vmobjects/VMSymbol.h"
+#include <vmobjects/VMMethod.h>
+#include <vmobjects/VMPrimitive.h>
+#include <vmobjects/VMObject.h>
+#include <vmobjects/VMSymbol.h>
 
-#include "../vm/Universe.h"
+#include <vm/Universe.h>
 
 #include <iostream>
 #include <cctype>
 #include <sstream>
 #include <stdlib.h>
 #include <string.h>
+
+#include <assert.h>
 
 #define GETSYM sym = lexer->GetSym(); \
 			   text = lexer->GetText()

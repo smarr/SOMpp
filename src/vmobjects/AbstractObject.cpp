@@ -7,7 +7,8 @@
 
 #include "AbstractObject.h"
 
-#include "../vm/Universe.h"
+#include <vm/Universe.h>
+
 #include "VMFrame.h"
 #include "VMClass.h"
 #include "VMInvokable.h"
@@ -21,7 +22,7 @@ void AbstractVMObject::Send(StdString selectorString, pVMObject* arguments, long
     pVMFrame frame = _UNIVERSE->GetInterpreter()->GetFrame();
     frame->Push(this);
 
-    for(long i = 0; i < argc; ++i) {
+    for (long i = 0; i < argc; ++i) {
         frame->Push(arguments[i]);
     }
 

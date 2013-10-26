@@ -139,7 +139,6 @@ pVMSymbol VMClass::GetInstanceFieldName(long index) const {
 }
 
 void VMClass::SetInstanceInvokables(pVMArray invokables) {
-
     instanceInvokables = invokables;
 #if GC_TYPE==GENERATIONAL
     _HEAP->writeBarrier(this, instanceInvokables);

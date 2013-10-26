@@ -38,8 +38,7 @@
 
 VMEvaluationPrimitive::VMEvaluationPrimitive(long argc) :
         VMPrimitive(computeSignatureString(argc)) {
-    this->SetRoutine(
-            new Routine<VMEvaluationPrimitive>(this,
+    this->SetRoutine(new Routine<VMEvaluationPrimitive>(this,
                     &VMEvaluationPrimitive::evaluationRoutine));
     this->SetEmpty(false);
 #ifdef USE_TAGGING

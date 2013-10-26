@@ -132,6 +132,7 @@ size_t BytecodeGenerator::EmitJUMP_IF_FALSE(MethodGenerationContext* mgenc) {
 size_t BytecodeGenerator::EmitJUMP_IF_TRUE(MethodGenerationContext* mgenc) {
     return emitJump(mgenc, BC_JUMP_IF_TRUE);
 }
+
 size_t BytecodeGenerator::EmitJUMP(MethodGenerationContext* mgenc) {
     return emitJump(mgenc, BC_JUMP);
 }

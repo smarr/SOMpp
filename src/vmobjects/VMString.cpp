@@ -62,13 +62,6 @@ void VMString::WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR)) {
 
 VMString::VMString(const StdString& s) {
     VMString(s.c_str());
-    ////set the chars-pointer to point at the position of the first character
-    //chars = (char*)&chars+sizeof(char*);
-    //size_t i = 0;
-    //for (; i < s.length(); ++i) {
-    //	chars[i] = s[i];
-    //}
-    //chars[i] = '\0';
 }
 
 size_t VMString::GetObjectSize() const {
@@ -91,4 +84,3 @@ StdString VMString::GetStdString() const {
         return StdString("");
     return StdString(chars);
 }
-
