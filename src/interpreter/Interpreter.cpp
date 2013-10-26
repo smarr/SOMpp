@@ -538,7 +538,7 @@ void Interpreter::doJumpIfFalse(long bytecodeIndex) {
 void Interpreter::doJumpIfTrue(long bytecodeIndex) {
     pVMObject value = _FRAME->Pop();
     if (value == trueObject)
-    doJump(bytecodeIndex);
+        doJump(bytecodeIndex);
 }
 
 void Interpreter::doJump(long bytecodeIndex) {

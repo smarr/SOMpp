@@ -162,11 +162,19 @@ uint8_t MethodGenerationContext::ComputeStackDepth() {
             i += 2;
             break;
         }
-        case BC_RETURN_LOCAL :
-        case BC_RETURN_NON_LOCAL : i++; break;
-        case BC_JUMP_IF_FALSE : depth--; i += 5; break;
-        case BC_JUMP_IF_TRUE : depth--; i += 5; break;
-        case BC_JUMP : i += 5; break;
+        case BC_RETURN_LOCAL:
+        case BC_RETURN_NON_LOCAL: {
+            i++;
+            break;
+        }
+        case BC_JUMP_IF_FALSE:
+        case BC_JUMP_IF_TRUE:
+            depth--;
+            i += 5;
+            break;
+        case BC_JUMP:
+            i += 5;
+            break;
         default :
             cout << "Illegal bytecode: " << bytecode[i];
             _UNIVERSE->Quit(1);

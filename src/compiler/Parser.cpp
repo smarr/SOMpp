@@ -202,13 +202,13 @@ void Parser::Classdef(ClassGenerationContext* cgenc) {
         method(mgenc);
 
         if(mgenc->IsPrimitive())
-        cgenc->AddInstanceMethod((mgenc->AssemblePrimitive()));
+            cgenc->AddInstanceMethod((mgenc->AssemblePrimitive()));
         else
-        cgenc->AddInstanceMethod((mgenc->Assemble()));
+            cgenc->AddInstanceMethod((mgenc->Assemble()));
         delete(mgenc);
     }
 
-    if(accept(Separator)) {
+    if (accept(Separator)) {
         cgenc->SetClassSide(true);
         classFields(cgenc);
         while (sym == Identifier || sym == Keyword || sym == OperatorSequence ||
@@ -220,9 +220,9 @@ void Parser::Classdef(ClassGenerationContext* cgenc) {
             method(mgenc);
 
             if(mgenc->IsPrimitive())
-            cgenc->AddClassMethod(mgenc->AssemblePrimitive());
+                cgenc->AddClassMethod(mgenc->AssemblePrimitive());
             else
-            cgenc->AddClassMethod(mgenc->Assemble());
+                cgenc->AddClassMethod(mgenc->Assemble());
             delete(mgenc);
         }
     }
