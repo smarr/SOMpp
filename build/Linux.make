@@ -26,8 +26,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-CC			=g++
-CFLAGS		=-Wno-endif-labels -O3 $(DBG_FLAGS) $(FEATURE_FLAGS) $(INCLUDES)
+CXX		?=clang++
+CFLAGS	=-Wno-endif-labels -O3 $(DBG_FLAGS) $(FEATURE_FLAGS) $(INCLUDES)
 LBITS := $(shell getconf LONG_BIT)
 ARCH := $(shell arch)
 ifeq ($(LBITS),64)
@@ -203,10 +203,10 @@ profiling: all
 
 
 .cpp.pic.o:
-	$(CC) $(CFLAGS) -fPIC -c $< -o $*.pic.o
+	$(CXX) $(CFLAGS) -fPIC -c $< -o $*.pic.o
 
 .cpp.o:
-	$(CC) $(CFLAGS) -c $< -o $*.o
+	$(CXX) $(CFLAGS) -c $< -o $*.o
 
 clean:
 	rm -Rf $(CLEAN)
@@ -225,21 +225,21 @@ clean:
 
 $(CSOM_NAME): $(CSOM_NAME).$(SHARED_EXTENSION) $(MAIN_OBJ)
 	@echo Linking $(CSOM_NAME) loader
-	$(CC) $(LDFLAGS) \
+	$(CXX) $(LDFLAGS) \
 		-o $(CSOM_NAME) $(MAIN_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION) -ldl -lrt
 	@echo CSOM done.
 
 $(CSOM_NAME).$(SHARED_EXTENSION): $(CSOM_OBJ)
 	@echo "Recompile interpreter/Interpreter.cpp with -fno-gcse option (we're using computed gotos)"
-	$(CC) $(CFLAGS) -fno-gcse -c $(INTERPRETER_DIR)/Interpreter.cpp -o $(INTERPRETER_DIR)/Interpreter.o
+	$(CXX) $(CFLAGS) -fno-gcse -c $(INTERPRETER_DIR)/Interpreter.cpp -o $(INTERPRETER_DIR)/Interpreter.o
 	@echo Linking $(CSOM_NAME) Dynamic Library
-	$(CC) $(LDFLAGS) -shared \
+	$(CXX) $(LDFLAGS) -shared \
 		-o $(CSOM_NAME).$(SHARED_EXTENSION) $(CSOM_OBJ) $(CSOM_LIBS)
 	@echo CSOM done.
 
 $(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION): $(CSOM_NAME) $(PRIMITIVESCORE_OBJ)
 	@echo Linking PrimitivesCore lib
-	$(CC) $(LDFLAGS) -shared \
+	$(CXX) $(LDFLAGS) -shared \
 		-o $(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION) \
 		$(PRIMITIVESCORE_OBJ) 
 	@touch $(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION)
@@ -247,7 +247,7 @@ $(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION): $(CSOM_NAME) $(PRIMITIVESCORE_OBJ)
 
 CORE: $(CSOM_NAME) $(PRIMITIVESCORE_OBJ) $(PRIMITIVES_OBJ)
 	@echo Linking SOMCore lib
-	$(CC) $(LDFLAGS)  \
+	$(CXX) $(LDFLAGS)  \
 		-shared -o $(CORE_NAME).csp \
 		$(PRIMITIVES_OBJ) \
 		$(PRIMITIVESCORE_OBJ) \
@@ -273,7 +273,7 @@ console: all
 	./$(CSOM_NAME) -cp ./Smalltalk
 
 units: $(UNITTEST_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION)
-	$(CC) $(LIBRARIES) $(UNITTEST_OBJ) SOM++.so -lcppunit -lrt -o unittest
+	$(CXX) $(LIBRARIES) $(UNITTEST_OBJ) SOM++.so -lcppunit -lrt -o unittest
 
 richards: all
 	./$(CSOM_NAME) -cp ./Smalltalk ./Examples/Benchmarks/Richards/RichardsBenchmarks.som

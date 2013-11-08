@@ -26,7 +26,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-CC			=g++
+CXX			?=clang++
 CFLAGS		=-Wno-endif-labels -O3 $(DBG_FLAGS) $(FEATURE_FLAGS) $(INCLUDES)
 LDFLAGS		=$(DBG_FLAGS) $(LIBRARIES)
 
@@ -192,10 +192,10 @@ profiling: all
 
 
 .cpp.pic.o:
-	$(CC) $(CFLAGS) -fPIC -c $< -o $*.pic.o
+	$(CXX) $(CFLAGS) -fPIC -c $< -o $*.pic.o
 
 .cpp.o:
-	$(CC) $(CFLAGS) -c $< -o $*.o
+	$(CXX) $(CFLAGS) -c $< -o $*.o
 
 clean:
 	rm -Rf $(CLEAN)
@@ -214,19 +214,19 @@ clean:
 
 $(CSOM_NAME): $(CSOM_NAME).$(SHARED_EXTENSION) $(MAIN_OBJ)
 	@echo Linking $(CSOM_NAME) loader
-	$(CC) $(LDFLAGS) \
+	$(CXX) $(LDFLAGS) \
 		-o $(CSOM_NAME) $(MAIN_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION) -ldl
 	@echo loader done.
 
 $(CSOM_NAME).$(SHARED_EXTENSION): $(CSOM_OBJ)
 	@echo Linking $(CSOM_NAME) Dynamic Library
-	$(CC) $(LDFLAGS) $(SHAREDFLAGS) \
+	$(CXX) $(LDFLAGS) $(SHAREDFLAGS) \
 		-o $(CSOM_NAME).$(SHARED_EXTENSION) $(CSOM_OBJ) $(CSOM_LIBS)
 	@echo CSOM done.
 
 $(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION): $(CSOM_NAME) $(PRIMITIVESCORE_OBJ)
 	@echo Linking PrimitivesCore lib
-	$(CC) $(LDFLAGS) $(SHAREDFLAGS) \
+	$(CXX) $(LDFLAGS) $(SHAREDFLAGS) \
 		-o $(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION) \
 		$(PRIMITIVESCORE_OBJ)
 	@touch $(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION)
@@ -234,7 +234,7 @@ $(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION): $(CSOM_NAME) $(PRIMITIVESCORE_OBJ)
 
 CORE: $(CSOM_NAME) $(PRIMITIVESCORE_OBJ) $(PRIMITIVES_OBJ)
 	@echo Linking SOMCore lib
-	$(CC) $(LDFLAGS)  \
+	$(CXX) $(LDFLAGS)  \
 		$(SHAREDFLAGS) -o $(CORE_NAME).csp \
 		$(PRIMITIVES_OBJ) \
 		$(PRIMITIVESCORE_OBJ) \
