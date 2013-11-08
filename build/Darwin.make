@@ -114,7 +114,10 @@ SOURCES			=  $(COMPILER_SRC) $(INTERPRETER_SRC) $(MEMORY_SRC) \
 ############# Things to clean
 
 CLEAN			= $(OBJECTS) \
-				$(DIST_DIR) $(DEST_DIR) CORE SOM++
+				$(DIST_DIR) $(DEST_DIR) CORE $(CSOM_NAME) \
+				$(CSOM_NAME).$(SHARED_EXTENSION) \
+				$(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION)
+
 ############# Tools
 
 #OSTOOL			= $(BUILD_DIR)/ostool
