@@ -58,9 +58,9 @@ SRC_DIR		?= $(ROOT_DIR)/src
 BUILD_DIR 	?= $(ROOT_DIR)/build
 DEST_DIR	?= $(ROOT_DIR)/build.out
 
-ST_DIR		?= $(ROOT_DIR)/Smalltalk
-EX_DIR		?= $(ROOT_DIR)/Examples
-TEST_DIR	?= $(ROOT_DIR)/TestSuite
+ST_DIR		?= $(ROOT_DIR)/core-lib/Smalltalk
+EX_DIR		?= $(ROOT_DIR)/core-lib/Examples
+TEST_DIR	?= $(ROOT_DIR)/core-lib/TestSuite
 
 ############# "component" directories
 
@@ -229,33 +229,32 @@ clean:
 
 $(CSOM_NAME): $(CSOM_NAME).$(SHARED_EXTENSION) $(MAIN_OBJ)
 	@echo Linking $(CSOM_NAME) loader
-	$(CXX) $(LDFLAGS) \
-		-o $(CSOM_NAME) $(MAIN_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION) -ldl -lrt
+	$(CXX) \
+		-o $(CSOM_NAME) $(MAIN_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION) $(LDFLAGS) -lrt -ldl
 	@echo CSOM done.
 
 $(CSOM_NAME).$(SHARED_EXTENSION): $(CSOM_OBJ)
 	@echo "Recompile interpreter/Interpreter.cpp with -fno-gcse option (we're using computed gotos)"
 	$(CXX) $(CFLAGS) -fno-gcse -c $(INTERPRETER_DIR)/Interpreter.cpp -o $(INTERPRETER_DIR)/Interpreter.o
 	@echo Linking $(CSOM_NAME) Dynamic Library
-	$(CXX) $(LDFLAGS) -shared \
-		-o $(CSOM_NAME).$(SHARED_EXTENSION) $(CSOM_OBJ) $(CSOM_LIBS)
+	$(CXX) -shared \
+		-o $(CSOM_NAME).$(SHARED_EXTENSION) $(CSOM_OBJ) $(CSOM_LIBS) $(LDFLAGS) -ldl
 	@echo CSOM done.
 
 $(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION): $(CSOM_NAME) $(PRIMITIVESCORE_OBJ)
 	@echo Linking PrimitivesCore lib
-	$(CXX) $(LDFLAGS) -shared \
+	$(CXX) -shared \
 		-o $(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION) \
-		$(PRIMITIVESCORE_OBJ) 
+		$(PRIMITIVESCORE_OBJ) $(LDFLAGS)
 	@touch $(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION)
 	@echo PrimitivesCore done.
 
 CORE: $(CSOM_NAME) $(PRIMITIVESCORE_OBJ) $(PRIMITIVES_OBJ)
 	@echo Linking SOMCore lib
-	$(CXX) $(LDFLAGS)  \
-		-shared -o $(CORE_NAME).csp \
+	$(CXX) -shared -o $(CORE_NAME).csp \
 		$(PRIMITIVES_OBJ) \
 		$(PRIMITIVESCORE_OBJ) \
-		$(CORE_LIBS)
+		$(CORE_LIBS) $(LDFLAGS)
 	mv $(CORE_NAME).csp $(ST_DIR)
 	@touch CORE
 	@echo SOMCore done.
@@ -280,19 +279,19 @@ units: $(UNITTEST_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION)
 	$(CXX) $(LIBRARIES) $(UNITTEST_OBJ) SOM++.so -lcppunit -lrt -o unittest
 
 richards: all
-	./$(CSOM_NAME) -cp ./Smalltalk ./Examples/Benchmarks/Richards/RichardsBenchmarks.som
+	export LD_LIBRARY_PATH=.; ./$(CSOM_NAME) -cp ./Smalltalk ./Examples/Benchmarks/Richards/RichardsBenchmarks.som
 
 unittests: all units
-	./unittest -cp ./Smalltalk ./Examples/Hello/Hello.som
+	export LD_LIBRARY_PATH=.; ./unittest -cp ./Smalltalk ./Examples/Hello/Hello.som
 
 #
 # test: run the standard test suite
 #
 test: all
-	./$(CSOM_NAME) -cp ./Smalltalk ./TestSuite/TestHarness.som
+	export LD_LIBRARY_PATH=.; ./$(CSOM_NAME) -cp ./Smalltalk ./TestSuite/TestHarness.som
 
 #
 # bench: run the benchmarks
 #
 bench: all
-	./$(CSOM_NAME) -cp ./Smalltalk ./Examples/Benchmarks/All.som
+	export LD_LIBRARY_PATH=.; ./$(CSOM_NAME) -cp ./Smalltalk ./Examples/Benchmarks/All.som

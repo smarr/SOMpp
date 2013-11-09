@@ -50,9 +50,9 @@ SRC_DIR		?= $(ROOT_DIR)/src
 BUILD_DIR   ?= $(ROOT_DIR)/build
 DEST_DIR	?= $(ROOT_DIR)/build.out
 
-ST_DIR		?= $(ROOT_DIR)/Smalltalk
-EX_DIR		?= $(ROOT_DIR)/Examples
-TEST_DIR	?= $(ROOT_DIR)/TestSuite
+ST_DIR		?= $(ROOT_DIR)/core-lib/Smalltalk
+EX_DIR		?= $(ROOT_DIR)/core-lib/Examples
+TEST_DIR	?= $(ROOT_DIR)/core-lib/TestSuite
 
 ############# "component" directories
 
