@@ -85,7 +85,7 @@ VMClass::VMClass(long numberOfFields) :
 void VMClass::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     clazz = static_cast<pVMClass>(walk(clazz));
     if (superClass)
-    superClass = static_cast<pVMClass>(walk(superClass));
+        superClass = static_cast<pVMClass>(walk(superClass));
     name = static_cast<pVMSymbol>(walk(name));
     instanceFields = static_cast<pVMArray>(walk(instanceFields));
     instanceInvokables = static_cast<pVMArray>(walk(instanceInvokables));
@@ -93,7 +93,7 @@ void VMClass::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     pVMObject* fields = (pVMObject*)(&clazz);
 
     for (long i = VMClassNumberOfFields + 1/*VMObjectNumberOfFields*/; i < numberOfFields; i++)
-    fields[i] = walk(AS_POINTER(fields[i]));
+        fields[i] = walk(AS_POINTER(fields[i]));
 }
 
 bool VMClass::AddInstanceInvokable(pVMObject ptr) {
