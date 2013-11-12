@@ -569,8 +569,7 @@ pVMClass Universe::LoadShellClass( StdString& stmt) {
 }
 
 void Universe::LoadSystemClass( pVMClass systemClass) {
-    pVMClass result =
-    LoadClassBasic(systemClass->GetName(), systemClass);
+    pVMClass result = LoadClassBasic(systemClass->GetName(), systemClass);
     StdString s = systemClass->GetName()->GetStdString();
 
     if (!result) {

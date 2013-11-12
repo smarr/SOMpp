@@ -70,4 +70,4 @@
 #define pVMSymbol VMSymbol* 
 #define VMOBJECT_PTR AbstractVMObject*
 
-#endif OBJECTFORMATS_H_
+#endif // OBJECTFORMATS_H_
