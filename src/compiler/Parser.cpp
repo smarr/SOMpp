@@ -126,7 +126,7 @@ void Parser::genPushVariable(MethodGenerationContext* mgenc,
     // pushed on the stack is a local variable, argument, or object field. This
     // is done by examining all available lexical contexts, starting with the
     // innermost (i.e., the one represented by mgenc).
-    int index = 0;
+    size_t index = 0;
     int context = 0;
     bool is_argument = false;
 
@@ -154,7 +154,7 @@ void Parser::genPopVariable(MethodGenerationContext* mgenc,
     // popped off the stack is a local variable, argument, or object field. This
     // is done by examining all available lexical contexts, starting with the
     // innermost (i.e., the one represented by mgenc).
-    int index = 0;
+    size_t index = 0;
     int context = 0;
     bool is_argument = false;
 
@@ -566,7 +566,7 @@ void Parser::binaryOperand(MethodGenerationContext* mgenc, bool* super) {
 }
 
 void Parser::ifTrueMessage(MethodGenerationContext* mgenc) {
-    int false_block_pos = bcGen->EmitJUMP_IF_FALSE(mgenc);
+    size_t false_block_pos = bcGen->EmitJUMP_IF_FALSE(mgenc);
     if (sym == NewBlock) {
         expect(NewBlock);
         blockContents(mgenc);
@@ -578,7 +578,7 @@ void Parser::ifTrueMessage(MethodGenerationContext* mgenc) {
         bcGen->EmitSEND(mgenc, msg);
     }
     
-    int after_pos = bcGen->EmitJUMP(mgenc);
+    size_t after_pos = bcGen->EmitJUMP(mgenc);
     mgenc->PatchJumpTarget(false_block_pos);
     
     if (sym == Keyword) {
@@ -607,7 +607,7 @@ void Parser::ifTrueMessage(MethodGenerationContext* mgenc) {
 }
 
 void Parser::ifFalseMessage(MethodGenerationContext* mgenc) {
-    int false_block_pos = bcGen->EmitJUMP_IF_TRUE(mgenc);
+    size_t false_block_pos = bcGen->EmitJUMP_IF_TRUE(mgenc);
     if (sym == NewBlock) {
         expect(NewBlock);
         blockContents(mgenc);
@@ -619,7 +619,7 @@ void Parser::ifFalseMessage(MethodGenerationContext* mgenc) {
         bcGen->EmitSEND(mgenc, msg);
     }
     
-    int after_pos = bcGen->EmitJUMP(mgenc);
+    size_t after_pos = bcGen->EmitJUMP(mgenc);
     mgenc->PatchJumpTarget(false_block_pos);
     
     if (sym == Keyword) {

@@ -172,7 +172,7 @@ void Universe::Quit(long err) {
     if (theUniverse)
         delete (theUniverse);
 
-    exit(err);
+    exit((int) err);
 }
 
 void Universe::ErrorExit(const char* err) {
@@ -302,7 +302,6 @@ Universe::Universe() {
     this->compiler = NULL;
     this->interpreter = NULL;
 }
-;
 
 void Universe::initialize(long _argc, char** _argv) {
 #ifdef GENERATE_ALLOCATION_STATISTICS

@@ -54,7 +54,7 @@ StdString Lexer::GetRawBuffer(void) {
 #define _BC (buf[bufp])
 #define EOB (bufp >= buf.length())
 
-int Lexer::fillBuffer(void) {
+size_t Lexer::fillBuffer(void) {
     if (!infile.good()) // file stream
         return 0;
 

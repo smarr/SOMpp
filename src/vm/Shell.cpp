@@ -64,7 +64,7 @@ void Shell::Start() {
     }
     // the statement to evaluate
     char inbuf[INPUT_MAX_SIZE];
-    int bytecodeIndex, counter = 0;
+    long bytecodeIndex, counter = 0;
     pVMFrame currentFrame;
     pVMClass runClass;
     pVMObject it = nilObject;// last evaluation result.

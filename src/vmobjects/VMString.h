@@ -37,7 +37,7 @@ public:
 
     inline char* GetChars() const;
     StdString GetStdString() const;
-    int GetStringLength() const;
+    size_t GetStringLength() const;
 
     virtual pVMString Clone() const;
     virtual pVMClass GetClass() const;

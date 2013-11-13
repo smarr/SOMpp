@@ -171,7 +171,7 @@ void _Object::InstVarAt(pVMObject object, pVMFrame frame) {
     pVMInteger idx = (pVMInteger) frame->Pop();
     pVMObject self = frame->Pop();
 
-    int32_t field_idx = idx->GetEmbeddedInteger() - 1;
+    long field_idx = idx->GetEmbeddedInteger() - 1;
     pVMObject value = self->GetField(field_idx);
 
     frame->Push(value);
@@ -182,7 +182,7 @@ void _Object::InstVarAtPut(pVMObject object, pVMFrame frame) {
     pVMInteger idx = (pVMInteger) frame->Pop();
     pVMObject self = frame->GetStackElement(0);
 
-    int32_t field_idx = idx->GetEmbeddedInteger() - 1;
+    long field_idx = idx->GetEmbeddedInteger() - 1;
 
     self->SetField(field_idx, value);
 }
@@ -191,7 +191,7 @@ void _Object::InstVarNamed(pVMObject object, pVMFrame frame) {
     pVMSymbol name = (pVMSymbol) frame->Pop();
     pVMObject self = frame->Pop();
 
-    int32_t field_idx = self->GetFieldIndex(name);
+    long field_idx = self->GetFieldIndex(name);
     pVMObject value = self->GetField(field_idx);
 
     frame->Push(value);

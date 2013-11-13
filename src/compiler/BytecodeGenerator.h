@@ -43,16 +43,16 @@ class BytecodeGenerator {
 public:
     void EmitHALT(MethodGenerationContext* mgenc);
     void EmitDUP(MethodGenerationContext* mgenc);
-    void EmitPUSHLOCAL(MethodGenerationContext* mgenc, int idx, int ctx);
-    void EmitPUSHARGUMENT(MethodGenerationContext* mgenc, int idx, int ctx);
+    void EmitPUSHLOCAL(MethodGenerationContext* mgenc,    long idx, int ctx);
+    void EmitPUSHARGUMENT(MethodGenerationContext* mgenc, long idx, int ctx);
     void EmitPUSHFIELD(MethodGenerationContext* mgenc, pVMSymbol field);
     void EmitPUSHBLOCK(MethodGenerationContext* mgenc, pVMMethod block);
     void EmitPUSHCONSTANT(MethodGenerationContext* mgenc, pVMObject cst);
     void EmitPUSHCONSTANTString(MethodGenerationContext* mgenc, pVMString str);
     void EmitPUSHGLOBAL(MethodGenerationContext* mgenc, pVMSymbol global);
     void EmitPOP(MethodGenerationContext* mgenc);
-    void EmitPOPLOCAL(MethodGenerationContext* mgenc, int idx, int ctx);
-    void EmitPOPARGUMENT(MethodGenerationContext* mgenc, int idx, int ctx);
+    void EmitPOPLOCAL(MethodGenerationContext* mgenc,    long idx, int ctx);
+    void EmitPOPARGUMENT(MethodGenerationContext* mgenc, long idx, int ctx);
     void EmitPOPFIELD(MethodGenerationContext* mgenc, pVMSymbol field);
     void EmitSEND(MethodGenerationContext* mgenc, pVMSymbol msg);
     void EmitSUPERSEND(MethodGenerationContext* mgenc, pVMSymbol msg);

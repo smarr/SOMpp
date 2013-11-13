@@ -79,9 +79,9 @@ void _System::Load_(pVMObject /*object*/, pVMFrame frame) {
 void _System::Exit_(pVMObject /*object*/, pVMFrame frame) {
     pVMInteger err = static_cast<pVMInteger>(frame->Pop());
 #ifdef USE_TAGGING
-    int32_t err_no = UNTAG_INTEGER(err);
+    long err_no = UNTAG_INTEGER(err);
 #else
-    int32_t err_no = err->GetEmbeddedInteger();
+    long err_no = err->GetEmbeddedInteger();
 #endif
 
     if (err_no != ERR_SUCCESS)

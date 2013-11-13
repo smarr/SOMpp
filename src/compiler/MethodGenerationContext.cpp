@@ -49,13 +49,13 @@ MethodGenerationContext::MethodGenerationContext() {
 
 pVMMethod MethodGenerationContext::Assemble() {
     // create a method instance with the given number of bytecodes and literals
-    int numLiterals = this->literals.Size();
+    size_t numLiterals = this->literals.Size();
 
     pVMMethod meth = _UNIVERSE->NewMethod(this->signature, bytecode.size(),
             numLiterals);
 
     // populate the fields that are immediately available
-    int numLocals = this->locals.Size();
+    size_t numLocals = this->locals.Size();
     meth->SetNumberOfLocals(numLocals);
 
     meth->SetMaximumNumberOfStackElements(this->ComputeStackDepth());
@@ -86,7 +86,7 @@ int8_t MethodGenerationContext::FindLiteralIndex(pVMObject lit) {
 
 }
 
-bool MethodGenerationContext::FindVar(const StdString& var, int* index,
+bool MethodGenerationContext::FindVar(const StdString& var, size_t* index,
         int* context, bool* isArgument) {
     if ((*index = locals.IndexOf(var)) == -1) {
         if ((*index = arguments.IndexOf(var)) == -1) {
@@ -107,7 +107,7 @@ bool MethodGenerationContext::FindField(const StdString& field) {
     return holderGenc->FindField(field);
 }
 
-int MethodGenerationContext::GetNumberOfArguments() {
+size_t MethodGenerationContext::GetNumberOfArguments() {
     return arguments.Size();
 }
 

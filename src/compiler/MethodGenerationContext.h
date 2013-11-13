@@ -48,7 +48,7 @@ public:
     pVMPrimitive AssemblePrimitive();
 
     int8_t FindLiteralIndex(pVMObject lit);
-    bool FindVar(const StdString& var, int* index,
+    bool FindVar(const StdString& var, size_t* index,
             int* context, bool* isArgument);
     bool FindField(const StdString& field);
     uint8_t ComputeStackDepth();
@@ -74,7 +74,7 @@ public:
     bool IsBlockMethod();
     bool IsFinished();
     void RemoveLastBytecode() {bytecode.pop_back();};
-    int GetNumberOfArguments();
+    size_t GetNumberOfArguments();
     size_t AddBytecode(uint8_t bc);
     void PatchJumpTarget(size_t jump_position);
 

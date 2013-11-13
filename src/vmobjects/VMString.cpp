@@ -73,7 +73,7 @@ pVMClass VMString::GetClass() const {
     return stringClass;
 }
 
-int VMString::GetStringLength() const {
+size_t VMString::GetStringLength() const {
     //get the additional memory allocated by this object and substract one
     //for the '0' character and four for the char*
     return strlen(chars);

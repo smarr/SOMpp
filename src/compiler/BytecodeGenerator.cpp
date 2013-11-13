@@ -50,13 +50,13 @@ void BytecodeGenerator::EmitDUP(MethodGenerationContext* mgenc) {
     EMIT1(BC_DUP);
 }
 
-void BytecodeGenerator::EmitPUSHLOCAL(MethodGenerationContext* mgenc, int idx,
+void BytecodeGenerator::EmitPUSHLOCAL(MethodGenerationContext* mgenc, long idx,
         int ctx) {
     EMIT3(BC_PUSH_LOCAL, idx, ctx);
 }
 
 void BytecodeGenerator::EmitPUSHARGUMENT(MethodGenerationContext* mgenc,
-        int idx, int ctx) {
+        long idx, int ctx) {
     EMIT3(BC_PUSH_ARGUMENT, idx, ctx);
 }
 
@@ -86,13 +86,13 @@ void BytecodeGenerator::EmitPOP(MethodGenerationContext* mgenc) {
     EMIT1(BC_POP);
 }
 
-void BytecodeGenerator::EmitPOPLOCAL(MethodGenerationContext* mgenc, int idx,
+void BytecodeGenerator::EmitPOPLOCAL(MethodGenerationContext* mgenc, long idx,
         int ctx) {
     EMIT3(BC_POP_LOCAL, idx, ctx);
 }
 
-void BytecodeGenerator::EmitPOPARGUMENT(MethodGenerationContext* mgenc, int idx,
-        int ctx) {
+void BytecodeGenerator::EmitPOPARGUMENT(MethodGenerationContext* mgenc,
+                                        long idx, int ctx) {
     EMIT3(BC_POP_ARGUMENT, idx, ctx);
 }
 

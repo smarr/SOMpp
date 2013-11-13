@@ -133,8 +133,8 @@ void Disassembler::Dump(pVMClass cl) {
 void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
     DebugPrint("(\n");
     {   // output stack information
-        int locals = method->GetNumberOfLocals();
-        int max_stack = method->GetMaximumNumberOfStackElements();
+        long locals = method->GetNumberOfLocals();
+        long max_stack = method->GetMaximumNumberOfStackElements();
         DebugDump("%s<%d locals, %d stack, %d bc_count>\n", indent, locals,
         max_stack, method->GetNumberOfBytecodes());
     }
@@ -265,7 +265,7 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
 /**
  * Dump bytecode from the frame running
  */
-void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
+void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
     static long long indentc = 0;
     static char ikind = '@';
     uint8_t bc = BC_0;
@@ -353,7 +353,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, int bc_idx) {
             pVMObject o = AS_POINTER(arg)->GetField(field_index);
 #else
             pVMSymbol name = static_cast<pVMSymbol>(method->GetConstant(bc_idx));
-            int field_index = arg->GetFieldIndex(name);
+            long field_index = arg->GetFieldIndex(name);
             pVMObject o = arg->GetField(field_index);
 #endif
             pVMClass c = CLASS_OF(o);
