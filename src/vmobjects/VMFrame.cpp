@@ -152,7 +152,7 @@ void VMFrame::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     long i = 0;
     while (arguments + i <= stack_ptr) {
         if (arguments[i] != NULL)
-        arguments[i] = walk((VMOBJECT_PTR)arguments[i]);
+            arguments[i] = walk((VMOBJECT_PTR)arguments[i]);
         i++;
     }
 }

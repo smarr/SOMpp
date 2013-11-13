@@ -111,13 +111,13 @@ public:
 
 protected:
     long GetAdditionalSpaceConsumption() const;
-    //VMObject essentials
-    long hash;
-    size_t objectSize; //set by the heap at allocation time
-    long numberOfFields;
 
     // Start of fields. All members beyond this point are indexable.
     // clazz has index 0.
+    // VMObject essentials
+    long   hash;
+    size_t objectSize;     // set by the heap at allocation time
+    long   numberOfFields;
     pVMClass clazz;
 private:
     static const long VMObjectNumberOfFields;

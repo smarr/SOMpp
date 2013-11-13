@@ -686,8 +686,8 @@ pVMFrame Universe::NewFrame(pVMFrame previousFrame, pVMMethod method) const {
     }
 #endif
     long length = method->GetNumberOfArguments() +
-    method->GetNumberOfLocals()+
-    method->GetMaximumNumberOfStackElements();
+                  method->GetNumberOfLocals() +
+                  method->GetMaximumNumberOfStackElements();
 
     long additionalBytes = length * sizeof(pVMObject);
     result = new (_HEAP, additionalBytes) VMFrame(length);
@@ -699,7 +699,6 @@ pVMFrame Universe::NewFrame(pVMFrame previousFrame, pVMMethod method) const {
     result->previousFrame = previousFrame;
     result->ResetStackPointer();
     return result;
-
 }
 
 pVMObject Universe::NewInstance( pVMClass classOfInstance) const {
@@ -749,9 +748,9 @@ pVMClass Universe::NewMetaclassClass() const {
 }
 
 void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    nilObject = (VMObject*)walk(nilObject);
-    trueObject = (VMObject*)walk(trueObject);
-    falseObject = (VMObject*)walk(falseObject);
+    nilObject   = (pVMObject)walk(nilObject);
+    trueObject  = (pVMObject)walk(trueObject);
+    falseObject = (pVMObject)walk(falseObject);
 
 #ifdef USE_TAGGING
     GlobalBox::updateIntegerBox(static_cast<VMInteger*>(walk(GlobalBox::IntegerBox())));
@@ -777,9 +776,9 @@ void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
 #ifdef CACHE_INTEGER
     for (unsigned long i = 0; i < (INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE); i++)
 #ifdef USE_TAGGING
-    prebuildInts[i] = TAG_INTEGER(INT_CACHE_MIN_VALUE + i);
+        prebuildInts[i] = TAG_INTEGER(INT_CACHE_MIN_VALUE + i);
 #else
-    prebuildInts[i] = static_cast<pVMInteger>(walk(prebuildInts[i]));
+        prebuildInts[i] = static_cast<pVMInteger>(walk(prebuildInts[i]));
 #endif
 #endif
 
@@ -789,7 +788,7 @@ void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     map<pVMSymbol, pVMObject>::iterator iter;
     for (iter = globs.begin(); iter != globs.end(); iter++) {
         if (iter->second == NULL)
-        continue;
+            continue;
 
         pVMSymbol key = static_cast<pVMSymbol>(walk(iter->first));
         pVMObject val = walk((VMOBJECT_PTR)iter->second);
@@ -798,20 +797,22 @@ void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     
     // walk all entries in symbols map
     map<StdString, pVMSymbol>::iterator symbolIter;
-    for (symbolIter = symbolsMap.begin(); symbolIter !=
-    symbolsMap.end(); symbolIter++) {
+    for (symbolIter = symbolsMap.begin();
+         symbolIter != symbolsMap.end();
+         symbolIter++) {
         //insert overwrites old entries inside the internal map
         symbolIter->second = static_cast<pVMSymbol>(walk(symbolIter->second));
     }
 
     map<long, pVMClass>::iterator bcIter;
-    for (bcIter = blockClassesByNoOfArgs.begin(); bcIter !=
-    blockClassesByNoOfArgs.end(); bcIter++) {
+    for (bcIter = blockClassesByNoOfArgs.begin();
+         bcIter != blockClassesByNoOfArgs.end();
+         bcIter++) {
         bcIter->second = static_cast<pVMClass>(walk(bcIter->second));
     }
 
     //reassign ifTrue ifFalse Symbols
-    symbolIfTrue = symbolsMap["ifTrue:"];
+    symbolIfTrue  = symbolsMap["ifTrue:"];
     symbolIfFalse = symbolsMap["ifFalse:"];
 }
 

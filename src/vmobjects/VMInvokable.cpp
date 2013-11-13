@@ -44,10 +44,10 @@ void VMInvokable::SetSignature(pVMSymbol sig) {
 }
 
 void VMInvokable::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    clazz = static_cast<VMClass*>(walk(clazz));
-    signature = static_cast<VMSymbol*>(walk(signature));
+    clazz = static_cast<pVMClass>(walk(clazz));
+    signature = static_cast<pVMSymbol>(walk(signature));
     if (holder)
-    holder = static_cast<VMClass*>(walk(holder));
+        holder = static_cast<pVMClass>(walk(holder));
 }
 
 pVMClass VMInvokable::GetHolder() const {

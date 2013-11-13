@@ -44,9 +44,11 @@ class Interpreter {
 public:
     Interpreter();
     ~Interpreter();
-    void Start();pVMFrame PushNewFrame(pVMMethod method);
-    void SetFrame(pVMFrame frame);
-    pVMFrame GetFrame();
+    
+    void      Start();
+    pVMFrame  PushNewFrame(pVMMethod method);
+    void      SetFrame(pVMFrame frame);
+    pVMFrame  GetFrame();
     pVMMethod GetMethod();
     pVMObject GetSelf();
 private:

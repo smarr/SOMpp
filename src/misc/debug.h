@@ -58,7 +58,7 @@ static inline void DebugInfo(const char* fmt, ...) {
     DebugPass(fmt);
 #else
     (void) fmt;
-#endif DEBUG
+#endif // DEBUG
 }
 
 static inline void DebugLog(const char* fmt, ...) {
@@ -67,7 +67,7 @@ static inline void DebugLog(const char* fmt, ...) {
     DebugPass(fmt);
 #else
     (void) fmt;
-#endif DEBUG
+#endif // DEBUG
 }
 
 static inline void DebugWarn(const char* fmt, ...) {
@@ -93,4 +93,4 @@ static inline void DebugTrace(const char* fmt, ...) {
 #undef FprintfPass
 #undef DebugPass 
 
-#endif DEBUG_H_
+#endif // DEBUG_H_

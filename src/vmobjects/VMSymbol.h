@@ -46,8 +46,8 @@ public:
     virtual pVMSymbol Clone() const;
     virtual pVMClass GetClass() const;
 private:
-    const VMClass* cachedClass_index;
-    const VMClass* cachedClass_invokable[3];
+    const pVMClass cachedClass_index;
+    const pVMClass cachedClass_invokable[3];
     long cachedIndex;
     long nextCachePos;
     pVMInvokable cachedInvokable[3];

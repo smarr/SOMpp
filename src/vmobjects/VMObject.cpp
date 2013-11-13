@@ -32,12 +32,12 @@
 
 #define FIELDS ((pVMObject*)&clazz)
 
-//clazz is the only field of VMObject so
 const long VMObject::VMObjectNumberOfFields = 1;
+// clazz is the only field of VMObject so
 
 VMObject::VMObject(long numberOfFields) {
-    //this line would be needed if the VMObject** is used instead of the macro:
-    //FIELDS = (pVMObject*)&clazz; 
+    // this line would be needed if the VMObject** is used instead of the macro:
+    // FIELDS = (pVMObject*)&clazz;
     this->SetNumberOfFields(numberOfFields + VMObjectNumberOfFields);
     gcfield = 0;
     hash = (size_t) this;

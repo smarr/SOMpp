@@ -40,7 +40,7 @@ VMOBJECT_PTR copy_if_necessary(VMOBJECT_PTR obj) {
 #ifdef USE_TAGGING
     //don't process tagged objects
     if (IS_TAGGED(obj))
-    return obj;
+        return obj;
 #endif
     size_t gcField = obj->GetGCField();
 
@@ -75,9 +75,10 @@ void GenerationalCollector::MinorCollection() {
 
     //and also all objects that have been detected by the write barriers
     for (vector<size_t>::iterator objIter =
-            _HEAP->oldObjsWithRefToYoungObjs->begin(); objIter !=
-            _HEAP->oldObjsWithRefToYoungObjs->end(); objIter++) {
-        //content of oldObjsWithRefToYoungObjs is not altered while iteration,
+            _HEAP->oldObjsWithRefToYoungObjs->begin();
+         objIter != _HEAP->oldObjsWithRefToYoungObjs->end();
+         objIter++) {
+        // content of oldObjsWithRefToYoungObjs is not altered while iteration,
         // because copy_if_necessary returns old objs only -> ignored by
         // write_barrier
         VMOBJECT_PTR obj = (VMOBJECT_PTR)(*objIter);

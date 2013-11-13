@@ -99,7 +99,7 @@ void VMMethod::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     numberOfConstants = static_cast<VMInteger*>(walk(numberOfConstants));
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     if (cachedFrame != NULL)
-    cachedFrame = static_cast<VMFrame*>(walk(cachedFrame));
+        cachedFrame = static_cast<VMFrame*>(walk(cachedFrame));
 #endif
 
     long numIndexableFields = GetNumberOfIndexableFields();
