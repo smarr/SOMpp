@@ -36,6 +36,6 @@ long AbstractVMObject::GetFieldIndex(pVMSymbol fieldName) const {
 }
 pVMObject AbstractVMObject::GetField(long index) const {
     // we have to emulate field 0 = class
-    if (index == 0)
-        return this->GetClass();
+    assert(index == 0);
+    return this->GetClass();
 }
