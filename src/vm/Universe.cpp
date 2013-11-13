@@ -314,7 +314,8 @@ void Universe::initialize(long _argc, char** _argv) {
     vector<StdString> argv = this->handleArguments(_argc, _argv);
     
     // remember file that was executed (for writing statistics)
-    bm_name = argv[0];
+    if (argv.size() > 0)
+        bm_name = argv[0];
 
     Heap::InitializeHeap(heapSize);
 
