@@ -494,7 +494,7 @@ bool Universe::HasGlobal(pVMSymbol name) {
         return false;
 }
 
-void Universe::InitializeSystemClass( pVMClass systemClass,
+void Universe::InitializeSystemClass(pVMClass systemClass,
 pVMClass superClass, const char* name) {
     StdString s_name(name);
 
@@ -523,14 +523,15 @@ pVMClass superClass, const char* name) {
     sysClassClass->SetName(SymbolFor(classClassName));
 
     SetGlobal(systemClass->GetName(), systemClass);
-
 }
 
-    if (HasGlobal(name))
-        return static_cast<pVMClass>(GetGlobal(name));
 pVMClass Universe::LoadClass(pVMSymbol name) {
+    pVMClass result = static_cast<pVMClass>(GetGlobal(name));
+    
+    if (result != nullptr)
+        return result;
 
-    pVMClass result = LoadClassBasic(name, NULL);
+    result = LoadClassBasic(name, NULL);
 
     if (!result) {
         cout << "can\'t load class " << name->GetStdString() << endl;
