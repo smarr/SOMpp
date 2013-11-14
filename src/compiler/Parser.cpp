@@ -30,6 +30,7 @@
 #include <vmobjects/VMMethod.h>
 #include <vmobjects/VMPrimitive.h>
 #include <vmobjects/VMObject.h>
+#include <vmobjects/VMBigInteger.h>
 #include <vmobjects/VMSymbol.h>
 
 #include <vm/Universe.h>
@@ -708,32 +709,38 @@ void Parser::literal(MethodGenerationContext* mgenc) {
 }
 
 void Parser::literalNumber(MethodGenerationContext* mgenc) {
-    int32_t val;
+    int64_t val;
     if (sym == Minus)
         val = negativeDecimal();
     else
         val = literalDecimal();
 
-#ifdef USE_TAGGING
-    pVMInteger lit = TAG_INTEGER(val);
-#else
-    pVMInteger lit = _UNIVERSE->NewInteger(val);
-#endif
+    pVMObject lit;
+    if (val < INT32_MIN || val > INT32_MAX) {
+        lit = _UNIVERSE->NewBigInteger(val);
+    } else {
+        #ifdef USE_TAGGING
+            lit = TAG_INTEGER(val);
+        #else
+            lit = _UNIVERSE->NewInteger(val);
+        #endif
+    }
+
     mgenc->AddLiteralIfAbsent(lit);
     bcGen->EmitPUSHCONSTANT(mgenc, lit);
 }
 
-uint32_t Parser::literalDecimal(void) {
+uint64_t Parser::literalDecimal(void) {
     return literalInteger();
 }
 
-int32_t Parser::negativeDecimal(void) {
+int64_t Parser::negativeDecimal(void) {
     expect(Minus);
-    return -((int32_t) literalInteger());
+    return -literalInteger();
 }
 
-uint32_t Parser::literalInteger(void) {
-    uint32_t i = (uint32_t) strtoul(text.c_str(), NULL, 10);
+uint64_t Parser::literalInteger(void) {
+    uint64_t i = strtoull(text.c_str(), NULL, 10);
     expect(Integer);
     return i;
 }

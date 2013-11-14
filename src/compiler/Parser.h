@@ -90,9 +90,9 @@ private:
     void nestedTerm(MethodGenerationContext* mgenc);
     void literal(MethodGenerationContext* mgenc);
     void literalNumber(MethodGenerationContext* mgenc);
-    uint32_t literalDecimal(void);
-    int32_t negativeDecimal(void);
-    uint32_t literalInteger(void);
+    uint64_t literalDecimal(void);
+    int64_t negativeDecimal(void);
+    uint64_t literalInteger(void);
     void literalSymbol(MethodGenerationContext* mgenc);
     void literalString(MethodGenerationContext* mgenc);
     pVMSymbol selector(void);
