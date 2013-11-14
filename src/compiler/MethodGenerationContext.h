@@ -50,7 +50,7 @@ public:
     int8_t FindLiteralIndex(pVMObject lit);
     bool FindVar(const StdString& var, size_t* index,
             int* context, bool* isArgument);
-    bool FindField(const StdString& field);
+    bool HasField(const StdString& field);
     uint8_t ComputeStackDepth();
 
     void SetHolder(ClassGenerationContext* holder);

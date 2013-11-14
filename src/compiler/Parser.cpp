@@ -136,7 +136,7 @@ void Parser::genPushVariable(MethodGenerationContext* mgenc,
             bcGen->EmitPUSHARGUMENT(mgenc, index, context);
         else
             bcGen->EmitPUSHLOCAL(mgenc, index, context);
-    } else if (mgenc->FindField(var)) {
+    } else if (mgenc->HasField(var)) {
         pVMSymbol fieldName = _UNIVERSE->SymbolFor(var);
         mgenc->AddLiteralIfAbsent(fieldName);
         bcGen->EmitPUSHFIELD(mgenc, fieldName);

@@ -103,8 +103,8 @@ bool MethodGenerationContext::FindVar(const StdString& var, size_t* index,
     return true;
 }
 
-bool MethodGenerationContext::FindField(const StdString& field) {
-    return holderGenc->FindField(field);
+bool MethodGenerationContext::HasField(const StdString& field) {
+    return holderGenc->HasField(field);
 }
 
 size_t MethodGenerationContext::GetNumberOfArguments() {

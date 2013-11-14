@@ -45,9 +45,9 @@ public:
     pVMClass Assemble();
     void AssembleSystemClass(pVMClass systemClass);
 
-    bool FindField(const StdString&);
     void AddInstanceField(pVMObject);
     void AddClassField(pVMObject);
+    bool HasField(const StdString&);
     void AddInstanceMethod(pVMObject);
     void AddClassMethod(pVMObject);
     void SetName(pVMSymbol n) {name = n;}

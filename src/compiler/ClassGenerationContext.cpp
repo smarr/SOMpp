@@ -48,11 +48,13 @@ void ClassGenerationContext::AddInstanceField(pVMObject field) {
     this->instanceFields.Add(field);
 }
 
-bool ClassGenerationContext::FindField(const StdString& field) {
-
-    ExtendedList<pVMObject> fields =
-            IsClassSide() ? classFields : instanceFields;
-    return fields.IndexOf(_UNIVERSE->SymbolFor(field)) != -1;
+bool ClassGenerationContext::HasField(const StdString& field) {
+    if (IsClassSide()) {
+        return classFields.IndexOf(_UNIVERSE->SymbolFor(field)) != -1;
+    } else {
+        return instanceFields.IndexOf(_UNIVERSE->SymbolFor(field)) != -1;
+    }
+}
 
 }
 
