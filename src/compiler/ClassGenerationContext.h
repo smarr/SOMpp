@@ -41,7 +41,8 @@ class ClassGenerationContext {
 
 public:
     ClassGenerationContext();
-    ~ClassGenerationContext();pVMClass Assemble();
+    ~ClassGenerationContext();
+    pVMClass Assemble();
     void AssembleSystemClass(pVMClass systemClass);
 
     bool FindField(const StdString&);

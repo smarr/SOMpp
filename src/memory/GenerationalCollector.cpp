@@ -64,16 +64,17 @@ VMOBJECT_PTR copy_if_necessary(VMOBJECT_PTR obj) {
 }
 
 void GenerationalCollector::MinorCollection() {
-    //walk all globals
+    // walk all globals
     _UNIVERSE->WalkGlobals(&copy_if_necessary);
-    //and the current frame
+
+    // and the current frame
     pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
     if (currentFrame != NULL) {
         pVMFrame newFrame = static_cast<pVMFrame>(copy_if_necessary(currentFrame));
         _UNIVERSE->GetInterpreter()->SetFrame(newFrame);
     }
 
-    //and also all objects that have been detected by the write barriers
+    // and also all objects that have been detected by the write barriers
     for (vector<size_t>::iterator objIter =
             _HEAP->oldObjsWithRefToYoungObjs->begin();
          objIter != _HEAP->oldObjsWithRefToYoungObjs->end();
