@@ -362,7 +362,7 @@ void Universe::initialize(long _argc, char** _argv) {
     if (!(trace > 0))
         dumpBytecodes = 1;
 
-    pVMArray argumentsArray = _UNIVERSE->NewArrayFromArgv(argv);
+    pVMArray argumentsArray = _UNIVERSE->NewArrayFromStrings(argv);
 
     pVMFrame bootstrapFrame = interpreter->PushNewFrame(bootstrapMethod);
     bootstrapFrame->Push(systemObject);
@@ -609,7 +609,7 @@ pVMArray Universe::NewArray(long size) const {
     return result;
 }
 
-pVMArray Universe::NewArrayFromArgv( const vector<StdString>& argv) const {
+pVMArray Universe::NewArrayFromStrings(const vector<StdString>& argv) const {
     pVMArray result = NewArray(argv.size());
     long j = 0;
     for (vector<StdString>::const_iterator i = argv.begin();

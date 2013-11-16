@@ -121,7 +121,7 @@ public:
     //VMObject instanciation methods. These should probably be refactored to a new class
     pVMArray NewArray(long) const;
     pVMArray NewArrayList(ExtendedList<pVMObject>& list) const;
-    pVMArray NewArrayFromArgv(const vector<StdString>&) const;
+    pVMArray NewArrayFromStrings(const vector<StdString>&) const;
     pVMBlock NewBlock(pVMMethod, pVMFrame, long);
     pVMClass NewClass(pVMClass) const;
     pVMFrame NewFrame(pVMFrame, pVMMethod) const;
