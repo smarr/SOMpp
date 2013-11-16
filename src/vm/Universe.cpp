@@ -550,7 +550,9 @@ pVMClass Universe::LoadClass(pVMSymbol name) {
     }
 
     if (result->HasPrimitives() || result->GetClass()->HasPrimitives())
-    result->LoadPrimitives(classPath);
+        result->LoadPrimitives(classPath);
+    
+    SetGlobal(name, result);
 
     return result;
 }
