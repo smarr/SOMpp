@@ -222,8 +222,13 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
                 break;
             case BC_POP_FIELD: {
                 long fieldIdx = BC_1;
-                pVMSymbol name = method->GetHolder()->GetInstanceFieldName(fieldIdx);
-                DebugPrint("(index: %d) field: %s\n", fieldIdx, name->GetChars());
+                pVMClass holder = dynamic_cast<pVMClass>((pVMObject) method->GetHolder());
+                if (holder) {
+                    pVMSymbol name = holder->GetInstanceFieldName(fieldIdx);
+                    DebugPrint("(index: %d) field: %s\n", fieldIdx, name->GetChars());
+                } else {
+                    DebugPrint("(index: %d) block holder is not a class!!\n", fieldIdx);
+                }
                 break;
             }
             case BC_SEND: {
