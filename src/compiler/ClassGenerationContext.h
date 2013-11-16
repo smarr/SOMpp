@@ -31,6 +31,7 @@
 class VMSymbol;
 class AbstractVMObject;
 class VMClass;
+class VMArray;
 
 #include "../vmobjects/ObjectFormats.h"
 
@@ -45,9 +46,9 @@ public:
     pVMClass Assemble();
     void AssembleSystemClass(pVMClass systemClass);
 
-    void AddInstanceField(pVMObject);
-    void AddClassField(pVMObject);
     bool HasField(const StdString&);
+    void AddInstanceField(pVMSymbol);
+    void AddClassField(pVMSymbol);
     void AddInstanceMethod(pVMObject);
     void AddClassMethod(pVMObject);
     void SetName(pVMSymbol n) {name = n;}
@@ -56,14 +57,19 @@ public:
     pVMSymbol GetName(void) {return name;};
     pVMSymbol GetSuperName(void) {return superName;};
     bool IsClassSide(void) {return classSide;};
+    
+    int16_t GetFieldIndex(pVMSymbol field);
+    
+    void SetInstanceFieldsOfSuper(pVMArray fields);
+    void SetClassFieldsOfSuper(pVMArray fields);
 
 private:
     pVMSymbol name;
     pVMSymbol superName;
     bool classSide;
-    ExtendedList<pVMObject> instanceFields;
+    ExtendedList<pVMSymbol> instanceFields;
     ExtendedList<pVMObject> instanceMethods;
-    ExtendedList<pVMObject> classFields;
+    ExtendedList<pVMSymbol> classFields;
     ExtendedList<pVMObject> classMethods;
 
 };

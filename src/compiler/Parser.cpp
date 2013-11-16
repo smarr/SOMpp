@@ -32,6 +32,7 @@
 #include <vmobjects/VMObject.h>
 #include <vmobjects/VMBigInteger.h>
 #include <vmobjects/VMSymbol.h>
+#include <vmobjects/VMClass.h>
 
 #include <vm/Universe.h>
 
@@ -186,10 +187,7 @@ void Parser::Classdef(ClassGenerationContext* cgenc) {
 
     expect(Equal);
 
-    if(sym == Identifier) {
-        cgenc->SetSuperName(_UNIVERSE->SymbolFor(text));
-        accept(Identifier);
-    } else cgenc->SetSuperName(_UNIVERSE->SymbolFor("Object"));
+    superclass(cgenc);
 
     expect(NewTerm);
     instanceFields(cgenc);
@@ -228,6 +226,34 @@ void Parser::Classdef(ClassGenerationContext* cgenc) {
         }
     }
     expect(EndTerm);
+}
+
+void Parser::superclass(ClassGenerationContext *cgenc) {
+    pVMSymbol superName;
+    if (sym == Identifier) {
+        superName = _UNIVERSE->SymbolFor(text);
+        accept(Identifier);
+    } else {
+        superName = _UNIVERSE->SymbolFor("Object");
+    }
+    cgenc->SetSuperName(superName);
+    
+    // Load the super class, if it is not nil (break the dependency cycle)
+    if (superName != _UNIVERSE->SymbolFor("nil")) {
+        pVMClass superClass = _UNIVERSE->LoadClass(superName);
+        cgenc->SetInstanceFieldsOfSuper(superClass->GetInstanceFields());
+        cgenc->SetClassFieldsOfSuper(superClass->GetClass()->GetInstanceFields());
+    } else {
+        // we hardcode here the field names for Class
+        // since Object class superclass = Class
+        // We avoid here any kind of dynamic solution to avoid further complexity.
+        // However, that makes it static, it is going to make it harder to
+        // change the definition of Class and Object
+        vector<StdString> fieldNamesOfClass{ "class", "superClass", "name",
+            "instanceFields", "instanceInvokables" };
+        pVMArray fieldNames = _UNIVERSE->NewArrayFromStrings(fieldNamesOfClass);
+        cgenc->SetClassFieldsOfSuper(fieldNames);
+    }
 }
 
 void Parser::instanceFields(ClassGenerationContext* cgenc) {

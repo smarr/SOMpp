@@ -344,6 +344,8 @@ void Universe::initialize(long _argc, char** _argv) {
 
     symbolIfTrue  = SymbolForChars("ifTrue:");
     symbolIfFalse = SymbolForChars("ifFalse:");
+    
+    
 
     pVMMethod bootstrapMethod = NewMethod(SymbolForChars("bootstrap"), 1, 0);
     bootstrapMethod->SetBytecode(0, BC_HALT);

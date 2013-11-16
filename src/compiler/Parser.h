@@ -53,6 +53,7 @@ private:
     bool expect(Symbol s);
     bool expectOneOf(Symbol* ss);
     void SingleOperator(void);
+    void superclass(ClassGenerationContext* cgenc);
     void instanceFields(ClassGenerationContext* cgenc);
     void classFields(ClassGenerationContext* cgenc);
     void method(MethodGenerationContext* mgenc);

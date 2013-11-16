@@ -323,21 +323,17 @@ void Interpreter::doPushArgument(long bytecodeIndex) {
 }
 
 void Interpreter::doPushField(long bytecodeIndex) {
-    pVMSymbol fieldName = static_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));
-
+    uint8_t fieldIndex = method->GetBytecode(bytecodeIndex + 1);
     pVMObject self = _SELF;
-    pVMObject o = NULL;
+    pVMObject o;
 #ifdef USE_TAGGING
     if (IS_TAGGED(self)) {
-        long fieldIndex = GlobalBox::IntegerBox()->GetFieldIndex(fieldName);
         o = GlobalBox::IntegerBox()->GetField(fieldIndex);
     }
     else {
-        long fieldIndex = AS_POINTER(self)->GetFieldIndex(fieldName);
         o = AS_POINTER(self)->GetField(fieldIndex);
     }
 #else
-    long fieldIndex = self->GetFieldIndex(fieldName);
     o = self->GetField(fieldIndex);
 #endif
 
@@ -392,9 +388,9 @@ void Interpreter::doPushGlobal(long bytecodeIndex) {
 
 #ifdef USE_TAGGING
         if (IS_TAGGED(self))
-        GlobalBox::IntegerBox()->Send(uG, arguments, 1);
+            GlobalBox::IntegerBox()->Send(uG, arguments, 1);
         else
-        AS_POINTER(self)->Send(uG, arguments, 1);
+            AS_POINTER(self)->Send(uG, arguments, 1);
 #else
         self->Send(uG, arguments, 1);
 #endif
@@ -423,21 +419,18 @@ void Interpreter::doPopArgument(long bytecodeIndex) {
 }
 
 void Interpreter::doPopField(long bytecodeIndex) {
-    pVMSymbol field_name = static_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));
+    uint8_t field_index = method->GetBytecode(bytecodeIndex + 1);
 
     pVMObject self = _SELF;
     pVMObject o = _FRAME->Pop();
 #ifdef USE_TAGGING
     if (IS_TAGGED(self)) {
-        long field_index = GlobalBox::IntegerBox()->GetFieldIndex(field_name);
         GlobalBox::IntegerBox()->SetField(field_index, o);
     }
     else {
-        long field_index = AS_POINTER(self)->GetFieldIndex(field_name);
         AS_POINTER(self)->SetField(field_index, o);
     }
 #else
-    long field_index = self->GetFieldIndex(field_name);
     self->SetField(field_index, o);
 #endif
 }
@@ -448,6 +441,8 @@ void Interpreter::doSend(long bytecodeIndex) {
     long numOfArgs = Signature::GetNumberOfArguments(signature);
 
     pVMObject receiver = _FRAME->GetStackElement(numOfArgs-1);
+    assert(dynamic_cast<pVMClass>((pVMObject)receiver->GetClass()) != nullptr); // make sure it is really a class
+    
 #ifdef USE_TAGGING
     pVMClass receiverClass = IS_TAGGED(receiver) ? integerClass : AS_POINTER(receiver)->GetClass();
 #else

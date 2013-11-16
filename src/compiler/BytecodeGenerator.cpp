@@ -60,11 +60,11 @@ void BytecodeGenerator::EmitPUSHARGUMENT(MethodGenerationContext* mgenc,
     EMIT3(BC_PUSH_ARGUMENT, idx, ctx);
 }
 
-void BytecodeGenerator::EmitPUSHFIELD(MethodGenerationContext* mgenc, pVMSymbol field ) {
-    EMIT2(BC_PUSH_FIELD, mgenc->FindLiteralIndex(field));
+void BytecodeGenerator::EmitPUSHFIELD(MethodGenerationContext* mgenc, pVMSymbol field) {
+    EMIT2(BC_PUSH_FIELD, mgenc->GetFieldIndex(field));
 }
 
-void BytecodeGenerator::EmitPUSHBLOCK(MethodGenerationContext* mgenc, pVMMethod block ) {
+void BytecodeGenerator::EmitPUSHBLOCK(MethodGenerationContext* mgenc, pVMMethod block) {
     EMIT2(BC_PUSH_BLOCK, mgenc->FindLiteralIndex(block));
 }
 
@@ -97,7 +97,7 @@ void BytecodeGenerator::EmitPOPARGUMENT(MethodGenerationContext* mgenc,
 }
 
 void BytecodeGenerator::EmitPOPFIELD(MethodGenerationContext* mgenc, pVMSymbol field ) {
-    EMIT2(BC_POP_FIELD, mgenc->FindLiteralIndex(field));
+    EMIT2(BC_POP_FIELD, mgenc->GetFieldIndex(field));
 }
 
 void BytecodeGenerator::EmitSEND(MethodGenerationContext* mgenc, pVMSymbol msg ) {

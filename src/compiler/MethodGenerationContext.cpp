@@ -83,7 +83,12 @@ MethodGenerationContext::~MethodGenerationContext() {
 
 int8_t MethodGenerationContext::FindLiteralIndex(pVMObject lit) {
     return (int8_t)literals.IndexOf(lit);
+}
 
+uint8_t MethodGenerationContext::GetFieldIndex(pVMSymbol field) {
+    int16_t idx = holderGenc->GetFieldIndex(field);
+    assert(idx >= 0);
+    return idx;
 }
 
 bool MethodGenerationContext::FindVar(const StdString& var, size_t* index,

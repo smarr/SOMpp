@@ -167,20 +167,16 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
             case BC_PUSH_ARGUMENT:
                 DebugPrint("argument: %d, context %d\n", BC_1, BC_2); break;
             case BC_PUSH_FIELD: {
-                pVMObject cst = method->GetConstant(bc_idx);
-
-                if (cst != NULL) {
-#ifdef USE_TAGGING
-                    pVMSymbol name = dynamic_cast<pVMSymbol>(AS_POINTER(cst));
-#else
-                    pVMSymbol name = dynamic_cast<pVMSymbol>(cst);
-#endif
+                long fieldIdx = BC_1;
+                pVMClass holder = dynamic_cast<pVMClass>((pVMObject) method->GetHolder());
+                if (holder) {
+                    pVMSymbol name = holder->GetInstanceFieldName(fieldIdx);
                     if (name != NULL) {
-                        DebugPrint("(index: %d) field: %s\n", BC_1,
-                        name->GetChars());
+                        DebugPrint("(index: %d) field: %s\n", BC_1, name->GetChars());
                         break;
                     }
-                } else
+                }
+                
                 DebugPrint("(index: %d) field: !NULL!: error!\n", BC_1);
                 break;
             }
@@ -225,9 +221,9 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
                 DebugPrint("argument: %d, context: %d\n", BC_1, BC_2);
                 break;
             case BC_POP_FIELD: {
-                pVMSymbol name = static_cast<pVMSymbol>(method->GetConstant(bc_idx));
-
-                DebugPrint("(index: %d) field: %s\n", BC_1, name->GetChars());
+                long fieldIdx = BC_1;
+                pVMSymbol name = method->GetHolder()->GetInstanceFieldName(fieldIdx);
+                DebugPrint("(index: %d) field: %s\n", fieldIdx, name->GetChars());
                 break;
             }
             case BC_SEND: {
@@ -347,20 +343,19 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
         case BC_PUSH_FIELD: {
             pVMFrame ctxt = frame->GetOuterContext();
             pVMObject arg = ctxt->GetArgument(0, 0);
+            uint8_t field_index = BC_1;
+            
 #ifdef USE_TAGGING
-            pVMSymbol name = static_cast<pVMSymbol>(AS_POINTER(method->GetConstant(bc_idx)));
-            int field_index = AS_POINTER(arg)->GetFieldIndex(name);
             pVMObject o = AS_POINTER(arg)->GetField(field_index);
 #else
-            pVMSymbol name = static_cast<pVMSymbol>(method->GetConstant(bc_idx));
-            long field_index = arg->GetFieldIndex(name);
             pVMObject o = arg->GetField(field_index);
 #endif
             pVMClass c = CLASS_OF(o);
             pVMSymbol cname = c->GetName();
-
-            DebugPrint("(index: %d) field: %s <(%s) ", BC_1,
-            name->GetChars(), cname->GetChars());
+            long fieldIdx = BC_1;
+            pVMSymbol name = method->GetHolder()->GetInstanceFieldName(fieldIdx);
+            DebugPrint("(index: %d) field: %s <(%s) ", BC_1, name->GetChars(),
+                       cname->GetChars());
             //dispatch
             dispatch(o);
             DebugPrint(">\n");
@@ -447,17 +442,12 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
         }
         case BC_POP_FIELD: {
             pVMObject o = frame->GetStackElement(0);
-#ifdef USE_TAGGING
-            pVMSymbol name = static_cast<pVMSymbol>(AS_POINTER(method->GetConstant(bc_idx)));
-#else
-            pVMSymbol name = static_cast<pVMSymbol>(method->GetConstant(bc_idx));
-#endif
             pVMClass c = CLASS_OF(o);
+            long fieldIdx = BC_1;
+            pVMSymbol name = method->GetHolder()->GetInstanceFieldName(fieldIdx);
             pVMSymbol cname = c->GetName();
-
-            DebugPrint("(index: %d) field: %s <(%s) ", BC_1,
-            name->GetChars(),
-            cname->GetChars());
+            DebugPrint("(index: %d) field: %s <(%s) ", fieldIdx, name->GetChars(),
+                       cname->GetChars());
             dispatch(o);
             DebugPrint(">\n");
             break;

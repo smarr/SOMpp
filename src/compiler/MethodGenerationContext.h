@@ -52,6 +52,8 @@ public:
             int* context, bool* isArgument);
     bool HasField(const StdString& field);
     uint8_t ComputeStackDepth();
+    
+    uint8_t GetFieldIndex(pVMSymbol field);
 
     void SetHolder(ClassGenerationContext* holder);
     void SetOuter(MethodGenerationContext* outer);
