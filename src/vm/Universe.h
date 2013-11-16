@@ -181,7 +181,6 @@ private:
     map<long,pVMClass> blockClassesByNoOfArgs;
     vector<StdString> classPath;
 
-    SourcecodeCompiler* compiler;
     Interpreter* interpreter;
 };
 

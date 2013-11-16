@@ -302,7 +302,6 @@ void Universe::printUsageAndExit(char* executable) const {
 }
 
 Universe::Universe() {
-    this->compiler = NULL;
     this->interpreter = NULL;
 }
 
@@ -323,7 +322,6 @@ void Universe::initialize(long _argc, char** _argv) {
 
     heap = _HEAP;
 
-    compiler = new SourcecodeCompiler();
     interpreter = new Interpreter();
 
 #ifdef CACHE_INTEGER
@@ -385,8 +383,6 @@ void Universe::initialize(long _argc, char** _argv) {
 Universe::~Universe() {
     if (interpreter)
         delete (interpreter);
-    if (compiler)
-        delete (compiler);
 
     // check done inside
     Heap::DestroyHeap();
@@ -564,7 +560,8 @@ pVMClass Universe::LoadClassBasic(pVMSymbol name, pVMClass systemClass) {
 
     for (vector<StdString>::iterator i = classPath.begin();
             i != classPath.end(); ++i) {
-        result = compiler->CompileClass(*i, name->GetStdString(), systemClass);
+        SourcecodeCompiler compiler;
+        result = compiler.CompileClass(*i, name->GetStdString(), systemClass);
         if (result) {
             if (dumpBytecodes) {
                 Disassembler::Dump(result->GetClass());
@@ -578,9 +575,10 @@ pVMClass Universe::LoadClassBasic(pVMSymbol name, pVMClass systemClass) {
 }
 
 pVMClass Universe::LoadShellClass( StdString& stmt) {
-    pVMClass result = compiler->CompileClassString(stmt, NULL);
+    SourcecodeCompiler compiler;
+    pVMClass result = compiler.CompileClassString(stmt, NULL);
     if(dumpBytecodes)
-    Disassembler::Dump(result);
+        Disassembler::Dump(result);
     return result;
 }
 
