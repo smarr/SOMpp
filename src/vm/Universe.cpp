@@ -95,6 +95,9 @@ pVMClass systemClass;
 pVMClass blockClass;
 pVMClass doubleClass;
 
+pVMClass trueClass;
+pVMClass falseClass;
+
 pVMSymbol symbolIfTrue;
 pVMSymbol symbolIfFalse;
 
@@ -444,9 +447,14 @@ void Universe::InitializeGlobals() {
     LoadSystemClass(doubleClass);
 
     blockClass = LoadClass(_UNIVERSE->SymbolForChars("Block"));
-
-    trueObject  = NewInstance(_UNIVERSE->LoadClass(_UNIVERSE->SymbolForChars("True")));
-    falseObject = NewInstance(_UNIVERSE->LoadClass(_UNIVERSE->SymbolForChars("False")));
+    
+    pVMSymbol trueSymbol = _UNIVERSE->SymbolForChars("True");
+    trueClass   = _UNIVERSE->LoadClass(trueSymbol);
+    trueObject  = NewInstance(trueClass);
+    
+    pVMSymbol falseSymbol = _UNIVERSE->SymbolForChars("False");
+    falseClass  = _UNIVERSE->LoadClass(falseSymbol);
+    falseObject = NewInstance(falseClass);
 
     systemClass = LoadClass(_UNIVERSE->SymbolForChars("System"));
 }
