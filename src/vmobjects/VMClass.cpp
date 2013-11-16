@@ -85,7 +85,7 @@ VMClass::VMClass(long numberOfFields) :
 void VMClass::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     clazz = static_cast<pVMClass>(walk(clazz));
     if (superClass)
-    superClass = static_cast<pVMClass>(walk(superClass));
+        superClass = static_cast<pVMClass>(walk(superClass));
     name = static_cast<pVMSymbol>(walk(name));
     instanceFields = static_cast<pVMArray>(walk(instanceFields));
     instanceInvokables = static_cast<pVMArray>(walk(instanceInvokables));
@@ -93,7 +93,7 @@ void VMClass::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     pVMObject* fields = (pVMObject*)(&clazz);
 
     for (long i = VMClassNumberOfFields + 1/*VMObjectNumberOfFields*/; i < numberOfFields; i++)
-    fields[i] = walk(AS_POINTER(fields[i]));
+        fields[i] = walk(AS_POINTER(fields[i]));
 }
 
 bool VMClass::AddInstanceInvokable(pVMObject ptr) {
@@ -139,7 +139,6 @@ pVMSymbol VMClass::GetInstanceFieldName(long index) const {
 }
 
 void VMClass::SetInstanceInvokables(pVMArray invokables) {
-
     instanceInvokables = invokables;
 #if GC_TYPE==GENERATIONAL
     _HEAP->writeBarrier(this, instanceInvokables);
@@ -155,7 +154,6 @@ void VMClass::SetInstanceInvokables(pVMArray invokables) {
             inv->SetHolder(this);
         }
     }
-
 }
 
 long VMClass::GetNumberOfInstanceInvokables() const {
@@ -187,13 +185,14 @@ pVMInvokable VMClass::LookupInvokable(pVMSymbol name) const {
             return invokable;
         }
     }
-    invokable = NULL;
-    //look in super class
-    if (this->HasSuperClass()) {
-        invokable = this->superClass->LookupInvokable(name);
+
+    // look in super class
+    if (HasSuperClass()) {
+        return superClass->LookupInvokable(name);
+    } else {
+        name->UpdateCachedInvokable(this, invokable);
+        return invokable;
     }
-    name->UpdateCachedInvokable(this, invokable);
-    return invokable;
 }
 
 long VMClass::LookupFieldIndex(pVMSymbol name) const {

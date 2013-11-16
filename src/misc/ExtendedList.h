@@ -43,9 +43,9 @@ public:
     void AddAll(const ExtendedList<T>* list);
     void PushBack(const T& ptr);
     void Clear();
-    int Size() const;
-    T Get(int index);
-    int IndexOf(const T& needle);
+    size_t Size() const;
+    T Get(long index);
+    int32_t IndexOf(const T& needle);
 
     typedef typename std::list<T>::iterator iterator_t;
     typedef typename std::list<T>::const_iterator const_iterator_t;
@@ -89,7 +89,7 @@ void ExtendedList<T>::Clear() {
 }
 
 template<class T>
-T ExtendedList<T>::Get(int index) {
+T ExtendedList<T>::Get(long index) {
     for (iterator_t it = theList.begin(); it != theList.end(); ++it) {
         if (index == 0)
             return *it;
@@ -99,12 +99,12 @@ T ExtendedList<T>::Get(int index) {
 }
 
 template<class T>
-int ExtendedList<T>::Size() const {
+size_t ExtendedList<T>::Size() const {
     return theList.size();
 }
 
 template<class T>
-int ExtendedList<T>::IndexOf(const T& needle) {
+int32_t ExtendedList<T>::IndexOf(const T& needle) {
     for (iterator_t it = theList.begin(); it != theList.end(); ++it) {
         if (*it == needle)
             return distance(theList.begin(), it);

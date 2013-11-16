@@ -61,8 +61,7 @@ public:
         return (char*) bytecodeNames[bc];
     }
 
-    static uint8_t GetBytecodeLength(uint8_t bc) {
-
+    inline static uint8_t GetBytecodeLength(uint8_t bc) {
         return bytecodeLengths[bc]; // Return the length of the given bytecode
     }
 

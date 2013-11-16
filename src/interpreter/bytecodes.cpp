@@ -26,7 +26,8 @@
  THE SOFTWARE.
  */
 
-const uint8_t Bytecode::bytecodeLengths[] = { 1, // BC_HALT
+const uint8_t Bytecode::bytecodeLengths[] = {
+        1, // BC_HALT
         1, // BC_DUP
         3, // BC_PUSH_LOCAL
         3, // BC_PUSH_ARGUMENT
@@ -41,10 +42,10 @@ const uint8_t Bytecode::bytecodeLengths[] = { 1, // BC_HALT
         2, // BC_SEND
         2, // BC_SUPER_SEND
         1, // BC_RETURN_LOCAL
-        1,  // BC_RETURN_NON_LOCAL
-        5,  // JUMP_IF_FALSE
-        5,  // JUMP_IF_TRUE
-        5   // JUMP
+        1, // BC_RETURN_NON_LOCAL
+        5, // JUMP_IF_FALSE
+        5, // JUMP_IF_TRUE
+        5  // JUMP
         };
 
 const char* Bytecode::bytecodeNames[] = { "HALT            ",

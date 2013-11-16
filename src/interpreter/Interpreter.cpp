@@ -45,7 +45,6 @@
 
 // convenience macros for frequently used function invocations
 #define _FRAME this->GetFrame()
-#define _SETFRAME(f) this->SetFrame(f)
 #define _METHOD this->GetMethod()
 #define _SELF this->GetSelf()
 
@@ -196,12 +195,12 @@ doJump(bytecodeIndexGlobal - 5);
 DISPATCH_NOGC();
 }
 
-pVMFrame Interpreter::PushNewFrame( pVMMethod method ) {
+pVMFrame Interpreter::PushNewFrame(pVMMethod method) {
     SetFrame(_UNIVERSE->NewFrame(_FRAME, method));
     return _FRAME;
 }
 
-void Interpreter::SetFrame( pVMFrame frame ) {
+void Interpreter::SetFrame(pVMFrame frame) {
     if (this->frame != NULL)
         this->frame->SetBytecodeIndex(bytecodeIndexGlobal);
 
@@ -239,7 +238,7 @@ pVMFrame Interpreter::popFrame() {
     return result;
 }
 
-void Interpreter::popFrameAndPushResult(pVMObject result ) {
+void Interpreter::popFrameAndPushResult(pVMObject result) {
     pVMFrame prevFrame = this->popFrame();
 
     pVMMethod method = prevFrame->GetMethod();
@@ -539,7 +538,7 @@ void Interpreter::doJumpIfFalse(long bytecodeIndex) {
 void Interpreter::doJumpIfTrue(long bytecodeIndex) {
     pVMObject value = _FRAME->Pop();
     if (value == trueObject)
-    doJump(bytecodeIndex);
+        doJump(bytecodeIndex);
 }
 
 void Interpreter::doJump(long bytecodeIndex) {

@@ -49,13 +49,13 @@ MethodGenerationContext::MethodGenerationContext() {
 
 pVMMethod MethodGenerationContext::Assemble() {
     // create a method instance with the given number of bytecodes and literals
-    int numLiterals = this->literals.Size();
+    size_t numLiterals = this->literals.Size();
 
     pVMMethod meth = _UNIVERSE->NewMethod(this->signature, bytecode.size(),
             numLiterals);
 
     // populate the fields that are immediately available
-    int numLocals = this->locals.Size();
+    size_t numLocals = this->locals.Size();
     meth->SetNumberOfLocals(numLocals);
 
     meth->SetMaximumNumberOfStackElements(this->ComputeStackDepth());
@@ -86,7 +86,7 @@ int8_t MethodGenerationContext::FindLiteralIndex(pVMObject lit) {
 
 }
 
-bool MethodGenerationContext::FindVar(const StdString& var, int* index,
+bool MethodGenerationContext::FindVar(const StdString& var, size_t* index,
         int* context, bool* isArgument) {
     if ((*index = locals.IndexOf(var)) == -1) {
         if ((*index = arguments.IndexOf(var)) == -1) {
@@ -103,11 +103,11 @@ bool MethodGenerationContext::FindVar(const StdString& var, int* index,
     return true;
 }
 
-bool MethodGenerationContext::FindField(const StdString& field) {
-    return holderGenc->FindField(field);
+bool MethodGenerationContext::HasField(const StdString& field) {
+    return holderGenc->HasField(field);
 }
 
-int MethodGenerationContext::GetNumberOfArguments() {
+size_t MethodGenerationContext::GetNumberOfArguments() {
     return arguments.Size();
 }
 
@@ -162,11 +162,19 @@ uint8_t MethodGenerationContext::ComputeStackDepth() {
             i += 2;
             break;
         }
-        case BC_RETURN_LOCAL :
-        case BC_RETURN_NON_LOCAL : i++; break;
-        case BC_JUMP_IF_FALSE : depth--; i += 5; break;
-        case BC_JUMP_IF_TRUE : depth--; i += 5; break;
-        case BC_JUMP : i += 5; break;
+        case BC_RETURN_LOCAL:
+        case BC_RETURN_NON_LOCAL: {
+            i++;
+            break;
+        }
+        case BC_JUMP_IF_FALSE:
+        case BC_JUMP_IF_TRUE:
+            depth--;
+            i += 5;
+            break;
+        case BC_JUMP:
+            i += 5;
+            break;
         default :
             cout << "Illegal bytecode: " << bytecode[i];
             _UNIVERSE->Quit(1);

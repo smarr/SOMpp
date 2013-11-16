@@ -91,10 +91,10 @@ void VMArray::CopyIndexableFieldsTo(pVMArray to) const {
 }
 
 void VMArray::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    long noOfFields = GetNumberOfFields();
+    long numFields          = GetNumberOfFields();
     long numIndexableFields = GetNumberOfIndexableFields();
     pVMObject* fields = (pVMObject*)(&clazz);
-    for (long i = 0; i < noOfFields + numIndexableFields; i++) {
+    for (long i = 0; i < numFields + numIndexableFields; i++) {
         fields[i] = walk(AS_POINTER(fields[i]));
     }
 }

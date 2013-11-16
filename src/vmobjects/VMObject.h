@@ -34,8 +34,8 @@
 
 #include "AbstractObject.h"
 
-#include "../misc/defs.h"
-#include "../vm/Universe.h"
+#include <misc/defs.h>
+#include <vm/Universe.h>
 
 #include "ObjectFormats.h"
 
@@ -68,18 +68,18 @@ public:
     VMObject(long numberOfFields = 0);
 
     /* Virtual member functions */
-    virtual inline pVMClass GetClass() const;
-    virtual void SetClass(pVMClass cl);
-    virtual pVMSymbol GetFieldName(long index) const;
-    virtual inline long GetNumberOfFields() const;
-    virtual void SetNumberOfFields(long nof);
-    virtual pVMObject GetField(long index) const;
-    virtual void Assert(bool value) const;
-    virtual void SetField(long index, pVMObject value);
-    virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
-    virtual VMObject* Clone() const;
-    virtual inline size_t GetObjectSize() const;
-    virtual inline void SetObjectSize(size_t size);
+    virtual inline pVMClass  GetClass() const;
+    virtual        void      SetClass(pVMClass cl);
+    virtual        pVMSymbol GetFieldName(long index) const;
+    virtual inline long      GetNumberOfFields() const;
+    virtual        void      SetNumberOfFields(long nof);
+    virtual        pVMObject GetField(long index) const;
+    virtual        void      Assert(bool value) const;
+    virtual        void      SetField(long index, pVMObject value);
+    virtual        void      WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
+    virtual        pVMObject Clone() const;
+    virtual inline size_t    GetObjectSize() const;
+    virtual inline void      SetObjectSize(size_t size);
 
     /* Operators */
 
@@ -102,24 +102,22 @@ public:
             void* mem = (void*) ((CopyingHeap*)heap)->AllocateObject(numBytes + PADDED_SIZE(additionalBytes));
 #elif GC_TYPE==MARK_SWEEP
             unsigned long additionalBytes = 0) {
-                void* mem = (void*) ((MarkSweepHeap*)heap)->AllocateObject(numBytes + PADDED_SIZE(additionalBytes));
+        void* mem = (void*) ((MarkSweepHeap*)heap)->AllocateObject(numBytes + PADDED_SIZE(additionalBytes));
 #endif
-                size_t objSize = numBytes + PADDED_SIZE(additionalBytes);
-                ((VMObject*) mem)->objectSize = objSize;
-                return mem;
-            }
+        size_t objSize = numBytes + PADDED_SIZE(additionalBytes);
+        ((VMObject*) mem)->objectSize = objSize;
+        return mem;
+    }
 
 protected:
     long GetAdditionalSpaceConsumption() const;
-    //VMObject essentials
-    long hash;
-    size_t objectSize; //set by the heap at allocation time
-    long numberOfFields;
 
-    //pVMObject* FIELDS;
-    //Start of fields. All members beyond this point are indexable
-    //through FIELDS-macro instead of the member above.
-    //So clazz == FIELDS[0]
+    // Start of fields. All members beyond this point are indexable.
+    // clazz has index 0.
+    // VMObject essentials
+    long   hash;
+    size_t objectSize;     // set by the heap at allocation time
+    long   numberOfFields;
     pVMClass clazz;
 private:
     static const long VMObjectNumberOfFields;

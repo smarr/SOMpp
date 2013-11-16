@@ -82,13 +82,17 @@ private:
     void binaryMessage(MethodGenerationContext* mgenc, bool super);
     void binaryOperand(MethodGenerationContext* mgenc, bool* super);
     void keywordMessage(MethodGenerationContext* mgenc, bool super);
+    
+    void ifTrueMessage(MethodGenerationContext* mgenc);
+    void ifFalseMessage(MethodGenerationContext* mgenc);
+    
     void formula(MethodGenerationContext* mgenc);
     void nestedTerm(MethodGenerationContext* mgenc);
     void literal(MethodGenerationContext* mgenc);
     void literalNumber(MethodGenerationContext* mgenc);
-    uint32_t literalDecimal(void);
-    int32_t negativeDecimal(void);
-    uint32_t literalInteger(void);
+    uint64_t literalDecimal(void);
+    int64_t negativeDecimal(void);
+    uint64_t literalInteger(void);
     void literalSymbol(MethodGenerationContext* mgenc);
     void literalString(MethodGenerationContext* mgenc);
     pVMSymbol selector(void);

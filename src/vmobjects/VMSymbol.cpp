@@ -34,7 +34,7 @@ extern pVMClass symbolClass;
 
 VMSymbol::VMSymbol(const char* str) {
     nextCachePos = 0;
-    //set the chars-pointer to point at the position of the first character
+    // set the chars-pointer to point at the position of the first character
     chars = (char*) &cachedInvokable + +3 * sizeof(pVMInvokable);
     size_t i = 0;
     for (; i < strlen(str); ++i) {

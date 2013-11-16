@@ -38,8 +38,7 @@
 
 VMEvaluationPrimitive::VMEvaluationPrimitive(long argc) :
         VMPrimitive(computeSignatureString(argc)) {
-    this->SetRoutine(
-            new Routine<VMEvaluationPrimitive>(this,
+    this->SetRoutine(new Routine<VMEvaluationPrimitive>(this,
                     &VMEvaluationPrimitive::evaluationRoutine));
     this->SetEmpty(false);
 #ifdef USE_TAGGING
@@ -69,6 +68,7 @@ pVMSymbol VMEvaluationPrimitive::computeSignatureString(long argc) {
 #define WITH_S    "with:"
 #define WITH_LEN (4+1)
 #define COLON_S ":"
+    assert(argc > 0);
 
     StdString signatureString;
 

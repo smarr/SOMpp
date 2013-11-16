@@ -56,7 +56,7 @@
     pVMInteger ptr;\
     if ((ptr = dynamic_cast<pVMInteger>(object)) != NULL) { \
         /* Second operand was Integer*/ \
-        int32_t i = ptr->GetEmbeddedInteger(); \
+        long i = ptr->GetEmbeddedInteger(); \
         (result) = _UNIVERSE->NewBigInteger((int64_t)i); \
     } else \
         (result) = static_cast<pVMBigInteger>(object); \

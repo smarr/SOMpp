@@ -36,8 +36,8 @@ public:
     VMDouble(double);
 
     virtual pVMDouble Clone() const;
-    inline void SetEmbeddedDouble(double);
-    inline double GetEmbeddedDouble() const;
+    inline  void     SetEmbeddedDouble(double);
+    inline  double   GetEmbeddedDouble() const;
     virtual pVMClass GetClass() const;
     inline virtual size_t GetObjectSize() const;
 private:

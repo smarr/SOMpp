@@ -372,9 +372,9 @@ void _Integer::AsString(pVMObject /*object*/, pVMFrame frame) {
     pVMInteger self = static_cast<pVMInteger>(frame->Pop());
 
 #ifdef USE_TAGGING
-    int32_t integer = UNTAG_INTEGER(self);
+    long integer = UNTAG_INTEGER(self);
 #else
-    int32_t integer = self->GetEmbeddedInteger();
+    long integer = self->GetEmbeddedInteger();
 #endif
     ostringstream Str;
     Str << integer;

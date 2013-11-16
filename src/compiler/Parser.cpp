@@ -27,18 +27,21 @@
 #include "Parser.h"
 #include "BytecodeGenerator.h"
 
-#include "../vmobjects/VMMethod.h"
-#include "../vmobjects/VMPrimitive.h"
-#include "../vmobjects/VMObject.h"
-#include "../vmobjects/VMSymbol.h"
+#include <vmobjects/VMMethod.h>
+#include <vmobjects/VMPrimitive.h>
+#include <vmobjects/VMObject.h>
+#include <vmobjects/VMBigInteger.h>
+#include <vmobjects/VMSymbol.h>
 
-#include "../vm/Universe.h"
+#include <vm/Universe.h>
 
 #include <iostream>
 #include <cctype>
 #include <sstream>
 #include <stdlib.h>
 #include <string.h>
+
+#include <assert.h>
 
 #define GETSYM sym = lexer->GetSym(); \
 			   text = lexer->GetText()
@@ -124,7 +127,7 @@ void Parser::genPushVariable(MethodGenerationContext* mgenc,
     // pushed on the stack is a local variable, argument, or object field. This
     // is done by examining all available lexical contexts, starting with the
     // innermost (i.e., the one represented by mgenc).
-    int index = 0;
+    size_t index = 0;
     int context = 0;
     bool is_argument = false;
 
@@ -133,7 +136,7 @@ void Parser::genPushVariable(MethodGenerationContext* mgenc,
             bcGen->EmitPUSHARGUMENT(mgenc, index, context);
         else
             bcGen->EmitPUSHLOCAL(mgenc, index, context);
-    } else if (mgenc->FindField(var)) {
+    } else if (mgenc->HasField(var)) {
         pVMSymbol fieldName = _UNIVERSE->SymbolFor(var);
         mgenc->AddLiteralIfAbsent(fieldName);
         bcGen->EmitPUSHFIELD(mgenc, fieldName);
@@ -152,7 +155,7 @@ void Parser::genPopVariable(MethodGenerationContext* mgenc,
     // popped off the stack is a local variable, argument, or object field. This
     // is done by examining all available lexical contexts, starting with the
     // innermost (i.e., the one represented by mgenc).
-    int index = 0;
+    size_t index = 0;
     int context = 0;
     bool is_argument = false;
 
@@ -200,13 +203,13 @@ void Parser::Classdef(ClassGenerationContext* cgenc) {
         method(mgenc);
 
         if(mgenc->IsPrimitive())
-        cgenc->AddInstanceMethod((mgenc->AssemblePrimitive()));
+            cgenc->AddInstanceMethod((mgenc->AssemblePrimitive()));
         else
-        cgenc->AddInstanceMethod((mgenc->Assemble()));
+            cgenc->AddInstanceMethod((mgenc->Assemble()));
         delete(mgenc);
     }
 
-    if(accept(Separator)) {
+    if (accept(Separator)) {
         cgenc->SetClassSide(true);
         classFields(cgenc);
         while (sym == Identifier || sym == Keyword || sym == OperatorSequence ||
@@ -218,9 +221,9 @@ void Parser::Classdef(ClassGenerationContext* cgenc) {
             method(mgenc);
 
             if(mgenc->IsPrimitive())
-            cgenc->AddClassMethod(mgenc->AssemblePrimitive());
+                cgenc->AddClassMethod(mgenc->AssemblePrimitive());
             else
-            cgenc->AddClassMethod(mgenc->Assemble());
+                cgenc->AddClassMethod(mgenc->Assemble());
             delete(mgenc);
         }
     }
@@ -563,87 +566,98 @@ void Parser::binaryOperand(MethodGenerationContext* mgenc, bool* super) {
         unaryMessage(mgenc, *super);
 }
 
+void Parser::ifTrueMessage(MethodGenerationContext* mgenc) {
+    size_t false_block_pos = bcGen->EmitJUMP_IF_FALSE(mgenc);
+    if (sym == NewBlock) {
+        expect(NewBlock);
+        blockContents(mgenc);
+        expect(EndBlock);
+    } else {
+        formula(mgenc);
+        pVMSymbol msg = _UNIVERSE->SymbolFor("value");
+        mgenc->AddLiteralIfAbsent((pVMObject) msg);
+        bcGen->EmitSEND(mgenc, msg);
+    }
+    
+    size_t after_pos = bcGen->EmitJUMP(mgenc);
+    mgenc->PatchJumpTarget(false_block_pos);
+    
+    if (sym == Keyword) {
+        StdString ifFalse = keyword();
+        assert(ifFalse == "ifFalse:");
+        if (sym == NewBlock) {
+            expect(NewBlock);
+            blockContents(mgenc);
+            expect(EndBlock);
+        } else {
+            formula(mgenc);
+            pVMSymbol msg = _UNIVERSE->SymbolFor("value");
+            mgenc->AddLiteralIfAbsent((pVMObject) msg);
+            bcGen->EmitSEND(mgenc, msg);
+        }
+    } else {
+        pVMSymbol global = _UNIVERSE->SymbolFor("nil");
+        mgenc->AddLiteralIfAbsent((pVMObject)global);
+        
+        bcGen->EmitPUSHGLOBAL(mgenc, global);
+    }
+    mgenc->PatchJumpTarget(after_pos);
+    mgenc->SetFinished(false);
+    
+    assert(sym != Keyword);
+}
+
+void Parser::ifFalseMessage(MethodGenerationContext* mgenc) {
+    size_t false_block_pos = bcGen->EmitJUMP_IF_TRUE(mgenc);
+    if (sym == NewBlock) {
+        expect(NewBlock);
+        blockContents(mgenc);
+        expect(EndBlock);
+    } else {
+        formula(mgenc);
+        pVMSymbol msg = _UNIVERSE->SymbolFor("value");
+        mgenc->AddLiteralIfAbsent((pVMObject) msg);
+        bcGen->EmitSEND(mgenc, msg);
+    }
+    
+    size_t after_pos = bcGen->EmitJUMP(mgenc);
+    mgenc->PatchJumpTarget(false_block_pos);
+    
+    if (sym == Keyword) {
+        StdString ifFalse = keyword();
+        assert(ifFalse == "ifTrue:");
+        if (sym == NewBlock) {
+            expect(NewBlock);
+            blockContents(mgenc);
+            expect(EndBlock);
+        } else {
+            formula(mgenc);
+            pVMSymbol msg = _UNIVERSE->SymbolFor("value");
+            mgenc->AddLiteralIfAbsent((pVMObject) msg);
+            bcGen->EmitSEND(mgenc, msg);
+        }
+    } else {
+        pVMSymbol global = _UNIVERSE->SymbolFor("nil");
+        mgenc->AddLiteralIfAbsent((pVMObject)global);
+        
+        bcGen->EmitPUSHGLOBAL(mgenc, global);
+    }
+    mgenc->PatchJumpTarget(after_pos);
+    mgenc->SetFinished(false);
+    
+    assert(sym != Keyword);
+
+}
+
 void Parser::keywordMessage(MethodGenerationContext* mgenc, bool super) {
     StdString kw = keyword();
+    
+    // special compilation for ifTrue and ifFalse
     if (!super && kw == "ifTrue:") {
-        int false_block_pos = bcGen->EmitJUMP_IF_FALSE(mgenc);
-        if (sym == NewBlock) {
-            expect(NewBlock);
-            blockContents(mgenc);
-            expect(EndBlock);
-        } else {
-            formula(mgenc);
-            pVMSymbol msg = _UNIVERSE->SymbolFor("value");
-            mgenc->AddLiteralIfAbsent((pVMObject) msg);
-            bcGen->EmitSEND(mgenc, msg);
-        }
-
-        int after_pos = bcGen->EmitJUMP(mgenc);
-        mgenc->PatchJumpTarget(false_block_pos);
-
-        if (sym == Keyword) {
-            StdString ifFalse = keyword();
-            assert(ifFalse == "ifFalse:");
-            if (sym == NewBlock) {
-                expect(NewBlock);
-                blockContents(mgenc);
-                expect(EndBlock);
-            } else {
-                formula(mgenc);
-                pVMSymbol msg = _UNIVERSE->SymbolFor("value");
-                mgenc->AddLiteralIfAbsent((pVMObject) msg);
-                bcGen->EmitSEND(mgenc, msg);
-            }
-        } else {
-            pVMSymbol global = _UNIVERSE->SymbolFor("nil");
-            mgenc->AddLiteralIfAbsent((pVMObject)global);
-
-            bcGen->EmitPUSHGLOBAL(mgenc, global);
-        }
-        mgenc->PatchJumpTarget(after_pos);
-        mgenc->SetFinished(false);
-
-        assert(sym != Keyword);
+        ifTrueMessage(mgenc);
         return;
     } else if (!super && kw == "ifFalse:") {
-        int false_block_pos = bcGen->EmitJUMP_IF_TRUE(mgenc);
-        if (sym == NewBlock) {
-            expect(NewBlock);
-            blockContents(mgenc);
-            expect(EndBlock);
-        } else {
-            formula(mgenc);
-            pVMSymbol msg = _UNIVERSE->SymbolFor("value");
-            mgenc->AddLiteralIfAbsent((pVMObject) msg);
-            bcGen->EmitSEND(mgenc, msg);
-        }
-
-        int after_pos = bcGen->EmitJUMP(mgenc);
-        mgenc->PatchJumpTarget(false_block_pos);
-
-        if (sym == Keyword) {
-            StdString ifFalse = keyword();
-            assert(ifFalse == "ifTrue:");
-            if (sym == NewBlock) {
-                expect(NewBlock);
-                blockContents(mgenc);
-                expect(EndBlock);
-            } else {
-                formula(mgenc);
-                pVMSymbol msg = _UNIVERSE->SymbolFor("value");
-                mgenc->AddLiteralIfAbsent((pVMObject) msg);
-                bcGen->EmitSEND(mgenc, msg);
-            }
-        } else {
-            pVMSymbol global = _UNIVERSE->SymbolFor("nil");
-            mgenc->AddLiteralIfAbsent((pVMObject)global);
-
-            bcGen->EmitPUSHGLOBAL(mgenc, global);
-        }
-        mgenc->PatchJumpTarget(after_pos);
-        mgenc->SetFinished(false);
-
-        assert(sym != Keyword);
+        ifFalseMessage(mgenc);
         return;
     }
     formula(mgenc);
@@ -695,32 +709,38 @@ void Parser::literal(MethodGenerationContext* mgenc) {
 }
 
 void Parser::literalNumber(MethodGenerationContext* mgenc) {
-    int32_t val;
+    int64_t val;
     if (sym == Minus)
         val = negativeDecimal();
     else
         val = literalDecimal();
 
-#ifdef USE_TAGGING
-    pVMInteger lit = TAG_INTEGER(val);
-#else
-    pVMInteger lit = _UNIVERSE->NewInteger(val);
-#endif
+    pVMObject lit;
+    if (val < INT32_MIN || val > INT32_MAX) {
+        lit = _UNIVERSE->NewBigInteger(val);
+    } else {
+        #ifdef USE_TAGGING
+            lit = TAG_INTEGER(val);
+        #else
+            lit = _UNIVERSE->NewInteger(val);
+        #endif
+    }
+
     mgenc->AddLiteralIfAbsent(lit);
     bcGen->EmitPUSHCONSTANT(mgenc, lit);
 }
 
-uint32_t Parser::literalDecimal(void) {
+uint64_t Parser::literalDecimal(void) {
     return literalInteger();
 }
 
-int32_t Parser::negativeDecimal(void) {
+int64_t Parser::negativeDecimal(void) {
     expect(Minus);
-    return -((int32_t) literalInteger());
+    return -literalInteger();
 }
 
-uint32_t Parser::literalInteger(void) {
-    uint32_t i = (uint32_t) strtoul(text.c_str(), NULL, 10);
+uint64_t Parser::literalInteger(void) {
+    uint64_t i = strtoull(text.c_str(), NULL, 10);
     expect(Integer);
     return i;
 }

@@ -38,10 +38,11 @@ class VMBlock: public VMObject {
 public:
     VMBlock();
 
-    void SetMethod(pVMMethod);pVMMethod GetMethod() const;
-    inline void SetContext(pVMFrame);
-    inline pVMFrame GetContext() const;
-    virtual pVMBlock Clone() const;
+            pVMMethod GetMethod() const;
+            void      SetMethod(pVMMethod);
+    inline  void      SetContext(pVMFrame);
+    inline  pVMFrame  GetContext() const;
+    virtual pVMBlock  Clone() const;
 
     static pVMEvaluationPrimitive GetEvaluationPrimitive(int);
 private:

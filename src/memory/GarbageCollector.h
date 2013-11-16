@@ -36,7 +36,7 @@ class Heap;
 class GarbageCollector {
 public:
     GarbageCollector(Heap* h);
-    ~GarbageCollector();
+    virtual ~GarbageCollector();
     virtual void Collect() = 0;
     void PrintGCStat() const;
     void PrintCollectStat() const;

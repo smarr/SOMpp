@@ -95,6 +95,9 @@ pVMClass systemClass;
 pVMClass blockClass;
 pVMClass doubleClass;
 
+pVMClass trueClass;
+pVMClass falseClass;
+
 pVMSymbol symbolIfTrue;
 pVMSymbol symbolIfFalse;
 
@@ -172,7 +175,7 @@ void Universe::Quit(long err) {
     if (theUniverse)
         delete (theUniverse);
 
-    exit(err);
+    exit((int) err);
 }
 
 void Universe::ErrorExit(const char* err) {
@@ -183,7 +186,8 @@ void Universe::ErrorExit(const char* err) {
 vector<StdString> Universe::handleArguments(long argc, char** argv) {
     vector<StdString> vmArgs = vector<StdString>();
     dumpBytecodes = 0;
-    gcVerbosity = 0;
+    gcVerbosity   = 0;
+
     for (long i = 1; i < argc; ++i) {
 
         if (strncmp(argv[i], "-cp", 3) == 0) {
@@ -298,10 +302,8 @@ void Universe::printUsageAndExit(char* executable) const {
 }
 
 Universe::Universe() {
-    this->compiler = NULL;
     this->interpreter = NULL;
 }
-;
 
 void Universe::initialize(long _argc, char** _argv) {
 #ifdef GENERATE_ALLOCATION_STATISTICS
@@ -311,14 +313,15 @@ void Universe::initialize(long _argc, char** _argv) {
     heapSize = 1 * 1024 * 1024;
 
     vector<StdString> argv = this->handleArguments(_argc, _argv);
+    
     // remember file that was executed (for writing statistics)
-    bm_name = argv[0];
+    if (argv.size() > 0)
+        bm_name = argv[0];
 
     Heap::InitializeHeap(heapSize);
 
     heap = _HEAP;
 
-    compiler = new SourcecodeCompiler();
     interpreter = new Interpreter();
 
 #ifdef CACHE_INTEGER
@@ -360,7 +363,7 @@ void Universe::initialize(long _argc, char** _argv) {
     if (!(trace > 0))
         dumpBytecodes = 1;
 
-    pVMArray argumentsArray = _UNIVERSE->NewArrayFromArgv(argv);
+    pVMArray argumentsArray = _UNIVERSE->NewArrayFromStrings(argv);
 
     pVMFrame bootstrapFrame = interpreter->PushNewFrame(bootstrapMethod);
     bootstrapFrame->Push(systemObject);
@@ -380,8 +383,6 @@ void Universe::initialize(long _argc, char** _argv) {
 Universe::~Universe() {
     if (interpreter)
         delete (interpreter);
-    if (compiler)
-        delete (compiler);
 
     // check done inside
     Heap::DestroyHeap();
@@ -426,6 +427,9 @@ void Universe::InitializeGlobals() {
             "Primitive");
     InitializeSystemClass(stringClass, objectClass, "String");
     InitializeSystemClass(doubleClass, objectClass, "Double");
+    
+    // Fix up objectClass
+    objectClass->SetSuperClass((pVMClass) nilObject);
 
     LoadSystemClass(objectClass);
     LoadSystemClass(classClass);
@@ -442,9 +446,14 @@ void Universe::InitializeGlobals() {
     LoadSystemClass(doubleClass);
 
     blockClass = LoadClass(_UNIVERSE->SymbolForChars("Block"));
-
-    trueObject  = NewInstance(_UNIVERSE->LoadClass(_UNIVERSE->SymbolForChars("True")));
-    falseObject = NewInstance(_UNIVERSE->LoadClass(_UNIVERSE->SymbolForChars("False")));
+    
+    pVMSymbol trueSymbol = _UNIVERSE->SymbolForChars("True");
+    trueClass   = _UNIVERSE->LoadClass(trueSymbol);
+    trueObject  = NewInstance(trueClass);
+    
+    pVMSymbol falseSymbol = _UNIVERSE->SymbolForChars("False");
+    falseClass  = _UNIVERSE->LoadClass(falseSymbol);
+    falseObject = NewInstance(falseClass);
 
     systemClass = LoadClass(_UNIVERSE->SymbolForChars("System"));
 }
@@ -485,14 +494,14 @@ pVMObject Universe::GetGlobal(pVMSymbol name) {
     return globals[name];
 }
 
-bool Universe::HasGlobal( pVMSymbol name) {
+bool Universe::HasGlobal(pVMSymbol name) {
     if (globals[name] != NULL)
         return true;
     else
         return false;
 }
 
-void Universe::InitializeSystemClass( pVMClass systemClass,
+void Universe::InitializeSystemClass(pVMClass systemClass,
 pVMClass superClass, const char* name) {
     StdString s_name(name);
 
@@ -521,14 +530,15 @@ pVMClass superClass, const char* name) {
     sysClassClass->SetName(SymbolFor(classClassName));
 
     SetGlobal(systemClass->GetName(), systemClass);
-
 }
 
-pVMClass Universe::LoadClass( pVMSymbol name) {
-    if (HasGlobal(name))
-        return static_cast<pVMClass>(GetGlobal(name));
+pVMClass Universe::LoadClass(pVMSymbol name) {
+    pVMClass result = static_cast<pVMClass>(GetGlobal(name));
+    
+    if (result != nullptr)
+        return result;
 
-    pVMClass result = LoadClassBasic(name, NULL);
+    result = LoadClassBasic(name, NULL);
 
     if (!result) {
 		// we fail silently, it is not fatal that loading a class failed
@@ -536,19 +546,22 @@ pVMClass Universe::LoadClass( pVMSymbol name) {
     }
 
     if (result->HasPrimitives() || result->GetClass()->HasPrimitives())
-    result->LoadPrimitives(classPath);
+        result->LoadPrimitives(classPath);
+    
+    SetGlobal(name, result);
 
     return result;
 }
 
-pVMClass Universe::LoadClassBasic( pVMSymbol name, pVMClass systemClass) {
+pVMClass Universe::LoadClassBasic(pVMSymbol name, pVMClass systemClass) {
     StdString s_name = name->GetStdString();
     //cout << s_name.c_str() << endl;
     pVMClass result;
 
     for (vector<StdString>::iterator i = classPath.begin();
             i != classPath.end(); ++i) {
-        result = compiler->CompileClass(*i, name->GetStdString(), systemClass);
+        SourcecodeCompiler compiler;
+        result = compiler.CompileClass(*i, name->GetStdString(), systemClass);
         if (result) {
             if (dumpBytecodes) {
                 Disassembler::Dump(result->GetClass());
@@ -562,9 +575,10 @@ pVMClass Universe::LoadClassBasic( pVMSymbol name, pVMClass systemClass) {
 }
 
 pVMClass Universe::LoadShellClass( StdString& stmt) {
-    pVMClass result = compiler->CompileClassString(stmt, NULL);
+    SourcecodeCompiler compiler;
+    pVMClass result = compiler.CompileClassString(stmt, NULL);
     if(dumpBytecodes)
-    Disassembler::Dump(result);
+        Disassembler::Dump(result);
     return result;
 }
 
@@ -582,27 +596,30 @@ void Universe::LoadSystemClass( pVMClass systemClass) {
 }
 
 pVMArray Universe::NewArray(long size) const {
-    long additionalBytes = size*sizeof(pVMObject);
+    long additionalBytes = size * sizeof(pVMObject);
+    
 #if GC_TYPE==GENERATIONAL
-    //if the array is too big for the nursery, we will directly allocate a
+    // if the array is too big for the nursery, we will directly allocate a
     // mature object
-    bool outsideNursery =
-    additionalBytes+sizeof(VMArray) > _HEAP->GetMaxNurseryObjectSize();
+    bool outsideNursery = additionalBytes + sizeof(VMArray) > _HEAP->GetMaxNurseryObjectSize();
 
     pVMArray result = new (_HEAP, additionalBytes, outsideNursery) VMArray(size);
     if (outsideNursery)
-    result->SetGCField(MASK_OBJECT_IS_OLD);
+        result->SetGCField(MASK_OBJECT_IS_OLD);
 #else
     pVMArray result = new (_HEAP, additionalBytes) VMArray(size);
 #endif
+
     result->SetClass(arrayClass);
+    
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION("VMArray", result->GetObjectSize());
 #endif
+    
     return result;
 }
 
-pVMArray Universe::NewArrayFromArgv( const vector<StdString>& argv) const {
+pVMArray Universe::NewArrayFromStrings(const vector<StdString>& argv) const {
     pVMArray result = NewArray(argv.size());
     long j = 0;
     for (vector<StdString>::const_iterator i = argv.begin();
@@ -614,7 +631,12 @@ pVMArray Universe::NewArrayFromArgv( const vector<StdString>& argv) const {
     return result;
 }
 
-pVMArray Universe::NewArrayList(ExtendedList<pVMObject>& list ) const {
+pVMArray Universe::NewArrayList(ExtendedList<pVMSymbol>& list) const {
+    ExtendedList<pVMObject>& objList = (ExtendedList<pVMObject>&) list;
+    return NewArrayList(objList);
+}
+
+pVMArray Universe::NewArrayList(ExtendedList<pVMObject>& list) const {
     long size = list.Size();
     pVMArray result = NewArray(size);
 
@@ -680,8 +702,8 @@ pVMFrame Universe::NewFrame(pVMFrame previousFrame, pVMMethod method) const {
     }
 #endif
     long length = method->GetNumberOfArguments() +
-    method->GetNumberOfLocals()+
-    method->GetMaximumNumberOfStackElements();
+                  method->GetNumberOfLocals() +
+                  method->GetMaximumNumberOfStackElements();
 
     long additionalBytes = length * sizeof(pVMObject);
     result = new (_HEAP, additionalBytes) VMFrame(length);
@@ -693,7 +715,6 @@ pVMFrame Universe::NewFrame(pVMFrame previousFrame, pVMMethod method) const {
     result->previousFrame = previousFrame;
     result->ResetStackPointer();
     return result;
-
 }
 
 pVMObject Universe::NewInstance( pVMClass classOfInstance) const {
@@ -743,9 +764,9 @@ pVMClass Universe::NewMetaclassClass() const {
 }
 
 void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    nilObject = (VMObject*)walk(nilObject);
-    trueObject = (VMObject*)walk(trueObject);
-    falseObject = (VMObject*)walk(falseObject);
+    nilObject   = (pVMObject)walk(nilObject);
+    trueObject  = (pVMObject)walk(trueObject);
+    falseObject = (pVMObject)walk(falseObject);
 
 #ifdef USE_TAGGING
     GlobalBox::updateIntegerBox(static_cast<VMInteger*>(walk(GlobalBox::IntegerBox())));
@@ -771,40 +792,43 @@ void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
 #ifdef CACHE_INTEGER
     for (unsigned long i = 0; i < (INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE); i++)
 #ifdef USE_TAGGING
-    prebuildInts[i] = TAG_INTEGER(INT_CACHE_MIN_VALUE + i);
+        prebuildInts[i] = TAG_INTEGER(INT_CACHE_MIN_VALUE + i);
 #else
-    prebuildInts[i] = static_cast<pVMInteger>(walk(prebuildInts[i]));
+        prebuildInts[i] = static_cast<pVMInteger>(walk(prebuildInts[i]));
 #endif
 #endif
 
-    //walk all entries in globals map
+    // walk all entries in globals map
     map<pVMSymbol, pVMObject> globs = globals;
     globals.clear();
     map<pVMSymbol, pVMObject>::iterator iter;
     for (iter = globs.begin(); iter != globs.end(); iter++) {
         if (iter->second == NULL)
-        continue;
+            continue;
 
         pVMSymbol key = static_cast<pVMSymbol>(walk(iter->first));
         pVMObject val = walk((VMOBJECT_PTR)iter->second);
         globals[key] = val;
     }
-    //walk all entries in symbols map
+    
+    // walk all entries in symbols map
     map<StdString, pVMSymbol>::iterator symbolIter;
-    for (symbolIter = symbolsMap.begin(); symbolIter !=
-    symbolsMap.end(); symbolIter++) {
+    for (symbolIter = symbolsMap.begin();
+         symbolIter != symbolsMap.end();
+         symbolIter++) {
         //insert overwrites old entries inside the internal map
         symbolIter->second = static_cast<pVMSymbol>(walk(symbolIter->second));
     }
 
     map<long, pVMClass>::iterator bcIter;
-    for (bcIter = blockClassesByNoOfArgs.begin(); bcIter !=
-    blockClassesByNoOfArgs.end(); bcIter++) {
+    for (bcIter = blockClassesByNoOfArgs.begin();
+         bcIter != blockClassesByNoOfArgs.end();
+         bcIter++) {
         bcIter->second = static_cast<pVMClass>(walk(bcIter->second));
     }
 
     //reassign ifTrue ifFalse Symbols
-    symbolIfTrue = symbolsMap["ifTrue:"];
+    symbolIfTrue  = symbolsMap["ifTrue:"];
     symbolIfFalse = symbolsMap["ifFalse:"];
 }
 

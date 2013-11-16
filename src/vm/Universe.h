@@ -110,7 +110,7 @@ public:
     Interpreter* GetInterpreter() {
         return interpreter;
     }
-
+    
     //
 
     void Assert(bool) const;
@@ -121,7 +121,8 @@ public:
     //VMObject instanciation methods. These should probably be refactored to a new class
     pVMArray NewArray(long) const;
     pVMArray NewArrayList(ExtendedList<pVMObject>& list) const;
-    pVMArray NewArrayFromArgv(const vector<StdString>&) const;
+    pVMArray NewArrayList(ExtendedList<pVMSymbol>& list) const;
+    pVMArray NewArrayFromStrings(const vector<StdString>&) const;
     pVMBlock NewBlock(pVMMethod, pVMFrame, long);
     pVMClass NewClass(pVMClass) const;
     pVMFrame NewFrame(pVMFrame, pVMMethod) const;
@@ -181,7 +182,6 @@ private:
     map<long,pVMClass> blockClassesByNoOfArgs;
     vector<StdString> classPath;
 
-    SourcecodeCompiler* compiler;
     Interpreter* interpreter;
 };
 

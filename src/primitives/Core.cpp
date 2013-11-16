@@ -123,13 +123,13 @@ void _init(void);
 void _fini(void);
 #pragma init _init
 #pragma fini _fini
-#endif __GNUC__
+#endif // __GNUC__
 
 #ifdef __GNUC__
 void init(void)
 #else
         void _init(void)
-#endif __GNUC__
+#endif // __GNUC__
         {
     // Call init funcions.
     setup();
@@ -140,7 +140,7 @@ void init(void)
 void fini(void)
 #else
         void _fini(void)
-#endif __GNUC__
+#endif // __GNUC__
         {
     tearDown();
 }

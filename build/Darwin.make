@@ -26,8 +26,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-CXX			?=clang++
-CFLAGS		=-Wno-endif-labels -O3 $(DBG_FLAGS) $(FEATURE_FLAGS) $(INCLUDES)
+CC			?=clang++ -std=c++11
+CFLAGS		=-Wno-endif-labels -O3 -DNDEBUG $(DBG_FLAGS) $(FEATURE_FLAGS) $(INCLUDES)
 LDFLAGS		=$(DBG_FLAGS) $(LIBRARIES)
 
 SHAREDFLAGS =-fPIC -mmacosx-version-min=10.4 -undefined dynamic_lookup \

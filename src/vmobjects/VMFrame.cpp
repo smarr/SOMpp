@@ -31,44 +31,46 @@
 #include "VMClass.h"
 #include "VMSymbol.h"
 
-#include "../vm/Universe.h"
+#include <vm/Universe.h>
 
-//when doesNotUnderstand or UnknownGlobal is sent, additional stack slots might
-//be necessary, as these cases are not taken into account when the stack
-//depth is calculated. In that case this method is called.
-pVMFrame VMFrame::EmergencyFrameFrom( pVMFrame from, long extraLength ) {
+// when doesNotUnderstand or UnknownGlobal is sent, additional stack slots might
+// be necessary, as these cases are not taken into account when the stack
+// depth is calculated. In that case this method is called.
+pVMFrame VMFrame::EmergencyFrameFrom(pVMFrame from, long extraLength) {
     pVMMethod method = from->GetMethod();
     long length = method->GetNumberOfArguments()
-    + method->GetNumberOfLocals()
-    + method->GetMaximumNumberOfStackElements()
-    + extraLength;
+                    + method->GetNumberOfLocals()
+                    + method->GetMaximumNumberOfStackElements()
+                    + extraLength;
 
     long additionalBytes = length * sizeof(pVMObject);
     pVMFrame result = new (_HEAP, additionalBytes) VMFrame(length);
 
     result->SetClass(from->GetClass());
 
-    //set Frame members
+    // set Frame members
     result->SetPreviousFrame(from->GetPreviousFrame());
     result->SetMethod(method);
     result->SetContext(from->GetContext());
     result->stack_ptr = (pVMObject*)SHIFTED_PTR(result, (size_t)from->stack_ptr - (size_t)from);
+
     result->bytecodeIndex = from->bytecodeIndex;
-    //result->arguments is set in VMFrame constructor
+    // result->arguments is set in VMFrame constructor
     result->locals = result->arguments + result->method->GetNumberOfArguments();
 
-//all other fields are indexable via arguments
-// --> until end of Frame
-    pVMObject* from_end = (pVMObject*) SHIFTED_PTR(from, from->GetObjectSize());
+    // all other fields are indexable via arguments
+    // --> until end of Frame
+    pVMObject* from_end   = (pVMObject*) SHIFTED_PTR(from,   from->GetObjectSize());
     pVMObject* result_end = (pVMObject*) SHIFTED_PTR(result, result->GetObjectSize());
 
     long i = 0;
-//copy all fields from other frame
+
+    // copy all fields from other frame
     while (from->arguments + i < from_end) {
         result->arguments[i] = from->arguments[i];
         i++;
     }
-    //initialize others with nilObject
+    // initialize others with nilObject
     while (result->arguments + i < result_end) {
         result->arguments[i] = nilObject;
         i++;
@@ -103,7 +105,7 @@ VMFrame::VMFrame(long size, long nof) :
     locals = arguments;
     stack_ptr = locals;
 
-    //initilize all other fields
+    // initilize all other fields
     // --> until end of Frame
     pVMObject* end = (pVMObject*) SHIFTED_PTR(this, objectSize);
     long i = 0;
@@ -138,19 +140,19 @@ pVMFrame VMFrame::GetOuterContext() {
 }
 
 void VMFrame::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    clazz = (VMClass*)walk(clazz);
+    clazz = (pVMClass) walk(clazz);
     if (previousFrame)
-    previousFrame = (VMFrame*)walk(previousFrame);
+        previousFrame = (pVMFrame) walk(previousFrame);
     if (context)
-    context = (VMFrame*)walk(context);
-    method = (VMMethod*)walk(method);
+        context = (pVMFrame) walk(context);
+    method = (pVMMethod) walk(method);
 
-    //all other fields are indexable via arguments array
+    // all other fields are indexable via arguments array
     // --> until end of Frame
     long i = 0;
     while (arguments + i <= stack_ptr) {
         if (arguments[i] != NULL)
-        arguments[i] = walk((VMOBJECT_PTR)arguments[i]);
+            arguments[i] = walk((VMOBJECT_PTR)arguments[i]);
         i++;
     }
 }
@@ -226,7 +228,7 @@ pVMObject VMFrame::GetStackElement(long index) const {
 }
 
 void VMFrame::SetStackElement(long index, pVMObject obj) {
-    stack_ptr[-index]= obj;
+    stack_ptr[-index] = obj;
 }
 
 pVMObject VMFrame::GetLocal(long index, long contextLevel) {

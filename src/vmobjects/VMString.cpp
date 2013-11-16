@@ -34,7 +34,7 @@ extern pVMClass stringClass;
 //this macro could replace the chars member variable
 //#define CHARS ((char*)&clazz+sizeof(pVMObject))
 
-VMString::VMString(const char* str) {
+VMString::VMString(const char* str) : AbstractVMObject() {
     //set the chars-pointer to point at the position of the first character
     chars = (char*) &chars + sizeof(char*);
 
@@ -62,13 +62,6 @@ void VMString::WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR)) {
 
 VMString::VMString(const StdString& s) {
     VMString(s.c_str());
-    ////set the chars-pointer to point at the position of the first character
-    //chars = (char*)&chars+sizeof(char*);
-    //size_t i = 0;
-    //for (; i < s.length(); ++i) {
-    //	chars[i] = s[i];
-    //}
-    //chars[i] = '\0';
 }
 
 size_t VMString::GetObjectSize() const {
@@ -80,7 +73,7 @@ pVMClass VMString::GetClass() const {
     return stringClass;
 }
 
-int VMString::GetStringLength() const {
+size_t VMString::GetStringLength() const {
     //get the additional memory allocated by this object and substract one
     //for the '0' character and four for the char*
     return strlen(chars);
@@ -91,4 +84,3 @@ StdString VMString::GetStdString() const {
         return StdString("");
     return StdString(chars);
 }
-

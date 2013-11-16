@@ -25,12 +25,14 @@ VMOBJECT_PTR mark_object(VMOBJECT_PTR obj) {
 #ifdef USE_TAGGING
     //don't process tagged objects
     if (IS_TAGGED(obj))
-    return obj;
+        return obj;
 #endif
     if (obj->GetGCField() & MASK_OBJECT_IS_MARKED)
-    return (obj);
+        return (obj);
+
     obj->SetGCField(MASK_OBJECT_IS_OLD | MASK_OBJECT_IS_MARKED);
     obj->WalkObjects(&mark_object);
+    
     return obj;
 }
 
@@ -38,40 +40,46 @@ VMOBJECT_PTR copy_if_necessary(VMOBJECT_PTR obj) {
 #ifdef USE_TAGGING
     //don't process tagged objects
     if (IS_TAGGED(obj))
-    return obj;
+        return obj;
 #endif
     size_t gcField = obj->GetGCField();
-    //if this is an old object already, we don't have to copy
+
+    // if this is an old object already, we don't have to copy
     if (gcField & MASK_OBJECT_IS_OLD)
-    return obj;
-    //GCField is abused as forwarding pointer here
-    //if someone has moved before, return the moved object
+        return obj;
+
+    // GCField is abused as forwarding pointer here
+    // if someone has moved before, return the moved object
     if (gcField != 0)
-    return (VMOBJECT_PTR)gcField;
-    //we have to clone ourselves
+        return (VMOBJECT_PTR) gcField;
+    
+    // we have to clone ourselves
     VMOBJECT_PTR newObj = obj->Clone();
     obj->SetGCField((size_t)newObj);
     newObj->SetGCField(MASK_OBJECT_IS_OLD);
-    //walk recursively
+
+    // walk recursively
     newObj->WalkObjects(copy_if_necessary);
     return newObj;
 }
 
 void GenerationalCollector::MinorCollection() {
-    //walk all globals
+    // walk all globals
     _UNIVERSE->WalkGlobals(&copy_if_necessary);
-    //and the current frame
+
+    // and the current frame
     pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
     if (currentFrame != NULL) {
         pVMFrame newFrame = static_cast<pVMFrame>(copy_if_necessary(currentFrame));
         _UNIVERSE->GetInterpreter()->SetFrame(newFrame);
     }
 
-    //and also all objects that have been detected by the write barriers
+    // and also all objects that have been detected by the write barriers
     for (vector<size_t>::iterator objIter =
-            _HEAP->oldObjsWithRefToYoungObjs->begin(); objIter !=
-            _HEAP->oldObjsWithRefToYoungObjs->end(); objIter++) {
-        //content of oldObjsWithRefToYoungObjs is not altered while iteration,
+            _HEAP->oldObjsWithRefToYoungObjs->begin();
+         objIter != _HEAP->oldObjsWithRefToYoungObjs->end();
+         objIter++) {
+        // content of oldObjsWithRefToYoungObjs is not altered while iteration,
         // because copy_if_necessary returns old objs only -> ignored by
         // write_barrier
         VMOBJECT_PTR obj = (VMOBJECT_PTR)(*objIter);

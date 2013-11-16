@@ -32,19 +32,19 @@
 
 #define FIELDS ((pVMObject*)&clazz)
 
-//clazz is the only field of VMObject so
 const long VMObject::VMObjectNumberOfFields = 1;
+// clazz is the only field of VMObject so
 
 VMObject::VMObject(long numberOfFields) {
-    //this line would be needed if the VMObject** is used instead of the macro:
-    //FIELDS = (pVMObject*)&clazz; 
+    // this line would be needed if the VMObject** is used instead of the macro:
+    // FIELDS = (pVMObject*)&clazz;
     this->SetNumberOfFields(numberOfFields + VMObjectNumberOfFields);
     gcfield = 0;
     hash = (size_t) this;
-    //Object size is set by the heap
+    // Object size was already set by the heap on allocation
 }
 
-VMObject* VMObject::Clone() const {
+pVMObject VMObject::Clone() const {
 #if GC_TYPE==GENERATIONAL
     VMObject* clone = new (_HEAP, objectSize - sizeof(VMObject), true) VMObject(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)),
@@ -62,7 +62,7 @@ VMObject* VMObject::Clone() const {
 
 void VMObject::SetNumberOfFields(long nof) {
     this->numberOfFields = nof;
-    //initialize fields with NilObject
+    // initialize fields with NilObject
     for (long i = 0; i < nof; ++i)
         FIELDS[i] = nilObject;
 }

@@ -61,4 +61,4 @@ private:
     std::map<StdString, PrimitiveContainer*> primitiveObjects;
 };
 
-#endif PRIMITIVESCORE_H_
+#endif // PRIMITIVESCORE_H_

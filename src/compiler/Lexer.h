@@ -92,7 +92,7 @@ public:
     ;
 
 private:
-    int fillBuffer(void);
+    size_t fillBuffer(void);
     void skipWhiteSpace(void);
     void skipComment(void);
 
