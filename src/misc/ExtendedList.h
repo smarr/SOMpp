@@ -45,7 +45,7 @@ public:
     void Clear();
     size_t Size() const;
     T Get(long index);
-    size_t IndexOf(const T& needle);
+    int32_t IndexOf(const T& needle);
 
     typedef typename std::list<T>::iterator iterator_t;
     typedef typename std::list<T>::const_iterator const_iterator_t;
@@ -104,7 +104,7 @@ size_t ExtendedList<T>::Size() const {
 }
 
 template<class T>
-size_t ExtendedList<T>::IndexOf(const T& needle) {
+int32_t ExtendedList<T>::IndexOf(const T& needle) {
     for (iterator_t it = theList.begin(); it != theList.end(); ++it) {
         if (*it == needle)
             return distance(theList.begin(), it);
