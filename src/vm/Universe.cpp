@@ -431,6 +431,9 @@ void Universe::InitializeGlobals() {
             "Primitive");
     InitializeSystemClass(stringClass, objectClass, "String");
     InitializeSystemClass(doubleClass, objectClass, "Double");
+    
+    // Fix up objectClass
+    objectClass->SetSuperClass((pVMClass) nilObject);
 
     LoadSystemClass(objectClass);
     LoadSystemClass(classClass);

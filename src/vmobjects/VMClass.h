@@ -118,7 +118,7 @@ void VMClass::SetName(pVMSymbol nam) {
 }
 
 bool VMClass::HasSuperClass() const {
-    return superClass != NULL;
+    return superClass != nilObject;
 }
 
 pVMArray VMClass::GetInstanceFields() const {
