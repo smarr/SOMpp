@@ -632,6 +632,11 @@ pVMArray Universe::NewArrayFromStrings(const vector<StdString>& argv) const {
     return result;
 }
 
+pVMArray Universe::NewArrayList(ExtendedList<pVMSymbol>& list) const {
+    ExtendedList<pVMObject>& objList = (ExtendedList<pVMObject>&) list;
+    return NewArrayList(objList);
+}
+
 pVMArray Universe::NewArrayList(ExtendedList<pVMObject>& list) const {
     long size = list.Size();
     pVMArray result = NewArray(size);
