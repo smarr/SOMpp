@@ -56,8 +56,6 @@ bool ClassGenerationContext::HasField(const StdString& field) {
     }
 }
 
-}
-
 void ClassGenerationContext::AddInstanceMethod(pVMObject method) {
     this->instanceMethods.Add(method);
 }
