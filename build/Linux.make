@@ -27,7 +27,7 @@
 # THE SOFTWARE.
 
 CXX		?=clang++
-CFLAGS	=-Wno-endif-labels -O3 $(DBG_FLAGS) $(FEATURE_FLAGS) $(INCLUDES)
+CFLAGS	=-std=c++11 -Wno-endif-labels -O3 -DNDEBUG $(DBG_FLAGS) $(FEATURE_FLAGS) $(INCLUDES)
 LBITS := $(shell getconf LONG_BIT)
 ARCH := $(shell arch)
 ifeq ($(LBITS),64)
