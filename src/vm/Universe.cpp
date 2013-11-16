@@ -531,8 +531,8 @@ pVMClass Universe::LoadClass( pVMSymbol name) {
     pVMClass result = LoadClassBasic(name, NULL);
 
     if (!result) {
-        cout << "can\'t load class " << name->GetStdString() << endl;
-        Universe::Quit(ERR_FAIL);
+		// we fail silently, it is not fatal that loading a class failed
+		return (pVMClass) nilObject;
     }
 
     if (result->HasPrimitives() || result->GetClass()->HasPrimitives())
