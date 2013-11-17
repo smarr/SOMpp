@@ -45,7 +45,6 @@
 
 // convenience macros for frequently used function invocations
 #define _FRAME this->GetFrame()
-#define _METHOD this->GetMethod()
 #define _SELF this->GetSelf()
 
 Interpreter::Interpreter() {
@@ -74,8 +73,8 @@ Interpreter::~Interpreter() {
   if (_HEAP->isCollectionTriggered()) {\
     _FRAME->SetBytecodeIndex(bytecodeIndexGlobal);\
     _HEAP->FullGC();\
-    method = GetMethod();\
-    currentBytecodes = GetMethod()->GetBytecodes(); \
+    method = _FRAME->GetMethod(); \
+    currentBytecodes = method->GetBytecodes(); \
   }\
   goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];\
 }
@@ -88,7 +87,7 @@ uint8_t*  currentBytecodes;
 
 void Interpreter::Start() {
     // initialization
-    method = GetMethod();
+    method = _FRAME->GetMethod();
     currentBytecodes = method->GetBytecodes();
 
 void* loopTargets[] = {
@@ -214,10 +213,6 @@ void Interpreter::SetFrame(pVMFrame frame) {
 
 pVMFrame Interpreter::GetFrame() {
     return this->frame;
-}
-
-pVMMethod Interpreter::GetMethod() {
-    return method;
 }
 
 pVMObject Interpreter::GetSelf() {

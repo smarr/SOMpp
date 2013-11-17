@@ -49,7 +49,6 @@ public:
     pVMFrame  PushNewFrame(pVMMethod method);
     void      SetFrame(pVMFrame frame);
     pVMFrame  GetFrame();
-    pVMMethod GetMethod();
     pVMObject GetSelf();
     void      WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
 private:
