@@ -90,14 +90,20 @@ public:
             unsigned long additionalBytes = 0, bool outsideNursery = false) {
         //if outsideNursery flag is set or object is too big for nursery, we
         // allocate a mature object
-        if (outsideNursery)
-            return (void*) ((GenerationalHeap*)heap)->AllocateMatureObject(numBytes +
-                additionalBytes);
-        return (void*) ((GenerationalHeap*)heap)->AllocateNurseryObject(numBytes + additionalBytes);
+        void* result;
+        if (outsideNursery) {
+            result = (void*) ((GenerationalHeap*)heap)->AllocateMatureObject(numBytes + additionalBytes);
+        } else {
+            result = (void*) ((GenerationalHeap*)heap)->AllocateNurseryObject(numBytes + additionalBytes);
+        }
+        
+        assert(result != INVALID_POINTER);
+        return result;
     }
 #else
     void* operator new(size_t numBytes, HEAP_CLS* heap, unsigned long additionalBytes = 0) {
         void* mem = (void*) heap->AllocateObject(numBytes + additionalBytes);
+        assert(mem != INVALID_POINTER);
         return mem;
     }
 #endif

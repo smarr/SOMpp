@@ -48,7 +48,6 @@ VMString::VMString(const char* str) : AbstractVMObject() {
 }
 
 pVMString VMString::Clone() const {
-
 #if GC_TYPE==GENERATIONAL
     return new (_HEAP, PADDED_SIZE(strlen(chars)+1), true) VMString(chars);
 #else

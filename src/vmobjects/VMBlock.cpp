@@ -45,11 +45,13 @@ void VMBlock::SetMethod(pVMMethod bMethod) {
 }
 
 pVMBlock VMBlock::Clone() const {
+    pVMBlock clone;
 #if GC_TYPE==GENERATIONAL
-    return new (_HEAP, GetAdditionalSpaceConsumption(), true) VMBlock(*this);
+    clone = new (_HEAP, GetAdditionalSpaceConsumption(), true) VMBlock(*this);
 #else
-    return new (_HEAP, GetAdditionalSpaceConsumption()) VMBlock(*this);
+    clone = new (_HEAP, GetAdditionalSpaceConsumption()) VMBlock(*this);
 #endif
+    return clone;
 }
 
 pVMMethod VMBlock::GetMethod() const {

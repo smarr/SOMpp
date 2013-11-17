@@ -52,11 +52,13 @@ VMPrimitive::VMPrimitive(pVMSymbol signature) : VMInvokable(VMPrimitiveNumberOfF
 }
 
 pVMPrimitive VMPrimitive::Clone() const {
+    pVMPrimitive prim;
 #if GC_TYPE==GENERATIONAL
-    return new (_HEAP, 0, true) VMPrimitive(*this);
+    prim = new (_HEAP, 0, true) VMPrimitive(*this);
 #else
-    return new (_HEAP) VMPrimitive(*this);
+    prim = new (_HEAP) VMPrimitive(*this);
 #endif
+    return prim;
 }
 
 void VMPrimitive::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
