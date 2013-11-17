@@ -22,6 +22,11 @@ VMOBJECT_PTR copy_if_necessary(VMOBJECT_PTR obj) {
     return (VMOBJECT_PTR)gcField;
     //we have to clone ourselves
     VMOBJECT_PTR newObj = obj->Clone();
+    
+#ifndef NDEBUG
+    obj->MarkObjectAsInvalid();
+#endif
+    
     obj->SetGCField((long)newObj);
     return newObj;
 }

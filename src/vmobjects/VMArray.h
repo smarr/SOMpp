@@ -45,6 +45,8 @@ public:
     virtual pVMArray Clone() const;
 
 private:
+    virtual void MarkObjectAsInvalid();
+    
     static const long VMArrayNumberOfFields;
 };
 

@@ -59,6 +59,10 @@ VMOBJECT_PTR copy_if_necessary(VMOBJECT_PTR obj) {
     // we have to clone ourselves
     VMOBJECT_PTR newObj = obj->Clone();
 
+#ifndef NDEBUG
+    obj->MarkObjectAsInvalid();
+#endif
+
     assert( (((size_t) newObj) & MASK_OBJECT_IS_MARKED) == 0 );
     assert( obj->GetObjectSize() == newObj->GetObjectSize());
     

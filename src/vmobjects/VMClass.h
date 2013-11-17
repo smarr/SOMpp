@@ -74,6 +74,8 @@ public:
            void         LoadPrimitives(const vector<StdString>&);
     virtual pVMClass    Clone() const;
            void         WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
+    
+    virtual void MarkObjectAsInvalid();
 
 private:
     StdString genLoadstring(const StdString& cp,

@@ -43,6 +43,8 @@ public:
     virtual pVMClass GetClass() const;
     virtual size_t GetObjectSize() const;
     virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
+    
+    virtual void MarkObjectAsInvalid();
 
 protected:
     //this could be replaced by the CHARS macro in VMString.cpp

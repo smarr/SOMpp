@@ -55,6 +55,14 @@ pVMString VMString::Clone() const {
 #endif
 }
 
+void VMString::MarkObjectAsInvalid() {
+    size_t i = 0;
+    while (chars[i] != '\0') {
+        chars[i] = 'z';
+        i++;
+    }
+}
+
 void VMString::WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR)) {
     //nothing to do
 }

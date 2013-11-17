@@ -109,3 +109,7 @@ void VMObject::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
         FIELDS[i] = walk((VMOBJECT_PTR)GetField(i));
     }
 }
+
+void VMObject::MarkObjectAsInvalid() {
+    clazz = (pVMClass) INVALID_POINTER;
+}

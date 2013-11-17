@@ -40,6 +40,8 @@ public:
     inline  double   GetEmbeddedDouble() const;
     virtual pVMClass GetClass() const;
     inline virtual size_t GetObjectSize() const;
+    
+    virtual void MarkObjectAsInvalid() {}
 private:
     double embeddedDouble;
 };

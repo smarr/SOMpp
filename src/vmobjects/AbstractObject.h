@@ -43,6 +43,8 @@ public:
     virtual AbstractVMObject* Clone() const = 0;
     virtual void Send(StdString, pVMObject*, long);
     virtual size_t GetObjectSize() const = 0;
+    
+    virtual void MarkObjectAsInvalid() = 0;
 
     AbstractVMObject() {
         gcfield = 0;

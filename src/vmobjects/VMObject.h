@@ -83,6 +83,8 @@ public:
     virtual        pVMObject Clone() const;
     virtual inline size_t    GetObjectSize() const;
     virtual inline void      SetObjectSize(size_t size);
+    
+    virtual        void      MarkObjectAsInvalid();
 
     /* Operators */
 

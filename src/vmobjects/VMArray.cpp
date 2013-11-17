@@ -85,6 +85,14 @@ pVMArray VMArray::Clone() const {
     return clone;
 }
 
+void VMArray::MarkObjectAsInvalid() {
+    VMObject::MarkObjectAsInvalid();
+    long numIndexableFields = GetNumberOfIndexableFields();
+    for (long i = 0; i < numIndexableFields; ++i) {
+        FIELDS[i] = INVALID_POINTER;
+    }
+}
+
 void VMArray::CopyIndexableFieldsTo(pVMArray to) const {
     long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {

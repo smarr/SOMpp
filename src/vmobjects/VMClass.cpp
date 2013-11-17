@@ -96,6 +96,13 @@ void VMClass::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
         fields[i] = walk(AS_POINTER(fields[i]));
 }
 
+void VMClass::MarkObjectAsInvalid() {
+    superClass         = (pVMClass)  INVALID_POINTER;
+    name               = (pVMSymbol) INVALID_POINTER;
+    instanceFields     = (pVMArray)  INVALID_POINTER;
+    instanceInvokables = (pVMArray)  INVALID_POINTER;
+}
+
 bool VMClass::AddInstanceInvokable(pVMObject ptr) {
     pVMInvokable newInvokable = static_cast<pVMInvokable>(ptr);
     if (newInvokable == NULL) {
