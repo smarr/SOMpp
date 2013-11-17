@@ -67,7 +67,7 @@ public:
     void PrintStackTrace() const;
     long ArgumentStackIndex(long index) const;
     void CopyArgumentsFrom(pVMFrame frame);
-    inline virtual pVMObject GetField(long index) const;
+    inline  pVMObject GetField(long index) const;
     virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
     virtual pVMFrame Clone() const;
 

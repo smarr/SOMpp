@@ -51,6 +51,7 @@ public:
     pVMFrame  GetFrame();
     pVMMethod GetMethod();
     pVMObject GetSelf();
+    void      WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
 private:
     pVMFrame frame;
     StdString uG;

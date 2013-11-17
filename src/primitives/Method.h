@@ -1,14 +1,17 @@
-//
-//  Method.h
-//  SOM
-//
-//  Created by Stefan Marr on 11/11/13.
-//
-//
+#ifndef CORE_METHOD_H_
+#define CORE_METHOD_H_
 
-#ifndef __SOM__Method__
-#define __SOM__Method__
+class VMObject;
+class VMFrame;
 
-#include <iostream>
+#include "../primitivesCore/PrimitiveContainer.h"
 
-#endif /* defined(__SOM__Method__) */
+class _Method: public PrimitiveContainer {
+public:
+    _Method(void);
+    
+    void Signature(pVMObject object, pVMFrame frame);
+    void Holder   (pVMObject object, pVMFrame frame);
+};
+
+#endif /* defined(CORE_METHOD_H_) */

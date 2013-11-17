@@ -46,7 +46,7 @@ pVMFrame VMFrame::EmergencyFrameFrom(pVMFrame from, long extraLength) {
     long additionalBytes = length * sizeof(pVMObject);
     pVMFrame result = new (_HEAP, additionalBytes) VMFrame(length);
 
-    result->SetClass(from->GetClass());
+    result->clazz = nullptr; // result->SetClass(from->GetClass());
 
     // set Frame members
     result->SetPreviousFrame(from->GetPreviousFrame());
@@ -95,12 +95,13 @@ pVMFrame VMFrame::Clone() const {
     return clone;
 }
 
-const long VMFrame::VMFrameNumberOfFields = 7;
+const long VMFrame::VMFrameNumberOfFields = 0;
 
 VMFrame::VMFrame(long size, long nof) :
         VMObject(nof + VMFrameNumberOfFields), previousFrame(NULL), context(
                 NULL), method(NULL) {
-    this->bytecodeIndex = 0;
+    clazz = nullptr; // Not a proper class anymore
+    bytecodeIndex = 0;
     arguments = (pVMObject*)&(stack_ptr)+1;
     locals = arguments;
     stack_ptr = locals;
@@ -140,7 +141,9 @@ pVMFrame VMFrame::GetOuterContext() {
 }
 
 void VMFrame::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    clazz = (pVMClass) walk(clazz);
+    // VMFrame is not a proper SOM object any longer, we don't have a class for it.
+    // clazz = (pVMClass) walk(clazz);
+    
     if (previousFrame)
         previousFrame = (pVMFrame) walk(previousFrame);
     if (context)

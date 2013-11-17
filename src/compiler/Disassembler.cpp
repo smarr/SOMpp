@@ -353,7 +353,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
 #ifdef USE_TAGGING
             pVMObject o = AS_POINTER(arg)->GetField(field_index);
 #else
-            pVMObject o = arg->GetField(field_index);
+            pVMObject o = static_cast<VMObject*>(arg)->GetField(field_index);
 #endif
             pVMClass c = CLASS_OF(o);
             pVMSymbol cname = c->GetName();

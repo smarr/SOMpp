@@ -90,9 +90,9 @@ void VMClass::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     instanceFields = static_cast<pVMArray>(walk(instanceFields));
     instanceInvokables = static_cast<pVMArray>(walk(instanceInvokables));
 
-    pVMObject* fields = (pVMObject*)(&clazz);
+    pVMObject* fields = FIELDS;
 
-    for (long i = VMClassNumberOfFields + 1/*VMObjectNumberOfFields*/; i < numberOfFields; i++)
+    for (long i = VMClassNumberOfFields + 0/*VMObjectNumberOfFields*/; i < numberOfFields; i++)
         fields[i] = walk(AS_POINTER(fields[i]));
 }
 

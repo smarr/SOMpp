@@ -334,7 +334,7 @@ void Interpreter::doPushField(long bytecodeIndex) {
         o = AS_POINTER(self)->GetField(fieldIndex);
     }
 #else
-    o = self->GetField(fieldIndex);
+    o = static_cast<VMObject*>(self)->GetField(fieldIndex);
 #endif
 
     _FRAME->Push(o);
@@ -431,7 +431,7 @@ void Interpreter::doPopField(long bytecodeIndex) {
         AS_POINTER(self)->SetField(field_index, o);
     }
 #else
-    self->SetField(field_index, o);
+    static_cast<VMObject*>(self)->SetField(field_index, o);
 #endif
 }
 
@@ -550,3 +550,6 @@ void Interpreter::doJump(long bytecodeIndex) {
     bytecodeIndexGlobal = target;
 }
 
+void Interpreter::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
+    method = (pVMMethod) walk(method);
+}

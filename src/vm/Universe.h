@@ -78,12 +78,14 @@ extern pVMClass bigIntegerClass;
 extern pVMClass arrayClass;
 extern pVMClass methodClass;
 extern pVMClass symbolClass;
-extern pVMClass frameClass;
 extern pVMClass primitiveClass;
 extern pVMClass stringClass;
 extern pVMClass systemClass;
 extern pVMClass blockClass;
 extern pVMClass doubleClass;
+
+extern pVMClass trueClass;
+extern pVMClass falseClass;
 
 extern pVMSymbol symbolIfTrue;
 extern pVMSymbol symbolIfFalse;

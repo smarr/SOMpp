@@ -25,6 +25,7 @@
  */
 
 #include "VMArray.h"
+#include "VMClass.h"
 
 #include <vm/Universe.h>
 
@@ -34,17 +35,18 @@ VMArray::VMArray(long size, long nof) :
         VMObject(nof + VMArrayNumberOfFields) {
     // initialize fields with nilObject
     // SetIndexableField is not used to prevent the write barrier to be called
-    // too often
-    pVMObject* arrFields = (pVMObject*)&clazz + GetNumberOfFields();
+    // too often.
+    // Fields start after clazz and other fields (GetNumberOfFields)
+    pVMObject* arrFields = FIELDS + GetNumberOfFields();
     for (long i = 0; i < size; ++i) {
         arrFields[i] = nilObject;
     }
 }
 
 pVMObject VMArray::GetIndexableField(long idx) const {
-    if (idx > GetNumberOfIndexableFields() - 1) {
+    if (idx > GetNumberOfIndexableFields()) {
         cout << "Array index out of bounds: Accessing " << idx
-        << ", but array size is only " << GetNumberOfIndexableFields() - 1
+        << ", but array size is only " << GetNumberOfIndexableFields()
         << endl;
         _UNIVERSE->ErrorExit("Array index out of bounds");
     }
@@ -52,9 +54,9 @@ pVMObject VMArray::GetIndexableField(long idx) const {
 }
 
 void VMArray::SetIndexableField(long idx, pVMObject value) {
-    if (idx > GetNumberOfIndexableFields() - 1) {
+    if (idx > GetNumberOfIndexableFields()) {
         cout << "Array index out of bounds: Accessing " << idx
-        << ", but array size is only " << GetNumberOfIndexableFields() - 1
+        << ", but array size is only " << GetNumberOfIndexableFields()
         << endl;
         _UNIVERSE->ErrorExit("Array index out of bounds");
     }
@@ -63,7 +65,7 @@ void VMArray::SetIndexableField(long idx, pVMObject value) {
 
 pVMArray VMArray::CopyAndExtendWith(pVMObject item) const {
     size_t fields = GetNumberOfIndexableFields();
-    pVMArray result = _UNIVERSE->NewArray(fields+1);
+    pVMArray result = _UNIVERSE->NewArray(fields + 1);
     this->CopyIndexableFieldsTo(result);
     result->SetIndexableField(fields, item);
     return result;
@@ -91,9 +93,10 @@ void VMArray::CopyIndexableFieldsTo(pVMArray to) const {
 }
 
 void VMArray::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
+    clazz = (pVMClass) walk(clazz);
     long numFields          = GetNumberOfFields();
     long numIndexableFields = GetNumberOfIndexableFields();
-    pVMObject* fields = (pVMObject*)(&clazz);
+    pVMObject* fields = FIELDS;
     for (long i = 0; i < numFields + numIndexableFields; i++) {
         fields[i] = walk(AS_POINTER(fields[i]));
     }

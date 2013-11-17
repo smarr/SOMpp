@@ -30,10 +30,8 @@
 #include "VMFrame.h"
 #include "VMInvokable.h"
 
-#define FIELDS ((pVMObject*)&clazz)
-
-const long VMObject::VMObjectNumberOfFields = 1;
 // clazz is the only field of VMObject so
+const long VMObject::VMObjectNumberOfFields = 0;
 
 VMObject::VMObject(long numberOfFields) {
     // this line would be needed if the VMObject** is used instead of the macro:
@@ -100,10 +98,12 @@ long VMObject::GetAdditionalSpaceConsumption() const {
     //VMObject  MINUS   the number of fields times sizeof(pVMObject)
     return (objectSize
             - (sizeof(VMObject)
-                    + sizeof(pVMObject) * (this->GetNumberOfFields() - 1)));
+                    + sizeof(pVMObject) * GetNumberOfFields()));
 }
 
 void VMObject::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
+    clazz = (pVMClass) walk(clazz);
+    
     long numFields = GetNumberOfFields();
     for (long i = 0; i < numFields; ++i) {
         FIELDS[i] = walk((VMOBJECT_PTR)GetField(i));

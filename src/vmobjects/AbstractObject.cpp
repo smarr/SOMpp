@@ -34,8 +34,3 @@ void AbstractVMObject::Send(StdString selectorString, pVMObject* arguments, long
 long AbstractVMObject::GetFieldIndex(pVMSymbol fieldName) const {
     return this->GetClass()->LookupFieldIndex(fieldName);
 }
-pVMObject AbstractVMObject::GetField(long index) const {
-    // we have to emulate field 0 = class
-    assert(index == 0);
-    return this->GetClass();
-}

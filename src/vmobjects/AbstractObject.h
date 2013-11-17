@@ -69,13 +69,6 @@ public:
 
     long GetFieldIndex(pVMSymbol fieldName) const;
 
-    inline virtual void SetField(long index, pVMObject value) {
-        cout << "this object doesn't support SetField" << endl;
-        throw "this object doesn't support SetField";
-    }
-
-    virtual pVMObject GetField(long index) const;
-
     inline virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR)) {
         return;
     }

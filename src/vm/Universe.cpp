@@ -88,7 +88,6 @@ pVMClass bigIntegerClass;
 pVMClass arrayClass;
 pVMClass methodClass;
 pVMClass symbolClass;
-pVMClass frameClass;
 pVMClass primitiveClass;
 pVMClass stringClass;
 pVMClass systemClass;
@@ -504,7 +503,7 @@ void Universe::InitializeGlobals() {
     //allocate nil object
     //
     nilObject = new (_HEAP) VMObject;
-    nilObject->SetField(0, nilObject);
+    static_cast<VMObject*>(nilObject)->SetField(0, nilObject);
 
     metaClassClass = NewMetaclassClass();
 
@@ -516,7 +515,6 @@ void Universe::InitializeGlobals() {
     methodClass = NewSystemClass();
     integerClass = NewSystemClass();
     bigIntegerClass = NewSystemClass();
-    frameClass = NewSystemClass();
     primitiveClass = NewSystemClass();
     stringClass = NewSystemClass();
     doubleClass = NewSystemClass();
@@ -533,7 +531,6 @@ void Universe::InitializeGlobals() {
     InitializeSystemClass(integerClass, objectClass, "Integer");
     InitializeSystemClass(bigIntegerClass, objectClass,
             "BigInteger");
-    InitializeSystemClass(frameClass, arrayClass, "Frame");
     InitializeSystemClass(primitiveClass, objectClass,
             "Primitive");
     InitializeSystemClass(stringClass, objectClass, "String");
@@ -551,7 +548,6 @@ void Universe::InitializeGlobals() {
     LoadSystemClass(symbolClass);
     LoadSystemClass(integerClass);
     LoadSystemClass(bigIntegerClass);
-    LoadSystemClass(frameClass);
     LoadSystemClass(primitiveClass);
     LoadSystemClass(stringClass);
     LoadSystemClass(doubleClass);
@@ -820,7 +816,7 @@ pVMFrame Universe::NewFrame(pVMFrame previousFrame, pVMMethod method) const {
 
     long additionalBytes = length * sizeof(pVMObject);
     result = new (_HEAP, additionalBytes) VMFrame(length);
-    result->clazz = frameClass;
+    result->clazz = nullptr;
     result->method = method;
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION("VMFrame", result->GetObjectSize());
@@ -831,9 +827,7 @@ pVMFrame Universe::NewFrame(pVMFrame previousFrame, pVMMethod method) const {
 }
 
 pVMObject Universe::NewInstance( pVMClass classOfInstance) const {
-    //the number of fields for allocation. We have to calculate the clazz
-    //field out of this, because it is already taken care of by VMObject
-    long numOfFields = classOfInstance->GetNumberOfInstanceFields() - 1;
+    long numOfFields = classOfInstance->GetNumberOfInstanceFields();
     //the additional space needed is calculated from the number of fields
     long additionalBytes = numOfFields * sizeof(pVMObject);
     pVMObject result = new (_HEAP, additionalBytes) VMObject(numOfFields);
@@ -885,22 +879,24 @@ void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     GlobalBox::updateIntegerBox(static_cast<VMInteger*>(walk(GlobalBox::IntegerBox())));
 #endif
 
-    objectClass = static_cast<pVMClass>(walk(objectClass));
-    classClass = static_cast<pVMClass>(walk(classClass));
+    objectClass    = static_cast<pVMClass>(walk(objectClass));
+    classClass     = static_cast<pVMClass>(walk(classClass));
     metaClassClass = static_cast<pVMClass>(walk(metaClassClass));
 
-    nilClass = static_cast<pVMClass>(walk(nilClass));
-    integerClass = static_cast<pVMClass>(walk(integerClass));
+    nilClass        = static_cast<pVMClass>(walk(nilClass));
+    integerClass    = static_cast<pVMClass>(walk(integerClass));
     bigIntegerClass = static_cast<pVMClass>(walk(bigIntegerClass));
-    arrayClass = static_cast<pVMClass>(walk(arrayClass));
-    methodClass = static_cast<pVMClass>(walk(methodClass));
-    symbolClass = static_cast<pVMClass>(walk(symbolClass));
-    frameClass = static_cast<pVMClass>(walk(frameClass));
-    primitiveClass = static_cast<pVMClass>(walk(primitiveClass));
-    stringClass = static_cast<pVMClass>(walk(stringClass));
-    systemClass = static_cast<pVMClass>(walk(systemClass));
-    blockClass = static_cast<pVMClass>(walk(blockClass));
-    doubleClass = static_cast<pVMClass>(walk(doubleClass));
+    arrayClass      = static_cast<pVMClass>(walk(arrayClass));
+    methodClass     = static_cast<pVMClass>(walk(methodClass));
+    symbolClass     = static_cast<pVMClass>(walk(symbolClass));
+    primitiveClass  = static_cast<pVMClass>(walk(primitiveClass));
+    stringClass     = static_cast<pVMClass>(walk(stringClass));
+    systemClass     = static_cast<pVMClass>(walk(systemClass));
+    blockClass      = static_cast<pVMClass>(walk(blockClass));
+    doubleClass     = static_cast<pVMClass>(walk(doubleClass));
+    
+    trueClass  = static_cast<pVMClass>(walk(trueClass));
+    falseClass = static_cast<pVMClass>(walk(falseClass));
 
 #ifdef CACHE_INTEGER
     for (unsigned long i = 0; i < (INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE); i++)
@@ -943,6 +939,8 @@ void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     //reassign ifTrue ifFalse Symbols
     symbolIfTrue  = symbolsMap["ifTrue:"];
     symbolIfFalse = symbolsMap["ifFalse:"];
+    
+    interpreter->WalkGlobals(walk);
 }
 
 pVMMethod Universe::NewMethod( pVMSymbol signature,

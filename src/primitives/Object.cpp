@@ -69,6 +69,8 @@ _Object::_Object() :
             new Routine<_Object>(this, &_Object::InstVarAtPut));
     this->SetPrimitive("instVarNamed_",
             new Routine<_Object>(this, &_Object::InstVarNamed));
+    
+    this->SetPrimitive("class", new Routine<_Object>(this, &_Object::Class));
 }
 
 void _Object::Equalequal(pVMObject /*object*/, pVMFrame frame) {
@@ -172,7 +174,7 @@ void _Object::InstVarAt(pVMObject object, pVMFrame frame) {
     pVMObject self = frame->Pop();
 
     long field_idx = idx->GetEmbeddedInteger() - 1;
-    pVMObject value = self->GetField(field_idx);
+    pVMObject value = static_cast<VMObject*>(self)->GetField(field_idx);
 
     frame->Push(value);
 }
@@ -184,7 +186,7 @@ void _Object::InstVarAtPut(pVMObject object, pVMFrame frame) {
 
     long field_idx = idx->GetEmbeddedInteger() - 1;
 
-    self->SetField(field_idx, value);
+    static_cast<VMObject*>(self)->SetField(field_idx, value);
 }
 
 void _Object::InstVarNamed(pVMObject object, pVMFrame frame) {
@@ -192,7 +194,12 @@ void _Object::InstVarNamed(pVMObject object, pVMFrame frame) {
     pVMObject self = frame->Pop();
 
     long field_idx = self->GetFieldIndex(name);
-    pVMObject value = self->GetField(field_idx);
+    pVMObject value = static_cast<VMObject*>(self)->GetField(field_idx);
 
     frame->Push(value);
+}
+
+void _Object::Class(pVMObject object, pVMFrame frame) {
+    pVMObject self = frame->Pop();
+    frame->Push(self->GetClass());
 }

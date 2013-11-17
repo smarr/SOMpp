@@ -34,7 +34,9 @@
 #include "Class.h"
 #include "Double.h"
 #include "Integer.h"
+#include "Method.h"
 #include "Object.h"
+#include "Primitive.h"
 #include "String.h"
 #include "Symbol.h"
 #include "System.h"
@@ -74,9 +76,15 @@ extern "C" void setup() {
 
         loader->AddPrimitiveObject("Integer",
                 static_cast<PrimitiveContainer*>(new _Integer()));
+        
+        loader->AddPrimitiveObject("Method",
+                static_cast<PrimitiveContainer*>(new _Method()));
 
         loader->AddPrimitiveObject("Object",
                 static_cast<PrimitiveContainer*>(new _Object()));
+        
+        loader->AddPrimitiveObject("Primitive",
+                static_cast<PrimitiveContainer*>(new _Primitive()));
 
         loader->AddPrimitiveObject("String",
                 static_cast<PrimitiveContainer*>(new _String()));

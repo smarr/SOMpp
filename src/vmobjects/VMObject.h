@@ -61,6 +61,9 @@ class VMClass;
  **************************************************************
  */
 
+// FIELDS starts indexing after the clazz field
+#define FIELDS (((pVMObject*)&clazz) + 1)
+
 class VMObject: public AbstractVMObject {
 
 public:
@@ -73,9 +76,9 @@ public:
     virtual        pVMSymbol GetFieldName(long index) const;
     virtual inline long      GetNumberOfFields() const;
     virtual        void      SetNumberOfFields(long nof);
-    virtual        pVMObject GetField(long index) const;
+                   pVMObject GetField(long index) const;
+                   void      SetField(long index, pVMObject value);
     virtual        void      Assert(bool value) const;
-    virtual        void      SetField(long index, pVMObject value);
     virtual        void      WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
     virtual        pVMObject Clone() const;
     virtual inline size_t    GetObjectSize() const;
@@ -113,13 +116,16 @@ public:
 protected:
     long GetAdditionalSpaceConsumption() const;
 
-    // Start of fields. All members beyond this point are indexable.
-    // clazz has index 0.
     // VMObject essentials
     long   hash;
     size_t objectSize;     // set by the heap at allocation time
     long   numberOfFields;
+
     pVMClass clazz;
+
+    // Start of fields. All members beyond after clazz are indexable.
+    // clazz has index -1.
+    
 private:
     static const long VMObjectNumberOfFields;
 };

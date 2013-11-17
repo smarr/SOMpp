@@ -1,14 +1,17 @@
-//
-//  Primitive.h
-//  SOM
-//
-//  Created by Stefan Marr on 11/11/13.
-//
-//
+#ifndef CORE_PRIMITIVE_H_
+#define CORE_PRIMITIVE_H_
 
-#ifndef __SOM__Primitive__
-#define __SOM__Primitive__
+class VMObject;
+class VMFrame;
 
-#include <iostream>
+#include "../primitivesCore/PrimitiveContainer.h"
 
-#endif /* defined(__SOM__Primitive__) */
+class _Primitive: public PrimitiveContainer {
+public:
+    _Primitive(void);
+    
+    void Signature(pVMObject object, pVMFrame frame);
+    void Holder   (pVMObject object, pVMFrame frame);
+};
+
+#endif /* defined(CORE_METHOD_H_) */

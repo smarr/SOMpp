@@ -50,6 +50,8 @@ public:
     void InstVarAt(pVMObject object, pVMFrame frame);
     void InstVarAtPut(pVMObject object, pVMFrame frame);
     void InstVarNamed(pVMObject object, pVMFrame frame);
+    
+    void Class(pVMObject object, pVMFrame frame);
 };
 
 #endif
