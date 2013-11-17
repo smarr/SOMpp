@@ -57,7 +57,7 @@ inline void GenerationalHeap::writeBarrier(VMOBJECT_PTR holder, const VMOBJECT_P
 #endif
 
     size_t gcfield = *(((size_t*)holder)+1);
-    if ((gcfield & 6) == 2)
+    if ((gcfield & 6 /* MASK_OBJECT_IS_OLD + MASK_SEEN_BY_WRITE_BARRIER */) == 2 /* MASK_OBJECT_IS_OLD */)
         writeBarrier_OldHolder(holder, referencedObject);
 }
 
