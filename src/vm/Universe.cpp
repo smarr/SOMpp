@@ -344,7 +344,7 @@ void Universe::initialize(long _argc, char** _argv) {
 
     symbolIfTrue  = SymbolForChars("ifTrue:");
     symbolIfFalse = SymbolForChars("ifFalse:");
-    
+
     
 
     pVMMethod bootstrapMethod = NewMethod(SymbolForChars("bootstrap"), 1, 0);
@@ -365,7 +365,7 @@ void Universe::initialize(long _argc, char** _argv) {
     if (!(trace > 0))
         dumpBytecodes = 1;
 
-    pVMArray argumentsArray = _UNIVERSE->NewArrayFromStrings(argv);
+    pVMArray argumentsArray = NewArrayFromStrings(argv);
 
     pVMFrame bootstrapFrame = interpreter->PushNewFrame(bootstrapMethod);
     bootstrapFrame->Push(systemObject);
@@ -538,7 +538,7 @@ void Universe::InitializeGlobals() {
             "Primitive");
     InitializeSystemClass(stringClass, objectClass, "String");
     InitializeSystemClass(doubleClass, objectClass, "Double");
-    
+
     // Fix up objectClass
     objectClass->SetSuperClass((pVMClass) nilObject);
 
@@ -556,17 +556,17 @@ void Universe::InitializeGlobals() {
     LoadSystemClass(stringClass);
     LoadSystemClass(doubleClass);
 
-    blockClass = LoadClass(_UNIVERSE->SymbolForChars("Block"));
+    blockClass = LoadClass(SymbolForChars("Block"));
+
+    pVMSymbol trueClassName = SymbolForChars("True");
+    trueClass  = LoadClass(trueClassName);
+    trueObject = NewInstance(trueClass);
     
-    pVMSymbol trueSymbol = _UNIVERSE->SymbolForChars("True");
-    trueClass   = _UNIVERSE->LoadClass(trueSymbol);
-    trueObject  = NewInstance(trueClass);
-    
-    pVMSymbol falseSymbol = _UNIVERSE->SymbolForChars("False");
-    falseClass  = _UNIVERSE->LoadClass(falseSymbol);
+    pVMSymbol falseClassName = SymbolForChars("False");
+    falseClass  = LoadClass(falseClassName);
     falseObject = NewInstance(falseClass);
 
-    systemClass = LoadClass(_UNIVERSE->SymbolForChars("System"));
+    systemClass = LoadClass(SymbolForChars("System"));
 
     obtain_vtables_of_known_classes(falseClassName);
 }
