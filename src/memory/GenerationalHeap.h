@@ -7,6 +7,8 @@
 #include "Heap.h"
 #include "../vmobjects/VMObjectBase.h"
 
+#include <vm/Universe.h>
+
 #ifdef DEBUG
 struct VMObjectCompare {
     bool operator() (pair<const pVMObject, const pVMObject> lhs, pair<const
@@ -43,6 +45,8 @@ private:
 };
 
 inline bool GenerationalHeap::isObjectInNursery(const pVMObject obj) {
+    assert(Universe::IsValidObject(obj));
+    
     return (size_t) obj >= (size_t)nursery && (size_t) obj < nursery_end;
 }
 
@@ -55,6 +59,9 @@ inline void GenerationalHeap::writeBarrier(VMOBJECT_PTR holder, const VMOBJECT_P
     //XXX Disabled because of speed reasons --> causes some tests to fail
     //writeBarrierCalledOn.insert(make_pair(holder, referencedObject));
 #endif
+    
+    assert(Universe::IsValidObject(referencedObject));
+    assert(Universe::IsValidObject(holder));
 
     size_t gcfield = *(((size_t*)holder)+1);
     if ((gcfield & 6 /* MASK_OBJECT_IS_OLD + MASK_SEEN_BY_WRITE_BARRIER */) == 2 /* MASK_OBJECT_IS_OLD */)

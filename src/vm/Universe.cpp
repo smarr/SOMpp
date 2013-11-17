@@ -390,7 +390,116 @@ Universe::~Universe() {
     Heap::DestroyHeap();
 }
 
+#ifndef NDEBUG
+    bool Universe::IsValidObject(const pVMObject const obj) {
+        return true;
+    }
+    static void set_vt_to_null() {}
+    static void obtain_vtables_of_known_classes(pVMSymbol className) {}
+#else
+    void* vt_array;
+    void* vt_biginteger;
+    void* vt_block;
+    void* vt_class;
+    void* vt_double;
+    void* vt_eval_primitive;
+    void* vt_frame;
+    void* vt_integer;
+    void* vt_method;
+    void* vt_object;
+    void* vt_primitive;
+    void* vt_string;
+    void* vt_symbol;
+
+    bool Universe::IsValidObject(const pVMObject const obj) {
+        if (obj == (pVMObject) INVALID_POINTER
+            // || obj == nullptr
+            ) {
+            assert(false);
+            return false;
+        }
+        
+        if (obj == nullptr)
+            return true;
+        
+        
+        if (vt_symbol == nullptr) // initialization not yet completed
+            return true;
+        
+        void* vt = *(void**) obj;
+        bool b = vt == vt_array    ||
+               vt == vt_biginteger ||
+               vt == vt_block      ||
+               vt == vt_class      ||
+               vt == vt_double     ||
+               vt == vt_eval_primitive ||
+               vt == vt_frame      ||
+               vt == vt_integer    ||
+               vt == vt_method     ||
+               vt == vt_object     ||
+               vt == vt_primitive  ||
+               vt == vt_string     ||
+               vt == vt_symbol;
+        assert(b);
+        return b;
+    }
+
+    static void set_vt_to_null() {
+        vt_array      = nullptr;
+        vt_biginteger = nullptr;
+        vt_block      = nullptr;
+        vt_class      = nullptr;
+        vt_double     = nullptr;
+        vt_eval_primitive = nullptr;
+        vt_frame      = nullptr;
+        vt_integer    = nullptr;
+        vt_method     = nullptr;
+        vt_object     = nullptr;
+        vt_primitive  = nullptr;
+        vt_string     = nullptr;
+        vt_symbol     = nullptr;
+    }
+
+    static void obtain_vtables_of_known_classes(pVMSymbol className) {
+        pVMArray arr  = new (_HEAP) VMArray(0, 0);
+        vt_array      = *(void**) arr;
+        
+        pVMBigInteger bi = new (_HEAP) VMBigInteger();
+        vt_biginteger = *(void**) bi;
+        
+        pVMBlock blck = new (_HEAP) VMBlock();
+        vt_block      = *(void**) blck;
+        
+        vt_class      = *(void**) symbolClass;
+        
+        pVMDouble dbl = new (_HEAP) VMDouble();
+        vt_double     = *(void**) dbl;
+        
+        VMEvaluationPrimitive* ev = new (_HEAP) VMEvaluationPrimitive(1);
+        vt_eval_primitive = *(void**) ev;
+        
+        pVMFrame frm  = new (_HEAP) VMFrame(0, 0);
+        vt_frame      = *(void**) frm;
+        
+        pVMInteger i  = new (_HEAP) VMInteger();
+        vt_integer    = *(void**) i;
+        
+        pVMMethod mth = new (_HEAP) VMMethod(0, 0, 0);
+        vt_method     = *(void**) mth;
+        vt_object     = *(void**) nilObject;
+        
+        pVMPrimitive prm = new (_HEAP) VMPrimitive(className);
+        vt_primitive  = *(void**) prm;
+        
+        pVMString str = new (_HEAP) VMString("");
+        vt_string     = *(void**) str;
+        vt_symbol     = *(void**) className;
+    }
+#endif
+
 void Universe::InitializeGlobals() {
+    set_vt_to_null();
+    
     //
     //allocate nil object
     //
@@ -458,6 +567,8 @@ void Universe::InitializeGlobals() {
     falseObject = NewInstance(falseClass);
 
     systemClass = LoadClass(_UNIVERSE->SymbolForChars("System"));
+
+    obtain_vtables_of_known_classes(falseClassName);
 }
 
 void Universe::Assert(bool value) const {

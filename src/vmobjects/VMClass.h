@@ -118,6 +118,7 @@ void VMClass::SetName(pVMSymbol nam) {
 }
 
 bool VMClass::HasSuperClass() const {
+    assert(Universe::IsValidObject(superClass));
     return superClass != nilObject;
 }
 

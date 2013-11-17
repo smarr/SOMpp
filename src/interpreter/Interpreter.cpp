@@ -441,6 +441,7 @@ void Interpreter::doSend(long bytecodeIndex) {
     long numOfArgs = Signature::GetNumberOfArguments(signature);
 
     pVMObject receiver = _FRAME->GetStackElement(numOfArgs-1);
+    assert(Universe::IsValidObject(receiver));
     assert(dynamic_cast<pVMClass>((pVMObject)receiver->GetClass()) != nullptr); // make sure it is really a class
     
 #ifdef USE_TAGGING
@@ -448,6 +449,8 @@ void Interpreter::doSend(long bytecodeIndex) {
 #else
     pVMClass receiverClass = receiver->GetClass();
 #endif
+    
+    assert(Universe::IsValidObject(receiverClass));
 
 #ifdef LOG_RECEIVER_TYPES
     _UNIVERSE->receiverTypes[receiverClass->GetName()->GetStdString()]++;

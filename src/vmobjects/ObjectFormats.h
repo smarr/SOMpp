@@ -70,4 +70,7 @@
 #define pVMSymbol VMSymbol* 
 #define VMOBJECT_PTR AbstractVMObject*
 
+// Used to mark object fields as invalid
+#define INVALID_POINTER ((pVMObject)0x101010)
+
 #endif // OBJECTFORMATS_H_

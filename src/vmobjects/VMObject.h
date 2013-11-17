@@ -106,6 +106,7 @@ public:
 #endif
         size_t objSize = numBytes + PADDED_SIZE(additionalBytes);
         ((VMObject*) mem)->objectSize = objSize;
+        assert(mem != INVALID_POINTER);
         return mem;
     }
 
@@ -132,6 +133,7 @@ void VMObject::SetObjectSize(size_t size) {
 }
 
 pVMClass VMObject::GetClass() const {
+    assert(Universe::IsValidObject((pVMObject) clazz));
     return clazz;
 }
 

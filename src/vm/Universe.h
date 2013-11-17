@@ -164,6 +164,8 @@ public:
     map<StdString, stat_data> callStats;
 #endif
     //
+    
+    static bool IsValidObject(const pVMObject obj);
 private:
     vector<StdString> handleArguments(long argc, char** argv);
     long getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;

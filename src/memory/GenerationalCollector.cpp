@@ -22,6 +22,7 @@ GenerationalCollector::GenerationalCollector(Heap* heap) : GarbageCollector(heap
 }
 
 VMOBJECT_PTR mark_object(VMOBJECT_PTR obj) {
+    assert(Universe::IsValidObject(obj));
 #ifdef USE_TAGGING
     //don't process tagged objects
     if (IS_TAGGED(obj))
@@ -37,6 +38,8 @@ VMOBJECT_PTR mark_object(VMOBJECT_PTR obj) {
 }
 
 VMOBJECT_PTR copy_if_necessary(VMOBJECT_PTR obj) {
+    assert(Universe::IsValidObject(obj));
+    
 #ifdef USE_TAGGING
     //don't process tagged objects
     if (IS_TAGGED(obj))
@@ -55,7 +58,11 @@ VMOBJECT_PTR copy_if_necessary(VMOBJECT_PTR obj) {
     
     // we have to clone ourselves
     VMOBJECT_PTR newObj = obj->Clone();
-    obj->SetGCField((size_t)newObj);
+
+    assert( (((size_t) newObj) & MASK_OBJECT_IS_MARKED) == 0 );
+    assert( obj->GetObjectSize() == newObj->GetObjectSize());
+    
+    obj->SetGCField((size_t) newObj);
     newObj->SetGCField(MASK_OBJECT_IS_OLD);
 
     // walk recursively
@@ -105,12 +112,16 @@ void GenerationalCollector::MajorCollection() {
     for (vector<VMOBJECT_PTR>::iterator objIter =
             _HEAP->allocatedObjects->begin(); objIter !=
             _HEAP->allocatedObjects->end(); objIter++) {
-        if ((*objIter)->GetGCField() & MASK_OBJECT_IS_MARKED) {
-            survivors->push_back(*objIter);
-            (*objIter)->SetGCField(MASK_OBJECT_IS_OLD);
+        
+        pVMObject obj = *objIter;
+        assert(Universe::IsValidObject(obj));
+        
+        if (obj->GetGCField() & MASK_OBJECT_IS_MARKED) {
+            survivors->push_back(obj);
+            obj->SetGCField(MASK_OBJECT_IS_OLD);
         }
         else {
-            _HEAP->FreeObject(*objIter);
+            _HEAP->FreeObject(obj);
         }
     }
     delete _HEAP->allocatedObjects;
