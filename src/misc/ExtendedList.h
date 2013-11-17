@@ -107,7 +107,7 @@ template<class T>
 int32_t ExtendedList<T>::IndexOf(const T& needle) {
     for (iterator_t it = theList.begin(); it != theList.end(); ++it) {
         if (*it == needle)
-            return distance(theList.begin(), it);
+            return (int32_t) distance(theList.begin(), it);
 
     }
     return -1;
