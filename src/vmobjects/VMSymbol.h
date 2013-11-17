@@ -51,6 +51,9 @@ private:
     pVMInvokable cachedInvokable[3];
     inline pVMInvokable GetCachedInvokable(const pVMClass) const;
     inline void UpdateCachedInvokable(const pVMClass cls, pVMInvokable invo);
+    
+    virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
+    
     friend class VMClass;
 };
 

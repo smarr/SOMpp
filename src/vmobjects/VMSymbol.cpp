@@ -132,3 +132,10 @@ StdString VMSymbol::GetPlainString() const {
     return st;
 }
 
+void VMSymbol::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
+    for (long i = 0; i < nextCachePos; i++) {
+        cachedClass_invokable[i] = (pVMClass) walk((VMOBJECT_PTR) cachedClass_invokable[i]);
+        cachedInvokable[i] = (pVMInvokable) walk((VMOBJECT_PTR) cachedInvokable[i]);
+    }
+}
+
