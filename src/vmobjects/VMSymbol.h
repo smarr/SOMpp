@@ -46,14 +46,10 @@ public:
     virtual pVMSymbol Clone() const;
     virtual pVMClass GetClass() const;
 private:
-    const pVMClass cachedClass_index;
     const pVMClass cachedClass_invokable[3];
-    long cachedIndex;
     long nextCachePos;
     pVMInvokable cachedInvokable[3];
-    inline long GetCachedIndex(const VMClass*) const;
     inline pVMInvokable GetCachedInvokable(const VMClass*) const;
-    inline void UpdateCachedIndex(const VMClass*, long);
     inline void UpdateCachedInvokable(const VMClass*, VMInvokable* invo);
     friend class VMClass;
 };
@@ -68,16 +64,6 @@ pVMInvokable VMSymbol::GetCachedInvokable(const VMClass* cls) const {
     return NULL;
 }
 
-long VMSymbol::GetCachedIndex(const VMClass* cls) const {
-    if (cls == cachedClass_index)
-        return cachedIndex;
-    return -1;
-}
-
-void VMSymbol::UpdateCachedIndex(const VMClass* cls, long idx) {
-    cachedIndex = idx;
-    cachedClass_index = cls;
-}
 void VMSymbol::UpdateCachedInvokable(const VMClass* cls, VMInvokable* invo) {
     cachedInvokable[nextCachePos] = invo;
     cachedClass_invokable[nextCachePos] = cls;

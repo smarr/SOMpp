@@ -42,7 +42,7 @@ VMSymbol::VMSymbol(const char* str) {
     }
     chars[i] = '\0';
     //clear caching fields
-    memset(&cachedClass_index, 0, 7 * sizeof(void*) + 2 * sizeof(long));
+    memset(&cachedClass_invokable, 0, 6 * sizeof(void*) + 1 * sizeof(long));
 }
 
 VMSymbol::VMSymbol(const StdString& s) {
