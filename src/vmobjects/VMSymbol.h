@@ -49,12 +49,12 @@ private:
     const pVMClass cachedClass_invokable[3];
     long nextCachePos;
     pVMInvokable cachedInvokable[3];
-    inline pVMInvokable GetCachedInvokable(const VMClass*) const;
-    inline void UpdateCachedInvokable(const VMClass*, VMInvokable* invo);
+    inline pVMInvokable GetCachedInvokable(const pVMClass) const;
+    inline void UpdateCachedInvokable(const pVMClass cls, pVMInvokable invo);
     friend class VMClass;
 };
 
-pVMInvokable VMSymbol::GetCachedInvokable(const VMClass* cls) const {
+pVMInvokable VMSymbol::GetCachedInvokable(const pVMClass cls) const {
     if (cls == cachedClass_invokable[0])
         return cachedInvokable[0];
     else if (cls == cachedClass_invokable[1])
@@ -64,10 +64,15 @@ pVMInvokable VMSymbol::GetCachedInvokable(const VMClass* cls) const {
     return NULL;
 }
 
-void VMSymbol::UpdateCachedInvokable(const VMClass* cls, VMInvokable* invo) {
+void VMSymbol::UpdateCachedInvokable(const pVMClass cls, pVMInvokable invo) {
     cachedInvokable[nextCachePos] = invo;
     cachedClass_invokable[nextCachePos] = cls;
     nextCachePos = (nextCachePos + 1) % 3;
+    
+#if GC_TYPE==GENERATIONAL
+    _HEAP->writeBarrier(this, (VMOBJECT_PTR) invo);
+    _HEAP->writeBarrier(this, (VMOBJECT_PTR) cls);
+#endif
 }
 
 #endif
