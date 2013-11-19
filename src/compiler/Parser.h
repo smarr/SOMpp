@@ -67,9 +67,9 @@ private:
     StdString identifier(void);
     StdString keyword(void);
     StdString argument(void);
-    void blockContents(MethodGenerationContext* mgenc);
+    void blockContents(MethodGenerationContext* mgenc, bool is_inlined);
     void locals(MethodGenerationContext* mgenc);
-    void blockBody(MethodGenerationContext* mgenc, bool seen_period);
+    void blockBody(MethodGenerationContext* mgenc, bool seen_period, bool is_inlined);
     void result(MethodGenerationContext* mgenc);
     void expression(MethodGenerationContext* mgenc);
     void assignation(MethodGenerationContext* mgenc);
@@ -100,6 +100,7 @@ private:
     pVMSymbol keywordSelector(void);
     StdString _string(void);
     void nestedBlock(MethodGenerationContext* mgenc);
+    void inlinedBlock(MethodGenerationContext* mgenc);
     void blockPattern(MethodGenerationContext* mgenc);
     void blockArguments(MethodGenerationContext* mgenc);
     void genPushVariable(MethodGenerationContext*, const StdString&);

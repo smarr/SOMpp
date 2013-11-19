@@ -324,7 +324,7 @@ void Parser::keywordPattern(MethodGenerationContext* mgenc) {
 
 void Parser::methodBlock(MethodGenerationContext* mgenc) {
     expect(NewTerm);
-    blockContents(mgenc);
+    blockContents(mgenc, false);
     // if no return has been generated so far, we can be sure there was no .
     // terminating the last expression, so the last expression's value must be
     // popped off the stack and a ^self be generated
@@ -385,12 +385,12 @@ StdString Parser::argument(void) {
     return variable();
 }
 
-void Parser::blockContents(MethodGenerationContext* mgenc) {
+void Parser::blockContents(MethodGenerationContext* mgenc, bool is_inlined) {
     if (accept(Or)) {
         locals(mgenc);
         expect(Or);
     }
-    blockBody(mgenc, false);
+    blockBody(mgenc, false, is_inlined);
 }
 
 void Parser::locals(MethodGenerationContext* mgenc) {
@@ -398,7 +398,7 @@ void Parser::locals(MethodGenerationContext* mgenc) {
         mgenc->AddLocalIfAbsent(variable());
 }
 
-void Parser::blockBody(MethodGenerationContext* mgenc, bool seen_period) {
+void Parser::blockBody(MethodGenerationContext* mgenc, bool seen_period, bool is_inlined) {
     if (accept(Exit))
         result(mgenc);
     else if (sym == EndBlock) {
@@ -408,9 +408,10 @@ void Parser::blockBody(MethodGenerationContext* mgenc, bool seen_period) {
             // was terminated with a . or not)
             mgenc->RemoveLastBytecode();
         }
-        bcGen->EmitRETURNLOCAL(mgenc);
-
-        mgenc->SetFinished();
+        if (!is_inlined) {
+            bcGen->EmitRETURNLOCAL(mgenc);
+            mgenc->SetFinished();
+        }
     } else if (sym == EndTerm) {
         // it does not matter whether a period has been seen, as the end of the
         // method has been found (EndTerm) - so it is safe to emit a "return
@@ -422,7 +423,7 @@ void Parser::blockBody(MethodGenerationContext* mgenc, bool seen_period) {
         expression(mgenc);
         if (accept(Period)) {
             bcGen->EmitPOP(mgenc);
-            blockBody(mgenc, true);
+            blockBody(mgenc, true, is_inlined);
         }
     }
 }
@@ -595,9 +596,7 @@ void Parser::binaryOperand(MethodGenerationContext* mgenc, bool* super) {
 void Parser::ifTrueMessage(MethodGenerationContext* mgenc) {
     size_t false_block_pos = bcGen->EmitJUMP_IF_FALSE(mgenc);
     if (sym == NewBlock) {
-        expect(NewBlock);
-        blockContents(mgenc);
-        expect(EndBlock);
+        inlinedBlock(mgenc);
     } else {
         formula(mgenc);
         pVMSymbol msg = _UNIVERSE->SymbolFor("value");
@@ -612,9 +611,7 @@ void Parser::ifTrueMessage(MethodGenerationContext* mgenc) {
         StdString ifFalse = keyword();
         assert(ifFalse == "ifFalse:");
         if (sym == NewBlock) {
-            expect(NewBlock);
-            blockContents(mgenc);
-            expect(EndBlock);
+            inlinedBlock(mgenc);
         } else {
             formula(mgenc);
             pVMSymbol msg = _UNIVERSE->SymbolFor("value");
@@ -628,7 +625,6 @@ void Parser::ifTrueMessage(MethodGenerationContext* mgenc) {
         bcGen->EmitPUSHGLOBAL(mgenc, global);
     }
     mgenc->PatchJumpTarget(after_pos);
-    mgenc->SetFinished(false);
     
     assert(sym != Keyword);
 }
@@ -636,9 +632,7 @@ void Parser::ifTrueMessage(MethodGenerationContext* mgenc) {
 void Parser::ifFalseMessage(MethodGenerationContext* mgenc) {
     size_t false_block_pos = bcGen->EmitJUMP_IF_TRUE(mgenc);
     if (sym == NewBlock) {
-        expect(NewBlock);
-        blockContents(mgenc);
-        expect(EndBlock);
+        inlinedBlock(mgenc);
     } else {
         formula(mgenc);
         pVMSymbol msg = _UNIVERSE->SymbolFor("value");
@@ -653,9 +647,7 @@ void Parser::ifFalseMessage(MethodGenerationContext* mgenc) {
         StdString ifFalse = keyword();
         assert(ifFalse == "ifTrue:");
         if (sym == NewBlock) {
-            expect(NewBlock);
-            blockContents(mgenc);
-            expect(EndBlock);
+            inlinedBlock(mgenc);
         } else {
             formula(mgenc);
             pVMSymbol msg = _UNIVERSE->SymbolFor("value");
@@ -669,10 +661,18 @@ void Parser::ifFalseMessage(MethodGenerationContext* mgenc) {
         bcGen->EmitPUSHGLOBAL(mgenc, global);
     }
     mgenc->PatchJumpTarget(after_pos);
-    mgenc->SetFinished(false);
     
     assert(sym != Keyword);
 
+}
+
+void Parser::inlinedBlock(MethodGenerationContext* mgenc) {
+    expect(NewBlock);
+    blockContents(mgenc, true);
+
+    // NON_LOCAL_RETURNS can set it to finished, but since the block is inlined, we don't want that
+    mgenc->SetFinished(false);
+    expect(EndBlock);
 }
 
 void Parser::keywordMessage(MethodGenerationContext* mgenc, bool super) {
@@ -834,7 +834,7 @@ void Parser::nestedBlock(MethodGenerationContext* mgenc) {
 
     mgenc->SetSignature(_UNIVERSE->SymbolFor(block_sig));
 
-    blockContents(mgenc);
+    blockContents(mgenc, false);
 
     // if no return has been generated, we can be sure that the last expression
     // in the block was not terminated by ., and can generate a return
