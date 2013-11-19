@@ -198,10 +198,10 @@ pVMInvokable VMClass::LookupInvokable(pVMSymbol name) const {
     // look in super class
     if (HasSuperClass()) {
         return superClass->LookupInvokable(name);
-    } else {
-        name->UpdateCachedInvokable(this, invokable);
-        return invokable;
     }
+    
+    // invokable not found
+    return NULL;
 }
 
 long VMClass::LookupFieldIndex(pVMSymbol name) const {

@@ -285,9 +285,9 @@ void Interpreter::send(pVMSymbol signature, pVMClass receiverClass) {
 
 #ifdef USE_TAGGING
         if (IS_TAGGED(receiver))
-        GlobalBox::IntegerBox()->Send(dnu, arguments, 2);
+            GlobalBox::IntegerBox()->Send(dnu, arguments, 2);
         else
-        AS_POINTER(receiver)->Send(dnu, arguments, 2);
+            AS_POINTER(receiver)->Send(dnu, arguments, 2);
 #else
         receiver->Send(dnu, arguments, 2);
 #endif
