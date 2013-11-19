@@ -105,16 +105,16 @@ pVMClass SourcecodeCompiler::compile(pVMClass systemClass) {
         cout << "Parser not initiated" << endl;
         _UNIVERSE->ErrorExit("Compiler error");
     }
-    ClassGenerationContext* cgc = new ClassGenerationContext();
+    ClassGenerationContext cgc;
 
     pVMClass result = systemClass;
 
-    parser->Classdef(cgc);
+    parser->Classdef(&cgc);
 
-    if (systemClass == NULL) result = cgc->Assemble();
-    else cgc->AssembleSystemClass(result);
-
-    delete(cgc);
+    if (systemClass == NULL)
+        result = cgc.Assemble();
+    else
+        cgc.AssembleSystemClass(result);
 
     return result;
 }

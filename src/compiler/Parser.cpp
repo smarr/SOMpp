@@ -192,19 +192,18 @@ void Parser::Classdef(ClassGenerationContext* cgenc) {
     expect(NewTerm);
     instanceFields(cgenc);
     while (sym == Identifier || sym == Keyword || sym == OperatorSequence ||
-    symIn(binaryOpSyms)) {
+           symIn(binaryOpSyms)) {
 
-        MethodGenerationContext* mgenc = new MethodGenerationContext();
-        mgenc->SetHolder(cgenc);
-        mgenc->AddArgument("self");
+        MethodGenerationContext mgenc;
+        mgenc.SetHolder(cgenc);
+        mgenc.AddArgument("self");
 
-        method(mgenc);
+        method(&mgenc);
 
-        if(mgenc->IsPrimitive())
-            cgenc->AddInstanceMethod((mgenc->AssemblePrimitive()));
+        if(mgenc.IsPrimitive())
+            cgenc->AddInstanceMethod((mgenc.AssemblePrimitive()));
         else
-            cgenc->AddInstanceMethod((mgenc->Assemble()));
-        delete(mgenc);
+            cgenc->AddInstanceMethod((mgenc.Assemble()));
     }
 
     if (accept(Separator)) {
@@ -212,17 +211,16 @@ void Parser::Classdef(ClassGenerationContext* cgenc) {
         classFields(cgenc);
         while (sym == Identifier || sym == Keyword || sym == OperatorSequence ||
         symIn(binaryOpSyms)) {
-            MethodGenerationContext* mgenc = new MethodGenerationContext();
-            mgenc->SetHolder(cgenc);
-            mgenc->AddArgument("self");
+            MethodGenerationContext mgenc;
+            mgenc.SetHolder(cgenc);
+            mgenc.AddArgument("self");
 
-            method(mgenc);
+            method(&mgenc);
 
-            if(mgenc->IsPrimitive())
-                cgenc->AddClassMethod(mgenc->AssemblePrimitive());
+            if(mgenc.IsPrimitive())
+                cgenc->AddClassMethod(mgenc.AssemblePrimitive());
             else
-                cgenc->AddClassMethod(mgenc->Assemble());
-            delete(mgenc);
+                cgenc->AddClassMethod(mgenc.Assemble());
         }
     }
     expect(EndTerm);
