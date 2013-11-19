@@ -564,8 +564,10 @@ void Parser::unaryMessage(MethodGenerationContext* mgenc, bool super) {
     pVMSymbol msg = unarySelector();
     mgenc->AddLiteralIfAbsent(msg);
 
-    if(super) bcGen->EmitSUPERSEND(mgenc, msg);
-    else bcGen->EmitSEND(mgenc, msg);
+    if (super)
+        bcGen->EmitSUPERSEND(mgenc, msg);
+    else
+        bcGen->EmitSEND(mgenc, msg);
 
 }
 
@@ -576,10 +578,10 @@ void Parser::binaryMessage(MethodGenerationContext* mgenc, bool super) {
     bool tmp_bool = false;
     binaryOperand(mgenc, &tmp_bool);
 
-    if(super)
-    bcGen->EmitSUPERSEND(mgenc, msg);
+    if (super)
+        bcGen->EmitSUPERSEND(mgenc, msg);
     else
-    bcGen->EmitSEND(mgenc, msg);
+        bcGen->EmitSEND(mgenc, msg);
 
 }
 
