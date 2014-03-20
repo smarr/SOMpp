@@ -55,6 +55,9 @@ class VMMethod;
 class VMString;
 class VMBigInteger;
 class SourcecodeCompiler;
+class VMMutex;
+class VMSignal;
+class VMThread;
 
 //Convenience macro for Singleton access
 #define _UNIVERSE Universe::GetUniverse()
@@ -90,6 +93,10 @@ extern pVMClass falseClass;
 extern pVMSymbol symbolIfTrue;
 extern pVMSymbol symbolIfFalse;
 
+extern pVMClass threadClass;
+extern pVMClass mutexClass;
+extern pVMClass signalClass;
+
 using namespace std;
 class Universe {
 public:
@@ -109,11 +116,11 @@ public:
     Heap* GetHeap() {
         return heap;
     }
-    Interpreter* GetInterpreter() {
-        return interpreter;
-    }
     
-    //
+    Interpreter* GetInterpreter();
+    void AddInterpreter(Interpreter* interpreter);
+    void RemoveInterpreter();
+    vector<Interpreter*>* GetInterpreters();     //misschien heb ik dit zelfs niet meer nodig
 
     void Assert(bool) const;
 
@@ -140,6 +147,9 @@ public:
     pVMString NewString(const char*) const;
     pVMSymbol NewSymbol(const char*);
     pVMClass NewSystemClass(void) const;
+    pVMMutex NewMutex() const;
+    pVMSignal NewSignal() const;
+    pVMThread NewThread() const;
 
     void InitializeSystemClass(pVMClass, pVMClass, const char*);
 
@@ -168,7 +178,13 @@ public:
     //
     
     static bool IsValidObject(const pVMObject obj);
+    
 private:
+    
+    pthread_key_t interpreter;
+    pthread_mutex_t interpreterMutex;
+    vector<Interpreter*> interpreters;
+    
     vector<StdString> handleArguments(long argc, char** argv);
     long getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;
 
@@ -186,7 +202,6 @@ private:
     map<long,pVMClass> blockClassesByNoOfArgs;
     vector<StdString> classPath;
 
-    Interpreter* interpreter;
 };
 
 #endif

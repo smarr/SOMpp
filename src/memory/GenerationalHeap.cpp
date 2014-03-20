@@ -29,6 +29,7 @@ GenerationalHeap::GenerationalHeap(long objectSpaceSize) {
 }
 
 AbstractVMObject* GenerationalHeap::AllocateNurseryObject(size_t size) {
+    pthread_mutex_lock(&allocationLock);
     AbstractVMObject* newObject = (AbstractVMObject*) nextFreePosition;
     nextFreePosition = (void*)((size_t)nextFreePosition + size);
     if ((size_t)nextFreePosition > nursery_end) {
@@ -38,10 +39,12 @@ AbstractVMObject* GenerationalHeap::AllocateNurseryObject(size_t size) {
     //let's see if we have to trigger the GC
     if (nextFreePosition > collectionLimit)
         triggerGC();
+    pthread_mutex_unlock(&allocationLock);
     return newObject;
 }
 
 AbstractVMObject* GenerationalHeap::AllocateMatureObject(size_t size) {
+    pthread_mutex_lock(&allocationLock);
     VMOBJECT_PTR newObject = (VMOBJECT_PTR)malloc(size);
     if (newObject == NULL) {
         cout << "Failed to allocate " << size << " Bytes." << endl;
@@ -49,6 +52,7 @@ AbstractVMObject* GenerationalHeap::AllocateMatureObject(size_t size) {
     }
     allocatedObjects->push_back(newObject);
     matureObjectsSize += size;
+    pthread_mutex_unlock(&allocationLock);
     return newObject;
 }
 

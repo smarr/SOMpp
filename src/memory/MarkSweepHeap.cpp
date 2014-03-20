@@ -17,6 +17,7 @@ MarkSweepHeap::MarkSweepHeap(long objectSpaceSize) {
 }
 
 AbstractVMObject* MarkSweepHeap::AllocateObject(size_t size) {
+    pthread_mutex_lock(&allocationLock);
     //TODO: PADDING wird eigentlich auch durch malloc erledigt
     AbstractVMObject* newObject = (AbstractVMObject*) malloc(size);
     if (newObject == NULL) {
@@ -31,6 +32,7 @@ AbstractVMObject* MarkSweepHeap::AllocateObject(size_t size) {
     //let's see if we have to trigger the GC
     if (spcAlloc >= collectionLimit)
     triggerGC();
+    pthread_mutex_unlock(&allocationLock);
     return newObject;
 }
 

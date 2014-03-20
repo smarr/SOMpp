@@ -40,6 +40,10 @@
 #include "String.h"
 #include "Symbol.h"
 #include "System.h"
+#include "Thread.h"
+#include "Mutex.h"
+#include "Delay.h"
+#include "Signal.h"
 
 #include "../primitivesCore/PrimitiveContainer.h"
 #include "../primitivesCore/PrimitiveLoader.h"
@@ -94,6 +98,18 @@ extern "C" void setup() {
 
         loader->AddPrimitiveObject("System",
                 static_cast<PrimitiveContainer*>(new _System()));
+        
+        loader->AddPrimitiveObject("Thread",
+                static_cast<PrimitiveContainer*>(new _Thread()));
+        
+        loader->AddPrimitiveObject("Mutex",
+                static_cast<PrimitiveContainer*>(new _Mutex()));
+        
+        loader->AddPrimitiveObject("Signal",
+                static_cast<PrimitiveContainer*>(new _Signal()));
+        
+        loader->AddPrimitiveObject("Delay",
+                static_cast<PrimitiveContainer*>(new _Delay()));
     }
 }
 

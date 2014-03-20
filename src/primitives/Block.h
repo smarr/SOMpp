@@ -41,6 +41,16 @@ public:
     void Restart(pVMObject object, pVMFrame frame);
     void Value_(pVMObject object, pVMFrame frame);
     void Value_with_(pVMObject object, pVMFrame frame);
+    
+    void Spawn(pVMObject object, pVMFrame frame);
+    void SpawnWithArgument(pVMObject object, pVMFrame frame);
+    
+private:
+    static pVMMethod CreateFakeBootstrapMethod();
+    static pVMThread CreateNewThread(pVMBlock);
+    static void* ThreadForBlock(void* threadPointer);
+    static void* ThreadForBlockWithArgument(void*);
+    
 };
 
 #endif

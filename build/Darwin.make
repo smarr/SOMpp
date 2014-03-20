@@ -58,6 +58,7 @@ TEST_DIR	?= $(ROOT_DIR)/core-lib/TestSuite
 
 
 COMPILER_DIR 	= $(SRC_DIR)/compiler
+THREAD_DIR    	= $(SRC_DIR)/natives
 INTERPRETER_DIR = $(SRC_DIR)/interpreter
 MEMORY_DIR 		= $(SRC_DIR)/memory
 MISC_DIR 		= $(SRC_DIR)/misc
@@ -66,6 +67,8 @@ VMOBJECTS_DIR 	= $(SRC_DIR)/vmobjects
 
 COMPILER_SRC	= $(wildcard $(COMPILER_DIR)/*.cpp)
 COMPILER_OBJ	= $(COMPILER_SRC:.cpp=.o)
+THREAD_SRC	    = $(wildcard $(THREAD_DIR)/*.cpp)
+THREAD_OBJ	    = $(THREAD_SRC:.cpp=.o)
 INTERPRETER_SRC	= $(wildcard $(INTERPRETER_DIR)/*.cpp)
 INTERPRETER_OBJ	= $(INTERPRETER_SRC:.cpp=.o)
 MEMORY_SRC		= $(wildcard $(MEMORY_DIR)/*.cpp)
@@ -103,13 +106,13 @@ LIBRARIES		=-L$(ROOT_DIR)
 ############## Collections.
 
 CSOM_OBJ		=  $(MEMORY_OBJ) $(MISC_OBJ) $(VMOBJECTS_OBJ) \
-				$(COMPILER_OBJ) $(INTERPRETER_OBJ) $(VM_OBJ)
+				$(COMPILER_OBJ) $(INTERPRETER_OBJ) $(VM_OBJ) $(THREAD_OBJ)
 
 OBJECTS			= $(CSOM_OBJ) $(PRIMITIVESCORE_OBJ) $(PRIMITIVES_OBJ) $(MAIN_OBJ)
 
 SOURCES			=  $(COMPILER_SRC) $(INTERPRETER_SRC) $(MEMORY_SRC) \
 				$(MISC_SRC) $(VM_SRC) $(VMOBJECTS_SRC)  \
-				$(PRIMITIVES_SRC) $(PRIMITIVESCORE_SRC) $(MAIN_SRC)
+				$(PRIMITIVES_SRC) $(PRIMITIVESCORE_SRC) $(MAIN_SRC) $(THREAD_SRC)
 
 ############# Things to clean
 

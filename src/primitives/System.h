@@ -49,9 +49,11 @@ public:
     void Time(pVMObject object, pVMFrame frame);
     void Ticks(pVMObject object, pVMFrame frame);
     void FullGC(pVMObject object, pVMFrame frame);
+    void GetNumberOfCPUs(pVMObject object, pVMFrame frame);
 
 private:
     struct timeval start_time;
+    pthread_mutex_t outputMutex;
 };
 
 #endif

@@ -46,6 +46,10 @@
 #include <vmobjects/VMBigInteger.h>
 #include <vmobjects/VMEvaluationPrimitive.h>
 
+#include <natives/VMThread.h>
+#include <natives/VMMutex.h>
+#include <natives/VMSignal.h>
+
 #include <interpreter/bytecodes.h>
 
 #include <compiler/Disassembler.h>
@@ -96,6 +100,10 @@ pVMClass doubleClass;
 
 pVMClass trueClass;
 pVMClass falseClass;
+
+pVMClass threadClass;
+pVMClass mutexClass;
+pVMClass signalClass;
 
 pVMSymbol symbolIfTrue;
 pVMSymbol symbolIfFalse;
@@ -301,7 +309,8 @@ void Universe::printUsageAndExit(char* executable) const {
 }
 
 Universe::Universe() {
-    this->interpreter = NULL;
+    pthread_key_create(&interpreter, NULL);
+    pthread_mutex_init(&interpreterMutex, NULL);
 }
 
 void Universe::initialize(long _argc, char** _argv) {
@@ -321,7 +330,8 @@ void Universe::initialize(long _argc, char** _argv) {
 
     heap = _HEAP;
 
-    interpreter = new Interpreter();
+    interpreters = vector<Interpreter*>();
+    this->AddInterpreter(new Interpreter);
 
 #ifdef CACHE_INTEGER
     //create prebuilt integers
@@ -352,6 +362,12 @@ void Universe::initialize(long _argc, char** _argv) {
 
     bootstrapMethod->SetMaximumNumberOfStackElements(2);
     bootstrapMethod->SetHolder(systemClass);
+    
+    pVMThread thread = NewThread();
+    pVMSignal signal = NewSignal();
+    thread->SetResumeSignal(signal);
+    thread->SetShouldStop(false);
+    this->GetInterpreter()->SetThread(thread);
 
     if (argv.size() == 0) {
         Shell* shell = new Shell(bootstrapMethod);
@@ -366,7 +382,7 @@ void Universe::initialize(long _argc, char** _argv) {
 
     pVMArray argumentsArray = NewArrayFromStrings(argv);
 
-    pVMFrame bootstrapFrame = interpreter->PushNewFrame(bootstrapMethod);
+    pVMFrame bootstrapFrame = this->GetInterpreter()->PushNewFrame(bootstrapMethod);
     bootstrapFrame->Push(systemObject);
     bootstrapFrame->Push(argumentsArray);
 
@@ -377,14 +393,16 @@ void Universe::initialize(long _argc, char** _argv) {
     // reset "-d" indicator
     if (!(trace > 0))
         dumpBytecodes = 2 - trace;
-
-    interpreter->Start();
+    
+    this->GetInterpreter()->Start();
+    pthread_exit(0);
 }
 
 Universe::~Universe() {
-    if (interpreter)
-        delete (interpreter);
-
+    
+    pthread_key_delete(interpreter);
+    pthread_mutex_destroy(&interpreterMutex);
+    
     // check done inside
     Heap::DestroyHeap();
 }
@@ -409,6 +427,9 @@ Universe::~Universe() {
     void* vt_primitive;
     void* vt_string;
     void* vt_symbol;
+    void* vt_thread;
+    void* vt_mutex;
+    void* vt_signal;
 
     bool Universe::IsValidObject(const pVMObject const obj) {
         if (obj == (pVMObject) INVALID_POINTER
@@ -438,7 +459,10 @@ Universe::~Universe() {
                vt == vt_object     ||
                vt == vt_primitive  ||
                vt == vt_string     ||
-               vt == vt_symbol;
+               vt == vt_symbol     ||
+               vt == vt_thread     ||
+               vt == vt_mutex      ||
+               vt == vt_signal;
         assert(b);
         return b;
     }
@@ -457,6 +481,9 @@ Universe::~Universe() {
         vt_primitive  = nullptr;
         vt_string     = nullptr;
         vt_symbol     = nullptr;
+        vt_thread     = nullptr;
+        vt_mutex      = nullptr;
+        vt_signal     = nullptr;
     }
 
     static void obtain_vtables_of_known_classes(pVMSymbol className) {
@@ -493,6 +520,15 @@ Universe::~Universe() {
         pVMString str = new (_HEAP) VMString("");
         vt_string     = *(void**) str;
         vt_symbol     = *(void**) className;
+        
+        pVMThread thr = new (_HEAP) VMThread();
+        vt_thread     = *(void**) thr;
+        
+        pVMMutex mtx  = new (_HEAP) VMMutex();
+        vt_mutex      = *(void**) mtx;
+        
+        pVMSignal sgnl = new (_HEAP) VMSignal();
+        vt_signal      = *(void**) sgnl;
     }
 #endif
 
@@ -518,6 +554,9 @@ void Universe::InitializeGlobals() {
     primitiveClass = NewSystemClass();
     stringClass = NewSystemClass();
     doubleClass = NewSystemClass();
+    threadClass = NewSystemClass();
+    mutexClass = NewSystemClass();
+    signalClass = NewSystemClass();
 
     nilObject->SetClass(nilClass);
 
@@ -535,6 +574,9 @@ void Universe::InitializeGlobals() {
             "Primitive");
     InitializeSystemClass(stringClass, objectClass, "String");
     InitializeSystemClass(doubleClass, objectClass, "Double");
+    InitializeSystemClass(threadClass, objectClass, "Thread");
+    InitializeSystemClass(mutexClass, objectClass, "Mutex");
+    InitializeSystemClass(signalClass, objectClass, "Signal");
 
     // Fix up objectClass
     objectClass->SetSuperClass((pVMClass) nilObject);
@@ -551,6 +593,9 @@ void Universe::InitializeGlobals() {
     LoadSystemClass(primitiveClass);
     LoadSystemClass(stringClass);
     LoadSystemClass(doubleClass);
+    LoadSystemClass(threadClass);
+    LoadSystemClass(mutexClass);
+    LoadSystemClass(signalClass);
 
     blockClass = LoadClass(SymbolForChars("Block"));
 
@@ -940,7 +985,7 @@ void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     symbolIfTrue  = symbolsMap["ifTrue:"];
     symbolIfFalse = symbolsMap["ifFalse:"];
     
-    interpreter->WalkGlobals(walk);
+    this->GetInterpreter()->WalkGlobals(walk);
 }
 
 pVMMethod Universe::NewMethod( pVMSymbol signature,
@@ -961,6 +1006,33 @@ pVMMethod Universe::NewMethod( pVMSymbol signature,
     LOG_ALLOCATION("VMMethod", result->GetObjectSize());
 #endif
 
+    return result;
+}
+
+pVMMutex Universe::NewMutex() const {
+    pVMMutex result = new (_HEAP) VMMutex();
+    result->SetClass(mutexClass);
+#ifdef GENERATE_ALLOCATION_STATISTICS
+    LOG_ALLOCATION("VMMutex", sizeof(VMMutex));
+#endif
+    return result;
+}
+
+pVMSignal Universe::NewSignal() const {
+    pVMSignal result = new (_HEAP) VMSignal();
+    result->SetClass(signalClass);
+#ifdef GENERATE_ALLOCATION_STATISTICS
+    LOG_ALLOCATION("VMSignal", sizeof(VMSignal));
+#endif
+    return result;
+}
+
+pVMThread Universe::NewThread() const {
+    pVMThread result = new (_HEAP) VMThread();
+    result->SetClass(threadClass);
+#ifdef GENERATE_ALLOCATION_STATISTICS
+    LOG_ALLOCATION("VMThread", sizeof(VMThread));
+#endif
     return result;
 }
 
@@ -1014,4 +1086,27 @@ pVMSymbol Universe::SymbolForChars(const char* str) {
 
 void Universe::SetGlobal(pVMSymbol name, pVMObject val) {
     globals[name] = val;
+}
+
+Interpreter* Universe::GetInterpreter() {
+    return (Interpreter*)pthread_getspecific(this->interpreter);
+}
+
+void Universe::AddInterpreter(Interpreter* interpreter) {
+    pthread_setspecific(this->interpreter, interpreter);
+    pthread_mutex_lock(&interpreterMutex);
+    interpreters.push_back(interpreter);
+    pthread_mutex_unlock(&interpreterMutex);
+}
+
+void Universe::RemoveInterpreter() {
+    pthread_mutex_lock(&interpreterMutex);
+    //vector<Interpreter*>::iterator position = find(interpreters.begin(), interpreters.end(), this->GetInterpreter());
+    //interpreters.erase(position);
+    //pthread_key_delete(this->interpreter);
+    pthread_mutex_unlock(&interpreterMutex);
+}
+
+vector<Interpreter*> * Universe::GetInterpreters() {
+    return &interpreters;
 }

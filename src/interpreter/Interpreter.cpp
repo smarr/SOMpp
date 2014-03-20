@@ -48,7 +48,10 @@
 #define _SELF this->GetSelf()
 
 Interpreter::Interpreter() {
+    this->thread = NULL;
     this->frame = NULL;
+    
+    //TODO PAGED: _HEAP->RequestPage();
 
     uG = "unknownGlobal:";
     dnu = "doesNotUnderstand:arguments:";
@@ -81,9 +84,9 @@ Interpreter::~Interpreter() {
 
 // The following three variables are used to cache main parts of the
 // current execution context
-long      bytecodeIndexGlobal;
+/* long      bytecodeIndexGlobal;
 pVMMethod method;
-uint8_t*  currentBytecodes;
+uint8_t*  currentBytecodes; */
 
 void Interpreter::Start() {
     // initialization
@@ -128,18 +131,22 @@ LABEL_BC_PUSH_LOCAL:
   PROLOGUE(3);
 doPushLocal(bytecodeIndexGlobal - 3);
   DISPATCH_NOGC();
+
 LABEL_BC_PUSH_ARGUMENT:
   PROLOGUE(3);
-doPushArgument(bytecodeIndexGlobal - 3);
+  doPushArgument(bytecodeIndexGlobal - 3);
   DISPATCH_NOGC();
+
 LABEL_BC_PUSH_FIELD:
   PROLOGUE(2);
-doPushField(bytecodeIndexGlobal - 2);
+  doPushField(bytecodeIndexGlobal - 2);
   DISPATCH_NOGC();
+
 LABEL_BC_PUSH_BLOCK:
   PROLOGUE(2);
-doPushBlock(bytecodeIndexGlobal - 2);
+  doPushBlock(bytecodeIndexGlobal - 2);
   DISPATCH_GC();
+
 LABEL_BC_PUSH_CONSTANT:
   PROLOGUE(2);
 doPushConstant(bytecodeIndexGlobal - 2);
@@ -245,6 +252,7 @@ void Interpreter::popFrameAndPushResult(pVMObject result) {
 }
 
 void Interpreter::send(pVMSymbol signature, pVMClass receiverClass) {
+    
     pVMInvokable invokable = receiverClass->LookupInvokable(signature);
 
     if (invokable != NULL) {
@@ -435,7 +443,7 @@ void Interpreter::doSend(long bytecodeIndex) {
 
     long numOfArgs = Signature::GetNumberOfArguments(signature);
 
-    pVMObject receiver = _FRAME->GetStackElement(numOfArgs-1);
+    pVMObject receiver = frame->GetStackElement(numOfArgs-1);
     assert(Universe::IsValidObject(receiver));
     assert(dynamic_cast<pVMClass>((pVMObject)receiver->GetClass()) != nullptr); // make sure it is really a class
     
@@ -547,4 +555,12 @@ void Interpreter::doJump(long bytecodeIndex) {
 
 void Interpreter::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     method = (pVMMethod) walk(method);
+}
+
+pVMThread Interpreter::GetThread(void) {
+    return this->thread;
+}
+
+void Interpreter::SetThread(pVMThread thread) {
+    this->thread = thread;
 }

@@ -12,6 +12,7 @@
 #include "../vmobjects/VMBlock.h"
 #include "../vmobjects/VMPrimitive.h"
 #include "../vmobjects/VMClass.h"
+#include "../natives/VMThread.h"
 #include "../vmobjects/VMEvaluationPrimitive.h"
 
 #define INITIAL_MAJOR_COLLECTION_THRESHOLD (5 * 1024 * 1024) //5 MB
@@ -33,7 +34,6 @@ VMOBJECT_PTR mark_object(VMOBJECT_PTR obj) {
 
     obj->SetGCField(MASK_OBJECT_IS_OLD | MASK_OBJECT_IS_MARKED);
     obj->WalkObjects(&mark_object);
-    
     return obj;
 }
 
@@ -78,7 +78,7 @@ void GenerationalCollector::MinorCollection() {
     // walk all globals
     _UNIVERSE->WalkGlobals(&copy_if_necessary);
 
-    // and the current frame
+    // and the current frames and threads
     pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
     if (currentFrame != NULL) {
         pVMFrame newFrame = static_cast<pVMFrame>(copy_if_necessary(currentFrame));
@@ -134,8 +134,6 @@ void GenerationalCollector::MajorCollection() {
 
 void GenerationalCollector::Collect() {
     Timer::GCTimer->Resume();
-    //reset collection trigger
-    heap->resetGCTrigger();
 
     MinorCollection();
     if (_HEAP->matureObjectsSize > majorCollectionThreshold)
@@ -144,7 +142,30 @@ void GenerationalCollector::Collect() {
         majorCollectionThreshold = 2 * _HEAP->matureObjectsSize;
 
     }
+    
+    //reset collection trigger
+    heap->resetGCTrigger();
+    
     Timer::GCTimer->Halt();
+}
+
+void GenerationalCollector::CopyInterpretersFrameAndThread() {
+    vector<Interpreter*>* interpreters = _UNIVERSE->GetInterpreters();
+    for (std::vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
+        // Get the current frame and thread of each interpreter and mark it.
+        // Since marking is done recursively, this automatically
+        // marks the whole stack
+        pVMFrame currentFrame = (*it)->GetFrame();
+        if (currentFrame != NULL) {
+            pVMFrame newFrame = static_cast<pVMFrame>(copy_if_necessary(currentFrame));
+            (*it)->SetFrame(newFrame);
+        }
+        pVMThread currentThread = (*it)->GetThread();
+        if (currentThread != NULL) {
+            pVMThread newThread = static_cast<pVMThread>(copy_if_necessary(currentThread));
+            (*it)->SetThread(newThread);
+        }
+    }
 }
 
 #endif

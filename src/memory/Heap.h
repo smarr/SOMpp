@@ -29,6 +29,7 @@
  */
 
 #include <vector>
+#include <pthread.h>
 #include <set>
 #include <cstdlib>
 #include "GarbageCollector.h"
@@ -65,12 +66,26 @@ public:
     bool isCollectionTriggered(void);
     void FullGC();
     inline void FreeObject(AbstractVMObject* o);
+    void IncrementThreadCount();
+    void DecrementThreadCount();
+    void WaitForGC();
+    void WaitForGCIfNecessary();
+    void IncrementWaitingForGCThreads();
+    void DecrementWaitingForGCThreads();
+    
 protected:
     GarbageCollector* gc;
+    pthread_mutex_t doCollect;
+    pthread_mutex_t threadCountMutex;
+    pthread_mutex_t allocationLock;
+    pthread_cond_t stopTheWorldCondition;
+    pthread_cond_t mayProceed;
 private:
     static HEAP_CLS* theHeap;
     //flag that shows if a Collection is triggered
     bool gcTriggered;
+    int threadCount = 0;
+    int readyForGCThreads = 0;
 };
 
 HEAP_CLS* Heap::GetHeap() {

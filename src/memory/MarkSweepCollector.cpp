@@ -12,8 +12,6 @@
 void MarkSweepCollector::Collect() {
     MarkSweepHeap* heap = _HEAP;
     Timer::GCTimer->Resume();
-    //reset collection trigger
-    heap->resetGCTrigger();
 
     //now mark all reachables
     markReachableObjects();
@@ -42,6 +40,10 @@ void MarkSweepCollector::Collect() {
     heap->spcAlloc = survivorsSize;
     //TODO: Maybe choose another constant to calculate new collectionLimit here
     heap->collectionLimit = 2 * survivorsSize;
+    
+    //reset collection trigger
+    heap->resetGCTrigger();
+    
     Timer::GCTimer->Halt();
 }
 
@@ -60,13 +62,27 @@ VMOBJECT_PTR mark_object(VMOBJECT_PTR obj) {
 
 void MarkSweepCollector::markReachableObjects() {
     _UNIVERSE->WalkGlobals(mark_object);
-    // Get the current frame and mark it.
-    // Since marking is done recursively, this automatically
-    // marks the whole stack
-    pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
-    if (currentFrame != NULL) {
-        pVMFrame newFrame = static_cast<pVMFrame>(mark_object(currentFrame));
-        _UNIVERSE->GetInterpreter()->SetFrame(newFrame);
+    MarkInterpretersFrameAndThread()
+}
+
+void MarkSweepCollector::MarkInterpretersFrameAndThread() {
+    vector<Interpreter*>* interpreters = _UNIVERSE->GetInterpreters();
+    for (std::vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
+        // Get the current frame and thread of each interpreter and mark it.
+        // Since marking is done recursively, this automatically
+        // marks the whole stack
+        pVMFrame currentFrame = (*it)->GetFrame();
+        if (currentFrame != NULL) {
+            pVMFrame newFrame = static_cast<pVMFrame>(mark_object(currentFrame));
+            (*it)->SetFrame(newFrame);
+            
+        }
+        pVMThread currentThread = (*it)->GetThread();
+        if (currentThread != NULL) {
+            pVMThread newThread = static_cast<pVMThread>(mark_object(currentThread));
+            (*it)->SetThread(newThread);
+        }
     }
 }
+
 #endif

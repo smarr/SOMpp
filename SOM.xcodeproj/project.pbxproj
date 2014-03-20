@@ -68,6 +68,13 @@
 		0A335F6E1832D64100D7CFC8 /* Method.h in Headers */ = {isa = PBXBuildFile; fileRef = 0A335F6C1832D64100D7CFC8 /* Method.h */; };
 		0A335F711832D65100D7CFC8 /* Primitive.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A335F6F1832D65100D7CFC8 /* Primitive.cpp */; };
 		0A335F721832D65100D7CFC8 /* Primitive.h in Headers */ = {isa = PBXBuildFile; fileRef = 0A335F701832D65100D7CFC8 /* Primitive.h */; };
+		908B99AA18D027BF00A148C4 /* Mutex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9004031818CD72D100C0410A /* Mutex.cpp */; };
+		908B99AB18D027C700A148C4 /* Delay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9004031518CD5E7400C0410A /* Delay.cpp */; };
+		908B99AC18D027E100A148C4 /* Signal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9004031918CD72D100C0410A /* Signal.cpp */; };
+		908B99AD18D027EA00A148C4 /* Thread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9004031F18CD735E00C0410A /* Thread.cpp */; };
+		90CBCF7B18C6BD060067954D /* VMMutex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90CBCF7A18C6BD060067954D /* VMMutex.cpp */; };
+		90CBCF7E18C6BD540067954D /* VMSignal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90CBCF7D18C6BD540067954D /* VMSignal.cpp */; };
+		90CBCF8118C6BDB70067954D /* VMThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90CBCF8018C6BDB70067954D /* VMThread.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -224,6 +231,20 @@
 		3F5203560FA6624C00E75857 /* VMString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMString.h; sourceTree = "<group>"; };
 		3F5203570FA6624C00E75857 /* VMSymbol.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VMSymbol.cpp; sourceTree = "<group>"; };
 		3F5203580FA6624C00E75857 /* VMSymbol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMSymbol.h; sourceTree = "<group>"; };
+		9004031518CD5E7400C0410A /* Delay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Delay.cpp; sourceTree = "<group>"; };
+		9004031618CD5E7400C0410A /* Delay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Delay.h; sourceTree = "<group>"; };
+		9004031818CD72D100C0410A /* Mutex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Mutex.cpp; sourceTree = "<group>"; };
+		9004031918CD72D100C0410A /* Signal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Signal.cpp; sourceTree = "<group>"; };
+		9004031A18CD72D100C0410A /* Mutex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mutex.h; sourceTree = "<group>"; };
+		9004031B18CD72D100C0410A /* Signal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Signal.h; sourceTree = "<group>"; };
+		9004031E18CD735E00C0410A /* Thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Thread.h; sourceTree = "<group>"; };
+		9004031F18CD735E00C0410A /* Thread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Thread.cpp; sourceTree = "<group>"; };
+		90CBCF7918C6BCC60067954D /* VMMutex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = VMMutex.h; path = natives/VMMutex.h; sourceTree = "<group>"; };
+		90CBCF7A18C6BD060067954D /* VMMutex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VMMutex.cpp; path = natives/VMMutex.cpp; sourceTree = "<group>"; };
+		90CBCF7C18C6BD3B0067954D /* VMSignal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = VMSignal.h; path = natives/VMSignal.h; sourceTree = "<group>"; };
+		90CBCF7D18C6BD540067954D /* VMSignal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VMSignal.cpp; path = natives/VMSignal.cpp; sourceTree = "<group>"; };
+		90CBCF7F18C6BDA70067954D /* VMThread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = VMThread.h; path = /Users/Jeroen/SOMpp/src/natives/VMThread.h; sourceTree = "<absolute>"; };
+		90CBCF8018C6BDB70067954D /* VMThread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VMThread.cpp; path = natives/VMThread.cpp; sourceTree = "<group>"; };
 		E18AE2800FB1C44700EE6540 /* Array.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Array.som; sourceTree = "<group>"; };
 		E18AE2810FB1C44700EE6540 /* BigInteger.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BigInteger.som; sourceTree = "<group>"; };
 		E18AE2820FB1C44700EE6540 /* Block.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Block.som; sourceTree = "<group>"; };
@@ -378,6 +399,7 @@
 		3F5202EF0FA6624C00E75857 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				90CBCF7818C6BC4E0067954D /* natives */,
 				3F5202F00FA6624C00E75857 /* compiler */,
 				3F5203000FA6624C00E75857 /* interpreter */,
 				3F5203050FA6624C00E75857 /* Main.cpp */,
@@ -472,22 +494,30 @@
 				3F5203190FA6624C00E75857 /* Class.h */,
 				3F52031A0FA6624C00E75857 /* Core.cpp */,
 				3F52031B0FA6624C00E75857 /* Core.h */,
+				9004031518CD5E7400C0410A /* Delay.cpp */,
+				9004031618CD5E7400C0410A /* Delay.h */,
 				3F52031C0FA6624C00E75857 /* Double.cpp */,
 				3F52031D0FA6624C00E75857 /* Double.h */,
 				3F52031E0FA6624C00E75857 /* Integer.cpp */,
 				3F52031F0FA6624C00E75857 /* Integer.h */,
 				0A335F6B1832D64100D7CFC8 /* Method.cpp */,
 				0A335F6C1832D64100D7CFC8 /* Method.h */,
+				9004031818CD72D100C0410A /* Mutex.cpp */,
+				9004031A18CD72D100C0410A /* Mutex.h */,
 				3F5203200FA6624C00E75857 /* Object.cpp */,
 				3F5203210FA6624C00E75857 /* Object.h */,
 				0A335F6F1832D65100D7CFC8 /* Primitive.cpp */,
 				0A335F701832D65100D7CFC8 /* Primitive.h */,
+				9004031918CD72D100C0410A /* Signal.cpp */,
+				9004031B18CD72D100C0410A /* Signal.h */,
 				3F5203220FA6624C00E75857 /* String.cpp */,
 				3F5203230FA6624C00E75857 /* String.h */,
 				3F5203240FA6624C00E75857 /* Symbol.cpp */,
 				3F5203250FA6624C00E75857 /* Symbol.h */,
 				3F5203260FA6624C00E75857 /* System.cpp */,
 				3F5203270FA6624C00E75857 /* System.h */,
+				9004031F18CD735E00C0410A /* Thread.cpp */,
+				9004031E18CD735E00C0410A /* Thread.h */,
 			);
 			path = primitives;
 			sourceTree = "<group>";
@@ -555,6 +585,19 @@
 				3F5203580FA6624C00E75857 /* VMSymbol.h */,
 			);
 			path = vmobjects;
+			sourceTree = "<group>";
+		};
+		90CBCF7818C6BC4E0067954D /* natives */ = {
+			isa = PBXGroup;
+			children = (
+				90CBCF7918C6BCC60067954D /* VMMutex.h */,
+				90CBCF7A18C6BD060067954D /* VMMutex.cpp */,
+				90CBCF7C18C6BD3B0067954D /* VMSignal.h */,
+				90CBCF7D18C6BD540067954D /* VMSignal.cpp */,
+				90CBCF7F18C6BDA70067954D /* VMThread.h */,
+				90CBCF8018C6BDB70067954D /* VMThread.cpp */,
+			);
+			name = natives;
 			sourceTree = "<group>";
 		};
 		E18AE27F0FB1C44700EE6540 /* Smalltalk */ = {
@@ -808,7 +851,10 @@
 				0A1886FF1832BCF500A2CBCA /* VMFrame.cpp in Sources */,
 				0A1886E41832BCD300A2CBCA /* Interpreter.cpp in Sources */,
 				0A1886E71832BCDC00A2CBCA /* Heap.cpp in Sources */,
+				90CBCF8118C6BDB70067954D /* VMThread.cpp in Sources */,
+				90CBCF7B18C6BD060067954D /* VMMutex.cpp in Sources */,
 				0A1886F71832BCF500A2CBCA /* Signature.cpp in Sources */,
+				90CBCF7E18C6BD540067954D /* VMSignal.cpp in Sources */,
 				0A1887351832C10E00A2CBCA /* MarkSweepCollector.cpp in Sources */,
 				0A1886FB1832BCF500A2CBCA /* VMBlock.cpp in Sources */,
 				0A1887391832C12E00A2CBCA /* Timer.cpp in Sources */,
@@ -847,6 +893,7 @@
 				0A1886F31832BCE700A2CBCA /* PrimitiveContainer.cpp in Sources */,
 				0A1886F21832BCE700A2CBCA /* System.cpp in Sources */,
 				0A1886F41832BCE700A2CBCA /* PrimitiveLoader.cpp in Sources */,
+				908B99AB18D027C700A148C4 /* Delay.cpp in Sources */,
 				0A1886EC1832BCE700A2CBCA /* Core.cpp in Sources */,
 				0A335F711832D65100D7CFC8 /* Primitive.cpp in Sources */,
 				0A1886EB1832BCE700A2CBCA /* Class.cpp in Sources */,
@@ -856,7 +903,10 @@
 				0A335F6D1832D64100D7CFC8 /* Method.cpp in Sources */,
 				0A1886E91832BCE700A2CBCA /* BigInteger.cpp in Sources */,
 				0A1886ED1832BCE700A2CBCA /* Double.cpp in Sources */,
+				908B99AD18D027EA00A148C4 /* Thread.cpp in Sources */,
+				908B99AC18D027E100A148C4 /* Signal.cpp in Sources */,
 				0A1886EA1832BCE700A2CBCA /* Block.cpp in Sources */,
+				908B99AA18D027BF00A148C4 /* Mutex.cpp in Sources */,
 				0A1886E81832BCE700A2CBCA /* Array.cpp in Sources */,
 				0A1886EF1832BCE700A2CBCA /* Object.cpp in Sources */,
 			);
@@ -1073,8 +1123,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				MAKE_ARGS = debug;
 				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
@@ -1082,7 +1134,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				MAKE_ARGS = all;
+				SDKROOT = macosx;
 			};
 			name = Release;
 		};

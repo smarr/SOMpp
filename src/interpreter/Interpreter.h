@@ -39,6 +39,7 @@ class VMObject;
 class VMSymbol;
 class VMClass;
 class AbstractVMObject;
+class VMThread;
 
 class Interpreter {
 public:
@@ -46,12 +47,16 @@ public:
     ~Interpreter();
     
     void      Start();
+    pVMThread GetThread();
+    void      SetThread(pVMThread thread);
     pVMFrame  PushNewFrame(pVMMethod method);
     void      SetFrame(pVMFrame frame);
     pVMFrame  GetFrame();
     pVMObject GetSelf();
     void      WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
+    
 private:
+    pVMThread thread;
     pVMFrame frame;
     StdString uG;
     StdString dnu;
@@ -79,6 +84,12 @@ private:
     void doJumpIfFalse(long bytecodeIndex);
     void doJumpIfTrue(long bytecodeIndex);
     void doJump(long bytecodeIndex);
+    
+    // The following three variables are used to cache main parts of the
+    // current execution context
+    long      bytecodeIndexGlobal;
+    pVMMethod method;
+    uint8_t*  currentBytecodes;
 };
 
 #endif

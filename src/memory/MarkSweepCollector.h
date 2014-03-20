@@ -12,6 +12,7 @@ public:
     void Collect();
 private:
     void markReachableObjects();
+    void MarkInterpretersFrameAndThread();
 };
 
 #endif

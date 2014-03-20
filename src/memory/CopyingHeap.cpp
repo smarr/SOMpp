@@ -31,6 +31,7 @@ void CopyingHeap::switchBuffers() {
 }
 
 AbstractVMObject* CopyingHeap::AllocateObject(size_t size) {
+    pthread_mutex_lock(&allocationLock);
     AbstractVMObject* newObject = (AbstractVMObject*) nextFreePosition;
     nextFreePosition = (void*)((size_t)nextFreePosition + size);
     if (nextFreePosition > currentBufferEnd) {
@@ -40,6 +41,7 @@ AbstractVMObject* CopyingHeap::AllocateObject(size_t size) {
     //let's see if we have to trigger the GC
     if (nextFreePosition > collectionLimit)
     triggerGC();
+    pthread_mutex_unlock(&allocationLock);
     return newObject;
 }
 #endif

@@ -49,6 +49,11 @@
 
 #endif
 
+#ifdef __APPLE__
+    #include <sys/types.h>
+    #include <sys/sysctl.h>
+#endif
+
 _System* System_;
 
 void _System::Global_(pVMObject /*object*/, pVMFrame frame) {
@@ -92,11 +97,15 @@ void _System::Exit_(pVMObject /*object*/, pVMFrame frame) {
 void _System::PrintString_(pVMObject /*object*/, pVMFrame frame) {
     pVMString arg = static_cast<pVMString>(frame->Pop());
     std::string str = arg->GetStdString();
+    pthread_mutex_lock(&outputMutex);
     cout << str;
+    pthread_mutex_unlock(&outputMutex);
 }
 
 void _System::PrintNewline(pVMObject /*object*/, pVMFrame /*frame*/) {
+    pthread_mutex_lock(&outputMutex);
     cout << endl;
+    pthread_mutex_unlock(&outputMutex);
 }
 
 void _System::Time(pVMObject /*object*/, pVMFrame frame) {
@@ -137,8 +146,36 @@ void _System::FullGC(pVMObject /*object*/, pVMFrame frame) {
     frame->Push(trueObject);
 }
 
+void _System::GetNumberOfCPUs(pVMObject object, pVMFrame frame) {
+    frame->Pop();
+    int i = 0;
+    
+#ifdef linux
+    // count contents of /sys/devices/system/cpu/
+    DIR *dip;
+    if ((dip = opendir("/sys/devices/system/cpu")) == NULL) {
+        perror("opendir");
+    }
+    
+    while (readdir(dip) != NULL) i++;
+    i -= 2;
+    if (closedir(dip) == -1) {
+        perror("closedir");
+    }
+#elif __APPLE__
+    size_t len = sizeof(i);
+    sysctlbyname("machdep.cpu.core_count", &i, &len, NULL, 0);
+#else
+    i = -1;
+#endif
+    
+    //Based on the other methods I have also done _UNIVERSE->... this also takes care of the heap allocation of the VMInteger but why is this necearry? Or can I simply do frame->Push(VMInteger(i))?
+    frame->Push((pVMObject)_UNIVERSE->NewInteger(i));
+}
+
 _System::_System(void) :
         PrimitiveContainer() {
+    pthread_mutex_init(&outputMutex, NULL);
     gettimeofday(&start_time, NULL);
 
     this->SetPrimitive("global_",
@@ -176,6 +213,10 @@ _System::_System(void) :
     this->SetPrimitive("fullGC",
             static_cast<PrimitiveRoutine*>(new Routine<_System>(this,
                     &_System::FullGC)));
+            
+    this->SetPrimitive("getNumberOfCPUs",
+            static_cast<PrimitiveRoutine*>(new Routine<_System>(this,
+                    &_System::GetNumberOfCPUs)));
 }
 
 _System::~_System() {

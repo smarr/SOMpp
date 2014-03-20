@@ -13,6 +13,7 @@ private:
     size_t matureObjectsSize;
     void MajorCollection();
     void MinorCollection();
+    void CopyInterpretersFrameAndThread();
 };
 
 #endif

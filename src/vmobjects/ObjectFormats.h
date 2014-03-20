@@ -50,6 +50,9 @@
 #define UNTAG_INTEGER(X) (((long)X&1) ? ((long)X>>1) : (((VMInteger*)X)->GetEmbeddedInteger()))
 #define IS_TAGGED(X) ((long)X&1)
 
+#define pVMThread VMThread*
+#define pVMMutex VMMutex*
+#define pVMSignal VMSignal*
 #define pVMArray VMArray*
 #define pVMBigInteger VMBigInteger*
 #define pVMBlock VMBlock*
