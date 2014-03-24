@@ -82,11 +82,6 @@ Interpreter::~Interpreter() {
   goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];\
 }
 
-// The following three variables are used to cache main parts of the
-// current execution context
-/* long      bytecodeIndexGlobal;
-pVMMethod method;
-uint8_t*  currentBytecodes; */
 
 void Interpreter::Start() {
     // initialization
@@ -233,10 +228,13 @@ pVMFrame Interpreter::popFrame() {
 
     result->ClearPreviousFrame();
 
+    /*
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     //remember this frame as free frame
     result->GetMethod()->SetCachedFrame(result);
 #endif
+    */
+    
     return result;
 }
 

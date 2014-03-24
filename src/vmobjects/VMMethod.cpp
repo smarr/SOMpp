@@ -97,11 +97,14 @@ void VMMethod::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     bcLength = static_cast<VMInteger*>(walk(bcLength));
     numberOfArguments = static_cast<VMInteger*>(walk(numberOfArguments));
     numberOfConstants = static_cast<VMInteger*>(walk(numberOfConstants));
+    
+    /*
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     if (cachedFrame != NULL)
         cachedFrame = static_cast<VMFrame*>(walk(cachedFrame));
 #endif
-
+     */
+     
     long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {
         if (GetIndexableField(i) != NULL)
@@ -176,7 +179,7 @@ long VMMethod::GetNumberOfBytecodes() const {
 #endif
 }
 
-void VMMethod::operator()(pVMFrame frame) {
+void VMMethod::operator()(pVMFrame frame) {    
     pVMFrame frm = _UNIVERSE->GetInterpreter()->PushNewFrame(this);
     frm->CopyArgumentsFrom(frame);
 }

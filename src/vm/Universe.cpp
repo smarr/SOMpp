@@ -847,6 +847,8 @@ pVMDouble Universe::NewDouble(double value) const {
 
 pVMFrame Universe::NewFrame(pVMFrame previousFrame, pVMMethod method) const {
     pVMFrame result = NULL;
+    
+    /*
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     result = method->GetCachedFrame();
     if (result != NULL) {
@@ -855,6 +857,8 @@ pVMFrame Universe::NewFrame(pVMFrame previousFrame, pVMMethod method) const {
         return result;
     }
 #endif
+    */
+    
     long length = method->GetNumberOfArguments() +
                   method->GetNumberOfLocals() +
                   method->GetMaximumNumberOfStackElements();
@@ -1089,7 +1093,10 @@ void Universe::SetGlobal(pVMSymbol name, pVMObject val) {
 }
 
 Interpreter* Universe::GetInterpreter() {
-    return (Interpreter*)pthread_getspecific(this->interpreter);
+    Interpreter* test = (Interpreter*)pthread_getspecific(this->interpreter);
+    assert(test != NULL);
+    return test;
+    //return (Interpreter*)pthread_getspecific(this->interpreter);
 }
 
 void Universe::AddInterpreter(Interpreter* interpreter) {

@@ -239,6 +239,13 @@
 		9004031B18CD72D100C0410A /* Signal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Signal.h; sourceTree = "<group>"; };
 		9004031E18CD735E00C0410A /* Thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Thread.h; sourceTree = "<group>"; };
 		9004031F18CD735E00C0410A /* Thread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Thread.cpp; sourceTree = "<group>"; };
+		90A52B6818DF75C5000B3D32 /* Delay.som */ = {isa = PBXFileReference; lastKnownFileType = text; path = Delay.som; sourceTree = "<group>"; };
+		90A52B6918DF75F6000B3D32 /* Mutex.som */ = {isa = PBXFileReference; lastKnownFileType = text; path = Mutex.som; sourceTree = "<group>"; };
+		90A52B6A18DF760E000B3D32 /* Semaphore.som */ = {isa = PBXFileReference; lastKnownFileType = text; path = Semaphore.som; sourceTree = "<group>"; };
+		90A52B6B18DF761C000B3D32 /* Signal.som */ = {isa = PBXFileReference; lastKnownFileType = text; path = Signal.som; sourceTree = "<group>"; };
+		90A52B6C18DF762A000B3D32 /* Thread.som */ = {isa = PBXFileReference; lastKnownFileType = text; path = Thread.som; sourceTree = "<group>"; };
+		90A52B6D18DFB9F8000B3D32 /* ThreadPrioTest.som */ = {isa = PBXFileReference; lastKnownFileType = text; name = ThreadPrioTest.som; path = "../core-lib/TestSuite/nativeThreads/ThreadPrioTest.som"; sourceTree = "<group>"; };
+		90A52B6E18DFB9F8000B3D32 /* ThreadTest.som */ = {isa = PBXFileReference; lastKnownFileType = text; name = ThreadTest.som; path = "../core-lib/TestSuite/nativeThreads/ThreadTest.som"; sourceTree = "<group>"; };
 		90CBCF7918C6BCC60067954D /* VMMutex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = VMMutex.h; path = natives/VMMutex.h; sourceTree = "<group>"; };
 		90CBCF7A18C6BD060067954D /* VMMutex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VMMutex.cpp; path = natives/VMMutex.cpp; sourceTree = "<group>"; };
 		90CBCF7C18C6BD3B0067954D /* VMSignal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = VMSignal.h; path = natives/VMSignal.h; sourceTree = "<group>"; };
@@ -256,7 +263,6 @@
 		E18AE2880FB1C44700EE6540 /* Dictionary.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Dictionary.som; sourceTree = "<group>"; };
 		E18AE2890FB1C44700EE6540 /* Double.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Double.som; sourceTree = "<group>"; };
 		E18AE28A0FB1C44700EE6540 /* False.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = False.som; sourceTree = "<group>"; };
-		E18AE28B0FB1C44700EE6540 /* Frame.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Frame.som; sourceTree = "<group>"; };
 		E18AE28C0FB1C44700EE6540 /* HashEntry.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = HashEntry.som; sourceTree = "<group>"; };
 		E18AE28D0FB1C44700EE6540 /* Hashtable.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Hashtable.som; sourceTree = "<group>"; };
 		E18AE28E0FB1C44700EE6540 /* Integer.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Integer.som; sourceTree = "<group>"; };
@@ -587,6 +593,15 @@
 			path = vmobjects;
 			sourceTree = "<group>";
 		};
+		90A52B6F18DFBA44000B3D32 /* nativeThreads */ = {
+			isa = PBXGroup;
+			children = (
+				90A52B6D18DFB9F8000B3D32 /* ThreadPrioTest.som */,
+				90A52B6E18DFB9F8000B3D32 /* ThreadTest.som */,
+			);
+			name = nativeThreads;
+			sourceTree = "<group>";
+		};
 		90CBCF7818C6BC4E0067954D /* natives */ = {
 			isa = PBXGroup;
 			children = (
@@ -611,24 +626,28 @@
 				E18AE2850FB1C44700EE6540 /* Block3.som */,
 				E18AE2860FB1C44700EE6540 /* Boolean.som */,
 				E18AE2870FB1C44700EE6540 /* Class.som */,
+				90A52B6818DF75C5000B3D32 /* Delay.som */,
 				E18AE2880FB1C44700EE6540 /* Dictionary.som */,
 				E18AE2890FB1C44700EE6540 /* Double.som */,
 				E18AE28A0FB1C44700EE6540 /* False.som */,
-				E18AE28B0FB1C44700EE6540 /* Frame.som */,
 				E18AE28C0FB1C44700EE6540 /* HashEntry.som */,
 				E18AE28D0FB1C44700EE6540 /* Hashtable.som */,
 				E18AE28E0FB1C44700EE6540 /* Integer.som */,
 				E18AE28F0FB1C44700EE6540 /* Metaclass.som */,
 				E18AE2900FB1C44700EE6540 /* Method.som */,
+				90A52B6918DF75F6000B3D32 /* Mutex.som */,
 				E18AE2910FB1C44700EE6540 /* Nil.som */,
 				E18AE2920FB1C44700EE6540 /* Object.som */,
 				E18AE2930FB1C44700EE6540 /* Pair.som */,
 				E18AE2940FB1C44700EE6540 /* Primitive.som */,
+				90A52B6A18DF760E000B3D32 /* Semaphore.som */,
 				E18AE2950FB1C44700EE6540 /* Set.som */,
+				90A52B6B18DF761C000B3D32 /* Signal.som */,
 				E18AE2960FB1C44700EE6540 /* SOMCore.csp */,
 				E18AE2970FB1C44700EE6540 /* String.som */,
 				E18AE2980FB1C44700EE6540 /* Symbol.som */,
 				E18AE2990FB1C44700EE6540 /* System.som */,
+				90A52B6C18DF762A000B3D32 /* Thread.som */,
 				E18AE29A0FB1C44700EE6540 /* True.som */,
 				E18AE29B0FB1C44700EE6540 /* Vector.som */,
 			);
@@ -740,6 +759,7 @@
 				E18AE2D70FB1C46B00EE6540 /* SuperTestSuperClass.som */,
 				E18AE2D80FB1C46B00EE6540 /* SymbolTest.som */,
 				E18AE2D90FB1C46B00EE6540 /* TestHarness.som */,
+				90A52B6F18DFBA44000B3D32 /* nativeThreads */,
 				E18AE2DA0FB1C4A500EE6540 /* CompilerReturnTest.som */,
 			);
 			path = TestSuite;
@@ -959,12 +979,7 @@
 					src,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				OTHER_CFLAGS = (
-					"-DGC_TYPE=GENERATIONAL",
-					"-DCACHE_INTEGER",
-					"-DINT_CACHE_MIN_VALUE=-5",
-					"-DINT_CACHE_MAX_VALUE=100",
-				);
+				OTHER_CFLAGS = "-DGC_TYPE=GENERATIONAL";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -1003,12 +1018,7 @@
 					src,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				OTHER_CFLAGS = (
-					"-DGC_TYPE=GENERATIONAL",
-					"-DCACHE_INTEGER",
-					"-DINT_CACHE_MIN_VALUE=-5",
-					"-DINT_CACHE_MAX_VALUE=100",
-				);
+				OTHER_CFLAGS = "-DGC_TYPE=GENERATIONAL";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
