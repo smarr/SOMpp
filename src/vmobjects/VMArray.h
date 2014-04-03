@@ -51,13 +51,15 @@ private:
 };
 
 long VMArray::GetNumberOfIndexableFields() const {
+    long numIndexableFields = GetAdditionalSpaceConsumption() / sizeof(pVMObject);
+    /*
     static const pVMArray cachedArray = NULL;
     static long numIndexableFields = -1;
 
     if (this != cachedArray) {
         numIndexableFields = GetAdditionalSpaceConsumption() / sizeof(pVMObject);
         cachedArray = this;
-    }
+    }*/
     return numIndexableFields;
 }
 

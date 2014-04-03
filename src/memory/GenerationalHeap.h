@@ -36,7 +36,7 @@ private:
     size_t nurserySize;
     size_t maxNurseryObjSize;
     size_t matureObjectsSize;
-    void* nextFreePosition;
+    void* volatile nextFreePosition;
     void writeBarrier_OldHolder(VMOBJECT_PTR holder, const VMOBJECT_PTR
             referencedObject);
     void* collectionLimit;

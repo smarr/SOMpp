@@ -91,7 +91,6 @@ pVMMethod _Block::CreateFakeBootstrapMethod() {
     return bootstrapVMMethod;
 }
 
-
 //setting up thread object
 pVMThread _Block::CreateNewThread(pVMBlock block) {
     pVMThread thread = _UNIVERSE->NewThread();
@@ -101,7 +100,6 @@ pVMThread _Block::CreateNewThread(pVMBlock block) {
     thread->SetBlockToRun(block);
     return thread;
 }
-
 
 void* _Block::ThreadForBlock(void* threadPointer) {
     //create new interpreter which will process the block
@@ -126,10 +124,9 @@ void* _Block::ThreadForBlock(void* threadPointer) {
     
     // exit this thread and decrement the number of active threads, this is part of a thread barrier needed for GC
     _HEAP->DecrementThreadCount();
-    //_UNIVERSE->RemoveInterpreter();
+    _UNIVERSE->RemoveInterpreter();
     pthread_exit(NULL);
 }
-
 
 void* _Block::ThreadForBlockWithArgument(void* threadPointer) {
     //create new interpreter which will process the block
@@ -156,7 +153,7 @@ void* _Block::ThreadForBlockWithArgument(void* threadPointer) {
     
     // exit this thread and decrement the number of active threads, this is part of a thread barrier needed for GC
     _HEAP->DecrementThreadCount();
-    //_UNIVERSE->RemoveInterpreter();
+    _UNIVERSE->RemoveInterpreter();
     pthread_exit(NULL);
 }
 
@@ -172,7 +169,6 @@ void _Block::Spawn(pVMObject object, pVMFrame frame) {
     thread->SetEmbeddedThreadId(tid);
     frame->Push(thread);
 }
-
 
 void _Block::SpawnWithArgument(pVMObject object, pVMFrame frame) {
     ThreadId tid = 0;

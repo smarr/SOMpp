@@ -185,6 +185,10 @@ private:
     pthread_mutex_t interpreterMutex;
     vector<Interpreter*> interpreters;
     
+    pthread_mutexattr_t attrclassLoading;
+    pthread_mutex_t classLoading;
+    mutable int threadCounter;
+    
     vector<StdString> handleArguments(long argc, char** argv);
     long getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;
 

@@ -102,6 +102,10 @@ long VMObject::GetAdditionalSpaceConsumption() const {
 }
 
 void VMObject::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
+    if (clazz == threadClass) {
+        int i = 1;
+    }
+    
     clazz = (pVMClass) walk(clazz);
     
     long numFields = GetNumberOfFields();

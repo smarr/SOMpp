@@ -46,36 +46,36 @@ public:
     virtual pVMSymbol Clone() const;
     virtual pVMClass GetClass() const;
 private:
-    const pVMClass cachedClass_invokable[3];
-    long nextCachePos;
-    pVMInvokable cachedInvokable[3];
-    inline pVMInvokable GetCachedInvokable(const pVMClass) const;
-    inline void UpdateCachedInvokable(const pVMClass cls, pVMInvokable invo);
+//    const pVMClass cachedClass_invokable[3];
+//    long nextCachePos;
+//    pVMInvokable cachedInvokable[3];
+//    inline pVMInvokable GetCachedInvokable(const pVMClass) const;
+//    inline void UpdateCachedInvokable(const pVMClass cls, pVMInvokable invo);
     
     virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
     
     friend class VMClass;
 };
 
-pVMInvokable VMSymbol::GetCachedInvokable(const pVMClass cls) const {
-    if (cls == cachedClass_invokable[0])
-        return cachedInvokable[0];
-    else if (cls == cachedClass_invokable[1])
-        return cachedInvokable[1];
-    else if (cls == cachedClass_invokable[2])
-        return cachedInvokable[2];
-    return NULL;
-}
+//pVMInvokable VMSymbol::GetCachedInvokable(const pVMClass cls) const {
+//    if (cls == cachedClass_invokable[0])
+//        return cachedInvokable[0];
+//    else if (cls == cachedClass_invokable[1])
+//        return cachedInvokable[1];
+//    else if (cls == cachedClass_invokable[2])
+//        return cachedInvokable[2];
+//    return NULL;
+//}
 
-void VMSymbol::UpdateCachedInvokable(const pVMClass cls, pVMInvokable invo) {
-    cachedInvokable[nextCachePos] = invo;
-    cachedClass_invokable[nextCachePos] = cls;
-    nextCachePos = (nextCachePos + 1) % 3;
-    
-#if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, (VMOBJECT_PTR) invo);
-    _HEAP->writeBarrier(this, (VMOBJECT_PTR) cls);
-#endif
-}
+//void VMSymbol::UpdateCachedInvokable(const pVMClass cls, pVMInvokable invo) {
+//    cachedInvokable[nextCachePos] = invo;
+//    cachedClass_invokable[nextCachePos] = cls;
+//    nextCachePos = (nextCachePos + 1) % 3;
+//    
+//#if GC_TYPE==GENERATIONAL
+//    _HEAP->writeBarrier(this, (VMOBJECT_PTR) invo);
+//    _HEAP->writeBarrier(this, (VMOBJECT_PTR) cls);
+//#endif
+//}
 
 #endif

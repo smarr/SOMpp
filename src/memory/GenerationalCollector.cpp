@@ -79,11 +79,13 @@ void GenerationalCollector::MinorCollection() {
     _UNIVERSE->WalkGlobals(&copy_if_necessary);
 
     // and the current frames and threads
+    CopyInterpretersFrameAndThread();
+    /*
     pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
     if (currentFrame != NULL) {
         pVMFrame newFrame = static_cast<pVMFrame>(copy_if_necessary(currentFrame));
         _UNIVERSE->GetInterpreter()->SetFrame(newFrame);
-    }
+    }*/
 
     // and also all objects that have been detected by the write barriers
     for (vector<size_t>::iterator objIter =
@@ -105,11 +107,13 @@ void GenerationalCollector::MajorCollection() {
     //first we have to mark all objects (globals and current frame recursively)
     _UNIVERSE->WalkGlobals(&mark_object);
     //and the current frame
+    CopyInterpretersFrameAndThread();
+    /*
     pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
     if (currentFrame != NULL) {
         pVMFrame newFrame = static_cast<pVMFrame>(mark_object(currentFrame));
         _UNIVERSE->GetInterpreter()->SetFrame(newFrame);
-    }
+    } */
 
     //now that all objects are marked we can safely delete all allocated objects that are not marked
     vector<VMOBJECT_PTR>* survivors = new vector<VMOBJECT_PTR>();

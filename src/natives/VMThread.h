@@ -35,6 +35,10 @@ public:
     void        SetArgument(pVMObject value);
     ThreadId    GetEmbeddedThreadId();
     void        SetEmbeddedThreadId(ThreadId value);
+    
+    int GetThreadId();
+    void SetThreadId(int);
+    
     void        Join(int* exitStatus);
     
 private:
@@ -45,6 +49,7 @@ private:
     pVMString name;
     pVMObject argument;
     ThreadId embeddedThreadId;
+    int threadId;
     
     static const int VMThreadNumberOfFields;
     

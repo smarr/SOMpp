@@ -68,8 +68,6 @@ public:
     inline void FreeObject(AbstractVMObject* o);
     void IncrementThreadCount();
     void DecrementThreadCount();
-    void WaitForGC();
-    void WaitForGCIfNecessary();
     void IncrementWaitingForGCThreads();
     void DecrementWaitingForGCThreads();
     
@@ -83,9 +81,9 @@ protected:
 private:
     static HEAP_CLS* theHeap;
     //flag that shows if a Collection is triggered
-    bool gcTriggered;
-    int threadCount = 0;
-    int readyForGCThreads = 0;
+    volatile bool gcTriggered;
+    volatile int threadCount = 0;
+    volatile int readyForGCThreads = 0;
 };
 
 HEAP_CLS* Heap::GetHeap() {

@@ -30,6 +30,7 @@
 #include "Heap.h"
 #include "../vmobjects/VMObject.h"
 #include "../vm/Universe.h"
+#include "../natives/VMThread.h"
 
 HEAP_CLS* Heap::theHeap = NULL;
 
@@ -72,19 +73,25 @@ void Heap::FullGC() {
         }
         pthread_mutex_unlock(&threadCountMutex);
         // all threads have reached a safe point
+        //cout << "GC : gc collection starting, threadID: " << _UNIVERSE->GetInterpreter()->GetThread()->GetThreadId() << endl;
         gc->Collect();
+        //cout << "GC : gc collection finished, threadId: " << _UNIVERSE->GetInterpreter()->GetThread()->GetThreadId() << endl;
         // signal all the threads that the GC is completed
         pthread_cond_broadcast(&mayProceed);
+        //cout << "GC : broadcast after completing GC, threadId: " << _UNIVERSE->GetInterpreter()->GetThread()->GetThreadId() << endl;
         pthread_mutex_unlock(&doCollect);
+        //cout << "GC : unlock doCollect after completing GC, threadId: " << _UNIVERSE->GetInterpreter()->GetThread()->GetThreadId() << endl;
     // other threads signal the barrier that for them the GC may take place
     } else {
         pthread_mutex_lock(&threadCountMutex);
         readyForGCThreads++;
+        //cout << "GC : thread waiting for GC to happen, threadId: " << _UNIVERSE->GetInterpreter()->GetThread()->GetThreadId() << endl;
         pthread_cond_signal(&stopTheWorldCondition);
         while (gcTriggered) {
             pthread_cond_wait(&mayProceed, &threadCountMutex);
         }
         readyForGCThreads--;
+        //cout << "GC : thread resuming after GC has happend, threadId: " << _UNIVERSE->GetInterpreter()->GetThread()->GetThreadId() << endl;
         pthread_mutex_unlock(&threadCountMutex);
     }
 }
@@ -114,21 +121,3 @@ void Heap::DecrementWaitingForGCThreads() {
     pthread_cond_signal(&stopTheWorldCondition);
     pthread_mutex_unlock(&threadCountMutex);
 }
-
-/*
-void Heap::WaitForGC() {
-    pthread_mutex_lock(&threadCountMutex);
-    readyForGCThreads++;
-    pthread_cond_signal(&stopTheWorldCondition);
-    while (stopTheWorld) {
-        pthread_cond_wait(&mayProceed, &threadCountMutex);
-    }
-    readyForGCThreads--;
-    pthread_mutex_unlock(&threadCountMutex);
-}
-
-void Heap::WaitForGCIfNecessary() {
-    if (stopTheWorld) {
-        WaitForGC();
-    }
-} */

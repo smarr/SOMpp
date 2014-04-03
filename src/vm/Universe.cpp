@@ -311,6 +311,10 @@ void Universe::printUsageAndExit(char* executable) const {
 Universe::Universe() {
     pthread_key_create(&interpreter, NULL);
     pthread_mutex_init(&interpreterMutex, NULL);
+    pthread_mutexattr_init(&attrclassLoading);
+    pthread_mutexattr_settype(&attrclassLoading, PTHREAD_MUTEX_RECURSIVE);
+    pthread_mutex_init(&classLoading, &attrclassLoading);
+    threadCounter = 1;
 }
 
 void Universe::initialize(long _argc, char** _argv) {
@@ -687,15 +691,19 @@ pVMClass superClass, const char* name) {
 }
 
 pVMClass Universe::LoadClass(pVMSymbol name) {
+    pthread_mutex_lock(&classLoading);
     pVMClass result = static_cast<pVMClass>(GetGlobal(name));
     
-    if (result != nullptr)
+    if (result != nullptr) {
+        pthread_mutex_unlock(&classLoading);
         return result;
-
+    }
+    
     result = LoadClassBasic(name, NULL);
 
     if (!result) {
 		// we fail silently, it is not fatal that loading a class failed
+        pthread_mutex_unlock(&classLoading);
 		return (pVMClass) nilObject;
     }
 
@@ -704,6 +712,7 @@ pVMClass Universe::LoadClass(pVMSymbol name) {
     
     SetGlobal(name, result);
 
+    pthread_mutex_unlock(&classLoading);
     return result;
 }
 
@@ -944,6 +953,10 @@ void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     blockClass      = static_cast<pVMClass>(walk(blockClass));
     doubleClass     = static_cast<pVMClass>(walk(doubleClass));
     
+    threadClass     = static_cast<pVMClass>(walk(threadClass));
+    mutexClass      = static_cast<pVMClass>(walk(mutexClass));
+    signalClass     = static_cast<pVMClass>(walk(signalClass));
+    
     trueClass  = static_cast<pVMClass>(walk(trueClass));
     falseClass = static_cast<pVMClass>(walk(falseClass));
 
@@ -989,6 +1002,7 @@ void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     symbolIfTrue  = symbolsMap["ifTrue:"];
     symbolIfFalse = symbolsMap["ifFalse:"];
     
+    // why is this so bad?
     this->GetInterpreter()->WalkGlobals(walk);
 }
 
@@ -1033,6 +1047,8 @@ pVMSignal Universe::NewSignal() const {
 
 pVMThread Universe::NewThread() const {
     pVMThread result = new (_HEAP) VMThread();
+    result->SetThreadId(threadCounter);
+    threadCounter += 1;
     result->SetClass(threadClass);
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION("VMThread", sizeof(VMThread));
@@ -1093,10 +1109,7 @@ void Universe::SetGlobal(pVMSymbol name, pVMObject val) {
 }
 
 Interpreter* Universe::GetInterpreter() {
-    Interpreter* test = (Interpreter*)pthread_getspecific(this->interpreter);
-    assert(test != NULL);
-    return test;
-    //return (Interpreter*)pthread_getspecific(this->interpreter);
+    return (Interpreter*)pthread_getspecific(this->interpreter);
 }
 
 void Universe::AddInterpreter(Interpreter* interpreter) {
@@ -1108,9 +1121,7 @@ void Universe::AddInterpreter(Interpreter* interpreter) {
 
 void Universe::RemoveInterpreter() {
     pthread_mutex_lock(&interpreterMutex);
-    //vector<Interpreter*>::iterator position = find(interpreters.begin(), interpreters.end(), this->GetInterpreter());
-    //interpreters.erase(position);
-    //pthread_key_delete(this->interpreter);
+    interpreters.erase(std::remove(interpreters.begin(), interpreters.end(), this->GetInterpreter()), interpreters.end());
     pthread_mutex_unlock(&interpreterMutex);
 }
 
