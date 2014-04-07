@@ -1,6 +1,6 @@
 #pragma once
-#ifndef HEAP_H_
-#define HEAP_H_
+#ifndef PAGEDHEAP_H_
+#define PAGEDHEAP_H_
 
 /*
  *
@@ -52,15 +52,15 @@ class MarkSweepHeap;
 #define HEAP_CLS MarkSweepHeap
 #endif
 
-class Heap {
+class PagedHeap {
     friend class GarbageCollector;
 
 public:
     static inline HEAP_CLS* GetHeap();
     static void InitializeHeap(long objectSpaceSize = 1048576);
     static void DestroyHeap();
-    Heap(long objectSpaceSize = 1048576);
-    ~Heap();
+    PagedHeap(long objectSpaceSize = 1048576);
+    ~PagedHeap();
     inline void triggerGC(void);
     inline void resetGCTrigger(void);
     bool isCollectionTriggered(void);
@@ -78,31 +78,31 @@ protected:
     pthread_mutex_t allocationLock;
     pthread_cond_t stopTheWorldCondition;
     pthread_cond_t mayProceed;
+    
 private:
     static HEAP_CLS* theHeap;
-    //flag that shows if a Collection is triggered
     volatile bool gcTriggered;
     volatile int threadCount = 0;
     volatile int readyForGCThreads = 0;
 };
 
-HEAP_CLS* Heap::GetHeap() {
+HEAP_CLS* PagedHeap::GetHeap() {
     return theHeap;
 }
 
-void Heap::triggerGC(void) {
+void PagedHeap::triggerGC(void) {
     gcTriggered = true;
 }
 
-inline bool Heap::isCollectionTriggered(void) {
+inline bool PagedHeap::isCollectionTriggered(void) {
     return gcTriggered;
 }
 
-void Heap::resetGCTrigger(void) {
+void PagedHeap::resetGCTrigger(void) {
     gcTriggered = false;
 }
 
-void Heap::FreeObject(AbstractVMObject* obj) {
+void PagedHeap::FreeObject(AbstractVMObject* obj) {
     free(obj);
 }
 #endif

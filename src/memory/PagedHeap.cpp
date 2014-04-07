@@ -27,14 +27,16 @@
 #include <iostream>
 #include <string.h>
 
-#include "Heap.h"
+#include <sys/mman.h>
+
+#include "PagedHeap.h"
 #include "../vmobjects/VMObject.h"
 #include "../vm/Universe.h"
 #include "../natives/VMThread.h"
 
-HEAP_CLS* Heap::theHeap = NULL;
+HEAP_CLS* PagedHeap::theHeap = NULL;
 
-void Heap::InitializeHeap(long objectSpaceSize) {
+void PagedHeap::InitializeHeap(long objectSpaceSize) {
     if (theHeap) {
         cout << "Warning, reinitializing already initialized Heap, "
                 << "all data will be lost!" << endl;
@@ -43,27 +45,27 @@ void Heap::InitializeHeap(long objectSpaceSize) {
     theHeap = new HEAP_CLS(objectSpaceSize);
 }
 
-void Heap::DestroyHeap() {
+void PagedHeap::DestroyHeap() {
     if (theHeap)
         delete theHeap;
 }
 
-Heap::Heap(long objectSpaceSize) {
+PagedHeap::PagedHeap(long objectSpaceSize) {
     gcTriggered = false;
     threadCount = 0;
     readyForGCThreads = 0;
     pthread_mutex_init(&doCollect, NULL);
     pthread_mutex_init(&threadCountMutex, NULL);
-    pthread_mutex_init(&allocationLock, NULL);
+    pthread_mutex_init(&allocationLock, NULL);          //don't need this anymore
     pthread_cond_init(&stopTheWorldCondition, NULL);
     pthread_cond_init(&mayProceed, NULL);
 }
 
-Heap::~Heap() {
+PagedHeap::~PagedHeap() {
     delete gc;
 }
 
-void Heap::FullGC() {
+void PagedHeap::FullGC() {
     // one thread is going to do the GC
     if (pthread_mutex_trylock(&doCollect) == 0) {
         // all threads must have reached a safe point for the GC to take place
@@ -73,49 +75,43 @@ void Heap::FullGC() {
         }
         pthread_mutex_unlock(&threadCountMutex);
         // all threads have reached a safe point
-        //cout << "GC : gc collection starting, threadID: " << _UNIVERSE->GetInterpreter()->GetThread()->GetThreadId() << endl;
         gc->Collect();
-        //cout << "GC : gc collection finished, threadId: " << _UNIVERSE->GetInterpreter()->GetThread()->GetThreadId() << endl;
         // signal all the threads that the GC is completed
         pthread_cond_broadcast(&mayProceed);
-        //cout << "GC : broadcast after completing GC, threadId: " << _UNIVERSE->GetInterpreter()->GetThread()->GetThreadId() << endl;
         pthread_mutex_unlock(&doCollect);
-        //cout << "GC : unlock doCollect after completing GC, threadId: " << _UNIVERSE->GetInterpreter()->GetThread()->GetThreadId() << endl;
     // other threads signal the barrier that for them the GC may take place
     } else {
         pthread_mutex_lock(&threadCountMutex);
         readyForGCThreads++;
-        //cout << "GC : thread waiting for GC to happen, threadId: " << _UNIVERSE->GetInterpreter()->GetThread()->GetThreadId() << endl;
         pthread_cond_signal(&stopTheWorldCondition);
         while (gcTriggered) {
             pthread_cond_wait(&mayProceed, &threadCountMutex);
         }
         readyForGCThreads--;
-        //cout << "GC : thread resuming after GC has happend, threadId: " << _UNIVERSE->GetInterpreter()->GetThread()->GetThreadId() << endl;
         pthread_mutex_unlock(&threadCountMutex);
     }
 }
 
-void Heap::IncrementThreadCount() {
+void PagedHeap::IncrementThreadCount() {
     pthread_mutex_lock(&threadCountMutex);
     threadCount++;
     pthread_mutex_unlock(&threadCountMutex);
 }
 
-void Heap::DecrementThreadCount() {
+void PagedHeap::DecrementThreadCount() {
     pthread_mutex_lock(&threadCountMutex);
     threadCount--;
     pthread_mutex_unlock(&threadCountMutex);
 }
 
-void Heap::IncrementWaitingForGCThreads() {
+void PagedHeap::IncrementWaitingForGCThreads() {
     pthread_mutex_lock(&threadCountMutex);
     readyForGCThreads++;
     pthread_cond_signal(&stopTheWorldCondition);
     pthread_mutex_unlock(&threadCountMutex);
 }
 
-void Heap::DecrementWaitingForGCThreads() {
+void PagedHeap::DecrementWaitingForGCThreads() {
     pthread_mutex_lock(&threadCountMutex);
     readyForGCThreads--;
     pthread_cond_signal(&stopTheWorldCondition);

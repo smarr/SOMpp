@@ -18,7 +18,7 @@
 		0A1886E41832BCD300A2CBCA /* Interpreter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203030FA6624C00E75857 /* Interpreter.cpp */; };
 		0A1886E51832BCD700A2CBCA /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203050FA6624C00E75857 /* Main.cpp */; };
 		0A1886E61832BCDC00A2CBCA /* GarbageCollector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203070FA6624C00E75857 /* GarbageCollector.cpp */; };
-		0A1886E71832BCDC00A2CBCA /* Heap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203090FA6624C00E75857 /* Heap.cpp */; };
+		0A1886E71832BCDC00A2CBCA /* PagedHeap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203090FA6624C00E75857 /* PagedHeap.cpp */; };
 		0A1886E81832BCE700A2CBCA /* Array.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203120FA6624C00E75857 /* Array.cpp */; };
 		0A1886E91832BCE700A2CBCA /* BigInteger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203140FA6624C00E75857 /* BigInteger.cpp */; };
 		0A1886EA1832BCE700A2CBCA /* Block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203160FA6624C00E75857 /* Block.cpp */; };
@@ -72,6 +72,7 @@
 		908B99AB18D027C700A148C4 /* Delay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9004031518CD5E7400C0410A /* Delay.cpp */; };
 		908B99AC18D027E100A148C4 /* Signal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9004031918CD72D100C0410A /* Signal.cpp */; };
 		908B99AD18D027EA00A148C4 /* Thread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9004031F18CD735E00C0410A /* Thread.cpp */; };
+		90B4A87F18F202AA00C437BE /* Page.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90B4A87E18F202AA00C437BE /* Page.cpp */; };
 		90CBCF7B18C6BD060067954D /* VMMutex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90CBCF7A18C6BD060067954D /* VMMutex.cpp */; };
 		90CBCF7E18C6BD540067954D /* VMSignal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90CBCF7D18C6BD540067954D /* VMSignal.cpp */; };
 		90CBCF8118C6BDB70067954D /* VMThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90CBCF8018C6BDB70067954D /* VMThread.cpp */; };
@@ -161,8 +162,8 @@
 		3F5203050FA6624C00E75857 /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Main.cpp; sourceTree = "<group>"; };
 		3F5203070FA6624C00E75857 /* GarbageCollector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GarbageCollector.cpp; sourceTree = "<group>"; };
 		3F5203080FA6624C00E75857 /* GarbageCollector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GarbageCollector.h; sourceTree = "<group>"; };
-		3F5203090FA6624C00E75857 /* Heap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Heap.cpp; sourceTree = "<group>"; };
-		3F52030A0FA6624C00E75857 /* Heap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Heap.h; sourceTree = "<group>"; };
+		3F5203090FA6624C00E75857 /* PagedHeap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PagedHeap.cpp; sourceTree = "<group>"; };
+		3F52030A0FA6624C00E75857 /* PagedHeap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PagedHeap.h; sourceTree = "<group>"; };
 		3F52030C0FA6624C00E75857 /* debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug.h; sourceTree = "<group>"; };
 		3F52030D0FA6624C00E75857 /* defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = defs.h; sourceTree = "<group>"; };
 		3F52030E0FA6624C00E75857 /* ExtendedList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExtendedList.h; sourceTree = "<group>"; };
@@ -246,6 +247,8 @@
 		90A52B6C18DF762A000B3D32 /* Thread.som */ = {isa = PBXFileReference; lastKnownFileType = text; path = Thread.som; sourceTree = "<group>"; };
 		90A52B6D18DFB9F8000B3D32 /* ThreadPrioTest.som */ = {isa = PBXFileReference; lastKnownFileType = text; name = ThreadPrioTest.som; path = "../core-lib/TestSuite/nativeThreads/ThreadPrioTest.som"; sourceTree = "<group>"; };
 		90A52B6E18DFB9F8000B3D32 /* ThreadTest.som */ = {isa = PBXFileReference; lastKnownFileType = text; name = ThreadTest.som; path = "../core-lib/TestSuite/nativeThreads/ThreadTest.som"; sourceTree = "<group>"; };
+		90B4A87D18F2029000C437BE /* Page.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Page.h; sourceTree = "<group>"; };
+		90B4A87E18F202AA00C437BE /* Page.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Page.cpp; sourceTree = "<group>"; };
 		90CBCF7918C6BCC60067954D /* VMMutex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = VMMutex.h; path = natives/VMMutex.h; sourceTree = "<group>"; };
 		90CBCF7A18C6BD060067954D /* VMMutex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VMMutex.cpp; path = natives/VMMutex.cpp; sourceTree = "<group>"; };
 		90CBCF7C18C6BD3B0067954D /* VMSignal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = VMSignal.h; path = natives/VMSignal.h; sourceTree = "<group>"; };
@@ -460,16 +463,18 @@
 				0A1887201832C10E00A2CBCA /* CopyingHeap.h */,
 				0A1887211832C10E00A2CBCA /* GenerationalCollector.cpp */,
 				0A1887221832C10E00A2CBCA /* GenerationalCollector.h */,
-				0A1887231832C10E00A2CBCA /* GenerationalHeap.cpp */,
-				0A1887241832C10E00A2CBCA /* GenerationalHeap.h */,
 				0A1887251832C10E00A2CBCA /* MarkSweepCollector.cpp */,
 				0A1887261832C10E00A2CBCA /* MarkSweepCollector.h */,
 				0A1887271832C10E00A2CBCA /* MarkSweepHeap.cpp */,
 				0A1887281832C10E00A2CBCA /* MarkSweepHeap.h */,
 				3F5203070FA6624C00E75857 /* GarbageCollector.cpp */,
 				3F5203080FA6624C00E75857 /* GarbageCollector.h */,
-				3F5203090FA6624C00E75857 /* Heap.cpp */,
-				3F52030A0FA6624C00E75857 /* Heap.h */,
+				3F5203090FA6624C00E75857 /* PagedHeap.cpp */,
+				3F52030A0FA6624C00E75857 /* PagedHeap.h */,
+				90B4A87E18F202AA00C437BE /* Page.cpp */,
+				90B4A87D18F2029000C437BE /* Page.h */,
+				0A1887231832C10E00A2CBCA /* GenerationalHeap.cpp */,
+				0A1887241832C10E00A2CBCA /* GenerationalHeap.h */,
 			);
 			path = memory;
 			sourceTree = "<group>";
@@ -870,7 +875,7 @@
 				0A18870B1832C0E400A2CBCA /* AbstractObject.cpp in Sources */,
 				0A1886FF1832BCF500A2CBCA /* VMFrame.cpp in Sources */,
 				0A1886E41832BCD300A2CBCA /* Interpreter.cpp in Sources */,
-				0A1886E71832BCDC00A2CBCA /* Heap.cpp in Sources */,
+				0A1886E71832BCDC00A2CBCA /* PagedHeap.cpp in Sources */,
 				90CBCF8118C6BDB70067954D /* VMThread.cpp in Sources */,
 				90CBCF7B18C6BD060067954D /* VMMutex.cpp in Sources */,
 				0A1886F71832BCF500A2CBCA /* Signature.cpp in Sources */,
@@ -886,6 +891,7 @@
 				0A1887331832C10E00A2CBCA /* GenerationalCollector.cpp in Sources */,
 				0A1887341832C10E00A2CBCA /* GenerationalHeap.cpp in Sources */,
 				0A1887031832BCFA00A2CBCA /* VMObject.cpp in Sources */,
+				90B4A87F18F202AA00C437BE /* Page.cpp in Sources */,
 				0A1886DC1832BCC800A2CBCA /* BytecodeGenerator.cpp in Sources */,
 				0A1887051832BCFA00A2CBCA /* VMString.cpp in Sources */,
 				0A1886E61832BCDC00A2CBCA /* GarbageCollector.cpp in Sources */,
