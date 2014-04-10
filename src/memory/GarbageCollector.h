@@ -31,17 +31,17 @@
 #include "../vmobjects/ObjectFormats.h"
 #include "../misc/defs.h"
 
-class Heap;
+class PagedHeap;
 
 class GarbageCollector {
 public:
-    GarbageCollector(Heap* h);
+    GarbageCollector(PagedHeap* h);
     virtual ~GarbageCollector();
     virtual void Collect() = 0;
     void PrintGCStat() const;
     void PrintCollectStat() const;
 protected:
-    Heap* heap;
+    PagedHeap* heap;
 };
 
 #endif

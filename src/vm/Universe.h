@@ -40,7 +40,7 @@
 
 #include "../interpreter/Interpreter.h"
 
-#include "../memory/Heap.h"
+#include "../memory/PagedHeap.h"
 
 class AbstractVMObject;
 class VMObject;
@@ -113,7 +113,7 @@ public:
     map<pVMSymbol, pVMObject> GetGlobals() {
         return globals;
     }
-    Heap* GetHeap() {
+    PagedHeap* GetHeap() {
         return heap;
     }
     
@@ -200,8 +200,9 @@ private:
 
     void initialize(long, char**);
 
-    Heap* heap;
+    PagedHeap* heap;
     long heapSize;
+    long pageSize;
     map<pVMSymbol, pVMObject> globals;
     map<long,pVMClass> blockClassesByNoOfArgs;
     vector<StdString> classPath;

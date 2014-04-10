@@ -124,7 +124,7 @@ void VMMethod::SetCachedFrame(pVMFrame frame) {
         frame->SetBytecodeIndex(0);
         frame->ResetStackPointer();
 #if GC_TYPE == GENERATIONAL
-        _HEAP->writeBarrier(this, cachedFrame);
+        _HEAP->WriteBarrier(this, cachedFrame);
 #endif
     }
 }
@@ -137,7 +137,7 @@ void VMMethod::SetNumberOfLocals(long nol) {
     numberOfLocals = _UNIVERSE->NewInteger(nol);
 #endif
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, numberOfLocals);
+    _HEAP->WriteBarrier(this, numberOfLocals);
 #endif
 }
 
@@ -156,7 +156,7 @@ void VMMethod::SetMaximumNumberOfStackElements(long stel) {
     maximumNumberOfStackElements = _UNIVERSE->NewInteger(stel);
 #endif
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, maximumNumberOfStackElements);
+    _HEAP->WriteBarrier(this, maximumNumberOfStackElements);
 #endif
 }
 
@@ -167,7 +167,7 @@ void VMMethod::SetNumberOfArguments(long noa) {
     numberOfArguments = _UNIVERSE->NewInteger(noa);
 #endif
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, numberOfArguments);
+    _HEAP->WriteBarrier(this, numberOfArguments);
 #endif
 }
 

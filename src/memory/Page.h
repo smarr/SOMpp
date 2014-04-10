@@ -9,18 +9,20 @@
 #ifndef SOM_Page_h
 #define SOM_Page_h
 
-#include "../vmobjects/VMObjectBase.h"
+#include "../vmobjects/AbstractObject.h"
+#include "PagedHeap.h"
+
+using namespace std;
 
 class Page {
     
 public:
-    Page(void*);
+    //Page(void* pageStart, PagedHeap* heap);
     
-    AbstractVMObject* AllocateObject(size_t size);
+    //AbstractVMObject* AllocateObject(size_t size);
+    //static void SetPageSize(long pageSize);
     
 private:
-    static int pageSize;
-    
     size_t pageStart;
     size_t pageEnd;
     void* volatile nextFreePosition;

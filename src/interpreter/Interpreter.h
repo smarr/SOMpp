@@ -31,6 +31,7 @@
 #include "../misc/defs.h"
 
 #include "../vmobjects/ObjectFormats.h"
+#include "../memory/Page.h"
 
 class VMMethod;
 class VMFrame;
@@ -40,6 +41,8 @@ class VMSymbol;
 class VMClass;
 class AbstractVMObject;
 class VMThread;
+
+//class Page;
 
 class Interpreter {
 public:
@@ -62,6 +65,8 @@ private:
     StdString dnu;
     StdString eB;
 
+    //Page* page;
+    
     pVMFrame popFrame();
     void popFrameAndPushResult(pVMObject result);
     void send(pVMSymbol signature, pVMClass receiverClass);

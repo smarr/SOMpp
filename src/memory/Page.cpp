@@ -9,14 +9,13 @@
 #include "Page.h"
 #include "../vm/Universe.h"
 
-//using namespace std;
 
-Page::Page(void* pageStart) {
-    this->pageStart = pageStart;
-    this->pageEnd = this->pageStart + pageSize;
+/*
+Page::Page(void* pageStart, PagedHeap* heap) {
     this->nextFreePosition = pageStart;
+    this->pageStart = (size_t)pageStart;
+    //this->pageEnd = this->pageStart + heap->pageSize;
 }
-
 
 AbstractVMObject* Page::AllocateObject(size_t size) {
     AbstractVMObject* newObject = (AbstractVMObject*) nextFreePosition;
@@ -24,9 +23,11 @@ AbstractVMObject* Page::AllocateObject(size_t size) {
     if ((size_t)nextFreePosition > pageEnd) {
         cout << "Failed to allocate " << size << " Bytes in page." << endl;
         _UNIVERSE->Quit(-1);
-    }
-    //
-    //if (nextFreePosition > collectionLimit)
-        //aangeven dat hij van page moet switchen
-    return newObject;
+    } */
+    /*
+    if (nextFreePosition > collectionLimit)
+        _UNIVERSE->GetInterpreter()->SetPage(_HEAP->RequestPage()); //RequestPage gaat sowieso lukken
+    */
+  /*  return newObject;
 }
+*/

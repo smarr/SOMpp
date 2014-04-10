@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Heap.h"
+#include "PagedHeap.h"
 #include <string.h>
 
 #if GC_TYPE==COPYING

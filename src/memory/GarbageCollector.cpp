@@ -31,7 +31,7 @@
 #include <cstdlib>
 
 #include "GarbageCollector.h"
-#include "Heap.h"
+#include "PagedHeap.h"
 
 #include "../vm/Universe.h"
 #include "../vmobjects/VMMethod.h"
@@ -47,7 +47,7 @@
 #define _MB(B) ((double)B/(1024.0*1024.0))
 #define INITIAL_MAJOR_COLLECTION_THRESHOLD (5 * 1024 * 1024) //5 MB
 
-GarbageCollector::GarbageCollector(Heap* h) {
+GarbageCollector::GarbageCollector(PagedHeap* h) {
     heap = h;
 }
 

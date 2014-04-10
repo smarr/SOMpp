@@ -323,6 +323,7 @@ void Universe::initialize(long _argc, char** _argv) {
 #endif
 
     heapSize = 1 * 1024 * 1024;
+    pageSize = 8192;
 
     vector<StdString> argv = this->handleArguments(_argc, _argv);
     
@@ -330,7 +331,7 @@ void Universe::initialize(long _argc, char** _argv) {
     if (argv.size() > 0)
         bm_name = argv[0];
 
-    Heap::InitializeHeap(heapSize);
+    PagedHeap::InitializeHeap(heapSize, pageSize);
 
     heap = _HEAP;
 

@@ -40,7 +40,7 @@ VMBlock::VMBlock() :
 void VMBlock::SetMethod(pVMMethod bMethod) {
     blockMethod = (bMethod);
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, bMethod);
+    _HEAP->WriteBarrier(this, bMethod);
 #endif
 }
 

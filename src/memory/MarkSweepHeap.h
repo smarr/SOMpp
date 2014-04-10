@@ -3,7 +3,7 @@
 #include "../misc/defs.h"
 #if GC_TYPE == MARK_SWEEP
 
-#include "Heap.h"
+#include "PagedHeap.h"
 
 class MarkSweepHeap : public Heap {
     friend class MarkSweepCollector;

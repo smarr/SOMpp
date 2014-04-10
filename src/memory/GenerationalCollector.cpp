@@ -3,7 +3,7 @@
 
 #include "GenerationalCollector.h"
 
-#include "Heap.h"
+#include "PagedHeap.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/VMMethod.h"
 #include "../vmobjects/VMObject.h"
@@ -17,7 +17,7 @@
 
 #define INITIAL_MAJOR_COLLECTION_THRESHOLD (5 * 1024 * 1024) //5 MB
 
-GenerationalCollector::GenerationalCollector(Heap* heap) : GarbageCollector(heap) {
+GenerationalCollector::GenerationalCollector(PagedHeap* heap) : GarbageCollector(heap) {
     majorCollectionThreshold = INITIAL_MAJOR_COLLECTION_THRESHOLD;
     matureObjectsSize = 0;
 }

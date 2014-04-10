@@ -6,7 +6,7 @@
 
 class GenerationalCollector : public GarbageCollector {
 public:
-    GenerationalCollector(Heap* heap);
+    GenerationalCollector(PagedHeap* heap);
     void Collect();
 private:
     intptr_t majorCollectionThreshold;

@@ -469,10 +469,10 @@
 				0A1887281832C10E00A2CBCA /* MarkSweepHeap.h */,
 				3F5203070FA6624C00E75857 /* GarbageCollector.cpp */,
 				3F5203080FA6624C00E75857 /* GarbageCollector.h */,
-				3F5203090FA6624C00E75857 /* PagedHeap.cpp */,
-				3F52030A0FA6624C00E75857 /* PagedHeap.h */,
 				90B4A87E18F202AA00C437BE /* Page.cpp */,
 				90B4A87D18F2029000C437BE /* Page.h */,
+				3F5203090FA6624C00E75857 /* PagedHeap.cpp */,
+				3F52030A0FA6624C00E75857 /* PagedHeap.h */,
 				0A1887231832C10E00A2CBCA /* GenerationalHeap.cpp */,
 				0A1887241832C10E00A2CBCA /* GenerationalHeap.h */,
 			);

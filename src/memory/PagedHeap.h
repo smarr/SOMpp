@@ -39,7 +39,7 @@
 class AbstractVMObject;
 using namespace std;
 //macro to access the heap
-#define _HEAP Heap::GetHeap()
+#define _HEAP PagedHeap::GetHeap()
 
 #if GC_TYPE==GENERATIONAL
 class GenerationalHeap;
@@ -54,12 +54,13 @@ class MarkSweepHeap;
 
 class PagedHeap {
     friend class GarbageCollector;
-
+    //friend class Page;
+    
 public:
     static inline HEAP_CLS* GetHeap();
-    static void InitializeHeap(long objectSpaceSize = 1048576);
+    static void InitializeHeap(long objectSpaceSize = 1048576,long pageSize = 8192);
     static void DestroyHeap();
-    PagedHeap(long objectSpaceSize = 1048576);
+    PagedHeap(long objectSpaceSize = 1048576, long pageSize = 8192);
     ~PagedHeap();
     inline void triggerGC(void);
     inline void resetGCTrigger(void);
@@ -72,10 +73,10 @@ public:
     void DecrementWaitingForGCThreads();
     
 protected:
+    long pageSize;
     GarbageCollector* gc;
     pthread_mutex_t doCollect;
     pthread_mutex_t threadCountMutex;
-    pthread_mutex_t allocationLock;
     pthread_cond_t stopTheWorldCondition;
     pthread_cond_t mayProceed;
     

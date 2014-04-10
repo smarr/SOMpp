@@ -68,7 +68,7 @@ void VMObject::SetNumberOfFields(long nof) {
 void VMObject::SetClass(pVMClass cl) {
     clazz = cl;
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, cl);
+    _HEAP->WriteBarrier(this, cl);
 #endif
 }
 
@@ -87,7 +87,7 @@ pVMObject VMObject::GetField(long index) const {
 void VMObject::SetField(long index, pVMObject value) {
     FIELDS[index] = value;
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, (VMOBJECT_PTR)value);
+    _HEAP->WriteBarrier(this, (VMOBJECT_PTR)value);
 #endif
 }
 

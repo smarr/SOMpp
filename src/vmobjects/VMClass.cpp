@@ -124,7 +124,7 @@ bool VMClass::AddInstanceInvokable(pVMObject ptr) {
     //it's a new invokable so we need to expand the invokables array.
     instanceInvokables = instanceInvokables->CopyAndExtendWith(ptr);
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, instanceInvokables);
+    _HEAP->WriteBarrier(this, instanceInvokables);
 #endif
 
     return true;
@@ -148,7 +148,7 @@ pVMSymbol VMClass::GetInstanceFieldName(long index) const {
 void VMClass::SetInstanceInvokables(pVMArray invokables) {
     instanceInvokables = invokables;
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, instanceInvokables);
+    _HEAP->WriteBarrier(this, instanceInvokables);
 #endif
 
     long numInvokables = GetNumberOfInstanceInvokables();

@@ -73,8 +73,8 @@ private:
 //    nextCachePos = (nextCachePos + 1) % 3;
 //    
 //#if GC_TYPE==GENERATIONAL
-//    _HEAP->writeBarrier(this, (VMOBJECT_PTR) invo);
-//    _HEAP->writeBarrier(this, (VMOBJECT_PTR) cls);
+//    _HEAP->WriteBarrier(this, (VMOBJECT_PTR) invo);
+//    _HEAP->WriteBarrier(this, (VMOBJECT_PTR) cls);
 //#endif
 //}
 

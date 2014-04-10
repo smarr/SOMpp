@@ -51,7 +51,7 @@ Interpreter::Interpreter() {
     this->thread = NULL;
     this->frame = NULL;
     
-    //TODO PAGED: _HEAP->RequestPage();
+    //this->page = _HEAP->RequestPage();
 
     uG = "unknownGlobal:";
     dnu = "doesNotUnderstand:arguments:";

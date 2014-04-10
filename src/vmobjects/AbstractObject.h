@@ -81,17 +81,17 @@ public:
     }
 
 #if GC_TYPE==GENERATIONAL
-    void* operator new(size_t numBytes, Heap* heap,
+    void* operator new(size_t numBytes, PagedHeap* heap,
             unsigned long additionalBytes = 0, bool outsideNursery = false) {
         //if outsideNursery flag is set or object is too big for nursery, we
         // allocate a mature object
         void* result;
-        if (outsideNursery) {
+        //if (outsideNursery) {
             result = (void*) ((GenerationalHeap*)heap)->AllocateMatureObject(numBytes + additionalBytes);
-        } else {
+        /*} else {
             result = (void*) ((GenerationalHeap*)heap)->AllocateNurseryObject(numBytes + additionalBytes);
         }
-        
+        */
         assert(result != INVALID_POINTER);
         return result;
     }

@@ -119,7 +119,7 @@ VMFrame::VMFrame(long size, long nof) :
 void VMFrame::SetMethod(pVMMethod method) {
     this->method = method;
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, method);
+    _HEAP->WriteBarrier(this, method);
 #endif
 }
 
@@ -174,7 +174,7 @@ pVMObject VMFrame::Pop() {
 
 void VMFrame::Push(pVMObject obj) {
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, (VMOBJECT_PTR)obj);
+    _HEAP->WriteBarrier(this, (VMOBJECT_PTR)obj);
 #endif
     *(++stack_ptr) = obj;
 }
@@ -243,7 +243,7 @@ void VMFrame::SetLocal(long index, long contextLevel, pVMObject value) {
     pVMFrame context = this->GetContextLevel(contextLevel);
     context->locals[index] = value;
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(context, (VMOBJECT_PTR)value);
+    _HEAP->WriteBarrier(context, (VMOBJECT_PTR)value);
 #endif
 }
 
@@ -257,7 +257,7 @@ void VMFrame::SetArgument(long index, long contextLevel, pVMObject value) {
     pVMFrame context = this->GetContextLevel(contextLevel);
     context->arguments[index] = value;
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(context, (VMOBJECT_PTR)value);
+    _HEAP->WriteBarrier(context, (VMOBJECT_PTR)value);
 #endif
 }
 
@@ -279,7 +279,7 @@ void VMFrame::CopyArgumentsFrom(pVMFrame frame) {
         pVMObject stackElem = frame->GetStackElement(num_args - 1 - i);
         arguments[i] = stackElem;
 #if GC_TYPE==GENERATIONAL
-        _HEAP->writeBarrier(this, (VMOBJECT_PTR)stackElem);
+        _HEAP->WriteBarrier(this, (VMOBJECT_PTR)stackElem);
 #endif
     }
 }

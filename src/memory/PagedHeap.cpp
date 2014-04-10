@@ -30,19 +30,18 @@
 #include <sys/mman.h>
 
 #include "PagedHeap.h"
-#include "../vmobjects/VMObject.h"
 #include "../vm/Universe.h"
-#include "../natives/VMThread.h"
+//#include "../vmobjects/VMObject.h"
 
 HEAP_CLS* PagedHeap::theHeap = NULL;
 
-void PagedHeap::InitializeHeap(long objectSpaceSize) {
+void PagedHeap::InitializeHeap(long objectSpaceSize, long pageSize) {
     if (theHeap) {
         cout << "Warning, reinitializing already initialized Heap, "
                 << "all data will be lost!" << endl;
         delete theHeap;
     }
-    theHeap = new HEAP_CLS(objectSpaceSize);
+    theHeap = new HEAP_CLS(objectSpaceSize, pageSize);
 }
 
 void PagedHeap::DestroyHeap() {
@@ -50,13 +49,13 @@ void PagedHeap::DestroyHeap() {
         delete theHeap;
 }
 
-PagedHeap::PagedHeap(long objectSpaceSize) {
-    gcTriggered = false;
-    threadCount = 0;
-    readyForGCThreads = 0;
+PagedHeap::PagedHeap(long objectSpaceSize, long pageSize) {
+    this->pageSize = pageSize;
+    this->gcTriggered = false;
+    this->threadCount = 0;
+    this->readyForGCThreads = 0;
     pthread_mutex_init(&doCollect, NULL);
     pthread_mutex_init(&threadCountMutex, NULL);
-    pthread_mutex_init(&allocationLock, NULL);          //don't need this anymore
     pthread_cond_init(&stopTheWorldCondition, NULL);
     pthread_cond_init(&mayProceed, NULL);
 }
