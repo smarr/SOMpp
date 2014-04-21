@@ -51,7 +51,7 @@ Interpreter::Interpreter() {
     this->thread = NULL;
     this->frame = NULL;
     
-    //this->page = _HEAP->RequestPage();
+    this->page = _HEAP->RequestPage();
 
     uG = "unknownGlobal:";
     dnu = "doesNotUnderstand:arguments:";
@@ -561,4 +561,12 @@ pVMThread Interpreter::GetThread(void) {
 
 void Interpreter::SetThread(pVMThread thread) {
     this->thread = thread;
+}
+
+Page* Interpreter::GetPage() {
+    return page;
+}
+
+void Interpreter::SetPage(Page* page) {
+    this->page = page;
 }

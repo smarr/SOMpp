@@ -44,7 +44,11 @@ pVMFrame VMFrame::EmergencyFrameFrom(pVMFrame from, long extraLength) {
                     + extraLength;
 
     long additionalBytes = length * sizeof(pVMObject);
+#if GC_TYPE==GENERATIONAL
+    pVMFrame result = new (_HEAP, _PAGE, additionalBytes) VMFrame(length);
+#else
     pVMFrame result = new (_HEAP, additionalBytes) VMFrame(length);
+#endif
 
     result->clazz = nullptr; // result->SetClass(from->GetClass());
 
@@ -81,7 +85,7 @@ pVMFrame VMFrame::EmergencyFrameFrom(pVMFrame from, long extraLength) {
 pVMFrame VMFrame::Clone() const {
     size_t addSpace = objectSize - sizeof(VMFrame);
 #if GC_TYPE==GENERATIONAL
-    pVMFrame clone = new (_HEAP, addSpace, true) VMFrame(*this);
+    pVMFrame clone = new (_HEAP, _PAGE, addSpace, true) VMFrame(*this);
 #else
     pVMFrame clone = new (_HEAP, addSpace) VMFrame(*this);
 #endif

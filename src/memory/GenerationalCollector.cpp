@@ -80,12 +80,6 @@ void GenerationalCollector::MinorCollection() {
 
     // and the current frames and threads
     CopyInterpretersFrameAndThread();
-    /*
-    pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
-    if (currentFrame != NULL) {
-        pVMFrame newFrame = static_cast<pVMFrame>(copy_if_necessary(currentFrame));
-        _UNIVERSE->GetInterpreter()->SetFrame(newFrame);
-    }*/
 
     // and also all objects that have been detected by the write barriers
     for (vector<size_t>::iterator objIter =
@@ -100,7 +94,19 @@ void GenerationalCollector::MinorCollection() {
         obj->WalkObjects(&copy_if_necessary);
     }
     _HEAP->oldObjsWithRefToYoungObjs->clear();
-    _HEAP->nextFreePosition = _HEAP->nursery;
+    
+    //need to clean this up a bit
+    _HEAP->fullPages->erase(_HEAP->fullPages->begin(),_HEAP->fullPages->end());
+    for (std::vector<Page*>::iterator it = _HEAP->allPages->begin() ; it != _HEAP->allPages->end(); ++it) {
+        (*it)->ClearPage();
+        _HEAP->availablePages->push_back((*it));
+    }
+    vector<Interpreter*>* interpreters = _UNIVERSE->GetInterpreters();
+    for (std::vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
+        Page* newPage = _HEAP->availablePages->back();
+        _HEAP->availablePages->pop_back();
+        (*it)->SetPage(newPage);
+    }
 }
 
 void GenerationalCollector::MajorCollection() {

@@ -62,6 +62,9 @@ class VMThread;
 //Convenience macro for Singleton access
 #define _UNIVERSE Universe::GetUniverse()
 
+//Convenience macro to get access to an interpreters memory page
+#define _PAGE _UNIVERSE->GetInterpreter()->GetPage()
+
 // for runtime debug
 extern short dumpBytecodes;
 extern short gcVerbosity;

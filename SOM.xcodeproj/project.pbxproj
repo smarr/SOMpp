@@ -72,6 +72,7 @@
 		908B99AB18D027C700A148C4 /* Delay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9004031518CD5E7400C0410A /* Delay.cpp */; };
 		908B99AC18D027E100A148C4 /* Signal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9004031918CD72D100C0410A /* Signal.cpp */; };
 		908B99AD18D027EA00A148C4 /* Thread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9004031F18CD735E00C0410A /* Thread.cpp */; };
+		908C18481904C47100E2C5BE /* PauselessHeap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 908C18471904C47100E2C5BE /* PauselessHeap.cpp */; };
 		90B4A87F18F202AA00C437BE /* Page.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90B4A87E18F202AA00C437BE /* Page.cpp */; };
 		90CBCF7B18C6BD060067954D /* VMMutex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90CBCF7A18C6BD060067954D /* VMMutex.cpp */; };
 		90CBCF7E18C6BD540067954D /* VMSignal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90CBCF7D18C6BD540067954D /* VMSignal.cpp */; };
@@ -240,6 +241,8 @@
 		9004031B18CD72D100C0410A /* Signal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Signal.h; sourceTree = "<group>"; };
 		9004031E18CD735E00C0410A /* Thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Thread.h; sourceTree = "<group>"; };
 		9004031F18CD735E00C0410A /* Thread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Thread.cpp; sourceTree = "<group>"; };
+		908C18461904C46000E2C5BE /* PauselessHeap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PauselessHeap.h; sourceTree = "<group>"; };
+		908C18471904C47100E2C5BE /* PauselessHeap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PauselessHeap.cpp; sourceTree = "<group>"; };
 		90A52B6818DF75C5000B3D32 /* Delay.som */ = {isa = PBXFileReference; lastKnownFileType = text; path = Delay.som; sourceTree = "<group>"; };
 		90A52B6918DF75F6000B3D32 /* Mutex.som */ = {isa = PBXFileReference; lastKnownFileType = text; path = Mutex.som; sourceTree = "<group>"; };
 		90A52B6A18DF760E000B3D32 /* Semaphore.som */ = {isa = PBXFileReference; lastKnownFileType = text; path = Semaphore.som; sourceTree = "<group>"; };
@@ -475,6 +478,8 @@
 				3F52030A0FA6624C00E75857 /* PagedHeap.h */,
 				0A1887231832C10E00A2CBCA /* GenerationalHeap.cpp */,
 				0A1887241832C10E00A2CBCA /* GenerationalHeap.h */,
+				908C18471904C47100E2C5BE /* PauselessHeap.cpp */,
+				908C18461904C46000E2C5BE /* PauselessHeap.h */,
 			);
 			path = memory;
 			sourceTree = "<group>";
@@ -885,6 +890,7 @@
 				0A1887391832C12E00A2CBCA /* Timer.cpp in Sources */,
 				0A1887021832BCFA00A2CBCA /* VMMethod.cpp in Sources */,
 				0A1887001832BCFA00A2CBCA /* VMInteger.cpp in Sources */,
+				908C18481904C47100E2C5BE /* PauselessHeap.cpp in Sources */,
 				0A1886E01832BCC800A2CBCA /* MethodGenerationContext.cpp in Sources */,
 				0A1886F91832BCF500A2CBCA /* VMArray.cpp in Sources */,
 				0A1886E51832BCD700A2CBCA /* Main.cpp in Sources */,

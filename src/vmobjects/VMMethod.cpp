@@ -71,7 +71,7 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
 
 pVMMethod VMMethod::Clone() const {
 #if GC_TYPE==GENERATIONAL
-    pVMMethod clone = new (_HEAP, GetObjectSize() - sizeof(VMMethod), true)
+    pVMMethod clone = new (_HEAP, _PAGE, GetObjectSize() - sizeof(VMMethod), true)
 #else
     pVMMethod clone = new (_HEAP, GetObjectSize() - sizeof(VMMethod))
 #endif

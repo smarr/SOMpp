@@ -99,9 +99,8 @@ public:
      */
     void* operator new(size_t numBytes, PagedHeap* heap,
 #if GC_TYPE==GENERATIONAL
-            unsigned long additionalBytes = 0, bool outsideNursery = false) {
-        void* mem = AbstractVMObject::operator new(numBytes, heap,
-                PADDED_SIZE(additionalBytes), outsideNursery);
+            Page* page, unsigned long additionalBytes = 0, bool outsideNursery = false) {
+        void* mem = AbstractVMObject::operator new(numBytes, heap, page, PADDED_SIZE(additionalBytes), outsideNursery);
 #elif GC_TYPE==COPYING
         unsigned long additionalBytes = 0) {
             void* mem = (void*) ((CopyingHeap*)heap)->AllocateObject(numBytes + PADDED_SIZE(additionalBytes));

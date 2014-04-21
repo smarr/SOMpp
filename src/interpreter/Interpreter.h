@@ -56,6 +56,8 @@ public:
     void      SetFrame(pVMFrame frame);
     pVMFrame  GetFrame();
     pVMObject GetSelf();
+    Page*     GetPage();
+    void      SetPage(Page*);
     void      WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
     
 private:
@@ -65,7 +67,7 @@ private:
     StdString dnu;
     StdString eB;
 
-    //Page* page;
+    Page* page;
     
     pVMFrame popFrame();
     void popFrameAndPushResult(pVMObject result);

@@ -29,6 +29,8 @@
 
 #include "VMString.h"
 
+#include "../vm/Universe.h"
+
 extern pVMClass stringClass;
 
 //this macro could replace the chars member variable
@@ -49,7 +51,7 @@ VMString::VMString(const char* str) : AbstractVMObject() {
 
 pVMString VMString::Clone() const {
 #if GC_TYPE==GENERATIONAL
-    return new (_HEAP, PADDED_SIZE(strlen(chars)+1), true) VMString(chars);
+    return new (_HEAP, _PAGE, PADDED_SIZE(strlen(chars)+1), true) VMString(chars);
 #else
     return new (_HEAP, PADDED_SIZE(strlen(chars)+1)) VMString(chars);
 #endif

@@ -54,13 +54,13 @@ class MarkSweepHeap;
 
 class PagedHeap {
     friend class GarbageCollector;
-    //friend class Page;
+    friend class Page;
     
 public:
     static inline HEAP_CLS* GetHeap();
-    static void InitializeHeap(long objectSpaceSize = 1048576,long pageSize = 8192);
+    static void InitializeHeap(long objectSpaceSize = 4194304,long pageSize = 32768);
     static void DestroyHeap();
-    PagedHeap(long objectSpaceSize = 1048576, long pageSize = 8192);
+    PagedHeap(long objectSpaceSize = 4194304, long pageSize = 32768);
     ~PagedHeap();
     inline void triggerGC(void);
     inline void resetGCTrigger(void);

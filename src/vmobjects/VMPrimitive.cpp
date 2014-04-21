@@ -34,7 +34,11 @@
 #include "../primitivesCore/Routine.h"
 
 pVMPrimitive VMPrimitive::GetEmptyPrimitive( pVMSymbol sig ) {
+#if GC_TYPE==GENERATIONAL
+    pVMPrimitive prim = new (_HEAP, _PAGE) VMPrimitive(sig);
+#else
     pVMPrimitive prim = new (_HEAP) VMPrimitive(sig);
+#endif
     prim->empty = true;
     prim->SetRoutine(new Routine<VMPrimitive>(prim, &VMPrimitive::EmptyRoutine));
     return prim;
@@ -54,7 +58,7 @@ VMPrimitive::VMPrimitive(pVMSymbol signature) : VMInvokable(VMPrimitiveNumberOfF
 pVMPrimitive VMPrimitive::Clone() const {
     pVMPrimitive prim;
 #if GC_TYPE==GENERATIONAL
-    prim = new (_HEAP, 0, true) VMPrimitive(*this);
+    prim = new (_HEAP, _PAGE, 0, true) VMPrimitive(*this);
 #else
     prim = new (_HEAP) VMPrimitive(*this);
 #endif
@@ -72,4 +76,3 @@ void VMPrimitive::EmptyRoutine( pVMObject _self, pVMFrame /*frame*/) {
     pVMSymbol sig = self->GetSignature();
     cout << "undefined primitive called: " << sig->GetChars() << endl;
 }
-

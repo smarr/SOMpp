@@ -27,7 +27,7 @@
 
 #include "compiler/ClassGenerationContext.h"
 
-#include "memory/Heap.h"
+#include "memory/PagedHeap.h"
 
 #include "misc/ExtendedList.h"
 #include "misc/defs.h"

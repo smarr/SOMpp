@@ -74,7 +74,7 @@ pVMArray VMArray::CopyAndExtendWith(pVMObject item) const {
 pVMArray VMArray::Clone() const {
     long addSpace = objectSize - sizeof(VMArray);
 #if GC_TYPE==GENERATIONAL
-    pVMArray clone = new (_HEAP, addSpace, true) VMArray(*this);
+    pVMArray clone = new (_HEAP, _PAGE, addSpace, true) VMArray(*this);
 #else
     pVMArray clone = new (_HEAP, addSpace) VMArray(*this);
 #endif

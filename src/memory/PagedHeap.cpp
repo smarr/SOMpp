@@ -30,8 +30,7 @@
 #include <sys/mman.h>
 
 #include "PagedHeap.h"
-#include "../vm/Universe.h"
-//#include "../vmobjects/VMObject.h"
+#include "../vmobjects/VMObject.h"
 
 HEAP_CLS* PagedHeap::theHeap = NULL;
 

@@ -13,11 +13,13 @@
 #include "ObjectFormats.h"
 
 #if GC_TYPE==GENERATIONAL
-  #include <memory/GenerationalHeap.h>
+    #include <memory/GenerationalHeap.h>
 #elif GC_TYPE==COPYING
-  #include <memory/CopyingHeap.h>
+    #include <memory/CopyingHeap.h>
 #elif GC_TYPE==MARK_SWEEP
-  #include <memory/MarkSweepHeap.h>
+    #include <memory/MarkSweepHeap.h>
+#elif GC_TYPE==PAUSELESS
+    #include <memory/PauselessHeap.h>
 #endif
 
 #include "VMObjectBase.h"
@@ -81,17 +83,15 @@ public:
     }
 
 #if GC_TYPE==GENERATIONAL
-    void* operator new(size_t numBytes, PagedHeap* heap,
-            unsigned long additionalBytes = 0, bool outsideNursery = false) {
+    void* operator new(size_t numBytes, PagedHeap* heap, Page* page, unsigned long additionalBytes = 0, bool outsideNursery = false) {
         //if outsideNursery flag is set or object is too big for nursery, we
         // allocate a mature object
         void* result;
-        //if (outsideNursery) {
+        if (outsideNursery) {
             result = (void*) ((GenerationalHeap*)heap)->AllocateMatureObject(numBytes + additionalBytes);
-        /*} else {
-            result = (void*) ((GenerationalHeap*)heap)->AllocateNurseryObject(numBytes + additionalBytes);
+        } else {
+            result = (void*) (page->AllocateObject(numBytes + additionalBytes));
         }
-        */
         assert(result != INVALID_POINTER);
         return result;
     }

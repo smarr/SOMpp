@@ -68,7 +68,7 @@ VMClass::VMClass() :
 
 pVMClass VMClass::Clone() const {
 #if GC_TYPE==GENERATIONAL
-    pVMClass clone = new (_HEAP, objectSize - sizeof(VMClass), true)VMClass(*this);
+    pVMClass clone = new (_HEAP, _PAGE, objectSize - sizeof(VMClass), true)VMClass(*this);
 #else
     pVMClass clone = new (_HEAP, objectSize - sizeof(VMClass))VMClass(*this);
 #endif

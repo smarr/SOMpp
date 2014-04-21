@@ -38,7 +38,7 @@ VMBigInteger::VMBigInteger(int64_t val) {
 
 pVMBigInteger VMBigInteger::Clone() const {
 #if GC_TYPE==GENERATIONAL
-    return new (_HEAP, 0, true) VMBigInteger(*this);
+    return new (_HEAP, _PAGE, 0, true) VMBigInteger(*this);
 #else
     return new (_HEAP) VMBigInteger(*this);
 #endif

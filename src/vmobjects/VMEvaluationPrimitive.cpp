@@ -50,7 +50,7 @@ VMEvaluationPrimitive::VMEvaluationPrimitive(long argc) :
 
 pVMEvaluationPrimitive VMEvaluationPrimitive::Clone() const {
 #if GC_TYPE==GENERATIONAL
-    pVMEvaluationPrimitive evPrim = new (_HEAP, 0, true) VMEvaluationPrimitive(*this);
+    pVMEvaluationPrimitive evPrim = new (_HEAP, _PAGE, 0, true) VMEvaluationPrimitive(*this);
 #else
     pVMEvaluationPrimitive evPrim = new (_HEAP) VMEvaluationPrimitive(*this);
 #endif

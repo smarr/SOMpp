@@ -38,7 +38,7 @@ VMDouble::VMDouble(double val) {
 
 pVMDouble VMDouble::Clone() const {
 #if GC_TYPE==GENERATIONAL
-    return new (_HEAP, 0, true) VMDouble(*this);
+    return new (_HEAP, _PAGE, 0, true) VMDouble(*this);
 #else
     return new (_HEAP) VMDouble(*this);
 #endif

@@ -322,8 +322,8 @@ void Universe::initialize(long _argc, char** _argv) {
     allocationStats["VMArray"] = {0,0};
 #endif
 
-    heapSize = 1 * 1024 * 1024;
-    pageSize = 8192;
+    heapSize = 4 * 1024 * 1024;
+    pageSize = 4 * 8192;
 
     vector<StdString> argv = this->handleArguments(_argc, _argv);
     
@@ -341,7 +341,11 @@ void Universe::initialize(long _argc, char** _argv) {
 #ifdef CACHE_INTEGER
     //create prebuilt integers
     for (long it = INT_CACHE_MIN_VALUE; it <= INT_CACHE_MAX_VALUE; ++it) {
+#if GC_TYPE==GENERATIONAL
+        prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = new (_HEAP, _PAGE) VMInteger(it);
+#else
         prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = new (_HEAP) VMInteger(it);
+#endif
     }
 #endif
 
@@ -409,7 +413,7 @@ Universe::~Universe() {
     pthread_mutex_destroy(&interpreterMutex);
     
     // check done inside
-    Heap::DestroyHeap();
+    PagedHeap::DestroyHeap();
 }
 
 #ifndef NDEBUG
@@ -492,47 +496,99 @@ Universe::~Universe() {
     }
 
     static void obtain_vtables_of_known_classes(pVMSymbol className) {
+#if GC_TYPE==GENERATIONAL
+        pVMArray arr  = new (_HEAP, _PAGE) VMArray(0, 0);
+#else
         pVMArray arr  = new (_HEAP) VMArray(0, 0);
+#endif
         vt_array      = *(void**) arr;
         
+#if GC_TYPE==GENERATIONAL
+        pVMBigInteger bi = new (_HEAP, _PAGE) VMBigInteger();
+#else
         pVMBigInteger bi = new (_HEAP) VMBigInteger();
+#endif
         vt_biginteger = *(void**) bi;
         
+#if GC_TYPE==GENERATIONAL
+        pVMBlock blck = new (_HEAP, _PAGE) VMBlock();
+#else
         pVMBlock blck = new (_HEAP) VMBlock();
+#endif
         vt_block      = *(void**) blck;
         
         vt_class      = *(void**) symbolClass;
         
+#if GC_TYPE==GENERATIONAL
+        pVMDouble dbl = new (_HEAP, _PAGE) VMDouble();
+#else
         pVMDouble dbl = new (_HEAP) VMDouble();
+#endif
         vt_double     = *(void**) dbl;
         
+#if GC_TYPE==GENERATIONAL
+        VMEvaluationPrimitive* ev = new (_HEAP, _PAGE) VMEvaluationPrimitive(1);
+#else
         VMEvaluationPrimitive* ev = new (_HEAP) VMEvaluationPrimitive(1);
+#endif
         vt_eval_primitive = *(void**) ev;
         
+#if GC_TYPE==GENERATIONAL
+        pVMFrame frm  = new (_HEAP, _PAGE) VMFrame(0, 0);
+#else
         pVMFrame frm  = new (_HEAP) VMFrame(0, 0);
+#endif
         vt_frame      = *(void**) frm;
         
+#if GC_TYPE==GENERATIONAL
+        pVMInteger i  = new (_HEAP, _PAGE) VMInteger();
+#else
         pVMInteger i  = new (_HEAP) VMInteger();
+#endif
         vt_integer    = *(void**) i;
         
+#if GC_TYPE==GENERATIONAL
+        pVMMethod mth = new (_HEAP, _PAGE) VMMethod(0, 0, 0);
+#else
         pVMMethod mth = new (_HEAP) VMMethod(0, 0, 0);
+#endif
         vt_method     = *(void**) mth;
         vt_object     = *(void**) nilObject;
         
+#if GC_TYPE==GENERATIONAL
+        pVMPrimitive prm = new (_HEAP, _PAGE) VMPrimitive(className);
+#else
         pVMPrimitive prm = new (_HEAP) VMPrimitive(className);
+#endif
         vt_primitive  = *(void**) prm;
         
+#if GC_TYPE==GENERATIONAL
+        pVMString str = new (_HEAP, _PAGE) VMString("");
+#else
         pVMString str = new (_HEAP) VMString("");
+#endif
         vt_string     = *(void**) str;
         vt_symbol     = *(void**) className;
         
+#if GC_TYPE==GENERATIONAL
+        pVMThread thr = new (_HEAP, _PAGE) VMThread();
+#else
         pVMThread thr = new (_HEAP) VMThread();
+#endif
         vt_thread     = *(void**) thr;
         
+#if GC_TYPE==GENERATIONAL
+        pVMMutex mtx  = new (_HEAP, _PAGE) VMMutex();
+#else
         pVMMutex mtx  = new (_HEAP) VMMutex();
+#endif
         vt_mutex      = *(void**) mtx;
         
+#if GC_TYPE==GENERATIONAL
+        pVMSignal sgnl = new (_HEAP, _PAGE) VMSignal();
+#else
         pVMSignal sgnl = new (_HEAP) VMSignal();
+#endif
         vt_signal      = *(void**) sgnl;
     }
 #endif
@@ -543,7 +599,13 @@ void Universe::InitializeGlobals() {
     //
     //allocate nil object
     //
+    
+#if GC_TYPE==GENERATIONAL
+    nilObject = new (_HEAP, _PAGE) VMObject;
+#else
     nilObject = new (_HEAP) VMObject;
+#endif
+    
     static_cast<VMObject*>(nilObject)->SetField(0, nilObject);
 
     metaClassClass = NewMetaclassClass();
@@ -640,8 +702,12 @@ pVMClass Universe::GetBlockClassWithArgs(long numberOfArguments) {
     Str << "Block" << numberOfArguments;
     pVMSymbol name = SymbolFor(Str.str());
     pVMClass result = LoadClassBasic(name, NULL);
-
+    
+#if GC_TYPE==GENERATIONAL
+    result->AddInstancePrimitive(new (_HEAP, _PAGE) VMEvaluationPrimitive(numberOfArguments) );
+#else
     result->AddInstancePrimitive(new (_HEAP) VMEvaluationPrimitive(numberOfArguments) );
+#endif
 
     SetGlobal(name, result);
     blockClassesByNoOfArgs[numberOfArguments] = result;
@@ -767,7 +833,7 @@ pVMArray Universe::NewArray(long size) const {
     // mature object
     bool outsideNursery = additionalBytes + sizeof(VMArray) > _HEAP->GetMaxNurseryObjectSize();
 
-    pVMArray result = new (_HEAP, additionalBytes, outsideNursery) VMArray(size);
+    pVMArray result = new (_HEAP, _PAGE, additionalBytes, outsideNursery) VMArray(size);
     if (outsideNursery)
         result->SetGCField(MASK_OBJECT_IS_OLD);
 #else
@@ -817,11 +883,19 @@ pVMBigInteger Universe::NewBigInteger( int64_t value) const {
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION("VMBigInteger", sizeof(VMBigInteger));
 #endif
+#if GC_TYPE==GENERATIONAL
+    return new (_HEAP, _PAGE) VMBigInteger(value);
+#else
     return new (_HEAP) VMBigInteger(value);
+#endif
 }
 
 pVMBlock Universe::NewBlock(pVMMethod method, pVMFrame context, long arguments) {
+#if GC_TYPE==GENERATIONAL
+    pVMBlock result = new (_HEAP, _PAGE) VMBlock;
+#else
     pVMBlock result = new (_HEAP) VMBlock;
+#endif
     result->SetClass(this->GetBlockClassWithArgs(arguments));
 
     result->SetMethod(method);
@@ -837,8 +911,18 @@ pVMClass Universe::NewClass(pVMClass classOfClass) const {
     long numFields = classOfClass->GetNumberOfInstanceFields();
     pVMClass result;
     long additionalBytes = numFields * sizeof(pVMObject);
-    if (numFields) result = new (_HEAP, additionalBytes) VMClass(numFields);
-    else result = new (_HEAP) VMClass;
+    if (numFields)
+#if GC_TYPE==GENERATIONAL
+    result = new (_HEAP, _PAGE, additionalBytes) VMClass(numFields);
+#else
+    result = new (_HEAP, additionalBytes) VMClass(numFields);
+#endif
+    else
+#if GC_TYPE==GENERATIONAL
+        result = new (_HEAP, _PAGE) VMClass;
+#else
+        result = new (_HEAP) VMClass;
+#endif
 
     result->SetClass(classOfClass);
 #ifdef GENERATE_ALLOCATION_STATISTICS
@@ -852,7 +936,11 @@ pVMDouble Universe::NewDouble(double value) const {
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION("VMDouble", sizeof(VMDouble));
 #endif
+#if GC_TYPE==GENERATIONAL
+    return new (_HEAP, _PAGE) VMDouble(value);
+#else
     return new (_HEAP) VMDouble(value);
+#endif
 }
 
 pVMFrame Universe::NewFrame(pVMFrame previousFrame, pVMMethod method) const {
@@ -874,7 +962,11 @@ pVMFrame Universe::NewFrame(pVMFrame previousFrame, pVMMethod method) const {
                   method->GetMaximumNumberOfStackElements();
 
     long additionalBytes = length * sizeof(pVMObject);
+#if GC_TYPE==GENERATIONAL
+    result = new (_HEAP, _PAGE, additionalBytes) VMFrame(length);
+#else
     result = new (_HEAP, additionalBytes) VMFrame(length);
+#endif
     result->clazz = nullptr;
     result->method = method;
 #ifdef GENERATE_ALLOCATION_STATISTICS
@@ -889,7 +981,11 @@ pVMObject Universe::NewInstance( pVMClass classOfInstance) const {
     long numOfFields = classOfInstance->GetNumberOfInstanceFields();
     //the additional space needed is calculated from the number of fields
     long additionalBytes = numOfFields * sizeof(pVMObject);
+#if GC_TYPE==GENERATIONAL
+    pVMObject result = new (_HEAP, _PAGE, additionalBytes) VMObject(numOfFields);
+#else
     pVMObject result = new (_HEAP, additionalBytes) VMObject(numOfFields);
+#endif
     result->SetClass(classOfInstance);
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION(classOfInstance->GetName()->GetStdString(), result->GetObjectSize());
@@ -913,13 +1009,21 @@ pVMInteger Universe::NewInteger( long value) const {
     LOG_ALLOCATION("VMInteger", sizeof(VMInteger));
 #endif
 
+#if GC_TYPE==GENERATIONAL
+    return new (_HEAP, _PAGE) VMInteger(value);
+#else
     return new (_HEAP) VMInteger(value);
+#endif
 }
 
 pVMClass Universe::NewMetaclassClass() const {
+#if GC_TYPE==GENERATIONAL
+    pVMClass result = new (_HEAP, _PAGE) VMClass;
+    result->SetClass(new (_HEAP, _PAGE) VMClass);
+#else
     pVMClass result = new (_HEAP) VMClass;
     result->SetClass(new (_HEAP) VMClass);
-
+#endif
     pVMClass mclass = result->GetClass();
     mclass->SetClass(result);
 #ifdef GENERATE_ALLOCATION_STATISTICS
@@ -1011,13 +1115,14 @@ pVMMethod Universe::NewMethod( pVMSymbol signature,
         size_t numberOfBytecodes, size_t numberOfConstants) const {
     //Method needs space for the bytecodes and the pointers to the constants
     long additionalBytes = PADDED_SIZE(numberOfBytecodes + numberOfConstants*sizeof(pVMObject));
-//#if GC_TYPE==GENERATIONAL
-//    pVMMethod result = new (_HEAP,additionalBytes, true) 
-//                VMMethod(numberOfBytecodes, numberOfConstants);
-//#else
+
+#if GC_TYPE==GENERATIONAL
+    pVMMethod result = new (_HEAP, _PAGE, additionalBytes)
+#else
     pVMMethod result = new (_HEAP,additionalBytes)
+#endif
     VMMethod(numberOfBytecodes, numberOfConstants);
-//#endif
+
     result->SetClass(methodClass);
 
     result->SetSignature(signature);
@@ -1029,7 +1134,11 @@ pVMMethod Universe::NewMethod( pVMSymbol signature,
 }
 
 pVMMutex Universe::NewMutex() const {
+#if GC_TYPE==GENERATIONAL
+    pVMMutex result = new (_HEAP, _PAGE) VMMutex();
+#else
     pVMMutex result = new (_HEAP) VMMutex();
+#endif
     result->SetClass(mutexClass);
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION("VMMutex", sizeof(VMMutex));
@@ -1038,7 +1147,11 @@ pVMMutex Universe::NewMutex() const {
 }
 
 pVMSignal Universe::NewSignal() const {
+#if GC_TYPE==GENERATIONAL
+    pVMSignal result = new (_HEAP, _PAGE) VMSignal();
+#else
     pVMSignal result = new (_HEAP) VMSignal();
+#endif
     result->SetClass(signalClass);
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION("VMSignal", sizeof(VMSignal));
@@ -1047,7 +1160,11 @@ pVMSignal Universe::NewSignal() const {
 }
 
 pVMThread Universe::NewThread() const {
+#if GC_TYPE==GENERATIONAL
+    pVMThread result = new (_HEAP, _PAGE) VMThread();
+#else
     pVMThread result = new (_HEAP) VMThread();
+#endif
     result->SetThreadId(threadCounter);
     threadCounter += 1;
     result->SetClass(threadClass);
@@ -1062,7 +1179,11 @@ pVMString Universe::NewString( const StdString& str) const {
 }
 
 pVMString Universe::NewString( const char* str) const {
+#if GC_TYPE==GENERATIONAL
+    pVMString result = new (_HEAP, _PAGE, PADDED_SIZE(strlen(str) + 1)) VMString(str);
+#else
     pVMString result = new (_HEAP, PADDED_SIZE(strlen(str) + 1)) VMString(str);
+#endif
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION("VMString", result->GetObjectSize());
 #endif
@@ -1074,7 +1195,11 @@ pVMSymbol Universe::NewSymbol( const StdString& str) {
 }
 
 pVMSymbol Universe::NewSymbol( const char* str ) {
+#if GC_TYPE==GENERATIONAL
+    pVMSymbol result = new (_HEAP, _PAGE, PADDED_SIZE(strlen(str)+1)) VMSymbol(str);
+#else
     pVMSymbol result = new (_HEAP, PADDED_SIZE(strlen(str)+1)) VMSymbol(str);
+#endif
     symbolsMap[str] = result;
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION("VMSymbol", result->GetObjectSize());
@@ -1083,9 +1208,14 @@ pVMSymbol Universe::NewSymbol( const char* str ) {
 }
 
 pVMClass Universe::NewSystemClass() const {
+#if GC_TYPE==GENERATIONAL
+    pVMClass systemClass = new (_HEAP, _PAGE) VMClass();
+    systemClass->SetClass(new (_HEAP, _PAGE) VMClass());
+#else
     pVMClass systemClass = new (_HEAP) VMClass();
-
     systemClass->SetClass(new (_HEAP) VMClass());
+#endif
+    
     pVMClass mclass = systemClass->GetClass();
 
     mclass->SetClass(metaClassClass);
