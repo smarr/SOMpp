@@ -101,8 +101,21 @@ void Lexer::lexNumber() {
     sym = Integer;
     symc = 0;
     char* t = text;
+    
+    bool sawDecimalMark = false;
+    
     do {
         *t++ = buf[bufp++];
+        
+        if (!sawDecimalMark         and
+            '.' == _BC              and
+            bufp + 1 < buf.length() and
+            isdigit(buf[bufp + 1])) {
+            sym = Double;
+            sawDecimalMark = true;
+            *t++ = buf[bufp++];
+        }
+        
     } while (isdigit(_BC));
     *t = 0;
 }

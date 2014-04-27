@@ -31,6 +31,7 @@
 #include <vmobjects/VMPrimitive.h>
 #include <vmobjects/VMObject.h>
 #include <vmobjects/VMBigInteger.h>
+#include <vmobjects/VMDouble.h>
 #include <vmobjects/VMSymbol.h>
 #include <vmobjects/VMClass.h>
 
@@ -39,7 +40,6 @@
 #include <iostream>
 #include <cctype>
 #include <sstream>
-#include <stdlib.h>
 #include <string.h>
 
 #include <assert.h>
@@ -741,40 +741,57 @@ void Parser::literal(MethodGenerationContext* mgenc) {
 }
 
 void Parser::literalNumber(MethodGenerationContext* mgenc) {
-    int64_t val;
-    if (sym == Minus)
-        val = negativeDecimal();
-    else
-        val = literalDecimal();
-
     pVMObject lit;
-    if (val < INT32_MIN || val > INT32_MAX) {
-        lit = _UNIVERSE->NewBigInteger(val);
-    } else {
-        #ifdef USE_TAGGING
-            lit = TAG_INTEGER(val);
-        #else
-            lit = _UNIVERSE->NewInteger(val);
-        #endif
-    }
+    if (sym == Minus)
+        lit = negativeDecimal();
+    else
+        lit = literalDecimal(false);
+
+    
 
     mgenc->AddLiteralIfAbsent(lit);
     bcGen->EmitPUSHCONSTANT(mgenc, lit);
 }
 
-uint64_t Parser::literalDecimal(void) {
-    return literalInteger();
+pVMObject Parser::literalDecimal(bool negateValue) {
+    if (sym == Integer) {
+        return literalInteger(negateValue);
+    } else {
+        assert(sym == Double);
+        return literalDouble(negateValue);
+    }
 }
 
-int64_t Parser::negativeDecimal(void) {
+pVMObject Parser::negativeDecimal(void) {
     expect(Minus);
-    return -literalInteger();
+    return literalDecimal(true);
 }
 
-uint64_t Parser::literalInteger(void) {
-    uint64_t i = strtoull(text.c_str(), NULL, 10);
+pVMObject Parser::literalInteger(bool negateValue) {
+    int64_t i = std::strtoll(text.c_str(), nullptr, 10);
     expect(Integer);
-    return i;
+    if (negateValue) {
+        i = 0 - i;
+    }
+    
+    if (i < INT32_MIN || i > INT32_MAX) {
+        return _UNIVERSE->NewBigInteger(i);
+    } else {
+      #ifdef USE_TAGGING
+        return TAG_INTEGER(i);
+      #else
+        return _UNIVERSE->NewInteger(i);
+      #endif
+    }
+}
+
+pVMObject Parser::literalDouble(bool negateValue) {
+    double d = std::strtod(text.c_str(), nullptr);
+    if (negateValue) {
+        d = 0 - d;
+    }
+    expect(Double);
+    return _UNIVERSE->NewDouble(d);
 }
 
 void Parser::literalSymbol(MethodGenerationContext* mgenc) {

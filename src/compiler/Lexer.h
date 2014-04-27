@@ -38,6 +38,7 @@ using namespace std;
 typedef enum {
     NONE,
     Integer,
+    Double,
     Not,
     And,
     Or,
