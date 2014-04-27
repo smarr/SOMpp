@@ -189,11 +189,11 @@ void VMFrame::PrintStack() const {
         pVMObject vmo = arguments[i];
         cout << i << ": ";
         if (vmo == NULL)
-        cout << "NULL" << endl;
-        if (vmo == nilObject)
-        cout << "NIL_OBJECT" << endl;
+            cout << "NULL" << endl;
+        else if (vmo == nilObject)
+            cout << "NIL_OBJECT" << endl;
 #ifdef USE_TAGGING
-        if (IS_TAGGED(vmo)) {
+        else if (IS_TAGGED(vmo)) {
             cout << "index: " << i << " object: VMInteger" << endl;
         }
         else {
@@ -206,13 +206,13 @@ void VMFrame::PrintStack() const {
             << ((VMOBJECT_PTR)vmo)->GetClass()->GetName()->GetChars() << endl;
         }
 #else
-        if (vmo->GetClass() == NULL)
-        cout << "VMObject with Class == NULL" << endl;
-        if (vmo->GetClass() == nilObject)
-        cout << "VMObject with Class == NIL_OBJECT" << endl;
+        else if (vmo->GetClass() == NULL)
+            cout << "VMObject with Class == NULL" << endl;
+        else if (vmo->GetClass() == nilObject)
+            cout << "VMObject with Class == NIL_OBJECT" << endl;
         else
-        cout << "index: " << i << " object:"
-        << vmo->GetClass()->GetName()->GetChars() << endl;
+            cout << "index: " << i << " object:"
+                 << vmo->GetClass()->GetName()->GetChars() << endl;
 #endif
         i++;
     }
