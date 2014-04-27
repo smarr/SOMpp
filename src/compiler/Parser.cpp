@@ -96,6 +96,10 @@ bool Parser::acceptOneOf(Symbol* ss) {
 
 #define _PRINTABLE_SYM (sym == Integer || sym >= STString)
 
+bool Parser::symIsIdentifier() {
+    return sym == Identifier || sym == Primitive;
+}
+
 bool Parser::expect(Symbol s) {
     if (accept(s))
         return true;
@@ -191,7 +195,7 @@ void Parser::Classdef(ClassGenerationContext* cgenc) {
 
     expect(NewTerm);
     instanceFields(cgenc);
-    while (sym == Identifier || sym == Keyword || sym == OperatorSequence ||
+    while (symIsIdentifier() || sym == Keyword || sym == OperatorSequence ||
            symIn(binaryOpSyms)) {
 
         MethodGenerationContext mgenc;
@@ -209,7 +213,7 @@ void Parser::Classdef(ClassGenerationContext* cgenc) {
     if (accept(Separator)) {
         cgenc->SetClassSide(true);
         classFields(cgenc);
-        while (sym == Identifier || sym == Keyword || sym == OperatorSequence ||
+        while (symIsIdentifier() || sym == Keyword || sym == OperatorSequence ||
         symIn(binaryOpSyms)) {
             MethodGenerationContext mgenc;
             mgenc.SetHolder(cgenc);
@@ -256,7 +260,7 @@ void Parser::superclass(ClassGenerationContext *cgenc) {
 
 void Parser::instanceFields(ClassGenerationContext* cgenc) {
     if (accept(Or)) {
-        while (sym == Identifier) {
+        while (symIsIdentifier()) {
             StdString var = variable();
             cgenc->AddInstanceField(_UNIVERSE->SymbolFor(var));
         }
@@ -266,7 +270,7 @@ void Parser::instanceFields(ClassGenerationContext* cgenc) {
 
 void Parser::classFields(ClassGenerationContext* cgenc) {
     if (accept(Or)) {
-        while (sym == Identifier) {
+        while (symIsIdentifier()) {
             StdString var = variable();
             cgenc->AddClassField(_UNIVERSE->SymbolFor(var));
         }
@@ -292,6 +296,7 @@ void Parser::primitiveBlock(void) {
 void Parser::pattern(MethodGenerationContext* mgenc) {
     switch (sym) {
     case Identifier:
+    case Primitive:
         unaryPattern(mgenc);
         break;
     case Keyword:
@@ -394,7 +399,7 @@ void Parser::blockContents(MethodGenerationContext* mgenc, bool is_inlined) {
 }
 
 void Parser::locals(MethodGenerationContext* mgenc) {
-    while (sym == Identifier)
+    while (symIsIdentifier())
         mgenc->AddLocalIfAbsent(variable());
 }
 
@@ -463,7 +468,7 @@ void Parser::assignation(MethodGenerationContext* mgenc) {
 }
 
 void Parser::assignments(MethodGenerationContext* mgenc, list<StdString>& l) {
-    if (sym == Identifier) {
+    if (symIsIdentifier()) {
         l.push_back(assignment(mgenc));
         PEEK
         ;
@@ -485,7 +490,7 @@ StdString Parser::assignment(MethodGenerationContext* mgenc) {
 void Parser::evaluation(MethodGenerationContext* mgenc) {
     bool super;
     primary(mgenc, &super);
-    if (sym == Identifier || sym == Keyword || sym == OperatorSequence
+    if (symIsIdentifier() || sym == Keyword || sym == OperatorSequence
             || symIn(binaryOpSyms)) {
         messages(mgenc, super);
     }
@@ -494,6 +499,7 @@ void Parser::evaluation(MethodGenerationContext* mgenc) {
 void Parser::primary(MethodGenerationContext* mgenc, bool* super) {
     *super = false;
     switch (sym) {
+    case Primitive:
     case Identifier: {
         StdString v = variable();
         if (v == "super") {
@@ -533,12 +539,12 @@ StdString Parser::variable(void) {
 }
 
 void Parser::messages(MethodGenerationContext* mgenc, bool super) {
-    if (sym == Identifier) {
+    if (symIsIdentifier()) {
         do {
             // only the first message in a sequence can be a super send
             unaryMessage(mgenc, super);
             super = false;
-        } while (sym == Identifier);
+        } while (symIsIdentifier());
 
         while (sym == OperatorSequence || symIn(binaryOpSyms)) {
             binaryMessage(mgenc, false);
@@ -589,7 +595,7 @@ void Parser::binaryMessage(MethodGenerationContext* mgenc, bool super) {
 void Parser::binaryOperand(MethodGenerationContext* mgenc, bool* super) {
     primary(mgenc, super);
 
-    while (sym == Identifier)
+    while (symIsIdentifier())
         unaryMessage(mgenc, *super);
 }
 

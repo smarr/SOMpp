@@ -46,6 +46,8 @@ public:
     void Classdef(ClassGenerationContext* cgenc);
 private:
     bool eob(void);
+    
+    bool symIsIdentifier();
 
     bool symIn(Symbol* ss);
     bool accept(Symbol s);
