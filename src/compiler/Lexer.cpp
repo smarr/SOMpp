@@ -97,6 +97,44 @@ void Lexer::skipComment(void) {
 #define SEPARATOR StdString("----") //FIXME
 #define PRIMITIVE StdString("primitive")
 
+void Lexer::lexNumber() {
+    sym = Integer;
+    symc = 0;
+    char* t = text;
+    do {
+        *t++ = buf[bufp++];
+    } while (isdigit(_BC));
+    *t = 0;
+}
+
+void Lexer::lexOperator() {
+    if (_ISOP(buf[bufp + 1])) {
+        sym = OperatorSequence;
+        symc = 0;
+        char* t = text;
+        while (_ISOP(_BC))
+            *t++ = buf[bufp++];
+        *t = 0;
+    } else _MATCH('~', Not)  else _MATCH('&', And)   else _MATCH('|', Or)
+      else _MATCH('*', Star) else _MATCH('/', Div)   else _MATCH('\\', Mod)
+      else _MATCH('+', Plus) else _MATCH('=', Equal) else _MATCH('>', More)
+      else _MATCH('<', Less) else _MATCH(',', Comma) else _MATCH('@', At)
+      else _MATCH('%', Per)
+}
+
+void Lexer::lexString() {
+    sym = STString;
+    symc = 0;
+    char* t = text;
+    do {
+        *t++ = buf[++bufp];
+        
+    } while (_BC != '\'');
+    
+    bufp++;
+    *--t = 0;
+}
+
 Symbol Lexer::GetSym(void) {
     if (peekDone) {
         peekDone = false;
@@ -115,16 +153,7 @@ Symbol Lexer::GetSym(void) {
     } while ((EOB || isspace(_BC) || _BC == '"') && infile.good());
 
     if (_BC == '\'') {
-        sym = STString;
-        symc = 0;
-        char* t = text;
-        do {
-            *t++ = buf[++bufp];
-
-        } while (_BC != '\'');
-
-        bufp++;
-        *--t = 0;
+        lexString();
     } else _MATCH('[', NewBlock) else _MATCH(']', EndBlock) else if (_BC
             == ':') {
         if (buf[bufp + 1] == '=') {
@@ -153,15 +182,7 @@ Symbol Lexer::GetSym(void) {
             sprintf(text, "-");
         }
     } else if (_ISOP(_BC)) {
-        if (_ISOP(buf[bufp + 1])) {
-            sym = OperatorSequence;
-            symc = 0;
-            char* t = text;
-            while (_ISOP(_BC))
-                *t++ = buf[bufp++];
-            *t = 0;
-        } else _MATCH('~', Not) else _MATCH('&', And) else _MATCH('|', Or) else _MATCH('*', Star) else _MATCH('/', Div) else _MATCH('\\', Mod) else _MATCH('+', Plus) else _MATCH('=', Equal) else _MATCH('>', More) else _MATCH('<', Less) else _MATCH(',', Comma) else _MATCH('@', At) else _MATCH(
-                '%', Per)
+        lexOperator();
     } else if (!buf.substr(bufp, PRIMITIVE.length()).compare(PRIMITIVE)) {
         bufp += PRIMITIVE.length();
         sym = Primitive;
@@ -185,13 +206,7 @@ Symbol Lexer::GetSym(void) {
         }
         *t = 0;
     } else if (isdigit(_BC)) {
-        sym = Integer;
-        symc = 0;
-        char* t = text;
-        do {
-            *t++ = buf[bufp++];
-        } while (isdigit(_BC));
-        *t = 0;
+        lexNumber();
     } else {
         sym = NONE;
         symc = _BC;

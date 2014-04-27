@@ -95,6 +95,10 @@ private:
     size_t fillBuffer(void);
     void skipWhiteSpace(void);
     void skipComment(void);
+    
+    void lexNumber();
+    void lexOperator();
+    void lexString();
 
     istream& infile;
 
