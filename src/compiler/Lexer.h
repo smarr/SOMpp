@@ -99,6 +99,8 @@ private:
     void lexNumber();
     void lexOperator();
     void lexString();
+    
+    bool nextWordInBufferIs(StdString word);
 
     istream& infile;
 
