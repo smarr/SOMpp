@@ -107,6 +107,7 @@ bool VMClass::AddInstanceInvokable(pVMObject ptr) {
     pVMInvokable newInvokable = static_cast<pVMInvokable>(ptr);
     if (newInvokable == NULL) {
         _UNIVERSE->ErrorExit("Error: trying to add non-invokable to invokables array");
+        return false;
     }
     //Check whether an invokable with the same signature exists and replace it if that's the case
     long numIndexableFields = instanceInvokables->GetNumberOfIndexableFields();
@@ -119,6 +120,7 @@ bool VMClass::AddInstanceInvokable(pVMObject ptr) {
             }
         } else {
             _UNIVERSE->ErrorExit("Invokables array corrupted. Either NULL pointer added or pointer to non-invokable.");
+            return false;
         }
     }
     //it's a new invokable so we need to expand the invokables array.
@@ -373,6 +375,7 @@ bool VMClass::isResponsible(void* dlhandle, const StdString& cl) const {
     if (!supports_class) {
         cout << "error: " << dlerror() << endl;
         _UNIVERSE->ErrorExit("Library doesn't have expected format: ");
+        return false;
     }
 
     // test class responsibility

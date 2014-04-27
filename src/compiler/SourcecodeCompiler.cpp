@@ -104,6 +104,7 @@ pVMClass SourcecodeCompiler::compile(pVMClass systemClass) {
     if (parser == NULL) {
         cout << "Parser not initiated" << endl;
         _UNIVERSE->ErrorExit("Compiler error");
+        return NULL;
     }
     ClassGenerationContext cgc;
 

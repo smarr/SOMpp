@@ -131,7 +131,7 @@ void Universe::Start(long argc, char** argv) {
     theUniverse->initialize(argc, argv);
 }
 
-void Universe::Quit(long err) {
+__attribute__((noreturn)) void Universe::Quit(long err) {
     cout << "Time spent in GC: [" << Timer::GCTimer->GetTotalTime() << "] msec"
             << endl;
 #ifdef GENERATE_INTEGER_HISTOGRAM
@@ -177,7 +177,7 @@ void Universe::Quit(long err) {
     exit((int) err);
 }
 
-void Universe::ErrorExit(const char* err) {
+__attribute__((noreturn)) void Universe::ErrorExit(const char* err) {
     cout << "Runtime error: " << err << endl;
     Quit(ERR_FAIL);
 }
