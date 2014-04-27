@@ -88,6 +88,13 @@ _Integer::_Integer() :
     this->SetPrimitive("bitAnd_",
             new Routine<_Integer>(this, &_Integer::BitwiseAnd));
 
+    this->SetPrimitive("bitXor_",
+            new Routine<_Integer>(this, &_Integer::BitwiseXor));
+
+
+    this->SetPrimitive("lowerthanlowerthan",
+            new Routine<_Integer>(this, &_Integer::LeftShift));
+
     this->SetPrimitive("slash", new Routine<_Integer>(this, &_Integer::Slash));
 
     this->SetPrimitive("slashslash",
@@ -193,6 +200,31 @@ void _Integer::BitwiseAnd(pVMObject object, pVMFrame frame) {
     int64_t result = (int64_t)UNTAG_INTEGER(left) & (int64_t)UNTAG_INTEGER(right);
 #else
     int64_t result = (int64_t)left->GetEmbeddedInteger() & (int64_t)right->GetEmbeddedInteger();
+#endif
+    pushResult(object, frame, result);
+}
+
+void _Integer::BitwiseXor(pVMObject object, pVMFrame frame) {
+    pVMInteger right = static_cast<pVMInteger>(frame->Pop());
+    pVMInteger left  = static_cast<pVMInteger>(frame->Pop());
+    
+#ifdef USE_TAGGING
+    int64_t result = (int64_t)UNTAG_INTEGER(left) ^ (int64_t)UNTAG_INTEGER(right);
+#else
+    int64_t result = (int64_t)left->GetEmbeddedInteger() ^ (int64_t)right->GetEmbeddedInteger();
+#endif
+    pushResult(object, frame, result);
+}
+
+
+void _Integer::LeftShift(pVMObject object, pVMFrame frame) {
+    pVMInteger right = static_cast<pVMInteger>(frame->Pop());
+    pVMInteger left  = static_cast<pVMInteger>(frame->Pop());
+    
+#ifdef USE_TAGGING
+    int64_t result = (int64_t)UNTAG_INTEGER(left) << (int64_t)UNTAG_INTEGER(right);
+#else
+    int64_t result = (int64_t)left->GetEmbeddedInteger() << (int64_t)right->GetEmbeddedInteger();
 #endif
     pushResult(object, frame, result);
 }

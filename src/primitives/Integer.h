@@ -45,6 +45,8 @@ public:
     void Minus(pVMObject object, pVMFrame frame);
     void Star(pVMObject object, pVMFrame frame);
     void BitwiseAnd(pVMObject object, pVMFrame frame);
+    void BitwiseXor(pVMObject object, pVMFrame frame);
+    void LeftShift(pVMObject object, pVMFrame frame);
     void Slash(pVMObject object, pVMFrame frame);
     void Slashslash(pVMObject object, pVMFrame frame);
     void Percent(pVMObject object, pVMFrame frame);
