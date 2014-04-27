@@ -118,16 +118,16 @@ _Integer::_Integer() :
 //
 
 void _Integer::pushResult(pVMObject /*object*/, pVMFrame frame,
-int64_t result) {
+                          int64_t result) {
     int32_t i32min = INT32_MIN;
     // Check with integer bounds and push:
     if(result > INT32_MAX || result < i32min)
-    frame->Push(_UNIVERSE->NewBigInteger(result));
+        frame->Push(_UNIVERSE->NewBigInteger(result));
     else
 #ifdef USE_TAGGING
-    frame->Push(TAG_INTEGER((int32_t)result));
+        frame->Push(TAG_INTEGER((int32_t)result));
 #else
-    frame->Push(_UNIVERSE->NewInteger((int32_t)result));
+        frame->Push(_UNIVERSE->NewInteger((int32_t)result));
 #endif
 }
 
