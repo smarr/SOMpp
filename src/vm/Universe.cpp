@@ -831,7 +831,7 @@ pVMArray Universe::NewArray(long size) const {
 #if GC_TYPE==GENERATIONAL
     // if the array is too big for the nursery, we will directly allocate a
     // mature object
-    bool outsideNursery = additionalBytes + sizeof(VMArray) > _HEAP->GetMaxNurseryObjectSize();
+    bool outsideNursery = additionalBytes + sizeof(VMArray) > _HEAP->GetMaxObjectSize();
 
     pVMArray result = new (_HEAP, _PAGE, additionalBytes, outsideNursery) VMArray(size);
     if (outsideNursery)
@@ -1107,8 +1107,8 @@ void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     symbolIfTrue  = symbolsMap["ifTrue:"];
     symbolIfFalse = symbolsMap["ifFalse:"];
     
-    // why is this so bad?
-    this->GetInterpreter()->WalkGlobals(walk);
+    // why is this so bad? This is not necessary
+    //this->GetInterpreter()->WalkGlobals(walk);
 }
 
 pVMMethod Universe::NewMethod( pVMSymbol signature,

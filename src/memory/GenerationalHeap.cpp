@@ -13,50 +13,12 @@
 
 GenerationalHeap::GenerationalHeap(long objectSpaceSize, long pageSize) {
     //our initial collection limit is 90% of objectSpaceSize
-    //collectionLimit = objectSpaceSize * 0.9;
     gc = new GenerationalCollector(this);
-    // create region in which we can allocate objects, pages will be created in this region
-    nurseryStart = mmap(NULL, objectSpaceSize, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, 0, 0);
-    memset(nurseryStart, 0x0, objectSpaceSize);
-    // initialize some meta data of the heap
-    maxNurseryObjSize = pageSize / 2;
-    nextFreePagePosition = nurseryStart;
-    allPages = new vector<Page*>();
-    availablePages = new vector<Page*>();
-    fullPages = new vector<Page*>();
-    collectionLimit = (void*)((size_t)nurseryStart + ((size_t)(objectSpaceSize * 0.9)));
     // meta data for mature object allocation
     pthread_mutex_init(&allocationLock, NULL);
     matureObjectsSize = 0;
     allocatedObjects = new vector<VMOBJECT_PTR>();
     oldObjsWithRefToYoungObjs = new vector<size_t>();
-}
-
-size_t GenerationalHeap::GetMaxNurseryObjectSize() {
-    return maxNurseryObjSize;
-}
-
-Page* GenerationalHeap::RequestPage() {
-    Page* newPage;
-    if (availablePages->empty()) {
-        newPage = new Page(nextFreePagePosition, this);
-        allPages->push_back(newPage);
-        nextFreePagePosition = (void*) ((size_t)nextFreePagePosition + pageSize);
-        if (nextFreePagePosition > collectionLimit)
-            triggerGC();
-    } else {
-        newPage = availablePages->back();
-        availablePages->pop_back();
-    }
-    return newPage;
-}
-
-void GenerationalHeap::RelinquishPage(Page* page) {
-    availablePages->push_back(page);
-}
-
-void GenerationalHeap::RelinquishFullPage(Page* page) {
-    fullPages->push_back(page);
 }
 
 AbstractVMObject* GenerationalHeap::AllocateMatureObject(size_t size) {

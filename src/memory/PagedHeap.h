@@ -37,6 +37,7 @@
 #include "../vmobjects/ObjectFormats.h"
 
 class AbstractVMObject;
+class Page;
 using namespace std;
 //macro to access the heap
 #define _HEAP PagedHeap::GetHeap()
@@ -62,6 +63,7 @@ public:
     static void DestroyHeap();
     PagedHeap(long objectSpaceSize = 4194304, long pageSize = 32768);
     ~PagedHeap();
+    size_t GetMaxObjectSize();
     inline void triggerGC(void);
     inline void resetGCTrigger(void);
     bool isCollectionTriggered(void);
@@ -72,6 +74,10 @@ public:
     void IncrementWaitingForGCThreads();
     void DecrementWaitingForGCThreads();
     
+    Page* RequestPage();
+    void RelinquishPage(Page*);
+    void RelinquishFullPage(Page*);
+    
 protected:
     long pageSize;
     GarbageCollector* gc;
@@ -79,12 +85,20 @@ protected:
     pthread_mutex_t threadCountMutex;
     pthread_cond_t stopTheWorldCondition;
     pthread_cond_t mayProceed;
+    void* nextFreePagePosition;
+    void* collectionLimit;
+    void* memoryStart;
+    size_t memoryEnd;
+    vector<Page*>* allPages;
+    vector<Page*>* availablePages;
+    vector<Page*>* fullPages;
     
 private:
     static HEAP_CLS* theHeap;
     volatile bool gcTriggered;
     volatile int threadCount = 0;
     volatile int readyForGCThreads = 0;
+    size_t maxObjSize;
 };
 
 HEAP_CLS* PagedHeap::GetHeap() {

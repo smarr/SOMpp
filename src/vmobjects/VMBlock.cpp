@@ -57,7 +57,7 @@ pVMBlock VMBlock::Clone() const {
 pVMMethod VMBlock::GetMethod() const {
     
 #if GC_TYPE==PAUSELESS
-    _HEAP->ReadBarrier(this, sup);
+    _HEAP->ReadBarrier(&blockMethod);
 #endif
     return (blockMethod);
 }

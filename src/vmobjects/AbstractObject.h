@@ -14,12 +14,14 @@
 
 #if GC_TYPE==GENERATIONAL
     #include <memory/GenerationalHeap.h>
+    #include <memory/Page.h>
 #elif GC_TYPE==COPYING
     #include <memory/CopyingHeap.h>
 #elif GC_TYPE==MARK_SWEEP
     #include <memory/MarkSweepHeap.h>
 #elif GC_TYPE==PAUSELESS
     #include <memory/PauselessHeap.h>
+    #include <memory/Page.h>
 #endif
 
 #include "VMObjectBase.h"

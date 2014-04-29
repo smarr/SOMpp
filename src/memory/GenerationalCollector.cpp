@@ -114,12 +114,6 @@ void GenerationalCollector::MajorCollection() {
     _UNIVERSE->WalkGlobals(&mark_object);
     //and the current frame
     CopyInterpretersFrameAndThread();
-    /*
-    pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
-    if (currentFrame != NULL) {
-        pVMFrame newFrame = static_cast<pVMFrame>(mark_object(currentFrame));
-        _UNIVERSE->GetInterpreter()->SetFrame(newFrame);
-    } */
 
     //now that all objects are marked we can safely delete all allocated objects that are not marked
     vector<VMOBJECT_PTR>* survivors = new vector<VMOBJECT_PTR>();

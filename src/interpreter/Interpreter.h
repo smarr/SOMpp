@@ -60,6 +60,11 @@ public:
     void      SetPage(Page*);
     void      WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
     
+#if GC_TYPE==PAUSELESS
+    bool      GetExpectedNMT();
+    void      FlipExpectedNMT();
+#endif
+    
 private:
     pVMThread thread;
     pVMFrame frame;
@@ -97,6 +102,12 @@ private:
     long      bytecodeIndexGlobal;
     pVMMethod method;
     uint8_t*  currentBytecodes;
+    
+#if GC_TYPE==PAUSELESS
+    bool expectedNMT;
+#endif
+    
+    
 };
 
 #endif

@@ -7,10 +7,10 @@
 //
 
 #include "Page.h"
-#include "GenerationalHeap.h"
+#include "../vmobjects/AbstractObject.h"
 #include "../vm/Universe.h"
 
-Page::Page(void* pageStart, GenerationalHeap* heap) {
+Page::Page(void* pageStart, PagedHeap* heap) {
     this->heap = heap;
     this->nextFreePosition = pageStart;
     this->pageStart = (size_t)pageStart;
@@ -27,11 +27,19 @@ AbstractVMObject* Page::AllocateObject(size_t size) {
     }
     if (nextFreePosition > collectionLimit) {
         heap->RelinquishFullPage(this);
-        _UNIVERSE->GetInterpreter()->SetPage(_HEAP->RequestPage());
+        _UNIVERSE->GetInterpreter()->SetPage(heap->RequestPage());
     }
     return newObject;
 }
 
 void Page::ClearPage() {
     nextFreePosition = (void*) pageStart;
+}
+
+void Page::ClearMarkBits() {
+    for (AbstractVMObject* currentObject = (AbstractVMObject*) pageStart;
+         (size_t) currentObject < (size_t) nextFreePosition;
+         currentObject = (AbstractVMObject*) (currentObject->GetObjectSize() + (size_t) currentObject)) {
+        currentObject->SetGCField(0);
+    }
 }

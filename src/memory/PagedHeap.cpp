@@ -30,6 +30,7 @@
 #include <sys/mman.h>
 
 #include "PagedHeap.h"
+#include "Page.h"
 #include "../vmobjects/VMObject.h"
 
 HEAP_CLS* PagedHeap::theHeap = NULL;
@@ -57,10 +58,48 @@ PagedHeap::PagedHeap(long objectSpaceSize, long pageSize) {
     pthread_mutex_init(&threadCountMutex, NULL);
     pthread_cond_init(&stopTheWorldCondition, NULL);
     pthread_cond_init(&mayProceed, NULL);
+    allPages = new vector<Page*>();
+    availablePages = new vector<Page*>();
+    fullPages = new vector<Page*>();
+    // create region in which we can allocate objects, pages will be created in this region
+    memoryStart = mmap(NULL, objectSpaceSize, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, 0, 0);
+    memset(memoryStart, 0x0, objectSpaceSize);
+    memoryEnd = (size_t)memoryStart + objectSpaceSize;
+    // initialize some meta data of the heap
+    maxObjSize = pageSize / 2;
+    nextFreePagePosition = memoryStart;
+    collectionLimit = (void*)((size_t)memoryStart + ((size_t)(objectSpaceSize * 0.9)));
 }
 
 PagedHeap::~PagedHeap() {
     delete gc;
+}
+
+size_t PagedHeap::GetMaxObjectSize() {
+    return maxObjSize;
+}
+
+Page* PagedHeap::RequestPage() {
+    Page* newPage;
+    if (availablePages->empty()) {
+        newPage = new Page(nextFreePagePosition, this);
+        allPages->push_back(newPage);
+        nextFreePagePosition = (void*) ((size_t)nextFreePagePosition + pageSize);
+        if (nextFreePagePosition > collectionLimit)
+            triggerGC();
+    } else {
+        newPage = availablePages->back();
+        availablePages->pop_back();
+    }
+    return newPage;
+}
+
+void PagedHeap::RelinquishPage(Page* page) {
+    availablePages->push_back(page);
+}
+
+void PagedHeap::RelinquishFullPage(Page* page) {
+    fullPages->push_back(page);
 }
 
 void PagedHeap::FullGC() {

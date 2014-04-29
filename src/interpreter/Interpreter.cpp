@@ -570,3 +570,13 @@ Page* Interpreter::GetPage() {
 void Interpreter::SetPage(Page* page) {
     this->page = page;
 }
+
+#if GC_TYPE==PAUSELESS
+bool Interpreter::GetExpectedNMT() {
+    return expectedNMT;
+}
+
+void Interpreter::FlipExpectedNMT() {
+    expectedNMT = !expectedNMT;
+}
+#endif
