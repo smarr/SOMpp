@@ -36,6 +36,8 @@ AbstractVMObject* GenerationalHeap::AllocateMatureObject(size_t size) {
 
 void GenerationalHeap::WriteBarrierOldHolder(VMOBJECT_PTR holder, const VMOBJECT_PTR referencedObject) {
     if (IsObjectInNursery(referencedObject)) {
+        // TODO: thread local mark table??? cross generation pointer vector...
+        
         oldObjsWithRefToYoungObjs->push_back((size_t)holder);
         holder->SetGCField(holder->GetGCField() | MASK_SEEN_BY_WRITE_BARRIER);
     }

@@ -83,6 +83,7 @@ Page* PagedHeap::RequestPage() {
     Page* newPage;
     if (availablePages->empty()) {
         newPage = new Page(nextFreePagePosition, this);
+        assert(newPage);
         allPages->push_back(newPage);
         nextFreePagePosition = (void*) ((size_t)nextFreePagePosition + pageSize);
         if (nextFreePagePosition > collectionLimit)
