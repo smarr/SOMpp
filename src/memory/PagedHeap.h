@@ -45,12 +45,15 @@ using namespace std;
 #if GC_TYPE==GENERATIONAL
 class GenerationalHeap;
 #define HEAP_CLS GenerationalHeap
-#elif GC_TYPE == COPYING
+#elif GC_TYPE==COPYING
 class CopyingHeap;
 #define HEAP_CLS CopyingHeap
-#elif GC_TYPE == MARK_SWEEP
+#elif GC_TYPE==MARK_SWEEP
 class MarkSweepHeap;
 #define HEAP_CLS MarkSweepHeap
+#elif GC_TYPE==PAUSELESS
+class PauselessHeap;
+#define HEAP_CLS PauselessHeap
 #endif
 
 class PagedHeap {
@@ -64,27 +67,24 @@ public:
     PagedHeap(long objectSpaceSize = 4194304, long pageSize = 32768);
     ~PagedHeap();
     size_t GetMaxObjectSize();
-    inline void triggerGC(void);
-    inline void resetGCTrigger(void);
-    bool isCollectionTriggered(void);
-    void FullGC();
+
     inline void FreeObject(AbstractVMObject* o);
-    void IncrementThreadCount();
-    void DecrementThreadCount();
-    void IncrementWaitingForGCThreads();
-    void DecrementWaitingForGCThreads();
     
     Page* RequestPage();
     void RelinquishPage(Page*);
     void RelinquishFullPage(Page*);
     
+    virtual void checkCollectionTreshold() {};
+    
+#if GC_TYPE==PAUSELESS
+    void IncrementMarkedRootSets();
+#endif
+    
 protected:
     long pageSize;
     GarbageCollector* gc;
-    pthread_mutex_t doCollect;
-    pthread_mutex_t threadCountMutex;
-    pthread_cond_t stopTheWorldCondition;
-    pthread_cond_t mayProceed;
+    pthread_mutex_t pageRequestMutex;
+    pthread_mutex_t fullPagesMutex;
     void* nextFreePagePosition;
     void* collectionLimit;
     void* memoryStart;
@@ -93,28 +93,17 @@ protected:
     vector<Page*>* availablePages;
     vector<Page*>* fullPages;
     
+#if GC_TYPE==PAUSELESS
+    pthread_mutex_t numberOfMarkedRootSetsMutex;
+#endif
+    
 private:
     static HEAP_CLS* theHeap;
-    volatile bool gcTriggered;
-    volatile int threadCount = 0;
-    volatile int readyForGCThreads = 0;
     size_t maxObjSize;
 };
 
 HEAP_CLS* PagedHeap::GetHeap() {
     return theHeap;
-}
-
-void PagedHeap::triggerGC(void) {
-    gcTriggered = true;
-}
-
-inline bool PagedHeap::isCollectionTriggered(void) {
-    return gcTriggered;
-}
-
-void PagedHeap::resetGCTrigger(void) {
-    gcTriggered = false;
 }
 
 void PagedHeap::FreeObject(AbstractVMObject* obj) {
