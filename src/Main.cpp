@@ -49,6 +49,8 @@ int main(int argc, char** argv) {
     cout << "\tgarbage collector: copying" << endl;
 #elif GC_TYPE==MARK_SWEEP
     cout << "\tgarbage collector: mark-sweep" << endl;
+#elif GC_TYPE==PAUSELESS
+    cout << "\tgarbage collector: pauseless" << endl;
 #endif
 
 #ifdef USE_TAGGING
