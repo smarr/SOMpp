@@ -32,7 +32,8 @@ bool VMInvokable::IsPrimitive() const {
     return false;
 }
 
-pVMSymbol VMInvokable::GetSignature() const {
+pVMSymbol VMInvokable::GetSignature() /*const*/ {
+    PG_HEAP(ReadBarrier((void**)(&signature)));
     return signature;
 }
 
@@ -43,14 +44,8 @@ void VMInvokable::SetSignature(pVMSymbol sig) {
 #endif
 }
 
-void VMInvokable::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    clazz = static_cast<pVMClass>(walk(clazz));
-    signature = static_cast<pVMSymbol>(walk(signature));
-    if (holder)
-        holder = static_cast<pVMClass>(walk(holder));
-}
-
-pVMClass VMInvokable::GetHolder() const {
+pVMClass VMInvokable::GetHolder() /*const*/ {
+    PG_HEAP(ReadBarrier((void**)(&holder)));
     return holder;
 }
 
@@ -60,3 +55,19 @@ void VMInvokable::SetHolder(pVMClass hld) {
     _HEAP->WriteBarrier(this, hld);
 #endif
 }
+
+#if GC_TYPE==PAUSELESS
+void VMInvokable::MarkReferences(Worklist* worklist) {
+    worklist->PushFront(clazz);
+    worklist->PushFront(signature);
+    if (holder)
+        worklist->PushFront(holder);
+}
+#else
+void VMInvokable::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
+    clazz = static_cast<pVMClass>(walk(clazz));
+    signature = static_cast<pVMSymbol>(walk(signature));
+    if (holder)
+        holder = static_cast<pVMClass>(walk(holder));
+}
+#endif

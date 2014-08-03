@@ -28,11 +28,11 @@
  THE SOFTWARE.
  */
 
-#include "ObjectFormats.h"
+//#include "ObjectFormats.h"
 #include "VMObject.h"
-class VMSymbol;
-class VMClass;
-class VMFrame;
+//class VMSymbol;
+//class VMClass;
+//class VMFrame;
 
 class VMInvokable: public VMObject {
 public:
@@ -41,13 +41,17 @@ public:
     virtual void      operator()(pVMFrame) = 0;
 
     virtual bool      IsPrimitive() const;
-            pVMSymbol GetSignature() const;
+            pVMSymbol GetSignature() /*const*/;
     virtual void      SetSignature(pVMSymbol sig);
-            pVMClass  GetHolder() const;
+            pVMClass  GetHolder() /*const*/;
             void      SetHolder(pVMClass hld);
 
+#if GC_TYPE==PAUSELESS
+    virtual void MarkReferences(Worklist*);
+#else
     void WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
-
+#endif
+    
 protected:
     pVMSymbol signature;
     pVMClass  holder;
