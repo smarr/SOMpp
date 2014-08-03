@@ -8,9 +8,16 @@
 #define MASK_SEEN_BY_WRITE_BARRIER (1 << 2)
 #define MASK_BITS_ALL (MASK_OBJECT_IS_MARKED | MASK_OBJECT_IS_OLD | MASK_SEEN_BY_WRITE_BARRIER)
 
+
+#if GC_TYPE==PAUSELESS
+#define PG_HEAP(exp) (_HEAP->exp)
+#else
+#define PG_HEAP(exp)
+#endif
+
 class VMObjectBase {
 protected:
-    size_t gcfield;
+    volatile size_t gcfield;
 public:
     inline size_t GetGCField() const;
     inline void SetGCField(size_t);
