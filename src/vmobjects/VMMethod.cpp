@@ -35,7 +35,7 @@
 
 #include <vm/Universe.h>
 
-#include <compiler/MethodGenerationContext.h>
+//#include <compiler/MethodGenerationContext.h>
 
 
 #ifdef UNSAFE_FRAME_OPTIMIZATION
@@ -56,7 +56,7 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
     numberOfArguments = TAG_INTEGER(0);
     this->numberOfConstants = TAG_INTEGER(numberOfConstants);
 #else
-    bcLength = _UNIVERSE->NewInteger( bcCount );
+    bcLength = _UNIVERSE->NewInteger(bcCount);
     numberOfLocals = _UNIVERSE->NewInteger(0);
     maximumNumberOfStackElements = _UNIVERSE->NewInteger(0);
     numberOfArguments = _UNIVERSE->NewInteger(0);
@@ -64,14 +64,17 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
 #endif
     indexableFields = (pVMObject*)(&indexableFields + 2);
     for (long i = 0; i < numberOfConstants; ++i) {
+        PG_HEAP(ReadBarrier((void**)(&nilObject)));
         indexableFields[i] = nilObject;
     }
     bytecodes = (uint8_t*)(&indexableFields + 2 + GetNumberOfIndexableFields());
 }
 
-pVMMethod VMMethod::Clone() const {
+pVMMethod VMMethod::Clone() /*const*/ {
 #if GC_TYPE==GENERATIONAL
     pVMMethod clone = new (_HEAP, _PAGE, GetObjectSize() - sizeof(VMMethod), true)
+#elif GC_TYPE==PAUSELESS
+    pVMMethod clone = new (_PAGE, GetObjectSize() - sizeof(VMMethod))
 #else
     pVMMethod clone = new (_HEAP, GetObjectSize() - sizeof(VMMethod))
 #endif
@@ -87,29 +90,6 @@ pVMMethod VMMethod::Clone() const {
 void VMMethod::SetSignature(pVMSymbol sig) {
     VMInvokable::SetSignature(sig);
     SetNumberOfArguments(Signature::GetNumberOfArguments(signature));
-}
-
-void VMMethod::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    VMInvokable::WalkObjects(walk);
-
-    numberOfLocals = static_cast<VMInteger*>(walk(numberOfLocals));
-    maximumNumberOfStackElements = static_cast<VMInteger*>(walk(maximumNumberOfStackElements));
-    bcLength = static_cast<VMInteger*>(walk(bcLength));
-    numberOfArguments = static_cast<VMInteger*>(walk(numberOfArguments));
-    numberOfConstants = static_cast<VMInteger*>(walk(numberOfConstants));
-    
-    /*
-#ifdef UNSAFE_FRAME_OPTIMIZATION
-    if (cachedFrame != NULL)
-        cachedFrame = static_cast<VMFrame*>(walk(cachedFrame));
-#endif
-     */
-     
-    long numIndexableFields = GetNumberOfIndexableFields();
-    for (long i = 0; i < numIndexableFields; ++i) {
-        if (GetIndexableField(i) != NULL)
-            indexableFields[i] = walk(AS_POINTER(GetIndexableField(i)));
-    }
 }
 
 #ifdef UNSAFE_FRAME_OPTIMIZATION
@@ -145,6 +125,7 @@ long VMMethod::GetMaximumNumberOfStackElements() const {
 #ifdef USE_TAGGING
     return UNTAG_INTEGER(maximumNumberOfStackElements);
 #else
+    PG_HEAP(ReadBarrier((void**)(&maximumNumberOfStackElements)));
     return maximumNumberOfStackElements->GetEmbeddedInteger();
 #endif
 }
@@ -175,6 +156,7 @@ long VMMethod::GetNumberOfBytecodes() const {
 #ifdef USE_TAGGING
     return UNTAG_INTEGER(bcLength);
 #else
+    PG_HEAP(ReadBarrier((void**)(&bcLength)));
     return bcLength->GetEmbeddedInteger();
 #endif
 }
@@ -197,7 +179,7 @@ void VMMethod::SetHolderAll(pVMClass hld) {
     }
 }
 
-pVMObject VMMethod::GetConstant(long indx) const {
+pVMObject VMMethod::GetConstant(long indx) /*const*/ {
     uint8_t bc = bytecodes[indx + 1];
     if (bc >= this->GetNumberOfIndexableFields()) {
         cout << "Error: Constant index out of range" << endl;
@@ -205,3 +187,44 @@ pVMObject VMMethod::GetConstant(long indx) const {
     }
     return this->GetIndexableField(bc);
 }
+
+#if GC_TYPE==PAUSELESS
+void VMMethod::MarkReferences(Worklist* worklist) {
+    VMInvokable::MarkReferences(worklist);
+    
+    worklist->PushFront(numberOfLocals);
+    worklist->PushFront(maximumNumberOfStackElements);
+    worklist->PushFront(bcLength);
+    worklist->PushFront(numberOfArguments);
+    worklist->PushFront(numberOfConstants);
+    
+    long numIndexableFields = GetNumberOfIndexableFields();
+    for (long i = 0; i < numIndexableFields; ++i) {
+        if (GetIndexableField(i) != NULL)
+            worklist->PushFront(AS_POINTER(GetIndexableField(i)));
+    }
+}
+#else
+void VMMethod::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
+    VMInvokable::WalkObjects(walk);
+    
+    numberOfLocals = static_cast<VMInteger*>(walk(numberOfLocals));
+    maximumNumberOfStackElements = static_cast<VMInteger*>(walk(maximumNumberOfStackElements));
+    bcLength = static_cast<VMInteger*>(walk(bcLength));
+    numberOfArguments = static_cast<VMInteger*>(walk(numberOfArguments));
+    numberOfConstants = static_cast<VMInteger*>(walk(numberOfConstants));
+    
+    /*
+     #ifdef UNSAFE_FRAME_OPTIMIZATION
+     if (cachedFrame != NULL)
+     cachedFrame = static_cast<VMFrame*>(walk(cachedFrame));
+     #endif
+     */
+    
+    long numIndexableFields = GetNumberOfIndexableFields();
+    for (long i = 0; i < numIndexableFields; ++i) {
+        if (GetIndexableField(i) != NULL)
+            indexableFields[i] = walk(AS_POINTER(GetIndexableField(i)));
+    }
+}
+#endif
