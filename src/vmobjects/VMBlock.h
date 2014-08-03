@@ -38,10 +38,10 @@ class VMBlock: public VMObject {
 public:
     VMBlock();
 
-            pVMMethod GetMethod() const;
+            pVMMethod GetMethod() /*const*/;
             void      SetMethod(pVMMethod);
     inline  void      SetContext(pVMFrame);
-    inline  pVMFrame  GetContext() const;
+    inline  pVMFrame  GetContext() /*const*/;
     virtual pVMBlock  Clone() const;
 
     static pVMEvaluationPrimitive GetEvaluationPrimitive(int);
@@ -59,7 +59,8 @@ void VMBlock::SetContext(pVMFrame contxt) {
 #endif
 }
 
-pVMFrame VMBlock::GetContext() const {
+pVMFrame VMBlock::GetContext() /*const*/ {
+    PG_HEAP(ReadBarrier((void**)(&context)));
     return context;
 }
 

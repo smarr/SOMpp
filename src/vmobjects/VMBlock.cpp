@@ -48,23 +48,24 @@ pVMBlock VMBlock::Clone() const {
     pVMBlock clone;
 #if GC_TYPE==GENERATIONAL
     clone = new (_HEAP, _PAGE, GetAdditionalSpaceConsumption(), true) VMBlock(*this);
+#elif GC_TYPE==PAUSELESS
+    clone = new (_PAGE, GetAdditionalSpaceConsumption()) VMBlock(*this);
 #else
     clone = new (_HEAP, GetAdditionalSpaceConsumption()) VMBlock(*this);
 #endif
     return clone;
 }
 
-pVMMethod VMBlock::GetMethod() const {
-    
-#if GC_TYPE==PAUSELESS
-    _HEAP->ReadBarrier(&blockMethod);
-#endif
+pVMMethod VMBlock::GetMethod() /*const*/ {
+    PG_HEAP(ReadBarrier((void**)(&blockMethod)));
     return (blockMethod);
 }
 
 pVMEvaluationPrimitive VMBlock::GetEvaluationPrimitive(int numberOfArguments) {
 #if GC_TYPE==GENERATIONAL
     return new (_HEAP, _PAGE) VMEvaluationPrimitive(numberOfArguments);
+#elif GC_TYPE==PAUSELESS
+    return new (_PAGE) VMEvaluationPrimitive(numberOfArguments);
 #else
     return new (_HEAP) VMEvaluationPrimitive(numberOfArguments);
 #endif
