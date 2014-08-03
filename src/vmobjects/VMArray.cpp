@@ -39,11 +39,12 @@ VMArray::VMArray(long size, long nof) :
     // Fields start after clazz and other fields (GetNumberOfFields)
     pVMObject* arrFields = FIELDS + GetNumberOfFields();
     for (long i = 0; i < size; ++i) {
+        PG_HEAP(ReadBarrier((void**)(&nilObject)));
         arrFields[i] = nilObject;
     }
 }
 
-pVMObject VMArray::GetIndexableField(long idx) const {
+pVMObject VMArray::GetIndexableField(long idx) /*const*/ {
     if (idx > GetNumberOfIndexableFields()) {
         cout << "Array index out of bounds: Accessing " << idx
         << ", but array size is only " << GetNumberOfIndexableFields()
@@ -63,7 +64,7 @@ void VMArray::SetIndexableField(long idx, pVMObject value) {
     SetField(GetNumberOfFields() + idx, value);
 }
 
-pVMArray VMArray::CopyAndExtendWith(pVMObject item) const {
+pVMArray VMArray::CopyAndExtendWith(pVMObject item) /*const*/ {
     size_t fields = GetNumberOfIndexableFields();
     pVMArray result = _UNIVERSE->NewArray(fields + 1);
     this->CopyIndexableFieldsTo(result);
@@ -75,6 +76,8 @@ pVMArray VMArray::Clone() const {
     long addSpace = objectSize - sizeof(VMArray);
 #if GC_TYPE==GENERATIONAL
     pVMArray clone = new (_HEAP, _PAGE, addSpace, true) VMArray(*this);
+#elif GC_TYPE==PAUSELESS
+    pVMArray clone = new (_PAGE, addSpace) VMArray(*this);
 #else
     pVMArray clone = new (_HEAP, addSpace) VMArray(*this);
 #endif
@@ -93,13 +96,23 @@ void VMArray::MarkObjectAsInvalid() {
     }
 }
 
-void VMArray::CopyIndexableFieldsTo(pVMArray to) const {
+void VMArray::CopyIndexableFieldsTo(pVMArray to) /*const*/ {
     long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {
         to->SetIndexableField(i, GetIndexableField(i));
     }
 }
 
+#if GC_TYPE==PAUSELESS
+void VMArray::MarkReferences(Worklist* worklist) {
+    worklist->PushFront(clazz);
+    long numFields          = GetNumberOfFields();
+    long numIndexableFields = GetNumberOfIndexableFields();
+    pVMObject* fields = FIELDS;
+    for (long i = 0; i < numFields + numIndexableFields; i++)
+        worklist->PushFront(AS_POINTER(fields[i]));
+}
+#else
 void VMArray::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     clazz = (pVMClass) walk(clazz);
     long numFields          = GetNumberOfFields();
@@ -109,3 +122,4 @@ void VMArray::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
         fields[i] = walk(AS_POINTER(fields[i]));
     }
 }
+#endif
