@@ -42,9 +42,14 @@ public:
 
     inline  bool IsEmpty() const;
     inline  void SetRoutine(PrimitiveRoutine* rtn);
-    virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
             void SetEmpty(bool value) {empty = value;};
     virtual pVMPrimitive Clone() const;
+    
+#if GC_TYPE==PAUSELESS
+    virtual void MarkReferences(Worklist*);
+#else
+    virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
+#endif
 
     //-----------VMInvokable-------//
     //operator "()" to invoke the primitive

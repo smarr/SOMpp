@@ -36,6 +36,8 @@
 pVMPrimitive VMPrimitive::GetEmptyPrimitive( pVMSymbol sig ) {
 #if GC_TYPE==GENERATIONAL
     pVMPrimitive prim = new (_HEAP, _PAGE) VMPrimitive(sig);
+#elif GC_TYPE==PAUSELESS
+    pVMPrimitive prim = new (_PAGE) VMPrimitive(sig);
 #else
     pVMPrimitive prim = new (_HEAP) VMPrimitive(sig);
 #endif
@@ -48,6 +50,7 @@ const int VMPrimitive::VMPrimitiveNumberOfFields = 2;
 
 VMPrimitive::VMPrimitive(pVMSymbol signature) : VMInvokable(VMPrimitiveNumberOfFields) {
     //the only class that explicitly does this.
+    PG_HEAP(ReadBarrier((void**)(&primitiveClass)));
     this->SetClass(primitiveClass);
 
     this->SetSignature(signature);
@@ -59,16 +62,12 @@ pVMPrimitive VMPrimitive::Clone() const {
     pVMPrimitive prim;
 #if GC_TYPE==GENERATIONAL
     prim = new (_HEAP, _PAGE, 0, true) VMPrimitive(*this);
+#elif GC_TYPE==PAUSELESS
+    prim = new (_PAGE) VMPrimitive(*this);
 #else
     prim = new (_HEAP) VMPrimitive(*this);
 #endif
     return prim;
-}
-
-void VMPrimitive::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    clazz     = static_cast<pVMClass>(walk(clazz));
-    signature = static_cast<pVMSymbol>(walk(signature));
-    holder    = static_cast<pVMClass>(walk(holder));
 }
 
 void VMPrimitive::EmptyRoutine( pVMObject _self, pVMFrame /*frame*/) {
@@ -76,3 +75,17 @@ void VMPrimitive::EmptyRoutine( pVMObject _self, pVMFrame /*frame*/) {
     pVMSymbol sig = self->GetSignature();
     cout << "undefined primitive called: " << sig->GetChars() << endl;
 }
+
+#if GC_TYPE==PAUSELESS
+void VMPrimitive::MarkReferences(Worklist* worklist) {
+    worklist->PushFront(clazz);
+    worklist->PushFront(signature);
+    worklist->PushFront(holder);
+}
+#else
+void VMPrimitive::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
+    clazz     = static_cast<pVMClass>(walk(clazz));
+    signature = static_cast<pVMSymbol>(walk(signature));
+    holder    = static_cast<pVMClass>(walk(holder));
+}
+#endif
