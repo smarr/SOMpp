@@ -21,6 +21,7 @@ void VMThread::Yield() {
 }
 
 pVMSignal VMThread::GetResumeSignal() {
+    PG_HEAP(ReadBarrier((void**)(&resumeSignal)));
     return resumeSignal;
 }
 
@@ -31,20 +32,24 @@ void VMThread::SetResumeSignal(pVMSignal value) {
 
 
 bool VMThread::ShouldStop() {
+    PG_HEAP(ReadBarrier((void**)(&shouldStop)));
     return shouldStop == trueObject;
 }
 
 
 void VMThread::SetShouldStop(bool value) {
     if (value) {
+        PG_HEAP(ReadBarrier((void**)(&trueObject)));
     	shouldStop = trueObject;
     } else {
+        PG_HEAP(ReadBarrier((void**)(&falseObject)));
     	shouldStop = falseObject;
     }
 }
 
 
 pVMBlock VMThread::GetBlockToRun() {
+    PG_HEAP(ReadBarrier((void**)(&blockToRun)));
     return blockToRun;
 }
 
@@ -55,6 +60,7 @@ void VMThread::SetBlockToRun(pVMBlock value) {
 
 
 pVMString VMThread::GetName() {
+    PG_HEAP(ReadBarrier((void**)(&name)));
     return name;
 }
 
@@ -65,6 +71,7 @@ void VMThread::SetName(pVMString value) {
 
 
 pVMObject VMThread::GetArgument() {
+    PG_HEAP(ReadBarrier((void**)(&argument)));
     return argument;
 }
 
@@ -83,13 +90,14 @@ void VMThread::SetEmbeddedThreadId(ThreadId value) {
     embeddedThreadId = value;
 }
 
+/*
 int VMThread::GetThreadId() {
     return threadId;
 }
 
 void VMThread::SetThreadId(int value) {
     threadId = value;
-}
+} */
 
 void VMThread::Join(int* exitStatus) {
 	pthread_join(embeddedThreadId, (void**)exitStatus);

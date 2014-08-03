@@ -49,7 +49,7 @@ private:
     pVMString name;
     pVMObject argument;
     ThreadId embeddedThreadId;
-    int threadId;
+    //int threadId;
     
     static const int VMThreadNumberOfFields;
     
