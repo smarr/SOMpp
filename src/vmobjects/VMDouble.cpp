@@ -39,11 +39,14 @@ VMDouble::VMDouble(double val) {
 pVMDouble VMDouble::Clone() const {
 #if GC_TYPE==GENERATIONAL
     return new (_HEAP, _PAGE, 0, true) VMDouble(*this);
+#elif GC_TYPE==PAUSELESS
+    return new (_PAGE) VMDouble(*this);
 #else
     return new (_HEAP) VMDouble(*this);
 #endif
 }
 
-pVMClass VMDouble::GetClass() const {
+pVMClass VMDouble::GetClass() /*const*/ {
+    PG_HEAP(ReadBarrier((void**)(&doubleClass)));
     return doubleClass;
 }
