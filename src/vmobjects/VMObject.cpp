@@ -48,9 +48,12 @@ pVMObject VMObject::Clone() const {
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)),
             SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() -
             sizeof(VMObject));
+#elif GC_TYPE==PAUSELESS
+    VMObject* clone = new (_PAGE, objectSize - sizeof(VMObject)) VMObject(*this);
+    memcpy(&(clone->clazz), &clazz,
+           objectSize - sizeof(VMObject) + sizeof(pVMObject));
 #else
-    VMObject* clone = new (_HEAP, objectSize - sizeof(VMObject)) VMObject(
-            *this);
+    VMObject* clone = new (_HEAP, objectSize - sizeof(VMObject)) VMObject(*this);
     memcpy(&(clone->clazz), &clazz,
             objectSize - sizeof(VMObject) + sizeof(pVMObject));
 #endif
@@ -61,8 +64,10 @@ pVMObject VMObject::Clone() const {
 void VMObject::SetNumberOfFields(long nof) {
     this->numberOfFields = nof;
     // initialize fields with NilObject
-    for (long i = 0; i < nof; ++i)
+    for (long i = 0; i < nof; ++i) {
+        PG_HEAP(ReadBarrier((void**)(&nilObject)));
         FIELDS[i] = nilObject;
+    }
 }
 
 void VMObject::SetClass(pVMClass cl) {
@@ -72,15 +77,18 @@ void VMObject::SetClass(pVMClass cl) {
 #endif
 }
 
-pVMSymbol VMObject::GetFieldName(long index) const {
-    return this->clazz->GetInstanceFieldName(index);
+pVMSymbol VMObject::GetFieldName(long index) /*const*/ {
+    //return this->clazz->GetInstanceFieldName(index);
+    //because we want to make sure that the ReadBarrier is triggered
+    return this->GetClass()->GetInstanceFieldName(index);
 }
 
 void VMObject::Assert(bool value) const {
     _UNIVERSE->Assert(value);
 }
 
-pVMObject VMObject::GetField(long index) const {
+pVMObject VMObject::GetField(long index) /*const*/ {
+    PG_HEAP(ReadBarrier((void**)(&FIELDS[index])));
     return FIELDS[index];
 }
 
@@ -101,10 +109,23 @@ long VMObject::GetAdditionalSpaceConsumption() const {
                     + sizeof(pVMObject) * GetNumberOfFields()));
 }
 
-void VMObject::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    if (clazz == threadClass) {
-        int i = 1;
+void VMObject::MarkObjectAsInvalid() {
+    clazz = (pVMClass) INVALID_POINTER;
+}
+
+#if GC_TYPE==PAUSELESS
+void VMObject::MarkReferences(Worklist* worklist) {
+    worklist->PushBack(clazz);
+    long numFields = GetNumberOfFields();
+    for (long i = 0; i < numFields; ++i) {
+        worklist->PushBack((VMOBJECT_PTR)GetField(i));
     }
+}
+#else
+void VMObject::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
+    //if (clazz == threadClass) {
+    //    int i = 1;
+    //}
     
     clazz = (pVMClass) walk(clazz);
     
@@ -113,7 +134,4 @@ void VMObject::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
         FIELDS[i] = walk((VMOBJECT_PTR)GetField(i));
     }
 }
-
-void VMObject::MarkObjectAsInvalid() {
-    clazz = (pVMClass) INVALID_POINTER;
-}
+#endif

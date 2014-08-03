@@ -37,10 +37,11 @@
 #include <misc/defs.h>
 #include <vm/Universe.h>
 
-#include "ObjectFormats.h"
+//#include "ObjectFormats.h"
 
-class VMSymbol;
-class VMClass;
+//class VMSymbol;
+//class VMClass;
+
 
 //this macro returns a shifted ptr by offset bytes
 #define SHIFTED_PTR(ptr, offset) ((void*)((size_t)(ptr)+(size_t)(offset)))
@@ -71,21 +72,26 @@ public:
     VMObject(long numberOfFields = 0);
 
     /* Virtual member functions */
-    virtual inline pVMClass  GetClass() const;
+    virtual inline pVMClass  GetClass() /*const*/;
     virtual        void      SetClass(pVMClass cl);
-    virtual        pVMSymbol GetFieldName(long index) const;
+    virtual        pVMSymbol GetFieldName(long index) /*const*/;
     virtual inline long      GetNumberOfFields() const;
     virtual        void      SetNumberOfFields(long nof);
-                   pVMObject GetField(long index) const;
+                   pVMObject GetField(long index) /*const*/;
                    void      SetField(long index, pVMObject value);
     virtual        void      Assert(bool value) const;
-    virtual        void      WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
     virtual        pVMObject Clone() const;
     virtual inline size_t    GetObjectSize() const;
     virtual inline void      SetObjectSize(size_t size);
     
     virtual        void      MarkObjectAsInvalid();
 
+#if GC_TYPE==PAUSELESS
+    virtual        void MarkReferences(Worklist*);
+#else
+    virtual        void      WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
+#endif
+    
     /* Operators */
 
     /**
@@ -97,16 +103,19 @@ public:
      *   - array size in VMArray; a_b must be set to (size_of_array*sizeof(VMObect*))
      *   - fields in VMMethod, a_b must be set to (number_of_bc + number_of_csts*sizeof(pVMObject))
      */
-    void* operator new(size_t numBytes, PagedHeap* heap,
+    void* operator new(size_t numBytes,
 #if GC_TYPE==GENERATIONAL
-            Page* page, unsigned long additionalBytes = 0, bool outsideNursery = false) {
-        void* mem = AbstractVMObject::operator new(numBytes, heap, page, PADDED_SIZE(additionalBytes), outsideNursery);
+        PagedHeap* heap, Page* page, unsigned long additionalBytes = 0, bool outsideNursery = false) {
+            void* mem = AbstractVMObject::operator new(numBytes, heap, page, PADDED_SIZE(additionalBytes), outsideNursery);
 #elif GC_TYPE==COPYING
-        unsigned long additionalBytes = 0) {
+        PagedHeap* heap, unsigned long additionalBytes = 0) {
             void* mem = (void*) ((CopyingHeap*)heap)->AllocateObject(numBytes + PADDED_SIZE(additionalBytes));
 #elif GC_TYPE==MARK_SWEEP
-            unsigned long additionalBytes = 0) {
-        void* mem = (void*) ((MarkSweepHeap*)heap)->AllocateObject(numBytes + PADDED_SIZE(additionalBytes));
+        PagedHeap* heap, unsigned long additionalBytes = 0) {
+            void* mem = (void*) ((MarkSweepHeap*)heap)->AllocateObject(numBytes + PADDED_SIZE(additionalBytes));
+#elif GC_TYPE==PAUSELESS
+        Page* page, unsigned long additionalBytes = 0) {
+            void* mem = AbstractVMObject::operator new(numBytes, page, PADDED_SIZE(additionalBytes));
 #endif
         size_t objSize = numBytes + PADDED_SIZE(additionalBytes);
         ((VMObject*) mem)->objectSize = objSize;
@@ -139,8 +148,9 @@ void VMObject::SetObjectSize(size_t size) {
     objectSize = size;
 }
 
-pVMClass VMObject::GetClass() const {
+pVMClass VMObject::GetClass() /*const*/ {
     assert(Universe::IsValidObject((pVMObject) clazz));
+    PG_HEAP(ReadBarrier((void**)(&clazz)));
     return clazz;
 }
 
