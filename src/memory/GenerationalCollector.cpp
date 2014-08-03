@@ -148,7 +148,8 @@ void GenerationalCollector::Collect() {
     }
     
     //reset collection trigger
-    heap->resetGCTrigger();
+    //heap->resetGCTrigger();
+    _HEAP->resetGCTrigger();
     
     Timer::GCTimer->Halt();
 }
