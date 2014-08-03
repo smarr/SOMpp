@@ -40,9 +40,15 @@ public:
     size_t GetStringLength() const;
 
     virtual pVMString Clone() const;
-    virtual pVMClass GetClass() const;
+    virtual pVMClass GetClass() /*const*/;
     virtual size_t GetObjectSize() const;
-    virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
+
+/*
+#if GC_TYPE==PAUSELESS
+    virtual void MarkReferences(Worklist*);
+#else
+     virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
+#endif */
     
     virtual void MarkObjectAsInvalid();
 

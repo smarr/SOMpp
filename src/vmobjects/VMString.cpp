@@ -31,7 +31,7 @@
 
 #include "../vm/Universe.h"
 
-extern pVMClass stringClass;
+//extern pVMClass stringClass;
 
 //this macro could replace the chars member variable
 //#define CHARS ((char*)&clazz+sizeof(pVMObject))
@@ -52,6 +52,8 @@ VMString::VMString(const char* str) : AbstractVMObject() {
 pVMString VMString::Clone() const {
 #if GC_TYPE==GENERATIONAL
     return new (_HEAP, _PAGE, PADDED_SIZE(strlen(chars)+1), true) VMString(chars);
+#elif GC_TYPE==PAUSELESS
+    return new (_PAGE, PADDED_SIZE(strlen(chars)+1)) VMString(chars);
 #else
     return new (_HEAP, PADDED_SIZE(strlen(chars)+1)) VMString(chars);
 #endif
@@ -65,10 +67,6 @@ void VMString::MarkObjectAsInvalid() {
     }
 }
 
-void VMString::WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR)) {
-    //nothing to do
-}
-
 VMString::VMString(const StdString& s) {
     VMString(s.c_str());
 }
@@ -78,7 +76,8 @@ size_t VMString::GetObjectSize() const {
     return size;
 }
 
-pVMClass VMString::GetClass() const {
+pVMClass VMString::GetClass() /*const*/ {
+    PG_HEAP(ReadBarrier((void**)(&stringClass)));
     return stringClass;
 }
 
@@ -93,3 +92,14 @@ StdString VMString::GetStdString() const {
         return StdString("");
     return StdString(chars);
 }
+
+/*
+#if GC_TYPE==PAUSELESS
+void VMString::MarkReferences(Worklist* worklist) {
+    //nothing to do
+}
+#else
+void VMString::WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR)) {
+    //nothing to do
+}
+#endif */
