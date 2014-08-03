@@ -4,10 +4,10 @@
 #include <assert.h>
 #if GC_TYPE ==GENERATIONAL
 
-#include "PagedHeap.h"
+#include "StopTheWorldHeap.h"
 #include "../vmobjects/VMObjectBase.h"
 
-class GenerationalHeap : public PagedHeap {
+class GenerationalHeap : public StopTheWorldHeap {
     friend class GenerationalCollector;
     
 public:
