@@ -39,6 +39,8 @@ VMBigInteger::VMBigInteger(int64_t val) {
 pVMBigInteger VMBigInteger::Clone() const {
 #if GC_TYPE==GENERATIONAL
     return new (_HEAP, _PAGE, 0, true) VMBigInteger(*this);
+#elif GC_TYPE==PAUSELESS
+    return new (_PAGE) VMBigInteger(*this);
 #else
     return new (_HEAP) VMBigInteger(*this);
 #endif
@@ -48,6 +50,7 @@ size_t VMBigInteger::GetObjectSize() const {
     return sizeof(VMBigInteger);
 }
 
-pVMClass VMBigInteger::GetClass() const {
+pVMClass VMBigInteger::GetClass() /*const*/ {
+    PG_HEAP(ReadBarrier((void**)(&bigIntegerClass)));
     return bigIntegerClass;
 }
