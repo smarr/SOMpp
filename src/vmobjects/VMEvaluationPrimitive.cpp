@@ -51,15 +51,12 @@ VMEvaluationPrimitive::VMEvaluationPrimitive(long argc) :
 pVMEvaluationPrimitive VMEvaluationPrimitive::Clone() const {
 #if GC_TYPE==GENERATIONAL
     pVMEvaluationPrimitive evPrim = new (_HEAP, _PAGE, 0, true) VMEvaluationPrimitive(*this);
+#elif GC_TYPE==PAUSELESS
+    pVMEvaluationPrimitive evPrim = new (_PAGE) VMEvaluationPrimitive(*this);
 #else
     pVMEvaluationPrimitive evPrim = new (_HEAP) VMEvaluationPrimitive(*this);
 #endif
     return evPrim;
-}
-
-void VMEvaluationPrimitive::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    VMPrimitive::WalkObjects(walk);
-    numberOfArguments = static_cast<pVMInteger>(walk(numberOfArguments));
 }
 
 pVMSymbol VMEvaluationPrimitive::computeSignatureString(long argc) {
@@ -93,18 +90,30 @@ void VMEvaluationPrimitive::evaluationRoutine(pVMObject object, pVMFrame frame) 
 
     // Get the block (the receiver) from the stack
 #ifdef USE_TAGGING
-        long numArgs = UNTAG_INTEGER(self->numberOfArguments);
+    long numArgs = UNTAG_INTEGER(self->numberOfArguments);
 #else
-        long numArgs = self->numberOfArguments->GetEmbeddedInteger();
+    PG_HEAP(ReadBarrier((void**)(&self->numberOfArguments)));
+    long numArgs = self->numberOfArguments->GetEmbeddedInteger();
 #endif
-        pVMBlock block = static_cast<pVMBlock>(frame->GetStackElement(numArgs - 1));
+    pVMBlock block = static_cast<pVMBlock>(frame->GetStackElement(numArgs - 1));
 
-        // Get the context of the block...
-        pVMFrame context = block->GetContext();
+    // Get the context of the block...
+    pVMFrame context = block->GetContext();
+    
+    // Push a new frame and set its context to be the one specified in the block
+    pVMFrame NewFrame = _UNIVERSE->GetInterpreter()->PushNewFrame(block->GetMethod());
+    NewFrame->CopyArgumentsFrom(frame);
+    NewFrame->SetContext(context);
+}
 
-        // Push a new frame and set its context to be the one specified in the block
-        pVMFrame NewFrame = _UNIVERSE->GetInterpreter()->PushNewFrame(
-        block->GetMethod());
-        NewFrame->CopyArgumentsFrom(frame);
-        NewFrame->SetContext(context);
-    }
+#if GC_TYPE==PAUSELESS
+void VMEvaluationPrimitive::MarkReferences(Worklist* worklist) {
+    VMPrimitive::MarkReferences(worklist);
+    worklist->PushBack(numberOfArguments);
+}
+#else
+void VMEvaluationPrimitive::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
+    VMPrimitive::WalkObjects(walk);
+    numberOfArguments = static_cast<pVMInteger>(walk(numberOfArguments));
+}
+#endif

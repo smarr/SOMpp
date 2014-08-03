@@ -36,8 +36,14 @@ class VMFrame;
 class VMEvaluationPrimitive: public VMPrimitive {
 public:
     VMEvaluationPrimitive(long argc);
-    virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
     virtual pVMEvaluationPrimitive Clone() const;
+    
+#if GC_TYPE==PAUSELESS
+    virtual void MarkReferences(Worklist*);
+#else
+    virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
+#endif
+    
 private:
     static pVMSymbol computeSignatureString(long argc);
     void evaluationRoutine(pVMObject object, pVMFrame frame);
