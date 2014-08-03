@@ -58,13 +58,16 @@ pVMSymbol VMSymbol::Clone() const {
     pVMSymbol result;
 #if GC_TYPE==GENERATIONAL
     result = new (_HEAP, _PAGE, PADDED_SIZE(strlen(chars) + 1), true) VMSymbol(chars);
+#elif GC_TYPE==PAUSELESS
+    result = new (_PAGE, PADDED_SIZE(strlen(chars) + 1)) VMSymbol(chars);
 #else
     result = new (_HEAP, PADDED_SIZE(strlen(chars) + 1)) VMSymbol(chars);
 #endif
     return result;
 }
 
-pVMClass VMSymbol::GetClass() const {
+pVMClass VMSymbol::GetClass() /*const*/ {
+    PG_HEAP(ReadBarrier((void**)(&symbolClass)));
     return symbolClass;
 }
 
@@ -132,12 +135,17 @@ StdString VMSymbol::GetPlainString() const {
     return st;
 }
 
+/*
+#if GC_TYPE==PAUSELESS
+void VMSymbol::MarkReferences(Worklist* worklist) {
+    //Since we don't use the cache, nothing should be done here.
+}
+#else
 void VMSymbol::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     //Since we don't use the cache, nothing should be done here.
-    /*
-    for (long i = 0; i < nextCachePos; i++) {
-        cachedClass_invokable[i] = (pVMClass) walk((VMOBJECT_PTR) cachedClass_invokable[i]);
-        cachedInvokable[i] = (pVMInvokable) walk((VMOBJECT_PTR) cachedInvokable[i]);
-    } */
+    // for (long i = 0; i < nextCachePos; i++) {
+    // cachedClass_invokable[i] = (pVMClass) walk((VMOBJECT_PTR) cachedClass_invokable[i]);
+    // cachedInvokable[i] = (pVMInvokable) walk((VMOBJECT_PTR) cachedInvokable[i]);
+    // }
 }
-
+#endif */

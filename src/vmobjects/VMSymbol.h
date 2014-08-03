@@ -44,15 +44,20 @@ public:
     virtual StdString GetPlainString() const;
     virtual size_t GetObjectSize() const;
     virtual pVMSymbol Clone() const;
-    virtual pVMClass GetClass() const;
+    virtual pVMClass GetClass() /*const*/;
 private:
 //    const pVMClass cachedClass_invokable[3];
 //    long nextCachePos;
 //    pVMInvokable cachedInvokable[3];
 //    inline pVMInvokable GetCachedInvokable(const pVMClass) const;
 //    inline void UpdateCachedInvokable(const pVMClass cls, pVMInvokable invo);
-    
+  
+/*
+#if GC_TYPE==PAUSELESS
+    virtual void MarkReferences(Worklist*);
+#else
     virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
+#endif */
     
     friend class VMClass;
 };
