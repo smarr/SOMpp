@@ -29,8 +29,10 @@
  */
 
 #include "VMArray.h"
+#include "VMObject.h"
+
+//class VMObject;
 class VMMethod;
-class VMObject;
 class VMInteger;
 class Universe;
 
@@ -41,17 +43,17 @@ public:
 
     VMFrame(long size, long nof = 0);
 
-    inline pVMFrame GetPreviousFrame() const;
+    inline pVMFrame GetPreviousFrame() /*const*/;
     inline void SetPreviousFrame(pVMFrame);
     inline void ClearPreviousFrame();
-    inline bool HasPreviousFrame() const;
-    inline bool IsBootstrapFrame() const;
-    inline pVMFrame GetContext() const;
+    inline bool HasPreviousFrame() /*const*/;
+    inline bool IsBootstrapFrame() /*const*/;
+    inline pVMFrame GetContext() /*const*/;
     inline void SetContext(pVMFrame);
-    inline bool HasContext() const;
+    inline bool HasContext() /*const*/;
     pVMFrame GetContextLevel(long);
     pVMFrame GetOuterContext();
-    inline pVMMethod GetMethod() const;
+    inline pVMMethod GetMethod() /*const*/;
     void SetMethod(pVMMethod);
     pVMObject Pop();
     void Push(pVMObject);
@@ -65,15 +67,22 @@ public:
     pVMObject GetArgument(long, long);
     void SetArgument(long, long, pVMObject);
     void PrintStackTrace() const;
-    long ArgumentStackIndex(long index) const;
+    long ArgumentStackIndex(long index) /*const*/;
     void CopyArgumentsFrom(pVMFrame frame);
-    inline  pVMObject GetField(long index) const;
-    virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
+    inline  pVMObject GetField(long index) /*const*/;
+    
     virtual pVMFrame Clone() const;
+    
+#if GC_TYPE==PAUSELESS
+    virtual void MarkReferences(Worklist*);
+#else
+    virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
+#endif
 
     void PrintStack() const;
     inline void* GetStackPointer() const;
     long RemainingStackSize() const;
+    
 private:
     pVMFrame previousFrame;
     pVMFrame context;
@@ -86,7 +95,7 @@ private:
     static const long VMFrameNumberOfFields;
 };
 
-pVMObject VMFrame::GetField(long index) const {
+pVMObject VMFrame::GetField(long index) /*const*/ {
     if (index==4)
 #ifdef USE_TAGGING
     return TAG_INTEGER(bytecodeIndex);
@@ -96,11 +105,15 @@ pVMObject VMFrame::GetField(long index) const {
     return VMObject::GetField(index);
 }
 
-bool VMFrame::HasContext() const {
+bool VMFrame::HasContext() /*const*/ {
+    //assert(this->context == NULL);
+    PG_HEAP(ReadBarrier((void**)(&this->context)));
     return this->context != NULL;
 }
 
-bool VMFrame::HasPreviousFrame() const {
+bool VMFrame::HasPreviousFrame() /*const*/ {
+    //assert(previousFrame == NULL);
+    PG_HEAP(ReadBarrier((void**)(&this->previousFrame)));
     return this->previousFrame != NULL;
 }
 
@@ -112,11 +125,12 @@ void VMFrame::SetBytecodeIndex(long index) {
     bytecodeIndex = index;
 }
 
-bool VMFrame::IsBootstrapFrame() const {
+bool VMFrame::IsBootstrapFrame() /*const*/ {
     return !HasPreviousFrame();
 }
 
-pVMFrame VMFrame::GetContext() const {
+pVMFrame VMFrame::GetContext() /*const*/ {
+    PG_HEAP(ReadBarrier((void**)(&this->context)));
     return this->context;
 }
 
@@ -131,7 +145,8 @@ void* VMFrame::GetStackPointer() const {
     return stack_ptr;
 }
 
-pVMFrame VMFrame::GetPreviousFrame() const {
+pVMFrame VMFrame::GetPreviousFrame() /*const*/ {
+    PG_HEAP(ReadBarrier((void**)(&this->previousFrame)));
     return this->previousFrame;
 }
 
@@ -146,7 +161,8 @@ void VMFrame::ClearPreviousFrame() {
     this->previousFrame = NULL;
 }
 
-pVMMethod VMFrame::GetMethod() const {
+pVMMethod VMFrame::GetMethod() /*const*/ {
+    PG_HEAP(ReadBarrier((void**)(&this->method)));
     return this->method;
 }
 
