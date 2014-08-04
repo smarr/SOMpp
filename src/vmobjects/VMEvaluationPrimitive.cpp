@@ -48,7 +48,7 @@ VMEvaluationPrimitive::VMEvaluationPrimitive(long argc) :
 #endif
 }
 
-pVMEvaluationPrimitive VMEvaluationPrimitive::Clone() const {
+pVMEvaluationPrimitive VMEvaluationPrimitive::Clone() /*const*/ {
 #if GC_TYPE==GENERATIONAL
     pVMEvaluationPrimitive evPrim = new (_HEAP, _PAGE, 0, true) VMEvaluationPrimitive(*this);
 #elif GC_TYPE==PAUSELESS

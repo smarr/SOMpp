@@ -36,7 +36,7 @@ VMBigInteger::VMBigInteger(int64_t val) {
     this->embeddedInteger = val;
 }
 
-pVMBigInteger VMBigInteger::Clone() const {
+pVMBigInteger VMBigInteger::Clone() /*const*/ {
 #if GC_TYPE==GENERATIONAL
     return new (_HEAP, _PAGE, 0, true) VMBigInteger(*this);
 #elif GC_TYPE==PAUSELESS

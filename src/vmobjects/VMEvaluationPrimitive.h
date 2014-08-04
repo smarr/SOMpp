@@ -36,7 +36,7 @@ class VMFrame;
 class VMEvaluationPrimitive: public VMPrimitive {
 public:
     VMEvaluationPrimitive(long argc);
-    virtual pVMEvaluationPrimitive Clone() const;
+    virtual pVMEvaluationPrimitive Clone() /*const*/;
     
 #if GC_TYPE==PAUSELESS
     virtual void MarkReferences(Worklist*);

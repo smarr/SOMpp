@@ -35,7 +35,7 @@ VMInteger::VMInteger(long val) {
     embeddedInteger = val;
 }
 
-pVMInteger VMInteger::Clone() const {
+pVMInteger VMInteger::Clone() /*const*/ {
 #if GC_TYPE==GENERATIONAL
     return new (_HEAP, _PAGE, 0, true) VMInteger(*this);
 #elif GC_TYPE==PAUSELESS

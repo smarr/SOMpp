@@ -38,7 +38,7 @@ public:
     VMInteger(long);
 
     inline long GetEmbeddedInteger() const;
-    virtual pVMInteger Clone() const;
+    virtual pVMInteger Clone() /*const*/;
     virtual pVMClass GetClass() /*const*/;
     virtual inline size_t GetObjectSize() const;
     

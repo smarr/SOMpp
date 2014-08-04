@@ -36,7 +36,7 @@ VMDouble::VMDouble(double val) {
     this->embeddedDouble = val;
 }
 
-pVMDouble VMDouble::Clone() const {
+pVMDouble VMDouble::Clone() /*const*/ {
 #if GC_TYPE==GENERATIONAL
     return new (_HEAP, _PAGE, 0, true) VMDouble(*this);
 #elif GC_TYPE==PAUSELESS

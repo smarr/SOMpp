@@ -44,7 +44,7 @@ void VMBlock::SetMethod(pVMMethod bMethod) {
 #endif
 }
 
-pVMBlock VMBlock::Clone() const {
+pVMBlock VMBlock::Clone() /*const*/ {
     pVMBlock clone;
 #if GC_TYPE==GENERATIONAL
     clone = new (_HEAP, _PAGE, GetAdditionalSpaceConsumption(), true) VMBlock(*this);
