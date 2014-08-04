@@ -80,7 +80,7 @@ public:
                    pVMObject GetField(long index) /*const*/;
                    void      SetField(long index, pVMObject value);
     virtual        void      Assert(bool value) const;
-    virtual        pVMObject Clone() const;
+    virtual        pVMObject Clone() /*const*/;
     virtual inline size_t    GetObjectSize() const;
     virtual inline void      SetObjectSize(size_t size);
     

@@ -42,7 +42,7 @@ VMObject::VMObject(long numberOfFields) {
     // Object size was already set by the heap on allocation
 }
 
-pVMObject VMObject::Clone() const {
+pVMObject VMObject::Clone() /*const*/ {
 #if GC_TYPE==GENERATIONAL
     VMObject* clone = new (_HEAP, _PAGE, objectSize - sizeof(VMObject), true) VMObject(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)),
