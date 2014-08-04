@@ -71,7 +71,7 @@ public:
     void CopyArgumentsFrom(pVMFrame frame);
     inline  pVMObject GetField(long index) /*const*/;
     
-    virtual pVMFrame Clone() const;
+    virtual pVMFrame Clone() /*const*/;
     
 #if GC_TYPE==PAUSELESS
     virtual void MarkReferences(Worklist*);

@@ -86,7 +86,7 @@ pVMFrame VMFrame::EmergencyFrameFrom(pVMFrame from, long extraLength) {
     return result;
 }
 
-pVMFrame VMFrame::Clone() const {
+pVMFrame VMFrame::Clone() /*const*/ {
     size_t addSpace = objectSize - sizeof(VMFrame);
 #if GC_TYPE==GENERATIONAL
     pVMFrame clone = new (_HEAP, _PAGE, addSpace, true) VMFrame(*this);
