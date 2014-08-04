@@ -58,7 +58,7 @@ VMPrimitive::VMPrimitive(pVMSymbol signature) : VMInvokable(VMPrimitiveNumberOfF
     this->empty = false;
 }
 
-pVMPrimitive VMPrimitive::Clone() const {
+pVMPrimitive VMPrimitive::Clone() /*const*/ {
     pVMPrimitive prim;
 #if GC_TYPE==GENERATIONAL
     prim = new (_HEAP, _PAGE, 0, true) VMPrimitive(*this);

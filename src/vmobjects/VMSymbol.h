@@ -43,7 +43,7 @@ public:
     VMSymbol(const StdString& s);
     virtual StdString GetPlainString() const;
     virtual size_t GetObjectSize() const;
-    virtual pVMSymbol Clone() const;
+    virtual pVMSymbol Clone() /*const*/;
     virtual pVMClass GetClass() /*const*/;
 private:
 //    const pVMClass cachedClass_invokable[3];

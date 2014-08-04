@@ -49,7 +49,7 @@ VMString::VMString(const char* str) : AbstractVMObject() {
 
 }
 
-pVMString VMString::Clone() const {
+pVMString VMString::Clone() /*const*/ {
 #if GC_TYPE==GENERATIONAL
     return new (_HEAP, _PAGE, PADDED_SIZE(strlen(chars)+1), true) VMString(chars);
 #elif GC_TYPE==PAUSELESS

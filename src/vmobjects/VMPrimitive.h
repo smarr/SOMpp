@@ -43,7 +43,7 @@ public:
     inline  bool IsEmpty() const;
     inline  void SetRoutine(PrimitiveRoutine* rtn);
             void SetEmpty(bool value) {empty = value;};
-    virtual pVMPrimitive Clone() const;
+    virtual pVMPrimitive Clone() /*const*/;
     
 #if GC_TYPE==PAUSELESS
     virtual void MarkReferences(Worklist*);

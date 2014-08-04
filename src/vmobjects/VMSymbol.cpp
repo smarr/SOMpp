@@ -54,7 +54,7 @@ size_t VMSymbol::GetObjectSize() const {
     return size;
 }
 
-pVMSymbol VMSymbol::Clone() const {
+pVMSymbol VMSymbol::Clone() /*const*/ {
     pVMSymbol result;
 #if GC_TYPE==GENERATIONAL
     result = new (_HEAP, _PAGE, PADDED_SIZE(strlen(chars) + 1), true) VMSymbol(chars);
