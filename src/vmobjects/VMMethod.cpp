@@ -89,7 +89,8 @@ pVMMethod VMMethod::Clone() /*const*/ {
 
 void VMMethod::SetSignature(pVMSymbol sig) {
     VMInvokable::SetSignature(sig);
-    SetNumberOfArguments(Signature::GetNumberOfArguments(signature));
+    SetNumberOfArguments(Signature::GetNumberOfArguments(this->GetSignature()));
+    //SetNumberOfArguments(Signature::GetNumberOfArguments(signature));
 }
 
 #ifdef UNSAFE_FRAME_OPTIMIZATION
