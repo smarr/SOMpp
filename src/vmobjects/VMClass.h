@@ -31,8 +31,9 @@
 #include <vector>
 
 #include "VMObject.h"
-#include "VMSymbol.h"
 #include "VMArray.h"
+#include "VMSymbol.h"
+//#include "VMClass.h"
 
 #include "../misc/defs.h"
 
@@ -41,10 +42,10 @@
 #include "../primitives/Core.h"
 #endif
 
-class VMSymbol;
-class VMArray;
+//class ClassGenerationContext;
+//class VMSymbol;
+//class VMArray;
 class VMPrimitive;
-class ClassGenerationContext;
 class VMInvokable;
 
 class VMClass: public VMObject {
@@ -52,42 +53,45 @@ public:
     VMClass();
     VMClass(long numberOfFields);
 
-    inline pVMClass     GetSuperClass() const;
+    inline pVMClass     GetSuperClass() /*const*/;
     inline void         SetSuperClass(pVMClass);
-    inline bool         HasSuperClass() const;
-    inline pVMSymbol    GetName() const;
+    inline bool         HasSuperClass() /*const*/;
+    inline pVMSymbol    GetName() /*const*/;
     inline void         SetName(pVMSymbol);
-    inline pVMArray     GetInstanceFields() const;
+    inline pVMArray     GetInstanceFields() /*const*/;
     inline void         SetInstanceFields(pVMArray);
-    inline pVMArray     GetInstanceInvokables() const;
+    inline pVMArray     GetInstanceInvokables() /*const*/;
            void         SetInstanceInvokables(pVMArray);
-           long         GetNumberOfInstanceInvokables() const;
-           pVMInvokable GetInstanceInvokable(long) const;
+           long         GetNumberOfInstanceInvokables() /*const*/;
+           pVMInvokable GetInstanceInvokable(long) /*const*/;
            void         SetInstanceInvokable(long, pVMObject);
-           pVMInvokable LookupInvokable(pVMSymbol) const;
-           long         LookupFieldIndex(pVMSymbol) const;
+           pVMInvokable LookupInvokable(pVMSymbol) /*const*/;
+           long         LookupFieldIndex(pVMSymbol) /*const*/;
            bool         AddInstanceInvokable(pVMObject);
            void         AddInstancePrimitive(pVMPrimitive);
-           pVMSymbol    GetInstanceFieldName(long)const;
-           long         GetNumberOfInstanceFields() const;
-           bool         HasPrimitives() const;
+           pVMSymbol    GetInstanceFieldName(long)/*const*/;
+           long         GetNumberOfInstanceFields() /*const*/;
+           bool         HasPrimitives() /*const*/;
            void         LoadPrimitives(const vector<StdString>&);
-    virtual pVMClass    Clone() const;
-           void         WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
+    virtual pVMClass    Clone() /*const*/;
+    
+#if GC_TYPE==PAUSELESS
+    virtual void MarkReferences(Worklist*);
+#else
+    void         WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
+#endif
     
     virtual void MarkObjectAsInvalid();
 
 private:
-    StdString genLoadstring(const StdString& cp,
-            const StdString& cname
-    ) const;
+    StdString genLoadstring(const StdString& cp, const StdString& cname) const;
 
     StdString genCoreLoadstring(const StdString& cp) const;
 
     void* loadLib(const StdString& path) const;
     bool isResponsible(void* handle, const StdString& cl) const;
     void setPrimitives(void* handle, const StdString& cname);
-    long numberOfSuperInstanceFields() const;
+    long numberOfSuperInstanceFields() /*const*/;
 
     pVMClass superClass;
     pVMSymbol name;
@@ -97,7 +101,8 @@ private:
     static const long VMClassNumberOfFields;
 };
 
-pVMClass VMClass::GetSuperClass() const {
+pVMClass VMClass::GetSuperClass() /*const*/ {
+    PG_HEAP(ReadBarrier((void**)(&superClass)));
     return superClass;
 }
 
@@ -108,7 +113,8 @@ void VMClass::SetSuperClass(pVMClass sup) {
 #endif
 }
 
-pVMSymbol VMClass::GetName() const {
+pVMSymbol VMClass::GetName() /*const*/ {
+    PG_HEAP(ReadBarrier((void**)(&name)));
     return name;
 }
 
@@ -119,12 +125,22 @@ void VMClass::SetName(pVMSymbol nam) {
 #endif
 }
 
-bool VMClass::HasSuperClass() const {
+bool VMClass::HasSuperClass() /*const*/ {
+    
+    /// REG = superClass
+    /// <- thread
+    /// assert REG == UN_MARKED_REF
+    ///
+    /// ReadBarrier(REG)
+
     assert(Universe::IsValidObject(superClass));
+    PG_HEAP(ReadBarrier((void**)(&superClass)));
+    PG_HEAP(ReadBarrier((void**)(&nilObject)));
     return superClass != nilObject;
 }
 
-pVMArray VMClass::GetInstanceFields() const {
+pVMArray VMClass::GetInstanceFields() /*const*/ {
+    PG_HEAP(ReadBarrier((void**)(&instanceFields)));
     return instanceFields;
 }
 
@@ -135,7 +151,8 @@ void VMClass::SetInstanceFields(pVMArray instFields) {
 #endif
 }
 
-pVMArray VMClass::GetInstanceInvokables() const {
+pVMArray VMClass::GetInstanceInvokables() /*const*/ {
+    PG_HEAP(ReadBarrier((void**)(&instanceInvokables)));
     return instanceInvokables;
 }
 
