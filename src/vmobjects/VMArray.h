@@ -46,7 +46,7 @@ public:
     pVMObject GetIndexableField(long idx) /*const*/;
     void SetIndexableField(long idx, pVMObject value);
     void CopyIndexableFieldsTo(pVMArray) /*const*/;
-    virtual pVMArray Clone() const;
+    virtual pVMArray Clone() /*const*/;
 
 private:
     virtual void MarkObjectAsInvalid();
