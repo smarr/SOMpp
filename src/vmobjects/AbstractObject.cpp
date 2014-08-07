@@ -9,6 +9,7 @@
 
 #include <vm/Universe.h>
 
+#include "../interpreter/Interpreter.h"
 #include "VMFrame.h"
 #include "VMClass.h"
 #include "VMInvokable.h"

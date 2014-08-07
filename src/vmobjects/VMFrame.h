@@ -106,9 +106,12 @@ pVMObject VMFrame::GetField(long index) /*const*/ {
 }
 
 bool VMFrame::HasContext() /*const*/ {
+    //return context != nullptr;
+    
+    
     //assert(this->context == NULL);
     PG_HEAP(ReadBarrier((void**)(&this->context)));
-    return this->context != NULL;
+    return UNTAG_REFERENCE(this->context) != NULL;
 }
 
 bool VMFrame::HasPreviousFrame() /*const*/ {

@@ -28,6 +28,8 @@
 
 #include "../primitivesCore/Routine.h"
 
+#include "../interpreter/Interpreter.h"
+
 #include <vmobjects/VMObject.h>
 #include <vmobjects/VMFrame.h>
 #include <vmobjects/VMMethod.h>
@@ -103,16 +105,16 @@ pVMThread _Block::CreateNewThread(pVMBlock block) {
 
 void* _Block::ThreadForBlock(void* threadPointer) {
     //create new interpreter which will process the block
-    Interpreter interpreter;
-    _UNIVERSE->AddInterpreter(&interpreter);
+    Interpreter* interpreter = new Interpreter();
+    _UNIVERSE->AddInterpreter(interpreter);
     pVMThread thread = (pVMThread)threadPointer;
     pVMBlock block = thread->GetBlockToRun();
-    interpreter.SetThread(thread);
+    interpreter->SetThread(thread);
     
     // fake bootstrap method to simplify later frame traversal
     pVMMethod bootstrapVMMethod = CreateFakeBootstrapMethod();
     // create a fake bootstrap frame with the block object on the stack
-    pVMFrame bootstrapVMFrame = interpreter.PushNewFrame(bootstrapVMMethod);
+    pVMFrame bootstrapVMFrame = interpreter->PushNewFrame(bootstrapVMMethod);
     bootstrapVMFrame->Push((pVMObject)block);
     
     // lookup the initialize invokable on the system class
@@ -120,26 +122,42 @@ void* _Block::ThreadForBlock(void* threadPointer) {
     // invoke the initialize invokable
     (*initialize)(bootstrapVMFrame);
     // start the interpreter
-    interpreter.Start();
-    
+    interpreter->Start();
     // exit this thread and decrement the number of active threads, this is part of a thread barrier needed for GC
+#if GC_TYPE != PAUSELESS
+//# define VALUE_TO_STRING(x) #x
+//# define VALUE(x) VALUE_TO_STRING(x)
+//# define VAR_NAME_VALUE(var) #var "=" VALUE(var)
+//
+//# pragma message (VAR_NAME_VALUE(GC_TYPE))
+//# error test
     _HEAP->DecrementThreadCount();
+#endif
+    
+    //pthread_mutex_lock
+    //_HEAP->RemoveLeftoverInterpreter(_UNIVERSE->GetInterpreter());
     _UNIVERSE->RemoveInterpreter();
+    //pthread_mutex_unlock
+    
+#if GC_TYPE!=PAUSELESS
+    delete interpreter;
+#endif
+
     pthread_exit(NULL);
 }
 
 void* _Block::ThreadForBlockWithArgument(void* threadPointer) {
     //create new interpreter which will process the block
-    Interpreter interpreter;
-    _UNIVERSE->AddInterpreter(&interpreter);
+    Interpreter* interpreter = new Interpreter();
+    _UNIVERSE->AddInterpreter(interpreter);
     pVMThread thread = (pVMThread)threadPointer;
     pVMBlock block = thread->GetBlockToRun();
-    interpreter.SetThread(thread);
+    interpreter->SetThread(thread);
     
     // fake bootstrap method to simplify later frame traversal
     pVMMethod bootstrapVMMethod = CreateFakeBootstrapMethod();
     // create a fake bootstrap frame with the block object on the stack
-    pVMFrame bootstrapVMFrame = interpreter.PushNewFrame(bootstrapVMMethod);
+    pVMFrame bootstrapVMFrame = interpreter->PushNewFrame(bootstrapVMMethod);
     bootstrapVMFrame->Push((pVMObject)block);
     pVMObject arg = thread->GetArgument();
     bootstrapVMFrame->Push(arg);
@@ -149,11 +167,18 @@ void* _Block::ThreadForBlockWithArgument(void* threadPointer) {
     // invoke the initialize invokable
     (*initialize)(bootstrapVMFrame);
     // start the interpreter
-    interpreter.Start();
-    
+    interpreter->Start();
     // exit this thread and decrement the number of active threads, this is part of a thread barrier needed for GC
+#if GC_TYPE!=PAUSELESS
     _HEAP->DecrementThreadCount();
+#endif
+    
     _UNIVERSE->RemoveInterpreter();
+    
+#if GC_TYPE!=PAUSELESS
+    delete interpreter;
+#endif
+    
     pthread_exit(NULL);
 }
 
@@ -164,7 +189,9 @@ void _Block::Spawn(pVMObject object, pVMFrame frame) {
     // create the thread object and setting it up
     pVMThread thread = CreateNewThread(block);
     // create the pthread but first increment the number of active threads (this is part of a thread barrier needed for GC)
+#if GC_TYPE!=PAUSELESS
     _HEAP->IncrementThreadCount();
+#endif
     pthread_create(&tid, NULL, &ThreadForBlock, (void*)thread);
     thread->SetEmbeddedThreadId(tid);
     frame->Push(thread);
@@ -179,7 +206,9 @@ void _Block::SpawnWithArgument(pVMObject object, pVMFrame frame) {
     pVMThread thread = CreateNewThread(block);
     thread->SetArgument(argument);
     // create the pthread but first increment the number of active threads (this is part of a thread barrier needed for GC)
+#if GC_TYPE!=PAUSELESS
     _HEAP->IncrementThreadCount();
+#endif
     pthread_create(&tid, NULL, &ThreadForBlockWithArgument, (void *)thread);
     thread->SetEmbeddedThreadId(tid);
     frame->Push(thread);
