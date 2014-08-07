@@ -55,8 +55,9 @@
 #define fileSeparator '/'
 
 #define GENERATIONAL 1
-#define COPYING 2
-#define MARK_SWEEP 3
+#define COPYING      2
+#define MARK_SWEEP   3
+#define PAUSELESS    4
 
 typedef std::string StdString;
 

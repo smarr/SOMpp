@@ -42,6 +42,10 @@ using namespace std;
 //macro to access the heap
 #define _HEAP PagedHeap::GetHeap()
 
+# ifndef GC_TYPE
+# error GC_TYPE is not defined
+# endif
+
 #if GC_TYPE==GENERATIONAL
 class GenerationalHeap;
 #define HEAP_CLS GenerationalHeap
@@ -54,17 +58,26 @@ class MarkSweepHeap;
 #elif GC_TYPE==PAUSELESS
 class PauselessHeap;
 #define HEAP_CLS PauselessHeap
+#else
+  # define VALUE_TO_STRING(x) #x
+  # define VALUE(x) VALUE_TO_STRING(x)
+  # define VAR_NAME_VALUE(var) #var "=" VALUE(var)
+
+  # pragma message(VAR_NAME_VALUE(GC_TYPE))
+  # error The given value of GC_TYPE is not known
 #endif
 
 class PagedHeap {
     friend class GarbageCollector;
+    friend class PauselessCollector; //this should probably also be made compile time dependend
     friend class Page;
     
 public:
     static inline HEAP_CLS* GetHeap();
-    static void InitializeHeap(long objectSpaceSize = 4194304,long pageSize = 32768);
+    //static void InitializeHeap(long objectSpaceSize = 4194304,long pageSize = 32768);
+    static void InitializeHeap(long objectSpaceSize = HEAP_SIZE,long pageSize = PAGE_SIZE);
     static void DestroyHeap();
-    PagedHeap(long objectSpaceSize = 4194304, long pageSize = 32768);
+    PagedHeap(long objectSpaceSize = HEAP_SIZE, long pageSize = PAGE_SIZE);
     ~PagedHeap();
     size_t GetMaxObjectSize();
 
@@ -76,28 +89,22 @@ public:
     
     virtual void checkCollectionTreshold() {};
     
-#if GC_TYPE==PAUSELESS
-    void IncrementMarkedRootSets();
-#endif
-    
 protected:
     long pageSize;
     GarbageCollector* gc;
     pthread_mutex_t pageRequestMutex;
     pthread_mutex_t fullPagesMutex;
-    void* nextFreePagePosition;
-    void* collectionLimit;
+    //void* nextFreePagePosition;
+    //void* collectionLimit;
     void* memoryStart;
     size_t memoryEnd;
     vector<Page*>* allPages;
     vector<Page*>* availablePages;
     vector<Page*>* fullPages;
     
-#if GC_TYPE==PAUSELESS
-    pthread_mutex_t numberOfMarkedRootSetsMutex;
-#endif
-    
 private:
+    void CreatePages();
+    
     static HEAP_CLS* theHeap;
     size_t maxObjSize;
 };

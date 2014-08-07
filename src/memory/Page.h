@@ -23,8 +23,13 @@ public:
     AbstractVMObject* AllocateObject(size_t size);
     void ClearPage();
     
-    //specifically for pauseless
-    void ClearMarkBits();
+#if GC_TYPE==PAUSELESS
+    void GetPageStart();
+    void AddAmountLiveData(size_t);
+    bool Blocked();
+    pVMObject LookupNewAddress(VMOBJECT_PTR);
+    //void ClearMarkBits();
+#endif
     
 private:
     size_t pageStart;
@@ -32,9 +37,13 @@ private:
     void* collectionLimit;
     void* volatile nextFreePosition;
     PagedHeap* heap;
-    //page stuff specifically for pauseless
-    int numberLiveObjects;
-    bool protection;
+#if GC_TYPE==PAUSELESS
+    long amountLiveData;
+    bool blocked;
+    bool used;
+    vector<AbstractVMObject*> forwardReferences;
+#endif
+    
 };
 
 #endif

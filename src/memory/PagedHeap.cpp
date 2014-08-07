@@ -58,10 +58,6 @@ void PagedHeap::DestroyHeap() {
 
 PagedHeap::PagedHeap(long objectSpaceSize, long pageSize) {
     this->pageSize = pageSize;
-
-#if GC_TYPE==PAUSELESS
-    pthread_mutex_init(&numberOfMarkedRootSetsMutex, NULL);
-#endif
     pthread_mutex_init(&pageRequestMutex, NULL);
     pthread_mutex_init(&fullPagesMutex, NULL);
     allPages = new vector<Page*>();
@@ -73,9 +69,42 @@ PagedHeap::PagedHeap(long objectSpaceSize, long pageSize) {
     memoryEnd = (size_t)memoryStart + objectSpaceSize;
     // initialize some meta data of the heap
     maxObjSize = pageSize / 2;
-    nextFreePagePosition = memoryStart;
-    collectionLimit = (void*)((size_t)memoryStart + ((size_t)(objectSpaceSize * 0.9)));
+    
+    //nextFreePagePosition = memoryStart;
+    //collectionLimit = (void*)((size_t)memoryStart + ((size_t)(objectSpaceSize * 0.9)));
+    
+    //perhaps easiest when all the pages are already created...
+    
+    CreatePages();
+    
 }
+
+
+void PagedHeap::CreatePages() {
+    void* nextFreePagePosition = memoryStart;
+    Page* newPage;
+    while (nextFreePagePosition < (void*) memoryEnd) {
+        newPage = new Page(nextFreePagePosition, this);
+        allPages->push_back(newPage);
+        availablePages->push_back(newPage);
+        nextFreePagePosition = (void*) ((size_t)nextFreePagePosition + pageSize);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 PagedHeap::~PagedHeap() {
     delete gc;
@@ -85,6 +114,7 @@ size_t PagedHeap::GetMaxObjectSize() {
     return maxObjSize;
 }
 
+/*
 Page* PagedHeap::RequestPage() {
     Page* newPage;
     pthread_mutex_lock(&pageRequestMutex);
@@ -94,10 +124,25 @@ Page* PagedHeap::RequestPage() {
         allPages->push_back(newPage);
         nextFreePagePosition = (void*) ((size_t)nextFreePagePosition + pageSize);
         checkCollectionTreshold();
-        //if (nextFreePagePosition > collectionLimit) triggerGC();
     } else {
         newPage = availablePages->back();
         availablePages->pop_back();
+    }
+    pthread_mutex_unlock(&pageRequestMutex);
+    return newPage;
+} */
+
+Page* PagedHeap::RequestPage() {
+    Page* newPage;
+    pthread_mutex_lock(&pageRequestMutex);
+    if (availablePages->empty()) {
+        _UNIVERSE->ErrorExit("Unable to respond to page request");
+        //triggerGC();
+        //checkCollectionTreshold();
+    } else {
+        newPage = availablePages->back();
+        availablePages->pop_back();
+        checkCollectionTreshold();
     }
     pthread_mutex_unlock(&pageRequestMutex);
     return newPage;
@@ -114,12 +159,3 @@ void PagedHeap::RelinquishFullPage(Page* page) {
     fullPages->push_back(page);
     pthread_mutex_unlock(&fullPagesMutex);
 }
-
-
-#if GC_TYPE==PAUSELESS
-void PagedHeap::IncrementMarkedRootSets() {
-    pthread_mutex_lock(&numberOfMarkedRootSetsMutex);
-    numberOfMarkedRootSets++;
-    pthread_mutex_unlock(&numberOfMarkedRootSetsMutex);
-}
-#endif
