@@ -13,30 +13,27 @@
 #include "ObjectFormats.h"
 
 #if GC_TYPE==GENERATIONAL
-    #include <memory/GenerationalHeap.h>
+    #include <memory/stopTheWorld/GenerationalHeap.h>
     #include <memory/Page.h>
 #elif GC_TYPE==COPYING
-    #include <memory/CopyingHeap.h>
+    #include <memory/stopTheWorld/CopyingHeap.h>
 #elif GC_TYPE==MARK_SWEEP
-    #include <memory/MarkSweepHeap.h>
+    #include <memory/stopTheWorld/MarkSweepHeap.h>
 #elif GC_TYPE==PAUSELESS
-    #include <memory/PauselessHeap.h>
+    #include <memory/pauseless/PauselessHeap.h>
     #include <memory/Page.h>
+    class Worklist;
 #endif
 
 #include "VMObjectBase.h"
 
-/*
-#if GC_TYPE==PAUSELSESS
 
+#if GC_TYPE==PAUSELSESS
 #define MASK_OBJECT_NMT (1 << 1)
-#define UNTAG_REFERENCE(REFERENCE) ((((size_t)REFERENCE & MASK_OBJECT_NMT) == 0) ? ((size_t)REFERENCE | MASK_OBJECT_NMT) : REFERENCE
- 
-bool operator==(const AbstractVMObject* reference1, const AbstractVMObject* reference2) {
-    return (UNTAG_REFERENCE(reference1) == UNTAG_REFERENCE(reference2));
-}
+#define UNTAG_REFERENCE(REFERENCE) (((reinterpret_cast<uintptr_t>(REFERENCE) & MASK_OBJECT_NMT) == 1) ? (reinterpret_cast<uintptr_t>(REFERENCE) ^ MASK_OBJECT_NMT) : reinterpret_cast<uintptr_t>(REFERENCE))
+#else
+#define UNTAG_REFERENCE(REFERENCE) (REFERENCE)
 #endif
-*/
 
 
 /*
