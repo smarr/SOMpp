@@ -33,6 +33,10 @@
 #include "../vmobjects/ObjectFormats.h"
 #include "../memory/Page.h"
 
+#if GC_TYPE==PAUSELESS
+#include "../memory/pauseless/Worklist.h"
+#endif
+
 class VMMethod;
 class VMFrame;
 class VMMethod;
@@ -41,8 +45,6 @@ class VMSymbol;
 class VMClass;
 class AbstractVMObject;
 class VMThread;
-
-//class Page;
 
 class Interpreter {
 public:
@@ -58,11 +60,22 @@ public:
     pVMObject GetSelf();
     Page*     GetPage();
     void      SetPage(Page*);
-    void      WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
     
 #if GC_TYPE==PAUSELESS
+    void      MoveWork(Worklist*);
+    void      AddGCWork(VMOBJECT_PTR);
+    
+    bool      Blocked();
+    void      FlipBlocked();
+    
+    void      TriggerMarkRootSet();
+    void      MarkRootSet();
+
+    void      SignalEnableGCTrap();
+    bool      GCTrapEnabled();
     bool      GetExpectedNMT();
-    void      FlipExpectedNMT();
+#else
+    void      WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
 #endif
     
 private:
@@ -77,6 +90,8 @@ private:
     pVMFrame popFrame();
     void popFrameAndPushResult(pVMObject result);
     void send(pVMSymbol signature, pVMClass receiverClass);
+    
+    pVMMethod GetMethod();
 
     void doDup();
     void doPushLocal(long bytecodeIndex);
@@ -104,7 +119,20 @@ private:
     uint8_t*  currentBytecodes;
     
 #if GC_TYPE==PAUSELESS
+    Worklist worklist;
+    bool blocked;
+    bool markRootSet;
+    
+    
+    
+    
+    
+    
+    
     bool expectedNMT;
+    bool gcTrapEnabled;
+    bool signalEnableGCTrap;
+    
 #endif
     
     

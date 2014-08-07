@@ -27,6 +27,10 @@
 #include "Interpreter.h"
 #include "bytecodes.h"
 
+#if GC_TYPE==PAUSELESS
+    #include "../memory/pauseless/PauselessCollector.h"
+#endif
+
 #include <vmobjects/VMMethod.h>
 #include <vmobjects/VMFrame.h>
 #include <vmobjects/VMMethod.h>
@@ -56,11 +60,20 @@ Interpreter::Interpreter() {
     uG = "unknownGlobal:";
     dnu = "doesNotUnderstand:arguments:";
     eB = "escapedBlock:";
+    
+#if GC_TYPE==PAUSELESS
+    markRootSet = false;
+    expectedNMT = false;
+    blocked = false;
+    gcTrapEnabled = false;
+    signalEnableGCTrap = false;
+    worklist = Worklist();
+#endif
 
 }
 
 Interpreter::~Interpreter() {
-
+    _HEAP->RelinquishPage(page);
 }
 
 #define PROLOGUE(bc_count) {\
@@ -72,6 +85,21 @@ Interpreter::~Interpreter() {
   goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]]; \
 }
 
+#if GC_TYPE==PAUSELESS
+#define DISPATCH_GC() {\
+    if (markRootSet) {\
+        MarkRootSet();\
+    }\
+    goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];\
+}
+
+#define DUMMY_ROOTSET_MARKING() {\
+    if (markRootSet) {\
+        DummyRootSetMarking();\
+    }\
+}
+
+#else
 #define DISPATCH_GC() {\
   if (_HEAP->isCollectionTriggered()) {\
     _FRAME->SetBytecodeIndex(bytecodeIndexGlobal);\
@@ -81,6 +109,7 @@ Interpreter::~Interpreter() {
   }\
   goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];\
 }
+#endif
 
 
 void Interpreter::Start() {
@@ -117,14 +146,16 @@ goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];
 // THIS IS THE former interpretation loop
 LABEL_BC_HALT:
   PROLOGUE(1);
-return; // handle the halt bytecode
+  return; // handle the halt bytecode
+    
 LABEL_BC_DUP: 
   PROLOGUE(1);
-doDup();
+  doDup();
   DISPATCH_NOGC();
+    
 LABEL_BC_PUSH_LOCAL:       
   PROLOGUE(3);
-doPushLocal(bytecodeIndexGlobal - 3);
+  doPushLocal(bytecodeIndexGlobal - 3);
   DISPATCH_NOGC();
 
 LABEL_BC_PUSH_ARGUMENT:
@@ -202,6 +233,8 @@ pVMFrame Interpreter::PushNewFrame(pVMMethod method) {
 }
 
 void Interpreter::SetFrame(pVMFrame frame) {
+    //if (_FRAME != NULL)
+    //    _FRAME->SetBytecodeIndex(bytecodeIndexGlobal);
     if (this->frame != NULL)
         this->frame->SetBytecodeIndex(bytecodeIndexGlobal);
 
@@ -214,6 +247,7 @@ void Interpreter::SetFrame(pVMFrame frame) {
 }
 
 pVMFrame Interpreter::GetFrame() {
+    PG_HEAP(ReadBarrier((void**)(&frame)));
     return this->frame;
 }
 
@@ -306,6 +340,7 @@ void Interpreter::doDup() {
 }
 
 void Interpreter::doPushLocal(long bytecodeIndex) {
+    //pVMMethod method = this->GetMethod();
     uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
 
@@ -315,6 +350,7 @@ void Interpreter::doPushLocal(long bytecodeIndex) {
 }
 
 void Interpreter::doPushArgument(long bytecodeIndex) {
+    //pVMMethod method = this->GetMethod();
     uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
 
@@ -324,6 +360,7 @@ void Interpreter::doPushArgument(long bytecodeIndex) {
 }
 
 void Interpreter::doPushField(long bytecodeIndex) {
+    //uint8_t fieldIndex = this->GetMethod()->GetBytecode(bytecodeIndex + 1);
     uint8_t fieldIndex = method->GetBytecode(bytecodeIndex + 1);
     pVMObject self = _SELF;
     pVMObject o;
@@ -344,17 +381,25 @@ void Interpreter::doPushField(long bytecodeIndex) {
 void Interpreter::doPushBlock(long bytecodeIndex) {
     // Short cut the negative case of #ifTrue: and #ifFalse:
     if (currentBytecodes[bytecodeIndexGlobal] == BC_SEND) {
-        if (_FRAME->GetStackElement(0) == falseObject &&
-            method->GetConstant(bytecodeIndexGlobal) == symbolIfTrue) {
+        PG_HEAP(ReadBarrier((void**)(&falseObject)));
+        PG_HEAP(ReadBarrier((void**)(&symbolIfTrue)));
+        if (UNTAG_REFERENCE(_FRAME->GetStackElement(0)) == UNTAG_REFERENCE(falseObject) &&
+            UNTAG_REFERENCE(this->GetMethod()->GetConstant(bytecodeIndexGlobal)) == UNTAG_REFERENCE(symbolIfTrue)) {
+            PG_HEAP(ReadBarrier((void**)(&nilObject)));
             _FRAME->Push(nilObject);
             return;
-        } else if (_FRAME->GetStackElement(0) == trueObject &&
-                   method->GetConstant(bytecodeIndexGlobal) == symbolIfFalse) {
+        }
+        PG_HEAP(ReadBarrier((void**)(&trueObject)));
+        PG_HEAP(ReadBarrier((void**)(&symbolIfFalse)));
+        if (UNTAG_REFERENCE(_FRAME->GetStackElement(0)) == UNTAG_REFERENCE(trueObject) &&
+                UNTAG_REFERENCE(this->GetMethod()->GetConstant(bytecodeIndexGlobal)) == UNTAG_REFERENCE(symbolIfFalse)) {
+            PG_HEAP(ReadBarrier((void**)(&nilObject)));
             _FRAME->Push(nilObject);
             return;
         }
     }
 
+    //pVMMethod blockMethod = static_cast<pVMMethod>(this->GetMethod()->GetConstant(bytecodeIndex));
     pVMMethod blockMethod = static_cast<pVMMethod>(method->GetConstant(bytecodeIndex));
 
     long numOfArgs = blockMethod->GetNumberOfArguments();
@@ -363,15 +408,17 @@ void Interpreter::doPushBlock(long bytecodeIndex) {
 }
 
 void Interpreter::doPushConstant(long bytecodeIndex) {
+    //pVMObject constant = this->GetMethod()->GetConstant(bytecodeIndex);
     pVMObject constant = method->GetConstant(bytecodeIndex);
     _FRAME->Push(constant);
 }
 
 void Interpreter::doPushGlobal(long bytecodeIndex) {
+    //pVMSymbol globalName = static_cast<pVMSymbol>(this->GetMethod()->GetConstant(bytecodeIndex));
     pVMSymbol globalName = static_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));
     pVMObject global = _UNIVERSE->GetGlobal(globalName);
 
-    if(global != NULL)
+    if(UNTAG_REFERENCE(global) != NULL)
         _FRAME->Push(global);
     else {
         pVMObject arguments[] = {globalName};
@@ -403,6 +450,7 @@ void Interpreter::doPop() {
 }
 
 void Interpreter::doPopLocal(long bytecodeIndex) {
+    //pVMMethod method = this->GetMethod();
     uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
 
@@ -412,6 +460,7 @@ void Interpreter::doPopLocal(long bytecodeIndex) {
 }
 
 void Interpreter::doPopArgument(long bytecodeIndex) {
+    //pVMMethod method = this->GetMethod();
     uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
 
@@ -420,6 +469,7 @@ void Interpreter::doPopArgument(long bytecodeIndex) {
 }
 
 void Interpreter::doPopField(long bytecodeIndex) {
+    //uint8_t field_index = this->GetMethod()->GetBytecode(bytecodeIndex + 1);
     uint8_t field_index = method->GetBytecode(bytecodeIndex + 1);
 
     pVMObject self = _SELF;
@@ -437,10 +487,12 @@ void Interpreter::doPopField(long bytecodeIndex) {
 }
 
 void Interpreter::doSend(long bytecodeIndex) {
+    //pVMSymbol signature = static_cast<pVMSymbol>(this->GetMethod()->GetConstant(bytecodeIndex));
     pVMSymbol signature = static_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));
 
     long numOfArgs = Signature::GetNumberOfArguments(signature);
 
+    //pVMObject receiver = _FRAME->GetStackElement(numOfArgs-1);
     pVMObject receiver = frame->GetStackElement(numOfArgs-1);
     assert(Universe::IsValidObject(receiver));
     assert(dynamic_cast<pVMClass>((pVMObject)receiver->GetClass()) != nullptr); // make sure it is really a class
@@ -461,6 +513,7 @@ void Interpreter::doSend(long bytecodeIndex) {
 }
 
 void Interpreter::doSuperSend(long bytecodeIndex) {
+    //pVMSymbol signature = static_cast<pVMSymbol>(this->GetMethod()->GetConstant(bytecodeIndex));
     pVMSymbol signature = static_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));
 
     pVMFrame ctxt = _FRAME->GetOuterContext();
@@ -469,7 +522,7 @@ void Interpreter::doSuperSend(long bytecodeIndex) {
     pVMClass super = holder->GetSuperClass();
     pVMInvokable invokable = static_cast<pVMInvokable>(super->LookupInvokable(signature));
 
-    if (invokable != NULL)
+    if (UNTAG_REFERENCE(invokable) != NULL)
         (*invokable)(_FRAME);
     else {
         long numOfArgs = Signature::GetNumberOfArguments(signature);
@@ -523,25 +576,28 @@ void Interpreter::doReturnNonLocal() {
         return;
     }
 
-    while (_FRAME != context) this->popFrame();
+    while (UNTAG_REFERENCE(_FRAME) != UNTAG_REFERENCE(context)) this->popFrame();
 
     this->popFrameAndPushResult(result);
 }
 
 void Interpreter::doJumpIfFalse(long bytecodeIndex) {
     pVMObject value = _FRAME->Pop();
-    if (value == falseObject)
+    PG_HEAP(ReadBarrier((void**)(&falseObject)));
+    if (UNTAG_REFERENCE(value) == UNTAG_REFERENCE(falseObject))
         doJump(bytecodeIndex);
 }
 
 void Interpreter::doJumpIfTrue(long bytecodeIndex) {
     pVMObject value = _FRAME->Pop();
-    if (value == trueObject)
+    PG_HEAP(ReadBarrier((void**)(&trueObject)));
+    if (UNTAG_REFERENCE(value) == UNTAG_REFERENCE(trueObject))
         doJump(bytecodeIndex);
 }
 
 void Interpreter::doJump(long bytecodeIndex) {
     long target = 0;
+    //pVMMethod method = this->GetMethod();
     target |= method->GetBytecode(bytecodeIndex + 1);
     target |= method->GetBytecode(bytecodeIndex + 2) << 8;
     target |= method->GetBytecode(bytecodeIndex + 3) << 16;
@@ -551,12 +607,14 @@ void Interpreter::doJump(long bytecodeIndex) {
     bytecodeIndexGlobal = target;
 }
 
-void Interpreter::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    method = (pVMMethod) walk(method);
+pVMMethod Interpreter::GetMethod() {
+    PG_HEAP(ReadBarrier((void**)(&method)));
+    return this->method;
 }
 
 pVMThread Interpreter::GetThread(void) {
-    return this->thread;
+    PG_HEAP(ReadBarrier((void**)(&thread)));
+    return thread;
 }
 
 void Interpreter::SetThread(pVMThread thread) {
@@ -572,11 +630,68 @@ void Interpreter::SetPage(Page* page) {
 }
 
 #if GC_TYPE==PAUSELESS
+void Interpreter::MoveWork(Worklist* moveToWorklist) {
+    worklist.MoveWork(moveToWorklist);
+}
+
+void Interpreter::AddGCWork(VMOBJECT_PTR work) {
+    worklist.AddWork(work);
+}
+
+bool Interpreter::Blocked() {
+    return blocked;
+}
+
+void Interpreter::FlipBlocked() {
+    blocked = !blocked;
+}
+
+void Interpreter::TriggerMarkRootSet() {
+    markRootSet = true;
+}
+
+void Interpreter::MarkRootSet() {
+    markRootSet = false;
+    expectedNMT = !expectedNMT;
+    
+    // this will also destructively change the thread, frame and method pointers so that the NMT bit is flipped
+    _HEAP->ReadBarrier((void**)&thread);
+    _HEAP->ReadBarrier((void**)&frame);
+    _HEAP->ReadBarrier((void**)&method);
+    
+    // signal that root-set has been marked
+    _HEAP->SignalMarkingOfRootSet(this);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void Interpreter::SignalEnableGCTrap() {
+    signalEnableGCTrap = true;
+}
+
+bool Interpreter::GCTrapEnabled() {
+    return gcTrapEnabled;
+}
+
+
+
 bool Interpreter::GetExpectedNMT() {
     return expectedNMT;
 }
 
-void Interpreter::FlipExpectedNMT() {
-    expectedNMT = !expectedNMT;
+#else
+void Interpreter::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
+    method = (pVMMethod) walk(method);
 }
 #endif

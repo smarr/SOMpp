@@ -10,6 +10,7 @@
 
 #include "../natives/VMThread.h"
 #include "../primitivesCore/Routine.h"
+#include "../interpreter/Interpreter.h"
 
 void _Thread::Join(pVMObject object, pVMFrame frame){
     pVMThread thread = (pVMThread)frame->Pop();
@@ -17,9 +18,22 @@ void _Thread::Join(pVMObject object, pVMFrame frame){
     ThreadId threadid = thread->GetEmbeddedThreadId();
     // This way we signal the gc thread that even if this is waiting to perform a join
     // the garbage collection is safe to proceed for this thread
+
+#if GC_TYPE==PAUSELESS
+    _UNIVERSE->GetInterpreter()->FlipBlocked();
+#else
     _HEAP->IncrementWaitingForGCThreads();
+#endif
+    
     thread->Join(&returnValue);
+    
+#if GC_TYPE==PAUSELESS
+    _UNIVERSE->GetInterpreter()->FlipBlocked();
+#else
     _HEAP->DecrementWaitingForGCThreads();
+
+#endif
+    
     frame->Push(thread);
 }
 

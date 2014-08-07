@@ -38,9 +38,11 @@
 
 #include "../vmobjects/ObjectFormats.h"
 
-#include "../interpreter/Interpreter.h"
+//#include "../interpreter/Interpreter.h"
 
 #include "../memory/PagedHeap.h"
+
+class Interpreter;
 
 class AbstractVMObject;
 class VMObject;
@@ -123,7 +125,10 @@ public:
     Interpreter* GetInterpreter();
     void AddInterpreter(Interpreter* interpreter);
     void RemoveInterpreter();
-    vector<Interpreter*>* GetInterpreters();     //misschien heb ik dit zelfs niet meer nodig
+    vector<Interpreter*>* GetInterpreters();
+#if GC_TYPE==PAUSELESS
+    vector<Interpreter*> GetInterpretersCopy();
+#endif
 
     void Assert(bool) const;
 
@@ -170,6 +175,7 @@ public:
 
     Universe();
     ~Universe();
+    
 #ifdef LOG_RECEIVER_TYPES
     struct stat_data {
         long noCalls;
@@ -184,13 +190,18 @@ public:
     
 private:
     
-    pthread_key_t interpreter;
     pthread_mutex_t interpreterMutex;
+    pthread_key_t interpreter;
     vector<Interpreter*> interpreters;
     
+#if GC_TYPE==PAUSELESS
+    pthread_mutex_t interpretersWithMarkedRootSetsMutex;
+    vector<Interpreter*> interpretersWithMarkedRootSets;
+#endif
+
     pthread_mutexattr_t attrclassLoading;
     pthread_mutex_t classLoading;
-    mutable int threadCounter;
+    //mutable int threadCounter;
     
     vector<StdString> handleArguments(long argc, char** argv);
     long getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;
@@ -209,7 +220,6 @@ private:
     map<pVMSymbol, pVMObject> globals;
     map<long,pVMClass> blockClassesByNoOfArgs;
     vector<StdString> classPath;
-
 };
 
 #endif
