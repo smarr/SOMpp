@@ -1,11 +1,11 @@
 #pragma once
 
-#include "PagedHeap.h"
+#include "../PagedHeap.h"
 #include <string.h>
 
 #if GC_TYPE==COPYING
 
-class CopyingHeap : public Heap {
+class CopyingHeap : public StopTheWorldHeap {
     friend class CopyingCollector;
 public:
     CopyingHeap(long heapSize);

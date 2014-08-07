@@ -1,8 +1,8 @@
 #include "StopTheWorldHeap.h"
 
 #include "GenerationalCollector.h"
-#include "../vmobjects/AbstractObject.h"
-#include "../vm/Universe.h"
+#include "../../vmobjects/AbstractObject.h"
+#include "../../vm/Universe.h"
 
 #include <string.h>
 #include <iostream>
@@ -21,8 +21,11 @@ StopTheWorldHeap::StopTheWorldHeap(long objectSpaceSize, long pageSize) {
 }
 
 void StopTheWorldHeap::checkCollectionTreshold() {
-    if (nextFreePagePosition > collectionLimit)
+    if (availablePages->size() < 4) { //this is for the moment a bit randomly chosen
         triggerGC();
+    }
+    //if (nextFreePagePosition > collectionLimit)
+    //triggerGC();
 }
 
 void StopTheWorldHeap::IncrementThreadCount() {
@@ -62,7 +65,7 @@ void StopTheWorldHeap::FullGC() {
         }
         pthread_mutex_unlock(&threadCountMutex);
         // all threads have reached a safe point
-        gc->Collect();
+        static_cast<StopTheWorldCollector*>(gc)->Collect();
         // signal all the threads that the GC is completed
         pthread_cond_broadcast(&mayProceed);
         pthread_mutex_unlock(&doCollect);

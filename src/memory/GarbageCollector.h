@@ -37,7 +37,6 @@ class GarbageCollector {
 public:
     GarbageCollector(PagedHeap* h);
     virtual ~GarbageCollector();
-    virtual void Collect() = 0;
     void PrintGCStat() const;
     void PrintCollectStat() const;
 protected:

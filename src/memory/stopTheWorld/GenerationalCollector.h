@@ -1,10 +1,10 @@
 #pragma once
-#include "../misc/defs.h"
+#include "../../misc/defs.h"
 #if GC_TYPE == GENERATIONAL
 
-#include "GarbageCollector.h"
+#include "StopTheWorldCollector.h"
 
-class GenerationalCollector : public GarbageCollector {
+class GenerationalCollector : public StopTheWorldCollector {
 public:
     GenerationalCollector(PagedHeap* heap);
     void Collect();

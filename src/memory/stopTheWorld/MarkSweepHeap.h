@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../misc/defs.h"
+#include "../../misc/defs.h"
 #if GC_TYPE == MARK_SWEEP
 
-#include "PagedHeap.h"
+#include "../PagedHeap.h"
 
-class MarkSweepHeap : public Heap {
+class MarkSweepHeap : public StopTheWorldHeap {
     friend class MarkSweepCollector;
 public:
     MarkSweepHeap(long objectSpaceSize = 1048576);
