@@ -61,8 +61,9 @@ void _System::Global_(pVMObject /*object*/, pVMFrame frame) {
     /*pVMObject self = */
     frame->Pop();
     pVMObject result = _UNIVERSE->GetGlobal(arg);
-
-    frame->Push( result ? result : nilObject);
+    
+    PG_HEAP(ReadBarrier((void**)&nilObject));
+    frame->Push( UNTAG_REFERENCE(result) ? result : nilObject);
 }
 
 void _System::Global_put_(pVMObject /*object*/, pVMFrame frame) {
@@ -75,10 +76,12 @@ void _System::Load_(pVMObject /*object*/, pVMFrame frame) {
     pVMSymbol arg = static_cast<pVMSymbol>(frame->Pop());
     frame->Pop();
     pVMClass result = _UNIVERSE->LoadClass(arg);
-    if (result)
+    if (UNTAG_REFERENCE(result))
         frame->Push(result);
-    else
+    else {
+        PG_HEAP(ReadBarrier((void**)&nilObject));
         frame->Push(nilObject);
+    }
 }
 
 void _System::Exit_(pVMObject /*object*/, pVMFrame frame) {
@@ -141,9 +144,11 @@ void _System::Ticks(pVMObject /*object*/, pVMFrame frame) {
 }
 
 void _System::FullGC(pVMObject /*object*/, pVMFrame frame) {
+#if GC_TYPE!=PAUSELESS
     frame->Pop();
     _HEAP->triggerGC(); // not safe to do it immediatly, will be done when it is ok, i.e., in the interpreter loop
     frame->Push(trueObject);
+#endif
 }
 
 void _System::GetNumberOfCPUs(pVMObject object, pVMFrame frame) {

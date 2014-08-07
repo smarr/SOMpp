@@ -50,16 +50,19 @@ double _Double::coerceDouble(pVMObject x) {
     if (IS_TAGGED(x))
     return (double)UNTAG_INTEGER(x);
 #endif
+    
     pVMClass cl = ((AbstractVMObject*)x)->GetClass();
-    if (cl == doubleClass)
+    PG_HEAP(ReadBarrier((void**)&doubleClass));
+    PG_HEAP(ReadBarrier((void**)&integerClass));
+    PG_HEAP(ReadBarrier((void**)&bigIntegerClass));
+    if (UNTAG_REFERENCE(cl) == UNTAG_REFERENCE(doubleClass))
         return static_cast<pVMDouble>(x)->GetEmbeddedDouble();
-    else if(cl == integerClass)
+    else if(UNTAG_REFERENCE(cl) == UNTAG_REFERENCE(integerClass))
         return (double)static_cast<pVMInteger>(x)->GetEmbeddedInteger();
-    else if(cl == bigIntegerClass)
+    else if(UNTAG_REFERENCE(cl) == UNTAG_REFERENCE(bigIntegerClass))
         return (double)static_cast<pVMBigInteger>(x)->GetEmbeddedInteger();
     else
         _UNIVERSE->ErrorExit("Attempt to apply Double operation to non-number.");
-
     return 0.0f;
 }
 
@@ -118,18 +121,24 @@ void _Double::BitwiseXor(pVMObject /*object*/, pVMFrame frame) {
  */
 void _Double::Equal(pVMObject /*object*/, pVMFrame frame) {
     PREPARE_OPERANDS;
-    if(left == right)
-    frame->Push(trueObject);
-    else
-    frame->Push(falseObject);
+    if(left == right) {
+        PG_HEAP(ReadBarrier((void**)&trueObject));
+        frame->Push(trueObject);
+    } else {
+        PG_HEAP(ReadBarrier((void**)&falseObject));
+        frame->Push(falseObject);
+    }
 }
 
 void _Double::Lowerthan(pVMObject /*object*/, pVMFrame frame) {
     PREPARE_OPERANDS;
-    if(left < right)
+    if(left < right) {
+        PG_HEAP(ReadBarrier((void**)&trueObject));
         frame->Push(trueObject);
-    else
+    } else {
+        PG_HEAP(ReadBarrier((void**)&falseObject));
         frame->Push(falseObject);
+    }
 }
 
 void _Double::AsString(pVMObject /*object*/, pVMFrame frame) {

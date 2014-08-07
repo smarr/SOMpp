@@ -64,11 +64,13 @@
 #else
 #define CHECK_COERCION(obj,receiver,op) {\
     pVMClass cl = ((AbstractVMObject*)obj)->GetClass(); \
-    if (cl == bigIntegerClass) { \
+    PG_HEAP(ReadBarrier((void**)&bigIntegerClass));\
+    PG_HEAP(ReadBarrier((void**)&doubleClass));\
+    if (UNTAG_REFERENCE(cl) == UNTAG_REFERENCE(bigIntegerClass)) { \
         resendAsBigInteger( \
             object, (op), (receiver), static_cast<pVMBigInteger>(obj)); \
         return; \
-    } else if (cl== doubleClass) { \
+    } else if (UNTAG_REFERENCE(cl) == UNTAG_REFERENCE(doubleClass)) { \
         resendAsDouble( \
             object, (op), (receiver), static_cast<pVMDouble>(obj)); \
         return; \
@@ -335,17 +337,24 @@ void _Integer::Equal(pVMObject object, pVMFrame frame) {
     } else
         frame->Push(falseObject);
 #else
-    if (rightObj->GetClass() == integerClass) {
+    PG_HEAP(ReadBarrier((void**)&integerClass));
+    PG_HEAP(ReadBarrier((void**)&doubleClass));
+    if (UNTAG_REFERENCE(rightObj->GetClass()) == UNTAG_REFERENCE(integerClass)) {
         pVMInteger right = static_cast<pVMInteger>(rightObj);
-        if (left->GetEmbeddedInteger() == right->GetEmbeddedInteger())
+        if (left->GetEmbeddedInteger() == right->GetEmbeddedInteger()) {
+            PG_HEAP(ReadBarrier((void**)&trueObject));
             frame->Push(trueObject);
-        else
+        } else {
+            PG_HEAP(ReadBarrier((void**)&falseObject));
             frame->Push(falseObject);
-    } else if (rightObj->GetClass() == doubleClass) {
+        }
+    } else if (UNTAG_REFERENCE(rightObj->GetClass()) == UNTAG_REFERENCE(doubleClass)) {
         assert(false);
     }
-    else
+    else {
+        PG_HEAP(ReadBarrier((void**)falseObject));
         frame->Push(falseObject);
+    }
 #endif
 
 }
@@ -361,11 +370,14 @@ void _Integer::Lowerthan(pVMObject object, pVMFrame frame) {
 #ifdef USE_TAGGING
     if(UNTAG_INTEGER(left) < UNTAG_INTEGER(right))
 #else
-    if(left->GetEmbeddedInteger() < right->GetEmbeddedInteger())
+    if(left->GetEmbeddedInteger() < right->GetEmbeddedInteger()) {
 #endif
-    frame->Push(trueObject);
-    else
-    frame->Push(falseObject);
+        PG_HEAP(ReadBarrier((void**)&trueObject));
+        frame->Push(trueObject);
+    } else {
+        PG_HEAP(ReadBarrier((void**)&falseObject));
+        frame->Push(falseObject);
+    }
 }
 
 void _Integer::AsString(pVMObject /*object*/, pVMFrame frame) {

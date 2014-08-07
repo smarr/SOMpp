@@ -26,8 +26,10 @@ void _Mutex::Unlock(pVMObject object, pVMFrame frame){
 void _Mutex::IsLocked(pVMObject object, pVMFrame frame){
     pVMMutex mutex = (pVMMutex)frame->Pop();
     if (mutex->IsLocked()) {
+        PG_HEAP(ReadBarrier((void**)&trueObject));
         frame->Push(trueObject);
     } else {
+        PG_HEAP(ReadBarrier((void**)&falseObject));
         frame->Push(falseObject);
     }
 }
