@@ -30,6 +30,7 @@
 #include "VMString.h"
 
 #include "../vm/Universe.h"
+#include "../interpreter/Interpreter.h"
 
 //extern pVMClass stringClass;
 

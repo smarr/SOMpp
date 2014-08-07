@@ -28,6 +28,7 @@
 #include "VMSymbol.h"
 #include "VMClass.h"
 
+#include "../interpreter/Interpreter.h"
 #include "../vm/Universe.h"
 
 //needed to instanciate the Routine object for the  empty routine
@@ -78,9 +79,9 @@ void VMPrimitive::EmptyRoutine( pVMObject _self, pVMFrame /*frame*/) {
 
 #if GC_TYPE==PAUSELESS
 void VMPrimitive::MarkReferences(Worklist* worklist) {
-    worklist->PushFront(clazz);
-    worklist->PushFront(signature);
-    worklist->PushFront(holder);
+    worklist->AddWork(clazz);
+    worklist->AddWork(signature);
+    worklist->AddWork(holder);
 }
 #else
 void VMPrimitive::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {

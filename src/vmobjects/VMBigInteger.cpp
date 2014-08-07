@@ -27,6 +27,7 @@
 #include "VMBigInteger.h"
 
 #include <vm/Universe.h>
+#include "../interpreter/Interpreter.h"
 
 VMBigInteger::VMBigInteger() {
     this->embeddedInteger = 0;

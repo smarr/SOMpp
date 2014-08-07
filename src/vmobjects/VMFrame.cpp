@@ -30,6 +30,7 @@
 #include "VMInteger.h"
 #include "VMClass.h"
 #include "VMSymbol.h"
+#include "../interpreter/Interpreter.h"
 
 #include <vm/Universe.h>
 
@@ -181,29 +182,30 @@ void VMFrame::PrintStack() const {
         PG_HEAP(ReadBarrier((void**)(&arguments[i])));
         pVMObject vmo = arguments[i];
         cout << i << ": ";
-        if (vmo == NULL)
+        if (UNTAG_REFERENCE(vmo) == NULL)
         cout << "NULL" << endl;
         PG_HEAP(ReadBarrier((void**)(&nilObject)));
-        if (vmo == nilObject)
+        if (UNTAG_REFERENCE(vmo) == UNTAG_REFERENCE(nilObject))
         cout << "NIL_OBJECT" << endl;
 #ifdef USE_TAGGING
         if (IS_TAGGED(vmo)) {
             cout << "index: " << i << " object: VMInteger" << endl;
         }
         else {
-            if (((VMOBJECT_PTR)vmo)->GetClass() == NULL)
+            if (UNTAG_REFERENCE(((VMOBJECT_PTR)vmo)->GetClass()) == NULL)
             cout << "VMObject with Class == NULL" << endl;
-            if (((VMOBJECT_PTR)vmo)->GetClass() == nilObject)
+            PG_HEAP(Readbarrier((void**)&nilObject));
+            if (UNTAG_REFERENCE(((VMOBJECT_PTR)vmo)->GetClass()) == nilObject)
             cout << "VMObject with Class == NIL_OBJECT" << endl;
             else
             cout << "index: " << i << " object:"
             << ((VMOBJECT_PTR)vmo)->GetClass()->GetName()->GetChars() << endl;
         }
 #else
-        if (vmo->GetClass() == NULL)
+        if (UNTAG_REFERENCE(vmo->GetClass()) == NULL)
         cout << "VMObject with Class == NULL" << endl;
         PG_HEAP(ReadBarrier((void**)(&nilObject)));
-        if (vmo->GetClass() == nilObject)
+        if (UNTAG_REFERENCE(vmo->GetClass()) == UNTAG_REFERENCE(nilObject))
         cout << "VMObject with Class == NIL_OBJECT" << endl;
         else
         cout << "index: " << i << " object:"
@@ -285,15 +287,15 @@ void VMFrame::CopyArgumentsFrom(pVMFrame frame) {
 #if GC_TYPE==PAUSELESS
 void VMFrame::MarkReferences(Worklist* worklist) {
     if (previousFrame)
-        worklist->PushFront(previousFrame);
+        worklist->AddWork(previousFrame);
     if (context)
-        worklist->PushFront(context);
-    worklist->PushFront(method);
+        worklist->AddWork(context);
+    worklist->AddWork(method);
     
     long i = 0;
     while (arguments + i <= stack_ptr) {
         if (arguments[i] != NULL)
-            worklist->PushFront((VMOBJECT_PTR)arguments[i]);
+            worklist->AddWork((VMOBJECT_PTR)arguments[i]);
         i++;
     }
 }

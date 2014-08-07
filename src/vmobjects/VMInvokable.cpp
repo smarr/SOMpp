@@ -58,10 +58,10 @@ void VMInvokable::SetHolder(pVMClass hld) {
 
 #if GC_TYPE==PAUSELESS
 void VMInvokable::MarkReferences(Worklist* worklist) {
-    worklist->PushFront(clazz);
-    worklist->PushFront(signature);
+    worklist->AddWork(clazz);
+    worklist->AddWork(signature);
     if (holder)
-        worklist->PushFront(holder);
+        worklist->AddWork(holder);
 }
 #else
 void VMInvokable::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {

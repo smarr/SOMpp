@@ -29,6 +29,7 @@
 #include "VMSymbol.h"
 #include "VMFrame.h"
 #include "VMInvokable.h"
+#include "../interpreter/Interpreter.h"
 
 // clazz is the only field of VMObject so
 const long VMObject::VMObjectNumberOfFields = 0;
@@ -115,10 +116,10 @@ void VMObject::MarkObjectAsInvalid() {
 
 #if GC_TYPE==PAUSELESS
 void VMObject::MarkReferences(Worklist* worklist) {
-    worklist->PushBack(clazz);
+    worklist->AddWork(clazz);
     long numFields = GetNumberOfFields();
     for (long i = 0; i < numFields; ++i) {
-        worklist->PushBack((VMOBJECT_PTR)GetField(i));
+        worklist->AddWork((VMOBJECT_PTR)GetField(i));
     }
 }
 #else

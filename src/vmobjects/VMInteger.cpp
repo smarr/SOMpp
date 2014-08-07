@@ -26,6 +26,7 @@
 
 #include "VMInteger.h"
 #include "../vm/Universe.h"
+#include "../interpreter/Interpreter.h"
 
 VMInteger::VMInteger() {
     embeddedInteger = 0;

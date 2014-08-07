@@ -30,6 +30,7 @@
 #include "VMEvaluationPrimitive.h"
 
 #include "../vm/Universe.h"
+#include "../interpreter/Interpreter.h"
 
 const int VMBlock::VMBlockNumberOfFields = 2;
 

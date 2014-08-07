@@ -31,6 +31,7 @@
 #include "VMBlock.h"
 #include "VMInteger.h"
 
+#include "../interpreter/Interpreter.h"
 #include "../vm/Universe.h"
 
 //needed to instanciate the Routine object for the evaluation routine
@@ -109,7 +110,7 @@ void VMEvaluationPrimitive::evaluationRoutine(pVMObject object, pVMFrame frame) 
 #if GC_TYPE==PAUSELESS
 void VMEvaluationPrimitive::MarkReferences(Worklist* worklist) {
     VMPrimitive::MarkReferences(worklist);
-    worklist->PushBack(numberOfArguments);
+    worklist->AddWork(numberOfArguments);
 }
 #else
 void VMEvaluationPrimitive::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {

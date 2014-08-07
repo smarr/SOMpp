@@ -29,6 +29,7 @@
 
 #include "VMSymbol.h"
 #include "VMInteger.h"
+#include "../interpreter/Interpreter.h"
 
 extern pVMClass symbolClass;
 

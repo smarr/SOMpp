@@ -30,6 +30,7 @@
 #include "VMInvokable.h"
 #include "VMPrimitive.h"
 #include "PrimitiveRoutine.h"
+#include "../interpreter/Interpreter.h"
 
 #include <fstream>
 #include <typeinfo>
@@ -93,15 +94,15 @@ void VMClass::MarkObjectAsInvalid() {
 
 bool VMClass::AddInstanceInvokable(pVMObject ptr) {
     pVMInvokable newInvokable = static_cast<pVMInvokable>(ptr);
-    if (newInvokable == NULL) {
+    if (UNTAG_REFERENCE(newInvokable) == NULL) {
         _UNIVERSE->ErrorExit("Error: trying to add non-invokable to invokables array");
     }
     //Check whether an invokable with the same signature exists and replace it if that's the case
     long numIndexableFields = this->GetInstanceInvokables()->GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {
         pVMInvokable inv = static_cast<pVMInvokable>(this->GetInstanceInvokables()->GetIndexableField(i));
-        if (inv != NULL) {
-            if (newInvokable->GetSignature() == inv->GetSignature()) {
+        if (UNTAG_REFERENCE(inv) != NULL) {
+            if (UNTAG_REFERENCE(newInvokable->GetSignature()) == UNTAG_REFERENCE(inv->GetSignature())) {
                 this->SetInstanceInvokable(i, ptr);
                 return false;
             }
@@ -181,7 +182,7 @@ pVMInvokable VMClass::LookupInvokable(pVMSymbol name) /*const*/ {
     long numInvokables = GetNumberOfInstanceInvokables();
     for (long i = 0; i < numInvokables; ++i) {
         invokable = GetInstanceInvokable(i);
-        if (invokable->GetSignature() == name) {
+        if (UNTAG_REFERENCE(invokable->GetSignature()) == UNTAG_REFERENCE(name)) {
             //name->UpdateCachedInvokable(this, invokable);
             return invokable;
         }
@@ -200,7 +201,7 @@ long VMClass::LookupFieldIndex(pVMSymbol name) /*const*/ {
     long numInstanceFields = GetNumberOfInstanceFields();
     for (long i = 0; i <= numInstanceFields; ++i)
         // even with GetNumberOfInstanceFields == 0 there is the class field
-        if (name == GetInstanceFieldName(i)) {
+        if (UNTAG_REFERENCE(name) == UNTAG_REFERENCE(GetInstanceFieldName(i))) {
             return i;
         }
     return -1;
@@ -428,17 +429,17 @@ void VMClass::setPrimitives(void* dlhandle, const StdString& cname) {
 
 #if GC_TYPE==PAUSELESS
 void VMClass::MarkReferences(Worklist* worklist) {
-    worklist->PushFront(clazz);
+    worklist->AddWork(clazz);
     if (superClass)
-        worklist->PushFront(superClass);
-    worklist->PushFront(name);
-    worklist->PushFront(instanceFields);
-    worklist->PushFront(instanceInvokables);
+        worklist->AddWork(superClass);
+    worklist->AddWork(name);
+    worklist->AddWork(instanceFields);
+    worklist->AddWork(instanceInvokables);
     
     pVMObject* fields = FIELDS;
     
     for (long i = VMClassNumberOfFields + 0/*VMObjectNumberOfFields*/; i < numberOfFields; i++) {
-        worklist->PushFront(AS_POINTER(fields[i]));
+        worklist->AddWork(AS_POINTER(fields[i]));
     }
 }
 #else

@@ -33,7 +33,8 @@ void VMThread::SetResumeSignal(pVMSignal value) {
 
 bool VMThread::ShouldStop() {
     PG_HEAP(ReadBarrier((void**)(&shouldStop)));
-    return shouldStop == trueObject;
+    PG_HEAP(ReadBarrier((void**)(&trueObject)));
+    return UNTAG_REFERENCE(shouldStop) == UNTAG_REFERENCE(trueObject);
 }
 
 

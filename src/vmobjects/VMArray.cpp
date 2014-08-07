@@ -26,6 +26,7 @@
 
 #include "VMArray.h"
 #include "VMClass.h"
+#include "../interpreter/Interpreter.h"
 
 #include <vm/Universe.h>
 
@@ -105,12 +106,12 @@ void VMArray::CopyIndexableFieldsTo(pVMArray to) /*const*/ {
 
 #if GC_TYPE==PAUSELESS
 void VMArray::MarkReferences(Worklist* worklist) {
-    worklist->PushFront(clazz);
+    worklist->AddWork(clazz);
     long numFields          = GetNumberOfFields();
     long numIndexableFields = GetNumberOfIndexableFields();
     pVMObject* fields = FIELDS;
     for (long i = 0; i < numFields + numIndexableFields; i++)
-        worklist->PushFront(AS_POINTER(fields[i]));
+        worklist->AddWork(AS_POINTER(fields[i]));
 }
 #else
 void VMArray::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {

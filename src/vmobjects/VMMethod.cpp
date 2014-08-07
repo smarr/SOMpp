@@ -32,6 +32,7 @@
 #include "VMObject.h"
 #include "VMInteger.h"
 #include "Signature.h"
+#include "../interpreter/Interpreter.h"
 
 #include <vm/Universe.h>
 
@@ -193,16 +194,16 @@ pVMObject VMMethod::GetConstant(long indx) /*const*/ {
 void VMMethod::MarkReferences(Worklist* worklist) {
     VMInvokable::MarkReferences(worklist);
     
-    worklist->PushFront(numberOfLocals);
-    worklist->PushFront(maximumNumberOfStackElements);
-    worklist->PushFront(bcLength);
-    worklist->PushFront(numberOfArguments);
-    worklist->PushFront(numberOfConstants);
+    worklist->AddWork(numberOfLocals);
+    worklist->AddWork(maximumNumberOfStackElements);
+    worklist->AddWork(bcLength);
+    worklist->AddWork(numberOfArguments);
+    worklist->AddWork(numberOfConstants);
     
     long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {
         if (GetIndexableField(i) != NULL)
-            worklist->PushFront(AS_POINTER(GetIndexableField(i)));
+            worklist->AddWork(AS_POINTER(GetIndexableField(i)));
     }
 }
 #else

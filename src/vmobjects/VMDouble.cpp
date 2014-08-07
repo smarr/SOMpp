@@ -27,6 +27,7 @@
 #include "VMDouble.h"
 
 #include <vm/Universe.h>
+#include "../interpreter/Interpreter.h"
 
 VMDouble::VMDouble() {
     this->embeddedDouble = 0.0;
