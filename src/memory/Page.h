@@ -24,10 +24,13 @@ public:
     void ClearPage();
     
 #if GC_TYPE==PAUSELESS
-    void GetPageStart();
-    void AddAmountLiveData(size_t);
+    void Block();
+    void UnBlock();
     bool Blocked();
     pVMObject LookupNewAddress(VMOBJECT_PTR);
+    void AddAmountLiveData(size_t);
+    
+    //void GetPageStart();
     //void ClearMarkBits();
 #endif
     
@@ -37,11 +40,15 @@ private:
     void* collectionLimit;
     void* volatile nextFreePosition;
     PagedHeap* heap;
+    
 #if GC_TYPE==PAUSELESS
-    long amountLiveData;
     bool blocked;
-    bool used;
-    vector<AbstractVMObject*> forwardReferences;
+    pVMObject* sideArray;
+    long amountLiveData;
+    
+    //bool used;
+    //vector<AbstractVMObject*> forwardReferences;
+    
 #endif
     
 };

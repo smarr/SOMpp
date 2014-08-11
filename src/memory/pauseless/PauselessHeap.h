@@ -44,15 +44,10 @@ inline void PauselessHeap::NMTTrap(void** referenceHolder) {
 inline void PauselessHeap::GCTrap(void** referenceHolder) {
     size_t pageNumber = ((size_t)*referenceHolder - (size_t)memoryStart) / pageSize;
     Page* page = allPages->at(pageNumber);
-
     if (_UNIVERSE->GetInterpreter()->GCTrapEnabled()) {
-
         if (page->Blocked()) {
-            pVMObject newAddress = page->LookupNewAddress((AbstractVMObject*)*referenceHolder);
-            if (!newAddress) { //if not yet moved this is NULL
-                //do moving self + add new location in forward table + change referenceHolder
-            }
-            *referenceHolder = newAddress;
+            *referenceHolder = page->LookupNewAddress((AbstractVMObject*)*referenceHolder);
+            
         }
     }
 }

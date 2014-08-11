@@ -52,7 +52,7 @@ void PauselessCollector::MarkObject(VMOBJECT_PTR obj, Worklist* worklist) {
     if (obj->GetGCField() & MASK_OBJECT_IS_MARKED)
         return;
     
-    //Page* page = allPages->at(((size_t)referencedObject - (size_t)memoryStart) / pageSize);
+    //Page* page = allPages->at(((size_t)obj - (size_t)memoryStart) / PAGE_SIZE);
     //page->AddAmountLiveData(obj->GetObjectSize());
     
     obj->SetGCField(MASK_OBJECT_IS_MARKED);

@@ -54,7 +54,6 @@ class AbstractVMObject: public VMObjectBase {
 public:
     virtual size_t GetHash();
     virtual pVMClass GetClass() /*const*/ = 0;
-    virtual AbstractVMObject* Clone() /*const*/ = 0;
     virtual void Send(StdString, pVMObject*, long);
     virtual size_t GetObjectSize() const = 0;
     
@@ -91,10 +90,15 @@ public:
     }
     
 #if GC_TYPE==PAUSELESS
+    virtual AbstractVMObject* ProtectedClone(Page*);
+    virtual AbstractVMObject* Clone(Page*) = 0;
+    
     inline virtual void MarkReferences(Worklist*) {
         return;
     }
 #else
+    virtual AbstractVMObject* Clone() = 0;
+    
     inline virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR)) {
         return;
     }
@@ -125,6 +129,13 @@ public:
         assert(mem != INVALID_POINTER);
         return mem;
     }
+#endif
+    
+private:
+#if GC_TYPE==PAUSELESS
+    pVMObject newClone;
+    pthread_mutex_t beingMovedMutex;
+    pthread_cond_t  beingMovedCondition;
 #endif
 
 };

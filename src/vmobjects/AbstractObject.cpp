@@ -35,3 +35,16 @@ void AbstractVMObject::Send(StdString selectorString, pVMObject* arguments, long
 long AbstractVMObject::GetFieldIndex(pVMSymbol fieldName) /*const*/ {
     return this->GetClass()->LookupFieldIndex(fieldName);
 }
+
+AbstractVMObject* AbstractVMObject::ProtectedClone(Page* page) {;
+    if (pthread_mutex_lock(&beingMovedMutex) == 0) {
+        newClone = Clone(page);
+        pthread_cond_signal(&beingMovedCondition);
+        pthread_mutex_unlock(&beingMovedMutex);
+    } else {
+        while (!newClone) {
+            pthread_cond_wait(&beingMovedCondition, &beingMovedMutex);
+        }
+    }
+    return newClone;
+}

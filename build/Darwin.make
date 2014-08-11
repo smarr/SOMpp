@@ -145,7 +145,7 @@ CLEAN			= $(OBJECTS) \
 # some defaults
 TAGGING=false
 #GC_TYPE=generational
-GC_TYPE=pauseless
+GC_TYPE?=pauseless
 CACHE_INTEGER=true
 INT_CACHE_MIN_VALUE=-5
 INT_CACHE_MAX_VALUE=100

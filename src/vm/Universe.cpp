@@ -1098,6 +1098,67 @@ pVMClass Universe::NewMetaclassClass() const {
     return result;
 }
 
+#if GC_TYPE==PAUSELESS
+void Universe::MarkGlobals(Worklist*) {
+    _HEAP->ReadBarrier((void**)&nilObject);
+    _HEAP->ReadBarrier((void**)&trueObject);
+    _HEAP->ReadBarrier((void**)&falseObject);
+    
+    _HEAP->ReadBarrier((void**)&objectClass);
+    _HEAP->ReadBarrier((void**)&classClass);
+    _HEAP->ReadBarrier((void**)&metaClassClass);
+    
+    _HEAP->ReadBarrier((void**)&nilClass);
+    _HEAP->ReadBarrier((void**)&integerClass);
+    _HEAP->ReadBarrier((void**)&bigIntegerClass);
+    _HEAP->ReadBarrier((void**)&arrayClass);
+    _HEAP->ReadBarrier((void**)&methodClass);
+    _HEAP->ReadBarrier((void**)&symbolClass);
+    _HEAP->ReadBarrier((void**)&primitiveClass);
+    _HEAP->ReadBarrier((void**)&stringClass);
+    _HEAP->ReadBarrier((void**)&systemClass);
+    _HEAP->ReadBarrier((void**)&blockClass);
+    _HEAP->ReadBarrier((void**)&doubleClass);
+    
+    _HEAP->ReadBarrier((void**)&threadClass);
+    _HEAP->ReadBarrier((void**)&mutexClass);
+    _HEAP->ReadBarrier((void**)&signalClass);
+    
+    _HEAP->ReadBarrier((void**)&trueClass);
+    _HEAP->ReadBarrier((void**)&falseClass);
+    
+    // walk all entries in globals map
+    map<pVMSymbol, pVMObject> globs = globals;
+    globals.clear();
+    map<pVMSymbol, pVMObject>::iterator iter;
+    for (iter = globs.begin(); iter != globs.end(); iter++) {
+        if (iter->second == NULL)
+            continue;
+        _HEAP->ReadBarrier((void**)&(iter->first));
+        _HEAP->ReadBarrier((void**)&(iter->second));
+    }
+    
+    // walk all entries in symbols map
+    map<StdString, pVMSymbol>::iterator symbolIter;
+    for (symbolIter = symbolsMap.begin();
+         symbolIter != symbolsMap.end();
+         symbolIter++) {
+        //insert overwrites old entries inside the internal map
+        _HEAP->ReadBarrier((void**)(&symbolIter->second));
+    }
+    
+    map<long, pVMClass>::iterator bcIter;
+    for (bcIter = blockClassesByNoOfArgs.begin();
+         bcIter != blockClassesByNoOfArgs.end();
+         bcIter++) {
+        _HEAP->ReadBarrier((void**)(&bcIter->second));
+    }
+    
+    //reassign ifTrue ifFalse Symbols
+    symbolIfTrue  = symbolsMap["ifTrue:"];
+    symbolIfFalse = symbolsMap["ifFalse:"];
+}
+#else
 void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     nilObject   = (pVMObject)walk(nilObject);
     trueObject  = (pVMObject)walk(trueObject);
@@ -1172,8 +1233,6 @@ void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     symbolIfTrue  = symbolsMap["ifTrue:"];
     symbolIfFalse = symbolsMap["ifFalse:"];
     
-    // why is this so bad? This is not necessary
-    //this->GetInterpreter()->WalkGlobals(walk);
 }
 
 pVMMethod Universe::NewMethod( pVMSymbol signature,
@@ -1200,6 +1259,7 @@ pVMMethod Universe::NewMethod( pVMSymbol signature,
 
     return result;
 }
+#endif
 
 pVMMutex Universe::NewMutex() const {
 #if GC_TYPE==GENERATIONAL

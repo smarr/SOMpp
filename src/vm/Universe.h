@@ -38,9 +38,11 @@
 
 #include "../vmobjects/ObjectFormats.h"
 
-//#include "../interpreter/Interpreter.h"
-
 #include "../memory/PagedHeap.h"
+
+#if GC_TYPE==PAUSELESS
+#include "../memory/pauseless/Worklist.h"
+#endif
 
 class Interpreter;
 
@@ -146,7 +148,6 @@ public:
     pVMMethod NewMethod(pVMSymbol, size_t, size_t) const;
     pVMObject NewInstance(pVMClass) const;
     pVMInteger NewInteger(long) const;
-    void WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
     pVMBigInteger NewBigInteger(int64_t) const;
     pVMDouble NewDouble(double) const;
     pVMClass NewMetaclassClass(void) const;
@@ -158,6 +159,12 @@ public:
     pVMMutex NewMutex() const;
     pVMSignal NewSignal() const;
     pVMThread NewThread() const;
+   
+#if GC_TYPE==PAUSELESS
+    void MarkGlobals(Worklist*);
+#else
+    void WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
+#endif
 
     void InitializeSystemClass(pVMClass, pVMClass, const char*);
 
