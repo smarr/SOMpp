@@ -71,11 +71,11 @@ public:
     void CopyArgumentsFrom(pVMFrame frame);
     inline  pVMObject GetField(long index) /*const*/;
     
-    virtual pVMFrame Clone() /*const*/;
-    
 #if GC_TYPE==PAUSELESS
+    virtual pVMFrame Clone(Page*);
     virtual void MarkReferences(Worklist*);
 #else
+    virtual pVMFrame Clone();
     virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
 #endif
 

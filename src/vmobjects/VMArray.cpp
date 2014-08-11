@@ -73,21 +73,37 @@ pVMArray VMArray::CopyAndExtendWith(pVMObject item) /*const*/ {
     return result;
 }
 
-pVMArray VMArray::Clone() /*const*/ {
-    long addSpace = objectSize - sizeof(VMArray);
 #if GC_TYPE==GENERATIONAL
+pVMArray VMArray::Clone() {
+    long addSpace = objectSize - sizeof(VMArray);
     pVMArray clone = new (_HEAP, _PAGE, addSpace, true) VMArray(*this);
-#elif GC_TYPE==PAUSELESS
-    pVMArray clone = new (_PAGE, addSpace) VMArray(*this);
-#else
-    pVMArray clone = new (_HEAP, addSpace) VMArray(*this);
-#endif
     void* destination = SHIFTED_PTR(clone, sizeof(VMArray));
     const void* source = SHIFTED_PTR(this, sizeof(VMArray));
     size_t noBytes = GetObjectSize() - sizeof(VMArray);
     memcpy(destination, source, noBytes);
     return clone;
 }
+#elif GC_TYPE==PAUSELESS
+pVMArray VMArray::Clone(Page* page) {
+    long addSpace = objectSize - sizeof(VMArray);
+    pVMArray clone = new (page, addSpace) VMArray(*this);
+    void* destination = SHIFTED_PTR(clone, sizeof(VMArray));
+    const void* source = SHIFTED_PTR(this, sizeof(VMArray));
+    size_t noBytes = GetObjectSize() - sizeof(VMArray);
+    memcpy(destination, source, noBytes);
+    return clone;
+}
+#else
+pVMArray VMArray::Clone() {
+    long addSpace = objectSize - sizeof(VMArray);
+    pVMArray clone = new (_HEAP, addSpace) VMArray(*this);
+    void* destination = SHIFTED_PTR(clone, sizeof(VMArray));
+    const void* source = SHIFTED_PTR(this, sizeof(VMArray));
+    size_t noBytes = GetObjectSize() - sizeof(VMArray);
+    memcpy(destination, source, noBytes);
+    return clone;
+}
+#endif
 
 void VMArray::MarkObjectAsInvalid() {
     VMObject::MarkObjectAsInvalid();

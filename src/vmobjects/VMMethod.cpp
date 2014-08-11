@@ -71,12 +71,14 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
     bytecodes = (uint8_t*)(&indexableFields + 2 + GetNumberOfIndexableFields());
 }
 
-pVMMethod VMMethod::Clone() /*const*/ {
 #if GC_TYPE==GENERATIONAL
+pVMMethod VMMethod::Clone() {
     pVMMethod clone = new (_HEAP, _PAGE, GetObjectSize() - sizeof(VMMethod), true)
 #elif GC_TYPE==PAUSELESS
-    pVMMethod clone = new (_PAGE, GetObjectSize() - sizeof(VMMethod))
+pVMMethod VMMethod::Clone(Page* page) {
+    pVMMethod clone = new (page, GetObjectSize() - sizeof(VMMethod))
 #else
+pVMMethod VMMethod::Clone() {
     pVMMethod clone = new (_HEAP, GetObjectSize() - sizeof(VMMethod))
 #endif
     VMMethod(*this);

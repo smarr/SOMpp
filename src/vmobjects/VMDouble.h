@@ -35,13 +35,19 @@ public:
     VMDouble();
     VMDouble(double);
 
-    virtual pVMDouble Clone() /*const*/;
     inline  void     SetEmbeddedDouble(double);
     inline  double   GetEmbeddedDouble() const;
     virtual pVMClass GetClass() /*const*/;
     inline virtual size_t GetObjectSize() const;
     
     virtual void MarkObjectAsInvalid() {}
+    
+#if GC_TYPE==PAUSELESS
+    virtual pVMDouble Clone(Page*);
+#else
+    virtual pVMDouble Clone();
+#endif
+    
 private:
     double embeddedDouble;
 };

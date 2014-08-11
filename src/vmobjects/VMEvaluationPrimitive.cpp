@@ -49,17 +49,20 @@ VMEvaluationPrimitive::VMEvaluationPrimitive(long argc) :
 #endif
 }
 
-pVMEvaluationPrimitive VMEvaluationPrimitive::Clone() /*const*/ {
 #if GC_TYPE==GENERATIONAL
-    pVMEvaluationPrimitive evPrim = new (_HEAP, _PAGE, 0, true) VMEvaluationPrimitive(*this);
-#elif GC_TYPE==PAUSELESS
-    pVMEvaluationPrimitive evPrim = new (_PAGE) VMEvaluationPrimitive(*this);
-#else
-    pVMEvaluationPrimitive evPrim = new (_HEAP) VMEvaluationPrimitive(*this);
-#endif
-    return evPrim;
+pVMEvaluationPrimitive VMEvaluationPrimitive::Clone() {
+    return new (_HEAP, _PAGE, 0, true) VMEvaluationPrimitive(*this);
 }
-
+#elif GC_TYPE==PAUSELESS
+pVMEvaluationPrimitive VMEvaluationPrimitive::Clone(Page* page) {
+    return new (page) VMEvaluationPrimitive(*this);
+}
+#else
+pVMEvaluationPrimitive VMEvaluationPrimitive::Clone() {
+    return new (_HEAP) VMEvaluationPrimitive(*this);
+}
+#endif
+    
 pVMSymbol VMEvaluationPrimitive::computeSignatureString(long argc) {
 #define VALUE_S "value"
 #define VALUE_LEN 5

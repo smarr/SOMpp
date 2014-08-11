@@ -39,11 +39,16 @@ public:
 
     inline void SetEmbeddedInteger(int64_t);
     inline int64_t GetEmbeddedInteger() const;
-    virtual pVMBigInteger Clone() /*const*/;
     virtual pVMClass GetClass() /*const*/;
     virtual size_t GetObjectSize() const;
     
     virtual void MarkObjectAsInvalid() {}
+    
+#if GC_TYPE==PAUSELESS
+    virtual pVMBigInteger Clone(Page*);
+#else
+    virtual pVMBigInteger Clone();
+#endif
 
 private:
     int64_t embeddedInteger;

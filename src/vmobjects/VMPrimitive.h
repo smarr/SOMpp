@@ -43,11 +43,12 @@ public:
     inline  bool IsEmpty() const;
     inline  void SetRoutine(PrimitiveRoutine* rtn);
             void SetEmpty(bool value) {empty = value;};
-    virtual pVMPrimitive Clone() /*const*/;
     
 #if GC_TYPE==PAUSELESS
+    virtual pVMPrimitive Clone(Page*);
     virtual void MarkReferences(Worklist*);
 #else
+    virtual pVMPrimitive Clone();
     virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
 #endif
 

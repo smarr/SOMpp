@@ -50,15 +50,19 @@ VMString::VMString(const char* str) : AbstractVMObject() {
 
 }
 
-pVMString VMString::Clone() /*const*/ {
 #if GC_TYPE==GENERATIONAL
+pVMString VMString::Clone() {
     return new (_HEAP, _PAGE, PADDED_SIZE(strlen(chars)+1), true) VMString(chars);
-#elif GC_TYPE==PAUSELESS
-    return new (_PAGE, PADDED_SIZE(strlen(chars)+1)) VMString(chars);
-#else
-    return new (_HEAP, PADDED_SIZE(strlen(chars)+1)) VMString(chars);
-#endif
 }
+#elif GC_TYPE==PAUSELESS
+pVMString VMString::Clone(Page* page) {
+    return new (page, PADDED_SIZE(strlen(chars)+1)) VMString(chars);
+}
+#else
+pVMString VMString::Clone() {
+    return new (_HEAP, PADDED_SIZE(strlen(chars)+1)) VMString(chars);
+}
+#endif
 
 void VMString::MarkObjectAsInvalid() {
     size_t i = 0;

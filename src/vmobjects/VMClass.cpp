@@ -67,19 +67,31 @@ VMClass::VMClass() :
                 NULL), instanceInvokables(NULL) {
 }
 
-pVMClass VMClass::Clone() /*const*/ {
 #if GC_TYPE==GENERATIONAL
+pVMClass VMClass::Clone() {
     pVMClass clone = new (_HEAP, _PAGE, objectSize - sizeof(VMClass), true)VMClass(*this);
+    memcpy(SHIFTED_PTR(clone,sizeof(VMObject)),
+           SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() -
+           sizeof(VMObject));
+    return clone;
+}
 #elif GC_TYPE==PAUSELESS
-    pVMClass clone = new (_PAGE, objectSize - sizeof(VMClass))VMClass(*this);
+pVMClass VMClass::Clone(Page* page) {
+    pVMClass clone = new (page, objectSize - sizeof(VMClass))VMClass(*this);
+    memcpy(SHIFTED_PTR(clone,sizeof(VMObject)),
+           SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() -
+           sizeof(VMObject));
+    return clone;
+}
 #else
+pVMClass VMClass::Clone() {
     pVMClass clone = new (_HEAP, objectSize - sizeof(VMClass))VMClass(*this);
-#endif
     memcpy(SHIFTED_PTR(clone,sizeof(VMObject)),
             SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() -
             sizeof(VMObject));
     return clone;
 }
+#endif
 
 VMClass::VMClass(long numberOfFields) :
         VMObject(numberOfFields + VMClassNumberOfFields) {

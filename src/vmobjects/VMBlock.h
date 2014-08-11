@@ -42,8 +42,13 @@ public:
             void      SetMethod(pVMMethod);
     inline  void      SetContext(pVMFrame);
     inline  pVMFrame  GetContext() /*const*/;
-    virtual pVMBlock  Clone() /*const*/;
-
+    
+#if GC_TYPE==PAUSELESS
+    virtual pVMBlock Clone(Page*);
+#else
+    virtual pVMBlock Clone();
+#endif
+    
     static pVMEvaluationPrimitive GetEvaluationPrimitive(int);
 private:
     pVMMethod blockMethod;

@@ -65,13 +65,14 @@ public:
 #endif
     
 #if GC_TYPE==PAUSELESS
+    virtual pVMMethod Clone(Page*);
     virtual void MarkReferences(Worklist*);
 #else
+    virtual pVMMethod Clone();
     virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
 #endif
     
     inline  long      GetNumberOfIndexableFields() /*const*/;
-    virtual pVMMethod Clone() /*const*/;
 
     inline  void      SetIndexableField(long idx, pVMObject item);
 

@@ -39,16 +39,16 @@ public:
     StdString GetStdString() const;
     size_t GetStringLength() const;
 
-    virtual pVMString Clone() /*const*/;
     virtual pVMClass GetClass() /*const*/;
     virtual size_t GetObjectSize() const;
 
-/*
 #if GC_TYPE==PAUSELESS
-    virtual void MarkReferences(Worklist*);
+    virtual pVMString Clone(Page*);
+    //virtual void MarkReferences(Worklist*);
 #else
-     virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
-#endif */
+    virtual pVMString Clone();
+     //virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
+#endif
     
     virtual void MarkObjectAsInvalid();
 

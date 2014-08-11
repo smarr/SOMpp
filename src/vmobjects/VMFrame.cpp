@@ -87,15 +87,10 @@ pVMFrame VMFrame::EmergencyFrameFrom(pVMFrame from, long extraLength) {
     return result;
 }
 
-pVMFrame VMFrame::Clone() /*const*/ {
-    size_t addSpace = objectSize - sizeof(VMFrame);
 #if GC_TYPE==GENERATIONAL
+pVMFrame VMFrame::Clone() {
+    size_t addSpace = objectSize - sizeof(VMFrame);
     pVMFrame clone = new (_HEAP, _PAGE, addSpace, true) VMFrame(*this);
-#elif GC_TYPE==PAUSELESS
-    pVMFrame clone = new (_PAGE, addSpace) VMFrame(*this);
-#else
-    pVMFrame clone = new (_HEAP, addSpace) VMFrame(*this);
-#endif
     void* destination = SHIFTED_PTR(clone, sizeof(VMFrame));
     const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
     size_t noBytes = GetObjectSize() - sizeof(VMFrame);
@@ -105,6 +100,34 @@ pVMFrame VMFrame::Clone() /*const*/ {
     clone->stack_ptr = (pVMObject*)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
     return clone;
 }
+#elif GC_TYPE==PAUSELESS
+pVMFrame VMFrame::Clone(Page* page) {
+    size_t addSpace = objectSize - sizeof(VMFrame);
+    pVMFrame clone = new (page, addSpace) VMFrame(*this);
+    void* destination = SHIFTED_PTR(clone, sizeof(VMFrame));
+    const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
+    size_t noBytes = GetObjectSize() - sizeof(VMFrame);
+    memcpy(destination, source, noBytes);
+    clone->arguments = (pVMObject*)&(clone->stack_ptr)+1; //field after stack_ptr
+    clone->locals = clone->arguments + clone->method->GetNumberOfArguments();
+    clone->stack_ptr = (pVMObject*)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
+    return clone;
+}
+#else
+pVMFrame VMFrame::Clone() {
+    size_t addSpace = objectSize - sizeof(VMFrame);
+    pVMFrame clone = new (_HEAP, addSpace) VMFrame(*this);
+    void* destination = SHIFTED_PTR(clone, sizeof(VMFrame));
+    const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
+    size_t noBytes = GetObjectSize() - sizeof(VMFrame);
+    memcpy(destination, source, noBytes);
+    clone->arguments = (pVMObject*)&(clone->stack_ptr)+1; //field after stack_ptr
+    clone->locals = clone->arguments + clone->method->GetNumberOfArguments();
+    clone->stack_ptr = (pVMObject*)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
+    return clone;
+}
+#endif
+
 
 const long VMFrame::VMFrameNumberOfFields = 0;
 

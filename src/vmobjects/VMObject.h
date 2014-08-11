@@ -37,6 +37,10 @@
 #include <misc/defs.h>
 #include <vm/Universe.h>
 
+#if GC_TYP==PAUSELESS
+#include <pthread.h>
+#endif
+
 //#include "ObjectFormats.h"
 
 //class VMSymbol;
@@ -80,15 +84,16 @@ public:
                    pVMObject GetField(long index) /*const*/;
                    void      SetField(long index, pVMObject value);
     virtual        void      Assert(bool value) const;
-    virtual        pVMObject Clone() /*const*/;
     virtual inline size_t    GetObjectSize() const;
     virtual inline void      SetObjectSize(size_t size);
     
     virtual        void      MarkObjectAsInvalid();
 
 #if GC_TYPE==PAUSELESS
-    virtual        void MarkReferences(Worklist*);
+    virtual        pVMObject Clone(Page*);
+    virtual        void      MarkReferences(Worklist*);
 #else
+    virtual        pVMObject Clone();
     virtual        void      WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
 #endif
     

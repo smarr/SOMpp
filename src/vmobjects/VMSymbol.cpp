@@ -55,17 +55,19 @@ size_t VMSymbol::GetObjectSize() const {
     return size;
 }
 
-pVMSymbol VMSymbol::Clone() /*const*/ {
-    pVMSymbol result;
 #if GC_TYPE==GENERATIONAL
-    result = new (_HEAP, _PAGE, PADDED_SIZE(strlen(chars) + 1), true) VMSymbol(chars);
-#elif GC_TYPE==PAUSELESS
-    result = new (_PAGE, PADDED_SIZE(strlen(chars) + 1)) VMSymbol(chars);
-#else
-    result = new (_HEAP, PADDED_SIZE(strlen(chars) + 1)) VMSymbol(chars);
-#endif
-    return result;
+pVMSymbol VMSymbol::Clone() {
+    return new (_HEAP, _PAGE, PADDED_SIZE(strlen(chars) + 1), true) VMSymbol(chars);
 }
+#elif GC_TYPE==PAUSELESS
+pVMSymbol VMSymbol::Clone(Page* page) {
+    return new (page, PADDED_SIZE(strlen(chars) + 1)) VMSymbol(chars);
+}
+#else
+pVMSymbol VMSymbol::Clone() {
+    return new (_HEAP, PADDED_SIZE(strlen(chars) + 1)) VMSymbol(chars);
+}
+#endif
 
 pVMClass VMSymbol::GetClass() /*const*/ {
     PG_HEAP(ReadBarrier((void**)(&symbolClass)));

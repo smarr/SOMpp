@@ -59,17 +59,19 @@ VMPrimitive::VMPrimitive(pVMSymbol signature) : VMInvokable(VMPrimitiveNumberOfF
     this->empty = false;
 }
 
-pVMPrimitive VMPrimitive::Clone() /*const*/ {
-    pVMPrimitive prim;
 #if GC_TYPE==GENERATIONAL
-    prim = new (_HEAP, _PAGE, 0, true) VMPrimitive(*this);
-#elif GC_TYPE==PAUSELESS
-    prim = new (_PAGE) VMPrimitive(*this);
-#else
-    prim = new (_HEAP) VMPrimitive(*this);
-#endif
-    return prim;
+pVMPrimitive VMPrimitive::Clone() {
+    return new (_HEAP, _PAGE, 0, true) VMPrimitive(*this);
 }
+#elif GC_TYPE==PAUSELESS
+pVMPrimitive VMPrimitive::Clone(Page* page) {
+    return new (page) VMPrimitive(*this);
+}
+#else
+pVMPrimitive VMPrimitive::Clone() {
+    return new (_HEAP) VMPrimitive(*this);
+}
+#endif
 
 void VMPrimitive::EmptyRoutine( pVMObject _self, pVMFrame /*frame*/) {
     pVMInvokable self = static_cast<pVMInvokable>(_self);

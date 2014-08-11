@@ -38,11 +38,17 @@ public:
     VMInteger(long);
 
     inline long GetEmbeddedInteger() const;
-    virtual pVMInteger Clone() /*const*/;
     virtual pVMClass GetClass() /*const*/;
     virtual inline size_t GetObjectSize() const;
     
     virtual void MarkObjectAsInvalid() {}
+    
+#if GC_TYPE==PAUSELESS
+    virtual pVMInteger Clone(Page*);
+#else
+    virtual pVMInteger Clone();
+#endif
+
 
 private:
     long embeddedInteger;

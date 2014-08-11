@@ -36,8 +36,10 @@ public:
     VMArray(long size, long nof = 0);
 
 #if GC_TYPE==PAUSELESS
+    virtual pVMArray Clone(Page*);
     virtual void MarkReferences(Worklist*);
 #else
+    virtual pVMArray Clone();
     virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));    
 #endif
 
@@ -46,7 +48,6 @@ public:
     pVMObject GetIndexableField(long idx) /*const*/;
     void SetIndexableField(long idx, pVMObject value);
     void CopyIndexableFieldsTo(pVMArray) /*const*/;
-    virtual pVMArray Clone() /*const*/;
 
 private:
     virtual void MarkObjectAsInvalid();

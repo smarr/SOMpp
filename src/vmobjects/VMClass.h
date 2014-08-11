@@ -73,11 +73,12 @@ public:
            long         GetNumberOfInstanceFields() /*const*/;
            bool         HasPrimitives() /*const*/;
            void         LoadPrimitives(const vector<StdString>&);
-    virtual pVMClass    Clone() /*const*/;
     
 #if GC_TYPE==PAUSELESS
+    virtual pVMClass    Clone(Page*);
     virtual void MarkReferences(Worklist*);
 #else
+    virtual pVMClass    Clone();
     void         WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
 #endif
     

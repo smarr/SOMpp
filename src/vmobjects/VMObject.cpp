@@ -41,26 +41,39 @@ VMObject::VMObject(long numberOfFields) {
     gcfield = 0;
     hash = (size_t) this;
     // Object size was already set by the heap on allocation
+    
+#if GC_TYP==PAUSELESS
+    newClone = NULL;
+    pthread_mutex_init(&beingMovedMutex, NULL);
+    pthread_cond_init(&beingMovedCondition, NULL);
+#endif
 }
 
-pVMObject VMObject::Clone() /*const*/ {
 #if GC_TYPE==GENERATIONAL
+pVMObject VMObject::Clone() {
     VMObject* clone = new (_HEAP, _PAGE, objectSize - sizeof(VMObject), true) VMObject(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)),
             SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() -
             sizeof(VMObject));
-#elif GC_TYPE==PAUSELESS
-    VMObject* clone = new (_PAGE, objectSize - sizeof(VMObject)) VMObject(*this);
-    memcpy(&(clone->clazz), &clazz,
-           objectSize - sizeof(VMObject) + sizeof(pVMObject));
-#else
-    VMObject* clone = new (_HEAP, objectSize - sizeof(VMObject)) VMObject(*this);
-    memcpy(&(clone->clazz), &clazz,
-            objectSize - sizeof(VMObject) + sizeof(pVMObject));
-#endif
     clone->hash = (size_t) &clone;
     return clone;
 }
+#elif GC_TYPE==PAUSELESS
+pVMObject VMObject::Clone(Page* page) {
+    VMObject* clone = new (page, objectSize - sizeof(VMObject)) VMObject(*this);
+    memcpy(&(clone->clazz), &clazz, objectSize - sizeof(VMObject) + sizeof(pVMObject));
+    clone->hash = (size_t) &clone;
+    return clone;
+}
+#else
+pVMObject VMObject::Clone() {
+    VMObject* clone = new (_HEAP, objectSize - sizeof(VMObject)) VMObject(*this);
+    memcpy(&(clone->clazz), &clazz,
+           objectSize - sizeof(VMObject) + sizeof(pVMObject));
+    clone->hash = (size_t) &clone;
+    return clone;
+}
+#endif
 
 void VMObject::SetNumberOfFields(long nof) {
     this->numberOfFields = nof;

@@ -36,15 +36,19 @@ VMInteger::VMInteger(long val) {
     embeddedInteger = val;
 }
 
-pVMInteger VMInteger::Clone() /*const*/ {
 #if GC_TYPE==GENERATIONAL
+pVMInteger VMInteger::Clone() {
     return new (_HEAP, _PAGE, 0, true) VMInteger(*this);
-#elif GC_TYPE==PAUSELESS
-    return new (_PAGE) VMInteger(*this);
-#else
-    return new (_HEAP) VMInteger(*this);
-#endif
 }
+#elif GC_TYPE==PAUSELESS
+pVMInteger VMInteger::Clone(Page* page) {
+    return new (page) VMInteger(*this);
+}
+#else
+pVMInteger VMInteger::Clone() {
+    return new (_HEAP) VMInteger(*this);
+}
+#endif
 
 pVMClass VMInteger::GetClass() /*const*/ {
     PG_HEAP(ReadBarrier((void**)(&integerClass)));

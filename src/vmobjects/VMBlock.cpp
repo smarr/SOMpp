@@ -45,17 +45,19 @@ void VMBlock::SetMethod(pVMMethod bMethod) {
 #endif
 }
 
-pVMBlock VMBlock::Clone() /*const*/ {
-    pVMBlock clone;
 #if GC_TYPE==GENERATIONAL
-    clone = new (_HEAP, _PAGE, GetAdditionalSpaceConsumption(), true) VMBlock(*this);
-#elif GC_TYPE==PAUSELESS
-    clone = new (_PAGE, GetAdditionalSpaceConsumption()) VMBlock(*this);
-#else
-    clone = new (_HEAP, GetAdditionalSpaceConsumption()) VMBlock(*this);
-#endif
-    return clone;
+pVMBlock VMBlock::Clone() {
+    return new (_HEAP, _PAGE, GetAdditionalSpaceConsumption(), true) VMBlock(*this);
 }
+#elif GC_TYPE==PAUSELESS
+pVMBlock VMBlock::Clone(Page* page) {
+    return new (page, GetAdditionalSpaceConsumption()) VMBlock(*this);
+}
+#else
+pVMBlock VMBlock::Clone() {
+    return new (_HEAP, GetAdditionalSpaceConsumption()) VMBlock(*this);
+}
+#endif
 
 pVMMethod VMBlock::GetMethod() /*const*/ {
     PG_HEAP(ReadBarrier((void**)(&blockMethod)));

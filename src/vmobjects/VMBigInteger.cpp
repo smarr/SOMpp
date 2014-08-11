@@ -37,15 +37,19 @@ VMBigInteger::VMBigInteger(int64_t val) {
     this->embeddedInteger = val;
 }
 
-pVMBigInteger VMBigInteger::Clone() /*const*/ {
 #if GC_TYPE==GENERATIONAL
+pVMBigInteger VMBigInteger::Clone() {
     return new (_HEAP, _PAGE, 0, true) VMBigInteger(*this);
-#elif GC_TYPE==PAUSELESS
-    return new (_PAGE) VMBigInteger(*this);
-#else
-    return new (_HEAP) VMBigInteger(*this);
-#endif
 }
+#elif GC_TYPE==PAUSELESS
+pVMBigInteger VMBigInteger::Clone(Page* page) {
+    return new (page) VMBigInteger(*this);
+}
+#else
+pVMBigInteger VMBigInteger::Clone() {
+    return new (_HEAP) VMBigInteger(*this);
+}
+#endif
 
 size_t VMBigInteger::GetObjectSize() const {
     return sizeof(VMBigInteger);
