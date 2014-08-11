@@ -1234,6 +1234,7 @@ void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     symbolIfFalse = symbolsMap["ifFalse:"];
     
 }
+#endif
 
 pVMMethod Universe::NewMethod( pVMSymbol signature,
         size_t numberOfBytecodes, size_t numberOfConstants) const {
@@ -1259,7 +1260,6 @@ pVMMethod Universe::NewMethod( pVMSymbol signature,
 
     return result;
 }
-#endif
 
 pVMMutex Universe::NewMutex() const {
 #if GC_TYPE==GENERATIONAL
