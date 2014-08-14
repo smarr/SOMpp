@@ -375,9 +375,6 @@ Universe::~Universe() {
 }
 
 #ifndef NDEBUG
-    bool Universe::IsValidObject(const pVMObject const obj) {
-        return true;
-    }
     static void set_vt_to_null() {}
     static void obtain_vtables_of_known_classes(pVMSymbol className) {}
 #else

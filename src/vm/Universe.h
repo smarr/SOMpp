@@ -163,7 +163,7 @@ public:
 #endif
     //
     
-    static bool IsValidObject(const pVMObject obj);
+    inline static bool IsValidObject(const pVMObject obj);
 private:
     vector<StdString> handleArguments(long argc, char** argv);
     long getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;
@@ -201,6 +201,12 @@ Universe* Universe::operator->() {
     }
     return theUniverse;
 }
+
+#ifndef NDEBUG
+bool Universe::IsValidObject(const pVMObject const obj) {
+    return true;
+}
+#endif
 
 
 #endif
