@@ -76,8 +76,8 @@ public:
     virtual        pVMSymbol GetFieldName(long index) const;
     virtual inline long      GetNumberOfFields() const;
     virtual        void      SetNumberOfFields(long nof);
-                   pVMObject GetField(long index) const;
-                   void      SetField(long index, pVMObject value);
+            inline pVMObject GetField(long index) const;
+            inline void      SetField(long index, pVMObject value);
     virtual        void      Assert(bool value) const;
     virtual        void      WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
     virtual        pVMObject Clone() const;
@@ -116,7 +116,7 @@ public:
     }
 
 protected:
-    long GetAdditionalSpaceConsumption() const;
+    inline long GetAdditionalSpaceConsumption() const;
 
     // VMObject essentials
     long   hash;
@@ -148,5 +148,27 @@ pVMClass VMObject::GetClass() const {
 long VMObject::GetNumberOfFields() const {
     return this->numberOfFields;
 }
+
+//returns the Object's additional memory used (e.g. for Array fields)
+long VMObject::GetAdditionalSpaceConsumption() const {
+    //The VM*-Object's additional memory used needs to be calculated.
+    //It's      the total object size   MINUS   sizeof(VMObject) for basic
+    //VMObject  MINUS   the number of fields times sizeof(pVMObject)
+    return (objectSize
+            - (sizeof(VMObject)
+               + sizeof(pVMObject) * GetNumberOfFields()));
+}
+
+pVMObject VMObject::GetField(long index) const {
+    return FIELDS[index];
+}
+
+void VMObject::SetField(long index, pVMObject value) {
+    FIELDS[index] = value;
+#if GC_TYPE==GENERATIONAL
+    _HEAP->writeBarrier(this, (VMOBJECT_PTR)value);
+#endif
+}
+        
 
 #endif
