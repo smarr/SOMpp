@@ -31,15 +31,18 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string>
+
 //
 // error codes
 //
-
 #define ERR_SUCCESS        0x0
 #define ERR_FAIL           0x1
 #define ERR_NOMEM          0x2
 #define ERR_PANIC          0xFFFF
 
+//
+// Integer Ranges
+//
 #ifndef INT32_MAX
 /*Maximum value of 32-bit integer is 0x7FFF FFFF (2 147 483 647)         */
 #define INT32_MAX 0x7FFFFFFF  /*2 147 483 647*/
@@ -48,15 +51,30 @@
 #define INT32_MIN (-2147483647)
 
 #endif
+
 //
 // defs for classpath extraction
 //
 #define pathSeparator ':'
 #define fileSeparator '/'
 
+//
+// GC Types
+//
 #define GENERATIONAL 1
-#define COPYING 2
-#define MARK_SWEEP 3
+#define COPYING      2
+#define MARK_SWEEP   3
+
+
+//
+// Debugging
+//
+#ifndef NDEBUG
+  #define DEBUG true
+#else
+  #define DEBUG false
+#endif
+
 
 typedef std::string StdString;
 
