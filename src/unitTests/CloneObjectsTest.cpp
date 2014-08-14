@@ -24,7 +24,7 @@
 #include "vmobjects/VMEvaluationPrimitive.h"
 
 void CloneObjectsTest::testCloneObject() {
-    VMObject* orig = new (_UNIVERSE->GetHeap()) VMObject();
+    VMObject* orig = new (GetUniverse()->GetHeap()) VMObject();
     VMObject* clone = orig->Clone();
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->GetClass(),
@@ -36,7 +36,7 @@ void CloneObjectsTest::testCloneObject() {
 }
 
 void CloneObjectsTest::testCloneInteger() {
-    pVMInteger orig = _UNIVERSE->NewInteger(42);
+    pVMInteger orig = GetUniverse()->NewInteger(42);
     pVMInteger clone = orig->Clone();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
@@ -45,7 +45,7 @@ void CloneObjectsTest::testCloneInteger() {
 }
 
 void CloneObjectsTest::testCloneDouble() {
-    pVMDouble orig = _UNIVERSE->NewDouble(123.4);
+    pVMDouble orig = GetUniverse()->NewDouble(123.4);
     pVMDouble clone = orig->Clone();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
@@ -54,7 +54,7 @@ void CloneObjectsTest::testCloneDouble() {
 }
 
 void CloneObjectsTest::testCloneString() {
-    pVMString orig = _UNIVERSE->NewString("foobar");
+    pVMString orig = GetUniverse()->NewString("foobar");
     pVMString clone = orig->Clone();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
@@ -71,7 +71,7 @@ void CloneObjectsTest::testCloneString() {
 }
 
 void CloneObjectsTest::testCloneSymbol() {
-    pVMSymbol orig = _UNIVERSE->NewSymbol("foobar");
+    pVMSymbol orig = GetUniverse()->NewSymbol("foobar");
     pVMSymbol clone = orig->Clone();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
@@ -84,7 +84,7 @@ void CloneObjectsTest::testCloneSymbol() {
 }
 
 void CloneObjectsTest::testCloneBigInteger() {
-    pVMBigInteger orig = _UNIVERSE->NewBigInteger(0xdeadbeef);
+    pVMBigInteger orig = GetUniverse()->NewBigInteger(0xdeadbeef);
     pVMBigInteger clone = orig->Clone();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
@@ -93,10 +93,10 @@ void CloneObjectsTest::testCloneBigInteger() {
 }
 
 void CloneObjectsTest::testCloneArray() {
-    pVMArray orig = _UNIVERSE->NewArray(3);
-    orig->SetIndexableField(0, _UNIVERSE->NewString("foobar42"));
-    orig->SetIndexableField(1, _UNIVERSE->NewString("foobar43"));
-    orig->SetIndexableField(2, _UNIVERSE->NewString("foobar44"));
+    pVMArray orig = GetUniverse()->NewArray(3);
+    orig->SetIndexableField(0, GetUniverse()->NewString("foobar42"));
+    orig->SetIndexableField(1, GetUniverse()->NewString("foobar43"));
+    orig->SetIndexableField(2, GetUniverse()->NewString("foobar44"));
     pVMArray clone = orig->Clone();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
@@ -115,10 +115,10 @@ void CloneObjectsTest::testCloneArray() {
 }
 
 void CloneObjectsTest::testCloneBlock() {
-    pVMSymbol methodSymbol = _UNIVERSE->NewSymbol("someMethod");
-    pVMMethod method = _UNIVERSE->NewMethod(methodSymbol, 0, 0);
-    pVMBlock orig = _UNIVERSE->NewBlock(method,
-            _UNIVERSE->GetInterpreter()->GetFrame(),
+    pVMSymbol methodSymbol = GetUniverse()->NewSymbol("someMethod");
+    pVMMethod method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
+    pVMBlock orig = GetUniverse()->NewBlock(method,
+            GetUniverse()->GetInterpreter()->GetFrame(),
             method->GetNumberOfArguments());
     pVMBlock clone = orig->Clone();
 
@@ -130,7 +130,7 @@ void CloneObjectsTest::testCloneBlock() {
     CPPUNIT_ASSERT_EQUAL_MESSAGE("context differs!!", orig->context, clone->context);
 }
 void CloneObjectsTest::testClonePrimitive() {
-    pVMSymbol primitiveSymbol = _UNIVERSE->NewSymbol("myPrimitive");
+    pVMSymbol primitiveSymbol = GetUniverse()->NewSymbol("myPrimitive");
     pVMPrimitive orig = VMPrimitive::GetEmptyPrimitive(primitiveSymbol);
     pVMPrimitive clone = orig->Clone();
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
@@ -143,7 +143,7 @@ void CloneObjectsTest::testClonePrimitive() {
 }
 
 void CloneObjectsTest::testCloneEvaluationPrimitive() {
-    pVMEvaluationPrimitive orig = new (_UNIVERSE->GetHeap()) VMEvaluationPrimitive(1);
+    pVMEvaluationPrimitive orig = new (GetUniverse()->GetHeap()) VMEvaluationPrimitive(1);
     pVMEvaluationPrimitive clone = orig->Clone();
 
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
@@ -157,12 +157,12 @@ void CloneObjectsTest::testCloneEvaluationPrimitive() {
 }
 
 void CloneObjectsTest::testCloneFrame() {
-    pVMSymbol methodSymbol = _UNIVERSE->NewSymbol("frameMethod");
-    pVMMethod method = _UNIVERSE->NewMethod(methodSymbol, 0, 0);
-    pVMFrame orig = _UNIVERSE->NewFrame(NULL, method);
+    pVMSymbol methodSymbol = GetUniverse()->NewSymbol("frameMethod");
+    pVMMethod method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
+    pVMFrame orig = GetUniverse()->NewFrame(NULL, method);
     pVMFrame context = orig->Clone();
     orig->SetContext(context);
-    pVMInteger dummyArg = _UNIVERSE->NewInteger(1111);
+    pVMInteger dummyArg = GetUniverse()->NewInteger(1111);
     orig->SetArgument(0, 0, dummyArg);
     pVMFrame clone = orig->Clone();
 
@@ -178,8 +178,8 @@ void CloneObjectsTest::testCloneFrame() {
 }
 
 void CloneObjectsTest::testCloneMethod() {
-    pVMSymbol methodSymbol = _UNIVERSE->NewSymbol("myMethod");
-    pVMMethod orig = _UNIVERSE->NewMethod(methodSymbol, 0, 0);
+    pVMSymbol methodSymbol = GetUniverse()->NewSymbol("myMethod");
+    pVMMethod orig = GetUniverse()->NewMethod(methodSymbol, 0, 0);
     pVMMethod clone = orig->Clone();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
@@ -225,11 +225,11 @@ void CloneObjectsTest::testCloneMethod() {
 }
 
 void CloneObjectsTest::testCloneClass() {
-    pVMClass orig = _UNIVERSE->NewClass(integerClass);
-    orig->SetName(_UNIVERSE->NewSymbol("MyClass"));
+    pVMClass orig = GetUniverse()->NewClass(integerClass);
+    orig->SetName(GetUniverse()->NewSymbol("MyClass"));
     orig->SetSuperClass(doubleClass);
-    orig->SetInstanceFields(_UNIVERSE->NewArray(2));
-    orig->SetInstanceInvokables(_UNIVERSE->NewArray(4));
+    orig->SetInstanceFields(GetUniverse()->NewArray(2));
+    orig->SetInstanceInvokables(GetUniverse()->NewArray(4));
     pVMClass clone = orig->Clone();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);

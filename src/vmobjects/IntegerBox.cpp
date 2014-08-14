@@ -10,7 +10,7 @@ void GlobalBox::updateIntegerBox(VMInteger* newValue) {
 
 VMInteger* GlobalBox::IntegerBox() {
     if (integerBox == NULL) {
-        integerBox = _UNIVERSE->NewInteger(1);
+        integerBox = GetUniverse()->NewInteger(1);
     }
     return integerBox;
 }

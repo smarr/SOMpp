@@ -19,10 +19,10 @@ void WriteBarrierTest::testWriteArray() {
 #ifdef DEBUG
     //reset set...
     _HEAP->writeBarrierCalledOn.clear();
-    pVMArray arr = _UNIVERSE->NewArray(3);
-    pVMInteger newInt = _UNIVERSE->NewInteger(12345);
-    pVMString str = _UNIVERSE->NewString("asdfghjkl");
-    pVMDouble doub = _UNIVERSE->NewDouble(9876.654);
+    pVMArray arr = GetUniverse()->NewArray(3);
+    pVMInteger newInt = GetUniverse()->NewInteger(12345);
+    pVMString str = GetUniverse()->NewString("asdfghjkl");
+    pVMDouble doub = GetUniverse()->NewDouble(9876.654);
     pVMClass cloneClass = arrayClass->Clone();
     pVMClass clone2Class = cloneClass->Clone();
     arr->SetClass(cloneClass);
@@ -57,10 +57,10 @@ void WriteBarrierTest::testWriteBlock() {
     //reset set...
     _HEAP->writeBarrierCalledOn.clear();
 
-    pVMSymbol methodSymbol = _UNIVERSE->NewSymbol("someMethod");
-    pVMMethod method = _UNIVERSE->NewMethod(methodSymbol, 0, 0);
-    pVMBlock block = _UNIVERSE->NewBlock(method,
-            _UNIVERSE->GetInterpreter()->GetFrame(),
+    pVMSymbol methodSymbol = GetUniverse()->NewSymbol("someMethod");
+    pVMMethod method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
+    pVMBlock block = GetUniverse()->NewBlock(method,
+            GetUniverse()->GetInterpreter()->GetFrame(),
             method->GetNumberOfArguments());
     TEST_WB_CALLED("VMBlock failed to call writeBarrier when creating", block,
             block->GetClass());
@@ -86,11 +86,11 @@ void WriteBarrierTest::testWriteFrame() {
     //reset set...
     _HEAP->writeBarrierCalledOn.clear();
 
-    pVMFrame frame = _UNIVERSE->GetInterpreter()->GetFrame()->Clone();
+    pVMFrame frame = GetUniverse()->GetInterpreter()->GetFrame()->Clone();
     frame->SetContext(frame->Clone());
 
-    frame->SetPreviousFrame(_UNIVERSE->GetInterpreter()->GetFrame());
-    TEST_WB_CALLED("VMFrame failed to call writeBarrier on SetPreviousFrame", frame, _UNIVERSE->GetInterpreter()->GetFrame());
+    frame->SetPreviousFrame(GetUniverse()->GetInterpreter()->GetFrame());
+    TEST_WB_CALLED("VMFrame failed to call writeBarrier on SetPreviousFrame", frame, GetUniverse()->GetInterpreter()->GetFrame());
     frame->SetContext(frame->GetContext()->Clone());
     TEST_WB_CALLED("VMFrame failed to call writeBarrier on SetContext", frame, frame->GetContext());
     frame->ClearPreviousFrame();
@@ -104,7 +104,7 @@ void WriteBarrierTest::testWriteMethod() {
 #ifdef DEBUG
     //reset set...
     _HEAP->writeBarrierCalledOn.clear();
-    pVMMethod method = _UNIVERSE->GetInterpreter()->GetFrame()->GetMethod()->Clone();
+    pVMMethod method = GetUniverse()->GetInterpreter()->GetFrame()->GetMethod()->Clone();
     method->SetHolder(integerClass);
     TEST_WB_CALLED("VMMethod failed to call writeBarrier on SetHolder", method, integerClass);
     method->SetSignature(method->GetSignature());
@@ -119,7 +119,7 @@ void WriteBarrierTest::testWriteEvaluationPrimitive() {
 #ifdef DEBUG
     //reset set...
     _HEAP->writeBarrierCalledOn.clear();
-    pVMEvaluationPrimitive evPrim = new (_UNIVERSE->GetHeap()) VMEvaluationPrimitive(1);
+    pVMEvaluationPrimitive evPrim = new (GetUniverse()->GetHeap()) VMEvaluationPrimitive(1);
     TEST_WB_CALLED("VMEvaluationPrimitive failed to call writeBarrier when creating", evPrim, evPrim->GetClass());
     TEST_WB_CALLED("VMEvaluationPrimitive failed to call writeBarrier when creating", evPrim, evPrim->numberOfArguments);
 #else
@@ -136,7 +136,7 @@ void WriteBarrierTest::testWriteClass() {
     cl->SetSuperClass(integerClass);
     TEST_WB_CALLED("VMClass failed to call writeBarrier on SetSuperClass", cl,
             integerClass);
-    pVMSymbol newName = _UNIVERSE->NewSymbol("andererName");
+    pVMSymbol newName = GetUniverse()->NewSymbol("andererName");
     cl->SetName(newName);
     TEST_WB_CALLED("VMClass failed to call writeBarrier on SetName", cl,
             newName);

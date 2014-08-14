@@ -21,22 +21,22 @@
 #include "vmobjects/VMEvaluationPrimitive.h"
 
 void VMObjectsInterfaceTest::setUp() {
-    pObject = new (_UNIVERSE->GetHeap()) VMObject();
-    pInteger = _UNIVERSE->NewInteger(42);
-    pDouble = _UNIVERSE->NewDouble(123.4);
-    pString = _UNIVERSE->NewString("foobar");
-    pSymbol = _UNIVERSE->NewSymbol("foobar");
-    pArray = _UNIVERSE->NewArray(0);
-    pArray3 = _UNIVERSE->NewArray(3);
-    pMethod = _UNIVERSE->NewMethod(pSymbol, 0, 0);
-    pBlock = _UNIVERSE->NewBlock(pMethod,
-    _UNIVERSE->GetInterpreter()->GetFrame(),
+    pObject = new (GetUniverse()->GetHeap()) VMObject();
+    pInteger = GetUniverse()->NewInteger(42);
+    pDouble = GetUniverse()->NewDouble(123.4);
+    pString = GetUniverse()->NewString("foobar");
+    pSymbol = GetUniverse()->NewSymbol("foobar");
+    pArray = GetUniverse()->NewArray(0);
+    pArray3 = GetUniverse()->NewArray(3);
+    pMethod = GetUniverse()->NewMethod(pSymbol, 0, 0);
+    pBlock = GetUniverse()->NewBlock(pMethod,
+    GetUniverse()->GetInterpreter()->GetFrame(),
     pMethod->GetNumberOfArguments());
     pPrimitive = VMPrimitive::GetEmptyPrimitive(pSymbol);
-    pBigInteger = _UNIVERSE->NewBigInteger(0xdeadbeef);
-    pClass = _UNIVERSE->NewClass(integerClass);
-    pFrame = _UNIVERSE->GetInterpreter()->GetFrame();
-    pEvaluationPrimitive = new (_UNIVERSE->GetHeap()) VMEvaluationPrimitive(1);
+    pBigInteger = GetUniverse()->NewBigInteger(0xdeadbeef);
+    pClass = GetUniverse()->NewClass(integerClass);
+    pFrame = GetUniverse()->GetInterpreter()->GetFrame();
+    pEvaluationPrimitive = new (GetUniverse()->GetHeap()) VMEvaluationPrimitive(1);
 }
 
 void VMObjectsInterfaceTest::tearDown() {
@@ -141,7 +141,7 @@ void VMObjectsInterfaceTest::testGetNumberOfFields() {
 }
 
 void testGetClassFieldHelper(VMOBJECT_PTR obj, StdString name) {
-    pVMSymbol sym = _UNIVERSE->SymbolFor("class");
+    pVMSymbol sym = GetUniverse()->SymbolFor("class");
     int fieldNo = obj->GetFieldIndex(sym);
     CPPUNIT_ASSERT_EQUAL_MESSAGE(name + StdString(
             " does not have 'class' as first field"), 0, fieldNo);
@@ -251,7 +251,7 @@ void VMObjectsInterfaceTest::testGetHash() {
 }
 
 pVMClass getGlobalClass(const char* name) {
-    return (pVMClass) _UNIVERSE->GetGlobal(_UNIVERSE->SymbolForChars(name));
+    return (pVMClass) GetUniverse()->GetGlobal(GetUniverse()->SymbolForChars(name));
 }
 
 void testGetSetClassHelper(StdString name, VMOBJECT_PTR obj,

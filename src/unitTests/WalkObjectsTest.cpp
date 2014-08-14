@@ -54,7 +54,7 @@ bool WalkerHasFound(VMOBJECT_PTR obj) {
 
 void WalkObjectsTest::testWalkInteger() {
     walkedObjects.clear();
-    pVMInteger int1 = _UNIVERSE->NewInteger(42);
+    pVMInteger int1 = GetUniverse()->NewInteger(42);
     int1->WalkObjects(collectMembers);
 
     //Integers have no additional members
@@ -63,7 +63,7 @@ void WalkObjectsTest::testWalkInteger() {
 
 void WalkObjectsTest::testWalkBigInteger() {
     walkedObjects.clear();
-    pVMBigInteger int1 = _UNIVERSE->NewBigInteger(4711);
+    pVMBigInteger int1 = GetUniverse()->NewBigInteger(4711);
     int1->WalkObjects(collectMembers);
 
     //Integers have no additional members
@@ -72,7 +72,7 @@ void WalkObjectsTest::testWalkBigInteger() {
 
 void WalkObjectsTest::testWalkDouble() {
     walkedObjects.clear();
-    pVMDouble d1 = _UNIVERSE->NewDouble(432.1);
+    pVMDouble d1 = GetUniverse()->NewDouble(432.1);
     d1->WalkObjects(collectMembers);
 
     //Doubles have no additional members
@@ -82,7 +82,7 @@ void WalkObjectsTest::testWalkDouble() {
 void WalkObjectsTest::testWalkEvaluationPrimitive() {
     walkedObjects.clear();
 
-    pVMEvaluationPrimitive evPrim = new (_UNIVERSE->GetHeap()) VMEvaluationPrimitive(1);
+    pVMEvaluationPrimitive evPrim = new (GetUniverse()->GetHeap()) VMEvaluationPrimitive(1);
     evPrim->WalkObjects(collectMembers);
 
     CPPUNIT_ASSERT(WalkerHasFound(evPrim->numberOfArguments));
@@ -95,7 +95,7 @@ void WalkObjectsTest::testWalkEvaluationPrimitive() {
 void WalkObjectsTest::testWalkObject() {
     walkedObjects.clear();
 
-    VMObject* obj = new (_UNIVERSE->GetHeap()) VMObject();
+    VMObject* obj = new (GetUniverse()->GetHeap()) VMObject();
     obj->WalkObjects(collectMembers);
 
     //Objects should only have one member -> Class
@@ -105,7 +105,7 @@ void WalkObjectsTest::testWalkObject() {
 
 void WalkObjectsTest::testWalkString() {
     walkedObjects.clear();
-    pVMString str1 = _UNIVERSE->NewString("str1");
+    pVMString str1 = GetUniverse()->NewString("str1");
     str1->WalkObjects(collectMembers);
 
     CPPUNIT_ASSERT_EQUAL(NoOfFields_String, walkedObjects.size());
@@ -113,7 +113,7 @@ void WalkObjectsTest::testWalkString() {
 
 void WalkObjectsTest::testWalkSymbol() {
     walkedObjects.clear();
-    pVMSymbol sym = _UNIVERSE->NewSymbol("symbol");
+    pVMSymbol sym = GetUniverse()->NewSymbol("symbol");
     sym->WalkObjects(collectMembers);
 
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Symbol, walkedObjects.size());
@@ -121,7 +121,7 @@ void WalkObjectsTest::testWalkSymbol() {
 
 void WalkObjectsTest::testWalkClass() {
     walkedObjects.clear();
-    pVMClass meta = _UNIVERSE->NewMetaclassClass();
+    pVMClass meta = GetUniverse()->NewMetaclassClass();
     meta->superClass = stringClass;
     meta->WalkObjects(collectMembers);
 
@@ -136,7 +136,7 @@ void WalkObjectsTest::testWalkClass() {
 
 void WalkObjectsTest::testWalkPrimitive() {
     walkedObjects.clear();
-    pVMSymbol primitiveSymbol = _UNIVERSE->NewSymbol("myPrimitive");
+    pVMSymbol primitiveSymbol = GetUniverse()->NewSymbol("myPrimitive");
     pVMPrimitive prim = VMPrimitive::GetEmptyPrimitive(primitiveSymbol);
 
     prim->WalkObjects(collectMembers);
@@ -148,12 +148,12 @@ void WalkObjectsTest::testWalkPrimitive() {
 
 void WalkObjectsTest::testWalkFrame() {
     walkedObjects.clear();
-    pVMSymbol methodSymbol = _UNIVERSE->NewSymbol("frameMethod");
-    pVMMethod method = _UNIVERSE->NewMethod(methodSymbol, 0, 0);
-    pVMFrame frame = _UNIVERSE->NewFrame(NULL, method);
+    pVMSymbol methodSymbol = GetUniverse()->NewSymbol("frameMethod");
+    pVMMethod method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
+    pVMFrame frame = GetUniverse()->NewFrame(NULL, method);
     frame->SetPreviousFrame(frame->Clone());
     frame->SetContext(frame->Clone());
-    pVMInteger dummyArg = _UNIVERSE->NewInteger(1111);
+    pVMInteger dummyArg = GetUniverse()->NewInteger(1111);
     frame->SetArgument(0, 0, dummyArg);
     frame->WalkObjects(collectMembers);
 
@@ -170,8 +170,8 @@ void WalkObjectsTest::testWalkFrame() {
 
 void WalkObjectsTest::testWalkMethod() {
     walkedObjects.clear();
-    pVMSymbol methodSymbol = _UNIVERSE->NewSymbol("myMethod");
-    pVMMethod method = _UNIVERSE->NewMethod(methodSymbol, 0, 0);
+    pVMSymbol methodSymbol = GetUniverse()->NewSymbol("myMethod");
+    pVMMethod method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
     method->WalkObjects(collectMembers);
 
     CPPUNIT_ASSERT(WalkerHasFound(method->GetClass()));
@@ -188,10 +188,10 @@ void WalkObjectsTest::testWalkMethod() {
 
 void WalkObjectsTest::testWalkBlock() {
     walkedObjects.clear();
-    pVMSymbol methodSymbol = _UNIVERSE->NewSymbol("someMethod");
-    pVMMethod method = _UNIVERSE->NewMethod(methodSymbol, 0, 0);
-    pVMBlock block = _UNIVERSE->NewBlock(method,
-            _UNIVERSE->GetInterpreter()->GetFrame(),
+    pVMSymbol methodSymbol = GetUniverse()->NewSymbol("someMethod");
+    pVMMethod method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
+    pVMBlock block = GetUniverse()->NewBlock(method,
+            GetUniverse()->GetInterpreter()->GetFrame(),
             method->GetNumberOfArguments());
     block->WalkObjects(collectMembers);
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Block, walkedObjects.size());
@@ -202,9 +202,9 @@ void WalkObjectsTest::testWalkBlock() {
 
 void WalkObjectsTest::testWalkArray() {
     walkedObjects.clear();
-    pVMString str1 = _UNIVERSE->NewString("str1");
-    pVMInteger int1 = _UNIVERSE->NewInteger(42);
-    pVMArray a = _UNIVERSE->NewArray(2);
+    pVMString str1 = GetUniverse()->NewString("str1");
+    pVMInteger int1 = GetUniverse()->NewInteger(42);
+    pVMArray a = GetUniverse()->NewArray(2);
     a->SetIndexableField(0, str1);
     a->SetIndexableField(1, int1);
     a->WalkObjects(collectMembers);
