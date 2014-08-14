@@ -46,6 +46,7 @@ public:
     virtual pVMSymbol Clone() const;
     virtual pVMClass GetClass() const;
 private:
+    const int numberOfArgumentsOfSignature;
     const pVMClass cachedClass_invokable[3];
     long nextCachePos;
     pVMInvokable cachedInvokable[3];
@@ -54,6 +55,7 @@ private:
     
     virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
     
+    friend class Signature;
     friend class VMClass;
 };
 

@@ -35,6 +35,9 @@ class Signature {
 public:
     static int GetNumberOfArguments(pVMSymbol sig);
     static bool IsBinary(pVMSymbol sig);
+    
+    static int DetermineNumberOfArguments(const char* sig);
+    static bool IsBinary(const char* sig);
 
 };
 
