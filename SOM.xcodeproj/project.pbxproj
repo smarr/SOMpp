@@ -64,6 +64,7 @@
 		0A1887451832C62100A2CBCA /* Smalltalk in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A18873E1832C62100A2CBCA /* Smalltalk */; };
 		0A1887461832C62100A2CBCA /* SUnit in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A18873F1832C62100A2CBCA /* SUnit */; };
 		0A1887471832C62100A2CBCA /* TestSuite in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A1887401832C62100A2CBCA /* TestSuite */; };
+		0A32B7FE199D6143002825DF /* IntegerBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A32B7FC199D6143002825DF /* IntegerBox.cpp */; };
 		0A335F6D1832D64100D7CFC8 /* Method.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A335F6B1832D64100D7CFC8 /* Method.cpp */; };
 		0A335F6E1832D64100D7CFC8 /* Method.h in Headers */ = {isa = PBXBuildFile; fileRef = 0A335F6C1832D64100D7CFC8 /* Method.h */; };
 		0A335F711832D65100D7CFC8 /* Primitive.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A335F6F1832D65100D7CFC8 /* Primitive.cpp */; };
@@ -125,6 +126,9 @@
 		0A18873E1832C62100A2CBCA /* Smalltalk */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Smalltalk; path = "core-lib/Smalltalk"; sourceTree = "<group>"; };
 		0A18873F1832C62100A2CBCA /* SUnit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SUnit; path = "core-lib/SUnit"; sourceTree = "<group>"; };
 		0A1887401832C62100A2CBCA /* TestSuite */ = {isa = PBXFileReference; lastKnownFileType = folder; name = TestSuite; path = "core-lib/TestSuite"; sourceTree = "<group>"; };
+		0A32B7FC199D6143002825DF /* IntegerBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IntegerBox.cpp; sourceTree = "<group>"; };
+		0A32B7FD199D6143002825DF /* IntegerBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntegerBox.h; sourceTree = "<group>"; };
+		0A32B800199D61B9002825DF /* unitTests */ = {isa = PBXFileReference; lastKnownFileType = folder; name = unitTests; path = src/unitTests; sourceTree = "<group>"; };
 		0A335F6B1832D64100D7CFC8 /* Method.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Method.cpp; sourceTree = "<group>"; };
 		0A335F6C1832D64100D7CFC8 /* Method.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Method.h; sourceTree = "<group>"; };
 		0A335F6F1832D65100D7CFC8 /* Primitive.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Primitive.cpp; sourceTree = "<group>"; };
@@ -347,6 +351,7 @@
 		3F5202720FA661D900E75857 = {
 			isa = PBXGroup;
 			children = (
+				0A32B800199D61B9002825DF /* unitTests */,
 				0A18873A1832C62100A2CBCA /* AUTHORS */,
 				0A18873B1832C62100A2CBCA /* Examples */,
 				0A18873C1832C62100A2CBCA /* LICENSE */,
@@ -523,6 +528,8 @@
 				0A18870A1832C0E400A2CBCA /* AbstractObject.h */,
 				3F5203350FA6624C00E75857 /* ObjectFormats.h */,
 				3F5203360FA6624C00E75857 /* PrimitiveRoutine.h */,
+				0A32B7FC199D6143002825DF /* IntegerBox.cpp */,
+				0A32B7FD199D6143002825DF /* IntegerBox.h */,
 				3F5203370FA6624C00E75857 /* Signature.cpp */,
 				3F5203380FA6624C00E75857 /* Signature.h */,
 				3F52033B0FA6624C00E75857 /* VMArray.cpp */,
@@ -834,6 +841,7 @@
 				0A1886FA1832BCF500A2CBCA /* VMBigInteger.cpp in Sources */,
 				0A1886E11832BCC800A2CBCA /* Parser.cpp in Sources */,
 				0A1886FD1832BCF500A2CBCA /* VMDouble.cpp in Sources */,
+				0A32B7FE199D6143002825DF /* IntegerBox.cpp in Sources */,
 				0A1886FE1832BCF500A2CBCA /* VMEvaluationPrimitive.cpp in Sources */,
 				0A1887311832C10E00A2CBCA /* CopyingCollector.cpp in Sources */,
 				0A1886DE1832BCC800A2CBCA /* Disassembler.cpp in Sources */,
