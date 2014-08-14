@@ -60,7 +60,7 @@ void Shell::Start() {
 #define QUIT_CMD_L 11 + 1
 
     if (bootstrapMethod == NULL) {
-        _UNIVERSE->ErrorExit("Shell needs bootstrap method!");
+        GetUniverse()->ErrorExit("Shell needs bootstrap method!");
     }
     // the statement to evaluate
     char inbuf[INPUT_MAX_SIZE];
@@ -72,7 +72,7 @@ void Shell::Start() {
     cout << "SOM Shell. Type \"" << QUIT_CMD << "\" to exit.\n";
 
     // Create a fake bootstrap frame
-    currentFrame = _UNIVERSE->GetInterpreter()->PushNewFrame(this->GetBootstrapMethod());
+    currentFrame = GetUniverse()->GetInterpreter()->PushNewFrame(this->GetBootstrapMethod());
     // Remember the first bytecode index, e.g. index of the halt instruction
     bytecodeIndex = currentFrame->GetBytecodeIndex();
 
@@ -100,35 +100,35 @@ void Shell::Start() {
         statement = ss.str();
 
         ++counter;
-        runClass = _UNIVERSE->LoadShellClass(statement);
+        runClass = GetUniverse()->LoadShellClass(statement);
         // Compile and load the newly generated class
         if(runClass == NULL) {
             cout << "can't compile statement.";
             continue;
         }
 
-        currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
+        currentFrame = GetUniverse()->GetInterpreter()->GetFrame();
 
         // Go back, so we will evaluate the bootstrap frames halt
         // instruction again
         currentFrame->SetBytecodeIndex(bytecodeIndex);
 
         // Create and push a new instance of our class on the stack
-        currentFrame->Push(_UNIVERSE->NewInstance(runClass));
+        currentFrame->Push(GetUniverse()->NewInstance(runClass));
 
         // Push the old value of "it" on the stack
         currentFrame->Push(it);
 
         // Lookup the run: method
         pVMInvokable initialize = runClass->LookupInvokable(
-                                        _UNIVERSE->SymbolFor("run:"));
+                                        GetUniverse()->SymbolFor("run:"));
 
         // Invoke the run method
         (*initialize)(currentFrame);
 
         // Start the Interpreter
 
-        _UNIVERSE->GetInterpreter()->Start();
+        GetUniverse()->GetInterpreter()->Start();
 
         // Save the result of the run method
         it = currentFrame->Pop();

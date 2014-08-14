@@ -56,9 +56,6 @@ class VMString;
 class VMBigInteger;
 class SourcecodeCompiler;
 
-//Convenience macro for Singleton access
-#define _UNIVERSE Universe::GetUniverse()
-
 // for runtime debug
 extern short dumpBytecodes;
 extern short gcVerbosity;
@@ -93,10 +90,9 @@ extern pVMSymbol symbolIfFalse;
 using namespace std;
 class Universe {
 public:
-    Universe* operator->();
+    inline Universe* operator->();
 
     //static methods
-    static Universe* GetUniverse();
     static void Start(long argc, char** argv);
     static void Quit(long);
     static void ErrorExit(const char*);
@@ -172,6 +168,7 @@ private:
     vector<StdString> handleArguments(long argc, char** argv);
     long getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;
 
+    friend Universe* GetUniverse();
     static Universe* theUniverse;
 
     long setupClassPath(const StdString& cp);
@@ -188,5 +185,22 @@ private:
 
     Interpreter* interpreter;
 };
+
+//Singleton accessor
+inline Universe* GetUniverse() __attribute__ ((always_inline));
+Universe* GetUniverse() {
+    if (DEBUG && !Universe::theUniverse) {
+        Universe::ErrorExit("Trying to access uninitialized Universe, exiting.");
+    }
+    return Universe::theUniverse;
+}
+
+Universe* Universe::operator->() {
+    if (DEBUG && !theUniverse) {
+        ErrorExit("Trying to access uninitialized Universe, exiting.");
+    }
+    return theUniverse;
+}
+
 
 #endif

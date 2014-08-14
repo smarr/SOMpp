@@ -48,7 +48,7 @@ pVMObject VMArray::GetIndexableField(long idx) const {
         cout << "Array index out of bounds: Accessing " << idx
         << ", but array size is only " << GetNumberOfIndexableFields()
         << endl;
-        _UNIVERSE->ErrorExit("Array index out of bounds");
+        GetUniverse()->ErrorExit("Array index out of bounds");
     }
     return GetField(GetNumberOfFields() + idx);
 }
@@ -58,14 +58,14 @@ void VMArray::SetIndexableField(long idx, pVMObject value) {
         cout << "Array index out of bounds: Accessing " << idx
         << ", but array size is only " << GetNumberOfIndexableFields()
         << endl;
-        _UNIVERSE->ErrorExit("Array index out of bounds");
+        GetUniverse()->ErrorExit("Array index out of bounds");
     }
     SetField(GetNumberOfFields() + idx, value);
 }
 
 pVMArray VMArray::CopyAndExtendWith(pVMObject item) const {
     size_t fields = GetNumberOfIndexableFields();
-    pVMArray result = _UNIVERSE->NewArray(fields + 1);
+    pVMArray result = GetUniverse()->NewArray(fields + 1);
     this->CopyIndexableFieldsTo(result);
     result->SetIndexableField(fields, item);
     return result;

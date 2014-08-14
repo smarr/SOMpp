@@ -46,7 +46,7 @@
 #define CHECK_BIGINT(object, result) { \
     /* Check second parameter type: */ \
   if (IS_TAGGED(object)) {\
-    result = _UNIVERSE->NewBigInteger((int64_t)UNTAG_INTEGER(object));\
+    result = GetUniverse()->NewBigInteger((int64_t)UNTAG_INTEGER(object));\
     } else\
         result = static_cast<pVMBigInteger>(object);\
 }
@@ -57,7 +57,7 @@
     if ((ptr = dynamic_cast<pVMInteger>(object)) != NULL) { \
         /* Second operand was Integer*/ \
         long i = ptr->GetEmbeddedInteger(); \
-        (result) = _UNIVERSE->NewBigInteger((int64_t)i); \
+        (result) = GetUniverse()->NewBigInteger((int64_t)i); \
     } else \
         (result) = static_cast<pVMBigInteger>(object); \
 }
@@ -66,16 +66,16 @@
 #ifdef USE_TAGGING
 #define PUSH_INT_OR_BIGINT(result) { \
     if(result > INT32_MAX ||result < INT32_MIN) \
-        frame->Push(_UNIVERSE->NewBigInteger((result))); \
+        frame->Push(GetUniverse()->NewBigInteger((result))); \
     else \
         frame->Push(TAG_INTEGER(result)); \
 }
 #else
 #define PUSH_INT_OR_BIGINT(result) { \
     if(result > INT32_MAX ||result < INT32_MIN) \
-        frame->Push(_UNIVERSE->NewBigInteger((result))); \
+        frame->Push(GetUniverse()->NewBigInteger((result))); \
     else \
-        frame->Push(_UNIVERSE->NewInteger((int32_t)(result))); \
+        frame->Push(GetUniverse()->NewInteger((int32_t)(result))); \
 }
 #endif
 
@@ -185,7 +185,7 @@ void _BigInteger::Percent(pVMObject /*object*/, pVMFrame frame) {
     CHECK_BIGINT(rightObj, right);
 
     // Do operation and perform conversion to Integer if required
-    pVMBigInteger result = _UNIVERSE->NewBigInteger(  left->GetEmbeddedInteger()
+    pVMBigInteger result = GetUniverse()->NewBigInteger(  left->GetEmbeddedInteger()
                                                     % right->GetEmbeddedInteger());
     frame->Push(result);
 }
@@ -198,7 +198,7 @@ void _BigInteger::And(pVMObject /*object*/, pVMFrame frame) {
     CHECK_BIGINT(rightObj, right);
 
     // Do operation and perform conversion to Integer if required
-    pVMBigInteger result = _UNIVERSE->NewBigInteger(  left->GetEmbeddedInteger()
+    pVMBigInteger result = GetUniverse()->NewBigInteger(  left->GetEmbeddedInteger()
                                                     & right->GetEmbeddedInteger());
     frame->Push(result);
 }
@@ -237,11 +237,11 @@ void _BigInteger::AsString(pVMObject /*object*/, pVMFrame frame) {
     int64_t bigint = self->GetEmbeddedInteger();
     ostringstream Str;
     Str << bigint;
-    frame->Push(_UNIVERSE->NewString(Str.str().c_str()));
+    frame->Push(GetUniverse()->NewString(Str.str().c_str()));
 }
 
 void _BigInteger::Sqrt(pVMObject /*object*/, pVMFrame frame) {
     pVMBigInteger self = static_cast<pVMBigInteger>(frame->Pop());
     int64_t i = self->GetEmbeddedInteger();
-    frame->Push(_UNIVERSE->NewDouble(sqrt((double)i)));
+    frame->Push(GetUniverse()->NewDouble(sqrt((double)i)));
 }

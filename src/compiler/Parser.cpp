@@ -142,12 +142,12 @@ void Parser::genPushVariable(MethodGenerationContext* mgenc,
         else
             bcGen->EmitPUSHLOCAL(mgenc, index, context);
     } else if (mgenc->HasField(var)) {
-        pVMSymbol fieldName = _UNIVERSE->SymbolFor(var);
+        pVMSymbol fieldName = GetUniverse()->SymbolFor(var);
         mgenc->AddLiteralIfAbsent(fieldName);
         bcGen->EmitPUSHFIELD(mgenc, fieldName);
     } else {
 
-        pVMSymbol global = _UNIVERSE->SymbolFor(var);
+        pVMSymbol global = GetUniverse()->SymbolFor(var);
         mgenc->AddLiteralIfAbsent(global);
 
         bcGen->EmitPUSHGLOBAL(mgenc, global);
@@ -170,7 +170,7 @@ void Parser::genPopVariable(MethodGenerationContext* mgenc,
         else
             bcGen->EmitPOPLOCAL(mgenc, index, context);
     } else
-        bcGen->EmitPOPFIELD(mgenc, _UNIVERSE->SymbolFor(var));
+        bcGen->EmitPOPFIELD(mgenc, GetUniverse()->SymbolFor(var));
     }
 
 //
@@ -186,7 +186,7 @@ Symbol binaryOpSyms[] = { Or, Comma, Minus, Equal, Not, And, Or, Star, Div, Mod,
 Symbol keywordSelectorSyms[] = { Keyword, KeywordSequence };
 
 void Parser::Classdef(ClassGenerationContext* cgenc) {
-    cgenc->SetName(_UNIVERSE->SymbolFor(text));
+    cgenc->SetName(GetUniverse()->SymbolFor(text));
     expect(Identifier);
 
     expect(Equal);
@@ -233,16 +233,16 @@ void Parser::Classdef(ClassGenerationContext* cgenc) {
 void Parser::superclass(ClassGenerationContext *cgenc) {
     pVMSymbol superName;
     if (sym == Identifier) {
-        superName = _UNIVERSE->SymbolFor(text);
+        superName = GetUniverse()->SymbolFor(text);
         accept(Identifier);
     } else {
-        superName = _UNIVERSE->SymbolFor("Object");
+        superName = GetUniverse()->SymbolFor("Object");
     }
     cgenc->SetSuperName(superName);
     
     // Load the super class, if it is not nil (break the dependency cycle)
-    if (superName != _UNIVERSE->SymbolFor("nil")) {
-        pVMClass superClass = _UNIVERSE->LoadClass(superName);
+    if (superName != GetUniverse()->SymbolFor("nil")) {
+        pVMClass superClass = GetUniverse()->LoadClass(superName);
         cgenc->SetInstanceFieldsOfSuper(superClass->GetInstanceFields());
         cgenc->SetClassFieldsOfSuper(superClass->GetClass()->GetInstanceFields());
     } else {
@@ -253,7 +253,7 @@ void Parser::superclass(ClassGenerationContext *cgenc) {
         // change the definition of Class and Object
         vector<StdString> fieldNamesOfClass{ "class", "superClass", "name",
             "instanceFields", "instanceInvokables" };
-        pVMArray fieldNames = _UNIVERSE->NewArrayFromStrings(fieldNamesOfClass);
+        pVMArray fieldNames = GetUniverse()->NewArrayFromStrings(fieldNamesOfClass);
         cgenc->SetClassFieldsOfSuper(fieldNames);
     }
 }
@@ -262,7 +262,7 @@ void Parser::instanceFields(ClassGenerationContext* cgenc) {
     if (accept(Or)) {
         while (symIsIdentifier()) {
             StdString var = variable();
-            cgenc->AddInstanceField(_UNIVERSE->SymbolFor(var));
+            cgenc->AddInstanceField(GetUniverse()->SymbolFor(var));
         }
         expect(Or);
     }
@@ -272,7 +272,7 @@ void Parser::classFields(ClassGenerationContext* cgenc) {
     if (accept(Or)) {
         while (symIsIdentifier()) {
             StdString var = variable();
-            cgenc->AddClassField(_UNIVERSE->SymbolFor(var));
+            cgenc->AddClassField(GetUniverse()->SymbolFor(var));
         }
         expect(Or);
     }
@@ -324,7 +324,7 @@ void Parser::keywordPattern(MethodGenerationContext* mgenc) {
         mgenc->AddArgumentIfAbsent(argument());
     } while (sym == Keyword);
 
-    mgenc->SetSignature(_UNIVERSE->SymbolFor(kw));
+    mgenc->SetSignature(GetUniverse()->SymbolFor(kw));
 }
 
 void Parser::methodBlock(MethodGenerationContext* mgenc) {
@@ -344,7 +344,7 @@ void Parser::methodBlock(MethodGenerationContext* mgenc) {
 }
 
 pVMSymbol Parser::unarySelector(void) {
-    return _UNIVERSE->SymbolFor(identifier());
+    return GetUniverse()->SymbolFor(identifier());
 }
 
 pVMSymbol Parser::binarySelector(void) {
@@ -365,7 +365,7 @@ pVMSymbol Parser::binarySelector(void) {
     else
     expect(NONE);
 
-    pVMSymbol symb = _UNIVERSE->SymbolFor(s);
+    pVMSymbol symb = GetUniverse()->SymbolFor(s);
     return symb;
 }
 
@@ -479,7 +479,7 @@ void Parser::assignments(MethodGenerationContext* mgenc, list<StdString>& l) {
 
 StdString Parser::assignment(MethodGenerationContext* mgenc) {
     StdString v = variable();
-    pVMSymbol var = _UNIVERSE->SymbolFor(v);
+    pVMSymbol var = GetUniverse()->SymbolFor(v);
     mgenc->AddLiteralIfAbsent(var);
 
     expect(Assign);
@@ -605,7 +605,7 @@ void Parser::ifTrueMessage(MethodGenerationContext* mgenc) {
         inlinedBlock(mgenc);
     } else {
         formula(mgenc);
-        pVMSymbol msg = _UNIVERSE->SymbolFor("value");
+        pVMSymbol msg = GetUniverse()->SymbolFor("value");
         mgenc->AddLiteralIfAbsent((pVMObject) msg);
         bcGen->EmitSEND(mgenc, msg);
     }
@@ -620,12 +620,12 @@ void Parser::ifTrueMessage(MethodGenerationContext* mgenc) {
             inlinedBlock(mgenc);
         } else {
             formula(mgenc);
-            pVMSymbol msg = _UNIVERSE->SymbolFor("value");
+            pVMSymbol msg = GetUniverse()->SymbolFor("value");
             mgenc->AddLiteralIfAbsent((pVMObject) msg);
             bcGen->EmitSEND(mgenc, msg);
         }
     } else {
-        pVMSymbol global = _UNIVERSE->SymbolFor("nil");
+        pVMSymbol global = GetUniverse()->SymbolFor("nil");
         mgenc->AddLiteralIfAbsent((pVMObject)global);
         
         bcGen->EmitPUSHGLOBAL(mgenc, global);
@@ -641,7 +641,7 @@ void Parser::ifFalseMessage(MethodGenerationContext* mgenc) {
         inlinedBlock(mgenc);
     } else {
         formula(mgenc);
-        pVMSymbol msg = _UNIVERSE->SymbolFor("value");
+        pVMSymbol msg = GetUniverse()->SymbolFor("value");
         mgenc->AddLiteralIfAbsent((pVMObject) msg);
         bcGen->EmitSEND(mgenc, msg);
     }
@@ -656,12 +656,12 @@ void Parser::ifFalseMessage(MethodGenerationContext* mgenc) {
             inlinedBlock(mgenc);
         } else {
             formula(mgenc);
-            pVMSymbol msg = _UNIVERSE->SymbolFor("value");
+            pVMSymbol msg = GetUniverse()->SymbolFor("value");
             mgenc->AddLiteralIfAbsent((pVMObject) msg);
             bcGen->EmitSEND(mgenc, msg);
         }
     } else {
-        pVMSymbol global = _UNIVERSE->SymbolFor("nil");
+        pVMSymbol global = GetUniverse()->SymbolFor("nil");
         mgenc->AddLiteralIfAbsent((pVMObject)global);
         
         bcGen->EmitPUSHGLOBAL(mgenc, global);
@@ -698,7 +698,7 @@ void Parser::keywordMessage(MethodGenerationContext* mgenc, bool super) {
         formula(mgenc);
     }
 
-    pVMSymbol msg = _UNIVERSE->SymbolFor(kw);
+    pVMSymbol msg = GetUniverse()->SymbolFor(kw);
 
     mgenc->AddLiteralIfAbsent(msg);
 
@@ -775,12 +775,12 @@ pVMObject Parser::literalInteger(bool negateValue) {
     }
     
     if (i < INT32_MIN || i > INT32_MAX) {
-        return _UNIVERSE->NewBigInteger(i);
+        return GetUniverse()->NewBigInteger(i);
     } else {
       #ifdef USE_TAGGING
         return TAG_INTEGER(i);
       #else
-        return _UNIVERSE->NewInteger(i);
+        return GetUniverse()->NewInteger(i);
       #endif
     }
 }
@@ -791,7 +791,7 @@ pVMObject Parser::literalDouble(bool negateValue) {
         d = 0 - d;
     }
     expect(Double);
-    return _UNIVERSE->NewDouble(d);
+    return GetUniverse()->NewDouble(d);
 }
 
 void Parser::literalSymbol(MethodGenerationContext* mgenc) {
@@ -799,7 +799,7 @@ void Parser::literalSymbol(MethodGenerationContext* mgenc) {
     expect(Pound);
     if(sym == STString) {
         StdString s = _string();
-        symb = _UNIVERSE->SymbolFor(s);
+        symb = GetUniverse()->SymbolFor(s);
 
     } else
     symb = selector();
@@ -811,7 +811,7 @@ void Parser::literalSymbol(MethodGenerationContext* mgenc) {
 void Parser::literalString(MethodGenerationContext* mgenc) {
     StdString s = _string();
 
-    pVMString str = _UNIVERSE->NewString(s);
+    pVMString str = GetUniverse()->NewString(s);
     mgenc->AddLiteralIfAbsent(str);
 
     bcGen->EmitPUSHCONSTANT(mgenc, str);
@@ -830,7 +830,7 @@ pVMSymbol Parser::selector(void) {
 pVMSymbol Parser::keywordSelector(void) {
     StdString s(text);
     expectOneOf(keywordSelectorSyms);
-    pVMSymbol symb = _UNIVERSE->SymbolFor(s);
+    pVMSymbol symb = GetUniverse()->SymbolFor(s);
     return symb;
 }
 
@@ -855,7 +855,7 @@ void Parser::nestedBlock(MethodGenerationContext* mgenc) {
     for (size_t i = 1; i < arg_size; i++)
         block_sig += ":";
 
-    mgenc->SetSignature(_UNIVERSE->SymbolFor(block_sig));
+    mgenc->SetSignature(GetUniverse()->SymbolFor(block_sig));
 
     blockContents(mgenc, false);
 

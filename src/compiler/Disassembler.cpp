@@ -77,7 +77,7 @@ void Disassembler::dispatch(pVMObject o) {
         DebugPrint("{System Class object}");
     else if(o == blockClass)
         DebugPrint("{Block Class object}");
-    else if(o == _UNIVERSE->GetGlobal(_UNIVERSE->SymbolForChars("system")))
+    else if(o == GetUniverse()->GetGlobal(GetUniverse()->SymbolForChars("system")))
         DebugPrint("{System}");
     else {
         pVMClass c = CLASS_OF(o);
@@ -393,7 +393,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
 #else
             pVMSymbol name = static_cast<pVMSymbol>(method->GetConstant(bc_idx));
 #endif
-            pVMObject o = _UNIVERSE->GetGlobal(name);
+            pVMObject o = GetUniverse()->GetGlobal(name);
             pVMSymbol cname;
 
             const char* c_cname;
@@ -464,7 +464,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
             DebugPrint("(index: %d) signature: %s (", BC_1,
             sel->GetChars());
             //handle primitives, they don't increase call-depth
-            pVMObject elem = _UNIVERSE->GetInterpreter()->GetFrame()->
+            pVMObject elem = GetUniverse()->GetInterpreter()->GetFrame()->
             GetStackElement(
             Signature::GetNumberOfArguments(sel)-1);
             pVMClass elemClass = CLASS_OF(elem);

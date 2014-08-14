@@ -42,9 +42,9 @@
 #define AS_POINTER(X) ((AbstractVMObject*)X)
 
 #ifdef ADDITIONAL_ALLOCATION
-#define TAG_INTEGER(X) ((X >= VMTAGGEDINTEGER_MIN && X <= VMTAGGEDINTEGER_MAX && _UNIVERSE->NewInteger(0)) ? ((pVMInteger)((X << 1) | 1)) : (_UNIVERSE->NewInteger(X)))
+#define TAG_INTEGER(X) ((X >= VMTAGGEDINTEGER_MIN && X <= VMTAGGEDINTEGER_MAX && GetUniverse()->NewInteger(0)) ? ((pVMInteger)((X << 1) | 1)) : (GetUniverse()->NewInteger(X)))
 #else
-#define TAG_INTEGER(X) ((X >= VMTAGGEDINTEGER_MIN && X <= VMTAGGEDINTEGER_MAX) ? ((pVMInteger)((X << 1) | 1)) : (_UNIVERSE->NewInteger(X)))
+#define TAG_INTEGER(X) ((X >= VMTAGGEDINTEGER_MIN && X <= VMTAGGEDINTEGER_MAX) ? ((pVMInteger)((X << 1) | 1)) : (GetUniverse()->NewInteger(X)))
 #endif
 
 #define UNTAG_INTEGER(X) (((long)X&1) ? ((long)X>>1) : (((VMInteger*)X)->GetEmbeddedInteger()))

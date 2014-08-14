@@ -33,7 +33,7 @@ AbstractVMObject* GenerationalHeap::AllocateNurseryObject(size_t size) {
     nextFreePosition = (void*)((size_t)nextFreePosition + size);
     if ((size_t)nextFreePosition > nursery_end) {
         cout << "Failed to allocate " << size << " Bytes in nursery." << endl;
-        _UNIVERSE->Quit(-1);
+        GetUniverse()->Quit(-1);
     }
     //let's see if we have to trigger the GC
     if (nextFreePosition > collectionLimit)
@@ -45,7 +45,7 @@ AbstractVMObject* GenerationalHeap::AllocateMatureObject(size_t size) {
     VMOBJECT_PTR newObject = (VMOBJECT_PTR)malloc(size);
     if (newObject == NULL) {
         cout << "Failed to allocate " << size << " Bytes." << endl;
-        _UNIVERSE->Quit(-1);
+        GetUniverse()->Quit(-1);
     }
     allocatedObjects->push_back(newObject);
     matureObjectsSize += size;

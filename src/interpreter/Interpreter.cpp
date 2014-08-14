@@ -195,7 +195,7 @@ DISPATCH_NOGC();
 }
 
 pVMFrame Interpreter::PushNewFrame(pVMMethod method) {
-    SetFrame(_UNIVERSE->NewFrame(_FRAME, method));
+    SetFrame(GetUniverse()->NewFrame(_FRAME, method));
     return _FRAME;
 }
 
@@ -250,11 +250,11 @@ void Interpreter::send(pVMSymbol signature, pVMClass receiverClass) {
     if (invokable != NULL) {
 #ifdef LOG_RECEIVER_TYPES
         StdString name = receiverClass->GetName()->GetStdString();
-        if (_UNIVERSE->callStats.find(name) == _UNIVERSE->callStats.end())
-        _UNIVERSE->callStats[name] = {0,0};
-        _UNIVERSE->callStats[name].noCalls++;
+        if (GetUniverse()->callStats.find(name) == GetUniverse()->callStats.end())
+        GetUniverse()->callStats[name] = {0,0};
+        GetUniverse()->callStats[name].noCalls++;
         if (invokable->IsPrimitive())
-        _UNIVERSE->callStats[name].noPrimitiveCalls++;
+        GetUniverse()->callStats[name].noPrimitiveCalls++;
 #endif
         // since an invokable is able to change/use the frame, we have to write
         // cached values before, and read cached values after calling
@@ -267,7 +267,7 @@ void Interpreter::send(pVMSymbol signature, pVMClass receiverClass) {
 
         pVMObject receiver = _FRAME->GetStackElement(numberOfArgs-1);
 
-        pVMArray argumentsArray = _UNIVERSE->NewArray(numberOfArgs);
+        pVMArray argumentsArray = GetUniverse()->NewArray(numberOfArgs);
 
         for (long i = numberOfArgs - 1; i >= 0; --i) {
             pVMObject o = _FRAME->Pop();
@@ -353,7 +353,7 @@ void Interpreter::doPushBlock(long bytecodeIndex) {
 
     long numOfArgs = blockMethod->GetNumberOfArguments();
 
-    _FRAME->Push(_UNIVERSE->NewBlock(blockMethod, _FRAME, numOfArgs));
+    _FRAME->Push(GetUniverse()->NewBlock(blockMethod, _FRAME, numOfArgs));
 }
 
 void Interpreter::doPushConstant(long bytecodeIndex) {
@@ -363,7 +363,7 @@ void Interpreter::doPushConstant(long bytecodeIndex) {
 
 void Interpreter::doPushGlobal(long bytecodeIndex) {
     pVMSymbol globalName = static_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));
-    pVMObject global = _UNIVERSE->GetGlobal(globalName);
+    pVMObject global = GetUniverse()->GetGlobal(globalName);
 
     if(global != NULL)
         _FRAME->Push(global);
@@ -448,7 +448,7 @@ void Interpreter::doSend(long bytecodeIndex) {
     assert(Universe::IsValidObject(receiverClass));
 
 #ifdef LOG_RECEIVER_TYPES
-    _UNIVERSE->receiverTypes[receiverClass->GetName()->GetStdString()]++;
+    GetUniverse()->receiverTypes[receiverClass->GetName()->GetStdString()]++;
 #endif
 
     this->send(signature, receiverClass);
@@ -468,7 +468,7 @@ void Interpreter::doSuperSend(long bytecodeIndex) {
     else {
         long numOfArgs = Signature::GetNumberOfArguments(signature);
         pVMObject receiver = _FRAME->GetStackElement(numOfArgs - 1);
-        pVMArray argumentsArray = _UNIVERSE->NewArray(numOfArgs);
+        pVMArray argumentsArray = GetUniverse()->NewArray(numOfArgs);
 
         for (long i = numOfArgs - 1; i >= 0; --i) {
             pVMObject o = _FRAME->Pop();

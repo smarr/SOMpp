@@ -103,7 +103,7 @@ void SourcecodeCompiler::showCompilationError(const StdString& filename,
 pVMClass SourcecodeCompiler::compile(pVMClass systemClass) {
     if (parser == NULL) {
         cout << "Parser not initiated" << endl;
-        _UNIVERSE->ErrorExit("Compiler error");
+        GetUniverse()->ErrorExit("Compiler error");
         return NULL;
     }
     ClassGenerationContext cgc;

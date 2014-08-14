@@ -59,14 +59,14 @@ VMOBJECT_PTR mark_object(VMOBJECT_PTR obj) {
 }
 
 void MarkSweepCollector::markReachableObjects() {
-    _UNIVERSE->WalkGlobals(mark_object);
+    GetUniverse()->WalkGlobals(mark_object);
     // Get the current frame and mark it.
     // Since marking is done recursively, this automatically
     // marks the whole stack
-    pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
+    pVMFrame currentFrame = GetUniverse()->GetInterpreter()->GetFrame();
     if (currentFrame != NULL) {
         pVMFrame newFrame = static_cast<pVMFrame>(mark_object(currentFrame));
-        _UNIVERSE->GetInterpreter()->SetFrame(newFrame);
+        GetUniverse()->GetInterpreter()->SetFrame(newFrame);
     }
 }
 #endif

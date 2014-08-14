@@ -55,7 +55,7 @@ void _System::Global_(pVMObject /*object*/, pVMFrame frame) {
     pVMSymbol arg = static_cast<pVMSymbol>(frame->Pop());
     /*pVMObject self = */
     frame->Pop();
-    pVMObject result = _UNIVERSE->GetGlobal(arg);
+    pVMObject result = GetUniverse()->GetGlobal(arg);
 
     frame->Push( result ? result : nilObject);
 }
@@ -63,13 +63,13 @@ void _System::Global_(pVMObject /*object*/, pVMFrame frame) {
 void _System::Global_put_(pVMObject /*object*/, pVMFrame frame) {
     pVMObject value = frame->Pop();
     pVMSymbol arg = static_cast<pVMSymbol>(frame->Pop());
-    _UNIVERSE->SetGlobal(arg, value);
+    GetUniverse()->SetGlobal(arg, value);
 }
 
 void _System::Load_(pVMObject /*object*/, pVMFrame frame) {
     pVMSymbol arg = static_cast<pVMSymbol>(frame->Pop());
     frame->Pop();
-    pVMClass result = _UNIVERSE->LoadClass(arg);
+    pVMClass result = GetUniverse()->LoadClass(arg);
     if (result)
         frame->Push(result);
     else
@@ -86,7 +86,7 @@ void _System::Exit_(pVMObject /*object*/, pVMFrame frame) {
 
     if (err_no != ERR_SUCCESS)
         frame->PrintStackTrace();
-    _UNIVERSE->Quit(err_no);
+    GetUniverse()->Quit(err_no);
 }
 
 void _System::PrintString_(pVMObject /*object*/, pVMFrame frame) {
@@ -113,7 +113,7 @@ void _System::Time(pVMObject /*object*/, pVMFrame frame) {
 #ifdef USE_TAGGING
     frame->Push(TAG_INTEGER((int32_t)diff));
 #else
-    frame->Push(_UNIVERSE->NewInteger((int32_t)diff));
+    frame->Push(GetUniverse()->NewInteger((int32_t)diff));
 #endif
 }
 
@@ -128,7 +128,7 @@ void _System::Ticks(pVMObject /*object*/, pVMFrame frame) {
     ((now.tv_sec - start_time.tv_sec) * 1000 * 1000) + //seconds
     ((now.tv_usec - start_time.tv_usec));// useconds
 
-    frame->Push((pVMObject)_UNIVERSE->NewBigInteger(diff));
+    frame->Push((pVMObject)GetUniverse()->NewBigInteger(diff));
 }
 
 void _System::FullGC(pVMObject /*object*/, pVMFrame frame) {

@@ -76,13 +76,13 @@ VMOBJECT_PTR copy_if_necessary(VMOBJECT_PTR obj) {
 
 void GenerationalCollector::MinorCollection() {
     // walk all globals
-    _UNIVERSE->WalkGlobals(&copy_if_necessary);
+    GetUniverse()->WalkGlobals(&copy_if_necessary);
 
     // and the current frame
-    pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
+    pVMFrame currentFrame = GetUniverse()->GetInterpreter()->GetFrame();
     if (currentFrame != NULL) {
         pVMFrame newFrame = static_cast<pVMFrame>(copy_if_necessary(currentFrame));
-        _UNIVERSE->GetInterpreter()->SetFrame(newFrame);
+        GetUniverse()->GetInterpreter()->SetFrame(newFrame);
     }
 
     // and also all objects that have been detected by the write barriers
@@ -103,12 +103,12 @@ void GenerationalCollector::MinorCollection() {
 
 void GenerationalCollector::MajorCollection() {
     //first we have to mark all objects (globals and current frame recursively)
-    _UNIVERSE->WalkGlobals(&mark_object);
+    GetUniverse()->WalkGlobals(&mark_object);
     //and the current frame
-    pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
+    pVMFrame currentFrame = GetUniverse()->GetInterpreter()->GetFrame();
     if (currentFrame != NULL) {
         pVMFrame newFrame = static_cast<pVMFrame>(mark_object(currentFrame));
-        _UNIVERSE->GetInterpreter()->SetFrame(newFrame);
+        GetUniverse()->GetInterpreter()->SetFrame(newFrame);
     }
 
     //now that all objects are marked we can safely delete all allocated objects that are not marked

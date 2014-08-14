@@ -77,7 +77,7 @@ pVMSymbol VMObject::GetFieldName(long index) const {
 }
 
 void VMObject::Assert(bool value) const {
-    _UNIVERSE->Assert(value);
+    GetUniverse()->Assert(value);
 }
 
 pVMObject VMObject::GetField(long index) const {

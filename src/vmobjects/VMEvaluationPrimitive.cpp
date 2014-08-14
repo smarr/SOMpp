@@ -44,7 +44,7 @@ VMEvaluationPrimitive::VMEvaluationPrimitive(long argc) :
 #ifdef USE_TAGGING
     this->numberOfArguments = TAG_INTEGER(argc);
 #else
-    this->numberOfArguments = _UNIVERSE->NewInteger(argc);
+    this->numberOfArguments = GetUniverse()->NewInteger(argc);
 #endif
 }
 
@@ -85,7 +85,7 @@ pVMSymbol VMEvaluationPrimitive::computeSignatureString(long argc) {
     }
 
     // Return the signature string
-    return _UNIVERSE->SymbolFor(signatureString);
+    return GetUniverse()->SymbolFor(signatureString);
 }
 
 void VMEvaluationPrimitive::evaluationRoutine(pVMObject object, pVMFrame frame) {
@@ -103,7 +103,7 @@ void VMEvaluationPrimitive::evaluationRoutine(pVMObject object, pVMFrame frame) 
         pVMFrame context = block->GetContext();
 
         // Push a new frame and set its context to be the one specified in the block
-        pVMFrame NewFrame = _UNIVERSE->GetInterpreter()->PushNewFrame(
+        pVMFrame NewFrame = GetUniverse()->GetInterpreter()->PushNewFrame(
         block->GetMethod());
         NewFrame->CopyArgumentsFrom(frame);
         NewFrame->SetContext(context);

@@ -106,7 +106,7 @@ void VMClass::MarkObjectAsInvalid() {
 bool VMClass::AddInstanceInvokable(pVMObject ptr) {
     pVMInvokable newInvokable = static_cast<pVMInvokable>(ptr);
     if (newInvokable == NULL) {
-        _UNIVERSE->ErrorExit("Error: trying to add non-invokable to invokables array");
+        GetUniverse()->ErrorExit("Error: trying to add non-invokable to invokables array");
         return false;
     }
     //Check whether an invokable with the same signature exists and replace it if that's the case
@@ -119,7 +119,7 @@ bool VMClass::AddInstanceInvokable(pVMObject ptr) {
                 return false;
             }
         } else {
-            _UNIVERSE->ErrorExit("Invokables array corrupted. Either NULL pointer added or pointer to non-invokable.");
+            GetUniverse()->ErrorExit("Invokables array corrupted. Either NULL pointer added or pointer to non-invokable.");
             return false;
         }
     }
@@ -272,7 +272,7 @@ void VMClass::LoadPrimitives(const vector<StdString>& cp) {
                 // close it nevertheless
                 //
                 dlclose(dlhandle);
-                _UNIVERSE->ErrorExit("Library claims no resonsibility, but musn't!");
+                GetUniverse()->ErrorExit("Library claims no resonsibility, but musn't!");
             }
 
         }
@@ -286,7 +286,7 @@ void VMClass::LoadPrimitives(const vector<StdString>& cp) {
     if (dlhandle == NULL) {
         cout << "load failure: ";
         cout << "could not load primitive library for " << cname << endl;
-        _UNIVERSE->Quit(ERR_FAIL);
+        GetUniverse()->Quit(ERR_FAIL);
     }
 
 #endif
@@ -374,7 +374,7 @@ bool VMClass::isResponsible(void* dlhandle, const StdString& cl) const {
     supports_class = (SupportsClass*) dlsym(dlhandle, "supportsClass");
     if (!supports_class) {
         cout << "error: " << dlerror() << endl;
-        _UNIVERSE->ErrorExit("Library doesn't have expected format: ");
+        GetUniverse()->ErrorExit("Library doesn't have expected format: ");
         return false;
     }
 
@@ -422,7 +422,7 @@ void VMClass::setPrimitives(void* dlhandle, const StdString& cname) {
                 cout << "could not load primitive '"<< selector
                 <<"' for class " << cname << endl;
 
-                _UNIVERSE->Quit(ERR_FAIL);
+                GetUniverse()->Quit(ERR_FAIL);
             }
 
             // set routine

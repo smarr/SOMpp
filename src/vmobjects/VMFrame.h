@@ -91,7 +91,7 @@ pVMObject VMFrame::GetField(long index) const {
 #ifdef USE_TAGGING
     return TAG_INTEGER(bytecodeIndex);
 #else
-    return _UNIVERSE->NewInteger(bytecodeIndex);
+    return GetUniverse()->NewInteger(bytecodeIndex);
 #endif
     return VMObject::GetField(index);
 }

@@ -52,16 +52,16 @@ void CopyingCollector::Collect() {
         _HEAP->currentBufferEnd = (void*)((size_t)(_HEAP->currentBuffer) +
                 newSize);
         if (_HEAP->currentBuffer == NULL)
-        _UNIVERSE->ErrorExit("unable to allocate more memory");
+        GetUniverse()->ErrorExit("unable to allocate more memory");
     }
     //init currentBuffer with zeros
     memset(_HEAP->currentBuffer, 0x0, (size_t)(_HEAP->currentBufferEnd) -
             (size_t)(_HEAP->currentBuffer));
-    _UNIVERSE->WalkGlobals(copy_if_necessary);
-    pVMFrame currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
+    GetUniverse()->WalkGlobals(copy_if_necessary);
+    pVMFrame currentFrame = GetUniverse()->GetInterpreter()->GetFrame();
     if (currentFrame != NULL) {
         pVMFrame newFrame = static_cast<pVMFrame>(copy_if_necessary(currentFrame));
-        _UNIVERSE->GetInterpreter()->SetFrame(newFrame);
+        GetUniverse()->GetInterpreter()->SetFrame(newFrame);
     }
 
     //now copy all objects that are referenced by the objects we have moved so far
@@ -77,7 +77,7 @@ void CopyingCollector::Collect() {
         free(_HEAP->oldBuffer);
         _HEAP->oldBuffer = malloc(newSize);
         if (_HEAP->oldBuffer == NULL)
-        _UNIVERSE->ErrorExit("unable to allocate more memory");
+        GetUniverse()->ErrorExit("unable to allocate more memory");
     }
 
     //if semispace is still 50% full after collection, we have to realloc

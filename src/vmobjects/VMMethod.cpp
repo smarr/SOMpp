@@ -56,11 +56,11 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
     numberOfArguments = TAG_INTEGER(0);
     this->numberOfConstants = TAG_INTEGER(numberOfConstants);
 #else
-    bcLength = _UNIVERSE->NewInteger( bcCount );
-    numberOfLocals = _UNIVERSE->NewInteger(0);
-    maximumNumberOfStackElements = _UNIVERSE->NewInteger(0);
-    numberOfArguments = _UNIVERSE->NewInteger(0);
-    this->numberOfConstants = _UNIVERSE->NewInteger(numberOfConstants);
+    bcLength = GetUniverse()->NewInteger( bcCount );
+    numberOfLocals = GetUniverse()->NewInteger(0);
+    maximumNumberOfStackElements = GetUniverse()->NewInteger(0);
+    numberOfArguments = GetUniverse()->NewInteger(0);
+    this->numberOfConstants = GetUniverse()->NewInteger(numberOfConstants);
 #endif
     indexableFields = (pVMObject*)(&indexableFields + 2);
     for (long i = 0; i < numberOfConstants; ++i) {
@@ -131,7 +131,7 @@ void VMMethod::SetNumberOfLocals(long nol) {
 #ifdef USE_TAGGING
     numberOfLocals = TAG_INTEGER(nol);
 #else
-    numberOfLocals = _UNIVERSE->NewInteger(nol);
+    numberOfLocals = GetUniverse()->NewInteger(nol);
 #endif
 #if GC_TYPE==GENERATIONAL
     _HEAP->writeBarrier(this, numberOfLocals);
@@ -150,7 +150,7 @@ void VMMethod::SetMaximumNumberOfStackElements(long stel) {
 #ifdef USE_TAGGING
     maximumNumberOfStackElements = TAG_INTEGER(stel);
 #else
-    maximumNumberOfStackElements = _UNIVERSE->NewInteger(stel);
+    maximumNumberOfStackElements = GetUniverse()->NewInteger(stel);
 #endif
 #if GC_TYPE==GENERATIONAL
     _HEAP->writeBarrier(this, maximumNumberOfStackElements);
@@ -161,7 +161,7 @@ void VMMethod::SetNumberOfArguments(long noa) {
 #ifdef USE_TAGGING
     numberOfArguments = TAG_INTEGER(noa);
 #else
-    numberOfArguments = _UNIVERSE->NewInteger(noa);
+    numberOfArguments = GetUniverse()->NewInteger(noa);
 #endif
 #if GC_TYPE==GENERATIONAL
     _HEAP->writeBarrier(this, numberOfArguments);
@@ -177,7 +177,7 @@ long VMMethod::GetNumberOfBytecodes() const {
 }
 
 void VMMethod::operator()(pVMFrame frame) {
-    pVMFrame frm = _UNIVERSE->GetInterpreter()->PushNewFrame(this);
+    pVMFrame frm = GetUniverse()->GetInterpreter()->PushNewFrame(this);
     frm->CopyArgumentsFrom(frame);
 }
 

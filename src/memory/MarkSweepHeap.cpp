@@ -21,7 +21,7 @@ AbstractVMObject* MarkSweepHeap::AllocateObject(size_t size) {
     AbstractVMObject* newObject = (AbstractVMObject*) malloc(size);
     if (newObject == NULL) {
         cout << "Failed to allocate " << size << " Bytes." << endl;
-        _UNIVERSE->Quit(-1);
+        GetUniverse()->Quit(-1);
     }
     spcAlloc += size;
     memset(newObject, 0, size);
