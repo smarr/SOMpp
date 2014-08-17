@@ -44,11 +44,15 @@
 
 #include <assert.h>
 
-#define GETSYM sym = lexer->GetSym(); \
-			   text = lexer->GetText()
+void Parser::GetSym() {
+    sym  = lexer->GetSym();
+    text = lexer->GetText();
+}
 
-#define PEEK nextSym = lexer->Peek(); \
-			 nextText = lexer->GetNextText()
+void Parser::Peek() {
+    nextSym = lexer->Peek();
+	nextText = lexer->GetNextText();
+}
 
 Parser::Parser(istream& file) {
     sym = NONE;
@@ -56,8 +60,7 @@ Parser::Parser(istream& file) {
     bcGen = new BytecodeGenerator();
     nextSym = NONE;
 
-    GETSYM
-    ;
+    GetSym();
 }
 
 Parser::~Parser() {
@@ -78,8 +81,7 @@ bool Parser::symIn(Symbol* ss) {
 
 bool Parser::accept(Symbol s) {
     if (sym == s) {
-        GETSYM
-        ;
+        GetSym();
         return true;
     }
     return false;
@@ -87,8 +89,7 @@ bool Parser::accept(Symbol s) {
 
 bool Parser::acceptOneOf(Symbol* ss) {
     if (symIn(ss)) {
-        GETSYM
-        ;
+        GetSym();
         return true;
     }
     return false;
@@ -446,8 +447,7 @@ void Parser::result(MethodGenerationContext* mgenc) {
 }
 
 void Parser::expression(MethodGenerationContext* mgenc) {
-    PEEK
-    ;
+    Peek();
     if (nextSym == Assign)
         assignation(mgenc);
     else
@@ -470,8 +470,8 @@ void Parser::assignation(MethodGenerationContext* mgenc) {
 void Parser::assignments(MethodGenerationContext* mgenc, list<StdString>& l) {
     if (symIsIdentifier()) {
         l.push_back(assignment(mgenc));
-        PEEK
-        ;
+        Peek();
+        
         if (nextSym == Assign)
             assignments(mgenc, l);
     }

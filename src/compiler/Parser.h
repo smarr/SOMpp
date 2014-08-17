@@ -45,6 +45,9 @@ public:
 
     void Classdef(ClassGenerationContext* cgenc);
 private:
+    void GetSym();
+    void Peek();
+    
     bool eob(void);
     
     bool symIsIdentifier();
