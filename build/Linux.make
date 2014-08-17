@@ -104,10 +104,10 @@ clean:
 #
 
 $(CSOM_NAME): $(CSOM_NAME).$(SHARED_EXTENSION) $(MAIN_OBJ)
-	@echo Linking $(CSOM_NAME) loader
+	@echo Linking $(CSOM_NAME)
 	$(CXX) \
-		-o $(CSOM_NAME) $(MAIN_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION) $(LDFLAGS) -lrt -ldl
-	@echo CSOM done.
+		-o $(CSOM_NAME) $(MAIN_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION) $(LDFLAGS) -ldl
+	@echo Linking $(CSOM_NAME) done.
 
 $(CSOM_NAME).$(SHARED_EXTENSION): $(CSOM_OBJ)
 	@echo "Recompile interpreter/Interpreter.cpp with -fno-gcse option (we're using computed gotos)"
@@ -158,7 +158,7 @@ richards: all
 	export LD_LIBRARY_PATH=.; ./$(CSOM_NAME) -cp ./Smalltalk ./Examples/Benchmarks/Richards/RichardsBenchmarks.som
 
 unittests: all units
-	export LD_LIBRARY_PATH=.; ./unittest -cp ./Smalltalk ./Examples/Hello/Hello.som
+	export LD_LIBRARY_PATH=.; ./unittest -cp ./Smalltalk ./Examples/Hello.som
 
 #
 # test: run the standard test suite

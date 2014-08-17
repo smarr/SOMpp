@@ -96,10 +96,10 @@ clean:
 #
 
 $(CSOM_NAME): $(CSOM_NAME).$(SHARED_EXTENSION) $(MAIN_OBJ)
-	@echo Linking $(CSOM_NAME) loader
+	@echo Linking $(CSOM_NAME)
 	$(CXX) \
 		-o $(CSOM_NAME) $(MAIN_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION) $(LDFLAGS) -ldl
-	@echo loader done.
+	@echo Linking $(CSOM_NAME) done.
 
 $(CSOM_NAME).$(SHARED_EXTENSION): $(CSOM_OBJ)
 	@echo Linking $(CSOM_NAME) Dynamic Library
