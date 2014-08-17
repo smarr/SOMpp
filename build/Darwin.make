@@ -140,8 +140,16 @@ install: all
 console: all
 	./$(CSOM_NAME) -cp ./Smalltalk
 
+units : INCLUDES+=-I/opt/local/include
+units : CPPUNIT_LIB=-L/opt/local/lib
+units: $(UNITTEST_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION)
+	$(CXX) $(LIBRARIES) $(CPPUNIT_LIB) $(UNITTEST_OBJ) SOM++.so -lcppunit -o unittest
+
 richards: all
 	./$(CSOM_NAME) -cp ./Smalltalk ./Examples/Benchmarks/Richards/RichardsBenchmarks.som
+
+unittests: all units
+	./unittest -cp ./Smalltalk ./Examples/Hello.som
 
 #
 # test: run the standard test suite
