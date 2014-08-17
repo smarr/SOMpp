@@ -129,6 +129,7 @@
 		0A32B7FC199D6143002825DF /* IntegerBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IntegerBox.cpp; sourceTree = "<group>"; };
 		0A32B7FD199D6143002825DF /* IntegerBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntegerBox.h; sourceTree = "<group>"; };
 		0A32B800199D61B9002825DF /* unitTests */ = {isa = PBXFileReference; lastKnownFileType = folder; name = unitTests; path = src/unitTests; sourceTree = "<group>"; };
+		0A32B80119A12A03002825DF /* VMObjectBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMObjectBase.h; sourceTree = "<group>"; };
 		0A335F6B1832D64100D7CFC8 /* Method.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Method.cpp; sourceTree = "<group>"; };
 		0A335F6C1832D64100D7CFC8 /* Method.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Method.h; sourceTree = "<group>"; };
 		0A335F6F1832D65100D7CFC8 /* Primitive.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Primitive.cpp; sourceTree = "<group>"; };
@@ -554,6 +555,7 @@
 				3F5203500FA6624C00E75857 /* VMMethod.h */,
 				3F5203510FA6624C00E75857 /* VMObject.cpp */,
 				3F5203520FA6624C00E75857 /* VMObject.h */,
+				0A32B80119A12A03002825DF /* VMObjectBase.h */,
 				3F5203530FA6624C00E75857 /* VMPrimitive.cpp */,
 				3F5203540FA6624C00E75857 /* VMPrimitive.h */,
 				3F5203550FA6624C00E75857 /* VMString.cpp */,
