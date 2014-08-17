@@ -28,11 +28,6 @@
  THE SOFTWARE.
  */
 
-class VMSymbol;
-class AbstractVMObject;
-class VMClass;
-class VMArray;
-
 #include "../vmobjects/ObjectFormats.h"
 
 #include "../misc/defs.h"

@@ -32,8 +32,6 @@
 #include "VMInvokable.h"
 #include "PrimitiveRoutine.h"
 
-class VMSymbol;
-
 class VMPrimitive: public VMInvokable {
 public:
     static pVMPrimitive GetEmptyPrimitive(pVMSymbol sig);

@@ -33,9 +33,6 @@
 #include "VMString.h"
 #include "VMObject.h"
 
-class VMInteger;
-class VMInvokable;
-
 class VMSymbol: public VMString {
 
 public:
@@ -47,11 +44,11 @@ public:
     virtual pVMClass GetClass() const;
 private:
     const int numberOfArgumentsOfSignature;
-    const pVMClass cachedClass_invokable[3];
+    pcVMClass cachedClass_invokable[3];
     long nextCachePos;
     pVMInvokable cachedInvokable[3];
-    inline pVMInvokable GetCachedInvokable(const pVMClass) const;
-    inline void UpdateCachedInvokable(const pVMClass cls, pVMInvokable invo);
+    inline pVMInvokable GetCachedInvokable(pcVMClass) const;
+    inline void UpdateCachedInvokable(pcVMClass cls, pVMInvokable invo);
     
     virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
     
@@ -59,7 +56,7 @@ private:
     friend class VMClass;
 };
 
-pVMInvokable VMSymbol::GetCachedInvokable(const pVMClass cls) const {
+pVMInvokable VMSymbol::GetCachedInvokable(pcVMClass cls) const {
     if (cls == cachedClass_invokable[0])
         return cachedInvokable[0];
     else if (cls == cachedClass_invokable[1])
@@ -69,7 +66,7 @@ pVMInvokable VMSymbol::GetCachedInvokable(const pVMClass cls) const {
     return NULL;
 }
 
-void VMSymbol::UpdateCachedInvokable(const pVMClass cls, pVMInvokable invo) {
+void VMSymbol::UpdateCachedInvokable(pcVMClass cls, pVMInvokable invo) {
     cachedInvokable[nextCachePos] = invo;
     cachedClass_invokable[nextCachePos] = cls;
     nextCachePos = (nextCachePos + 1) % 3;

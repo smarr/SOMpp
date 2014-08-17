@@ -8,6 +8,10 @@
 #ifndef ABSTRACTOBJECT_H_
 #define ABSTRACTOBJECT_H_
 
+#include <assert.h>
+#include <iostream>
+
+
 #include <misc/defs.h>
 
 #include "ObjectFormats.h"
@@ -27,12 +31,6 @@
  */
 #define PADDED_SIZE(N) ((((uint32_t)N)+(sizeof(void*)-1) & ~(sizeof(void*)-1)))
 
-class VMClass;
-class VMObject;
-class VMSymbol;
-
-#include <iostream>
-#include <assert.h>
 using namespace std;
 
 //this is the base class for all VMObjects

@@ -3,7 +3,7 @@
 #ifndef INTEGERBOX_H_
 #define INTEGERBOX_H_
 
-class VMInteger;
+#include <vmobjects/ObjectFormats.h>
 
 class GlobalBox {
 public:

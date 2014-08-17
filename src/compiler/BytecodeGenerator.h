@@ -28,16 +28,13 @@
  THE SOFTWARE.
  */
 
-#include "MethodGenerationContext.h"
-
+#include <misc/defs.h>
 #include <interpreter/bytecodes.h>
 
-#include <misc/defs.h>
+#include <vmobjects/ObjectFormats.h>
+#include <primitivesCore/PrimitiveContainer.h>
 
-class VMMethod;
-class VMSymbol;
-class VMObject;
-class VMString;
+#include "MethodGenerationContext.h"
 
 class BytecodeGenerator {
 public:

@@ -28,7 +28,7 @@
  THE SOFTWARE.
  */
 
-class VMMethod;
+#include <vmobjects/ObjectFormats.h>
 
 class Shell {
 public:

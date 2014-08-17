@@ -28,17 +28,8 @@
  THE SOFTWARE.
  */
 
-#include "../misc/defs.h"
-
-#include "../vmobjects/ObjectFormats.h"
-
-class VMMethod;
-class VMFrame;
-class VMMethod;
-class VMObject;
-class VMSymbol;
-class VMClass;
-class AbstractVMObject;
+#include <misc/defs.h>
+#include <vmobjects/ObjectFormats.h>
 
 class Interpreter {
 public:

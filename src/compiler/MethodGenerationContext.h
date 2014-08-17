@@ -30,14 +30,13 @@
 
 #include <vector>
 
-#include "../misc/defs.h"
-#include "../misc/ExtendedList.h"
+#include <misc/defs.h>
+#include <misc/ExtendedList.h>
 
 #include "ClassGenerationContext.h"
 
-class VMMethod;
-class VMArray;
-class VMPrimitive;
+#include <vmobjects/ObjectFormats.h>
+
 
 class MethodGenerationContext {
 public:

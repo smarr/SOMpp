@@ -29,9 +29,6 @@
  */
 
 #include "VMPrimitive.h"
-class VMInteger;
-class VMObject;
-class VMFrame;
 
 class VMEvaluationPrimitive: public VMPrimitive {
 public:

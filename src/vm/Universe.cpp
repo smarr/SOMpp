@@ -392,7 +392,7 @@ Universe::~Universe() {
     void* vt_string;
     void* vt_symbol;
 
-    bool Universe::IsValidObject(const pVMObject const obj) {
+    bool Universe::IsValidObject(const pcVMObject obj) {
         if (obj == (pVMObject) INVALID_POINTER
             // || obj == nullptr
             ) {

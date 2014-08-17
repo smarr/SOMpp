@@ -50,25 +50,51 @@
 #define UNTAG_INTEGER(X) (((long)X&1) ? ((long)X>>1) : (((VMInteger*)X)->GetEmbeddedInteger()))
 #define IS_TAGGED(X) ((long)X&1)
 
-#define pVMArray VMArray*
-#define pVMBigInteger VMBigInteger*
-#define pVMBlock VMBlock*
-#define pVMClass VMClass*
-#define pVMDouble VMDouble*
-#define pVMEvaluationPrimitive VMEvaluationPrimitive*
-#define pVMFrame VMFrame*
-#define pVMInteger VMInteger* 
-#define pVMInvokable VMInvokable*
-#define pVMMethod VMMethod* 
+// Forward definitions of VM object classes
+class AbstractVMObject;
+class VMArray;
+class VMBigInteger;
+class VMBlock;
+class VMClass;
+class VMDouble;
+class VMEvaluationPrimitive;
+class VMFrame;
+class VMInteger;
+class VMInvokable;
+class VMMethod;
+class VMObject;
+class VMPrimitive;
+class VMString;
+class VMSymbol;
+
+typedef VMArray*         pVMArray;
+typedef const VMArray*  pcVMArray;
+
+typedef VMBigInteger*   pVMBigInteger;
+typedef VMBlock*        pVMBlock;
+typedef VMClass*        pVMClass;
+typedef const VMClass*  pcVMClass;
+typedef VMDouble*       pVMDouble;
+
+typedef VMEvaluationPrimitive* pVMEvaluationPrimitive;
+typedef VMFrame*               pVMFrame;
+typedef VMInteger*             pVMInteger;
+typedef VMInvokable*           pVMInvokable;
+typedef VMMethod*              pVMMethod;
+
 #ifdef USE_TAGGING
-#define pVMObject void*
+  typedef void*                pVMObject;
+  typedef const void*         pcVMObject;
 #else
-#define pVMObject AbstractVMObject*
+  typedef AbstractVMObject*    pVMObject;
+  typedef const AbstractVMObject* pcVMObject;
 #endif
-#define pVMPrimitive VMPrimitive* 
-#define pVMString VMString* 
-#define pVMSymbol VMSymbol* 
-#define VMOBJECT_PTR AbstractVMObject*
+
+typedef VMPrimitive*           pVMPrimitive;
+typedef VMString*              pVMString;
+typedef VMSymbol*              pVMSymbol;
+
+typedef AbstractVMObject*      VMOBJECT_PTR;
 
 // Used to mark object fields as invalid
 #define INVALID_POINTER ((pVMObject)0x101010)

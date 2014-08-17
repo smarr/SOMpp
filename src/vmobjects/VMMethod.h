@@ -33,12 +33,7 @@
 #include "VMInvokable.h"
 #include "VMInteger.h"
 
-class VMArray;
-class VMObject;
-class VMInteger;
 class MethodGenerationContext;
-class VMFrame;
-
 class Interpreter;
 
 class VMMethod: public VMInvokable {

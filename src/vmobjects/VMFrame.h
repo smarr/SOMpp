@@ -29,9 +29,6 @@
  */
 
 #include "VMArray.h"
-class VMMethod;
-class VMObject;
-class VMInteger;
 class Universe;
 
 class VMFrame: public VMObject {

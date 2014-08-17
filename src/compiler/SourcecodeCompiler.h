@@ -28,12 +28,10 @@
  THE SOFTWARE.
  */
 
-#include "../misc/defs.h"
+#include <misc/defs.h>
+#include <vmobjects/ObjectFormats.h>
 
-#include "../vmobjects/ObjectFormats.h"
-
-class VMClass;
-class Parser;
+#include <compiler/Parser.h>
 
 class SourcecodeCompiler {
 public:

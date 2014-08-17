@@ -29,13 +29,8 @@
  THE SOFTWARE.
  */
 
-class VMObject;
-class VMFrame;
-class VMInteger;
-class VMBigInteger;
-class VMDouble;
-
-#include "../primitivesCore/PrimitiveContainer.h"
+#include <vmobjects/ObjectFormats.h>
+#include <primitivesCore/PrimitiveContainer.h>
 
 class _Integer: public PrimitiveContainer {
 

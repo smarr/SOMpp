@@ -1,10 +1,8 @@
 #ifndef CORE_PRIMITIVE_H_
 #define CORE_PRIMITIVE_H_
 
-class VMObject;
-class VMFrame;
-
-#include "../primitivesCore/PrimitiveContainer.h"
+#include <vmobjects/ObjectFormats.h>
+#include <primitivesCore/PrimitiveContainer.h>
 
 class _Primitive: public PrimitiveContainer {
 public:

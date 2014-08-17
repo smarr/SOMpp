@@ -42,18 +42,6 @@
 
 #include "../memory/Heap.h"
 
-class AbstractVMObject;
-class VMObject;
-class VMSymbol;
-class VMClass;
-class VMFrame;
-class VMArray;
-class VMBlock;
-class VMDouble;
-class VMInteger;
-class VMMethod;
-class VMString;
-class VMBigInteger;
 class SourcecodeCompiler;
 
 // for runtime debug
@@ -163,7 +151,7 @@ public:
 #endif
     //
     
-    inline static bool IsValidObject(const pVMObject obj);
+    inline static bool IsValidObject(const pcVMObject obj);
 private:
     vector<StdString> handleArguments(long argc, char** argv);
     long getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;
@@ -203,7 +191,7 @@ Universe* Universe::operator->() {
 }
 
 #ifndef NDEBUG
-bool Universe::IsValidObject(const pVMObject const obj) {
+bool Universe::IsValidObject(const pcVMObject obj) {
     return true;
 }
 #endif

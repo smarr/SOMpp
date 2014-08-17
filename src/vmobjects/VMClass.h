@@ -34,18 +34,14 @@
 #include "VMSymbol.h"
 #include "VMArray.h"
 
-#include "../misc/defs.h"
+#include <misc/defs.h>
 
 #if defined(_MSC_VER)   //Visual Studio
 #include <windows.h> 
 #include "../primitives/Core.h"
 #endif
 
-class VMSymbol;
-class VMArray;
-class VMPrimitive;
 class ClassGenerationContext;
-class VMInvokable;
 
 class VMClass: public VMObject {
 public:

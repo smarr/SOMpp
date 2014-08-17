@@ -30,9 +30,6 @@
 
 #include "ObjectFormats.h"
 #include "VMObject.h"
-class VMSymbol;
-class VMClass;
-class VMFrame;
 
 class VMInvokable: public VMObject {
 public:

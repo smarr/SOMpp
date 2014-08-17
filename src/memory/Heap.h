@@ -35,7 +35,6 @@
 #include "../misc/defs.h"
 #include "../vmobjects/ObjectFormats.h"
 
-class AbstractVMObject;
 using namespace std;
 //macro to access the heap
 #define _HEAP Heap::GetHeap()
