@@ -48,10 +48,11 @@ public:
     void      Start();
     pVMFrame  PushNewFrame(pVMMethod method);
     void      SetFrame(pVMFrame frame);
-    pVMFrame  GetFrame();
-    pVMObject GetSelf();
+    inline pVMFrame  GetFrame();
     void      WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
 private:
+    pVMObject GetSelf();
+    
     pVMFrame frame;
     StdString uG;
     StdString dnu;
@@ -80,5 +81,9 @@ private:
     void doJumpIfTrue(long bytecodeIndex);
     void doJump(long bytecodeIndex);
 };
+
+pVMFrame Interpreter::GetFrame() {
+    return frame;
+}
 
 #endif

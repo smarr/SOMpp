@@ -43,10 +43,6 @@
 
 #include <compiler/Disassembler.h>
 
-// convenience macros for frequently used function invocations
-#define _FRAME this->GetFrame()
-#define _SELF this->GetSelf()
-
 Interpreter::Interpreter() {
     this->frame = NULL;
 
@@ -61,7 +57,7 @@ Interpreter::~Interpreter() {
 }
 
 #define PROLOGUE(bc_count) {\
-  if (dumpBytecodes > 1) Disassembler::DumpBytecode(_FRAME, _FRAME->GetMethod(), bytecodeIndexGlobal);\
+  if (dumpBytecodes > 1) Disassembler::DumpBytecode(GetFrame(), GetFrame()->GetMethod(), bytecodeIndexGlobal);\
   bytecodeIndexGlobal += bc_count;\
 }
 
@@ -71,9 +67,9 @@ Interpreter::~Interpreter() {
 
 #define DISPATCH_GC() {\
   if (_HEAP->isCollectionTriggered()) {\
-    _FRAME->SetBytecodeIndex(bytecodeIndexGlobal);\
+    GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);\
     _HEAP->FullGC();\
-    method = _FRAME->GetMethod(); \
+    method = GetFrame()->GetMethod(); \
     currentBytecodes = method->GetBytecodes(); \
   }\
   goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];\
@@ -87,7 +83,7 @@ uint8_t*  currentBytecodes;
 
 void Interpreter::Start() {
     // initialization
-    method = _FRAME->GetMethod();
+    method = GetFrame()->GetMethod();
     currentBytecodes = method->GetBytecodes();
 
 void* loopTargets[] = {
@@ -195,8 +191,8 @@ DISPATCH_NOGC();
 }
 
 pVMFrame Interpreter::PushNewFrame(pVMMethod method) {
-    SetFrame(GetUniverse()->NewFrame(_FRAME, method));
-    return _FRAME;
+    SetFrame(GetUniverse()->NewFrame(GetFrame(), method));
+    return GetFrame();
 }
 
 void Interpreter::SetFrame(pVMFrame frame) {
@@ -211,18 +207,14 @@ void Interpreter::SetFrame(pVMFrame frame) {
     currentBytecodes    = method->GetBytecodes();
 }
 
-pVMFrame Interpreter::GetFrame() {
-    return this->frame;
-}
-
 pVMObject Interpreter::GetSelf() {
-    pVMFrame context = _FRAME->GetOuterContext();
+    pVMFrame context = GetFrame()->GetOuterContext();
     return context->GetArgument(0,0);
 }
 
 pVMFrame Interpreter::popFrame() {
-    pVMFrame result = _FRAME;
-    this->SetFrame(_FRAME->GetPreviousFrame());
+    pVMFrame result = GetFrame();
+    this->SetFrame(GetFrame()->GetPreviousFrame());
 
     result->ClearPreviousFrame();
 
@@ -239,9 +231,9 @@ void Interpreter::popFrameAndPushResult(pVMObject result) {
     pVMMethod method = prevFrame->GetMethod();
     long numberOfArgs = method->GetNumberOfArguments();
 
-    for (long i = 0; i < numberOfArgs; ++i) _FRAME->Pop();
+    for (long i = 0; i < numberOfArgs; ++i) GetFrame()->Pop();
 
-    _FRAME->Push(result);
+    GetFrame()->Push(result);
 }
 
 void Interpreter::send(pVMSymbol signature, pVMClass receiverClass) {
@@ -258,29 +250,29 @@ void Interpreter::send(pVMSymbol signature, pVMClass receiverClass) {
 #endif
         // since an invokable is able to change/use the frame, we have to write
         // cached values before, and read cached values after calling
-        _FRAME->SetBytecodeIndex(bytecodeIndexGlobal);
-        (*invokable)(_FRAME);
-        bytecodeIndexGlobal = _FRAME->GetBytecodeIndex();
+        GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
+        (*invokable)(GetFrame());
+        bytecodeIndexGlobal = GetFrame()->GetBytecodeIndex();
     } else {
         //doesNotUnderstand
         long numberOfArgs = Signature::GetNumberOfArguments(signature);
 
-        pVMObject receiver = _FRAME->GetStackElement(numberOfArgs-1);
+        pVMObject receiver = GetFrame()->GetStackElement(numberOfArgs-1);
 
         pVMArray argumentsArray = GetUniverse()->NewArray(numberOfArgs);
 
         for (long i = numberOfArgs - 1; i >= 0; --i) {
-            pVMObject o = _FRAME->Pop();
+            pVMObject o = GetFrame()->Pop();
             argumentsArray->SetIndexableField(i, o);
         }
         pVMObject arguments[] = {signature, argumentsArray};
 
         //check if current frame is big enough for this unplanned Send
         //doesNotUnderstand: needs 3 slots, one for this, one for method name, one for args
-        long additionalStackSlots = 3 - _FRAME->RemainingStackSize();
+        long additionalStackSlots = 3 - GetFrame()->RemainingStackSize();
         if (additionalStackSlots > 0) {
             //copy current frame into a bigger one and replace the current frame
-            this->SetFrame(VMFrame::EmergencyFrameFrom(_FRAME, additionalStackSlots));
+            this->SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
         }
 
 #ifdef USE_TAGGING
@@ -295,31 +287,31 @@ void Interpreter::send(pVMSymbol signature, pVMClass receiverClass) {
 }
 
 void Interpreter::doDup() {
-    pVMObject elem = _FRAME->GetStackElement(0);
-    _FRAME->Push(elem);
+    pVMObject elem = GetFrame()->GetStackElement(0);
+    GetFrame()->Push(elem);
 }
 
 void Interpreter::doPushLocal(long bytecodeIndex) {
     uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
 
-    pVMObject local = _FRAME->GetLocal(bc1, bc2);
+    pVMObject local = GetFrame()->GetLocal(bc1, bc2);
 
-    _FRAME->Push(local);
+    GetFrame()->Push(local);
 }
 
 void Interpreter::doPushArgument(long bytecodeIndex) {
     uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
 
-    pVMObject argument = _FRAME->GetArgument(bc1, bc2);
+    pVMObject argument = GetFrame()->GetArgument(bc1, bc2);
 
-    _FRAME->Push(argument);
+    GetFrame()->Push(argument);
 }
 
 void Interpreter::doPushField(long bytecodeIndex) {
     uint8_t fieldIndex = method->GetBytecode(bytecodeIndex + 1);
-    pVMObject self = _SELF;
+    pVMObject self = GetSelf();
     pVMObject o;
 #ifdef USE_TAGGING
     if (IS_TAGGED(self)) {
@@ -332,19 +324,19 @@ void Interpreter::doPushField(long bytecodeIndex) {
     o = static_cast<VMObject*>(self)->GetField(fieldIndex);
 #endif
 
-    _FRAME->Push(o);
+    GetFrame()->Push(o);
 }
 
 void Interpreter::doPushBlock(long bytecodeIndex) {
     // Short cut the negative case of #ifTrue: and #ifFalse:
     if (currentBytecodes[bytecodeIndexGlobal] == BC_SEND) {
-        if (_FRAME->GetStackElement(0) == falseObject &&
+        if (GetFrame()->GetStackElement(0) == falseObject &&
             method->GetConstant(bytecodeIndexGlobal) == symbolIfTrue) {
-            _FRAME->Push(nilObject);
+            GetFrame()->Push(nilObject);
             return;
-        } else if (_FRAME->GetStackElement(0) == trueObject &&
+        } else if (GetFrame()->GetStackElement(0) == trueObject &&
                    method->GetConstant(bytecodeIndexGlobal) == symbolIfFalse) {
-            _FRAME->Push(nilObject);
+            GetFrame()->Push(nilObject);
             return;
         }
     }
@@ -353,12 +345,12 @@ void Interpreter::doPushBlock(long bytecodeIndex) {
 
     long numOfArgs = blockMethod->GetNumberOfArguments();
 
-    _FRAME->Push(GetUniverse()->NewBlock(blockMethod, _FRAME, numOfArgs));
+    GetFrame()->Push(GetUniverse()->NewBlock(blockMethod, GetFrame(), numOfArgs));
 }
 
 void Interpreter::doPushConstant(long bytecodeIndex) {
     pVMObject constant = method->GetConstant(bytecodeIndex);
-    _FRAME->Push(constant);
+    GetFrame()->Push(constant);
 }
 
 void Interpreter::doPushGlobal(long bytecodeIndex) {
@@ -366,18 +358,18 @@ void Interpreter::doPushGlobal(long bytecodeIndex) {
     pVMObject global = GetUniverse()->GetGlobal(globalName);
 
     if(global != NULL)
-        _FRAME->Push(global);
+        GetFrame()->Push(global);
     else {
         pVMObject arguments[] = {globalName};
-        pVMObject self = _SELF;
+        pVMObject self = GetSelf();
 
         //check if there is enough space on the stack for this unplanned Send
         //unknowGlobal: needs 2 slots, one for "this" and one for the argument
-        long additionalStackSlots = 2 - _FRAME->RemainingStackSize();
+        long additionalStackSlots = 2 - GetFrame()->RemainingStackSize();
         if (additionalStackSlots > 0) {
-            _FRAME->SetBytecodeIndex(bytecodeIndexGlobal);
+            GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
             //copy current frame into a bigger one and replace the current frame
-            this->SetFrame(VMFrame::EmergencyFrameFrom(_FRAME,
+            this->SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(),
                             additionalStackSlots));
         }
 
@@ -393,31 +385,31 @@ void Interpreter::doPushGlobal(long bytecodeIndex) {
 }
 
 void Interpreter::doPop() {
-    _FRAME->Pop();
+    GetFrame()->Pop();
 }
 
 void Interpreter::doPopLocal(long bytecodeIndex) {
     uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
 
-    pVMObject o = _FRAME->Pop();
+    pVMObject o = GetFrame()->Pop();
 
-    _FRAME->SetLocal(bc1, bc2, o);
+    GetFrame()->SetLocal(bc1, bc2, o);
 }
 
 void Interpreter::doPopArgument(long bytecodeIndex) {
     uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
 
-    pVMObject o = _FRAME->Pop();
-    _FRAME->SetArgument(bc1, bc2, o);
+    pVMObject o = GetFrame()->Pop();
+    GetFrame()->SetArgument(bc1, bc2, o);
 }
 
 void Interpreter::doPopField(long bytecodeIndex) {
     uint8_t field_index = method->GetBytecode(bytecodeIndex + 1);
 
-    pVMObject self = _SELF;
-    pVMObject o = _FRAME->Pop();
+    pVMObject self = GetSelf();
+    pVMObject o = GetFrame()->Pop();
 #ifdef USE_TAGGING
     if (IS_TAGGED(self)) {
         GlobalBox::IntegerBox()->SetField(field_index, o);
@@ -435,7 +427,7 @@ void Interpreter::doSend(long bytecodeIndex) {
 
     long numOfArgs = Signature::GetNumberOfArguments(signature);
 
-    pVMObject receiver = _FRAME->GetStackElement(numOfArgs-1);
+    pVMObject receiver = GetFrame()->GetStackElement(numOfArgs-1);
     assert(Universe::IsValidObject(receiver));
     assert(dynamic_cast<pVMClass>((pVMObject)receiver->GetClass()) != nullptr); // make sure it is really a class
     
@@ -457,21 +449,21 @@ void Interpreter::doSend(long bytecodeIndex) {
 void Interpreter::doSuperSend(long bytecodeIndex) {
     pVMSymbol signature = static_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));
 
-    pVMFrame ctxt = _FRAME->GetOuterContext();
+    pVMFrame ctxt = GetFrame()->GetOuterContext();
     pVMMethod realMethod = ctxt->GetMethod();
     pVMClass holder = realMethod->GetHolder();
     pVMClass super = holder->GetSuperClass();
     pVMInvokable invokable = static_cast<pVMInvokable>(super->LookupInvokable(signature));
 
     if (invokable != NULL)
-        (*invokable)(_FRAME);
+        (*invokable)(GetFrame());
     else {
         long numOfArgs = Signature::GetNumberOfArguments(signature);
-        pVMObject receiver = _FRAME->GetStackElement(numOfArgs - 1);
+        pVMObject receiver = GetFrame()->GetStackElement(numOfArgs - 1);
         pVMArray argumentsArray = GetUniverse()->NewArray(numOfArgs);
 
         for (long i = numOfArgs - 1; i >= 0; --i) {
-            pVMObject o = _FRAME->Pop();
+            pVMObject o = GetFrame()->Pop();
             argumentsArray->SetIndexableField(i, o);
         }
         pVMObject arguments[] = {signature, argumentsArray};
@@ -487,19 +479,19 @@ void Interpreter::doSuperSend(long bytecodeIndex) {
 }
 
 void Interpreter::doReturnLocal() {
-    pVMObject result = _FRAME->Pop();
+    pVMObject result = GetFrame()->Pop();
 
     this->popFrameAndPushResult(result);
 }
 
 void Interpreter::doReturnNonLocal() {
-    pVMObject result = _FRAME->Pop();
+    pVMObject result = GetFrame()->Pop();
 
-    pVMFrame context = _FRAME->GetOuterContext();
+    pVMFrame context = GetFrame()->GetOuterContext();
 
     if (!context->HasPreviousFrame()) {
-        pVMBlock block = static_cast<pVMBlock>(_FRAME->GetArgument(0, 0));
-        pVMFrame prevFrame = _FRAME->GetPreviousFrame();
+        pVMBlock block = static_cast<pVMBlock>(GetFrame()->GetArgument(0, 0));
+        pVMFrame prevFrame = GetFrame()->GetPreviousFrame();
         pVMFrame outerContext = prevFrame->GetOuterContext();
         pVMObject sender = outerContext->GetArgument(0, 0);
         pVMObject arguments[] = {block};
@@ -517,19 +509,19 @@ void Interpreter::doReturnNonLocal() {
         return;
     }
 
-    while (_FRAME != context) this->popFrame();
+    while (GetFrame() != context) this->popFrame();
 
     this->popFrameAndPushResult(result);
 }
 
 void Interpreter::doJumpIfFalse(long bytecodeIndex) {
-    pVMObject value = _FRAME->Pop();
+    pVMObject value = GetFrame()->Pop();
     if (value == falseObject)
         doJump(bytecodeIndex);
 }
 
 void Interpreter::doJumpIfTrue(long bytecodeIndex) {
-    pVMObject value = _FRAME->Pop();
+    pVMObject value = GetFrame()->Pop();
     if (value == trueObject)
         doJump(bytecodeIndex);
 }
