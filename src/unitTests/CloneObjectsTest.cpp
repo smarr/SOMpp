@@ -10,6 +10,7 @@
 #define private public
 #define protected public
 
+#include "vmobjects/VMObjectBase.h"
 #include "vmobjects/VMObject.h"
 #include "vmobjects/VMInteger.h"
 #include "vmobjects/VMDouble.h"
@@ -24,8 +25,8 @@
 #include "vmobjects/VMEvaluationPrimitive.h"
 
 void CloneObjectsTest::testCloneObject() {
-    VMObject* orig = new (GetUniverse()->GetHeap()) VMObject();
-    VMObject* clone = orig->Clone();
+    pVMObject orig = new (GetUniverse()->GetHeap()) VMObject();
+    pVMObject clone = orig->Clone();
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->GetClass(),
     clone->GetClass());
