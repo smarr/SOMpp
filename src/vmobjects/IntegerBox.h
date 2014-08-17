@@ -15,5 +15,4 @@ private:
     friend class Universe;
 };
 
-#endif INTEGERBOX_H_
-
+#endif
