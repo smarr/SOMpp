@@ -48,10 +48,10 @@ void MarkSweepCollector::Collect() {
 VMOBJECT_PTR mark_object(VMOBJECT_PTR obj) {
 #ifdef USE_TAGGING
     if (IS_TAGGED(obj))
-    return obj;
+        return obj;
 #endif
     if (obj->GetGCField())
-    return obj;
+        return obj;
 
     obj->SetGCField(GC_MARKED);
     obj->WalkObjects(mark_object);

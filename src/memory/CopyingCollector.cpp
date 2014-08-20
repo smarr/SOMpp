@@ -13,13 +13,13 @@ VMOBJECT_PTR copy_if_necessary(VMOBJECT_PTR obj) {
 #ifdef USE_TAGGING
     //don't process tagged objects
     if (IS_TAGGED(obj))
-    return obj;
+        return obj;
 #endif
     long gcField = obj->GetGCField();
     //GCField is abused as forwarding pointer here
     //if someone has moved before, return the moved object
     if (gcField != 0)
-    return (VMOBJECT_PTR)gcField;
+        return (VMOBJECT_PTR) gcField;
     //we have to clone ourselves
     VMOBJECT_PTR newObj = obj->Clone();
     

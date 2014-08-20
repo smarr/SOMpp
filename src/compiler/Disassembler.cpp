@@ -66,7 +66,8 @@
 void Disassembler::dispatch(pVMObject o) {
     //dispatch
     // can't switch() objects, so:
-    if(!o) return;// NULL isn't interesting.
+    if(!o)
+        return; // NULL isn't interesting.
     else if(o == nilObject)
         DebugPrint("{Nil}");
     else if(o == trueObject)
