@@ -88,11 +88,7 @@ void Disassembler::dispatch(pVMObject o) {
         else if(c == bigIntegerClass)
             DebugPrint("%lld", static_cast<pVMBigInteger>(o)->GetEmbeddedInteger());
         else if(c == integerClass)
-#ifdef USE_TAGGING
-            DebugPrint("%d", UNTAG_INTEGER(o));
-#else
-            DebugPrint("%d", static_cast<pVMInteger>(o)->GetEmbeddedInteger());
-#endif
+            DebugPrint("%d", INT_VAL(o));
         else if(c == symbolClass) {
             DebugPrint("#%s", static_cast<pVMSymbol>(o)->GetChars());
         } else

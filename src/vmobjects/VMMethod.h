@@ -87,21 +87,13 @@ private:
 };
 
 inline long VMMethod::GetNumberOfLocals() const {
-#ifdef USE_TAGGING
-    return UNTAG_INTEGER(numberOfLocals);
-#else
-    return numberOfLocals->GetEmbeddedInteger();
-#endif
+    return INT_VAL(numberOfLocals);
 }
 
 long VMMethod::GetNumberOfIndexableFields() const {
     //cannot be done using GetAdditionalSpaceConsumption,
     //as bytecodes need space, too, and there might be padding
-#ifdef USE_TAGGING
-    return UNTAG_INTEGER(this->numberOfConstants);
-#else
-    return this->numberOfConstants->GetEmbeddedInteger();
-#endif
+    return INT_VAL(numberOfConstants);
 }
 
 uint8_t* VMMethod::GetBytecodes() const {
@@ -109,11 +101,7 @@ uint8_t* VMMethod::GetBytecodes() const {
 }
 
 inline long VMMethod::GetNumberOfArguments() const {
-#ifdef USE_TAGGING
-    return UNTAG_INTEGER(numberOfArguments);
-#else
-    return numberOfArguments->GetEmbeddedInteger();
-#endif
+    return INT_VAL(numberOfArguments);
 }
 
 pVMObject VMMethod::GetIndexableField(long idx) const {

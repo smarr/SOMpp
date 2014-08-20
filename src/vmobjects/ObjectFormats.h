@@ -47,7 +47,12 @@
 #define TAG_INTEGER(X) ((X >= VMTAGGEDINTEGER_MIN && X <= VMTAGGEDINTEGER_MAX) ? ((pVMInteger)((X << 1) | 1)) : (GetUniverse()->NewInteger(X)))
 #endif
 
-#define UNTAG_INTEGER(X) (((long)X&1) ? ((long)X>>1) : (((VMInteger*)X)->GetEmbeddedInteger()))
+#ifdef USE_TAGGING
+//#define UNTAG_INTEGER(X) (((long)X&1) ? ((long)X>>1) : (((VMInteger*)X)->GetEmbeddedInteger()))
+  #define INT_VAL(X) (((long)X&1) ? ((long)X>>1) : (((VMInteger*)X)->GetEmbeddedInteger()))
+#else
+  #define INT_VAL(X) (static_cast<pVMInteger>(X)->GetEmbeddedInteger())
+#endif
 #define IS_TAGGED(X) ((long)X&1)
 
 // Forward definitions of VM object classes

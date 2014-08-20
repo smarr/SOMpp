@@ -54,11 +54,7 @@ _Array::_Array() :
 void _Array::At_(pVMObject /*object*/, pVMFrame frame) {
     pVMInteger index = static_cast<pVMInteger>(frame->Pop());
     pVMArray self = static_cast<pVMArray>(frame->Pop());
-#ifdef USE_TAGGING
-    long i = UNTAG_INTEGER(index);
-#else
-    long i = index->GetEmbeddedInteger();
-#endif
+    long i = INT_VAL(index);
     pVMObject elem = self->GetIndexableField(i - 1);
     frame->Push(elem);
 }
@@ -67,11 +63,7 @@ void _Array::At_Put_(pVMObject /*object*/, pVMFrame frame) {
     pVMObject value = frame->Pop();
     pVMInteger index = static_cast<pVMInteger>(frame->Pop());
     pVMArray self = static_cast<pVMArray>(frame->GetStackElement(0));
-#ifdef USE_TAGGING
-    long i = UNTAG_INTEGER(index);
-#else
-    long i = index->GetEmbeddedInteger();
-#endif
+    long i = INT_VAL(index);
     self->SetIndexableField(i - 1, value);
 }
 
@@ -88,11 +80,7 @@ void _Array::Length(pVMObject /*object*/, pVMFrame frame) {
 void _Array::New_(pVMObject /*object*/, pVMFrame frame) {
     pVMInteger length = static_cast<pVMInteger>(frame->Pop());
     frame->Pop();
-#ifdef USE_TAGGING
-    long size = UNTAG_INTEGER(length);
-#else
-    long size = length->GetEmbeddedInteger();
-#endif
+    long size = INT_VAL(length);
     frame->Push(GetUniverse()->NewArray(size));
 }
 

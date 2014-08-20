@@ -188,39 +188,22 @@ void CloneObjectsTest::testCloneMethod() {
     CPPUNIT_ASSERT_EQUAL_MESSAGE("objectSize differs!!", orig->objectSize, clone->objectSize);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfFields differs!!", orig->numberOfFields, clone->numberOfFields);
 
-#ifdef USE_TAGGING
     CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfLocals differs!!",
-            UNTAG_INTEGER(orig->numberOfLocals),
-            UNTAG_INTEGER(clone->numberOfLocals));
+            INT_VAL(orig->numberOfLocals),
+            INT_VAL(clone->numberOfLocals));
     CPPUNIT_ASSERT_EQUAL_MESSAGE("bcLength differs!!",
-            UNTAG_INTEGER(orig->bcLength),
-            UNTAG_INTEGER(clone->bcLength));
+            INT_VAL(orig->bcLength),
+            INT_VAL(clone->bcLength));
     CPPUNIT_ASSERT_EQUAL_MESSAGE("maximumNumberOfStackElements differs!!",
-            UNTAG_INTEGER(orig->maximumNumberOfStackElements),
-            UNTAG_INTEGER(clone->maximumNumberOfStackElements));
+            INT_VAL(orig->maximumNumberOfStackElements),
+            INT_VAL(clone->maximumNumberOfStackElements));
     CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfArguments differs!!",
-            UNTAG_INTEGER(orig->numberOfArguments),
-            UNTAG_INTEGER(clone->numberOfArguments));
+            INT_VAL(orig->numberOfArguments),
+            INT_VAL(clone->numberOfArguments));
     CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfConstants differs!!",
-            UNTAG_INTEGER(orig->numberOfConstants),
-            UNTAG_INTEGER(clone->numberOfConstants));
-#else
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfLocals differs!!",
-            orig->numberOfLocals->GetEmbeddedInteger(),
-            clone->numberOfLocals->GetEmbeddedInteger());
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("bcLength differs!!",
-            orig->bcLength->GetEmbeddedInteger(),
-            clone->bcLength->GetEmbeddedInteger());
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("maximumNumberOfStackElements differs!!",
-            orig->maximumNumberOfStackElements->GetEmbeddedInteger(),
-            clone->maximumNumberOfStackElements->GetEmbeddedInteger());
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfArguments differs!!",
-            orig->numberOfArguments->GetEmbeddedInteger(),
-            clone->numberOfArguments->GetEmbeddedInteger());
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfConstants differs!!",
-            orig->numberOfConstants->GetEmbeddedInteger(),
-            clone->numberOfConstants->GetEmbeddedInteger());
-#endif
+            INT_VAL(orig->numberOfConstants),
+            INT_VAL(clone->numberOfConstants));
+
     CPPUNIT_ASSERT_EQUAL_MESSAGE("GetHolder() differs!!", orig->GetHolder(), clone->GetHolder());
     CPPUNIT_ASSERT_EQUAL_MESSAGE("GetSignature() differs!!", orig->GetSignature(), clone->GetSignature());
 }

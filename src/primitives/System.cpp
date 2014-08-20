@@ -78,12 +78,8 @@ void _System::Load_(pVMObject /*object*/, pVMFrame frame) {
 
 void _System::Exit_(pVMObject /*object*/, pVMFrame frame) {
     pVMInteger err = static_cast<pVMInteger>(frame->Pop());
-#ifdef USE_TAGGING
-    long err_no = UNTAG_INTEGER(err);
-#else
-    long err_no = err->GetEmbeddedInteger();
-#endif
 
+    long err_no = INT_VAL(err);
     if (err_no != ERR_SUCCESS)
         frame->PrintStackTrace();
     GetUniverse()->Quit(err_no);

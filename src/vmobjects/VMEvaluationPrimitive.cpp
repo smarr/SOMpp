@@ -92,19 +92,15 @@ void VMEvaluationPrimitive::evaluationRoutine(pVMObject object, pVMFrame frame) 
     pVMEvaluationPrimitive self = static_cast<pVMEvaluationPrimitive>(object);
 
     // Get the block (the receiver) from the stack
-#ifdef USE_TAGGING
-        long numArgs = UNTAG_INTEGER(self->numberOfArguments);
-#else
-        long numArgs = self->numberOfArguments->GetEmbeddedInteger();
-#endif
-        pVMBlock block = static_cast<pVMBlock>(frame->GetStackElement(numArgs - 1));
+    long numArgs = INT_VAL(self->numberOfArguments);
+    pVMBlock block = static_cast<pVMBlock>(frame->GetStackElement(numArgs - 1));
 
-        // Get the context of the block...
-        pVMFrame context = block->GetContext();
+    // Get the context of the block...
+    pVMFrame context = block->GetContext();
 
-        // Push a new frame and set its context to be the one specified in the block
-        pVMFrame NewFrame = GetUniverse()->GetInterpreter()->PushNewFrame(
-        block->GetMethod());
-        NewFrame->CopyArgumentsFrom(frame);
-        NewFrame->SetContext(context);
-    }
+    // Push a new frame and set its context to be the one specified in the block
+    pVMFrame NewFrame = GetUniverse()->GetInterpreter()->PushNewFrame(
+    block->GetMethod());
+    NewFrame->CopyArgumentsFrom(frame);
+    NewFrame->SetContext(context);
+}

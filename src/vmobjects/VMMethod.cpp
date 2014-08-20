@@ -139,11 +139,7 @@ void VMMethod::SetNumberOfLocals(long nol) {
 }
 
 long VMMethod::GetMaximumNumberOfStackElements() const {
-#ifdef USE_TAGGING
-    return UNTAG_INTEGER(maximumNumberOfStackElements);
-#else
-    return maximumNumberOfStackElements->GetEmbeddedInteger();
-#endif
+    return INT_VAL(maximumNumberOfStackElements);
 }
 
 void VMMethod::SetMaximumNumberOfStackElements(long stel) {
@@ -169,11 +165,7 @@ void VMMethod::SetNumberOfArguments(long noa) {
 }
 
 long VMMethod::GetNumberOfBytecodes() const {
-#ifdef USE_TAGGING
-    return UNTAG_INTEGER(bcLength);
-#else
-    return bcLength->GetEmbeddedInteger();
-#endif
+    return INT_VAL(bcLength);
 }
 
 void VMMethod::operator()(pVMFrame frame) {
