@@ -63,21 +63,12 @@
 }
 #endif
 
-#ifdef USE_TAGGING
 #define PUSH_INT_OR_BIGINT(result) { \
     if(result > INT32_MAX ||result < INT32_MIN) \
         frame->Push(GetUniverse()->NewBigInteger((result))); \
     else \
-        frame->Push(TAG_INTEGER(result)); \
+        frame->Push(NEW_INT((int32_t)(result))); \
 }
-#else
-#define PUSH_INT_OR_BIGINT(result) { \
-    if(result > INT32_MAX ||result < INT32_MIN) \
-        frame->Push(GetUniverse()->NewBigInteger((result))); \
-    else \
-        frame->Push(GetUniverse()->NewInteger((int32_t)(result))); \
-}
-#endif
 
 //^^DIFFERENT THAN CSOM! Does the CSOM version work at all????????
 

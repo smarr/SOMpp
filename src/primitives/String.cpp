@@ -76,22 +76,14 @@ void _String::AsSymbol(pVMObject /*object*/, pVMFrame frame) {
 
 void _String::Hashcode(pVMObject /*object*/, pVMFrame frame) {
     pVMString self = static_cast<pVMString>(frame->Pop());
-#ifdef USE_TAGGING
-    frame->Push(TAG_INTEGER(AS_POINTER(self)->GetHash()));
-#else
-    frame->Push(GetUniverse()->NewInteger(self->GetHash()));
-#endif
+    frame->Push(NEW_INT(AS_POINTER(self)->GetHash()));
 }
 
 void _String::Length(pVMObject /*object*/, pVMFrame frame) {
     pVMString self = static_cast<pVMString>(frame->Pop());
 
     size_t len = self->GetStringLength();
-#ifdef USE_TAGGING
-    frame->Push(TAG_INTEGER(len));
-#else
-    frame->Push(GetUniverse()->NewInteger((long)len));
-#endif
+    frame->Push(NEW_INT(len));
 }
 
 void _String::Equal(pVMObject /*object*/, pVMFrame frame) {

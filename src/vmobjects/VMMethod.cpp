@@ -49,19 +49,13 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     cachedFrame = NULL;
 #endif
-#ifdef USE_TAGGING
-    bcLength = TAG_INTEGER(bcCount);
-    numberOfLocals = TAG_INTEGER(0);
-    maximumNumberOfStackElements = TAG_INTEGER(0);
-    numberOfArguments = TAG_INTEGER(0);
-    this->numberOfConstants = TAG_INTEGER(numberOfConstants);
-#else
-    bcLength = GetUniverse()->NewInteger( bcCount );
-    numberOfLocals = GetUniverse()->NewInteger(0);
-    maximumNumberOfStackElements = GetUniverse()->NewInteger(0);
-    numberOfArguments = GetUniverse()->NewInteger(0);
-    this->numberOfConstants = GetUniverse()->NewInteger(numberOfConstants);
-#endif
+
+    bcLength                     = NEW_INT(bcCount);
+    numberOfLocals               = NEW_INT(0);
+    maximumNumberOfStackElements = NEW_INT(0);
+    numberOfArguments            = NEW_INT(0);
+    this->numberOfConstants      = NEW_INT(numberOfConstants);
+
     indexableFields = (pVMObject*)(&indexableFields + 2);
     for (long i = 0; i < numberOfConstants; ++i) {
         indexableFields[i] = nilObject;
@@ -128,11 +122,7 @@ void VMMethod::SetCachedFrame(pVMFrame frame) {
 #endif
 
 void VMMethod::SetNumberOfLocals(long nol) {
-#ifdef USE_TAGGING
-    numberOfLocals = TAG_INTEGER(nol);
-#else
-    numberOfLocals = GetUniverse()->NewInteger(nol);
-#endif
+    numberOfLocals = NEW_INT(nol);
 #if GC_TYPE==GENERATIONAL
     _HEAP->writeBarrier(this, numberOfLocals);
 #endif
@@ -143,22 +133,15 @@ long VMMethod::GetMaximumNumberOfStackElements() const {
 }
 
 void VMMethod::SetMaximumNumberOfStackElements(long stel) {
-#ifdef USE_TAGGING
-    maximumNumberOfStackElements = TAG_INTEGER(stel);
-#else
-    maximumNumberOfStackElements = GetUniverse()->NewInteger(stel);
-#endif
+    maximumNumberOfStackElements = NEW_INT(stel);
 #if GC_TYPE==GENERATIONAL
     _HEAP->writeBarrier(this, maximumNumberOfStackElements);
 #endif
 }
 
 void VMMethod::SetNumberOfArguments(long noa) {
-#ifdef USE_TAGGING
-    numberOfArguments = TAG_INTEGER(noa);
-#else
-    numberOfArguments = GetUniverse()->NewInteger(noa);
-#endif
+    numberOfArguments = NEW_INT(noa);
+
 #if GC_TYPE==GENERATIONAL
     _HEAP->writeBarrier(this, numberOfArguments);
 #endif

@@ -131,22 +131,13 @@ void _Integer::pushResult(pVMObject /*object*/, pVMFrame frame,
     if(result > INT32_MAX || result < i32min)
         frame->Push(GetUniverse()->NewBigInteger(result));
     else
-#ifdef USE_TAGGING
-        frame->Push(TAG_INTEGER((int32_t)result));
-#else
-        frame->Push(GetUniverse()->NewInteger((int32_t)result));
-#endif
+        frame->Push(NEW_INT((int32_t)result));
 }
 
 void _Integer::resendAsBigInteger(pVMObject /*object*/, const char* op,
 pVMInteger left, pVMBigInteger right) {
     // Construct left value as BigInteger:
-    pVMBigInteger leftBigInteger =
-#ifdef USE_TAGGING
-    GetUniverse()->NewBigInteger((int64_t)UNTAG_INTEGER(left));
-#else
-    GetUniverse()->NewBigInteger((int64_t)left->GetEmbeddedInteger());
-#endif
+    pVMBigInteger leftBigInteger = GetUniverse()->NewBigInteger((int64_t)INT_VAL(left));
 
     // Resend message:
     pVMObject operands[] = {right};
@@ -300,18 +291,17 @@ void _Integer::Equal(pVMObject object, pVMFrame frame) {
 
 #ifdef USE_TAGGING
     if (IS_TAGGED(rightObj) || AS_POINTER(rightObj)->GetClass() == integerClass) {
-        if (UNTAG_INTEGER(left) == UNTAG_INTEGER(rightObj))
-        frame->Push(trueObject);
+        if (INT_VAL(left) == INT_VAL(rightObj))
+            frame->Push(trueObject);
         else
-        frame->Push(falseObject);
+            frame->Push(falseObject);
     } else if (AS_POINTER(rightObj)->GetClass() == doubleClass) {
         assert(false);
     } else
         frame->Push(falseObject);
 #else
     if (rightObj->GetClass() == integerClass) {
-        pVMInteger right = static_cast<pVMInteger>(rightObj);
-        if (left->GetEmbeddedInteger() == right->GetEmbeddedInteger())
+        if (INT_VAL(left) == INT_VAL(rightObj))
             frame->Push(trueObject);
         else
             frame->Push(falseObject);
@@ -359,13 +349,8 @@ void _Integer::Sqrt(pVMObject object, pVMFrame frame) {
 
 void _Integer::AtRandom(pVMObject /*object*/, pVMFrame frame) {
     pVMInteger self = static_cast<pVMInteger>(frame->Pop());
-#ifdef USE_TAGGING
-    int32_t result = (UNTAG_INTEGER(self) * rand())%INT32_MAX;
-    frame->Push(TAG_INTEGER(result));
-#else
-    int32_t result = (self->GetEmbeddedInteger() * rand())%INT32_MAX;
-    frame->Push(GetUniverse()->NewInteger(result));
-#endif
+    int32_t result = (INT_VAL(self) * rand())%INT32_MAX;
+    frame->Push(NEW_INT(result));
 }
 
 void _Integer::FromString(pVMObject, pVMFrame frame) {
@@ -373,13 +358,7 @@ void _Integer::FromString(pVMObject, pVMFrame frame) {
     frame->Pop();
 
     int32_t integer = atoi(self->GetChars());
-
-#ifdef USE_TAGGING
-        pVMInteger new_int = TAG_INTEGER(integer);
-#else
-        pVMInteger new_int = GetUniverse()->NewInteger(integer);
-#endif
-
-        frame->Push(new_int);
-    }
+    pVMInteger new_int = NEW_INT(integer);
+    frame->Push(new_int);
+}
 

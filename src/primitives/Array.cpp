@@ -69,11 +69,7 @@ void _Array::At_Put_(pVMObject /*object*/, pVMFrame frame) {
 
 void _Array::Length(pVMObject /*object*/, pVMFrame frame) {
     pVMArray self = static_cast<pVMArray>(frame->Pop());
-#ifdef USE_TAGGING
-    pVMInteger new_int = TAG_INTEGER(self->GetNumberOfIndexableFields());
-#else
-    pVMInteger new_int = GetUniverse()->NewInteger(self->GetNumberOfIndexableFields());
-#endif
+    pVMInteger new_int = NEW_INT(self->GetNumberOfIndexableFields());
     frame->Push(new_int);
 }
 

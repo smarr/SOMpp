@@ -106,11 +106,7 @@ void _System::Time(pVMObject /*object*/, pVMFrame frame) {
     ((now.tv_sec - start_time.tv_sec) * 1000) + //seconds
     ((now.tv_usec - start_time.tv_usec) / 1000);// useconds
 
-#ifdef USE_TAGGING
-    frame->Push(TAG_INTEGER((int32_t)diff));
-#else
-    frame->Push(GetUniverse()->NewInteger((int32_t)diff));
-#endif
+    frame->Push(NEW_INT((int32_t)diff));
 }
 
 void _System::Ticks(pVMObject /*object*/, pVMFrame frame) {

@@ -156,11 +156,7 @@ void _Double::Round(pVMObject /*object*/, pVMFrame frame) {
     if (rounded > INT32_MAX || rounded < INT32_MIN)
     frame->Push(GetUniverse()->NewBigInteger(rounded));
     else {
-#ifdef USE_TAGGING
-        frame->Push(TAG_INTEGER((int32_t)rounded));
-#else
-        frame->Push(GetUniverse()->NewInteger((int32_t)rounded));
-#endif
+        frame->Push(NEW_INT((int32_t)rounded));
     }
 }
 

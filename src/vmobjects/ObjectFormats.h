@@ -49,9 +49,11 @@
 
 #ifdef USE_TAGGING
 //#define UNTAG_INTEGER(X) (((long)X&1) ? ((long)X>>1) : (((VMInteger*)X)->GetEmbeddedInteger()))
-  #define INT_VAL(X) (((long)X&1) ? ((long)X>>1) : (((VMInteger*)X)->GetEmbeddedInteger()))
+  #define INT_VAL(X) (((long)(X)&1) ? ((long)(X)>>1) : (((VMInteger*)(X))->GetEmbeddedInteger()))
+  #define NEW_INT(X) (TAG_INTEGER((X)))
 #else
   #define INT_VAL(X) (static_cast<pVMInteger>(X)->GetEmbeddedInteger())
+  #define NEW_INT(X) (GetUniverse()->NewInteger(X))
 #endif
 #define IS_TAGGED(X) ((long)X&1)
 

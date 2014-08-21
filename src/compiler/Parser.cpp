@@ -777,11 +777,7 @@ pVMObject Parser::literalInteger(bool negateValue) {
     if (i < INT32_MIN || i > INT32_MAX) {
         return GetUniverse()->NewBigInteger(i);
     } else {
-      #ifdef USE_TAGGING
-        return TAG_INTEGER(i);
-      #else
-        return GetUniverse()->NewInteger(i);
-      #endif
+        return NEW_INT(i);
     }
 }
 

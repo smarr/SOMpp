@@ -41,11 +41,7 @@ VMEvaluationPrimitive::VMEvaluationPrimitive(long argc) :
     this->SetRoutine(new Routine<VMEvaluationPrimitive>(this,
                     &VMEvaluationPrimitive::evaluationRoutine));
     this->SetEmpty(false);
-#ifdef USE_TAGGING
-    this->numberOfArguments = TAG_INTEGER(argc);
-#else
-    this->numberOfArguments = GetUniverse()->NewInteger(argc);
-#endif
+    this->numberOfArguments = NEW_INT(argc);
 }
 
 pVMEvaluationPrimitive VMEvaluationPrimitive::Clone() const {
