@@ -44,17 +44,14 @@
 #include <compiler/Disassembler.h>
 
 Interpreter::Interpreter() {
-    this->frame = NULL;
+    frame = NULL;
 
-    uG = "unknownGlobal:";
+    uG  = "unknownGlobal:";
     dnu = "doesNotUnderstand:arguments:";
-    eB = "escapedBlock:";
-
+    eB  = "escapedBlock:";
 }
 
-Interpreter::~Interpreter() {
-
-}
+Interpreter::~Interpreter() {}
 
 #define PROLOGUE(bc_count) {\
   if (dumpBytecodes > 1) Disassembler::DumpBytecode(GetFrame(), GetFrame()->GetMethod(), bytecodeIndexGlobal);\
