@@ -11,6 +11,22 @@ compiler:
   - clang
   - gcc
 
+env:
+  - TAGGING=true   GC_TYPE=generational
+  - TAGGING=true   GC_TYPE=mark_sweep
+  - TAGGING=true   GC_TYPE=copying
+  
+  - TAGGING=false  GC_TYPE=generational CACHE_INTEGER=true
+  - TAGGING=false  GC_TYPE=mark_sweep   CACHE_INTEGER=true
+  - TAGGING=false  GC_TYPE=copying      CACHE_INTEGER=true
+  
+  - TAGGING=false  GC_TYPE=generational CACHE_INTEGER=false
+  - TAGGING=false  GC_TYPE=mark_sweep   CACHE_INTEGER=false
+  - TAGGING=false  GC_TYPE=copying      CACHE_INTEGER=false
+  
+
+
 script:
     - make test
+    - make bench
     - make unittests
