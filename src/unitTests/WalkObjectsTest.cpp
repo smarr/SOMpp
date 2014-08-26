@@ -157,7 +157,7 @@ void WalkObjectsTest::testWalkFrame() {
     frame->SetArgument(0, 0, dummyArg);
     frame->WalkObjects(collectMembers);
 
-    CPPUNIT_ASSERT(WalkerHasFound(frame->GetClass()));
+    // CPPUNIT_ASSERT(WalkerHasFound(frame->GetClass()));  // VMFrame does no longer have a SOM representation
     CPPUNIT_ASSERT(WalkerHasFound(frame->GetPreviousFrame()));
     CPPUNIT_ASSERT(WalkerHasFound(frame->GetContext()));
     CPPUNIT_ASSERT(WalkerHasFound(frame->GetMethod()));
@@ -165,7 +165,7 @@ void WalkObjectsTest::testWalkFrame() {
     CPPUNIT_ASSERT(WalkerHasFound(dummyArg));
     CPPUNIT_ASSERT_EQUAL(
             (long) (NoOfFields_Frame + method->GetNumberOfArguments()),
-            (long) walkedObjects.size());
+            (long) walkedObjects.size() + 1);  // + 1 for the class field that's still in there
 }
 
 void WalkObjectsTest::testWalkMethod() {
