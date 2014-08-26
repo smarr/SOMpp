@@ -17,12 +17,10 @@
 
 #include "WalkObjectsTest.h"
 #include "CloneObjectsTest.h"
-#include "VMObjectsInterfaceTest.h"
 #include "WriteBarrierTest.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION (WalkObjectsTest);
 CPPUNIT_TEST_SUITE_REGISTRATION (CloneObjectsTest);
-CPPUNIT_TEST_SUITE_REGISTRATION (VMObjectsInterfaceTest);
 #if GC_TYPE==GENERATIONAL
 CPPUNIT_TEST_SUITE_REGISTRATION(WriteBarrierTest);
 #endif
