@@ -30,23 +30,16 @@ void WriteBarrierTest::testWriteArray() {
     arr->SetIndexableField(0, newInt);
     arr->SetIndexableField(1, str);
     arr->SetIndexableField(2, doub);
+    
     //test for obvious writeBarrier calls
-    TEST_WB_CALLED("VMArray failed to call writeBarrier for an element", arr,
-            newInt);
-    TEST_WB_CALLED("VMArray failed to call writeBarrier for an element", arr,
-            str);
-    TEST_WB_CALLED("VMArray failed to call writeBarrier for an element", arr,
-            doub);
-    TEST_WB_CALLED("VMArray failed to call writeBarrier for clazz", arr,
-            arrayClass);
-    TEST_WB_CALLED("VMArray failed to call writeBarrier for clazz", arr,
-            cloneClass);
-    TEST_WB_CALLED("VMArray failed to call writeBarrier for clazz", arr,
-            clone2Class);
+    TEST_WB_CALLED("VMArray failed to call writeBarrier for an element", arr, newInt);
+    TEST_WB_CALLED("VMArray failed to call writeBarrier for an element", arr, str);
+    TEST_WB_CALLED("VMArray failed to call writeBarrier for an element", arr, doub);
+    TEST_WB_CALLED("VMArray failed to call writeBarrier for clazz", arr, arrayClass);
+    TEST_WB_CALLED("VMArray failed to call writeBarrier for clazz", arr, cloneClass);
+    TEST_WB_CALLED("VMArray failed to call writeBarrier for clazz", arr, clone2Class);
     //nilObject is assigned in constructor
-    TEST_WB_CALLED("VMArray failed to call writeBarrier for an element", arr,
-            nilObject);
-
+    TEST_WB_CALLED("VMArray failed to call writeBarrier for an element", arr, nilObject);
 #else
     CPPUNIT_FAIL("WriteBarrier tests only work in DEBUG builds for speed reasons");
 #endif
