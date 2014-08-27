@@ -484,8 +484,8 @@ void Universe::InitializeGlobals() {
     //
     //allocate nil object
     //
-    nilObject = new (_HEAP) VMObject;
-    static_cast<VMObject*>(nilObject)->SetField(0, nilObject);
+    nilObject = new (GetHeap()) VMObject;
+    static_cast<VMObject*>(nilObject)->SetClass((pVMClass)nilObject);
 
     metaClassClass = NewMetaclassClass();
 
