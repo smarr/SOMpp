@@ -55,9 +55,8 @@ inline size_t GenerationalHeap::GetMaxNurseryObjectSize() {
 }
 
 inline void GenerationalHeap::writeBarrier(VMOBJECT_PTR holder, const VMOBJECT_PTR referencedObject) {
-#ifdef DEBUG
-    //XXX Disabled because of speed reasons --> causes some tests to fail
-    //writeBarrierCalledOn.insert(make_pair(holder, referencedObject));
+#ifdef UNITTESTS
+    writeBarrierCalledOn.insert(make_pair(holder, referencedObject));
 #endif
     
     assert(Universe::IsValidObject(referencedObject));
