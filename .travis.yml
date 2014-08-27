@@ -29,4 +29,5 @@ env:
 script:
     - make test
     - make bench
+    - make clean
     - make unittests
