@@ -27,7 +27,8 @@
 # THE SOFTWARE.
 
 CXX		?=clang++
-CFLAGS	=-std=c++11 -Wno-endif-labels -O3 -DNDEBUG $(DBG_FLAGS) $(FEATURE_FLAGS) $(INCLUDES)
+CFLAGS	=-std=c++11 -Wno-endif-labels $(OPT_FLAGS) $(DBG_FLAGS) $(FEATURE_FLAGS) $(INCLUDES)
+OPT_FLAGS?=-O3 -DNDEBUG
 
 SHAREDFLAGS =-fPIC -mmacosx-version-min=10.4 -undefined dynamic_lookup \
                 -dynamiclib -Wl,-single_module -Wl,-Y,1455
@@ -61,13 +62,12 @@ include $(BUILD_DIR)/sources.make
 
 include $(BUILD_DIR)/config.make
 
-
 all: $(CSOM_NAME)\
 	$(CSOM_NAME).$(SHARED_EXTENSION) \
 	$(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION) \
 	CORE
 
-
+debug : OPT_FLAGS=
 debug : DBG_FLAGS=-DDEBUG -O0 -g
 debug: all
 
@@ -148,6 +148,8 @@ units: $(UNITTEST_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION)
 richards: all
 	./$(CSOM_NAME) -cp ./Smalltalk ./Examples/Benchmarks/Richards/RichardsBenchmarks.som
 
+unittests : OPT_FLAGS=
+unittests : DBG_FLAGS=-DDEBUG -O0 -g -DUNITTESTS
 unittests: all units
 	./unittest -cp ./Smalltalk ./Examples/Hello.som
 
