@@ -270,16 +270,16 @@ void Universe::printUsageAndExit(char* executable) const {
     cout << "Usage: " << executable << " [-options] [args...]" << endl << endl;
     cout << "where options include:" << endl;
     cout << "    -cp <directories separated by " << pathSeparator << ">"
-            << endl;
+         << endl;
     cout << "        set search path for application classes" << endl;
     cout << "    -d  enable disassembling (twice for tracing)" << endl;
     cout << "    -g  enable garbage collection details:" << endl
-            << "        1x - print statistics when VM shuts down" << endl
-            << "        2x - print statistics upon each collection" << endl
-            << "        3x - print statistics and dump _HEAP upon each " << endl
-            << "collection" << endl;
-    cout << "    -HxMB set the _HEAP size to x MB (default: 1 MB)" << endl;
-    cout << "    -HxKB set the _HEAP size to x KB (default: 1 MB)" << endl;
+         << "        1x - print statistics when VM shuts down" << endl
+         << "        2x - print statistics upon each collection" << endl
+         << "        3x - print statistics and dump heap upon each " << endl
+         << "collection" << endl;
+    cout << "    -HxMB set the heap size to x MB (default: 1 MB)" << endl;
+    cout << "    -HxKB set the heap size to x KB (default: 1 MB)" << endl;
     cout << "    -h  show this help" << endl;
 
     Quit(ERR_SUCCESS);
