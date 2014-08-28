@@ -12,13 +12,13 @@
 
 #define TEST_WB_CALLED(msg, hld, ref) \
         CPPUNIT_ASSERT_MESSAGE(msg, \
-                        _HEAP->writeBarrierCalledOn.find(make_pair(hld, ref)) != \
-                        _HEAP->writeBarrierCalledOn.end());
+                        GetHeap()->writeBarrierCalledOn.find(make_pair(hld, ref)) != \
+                        GetHeap()->writeBarrierCalledOn.end());
 
 void WriteBarrierTest::testWriteArray() {
 #ifdef DEBUG
     //reset set...
-    _HEAP->writeBarrierCalledOn.clear();
+    GetHeap()->writeBarrierCalledOn.clear();
     pVMArray arr = GetUniverse()->NewArray(3);
     pVMInteger newInt = GetUniverse()->NewInteger(12345);
     pVMString str = GetUniverse()->NewString("asdfghjkl");
@@ -48,7 +48,7 @@ void WriteBarrierTest::testWriteArray() {
 void WriteBarrierTest::testWriteBlock() {
 #ifdef DEBUG
     //reset set...
-    _HEAP->writeBarrierCalledOn.clear();
+    GetHeap()->writeBarrierCalledOn.clear();
 
     pVMSymbol methodSymbol = GetUniverse()->NewSymbol("someMethod");
     pVMMethod method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
@@ -77,7 +77,7 @@ void WriteBarrierTest::testWriteBlock() {
 void WriteBarrierTest::testWriteFrame() {
 #ifdef DEBUG
     //reset set...
-    _HEAP->writeBarrierCalledOn.clear();
+    GetHeap()->writeBarrierCalledOn.clear();
 
     pVMFrame frame = GetUniverse()->GetInterpreter()->GetFrame()->Clone();
     frame->SetContext(frame->Clone());
@@ -96,7 +96,7 @@ void WriteBarrierTest::testWriteFrame() {
 void WriteBarrierTest::testWriteMethod() {
 #ifdef DEBUG
     //reset set...
-    _HEAP->writeBarrierCalledOn.clear();
+    GetHeap()->writeBarrierCalledOn.clear();
     pVMMethod method = GetUniverse()->GetInterpreter()->GetFrame()->GetMethod()->Clone();
     method->SetHolder(integerClass);
     TEST_WB_CALLED("VMMethod failed to call writeBarrier on SetHolder", method, integerClass);
@@ -111,7 +111,7 @@ void WriteBarrierTest::testWriteMethod() {
 void WriteBarrierTest::testWriteEvaluationPrimitive() {
 #ifdef DEBUG
     //reset set...
-    _HEAP->writeBarrierCalledOn.clear();
+    GetHeap()->writeBarrierCalledOn.clear();
     pVMEvaluationPrimitive evPrim = new (GetUniverse()->GetHeap()) VMEvaluationPrimitive(1);
     TEST_WB_CALLED("VMEvaluationPrimitive failed to call writeBarrier when creating", evPrim, evPrim->GetClass());
     TEST_WB_CALLED("VMEvaluationPrimitive failed to call writeBarrier when creating", evPrim, evPrim->numberOfArguments);
@@ -123,7 +123,7 @@ void WriteBarrierTest::testWriteEvaluationPrimitive() {
 void WriteBarrierTest::testWriteClass() {
 #ifdef DEBUG
     //reset set...
-    _HEAP->writeBarrierCalledOn.clear();
+    GetHeap()->writeBarrierCalledOn.clear();
     pVMClass cl = integerClass->Clone();
     //now test all methods that change members
     cl->SetSuperClass(integerClass);

@@ -60,9 +60,9 @@ size_t VMSymbol::GetObjectSize() const {
 pVMSymbol VMSymbol::Clone() const {
     pVMSymbol result;
 #if GC_TYPE==GENERATIONAL
-    result = new (_HEAP, PADDED_SIZE(strlen(chars) + 1), true) VMSymbol(chars);
+    result = new (GetHeap(), PADDED_SIZE(strlen(chars) + 1), true) VMSymbol(chars);
 #else
-    result = new (_HEAP, PADDED_SIZE(strlen(chars) + 1)) VMSymbol(chars);
+    result = new (GetHeap(), PADDED_SIZE(strlen(chars) + 1)) VMSymbol(chars);
 #endif
     return result;
 }

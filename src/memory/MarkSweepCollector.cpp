@@ -10,7 +10,7 @@
 #define GC_MARKED 3456
 
 void MarkSweepCollector::Collect() {
-    MarkSweepHeap* heap = _HEAP;
+    MarkSweepHeap* heap = GetHeap();
     Timer::GCTimer->Resume();
     //reset collection trigger
     heap->resetGCTrigger();

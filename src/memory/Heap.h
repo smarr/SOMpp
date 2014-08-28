@@ -36,8 +36,6 @@
 #include "../vmobjects/ObjectFormats.h"
 
 using namespace std;
-//macro to access the heap
-#define _HEAP Heap::GetHeap()
 
 #if GC_TYPE==GENERATIONAL
 class GenerationalHeap;
@@ -67,13 +65,16 @@ public:
 protected:
     GarbageCollector* gc;
 private:
+    friend HEAP_CLS* GetHeap();
+    
     static HEAP_CLS* theHeap;
     //flag that shows if a Collection is triggered
     bool gcTriggered;
 };
 
-HEAP_CLS* Heap::GetHeap() {
-    return theHeap;
+inline HEAP_CLS* GetHeap() __attribute__ ((always_inline));
+HEAP_CLS* GetHeap() {
+    return Heap::theHeap;
 }
 
 void Heap::triggerGC(void) {

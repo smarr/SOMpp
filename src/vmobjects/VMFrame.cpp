@@ -44,7 +44,7 @@ pVMFrame VMFrame::EmergencyFrameFrom(pVMFrame from, long extraLength) {
                     + extraLength;
 
     long additionalBytes = length * sizeof(pVMObject);
-    pVMFrame result = new (_HEAP, additionalBytes) VMFrame(length);
+    pVMFrame result = new (GetHeap(), additionalBytes) VMFrame(length);
 
     result->clazz = nullptr; // result->SetClass(from->GetClass());
 
@@ -81,9 +81,9 @@ pVMFrame VMFrame::EmergencyFrameFrom(pVMFrame from, long extraLength) {
 pVMFrame VMFrame::Clone() const {
     size_t addSpace = objectSize - sizeof(VMFrame);
 #if GC_TYPE==GENERATIONAL
-    pVMFrame clone = new (_HEAP, addSpace, true) VMFrame(*this);
+    pVMFrame clone = new (GetHeap(), addSpace, true) VMFrame(*this);
 #else
-    pVMFrame clone = new (_HEAP, addSpace) VMFrame(*this);
+    pVMFrame clone = new (GetHeap(), addSpace) VMFrame(*this);
 #endif
     void* destination = SHIFTED_PTR(clone, sizeof(VMFrame));
     const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
@@ -119,7 +119,7 @@ VMFrame::VMFrame(long size, long nof) :
 void VMFrame::SetMethod(pVMMethod method) {
     this->method = method;
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, method);
+    GetHeap()->writeBarrier(this, method);
 #endif
 }
 
@@ -174,7 +174,7 @@ pVMObject VMFrame::Pop() {
 
 void VMFrame::Push(pVMObject obj) {
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, (VMOBJECT_PTR)obj);
+    GetHeap()->writeBarrier(this, (VMOBJECT_PTR)obj);
 #endif
     *(++stack_ptr) = obj;
 }
@@ -243,7 +243,7 @@ void VMFrame::SetLocal(long index, long contextLevel, pVMObject value) {
     pVMFrame context = this->GetContextLevel(contextLevel);
     context->locals[index] = value;
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(context, (VMOBJECT_PTR)value);
+    GetHeap()->writeBarrier(context, (VMOBJECT_PTR)value);
 #endif
 }
 
@@ -257,7 +257,7 @@ void VMFrame::SetArgument(long index, long contextLevel, pVMObject value) {
     pVMFrame context = this->GetContextLevel(contextLevel);
     context->arguments[index] = value;
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(context, (VMOBJECT_PTR)value);
+    GetHeap()->writeBarrier(context, (VMOBJECT_PTR)value);
 #endif
 }
 
@@ -279,7 +279,7 @@ void VMFrame::CopyArgumentsFrom(pVMFrame frame) {
         pVMObject stackElem = frame->GetStackElement(num_args - 1 - i);
         arguments[i] = stackElem;
 #if GC_TYPE==GENERATIONAL
-        _HEAP->writeBarrier(this, (VMOBJECT_PTR)stackElem);
+        GetHeap()->writeBarrier(this, (VMOBJECT_PTR)stackElem);
 #endif
     }
 }

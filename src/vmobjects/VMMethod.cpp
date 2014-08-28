@@ -65,9 +65,9 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
 
 pVMMethod VMMethod::Clone() const {
 #if GC_TYPE==GENERATIONAL
-    pVMMethod clone = new (_HEAP, GetObjectSize() - sizeof(VMMethod), true)
+    pVMMethod clone = new (GetHeap(), GetObjectSize() - sizeof(VMMethod), true)
 #else
-    pVMMethod clone = new (_HEAP, GetObjectSize() - sizeof(VMMethod))
+    pVMMethod clone = new (GetHeap(), GetObjectSize() - sizeof(VMMethod))
 #endif
     VMMethod(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,
@@ -115,7 +115,7 @@ void VMMethod::SetCachedFrame(pVMFrame frame) {
         frame->SetBytecodeIndex(0);
         frame->ResetStackPointer();
 #if GC_TYPE == GENERATIONAL
-        _HEAP->writeBarrier(this, cachedFrame);
+        GetHeap()->writeBarrier(this, cachedFrame);
 #endif
     }
 }
@@ -124,7 +124,7 @@ void VMMethod::SetCachedFrame(pVMFrame frame) {
 void VMMethod::SetNumberOfLocals(long nol) {
     numberOfLocals = NEW_INT(nol);
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, numberOfLocals);
+    GetHeap()->writeBarrier(this, numberOfLocals);
 #endif
 }
 
@@ -135,7 +135,7 @@ long VMMethod::GetMaximumNumberOfStackElements() const {
 void VMMethod::SetMaximumNumberOfStackElements(long stel) {
     maximumNumberOfStackElements = NEW_INT(stel);
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, maximumNumberOfStackElements);
+    GetHeap()->writeBarrier(this, maximumNumberOfStackElements);
 #endif
 }
 
@@ -143,7 +143,7 @@ void VMMethod::SetNumberOfArguments(long noa) {
     numberOfArguments = NEW_INT(noa);
 
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, numberOfArguments);
+    GetHeap()->writeBarrier(this, numberOfArguments);
 #endif
 }
 

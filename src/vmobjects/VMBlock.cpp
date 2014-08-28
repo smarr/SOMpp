@@ -40,16 +40,16 @@ VMBlock::VMBlock() :
 void VMBlock::SetMethod(pVMMethod bMethod) {
     blockMethod = (bMethod);
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, bMethod);
+    GetHeap()->writeBarrier(this, bMethod);
 #endif
 }
 
 pVMBlock VMBlock::Clone() const {
     pVMBlock clone;
 #if GC_TYPE==GENERATIONAL
-    clone = new (_HEAP, GetAdditionalSpaceConsumption(), true) VMBlock(*this);
+    clone = new (GetHeap(), GetAdditionalSpaceConsumption(), true) VMBlock(*this);
 #else
-    clone = new (_HEAP, GetAdditionalSpaceConsumption()) VMBlock(*this);
+    clone = new (GetHeap(), GetAdditionalSpaceConsumption()) VMBlock(*this);
 #endif
     return clone;
 }
@@ -59,5 +59,5 @@ pVMMethod VMBlock::GetMethod() const {
 }
 
 pVMEvaluationPrimitive VMBlock::GetEvaluationPrimitive(int numberOfArguments) {
-    return new (_HEAP) VMEvaluationPrimitive(numberOfArguments);
+    return new (GetHeap()) VMEvaluationPrimitive(numberOfArguments);
 }

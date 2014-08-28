@@ -37,9 +37,9 @@ VMInteger::VMInteger(long val) {
 
 pVMInteger VMInteger::Clone() const {
 #if GC_TYPE==GENERATIONAL
-    return new (_HEAP, 0, true) VMInteger(*this);
+    return new (GetHeap(), 0, true) VMInteger(*this);
 #else
-    return new (_HEAP) VMInteger(*this);
+    return new (GetHeap()) VMInteger(*this);
 #endif
 }
 

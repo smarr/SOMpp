@@ -79,7 +79,7 @@ public:
     }
 
 #if GC_TYPE==GENERATIONAL
-    void* operator new(size_t numBytes, Heap* heap,
+    void* operator new(size_t numBytes, HEAP_CLS* heap,
             unsigned long additionalBytes = 0, bool outsideNursery = false) {
         //if outsideNursery flag is set or object is too big for nursery, we
         // allocate a mature object

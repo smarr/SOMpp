@@ -44,12 +44,12 @@ VMObject::VMObject(long numberOfFields) {
 
 pVMObject VMObject::Clone() const {
 #if GC_TYPE==GENERATIONAL
-    VMObject* clone = new (_HEAP, objectSize - sizeof(VMObject), true) VMObject(*this);
+    VMObject* clone = new (GetHeap(), objectSize - sizeof(VMObject), true) VMObject(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)),
             SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() -
             sizeof(VMObject));
 #else
-    VMObject* clone = new (_HEAP, objectSize - sizeof(VMObject)) VMObject(
+    VMObject* clone = new (GetHeap(), objectSize - sizeof(VMObject)) VMObject(
             *this);
     memcpy(&(clone->clazz), &clazz,
             objectSize - sizeof(VMObject) + sizeof(pVMObject));
@@ -68,7 +68,7 @@ void VMObject::SetNumberOfFields(long nof) {
 void VMObject::SetClass(pVMClass cl) {
     clazz = cl;
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, cl);
+    GetHeap()->writeBarrier(this, cl);
 #endif
 }
 

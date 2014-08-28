@@ -90,9 +90,6 @@ public:
     map<pVMSymbol, pVMObject> GetGlobals() {
         return globals;
     }
-    Heap* GetHeap() {
-        return heap;
-    }
     Interpreter* GetInterpreter() {
         return interpreter;
     }
@@ -165,7 +162,6 @@ private:
 
     void initialize(long, char**);
 
-    Heap* heap;
     long heapSize;
     map<pVMSymbol, pVMObject> globals;
     map<long,pVMClass> blockClassesByNoOfArgs;

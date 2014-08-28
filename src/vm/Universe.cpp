@@ -304,14 +304,12 @@ void Universe::initialize(long _argc, char** _argv) {
 
     Heap::InitializeHeap(heapSize);
 
-    heap = _HEAP;
-
     interpreter = new Interpreter();
 
 #ifdef CACHE_INTEGER
     //create prebuilt integers
     for (long it = INT_CACHE_MIN_VALUE; it <= INT_CACHE_MAX_VALUE; ++it) {
-        prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = new (_HEAP) VMInteger(it);
+        prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = new (GetHeap()) VMInteger(it);
     }
 #endif
 
@@ -442,37 +440,37 @@ Universe::~Universe() {
     }
 
     static void obtain_vtables_of_known_classes(pVMSymbol className) {
-        pVMArray arr  = new (_HEAP) VMArray(0, 0);
+        pVMArray arr  = new (GetHeap()) VMArray(0, 0);
         vt_array      = *(void**) arr;
         
-        pVMBigInteger bi = new (_HEAP) VMBigInteger();
+        pVMBigInteger bi = new (GetHeap()) VMBigInteger();
         vt_biginteger = *(void**) bi;
         
-        pVMBlock blck = new (_HEAP) VMBlock();
+        pVMBlock blck = new (GetHeap()) VMBlock();
         vt_block      = *(void**) blck;
         
         vt_class      = *(void**) symbolClass;
         
-        pVMDouble dbl = new (_HEAP) VMDouble();
+        pVMDouble dbl = new (GetHeap()) VMDouble();
         vt_double     = *(void**) dbl;
         
-        VMEvaluationPrimitive* ev = new (_HEAP) VMEvaluationPrimitive(1);
+        VMEvaluationPrimitive* ev = new (GetHeap()) VMEvaluationPrimitive(1);
         vt_eval_primitive = *(void**) ev;
         
-        pVMFrame frm  = new (_HEAP) VMFrame(0, 0);
+        pVMFrame frm  = new (GetHeap()) VMFrame(0, 0);
         vt_frame      = *(void**) frm;
         
-        pVMInteger i  = new (_HEAP) VMInteger();
+        pVMInteger i  = new (GetHeap()) VMInteger();
         vt_integer    = *(void**) i;
         
-        pVMMethod mth = new (_HEAP) VMMethod(0, 0, 0);
+        pVMMethod mth = new (GetHeap()) VMMethod(0, 0, 0);
         vt_method     = *(void**) mth;
         vt_object     = *(void**) nilObject;
         
-        pVMPrimitive prm = new (_HEAP) VMPrimitive(className);
+        pVMPrimitive prm = new (GetHeap()) VMPrimitive(className);
         vt_primitive  = *(void**) prm;
         
-        pVMString str = new (_HEAP) VMString("");
+        pVMString str = new (GetHeap()) VMString("");
         vt_string     = *(void**) str;
         vt_symbol     = *(void**) className;
     }
@@ -573,7 +571,7 @@ pVMClass Universe::GetBlockClassWithArgs(long numberOfArguments) {
     pVMSymbol name = SymbolFor(Str.str());
     pVMClass result = LoadClassBasic(name, NULL);
 
-    result->AddInstancePrimitive(new (_HEAP) VMEvaluationPrimitive(numberOfArguments) );
+    result->AddInstancePrimitive(new (GetHeap()) VMEvaluationPrimitive(numberOfArguments) );
 
     SetGlobal(name, result);
     blockClassesByNoOfArgs[numberOfArguments] = result;
@@ -692,13 +690,13 @@ pVMArray Universe::NewArray(long size) const {
 #if GC_TYPE==GENERATIONAL
     // if the array is too big for the nursery, we will directly allocate a
     // mature object
-    bool outsideNursery = additionalBytes + sizeof(VMArray) > _HEAP->GetMaxNurseryObjectSize();
+    bool outsideNursery = additionalBytes + sizeof(VMArray) > GetHeap()->GetMaxNurseryObjectSize();
 
-    pVMArray result = new (_HEAP, additionalBytes, outsideNursery) VMArray(size);
+    pVMArray result = new (GetHeap(), additionalBytes, outsideNursery) VMArray(size);
     if (outsideNursery)
         result->SetGCField(MASK_OBJECT_IS_OLD);
 #else
-    pVMArray result = new (_HEAP, additionalBytes) VMArray(size);
+    pVMArray result = new (GetHeap(), additionalBytes) VMArray(size);
 #endif
 
     result->SetClass(arrayClass);
@@ -744,11 +742,11 @@ pVMBigInteger Universe::NewBigInteger( int64_t value) const {
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION("VMBigInteger", sizeof(VMBigInteger));
 #endif
-    return new (_HEAP) VMBigInteger(value);
+    return new (GetHeap()) VMBigInteger(value);
 }
 
 pVMBlock Universe::NewBlock(pVMMethod method, pVMFrame context, long arguments) {
-    pVMBlock result = new (_HEAP) VMBlock;
+    pVMBlock result = new (GetHeap()) VMBlock;
     result->SetClass(this->GetBlockClassWithArgs(arguments));
 
     result->SetMethod(method);
@@ -764,8 +762,8 @@ pVMClass Universe::NewClass(pVMClass classOfClass) const {
     long numFields = classOfClass->GetNumberOfInstanceFields();
     pVMClass result;
     long additionalBytes = numFields * sizeof(pVMObject);
-    if (numFields) result = new (_HEAP, additionalBytes) VMClass(numFields);
-    else result = new (_HEAP) VMClass;
+    if (numFields) result = new (GetHeap(), additionalBytes) VMClass(numFields);
+    else result = new (GetHeap()) VMClass;
 
     result->SetClass(classOfClass);
 #ifdef GENERATE_ALLOCATION_STATISTICS
@@ -779,7 +777,7 @@ pVMDouble Universe::NewDouble(double value) const {
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION("VMDouble", sizeof(VMDouble));
 #endif
-    return new (_HEAP) VMDouble(value);
+    return new (GetHeap()) VMDouble(value);
 }
 
 pVMFrame Universe::NewFrame(pVMFrame previousFrame, pVMMethod method) const {
@@ -797,7 +795,7 @@ pVMFrame Universe::NewFrame(pVMFrame previousFrame, pVMMethod method) const {
                   method->GetMaximumNumberOfStackElements();
 
     long additionalBytes = length * sizeof(pVMObject);
-    result = new (_HEAP, additionalBytes) VMFrame(length);
+    result = new (GetHeap(), additionalBytes) VMFrame(length);
     result->clazz = nullptr;
     result->method = method;
 #ifdef GENERATE_ALLOCATION_STATISTICS
@@ -812,7 +810,7 @@ pVMObject Universe::NewInstance( pVMClass classOfInstance) const {
     long numOfFields = classOfInstance->GetNumberOfInstanceFields();
     //the additional space needed is calculated from the number of fields
     long additionalBytes = numOfFields * sizeof(pVMObject);
-    pVMObject result = new (_HEAP, additionalBytes) VMObject(numOfFields);
+    pVMObject result = new (GetHeap(), additionalBytes) VMObject(numOfFields);
     result->SetClass(classOfInstance);
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION(classOfInstance->GetName()->GetStdString(), result->GetObjectSize());
@@ -836,12 +834,12 @@ pVMInteger Universe::NewInteger( long value) const {
     LOG_ALLOCATION("VMInteger", sizeof(VMInteger));
 #endif
 
-    return new (_HEAP) VMInteger(value);
+    return new (GetHeap()) VMInteger(value);
 }
 
 pVMClass Universe::NewMetaclassClass() const {
-    pVMClass result = new (_HEAP) VMClass;
-    result->SetClass(new (_HEAP) VMClass);
+    pVMClass result = new (GetHeap()) VMClass;
+    result->SetClass(new (GetHeap()) VMClass);
 
     pVMClass mclass = result->GetClass();
     mclass->SetClass(result);
@@ -930,10 +928,10 @@ pVMMethod Universe::NewMethod( pVMSymbol signature,
     //Method needs space for the bytecodes and the pointers to the constants
     long additionalBytes = PADDED_SIZE(numberOfBytecodes + numberOfConstants*sizeof(pVMObject));
 //#if GC_TYPE==GENERATIONAL
-//    pVMMethod result = new (_HEAP,additionalBytes, true) 
+//    pVMMethod result = new (GetHeap(),additionalBytes, true) 
 //                VMMethod(numberOfBytecodes, numberOfConstants);
 //#else
-    pVMMethod result = new (_HEAP,additionalBytes)
+    pVMMethod result = new (GetHeap(),additionalBytes)
     VMMethod(numberOfBytecodes, numberOfConstants);
 //#endif
     result->SetClass(methodClass);
@@ -951,7 +949,7 @@ pVMString Universe::NewString( const StdString& str) const {
 }
 
 pVMString Universe::NewString( const char* str) const {
-    pVMString result = new (_HEAP, PADDED_SIZE(strlen(str) + 1)) VMString(str);
+    pVMString result = new (GetHeap(), PADDED_SIZE(strlen(str) + 1)) VMString(str);
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION("VMString", result->GetObjectSize());
 #endif
@@ -963,7 +961,7 @@ pVMSymbol Universe::NewSymbol( const StdString& str) {
 }
 
 pVMSymbol Universe::NewSymbol( const char* str ) {
-    pVMSymbol result = new (_HEAP, PADDED_SIZE(strlen(str)+1)) VMSymbol(str);
+    pVMSymbol result = new (GetHeap(), PADDED_SIZE(strlen(str)+1)) VMSymbol(str);
     symbolsMap[str] = result;
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION("VMSymbol", result->GetObjectSize());
@@ -972,9 +970,9 @@ pVMSymbol Universe::NewSymbol( const char* str ) {
 }
 
 pVMClass Universe::NewSystemClass() const {
-    pVMClass systemClass = new (_HEAP) VMClass();
+    pVMClass systemClass = new (GetHeap()) VMClass();
 
-    systemClass->SetClass(new (_HEAP) VMClass());
+    systemClass->SetClass(new (GetHeap()) VMClass());
     pVMClass mclass = systemClass->GetClass();
 
     mclass->SetClass(metaClassClass);

@@ -39,7 +39,7 @@ pVMSymbol VMInvokable::GetSignature() const {
 void VMInvokable::SetSignature(pVMSymbol sig) {
     signature = sig;
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, sig);
+    GetHeap()->writeBarrier(this, sig);
 #endif
 }
 
@@ -57,6 +57,6 @@ pVMClass VMInvokable::GetHolder() const {
 void VMInvokable::SetHolder(pVMClass hld) {
     holder = hld;
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, hld);
+    GetHeap()->writeBarrier(this, hld);
 #endif
 }

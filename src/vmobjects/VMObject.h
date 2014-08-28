@@ -94,7 +94,7 @@ public:
      *   - array size in VMArray; a_b must be set to (size_of_array*sizeof(VMObect*))
      *   - fields in VMMethod, a_b must be set to (number_of_bc + number_of_csts*sizeof(pVMObject))
      */
-    void* operator new(size_t numBytes, Heap* heap,
+    void* operator new(size_t numBytes, HEAP_CLS* heap,
 #if GC_TYPE==GENERATIONAL
             unsigned long additionalBytes = 0, bool outsideNursery = false) {
         void* mem = AbstractVMObject::operator new(numBytes, heap,
@@ -163,7 +163,7 @@ pVMObject VMObject::GetField(long index) const {
 void VMObject::SetField(long index, pVMObject value) {
     FIELDS[index] = value;
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, (VMOBJECT_PTR)value);
+    GetHeap()->writeBarrier(this, (VMOBJECT_PTR)value);
 #endif
 }
         

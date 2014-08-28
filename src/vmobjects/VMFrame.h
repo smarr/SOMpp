@@ -116,7 +116,7 @@ pVMFrame VMFrame::GetContext() const {
 void VMFrame::SetContext(pVMFrame frm) {
     this->context = frm;
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, frm);
+    GetHeap()->writeBarrier(this, frm);
 #endif
 }
 
@@ -131,7 +131,7 @@ pVMFrame VMFrame::GetPreviousFrame() const {
 void VMFrame::SetPreviousFrame(pVMFrame frm) {
     this->previousFrame = frm;
 #if GC_TYPE==GENERATIONAL
-    _HEAP->writeBarrier(this, AS_POINTER(frm));
+    GetHeap()->writeBarrier(this, AS_POINTER(frm));
 #endif
 }
 

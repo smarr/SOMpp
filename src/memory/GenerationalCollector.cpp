@@ -87,8 +87,8 @@ void GenerationalCollector::MinorCollection() {
 
     // and also all objects that have been detected by the write barriers
     for (vector<size_t>::iterator objIter =
-            _HEAP->oldObjsWithRefToYoungObjs->begin();
-         objIter != _HEAP->oldObjsWithRefToYoungObjs->end();
+            GetHeap()->oldObjsWithRefToYoungObjs->begin();
+         objIter != GetHeap()->oldObjsWithRefToYoungObjs->end();
          objIter++) {
         // content of oldObjsWithRefToYoungObjs is not altered while iteration,
         // because copy_if_necessary returns old objs only -> ignored by
@@ -97,8 +97,8 @@ void GenerationalCollector::MinorCollection() {
         obj->SetGCField(MASK_OBJECT_IS_OLD);
         obj->WalkObjects(&copy_if_necessary);
     }
-    _HEAP->oldObjsWithRefToYoungObjs->clear();
-    _HEAP->nextFreePosition = _HEAP->nursery;
+    GetHeap()->oldObjsWithRefToYoungObjs->clear();
+    GetHeap()->nextFreePosition = GetHeap()->nursery;
 }
 
 void GenerationalCollector::MajorCollection() {
@@ -114,8 +114,8 @@ void GenerationalCollector::MajorCollection() {
     //now that all objects are marked we can safely delete all allocated objects that are not marked
     vector<VMOBJECT_PTR>* survivors = new vector<VMOBJECT_PTR>();
     for (vector<VMOBJECT_PTR>::iterator objIter =
-            _HEAP->allocatedObjects->begin(); objIter !=
-            _HEAP->allocatedObjects->end(); objIter++) {
+            GetHeap()->allocatedObjects->begin(); objIter !=
+            GetHeap()->allocatedObjects->end(); objIter++) {
         
         pVMObject obj = *objIter;
         assert(Universe::IsValidObject(obj));
@@ -125,11 +125,11 @@ void GenerationalCollector::MajorCollection() {
             obj->SetGCField(MASK_OBJECT_IS_OLD);
         }
         else {
-            _HEAP->FreeObject(obj);
+            GetHeap()->FreeObject(obj);
         }
     }
-    delete _HEAP->allocatedObjects;
-    _HEAP->allocatedObjects = survivors;
+    delete GetHeap()->allocatedObjects;
+    GetHeap()->allocatedObjects = survivors;
 }
 
 void GenerationalCollector::Collect() {
@@ -138,10 +138,10 @@ void GenerationalCollector::Collect() {
     heap->resetGCTrigger();
 
     MinorCollection();
-    if (_HEAP->matureObjectsSize > majorCollectionThreshold)
+    if (GetHeap()->matureObjectsSize > majorCollectionThreshold)
     {
         MajorCollection();
-        majorCollectionThreshold = 2 * _HEAP->matureObjectsSize;
+        majorCollectionThreshold = 2 * GetHeap()->matureObjectsSize;
 
     }
     Timer::GCTimer->Halt();
