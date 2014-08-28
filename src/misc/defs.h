@@ -70,9 +70,13 @@
 // Debugging
 //
 #ifndef NDEBUG
-  #define DEBUG true
+  #ifndef DEBUG
+    #define DEBUG true
+  #endif
 #else
-  #define DEBUG false
+  #ifndef DEBUG
+    #define DEBUG false
+  #endif
 #endif
 
 //
