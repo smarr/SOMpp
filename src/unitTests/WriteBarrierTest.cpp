@@ -16,7 +16,10 @@
                         GetHeap<HEAP_CLS>()->writeBarrierCalledOn.end());
 
 void WriteBarrierTest::testWriteArray() {
-#ifdef DEBUG
+    if (!DEBUG) {
+        CPPUNIT_FAIL("WriteBarrier tests only work in DEBUG builds for speed reasons");
+    }
+    
     //reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
     pVMArray arr = GetUniverse()->NewArray(3);
@@ -40,13 +43,13 @@ void WriteBarrierTest::testWriteArray() {
     TEST_WB_CALLED("VMArray failed to call writeBarrier for clazz", arr, clone2Class);
     //nilObject is assigned in constructor
     TEST_WB_CALLED("VMArray failed to call writeBarrier for an element", arr, nilObject);
-#else
-    CPPUNIT_FAIL("WriteBarrier tests only work in DEBUG builds for speed reasons");
-#endif
 }
 
 void WriteBarrierTest::testWriteBlock() {
-#ifdef DEBUG
+    if (!DEBUG) {
+        CPPUNIT_FAIL("WriteBarrier tests only work in DEBUG builds for speed reasons");
+    }
+    
     //reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
 
@@ -68,14 +71,13 @@ void WriteBarrierTest::testWriteBlock() {
     block->SetContext(block->GetContext()->Clone());
     TEST_WB_CALLED("VMBlock failed to call writeBarrier on SetContext", block,
             block->GetContext());
-
-#else
-    CPPUNIT_FAIL("WriteBarrier tests only work in DEBUG builds for speed reasons");
-#endif
 }
 
 void WriteBarrierTest::testWriteFrame() {
-#ifdef DEBUG
+    if (!DEBUG) {
+        CPPUNIT_FAIL("WriteBarrier tests only work in DEBUG builds for speed reasons");
+    }
+    
     // reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
 
@@ -88,13 +90,13 @@ void WriteBarrierTest::testWriteFrame() {
     TEST_WB_CALLED("VMFrame failed to call writeBarrier on SetContext", frame, frame->GetContext());
     frame->ClearPreviousFrame();
     TEST_WB_CALLED("VMFrame failed to call writeBarrier on ClearPreviousFrame", frame, nilObject);
-#else
-    CPPUNIT_FAIL("WriteBarrier tests only work in DEBUG builds for speed reasons");
-#endif
 }
 
 void WriteBarrierTest::testWriteMethod() {
-#ifdef DEBUG
+    if (!DEBUG) {
+        CPPUNIT_FAIL("WriteBarrier tests only work in DEBUG builds for speed reasons");
+    }
+    
     // reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
     pVMMethod method = GetUniverse()->GetInterpreter()->GetFrame()->GetMethod()->Clone();
@@ -102,26 +104,25 @@ void WriteBarrierTest::testWriteMethod() {
     TEST_WB_CALLED("VMMethod failed to call writeBarrier on SetHolder", method, integerClass);
     method->SetSignature(method->GetSignature());
     TEST_WB_CALLED("VMMethod failed to call writeBarrier on SetSignature", method, method->GetSignature());
-
-#else
-    CPPUNIT_FAIL("WriteBarrier tests only work in DEBUG builds for speed reasons");
-#endif
 }
 
 void WriteBarrierTest::testWriteEvaluationPrimitive() {
-#ifdef DEBUG
+    if (!DEBUG) {
+        CPPUNIT_FAIL("WriteBarrier tests only work in DEBUG builds for speed reasons");
+    }
+    
     //reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
     pVMEvaluationPrimitive evPrim = new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(1);
     TEST_WB_CALLED("VMEvaluationPrimitive failed to call writeBarrier when creating", evPrim, evPrim->GetClass());
     TEST_WB_CALLED("VMEvaluationPrimitive failed to call writeBarrier when creating", evPrim, evPrim->numberOfArguments);
-#else
-    CPPUNIT_FAIL("WriteBarrier tests only work in DEBUG builds for speed reasons");
-#endif
 }
 
 void WriteBarrierTest::testWriteClass() {
-#ifdef DEBUG
+    if (!DEBUG) {
+        CPPUNIT_FAIL("WriteBarrier tests only work in DEBUG builds for speed reasons");
+    }
+    
     //reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
     pVMClass cl = integerClass->Clone();
@@ -141,9 +142,6 @@ void WriteBarrierTest::testWriteClass() {
     cl->SetInstanceInvokables(newInstInvokables);
     TEST_WB_CALLED("VMClass failed to call writeBarrier on SetInstanceInvokables", cl,
             newName);
-#else
-    CPPUNIT_FAIL("WriteBarrier tests only work in DEBUG builds for speed reasons");
-#endif
 }
 #endif
 
