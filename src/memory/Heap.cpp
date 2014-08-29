@@ -66,13 +66,13 @@ template void Heap<HEAP_CLS>::DestroyHeap();
 template void Heap<HEAP_CLS>::FullGC();
 
 class GenerationalHeap;
-template HEAP_CLS* Heap<GenerationalHeap>::theHeap;
-template           Heap<GenerationalHeap>::~Heap();
+template GenerationalHeap* Heap<GenerationalHeap>::theHeap;
+template Heap<GenerationalHeap>::~Heap();
 
 class CopyingHeap;
-template HEAP_CLS* Heap<CopyingHeap>::theHeap;
-template           Heap<CopyingHeap>::~Heap();
+template CopyingHeap* Heap<CopyingHeap>::theHeap;
+template Heap<CopyingHeap>::~Heap();
 
 class MarkSweepHeap;
-template HEAP_CLS* Heap<MarkSweepHeap>::theHeap;
-template           Heap<MarkSweepHeap>::~Heap();
+template MarkSweepHeap* Heap<MarkSweepHeap>::theHeap;
+template Heap<MarkSweepHeap>::~Heap();
