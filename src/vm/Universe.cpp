@@ -440,37 +440,37 @@ Universe::~Universe() {
     }
 
     static void obtain_vtables_of_known_classes(pVMSymbol className) {
-        pVMArray arr  = new (GetHeap()) VMArray(0, 0);
+        pVMArray arr  = new (GetHeap<HEAP_CLS>()) VMArray(0, 0);
         vt_array      = *(void**) arr;
         
-        pVMBigInteger bi = new (GetHeap()) VMBigInteger();
+        pVMBigInteger bi = new (GetHeap<HEAP_CLS>()) VMBigInteger();
         vt_biginteger = *(void**) bi;
         
-        pVMBlock blck = new (GetHeap()) VMBlock();
+        pVMBlock blck = new (GetHeap<HEAP_CLS>()) VMBlock();
         vt_block      = *(void**) blck;
         
         vt_class      = *(void**) symbolClass;
         
-        pVMDouble dbl = new (GetHeap()) VMDouble();
+        pVMDouble dbl = new (GetHeap<HEAP_CLS>()) VMDouble();
         vt_double     = *(void**) dbl;
         
-        VMEvaluationPrimitive* ev = new (GetHeap()) VMEvaluationPrimitive(1);
+        VMEvaluationPrimitive* ev = new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(1);
         vt_eval_primitive = *(void**) ev;
         
-        pVMFrame frm  = new (GetHeap()) VMFrame(0, 0);
+        pVMFrame frm  = new (GetHeap<HEAP_CLS>()) VMFrame(0, 0);
         vt_frame      = *(void**) frm;
         
-        pVMInteger i  = new (GetHeap()) VMInteger();
+        pVMInteger i  = new (GetHeap<HEAP_CLS>()) VMInteger();
         vt_integer    = *(void**) i;
         
-        pVMMethod mth = new (GetHeap()) VMMethod(0, 0, 0);
+        pVMMethod mth = new (GetHeap<HEAP_CLS>()) VMMethod(0, 0, 0);
         vt_method     = *(void**) mth;
         vt_object     = *(void**) nilObject;
         
-        pVMPrimitive prm = new (GetHeap()) VMPrimitive(className);
+        pVMPrimitive prm = new (GetHeap<HEAP_CLS>()) VMPrimitive(className);
         vt_primitive  = *(void**) prm;
         
-        pVMString str = new (GetHeap()) VMString("");
+        pVMString str = new (GetHeap<HEAP_CLS>()) VMString("");
         vt_string     = *(void**) str;
         vt_symbol     = *(void**) className;
     }
@@ -696,7 +696,7 @@ pVMArray Universe::NewArray(long size) const {
     if (outsideNursery)
         result->SetGCField(MASK_OBJECT_IS_OLD);
 #else
-    pVMArray result = new (GetHeap(), additionalBytes) VMArray(size);
+    pVMArray result = new (GetHeap<HEAP_CLS>(), additionalBytes) VMArray(size);
 #endif
 
     result->SetClass(arrayClass);
@@ -928,7 +928,7 @@ pVMMethod Universe::NewMethod( pVMSymbol signature,
     //Method needs space for the bytecodes and the pointers to the constants
     long additionalBytes = PADDED_SIZE(numberOfBytecodes + numberOfConstants*sizeof(pVMObject));
 //#if GC_TYPE==GENERATIONAL
-//    pVMMethod result = new (GetHeap(),additionalBytes, true) 
+//    pVMMethod result = new (GetHeap<HEAP_CLS>(),additionalBytes, true) 
 //                VMMethod(numberOfBytecodes, numberOfConstants);
 //#else
     pVMMethod result = new (GetHeap<HEAP_CLS>(),additionalBytes)

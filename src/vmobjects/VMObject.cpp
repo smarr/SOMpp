@@ -49,7 +49,7 @@ pVMObject VMObject::Clone() const {
             SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() -
             sizeof(VMObject));
 #else
-    VMObject* clone = new (GetHeap(), objectSize - sizeof(VMObject)) VMObject(
+    VMObject* clone = new (GetHeap<HEAP_CLS>(), objectSize - sizeof(VMObject)) VMObject(
             *this);
     memcpy(&(clone->clazz), &clazz,
             objectSize - sizeof(VMObject) + sizeof(pVMObject));
