@@ -41,9 +41,9 @@ void CopyingCollector::Collect() {
             (size_t)(GetHeap()->currentBuffer)) * 2;
 
     GetHeap()->switchBuffers();
-    //increase memory if scheduled in collection before
-    if (increaseMemory)
-    {
+
+    // increase memory if scheduled in collection before
+    if (increaseMemory) {
         free(GetHeap()->currentBuffer);
         GetHeap()->currentBuffer = malloc(newSize);
         GetHeap()->nextFreePosition = GetHeap()->currentBuffer;
@@ -70,9 +70,9 @@ void CopyingCollector::Collect() {
         curObject->WalkObjects(copy_if_necessary);
         curObject = (VMOBJECT_PTR)((size_t)curObject + curObject->GetObjectSize());
     }
+    
     //increase memory if scheduled in collection before
-    if (increaseMemory)
-    {
+    if (increaseMemory) {
         increaseMemory = false;
         free(GetHeap()->oldBuffer);
         GetHeap()->oldBuffer = malloc(newSize);

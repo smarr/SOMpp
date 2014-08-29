@@ -231,10 +231,9 @@ bool VMClass::HasPrimitives() const {
 }
 
 void VMClass::LoadPrimitives(const vector<StdString>& cp) {
-
     // the library handle
     void* dlhandle = NULL;
-    //
+
     // cached object properties
     StdString cname = this->name->GetStdString();
 

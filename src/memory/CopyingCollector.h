@@ -12,4 +12,5 @@ public:
 private:
     void Collect();
 };
+
 #endif
