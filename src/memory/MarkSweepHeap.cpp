@@ -1,18 +1,15 @@
 #include "MarkSweepHeap.h"
 
-#if GC_TYPE == MARK_SWEEP
-
 #include <string.h>
 
 #include "MarkSweepCollector.h"
 #include "../vmobjects/AbstractObject.h"
 #include "../vm/Universe.h"
 
-MarkSweepHeap::MarkSweepHeap(long objectSpaceSize) {
+MarkSweepHeap::MarkSweepHeap(long objectSpaceSize) : Heap<MarkSweepHeap>(new MarkSweepCollector(this), objectSpaceSize) {
     //our initial collection limit is 90% of objectSpaceSize
     collectionLimit = objectSpaceSize * 0.9;
     spcAlloc = 0;
-    gc = new MarkSweepCollector(this);
     allocatedObjects = new vector<VMOBJECT_PTR>();
 }
 
@@ -33,5 +30,3 @@ AbstractVMObject* MarkSweepHeap::AllocateObject(size_t size) {
         triggerGC();
     return newObject;
 }
-
-#endif

@@ -63,9 +63,9 @@ Interpreter::~Interpreter() {}
 }
 
 #define DISPATCH_GC() {\
-  if (GetHeap()->isCollectionTriggered()) {\
+  if (GetHeap<HEAP_CLS>()->isCollectionTriggered()) {\
     GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);\
-    GetHeap()->FullGC();\
+    GetHeap<HEAP_CLS>()->FullGC();\
     method = GetFrame()->GetMethod(); \
     currentBytecodes = method->GetBytecodes(); \
   }\

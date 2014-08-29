@@ -1,11 +1,10 @@
 #pragma once
 
 #include "../misc/defs.h"
-#if GC_TYPE == MARK_SWEEP
 
 #include "Heap.h"
 
-class MarkSweepHeap : public Heap {
+class MarkSweepHeap : public Heap<MarkSweepHeap> {
     friend class MarkSweepCollector;
 public:
     MarkSweepHeap(long objectSpaceSize = 1048576);
@@ -16,5 +15,3 @@ private:
     long collectionLimit;
 
 };
-
-#endif

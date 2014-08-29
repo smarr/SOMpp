@@ -44,7 +44,7 @@ pVMFrame VMFrame::EmergencyFrameFrom(pVMFrame from, long extraLength) {
                     + extraLength;
 
     long additionalBytes = length * sizeof(pVMObject);
-    pVMFrame result = new (GetHeap(), additionalBytes) VMFrame(length);
+    pVMFrame result = new (GetHeap<HEAP_CLS>(), additionalBytes) VMFrame(length);
 
     result->clazz = nullptr; // result->SetClass(from->GetClass());
 
@@ -81,9 +81,9 @@ pVMFrame VMFrame::EmergencyFrameFrom(pVMFrame from, long extraLength) {
 pVMFrame VMFrame::Clone() const {
     size_t addSpace = objectSize - sizeof(VMFrame);
 #if GC_TYPE==GENERATIONAL
-    pVMFrame clone = new (GetHeap(), addSpace, true) VMFrame(*this);
+    pVMFrame clone = new (GetHeap<HEAP_CLS>(), addSpace, true) VMFrame(*this);
 #else
-    pVMFrame clone = new (GetHeap(), addSpace) VMFrame(*this);
+    pVMFrame clone = new (GetHeap<HEAP_CLS>(), addSpace) VMFrame(*this);
 #endif
     void* destination = SHIFTED_PTR(clone, sizeof(VMFrame));
     const void* source = SHIFTED_PTR(this, sizeof(VMFrame));

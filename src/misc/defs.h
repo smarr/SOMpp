@@ -63,6 +63,21 @@
 #define COPYING      2
 #define MARK_SWEEP   3
 
+#if   GC_TYPE == GENERATIONAL
+  class   GenerationalHeap;
+  typedef GenerationalHeap HEAP_CLS;
+  #define write_barrier(obj, value_ptr) ((GetHeap<GenerationalHeap>())->writeBarrier(obj, (VMOBJECT_PTR) value_ptr))
+#elif GC_TYPE == COPYING
+  class   CopyingHeap;
+  typedef CopyingHeap HEAP_CLS;
+  #define write_barrier(obj, value_ptr)
+#elif GC_TYPE == MARK_SWEEP
+  class   MarkSweepHeap;
+  typedef MarkSweepHeap HEAP_CLS;
+  #define write_barrier(obj, value_ptr)
+#endif
+
+
 
 //
 // Debugging

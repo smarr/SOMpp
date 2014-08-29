@@ -25,7 +25,7 @@
 #include "vmobjects/VMEvaluationPrimitive.h"
 
 void CloneObjectsTest::testCloneObject() {
-    pVMObject orig = new (GetHeap()) VMObject();
+    pVMObject orig = new (GetHeap<HEAP_CLS>()) VMObject();
     pVMObject clone = orig->Clone();
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->GetClass(),
@@ -144,7 +144,7 @@ void CloneObjectsTest::testClonePrimitive() {
 }
 
 void CloneObjectsTest::testCloneEvaluationPrimitive() {
-    pVMEvaluationPrimitive orig = new (GetHeap()) VMEvaluationPrimitive(1);
+    pVMEvaluationPrimitive orig = new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(1);
     pVMEvaluationPrimitive clone = orig->Clone();
 
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);

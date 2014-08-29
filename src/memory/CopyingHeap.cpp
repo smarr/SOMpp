@@ -1,13 +1,10 @@
 #include "CopyingHeap.h"
 #include "CopyingCollector.h"
 
-#if GC_TYPE==COPYING
-
 #include "../vmobjects/AbstractObject.h"
 #include "../vm/Universe.h"
 
-CopyingHeap::CopyingHeap(long objectSpaceSize) : Heap(objectSpaceSize) {
-    gc = new CopyingCollector(this);
+CopyingHeap::CopyingHeap(long objectSpaceSize) : Heap<CopyingHeap>(new CopyingCollector(this), objectSpaceSize) {
     size_t bufSize = objectSpaceSize;
     currentBuffer = malloc(bufSize);
     oldBuffer = malloc(bufSize);
@@ -42,4 +39,3 @@ AbstractVMObject* CopyingHeap::AllocateObject(size_t size) {
     triggerGC();
     return newObject;
 }
-#endif

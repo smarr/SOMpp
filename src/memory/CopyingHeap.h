@@ -3,9 +3,7 @@
 #include "Heap.h"
 #include <string.h>
 
-#if GC_TYPE==COPYING
-
-class CopyingHeap : public Heap {
+class CopyingHeap : public Heap<CopyingHeap> {
     friend class CopyingCollector;
 public:
     CopyingHeap(long heapSize);
@@ -18,4 +16,3 @@ private:
     void switchBuffers(void);
     void* nextFreePosition;
 };
-#endif

@@ -29,15 +29,14 @@
 #include "../vmobjects/ObjectFormats.h"
 #include "../misc/defs.h"
 
-class Heap;
-
+template <class HEAP_T>
 class GarbageCollector {
 public:
-    GarbageCollector(Heap* h);
-    virtual ~GarbageCollector();
+    GarbageCollector(HEAP_T* h) : heap(h) {}
+    virtual ~GarbageCollector() {}
     virtual void Collect() = 0;
     void PrintGCStat() const;
     void PrintCollectStat() const;
 protected:
-    Heap* heap;
+    HEAP_T* const heap;
 };

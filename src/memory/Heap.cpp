@@ -31,9 +31,11 @@
 #include "../vmobjects/VMObject.h"
 #include "../vm/Universe.h"
 
-HEAP_CLS* Heap::theHeap = NULL;
+template<class HEAP_T>
+HEAP_T* Heap<HEAP_T>::theHeap = NULL;
 
-void Heap::InitializeHeap(long objectSpaceSize) {
+template<class HEAP_T>
+void Heap<HEAP_T>::InitializeHeap(long objectSpaceSize) {
     if (theHeap) {
         cout << "Warning, reinitializing already initialized Heap, "
                 << "all data will be lost!" << endl;
@@ -42,19 +44,35 @@ void Heap::InitializeHeap(long objectSpaceSize) {
     theHeap = new HEAP_CLS(objectSpaceSize);
 }
 
-void Heap::DestroyHeap() {
+template<class HEAP_T>
+void Heap<HEAP_T>::DestroyHeap() {
     if (theHeap)
         delete theHeap;
 }
 
-Heap::Heap(long objectSpaceSize) {
-    gcTriggered = false;
-}
-
-Heap::~Heap() {
+template<class HEAP_T>
+Heap<HEAP_T>::~Heap() {
     delete gc;
 }
 
-void Heap::FullGC() {
+template<class HEAP_T>
+void Heap<HEAP_T>::FullGC() {
     gc->Collect();
 }
+
+// Instantitate Template for the heap classes
+template void Heap<HEAP_CLS>::InitializeHeap(long);
+template void Heap<HEAP_CLS>::DestroyHeap();
+template void Heap<HEAP_CLS>::FullGC();
+
+class GenerationalHeap;
+template HEAP_CLS* Heap<GenerationalHeap>::theHeap;
+template           Heap<GenerationalHeap>::~Heap();
+
+class CopyingHeap;
+template HEAP_CLS* Heap<CopyingHeap>::theHeap;
+template           Heap<CopyingHeap>::~Heap();
+
+class MarkSweepHeap;
+template HEAP_CLS* Heap<MarkSweepHeap>::theHeap;
+template           Heap<MarkSweepHeap>::~Heap();

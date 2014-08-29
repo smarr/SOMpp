@@ -1,3 +1,4 @@
+#include "Heap.h"
 #include "GenerationalHeap.h"
 #include "GenerationalCollector.h"
 #include "../vmobjects/AbstractObject.h"
@@ -6,14 +7,11 @@
 #include <string.h>
 #include <iostream>
 
-#if GC_TYPE == GENERATIONAL
-
 using namespace std;
 
-GenerationalHeap::GenerationalHeap(long objectSpaceSize) {
+GenerationalHeap::GenerationalHeap(long objectSpaceSize) : Heap<GenerationalHeap>(new GenerationalCollector(this)) {
     //our initial collection limit is 90% of objectSpaceSize
     //collectionLimit = objectSpaceSize * 0.9;
-    gc = new GenerationalCollector(this);
 
     nursery = malloc(objectSpaceSize);
     nurserySize = objectSpaceSize;
@@ -60,4 +58,3 @@ void GenerationalHeap::writeBarrier_OldHolder(VMOBJECT_PTR holder, const VMOBJEC
     }
 }
 
-#endif

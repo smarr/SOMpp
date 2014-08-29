@@ -1,12 +1,13 @@
 #pragma once
+
 #include "../misc/defs.h"
-#if GC_TYPE == GENERATIONAL
 
 #include "GarbageCollector.h"
 
-class GenerationalCollector : public GarbageCollector {
+class GenerationalHeap;
+class GenerationalCollector : public GarbageCollector<GenerationalHeap> {
 public:
-    GenerationalCollector(Heap* heap);
+    GenerationalCollector(GenerationalHeap* heap);
     void Collect();
 private:
     intptr_t majorCollectionThreshold;
@@ -14,5 +15,3 @@ private:
     void MajorCollection();
     void MinorCollection();
 };
-
-#endif

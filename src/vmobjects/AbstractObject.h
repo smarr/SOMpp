@@ -12,23 +12,9 @@
 
 
 #include <misc/defs.h>
+#include <memory/GenerationalHeap.h>
 
 #include "ObjectFormats.h"
-
-#if GC_TYPE==GENERATIONAL
-  #include <memory/GenerationalHeap.h>
-#elif GC_TYPE==COPYING
-  #include <memory/CopyingHeap.h>
-#elif GC_TYPE==MARK_SWEEP
-  #include <memory/MarkSweepHeap.h>
-#endif
-
-#if GC_TYPE==GENERATIONAL
-  #define write_barrier(obj, value_ptr) (GetHeap()->writeBarrier(obj, (VMOBJECT_PTR)value_ptr))
-#else
-  #define write_barrier(obj, value_ptr)
-#endif
-
 #include "VMObjectBase.h"
 
 /*

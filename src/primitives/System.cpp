@@ -125,7 +125,7 @@ void _System::Ticks(pVMObject /*object*/, pVMFrame frame) {
 
 void _System::FullGC(pVMObject /*object*/, pVMFrame frame) {
     frame->Pop();
-    GetHeap()->triggerGC(); // not safe to do it immediatly, will be done when it is ok, i.e., in the interpreter loop
+    GetHeap<HEAP_CLS>()->triggerGC(); // not safe to do it immediatly, will be done when it is ok, i.e., in the interpreter loop
     frame->Push(trueObject);
 }
 

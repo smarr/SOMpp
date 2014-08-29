@@ -2,7 +2,7 @@
 
 #include "../misc/defs.h"
 #include <assert.h>
-#if GC_TYPE ==GENERATIONAL
+
 
 #include "Heap.h"
 #include "../vmobjects/VMObjectBase.h"
@@ -18,7 +18,7 @@ struct VMObjectCompare {
 };
 #endif
 
-class GenerationalHeap : public Heap {
+class GenerationalHeap : public Heap<GenerationalHeap> {
     friend class GenerationalCollector;
 public:
     GenerationalHeap(long objectSpaceSize = 1048576);
@@ -66,6 +66,3 @@ inline void GenerationalHeap::writeBarrier(VMOBJECT_PTR holder, const VMOBJECT_P
     if ((gcfield & 6 /* MASK_OBJECT_IS_OLD + MASK_SEEN_BY_WRITE_BARRIER */) == 2 /* MASK_OBJECT_IS_OLD */)
         writeBarrier_OldHolder(holder, referencedObject);
 }
-
-#endif
-

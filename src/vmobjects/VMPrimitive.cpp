@@ -34,7 +34,7 @@
 #include "../primitivesCore/Routine.h"
 
 pVMPrimitive VMPrimitive::GetEmptyPrimitive( pVMSymbol sig ) {
-    pVMPrimitive prim = new (GetHeap()) VMPrimitive(sig);
+    pVMPrimitive prim = new (GetHeap<HEAP_CLS>()) VMPrimitive(sig);
     prim->empty = true;
     prim->SetRoutine(new Routine<VMPrimitive>(prim, &VMPrimitive::EmptyRoutine));
     return prim;
@@ -54,9 +54,9 @@ VMPrimitive::VMPrimitive(pVMSymbol signature) : VMInvokable(VMPrimitiveNumberOfF
 pVMPrimitive VMPrimitive::Clone() const {
     pVMPrimitive prim;
 #if GC_TYPE==GENERATIONAL
-    prim = new (GetHeap(), 0, true) VMPrimitive(*this);
+    prim = new (GetHeap<HEAP_CLS>(), 0, true) VMPrimitive(*this);
 #else
-    prim = new (GetHeap()) VMPrimitive(*this);
+    prim = new (GetHeap<HEAP_CLS>()) VMPrimitive(*this);
 #endif
     return prim;
 }

@@ -1,7 +1,5 @@
 #include "MarkSweepCollector.h"
 
-#if GC_TYPE==MARK_SWEEP
-
 #include "../vm/Universe.h"
 #include "MarkSweepHeap.h"
 #include "../vmobjects/AbstractObject.h"
@@ -10,7 +8,7 @@
 #define GC_MARKED 3456
 
 void MarkSweepCollector::Collect() {
-    MarkSweepHeap* heap = GetHeap();
+    MarkSweepHeap* heap = GetHeap<MarkSweepHeap>();
     Timer::GCTimer->Resume();
     //reset collection trigger
     heap->resetGCTrigger();
@@ -45,7 +43,7 @@ void MarkSweepCollector::Collect() {
     Timer::GCTimer->Halt();
 }
 
-VMOBJECT_PTR mark_object(VMOBJECT_PTR obj) {
+static VMOBJECT_PTR mark_object(VMOBJECT_PTR obj) {
 #ifdef USE_TAGGING
     if (IS_TAGGED(obj))
         return obj;
@@ -69,4 +67,4 @@ void MarkSweepCollector::markReachableObjects() {
         GetUniverse()->GetInterpreter()->SetFrame(newFrame);
     }
 }
-#endif
+

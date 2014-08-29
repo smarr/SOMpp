@@ -35,58 +35,33 @@
 
 using namespace std;
 
-#if GC_TYPE==GENERATIONAL
-class GenerationalHeap;
-#define HEAP_CLS GenerationalHeap
-#elif GC_TYPE == COPYING
-class CopyingHeap;
-#define HEAP_CLS CopyingHeap
-#elif GC_TYPE == MARK_SWEEP
-class MarkSweepHeap;
-#define HEAP_CLS MarkSweepHeap
-#endif
-
+template<class HEAP_T>
 class Heap {
-    friend class GarbageCollector;
+    friend class GarbageCollector<HEAP_T>;
 
 public:
-    static inline HEAP_CLS* GetHeap();
     static void InitializeHeap(long objectSpaceSize = 1048576);
     static void DestroyHeap();
-    Heap(long objectSpaceSize = 1048576);
+    Heap(GarbageCollector<HEAP_T>* const gc, long objectSpaceSize = 1048576) : gc(gc), gcTriggered(false) {}
     ~Heap();
-    inline void triggerGC(void);
-    inline void resetGCTrigger(void);
-    bool isCollectionTriggered(void);
+    inline void triggerGC()      { gcTriggered = true; }
+    inline void resetGCTrigger() { gcTriggered = false; }
+    bool isCollectionTriggered() { return gcTriggered;  }
     void FullGC();
-    inline void FreeObject(AbstractVMObject* o);
+    inline void FreeObject(AbstractVMObject* o) { free(o); }
 protected:
-    GarbageCollector* gc;
+    GarbageCollector<HEAP_T>* const gc;
 private:
-    friend HEAP_CLS* GetHeap();
+    template<class HEAP_U> friend HEAP_U* GetHeap();
+    static HEAP_T* theHeap;
     
-    static HEAP_CLS* theHeap;
-    //flag that shows if a Collection is triggered
+    // flag that shows if a Collection is triggered
     bool gcTriggered;
 };
 
-inline HEAP_CLS* GetHeap() __attribute__ ((always_inline));
-HEAP_CLS* GetHeap() {
-    return Heap::theHeap;
-}
-
-void Heap::triggerGC(void) {
-    gcTriggered = true;
-}
-
-inline bool Heap::isCollectionTriggered(void) {
-    return gcTriggered;
-}
-
-void Heap::resetGCTrigger(void) {
-    gcTriggered = false;
-}
-
-void Heap::FreeObject(AbstractVMObject* obj) {
-    free(obj);
+template<class HEAP_T>
+inline HEAP_T* GetHeap() __attribute__ ((always_inline));
+template<class HEAP_T>
+HEAP_T* GetHeap() {
+    return Heap<HEAP_T>::theHeap;
 }

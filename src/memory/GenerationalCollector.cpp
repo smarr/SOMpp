@@ -1,5 +1,4 @@
 #include "../misc/defs.h"
-#if GC_TYPE==GENERATIONAL
 
 #include "GenerationalCollector.h"
 
@@ -16,12 +15,12 @@
 
 #define INITIAL_MAJOR_COLLECTION_THRESHOLD (5 * 1024 * 1024) //5 MB
 
-GenerationalCollector::GenerationalCollector(Heap* heap) : GarbageCollector(heap) {
+GenerationalCollector::GenerationalCollector(GenerationalHeap* heap) : GarbageCollector(heap) {
     majorCollectionThreshold = INITIAL_MAJOR_COLLECTION_THRESHOLD;
     matureObjectsSize = 0;
 }
 
-VMOBJECT_PTR mark_object(VMOBJECT_PTR obj) {
+static VMOBJECT_PTR mark_object(VMOBJECT_PTR obj) {
     assert(Universe::IsValidObject(obj));
 #ifdef USE_TAGGING
     //don't process tagged objects
@@ -37,7 +36,7 @@ VMOBJECT_PTR mark_object(VMOBJECT_PTR obj) {
     return obj;
 }
 
-VMOBJECT_PTR copy_if_necessary(VMOBJECT_PTR obj) {
+static VMOBJECT_PTR copy_if_necessary(VMOBJECT_PTR obj) {
     assert(Universe::IsValidObject(obj));
     
 #ifdef USE_TAGGING
@@ -87,8 +86,8 @@ void GenerationalCollector::MinorCollection() {
 
     // and also all objects that have been detected by the write barriers
     for (vector<size_t>::iterator objIter =
-            GetHeap()->oldObjsWithRefToYoungObjs->begin();
-         objIter != GetHeap()->oldObjsWithRefToYoungObjs->end();
+            heap->oldObjsWithRefToYoungObjs->begin();
+         objIter != heap->oldObjsWithRefToYoungObjs->end();
          objIter++) {
         // content of oldObjsWithRefToYoungObjs is not altered while iteration,
         // because copy_if_necessary returns old objs only -> ignored by
@@ -97,8 +96,8 @@ void GenerationalCollector::MinorCollection() {
         obj->SetGCField(MASK_OBJECT_IS_OLD);
         obj->WalkObjects(&copy_if_necessary);
     }
-    GetHeap()->oldObjsWithRefToYoungObjs->clear();
-    GetHeap()->nextFreePosition = GetHeap()->nursery;
+    heap->oldObjsWithRefToYoungObjs->clear();
+    heap->nextFreePosition = heap->nursery;
 }
 
 void GenerationalCollector::MajorCollection() {
@@ -114,8 +113,8 @@ void GenerationalCollector::MajorCollection() {
     //now that all objects are marked we can safely delete all allocated objects that are not marked
     vector<VMOBJECT_PTR>* survivors = new vector<VMOBJECT_PTR>();
     for (vector<VMOBJECT_PTR>::iterator objIter =
-            GetHeap()->allocatedObjects->begin(); objIter !=
-            GetHeap()->allocatedObjects->end(); objIter++) {
+            heap->allocatedObjects->begin(); objIter !=
+            heap->allocatedObjects->end(); objIter++) {
         
         pVMObject obj = *objIter;
         assert(Universe::IsValidObject(obj));
@@ -125,11 +124,11 @@ void GenerationalCollector::MajorCollection() {
             obj->SetGCField(MASK_OBJECT_IS_OLD);
         }
         else {
-            GetHeap()->FreeObject(obj);
+            heap->FreeObject(obj);
         }
     }
-    delete GetHeap()->allocatedObjects;
-    GetHeap()->allocatedObjects = survivors;
+    delete heap->allocatedObjects;
+    heap->allocatedObjects = survivors;
 }
 
 void GenerationalCollector::Collect() {
@@ -138,13 +137,11 @@ void GenerationalCollector::Collect() {
     heap->resetGCTrigger();
 
     MinorCollection();
-    if (GetHeap()->matureObjectsSize > majorCollectionThreshold)
+    if (heap->matureObjectsSize > majorCollectionThreshold)
     {
         MajorCollection();
-        majorCollectionThreshold = 2 * GetHeap()->matureObjectsSize;
+        majorCollectionThreshold = 2 * heap->matureObjectsSize;
 
     }
     Timer::GCTimer->Halt();
 }
-
-#endif

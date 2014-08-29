@@ -68,9 +68,9 @@ VMClass::VMClass() :
 
 pVMClass VMClass::Clone() const {
 #if GC_TYPE==GENERATIONAL
-    pVMClass clone = new (GetHeap(), objectSize - sizeof(VMClass), true)VMClass(*this);
+    pVMClass clone = new (GetHeap<HEAP_CLS>(), objectSize - sizeof(VMClass), true)VMClass(*this);
 #else
-    pVMClass clone = new (GetHeap(), objectSize - sizeof(VMClass))VMClass(*this);
+    pVMClass clone = new (GetHeap<HEAP_CLS>(), objectSize - sizeof(VMClass))VMClass(*this);
 #endif
     memcpy(SHIFTED_PTR(clone,sizeof(VMObject)),
             SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() -
