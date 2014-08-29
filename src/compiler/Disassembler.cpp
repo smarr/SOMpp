@@ -497,6 +497,3 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
             break;
     }
 }
-
-// EOF: diassembler.c
-
