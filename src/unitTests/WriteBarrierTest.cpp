@@ -112,7 +112,7 @@ void WriteBarrierTest::testWriteEvaluationPrimitive() {
 #ifdef DEBUG
     //reset set...
     GetHeap()->writeBarrierCalledOn.clear();
-    pVMEvaluationPrimitive evPrim = new (GetUniverse()->GetHeap()) VMEvaluationPrimitive(1);
+    pVMEvaluationPrimitive evPrim = new (GetHeap()) VMEvaluationPrimitive(1);
     TEST_WB_CALLED("VMEvaluationPrimitive failed to call writeBarrier when creating", evPrim, evPrim->GetClass());
     TEST_WB_CALLED("VMEvaluationPrimitive failed to call writeBarrier when creating", evPrim, evPrim->numberOfArguments);
 #else

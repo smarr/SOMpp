@@ -82,7 +82,7 @@ void WalkObjectsTest::testWalkDouble() {
 void WalkObjectsTest::testWalkEvaluationPrimitive() {
     walkedObjects.clear();
 
-    pVMEvaluationPrimitive evPrim = new (GetUniverse()->GetHeap()) VMEvaluationPrimitive(1);
+    pVMEvaluationPrimitive evPrim = new (GetHeap()) VMEvaluationPrimitive(1);
     evPrim->WalkObjects(collectMembers);
 
     CPPUNIT_ASSERT(WalkerHasFound(evPrim->numberOfArguments));
@@ -95,7 +95,7 @@ void WalkObjectsTest::testWalkEvaluationPrimitive() {
 void WalkObjectsTest::testWalkObject() {
     walkedObjects.clear();
 
-    VMObject* obj = new (GetUniverse()->GetHeap()) VMObject();
+    VMObject* obj = new (GetHeap()) VMObject();
     obj->WalkObjects(collectMembers);
 
     //Objects should only have one member -> Class
