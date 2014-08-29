@@ -78,7 +78,7 @@ pVMArray VMArray::Clone() const {
 #else
     pVMArray clone = new (GetHeap(), addSpace) VMArray(*this);
 #endif
-    void* destination = SHIFTED_PTR(clone, sizeof(VMArray));
+    void* destination  = SHIFTED_PTR(clone, sizeof(VMArray));
     const void* source = SHIFTED_PTR(this, sizeof(VMArray));
     size_t noBytes = GetObjectSize() - sizeof(VMArray);
     memcpy(destination, source, noBytes);

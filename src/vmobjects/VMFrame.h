@@ -84,17 +84,17 @@ private:
 };
 
 pVMObject VMFrame::GetField(long index) const {
-    if (index==4)
+    if (index == 4)
         return NEW_INT(bytecodeIndex);
     return VMObject::GetField(index);
 }
 
 bool VMFrame::HasContext() const {
-    return this->context != NULL;
+    return context != NULL;
 }
 
 bool VMFrame::HasPreviousFrame() const {
-    return this->previousFrame != NULL;
+    return previousFrame != NULL;
 }
 
 long VMFrame::GetBytecodeIndex() const {
@@ -110,14 +110,14 @@ bool VMFrame::IsBootstrapFrame() const {
 }
 
 pVMFrame VMFrame::GetContext() const {
-    return this->context;
+    return context;
 }
 
 void VMFrame::SetContext(pVMFrame frm) {
-    this->context = frm;
 #if GC_TYPE==GENERATIONAL
     GetHeap()->writeBarrier(this, frm);
 #endif
+    context = frm;
 }
 
 void* VMFrame::GetStackPointer() const {
@@ -125,22 +125,22 @@ void* VMFrame::GetStackPointer() const {
 }
 
 pVMFrame VMFrame::GetPreviousFrame() const {
-    return this->previousFrame;
+    return previousFrame;
 }
 
 void VMFrame::SetPreviousFrame(pVMFrame frm) {
-    this->previousFrame = frm;
 #if GC_TYPE==GENERATIONAL
     GetHeap()->writeBarrier(this, AS_POINTER(frm));
 #endif
+    previousFrame = frm;
 }
 
 void VMFrame::ClearPreviousFrame() {
-    this->previousFrame = NULL;
+    previousFrame = NULL;
 }
 
 pVMMethod VMFrame::GetMethod() const {
-    return this->method;
+    return method;
 }
 
 #endif

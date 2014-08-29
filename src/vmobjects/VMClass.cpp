@@ -105,7 +105,7 @@ void VMClass::MarkObjectAsInvalid() {
 
 bool VMClass::AddInstanceInvokable(pVMObject ptr) {
     pVMInvokable newInvokable = static_cast<pVMInvokable>(ptr);
-    if (newInvokable == NULL) {
+    if (newInvokable == nullptr) {
         GetUniverse()->ErrorExit("Error: trying to add non-invokable to invokables array");
         return false;
     }
@@ -113,13 +113,14 @@ bool VMClass::AddInstanceInvokable(pVMObject ptr) {
     long numIndexableFields = instanceInvokables->GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {
         pVMInvokable inv = static_cast<pVMInvokable>(instanceInvokables->GetIndexableField(i));
-        if (inv != NULL) {
+        if (inv != nullptr) {
             if (newInvokable->GetSignature() == inv->GetSignature()) {
-                this->SetInstanceInvokable(i, ptr);
+                SetInstanceInvokable(i, ptr);
                 return false;
             }
         } else {
-            GetUniverse()->ErrorExit("Invokables array corrupted. Either NULL pointer added or pointer to non-invokable.");
+            GetUniverse()->ErrorExit("Invokables array corrupted. "
+                                     "Either NULL pointer added or pointer to non-invokable.");
             return false;
         }
     }
@@ -203,16 +204,17 @@ pVMInvokable VMClass::LookupInvokable(pVMSymbol name) const {
     }
     
     // invokable not found
-    return NULL;
+    return nullptr;
 }
 
 long VMClass::LookupFieldIndex(pVMSymbol name) const {
     long numInstanceFields = GetNumberOfInstanceFields();
-    for (long i = 0; i <= numInstanceFields; ++i)
+    for (long i = 0; i <= numInstanceFields; ++i) {
         // even with GetNumberOfInstanceFields == 0 there is the class field
         if (name == GetInstanceFieldName(i)) {
             return i;
         }
+    }
     return -1;
 }
 
@@ -298,8 +300,8 @@ void VMClass::LoadPrimitives(const vector<StdString>& cp) {
 }
 
 long VMClass::numberOfSuperInstanceFields() const {
-    if (this->HasSuperClass())
-        return this->superClass->GetNumberOfInstanceFields();
+    if (HasSuperClass())
+        return superClass->GetNumberOfInstanceFields();
     return 0;
 }
 
