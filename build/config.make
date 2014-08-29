@@ -1,5 +1,5 @@
 # some defaults
-TAGGING?=false
+USE_TAGGING?=false
 GC_TYPE?=generational
 CACHE_INTEGER?=true
 INT_CACHE_MIN_VALUE?=-5
