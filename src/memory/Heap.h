@@ -1,6 +1,4 @@
 #pragma once
-#ifndef HEAP_H_
-#define HEAP_H_
 
 /*
  *
@@ -92,4 +90,3 @@ void Heap::resetGCTrigger(void) {
 void Heap::FreeObject(AbstractVMObject* obj) {
     free(obj);
 }
-#endif

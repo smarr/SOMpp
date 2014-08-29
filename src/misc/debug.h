@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef DEBUG_H_
-#define DEBUG_H_
-
 /*
  *
  *
@@ -92,5 +89,3 @@ static inline void DebugTrace(const char* fmt, ...) {
 
 #undef FprintfPass
 #undef DebugPass 
-
-#endif // DEBUG_H_

@@ -1,6 +1,4 @@
 #pragma once
-#ifndef GARBAGECOLLECTOR_H_
-#define GARBAGECOLLECTOR_H_
 
 /*
  *
@@ -43,5 +41,3 @@ public:
 protected:
     Heap* heap;
 };
-
-#endif

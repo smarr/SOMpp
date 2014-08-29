@@ -1,6 +1,4 @@
 #pragma once
-#ifndef VMMETHOD_H_
-#define VMMETHOD_H_
 
 /*
  *
@@ -120,5 +118,3 @@ uint8_t VMMethod::GetBytecode(long indx) const {
 void VMMethod::SetBytecode(long indx, uint8_t val) {
     bytecodes[indx] = val;
 }
-
-#endif

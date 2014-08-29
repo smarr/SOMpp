@@ -1,6 +1,4 @@
 #pragma once
-#ifndef VMSYMBOL_H_
-#define VMSYMBOL_H_
 
 /*
  *
@@ -74,5 +72,3 @@ void VMSymbol::UpdateCachedInvokable(pcVMClass cls, pVMInvokable invo) {
     write_barrier(this, invo);
     write_barrier(this, cls);
 }
-
-#endif

@@ -1,6 +1,4 @@
 #pragma once
-#ifndef VMSTRING_H_
-#define VMSTRING_H_
 
 /*
  *
@@ -56,4 +54,3 @@ protected:
 char* VMString::GetChars() const {
     return chars;
 }
-#endif

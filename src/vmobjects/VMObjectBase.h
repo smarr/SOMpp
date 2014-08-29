@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef VMBASEOBJECT_H_
-#define VMBASEOBJECT_H_
-
 #define MASK_OBJECT_IS_MARKED (1 << 0)
 #define MASK_OBJECT_IS_OLD (1 << 1)
 #define MASK_SEEN_BY_WRITE_BARRIER (1 << 2)
@@ -32,5 +29,3 @@ void VMObjectBase::SetGCField(size_t val) {
 #endif
     gcfield = val;
 }
-
-#endif

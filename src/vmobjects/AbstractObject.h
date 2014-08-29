@@ -1,12 +1,11 @@
+#pragma once
+
 /*
  * AbstractVMObject.h
  *
  *  Created on: 10.03.2011
  *      Author: christian
  */
-
-#ifndef ABSTRACTOBJECT_H_
-#define ABSTRACTOBJECT_H_
 
 #include <assert.h>
 #include <iostream>
@@ -108,4 +107,3 @@ public:
 #endif
 
 };
-#endif /* ABSTRACTOBJECT_H_ */

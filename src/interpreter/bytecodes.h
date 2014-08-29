@@ -1,6 +1,4 @@
 #pragma once
-#ifndef BYTECODES_H_
-#define BYTECODES_H_
 
 /*
  *
@@ -71,5 +69,3 @@ private:
 
     static const char* bytecodeNames[];
 };
-
-#endif

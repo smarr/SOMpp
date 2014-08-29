@@ -1,5 +1,4 @@
-#ifndef WRITEBARRIERTEST_H_
-#define WRITEBARRIERTEST_H_
+#pragma once
 
 #include "vmobjects/VMArray.h"
 #include <cppunit/extensions/HelperMacros.h>
@@ -31,5 +30,3 @@ private:
     void testWriteEvaluationPrimitive();
 
 };
-
-#endif /* WRITEBARRIERTEST_H_ */

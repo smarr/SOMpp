@@ -1,12 +1,10 @@
+#pragma once
 /*
  * WalkObjectsTest.h
  *
  *  Created on: 13.01.2011
  *      Author: christian
  */
-
-#ifndef WALKOBJECTSTEST_H_
-#define WALKOBJECTSTEST_H_
 
 #include "WalkObjectsTest.h"
 #include "vmobjects/VMSymbol.h"
@@ -70,5 +68,3 @@ private:
     void testWalkSymbol();
 
 };
-
-#endif /* WALKOBJECTSTEST_H_ */

@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef CORE_BLOCK_H_
-#define CORE_BLOCK_H_
-
 /*
  *
  *
@@ -40,5 +37,3 @@ public:
     void Value_(pVMObject object, pVMFrame frame);
     void Value_with_(pVMObject object, pVMFrame frame);
 };
-
-#endif

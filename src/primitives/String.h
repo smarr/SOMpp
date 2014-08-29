@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef CORE_STRING_H_
-#define CORE_STRING_H_
-
 /*
  *
  *
@@ -42,6 +39,3 @@ public:
     void Equal(pVMObject object, pVMFrame frame);
     void PrimSubstringFrom_to_(pVMObject object, pVMFrame frame);
 };
-
-#endif
-

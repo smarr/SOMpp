@@ -1,6 +1,4 @@
 #pragma once
-#ifndef VMCLASS_H_
-#define VMCLASS_H_
 
 /*
  *
@@ -128,5 +126,3 @@ void VMClass::SetInstanceFields(pVMArray instFields) {
 pVMArray VMClass::GetInstanceInvokables() const {
     return instanceInvokables;
 }
-
-#endif

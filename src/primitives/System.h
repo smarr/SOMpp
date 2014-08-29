@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef CORE_SYSTEM_H_
-#define CORE_SYSTEM_H_
-
 /*
  *
  *
@@ -52,6 +49,3 @@ public:
 private:
     struct timeval start_time;
 };
-
-#endif
-

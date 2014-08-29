@@ -1,6 +1,4 @@
 #pragma once
-#ifndef VMEVALUATIONPRIMITIVE_H_
-#define VMEVALUATIONPRIMITIVE_H_
 
 /*
  *
@@ -41,5 +39,3 @@ private:
     pVMInteger numberOfArguments;
 
 };
-
-#endif

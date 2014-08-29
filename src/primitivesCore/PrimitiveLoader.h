@@ -1,6 +1,4 @@
 #pragma once
-#ifndef PRIMITIVESLOADER_H_
-#define PRIMITIVESLOADER_H_
 
 /*
  *
@@ -60,5 +58,3 @@ public:
 private:
     std::map<StdString, PrimitiveContainer*> primitiveObjects;
 };
-
-#endif // PRIMITIVESCORE_H_

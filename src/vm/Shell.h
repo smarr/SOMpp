@@ -1,6 +1,4 @@
 #pragma once
-#ifndef SHELL_H_
-#define SHELL_H_
 
 /*
  *
@@ -47,5 +45,3 @@ public:
 private:
     pVMMethod bootstrapMethod;
 };
-
-#endif

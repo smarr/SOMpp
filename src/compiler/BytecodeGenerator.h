@@ -1,6 +1,4 @@
 #pragma once
-#ifndef BYTECODEGENERATOR_H_
-#define BYTECODEGENERATOR_H_
 
 /*
  *
@@ -60,5 +58,3 @@ public:
     size_t EmitJUMP_IF_TRUE(MethodGenerationContext* mgenc);
     size_t EmitJUMP(MethodGenerationContext* mgenc);
 };
-
-#endif

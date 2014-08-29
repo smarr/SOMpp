@@ -1,6 +1,4 @@
 #pragma once
-#ifndef VMINVOKABLE_H_
-#define VMINVOKABLE_H_
 
 /*
  *
@@ -49,5 +47,3 @@ protected:
     pVMSymbol signature;
     pVMClass  holder;
 };
-
-#endif

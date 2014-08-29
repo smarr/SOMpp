@@ -1,6 +1,4 @@
 #pragma once
-#ifndef SIGNATURE_H_
-#define SIGNATURE_H_
 
 /*
  *
@@ -39,5 +37,3 @@ public:
     static bool IsBinary(const char* sig);
 
 };
-
-#endif

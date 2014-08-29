@@ -1,6 +1,4 @@
 #pragma once
-#ifndef METHODGENERATIONCONTEXT_H_
-#define METHODGENERATIONCONTEXT_H_
 
 /*
  *
@@ -91,5 +89,3 @@ private:
     bool finished;
     std::vector<uint8_t> bytecode;
 };
-
-#endif

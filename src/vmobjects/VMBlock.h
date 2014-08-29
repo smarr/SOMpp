@@ -1,6 +1,4 @@
 #pragma once
-#ifndef VMBLOCK_H_
-#define VMBLOCK_H_
 
 /*
  *
@@ -56,5 +54,3 @@ void VMBlock::SetContext(pVMFrame contxt) {
 pVMFrame VMBlock::GetContext() const {
     return context;
 }
-
-#endif

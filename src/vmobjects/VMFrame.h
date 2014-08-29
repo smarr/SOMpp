@@ -1,6 +1,4 @@
 #pragma once
-#ifndef VMFRAME_H_
-#define VMFRAME_H_
 
 /*
  *
@@ -138,5 +136,3 @@ void VMFrame::ClearPreviousFrame() {
 pVMMethod VMFrame::GetMethod() const {
     return method;
 }
-
-#endif

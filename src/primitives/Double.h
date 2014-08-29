@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef CORE_DOUBLE_H_
-#define CORE_DOUBLE_H_
-
 /*
  *
  *
@@ -51,5 +48,3 @@ public:
 private:
     double coerceDouble(pVMObject x);
 };
-
-#endif

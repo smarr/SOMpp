@@ -1,5 +1,4 @@
-#ifndef CORE_PRIMITIVE_H_
-#define CORE_PRIMITIVE_H_
+#pragma once
 
 #include <vmobjects/ObjectFormats.h>
 #include <primitivesCore/PrimitiveContainer.h>
@@ -11,5 +10,3 @@ public:
     void Signature(pVMObject object, pVMFrame frame);
     void Holder   (pVMObject object, pVMFrame frame);
 };
-
-#endif /* defined(CORE_METHOD_H_) */

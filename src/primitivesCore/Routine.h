@@ -1,6 +1,4 @@
 #pragma once
-#ifndef ROUTINE_H_
-#define ROUTINE_H_
 
 /*
  *
@@ -56,4 +54,3 @@ public:
 
     };
 
-#endif

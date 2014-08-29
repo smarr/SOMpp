@@ -1,12 +1,10 @@
+#pragma once
 /*
  * CloneObjectsTest.h
  *
  *  Created on: 21.01.2011
  *      Author: christian
  */
-
-#ifndef CLONEOBJECTSTEST_H_
-#define CLONEOBJECTSTEST_H_
 
 #include <cppunit/extensions/HelperMacros.h>
 
@@ -46,5 +44,3 @@ private:
     void testCloneMethod();
     void testCloneEvaluationPrimitive();
 };
-
-#endif /* CLONEOBJECTSTEST_H_ */

@@ -1,6 +1,4 @@
 #pragma once
-#ifndef PRIMITIVEROUTINE_H_
-#define PRIMITIVEROUTINE_H_
 
 /*
  *
@@ -46,4 +44,3 @@ typedef bool SupportsClass(const char*);
 typedef void TearDown();
 typedef void Setup();
 
-#endif

@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef INTEGERBOX_H_
-#define INTEGERBOX_H_
-
 #include <vmobjects/ObjectFormats.h>
 
 class GlobalBox {
@@ -14,5 +11,3 @@ private:
     static VMInteger* integerBox;
     friend class Universe;
 };
-
-#endif

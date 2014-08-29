@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef CORE_CLASS_H_
-#define CORE_CLASS_H_
-
 /*
  *
  *
@@ -42,5 +39,3 @@ public:
     void Fields    (pVMObject object, pVMFrame frame);
     void Methods   (pVMObject object, pVMFrame frame);
 };
-
-#endif

@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef CORE_BIGINTEGER_H_
-#define CORE_BIGINTEGER_H_
-
 /*
  *
  *
@@ -47,6 +44,3 @@ public:
     void Sqrt(pVMObject object, pVMFrame frame);
 
 };
-
-#endif
-

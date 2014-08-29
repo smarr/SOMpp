@@ -1,6 +1,4 @@
 #pragma once
-#ifndef VMBIGINTEGER_H_
-#define VMBIGINTEGER_H_
 
 /*
  *
@@ -56,4 +54,3 @@ int64_t VMBigInteger::GetEmbeddedInteger() const {
 void VMBigInteger::SetEmbeddedInteger(int64_t val) {
     this->embeddedInteger = val;
 }
-#endif

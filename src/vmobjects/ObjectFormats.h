@@ -1,6 +1,4 @@
 #pragma once
-#ifndef OBJECTFORMATS_H_
-#define OBJECTFORMATS_H_
 
 /*
  *
@@ -105,5 +103,3 @@ typedef AbstractVMObject*      VMOBJECT_PTR;
 
 // Used to mark object fields as invalid
 #define INVALID_POINTER ((pVMObject)0x101010)
-
-#endif // OBJECTFORMATS_H_

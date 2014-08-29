@@ -1,6 +1,4 @@
 #pragma once
-#ifndef VMOBJECT_H_
-#define VMOBJECT_H_
 
 #include <assert.h>
 
@@ -164,6 +162,3 @@ void VMObject::SetField(long index, pVMObject value) {
     FIELDS[index] = value;
     write_barrier(this, value);
 }
-        
-
-#endif

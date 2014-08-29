@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef CORE_OBJECT_H_
-#define CORE_OBJECT_H_
-
 /*
  *
  *
@@ -52,5 +49,3 @@ public:
     
     void Class(pVMObject object, pVMFrame frame);
 };
-
-#endif

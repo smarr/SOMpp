@@ -1,6 +1,4 @@
 #pragma once
-#ifndef UNIVERSE_H_
-#define UNIVERSE_H_
 
 /*
  *
@@ -190,7 +188,4 @@ Universe* Universe::operator->() {
 bool Universe::IsValidObject(const pcVMObject obj) {
     return true;
 }
-#endif
-
-
 #endif
