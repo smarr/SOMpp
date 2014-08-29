@@ -38,9 +38,7 @@ pVMSymbol VMInvokable::GetSignature() const {
 
 void VMInvokable::SetSignature(pVMSymbol sig) {
     signature = sig;
-#if GC_TYPE==GENERATIONAL
-    GetHeap()->writeBarrier(this, sig);
-#endif
+    write_barrier(this, sig);
 }
 
 void VMInvokable::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
@@ -56,7 +54,5 @@ pVMClass VMInvokable::GetHolder() const {
 
 void VMInvokable::SetHolder(pVMClass hld) {
     holder = hld;
-#if GC_TYPE==GENERATIONAL
-    GetHeap()->writeBarrier(this, hld);
-#endif
+    write_barrier(this, hld);
 }

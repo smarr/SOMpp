@@ -99,9 +99,7 @@ pVMClass VMClass::GetSuperClass() const {
 
 void VMClass::SetSuperClass(pVMClass sup) {
     superClass = sup;
-#if GC_TYPE==GENERATIONAL
-    GetHeap()->writeBarrier(this, sup);
-#endif
+    write_barrier(this, sup);
 }
 
 pVMSymbol VMClass::GetName() const {
@@ -110,9 +108,7 @@ pVMSymbol VMClass::GetName() const {
 
 void VMClass::SetName(pVMSymbol nam) {
     name = nam;
-#if GC_TYPE==GENERATIONAL
-    GetHeap()->writeBarrier(this, nam);
-#endif
+    write_barrier(this, nam);
 }
 
 bool VMClass::HasSuperClass() const {
@@ -126,9 +122,7 @@ pVMArray VMClass::GetInstanceFields() const {
 
 void VMClass::SetInstanceFields(pVMArray instFields) {
     instanceFields = instFields;
-#if GC_TYPE==GENERATIONAL
-    GetHeap()->writeBarrier(this, instFields);
-#endif
+    write_barrier(this, instFields);
 }
 
 pVMArray VMClass::GetInstanceInvokables() const {

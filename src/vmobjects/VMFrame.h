@@ -114,10 +114,8 @@ pVMFrame VMFrame::GetContext() const {
 }
 
 void VMFrame::SetContext(pVMFrame frm) {
-#if GC_TYPE==GENERATIONAL
-    GetHeap()->writeBarrier(this, frm);
-#endif
     context = frm;
+    write_barrier(this, frm);
 }
 
 void* VMFrame::GetStackPointer() const {
@@ -129,10 +127,8 @@ pVMFrame VMFrame::GetPreviousFrame() const {
 }
 
 void VMFrame::SetPreviousFrame(pVMFrame frm) {
-#if GC_TYPE==GENERATIONAL
-    GetHeap()->writeBarrier(this, AS_POINTER(frm));
-#endif
     previousFrame = frm;
+    write_barrier(this, frm);
 }
 
 void VMFrame::ClearPreviousFrame() {

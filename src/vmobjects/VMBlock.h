@@ -50,9 +50,7 @@ private:
 
 void VMBlock::SetContext(pVMFrame contxt) {
     context = contxt;
-#if GC_TYPE==GENERATIONAL
-    GetHeap()->writeBarrier(this, (AbstractVMObject*)contxt);
-#endif
+    write_barrier(this, contxt);
 }
 
 pVMFrame VMBlock::GetContext() const {

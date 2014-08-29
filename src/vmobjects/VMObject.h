@@ -162,9 +162,7 @@ pVMObject VMObject::GetField(long index) const {
 
 void VMObject::SetField(long index, pVMObject value) {
     FIELDS[index] = value;
-#if GC_TYPE==GENERATIONAL
-    GetHeap()->writeBarrier(this, (VMOBJECT_PTR)value);
-#endif
+    write_barrier(this, value);
 }
         
 

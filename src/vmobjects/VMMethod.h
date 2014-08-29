@@ -110,9 +110,7 @@ pVMObject VMMethod::GetIndexableField(long idx) const {
 
 void VMMethod::SetIndexableField(long idx, pVMObject item) {
     indexableFields[idx] = item;
-#if GC_TYPE==generational
-    GetHeap()->writeBarrier(this, item);
-#endif
+    write_barrier(this, item);
 }
 
 uint8_t VMMethod::GetBytecode(long indx) const {

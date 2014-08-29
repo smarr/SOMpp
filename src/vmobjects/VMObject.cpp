@@ -67,9 +67,7 @@ void VMObject::SetNumberOfFields(long nof) {
 
 void VMObject::SetClass(pVMClass cl) {
     clazz = cl;
-#if GC_TYPE==GENERATIONAL
-    GetHeap()->writeBarrier(this, cl);
-#endif
+    write_barrier(this, cl);
 }
 
 pVMSymbol VMObject::GetFieldName(long index) const {

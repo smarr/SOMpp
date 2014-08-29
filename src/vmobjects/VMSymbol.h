@@ -71,10 +71,8 @@ void VMSymbol::UpdateCachedInvokable(pcVMClass cls, pVMInvokable invo) {
     cachedClass_invokable[nextCachePos] = cls;
     nextCachePos = (nextCachePos + 1) % 3;
     
-#if GC_TYPE==GENERATIONAL
-    GetHeap()->writeBarrier(this, (VMOBJECT_PTR) invo);
-    GetHeap()->writeBarrier(this, (VMOBJECT_PTR) cls);
-#endif
+    write_barrier(this, invo);
+    write_barrier(this, cls);
 }
 
 #endif
