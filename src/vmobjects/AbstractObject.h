@@ -13,6 +13,8 @@
 
 #include <misc/defs.h>
 #include <memory/GenerationalHeap.h>
+#include <memory/CopyingHeap.h>
+#include <memory/MarkSweepHeap.h>
 
 #include "ObjectFormats.h"
 #include "VMObjectBase.h"
