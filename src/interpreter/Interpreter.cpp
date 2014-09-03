@@ -308,14 +308,15 @@ void Interpreter::doPushArgument(long bytecodeIndex) {
 
 void Interpreter::doPushField(long bytecodeIndex) {
     uint8_t fieldIndex = method->GetBytecode(bytecodeIndex + 1);
-    pVMObject self = GetSelf();
-    pVMObject o;
+    oop_t self = GetSelf();
+    oop_t o;
 #ifdef USE_TAGGING
-    if (IS_TAGGED(self)) {
-        o = GlobalBox::IntegerBox()->GetField(fieldIndex);
+    if (unlikely(IS_TAGGED(self))) {
+        o = nullptr;
+        Universe()->ErrorExit("Integers do not have fields!");
     }
     else {
-        o = AS_POINTER(self)->GetField(fieldIndex);
+        o = ((pVMObject)self)->GetField(fieldIndex);
     }
 #else
     o = static_cast<VMObject*>(self)->GetField(fieldIndex);
@@ -408,11 +409,11 @@ void Interpreter::doPopField(long bytecodeIndex) {
     oop_t self = GetSelf();
     oop_t o = GetFrame()->Pop();
 #ifdef USE_TAGGING
-    if (IS_TAGGED(self)) {
-        GlobalBox::IntegerBox()->SetField(field_index, o);
+    if (unlikely(IS_TAGGED(self))) {
+        GetUniverse()->ErrorExit("Integers do not have fields that can be set");
     }
     else {
-        AS_POINTER(self)->SetField(field_index, o);
+        ((pVMObject) self)->SetField(field_index, o);
     }
 #else
     static_cast<pVMObject>(self)->SetField(field_index, o);
