@@ -106,6 +106,6 @@ void VMArray::WalkObjects(oop_t (*walk)(oop_t)) {
     long numIndexableFields = GetNumberOfIndexableFields();
     oop_t* fields = FIELDS;
     for (long i = 0; i < numFields + numIndexableFields; i++) {
-        fields[i] = walk(AS_POINTER(fields[i]));
+        fields[i] = walk(fields[i]);
     }
 }

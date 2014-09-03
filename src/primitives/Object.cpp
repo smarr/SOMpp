@@ -87,7 +87,7 @@ void _Object::ObjectSize(pVMObject /*object*/, pVMFrame frame) {
     if IS_TAGGED(self)
         frame->Push(TAG_INTEGER(GlobalBox::IntegerBox()->GetObjectSize()));
     else
-        frame->Push(TAG_INTEGER(AS_POINTER(self)->GetObjectSize()));
+        frame->Push(TAG_INTEGER(self->GetObjectSize()));
 #else
     frame->Push(GetUniverse()->NewInteger(self->GetObjectSize()));
 #endif

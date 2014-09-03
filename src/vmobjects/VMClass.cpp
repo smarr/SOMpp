@@ -93,7 +93,7 @@ void VMClass::WalkObjects(oop_t (*walk)(oop_t)) {
     oop_t* fields = FIELDS;
 
     for (long i = VMClassNumberOfFields + 0/*VMObjectNumberOfFields*/; i < numberOfFields; i++)
-        fields[i] = walk(AS_POINTER(fields[i]));
+        fields[i] = walk(fields[i]);
 }
 
 void VMClass::MarkObjectAsInvalid() {

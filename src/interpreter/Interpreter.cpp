@@ -276,7 +276,7 @@ void Interpreter::send(pVMSymbol signature, pVMClass receiverClass) {
         if (IS_TAGGED(receiver))
             GlobalBox::IntegerBox()->Send(dnu, arguments, 2);
         else
-            AS_POINTER(receiver)->Send(dnu, arguments, 2);
+            receiver->Send(dnu, arguments, 2);
 #else
         receiver->Send(dnu, arguments, 2);
 #endif
@@ -372,7 +372,7 @@ void Interpreter::doPushGlobal(long bytecodeIndex) {
         if (IS_TAGGED(self))
             GlobalBox::IntegerBox()->Send(uG, arguments, 1);
         else
-            AS_POINTER(self)->Send(uG, arguments, 1);
+            self->Send(uG, arguments, 1);
 #else
         self->Send(uG, arguments, 1);
 #endif
@@ -463,7 +463,7 @@ void Interpreter::doSuperSend(long bytecodeIndex) {
         if (IS_TAGGED(receiver))
             GlobalBox::IntegerBox()->Send(dnu, arguments, 2);
         else
-            AS_POINTER(receiver)->Send(dnu, arguments, 2);
+            receiver->Send(dnu, arguments, 2);
 #else
         receiver->Send(dnu, arguments, 2);
 #endif
@@ -493,7 +493,7 @@ void Interpreter::doReturnNonLocal() {
         if (IS_TAGGED(sender))
             GlobalBox::IntegerBox()->Send(eB, arguments, 1);
         else
-            AS_POINTER(sender)->Send(eB, arguments, 1);
+            sender->Send(eB, arguments, 1);
 #else
         sender->Send(eB, arguments, 1);
 #endif

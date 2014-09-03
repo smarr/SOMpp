@@ -50,7 +50,7 @@
  */
 #ifdef USE_TAGGING
 #define CHECK_COERCION(obj,receiver,op) { \
-  pVMClass cl = (IS_TAGGED(obj) ? integerClass : AS_POINTER(obj)->GetClass());\
+  pVMClass cl = (IS_TAGGED(obj) ? integerClass : (obj)->GetClass());\
   if (cl== bigIntegerClass) { \
     resendAsBigInteger( \
                        object, (op), (receiver), static_cast<pVMBigInteger>(obj)); \

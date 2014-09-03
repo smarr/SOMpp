@@ -37,7 +37,6 @@
  * 10000000 00000000 00000000 0000000X  
  */
 #define VMTAGGEDINTEGER_MIN -1073741824
-#define AS_POINTER(X) ((AbstractVMObject*)X)
 
 #ifdef ADDITIONAL_ALLOCATION
 #define TAG_INTEGER(X) (((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX && GetUniverse()->NewInteger(0)) ? ((pVMInteger)(((X) << 1) | 1)) : (GetUniverse()->NewInteger(X)))
