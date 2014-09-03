@@ -21,9 +21,8 @@ static oop_t copy_if_necessary(oop_t obj) {
     //we have to clone ourselves
     oop_t newObj = obj->Clone();
     
-#ifndef NDEBUG
-    obj->MarkObjectAsInvalid();
-#endif
+    if (DEBUG)
+        obj->MarkObjectAsInvalid();
     
     obj->SetGCField((long)newObj);
     return newObj;

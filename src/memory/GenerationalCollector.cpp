@@ -57,9 +57,8 @@ static oop_t copy_if_necessary(oop_t obj) {
     // we have to clone ourselves
     oop_t newObj = obj->Clone();
 
-#ifndef NDEBUG
-    obj->MarkObjectAsInvalid();
-#endif
+    if (DEBUG)
+        obj->MarkObjectAsInvalid();
 
     assert( (((size_t) newObj) & MASK_OBJECT_IS_MARKED) == 0 );
     assert( obj->GetObjectSize() == newObj->GetObjectSize());
