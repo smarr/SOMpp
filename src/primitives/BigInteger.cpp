@@ -42,7 +42,7 @@
 
 #include <vm/Universe.h>
 
-#ifdef USE_TAGGING
+#if USE_TAGGING
 #define CHECK_BIGINT(object, result) { \
     /* Check second parameter type: */ \
   if (IS_TAGGED(object)) {\

@@ -337,7 +337,7 @@ void* VMClass::loadLib(const StdString& path) const {
     cout << "loadLib " << path << endl;
 #endif
 #if defined(__GNUC__)
-#ifdef DEBUG
+#if DEBUG
 #define    DL_LOADMODE RTLD_NOW
 #else
 #define    DL_LOADMODE RTLD_LAZY

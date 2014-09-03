@@ -188,7 +188,7 @@ void VMFrame::PrintStack() const {
             cout << "NULL" << endl;
         else if (vmo == nilObject)
             cout << "NIL_OBJECT" << endl;
-#ifdef USE_TAGGING
+#if USE_TAGGING
         else if (IS_TAGGED(vmo)) {
             cout << "index: " << i << " object: VMInteger" << endl;
         }

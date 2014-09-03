@@ -30,7 +30,7 @@
 #include <vmobjects/VMInvokable.h>
 
 #include <vm/Universe.h>
-#ifdef USE_TAGGING
+#if USE_TAGGING
 #include "../vmobjects/IntegerBox.h"
 #endif
 
@@ -83,7 +83,7 @@ void _Object::Equalequal(pVMObject /*object*/, pVMFrame frame) {
 void _Object::ObjectSize(pVMObject /*object*/, pVMFrame frame) {
     oop_t self = frame->Pop();
 
-#ifdef USE_TAGGING
+#if USE_TAGGING
     if IS_TAGGED(self)
         frame->Push(TAG_INTEGER(GlobalBox::IntegerBox()->GetObjectSize()));
     else

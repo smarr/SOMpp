@@ -37,7 +37,7 @@
 #include <vmobjects/VMInvokable.h>
 #include <vmobjects/Signature.h>
 #include <vmobjects/VMBlock.h>
-#ifdef USE_TAGGING
+#if USE_TAGGING
 #include <vmobjects/IntegerBox.h>
 #endif
 
@@ -272,7 +272,7 @@ void Interpreter::send(pVMSymbol signature, pVMClass receiverClass) {
             this->SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
         }
 
-#ifdef USE_TAGGING
+#if USE_TAGGING
         if (IS_TAGGED(receiver))
             GlobalBox::IntegerBox()->Send(dnu, arguments, 2);
         else
@@ -368,7 +368,7 @@ void Interpreter::doPushGlobal(long bytecodeIndex) {
                             additionalStackSlots));
         }
 
-#ifdef USE_TAGGING
+#if USE_TAGGING
         if (IS_TAGGED(self))
             GlobalBox::IntegerBox()->Send(uG, arguments, 1);
         else
@@ -455,7 +455,7 @@ void Interpreter::doSuperSend(long bytecodeIndex) {
             argumentsArray->SetIndexableField(i, o);
         }
         oop_t arguments[] = {signature, argumentsArray};
-#ifdef USE_TAGGING
+#if USE_TAGGING
         if (IS_TAGGED(receiver))
             GlobalBox::IntegerBox()->Send(dnu, arguments, 2);
         else
@@ -485,7 +485,7 @@ void Interpreter::doReturnNonLocal() {
 
         popFrame();
 
-#ifdef USE_TAGGING
+#if USE_TAGGING
         if (IS_TAGGED(sender))
             GlobalBox::IntegerBox()->Send(eB, arguments, 1);
         else

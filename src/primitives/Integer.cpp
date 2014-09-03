@@ -48,7 +48,7 @@
  * BigInteger or Double operation (those types impose themselves on the result
  * of an Integer operation).
  */
-#ifdef USE_TAGGING
+#if USE_TAGGING
 #define CHECK_COERCION(obj,receiver,op) { \
   pVMClass cl = (IS_TAGGED(obj) ? integerClass : (obj)->GetClass());\
   if (cl== bigIntegerClass) { \

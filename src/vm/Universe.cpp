@@ -51,11 +51,11 @@
 #include <compiler/Disassembler.h>
 #include <compiler/SourcecodeCompiler.h>
 
-#ifdef USE_TAGGING
+#if USE_TAGGING
 #include "../vmobjects/IntegerBox.h"
 #endif
 
-#ifdef CACHE_INTEGER
+#if CACHE_INTEGER
 pVMInteger prebuildInts[INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE + 1];
 #endif
 
@@ -300,8 +300,8 @@ void Universe::initialize(long _argc, char** _argv) {
 
     interpreter = new Interpreter();
 
-#ifdef CACHE_INTEGER
-    //create prebuilt integers
+#if CACHE_INTEGER
+    // create prebuilt integers
     for (long it = INT_CACHE_MIN_VALUE; it <= INT_CACHE_MAX_VALUE; ++it) {
         prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = new (GetHeap<HEAP_CLS>()) VMInteger(it);
     }
@@ -818,7 +818,7 @@ pVMInteger Universe::NewInteger( long value) const {
     integerHist[value/INT_HIST_SIZE] = integerHist[value/INT_HIST_SIZE]+1;
 #endif
 
-#ifdef CACHE_INTEGER
+#if CACHE_INTEGER
     unsigned long index = (unsigned long)value - (unsigned long)INT_CACHE_MIN_VALUE;
     if (index < (unsigned long)(INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE)) {
         return prebuildInts[index];
@@ -849,7 +849,7 @@ void Universe::WalkGlobals(oop_t (*walk)(oop_t)) {
     trueObject  = (pVMObject)walk(trueObject);
     falseObject = (pVMObject)walk(falseObject);
 
-#ifdef USE_TAGGING
+#if USE_TAGGING
     GlobalBox::updateIntegerBox(static_cast<VMInteger*>(walk(GlobalBox::IntegerBox())));
 #endif
 
@@ -872,9 +872,9 @@ void Universe::WalkGlobals(oop_t (*walk)(oop_t)) {
     trueClass  = static_cast<pVMClass>(walk(trueClass));
     falseClass = static_cast<pVMClass>(walk(falseClass));
 
-#ifdef CACHE_INTEGER
+#if CACHE_INTEGER
     for (unsigned long i = 0; i < (INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE); i++)
-#ifdef USE_TAGGING
+#if USE_TAGGING
         prebuildInts[i] = TAG_INTEGER(INT_CACHE_MIN_VALUE + i);
 #else
         prebuildInts[i] = static_cast<pVMInteger>(walk(prebuildInts[i]));
