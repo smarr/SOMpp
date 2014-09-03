@@ -162,9 +162,9 @@ void VMMethod::SetHolderAll(pVMClass hld) {
 
 oop_t VMMethod::GetConstant(long indx) const {
     uint8_t bc = bytecodes[indx + 1];
-    if (bc >= this->GetNumberOfIndexableFields()) {
+    if (bc >= GetNumberOfIndexableFields()) {
         cout << "Error: Constant index out of range" << endl;
         return NULL;
     }
-    return this->GetIndexableField(bc);
+    return GetIndexableField(bc);
 }

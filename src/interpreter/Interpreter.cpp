@@ -431,7 +431,7 @@ void Interpreter::doSend(long bytecodeIndex) {
     GetUniverse()->receiverTypes[receiverClass->GetName()->GetStdString()]++;
 #endif
 
-    this->send(signature, receiverClass);
+    send(signature, receiverClass);
 }
 
 void Interpreter::doSuperSend(long bytecodeIndex) {
