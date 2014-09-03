@@ -90,15 +90,12 @@ void _String::Equal(pVMObject /*object*/, pVMFrame frame) {
     oop_t op1 = frame->Pop();
     pVMString op2 = static_cast<pVMString>(frame->Pop());
 
-#ifdef USE_TAGGING
     if (IS_TAGGED(op1)) {
         frame->Push(falseObject);
         return;
     }
-    pVMClass otherClass = AS_POINTER(op1)->GetClass();
-#else
+
     pVMClass otherClass = op1->GetClass();
-#endif
     if(otherClass == stringClass) {
 
         StdString s1 = static_cast<pVMString>(op1)->GetStdString();

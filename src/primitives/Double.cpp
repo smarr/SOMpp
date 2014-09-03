@@ -46,10 +46,9 @@
  * true nature. This is to make sure that all Double operations return Doubles.
  */
 double _Double::coerceDouble(oop_t x) {
-#ifdef USE_TAGGING
     if (IS_TAGGED(x))
         return (double) INT_VAL(x);
-#endif
+    
     pVMClass cl = ((AbstractVMObject*)x)->GetClass();
     if (cl == doubleClass)
         return static_cast<pVMDouble>(x)->GetEmbeddedDouble();

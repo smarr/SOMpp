@@ -44,10 +44,9 @@ void MarkSweepCollector::Collect() {
 }
 
 static oop_t mark_object(oop_t obj) {
-#ifdef USE_TAGGING
     if (IS_TAGGED(obj))
         return obj;
-#endif
+
     if (obj->GetGCField())
         return obj;
 

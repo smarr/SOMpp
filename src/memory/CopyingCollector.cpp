@@ -8,16 +8,16 @@
 #include "CopyingCollector.h"
 
 static oop_t copy_if_necessary(oop_t obj) {
-#ifdef USE_TAGGING
-    //don't process tagged objects
+    // don't process tagged objects
     if (IS_TAGGED(obj))
         return obj;
-#endif
+
     long gcField = obj->GetGCField();
     //GCField is abused as forwarding pointer here
     //if someone has moved before, return the moved object
     if (gcField != 0)
         return (oop_t) gcField;
+    
     //we have to clone ourselves
     oop_t newObj = obj->Clone();
     

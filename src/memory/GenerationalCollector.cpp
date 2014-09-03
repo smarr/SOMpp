@@ -22,11 +22,11 @@ GenerationalCollector::GenerationalCollector(GenerationalHeap* heap) : GarbageCo
 
 static oop_t mark_object(oop_t obj) {
     assert(Universe::IsValidObject(obj));
-#ifdef USE_TAGGING
-    //don't process tagged objects
+
+    // don't process tagged objects
     if (IS_TAGGED(obj))
         return obj;
-#endif
+
     if (obj->GetGCField() & MASK_OBJECT_IS_MARKED)
         return (obj);
 
@@ -39,11 +39,10 @@ static oop_t mark_object(oop_t obj) {
 static oop_t copy_if_necessary(oop_t obj) {
     assert(Universe::IsValidObject(obj));
     
-#ifdef USE_TAGGING
-    //don't process tagged objects
+    // don't process tagged objects
     if (IS_TAGGED(obj))
         return obj;
-#endif
+
     size_t gcField = obj->GetGCField();
 
     // if this is an old object already, we don't have to copy

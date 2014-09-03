@@ -49,11 +49,13 @@
 //#define UNTAG_INTEGER(X) (((long)X&1) ? ((long)X>>1) : (((VMInteger*)X)->GetEmbeddedInteger()))
   #define INT_VAL(X) (((long)(X)&1) ? ((long)(X)>>1) : (((VMInteger*)(X))->GetEmbeddedInteger()))
   #define NEW_INT(X) (TAG_INTEGER((X)))
+  #define IS_TAGGED(X) ((long)X&1)
 #else
   #define INT_VAL(X) (static_cast<pVMInteger>(X)->GetEmbeddedInteger())
   #define NEW_INT(X) (GetUniverse()->NewInteger(X))
+  #define IS_TAGGED(X) false
 #endif
-#define IS_TAGGED(X) ((long)X&1)
+
 
 // Forward definitions of VM object classes
 class AbstractVMObject;

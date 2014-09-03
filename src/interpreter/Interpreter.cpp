@@ -310,7 +310,7 @@ void Interpreter::doPushField(long bytecodeIndex) {
     uint8_t fieldIndex = method->GetBytecode(bytecodeIndex + 1);
     oop_t self = GetSelf();
     oop_t o;
-#ifdef USE_TAGGING
+
     if (unlikely(IS_TAGGED(self))) {
         o = nullptr;
         Universe()->ErrorExit("Integers do not have fields!");
@@ -318,9 +318,6 @@ void Interpreter::doPushField(long bytecodeIndex) {
     else {
         o = ((pVMObject)self)->GetField(fieldIndex);
     }
-#else
-    o = static_cast<VMObject*>(self)->GetField(fieldIndex);
-#endif
 
     GetFrame()->Push(o);
 }
@@ -408,16 +405,13 @@ void Interpreter::doPopField(long bytecodeIndex) {
 
     oop_t self = GetSelf();
     oop_t o = GetFrame()->Pop();
-#ifdef USE_TAGGING
+
     if (unlikely(IS_TAGGED(self))) {
         GetUniverse()->ErrorExit("Integers do not have fields that can be set");
     }
     else {
         ((pVMObject) self)->SetField(field_index, o);
     }
-#else
-    static_cast<pVMObject>(self)->SetField(field_index, o);
-#endif
 }
 
 void Interpreter::doSend(long bytecodeIndex) {
