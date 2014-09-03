@@ -78,7 +78,7 @@ typedef const VMArray*  pcVMArray;
 typedef VMBigInteger*   pVMBigInteger;
 typedef VMBlock*        pVMBlock;
 typedef VMClass*        pVMClass;
-typedef const VMClass*  pcVMClass;
+typedef const VMClass* pcVMClass;
 typedef VMDouble*       pVMDouble;
 
 typedef VMEvaluationPrimitive* pVMEvaluationPrimitive;
@@ -87,13 +87,8 @@ typedef VMInteger*             pVMInteger;
 typedef VMInvokable*           pVMInvokable;
 typedef VMMethod*              pVMMethod;
 
-#ifdef USE_TAGGING
-  typedef void*                pVMObject;
-  typedef const void*         pcVMObject;
-#else
-  typedef AbstractVMObject*    pVMObject;
-  typedef const AbstractVMObject* pcVMObject;
-#endif
+typedef VMObject*              pVMObject;
+typedef const VMObject*       pcVMObject;
 
 typedef VMPrimitive*           pVMPrimitive;
 typedef VMString*              pVMString;
