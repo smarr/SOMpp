@@ -326,11 +326,8 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
             uint8_t bc1 = BC_1, bc2 = BC_2;
             oop_t o = frame->GetArgument(bc1, bc2);
             DebugPrint("argument: %d, context: %d", bc1, bc2);
-#ifdef USE_TAGGING
-            if(dynamic_cast<pVMClass>(AS_POINTER(cl)) != NULL) {
-#else
-            if(dynamic_cast<pVMClass>(cl) != NULL) {
-#endif
+
+            if (cl != nullptr) {
                 pVMClass c = CLASS_OF(o);
                 pVMSymbol cname = c->GetName();
 
@@ -347,11 +344,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
             oop_t arg = ctxt->GetArgument(0, 0);
             uint8_t field_index = BC_1;
             
-#ifdef USE_TAGGING
-            oop_t o = ((pVMObject)arg)->GetField(field_index);
-#else
-            pVMObject o = static_cast<VMObject*>(arg)->GetField(field_index);
-#endif
+            oop_t o = ((pVMObject) arg)->GetField(field_index);
             pVMClass c = CLASS_OF(o);
             pVMSymbol cname = c->GetName();
             long fieldIdx = BC_1;
@@ -365,11 +358,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
         }
         case BC_PUSH_BLOCK: {
             DebugPrint("block: (index: %d) ", BC_1);
-#ifdef USE_TAGGING
-            pVMMethod meth = dynamic_cast<pVMMethod>(AS_POINTER(method->GetConstant(bc_idx)));
-#else
             pVMMethod meth = dynamic_cast<pVMMethod>(method->GetConstant(bc_idx));
-#endif
             DumpMethod(meth, "$");
             break;
         }
@@ -385,11 +374,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
             break;
         }
         case BC_PUSH_GLOBAL: {
-#ifdef USE_TAGGING
-            pVMSymbol name = static_cast<pVMSymbol>(AS_POINTER(method->GetConstant(bc_idx)));
-#else
             pVMSymbol name = static_cast<pVMSymbol>(method->GetConstant(bc_idx));
-#endif
             oop_t o = GetUniverse()->GetGlobal(name);
             pVMSymbol cname;
 
