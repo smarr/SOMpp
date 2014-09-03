@@ -11,8 +11,8 @@
 
 #ifdef DEBUG
 struct VMObjectCompare {
-    bool operator() (pair<const pVMObject, const pVMObject> lhs, pair<const
-            pVMObject, const pVMObject> rhs) const
+    bool operator() (pair<const oop_t, const oop_t> lhs, pair<const
+            oop_t, const oop_t> rhs) const
     {   return (size_t)lhs.first<(size_t)rhs.first &&
         (size_t)lhs.second<(size_t)rhs.second;}
 };
