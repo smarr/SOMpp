@@ -95,14 +95,11 @@ void _Object::ObjectSize(pVMObject /*object*/, pVMFrame frame) {
 
 void _Object::Hashcode(pVMObject /*object*/, pVMFrame frame) {
     oop_t self = frame->Pop();
-#ifdef USE_TAGGING
+
     if (IS_TAGGED(self))
         frame->Push(self);
     else
-        frame->Push(TAG_INTEGER(AS_POINTER(self)->GetHash()));
-#else
-    frame->Push(GetUniverse()->NewInteger(self->GetHash()));
-#endif
+        frame->Push(TAG_INTEGER(self->GetHash()));
 }
 
 void _Object::Inspect(pVMObject, pVMFrame frame) {

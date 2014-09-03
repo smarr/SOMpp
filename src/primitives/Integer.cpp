@@ -289,29 +289,16 @@ void _Integer::Equal(pVMObject object, pVMFrame frame) {
 
     CHECK_COERCION(rightObj, left, "=");
 
-#ifdef USE_TAGGING
-    if (IS_TAGGED(rightObj) || AS_POINTER(rightObj)->GetClass() == integerClass) {
-        if (INT_VAL(left) == INT_VAL(rightObj))
-            frame->Push(trueObject);
-        else
-            frame->Push(falseObject);
-    } else if (AS_POINTER(rightObj)->GetClass() == doubleClass) {
-        assert(false);
-    } else
-        frame->Push(falseObject);
-#else
-    if (rightObj->GetClass() == integerClass) {
+    if (IS_TAGGED(rightObj) || rightObj->GetClass() == integerClass) {
         if (INT_VAL(left) == INT_VAL(rightObj))
             frame->Push(trueObject);
         else
             frame->Push(falseObject);
     } else if (rightObj->GetClass() == doubleClass) {
         assert(false);
-    }
-    else
+    } else {
         frame->Push(falseObject);
-#endif
-
+    }
 }
 
 void _Integer::Lowerthan(pVMObject object, pVMFrame frame) {

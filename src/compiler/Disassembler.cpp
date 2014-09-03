@@ -54,11 +54,7 @@
 #include "../misc/defs.h"
 
 //some helping macros
-#ifdef USE_TAGGING
-#define CLASS_OF(X) (IS_TAGGED(X)?integerClass:AS_POINTER(X)->GetClass())
-#else
-#define CLASS_OF(X) (X->GetClass())
-#endif
+#define CLASS_OF(X) (IS_TAGGED(X)?integerClass:(X)->GetClass())
 
 /** 
  * Dispatch an object to its content and write out

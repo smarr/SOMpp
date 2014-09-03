@@ -423,11 +423,7 @@ void Interpreter::doSend(long bytecodeIndex) {
     assert(Universe::IsValidObject(receiver));
     assert(dynamic_cast<pVMClass>((pVMObject)receiver->GetClass()) != nullptr); // make sure it is really a class
     
-#ifdef USE_TAGGING
-    pVMClass receiverClass = IS_TAGGED(receiver) ? integerClass : AS_POINTER(receiver)->GetClass();
-#else
-    pVMClass receiverClass = receiver->GetClass();
-#endif
+    pVMClass receiverClass = IS_TAGGED(receiver) ? integerClass : receiver->GetClass();
     
     assert(Universe::IsValidObject(receiverClass));
 
