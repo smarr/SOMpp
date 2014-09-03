@@ -84,6 +84,18 @@
   #define USE_TAGGING false
 #endif
 
+#ifndef CACHE_INTEGER
+  #define CACHE_INTEGER false
+#endif
+
+#ifndef INT_CACHE_MIN_VALUE
+  #define INT_CACHE_MIN_VALUE (-5)
+#endif
+
+#ifndef INT_CACHE_MAX_VALUE
+  #define INT_CACHE_MAX_VALUE (100)
+#endif
+
 
 //
 // Debugging

@@ -56,12 +56,6 @@
 #endif
 
 #ifdef CACHE_INTEGER
-#ifndef INT_CACHE_MIN_VALUE
-#define INT_CACHE_MIN_VALUE (-5)
-#endif
-#ifndef INT_CACHE_MAX_VALUE
-#define INT_CACHE_MAX_VALUE (100)
-#endif
 pVMInteger prebuildInts[INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE + 1];
 #endif
 
