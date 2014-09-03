@@ -45,14 +45,17 @@
 #endif
 
 #if USE_TAGGING
-//#define UNTAG_INTEGER(X) (((long)X&1) ? ((long)X>>1) : (((VMInteger*)X)->GetEmbeddedInteger()))
-  #define INT_VAL(X) (((long)(X)&1) ? ((long)(X)>>1) : (((VMInteger*)(X))->GetEmbeddedInteger()))
+  #define INT_VAL(X) (IS_TAGGED(X) ? ((long)(X)>>1) : (((pVMInteger)(X))->GetEmbeddedInteger()))
   #define NEW_INT(X) (TAG_INTEGER((X)))
   #define IS_TAGGED(X) ((long)X&1)
+  #define CLASS_OF(X) (IS_TAGGED(X)?integerClass:(pVMAbstract(X))->GetClass())
+  #define AS_OBJ(X) (IS_TAGGED(X)?GlobalBox::IntegerBox():pVMAbstract(X))
 #else
   #define INT_VAL(X) (static_cast<pVMInteger>(X)->GetEmbeddedInteger())
   #define NEW_INT(X) (GetUniverse()->NewInteger(X))
   #define IS_TAGGED(X) false
+  #define CLASS_OF(X) (AS_OBJ(X)->GetClass())
+  #define AS_OBJ(X) pVMAbstract(X)
 #endif
 
 
@@ -95,9 +98,11 @@ typedef VMPrimitive*           pVMPrimitive;
 typedef VMString*              pVMString;
 typedef VMSymbol*              pVMSymbol;
 
+typedef AbstractVMObject*      pVMAbstract;
+
 // oop_t: Ordinary Object Pointer type
 // an oop_t can refer to tagged integers as well as normal AbstractVMObjects
-typedef AbstractVMObject*      oop_t;
+typedef void*                  oop_t;
 
 // Used to mark object fields as invalid
 #define INVALID_POINTER ((pVMObject)0x101010)

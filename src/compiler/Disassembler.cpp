@@ -53,16 +53,13 @@
 #include "../misc/debug.h"
 #include "../misc/defs.h"
 
-//some helping macros
-#define CLASS_OF(X) (IS_TAGGED(X)?integerClass:(X)->GetClass())
-
 /** 
  * Dispatch an object to its content and write out
  */
 void Disassembler::dispatch(oop_t o) {
     //dispatch
     // can't switch() objects, so:
-    if(!o)
+    if (o == nullptr)
         return; // NULL isn't interesting.
     else if(o == nilObject)
         DebugPrint("{Nil}");
@@ -263,8 +260,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
     static long long indentc = 0;
     static char ikind = '@';
     uint8_t bc = BC_0;
-    oop_t clo = method->GetHolder();
-    pVMClass cl = dynamic_cast<pVMClass>(clo);
+    pVMClass cl = method->GetHolder();
 
     // Determine Context: Class or Block?
     if (cl != NULL) {
@@ -354,7 +350,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
         }
         case BC_PUSH_BLOCK: {
             DebugPrint("block: (index: %d) ", BC_1);
-            pVMMethod meth = dynamic_cast<pVMMethod>(method->GetConstant(bc_idx));
+            pVMMethod meth = dynamic_cast<pVMMethod>((pVMAbstract)method->GetConstant(bc_idx));
             DumpMethod(meth, "$");
             break;
         }

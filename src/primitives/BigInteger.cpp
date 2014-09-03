@@ -42,29 +42,16 @@
 
 #include <vm/Universe.h>
 
-#if USE_TAGGING
 #define CHECK_BIGINT(object, result) { \
     /* Check second parameter type: */ \
-  if (IS_TAGGED(object)) {\
-    result = GetUniverse()->NewBigInteger((int64_t)INT_VAL(object));\
+    if (IS_TAGGED(object) || CLASS_OF(object) == integerClass) {\
+      result = GetUniverse()->NewBigInteger((int64_t)INT_VAL(object));\
     } else\
-        result = static_cast<pVMBigInteger>(object);\
+      result = static_cast<pVMBigInteger>(object);\
 }
-#else
-#define CHECK_BIGINT(object, result) { \
-    /* Check second parameter type: */\
-    pVMInteger ptr;\
-    if ((ptr = dynamic_cast<pVMInteger>(object)) != NULL) { \
-        /* Second operand was Integer*/ \
-        long i = ptr->GetEmbeddedInteger(); \
-        (result) = GetUniverse()->NewBigInteger((int64_t)i); \
-    } else \
-        (result) = static_cast<pVMBigInteger>(object); \
-}
-#endif
 
 #define PUSH_INT_OR_BIGINT(result) { \
-    if(result > INT32_MAX ||result < INT32_MIN) \
+    if ((result > INT32_MAX) || (result < INT32_MIN)) \
         frame->Push(GetUniverse()->NewBigInteger((result))); \
     else \
         frame->Push(NEW_INT((int32_t)(result))); \

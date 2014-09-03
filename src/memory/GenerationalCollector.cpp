@@ -12,6 +12,7 @@
 #include "../vmobjects/VMPrimitive.h"
 #include "../vmobjects/VMClass.h"
 #include "../vmobjects/VMEvaluationPrimitive.h"
+#include <vmobjects/IntegerBox.h>
 
 #define INITIAL_MAJOR_COLLECTION_THRESHOLD (5 * 1024 * 1024) //5 MB
 
@@ -20,12 +21,14 @@ GenerationalCollector::GenerationalCollector(GenerationalHeap* heap) : GarbageCo
     matureObjectsSize = 0;
 }
 
-static oop_t mark_object(oop_t obj) {
-    assert(Universe::IsValidObject(obj));
-
+static oop_t mark_object(oop_t oop) {
     // don't process tagged objects
-    if (IS_TAGGED(obj))
-        return obj;
+    if (IS_TAGGED(oop))
+        return oop;
+    
+    pVMAbstract obj = AS_OBJ(oop);
+    assert(Universe::IsValidObject(obj));
+    
 
     if (obj->GetGCField() & MASK_OBJECT_IS_MARKED)
         return (obj);
@@ -36,12 +39,14 @@ static oop_t mark_object(oop_t obj) {
     return obj;
 }
 
-static oop_t copy_if_necessary(oop_t obj) {
-    assert(Universe::IsValidObject(obj));
-    
+static oop_t copy_if_necessary(oop_t oop) {
     // don't process tagged objects
-    if (IS_TAGGED(obj))
-        return obj;
+    if (IS_TAGGED(oop))
+        return oop;
+    
+    pVMAbstract obj = AS_OBJ(oop);
+    assert(Universe::IsValidObject(obj));
+
 
     size_t gcField = obj->GetGCField();
 
@@ -55,7 +60,7 @@ static oop_t copy_if_necessary(oop_t obj) {
         return (oop_t) gcField;
     
     // we have to clone ourselves
-    oop_t newObj = obj->Clone();
+    pVMAbstract newObj = obj->Clone();
 
     if (DEBUG)
         obj->MarkObjectAsInvalid();
@@ -90,7 +95,7 @@ void GenerationalCollector::MinorCollection() {
         // content of oldObjsWithRefToYoungObjs is not altered while iteration,
         // because copy_if_necessary returns old objs only -> ignored by
         // write_barrier
-        oop_t obj = (oop_t)(*objIter);
+        pVMAbstract obj = (pVMAbstract)(*objIter);
         obj->SetGCField(MASK_OBJECT_IS_OLD);
         obj->WalkObjects(&copy_if_necessary);
     }
@@ -109,12 +114,12 @@ void GenerationalCollector::MajorCollection() {
     }
 
     //now that all objects are marked we can safely delete all allocated objects that are not marked
-    vector<oop_t>* survivors = new vector<oop_t>();
-    for (vector<oop_t>::iterator objIter =
+    vector<pVMAbstract>* survivors = new vector<pVMAbstract>();
+    for (vector<pVMAbstract>::iterator objIter =
             heap->allocatedObjects->begin(); objIter !=
             heap->allocatedObjects->end(); objIter++) {
         
-        oop_t obj = *objIter;
+        pVMAbstract obj = *objIter;
         assert(Universe::IsValidObject(obj));
         
         if (obj->GetGCField() & MASK_OBJECT_IS_MARKED) {

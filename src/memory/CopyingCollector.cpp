@@ -4,13 +4,18 @@
 #include "../vm/Universe.h"
 #include "../vmobjects/AbstractObject.h"
 #include "../vmobjects/VMFrame.h"
+#include <vmobjects/IntegerBox.h>
 
 #include "CopyingCollector.h"
 
-static oop_t copy_if_necessary(oop_t obj) {
+static oop_t copy_if_necessary(oop_t oop) {
     // don't process tagged objects
-    if (IS_TAGGED(obj))
-        return obj;
+    if (IS_TAGGED(oop))
+        return oop;
+    
+    pVMAbstract obj = AS_OBJ(oop);
+    assert(Universe::IsValidObject(obj));
+
 
     long gcField = obj->GetGCField();
     //GCField is abused as forwarding pointer here
@@ -63,10 +68,10 @@ void CopyingCollector::Collect() {
     }
 
     //now copy all objects that are referenced by the objects we have moved so far
-    oop_t curObject = (oop_t)(heap->currentBuffer);
+    pVMAbstract curObject = (pVMAbstract)(heap->currentBuffer);
     while (curObject < heap->nextFreePosition) {
         curObject->WalkObjects(copy_if_necessary);
-        curObject = (oop_t)((size_t)curObject + curObject->GetObjectSize());
+        curObject = (pVMAbstract)((size_t)curObject + curObject->GetObjectSize());
     }
     
     //increase memory if scheduled in collection before

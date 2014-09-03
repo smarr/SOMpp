@@ -95,9 +95,8 @@ void _String::Equal(pVMObject /*object*/, pVMFrame frame) {
         return;
     }
 
-    pVMClass otherClass = op1->GetClass();
+    pVMClass otherClass = CLASS_OF(op1);
     if(otherClass == stringClass) {
-
         StdString s1 = static_cast<pVMString>(op1)->GetStdString();
         StdString s2 = op2->GetStdString();
 

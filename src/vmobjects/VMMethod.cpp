@@ -36,6 +36,7 @@
 #include <vm/Universe.h>
 
 #include <compiler/MethodGenerationContext.h>
+#include <vmobjects/IntegerBox.h>
 
 
 #ifdef UNSAFE_FRAME_OPTIMIZATION
@@ -152,7 +153,7 @@ void VMMethod::SetHolderAll(pVMClass hld) {
     for (long i = 0; i < numIndexableFields; ++i) {
         oop_t o = GetIndexableField(i);
         if (!IS_TAGGED(o)) {
-            pVMInvokable vmi = dynamic_cast<pVMInvokable>(o);
+            pVMInvokable vmi = dynamic_cast<pVMInvokable>(AS_OBJ(o));
             if (vmi != NULL) {
                 vmi->SetHolder(hld);
             }

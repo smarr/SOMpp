@@ -10,7 +10,7 @@ MarkSweepHeap::MarkSweepHeap(long objectSpaceSize) : Heap<MarkSweepHeap>(new Mar
     //our initial collection limit is 90% of objectSpaceSize
     collectionLimit = objectSpaceSize * 0.9;
     spcAlloc = 0;
-    allocatedObjects = new vector<oop_t>();
+    allocatedObjects = new vector<pVMAbstract>();
 }
 
 AbstractVMObject* MarkSweepHeap::AllocateObject(size_t size) {

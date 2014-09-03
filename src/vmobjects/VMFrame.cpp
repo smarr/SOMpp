@@ -184,32 +184,18 @@ void VMFrame::PrintStack() const {
     while (arguments + i < end) {
         oop_t vmo = arguments[i];
         cout << i << ": ";
-        if (vmo == NULL)
+        if (vmo == nullptr)
             cout << "NULL" << endl;
         else if (vmo == nilObject)
             cout << "NIL_OBJECT" << endl;
-#if USE_TAGGING
-        else if (IS_TAGGED(vmo)) {
+        else if (IS_TAGGED(vmo))
             cout << "index: " << i << " object: VMInteger" << endl;
-        }
-        else {
-            if (((oop_t)vmo)->GetClass() == NULL)
+        else if (pVMAbstract(vmo)->GetClass() == nullptr)
             cout << "VMObject with Class == NULL" << endl;
-            if (((oop_t)vmo)->GetClass() == nilObject)
-            cout << "VMObject with Class == NIL_OBJECT" << endl;
-            else
-            cout << "index: " << i << " object:"
-            << ((oop_t)vmo)->GetClass()->GetName()->GetChars() << endl;
-        }
-#else
-        else if (vmo->GetClass() == NULL)
-            cout << "VMObject with Class == NULL" << endl;
-        else if (vmo->GetClass() == nilObject)
+        else if (pVMAbstract(vmo)->GetClass() == nilObject)
             cout << "VMObject with Class == NIL_OBJECT" << endl;
         else
-            cout << "index: " << i << " object:"
-                 << vmo->GetClass()->GetName()->GetChars() << endl;
-#endif
+            cout << "index: " << i << " object:" << pVMAbstract(vmo)->GetClass()->GetName()->GetChars() << endl;
         i++;
     }
 }

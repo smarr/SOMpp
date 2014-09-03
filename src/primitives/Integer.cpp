@@ -48,9 +48,8 @@
  * BigInteger or Double operation (those types impose themselves on the result
  * of an Integer operation).
  */
-#if USE_TAGGING
 #define CHECK_COERCION(obj,receiver,op) { \
-  pVMClass cl = (IS_TAGGED(obj) ? integerClass : (obj)->GetClass());\
+  pVMClass cl = CLASS_OF(obj);\
   if (cl== bigIntegerClass) { \
     resendAsBigInteger( \
                        object, (op), (receiver), static_cast<pVMBigInteger>(obj)); \
@@ -61,20 +60,6 @@
     return; \
   } \
 }
-#else
-#define CHECK_COERCION(obj,receiver,op) {\
-    pVMClass cl = ((AbstractVMObject*)obj)->GetClass(); \
-    if (cl == bigIntegerClass) { \
-        resendAsBigInteger( \
-            object, (op), (receiver), static_cast<pVMBigInteger>(obj)); \
-        return; \
-    } else if (cl== doubleClass) { \
-        resendAsDouble( \
-            object, (op), (receiver), static_cast<pVMDouble>(obj)); \
-        return; \
-    } \
-}
-#endif
 
 _Integer::_Integer() :
         PrimitiveContainer() {
@@ -289,12 +274,12 @@ void _Integer::Equal(pVMObject object, pVMFrame frame) {
 
     CHECK_COERCION(rightObj, left, "=");
 
-    if (IS_TAGGED(rightObj) || rightObj->GetClass() == integerClass) {
+    if (IS_TAGGED(rightObj) || CLASS_OF(rightObj) == integerClass) {
         if (INT_VAL(left) == INT_VAL(rightObj))
             frame->Push(trueObject);
         else
             frame->Push(falseObject);
-    } else if (rightObj->GetClass() == doubleClass) {
+    } else if (CLASS_OF(rightObj) == doubleClass) {
         assert(false);
     } else {
         frame->Push(falseObject);

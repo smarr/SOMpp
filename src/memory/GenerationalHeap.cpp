@@ -22,7 +22,7 @@ GenerationalHeap::GenerationalHeap(long objectSpaceSize) : Heap<GenerationalHeap
     collectionLimit = (void*)((size_t)nursery + ((size_t)(objectSpaceSize *
                             0.9)));
     nextFreePosition = nursery;
-    allocatedObjects = new vector<oop_t>();
+    allocatedObjects = new vector<pVMAbstract>();
     oldObjsWithRefToYoungObjs = new vector<size_t>();
 }
 
@@ -40,7 +40,7 @@ AbstractVMObject* GenerationalHeap::AllocateNurseryObject(size_t size) {
 }
 
 AbstractVMObject* GenerationalHeap::AllocateMatureObject(size_t size) {
-    oop_t newObject = (oop_t)malloc(size);
+    pVMAbstract newObject = (pVMAbstract) malloc(size);
     if (newObject == NULL) {
         cout << "Failed to allocate " << size << " Bytes." << endl;
         GetUniverse()->Quit(-1);
@@ -50,7 +50,7 @@ AbstractVMObject* GenerationalHeap::AllocateMatureObject(size_t size) {
     return newObject;
 }
 
-void GenerationalHeap::writeBarrier_OldHolder(oop_t holder, const oop_t
+void GenerationalHeap::writeBarrier_OldHolder(pVMAbstract holder, const oop_t
         referencedObject) {
     if (isObjectInNursery(referencedObject)) {
         oldObjsWithRefToYoungObjs->push_back((size_t)holder);

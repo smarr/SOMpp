@@ -83,14 +83,7 @@ void _Object::Equalequal(pVMObject /*object*/, pVMFrame frame) {
 void _Object::ObjectSize(pVMObject /*object*/, pVMFrame frame) {
     oop_t self = frame->Pop();
 
-#if USE_TAGGING
-    if IS_TAGGED(self)
-        frame->Push(TAG_INTEGER(GlobalBox::IntegerBox()->GetObjectSize()));
-    else
-        frame->Push(TAG_INTEGER(self->GetObjectSize()));
-#else
-    frame->Push(GetUniverse()->NewInteger(self->GetObjectSize()));
-#endif
+    frame->Push(NEW_INT(AS_OBJ(self)->GetObjectSize()));
 }
 
 void _Object::Hashcode(pVMObject /*object*/, pVMFrame frame) {
@@ -99,7 +92,7 @@ void _Object::Hashcode(pVMObject /*object*/, pVMFrame frame) {
     if (IS_TAGGED(self))
         frame->Push(self);
     else
-        frame->Push(TAG_INTEGER(self->GetHash()));
+        frame->Push(NEW_INT(AS_OBJ(self)->GetHash()));
 }
 
 void _Object::Inspect(pVMObject, pVMFrame frame) {
@@ -118,7 +111,7 @@ void _Object::Perform(pVMObject, pVMFrame frame) {
     pVMSymbol selector = (pVMSymbol)frame->Pop();
     oop_t self = frame->GetStackElement(0);
 
-    pVMClass clazz = self->GetClass();
+    pVMClass clazz = CLASS_OF(self);
     pVMInvokable invokable = clazz->LookupInvokable(selector);
 
     (*invokable)(frame);
@@ -144,7 +137,7 @@ void _Object::PerformWithArguments(pVMObject object, pVMFrame frame) {
         frame->Push(arg);
     }
 
-    pVMClass clazz = self->GetClass();
+    pVMClass clazz = CLASS_OF(self);
     pVMInvokable invokable = clazz->LookupInvokable(selector);
 
     (*invokable)(frame);
@@ -190,7 +183,7 @@ void _Object::InstVarNamed(pVMObject object, pVMFrame frame) {
     pVMSymbol name = (pVMSymbol) frame->Pop();
     oop_t self = frame->Pop();
 
-    long field_idx = self->GetFieldIndex(name);
+    long field_idx = AS_OBJ(self)->GetFieldIndex(name);
     oop_t value = static_cast<pVMObject>(self)->GetField(field_idx);
 
     frame->Push(value);
@@ -198,5 +191,5 @@ void _Object::InstVarNamed(pVMObject object, pVMFrame frame) {
 
 void _Object::Class(pVMObject object, pVMFrame frame) {
     oop_t self = frame->Pop();
-    frame->Push(self->GetClass());
+    frame->Push(CLASS_OF(self));
 }

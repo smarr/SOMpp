@@ -272,14 +272,7 @@ void Interpreter::send(pVMSymbol signature, pVMClass receiverClass) {
             this->SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
         }
 
-#if USE_TAGGING
-        if (IS_TAGGED(receiver))
-            GlobalBox::IntegerBox()->Send(dnu, arguments, 2);
-        else
-            receiver->Send(dnu, arguments, 2);
-#else
-        receiver->Send(dnu, arguments, 2);
-#endif
+        AS_OBJ(receiver)->Send(dnu, arguments, 2);
     }
 }
 
@@ -368,14 +361,7 @@ void Interpreter::doPushGlobal(long bytecodeIndex) {
                             additionalStackSlots));
         }
 
-#if USE_TAGGING
-        if (IS_TAGGED(self))
-            GlobalBox::IntegerBox()->Send(uG, arguments, 1);
-        else
-            self->Send(uG, arguments, 1);
-#else
-        self->Send(uG, arguments, 1);
-#endif
+        AS_OBJ(self)->Send(uG, arguments, 1);
     }
 }
 
@@ -421,9 +407,9 @@ void Interpreter::doSend(long bytecodeIndex) {
 
     oop_t receiver = GetFrame()->GetStackElement(numOfArgs-1);
     assert(Universe::IsValidObject(receiver));
-    assert(dynamic_cast<pVMClass>((pVMObject)receiver->GetClass()) != nullptr); // make sure it is really a class
+    assert(dynamic_cast<pVMClass>(CLASS_OF(receiver)) != nullptr); // make sure it is really a class
     
-    pVMClass receiverClass = IS_TAGGED(receiver) ? integerClass : receiver->GetClass();
+    pVMClass receiverClass = CLASS_OF(receiver);
     
     assert(Universe::IsValidObject(receiverClass));
 
@@ -455,14 +441,8 @@ void Interpreter::doSuperSend(long bytecodeIndex) {
             argumentsArray->SetIndexableField(i, o);
         }
         oop_t arguments[] = {signature, argumentsArray};
-#if USE_TAGGING
-        if (IS_TAGGED(receiver))
-            GlobalBox::IntegerBox()->Send(dnu, arguments, 2);
-        else
-            receiver->Send(dnu, arguments, 2);
-#else
-        receiver->Send(dnu, arguments, 2);
-#endif
+
+        AS_OBJ(receiver)->Send(dnu, arguments, 2);
     }
 }
 
@@ -485,14 +465,7 @@ void Interpreter::doReturnNonLocal() {
 
         popFrame();
 
-#if USE_TAGGING
-        if (IS_TAGGED(sender))
-            GlobalBox::IntegerBox()->Send(eB, arguments, 1);
-        else
-            sender->Send(eB, arguments, 1);
-#else
-        sender->Send(eB, arguments, 1);
-#endif
+        AS_OBJ(sender)->Send(eB, arguments, 1);
         return;
     }
 

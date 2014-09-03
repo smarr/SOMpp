@@ -10,7 +10,7 @@ public:
     MarkSweepHeap(long objectSpaceSize = 1048576);
     AbstractVMObject* AllocateObject(size_t size);
 private:
-    vector<oop_t>* allocatedObjects;
+    vector<pVMAbstract>* allocatedObjects;
     size_t spcAlloc;
     long collectionLimit;
 

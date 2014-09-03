@@ -4,6 +4,7 @@
 #include "MarkSweepHeap.h"
 #include "../vmobjects/AbstractObject.h"
 #include "../vmobjects/VMFrame.h"
+#include <vmobjects/IntegerBox.h>
 
 #define GC_MARKED 3456
 
@@ -17,10 +18,10 @@ void MarkSweepCollector::Collect() {
     markReachableObjects();
 
     //in this survivors stack we will remember all objects that survived
-    vector<oop_t>* survivors = new vector<oop_t>();
+    auto survivors = new vector<pVMAbstract>();
     size_t survivorsSize = 0;
 
-    vector<oop_t>::iterator iter;
+    vector<pVMAbstract>::iterator iter;
     for (iter = heap->allocatedObjects->begin(); iter !=
             heap->allocatedObjects->end(); iter++) {
         if ((*iter)->GetGCField() == GC_MARKED) {
@@ -43,9 +44,11 @@ void MarkSweepCollector::Collect() {
     Timer::GCTimer->Halt();
 }
 
-static oop_t mark_object(oop_t obj) {
-    if (IS_TAGGED(obj))
-        return obj;
+static oop_t mark_object(oop_t oop) {
+    if (IS_TAGGED(oop))
+        return oop;
+    
+    pVMAbstract obj = AS_OBJ(oop);
 
     if (obj->GetGCField())
         return obj;
