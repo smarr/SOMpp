@@ -48,7 +48,7 @@
 double _Double::coerceDouble(oop_t x) {
 #ifdef USE_TAGGING
     if (IS_TAGGED(x))
-        return (double) UNTAG_INTEGER(x);
+        return (double) INT_VAL(x);
 #endif
     pVMClass cl = ((AbstractVMObject*)x)->GetClass();
     if (cl == doubleClass)

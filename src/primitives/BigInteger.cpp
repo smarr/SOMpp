@@ -46,7 +46,7 @@
 #define CHECK_BIGINT(object, result) { \
     /* Check second parameter type: */ \
   if (IS_TAGGED(object)) {\
-    result = GetUniverse()->NewBigInteger((int64_t)UNTAG_INTEGER(object));\
+    result = GetUniverse()->NewBigInteger((int64_t)INT_VAL(object));\
     } else\
         result = static_cast<pVMBigInteger>(object);\
 }
