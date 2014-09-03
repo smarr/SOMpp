@@ -9,7 +9,7 @@
 
 #include <vm/Universe.h>
 
-#ifdef DEBUG
+#ifdef UNITTESTS
 struct VMObjectCompare {
     bool operator() (pair<const oop_t, const oop_t> lhs, pair<const
             oop_t, const oop_t> rhs) const
@@ -27,7 +27,7 @@ public:
     size_t GetMaxNurseryObjectSize();
     void writeBarrier(oop_t holder, const oop_t referencedObject);
     inline bool isObjectInNursery(oop_t obj);
-#ifdef DEBUG
+#ifdef UNITTESTS
     std::set<pair<const oop_t, const oop_t>, VMObjectCompare > writeBarrierCalledOn;
 #endif
 private:
