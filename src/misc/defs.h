@@ -77,6 +77,12 @@
   #define write_barrier(obj, value_ptr)
 #endif
 
+//
+// Integer Settings
+//
+#ifndef USE_TAGGING
+  #define USE_TAGGING false
+#endif
 
 
 //
