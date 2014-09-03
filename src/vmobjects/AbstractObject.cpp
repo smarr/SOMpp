@@ -26,11 +26,11 @@ void AbstractVMObject::Send(StdString selectorString, oop_t* arguments, long arg
         frame->Push(arguments[i]);
     }
 
-    pVMClass cl = this->GetClass();
+    pVMClass cl = GetClass();
     pVMInvokable invokable = cl->LookupInvokable(selector);
     (*invokable)(frame);
 }
 
 long AbstractVMObject::GetFieldIndex(pVMSymbol fieldName) const {
-    return this->GetClass()->LookupFieldIndex(fieldName);
+    return GetClass()->LookupFieldIndex(fieldName);
 }
