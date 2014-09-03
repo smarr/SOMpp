@@ -46,5 +46,5 @@ public:
     void Round(pVMObject object, pVMFrame frame);
 
 private:
-    double coerceDouble(pVMObject x);
+    double coerceDouble(oop_t x);
 };

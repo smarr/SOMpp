@@ -20,7 +20,7 @@ GenerationalCollector::GenerationalCollector(GenerationalHeap* heap) : GarbageCo
     matureObjectsSize = 0;
 }
 
-static VMOBJECT_PTR mark_object(VMOBJECT_PTR obj) {
+static oop_t mark_object(oop_t obj) {
     assert(Universe::IsValidObject(obj));
 #ifdef USE_TAGGING
     //don't process tagged objects
@@ -36,7 +36,7 @@ static VMOBJECT_PTR mark_object(VMOBJECT_PTR obj) {
     return obj;
 }
 
-static VMOBJECT_PTR copy_if_necessary(VMOBJECT_PTR obj) {
+static oop_t copy_if_necessary(oop_t obj) {
     assert(Universe::IsValidObject(obj));
     
 #ifdef USE_TAGGING
@@ -53,10 +53,10 @@ static VMOBJECT_PTR copy_if_necessary(VMOBJECT_PTR obj) {
     // GCField is abused as forwarding pointer here
     // if someone has moved before, return the moved object
     if (gcField != 0)
-        return (VMOBJECT_PTR) gcField;
+        return (oop_t) gcField;
     
     // we have to clone ourselves
-    VMOBJECT_PTR newObj = obj->Clone();
+    oop_t newObj = obj->Clone();
 
 #ifndef NDEBUG
     obj->MarkObjectAsInvalid();
@@ -92,7 +92,7 @@ void GenerationalCollector::MinorCollection() {
         // content of oldObjsWithRefToYoungObjs is not altered while iteration,
         // because copy_if_necessary returns old objs only -> ignored by
         // write_barrier
-        VMOBJECT_PTR obj = (VMOBJECT_PTR)(*objIter);
+        oop_t obj = (oop_t)(*objIter);
         obj->SetGCField(MASK_OBJECT_IS_OLD);
         obj->WalkObjects(&copy_if_necessary);
     }
@@ -111,12 +111,12 @@ void GenerationalCollector::MajorCollection() {
     }
 
     //now that all objects are marked we can safely delete all allocated objects that are not marked
-    vector<VMOBJECT_PTR>* survivors = new vector<VMOBJECT_PTR>();
-    for (vector<VMOBJECT_PTR>::iterator objIter =
+    vector<oop_t>* survivors = new vector<oop_t>();
+    for (vector<oop_t>::iterator objIter =
             heap->allocatedObjects->begin(); objIter !=
             heap->allocatedObjects->end(); objIter++) {
         
-        pVMObject obj = *objIter;
+        oop_t obj = *objIter;
         assert(Universe::IsValidObject(obj));
         
         if (obj->GetGCField() & MASK_OBJECT_IS_MARKED) {

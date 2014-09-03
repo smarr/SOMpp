@@ -41,7 +41,7 @@ void VMInvokable::SetSignature(pVMSymbol sig) {
     write_barrier(this, sig);
 }
 
-void VMInvokable::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
+void VMInvokable::WalkObjects(oop_t (*walk)(oop_t)) {
     clazz = static_cast<pVMClass>(walk(clazz));
     signature = static_cast<pVMSymbol>(walk(signature));
     if (holder)

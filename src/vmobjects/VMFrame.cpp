@@ -52,7 +52,7 @@ pVMFrame VMFrame::EmergencyFrameFrom(pVMFrame from, long extraLength) {
     result->SetPreviousFrame(from->GetPreviousFrame());
     result->SetMethod(method);
     result->SetContext(from->GetContext());
-    result->stack_ptr = (pVMObject*)SHIFTED_PTR(result, (size_t)from->stack_ptr - (size_t)from);
+    result->stack_ptr = (oop_t*)SHIFTED_PTR(result, (size_t)from->stack_ptr - (size_t)from);
 
     result->bytecodeIndex = from->bytecodeIndex;
     // result->arguments is set in VMFrame constructor
@@ -60,8 +60,8 @@ pVMFrame VMFrame::EmergencyFrameFrom(pVMFrame from, long extraLength) {
 
     // all other fields are indexable via arguments
     // --> until end of Frame
-    pVMObject* from_end   = (pVMObject*) SHIFTED_PTR(from,   from->GetObjectSize());
-    pVMObject* result_end = (pVMObject*) SHIFTED_PTR(result, result->GetObjectSize());
+    oop_t* from_end   = (oop_t*) SHIFTED_PTR(from,   from->GetObjectSize());
+    oop_t* result_end = (oop_t*) SHIFTED_PTR(result, result->GetObjectSize());
 
     long i = 0;
 
@@ -89,9 +89,9 @@ pVMFrame VMFrame::Clone() const {
     const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
     size_t noBytes = GetObjectSize() - sizeof(VMFrame);
     memcpy(destination, source, noBytes);
-    clone->arguments = (pVMObject*)&(clone->stack_ptr)+1; //field after stack_ptr
+    clone->arguments = (oop_t*)&(clone->stack_ptr)+1; //field after stack_ptr
     clone->locals = clone->arguments + clone->method->GetNumberOfArguments();
-    clone->stack_ptr = (pVMObject*)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
+    clone->stack_ptr = (oop_t*)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
     return clone;
 }
 
@@ -102,13 +102,13 @@ VMFrame::VMFrame(long size, long nof) :
                 NULL), method(NULL) {
     clazz = nullptr; // Not a proper class anymore
     bytecodeIndex = 0;
-    arguments = (pVMObject*)&(stack_ptr)+1;
+    arguments = (oop_t*)&(stack_ptr)+1;
     locals = arguments;
     stack_ptr = locals;
 
     // initilize all other fields
     // --> until end of Frame
-    pVMObject* end = (pVMObject*) SHIFTED_PTR(this, objectSize);
+    oop_t* end = (oop_t*) SHIFTED_PTR(this, objectSize);
     long i = 0;
     while (arguments + i < end) {
         arguments[i] = nilObject;
@@ -138,7 +138,7 @@ pVMFrame VMFrame::GetOuterContext() {
     return current;
 }
 
-void VMFrame::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
+void VMFrame::WalkObjects(oop_t (*walk)(oop_t)) {
     // VMFrame is not a proper SOM object any longer, we don't have a class for it.
     // clazz = (pVMClass) walk(clazz);
     
@@ -153,7 +153,7 @@ void VMFrame::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     long i = 0;
     while (arguments + i <= stack_ptr) {
         if (arguments[i] != NULL)
-            arguments[i] = walk((VMOBJECT_PTR)arguments[i]);
+            arguments[i] = walk((oop_t)arguments[i]);
         i++;
     }
 }
@@ -166,11 +166,11 @@ long VMFrame::RemainingStackSize() const {
     return size - 1;
 }
 
-pVMObject VMFrame::Pop() {
+oop_t VMFrame::Pop() {
     return *stack_ptr--;
 }
 
-void VMFrame::Push(pVMObject obj) {
+void VMFrame::Push(oop_t obj) {
     *(++stack_ptr) = obj;
     write_barrier(this, obj);
 }
@@ -179,10 +179,10 @@ void VMFrame::PrintStack() const {
     cout << "SP: " << this->GetStackPointer() << endl;
     //all other fields are indexable via arguments array
     // --> until end of Frame
-    pVMObject* end = (pVMObject*) SHIFTED_PTR(this, objectSize);
+    oop_t* end = (oop_t*) SHIFTED_PTR(this, objectSize);
     long i = 0;
     while (arguments + i < end) {
-        pVMObject vmo = arguments[i];
+        oop_t vmo = arguments[i];
         cout << i << ": ";
         if (vmo == NULL)
             cout << "NULL" << endl;
@@ -193,13 +193,13 @@ void VMFrame::PrintStack() const {
             cout << "index: " << i << " object: VMInteger" << endl;
         }
         else {
-            if (((VMOBJECT_PTR)vmo)->GetClass() == NULL)
+            if (((oop_t)vmo)->GetClass() == NULL)
             cout << "VMObject with Class == NULL" << endl;
-            if (((VMOBJECT_PTR)vmo)->GetClass() == nilObject)
+            if (((oop_t)vmo)->GetClass() == nilObject)
             cout << "VMObject with Class == NIL_OBJECT" << endl;
             else
             cout << "index: " << i << " object:"
-            << ((VMOBJECT_PTR)vmo)->GetClass()->GetName()->GetChars() << endl;
+            << ((oop_t)vmo)->GetClass()->GetName()->GetChars() << endl;
         }
 #else
         else if (vmo->GetClass() == NULL)
@@ -222,32 +222,32 @@ void VMFrame::ResetStackPointer() {
     stack_ptr = locals + meth->GetNumberOfLocals() - 1;
 }
 
-pVMObject VMFrame::GetStackElement(long index) const {
+oop_t VMFrame::GetStackElement(long index) const {
     return stack_ptr[-index];
 }
 
-void VMFrame::SetStackElement(long index, pVMObject obj) {
+void VMFrame::SetStackElement(long index, oop_t obj) {
     stack_ptr[-index] = obj;
 }
 
-pVMObject VMFrame::GetLocal(long index, long contextLevel) {
+oop_t VMFrame::GetLocal(long index, long contextLevel) {
     pVMFrame context = this->GetContextLevel(contextLevel);
     return context->locals[index];
 }
 
-void VMFrame::SetLocal(long index, long contextLevel, pVMObject value) {
+void VMFrame::SetLocal(long index, long contextLevel, oop_t value) {
     pVMFrame context = this->GetContextLevel(contextLevel);
     context->locals[index] = value;
     write_barrier(context, value);
 }
 
-pVMObject VMFrame::GetArgument(long index, long contextLevel) {
+oop_t VMFrame::GetArgument(long index, long contextLevel) {
     // get the context
     pVMFrame context = this->GetContextLevel(contextLevel);
     return context->arguments[index];
 }
 
-void VMFrame::SetArgument(long index, long contextLevel, pVMObject value) {
+void VMFrame::SetArgument(long index, long contextLevel, oop_t value) {
     pVMFrame context = this->GetContextLevel(contextLevel);
     context->arguments[index] = value;
     write_barrier(context, value);
@@ -268,7 +268,7 @@ void VMFrame::CopyArgumentsFrom(pVMFrame frame) {
     // - copy them into the argument area of the current frame
     long num_args = GetMethod()->GetNumberOfArguments();
     for (long i = 0; i < num_args; ++i) {
-        pVMObject stackElem = frame->GetStackElement(num_args - 1 - i);
+        oop_t stackElem = frame->GetStackElement(num_args - 1 - i);
         arguments[i] = stackElem;
         write_barrier(this, stackElem);
     }

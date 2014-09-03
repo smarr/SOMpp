@@ -390,7 +390,7 @@ Universe::~Universe() {
     void* vt_string;
     void* vt_symbol;
 
-    bool Universe::IsValidObject(const pcVMObject obj) {
+    bool Universe::IsValidObject(oop_t obj) {
         if (obj == (pVMObject) INVALID_POINTER
             // || obj == nullptr
             ) {
@@ -579,7 +579,7 @@ pVMClass Universe::GetBlockClassWithArgs(long numberOfArguments) {
     return result;
 }
 
-pVMObject Universe::GetGlobal(pVMSymbol name) {
+oop_t Universe::GetGlobal(pVMSymbol name) {
     return globals[name];
 }
 
@@ -721,17 +721,17 @@ pVMArray Universe::NewArrayFromStrings(const vector<StdString>& argv) const {
 }
 
 pVMArray Universe::NewArrayList(ExtendedList<pVMSymbol>& list) const {
-    ExtendedList<pVMObject>& objList = (ExtendedList<pVMObject>&) list;
+    ExtendedList<oop_t>& objList = (ExtendedList<oop_t>&) list;
     return NewArrayList(objList);
 }
 
-pVMArray Universe::NewArrayList(ExtendedList<pVMObject>& list) const {
+pVMArray Universe::NewArrayList(ExtendedList<oop_t>& list) const {
     long size = list.Size();
     pVMArray result = NewArray(size);
 
     if (result) {
         for (long i = 0; i < size; ++i) {
-            pVMObject elem = list.Get(i);
+            oop_t elem = list.Get(i);
             result->SetIndexableField(i, elem);
         }
     }
@@ -806,7 +806,7 @@ pVMFrame Universe::NewFrame(pVMFrame previousFrame, pVMMethod method) const {
     return result;
 }
 
-pVMObject Universe::NewInstance( pVMClass classOfInstance) const {
+pVMObject Universe::NewInstance(pVMClass classOfInstance) const {
     long numOfFields = classOfInstance->GetNumberOfInstanceFields();
     //the additional space needed is calculated from the number of fields
     long additionalBytes = numOfFields * sizeof(pVMObject);
@@ -850,7 +850,7 @@ pVMClass Universe::NewMetaclassClass() const {
     return result;
 }
 
-void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
+void Universe::WalkGlobals(oop_t (*walk)(oop_t)) {
     nilObject   = (pVMObject)walk(nilObject);
     trueObject  = (pVMObject)walk(trueObject);
     falseObject = (pVMObject)walk(falseObject);
@@ -888,15 +888,15 @@ void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
 #endif
 
     // walk all entries in globals map
-    map<pVMSymbol, pVMObject> globs = globals;
+    map<pVMSymbol, oop_t> globs = globals;
     globals.clear();
-    map<pVMSymbol, pVMObject>::iterator iter;
+    map<pVMSymbol, oop_t>::iterator iter;
     for (iter = globs.begin(); iter != globs.end(); iter++) {
         if (iter->second == NULL)
             continue;
 
         pVMSymbol key = static_cast<pVMSymbol>(walk(iter->first));
-        pVMObject val = walk((VMOBJECT_PTR)iter->second);
+        oop_t val = walk((oop_t)iter->second);
         globals[key] = val;
     }
     
@@ -992,6 +992,6 @@ pVMSymbol Universe::SymbolForChars(const char* str) {
     return SymbolFor(str);
 }
 
-void Universe::SetGlobal(pVMSymbol name, pVMObject val) {
+void Universe::SetGlobal(pVMSymbol name, oop_t val) {
     globals[name] = val;
 }

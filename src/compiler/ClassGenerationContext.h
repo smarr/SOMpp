@@ -61,8 +61,8 @@ private:
     pVMSymbol superName;
     bool classSide;
     ExtendedList<pVMSymbol> instanceFields;
-    ExtendedList<pVMObject> instanceMethods;
+    ExtendedList<oop_t> instanceMethods;
     ExtendedList<pVMSymbol> classFields;
-    ExtendedList<pVMObject> classMethods;
+    ExtendedList<oop_t> classMethods;
 
 };

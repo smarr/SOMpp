@@ -45,7 +45,7 @@
  * This function coerces any right-hand parameter to a double, regardless of its
  * true nature. This is to make sure that all Double operations return Doubles.
  */
-double _Double::coerceDouble(pVMObject x) {
+double _Double::coerceDouble(oop_t x) {
 #ifdef USE_TAGGING
     if (IS_TAGGED(x))
         return (double) UNTAG_INTEGER(x);

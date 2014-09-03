@@ -57,7 +57,7 @@
  */
 
 // FIELDS starts indexing after the clazz field
-#define FIELDS (((pVMObject*)&clazz) + 1)
+#define FIELDS (((oop_t*)&clazz) + 1)
 
 class VMObject: public AbstractVMObject {
 
@@ -71,10 +71,10 @@ public:
     virtual        pVMSymbol GetFieldName(long index) const;
     virtual inline long      GetNumberOfFields() const;
     virtual        void      SetNumberOfFields(long nof);
-            inline pVMObject GetField(long index) const;
-            inline void      SetField(long index, pVMObject value);
+            inline oop_t GetField(long index) const;
+            inline void      SetField(long index, oop_t value);
     virtual        void      Assert(bool value) const;
-    virtual        void      WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
+    virtual        void      WalkObjects(oop_t (oop_t));
     virtual        pVMObject Clone() const;
     virtual inline size_t    GetObjectSize() const;
     virtual inline void      SetObjectSize(size_t size);
@@ -154,11 +154,11 @@ long VMObject::GetAdditionalSpaceConsumption() const {
                + sizeof(pVMObject) * GetNumberOfFields()));
 }
 
-pVMObject VMObject::GetField(long index) const {
+oop_t VMObject::GetField(long index) const {
     return FIELDS[index];
 }
 
-void VMObject::SetField(long index, pVMObject value) {
+void VMObject::SetField(long index, oop_t value) {
     FIELDS[index] = value;
     write_barrier(this, value);
 }

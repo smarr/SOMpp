@@ -87,7 +87,7 @@ void _String::Length(pVMObject /*object*/, pVMFrame frame) {
 }
 
 void _String::Equal(pVMObject /*object*/, pVMFrame frame) {
-    pVMObject op1 = frame->Pop();
+    oop_t op1 = frame->Pop();
     pVMString op2 = static_cast<pVMString>(frame->Pop());
 
 #ifdef USE_TAGGING

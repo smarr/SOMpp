@@ -56,7 +56,7 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
     numberOfArguments            = NEW_INT(0);
     this->numberOfConstants      = NEW_INT(numberOfConstants);
 
-    indexableFields = (pVMObject*)(&indexableFields + 2);
+    indexableFields = (oop_t*)(&indexableFields + 2);
     for (long i = 0; i < numberOfConstants; ++i) {
         indexableFields[i] = nilObject;
     }
@@ -73,7 +73,7 @@ pVMMethod VMMethod::Clone() const {
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,
                     sizeof(VMObject)), GetObjectSize() -
             sizeof(VMObject));
-    clone->indexableFields = (pVMObject*)(&(clone->indexableFields) + 2);
+    clone->indexableFields = (oop_t*)(&(clone->indexableFields) + 2);
     clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + GetNumberOfIndexableFields());
     return clone;
 }
@@ -83,7 +83,7 @@ void VMMethod::SetSignature(pVMSymbol sig) {
     SetNumberOfArguments(Signature::GetNumberOfArguments(signature));
 }
 
-void VMMethod::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
+void VMMethod::WalkObjects(oop_t (*walk)(oop_t)) {
     VMInvokable::WalkObjects(walk);
 
     numberOfLocals = static_cast<VMInteger*>(walk(numberOfLocals));
@@ -150,7 +150,7 @@ void VMMethod::operator()(pVMFrame frame) {
 void VMMethod::SetHolderAll(pVMClass hld) {
     long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {
-        pVMObject o = GetIndexableField(i);
+        oop_t o = GetIndexableField(i);
         if (!IS_TAGGED(o)) {
             pVMInvokable vmi = dynamic_cast<pVMInvokable>(AS_POINTER(o));
             if (vmi != NULL) {
@@ -160,7 +160,7 @@ void VMMethod::SetHolderAll(pVMClass hld) {
     }
 }
 
-pVMObject VMMethod::GetConstant(long indx) const {
+oop_t VMMethod::GetConstant(long indx) const {
     uint8_t bc = bytecodes[indx + 1];
     if (bc >= this->GetNumberOfIndexableFields()) {
         cout << "Error: Constant index out of range" << endl;

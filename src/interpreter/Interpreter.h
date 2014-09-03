@@ -38,9 +38,9 @@ public:
     pVMFrame  PushNewFrame(pVMMethod method);
     void      SetFrame(pVMFrame frame);
     inline pVMFrame  GetFrame();
-    void      WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
+    void      WalkGlobals(oop_t (*walk)(oop_t));
 private:
-    pVMObject GetSelf();
+    oop_t GetSelf();
     
     pVMFrame frame;
     StdString uG;
@@ -48,7 +48,7 @@ private:
     StdString eB;
 
     pVMFrame popFrame();
-    void popFrameAndPushResult(pVMObject result);
+    void popFrameAndPushResult(oop_t result);
     void send(pVMSymbol signature, pVMClass receiverClass);
 
     void doDup();

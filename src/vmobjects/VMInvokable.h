@@ -41,7 +41,7 @@ public:
             pVMClass  GetHolder() const;
             void      SetHolder(pVMClass hld);
 
-    void WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
+    void WalkObjects(oop_t (*walk)(oop_t));
 
 protected:
     pVMSymbol signature;

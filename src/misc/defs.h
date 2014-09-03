@@ -66,7 +66,7 @@
 #if   GC_TYPE == GENERATIONAL
   class   GenerationalHeap;
   typedef GenerationalHeap HEAP_CLS;
-  #define write_barrier(obj, value_ptr) ((GetHeap<GenerationalHeap>())->writeBarrier(obj, (VMOBJECT_PTR) value_ptr))
+  #define write_barrier(obj, value_ptr) ((GetHeap<GenerationalHeap>())->writeBarrier(obj, (oop_t) value_ptr))
 #elif GC_TYPE == COPYING
   class   CopyingHeap;
   typedef CopyingHeap HEAP_CLS;

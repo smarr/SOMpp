@@ -38,7 +38,7 @@ public:
 
     inline  bool IsEmpty() const;
     inline  void SetRoutine(PrimitiveRoutine* rtn);
-    virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
+    virtual void WalkObjects(oop_t (oop_t));
             void SetEmpty(bool value) {empty = value;};
     virtual pVMPrimitive Clone() const;
 

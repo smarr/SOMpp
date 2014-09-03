@@ -67,7 +67,7 @@ void Shell::Start() {
     long bytecodeIndex, counter = 0;
     pVMFrame currentFrame;
     pVMClass runClass;
-    pVMObject it = nilObject;// last evaluation result.
+    oop_t it = nilObject;// last evaluation result.
 
     cout << "SOM Shell. Type \"" << QUIT_CMD << "\" to exit.\n";
 

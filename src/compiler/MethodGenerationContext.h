@@ -44,7 +44,7 @@ public:
     pVMMethod Assemble();
     pVMPrimitive AssemblePrimitive();
 
-    int8_t FindLiteralIndex(pVMObject lit);
+    int8_t FindLiteralIndex(oop_t lit);
     bool FindVar(const StdString& var, size_t* index,
             int* context, bool* isArgument);
     bool HasField(const StdString& field);
@@ -59,10 +59,10 @@ public:
     void AddArgument(const StdString& arg);
     void SetPrimitive(bool prim = true);
     void AddLocal(const StdString& local);
-    void AddLiteral(pVMObject lit);
+    void AddLiteral(oop_t lit);
     bool AddArgumentIfAbsent(const StdString& arg);
     bool AddLocalIfAbsent(const StdString& local);
-    bool AddLiteralIfAbsent(pVMObject lit);
+    bool AddLiteralIfAbsent(oop_t lit);
     void SetFinished(bool finished = true);
 
     ClassGenerationContext* GetHolder();
@@ -85,7 +85,7 @@ private:
     ExtendedList<StdString> arguments;
     bool primitive;
     ExtendedList<StdString> locals;
-    ExtendedList<pVMObject> literals;
+    ExtendedList<oop_t> literals;
     bool finished;
     std::vector<uint8_t> bytecode;
 };

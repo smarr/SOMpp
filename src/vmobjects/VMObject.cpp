@@ -78,12 +78,12 @@ void VMObject::Assert(bool value) const {
     GetUniverse()->Assert(value);
 }
 
-void VMObject::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
+void VMObject::WalkObjects(oop_t (*walk)(oop_t)) {
     clazz = (pVMClass) walk(clazz);
     
     long numFields = GetNumberOfFields();
     for (long i = 0; i < numFields; ++i) {
-        FIELDS[i] = walk((VMOBJECT_PTR)GetField(i));
+        FIELDS[i] = walk((oop_t)GetField(i));
     }
 }
 

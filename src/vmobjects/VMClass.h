@@ -67,7 +67,7 @@ public:
            bool         HasPrimitives() const;
            void         LoadPrimitives(const vector<StdString>&);
     virtual pVMClass    Clone() const;
-           void         WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
+           void         WalkObjects(oop_t (*walk)(oop_t));
     
     virtual void MarkObjectAsInvalid();
 

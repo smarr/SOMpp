@@ -63,7 +63,7 @@ void VMString::MarkObjectAsInvalid() {
     }
 }
 
-void VMString::WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR)) {
+void VMString::WalkObjects(oop_t (oop_t)) {
     //nothing to do
 }
 

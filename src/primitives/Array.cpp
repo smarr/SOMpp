@@ -55,12 +55,12 @@ void _Array::At_(pVMObject /*object*/, pVMFrame frame) {
     pVMInteger index = static_cast<pVMInteger>(frame->Pop());
     pVMArray self = static_cast<pVMArray>(frame->Pop());
     long i = INT_VAL(index);
-    pVMObject elem = self->GetIndexableField(i - 1);
+    oop_t elem = self->GetIndexableField(i - 1);
     frame->Push(elem);
 }
 
 void _Array::At_Put_(pVMObject /*object*/, pVMFrame frame) {
-    pVMObject value = frame->Pop();
+    oop_t value = frame->Pop();
     pVMInteger index = static_cast<pVMInteger>(frame->Pop());
     pVMArray self = static_cast<pVMArray>(frame->GetStackElement(0));
     long i = INT_VAL(index);

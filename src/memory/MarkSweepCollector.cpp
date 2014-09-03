@@ -17,10 +17,10 @@ void MarkSweepCollector::Collect() {
     markReachableObjects();
 
     //in this survivors stack we will remember all objects that survived
-    vector<VMOBJECT_PTR>* survivors = new vector<VMOBJECT_PTR>();
+    vector<oop_t>* survivors = new vector<oop_t>();
     size_t survivorsSize = 0;
 
-    vector<VMOBJECT_PTR>::iterator iter;
+    vector<oop_t>::iterator iter;
     for (iter = heap->allocatedObjects->begin(); iter !=
             heap->allocatedObjects->end(); iter++) {
         if ((*iter)->GetGCField() == GC_MARKED) {
@@ -43,7 +43,7 @@ void MarkSweepCollector::Collect() {
     Timer::GCTimer->Halt();
 }
 
-static VMOBJECT_PTR mark_object(VMOBJECT_PTR obj) {
+static oop_t mark_object(oop_t obj) {
 #ifdef USE_TAGGING
     if (IS_TAGGED(obj))
         return obj;

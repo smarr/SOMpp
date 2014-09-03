@@ -37,13 +37,13 @@ VMArray::VMArray(long size, long nof) :
     // SetIndexableField is not used to prevent the write barrier to be called
     // too often.
     // Fields start after clazz and other fields (GetNumberOfFields)
-    pVMObject* arrFields = FIELDS + GetNumberOfFields();
+    oop_t* arrFields = FIELDS + GetNumberOfFields();
     for (long i = 0; i < size; ++i) {
         arrFields[i] = nilObject;
     }
 }
 
-pVMObject VMArray::GetIndexableField(long idx) const {
+oop_t VMArray::GetIndexableField(long idx) const {
     if (unlikely(idx > GetNumberOfIndexableFields())) {
         cout << "Array index out of bounds: Accessing " << idx
         << ", but array size is only " << GetNumberOfIndexableFields()
@@ -53,7 +53,7 @@ pVMObject VMArray::GetIndexableField(long idx) const {
     return GetField(GetNumberOfFields() + idx);
 }
 
-void VMArray::SetIndexableField(long idx, pVMObject value) {
+void VMArray::SetIndexableField(long idx, oop_t value) {
     if (unlikely(idx > GetNumberOfIndexableFields())) {
         cout << "Array index out of bounds: Accessing " << idx
         << ", but array size is only " << GetNumberOfIndexableFields()
@@ -63,7 +63,7 @@ void VMArray::SetIndexableField(long idx, pVMObject value) {
     SetField(GetNumberOfFields() + idx, value);
 }
 
-pVMArray VMArray::CopyAndExtendWith(pVMObject item) const {
+pVMArray VMArray::CopyAndExtendWith(oop_t item) const {
     size_t fields = GetNumberOfIndexableFields();
     pVMArray result = GetUniverse()->NewArray(fields + 1);
     this->CopyIndexableFieldsTo(result);
@@ -100,11 +100,11 @@ void VMArray::CopyIndexableFieldsTo(pVMArray to) const {
     }
 }
 
-void VMArray::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
+void VMArray::WalkObjects(oop_t (*walk)(oop_t)) {
     clazz = (pVMClass) walk(clazz);
     long numFields          = GetNumberOfFields();
     long numIndexableFields = GetNumberOfIndexableFields();
-    pVMObject* fields = FIELDS;
+    oop_t* fields = FIELDS;
     for (long i = 0; i < numFields + numIndexableFields; i++) {
         fields[i] = walk(AS_POINTER(fields[i]));
     }

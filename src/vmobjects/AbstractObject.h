@@ -32,7 +32,7 @@ public:
     virtual size_t GetHash();
     virtual pVMClass GetClass() const = 0;
     virtual AbstractVMObject* Clone() const = 0;
-    virtual void Send(StdString, pVMObject*, long);
+    virtual void Send(StdString, oop_t*, long);
     virtual size_t GetObjectSize() const = 0;
     
     virtual void MarkObjectAsInvalid() = 0;
@@ -62,7 +62,7 @@ public:
 
     long GetFieldIndex(pVMSymbol fieldName) const;
 
-    inline virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR)) {
+    inline virtual void WalkObjects(oop_t (oop_t)) {
         return;
     }
 

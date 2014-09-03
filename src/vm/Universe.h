@@ -85,7 +85,7 @@ public:
 
     //Globals accessor (only for GC, could be considered be
     //declared as a private friend method for the GC)
-    map<pVMSymbol, pVMObject> GetGlobals() {
+    map<pVMSymbol, oop_t> GetGlobals() {
         return globals;
     }
     Interpreter* GetInterpreter() {
@@ -101,7 +101,7 @@ public:
 
     //VMObject instanciation methods. These should probably be refactored to a new class
     pVMArray NewArray(long) const;
-    pVMArray NewArrayList(ExtendedList<pVMObject>& list) const;
+    pVMArray NewArrayList(ExtendedList<oop_t>& list) const;
     pVMArray NewArrayList(ExtendedList<pVMSymbol>& list) const;
     pVMArray NewArrayFromStrings(const vector<StdString>&) const;
     pVMBlock NewBlock(pVMMethod, pVMFrame, long);
@@ -110,7 +110,7 @@ public:
     pVMMethod NewMethod(pVMSymbol, size_t, size_t) const;
     pVMObject NewInstance(pVMClass) const;
     pVMInteger NewInteger(long) const;
-    void WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
+    void WalkGlobals(oop_t (*walk)(oop_t));
     pVMBigInteger NewBigInteger(int64_t) const;
     pVMDouble NewDouble(double) const;
     pVMClass NewMetaclassClass(void) const;
@@ -122,8 +122,8 @@ public:
 
     void InitializeSystemClass(pVMClass, pVMClass, const char*);
 
-    pVMObject GetGlobal(pVMSymbol);
-    void SetGlobal(pVMSymbol name, pVMObject val);
+    oop_t GetGlobal(pVMSymbol);
+    void SetGlobal(pVMSymbol name, oop_t val);
     bool HasGlobal(pVMSymbol);
     void InitializeGlobals();
     pVMClass GetBlockClass(void) const;
@@ -146,7 +146,7 @@ public:
 #endif
     //
     
-    inline static bool IsValidObject(const pcVMObject obj);
+    inline static bool IsValidObject(oop_t obj);
 private:
     vector<StdString> handleArguments(long argc, char** argv);
     long getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;
@@ -161,7 +161,7 @@ private:
     void initialize(long, char**);
 
     long heapSize;
-    map<pVMSymbol, pVMObject> globals;
+    map<pVMSymbol, oop_t> globals;
     map<long,pVMClass> blockClassesByNoOfArgs;
     vector<StdString> classPath;
 
@@ -185,7 +185,7 @@ Universe* Universe::operator->() {
 }
 
 #ifndef NDEBUG
-bool Universe::IsValidObject(const pcVMObject obj) {
+bool Universe::IsValidObject(oop_t obj) {
     return true;
 }
 #endif

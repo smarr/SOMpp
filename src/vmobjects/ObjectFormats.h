@@ -99,7 +99,9 @@ typedef VMPrimitive*           pVMPrimitive;
 typedef VMString*              pVMString;
 typedef VMSymbol*              pVMSymbol;
 
-typedef AbstractVMObject*      VMOBJECT_PTR;
+// oop_t: Ordinary Object Pointer type
+// an oop_t can refer to tagged integers as well as normal AbstractVMObjects
+typedef AbstractVMObject*      oop_t;
 
 // Used to mark object fields as invalid
 #define INVALID_POINTER ((pVMObject)0x101010)

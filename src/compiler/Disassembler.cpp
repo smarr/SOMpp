@@ -63,7 +63,7 @@
 /** 
  * Dispatch an object to its content and write out
  */
-void Disassembler::dispatch(pVMObject o) {
+void Disassembler::dispatch(oop_t o) {
     //dispatch
     // can't switch() objects, so:
     if(!o)
@@ -187,7 +187,7 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
                 break;
             }
             case BC_PUSH_CONSTANT: {
-                pVMObject constant = method->GetConstant(bc_idx);
+                oop_t constant = method->GetConstant(bc_idx);
                 pVMClass cl = CLASS_OF(constant);
                 pVMSymbol cname = cl->GetName();
 
@@ -197,7 +197,7 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
                 break;
             }
             case BC_PUSH_GLOBAL: {
-                pVMObject cst = method->GetConstant(bc_idx);
+                oop_t cst = method->GetConstant(bc_idx);
 
                 if (cst != NULL) {
                     pVMSymbol name = static_cast<pVMSymbol>(cst);
@@ -267,7 +267,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
     static long long indentc = 0;
     static char ikind = '@';
     uint8_t bc = BC_0;
-    VMOBJECT_PTR clo = method->GetHolder();
+    oop_t clo = method->GetHolder();
     pVMClass cl = dynamic_cast<pVMClass>(clo);
 
     // Determine Context: Class or Block?
@@ -296,7 +296,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
             break;
         }
         case BC_DUP: {
-            pVMObject o = frame->GetStackElement(0);
+            oop_t o = frame->GetStackElement(0);
             if (o) {
                 pVMClass c = CLASS_OF(o);
                 pVMSymbol cname = c->GetName();
@@ -311,7 +311,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
         }
         case BC_PUSH_LOCAL: {
             uint8_t bc1 = BC_1, bc2 = BC_2;
-            pVMObject o = frame->GetLocal(bc1, bc2);
+            oop_t o = frame->GetLocal(bc1, bc2);
             pVMClass c = CLASS_OF(o);
             pVMSymbol cname = c->GetName();
 
@@ -324,7 +324,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
         }
         case BC_PUSH_ARGUMENT: {
             uint8_t bc1 = BC_1, bc2 = BC_2;
-            pVMObject o = frame->GetArgument(bc1, bc2);
+            oop_t o = frame->GetArgument(bc1, bc2);
             DebugPrint("argument: %d, context: %d", bc1, bc2);
 #ifdef USE_TAGGING
             if(dynamic_cast<pVMClass>(AS_POINTER(cl)) != NULL) {
@@ -344,11 +344,11 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
         }
         case BC_PUSH_FIELD: {
             pVMFrame ctxt = frame->GetOuterContext();
-            pVMObject arg = ctxt->GetArgument(0, 0);
+            oop_t arg = ctxt->GetArgument(0, 0);
             uint8_t field_index = BC_1;
             
 #ifdef USE_TAGGING
-            pVMObject o = AS_POINTER(arg)->GetField(field_index);
+            oop_t o = ((pVMObject)arg)->GetField(field_index);
 #else
             pVMObject o = static_cast<VMObject*>(arg)->GetField(field_index);
 #endif
@@ -374,7 +374,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
             break;
         }
         case BC_PUSH_CONSTANT: {
-            pVMObject constant = method->GetConstant(bc_idx);
+            oop_t constant = method->GetConstant(bc_idx);
             pVMClass c = CLASS_OF(constant);
             pVMSymbol cname = c->GetName();
 
@@ -390,7 +390,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
 #else
             pVMSymbol name = static_cast<pVMSymbol>(method->GetConstant(bc_idx));
 #endif
-            pVMObject o = GetUniverse()->GetGlobal(name);
+            oop_t o = GetUniverse()->GetGlobal(name);
             pVMSymbol cname;
 
             const char* c_cname;
@@ -409,7 +409,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
             break;
         }
         case BC_POP: {
-            pVMObject o = frame->GetStackElement(0);
+            oop_t o = frame->GetStackElement(0);
             pVMClass c = CLASS_OF(o);
             pVMSymbol cname = c->GetName();
 
@@ -420,7 +420,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
             break;
         }
         case BC_POP_LOCAL: {
-            pVMObject o = frame->GetStackElement(0);
+            oop_t o = frame->GetStackElement(0);
             pVMClass c = CLASS_OF(o);
             pVMSymbol cname = c->GetName();
 
@@ -432,7 +432,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
             break;
         }
         case BC_POP_ARGUMENT: {
-            pVMObject o = frame->GetStackElement(0);
+            oop_t o = frame->GetStackElement(0);
             pVMClass c = CLASS_OF(o);
             pVMSymbol cname = c->GetName();
             DebugPrint("argument: %d, context: %d <(%s) ", BC_1, BC_2,
@@ -443,7 +443,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
             break;
         }
         case BC_POP_FIELD: {
-            pVMObject o = frame->GetStackElement(0);
+            oop_t o = frame->GetStackElement(0);
             pVMClass c = CLASS_OF(o);
             long fieldIdx = BC_1;
             pVMSymbol name = method->GetHolder()->GetInstanceFieldName(fieldIdx);
@@ -461,7 +461,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
             DebugPrint("(index: %d) signature: %s (", BC_1,
             sel->GetChars());
             //handle primitives, they don't increase call-depth
-            pVMObject elem = GetUniverse()->GetInterpreter()->GetFrame()->
+            oop_t elem = GetUniverse()->GetInterpreter()->GetFrame()->
             GetStackElement(
             Signature::GetNumberOfArguments(sel)-1);
             pVMClass elemClass = CLASS_OF(elem);

@@ -82,7 +82,7 @@ VMClass::VMClass(long numberOfFields) :
         VMObject(numberOfFields + VMClassNumberOfFields) {
 }
 
-void VMClass::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
+void VMClass::WalkObjects(oop_t (*walk)(oop_t)) {
     clazz = static_cast<pVMClass>(walk(clazz));
     if (superClass)
         superClass = static_cast<pVMClass>(walk(superClass));
@@ -90,7 +90,7 @@ void VMClass::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     instanceFields = static_cast<pVMArray>(walk(instanceFields));
     instanceInvokables = static_cast<pVMArray>(walk(instanceInvokables));
 
-    pVMObject* fields = FIELDS;
+    oop_t* fields = FIELDS;
 
     for (long i = VMClassNumberOfFields + 0/*VMObjectNumberOfFields*/; i < numberOfFields; i++)
         fields[i] = walk(AS_POINTER(fields[i]));
@@ -152,7 +152,7 @@ void VMClass::SetInstanceInvokables(pVMArray invokables) {
 
     long numInvokables = GetNumberOfInstanceInvokables();
     for (long i = 0; i < numInvokables; ++i) {
-        pVMObject invo = instanceInvokables->GetIndexableField(i);
+        oop_t invo = instanceInvokables->GetIndexableField(i);
         //check for Nil object
         if (invo != nilObject) {
             //not Nil, so this actually is an invokable
@@ -179,7 +179,7 @@ void VMClass::SetInstanceInvokable(long index, pVMObject invokable) {
 }
 
 pVMInvokable VMClass::LookupInvokable(pVMSymbol name) const {
-    assert(Universe::IsValidObject(this));
+    assert(Universe::IsValidObject((oop_t) this));
     
     pVMInvokable invokable = name->GetCachedInvokable(this);
     if (invokable != NULL)

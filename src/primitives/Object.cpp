@@ -74,14 +74,14 @@ _Object::_Object() :
 }
 
 void _Object::Equalequal(pVMObject /*object*/, pVMFrame frame) {
-    pVMObject op1 = frame->Pop();
-    pVMObject op2 = frame->Pop();
+    oop_t op1 = frame->Pop();
+    oop_t op2 = frame->Pop();
 
     frame->Push( op1 == op2 ? trueObject : falseObject );
 }
 
 void _Object::ObjectSize(pVMObject /*object*/, pVMFrame frame) {
-    pVMObject self = frame->Pop();
+    oop_t self = frame->Pop();
 
 #ifdef USE_TAGGING
     if IS_TAGGED(self)
@@ -94,7 +94,7 @@ void _Object::ObjectSize(pVMObject /*object*/, pVMFrame frame) {
 }
 
 void _Object::Hashcode(pVMObject /*object*/, pVMFrame frame) {
-    pVMObject self = frame->Pop();
+    oop_t self = frame->Pop();
 #ifdef USE_TAGGING
     if (IS_TAGGED(self))
         frame->Push(self);
@@ -119,7 +119,7 @@ void _Object::Halt(pVMObject, pVMFrame frame) {
 
 void _Object::Perform(pVMObject, pVMFrame frame) {
     pVMSymbol selector = (pVMSymbol)frame->Pop();
-    pVMObject self = frame->GetStackElement(0);
+    oop_t self = frame->GetStackElement(0);
 
     pVMClass clazz = self->GetClass();
     pVMInvokable invokable = clazz->LookupInvokable(selector);
@@ -139,11 +139,11 @@ void _Object::PerformInSuperclass(pVMObject object, pVMFrame frame) {
 void _Object::PerformWithArguments(pVMObject object, pVMFrame frame) {
     pVMArray args = (pVMArray) frame->Pop();
     pVMSymbol selector = (pVMSymbol)frame->Pop();
-    pVMObject self = frame->GetStackElement(0);
+    oop_t self = frame->GetStackElement(0);
 
     size_t num_args = args->GetNumberOfIndexableFields();
     for (size_t i = 0; i < num_args; i++) {
-        pVMObject arg = args->GetIndexableField(i);
+        oop_t arg = args->GetIndexableField(i);
         frame->Push(arg);
     }
 
@@ -160,7 +160,7 @@ void _Object::PerformWithArgumentsInSuperclass(pVMObject object, pVMFrame frame)
 
     size_t num_args = args->GetNumberOfIndexableFields();
     for (size_t i = 0; i < num_args; i++) {
-        pVMObject arg = args->GetIndexableField(i);
+        oop_t arg = args->GetIndexableField(i);
         frame->Push(arg);
     }
 
@@ -171,18 +171,18 @@ void _Object::PerformWithArgumentsInSuperclass(pVMObject object, pVMFrame frame)
 
 void _Object::InstVarAt(pVMObject object, pVMFrame frame) {
     pVMInteger idx = (pVMInteger) frame->Pop();
-    pVMObject self = frame->Pop();
+    oop_t self = frame->Pop();
 
     long field_idx = idx->GetEmbeddedInteger() - 1;
-    pVMObject value = static_cast<VMObject*>(self)->GetField(field_idx);
+    oop_t value = static_cast<VMObject*>(self)->GetField(field_idx);
 
     frame->Push(value);
 }
 
 void _Object::InstVarAtPut(pVMObject object, pVMFrame frame) {
-    pVMObject value = frame->Pop();
+    oop_t value = frame->Pop();
     pVMInteger idx = (pVMInteger) frame->Pop();
-    pVMObject self = frame->GetStackElement(0);
+    oop_t self = frame->GetStackElement(0);
 
     long field_idx = idx->GetEmbeddedInteger() - 1;
 
@@ -191,15 +191,15 @@ void _Object::InstVarAtPut(pVMObject object, pVMFrame frame) {
 
 void _Object::InstVarNamed(pVMObject object, pVMFrame frame) {
     pVMSymbol name = (pVMSymbol) frame->Pop();
-    pVMObject self = frame->Pop();
+    oop_t self = frame->Pop();
 
     long field_idx = self->GetFieldIndex(name);
-    pVMObject value = static_cast<VMObject*>(self)->GetField(field_idx);
+    oop_t value = static_cast<pVMObject>(self)->GetField(field_idx);
 
     frame->Push(value);
 }
 
 void _Object::Class(pVMObject object, pVMFrame frame) {
-    pVMObject self = frame->Pop();
+    oop_t self = frame->Pop();
     frame->Push(self->GetClass());
 }

@@ -27,6 +27,7 @@
  */
 
 #include "VMArray.h"
+
 class Universe;
 
 class VMFrame: public VMObject {
@@ -48,22 +49,22 @@ public:
     pVMFrame GetOuterContext();
     inline pVMMethod GetMethod() const;
     void SetMethod(pVMMethod);
-    pVMObject Pop();
-    void Push(pVMObject);
+    oop_t Pop();
+    void Push(oop_t);
     void ResetStackPointer();
     inline long GetBytecodeIndex() const;
     inline void SetBytecodeIndex(long);
-    pVMObject GetStackElement(long) const;
-    void SetStackElement(long, pVMObject);
-    pVMObject GetLocal(long, long);
-    void SetLocal(long, long, pVMObject);
-    pVMObject GetArgument(long, long);
-    void SetArgument(long, long, pVMObject);
+    oop_t GetStackElement(long) const;
+    void SetStackElement(long, oop_t);
+    oop_t GetLocal(long, long);
+    void SetLocal(long, long, oop_t);
+    oop_t GetArgument(long, long);
+    void SetArgument(long, long, oop_t);
     void PrintStackTrace() const;
     long ArgumentStackIndex(long index) const;
     void CopyArgumentsFrom(pVMFrame frame);
-    inline  pVMObject GetField(long index) const;
-    virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
+    inline  oop_t GetField(long index) const;
+    virtual void WalkObjects(oop_t (oop_t));
     virtual pVMFrame Clone() const;
 
     void PrintStack() const;
@@ -74,14 +75,14 @@ private:
     pVMFrame context;
     pVMMethod method;
     long bytecodeIndex;
-    pVMObject* arguments;
-    pVMObject* locals;
-    pVMObject* stack_ptr;
+    oop_t* arguments;
+    oop_t* locals;
+    oop_t* stack_ptr;
 
     static const long VMFrameNumberOfFields;
 };
 
-pVMObject VMFrame::GetField(long index) const {
+oop_t VMFrame::GetField(long index) const {
     if (index == 4)
         return NEW_INT(bytecodeIndex);
     return VMObject::GetField(index);

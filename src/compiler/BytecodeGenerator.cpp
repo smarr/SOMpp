@@ -69,7 +69,7 @@ void BytecodeGenerator::EmitPUSHBLOCK(MethodGenerationContext* mgenc, pVMMethod 
 }
 
 void BytecodeGenerator::EmitPUSHCONSTANT(MethodGenerationContext* mgenc,
-        pVMObject cst ) {
+        oop_t cst ) {
     EMIT2(BC_PUSH_CONSTANT, mgenc->FindLiteralIndex(cst));
 }
 
