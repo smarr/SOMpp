@@ -365,7 +365,7 @@ Universe::~Universe() {
     Heap<HEAP_CLS>::DestroyHeap();
 }
 
-#ifndef NDEBUG
+#if !DEBUG
     static void set_vt_to_null() {}
     static void obtain_vtables_of_known_classes(pVMSymbol className) {}
 #else

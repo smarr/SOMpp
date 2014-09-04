@@ -184,7 +184,7 @@ Universe* Universe::operator->() {
     return theUniverse;
 }
 
-#ifndef NDEBUG
+#if !DEBUG
 bool Universe::IsValidObject(oop_t obj) {
     return true;
 }
