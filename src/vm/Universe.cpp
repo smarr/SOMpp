@@ -51,9 +51,7 @@
 #include <compiler/Disassembler.h>
 #include <compiler/SourcecodeCompiler.h>
 
-#if USE_TAGGING
 #include "../vmobjects/IntegerBox.h"
-#endif
 
 #if CACHE_INTEGER
 pVMInteger prebuildInts[INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE + 1];

@@ -30,10 +30,7 @@
 #include <vmobjects/VMInvokable.h>
 
 #include <vm/Universe.h>
-#if USE_TAGGING
 #include "../vmobjects/IntegerBox.h"
-#endif
-
 #include "../primitivesCore/Routine.h"
 #include "Object.h"
 
