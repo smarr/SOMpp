@@ -51,12 +51,10 @@
 #define CHECK_COERCION(obj,receiver,op) { \
   pVMClass cl = CLASS_OF(obj);\
   if (cl== bigIntegerClass) { \
-    resendAsBigInteger( \
-                       object, (op), (receiver), static_cast<pVMBigInteger>(obj)); \
+    resendAsBigInteger((op), (receiver), static_cast<pVMBigInteger>(obj)); \
     return; \
   } else if(cl== doubleClass) { \
-    resendAsDouble( \
-                   object, (op), (receiver), static_cast<pVMDouble>(obj)); \
+    resendAsDouble((op), (receiver), static_cast<pVMDouble>(obj)); \
     return; \
   } \
 }
@@ -119,8 +117,7 @@ void _Integer::pushResult(pVMObject /*object*/, pVMFrame frame,
         frame->Push(NEW_INT((int32_t)result));
 }
 
-void _Integer::resendAsBigInteger(pVMObject /*object*/, const char* op,
-pVMInteger left, pVMBigInteger right) {
+void _Integer::resendAsBigInteger(const char* op, oop_t left, pVMBigInteger right) {
     // Construct left value as BigInteger:
     pVMBigInteger leftBigInteger = GetUniverse()->NewBigInteger((int64_t)INT_VAL(left));
 
@@ -131,9 +128,7 @@ pVMInteger left, pVMBigInteger right) {
     // no reference
 }
 
-void _Integer::resendAsDouble(pVMObject /*object*/, const char* op,
-pVMInteger left, pVMDouble right
-) {
+void _Integer::resendAsDouble(const char* op, oop_t left, pVMDouble right) {
     pVMDouble leftDouble = GetUniverse()->NewDouble((double)INT_VAL(left));
     oop_t operands[] = {right};
 
@@ -146,105 +141,87 @@ pVMInteger left, pVMDouble right
 
 void _Integer::Plus(pVMObject object, pVMFrame frame) {
     oop_t rightObj = frame->Pop();
-    pVMInteger left = static_cast<pVMInteger>(frame->Pop());
+    oop_t leftObj  = frame->Pop();
 
-    CHECK_COERCION(rightObj, left, "+");
+    CHECK_COERCION(rightObj, leftObj, "+");
 
-    // Do operation:
-    pVMInteger right = static_cast<pVMInteger>(rightObj);
-
-    int64_t result = (int64_t)INT_VAL(left) + (int64_t)INT_VAL(right);
+    int64_t result = (int64_t)INT_VAL(leftObj) + (int64_t)INT_VAL(rightObj);
     pushResult(object, frame, result);
 }
 
 void _Integer::BitwiseAnd(pVMObject object, pVMFrame frame) {
-    pVMInteger right = static_cast<pVMInteger>(frame->Pop());
-    pVMInteger left = static_cast<pVMInteger>(frame->Pop());
+    oop_t rightObj = frame->Pop();
+    oop_t leftObj  = frame->Pop();
 
-    int64_t result = (int64_t)INT_VAL(left) & (int64_t)INT_VAL(right);
+    int64_t result = (int64_t)INT_VAL(leftObj) & (int64_t)INT_VAL(rightObj);
     pushResult(object, frame, result);
 }
 
 void _Integer::BitwiseXor(pVMObject object, pVMFrame frame) {
-    pVMInteger right = static_cast<pVMInteger>(frame->Pop());
-    pVMInteger left  = static_cast<pVMInteger>(frame->Pop());
+    oop_t rightObj = frame->Pop();
+    oop_t leftObj  = frame->Pop();
     
-    int64_t result = (int64_t)INT_VAL(left) ^ (int64_t)INT_VAL(right);
+    int64_t result = (int64_t)INT_VAL(leftObj) ^ (int64_t)INT_VAL(rightObj);
     pushResult(object, frame, result);
 }
 
 
 void _Integer::LeftShift(pVMObject object, pVMFrame frame) {
-    pVMInteger right = static_cast<pVMInteger>(frame->Pop());
-    pVMInteger left  = static_cast<pVMInteger>(frame->Pop());
+    oop_t rightObj = frame->Pop();
+    oop_t leftObj  = frame->Pop();
     
-    int64_t result = (int64_t)INT_VAL(left) << (int64_t)INT_VAL(right);
+    int64_t result = (int64_t)INT_VAL(leftObj) << (int64_t)INT_VAL(rightObj);
     pushResult(object, frame, result);
 }
 
 void _Integer::Minus(pVMObject object, pVMFrame frame) {
     oop_t rightObj = frame->Pop();
-    pVMInteger left = static_cast<pVMInteger>(frame->Pop());
+    oop_t leftObj  = frame->Pop();
+    
+    CHECK_COERCION(rightObj, leftObj, "-");
 
-    CHECK_COERCION(rightObj, left, "-");
-
-    // Do operation:
-    pVMInteger right = static_cast<pVMInteger>(rightObj);
-
-    int64_t result = (int64_t)INT_VAL(left) - (int64_t)INT_VAL(right);
+    int64_t result = (int64_t)INT_VAL(leftObj) - (int64_t)INT_VAL(rightObj);
     pushResult(object, frame, result);
 }
 
 void _Integer::Star(pVMObject object, pVMFrame frame) {
     oop_t rightObj = frame->Pop();
-    pVMInteger left = static_cast<pVMInteger>(frame->Pop());
+    oop_t leftObj  = frame->Pop();
+    
+    CHECK_COERCION(rightObj, leftObj, "*");
 
-    CHECK_COERCION(rightObj, left, "*");
-
-    // Do operation:
-    pVMInteger right = static_cast<pVMInteger>(rightObj);
-
-    int64_t result = (int64_t)INT_VAL(left) * (int64_t)INT_VAL(right);
+    int64_t result = (int64_t)INT_VAL(leftObj) * (int64_t)INT_VAL(rightObj);
     pushResult(object, frame, result);
 }
 
 void _Integer::Slashslash(pVMObject object, pVMFrame frame) {
     oop_t rightObj = frame->Pop();
-    pVMInteger left = static_cast<pVMInteger>(frame->Pop());
+    oop_t leftObj  = frame->Pop();
+    
+    CHECK_COERCION(rightObj, leftObj, "/");
 
-    CHECK_COERCION(rightObj, left, "/");
-
-    // Do operation:
-    pVMInteger right = static_cast<pVMInteger>(rightObj);
-
-    double result = (double)INT_VAL(left) / (double)INT_VAL(right);
+    double result = (double)INT_VAL(leftObj) / (double)INT_VAL(rightObj);
     frame->Push(GetUniverse()->NewDouble(result));
 }
 
 void _Integer::Slash(pVMObject object, pVMFrame frame) {
     oop_t rightObj = frame->Pop();
-    pVMInteger left = static_cast<pVMInteger>(frame->Pop());
+    oop_t leftObj  = frame->Pop();
+    
+    CHECK_COERCION(rightObj, leftObj, "/");
 
-    CHECK_COERCION(rightObj, left, "/");
-
-    // Do operation:
-    pVMInteger right = static_cast<pVMInteger>(rightObj);
-
-    int64_t result = (int64_t)INT_VAL(left) / (int64_t)INT_VAL(right);
+    int64_t result = (int64_t)INT_VAL(leftObj) / (int64_t)INT_VAL(rightObj);
     pushResult(object, frame, result);
 }
 
 void _Integer::Percent(pVMObject object, pVMFrame frame) {
     oop_t rightObj = frame->Pop();
-    pVMInteger left = static_cast<pVMInteger>(frame->Pop());
+    oop_t leftObj  = frame->Pop();
 
-    CHECK_COERCION(rightObj, left, "%");
+    CHECK_COERCION(rightObj, leftObj, "%");
 
-    // Do operation:
-    pVMInteger right = static_cast<pVMInteger>(rightObj);
-
-    int64_t l = (int64_t)INT_VAL(left);
-    int64_t r = (int64_t)INT_VAL(right);
+    int64_t l = (int64_t)INT_VAL(leftObj);
+    int64_t r = (int64_t)INT_VAL(rightObj);
 
     int64_t result = l % r;
 
@@ -257,22 +234,19 @@ void _Integer::Percent(pVMObject object, pVMFrame frame) {
 
 void _Integer::And(pVMObject object, pVMFrame frame) {
     oop_t rightObj = frame->Pop();
-    pVMInteger left = static_cast<pVMInteger>(frame->Pop());
+    oop_t leftObj  = frame->Pop();
 
-    CHECK_COERCION(rightObj, left, "&");
+    CHECK_COERCION(rightObj, leftObj, "&");
 
-    // Do operation:
-    pVMInteger right = static_cast<pVMInteger>(rightObj);
-
-    int64_t result = (int64_t)INT_VAL(left) & (int64_t)INT_VAL(right);
+    int64_t result = (int64_t)INT_VAL(leftObj) & (int64_t)INT_VAL(rightObj);
     pushResult(object, frame, result);
 }
 
 void _Integer::Equal(pVMObject object, pVMFrame frame) {
     oop_t rightObj = frame->Pop();
-    pVMInteger left = static_cast<pVMInteger>(frame->Pop());
+    oop_t leftObj  = frame->Pop();
 
-    CHECK_COERCION(rightObj, left, "=");
+    CHECK_COERCION(rightObj, leftObj, "=");
 
     if (IS_TAGGED(rightObj) || CLASS_OF(rightObj) == integerClass) {
         if (INT_VAL(left) == INT_VAL(rightObj))
@@ -288,21 +262,18 @@ void _Integer::Equal(pVMObject object, pVMFrame frame) {
 
 void _Integer::Lowerthan(pVMObject object, pVMFrame frame) {
     oop_t rightObj = frame->Pop();
-    pVMInteger left = static_cast<pVMInteger>(frame->Pop());
+    oop_t leftObj  = frame->Pop();
 
-    CHECK_COERCION(rightObj, left, "<");
+    CHECK_COERCION(rightObj, leftObj, "<");
 
-    pVMInteger right = static_cast<pVMInteger>(rightObj);
-
-    if (INT_VAL(left) < INT_VAL(right))
+    if (INT_VAL(leftObj) < INT_VAL(rightObj))
         frame->Push(trueObject);
     else
         frame->Push(falseObject);
 }
 
 void _Integer::AsString(pVMObject /*object*/, pVMFrame frame) {
-    pVMInteger self = static_cast<pVMInteger>(frame->Pop());
-
+    oop_t self = frame->Pop();
     long integer = INT_VAL(self);
     ostringstream Str;
     Str << integer;
@@ -310,7 +281,7 @@ void _Integer::AsString(pVMObject /*object*/, pVMFrame frame) {
 }
 
 void _Integer::Sqrt(pVMObject object, pVMFrame frame) {
-    pVMInteger self = static_cast<pVMInteger>(frame->Pop());
+    oop_t self = frame->Pop();
     double result = sqrt((double)INT_VAL(self));
 
     if (result == rint(result))
@@ -320,7 +291,7 @@ void _Integer::Sqrt(pVMObject object, pVMFrame frame) {
 }
 
 void _Integer::AtRandom(pVMObject /*object*/, pVMFrame frame) {
-    pVMInteger self = static_cast<pVMInteger>(frame->Pop());
+    oop_t self = frame->Pop();
     int32_t result = (INT_VAL(self) * rand())%INT32_MAX;
     frame->Push(NEW_INT(result));
 }
@@ -330,7 +301,7 @@ void _Integer::FromString(pVMObject, pVMFrame frame) {
     frame->Pop();
 
     int32_t integer = atoi(self->GetChars());
-    pVMInteger new_int = NEW_INT(integer);
+    oop_t new_int = NEW_INT(integer);
     frame->Push(new_int);
 }
 

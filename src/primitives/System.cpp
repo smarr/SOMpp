@@ -77,7 +77,7 @@ void _System::Load_(pVMObject /*object*/, pVMFrame frame) {
 }
 
 void _System::Exit_(pVMObject /*object*/, pVMFrame frame) {
-    pVMInteger err = static_cast<pVMInteger>(frame->Pop());
+    oop_t err = frame->Pop();
 
     long err_no = INT_VAL(err);
     if (err_no != ERR_SUCCESS)

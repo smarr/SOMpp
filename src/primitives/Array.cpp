@@ -52,16 +52,15 @@ _Array::_Array() :
 }
 
 void _Array::At_(pVMObject /*object*/, pVMFrame frame) {
-    pVMInteger index = static_cast<pVMInteger>(frame->Pop());
+    oop_t idx = frame->Pop();
     pVMArray self = static_cast<pVMArray>(frame->Pop());
-    long i = INT_VAL(index);
-    oop_t elem = self->GetIndexableField(i - 1);
+    oop_t elem = self->GetIndexableField(INT_VAL(idx) - 1);
     frame->Push(elem);
 }
 
 void _Array::At_Put_(pVMObject /*object*/, pVMFrame frame) {
     oop_t value = frame->Pop();
-    pVMInteger index = static_cast<pVMInteger>(frame->Pop());
+    oop_t index = frame->Pop();
     pVMArray self = static_cast<pVMArray>(frame->GetStackElement(0));
     long i = INT_VAL(index);
     self->SetIndexableField(i - 1, value);
@@ -74,9 +73,9 @@ void _Array::Length(pVMObject /*object*/, pVMFrame frame) {
 }
 
 void _Array::New_(pVMObject /*object*/, pVMFrame frame) {
-    pVMInteger length = static_cast<pVMInteger>(frame->Pop());
+    oop_t arg = frame->Pop();
     frame->Pop();
-    long size = INT_VAL(length);
+    long size = INT_VAL(arg);
     frame->Push(GetUniverse()->NewArray(size));
 }
 

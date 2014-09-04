@@ -109,8 +109,8 @@ void _String::Equal(pVMObject /*object*/, pVMFrame frame) {
 }
 
 void _String::PrimSubstringFrom_to_(pVMObject /*object*/, pVMFrame frame) {
-    pVMInteger end = static_cast<pVMInteger>(frame->Pop());
-    pVMInteger start = static_cast<pVMInteger>(frame->Pop());
+    oop_t end   = frame->Pop();
+    oop_t start = frame->Pop();
 
     pVMString self = static_cast<pVMString>(frame->Pop());
     StdString str = self->GetStdString();

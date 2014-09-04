@@ -160,10 +160,10 @@ void _Object::PerformWithArgumentsInSuperclass(pVMObject object, pVMFrame frame)
 }
 
 void _Object::InstVarAt(pVMObject object, pVMFrame frame) {
-    pVMInteger idx = (pVMInteger) frame->Pop();
+    oop_t idx = frame->Pop();
     oop_t self = frame->Pop();
 
-    long field_idx = idx->GetEmbeddedInteger() - 1;
+    long field_idx = INT_VAL(idx) - 1;
     oop_t value = static_cast<VMObject*>(self)->GetField(field_idx);
 
     frame->Push(value);
@@ -171,10 +171,10 @@ void _Object::InstVarAt(pVMObject object, pVMFrame frame) {
 
 void _Object::InstVarAtPut(pVMObject object, pVMFrame frame) {
     oop_t value = frame->Pop();
-    pVMInteger idx = (pVMInteger) frame->Pop();
-    oop_t self = frame->GetStackElement(0);
+    oop_t idx   = frame->Pop();
+    oop_t self  = frame->GetStackElement(0);
 
-    long field_idx = idx->GetEmbeddedInteger() - 1;
+    long field_idx = INT_VAL(idx) - 1;
 
     static_cast<VMObject*>(self)->SetField(field_idx, value);
 }
