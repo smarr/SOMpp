@@ -1,7 +1,7 @@
 # some defaults
 USE_TAGGING?=false
 GC_TYPE?=generational
-CACHE_INTEGER?=true
+CACHE_INTEGER?=false
 INT_CACHE_MIN_VALUE?=-5
 INT_CACHE_MAX_VALUE?=100
 GENERATE_INTEGER_HISTOGRAM?=false
@@ -15,6 +15,9 @@ ADDITIONAL_ALLOCATION?=false
 #
 ifeq ($(USE_TAGGING),true)
   FEATURE_FLAGS+=-DUSE_TAGGING
+  ifeq ($(CACHE_INTEGER),true)
+    $(error CACHE_INTEGER needs to be disabled when tagging is used.)
+  endif
 endif
 ifeq ($(CACHE_INTEGER),true)
   FEATURE_FLAGS+=-DCACHE_INTEGER

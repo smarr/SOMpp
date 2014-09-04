@@ -84,6 +84,13 @@
   #define USE_TAGGING false
 #endif
 
+#ifdef CACHE_INTEGER
+  // Sanity check
+  #if CACHE_INTEGER && USE_TAGGING
+    # error Caching of small integer instances is only useful without tagged integers
+  #endif
+#endif
+
 #ifndef CACHE_INTEGER
   #define CACHE_INTEGER false
 #endif
