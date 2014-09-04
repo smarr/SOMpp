@@ -146,7 +146,7 @@ public:
 #endif
     //
     
-    inline static bool IsValidObject(oop_t obj);
+    static bool IsValidObject(oop_t obj);
 private:
     vector<StdString> handleArguments(long argc, char** argv);
     long getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;
