@@ -141,7 +141,7 @@ pVMClass VMObject::GetClass() const {
 }
 
 long VMObject::GetNumberOfFields() const {
-    return this->numberOfFields;
+    return numberOfFields;
 }
 
 //returns the Object's additional memory used (e.g. for Array fields)
