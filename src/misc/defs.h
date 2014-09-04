@@ -107,6 +107,13 @@
 //
 // Debugging
 //
+#ifdef DEBUG
+  // Sanity check
+  #if DEBUG!=true && DEBUG!=false
+    #error DEBUG needs to be set to a boolean
+  #endif
+#endif
+
 #ifndef NDEBUG
   #ifndef DEBUG
     #define DEBUG true
