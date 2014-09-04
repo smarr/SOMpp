@@ -59,48 +59,17 @@
 
 //^^DIFFERENT THAN CSOM! Does the CSOM version work at all????????
 
-_BigInteger::_BigInteger() :
-        PrimitiveContainer() {
-    this->SetPrimitive("plus",
-            static_cast<PrimitiveRoutine*>(new Routine<_BigInteger>(this,
-                    &_BigInteger::Plus)));
-
-    this->SetPrimitive("minus",
-            static_cast<PrimitiveRoutine*>(new Routine<_BigInteger>(this,
-                    &_BigInteger::Minus)));
-
-    this->SetPrimitive("star",
-            static_cast<PrimitiveRoutine*>(new Routine<_BigInteger>(this,
-                    &_BigInteger::Star)));
-
-    this->SetPrimitive("slash",
-            static_cast<PrimitiveRoutine*>(new Routine<_BigInteger>(this,
-                    &_BigInteger::Slash)));
-
-    this->SetPrimitive("percent",
-            static_cast<PrimitiveRoutine*>(new Routine<_BigInteger>(this,
-                    &_BigInteger::Percent)));
-
-    this->SetPrimitive("and",
-            static_cast<PrimitiveRoutine*>(new Routine<_BigInteger>(this,
-                    &_BigInteger::And)));
-
-    this->SetPrimitive("equal",
-            static_cast<PrimitiveRoutine*>(new Routine<_BigInteger>(this,
-                    &_BigInteger::Equal)));
-
-    this->SetPrimitive("lowerthan",
-            static_cast<PrimitiveRoutine*>(new Routine<_BigInteger>(this,
-                    &_BigInteger::Lowerthan)));
-
-    this->SetPrimitive("asString",
-            static_cast<PrimitiveRoutine*>(new Routine<_BigInteger>(this,
-                    &_BigInteger::AsString)));
-
-    this->SetPrimitive("sqrt",
-            static_cast<PrimitiveRoutine*>(new Routine<_BigInteger>(this,
-                    &_BigInteger::Sqrt)));
-
+_BigInteger::_BigInteger() : PrimitiveContainer() {
+    SetPrimitive("plus",      new Routine<_BigInteger>(this, &_BigInteger::Plus));
+    SetPrimitive("minus",     new Routine<_BigInteger>(this, &_BigInteger::Minus));
+    SetPrimitive("star",      new Routine<_BigInteger>(this, &_BigInteger::Star));
+    SetPrimitive("slash",     new Routine<_BigInteger>(this, &_BigInteger::Slash));
+    SetPrimitive("percent",   new Routine<_BigInteger>(this, &_BigInteger::Percent));
+    SetPrimitive("and",       new Routine<_BigInteger>(this, &_BigInteger::And));
+    SetPrimitive("equal",     new Routine<_BigInteger>(this, &_BigInteger::Equal));
+    SetPrimitive("lowerthan", new Routine<_BigInteger>(this, &_BigInteger::Lowerthan));
+    SetPrimitive("asString",  new Routine<_BigInteger>(this, &_BigInteger::AsString));
+    SetPrimitive("sqrt",      new Routine<_BigInteger>(this, &_BigInteger::Sqrt));
 }
 
 void _BigInteger::Plus(pVMObject /*object*/, pVMFrame frame) {

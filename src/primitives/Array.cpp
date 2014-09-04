@@ -35,20 +35,11 @@
 
 #include <vm/Universe.h>
 
-_Array::_Array() :
-        PrimitiveContainer() {
-    this->SetPrimitive("new_",
-            static_cast<PrimitiveRoutine*>(new Routine<_Array>(this,
-                    &_Array::New_)));
-    this->SetPrimitive("at_",
-            static_cast<PrimitiveRoutine*>(new Routine<_Array>(this,
-                    &_Array::At_)));
-    this->SetPrimitive("at_put_",
-            static_cast<PrimitiveRoutine*>(new Routine<_Array>(this,
-                    &_Array::At_Put_)));
-    this->SetPrimitive("length",
-            static_cast<PrimitiveRoutine*>(new Routine<_Array>(this,
-                    &_Array::Length)));
+_Array::_Array() : PrimitiveContainer() {
+    SetPrimitive("new_",    new Routine<_Array>(this, &_Array::New_));
+    SetPrimitive("at_",     new Routine<_Array>(this, &_Array::At_));
+    SetPrimitive("at_put_", new Routine<_Array>(this, &_Array::At_Put_));
+    SetPrimitive("length",  new Routine<_Array>(this, &_Array::Length));
 }
 
 void _Array::At_(pVMObject /*object*/, pVMFrame frame) {

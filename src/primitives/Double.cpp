@@ -159,35 +159,17 @@ void _Double::Round(pVMObject /*object*/, pVMFrame frame) {
     }
 }
 
-_Double::_Double() :
-        PrimitiveContainer() {
-    this->SetPrimitive("plus", new Routine<_Double>(this, &_Double::Plus));
-
-    this->SetPrimitive("minus", new Routine<_Double>(this, &_Double::Minus));
-
-    this->SetPrimitive("star", new Routine<_Double>(this, &_Double::Star));
-
-    this->SetPrimitive("slashslash",
-            new Routine<_Double>(this, &_Double::Slashslash));
-
-    this->SetPrimitive("percent",
-            new Routine<_Double>(this, &_Double::Percent));
-
-    this->SetPrimitive("and", new Routine<_Double>(this, &_Double::And));
-
-    this->SetPrimitive("equal", new Routine<_Double>(this, &_Double::Equal));
-
-    this->SetPrimitive("lowerthan",
-            new Routine<_Double>(this, &_Double::Lowerthan));
-
-    this->SetPrimitive("asString",
-            new Routine<_Double>(this, &_Double::AsString));
-
-    this->SetPrimitive("sqrt", new Routine<_Double>(this, &_Double::Sqrt));
-
-    this->SetPrimitive("bitXor_",
-            new Routine<_Double>(this, &_Double::BitwiseXor));
-
-    this->SetPrimitive("round", new Routine<_Double>(this, &_Double::Round));
+_Double::_Double() : PrimitiveContainer() {
+    SetPrimitive("plus",       new Routine<_Double>(this, &_Double::Plus));
+    SetPrimitive("minus",      new Routine<_Double>(this, &_Double::Minus));
+    SetPrimitive("star",       new Routine<_Double>(this, &_Double::Star));
+    SetPrimitive("slashslash", new Routine<_Double>(this, &_Double::Slashslash));
+    SetPrimitive("percent",    new Routine<_Double>(this, &_Double::Percent));
+    SetPrimitive("and",        new Routine<_Double>(this, &_Double::And));
+    SetPrimitive("equal",      new Routine<_Double>(this, &_Double::Equal));
+    SetPrimitive("lowerthan",  new Routine<_Double>(this, &_Double::Lowerthan));
+    SetPrimitive("asString",   new Routine<_Double>(this, &_Double::AsString));
+    SetPrimitive("sqrt",       new Routine<_Double>(this, &_Double::Sqrt));
+    SetPrimitive("bitXor_",    new Routine<_Double>(this, &_Double::BitwiseXor));
+    SetPrimitive("round",      new Routine<_Double>(this, &_Double::Round));
 }
-

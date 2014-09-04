@@ -129,45 +129,18 @@ void _System::FullGC(pVMObject /*object*/, pVMFrame frame) {
     frame->Push(trueObject);
 }
 
-_System::_System(void) :
-        PrimitiveContainer() {
+_System::_System(void) : PrimitiveContainer() {
     gettimeofday(&start_time, nullptr);
 
-    this->SetPrimitive("global_",
-            static_cast<PrimitiveRoutine*>(new Routine<_System>(this,
-                    &_System::Global_)));
-
-    this->SetPrimitive("global_put_",
-            static_cast<PrimitiveRoutine*>(new Routine<_System>(this,
-                    &_System::Global_put_)));
-
-    this->SetPrimitive("load_",
-            static_cast<PrimitiveRoutine*>(new Routine<_System>(this,
-                    &_System::Load_)));
-
-    this->SetPrimitive("exit_",
-            static_cast<PrimitiveRoutine*>(new Routine<_System>(this,
-                    &_System::Exit_)));
-
-    this->SetPrimitive("printString_",
-            static_cast<PrimitiveRoutine*>(new Routine<_System>(this,
-                    &_System::PrintString_)));
-
-    this->SetPrimitive("printNewline",
-            static_cast<PrimitiveRoutine*>(new Routine<_System>(this,
-                    &_System::PrintNewline)));
-
-    this->SetPrimitive("time",
-            static_cast<PrimitiveRoutine*>(new Routine<_System>(this,
-                    &_System::Time)));
-
-    this->SetPrimitive("ticks",
-            static_cast<PrimitiveRoutine*>(new Routine<_System>(this,
-                    &_System::Ticks)));
-
-    this->SetPrimitive("fullGC",
-            static_cast<PrimitiveRoutine*>(new Routine<_System>(this,
-                    &_System::FullGC)));
+    SetPrimitive("global_",      new Routine<_System>(this, &_System::Global_));
+    SetPrimitive("global_put_",  new Routine<_System>(this, &_System::Global_put_));
+    SetPrimitive("load_",        new Routine<_System>(this, &_System::Load_));
+    SetPrimitive("exit_",        new Routine<_System>(this, &_System::Exit_));
+    SetPrimitive("printString_", new Routine<_System>(this, &_System::PrintString_));
+    SetPrimitive("printNewline", new Routine<_System>(this, &_System::PrintNewline));
+    SetPrimitive("time",         new Routine<_System>(this, &_System::Time));
+    SetPrimitive("ticks",        new Routine<_System>(this, &_System::Ticks));
+    SetPrimitive("fullGC",       new Routine<_System>(this, &_System::FullGC));
 }
 
 _System::~_System() {

@@ -59,48 +59,24 @@
   } \
 }
 
-_Integer::_Integer() :
-        PrimitiveContainer() {
+_Integer::_Integer() : PrimitiveContainer() {
     srand((unsigned) time(nullptr));
-    this->SetPrimitive("plus", new Routine<_Integer>(this, &_Integer::Plus));
-
-    this->SetPrimitive("minus", new Routine<_Integer>(this, &_Integer::Minus));
-
-    this->SetPrimitive("star", new Routine<_Integer>(this, &_Integer::Star));
-
-    this->SetPrimitive("bitAnd_",
-            new Routine<_Integer>(this, &_Integer::BitwiseAnd));
-
-    this->SetPrimitive("bitXor_",
-            new Routine<_Integer>(this, &_Integer::BitwiseXor));
-
-
-    this->SetPrimitive("lowerthanlowerthan",
-            new Routine<_Integer>(this, &_Integer::LeftShift));
-
-    this->SetPrimitive("slash", new Routine<_Integer>(this, &_Integer::Slash));
-
-    this->SetPrimitive("slashslash",
-            new Routine<_Integer>(this, &_Integer::Slashslash));
-
-    this->SetPrimitive("percent",
-            new Routine<_Integer>(this, &_Integer::Percent));
-
-    this->SetPrimitive("and", new Routine<_Integer>(this, &_Integer::And));
-    this->SetPrimitive("equal", new Routine<_Integer>(this, &_Integer::Equal));
-
-    this->SetPrimitive("lowerthan",
-            new Routine<_Integer>(this, &_Integer::Lowerthan));
-    this->SetPrimitive("asString",
-            new Routine<_Integer>(this, &_Integer::AsString));
-
-    this->SetPrimitive("sqrt", new Routine<_Integer>(this, &_Integer::Sqrt));
-
-    this->SetPrimitive("atRandom",
-            new Routine<_Integer>(this, &_Integer::AtRandom));
-
-    this->SetPrimitive("fromString_",
-            new Routine<_Integer>(this, &_Integer::FromString));
+    SetPrimitive("plus",               new Routine<_Integer>(this, &_Integer::Plus));
+    SetPrimitive("minus",              new Routine<_Integer>(this, &_Integer::Minus));
+    SetPrimitive("star",               new Routine<_Integer>(this, &_Integer::Star));
+    SetPrimitive("bitAnd_",            new Routine<_Integer>(this, &_Integer::BitwiseAnd));
+    SetPrimitive("bitXor_",            new Routine<_Integer>(this, &_Integer::BitwiseXor));
+    SetPrimitive("lowerthanlowerthan", new Routine<_Integer>(this, &_Integer::LeftShift));
+    SetPrimitive("slash",              new Routine<_Integer>(this, &_Integer::Slash));
+    SetPrimitive("slashslash",         new Routine<_Integer>(this, &_Integer::Slashslash));
+    SetPrimitive("percent",            new Routine<_Integer>(this, &_Integer::Percent));
+    SetPrimitive("and",                new Routine<_Integer>(this, &_Integer::And));
+    SetPrimitive("equal",              new Routine<_Integer>(this, &_Integer::Equal));
+    SetPrimitive("lowerthan",          new Routine<_Integer>(this, &_Integer::Lowerthan));
+    SetPrimitive("asString",           new Routine<_Integer>(this, &_Integer::AsString));
+    SetPrimitive("sqrt",               new Routine<_Integer>(this, &_Integer::Sqrt));
+    SetPrimitive("atRandom",           new Routine<_Integer>(this, &_Integer::AtRandom));
+    SetPrimitive("fromString_",        new Routine<_Integer>(this, &_Integer::FromString));
 }
 
 //

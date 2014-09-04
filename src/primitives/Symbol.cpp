@@ -43,9 +43,7 @@ void _Symbol::AsString(pVMObject /*object*/, pVMFrame frame) {
     frame->Push(GetUniverse()->NewString(str));
 }
 
-_Symbol::_Symbol() :
-        PrimitiveContainer() {
-    this->SetPrimitive("asString",
-            new Routine<_Symbol>(this, &_Symbol::AsString));
+_Symbol::_Symbol() : PrimitiveContainer() {
+    SetPrimitive("asString", new Routine<_Symbol>(this, &_Symbol::AsString));
 }
 

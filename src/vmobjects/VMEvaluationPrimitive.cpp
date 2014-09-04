@@ -36,12 +36,10 @@
 //needed to instanciate the Routine object for the evaluation routine
 #include "../primitivesCore/Routine.h"
 
-VMEvaluationPrimitive::VMEvaluationPrimitive(long argc) :
-        VMPrimitive(computeSignatureString(argc)) {
-    this->SetRoutine(new Routine<VMEvaluationPrimitive>(this,
-                    &VMEvaluationPrimitive::evaluationRoutine));
-    this->SetEmpty(false);
-    this->numberOfArguments = NEW_INT(argc);
+VMEvaluationPrimitive::VMEvaluationPrimitive(long argc) : VMPrimitive(computeSignatureString(argc)) {
+    SetRoutine(new Routine<VMEvaluationPrimitive>(this, &VMEvaluationPrimitive::evaluationRoutine));
+    SetEmpty(false);
+    numberOfArguments = NEW_INT(argc);
 }
 
 pVMEvaluationPrimitive VMEvaluationPrimitive::Clone() const {
