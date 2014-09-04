@@ -2,14 +2,14 @@
 #include "VMInteger.h"
 #include "../vm/Universe.h"
 
-VMInteger* GlobalBox::integerBox = NULL;
+VMInteger* GlobalBox::integerBox = nullptr;
 
 void GlobalBox::updateIntegerBox(VMInteger* newValue) {
     integerBox = newValue;
 }
 
 VMInteger* GlobalBox::IntegerBox() {
-    if (integerBox == NULL) {
+    if (integerBox == nullptr) {
         integerBox = GetUniverse()->NewInteger(1);
     }
     return integerBox;

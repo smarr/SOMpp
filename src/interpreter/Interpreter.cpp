@@ -44,7 +44,7 @@
 #include <compiler/Disassembler.h>
 
 Interpreter::Interpreter() {
-    frame = NULL;
+    frame = nullptr;
 
     uG  = "unknownGlobal:";
     dnu = "doesNotUnderstand:arguments:";
@@ -193,7 +193,7 @@ pVMFrame Interpreter::PushNewFrame(pVMMethod method) {
 }
 
 void Interpreter::SetFrame(pVMFrame frame) {
-    if (this->frame != NULL)
+    if (this->frame != nullptr)
         this->frame->SetBytecodeIndex(bytecodeIndexGlobal);
 
     this->frame = frame;
@@ -236,7 +236,7 @@ void Interpreter::popFrameAndPushResult(oop_t result) {
 void Interpreter::send(pVMSymbol signature, pVMClass receiverClass) {
     pVMInvokable invokable = receiverClass->LookupInvokable(signature);
 
-    if (invokable != NULL) {
+    if (invokable != nullptr) {
 #ifdef LOG_RECEIVER_TYPES
         StdString name = receiverClass->GetName()->GetStdString();
         if (GetUniverse()->callStats.find(name) == GetUniverse()->callStats.end())
@@ -345,7 +345,7 @@ void Interpreter::doPushGlobal(long bytecodeIndex) {
     pVMSymbol globalName = static_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));
     oop_t global = GetUniverse()->GetGlobal(globalName);
 
-    if(global != NULL)
+    if(global != nullptr)
         GetFrame()->Push(global);
     else {
         oop_t arguments[] = {globalName};
@@ -429,7 +429,7 @@ void Interpreter::doSuperSend(long bytecodeIndex) {
     pVMClass super = holder->GetSuperClass();
     pVMInvokable invokable = static_cast<pVMInvokable>(super->LookupInvokable(signature));
 
-    if (invokable != NULL)
+    if (invokable != nullptr)
         (*invokable)(GetFrame());
     else {
         long numOfArgs = Signature::GetNumberOfArguments(signature);

@@ -159,7 +159,7 @@ void CloneObjectsTest::testCloneEvaluationPrimitive() {
 void CloneObjectsTest::testCloneFrame() {
     pVMSymbol methodSymbol = GetUniverse()->NewSymbol("frameMethod");
     pVMMethod method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
-    pVMFrame orig = GetUniverse()->NewFrame(NULL, method);
+    pVMFrame orig = GetUniverse()->NewFrame(nullptr, method);
     pVMFrame context = orig->Clone();
     orig->SetContext(context);
     pVMInteger dummyArg = GetUniverse()->NewInteger(1111);

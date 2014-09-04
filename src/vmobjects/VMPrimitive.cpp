@@ -47,7 +47,7 @@ VMPrimitive::VMPrimitive(pVMSymbol signature) : VMInvokable(VMPrimitiveNumberOfF
     this->SetClass(primitiveClass);
 
     this->SetSignature(signature);
-    this->routine = NULL;
+    this->routine = nullptr;
     this->empty = false;
 }
 

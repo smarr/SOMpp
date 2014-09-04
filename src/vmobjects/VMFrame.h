@@ -89,11 +89,11 @@ oop_t VMFrame::GetField(long index) const {
 }
 
 bool VMFrame::HasContext() const {
-    return context != NULL;
+    return context != nullptr;
 }
 
 bool VMFrame::HasPreviousFrame() const {
-    return previousFrame != NULL;
+    return previousFrame != nullptr;
 }
 
 long VMFrame::GetBytecodeIndex() const {
@@ -131,7 +131,7 @@ void VMFrame::SetPreviousFrame(pVMFrame frm) {
 }
 
 void VMFrame::ClearPreviousFrame() {
-    previousFrame = NULL;
+    previousFrame = nullptr;
 }
 
 pVMMethod VMFrame::GetMethod() const {

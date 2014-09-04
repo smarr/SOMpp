@@ -100,7 +100,7 @@ void _System::Time(pVMObject /*object*/, pVMFrame frame) {
     frame->Pop();
     struct timeval now;
 
-    gettimeofday(&now, NULL);
+    gettimeofday(&now, nullptr);
 
     long long diff =
     ((now.tv_sec - start_time.tv_sec) * 1000) + //seconds
@@ -114,7 +114,7 @@ void _System::Ticks(pVMObject /*object*/, pVMFrame frame) {
     frame->Pop();
     struct timeval now;
 
-    gettimeofday(&now, NULL);
+    gettimeofday(&now, nullptr);
 
     long long diff =
     ((now.tv_sec - start_time.tv_sec) * 1000 * 1000) + //seconds
@@ -131,7 +131,7 @@ void _System::FullGC(pVMObject /*object*/, pVMFrame frame) {
 
 _System::_System(void) :
         PrimitiveContainer() {
-    gettimeofday(&start_time, NULL);
+    gettimeofday(&start_time, nullptr);
 
     this->SetPrimitive("global_",
             static_cast<PrimitiveRoutine*>(new Routine<_System>(this,

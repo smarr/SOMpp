@@ -98,8 +98,8 @@ pVMFrame VMFrame::Clone() const {
 const long VMFrame::VMFrameNumberOfFields = 0;
 
 VMFrame::VMFrame(long size, long nof) :
-        VMObject(nof + VMFrameNumberOfFields), previousFrame(NULL), context(
-                NULL), method(NULL) {
+        VMObject(nof + VMFrameNumberOfFields), previousFrame(nullptr), context(
+                nullptr), method(nullptr) {
     clazz = nullptr; // Not a proper class anymore
     bytecodeIndex = 0;
     arguments = (oop_t*)&(stack_ptr)+1;
@@ -152,7 +152,7 @@ void VMFrame::WalkObjects(oop_t (*walk)(oop_t)) {
     // --> until end of Frame
     long i = 0;
     while (arguments + i <= stack_ptr) {
-        if (arguments[i] != NULL)
+        if (arguments[i] != nullptr)
             arguments[i] = walk((oop_t)arguments[i]);
         i++;
     }
@@ -185,13 +185,13 @@ void VMFrame::PrintStack() const {
         oop_t vmo = arguments[i];
         cout << i << ": ";
         if (vmo == nullptr)
-            cout << "NULL" << endl;
+            cout << "nullptr" << endl;
         else if (vmo == nilObject)
             cout << "NIL_OBJECT" << endl;
         else if (IS_TAGGED(vmo))
             cout << "index: " << i << " object: VMInteger" << endl;
         else if (pVMAbstract(vmo)->GetClass() == nullptr)
-            cout << "VMObject with Class == NULL" << endl;
+            cout << "VMObject with Class == nullptr" << endl;
         else if (pVMAbstract(vmo)->GetClass() == nilObject)
             cout << "VMObject with Class == NIL_OBJECT" << endl;
         else

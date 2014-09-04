@@ -41,7 +41,7 @@ AbstractVMObject* GenerationalHeap::AllocateNurseryObject(size_t size) {
 
 AbstractVMObject* GenerationalHeap::AllocateMatureObject(size_t size) {
     pVMAbstract newObject = (pVMAbstract) malloc(size);
-    if (newObject == NULL) {
+    if (newObject == nullptr) {
         cout << "Failed to allocate " << size << " Bytes." << endl;
         GetUniverse()->Quit(-1);
     }

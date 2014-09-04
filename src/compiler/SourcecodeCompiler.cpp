@@ -35,11 +35,11 @@
 #include "../vmobjects/VMSymbol.h"
 
 SourcecodeCompiler::SourcecodeCompiler() {
-    parser = NULL;
+    parser = nullptr;
 }
 
 SourcecodeCompiler::~SourcecodeCompiler() {
-    if (parser != NULL)
+    if (parser != nullptr)
         delete (parser);
 }
 
@@ -53,10 +53,10 @@ pVMClass SourcecodeCompiler::CompileClass( const StdString& path,
     ifstream* fp = new ifstream();
     fp->open(fname.c_str(), std::ios_base::in);
     if (!fp->is_open()) {
-        return NULL;
+        return nullptr;
     }
 
-    if (parser != NULL) delete(parser);
+    if (parser != nullptr) delete(parser);
     parser = new Parser(*fp);
     result = compile(systemClass);
 
@@ -69,10 +69,10 @@ pVMClass SourcecodeCompiler::CompileClass( const StdString& path,
         Str << "Filename: " << file << " does not match class name " << cnameC;
 
         showCompilationError(file, Str.str().c_str());
-        return NULL;
+        return nullptr;
     }
     delete(parser);
-    parser = NULL;
+    parser = nullptr;
     delete(fp);
 #ifdef COMPILER_DEBUG
     std::cout << "Compilation finished" << endl;
@@ -83,12 +83,12 @@ pVMClass SourcecodeCompiler::CompileClass( const StdString& path,
 pVMClass SourcecodeCompiler::CompileClassString( const StdString& stream,
         pVMClass systemClass ) {
     istringstream* ss = new istringstream(stream);
-    if (parser != NULL) delete(parser);
+    if (parser != nullptr) delete(parser);
     parser = new Parser(*ss);
 
     pVMClass result = compile(systemClass);
     delete(parser);
-    parser = NULL;
+    parser = nullptr;
     delete(ss);
 
     return result;
@@ -101,10 +101,10 @@ void SourcecodeCompiler::showCompilationError(const StdString& filename,
 }
 
 pVMClass SourcecodeCompiler::compile(pVMClass systemClass) {
-    if (parser == NULL) {
+    if (parser == nullptr) {
         cout << "Parser not initiated" << endl;
         GetUniverse()->ErrorExit("Compiler error");
-        return NULL;
+        return nullptr;
     }
     ClassGenerationContext cgc;
 
@@ -112,7 +112,7 @@ pVMClass SourcecodeCompiler::compile(pVMClass systemClass) {
 
     parser->Classdef(&cgc);
 
-    if (systemClass == NULL)
+    if (systemClass == nullptr)
         result = cgc.Assemble();
     else
         cgc.AssembleSystemClass(result);

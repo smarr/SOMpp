@@ -43,7 +43,7 @@
 #   define WIN32_LEAN_AND_MEAN
 #   define dlerror()   "Load Error"
 #   define dlsym       GetProcAddress
-#   define DL_LOADMODE NULL, LOAD_WITH_ALTERED_SEARCH_PATH
+#   define DL_LOADMODE nullptr, LOAD_WITH_ALTERED_SEARCH_PATH
 #   define dlopen      LoadLibrary
 #   define dlclose     FreeLibrary
 //#   include <windows.h> //included in VMClass.h if necessary
@@ -62,8 +62,8 @@
 const long VMClass::VMClassNumberOfFields = 4;
 
 VMClass::VMClass() :
-        VMObject(VMClassNumberOfFields), superClass(NULL), name(NULL), instanceFields(
-                NULL), instanceInvokables(NULL) {
+        VMObject(VMClassNumberOfFields), superClass(nullptr), name(nullptr), instanceFields(
+                nullptr), instanceInvokables(nullptr) {
 }
 
 pVMClass VMClass::Clone() const {
@@ -182,7 +182,7 @@ pVMInvokable VMClass::LookupInvokable(pVMSymbol name) const {
     assert(Universe::IsValidObject((oop_t) this));
     
     pVMInvokable invokable = name->GetCachedInvokable(this);
-    if (invokable != NULL)
+    if (invokable != nullptr)
         return invokable;
 
     long numInvokables = GetNumberOfInstanceInvokables();
@@ -230,7 +230,7 @@ bool VMClass::HasPrimitives() const {
 
 void VMClass::LoadPrimitives(const vector<StdString>& cp) {
     // the library handle
-    void* dlhandle = NULL;
+    void* dlhandle = nullptr;
 
     // cached object properties
     StdString cname = this->name->GetStdString();
@@ -238,11 +238,11 @@ void VMClass::LoadPrimitives(const vector<StdString>& cp) {
 #if defined (__GNUC__)
     //// iterate the classpathes
     for (vector<StdString>::const_iterator i = cp.begin();
-            (i != cp.end()) && dlhandle == NULL; ++i) {
+            (i != cp.end()) && dlhandle == nullptr; ++i) {
         // check the core library
         StdString loadstring = genCoreLoadstring(*i);
         dlhandle = loadLib(loadstring);
-        if (dlhandle != NULL) {
+        if (dlhandle != nullptr) {
 
             if (isResponsible(dlhandle, cname))
                 // the core library is found and responsible
@@ -254,7 +254,7 @@ void VMClass::LoadPrimitives(const vector<StdString>& cp) {
         loadstring = genLoadstring(*i, cname);
         cout << loadstring.c_str() << endl;
         dlhandle = loadLib(loadstring);
-        if (dlhandle != NULL) {
+        if (dlhandle != nullptr) {
             //
             // the class library was found...
             //
@@ -280,7 +280,7 @@ void VMClass::LoadPrimitives(const vector<StdString>& cp) {
 
     // finished cycling,
     // check if a lib was found.
-    if (dlhandle == NULL) {
+    if (dlhandle == nullptr) {
         cout << "load failure: ";
         cout << "could not load primitive library for " << cname << endl;
         GetUniverse()->Quit(ERR_FAIL);
@@ -351,10 +351,10 @@ void* VMClass::loadLib(const StdString& path) const {
         return dlhandle;
     } else {
         cout << "Error loading library " << path << ": " << dlerror() << endl;
-        return NULL;
+        return nullptr;
     }
 #else
-    return NULL;
+    return nullptr;
 #endif
 
 }
@@ -366,7 +366,7 @@ void* VMClass::loadLib(const StdString& path) const {
 bool VMClass::isResponsible(void* dlhandle, const StdString& cl) const {
 #if defined(__GNUC__)
     // function handler
-    SupportsClass* supports_class = NULL;
+    SupportsClass* supports_class = nullptr;
 
     supports_class = (SupportsClass*) dlsym(dlhandle, "supportsClass");
     if (!supports_class) {
@@ -388,7 +388,7 @@ bool VMClass::isResponsible(void* dlhandle, const StdString& cl) const {
  */
 void VMClass::setPrimitives(void* dlhandle, const StdString& cname) {
     pVMPrimitive thePrimitive;
-    PrimitiveRoutine* routine = NULL;
+    PrimitiveRoutine* routine = nullptr;
     pVMInvokable anInvokable;
     // iterate invokables
     long numInvokables = GetNumberOfInstanceInvokables();

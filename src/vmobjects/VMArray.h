@@ -49,7 +49,7 @@ private:
 };
 
 long VMArray::GetNumberOfIndexableFields() const {
-    static pcVMArray cachedArray = NULL;
+    static pcVMArray cachedArray = nullptr;
     static long numIndexableFields = -1;
 
     if (this != cachedArray) {

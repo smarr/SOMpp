@@ -150,7 +150,7 @@ void WalkObjectsTest::testWalkFrame() {
     walkedObjects.clear();
     pVMSymbol methodSymbol = GetUniverse()->NewSymbol("frameMethod");
     pVMMethod method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
-    pVMFrame frame = GetUniverse()->NewFrame(NULL, method);
+    pVMFrame frame = GetUniverse()->NewFrame(nullptr, method);
     frame->SetPreviousFrame(frame->Clone());
     frame->SetContext(frame->Clone());
     pVMInteger dummyArg = GetUniverse()->NewInteger(1111);

@@ -32,8 +32,8 @@
 
 ClassGenerationContext::ClassGenerationContext() :
         instanceFields(), instanceMethods(), classFields(), classMethods() {
-    name = NULL;
-    superName = NULL;
+    name = nullptr;
+    superName = nullptr;
     classSide = false;
 }
 

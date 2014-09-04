@@ -44,7 +44,7 @@
 #define SHELL_PART_2 "). 'it = ' print. ^tmp println) )"
 
 Shell::Shell() {
-    bootstrapMethod = NULL;
+    bootstrapMethod = nullptr;
 }
 
 Shell::Shell(pVMMethod bsm) {
@@ -59,7 +59,7 @@ void Shell::Start() {
 #define QUIT_CMD "system exit"
 #define QUIT_CMD_L 11 + 1
 
-    if (bootstrapMethod == NULL) {
+    if (bootstrapMethod == nullptr) {
         GetUniverse()->ErrorExit("Shell needs bootstrap method!");
     }
     // the statement to evaluate
@@ -102,7 +102,7 @@ void Shell::Start() {
         ++counter;
         runClass = GetUniverse()->LoadShellClass(statement);
         // Compile and load the newly generated class
-        if(runClass == NULL) {
+        if(runClass == nullptr) {
             cout << "can't compile statement.";
             continue;
         }

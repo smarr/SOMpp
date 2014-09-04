@@ -66,7 +66,7 @@ pVMInteger prebuildInts[INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE + 1];
 short dumpBytecodes;
 short gcVerbosity;
 
-Universe* Universe::theUniverse = NULL;
+Universe* Universe::theUniverse = nullptr;
 
 pVMObject nilObject;
 pVMObject trueObject;
@@ -279,7 +279,7 @@ void Universe::printUsageAndExit(char* executable) const {
 }
 
 Universe::Universe() {
-    this->interpreter = NULL;
+    this->interpreter = nullptr;
 }
 
 void Universe::initialize(long _argc, char** _argv) {
@@ -494,7 +494,7 @@ void Universe::InitializeGlobals() {
 
     nilObject->SetClass(nilClass);
 
-    InitializeSystemClass(objectClass, NULL, "Object");
+    InitializeSystemClass(objectClass, nullptr, "Object");
     InitializeSystemClass(classClass, objectClass, "Class");
     InitializeSystemClass(metaClassClass, classClass, "Metaclass");
     InitializeSystemClass(nilClass, objectClass, "Nil");
@@ -562,7 +562,7 @@ pVMClass Universe::GetBlockClassWithArgs(long numberOfArguments) {
     ostringstream Str;
     Str << "Block" << numberOfArguments;
     pVMSymbol name = SymbolFor(Str.str());
-    pVMClass result = LoadClassBasic(name, NULL);
+    pVMClass result = LoadClassBasic(name, nullptr);
 
     result->AddInstancePrimitive(new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(numberOfArguments) );
 
@@ -577,7 +577,7 @@ oop_t Universe::GetGlobal(pVMSymbol name) {
 }
 
 bool Universe::HasGlobal(pVMSymbol name) {
-    if (globals[name] != NULL)
+    if (globals[name] != nullptr)
         return true;
     else
         return false;
@@ -587,7 +587,7 @@ void Universe::InitializeSystemClass(pVMClass systemClass,
 pVMClass superClass, const char* name) {
     StdString s_name(name);
 
-    if (superClass != NULL) {
+    if (superClass != nullptr) {
         systemClass->SetSuperClass(superClass);
         pVMClass sysClassClass = systemClass->GetClass();
         pVMClass superClassClass = superClass->GetClass();
@@ -620,7 +620,7 @@ pVMClass Universe::LoadClass(pVMSymbol name) {
     if (result != nullptr)
         return result;
 
-    result = LoadClassBasic(name, NULL);
+    result = LoadClassBasic(name, nullptr);
 
     if (!result) {
 		// we fail silently, it is not fatal that loading a class failed
@@ -653,12 +653,12 @@ pVMClass Universe::LoadClassBasic(pVMSymbol name, pVMClass systemClass) {
         }
 
     }
-    return NULL;
+    return nullptr;
 }
 
 pVMClass Universe::LoadShellClass( StdString& stmt) {
     SourcecodeCompiler compiler;
-    pVMClass result = compiler.CompileClassString(stmt, NULL);
+    pVMClass result = compiler.CompileClassString(stmt, nullptr);
     if(dumpBytecodes)
         Disassembler::Dump(result);
     return result;
@@ -774,11 +774,11 @@ pVMDouble Universe::NewDouble(double value) const {
 }
 
 pVMFrame Universe::NewFrame(pVMFrame previousFrame, pVMMethod method) const {
-    pVMFrame result = NULL;
+    pVMFrame result = nullptr;
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     result = method->GetCachedFrame();
-    if (result != NULL) {
-        method->SetCachedFrame(NULL);
+    if (result != nullptr) {
+        method->SetCachedFrame(nullptr);
         result->SetPreviousFrame(previousFrame);
         return result;
     }
@@ -885,7 +885,7 @@ void Universe::WalkGlobals(oop_t (*walk)(oop_t)) {
     globals.clear();
     map<pVMSymbol, oop_t>::iterator iter;
     for (iter = globs.begin(); iter != globs.end(); iter++) {
-        if (iter->second == NULL)
+        if (iter->second == nullptr)
             continue;
 
         pVMSymbol key = static_cast<pVMSymbol>(walk(iter->first));

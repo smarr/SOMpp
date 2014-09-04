@@ -32,7 +32,7 @@
 #include "../vm/Universe.h"
 
 template<class HEAP_T>
-HEAP_T* Heap<HEAP_T>::theHeap = NULL;
+HEAP_T* Heap<HEAP_T>::theHeap = nullptr;
 
 template<class HEAP_T>
 void Heap<HEAP_T>::InitializeHeap(long objectSpaceSize) {

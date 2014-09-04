@@ -48,7 +48,7 @@ const long VMMethod::VMMethodNumberOfFields = 7;
 VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
         VMInvokable(nof + VMMethodNumberOfFields) {
 #ifdef UNSAFE_FRAME_OPTIMIZATION
-    cachedFrame = NULL;
+    cachedFrame = nullptr;
 #endif
 
     bcLength                     = NEW_INT(bcCount);
@@ -93,13 +93,13 @@ void VMMethod::WalkObjects(oop_t (*walk)(oop_t)) {
     numberOfArguments = static_cast<VMInteger*>(walk(numberOfArguments));
     numberOfConstants = static_cast<VMInteger*>(walk(numberOfConstants));
 #ifdef UNSAFE_FRAME_OPTIMIZATION
-    if (cachedFrame != NULL)
+    if (cachedFrame != nullptr)
         cachedFrame = static_cast<VMFrame*>(walk(cachedFrame));
 #endif
 
     long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {
-        if (GetIndexableField(i) != NULL)
+        if (GetIndexableField(i) != nullptr)
             indexableFields[i] = walk(GetIndexableField(i));
     }
 }
@@ -111,8 +111,8 @@ pVMFrame VMMethod::GetCachedFrame() const {
 
 void VMMethod::SetCachedFrame(pVMFrame frame) {
     cachedFrame = frame;
-    if (frame != NULL) {
-        frame->SetContext(NULL);
+    if (frame != nullptr) {
+        frame->SetContext(nullptr);
         frame->SetBytecodeIndex(0);
         frame->ResetStackPointer();
         write_barrier(this, cachedFrame);
@@ -154,7 +154,7 @@ void VMMethod::SetHolderAll(pVMClass hld) {
         oop_t o = GetIndexableField(i);
         if (!IS_TAGGED(o)) {
             pVMInvokable vmi = dynamic_cast<pVMInvokable>(AS_OBJ(o));
-            if (vmi != NULL) {
+            if (vmi != nullptr) {
                 vmi->SetHolder(hld);
             }
         }
@@ -165,7 +165,7 @@ oop_t VMMethod::GetConstant(long indx) const {
     uint8_t bc = bytecodes[indx + 1];
     if (bc >= GetNumberOfIndexableFields()) {
         cout << "Error: Constant index out of range" << endl;
-        return NULL;
+        return nullptr;
     }
     return GetIndexableField(bc);
 }

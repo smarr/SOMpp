@@ -82,7 +82,7 @@ void GenerationalCollector::MinorCollection() {
 
     // and the current frame
     pVMFrame currentFrame = GetUniverse()->GetInterpreter()->GetFrame();
-    if (currentFrame != NULL) {
+    if (currentFrame != nullptr) {
         pVMFrame newFrame = static_cast<pVMFrame>(copy_if_necessary(currentFrame));
         GetUniverse()->GetInterpreter()->SetFrame(newFrame);
     }
@@ -108,7 +108,7 @@ void GenerationalCollector::MajorCollection() {
     GetUniverse()->WalkGlobals(&mark_object);
     //and the current frame
     pVMFrame currentFrame = GetUniverse()->GetInterpreter()->GetFrame();
-    if (currentFrame != NULL) {
+    if (currentFrame != nullptr) {
         pVMFrame newFrame = static_cast<pVMFrame>(mark_object(currentFrame));
         GetUniverse()->GetInterpreter()->SetFrame(newFrame);
     }

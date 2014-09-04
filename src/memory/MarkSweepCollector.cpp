@@ -64,7 +64,7 @@ void MarkSweepCollector::markReachableObjects() {
     // Since marking is done recursively, this automatically
     // marks the whole stack
     pVMFrame currentFrame = GetUniverse()->GetInterpreter()->GetFrame();
-    if (currentFrame != NULL) {
+    if (currentFrame != nullptr) {
         pVMFrame newFrame = static_cast<pVMFrame>(mark_object(currentFrame));
         GetUniverse()->GetInterpreter()->SetFrame(newFrame);
     }

@@ -48,7 +48,7 @@
 #include "Core.h"
 #endif
 
-static PrimitiveLoader* loader = NULL;
+static PrimitiveLoader* loader = nullptr;
 
 //"Constructor"
 //#define __DEBUG

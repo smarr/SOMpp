@@ -60,7 +60,7 @@ void Disassembler::dispatch(oop_t o) {
     //dispatch
     // can't switch() objects, so:
     if (o == nullptr)
-        return; // NULL isn't interesting.
+        return; // nullptr isn't interesting.
     else if(o == nilObject)
         DebugPrint("{Nil}");
     else if(o == trueObject)
@@ -161,13 +161,13 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
                 pVMClass holder = dynamic_cast<pVMClass>((pVMObject) method->GetHolder());
                 if (holder) {
                     pVMSymbol name = holder->GetInstanceFieldName(fieldIdx);
-                    if (name != NULL) {
+                    if (name != nullptr) {
                         DebugPrint("(index: %d) field: %s\n", BC_1, name->GetChars());
                         break;
                     }
                 }
                 
-                DebugPrint("(index: %d) field: !NULL!: error!\n", BC_1);
+                DebugPrint("(index: %d) field: !nullptr!: error!\n", BC_1);
                 break;
             }
             case BC_PUSH_BLOCK: {
@@ -192,15 +192,15 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
             case BC_PUSH_GLOBAL: {
                 oop_t cst = method->GetConstant(bc_idx);
 
-                if (cst != NULL) {
+                if (cst != nullptr) {
                     pVMSymbol name = static_cast<pVMSymbol>(cst);
-                    if (name != NULL) {
+                    if (name != nullptr) {
                         DebugPrint("(index: %d) value: %s\n", BC_1,
                         name->GetChars());
                         break;
                     }
                 } else
-                DebugPrint("(index: %d) value: !NULL!: error!\n", BC_1);
+                DebugPrint("(index: %d) value: !nullptr!: error!\n", BC_1);
 
                 break;
             }
@@ -263,7 +263,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
     pVMClass cl = method->GetHolder();
 
     // Determine Context: Class or Block?
-    if (cl != NULL) {
+    if (cl != nullptr) {
         pVMSymbol cname = cl->GetName();
         pVMSymbol sig = method->GetSignature();
 
@@ -377,7 +377,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
 
                 c_cname = cname->GetChars();
             } else
-                c_cname = "NULL";
+                c_cname = "nullptr";
 
             DebugPrint("(index: %d)value: %s <(%s) ", BC_1,
             name->GetChars(), c_cname);
@@ -444,7 +444,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
             pVMClass elemClass = CLASS_OF(elem);
             pVMInvokable inv = dynamic_cast<pVMInvokable>(elemClass->LookupInvokable(sel));
 
-            if(inv != NULL && inv->IsPrimitive())
+            if(inv != nullptr && inv->IsPrimitive())
                 DebugPrint("*)\n");
             else {
                 DebugPrint("\n");

@@ -61,7 +61,7 @@ pVMInvokable VMSymbol::GetCachedInvokable(pcVMClass cls) const {
         return cachedInvokable[1];
     else if (cls == cachedClass_invokable[2])
         return cachedInvokable[2];
-    return NULL;
+    return nullptr;
 }
 
 void VMSymbol::UpdateCachedInvokable(pcVMClass cls, pVMInvokable invo) {

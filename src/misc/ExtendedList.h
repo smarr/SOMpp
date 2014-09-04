@@ -93,7 +93,7 @@ T ExtendedList<T>::Get(long index) {
             return *it;
         --index;
     }
-    return NULL;
+    return nullptr;
 }
 
 template<class T>

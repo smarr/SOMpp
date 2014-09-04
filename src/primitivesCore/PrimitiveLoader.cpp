@@ -47,7 +47,7 @@ void PrimitiveLoader::AddPrimitiveObject(const char* name,
 }
 
 bool PrimitiveLoader::SupportsClass(const char* name) {
-    return primitiveObjects[StdString(name)] != NULL;
+    return primitiveObjects[StdString(name)] != nullptr;
 }
 
 PrimitiveRoutine* PrimitiveLoader::GetPrimitiveRoutine(const std::string& cname,
@@ -56,12 +56,12 @@ PrimitiveRoutine* PrimitiveLoader::GetPrimitiveRoutine(const std::string& cname,
     PrimitiveContainer* primitive = primitiveObjects[cname];
     if (!primitive) {
         cout << "Primitive object not found for name: " << cname << endl;
-        return NULL;
+        return nullptr;
     }
     result = primitive->GetPrimitive(mname);
     if (!result) {
         cout << "method " << mname << " not found in class " << cname << endl;
-        return NULL;
+        return nullptr;
     }
     return result;
 }

@@ -53,7 +53,7 @@ void CopyingCollector::Collect() {
                 (size_t)(0.9 * newSize));
         heap->currentBufferEnd = (void*)((size_t)(heap->currentBuffer) +
                 newSize);
-        if (heap->currentBuffer == NULL)
+        if (heap->currentBuffer == nullptr)
             GetUniverse()->ErrorExit("unable to allocate more memory");
     }
     
@@ -62,7 +62,7 @@ void CopyingCollector::Collect() {
             (size_t)(heap->currentBuffer));
     GetUniverse()->WalkGlobals(copy_if_necessary);
     pVMFrame currentFrame = GetUniverse()->GetInterpreter()->GetFrame();
-    if (currentFrame != NULL) {
+    if (currentFrame != nullptr) {
         pVMFrame newFrame = static_cast<pVMFrame>(copy_if_necessary(currentFrame));
         GetUniverse()->GetInterpreter()->SetFrame(newFrame);
     }
@@ -79,7 +79,7 @@ void CopyingCollector::Collect() {
         increaseMemory = false;
         free(heap->oldBuffer);
         heap->oldBuffer = malloc(newSize);
-        if (heap->oldBuffer == NULL)
+        if (heap->oldBuffer == nullptr)
             GetUniverse()->ErrorExit("unable to allocate more memory");
     }
 

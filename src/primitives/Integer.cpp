@@ -61,7 +61,7 @@
 
 _Integer::_Integer() :
         PrimitiveContainer() {
-    srand((unsigned) time(NULL));
+    srand((unsigned) time(nullptr));
     this->SetPrimitive("plus", new Routine<_Integer>(this, &_Integer::Plus));
 
     this->SetPrimitive("minus", new Routine<_Integer>(this, &_Integer::Minus));
