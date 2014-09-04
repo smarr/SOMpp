@@ -48,9 +48,9 @@ private:
 };
 
 int64_t VMBigInteger::GetEmbeddedInteger() const {
-    return this->embeddedInteger;
+    return embeddedInteger;
 }
 
 void VMBigInteger::SetEmbeddedInteger(int64_t val) {
-    this->embeddedInteger = val;
+    embeddedInteger = val;
 }

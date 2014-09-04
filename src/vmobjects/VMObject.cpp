@@ -50,7 +50,7 @@ pVMObject VMObject::Clone() const {
 }
 
 void VMObject::SetNumberOfFields(long nof) {
-    this->numberOfFields = nof;
+    numberOfFields = nof;
     // initialize fields with NilObject
     for (long i = 0; i < nof; ++i)
         FIELDS[i] = nilObject;
@@ -62,7 +62,7 @@ void VMObject::SetClass(pVMClass cl) {
 }
 
 pVMSymbol VMObject::GetFieldName(long index) const {
-    return this->clazz->GetInstanceFieldName(index);
+    return clazz->GetInstanceFieldName(index);
 }
 
 void VMObject::Assert(bool value) const {

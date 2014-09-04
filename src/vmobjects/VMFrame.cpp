@@ -172,7 +172,7 @@ void VMFrame::Push(oop_t obj) {
 }
 
 void VMFrame::PrintStack() const {
-    cout << "SP: " << this->GetStackPointer() << endl;
+    cout << "SP: " << GetStackPointer() << endl;
     //all other fields are indexable via arguments array
     // --> until end of Frame
     oop_t* end = (oop_t*) SHIFTED_PTR(this, objectSize);
@@ -198,7 +198,7 @@ void VMFrame::PrintStack() const {
 
 void VMFrame::ResetStackPointer() {
     // arguments are stored in front of local variables
-    pVMMethod meth = this->GetMethod();
+    pVMMethod meth = GetMethod();
     locals = arguments + meth->GetNumberOfArguments();
     // Set the stack pointer to its initial value thereby clearing the stack
     stack_ptr = locals + meth->GetNumberOfLocals() - 1;
@@ -213,24 +213,24 @@ void VMFrame::SetStackElement(long index, oop_t obj) {
 }
 
 oop_t VMFrame::GetLocal(long index, long contextLevel) {
-    pVMFrame context = this->GetContextLevel(contextLevel);
+    pVMFrame context = GetContextLevel(contextLevel);
     return context->locals[index];
 }
 
 void VMFrame::SetLocal(long index, long contextLevel, oop_t value) {
-    pVMFrame context = this->GetContextLevel(contextLevel);
+    pVMFrame context = GetContextLevel(contextLevel);
     context->locals[index] = value;
     write_barrier(context, value);
 }
 
 oop_t VMFrame::GetArgument(long index, long contextLevel) {
     // get the context
-    pVMFrame context = this->GetContextLevel(contextLevel);
+    pVMFrame context = GetContextLevel(contextLevel);
     return context->arguments[index];
 }
 
 void VMFrame::SetArgument(long index, long contextLevel, oop_t value) {
-    pVMFrame context = this->GetContextLevel(contextLevel);
+    pVMFrame context = GetContextLevel(contextLevel);
     context->arguments[index] = value;
     write_barrier(context, value);
 }
@@ -240,7 +240,7 @@ void VMFrame::PrintStackTrace() const {
 }
 
 long VMFrame::ArgumentStackIndex(long index) const {
-    pVMMethod meth = this->GetMethod();
+    pVMMethod meth = GetMethod();
     return meth->GetNumberOfArguments() - index - 1;
 }
 

@@ -45,11 +45,11 @@ private:
 };
 
 void VMDouble::SetEmbeddedDouble(double val) {
-    this->embeddedDouble = val;
+    embeddedDouble = val;
 }
 
 double VMDouble::GetEmbeddedDouble() const {
-    return this->embeddedDouble;
+    return embeddedDouble;
 }
 
 size_t VMDouble::GetObjectSize() const {

@@ -47,7 +47,7 @@ private:
 };
 
 long VMInteger::GetEmbeddedInteger() const {
-    return this->embeddedInteger;
+    return embeddedInteger;
 }
 
 size_t VMInteger::GetObjectSize() const {

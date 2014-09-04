@@ -280,7 +280,7 @@ void Universe::printUsageAndExit(char* executable) const {
 }
 
 Universe::Universe() {
-    this->interpreter = nullptr;
+    interpreter = nullptr;
 }
 
 void Universe::initialize(long _argc, char** _argv) {
@@ -290,7 +290,7 @@ void Universe::initialize(long _argc, char** _argv) {
 
     heapSize = 1 * 1024 * 1024;
 
-    vector<StdString> argv = this->handleArguments(_argc, _argv);
+    vector<StdString> argv = handleArguments(_argc, _argv);
     
     // remember file that was executed (for writing statistics)
     if (argv.size() > 0)
@@ -311,12 +311,12 @@ void Universe::initialize(long _argc, char** _argv) {
 
     pVMObject systemObject = NewInstance(systemClass);
 
-    this->SetGlobal(SymbolForChars("nil"), nilObject);
-    this->SetGlobal(SymbolForChars("true"), trueObject);
-    this->SetGlobal(SymbolForChars("false"), falseObject);
-    this->SetGlobal(SymbolForChars("system"), systemObject);
-    this->SetGlobal(SymbolForChars("System"), systemClass);
-    this->SetGlobal(SymbolForChars("Block"), blockClass);
+    SetGlobal(SymbolForChars("nil"), nilObject);
+    SetGlobal(SymbolForChars("true"), trueObject);
+    SetGlobal(SymbolForChars("false"), falseObject);
+    SetGlobal(SymbolForChars("system"), systemObject);
+    SetGlobal(SymbolForChars("System"), systemClass);
+    SetGlobal(SymbolForChars("Block"), blockClass);
 
     symbolIfTrue  = SymbolForChars("ifTrue:");
     symbolIfFalse = SymbolForChars("ifFalse:");
@@ -558,7 +558,7 @@ pVMClass Universe::GetBlockClassWithArgs(long numberOfArguments) {
     if (it != blockClassesByNoOfArgs.end())
         return it->second;
 
-    this->Assert(numberOfArguments < 10);
+    Assert(numberOfArguments < 10);
 
     ostringstream Str;
     Str << "Block" << numberOfArguments;
@@ -736,7 +736,7 @@ pVMBigInteger Universe::NewBigInteger( int64_t value) const {
 
 pVMBlock Universe::NewBlock(pVMMethod method, pVMFrame context, long arguments) {
     pVMBlock result = new (GetHeap<HEAP_CLS>()) VMBlock;
-    result->SetClass(this->GetBlockClassWithArgs(arguments));
+    result->SetClass(GetBlockClassWithArgs(arguments));
 
     result->SetMethod(method);
     result->SetContext(context);

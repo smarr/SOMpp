@@ -68,7 +68,7 @@ pVMClass VMSymbol::GetClass() const {
 
 StdString VMSymbol::GetPlainString() const {
     ostringstream str;
-    char* chars = this->GetChars();
+    char* chars = GetChars();
     size_t length = GetStringLength();
     for (size_t i = 0; i <= length; i++) {
         char c = chars[i];

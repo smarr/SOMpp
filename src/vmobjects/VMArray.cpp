@@ -66,7 +66,7 @@ void VMArray::SetIndexableField(long idx, oop_t value) {
 pVMArray VMArray::CopyAndExtendWith(oop_t item) const {
     size_t fields = GetNumberOfIndexableFields();
     pVMArray result = GetUniverse()->NewArray(fields + 1);
-    this->CopyIndexableFieldsTo(result);
+    CopyIndexableFieldsTo(result);
     result->SetIndexableField(fields, item);
     return result;
 }

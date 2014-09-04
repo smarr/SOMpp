@@ -44,11 +44,10 @@ const int VMPrimitive::VMPrimitiveNumberOfFields = 2;
 
 VMPrimitive::VMPrimitive(pVMSymbol signature) : VMInvokable(VMPrimitiveNumberOfFields) {
     //the only class that explicitly does this.
-    this->SetClass(primitiveClass);
-
-    this->SetSignature(signature);
-    this->routine = nullptr;
-    this->empty = false;
+    SetClass(primitiveClass);
+    SetSignature(signature);
+    routine = nullptr;
+    empty = false;
 }
 
 pVMPrimitive VMPrimitive::Clone() const {

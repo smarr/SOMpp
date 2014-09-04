@@ -212,7 +212,7 @@ long VMClass::LookupFieldIndex(pVMSymbol name) const {
 
 long VMClass::GetNumberOfInstanceFields() const {
     return instanceFields->GetNumberOfIndexableFields()
-            + this->numberOfSuperInstanceFields();
+            + numberOfSuperInstanceFields();
 }
 
 bool VMClass::HasPrimitives() const {
@@ -229,7 +229,7 @@ void VMClass::LoadPrimitives(const vector<StdString>& cp) {
     void* dlhandle = nullptr;
 
     // cached object properties
-    StdString cname = this->name->GetStdString();
+    StdString cname = name->GetStdString();
 
 #if defined (__GNUC__)
     //// iterate the classpathes
@@ -389,7 +389,7 @@ void VMClass::setPrimitives(void* dlhandle, const StdString& cname) {
     // iterate invokables
     long numInvokables = GetNumberOfInstanceInvokables();
     for (long i = 0; i < numInvokables; i++) {
-        anInvokable = this->GetInstanceInvokable(i);
+        anInvokable = GetInstanceInvokable(i);
 #ifdef __DEBUG
         cout << "cname: >" << cname << "<"<< endl;
         cout << anInvokable->GetSignature()->GetStdString() << endl;

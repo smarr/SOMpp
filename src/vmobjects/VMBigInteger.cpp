@@ -29,11 +29,11 @@
 #include <vm/Universe.h>
 
 VMBigInteger::VMBigInteger() {
-    this->embeddedInteger = 0;
+    embeddedInteger = 0;
 }
 
 VMBigInteger::VMBigInteger(int64_t val) {
-    this->embeddedInteger = val;
+    embeddedInteger = val;
 }
 
 pVMBigInteger VMBigInteger::Clone() const {

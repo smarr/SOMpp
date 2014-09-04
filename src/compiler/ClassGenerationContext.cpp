@@ -41,11 +41,11 @@ ClassGenerationContext::~ClassGenerationContext() {
 }
 
 void ClassGenerationContext::AddClassField(pVMSymbol field) {
-    this->classFields.Add(field);
+    classFields.Add(field);
 }
 
 void ClassGenerationContext::AddInstanceField(pVMSymbol field) {
-    this->instanceFields.Add(field);
+    instanceFields.Add(field);
 }
 
 void ClassGenerationContext::SetInstanceFieldsOfSuper(pVMArray fields) {
@@ -81,11 +81,11 @@ int16_t ClassGenerationContext::GetFieldIndex(pVMSymbol field) {
 }
 
 void ClassGenerationContext::AddInstanceMethod(pVMObject method) {
-    this->instanceMethods.Add(method);
+    instanceMethods.Add(method);
 }
 
 void ClassGenerationContext::AddClassMethod(pVMObject method) {
-    this->classMethods.Add(method);
+    classMethods.Add(method);
 }
 
 pVMClass ClassGenerationContext::Assemble() {
@@ -112,7 +112,7 @@ pVMClass ClassGenerationContext::Assemble() {
     // Initialize the resulting class
     result->SetInstanceFields(GetUniverse()->NewArrayList(instanceFields));
     result->SetInstanceInvokables(GetUniverse()->NewArrayList(instanceMethods));
-    result->SetName(this->name);
+    result->SetName(name);
     result->SetSuperClass(superClass);
 
     return result;

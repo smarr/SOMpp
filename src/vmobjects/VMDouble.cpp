@@ -29,11 +29,11 @@
 #include <vm/Universe.h>
 
 VMDouble::VMDouble() {
-    this->embeddedDouble = 0.0;
+    embeddedDouble = 0.0;
 }
 
 VMDouble::VMDouble(double val) {
-    this->embeddedDouble = val;
+    embeddedDouble = val;
 }
 
 pVMDouble VMDouble::Clone() const {

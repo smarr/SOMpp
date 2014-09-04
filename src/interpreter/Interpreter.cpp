@@ -211,7 +211,7 @@ oop_t Interpreter::GetSelf() {
 
 pVMFrame Interpreter::popFrame() {
     pVMFrame result = GetFrame();
-    this->SetFrame(GetFrame()->GetPreviousFrame());
+    SetFrame(GetFrame()->GetPreviousFrame());
 
     result->ClearPreviousFrame();
 
@@ -223,7 +223,7 @@ pVMFrame Interpreter::popFrame() {
 }
 
 void Interpreter::popFrameAndPushResult(oop_t result) {
-    pVMFrame prevFrame = this->popFrame();
+    pVMFrame prevFrame = popFrame();
 
     pVMMethod method = prevFrame->GetMethod();
     long numberOfArgs = method->GetNumberOfArguments();
@@ -269,7 +269,7 @@ void Interpreter::send(pVMSymbol signature, pVMClass receiverClass) {
         long additionalStackSlots = 3 - GetFrame()->RemainingStackSize();
         if (additionalStackSlots > 0) {
             //copy current frame into a bigger one and replace the current frame
-            this->SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
+            SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
         }
 
         AS_OBJ(receiver)->Send(dnu, arguments, 2);
@@ -345,7 +345,7 @@ void Interpreter::doPushGlobal(long bytecodeIndex) {
     pVMSymbol globalName = static_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));
     oop_t global = GetUniverse()->GetGlobal(globalName);
 
-    if(global != nullptr)
+    if (global != nullptr)
         GetFrame()->Push(global);
     else {
         oop_t arguments[] = {globalName};
@@ -357,8 +357,7 @@ void Interpreter::doPushGlobal(long bytecodeIndex) {
         if (additionalStackSlots > 0) {
             GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
             //copy current frame into a bigger one and replace the current frame
-            this->SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(),
-                            additionalStackSlots));
+            SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
         }
 
         AS_OBJ(self)->Send(uG, arguments, 1);
@@ -469,9 +468,9 @@ void Interpreter::doReturnNonLocal() {
         return;
     }
 
-    while (GetFrame() != context) this->popFrame();
+    while (GetFrame() != context) popFrame();
 
-    this->popFrameAndPushResult(result);
+    popFrameAndPushResult(result);
 }
 
 void Interpreter::doJumpIfFalse(long bytecodeIndex) {

@@ -48,7 +48,7 @@ Shell::Shell() {
 }
 
 Shell::Shell(pVMMethod bsm) {
-    this->bootstrapMethod = bsm;
+    bootstrapMethod = bsm;
 }
 
 Shell::~Shell() {
@@ -72,7 +72,7 @@ void Shell::Start() {
     cout << "SOM Shell. Type \"" << QUIT_CMD << "\" to exit.\n";
 
     // Create a fake bootstrap frame
-    currentFrame = GetUniverse()->GetInterpreter()->PushNewFrame(this->GetBootstrapMethod());
+    currentFrame = GetUniverse()->GetInterpreter()->PushNewFrame(GetBootstrapMethod());
     // Remember the first bytecode index, e.g. index of the halt instruction
     bytecodeIndex = currentFrame->GetBytecodeIndex();
 
