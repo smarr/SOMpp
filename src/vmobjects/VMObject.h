@@ -92,21 +92,11 @@ public:
      *   - array size in VMArray; a_b must be set to (size_of_array*sizeof(VMObect*))
      *   - fields in VMMethod, a_b must be set to (number_of_bc + number_of_csts*sizeof(pVMObject))
      */
-    void* operator new(size_t numBytes, HEAP_CLS* heap,
-#if GC_TYPE==GENERATIONAL
-            unsigned long additionalBytes = 0, bool outsideNursery = false) {
-        void* mem = AbstractVMObject::operator new(numBytes, heap,
-                PADDED_SIZE(additionalBytes), outsideNursery);
-#elif GC_TYPE==COPYING
-        unsigned long additionalBytes = 0) {
-            void* mem = (void*) ((CopyingHeap*)heap)->AllocateObject(numBytes + PADDED_SIZE(additionalBytes));
-#elif GC_TYPE==MARK_SWEEP
-            unsigned long additionalBytes = 0) {
-        void* mem = (void*) ((MarkSweepHeap*)heap)->AllocateObject(numBytes + PADDED_SIZE(additionalBytes));
-#endif
-        size_t objSize = numBytes + PADDED_SIZE(additionalBytes);
-        ((VMObject*) mem)->objectSize = objSize;
+    void* operator new(size_t numBytes, HEAP_CLS* heap, unsigned long additionalBytes = 0 ALLOC_OUTSIDE_NURSERY_DECL) {
+        void* mem = AbstractVMObject::operator new(numBytes, heap, additionalBytes ALLOC_OUTSIDE_NURSERY(outsideNursery));
         assert(mem != INVALID_POINTER);
+        
+        ((pVMObject) mem)->objectSize = numBytes + PADDED_SIZE(additionalBytes);
         return mem;
     }
 

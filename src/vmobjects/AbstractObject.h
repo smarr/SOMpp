@@ -71,27 +71,24 @@ public:
         throw "this object doesn't support GetFieldName";
     }
 
-#if GC_TYPE==GENERATIONAL
     void* operator new(size_t numBytes, HEAP_CLS* heap,
-            unsigned long additionalBytes = 0, bool outsideNursery = false) {
-        //if outsideNursery flag is set or object is too big for nursery, we
+            unsigned long additionalBytes = 0 ALLOC_OUTSIDE_NURSERY_DECL) {
+        // if outsideNursery flag is set or object is too big for nursery, we
         // allocate a mature object
+        unsigned long add = PADDED_SIZE(additionalBytes);
         void* result;
+#if GC_TYPE==GENERATIONAL
         if (outsideNursery) {
-            result = (void*) ((GenerationalHeap*)heap)->AllocateMatureObject(numBytes + additionalBytes);
+            result = (void*) heap->AllocateMatureObject(numBytes + add);
         } else {
-            result = (void*) ((GenerationalHeap*)heap)->AllocateNurseryObject(numBytes + additionalBytes);
+            result = (void*) heap->AllocateNurseryObject(numBytes + add);
         }
-        
+#else
+        result = (void*) heap->AllocateObject(numBytes + add);
+#endif
+
         assert(result != INVALID_POINTER);
         return result;
     }
-#else
-    void* operator new(size_t numBytes, HEAP_CLS* heap, unsigned long additionalBytes = 0) {
-        void* mem = (void*) heap->AllocateObject(numBytes + additionalBytes);
-        assert(mem != INVALID_POINTER);
-        return mem;
-    }
-#endif
 
 };

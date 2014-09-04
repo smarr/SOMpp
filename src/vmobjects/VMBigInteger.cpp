@@ -37,11 +37,7 @@ VMBigInteger::VMBigInteger(int64_t val) {
 }
 
 pVMBigInteger VMBigInteger::Clone() const {
-#if GC_TYPE==GENERATIONAL
-    return new (GetHeap<HEAP_CLS>(), 0, true) VMBigInteger(*this);
-#else
-    return new (GetHeap<HEAP_CLS>()) VMBigInteger(*this);
-#endif
+    return new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMBigInteger(*this);
 }
 
 size_t VMBigInteger::GetObjectSize() const {

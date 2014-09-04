@@ -680,17 +680,17 @@ void Universe::LoadSystemClass( pVMClass systemClass) {
 pVMArray Universe::NewArray(long size) const {
     long additionalBytes = size * sizeof(pVMObject);
     
-#if GC_TYPE==GENERATIONAL
+    bool outsideNursery;
+    
+#if GC_TYPE == GENERATIONAL
     // if the array is too big for the nursery, we will directly allocate a
     // mature object
-    bool outsideNursery = additionalBytes + sizeof(VMArray) > GetHeap<HEAP_CLS>()->GetMaxNurseryObjectSize();
-
-    pVMArray result = new (GetHeap<HEAP_CLS>(), additionalBytes, outsideNursery) VMArray(size);
-    if (outsideNursery)
-        result->SetGCField(MASK_OBJECT_IS_OLD);
-#else
-    pVMArray result = new (GetHeap<HEAP_CLS>(), additionalBytes) VMArray(size);
+    outsideNursery = additionalBytes + sizeof(VMArray) > GetHeap<HEAP_CLS>()->GetMaxNurseryObjectSize();
 #endif
+
+    pVMArray result = new (GetHeap<HEAP_CLS>(), additionalBytes ALLOC_OUTSIDE_NURSERY(outsideNursery)) VMArray(size);
+    if ((GC_TYPE == GENERATIONAL) && outsideNursery)
+        result->SetGCField(MASK_OBJECT_IS_OLD);
 
     result->SetClass(arrayClass);
     

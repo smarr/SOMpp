@@ -73,11 +73,7 @@ pVMArray VMArray::CopyAndExtendWith(oop_t item) const {
 
 pVMArray VMArray::Clone() const {
     long addSpace = objectSize - sizeof(VMArray);
-#if GC_TYPE==GENERATIONAL
-    pVMArray clone = new (GetHeap<HEAP_CLS>(), addSpace, true) VMArray(*this);
-#else
-    pVMArray clone = new (GetHeap<HEAP_CLS>(), addSpace) VMArray(*this);
-#endif
+    pVMArray clone = new (GetHeap<HEAP_CLS>(), addSpace ALLOC_MATURE) VMArray(*this);
     void* destination  = SHIFTED_PTR(clone, sizeof(VMArray));
     const void* source = SHIFTED_PTR(this, sizeof(VMArray));
     size_t noBytes = GetObjectSize() - sizeof(VMArray);

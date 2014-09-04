@@ -45,11 +45,7 @@ VMEvaluationPrimitive::VMEvaluationPrimitive(long argc) :
 }
 
 pVMEvaluationPrimitive VMEvaluationPrimitive::Clone() const {
-#if GC_TYPE==GENERATIONAL
-    pVMEvaluationPrimitive evPrim = new (GetHeap<HEAP_CLS>(), 0, true) VMEvaluationPrimitive(*this);
-#else
-    pVMEvaluationPrimitive evPrim = new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(*this);
-#endif
+    pVMEvaluationPrimitive evPrim = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMEvaluationPrimitive(*this);
     return evPrim;
 }
 

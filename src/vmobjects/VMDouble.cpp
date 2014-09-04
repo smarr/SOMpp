@@ -37,11 +37,7 @@ VMDouble::VMDouble(double val) {
 }
 
 pVMDouble VMDouble::Clone() const {
-#if GC_TYPE==GENERATIONAL
-    return new (GetHeap<HEAP_CLS>(), 0, true) VMDouble(*this);
-#else
-    return new (GetHeap<HEAP_CLS>()) VMDouble(*this);
-#endif
+    return new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMDouble(*this);
 }
 
 pVMClass VMDouble::GetClass() const {

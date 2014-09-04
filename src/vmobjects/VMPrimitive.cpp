@@ -52,12 +52,7 @@ VMPrimitive::VMPrimitive(pVMSymbol signature) : VMInvokable(VMPrimitiveNumberOfF
 }
 
 pVMPrimitive VMPrimitive::Clone() const {
-    pVMPrimitive prim;
-#if GC_TYPE==GENERATIONAL
-    prim = new (GetHeap<HEAP_CLS>(), 0, true) VMPrimitive(*this);
-#else
-    prim = new (GetHeap<HEAP_CLS>()) VMPrimitive(*this);
-#endif
+    pVMPrimitive prim = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMPrimitive(*this);
     return prim;
 }
 

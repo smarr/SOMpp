@@ -65,12 +65,7 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
 }
 
 pVMMethod VMMethod::Clone() const {
-#if GC_TYPE==GENERATIONAL
-    pVMMethod clone = new (GetHeap<HEAP_CLS>(), GetObjectSize() - sizeof(VMMethod), true)
-#else
-    pVMMethod clone = new (GetHeap<HEAP_CLS>(), GetObjectSize() - sizeof(VMMethod))
-#endif
-    VMMethod(*this);
+    pVMMethod clone = new (GetHeap<HEAP_CLS>(), GetObjectSize() - sizeof(VMMethod) ALLOC_MATURE) VMMethod(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,
                     sizeof(VMObject)), GetObjectSize() -
             sizeof(VMObject));

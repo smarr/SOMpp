@@ -36,11 +36,7 @@ VMInteger::VMInteger(long val) {
 }
 
 pVMInteger VMInteger::Clone() const {
-#if GC_TYPE==GENERATIONAL
-    return new (GetHeap<HEAP_CLS>(), 0, true) VMInteger(*this);
-#else
-    return new (GetHeap<HEAP_CLS>()) VMInteger(*this);
-#endif
+    return new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMInteger(*this);
 }
 
 pVMClass VMInteger::GetClass() const {

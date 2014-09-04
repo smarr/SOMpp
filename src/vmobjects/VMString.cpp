@@ -48,11 +48,7 @@ VMString::VMString(const char* str) : AbstractVMObject() {
 }
 
 pVMString VMString::Clone() const {
-#if GC_TYPE==GENERATIONAL
-    return new (GetHeap<HEAP_CLS>(), PADDED_SIZE(strlen(chars)+1), true) VMString(chars);
-#else
-    return new (GetHeap<HEAP_CLS>(), PADDED_SIZE(strlen(chars)+1)) VMString(chars);
-#endif
+    return new (GetHeap<HEAP_CLS>(), PADDED_SIZE(strlen(chars)+1) ALLOC_MATURE) VMString(chars);
 }
 
 void VMString::MarkObjectAsInvalid() {

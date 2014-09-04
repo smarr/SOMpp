@@ -67,14 +67,23 @@
   class   GenerationalHeap;
   typedef GenerationalHeap HEAP_CLS;
   #define write_barrier(obj, value_ptr) ((GetHeap<GenerationalHeap>())->writeBarrier(obj, (oop_t) value_ptr))
+  #define ALLOC_MATURE    , true
+  #define ALLOC_OUTSIDE_NURSERY(X) , (X)
+  #define ALLOC_OUTSIDE_NURSERY_DECL , bool outsideNursery = false
 #elif GC_TYPE == COPYING
   class   CopyingHeap;
   typedef CopyingHeap HEAP_CLS;
   #define write_barrier(obj, value_ptr)
+  #define ALLOC_MATURE
+  #define ALLOC_OUTSIDE_NURSERY(X)
+  #define ALLOC_OUTSIDE_NURSERY_DECL
 #elif GC_TYPE == MARK_SWEEP
   class   MarkSweepHeap;
   typedef MarkSweepHeap HEAP_CLS;
   #define write_barrier(obj, value_ptr)
+  #define ALLOC_MATURE
+  #define ALLOC_OUTSIDE_NURSERY(X)
+  #define ALLOC_OUTSIDE_NURSERY_DECL
 #endif
 
 //

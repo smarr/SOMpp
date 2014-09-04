@@ -80,11 +80,7 @@ pVMFrame VMFrame::EmergencyFrameFrom(pVMFrame from, long extraLength) {
 
 pVMFrame VMFrame::Clone() const {
     size_t addSpace = objectSize - sizeof(VMFrame);
-#if GC_TYPE==GENERATIONAL
-    pVMFrame clone = new (GetHeap<HEAP_CLS>(), addSpace, true) VMFrame(*this);
-#else
-    pVMFrame clone = new (GetHeap<HEAP_CLS>(), addSpace) VMFrame(*this);
-#endif
+    pVMFrame clone = new (GetHeap<HEAP_CLS>(), addSpace ALLOC_MATURE) VMFrame(*this);
     void* destination = SHIFTED_PTR(clone, sizeof(VMFrame));
     const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
     size_t noBytes = GetObjectSize() - sizeof(VMFrame);
