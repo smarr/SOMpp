@@ -30,6 +30,12 @@
 #include <stdio.h>
 #include <string>
 
+// Macro Debugging
+#define VALUE_TO_STRING(x) #x
+#define VALUE(x) VALUE_TO_STRING(x)
+#define VAR_NAME_VALUE(var) #var "="  VALUE(var)
+
+
 //
 // error codes
 //
@@ -118,7 +124,8 @@
 //
 #ifdef DEBUG
   // Sanity check
-  #if DEBUG!=true && DEBUG!=false
+  #if (!(DEBUG+0))
+    #pragma message(VAR_NAME_VALUE(DEBUG))
     #error DEBUG needs to be set to a boolean
   #endif
 #endif
