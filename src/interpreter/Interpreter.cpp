@@ -403,7 +403,7 @@ void Interpreter::doPopField(long bytecodeIndex) {
 void Interpreter::doSend(long bytecodeIndex) {
     pVMSymbol signature = static_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));
 
-    long numOfArgs = Signature::GetNumberOfArguments(signature);
+    int numOfArgs = Signature::GetNumberOfArguments(signature);
 
     oop_t receiver = GetFrame()->GetStackElement(numOfArgs-1);
     assert(Universe::IsValidObject(receiver));
