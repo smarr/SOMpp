@@ -28,14 +28,6 @@
 
 #include <vm/Universe.h>
 
-VMBigInteger::VMBigInteger() {
-    embeddedInteger = 0;
-}
-
-VMBigInteger::VMBigInteger(int64_t val) {
-    embeddedInteger = val;
-}
-
 pVMBigInteger VMBigInteger::Clone() const {
     return new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMBigInteger(*this);
 }

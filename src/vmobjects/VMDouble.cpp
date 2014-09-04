@@ -28,14 +28,6 @@
 
 #include <vm/Universe.h>
 
-VMDouble::VMDouble() {
-    embeddedDouble = 0.0;
-}
-
-VMDouble::VMDouble(double val) {
-    embeddedDouble = val;
-}
-
 pVMDouble VMDouble::Clone() const {
     return new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMDouble(*this);
 }

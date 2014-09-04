@@ -27,14 +27,6 @@
 #include "VMInteger.h"
 #include "../vm/Universe.h"
 
-VMInteger::VMInteger() {
-    embeddedInteger = 0;
-}
-
-VMInteger::VMInteger(long val) {
-    embeddedInteger = val;
-}
-
 pVMInteger VMInteger::Clone() const {
     return new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMInteger(*this);
 }

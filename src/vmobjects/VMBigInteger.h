@@ -32,10 +32,8 @@
 
 class VMBigInteger: public AbstractVMObject {
 public:
-    VMBigInteger();
-    VMBigInteger(int64_t);
+    VMBigInteger(int64_t val) : embeddedInteger(val), AbstractVMObject() {}
 
-    inline void SetEmbeddedInteger(int64_t);
     inline int64_t GetEmbeddedInteger() const;
     virtual pVMBigInteger Clone() const;
     virtual pVMClass GetClass() const;
@@ -44,13 +42,9 @@ public:
     virtual void MarkObjectAsInvalid() {}
 
 private:
-    int64_t embeddedInteger;
+    const int64_t embeddedInteger;
 };
 
 int64_t VMBigInteger::GetEmbeddedInteger() const {
     return embeddedInteger;
-}
-
-void VMBigInteger::SetEmbeddedInteger(int64_t val) {
-    embeddedInteger = val;
 }

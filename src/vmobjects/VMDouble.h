@@ -30,23 +30,17 @@
 
 class VMDouble: public AbstractVMObject {
 public:
-    VMDouble();
-    VMDouble(double);
+    VMDouble(double val) : embeddedDouble(val), AbstractVMObject() {}
 
     virtual pVMDouble Clone() const;
-    inline  void     SetEmbeddedDouble(double);
     inline  double   GetEmbeddedDouble() const;
     virtual pVMClass GetClass() const;
     inline virtual size_t GetObjectSize() const;
     
     virtual void MarkObjectAsInvalid() {}
 private:
-    double embeddedDouble;
+    const double embeddedDouble;
 };
-
-void VMDouble::SetEmbeddedDouble(double val) {
-    embeddedDouble = val;
-}
 
 double VMDouble::GetEmbeddedDouble() const {
     return embeddedDouble;

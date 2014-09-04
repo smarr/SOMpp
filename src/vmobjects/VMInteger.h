@@ -32,8 +32,7 @@
 
 class VMInteger: public AbstractVMObject {
 public:
-    VMInteger();
-    VMInteger(long);
+    VMInteger(long val) : embeddedInteger(val), AbstractVMObject() {}
 
     inline long GetEmbeddedInteger() const;
     virtual pVMInteger Clone() const;
@@ -43,7 +42,7 @@ public:
     virtual void MarkObjectAsInvalid() {}
 
 private:
-    long embeddedInteger;
+    const long embeddedInteger;
 };
 
 long VMInteger::GetEmbeddedInteger() const {
