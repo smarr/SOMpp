@@ -436,7 +436,7 @@ Universe::~Universe() {
         pVMArray arr  = new (GetHeap<HEAP_CLS>()) VMArray(0, 0);
         vt_array      = *(void**) arr;
         
-        pVMBigInteger bi = new (GetHeap<HEAP_CLS>()) VMBigInteger();
+        pVMBigInteger bi = new (GetHeap<HEAP_CLS>()) VMBigInteger(0);
         vt_biginteger = *(void**) bi;
         
         pVMBlock blck = new (GetHeap<HEAP_CLS>()) VMBlock();
@@ -444,7 +444,7 @@ Universe::~Universe() {
         
         vt_class      = *(void**) symbolClass;
         
-        pVMDouble dbl = new (GetHeap<HEAP_CLS>()) VMDouble();
+        pVMDouble dbl = new (GetHeap<HEAP_CLS>()) VMDouble(0.0);
         vt_double     = *(void**) dbl;
         
         VMEvaluationPrimitive* ev = new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(1);
@@ -453,7 +453,7 @@ Universe::~Universe() {
         pVMFrame frm  = new (GetHeap<HEAP_CLS>()) VMFrame(0, 0);
         vt_frame      = *(void**) frm;
         
-        pVMInteger i  = new (GetHeap<HEAP_CLS>()) VMInteger();
+        pVMInteger i  = new (GetHeap<HEAP_CLS>()) VMInteger(0);
         vt_integer    = *(void**) i;
         
         pVMMethod mth = new (GetHeap<HEAP_CLS>()) VMMethod(0, 0, 0);
