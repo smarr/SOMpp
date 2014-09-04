@@ -347,8 +347,7 @@ void Universe::initialize(long _argc, char** _argv) {
     bootstrapFrame->Push(systemObject);
     bootstrapFrame->Push(argumentsArray);
 
-    pVMInvokable initialize =
-        static_cast<pVMInvokable>(systemClass->LookupInvokable(this->SymbolForChars("initialize:")));
+    pVMInvokable initialize = systemClass->LookupInvokable(SymbolForChars("initialize:"));
     (*initialize)(bootstrapFrame);
 
     // reset "-d" indicator
