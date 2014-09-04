@@ -249,7 +249,7 @@ void _Integer::Equal(pVMObject object, pVMFrame frame) {
     CHECK_COERCION(rightObj, leftObj, "=");
 
     if (IS_TAGGED(rightObj) || CLASS_OF(rightObj) == integerClass) {
-        if (INT_VAL(left) == INT_VAL(rightObj))
+        if (INT_VAL(leftObj) == INT_VAL(rightObj))
             frame->Push(trueObject);
         else
             frame->Push(falseObject);
