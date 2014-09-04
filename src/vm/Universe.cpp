@@ -387,6 +387,9 @@ Universe::~Universe() {
     void* vt_symbol;
 
     bool Universe::IsValidObject(oop_t obj) {
+        if (IS_TAGGED(obj))
+            return true;
+        
         if (obj == (pVMObject) INVALID_POINTER
             // || obj == nullptr
             ) {
