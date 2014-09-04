@@ -368,6 +368,9 @@ Universe::~Universe() {
 #if !DEBUG
     static void set_vt_to_null() {}
     static void obtain_vtables_of_known_classes(pVMSymbol className) {}
+    bool Universe::IsValidObject(oop_t obj) {
+        return true;
+    }
 #else
     void* vt_array;
     void* vt_biginteger;

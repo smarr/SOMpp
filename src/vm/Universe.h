@@ -183,9 +183,3 @@ Universe* Universe::operator->() {
     }
     return theUniverse;
 }
-
-#if !DEBUG
-bool Universe::IsValidObject(oop_t obj) {
-    return true;
-}
-#endif
