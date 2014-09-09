@@ -43,13 +43,10 @@
 
 #include <compiler/Disassembler.h>
 
-Interpreter::Interpreter() {
-    frame = nullptr;
 
-    uG  = "unknownGlobal:";
-    dnu = "doesNotUnderstand:arguments:";
-    eB  = "escapedBlock:";
-}
+Interpreter::Interpreter() : unknownGlobal("unknownGlobal:"),
+  doesNotUnderstand("doesNotUnderstand:arguments:"),
+  escapedBlock("escapedBlock:"), frame(nullptr) {}
 
 Interpreter::~Interpreter() {}
 
@@ -272,7 +269,7 @@ void Interpreter::send(pVMSymbol signature, pVMClass receiverClass) {
             SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
         }
 
-        AS_OBJ(receiver)->Send(dnu, arguments, 2);
+        AS_OBJ(receiver)->Send(doesNotUnderstand, arguments, 2);
     }
 }
 
@@ -360,7 +357,7 @@ void Interpreter::doPushGlobal(long bytecodeIndex) {
             SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
         }
 
-        AS_OBJ(self)->Send(uG, arguments, 1);
+        AS_OBJ(self)->Send(unknownGlobal, arguments, 1);
     }
 }
 
@@ -441,7 +438,7 @@ void Interpreter::doSuperSend(long bytecodeIndex) {
         }
         oop_t arguments[] = {signature, argumentsArray};
 
-        AS_OBJ(receiver)->Send(dnu, arguments, 2);
+        AS_OBJ(receiver)->Send(doesNotUnderstand, arguments, 2);
     }
 }
 
@@ -464,7 +461,7 @@ void Interpreter::doReturnNonLocal() {
 
         popFrame();
 
-        AS_OBJ(sender)->Send(eB, arguments, 1);
+        AS_OBJ(sender)->Send(escapedBlock, arguments, 1);
         return;
     }
 

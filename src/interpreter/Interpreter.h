@@ -43,9 +43,9 @@ private:
     oop_t GetSelf();
     
     pVMFrame frame;
-    StdString uG;
-    StdString dnu;
-    StdString eB;
+    const StdString unknownGlobal;
+    const StdString doesNotUnderstand;
+    const StdString escapedBlock;
 
     pVMFrame popFrame();
     void popFrameAndPushResult(oop_t result);
