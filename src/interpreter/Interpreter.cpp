@@ -37,9 +37,7 @@
 #include <vmobjects/VMInvokable.h>
 #include <vmobjects/Signature.h>
 #include <vmobjects/VMBlock.h>
-#if USE_TAGGING
 #include <vmobjects/IntegerBox.h>
-#endif
 
 #include <compiler/Disassembler.h>
 
