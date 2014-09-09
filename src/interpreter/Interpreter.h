@@ -37,10 +37,11 @@ public:
     void      Start();
     pVMFrame  PushNewFrame(pVMMethod method);
     void      SetFrame(pVMFrame frame);
-    inline pVMFrame  GetFrame();
+    inline pVMFrame GetFrame() const;
     void      WalkGlobals(oop_t (*walk)(oop_t));
+    
 private:
-    oop_t GetSelf();
+    oop_t GetSelf() const;
     
     pVMFrame frame;
     const StdString unknownGlobal;
@@ -71,6 +72,6 @@ private:
     void doJump(long bytecodeIndex);
 };
 
-pVMFrame Interpreter::GetFrame() {
+pVMFrame Interpreter::GetFrame() const {
     return frame;
 }

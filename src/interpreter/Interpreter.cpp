@@ -201,7 +201,7 @@ void Interpreter::SetFrame(pVMFrame frame) {
     currentBytecodes    = method->GetBytecodes();
 }
 
-oop_t Interpreter::GetSelf() {
+oop_t Interpreter::GetSelf() const {
     pVMFrame context = GetFrame()->GetOuterContext();
     return context->GetArgument(0,0);
 }
