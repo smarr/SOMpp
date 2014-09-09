@@ -137,6 +137,7 @@ Page* PagedHeap::RequestPage() {
     pthread_mutex_lock(&pageRequestMutex);
     if (availablePages->empty()) {
         _UNIVERSE->ErrorExit("Unable to respond to page request");
+        //_UNIVERSE->Quit(ERR_FAIL);
         //triggerGC();
         //checkCollectionTreshold();
     } else {

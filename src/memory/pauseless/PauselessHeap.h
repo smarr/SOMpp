@@ -16,9 +16,6 @@
 #define REFERENCE_NMT_VALUE(REFERENCE) (((reinterpret_cast<uintptr_t>(REFERENCE) & MASK_OBJECT_NMT) == 0) ? false : true)
 #define FLIP_NMT_VALUE(REFERENCE) (((reinterpret_cast<intptr_t>(REFERENCE) & MASK_OBJECT_NMT) == 0) ? ((pVMObject)(reinterpret_cast<intptr_t>(REFERENCE) | MASK_OBJECT_NMT)) : ((pVMObject)(reinterpret_cast<intptr_t>(REFERENCE) ^ MASK_OBJECT_NMT)))
 
-//#define REFERENCE_NMT_VALUE(REFERENCE) ((((uintptr_t)REFERENCE & MASK_OBJECT_NMT) == 0) ? false : true)
-//#define FLIP_NMT_VALUE(REFERENCE) ((((uintptr_t)REFERENCE & MASK_OBJECT_NMT) == 0) ? ((pVMObject)((uintptr_t)REFERENCE | MASK_OBJECT_NMT)) : ((pVMObject)((uintptr_t)REFERENCE ^ MASK_OBJECT_NMT)))
-
 class PauselessHeap : public PagedHeap {
  
 public:
@@ -30,9 +27,9 @@ public:
     
     
     void SignalMarkingOfRootSet(Interpreter*);
+    void SignalInterpreterBlocked(Interpreter*);
     
 };
-
 
 inline void PauselessHeap::NMTTrap(void** referenceHolder) {
     if (_UNIVERSE->GetInterpreter()->GetExpectedNMT() != REFERENCE_NMT_VALUE(*referenceHolder)) {
@@ -44,11 +41,13 @@ inline void PauselessHeap::NMTTrap(void** referenceHolder) {
 inline void PauselessHeap::GCTrap(void** referenceHolder) {
     size_t pageNumber = ((size_t)*referenceHolder - (size_t)memoryStart) / pageSize;
     Page* page = allPages->at(pageNumber);
-    if (_UNIVERSE->GetInterpreter()->GCTrapEnabled()) {
-        if (page->Blocked()) {
-            *referenceHolder = page->LookupNewAddress((AbstractVMObject*)*referenceHolder);
-            
+    if (_UNIVERSE->GetInterpreter()->GCTrapEnabled() && page->Blocked())
+        // wait till all mutators have enabled their gc-trap
+        while (......) {
+            pthread_cond_wait()
         }
+        pthread_cond_signal();
+        *referenceHolder = page->LookupNewAddress((AbstractVMObject*)*referenceHolder);
     }
 }
 
@@ -61,3 +60,13 @@ inline void PauselessHeap::ReadBarrier(void** referenceHolder) {
 }
 
 #endif
+
+
+
+
+
+
+
+
+//#define REFERENCE_NMT_VALUE(REFERENCE) ((((uintptr_t)REFERENCE & MASK_OBJECT_NMT) == 0) ? false : true)
+//#define FLIP_NMT_VALUE(REFERENCE) ((((uintptr_t)REFERENCE & MASK_OBJECT_NMT) == 0) ? ((pVMObject)((uintptr_t)REFERENCE | MASK_OBJECT_NMT)) : ((pVMObject)((uintptr_t)REFERENCE ^ MASK_OBJECT_NMT)))

@@ -127,9 +127,11 @@ public:
     Interpreter* GetInterpreter();
     void AddInterpreter(Interpreter* interpreter);
     void RemoveInterpreter();
-    vector<Interpreter*>* GetInterpreters();
+    
 #if GC_TYPE==PAUSELESS
-    vector<Interpreter*> GetInterpretersCopy();
+    vector<Interpreter*>* GetInterpretersCopy();
+#else
+    vector<Interpreter*>* GetInterpreters();
 #endif
 
     void Assert(bool) const;
@@ -179,6 +181,14 @@ public:
     void LoadSystemClass(pVMClass);
     pVMClass LoadClassBasic(pVMSymbol, pVMClass);
     pVMClass LoadShellClass(StdString&);
+    
+#if GC_TYPE==PAUSELESS
+    //bool AllThreadsPassedSafePoint();
+    //void PassedSafePoint();
+    //void TrapTriggered();
+    //void MutatorBlocks();
+    //void MutatorUnblocks();
+#endif
 
     Universe();
     ~Universe();
@@ -202,13 +212,14 @@ private:
     vector<Interpreter*> interpreters;
     
 #if GC_TYPE==PAUSELESS
-    pthread_mutex_t interpretersWithMarkedRootSetsMutex;
-    vector<Interpreter*> interpretersWithMarkedRootSets;
+    //atomic<int> numberOfThreads;
+    //atomic<int> numberBlockedThreads;
+    //atomic<int> numberOfThreadsWithEnabledGCTrap;
+    //atomic<bool> threadsPassedSafepoint;
 #endif
 
     pthread_mutexattr_t attrclassLoading;
     pthread_mutex_t classLoading;
-    //mutable int threadCounter;
     
     vector<StdString> handleArguments(long argc, char** argv);
     long getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;

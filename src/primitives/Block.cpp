@@ -123,21 +123,14 @@ void* _Block::ThreadForBlock(void* threadPointer) {
     (*initialize)(bootstrapVMFrame);
     // start the interpreter
     interpreter->Start();
-    // exit this thread and decrement the number of active threads, this is part of a thread barrier needed for GC
+    
 #if GC_TYPE != PAUSELESS
-//# define VALUE_TO_STRING(x) #x
-//# define VALUE(x) VALUE_TO_STRING(x)
-//# define VAR_NAME_VALUE(var) #var "=" VALUE(var)
-//
-//# pragma message (VAR_NAME_VALUE(GC_TYPE))
-//# error test
+    // exit this thread and decrement the number of active threads, this is part of a stop the world thread barrier needed for GC
     _HEAP->DecrementThreadCount();
 #endif
+    //_UNIVERSE->DecrementThreadCount(); -> perhaps it is more logical to combine this with the RemoveInterpreter method
     
-    //pthread_mutex_lock
-    //_HEAP->RemoveLeftoverInterpreter(_UNIVERSE->GetInterpreter());
     _UNIVERSE->RemoveInterpreter();
-    //pthread_mutex_unlock
     
 #if GC_TYPE!=PAUSELESS
     delete interpreter;
@@ -168,10 +161,12 @@ void* _Block::ThreadForBlockWithArgument(void* threadPointer) {
     (*initialize)(bootstrapVMFrame);
     // start the interpreter
     interpreter->Start();
-    // exit this thread and decrement the number of active threads, this is part of a thread barrier needed for GC
-#if GC_TYPE!=PAUSELESS
+    
+#if GC_TYPE != PAUSELESS
+    // exit this thread and decrement the number of active threads, this is part of a stop the world thread barrier needed for GC
     _HEAP->DecrementThreadCount();
 #endif
+    //_UNIVERSE->DecrementThreadCount();
     
     _UNIVERSE->RemoveInterpreter();
     
@@ -192,6 +187,7 @@ void _Block::Spawn(pVMObject object, pVMFrame frame) {
 #if GC_TYPE!=PAUSELESS
     _HEAP->IncrementThreadCount();
 #endif
+    //_UNIVERSE->IncrementThreadCount();
     pthread_create(&tid, NULL, &ThreadForBlock, (void*)thread);
     thread->SetEmbeddedThreadId(tid);
     frame->Push(thread);
@@ -209,7 +205,17 @@ void _Block::SpawnWithArgument(pVMObject object, pVMFrame frame) {
 #if GC_TYPE!=PAUSELESS
     _HEAP->IncrementThreadCount();
 #endif
+    //_UNIVERSE->IncrementThreadCount();
     pthread_create(&tid, NULL, &ThreadForBlockWithArgument, (void *)thread);
     thread->SetEmbeddedThreadId(tid);
     frame->Push(thread);
 }
+
+
+
+//# define VALUE_TO_STRING(x) #x
+//# define VALUE(x) VALUE_TO_STRING(x)
+//# define VAR_NAME_VALUE(var) #var "=" VALUE(var)
+//
+//# pragma message (VAR_NAME_VALUE(GC_TYPE))
+//# error test

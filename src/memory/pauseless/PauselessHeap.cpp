@@ -18,8 +18,33 @@ PauselessHeap::PauselessHeap(long objectSpaceSize, long pageSize) {
 }
 
 void PauselessHeap::SignalMarkingOfRootSet(Interpreter* interpreter) {
-    static_cast<PauselessCollector*>(gc)->RemoveLeftoverInterpreterRootSetBarrier(interpreter);
+    static_cast<PauselessCollector*>(gc)->SignalRootSetBarrier(interpreter);
 }
+
+void PauselessHeap::SignalInterpreterBlocked(Interpreter* interpreter) {
+    static_cast<PauselessCollector*>(gc)->AddBlockedInterpreter(interpreter);
+}
+
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /*
@@ -42,8 +67,3 @@ void PauselessHeap::SignalMarkingOfRootSet(Interpreter* interpreter) {
  }
  
  */
-
-
-
-
-#endif

@@ -181,8 +181,8 @@ void Universe::Quit(long err) {
         file_alloc_stats << iter->first << ", " << iter->second.noObjects << ", " << iter->second.sizeObjects << std::endl;
     }
 #endif
-    if (theUniverse)
-        delete (theUniverse);
+    //if (theUniverse)
+    //    delete (theUniverse);
 
     exit((int) err);
 }
@@ -316,8 +316,9 @@ Universe::Universe() {
     pthread_mutexattr_init(&attrclassLoading);
     pthread_mutexattr_settype(&attrclassLoading, PTHREAD_MUTEX_RECURSIVE);
     pthread_mutex_init(&classLoading, &attrclassLoading);
-    //pthread_mutex_init(&markStackMutex);
-    //threadCounter = 1;
+    numberOfThreads = 1;
+    numberOfThreadsWithEnabledGCTrap = 0;
+    threadsPassedSafepoint = false;
 }
 
 void Universe::initialize(long _argc, char** _argv) {
@@ -1404,16 +1405,47 @@ void Universe::AddInterpreter(Interpreter* interpreter) {
 
 void Universe::RemoveInterpreter() {
     pthread_mutex_lock(&interpreterMutex);
+#if GC_TYPE_TYPE==PAUSELESS
+    _HEAP->RemoveLeftoverInterpreterRootSetBarrier(this->GetInterpreter());
+#endif
     interpreters.erase(std::remove(interpreters.begin(), interpreters.end(), this->GetInterpreter()), interpreters.end());
     pthread_mutex_unlock(&interpreterMutex);
 }
 
-vector<Interpreter*>* Universe::GetInterpreters() {
-    return &interpreters;
+#if GC_TYPE==PAUSELESS
+vector<Interpreter*>* Universe::GetInterpretersCopy() {
+    pthread_mutex_lock(&interpreterMutex);
+    vector<Interpreter*>* copy = new vector<Interpreter*>(interpreters.begin(),interpreters.end());
+    pthread_mutex_unlock(&interpreterMutex);
+    return copy;
 }
 
-#if GC_TYPE==PAUSELESS
-vector<Interpreter*> Universe::GetInterpretersCopy() {
-    return interpreters;
+/*
+bool Universe::AllThreadsPassedSafePoint() {
+    bool result = true;
+    pthread_mutex_lock(&interpreterMutex);
+    for (std::vector<Interpreter*>::iterator it = interpreters.begin() ; it != interpreters.end(); ++it) {
+        
+    }
+    pthread_mutex_unlock(&interpreterMutex);
+    return bool;
+}
+
+void Universe::TrapTriggered() {
+    numberOfThreadsPassedSafepoint = numberBlockedThreads;
+}
+
+void Universe::MutatorBlocks() {
+    numberBlockedThreads = numberBlockedThreads++;
+}
+
+void Universe::MutatorUnblocks() {
+    numberBlockedThreads = numberBlockedThreads--;
+}
+*/
+
+#else
+vector<Interpreter*>* Universe::GetInterpreters() {
+    return &interpreters;
 }
 #endif

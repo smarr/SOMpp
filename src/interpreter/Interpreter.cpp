@@ -62,12 +62,13 @@ Interpreter::Interpreter() {
     eB = "escapedBlock:";
     
 #if GC_TYPE==PAUSELESS
+    pthread_mutex_init(&blockedMutex, NULL);
+    worklist = Worklist();
+    blocked = false;
     markRootSet = false;
     expectedNMT = false;
-    blocked = false;
     gcTrapEnabled = false;
     signalEnableGCTrap = false;
-    worklist = Worklist();
 #endif
 
 }
@@ -90,15 +91,14 @@ Interpreter::~Interpreter() {
     if (markRootSet) {\
         MarkRootSet();\
     }\
+    if (signalEnableGCTrap) {\
+        EnableGCTrap();\
+    }\
+    if (trapTriggered) {\
+        _UNIVERSE->PassedSafePoint();\
+    }\
     goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];\
 }
-
-#define DUMMY_ROOTSET_MARKING() {\
-    if (markRootSet) {\
-        DummyRootSetMarking();\
-    }\
-}
-
 #else
 #define DISPATCH_GC() {\
   if (_HEAP->isCollectionTriggered()) {\
@@ -638,16 +638,25 @@ void Interpreter::AddGCWork(VMOBJECT_PTR work) {
     worklist.AddWork(work);
 }
 
-bool Interpreter::Blocked() {
-    return blocked;
+void Interpreter::EnableBlocked() {
+    pthread_mutex_lock(&blockedMutex);
+    if (markRootSet == true)
+        MarkRootSet();
+    blocked = true;
+    pthread_mutex_lock(&blockedMutex);
 }
 
-void Interpreter::FlipBlocked() {
-    blocked = !blocked;
+void Interpreter::DisableBlocked() {
+    blocked = false;
 }
 
 void Interpreter::TriggerMarkRootSet() {
-    markRootSet = true;
+    pthread_mutex_lock(&blockedMutex);
+    if (blocked)
+        _HEAP->SignalInterpreterBlocked(this);
+    else
+        markRootSet = true;
+    pthread_mutex_unlock(&blockedMutex);
 }
 
 void Interpreter::MarkRootSet() {
@@ -663,27 +672,22 @@ void Interpreter::MarkRootSet() {
     _HEAP->SignalMarkingOfRootSet(this);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
+void Interpreter::DisableGCTrap() {
+    gcTrapEnabled = false;
+}
 
 void Interpreter::SignalEnableGCTrap() {
     signalEnableGCTrap = true;
 }
 
+void Interpreter::EnableGCTrap() {
+    signalEnableGCTrap = false;
+    gcTrapEnabled = true;
+}
+
 bool Interpreter::GCTrapEnabled() {
     return gcTrapEnabled;
 }
-
 
 
 bool Interpreter::GetExpectedNMT() {

@@ -64,14 +64,13 @@ public:
 #if GC_TYPE==PAUSELESS
     void      MoveWork(Worklist*);
     void      AddGCWork(VMOBJECT_PTR);
-    
-    bool      Blocked();
-    void      FlipBlocked();
-    
+    void      EnableBlocked();
+    void      DisableBlocked();
     void      TriggerMarkRootSet();
     void      MarkRootSet();
-
+    void      DisableGCTrap();
     void      SignalEnableGCTrap();
+    void      EnableGCTrap();
     bool      GCTrapEnabled();
     bool      GetExpectedNMT();
 #else
@@ -122,16 +121,12 @@ private:
     Worklist worklist;
     bool blocked;
     bool markRootSet;
-    
-    
-    
-    
-    
-    
-    
     bool expectedNMT;
     bool gcTrapEnabled;
     bool signalEnableGCTrap;
+    bool trapTriggered; //this variable is used to identy mutators having triggered NMT-traps and which not
+    
+    pthread_mutex_t blockedMutex;
     
 #endif
     

@@ -20,7 +20,7 @@ void _Thread::Join(pVMObject object, pVMFrame frame){
     // the garbage collection is safe to proceed for this thread
 
 #if GC_TYPE==PAUSELESS
-    _UNIVERSE->GetInterpreter()->FlipBlocked();
+    _UNIVERSE->GetInterpreter()->EnableBlocked();
 #else
     _HEAP->IncrementWaitingForGCThreads();
 #endif
@@ -28,10 +28,9 @@ void _Thread::Join(pVMObject object, pVMFrame frame){
     thread->Join(&returnValue);
     
 #if GC_TYPE==PAUSELESS
-    _UNIVERSE->GetInterpreter()->FlipBlocked();
+    _UNIVERSE->GetInterpreter()->DisableBlocked();
 #else
     _HEAP->DecrementWaitingForGCThreads();
-
 #endif
     
     frame->Push(thread);

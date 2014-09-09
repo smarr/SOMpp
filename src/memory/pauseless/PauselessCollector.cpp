@@ -36,7 +36,6 @@ pthread_cond_t PauselessCollector::blockedCondition;//
 pthread_cond_t PauselessCollector::doneMarkingRootsCondition;//
 pthread_cond_t PauselessCollector::doneMarkingCondition;//
 
-vector<Interpreter*> PauselessCollector::interpreters;
 vector<Interpreter*> PauselessCollector::blockedInterpreters;
 vector<Interpreter*> PauselessCollector::leftoverInterpretersRootSetBarrier;
 vector<Interpreter*> PauselessCollector::leftoverInterpretersMarkingBarrier;
@@ -78,14 +77,22 @@ PauselessCollector::PauselessCollector(PagedHeap* heap, int numberOfGCThreads) :
     doneSignalling = false;
     doneBlockingPages = false;
     
-    for (int i=0; i < numberOfGCThreads; i++) {
+    /*for (int i=0; i < numberOfGCThreads; i++) {
         ThreadId tid = 0;
         pthread_create(&tid, NULL, &GCThread, NULL);
-    }
+    } */
+}
+
+void PauselessCollector::AddBlockedInterpreter(Interpreter* interpreter) {
+    pthread_mutex_lock(&blockedMutex);
+    blockedInterpreters.push_back(interpreter);
+    pthread_cond_signal(&blockedCondition);
+    pthread_mutex_unlock(&blockedMutex);
 }
 
 // This method is part of a barrier that ensures that the gc-cycle does not continue till all root-sets have been marked
-void PauselessCollector::RemoveLeftoverInterpreterRootSetBarrier(Interpreter* interpreter) {
+// could be improved in that when we are not during the correct phase of the cycle this should do nothing
+void PauselessCollector::SignalRootSetBarrier(Interpreter* interpreter) {
     pthread_mutex_lock(&leftoverRootSetMutex);
     leftoverInterpretersRootSetBarrier.erase(std::remove(leftoverInterpretersRootSetBarrier.begin(), leftoverInterpretersRootSetBarrier.end(), interpreter), leftoverInterpretersRootSetBarrier.end());
     if (leftoverInterpretersRootSetBarrier.empty()) {
@@ -95,20 +102,10 @@ void PauselessCollector::RemoveLeftoverInterpreterRootSetBarrier(Interpreter* in
     pthread_mutex_lock(&leftoverRootSetMutex);
 }
 
-// This method is part of a barrier that ensures that the gc-cycle does not continue till all marking has been done
-void PauselessCollector::RemoveLeftoverInterpreterMarkingBarrier(Interpreter* interpreter) {
-    pthread_mutex_lock(&doneMarkingMutex);
-    leftoverInterpretersRootSetBarrier.erase(std::remove(leftoverInterpretersMarkingBarrier.begin(), leftoverInterpretersMarkingBarrier.end(), interpreter), leftoverInterpretersMarkingBarrier.end());
-    pthread_cond_signal(&doneMarkingCondition);
-    pthread_mutex_lock(&doneMarkingMutex);
-}
-
 void* PauselessCollector::GCThread(void*) {
     
     Worklist* localWorklist = new Worklist();
-    
-    
-    /*
+    vector<Interpreter*>* interpreters;
     
     //------------------------
     // ROOT-SET MARKING
@@ -116,30 +113,20 @@ void* PauselessCollector::GCThread(void*) {
     //doneMarkingGlobals = false; // I still need to change this
     //doneSignalling = false;
     
-    //lock
-    interpreters = _UNIVERSE->GetInterpretersCopy();
-    leftoverInterpretersRootSetBarrier = interpreters;
-    leftoverInterpretersMarkingBarrier = interpreters;
-    //lock
-    
     // one thread signals to all mutator threads to mark their root-sets
     // interpreters which are blocked are added to a vector containing pointers to these interpreters so that there root-set can be processed by a gc thread
     if (!doneSignalling && pthread_mutex_trylock(&markRootSetsMutex) == 0) {
-        for (vector<Interpreter*>::iterator it = interpreters.begin() ; it != interpreters.end(); ++it) {
-            if ((*it)->Blocked()) {
-                pthread_mutex_lock(&blockedMutex);
-                blockedInterpreters.push_back(*it);
-                pthread_cond_signal(&blockedCondition);
-                pthread_mutex_unlock(&blockedMutex);
-            }
-            else
-                (*it)->TriggerMarkRootSet();
+        interpreters = _UNIVERSE->GetInterpretersCopy();
+        leftoverInterpretersRootSetBarrier = vector<Interpreter*>(interpreters->begin(),interpreters->end());
+        for (vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
+            (*it)->TriggerMarkRootSet();
         }
         pthread_mutex_lock(&blockedMutex);
         doneSignalling = true;
         pthread_mutex_unlock(&blockedMutex);
         pthread_cond_broadcast(&blockedCondition);
         pthread_mutex_unlock(&markRootSetsMutex);
+        delete interpreters;
     }
     
     // one gc thread marks the globals
@@ -173,7 +160,6 @@ void* PauselessCollector::GCThread(void*) {
     }
     pthread_mutex_unlock(&leftoverRootSetMutex);
     
-    
     //------------------------
     // CONTINUE MARKING PHASE
     //------------------------
@@ -181,8 +167,9 @@ void* PauselessCollector::GCThread(void*) {
         
         do {
             // if local worklist empty, try to take work
-            vector<Interpreter*>::iterator it = interpreters.begin();
-            while (localWorklist->Empty() && it != interpreters.end()) {
+            interpreters = _UNIVERSE->GetInterpretersCopy(); //this could be potentially very costly?
+            vector<Interpreter*>::iterator it = interpreters->begin();
+            while (localWorklist->Empty() && it != interpreters->end()) {
                 (*it)->MoveWork(localWorklist);
                 it++;
             }
@@ -193,7 +180,11 @@ void* PauselessCollector::GCThread(void*) {
             }
         } while (numberOfNonEmptyMutatorWorklists != 0);
         
-        // the gc-thread has run out of work to do and was unable to take work from a mutator worklist as these are, for the moment empty
+        
+        
+        
+        
+        // the gc-thread has run out of work to do and was unable to take work from a mutator worklist as these are, for the moment, empty
         pthread_mutex_lock(&doneMarkingMutex);
         numberOfGCThreadsDoneMarking++;
         // first part of barrier is to wait till all gc-threads are in the situation of having no more work
@@ -205,21 +196,15 @@ void* PauselessCollector::GCThread(void*) {
             // there is potentially some work to take -> restart while loop
             numberOfGCThreadsDoneMarking--;
             pthread_mutex_unlock(&doneMarkingMutex);
-            
-            // replenish the leftOverInterpretersMarkingBarrier
-            
         } else {
             // wait for safepoint passes
-            while (!leftoverInterpretersMarkingBarrier.empty() && numberOfNonEmptyMutatorWorklists == 0) {
+            while ( NUMBER_OF_MUTATORS == NUMBER_OF_MUTATORS_PASSED_CHECKPOINT && numberOfNonEmptyMutatorWorklists == 0) {
                 pthread_cond_wait(&doneMarkingCondition, &doneMarkingMutex);
             }
             if (numberOfNonEmptyMutatorWorklists != 0) {
                 // there is potentially some work to take -> restart while loop
                 numberOfGCThreadsDoneMarking--;
                 pthread_mutex_unlock(&doneMarkingMutex);
-                
-                // replenish the leftOverInterpretersMarkingBarrier
-                
             } else {
                 // the gc-threads may continue there work
                 pthread_cond_signal(&doneMarkingCondition);
@@ -233,7 +218,7 @@ void* PauselessCollector::GCThread(void*) {
         }
         
     }
-    
+
     
     //------------------------
     // RELOCATE PHASE
@@ -243,6 +228,11 @@ void* PauselessCollector::GCThread(void*) {
     // find pages to relocate, and mark them blocked
     // signal to the mutators that, after reaching a safepoint, their gc-trap may trigger
     if (!doneBlockingPages && pthread_mutex_trylock(&blockPagesMutex) == 0) {
+        // make sure that all gc-threads have their gc-trap disabled
+        interpreters = _UNIVERSE->GetInterpretersCopy();
+        for (vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
+            (*it)->DisableGCTrap();
+        }
         //mark all pages that should be relocated and add them to a list of pages that need to have their objects relocated
         for (std::vector<Page*>::iterator page = allPages->begin(); page != allPages->end(); ++page) {
             if ((*page)->ThresholdReached()) {
@@ -253,12 +243,11 @@ void* PauselessCollector::GCThread(void*) {
                 pthread_mutex_unlock(&blockedMutex);
             }
         }
+        // enable GC-trap again
         for (it = interpreters.begin(); it != interpreters.end(); ++it) {
-            it->SignalEnablingGCTrap();// => when this is triggered the mutator should also look to take another page
-            //still need to make sure that blocked threads also perform the necessary action -> for when they become unblocked -> perform check when getting out of blocked status
+            it->SignalEnableGCTrap();
         }
         
-        //still need to happen some things overhere
     }
     
     Page* page = _HEAP->RequestPage();
@@ -279,8 +268,10 @@ void* PauselessCollector::GCThread(void*) {
     }
 
     
+}
     
-
+ /*
+    
     
     if (gcThreadId == MASTER_GC_THREAD) {
         lock vector
@@ -290,11 +281,11 @@ void* PauselessCollector::GCThread(void*) {
     }
     
     
-    */
     
     pthread_exit(NULL);
 }
 
+     */
 
 
 #endif
@@ -308,6 +299,33 @@ void* PauselessCollector::GCThread(void*) {
 
 
 
+
+
+
+
+
+
+
+
+ /*
+ if ((*it)->Blocked()) {
+ pthread_mutex_lock(&blockedMutex);
+ blockedInterpreters.push_back(*it);
+ pthread_cond_signal(&blockedCondition);
+ pthread_mutex_unlock(&blockedMutex);
+ }
+ else
+ (*it)->TriggerMarkRootSet();
+ */
+
+
+// This method is part of a barrier that ensures that the gc-cycle does not continue till all marking has been done
+/*void PauselessCollector::RemoveLeftoverInterpreterMarkingBarrier(Interpreter* interpreter) {
+ pthread_mutex_lock(&doneMarkingMutex);
+ leftoverInterpretersRootSetBarrier.erase(std::remove(leftoverInterpretersMarkingBarrier.begin(), leftoverInterpretersMarkingBarrier.end(), interpreter), leftoverInterpretersMarkingBarrier.end());
+ pthread_cond_signal(&doneMarkingCondition);
+ pthread_mutex_lock(&doneMarkingMutex);
+ } */
 
 
 

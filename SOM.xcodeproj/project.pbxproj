@@ -1123,7 +1123,7 @@
 				OTHER_CFLAGS = (
 					"-DGC_TYPE=PAUSELESS",
 					"-DPAGE_SIZE=32768",
-					"-DHEAP_SIZE=8388608",
+					"-DHEAP_SIZE=16777216",
 				);
 				OTHER_LDFLAGS = (
 					"-undefined",
@@ -1172,7 +1172,7 @@
 				OTHER_CFLAGS = (
 					"-DGC_TYPE=PAUSELESS",
 					"-DPAGE_SIZE=32768",
-					"-DHEAP_SIZE=8388608",
+					"-DHEAP_SIZE=16777216",
 				);
 				OTHER_LDFLAGS = (
 					"-undefined",

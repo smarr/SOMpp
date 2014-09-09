@@ -15,8 +15,9 @@ class PauselessCollector : public GarbageCollector {
 public:
     PauselessCollector(PagedHeap* heap, int numberOfGCThreads);
     static void MarkObject(VMOBJECT_PTR, Worklist*);
-    void RemoveLeftoverInterpreterRootSetBarrier(Interpreter*);
-    void RemoveLeftoverInterpreterMarkingBarrier(Interpreter*);
+    void AddBlockedInterpreter(Interpreter*);
+    void SignalRootSetBarrier(Interpreter*);
+    //void RemoveLeftoverInterpreterMarkingBarrier(Interpreter*);
     
 private:
     static void* GCThread(void*);
@@ -29,18 +30,17 @@ private:
     static volatile bool doneMarkingGlobals;
     static volatile bool doneBlockingPages;
     
-    static pthread_mutex_t blockedMutex;//
-    static pthread_mutex_t markGlobalsMutex;//
-    static pthread_mutex_t markRootSetsMutex;//
-    static pthread_mutex_t leftoverRootSetMutex;//
-    static pthread_mutex_t doneMarkingMutex;//
-    static pthread_mutex_t blockPagesMutex;//
+    static pthread_mutex_t blockedMutex;
+    static pthread_mutex_t markGlobalsMutex;
+    static pthread_mutex_t markRootSetsMutex;
+    static pthread_mutex_t leftoverRootSetMutex;
+    static pthread_mutex_t doneMarkingMutex;
+    static pthread_mutex_t blockPagesMutex;
     
-    static pthread_cond_t blockedCondition;//
-    static pthread_cond_t doneMarkingRootsCondition;//
-    static pthread_cond_t doneMarkingCondition;//
+    static pthread_cond_t blockedCondition;
+    static pthread_cond_t doneMarkingRootsCondition;
+    static pthread_cond_t doneMarkingCondition;
     
-    static vector<Interpreter*> interpreters;
     static vector<Interpreter*> blockedInterpreters;
     static vector<Interpreter*> leftoverInterpretersRootSetBarrier;
     static vector<Interpreter*> leftoverInterpretersMarkingBarrier;
