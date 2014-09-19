@@ -1406,7 +1406,8 @@ void Universe::AddInterpreter(Interpreter* interpreter) {
 void Universe::RemoveInterpreter() {
     pthread_mutex_lock(&interpreterMutex);
 #if GC_TYPE_TYPE==PAUSELESS
-    _HEAP->RemoveLeftoverInterpreterRootSetBarrier(this->GetInterpreter());
+    this->GetInterpreter()->DummyMarkRootSet();
+    this->GetInterpreter()->SignalSafepointReached();
 #endif
     interpreters.erase(std::remove(interpreters.begin(), interpreters.end(), this->GetInterpreter()), interpreters.end());
     pthread_mutex_unlock(&interpreterMutex);
@@ -1419,31 +1420,6 @@ vector<Interpreter*>* Universe::GetInterpretersCopy() {
     pthread_mutex_unlock(&interpreterMutex);
     return copy;
 }
-
-/*
-bool Universe::AllThreadsPassedSafePoint() {
-    bool result = true;
-    pthread_mutex_lock(&interpreterMutex);
-    for (std::vector<Interpreter*>::iterator it = interpreters.begin() ; it != interpreters.end(); ++it) {
-        
-    }
-    pthread_mutex_unlock(&interpreterMutex);
-    return bool;
-}
-
-void Universe::TrapTriggered() {
-    numberOfThreadsPassedSafepoint = numberBlockedThreads;
-}
-
-void Universe::MutatorBlocks() {
-    numberBlockedThreads = numberBlockedThreads++;
-}
-
-void Universe::MutatorUnblocks() {
-    numberBlockedThreads = numberBlockedThreads--;
-}
-*/
-
 #else
 vector<Interpreter*>* Universe::GetInterpreters() {
     return &interpreters;

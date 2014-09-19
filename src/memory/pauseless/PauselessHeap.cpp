@@ -17,33 +17,19 @@ PauselessHeap::PauselessHeap(long objectSpaceSize, long pageSize) {
     gc = new PauselessCollector(this, NUMBER_OF_GC_THREADS);
 }
 
-void PauselessHeap::SignalMarkingOfRootSet(Interpreter* interpreter) {
-    static_cast<PauselessCollector*>(gc)->SignalRootSetBarrier(interpreter);
+void PauselessHeap::SignalRootSetMarked() {
+    static_cast<PauselessCollector*>(gc)->SignalRootSetMarked();
 }
 
 void PauselessHeap::SignalInterpreterBlocked(Interpreter* interpreter) {
     static_cast<PauselessCollector*>(gc)->AddBlockedInterpreter(interpreter);
 }
 
+void PauselessHeap::SignalSafepointReached() {
+    static_cast<PauselessCollector*>(gc)->SignalSafepointReached();
+}
+
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -68,6 +68,11 @@ public:
     void      DisableBlocked();
     void      TriggerMarkRootSet();
     void      MarkRootSet();
+    void      DummyMarkRootSet();
+    void      ResetAlreadyMarked();
+    void      RequestSafePoint();
+    void      SignalSafepointReached();
+    
     void      DisableGCTrap();
     void      SignalEnableGCTrap();
     void      EnableGCTrap();
@@ -121,6 +126,9 @@ private:
     Worklist worklist;
     bool blocked;
     bool markRootSet;
+    bool alreadyMarked;
+    bool safePointRequested;
+    
     bool expectedNMT;
     bool gcTrapEnabled;
     bool signalEnableGCTrap;

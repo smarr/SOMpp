@@ -26,8 +26,9 @@ public:
     void GCTrap(void**);
     
     
-    void SignalMarkingOfRootSet(Interpreter*);
+    void SignalRootSetMarked();
     void SignalInterpreterBlocked(Interpreter*);
+    void SignalSafepointReached();
     
 };
 

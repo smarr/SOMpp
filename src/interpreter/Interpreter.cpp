@@ -66,6 +66,10 @@ Interpreter::Interpreter() {
     worklist = Worklist();
     blocked = false;
     markRootSet = false;
+    alreadyMarked = false;
+    
+    
+    safePointRequested = false;
     expectedNMT = false;
     gcTrapEnabled = false;
     signalEnableGCTrap = false;
@@ -88,15 +92,18 @@ Interpreter::~Interpreter() {
 
 #if GC_TYPE==PAUSELESS
 #define DISPATCH_GC() {\
-    if (markRootSet) {\
+    if (markRootSet)\
         MarkRootSet();\
-    }\
+    SignalSafePointReached();\
+\
     if (signalEnableGCTrap) {\
         EnableGCTrap();\
     }\
+\
     if (trapTriggered) {\
         _UNIVERSE->PassedSafePoint();\
     }\
+\
     goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];\
 }
 #else
@@ -640,8 +647,9 @@ void Interpreter::AddGCWork(VMOBJECT_PTR work) {
 
 void Interpreter::EnableBlocked() {
     pthread_mutex_lock(&blockedMutex);
-    if (markRootSet == true)
+    if (markRootSet)
         MarkRootSet();
+    SignalSafepointReached();
     blocked = true;
     pthread_mutex_lock(&blockedMutex);
 }
@@ -661,6 +669,7 @@ void Interpreter::TriggerMarkRootSet() {
 
 void Interpreter::MarkRootSet() {
     markRootSet = false;
+    alreadyMarked = true; //this should be reset after the cycle
     expectedNMT = !expectedNMT;
     
     // this will also destructively change the thread, frame and method pointers so that the NMT bit is flipped
@@ -669,7 +678,32 @@ void Interpreter::MarkRootSet() {
     _HEAP->ReadBarrier((void**)&method);
     
     // signal that root-set has been marked
-    _HEAP->SignalMarkingOfRootSet(this);
+    _HEAP->SignalRootSetMarked();
+}
+
+void Interpreter::DummyMarkRootSet() {
+    if (!alreadyMarked)
+        _HEAP->SignalRootSetMarked();
+}
+
+void Interpreter::ResetAlreadyMarked() {
+    alreadyMarked = false;
+}
+
+void Interpreter::RequestSafePoint() {
+    pthread_mutex_lock(&blockedMutex);
+    if (blocked)
+        _HEAP->SignalSafepointReached();
+    else
+        safePointRequested = true;
+    pthread_mutex_unlock(&blockedMutex);
+}
+
+void Interpreter::SignalSafepointReached() {
+    if (safePointRequested) {
+        safePointRequested = false;
+        _HEAP->SignalSafepointReached();
+    }
 }
 
 void Interpreter::DisableGCTrap() {

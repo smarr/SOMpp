@@ -16,38 +16,41 @@ public:
     PauselessCollector(PagedHeap* heap, int numberOfGCThreads);
     static void MarkObject(VMOBJECT_PTR, Worklist*);
     void AddBlockedInterpreter(Interpreter*);
-    void SignalRootSetBarrier(Interpreter*);
-    //void RemoveLeftoverInterpreterMarkingBarrier(Interpreter*);
+    void SignalRootSetMarked();
+    void AddNonEmptyWorklist(Worklist*);
+    void SignalSafepointReached();
     
 private:
     static void* GCThread(void*);
     
     static int numberOfGCThreads;
-    static volatile int numberOfGCThreadsDoneMarking;
     
-    // do all these need to be volatile?
-    static volatile bool doneSignalling;
-    static volatile bool doneMarkingGlobals;
-    static volatile bool doneBlockingPages;
-    
+    // variables used during root-set marking phase
     static pthread_mutex_t blockedMutex;
     static pthread_mutex_t markGlobalsMutex;
     static pthread_mutex_t markRootSetsMutex;
-    static pthread_mutex_t leftoverRootSetMutex;
-    static pthread_mutex_t doneMarkingMutex;
-    static pthread_mutex_t blockPagesMutex;
+    static pthread_mutex_t markRootSetsCheckpointMutex;
+    static pthread_cond_t  doneMarkingRootSetsCondition;
+    static pthread_cond_t  blockedCondition;
+    static int numberRootSetsMarked;
+    static int numberRootSetsToBeMarked;
+    static bool doneSignalling;
+    static bool doneMarkingGlobals;
+    static vector<Interpreter*>* blockedInterpreters;
     
-    static pthread_cond_t blockedCondition;
-    static pthread_cond_t doneMarkingRootsCondition;
-    static pthread_cond_t doneMarkingCondition;
+    //variables used during the rest of the marking phase
+    static pthread_mutex_t nonEmptyWorklistsMutex;
+    static pthread_cond_t  waitingForWorkCondition;
+    static vector<Worklist*>* nonEmptyWorklists;
+    static bool doneRequestCheckpoint;
+    static int numberOfGCThreadsDoneMarking;
+    static atomic<int> numberOfMutatorsPassedSafepoint;
+    static int numberOfMutators;
     
-    static vector<Interpreter*> blockedInterpreters;
-    static vector<Interpreter*> leftoverInterpretersRootSetBarrier;
-    static vector<Interpreter*> leftoverInterpretersMarkingBarrier;
     
-    vector<Page*> pagesToRelocate;
     
-    //volatile int numberOfMarkedRootSets;
+    //vector<Page*> pagesToRelocate;
+
 };
 
 #endif
