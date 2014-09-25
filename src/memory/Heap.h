@@ -40,9 +40,9 @@ class Heap {
     friend class GarbageCollector<HEAP_T>;
 
 public:
-    static void InitializeHeap(long objectSpaceSize = 1048576);
+    static void InitializeHeap(long objectSpaceSize);
     static void DestroyHeap();
-    Heap(GarbageCollector<HEAP_T>* const gc, long objectSpaceSize = 1048576) : gc(gc), gcTriggered(false) {}
+    Heap(GarbageCollector<HEAP_T>* const gc, long objectSpaceSize) : gc(gc), gcTriggered(false) {}
     ~Heap();
     inline void triggerGC()      { gcTriggered = true; }
     inline void resetGCTrigger() { gcTriggered = false; }
