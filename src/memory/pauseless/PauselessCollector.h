@@ -11,6 +11,7 @@
 using namespace std;
 
 class PauselessCollector : public GarbageCollector {
+    //friend PagedHeap;
     
 public:
     PauselessCollector(PagedHeap* heap, int numberOfGCThreads);
@@ -20,7 +21,12 @@ public:
     void AddNonEmptyWorklist(Worklist*);
     void SignalSafepointReached();
     
+    void Start();
+    
 private:
+    
+    static void RelocatePage(Page*, Page*);
+    
     static void* GCThread(void*);
     
     static int numberOfGCThreads;
@@ -38,7 +44,7 @@ private:
     static bool doneMarkingGlobals;
     static vector<Interpreter*>* blockedInterpreters;
     
-    //variables used during the rest of the marking phase
+    // variables used during the rest of the marking phase
     static pthread_mutex_t nonEmptyWorklistsMutex;
     static pthread_cond_t  waitingForWorkCondition;
     static vector<Worklist*>* nonEmptyWorklists;
@@ -47,10 +53,13 @@ private:
     static atomic<int> numberOfMutatorsPassedSafepoint;
     static int numberOfMutators;
     
+    // variables used during the relocate phase
+    static bool doneBlockingPages;
+    static pthread_mutex_t blockPagesMutex;
+    static pthread_mutex_t pagesToRelocateMutex;
+    static pthread_cond_t pagesToRelocateCondition;
+    static vector<Page*>* pagesToRelocate;
     
-    
-    //vector<Page*> pagesToRelocate;
-
 };
 
 #endif
