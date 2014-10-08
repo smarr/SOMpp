@@ -10,9 +10,15 @@
 
 
 #if GC_TYPE==PAUSELESS
-#define PG_HEAP(exp) (_HEAP->exp)
+#define PG_HEAP(exp) (exp)
 #else
 #define PG_HEAP(exp)
+#endif
+
+#if GC_TYPE==PAUSELESS
+#define READBARRIER(reference) (Test(&reference))
+#else
+#define READBARRIER(reference) (reference)
 #endif
 
 class VMObjectBase {

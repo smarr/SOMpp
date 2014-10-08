@@ -44,7 +44,7 @@ public:
 
 #if GC_TYPE==PAUSELESS
     virtual pVMString Clone(Page*);
-    //virtual void MarkReferences(Worklist*);
+    //virtual void MarkReferences();
 #else
     virtual pVMString Clone();
      //virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));

@@ -193,19 +193,19 @@ pVMObject VMMethod::GetConstant(long indx) /*const*/ {
 }
 
 #if GC_TYPE==PAUSELESS
-void VMMethod::MarkReferences(Worklist* worklist) {
-    VMInvokable::MarkReferences(worklist);
+void VMMethod::MarkReferences() {
+    VMInvokable::MarkReferences();
     
-    worklist->AddWork(numberOfLocals);
-    worklist->AddWork(maximumNumberOfStackElements);
-    worklist->AddWork(bcLength);
-    worklist->AddWork(numberOfArguments);
-    worklist->AddWork(numberOfConstants);
+    ReadBarrierForGCThread((void**)&numberOfLocals);
+    ReadBarrierForGCThread((void**)&maximumNumberOfStackElements);
+    ReadBarrierForGCThread((void**)&bcLength);
+    ReadBarrierForGCThread((void**)&numberOfArguments);
+    ReadBarrierForGCThread((void**)&numberOfConstants);
     
     long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {
         if (GetIndexableField(i) != NULL)
-            worklist->AddWork(AS_POINTER(GetIndexableField(i)));
+            ReadBarrierForGCThread((void**)&indexableFields[i]);
     }
 }
 #else

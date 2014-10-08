@@ -308,17 +308,17 @@ void VMFrame::CopyArgumentsFrom(pVMFrame frame) {
 }
 
 #if GC_TYPE==PAUSELESS
-void VMFrame::MarkReferences(Worklist* worklist) {
+void VMFrame::MarkReferences() {
     if (previousFrame)
-        worklist->AddWork(previousFrame);
+        ReadBarrierForGCThread((void**)&previousFrame);
     if (context)
-        worklist->AddWork(context);
-    worklist->AddWork(method);
+        ReadBarrierForGCThread((void**)&context);
+    ReadBarrierForGCThread((void**)&method);
     
     long i = 0;
     while (arguments + i <= stack_ptr) {
         if (arguments[i] != NULL)
-            worklist->AddWork((VMOBJECT_PTR)arguments[i]);
+            ReadBarrierForGCThread((void**)&arguments[i]);
         i++;
     }
 }

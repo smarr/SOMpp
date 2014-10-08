@@ -111,9 +111,9 @@ void VMEvaluationPrimitive::evaluationRoutine(pVMObject object, pVMFrame frame) 
 }
 
 #if GC_TYPE==PAUSELESS
-void VMEvaluationPrimitive::MarkReferences(Worklist* worklist) {
-    VMPrimitive::MarkReferences(worklist);
-    worklist->AddWork(numberOfArguments);
+void VMEvaluationPrimitive::MarkReferences() {
+    VMPrimitive::MarkReferences();
+    ReadBarrierForGCThread((void**)&numberOfArguments);
 }
 #else
 void VMEvaluationPrimitive::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {

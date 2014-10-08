@@ -24,6 +24,7 @@
  THE SOFTWARE.
  */
 
+#include "../memory/pauseless/PauselessHeap.h"
 #include "VMPrimitive.h"
 #include "VMSymbol.h"
 #include "VMClass.h"
@@ -51,7 +52,7 @@ const int VMPrimitive::VMPrimitiveNumberOfFields = 2;
 
 VMPrimitive::VMPrimitive(pVMSymbol signature) : VMInvokable(VMPrimitiveNumberOfFields) {
     //the only class that explicitly does this.
-    PG_HEAP(ReadBarrier((void**)(&primitiveClass)));
+    PG_HEAP(ReadBarrier((void**)&primitiveClass));
     this->SetClass(primitiveClass);
 
     this->SetSignature(signature);
@@ -80,10 +81,10 @@ void VMPrimitive::EmptyRoutine( pVMObject _self, pVMFrame /*frame*/) {
 }
 
 #if GC_TYPE==PAUSELESS
-void VMPrimitive::MarkReferences(Worklist* worklist) {
-    worklist->AddWork(clazz);
-    worklist->AddWork(signature);
-    worklist->AddWork(holder);
+void VMPrimitive::MarkReferences() {
+    ReadBarrierForGCThread((void**)&clazz);
+    ReadBarrierForGCThread((void**)&signature);
+    ReadBarrierForGCThread((void**)&holder);
 }
 #else
 void VMPrimitive::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {

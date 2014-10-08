@@ -140,7 +140,7 @@ StdString VMSymbol::GetPlainString() const {
 
 /*
 #if GC_TYPE==PAUSELESS
-void VMSymbol::MarkReferences(Worklist* worklist) {
+void VMSymbol::MarkReferences() {
     //Since we don't use the cache, nothing should be done here.
 }
 #else

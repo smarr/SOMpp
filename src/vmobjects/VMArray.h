@@ -37,7 +37,7 @@ public:
 
 #if GC_TYPE==PAUSELESS
     virtual pVMArray Clone(Page*);
-    virtual void MarkReferences(Worklist*);
+    virtual void MarkReferences();
 #else
     virtual pVMArray Clone();
     virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));    

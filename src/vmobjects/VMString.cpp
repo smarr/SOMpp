@@ -100,7 +100,7 @@ StdString VMString::GetStdString() const {
 
 /*
 #if GC_TYPE==PAUSELESS
-void VMString::MarkReferences(Worklist* worklist) {
+void VMString::MarkReferences() {
     //nothing to do
 }
 #else

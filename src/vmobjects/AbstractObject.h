@@ -93,7 +93,7 @@ public:
     virtual AbstractVMObject* ProtectedClone(Page*);
     virtual AbstractVMObject* Clone(Page*) = 0;
     
-    inline virtual void MarkReferences(Worklist*) {
+    inline virtual void MarkReferences() {
         return;
     }
 #else

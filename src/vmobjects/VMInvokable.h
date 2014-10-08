@@ -47,7 +47,7 @@ public:
             void      SetHolder(pVMClass hld);
 
 #if GC_TYPE==PAUSELESS
-    virtual void MarkReferences(Worklist*);
+    virtual void MarkReferences();
 #else
     void WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
 #endif

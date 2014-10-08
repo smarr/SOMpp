@@ -128,11 +128,11 @@ void VMObject::MarkObjectAsInvalid() {
 }
 
 #if GC_TYPE==PAUSELESS
-void VMObject::MarkReferences(Worklist* worklist) {
-    worklist->AddWork(clazz);
+void VMObject::MarkReferences() {
+    ReadBarrierForGCThread((void**)&clazz);
     long numFields = GetNumberOfFields();
     for (long i = 0; i < numFields; ++i) {
-        worklist->AddWork((VMOBJECT_PTR)GetField(i));
+        ReadBarrierForGCThread((void**)&FIELDS[i]);
     }
 }
 #else

@@ -37,7 +37,8 @@
 #include <misc/defs.h>
 #include <vm/Universe.h>
 
-#if GC_TYP==PAUSELESS
+#if GC_TYPE==PAUSELESS
+#include <memory/pauseless/PauselessHeap.h>
 #include <pthread.h>
 #endif
 
@@ -91,7 +92,7 @@ public:
 
 #if GC_TYPE==PAUSELESS
     virtual        pVMObject Clone(Page*);
-    virtual        void      MarkReferences(Worklist*);
+    virtual        void      MarkReferences();
 #else
     virtual        pVMObject Clone();
     virtual        void      WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
