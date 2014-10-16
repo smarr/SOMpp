@@ -81,9 +81,8 @@ size_t VMString::GetObjectSize() const {
     return size;
 }
 
-pVMClass VMString::GetClass() /*const*/ {
-    PG_HEAP(ReadBarrier((void**)(&stringClass)));
-    return stringClass;
+pVMClass VMString::GetClass() {
+    return READBARRIER(stringClass);
 }
 
 size_t VMString::GetStringLength() const {

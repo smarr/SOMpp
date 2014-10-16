@@ -39,7 +39,7 @@ public:
     StdString GetStdString() const;
     size_t GetStringLength() const;
 
-    virtual pVMClass GetClass() /*const*/;
+    virtual pVMClass GetClass();
     virtual size_t GetObjectSize() const;
 
 #if GC_TYPE==PAUSELESS
