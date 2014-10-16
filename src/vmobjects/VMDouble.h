@@ -37,7 +37,7 @@ public:
 
     inline  void     SetEmbeddedDouble(double);
     inline  double   GetEmbeddedDouble() const;
-    virtual pVMClass GetClass() /*const*/;
+    virtual pVMClass GetClass();
     inline virtual size_t GetObjectSize() const;
     
     virtual void MarkObjectAsInvalid() {}

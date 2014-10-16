@@ -51,7 +51,6 @@ pVMDouble VMDouble::Clone() {
 }
 #endif
 
-pVMClass VMDouble::GetClass() /*const*/ {
-    PG_HEAP(ReadBarrier((void**)(&doubleClass)));
-    return doubleClass;
+pVMClass VMDouble::GetClass() {
+    return READBARRIER(doubleClass);
 }
