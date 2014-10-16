@@ -53,25 +53,25 @@ public:
     VMClass();
     VMClass(long numberOfFields);
 
-    inline pVMClass     GetSuperClass() /*const*/;
+    inline pVMClass     GetSuperClass();
     inline void         SetSuperClass(pVMClass);
-    inline bool         HasSuperClass() /*const*/;
-    inline pVMSymbol    GetName() /*const*/;
+    inline bool         HasSuperClass();
+    inline pVMSymbol    GetName();
     inline void         SetName(pVMSymbol);
-    inline pVMArray     GetInstanceFields() /*const*/;
+    inline pVMArray     GetInstanceFields();
     inline void         SetInstanceFields(pVMArray);
-    inline pVMArray     GetInstanceInvokables() /*const*/;
+    inline pVMArray     GetInstanceInvokables();
            void         SetInstanceInvokables(pVMArray);
-           long         GetNumberOfInstanceInvokables() /*const*/;
-           pVMInvokable GetInstanceInvokable(long) /*const*/;
+           long         GetNumberOfInstanceInvokables();
+           pVMInvokable GetInstanceInvokable(long);
            void         SetInstanceInvokable(long, pVMObject);
-           pVMInvokable LookupInvokable(pVMSymbol) /*const*/;
-           long         LookupFieldIndex(pVMSymbol) /*const*/;
+           pVMInvokable LookupInvokable(pVMSymbol);
+           long         LookupFieldIndex(pVMSymbol);
            bool         AddInstanceInvokable(pVMObject);
            void         AddInstancePrimitive(pVMPrimitive);
-           pVMSymbol    GetInstanceFieldName(long)/*const*/;
-           long         GetNumberOfInstanceFields() /*const*/;
-           bool         HasPrimitives() /*const*/;
+           pVMSymbol    GetInstanceFieldName(long);
+           long         GetNumberOfInstanceFields();
+           bool         HasPrimitives();
            void         LoadPrimitives(const vector<StdString>&);
     
 #if GC_TYPE==PAUSELESS
@@ -92,7 +92,7 @@ private:
     void* loadLib(const StdString& path) const;
     bool isResponsible(void* handle, const StdString& cl) const;
     void setPrimitives(void* handle, const StdString& cname);
-    long numberOfSuperInstanceFields() /*const*/;
+    long numberOfSuperInstanceFields();
 
     pVMClass superClass;
     pVMSymbol name;
@@ -102,59 +102,46 @@ private:
     static const long VMClassNumberOfFields;
 };
 
-pVMClass VMClass::GetSuperClass() /*const*/ {
-    PG_HEAP(ReadBarrier((void**)(&superClass)));
-    return superClass;
+pVMClass VMClass::GetSuperClass() {
+    return READBARRIER(superClass);
 }
 
 void VMClass::SetSuperClass(pVMClass sup) {
-    superClass = sup;
+    superClass = WRITEBARRIER(sup);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, sup);
 #endif
 }
 
-pVMSymbol VMClass::GetName() /*const*/ {
-    PG_HEAP(ReadBarrier((void**)(&name)));
-    return name;
+pVMSymbol VMClass::GetName() {
+    return READBARRIER(name);
 }
 
 void VMClass::SetName(pVMSymbol nam) {
-    name = nam;
+    name = WRITEBARRIER(nam);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, nam);
 #endif
 }
 
-bool VMClass::HasSuperClass() /*const*/ {
-    
-    /// REG = superClass
-    /// <- thread
-    /// assert REG == UN_MARKED_REF
-    ///
-    /// ReadBarrier(REG)
-
+bool VMClass::HasSuperClass() {
     assert(Universe::IsValidObject(superClass));
-    PG_HEAP(ReadBarrier((void**)(&superClass)));
-    PG_HEAP(ReadBarrier((void**)(&nilObject)));
-    return superClass != nilObject;
+    return READBARRIER(superClass) != READBARRIER(nilObject);
 }
 
-pVMArray VMClass::GetInstanceFields() /*const*/ {
-    PG_HEAP(ReadBarrier((void**)(&instanceFields)));
-    return instanceFields;
+pVMArray VMClass::GetInstanceFields() {
+    return READBARRIER(instanceFields);
 }
 
 void VMClass::SetInstanceFields(pVMArray instFields) {
-    instanceFields = instFields;
+    instanceFields = WRITEBARRIER(instFields);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, instFields);
 #endif
 }
 
-pVMArray VMClass::GetInstanceInvokables() /*const*/ {
-    PG_HEAP(ReadBarrier((void**)(&instanceInvokables)));
-    return instanceInvokables;
+pVMArray VMClass::GetInstanceInvokables() {
+    return READBARRIER(instanceInvokables);
 }
 
 #endif
