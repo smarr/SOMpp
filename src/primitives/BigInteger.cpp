@@ -54,7 +54,7 @@
 #define CHECK_BIGINT(object, result) { \
     /* Check second parameter type: */\
     pVMInteger ptr;\
-    if ((UNTAG_REFERENCE(ptr = dynamic_cast<pVMInteger>(object))) != NULL) { \
+    if ((ptr = dynamic_cast<pVMInteger>(object)) != NULL) { \
         /* Second operand was Integer*/ \
         long i = ptr->GetEmbeddedInteger(); \
         (result) = _UNIVERSE->NewBigInteger((int64_t)i); \
