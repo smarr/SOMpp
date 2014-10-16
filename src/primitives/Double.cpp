@@ -29,12 +29,16 @@
 #include <math.h>
 #include <sstream>
 
+#include <vmobjects/AbstractObject.h>
 #include <vmobjects/VMObject.h>
 #include <vmobjects/VMFrame.h>
 #include <vmobjects/VMDouble.h>
 #include <vmobjects/VMString.h>
 #include <vmobjects/VMInteger.h>
 #include <vmobjects/VMBigInteger.h>
+
+
+#include<vmobjects/VMClass.h>
 
 #include <vm/Universe.h>
 
@@ -52,14 +56,12 @@ double _Double::coerceDouble(pVMObject x) {
 #endif
     
     pVMClass cl = ((AbstractVMObject*)x)->GetClass();
-    PG_HEAP(ReadBarrier((void**)&doubleClass));
-    PG_HEAP(ReadBarrier((void**)&integerClass));
-    PG_HEAP(ReadBarrier((void**)&bigIntegerClass));
-    if (UNTAG_REFERENCE(cl) == UNTAG_REFERENCE(doubleClass))
+    
+    if (cl == READBARRIER(doubleClass))
         return static_cast<pVMDouble>(x)->GetEmbeddedDouble();
-    else if(UNTAG_REFERENCE(cl) == UNTAG_REFERENCE(integerClass))
+    else if(cl == READBARRIER(integerClass))
         return (double)static_cast<pVMInteger>(x)->GetEmbeddedInteger();
-    else if(UNTAG_REFERENCE(cl) == UNTAG_REFERENCE(bigIntegerClass))
+    else if(cl == READBARRIER(bigIntegerClass))
         return (double)static_cast<pVMBigInteger>(x)->GetEmbeddedInteger();
     else
         _UNIVERSE->ErrorExit("Attempt to apply Double operation to non-number.");
@@ -121,24 +123,18 @@ void _Double::BitwiseXor(pVMObject /*object*/, pVMFrame frame) {
  */
 void _Double::Equal(pVMObject /*object*/, pVMFrame frame) {
     PREPARE_OPERANDS;
-    if(left == right) {
-        PG_HEAP(ReadBarrier((void**)&trueObject));
-        frame->Push(trueObject);
-    } else {
-        PG_HEAP(ReadBarrier((void**)&falseObject));
-        frame->Push(falseObject);
-    }
+    if(left == right)
+        frame->Push(READBARRIER(trueObject));
+    else
+        frame->Push(READBARRIER(falseObject));
 }
 
 void _Double::Lowerthan(pVMObject /*object*/, pVMFrame frame) {
     PREPARE_OPERANDS;
-    if(left < right) {
-        PG_HEAP(ReadBarrier((void**)&trueObject));
-        frame->Push(trueObject);
-    } else {
-        PG_HEAP(ReadBarrier((void**)&falseObject));
-        frame->Push(falseObject);
-    }
+    if(left < right)
+        frame->Push(READBARRIER(trueObject));
+    else
+        frame->Push(READBARRIER(falseObject));
 }
 
 void _Double::AsString(pVMObject /*object*/, pVMFrame frame) {
