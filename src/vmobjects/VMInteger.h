@@ -38,7 +38,7 @@ public:
     VMInteger(long);
 
     inline long GetEmbeddedInteger() const;
-    virtual pVMClass GetClass() /*const*/;
+    virtual pVMClass GetClass();
     virtual inline size_t GetObjectSize() const;
     
     virtual void MarkObjectAsInvalid() {}

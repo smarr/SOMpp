@@ -50,7 +50,6 @@ pVMInteger VMInteger::Clone() {
 }
 #endif
 
-pVMClass VMInteger::GetClass() /*const*/ {
-    PG_HEAP(ReadBarrier((void**)(&integerClass)));
-    return integerClass;
+pVMClass VMInteger::GetClass() {
+    return READBARRIER(integerClass);
 }
