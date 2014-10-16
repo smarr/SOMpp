@@ -41,9 +41,9 @@ public:
     virtual void      operator()(pVMFrame) = 0;
 
     virtual bool      IsPrimitive() const;
-            pVMSymbol GetSignature() /*const*/;
+            pVMSymbol GetSignature();
     virtual void      SetSignature(pVMSymbol sig);
-            pVMClass  GetHolder() /*const*/;
+            pVMClass  GetHolder();
             void      SetHolder(pVMClass hld);
 
 #if GC_TYPE==PAUSELESS
