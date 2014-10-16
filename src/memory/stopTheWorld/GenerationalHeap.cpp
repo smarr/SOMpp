@@ -11,7 +11,7 @@
 
 #if GC_TYPE == GENERATIONAL
 
-GenerationalHeap::GenerationalHeap(long objectSpaceSize, long pageSize) {
+GenerationalHeap::GenerationalHeap(long objectSpaceSize, long pageSize) : PagedHeap(objectSpaceSize, pageSize) {
     //our initial collection limit is 90% of objectSpaceSize
     gc = new GenerationalCollector(this);
     // meta data for mature object allocation

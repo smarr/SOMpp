@@ -11,7 +11,7 @@ class GenerationalHeap : public StopTheWorldHeap {
     friend class GenerationalCollector;
     
 public:
-    GenerationalHeap(long objectSpaceSize = 4194304, long pageSize = 32768);
+    GenerationalHeap(long, long);
 
     AbstractVMObject* AllocateMatureObject(size_t);
     
