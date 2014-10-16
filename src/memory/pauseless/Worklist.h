@@ -17,14 +17,14 @@ public:
     Worklist();
     ~Worklist();
     
-    void AddWork(VMOBJECT_PTR);
-    VMOBJECT_PTR GetWork();
+    void AddWork(AbstractVMObject*);
+    AbstractVMObject* GetWork();
     void MoveWork(Worklist*);
     bool Empty();
     
 private:
     pthread_mutex_t lock;
-    vector<VMOBJECT_PTR>* work;
+    vector<AbstractVMObject*> work;
     
 };
 

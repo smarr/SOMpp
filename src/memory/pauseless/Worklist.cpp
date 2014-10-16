@@ -4,39 +4,38 @@
 
 Worklist::Worklist() {
     pthread_mutex_init(&lock, NULL);
-    work = new vector<VMOBJECT_PTR>();
+    work = vector<AbstractVMObject*>();
 }
 
 Worklist::~Worklist() {
-    delete work;
 }
 
-void Worklist::AddWork(VMOBJECT_PTR reference) {
+void Worklist::AddWork(AbstractVMObject* reference) {
     pthread_mutex_lock(&lock);
-    work->push_back(reference);
+    work.push_back(reference);
     pthread_mutex_unlock(&lock);
 }
 
 VMOBJECT_PTR Worklist::GetWork() {
     pthread_mutex_lock(&lock);
-    VMOBJECT_PTR reference = work->back();
-    work->pop_back();
+    VMOBJECT_PTR reference = work.back();
+    work.pop_back();
     pthread_mutex_unlock(&lock);
     return reference;
 }
 
 void Worklist::MoveWork(Worklist* moveToWorklist) {
     if (pthread_mutex_trylock(&lock) == 0) {
-        while (!work->empty()) {
-            moveToWorklist->AddWork(work->back());
-            work->pop_back();
+        while (!work.empty()) {
+            moveToWorklist->AddWork(work.back());
+            work.pop_back();
         }
         pthread_mutex_unlock(&lock);
     }
 }
 
 bool Worklist::Empty() {
-    return work->empty();
+    return work.empty();
 }
 
 #endif
