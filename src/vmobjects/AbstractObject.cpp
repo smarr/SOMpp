@@ -32,7 +32,7 @@ void AbstractVMObject::Send(StdString selectorString, pVMObject* arguments, long
     (*invokable)(frame);
 }
 
-long AbstractVMObject::GetFieldIndex(pVMSymbol fieldName) /*const*/ {
+long AbstractVMObject::GetFieldIndex(pVMSymbol fieldName) {
     return this->GetClass()->LookupFieldIndex(fieldName);
 }
 

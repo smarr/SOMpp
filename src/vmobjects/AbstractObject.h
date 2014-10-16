@@ -28,14 +28,6 @@
 #include "VMObjectBase.h"
 
 
-#if GC_TYPE==PAUSELSESS
-#define MASK_OBJECT_NMT (1 << 1)
-#define UNTAG_REFERENCE(REFERENCE) (((reinterpret_cast<uintptr_t>(REFERENCE) & MASK_OBJECT_NMT) == 1) ? (reinterpret_cast<uintptr_t>(REFERENCE) ^ MASK_OBJECT_NMT) : reinterpret_cast<uintptr_t>(REFERENCE))
-#else
-#define UNTAG_REFERENCE(REFERENCE) (REFERENCE)
-#endif
-
-
 /*
  * macro for padding - only word-aligned memory must be allocated
  */
@@ -53,7 +45,7 @@ using namespace std;
 class AbstractVMObject: public VMObjectBase {
 public:
     virtual size_t GetHash();
-    virtual pVMClass GetClass() /*const*/ = 0;
+    virtual pVMClass GetClass() = 0;
     virtual void Send(StdString, pVMObject*, long);
     virtual size_t GetObjectSize() const = 0;
     
@@ -82,7 +74,7 @@ public:
         throw "this object doesn't support SetClass";
     }
 
-    long GetFieldIndex(pVMSymbol fieldName) /*const*/;
+    long GetFieldIndex(pVMSymbol fieldName);
     
     inline virtual pVMSymbol GetFieldName(long index) const {
         cout << "this object doesn't support GetFieldName" << endl;
