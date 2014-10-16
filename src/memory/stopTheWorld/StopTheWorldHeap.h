@@ -14,7 +14,7 @@ class StopTheWorldHeap : public PagedHeap {
     
 public:
     
-    StopTheWorldHeap(long objectSpaceSize = 4194304, long pageSize = 32768);
+    StopTheWorldHeap(long, long);
     
     void FullGC();
     

@@ -9,7 +9,7 @@
 
 #if GC_TYPE != PAUSELESS
 
-StopTheWorldHeap::StopTheWorldHeap(long objectSpaceSize, long pageSize) {
+StopTheWorldHeap::StopTheWorldHeap(long objectSpaceSize, long pageSize) : PagedHeap(objectSpaceSize, pageSize) {
     this->gcTriggered = false;
     this->threadCount = 0;
     this->readyForGCThreads = 0;
