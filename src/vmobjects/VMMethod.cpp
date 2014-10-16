@@ -57,16 +57,15 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
     numberOfArguments = TAG_INTEGER(0);
     this->numberOfConstants = TAG_INTEGER(numberOfConstants);
 #else
-    bcLength = _UNIVERSE->NewInteger(bcCount);
-    numberOfLocals = _UNIVERSE->NewInteger(0);
-    maximumNumberOfStackElements = _UNIVERSE->NewInteger(0);
-    numberOfArguments = _UNIVERSE->NewInteger(0);
-    this->numberOfConstants = _UNIVERSE->NewInteger(numberOfConstants);
+    bcLength = WRITEBARRIER(_UNIVERSE->NewInteger(bcCount));
+    numberOfLocals = WRITEBARRIER(_UNIVERSE->NewInteger(0));
+    maximumNumberOfStackElements = WRITEBARRIER(_UNIVERSE->NewInteger(0));
+    numberOfArguments = WRITEBARRIER(_UNIVERSE->NewInteger(0));
+    this->numberOfConstants = WRITEBARRIER(_UNIVERSE->NewInteger(numberOfConstants));
 #endif
     indexableFields = (pVMObject*)(&indexableFields + 2);
     for (long i = 0; i < numberOfConstants; ++i) {
-        PG_HEAP(ReadBarrier((void**)(&nilObject)));
-        indexableFields[i] = nilObject;
+        indexableFields[i] = WRITEBARRIER(READBARRIER(nilObject));
     }
     bytecodes = (uint8_t*)(&indexableFields + 2 + GetNumberOfIndexableFields());
 }
@@ -93,7 +92,6 @@ pVMMethod VMMethod::Clone() {
 void VMMethod::SetSignature(pVMSymbol sig) {
     VMInvokable::SetSignature(sig);
     SetNumberOfArguments(Signature::GetNumberOfArguments(this->GetSignature()));
-    //SetNumberOfArguments(Signature::GetNumberOfArguments(signature));
 }
 
 #ifdef UNSAFE_FRAME_OPTIMIZATION
@@ -118,19 +116,18 @@ void VMMethod::SetNumberOfLocals(long nol) {
 #ifdef USE_TAGGING
     numberOfLocals = TAG_INTEGER(nol);
 #else
-    numberOfLocals = _UNIVERSE->NewInteger(nol);
+    numberOfLocals = WRITEBARRIER(_UNIVERSE->NewInteger(nol));
 #endif
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, numberOfLocals);
 #endif
 }
 
-long VMMethod::GetMaximumNumberOfStackElements() const {
+long VMMethod::GetMaximumNumberOfStackElements() {
 #ifdef USE_TAGGING
     return UNTAG_INTEGER(maximumNumberOfStackElements);
 #else
-    PG_HEAP(ReadBarrier((void**)(&maximumNumberOfStackElements)));
-    return maximumNumberOfStackElements->GetEmbeddedInteger();
+    return READBARRIER(maximumNumberOfStackElements)->GetEmbeddedInteger();
 #endif
 }
 
@@ -138,7 +135,7 @@ void VMMethod::SetMaximumNumberOfStackElements(long stel) {
 #ifdef USE_TAGGING
     maximumNumberOfStackElements = TAG_INTEGER(stel);
 #else
-    maximumNumberOfStackElements = _UNIVERSE->NewInteger(stel);
+    maximumNumberOfStackElements = WRITEBARRIER(_UNIVERSE->NewInteger(stel));
 #endif
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, maximumNumberOfStackElements);
@@ -149,19 +146,18 @@ void VMMethod::SetNumberOfArguments(long noa) {
 #ifdef USE_TAGGING
     numberOfArguments = TAG_INTEGER(noa);
 #else
-    numberOfArguments = _UNIVERSE->NewInteger(noa);
+    numberOfArguments = WRITEBARRIER(_UNIVERSE->NewInteger(noa));
 #endif
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, numberOfArguments);
 #endif
 }
 
-long VMMethod::GetNumberOfBytecodes() const {
+long VMMethod::GetNumberOfBytecodes() {
 #ifdef USE_TAGGING
     return UNTAG_INTEGER(bcLength);
 #else
-    PG_HEAP(ReadBarrier((void**)(&bcLength)));
-    return bcLength->GetEmbeddedInteger();
+    return READBARRIER(bcLength)->GetEmbeddedInteger();
 #endif
 }
 
@@ -183,7 +179,7 @@ void VMMethod::SetHolderAll(pVMClass hld) {
     }
 }
 
-pVMObject VMMethod::GetConstant(long indx) /*const*/ {
+pVMObject VMMethod::GetConstant(long indx) {
     uint8_t bc = bytecodes[indx + 1];
     if (bc >= this->GetNumberOfIndexableFields()) {
         cout << "Error: Constant index out of range" << endl;

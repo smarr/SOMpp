@@ -47,15 +47,15 @@ class VMMethod: public VMInvokable {
 public:
     VMMethod(long bcCount, long numberOfConstants, long nof = 0);
 
-    inline  long      GetNumberOfLocals() /*const*/;
+    inline  long      GetNumberOfLocals();
             void      SetNumberOfLocals(long nol);
-            long      GetMaximumNumberOfStackElements() const;
+            long      GetMaximumNumberOfStackElements();
             void      SetMaximumNumberOfStackElements(long stel);
-    inline  long      GetNumberOfArguments() /*const*/;
+    inline  long      GetNumberOfArguments();
             void      SetNumberOfArguments(long);
-            long      GetNumberOfBytecodes() const;
+            long      GetNumberOfBytecodes();
             void      SetHolderAll(pVMClass hld);
-            pVMObject GetConstant(long indx) /*const*/;
+            pVMObject GetConstant(long indx);
     inline  uint8_t   GetBytecode(long indx) const;
     inline  void      SetBytecode(long indx, uint8_t);
     
@@ -72,7 +72,7 @@ public:
     virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
 #endif
     
-    inline  long      GetNumberOfIndexableFields() /*const*/;
+    inline  long      GetNumberOfIndexableFields();
 
     inline  void      SetIndexableField(long idx, pVMObject item);
 
@@ -84,7 +84,7 @@ public:
 
 private:
     inline uint8_t* GetBytecodes() const;
-    inline pVMObject GetIndexableField(long idx) /*const*/;
+    inline pVMObject GetIndexableField(long idx);
 
     pVMInteger numberOfLocals;
     pVMInteger maximumNumberOfStackElements;
@@ -101,23 +101,21 @@ private:
     static const long VMMethodNumberOfFields;
 };
 
-inline long VMMethod::GetNumberOfLocals() /*const*/ {
+inline long VMMethod::GetNumberOfLocals() {
 #ifdef USE_TAGGING
     return UNTAG_INTEGER(numberOfLocals);
 #else
-    PG_HEAP(ReadBarrier((void**)(&numberOfLocals)));
-    return numberOfLocals->GetEmbeddedInteger();
+    return READBARRIER(numberOfLocals)->GetEmbeddedInteger();
 #endif
 }
 
-long VMMethod::GetNumberOfIndexableFields() /*const*/ {
+long VMMethod::GetNumberOfIndexableFields() {
     //cannot be done using GetAdditionalSpaceConsumption,
     //as bytecodes need space, too, and there might be padding
 #ifdef USE_TAGGING
     return UNTAG_INTEGER(this->numberOfConstants);
 #else
-    PG_HEAP(ReadBarrier((void**)(&this->numberOfConstants)));
-    return this->numberOfConstants->GetEmbeddedInteger();
+    return READBARRIER(this->numberOfConstants)->GetEmbeddedInteger();
 #endif
 }
 
@@ -125,22 +123,20 @@ uint8_t* VMMethod::GetBytecodes() const {
     return bytecodes;
 }
 
-inline long VMMethod::GetNumberOfArguments() /*const*/ {
+inline long VMMethod::GetNumberOfArguments() {
 #ifdef USE_TAGGING
     return UNTAG_INTEGER(numberOfArguments);
 #else
-    PG_HEAP(ReadBarrier((void**)(&numberOfArguments)));
-    return numberOfArguments->GetEmbeddedInteger();
+    return READBARRIER(numberOfArguments)->GetEmbeddedInteger();
 #endif
 }
 
-pVMObject VMMethod::GetIndexableField(long idx) /*const*/ {
-    PG_HEAP(ReadBarrier((void**)(&indexableFields[idx])));
-    return indexableFields[idx];
+pVMObject VMMethod::GetIndexableField(long idx) {
+    return READBARRIER(indexableFields[idx]);
 }
 
 void VMMethod::SetIndexableField(long idx, pVMObject item) {
-    indexableFields[idx] = item;
+    indexableFields[idx] = WRITEBARRIER(item);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, item);
 #endif
