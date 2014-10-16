@@ -45,7 +45,7 @@ VMEvaluationPrimitive::VMEvaluationPrimitive(long argc) :
 #ifdef USE_TAGGING
     this->numberOfArguments = TAG_INTEGER(argc);
 #else
-    this->numberOfArguments = _UNIVERSE->NewInteger(argc);
+    this->numberOfArguments = WRITEBARRIER(_UNIVERSE->NewInteger(argc));
 #endif
 }
 
@@ -96,8 +96,7 @@ void VMEvaluationPrimitive::evaluationRoutine(pVMObject object, pVMFrame frame) 
 #ifdef USE_TAGGING
     long numArgs = UNTAG_INTEGER(self->numberOfArguments);
 #else
-    PG_HEAP(ReadBarrier((void**)(&self->numberOfArguments)));
-    long numArgs = self->numberOfArguments->GetEmbeddedInteger();
+    long numArgs = READBARRIER(self->numberOfArguments)->GetEmbeddedInteger();
 #endif
     pVMBlock block = static_cast<pVMBlock>(frame->GetStackElement(numArgs - 1));
 
