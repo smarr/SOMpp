@@ -21,8 +21,7 @@ void VMThread::Yield() {
 }
 
 pVMSignal VMThread::GetResumeSignal() {
-    PG_HEAP(ReadBarrier((void**)(&resumeSignal)));
-    return resumeSignal;
+    return READBARRIER(resumeSignal);
 }
 
 
@@ -32,53 +31,46 @@ void VMThread::SetResumeSignal(pVMSignal value) {
 
 
 bool VMThread::ShouldStop() {
-    PG_HEAP(ReadBarrier((void**)(&shouldStop)));
-    PG_HEAP(ReadBarrier((void**)(&trueObject)));
-    return UNTAG_REFERENCE(shouldStop) == UNTAG_REFERENCE(trueObject);
+    return READBARRIER(shouldStop) == READBARRIER(trueObject);
 }
 
 
 void VMThread::SetShouldStop(bool value) {
     if (value) {
-        PG_HEAP(ReadBarrier((void**)(&trueObject)));
-    	shouldStop = trueObject;
+    	shouldStop = WRITEBARRIER(READBARRIER(trueObject));
     } else {
-        PG_HEAP(ReadBarrier((void**)(&falseObject)));
-    	shouldStop = falseObject;
+    	shouldStop = WRITEBARRIER(READBARRIER(falseObject));
     }
 }
 
 
 pVMBlock VMThread::GetBlockToRun() {
-    PG_HEAP(ReadBarrier((void**)(&blockToRun)));
-    return blockToRun;
+    return READBARRIER(blockToRun);
 }
 
 
 void VMThread::SetBlockToRun(pVMBlock value) {
-    blockToRun = value;
+    blockToRun = WRITEBARRIER(value);
 }
 
 
 pVMString VMThread::GetName() {
-    PG_HEAP(ReadBarrier((void**)(&name)));
-    return name;
+    return READBARRIER(name);
 }
 
 
 void VMThread::SetName(pVMString value) {
-    name = value;
+    name = WRITEBARRIER(value);
 }
 
 
 pVMObject VMThread::GetArgument() {
-    PG_HEAP(ReadBarrier((void**)(&argument)));
-    return argument;
+    return READBARRIER(argument);
 }
 
 
 void VMThread::SetArgument(pVMObject value) {
-    argument = value;
+    argument = WRITEBARRIER(value);
 }
 
 
