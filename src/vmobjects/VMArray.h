@@ -44,10 +44,10 @@ public:
 #endif
 
     inline  long GetNumberOfIndexableFields() const;
-    pVMArray CopyAndExtendWith(pVMObject) /*const*/;
-    pVMObject GetIndexableField(long idx) /*const*/;
+    pVMArray CopyAndExtendWith(pVMObject);
+    pVMObject GetIndexableField(long idx);
     void SetIndexableField(long idx, pVMObject value);
-    void CopyIndexableFieldsTo(pVMArray) /*const*/;
+    void CopyIndexableFieldsTo(pVMArray);
 
 private:
     virtual void MarkObjectAsInvalid();

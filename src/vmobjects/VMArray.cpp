@@ -40,12 +40,11 @@ VMArray::VMArray(long size, long nof) :
     // Fields start after clazz and other fields (GetNumberOfFields)
     pVMObject* arrFields = FIELDS + GetNumberOfFields();
     for (long i = 0; i < size; ++i) {
-        PG_HEAP(ReadBarrier((void**)(&nilObject)));
-        arrFields[i] = nilObject;
+        arrFields[i] = WRITEBARRIER(READBARRIER(nilObject));
     }
 }
 
-pVMObject VMArray::GetIndexableField(long idx) /*const*/ {
+pVMObject VMArray::GetIndexableField(long idx) {
     if (idx > GetNumberOfIndexableFields()) {
         cout << "Array index out of bounds: Accessing " << idx
         << ", but array size is only " << GetNumberOfIndexableFields()
@@ -65,7 +64,7 @@ void VMArray::SetIndexableField(long idx, pVMObject value) {
     SetField(GetNumberOfFields() + idx, value);
 }
 
-pVMArray VMArray::CopyAndExtendWith(pVMObject item) /*const*/ {
+pVMArray VMArray::CopyAndExtendWith(pVMObject item) {
     size_t fields = GetNumberOfIndexableFields();
     pVMArray result = _UNIVERSE->NewArray(fields + 1);
     this->CopyIndexableFieldsTo(result);
@@ -113,7 +112,7 @@ void VMArray::MarkObjectAsInvalid() {
     }
 }
 
-void VMArray::CopyIndexableFieldsTo(pVMArray to) /*const*/ {
+void VMArray::CopyIndexableFieldsTo(pVMArray to) {
     long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {
         to->SetIndexableField(i, GetIndexableField(i));
