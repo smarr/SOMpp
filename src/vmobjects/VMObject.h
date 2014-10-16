@@ -77,12 +77,12 @@ public:
     VMObject(long numberOfFields = 0);
 
     /* Virtual member functions */
-    virtual inline pVMClass  GetClass() /*const*/;
+    virtual inline pVMClass  GetClass();
     virtual        void      SetClass(pVMClass cl);
-    virtual        pVMSymbol GetFieldName(long index) /*const*/;
+    virtual        pVMSymbol GetFieldName(long index);
     virtual inline long      GetNumberOfFields() const;
     virtual        void      SetNumberOfFields(long nof);
-                   pVMObject GetField(long index) /*const*/;
+                   pVMObject GetField(long index);
                    void      SetField(long index, pVMObject value);
     virtual        void      Assert(bool value) const;
     virtual inline size_t    GetObjectSize() const;
@@ -154,10 +154,9 @@ void VMObject::SetObjectSize(size_t size) {
     objectSize = size;
 }
 
-pVMClass VMObject::GetClass() /*const*/ {
+pVMClass VMObject::GetClass() {
     assert(Universe::IsValidObject((pVMObject) clazz));
-    PG_HEAP(ReadBarrier((void**)(&clazz)));
-    return clazz;
+    return READBARRIER(clazz);
 }
 
 long VMObject::GetNumberOfFields() const {

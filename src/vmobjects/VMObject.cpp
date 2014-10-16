@@ -79,13 +79,12 @@ void VMObject::SetNumberOfFields(long nof) {
     this->numberOfFields = nof;
     // initialize fields with NilObject
     for (long i = 0; i < nof; ++i) {
-        PG_HEAP(ReadBarrier((void**)(&nilObject)));
-        FIELDS[i] = nilObject;
+        FIELDS[i] = WRITEBARRIER(READBARRIER(nilObject));
     }
 }
 
 void VMObject::SetClass(pVMClass cl) {
-    clazz = cl;
+    clazz = WRITEBARRIER(cl);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, cl);
 #endif
@@ -102,12 +101,11 @@ void VMObject::Assert(bool value) const {
 }
 
 pVMObject VMObject::GetField(long index) /*const*/ {
-    PG_HEAP(ReadBarrier((void**)(&FIELDS[index])));
-    return FIELDS[index];
+    return READBARRIER(FIELDS[index]);
 }
 
 void VMObject::SetField(long index, pVMObject value) {
-    FIELDS[index] = value;
+    FIELDS[index] = WRITEBARRIER(value);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, (VMOBJECT_PTR)value);
 #endif
