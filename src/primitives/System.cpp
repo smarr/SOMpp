@@ -62,8 +62,7 @@ void _System::Global_(pVMObject /*object*/, pVMFrame frame) {
     frame->Pop();
     pVMObject result = _UNIVERSE->GetGlobal(arg);
     
-    PG_HEAP(ReadBarrier((void**)&nilObject));
-    frame->Push( UNTAG_REFERENCE(result) ? result : nilObject);
+    frame->Push( result ? result : READBARRIER(nilObject));
 }
 
 void _System::Global_put_(pVMObject /*object*/, pVMFrame frame) {
@@ -76,11 +75,10 @@ void _System::Load_(pVMObject /*object*/, pVMFrame frame) {
     pVMSymbol arg = static_cast<pVMSymbol>(frame->Pop());
     frame->Pop();
     pVMClass result = _UNIVERSE->LoadClass(arg);
-    if (UNTAG_REFERENCE(result))
+    if (result)
         frame->Push(result);
     else {
-        PG_HEAP(ReadBarrier((void**)&nilObject));
-        frame->Push(nilObject);
+        frame->Push(READBARRIER(nilObject));
     }
 }
 
