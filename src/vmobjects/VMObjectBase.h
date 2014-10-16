@@ -10,15 +10,17 @@
 
 
 #if GC_TYPE==PAUSELESS
-#define PG_HEAP(exp) (exp)
+#define READBARRIER(reference) (ReadBarrier(&reference))
 #else
-#define PG_HEAP(exp)
+#define READBARRIER(reference) (reference)
 #endif
 
 #if GC_TYPE==PAUSELESS
-#define READBARRIER(reference) (Test(&reference))
+#define WRITEBARRIER(reference) (WriteBarrier(reference))
+//#elif GC_TYPE==GENERATIONAL
+//#define WRITEBARRIER(reference) (_HEAP->WriteBarrier(this, reference))
 #else
-#define READBARRIER(reference) (reference)
+#define WRITEBARRIER(reference) (reference)
 #endif
 
 class VMObjectBase {
