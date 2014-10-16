@@ -43,7 +43,7 @@ public:
     VMSymbol(const StdString& s);
     virtual StdString GetPlainString() const;
     virtual size_t GetObjectSize() const;
-    virtual pVMClass GetClass() /*const*/;
+    virtual pVMClass GetClass();
     
 #if GC_TYPE==PAUSELESS
     virtual pVMSymbol Clone(Page*);

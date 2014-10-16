@@ -69,9 +69,8 @@ pVMSymbol VMSymbol::Clone() {
 }
 #endif
 
-pVMClass VMSymbol::GetClass() /*const*/ {
-    PG_HEAP(ReadBarrier((void**)(&symbolClass)));
-    return symbolClass;
+pVMClass VMSymbol::GetClass() {
+    return READBARRIER(symbolClass);
 }
 
 StdString VMSymbol::GetPlainString() const {
