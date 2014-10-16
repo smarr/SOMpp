@@ -74,14 +74,12 @@ pVMFrame VMFrame::EmergencyFrameFrom(pVMFrame from, long extraLength) {
 
     // copy all fields from other frame
     while (from->arguments + i < from_end) {
-        PG_HEAP(ReadBarrier((void**)(&from->arguments[i])));
-        result->arguments[i] = from->arguments[i];
+        result->arguments[i] = WRITEBARRIER(READBARRIER(from->arguments[i]));
         i++;
     }
     // initialize others with nilObject
     while (result->arguments + i < result_end) {
-        PG_HEAP(ReadBarrier((void**)(&nilObject)));
-        result->arguments[i] = nilObject;
+        result->arguments[i] = WRITEBARRIER(READBARRIER(nilObject));
         i++;
     }
     return result;
@@ -145,14 +143,13 @@ VMFrame::VMFrame(long size, long nof) :
     pVMObject* end = (pVMObject*) SHIFTED_PTR(this, objectSize);
     long i = 0;
     while (arguments + i < end) {
-        PG_HEAP(ReadBarrier((void**)(&nilObject)));
-        arguments[i] = nilObject;
+        arguments[i] = WRITEBARRIER(READBARRIER(nilObject));
         i++;
     }
 }
 
 void VMFrame::SetMethod(pVMMethod method) {
-    this->method = method;
+    this->method = WRITEBARRIER(method);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, method);
 #endif
@@ -184,15 +181,14 @@ long VMFrame::RemainingStackSize() const {
 }
 
 pVMObject VMFrame::Pop() {
-    PG_HEAP(ReadBarrier((void**)stack_ptr));
-    return *stack_ptr--;
+    return READBARRIER(*stack_ptr--);
 }
 
 void VMFrame::Push(pVMObject obj) {
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, (VMOBJECT_PTR)obj);
 #endif
-    *(++stack_ptr) = obj;
+    *(++stack_ptr) = WRITEBARRIER(obj);
 }
 
 void VMFrame::PrintStack() const {
@@ -202,33 +198,29 @@ void VMFrame::PrintStack() const {
     pVMObject* end = (pVMObject*) SHIFTED_PTR(this, objectSize);
     long i = 0;
     while (arguments + i < end) {
-        PG_HEAP(ReadBarrier((void**)(&arguments[i])));
-        pVMObject vmo = arguments[i];
+        pVMObject vmo = READBARRIER(arguments[i]);
         cout << i << ": ";
-        if (UNTAG_REFERENCE(vmo) == NULL)
+        if (vmo == NULL)
         cout << "NULL" << endl;
-        PG_HEAP(ReadBarrier((void**)(&nilObject)));
-        if (UNTAG_REFERENCE(vmo) == UNTAG_REFERENCE(nilObject))
+        if (vmo == READBARRIER(nilObject))
         cout << "NIL_OBJECT" << endl;
 #ifdef USE_TAGGING
         if (IS_TAGGED(vmo)) {
             cout << "index: " << i << " object: VMInteger" << endl;
         }
         else {
-            if (UNTAG_REFERENCE(((VMOBJECT_PTR)vmo)->GetClass()) == NULL)
+            if (((VMOBJECT_PTR)vmo)->GetClass() == NULL)
             cout << "VMObject with Class == NULL" << endl;
-            PG_HEAP(Readbarrier((void**)&nilObject));
-            if (UNTAG_REFERENCE(((VMOBJECT_PTR)vmo)->GetClass()) == nilObject)
+            if (((VMOBJECT_PTR)vmo)->GetClass() == READBARRIER(nilObject))
             cout << "VMObject with Class == NIL_OBJECT" << endl;
             else
             cout << "index: " << i << " object:"
             << ((VMOBJECT_PTR)vmo)->GetClass()->GetName()->GetChars() << endl;
         }
 #else
-        if (UNTAG_REFERENCE(vmo->GetClass()) == NULL)
+        if (vmo->GetClass() == NULL)
         cout << "VMObject with Class == NULL" << endl;
-        PG_HEAP(ReadBarrier((void**)(&nilObject)));
-        if (UNTAG_REFERENCE(vmo->GetClass()) == UNTAG_REFERENCE(nilObject))
+        if (vmo->GetClass() == READBARRIER(nilObject))
         cout << "VMObject with Class == NIL_OBJECT" << endl;
         else
         cout << "index: " << i << " object:"
@@ -247,23 +239,17 @@ void VMFrame::ResetStackPointer() {
 }
 
 pVMObject VMFrame::GetStackElement(long index) const {
-    PG_HEAP(ReadBarrier((void**)(&stack_ptr[-index])));
-    return stack_ptr[-index];
-}
-
-void VMFrame::SetStackElement(long index, pVMObject obj) {
-    stack_ptr[-index] = obj;
+    return READBARRIER(stack_ptr[-index]);
 }
 
 pVMObject VMFrame::GetLocal(long index, long contextLevel) {
     pVMFrame context = this->GetContextLevel(contextLevel);
-    PG_HEAP(ReadBarrier((void**)(&context->locals[index])));
-    return context->locals[index];
+    return READBARRIER(context->locals[index]);
 }
 
 void VMFrame::SetLocal(long index, long contextLevel, pVMObject value) {
     pVMFrame context = this->GetContextLevel(contextLevel);
-    context->locals[index] = value;
+    context->locals[index] = WRITEBARRIER(value);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(context, (VMOBJECT_PTR)value);
 #endif
@@ -272,13 +258,12 @@ void VMFrame::SetLocal(long index, long contextLevel, pVMObject value) {
 pVMObject VMFrame::GetArgument(long index, long contextLevel) {
     // get the context
     pVMFrame context = this->GetContextLevel(contextLevel);
-    PG_HEAP(ReadBarrier((void**)(&context->arguments[index])));
-    return context->arguments[index];
+    return READBARRIER(context->arguments[index]);
 }
 
 void VMFrame::SetArgument(long index, long contextLevel, pVMObject value) {
     pVMFrame context = this->GetContextLevel(contextLevel);
-    context->arguments[index] = value;
+    context->arguments[index] = WRITEBARRIER(value);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(context, (VMOBJECT_PTR)value);
 #endif
@@ -288,7 +273,7 @@ void VMFrame::PrintStackTrace() const {
     //TODO
 }
 
-long VMFrame::ArgumentStackIndex(long index) /*const*/ {
+long VMFrame::ArgumentStackIndex(long index) {
     pVMMethod meth = this->GetMethod();
     return meth->GetNumberOfArguments() - index - 1;
 }
@@ -300,7 +285,7 @@ void VMFrame::CopyArgumentsFrom(pVMFrame frame) {
     long num_args = GetMethod()->GetNumberOfArguments();
     for (long i = 0; i < num_args; ++i) {
         pVMObject stackElem = frame->GetStackElement(num_args - 1 - i);
-        arguments[i] = stackElem;
+        arguments[i] = WRITEBARRIER(stackElem);
 #if GC_TYPE==GENERATIONAL
         _HEAP->WriteBarrier(this, (VMOBJECT_PTR)stackElem);
 #endif

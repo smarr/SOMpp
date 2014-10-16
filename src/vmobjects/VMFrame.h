@@ -43,17 +43,17 @@ public:
 
     VMFrame(long size, long nof = 0);
 
-    inline pVMFrame GetPreviousFrame() /*const*/;
+    inline pVMFrame GetPreviousFrame();
     inline void SetPreviousFrame(pVMFrame);
     inline void ClearPreviousFrame();
-    inline bool HasPreviousFrame() /*const*/;
-    inline bool IsBootstrapFrame() /*const*/;
-    inline pVMFrame GetContext() /*const*/;
+    inline bool HasPreviousFrame();
+    inline bool IsBootstrapFrame();
+    inline pVMFrame GetContext();
     inline void SetContext(pVMFrame);
-    inline bool HasContext() /*const*/;
+    inline bool HasContext();
     pVMFrame GetContextLevel(long);
     pVMFrame GetOuterContext();
-    inline pVMMethod GetMethod() /*const*/;
+    inline pVMMethod GetMethod();
     void SetMethod(pVMMethod);
     pVMObject Pop();
     void Push(pVMObject);
@@ -61,15 +61,14 @@ public:
     inline long GetBytecodeIndex() const;
     inline void SetBytecodeIndex(long);
     pVMObject GetStackElement(long) const;
-    void SetStackElement(long, pVMObject);
     pVMObject GetLocal(long, long);
     void SetLocal(long, long, pVMObject);
     pVMObject GetArgument(long, long);
     void SetArgument(long, long, pVMObject);
     void PrintStackTrace() const;
-    long ArgumentStackIndex(long index) /*const*/;
+    long ArgumentStackIndex(long index);
     void CopyArgumentsFrom(pVMFrame frame);
-    inline  pVMObject GetField(long index) /*const*/;
+    inline  pVMObject GetField(long index);
     
 #if GC_TYPE==PAUSELESS
     virtual pVMFrame Clone(Page*);
@@ -95,7 +94,7 @@ private:
     static const long VMFrameNumberOfFields;
 };
 
-pVMObject VMFrame::GetField(long index) /*const*/ {
+pVMObject VMFrame::GetField(long index) {
     if (index==4)
 #ifdef USE_TAGGING
     return TAG_INTEGER(bytecodeIndex);
@@ -105,19 +104,12 @@ pVMObject VMFrame::GetField(long index) /*const*/ {
     return VMObject::GetField(index);
 }
 
-bool VMFrame::HasContext() /*const*/ {
-    //return context != nullptr;
-    
-    
-    //assert(this->context == NULL);
-    PG_HEAP(ReadBarrier((void**)(&this->context)));
-    return UNTAG_REFERENCE(this->context) != NULL;
+bool VMFrame::HasContext() {
+    return READBARRIER(this->context) != NULL;
 }
 
-bool VMFrame::HasPreviousFrame() /*const*/ {
-    //assert(previousFrame == NULL);
-    PG_HEAP(ReadBarrier((void**)(&this->previousFrame)));
-    return this->previousFrame != NULL;
+bool VMFrame::HasPreviousFrame() {
+    return READBARRIER(this->previousFrame) != NULL;
 }
 
 long VMFrame::GetBytecodeIndex() const {
@@ -128,17 +120,16 @@ void VMFrame::SetBytecodeIndex(long index) {
     bytecodeIndex = index;
 }
 
-bool VMFrame::IsBootstrapFrame() /*const*/ {
+bool VMFrame::IsBootstrapFrame() {
     return !HasPreviousFrame();
 }
 
-pVMFrame VMFrame::GetContext() /*const*/ {
-    PG_HEAP(ReadBarrier((void**)(&this->context)));
-    return this->context;
+pVMFrame VMFrame::GetContext() {
+    return READBARRIER(this->context);
 }
 
 void VMFrame::SetContext(pVMFrame frm) {
-    this->context = frm;
+    this->context = WRITEBARRIER(frm);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, frm);
 #endif
@@ -148,13 +139,12 @@ void* VMFrame::GetStackPointer() const {
     return stack_ptr;
 }
 
-pVMFrame VMFrame::GetPreviousFrame() /*const*/ {
-    PG_HEAP(ReadBarrier((void**)(&this->previousFrame)));
-    return this->previousFrame;
+pVMFrame VMFrame::GetPreviousFrame() {
+    return READBARRIER(this->previousFrame);
 }
 
 void VMFrame::SetPreviousFrame(pVMFrame frm) {
-    this->previousFrame = frm;
+    this->previousFrame = WRITEBARRIER(frm);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, AS_POINTER(frm));
 #endif
@@ -164,9 +154,8 @@ void VMFrame::ClearPreviousFrame() {
     this->previousFrame = NULL;
 }
 
-pVMMethod VMFrame::GetMethod() /*const*/ {
-    PG_HEAP(ReadBarrier((void**)(&this->method)));
-    return this->method;
+pVMMethod VMFrame::GetMethod() {
+    return READBARRIER(this->method);
 }
 
 #endif
