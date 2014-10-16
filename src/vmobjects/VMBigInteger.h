@@ -39,7 +39,7 @@ public:
 
     inline void SetEmbeddedInteger(int64_t);
     inline int64_t GetEmbeddedInteger() const;
-    virtual pVMClass GetClass() /*const*/;
+    virtual pVMClass GetClass();
     virtual size_t GetObjectSize() const;
     
     virtual void MarkObjectAsInvalid() {}

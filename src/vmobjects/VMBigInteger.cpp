@@ -26,6 +26,9 @@
 
 #include "VMBigInteger.h"
 
+#include <vmobjects/AbstractObject.h>
+#include <vmobjects/VMClass.h>
+
 #include <vm/Universe.h>
 #include "../interpreter/Interpreter.h"
 
@@ -55,7 +58,6 @@ size_t VMBigInteger::GetObjectSize() const {
     return sizeof(VMBigInteger);
 }
 
-pVMClass VMBigInteger::GetClass() /*const*/ {
-    PG_HEAP(ReadBarrier((void**)(&bigIntegerClass)));
-    return bigIntegerClass;
+pVMClass VMBigInteger::GetClass() {
+    return READBARRIER(bigIntegerClass);
 }
