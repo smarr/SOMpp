@@ -96,7 +96,7 @@ pVMClass ClassGenerationContext::Assemble() {
     pVMClass superClass = _UNIVERSE->LoadClass(superName);
 
     // Allocate the class of the resulting class
-    pVMClass resultClass = _UNIVERSE->NewClass(metaClassClass);
+    pVMClass resultClass = _UNIVERSE->NewClass(READBARRIER(metaClassClass));
 
     // Initialize the class of the resulting class
     resultClass->SetInstanceFields(_UNIVERSE->NewArrayList(classFields));
