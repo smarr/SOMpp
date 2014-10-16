@@ -107,15 +107,13 @@ void _String::Equal(pVMObject /*object*/, pVMFrame frame) {
 #else
     pVMClass otherClass = op1->GetClass();
 #endif
-    PG_HEAP(ReadBarrier((void**)&stringClass));
-    if(UNTAG_REFERENCE(otherClass) == UNTAG_REFERENCE(stringClass)) {
+    if(otherClass == READBARRIER(stringClass)) {
 
         StdString s1 = static_cast<pVMString>(op1)->GetStdString();
         StdString s2 = op2->GetStdString();
 
         if(s1 == s2) {
-            PG_HEAP(ReadBarrier((void**)&trueObject));
-            frame->Push(trueObject);
+            frame->Push(READBARRIER(trueObject));
             return;
         }
     }
