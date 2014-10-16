@@ -39,7 +39,7 @@ VMBlock::VMBlock() :
 }
 
 void VMBlock::SetMethod(pVMMethod bMethod) {
-    blockMethod = (bMethod);
+    blockMethod = WRITEBARRIER(bMethod);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, bMethod);
 #endif
@@ -59,9 +59,8 @@ pVMBlock VMBlock::Clone() {
 }
 #endif
 
-pVMMethod VMBlock::GetMethod() /*const*/ {
-    PG_HEAP(ReadBarrier((void**)(&blockMethod)));
-    return (blockMethod);
+pVMMethod VMBlock::GetMethod() {
+    return READBARRIER(blockMethod);
 }
 
 pVMEvaluationPrimitive VMBlock::GetEvaluationPrimitive(int numberOfArguments) {

@@ -38,10 +38,10 @@ class VMBlock: public VMObject {
 public:
     VMBlock();
 
-            pVMMethod GetMethod() /*const*/;
+            pVMMethod GetMethod();
             void      SetMethod(pVMMethod);
     inline  void      SetContext(pVMFrame);
-    inline  pVMFrame  GetContext() /*const*/;
+    inline  pVMFrame  GetContext();
     
 #if GC_TYPE==PAUSELESS
     virtual pVMBlock Clone(Page*);
@@ -58,15 +58,14 @@ private:
 };
 
 void VMBlock::SetContext(pVMFrame contxt) {
-    context = contxt;
+    context = WRITEBARRIER(contxt);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, (AbstractVMObject*)contxt);
 #endif
 }
 
-pVMFrame VMBlock::GetContext() /*const*/ {
-    PG_HEAP(ReadBarrier((void**)(&context)));
-    return context;
+pVMFrame VMBlock::GetContext() {
+    return READBARRIER(context);
 }
 
 #endif
