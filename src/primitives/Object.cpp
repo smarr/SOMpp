@@ -77,9 +77,7 @@ void _Object::Equalequal(pVMObject /*object*/, pVMFrame frame) {
     pVMObject op1 = frame->Pop();
     pVMObject op2 = frame->Pop();
     
-    PG_HEAP(ReadBarrier((void**)&trueObject));
-    PG_HEAP(ReadBarrier((void**)&falseObject));
-    frame->Push( UNTAG_REFERENCE(op1) == UNTAG_REFERENCE(op2) ? trueObject : falseObject );
+    frame->Push( op1 == op2 ? READBARRIER(trueObject) : READBARRIER(falseObject) );
 }
 
 void _Object::ObjectSize(pVMObject /*object*/, pVMFrame frame) {
@@ -110,15 +108,13 @@ void _Object::Hashcode(pVMObject /*object*/, pVMFrame frame) {
 void _Object::Inspect(pVMObject, pVMFrame frame) {
     // not implemeted
     frame->Pop();
-    PG_HEAP(ReadBarrier((void**)(&falseObject)));
-    frame->Push(falseObject);
+    frame->Push(READBARRIER(falseObject));
 }
 
 void _Object::Halt(pVMObject, pVMFrame frame) {
     // not implemeted
     frame->Pop();
-    PG_HEAP(ReadBarrier((void**)&falseObject));
-    frame->Push(falseObject);
+    frame->Push(READBARRIER(falseObject));
 }
 
 void _Object::Perform(pVMObject, pVMFrame frame) {
