@@ -52,8 +52,7 @@ const int VMPrimitive::VMPrimitiveNumberOfFields = 2;
 
 VMPrimitive::VMPrimitive(pVMSymbol signature) : VMInvokable(VMPrimitiveNumberOfFields) {
     //the only class that explicitly does this.
-    PG_HEAP(ReadBarrier((void**)&primitiveClass));
-    this->SetClass(primitiveClass);
+    this->SetClass(READBARRIER(primitiveClass));
 
     this->SetSignature(signature);
     this->routine = NULL;
