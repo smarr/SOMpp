@@ -294,16 +294,12 @@ void VMFrame::CopyArgumentsFrom(pVMFrame frame) {
 
 #if GC_TYPE==PAUSELESS
 void VMFrame::MarkReferences() {
-    if (previousFrame)
-        ReadBarrierForGCThread((void**)&previousFrame);
-    if (context)
-        ReadBarrierForGCThread((void**)&context);
-    ReadBarrierForGCThread((void**)&method);
-    
+    ReadBarrierForGCThread(&previousFrame);
+    ReadBarrierForGCThread(&context);
+    ReadBarrierForGCThread(&method);
     long i = 0;
     while (arguments + i <= stack_ptr) {
-        if (arguments[i] != NULL)
-            ReadBarrierForGCThread((void**)&arguments[i]);
+        ReadBarrierForGCThread(&arguments[i]);
         i++;
     }
 }

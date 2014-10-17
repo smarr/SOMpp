@@ -192,16 +192,14 @@ pVMObject VMMethod::GetConstant(long indx) {
 void VMMethod::MarkReferences() {
     VMInvokable::MarkReferences();
     
-    ReadBarrierForGCThread((void**)&numberOfLocals);
-    ReadBarrierForGCThread((void**)&maximumNumberOfStackElements);
-    ReadBarrierForGCThread((void**)&bcLength);
-    ReadBarrierForGCThread((void**)&numberOfArguments);
-    ReadBarrierForGCThread((void**)&numberOfConstants);
+    ReadBarrierForGCThread(&numberOfLocals);
+    ReadBarrierForGCThread(&maximumNumberOfStackElements);
+    ReadBarrierForGCThread(&bcLength);
+    ReadBarrierForGCThread(&numberOfArguments);
+    long numIndexableFields = ReadBarrierForGCThread(&numberOfConstants)->GetEmbeddedInteger();
     
-    long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {
-        if (GetIndexableField(i) != NULL)
-            ReadBarrierForGCThread((void**)&indexableFields[i]);
+        ReadBarrierForGCThread(&indexableFields[i]);
     }
 }
 #else

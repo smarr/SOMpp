@@ -127,10 +127,10 @@ void VMObject::MarkObjectAsInvalid() {
 
 #if GC_TYPE==PAUSELESS
 void VMObject::MarkReferences() {
-    ReadBarrierForGCThread((void**)&clazz);
+    ReadBarrierForGCThread(&clazz);
     long numFields = GetNumberOfFields();
     for (long i = 0; i < numFields; ++i) {
-        ReadBarrierForGCThread((void**)&FIELDS[i]);
+        ReadBarrierForGCThread(&FIELDS[i]);
     }
 }
 #else

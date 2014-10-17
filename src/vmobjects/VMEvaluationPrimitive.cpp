@@ -112,7 +112,7 @@ void VMEvaluationPrimitive::evaluationRoutine(pVMObject object, pVMFrame frame) 
 #if GC_TYPE==PAUSELESS
 void VMEvaluationPrimitive::MarkReferences() {
     VMPrimitive::MarkReferences();
-    ReadBarrierForGCThread((void**)&numberOfArguments);
+    ReadBarrierForGCThread(&numberOfArguments);
 }
 #else
 void VMEvaluationPrimitive::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {

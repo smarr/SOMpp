@@ -121,11 +121,11 @@ void VMArray::CopyIndexableFieldsTo(pVMArray to) {
 
 #if GC_TYPE==PAUSELESS
 void VMArray::MarkReferences() {
-    ReadBarrierForGCThread((void**)&clazz);
+    ReadBarrierForGCThread(&clazz);
     long numFields          = GetNumberOfFields();
     long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numFields + numIndexableFields; i++)
-        ReadBarrierForGCThread((void**)&FIELDS[i]);
+        ReadBarrierForGCThread(&FIELDS[i]);
 }
 #else
 void VMArray::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {

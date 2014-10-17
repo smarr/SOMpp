@@ -440,17 +440,16 @@ void VMClass::setPrimitives(void* dlhandle, const StdString& cname) {
 
 #if GC_TYPE==PAUSELESS
 void VMClass::MarkReferences() {
-    ReadBarrierForGCThread((void**)&clazz);
-    if (superClass)
-        ReadBarrierForGCThread((void**)&superClass);
-    ReadBarrierForGCThread((void**)&name);
-    ReadBarrierForGCThread((void**)&instanceFields);
-    ReadBarrierForGCThread((void**)&instanceInvokables);
+    ReadBarrierForGCThread(&clazz);
+    ReadBarrierForGCThread(&superClass);
+    ReadBarrierForGCThread(&name);
+    ReadBarrierForGCThread(&instanceFields);
+    ReadBarrierForGCThread(&instanceInvokables);
     
     pVMObject* fields = FIELDS;
     
     for (long i = VMClassNumberOfFields + 0/*VMObjectNumberOfFields*/; i < numberOfFields; i++) {
-        ReadBarrierForGCThread((void**)&fields[i]);
+        ReadBarrierForGCThread(&fields[i]);
     }
 }
 #else

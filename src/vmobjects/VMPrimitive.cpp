@@ -81,9 +81,9 @@ void VMPrimitive::EmptyRoutine( pVMObject _self, pVMFrame /*frame*/) {
 
 #if GC_TYPE==PAUSELESS
 void VMPrimitive::MarkReferences() {
-    ReadBarrierForGCThread((void**)&clazz);
-    ReadBarrierForGCThread((void**)&signature);
-    ReadBarrierForGCThread((void**)&holder);
+    ReadBarrierForGCThread(&clazz);
+    ReadBarrierForGCThread(&signature);
+    ReadBarrierForGCThread(&holder);
 }
 #else
 void VMPrimitive::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {

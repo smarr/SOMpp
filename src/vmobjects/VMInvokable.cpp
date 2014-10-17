@@ -56,10 +56,9 @@ void VMInvokable::SetHolder(pVMClass hld) {
 
 #if GC_TYPE==PAUSELESS
 void VMInvokable::MarkReferences() {
-    ReadBarrierForGCThread((void**)&clazz);
-    ReadBarrierForGCThread((void**)&signature);
-    if (holder)
-        ReadBarrierForGCThread((void**)&holder);
+    ReadBarrierForGCThread(&clazz);
+    ReadBarrierForGCThread(&signature);
+    ReadBarrierForGCThread(&holder);
 }
 #else
 void VMInvokable::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
