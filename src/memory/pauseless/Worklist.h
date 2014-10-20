@@ -17,7 +17,8 @@ public:
     Worklist();
     ~Worklist();
     
-    void AddWork(AbstractVMObject*);
+    void AddWorkGC(AbstractVMObject*);
+    void AddWorkMutator(AbstractVMObject*);
     AbstractVMObject* GetWork();
     void MoveWork(Worklist*);
     bool Empty();
