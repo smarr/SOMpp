@@ -41,8 +41,8 @@ pVMInteger VMInteger::Clone() {
     return new (_HEAP, _PAGE, 0, true) VMInteger(*this);
 }
 #elif GC_TYPE==PAUSELESS
-pVMInteger VMInteger::Clone(Page* page) {
-    return new (page) VMInteger(*this);
+pVMInteger VMInteger::Clone(BaseThread* thread) {
+    return new (_HEAP, thread) VMInteger(*this);
 }
 #else
 pVMInteger VMInteger::Clone() {
