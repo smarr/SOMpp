@@ -75,7 +75,7 @@ public:
            void         LoadPrimitives(const vector<StdString>&);
     
 #if GC_TYPE==PAUSELESS
-    virtual pVMClass    Clone(Page*);
+    virtual pVMClass    Clone(BaseThread*);
     virtual void MarkReferences();
 #else
     virtual pVMClass    Clone();
