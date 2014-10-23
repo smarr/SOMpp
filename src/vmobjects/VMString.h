@@ -43,7 +43,7 @@ public:
     virtual size_t GetObjectSize() const;
 
 #if GC_TYPE==PAUSELESS
-    virtual pVMString Clone(Page*);
+    virtual pVMString Clone(BaseThread*);
 #else
     virtual pVMString Clone();
 #endif

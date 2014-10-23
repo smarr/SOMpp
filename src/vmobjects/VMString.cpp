@@ -55,8 +55,8 @@ pVMString VMString::Clone() {
     return new (_HEAP, _PAGE, PADDED_SIZE(strlen(chars)+1), true) VMString(chars);
 }
 #elif GC_TYPE==PAUSELESS
-pVMString VMString::Clone(Page* page) {
-    return new (page, PADDED_SIZE(strlen(chars)+1)) VMString(chars);
+pVMString VMString::Clone(BaseThread* thread) {
+    return new (_HEAP, thread, PADDED_SIZE(strlen(chars)+1)) VMString(chars);
 }
 #else
 pVMString VMString::Clone() {
