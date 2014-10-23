@@ -39,7 +39,7 @@ pVMPrimitive VMPrimitive::GetEmptyPrimitive( pVMSymbol sig ) {
 #if GC_TYPE==GENERATIONAL
     pVMPrimitive prim = new (_HEAP, _PAGE) VMPrimitive(sig);
 #elif GC_TYPE==PAUSELESS
-    pVMPrimitive prim = new (_PAGE) VMPrimitive(sig);
+    pVMPrimitive prim = new (_HEAP, _UNIVERSE->GetInterpreter()) VMPrimitive(sig);
 #else
     pVMPrimitive prim = new (_HEAP) VMPrimitive(sig);
 #endif
@@ -64,8 +64,8 @@ pVMPrimitive VMPrimitive::Clone() {
     return new (_HEAP, _PAGE, 0, true) VMPrimitive(*this);
 }
 #elif GC_TYPE==PAUSELESS
-pVMPrimitive VMPrimitive::Clone(Page* page) {
-    return new (page) VMPrimitive(*this);
+pVMPrimitive VMPrimitive::Clone(BaseThread* thread) {
+    return new (_HEAP, thread) VMPrimitive(*this);
 }
 #else
 pVMPrimitive VMPrimitive::Clone() {

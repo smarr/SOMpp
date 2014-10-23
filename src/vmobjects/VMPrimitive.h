@@ -45,7 +45,7 @@ public:
             void SetEmpty(bool value) {empty = value;};
     
 #if GC_TYPE==PAUSELESS
-    virtual pVMPrimitive Clone(Page*);
+    virtual pVMPrimitive Clone(BaseThread*);
     virtual void MarkReferences();
 #else
     virtual pVMPrimitive Clone();
