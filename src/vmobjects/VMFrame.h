@@ -71,7 +71,7 @@ public:
     inline  pVMObject GetField(long index);
     
 #if GC_TYPE==PAUSELESS
-    virtual pVMFrame Clone(Page*);
+    virtual pVMFrame Clone(BaseThread*);
     virtual void MarkReferences();
 #else
     virtual pVMFrame Clone();

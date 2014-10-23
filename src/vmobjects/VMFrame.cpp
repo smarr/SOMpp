@@ -48,7 +48,7 @@ pVMFrame VMFrame::EmergencyFrameFrom(pVMFrame from, long extraLength) {
 #if GC_TYPE==GENERATIONAL
     pVMFrame result = new (_HEAP, _PAGE, additionalBytes) VMFrame(length);
 #elif GC_TYPE==PAUSELESS
-    pVMFrame result = new (_PAGE, additionalBytes) VMFrame(length);
+    pVMFrame result = new (_HEAP, _UNIVERSE->GetInterpreter(), additionalBytes) VMFrame(length);
 #else
     pVMFrame result = new (_HEAP, additionalBytes) VMFrame(length);
 #endif
@@ -89,32 +89,15 @@ pVMFrame VMFrame::EmergencyFrameFrom(pVMFrame from, long extraLength) {
 pVMFrame VMFrame::Clone() {
     size_t addSpace = objectSize - sizeof(VMFrame);
     pVMFrame clone = new (_HEAP, _PAGE, addSpace, true) VMFrame(*this);
-    void* destination = SHIFTED_PTR(clone, sizeof(VMFrame));
-    const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
-    size_t noBytes = GetObjectSize() - sizeof(VMFrame);
-    memcpy(destination, source, noBytes);
-    clone->arguments = (pVMObject*)&(clone->stack_ptr)+1; //field after stack_ptr
-    clone->locals = clone->arguments + clone->method->GetNumberOfArguments();
-    clone->stack_ptr = (pVMObject*)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
-    return clone;
-}
 #elif GC_TYPE==PAUSELESS
-pVMFrame VMFrame::Clone(Page* page) {
+pVMFrame VMFrame::Clone(BaseThread* thread) {
     size_t addSpace = objectSize - sizeof(VMFrame);
-    pVMFrame clone = new (page, addSpace) VMFrame(*this);
-    void* destination = SHIFTED_PTR(clone, sizeof(VMFrame));
-    const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
-    size_t noBytes = GetObjectSize() - sizeof(VMFrame);
-    memcpy(destination, source, noBytes);
-    clone->arguments = (pVMObject*)&(clone->stack_ptr)+1; //field after stack_ptr
-    clone->locals = clone->arguments + clone->method->GetNumberOfArguments();
-    clone->stack_ptr = (pVMObject*)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
-    return clone;
-}
+    pVMFrame clone = new (_HEAP, thread) VMFrame(*this);
 #else
 pVMFrame VMFrame::Clone() {
     size_t addSpace = objectSize - sizeof(VMFrame);
     pVMFrame clone = new (_HEAP, addSpace) VMFrame(*this);
+#endif
     void* destination = SHIFTED_PTR(clone, sizeof(VMFrame));
     const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
     size_t noBytes = GetObjectSize() - sizeof(VMFrame);
@@ -124,7 +107,6 @@ pVMFrame VMFrame::Clone() {
     clone->stack_ptr = (pVMObject*)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
     return clone;
 }
-#endif
 
 
 const long VMFrame::VMFrameNumberOfFields = 0;
