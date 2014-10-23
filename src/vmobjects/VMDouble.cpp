@@ -42,8 +42,8 @@ pVMDouble VMDouble::Clone() {
     return new (_HEAP, _PAGE, 0, true) VMDouble(*this);
 }
 #elif GC_TYPE==PAUSELESS
-pVMDouble VMDouble::Clone(Page* page) {
-    return new (page) VMDouble(*this);
+pVMDouble VMDouble::Clone(BaseThread* thread) {
+    return new (_HEAP, thread) VMDouble(*this);
 }
 #else
 pVMDouble VMDouble::Clone() {
