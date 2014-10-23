@@ -46,7 +46,7 @@ public:
     virtual pVMClass GetClass();
     
 #if GC_TYPE==PAUSELESS
-    virtual pVMSymbol Clone(Page*);
+    virtual pVMSymbol Clone(BaseThread*);
     //virtual void MarkReferences();
 #else
     virtual pVMSymbol Clone();
