@@ -45,8 +45,8 @@ pVMBigInteger VMBigInteger::Clone() {
     return new (_HEAP, _PAGE, 0, true) VMBigInteger(*this);
 }
 #elif GC_TYPE==PAUSELESS
-pVMBigInteger VMBigInteger::Clone(Page* page) {
-    return new (page) VMBigInteger(*this);
+pVMBigInteger VMBigInteger::Clone(BaseThread* thread) {
+    return new (_HEAP, thread) VMBigInteger(*this);
 }
 #else
 pVMBigInteger VMBigInteger::Clone() {
