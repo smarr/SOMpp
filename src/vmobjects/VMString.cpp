@@ -96,14 +96,3 @@ StdString VMString::GetStdString() const {
         return StdString("");
     return StdString(chars);
 }
-
-/*
-#if GC_TYPE==PAUSELESS
-void VMString::MarkReferences() {
-    //nothing to do
-}
-#else
-void VMString::WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR)) {
-    //nothing to do
-}
-#endif */
