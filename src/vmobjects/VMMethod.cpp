@@ -74,8 +74,8 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
 pVMMethod VMMethod::Clone() {
     pVMMethod clone = new (_HEAP, _PAGE, GetObjectSize() - sizeof(VMMethod), true)
 #elif GC_TYPE==PAUSELESS
-pVMMethod VMMethod::Clone(Page* page) {
-    pVMMethod clone = new (page, GetObjectSize() - sizeof(VMMethod))
+pVMMethod VMMethod::Clone(BaseThread* thread) {
+    pVMMethod clone = new (_HEAP, thread, GetObjectSize() - sizeof(VMMethod))
 #else
 pVMMethod VMMethod::Clone() {
     pVMMethod clone = new (_HEAP, GetObjectSize() - sizeof(VMMethod))

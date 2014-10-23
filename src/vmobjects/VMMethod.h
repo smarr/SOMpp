@@ -65,7 +65,7 @@ public:
 #endif
     
 #if GC_TYPE==PAUSELESS
-    virtual pVMMethod Clone(Page*);
+    virtual pVMMethod Clone(BaseThread*);
     virtual void MarkReferences();
 #else
     virtual pVMMethod Clone();
