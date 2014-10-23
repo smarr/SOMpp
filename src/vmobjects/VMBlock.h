@@ -49,7 +49,6 @@ public:
     virtual pVMBlock Clone();
 #endif
     
-    static pVMEvaluationPrimitive GetEvaluationPrimitive(int);
 private:
     pVMMethod blockMethod;
     pVMFrame context;

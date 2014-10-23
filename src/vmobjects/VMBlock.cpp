@@ -62,13 +62,3 @@ pVMBlock VMBlock::Clone() {
 pVMMethod VMBlock::GetMethod() {
     return READBARRIER(blockMethod);
 }
-
-pVMEvaluationPrimitive VMBlock::GetEvaluationPrimitive(int numberOfArguments) {
-#if GC_TYPE==GENERATIONAL
-    return new (_HEAP, _PAGE) VMEvaluationPrimitive(numberOfArguments);
-#elif GC_TYPE==PAUSELESS
-    return new (_PAGE) VMEvaluationPrimitive(numberOfArguments);
-#else
-    return new (_HEAP) VMEvaluationPrimitive(numberOfArguments);
-#endif
-}
