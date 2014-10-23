@@ -50,8 +50,8 @@ pVMBlock VMBlock::Clone() {
     return new (_HEAP, _PAGE, GetAdditionalSpaceConsumption(), true) VMBlock(*this);
 }
 #elif GC_TYPE==PAUSELESS
-pVMBlock VMBlock::Clone(Page* page) {
-    return new (page, GetAdditionalSpaceConsumption()) VMBlock(*this);
+pVMBlock VMBlock::Clone(BaseThread* thread) {
+    return new (_HEAP, thread, GetAdditionalSpaceConsumption()) VMBlock(*this);
 }
 #else
 pVMBlock VMBlock::Clone() {
