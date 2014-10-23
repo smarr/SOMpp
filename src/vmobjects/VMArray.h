@@ -36,7 +36,7 @@ public:
     VMArray(long size, long nof = 0);
 
 #if GC_TYPE==PAUSELESS
-    virtual pVMArray Clone(Page*);
+    virtual pVMArray Clone(BaseThread*);
     virtual void MarkReferences();
 #else
     virtual pVMArray Clone();
