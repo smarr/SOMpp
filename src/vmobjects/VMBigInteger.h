@@ -45,7 +45,8 @@ public:
     virtual void MarkObjectAsInvalid() {}
     
 #if GC_TYPE==PAUSELESS
-    virtual pVMBigInteger Clone(BaseThread*);
+    virtual pVMBigInteger Clone(Interpreter*);
+    virtual pVMBigInteger Clone(PauselessCollectorThread* thread);
 #else
     virtual pVMBigInteger Clone();
 #endif

@@ -45,7 +45,10 @@ pVMBigInteger VMBigInteger::Clone() {
     return new (_HEAP, _PAGE, 0, true) VMBigInteger(*this);
 }
 #elif GC_TYPE==PAUSELESS
-pVMBigInteger VMBigInteger::Clone(BaseThread* thread) {
+pVMBigInteger VMBigInteger::Clone(Interpreter* thread) {
+    return new (_HEAP, thread) VMBigInteger(*this);
+}
+pVMBigInteger VMBigInteger::Clone(PauselessCollectorThread* thread) {
     return new (_HEAP, thread) VMBigInteger(*this);
 }
 #else
