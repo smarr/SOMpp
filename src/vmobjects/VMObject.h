@@ -91,7 +91,8 @@ public:
     virtual        void      MarkObjectAsInvalid();
 
 #if GC_TYPE==PAUSELESS
-    virtual        pVMObject Clone(Page*);
+    virtual        pVMObject Clone(Interpreter*);
+    virtual        pVMObject Clone(PauselessCollectorThread*);
     virtual        void      MarkReferences();
 #else
     virtual        pVMObject Clone();
@@ -120,8 +121,8 @@ public:
         PagedHeap* heap, unsigned long additionalBytes = 0) {
             void* mem = (void*) ((MarkSweepHeap*)heap)->AllocateObject(numBytes + PADDED_SIZE(additionalBytes));
 #elif GC_TYPE==PAUSELESS
-        Page* page, unsigned long additionalBytes = 0) {
-            void* mem = AbstractVMObject::operator new(numBytes, page, PADDED_SIZE(additionalBytes));
+        PagedHeap* heap, BaseThread* thread, unsigned long additionalBytes = 0) {
+            void* mem = AbstractVMObject::operator new(numBytes, heap, thread, PADDED_SIZE(additionalBytes));
 #endif
         size_t objSize = numBytes + PADDED_SIZE(additionalBytes);
         ((VMObject*) mem)->objectSize = objSize;
