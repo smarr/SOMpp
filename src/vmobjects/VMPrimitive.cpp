@@ -64,7 +64,10 @@ pVMPrimitive VMPrimitive::Clone() {
     return new (_HEAP, _PAGE, 0, true) VMPrimitive(*this);
 }
 #elif GC_TYPE==PAUSELESS
-pVMPrimitive VMPrimitive::Clone(BaseThread* thread) {
+pVMPrimitive VMPrimitive::Clone(Interpreter* thread) {
+    return new (_HEAP, thread) VMPrimitive(*this);
+}
+pVMPrimitive VMPrimitive::Clone(PauselessCollectorThread* thread) {
     return new (_HEAP, thread) VMPrimitive(*this);
 }
 #else
