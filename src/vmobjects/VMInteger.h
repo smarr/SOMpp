@@ -44,7 +44,8 @@ public:
     virtual void MarkObjectAsInvalid() {}
     
 #if GC_TYPE==PAUSELESS
-    virtual pVMInteger Clone(BaseThread*);
+    virtual pVMInteger Clone(Interpreter*);
+    virtual pVMInteger Clone(PauselessCollectorThread*);
 #else
     virtual pVMInteger Clone();
 #endif
