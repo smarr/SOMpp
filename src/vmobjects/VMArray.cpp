@@ -76,23 +76,43 @@ pVMArray VMArray::CopyAndExtendWith(pVMObject item) {
 pVMArray VMArray::Clone() {
     long addSpace = objectSize - sizeof(VMArray);
     pVMArray clone = new (_HEAP, _PAGE, addSpace, true) VMArray(*this);
-    
-#elif GC_TYPE==PAUSELESS
-pVMArray VMArray::Clone(BaseThread* thread) {
-    long addSpace = objectSize - sizeof(VMArray);
-    pVMArray clone = new (_HEAP, thread, addSpace) VMArray(*this);
-#else
-pVMArray VMArray::Clone() {
-    long addSpace = objectSize - sizeof(VMArray);
-    pVMArray clone = new (_HEAP, addSpace) VMArray(*this);
-#endif
     void* destination = SHIFTED_PTR(clone, sizeof(VMArray));
     const void* source = SHIFTED_PTR(this, sizeof(VMArray));
     size_t noBytes = GetObjectSize() - sizeof(VMArray);
     memcpy(destination, source, noBytes);
     return clone;
 }
-
+#elif GC_TYPE==PAUSELESS
+pVMArray VMArray::Clone(Interpreter* thread) {
+    long addSpace = objectSize - sizeof(VMArray);
+    pVMArray clone = new (_HEAP, thread, addSpace) VMArray(*this);
+    void* destination = SHIFTED_PTR(clone, sizeof(VMArray));
+    const void* source = SHIFTED_PTR(this, sizeof(VMArray));
+    size_t noBytes = GetObjectSize() - sizeof(VMArray);
+    memcpy(destination, source, noBytes);
+    return clone;
+}
+pVMArray VMArray::Clone(PauselessCollectorThread* thread) {
+    long addSpace = objectSize - sizeof(VMArray);
+    pVMArray clone = new (_HEAP, thread, addSpace) VMArray(*this);
+    void* destination = SHIFTED_PTR(clone, sizeof(VMArray));
+    const void* source = SHIFTED_PTR(this, sizeof(VMArray));
+    size_t noBytes = GetObjectSize() - sizeof(VMArray);
+    memcpy(destination, source, noBytes);
+    return clone;
+}
+#else
+pVMArray VMArray::Clone() {
+    long addSpace = objectSize - sizeof(VMArray);
+    pVMArray clone = new (_HEAP, addSpace) VMArray(*this);
+    void* destination = SHIFTED_PTR(clone, sizeof(VMArray));
+    const void* source = SHIFTED_PTR(this, sizeof(VMArray));
+    size_t noBytes = GetObjectSize() - sizeof(VMArray);
+    memcpy(destination, source, noBytes);
+    return clone;
+}
+#endif
+    
 void VMArray::MarkObjectAsInvalid() {
     VMObject::MarkObjectAsInvalid();
     long numIndexableFields = GetNumberOfIndexableFields();
