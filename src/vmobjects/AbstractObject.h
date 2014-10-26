@@ -20,8 +20,10 @@
 #elif GC_TYPE==MARK_SWEEP
     #include <memory/stopTheWorld/MarkSweepHeap.h>
 #elif GC_TYPE==PAUSELESS
-    #include <memory/pauseless/PauselessHeap.h>
     #include <memory/Page.h>
+    #include <memory/pauseless/PauselessHeap.h>
+    //#include <interpreter/Interpreter.h>
+    //#include <memory/pauseless/PauselessCollectorThread.h>
     class Worklist;
 #endif
 
@@ -82,8 +84,8 @@ public:
     }
     
 #if GC_TYPE==PAUSELESS
-    virtual AbstractVMObject* ProtectedClone(Page*);
-    virtual AbstractVMObject* Clone(Page*) = 0;
+    virtual AbstractVMObject* Clone(Interpreter*) = 0;
+    virtual AbstractVMObject* Clone(PauselessCollectorThread*) = 0;
     
     inline virtual void MarkReferences() {
         return;
@@ -110,8 +112,13 @@ public:
         return result;
     }
 #elif GC_TYPE==PAUSELESS
-    void* operator new(size_t numBytes, Page* page, unsigned long additionalBytes = 0) {
+    void* operator new(size_t numBytes, PagedHeap* heap, BaseThread* thread, unsigned long additionalBytes = 0) {
+        Page* page = thread->GetPage();
         void* result = (void*) (page->AllocateObject(numBytes + additionalBytes));
+        if (page->Full()) {
+            heap->RelinquishPage(page);
+            thread->SetPage(heap->RequestPage());
+        }
         assert(result != INVALID_POINTER);
         return result;
     }
@@ -121,13 +128,6 @@ public:
         assert(mem != INVALID_POINTER);
         return mem;
     }
-#endif
-    
-private:
-#if GC_TYPE==PAUSELESS
-    pVMObject newClone;
-    pthread_mutex_t beingMovedMutex;
-    pthread_cond_t  beingMovedCondition;
 #endif
 
 };
