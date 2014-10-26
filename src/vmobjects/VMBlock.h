@@ -44,7 +44,8 @@ public:
     inline  pVMFrame  GetContext();
     
 #if GC_TYPE==PAUSELESS
-    virtual pVMBlock Clone(BaseThread*);
+    virtual pVMBlock Clone(Interpreter*);
+    virtual pVMBlock Clone(PauselessCollectorThread*);
 #else
     virtual pVMBlock Clone();
 #endif
