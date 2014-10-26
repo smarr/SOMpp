@@ -36,9 +36,6 @@
 
 #include <vm/Universe.h>
 
-//#include <compiler/MethodGenerationContext.h>
-
-
 #ifdef UNSAFE_FRAME_OPTIMIZATION
 const long VMMethod::VMMethodNumberOfFields = 8;
 #else
@@ -73,21 +70,47 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
 #if GC_TYPE==GENERATIONAL
 pVMMethod VMMethod::Clone() {
     pVMMethod clone = new (_HEAP, _PAGE, GetObjectSize() - sizeof(VMMethod), true)
-#elif GC_TYPE==PAUSELESS
-pVMMethod VMMethod::Clone(BaseThread* thread) {
-    pVMMethod clone = new (_HEAP, thread, GetObjectSize() - sizeof(VMMethod))
-#else
-pVMMethod VMMethod::Clone() {
-    pVMMethod clone = new (_HEAP, GetObjectSize() - sizeof(VMMethod))
-#endif
     VMMethod(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,
-                    sizeof(VMObject)), GetObjectSize() -
-            sizeof(VMObject));
+                                                             sizeof(VMObject)), GetObjectSize() -
+           sizeof(VMObject));
     clone->indexableFields = (pVMObject*)(&(clone->indexableFields) + 2);
     clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + GetNumberOfIndexableFields());
     return clone;
 }
+#elif GC_TYPE==PAUSELESS
+pVMMethod VMMethod::Clone(Interpreter* thread) {
+    pVMMethod clone = new (_HEAP, thread, GetObjectSize() - sizeof(VMMethod))
+    VMMethod(*this);
+    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,
+                                                             sizeof(VMObject)), GetObjectSize() -
+           sizeof(VMObject));
+    clone->indexableFields = (pVMObject*)(&(clone->indexableFields) + 2);
+    clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + GetNumberOfIndexableFields());
+    return clone;
+}
+pVMMethod VMMethod::Clone(PauselessCollectorThread* thread) {
+    pVMMethod clone = new (_HEAP, thread, GetObjectSize() - sizeof(VMMethod))
+    VMMethod(*this);
+    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,
+                                                             sizeof(VMObject)), GetObjectSize() -
+           sizeof(VMObject));
+    clone->indexableFields = (pVMObject*)(&(clone->indexableFields) + 2);
+    clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + ReadBarrierForGCThread(&numberOfConstants)->GetEmbeddedInteger());
+    return clone;
+}
+#else
+pVMMethod VMMethod::Clone() {
+    pVMMethod clone = new (_HEAP, GetObjectSize() - sizeof(VMMethod))
+    VMMethod(*this);
+    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,
+                                                             sizeof(VMObject)), GetObjectSize() -
+           sizeof(VMObject));
+    clone->indexableFields = (pVMObject*)(&(clone->indexableFields) + 2);
+    clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + GetNumberOfIndexableFields());
+    return clone;
+}
+#endif
 
 void VMMethod::SetSignature(pVMSymbol sig) {
     VMInvokable::SetSignature(sig);
