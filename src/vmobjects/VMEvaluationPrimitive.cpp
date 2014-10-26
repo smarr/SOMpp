@@ -54,7 +54,10 @@ pVMEvaluationPrimitive VMEvaluationPrimitive::Clone() {
     return new (_HEAP, _PAGE, 0, true) VMEvaluationPrimitive(*this);
 }
 #elif GC_TYPE==PAUSELESS
-pVMEvaluationPrimitive VMEvaluationPrimitive::Clone(BaseThread* thread) {
+pVMEvaluationPrimitive VMEvaluationPrimitive::Clone(Interpreter* thread) {
+    return new (_HEAP, thread) VMEvaluationPrimitive(*this);
+}
+pVMEvaluationPrimitive VMEvaluationPrimitive::Clone(PauselessCollectorThread* thread) {
     return new (_HEAP, thread) VMEvaluationPrimitive(*this);
 }
 #else

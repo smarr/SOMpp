@@ -38,7 +38,8 @@ public:
     VMEvaluationPrimitive(long argc);
     
 #if GC_TYPE==PAUSELESS
-    virtual pVMEvaluationPrimitive Clone(BaseThread*);
+    virtual pVMEvaluationPrimitive Clone(Interpreter*);
+    virtual pVMEvaluationPrimitive Clone(PauselessCollectorThread*);
     virtual void MarkReferences();
 #else
     virtual pVMEvaluationPrimitive Clone();
