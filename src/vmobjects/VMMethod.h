@@ -52,6 +52,9 @@ public:
             long      GetMaximumNumberOfStackElements();
             void      SetMaximumNumberOfStackElements(long stel);
     inline  long      GetNumberOfArguments();
+#if GC_TYPE==PAUSELESS
+    inline  long      GetNumberOfArgumentsGC();
+#endif
             void      SetNumberOfArguments(long);
             long      GetNumberOfBytecodes();
             void      SetHolderAll(pVMClass hld);
@@ -131,6 +134,12 @@ inline long VMMethod::GetNumberOfArguments() {
     return READBARRIER(numberOfArguments)->GetEmbeddedInteger();
 #endif
 }
+
+#if GC_TYPE==PAUSELESS
+inline  long VMMethod::GetNumberOfArgumentsGC() {
+    return ReadBarrierForGCThread(&numberOfArguments)->GetEmbeddedInteger();
+}
+#endif
 
 pVMObject VMMethod::GetIndexableField(long idx) {
     return READBARRIER(indexableFields[idx]);
