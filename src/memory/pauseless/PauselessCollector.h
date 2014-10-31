@@ -25,12 +25,12 @@ public:
     
 private:
     
-    static void RelocatePage(Page*, Page*);
+    static void RelocatePage();
     
     static void* GCThread(void*);
     
     static int numberOfGCThreads;
-    
+        
     // variables used during root-set marking phase
     static pthread_mutex_t blockedMutex;
     static pthread_mutex_t markGlobalsMutex;
