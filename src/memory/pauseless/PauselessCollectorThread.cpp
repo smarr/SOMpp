@@ -227,17 +227,12 @@ void PauselessCollectorThread::Collect() {
                 (*page)->UnBlock();
             }
             pagesToUnblock->clear();
-            // determine which pages should be blocked during this cycle -> should be changed
-            for (std::vector<Page*>::iterator page = _HEAP->fullPages->begin(); page != _HEAP->fullPages->end(); ++page) {
-                if ((*page)->GetAmountOfLiveData() / _HEAP->pageSize < 0.5) { //value should not be hardcoded
-                    (*page)->Block();
-                    pthread_mutex_lock(&pagesToRelocateMutex);
-                    pagesToRelocate->push_back(*page);
-                    pthread_cond_signal(&pagesToRelocateCondition);
-                    pthread_mutex_unlock(&pagesToRelocateMutex);
-                    pagesToUnblock->push_back(*page);
-                }
+            // block pages that will be subject for relocation
+            for (vector<Page*>::iterator page = _HEAP->fullPages->begin(); page != _HEAP->fullPages->end(); ++page) {
+                (*page)->Block();
+                pagesToRelocate->push_back(*page);
             }
+            _HEAP->fullPages->clear();  //still needs a lock
             // enable the GC-trap again
             // _UNIVERSE->GC_TRAP_STATUS = TRUE;
             interpreters = _UNIVERSE->GetInterpretersCopy();
@@ -248,13 +243,15 @@ void PauselessCollectorThread::Collect() {
             doneBlockingPages = true;
             pthread_cond_broadcast(&pagesToRelocateCondition);
             pthread_mutex_unlock(&blockPagesMutex);
+        } else {
+            pthread_mutex_lock(&pagesToRelocateMutex);
+            while (!doneBlockingPages)
+                pthread_cond_wait(&pagesToRelocateCondition, &pagesToRelocateMutex);
+            pthread_mutex_unlock(&pagesToRelocateMutex);
         }
         
         while (true) {
             pthread_mutex_lock(&pagesToRelocateMutex);
-            while (!doneBlockingPages && pagesToRelocate->empty()) {
-                pthread_cond_wait(&pagesToRelocateCondition, &pagesToRelocateMutex);
-            }
             if (!pagesToRelocate->empty()) {
                 Page* fromPage = pagesToRelocate->back();
                 pagesToRelocate->pop_back();
@@ -266,6 +263,7 @@ void PauselessCollectorThread::Collect() {
                 break;
             }
         }
+
         
         /*
         pthread_mutex_lock(&endMutex);
