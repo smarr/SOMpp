@@ -23,7 +23,7 @@
     #include <memory/Page.h>
     #include <memory/pauseless/PauselessHeap.h>
     //#include <interpreter/Interpreter.h>
-    //#include <memory/pauseless/PauselessCollectorThread.h>
+    #include <memory/pauseless/PauselessCollectorThread.h>
     class Worklist;
 #endif
 
@@ -90,6 +90,9 @@ public:
     inline virtual void MarkReferences() {
         return;
     }
+    virtual void CheckMarking(void (AbstractVMObject*)) {
+        return;
+    }
 #else
     virtual AbstractVMObject* Clone() = 0;
     
@@ -112,7 +115,17 @@ public:
         return result;
     }
 #elif GC_TYPE==PAUSELESS
-    void* operator new(size_t numBytes, PagedHeap* heap, BaseThread* thread, unsigned long additionalBytes = 0) {
+    void* operator new(size_t numBytes, PagedHeap* heap, Interpreter* thread, unsigned long additionalBytes = 0) {
+        Page* page = thread->GetPage();
+        void* result = (void*) (page->AllocateObject(numBytes + additionalBytes));
+        if (page->Full()) {
+            thread->AddFullPage(page);
+            thread->SetPage(heap->RequestPage());
+        }
+        assert(result != INVALID_POINTER);
+        return result;
+    }
+    void* operator new(size_t numBytes, PagedHeap* heap, PauselessCollectorThread* thread, unsigned long additionalBytes = 0) {
         Page* page = thread->GetPage();
         void* result = (void*) (page->AllocateObject(numBytes + additionalBytes));
         if (page->Full()) {
