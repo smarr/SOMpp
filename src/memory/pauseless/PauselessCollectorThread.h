@@ -47,13 +47,14 @@ private:
     static vector<Interpreter*>* blockedInterpreters;
     
     // variables used during the rest of the marking phase
+    static vector<Worklist*>* nonEmptyWorklists;
     static pthread_mutex_t nonEmptyWorklistsMutex;
     static pthread_cond_t  waitingForWorkCondition;
-    static vector<Worklist*>* nonEmptyWorklists;
-    static bool doneRequestCheckpoint;
+    static pthread_cond_t  waitingForCheckpointCondition;
     static int numberOfGCThreadsDoneMarking;
-    static atomic<int> numberOfMutatorsPassedSafepoint;
+    static int numberOfMutatorsPassedSafepoint;
     static int numberOfMutators;
+    static bool checkpointRequested;
     
     // variables used during the relocate phase
     static bool doneBlockingPages;
@@ -64,12 +65,12 @@ private:
     static vector<Page*>* pagesToUnblock;
     
     
-    // TEST VARIABLES
-    static pthread_mutex_t endMutex;
-    static pthread_cond_t endCondition;
-    static int numberReachingEnd;
-    static bool done;
+    // FOR DEBUGGING PURPOSES
     static int numberOfCycles;
+    
+    // FOR DEBUGGING PURPOSES
+    static void CheckMarkingOfObject(VMOBJECT_PTR);
+    static void CheckMarking();
 };
 
 #endif

@@ -12,6 +12,9 @@
 #include <cstdlib>
 #include "PagedHeap.h"
 
+class PauselessCollectorThread;
+class Interpreter;
+
 using namespace std;
 
 class Page {
@@ -21,17 +24,23 @@ public:
     Page(void* pageStart, PagedHeap* heap);
     
     AbstractVMObject* AllocateObject(size_t size);
+    bool Full();
     void ClearPage();
     
 #if GC_TYPE==PAUSELESS
     void Block();
     void UnBlock();
     bool Blocked();
-    pVMObject LookupNewAddress(VMOBJECT_PTR);
+    AbstractVMObject* LookupNewAddress(AbstractVMObject*, Interpreter*);
+    AbstractVMObject* LookupNewAddress(AbstractVMObject*, PauselessCollectorThread*);
     void AddAmountLiveData(size_t);
+    long GetAmountOfLiveData();
+    void Free(size_t);
+    void RelocatePage();
     
     //void GetPageStart();
     //void ClearMarkBits();
+    
 #endif
     
 private:
@@ -43,12 +52,8 @@ private:
     
 #if GC_TYPE==PAUSELESS
     bool blocked;
-    pVMObject* sideArray;
+    std::atomic<AbstractVMObject*>* sideArray;
     long amountLiveData;
-    
-    //bool used;
-    //vector<AbstractVMObject*> forwardReferences;
-    
 #endif
     
 };

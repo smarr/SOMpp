@@ -70,14 +70,14 @@ class PauselessHeap;
 class PagedHeap {
     friend class GarbageCollector;
     friend class PauselessCollector; //this should probably also be made compile time dependend
+    friend class PauselessCollectorThread;
     friend class Page;
     
 public:
     static inline HEAP_CLS* GetHeap();
-    //static void InitializeHeap(long objectSpaceSize = 4194304,long pageSize = 32768);
-    static void InitializeHeap(long objectSpaceSize = HEAP_SIZE,long pageSize = PAGE_SIZE);
+    static void InitializeHeap(long, long);
     static void DestroyHeap();
-    PagedHeap(long objectSpaceSize = HEAP_SIZE, long pageSize = PAGE_SIZE);
+    PagedHeap(long, long);
     ~PagedHeap();
     size_t GetMaxObjectSize();
 
@@ -85,7 +85,8 @@ public:
     
     Page* RequestPage();
     void RelinquishPage(Page*);
-    void RelinquishFullPage(Page*);
+    //void RelinquishFullPage(Page*);
+    void AddEmptyPage(Page*);
     
     virtual void checkCollectionTreshold() {};
     
@@ -94,6 +95,7 @@ protected:
     GarbageCollector* gc;
     pthread_mutex_t pageRequestMutex;
     pthread_mutex_t fullPagesMutex;
+    pthread_mutex_t availablePagesMutex;
     //void* nextFreePagePosition;
     //void* collectionLimit;
     void* memoryStart;

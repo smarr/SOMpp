@@ -18,6 +18,7 @@
 #define FLIP_NMT_VALUE(REFERENCE) ( (reinterpret_cast<intptr_t>(REFERENCE) ^ MASK_OBJECT_NMT) )
 
 class PauselessHeap : public PagedHeap {
+    friend class PauselessCollectorThread;
  
 public:
     PauselessHeap(long, long);
@@ -28,27 +29,56 @@ public:
     void SignalGCTrapEnabled();
     
     void Start();
+    //void Stop();
     
     PauselessCollectorThread* GetGCThread();
     void AddGCThread(PauselessCollectorThread*);
     
+    // DIRTY
+    inline void* GetMemoryStart() {return memoryStart;}
+    inline long GetPageSize() {return pageSize;}
+    inline vector<Page*>* GetAllPages() {return allPages;}
+    inline int GetNumberOfMutatorsNeedEnableGCTrap() {return numberOfMutatorsNeedEnableGCTrap;}
+    inline int GetNumberOfMutatorsWithEnabledGCTrap() {return numberOfMutatorsWithEnabledGCTrap;}
+    inline pthread_mutex_t* GetGcTrapEnabledMutex() {return &gcTrapEnabledMutex;}
+    inline pthread_cond_t* GetGcTrapEnabledCondition() {return &gcTrapEnabledCondition;}
+    
+    // FOR DEBUGGING PURPOSES
+    void Pause();
+    bool IsPauseTriggered();
+    void TriggerPause();
+    void ResetPause();
+
 private:
     
     pthread_key_t pauselessCollectorThread;
+    
     pthread_mutex_t gcTrapEnabledMutex;
     pthread_cond_t gcTrapEnabledCondition;
+    int numberOfMutatorsNeedEnableGCTrap;
+    int numberOfMutatorsWithEnabledGCTrap;
     
     static void* ThreadForGC(void*);
+    
+    // FOR DEBUGGING PURPOSES
+    volatile bool pauseTriggered;
+    volatile int readyForPauseThreads;
+    pthread_mutex_t doCollect;
+    pthread_mutex_t threadCountMutex;
+    pthread_cond_t stopTheWorldCondition;
+    pthread_cond_t mayProceed;
     
 };
 
 template<typename T>
-inline T* FLIP(T* reference) {
+inline T* Flip(T* reference) {
     return (T*) FLIP_NMT_VALUE(reference);
 }
 
 template<typename T>
 inline T* WriteBarrier(T* reference) {
+    if (reference == nullptr)
+        return (T*)nullptr;
     if (_UNIVERSE->GetInterpreter()->GetExpectedNMT())
         return (T*) FLIP_NMT_VALUE(reference);
     else
@@ -75,8 +105,8 @@ template<typename T>
 inline void NMTTrap(T** referenceHolder) {
     Interpreter* interpreter = _UNIVERSE->GetInterpreter();
     if (interpreter->GetExpectedNMT() != REFERENCE_NMT_VALUE(*referenceHolder)) {
-        interpreter->AddGCWork((AbstractVMObject*)*referenceHolder);
-        *referenceHolder = (T*)FLIP_NMT_VALUE(*referenceHolder); //COMPARE AND SWAP NEEDED
+        interpreter->AddGCWork((AbstractVMObject*)Untag(*referenceHolder));
+        *referenceHolder = (T*)FLIP_NMT_VALUE(*referenceHolder);
     }
 }
 
@@ -84,8 +114,34 @@ template<typename T>
 inline void NMTTrapForGCThread(T** referenceHolder) {
     PauselessCollectorThread* gcThread = _HEAP->GetGCThread();
     if (gcThread->GetExpectedNMT() != REFERENCE_NMT_VALUE(*referenceHolder)) {
-        gcThread->AddGCWork((AbstractVMObject*)*referenceHolder);
-        *referenceHolder = (T*)FLIP_NMT_VALUE(*referenceHolder); //COMPARE AND SWAP NEEDED
+        gcThread->AddGCWork((AbstractVMObject*)Untag(*referenceHolder));
+        *referenceHolder = (T*)FLIP_NMT_VALUE(*referenceHolder);
+    }
+}
+
+template<typename T>
+inline void GCTrap(T** referenceHolder) {
+    size_t pageNumber = ((size_t)Untag(*referenceHolder) - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
+    Page* page = _HEAP->GetAllPages()->at(pageNumber);
+    if (_UNIVERSE->GetInterpreter()->GCTrapEnabled() && page->Blocked()) {
+        pthread_mutex_lock(_HEAP->GetGcTrapEnabledMutex());
+        while (_HEAP->GetNumberOfMutatorsNeedEnableGCTrap() != _HEAP->GetNumberOfMutatorsWithEnabledGCTrap()) {
+            pthread_cond_wait(_HEAP->GetGcTrapEnabledCondition(), _HEAP->GetGcTrapEnabledMutex());
+        }
+        pthread_mutex_unlock(_HEAP->GetGcTrapEnabledMutex());
+        *referenceHolder = (T*)page->LookupNewAddress((AbstractVMObject*)Untag(*referenceHolder), _UNIVERSE->GetInterpreter());
+    }
+}
+
+template<typename T>
+inline void GCTrapForGCThread(T** referenceHolder) {
+    size_t pageNumber = ((size_t)Untag(*referenceHolder) - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
+    Page* page = _HEAP->GetAllPages()->at(pageNumber);
+    if (page->Blocked()) {
+        /*while (_HEAP->GetNumberOfMutatorsNeedEnableGCTrap() != _HEAP->GetNumberOfMutatorsWithEnabledGCTrap()) {
+            pthread_cond_wait(_HEAP->GetGcTrapEnabledCondition(), _HEAP->GetGcTrapEnabledMutex());
+        } */
+        *referenceHolder = (T*)page->LookupNewAddress((AbstractVMObject*)Untag(*referenceHolder), _HEAP->GetGCThread());
     }
 }
 
@@ -93,6 +149,9 @@ template<typename T>
 inline T* ReadBarrier(T** referenceHolder) {
     if (*referenceHolder == nullptr)
         return (T*)nullptr;
+    size_t pageNumber = ((size_t)Untag(*referenceHolder) - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
+    assert(pageNumber < 7680);
+    GCTrap(referenceHolder);
     NMTTrap(referenceHolder);
     return Untag(*referenceHolder);
 }
@@ -101,35 +160,15 @@ template<typename T>
 inline T* ReadBarrierForGCThread(T** referenceHolder) {
     if (*referenceHolder == nullptr)
         return (T*)nullptr;
-    //GCTrapGC(referenceHolder);
+    size_t pageNumber = ((size_t)Untag(*referenceHolder) - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
+    assert(pageNumber < 7680);
+    GCTrapForGCThread(referenceHolder);
     NMTTrapForGCThread(referenceHolder);
     return Untag(*referenceHolder);
 }
 
-/*
-inline void NMTTrap(void** referenceHolder) {
-    Interpreter* interpreter = _UNIVERSE->GetInterpreter();
-    if (interpreter->GetExpectedNMT() != REFERENCE_NMT_VALUE(*referenceHolder)) {
-        cout << "NMT trap activated" << endl;
-        interpreter->AddGCWork((AbstractVMObject*)*referenceHolder);
-        *referenceHolder = FLIP_NMT_VALUE(*referenceHolder); //COMPARE AND SWAP NEEDED
-    }
-}
 
-inline AbstractVMObject* Untag(void* reference) {
-    if (REFERENCE_NMT_VALUE(reference))
-        return (AbstractVMObject*)FLIP_NMT_VALUE(reference);
-    else
-        return (AbstractVMObject*)reference;
-}
 
-inline AbstractVMObject* ReadBarrier(void** referenceHolder) {
-    if (*referenceHolder == nullptr)
-        return (AbstractVMObject*)nullptr;
-    //GCTrap(referenceHolder);
-    NMTTrap(referenceHolder);
-    return Untag(*referenceHolder);
-} */
 
 
 /*
@@ -156,5 +195,8 @@ inline void GCTrapGC(void** referenceHolder) {
         *referenceHolder = page->LookupNewAddress((AbstractVMObject*)*referenceHolder);
     }
 } */
+
+
+
 
 #endif

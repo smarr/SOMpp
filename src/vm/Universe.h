@@ -129,7 +129,7 @@ public:
     void RemoveInterpreter();
     
 #if GC_TYPE==PAUSELESS
-    vector<Interpreter*>* GetInterpretersCopy();
+    unique_ptr<vector<Interpreter*>> GetInterpretersCopy();
 #else
     vector<Interpreter*>* GetInterpreters();
 #endif
@@ -163,7 +163,7 @@ public:
     pVMThread NewThread() const;
    
 #if GC_TYPE==PAUSELESS
-    void MarkGlobals(Worklist*);
+    void MarkGlobals();
 #else
     void WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
 #endif
@@ -181,14 +181,6 @@ public:
     void LoadSystemClass(pVMClass);
     pVMClass LoadClassBasic(pVMSymbol, pVMClass);
     pVMClass LoadShellClass(StdString&);
-    
-#if GC_TYPE==PAUSELESS
-    //bool AllThreadsPassedSafePoint();
-    //void PassedSafePoint();
-    //void TrapTriggered();
-    //void MutatorBlocks();
-    //void MutatorUnblocks();
-#endif
 
     Universe();
     ~Universe();
@@ -207,16 +199,11 @@ public:
     
 private:
     
+    pthread_mutex_t testMutex;
+    
     pthread_mutex_t interpreterMutex;
     pthread_key_t interpreter;
     vector<Interpreter*> interpreters;
-    
-#if GC_TYPE==PAUSELESS
-    //atomic<int> numberOfThreads;
-    //atomic<int> numberBlockedThreads;
-    //atomic<int> numberOfThreadsWithEnabledGCTrap;
-    //atomic<bool> threadsPassedSafepoint;
-#endif
 
     pthread_mutexattr_t attrclassLoading;
     pthread_mutex_t classLoading;

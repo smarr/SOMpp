@@ -29,13 +29,8 @@
  */
 
 #include "../misc/defs.h"
-
 #include "../vmobjects/ObjectFormats.h"
-#include "../memory/Page.h"
-
-#if GC_TYPE==PAUSELESS
-#include "../memory/pauseless/Worklist.h"
-#endif
+#include "../memory/BaseThread.h"
 
 class VMMethod;
 class VMFrame;
@@ -46,10 +41,11 @@ class VMClass;
 class AbstractVMObject;
 class VMThread;
 
-class Interpreter {
+class Page;
+
+class Interpreter: public BaseThread {
 public:
     Interpreter();
-    ~Interpreter();
     
     void      Start();
     pVMThread GetThread();
@@ -58,26 +54,24 @@ public:
     void      SetFrame(pVMFrame frame);
     pVMFrame  GetFrame();
     pVMObject GetSelf();
-    Page*     GetPage();
-    void      SetPage(Page*);
     
 #if GC_TYPE==PAUSELESS
-    void      MoveWork(Worklist*);
-    void      AddGCWork(VMOBJECT_PTR);
-    void      EnableBlocked();
-    void      DisableBlocked();
-    void      TriggerMarkRootSet();
-    void      MarkRootSet();
-    void      DummyMarkRootSet();
-    void      ResetAlreadyMarked();
-    void      RequestSafePoint();
-    void      SignalSafepointReached();
-    
-    void      DisableGCTrap();
-    void      SignalEnableGCTrap();
-    void      EnableGCTrap();
-    bool      GCTrapEnabled();
-    bool      GetExpectedNMT();
+    virtual void AddGCWork(AbstractVMObject*);
+    void         EnableBlocked();
+    void         DisableBlocked();
+    void         TriggerMarkRootSet();
+    void         MarkRootSet();
+    void         MarkRootSetByGC();
+    void         DummyMarkRootSet();
+    void         ResetAlreadyMarked();
+    void         RequestSafePoint();
+    void         SignalSafepointReached();
+    void         DisableGCTrap();
+    void         SignalEnableGCTrap();
+    void         EnableGCTrap();
+    bool         GCTrapEnabled();
+    bool         GetExpectedNMT();
+    void         AddFullPage(Page*);
 #else
     void      WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
 #endif
@@ -88,8 +82,6 @@ private:
     StdString uG;
     StdString dnu;
     StdString eB;
-
-    Page* page;
     
     pVMFrame popFrame();
     void popFrameAndPushResult(pVMObject result);
@@ -123,19 +115,18 @@ private:
     uint8_t*  currentBytecodes;
     
 #if GC_TYPE==PAUSELESS
-    Worklist worklist;
     bool blocked;
     bool markRootSet;
     bool alreadyMarked;
     bool safePointRequested;
-    
-    bool expectedNMT;
     bool gcTrapEnabled;
+    
     bool signalEnableGCTrap;
     bool trapTriggered; //this variable is used to identy mutators having triggered NMT-traps and which not
     
-    pthread_mutex_t blockedMutex;
+    vector<Page*> fullPages;
     
+    pthread_mutex_t blockedMutex;
 #endif
     
     

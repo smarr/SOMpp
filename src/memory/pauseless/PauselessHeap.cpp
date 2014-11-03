@@ -13,30 +13,21 @@
 
 #if GC_TYPE == PAUSELESS
 
-#define NUMBER_OF_GC_THREADS 4
+#define NUMBER_OF_GC_THREADS 1
 
 PauselessHeap::PauselessHeap(long objectSpaceSize, long pageSize) : PagedHeap(objectSpaceSize, pageSize) {
-    //gc = new PauselessCollector(this, NUMBER_OF_GC_THREADS); //perhaps I should change this?
     pthread_key_create(&pauselessCollectorThread, NULL);
-}
-
-void PauselessHeap::SignalRootSetMarked() {
-    PauselessCollectorThread::SignalRootSetMarked();
-    //static_cast<PauselessCollector*>(gc)->SignalRootSetMarked();
-}
-
-void PauselessHeap::SignalInterpreterBlocked(Interpreter* interpreter) {
-    PauselessCollectorThread::AddBlockedInterpreter(interpreter);
-    //static_cast<PauselessCollector*>(gc)->AddBlockedInterpreter(interpreter);
-}
-
-void PauselessHeap::SignalSafepointReached() {
-    PauselessCollectorThread::SignalSafepointReached();
-    //static_cast<PauselessCollector*>(gc)->SignalSafepointReached();
-}
-
-void PauselessHeap::SignalGCTrapEnabled() {
-    pthread_cond_signal(&gcTrapEnabledCondition);
+    pthread_mutex_init(&gcTrapEnabledMutex, NULL);
+    pthread_cond_init(&gcTrapEnabledCondition, NULL);
+    PauselessCollectorThread::SetNumberOfGCThreads(NUMBER_OF_GC_THREADS);
+    
+    // FOR DEBUGGING PURPOSES
+    this->pauseTriggered = false;
+    this->readyForPauseThreads = 0;
+    pthread_mutex_init(&doCollect, NULL);
+    pthread_mutex_init(&threadCountMutex, NULL);
+    pthread_cond_init(&stopTheWorldCondition, NULL);
+    pthread_cond_init(&mayProceed, NULL);
 }
 
 void PauselessHeap::Start() {
@@ -59,6 +50,49 @@ PauselessCollectorThread* PauselessHeap::GetGCThread() {
 
 void PauselessHeap::AddGCThread(PauselessCollectorThread* gcThread) {
     pthread_setspecific(pauselessCollectorThread, gcThread);
+}
+
+void PauselessHeap::SignalRootSetMarked() {
+    PauselessCollectorThread::SignalRootSetMarked();
+}
+
+void PauselessHeap::SignalInterpreterBlocked(Interpreter* interpreter) {
+    PauselessCollectorThread::AddBlockedInterpreter(interpreter);
+}
+
+void PauselessHeap::SignalSafepointReached() {
+    PauselessCollectorThread::SignalSafepointReached();
+}
+
+void PauselessHeap::SignalGCTrapEnabled() {
+    pthread_mutex_lock(&gcTrapEnabledMutex);
+    numberOfMutatorsWithEnabledGCTrap++;
+    pthread_cond_signal(&gcTrapEnabledCondition);
+    pthread_mutex_unlock(&gcTrapEnabledMutex);
+}
+
+// FOR DEBUGGING PURPOSES
+void PauselessHeap::Pause() {
+    pthread_mutex_lock(&threadCountMutex);
+    readyForPauseThreads++;
+    pthread_cond_signal(&stopTheWorldCondition);
+    while (pauseTriggered) {
+        pthread_cond_wait(&mayProceed, &threadCountMutex);
+    }
+    readyForPauseThreads--;
+    pthread_mutex_unlock(&threadCountMutex);
+}
+
+bool PauselessHeap::IsPauseTriggered(void) {
+    return pauseTriggered;
+}
+
+void PauselessHeap::TriggerPause() {
+    pauseTriggered = true;
+}
+
+void PauselessHeap::ResetPause() {
+    pauseTriggered = false;
 }
 
 #endif

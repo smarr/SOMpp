@@ -316,9 +316,8 @@ Universe::Universe() {
     pthread_mutexattr_init(&attrclassLoading);
     pthread_mutexattr_settype(&attrclassLoading, PTHREAD_MUTEX_RECURSIVE);
     pthread_mutex_init(&classLoading, &attrclassLoading);
-    numberOfThreads = 1;
-    numberOfThreadsWithEnabledGCTrap = 0;
-    threadsPassedSafepoint = false;
+    
+    pthread_mutex_init(&testMutex, NULL);
 }
 
 void Universe::initialize(long _argc, char** _argv) {
@@ -326,7 +325,7 @@ void Universe::initialize(long _argc, char** _argv) {
     allocationStats["VMArray"] = {0,0};
 #endif
 
-    heapSize = 4 * 1024 * 1024;
+    heapSize = 240 * 1024 * 1024;
     pageSize = 4 * 8192;
 
     vector<StdString> argv = this->handleArguments(_argc, _argv);
@@ -348,7 +347,7 @@ void Universe::initialize(long _argc, char** _argv) {
 #if GC_TYPE==GENERATIONAL
         prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = new (_HEAP, _PAGE) VMInteger(it);
 #elif GC_TYPE==PAUSELESS
-        prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = new (_PAGE) VMInteger(it);
+        prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = new (_HEAP, _UNIVERSE->GetInterpreter()) VMInteger(it);
 #else
         prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = new (_HEAP) VMInteger(it);
 #endif
@@ -409,6 +408,7 @@ void Universe::initialize(long _argc, char** _argv) {
     if (!(trace > 0))
         dumpBytecodes = 2 - trace;
     
+    _HEAP->Start();
     this->GetInterpreter()->Start();
     pthread_exit(0);
 }
@@ -505,7 +505,7 @@ Universe::~Universe() {
 #if GC_TYPE==GENERATIONAL
         pVMArray arr  = new (_HEAP, _PAGE) VMArray(0, 0);
 #elif GC_TYPE==PAUSELESS
-        pVMArray arr  = new (_PAGE) VMArray(0, 0);
+        pVMArray arr  = new (_HEAP, _UNIVERSE->GetInterpreter()) VMArray(0, 0);
 #else
         pVMArray arr  = new (_HEAP) VMArray(0, 0);
 #endif
@@ -514,7 +514,7 @@ Universe::~Universe() {
 #if GC_TYPE==GENERATIONAL
         pVMBigInteger bi = new (_HEAP, _PAGE) VMBigInteger();
 #elif GC_TYPE==PAUSELESS
-        pVMBigInteger bi = new (_PAGE) VMBigInteger();
+        pVMBigInteger bi = new (_HEAP, _UNIVERSE->GetInterpreter()) VMBigInteger();
 #else
         pVMBigInteger bi = new (_HEAP) VMBigInteger();
 #endif
@@ -523,7 +523,7 @@ Universe::~Universe() {
 #if GC_TYPE==GENERATIONAL
         pVMBlock blck = new (_HEAP, _PAGE) VMBlock();
 #elif GC_TYPE==PAUSELESS
-        pVMBlock blck = new (_PAGE) VMBlock();
+        pVMBlock blck = new (_HEAP, _UNIVERSE->GetInterpreter()) VMBlock();
 #else
         pVMBlock blck = new (_HEAP) VMBlock();
 #endif
@@ -534,7 +534,7 @@ Universe::~Universe() {
 #if GC_TYPE==GENERATIONAL
         pVMDouble dbl = new (_HEAP, _PAGE) VMDouble();
 #elif GC_TYPE==PAUSELESS
-        pVMDouble dbl = new (_PAGE) VMDouble();
+        pVMDouble dbl = new (_HEAP, _UNIVERSE->GetInterpreter()) VMDouble();
 #else
         pVMDouble dbl = new (_HEAP) VMDouble();
 #endif
@@ -543,7 +543,7 @@ Universe::~Universe() {
 #if GC_TYPE==GENERATIONAL
         VMEvaluationPrimitive* ev = new (_HEAP, _PAGE) VMEvaluationPrimitive(1);
 #elif GC_TYPE==PAUSELESS
-        VMEvaluationPrimitive* ev = new (_PAGE) VMEvaluationPrimitive(1);
+        VMEvaluationPrimitive* ev = new (_HEAP, _UNIVERSE->GetInterpreter()) VMEvaluationPrimitive(1);
 #else
         VMEvaluationPrimitive* ev = new (_HEAP) VMEvaluationPrimitive(1);
 #endif
@@ -552,7 +552,7 @@ Universe::~Universe() {
 #if GC_TYPE==GENERATIONAL
         pVMFrame frm  = new (_HEAP, _PAGE) VMFrame(0, 0);
 #elif GC_TYPE==PAUSELESS
-        pVMFrame frm  = new (_PAGE) VMFrame(0, 0);
+        pVMFrame frm  = new (_HEAP, _UNIVERSE->GetInterpreter()) VMFrame(0, 0);
 #else
         pVMFrame frm  = new (_HEAP) VMFrame(0, 0);
 #endif
@@ -561,7 +561,7 @@ Universe::~Universe() {
 #if GC_TYPE==GENERATIONAL
         pVMInteger i  = new (_HEAP, _PAGE) VMInteger();
 #elif GC_TYPE==PAUSELESS
-        pVMInteger i  = new (_PAGE) VMInteger();
+        pVMInteger i  = new (_HEAP, _UNIVERSE->GetInterpreter()) VMInteger();
 #else
         pVMInteger i  = new (_HEAP) VMInteger();
 #endif
@@ -570,7 +570,7 @@ Universe::~Universe() {
 #if GC_TYPE==GENERATIONAL
         pVMMethod mth = new (_HEAP, _PAGE) VMMethod(0, 0, 0);
 #elif GC_TYPE==PAUSELESS
-        pVMMethod mth = new (_PAGE) VMMethod(0, 0, 0);
+        pVMMethod mth = new (_HEAP, _UNIVERSE->GetInterpreter()) VMMethod(0, 0, 0);
 #else
         pVMMethod mth = new (_HEAP) VMMethod(0, 0, 0);
 #endif
@@ -580,7 +580,7 @@ Universe::~Universe() {
 #if GC_TYPE==GENERATIONAL
         pVMPrimitive prm = new (_HEAP, _PAGE) VMPrimitive(className);
 #elif GC_TYPE==PAUSELESS
-        pVMPrimitive prm = new (_PAGE) VMPrimitive(className);
+        pVMPrimitive prm = new (_HEAP, _UNIVERSE->GetInterpreter()) VMPrimitive(className);
 #else
         pVMPrimitive prm = new (_HEAP) VMPrimitive(className);
 #endif
@@ -589,7 +589,7 @@ Universe::~Universe() {
 #if GC_TYPE==GENERATIONAL
         pVMString str = new (_HEAP, _PAGE) VMString("");
 #elif GC_TYPE==PAUSELESS
-        pVMString str = new (_PAGE) VMString("");
+        pVMString str = new (_HEAP, _UNIVERSE->GetInterpreter()) VMString("");
 #else
         pVMString str = new (_HEAP) VMString("");
 #endif
@@ -599,7 +599,7 @@ Universe::~Universe() {
 #if GC_TYPE==GENERATIONAL
         pVMThread thr = new (_HEAP, _PAGE) VMThread();
 #elif GC_TYPE==PAUSELESS
-        pVMThread thr = new (_PAGE) VMThread();
+        pVMThread thr = new (_HEAP, _UNIVERSE->GetInterpreter()) VMThread();
 #else
         pVMThread thr = new (_HEAP) VMThread();
 #endif
@@ -608,7 +608,7 @@ Universe::~Universe() {
 #if GC_TYPE==GENERATIONAL
         pVMMutex mtx  = new (_HEAP, _PAGE) VMMutex();
 #elif GC_TYPE==PAUSELESS
-        pVMMutex mtx  = new (_PAGE) VMMutex();
+        pVMMutex mtx  = new (_HEAP, _UNIVERSE->GetInterpreter()) VMMutex();
 #else
         pVMMutex mtx  = new (_HEAP) VMMutex();
 #endif
@@ -617,7 +617,7 @@ Universe::~Universe() {
 #if GC_TYPE==GENERATIONAL
         pVMSignal sgnl = new (_HEAP, _PAGE) VMSignal();
 #elif GC_TYPE==PAUSELESS
-        pVMSignal sgnl = new (_PAGE) VMSignal();
+        pVMSignal sgnl = new (_HEAP, _UNIVERSE->GetInterpreter()) VMSignal();
 #else
         pVMSignal sgnl = new (_HEAP) VMSignal();
 #endif
@@ -635,7 +635,7 @@ void Universe::InitializeGlobals() {
 #if GC_TYPE==GENERATIONAL
     nilObject = new (_HEAP, _PAGE) VMObject;
 #elif GC_TYPE==PAUSELESS
-    nilObject = new (_PAGE) VMObject;
+    nilObject = new (_HEAP, _UNIVERSE->GetInterpreter()) VMObject;
 #else
     nilObject = new (_HEAP) VMObject;
 #endif
@@ -721,17 +721,14 @@ void Universe::Assert(bool value) const {
 }
 
 pVMClass Universe::GetBlockClass() const {
-    PG_HEAP(ReadBarrier((void**)(&blockClass)));
-    return blockClass;
+    return READBARRIER(blockClass);
 }
 
 pVMClass Universe::GetBlockClassWithArgs(long numberOfArguments) {
     map<long, pVMClass>::iterator it =
     blockClassesByNoOfArgs.find(numberOfArguments);
     if (it != blockClassesByNoOfArgs.end()) {
-        PG_HEAP(ReadBarrier((void**) &(it->second)));
-        //I think that this is potentially dangerous code
-        return it->second;
+        return READBARRIER(it->second);
     }
 
     this->Assert(numberOfArguments < 10);
@@ -744,25 +741,33 @@ pVMClass Universe::GetBlockClassWithArgs(long numberOfArguments) {
 #if GC_TYPE==GENERATIONAL
     result->AddInstancePrimitive(new (_HEAP, _PAGE) VMEvaluationPrimitive(numberOfArguments) );
 #elif GC_TYPE==PAUSELESS
-    result->AddInstancePrimitive(new (_PAGE) VMEvaluationPrimitive(numberOfArguments) );
+    result->AddInstancePrimitive(new (_HEAP, _UNIVERSE->GetInterpreter()) VMEvaluationPrimitive(numberOfArguments) );
 #else
     result->AddInstancePrimitive(new (_HEAP) VMEvaluationPrimitive(numberOfArguments) );
 #endif
 
     SetGlobal(name, result);
-    blockClassesByNoOfArgs[numberOfArguments] = result;
+    blockClassesByNoOfArgs[numberOfArguments] = WRITEBARRIER(result);
 
     return result;
 }
 
 pVMObject Universe::GetGlobal(pVMSymbol name) {
-    PG_HEAP(ReadBarrier((void**)(&globals[name])));
-    return globals[name];
+    pthread_mutex_lock(&testMutex);
+    
+    pVMObject test1 = globals[name];
+    if (test1 == nullptr)
+        test1 = globals[Flip(name)];
+    pVMObject test2 = READBARRIER(test1);
+    
+    pthread_mutex_unlock(&testMutex);
+    
+    return test2;
+    
 }
 
 bool Universe::HasGlobal(pVMSymbol name) {
-    PG_HEAP(ReadBarrier((void**)(&globals[name])));
-    if (globals[name] != NULL)
+    if (READBARRIER(globals[WRITEBARRIER(name)]) != NULL)
         return true;
     else
         return false;
@@ -772,7 +777,7 @@ void Universe::InitializeSystemClass(pVMClass systemClass,
 pVMClass superClass, const char* name) {
     StdString s_name(name);
 
-    if (UNTAG_REFERENCE(superClass) != NULL) {
+    if (superClass != NULL) {
         systemClass->SetSuperClass(superClass);
         pVMClass sysClassClass = systemClass->GetClass();
         pVMClass superClassClass = superClass->GetClass();
@@ -803,7 +808,7 @@ pVMClass Universe::LoadClass(pVMSymbol name) {
     pthread_mutex_lock(&classLoading);
     pVMClass result = static_cast<pVMClass>(GetGlobal(name));
     
-    if (UNTAG_REFERENCE(result) != nullptr) {
+    if (result != nullptr) {
         pthread_mutex_unlock(&classLoading);
         return result;
     }
@@ -813,7 +818,6 @@ pVMClass Universe::LoadClass(pVMSymbol name) {
     if (!result) {
 		// we fail silently, it is not fatal that loading a class failed
         pthread_mutex_unlock(&classLoading);
-        PG_HEAP(ReadBarrier((void**)&nilObject));
 		return (pVMClass) nilObject;
     }
 
@@ -880,13 +884,12 @@ pVMArray Universe::NewArray(long size) const {
     if (outsideNursery)
         result->SetGCField(MASK_OBJECT_IS_OLD);
 #elif GC_TYPE==PAUSELESS
-    pVMArray result = new (_PAGE, additionalBytes) VMArray(size);
+    pVMArray result = new (_HEAP, _UNIVERSE->GetInterpreter(), additionalBytes) VMArray(size);
 #else
     pVMArray result = new (_HEAP, additionalBytes) VMArray(size);
 #endif
 
-    PG_HEAP(ReadBarrier((void**)&arrayClass));
-    result->SetClass(arrayClass);
+    result->SetClass(READBARRIER(arrayClass));
     
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION("VMArray", result->GetObjectSize());
@@ -918,7 +921,6 @@ pVMArray Universe::NewArrayList(ExtendedList<pVMObject>& list) const {
 
     if (result) {
         for (long i = 0; i < size; ++i) {
-            //PG_HEAP(ReadBarrier((void**) &(list.Get(i))));
             pVMObject elem = list.Get(i);
             result->SetIndexableField(i, elem);
         }
@@ -933,7 +935,7 @@ pVMBigInteger Universe::NewBigInteger( int64_t value) const {
 #if GC_TYPE==GENERATIONAL
     return new (_HEAP, _PAGE) VMBigInteger(value);
 #elif GC_TYPE==PAUSELESS
-    return new (_PAGE) VMBigInteger(value);
+    return new (_HEAP, _UNIVERSE->GetInterpreter()) VMBigInteger(value);
 #else
     return new (_HEAP) VMBigInteger(value);
 #endif
@@ -943,7 +945,7 @@ pVMBlock Universe::NewBlock(pVMMethod method, pVMFrame context, long arguments) 
 #if GC_TYPE==GENERATIONAL
     pVMBlock result = new (_HEAP, _PAGE) VMBlock;
 #elif GC_TYPE==PAUSELESS
-    pVMBlock result = new (_PAGE) VMBlock;
+    pVMBlock result = new (_HEAP, _UNIVERSE->GetInterpreter()) VMBlock;
 #else
     pVMBlock result = new (_HEAP) VMBlock;
 #endif
@@ -966,7 +968,7 @@ pVMClass Universe::NewClass(pVMClass classOfClass) const {
 #if GC_TYPE==GENERATIONAL
     result = new (_HEAP, _PAGE, additionalBytes) VMClass(numFields);
 #elif GC_TYPE==PAUSELESS
-    result = new (_PAGE, additionalBytes) VMClass(numFields);
+    result = new (_HEAP, _UNIVERSE->GetInterpreter(), additionalBytes) VMClass(numFields);
 #else
     result = new (_HEAP, additionalBytes) VMClass(numFields);
 #endif
@@ -974,7 +976,7 @@ pVMClass Universe::NewClass(pVMClass classOfClass) const {
 #if GC_TYPE==GENERATIONAL
         result = new (_HEAP, _PAGE) VMClass;
 #elif GC_TYPE==PAUSELESS
-        result = new (_PAGE) VMClass;
+        result = new (_HEAP, _UNIVERSE->GetInterpreter()) VMClass;
 #else
         result = new (_HEAP) VMClass;
 #endif
@@ -994,7 +996,7 @@ pVMDouble Universe::NewDouble(double value) const {
 #if GC_TYPE==GENERATIONAL
     return new (_HEAP, _PAGE) VMDouble(value);
 #elif GC_TYPE==PAUSELESS
-    return new (_PAGE) VMDouble(value);
+    return new (_HEAP, _UNIVERSE->GetInterpreter()) VMDouble(value);
 #else
     return new (_HEAP) VMDouble(value);
 #endif
@@ -1022,16 +1024,16 @@ pVMFrame Universe::NewFrame(pVMFrame previousFrame, pVMMethod method) const {
 #if GC_TYPE==GENERATIONAL
     result = new (_HEAP, _PAGE, additionalBytes) VMFrame(length);
 #elif GC_TYPE==PAUSELESS
-    result = new (_PAGE, additionalBytes) VMFrame(length);
+    result = new (_HEAP, _UNIVERSE->GetInterpreter(), additionalBytes) VMFrame(length);
 #else
     result = new (_HEAP, additionalBytes) VMFrame(length);
 #endif
     result->clazz = nullptr;
-    result->method = method;
+    result->method = WRITEBARRIER(method);
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION("VMFrame", result->GetObjectSize());
 #endif
-    result->previousFrame = previousFrame;
+    result->previousFrame = WRITEBARRIER(previousFrame);
     result->ResetStackPointer();
     return result;
 }
@@ -1043,7 +1045,7 @@ pVMObject Universe::NewInstance( pVMClass classOfInstance) const {
 #if GC_TYPE==GENERATIONAL
     pVMObject result = new (_HEAP, _PAGE, additionalBytes) VMObject(numOfFields);
 #elif GC_TYPE==PAUSELESS
-    pVMObject result = new (_PAGE, additionalBytes) VMObject(numOfFields);
+    pVMObject result = new (_HEAP, _UNIVERSE->GetInterpreter(), additionalBytes) VMObject(numOfFields);
 #else
     pVMObject result = new (_HEAP, additionalBytes) VMObject(numOfFields);
 #endif
@@ -1073,7 +1075,7 @@ pVMInteger Universe::NewInteger( long value) const {
 #if GC_TYPE==GENERATIONAL
     return new (_HEAP, _PAGE) VMInteger(value);
 #elif GC_TYPE==PAUSELESS
-    return new (_PAGE) VMInteger(value);
+    return new (_HEAP, _UNIVERSE->GetInterpreter()) VMInteger(value);
 #else
     return new (_HEAP) VMInteger(value);
 #endif
@@ -1084,8 +1086,8 @@ pVMClass Universe::NewMetaclassClass() const {
     pVMClass result = new (_HEAP, _PAGE) VMClass;
     result->SetClass(new (_HEAP, _PAGE) VMClass);
 #elif GC_TYPE==PAUSELESS
-    pVMClass result = new (_PAGE) VMClass;
-    result->SetClass(new (_PAGE) VMClass);
+    pVMClass result = new (_HEAP, _UNIVERSE->GetInterpreter()) VMClass;
+    result->SetClass(new (_HEAP, _UNIVERSE->GetInterpreter()) VMClass);
 #else
     pVMClass result = new (_HEAP) VMClass;
     result->SetClass(new (_HEAP) VMClass);
@@ -1100,44 +1102,61 @@ pVMClass Universe::NewMetaclassClass() const {
 }
 
 #if GC_TYPE==PAUSELESS
-void Universe::MarkGlobals(Worklist*) {
-    _HEAP->ReadBarrier((void**)&nilObject);
-    _HEAP->ReadBarrier((void**)&trueObject);
-    _HEAP->ReadBarrier((void**)&falseObject);
+void Universe::MarkGlobals() {
+    ReadBarrierForGCThread(&nilObject);
+    ReadBarrierForGCThread(&trueObject);
+    ReadBarrierForGCThread(&falseObject);
     
-    _HEAP->ReadBarrier((void**)&objectClass);
-    _HEAP->ReadBarrier((void**)&classClass);
-    _HEAP->ReadBarrier((void**)&metaClassClass);
+    ReadBarrierForGCThread(&objectClass);
+    ReadBarrierForGCThread(&classClass);
+    ReadBarrierForGCThread(&metaClassClass);
     
-    _HEAP->ReadBarrier((void**)&nilClass);
-    _HEAP->ReadBarrier((void**)&integerClass);
-    _HEAP->ReadBarrier((void**)&bigIntegerClass);
-    _HEAP->ReadBarrier((void**)&arrayClass);
-    _HEAP->ReadBarrier((void**)&methodClass);
-    _HEAP->ReadBarrier((void**)&symbolClass);
-    _HEAP->ReadBarrier((void**)&primitiveClass);
-    _HEAP->ReadBarrier((void**)&stringClass);
-    _HEAP->ReadBarrier((void**)&systemClass);
-    _HEAP->ReadBarrier((void**)&blockClass);
-    _HEAP->ReadBarrier((void**)&doubleClass);
+    ReadBarrierForGCThread(&nilClass);
+    ReadBarrierForGCThread(&integerClass);
+    ReadBarrierForGCThread(&bigIntegerClass);
+    ReadBarrierForGCThread(&arrayClass);
+    ReadBarrierForGCThread(&methodClass);
+    ReadBarrierForGCThread(&symbolClass);
+    ReadBarrierForGCThread(&primitiveClass);
+    ReadBarrierForGCThread(&stringClass);
+    ReadBarrierForGCThread(&systemClass);
+    ReadBarrierForGCThread(&blockClass);
+    ReadBarrierForGCThread(&doubleClass);
     
-    _HEAP->ReadBarrier((void**)&threadClass);
-    _HEAP->ReadBarrier((void**)&mutexClass);
-    _HEAP->ReadBarrier((void**)&signalClass);
+    ReadBarrierForGCThread(&threadClass);
+    ReadBarrierForGCThread(&mutexClass);
+    ReadBarrierForGCThread(&signalClass);
     
-    _HEAP->ReadBarrier((void**)&trueClass);
-    _HEAP->ReadBarrier((void**)&falseClass);
+    ReadBarrierForGCThread(&trueClass);
+    ReadBarrierForGCThread(&falseClass);
+    
+    
+    pthread_mutex_lock(&testMutex);
     
     // walk all entries in globals map
+    map<pVMSymbol, pVMObject> globs;
+    map<pVMSymbol, pVMObject>::iterator iter;
+    for (iter = globals.begin(); iter != globals.end(); iter++) {
+        pVMObject val = ReadBarrierForGCThread(&iter->second);
+        if (val == NULL)
+            continue;
+        pVMSymbol key = iter->first;
+        //globs[key] = WriteBarrierForGCThread(val);
+        globs[WriteBarrierForGCThread(ReadBarrierForGCThread(&key))] = WriteBarrierForGCThread(val);
+    }
+    globals = globs;
+    
+    /*
     map<pVMSymbol, pVMObject> globs = globals;
     globals.clear();
     map<pVMSymbol, pVMObject>::iterator iter;
     for (iter = globs.begin(); iter != globs.end(); iter++) {
-        if (iter->second == NULL)
+        if (ReadBarrierForGCThread(&iter->second) == NULL)
             continue;
-        _HEAP->ReadBarrier((void**)&(iter->first));
-        _HEAP->ReadBarrier((void**)&(iter->second));
-    }
+        pVMSymbol key = iter->first;
+        pVMObject val = ReadBarrierForGCThread(&iter->second);
+        globals[WriteBarrierForGCThread(ReadBarrierForGCThread(&key))] = val;
+    } */
     
     // walk all entries in symbols map
     map<StdString, pVMSymbol>::iterator symbolIter;
@@ -1145,19 +1164,21 @@ void Universe::MarkGlobals(Worklist*) {
          symbolIter != symbolsMap.end();
          symbolIter++) {
         //insert overwrites old entries inside the internal map
-        _HEAP->ReadBarrier((void**)(&symbolIter->second));
+        symbolIter->second = WriteBarrierForGCThread(ReadBarrierForGCThread(&symbolIter->second));
     }
     
     map<long, pVMClass>::iterator bcIter;
     for (bcIter = blockClassesByNoOfArgs.begin();
          bcIter != blockClassesByNoOfArgs.end();
          bcIter++) {
-        _HEAP->ReadBarrier((void**)(&bcIter->second));
+        bcIter->second = WriteBarrierForGCThread(ReadBarrierForGCThread(&bcIter->second));
     }
     
     //reassign ifTrue ifFalse Symbols
     symbolIfTrue  = symbolsMap["ifTrue:"];
     symbolIfFalse = symbolsMap["ifFalse:"];
+    
+    pthread_mutex_unlock(&testMutex);
 }
 #else
 void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
@@ -1245,14 +1266,13 @@ pVMMethod Universe::NewMethod( pVMSymbol signature,
 #if GC_TYPE==GENERATIONAL
     pVMMethod result = new (_HEAP, _PAGE, additionalBytes)
 #elif GC_TYPE==PAUSELESS
-    pVMMethod result = new (_PAGE,additionalBytes)
+    pVMMethod result = new (_HEAP, _UNIVERSE->GetInterpreter(), additionalBytes)
 #else
     pVMMethod result = new (_HEAP,additionalBytes)
 #endif
     VMMethod(numberOfBytecodes, numberOfConstants);
 
-    PG_HEAP(ReadBarrier((void**)&methodClass));
-    result->SetClass(methodClass);
+    result->SetClass(READBARRIER(methodClass));
 
     result->SetSignature(signature);
 #ifdef GENERATE_ALLOCATION_STATISTICS
@@ -1266,12 +1286,11 @@ pVMMutex Universe::NewMutex() const {
 #if GC_TYPE==GENERATIONAL
     pVMMutex result = new (_HEAP, _PAGE) VMMutex();
 #elif GC_TYPE==PAUSELESS
-    pVMMutex result = new (_PAGE) VMMutex();
+    pVMMutex result = new (_HEAP, _UNIVERSE->GetInterpreter()) VMMutex();
 #else
     pVMMutex result = new (_HEAP) VMMutex();
 #endif
-    PG_HEAP(ReadBarrier((void**)&mutexClass));
-    result->SetClass(mutexClass);
+    result->SetClass(READBARRIER(mutexClass));
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION("VMMutex", sizeof(VMMutex));
 #endif
@@ -1282,12 +1301,11 @@ pVMSignal Universe::NewSignal() const {
 #if GC_TYPE==GENERATIONAL
     pVMSignal result = new (_HEAP, _PAGE) VMSignal();
 #elif GC_TYPE==PAUSELESS
-    pVMSignal result = new (_PAGE) VMSignal();
+    pVMSignal result = new (_HEAP, _UNIVERSE->GetInterpreter()) VMSignal();
 #else
     pVMSignal result = new (_HEAP) VMSignal();
 #endif
-    PG_HEAP(ReadBarrier((void**)&signalClass));
-    result->SetClass(signalClass);
+    result->SetClass(READBARRIER(signalClass));
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION("VMSignal", sizeof(VMSignal));
 #endif
@@ -1298,14 +1316,13 @@ pVMThread Universe::NewThread() const {
 #if GC_TYPE==GENERATIONAL
     pVMThread result = new (_HEAP, _PAGE) VMThread();
 #elif GC_TYPE==PAUSELESS
-    pVMThread result = new (_PAGE) VMThread();
+    pVMThread result = new (_HEAP, _UNIVERSE->GetInterpreter()) VMThread();
 #else
     pVMThread result = new (_HEAP) VMThread();
 #endif
     //result->SetThreadId(threadCounter);
     //threadCounter += 1;
-    PG_HEAP(ReadBarrier((void**)&threadClass));
-    result->SetClass(threadClass);
+    result->SetClass(READBARRIER(threadClass));
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION("VMThread", sizeof(VMThread));
 #endif
@@ -1320,7 +1337,7 @@ pVMString Universe::NewString( const char* str) const {
 #if GC_TYPE==GENERATIONAL
     pVMString result = new (_HEAP, _PAGE, PADDED_SIZE(strlen(str) + 1)) VMString(str);
 #elif GC_TYPE==PAUSELESS
-    pVMString result = new (_PAGE, PADDED_SIZE(strlen(str) + 1)) VMString(str);
+    pVMString result = new (_HEAP, _UNIVERSE->GetInterpreter(), PADDED_SIZE(strlen(str) + 1)) VMString(str);
 #else
     pVMString result = new (_HEAP, PADDED_SIZE(strlen(str) + 1)) VMString(str);
 #endif
@@ -1338,11 +1355,11 @@ pVMSymbol Universe::NewSymbol( const char* str ) {
 #if GC_TYPE==GENERATIONAL
     pVMSymbol result = new (_HEAP, _PAGE, PADDED_SIZE(strlen(str)+1)) VMSymbol(str);
 #elif GC_TYPE==PAUSELESS
-    pVMSymbol result = new (_PAGE, PADDED_SIZE(strlen(str)+1)) VMSymbol(str);
+    pVMSymbol result = new (_HEAP, _UNIVERSE->GetInterpreter(), PADDED_SIZE(strlen(str)+1)) VMSymbol(str);
 #else
     pVMSymbol result = new (_HEAP, PADDED_SIZE(strlen(str)+1)) VMSymbol(str);
 #endif
-    symbolsMap[str] = result;
+    symbolsMap[str] = WRITEBARRIER(result);
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION("VMSymbol", result->GetObjectSize());
 #endif
@@ -1354,8 +1371,8 @@ pVMClass Universe::NewSystemClass() const {
     pVMClass systemClass = new (_HEAP, _PAGE) VMClass();
     systemClass->SetClass(new (_HEAP, _PAGE) VMClass());
 #elif GC_TYPE==PAUSELESS
-    pVMClass systemClass = new (_PAGE) VMClass();
-    systemClass->SetClass(new (_PAGE) VMClass());
+    pVMClass systemClass = new (_HEAP, _UNIVERSE->GetInterpreter()) VMClass();
+    systemClass->SetClass(new (_HEAP, _UNIVERSE->GetInterpreter()) VMClass());
 #else
     pVMClass systemClass = new (_HEAP) VMClass();
     systemClass->SetClass(new (_HEAP) VMClass());
@@ -1363,8 +1380,7 @@ pVMClass Universe::NewSystemClass() const {
     
     pVMClass mclass = systemClass->GetClass();
 
-    PG_HEAP(ReadBarrier((void**)&metaClassClass));
-    mclass->SetClass(metaClassClass);
+    mclass->SetClass(READBARRIER(metaClassClass));
 #ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION("VMClass", systemClass->GetObjectSize());
 #endif
@@ -1378,8 +1394,7 @@ pVMSymbol Universe::SymbolFor(const StdString& str) {
     if (it == symbolsMap.end()) {
         return NewSymbol(str);
     } else {
-        PG_HEAP(ReadBarrier((void**)&(it->second)));
-        return it->second;
+        return READBARRIER(it->second);
     }
     //return (it == symbolsMap.end()) ? NewSymbol(str) : it->second;
 }
@@ -1389,7 +1404,9 @@ pVMSymbol Universe::SymbolForChars(const char* str) {
 }
 
 void Universe::SetGlobal(pVMSymbol name, pVMObject val) {
-    globals[name] = val;
+    pthread_mutex_lock(&testMutex);
+    globals[WRITEBARRIER(name)] = WRITEBARRIER(val);
+    pthread_mutex_unlock(&testMutex);
 }
 
 Interpreter* Universe::GetInterpreter() {
@@ -1408,15 +1425,17 @@ void Universe::RemoveInterpreter() {
 #if GC_TYPE_TYPE==PAUSELESS
     this->GetInterpreter()->DummyMarkRootSet();
     this->GetInterpreter()->SignalSafepointReached();
+    this->GetInterpreter()->EnableGCTrap();
 #endif
     interpreters.erase(std::remove(interpreters.begin(), interpreters.end(), this->GetInterpreter()), interpreters.end());
     pthread_mutex_unlock(&interpreterMutex);
 }
 
 #if GC_TYPE==PAUSELESS
-vector<Interpreter*>* Universe::GetInterpretersCopy() {
+unique_ptr<vector<Interpreter*>> Universe::GetInterpretersCopy() {
     pthread_mutex_lock(&interpreterMutex);
-    vector<Interpreter*>* copy = new vector<Interpreter*>(interpreters.begin(),interpreters.end());
+    unique_ptr<vector<Interpreter*>> copy(new vector<Interpreter*>(interpreters.begin(),interpreters.end()));
+    //vector<Interpreter*>* copy = new vector<Interpreter*>(interpreters.begin(),interpreters.end());
     pthread_mutex_unlock(&interpreterMutex);
     return copy;
 }

@@ -75,11 +75,13 @@
 		908B99AB18D027C700A148C4 /* Delay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9004031518CD5E7400C0410A /* Delay.cpp */; };
 		908B99AC18D027E100A148C4 /* Signal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9004031918CD72D100C0410A /* Signal.cpp */; };
 		908B99AD18D027EA00A148C4 /* Thread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9004031F18CD735E00C0410A /* Thread.cpp */; };
+		90ACD4C319E24174001C8C0C /* PauselessCollectorThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90ACD4C219E24174001C8C0C /* PauselessCollectorThread.cpp */; };
 		90B4A87F18F202AA00C437BE /* Page.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90B4A87E18F202AA00C437BE /* Page.cpp */; };
 		90CBCF7B18C6BD060067954D /* VMMutex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90CBCF7A18C6BD060067954D /* VMMutex.cpp */; };
 		90CBCF7E18C6BD540067954D /* VMSignal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90CBCF7D18C6BD540067954D /* VMSignal.cpp */; };
 		90CBCF8118C6BDB70067954D /* VMThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90CBCF8018C6BDB70067954D /* VMThread.cpp */; };
 		90D3855C198F42E000586434 /* Worklist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90D3855A198F42E000586434 /* Worklist.cpp */; };
+		90D7D49A19F9260F00EFB4B6 /* BaseThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90D7D49919F9260F00EFB4B6 /* BaseThread.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -244,6 +246,8 @@
 		90A52B6C18DF762A000B3D32 /* Thread.som */ = {isa = PBXFileReference; lastKnownFileType = text; path = Thread.som; sourceTree = "<group>"; };
 		90A52B6D18DFB9F8000B3D32 /* ThreadPrioTest.som */ = {isa = PBXFileReference; lastKnownFileType = text; name = ThreadPrioTest.som; path = "../core-lib/TestSuite/nativeThreads/ThreadPrioTest.som"; sourceTree = "<group>"; };
 		90A52B6E18DFB9F8000B3D32 /* ThreadTest.som */ = {isa = PBXFileReference; lastKnownFileType = text; name = ThreadTest.som; path = "../core-lib/TestSuite/nativeThreads/ThreadTest.som"; sourceTree = "<group>"; };
+		90ACD4C119E24164001C8C0C /* PauselessCollectorThread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PauselessCollectorThread.h; sourceTree = "<group>"; };
+		90ACD4C219E24174001C8C0C /* PauselessCollectorThread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PauselessCollectorThread.cpp; sourceTree = "<group>"; };
 		90B4A87D18F2029000C437BE /* Page.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Page.h; sourceTree = "<group>"; };
 		90B4A87E18F202AA00C437BE /* Page.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Page.cpp; sourceTree = "<group>"; };
 		90CBCF7918C6BCC60067954D /* VMMutex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = VMMutex.h; path = natives/VMMutex.h; sourceTree = "<group>"; };
@@ -268,6 +272,8 @@
 		90D38569198F439A00586434 /* MarkSweepHeap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MarkSweepHeap.h; sourceTree = "<group>"; };
 		90D3856A198F439A00586434 /* StopTheWorldHeap.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = StopTheWorldHeap.cpp; sourceTree = "<group>"; };
 		90D3856B198F439A00586434 /* StopTheWorldHeap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StopTheWorldHeap.h; sourceTree = "<group>"; };
+		90D7D49819F9230900EFB4B6 /* BaseThread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BaseThread.h; sourceTree = "<group>"; };
+		90D7D49919F9260F00EFB4B6 /* BaseThread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BaseThread.cpp; sourceTree = "<group>"; };
 		E18AE2800FB1C44700EE6540 /* Array.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Array.som; sourceTree = "<group>"; };
 		E18AE2810FB1C44700EE6540 /* BigInteger.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BigInteger.som; sourceTree = "<group>"; };
 		E18AE2820FB1C44700EE6540 /* Block.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Block.som; sourceTree = "<group>"; };
@@ -470,6 +476,8 @@
 		3F5203060FA6624C00E75857 /* memory */ = {
 			isa = PBXGroup;
 			children = (
+				90D7D49919F9260F00EFB4B6 /* BaseThread.cpp */,
+				90D7D49819F9230900EFB4B6 /* BaseThread.h */,
 				3F5203070FA6624C00E75857 /* GarbageCollector.cpp */,
 				3F5203080FA6624C00E75857 /* GarbageCollector.h */,
 				90B4A87E18F202AA00C437BE /* Page.cpp */,
@@ -630,6 +638,8 @@
 				90D3855B198F42E000586434 /* Worklist.h */,
 				908C18461904C46000E2C5BE /* PauselessHeap.cpp */,
 				908C18471904C47100E2C5BE /* PauselessHeap.h */,
+				90ACD4C219E24174001C8C0C /* PauselessCollectorThread.cpp */,
+				90ACD4C119E24164001C8C0C /* PauselessCollectorThread.h */,
 				90797B611908BD810000D644 /* PauselessCollector.cpp */,
 				90797B601908BD730000D644 /* PauselessCollector.h */,
 			);
@@ -933,12 +943,14 @@
 				0A1886E01832BCC800A2CBCA /* MethodGenerationContext.cpp in Sources */,
 				0A1886F91832BCF500A2CBCA /* VMArray.cpp in Sources */,
 				0A1886E51832BCD700A2CBCA /* Main.cpp in Sources */,
+				90D7D49A19F9260F00EFB4B6 /* BaseThread.cpp in Sources */,
 				0A1887031832BCFA00A2CBCA /* VMObject.cpp in Sources */,
 				90B4A87F18F202AA00C437BE /* Page.cpp in Sources */,
 				0A1886DC1832BCC800A2CBCA /* BytecodeGenerator.cpp in Sources */,
 				0A1887051832BCFA00A2CBCA /* VMString.cpp in Sources */,
 				0A1886E61832BCDC00A2CBCA /* GarbageCollector.cpp in Sources */,
 				0A1886F61832BCED00A2CBCA /* Universe.cpp in Sources */,
+				90ACD4C319E24174001C8C0C /* PauselessCollectorThread.cpp in Sources */,
 				0A1886E21832BCC800A2CBCA /* SourcecodeCompiler.cpp in Sources */,
 				0A1886FC1832BCF500A2CBCA /* VMClass.cpp in Sources */,
 				0A1886DF1832BCC800A2CBCA /* Lexer.cpp in Sources */,
@@ -1029,7 +1041,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_CFLAGS = (
 					"-DGC_TYPE=PAUSELESS",
-					"-DHEAP_SIZE=8388608",
+					"-DHEAP_SIZE=33554432",
 					"-DPAGE_SIZE=32768",
 				);
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
@@ -1073,7 +1085,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_CFLAGS = (
 					"-DGC_TYPE=PAUSELESS",
-					"-DHEAP_SIZE=8388608",
+					"-DHEAP_SIZE=33554432",
 					"-DPAGE_SIZE=32768",
 				);
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";

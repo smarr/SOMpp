@@ -33,13 +33,6 @@
 #include "Page.h"
 #include "../vmobjects/VMObject.h"
 
-/*
-#if GC_TYPE==PAUSELESS
-#define PG_HEAP(exp)
-#else
-#define PG_HEAP(exp) (_HEAP->exp)
-#endif */
-
 HEAP_CLS* PagedHeap::theHeap = NULL;
 
 void PagedHeap::InitializeHeap(long objectSpaceSize, long pageSize) {
@@ -60,25 +53,16 @@ PagedHeap::PagedHeap(long objectSpaceSize, long pageSize) {
     this->pageSize = pageSize;
     pthread_mutex_init(&pageRequestMutex, NULL);
     pthread_mutex_init(&fullPagesMutex, NULL);
+    pthread_mutex_init(&availablePagesMutex, NULL);
     allPages = new vector<Page*>();
     availablePages = new vector<Page*>();
     fullPages = new vector<Page*>();
-    // create region in which we can allocate objects, pages will be created in this region
     memoryStart = mmap(NULL, objectSpaceSize, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, 0, 0);
     memset(memoryStart, 0x0, objectSpaceSize);
     memoryEnd = (size_t)memoryStart + objectSpaceSize;
-    // initialize some meta data of the heap
     maxObjSize = pageSize / 2;
-    
-    //nextFreePagePosition = memoryStart;
-    //collectionLimit = (void*)((size_t)memoryStart + ((size_t)(objectSpaceSize * 0.9)));
-    
-    //perhaps easiest when all the pages are already created...
-    
     CreatePages();
-    
 }
-
 
 void PagedHeap::CreatePages() {
     void* nextFreePagePosition = memoryStart;
@@ -91,21 +75,6 @@ void PagedHeap::CreatePages() {
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 PagedHeap::~PagedHeap() {
     delete gc;
 }
@@ -114,49 +83,25 @@ size_t PagedHeap::GetMaxObjectSize() {
     return maxObjSize;
 }
 
-/*
 Page* PagedHeap::RequestPage() {
-    Page* newPage;
     pthread_mutex_lock(&pageRequestMutex);
-    if (availablePages->empty()) {
-        newPage = new Page(nextFreePagePosition, this);
-        assert(newPage);
-        allPages->push_back(newPage);
-        nextFreePagePosition = (void*) ((size_t)nextFreePagePosition + pageSize);
-        checkCollectionTreshold();
-    } else {
-        newPage = availablePages->back();
-        availablePages->pop_back();
-    }
-    pthread_mutex_unlock(&pageRequestMutex);
-    return newPage;
-} */
-
-Page* PagedHeap::RequestPage() {
-    Page* newPage;
-    pthread_mutex_lock(&pageRequestMutex);
-    if (availablePages->empty()) {
+    if (availablePages->empty())
         _UNIVERSE->ErrorExit("Unable to respond to page request");
-        //_UNIVERSE->Quit(ERR_FAIL);
-        //triggerGC();
-        //checkCollectionTreshold();
-    } else {
-        newPage = availablePages->back();
-        availablePages->pop_back();
-        checkCollectionTreshold();
-    }
+    Page* newPage = availablePages->back();
+    availablePages->pop_back();
+    checkCollectionTreshold();
     pthread_mutex_unlock(&pageRequestMutex);
     return newPage;
 }
 
 void PagedHeap::RelinquishPage(Page* page) {
-    pthread_mutex_lock(&pageRequestMutex);
-    availablePages->push_back(page);
-    pthread_mutex_unlock(&pageRequestMutex);
-}
-
-void PagedHeap::RelinquishFullPage(Page* page) {
     pthread_mutex_lock(&fullPagesMutex);
     fullPages->push_back(page);
     pthread_mutex_unlock(&fullPagesMutex);
+}
+
+void PagedHeap::AddEmptyPage(Page* page) {
+    pthread_mutex_lock(&availablePagesMutex);
+    availablePages->push_back(page);
+    pthread_mutex_unlock(&availablePagesMutex);
 }

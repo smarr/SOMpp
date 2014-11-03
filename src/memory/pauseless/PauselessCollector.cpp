@@ -61,12 +61,12 @@ void PauselessCollector::MarkObject(VMOBJECT_PTR obj, Worklist* worklist) {
     page->AddAmountLiveData(obj->GetObjectSize());
     
     obj->SetGCField(MASK_OBJECT_IS_MARKED);
-    obj->MarkReferences(worklist);
+    obj->MarkReferences();
 }
 
 
 PauselessCollector::PauselessCollector(PagedHeap* heap, int numberOfGCThreads) : GarbageCollector(heap) {
-    
+       
     this->numberOfGCThreads = numberOfGCThreads;
     
     pthread_mutex_init(&blockedMutex, nullptr);
@@ -167,7 +167,7 @@ void* PauselessCollector::GCThread(void*) {
     
     // one gc thread marks the globals
     if (!doneMarkingGlobals && pthread_mutex_trylock(&markGlobalsMutex) == 0) {
-        _UNIVERSE->MarkGlobals(localWorklist);
+        _UNIVERSE->MarkGlobals();
         doneMarkingGlobals = true;
         pthread_mutex_unlock(&markGlobalsMutex);
     }
@@ -254,6 +254,7 @@ void* PauselessCollector::GCThread(void*) {
     // Ensure that all mutators have switched the GC-trap off
     // After this we can identify the pages that should be relocated and mark them blocked
     // what about pages that are newly created at this point in time? They need to be aware of the fact that the GC-trap needs to be swiched off
+    /*
     if (!doneBlockingPages && pthread_mutex_trylock(&blockPagesMutex) == 0) {
         unique_ptr<vector<Interpreter*>> interpreters = _UNIVERSE->GetInterpretersCopy();
         for (vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
@@ -296,7 +297,7 @@ void* PauselessCollector::GCThread(void*) {
             pthread_mutex_unlock(&pagesToRelocateMutex);
             break;
         }
-    }
+    } */
     
     return nullptr;
 }
