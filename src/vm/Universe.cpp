@@ -1179,8 +1179,26 @@ void Universe::MarkGlobals() {
     //reassign ifTrue ifFalse Symbols
     symbolIfTrue  = symbolsMap["ifTrue:"];
     symbolIfFalse = symbolsMap["ifFalse:"];
+
+    
+    
+    
+    
+    map<string,pVMSymbol>::iterator it = symbolsMap.find("true");
+    pVMSymbol trueSym = (pVMSymbol) ReadBarrierForGCThread(&it->second);
+    
+    pVMObject raw_glob = globals[trueSym];
+    if (raw_glob == nullptr)
+        raw_glob = globals[Flip(trueSym)];
+    
+    pVMObject glob_ptr_val = ReadBarrierForGCThread(&raw_glob);
+
+    assert(glob_ptr_val == Untag(trueObject));
+
     
     pthread_mutex_unlock(&testMutex);
+    
+    
 }
 #else
 void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
