@@ -128,7 +128,6 @@ void* _Block::ThreadForBlock(void* threadPointer) {
     // exit this thread and decrement the number of active threads, this is part of a stop the world thread barrier needed for GC
     _HEAP->DecrementThreadCount();
 #endif
-    //_UNIVERSE->DecrementThreadCount(); -> perhaps it is more logical to combine this with the RemoveInterpreter method
     
     _UNIVERSE->RemoveInterpreter();
     
