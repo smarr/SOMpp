@@ -422,7 +422,7 @@ Universe::~Universe() {
     PagedHeap::DestroyHeap();
 }
 
-#ifndef NDEBUG
+#ifdef NDEBUG
     bool Universe::IsValidObject(const pVMObject const obj) {
         return true;
     }
