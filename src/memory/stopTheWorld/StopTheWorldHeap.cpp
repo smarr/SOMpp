@@ -24,8 +24,6 @@ void StopTheWorldHeap::checkCollectionTreshold() {
     if (availablePages->size() < 4) { //this is for the moment a bit randomly chosen
         triggerGC();
     }
-    //if (nextFreePagePosition > collectionLimit)
-    //triggerGC();
 }
 
 void StopTheWorldHeap::IncrementThreadCount() {
