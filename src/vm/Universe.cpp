@@ -755,14 +755,15 @@ pVMClass Universe::GetBlockClassWithArgs(long numberOfArguments) {
 pVMObject Universe::GetGlobal(pVMSymbol name) {
     pthread_mutex_lock(&testMutex);
     
-    pVMObject test1 = globals[name];
-    if (test1 == nullptr)
-        test1 = globals[Flip(name)];
-    pVMObject test2 = READBARRIER(test1);
+    pVMObject raw_glob = globals[name];
+    if (raw_glob == nullptr)
+        raw_glob = globals[Flip(name)];
+    
+    pVMObject glob_ptr_val = READBARRIER(raw_glob);
     
     pthread_mutex_unlock(&testMutex);
     
-    return test2;
+    return glob_ptr_val;
     
 }
 
