@@ -127,8 +127,9 @@ void VMClass::SetName(pVMSymbol nam) {
 }
 
 bool VMClass::HasSuperClass() {
-    assert(Universe::IsValidObject(superClass));
-    return READBARRIER(superClass) != READBARRIER(nilObject);
+    pVMClass sc = READBARRIER(superClass);
+    assert(Universe::IsValidObject(sc));
+    return sc != READBARRIER(nilObject);
 }
 
 pVMArray VMClass::GetInstanceFields() {

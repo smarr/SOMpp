@@ -169,8 +169,9 @@ void VMObject::SetObjectSize(size_t size) {
 }
 
 pVMClass VMObject::GetClass() {
-    assert(Universe::IsValidObject((pVMObject) clazz));
-    return READBARRIER(clazz);
+    pVMClass res = READBARRIER(clazz);
+    assert(Universe::IsValidObject((pVMObject) res));
+    return res;
 }
 
 long VMObject::GetNumberOfFields() const {
