@@ -70,32 +70,24 @@ VMClass::VMClass() :
 #if GC_TYPE==GENERATIONAL
 pVMClass VMClass::Clone() {
     pVMClass clone = new (_HEAP, _PAGE, objectSize - sizeof(VMClass), true)VMClass(*this);
-    memcpy(SHIFTED_PTR(clone,sizeof(VMObject)),
-           SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() -
-           sizeof(VMObject));
+    memcpy(SHIFTED_PTR(clone,sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     return clone;
 }
 #elif GC_TYPE==PAUSELESS
 pVMClass VMClass::Clone(Interpreter* thread) {
-    pVMClass clone = new (_HEAP, thread, objectSize - sizeof(VMClass))VMClass(*this);
-    memcpy(SHIFTED_PTR(clone,sizeof(VMObject)),
-           SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() -
-           sizeof(VMObject));
+    pVMClass clone = new (_HEAP, thread, objectSize - sizeof(VMClass)) VMClass(*this);
+    memcpy(SHIFTED_PTR(clone,sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     return clone;
 }
 pVMClass VMClass::Clone(PauselessCollectorThread* thread) {
-    pVMClass clone = new (_HEAP, thread, objectSize - sizeof(VMClass))VMClass(*this);
-    memcpy(SHIFTED_PTR(clone,sizeof(VMObject)),
-           SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() -
-           sizeof(VMObject));
+    pVMClass clone = new (_HEAP, thread, objectSize - sizeof(VMClass)) VMClass(*this);
+    memcpy(SHIFTED_PTR(clone,sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     return clone;
 }
 #else
 pVMClass VMClass::Clone() {
     pVMClass clone = new (_HEAP, objectSize - sizeof(VMClass))VMClass(*this);
-    memcpy(SHIFTED_PTR(clone,sizeof(VMObject)),
-            SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() -
-            sizeof(VMObject));
+    memcpy(SHIFTED_PTR(clone,sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     return clone;
 }
 #endif
@@ -452,11 +444,20 @@ void VMClass::MarkReferences() {
     ReadBarrierForGCThread(&name);
     ReadBarrierForGCThread(&instanceFields);
     ReadBarrierForGCThread(&instanceInvokables);
-    
     pVMObject* fields = FIELDS;
-    
     for (long i = VMClassNumberOfFields + 0/*VMObjectNumberOfFields*/; i < numberOfFields; i++) {
         ReadBarrierForGCThread(&fields[i]);
+    }
+}
+void VMClass::CheckMarking(void (*walk)(AbstractVMObject*)) {
+    walk(Untag(clazz));
+    if (superClass)
+        walk(Untag(superClass));
+    walk(Untag(name));
+    walk(Untag(instanceFields));
+    walk(Untag(instanceInvokables));
+    for (long i = VMClassNumberOfFields + 0/*VMObjectNumberOfFields*/; i < numberOfFields; i++) {
+        walk(Untag(AS_POINTER(FIELDS[i])));
     }
 }
 #else

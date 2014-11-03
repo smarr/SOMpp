@@ -41,6 +41,7 @@ public:
     virtual pVMEvaluationPrimitive Clone(Interpreter*);
     virtual pVMEvaluationPrimitive Clone(PauselessCollectorThread*);
     virtual void MarkReferences();
+    virtual void CheckMarking(void (AbstractVMObject*));
 #else
     virtual pVMEvaluationPrimitive Clone();
     virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));

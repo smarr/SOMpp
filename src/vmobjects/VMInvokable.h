@@ -48,6 +48,7 @@ public:
 
 #if GC_TYPE==PAUSELESS
     virtual void MarkReferences();
+    virtual void CheckMarking(void (AbstractVMObject*));
 #else
     void WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
 #endif

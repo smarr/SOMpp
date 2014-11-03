@@ -46,30 +46,37 @@ VMObject::VMObject(long numberOfFields) {
 #if GC_TYPE==GENERATIONAL
 pVMObject VMObject::Clone() {
     VMObject* clone = new (_HEAP, _PAGE, objectSize - sizeof(VMObject), true) VMObject(*this);
-    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)),
-            SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() -
-            sizeof(VMObject));
+    
+    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
+    
     clone->hash = (size_t) &clone;
     return clone;
 }
 #elif GC_TYPE==PAUSELESS
 pVMObject VMObject::Clone(Interpreter* thread) {
     VMObject* clone = new (_HEAP, thread, objectSize - sizeof(VMObject)) VMObject(*this);
-    memcpy(&(clone->clazz), &clazz, objectSize - sizeof(VMObject) + sizeof(pVMObject));
+    
+    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
+    //memcpy(&(clone->clazz), &clazz, objectSize - sizeof(VMObject) + sizeof(pVMObject));
+    
     clone->hash = (size_t) &clone;
     return clone;
 }
 pVMObject VMObject::Clone(PauselessCollectorThread* thread) {
     VMObject* clone = new (_HEAP, thread, objectSize - sizeof(VMObject)) VMObject(*this);
-    memcpy(&(clone->clazz), &clazz, objectSize - sizeof(VMObject) + sizeof(pVMObject));
-    clone->hash = (size_t) &clone;
+    
+    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
+    //memcpy(&(clone->clazz), &clazz, objectSize - sizeof(VMObject) + sizeof(pVMObject));
+    
+    //clone->hash = (size_t) &clone;
     return clone;
 }
 #else
 pVMObject VMObject::Clone() {
     VMObject* clone = new (_HEAP, objectSize - sizeof(VMObject)) VMObject(*this);
-    memcpy(&(clone->clazz), &clazz,
-           objectSize - sizeof(VMObject) + sizeof(pVMObject));
+    
+    memcpy(&(clone->clazz), &clazz, objectSize - sizeof(VMObject) + sizeof(pVMObject));
+    
     clone->hash = (size_t) &clone;
     return clone;
 }
@@ -131,6 +138,13 @@ void VMObject::MarkReferences() {
     long numFields = GetNumberOfFields();
     for (long i = 0; i < numFields; ++i) {
         ReadBarrierForGCThread(&FIELDS[i]);
+    }
+}
+void VMObject::CheckMarking(void (*walk)(AbstractVMObject*)) {
+    walk(Untag(clazz));
+    long numFields = GetNumberOfFields();
+    for (long i = 0; i < numFields; ++i) {
+        walk(Untag(AS_POINTER(FIELDS[i])));
     }
 }
 #else

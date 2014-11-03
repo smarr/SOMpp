@@ -10,7 +10,7 @@
 
 
 #if GC_TYPE==PAUSELESS
-#define READBARRIER(reference) (ReadBarrier(&reference))
+#define READBARRIER(reference) (ReadBarrier(&(reference)))
 #else
 #define READBARRIER(reference) (reference)
 #endif

@@ -117,6 +117,10 @@ void VMEvaluationPrimitive::MarkReferences() {
     VMPrimitive::MarkReferences();
     ReadBarrierForGCThread(&numberOfArguments);
 }
+void VMEvaluationPrimitive::CheckMarking(void (*walk)(AbstractVMObject*)) {
+    VMPrimitive::CheckMarking(walk);
+    walk(Untag(numberOfArguments));
+}
 #else
 void VMEvaluationPrimitive::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     VMPrimitive::WalkObjects(walk);

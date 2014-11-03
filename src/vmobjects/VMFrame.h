@@ -74,6 +74,7 @@ public:
     virtual pVMFrame Clone(Interpreter*);
     virtual pVMFrame Clone(PauselessCollectorThread*);
     virtual void MarkReferences();
+    virtual void CheckMarking(void (AbstractVMObject*));
 #else
     virtual pVMFrame Clone();
     virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));

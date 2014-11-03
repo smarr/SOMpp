@@ -60,6 +60,12 @@ void VMInvokable::MarkReferences() {
     ReadBarrierForGCThread(&signature);
     ReadBarrierForGCThread(&holder);
 }
+void VMInvokable::CheckMarking(void (*walk)(AbstractVMObject*)) {
+    walk(Untag(clazz));
+    walk(Untag(signature));
+    if (holder)
+        walk(Untag(holder));
+}
 #else
 void VMInvokable::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     clazz = static_cast<pVMClass>(walk(clazz));

@@ -80,8 +80,7 @@ pVMMethod VMMethod::Clone() {
 }
 #elif GC_TYPE==PAUSELESS
 pVMMethod VMMethod::Clone(Interpreter* thread) {
-    pVMMethod clone = new (_HEAP, thread, GetObjectSize() - sizeof(VMMethod))
-    VMMethod(*this);
+    pVMMethod clone = new (_HEAP, thread, GetObjectSize() - sizeof(VMMethod)) VMMethod(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,
                                                              sizeof(VMObject)), GetObjectSize() -
            sizeof(VMObject));
@@ -90,8 +89,7 @@ pVMMethod VMMethod::Clone(Interpreter* thread) {
     return clone;
 }
 pVMMethod VMMethod::Clone(PauselessCollectorThread* thread) {
-    pVMMethod clone = new (_HEAP, thread, GetObjectSize() - sizeof(VMMethod))
-    VMMethod(*this);
+    pVMMethod clone = new (_HEAP, thread, GetObjectSize() - sizeof(VMMethod)) VMMethod(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,
                                                              sizeof(VMObject)), GetObjectSize() -
            sizeof(VMObject));
@@ -223,6 +221,18 @@ void VMMethod::MarkReferences() {
     
     for (long i = 0; i < numIndexableFields; ++i) {
         ReadBarrierForGCThread(&indexableFields[i]);
+    }
+}
+void VMMethod::CheckMarking(void (*walk)(AbstractVMObject*)) {
+    VMInvokable::CheckMarking(walk);
+    walk(Untag(numberOfLocals));
+    walk(Untag(maximumNumberOfStackElements));
+    walk(Untag(bcLength));
+    walk(Untag(numberOfArguments));
+    walk(Untag(numberOfConstants));
+    long numIndexableFields = Untag(numberOfConstants)->GetEmbeddedInteger();
+    for (long i = 0; i < numIndexableFields; ++i) {
+        walk(Untag(AS_POINTER(indexableFields[i])));
     }
 }
 #else

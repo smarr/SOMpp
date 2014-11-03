@@ -89,15 +89,6 @@ pVMFrame VMFrame::EmergencyFrameFrom(pVMFrame from, long extraLength) {
 pVMFrame VMFrame::Clone() {
     size_t addSpace = objectSize - sizeof(VMFrame);
     pVMFrame clone = new (_HEAP, _PAGE, addSpace, true) VMFrame(*this);
-#elif GC_TYPE==PAUSELESS
-pVMFrame VMFrame::Clone(BaseThread* thread) {
-    size_t addSpace = objectSize - sizeof(VMFrame);
-    pVMFrame clone = new (_HEAP, thread) VMFrame(*this);
-#else
-pVMFrame VMFrame::Clone() {
-    size_t addSpace = objectSize - sizeof(VMFrame);
-    pVMFrame clone = new (_HEAP, addSpace) VMFrame(*this);
-#endif
     void* destination = SHIFTED_PTR(clone, sizeof(VMFrame));
     const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
     size_t noBytes = GetObjectSize() - sizeof(VMFrame);
@@ -107,7 +98,45 @@ pVMFrame VMFrame::Clone() {
     clone->stack_ptr = (pVMObject*)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
     return clone;
 }
-
+#elif GC_TYPE==PAUSELESS
+pVMFrame VMFrame::Clone(Interpreter* thread) {
+    size_t addSpace = objectSize - sizeof(VMFrame);
+    pVMFrame clone = new (_HEAP, thread, addSpace) VMFrame(*this);
+    void* destination = SHIFTED_PTR(clone, sizeof(VMFrame));
+    const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
+    size_t noBytes = GetObjectSize() - sizeof(VMFrame);
+    memcpy(destination, source, noBytes);
+    clone->arguments = (pVMObject*)&(clone->stack_ptr)+1; //field after stack_ptr
+    clone->locals = clone->arguments + ReadBarrier(&(clone->method))->GetNumberOfArguments();
+    clone->stack_ptr = (pVMObject*)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
+    return clone;
+}
+pVMFrame VMFrame::Clone(PauselessCollectorThread* thread) {
+    size_t addSpace = objectSize - sizeof(VMFrame);
+    pVMFrame clone = new (_HEAP, thread, addSpace) VMFrame(*this);
+    void* destination = SHIFTED_PTR(clone, sizeof(VMFrame));
+    const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
+    size_t noBytes = GetObjectSize() - sizeof(VMFrame);
+    memcpy(destination, source, noBytes);
+    clone->arguments = (pVMObject*)&(clone->stack_ptr)+1; //field after stack_ptr
+    clone->locals = clone->arguments + ReadBarrierForGCThread(&(clone->method))->GetNumberOfArgumentsGC();
+    clone->stack_ptr = (pVMObject*)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
+    return clone;
+}
+#else
+pVMFrame VMFrame::Clone() {
+    size_t addSpace = objectSize - sizeof(VMFrame);
+    pVMFrame clone = new (_HEAP, addSpace) VMFrame(*this);
+    void* destination = SHIFTED_PTR(clone, sizeof(VMFrame));
+    const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
+    size_t noBytes = GetObjectSize() - sizeof(VMFrame);
+    memcpy(destination, source, noBytes);
+    clone->arguments = (pVMObject*)&(clone->stack_ptr)+1; //field after stack_ptr
+    clone->locals = clone->arguments + clone->method->GetNumberOfArguments();
+    clone->stack_ptr = (pVMObject*)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
+    return clone;
+}
+#endif
 
 const long VMFrame::VMFrameNumberOfFields = 0;
 
@@ -282,6 +311,19 @@ void VMFrame::MarkReferences() {
     long i = 0;
     while (arguments + i <= stack_ptr) {
         ReadBarrierForGCThread(&arguments[i]);
+        i++;
+    }
+}
+void VMFrame::CheckMarking(void (*walk)(AbstractVMObject*)) {
+    if (previousFrame)
+        walk(Untag(previousFrame));
+    if (context)
+        walk(Untag(context));
+    walk(Untag(method));
+    long i = 0;
+    while (arguments + i <= stack_ptr) {
+        if (arguments[i])
+            walk(Untag(arguments[i]));
         i++;
     }
 }

@@ -88,6 +88,11 @@ void VMPrimitive::MarkReferences() {
     ReadBarrierForGCThread(&signature);
     ReadBarrierForGCThread(&holder);
 }
+void VMPrimitive::CheckMarking(void (*walk)(AbstractVMObject*)) {
+    walk(Untag(clazz));
+    walk(Untag(signature));
+    walk(Untag(holder));
+}
 #else
 void VMPrimitive::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     clazz     = static_cast<pVMClass>(walk(clazz));

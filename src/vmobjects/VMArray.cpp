@@ -136,6 +136,14 @@ void VMArray::MarkReferences() {
     for (long i = 0; i < numFields + numIndexableFields; i++)
         ReadBarrierForGCThread(&FIELDS[i]);
 }
+void VMArray::CheckMarking(void (*walk)(AbstractVMObject*)) {
+    walk(Untag(clazz));
+    long numFields          = GetNumberOfFields();
+    long numIndexableFields = GetNumberOfIndexableFields();
+    for (long i = 0; i < numFields + numIndexableFields; i++) {
+        walk(Untag(AS_POINTER(FIELDS[i])));
+    }
+}
 #else
 void VMArray::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     clazz = (pVMClass) walk(clazz);

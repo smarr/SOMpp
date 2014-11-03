@@ -93,5 +93,6 @@ void VMThread::SetThreadId(int value) {
 } */
 
 void VMThread::Join(int* exitStatus) {
-	pthread_join(embeddedThreadId, (void**)exitStatus);
+    int returnValue;
+	pthread_join(embeddedThreadId, (void**)&returnValue);
 }

@@ -94,6 +94,7 @@ public:
     virtual        pVMObject Clone(Interpreter*);
     virtual        pVMObject Clone(PauselessCollectorThread*);
     virtual        void      MarkReferences();
+    virtual        void      CheckMarking(void (AbstractVMObject*));
 #else
     virtual        pVMObject Clone();
     virtual        void      WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
@@ -121,7 +122,7 @@ public:
         PagedHeap* heap, unsigned long additionalBytes = 0) {
             void* mem = (void*) ((MarkSweepHeap*)heap)->AllocateObject(numBytes + PADDED_SIZE(additionalBytes));
 #elif GC_TYPE==PAUSELESS
-        PagedHeap* heap, BaseThread* thread, unsigned long additionalBytes = 0) {
+        PagedHeap* heap, Interpreter* thread, unsigned long additionalBytes = 0) {
             void* mem = AbstractVMObject::operator new(numBytes, heap, thread, PADDED_SIZE(additionalBytes));
 #endif
         size_t objSize = numBytes + PADDED_SIZE(additionalBytes);
@@ -130,6 +131,18 @@ public:
         return mem;
     }
 
+          
+#if GC_TYPE==PAUSELESS
+    void* operator new(size_t numBytes, PagedHeap* heap, PauselessCollectorThread* thread, unsigned long additionalBytes = 0) {
+        void* mem = AbstractVMObject::operator new(numBytes, heap, thread, PADDED_SIZE(additionalBytes));
+        size_t objSize = numBytes + PADDED_SIZE(additionalBytes);
+        ((VMObject*) mem)->objectSize = objSize;
+        assert(mem != INVALID_POINTER);
+        return mem;
+    }
+#endif
+            
+            
 protected:
     long GetAdditionalSpaceConsumption() const;
 
