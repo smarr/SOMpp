@@ -44,8 +44,8 @@ void Page::ClearPage() {
 #if GC_TYPE==PAUSELESS
 void Page::Block() {
     blocked = true;
-    sideArray = new std::atomic<AbstractVMObject*>[PAGE_SIZE / 8];
-    for (int i=0; i < (PAGE_SIZE / 8); i++) {
+    sideArray = new std::atomic<AbstractVMObject*>[heap->pageSize / 8];
+    for (int i=0; i < (heap->pageSize / 8); i++) {
         sideArray[i] = nullptr;
     }
 }
