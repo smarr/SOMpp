@@ -1159,6 +1159,7 @@ void Universe::MarkGlobals() {
         globals[WriteBarrierForGCThread(ReadBarrierForGCThread(&key))] = val;
     } */
     
+    cout << "Mark symbol map" << endl;
     // walk all entries in symbols map
     map<StdString, pVMSymbol>::iterator symbolIter;
     for (symbolIter = symbolsMap.begin();
@@ -1167,7 +1168,7 @@ void Universe::MarkGlobals() {
         //insert overwrites old entries inside the internal map
         symbolIter->second = WriteBarrierForGCThread(ReadBarrierForGCThread(&symbolIter->second));
     }
-    
+    cout << "Mark block classes" << endl;
     map<long, pVMClass>::iterator bcIter;
     for (bcIter = blockClassesByNoOfArgs.begin();
          bcIter != blockClassesByNoOfArgs.end();

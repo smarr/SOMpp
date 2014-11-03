@@ -144,6 +144,8 @@ void PauselessCollectorThread::Collect() {
         expectedNMT = !expectedNMT;
         PagedHeap* test = _HEAP;
         
+        cout << "[GC] Start RootSet Marking" << endl;
+        
         //------------------------
         // ROOT-SET MARKING
         //------------------------
@@ -195,6 +197,8 @@ void PauselessCollectorThread::Collect() {
         pthread_cond_broadcast(&doneMarkingRootSetsCondition);
         pthread_mutex_unlock(&markRootSetsCheckpointMutex);
         
+        
+        cout << "[GC] Start Marking Phase" << endl;
         
         //------------------------
         // CONTINUE MARKING PHASE
@@ -263,6 +267,8 @@ void PauselessCollectorThread::Collect() {
 
         assert(nonEmptyWorklists->empty());
         
+        cout << "[GC] Start Relocate Phase" << endl;
+        
         //------------------------
         // RELOCATE PHASE
         //------------------------
@@ -324,6 +330,8 @@ void PauselessCollectorThread::Collect() {
         doneSignalling = false;
         doneBlockingPages = false;
         numberOfGCThreadsDoneMarking = 0;
+        
+        cout << "[GC] End of cycle" << endl;
 
     } //end of cycle
 
