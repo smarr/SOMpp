@@ -164,6 +164,8 @@ public:
    
 #if GC_TYPE==PAUSELESS
     void MarkGlobals();
+    // for debugging purposes
+    void  CheckMarkingGlobals(void (AbstractVMObject*));
 #else
     void WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
 #endif
