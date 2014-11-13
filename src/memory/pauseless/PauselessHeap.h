@@ -87,6 +87,8 @@ inline T* WriteBarrier(T* reference) {
 
 template<typename T>
 inline T* WriteBarrierForGCThread(T* reference) {
+    if (reference == nullptr)
+        return (T*)nullptr;
     if (_HEAP->GetGCThread()->GetExpectedNMT())
         return (T*) FLIP_NMT_VALUE(reference);
     else
@@ -121,7 +123,7 @@ inline void NMTTrapForGCThread(T** referenceHolder) {
 
 template<typename T>
 inline void GCTrap(T** referenceHolder) {
-    assert(Universe::IsValidObject((AbstractVMObject*) Untag(*referenceHolder)));
+    //assert(Universe::IsValidObject((AbstractVMObject*) Untag(*referenceHolder)));
     
     size_t pageNumber = ((size_t)Untag(*referenceHolder) - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
     Page* page = _HEAP->GetAllPages()->at(pageNumber);
@@ -137,7 +139,7 @@ inline void GCTrap(T** referenceHolder) {
 
 template<typename T>
 inline void GCTrapForGCThread(T** referenceHolder) {
-    assert(Universe::IsValidObject((AbstractVMObject*) Untag(*referenceHolder)));
+    //assert(Universe::IsValidObject((AbstractVMObject*) Untag(*referenceHolder)));
     
     size_t pageNumber = ((size_t)Untag(*referenceHolder) - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
     Page* page = _HEAP->GetAllPages()->at(pageNumber);
@@ -153,9 +155,12 @@ template<typename T>
 inline T* ReadBarrier(T** referenceHolder) {
     if (*referenceHolder == nullptr)
         return (T*)nullptr;
-    assert(Universe::IsValidObject((AbstractVMObject*) Untag(*referenceHolder)));
     size_t pageNumber = ((size_t)Untag(*referenceHolder) - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
     assert(pageNumber < 7680);
+    
+    T* oldReference = *referenceHolder;
+    
+    
     GCTrap(referenceHolder);
     NMTTrap(referenceHolder);
     
@@ -168,8 +173,7 @@ template<typename T>
 inline T* ReadBarrierForGCThread(T** referenceHolder) {
     if (*referenceHolder == nullptr)
         return (T*)nullptr;
-    assert(Universe::IsValidObject((AbstractVMObject*) Untag(*referenceHolder)));
-    
+    //assert(Universe::IsValidObject((AbstractVMObject*) Untag(*referenceHolder)));
     size_t pageNumber = ((size_t)Untag(*referenceHolder) - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
     assert(pageNumber < 7680);
     GCTrapForGCThread(referenceHolder);
