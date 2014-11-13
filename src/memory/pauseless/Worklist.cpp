@@ -1,5 +1,6 @@
 #include "Worklist.h"
 #include "PauselessCollectorThread.h"
+#include <assert.h>
 
 #if GC_TYPE == PAUSELESS
 
@@ -12,6 +13,7 @@ Worklist::~Worklist() {
 }
 
 void Worklist::AddWorkGC(AbstractVMObject* reference) {
+    assert(Universe::IsValidObject(reference));
     pthread_mutex_lock(&lock);
     work.push_back(reference);
     pthread_mutex_unlock(&lock);
