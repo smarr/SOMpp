@@ -60,6 +60,7 @@ int64_t VMBigInteger::GetEmbeddedInteger() const {
 }
 
 void VMBigInteger::SetEmbeddedInteger(int64_t val) {
+    assert(val != NULL);
     this->embeddedInteger = val;
 }
 #endif
