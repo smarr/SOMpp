@@ -587,11 +587,11 @@ Universe::~Universe() {
         vt_primitive  = *(void**) prm;
         
 #if GC_TYPE==GENERATIONAL
-        pVMString str = new (_HEAP, _PAGE) VMString("");
+        pVMString str = new (_HEAP, _PAGE, PADDED_SIZE(7)) VMString("foobar");
 #elif GC_TYPE==PAUSELESS
-        pVMString str = new (_HEAP, _UNIVERSE->GetInterpreter()) VMString("");
+        pVMString str = new (_HEAP, _UNIVERSE->GetInterpreter(), PADDED_SIZE(7)) VMString("foobar");
 #else
-        pVMString str = new (_HEAP) VMString("");
+        pVMString str = new (_HEAP, PADDED_SIZE(7)) VMString("foobar");
 #endif
         vt_string     = *(void**) str;
         vt_symbol     = *(void**) className;
@@ -1180,18 +1180,18 @@ void Universe::MarkGlobals() {
     symbolIfTrue  = symbolsMap["ifTrue:"];
     symbolIfFalse = symbolsMap["ifFalse:"];
 
-    
-    
-    
-    
+
     map<string,pVMSymbol>::iterator it = symbolsMap.find("true");
-    pVMSymbol trueSym = (pVMSymbol) ReadBarrierForGCThread(&it->second);
+    //pVMSymbol trueSym = (pVMSymbol) ReadBarrierForGCThread(&it->second);
+    pVMSymbol trueSym = Untag(it->second);
+    
     
     pVMObject raw_glob = globals[trueSym];
     if (raw_glob == nullptr)
         raw_glob = globals[Flip(trueSym)];
     
-    pVMObject glob_ptr_val = ReadBarrierForGCThread(&raw_glob);
+    //pVMObject glob_ptr_val = ReadBarrierForGCThread(&raw_glob);
+    pVMObject glob_ptr_val = Untag(raw_glob);
 
     assert(glob_ptr_val == Untag(trueObject));
 
@@ -1199,6 +1199,68 @@ void Universe::MarkGlobals() {
     pthread_mutex_unlock(&testMutex);
     
     
+}
+void  Universe::CheckMarkingGlobals(void (*walk)(AbstractVMObject*)) {
+    walk(Untag(nilObject));
+    assert(Universe::IsValidObject(Untag(nilObject)));
+    walk(Untag(trueObject));
+    assert(Universe::IsValidObject(Untag(trueObject)));
+    walk(Untag(falseObject));
+    assert(Universe::IsValidObject(Untag(falseObject)));
+
+    walk(Untag(objectClass));
+    assert(Universe::IsValidObject(Untag(objectClass)));
+    walk(Untag(classClass));
+    assert(Universe::IsValidObject(Untag(classClass)));
+    walk(Untag(metaClassClass));
+    assert(Universe::IsValidObject(Untag(metaClassClass)));
+    
+    walk(Untag(nilClass));
+    assert(Universe::IsValidObject(Untag(nilClass)));
+    walk(Untag(integerClass));
+    assert(Universe::IsValidObject(Untag(integerClass)));
+    walk(Untag(bigIntegerClass));
+    assert(Universe::IsValidObject(Untag(bigIntegerClass)));
+    walk(Untag(arrayClass));
+    walk(Untag(methodClass));
+    walk(Untag(symbolClass));
+    walk(Untag(primitiveClass));
+    walk(Untag(stringClass));
+    walk(Untag(systemClass));
+    walk(Untag(blockClass));
+    walk(Untag(doubleClass));
+    
+    walk(Untag(threadClass));
+    walk(Untag(mutexClass));
+    walk(Untag(signalClass));
+    
+    walk(Untag(trueClass));
+    walk(Untag(falseClass));
+    
+    // walk all entries in globals map
+    map<pVMSymbol, pVMObject>::iterator iter;
+    for (iter = globals.begin(); iter != globals.end(); iter++) {
+        if (iter->second == NULL)
+            continue;
+        walk(Untag(iter->first));
+        walk(Untag(iter->second));
+    }
+    
+    // walk all entries in symbols map
+    map<StdString, pVMSymbol>::iterator symbolIter;
+    for (symbolIter = symbolsMap.begin();
+         symbolIter != symbolsMap.end();
+         symbolIter++) {
+        //insert overwrites old entries inside the internal map
+        walk(Untag(symbolIter->second));
+    }
+    
+    map<long, pVMClass>::iterator bcIter;
+    for (bcIter = blockClassesByNoOfArgs.begin();
+         bcIter != blockClassesByNoOfArgs.end();
+         bcIter++) {
+        walk(Untag(bcIter->second));
+    }
 }
 #else
 void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
