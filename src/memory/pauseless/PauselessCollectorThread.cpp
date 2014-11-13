@@ -85,25 +85,24 @@ void PauselessCollectorThread::CheckMarkingOfObject(VMOBJECT_PTR obj) {
         objInFullPage = true;
     else
         objInFullPage = false;
-    assert(obj->GetGCField() || !objInFullPage);
+    //assert(obj->GetGCField() || !objInFullPage);
+    
+    if (obj->GetGCField2())
+        return;
+    
+    obj->SetGCField(MASK_OBJECT_IS_MARKED);
+    obj->SetGCField2(MASK_OBJECT_IS_MARKED);
     obj->CheckMarking(CheckMarkingOfObject);
 }
 
-/*
+
 void PauselessCollectorThread::CheckMarking() {
-    //_UNIVERSE->WalkGlobals();
+    _UNIVERSE->CheckMarkingGlobals(CheckMarkingOfObject);
     unique_ptr<vector<Interpreter*>> interpreters = _UNIVERSE->GetInterpretersCopy();
     for (vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
-        (*it)->CheckMarking
-        
-        pVMFrame currentFrame = (*it)->GetFrameDebug();
-        if (currentFrame != NULL)
-            CheckMarkingOfObject(currentFrame);
-        pVMThread currentThread = (*it)->GetThreadDebug();
-        if (currentThread != NULL)
-            CheckMarkingOfObject(currentThread);
+        (*it)->CheckMarking(CheckMarkingOfObject);
     }
-} */
+}
 
 void PauselessCollectorThread::AddBlockedInterpreter(Interpreter* interpreter) {
     pthread_mutex_lock(&blockedMutex);
@@ -144,8 +143,18 @@ void PauselessCollectorThread::Collect() {
         expectedNMT = !expectedNMT;
         PagedHeap* test = _HEAP;
         
-        cout << "[GC] Start RootSet Marking" << endl;
+        // DEBUGGING PURPOSES: STOP THE WORLD
+        _HEAP->TriggerPause();
+        pthread_mutex_lock(&(_HEAP->threadCountMutex));
+        while (_UNIVERSE->GetInterpretersCopy()->size() != _HEAP->readyForPauseThreads) {
+            pthread_cond_wait(&(_HEAP->stopTheWorldCondition), &(_HEAP->threadCountMutex));
+        }
+        pthread_mutex_unlock(&(_HEAP->threadCountMutex));
+        CheckMarking();
+        _HEAP->ResetPause();
+        pthread_cond_broadcast(&(_HEAP->mayProceed));
         
+        cout << "[GC] Start RootSet Marking" << endl;
         //------------------------
         // ROOT-SET MARKING
         //------------------------
@@ -190,8 +199,9 @@ void PauselessCollectorThread::Collect() {
         }
     
         // barrier that makes sure that all root-sets have been marked before continuing
+        // this says nothing about the marking of the globals, no guarantee that this is finished
         pthread_mutex_lock(&markRootSetsCheckpointMutex);
-        while (numberRootSetsMarked != numberRootSetsToBeMarked) {
+        while (numberRootSetsMarked != numberRootSetsToBeMarked && !doneMarkingGlobals) {
             pthread_cond_wait(&doneMarkingRootSetsCondition, &markRootSetsCheckpointMutex);
         }
         pthread_cond_broadcast(&doneMarkingRootSetsCondition);
@@ -238,7 +248,7 @@ void PauselessCollectorThread::Collect() {
                     //everything is done and all threads should
                     //pthread_cond_signal() -> should still be done but testing happens with one gc thread for the moment
                     
-                    assert(nonEmptyWorklists->empty());
+                    //assert(nonEmptyWorklists->empty());
                     
                     pthread_mutex_unlock(&nonEmptyWorklistsMutex);
                     checkpointRequested = false; //setup for next cycle
@@ -251,21 +261,6 @@ void PauselessCollectorThread::Collect() {
                 }
             }
         }
-        
-        
-        // DEBUGGING PURPOSES: STOP THE WORLD
-        /*
-        _HEAP->TriggerPause();
-        pthread_mutex_lock(&(_HEAP->threadCountMutex));
-        while (_UNIVERSE->GetInterpretersCopy()->size() != _HEAP->readyForPauseThreads) {
-            pthread_cond_wait(&(_HEAP->stopTheWorldCondition), &(_HEAP->threadCountMutex));
-        }
-        pthread_mutex_unlock(&(_HEAP->threadCountMutex));
-        CheckMarking();
-        pthread_cond_broadcast(&(_HEAP->mayProceed)); */
-        
-
-        assert(nonEmptyWorklists->empty());
         
         cout << "[GC] Start Relocate Phase" << endl;
         
@@ -316,7 +311,8 @@ void PauselessCollectorThread::Collect() {
                 pagesToRelocate->pop_back();
                 pthread_mutex_unlock(&pagesToRelocateMutex);
                 fromPage->RelocatePage();
-                _HEAP->AddEmptyPage(fromPage);
+                //_HEAP->AddEmptyPage(fromPage);
+                //memset((void*)pageStart, 0x0, pageEnd-pageStart);
             } else {
                 pthread_mutex_unlock(&pagesToRelocateMutex);
                 break;
@@ -329,9 +325,11 @@ void PauselessCollectorThread::Collect() {
         //reset some values for next cycle:
         doneSignalling = false;
         doneBlockingPages = false;
+        doneMarkingGlobals = false;
         numberOfGCThreadsDoneMarking = 0;
         
         cout << "[GC] End of cycle" << endl;
+        cout << "=================" << endl << endl;
 
     } //end of cycle
 
