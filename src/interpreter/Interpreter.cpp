@@ -41,6 +41,7 @@
 #include <vmobjects/VMInvokable.h>
 #include <vmobjects/Signature.h>
 #include <vmobjects/VMBlock.h>
+#include <natives/VMThread.h>
 #ifdef USE_TAGGING
 #include <vmobjects/IntegerBox.h>
 #endif
@@ -731,6 +732,16 @@ bool Interpreter::GetExpectedNMT() {
 
 void Interpreter::AddFullPage(Page* page) {
     fullPages.push_back(page);
+}
+
+void Interpreter::CheckMarking(void (*walk)(AbstractVMObject*)) {
+    pVMThread testThreadGCSet = Untag(thread);
+    pVMFrame testFrameGCSet = Untag(frame);
+    pVMMethod testMethodGCSet = Untag(method);
+    if (frame)
+        walk(Untag(frame));
+    if (thread)
+        walk(Untag(thread));
 }
 #else
 void Interpreter::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {

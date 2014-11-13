@@ -72,6 +72,9 @@ public:
     bool         GCTrapEnabled();
     bool         GetExpectedNMT();
     void         AddFullPage(Page*);
+    
+    // for debugging purposes
+    void         CheckMarking(void (AbstractVMObject*));
 #else
     void      WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
 #endif
