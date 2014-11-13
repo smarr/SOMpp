@@ -22,6 +22,9 @@ Page::Page(void* pageStart, PagedHeap* heap) {
 
 AbstractVMObject* Page::AllocateObject(size_t size) {
     AbstractVMObject* newObject = (AbstractVMObject*) nextFreePosition;
+    if ((intptr_t) newObject > 0x110fe5300 && (intptr_t) newObject < 0x110fe5400 ) {
+        int i = 0;
+    }
     nextFreePosition = (void*)((size_t)nextFreePosition + size);
     
     void* test = (void*)pageEnd;
@@ -69,6 +72,7 @@ AbstractVMObject* Page::LookupNewAddress(AbstractVMObject* oldAddress, Interpret
             _UNIVERSE->GetInterpreter()->GetPage()->Free(newLocation->GetObjectSize());
         }
     }
+    assert(Universe::IsValidObject((AbstractVMObject*) sideArray[position]));
     return static_cast<AbstractVMObject*>(sideArray[position]);
 }
 
@@ -97,11 +101,13 @@ void Page::Free(size_t numBytes) {
 }
 
 void Page::RelocatePage() {
+    AbstractVMObject* prevObject = NULL;
     for (AbstractVMObject* currentObject = (AbstractVMObject*) pageStart;
          (size_t) currentObject < (size_t) nextFreePosition;
          currentObject = (AbstractVMObject*) (currentObject->GetObjectSize() + (size_t) currentObject)) {
         //size_t pageNumber = ((size_t)currentObject - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
         //assert(pageNumber < 1280);
+        assert(Universe::IsValidObject(currentObject));
         if (currentObject->GetGCField()) {
             AbstractVMObject* newLocation = currentObject->Clone(_HEAP->GetGCThread());
             //size_t pageNumber2 = ((size_t)newLocation - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
@@ -111,7 +117,9 @@ void Page::RelocatePage() {
             if (!sideArray[positionSideArray].compare_exchange_strong(test, newLocation)) {
                 _HEAP->GetGCThread()->GetPage()->Free(currentObject->GetObjectSize());
             }
+            assert(Universe::IsValidObject((AbstractVMObject*) sideArray[positionSideArray]));
         }
+        prevObject = currentObject;
     }
     amountLiveData = 0;
     nextFreePosition = (void*)pageStart;
