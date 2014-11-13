@@ -47,7 +47,10 @@ VMString::VMString(const char* str) : AbstractVMObject() {
         chars[i] = str[i];
     }
     chars[i] = '\0';
-
+    
+    if (chars[0] == (char) 0xC0) {
+        std::cout << "object allocated" << std::endl;
+    }
 }
 
 #if GC_TYPE==GENERATIONAL
