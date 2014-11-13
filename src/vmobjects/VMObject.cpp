@@ -39,6 +39,9 @@ VMObject::VMObject(long numberOfFields) {
     // FIELDS = (pVMObject*)&clazz;
     this->SetNumberOfFields(numberOfFields + VMObjectNumberOfFields);
     gcfield = 0;
+#if GC_TYPE==PAUSELESS
+    gcfield2 = 0;
+#endif
     hash = (size_t) this;
     // Object size was already set by the heap on allocation
 }
@@ -91,6 +94,7 @@ void VMObject::SetNumberOfFields(long nof) {
 }
 
 void VMObject::SetClass(pVMClass cl) {
+    assert(Universe::IsValidObject((AbstractVMObject*) cl));
     clazz = WRITEBARRIER(cl);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, cl);
