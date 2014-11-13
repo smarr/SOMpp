@@ -26,9 +26,19 @@
 class VMObjectBase {
 protected:
     volatile size_t gcfield;
+#if GC_TYPE==PAUSELESS
+    volatile size_t gcfield2 = 0;
+#endif
+    
 public:
     inline size_t GetGCField() const;
     inline void SetGCField(size_t);
+    
+#if GC_TYPE==PAUSELESS
+    inline size_t GetGCField2() const;
+    inline void SetGCField2(size_t);
+#endif
+    
 };
 
 size_t VMObjectBase::GetGCField() const {
@@ -43,5 +53,14 @@ void VMObjectBase::SetGCField(size_t val) {
     assert(GCFIELD_IS_NOT_FORWARDING_POINTER || val > MASK_BITS_ALL);
     gcfield = val;
 }
+
+#if GC_TYPE==PAUSELESS
+size_t VMObjectBase::GetGCField2() const {
+    return gcfield2;
+}
+void VMObjectBase::SetGCField2(size_t val) {
+    gcfield2 = val;
+}
+#endif
 
 #endif
