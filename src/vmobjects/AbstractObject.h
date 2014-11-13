@@ -55,6 +55,9 @@ public:
 
     AbstractVMObject() {
         gcfield = 0;
+#if GC_TYPE==PAUSELESS
+        gcfield2 = 0;
+#endif
     }
 
     inline virtual void SetObjectSize(size_t size) {
