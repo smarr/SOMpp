@@ -67,33 +67,33 @@ void Disassembler::dispatch(pVMObject o) {
     //dispatch
     // can't switch() objects, so:
     if(!o) return;// NULL isn't interesting.
-    else if(o == nilObject)
+    else if(o == READBARRIER(nilObject))
         DebugPrint("{Nil}");
-    else if(o == trueObject)
+    else if(o == READBARRIER(trueObject))
         DebugPrint("{True}");
-    else if(o == falseObject)
+    else if(o == READBARRIER(falseObject))
         DebugPrint("{False}");
-    else if(o == systemClass)
+    else if(o == READBARRIER(systemClass))
         DebugPrint("{System Class object}");
-    else if(o == blockClass)
+    else if(o == READBARRIER(blockClass))
         DebugPrint("{Block Class object}");
     else if(o == _UNIVERSE->GetGlobal(_UNIVERSE->SymbolForChars("system")))
         DebugPrint("{System}");
     else {
         pVMClass c = CLASS_OF(o);
-        if (c == stringClass) {
+        if (c == READBARRIER(stringClass)) {
             DebugPrint("\"%s\"", static_cast<pVMString>(o)->GetChars());
-        } else if(c == doubleClass)
+        } else if(c == READBARRIER(doubleClass))
             DebugPrint("%g", static_cast<pVMDouble>(o)->GetEmbeddedDouble());
-        else if(c == bigIntegerClass)
+        else if(c == READBARRIER(bigIntegerClass))
             DebugPrint("%lld", static_cast<pVMBigInteger>(o)->GetEmbeddedInteger());
-        else if(c == integerClass)
+        else if(c == READBARRIER(integerClass))
 #ifdef USE_TAGGING
             DebugPrint("%d", UNTAG_INTEGER(o));
 #else
             DebugPrint("%d", static_cast<pVMInteger>(o)->GetEmbeddedInteger());
 #endif
-        else if(c == symbolClass) {
+        else if(c == READBARRIER(symbolClass)) {
             DebugPrint("#%s", static_cast<pVMSymbol>(o)->GetChars());
         } else
             DebugPrint("address: %p", (void*)o);
