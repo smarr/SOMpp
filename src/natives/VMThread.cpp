@@ -11,6 +11,9 @@
 #include <sched.h>
 #include "../vm/Universe.h"
 
+#include <vmobjects/VMString.h>
+#include <vmobjects/VMBlock.h>
+
 const int VMThread::VMThreadNumberOfFields = 5;
 
 VMThread::VMThread() : VMObject(VMThreadNumberOfFields) {
@@ -26,7 +29,7 @@ pVMSignal VMThread::GetResumeSignal() {
 
 
 void VMThread::SetResumeSignal(pVMSignal value) {
-    resumeSignal = value;
+    resumeSignal = WRITEBARRIER(value);
 }
 
 

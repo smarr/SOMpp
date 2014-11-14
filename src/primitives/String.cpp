@@ -117,7 +117,7 @@ void _String::Equal(pVMObject /*object*/, pVMFrame frame) {
             return;
         }
     }
-    frame->Push(falseObject);
+    frame->Push(READBARRIER(falseObject));
 }
 
 void _String::PrimSubstringFrom_to_(pVMObject /*object*/, pVMFrame frame) {
