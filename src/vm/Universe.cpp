@@ -757,9 +757,9 @@ pVMClass Universe::GetBlockClassWithArgs(long numberOfArguments) {
 pVMObject Universe::GetGlobal(pVMSymbol name) {
     pthread_mutex_lock(&testMutex);
     
-    GCObject* raw_glob = globals[name];
+    GCAbstractObject* raw_glob = globals[(GCSymbol*) name];   // CAST is PERFORMANCE HACK: wanted to avoid the write barrier
     if (raw_glob == nullptr)
-        raw_glob = globals[Flip(name)];
+        raw_glob = globals[Flip((GCSymbol*) name)];
     
     pVMObject glob_ptr_val = READBARRIER(raw_glob);
     
