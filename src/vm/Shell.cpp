@@ -66,16 +66,16 @@ void Shell::Start() {
     // the statement to evaluate
     char inbuf[INPUT_MAX_SIZE];
     long bytecodeIndex, counter = 0;
-    pVMFrame currentFrame;
-    pVMClass runClass;
-    pVMObject it = nilObject;// last evaluation result.
+    GCFrame* currentFrame;
+    GCClass* runClass;
+    GCAbstractObject* it = nilObject;  // last evaluation result.
 
     cout << "SOM Shell. Type \"" << QUIT_CMD << "\" to exit.\n";
 
     // Create a fake bootstrap frame
-    currentFrame = _UNIVERSE->GetInterpreter()->PushNewFrame(this->GetBootstrapMethod());
+    currentFrame = WRITEBARRIER(_UNIVERSE->GetInterpreter()->PushNewFrame(this->GetBootstrapMethod()));
     // Remember the first bytecode index, e.g. index of the halt instruction
-    bytecodeIndex = currentFrame->GetBytecodeIndex();
+    bytecodeIndex = READBARRIER(currentFrame)->GetBytecodeIndex();
 
     /**
      * Main Shell Loop
@@ -101,38 +101,38 @@ void Shell::Start() {
         statement = ss.str();
 
         ++counter;
-        runClass = _UNIVERSE->LoadShellClass(statement);
+        runClass = WRITEBARRIER(_UNIVERSE->LoadShellClass(statement));
         // Compile and load the newly generated class
         if(runClass == NULL) {
             cout << "can't compile statement.";
             continue;
         }
 
-        currentFrame = _UNIVERSE->GetInterpreter()->GetFrame();
+        currentFrame = WRITEBARRIER(_UNIVERSE->GetInterpreter()->GetFrame());
 
         // Go back, so we will evaluate the bootstrap frames halt
         // instruction again
-        currentFrame->SetBytecodeIndex(bytecodeIndex);
+        READBARRIER(currentFrame)->SetBytecodeIndex(bytecodeIndex);
 
         // Create and push a new instance of our class on the stack
-        currentFrame->Push(_UNIVERSE->NewInstance(runClass));
+        READBARRIER(currentFrame)->Push(_UNIVERSE->NewInstance(READBARRIER(runClass)));
 
         // Push the old value of "it" on the stack
-        currentFrame->Push(it);
+        READBARRIER(currentFrame)->Push(READBARRIER(it));
 
         // Lookup the run: method
-        pVMInvokable initialize = runClass->LookupInvokable(
+        pVMInvokable initialize = READBARRIER(runClass)->LookupInvokable(
                                         _UNIVERSE->SymbolFor("run:"));
 
         // Invoke the run method
-        (*initialize)(currentFrame);
+        (*initialize)(READBARRIER(currentFrame));
 
         // Start the Interpreter
 
         _UNIVERSE->GetInterpreter()->Start();
 
         // Save the result of the run method
-        it = currentFrame->Pop();
+        it = WRITEBARRIER(READBARRIER(currentFrame)->Pop());
     }
 }
 
