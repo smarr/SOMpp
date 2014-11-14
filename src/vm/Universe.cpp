@@ -358,17 +358,17 @@ void Universe::initialize(long _argc, char** _argv) {
 
     InitializeGlobals();
 
-    pVMObject systemObject = NewInstance(systemClass);
+    pVMObject systemObject = NewInstance(READBARRIER(systemClass));
 
-    this->SetGlobal(SymbolForChars("nil"), nilObject);
-    this->SetGlobal(SymbolForChars("true"), trueObject);
-    this->SetGlobal(SymbolForChars("false"), falseObject);
+    this->SetGlobal(SymbolForChars("nil"),    READBARRIER(nilObject));
+    this->SetGlobal(SymbolForChars("true"),   READBARRIER(trueObject));
+    this->SetGlobal(SymbolForChars("false"),  READBARRIER(falseObject));
     this->SetGlobal(SymbolForChars("system"), systemObject);
-    this->SetGlobal(SymbolForChars("System"), systemClass);
-    this->SetGlobal(SymbolForChars("Block"), blockClass);
+    this->SetGlobal(SymbolForChars("System"), READBARRIER(systemClass));
+    this->SetGlobal(SymbolForChars("Block"),  READBARRIER(blockClass));
 
-    symbolIfTrue  = SymbolForChars("ifTrue:");
-    symbolIfFalse = SymbolForChars("ifFalse:");
+    symbolIfTrue  = WRITEBARRIER(SymbolForChars("ifTrue:"));
+    symbolIfFalse = WRITEBARRIER(SymbolForChars("ifFalse:"));
 
     
 
@@ -377,7 +377,7 @@ void Universe::initialize(long _argc, char** _argv) {
     bootstrapMethod->SetNumberOfLocals(0);
 
     bootstrapMethod->SetMaximumNumberOfStackElements(2);
-    bootstrapMethod->SetHolder(systemClass);
+    bootstrapMethod->SetHolder(READBARRIER(systemClass));
     
     pVMThread thread = NewThread();
     pVMSignal signal = NewSignal();
@@ -403,7 +403,7 @@ void Universe::initialize(long _argc, char** _argv) {
     bootstrapFrame->Push(argumentsArray);
 
     pVMInvokable initialize =
-        static_cast<pVMInvokable>(systemClass->LookupInvokable(this->SymbolForChars("initialize:")));
+        static_cast<pVMInvokable>(READBARRIER(systemClass)->LookupInvokable(this->SymbolForChars("initialize:")));
     (*initialize)(bootstrapFrame);
 
     // reset "-d" indicator
@@ -637,80 +637,80 @@ void Universe::InitializeGlobals() {
 #if GC_TYPE==GENERATIONAL
     nilObject = new (_HEAP, _PAGE) VMObject;
 #elif GC_TYPE==PAUSELESS
-    nilObject = new (_HEAP, _UNIVERSE->GetInterpreter()) VMObject;
+    nilObject = WRITEBARRIER(new (_HEAP, _UNIVERSE->GetInterpreter()) VMObject);
 #else
     nilObject = new (_HEAP) VMObject;
 #endif
     
-    static_cast<VMObject*>(nilObject)->SetField(0, nilObject);
+    static_cast<VMObject*>(READBARRIER(nilObject))->SetField(0, READBARRIER(nilObject));
 
-    metaClassClass = NewMetaclassClass();
+    metaClassClass = WRITEBARRIER(NewMetaclassClass());
 
-    objectClass = NewSystemClass();
-    nilClass = NewSystemClass();
-    classClass = NewSystemClass();
-    arrayClass = NewSystemClass();
-    symbolClass = NewSystemClass();
-    methodClass = NewSystemClass();
-    integerClass = NewSystemClass();
-    bigIntegerClass = NewSystemClass();
-    primitiveClass = NewSystemClass();
-    stringClass = NewSystemClass();
-    doubleClass = NewSystemClass();
-    threadClass = NewSystemClass();
-    mutexClass = NewSystemClass();
-    signalClass = NewSystemClass();
+    objectClass     = WRITEBARRIER(NewSystemClass());
+    nilClass        = WRITEBARRIER(NewSystemClass());
+    classClass      = WRITEBARRIER(NewSystemClass());
+    arrayClass      = WRITEBARRIER(NewSystemClass());
+    symbolClass     = WRITEBARRIER(NewSystemClass());
+    methodClass     = WRITEBARRIER(NewSystemClass());
+    integerClass    = WRITEBARRIER(NewSystemClass());
+    bigIntegerClass = WRITEBARRIER(NewSystemClass());
+    primitiveClass  = WRITEBARRIER(NewSystemClass());
+    stringClass     = WRITEBARRIER(NewSystemClass());
+    doubleClass     = WRITEBARRIER(NewSystemClass());
+    threadClass     = WRITEBARRIER(NewSystemClass());
+    mutexClass      = WRITEBARRIER(NewSystemClass());
+    signalClass     = WRITEBARRIER(NewSystemClass());
 
-    nilObject->SetClass(nilClass);
+    READBARRIER(nilObject)->SetClass(READBARRIER(nilClass));
 
-    InitializeSystemClass(objectClass, NULL, "Object");
-    InitializeSystemClass(classClass, objectClass, "Class");
-    InitializeSystemClass(metaClassClass, classClass, "Metaclass");
-    InitializeSystemClass(nilClass, objectClass, "Nil");
-    InitializeSystemClass(arrayClass, objectClass, "Array");
-    InitializeSystemClass(methodClass, arrayClass, "Method");
-    InitializeSystemClass(symbolClass, objectClass, "Symbol");
-    InitializeSystemClass(integerClass, objectClass, "Integer");
-    InitializeSystemClass(bigIntegerClass, objectClass,
+    InitializeSystemClass(READBARRIER(objectClass),    nullptr, "Object");
+    InitializeSystemClass(READBARRIER(classClass),     READBARRIER(objectClass), "Class");
+    InitializeSystemClass(READBARRIER(metaClassClass), READBARRIER(classClass), "Metaclass");
+    InitializeSystemClass(READBARRIER(nilClass),    READBARRIER(objectClass), "Nil");
+    InitializeSystemClass(READBARRIER(arrayClass),  READBARRIER(objectClass), "Array");
+    InitializeSystemClass(READBARRIER(methodClass), READBARRIER(arrayClass), "Method");
+    InitializeSystemClass(READBARRIER(symbolClass), READBARRIER(objectClass), "Symbol");
+    InitializeSystemClass(READBARRIER(integerClass), READBARRIER(objectClass), "Integer");
+    InitializeSystemClass(READBARRIER(bigIntegerClass), READBARRIER(objectClass),
             "BigInteger");
-    InitializeSystemClass(primitiveClass, objectClass,
+    InitializeSystemClass(READBARRIER(primitiveClass), READBARRIER(objectClass),
             "Primitive");
-    InitializeSystemClass(stringClass, objectClass, "String");
-    InitializeSystemClass(doubleClass, objectClass, "Double");
-    InitializeSystemClass(threadClass, objectClass, "Thread");
-    InitializeSystemClass(mutexClass, objectClass, "Mutex");
-    InitializeSystemClass(signalClass, objectClass, "Signal");
+    InitializeSystemClass(READBARRIER(stringClass), READBARRIER(objectClass), "String");
+    InitializeSystemClass(READBARRIER(doubleClass), READBARRIER(objectClass), "Double");
+    InitializeSystemClass(READBARRIER(threadClass), READBARRIER(objectClass), "Thread");
+    InitializeSystemClass(READBARRIER(mutexClass), READBARRIER(objectClass), "Mutex");
+    InitializeSystemClass(READBARRIER(signalClass), READBARRIER(objectClass), "Signal");
 
     // Fix up objectClass
-    objectClass->SetSuperClass((pVMClass) nilObject);
+    READBARRIER(objectClass)->SetSuperClass((pVMClass) READBARRIER(nilObject));
 
-    LoadSystemClass(objectClass);
-    LoadSystemClass(classClass);
-    LoadSystemClass(metaClassClass);
-    LoadSystemClass(nilClass);
-    LoadSystemClass(arrayClass);
-    LoadSystemClass(methodClass);
-    LoadSystemClass(symbolClass);
-    LoadSystemClass(integerClass);
-    LoadSystemClass(bigIntegerClass);
-    LoadSystemClass(primitiveClass);
-    LoadSystemClass(stringClass);
-    LoadSystemClass(doubleClass);
-    LoadSystemClass(threadClass);
-    LoadSystemClass(mutexClass);
-    LoadSystemClass(signalClass);
+    LoadSystemClass(READBARRIER(objectClass));
+    LoadSystemClass(READBARRIER(classClass));
+    LoadSystemClass(READBARRIER(metaClassClass));
+    LoadSystemClass(READBARRIER(nilClass));
+    LoadSystemClass(READBARRIER(arrayClass));
+    LoadSystemClass(READBARRIER(methodClass));
+    LoadSystemClass(READBARRIER(symbolClass));
+    LoadSystemClass(READBARRIER(integerClass));
+    LoadSystemClass(READBARRIER(bigIntegerClass));
+    LoadSystemClass(READBARRIER(primitiveClass));
+    LoadSystemClass(READBARRIER(stringClass));
+    LoadSystemClass(READBARRIER(doubleClass));
+    LoadSystemClass(READBARRIER(threadClass));
+    LoadSystemClass(READBARRIER(mutexClass));
+    LoadSystemClass(READBARRIER(signalClass));
 
-    blockClass = LoadClass(SymbolForChars("Block"));
+    blockClass = WRITEBARRIER(LoadClass(SymbolForChars("Block")));
 
     pVMSymbol trueClassName = SymbolForChars("True");
-    trueClass  = LoadClass(trueClassName);
-    trueObject = NewInstance(trueClass);
+    trueClass  = WRITEBARRIER(LoadClass(trueClassName));
+    trueObject = (GCObject*) WRITEBARRIER(NewInstance(READBARRIER(trueClass)));
     
     pVMSymbol falseClassName = SymbolForChars("False");
-    falseClass  = LoadClass(falseClassName);
-    falseObject = NewInstance(falseClass);
+    falseClass  = WRITEBARRIER(LoadClass(falseClassName));
+    falseObject = (GCObject*) WRITEBARRIER(NewInstance(READBARRIER(falseClass)));
 
-    systemClass = LoadClass(SymbolForChars("System"));
+    systemClass = WRITEBARRIER(LoadClass(SymbolForChars("System")));
 
     obtain_vtables_of_known_classes(falseClassName);
 }
@@ -787,7 +787,7 @@ pVMClass superClass, const char* name) {
         sysClassClass->SetSuperClass(superClassClass);
     } else {
         pVMClass sysClassClass = systemClass->GetClass();
-        sysClassClass->SetSuperClass(classClass);
+        sysClassClass->SetSuperClass(READBARRIER(classClass));
     }
 
     pVMClass sysClassClass = systemClass->GetClass();
