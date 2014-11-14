@@ -76,13 +76,13 @@ inline T* Flip(T* reference) {
 }
 
 template<typename T>
-inline T* WriteBarrier(T* reference) {
+inline typename T::Stored* WriteBarrier(T* reference) {
     if (reference == nullptr)
-        return (T*)nullptr;
+        return (typename T::Stored*) nullptr;
     if (_UNIVERSE->GetInterpreter()->GetExpectedNMT())
-        return (T*) FLIP_NMT_VALUE(reference);
+        return (typename T::Stored*) FLIP_NMT_VALUE(reference);
     else
-        return reference;
+        return (typename T::Stored*) reference;
 }
 
 template<typename T>
@@ -152,34 +152,34 @@ inline void GCTrapForGCThread(T** referenceHolder) {
 }
 
 template<typename T>
-inline T* ReadBarrier(T** referenceHolder) {
+inline typename T::Loaded* ReadBarrier(T** referenceHolder) {
     if (*referenceHolder == nullptr)
-        return (T*)nullptr;
+        return (typename T::Loaded*)nullptr;
     size_t pageNumber = ((size_t)Untag(*referenceHolder) - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
     assert(pageNumber < 7680);
     
-    T* oldReference = *referenceHolder;
+    // T* oldReference = *referenceHolder;
     
     
     GCTrap(referenceHolder);
     NMTTrap(referenceHolder);
     
-    T* res = Untag(*referenceHolder);
+    typename T::Loaded* res = (typename T::Loaded*) Untag(*referenceHolder);
     assert(Universe::IsValidObject((AbstractVMObject*) res));
     return res;
 }
 
 template<typename T>
-inline T* ReadBarrierForGCThread(T** referenceHolder) {
+inline typename T::Loaded* ReadBarrierForGCThread(T** referenceHolder) {
     if (*referenceHolder == nullptr)
-        return (T*)nullptr;
+        return (typename T::Loaded*)nullptr;
     //assert(Universe::IsValidObject((AbstractVMObject*) Untag(*referenceHolder)));
     size_t pageNumber = ((size_t)Untag(*referenceHolder) - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
     assert(pageNumber < 7680);
     GCTrapForGCThread(referenceHolder);
     NMTTrapForGCThread(referenceHolder);
     
-    T* res = Untag(*referenceHolder);
+    typename T::Loaded* res = (typename T::Loaded*) Untag(*referenceHolder);
     assert(Universe::IsValidObject((AbstractVMObject*) res));
     return res;
 }
