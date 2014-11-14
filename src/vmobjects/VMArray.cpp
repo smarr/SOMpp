@@ -38,7 +38,7 @@ VMArray::VMArray(long size, long nof) :
     // SetIndexableField is not used to prevent the write barrier to be called
     // too often.
     // Fields start after clazz and other fields (GetNumberOfFields)
-    pVMObject* arrFields = FIELDS + GetNumberOfFields();
+    GCObject** arrFields = FIELDS + GetNumberOfFields();
     for (long i = 0; i < size; ++i) {
         arrFields[i] = WRITEBARRIER(READBARRIER(nilObject));
     }

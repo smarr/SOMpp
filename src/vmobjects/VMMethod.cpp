@@ -60,7 +60,7 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
     numberOfArguments = WRITEBARRIER(_UNIVERSE->NewInteger(0));
     this->numberOfConstants = WRITEBARRIER(_UNIVERSE->NewInteger(numberOfConstants));
 #endif
-    indexableFields = (pVMObject*)(&indexableFields + 2);
+    indexableFields = (GCObject**)(&indexableFields + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
     for (long i = 0; i < numberOfConstants; ++i) {
         indexableFields[i] = WRITEBARRIER(READBARRIER(nilObject));
     }
@@ -84,7 +84,7 @@ pVMMethod VMMethod::Clone(Interpreter* thread) {
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,
                                                              sizeof(VMObject)), GetObjectSize() -
            sizeof(VMObject));
-    clone->indexableFields = (pVMObject*)(&(clone->indexableFields) + 2);
+    clone->indexableFields = (GCObject**)(&(clone->indexableFields) + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
     clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + GetNumberOfIndexableFields());
     return clone;
 }
@@ -93,7 +93,7 @@ pVMMethod VMMethod::Clone(PauselessCollectorThread* thread) {
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,
                                                              sizeof(VMObject)), GetObjectSize() -
            sizeof(VMObject));
-    clone->indexableFields = (pVMObject*)(&(clone->indexableFields) + 2);
+    clone->indexableFields = (GCObject**)(&(clone->indexableFields) + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
     clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + ReadBarrierForGCThread(&numberOfConstants)->GetEmbeddedInteger());
     return clone;
 }
