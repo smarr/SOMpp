@@ -96,11 +96,11 @@ inline T* WriteBarrierForGCThread(T* reference) {
 }
 
 template<typename T>
-inline T* Untag(T* reference) {
+inline typename T::Loaded* Untag(T* reference) {
     if (REFERENCE_NMT_VALUE(reference))
-        return (T*)FLIP_NMT_VALUE(reference);
+        return (typename T::Loaded*) FLIP_NMT_VALUE(reference);
     else
-        return reference;
+        return (typename T::Loaded*) reference;
 }
 
 template<typename T>
@@ -164,7 +164,7 @@ inline typename T::Loaded* ReadBarrier(T** referenceHolder) {
     GCTrap(referenceHolder);
     NMTTrap(referenceHolder);
     
-    typename T::Loaded* res = (typename T::Loaded*) Untag(*referenceHolder);
+    typename T::Loaded* res = Untag(*referenceHolder);
     assert(Universe::IsValidObject((AbstractVMObject*) res));
     return res;
 }
@@ -179,7 +179,7 @@ inline typename T::Loaded* ReadBarrierForGCThread(T** referenceHolder) {
     GCTrapForGCThread(referenceHolder);
     NMTTrapForGCThread(referenceHolder);
     
-    typename T::Loaded* res = (typename T::Loaded*) Untag(*referenceHolder);
+    typename T::Loaded* res = Untag(*referenceHolder);
     assert(Universe::IsValidObject((AbstractVMObject*) res));
     return res;
 }
