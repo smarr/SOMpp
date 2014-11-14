@@ -46,22 +46,7 @@
 
 class Interpreter;
 
-class AbstractVMObject;
-class VMObject;
-class VMSymbol;
-class VMClass;
-class VMFrame;
-class VMArray;
-class VMBlock;
-class VMDouble;
-class VMInteger;
-class VMMethod;
-class VMString;
-class VMBigInteger;
 class SourcecodeCompiler;
-class VMMutex;
-class VMSignal;
-class VMThread;
 
 //Convenience macro for Singleton access
 #define _UNIVERSE Universe::GetUniverse()
