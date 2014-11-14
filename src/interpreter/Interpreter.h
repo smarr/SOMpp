@@ -80,8 +80,8 @@ public:
 #endif
     
 private:
-    pVMThread thread;
-    pVMFrame frame;
+    GCThread* thread;
+    GCFrame* frame;
     StdString uG;
     StdString dnu;
     StdString eB;
@@ -114,8 +114,9 @@ private:
     // The following three variables are used to cache main parts of the
     // current execution context
     long      bytecodeIndexGlobal;
-    pVMMethod method;
-    uint8_t*  currentBytecodes;
+
+    //    pVMMethod method; // not safe for parallel moving
+    //    uint8_t*  currentBytecodes;
     
 #if GC_TYPE==PAUSELESS
     bool blocked;

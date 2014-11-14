@@ -82,7 +82,7 @@ Interpreter::Interpreter() : BaseThread() {
 }
 
 #define DISPATCH_NOGC() {\
-  goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]]; \
+  goto *loopTargets[/* currentBytecodes */ _FRAME->GetMethod()->GetBytecodes()[bytecodeIndexGlobal]]; \
 }
 
 #if GC_TYPE==PAUSELESS
@@ -95,28 +95,29 @@ Interpreter::Interpreter() : BaseThread() {
     if (_HEAP->IsPauseTriggered()) {\
         _FRAME->SetBytecodeIndex(bytecodeIndexGlobal);\
         _HEAP->Pause();\
-        method = _FRAME->GetMethod(); \
-        currentBytecodes = method->GetBytecodes();\
+        /* method = _FRAME->GetMethod(); */ \
+        /* currentBytecodes = method->GetBytecodes(); */ \
     }\
-    goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];\
+    goto *loopTargets[/* currentBytecodes */ _FRAME->GetMethod()->GetBytecodes()[bytecodeIndexGlobal]];\
 }
 #else
 #define DISPATCH_GC() {\
   if (_HEAP->isCollectionTriggered()) {\
     _FRAME->SetBytecodeIndex(bytecodeIndexGlobal);\
     _HEAP->FullGC();\
-    method = _FRAME->GetMethod(); \
-    currentBytecodes = method->GetBytecodes(); \
+    /* method = _FRAME->GetMethod();*/ \
+    /* currentBytecodes = method->GetBytecodes(); */ \
   }\
-  goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];\
+  goto *loopTargets[/* currentBytecodes */ _FRAME->GetMethod()->GetBytecodes() [bytecodeIndexGlobal]];\
 }
 #endif
 
 
 void Interpreter::Start() {
     // initialization
-    method = WRITEBARRIER(_FRAME->GetMethod());
-    currentBytecodes = method->GetBytecodes();
+
+    // method = WRITEBARRIER(_FRAME->GetMethod());
+    // currentBytecodes = method->GetBytecodes();
 
 void* loopTargets[] = {
     &&LABEL_BC_HALT,
@@ -141,7 +142,7 @@ void* loopTargets[] = {
 }
 ;
 
-goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];
+goto *loopTargets[/* currentBytecodes */ _FRAME->GetMethod()->GetBytecodes()[bytecodeIndexGlobal]];
 
 //
 // THIS IS THE former interpretation loop
@@ -252,9 +253,9 @@ void Interpreter::SetFrame(pVMFrame frame) {
     this->frame = WRITEBARRIER(frame);
 
     // update cached values
-    method              = WRITEBARRIER(frame->GetMethod());
+    // method              = WRITEBARRIER(frame->GetMethod());
     bytecodeIndexGlobal = frame->GetBytecodeIndex();
-    currentBytecodes    = READBARRIER(method)->GetBytecodes();
+    // currentBytecodes    = READBARRIER(method)->GetBytecodes();
 }
 
 pVMFrame Interpreter::GetFrame() {
@@ -390,7 +391,7 @@ void Interpreter::doPushField(long bytecodeIndex) {
 
 void Interpreter::doPushBlock(long bytecodeIndex) {
     // Short cut the negative case of #ifTrue: and #ifFalse:
-    if (currentBytecodes[bytecodeIndexGlobal] == BC_SEND) {
+    if (/* currentBytecodes */ _FRAME->GetMethod()->GetBytecodes()[bytecodeIndexGlobal] == BC_SEND) {
         if (_FRAME->GetStackElement(0) == READBARRIER(falseObject) &&
             this->GetMethod()->GetConstant(bytecodeIndexGlobal) == READBARRIER(symbolIfTrue)) {
             _FRAME->Push(READBARRIER(nilObject));
@@ -603,7 +604,8 @@ void Interpreter::doJump(long bytecodeIndex) {
 }
 
 pVMMethod Interpreter::GetMethod() {
-    return READBARRIER(this->method);
+    return GetFrame()->GetMethod();
+    // return READBARRIER(this->method);
 }
 
 pVMThread Interpreter::GetThread(void) {
@@ -656,7 +658,7 @@ void Interpreter::MarkRootSet() {
     // this will also destructively change the thread, frame and method pointers so that the NMT bit is flipped
     ReadBarrier(&thread);
     ReadBarrier(&frame);
-    ReadBarrier(&method);
+    // ReadBarrier(&method);
     
     // signal that root-set has been marked
     _HEAP->SignalRootSetMarked();
@@ -675,7 +677,7 @@ void Interpreter::MarkRootSetByGC() {
     // this will also destructively change the thread, frame and method pointers so that the NMT bit is flipped
     ReadBarrierForGCThread(&thread);
     ReadBarrierForGCThread(&frame);
-    ReadBarrierForGCThread(&method);
+    // ReadBarrierForGCThread(&method);
     
     // signal that root-set has been marked
     _HEAP->SignalRootSetMarked();
@@ -741,7 +743,7 @@ void Interpreter::AddFullPage(Page* page) {
 void Interpreter::CheckMarking(void (*walk)(AbstractVMObject*)) {
     pVMThread testThreadGCSet = Untag(thread);
     pVMFrame testFrameGCSet = Untag(frame);
-    pVMMethod testMethodGCSet = Untag(method);
+    // pVMMethod testMethodGCSet = Untag(method);
     if (frame)
         walk(Untag(frame));
     if (thread)
