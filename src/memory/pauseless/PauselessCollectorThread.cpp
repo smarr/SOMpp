@@ -278,6 +278,7 @@ void PauselessCollectorThread::Collect() {
             // unblock pages that were blocked during the previous cycle
             for (vector<Page*>::iterator page = pagesToUnblock->begin(); page != pagesToUnblock->end(); ++page) {
                 (*page)->UnBlock();
+                _HEAP->AddEmptyPage(*page);
             }
             pagesToUnblock->clear();
             // block pages that will be subject for relocation
@@ -311,8 +312,6 @@ void PauselessCollectorThread::Collect() {
                 pagesToRelocate->pop_back();
                 pthread_mutex_unlock(&pagesToRelocateMutex);
                 fromPage->RelocatePage();
-                //_HEAP->AddEmptyPage(fromPage);
-                //memset((void*)pageStart, 0x0, pageEnd-pageStart);
             } else {
                 pthread_mutex_unlock(&pagesToRelocateMutex);
                 break;
