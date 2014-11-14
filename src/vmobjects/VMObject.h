@@ -73,12 +73,10 @@
 class VMObject: public AbstractVMObject {
 
 public:
-    /* Constructor */
     typedef GCObject Stored;
     
     VMObject(long numberOfFields = 0);
 
-    /* Virtual member functions */
     virtual inline pVMClass  GetClass();
     virtual        void      SetClass(pVMClass cl);
     virtual        pVMSymbol GetFieldName(long index);
