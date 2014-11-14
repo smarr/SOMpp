@@ -127,7 +127,7 @@ public:
 #endif
         size_t objSize = numBytes + PADDED_SIZE(additionalBytes);
         ((VMObject*) mem)->objectSize = objSize;
-        assert(mem != INVALID_POINTER);
+        assert(mem != INVALID_VM_POINTER);
         return mem;
     }
 
@@ -137,7 +137,7 @@ public:
         void* mem = AbstractVMObject::operator new(numBytes, heap, thread, PADDED_SIZE(additionalBytes));
         size_t objSize = numBytes + PADDED_SIZE(additionalBytes);
         ((VMObject*) mem)->objectSize = objSize;
-        assert(mem != INVALID_POINTER);
+        assert(mem != INVALID_VM_POINTER);
         return mem;
     }
 #endif

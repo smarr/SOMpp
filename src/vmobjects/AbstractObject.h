@@ -127,7 +127,7 @@ public:
             thread->AddFullPage(page);
             thread->SetPage(heap->RequestPage());
         }
-        assert(result != INVALID_POINTER);
+        assert(result != INVALID_VM_POINTER);
         return result;
     }
     void* operator new(size_t numBytes, PagedHeap* heap, PauselessCollectorThread* thread, unsigned long additionalBytes = 0) {
@@ -137,7 +137,7 @@ public:
             heap->RelinquishPage(page);
             thread->SetPage(heap->RequestPage());
         }
-        assert(result != INVALID_POINTER);
+        assert(result != INVALID_VM_POINTER);
         return result;
     }
 #else

@@ -39,7 +39,8 @@
  * 10000000 00000000 00000000 0000000X  
  */
 #define VMTAGGEDINTEGER_MIN -1073741824
-#define AS_POINTER(X) ((AbstractVMObject*)X)
+#define AS_VM_POINTER(X) ((AbstractVMObject*)X)
+#define AS_GC_POINTER(X) ((GCAbstractObject*)X)
 
 #ifdef ADDITIONAL_ALLOCATION
 #define TAG_INTEGER(X) ((X >= VMTAGGEDINTEGER_MIN && X <= VMTAGGEDINTEGER_MAX && _UNIVERSE->NewInteger(0)) ? ((pVMInteger)((X << 1) | 1)) : (_UNIVERSE->NewInteger(X)))
@@ -124,6 +125,7 @@ class GCThread    : public GCObject      { public: typedef VMThread Loaded; };
 #define VMOBJECT_PTR AbstractVMObject*
 
 // Used to mark object fields as invalid
-#define INVALID_POINTER ((pVMObject)0x101010)
+#define INVALID_VM_POINTER ((pVMObject)0x101010)
+#define INVALID_GC_POINTER ((GCObject*)0x101010)
 
 #endif // OBJECTFORMATS_H_

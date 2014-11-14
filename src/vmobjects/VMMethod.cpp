@@ -232,7 +232,7 @@ void VMMethod::CheckMarking(void (*walk)(AbstractVMObject*)) {
     walk(Untag(numberOfConstants));
     long numIndexableFields = Untag(numberOfConstants)->GetEmbeddedInteger();
     for (long i = 0; i < numIndexableFields; ++i) {
-        walk(Untag(AS_POINTER(indexableFields[i])));
+        walk(Untag(AS_GC_POINTER(indexableFields[i])));
     }
 }
 #else

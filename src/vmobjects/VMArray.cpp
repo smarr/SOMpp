@@ -117,7 +117,7 @@ void VMArray::MarkObjectAsInvalid() {
     VMObject::MarkObjectAsInvalid();
     long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {
-        FIELDS[i] = INVALID_POINTER;
+        FIELDS[i] = INVALID_GC_POINTER;
     }
 }
 
@@ -141,7 +141,7 @@ void VMArray::CheckMarking(void (*walk)(AbstractVMObject*)) {
     long numFields          = GetNumberOfFields();
     long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numFields + numIndexableFields; i++) {
-        walk(Untag(AS_POINTER(FIELDS[i])));
+        walk(Untag(AS_GC_POINTER(FIELDS[i])));
     }
 }
 #else
