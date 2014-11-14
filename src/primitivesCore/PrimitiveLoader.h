@@ -36,7 +36,7 @@ class PrimitiveRoutine;
 
 ///Core class for primitive loading.
 //In order to implement new primitive libraries, you can use this class
-//to implement the "create" factory method (of course you can do something
+//to implement the "get_primitive" factory method (of course you can do something
 //totally different, if you chose...)
 //
 //Functions that are expected to be exported by the library are:

@@ -39,11 +39,5 @@ public:
     virtual void operator()(pVMObject, pVMFrame) = 0;  // call using operator
 };
 
-// Typedefs for Primitive loading
-typedef PrimitiveRoutine* CreatePrimitive(const std::string&,
-        const std::string&);
-typedef bool SupportsClass(const char*);
-typedef void TearDown();
-typedef void Setup();
 
 #endif

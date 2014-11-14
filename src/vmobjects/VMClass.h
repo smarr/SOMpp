@@ -72,7 +72,7 @@ public:
            pVMSymbol    GetInstanceFieldName(long);
            long         GetNumberOfInstanceFields();
            bool         HasPrimitives();
-           void         LoadPrimitives(const vector<StdString>&);
+           void         LoadPrimitives();
     
 #if GC_TYPE==PAUSELESS
     virtual pVMClass    Clone(Interpreter*);
@@ -87,13 +87,7 @@ public:
     virtual void MarkObjectAsInvalid();
 
 private:
-    StdString genLoadstring(const StdString& cp, const StdString& cname) const;
-
-    StdString genCoreLoadstring(const StdString& cp) const;
-
-    void* loadLib(const StdString& path) const;
-    bool isResponsible(void* handle, const StdString& cl) const;
-    void setPrimitives(void* handle, const StdString& cname);
+    void setPrimitives(const StdString& cname);
     long numberOfSuperInstanceFields();
 
     pVMClass superClass;

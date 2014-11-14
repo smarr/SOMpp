@@ -34,6 +34,7 @@
 #include "Shell.h"
 
 #include "../interpreter/Interpreter.h"
+#include <primitives/Core.h>
 
 #include <vmobjects/VMSymbol.h>
 #include <vmobjects/VMObject.h>
@@ -335,6 +336,7 @@ void Universe::initialize(long _argc, char** _argv) {
         bm_name = argv[0];
 
     PagedHeap::InitializeHeap(heapSize, pageSize);
+    setup_primitives();
 
     heap = _HEAP;
 
@@ -823,7 +825,7 @@ pVMClass Universe::LoadClass(pVMSymbol name) {
     }
 
     if (result->HasPrimitives() || result->GetClass()->HasPrimitives())
-        result->LoadPrimitives(classPath);
+        result->LoadPrimitives();
     
     SetGlobal(name, result);
 
@@ -870,7 +872,7 @@ void Universe::LoadSystemClass( pVMClass systemClass) {
     }
 
     if (result->HasPrimitives() || result->GetClass()->HasPrimitives())
-    result->LoadPrimitives(classPath);
+    result->LoadPrimitives();
 }
 
 pVMArray Universe::NewArray(long size) const {
