@@ -24,6 +24,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <unistd.h>
 
 #include "compiler/ClassGenerationContext.h"
 
@@ -40,33 +41,38 @@
 #include "vmobjects/VMArray.h"
 #include "vmobjects/ObjectFormats.h"
 
-int main(int argc, char** argv) {
+#include <misc/debug.h>
+#include <sstream>
 
-    cout << "This is SOM++" << endl;
+int main(int argc, char** argv) {
+    sync_out(ostringstream() << "CWD: " << getwd(nullptr));
+
+
+    sync_out(ostringstream() << "This is SOM++");
 #if GC_TYPE==GENERATIONAL
-    cout << "\tgarbage collector: generational" << endl;
+    sync_out(ostringstream() << "\tgarbage collector: generational");
 #elif GC_TYPE==COPYING
-    cout << "\tgarbage collector: copying" << endl;
+    sync_out(ostringstream() << "\tgarbage collector: copying");
 #elif GC_TYPE==MARK_SWEEP
-    cout << "\tgarbage collector: mark-sweep" << endl;
+    sync_out(ostringstream() << "\tgarbage collector: mark-sweep");
 #elif GC_TYPE==PAUSELESS
-    cout << "\tgarbage collector: pauseless" << endl;
+    sync_out(ostringstream() << "\tgarbage collector: pauseless");
 #endif
 
 #ifdef USE_TAGGING
-    cout << "\twith tagged integers" << endl;
+    sync_out(ostringstream() << "\twith tagged integers");
 #else
-    cout << "\tnot tagging integers" << endl;
+    sync_out(ostringstream() << "\tnot tagging integers");
 #endif
 
 #ifdef CACHE_INTEGER
-    cout << "\tcaching integers from " << INT_CACHE_MIN_VALUE
-        << " to " << INT_CACHE_MAX_VALUE << endl;
+    sync_out(ostringstream() << "\tcaching integers from " << INT_CACHE_MIN_VALUE
+        << " to " << INT_CACHE_MAX_VALUE);
 #else
-    cout << "\tnot caching integers" << endl;
+    sync_out(ostringstream() << "\tnot caching integers");
 #endif
 
-    cout << "--------------------------------------" << endl;
+    sync_out(ostringstream() << "--------------------------------------");
 
 
     Universe::Start(argc, argv);

@@ -24,6 +24,7 @@
  THE SOFTWARE.
  */
 
+#include <misc/debug.h>
 #include "Interpreter.h"
 #include "bytecodes.h"
 
@@ -291,6 +292,7 @@ void Interpreter::popFrameAndPushResult(pVMObject result) {
 }
 
 void Interpreter::send(pVMSymbol signature, pVMClass receiverClass) {
+    sync_out(ostringstream() << "[Send] " << signature->GetChars());
     
     pVMInvokable invokable = receiverClass->LookupInvokable(signature);
 

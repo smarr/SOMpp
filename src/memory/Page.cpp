@@ -11,6 +11,7 @@
 #include "../vm/Universe.h"
 #include "../interpreter/Interpreter.h"
 #include <atomic>
+#include <misc/debug.h>
 
 Page::Page(void* pageStart, PagedHeap* heap) {
     this->heap = heap;
@@ -30,7 +31,7 @@ AbstractVMObject* Page::AllocateObject(size_t size) {
     void* test = (void*)pageEnd;
     
     if ((size_t)nextFreePosition > pageEnd) {
-        cout << "Failed to allocate " << size << " Bytes in page." << endl;
+        sync_out(ostringstream() << "Failed to allocate " << size << " Bytes in page.");
         _UNIVERSE->Quit(-1);
     }
     return newObject;

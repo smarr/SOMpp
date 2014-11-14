@@ -64,6 +64,7 @@
 		0A8E19E91A161667004CE22B /* Thread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9004031F18CD735E00C0410A /* Thread.cpp */; };
 		0A8E19EA1A16166C004CE22B /* PrimitiveLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F52032B0FA6624C00E75857 /* PrimitiveLoader.cpp */; };
 		0A8E19EB1A16166F004CE22B /* PrimitiveContainer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203290FA6624C00E75857 /* PrimitiveContainer.cpp */; };
+		0A8E19ED1A16305B004CE22B /* debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A8E19EC1A16305B004CE22B /* debug.cpp */; };
 		90412347199351AC00AF1406 /* PauselessCollector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90797B611908BD810000D644 /* PauselessCollector.cpp */; };
 		905BB55F198F50380016D8D9 /* GenerationalCollector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90D38562198F439A00586434 /* GenerationalCollector.cpp */; };
 		905BB561198F50380016D8D9 /* GenerationalHeap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90D38564198F439A00586434 /* GenerationalHeap.cpp */; };
@@ -118,6 +119,7 @@
 		0A335F6C1832D64100D7CFC8 /* Method.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Method.h; sourceTree = "<group>"; };
 		0A335F6F1832D65100D7CFC8 /* Primitive.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Primitive.cpp; sourceTree = "<group>"; };
 		0A335F701832D65100D7CFC8 /* Primitive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Primitive.h; sourceTree = "<group>"; };
+		0A8E19EC1A16305B004CE22B /* debug.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = debug.cpp; sourceTree = "<group>"; };
 		3F5202930FA6624C00E75857 /* build_darwin.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = build_darwin.sh; sourceTree = "<group>"; };
 		3F5202940FA6624C00E75857 /* Darwin.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Darwin.make; sourceTree = "<group>"; };
 		3F5202950FA6624C00E75857 /* Linux.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Linux.make; sourceTree = "<group>"; };
@@ -478,6 +480,7 @@
 				3F52030F0FA6624C00E75857 /* gettimeofday.h */,
 				0A1887371832C12E00A2CBCA /* Timer.cpp */,
 				0A1887381832C12E00A2CBCA /* Timer.h */,
+				0A8E19EC1A16305B004CE22B /* debug.cpp */,
 			);
 			path = misc;
 			sourceTree = "<group>";
@@ -923,6 +926,7 @@
 				90D3855C198F42E000586434 /* Worklist.cpp in Sources */,
 				0A1886F51832BCED00A2CBCA /* Shell.cpp in Sources */,
 				0A1887061832BCFA00A2CBCA /* VMSymbol.cpp in Sources */,
+				0A8E19ED1A16305B004CE22B /* debug.cpp in Sources */,
 				0A8E19D91A161662004CE22B /* Array.cpp in Sources */,
 				0A1887011832BCFA00A2CBCA /* VMInvokable.cpp in Sources */,
 				0A1886FA1832BCF500A2CBCA /* VMBigInteger.cpp in Sources */,

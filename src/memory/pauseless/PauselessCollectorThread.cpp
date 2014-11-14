@@ -15,6 +15,8 @@
 #include "../../natives/VMThread.h"
 #include "../../vmobjects/VMEvaluationPrimitive.h"
 
+#include <misc/debug.h>
+
 #if GC_TYPE==PAUSELESS
 
 
@@ -154,7 +156,7 @@ void PauselessCollectorThread::Collect() {
         _HEAP->ResetPause();
         pthread_cond_broadcast(&(_HEAP->mayProceed));
         
-        cout << "[GC] Start RootSet Marking" << endl;
+        sync_out(ostringstream() << "[GC] Start RootSet Marking");
         //------------------------
         // ROOT-SET MARKING
         //------------------------
@@ -208,7 +210,7 @@ void PauselessCollectorThread::Collect() {
         pthread_mutex_unlock(&markRootSetsCheckpointMutex);
         
         
-        cout << "[GC] Start Marking Phase" << endl;
+        sync_out(ostringstream() << "[GC] Start Marking Phase");
         
         //------------------------
         // CONTINUE MARKING PHASE
@@ -262,7 +264,7 @@ void PauselessCollectorThread::Collect() {
             }
         }
         
-        cout << "[GC] Start Relocate Phase" << endl;
+        sync_out(ostringstream() << "[GC] Start Relocate Phase");
         
         //------------------------
         // RELOCATE PHASE
@@ -327,8 +329,8 @@ void PauselessCollectorThread::Collect() {
         doneMarkingGlobals = false;
         numberOfGCThreadsDoneMarking = 0;
         
-        cout << "[GC] End of cycle" << endl;
-        cout << "=================" << endl << endl;
+        sync_out(ostringstream() << "[GC] End of cycle");
+        sync_out(ostringstream() << "=================");
 
     } //end of cycle
 

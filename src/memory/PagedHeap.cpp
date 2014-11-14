@@ -26,6 +26,7 @@
 
 #include <iostream>
 #include <string.h>
+#include <misc/debug.h>
 
 #include <sys/mman.h>
 
@@ -37,8 +38,8 @@ HEAP_CLS* PagedHeap::theHeap = NULL;
 
 void PagedHeap::InitializeHeap(long objectSpaceSize, long pageSize) {
     if (theHeap) {
-        cout << "Warning, reinitializing already initialized Heap, "
-                << "all data will be lost!" << endl;
+        sync_out(ostringstream() << "Warning, reinitializing already initialized Heap, "
+                << "all data will be lost!");
         delete theHeap;
     }
     theHeap = new HEAP_CLS(objectSpaceSize, pageSize);
