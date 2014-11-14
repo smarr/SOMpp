@@ -79,8 +79,8 @@ void PauselessCollectorThread::MarkObject(VMOBJECT_PTR obj) {
     obj->MarkReferences();
 }
 
-    size_t pageNumber = ((size_t)Untag(obj) - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
 void PauselessCollectorThread::CheckMarkingOfObject(AbstractVMObject* obj) {
+    size_t pageNumber = ((size_t)obj - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
     Page* page = _HEAP->allPages->at(pageNumber);
     bool objInFullPage;
     if (std::find(_HEAP->fullPages->begin(), _HEAP->fullPages->end(), page) != _HEAP->fullPages->end())
