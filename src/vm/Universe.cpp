@@ -62,6 +62,9 @@
 #include "../vmobjects/IntegerBox.h"
 #endif
 
+#include <vmobjects/VMBlock.inline.h>
+#include <vmobjects/VMMethod.inline.h>
+
 #ifdef CACHE_INTEGER
 #ifndef INT_CACHE_MIN_VALUE
 #define INT_CACHE_MIN_VALUE (-5)

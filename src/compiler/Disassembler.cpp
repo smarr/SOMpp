@@ -53,6 +53,8 @@
 #include "../misc/debug.h"
 #include "../misc/defs.h"
 
+#include <vmobjects/VMMethod.inline.h>
+
 //some helping macros
 #ifdef USE_TAGGING
 #define CLASS_OF(X) (IS_TAGGED(X)?integerClass:AS_POINTER(X)->GetClass())

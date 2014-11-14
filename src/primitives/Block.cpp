@@ -40,6 +40,8 @@
 #include <interpreter/bytecodes.h>
 #include <vm/Universe.h>
 
+#include <vmobjects/VMMethod.inline.h>
+
 void _Block::Value(pVMObject /*object*/, pVMFrame /*frame*/) {
     // intentionally left blank
 }

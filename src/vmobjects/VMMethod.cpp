@@ -24,6 +24,7 @@
  THE SOFTWARE.
  */
 
+#include "VMBlock.h"
 #include "VMMethod.h"
 #include "VMFrame.h"
 #include "VMClass.h"
@@ -35,6 +36,8 @@
 #include "../interpreter/Interpreter.h"
 
 #include <vm/Universe.h>
+#include <vmobjects/VMBlock.inline.h>
+#include <vmobjects/VMMethod.inline.h>
 
 #ifdef UNSAFE_FRAME_OPTIMIZATION
 const long VMMethod::VMMethodNumberOfFields = 8;

@@ -48,6 +48,8 @@
 #endif
 
 #include <compiler/Disassembler.h>
+#include <vmobjects/VMBlock.inline.h>
+#include <vmobjects/VMMethod.inline.h>
 
 // convenience macros for frequently used function invocations
 #define _FRAME this->GetFrame()

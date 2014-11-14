@@ -37,6 +37,8 @@
 //needed to instanciate the Routine object for the evaluation routine
 #include "../primitivesCore/Routine.h"
 
+#include <vmobjects/VMBlock.inline.h>
+
 VMEvaluationPrimitive::VMEvaluationPrimitive(long argc) :
         VMPrimitive(computeSignatureString(argc)) {
     this->SetRoutine(new Routine<VMEvaluationPrimitive>(this,

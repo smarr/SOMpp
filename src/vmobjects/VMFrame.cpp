@@ -34,6 +34,8 @@
 
 #include <vm/Universe.h>
 
+#include <vmobjects/VMMethod.inline.h>
+
 // when doesNotUnderstand or UnknownGlobal is sent, additional stack slots might
 // be necessary, as these cases are not taken into account when the stack
 // depth is calculated. In that case this method is called.
