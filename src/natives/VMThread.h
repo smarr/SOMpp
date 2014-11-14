@@ -18,6 +18,7 @@ typedef pthread_key_t ThreadSafeGlobal;
 class VMThread : public VMObject {
     
 public:
+    typedef GCThread Stored;
     
     VMThread();
     

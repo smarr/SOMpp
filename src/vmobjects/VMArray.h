@@ -33,6 +33,8 @@
 
 class VMArray: public VMObject {
 public:
+    typedef GCArray Stored;
+    
     VMArray(long size, long nof = 0);
 
 #if GC_TYPE==PAUSELESS

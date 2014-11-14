@@ -34,6 +34,8 @@
 
 class VMInteger: public AbstractVMObject {
 public:
+    typedef GCInteger Stored;
+    
     VMInteger();
     VMInteger(long);
 

@@ -50,6 +50,56 @@
 #define UNTAG_INTEGER(X) (((long)X&1) ? ((long)X>>1) : (((VMInteger*)X)->GetEmbeddedInteger()))
 #define IS_TAGGED(X) ((long)X&1)
 
+
+class AbstractVMObject;
+class VMObject;
+class VMFrame;
+class VMClass;
+class VMArray;
+class VMBlock;
+class VMDouble;
+class VMBigInteger;
+class VMInteger;
+class VMEvaluationPrimitive;
+class VMInvokable;
+class VMMethod;
+class VMPrimitive;
+class VMString;
+class VMSymbol;
+
+class VMMutex;
+class VMSignal;
+class VMThread;
+
+/**
+ We need to distinguish between pointers that need to be handled with a
+ read barrier, and between pointers that already went through it.
+ 
+ So, we call pointers that need to go through the barrier:
+    heap values, or GC* pointers.
+ 
+ And all the stuff that was already processed:
+    loaded values, or VM* pointers.
+*/
+class GCAbstractObject                   { public: typedef AbstractVMObject Loaded; };
+class GCObject : public GCAbstractObject { public: typedef VMObject Loaded; };
+class GCFrame  : public GCObject         { public: typedef VMFrame  Loaded; };
+class GCClass  : public GCObject         { public: typedef VMClass  Loaded; };
+class GCArray  : public GCObject         { public: typedef VMArray  Loaded; };
+class GCBlock  : public GCObject         { public: typedef VMBlock  Loaded; };
+class GCBigInteger : public GCAbstractObject { public: typedef VMBigInteger Loaded; };
+class GCDouble : public GCAbstractObject { public: typedef VMDouble Loaded; };
+class GCInteger : public GCAbstractObject { public: typedef VMInteger Loaded; };
+class GCInvokable : public GCObject      { public: typedef VMInvokable Loaded; };
+class GCMethod : public GCInvokable      { public: typedef VMMethod    Loaded; };
+class GCPrimitive : public GCInvokable   { public: typedef VMPrimitive Loaded; };
+class GCEvaluationPrimitive : public GCPrimitive { public: typedef VMEvaluationPrimitive Loaded; };
+class GCString    : public GCAbstractObject { public: typedef VMString Loaded; };
+class GCSymbol    : public GCString      { public: typedef VMSymbol Loaded; };
+class GCMutex     : public GCObject      { public: typedef VMMutex Loaded; };
+class GCSignal    : public GCObject      { public: typedef VMSignal Loaded; };
+class GCThread    : public GCObject      { public: typedef VMThread Loaded; };
+
 #define pVMThread VMThread*
 #define pVMMutex VMMutex*
 #define pVMSignal VMSignal*

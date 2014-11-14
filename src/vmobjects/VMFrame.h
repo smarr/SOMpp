@@ -39,11 +39,13 @@ class Universe;
 class VMFrame: public VMObject {
     friend class Universe;
 public:
+    typedef GCFrame Stored;
+    
     static pVMFrame EmergencyFrameFrom(pVMFrame from, long extraLength);
 
     VMFrame(long size, long nof = 0);
 
-    inline pVMFrame GetPreviousFrame();
+    inline VMFrame* GetPreviousFrame();
     inline void SetPreviousFrame(pVMFrame);
     inline void ClearPreviousFrame();
     inline bool HasPreviousFrame();

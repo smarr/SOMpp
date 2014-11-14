@@ -34,6 +34,8 @@
 
 class VMBigInteger: public AbstractVMObject {
 public:
+    typedef GCBigInteger Stored;
+    
     VMBigInteger();
     VMBigInteger(int64_t);
 

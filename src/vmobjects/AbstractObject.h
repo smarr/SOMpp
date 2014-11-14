@@ -46,6 +46,8 @@ using namespace std;
 //this is the base class for all VMObjects
 class AbstractVMObject: public VMObjectBase {
 public:
+    typedef GCAbstractObject Stored;
+    
     virtual size_t GetHash();
     virtual pVMClass GetClass() = 0;
     virtual void Send(StdString, pVMObject*, long);

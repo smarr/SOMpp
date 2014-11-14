@@ -35,6 +35,8 @@ class VMFrame;
 
 class VMEvaluationPrimitive: public VMPrimitive {
 public:
+    typedef GCEvaluationPrimitive Stored;
+    
     VMEvaluationPrimitive(long argc);
     
 #if GC_TYPE==PAUSELESS

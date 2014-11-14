@@ -32,6 +32,8 @@
 
 class VMString: public AbstractVMObject {
 public:
+    typedef GCString Stored;
+    
     VMString(const char* str);
     VMString(const StdString& s);
 

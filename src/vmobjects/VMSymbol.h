@@ -39,6 +39,8 @@ class VMInvokable;
 class VMSymbol: public VMString {
 
 public:
+    typedef GCSymbol Stored;
+    
     VMSymbol(const char* str);
     VMSymbol(const StdString& s);
     virtual StdString GetPlainString() const;

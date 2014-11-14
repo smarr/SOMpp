@@ -16,6 +16,7 @@ typedef pthread_cond_t SignalId, *pSignalId;
 class VMSignal : public VMObject {
     
 public:
+    typedef GCSignal Stored;
     
     VMSignal();
     

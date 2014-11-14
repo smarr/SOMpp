@@ -32,6 +32,8 @@
 
 class VMDouble: public AbstractVMObject {
 public:
+    typedef GCDouble Stored;
+    
     VMDouble();
     VMDouble(double);
 

@@ -17,6 +17,7 @@ typedef pthread_mutex_t MutexId, *pMutexId;
 class VMMutex : public VMObject {
     
 public:
+    typedef GCMutex Stored;
     
     VMMutex();
     

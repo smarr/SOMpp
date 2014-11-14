@@ -36,6 +36,8 @@
 
 class VMInvokable: public VMObject {
 public:
+    typedef GCInvokable Stored;
+    
     VMInvokable(long nof = 0) : VMObject(nof + 2) {};
     // virtual operator "()" to invoke the invokable
     virtual void      operator()(pVMFrame) = 0;
