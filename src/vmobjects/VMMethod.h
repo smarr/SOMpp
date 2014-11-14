@@ -103,7 +103,7 @@ private:
     GCFrame* cachedFrame;
 #endif
     
-    GCObject** indexableFields;
+    GCAbstractObject** indexableFields;
     uint8_t* bytecodes;
     static const long VMMethodNumberOfFields;
 };
