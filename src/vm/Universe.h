@@ -74,35 +74,35 @@ extern short dumpBytecodes;
 extern short gcVerbosity;
 
 //global VMObjects
-extern pVMObject nilObject;
-extern pVMObject trueObject;
-extern pVMObject falseObject;
+extern GCObject* nilObject;
+extern GCObject* trueObject;
+extern GCObject* falseObject;
 
-extern pVMClass objectClass;
-extern pVMClass classClass;
-extern pVMClass metaClassClass;
+extern GCClass* objectClass;
+extern GCClass* classClass;
+extern GCClass* metaClassClass;
 
-extern pVMClass nilClass;
-extern pVMClass integerClass;
-extern pVMClass bigIntegerClass;
-extern pVMClass arrayClass;
-extern pVMClass methodClass;
-extern pVMClass symbolClass;
-extern pVMClass primitiveClass;
-extern pVMClass stringClass;
-extern pVMClass systemClass;
-extern pVMClass blockClass;
-extern pVMClass doubleClass;
+extern GCClass* nilClass;
+extern GCClass* integerClass;
+extern GCClass* bigIntegerClass;
+extern GCClass* arrayClass;
+extern GCClass* methodClass;
+extern GCClass* symbolClass;
+extern GCClass* primitiveClass;
+extern GCClass* stringClass;
+extern GCClass* systemClass;
+extern GCClass* blockClass;
+extern GCClass* doubleClass;
 
-extern pVMClass trueClass;
-extern pVMClass falseClass;
+extern GCClass* trueClass;
+extern GCClass* falseClass;
 
-extern pVMSymbol symbolIfTrue;
-extern pVMSymbol symbolIfFalse;
+extern GCSymbol* symbolIfTrue;
+extern GCSymbol* symbolIfFalse;
 
-extern pVMClass threadClass;
-extern pVMClass mutexClass;
-extern pVMClass signalClass;
+extern GCClass* threadClass;
+extern GCClass* mutexClass;
+extern GCClass* signalClass;
 
 using namespace std;
 class Universe {

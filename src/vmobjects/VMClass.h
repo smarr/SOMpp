@@ -92,10 +92,10 @@ private:
     void setPrimitives(const StdString& cname);
     long numberOfSuperInstanceFields();
 
-    pVMClass superClass;
-    pVMSymbol name;
-    pVMArray instanceFields;
-    pVMArray instanceInvokables;
+    GCClass*  superClass;
+    GCSymbol* name;
+    GCArray*  instanceFields;
+    GCArray*  instanceInvokables;
 
     static const long VMClassNumberOfFields;
 };

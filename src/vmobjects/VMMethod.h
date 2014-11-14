@@ -93,17 +93,17 @@ private:
     inline uint8_t* GetBytecodes() const;
     inline pVMObject GetIndexableField(long idx);
 
-    pVMInteger numberOfLocals;
-    pVMInteger maximumNumberOfStackElements;
-    pVMInteger bcLength;
-    pVMInteger numberOfArguments;
-    pVMInteger numberOfConstants;
+    GCInteger* numberOfLocals;
+    GCInteger* maximumNumberOfStackElements;
+    GCInteger* bcLength;
+    GCInteger* numberOfArguments;
+    GCInteger* numberOfConstants;
     
 #ifdef UNSAFE_FRAME_OPTIMIZATION
-    pVMFrame cachedFrame;
+    GCFrame* cachedFrame;
 #endif
     
-    pVMObject* indexableFields;
+    GCObject** indexableFields;
     uint8_t* bytecodes;
     static const long VMMethodNumberOfFields;
 };

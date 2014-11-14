@@ -52,7 +52,7 @@ public:
 private:
     static pVMSymbol computeSignatureString(long argc);
     void evaluationRoutine(pVMObject object, pVMFrame frame);
-    pVMInteger numberOfArguments;
+    GCInteger* numberOfArguments;
 
 };
 

@@ -81,37 +81,37 @@ short gcVerbosity;
 
 Universe* Universe::theUniverse = NULL;
 
-pVMObject nilObject;
-pVMObject trueObject;
-pVMObject falseObject;
+GCObject* nilObject;
+GCObject* trueObject;
+GCObject* falseObject;
 
-pVMClass objectClass;
-pVMClass classClass;
-pVMClass metaClassClass;
+GCClass* objectClass;
+GCClass* classClass;
+GCClass* metaClassClass;
 
-pVMClass nilClass;
-pVMClass integerClass;
-pVMClass bigIntegerClass;
-pVMClass arrayClass;
-pVMClass methodClass;
-pVMClass symbolClass;
-pVMClass primitiveClass;
-pVMClass stringClass;
-pVMClass systemClass;
-pVMClass blockClass;
-pVMClass doubleClass;
+GCClass* nilClass;
+GCClass* integerClass;
+GCClass* bigIntegerClass;
+GCClass* arrayClass;
+GCClass* methodClass;
+GCClass* symbolClass;
+GCClass* primitiveClass;
+GCClass* stringClass;
+GCClass* systemClass;
+GCClass* blockClass;
+GCClass* doubleClass;
 
-pVMClass trueClass;
-pVMClass falseClass;
+GCClass* trueClass;
+GCClass* falseClass;
 
-pVMClass threadClass;
-pVMClass mutexClass;
-pVMClass signalClass;
+GCClass* threadClass;
+GCClass* mutexClass;
+GCClass* signalClass;
 
-pVMSymbol symbolIfTrue;
-pVMSymbol symbolIfFalse;
+GCSymbol* symbolIfTrue;
+GCSymbol* symbolIfFalse;
 
-std::map<std::string, pVMSymbol> symbolsMap;
+std::map<std::string, GCSymbol*> symbolsMap;
 
 std::string bm_name;
 #ifdef GENERATE_ALLOCATION_STATISTICS

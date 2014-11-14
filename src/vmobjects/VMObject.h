@@ -68,7 +68,7 @@
  */
 
 // FIELDS starts indexing after the clazz field
-#define FIELDS (((pVMObject*)&clazz) + 1)
+#define FIELDS (((GCObject**)&clazz) + 1)
 
 class VMObject: public AbstractVMObject {
 
@@ -151,7 +151,7 @@ protected:
     size_t objectSize;     // set by the heap at allocation time
     long   numberOfFields;
 
-    pVMClass clazz;
+    GCClass* clazz;
 
     // Start of fields. All members beyond after clazz are indexable.
     // clazz has index -1.

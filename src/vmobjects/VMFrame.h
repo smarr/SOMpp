@@ -87,13 +87,13 @@ public:
     long RemainingStackSize() const;
     
 private:
-    pVMFrame previousFrame;
-    pVMFrame context;
-    pVMMethod method;
-    long bytecodeIndex;
-    pVMObject* arguments;
-    pVMObject* locals;
-    pVMObject* stack_ptr;
+    GCFrame*  previousFrame;
+    GCFrame*  context;
+    GCMethod* method;
+    long bytecodeIndex;       //// TODO: figure out why having the stray LONG in here is not a problem for the GC. binary/non-gc data should be always at the end... but, then, again, we got three variable sized fields here. Ugh...
+    GCObject** arguments;
+    GCObject** locals;
+    GCObject** stack_ptr;
 
     static const long VMFrameNumberOfFields;
 };

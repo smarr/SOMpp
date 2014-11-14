@@ -44,11 +44,11 @@ public:
     
 private:
     
-    pVMSignal resumeSignal;
-    pVMObject shouldStop;
-    pVMBlock  blockToRun;
-    pVMString name;
-    pVMObject argument;
+    GCSignal* resumeSignal;
+    GCObject* shouldStop;
+    GCBlock*  blockToRun;
+    GCString* name;
+    GCAbstractObject* argument;
     ThreadId embeddedThreadId;
     //int threadId;
     

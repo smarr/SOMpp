@@ -56,8 +56,8 @@ public:
 #endif
     
 protected:
-    pVMSymbol signature;
-    pVMClass  holder;
+    GCSymbol* signature;
+    GCClass*  holder;
 };
 
 #endif

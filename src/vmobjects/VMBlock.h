@@ -53,8 +53,8 @@ public:
 #endif
     
 private:
-    pVMMethod blockMethod;
-    pVMFrame context;
+    GCMethod* blockMethod;
+    GCFrame* context;
 
     static const int VMBlockNumberOfFields;
 };
