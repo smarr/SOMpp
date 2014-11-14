@@ -59,7 +59,7 @@ pVMFrame VMFrame::EmergencyFrameFrom(pVMFrame from, long extraLength) {
     result->SetPreviousFrame(from->GetPreviousFrame());
     result->SetMethod(method);
     result->SetContext(from->GetContext());
-    result->stack_ptr = (pVMObject*)SHIFTED_PTR(result, (size_t)from->stack_ptr - (size_t)from);
+    result->stack_ptr = (GCAbstractObject**)SHIFTED_PTR(result, (size_t)from->stack_ptr - (size_t)from);
 
     result->bytecodeIndex = from->bytecodeIndex;
     // result->arguments is set in VMFrame constructor
@@ -67,8 +67,8 @@ pVMFrame VMFrame::EmergencyFrameFrom(pVMFrame from, long extraLength) {
 
     // all other fields are indexable via arguments
     // --> until end of Frame
-    pVMObject* from_end   = (pVMObject*) SHIFTED_PTR(from,   from->GetObjectSize());
-    pVMObject* result_end = (pVMObject*) SHIFTED_PTR(result, result->GetObjectSize());
+    GCAbstractObject** from_end   = (GCAbstractObject**) SHIFTED_PTR(from,   from->GetObjectSize());
+    GCAbstractObject** result_end = (GCAbstractObject**) SHIFTED_PTR(result, result->GetObjectSize());
 
     long i = 0;
 
@@ -106,9 +106,9 @@ pVMFrame VMFrame::Clone(Interpreter* thread) {
     const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
     size_t noBytes = GetObjectSize() - sizeof(VMFrame);
     memcpy(destination, source, noBytes);
-    clone->arguments = (pVMObject*)&(clone->stack_ptr)+1; //field after stack_ptr
+    clone->arguments = (GCAbstractObject**)&(clone->stack_ptr)+1; //field after stack_ptr
     clone->locals = clone->arguments + ReadBarrier(&(clone->method))->GetNumberOfArguments();
-    clone->stack_ptr = (pVMObject*)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
+    clone->stack_ptr = (GCAbstractObject**)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
     return clone;
 }
 pVMFrame VMFrame::Clone(PauselessCollectorThread* thread) {
@@ -118,9 +118,9 @@ pVMFrame VMFrame::Clone(PauselessCollectorThread* thread) {
     const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
     size_t noBytes = GetObjectSize() - sizeof(VMFrame);
     memcpy(destination, source, noBytes);
-    clone->arguments = (pVMObject*)&(clone->stack_ptr)+1; //field after stack_ptr
+    clone->arguments = (GCAbstractObject**)&(clone->stack_ptr)+1; //field after stack_ptr
     clone->locals = clone->arguments + ReadBarrierForGCThread(&(clone->method))->GetNumberOfArgumentsGC();
-    clone->stack_ptr = (pVMObject*)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
+    clone->stack_ptr = (GCAbstractObject**)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
     return clone;
 }
 #else
@@ -145,13 +145,13 @@ VMFrame::VMFrame(long size, long nof) :
                 NULL), method(NULL) {
     clazz = nullptr; // Not a proper class anymore
     bytecodeIndex = 0;
-    arguments = (pVMObject*)&(stack_ptr)+1;
+    arguments = (GCAbstractObject**)&(stack_ptr)+1;
     locals = arguments;
     stack_ptr = locals;
 
     // initilize all other fields
     // --> until end of Frame
-    pVMObject* end = (pVMObject*) SHIFTED_PTR(this, objectSize);
+    GCAbstractObject** end = (GCAbstractObject**) SHIFTED_PTR(this, objectSize);
     long i = 0;
     while (arguments + i < end) {
         arguments[i] = WRITEBARRIER(READBARRIER(nilObject));
@@ -206,7 +206,7 @@ void VMFrame::PrintStack() const {
     cout << "SP: " << this->GetStackPointer() << endl;
     //all other fields are indexable via arguments array
     // --> until end of Frame
-    pVMObject* end = (pVMObject*) SHIFTED_PTR(this, objectSize);
+    GCAbstractObject** end = (GCAbstractObject**) SHIFTED_PTR(this, objectSize);
     long i = 0;
     while (arguments + i < end) {
         pVMObject vmo = READBARRIER(arguments[i]);

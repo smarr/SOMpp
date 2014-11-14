@@ -133,7 +133,7 @@ long VMObject::GetAdditionalSpaceConsumption() const {
 }
 
 void VMObject::MarkObjectAsInvalid() {
-    clazz = (pVMClass) INVALID_POINTER;
+    clazz = (GCClass*) INVALID_GC_POINTER;
 }
 
 #if GC_TYPE==PAUSELESS
@@ -148,7 +148,7 @@ void VMObject::CheckMarking(void (*walk)(AbstractVMObject*)) {
     walk(Untag(clazz));
     long numFields = GetNumberOfFields();
     for (long i = 0; i < numFields; ++i) {
-        walk(Untag(AS_POINTER(FIELDS[i])));
+        walk(Untag(AS_GC_POINTER(FIELDS[i])));
     }
 }
 #else

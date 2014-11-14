@@ -192,7 +192,7 @@ void VMMethod::SetHolderAll(pVMClass hld) {
     for (long i = 0; i < numIndexableFields; ++i) {
         pVMObject o = GetIndexableField(i);
         if (!IS_TAGGED(o)) {
-            pVMInvokable vmi = dynamic_cast<pVMInvokable>(AS_POINTER(o));
+            pVMInvokable vmi = dynamic_cast<pVMInvokable>(AS_VM_POINTER(o));
             if (vmi != NULL) {
                 vmi->SetHolder(hld);
             }

@@ -82,10 +82,10 @@ VMClass::VMClass(long numberOfFields) :
 }
 
 void VMClass::MarkObjectAsInvalid() {
-    superClass         = (pVMClass)  INVALID_POINTER;
-    name               = (pVMSymbol) INVALID_POINTER;
-    instanceFields     = (pVMArray)  INVALID_POINTER;
-    instanceInvokables = (pVMArray)  INVALID_POINTER;
+    superClass         = (GCClass*)  INVALID_GC_POINTER;
+    name               = (GCSymbol*) INVALID_GC_POINTER;
+    instanceFields     = (GCArray*)  INVALID_GC_POINTER;
+    instanceInvokables = (GCArray*)  INVALID_GC_POINTER;
 }
 
 bool VMClass::AddInstanceInvokable(pVMObject ptr) {
@@ -286,7 +286,7 @@ void VMClass::MarkReferences() {
     ReadBarrierForGCThread(&name);
     ReadBarrierForGCThread(&instanceFields);
     ReadBarrierForGCThread(&instanceInvokables);
-    pVMObject* fields = FIELDS;
+    GCAbstractObject** fields = FIELDS;
     for (long i = VMClassNumberOfFields + 0/*VMObjectNumberOfFields*/; i < numberOfFields; i++) {
         ReadBarrierForGCThread(&fields[i]);
     }
@@ -299,7 +299,7 @@ void VMClass::CheckMarking(void (*walk)(AbstractVMObject*)) {
     walk(Untag(instanceFields));
     walk(Untag(instanceInvokables));
     for (long i = VMClassNumberOfFields + 0/*VMObjectNumberOfFields*/; i < numberOfFields; i++) {
-        walk(Untag(AS_POINTER(FIELDS[i])));
+        walk(Untag(AS_GC_POINTER(FIELDS[i])));
     }
 }
 #else

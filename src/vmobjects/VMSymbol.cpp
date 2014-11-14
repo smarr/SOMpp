@@ -31,7 +31,7 @@
 #include "VMInteger.h"
 #include "../interpreter/Interpreter.h"
 
-extern pVMClass symbolClass;
+extern GCClass* symbolClass;
 
 VMSymbol::VMSymbol(const char* str) : VMString(str) {
 //    nextCachePos = 0;
