@@ -125,9 +125,12 @@ void VMClass::SetName(pVMSymbol nam) {
 bool VMClass::HasSuperClass() {
     pVMClass sc = READBARRIER(superClass);
     assert(Universe::IsValidObject(sc));
+
+    // TODO: only for debugging, REMOVE!
     if (sc != READBARRIER(nilObject)) {
-        assert(sc != nilObject);
+        assert((void*) sc != (void*) nilObject);
     }
+    
     return sc != READBARRIER(nilObject);
 }
 
