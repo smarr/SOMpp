@@ -212,9 +212,9 @@ void _BigInteger::Equal(pVMObject /*object*/, pVMFrame frame) {
 
     // Do operation:
     if(left->GetEmbeddedInteger() == right->GetEmbeddedInteger())
-    frame->Push(trueObject);
+    frame->Push(READBARRIER(trueObject));
     else
-    frame->Push(falseObject);
+    frame->Push(READBARRIER(falseObject));
 }
 
 void _BigInteger::Lowerthan(pVMObject /*object*/, pVMFrame frame) {
@@ -226,9 +226,9 @@ void _BigInteger::Lowerthan(pVMObject /*object*/, pVMFrame frame) {
 
     // Do operation:
     if(left->GetEmbeddedInteger() < right->GetEmbeddedInteger())
-        frame->Push(trueObject);
+        frame->Push(READBARRIER(trueObject));
     else
-        frame->Push(falseObject);
+        frame->Push(READBARRIER(falseObject));
 }
 
 void _BigInteger::AsString(pVMObject /*object*/, pVMFrame frame) {
