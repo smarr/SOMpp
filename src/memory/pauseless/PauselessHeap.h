@@ -86,13 +86,13 @@ inline typename T::Stored* WriteBarrier(T* reference) {
 }
 
 template<typename T>
-inline T* WriteBarrierForGCThread(T* reference) {
+inline typename T::Stored* WriteBarrierForGCThread(T* reference) {
     if (reference == nullptr)
-        return (T*)nullptr;
+        return (typename T::Stored*) nullptr;
     if (_HEAP->GetGCThread()->GetExpectedNMT())
-        return (T*) FLIP_NMT_VALUE(reference);
+        return (typename T::Stored*) FLIP_NMT_VALUE(reference);
     else
-        return reference;
+        return (typename T::Stored*) reference;
 }
 
 template<typename T>
