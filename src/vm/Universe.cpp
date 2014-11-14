@@ -449,7 +449,7 @@ Universe::~Universe() {
     void* vt_signal;
 
     bool Universe::IsValidObject(const pVMObject const obj) {
-        if (obj == (pVMObject) INVALID_POINTER
+        if (obj == (pVMObject) INVALID_VM_POINTER
             // || obj == nullptr
             ) {
             assert(false);
@@ -1137,13 +1137,13 @@ void Universe::MarkGlobals() {
     pthread_mutex_lock(&testMutex);
     
     // walk all entries in globals map
-    map<pVMSymbol, pVMObject> globs;
-    map<pVMSymbol, pVMObject>::iterator iter;
+    map<GCSymbol*, GCAbstractObject*> globs;
+    map<GCSymbol*, GCAbstractObject*>::iterator iter;
     for (iter = globals.begin(); iter != globals.end(); iter++) {
         pVMObject val = ReadBarrierForGCThread(&iter->second);
         if (val == NULL)
             continue;
-        pVMSymbol key = iter->first;
+        GCSymbol* key = iter->first;
         //globs[key] = WriteBarrierForGCThread(val);
         globs[WriteBarrierForGCThread(ReadBarrierForGCThread(&key))] = WriteBarrierForGCThread(val);
     }
@@ -1163,7 +1163,7 @@ void Universe::MarkGlobals() {
     
     cout << "Mark symbol map" << endl;
     // walk all entries in symbols map
-    map<StdString, pVMSymbol>::iterator symbolIter;
+    map<StdString, GCSymbol*>::iterator symbolIter;
     for (symbolIter = symbolsMap.begin();
          symbolIter != symbolsMap.end();
          symbolIter++) {
@@ -1171,7 +1171,7 @@ void Universe::MarkGlobals() {
         symbolIter->second = WriteBarrierForGCThread(ReadBarrierForGCThread(&symbolIter->second));
     }
     cout << "Mark block classes" << endl;
-    map<long, pVMClass>::iterator bcIter;
+    map<long, GCClass*>::iterator bcIter;
     for (bcIter = blockClassesByNoOfArgs.begin();
          bcIter != blockClassesByNoOfArgs.end();
          bcIter++) {
@@ -1183,14 +1183,14 @@ void Universe::MarkGlobals() {
     symbolIfFalse = symbolsMap["ifFalse:"];
 
 
-    map<string,pVMSymbol>::iterator it = symbolsMap.find("true");
+    map<string, GCSymbol*>::iterator it = symbolsMap.find("true");
     //pVMSymbol trueSym = (pVMSymbol) ReadBarrierForGCThread(&it->second);
     pVMSymbol trueSym = Untag(it->second);
     
     
-    pVMObject raw_glob = globals[trueSym];
+    GCAbstractObject* raw_glob = globals[(GCSymbol*) trueSym];  // Cast is Performance HACK to avoid barrier!!!
     if (raw_glob == nullptr)
-        raw_glob = globals[Flip(trueSym)];
+        raw_glob = globals[(GCSymbol*) Flip(trueSym)];
     
     //pVMObject glob_ptr_val = ReadBarrierForGCThread(&raw_glob);
     pVMObject glob_ptr_val = Untag(raw_glob);
@@ -1240,7 +1240,7 @@ void  Universe::CheckMarkingGlobals(void (*walk)(AbstractVMObject*)) {
     walk(Untag(falseClass));
     
     // walk all entries in globals map
-    map<pVMSymbol, pVMObject>::iterator iter;
+    map<GCSymbol*, GCAbstractObject*>::iterator iter;
     for (iter = globals.begin(); iter != globals.end(); iter++) {
         if (iter->second == NULL)
             continue;
@@ -1249,7 +1249,7 @@ void  Universe::CheckMarkingGlobals(void (*walk)(AbstractVMObject*)) {
     }
     
     // walk all entries in symbols map
-    map<StdString, pVMSymbol>::iterator symbolIter;
+    map<StdString, GCSymbol*>::iterator symbolIter;
     for (symbolIter = symbolsMap.begin();
          symbolIter != symbolsMap.end();
          symbolIter++) {
@@ -1257,7 +1257,7 @@ void  Universe::CheckMarkingGlobals(void (*walk)(AbstractVMObject*)) {
         walk(Untag(symbolIter->second));
     }
     
-    map<long, pVMClass>::iterator bcIter;
+    map<long, GCClass*>::iterator bcIter;
     for (bcIter = blockClassesByNoOfArgs.begin();
          bcIter != blockClassesByNoOfArgs.end();
          bcIter++) {
@@ -1473,7 +1473,7 @@ pVMClass Universe::NewSystemClass() const {
 }
 
 pVMSymbol Universe::SymbolFor(const StdString& str) {
-    map<string,pVMSymbol>::iterator it = symbolsMap.find(str);
+    map<string, GCSymbol*>::iterator it = symbolsMap.find(str);
     
     if (it == symbolsMap.end()) {
         return NewSymbol(str);

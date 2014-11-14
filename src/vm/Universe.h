@@ -102,7 +102,7 @@ public:
 
     //Globals accessor (only for GC, could be considered be
     //declared as a private friend method for the GC)
-    map<pVMSymbol, pVMObject> GetGlobals() {
+    map<GCSymbol*, GCAbstractObject*> GetGlobals() {
         return globals;
     }
     PagedHeap* GetHeap() {
@@ -209,8 +209,8 @@ private:
     PagedHeap* heap;
     long heapSize;
     long pageSize;
-    map<pVMSymbol, pVMObject> globals;
-    map<long,pVMClass> blockClassesByNoOfArgs;
+    map<GCSymbol*, GCAbstractObject*> globals;
+    map<long, GCClass*> blockClassesByNoOfArgs;
     vector<StdString> classPath;
 };
 
