@@ -727,7 +727,7 @@ pVMClass Universe::GetBlockClass() const {
 }
 
 pVMClass Universe::GetBlockClassWithArgs(long numberOfArguments) {
-    map<long, pVMClass>::iterator it =
+    map<long, GCClass*>::iterator it =
     blockClassesByNoOfArgs.find(numberOfArguments);
     if (it != blockClassesByNoOfArgs.end()) {
         return READBARRIER(it->second);
@@ -757,7 +757,7 @@ pVMClass Universe::GetBlockClassWithArgs(long numberOfArguments) {
 pVMObject Universe::GetGlobal(pVMSymbol name) {
     pthread_mutex_lock(&testMutex);
     
-    pVMObject raw_glob = globals[name];
+    GCObject* raw_glob = globals[name];
     if (raw_glob == nullptr)
         raw_glob = globals[Flip(name)];
     
