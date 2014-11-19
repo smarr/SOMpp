@@ -62,11 +62,15 @@ pVMClass VMClass::Clone() {
 pVMClass VMClass::Clone(Interpreter* thread) {
     pVMClass clone = new (_HEAP, thread, objectSize - sizeof(VMClass)) VMClass(*this);
     memcpy(SHIFTED_PTR(clone,sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
+    clone->IncreaseVersion();
+    this->MarkObjectAsInvalid();
     return clone;
 }
 pVMClass VMClass::Clone(PauselessCollectorThread* thread) {
     pVMClass clone = new (_HEAP, thread, objectSize - sizeof(VMClass)) VMClass(*this);
     memcpy(SHIFTED_PTR(clone,sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
+    clone->IncreaseVersion();
+    this->MarkObjectAsInvalid();
     return clone;
 }
 #else
@@ -176,9 +180,17 @@ pVMInvokable VMClass::LookupInvokable(pVMSymbol name) {
     long numInvokables = GetNumberOfInstanceInvokables();
     for (long i = 0; i < numInvokables; ++i) {
         invokable = GetInstanceInvokable(i);
-        if (invokable->GetSignature() == name) {
+        
+        pVMSymbol sig = invokable->GetSignature();
+        if (sig == name) {
+        //if (invokable->GetSignature() == name) {
             //name->UpdateCachedInvokable(this, invokable);
             return invokable;
+        } else {
+            if (strcmp(sig->GetChars(), name->GetChars()) == 0) {
+                pVMSymbol sigTest = invokable->GetSignature();
+                assert(0 != strcmp(sig->GetChars(), name->GetChars()));
+            }
         }
     }
 
@@ -292,13 +304,21 @@ void VMClass::MarkReferences() {
     }
 }
 void VMClass::CheckMarking(void (*walk)(AbstractVMObject*)) {
+    assert(GetNMTValue(clazz) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(clazz));
-    if (superClass)
+    if (superClass) {
+        assert(GetNMTValue(superClass) == _HEAP->GetGCThread()->GetExpectedNMT());
         walk(Untag(superClass));
+        
+    }
+    assert(GetNMTValue(name) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(name));
+    assert(GetNMTValue(instanceFields) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(instanceFields));
+    assert(GetNMTValue(instanceInvokables) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(instanceInvokables));
     for (long i = VMClassNumberOfFields + 0/*VMObjectNumberOfFields*/; i < numberOfFields; i++) {
+        assert(GetNMTValue(AS_GC_POINTER(FIELDS[i])) == _HEAP->GetGCThread()->GetExpectedNMT());
         walk(Untag(AS_GC_POINTER(FIELDS[i])));
     }
 }

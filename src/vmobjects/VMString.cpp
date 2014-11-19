@@ -59,10 +59,16 @@ pVMString VMString::Clone() {
 }
 #elif GC_TYPE==PAUSELESS
 pVMString VMString::Clone(Interpreter* thread) {
-    return new (_HEAP, thread, PADDED_SIZE(strlen(chars)+1)) VMString(chars);
+    pVMString clone = new (_HEAP, thread, PADDED_SIZE(strlen(chars)+1)) VMString(chars);
+    clone->IncreaseVersion();
+    this->MarkObjectAsInvalid();
+    return clone;
 }
 pVMString VMString::Clone(PauselessCollectorThread* thread) {
-    return new (_HEAP, thread, PADDED_SIZE(strlen(chars)+1)) VMString(chars);
+    pVMString clone = new (_HEAP, thread, PADDED_SIZE(strlen(chars)+1)) VMString(chars);
+    clone->IncreaseVersion();
+    this->MarkObjectAsInvalid();
+    return clone;
 }
 #else
 pVMString VMString::Clone() {

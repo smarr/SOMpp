@@ -42,10 +42,16 @@ pVMInteger VMInteger::Clone() {
 }
 #elif GC_TYPE==PAUSELESS
 pVMInteger VMInteger::Clone(Interpreter* thread) {
-    return new (_HEAP, thread) VMInteger(*this);
+    pVMInteger clone = new (_HEAP, thread) VMInteger(*this);
+    clone->IncreaseVersion();
+    this->MarkObjectAsInvalid();
+    return clone;
 }
 pVMInteger VMInteger::Clone(PauselessCollectorThread* thread) {
-    return new (_HEAP, thread) VMInteger(*this);
+    pVMInteger clone = new (_HEAP, thread) VMInteger(*this);
+    clone->IncreaseVersion();
+    this->MarkObjectAsInvalid();
+    return clone;
 }
 #else
 pVMInteger VMInteger::Clone() {

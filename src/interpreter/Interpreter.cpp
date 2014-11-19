@@ -741,13 +741,15 @@ void Interpreter::AddFullPage(Page* page) {
 }
 
 void Interpreter::CheckMarking(void (*walk)(AbstractVMObject*)) {
-    pVMThread testThreadGCSet = Untag(thread);
-    pVMFrame testFrameGCSet = Untag(frame);
     // pVMMethod testMethodGCSet = Untag(method);
-    if (frame)
+    if (frame) {
+        assert(GetNMTValue(frame) == _HEAP->GetGCThread()->GetExpectedNMT());
         walk(Untag(frame));
-    if (thread)
+    }
+    if (thread) {
+        assert(GetNMTValue(thread) == _HEAP->GetGCThread()->GetExpectedNMT());
         walk(Untag(thread));
+    }
 }
 #else
 void Interpreter::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {

@@ -89,6 +89,8 @@ pVMMethod VMMethod::Clone(Interpreter* thread) {
            sizeof(VMObject));
     clone->indexableFields = (GCAbstractObject**)(&(clone->indexableFields) + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
     clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + GetNumberOfIndexableFields());
+    clone->IncreaseVersion();
+    this->MarkObjectAsInvalid();
     return clone;
 }
 pVMMethod VMMethod::Clone(PauselessCollectorThread* thread) {
@@ -98,6 +100,8 @@ pVMMethod VMMethod::Clone(PauselessCollectorThread* thread) {
            sizeof(VMObject));
     clone->indexableFields = (GCAbstractObject**)(&(clone->indexableFields) + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
     clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + ReadBarrierForGCThread(&numberOfConstants)->GetEmbeddedInteger());
+    clone->IncreaseVersion();
+    this->MarkObjectAsInvalid();
     return clone;
 }
 #else
@@ -228,13 +232,19 @@ void VMMethod::MarkReferences() {
 }
 void VMMethod::CheckMarking(void (*walk)(AbstractVMObject*)) {
     VMInvokable::CheckMarking(walk);
+    assert(GetNMTValue(numberOfLocals) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(numberOfLocals));
+    assert(GetNMTValue(maximumNumberOfStackElements) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(maximumNumberOfStackElements));
+    assert(GetNMTValue(bcLength) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(bcLength));
+    assert(GetNMTValue(numberOfArguments) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(numberOfArguments));
+    assert(GetNMTValue(numberOfConstants) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(numberOfConstants));
     long numIndexableFields = Untag(numberOfConstants)->GetEmbeddedInteger();
     for (long i = 0; i < numIndexableFields; ++i) {
+        assert(GetNMTValue(AS_GC_POINTER(indexableFields[i])) == _HEAP->GetGCThread()->GetExpectedNMT());
         walk(Untag(AS_GC_POINTER(indexableFields[i])));
     }
 }

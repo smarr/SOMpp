@@ -59,19 +59,25 @@ pVMObject VMObject::Clone() {
 pVMObject VMObject::Clone(Interpreter* thread) {
     VMObject* clone = new (_HEAP, thread, objectSize - sizeof(VMObject)) VMObject(*this);
     
+    clone->IncreaseVersion();
+    
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     //memcpy(&(clone->clazz), &clazz, objectSize - sizeof(VMObject) + sizeof(pVMObject));
     
     clone->hash = (size_t) &clone;
+    this->MarkObjectAsInvalid();
     return clone;
 }
 pVMObject VMObject::Clone(PauselessCollectorThread* thread) {
     VMObject* clone = new (_HEAP, thread, objectSize - sizeof(VMObject)) VMObject(*this);
     
+    clone->IncreaseVersion();
+    
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     //memcpy(&(clone->clazz), &clazz, objectSize - sizeof(VMObject) + sizeof(pVMObject));
     
-    //clone->hash = (size_t) &clone;
+    clone->hash = (size_t) &clone;
+    this->MarkObjectAsInvalid();
     return clone;
 }
 #else
@@ -145,9 +151,11 @@ void VMObject::MarkReferences() {
     }
 }
 void VMObject::CheckMarking(void (*walk)(AbstractVMObject*)) {
+    assert(GetNMTValue(clazz) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(clazz));
     long numFields = GetNumberOfFields();
     for (long i = 0; i < numFields; ++i) {
+        assert(GetNMTValue(AS_GC_POINTER(FIELDS[i])) == _HEAP->GetGCThread()->GetExpectedNMT());
         walk(Untag(AS_GC_POINTER(FIELDS[i])));
     }
 }

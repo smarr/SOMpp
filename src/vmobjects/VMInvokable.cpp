@@ -61,10 +61,14 @@ void VMInvokable::MarkReferences() {
     ReadBarrierForGCThread(&holder);
 }
 void VMInvokable::CheckMarking(void (*walk)(AbstractVMObject*)) {
+    assert(GetNMTValue(clazz) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(clazz));
+    assert(GetNMTValue(signature) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(signature));
-    if (holder)
+    if (holder) {
+        assert(GetNMTValue(holder) == _HEAP->GetGCThread()->GetExpectedNMT());
         walk(Untag(holder));
+    }
 }
 #else
 void VMInvokable::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {

@@ -28,6 +28,7 @@ protected:
     volatile size_t gcfield;
 #if GC_TYPE==PAUSELESS
     volatile size_t gcfield2 = 0;
+    volatile int version = 0;
 #endif
     
 public:
@@ -37,6 +38,8 @@ public:
 #if GC_TYPE==PAUSELESS
     inline size_t GetGCField2() const;
     inline void SetGCField2(size_t);
+    inline void IncreaseVersion();
+    inline int GetVersion();
 #endif
     
 };
@@ -60,6 +63,12 @@ size_t VMObjectBase::GetGCField2() const {
 }
 void VMObjectBase::SetGCField2(size_t val) {
     gcfield2 = val;
+}
+void VMObjectBase::IncreaseVersion() {
+    version++;
+}
+int VMObjectBase::GetVersion() {
+    return version;
 }
 #endif
 

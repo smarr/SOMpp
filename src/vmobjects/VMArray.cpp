@@ -90,6 +90,8 @@ pVMArray VMArray::Clone(Interpreter* thread) {
     const void* source = SHIFTED_PTR(this, sizeof(VMArray));
     size_t noBytes = GetObjectSize() - sizeof(VMArray);
     memcpy(destination, source, noBytes);
+    clone->IncreaseVersion();
+    this->MarkObjectAsInvalid();
     return clone;
 }
 pVMArray VMArray::Clone(PauselessCollectorThread* thread) {
@@ -99,6 +101,8 @@ pVMArray VMArray::Clone(PauselessCollectorThread* thread) {
     const void* source = SHIFTED_PTR(this, sizeof(VMArray));
     size_t noBytes = GetObjectSize() - sizeof(VMArray);
     memcpy(destination, source, noBytes);
+    clone->IncreaseVersion();
+    this->MarkObjectAsInvalid();
     return clone;
 }
 #else
@@ -137,10 +141,13 @@ void VMArray::MarkReferences() {
         ReadBarrierForGCThread(&FIELDS[i]);
 }
 void VMArray::CheckMarking(void (*walk)(AbstractVMObject*)) {
+    // ensure that the NMT bit was set during the pauseless marking
+    assert(GetNMTValue(clazz) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(clazz));
     long numFields          = GetNumberOfFields();
     long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numFields + numIndexableFields; i++) {
+        assert(GetNMTValue(AS_GC_POINTER(FIELDS[i])) == _HEAP->GetGCThread()->GetExpectedNMT());
         walk(Untag(AS_GC_POINTER(FIELDS[i])));
     }
 }

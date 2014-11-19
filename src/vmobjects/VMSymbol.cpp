@@ -61,10 +61,16 @@ pVMSymbol VMSymbol::Clone() {
 }
 #elif GC_TYPE==PAUSELESS
 pVMSymbol VMSymbol::Clone(Interpreter* thread) {
-    return new (_HEAP, thread, PADDED_SIZE(strlen(chars) + 1)) VMSymbol(chars);
+    pVMSymbol clone = new (_HEAP, thread, PADDED_SIZE(strlen(chars) + 1)) VMSymbol(chars);
+    clone->IncreaseVersion();
+    this->MarkObjectAsInvalid();
+    return clone;
 }
 pVMSymbol VMSymbol::Clone(PauselessCollectorThread* thread) {
-    return new (_HEAP, thread, PADDED_SIZE(strlen(chars) + 1)) VMSymbol(chars);
+    pVMSymbol clone = new (_HEAP, thread, PADDED_SIZE(strlen(chars) + 1)) VMSymbol(chars);
+    clone->IncreaseVersion();
+    this->MarkObjectAsInvalid();
+    return clone;
 }
 #else
 pVMSymbol VMSymbol::Clone() {
