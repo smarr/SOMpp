@@ -123,11 +123,11 @@ void VMEvaluationPrimitive::evaluationRoutine(pVMObject object, pVMFrame frame) 
 #if GC_TYPE==PAUSELESS
 void VMEvaluationPrimitive::MarkReferences() {
     VMPrimitive::MarkReferences();
-    assert(GetNMTValue(numberOfArguments) == _HEAP->GetGCThread()->GetExpectedNMT());
     ReadBarrierForGCThread(&numberOfArguments);
 }
 void VMEvaluationPrimitive::CheckMarking(void (*walk)(AbstractVMObject*)) {
     VMPrimitive::CheckMarking(walk);
+    assert(GetNMTValue(numberOfArguments) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(numberOfArguments));
 }
 #else
