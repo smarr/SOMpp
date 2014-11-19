@@ -1206,53 +1206,31 @@ void Universe::MarkGlobals() {
     
 }
 void  Universe::CheckMarkingGlobals(void (*walk)(AbstractVMObject*)) {
-    assert(GetNMTValue(nilObject) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(nilObject));
-    assert(GetNMTValue(trueObject) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(trueObject));
-    assert(GetNMTValue(falseObject) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(falseObject));
 
-    assert(GetNMTValue(objectClass) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(objectClass));
-    assert(GetNMTValue(classClass) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(classClass));
-    assert(GetNMTValue(metaClassClass) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(metaClassClass));
     
-    assert(GetNMTValue(nilClass) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(nilClass));
-    assert(GetNMTValue(integerClass) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(integerClass));
-    assert(GetNMTValue(bigIntegerClass) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(bigIntegerClass));
-    assert(GetNMTValue(arrayClass) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(arrayClass));
-    assert(GetNMTValue(methodClass) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(methodClass));
-    assert(GetNMTValue(symbolClass) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(symbolClass));
-    assert(GetNMTValue(primitiveClass) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(primitiveClass));
-    assert(GetNMTValue(stringClass) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(stringClass));
-    assert(GetNMTValue(systemClass) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(systemClass));
-    assert(GetNMTValue(blockClass) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(blockClass));
-    assert(GetNMTValue(doubleClass) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(doubleClass));
     
-    assert(GetNMTValue(threadClass) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(threadClass));
-    assert(GetNMTValue(mutexClass) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(mutexClass));
-    assert(GetNMTValue(signalClass) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(signalClass));
     
-    assert(GetNMTValue(trueClass) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(trueClass));
-    assert(GetNMTValue(falseClass) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(falseClass));
     
     // walk all entries in globals map
@@ -1260,9 +1238,7 @@ void  Universe::CheckMarkingGlobals(void (*walk)(AbstractVMObject*)) {
     for (iter = globals.begin(); iter != globals.end(); iter++) {
         if (iter->second == NULL)
             continue;
-        assert(GetNMTValue(iter->first) == _HEAP->GetGCThread()->GetExpectedNMT());
         walk(Untag(iter->first));
-        assert(GetNMTValue(iter->second) == _HEAP->GetGCThread()->GetExpectedNMT());
         walk(Untag(iter->second));
     }
     
@@ -1272,7 +1248,6 @@ void  Universe::CheckMarkingGlobals(void (*walk)(AbstractVMObject*)) {
          symbolIter != symbolsMap.end();
          symbolIter++) {
         //insert overwrites old entries inside the internal map
-        assert(GetNMTValue(symbolIter->second) == _HEAP->GetGCThread()->GetExpectedNMT());
         walk(Untag(symbolIter->second));
     }
     
@@ -1280,7 +1255,6 @@ void  Universe::CheckMarkingGlobals(void (*walk)(AbstractVMObject*)) {
     for (bcIter = blockClassesByNoOfArgs.begin();
          bcIter != blockClassesByNoOfArgs.end();
          bcIter++) {
-        assert(GetNMTValue(bcIter->second) == _HEAP->GetGCThread()->GetExpectedNMT());
         walk(Untag(bcIter->second));
     }
 }
