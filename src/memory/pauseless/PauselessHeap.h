@@ -42,6 +42,7 @@ public:
     inline int GetNumberOfMutatorsWithEnabledGCTrap() {return numberOfMutatorsWithEnabledGCTrap;}
     inline pthread_mutex_t* GetGcTrapEnabledMutex() {return &gcTrapEnabledMutex;}
     inline pthread_cond_t* GetGcTrapEnabledCondition() {return &gcTrapEnabledCondition;}
+    inline pthread_mutex_t* GetCompareAndSwapTestMutex() {return &compareAndSwapTestMutex;}
     
     // FOR DEBUGGING PURPOSES
     void Pause();
@@ -67,12 +68,21 @@ private:
     pthread_mutex_t threadCountMutex;
     pthread_cond_t stopTheWorldCondition;
     pthread_cond_t mayProceed;
+    pthread_mutex_t compareAndSwapTestMutex;
     
 };
 
 template<typename T>
 inline T* Flip(T* reference) {
     return (T*) FLIP_NMT_VALUE(reference);
+}
+
+template<typename T>
+inline typename T::Loaded* Untag(T* reference) {
+    if (REFERENCE_NMT_VALUE(reference))
+        return (typename T::Loaded*) FLIP_NMT_VALUE(reference);
+    else
+        return (typename T::Loaded*) reference;
 }
 
 template<typename T>
@@ -95,14 +105,7 @@ inline typename T::Stored* WriteBarrierForGCThread(T* reference) {
         return (typename T::Stored*) reference;
 }
 
-template<typename T>
-inline typename T::Loaded* Untag(T* reference) {
-    if (REFERENCE_NMT_VALUE(reference))
-        return (typename T::Loaded*) FLIP_NMT_VALUE(reference);
-    else
-        return (typename T::Loaded*) reference;
-}
-
+/*
 template<typename T>
 inline void NMTTrap(T** referenceHolder) {
     Interpreter* interpreter = _UNIVERSE->GetInterpreter();
@@ -133,7 +136,10 @@ inline void GCTrap(T** referenceHolder) {
             pthread_cond_wait(_HEAP->GetGcTrapEnabledCondition(), _HEAP->GetGcTrapEnabledMutex());
         }
         pthread_mutex_unlock(_HEAP->GetGcTrapEnabledMutex());
+        
+        pthread_mutex_lock(_HEAP->GetCompareAndSwapTestMutex());
         *referenceHolder = (T*)page->LookupNewAddress((AbstractVMObject*)Untag(*referenceHolder), _UNIVERSE->GetInterpreter());
+        pthread_mutex_unlock(_HEAP->GetCompareAndSwapTestMutex());
     }
 }
 
@@ -144,10 +150,9 @@ inline void GCTrapForGCThread(T** referenceHolder) {
     size_t pageNumber = ((size_t)Untag(*referenceHolder) - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
     Page* page = _HEAP->GetAllPages()->at(pageNumber);
     if (page->Blocked()) {
-        /*while (_HEAP->GetNumberOfMutatorsNeedEnableGCTrap() != _HEAP->GetNumberOfMutatorsWithEnabledGCTrap()) {
-            pthread_cond_wait(_HEAP->GetGcTrapEnabledCondition(), _HEAP->GetGcTrapEnabledMutex());
-        } */
+        pthread_mutex_lock(_HEAP->GetCompareAndSwapTestMutex());
         *referenceHolder = (T*)page->LookupNewAddress((AbstractVMObject*)Untag(*referenceHolder), _HEAP->GetGCThread());
+        pthread_mutex_unlock(_HEAP->GetCompareAndSwapTestMutex());
     }
 }
 
@@ -155,12 +160,8 @@ template<typename T>
 inline typename T::Loaded* ReadBarrier(T** referenceHolder) {
     if (*referenceHolder == nullptr)
         return (typename T::Loaded*)nullptr;
-    size_t pageNumber = ((size_t)Untag(*referenceHolder) - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
-    assert(pageNumber < 7680);
-    
-    // T* oldReference = *referenceHolder;
-    
-    
+    //size_t pageNumber = ((size_t)Untag(*referenceHolder) - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
+    //assert(pageNumber < 7680);
     GCTrap(referenceHolder);
     NMTTrap(referenceHolder);
     
@@ -174,8 +175,8 @@ inline typename T::Loaded* ReadBarrierForGCThread(T** referenceHolder) {
     if (*referenceHolder == nullptr)
         return (typename T::Loaded*)nullptr;
     //assert(Universe::IsValidObject((AbstractVMObject*) Untag(*referenceHolder)));
-    size_t pageNumber = ((size_t)Untag(*referenceHolder) - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
-    assert(pageNumber < 7680);
+    //size_t pageNumber = ((size_t)Untag(*referenceHolder) - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
+    //assert(pageNumber < 7680);
     GCTrapForGCThread(referenceHolder);
     NMTTrapForGCThread(referenceHolder);
     
@@ -183,35 +184,81 @@ inline typename T::Loaded* ReadBarrierForGCThread(T** referenceHolder) {
     assert(Universe::IsValidObject((AbstractVMObject*) res));
     return res;
 }
+ */
+
+// FOR DEBUGGING PURPOSES
+template<typename T>
+inline bool GetNMTValue(T* reference) {
+    return REFERENCE_NMT_VALUE(reference);
+}
 
 
 
 
 
-/*
-inline void GCTrap(void** referenceHolder) {
-    size_t pageNumber = ((size_t)*referenceHolder - (size_t)memoryStart) / pageSize;
-    Page* page = allPages->at(pageNumber);
-    if (_UNIVERSE->GetInterpreter()->GCTrapEnabled() && page->Blocked()) {
-        //and all mutators have there gc trap enabled
-        //pthread_mutex_lock(&gcTrapEnabledMutex);
-        //while (!) {
-        //    pthread_cond_wait(&gcTrapEnabledCondition, &gcTrapEnabledMutex);
-        //}
-        //pthread_mutex_unlock(&gcTrapEnabledMutex);
-        *referenceHolder = page->LookupNewAddress((AbstractVMObject*)*referenceHolder);
+
+template<typename T>
+inline typename T::Loaded* ReadBarrier(T** referenceHolder, bool rootSetMarking = false) {
+    if (*referenceHolder == nullptr)
+        return (typename T::Loaded*)nullptr;
+    Interpreter* interpreter = _UNIVERSE->GetInterpreter();
+    bool correctNMT = (REFERENCE_NMT_VALUE(*referenceHolder) == interpreter->GetExpectedNMT());
+    typename T::Loaded* reference = Untag(*referenceHolder);
+    bool trapTriggered = false;
+    //gc-trap stuff ------>
+    size_t pageNumber = ((size_t)reference - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
+    Page* page = _HEAP->GetAllPages()->at(pageNumber);
+    if (interpreter->GCTrapEnabled() && page->Blocked()) {
+        pthread_mutex_lock(_HEAP->GetGcTrapEnabledMutex());
+        while (_HEAP->GetNumberOfMutatorsNeedEnableGCTrap() != _HEAP->GetNumberOfMutatorsWithEnabledGCTrap()) {
+            pthread_cond_wait(_HEAP->GetGcTrapEnabledCondition(), _HEAP->GetGcTrapEnabledMutex());
+        }
+        pthread_mutex_unlock(_HEAP->GetGcTrapEnabledMutex());
+        trapTriggered = true;
+        reference = (typename T::Loaded*) page->LookupNewAddress((AbstractVMObject*)reference, interpreter);
     }
-} */
+    // <-----------
+    if (!correctNMT || rootSetMarking)
+        interpreter->AddGCWork((AbstractVMObject*)reference);
+    if (!correctNMT || trapTriggered) {
+        //*referenceHolder = WriteBarrier(reference);
+        if (interpreter->GetExpectedNMT())
+            *referenceHolder = (T*) FLIP_NMT_VALUE(reference);
+        else
+            *referenceHolder = (T*) reference;
+    }
+    return (typename T::Loaded*) reference;
+}
 
-
-/*
-inline void GCTrapGC(void** referenceHolder) {
-    size_t pageNumber = ((size_t)*referenceHolder - (size_t)memoryStart) / pageSize;
-    Page* page = allPages->at(pageNumber);
+    
+    
+template<typename T>
+inline typename T::Loaded* ReadBarrierForGCThread(T** referenceHolder, bool rootSetMarking = false) {
+    if (*referenceHolder == nullptr)
+        return (typename T::Loaded*)nullptr;
+    PauselessCollectorThread* gcThread = _HEAP->GetGCThread();
+    bool correctNMT = (REFERENCE_NMT_VALUE(*referenceHolder) == gcThread->GetExpectedNMT());
+    typename T::Loaded* reference = Untag(*referenceHolder);
+    bool trapTriggered = false;
+    //gc-trap stuff ------>
+    size_t pageNumber = ((size_t)reference - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
+    Page* page = _HEAP->GetAllPages()->at(pageNumber);
     if (page->Blocked()) {
-        *referenceHolder = page->LookupNewAddress((AbstractVMObject*)*referenceHolder);
+        trapTriggered = true;
+        reference = (typename T::Loaded*) page->LookupNewAddress((AbstractVMObject*)reference, gcThread);
     }
-} */
+    // <-----------
+    if (!correctNMT || rootSetMarking)
+        gcThread->AddGCWork((AbstractVMObject*)reference);
+    if (!correctNMT || trapTriggered) {
+        //*referenceHolder = WriteBarrier(reference);
+        if (gcThread->GetExpectedNMT())
+            *referenceHolder = (T*) FLIP_NMT_VALUE(reference);
+        else
+            *referenceHolder = (T*) reference;
+    }
+    return reference;
+}
 
 
 
