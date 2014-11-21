@@ -656,8 +656,8 @@ void Interpreter::MarkRootSet() {
     expectedNMT = !expectedNMT;
     
     // this will also destructively change the thread, frame and method pointers so that the NMT bit is flipped
-    ReadBarrier(&thread);
-    ReadBarrier(&frame);
+    ReadBarrier(&thread, true);
+    ReadBarrier(&frame, true);
     // ReadBarrier(&method);
     
     // signal that root-set has been marked
@@ -675,8 +675,8 @@ void Interpreter::MarkRootSetByGC() {
     expectedNMT = !expectedNMT;
     
     // this will also destructively change the thread, frame and method pointers so that the NMT bit is flipped
-    ReadBarrierForGCThread(&thread);
-    ReadBarrierForGCThread(&frame);
+    ReadBarrierForGCThread(&thread, true);
+    ReadBarrierForGCThread(&frame, true);
     // ReadBarrierForGCThread(&method);
     
     // signal that root-set has been marked
