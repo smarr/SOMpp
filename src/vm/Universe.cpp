@@ -1109,32 +1109,32 @@ pVMClass Universe::NewMetaclassClass() const {
 
 #if GC_TYPE==PAUSELESS
 void Universe::MarkGlobals() {
-    ReadBarrierForGCThread(&nilObject);
-    ReadBarrierForGCThread(&trueObject);
-    ReadBarrierForGCThread(&falseObject);
+    ReadBarrierForGCThread(&nilObject, true);
+    ReadBarrierForGCThread(&trueObject, true);
+    ReadBarrierForGCThread(&falseObject, true);
     
-    ReadBarrierForGCThread(&objectClass);
-    ReadBarrierForGCThread(&classClass);
-    ReadBarrierForGCThread(&metaClassClass);
+    ReadBarrierForGCThread(&objectClass, true);
+    ReadBarrierForGCThread(&classClass, true);
+    ReadBarrierForGCThread(&metaClassClass, true);
     
-    ReadBarrierForGCThread(&nilClass);
-    ReadBarrierForGCThread(&integerClass);
-    ReadBarrierForGCThread(&bigIntegerClass);
-    ReadBarrierForGCThread(&arrayClass);
-    ReadBarrierForGCThread(&methodClass);
-    ReadBarrierForGCThread(&symbolClass);
-    ReadBarrierForGCThread(&primitiveClass);
-    ReadBarrierForGCThread(&stringClass);
-    ReadBarrierForGCThread(&systemClass);
-    ReadBarrierForGCThread(&blockClass);
-    ReadBarrierForGCThread(&doubleClass);
+    ReadBarrierForGCThread(&nilClass, true);
+    ReadBarrierForGCThread(&integerClass, true);
+    ReadBarrierForGCThread(&bigIntegerClass, true);
+    ReadBarrierForGCThread(&arrayClass, true);
+    ReadBarrierForGCThread(&methodClass, true);
+    ReadBarrierForGCThread(&symbolClass, true);
+    ReadBarrierForGCThread(&primitiveClass, true);
+    ReadBarrierForGCThread(&stringClass, true);
+    ReadBarrierForGCThread(&systemClass, true);
+    ReadBarrierForGCThread(&blockClass, true);
+    ReadBarrierForGCThread(&doubleClass, true);
     
-    ReadBarrierForGCThread(&threadClass);
-    ReadBarrierForGCThread(&mutexClass);
-    ReadBarrierForGCThread(&signalClass);
+    ReadBarrierForGCThread(&threadClass, true);
+    ReadBarrierForGCThread(&mutexClass, true);
+    ReadBarrierForGCThread(&signalClass, true);
     
-    ReadBarrierForGCThread(&trueClass);
-    ReadBarrierForGCThread(&falseClass);
+    ReadBarrierForGCThread(&trueClass, true);
+    ReadBarrierForGCThread(&falseClass, true);
     
     
     pthread_mutex_lock(&testMutex);
@@ -1143,12 +1143,12 @@ void Universe::MarkGlobals() {
     map<GCSymbol*, GCAbstractObject*> globs;
     map<GCSymbol*, GCAbstractObject*>::iterator iter;
     for (iter = globals.begin(); iter != globals.end(); iter++) {
-        pVMObject val = ReadBarrierForGCThread(&iter->second);
+        pVMObject val = ReadBarrierForGCThread(&iter->second, true);
         if (val == NULL)
             continue;
         GCSymbol* key = iter->first;
         //globs[key] = WriteBarrierForGCThread(val);
-        globs[WriteBarrierForGCThread(ReadBarrierForGCThread(&key))] = WriteBarrierForGCThread(val);
+        globs[WriteBarrierForGCThread(ReadBarrierForGCThread(&key,true))] = WriteBarrierForGCThread(val);
     }
     globals = globs;
     
@@ -1171,14 +1171,14 @@ void Universe::MarkGlobals() {
          symbolIter != symbolsMap.end();
          symbolIter++) {
         //insert overwrites old entries inside the internal map
-        symbolIter->second = WriteBarrierForGCThread(ReadBarrierForGCThread(&symbolIter->second));
+        symbolIter->second = WriteBarrierForGCThread(ReadBarrierForGCThread(&symbolIter->second, true));
     }
     cout << "Mark block classes" << endl;
     map<long, GCClass*>::iterator bcIter;
     for (bcIter = blockClassesByNoOfArgs.begin();
          bcIter != blockClassesByNoOfArgs.end();
          bcIter++) {
-        bcIter->second = WriteBarrierForGCThread(ReadBarrierForGCThread(&bcIter->second));
+        bcIter->second = WriteBarrierForGCThread(ReadBarrierForGCThread(&bcIter->second, true));
     }
     
     //reassign ifTrue ifFalse Symbols
