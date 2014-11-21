@@ -88,11 +88,9 @@ void PauselessCollectorThread::CheckMarkingOfObject(AbstractVMObject* obj) {
     else
         objInFullPage = false;
     //assert(obj->GetGCField() || !objInFullPage);
-    
     if (obj->GetGCField2())
         return;
-    
-    obj->SetGCField(MASK_OBJECT_IS_MARKED);
+    //obj->SetGCField(MASK_OBJECT_IS_MARKED);
     obj->SetGCField2(MASK_OBJECT_IS_MARKED);
     obj->CheckMarking(CheckMarkingOfObject);
 }
@@ -144,17 +142,6 @@ void PauselessCollectorThread::Collect() {
         
         expectedNMT = !expectedNMT;
         PagedHeap* test = _HEAP;
-        
-        // DEBUGGING PURPOSES: STOP THE WORLD
-        _HEAP->TriggerPause();
-        pthread_mutex_lock(&(_HEAP->threadCountMutex));
-        while (_UNIVERSE->GetInterpretersCopy()->size() != _HEAP->readyForPauseThreads) {
-            pthread_cond_wait(&(_HEAP->stopTheWorldCondition), &(_HEAP->threadCountMutex));
-        }
-        pthread_mutex_unlock(&(_HEAP->threadCountMutex));
-        CheckMarking();
-        _HEAP->ResetPause();
-        pthread_cond_broadcast(&(_HEAP->mayProceed));
         
         sync_out(ostringstream() << "[GC] Start RootSet Marking");
         //------------------------
@@ -250,7 +237,7 @@ void PauselessCollectorThread::Collect() {
                     //everything is done and all threads should
                     //pthread_cond_signal() -> should still be done but testing happens with one gc thread for the moment
                     
-                    //assert(nonEmptyWorklists->empty());
+                    assert(nonEmptyWorklists->empty());
                     
                     pthread_mutex_unlock(&nonEmptyWorklistsMutex);
                     checkpointRequested = false; //setup for next cycle
@@ -263,6 +250,17 @@ void PauselessCollectorThread::Collect() {
                 }
             }
         }
+        
+        // DEBUGGING PURPOSES: STOP THE WORLD
+        _HEAP->TriggerPause();
+        pthread_mutex_lock(&(_HEAP->threadCountMutex));
+        while (_UNIVERSE->GetInterpretersCopy()->size() != _HEAP->readyForPauseThreads) {
+            pthread_cond_wait(&(_HEAP->stopTheWorldCondition), &(_HEAP->threadCountMutex));
+        }
+        pthread_mutex_unlock(&(_HEAP->threadCountMutex));
+        CheckMarking();
+        _HEAP->ResetPause();
+        pthread_cond_broadcast(&(_HEAP->mayProceed));
         
         sync_out(ostringstream() << "[GC] Start Relocate Phase");
         
@@ -296,6 +294,13 @@ void PauselessCollectorThread::Collect() {
             for (vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
                 (*it)->SignalEnableGCTrap();
             }
+            // All gc-threads need to wait till all mutators have the gc-trap enabled before starting relocation
+            pthread_mutex_lock(&(_HEAP->gcTrapEnabledMutex));
+            while (_HEAP->numberOfMutatorsNeedEnableGCTrap != _HEAP->numberOfMutatorsWithEnabledGCTrap) {
+                pthread_cond_wait(&(_HEAP->gcTrapEnabledCondition), &(_HEAP->gcTrapEnabledMutex));
+            }
+            pthread_mutex_unlock(&(_HEAP->gcTrapEnabledMutex));
+            // signal the other gc-threads that they may start relocating
             doneBlockingPages = true;
             pthread_cond_broadcast(&pagesToRelocateCondition);
             pthread_mutex_unlock(&blockPagesMutex);
