@@ -84,6 +84,7 @@ pVMFrame VMFrame::EmergencyFrameFrom(pVMFrame from, long extraLength) {
         result->arguments[i] = WRITEBARRIER(READBARRIER(nilObject));
         i++;
     }
+
     return result;
 }
 
@@ -111,8 +112,10 @@ pVMFrame VMFrame::Clone(Interpreter* thread) {
     clone->arguments = (GCAbstractObject**)&(clone->stack_ptr)+1; //field after stack_ptr
     clone->locals = clone->arguments + ReadBarrier(&(clone->method))->GetNumberOfArguments();
     clone->stack_ptr = (GCAbstractObject**)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
-    clone->IncreaseVersion();
-    this->MarkObjectAsInvalid();
+    /*clone->IncreaseVersion();
+    clone->SetGCField(0);
+    clone->SetGCField2(0);*/
+    //this->MarkObjectAsInvalid();
     return clone;
 }
 pVMFrame VMFrame::Clone(PauselessCollectorThread* thread) {
@@ -125,8 +128,10 @@ pVMFrame VMFrame::Clone(PauselessCollectorThread* thread) {
     clone->arguments = (GCAbstractObject**)&(clone->stack_ptr)+1; //field after stack_ptr
     clone->locals = clone->arguments + ReadBarrierForGCThread(&(clone->method))->GetNumberOfArgumentsGC();
     clone->stack_ptr = (GCAbstractObject**)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
-    clone->IncreaseVersion();
-    this->MarkObjectAsInvalid();
+    /*clone->IncreaseVersion();
+    clone->SetGCField(0);
+    clone->SetGCField2(0);*/
+    //this->MarkObjectAsInvalid();
     return clone;
 }
 #else
@@ -361,3 +366,15 @@ void VMFrame::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     }
 }
 #endif
+
+void VMFrame::MarkObjectAsInvalid() {
+    VMObject::MarkObjectAsInvalid();
+    previousFrame = (GCFrame*)  INVALID_GC_POINTER;
+    context = (GCFrame*) INVALID_GC_POINTER;
+    method = (GCMethod*)  INVALID_GC_POINTER;
+    long i = 0;
+    while (arguments + i <= stack_ptr) {
+        arguments[i] =  (GCAbstractObject*) INVALID_GC_POINTER;
+        i++;
+    }
+}

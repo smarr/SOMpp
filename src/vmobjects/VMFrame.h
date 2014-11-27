@@ -72,6 +72,8 @@ public:
     void CopyArgumentsFrom(pVMFrame frame);
     inline  pVMObject GetField(long index);
     
+    virtual void MarkObjectAsInvalid();
+    
 #if GC_TYPE==PAUSELESS
     virtual pVMFrame Clone(Interpreter*);
     virtual pVMFrame Clone(PauselessCollectorThread*);

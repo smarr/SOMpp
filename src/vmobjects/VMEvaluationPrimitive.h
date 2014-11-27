@@ -39,6 +39,8 @@ public:
     
     VMEvaluationPrimitive(long argc);
     
+    virtual void MarkObjectAsInvalid();
+    
 #if GC_TYPE==PAUSELESS
     virtual pVMEvaluationPrimitive Clone(Interpreter*);
     virtual pVMEvaluationPrimitive Clone(PauselessCollectorThread*);

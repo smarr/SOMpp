@@ -58,14 +58,18 @@ pVMEvaluationPrimitive VMEvaluationPrimitive::Clone() {
 #elif GC_TYPE==PAUSELESS
 pVMEvaluationPrimitive VMEvaluationPrimitive::Clone(Interpreter* thread) {
     pVMEvaluationPrimitive clone = new (_HEAP, thread) VMEvaluationPrimitive(*this);
-    clone->IncreaseVersion();
-    this->MarkObjectAsInvalid();
+    /*clone->IncreaseVersion();
+    clone->SetGCField(0);
+    clone->SetGCField2(0); */
+    //this->MarkObjectAsInvalid();
     return clone;
 }
 pVMEvaluationPrimitive VMEvaluationPrimitive::Clone(PauselessCollectorThread* thread) {
     pVMEvaluationPrimitive clone = new (_HEAP, thread) VMEvaluationPrimitive(*this);
-    clone->IncreaseVersion();
-    this->MarkObjectAsInvalid();
+    /*clone->IncreaseVersion();
+    clone->SetGCField(0);
+    clone->SetGCField2(0); */
+    //this->MarkObjectAsInvalid();
     return clone;
 }
 #else
@@ -118,6 +122,11 @@ void VMEvaluationPrimitive::evaluationRoutine(pVMObject object, pVMFrame frame) 
     pVMFrame NewFrame = _UNIVERSE->GetInterpreter()->PushNewFrame(block->GetMethod());
     NewFrame->CopyArgumentsFrom(frame);
     NewFrame->SetContext(context);
+}
+
+void VMEvaluationPrimitive::MarkObjectAsInvalid() {
+    VMPrimitive::MarkObjectAsInvalid();
+    numberOfArguments = (GCInteger*)  INVALID_GC_POINTER;
 }
 
 #if GC_TYPE==PAUSELESS
