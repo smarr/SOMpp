@@ -53,7 +53,7 @@ void VMObjectBase::SetGCField(size_t val) {
     // forwarding address needs to be maintained incase any object still points
     // to the garbage object.
     #define GCFIELD_IS_NOT_FORWARDING_POINTER (gcfield <= MASK_BITS_ALL)
-    assert(GCFIELD_IS_NOT_FORWARDING_POINTER || val > MASK_BITS_ALL);
+    //assert(GCFIELD_IS_NOT_FORWARDING_POINTER || val > MASK_BITS_ALL);
     gcfield = val;
 }
 
