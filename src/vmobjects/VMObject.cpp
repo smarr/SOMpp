@@ -58,25 +58,25 @@ pVMObject VMObject::Clone() {
 #elif GC_TYPE==PAUSELESS
 pVMObject VMObject::Clone(Interpreter* thread) {
     VMObject* clone = new (_HEAP, thread, objectSize - sizeof(VMObject)) VMObject(*this);
-    
-    clone->IncreaseVersion();
-    
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     //memcpy(&(clone->clazz), &clazz, objectSize - sizeof(VMObject) + sizeof(pVMObject));
     
     clone->hash = (size_t) &clone;
+    /* clone->IncreaseVersion();
+    clone->SetGCField(0);
+    clone->SetGCField2(0);*/
     this->MarkObjectAsInvalid();
     return clone;
 }
 pVMObject VMObject::Clone(PauselessCollectorThread* thread) {
     VMObject* clone = new (_HEAP, thread, objectSize - sizeof(VMObject)) VMObject(*this);
-    
-    clone->IncreaseVersion();
-    
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     //memcpy(&(clone->clazz), &clazz, objectSize - sizeof(VMObject) + sizeof(pVMObject));
     
     clone->hash = (size_t) &clone;
+    /* clone->IncreaseVersion();
+    clone->SetGCField(0);
+    clone->SetGCField2(0);*/
     this->MarkObjectAsInvalid();
     return clone;
 }
