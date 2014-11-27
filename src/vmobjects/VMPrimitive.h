@@ -61,6 +61,8 @@ public:
     virtual void operator()(pVMFrame frm) {(*routine)(this, frm);};
 
     virtual bool IsPrimitive() const {return true;};
+    
+    virtual        void      MarkObjectAsInvalid();
 
 private:
     void EmptyRoutine(pVMObject self, pVMFrame frame);

@@ -66,14 +66,18 @@ pVMPrimitive VMPrimitive::Clone() {
 #elif GC_TYPE==PAUSELESS
 pVMPrimitive VMPrimitive::Clone(Interpreter* thread) {
     pVMPrimitive clone = new (_HEAP, thread) VMPrimitive(*this);
-    clone->IncreaseVersion();
-    this->MarkObjectAsInvalid();
+    /*clone->IncreaseVersion();
+    clone->SetGCField(0);
+    clone->SetGCField2(0);*/
+    //this->MarkObjectAsInvalid();
     return clone;
 }
 pVMPrimitive VMPrimitive::Clone(PauselessCollectorThread* thread) {
     pVMPrimitive clone = new (_HEAP, thread) VMPrimitive(*this);
-    clone->IncreaseVersion();
-    this->MarkObjectAsInvalid();
+    /*clone->IncreaseVersion();
+    clone->SetGCField(0);
+    clone->SetGCField2(0);*/
+    //this->MarkObjectAsInvalid();
     return clone;
 }
 #else
@@ -109,3 +113,7 @@ void VMPrimitive::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     holder    = static_cast<pVMClass>(walk(holder));
 }
 #endif
+
+void VMPrimitive::MarkObjectAsInvalid() {
+    VMInvokable::MarkObjectAsInvalid();
+}

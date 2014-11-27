@@ -89,8 +89,9 @@ pVMMethod VMMethod::Clone(Interpreter* thread) {
            sizeof(VMObject));
     clone->indexableFields = (GCAbstractObject**)(&(clone->indexableFields) + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
     clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + GetNumberOfIndexableFields());
-    clone->IncreaseVersion();
-    this->MarkObjectAsInvalid();
+    /*clone->IncreaseVersion();
+    clone->SetGCField(0);
+    clone->SetGCField2(0);*/
     return clone;
 }
 pVMMethod VMMethod::Clone(PauselessCollectorThread* thread) {
@@ -100,8 +101,9 @@ pVMMethod VMMethod::Clone(PauselessCollectorThread* thread) {
            sizeof(VMObject));
     clone->indexableFields = (GCAbstractObject**)(&(clone->indexableFields) + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
     clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + ReadBarrierForGCThread(&numberOfConstants)->GetEmbeddedInteger());
-    clone->IncreaseVersion();
-    this->MarkObjectAsInvalid();
+    /*clone->IncreaseVersion();
+    clone->SetGCField(0);
+    clone->SetGCField2(0);*/
     return clone;
 }
 #else
@@ -272,3 +274,16 @@ void VMMethod::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     }
 }
 #endif
+
+void VMMethod::MarkObjectAsInvalid() {
+    VMInvokable::MarkObjectAsInvalid();
+    long numIndexableFields = Untag(numberOfConstants)->GetEmbeddedInteger();
+    for (long i = 0; i < numIndexableFields; ++i) {
+        indexableFields[i] = (GCAbstractObject*) INVALID_GC_POINTER;
+    }
+    numberOfConstants = (GCInteger*) INVALID_GC_POINTER;
+    numberOfLocals = (GCInteger*) INVALID_GC_POINTER;
+    maximumNumberOfStackElements = (GCInteger*) INVALID_GC_POINTER;
+    bcLength = (GCInteger*) INVALID_GC_POINTER;
+    numberOfArguments = (GCInteger*) INVALID_GC_POINTER;
+}

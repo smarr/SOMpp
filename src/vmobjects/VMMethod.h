@@ -88,6 +88,9 @@ public:
     virtual void operator()(pVMFrame frame);
 
     void SetSignature(pVMSymbol sig);
+    
+    virtual void MarkObjectAsInvalid();
+
 
 private:
     inline uint8_t* GetBytecodes() const;
