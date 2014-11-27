@@ -70,7 +70,7 @@ AbstractVMObject* Page::LookupNewAddress(AbstractVMObject* oldAddress, Interpret
         AbstractVMObject* newLocation = oldAddress->Clone(thread);
         AbstractVMObject* test = nullptr;
         if (!sideArray[position].compare_exchange_strong(test, newLocation)) {
-            _UNIVERSE->GetInterpreter()->GetPage()->Free(newLocation->GetObjectSize());
+            //_UNIVERSE->GetInterpreter()->GetPage()->Free(newLocation->GetObjectSize());
         }
     }
     assert(Universe::IsValidObject((AbstractVMObject*) sideArray[position]));
@@ -83,14 +83,16 @@ AbstractVMObject* Page::LookupNewAddress(AbstractVMObject* oldAddress, Pauseless
         AbstractVMObject* newLocation = oldAddress->Clone(thread);
         AbstractVMObject* test = nullptr;
         if (!sideArray[position].compare_exchange_strong(test, newLocation)) {
-            _UNIVERSE->GetInterpreter()->GetPage()->Free(newLocation->GetObjectSize());
+            //_UNIVERSE->GetInterpreter()->GetPage()->Free(newLocation->GetObjectSize());
         }
     }
     return static_cast<AbstractVMObject*>(sideArray[position]);
 }
 
 void Page::AddAmountLiveData(size_t objectSize) {
+    //pthread_mutex_lock
     amountLiveData += objectSize;
+    //pthread_mutex_unlock
 }
 
 long Page::GetAmountOfLiveData() {
@@ -115,50 +117,17 @@ void Page::RelocatePage() {
             //assert(pageNumber2 < 1280);
             long positionSideArray = ((size_t)currentObject - pageStart)/8;
             AbstractVMObject* test = nullptr;
+            pthread_mutex_lock(_HEAP->GetCompareAndSwapTestMutex());
             if (!sideArray[positionSideArray].compare_exchange_strong(test, newLocation)) {
-                _HEAP->GetGCThread()->GetPage()->Free(currentObject->GetObjectSize());
+                //_HEAP->GetGCThread()->GetPage()->Free(currentObject->GetObjectSize());
             }
+            pthread_mutex_unlock(_HEAP->GetCompareAndSwapTestMutex());
             assert(Universe::IsValidObject((AbstractVMObject*) sideArray[positionSideArray]));
         }
-        prevObject = currentObject;
+        //prevObject = currentObject;
     }
     amountLiveData = 0;
     nextFreePosition = (void*)pageStart;
 }
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-void Page::ClearMarkBits() {
-    for (AbstractVMObject* currentObject = (AbstractVMObject*) pageStart;
-         (size_t) currentObject < (size_t) nextFreePosition;
-         currentObject = (AbstractVMObject*) (currentObject->GetObjectSize() + (size_t) currentObject)) {
-        currentObject->SetGCField(0);
-    }
-}
- 
- 
- void test() {
- std::atomic<int>  ai;
- int  tst_val= 4;
- int  new_val= 5;
- ai= 3;
- 
- // tst_val != ai   ==>  tst_val is modified
- ai.compare_exchange_strong( tst_val, new_val );
- }
-*/
