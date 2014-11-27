@@ -47,6 +47,8 @@ public:
     virtual size_t GetObjectSize() const;
     virtual pVMClass GetClass();
     
+    virtual void MarkObjectAsInvalid();
+    
 #if GC_TYPE==PAUSELESS
     virtual pVMSymbol Clone(Interpreter*);
     virtual pVMSymbol Clone(PauselessCollectorThread*);

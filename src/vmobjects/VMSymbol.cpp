@@ -62,14 +62,18 @@ pVMSymbol VMSymbol::Clone() {
 #elif GC_TYPE==PAUSELESS
 pVMSymbol VMSymbol::Clone(Interpreter* thread) {
     pVMSymbol clone = new (_HEAP, thread, PADDED_SIZE(strlen(chars) + 1)) VMSymbol(chars);
-    clone->IncreaseVersion();
-    this->MarkObjectAsInvalid();
+    /*clone->IncreaseVersion();
+    clone->SetGCField(0);
+    clone->SetGCField2(0);*/
+    //this->MarkObjectAsInvalid();
     return clone;
 }
 pVMSymbol VMSymbol::Clone(PauselessCollectorThread* thread) {
     pVMSymbol clone = new (_HEAP, thread, PADDED_SIZE(strlen(chars) + 1)) VMSymbol(chars);
-    clone->IncreaseVersion();
-    this->MarkObjectAsInvalid();
+    /*clone->IncreaseVersion();
+    clone->SetGCField(0);
+    clone->SetGCField2(0);*/
+    //this->MarkObjectAsInvalid();
     return clone;
 }
 #else
@@ -144,6 +148,10 @@ StdString VMSymbol::GetPlainString() const {
     StdString st = str.str();
 
     return st;
+}
+
+void VMSymbol::MarkObjectAsInvalid() {
+    VMString::MarkObjectAsInvalid();
 }
 
 /*
