@@ -54,6 +54,12 @@ void VMInvokable::SetHolder(pVMClass hld) {
 #endif
 }
 
+void VMInvokable::MarkObjectAsInvalid() {
+    VMObject::MarkObjectAsInvalid();
+    signature = (GCSymbol*) INVALID_GC_POINTER;
+    holder = (GCClass*) INVALID_GC_POINTER;
+}
+
 #if GC_TYPE==PAUSELESS
 void VMInvokable::MarkReferences() {
     ReadBarrierForGCThread(&clazz);

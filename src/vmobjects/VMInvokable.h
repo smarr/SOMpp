@@ -47,6 +47,8 @@ public:
     virtual void      SetSignature(pVMSymbol sig);
             pVMClass  GetHolder();
             void      SetHolder(pVMClass hld);
+    
+    virtual        void      MarkObjectAsInvalid();
 
 #if GC_TYPE==PAUSELESS
     virtual void MarkReferences();
