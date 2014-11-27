@@ -1152,18 +1152,6 @@ void Universe::MarkGlobals() {
     }
     globals = globs;
     
-    /*
-    map<pVMSymbol, pVMObject> globs = globals;
-    globals.clear();
-    map<pVMSymbol, pVMObject>::iterator iter;
-    for (iter = globs.begin(); iter != globs.end(); iter++) {
-        if (ReadBarrierForGCThread(&iter->second) == NULL)
-            continue;
-        pVMSymbol key = iter->first;
-        pVMObject val = ReadBarrierForGCThread(&iter->second);
-        globals[WriteBarrierForGCThread(ReadBarrierForGCThread(&key))] = val;
-    } */
-    
     cout << "Mark symbol map" << endl;
     // walk all entries in symbols map
     map<StdString, GCSymbol*>::iterator symbolIter;
