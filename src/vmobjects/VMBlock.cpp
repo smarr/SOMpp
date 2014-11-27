@@ -52,14 +52,18 @@ pVMBlock VMBlock::Clone() {
 #elif GC_TYPE==PAUSELESS
 pVMBlock VMBlock::Clone(Interpreter* thread) {
     pVMBlock clone = new (_HEAP, thread, GetAdditionalSpaceConsumption()) VMBlock(*this);
-    clone->IncreaseVersion();
-    this->MarkObjectAsInvalid();
+    /*clone->IncreaseVersion();
+    clone->SetGCField(0);
+    clone->SetGCField2(0);*/
+    //this->MarkObjectAsInvalid();
     return clone;
 }
 pVMBlock VMBlock::Clone(PauselessCollectorThread* thread) {
     pVMBlock clone = new (_HEAP, thread, GetAdditionalSpaceConsumption()) VMBlock(*this);
-    clone->IncreaseVersion();
-    this->MarkObjectAsInvalid();
+    /*clone->IncreaseVersion();
+    clone->SetGCField(0);
+    clone->SetGCField2(0); */
+    //this->MarkObjectAsInvalid();
     return clone;
 }
 #else
@@ -70,4 +74,10 @@ pVMBlock VMBlock::Clone() {
 
 pVMMethod VMBlock::GetMethod() {
     return READBARRIER(blockMethod);
+}
+
+void VMBlock::MarkObjectAsInvalid() {
+    VMObject::MarkObjectAsInvalid();
+    blockMethod = (GCMethod*)  INVALID_GC_POINTER;
+    context = (GCFrame*) INVALID_GC_POINTER;
 }

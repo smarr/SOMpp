@@ -45,6 +45,8 @@ public:
     inline  void      SetContext(pVMFrame);
     inline  pVMFrame  GetContext();
     
+    virtual void MarkObjectAsInvalid();
+    
 #if GC_TYPE==PAUSELESS
     virtual pVMBlock Clone(Interpreter*);
     virtual pVMBlock Clone(PauselessCollectorThread*);

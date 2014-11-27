@@ -62,15 +62,19 @@ pVMClass VMClass::Clone() {
 pVMClass VMClass::Clone(Interpreter* thread) {
     pVMClass clone = new (_HEAP, thread, objectSize - sizeof(VMClass)) VMClass(*this);
     memcpy(SHIFTED_PTR(clone,sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    clone->IncreaseVersion();
-    this->MarkObjectAsInvalid();
+    /*clone->IncreaseVersion();
+    clone->SetGCField(0);
+    clone->SetGCField2(0); */
+    //this->MarkObjectAsInvalid();
     return clone;
 }
 pVMClass VMClass::Clone(PauselessCollectorThread* thread) {
     pVMClass clone = new (_HEAP, thread, objectSize - sizeof(VMClass)) VMClass(*this);
     memcpy(SHIFTED_PTR(clone,sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    clone->IncreaseVersion();
-    this->MarkObjectAsInvalid();
+    /*clone->IncreaseVersion();
+    clone->SetGCField(0);
+    clone->SetGCField2(0); */
+    //this->MarkObjectAsInvalid();
     return clone;
 }
 #else
@@ -86,6 +90,7 @@ VMClass::VMClass(long numberOfFields) :
 }
 
 void VMClass::MarkObjectAsInvalid() {
+    VMObject::MarkObjectAsInvalid();
     superClass         = (GCClass*)  INVALID_GC_POINTER;
     name               = (GCSymbol*) INVALID_GC_POINTER;
     instanceFields     = (GCArray*)  INVALID_GC_POINTER;
@@ -304,6 +309,7 @@ void VMClass::MarkReferences() {
     }
 }
 void VMClass::CheckMarking(void (*walk)(AbstractVMObject*)) {
+    pVMClass test = Untag(clazz);
     assert(GetNMTValue(clazz) == _HEAP->GetGCThread()->GetExpectedNMT());
     walk(Untag(clazz));
     if (superClass) {
