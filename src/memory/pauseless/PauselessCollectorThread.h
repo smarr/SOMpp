@@ -33,6 +33,8 @@ private:
     
     static int numberOfGCThreads;
     
+    static int markValue;
+    
     // variables used during root-set marking phase
     static pthread_mutex_t blockedMutex;
     static pthread_mutex_t markGlobalsMutex;

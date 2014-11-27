@@ -24,6 +24,8 @@
 
 int PauselessCollectorThread::numberOfGCThreads;
 
+int PauselessCollectorThread::markValue = 1;
+
 pthread_mutex_t PauselessCollectorThread::blockedMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t PauselessCollectorThread::markGlobalsMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t PauselessCollectorThread::markRootSetsMutex = PTHREAD_MUTEX_INITIALIZER;
@@ -67,15 +69,14 @@ void PauselessCollectorThread::AddGCWork(AbstractVMObject* work) {
 
 void PauselessCollectorThread::MarkObject(VMOBJECT_PTR obj) {
     assert(Universe::IsValidObject(obj));
-    if (obj->GetGCField())
+    if (obj->GetGCField() == markValue)
         return;
     Page* page = _HEAP->allPages->at(((size_t)obj - (size_t)_HEAP->memoryStart) / _HEAP->pageSize);
     
     assert(REFERENCE_NMT_VALUE(obj) == false);
-    obj->GetObjectSize();
     
     page->AddAmountLiveData(obj->GetObjectSize());
-    obj->SetGCField(MASK_OBJECT_IS_MARKED);
+    obj->SetGCField(markValue);
     obj->MarkReferences();
 }
 
@@ -88,10 +89,10 @@ void PauselessCollectorThread::CheckMarkingOfObject(AbstractVMObject* obj) {
     else
         objInFullPage = false;
     //assert(obj->GetGCField() || !objInFullPage);
-    if (obj->GetGCField2())
+    if (obj->GetGCField2() == markValue)
         return;
     //obj->SetGCField(MASK_OBJECT_IS_MARKED);
-    obj->SetGCField2(MASK_OBJECT_IS_MARKED);
+    obj->SetGCField2(markValue);
     obj->CheckMarking(CheckMarkingOfObject);
 }
 
@@ -162,6 +163,14 @@ void PauselessCollectorThread::Collect() {
             pthread_cond_broadcast(&blockedCondition);
             pthread_mutex_unlock(&markRootSetsMutex);
         }
+                
+        // DEBUGGING PURPOSES: STOP THE WORLD
+        pthread_mutex_lock(&(_HEAP->threadCountMutex));
+        while (_UNIVERSE->GetInterpretersCopy()->size() != _HEAP->readyForPauseThreads) {
+            pthread_cond_wait(&(_HEAP->stopTheWorldCondition), &(_HEAP->threadCountMutex));
+        }
+        pthread_mutex_unlock(&(_HEAP->threadCountMutex));
+        
     
         // one gc thread marks the globals
         if (!doneMarkingGlobals && pthread_mutex_trylock(&markGlobalsMutex) == 0) {
@@ -202,6 +211,7 @@ void PauselessCollectorThread::Collect() {
         //------------------------
         // CONTINUE MARKING PHASE
         //------------------------
+        
         while (true) {
             
             while (!worklist.Empty()) {
@@ -209,6 +219,14 @@ void PauselessCollectorThread::Collect() {
                 MarkObject(obj);
             }
             
+            if (!nonEmptyWorklists->empty()) {
+                nonEmptyWorklists->back()->MoveWork(&worklist);
+                nonEmptyWorklists->pop_back();
+                numberOfGCThreadsDoneMarking--;
+            } else
+                break;
+            
+            /*
             //try to take work from interpreter worklists with work
             pthread_mutex_lock(&nonEmptyWorklistsMutex);
             numberOfGCThreadsDoneMarking++;
@@ -248,16 +266,17 @@ void PauselessCollectorThread::Collect() {
                     numberOfGCThreadsDoneMarking--;
                     pthread_mutex_unlock(&nonEmptyWorklistsMutex);
                 }
-            }
+            } */
         }
         
         // DEBUGGING PURPOSES: STOP THE WORLD
+        /*
         _HEAP->TriggerPause();
         pthread_mutex_lock(&(_HEAP->threadCountMutex));
         while (_UNIVERSE->GetInterpretersCopy()->size() != _HEAP->readyForPauseThreads) {
             pthread_cond_wait(&(_HEAP->stopTheWorldCondition), &(_HEAP->threadCountMutex));
         }
-        pthread_mutex_unlock(&(_HEAP->threadCountMutex));
+        pthread_mutex_unlock(&(_HEAP->threadCountMutex)); */
         CheckMarking();
         _HEAP->ResetPause();
         pthread_cond_broadcast(&(_HEAP->mayProceed));
@@ -333,10 +352,13 @@ void PauselessCollectorThread::Collect() {
         doneBlockingPages = false;
         doneMarkingGlobals = false;
         numberOfGCThreadsDoneMarking = 0;
+        markValue++;
         
         sync_out(ostringstream() << "[GC] End of cycle");
         sync_out(ostringstream() << "=================");
-
+        
+        assert(nonEmptyWorklists->empty());
+        
     } //end of cycle
 
 }
