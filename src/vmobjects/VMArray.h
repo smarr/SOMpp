@@ -52,9 +52,10 @@ public:
     pVMObject GetIndexableField(long idx);
     void SetIndexableField(long idx, pVMObject value);
     void CopyIndexableFieldsTo(pVMArray);
+    
+    virtual void MarkObjectAsInvalid();
 
 private:
-    virtual void MarkObjectAsInvalid();
     
     static const long VMArrayNumberOfFields;
 };
