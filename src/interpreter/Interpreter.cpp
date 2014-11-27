@@ -667,6 +667,9 @@ void Interpreter::MarkRootSet() {
         _HEAP->RelinquishPage(fullPages.back());
         fullPages.pop_back();
     }
+    
+    _HEAP->TriggerPause();
+    _HEAP->Pause();
 }
 
 void Interpreter::MarkRootSetByGC() {
@@ -686,6 +689,9 @@ void Interpreter::MarkRootSetByGC() {
         _HEAP->RelinquishPage(fullPages.back());
         fullPages.pop_back();
     }
+    
+    _HEAP->TriggerPause();
+    _HEAP->Pause();
 }
 
 void Interpreter::ResetAlreadyMarked() {
@@ -743,11 +749,11 @@ void Interpreter::AddFullPage(Page* page) {
 void Interpreter::CheckMarking(void (*walk)(AbstractVMObject*)) {
     // pVMMethod testMethodGCSet = Untag(method);
     if (frame) {
-        assert(GetNMTValue(frame) == _HEAP->GetGCThread()->GetExpectedNMT());
+        //assert(GetNMTValue(frame) == _HEAP->GetGCThread()->GetExpectedNMT());
         walk(Untag(frame));
     }
     if (thread) {
-        assert(GetNMTValue(thread) == _HEAP->GetGCThread()->GetExpectedNMT());
+        //assert(GetNMTValue(thread) == _HEAP->GetGCThread()->GetExpectedNMT());
         walk(Untag(thread));
     }
 }
