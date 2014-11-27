@@ -38,13 +38,12 @@ VMOBJECT_PTR Worklist::GetWork() {
 }
 
 void Worklist::MoveWork(Worklist* moveToWorklist) {
-    if (pthread_mutex_trylock(&lock) == 0) {
-        while (!work.empty()) {
-            moveToWorklist->AddWorkGC(work.back());
-            work.pop_back();
-        }
-        pthread_mutex_unlock(&lock);
+    pthread_mutex_lock(&lock);
+    while (!work.empty()) {
+        moveToWorklist->AddWorkGC(work.back());
+        work.pop_back();
     }
+    pthread_mutex_unlock(&lock);
 }
 
 bool Worklist::Empty() {
