@@ -60,8 +60,8 @@ void PauselessHeap::SignalInterpreterBlocked(Interpreter* interpreter) {
     PauselessCollectorThread::AddBlockedInterpreter(interpreter);
 }
 
-void PauselessHeap::SignalSafepointReached() {
-    PauselessCollectorThread::SignalSafepointReached();
+void PauselessHeap::SignalSafepointReached(bool* safePointRequested) {
+    PauselessCollectorThread::SignalSafepointReached(safePointRequested);
 }
 
 void PauselessHeap::SignalGCTrapEnabled() {

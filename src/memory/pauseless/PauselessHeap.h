@@ -25,7 +25,7 @@ public:
     
     void SignalRootSetMarked();
     void SignalInterpreterBlocked(Interpreter*);
-    void SignalSafepointReached();
+    void SignalSafepointReached(bool*);
     void SignalGCTrapEnabled();
     
     void Start();
