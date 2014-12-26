@@ -58,7 +58,6 @@ _System* System_;
 
 void _System::Global_(pVMObject /*object*/, pVMFrame frame) {
     pVMSymbol arg = static_cast<pVMSymbol>(frame->Pop());
-    cout << "[sys.global:] " << arg->GetChars() << endl;
     /*pVMObject self = */
     frame->Pop();
     pVMObject result = _UNIVERSE->GetGlobal(arg);
@@ -74,7 +73,6 @@ void _System::Global_put_(pVMObject /*object*/, pVMFrame frame) {
 
 void _System::Load_(pVMObject /*object*/, pVMFrame frame) {
     pVMSymbol arg = static_cast<pVMSymbol>(frame->Pop());
-    cout << "[sys.load] " << arg->GetChars() << endl;
     frame->Pop();
     pVMClass result = _UNIVERSE->LoadClass(arg);
     if (result)
