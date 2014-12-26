@@ -58,18 +58,14 @@ pVMEvaluationPrimitive VMEvaluationPrimitive::Clone() {
 #elif GC_TYPE==PAUSELESS
 pVMEvaluationPrimitive VMEvaluationPrimitive::Clone(Interpreter* thread) {
     pVMEvaluationPrimitive clone = new (_HEAP, thread) VMEvaluationPrimitive(*this);
-    /*clone->IncreaseVersion();
-    clone->SetGCField(0);
-    clone->SetGCField2(0); */
-    //this->MarkObjectAsInvalid();
+    /* clone->IncreaseVersion();
+    this->MarkObjectAsInvalid(); */
     return clone;
 }
 pVMEvaluationPrimitive VMEvaluationPrimitive::Clone(PauselessCollectorThread* thread) {
     pVMEvaluationPrimitive clone = new (_HEAP, thread) VMEvaluationPrimitive(*this);
-    /*clone->IncreaseVersion();
-    clone->SetGCField(0);
-    clone->SetGCField2(0); */
-    //this->MarkObjectAsInvalid();
+    /* clone->IncreaseVersion();
+    this->MarkObjectAsInvalid(); */
     return clone;
 }
 #else

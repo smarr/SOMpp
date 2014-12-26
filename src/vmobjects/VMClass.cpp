@@ -62,19 +62,15 @@ pVMClass VMClass::Clone() {
 pVMClass VMClass::Clone(Interpreter* thread) {
     pVMClass clone = new (_HEAP, thread, objectSize - sizeof(VMClass)) VMClass(*this);
     memcpy(SHIFTED_PTR(clone,sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    /*clone->IncreaseVersion();
-    clone->SetGCField(0);
-    clone->SetGCField2(0); */
-    //this->MarkObjectAsInvalid();
+    /* clone->IncreaseVersion();
+    this->MarkObjectAsInvalid(); */
     return clone;
 }
 pVMClass VMClass::Clone(PauselessCollectorThread* thread) {
     pVMClass clone = new (_HEAP, thread, objectSize - sizeof(VMClass)) VMClass(*this);
     memcpy(SHIFTED_PTR(clone,sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    /*clone->IncreaseVersion();
-    clone->SetGCField(0);
-    clone->SetGCField2(0); */
-    //this->MarkObjectAsInvalid();
+    /* clone->IncreaseVersion();
+    this->MarkObjectAsInvalid(); */
     return clone;
 }
 #else

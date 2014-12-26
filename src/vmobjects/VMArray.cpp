@@ -90,10 +90,8 @@ pVMArray VMArray::Clone(Interpreter* thread) {
     const void* source = SHIFTED_PTR(this, sizeof(VMArray));
     size_t noBytes = GetObjectSize() - sizeof(VMArray);
     memcpy(destination, source, noBytes);
-    /*clone->IncreaseVersion();
-    clone->SetGCField(0);
-    clone->SetGCField2(0); */
-    this->MarkObjectAsInvalid();
+    /* clone->IncreaseVersion();
+    this->MarkObjectAsInvalid(); */
     return clone;
 }
 pVMArray VMArray::Clone(PauselessCollectorThread* thread) {
@@ -103,10 +101,8 @@ pVMArray VMArray::Clone(PauselessCollectorThread* thread) {
     const void* source = SHIFTED_PTR(this, sizeof(VMArray));
     size_t noBytes = GetObjectSize() - sizeof(VMArray);
     memcpy(destination, source, noBytes);
-    /*clone->IncreaseVersion();
-    clone->SetGCField(0);
-    clone->SetGCField2(0);*/
-    //this->MarkObjectAsInvalid();
+    /* clone->IncreaseVersion();
+    this->MarkObjectAsInvalid(); */
     return clone;
 }
 #else

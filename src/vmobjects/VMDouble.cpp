@@ -44,18 +44,14 @@ pVMDouble VMDouble::Clone() {
 #elif GC_TYPE==PAUSELESS
 pVMDouble VMDouble::Clone(Interpreter* thread) {
     pVMDouble clone = new (_HEAP, thread) VMDouble(*this);
-    /*clone->IncreaseVersion();
-    clone->SetGCField(0);
-    clone->SetGCField2(0); */
-    //this->MarkObjectAsInvalid();
+    /* clone->IncreaseVersion();
+    this->MarkObjectAsInvalid(); */
     return clone;
 }
 pVMDouble VMDouble::Clone(PauselessCollectorThread* thread) {
     pVMDouble clone = new (_HEAP, thread) VMDouble(*this);
-    /*clone->IncreaseVersion();
-    clone->SetGCField(0);
-    clone->SetGCField2(0); */
-    //this->MarkObjectAsInvalid();
+    /* clone->IncreaseVersion();
+    this->MarkObjectAsInvalid(); */
     return clone;
 }
 #else

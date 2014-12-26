@@ -89,9 +89,7 @@ pVMMethod VMMethod::Clone(Interpreter* thread) {
            sizeof(VMObject));
     clone->indexableFields = (GCAbstractObject**)(&(clone->indexableFields) + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
     clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + GetNumberOfIndexableFields());
-    /*clone->IncreaseVersion();
-    clone->SetGCField(0);
-    clone->SetGCField2(0);*/
+    /*clone->IncreaseVersion(); */
     return clone;
 }
 pVMMethod VMMethod::Clone(PauselessCollectorThread* thread) {
@@ -101,9 +99,7 @@ pVMMethod VMMethod::Clone(PauselessCollectorThread* thread) {
            sizeof(VMObject));
     clone->indexableFields = (GCAbstractObject**)(&(clone->indexableFields) + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
     clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + ReadBarrierForGCThread(&numberOfConstants)->GetEmbeddedInteger());
-    /*clone->IncreaseVersion();
-    clone->SetGCField(0);
-    clone->SetGCField2(0);*/
+    /*clone->IncreaseVersion(); */
     return clone;
 }
 #else

@@ -47,18 +47,14 @@ pVMBigInteger VMBigInteger::Clone() {
 #elif GC_TYPE==PAUSELESS
 pVMBigInteger VMBigInteger::Clone(Interpreter* thread) {
     pVMBigInteger clone = new (_HEAP, thread) VMBigInteger(*this);
-    /*clone->IncreaseVersion();
-    clone->SetGCField(0);
-    clone->SetGCField2(0); */
-    //this->MarkObjectAsInvalid();
+    /* clone->IncreaseVersion();
+    this->MarkObjectAsInvalid(); */
     return clone;
 }
 pVMBigInteger VMBigInteger::Clone(PauselessCollectorThread* thread) {
     pVMBigInteger clone = new (_HEAP, thread) VMBigInteger(*this);
-    /*clone->IncreaseVersion();
-    clone->SetGCField(0);
-    clone->SetGCField2(0); */
-    //this->MarkObjectAsInvalid();
+    /* clone->IncreaseVersion();
+    this->MarkObjectAsInvalid(); */
     return clone;
 }
 #else

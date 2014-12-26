@@ -39,9 +39,9 @@ VMObject::VMObject(long numberOfFields) {
     // FIELDS = (pVMObject*)&clazz;
     this->SetNumberOfFields(numberOfFields + VMObjectNumberOfFields);
     gcfield = 0;
-#if GC_TYPE==PAUSELESS
-    gcfield2 = 0;
-#endif
+    /* #if GC_TYPE==PAUSELESS
+     gcfield2 = 0;
+    #endif */
     hash = (size_t) this;
     // Object size was already set by the heap on allocation
 }
@@ -63,9 +63,7 @@ pVMObject VMObject::Clone(Interpreter* thread) {
     
     clone->hash = (size_t) &clone;
     /* clone->IncreaseVersion();
-    clone->SetGCField(0);
-    clone->SetGCField2(0);*/
-    this->MarkObjectAsInvalid();
+    this->MarkObjectAsInvalid(); */
     return clone;
 }
 pVMObject VMObject::Clone(PauselessCollectorThread* thread) {
@@ -75,9 +73,7 @@ pVMObject VMObject::Clone(PauselessCollectorThread* thread) {
     
     clone->hash = (size_t) &clone;
     /* clone->IncreaseVersion();
-    clone->SetGCField(0);
-    clone->SetGCField2(0);*/
-    this->MarkObjectAsInvalid();
+    this->MarkObjectAsInvalid(); */
     return clone;
 }
 #else

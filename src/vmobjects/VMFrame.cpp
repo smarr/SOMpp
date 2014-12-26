@@ -112,10 +112,8 @@ pVMFrame VMFrame::Clone(Interpreter* thread) {
     clone->arguments = (GCAbstractObject**)&(clone->stack_ptr)+1; //field after stack_ptr
     clone->locals = clone->arguments + ReadBarrier(&(clone->method))->GetNumberOfArguments();
     clone->stack_ptr = (GCAbstractObject**)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
-    /*clone->IncreaseVersion();
-    clone->SetGCField(0);
-    clone->SetGCField2(0);*/
-    //this->MarkObjectAsInvalid();
+    /* clone->IncreaseVersion();
+    this->MarkObjectAsInvalid(); */
     return clone;
 }
 pVMFrame VMFrame::Clone(PauselessCollectorThread* thread) {
@@ -128,10 +126,8 @@ pVMFrame VMFrame::Clone(PauselessCollectorThread* thread) {
     clone->arguments = (GCAbstractObject**)&(clone->stack_ptr)+1; //field after stack_ptr
     clone->locals = clone->arguments + ReadBarrierForGCThread(&(clone->method))->GetNumberOfArgumentsGC();
     clone->stack_ptr = (GCAbstractObject**)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
-    /*clone->IncreaseVersion();
-    clone->SetGCField(0);
-    clone->SetGCField2(0);*/
-    //this->MarkObjectAsInvalid();
+    /* clone->IncreaseVersion();
+    this->MarkObjectAsInvalid(); */
     return clone;
 }
 #else
