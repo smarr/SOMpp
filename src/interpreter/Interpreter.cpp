@@ -65,16 +65,25 @@ Interpreter::Interpreter() : BaseThread() {
     
 #if GC_TYPE==PAUSELESS
     pthread_mutex_init(&blockedMutex, NULL);
+    stopped = false;
     blocked = false;
     markRootSet = false;
-    alreadyMarked = false;
     safePointRequested = false;
     gcTrapEnabled = false;
     signalEnableGCTrap = false;
     fullPages = vector<Page*>();
+    nonRelocatablePages = vector<Page*>();
+    nonRelocatablePage = _HEAP->RequestPage();
 #endif
-
 }
+
+//Interpreter::~Interpreter() {
+    /*while (!fullPages.empty()) {
+        _HEAP->RelinquishPage(fullPages.back());
+        fullPages.pop_back();
+    } */
+//}
+
 
 #define PROLOGUE(bc_count) {\
   if (dumpBytecodes > 1) Disassembler::DumpBytecode(_FRAME, _FRAME->GetMethod(), bytecodeIndexGlobal);\
@@ -89,15 +98,16 @@ Interpreter::Interpreter() : BaseThread() {
 #define DISPATCH_GC() {\
     if (markRootSet)\
         MarkRootSet();\
+    if (safePointRequested)\
+        _HEAP->SignalSafepointReached(&safePointRequested);\
     if (signalEnableGCTrap)\
         EnableGCTrap();\
-    SignalSafepointReached();\
-    if (_HEAP->IsPauseTriggered()) {\
-        _FRAME->SetBytecodeIndex(bytecodeIndexGlobal);\
-        _HEAP->Pause();\
+    /* if (_HEAP->IsPauseTriggered()) { */ \
+        /* _FRAME->SetBytecodeIndex(bytecodeIndexGlobal);*/ \
+        /* _HEAP->Pause(); */\
         /* method = _FRAME->GetMethod(); */ \
         /* currentBytecodes = method->GetBytecodes(); */ \
-    }\
+    /* } */ \
     goto *loopTargets[/* currentBytecodes */ _FRAME->GetMethod()->GetBytecodes()[bytecodeIndexGlobal]];\
 }
 #else
@@ -147,98 +157,101 @@ goto *loopTargets[/* currentBytecodes */ _FRAME->GetMethod()->GetBytecodes()[byt
 //
 // THIS IS THE former interpretation loop
 LABEL_BC_HALT:
-  PROLOGUE(1);
-  return; // handle the halt bytecode
-    
+    PROLOGUE(1);
+#if GC_TYPE==PAUSELESS
+    EnableStop();
+#endif
+    return; // handle the halt bytecode
+
 LABEL_BC_DUP: 
-  PROLOGUE(1);
-  doDup();
-  DISPATCH_NOGC();
-    
+    PROLOGUE(1);
+    doDup();
+    DISPATCH_NOGC();
+
 LABEL_BC_PUSH_LOCAL:       
-  PROLOGUE(3);
-  doPushLocal(bytecodeIndexGlobal - 3);
-  DISPATCH_NOGC();
+    PROLOGUE(3);
+    doPushLocal(bytecodeIndexGlobal - 3);
+    DISPATCH_NOGC();
 
 LABEL_BC_PUSH_ARGUMENT:
-  PROLOGUE(3);
-  doPushArgument(bytecodeIndexGlobal - 3);
-  DISPATCH_NOGC();
+    PROLOGUE(3);
+    doPushArgument(bytecodeIndexGlobal - 3);
+    DISPATCH_NOGC();
 
 LABEL_BC_PUSH_FIELD:
-  PROLOGUE(2);
-  doPushField(bytecodeIndexGlobal - 2);
-  DISPATCH_NOGC();
+    PROLOGUE(2);
+    doPushField(bytecodeIndexGlobal - 2);
+    DISPATCH_NOGC();
 
 LABEL_BC_PUSH_BLOCK:
-  PROLOGUE(2);
-  doPushBlock(bytecodeIndexGlobal - 2);
-  DISPATCH_GC();
+    PROLOGUE(2);
+    doPushBlock(bytecodeIndexGlobal - 2);
+    DISPATCH_GC();
 
 LABEL_BC_PUSH_CONSTANT:
-  PROLOGUE(2);
-  doPushConstant(bytecodeIndexGlobal - 2);
-  DISPATCH_NOGC();
-    
+    PROLOGUE(2);
+    doPushConstant(bytecodeIndexGlobal - 2);
+    DISPATCH_NOGC();
+
 LABEL_BC_PUSH_GLOBAL:
-  PROLOGUE(2);
-  doPushGlobal(bytecodeIndexGlobal - 2);
-  DISPATCH_GC();
+    PROLOGUE(2);
+    doPushGlobal(bytecodeIndexGlobal - 2);
+    DISPATCH_GC();
     
 LABEL_BC_POP:
-  PROLOGUE(1);
-  doPop();
-  DISPATCH_NOGC();
+    PROLOGUE(1);
+    doPop();
+    DISPATCH_NOGC();
     
 LABEL_BC_POP_LOCAL:
-  PROLOGUE(3);
-  doPopLocal(bytecodeIndexGlobal - 3);
-  DISPATCH_NOGC();
+    PROLOGUE(3);
+    doPopLocal(bytecodeIndexGlobal - 3);
+    DISPATCH_NOGC();
     
 LABEL_BC_POP_ARGUMENT:
-  PROLOGUE(3);
-  doPopArgument(bytecodeIndexGlobal - 3);
-  DISPATCH_NOGC();
+    PROLOGUE(3);
+    doPopArgument(bytecodeIndexGlobal - 3);
+    DISPATCH_NOGC();
     
 LABEL_BC_POP_FIELD:
-  PROLOGUE(2);
-  doPopField(bytecodeIndexGlobal - 2);
-  DISPATCH_NOGC();
+    PROLOGUE(2);
+    doPopField(bytecodeIndexGlobal - 2);
+    DISPATCH_NOGC();
     
 LABEL_BC_SEND:
-  PROLOGUE(2);
-  doSend(bytecodeIndexGlobal - 2);
-  DISPATCH_GC();
+    PROLOGUE(2);
+    doSend(bytecodeIndexGlobal - 2);
+    DISPATCH_GC();
     
 LABEL_BC_SUPER_SEND:
-  PROLOGUE(2);
-  doSuperSend(bytecodeIndexGlobal - 2);
-  DISPATCH_GC();
+    PROLOGUE(2);
+    doSuperSend(bytecodeIndexGlobal - 2);
+    DISPATCH_GC();
     
 LABEL_BC_RETURN_LOCAL:
-  PROLOGUE(1);
-  doReturnLocal();
-  DISPATCH_NOGC();
+    PROLOGUE(1);
+    doReturnLocal();
+    DISPATCH_NOGC();
     
 LABEL_BC_RETURN_NON_LOCAL:
-  PROLOGUE(1);
-  doReturnNonLocal();
-  DISPATCH_NOGC();
+    PROLOGUE(1);
+    doReturnNonLocal();
+    DISPATCH_NOGC();
     
 LABEL_BC_JUMP_IF_FALSE:
-  PROLOGUE(5);
-  doJumpIfFalse(bytecodeIndexGlobal - 5);
-  DISPATCH_NOGC();
+    PROLOGUE(5);
+    doJumpIfFalse(bytecodeIndexGlobal - 5);
+    DISPATCH_NOGC();
     
 LABEL_BC_JUMP_IF_TRUE:
-  PROLOGUE(5);
-  doJumpIfTrue(bytecodeIndexGlobal - 5);
-  DISPATCH_NOGC();
+    PROLOGUE(5);
+    doJumpIfTrue(bytecodeIndexGlobal - 5);
+    DISPATCH_NOGC();
     
 LABEL_BC_JUMP:
-  PROLOGUE(5);
-  doJump(bytecodeIndexGlobal - 5);
-  DISPATCH_NOGC();
+    PROLOGUE(5);
+    doJump(bytecodeIndexGlobal - 5);
+    DISPATCH_NOGC();
 }
 
 pVMFrame Interpreter::PushNewFrame(pVMMethod method) {
@@ -295,7 +308,7 @@ void Interpreter::popFrameAndPushResult(pVMObject result) {
 }
 
 void Interpreter::send(pVMSymbol signature, pVMClass receiverClass) {
-    sync_out(ostringstream() << "[Send] " << signature->GetChars());
+    //sync_out(ostringstream() << "[Send] " << signature->GetChars());
     
     pVMInvokable invokable = receiverClass->LookupInvokable(signature);
 
@@ -617,42 +630,21 @@ void Interpreter::SetThread(pVMThread thread) {
 }
 
 #if GC_TYPE==PAUSELESS
-void Interpreter::AddGCWork(AbstractVMObject* work) {
-    worklist.AddWorkMutator(work);
-}
-
-void Interpreter::EnableBlocked() {
-    pthread_mutex_lock(&blockedMutex);
-    if (markRootSet)
-        MarkRootSet();
-    if (signalEnableGCTrap)
-        EnableGCTrap();
-    SignalSafepointReached();
-    blocked = true;
-    pthread_mutex_unlock(&blockedMutex);
-}
-
-void Interpreter::DisableBlocked() {
-    blocked = false;
-}
-
+// Request a marking of the interpreters' root set
 void Interpreter::TriggerMarkRootSet() {
     pthread_mutex_lock(&blockedMutex);
     if (blocked)
         _HEAP->SignalInterpreterBlocked(this);
+    else if (stopped)
+        _HEAP->SignalRootSetMarked();
     else
         markRootSet = true;
     pthread_mutex_unlock(&blockedMutex);
 }
 
-void Interpreter::DummyMarkRootSet() {
-    if (!alreadyMarked)
-        _HEAP->SignalRootSetMarked();
-}
-
+// The interpreter is able to mark its root set himself
 void Interpreter::MarkRootSet() {
     markRootSet = false;
-    alreadyMarked = true; //this should be reset after the cycle
     expectedNMT = !expectedNMT;
     
     // this will also destructively change the thread, frame and method pointers so that the NMT bit is flipped
@@ -660,21 +652,21 @@ void Interpreter::MarkRootSet() {
     ReadBarrier(&frame, true);
     // ReadBarrier(&method);
     
-    // signal that root-set has been marked
-    _HEAP->SignalRootSetMarked();
-    
     while (!fullPages.empty()) {
         _HEAP->RelinquishPage(fullPages.back());
         fullPages.pop_back();
     }
     
-    _HEAP->TriggerPause();
-    _HEAP->Pause();
+    // signal that root-set has been marked
+    _HEAP->SignalRootSetMarked();
+    
+    //_HEAP->TriggerPause();
+    //_HEAP->Pause();
 }
 
+// The interpreter is unable to mark its root set himself and thus one of the gc threads does it
 void Interpreter::MarkRootSetByGC() {
     markRootSet = false;
-    alreadyMarked = true; //this should be reset after the cycle
     expectedNMT = !expectedNMT;
     
     // this will also destructively change the thread, frame and method pointers so that the NMT bit is flipped
@@ -682,45 +674,32 @@ void Interpreter::MarkRootSetByGC() {
     ReadBarrierForGCThread(&frame, true);
     // ReadBarrierForGCThread(&method);
     
-    // signal that root-set has been marked
-    _HEAP->SignalRootSetMarked();
-    
     while (!fullPages.empty()) {
         _HEAP->RelinquishPage(fullPages.back());
         fullPages.pop_back();
     }
     
-    _HEAP->TriggerPause();
-    _HEAP->Pause();
+    // signal that root-set has been marked
+    _HEAP->SignalRootSetMarked();
+    
+    //_HEAP->TriggerPause();
+    //_HEAP->Pause();
 }
 
-void Interpreter::ResetAlreadyMarked() {
-    alreadyMarked = false;
-}
-
+// Request that the mutator thread passes a safepoint so that marking can finish
 void Interpreter::RequestSafePoint() {
     pthread_mutex_lock(&blockedMutex);
-    if (blocked)
-        _HEAP->SignalSafepointReached();
+    if (blocked || stopped)
+        _HEAP->SignalSafepointReached(&safePointRequested);
     else
         safePointRequested = true;
     pthread_mutex_unlock(&blockedMutex);
 }
 
-void Interpreter::SignalSafepointReached() {
-    if (safePointRequested) {
-        safePointRequested = false;
-        _HEAP->SignalSafepointReached();
-    }
-}
-
-void Interpreter::DisableGCTrap() {
-    gcTrapEnabled = false;
-}
-
+// Request that the mutator thread enables its GC-trap
 void Interpreter::SignalEnableGCTrap() {
     pthread_mutex_lock(&blockedMutex);
-    if (blocked) {
+    if (blocked || stopped) {
         gcTrapEnabled = true;
         _HEAP->SignalGCTrapEnabled();
     } else
@@ -728,10 +707,52 @@ void Interpreter::SignalEnableGCTrap() {
     pthread_mutex_unlock(&blockedMutex);
 }
 
+// Switch the GC-trap on when in a safepoint and notify the collector of the fact that the trap is switched on
 void Interpreter::EnableGCTrap() {
     signalEnableGCTrap = false;
     gcTrapEnabled = true;
     _HEAP->SignalGCTrapEnabled();
+}
+
+// Switch the GC-trap off again, this does not require a safepoint pass
+void Interpreter::DisableGCTrap() {
+    gcTrapEnabled = false;
+}
+
+// used when interpreter is in the process of going into a blocked state
+void Interpreter::EnableBlocked() {
+    pthread_mutex_lock(&blockedMutex);
+    if (markRootSet)
+        MarkRootSet();
+    if (safePointRequested)
+        _HEAP->SignalSafepointReached(&safePointRequested);
+    if (signalEnableGCTrap)
+        EnableGCTrap();
+    blocked = true;
+    pthread_mutex_unlock(&blockedMutex);
+}
+
+// Used when interpreter gets out of a blocked state
+void Interpreter::DisableBlocked() {
+    blocked = false;
+}
+
+// used when interpreter is in the processes of halting
+void Interpreter::EnableStop() {
+    pthread_mutex_lock(&blockedMutex);
+    if (markRootSet)
+        _HEAP->SignalRootSetMarked();
+    if (safePointRequested)
+        _HEAP->SignalSafepointReached(&safePointRequested);
+    if (signalEnableGCTrap)
+        _HEAP->SignalGCTrapEnabled();
+    stopped = true;
+    pthread_mutex_unlock(&blockedMutex);
+}
+
+// methods used by the read barrier
+void Interpreter::AddGCWork(AbstractVMObject* work) {
+    worklist.AddWorkMutator(work);
 }
 
 bool Interpreter::GCTrapEnabled() {
@@ -742,10 +763,24 @@ bool Interpreter::GetExpectedNMT() {
     return expectedNMT;
 }
 
+// page management
 void Interpreter::AddFullPage(Page* page) {
     fullPages.push_back(page);
 }
 
+Page* Interpreter::GetNonRelocatablePage() {
+    return nonRelocatablePage;
+}
+
+void Interpreter::SetNonRelocatablePage(Page* page) {
+    this->nonRelocatablePage = page;
+}
+
+void Interpreter::AddFullNonRelocatablePage(Page* page) {
+    nonRelocatablePages.push_back(page);
+}
+
+// debug procedures
 void Interpreter::CheckMarking(void (*walk)(AbstractVMObject*)) {
     // pVMMethod testMethodGCSet = Untag(method);
     if (frame) {
@@ -757,6 +792,27 @@ void Interpreter::CheckMarking(void (*walk)(AbstractVMObject*)) {
         walk(Untag(thread));
     }
 }
+
+
+/*
+ 
+ void Interpreter::CancelSafePoint() {
+ safePointRequested = false;
+ }
+ 
+ // Since the interpreter is going to stop anyway it sufices to only signal the gc threads that the root set is marked without actually doing it
+ void Interpreter::DummyMarkRootSet() {
+ _HEAP->SignalRootSetMarked();
+ }
+ 
+ 
+ // Signal the fact that a safepoint is reached
+ void Interpreter::SignalSafepointReached() {
+ _HEAP->SignalSafepointReached();
+ }
+ 
+ */
+
 #else
 void Interpreter::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     method = (pVMMethod) walk(method);
