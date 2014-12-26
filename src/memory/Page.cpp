@@ -23,13 +23,7 @@ Page::Page(void* pageStart, PagedHeap* heap) {
 
 AbstractVMObject* Page::AllocateObject(size_t size) {
     AbstractVMObject* newObject = (AbstractVMObject*) nextFreePosition;
-    if ((intptr_t) newObject > 0x110fe5300 && (intptr_t) newObject < 0x110fe5400 ) {
-        int i = 0;
-    }
     nextFreePosition = (void*)((size_t)nextFreePosition + size);
-    
-    void* test = (void*)pageEnd;
-    
     if ((size_t)nextFreePosition > pageEnd) {
         sync_out(ostringstream() << "Failed to allocate " << size << " Bytes in page.");
         _UNIVERSE->Quit(-1);
