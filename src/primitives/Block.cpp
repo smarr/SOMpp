@@ -167,10 +167,10 @@ void* _Block::ThreadForBlockWithArgument(void* threadPointer) {
     // exit this thread and decrement the number of active threads, this is part of a stop the world thread barrier needed for GC
     _HEAP->DecrementThreadCount();
 #endif
-    //_UNIVERSE->DecrementThreadCount();
     
     _UNIVERSE->RemoveInterpreter();
     
+    //still need to happen at the end of each cycle of the pauseless, we should thus keep track of interpreters that need to be deleted
 #if GC_TYPE!=PAUSELESS
     delete interpreter;
 #endif
