@@ -122,8 +122,8 @@ public:
         PagedHeap* heap, unsigned long additionalBytes = 0) {
             void* mem = (void*) ((MarkSweepHeap*)heap)->AllocateObject(numBytes + PADDED_SIZE(additionalBytes));
 #elif GC_TYPE==PAUSELESS
-        PagedHeap* heap, Interpreter* thread, unsigned long additionalBytes = 0) {
-            void* mem = AbstractVMObject::operator new(numBytes, heap, thread, PADDED_SIZE(additionalBytes));
+        PagedHeap* heap, Interpreter* thread, unsigned long additionalBytes = 0, bool notRelocated = false) {
+            void* mem = AbstractVMObject::operator new(numBytes, heap, thread, PADDED_SIZE(additionalBytes), notRelocated);
 #endif
         size_t objSize = numBytes + PADDED_SIZE(additionalBytes);
         ((VMObject*) mem)->objectSize = objSize;
@@ -133,8 +133,8 @@ public:
 
           
 #if GC_TYPE==PAUSELESS
-    void* operator new(size_t numBytes, PagedHeap* heap, PauselessCollectorThread* thread, unsigned long additionalBytes = 0) {
-        void* mem = AbstractVMObject::operator new(numBytes, heap, thread, PADDED_SIZE(additionalBytes));
+    void* operator new(size_t numBytes, PagedHeap* heap, PauselessCollectorThread* thread, unsigned long additionalBytes = 0, bool notRelocated = false) {
+        void* mem = AbstractVMObject::operator new(numBytes, heap, thread, PADDED_SIZE(additionalBytes), notRelocated);
         size_t objSize = numBytes + PADDED_SIZE(additionalBytes);
         ((VMObject*) mem)->objectSize = objSize;
         assert(mem != INVALID_VM_POINTER);
