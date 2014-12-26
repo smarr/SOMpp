@@ -23,7 +23,7 @@ public:
     static void AddBlockedInterpreter(Interpreter*);
     static void SignalRootSetMarked();
     static void AddNonEmptyWorklist(Worklist*);
-    static void SignalSafepointReached();
+    static void SignalSafepointReached(bool*);
     
     void Collect();
     
