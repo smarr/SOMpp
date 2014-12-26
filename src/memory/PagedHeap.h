@@ -93,7 +93,6 @@ public:
 protected:
     long pageSize;
     GarbageCollector* gc;
-    pthread_mutex_t pageRequestMutex;
     pthread_mutex_t fullPagesMutex;
     pthread_mutex_t availablePagesMutex;
     //void* nextFreePagePosition;

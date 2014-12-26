@@ -52,7 +52,6 @@ void PagedHeap::DestroyHeap() {
 
 PagedHeap::PagedHeap(long objectSpaceSize, long pageSize) {
     this->pageSize = pageSize;
-    pthread_mutex_init(&pageRequestMutex, NULL);
     pthread_mutex_init(&fullPagesMutex, NULL);
     pthread_mutex_init(&availablePagesMutex, NULL);
     allPages = new vector<Page*>();
@@ -85,13 +84,13 @@ size_t PagedHeap::GetMaxObjectSize() {
 }
 
 Page* PagedHeap::RequestPage() {
-    pthread_mutex_lock(&pageRequestMutex);
+    pthread_mutex_lock(&availablePagesMutex);
     if (availablePages->empty())
         _UNIVERSE->ErrorExit("Unable to respond to page request");
     Page* newPage = availablePages->back();
     availablePages->pop_back();
     checkCollectionTreshold();
-    pthread_mutex_unlock(&pageRequestMutex);
+    pthread_mutex_unlock(&availablePagesMutex);
     return newPage;
 }
 
