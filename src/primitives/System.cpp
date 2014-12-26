@@ -101,7 +101,7 @@ void _System::PrintString_(pVMObject /*object*/, pVMFrame frame) {
     pVMString arg = static_cast<pVMString>(frame->Pop());
     std::string str = arg->GetStdString();
     pthread_mutex_lock(&outputMutex);
-    cout << str;
+    cout << "User Output: " << str << "--";
     pthread_mutex_unlock(&outputMutex);
 }
 
