@@ -120,17 +120,29 @@ public:
         return result;
     }
 #elif GC_TYPE==PAUSELESS
-    void* operator new(size_t numBytes, PagedHeap* heap, Interpreter* thread, unsigned long additionalBytes = 0) {
-        Page* page = thread->GetPage();
-        void* result = (void*) (page->AllocateObject(numBytes + additionalBytes));
-        if (page->Full()) {
-            thread->AddFullPage(page);
-            thread->SetPage(heap->RequestPage());
+    //this should probably be cleaned up a bit
+    void* operator new(size_t numBytes, PagedHeap* heap, Interpreter* thread, unsigned long additionalBytes = 0, bool notRelocated = false) {
+        void* result;
+        if (!notRelocated) {
+            Page* page = thread->GetPage();
+            result = (void*) (page->AllocateObject(numBytes + additionalBytes));
+            if (page->Full()) {
+                thread->AddFullPage(page);
+                thread->SetPage(heap->RequestPage());
+            }
+        } else {
+            Page* page = thread->GetNonRelocatablePage();
+            result = (void*) (page->AllocateObject(numBytes + additionalBytes));
+            if (page->Full()) {
+                thread->AddFullNonRelocatablePage(page);
+                thread->SetNonRelocatablePage(heap->RequestPage());
+            }
         }
         assert(result != INVALID_VM_POINTER);
         return result;
     }
-    void* operator new(size_t numBytes, PagedHeap* heap, PauselessCollectorThread* thread, unsigned long additionalBytes = 0) {
+    
+    void* operator new(size_t numBytes, PagedHeap* heap, PauselessCollectorThread* thread, unsigned long additionalBytes = 0, bool notRelocated = false) {
         Page* page = thread->GetPage();
         void* result = (void*) (page->AllocateObject(numBytes + additionalBytes));
         if (page->Full()) {
