@@ -13,7 +13,6 @@ Worklist::~Worklist() {
 }
 
 void Worklist::AddWorkGC(AbstractVMObject* reference) {
-    assert(Universe::IsValidObject(reference));
     pthread_mutex_lock(&lock);
     work.push_back(reference);
     pthread_mutex_unlock(&lock);
