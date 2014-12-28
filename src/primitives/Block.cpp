@@ -107,8 +107,7 @@ pVMThread _Block::CreateNewThread(pVMBlock block) {
 
 void* _Block::ThreadForBlock(void* threadPointer) {
     //create new interpreter which will process the block
-    Interpreter* interpreter = new Interpreter();
-    _UNIVERSE->AddInterpreter(interpreter);
+    Interpreter* interpreter = _UNIVERSE->NewInterpreter();
     pVMThread thread = (pVMThread)threadPointer;
     pVMBlock block = thread->GetBlockToRun();
     interpreter->SetThread(thread);
@@ -142,8 +141,7 @@ void* _Block::ThreadForBlock(void* threadPointer) {
 
 void* _Block::ThreadForBlockWithArgument(void* threadPointer) {
     //create new interpreter which will process the block
-    Interpreter* interpreter = new Interpreter();
-    _UNIVERSE->AddInterpreter(interpreter);
+    Interpreter* interpreter = _UNIVERSE->NewInterpreter();
     pVMThread thread = (pVMThread)threadPointer;
     pVMBlock block = thread->GetBlockToRun();
     interpreter->SetThread(thread);
@@ -180,7 +178,7 @@ void* _Block::ThreadForBlockWithArgument(void* threadPointer) {
 
 //spawning of new thread that will run the block
 void _Block::Spawn(pVMObject object, pVMFrame frame) {
-    ThreadId tid = 0;
+    pthread_t tid = 0;
     pVMBlock block = (pVMBlock)frame->Pop();
     // create the thread object and setting it up
     pVMThread thread = CreateNewThread(block);
@@ -195,7 +193,7 @@ void _Block::Spawn(pVMObject object, pVMFrame frame) {
 }
 
 void _Block::SpawnWithArgument(pVMObject object, pVMFrame frame) {
-    ThreadId tid = 0;
+    pthread_t tid = 0;
     // Get the argument
     pVMObject argument = frame->Pop();
     pVMBlock block = (pVMBlock)frame->Pop();
