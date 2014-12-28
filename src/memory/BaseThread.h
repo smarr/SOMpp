@@ -11,7 +11,12 @@ class Page;
 class BaseThread {
 
 public:
+    
     BaseThread();
+#if GC_TYPE==PAUSELESS
+    BaseThread(bool);
+#endif
+    
     ~BaseThread();
     
     Page* GetPage();

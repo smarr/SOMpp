@@ -4,13 +4,23 @@
     #include "pauseless/PauselessHeap.h"
 #endif
 
+#if GC_TYPE!=PAUSELESS
 BaseThread::BaseThread() {
     page = _HEAP->RequestPage();
-#if GC_TYPE==PAUSELESS
-    worklist = Worklist();
-    expectedNMT = false;
-#endif
 }
+#else
+BaseThread::BaseThread() {
+    page = _HEAP->RequestPage();
+    worklist = Worklist();
+    this->expectedNMT = false;
+}
+
+BaseThread::BaseThread(bool expectedNMT) {
+    page = _HEAP->RequestPage();
+    worklist = Worklist();
+    this->expectedNMT = expectedNMT; //start value should false
+}
+#endif
 
 BaseThread::~BaseThread() {
    _HEAP->RelinquishPage(page);
