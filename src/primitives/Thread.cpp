@@ -15,9 +15,7 @@
 void _Thread::Join(pVMObject object, pVMFrame frame){
     pVMThread thread = (pVMThread)frame->Pop();
     int returnValue;
-    ThreadId threadid = thread->GetEmbeddedThreadId();
-    // This way we signal the gc thread that even if this is waiting to perform a join
-    // the garbage collection is safe to proceed for this thread
+    pthread_t threadid = thread->GetEmbeddedThreadId();
 
 #if GC_TYPE==PAUSELESS
     _UNIVERSE->GetInterpreter()->EnableBlocked();
@@ -40,7 +38,7 @@ void _Thread::Priority_(pVMObject object, pVMFrame frame){
     pVMInteger arg = (pVMInteger)frame->Pop();
     int prio = arg->GetEmbeddedInteger();
     pVMThread thread = (pVMThread)frame->Pop();
-    ThreadId threadId = thread->GetEmbeddedThreadId();
+    pthread_t threadId = thread->GetEmbeddedThreadId();
     
     int policy;
     struct sched_param param;
