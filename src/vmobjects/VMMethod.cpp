@@ -74,9 +74,7 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
 pVMMethod VMMethod::Clone() {
     pVMMethod clone = new (_HEAP, _PAGE, GetObjectSize() - sizeof(VMMethod), true)
     VMMethod(*this);
-    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,
-                                                             sizeof(VMObject)), GetObjectSize() -
-           sizeof(VMObject));
+    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this, sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     clone->indexableFields = (pVMObject*)(&(clone->indexableFields) + 2);
     clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + GetNumberOfIndexableFields());
     return clone;
@@ -84,9 +82,7 @@ pVMMethod VMMethod::Clone() {
 #elif GC_TYPE==PAUSELESS
 pVMMethod VMMethod::Clone(Interpreter* thread) {
     pVMMethod clone = new (_HEAP, thread, GetObjectSize() - sizeof(VMMethod)) VMMethod(*this);
-    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,
-                                                             sizeof(VMObject)), GetObjectSize() -
-           sizeof(VMObject));
+    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this, sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     clone->indexableFields = (GCAbstractObject**)(&(clone->indexableFields) + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
     clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + GetNumberOfIndexableFields());
     /*clone->IncreaseVersion(); */
@@ -94,9 +90,7 @@ pVMMethod VMMethod::Clone(Interpreter* thread) {
 }
 pVMMethod VMMethod::Clone(PauselessCollectorThread* thread) {
     pVMMethod clone = new (_HEAP, thread, GetObjectSize() - sizeof(VMMethod)) VMMethod(*this);
-    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,
-                                                             sizeof(VMObject)), GetObjectSize() -
-           sizeof(VMObject));
+    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this, sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     clone->indexableFields = (GCAbstractObject**)(&(clone->indexableFields) + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
     clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + ReadBarrierForGCThread(&numberOfConstants)->GetEmbeddedInteger());
     /*clone->IncreaseVersion(); */
@@ -104,11 +98,8 @@ pVMMethod VMMethod::Clone(PauselessCollectorThread* thread) {
 }
 #else
 pVMMethod VMMethod::Clone() {
-    pVMMethod clone = new (_HEAP, GetObjectSize() - sizeof(VMMethod))
-    VMMethod(*this);
-    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,
-                                                             sizeof(VMObject)), GetObjectSize() -
-           sizeof(VMObject));
+    pVMMethod clone = new (_HEAP, GetObjectSize() - sizeof(VMMethod)) VMMethod(*this);
+    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this, sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     clone->indexableFields = (pVMObject*)(&(clone->indexableFields) + 2);
     clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + GetNumberOfIndexableFields());
     return clone;
