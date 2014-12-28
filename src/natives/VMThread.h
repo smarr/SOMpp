@@ -12,9 +12,6 @@
 #include "VMSignal.h"
 #include "../vmObjects/ObjectFormats.h"
 
-typedef pthread_t ThreadId;
-typedef pthread_key_t ThreadSafeGlobal;
-
 class VMThread : public VMObject {
     
 public:
@@ -34,13 +31,18 @@ public:
     void        SetName(pVMString value);
     pVMObject   GetArgument();
     void        SetArgument(pVMObject value);
-    ThreadId    GetEmbeddedThreadId();
-    void        SetEmbeddedThreadId(ThreadId value);
+    pthread_t   GetEmbeddedThreadId();
+    void        SetEmbeddedThreadId(pthread_t value);
     
     int GetThreadId();
     void SetThreadId(int);
     
     void        Join(int* exitStatus);
+    
+#if GC_TYPE==PAUSELESS
+    virtual pVMThread Clone(Interpreter*);
+    virtual pVMThread Clone(PauselessCollectorThread*);
+#endif
     
 private:
     
@@ -49,8 +51,7 @@ private:
     GCBlock*  blockToRun;
     GCString* name;
     GCAbstractObject* argument;
-    ThreadId embeddedThreadId;
-    //int threadId;
+    pthread_t embeddedThreadId;
     
     static const int VMThreadNumberOfFields;
     

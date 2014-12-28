@@ -77,25 +77,30 @@ void VMThread::SetArgument(pVMObject value) {
 }
 
 
-ThreadId VMThread::GetEmbeddedThreadId() {
+pthread_t VMThread::GetEmbeddedThreadId() {
 	return embeddedThreadId;
 }
 
 
-void VMThread::SetEmbeddedThreadId(ThreadId value) {
+void VMThread::SetEmbeddedThreadId(pthread_t value) {
     embeddedThreadId = value;
 }
-
-/*
-int VMThread::GetThreadId() {
-    return threadId;
-}
-
-void VMThread::SetThreadId(int value) {
-    threadId = value;
-} */
 
 void VMThread::Join(int* exitStatus) {
     int returnValue;
 	pthread_join(embeddedThreadId, (void**)&returnValue);
+    //pthread_join(embeddedThreadId, (void**)&exitStatus);
 }
+
+#if GC_TYPE==PAUSELESS
+pVMThread VMThread::Clone(Interpreter* thread) {
+    pVMThread clone = new (_HEAP, thread, objectSize - sizeof(VMThread)) VMThread(*this);
+    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
+    return clone;
+}
+pVMThread VMThread::Clone(PauselessCollectorThread* thread) {
+    pVMThread clone = new (_HEAP, thread, objectSize - sizeof(VMThread)) VMThread(*this);
+    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
+    return clone;
+}
+#endif

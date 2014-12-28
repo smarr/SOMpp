@@ -11,8 +11,6 @@
 
 #include "VMMutex.h"
 
-typedef pthread_cond_t SignalId, *pSignalId;
-
 class VMSignal : public VMObject {
     
 public:
@@ -20,15 +18,20 @@ public:
     
     VMSignal();
     
-    pSignalId GetEmbeddedSignalId();
-    pMutexId  GetEmbeddedMutexId();
+    pthread_cond_t* GetEmbeddedSignalId();
+    pthread_mutex_t* GetEmbeddedMutexId();
     void Wait();
     void Signal();
     bool SignalAll();
     
+#if GC_TYPE==PAUSELESS
+    virtual pVMSignal Clone(Interpreter*);
+    virtual pVMSignal Clone(PauselessCollectorThread*);
+#endif
+    
 private:
-    SignalId embeddedSignalId;
-    MutexId embeddedMutexId;
+    pthread_cond_t  embeddedSignalId;
+    pthread_mutex_t embeddedMutexId;
     
     static const int VMSignalNumberOfFields;
     

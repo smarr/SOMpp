@@ -17,7 +17,7 @@ VMMutex::VMMutex() : VMObject(VMMutexNumberOfFields) {
     }
 }
 
-pMutexId VMMutex::GetEmbeddedMutexId() {
+pthread_mutex_t* VMMutex::GetEmbeddedMutexId() {
     return &embeddedMutexId;
 }
 
@@ -41,3 +41,16 @@ bool VMMutex::IsLocked() {
         return false;
     }
 }
+
+#if GC_TYPE==PAUSELESS
+pVMMutex VMMutex::Clone(Interpreter* thread) {
+    pVMMutex clone = new (_HEAP, thread, objectSize - sizeof(VMMutex)) VMMutex(*this);
+    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
+    return clone;
+}
+pVMMutex VMMutex::Clone(PauselessCollectorThread* thread) {
+    pVMMutex clone = new (_HEAP, thread, objectSize - sizeof(VMMutex)) VMMutex(*this);
+    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
+    return clone;
+}
+#endif

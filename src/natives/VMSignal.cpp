@@ -19,12 +19,12 @@ VMSignal::VMSignal() : VMObject(VMSignalNumberOfFields) {
 }
 
 
-pSignalId VMSignal::GetEmbeddedSignalId() {
+pthread_cond_t* VMSignal::GetEmbeddedSignalId() {
     return &embeddedSignalId;
 }
 
 
-pMutexId VMSignal::GetEmbeddedMutexId() {
+pthread_mutex_t* VMSignal::GetEmbeddedMutexId() {
     return &embeddedMutexId;
 }
 
@@ -46,3 +46,16 @@ void VMSignal::Signal() {
 bool VMSignal::SignalAll() {
     return pthread_cond_broadcast(&embeddedSignalId);
 }
+
+#if GC_TYPE==PAUSELESS
+pVMSignal VMSignal::Clone(Interpreter* thread) {
+    pVMSignal clone = new (_HEAP, thread, objectSize - sizeof(VMSignal)) VMSignal(*this);
+    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
+    return clone;
+}
+pVMSignal VMSignal::Clone(PauselessCollectorThread* thread) {
+    pVMSignal clone = new (_HEAP, thread, objectSize - sizeof(VMSignal)) VMSignal(*this);
+    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
+    return clone;
+}
+#endif

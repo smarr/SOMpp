@@ -12,8 +12,6 @@
 #include <pthread.h>
 #include <vmobjects/VMObject.h>
 
-typedef pthread_mutex_t MutexId, *pMutexId;
-
 class VMMutex : public VMObject {
     
 public:
@@ -21,14 +19,19 @@ public:
     
     VMMutex();
     
-    pMutexId GetEmbeddedMutexId();
+    pthread_mutex_t* GetEmbeddedMutexId();
     void Lock();
     void Unlock();
     bool IsLocked();
     
+#if GC_TYPE==PAUSELESS
+    virtual pVMMutex Clone(Interpreter*);
+    virtual pVMMutex Clone(PauselessCollectorThread*);
+#endif
+    
 private:
     
-    MutexId embeddedMutexId;
+    pthread_mutex_t embeddedMutexId;
     
     static const int VMMutexNumberOfFields;
     
