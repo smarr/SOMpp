@@ -55,7 +55,6 @@ public:
     inline long GetBytecodeIndex() const;
     inline void SetBytecodeIndex(long);
     oop_t GetStackElement(long) const;
-    void SetStackElement(long, oop_t);
     oop_t GetLocal(long, long);
     void SetLocal(long, long, oop_t);
     oop_t GetArgument(long, long);

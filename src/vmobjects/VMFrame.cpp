@@ -208,10 +208,6 @@ oop_t VMFrame::GetStackElement(long index) const {
     return stack_ptr[-index];
 }
 
-void VMFrame::SetStackElement(long index, oop_t obj) {
-    stack_ptr[-index] = obj;
-}
-
 oop_t VMFrame::GetLocal(long index, long contextLevel) {
     pVMFrame context = GetContextLevel(contextLevel);
     return context->locals[index];
