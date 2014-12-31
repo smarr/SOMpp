@@ -110,7 +110,7 @@ public:
     }
     
     Interpreter* GetInterpreter();
-    void AddInterpreter(Interpreter* interpreter);
+    Interpreter* NewInterpreter();
     void RemoveInterpreter();
     
 #if GC_TYPE==PAUSELESS
@@ -159,7 +159,6 @@ public:
 
     pVMObject GetGlobal(pVMSymbol);
     void SetGlobal(pVMSymbol name, pVMObject val);
-    bool HasGlobal(pVMSymbol);
     void InitializeGlobals();
     pVMClass GetBlockClass(void) const;
     pVMClass GetBlockClassWithArgs(long);
@@ -184,12 +183,14 @@ public:
     
     static bool IsValidObject(const pVMObject obj);
     
+    void PrintGlobals();
+    
 private:
     
     pthread_mutex_t testMutex;
     
     pthread_mutex_t interpreterMutex;
-    pthread_key_t interpreter;
+    pthread_key_t interpreterKey;
     vector<Interpreter*> interpreters;
 
     pthread_mutexattr_t attrclassLoading;

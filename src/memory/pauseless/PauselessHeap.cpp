@@ -19,7 +19,8 @@ PauselessHeap::PauselessHeap(long objectSpaceSize, long pageSize) : PagedHeap(ob
     pthread_key_create(&pauselessCollectorThread, NULL);
     pthread_mutex_init(&gcTrapEnabledMutex, NULL);
     pthread_cond_init(&gcTrapEnabledCondition, NULL);
-    PauselessCollectorThread::SetNumberOfGCThreads(NUMBER_OF_GC_THREADS);
+    threads = new pthread_t[NUMBER_OF_GC_THREADS];
+    PauselessCollectorThread::InitializeCollector(NUMBER_OF_GC_THREADS);
     
     // FOR DEBUGGING PURPOSES
     this->pauseTriggered = false;
@@ -32,8 +33,8 @@ PauselessHeap::PauselessHeap(long objectSpaceSize, long pageSize) : PagedHeap(ob
 
 void PauselessHeap::Start() {
     for (int i=0; i < NUMBER_OF_GC_THREADS; i++) {
-        pthread_t tid = 0;
-        pthread_create(&tid, NULL, &ThreadForGC, NULL);
+        //pthread_t tid = i;
+        pthread_create(&threads[i], NULL, &ThreadForGC, NULL);
     }
 }
 
@@ -67,8 +68,29 @@ void PauselessHeap::SignalSafepointReached(bool* safePointRequested) {
 void PauselessHeap::SignalGCTrapEnabled() {
     pthread_mutex_lock(&gcTrapEnabledMutex);
     numberOfMutatorsWithEnabledGCTrap++;
-    pthread_cond_signal(&gcTrapEnabledCondition);
+    if (numberOfMutatorsWithEnabledGCTrap == numberOfMutatorsNeedEnableGCTrap) {
+        // is this the most efficient way of doing this?
+        // other options: no if test and alway call signal/ broadcast
+        // instead of using a broadcast, at the end of each:
+        //      while (cond)
+        //          pthread_wait
+        // perform a signal, this way everybody also gets woken up
+        pthread_cond_broadcast(&gcTrapEnabledCondition);
+    }
+    //pthread_cond_signal(&gcTrapEnabledCondition);
     pthread_mutex_unlock(&gcTrapEnabledMutex);
+}
+
+/*pthread_mutex_t* PauselessHeap::GetMarkRootSetMutex() {
+    return PauselessCollectorThread::GetMarkRootSetMutex();
+}
+
+pthread_mutex_t* PauselessHeap::GetBlockPagesMutex() {
+    return PauselessCollectorThread::GetBlockPagesMutex();
+} */
+
+pthread_mutex_t* PauselessHeap::GetNewInterpreterMutex() {
+    return PauselessCollectorThread::GetNewInterpreterMutex();
 }
 
 // FOR DEBUGGING PURPOSES
@@ -83,6 +105,12 @@ void PauselessHeap::Pause() {
     pthread_mutex_unlock(&threadCountMutex);
 }
 
+void PauselessHeap::PauseGC() {
+    pthread_mutex_lock(&threadCountMutex);
+    readyForPauseThreads++;
+    pthread_mutex_unlock(&threadCountMutex);
+}
+
 bool PauselessHeap::IsPauseTriggered(void) {
     return pauseTriggered;
 }
@@ -93,6 +121,14 @@ void PauselessHeap::TriggerPause() {
 
 void PauselessHeap::ResetPause() {
     pauseTriggered = false;
+}
+
+int PauselessHeap::GetCycle() {
+    return PauselessCollectorThread::GetCycle();
+}
+
+int PauselessHeap::GetMarkValue() {
+    return PauselessCollectorThread::GetMarkValue();
 }
 
 #endif

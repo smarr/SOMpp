@@ -17,7 +17,7 @@ public:
     
     PauselessCollectorThread();
     
-    static void SetNumberOfGCThreads(int);
+    static void InitializeCollector(int);
     
     static void MarkObject(VMOBJECT_PTR);
     static void AddBlockedInterpreter(Interpreter*);
@@ -25,15 +25,23 @@ public:
     static void AddNonEmptyWorklist(Worklist*);
     static void SignalSafepointReached(bool*);
     
+    static pthread_mutex_t* GetNewInterpreterMutex();
+    
     void Collect();
     
     virtual void AddGCWork(AbstractVMObject*);
+    
+    static int GetCycle();
+    static int GetMarkValue();
     
 private:
     
     static int numberOfGCThreads;
     
     static int markValue;
+    
+    // variables used so that new mutator threads can be created
+    static pthread_mutex_t newInterpreterMutex;
     
     // variables used during root-set marking phase
     static pthread_mutex_t blockedMutex;
@@ -51,6 +59,7 @@ private:
     // variables used during the rest of the marking phase
     static vector<Worklist*>* nonEmptyWorklists;
     static pthread_mutex_t nonEmptyWorklistsMutex;
+    static pthread_mutexattr_t attrNonEmptyWorklistsMutex;
     static pthread_cond_t  waitingForWorkCondition;
     static pthread_cond_t  waitingForCheckpointCondition;
     static int numberOfGCThreadsDoneMarking;
@@ -66,13 +75,18 @@ private:
     static vector<Page*>* pagesToRelocate;
     static vector<Page*>* pagesToUnblock;
     
-    
-    // FOR DEBUGGING PURPOSES
+    // COLLECTECTING STATISTICS
     static int numberOfCycles;
     
     // FOR DEBUGGING PURPOSES
     static void CheckMarkingOfObject(VMOBJECT_PTR);
     static void CheckMarking();
 };
+
+//static pthread_mutex_t signalRootSetMarkingMutex;
+//static pthread_mutex_t SignalGCTrapMutex;
+
+//static pthread_mutex_t* GetMarkRootSetMutex();
+//static pthread_mutex_t* GetBlockPagesMutex();
 
 #endif

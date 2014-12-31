@@ -28,6 +28,10 @@ public:
     void SignalSafepointReached(bool*);
     void SignalGCTrapEnabled();
     
+    //pthread_mutex_t* GetMarkRootSetMutex();
+    //pthread_mutex_t* GetBlockPagesMutex();
+    pthread_mutex_t* GetNewInterpreterMutex();
+    
     void Start();
     //void Stop();
     
@@ -46,12 +50,18 @@ public:
     
     // FOR DEBUGGING PURPOSES
     void Pause();
+    void PauseGC();
     bool IsPauseTriggered();
     void TriggerPause();
     void ResetPause();
+    int GetCycle();
+    int GetMarkValue();
+    
 
 private:
     
+    //seems a bit illogical to place this here
+    pthread_t* threads;
     pthread_key_t pauselessCollectorThread;
     
     pthread_mutex_t gcTrapEnabledMutex;
@@ -105,98 +115,6 @@ inline typename T::Stored* WriteBarrierForGCThread(T* reference) {
         return (typename T::Stored*) reference;
 }
 
-/*
-template<typename T>
-inline void NMTTrap(T** referenceHolder) {
-    Interpreter* interpreter = _UNIVERSE->GetInterpreter();
-    if (interpreter->GetExpectedNMT() != REFERENCE_NMT_VALUE(*referenceHolder)) {
-        interpreter->AddGCWork((AbstractVMObject*)Untag(*referenceHolder));
-        *referenceHolder = (T*)FLIP_NMT_VALUE(*referenceHolder);
-    }
-}
-
-template<typename T>
-inline void NMTTrapForGCThread(T** referenceHolder) {
-    PauselessCollectorThread* gcThread = _HEAP->GetGCThread();
-    if (gcThread->GetExpectedNMT() != REFERENCE_NMT_VALUE(*referenceHolder)) {
-        gcThread->AddGCWork((AbstractVMObject*)Untag(*referenceHolder));
-        *referenceHolder = (T*)FLIP_NMT_VALUE(*referenceHolder);
-    }
-}
-
-template<typename T>
-inline void GCTrap(T** referenceHolder) {
-    //assert(Universe::IsValidObject((AbstractVMObject*) Untag(*referenceHolder)));
-    
-    size_t pageNumber = ((size_t)Untag(*referenceHolder) - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
-    Page* page = _HEAP->GetAllPages()->at(pageNumber);
-    if (_UNIVERSE->GetInterpreter()->GCTrapEnabled() && page->Blocked()) {
-        pthread_mutex_lock(_HEAP->GetGcTrapEnabledMutex());
-        while (_HEAP->GetNumberOfMutatorsNeedEnableGCTrap() != _HEAP->GetNumberOfMutatorsWithEnabledGCTrap()) {
-            pthread_cond_wait(_HEAP->GetGcTrapEnabledCondition(), _HEAP->GetGcTrapEnabledMutex());
-        }
-        pthread_mutex_unlock(_HEAP->GetGcTrapEnabledMutex());
-        
-        pthread_mutex_lock(_HEAP->GetCompareAndSwapTestMutex());
-        *referenceHolder = (T*)page->LookupNewAddress((AbstractVMObject*)Untag(*referenceHolder), _UNIVERSE->GetInterpreter());
-        pthread_mutex_unlock(_HEAP->GetCompareAndSwapTestMutex());
-    }
-}
-
-template<typename T>
-inline void GCTrapForGCThread(T** referenceHolder) {
-    //assert(Universe::IsValidObject((AbstractVMObject*) Untag(*referenceHolder)));
-    
-    size_t pageNumber = ((size_t)Untag(*referenceHolder) - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
-    Page* page = _HEAP->GetAllPages()->at(pageNumber);
-    if (page->Blocked()) {
-        pthread_mutex_lock(_HEAP->GetCompareAndSwapTestMutex());
-        *referenceHolder = (T*)page->LookupNewAddress((AbstractVMObject*)Untag(*referenceHolder), _HEAP->GetGCThread());
-        pthread_mutex_unlock(_HEAP->GetCompareAndSwapTestMutex());
-    }
-}
-
-template<typename T>
-inline typename T::Loaded* ReadBarrier(T** referenceHolder) {
-    if (*referenceHolder == nullptr)
-        return (typename T::Loaded*)nullptr;
-    //size_t pageNumber = ((size_t)Untag(*referenceHolder) - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
-    //assert(pageNumber < 7680);
-    GCTrap(referenceHolder);
-    NMTTrap(referenceHolder);
-    
-    typename T::Loaded* res = Untag(*referenceHolder);
-    assert(Universe::IsValidObject((AbstractVMObject*) res));
-    return res;
-}
-
-template<typename T>
-inline typename T::Loaded* ReadBarrierForGCThread(T** referenceHolder) {
-    if (*referenceHolder == nullptr)
-        return (typename T::Loaded*)nullptr;
-    //assert(Universe::IsValidObject((AbstractVMObject*) Untag(*referenceHolder)));
-    //size_t pageNumber = ((size_t)Untag(*referenceHolder) - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
-    //assert(pageNumber < 7680);
-    GCTrapForGCThread(referenceHolder);
-    NMTTrapForGCThread(referenceHolder);
-    
-    typename T::Loaded* res = Untag(*referenceHolder);
-    assert(Universe::IsValidObject((AbstractVMObject*) res));
-    return res;
-}
- */
-
-// FOR DEBUGGING PURPOSES
-template<typename T>
-inline bool GetNMTValue(T* reference) {
-    return REFERENCE_NMT_VALUE(reference);
-}
-
-
-
-
-
-
 template<typename T>
 inline typename T::Loaded* ReadBarrier(T** referenceHolder, bool rootSetMarking = false) {
     if (*referenceHolder == nullptr)
@@ -208,7 +126,9 @@ inline typename T::Loaded* ReadBarrier(T** referenceHolder, bool rootSetMarking 
     //gc-trap stuff ------>
     size_t pageNumber = ((size_t)reference - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
     Page* page = _HEAP->GetAllPages()->at(pageNumber);
-    if (interpreter->GCTrapEnabled() && page->Blocked()) {
+    
+    if (interpreter->TriggerGCTrap(page)) {
+    //if (interpreter->GCTrapEnabled() && page->Blocked()) {
         pthread_mutex_lock(_HEAP->GetGcTrapEnabledMutex());
         while (_HEAP->GetNumberOfMutatorsNeedEnableGCTrap() != _HEAP->GetNumberOfMutatorsWithEnabledGCTrap()) {
             pthread_cond_wait(_HEAP->GetGcTrapEnabledCondition(), _HEAP->GetGcTrapEnabledMutex());
@@ -221,17 +141,15 @@ inline typename T::Loaded* ReadBarrier(T** referenceHolder, bool rootSetMarking 
     if (!correctNMT || rootSetMarking)
         interpreter->AddGCWork((AbstractVMObject*)reference);
     if (!correctNMT || trapTriggered) {
-        //*referenceHolder = WriteBarrier(reference);
         if (interpreter->GetExpectedNMT())
             *referenceHolder = (T*) FLIP_NMT_VALUE(reference);
         else
             *referenceHolder = (T*) reference;
     }
+    assert(Universe::IsValidObject((AbstractVMObject*) reference));
     return (typename T::Loaded*) reference;
 }
 
-    
-    
 template<typename T>
 inline typename T::Loaded* ReadBarrierForGCThread(T** referenceHolder, bool rootSetMarking = false) {
     if (*referenceHolder == nullptr)
@@ -251,16 +169,26 @@ inline typename T::Loaded* ReadBarrierForGCThread(T** referenceHolder, bool root
     if (!correctNMT || rootSetMarking)
         gcThread->AddGCWork((AbstractVMObject*)reference);
     if (!correctNMT || trapTriggered) {
-        //*referenceHolder = WriteBarrier(reference);
         if (gcThread->GetExpectedNMT())
             *referenceHolder = (T*) FLIP_NMT_VALUE(reference);
         else
             *referenceHolder = (T*) reference;
     }
+    assert(Universe::IsValidObject((AbstractVMObject*) reference));
     return reference;
 }
 
+// FOR DEBUGGING PURPOSES
+template<typename T>
+inline bool GetNMTValue(T* reference) {
+    return REFERENCE_NMT_VALUE(reference);
+}
 
-
+template<typename T>
+inline void CheckBlocked(T* reference) {
+    size_t pageNumber = ((size_t)reference - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
+    Page* page = _HEAP->allPages->at(pageNumber);
+    assert(!page->Blocked());
+}
 
 #endif

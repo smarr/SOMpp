@@ -55,27 +55,40 @@
 #define _FRAME this->GetFrame()
 #define _SELF this->GetSelf()
 
+#if GC_TYPE!=PAUSELESS
 Interpreter::Interpreter() : BaseThread() {
-    this->thread = NULL;
-    this->frame = NULL;
+    this->thread = nullptr;
+    this->frame = nullptr;
     
     uG = "unknownGlobal:";
     dnu = "doesNotUnderstand:arguments:";
     eB = "escapedBlock:";
+}
+#else
+Interpreter::Interpreter(bool expectedNMT, bool gcTrapEnabled) : BaseThread(expectedNMT) {
+    this->thread = nullptr;
+    this->frame = nullptr;
     
-#if GC_TYPE==PAUSELESS
-    pthread_mutex_init(&blockedMutex, NULL);
+    uG = "unknownGlobal:";
+    dnu = "doesNotUnderstand:arguments:";
+    eB = "escapedBlock:";
+
     stopped = false;
     blocked = false;
     markRootSet = false;
     safePointRequested = false;
-    gcTrapEnabled = false;
     signalEnableGCTrap = false;
+    this->gcTrapEnabled = gcTrapEnabled;
+    nonRelocatablePage = _HEAP->RequestPage();
     fullPages = vector<Page*>();
     nonRelocatablePages = vector<Page*>();
-    nonRelocatablePage = _HEAP->RequestPage();
-#endif
+    pthread_mutex_init(&blockedMutex, nullptr);
+    
+    
+    pthread_mutex_init(&prevent, nullptr);
+    
 }
+#endif
 
 //Interpreter::~Interpreter() {
     /*while (!fullPages.empty()) {
@@ -83,7 +96,6 @@ Interpreter::Interpreter() : BaseThread() {
         fullPages.pop_back();
     } */
 //}
-
 
 #define PROLOGUE(bc_count) {\
   if (dumpBytecodes > 1) Disassembler::DumpBytecode(_FRAME, _FRAME->GetMethod(), bytecodeIndexGlobal);\
@@ -102,12 +114,12 @@ Interpreter::Interpreter() : BaseThread() {
         _HEAP->SignalSafepointReached(&safePointRequested);\
     if (signalEnableGCTrap)\
         EnableGCTrap();\
-    /* if (_HEAP->IsPauseTriggered()) { */ \
-        /* _FRAME->SetBytecodeIndex(bytecodeIndexGlobal);*/ \
-        /* _HEAP->Pause(); */\
+    if (_HEAP->IsPauseTriggered()) { \
+        _FRAME->SetBytecodeIndex(bytecodeIndexGlobal); \
+        _HEAP->Pause(); \
         /* method = _FRAME->GetMethod(); */ \
         /* currentBytecodes = method->GetBytecodes(); */ \
-    /* } */ \
+    } \
     goto *loopTargets[/* currentBytecodes */ _FRAME->GetMethod()->GetBytecodes()[bytecodeIndexGlobal]];\
 }
 #else
@@ -646,6 +658,7 @@ void Interpreter::TriggerMarkRootSet() {
 void Interpreter::MarkRootSet() {
     markRootSet = false;
     expectedNMT = !expectedNMT;
+    worklist.Clear();
     
     // this will also destructively change the thread, frame and method pointers so that the NMT bit is flipped
     ReadBarrier(&thread, true);
@@ -668,6 +681,7 @@ void Interpreter::MarkRootSet() {
 void Interpreter::MarkRootSetByGC() {
     markRootSet = false;
     expectedNMT = !expectedNMT;
+    worklist.Clear();
     
     // this will also destructively change the thread, frame and method pointers so that the NMT bit is flipped
     ReadBarrierForGCThread(&thread, true);
@@ -683,17 +697,20 @@ void Interpreter::MarkRootSetByGC() {
     _HEAP->SignalRootSetMarked();
     
     //_HEAP->TriggerPause();
-    //_HEAP->Pause();
+    //_HEAP->PauseGC();
 }
 
 // Request that the mutator thread passes a safepoint so that marking can finish
 void Interpreter::RequestSafePoint() {
-    pthread_mutex_lock(&blockedMutex);
-    if (blocked || stopped)
-        _HEAP->SignalSafepointReached(&safePointRequested);
-    else
-        safePointRequested = true;
-    pthread_mutex_unlock(&blockedMutex);
+    // if test to prevent deadlocking in case safePointRequesting was still true and the mutator thread is performing an enableBlocked
+    if (!safePointRequested) {
+        pthread_mutex_lock(&blockedMutex);
+        if (blocked || stopped)
+            _HEAP->SignalSafepointReached(&safePointRequested);
+        else
+            safePointRequested = true;
+        pthread_mutex_unlock(&blockedMutex);
+    }
 }
 
 // Request that the mutator thread enables its GC-trap
@@ -716,7 +733,9 @@ void Interpreter::EnableGCTrap() {
 
 // Switch the GC-trap off again, this does not require a safepoint pass
 void Interpreter::DisableGCTrap() {
+    pthread_mutex_lock(&prevent);
     gcTrapEnabled = false;
+    pthread_mutex_unlock(&prevent);
 }
 
 // used when interpreter is in the process of going into a blocked state
@@ -762,6 +781,15 @@ bool Interpreter::GCTrapEnabled() {
 bool Interpreter::GetExpectedNMT() {
     return expectedNMT;
 }
+
+//new --->
+bool Interpreter::TriggerGCTrap(Page* page) {
+    pthread_mutex_lock(&prevent);
+    bool result = gcTrapEnabled && page->Blocked();
+    pthread_mutex_unlock(&prevent);
+    return result;
+}
+// <-----
 
 // page management
 void Interpreter::AddFullPage(Page* page) {

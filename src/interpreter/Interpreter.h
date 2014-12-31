@@ -45,7 +45,12 @@ class Page;
 
 class Interpreter: public BaseThread {
 public:
+    
+#if GC_TYPE!=PAUSELESS
     Interpreter();
+#else
+    Interpreter(bool, bool);
+#endif
     //~Interpreter();
     
     void      Start();
@@ -77,8 +82,9 @@ public:
     Page*        GetNonRelocatablePage();
     void         SetNonRelocatablePage(Page*);
     void         AddFullNonRelocatablePage(Page*);
-    
     void         EnableStop();
+    
+    bool         TriggerGCTrap(Page*);
     
     // for debugging purposes
     void         CheckMarking(void (AbstractVMObject*));
@@ -131,17 +137,21 @@ private:
     
     bool markRootSet;
     bool safePointRequested;
-    
-    
-    bool gcTrapEnabled;
     bool signalEnableGCTrap;
-    bool trapTriggered; //this variable is used to identy mutators having triggered NMT-traps and which not
+    bool gcTrapEnabled;
     
     Page* nonRelocatablePage;
     vector<Page*> fullPages;
     vector<Page*> nonRelocatablePages;
 
     pthread_mutex_t blockedMutex;
+    
+    
+    
+    pthread_mutex_t prevent;
+    
+    // for debugging
+    //int cycle;
 #endif
     
     
