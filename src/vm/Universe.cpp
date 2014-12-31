@@ -579,14 +579,21 @@ pVMClass Universe::GetBlockClassWithArgs(long numberOfArguments) {
 }
 
 oop_t Universe::GetGlobal(pVMSymbol name) {
-    return globals[name];
+    auto it = globals.find(name);
+    if (it == globals.end()) {
+        return nullptr;
+    } else {
+        return it->second;
+    }
 }
 
 bool Universe::HasGlobal(pVMSymbol name) {
-    if (globals[name] != nullptr)
-        return true;
-    else
+    auto it = globals.find(name);
+    if (it == globals.end()) {
         return false;
+    } else {
+        return true;
+    }
 }
 
 void Universe::InitializeSystemClass(pVMClass systemClass,
@@ -874,8 +881,7 @@ void Universe::WalkGlobals(oop_t (*walk)(oop_t)) {
     globals.clear();
     map<pVMSymbol, oop_t>::iterator iter;
     for (iter = globs.begin(); iter != globs.end(); iter++) {
-        if (iter->second == nullptr)
-            continue;
+        assert(iter->second != nullptr);
 
         pVMSymbol key = static_cast<pVMSymbol>(walk(iter->first));
         oop_t val = walk((oop_t)iter->second);
