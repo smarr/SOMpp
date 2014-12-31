@@ -83,17 +83,10 @@ public:
     static void Quit(long);
     static void ErrorExit(const char*);
 
-    //Globals accessor (only for GC, could be considered be
-    //declared as a private friend method for the GC)
-    map<pVMSymbol, oop_t> GetGlobals() {
-        return globals;
-    }
     Interpreter* GetInterpreter() {
         return interpreter;
     }
     
-    //
-
     void Assert(bool) const;
 
     pVMSymbol SymbolFor(const StdString&);
