@@ -22,6 +22,7 @@ public:
     AbstractVMObject* GetWork();
     void MoveWork(Worklist*);
     bool Empty();
+    void Clear();
     
 private:
     pthread_mutex_t lock;

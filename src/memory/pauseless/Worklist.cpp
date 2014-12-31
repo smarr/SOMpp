@@ -22,10 +22,10 @@ void Worklist::AddWorkMutator(AbstractVMObject* reference) {
     pthread_mutex_lock(&lock);
     bool wasEmpty = work.empty();
     work.push_back(reference);
+    pthread_mutex_unlock(&lock);
     if (wasEmpty) {
         PauselessCollectorThread::AddNonEmptyWorklist(this);
     }
-    pthread_mutex_unlock(&lock);
 }
 
 VMOBJECT_PTR Worklist::GetWork() {
@@ -47,6 +47,12 @@ void Worklist::MoveWork(Worklist* moveToWorklist) {
 
 bool Worklist::Empty() {
     return work.empty();
+}
+
+void Worklist::Clear() {
+    pthread_mutex_lock(&lock);
+    work.clear();
+    pthread_mutex_unlock(&lock);
 }
 
 #endif
