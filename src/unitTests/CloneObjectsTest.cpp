@@ -94,11 +94,11 @@ void CloneObjectsTest::testCloneBigInteger() {
 }
 
 void CloneObjectsTest::testCloneArray() {
-    pVMArray orig = GetUniverse()->NewArray(3);
+    VMArray* orig = GetUniverse()->NewArray(3);
     orig->SetIndexableField(0, GetUniverse()->NewString("foobar42"));
     orig->SetIndexableField(1, GetUniverse()->NewString("foobar43"));
     orig->SetIndexableField(2, GetUniverse()->NewString("foobar44"));
-    pVMArray clone = orig->Clone();
+    VMArray* clone = orig->Clone();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);

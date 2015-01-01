@@ -53,8 +53,8 @@ public:
     
     int16_t GetFieldIndex(pVMSymbol field);
     
-    void SetInstanceFieldsOfSuper(pVMArray fields);
-    void SetClassFieldsOfSuper(pVMArray fields);
+    void SetInstanceFieldsOfSuper(VMArray* fields);
+    void SetClassFieldsOfSuper(VMArray* fields);
 
 private:
     pVMSymbol name;

@@ -254,7 +254,7 @@ void Parser::superclass(ClassGenerationContext *cgenc) {
         // change the definition of Class and Object
         vector<StdString> fieldNamesOfClass{ "class", "superClass", "name",
             "instanceFields", "instanceInvokables" };
-        pVMArray fieldNames = GetUniverse()->NewArrayFromStrings(fieldNamesOfClass);
+        VMArray* fieldNames = GetUniverse()->NewArrayFromStrings(fieldNamesOfClass);
         cgenc->SetClassFieldsOfSuper(fieldNames);
     }
 }

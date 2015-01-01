@@ -22,7 +22,7 @@ void WriteBarrierTest::testWriteArray() {
     
     //reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
-    pVMArray arr = GetUniverse()->NewArray(3);
+    VMArray* arr = GetUniverse()->NewArray(3);
     pVMInteger newInt = GetUniverse()->NewInteger(12345);
     pVMString str = GetUniverse()->NewString("asdfghjkl");
     pVMDouble doub = GetUniverse()->NewDouble(9876.654);
@@ -134,11 +134,11 @@ void WriteBarrierTest::testWriteClass() {
     cl->SetName(newName);
     TEST_WB_CALLED("VMClass failed to call writeBarrier on SetName", cl,
             newName);
-    pVMArray newInstFields = cl->GetInstanceFields()->Clone();
+    VMArray* newInstFields = cl->GetInstanceFields()->Clone();
     cl->SetInstanceFields(newInstFields);
     TEST_WB_CALLED("VMClass failed to call writeBarrier on SetInstanceFields", cl,
             newName);
-    pVMArray newInstInvokables = cl->GetInstanceInvokables()->Clone();
+    VMArray* newInstInvokables = cl->GetInstanceInvokables()->Clone();
     cl->SetInstanceInvokables(newInstInvokables);
     TEST_WB_CALLED("VMClass failed to call writeBarrier on SetInstanceInvokables", cl,
             newName);

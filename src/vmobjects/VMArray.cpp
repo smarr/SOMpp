@@ -63,17 +63,17 @@ void VMArray::SetIndexableField(long idx, oop_t value) {
     SetField(GetNumberOfFields() + idx, value);
 }
 
-pVMArray VMArray::CopyAndExtendWith(oop_t item) const {
+VMArray* VMArray::CopyAndExtendWith(oop_t item) const {
     size_t fields = GetNumberOfIndexableFields();
-    pVMArray result = GetUniverse()->NewArray(fields + 1);
+    VMArray* result = GetUniverse()->NewArray(fields + 1);
     CopyIndexableFieldsTo(result);
     result->SetIndexableField(fields, item);
     return result;
 }
 
-pVMArray VMArray::Clone() const {
+VMArray* VMArray::Clone() const {
     long addSpace = objectSize - sizeof(VMArray);
-    pVMArray clone = new (GetHeap<HEAP_CLS>(), addSpace ALLOC_MATURE) VMArray(*this);
+    VMArray* clone = new (GetHeap<HEAP_CLS>(), addSpace ALLOC_MATURE) VMArray(*this);
     void* destination  = SHIFTED_PTR(clone, sizeof(VMArray));
     const void* source = SHIFTED_PTR(this, sizeof(VMArray));
     size_t noBytes = GetObjectSize() - sizeof(VMArray);
@@ -89,7 +89,7 @@ void VMArray::MarkObjectAsInvalid() {
     }
 }
 
-void VMArray::CopyIndexableFieldsTo(pVMArray to) const {
+void VMArray::CopyIndexableFieldsTo(VMArray* to) const {
     long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {
         to->SetIndexableField(i, GetIndexableField(i));

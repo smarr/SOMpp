@@ -48,7 +48,7 @@ void ClassGenerationContext::AddInstanceField(pVMSymbol field) {
     instanceFields.Add(field);
 }
 
-void ClassGenerationContext::SetInstanceFieldsOfSuper(pVMArray fields) {
+void ClassGenerationContext::SetInstanceFieldsOfSuper(VMArray* fields) {
     long num = fields->GetNumberOfIndexableFields();
     for (long i = 0; i < num; i ++) {
         pVMSymbol fieldName = (pVMSymbol)fields->GetIndexableField(i);
@@ -56,7 +56,7 @@ void ClassGenerationContext::SetInstanceFieldsOfSuper(pVMArray fields) {
     }
 }
 
-void ClassGenerationContext::SetClassFieldsOfSuper(pVMArray fields) {
+void ClassGenerationContext::SetClassFieldsOfSuper(VMArray* fields) {
     long num = fields->GetNumberOfIndexableFields();
     for (long i = 0; i < num; i ++) {
         pVMSymbol fieldName = (pVMSymbol)fields->GetIndexableField(i);

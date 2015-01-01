@@ -51,10 +51,10 @@ public:
     inline bool         HasSuperClass() const;
     inline pVMSymbol    GetName() const;
     inline void         SetName(pVMSymbol);
-    inline pVMArray     GetInstanceFields() const;
-    inline void         SetInstanceFields(pVMArray);
-    inline pVMArray     GetInstanceInvokables() const;
-           void         SetInstanceInvokables(pVMArray);
+    inline VMArray*     GetInstanceFields() const;
+    inline void         SetInstanceFields(VMArray*);
+    inline VMArray*     GetInstanceInvokables() const;
+           void         SetInstanceInvokables(VMArray*);
            long         GetNumberOfInstanceInvokables() const;
            pVMInvokable GetInstanceInvokable(long) const;
            void         SetInstanceInvokable(long, pVMObject);
@@ -85,8 +85,8 @@ private:
 
     pVMClass superClass;
     pVMSymbol name;
-    pVMArray instanceFields;
-    pVMArray instanceInvokables;
+    VMArray* instanceFields;
+    VMArray* instanceInvokables;
 
     static const long VMClassNumberOfFields;
 };
@@ -114,15 +114,15 @@ bool VMClass::HasSuperClass() const {
     return superClass != nilObject;
 }
 
-pVMArray VMClass::GetInstanceFields() const {
+VMArray* VMClass::GetInstanceFields() const {
     return instanceFields;
 }
 
-void VMClass::SetInstanceFields(pVMArray instFields) {
+void VMClass::SetInstanceFields(VMArray* instFields) {
     instanceFields = instFields;
     write_barrier(this, instFields);
 }
 
-pVMArray VMClass::GetInstanceInvokables() const {
+VMArray* VMClass::GetInstanceInvokables() const {
     return instanceInvokables;
 }

@@ -44,7 +44,7 @@ _Array::_Array() : PrimitiveContainer() {
 
 void _Array::At_(pVMObject /*object*/, pVMFrame frame) {
     oop_t idx = frame->Pop();
-    pVMArray self = static_cast<pVMArray>(frame->Pop());
+    VMArray* self = static_cast<VMArray*>(frame->Pop());
     oop_t elem = self->GetIndexableField(INT_VAL(idx) - 1);
     frame->Push(elem);
 }
@@ -52,13 +52,13 @@ void _Array::At_(pVMObject /*object*/, pVMFrame frame) {
 void _Array::At_Put_(pVMObject /*object*/, pVMFrame frame) {
     oop_t value = frame->Pop();
     oop_t index = frame->Pop();
-    pVMArray self = static_cast<pVMArray>(frame->GetStackElement(0));
+    VMArray* self = static_cast<VMArray*>(frame->GetStackElement(0));
     long i = INT_VAL(index);
     self->SetIndexableField(i - 1, value);
 }
 
 void _Array::Length(pVMObject /*object*/, pVMFrame frame) {
-    pVMArray self = static_cast<pVMArray>(frame->Pop());
+    VMArray* self = static_cast<VMArray*>(frame->Pop());
     pVMInteger new_int = NEW_INT(self->GetNumberOfIndexableFields());
     frame->Push(new_int);
 }

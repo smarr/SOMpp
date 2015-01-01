@@ -268,7 +268,7 @@ void Interpreter::send(pVMSymbol signature, pVMClass receiverClass) {
 
         oop_t receiver = GetFrame()->GetStackElement(numberOfArgs-1);
 
-        pVMArray argumentsArray = GetUniverse()->NewArray(numberOfArgs);
+        VMArray* argumentsArray = GetUniverse()->NewArray(numberOfArgs);
 
         for (long i = numberOfArgs - 1; i >= 0; --i) {
             oop_t o = GetFrame()->Pop();
@@ -445,7 +445,7 @@ void Interpreter::doSuperSend(long bytecodeIndex) {
     else {
         long numOfArgs = Signature::GetNumberOfArguments(signature);
         oop_t receiver = GetFrame()->GetStackElement(numOfArgs - 1);
-        pVMArray argumentsArray = GetUniverse()->NewArray(numOfArgs);
+        VMArray* argumentsArray = GetUniverse()->NewArray(numOfArgs);
 
         for (long i = numOfArgs - 1; i >= 0; --i) {
             oop_t o = GetFrame()->Pop();

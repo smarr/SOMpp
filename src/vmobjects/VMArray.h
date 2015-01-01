@@ -36,11 +36,11 @@ public:
     virtual void WalkObjects(oop_t (oop_t));
 
     inline  long GetNumberOfIndexableFields() const;
-    pVMArray CopyAndExtendWith(oop_t) const;
+    VMArray* CopyAndExtendWith(oop_t) const;
     oop_t GetIndexableField(long idx) const;
     void SetIndexableField(long idx, oop_t value);
-    void CopyIndexableFieldsTo(pVMArray) const;
-    virtual pVMArray Clone() const;
+    void CopyIndexableFieldsTo(VMArray*) const;
+    virtual VMArray* Clone() const;
 
 private:
     virtual void MarkObjectAsInvalid();

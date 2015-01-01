@@ -107,7 +107,7 @@ void _Object::PerformInSuperclass(pVMObject object, pVMFrame frame) {
 }
 
 void _Object::PerformWithArguments(pVMObject object, pVMFrame frame) {
-    pVMArray args = (pVMArray) frame->Pop();
+    VMArray* args = (VMArray*) frame->Pop();
     pVMSymbol selector = (pVMSymbol)frame->Pop();
     oop_t self = frame->GetStackElement(0);
 
@@ -125,7 +125,7 @@ void _Object::PerformWithArguments(pVMObject object, pVMFrame frame) {
 
 void _Object::PerformWithArgumentsInSuperclass(pVMObject object, pVMFrame frame) {
     pVMClass clazz = (pVMClass) frame->Pop();
-    pVMArray args = (pVMArray) frame->Pop();
+    VMArray* args = (VMArray*) frame->Pop();
     pVMSymbol selector = (pVMSymbol)frame->Pop();
 
     size_t num_args = args->GetNumberOfIndexableFields();

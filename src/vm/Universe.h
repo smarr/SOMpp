@@ -93,10 +93,10 @@ public:
     pVMSymbol SymbolForChars(const char*);
 
     //VMObject instanciation methods. These should probably be refactored to a new class
-    pVMArray NewArray(long) const;
-    pVMArray NewArrayList(ExtendedList<oop_t>& list) const;
-    pVMArray NewArrayList(ExtendedList<pVMSymbol>& list) const;
-    pVMArray NewArrayFromStrings(const vector<StdString>&) const;
+    VMArray* NewArray(long) const;
+    VMArray* NewArrayList(ExtendedList<oop_t>& list) const;
+    VMArray* NewArrayList(ExtendedList<pVMSymbol>& list) const;
+    VMArray* NewArrayFromStrings(const vector<StdString>&) const;
     pVMBlock NewBlock(pVMMethod, pVMFrame, long);
     pVMClass NewClass(pVMClass) const;
     pVMFrame NewFrame(pVMFrame, pVMMethod) const;

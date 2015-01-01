@@ -204,7 +204,7 @@ void WalkObjectsTest::testWalkArray() {
     walkedObjects.clear();
     pVMString str1 = GetUniverse()->NewString("str1");
     pVMInteger int1 = GetUniverse()->NewInteger(42);
-    pVMArray a = GetUniverse()->NewArray(2);
+    VMArray* a = GetUniverse()->NewArray(2);
     a->SetIndexableField(0, str1);
     a->SetIndexableField(1, int1);
     a->WalkObjects(collectMembers);

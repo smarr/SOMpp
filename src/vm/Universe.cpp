@@ -341,7 +341,7 @@ void Universe::initialize(long _argc, char** _argv) {
     if (!(trace > 0))
         dumpBytecodes = 1;
 
-    pVMArray argumentsArray = NewArrayFromStrings(argv);
+    VMArray* argumentsArray = NewArrayFromStrings(argv);
 
     pVMFrame bootstrapFrame = interpreter->PushNewFrame(bootstrapMethod);
     bootstrapFrame->Push(systemObject);
@@ -439,7 +439,7 @@ Universe::~Universe() {
     }
 
     static void obtain_vtables_of_known_classes(pVMSymbol className) {
-        pVMArray arr  = new (GetHeap<HEAP_CLS>()) VMArray(0, 0);
+        VMArray* arr  = new (GetHeap<HEAP_CLS>()) VMArray(0, 0);
         vt_array      = *(void**) arr;
         
         pVMBigInteger bi = new (GetHeap<HEAP_CLS>()) VMBigInteger(0);
@@ -690,7 +690,7 @@ void Universe::LoadSystemClass( pVMClass systemClass) {
     result->LoadPrimitives(classPath);
 }
 
-pVMArray Universe::NewArray(long size) const {
+VMArray* Universe::NewArray(long size) const {
     long additionalBytes = size * sizeof(pVMObject);
     
     bool outsideNursery;
@@ -701,7 +701,7 @@ pVMArray Universe::NewArray(long size) const {
     outsideNursery = additionalBytes + sizeof(VMArray) > GetHeap<HEAP_CLS>()->GetMaxNurseryObjectSize();
 #endif
 
-    pVMArray result = new (GetHeap<HEAP_CLS>(), additionalBytes ALLOC_OUTSIDE_NURSERY(outsideNursery)) VMArray(size);
+    VMArray* result = new (GetHeap<HEAP_CLS>(), additionalBytes ALLOC_OUTSIDE_NURSERY(outsideNursery)) VMArray(size);
     if ((GC_TYPE == GENERATIONAL) && outsideNursery)
         result->SetGCField(MASK_OBJECT_IS_OLD);
 
@@ -711,8 +711,8 @@ pVMArray Universe::NewArray(long size) const {
     return result;
 }
 
-pVMArray Universe::NewArrayFromStrings(const vector<StdString>& argv) const {
-    pVMArray result = NewArray(argv.size());
+VMArray* Universe::NewArrayFromStrings(const vector<StdString>& argv) const {
+    VMArray* result = NewArray(argv.size());
     long j = 0;
     for (vector<StdString>::const_iterator i = argv.begin();
             i != argv.end(); ++i) {
@@ -723,14 +723,14 @@ pVMArray Universe::NewArrayFromStrings(const vector<StdString>& argv) const {
     return result;
 }
 
-pVMArray Universe::NewArrayList(ExtendedList<pVMSymbol>& list) const {
+VMArray* Universe::NewArrayList(ExtendedList<pVMSymbol>& list) const {
     ExtendedList<oop_t>& objList = (ExtendedList<oop_t>&) list;
     return NewArrayList(objList);
 }
 
-pVMArray Universe::NewArrayList(ExtendedList<oop_t>& list) const {
+VMArray* Universe::NewArrayList(ExtendedList<oop_t>& list) const {
     long size = list.Size();
-    pVMArray result = NewArray(size);
+    VMArray* result = NewArray(size);
 
     if (result) {
         for (long i = 0; i < size; ++i) {

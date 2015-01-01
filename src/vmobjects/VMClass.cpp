@@ -83,8 +83,8 @@ void VMClass::WalkObjects(oop_t (*walk)(oop_t)) {
     if (superClass)
         superClass = static_cast<pVMClass>(walk(superClass));
     name = static_cast<pVMSymbol>(walk(name));
-    instanceFields = static_cast<pVMArray>(walk(instanceFields));
-    instanceInvokables = static_cast<pVMArray>(walk(instanceInvokables));
+    instanceFields = static_cast<VMArray*>(walk(instanceFields));
+    instanceInvokables = static_cast<VMArray*>(walk(instanceInvokables));
 
     oop_t* fields = FIELDS;
 
@@ -95,8 +95,8 @@ void VMClass::WalkObjects(oop_t (*walk)(oop_t)) {
 void VMClass::MarkObjectAsInvalid() {
     superClass         = (pVMClass)  INVALID_POINTER;
     name               = (pVMSymbol) INVALID_POINTER;
-    instanceFields     = (pVMArray)  INVALID_POINTER;
-    instanceInvokables = (pVMArray)  INVALID_POINTER;
+    instanceFields     = (VMArray*)  INVALID_POINTER;
+    instanceInvokables = (VMArray*)  INVALID_POINTER;
 }
 
 bool VMClass::AddInstanceInvokable(pVMObject ptr) {
@@ -142,7 +142,7 @@ pVMSymbol VMClass::GetInstanceFieldName(long index) const {
     return superClass->GetInstanceFieldName(index);
 }
 
-void VMClass::SetInstanceInvokables(pVMArray invokables) {
+void VMClass::SetInstanceInvokables(VMArray* invokables) {
     instanceInvokables = invokables;
     write_barrier(this, invokables);
 
