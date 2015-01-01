@@ -13,7 +13,7 @@ static oop_t copy_if_necessary(oop_t oop) {
     if (IS_TAGGED(oop))
         return oop;
     
-    pVMAbstract obj = AS_OBJ(oop);
+    AbstractVMObject* obj = AS_OBJ(oop);
     assert(Universe::IsValidObject(obj));
 
 
@@ -68,10 +68,10 @@ void CopyingCollector::Collect() {
     }
 
     //now copy all objects that are referenced by the objects we have moved so far
-    pVMAbstract curObject = (pVMAbstract)(heap->currentBuffer);
+    AbstractVMObject* curObject = (AbstractVMObject*)(heap->currentBuffer);
     while (curObject < heap->nextFreePosition) {
         curObject->WalkObjects(copy_if_necessary);
-        curObject = (pVMAbstract)((size_t)curObject + curObject->GetObjectSize());
+        curObject = (AbstractVMObject*)((size_t)curObject + curObject->GetObjectSize());
     }
     
     //increase memory if scheduled in collection before

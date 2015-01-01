@@ -48,14 +48,14 @@
   #define INT_VAL(X) (IS_TAGGED(X) ? ((long)(X)>>1) : (((VMInteger*)(X))->GetEmbeddedInteger()))
   #define NEW_INT(X) (TAG_INTEGER((X)))
   #define IS_TAGGED(X) ((long)X&1)
-  #define CLASS_OF(X) (IS_TAGGED(X)?integerClass:(pVMAbstract(X))->GetClass())
-  #define AS_OBJ(X) (IS_TAGGED(X)?GlobalBox::IntegerBox():pVMAbstract(X))
+  #define CLASS_OF(X) (IS_TAGGED(X)?integerClass:((AbstractVMObject*)(X))->GetClass())
+  #define AS_OBJ(X) (IS_TAGGED(X)?GlobalBox::IntegerBox():((AbstractVMObject*)(X)))
 #else
   #define INT_VAL(X) (static_cast<VMInteger*>(X)->GetEmbeddedInteger())
   #define NEW_INT(X) (GetUniverse()->NewInteger(X))
   #define IS_TAGGED(X) false
   #define CLASS_OF(X) (AS_OBJ(X)->GetClass())
-  #define AS_OBJ(X) pVMAbstract(X)
+  #define AS_OBJ(X) ((AbstractVMObject*)(X))
 #endif
 
 
@@ -75,10 +75,6 @@ class VMObject;
 class VMPrimitive;
 class VMString;
 class VMSymbol;
-
-typedef const VMObject*       pcVMObject;
-
-typedef AbstractVMObject*      pVMAbstract;
 
 // oop_t: Ordinary Object Pointer type
 // an oop_t can refer to tagged integers as well as normal AbstractVMObjects

@@ -186,12 +186,12 @@ void VMFrame::PrintStack() const {
             cout << "NIL_OBJECT" << endl;
         else if (IS_TAGGED(vmo))
             cout << "index: " << i << " object: VMInteger" << endl;
-        else if (pVMAbstract(vmo)->GetClass() == nullptr)
+        else if (((AbstractVMObject*)(vmo))->GetClass() == nullptr)
             cout << "VMObject with Class == nullptr" << endl;
-        else if (pVMAbstract(vmo)->GetClass() == nilObject)
+        else if (((AbstractVMObject*)(vmo))->GetClass() == nilObject)
             cout << "VMObject with Class == NIL_OBJECT" << endl;
         else
-            cout << "index: " << i << " object:" << pVMAbstract(vmo)->GetClass()->GetName()->GetChars() << endl;
+            cout << "index: " << i << " object:" << ((AbstractVMObject*)(vmo))->GetClass()->GetName()->GetChars() << endl;
         i++;
     }
 }

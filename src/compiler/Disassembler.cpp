@@ -350,7 +350,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
         }
         case BC_PUSH_BLOCK: {
             DebugPrint("block: (index: %d) ", BC_1);
-            VMMethod* meth = dynamic_cast<VMMethod*>((pVMAbstract)method->GetConstant(bc_idx));
+            VMMethod* meth = dynamic_cast<VMMethod*>((AbstractVMObject*)method->GetConstant(bc_idx));
             DumpMethod(meth, "$");
             break;
         }

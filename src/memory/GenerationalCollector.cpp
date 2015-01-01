@@ -26,7 +26,7 @@ static oop_t mark_object(oop_t oop) {
     if (IS_TAGGED(oop))
         return oop;
     
-    pVMAbstract obj = AS_OBJ(oop);
+    AbstractVMObject* obj = AS_OBJ(oop);
     assert(Universe::IsValidObject(obj));
     
 
@@ -44,7 +44,7 @@ static oop_t copy_if_necessary(oop_t oop) {
     if (IS_TAGGED(oop))
         return oop;
     
-    pVMAbstract obj = AS_OBJ(oop);
+    AbstractVMObject* obj = AS_OBJ(oop);
     assert(Universe::IsValidObject(obj));
 
 
@@ -60,7 +60,7 @@ static oop_t copy_if_necessary(oop_t oop) {
         return (oop_t) gcField;
     
     // we have to clone ourselves
-    pVMAbstract newObj = obj->Clone();
+    AbstractVMObject* newObj = obj->Clone();
 
     if (DEBUG)
         obj->MarkObjectAsInvalid();
@@ -95,7 +95,7 @@ void GenerationalCollector::MinorCollection() {
         // content of oldObjsWithRefToYoungObjs is not altered while iteration,
         // because copy_if_necessary returns old objs only -> ignored by
         // write_barrier
-        pVMAbstract obj = (pVMAbstract)(*objIter);
+        AbstractVMObject* obj = (AbstractVMObject*)(*objIter);
         obj->SetGCField(MASK_OBJECT_IS_OLD);
         obj->WalkObjects(&copy_if_necessary);
     }
@@ -114,12 +114,12 @@ void GenerationalCollector::MajorCollection() {
     }
 
     //now that all objects are marked we can safely delete all allocated objects that are not marked
-    vector<pVMAbstract>* survivors = new vector<pVMAbstract>();
-    for (vector<pVMAbstract>::iterator objIter =
+    vector<AbstractVMObject*>* survivors = new vector<AbstractVMObject*>();
+    for (vector<AbstractVMObject*>::iterator objIter =
             heap->allocatedObjects->begin(); objIter !=
             heap->allocatedObjects->end(); objIter++) {
         
-        pVMAbstract obj = *objIter;
+        AbstractVMObject* obj = *objIter;
         assert(Universe::IsValidObject(obj));
         
         if (obj->GetGCField() & MASK_OBJECT_IS_MARKED) {

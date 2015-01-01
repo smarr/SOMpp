@@ -18,10 +18,10 @@ void MarkSweepCollector::Collect() {
     markReachableObjects();
 
     //in this survivors stack we will remember all objects that survived
-    auto survivors = new vector<pVMAbstract>();
+    auto survivors = new vector<AbstractVMObject*>();
     size_t survivorsSize = 0;
 
-    vector<pVMAbstract>::iterator iter;
+    vector<AbstractVMObject*>::iterator iter;
     for (iter = heap->allocatedObjects->begin(); iter !=
             heap->allocatedObjects->end(); iter++) {
         if ((*iter)->GetGCField() == GC_MARKED) {
@@ -48,7 +48,7 @@ static oop_t mark_object(oop_t oop) {
     if (IS_TAGGED(oop))
         return oop;
     
-    pVMAbstract obj = AS_OBJ(oop);
+    AbstractVMObject* obj = AS_OBJ(oop);
 
     if (obj->GetGCField())
         return obj;
