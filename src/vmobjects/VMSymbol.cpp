@@ -31,7 +31,7 @@
 #include "VMInteger.h"
 #include "Signature.h"
 
-extern pVMClass symbolClass;
+extern VMClass* symbolClass;
 
 VMSymbol::VMSymbol(const char* str) :
   numberOfArgumentsOfSignature(Signature::DetermineNumberOfArguments(str)) {
@@ -62,7 +62,7 @@ pVMSymbol VMSymbol::Clone() const {
     return result;
 }
 
-pVMClass VMSymbol::GetClass() const {
+VMClass* VMSymbol::GetClass() const {
     return symbolClass;
 }
 
@@ -132,7 +132,7 @@ StdString VMSymbol::GetPlainString() const {
 
 void VMSymbol::WalkObjects(oop_t (*walk)(oop_t)) {
     for (long i = 0; i < nextCachePos; i++) {
-        cachedClass_invokable[i] = (pVMClass) walk((oop_t) cachedClass_invokable[i]);
+        cachedClass_invokable[i] = (VMClass*) walk((oop_t) cachedClass_invokable[i]);
         cachedInvokable[i] = (pVMInvokable) walk((oop_t) cachedInvokable[i]);
     }
 }

@@ -36,8 +36,8 @@ class ClassGenerationContext {
 public:
     ClassGenerationContext();
     ~ClassGenerationContext();
-    pVMClass Assemble();
-    void AssembleSystemClass(pVMClass systemClass);
+    VMClass* Assemble();
+    void AssembleSystemClass(VMClass* systemClass);
 
     bool HasField(const StdString&);
     void AddInstanceField(pVMSymbol);

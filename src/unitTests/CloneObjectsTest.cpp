@@ -208,12 +208,12 @@ void CloneObjectsTest::testCloneMethod() {
 }
 
 void CloneObjectsTest::testCloneClass() {
-    pVMClass orig = GetUniverse()->NewClass(integerClass);
+    VMClass* orig = GetUniverse()->NewClass(integerClass);
     orig->SetName(GetUniverse()->NewSymbol("MyClass"));
     orig->SetSuperClass(doubleClass);
     orig->SetInstanceFields(GetUniverse()->NewArray(2));
     orig->SetInstanceInvokables(GetUniverse()->NewArray(4));
-    pVMClass clone = orig->Clone();
+    VMClass* clone = orig->Clone();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);

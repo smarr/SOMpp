@@ -69,7 +69,7 @@ void _System::Global_put_(pVMObject /*object*/, pVMFrame frame) {
 void _System::Load_(pVMObject /*object*/, pVMFrame frame) {
     pVMSymbol arg = static_cast<pVMSymbol>(frame->Pop());
     frame->Pop();
-    pVMClass result = GetUniverse()->LoadClass(arg);
+    VMClass* result = GetUniverse()->LoadClass(arg);
     if (result)
         frame->Push(result);
     else

@@ -245,7 +245,7 @@ void Interpreter::popFrameAndPushResult(oop_t result) {
     GetFrame()->Push(result);
 }
 
-void Interpreter::send(pVMSymbol signature, pVMClass receiverClass) {
+void Interpreter::send(pVMSymbol signature, VMClass* receiverClass) {
     pVMInvokable invokable = receiverClass->LookupInvokable(signature);
 
     if (invokable != nullptr) {
@@ -418,9 +418,9 @@ void Interpreter::doSend(long bytecodeIndex) {
 
     oop_t receiver = GetFrame()->GetStackElement(numOfArgs-1);
     assert(Universe::IsValidObject(receiver));
-    assert(dynamic_cast<pVMClass>(CLASS_OF(receiver)) != nullptr); // make sure it is really a class
+    assert(dynamic_cast<VMClass*>(CLASS_OF(receiver)) != nullptr); // make sure it is really a class
     
-    pVMClass receiverClass = CLASS_OF(receiver);
+    VMClass* receiverClass = CLASS_OF(receiver);
     
     assert(Universe::IsValidObject(receiverClass));
 
@@ -436,8 +436,8 @@ void Interpreter::doSuperSend(long bytecodeIndex) {
 
     pVMFrame ctxt = GetFrame()->GetOuterContext();
     pVMMethod realMethod = ctxt->GetMethod();
-    pVMClass holder = realMethod->GetHolder();
-    pVMClass super = holder->GetSuperClass();
+    VMClass* holder = realMethod->GetHolder();
+    VMClass* super = holder->GetSuperClass();
     pVMInvokable invokable = static_cast<pVMInvokable>(super->LookupInvokable(signature));
 
     if (invokable != nullptr)

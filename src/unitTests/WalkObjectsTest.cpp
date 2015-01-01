@@ -121,7 +121,7 @@ void WalkObjectsTest::testWalkSymbol() {
 
 void WalkObjectsTest::testWalkClass() {
     walkedObjects.clear();
-    pVMClass meta = GetUniverse()->NewMetaclassClass();
+    VMClass* meta = GetUniverse()->NewMetaclassClass();
     meta->superClass = stringClass;
     meta->WalkObjects(collectMembers);
 

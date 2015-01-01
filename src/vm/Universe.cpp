@@ -70,24 +70,24 @@ pVMObject nilObject;
 pVMObject trueObject;
 pVMObject falseObject;
 
-pVMClass objectClass;
-pVMClass classClass;
-pVMClass metaClassClass;
+VMClass* objectClass;
+VMClass* classClass;
+VMClass* metaClassClass;
 
-pVMClass nilClass;
-pVMClass integerClass;
-pVMClass bigIntegerClass;
-pVMClass arrayClass;
-pVMClass methodClass;
-pVMClass symbolClass;
-pVMClass primitiveClass;
-pVMClass stringClass;
-pVMClass systemClass;
-pVMClass blockClass;
-pVMClass doubleClass;
+VMClass* nilClass;
+VMClass* integerClass;
+VMClass* bigIntegerClass;
+VMClass* arrayClass;
+VMClass* methodClass;
+VMClass* symbolClass;
+VMClass* primitiveClass;
+VMClass* stringClass;
+VMClass* systemClass;
+VMClass* blockClass;
+VMClass* doubleClass;
 
-pVMClass trueClass;
-pVMClass falseClass;
+VMClass* trueClass;
+VMClass* falseClass;
 
 pVMSymbol symbolIfTrue;
 pVMSymbol symbolIfFalse;
@@ -482,7 +482,7 @@ void Universe::InitializeGlobals() {
     //allocate nil object
     //
     nilObject = new (GetHeap<HEAP_CLS>()) VMObject;
-    static_cast<VMObject*>(nilObject)->SetClass((pVMClass)nilObject);
+    static_cast<VMObject*>(nilObject)->SetClass((VMClass*)nilObject);
 
     metaClassClass = NewMetaclassClass();
 
@@ -516,7 +516,7 @@ void Universe::InitializeGlobals() {
     InitializeSystemClass(doubleClass, objectClass, "Double");
 
     // Fix up objectClass
-    objectClass->SetSuperClass((pVMClass) nilObject);
+    objectClass->SetSuperClass((VMClass*) nilObject);
 
     LoadSystemClass(objectClass);
     LoadSystemClass(classClass);
@@ -553,12 +553,12 @@ void Universe::Assert(bool value) const {
 
 }
 
-pVMClass Universe::GetBlockClass() const {
+VMClass* Universe::GetBlockClass() const {
     return blockClass;
 }
 
-pVMClass Universe::GetBlockClassWithArgs(long numberOfArguments) {
-    map<long, pVMClass>::iterator it =
+VMClass* Universe::GetBlockClassWithArgs(long numberOfArguments) {
+    map<long, VMClass*>::iterator it =
     blockClassesByNoOfArgs.find(numberOfArguments);
     if (it != blockClassesByNoOfArgs.end())
         return it->second;
@@ -568,7 +568,7 @@ pVMClass Universe::GetBlockClassWithArgs(long numberOfArguments) {
     ostringstream Str;
     Str << "Block" << numberOfArguments;
     pVMSymbol name = SymbolFor(Str.str());
-    pVMClass result = LoadClassBasic(name, nullptr);
+    VMClass* result = LoadClassBasic(name, nullptr);
 
     result->AddInstancePrimitive(new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(numberOfArguments) );
 
@@ -596,21 +596,21 @@ bool Universe::HasGlobal(pVMSymbol name) {
     }
 }
 
-void Universe::InitializeSystemClass(pVMClass systemClass,
-pVMClass superClass, const char* name) {
+void Universe::InitializeSystemClass(VMClass* systemClass,
+VMClass* superClass, const char* name) {
     StdString s_name(name);
 
     if (superClass != nullptr) {
         systemClass->SetSuperClass(superClass);
-        pVMClass sysClassClass = systemClass->GetClass();
-        pVMClass superClassClass = superClass->GetClass();
+        VMClass* sysClassClass = systemClass->GetClass();
+        VMClass* superClassClass = superClass->GetClass();
         sysClassClass->SetSuperClass(superClassClass);
     } else {
-        pVMClass sysClassClass = systemClass->GetClass();
+        VMClass* sysClassClass = systemClass->GetClass();
         sysClassClass->SetSuperClass(classClass);
     }
 
-    pVMClass sysClassClass = systemClass->GetClass();
+    VMClass* sysClassClass = systemClass->GetClass();
 
     systemClass->SetInstanceFields(NewArray(0));
     sysClassClass->SetInstanceFields(NewArray(0));
@@ -627,8 +627,8 @@ pVMClass superClass, const char* name) {
     SetGlobal(systemClass->GetName(), systemClass);
 }
 
-pVMClass Universe::LoadClass(pVMSymbol name) {
-    pVMClass result = static_cast<pVMClass>(GetGlobal(name));
+VMClass* Universe::LoadClass(pVMSymbol name) {
+    VMClass* result = static_cast<VMClass*>(GetGlobal(name));
     
     if (result != nullptr)
         return result;
@@ -637,7 +637,7 @@ pVMClass Universe::LoadClass(pVMSymbol name) {
 
     if (!result) {
 		// we fail silently, it is not fatal that loading a class failed
-		return (pVMClass) nilObject;
+		return (VMClass*) nilObject;
     }
 
     if (result->HasPrimitives() || result->GetClass()->HasPrimitives())
@@ -648,10 +648,10 @@ pVMClass Universe::LoadClass(pVMSymbol name) {
     return result;
 }
 
-pVMClass Universe::LoadClassBasic(pVMSymbol name, pVMClass systemClass) {
+VMClass* Universe::LoadClassBasic(pVMSymbol name, VMClass* systemClass) {
     StdString s_name = name->GetStdString();
     //cout << s_name.c_str() << endl;
-    pVMClass result;
+    VMClass* result;
 
     for (vector<StdString>::iterator i = classPath.begin();
             i != classPath.end(); ++i) {
@@ -669,16 +669,16 @@ pVMClass Universe::LoadClassBasic(pVMSymbol name, pVMClass systemClass) {
     return nullptr;
 }
 
-pVMClass Universe::LoadShellClass( StdString& stmt) {
+VMClass* Universe::LoadShellClass( StdString& stmt) {
     SourcecodeCompiler compiler;
-    pVMClass result = compiler.CompileClassString(stmt, nullptr);
+    VMClass* result = compiler.CompileClassString(stmt, nullptr);
     if(dumpBytecodes)
         Disassembler::Dump(result);
     return result;
 }
 
-void Universe::LoadSystemClass( pVMClass systemClass) {
-    pVMClass result = LoadClassBasic(systemClass->GetName(), systemClass);
+void Universe::LoadSystemClass( VMClass* systemClass) {
+    VMClass* result = LoadClassBasic(systemClass->GetName(), systemClass);
     StdString s = systemClass->GetName()->GetStdString();
 
     if (!result) {
@@ -757,9 +757,9 @@ VMBlock* Universe::NewBlock(pVMMethod method, pVMFrame context, long arguments) 
     return result;
 }
 
-pVMClass Universe::NewClass(pVMClass classOfClass) const {
+VMClass* Universe::NewClass(VMClass* classOfClass) const {
     long numFields = classOfClass->GetNumberOfInstanceFields();
-    pVMClass result;
+    VMClass* result;
     long additionalBytes = numFields * sizeof(pVMObject);
     if (numFields) result = new (GetHeap<HEAP_CLS>(), additionalBytes) VMClass(numFields);
     else result = new (GetHeap<HEAP_CLS>()) VMClass;
@@ -800,7 +800,7 @@ pVMFrame Universe::NewFrame(pVMFrame previousFrame, pVMMethod method) const {
     return result;
 }
 
-pVMObject Universe::NewInstance(pVMClass classOfInstance) const {
+pVMObject Universe::NewInstance(VMClass* classOfInstance) const {
     long numOfFields = classOfInstance->GetNumberOfInstanceFields();
     //the additional space needed is calculated from the number of fields
     long additionalBytes = numOfFields * sizeof(pVMObject);
@@ -828,11 +828,11 @@ pVMInteger Universe::NewInteger( long value) const {
     return new (GetHeap<HEAP_CLS>()) VMInteger(value);
 }
 
-pVMClass Universe::NewMetaclassClass() const {
-    pVMClass result = new (GetHeap<HEAP_CLS>()) VMClass;
+VMClass* Universe::NewMetaclassClass() const {
+    VMClass* result = new (GetHeap<HEAP_CLS>()) VMClass;
     result->SetClass(new (GetHeap<HEAP_CLS>()) VMClass);
 
-    pVMClass mclass = result->GetClass();
+    VMClass* mclass = result->GetClass();
     mclass->SetClass(result);
 
     LOG_ALLOCATION("VMClass", result->GetObjectSize());
@@ -848,24 +848,24 @@ void Universe::WalkGlobals(oop_t (*walk)(oop_t)) {
     GlobalBox::updateIntegerBox(static_cast<VMInteger*>(walk(GlobalBox::IntegerBox())));
 #endif
 
-    objectClass    = static_cast<pVMClass>(walk(objectClass));
-    classClass     = static_cast<pVMClass>(walk(classClass));
-    metaClassClass = static_cast<pVMClass>(walk(metaClassClass));
+    objectClass    = static_cast<VMClass*>(walk(objectClass));
+    classClass     = static_cast<VMClass*>(walk(classClass));
+    metaClassClass = static_cast<VMClass*>(walk(metaClassClass));
 
-    nilClass        = static_cast<pVMClass>(walk(nilClass));
-    integerClass    = static_cast<pVMClass>(walk(integerClass));
-    bigIntegerClass = static_cast<pVMClass>(walk(bigIntegerClass));
-    arrayClass      = static_cast<pVMClass>(walk(arrayClass));
-    methodClass     = static_cast<pVMClass>(walk(methodClass));
-    symbolClass     = static_cast<pVMClass>(walk(symbolClass));
-    primitiveClass  = static_cast<pVMClass>(walk(primitiveClass));
-    stringClass     = static_cast<pVMClass>(walk(stringClass));
-    systemClass     = static_cast<pVMClass>(walk(systemClass));
-    blockClass      = static_cast<pVMClass>(walk(blockClass));
-    doubleClass     = static_cast<pVMClass>(walk(doubleClass));
+    nilClass        = static_cast<VMClass*>(walk(nilClass));
+    integerClass    = static_cast<VMClass*>(walk(integerClass));
+    bigIntegerClass = static_cast<VMClass*>(walk(bigIntegerClass));
+    arrayClass      = static_cast<VMClass*>(walk(arrayClass));
+    methodClass     = static_cast<VMClass*>(walk(methodClass));
+    symbolClass     = static_cast<VMClass*>(walk(symbolClass));
+    primitiveClass  = static_cast<VMClass*>(walk(primitiveClass));
+    stringClass     = static_cast<VMClass*>(walk(stringClass));
+    systemClass     = static_cast<VMClass*>(walk(systemClass));
+    blockClass      = static_cast<VMClass*>(walk(blockClass));
+    doubleClass     = static_cast<VMClass*>(walk(doubleClass));
     
-    trueClass  = static_cast<pVMClass>(walk(trueClass));
-    falseClass = static_cast<pVMClass>(walk(falseClass));
+    trueClass  = static_cast<VMClass*>(walk(trueClass));
+    falseClass = static_cast<VMClass*>(walk(falseClass));
 
 #if CACHE_INTEGER
     for (unsigned long i = 0; i < (INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE); i++)
@@ -897,11 +897,11 @@ void Universe::WalkGlobals(oop_t (*walk)(oop_t)) {
         symbolIter->second = static_cast<pVMSymbol>(walk(symbolIter->second));
     }
 
-    map<long, pVMClass>::iterator bcIter;
+    map<long, VMClass*>::iterator bcIter;
     for (bcIter = blockClassesByNoOfArgs.begin();
          bcIter != blockClassesByNoOfArgs.end();
          bcIter++) {
-        bcIter->second = static_cast<pVMClass>(walk(bcIter->second));
+        bcIter->second = static_cast<VMClass*>(walk(bcIter->second));
     }
 
     //reassign ifTrue ifFalse Symbols
@@ -953,11 +953,11 @@ pVMSymbol Universe::NewSymbol( const char* str ) {
     return result;
 }
 
-pVMClass Universe::NewSystemClass() const {
-    pVMClass systemClass = new (GetHeap<HEAP_CLS>()) VMClass();
+VMClass* Universe::NewSystemClass() const {
+    VMClass* systemClass = new (GetHeap<HEAP_CLS>()) VMClass();
 
     systemClass->SetClass(new (GetHeap<HEAP_CLS>()) VMClass());
-    pVMClass mclass = systemClass->GetClass();
+    VMClass* mclass = systemClass->GetClass();
 
     mclass->SetClass(metaClassClass);
 

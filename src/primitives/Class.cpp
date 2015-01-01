@@ -43,26 +43,26 @@ _Class::_Class() : PrimitiveContainer() {
 }
 
 void _Class::New(pVMObject /*object*/, pVMFrame frame) {
-    pVMClass self = static_cast<pVMClass>(frame->Pop());
+    VMClass* self = static_cast<VMClass*>(frame->Pop());
     frame->Push(GetUniverse()->NewInstance(self));
 }
 
 void _Class::Name(pVMObject, pVMFrame frame) {
-    pVMClass self = static_cast<pVMClass>(frame->Pop());
+    VMClass* self = static_cast<VMClass*>(frame->Pop());
     frame->Push(self->GetName());
 }
 
 void _Class::Superclass(pVMObject, pVMFrame frame) {
-    pVMClass self = static_cast<pVMClass>(frame->Pop());
+    VMClass* self = static_cast<VMClass*>(frame->Pop());
     frame->Push(self->GetSuperClass());
 }
 
 void _Class::Methods(pVMObject, pVMFrame frame) {
-    pVMClass self = static_cast<pVMClass>(frame->Pop());
+    VMClass* self = static_cast<VMClass*>(frame->Pop());
     frame->Push(self->GetInstanceInvokables());
 }
 
 void _Class::Fields(pVMObject, pVMFrame frame) {
-    pVMClass self = static_cast<pVMClass>(frame->Pop());
+    VMClass* self = static_cast<VMClass*>(frame->Pop());
     frame->Push(self->GetInstanceFields());
 }

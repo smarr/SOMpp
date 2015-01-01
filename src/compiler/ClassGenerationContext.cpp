@@ -88,26 +88,26 @@ void ClassGenerationContext::AddClassMethod(pVMObject method) {
     classMethods.Add(method);
 }
 
-pVMClass ClassGenerationContext::Assemble() {
+VMClass* ClassGenerationContext::Assemble() {
     // build class class name
     StdString ccname = string(name->GetStdString()) + " class";
 
     // Load the super class
-    pVMClass superClass = GetUniverse()->LoadClass(superName);
+    VMClass* superClass = GetUniverse()->LoadClass(superName);
 
     // Allocate the class of the resulting class
-    pVMClass resultClass = GetUniverse()->NewClass(metaClassClass);
+    VMClass* resultClass = GetUniverse()->NewClass(metaClassClass);
 
     // Initialize the class of the resulting class
     resultClass->SetInstanceFields(GetUniverse()->NewArrayList(classFields));
     resultClass->SetInstanceInvokables(GetUniverse()->NewArrayList(classMethods));
     resultClass->SetName(GetUniverse()->SymbolFor(ccname));
 
-    pVMClass superMClass = superClass->GetClass();
+    VMClass* superMClass = superClass->GetClass();
     resultClass->SetSuperClass(superMClass);
 
     // Allocate the resulting class
-    pVMClass result = GetUniverse()->NewClass(resultClass);
+    VMClass* result = GetUniverse()->NewClass(resultClass);
 
     // Initialize the resulting class
     result->SetInstanceFields(GetUniverse()->NewArrayList(instanceFields));
@@ -118,12 +118,12 @@ pVMClass ClassGenerationContext::Assemble() {
     return result;
 }
 
-void ClassGenerationContext::AssembleSystemClass( pVMClass systemClass ) {
+void ClassGenerationContext::AssembleSystemClass(VMClass* systemClass) {
     systemClass->SetInstanceInvokables(GetUniverse()->NewArrayList
     (instanceMethods));
     systemClass->SetInstanceFields(GetUniverse()->NewArrayList(instanceFields));
     // class-bound == class-instance-bound 
-        pVMClass superMClass = systemClass->GetClass();
+        VMClass* superMClass = systemClass->GetClass();
         superMClass->SetInstanceInvokables(GetUniverse()->NewArrayList(classMethods));
         superMClass->SetInstanceFields(GetUniverse()->NewArrayList(classFields));
     }

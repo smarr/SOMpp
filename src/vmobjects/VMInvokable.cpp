@@ -42,17 +42,17 @@ void VMInvokable::SetSignature(pVMSymbol sig) {
 }
 
 void VMInvokable::WalkObjects(oop_t (*walk)(oop_t)) {
-    clazz = static_cast<pVMClass>(walk(clazz));
+    clazz = static_cast<VMClass*>(walk(clazz));
     signature = static_cast<pVMSymbol>(walk(signature));
     if (holder)
-        holder = static_cast<pVMClass>(walk(holder));
+        holder = static_cast<VMClass*>(walk(holder));
 }
 
-pVMClass VMInvokable::GetHolder() const {
+VMClass* VMInvokable::GetHolder() const {
     return holder;
 }
 
-void VMInvokable::SetHolder(pVMClass hld) {
+void VMInvokable::SetHolder(VMClass* hld) {
     holder = hld;
     write_barrier(this, hld);
 }

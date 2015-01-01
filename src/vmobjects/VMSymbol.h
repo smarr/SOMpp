@@ -39,7 +39,7 @@ public:
     virtual StdString GetPlainString() const;
     virtual size_t GetObjectSize() const;
     virtual pVMSymbol Clone() const;
-    virtual pVMClass GetClass() const;
+    virtual VMClass* GetClass() const;
 private:
     const int numberOfArgumentsOfSignature;
     pcVMClass cachedClass_invokable[3];

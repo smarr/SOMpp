@@ -243,7 +243,7 @@ void Parser::superclass(ClassGenerationContext *cgenc) {
     
     // Load the super class, if it is not nil (break the dependency cycle)
     if (superName != GetUniverse()->SymbolFor("nil")) {
-        pVMClass superClass = GetUniverse()->LoadClass(superName);
+        VMClass* superClass = GetUniverse()->LoadClass(superName);
         cgenc->SetInstanceFieldsOfSuper(superClass->GetInstanceFields());
         cgenc->SetClassFieldsOfSuper(superClass->GetClass()->GetInstanceFields());
     } else {

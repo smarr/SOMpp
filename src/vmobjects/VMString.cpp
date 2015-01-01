@@ -29,7 +29,7 @@
 
 #include "VMString.h"
 
-extern pVMClass stringClass;
+extern VMClass* stringClass;
 
 //this macro could replace the chars member variable
 //#define CHARS ((char*)&clazz+sizeof(pVMObject))
@@ -72,7 +72,7 @@ size_t VMString::GetObjectSize() const {
     return size;
 }
 
-pVMClass VMString::GetClass() const {
+VMClass* VMString::GetClass() const {
     return stringClass;
 }
 

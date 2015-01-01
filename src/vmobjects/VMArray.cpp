@@ -97,7 +97,7 @@ void VMArray::CopyIndexableFieldsTo(VMArray* to) const {
 }
 
 void VMArray::WalkObjects(oop_t (*walk)(oop_t)) {
-    clazz = (pVMClass) walk(clazz);
+    clazz = (VMClass*) walk(clazz);
     long numFields          = GetNumberOfFields();
     long numIndexableFields = GetNumberOfIndexableFields();
     oop_t* fields = FIELDS;

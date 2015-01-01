@@ -43,10 +43,10 @@ SourcecodeCompiler::~SourcecodeCompiler() {
         delete (parser);
 }
 
-pVMClass SourcecodeCompiler::CompileClass( const StdString& path,
+VMClass* SourcecodeCompiler::CompileClass( const StdString& path,
         const StdString& file,
-        pVMClass systemClass ) {
-    pVMClass result = systemClass;
+        VMClass* systemClass ) {
+    VMClass* result = systemClass;
 
     StdString fname = path + fileSeparator + file + ".som";
 
@@ -80,13 +80,13 @@ pVMClass SourcecodeCompiler::CompileClass( const StdString& path,
     return result;
 }
 
-pVMClass SourcecodeCompiler::CompileClassString( const StdString& stream,
-        pVMClass systemClass ) {
+VMClass* SourcecodeCompiler::CompileClassString( const StdString& stream,
+        VMClass* systemClass ) {
     istringstream* ss = new istringstream(stream);
     if (parser != nullptr) delete(parser);
     parser = new Parser(*ss);
 
-    pVMClass result = compile(systemClass);
+    VMClass* result = compile(systemClass);
     delete(parser);
     parser = nullptr;
     delete(ss);
@@ -100,7 +100,7 @@ void SourcecodeCompiler::showCompilationError(const StdString& filename,
     cout << message << endl;
 }
 
-pVMClass SourcecodeCompiler::compile(pVMClass systemClass) {
+VMClass* SourcecodeCompiler::compile(VMClass* systemClass) {
     if (parser == nullptr) {
         cout << "Parser not initiated" << endl;
         GetUniverse()->ErrorExit("Compiler error");
@@ -108,7 +108,7 @@ pVMClass SourcecodeCompiler::compile(pVMClass systemClass) {
     }
     ClassGenerationContext cgc;
 
-    pVMClass result = systemClass;
+    VMClass* result = systemClass;
 
     parser->Classdef(&cgc);
 

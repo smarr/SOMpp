@@ -30,7 +30,7 @@ using namespace std;
 class AbstractVMObject: public VMObjectBase {
 public:
     virtual size_t GetHash();
-    virtual pVMClass GetClass() const = 0;
+    virtual VMClass* GetClass() const = 0;
     virtual AbstractVMObject* Clone() const = 0;
     virtual void Send(StdString, oop_t*, long);
     virtual size_t GetObjectSize() const = 0;
@@ -55,7 +55,7 @@ public:
         cout << "this object doesn't support SetNumberOfFields" << endl;
         throw "this object doesn't support SetNumberOfFields";
     }
-    inline virtual void SetClass(pVMClass cl) {
+    inline virtual void SetClass(VMClass* cl) {
         cout << "this object doesn't support SetClass" << endl;
         throw "this object doesn't support SetClass";
     }

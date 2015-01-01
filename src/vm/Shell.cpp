@@ -66,7 +66,7 @@ void Shell::Start() {
     char inbuf[INPUT_MAX_SIZE];
     long bytecodeIndex, counter = 0;
     pVMFrame currentFrame;
-    pVMClass runClass;
+    VMClass* runClass;
     oop_t it = nilObject;// last evaluation result.
 
     cout << "SOM Shell. Type \"" << QUIT_CMD << "\" to exit.\n";

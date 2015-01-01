@@ -38,12 +38,12 @@ public:
     virtual bool      IsPrimitive() const;
             pVMSymbol GetSignature() const;
     virtual void      SetSignature(pVMSymbol sig);
-            pVMClass  GetHolder() const;
-            void      SetHolder(pVMClass hld);
+            VMClass*  GetHolder() const;
+            void      SetHolder(VMClass* hld);
 
     void WalkObjects(oop_t (*walk)(oop_t));
 
 protected:
     pVMSymbol signature;
-    pVMClass  holder;
+    VMClass*  holder;
 };

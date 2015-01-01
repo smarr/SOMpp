@@ -66,8 +66,8 @@ VMClass::VMClass() :
                 nullptr), instanceInvokables(nullptr) {
 }
 
-pVMClass VMClass::Clone() const {
-    pVMClass clone = new (GetHeap<HEAP_CLS>(), objectSize - sizeof(VMClass) ALLOC_MATURE) VMClass(*this);
+VMClass* VMClass::Clone() const {
+    VMClass* clone = new (GetHeap<HEAP_CLS>(), objectSize - sizeof(VMClass) ALLOC_MATURE) VMClass(*this);
     memcpy(SHIFTED_PTR(clone,sizeof(VMObject)),
             SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() -
             sizeof(VMObject));
@@ -79,9 +79,9 @@ VMClass::VMClass(long numberOfFields) :
 }
 
 void VMClass::WalkObjects(oop_t (*walk)(oop_t)) {
-    clazz = static_cast<pVMClass>(walk(clazz));
+    clazz = static_cast<VMClass*>(walk(clazz));
     if (superClass)
-        superClass = static_cast<pVMClass>(walk(superClass));
+        superClass = static_cast<VMClass*>(walk(superClass));
     name = static_cast<pVMSymbol>(walk(name));
     instanceFields = static_cast<VMArray*>(walk(instanceFields));
     instanceInvokables = static_cast<VMArray*>(walk(instanceInvokables));
@@ -93,7 +93,7 @@ void VMClass::WalkObjects(oop_t (*walk)(oop_t)) {
 }
 
 void VMClass::MarkObjectAsInvalid() {
-    superClass         = (pVMClass)  INVALID_POINTER;
+    superClass         = (VMClass*)  INVALID_POINTER;
     name               = (pVMSymbol) INVALID_POINTER;
     instanceFields     = (VMArray*)  INVALID_POINTER;
     instanceInvokables = (VMArray*)  INVALID_POINTER;

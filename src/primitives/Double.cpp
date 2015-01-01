@@ -49,7 +49,7 @@ double _Double::coerceDouble(oop_t x) {
     if (IS_TAGGED(x))
         return (double) INT_VAL(x);
     
-    pVMClass cl = ((AbstractVMObject*)x)->GetClass();
+    VMClass* cl = ((AbstractVMObject*)x)->GetClass();
     if (cl == doubleClass)
         return static_cast<VMDouble*>(x)->GetEmbeddedDouble();
     else if(cl == integerClass)

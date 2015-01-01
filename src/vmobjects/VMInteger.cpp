@@ -31,6 +31,6 @@ pVMInteger VMInteger::Clone() const {
     return new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMInteger(*this);
 }
 
-pVMClass VMInteger::GetClass() const {
+VMClass* VMInteger::GetClass() const {
     return integerClass;
 }

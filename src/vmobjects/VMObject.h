@@ -66,8 +66,8 @@ public:
     VMObject(long numberOfFields = 0);
 
     /* Virtual member functions */
-    virtual inline pVMClass  GetClass() const;
-    virtual        void      SetClass(pVMClass cl);
+    virtual inline VMClass*  GetClass() const;
+    virtual        void      SetClass(VMClass* cl);
     virtual        pVMSymbol GetFieldName(long index) const;
     virtual inline long      GetNumberOfFields() const;
     virtual        void      SetNumberOfFields(long nof);
@@ -108,7 +108,7 @@ protected:
     size_t objectSize;     // set by the heap at allocation time
     long   numberOfFields;
 
-    pVMClass clazz;
+    VMClass* clazz;
 
     // Start of fields. All members beyond after clazz are indexable.
     // clazz has index -1.
@@ -125,7 +125,7 @@ void VMObject::SetObjectSize(size_t size) {
     objectSize = size;
 }
 
-pVMClass VMObject::GetClass() const {
+VMClass* VMObject::GetClass() const {
     assert(Universe::IsValidObject((pVMObject) clazz));
     return clazz;
 }

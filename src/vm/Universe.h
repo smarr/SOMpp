@@ -51,24 +51,24 @@ extern pVMObject nilObject;
 extern pVMObject trueObject;
 extern pVMObject falseObject;
 
-extern pVMClass objectClass;
-extern pVMClass classClass;
-extern pVMClass metaClassClass;
+extern VMClass* objectClass;
+extern VMClass* classClass;
+extern VMClass* metaClassClass;
 
-extern pVMClass nilClass;
-extern pVMClass integerClass;
-extern pVMClass bigIntegerClass;
-extern pVMClass arrayClass;
-extern pVMClass methodClass;
-extern pVMClass symbolClass;
-extern pVMClass primitiveClass;
-extern pVMClass stringClass;
-extern pVMClass systemClass;
-extern pVMClass blockClass;
-extern pVMClass doubleClass;
+extern VMClass* nilClass;
+extern VMClass* integerClass;
+extern VMClass* bigIntegerClass;
+extern VMClass* arrayClass;
+extern VMClass* methodClass;
+extern VMClass* symbolClass;
+extern VMClass* primitiveClass;
+extern VMClass* stringClass;
+extern VMClass* systemClass;
+extern VMClass* blockClass;
+extern VMClass* doubleClass;
 
-extern pVMClass trueClass;
-extern pVMClass falseClass;
+extern VMClass* trueClass;
+extern VMClass* falseClass;
 
 extern pVMSymbol symbolIfTrue;
 extern pVMSymbol symbolIfFalse;
@@ -98,34 +98,34 @@ public:
     VMArray* NewArrayList(ExtendedList<pVMSymbol>& list) const;
     VMArray* NewArrayFromStrings(const vector<StdString>&) const;
     VMBlock* NewBlock(pVMMethod, pVMFrame, long);
-    pVMClass NewClass(pVMClass) const;
+    VMClass* NewClass(VMClass*) const;
     pVMFrame NewFrame(pVMFrame, pVMMethod) const;
     pVMMethod NewMethod(pVMSymbol, size_t, size_t) const;
-    pVMObject NewInstance(pVMClass) const;
+    pVMObject NewInstance(VMClass*) const;
     pVMInteger NewInteger(long) const;
     void WalkGlobals(oop_t (*walk)(oop_t));
     VMBigInteger* NewBigInteger(int64_t) const;
     VMDouble* NewDouble(double) const;
-    pVMClass NewMetaclassClass(void) const;
+    VMClass* NewMetaclassClass(void) const;
     pVMString NewString(const StdString&) const;
     pVMSymbol NewSymbol(const StdString&);
     pVMString NewString(const char*) const;
     pVMSymbol NewSymbol(const char*);
-    pVMClass NewSystemClass(void) const;
+    VMClass* NewSystemClass(void) const;
 
-    void InitializeSystemClass(pVMClass, pVMClass, const char*);
+    void InitializeSystemClass(VMClass*, VMClass*, const char*);
 
     oop_t GetGlobal(pVMSymbol);
     void SetGlobal(pVMSymbol name, oop_t val);
     bool HasGlobal(pVMSymbol);
     void InitializeGlobals();
-    pVMClass GetBlockClass(void) const;
-    pVMClass GetBlockClassWithArgs(long);
+    VMClass* GetBlockClass(void) const;
+    VMClass* GetBlockClassWithArgs(long);
 
-    pVMClass LoadClass(pVMSymbol);
-    void LoadSystemClass(pVMClass);
-    pVMClass LoadClassBasic(pVMSymbol, pVMClass);
-    pVMClass LoadShellClass(StdString&);
+    VMClass* LoadClass(pVMSymbol);
+    void LoadSystemClass(VMClass*);
+    VMClass* LoadClassBasic(pVMSymbol, VMClass*);
+    VMClass* LoadShellClass(StdString&);
 
     Universe();
     ~Universe();
@@ -155,7 +155,7 @@ private:
 
     long heapSize;
     map<pVMSymbol, oop_t> globals;
-    map<long,pVMClass> blockClassesByNoOfArgs;
+    map<long,VMClass*> blockClassesByNoOfArgs;
     vector<StdString> classPath;
 
     Interpreter* interpreter;

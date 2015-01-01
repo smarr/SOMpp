@@ -26,8 +26,8 @@ void WriteBarrierTest::testWriteArray() {
     pVMInteger newInt = GetUniverse()->NewInteger(12345);
     pVMString str = GetUniverse()->NewString("asdfghjkl");
     VMDouble* doub = GetUniverse()->NewDouble(9876.654);
-    pVMClass cloneClass = arrayClass->Clone();
-    pVMClass clone2Class = cloneClass->Clone();
+    VMClass* cloneClass = arrayClass->Clone();
+    VMClass* clone2Class = cloneClass->Clone();
     arr->SetClass(cloneClass);
     arr->SetField(0, clone2Class);
     arr->SetIndexableField(0, newInt);
@@ -125,7 +125,7 @@ void WriteBarrierTest::testWriteClass() {
     
     //reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
-    pVMClass cl = integerClass->Clone();
+    VMClass* cl = integerClass->Clone();
     //now test all methods that change members
     cl->SetSuperClass(integerClass);
     TEST_WB_CALLED("VMClass failed to call writeBarrier on SetSuperClass", cl,

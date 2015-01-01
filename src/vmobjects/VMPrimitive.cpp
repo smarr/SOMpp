@@ -56,9 +56,9 @@ pVMPrimitive VMPrimitive::Clone() const {
 }
 
 void VMPrimitive::WalkObjects(oop_t (*walk)(oop_t)) {
-    clazz     = static_cast<pVMClass>(walk(clazz));
+    clazz     = static_cast<VMClass*>(walk(clazz));
     signature = static_cast<pVMSymbol>(walk(signature));
-    holder    = static_cast<pVMClass>(walk(holder));
+    holder    = static_cast<VMClass*>(walk(holder));
 }
 
 void VMPrimitive::EmptyRoutine( pVMObject _self, pVMFrame /*frame*/) {

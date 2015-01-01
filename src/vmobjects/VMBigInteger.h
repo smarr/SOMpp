@@ -36,7 +36,7 @@ public:
 
     inline int64_t GetEmbeddedInteger() const;
     virtual VMBigInteger* Clone() const;
-    virtual pVMClass GetClass() const;
+    virtual VMClass* GetClass() const;
     virtual size_t GetObjectSize() const;
     
     virtual void MarkObjectAsInvalid() {}

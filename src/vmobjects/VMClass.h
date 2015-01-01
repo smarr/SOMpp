@@ -46,8 +46,8 @@ public:
     VMClass();
     VMClass(long numberOfFields);
 
-    inline pVMClass     GetSuperClass() const;
-    inline void         SetSuperClass(pVMClass);
+    inline VMClass*     GetSuperClass() const;
+    inline void         SetSuperClass(VMClass*);
     inline bool         HasSuperClass() const;
     inline pVMSymbol    GetName() const;
     inline void         SetName(pVMSymbol);
@@ -66,7 +66,7 @@ public:
            long         GetNumberOfInstanceFields() const;
            bool         HasPrimitives() const;
            void         LoadPrimitives(const vector<StdString>&);
-    virtual pVMClass    Clone() const;
+    virtual VMClass*    Clone() const;
            void         WalkObjects(oop_t (*walk)(oop_t));
     
     virtual void MarkObjectAsInvalid();
@@ -83,7 +83,7 @@ private:
     void setPrimitives(void* handle, const StdString& cname);
     long numberOfSuperInstanceFields() const;
 
-    pVMClass superClass;
+    VMClass* superClass;
     pVMSymbol name;
     VMArray* instanceFields;
     VMArray* instanceInvokables;
@@ -91,11 +91,11 @@ private:
     static const long VMClassNumberOfFields;
 };
 
-pVMClass VMClass::GetSuperClass() const {
+VMClass* VMClass::GetSuperClass() const {
     return superClass;
 }
 
-void VMClass::SetSuperClass(pVMClass sup) {
+void VMClass::SetSuperClass(VMClass* sup) {
     superClass = sup;
     write_barrier(this, sup);
 }

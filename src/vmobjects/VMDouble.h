@@ -34,7 +34,7 @@ public:
 
     virtual VMDouble* Clone() const;
     inline  double   GetEmbeddedDouble() const;
-    virtual pVMClass GetClass() const;
+    virtual VMClass* GetClass() const;
     inline virtual size_t GetObjectSize() const;
     
     virtual void MarkObjectAsInvalid() {}

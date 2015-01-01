@@ -49,7 +49,7 @@
  * of an Integer operation).
  */
 #define CHECK_COERCION(obj,receiver,op) { \
-  pVMClass cl = CLASS_OF(obj);\
+  VMClass* cl = CLASS_OF(obj);\
   if (cl== bigIntegerClass) { \
     resendAsBigInteger((op), (receiver), static_cast<VMBigInteger*>(obj)); \
     return; \

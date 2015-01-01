@@ -143,7 +143,7 @@ void VMMethod::operator()(pVMFrame frame) {
     frm->CopyArgumentsFrom(frame);
 }
 
-void VMMethod::SetHolderAll(pVMClass hld) {
+void VMMethod::SetHolderAll(VMClass* hld) {
     long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {
         oop_t o = GetIndexableField(i);

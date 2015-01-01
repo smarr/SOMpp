@@ -76,7 +76,6 @@ class VMPrimitive;
 class VMString;
 class VMSymbol;
 
-typedef VMClass*        pVMClass;
 typedef const VMClass* pcVMClass;
 
 typedef VMEvaluationPrimitive* pVMEvaluationPrimitive;

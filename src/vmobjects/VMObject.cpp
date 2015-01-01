@@ -56,7 +56,7 @@ void VMObject::SetNumberOfFields(long nof) {
         FIELDS[i] = nilObject;
 }
 
-void VMObject::SetClass(pVMClass cl) {
+void VMObject::SetClass(VMClass* cl) {
     clazz = cl;
     write_barrier(this, cl);
 }
@@ -70,7 +70,7 @@ void VMObject::Assert(bool value) const {
 }
 
 void VMObject::WalkObjects(oop_t (*walk)(oop_t)) {
-    clazz = (pVMClass) walk(clazz);
+    clazz = (VMClass*) walk(clazz);
     
     long numFields = GetNumberOfFields();
     for (long i = 0; i < numFields; ++i) {
@@ -79,5 +79,5 @@ void VMObject::WalkObjects(oop_t (*walk)(oop_t)) {
 }
 
 void VMObject::MarkObjectAsInvalid() {
-    clazz = (pVMClass) INVALID_POINTER;
+    clazz = (VMClass*) INVALID_POINTER;
 }

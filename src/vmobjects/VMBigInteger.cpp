@@ -36,6 +36,6 @@ size_t VMBigInteger::GetObjectSize() const {
     return sizeof(VMBigInteger);
 }
 
-pVMClass VMBigInteger::GetClass() const {
+VMClass* VMBigInteger::GetClass() const {
     return bigIntegerClass;
 }

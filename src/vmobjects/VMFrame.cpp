@@ -136,7 +136,7 @@ pVMFrame VMFrame::GetOuterContext() {
 
 void VMFrame::WalkObjects(oop_t (*walk)(oop_t)) {
     // VMFrame is not a proper SOM object any longer, we don't have a class for it.
-    // clazz = (pVMClass) walk(clazz);
+    // clazz = (VMClass*) walk(clazz);
     
     if (previousFrame)
         previousFrame = (pVMFrame) walk(previousFrame);

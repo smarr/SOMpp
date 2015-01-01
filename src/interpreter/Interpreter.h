@@ -50,7 +50,7 @@ private:
 
     pVMFrame popFrame();
     void popFrameAndPushResult(oop_t result);
-    void send(pVMSymbol signature, pVMClass receiverClass);
+    void send(pVMSymbol signature, VMClass* receiverClass);
 
     void doDup();
     void doPushLocal(long bytecodeIndex);

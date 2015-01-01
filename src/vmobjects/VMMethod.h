@@ -47,7 +47,7 @@ public:
     inline  long      GetNumberOfArguments() const;
             void      SetNumberOfArguments(long);
             long      GetNumberOfBytecodes() const;
-            void      SetHolderAll(pVMClass hld);
+            void      SetHolderAll(VMClass* hld);
             oop_t GetConstant(long indx) const;
     inline  uint8_t   GetBytecode(long indx) const;
     inline  void      SetBytecode(long indx, uint8_t);
