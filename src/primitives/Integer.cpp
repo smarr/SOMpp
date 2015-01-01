@@ -51,7 +51,7 @@
 #define CHECK_COERCION(obj,receiver,op) { \
   pVMClass cl = CLASS_OF(obj);\
   if (cl== bigIntegerClass) { \
-    resendAsBigInteger((op), (receiver), static_cast<pVMBigInteger>(obj)); \
+    resendAsBigInteger((op), (receiver), static_cast<VMBigInteger*>(obj)); \
     return; \
   } else if(cl== doubleClass) { \
     resendAsDouble((op), (receiver), static_cast<pVMDouble>(obj)); \
@@ -93,9 +93,9 @@ void _Integer::pushResult(pVMObject /*object*/, pVMFrame frame,
         frame->Push(NEW_INT((int32_t)result));
 }
 
-void _Integer::resendAsBigInteger(const char* op, oop_t left, pVMBigInteger right) {
+void _Integer::resendAsBigInteger(const char* op, oop_t left, VMBigInteger* right) {
     // Construct left value as BigInteger:
-    pVMBigInteger leftBigInteger = GetUniverse()->NewBigInteger((int64_t)INT_VAL(left));
+    VMBigInteger* leftBigInteger = GetUniverse()->NewBigInteger((int64_t)INT_VAL(left));
 
     // Resend message:
     oop_t operands[] = {right};

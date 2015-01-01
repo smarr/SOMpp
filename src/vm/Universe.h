@@ -104,7 +104,7 @@ public:
     pVMObject NewInstance(pVMClass) const;
     pVMInteger NewInteger(long) const;
     void WalkGlobals(oop_t (*walk)(oop_t));
-    pVMBigInteger NewBigInteger(int64_t) const;
+    VMBigInteger* NewBigInteger(int64_t) const;
     pVMDouble NewDouble(double) const;
     pVMClass NewMetaclassClass(void) const;
     pVMString NewString(const StdString&) const;

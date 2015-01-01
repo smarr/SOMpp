@@ -76,7 +76,6 @@ class VMPrimitive;
 class VMString;
 class VMSymbol;
 
-typedef VMBigInteger*   pVMBigInteger;
 typedef VMBlock*        pVMBlock;
 typedef VMClass*        pVMClass;
 typedef const VMClass* pcVMClass;

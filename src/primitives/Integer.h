@@ -55,7 +55,7 @@ public:
 
 private:
     void pushResult(pVMObject object, pVMFrame frame, int64_t result);
-    void resendAsBigInteger(const char* op, oop_t left, pVMBigInteger right);
+    void resendAsBigInteger(const char* op, oop_t left, VMBigInteger* right);
     void resendAsDouble(const char* op, oop_t left, pVMDouble right);
 
 };

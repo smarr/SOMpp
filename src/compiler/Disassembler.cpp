@@ -80,7 +80,7 @@ void Disassembler::dispatch(oop_t o) {
         } else if(c == doubleClass)
             DebugPrint("%g", static_cast<pVMDouble>(o)->GetEmbeddedDouble());
         else if(c == bigIntegerClass)
-            DebugPrint("%lld", static_cast<pVMBigInteger>(o)->GetEmbeddedInteger());
+            DebugPrint("%lld", static_cast<VMBigInteger*>(o)->GetEmbeddedInteger());
         else if(c == integerClass)
             DebugPrint("%d", INT_VAL(o));
         else if(c == symbolClass) {

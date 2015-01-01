@@ -28,7 +28,7 @@
 
 #include <vm/Universe.h>
 
-pVMBigInteger VMBigInteger::Clone() const {
+VMBigInteger* VMBigInteger::Clone() const {
     return new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMBigInteger(*this);
 }
 

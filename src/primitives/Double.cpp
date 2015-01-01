@@ -55,7 +55,7 @@ double _Double::coerceDouble(oop_t x) {
     else if(cl == integerClass)
         return (double)static_cast<pVMInteger>(x)->GetEmbeddedInteger();
     else if(cl == bigIntegerClass)
-        return (double)static_cast<pVMBigInteger>(x)->GetEmbeddedInteger();
+        return (double)static_cast<VMBigInteger*>(x)->GetEmbeddedInteger();
     else
         GetUniverse()->ErrorExit("Attempt to apply Double operation to non-number.");
 

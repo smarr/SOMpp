@@ -63,7 +63,7 @@ void WalkObjectsTest::testWalkInteger() {
 
 void WalkObjectsTest::testWalkBigInteger() {
     walkedObjects.clear();
-    pVMBigInteger int1 = GetUniverse()->NewBigInteger(4711);
+    VMBigInteger* int1 = GetUniverse()->NewBigInteger(4711);
     int1->WalkObjects(collectMembers);
 
     //Integers have no additional members

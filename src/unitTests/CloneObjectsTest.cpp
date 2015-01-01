@@ -85,8 +85,8 @@ void CloneObjectsTest::testCloneSymbol() {
 }
 
 void CloneObjectsTest::testCloneBigInteger() {
-    pVMBigInteger orig = GetUniverse()->NewBigInteger(0xdeadbeef);
-    pVMBigInteger clone = orig->Clone();
+    VMBigInteger* orig = GetUniverse()->NewBigInteger(0xdeadbeef);
+    VMBigInteger* clone = orig->Clone();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->GetClass(), clone->GetClass());

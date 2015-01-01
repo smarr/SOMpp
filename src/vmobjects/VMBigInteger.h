@@ -35,7 +35,7 @@ public:
     VMBigInteger(int64_t val) : embeddedInteger(val), AbstractVMObject() {}
 
     inline int64_t GetEmbeddedInteger() const;
-    virtual pVMBigInteger Clone() const;
+    virtual VMBigInteger* Clone() const;
     virtual pVMClass GetClass() const;
     virtual size_t GetObjectSize() const;
     

@@ -442,7 +442,7 @@ Universe::~Universe() {
         VMArray* arr  = new (GetHeap<HEAP_CLS>()) VMArray(0, 0);
         vt_array      = *(void**) arr;
         
-        pVMBigInteger bi = new (GetHeap<HEAP_CLS>()) VMBigInteger(0);
+        VMBigInteger* bi = new (GetHeap<HEAP_CLS>()) VMBigInteger(0);
         vt_biginteger = *(void**) bi;
         
         pVMBlock blck = new (GetHeap<HEAP_CLS>()) VMBlock();
@@ -741,7 +741,7 @@ VMArray* Universe::NewArrayList(ExtendedList<oop_t>& list) const {
     return result;
 }
 
-pVMBigInteger Universe::NewBigInteger( int64_t value) const {
+VMBigInteger* Universe::NewBigInteger( int64_t value) const {
     LOG_ALLOCATION("VMBigInteger", sizeof(VMBigInteger));
     return new (GetHeap<HEAP_CLS>()) VMBigInteger(value);
 }
