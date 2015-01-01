@@ -97,7 +97,7 @@ public:
     VMArray* NewArrayList(ExtendedList<oop_t>& list) const;
     VMArray* NewArrayList(ExtendedList<pVMSymbol>& list) const;
     VMArray* NewArrayFromStrings(const vector<StdString>&) const;
-    pVMBlock NewBlock(pVMMethod, pVMFrame, long);
+    VMBlock* NewBlock(pVMMethod, pVMFrame, long);
     pVMClass NewClass(pVMClass) const;
     pVMFrame NewFrame(pVMFrame, pVMMethod) const;
     pVMMethod NewMethod(pVMSymbol, size_t, size_t) const;
@@ -105,7 +105,7 @@ public:
     pVMInteger NewInteger(long) const;
     void WalkGlobals(oop_t (*walk)(oop_t));
     VMBigInteger* NewBigInteger(int64_t) const;
-    pVMDouble NewDouble(double) const;
+    VMDouble* NewDouble(double) const;
     pVMClass NewMetaclassClass(void) const;
     pVMString NewString(const StdString&) const;
     pVMSymbol NewSymbol(const StdString&);

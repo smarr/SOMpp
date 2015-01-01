@@ -78,7 +78,7 @@ void Disassembler::dispatch(oop_t o) {
         if (c == stringClass) {
             DebugPrint("\"%s\"", static_cast<pVMString>(o)->GetChars());
         } else if(c == doubleClass)
-            DebugPrint("%g", static_cast<pVMDouble>(o)->GetEmbeddedDouble());
+            DebugPrint("%g", static_cast<VMDouble*>(o)->GetEmbeddedDouble());
         else if(c == bigIntegerClass)
             DebugPrint("%lld", static_cast<VMBigInteger*>(o)->GetEmbeddedInteger());
         else if(c == integerClass)

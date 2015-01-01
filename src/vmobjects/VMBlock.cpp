@@ -42,8 +42,8 @@ void VMBlock::SetMethod(pVMMethod bMethod) {
     write_barrier(this, bMethod);
 }
 
-pVMBlock VMBlock::Clone() const {
-    pVMBlock clone;
+VMBlock* VMBlock::Clone() const {
+    VMBlock* clone;
     clone = new (GetHeap<HEAP_CLS>(), GetAdditionalSpaceConsumption() ALLOC_MATURE) VMBlock(*this);
     return clone;
 }

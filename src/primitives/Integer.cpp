@@ -54,7 +54,7 @@
     resendAsBigInteger((op), (receiver), static_cast<VMBigInteger*>(obj)); \
     return; \
   } else if(cl== doubleClass) { \
-    resendAsDouble((op), (receiver), static_cast<pVMDouble>(obj)); \
+    resendAsDouble((op), (receiver), static_cast<VMDouble*>(obj)); \
     return; \
   } \
 }
@@ -104,8 +104,8 @@ void _Integer::resendAsBigInteger(const char* op, oop_t left, VMBigInteger* righ
     // no reference
 }
 
-void _Integer::resendAsDouble(const char* op, oop_t left, pVMDouble right) {
-    pVMDouble leftDouble = GetUniverse()->NewDouble((double)INT_VAL(left));
+void _Integer::resendAsDouble(const char* op, oop_t left, VMDouble* right) {
+    VMDouble* leftDouble = GetUniverse()->NewDouble((double)INT_VAL(left));
     oop_t operands[] = {right};
 
     leftDouble->Send(op, operands, 1);

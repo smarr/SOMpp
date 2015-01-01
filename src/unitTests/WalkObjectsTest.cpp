@@ -72,7 +72,7 @@ void WalkObjectsTest::testWalkBigInteger() {
 
 void WalkObjectsTest::testWalkDouble() {
     walkedObjects.clear();
-    pVMDouble d1 = GetUniverse()->NewDouble(432.1);
+    VMDouble* d1 = GetUniverse()->NewDouble(432.1);
     d1->WalkObjects(collectMembers);
 
     //Doubles have no additional members
@@ -190,7 +190,7 @@ void WalkObjectsTest::testWalkBlock() {
     walkedObjects.clear();
     pVMSymbol methodSymbol = GetUniverse()->NewSymbol("someMethod");
     pVMMethod method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
-    pVMBlock block = GetUniverse()->NewBlock(method,
+    VMBlock* block = GetUniverse()->NewBlock(method,
             GetUniverse()->GetInterpreter()->GetFrame(),
             method->GetNumberOfArguments());
     block->WalkObjects(collectMembers);

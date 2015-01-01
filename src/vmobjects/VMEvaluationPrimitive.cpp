@@ -83,7 +83,7 @@ void VMEvaluationPrimitive::evaluationRoutine(pVMObject object, pVMFrame frame) 
 
     // Get the block (the receiver) from the stack
     long numArgs = INT_VAL(self->numberOfArguments);
-    pVMBlock block = static_cast<pVMBlock>(frame->GetStackElement(numArgs - 1));
+    VMBlock* block = static_cast<VMBlock*>(frame->GetStackElement(numArgs - 1));
 
     // Get the context of the block...
     pVMFrame context = block->GetContext();

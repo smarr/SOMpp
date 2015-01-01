@@ -445,12 +445,12 @@ Universe::~Universe() {
         VMBigInteger* bi = new (GetHeap<HEAP_CLS>()) VMBigInteger(0);
         vt_biginteger = *(void**) bi;
         
-        pVMBlock blck = new (GetHeap<HEAP_CLS>()) VMBlock();
+        VMBlock* blck = new (GetHeap<HEAP_CLS>()) VMBlock();
         vt_block      = *(void**) blck;
         
         vt_class      = *(void**) symbolClass;
         
-        pVMDouble dbl = new (GetHeap<HEAP_CLS>()) VMDouble(0.0);
+        VMDouble* dbl = new (GetHeap<HEAP_CLS>()) VMDouble(0.0);
         vt_double     = *(void**) dbl;
         
         VMEvaluationPrimitive* ev = new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(1);
@@ -746,8 +746,8 @@ VMBigInteger* Universe::NewBigInteger( int64_t value) const {
     return new (GetHeap<HEAP_CLS>()) VMBigInteger(value);
 }
 
-pVMBlock Universe::NewBlock(pVMMethod method, pVMFrame context, long arguments) {
-    pVMBlock result = new (GetHeap<HEAP_CLS>()) VMBlock;
+VMBlock* Universe::NewBlock(pVMMethod method, pVMFrame context, long arguments) {
+    VMBlock* result = new (GetHeap<HEAP_CLS>()) VMBlock;
     result->SetClass(GetBlockClassWithArgs(arguments));
 
     result->SetMethod(method);
@@ -770,7 +770,7 @@ pVMClass Universe::NewClass(pVMClass classOfClass) const {
     return result;
 }
 
-pVMDouble Universe::NewDouble(double value) const {
+VMDouble* Universe::NewDouble(double value) const {
     LOG_ALLOCATION("VMDouble", sizeof(VMDouble));
     return new (GetHeap<HEAP_CLS>()) VMDouble(value);
 }

@@ -468,7 +468,7 @@ void Interpreter::doReturnNonLocal() {
     pVMFrame context = GetFrame()->GetOuterContext();
 
     if (!context->HasPreviousFrame()) {
-        pVMBlock block = static_cast<pVMBlock>(GetFrame()->GetArgument(0, 0));
+        VMBlock* block = static_cast<VMBlock*>(GetFrame()->GetArgument(0, 0));
         pVMFrame prevFrame = GetFrame()->GetPreviousFrame();
         pVMFrame outerContext = prevFrame->GetOuterContext();
         oop_t sender = outerContext->GetArgument(0, 0);

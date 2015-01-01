@@ -51,7 +51,7 @@ double _Double::coerceDouble(oop_t x) {
     
     pVMClass cl = ((AbstractVMObject*)x)->GetClass();
     if (cl == doubleClass)
-        return static_cast<pVMDouble>(x)->GetEmbeddedDouble();
+        return static_cast<VMDouble*>(x)->GetEmbeddedDouble();
     else if(cl == integerClass)
         return (double)static_cast<pVMInteger>(x)->GetEmbeddedInteger();
     else if(cl == bigIntegerClass)
@@ -70,7 +70,7 @@ double _Double::coerceDouble(oop_t x) {
  */
 #define PREPARE_OPERANDS \
     double right = coerceDouble(frame->Pop()); \
-    pVMDouble leftObj = static_cast<pVMDouble>(frame->Pop()); \
+    VMDouble* leftObj = static_cast<VMDouble*>(frame->Pop()); \
     double left = leftObj->GetEmbeddedDouble();
 
 void _Double::Plus(pVMObject /*object*/, pVMFrame frame) {
@@ -132,7 +132,7 @@ void _Double::Lowerthan(pVMObject /*object*/, pVMFrame frame) {
 }
 
 void _Double::AsString(pVMObject /*object*/, pVMFrame frame) {
-    pVMDouble self = static_cast<pVMDouble>(frame->Pop());
+    VMDouble* self = static_cast<VMDouble*>(frame->Pop());
 
     double dbl = self->GetEmbeddedDouble();
     ostringstream Str;
@@ -142,13 +142,13 @@ void _Double::AsString(pVMObject /*object*/, pVMFrame frame) {
 }
 
 void _Double::Sqrt(pVMObject /*object*/, pVMFrame frame) {
-    pVMDouble self = static_cast<pVMDouble>(frame->Pop());
-    pVMDouble result = GetUniverse()->NewDouble( sqrt(self->GetEmbeddedDouble()) );
+    VMDouble* self = static_cast<VMDouble*>(frame->Pop());
+    VMDouble* result = GetUniverse()->NewDouble( sqrt(self->GetEmbeddedDouble()) );
     frame->Push(result);
 }
 
 void _Double::Round(pVMObject /*object*/, pVMFrame frame) {
-    pVMDouble self = (pVMDouble)frame->Pop();
+    VMDouble* self = (VMDouble*)frame->Pop();
     long int rounded = lround(self->GetEmbeddedDouble());
 
     // Check with integer bounds and push:

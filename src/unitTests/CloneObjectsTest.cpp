@@ -46,8 +46,8 @@ void CloneObjectsTest::testCloneInteger() {
 }
 
 void CloneObjectsTest::testCloneDouble() {
-    pVMDouble orig = GetUniverse()->NewDouble(123.4);
-    pVMDouble clone = orig->Clone();
+    VMDouble* orig = GetUniverse()->NewDouble(123.4);
+    VMDouble* clone = orig->Clone();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->GetClass(), clone->GetClass());
@@ -117,10 +117,10 @@ void CloneObjectsTest::testCloneArray() {
 void CloneObjectsTest::testCloneBlock() {
     pVMSymbol methodSymbol = GetUniverse()->NewSymbol("someMethod");
     pVMMethod method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
-    pVMBlock orig = GetUniverse()->NewBlock(method,
+    VMBlock* orig = GetUniverse()->NewBlock(method,
             GetUniverse()->GetInterpreter()->GetFrame(),
             method->GetNumberOfArguments());
-    pVMBlock clone = orig->Clone();
+    VMBlock* clone = orig->Clone();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);

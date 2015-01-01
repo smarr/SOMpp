@@ -25,7 +25,7 @@ void WriteBarrierTest::testWriteArray() {
     VMArray* arr = GetUniverse()->NewArray(3);
     pVMInteger newInt = GetUniverse()->NewInteger(12345);
     pVMString str = GetUniverse()->NewString("asdfghjkl");
-    pVMDouble doub = GetUniverse()->NewDouble(9876.654);
+    VMDouble* doub = GetUniverse()->NewDouble(9876.654);
     pVMClass cloneClass = arrayClass->Clone();
     pVMClass clone2Class = cloneClass->Clone();
     arr->SetClass(cloneClass);
@@ -55,7 +55,7 @@ void WriteBarrierTest::testWriteBlock() {
 
     pVMSymbol methodSymbol = GetUniverse()->NewSymbol("someMethod");
     pVMMethod method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
-    pVMBlock block = GetUniverse()->NewBlock(method,
+    VMBlock* block = GetUniverse()->NewBlock(method,
             GetUniverse()->GetInterpreter()->GetFrame(),
             method->GetNumberOfArguments());
     TEST_WB_CALLED("VMBlock failed to call writeBarrier when creating", block,

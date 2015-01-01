@@ -36,7 +36,7 @@ public:
             void      SetMethod(pVMMethod);
     inline  void      SetContext(pVMFrame);
     inline  pVMFrame  GetContext() const;
-    virtual pVMBlock  Clone() const;
+    virtual VMBlock*  Clone() const;
 
     static pVMEvaluationPrimitive GetEvaluationPrimitive(int);
 private:
