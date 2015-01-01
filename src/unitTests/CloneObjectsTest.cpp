@@ -37,8 +37,8 @@ void CloneObjectsTest::testCloneObject() {
 }
 
 void CloneObjectsTest::testCloneInteger() {
-    pVMInteger orig = GetUniverse()->NewInteger(42);
-    pVMInteger clone = orig->Clone();
+    VMInteger* orig = GetUniverse()->NewInteger(42);
+    VMInteger* clone = orig->Clone();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->GetClass(), clone->GetClass());
@@ -162,7 +162,7 @@ void CloneObjectsTest::testCloneFrame() {
     VMFrame* orig = GetUniverse()->NewFrame(nullptr, method);
     VMFrame* context = orig->Clone();
     orig->SetContext(context);
-    pVMInteger dummyArg = GetUniverse()->NewInteger(1111);
+    VMInteger* dummyArg = GetUniverse()->NewInteger(1111);
     orig->SetArgument(0, 0, dummyArg);
     VMFrame* clone = orig->Clone();
 

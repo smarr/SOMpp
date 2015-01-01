@@ -102,7 +102,7 @@ public:
     VMFrame* NewFrame(VMFrame*, pVMMethod) const;
     pVMMethod NewMethod(pVMSymbol, size_t, size_t) const;
     pVMObject NewInstance(VMClass*) const;
-    pVMInteger NewInteger(long) const;
+    VMInteger* NewInteger(long) const;
     void WalkGlobals(oop_t (*walk)(oop_t));
     VMBigInteger* NewBigInteger(int64_t) const;
     VMDouble* NewDouble(double) const;

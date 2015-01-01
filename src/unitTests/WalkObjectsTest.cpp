@@ -54,7 +54,7 @@ bool WalkerHasFound(oop_t obj) {
 
 void WalkObjectsTest::testWalkInteger() {
     walkedObjects.clear();
-    pVMInteger int1 = GetUniverse()->NewInteger(42);
+    VMInteger* int1 = GetUniverse()->NewInteger(42);
     int1->WalkObjects(collectMembers);
 
     //Integers have no additional members
@@ -153,7 +153,7 @@ void WalkObjectsTest::testWalkFrame() {
     VMFrame* frame = GetUniverse()->NewFrame(nullptr, method);
     frame->SetPreviousFrame(frame->Clone());
     frame->SetContext(frame->Clone());
-    pVMInteger dummyArg = GetUniverse()->NewInteger(1111);
+    VMInteger* dummyArg = GetUniverse()->NewInteger(1111);
     frame->SetArgument(0, 0, dummyArg);
     frame->WalkObjects(collectMembers);
 
@@ -203,7 +203,7 @@ void WalkObjectsTest::testWalkBlock() {
 void WalkObjectsTest::testWalkArray() {
     walkedObjects.clear();
     pVMString str1 = GetUniverse()->NewString("str1");
-    pVMInteger int1 = GetUniverse()->NewInteger(42);
+    VMInteger* int1 = GetUniverse()->NewInteger(42);
     VMArray* a = GetUniverse()->NewArray(2);
     a->SetIndexableField(0, str1);
     a->SetIndexableField(1, int1);

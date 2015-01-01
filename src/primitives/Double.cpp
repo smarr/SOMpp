@@ -53,7 +53,7 @@ double _Double::coerceDouble(oop_t x) {
     if (cl == doubleClass)
         return static_cast<VMDouble*>(x)->GetEmbeddedDouble();
     else if(cl == integerClass)
-        return (double)static_cast<pVMInteger>(x)->GetEmbeddedInteger();
+        return (double)static_cast<VMInteger*>(x)->GetEmbeddedInteger();
     else if(cl == bigIntegerClass)
         return (double)static_cast<VMBigInteger*>(x)->GetEmbeddedInteger();
     else

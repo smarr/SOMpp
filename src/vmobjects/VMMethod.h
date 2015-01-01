@@ -71,11 +71,11 @@ private:
     inline uint8_t* GetBytecodes() const;
     inline oop_t GetIndexableField(long idx) const;
 
-    pVMInteger numberOfLocals;
-    pVMInteger maximumNumberOfStackElements;
-    pVMInteger bcLength;
-    pVMInteger numberOfArguments;
-    pVMInteger numberOfConstants;
+    VMInteger* numberOfLocals;
+    VMInteger* maximumNumberOfStackElements;
+    VMInteger* bcLength;
+    VMInteger* numberOfArguments;
+    VMInteger* numberOfConstants;
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     VMFrame* cachedFrame;
 #endif

@@ -23,7 +23,7 @@ void WriteBarrierTest::testWriteArray() {
     //reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
     VMArray* arr = GetUniverse()->NewArray(3);
-    pVMInteger newInt = GetUniverse()->NewInteger(12345);
+    VMInteger* newInt = GetUniverse()->NewInteger(12345);
     pVMString str = GetUniverse()->NewString("asdfghjkl");
     VMDouble* doub = GetUniverse()->NewDouble(9876.654);
     VMClass* cloneClass = arrayClass->Clone();

@@ -36,6 +36,6 @@ public:
 private:
     static pVMSymbol computeSignatureString(long argc);
     void evaluationRoutine(pVMObject object, VMFrame* frame);
-    pVMInteger numberOfArguments;
+    VMInteger* numberOfArguments;
 
 };

@@ -54,7 +54,7 @@
 #include "../vmobjects/IntegerBox.h"
 
 #if CACHE_INTEGER
-pVMInteger prebuildInts[INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE + 1];
+VMInteger* prebuildInts[INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE + 1];
 #endif
 
 #define INT_HIST_SIZE 1
@@ -459,7 +459,7 @@ Universe::~Universe() {
         VMFrame* frm  = new (GetHeap<HEAP_CLS>()) VMFrame(0, 0);
         vt_frame      = *(void**) frm;
         
-        pVMInteger i  = new (GetHeap<HEAP_CLS>()) VMInteger(0);
+        VMInteger* i  = new (GetHeap<HEAP_CLS>()) VMInteger(0);
         vt_integer    = *(void**) i;
         
         pVMMethod mth = new (GetHeap<HEAP_CLS>()) VMMethod(0, 0, 0);
@@ -811,7 +811,7 @@ pVMObject Universe::NewInstance(VMClass* classOfInstance) const {
     return result;
 }
 
-pVMInteger Universe::NewInteger( long value) const {
+VMInteger* Universe::NewInteger( long value) const {
 
 #ifdef GENERATE_INTEGER_HISTOGRAM
     integerHist[value/INT_HIST_SIZE] = integerHist[value/INT_HIST_SIZE]+1;
@@ -872,7 +872,7 @@ void Universe::WalkGlobals(oop_t (*walk)(oop_t)) {
 #if USE_TAGGING
         prebuildInts[i] = TAG_INTEGER(INT_CACHE_MIN_VALUE + i);
 #else
-        prebuildInts[i] = static_cast<pVMInteger>(walk(prebuildInts[i]));
+        prebuildInts[i] = static_cast<VMInteger*>(walk(prebuildInts[i]));
 #endif
 #endif
 

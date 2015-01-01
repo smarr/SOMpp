@@ -49,7 +49,7 @@ VMEvaluationPrimitive* VMEvaluationPrimitive::Clone() const {
 
 void VMEvaluationPrimitive::WalkObjects(oop_t (*walk)(oop_t)) {
     VMPrimitive::WalkObjects(walk);
-    numberOfArguments = static_cast<pVMInteger>(walk(numberOfArguments));
+    numberOfArguments = static_cast<VMInteger*>(walk(numberOfArguments));
 }
 
 pVMSymbol VMEvaluationPrimitive::computeSignatureString(long argc) {

@@ -35,7 +35,7 @@ public:
     VMInteger(long val) : embeddedInteger(val), AbstractVMObject() {}
 
     inline long GetEmbeddedInteger() const;
-    virtual pVMInteger Clone() const;
+    virtual VMInteger* Clone() const;
     virtual VMClass* GetClass() const;
     virtual inline size_t GetObjectSize() const;
     

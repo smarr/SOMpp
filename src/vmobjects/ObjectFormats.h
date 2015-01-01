@@ -39,19 +39,19 @@
 #define VMTAGGEDINTEGER_MIN -1073741824
 
 #if ADDITIONAL_ALLOCATION
-#define TAG_INTEGER(X) (((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX && GetUniverse()->NewInteger(0)) ? ((pVMInteger)(((X) << 1) | 1)) : (GetUniverse()->NewInteger(X)))
+#define TAG_INTEGER(X) (((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX && GetUniverse()->NewInteger(0)) ? ((VMInteger*)(((X) << 1) | 1)) : (GetUniverse()->NewInteger(X)))
 #else
-#define TAG_INTEGER(X) (((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX) ? ((pVMInteger)(((X) << 1) | 1)) : (GetUniverse()->NewInteger(X)))
+#define TAG_INTEGER(X) (((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX) ? ((VMInteger*)(((X) << 1) | 1)) : (GetUniverse()->NewInteger(X)))
 #endif
 
 #if USE_TAGGING
-  #define INT_VAL(X) (IS_TAGGED(X) ? ((long)(X)>>1) : (((pVMInteger)(X))->GetEmbeddedInteger()))
+  #define INT_VAL(X) (IS_TAGGED(X) ? ((long)(X)>>1) : (((VMInteger*)(X))->GetEmbeddedInteger()))
   #define NEW_INT(X) (TAG_INTEGER((X)))
   #define IS_TAGGED(X) ((long)X&1)
   #define CLASS_OF(X) (IS_TAGGED(X)?integerClass:(pVMAbstract(X))->GetClass())
   #define AS_OBJ(X) (IS_TAGGED(X)?GlobalBox::IntegerBox():pVMAbstract(X))
 #else
-  #define INT_VAL(X) (static_cast<pVMInteger>(X)->GetEmbeddedInteger())
+  #define INT_VAL(X) (static_cast<VMInteger*>(X)->GetEmbeddedInteger())
   #define NEW_INT(X) (GetUniverse()->NewInteger(X))
   #define IS_TAGGED(X) false
   #define CLASS_OF(X) (AS_OBJ(X)->GetClass())
@@ -76,7 +76,6 @@ class VMPrimitive;
 class VMString;
 class VMSymbol;
 
-typedef VMInteger*             pVMInteger;
 typedef VMInvokable*           pVMInvokable;
 typedef VMMethod*              pVMMethod;
 
