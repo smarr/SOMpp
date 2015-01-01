@@ -82,7 +82,7 @@ void WalkObjectsTest::testWalkDouble() {
 void WalkObjectsTest::testWalkEvaluationPrimitive() {
     walkedObjects.clear();
 
-    pVMEvaluationPrimitive evPrim = new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(1);
+    VMEvaluationPrimitive* evPrim = new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(1);
     evPrim->WalkObjects(collectMembers);
 
     CPPUNIT_ASSERT(WalkerHasFound(evPrim->numberOfArguments));
@@ -137,7 +137,7 @@ void WalkObjectsTest::testWalkClass() {
 void WalkObjectsTest::testWalkPrimitive() {
     walkedObjects.clear();
     pVMSymbol primitiveSymbol = GetUniverse()->NewSymbol("myPrimitive");
-    pVMPrimitive prim = VMPrimitive::GetEmptyPrimitive(primitiveSymbol);
+    VMPrimitive* prim = VMPrimitive::GetEmptyPrimitive(primitiveSymbol);
 
     prim->WalkObjects(collectMembers);
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Primitive, walkedObjects.size());

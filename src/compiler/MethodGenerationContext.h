@@ -42,7 +42,7 @@ public:
     ~MethodGenerationContext();
 
     pVMMethod Assemble();
-    pVMPrimitive AssemblePrimitive();
+    VMPrimitive* AssemblePrimitive();
 
     int8_t FindLiteralIndex(oop_t lit);
     bool FindVar(const StdString& var, size_t* index,

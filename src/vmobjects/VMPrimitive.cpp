@@ -33,8 +33,8 @@
 //needed to instanciate the Routine object for the  empty routine
 #include "../primitivesCore/Routine.h"
 
-pVMPrimitive VMPrimitive::GetEmptyPrimitive( pVMSymbol sig ) {
-    pVMPrimitive prim = new (GetHeap<HEAP_CLS>()) VMPrimitive(sig);
+VMPrimitive* VMPrimitive::GetEmptyPrimitive( pVMSymbol sig ) {
+    VMPrimitive* prim = new (GetHeap<HEAP_CLS>()) VMPrimitive(sig);
     prim->empty = true;
     prim->SetRoutine(new Routine<VMPrimitive>(prim, &VMPrimitive::EmptyRoutine));
     return prim;
@@ -50,8 +50,8 @@ VMPrimitive::VMPrimitive(pVMSymbol signature) : VMInvokable(VMPrimitiveNumberOfF
     empty = false;
 }
 
-pVMPrimitive VMPrimitive::Clone() const {
-    pVMPrimitive prim = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMPrimitive(*this);
+VMPrimitive* VMPrimitive::Clone() const {
+    VMPrimitive* prim = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMPrimitive(*this);
     return prim;
 }
 

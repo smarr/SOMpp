@@ -61,7 +61,7 @@ public:
            pVMInvokable LookupInvokable(pVMSymbol) const;
            long         LookupFieldIndex(pVMSymbol) const;
            bool         AddInstanceInvokable(pVMObject);
-           void         AddInstancePrimitive(pVMPrimitive);
+           void         AddInstancePrimitive(VMPrimitive*);
            pVMSymbol    GetInstanceFieldName(long)const;
            long         GetNumberOfInstanceFields() const;
            bool         HasPrimitives() const;

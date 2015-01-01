@@ -131,8 +131,8 @@ void CloneObjectsTest::testCloneBlock() {
 }
 void CloneObjectsTest::testClonePrimitive() {
     pVMSymbol primitiveSymbol = GetUniverse()->NewSymbol("myPrimitive");
-    pVMPrimitive orig = VMPrimitive::GetEmptyPrimitive(primitiveSymbol);
-    pVMPrimitive clone = orig->Clone();
+    VMPrimitive* orig = VMPrimitive::GetEmptyPrimitive(primitiveSymbol);
+    VMPrimitive* clone = orig->Clone();
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("objectSize differs!!", orig->objectSize, clone->objectSize);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfFields differs!!", orig->numberOfFields, clone->numberOfFields);
@@ -143,8 +143,8 @@ void CloneObjectsTest::testClonePrimitive() {
 }
 
 void CloneObjectsTest::testCloneEvaluationPrimitive() {
-    pVMEvaluationPrimitive orig = new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(1);
-    pVMEvaluationPrimitive clone = orig->Clone();
+    VMEvaluationPrimitive* orig = new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(1);
+    VMEvaluationPrimitive* clone = orig->Clone();
 
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("objectSize differs!!", orig->objectSize, clone->objectSize);

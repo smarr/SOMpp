@@ -52,6 +52,6 @@ pVMMethod VMBlock::GetMethod() const {
     return (blockMethod);
 }
 
-pVMEvaluationPrimitive VMBlock::GetEvaluationPrimitive(int numberOfArguments) {
+VMEvaluationPrimitive* VMBlock::GetEvaluationPrimitive(int numberOfArguments) {
     return new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(numberOfArguments);
 }

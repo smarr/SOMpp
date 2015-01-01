@@ -466,7 +466,7 @@ Universe::~Universe() {
         vt_method     = *(void**) mth;
         vt_object     = *(void**) nilObject;
         
-        pVMPrimitive prm = new (GetHeap<HEAP_CLS>()) VMPrimitive(className);
+        VMPrimitive* prm = new (GetHeap<HEAP_CLS>()) VMPrimitive(className);
         vt_primitive  = *(void**) prm;
         
         pVMString str = new (GetHeap<HEAP_CLS>()) VMString("");

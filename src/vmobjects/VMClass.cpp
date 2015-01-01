@@ -127,7 +127,7 @@ bool VMClass::AddInstanceInvokable(pVMObject ptr) {
     return true;
 }
 
-void VMClass::AddInstancePrimitive(pVMPrimitive ptr) {
+void VMClass::AddInstancePrimitive(VMPrimitive* ptr) {
     if (AddInstanceInvokable(ptr)) {
         //cout << "Warn: Primitive "<<ptr->GetSignature<<" is not in class definition for class " << name->GetStdString() << endl;
     }
@@ -383,7 +383,7 @@ bool VMClass::isResponsible(void* dlhandle, const StdString& cl) const {
  *
  */
 void VMClass::setPrimitives(void* dlhandle, const StdString& cname) {
-    pVMPrimitive thePrimitive;
+    VMPrimitive* thePrimitive;
     PrimitiveRoutine* routine = nullptr;
     pVMInvokable anInvokable;
     // iterate invokables
@@ -398,7 +398,7 @@ void VMClass::setPrimitives(void* dlhandle, const StdString& cname) {
 #ifdef __DEBUG
             cout << "... is a primitive, and is going to be loaded now" << endl;
 #endif
-            thePrimitive = static_cast<pVMPrimitive>( anInvokable );
+            thePrimitive = static_cast<VMPrimitive*>( anInvokable );
             //
             // we have a primitive to load
             // get it's selector

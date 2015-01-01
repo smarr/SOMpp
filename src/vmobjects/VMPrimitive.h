@@ -32,7 +32,7 @@
 
 class VMPrimitive: public VMInvokable {
 public:
-    static pVMPrimitive GetEmptyPrimitive(pVMSymbol sig);
+    static VMPrimitive* GetEmptyPrimitive(pVMSymbol sig);
 
     VMPrimitive(pVMSymbol sig);
 
@@ -40,7 +40,7 @@ public:
     inline  void SetRoutine(PrimitiveRoutine* rtn);
     virtual void WalkObjects(oop_t (oop_t));
             void SetEmpty(bool value) {empty = value;};
-    virtual pVMPrimitive Clone() const;
+    virtual VMPrimitive* Clone() const;
 
     //-----------VMInvokable-------//
     //operator "()" to invoke the primitive

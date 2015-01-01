@@ -42,8 +42,8 @@ VMEvaluationPrimitive::VMEvaluationPrimitive(long argc) : VMPrimitive(computeSig
     numberOfArguments = NEW_INT(argc);
 }
 
-pVMEvaluationPrimitive VMEvaluationPrimitive::Clone() const {
-    pVMEvaluationPrimitive evPrim = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMEvaluationPrimitive(*this);
+VMEvaluationPrimitive* VMEvaluationPrimitive::Clone() const {
+    VMEvaluationPrimitive* evPrim = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMEvaluationPrimitive(*this);
     return evPrim;
 }
 
@@ -79,7 +79,7 @@ pVMSymbol VMEvaluationPrimitive::computeSignatureString(long argc) {
 }
 
 void VMEvaluationPrimitive::evaluationRoutine(pVMObject object, pVMFrame frame) {
-    pVMEvaluationPrimitive self = static_cast<pVMEvaluationPrimitive>(object);
+    VMEvaluationPrimitive* self = static_cast<VMEvaluationPrimitive*>(object);
 
     // Get the block (the receiver) from the stack
     long numArgs = INT_VAL(self->numberOfArguments);

@@ -38,7 +38,7 @@ public:
     inline  pVMFrame  GetContext() const;
     virtual VMBlock*  Clone() const;
 
-    static pVMEvaluationPrimitive GetEvaluationPrimitive(int);
+    static VMEvaluationPrimitive* GetEvaluationPrimitive(int);
 private:
     pVMMethod blockMethod;
     pVMFrame context;

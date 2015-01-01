@@ -74,7 +74,7 @@ pVMMethod MethodGenerationContext::Assemble() {
     return meth;
 }
 
-pVMPrimitive MethodGenerationContext::AssemblePrimitive() {
+VMPrimitive* MethodGenerationContext::AssemblePrimitive() {
     return VMPrimitive::GetEmptyPrimitive(signature);
 }
 
