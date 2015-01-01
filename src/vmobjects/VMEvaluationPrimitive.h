@@ -34,7 +34,7 @@ public:
     virtual void WalkObjects(oop_t (oop_t));
     virtual VMEvaluationPrimitive* Clone() const;
 private:
-    static pVMSymbol computeSignatureString(long argc);
+    static VMSymbol* computeSignatureString(long argc);
     void evaluationRoutine(pVMObject object, VMFrame* frame);
     VMInteger* numberOfArguments;
 

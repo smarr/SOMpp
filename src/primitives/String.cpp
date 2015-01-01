@@ -48,8 +48,8 @@ _String::_String() : PrimitiveContainer() {
 }
 
 void _String::Concatenate_(pVMObject /*object*/, VMFrame* frame) {
-    pVMString arg  = static_cast<pVMString>(frame->Pop());
-    pVMString self = static_cast<pVMString>(frame->Pop());
+    VMString* arg  = static_cast<VMString*>(frame->Pop());
+    VMString* self = static_cast<VMString*>(frame->Pop());
     StdString a = arg->GetChars();
     StdString s = self->GetChars();
 
@@ -59,18 +59,18 @@ void _String::Concatenate_(pVMObject /*object*/, VMFrame* frame) {
 }
 
 void _String::AsSymbol(pVMObject /*object*/, VMFrame* frame) {
-    pVMString self = static_cast<pVMString>(frame->Pop());
+    VMString* self = static_cast<VMString*>(frame->Pop());
     StdString result = self->GetStdString();
     frame->Push(GetUniverse()->SymbolFor(result));
 }
 
 void _String::Hashcode(pVMObject /*object*/, VMFrame* frame) {
-    pVMString self = static_cast<pVMString>(frame->Pop());
+    VMString* self = static_cast<VMString*>(frame->Pop());
     frame->Push(NEW_INT(self->GetHash()));
 }
 
 void _String::Length(pVMObject /*object*/, VMFrame* frame) {
-    pVMString self = static_cast<pVMString>(frame->Pop());
+    VMString* self = static_cast<VMString*>(frame->Pop());
 
     size_t len = self->GetStringLength();
     frame->Push(NEW_INT(len));
@@ -78,7 +78,7 @@ void _String::Length(pVMObject /*object*/, VMFrame* frame) {
 
 void _String::Equal(pVMObject /*object*/, VMFrame* frame) {
     oop_t op1 = frame->Pop();
-    pVMString op2 = static_cast<pVMString>(frame->Pop());
+    VMString* op2 = static_cast<VMString*>(frame->Pop());
 
     if (IS_TAGGED(op1)) {
         frame->Push(falseObject);
@@ -87,7 +87,7 @@ void _String::Equal(pVMObject /*object*/, VMFrame* frame) {
 
     VMClass* otherClass = CLASS_OF(op1);
     if(otherClass == stringClass) {
-        StdString s1 = static_cast<pVMString>(op1)->GetStdString();
+        StdString s1 = static_cast<VMString*>(op1)->GetStdString();
         StdString s2 = op2->GetStdString();
 
         if(s1 == s2) {
@@ -102,7 +102,7 @@ void _String::PrimSubstringFrom_to_(pVMObject /*object*/, VMFrame* frame) {
     oop_t end   = frame->Pop();
     oop_t start = frame->Pop();
 
-    pVMString self = static_cast<pVMString>(frame->Pop());
+    VMString* self = static_cast<VMString*>(frame->Pop());
     StdString str = self->GetStdString();
 
     long s = INT_VAL(start) - 1;

@@ -74,7 +74,7 @@ VMMethod* VMMethod::Clone() const {
     return clone;
 }
 
-void VMMethod::SetSignature(pVMSymbol sig) {
+void VMMethod::SetSignature(VMSymbol* sig) {
     VMInvokable::SetSignature(sig);
     SetNumberOfArguments(Signature::GetNumberOfArguments(signature));
 }

@@ -245,7 +245,7 @@ void Interpreter::popFrameAndPushResult(oop_t result) {
     GetFrame()->Push(result);
 }
 
-void Interpreter::send(pVMSymbol signature, VMClass* receiverClass) {
+void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
     VMInvokable* invokable = receiverClass->LookupInvokable(signature);
 
     if (invokable != nullptr) {
@@ -354,7 +354,7 @@ void Interpreter::doPushConstant(long bytecodeIndex) {
 }
 
 void Interpreter::doPushGlobal(long bytecodeIndex) {
-    pVMSymbol globalName = static_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));
+    VMSymbol* globalName = static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
     oop_t global = GetUniverse()->GetGlobal(globalName);
 
     if (global != nullptr)
@@ -412,7 +412,7 @@ void Interpreter::doPopField(long bytecodeIndex) {
 }
 
 void Interpreter::doSend(long bytecodeIndex) {
-    pVMSymbol signature = static_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));
+    VMSymbol* signature = static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
 
     int numOfArgs = Signature::GetNumberOfArguments(signature);
 
@@ -432,7 +432,7 @@ void Interpreter::doSend(long bytecodeIndex) {
 }
 
 void Interpreter::doSuperSend(long bytecodeIndex) {
-    pVMSymbol signature = static_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));
+    VMSymbol* signature = static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
 
     VMFrame* ctxt = GetFrame()->GetOuterContext();
     VMMethod* realMethod = ctxt->GetMethod();

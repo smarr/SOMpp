@@ -105,7 +105,7 @@ void WalkObjectsTest::testWalkObject() {
 
 void WalkObjectsTest::testWalkString() {
     walkedObjects.clear();
-    pVMString str1 = GetUniverse()->NewString("str1");
+    VMString* str1 = GetUniverse()->NewString("str1");
     str1->WalkObjects(collectMembers);
 
     CPPUNIT_ASSERT_EQUAL(NoOfFields_String, walkedObjects.size());
@@ -113,7 +113,7 @@ void WalkObjectsTest::testWalkString() {
 
 void WalkObjectsTest::testWalkSymbol() {
     walkedObjects.clear();
-    pVMSymbol sym = GetUniverse()->NewSymbol("symbol");
+    VMSymbol* sym = GetUniverse()->NewSymbol("symbol");
     sym->WalkObjects(collectMembers);
 
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Symbol, walkedObjects.size());
@@ -136,7 +136,7 @@ void WalkObjectsTest::testWalkClass() {
 
 void WalkObjectsTest::testWalkPrimitive() {
     walkedObjects.clear();
-    pVMSymbol primitiveSymbol = GetUniverse()->NewSymbol("myPrimitive");
+    VMSymbol* primitiveSymbol = GetUniverse()->NewSymbol("myPrimitive");
     VMPrimitive* prim = VMPrimitive::GetEmptyPrimitive(primitiveSymbol);
 
     prim->WalkObjects(collectMembers);
@@ -148,7 +148,7 @@ void WalkObjectsTest::testWalkPrimitive() {
 
 void WalkObjectsTest::testWalkFrame() {
     walkedObjects.clear();
-    pVMSymbol methodSymbol = GetUniverse()->NewSymbol("frameMethod");
+    VMSymbol* methodSymbol = GetUniverse()->NewSymbol("frameMethod");
     VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
     VMFrame* frame = GetUniverse()->NewFrame(nullptr, method);
     frame->SetPreviousFrame(frame->Clone());
@@ -170,7 +170,7 @@ void WalkObjectsTest::testWalkFrame() {
 
 void WalkObjectsTest::testWalkMethod() {
     walkedObjects.clear();
-    pVMSymbol methodSymbol = GetUniverse()->NewSymbol("myMethod");
+    VMSymbol* methodSymbol = GetUniverse()->NewSymbol("myMethod");
     VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
     method->WalkObjects(collectMembers);
 
@@ -188,7 +188,7 @@ void WalkObjectsTest::testWalkMethod() {
 
 void WalkObjectsTest::testWalkBlock() {
     walkedObjects.clear();
-    pVMSymbol methodSymbol = GetUniverse()->NewSymbol("someMethod");
+    VMSymbol* methodSymbol = GetUniverse()->NewSymbol("someMethod");
     VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
     VMBlock* block = GetUniverse()->NewBlock(method,
             GetUniverse()->GetInterpreter()->GetFrame(),
@@ -202,7 +202,7 @@ void WalkObjectsTest::testWalkBlock() {
 
 void WalkObjectsTest::testWalkArray() {
     walkedObjects.clear();
-    pVMString str1 = GetUniverse()->NewString("str1");
+    VMString* str1 = GetUniverse()->NewString("str1");
     VMInteger* int1 = GetUniverse()->NewInteger(42);
     VMArray* a = GetUniverse()->NewArray(2);
     a->SetIndexableField(0, str1);

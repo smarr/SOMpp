@@ -18,7 +18,7 @@ size_t AbstractVMObject::GetHash() {
 }
 
 void AbstractVMObject::Send(StdString selectorString, oop_t* arguments, long argc) {
-    pVMSymbol selector = GetUniverse()->SymbolFor(selectorString);
+    VMSymbol* selector = GetUniverse()->SymbolFor(selectorString);
     VMFrame* frame = GetUniverse()->GetInterpreter()->GetFrame();
     frame->Push(this);
 
@@ -31,6 +31,6 @@ void AbstractVMObject::Send(StdString selectorString, oop_t* arguments, long arg
     (*invokable)(frame);
 }
 
-long AbstractVMObject::GetFieldIndex(pVMSymbol fieldName) const {
+long AbstractVMObject::GetFieldIndex(VMSymbol* fieldName) const {
     return GetClass()->LookupFieldIndex(fieldName);
 }

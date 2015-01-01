@@ -61,7 +61,7 @@ void VMObject::SetClass(VMClass* cl) {
     write_barrier(this, cl);
 }
 
-pVMSymbol VMObject::GetFieldName(long index) const {
+VMSymbol* VMObject::GetFieldName(long index) const {
     return clazz->GetInstanceFieldName(index);
 }
 

@@ -47,7 +47,7 @@ VMString::VMString(const char* str) : AbstractVMObject() {
 
 }
 
-pVMString VMString::Clone() const {
+VMString* VMString::Clone() const {
     return new (GetHeap<HEAP_CLS>(), PADDED_SIZE(strlen(chars)+1) ALLOC_MATURE) VMString(chars);
 }
 

@@ -40,17 +40,17 @@ public:
     void EmitDUP(MethodGenerationContext* mgenc);
     void EmitPUSHLOCAL(MethodGenerationContext* mgenc,    long idx, int ctx);
     void EmitPUSHARGUMENT(MethodGenerationContext* mgenc, long idx, int ctx);
-    void EmitPUSHFIELD(MethodGenerationContext* mgenc, pVMSymbol field);
+    void EmitPUSHFIELD(MethodGenerationContext* mgenc, VMSymbol* field);
     void EmitPUSHBLOCK(MethodGenerationContext* mgenc, VMMethod* block);
     void EmitPUSHCONSTANT(MethodGenerationContext* mgenc, oop_t cst);
-    void EmitPUSHCONSTANTString(MethodGenerationContext* mgenc, pVMString str);
-    void EmitPUSHGLOBAL(MethodGenerationContext* mgenc, pVMSymbol global);
+    void EmitPUSHCONSTANTString(MethodGenerationContext* mgenc, VMString* str);
+    void EmitPUSHGLOBAL(MethodGenerationContext* mgenc, VMSymbol* global);
     void EmitPOP(MethodGenerationContext* mgenc);
     void EmitPOPLOCAL(MethodGenerationContext* mgenc,    long idx, int ctx);
     void EmitPOPARGUMENT(MethodGenerationContext* mgenc, long idx, int ctx);
-    void EmitPOPFIELD(MethodGenerationContext* mgenc, pVMSymbol field);
-    void EmitSEND(MethodGenerationContext* mgenc, pVMSymbol msg);
-    void EmitSUPERSEND(MethodGenerationContext* mgenc, pVMSymbol msg);
+    void EmitPOPFIELD(MethodGenerationContext* mgenc, VMSymbol* field);
+    void EmitSEND(MethodGenerationContext* mgenc, VMSymbol* msg);
+    void EmitSUPERSEND(MethodGenerationContext* mgenc, VMSymbol* msg);
     void EmitRETURNLOCAL(MethodGenerationContext* mgenc);
     void EmitRETURNNONLOCAL(MethodGenerationContext* mgenc);
 

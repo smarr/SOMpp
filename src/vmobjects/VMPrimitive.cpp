@@ -33,7 +33,7 @@
 //needed to instanciate the Routine object for the  empty routine
 #include "../primitivesCore/Routine.h"
 
-VMPrimitive* VMPrimitive::GetEmptyPrimitive( pVMSymbol sig ) {
+VMPrimitive* VMPrimitive::GetEmptyPrimitive( VMSymbol* sig ) {
     VMPrimitive* prim = new (GetHeap<HEAP_CLS>()) VMPrimitive(sig);
     prim->empty = true;
     prim->SetRoutine(new Routine<VMPrimitive>(prim, &VMPrimitive::EmptyRoutine));
@@ -42,7 +42,7 @@ VMPrimitive* VMPrimitive::GetEmptyPrimitive( pVMSymbol sig ) {
 
 const int VMPrimitive::VMPrimitiveNumberOfFields = 2;
 
-VMPrimitive::VMPrimitive(pVMSymbol signature) : VMInvokable(VMPrimitiveNumberOfFields) {
+VMPrimitive::VMPrimitive(VMSymbol* signature) : VMInvokable(VMPrimitiveNumberOfFields) {
     //the only class that explicitly does this.
     SetClass(primitiveClass);
     SetSignature(signature);
@@ -57,13 +57,13 @@ VMPrimitive* VMPrimitive::Clone() const {
 
 void VMPrimitive::WalkObjects(oop_t (*walk)(oop_t)) {
     clazz     = static_cast<VMClass*>(walk(clazz));
-    signature = static_cast<pVMSymbol>(walk(signature));
+    signature = static_cast<VMSymbol*>(walk(signature));
     holder    = static_cast<VMClass*>(walk(holder));
 }
 
 void VMPrimitive::EmptyRoutine( pVMObject _self, VMFrame* /*frame*/) {
     VMInvokable* self = static_cast<VMInvokable*>(_self);
-    pVMSymbol sig = self->GetSignature();
+    VMSymbol* sig = self->GetSignature();
     cout << "undefined primitive called: " << sig->GetChars() << endl;
 }
 

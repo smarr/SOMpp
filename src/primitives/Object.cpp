@@ -88,7 +88,7 @@ void _Object::Halt(pVMObject, VMFrame* frame) {
 }
 
 void _Object::Perform(pVMObject, VMFrame* frame) {
-    pVMSymbol selector = (pVMSymbol)frame->Pop();
+    VMSymbol* selector = (VMSymbol*)frame->Pop();
     oop_t self = frame->GetStackElement(0);
 
     VMClass* clazz = CLASS_OF(self);
@@ -99,7 +99,7 @@ void _Object::Perform(pVMObject, VMFrame* frame) {
 
 void _Object::PerformInSuperclass(pVMObject object, VMFrame* frame) {
     VMClass* clazz = (VMClass*) frame->Pop();
-    pVMSymbol selector = (pVMSymbol)frame->Pop();
+    VMSymbol* selector = (VMSymbol*)frame->Pop();
 
     VMInvokable* invokable = clazz->LookupInvokable(selector);
 
@@ -108,7 +108,7 @@ void _Object::PerformInSuperclass(pVMObject object, VMFrame* frame) {
 
 void _Object::PerformWithArguments(pVMObject object, VMFrame* frame) {
     VMArray* args = (VMArray*) frame->Pop();
-    pVMSymbol selector = (pVMSymbol)frame->Pop();
+    VMSymbol* selector = (VMSymbol*)frame->Pop();
     oop_t self = frame->GetStackElement(0);
 
     size_t num_args = args->GetNumberOfIndexableFields();
@@ -126,7 +126,7 @@ void _Object::PerformWithArguments(pVMObject object, VMFrame* frame) {
 void _Object::PerformWithArgumentsInSuperclass(pVMObject object, VMFrame* frame) {
     VMClass* clazz = (VMClass*) frame->Pop();
     VMArray* args = (VMArray*) frame->Pop();
-    pVMSymbol selector = (pVMSymbol)frame->Pop();
+    VMSymbol* selector = (VMSymbol*)frame->Pop();
 
     size_t num_args = args->GetNumberOfIndexableFields();
     for (size_t i = 0; i < num_args; i++) {
@@ -160,7 +160,7 @@ void _Object::InstVarAtPut(pVMObject object, VMFrame* frame) {
 }
 
 void _Object::InstVarNamed(pVMObject object, VMFrame* frame) {
-    pVMSymbol name = (pVMSymbol) frame->Pop();
+    VMSymbol* name = (VMSymbol*) frame->Pop();
     oop_t self = frame->Pop();
 
     long field_idx = AS_OBJ(self)->GetFieldIndex(name);

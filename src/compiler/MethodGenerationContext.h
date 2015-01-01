@@ -50,12 +50,12 @@ public:
     bool HasField(const StdString& field);
     uint8_t ComputeStackDepth();
     
-    uint8_t GetFieldIndex(pVMSymbol field);
+    uint8_t GetFieldIndex(VMSymbol* field);
 
     void SetHolder(ClassGenerationContext* holder);
     void SetOuter(MethodGenerationContext* outer);
     void SetIsBlockMethod(bool isBlock = true);
-    void SetSignature(pVMSymbol sig);
+    void SetSignature(VMSymbol* sig);
     void AddArgument(const StdString& arg);
     void SetPrimitive(bool prim = true);
     void AddLocal(const StdString& local);
@@ -68,7 +68,7 @@ public:
     ClassGenerationContext* GetHolder();
     MethodGenerationContext* GetOuter();
 
-    pVMSymbol GetSignature();
+    VMSymbol* GetSignature();
     bool IsPrimitive();
     bool IsBlockMethod();
     bool IsFinished();
@@ -81,7 +81,7 @@ private:
     ClassGenerationContext* holderGenc;
     MethodGenerationContext* outerGenc;
     bool blockMethod;
-    pVMSymbol signature;
+    VMSymbol* signature;
     ExtendedList<StdString> arguments;
     bool primitive;
     ExtendedList<StdString> locals;

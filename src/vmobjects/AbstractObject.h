@@ -60,13 +60,13 @@ public:
         throw "this object doesn't support SetClass";
     }
 
-    long GetFieldIndex(pVMSymbol fieldName) const;
+    long GetFieldIndex(VMSymbol* fieldName) const;
 
     inline virtual void WalkObjects(oop_t (oop_t)) {
         return;
     }
 
-    inline virtual pVMSymbol GetFieldName(long index) const {
+    inline virtual VMSymbol* GetFieldName(long index) const {
         cout << "this object doesn't support GetFieldName" << endl;
         throw "this object doesn't support GetFieldName";
     }

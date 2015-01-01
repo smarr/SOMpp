@@ -52,7 +52,7 @@
 _System* System_;
 
 void _System::Global_(pVMObject /*object*/, VMFrame* frame) {
-    pVMSymbol arg = static_cast<pVMSymbol>(frame->Pop());
+    VMSymbol* arg = static_cast<VMSymbol*>(frame->Pop());
     /*pVMObject self = */
     frame->Pop();
     oop_t result = GetUniverse()->GetGlobal(arg);
@@ -62,12 +62,12 @@ void _System::Global_(pVMObject /*object*/, VMFrame* frame) {
 
 void _System::Global_put_(pVMObject /*object*/, VMFrame* frame) {
     oop_t value = frame->Pop();
-    pVMSymbol arg = static_cast<pVMSymbol>(frame->Pop());
+    VMSymbol* arg = static_cast<VMSymbol*>(frame->Pop());
     GetUniverse()->SetGlobal(arg, value);
 }
 
 void _System::Load_(pVMObject /*object*/, VMFrame* frame) {
-    pVMSymbol arg = static_cast<pVMSymbol>(frame->Pop());
+    VMSymbol* arg = static_cast<VMSymbol*>(frame->Pop());
     frame->Pop();
     VMClass* result = GetUniverse()->LoadClass(arg);
     if (result)
@@ -86,7 +86,7 @@ void _System::Exit_(pVMObject /*object*/, VMFrame* frame) {
 }
 
 void _System::PrintString_(pVMObject /*object*/, VMFrame* frame) {
-    pVMString arg = static_cast<pVMString>(frame->Pop());
+    VMString* arg = static_cast<VMString*>(frame->Pop());
     std::string str = arg->GetStdString();
     cout << str;
 }

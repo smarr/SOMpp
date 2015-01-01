@@ -65,7 +65,7 @@ public:
     //operator "()" to invoke the method
     virtual void operator()(VMFrame* frame);
 
-    void SetSignature(pVMSymbol sig);
+    void SetSignature(VMSymbol* sig);
 
 private:
     inline uint8_t* GetBytecodes() const;

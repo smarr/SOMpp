@@ -60,7 +60,7 @@ VMClass* SourcecodeCompiler::CompileClass( const StdString& path,
     parser = new Parser(*fp);
     result = compile(systemClass);
 
-    pVMSymbol cname = result->GetName();
+    VMSymbol* cname = result->GetName();
     StdString cnameC = cname->GetStdString();
 
     if (file != cnameC) {

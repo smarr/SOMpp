@@ -49,8 +49,8 @@ public:
     inline VMClass*     GetSuperClass() const;
     inline void         SetSuperClass(VMClass*);
     inline bool         HasSuperClass() const;
-    inline pVMSymbol    GetName() const;
-    inline void         SetName(pVMSymbol);
+    inline VMSymbol*    GetName() const;
+    inline void         SetName(VMSymbol*);
     inline VMArray*     GetInstanceFields() const;
     inline void         SetInstanceFields(VMArray*);
     inline VMArray*     GetInstanceInvokables() const;
@@ -58,11 +58,11 @@ public:
            long         GetNumberOfInstanceInvokables() const;
            VMInvokable* GetInstanceInvokable(long) const;
            void         SetInstanceInvokable(long, pVMObject);
-           VMInvokable* LookupInvokable(pVMSymbol) const;
-           long         LookupFieldIndex(pVMSymbol) const;
+           VMInvokable* LookupInvokable(VMSymbol*) const;
+           long         LookupFieldIndex(VMSymbol*) const;
            bool         AddInstanceInvokable(pVMObject);
            void         AddInstancePrimitive(VMPrimitive*);
-           pVMSymbol    GetInstanceFieldName(long)const;
+           VMSymbol*    GetInstanceFieldName(long)const;
            long         GetNumberOfInstanceFields() const;
            bool         HasPrimitives() const;
            void         LoadPrimitives(const vector<StdString>&);
@@ -84,7 +84,7 @@ private:
     long numberOfSuperInstanceFields() const;
 
     VMClass* superClass;
-    pVMSymbol name;
+    VMSymbol* name;
     VMArray* instanceFields;
     VMArray* instanceInvokables;
 
@@ -100,11 +100,11 @@ void VMClass::SetSuperClass(VMClass* sup) {
     write_barrier(this, sup);
 }
 
-pVMSymbol VMClass::GetName() const {
+VMSymbol* VMClass::GetName() const {
     return name;
 }
 
-void VMClass::SetName(pVMSymbol nam) {
+void VMClass::SetName(VMSymbol* nam) {
     name = nam;
     write_barrier(this, nam);
 }

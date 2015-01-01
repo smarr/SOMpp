@@ -52,7 +52,7 @@ void VMEvaluationPrimitive::WalkObjects(oop_t (*walk)(oop_t)) {
     numberOfArguments = static_cast<VMInteger*>(walk(numberOfArguments));
 }
 
-pVMSymbol VMEvaluationPrimitive::computeSignatureString(long argc) {
+VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc) {
 #define VALUE_S "value"
 #define VALUE_LEN 5
 #define WITH_S    "with:"

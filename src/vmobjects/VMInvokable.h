@@ -36,14 +36,14 @@ public:
     virtual void      operator()(VMFrame*) = 0;
 
     virtual bool      IsPrimitive() const;
-            pVMSymbol GetSignature() const;
-    virtual void      SetSignature(pVMSymbol sig);
+            VMSymbol* GetSignature() const;
+    virtual void      SetSignature(VMSymbol* sig);
             VMClass*  GetHolder() const;
             void      SetHolder(VMClass* hld);
 
     void WalkObjects(oop_t (*walk)(oop_t));
 
 protected:
-    pVMSymbol signature;
+    VMSymbol* signature;
     VMClass*  holder;
 };

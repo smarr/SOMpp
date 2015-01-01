@@ -82,7 +82,7 @@ void VMClass::WalkObjects(oop_t (*walk)(oop_t)) {
     clazz = static_cast<VMClass*>(walk(clazz));
     if (superClass)
         superClass = static_cast<VMClass*>(walk(superClass));
-    name = static_cast<pVMSymbol>(walk(name));
+    name = static_cast<VMSymbol*>(walk(name));
     instanceFields = static_cast<VMArray*>(walk(instanceFields));
     instanceInvokables = static_cast<VMArray*>(walk(instanceInvokables));
 
@@ -94,7 +94,7 @@ void VMClass::WalkObjects(oop_t (*walk)(oop_t)) {
 
 void VMClass::MarkObjectAsInvalid() {
     superClass         = (VMClass*)  INVALID_POINTER;
-    name               = (pVMSymbol) INVALID_POINTER;
+    name               = (VMSymbol*) INVALID_POINTER;
     instanceFields     = (VMArray*)  INVALID_POINTER;
     instanceInvokables = (VMArray*)  INVALID_POINTER;
 }
@@ -133,11 +133,11 @@ void VMClass::AddInstancePrimitive(VMPrimitive* ptr) {
     }
 }
 
-pVMSymbol VMClass::GetInstanceFieldName(long index) const {
+VMSymbol* VMClass::GetInstanceFieldName(long index) const {
     long numSuperInstanceFields = numberOfSuperInstanceFields();
     if (index >= numSuperInstanceFields) {
         index -= numSuperInstanceFields;
-        return static_cast<pVMSymbol>(instanceFields->GetIndexableField(index));
+        return static_cast<VMSymbol*>(instanceFields->GetIndexableField(index));
     }
     return superClass->GetInstanceFieldName(index);
 }
@@ -174,7 +174,7 @@ void VMClass::SetInstanceInvokable(long index, pVMObject invokable) {
     }
 }
 
-VMInvokable* VMClass::LookupInvokable(pVMSymbol name) const {
+VMInvokable* VMClass::LookupInvokable(VMSymbol* name) const {
     assert(Universe::IsValidObject((oop_t) this));
     
     VMInvokable* invokable = name->GetCachedInvokable(this);
@@ -199,7 +199,7 @@ VMInvokable* VMClass::LookupInvokable(pVMSymbol name) const {
     return nullptr;
 }
 
-long VMClass::LookupFieldIndex(pVMSymbol name) const {
+long VMClass::LookupFieldIndex(VMSymbol* name) const {
     long numInstanceFields = GetNumberOfInstanceFields();
     for (long i = 0; i <= numInstanceFields; ++i) {
         // even with GetNumberOfInstanceFields == 0 there is the class field
@@ -403,7 +403,7 @@ void VMClass::setPrimitives(void* dlhandle, const StdString& cname) {
             // we have a primitive to load
             // get it's selector
             //
-            pVMSymbol sig = thePrimitive->GetSignature();
+            VMSymbol* sig = thePrimitive->GetSignature();
             StdString selector = sig->GetPlainString();
 #if defined(__GNUC__)
             CreatePrimitive* create =

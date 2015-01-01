@@ -37,7 +37,7 @@ public:
     StdString GetStdString() const;
     size_t GetStringLength() const;
 
-    virtual pVMString Clone() const;
+    virtual VMString* Clone() const;
     virtual VMClass* GetClass() const;
     virtual size_t GetObjectSize() const;
     virtual void WalkObjects(oop_t (oop_t));

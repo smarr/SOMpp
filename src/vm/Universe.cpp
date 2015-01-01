@@ -89,10 +89,10 @@ VMClass* doubleClass;
 VMClass* trueClass;
 VMClass* falseClass;
 
-pVMSymbol symbolIfTrue;
-pVMSymbol symbolIfFalse;
+VMSymbol* symbolIfTrue;
+VMSymbol* symbolIfFalse;
 
-std::map<std::string, pVMSymbol> symbolsMap;
+std::map<std::string, VMSymbol*> symbolsMap;
 
 std::string bm_name;
 
@@ -367,7 +367,7 @@ Universe::~Universe() {
 
 #if !DEBUG
     static void set_vt_to_null() {}
-    static void obtain_vtables_of_known_classes(pVMSymbol className) {}
+    static void obtain_vtables_of_known_classes(VMSymbol* className) {}
     bool Universe::IsValidObject(oop_t obj) {
         return true;
     }
@@ -438,7 +438,7 @@ Universe::~Universe() {
         vt_symbol     = nullptr;
     }
 
-    static void obtain_vtables_of_known_classes(pVMSymbol className) {
+    static void obtain_vtables_of_known_classes(VMSymbol* className) {
         VMArray* arr  = new (GetHeap<HEAP_CLS>()) VMArray(0, 0);
         vt_array      = *(void**) arr;
         
@@ -469,7 +469,7 @@ Universe::~Universe() {
         VMPrimitive* prm = new (GetHeap<HEAP_CLS>()) VMPrimitive(className);
         vt_primitive  = *(void**) prm;
         
-        pVMString str = new (GetHeap<HEAP_CLS>()) VMString("");
+        VMString* str = new (GetHeap<HEAP_CLS>()) VMString("");
         vt_string     = *(void**) str;
         vt_symbol     = *(void**) className;
     }
@@ -533,11 +533,11 @@ void Universe::InitializeGlobals() {
 
     blockClass = LoadClass(SymbolForChars("Block"));
 
-    pVMSymbol trueClassName = SymbolForChars("True");
+    VMSymbol* trueClassName = SymbolForChars("True");
     trueClass  = LoadClass(trueClassName);
     trueObject = NewInstance(trueClass);
     
-    pVMSymbol falseClassName = SymbolForChars("False");
+    VMSymbol* falseClassName = SymbolForChars("False");
     falseClass  = LoadClass(falseClassName);
     falseObject = NewInstance(falseClass);
 
@@ -567,7 +567,7 @@ VMClass* Universe::GetBlockClassWithArgs(long numberOfArguments) {
 
     ostringstream Str;
     Str << "Block" << numberOfArguments;
-    pVMSymbol name = SymbolFor(Str.str());
+    VMSymbol* name = SymbolFor(Str.str());
     VMClass* result = LoadClassBasic(name, nullptr);
 
     result->AddInstancePrimitive(new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(numberOfArguments) );
@@ -578,7 +578,7 @@ VMClass* Universe::GetBlockClassWithArgs(long numberOfArguments) {
     return result;
 }
 
-oop_t Universe::GetGlobal(pVMSymbol name) {
+oop_t Universe::GetGlobal(VMSymbol* name) {
     auto it = globals.find(name);
     if (it == globals.end()) {
         return nullptr;
@@ -587,7 +587,7 @@ oop_t Universe::GetGlobal(pVMSymbol name) {
     }
 }
 
-bool Universe::HasGlobal(pVMSymbol name) {
+bool Universe::HasGlobal(VMSymbol* name) {
     auto it = globals.find(name);
     if (it == globals.end()) {
         return false;
@@ -627,7 +627,7 @@ VMClass* superClass, const char* name) {
     SetGlobal(systemClass->GetName(), systemClass);
 }
 
-VMClass* Universe::LoadClass(pVMSymbol name) {
+VMClass* Universe::LoadClass(VMSymbol* name) {
     VMClass* result = static_cast<VMClass*>(GetGlobal(name));
     
     if (result != nullptr)
@@ -648,7 +648,7 @@ VMClass* Universe::LoadClass(pVMSymbol name) {
     return result;
 }
 
-VMClass* Universe::LoadClassBasic(pVMSymbol name, VMClass* systemClass) {
+VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
     StdString s_name = name->GetStdString();
     //cout << s_name.c_str() << endl;
     VMClass* result;
@@ -723,7 +723,7 @@ VMArray* Universe::NewArrayFromStrings(const vector<StdString>& argv) const {
     return result;
 }
 
-VMArray* Universe::NewArrayList(ExtendedList<pVMSymbol>& list) const {
+VMArray* Universe::NewArrayList(ExtendedList<VMSymbol*>& list) const {
     ExtendedList<oop_t>& objList = (ExtendedList<oop_t>&) list;
     return NewArrayList(objList);
 }
@@ -877,24 +877,24 @@ void Universe::WalkGlobals(oop_t (*walk)(oop_t)) {
 #endif
 
     // walk all entries in globals map
-    map<pVMSymbol, oop_t> globs = globals;
+    map<VMSymbol*, oop_t> globs = globals;
     globals.clear();
-    map<pVMSymbol, oop_t>::iterator iter;
+    map<VMSymbol*, oop_t>::iterator iter;
     for (iter = globs.begin(); iter != globs.end(); iter++) {
         assert(iter->second != nullptr);
 
-        pVMSymbol key = static_cast<pVMSymbol>(walk(iter->first));
+        VMSymbol* key = static_cast<VMSymbol*>(walk(iter->first));
         oop_t val = walk((oop_t)iter->second);
         globals[key] = val;
     }
     
     // walk all entries in symbols map
-    map<StdString, pVMSymbol>::iterator symbolIter;
+    map<StdString, VMSymbol*>::iterator symbolIter;
     for (symbolIter = symbolsMap.begin();
          symbolIter != symbolsMap.end();
          symbolIter++) {
         //insert overwrites old entries inside the internal map
-        symbolIter->second = static_cast<pVMSymbol>(walk(symbolIter->second));
+        symbolIter->second = static_cast<VMSymbol*>(walk(symbolIter->second));
     }
 
     map<long, VMClass*>::iterator bcIter;
@@ -911,7 +911,7 @@ void Universe::WalkGlobals(oop_t (*walk)(oop_t)) {
     interpreter->WalkGlobals(walk);
 }
 
-VMMethod* Universe::NewMethod( pVMSymbol signature,
+VMMethod* Universe::NewMethod( VMSymbol* signature,
         size_t numberOfBytecodes, size_t numberOfConstants) const {
     //Method needs space for the bytecodes and the pointers to the constants
     long additionalBytes = PADDED_SIZE(numberOfBytecodes + numberOfConstants*sizeof(pVMObject));
@@ -930,23 +930,23 @@ VMMethod* Universe::NewMethod( pVMSymbol signature,
     return result;
 }
 
-pVMString Universe::NewString( const StdString& str) const {
+VMString* Universe::NewString( const StdString& str) const {
     return NewString(str.c_str());
 }
 
-pVMString Universe::NewString( const char* str) const {
-    pVMString result = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(strlen(str) + 1)) VMString(str);
+VMString* Universe::NewString( const char* str) const {
+    VMString* result = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(strlen(str) + 1)) VMString(str);
 
     LOG_ALLOCATION("VMString", result->GetObjectSize());
     return result;
 }
 
-pVMSymbol Universe::NewSymbol( const StdString& str) {
+VMSymbol* Universe::NewSymbol( const StdString& str) {
     return NewSymbol(str.c_str());
 }
 
-pVMSymbol Universe::NewSymbol( const char* str ) {
-    pVMSymbol result = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(strlen(str)+1)) VMSymbol(str);
+VMSymbol* Universe::NewSymbol( const char* str ) {
+    VMSymbol* result = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(strlen(str)+1)) VMSymbol(str);
     symbolsMap[str] = result;
 
     LOG_ALLOCATION("VMSymbol", result->GetObjectSize());
@@ -965,15 +965,15 @@ VMClass* Universe::NewSystemClass() const {
     return systemClass;
 }
 
-pVMSymbol Universe::SymbolFor(const StdString& str) {
-    map<string,pVMSymbol>::iterator it = symbolsMap.find(str);
+VMSymbol* Universe::SymbolFor(const StdString& str) {
+    map<string,VMSymbol*>::iterator it = symbolsMap.find(str);
     return (it == symbolsMap.end()) ? NewSymbol(str) : it->second;
 }
 
-pVMSymbol Universe::SymbolForChars(const char* str) {
+VMSymbol* Universe::SymbolForChars(const char* str) {
     return SymbolFor(str);
 }
 
-void Universe::SetGlobal(pVMSymbol name, oop_t val) {
+void Universe::SetGlobal(VMSymbol* name, oop_t val) {
     globals[name] = val;
 }

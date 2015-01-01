@@ -85,7 +85,7 @@ int8_t MethodGenerationContext::FindLiteralIndex(oop_t lit) {
     return (int8_t)literals.IndexOf(lit);
 }
 
-uint8_t MethodGenerationContext::GetFieldIndex(pVMSymbol field) {
+uint8_t MethodGenerationContext::GetFieldIndex(VMSymbol* field) {
     int16_t idx = holderGenc->GetFieldIndex(field);
     assert(idx >= 0);
     return idx;
@@ -159,7 +159,7 @@ uint8_t MethodGenerationContext::ComputeStackDepth() {
         case BC_SUPER_SEND: {
             // these are special: they need to look at the number of
             // arguments (extractable from the signature)
-            pVMSymbol sig = static_cast<pVMSymbol>(literals.Get(bytecode[i + 1]));
+            VMSymbol* sig = static_cast<VMSymbol*>(literals.Get(bytecode[i + 1]));
 
             depth -= Signature::GetNumberOfArguments(sig);
 
@@ -204,7 +204,7 @@ void MethodGenerationContext::SetIsBlockMethod(bool isBlock) {
     blockMethod = isBlock;
 }
 
-void MethodGenerationContext::SetSignature(pVMSymbol sig) {
+void MethodGenerationContext::SetSignature(VMSymbol* sig) {
     signature = sig;
 }
 
@@ -255,7 +255,7 @@ MethodGenerationContext* MethodGenerationContext::GetOuter() {
     return outerGenc;
 }
 
-pVMSymbol MethodGenerationContext::GetSignature() {
+VMSymbol* MethodGenerationContext::GetSignature() {
     return signature;
 }
 

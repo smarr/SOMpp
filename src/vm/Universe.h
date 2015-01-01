@@ -70,8 +70,8 @@ extern VMClass* doubleClass;
 extern VMClass* trueClass;
 extern VMClass* falseClass;
 
-extern pVMSymbol symbolIfTrue;
-extern pVMSymbol symbolIfFalse;
+extern VMSymbol* symbolIfTrue;
+extern VMSymbol* symbolIfFalse;
 
 using namespace std;
 class Universe {
@@ -89,42 +89,42 @@ public:
     
     void Assert(bool) const;
 
-    pVMSymbol SymbolFor(const StdString&);
-    pVMSymbol SymbolForChars(const char*);
+    VMSymbol* SymbolFor(const StdString&);
+    VMSymbol* SymbolForChars(const char*);
 
     //VMObject instanciation methods. These should probably be refactored to a new class
     VMArray* NewArray(long) const;
     VMArray* NewArrayList(ExtendedList<oop_t>& list) const;
-    VMArray* NewArrayList(ExtendedList<pVMSymbol>& list) const;
+    VMArray* NewArrayList(ExtendedList<VMSymbol*>& list) const;
     VMArray* NewArrayFromStrings(const vector<StdString>&) const;
     VMBlock* NewBlock(VMMethod*, VMFrame*, long);
     VMClass* NewClass(VMClass*) const;
     VMFrame* NewFrame(VMFrame*, VMMethod*) const;
-    VMMethod* NewMethod(pVMSymbol, size_t, size_t) const;
+    VMMethod* NewMethod(VMSymbol*, size_t, size_t) const;
     pVMObject NewInstance(VMClass*) const;
     VMInteger* NewInteger(long) const;
     void WalkGlobals(oop_t (*walk)(oop_t));
     VMBigInteger* NewBigInteger(int64_t) const;
     VMDouble* NewDouble(double) const;
     VMClass* NewMetaclassClass(void) const;
-    pVMString NewString(const StdString&) const;
-    pVMSymbol NewSymbol(const StdString&);
-    pVMString NewString(const char*) const;
-    pVMSymbol NewSymbol(const char*);
+    VMString* NewString(const StdString&) const;
+    VMSymbol* NewSymbol(const StdString&);
+    VMString* NewString(const char*) const;
+    VMSymbol* NewSymbol(const char*);
     VMClass* NewSystemClass(void) const;
 
     void InitializeSystemClass(VMClass*, VMClass*, const char*);
 
-    oop_t GetGlobal(pVMSymbol);
-    void SetGlobal(pVMSymbol name, oop_t val);
-    bool HasGlobal(pVMSymbol);
+    oop_t GetGlobal(VMSymbol*);
+    void SetGlobal(VMSymbol* name, oop_t val);
+    bool HasGlobal(VMSymbol*);
     void InitializeGlobals();
     VMClass* GetBlockClass(void) const;
     VMClass* GetBlockClassWithArgs(long);
 
-    VMClass* LoadClass(pVMSymbol);
+    VMClass* LoadClass(VMSymbol*);
     void LoadSystemClass(VMClass*);
-    VMClass* LoadClassBasic(pVMSymbol, VMClass*);
+    VMClass* LoadClassBasic(VMSymbol*, VMClass*);
     VMClass* LoadShellClass(StdString&);
 
     Universe();
@@ -154,7 +154,7 @@ private:
     void initialize(long, char**);
 
     long heapSize;
-    map<pVMSymbol, oop_t> globals;
+    map<VMSymbol*, oop_t> globals;
     map<long,VMClass*> blockClassesByNoOfArgs;
     vector<StdString> classPath;
 

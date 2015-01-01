@@ -40,18 +40,18 @@ ClassGenerationContext::ClassGenerationContext() :
 ClassGenerationContext::~ClassGenerationContext() {
 }
 
-void ClassGenerationContext::AddClassField(pVMSymbol field) {
+void ClassGenerationContext::AddClassField(VMSymbol* field) {
     classFields.Add(field);
 }
 
-void ClassGenerationContext::AddInstanceField(pVMSymbol field) {
+void ClassGenerationContext::AddInstanceField(VMSymbol* field) {
     instanceFields.Add(field);
 }
 
 void ClassGenerationContext::SetInstanceFieldsOfSuper(VMArray* fields) {
     long num = fields->GetNumberOfIndexableFields();
     for (long i = 0; i < num; i ++) {
-        pVMSymbol fieldName = (pVMSymbol)fields->GetIndexableField(i);
+        VMSymbol* fieldName = (VMSymbol*)fields->GetIndexableField(i);
         instanceFields.Add(fieldName);
     }
 }
@@ -59,7 +59,7 @@ void ClassGenerationContext::SetInstanceFieldsOfSuper(VMArray* fields) {
 void ClassGenerationContext::SetClassFieldsOfSuper(VMArray* fields) {
     long num = fields->GetNumberOfIndexableFields();
     for (long i = 0; i < num; i ++) {
-        pVMSymbol fieldName = (pVMSymbol)fields->GetIndexableField(i);
+        VMSymbol* fieldName = (VMSymbol*)fields->GetIndexableField(i);
         classFields.Add(fieldName);
     }
 }
@@ -72,7 +72,7 @@ bool ClassGenerationContext::HasField(const StdString& field) {
     }
 }
 
-int16_t ClassGenerationContext::GetFieldIndex(pVMSymbol field) {
+int16_t ClassGenerationContext::GetFieldIndex(VMSymbol* field) {
     if (IsClassSide()) {
         return classFields.IndexOf(field);
     } else {

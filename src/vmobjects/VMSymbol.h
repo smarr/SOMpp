@@ -38,7 +38,7 @@ public:
     VMSymbol(const StdString& s);
     virtual StdString GetPlainString() const;
     virtual size_t GetObjectSize() const;
-    virtual pVMSymbol Clone() const;
+    virtual VMSymbol* Clone() const;
     virtual VMClass* GetClass() const;
 private:
     const int numberOfArgumentsOfSignature;

@@ -79,9 +79,6 @@ class VMSymbol;
 typedef VMObject*              pVMObject;
 typedef const VMObject*       pcVMObject;
 
-typedef VMString*              pVMString;
-typedef VMSymbol*              pVMSymbol;
-
 typedef AbstractVMObject*      pVMAbstract;
 
 // oop_t: Ordinary Object Pointer type

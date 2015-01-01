@@ -32,9 +32,9 @@
 
 class VMPrimitive: public VMInvokable {
 public:
-    static VMPrimitive* GetEmptyPrimitive(pVMSymbol sig);
+    static VMPrimitive* GetEmptyPrimitive(VMSymbol* sig);
 
-    VMPrimitive(pVMSymbol sig);
+    VMPrimitive(VMSymbol* sig);
 
     inline  bool IsEmpty() const;
     inline  void SetRoutine(PrimitiveRoutine* rtn);

@@ -27,11 +27,11 @@
 #include "Signature.h"
 #include "VMSymbol.h"
 
-int Signature::GetNumberOfArguments(pVMSymbol sig) {
+int Signature::GetNumberOfArguments(VMSymbol* sig) {
     return sig->numberOfArgumentsOfSignature;
 }
 
-bool Signature::IsBinary(pVMSymbol sig) {
+bool Signature::IsBinary(VMSymbol* sig) {
     return sig->numberOfArgumentsOfSignature == 2;
 }
 

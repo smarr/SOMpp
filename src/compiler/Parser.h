@@ -65,8 +65,8 @@ private:
     void unaryPattern(MethodGenerationContext* mgenc);
     void binaryPattern(MethodGenerationContext* mgenc);
     void keywordPattern(MethodGenerationContext* mgenc);
-    void methodBlock(MethodGenerationContext* mgenc);pVMSymbol unarySelector(void);
-    pVMSymbol binarySelector(void);
+    void methodBlock(MethodGenerationContext* mgenc);VMSymbol* unarySelector(void);
+    VMSymbol* binarySelector(void);
     StdString identifier(void);
     StdString keyword(void);
     StdString argument(void);
@@ -100,8 +100,8 @@ private:
     oop_t literalDouble(bool  negateValue);
     void literalSymbol(MethodGenerationContext* mgenc);
     void literalString(MethodGenerationContext* mgenc);
-    pVMSymbol selector(void);
-    pVMSymbol keywordSelector(void);
+    VMSymbol* selector(void);
+    VMSymbol* keywordSelector(void);
     StdString _string(void);
     void nestedBlock(MethodGenerationContext* mgenc);
     void inlinedBlock(MethodGenerationContext* mgenc);

@@ -55,8 +55,8 @@ void CloneObjectsTest::testCloneDouble() {
 }
 
 void CloneObjectsTest::testCloneString() {
-    pVMString orig = GetUniverse()->NewString("foobar");
-    pVMString clone = orig->Clone();
+    VMString* orig = GetUniverse()->NewString("foobar");
+    VMString* clone = orig->Clone();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->GetClass(),
@@ -72,8 +72,8 @@ void CloneObjectsTest::testCloneString() {
 }
 
 void CloneObjectsTest::testCloneSymbol() {
-    pVMSymbol orig = GetUniverse()->NewSymbol("foobar");
-    pVMSymbol clone = orig->Clone();
+    VMSymbol* orig = GetUniverse()->NewSymbol("foobar");
+    VMSymbol* clone = orig->Clone();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->GetClass(),
@@ -115,7 +115,7 @@ void CloneObjectsTest::testCloneArray() {
 }
 
 void CloneObjectsTest::testCloneBlock() {
-    pVMSymbol methodSymbol = GetUniverse()->NewSymbol("someMethod");
+    VMSymbol* methodSymbol = GetUniverse()->NewSymbol("someMethod");
     VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
     VMBlock* orig = GetUniverse()->NewBlock(method,
             GetUniverse()->GetInterpreter()->GetFrame(),
@@ -130,7 +130,7 @@ void CloneObjectsTest::testCloneBlock() {
     CPPUNIT_ASSERT_EQUAL_MESSAGE("context differs!!", orig->context, clone->context);
 }
 void CloneObjectsTest::testClonePrimitive() {
-    pVMSymbol primitiveSymbol = GetUniverse()->NewSymbol("myPrimitive");
+    VMSymbol* primitiveSymbol = GetUniverse()->NewSymbol("myPrimitive");
     VMPrimitive* orig = VMPrimitive::GetEmptyPrimitive(primitiveSymbol);
     VMPrimitive* clone = orig->Clone();
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
@@ -157,7 +157,7 @@ void CloneObjectsTest::testCloneEvaluationPrimitive() {
 }
 
 void CloneObjectsTest::testCloneFrame() {
-    pVMSymbol methodSymbol = GetUniverse()->NewSymbol("frameMethod");
+    VMSymbol* methodSymbol = GetUniverse()->NewSymbol("frameMethod");
     VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
     VMFrame* orig = GetUniverse()->NewFrame(nullptr, method);
     VMFrame* context = orig->Clone();
@@ -178,7 +178,7 @@ void CloneObjectsTest::testCloneFrame() {
 }
 
 void CloneObjectsTest::testCloneMethod() {
-    pVMSymbol methodSymbol = GetUniverse()->NewSymbol("myMethod");
+    VMSymbol* methodSymbol = GetUniverse()->NewSymbol("myMethod");
     VMMethod* orig = GetUniverse()->NewMethod(methodSymbol, 0, 0);
     VMMethod* clone = orig->Clone();
 

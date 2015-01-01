@@ -50,7 +50,7 @@ private:
 
     VMFrame* popFrame();
     void popFrameAndPushResult(oop_t result);
-    void send(pVMSymbol signature, VMClass* receiverClass);
+    void send(VMSymbol* signature, VMClass* receiverClass);
 
     void doDup();
     void doPushLocal(long bytecodeIndex);

@@ -32,18 +32,18 @@ bool VMInvokable::IsPrimitive() const {
     return false;
 }
 
-pVMSymbol VMInvokable::GetSignature() const {
+VMSymbol* VMInvokable::GetSignature() const {
     return signature;
 }
 
-void VMInvokable::SetSignature(pVMSymbol sig) {
+void VMInvokable::SetSignature(VMSymbol* sig) {
     signature = sig;
     write_barrier(this, sig);
 }
 
 void VMInvokable::WalkObjects(oop_t (*walk)(oop_t)) {
     clazz = static_cast<VMClass*>(walk(clazz));
-    signature = static_cast<pVMSymbol>(walk(signature));
+    signature = static_cast<VMSymbol*>(walk(signature));
     if (holder)
         holder = static_cast<VMClass*>(walk(holder));
 }

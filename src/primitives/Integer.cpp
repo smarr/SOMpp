@@ -273,7 +273,7 @@ void _Integer::AtRandom(pVMObject /*object*/, VMFrame* frame) {
 }
 
 void _Integer::FromString(pVMObject, VMFrame* frame) {
-    pVMString self = (pVMString) frame->Pop();
+    VMString* self = (VMString*) frame->Pop();
     frame->Pop();
 
     int32_t integer = atoi(self->GetChars());

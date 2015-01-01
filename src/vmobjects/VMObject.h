@@ -68,7 +68,7 @@ public:
     /* Virtual member functions */
     virtual inline VMClass*  GetClass() const;
     virtual        void      SetClass(VMClass* cl);
-    virtual        pVMSymbol GetFieldName(long index) const;
+    virtual        VMSymbol* GetFieldName(long index) const;
     virtual inline long      GetNumberOfFields() const;
     virtual        void      SetNumberOfFields(long nof);
             inline oop_t GetField(long index) const;
