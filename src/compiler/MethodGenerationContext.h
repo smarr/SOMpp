@@ -41,7 +41,7 @@ public:
     MethodGenerationContext();
     ~MethodGenerationContext();
 
-    pVMMethod Assemble();
+    VMMethod* Assemble();
     VMPrimitive* AssemblePrimitive();
 
     int8_t FindLiteralIndex(oop_t lit);

@@ -27,7 +27,7 @@ void AbstractVMObject::Send(StdString selectorString, oop_t* arguments, long arg
     }
 
     VMClass* cl = GetClass();
-    pVMInvokable invokable = cl->LookupInvokable(selector);
+    VMInvokable* invokable = cl->LookupInvokable(selector);
     (*invokable)(frame);
 }
 

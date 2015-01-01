@@ -62,7 +62,7 @@ void VMPrimitive::WalkObjects(oop_t (*walk)(oop_t)) {
 }
 
 void VMPrimitive::EmptyRoutine( pVMObject _self, VMFrame* /*frame*/) {
-    pVMInvokable self = static_cast<pVMInvokable>(_self);
+    VMInvokable* self = static_cast<VMInvokable*>(_self);
     pVMSymbol sig = self->GetSignature();
     cout << "undefined primitive called: " << sig->GetChars() << endl;
 }

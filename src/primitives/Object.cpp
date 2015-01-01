@@ -92,7 +92,7 @@ void _Object::Perform(pVMObject, VMFrame* frame) {
     oop_t self = frame->GetStackElement(0);
 
     VMClass* clazz = CLASS_OF(self);
-    pVMInvokable invokable = clazz->LookupInvokable(selector);
+    VMInvokable* invokable = clazz->LookupInvokable(selector);
 
     (*invokable)(frame);
 }
@@ -101,7 +101,7 @@ void _Object::PerformInSuperclass(pVMObject object, VMFrame* frame) {
     VMClass* clazz = (VMClass*) frame->Pop();
     pVMSymbol selector = (pVMSymbol)frame->Pop();
 
-    pVMInvokable invokable = clazz->LookupInvokable(selector);
+    VMInvokable* invokable = clazz->LookupInvokable(selector);
 
     (*invokable)(frame);
 }
@@ -118,7 +118,7 @@ void _Object::PerformWithArguments(pVMObject object, VMFrame* frame) {
     }
 
     VMClass* clazz = CLASS_OF(self);
-    pVMInvokable invokable = clazz->LookupInvokable(selector);
+    VMInvokable* invokable = clazz->LookupInvokable(selector);
 
     (*invokable)(frame);
 }
@@ -134,7 +134,7 @@ void _Object::PerformWithArgumentsInSuperclass(pVMObject object, VMFrame* frame)
         frame->Push(arg);
     }
 
-    pVMInvokable invokable = clazz->LookupInvokable(selector);
+    VMInvokable* invokable = clazz->LookupInvokable(selector);
 
     (*invokable)(frame);
 }

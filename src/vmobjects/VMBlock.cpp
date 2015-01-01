@@ -37,7 +37,7 @@ VMBlock::VMBlock() :
         VMObject(VMBlockNumberOfFields), blockMethod(), context() {
 }
 
-void VMBlock::SetMethod(pVMMethod bMethod) {
+void VMBlock::SetMethod(VMMethod* bMethod) {
     blockMethod = bMethod;
     write_barrier(this, bMethod);
 }
@@ -48,7 +48,7 @@ VMBlock* VMBlock::Clone() const {
     return clone;
 }
 
-pVMMethod VMBlock::GetMethod() const {
+VMMethod* VMBlock::GetMethod() const {
     return (blockMethod);
 }
 

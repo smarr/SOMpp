@@ -57,7 +57,7 @@ public:
 #endif
     virtual void WalkObjects(oop_t (oop_t));
     inline  long      GetNumberOfIndexableFields() const;
-    virtual pVMMethod Clone() const;
+    virtual VMMethod* Clone() const;
 
     inline  void      SetIndexableField(long idx, oop_t item);
 

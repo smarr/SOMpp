@@ -32,15 +32,15 @@ class VMBlock: public VMObject {
 public:
     VMBlock();
 
-            pVMMethod GetMethod() const;
-            void      SetMethod(pVMMethod);
+            VMMethod* GetMethod() const;
+            void      SetMethod(VMMethod*);
     inline  void      SetContext(VMFrame*);
     inline  VMFrame*  GetContext() const;
     virtual VMBlock*  Clone() const;
 
     static VMEvaluationPrimitive* GetEvaluationPrimitive(int);
 private:
-    pVMMethod blockMethod;
+    VMMethod* blockMethod;
     VMFrame* context;
 
     static const int VMBlockNumberOfFields;

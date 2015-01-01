@@ -64,8 +64,8 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
     bytecodes = (uint8_t*)(&indexableFields + 2 + GetNumberOfIndexableFields());
 }
 
-pVMMethod VMMethod::Clone() const {
-    pVMMethod clone = new (GetHeap<HEAP_CLS>(), GetObjectSize() - sizeof(VMMethod) ALLOC_MATURE) VMMethod(*this);
+VMMethod* VMMethod::Clone() const {
+    VMMethod* clone = new (GetHeap<HEAP_CLS>(), GetObjectSize() - sizeof(VMMethod) ALLOC_MATURE) VMMethod(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,
                     sizeof(VMObject)), GetObjectSize() -
             sizeof(VMObject));
@@ -148,7 +148,7 @@ void VMMethod::SetHolderAll(VMClass* hld) {
     for (long i = 0; i < numIndexableFields; ++i) {
         oop_t o = GetIndexableField(i);
         if (!IS_TAGGED(o)) {
-            pVMInvokable vmi = dynamic_cast<pVMInvokable>(AS_OBJ(o));
+            VMInvokable* vmi = dynamic_cast<VMInvokable*>(AS_OBJ(o));
             if (vmi != nullptr) {
                 vmi->SetHolder(hld);
             }

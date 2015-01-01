@@ -35,7 +35,7 @@ public:
     ~Interpreter();
     
     void      Start();
-    VMFrame*  PushNewFrame(pVMMethod method);
+    VMFrame*  PushNewFrame(VMMethod* method);
     void      SetFrame(VMFrame* frame);
     inline VMFrame* GetFrame() const;
     void      WalkGlobals(oop_t (*walk)(oop_t));

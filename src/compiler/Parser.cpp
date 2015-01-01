@@ -522,7 +522,7 @@ void Parser::primary(MethodGenerationContext* mgenc, bool* super) {
 
         nestedBlock(bgenc);
 
-        pVMMethod block_method = bgenc->Assemble();
+        VMMethod* block_method = bgenc->Assemble();
         mgenc->AddLiteral(block_method);
         bcGen->EmitPUSHBLOCK(mgenc, block_method);
         delete (bgenc);

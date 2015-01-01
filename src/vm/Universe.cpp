@@ -323,7 +323,7 @@ void Universe::initialize(long _argc, char** _argv) {
 
     
 
-    pVMMethod bootstrapMethod = NewMethod(SymbolForChars("bootstrap"), 1, 0);
+    VMMethod* bootstrapMethod = NewMethod(SymbolForChars("bootstrap"), 1, 0);
     bootstrapMethod->SetBytecode(0, BC_HALT);
     bootstrapMethod->SetNumberOfLocals(0);
 
@@ -347,7 +347,7 @@ void Universe::initialize(long _argc, char** _argv) {
     bootstrapFrame->Push(systemObject);
     bootstrapFrame->Push(argumentsArray);
 
-    pVMInvokable initialize = systemClass->LookupInvokable(SymbolForChars("initialize:"));
+    VMInvokable* initialize = systemClass->LookupInvokable(SymbolForChars("initialize:"));
     (*initialize)(bootstrapFrame);
 
     // reset "-d" indicator
@@ -462,7 +462,7 @@ Universe::~Universe() {
         VMInteger* i  = new (GetHeap<HEAP_CLS>()) VMInteger(0);
         vt_integer    = *(void**) i;
         
-        pVMMethod mth = new (GetHeap<HEAP_CLS>()) VMMethod(0, 0, 0);
+        VMMethod* mth = new (GetHeap<HEAP_CLS>()) VMMethod(0, 0, 0);
         vt_method     = *(void**) mth;
         vt_object     = *(void**) nilObject;
         
@@ -746,7 +746,7 @@ VMBigInteger* Universe::NewBigInteger( int64_t value) const {
     return new (GetHeap<HEAP_CLS>()) VMBigInteger(value);
 }
 
-VMBlock* Universe::NewBlock(pVMMethod method, VMFrame* context, long arguments) {
+VMBlock* Universe::NewBlock(VMMethod* method, VMFrame* context, long arguments) {
     VMBlock* result = new (GetHeap<HEAP_CLS>()) VMBlock;
     result->SetClass(GetBlockClassWithArgs(arguments));
 
@@ -775,7 +775,7 @@ VMDouble* Universe::NewDouble(double value) const {
     return new (GetHeap<HEAP_CLS>()) VMDouble(value);
 }
 
-VMFrame* Universe::NewFrame(VMFrame* previousFrame, pVMMethod method) const {
+VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method) const {
     VMFrame* result = nullptr;
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     result = method->GetCachedFrame();
@@ -911,15 +911,15 @@ void Universe::WalkGlobals(oop_t (*walk)(oop_t)) {
     interpreter->WalkGlobals(walk);
 }
 
-pVMMethod Universe::NewMethod( pVMSymbol signature,
+VMMethod* Universe::NewMethod( pVMSymbol signature,
         size_t numberOfBytecodes, size_t numberOfConstants) const {
     //Method needs space for the bytecodes and the pointers to the constants
     long additionalBytes = PADDED_SIZE(numberOfBytecodes + numberOfConstants*sizeof(pVMObject));
 //#if GC_TYPE==GENERATIONAL
-//    pVMMethod result = new (GetHeap<HEAP_CLS>(),additionalBytes, true) 
+//    VMMethod* result = new (GetHeap<HEAP_CLS>(),additionalBytes, true) 
 //                VMMethod(numberOfBytecodes, numberOfConstants);
 //#else
-    pVMMethod result = new (GetHeap<HEAP_CLS>(),additionalBytes)
+    VMMethod* result = new (GetHeap<HEAP_CLS>(),additionalBytes)
     VMMethod(numberOfBytecodes, numberOfConstants);
 //#endif
     result->SetClass(methodClass);

@@ -116,7 +116,7 @@ void CloneObjectsTest::testCloneArray() {
 
 void CloneObjectsTest::testCloneBlock() {
     pVMSymbol methodSymbol = GetUniverse()->NewSymbol("someMethod");
-    pVMMethod method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
     VMBlock* orig = GetUniverse()->NewBlock(method,
             GetUniverse()->GetInterpreter()->GetFrame(),
             method->GetNumberOfArguments());
@@ -158,7 +158,7 @@ void CloneObjectsTest::testCloneEvaluationPrimitive() {
 
 void CloneObjectsTest::testCloneFrame() {
     pVMSymbol methodSymbol = GetUniverse()->NewSymbol("frameMethod");
-    pVMMethod method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
     VMFrame* orig = GetUniverse()->NewFrame(nullptr, method);
     VMFrame* context = orig->Clone();
     orig->SetContext(context);
@@ -179,8 +179,8 @@ void CloneObjectsTest::testCloneFrame() {
 
 void CloneObjectsTest::testCloneMethod() {
     pVMSymbol methodSymbol = GetUniverse()->NewSymbol("myMethod");
-    pVMMethod orig = GetUniverse()->NewMethod(methodSymbol, 0, 0);
-    pVMMethod clone = orig->Clone();
+    VMMethod* orig = GetUniverse()->NewMethod(methodSymbol, 0, 0);
+    VMMethod* clone = orig->Clone();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);

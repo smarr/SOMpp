@@ -56,9 +56,9 @@ public:
     inline VMArray*     GetInstanceInvokables() const;
            void         SetInstanceInvokables(VMArray*);
            long         GetNumberOfInstanceInvokables() const;
-           pVMInvokable GetInstanceInvokable(long) const;
+           VMInvokable* GetInstanceInvokable(long) const;
            void         SetInstanceInvokable(long, pVMObject);
-           pVMInvokable LookupInvokable(pVMSymbol) const;
+           VMInvokable* LookupInvokable(pVMSymbol) const;
            long         LookupFieldIndex(pVMSymbol) const;
            bool         AddInstanceInvokable(pVMObject);
            void         AddInstancePrimitive(VMPrimitive*);

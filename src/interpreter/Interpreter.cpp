@@ -70,7 +70,7 @@ Interpreter::~Interpreter() {}
 // The following three variables are used to cache main parts of the
 // current execution context
 long      bytecodeIndexGlobal;
-pVMMethod method;
+VMMethod* method;
 uint8_t*  currentBytecodes;
 
 void Interpreter::Start() {
@@ -199,7 +199,7 @@ void Interpreter::Start() {
       DISPATCH_NOGC();
 }
 
-VMFrame* Interpreter::PushNewFrame(pVMMethod method) {
+VMFrame* Interpreter::PushNewFrame(VMMethod* method) {
     SetFrame(GetUniverse()->NewFrame(GetFrame(), method));
     return GetFrame();
 }
@@ -237,7 +237,7 @@ VMFrame* Interpreter::popFrame() {
 void Interpreter::popFrameAndPushResult(oop_t result) {
     VMFrame* prevFrame = popFrame();
 
-    pVMMethod method = prevFrame->GetMethod();
+    VMMethod* method = prevFrame->GetMethod();
     long numberOfArgs = method->GetNumberOfArguments();
 
     for (long i = 0; i < numberOfArgs; ++i) GetFrame()->Pop();
@@ -246,7 +246,7 @@ void Interpreter::popFrameAndPushResult(oop_t result) {
 }
 
 void Interpreter::send(pVMSymbol signature, VMClass* receiverClass) {
-    pVMInvokable invokable = receiverClass->LookupInvokable(signature);
+    VMInvokable* invokable = receiverClass->LookupInvokable(signature);
 
     if (invokable != nullptr) {
 #ifdef LOG_RECEIVER_TYPES
@@ -341,7 +341,7 @@ void Interpreter::doPushBlock(long bytecodeIndex) {
         }
     }
 
-    pVMMethod blockMethod = static_cast<pVMMethod>(method->GetConstant(bytecodeIndex));
+    VMMethod* blockMethod = static_cast<VMMethod*>(method->GetConstant(bytecodeIndex));
 
     long numOfArgs = blockMethod->GetNumberOfArguments();
 
@@ -435,10 +435,10 @@ void Interpreter::doSuperSend(long bytecodeIndex) {
     pVMSymbol signature = static_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));
 
     VMFrame* ctxt = GetFrame()->GetOuterContext();
-    pVMMethod realMethod = ctxt->GetMethod();
+    VMMethod* realMethod = ctxt->GetMethod();
     VMClass* holder = realMethod->GetHolder();
     VMClass* super = holder->GetSuperClass();
-    pVMInvokable invokable = static_cast<pVMInvokable>(super->LookupInvokable(signature));
+    VMInvokable* invokable = static_cast<VMInvokable*>(super->LookupInvokable(signature));
 
     if (invokable != nullptr)
         (*invokable)(GetFrame());
@@ -509,5 +509,5 @@ void Interpreter::doJump(long bytecodeIndex) {
 }
 
 void Interpreter::WalkGlobals(oop_t (*walk)(oop_t)) {
-    method = (pVMMethod) walk(method);
+    method = (VMMethod*) walk(method);
 }

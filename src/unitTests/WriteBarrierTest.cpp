@@ -54,7 +54,7 @@ void WriteBarrierTest::testWriteBlock() {
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
 
     pVMSymbol methodSymbol = GetUniverse()->NewSymbol("someMethod");
-    pVMMethod method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
     VMBlock* block = GetUniverse()->NewBlock(method,
             GetUniverse()->GetInterpreter()->GetFrame(),
             method->GetNumberOfArguments());
@@ -99,7 +99,7 @@ void WriteBarrierTest::testWriteMethod() {
     
     // reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
-    pVMMethod method = GetUniverse()->GetInterpreter()->GetFrame()->GetMethod()->Clone();
+    VMMethod* method = GetUniverse()->GetInterpreter()->GetFrame()->GetMethod()->Clone();
     method->SetHolder(integerClass);
     TEST_WB_CALLED("VMMethod failed to call writeBarrier on SetHolder", method, integerClass);
     method->SetSignature(method->GetSignature());

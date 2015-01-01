@@ -47,7 +47,7 @@ Shell::Shell() {
     bootstrapMethod = nullptr;
 }
 
-Shell::Shell(pVMMethod bsm) {
+Shell::Shell(VMMethod* bsm) {
     bootstrapMethod = bsm;
 }
 
@@ -120,7 +120,7 @@ void Shell::Start() {
         currentFrame->Push(it);
 
         // Lookup the run: method
-        pVMInvokable initialize = runClass->LookupInvokable(
+        VMInvokable* initialize = runClass->LookupInvokable(
                                         GetUniverse()->SymbolFor("run:"));
 
         // Invoke the run method

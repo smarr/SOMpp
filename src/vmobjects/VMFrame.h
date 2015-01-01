@@ -47,8 +47,8 @@ public:
     inline bool HasContext() const;
     VMFrame* GetContextLevel(long);
     VMFrame* GetOuterContext();
-    inline pVMMethod GetMethod() const;
-    void SetMethod(pVMMethod);
+    inline VMMethod* GetMethod() const;
+    void SetMethod(VMMethod*);
     oop_t Pop();
     void Push(oop_t);
     void ResetStackPointer();
@@ -72,7 +72,7 @@ public:
 private:
     VMFrame* previousFrame;
     VMFrame* context;
-    pVMMethod method;
+    VMMethod* method;
     long bytecodeIndex;
     oop_t* arguments;
     oop_t* locals;
@@ -133,6 +133,6 @@ void VMFrame::ClearPreviousFrame() {
     previousFrame = nullptr;
 }
 
-pVMMethod VMFrame::GetMethod() const {
+VMMethod* VMFrame::GetMethod() const {
     return method;
 }

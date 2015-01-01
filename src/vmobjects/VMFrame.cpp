@@ -37,7 +37,7 @@
 // be necessary, as these cases are not taken into account when the stack
 // depth is calculated. In that case this method is called.
 VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength) {
-    pVMMethod method = from->GetMethod();
+    VMMethod* method = from->GetMethod();
     long length = method->GetNumberOfArguments()
                     + method->GetNumberOfLocals()
                     + method->GetMaximumNumberOfStackElements()
@@ -112,7 +112,7 @@ VMFrame::VMFrame(long size, long nof) :
     }
 }
 
-void VMFrame::SetMethod(pVMMethod method) {
+void VMFrame::SetMethod(VMMethod* method) {
     this->method = method;
     write_barrier(this, method);
 }
@@ -142,7 +142,7 @@ void VMFrame::WalkObjects(oop_t (*walk)(oop_t)) {
         previousFrame = (VMFrame*) walk(previousFrame);
     if (context)
         context = (VMFrame*) walk(context);
-    method = (pVMMethod) walk(method);
+    method = (VMMethod*) walk(method);
 
     // all other fields are indexable via arguments array
     // --> until end of Frame
@@ -198,7 +198,7 @@ void VMFrame::PrintStack() const {
 
 void VMFrame::ResetStackPointer() {
     // arguments are stored in front of local variables
-    pVMMethod meth = GetMethod();
+    VMMethod* meth = GetMethod();
     locals = arguments + meth->GetNumberOfArguments();
     // Set the stack pointer to its initial value thereby clearing the stack
     stack_ptr = locals + meth->GetNumberOfLocals() - 1;
@@ -236,7 +236,7 @@ void VMFrame::PrintStackTrace() const {
 }
 
 long VMFrame::ArgumentStackIndex(long index) const {
-    pVMMethod meth = GetMethod();
+    VMMethod* meth = GetMethod();
     return meth->GetNumberOfArguments() - index - 1;
 }
 

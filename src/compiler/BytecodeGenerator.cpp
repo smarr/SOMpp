@@ -64,7 +64,7 @@ void BytecodeGenerator::EmitPUSHFIELD(MethodGenerationContext* mgenc, pVMSymbol 
     EMIT2(BC_PUSH_FIELD, mgenc->GetFieldIndex(field));
 }
 
-void BytecodeGenerator::EmitPUSHBLOCK(MethodGenerationContext* mgenc, pVMMethod block) {
+void BytecodeGenerator::EmitPUSHBLOCK(MethodGenerationContext* mgenc, VMMethod* block) {
     EMIT2(BC_PUSH_BLOCK, mgenc->FindLiteralIndex(block));
 }
 

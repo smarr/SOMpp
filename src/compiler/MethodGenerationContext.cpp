@@ -47,11 +47,11 @@ MethodGenerationContext::MethodGenerationContext() {
     finished = false;
 }
 
-pVMMethod MethodGenerationContext::Assemble() {
+VMMethod* MethodGenerationContext::Assemble() {
     // create a method instance with the given number of bytecodes and literals
     size_t numLiterals = literals.Size();
 
-    pVMMethod meth = GetUniverse()->NewMethod(signature, bytecode.size(),
+    VMMethod* meth = GetUniverse()->NewMethod(signature, bytecode.size(),
             numLiterals);
 
     // populate the fields that are immediately available

@@ -100,7 +100,7 @@ void VMClass::MarkObjectAsInvalid() {
 }
 
 bool VMClass::AddInstanceInvokable(pVMObject ptr) {
-    pVMInvokable newInvokable = static_cast<pVMInvokable>(ptr);
+    VMInvokable* newInvokable = static_cast<VMInvokable*>(ptr);
     if (newInvokable == nullptr) {
         GetUniverse()->ErrorExit("Error: trying to add non-invokable to invokables array");
         return false;
@@ -108,7 +108,7 @@ bool VMClass::AddInstanceInvokable(pVMObject ptr) {
     //Check whether an invokable with the same signature exists and replace it if that's the case
     long numIndexableFields = instanceInvokables->GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {
-        pVMInvokable inv = static_cast<pVMInvokable>(instanceInvokables->GetIndexableField(i));
+        VMInvokable* inv = static_cast<VMInvokable*>(instanceInvokables->GetIndexableField(i));
         if (inv != nullptr) {
             if (newInvokable->GetSignature() == inv->GetSignature()) {
                 SetInstanceInvokable(i, ptr);
@@ -152,7 +152,7 @@ void VMClass::SetInstanceInvokables(VMArray* invokables) {
         //check for Nil object
         if (invo != nilObject) {
             //not Nil, so this actually is an invokable
-            pVMInvokable inv = static_cast<pVMInvokable>(invo);
+            VMInvokable* inv = static_cast<VMInvokable*>(invo);
             inv->SetHolder(this);
         }
     }
@@ -162,22 +162,22 @@ long VMClass::GetNumberOfInstanceInvokables() const {
     return instanceInvokables->GetNumberOfIndexableFields();
 }
 
-pVMInvokable VMClass::GetInstanceInvokable(long index) const {
-    return static_cast<pVMInvokable>(instanceInvokables->GetIndexableField(index));
+VMInvokable* VMClass::GetInstanceInvokable(long index) const {
+    return static_cast<VMInvokable*>(instanceInvokables->GetIndexableField(index));
 }
 
 void VMClass::SetInstanceInvokable(long index, pVMObject invokable) {
     instanceInvokables->SetIndexableField(index, invokable);
     if (invokable != nilObject) {
-        pVMInvokable inv = static_cast<pVMInvokable>( invokable );
+        VMInvokable* inv = static_cast<VMInvokable*>( invokable );
         inv->SetHolder(this);
     }
 }
 
-pVMInvokable VMClass::LookupInvokable(pVMSymbol name) const {
+VMInvokable* VMClass::LookupInvokable(pVMSymbol name) const {
     assert(Universe::IsValidObject((oop_t) this));
     
-    pVMInvokable invokable = name->GetCachedInvokable(this);
+    VMInvokable* invokable = name->GetCachedInvokable(this);
     if (invokable != nullptr)
         return invokable;
 
@@ -218,7 +218,7 @@ long VMClass::GetNumberOfInstanceFields() const {
 bool VMClass::HasPrimitives() const {
     long numInvokables = GetNumberOfInstanceInvokables();
     for (long i = 0; i < numInvokables; ++i) {
-        pVMInvokable invokable = GetInstanceInvokable(i);
+        VMInvokable* invokable = GetInstanceInvokable(i);
         if (invokable->IsPrimitive()) return true;
     }
     return false;
@@ -385,7 +385,7 @@ bool VMClass::isResponsible(void* dlhandle, const StdString& cl) const {
 void VMClass::setPrimitives(void* dlhandle, const StdString& cname) {
     VMPrimitive* thePrimitive;
     PrimitiveRoutine* routine = nullptr;
-    pVMInvokable anInvokable;
+    VMInvokable* anInvokable;
     // iterate invokables
     long numInvokables = GetNumberOfInstanceInvokables();
     for (long i = 0; i < numInvokables; i++) {

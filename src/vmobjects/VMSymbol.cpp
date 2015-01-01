@@ -37,7 +37,7 @@ VMSymbol::VMSymbol(const char* str) :
   numberOfArgumentsOfSignature(Signature::DetermineNumberOfArguments(str)) {
     nextCachePos = 0;
     // set the chars-pointer to point at the position of the first character
-    chars = (char*) &cachedInvokable + +3 * sizeof(pVMInvokable);
+    chars = (char*) &cachedInvokable + +3 * sizeof(VMInvokable*);
     size_t i = 0;
     for (; i < strlen(str); ++i) {
         chars[i] = str[i];
@@ -133,7 +133,7 @@ StdString VMSymbol::GetPlainString() const {
 void VMSymbol::WalkObjects(oop_t (*walk)(oop_t)) {
     for (long i = 0; i < nextCachePos; i++) {
         cachedClass_invokable[i] = (VMClass*) walk((oop_t) cachedClass_invokable[i]);
-        cachedInvokable[i] = (pVMInvokable) walk((oop_t) cachedInvokable[i]);
+        cachedInvokable[i] = (VMInvokable*) walk((oop_t) cachedInvokable[i]);
     }
 }
 

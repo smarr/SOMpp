@@ -96,7 +96,7 @@ void Disassembler::dispatch(oop_t o) {
 void Disassembler::Dump(VMClass* cl) {
     long numInvokables = cl->GetNumberOfInstanceInvokables();
     for (long i = 0; i < numInvokables; ++i) {
-        pVMInvokable inv = static_cast<pVMInvokable>(cl->GetInstanceInvokable(i));
+        VMInvokable* inv = static_cast<VMInvokable*>(cl->GetInstanceInvokable(i));
         // output header and skip if the Invokable is a Primitive
         pVMSymbol sig = inv->GetSignature();
         pVMSymbol cname = cl->GetName();
@@ -106,7 +106,7 @@ void Disassembler::Dump(VMClass* cl) {
             continue;
         }
         // output actual method
-        DumpMethod(static_cast<pVMMethod>(inv), "\t");
+        DumpMethod(static_cast<VMMethod*>(inv), "\t");
     }
 }
 
@@ -120,7 +120,7 @@ void Disassembler::Dump(VMClass* cl) {
 /**
  * Dump all Bytecode of a method.
  */
-void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
+void Disassembler::DumpMethod(VMMethod* method, const char* indent) {
     DebugPrint("(\n");
     {   // output stack information
         long locals = method->GetNumberOfLocals();
@@ -176,7 +176,7 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
                 sprintf(nindent, "%s\t", indent);
 
                 Disassembler::DumpMethod(
-                static_cast<pVMMethod>(method->GetConstant(bc_idx)), nindent);
+                static_cast<VMMethod*>(method->GetConstant(bc_idx)), nindent);
                 break;
             }
             case BC_PUSH_CONSTANT: {
@@ -256,7 +256,7 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
 /**
  * Dump bytecode from the frame running
  */
-void Disassembler::DumpBytecode(VMFrame* frame, pVMMethod method, long bc_idx) {
+void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
     static long long indentc = 0;
     static char ikind = '@';
     uint8_t bc = BC_0;
@@ -350,7 +350,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, pVMMethod method, long bc_idx) {
         }
         case BC_PUSH_BLOCK: {
             DebugPrint("block: (index: %d) ", BC_1);
-            pVMMethod meth = dynamic_cast<pVMMethod>((pVMAbstract)method->GetConstant(bc_idx));
+            VMMethod* meth = dynamic_cast<VMMethod*>((pVMAbstract)method->GetConstant(bc_idx));
             DumpMethod(meth, "$");
             break;
         }
@@ -442,7 +442,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, pVMMethod method, long bc_idx) {
             GetStackElement(
             Signature::GetNumberOfArguments(sel)-1);
             VMClass* elemClass = CLASS_OF(elem);
-            pVMInvokable inv = dynamic_cast<pVMInvokable>(elemClass->LookupInvokable(sel));
+            VMInvokable* inv = dynamic_cast<VMInvokable*>(elemClass->LookupInvokable(sel));
 
             if(inv != nullptr && inv->IsPrimitive())
                 DebugPrint("*)\n");

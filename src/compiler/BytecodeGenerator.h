@@ -41,7 +41,7 @@ public:
     void EmitPUSHLOCAL(MethodGenerationContext* mgenc,    long idx, int ctx);
     void EmitPUSHARGUMENT(MethodGenerationContext* mgenc, long idx, int ctx);
     void EmitPUSHFIELD(MethodGenerationContext* mgenc, pVMSymbol field);
-    void EmitPUSHBLOCK(MethodGenerationContext* mgenc, pVMMethod block);
+    void EmitPUSHBLOCK(MethodGenerationContext* mgenc, VMMethod* block);
     void EmitPUSHCONSTANT(MethodGenerationContext* mgenc, oop_t cst);
     void EmitPUSHCONSTANTString(MethodGenerationContext* mgenc, pVMString str);
     void EmitPUSHGLOBAL(MethodGenerationContext* mgenc, pVMSymbol global);

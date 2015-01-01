@@ -44,9 +44,9 @@ private:
     const int numberOfArgumentsOfSignature;
     const VMClass* cachedClass_invokable[3];
     long nextCachePos;
-    pVMInvokable cachedInvokable[3];
-    inline pVMInvokable GetCachedInvokable(const VMClass*) const;
-    inline void UpdateCachedInvokable(const VMClass* cls, pVMInvokable invo);
+    VMInvokable* cachedInvokable[3];
+    inline VMInvokable* GetCachedInvokable(const VMClass*) const;
+    inline void UpdateCachedInvokable(const VMClass* cls, VMInvokable* invo);
     
     virtual void WalkObjects(oop_t (oop_t));
     
@@ -54,7 +54,7 @@ private:
     friend class VMClass;
 };
 
-pVMInvokable VMSymbol::GetCachedInvokable(const VMClass* cls) const {
+VMInvokable* VMSymbol::GetCachedInvokable(const VMClass* cls) const {
     if (cls == cachedClass_invokable[0])
         return cachedInvokable[0];
     else if (cls == cachedClass_invokable[1])
@@ -64,7 +64,7 @@ pVMInvokable VMSymbol::GetCachedInvokable(const VMClass* cls) const {
     return nullptr;
 }
 
-void VMSymbol::UpdateCachedInvokable(const VMClass* cls, pVMInvokable invo) {
+void VMSymbol::UpdateCachedInvokable(const VMClass* cls, VMInvokable* invo) {
     cachedInvokable[nextCachePos] = invo;
     cachedClass_invokable[nextCachePos] = cls;
     nextCachePos = (nextCachePos + 1) % 3;

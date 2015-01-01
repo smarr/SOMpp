@@ -76,9 +76,6 @@ class VMPrimitive;
 class VMString;
 class VMSymbol;
 
-typedef VMInvokable*           pVMInvokable;
-typedef VMMethod*              pVMMethod;
-
 typedef VMObject*              pVMObject;
 typedef const VMObject*       pcVMObject;
 

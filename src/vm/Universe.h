@@ -97,10 +97,10 @@ public:
     VMArray* NewArrayList(ExtendedList<oop_t>& list) const;
     VMArray* NewArrayList(ExtendedList<pVMSymbol>& list) const;
     VMArray* NewArrayFromStrings(const vector<StdString>&) const;
-    VMBlock* NewBlock(pVMMethod, VMFrame*, long);
+    VMBlock* NewBlock(VMMethod*, VMFrame*, long);
     VMClass* NewClass(VMClass*) const;
-    VMFrame* NewFrame(VMFrame*, pVMMethod) const;
-    pVMMethod NewMethod(pVMSymbol, size_t, size_t) const;
+    VMFrame* NewFrame(VMFrame*, VMMethod*) const;
+    VMMethod* NewMethod(pVMSymbol, size_t, size_t) const;
     pVMObject NewInstance(VMClass*) const;
     VMInteger* NewInteger(long) const;
     void WalkGlobals(oop_t (*walk)(oop_t));
