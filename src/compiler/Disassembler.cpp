@@ -256,7 +256,7 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
 /**
  * Dump bytecode from the frame running
  */
-void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
+void Disassembler::DumpBytecode(VMFrame* frame, pVMMethod method, long bc_idx) {
     static long long indentc = 0;
     static char ikind = '@';
     uint8_t bc = BC_0;
@@ -332,7 +332,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
             break;
         }
         case BC_PUSH_FIELD: {
-            pVMFrame ctxt = frame->GetOuterContext();
+            VMFrame* ctxt = frame->GetOuterContext();
             oop_t arg = ctxt->GetArgument(0, 0);
             uint8_t field_index = BC_1;
             

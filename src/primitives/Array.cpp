@@ -42,14 +42,14 @@ _Array::_Array() : PrimitiveContainer() {
     SetPrimitive("length",  new Routine<_Array>(this, &_Array::Length));
 }
 
-void _Array::At_(pVMObject /*object*/, pVMFrame frame) {
+void _Array::At_(pVMObject /*object*/, VMFrame* frame) {
     oop_t idx = frame->Pop();
     VMArray* self = static_cast<VMArray*>(frame->Pop());
     oop_t elem = self->GetIndexableField(INT_VAL(idx) - 1);
     frame->Push(elem);
 }
 
-void _Array::At_Put_(pVMObject /*object*/, pVMFrame frame) {
+void _Array::At_Put_(pVMObject /*object*/, VMFrame* frame) {
     oop_t value = frame->Pop();
     oop_t index = frame->Pop();
     VMArray* self = static_cast<VMArray*>(frame->GetStackElement(0));
@@ -57,13 +57,13 @@ void _Array::At_Put_(pVMObject /*object*/, pVMFrame frame) {
     self->SetIndexableField(i - 1, value);
 }
 
-void _Array::Length(pVMObject /*object*/, pVMFrame frame) {
+void _Array::Length(pVMObject /*object*/, VMFrame* frame) {
     VMArray* self = static_cast<VMArray*>(frame->Pop());
     pVMInteger new_int = NEW_INT(self->GetNumberOfIndexableFields());
     frame->Push(new_int);
 }
 
-void _Array::New_(pVMObject /*object*/, pVMFrame frame) {
+void _Array::New_(pVMObject /*object*/, VMFrame* frame) {
     oop_t arg = frame->Pop();
     frame->Pop();
     long size = INT_VAL(arg);

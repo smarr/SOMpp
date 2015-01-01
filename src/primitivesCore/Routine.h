@@ -33,14 +33,14 @@
 //by calling the Routine's poerator "()".
 template<class TClass> class Routine: public PrimitiveRoutine {
 private:
-    void (TClass::*fpt)(pVMObject, pVMFrame);   // pointer to member function
+    void (TClass::*fpt)(pVMObject, VMFrame*);   // pointer to member function
     TClass* pt2Object;                          // pointer to object
 
 public:
 
     // constructor - takes pointer to an object and pointer to a member and stores
     // them in two private variables
-    Routine(TClass* _pt2Object, void (TClass::*_fpt)(pVMObject, pVMFrame)) :
+    Routine(TClass* _pt2Object, void (TClass::*_fpt)(pVMObject, VMFrame*)) :
             PrimitiveRoutine() {
         pt2Object = _pt2Object;
         fpt = _fpt;
@@ -48,7 +48,7 @@ public:
     ;
 
     // override operator "()"
-    virtual void operator()(pVMObject obj, pVMFrame frm) {
+    virtual void operator()(pVMObject obj, VMFrame* frm) {
         (*pt2Object.*fpt)(obj, frm);  // execute member function
         };
 

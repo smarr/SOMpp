@@ -78,7 +78,7 @@ pVMSymbol VMEvaluationPrimitive::computeSignatureString(long argc) {
     return GetUniverse()->SymbolFor(signatureString);
 }
 
-void VMEvaluationPrimitive::evaluationRoutine(pVMObject object, pVMFrame frame) {
+void VMEvaluationPrimitive::evaluationRoutine(pVMObject object, VMFrame* frame) {
     VMEvaluationPrimitive* self = static_cast<VMEvaluationPrimitive*>(object);
 
     // Get the block (the receiver) from the stack
@@ -86,10 +86,10 @@ void VMEvaluationPrimitive::evaluationRoutine(pVMObject object, pVMFrame frame) 
     VMBlock* block = static_cast<VMBlock*>(frame->GetStackElement(numArgs - 1));
 
     // Get the context of the block...
-    pVMFrame context = block->GetContext();
+    VMFrame* context = block->GetContext();
 
     // Push a new frame and set its context to be the one specified in the block
-    pVMFrame NewFrame = GetUniverse()->GetInterpreter()->PushNewFrame(
+    VMFrame* NewFrame = GetUniverse()->GetInterpreter()->PushNewFrame(
     block->GetMethod());
     NewFrame->CopyArgumentsFrom(frame);
     NewFrame->SetContext(context);

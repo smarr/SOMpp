@@ -81,9 +81,9 @@ void GenerationalCollector::MinorCollection() {
     GetUniverse()->WalkGlobals(&copy_if_necessary);
 
     // and the current frame
-    pVMFrame currentFrame = GetUniverse()->GetInterpreter()->GetFrame();
+    VMFrame* currentFrame = GetUniverse()->GetInterpreter()->GetFrame();
     if (currentFrame != nullptr) {
-        pVMFrame newFrame = static_cast<pVMFrame>(copy_if_necessary(currentFrame));
+        VMFrame* newFrame = static_cast<VMFrame*>(copy_if_necessary(currentFrame));
         GetUniverse()->GetInterpreter()->SetFrame(newFrame);
     }
 
@@ -107,9 +107,9 @@ void GenerationalCollector::MajorCollection() {
     //first we have to mark all objects (globals and current frame recursively)
     GetUniverse()->WalkGlobals(&mark_object);
     //and the current frame
-    pVMFrame currentFrame = GetUniverse()->GetInterpreter()->GetFrame();
+    VMFrame* currentFrame = GetUniverse()->GetInterpreter()->GetFrame();
     if (currentFrame != nullptr) {
-        pVMFrame newFrame = static_cast<pVMFrame>(mark_object(currentFrame));
+        VMFrame* newFrame = static_cast<VMFrame*>(mark_object(currentFrame));
         GetUniverse()->GetInterpreter()->SetFrame(newFrame);
     }
 

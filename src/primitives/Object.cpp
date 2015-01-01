@@ -53,20 +53,20 @@ _Object::_Object() : PrimitiveContainer() {
     SetPrimitive("class", new Routine<_Object>(this, &_Object::Class));
 }
 
-void _Object::Equalequal(pVMObject /*object*/, pVMFrame frame) {
+void _Object::Equalequal(pVMObject /*object*/, VMFrame* frame) {
     oop_t op1 = frame->Pop();
     oop_t op2 = frame->Pop();
 
     frame->Push( op1 == op2 ? trueObject : falseObject );
 }
 
-void _Object::ObjectSize(pVMObject /*object*/, pVMFrame frame) {
+void _Object::ObjectSize(pVMObject /*object*/, VMFrame* frame) {
     oop_t self = frame->Pop();
 
     frame->Push(NEW_INT(AS_OBJ(self)->GetObjectSize()));
 }
 
-void _Object::Hashcode(pVMObject /*object*/, pVMFrame frame) {
+void _Object::Hashcode(pVMObject /*object*/, VMFrame* frame) {
     oop_t self = frame->Pop();
 
     if (IS_TAGGED(self))
@@ -75,19 +75,19 @@ void _Object::Hashcode(pVMObject /*object*/, pVMFrame frame) {
         frame->Push(NEW_INT(AS_OBJ(self)->GetHash()));
 }
 
-void _Object::Inspect(pVMObject, pVMFrame frame) {
+void _Object::Inspect(pVMObject, VMFrame* frame) {
     // not implemeted
     frame->Pop();
     frame->Push(falseObject);
 }
 
-void _Object::Halt(pVMObject, pVMFrame frame) {
+void _Object::Halt(pVMObject, VMFrame* frame) {
     // not implemeted
     frame->Pop();
     frame->Push(falseObject);
 }
 
-void _Object::Perform(pVMObject, pVMFrame frame) {
+void _Object::Perform(pVMObject, VMFrame* frame) {
     pVMSymbol selector = (pVMSymbol)frame->Pop();
     oop_t self = frame->GetStackElement(0);
 
@@ -97,7 +97,7 @@ void _Object::Perform(pVMObject, pVMFrame frame) {
     (*invokable)(frame);
 }
 
-void _Object::PerformInSuperclass(pVMObject object, pVMFrame frame) {
+void _Object::PerformInSuperclass(pVMObject object, VMFrame* frame) {
     VMClass* clazz = (VMClass*) frame->Pop();
     pVMSymbol selector = (pVMSymbol)frame->Pop();
 
@@ -106,7 +106,7 @@ void _Object::PerformInSuperclass(pVMObject object, pVMFrame frame) {
     (*invokable)(frame);
 }
 
-void _Object::PerformWithArguments(pVMObject object, pVMFrame frame) {
+void _Object::PerformWithArguments(pVMObject object, VMFrame* frame) {
     VMArray* args = (VMArray*) frame->Pop();
     pVMSymbol selector = (pVMSymbol)frame->Pop();
     oop_t self = frame->GetStackElement(0);
@@ -123,7 +123,7 @@ void _Object::PerformWithArguments(pVMObject object, pVMFrame frame) {
     (*invokable)(frame);
 }
 
-void _Object::PerformWithArgumentsInSuperclass(pVMObject object, pVMFrame frame) {
+void _Object::PerformWithArgumentsInSuperclass(pVMObject object, VMFrame* frame) {
     VMClass* clazz = (VMClass*) frame->Pop();
     VMArray* args = (VMArray*) frame->Pop();
     pVMSymbol selector = (pVMSymbol)frame->Pop();
@@ -139,7 +139,7 @@ void _Object::PerformWithArgumentsInSuperclass(pVMObject object, pVMFrame frame)
     (*invokable)(frame);
 }
 
-void _Object::InstVarAt(pVMObject object, pVMFrame frame) {
+void _Object::InstVarAt(pVMObject object, VMFrame* frame) {
     oop_t idx = frame->Pop();
     oop_t self = frame->Pop();
 
@@ -149,7 +149,7 @@ void _Object::InstVarAt(pVMObject object, pVMFrame frame) {
     frame->Push(value);
 }
 
-void _Object::InstVarAtPut(pVMObject object, pVMFrame frame) {
+void _Object::InstVarAtPut(pVMObject object, VMFrame* frame) {
     oop_t value = frame->Pop();
     oop_t idx   = frame->Pop();
     oop_t self  = frame->GetStackElement(0);
@@ -159,7 +159,7 @@ void _Object::InstVarAtPut(pVMObject object, pVMFrame frame) {
     static_cast<VMObject*>(self)->SetField(field_idx, value);
 }
 
-void _Object::InstVarNamed(pVMObject object, pVMFrame frame) {
+void _Object::InstVarNamed(pVMObject object, VMFrame* frame) {
     pVMSymbol name = (pVMSymbol) frame->Pop();
     oop_t self = frame->Pop();
 
@@ -169,7 +169,7 @@ void _Object::InstVarNamed(pVMObject object, pVMFrame frame) {
     frame->Push(value);
 }
 
-void _Object::Class(pVMObject object, pVMFrame frame) {
+void _Object::Class(pVMObject object, VMFrame* frame) {
     oop_t self = frame->Pop();
     frame->Push(CLASS_OF(self));
 }

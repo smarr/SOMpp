@@ -61,9 +61,9 @@ void CopyingCollector::Collect() {
     memset(heap->currentBuffer, 0x0, (size_t)(heap->currentBufferEnd) -
             (size_t)(heap->currentBuffer));
     GetUniverse()->WalkGlobals(copy_if_necessary);
-    pVMFrame currentFrame = GetUniverse()->GetInterpreter()->GetFrame();
+    VMFrame* currentFrame = GetUniverse()->GetInterpreter()->GetFrame();
     if (currentFrame != nullptr) {
-        pVMFrame newFrame = static_cast<pVMFrame>(copy_if_necessary(currentFrame));
+        VMFrame* newFrame = static_cast<VMFrame*>(copy_if_necessary(currentFrame));
         GetUniverse()->GetInterpreter()->SetFrame(newFrame);
     }
 

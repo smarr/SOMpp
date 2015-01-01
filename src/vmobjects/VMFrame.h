@@ -33,20 +33,20 @@ class Universe;
 class VMFrame: public VMObject {
     friend class Universe;
 public:
-    static pVMFrame EmergencyFrameFrom(pVMFrame from, long extraLength);
+    static VMFrame* EmergencyFrameFrom(VMFrame* from, long extraLength);
 
     VMFrame(long size, long nof = 0);
 
-    inline pVMFrame GetPreviousFrame() const;
-    inline void SetPreviousFrame(pVMFrame);
+    inline VMFrame* GetPreviousFrame() const;
+    inline void SetPreviousFrame(VMFrame*);
     inline void ClearPreviousFrame();
     inline bool HasPreviousFrame() const;
     inline bool IsBootstrapFrame() const;
-    inline pVMFrame GetContext() const;
-    inline void SetContext(pVMFrame);
+    inline VMFrame* GetContext() const;
+    inline void SetContext(VMFrame*);
     inline bool HasContext() const;
-    pVMFrame GetContextLevel(long);
-    pVMFrame GetOuterContext();
+    VMFrame* GetContextLevel(long);
+    VMFrame* GetOuterContext();
     inline pVMMethod GetMethod() const;
     void SetMethod(pVMMethod);
     oop_t Pop();
@@ -61,17 +61,17 @@ public:
     void SetArgument(long, long, oop_t);
     void PrintStackTrace() const;
     long ArgumentStackIndex(long index) const;
-    void CopyArgumentsFrom(pVMFrame frame);
+    void CopyArgumentsFrom(VMFrame* frame);
     inline  oop_t GetField(long index) const;
     virtual void WalkObjects(oop_t (oop_t));
-    virtual pVMFrame Clone() const;
+    virtual VMFrame* Clone() const;
 
     void PrintStack() const;
     inline void* GetStackPointer() const;
     long RemainingStackSize() const;
 private:
-    pVMFrame previousFrame;
-    pVMFrame context;
+    VMFrame* previousFrame;
+    VMFrame* context;
     pVMMethod method;
     long bytecodeIndex;
     oop_t* arguments;
@@ -107,11 +107,11 @@ bool VMFrame::IsBootstrapFrame() const {
     return !HasPreviousFrame();
 }
 
-pVMFrame VMFrame::GetContext() const {
+VMFrame* VMFrame::GetContext() const {
     return context;
 }
 
-void VMFrame::SetContext(pVMFrame frm) {
+void VMFrame::SetContext(VMFrame* frm) {
     context = frm;
     write_barrier(this, frm);
 }
@@ -120,11 +120,11 @@ void* VMFrame::GetStackPointer() const {
     return stack_ptr;
 }
 
-pVMFrame VMFrame::GetPreviousFrame() const {
+VMFrame* VMFrame::GetPreviousFrame() const {
     return previousFrame;
 }
 
-void VMFrame::SetPreviousFrame(pVMFrame frm) {
+void VMFrame::SetPreviousFrame(VMFrame* frm) {
     previousFrame = frm;
     write_barrier(this, frm);
 }

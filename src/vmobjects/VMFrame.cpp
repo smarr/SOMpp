@@ -36,7 +36,7 @@
 // when doesNotUnderstand or UnknownGlobal is sent, additional stack slots might
 // be necessary, as these cases are not taken into account when the stack
 // depth is calculated. In that case this method is called.
-pVMFrame VMFrame::EmergencyFrameFrom(pVMFrame from, long extraLength) {
+VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength) {
     pVMMethod method = from->GetMethod();
     long length = method->GetNumberOfArguments()
                     + method->GetNumberOfLocals()
@@ -44,7 +44,7 @@ pVMFrame VMFrame::EmergencyFrameFrom(pVMFrame from, long extraLength) {
                     + extraLength;
 
     long additionalBytes = length * sizeof(pVMObject);
-    pVMFrame result = new (GetHeap<HEAP_CLS>(), additionalBytes) VMFrame(length);
+    VMFrame* result = new (GetHeap<HEAP_CLS>(), additionalBytes) VMFrame(length);
 
     result->clazz = nullptr; // result->SetClass(from->GetClass());
 
@@ -78,9 +78,9 @@ pVMFrame VMFrame::EmergencyFrameFrom(pVMFrame from, long extraLength) {
     return result;
 }
 
-pVMFrame VMFrame::Clone() const {
+VMFrame* VMFrame::Clone() const {
     size_t addSpace = objectSize - sizeof(VMFrame);
-    pVMFrame clone = new (GetHeap<HEAP_CLS>(), addSpace ALLOC_MATURE) VMFrame(*this);
+    VMFrame* clone = new (GetHeap<HEAP_CLS>(), addSpace ALLOC_MATURE) VMFrame(*this);
     void* destination = SHIFTED_PTR(clone, sizeof(VMFrame));
     const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
     size_t noBytes = GetObjectSize() - sizeof(VMFrame);
@@ -117,8 +117,8 @@ void VMFrame::SetMethod(pVMMethod method) {
     write_barrier(this, method);
 }
 
-pVMFrame VMFrame::GetContextLevel(long lvl) {
-    pVMFrame current = this;
+VMFrame* VMFrame::GetContextLevel(long lvl) {
+    VMFrame* current = this;
     while (lvl > 0) {
         current = current->GetContext();
         --lvl;
@@ -126,8 +126,8 @@ pVMFrame VMFrame::GetContextLevel(long lvl) {
     return current;
 }
 
-pVMFrame VMFrame::GetOuterContext() {
-    pVMFrame current = this;
+VMFrame* VMFrame::GetOuterContext() {
+    VMFrame* current = this;
     while (current->HasContext()) {
         current = current->GetContext();
     }
@@ -139,9 +139,9 @@ void VMFrame::WalkObjects(oop_t (*walk)(oop_t)) {
     // clazz = (VMClass*) walk(clazz);
     
     if (previousFrame)
-        previousFrame = (pVMFrame) walk(previousFrame);
+        previousFrame = (VMFrame*) walk(previousFrame);
     if (context)
-        context = (pVMFrame) walk(context);
+        context = (VMFrame*) walk(context);
     method = (pVMMethod) walk(method);
 
     // all other fields are indexable via arguments array
@@ -209,24 +209,24 @@ oop_t VMFrame::GetStackElement(long index) const {
 }
 
 oop_t VMFrame::GetLocal(long index, long contextLevel) {
-    pVMFrame context = GetContextLevel(contextLevel);
+    VMFrame* context = GetContextLevel(contextLevel);
     return context->locals[index];
 }
 
 void VMFrame::SetLocal(long index, long contextLevel, oop_t value) {
-    pVMFrame context = GetContextLevel(contextLevel);
+    VMFrame* context = GetContextLevel(contextLevel);
     context->locals[index] = value;
     write_barrier(context, value);
 }
 
 oop_t VMFrame::GetArgument(long index, long contextLevel) {
     // get the context
-    pVMFrame context = GetContextLevel(contextLevel);
+    VMFrame* context = GetContextLevel(contextLevel);
     return context->arguments[index];
 }
 
 void VMFrame::SetArgument(long index, long contextLevel, oop_t value) {
-    pVMFrame context = GetContextLevel(contextLevel);
+    VMFrame* context = GetContextLevel(contextLevel);
     context->arguments[index] = value;
     write_barrier(context, value);
 }
@@ -240,7 +240,7 @@ long VMFrame::ArgumentStackIndex(long index) const {
     return meth->GetNumberOfArguments() - index - 1;
 }
 
-void VMFrame::CopyArgumentsFrom(pVMFrame frame) {
+void VMFrame::CopyArgumentsFrom(VMFrame* frame) {
     // copy arguments from frame:
     // - arguments are at the top of the stack of frame.
     // - copy them into the argument area of the current frame

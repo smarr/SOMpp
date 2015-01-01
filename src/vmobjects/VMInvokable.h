@@ -33,7 +33,7 @@ class VMInvokable: public VMObject {
 public:
     VMInvokable(long nof = 0) : VMObject(nof + 2) {};
     // virtual operator "()" to invoke the invokable
-    virtual void      operator()(pVMFrame) = 0;
+    virtual void      operator()(VMFrame*) = 0;
 
     virtual bool      IsPrimitive() const;
             pVMSymbol GetSignature() const;

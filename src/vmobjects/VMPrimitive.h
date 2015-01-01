@@ -44,12 +44,12 @@ public:
 
     //-----------VMInvokable-------//
     //operator "()" to invoke the primitive
-    virtual void operator()(pVMFrame frm) {(*routine)(this, frm);};
+    virtual void operator()(VMFrame* frm) {(*routine)(this, frm);};
 
     virtual bool IsPrimitive() const {return true;};
 
 private:
-    void EmptyRoutine(pVMObject self, pVMFrame frame);
+    void EmptyRoutine(pVMObject self, VMFrame* frame);
 
     PrimitiveRoutine* routine;
     bool empty;

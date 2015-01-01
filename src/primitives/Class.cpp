@@ -42,27 +42,27 @@ _Class::_Class() : PrimitiveContainer() {
     SetPrimitive("methods",    new Routine<_Class>(this, &_Class::Methods));
 }
 
-void _Class::New(pVMObject /*object*/, pVMFrame frame) {
+void _Class::New(pVMObject /*object*/, VMFrame* frame) {
     VMClass* self = static_cast<VMClass*>(frame->Pop());
     frame->Push(GetUniverse()->NewInstance(self));
 }
 
-void _Class::Name(pVMObject, pVMFrame frame) {
+void _Class::Name(pVMObject, VMFrame* frame) {
     VMClass* self = static_cast<VMClass*>(frame->Pop());
     frame->Push(self->GetName());
 }
 
-void _Class::Superclass(pVMObject, pVMFrame frame) {
+void _Class::Superclass(pVMObject, VMFrame* frame) {
     VMClass* self = static_cast<VMClass*>(frame->Pop());
     frame->Push(self->GetSuperClass());
 }
 
-void _Class::Methods(pVMObject, pVMFrame frame) {
+void _Class::Methods(pVMObject, VMFrame* frame) {
     VMClass* self = static_cast<VMClass*>(frame->Pop());
     frame->Push(self->GetInstanceInvokables());
 }
 
-void _Class::Fields(pVMObject, pVMFrame frame) {
+void _Class::Fields(pVMObject, VMFrame* frame) {
     VMClass* self = static_cast<VMClass*>(frame->Pop());
     frame->Push(self->GetInstanceFields());
 }

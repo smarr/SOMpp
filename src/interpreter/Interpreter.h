@@ -35,20 +35,20 @@ public:
     ~Interpreter();
     
     void      Start();
-    pVMFrame  PushNewFrame(pVMMethod method);
-    void      SetFrame(pVMFrame frame);
-    inline pVMFrame GetFrame() const;
+    VMFrame*  PushNewFrame(pVMMethod method);
+    void      SetFrame(VMFrame* frame);
+    inline VMFrame* GetFrame() const;
     void      WalkGlobals(oop_t (*walk)(oop_t));
     
 private:
     oop_t GetSelf() const;
     
-    pVMFrame frame;
+    VMFrame* frame;
     const StdString unknownGlobal;
     const StdString doesNotUnderstand;
     const StdString escapedBlock;
 
-    pVMFrame popFrame();
+    VMFrame* popFrame();
     void popFrameAndPushResult(oop_t result);
     void send(pVMSymbol signature, VMClass* receiverClass);
 
@@ -72,6 +72,6 @@ private:
     void doJump(long bytecodeIndex);
 };
 
-pVMFrame Interpreter::GetFrame() const {
+VMFrame* Interpreter::GetFrame() const {
     return frame;
 }

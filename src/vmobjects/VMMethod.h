@@ -52,8 +52,8 @@ public:
     inline  uint8_t   GetBytecode(long indx) const;
     inline  void      SetBytecode(long indx, uint8_t);
 #ifdef UNSAFE_FRAME_OPTIMIZATION
-    void SetCachedFrame(pVMFrame frame);
-    pVMFrame GetCachedFrame() const;
+    void SetCachedFrame(VMFrame* frame);
+    VMFrame* GetCachedFrame() const;
 #endif
     virtual void WalkObjects(oop_t (oop_t));
     inline  long      GetNumberOfIndexableFields() const;
@@ -63,7 +63,7 @@ public:
 
     //-----------VMInvokable-------------//
     //operator "()" to invoke the method
-    virtual void operator()(pVMFrame frame);
+    virtual void operator()(VMFrame* frame);
 
     void SetSignature(pVMSymbol sig);
 
@@ -77,7 +77,7 @@ private:
     pVMInteger numberOfArguments;
     pVMInteger numberOfConstants;
 #ifdef UNSAFE_FRAME_OPTIMIZATION
-    pVMFrame cachedFrame;
+    VMFrame* cachedFrame;
 #endif
     oop_t* indexableFields;
     uint8_t* bytecodes;

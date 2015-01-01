@@ -343,7 +343,7 @@ void Universe::initialize(long _argc, char** _argv) {
 
     VMArray* argumentsArray = NewArrayFromStrings(argv);
 
-    pVMFrame bootstrapFrame = interpreter->PushNewFrame(bootstrapMethod);
+    VMFrame* bootstrapFrame = interpreter->PushNewFrame(bootstrapMethod);
     bootstrapFrame->Push(systemObject);
     bootstrapFrame->Push(argumentsArray);
 
@@ -456,7 +456,7 @@ Universe::~Universe() {
         VMEvaluationPrimitive* ev = new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(1);
         vt_eval_primitive = *(void**) ev;
         
-        pVMFrame frm  = new (GetHeap<HEAP_CLS>()) VMFrame(0, 0);
+        VMFrame* frm  = new (GetHeap<HEAP_CLS>()) VMFrame(0, 0);
         vt_frame      = *(void**) frm;
         
         pVMInteger i  = new (GetHeap<HEAP_CLS>()) VMInteger(0);
@@ -746,7 +746,7 @@ VMBigInteger* Universe::NewBigInteger( int64_t value) const {
     return new (GetHeap<HEAP_CLS>()) VMBigInteger(value);
 }
 
-VMBlock* Universe::NewBlock(pVMMethod method, pVMFrame context, long arguments) {
+VMBlock* Universe::NewBlock(pVMMethod method, VMFrame* context, long arguments) {
     VMBlock* result = new (GetHeap<HEAP_CLS>()) VMBlock;
     result->SetClass(GetBlockClassWithArgs(arguments));
 
@@ -775,8 +775,8 @@ VMDouble* Universe::NewDouble(double value) const {
     return new (GetHeap<HEAP_CLS>()) VMDouble(value);
 }
 
-pVMFrame Universe::NewFrame(pVMFrame previousFrame, pVMMethod method) const {
-    pVMFrame result = nullptr;
+VMFrame* Universe::NewFrame(VMFrame* previousFrame, pVMMethod method) const {
+    VMFrame* result = nullptr;
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     result = method->GetCachedFrame();
     if (result != nullptr) {

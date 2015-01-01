@@ -100,11 +100,11 @@ void VMMethod::WalkObjects(oop_t (*walk)(oop_t)) {
 }
 
 #ifdef UNSAFE_FRAME_OPTIMIZATION
-pVMFrame VMMethod::GetCachedFrame() const {
+VMFrame* VMMethod::GetCachedFrame() const {
     return cachedFrame;
 }
 
-void VMMethod::SetCachedFrame(pVMFrame frame) {
+void VMMethod::SetCachedFrame(VMFrame* frame) {
     cachedFrame = frame;
     if (frame != nullptr) {
         frame->SetContext(nullptr);
@@ -138,8 +138,8 @@ long VMMethod::GetNumberOfBytecodes() const {
     return INT_VAL(bcLength);
 }
 
-void VMMethod::operator()(pVMFrame frame) {
-    pVMFrame frm = GetUniverse()->GetInterpreter()->PushNewFrame(this);
+void VMMethod::operator()(VMFrame* frame) {
+    VMFrame* frm = GetUniverse()->GetInterpreter()->PushNewFrame(this);
     frm->CopyArgumentsFrom(frame);
 }
 

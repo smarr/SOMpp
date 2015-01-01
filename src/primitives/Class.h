@@ -32,10 +32,10 @@
 class _Class: public PrimitiveContainer {
 public:
     _Class();
-    void New(pVMObject object, pVMFrame frame);
+    void New(pVMObject object, VMFrame* frame);
     
-    void Name      (pVMObject object, pVMFrame frame);
-    void Superclass(pVMObject object, pVMFrame frame);
-    void Fields    (pVMObject object, pVMFrame frame);
-    void Methods   (pVMObject object, pVMFrame frame);
+    void Name      (pVMObject object, VMFrame* frame);
+    void Superclass(pVMObject object, VMFrame* frame);
+    void Fields    (pVMObject object, VMFrame* frame);
+    void Methods   (pVMObject object, VMFrame* frame);
 };

@@ -81,7 +81,7 @@ void WriteBarrierTest::testWriteFrame() {
     // reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
 
-    pVMFrame frame = GetUniverse()->GetInterpreter()->GetFrame()->Clone();
+    VMFrame* frame = GetUniverse()->GetInterpreter()->GetFrame()->Clone();
     frame->SetContext(frame->Clone());
 
     frame->SetPreviousFrame(GetUniverse()->GetInterpreter()->GetFrame());

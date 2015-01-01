@@ -83,7 +83,7 @@ _Integer::_Integer() : PrimitiveContainer() {
 // private functions for Integer
 //
 
-void _Integer::pushResult(pVMObject /*object*/, pVMFrame frame,
+void _Integer::pushResult(pVMObject /*object*/, VMFrame* frame,
                           int64_t result) {
     int32_t i32min = INT32_MIN;
     // Check with integer bounds and push:
@@ -115,7 +115,7 @@ void _Integer::resendAsDouble(const char* op, oop_t left, VMDouble* right) {
 // arithmetic operations
 //
 
-void _Integer::Plus(pVMObject object, pVMFrame frame) {
+void _Integer::Plus(pVMObject object, VMFrame* frame) {
     oop_t rightObj = frame->Pop();
     oop_t leftObj  = frame->Pop();
 
@@ -125,7 +125,7 @@ void _Integer::Plus(pVMObject object, pVMFrame frame) {
     pushResult(object, frame, result);
 }
 
-void _Integer::BitwiseAnd(pVMObject object, pVMFrame frame) {
+void _Integer::BitwiseAnd(pVMObject object, VMFrame* frame) {
     oop_t rightObj = frame->Pop();
     oop_t leftObj  = frame->Pop();
 
@@ -133,7 +133,7 @@ void _Integer::BitwiseAnd(pVMObject object, pVMFrame frame) {
     pushResult(object, frame, result);
 }
 
-void _Integer::BitwiseXor(pVMObject object, pVMFrame frame) {
+void _Integer::BitwiseXor(pVMObject object, VMFrame* frame) {
     oop_t rightObj = frame->Pop();
     oop_t leftObj  = frame->Pop();
     
@@ -142,7 +142,7 @@ void _Integer::BitwiseXor(pVMObject object, pVMFrame frame) {
 }
 
 
-void _Integer::LeftShift(pVMObject object, pVMFrame frame) {
+void _Integer::LeftShift(pVMObject object, VMFrame* frame) {
     oop_t rightObj = frame->Pop();
     oop_t leftObj  = frame->Pop();
     
@@ -150,7 +150,7 @@ void _Integer::LeftShift(pVMObject object, pVMFrame frame) {
     pushResult(object, frame, result);
 }
 
-void _Integer::Minus(pVMObject object, pVMFrame frame) {
+void _Integer::Minus(pVMObject object, VMFrame* frame) {
     oop_t rightObj = frame->Pop();
     oop_t leftObj  = frame->Pop();
     
@@ -160,7 +160,7 @@ void _Integer::Minus(pVMObject object, pVMFrame frame) {
     pushResult(object, frame, result);
 }
 
-void _Integer::Star(pVMObject object, pVMFrame frame) {
+void _Integer::Star(pVMObject object, VMFrame* frame) {
     oop_t rightObj = frame->Pop();
     oop_t leftObj  = frame->Pop();
     
@@ -170,7 +170,7 @@ void _Integer::Star(pVMObject object, pVMFrame frame) {
     pushResult(object, frame, result);
 }
 
-void _Integer::Slashslash(pVMObject object, pVMFrame frame) {
+void _Integer::Slashslash(pVMObject object, VMFrame* frame) {
     oop_t rightObj = frame->Pop();
     oop_t leftObj  = frame->Pop();
     
@@ -180,7 +180,7 @@ void _Integer::Slashslash(pVMObject object, pVMFrame frame) {
     frame->Push(GetUniverse()->NewDouble(result));
 }
 
-void _Integer::Slash(pVMObject object, pVMFrame frame) {
+void _Integer::Slash(pVMObject object, VMFrame* frame) {
     oop_t rightObj = frame->Pop();
     oop_t leftObj  = frame->Pop();
     
@@ -190,7 +190,7 @@ void _Integer::Slash(pVMObject object, pVMFrame frame) {
     pushResult(object, frame, result);
 }
 
-void _Integer::Percent(pVMObject object, pVMFrame frame) {
+void _Integer::Percent(pVMObject object, VMFrame* frame) {
     oop_t rightObj = frame->Pop();
     oop_t leftObj  = frame->Pop();
 
@@ -208,7 +208,7 @@ void _Integer::Percent(pVMObject object, pVMFrame frame) {
     pushResult(object, frame, result);
 }
 
-void _Integer::And(pVMObject object, pVMFrame frame) {
+void _Integer::And(pVMObject object, VMFrame* frame) {
     oop_t rightObj = frame->Pop();
     oop_t leftObj  = frame->Pop();
 
@@ -218,7 +218,7 @@ void _Integer::And(pVMObject object, pVMFrame frame) {
     pushResult(object, frame, result);
 }
 
-void _Integer::Equal(pVMObject object, pVMFrame frame) {
+void _Integer::Equal(pVMObject object, VMFrame* frame) {
     oop_t rightObj = frame->Pop();
     oop_t leftObj  = frame->Pop();
 
@@ -236,7 +236,7 @@ void _Integer::Equal(pVMObject object, pVMFrame frame) {
     }
 }
 
-void _Integer::Lowerthan(pVMObject object, pVMFrame frame) {
+void _Integer::Lowerthan(pVMObject object, VMFrame* frame) {
     oop_t rightObj = frame->Pop();
     oop_t leftObj  = frame->Pop();
 
@@ -248,7 +248,7 @@ void _Integer::Lowerthan(pVMObject object, pVMFrame frame) {
         frame->Push(falseObject);
 }
 
-void _Integer::AsString(pVMObject /*object*/, pVMFrame frame) {
+void _Integer::AsString(pVMObject /*object*/, VMFrame* frame) {
     oop_t self = frame->Pop();
     long integer = INT_VAL(self);
     ostringstream Str;
@@ -256,7 +256,7 @@ void _Integer::AsString(pVMObject /*object*/, pVMFrame frame) {
     frame->Push(GetUniverse()->NewString( Str.str()));
 }
 
-void _Integer::Sqrt(pVMObject object, pVMFrame frame) {
+void _Integer::Sqrt(pVMObject object, VMFrame* frame) {
     oop_t self = frame->Pop();
     double result = sqrt((double)INT_VAL(self));
 
@@ -266,13 +266,13 @@ void _Integer::Sqrt(pVMObject object, pVMFrame frame) {
         frame->Push(GetUniverse()->NewDouble(result));
 }
 
-void _Integer::AtRandom(pVMObject /*object*/, pVMFrame frame) {
+void _Integer::AtRandom(pVMObject /*object*/, VMFrame* frame) {
     oop_t self = frame->Pop();
     int32_t result = (INT_VAL(self) * rand())%INT32_MAX;
     frame->Push(NEW_INT(result));
 }
 
-void _Integer::FromString(pVMObject, pVMFrame frame) {
+void _Integer::FromString(pVMObject, VMFrame* frame) {
     pVMString self = (pVMString) frame->Pop();
     frame->Pop();
 

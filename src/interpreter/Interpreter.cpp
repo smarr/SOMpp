@@ -199,12 +199,12 @@ void Interpreter::Start() {
       DISPATCH_NOGC();
 }
 
-pVMFrame Interpreter::PushNewFrame(pVMMethod method) {
+VMFrame* Interpreter::PushNewFrame(pVMMethod method) {
     SetFrame(GetUniverse()->NewFrame(GetFrame(), method));
     return GetFrame();
 }
 
-void Interpreter::SetFrame(pVMFrame frame) {
+void Interpreter::SetFrame(VMFrame* frame) {
     if (this->frame != nullptr)
         this->frame->SetBytecodeIndex(bytecodeIndexGlobal);
 
@@ -217,12 +217,12 @@ void Interpreter::SetFrame(pVMFrame frame) {
 }
 
 oop_t Interpreter::GetSelf() const {
-    pVMFrame context = GetFrame()->GetOuterContext();
+    VMFrame* context = GetFrame()->GetOuterContext();
     return context->GetArgument(0, 0);
 }
 
-pVMFrame Interpreter::popFrame() {
-    pVMFrame result = GetFrame();
+VMFrame* Interpreter::popFrame() {
+    VMFrame* result = GetFrame();
     SetFrame(GetFrame()->GetPreviousFrame());
 
     result->ClearPreviousFrame();
@@ -235,7 +235,7 @@ pVMFrame Interpreter::popFrame() {
 }
 
 void Interpreter::popFrameAndPushResult(oop_t result) {
-    pVMFrame prevFrame = popFrame();
+    VMFrame* prevFrame = popFrame();
 
     pVMMethod method = prevFrame->GetMethod();
     long numberOfArgs = method->GetNumberOfArguments();
@@ -434,7 +434,7 @@ void Interpreter::doSend(long bytecodeIndex) {
 void Interpreter::doSuperSend(long bytecodeIndex) {
     pVMSymbol signature = static_cast<pVMSymbol>(method->GetConstant(bytecodeIndex));
 
-    pVMFrame ctxt = GetFrame()->GetOuterContext();
+    VMFrame* ctxt = GetFrame()->GetOuterContext();
     pVMMethod realMethod = ctxt->GetMethod();
     VMClass* holder = realMethod->GetHolder();
     VMClass* super = holder->GetSuperClass();
@@ -465,12 +465,12 @@ void Interpreter::doReturnLocal() {
 void Interpreter::doReturnNonLocal() {
     oop_t result = GetFrame()->Pop();
 
-    pVMFrame context = GetFrame()->GetOuterContext();
+    VMFrame* context = GetFrame()->GetOuterContext();
 
     if (!context->HasPreviousFrame()) {
         VMBlock* block = static_cast<VMBlock*>(GetFrame()->GetArgument(0, 0));
-        pVMFrame prevFrame = GetFrame()->GetPreviousFrame();
-        pVMFrame outerContext = prevFrame->GetOuterContext();
+        VMFrame* prevFrame = GetFrame()->GetPreviousFrame();
+        VMFrame* outerContext = prevFrame->GetOuterContext();
         oop_t sender = outerContext->GetArgument(0, 0);
         oop_t arguments[] = {block};
 

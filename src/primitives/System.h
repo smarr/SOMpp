@@ -36,15 +36,15 @@ public:
     _System(void);
     virtual ~_System();
 
-    void Global_(pVMObject object, pVMFrame frame);
-    void Global_put_(pVMObject object, pVMFrame frame);
-    void Load_(pVMObject object, pVMFrame frame);
-    void Exit_(pVMObject object, pVMFrame frame);
-    void PrintString_(pVMObject object, pVMFrame frame);
-    void PrintNewline(pVMObject object, pVMFrame frame);
-    void Time(pVMObject object, pVMFrame frame);
-    void Ticks(pVMObject object, pVMFrame frame);
-    void FullGC(pVMObject object, pVMFrame frame);
+    void Global_(pVMObject object, VMFrame* frame);
+    void Global_put_(pVMObject object, VMFrame* frame);
+    void Load_(pVMObject object, VMFrame* frame);
+    void Exit_(pVMObject object, VMFrame* frame);
+    void PrintString_(pVMObject object, VMFrame* frame);
+    void PrintNewline(pVMObject object, VMFrame* frame);
+    void Time(pVMObject object, VMFrame* frame);
+    void Ticks(pVMObject object, VMFrame* frame);
+    void FullGC(pVMObject object, VMFrame* frame);
 
 private:
     struct timeval start_time;

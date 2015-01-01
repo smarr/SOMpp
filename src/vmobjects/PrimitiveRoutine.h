@@ -34,7 +34,7 @@ class PrimitiveRoutine {
 public:
     PrimitiveRoutine() {};
 
-    virtual void operator()(pVMObject, pVMFrame) = 0;  // call using operator
+    virtual void operator()(pVMObject, VMFrame*) = 0;  // call using operator
 };
 
 // Typedefs for Primitive loading

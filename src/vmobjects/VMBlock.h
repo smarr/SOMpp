@@ -34,23 +34,23 @@ public:
 
             pVMMethod GetMethod() const;
             void      SetMethod(pVMMethod);
-    inline  void      SetContext(pVMFrame);
-    inline  pVMFrame  GetContext() const;
+    inline  void      SetContext(VMFrame*);
+    inline  VMFrame*  GetContext() const;
     virtual VMBlock*  Clone() const;
 
     static VMEvaluationPrimitive* GetEvaluationPrimitive(int);
 private:
     pVMMethod blockMethod;
-    pVMFrame context;
+    VMFrame* context;
 
     static const int VMBlockNumberOfFields;
 };
 
-void VMBlock::SetContext(pVMFrame contxt) {
+void VMBlock::SetContext(VMFrame* contxt) {
     context = contxt;
     write_barrier(this, contxt);
 }
 
-pVMFrame VMBlock::GetContext() const {
+VMFrame* VMBlock::GetContext() const {
     return context;
 }

@@ -159,12 +159,12 @@ void CloneObjectsTest::testCloneEvaluationPrimitive() {
 void CloneObjectsTest::testCloneFrame() {
     pVMSymbol methodSymbol = GetUniverse()->NewSymbol("frameMethod");
     pVMMethod method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
-    pVMFrame orig = GetUniverse()->NewFrame(nullptr, method);
-    pVMFrame context = orig->Clone();
+    VMFrame* orig = GetUniverse()->NewFrame(nullptr, method);
+    VMFrame* context = orig->Clone();
     orig->SetContext(context);
     pVMInteger dummyArg = GetUniverse()->NewInteger(1111);
     orig->SetArgument(0, 0, dummyArg);
-    pVMFrame clone = orig->Clone();
+    VMFrame* clone = orig->Clone();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);

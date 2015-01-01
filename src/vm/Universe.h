@@ -97,9 +97,9 @@ public:
     VMArray* NewArrayList(ExtendedList<oop_t>& list) const;
     VMArray* NewArrayList(ExtendedList<pVMSymbol>& list) const;
     VMArray* NewArrayFromStrings(const vector<StdString>&) const;
-    VMBlock* NewBlock(pVMMethod, pVMFrame, long);
+    VMBlock* NewBlock(pVMMethod, VMFrame*, long);
     VMClass* NewClass(VMClass*) const;
-    pVMFrame NewFrame(pVMFrame, pVMMethod) const;
+    VMFrame* NewFrame(VMFrame*, pVMMethod) const;
     pVMMethod NewMethod(pVMSymbol, size_t, size_t) const;
     pVMObject NewInstance(VMClass*) const;
     pVMInteger NewInteger(long) const;

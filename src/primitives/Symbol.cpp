@@ -36,7 +36,7 @@
 
 _Symbol* Symbol;
 
-void _Symbol::AsString(pVMObject /*object*/, pVMFrame frame) {
+void _Symbol::AsString(pVMObject /*object*/, VMFrame* frame) {
     pVMSymbol sym = static_cast<pVMSymbol>(frame->Pop());
 
     StdString str = sym->GetStdString();
