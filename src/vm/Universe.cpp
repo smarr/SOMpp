@@ -517,6 +517,10 @@ void Universe::InitializeGlobals() {
 
     // Fix up objectClass
     objectClass->SetSuperClass((VMClass*) nilObject);
+    
+#if USE_TAGGING
+    GlobalBox::updateIntegerBox(NewInteger(1));
+#endif
 
     LoadSystemClass(objectClass);
     LoadSystemClass(classClass);

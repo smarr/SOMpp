@@ -9,9 +9,6 @@ void GlobalBox::updateIntegerBox(VMInteger* newValue) {
 }
 
 VMInteger* GlobalBox::IntegerBox() {
-    if (integerBox == nullptr) {
-        integerBox = GetUniverse()->NewInteger(1);
-    }
     return integerBox;
 }
 
