@@ -49,7 +49,7 @@ public:
     virtual bool IsPrimitive() const {return true;};
 
 private:
-    void EmptyRoutine(pVMObject self, VMFrame* frame);
+    void EmptyRoutine(VMObject* self, VMFrame* frame);
 
     PrimitiveRoutine* routine;
     bool empty;

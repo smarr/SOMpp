@@ -11,12 +11,12 @@ _Method::_Method() : PrimitiveContainer() {
     SetPrimitive("holder",    new Routine<_Method>(this, &_Method::Holder));
 }
 
-void _Method::Holder(pVMObject, VMFrame* frame) {
+void _Method::Holder(VMObject*, VMFrame* frame) {
     VMMethod* self = static_cast<VMMethod*>(frame->Pop());
     frame->Push(self->GetHolder());
 }
 
-void _Method::Signature(pVMObject, VMFrame* frame) {
+void _Method::Signature(VMObject*, VMFrame* frame) {
     VMMethod* self = static_cast<VMMethod*>(frame->Pop());
     frame->Push(self->GetSignature());
 }

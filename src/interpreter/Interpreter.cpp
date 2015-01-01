@@ -321,7 +321,7 @@ void Interpreter::doPushField(long bytecodeIndex) {
         Universe()->ErrorExit("Integers do not have fields!");
     }
     else {
-        o = ((pVMObject)self)->GetField(fieldIndex);
+        o = ((VMObject*)self)->GetField(fieldIndex);
     }
 
     GetFrame()->Push(o);
@@ -407,7 +407,7 @@ void Interpreter::doPopField(long bytecodeIndex) {
         GetUniverse()->ErrorExit("Integers do not have fields that can be set");
     }
     else {
-        ((pVMObject) self)->SetField(field_index, o);
+        ((VMObject*) self)->SetField(field_index, o);
     }
 }
 

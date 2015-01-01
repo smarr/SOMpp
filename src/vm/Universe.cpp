@@ -66,9 +66,9 @@ short gcVerbosity;
 
 Universe* Universe::theUniverse = nullptr;
 
-pVMObject nilObject;
-pVMObject trueObject;
-pVMObject falseObject;
+VMObject* nilObject;
+VMObject* trueObject;
+VMObject* falseObject;
 
 VMClass* objectClass;
 VMClass* classClass;
@@ -309,7 +309,7 @@ void Universe::initialize(long _argc, char** _argv) {
 
     InitializeGlobals();
 
-    pVMObject systemObject = NewInstance(systemClass);
+    VMObject* systemObject = NewInstance(systemClass);
 
     SetGlobal(SymbolForChars("nil"), nilObject);
     SetGlobal(SymbolForChars("true"), trueObject);
@@ -390,7 +390,7 @@ Universe::~Universe() {
         if (IS_TAGGED(obj))
             return true;
         
-        if (obj == (pVMObject) INVALID_POINTER
+        if (obj == (VMObject*) INVALID_POINTER
             // || obj == nullptr
             ) {
             assert(false);
@@ -691,7 +691,7 @@ void Universe::LoadSystemClass( VMClass* systemClass) {
 }
 
 VMArray* Universe::NewArray(long size) const {
-    long additionalBytes = size * sizeof(pVMObject);
+    long additionalBytes = size * sizeof(VMObject*);
     
     bool outsideNursery;
     
@@ -760,7 +760,7 @@ VMBlock* Universe::NewBlock(VMMethod* method, VMFrame* context, long arguments) 
 VMClass* Universe::NewClass(VMClass* classOfClass) const {
     long numFields = classOfClass->GetNumberOfInstanceFields();
     VMClass* result;
-    long additionalBytes = numFields * sizeof(pVMObject);
+    long additionalBytes = numFields * sizeof(VMObject*);
     if (numFields) result = new (GetHeap<HEAP_CLS>(), additionalBytes) VMClass(numFields);
     else result = new (GetHeap<HEAP_CLS>()) VMClass;
 
@@ -789,7 +789,7 @@ VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method) const {
                   method->GetNumberOfLocals() +
                   method->GetMaximumNumberOfStackElements();
 
-    long additionalBytes = length * sizeof(pVMObject);
+    long additionalBytes = length * sizeof(VMObject*);
     result = new (GetHeap<HEAP_CLS>(), additionalBytes) VMFrame(length);
     result->clazz = nullptr;
     result->method = method;
@@ -800,11 +800,11 @@ VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method) const {
     return result;
 }
 
-pVMObject Universe::NewInstance(VMClass* classOfInstance) const {
+VMObject* Universe::NewInstance(VMClass* classOfInstance) const {
     long numOfFields = classOfInstance->GetNumberOfInstanceFields();
     //the additional space needed is calculated from the number of fields
-    long additionalBytes = numOfFields * sizeof(pVMObject);
-    pVMObject result = new (GetHeap<HEAP_CLS>(), additionalBytes) VMObject(numOfFields);
+    long additionalBytes = numOfFields * sizeof(VMObject*);
+    VMObject* result = new (GetHeap<HEAP_CLS>(), additionalBytes) VMObject(numOfFields);
     result->SetClass(classOfInstance);
 
     LOG_ALLOCATION(classOfInstance->GetName()->GetStdString(), result->GetObjectSize());
@@ -840,9 +840,9 @@ VMClass* Universe::NewMetaclassClass() const {
 }
 
 void Universe::WalkGlobals(oop_t (*walk)(oop_t)) {
-    nilObject   = (pVMObject)walk(nilObject);
-    trueObject  = (pVMObject)walk(trueObject);
-    falseObject = (pVMObject)walk(falseObject);
+    nilObject   = (VMObject*)walk(nilObject);
+    trueObject  = (VMObject*)walk(trueObject);
+    falseObject = (VMObject*)walk(falseObject);
 
 #if USE_TAGGING
     GlobalBox::updateIntegerBox(static_cast<VMInteger*>(walk(GlobalBox::IntegerBox())));
@@ -914,7 +914,7 @@ void Universe::WalkGlobals(oop_t (*walk)(oop_t)) {
 VMMethod* Universe::NewMethod( VMSymbol* signature,
         size_t numberOfBytecodes, size_t numberOfConstants) const {
     //Method needs space for the bytecodes and the pointers to the constants
-    long additionalBytes = PADDED_SIZE(numberOfBytecodes + numberOfConstants*sizeof(pVMObject));
+    long additionalBytes = PADDED_SIZE(numberOfBytecodes + numberOfConstants*sizeof(VMObject*));
 //#if GC_TYPE==GENERATIONAL
 //    VMMethod* result = new (GetHeap<HEAP_CLS>(),additionalBytes, true) 
 //                VMMethod(numberOfBytecodes, numberOfConstants);

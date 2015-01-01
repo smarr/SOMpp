@@ -32,10 +32,10 @@
 class _String: public PrimitiveContainer {
 public:
     _String();
-    void Concatenate_(pVMObject object, VMFrame* frame);
-    void AsSymbol(pVMObject object, VMFrame* frame);
-    void Hashcode(pVMObject object, VMFrame* frame);
-    void Length(pVMObject object, VMFrame* frame);
-    void Equal(pVMObject object, VMFrame* frame);
-    void PrimSubstringFrom_to_(pVMObject object, VMFrame* frame);
+    void Concatenate_(VMObject* object, VMFrame* frame);
+    void AsSymbol(VMObject* object, VMFrame* frame);
+    void Hashcode(VMObject* object, VMFrame* frame);
+    void Length(VMObject* object, VMFrame* frame);
+    void Equal(VMObject* object, VMFrame* frame);
+    void PrimSubstringFrom_to_(VMObject* object, VMFrame* frame);
 };

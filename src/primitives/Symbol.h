@@ -32,5 +32,5 @@
 class _Symbol: public PrimitiveContainer {
 public:
     _Symbol();
-    void AsString(pVMObject object, VMFrame* frame);
+    void AsString(VMObject* object, VMFrame* frame);
 };

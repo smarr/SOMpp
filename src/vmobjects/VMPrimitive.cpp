@@ -61,7 +61,7 @@ void VMPrimitive::WalkObjects(oop_t (*walk)(oop_t)) {
     holder    = static_cast<VMClass*>(walk(holder));
 }
 
-void VMPrimitive::EmptyRoutine( pVMObject _self, VMFrame* /*frame*/) {
+void VMPrimitive::EmptyRoutine( VMObject* _self, VMFrame* /*frame*/) {
     VMInvokable* self = static_cast<VMInvokable*>(_self);
     VMSymbol* sig = self->GetSignature();
     cout << "undefined primitive called: " << sig->GetChars() << endl;

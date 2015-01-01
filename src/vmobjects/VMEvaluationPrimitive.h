@@ -35,7 +35,7 @@ public:
     virtual VMEvaluationPrimitive* Clone() const;
 private:
     static VMSymbol* computeSignatureString(long argc);
-    void evaluationRoutine(pVMObject object, VMFrame* frame);
+    void evaluationRoutine(VMObject* object, VMFrame* frame);
     VMInteger* numberOfArguments;
 
 };

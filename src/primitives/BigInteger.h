@@ -32,15 +32,15 @@
 class _BigInteger: public PrimitiveContainer {
 public:
     _BigInteger();
-    void Plus(pVMObject object, VMFrame* frame);
-    void Minus(pVMObject object, VMFrame* frame);
-    void Star(pVMObject object, VMFrame* frame);
-    void Slash(pVMObject object, VMFrame* frame);
-    void Percent(pVMObject object, VMFrame* frame);
-    void And(pVMObject object, VMFrame* frame);
-    void Equal(pVMObject object, VMFrame* frame);
-    void Lowerthan(pVMObject object, VMFrame* frame);
-    void AsString(pVMObject object, VMFrame* frame);
-    void Sqrt(pVMObject object, VMFrame* frame);
+    void Plus(VMObject* object, VMFrame* frame);
+    void Minus(VMObject* object, VMFrame* frame);
+    void Star(VMObject* object, VMFrame* frame);
+    void Slash(VMObject* object, VMFrame* frame);
+    void Percent(VMObject* object, VMFrame* frame);
+    void And(VMObject* object, VMFrame* frame);
+    void Equal(VMObject* object, VMFrame* frame);
+    void Lowerthan(VMObject* object, VMFrame* frame);
+    void AsString(VMObject* object, VMFrame* frame);
+    void Sqrt(VMObject* object, VMFrame* frame);
 
 };

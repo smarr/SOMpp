@@ -158,7 +158,7 @@ void Disassembler::DumpMethod(VMMethod* method, const char* indent) {
                 DebugPrint("argument: %d, context %d\n", BC_1, BC_2); break;
             case BC_PUSH_FIELD: {
                 long fieldIdx = BC_1;
-                VMClass* holder = dynamic_cast<VMClass*>((pVMObject) method->GetHolder());
+                VMClass* holder = dynamic_cast<VMClass*>((VMObject*) method->GetHolder());
                 if (holder) {
                     VMSymbol* name = holder->GetInstanceFieldName(fieldIdx);
                     if (name != nullptr) {
@@ -212,7 +212,7 @@ void Disassembler::DumpMethod(VMMethod* method, const char* indent) {
                 break;
             case BC_POP_FIELD: {
                 long fieldIdx = BC_1;
-                VMClass* holder = dynamic_cast<VMClass*>((pVMObject) method->GetHolder());
+                VMClass* holder = dynamic_cast<VMClass*>((VMObject*) method->GetHolder());
                 if (holder) {
                     VMSymbol* name = holder->GetInstanceFieldName(fieldIdx);
                     DebugPrint("(index: %d) field: %s\n", fieldIdx, name->GetChars());
@@ -336,7 +336,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
             oop_t arg = ctxt->GetArgument(0, 0);
             uint8_t field_index = BC_1;
             
-            oop_t o = ((pVMObject) arg)->GetField(field_index);
+            oop_t o = ((VMObject*) arg)->GetField(field_index);
             VMClass* c = CLASS_OF(o);
             VMSymbol* cname = c->GetName();
             long fieldIdx = BC_1;

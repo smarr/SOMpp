@@ -99,7 +99,7 @@ void VMClass::MarkObjectAsInvalid() {
     instanceInvokables = (VMArray*)  INVALID_POINTER;
 }
 
-bool VMClass::AddInstanceInvokable(pVMObject ptr) {
+bool VMClass::AddInstanceInvokable(VMObject* ptr) {
     VMInvokable* newInvokable = static_cast<VMInvokable*>(ptr);
     if (newInvokable == nullptr) {
         GetUniverse()->ErrorExit("Error: trying to add non-invokable to invokables array");
@@ -166,7 +166,7 @@ VMInvokable* VMClass::GetInstanceInvokable(long index) const {
     return static_cast<VMInvokable*>(instanceInvokables->GetIndexableField(index));
 }
 
-void VMClass::SetInstanceInvokable(long index, pVMObject invokable) {
+void VMClass::SetInstanceInvokable(long index, VMObject* invokable) {
     instanceInvokables->SetIndexableField(index, invokable);
     if (invokable != nilObject) {
         VMInvokable* inv = static_cast<VMInvokable*>( invokable );

@@ -75,7 +75,7 @@ public:
             inline void      SetField(long index, oop_t value);
     virtual        void      Assert(bool value) const;
     virtual        void      WalkObjects(oop_t (oop_t));
-    virtual        pVMObject Clone() const;
+    virtual        VMObject* Clone() const;
     virtual inline size_t    GetObjectSize() const;
     virtual inline void      SetObjectSize(size_t size);
     
@@ -87,16 +87,16 @@ public:
      * usage: new( <heap> [, <additional_bytes>] ) VMObject( <constructor params> )
      * num_bytes parameter is set by the compiler.
      * parameter additional_bytes (a_b) is used for:
-     *   - fields in VMObject, a_b must be set to (numberOfFields*sizeof(pVMObject))
+     *   - fields in VMObject, a_b must be set to (numberOfFields*sizeof(VMObject*))
      *   - chars in VMString/VMSymbol, a_b must be set to (Stringlength + 1)
      *   - array size in VMArray; a_b must be set to (size_of_array*sizeof(VMObect*))
-     *   - fields in VMMethod, a_b must be set to (number_of_bc + number_of_csts*sizeof(pVMObject))
+     *   - fields in VMMethod, a_b must be set to (number_of_bc + number_of_csts*sizeof(VMObject*))
      */
     void* operator new(size_t numBytes, HEAP_CLS* heap, unsigned long additionalBytes = 0 ALLOC_OUTSIDE_NURSERY_DECL) {
         void* mem = AbstractVMObject::operator new(numBytes, heap, additionalBytes ALLOC_OUTSIDE_NURSERY(outsideNursery));
         assert(mem != INVALID_POINTER);
         
-        ((pVMObject) mem)->objectSize = numBytes + PADDED_SIZE(additionalBytes);
+        ((VMObject*) mem)->objectSize = numBytes + PADDED_SIZE(additionalBytes);
         return mem;
     }
 
@@ -126,7 +126,7 @@ void VMObject::SetObjectSize(size_t size) {
 }
 
 VMClass* VMObject::GetClass() const {
-    assert(Universe::IsValidObject((pVMObject) clazz));
+    assert(Universe::IsValidObject((VMObject*) clazz));
     return clazz;
 }
 
@@ -138,10 +138,10 @@ long VMObject::GetNumberOfFields() const {
 long VMObject::GetAdditionalSpaceConsumption() const {
     //The VM*-Object's additional memory used needs to be calculated.
     //It's      the total object size   MINUS   sizeof(VMObject) for basic
-    //VMObject  MINUS   the number of fields times sizeof(pVMObject)
+    //VMObject  MINUS   the number of fields times sizeof(VMObject*)
     return (objectSize
             - (sizeof(VMObject)
-               + sizeof(pVMObject) * GetNumberOfFields()));
+               + sizeof(VMObject*) * GetNumberOfFields()));
 }
 
 oop_t VMObject::GetField(long index) const {

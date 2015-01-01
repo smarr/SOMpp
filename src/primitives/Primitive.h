@@ -7,6 +7,6 @@ class _Primitive: public PrimitiveContainer {
 public:
     _Primitive(void);
     
-    void Signature(pVMObject object, VMFrame* frame);
-    void Holder   (pVMObject object, VMFrame* frame);
+    void Signature(VMObject* object, VMFrame* frame);
+    void Holder   (VMObject* object, VMFrame* frame);
 };

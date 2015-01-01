@@ -33,28 +33,28 @@ class _Integer: public PrimitiveContainer {
 
 public:
 
-    void Plus(pVMObject object, VMFrame* frame);
-    void Minus(pVMObject object, VMFrame* frame);
-    void Star(pVMObject object, VMFrame* frame);
-    void BitwiseAnd(pVMObject object, VMFrame* frame);
-    void BitwiseXor(pVMObject object, VMFrame* frame);
-    void LeftShift(pVMObject object, VMFrame* frame);
-    void Slash(pVMObject object, VMFrame* frame);
-    void Slashslash(pVMObject object, VMFrame* frame);
-    void Percent(pVMObject object, VMFrame* frame);
-    void And(pVMObject object, VMFrame* frame);
-    void Equal(pVMObject object, VMFrame* frame);
-    void Lowerthan(pVMObject object, VMFrame* frame);
-    void AsString(pVMObject object, VMFrame* frame);
-    void Sqrt(pVMObject object, VMFrame* frame);
-    void AtRandom(pVMObject object, VMFrame* frame);
+    void Plus(VMObject* object, VMFrame* frame);
+    void Minus(VMObject* object, VMFrame* frame);
+    void Star(VMObject* object, VMFrame* frame);
+    void BitwiseAnd(VMObject* object, VMFrame* frame);
+    void BitwiseXor(VMObject* object, VMFrame* frame);
+    void LeftShift(VMObject* object, VMFrame* frame);
+    void Slash(VMObject* object, VMFrame* frame);
+    void Slashslash(VMObject* object, VMFrame* frame);
+    void Percent(VMObject* object, VMFrame* frame);
+    void And(VMObject* object, VMFrame* frame);
+    void Equal(VMObject* object, VMFrame* frame);
+    void Lowerthan(VMObject* object, VMFrame* frame);
+    void AsString(VMObject* object, VMFrame* frame);
+    void Sqrt(VMObject* object, VMFrame* frame);
+    void AtRandom(VMObject* object, VMFrame* frame);
 
-    void FromString(pVMObject object, VMFrame* frame);
+    void FromString(VMObject* object, VMFrame* frame);
 
     _Integer(void);
 
 private:
-    void pushResult(pVMObject object, VMFrame* frame, int64_t result);
+    void pushResult(VMObject* object, VMFrame* frame, int64_t result);
     void resendAsBigInteger(const char* op, oop_t left, VMBigInteger* right);
     void resendAsDouble(const char* op, oop_t left, VMDouble* right);
 

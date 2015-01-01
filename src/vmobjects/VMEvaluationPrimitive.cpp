@@ -78,7 +78,7 @@ VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc) {
     return GetUniverse()->SymbolFor(signatureString);
 }
 
-void VMEvaluationPrimitive::evaluationRoutine(pVMObject object, VMFrame* frame) {
+void VMEvaluationPrimitive::evaluationRoutine(VMObject* object, VMFrame* frame) {
     VMEvaluationPrimitive* self = static_cast<VMEvaluationPrimitive*>(object);
 
     // Get the block (the receiver) from the stack

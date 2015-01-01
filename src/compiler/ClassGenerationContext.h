@@ -42,8 +42,8 @@ public:
     bool HasField(const StdString&);
     void AddInstanceField(VMSymbol*);
     void AddClassField(VMSymbol*);
-    void AddInstanceMethod(pVMObject);
-    void AddClassMethod(pVMObject);
+    void AddInstanceMethod(VMObject*);
+    void AddClassMethod(VMObject*);
     void SetName(VMSymbol* n) {name = n;}
     void SetSuperName(VMSymbol* sn) {superName = sn;}
     void SetClassSide(bool cs) {classSide = cs;}

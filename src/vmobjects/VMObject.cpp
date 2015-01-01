@@ -35,14 +35,14 @@ const long VMObject::VMObjectNumberOfFields = 0;
 
 VMObject::VMObject(long numberOfFields) {
     // this line would be needed if the VMObject** is used instead of the macro:
-    // FIELDS = (pVMObject*)&clazz;
+    // FIELDS = (VMObject**)&clazz;
     SetNumberOfFields(numberOfFields + VMObjectNumberOfFields);
     hash = (size_t) this;
     // Object size was already set by the heap on allocation
 }
 
-pVMObject VMObject::Clone() const {
-    pVMObject clone = new (GetHeap<HEAP_CLS>(), objectSize - sizeof(VMObject) ALLOC_MATURE) VMObject(*this);
+VMObject* VMObject::Clone() const {
+    VMObject* clone = new (GetHeap<HEAP_CLS>(), objectSize - sizeof(VMObject) ALLOC_MATURE) VMObject(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)),
            SHIFTED_PTR(this,  sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     clone->hash = (size_t) &clone;

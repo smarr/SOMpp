@@ -47,9 +47,9 @@ extern short dumpBytecodes;
 extern short gcVerbosity;
 
 //global VMObjects
-extern pVMObject nilObject;
-extern pVMObject trueObject;
-extern pVMObject falseObject;
+extern VMObject* nilObject;
+extern VMObject* trueObject;
+extern VMObject* falseObject;
 
 extern VMClass* objectClass;
 extern VMClass* classClass;
@@ -101,7 +101,7 @@ public:
     VMClass* NewClass(VMClass*) const;
     VMFrame* NewFrame(VMFrame*, VMMethod*) const;
     VMMethod* NewMethod(VMSymbol*, size_t, size_t) const;
-    pVMObject NewInstance(VMClass*) const;
+    VMObject* NewInstance(VMClass*) const;
     VMInteger* NewInteger(long) const;
     void WalkGlobals(oop_t (*walk)(oop_t));
     VMBigInteger* NewBigInteger(int64_t) const;

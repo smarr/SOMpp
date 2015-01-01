@@ -32,7 +32,7 @@
 extern VMClass* stringClass;
 
 //this macro could replace the chars member variable
-//#define CHARS ((char*)&clazz+sizeof(pVMObject))
+//#define CHARS ((char*)&clazz+sizeof(VMObject*))
 
 VMString::VMString(const char* str) : AbstractVMObject() {
     //set the chars-pointer to point at the position of the first character

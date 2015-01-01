@@ -47,7 +47,7 @@ _String::_String() : PrimitiveContainer() {
     SetPrimitive("primSubstringFrom_to_", new Routine<_String>(this, &_String::PrimSubstringFrom_to_));
 }
 
-void _String::Concatenate_(pVMObject /*object*/, VMFrame* frame) {
+void _String::Concatenate_(VMObject* /*object*/, VMFrame* frame) {
     VMString* arg  = static_cast<VMString*>(frame->Pop());
     VMString* self = static_cast<VMString*>(frame->Pop());
     StdString a = arg->GetChars();
@@ -58,25 +58,25 @@ void _String::Concatenate_(pVMObject /*object*/, VMFrame* frame) {
     frame->Push(GetUniverse()->NewString(result));
 }
 
-void _String::AsSymbol(pVMObject /*object*/, VMFrame* frame) {
+void _String::AsSymbol(VMObject* /*object*/, VMFrame* frame) {
     VMString* self = static_cast<VMString*>(frame->Pop());
     StdString result = self->GetStdString();
     frame->Push(GetUniverse()->SymbolFor(result));
 }
 
-void _String::Hashcode(pVMObject /*object*/, VMFrame* frame) {
+void _String::Hashcode(VMObject* /*object*/, VMFrame* frame) {
     VMString* self = static_cast<VMString*>(frame->Pop());
     frame->Push(NEW_INT(self->GetHash()));
 }
 
-void _String::Length(pVMObject /*object*/, VMFrame* frame) {
+void _String::Length(VMObject* /*object*/, VMFrame* frame) {
     VMString* self = static_cast<VMString*>(frame->Pop());
 
     size_t len = self->GetStringLength();
     frame->Push(NEW_INT(len));
 }
 
-void _String::Equal(pVMObject /*object*/, VMFrame* frame) {
+void _String::Equal(VMObject* /*object*/, VMFrame* frame) {
     oop_t op1 = frame->Pop();
     VMString* op2 = static_cast<VMString*>(frame->Pop());
 
@@ -98,7 +98,7 @@ void _String::Equal(pVMObject /*object*/, VMFrame* frame) {
     frame->Push(falseObject);
 }
 
-void _String::PrimSubstringFrom_to_(pVMObject /*object*/, VMFrame* frame) {
+void _String::PrimSubstringFrom_to_(VMObject* /*object*/, VMFrame* frame) {
     oop_t end   = frame->Pop();
     oop_t start = frame->Pop();
 

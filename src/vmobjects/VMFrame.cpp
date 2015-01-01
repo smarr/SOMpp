@@ -43,7 +43,7 @@ VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength) {
                     + method->GetMaximumNumberOfStackElements()
                     + extraLength;
 
-    long additionalBytes = length * sizeof(pVMObject);
+    long additionalBytes = length * sizeof(VMObject*);
     VMFrame* result = new (GetHeap<HEAP_CLS>(), additionalBytes) VMFrame(length);
 
     result->clazz = nullptr; // result->SetClass(from->GetClass());
@@ -158,7 +158,7 @@ long VMFrame::RemainingStackSize() const {
     // - 1 because the stack pointer points at the top entry,
     // so the next entry would be put at stackPointer+1
     size_t size = ((size_t) this + objectSize - size_t(stack_ptr))
-            / sizeof(pVMObject);
+            / sizeof(VMObject*);
     return size - 1;
 }
 

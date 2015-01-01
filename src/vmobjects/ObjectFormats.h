@@ -76,7 +76,6 @@ class VMPrimitive;
 class VMString;
 class VMSymbol;
 
-typedef VMObject*              pVMObject;
 typedef const VMObject*       pcVMObject;
 
 typedef AbstractVMObject*      pVMAbstract;
@@ -86,4 +85,4 @@ typedef AbstractVMObject*      pVMAbstract;
 typedef void*                  oop_t;
 
 // Used to mark object fields as invalid
-#define INVALID_POINTER ((pVMObject)0x101010)
+#define INVALID_POINTER ((VMObject*)0x101010)

@@ -606,7 +606,7 @@ void Parser::ifTrueMessage(MethodGenerationContext* mgenc) {
     } else {
         formula(mgenc);
         VMSymbol* msg = GetUniverse()->SymbolFor("value");
-        mgenc->AddLiteralIfAbsent((pVMObject) msg);
+        mgenc->AddLiteralIfAbsent(msg);
         bcGen->EmitSEND(mgenc, msg);
     }
     
@@ -621,12 +621,12 @@ void Parser::ifTrueMessage(MethodGenerationContext* mgenc) {
         } else {
             formula(mgenc);
             VMSymbol* msg = GetUniverse()->SymbolFor("value");
-            mgenc->AddLiteralIfAbsent((pVMObject) msg);
+            mgenc->AddLiteralIfAbsent(msg);
             bcGen->EmitSEND(mgenc, msg);
         }
     } else {
         VMSymbol* global = GetUniverse()->SymbolFor("nil");
-        mgenc->AddLiteralIfAbsent((pVMObject)global);
+        mgenc->AddLiteralIfAbsent(global);
         
         bcGen->EmitPUSHGLOBAL(mgenc, global);
     }
@@ -642,7 +642,7 @@ void Parser::ifFalseMessage(MethodGenerationContext* mgenc) {
     } else {
         formula(mgenc);
         VMSymbol* msg = GetUniverse()->SymbolFor("value");
-        mgenc->AddLiteralIfAbsent((pVMObject) msg);
+        mgenc->AddLiteralIfAbsent(msg);
         bcGen->EmitSEND(mgenc, msg);
     }
     
@@ -657,12 +657,12 @@ void Parser::ifFalseMessage(MethodGenerationContext* mgenc) {
         } else {
             formula(mgenc);
             VMSymbol* msg = GetUniverse()->SymbolFor("value");
-            mgenc->AddLiteralIfAbsent((pVMObject) msg);
+            mgenc->AddLiteralIfAbsent(msg);
             bcGen->EmitSEND(mgenc, msg);
         }
     } else {
         VMSymbol* global = GetUniverse()->SymbolFor("nil");
-        mgenc->AddLiteralIfAbsent((pVMObject)global);
+        mgenc->AddLiteralIfAbsent(global);
         
         bcGen->EmitPUSHGLOBAL(mgenc, global);
     }
