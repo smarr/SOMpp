@@ -141,6 +141,7 @@ public:
     //
     
     static bool IsValidObject(vm_oop_t obj);
+
 private:
     vector<StdString> handleArguments(long argc, char** argv);
     long getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;
