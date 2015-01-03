@@ -60,7 +60,7 @@ inline void GenerationalHeap::writeBarrier(AbstractVMObject* holder, const vm_oo
 #endif
     
     assert(Universe::IsValidObject(referencedObject));
-    assert(Universe::IsValidObject(holder));
+    assert(Universe::IsValidObject((vm_oop_t) holder));
 
     size_t gcfield = *(((size_t*)holder)+1);
     if ((gcfield & 6 /* MASK_OBJECT_IS_OLD + MASK_SEEN_BY_WRITE_BARRIER */) == 2 /* MASK_OBJECT_IS_OLD */)
