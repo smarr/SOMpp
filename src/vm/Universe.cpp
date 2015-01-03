@@ -390,8 +390,8 @@ Universe::~Universe() {
     bool Universe::IsValidObject(vm_oop_t obj) {
         if (IS_TAGGED(obj))
             return true;
-        
-        if (obj == (VMObject*) INVALID_POINTER
+
+        if (obj == INVALID_VM_POINTER
             // || obj == nullptr
             ) {
             assert(false);
