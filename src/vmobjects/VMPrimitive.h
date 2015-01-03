@@ -40,7 +40,7 @@ public:
 
     inline  bool IsEmpty() const;
     inline  void SetRoutine(PrimitiveRoutine* rtn);
-    virtual void WalkObjects(oop_t (oop_t));
+    virtual void WalkObjects(walk_heap_fn);
             void SetEmpty(bool value) {empty = value;};
     virtual VMPrimitive* Clone() const;
 

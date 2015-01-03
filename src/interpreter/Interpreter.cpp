@@ -508,6 +508,6 @@ void Interpreter::doJump(long bytecodeIndex) {
     bytecodeIndexGlobal = target;
 }
 
-void Interpreter::WalkGlobals(oop_t (*walk)(oop_t)) {
     method = (VMMethod*) walk(method);
+void Interpreter::WalkGlobals(walk_heap_fn walk) {
 }

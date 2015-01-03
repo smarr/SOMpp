@@ -64,7 +64,7 @@ public:
 
     long GetFieldIndex(VMSymbol* fieldName) const;
 
-    inline virtual void WalkObjects(oop_t (oop_t)) {
+    inline virtual void WalkObjects(walk_heap_fn) {
         return;
     }
 

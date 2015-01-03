@@ -33,7 +33,7 @@ public:
     typedef GCEvaluationPrimitive Stored;
     
     VMEvaluationPrimitive(long argc);
-    virtual void WalkObjects(oop_t (oop_t));
+    virtual void WalkObjects(walk_heap_fn);
     virtual VMEvaluationPrimitive* Clone() const;
 private:
     static VMSymbol* computeSignatureString(long argc);

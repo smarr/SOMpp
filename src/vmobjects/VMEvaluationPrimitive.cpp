@@ -47,7 +47,7 @@ VMEvaluationPrimitive* VMEvaluationPrimitive::Clone() const {
     return evPrim;
 }
 
-void VMEvaluationPrimitive::WalkObjects(oop_t (*walk)(oop_t)) {
+void VMEvaluationPrimitive::WalkObjects(walk_heap_fn walk) {
     VMPrimitive::WalkObjects(walk);
     numberOfArguments = static_cast<VMInteger*>(walk(numberOfArguments));
 }

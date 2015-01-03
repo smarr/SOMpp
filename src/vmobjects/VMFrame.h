@@ -65,7 +65,7 @@ public:
     long ArgumentStackIndex(long index) const;
     void CopyArgumentsFrom(VMFrame* frame);
     inline  oop_t GetField(long index) const;
-    virtual void WalkObjects(oop_t (oop_t));
+    virtual void WalkObjects(walk_heap_fn);
     virtual VMFrame* Clone() const;
 
     void PrintStack() const;

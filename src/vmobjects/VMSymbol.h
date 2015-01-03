@@ -50,7 +50,7 @@ private:
     inline VMInvokable* GetCachedInvokable(const VMClass*) const;
     inline void UpdateCachedInvokable(const VMClass* cls, VMInvokable* invo);
     
-    virtual void WalkObjects(oop_t (oop_t));
+    virtual void WalkObjects(walk_heap_fn);
     
     friend class Signature;
     friend class VMClass;

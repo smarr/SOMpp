@@ -843,10 +843,10 @@ VMClass* Universe::NewMetaclassClass() const {
     return result;
 }
 
-void Universe::WalkGlobals(oop_t (*walk)(oop_t)) {
     nilObject   = (VMObject*)walk(nilObject);
     trueObject  = (VMObject*)walk(trueObject);
     falseObject = (VMObject*)walk(falseObject);
+void Universe::WalkGlobals(walk_heap_fn walk) {
 
 #if USE_TAGGING
     GlobalBox::updateIntegerBox(static_cast<VMInteger*>(walk(GlobalBox::IntegerBox())));

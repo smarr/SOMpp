@@ -41,9 +41,9 @@ void VMInvokable::SetSignature(VMSymbol* sig) {
     write_barrier(this, sig);
 }
 
-void VMInvokable::WalkObjects(oop_t (*walk)(oop_t)) {
     clazz = static_cast<VMClass*>(walk(clazz));
     signature = static_cast<VMSymbol*>(walk(signature));
+void VMInvokable::WalkObjects(walk_heap_fn walk) {
     if (holder)
         holder = static_cast<VMClass*>(walk(holder));
 }

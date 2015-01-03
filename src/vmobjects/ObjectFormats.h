@@ -100,3 +100,7 @@ typedef GCOop* gc_oop_t;
 
 // Used to mark object fields as invalid
 #define INVALID_POINTER ((VMObject*)0x101010)
+
+typedef gc_oop_t (*walk_heap_fn)(gc_oop_t);
+
+

@@ -103,7 +103,7 @@ public:
     VMMethod* NewMethod(VMSymbol*, size_t, size_t) const;
     VMObject* NewInstance(VMClass*) const;
     VMInteger* NewInteger(long) const;
-    void WalkGlobals(oop_t (*walk)(oop_t));
+    void WalkGlobals(walk_heap_fn);
     VMBigInteger* NewBigInteger(int64_t) const;
     VMDouble* NewDouble(double) const;
     VMClass* NewMetaclassClass(void) const;

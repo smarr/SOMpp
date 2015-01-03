@@ -38,7 +38,7 @@ public:
     VMFrame*  PushNewFrame(VMMethod* method);
     void      SetFrame(VMFrame* frame);
     inline VMFrame* GetFrame() const;
-    void      WalkGlobals(oop_t (*walk)(oop_t));
+    void      WalkGlobals(walk_heap_fn);
     
 private:
     vm_oop_t GetSelf() const;

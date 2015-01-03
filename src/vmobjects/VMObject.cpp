@@ -69,8 +69,8 @@ void VMObject::Assert(bool value) const {
     GetUniverse()->Assert(value);
 }
 
-void VMObject::WalkObjects(oop_t (*walk)(oop_t)) {
     clazz = (VMClass*) walk(clazz);
+void VMObject::WalkObjects(walk_heap_fn walk) {
     
     long numFields = GetNumberOfFields();
     for (long i = 0; i < numFields; ++i) {

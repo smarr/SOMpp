@@ -69,7 +69,7 @@ public:
            bool         HasPrimitives() const;
            void         LoadPrimitives(const vector<StdString>&);
     virtual VMClass*    Clone() const;
-           void         WalkObjects(oop_t (*walk)(oop_t));
+           void         WalkObjects(walk_heap_fn walk);
     
     virtual void MarkObjectAsInvalid();
 

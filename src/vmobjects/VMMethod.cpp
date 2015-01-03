@@ -79,7 +79,7 @@ void VMMethod::SetSignature(VMSymbol* sig) {
     SetNumberOfArguments(Signature::GetNumberOfArguments(signature));
 }
 
-void VMMethod::WalkObjects(oop_t (*walk)(oop_t)) {
+void VMMethod::WalkObjects(walk_heap_fn walk) {
     VMInvokable::WalkObjects(walk);
 
     numberOfLocals = static_cast<VMInteger*>(walk(numberOfLocals));

@@ -78,8 +78,8 @@ VMClass::VMClass(long numberOfFields) :
         VMObject(numberOfFields + VMClassNumberOfFields) {
 }
 
-void VMClass::WalkObjects(oop_t (*walk)(oop_t)) {
     clazz = static_cast<VMClass*>(walk(clazz));
+void VMClass::WalkObjects(walk_heap_fn walk) {
     if (superClass)
         superClass = static_cast<VMClass*>(walk(superClass));
     name = static_cast<VMSymbol*>(walk(name));

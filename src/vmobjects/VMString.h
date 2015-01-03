@@ -42,7 +42,7 @@ public:
     virtual VMString* Clone() const;
     virtual VMClass* GetClass() const;
     virtual size_t GetObjectSize() const;
-    virtual void WalkObjects(oop_t (oop_t));
+    virtual void WalkObjects(walk_heap_fn);
     
     virtual void MarkObjectAsInvalid();
 

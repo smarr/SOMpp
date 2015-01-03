@@ -55,10 +55,10 @@ VMPrimitive* VMPrimitive::Clone() const {
     return prim;
 }
 
-void VMPrimitive::WalkObjects(oop_t (*walk)(oop_t)) {
     clazz     = static_cast<VMClass*>(walk(clazz));
     signature = static_cast<VMSymbol*>(walk(signature));
     holder    = static_cast<VMClass*>(walk(holder));
+void VMPrimitive::WalkObjects(walk_heap_fn walk) {
 }
 
 void VMPrimitive::EmptyRoutine( VMObject* _self, VMFrame* /*frame*/) {

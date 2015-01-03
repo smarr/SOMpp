@@ -57,7 +57,7 @@ public:
     void SetCachedFrame(VMFrame* frame);
     VMFrame* GetCachedFrame() const;
 #endif
-    virtual void WalkObjects(oop_t (oop_t));
+    virtual void WalkObjects(walk_heap_fn);
     inline  long      GetNumberOfIndexableFields() const;
     virtual VMMethod* Clone() const;
 

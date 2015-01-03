@@ -35,7 +35,7 @@ public:
     
     VMArray(long size, long nof = 0);
 
-    virtual void WalkObjects(oop_t (oop_t));
+    virtual void WalkObjects(walk_heap_fn);
 
     inline  long GetNumberOfIndexableFields() const;
     VMArray* CopyAndExtendWith(vm_oop_t) const;

@@ -134,7 +134,7 @@ VMFrame* VMFrame::GetOuterContext() {
     return current;
 }
 
-void VMFrame::WalkObjects(oop_t (*walk)(oop_t)) {
+void VMFrame::WalkObjects(walk_heap_fn walk) {
     // VMFrame is not a proper SOM object any longer, we don't have a class for it.
     // clazz = (VMClass*) walk(clazz);
     

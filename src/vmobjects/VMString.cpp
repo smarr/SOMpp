@@ -59,7 +59,7 @@ void VMString::MarkObjectAsInvalid() {
     }
 }
 
-void VMString::WalkObjects(oop_t (oop_t)) {
+void VMString::WalkObjects(walk_heap_fn) {
     //nothing to do
 }
 

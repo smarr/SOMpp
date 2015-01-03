@@ -43,7 +43,7 @@ public:
             VMClass*  GetHolder() const;
             void      SetHolder(VMClass* hld);
 
-    void WalkObjects(oop_t (*walk)(oop_t));
+    void WalkObjects(walk_heap_fn);
 
 protected:
     VMSymbol* signature;

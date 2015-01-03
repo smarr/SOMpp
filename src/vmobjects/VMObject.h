@@ -74,7 +74,7 @@ public:
             inline vm_oop_t  GetField(long index) const;
             inline void      SetField(long index, vm_oop_t value);
     virtual        void      Assert(bool value) const;
-    virtual        void      WalkObjects(oop_t (oop_t));
+    virtual        void      WalkObjects(walk_heap_fn walk);
     virtual        VMObject* Clone() const;
     virtual inline size_t    GetObjectSize() const;
     virtual inline void      SetObjectSize(size_t size);
