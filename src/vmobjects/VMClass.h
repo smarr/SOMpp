@@ -85,10 +85,10 @@ private:
     void setPrimitives(void* handle, const StdString& cname);
     long numberOfSuperInstanceFields() const;
 
-    VMClass* superClass;
-    VMSymbol* name;
-    VMArray* instanceFields;
-    VMArray* instanceInvokables;
+    GCClass* superClass;
+    GCSymbol* name;
+    GCArray* instanceFields;
+    GCArray* instanceInvokables;
 
     static const long VMClassNumberOfFields;
 };

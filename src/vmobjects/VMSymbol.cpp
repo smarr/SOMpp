@@ -31,7 +31,7 @@
 #include "VMInteger.h"
 #include "Signature.h"
 
-extern VMClass* symbolClass;
+extern GCClass* symbolClass;
 
 VMSymbol::VMSymbol(const char* str) :
   numberOfArgumentsOfSignature(Signature::DetermineNumberOfArguments(str)) {

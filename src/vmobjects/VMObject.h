@@ -106,7 +106,7 @@ protected:
     size_t objectSize;     // set by the heap at allocation time
     long   numberOfFields;
 
-    VMClass* clazz;
+    GCClass* clazz;
 
     // Start of fields. All members beyond after clazz are indexable.
     // clazz has index -1.

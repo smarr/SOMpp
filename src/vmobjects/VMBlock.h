@@ -42,8 +42,8 @@ public:
 
     static VMEvaluationPrimitive* GetEvaluationPrimitive(int);
 private:
-    VMMethod* blockMethod;
-    VMFrame* context;
+    GCMethod* blockMethod;
+    GCFrame* context;
 
     static const int VMBlockNumberOfFields;
 };

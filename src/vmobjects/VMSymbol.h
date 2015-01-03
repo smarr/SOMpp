@@ -44,9 +44,9 @@ public:
     virtual VMClass* GetClass() const;
 private:
     const int numberOfArgumentsOfSignature;
-    const VMClass* cachedClass_invokable[3];
+    const GCClass* cachedClass_invokable[3];
     long nextCachePos;
-    VMInvokable* cachedInvokable[3];
+    GCInvokable* cachedInvokable[3];
     inline VMInvokable* GetCachedInvokable(const VMClass*) const;
     inline void UpdateCachedInvokable(const VMClass* cls, VMInvokable* invo);
     

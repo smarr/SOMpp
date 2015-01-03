@@ -73,13 +73,13 @@ private:
     inline uint8_t* GetBytecodes() const;
     inline vm_oop_t GetIndexableField(long idx) const;
 
-    VMInteger* numberOfLocals;
-    VMInteger* maximumNumberOfStackElements;
-    VMInteger* bcLength;
-    VMInteger* numberOfArguments;
-    VMInteger* numberOfConstants;
+    GCInteger* numberOfLocals;
+    GCInteger* maximumNumberOfStackElements;
+    GCInteger* bcLength;
+    GCInteger* numberOfArguments;
+    GCInteger* numberOfConstants;
 #ifdef UNSAFE_FRAME_OPTIMIZATION
-    VMFrame* cachedFrame;
+    GCFrame* cachedFrame;
 #endif
     gc_oop_t* indexableFields;
     uint8_t* bytecodes;

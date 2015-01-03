@@ -29,7 +29,7 @@
 
 #include "VMString.h"
 
-extern VMClass* stringClass;
+extern GCClass* stringClass;
 
 //this macro could replace the chars member variable
 //#define CHARS ((char*)&clazz+sizeof(VMObject*))

@@ -46,6 +46,6 @@ public:
     void WalkObjects(walk_heap_fn);
 
 protected:
-    VMSymbol* signature;
-    VMClass*  holder;
+    GCSymbol* signature;
+    GCClass*  holder;
 };

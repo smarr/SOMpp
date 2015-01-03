@@ -98,8 +98,39 @@ typedef VMOop* vm_oop_t;
 typedef GCOop* gc_oop_t;
 
 
+
+/**
+ We need to distinguish between pointers that need to be handled with a
+ read barrier, and between pointers that already went through it.
+ 
+ So, we call pointers that need to go through the barrier:
+ heap values, or GC* pointers.
+ 
+ And all the stuff that was already processed:
+ loaded values, or VM* pointers.
+ */
+class GCAbstractObject : public GCOop    { public: typedef AbstractVMObject Loaded; };
+class GCObject : public GCAbstractObject { public: typedef VMObject Loaded; };
+class GCFrame  : public GCObject         { public: typedef VMFrame  Loaded; };
+class GCClass  : public GCObject         { public: typedef VMClass  Loaded; };
+class GCArray  : public GCObject         { public: typedef VMArray  Loaded; };
+class GCBlock  : public GCObject         { public: typedef VMBlock  Loaded; };
+class GCBigInteger : public GCAbstractObject { public: typedef VMBigInteger Loaded; };
+class GCDouble : public GCAbstractObject { public: typedef VMDouble Loaded; };
+class GCInteger : public GCAbstractObject { public: typedef VMInteger Loaded; };
+class GCInvokable : public GCObject      { public: typedef VMInvokable Loaded; };
+class GCMethod : public GCInvokable      { public: typedef VMMethod    Loaded; };
+class GCPrimitive : public GCInvokable   { public: typedef VMPrimitive Loaded; };
+class GCEvaluationPrimitive : public GCPrimitive { public: typedef VMEvaluationPrimitive Loaded; };
+class GCString    : public GCAbstractObject { public: typedef VMString Loaded; };
+class GCSymbol    : public GCString      { public: typedef VMSymbol Loaded; };
+
+
+
 // Used to mark object fields as invalid
-#define INVALID_POINTER ((VMObject*)0x101010)
+#define INVALID_VM_POINTER ((VMObject*)0x101010)
+#define INVALID_GC_POINTER ((GCObject*)0x101010)
+
 
 typedef gc_oop_t (*walk_heap_fn)(gc_oop_t);
 

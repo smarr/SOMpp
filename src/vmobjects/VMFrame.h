@@ -72,9 +72,9 @@ public:
     inline void* GetStackPointer() const;
     long RemainingStackSize() const;
 private:
-    VMFrame* previousFrame;
-    VMFrame* context;
-    VMMethod* method;
+    GCFrame* previousFrame;
+    GCFrame* context;
+    GCMethod* method;
     long bytecodeIndex;
     gc_oop_t* arguments;
     gc_oop_t* locals;

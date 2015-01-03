@@ -66,33 +66,33 @@ short gcVerbosity;
 
 Universe* Universe::theUniverse = nullptr;
 
-VMObject* nilObject;
-VMObject* trueObject;
-VMObject* falseObject;
+GCObject* nilObject;
+GCObject* trueObject;
+GCObject* falseObject;
 
-VMClass* objectClass;
-VMClass* classClass;
-VMClass* metaClassClass;
+GCClass* objectClass;
+GCClass* classClass;
+GCClass* metaClassClass;
 
-VMClass* nilClass;
-VMClass* integerClass;
-VMClass* bigIntegerClass;
-VMClass* arrayClass;
-VMClass* methodClass;
-VMClass* symbolClass;
-VMClass* primitiveClass;
-VMClass* stringClass;
-VMClass* systemClass;
-VMClass* blockClass;
-VMClass* doubleClass;
+GCClass* nilClass;
+GCClass* integerClass;
+GCClass* bigIntegerClass;
+GCClass* arrayClass;
+GCClass* methodClass;
+GCClass* symbolClass;
+GCClass* primitiveClass;
+GCClass* stringClass;
+GCClass* systemClass;
+GCClass* blockClass;
+GCClass* doubleClass;
 
-VMClass* trueClass;
-VMClass* falseClass;
+GCClass* trueClass;
+GCClass* falseClass;
 
-VMSymbol* symbolIfTrue;
-VMSymbol* symbolIfFalse;
+GCSymbol* symbolIfTrue;
+GCSymbol* symbolIfFalse;
 
-std::map<std::string, VMSymbol*> symbolsMap;
+std::map<std::string, GCSymbol*> symbolsMap;
 
 std::string bm_name;
 

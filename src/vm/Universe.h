@@ -47,31 +47,31 @@ extern short dumpBytecodes;
 extern short gcVerbosity;
 
 //global VMObjects
-extern VMObject* nilObject;
-extern VMObject* trueObject;
-extern VMObject* falseObject;
+extern GCObject* nilObject;
+extern GCObject* trueObject;
+extern GCObject* falseObject;
 
-extern VMClass* objectClass;
-extern VMClass* classClass;
-extern VMClass* metaClassClass;
+extern GCClass* objectClass;
+extern GCClass* classClass;
+extern GCClass* metaClassClass;
 
-extern VMClass* nilClass;
-extern VMClass* integerClass;
-extern VMClass* bigIntegerClass;
-extern VMClass* arrayClass;
-extern VMClass* methodClass;
-extern VMClass* symbolClass;
-extern VMClass* primitiveClass;
-extern VMClass* stringClass;
-extern VMClass* systemClass;
-extern VMClass* blockClass;
-extern VMClass* doubleClass;
+extern GCClass* nilClass;
+extern GCClass* integerClass;
+extern GCClass* bigIntegerClass;
+extern GCClass* arrayClass;
+extern GCClass* methodClass;
+extern GCClass* symbolClass;
+extern GCClass* primitiveClass;
+extern GCClass* stringClass;
+extern GCClass* systemClass;
+extern GCClass* blockClass;
+extern GCClass* doubleClass;
 
-extern VMClass* trueClass;
-extern VMClass* falseClass;
+extern GCClass* trueClass;
+extern GCClass* falseClass;
 
-extern VMSymbol* symbolIfTrue;
-extern VMSymbol* symbolIfFalse;
+extern GCSymbol* symbolIfTrue;
+extern GCSymbol* symbolIfFalse;
 
 using namespace std;
 class Universe {
@@ -154,8 +154,8 @@ private:
     void initialize(long, char**);
 
     long heapSize;
-    map<VMSymbol*, oop_t> globals;
-    map<long,VMClass*> blockClassesByNoOfArgs;
+    map<GCSymbol*, gc_oop_t> globals;
+    map<long, GCClass*> blockClassesByNoOfArgs;
     vector<StdString> classPath;
 
     Interpreter* interpreter;
