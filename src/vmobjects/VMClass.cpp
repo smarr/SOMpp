@@ -408,7 +408,7 @@ void VMClass::setPrimitives(void* dlhandle, const StdString& cname, bool classSi
             
             if (routine && classSide == routine->isClassSide()) {
                 VMPrimitive* thePrimitive;
-                if (anInvokable->IsPrimitive()) {
+                if (this == current && anInvokable->IsPrimitive()) {
                     thePrimitive = static_cast<VMPrimitive*>(anInvokable);
                 } else {
                     thePrimitive = VMPrimitive::GetEmptyPrimitive(sig, classSide);
