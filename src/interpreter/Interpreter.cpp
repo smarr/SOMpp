@@ -67,12 +67,6 @@ Interpreter::~Interpreter() {}
   goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];\
 }
 
-// The following three variables are used to cache main parts of the
-// current execution context
-long      bytecodeIndexGlobal;
-VMMethod* method;
-uint8_t*  currentBytecodes;
-
 void Interpreter::Start() {
     // initialization
     method = GetFrame()->GetMethod();
