@@ -38,6 +38,7 @@ public:
 
     void Global_(VMObject* object, VMFrame* frame);
     void Global_put_(VMObject* object, VMFrame* frame);
+    void HasGlobal_(VMObject* object, VMFrame* frame);
     void Load_(VMObject* object, VMFrame* frame);
     void Exit_(VMObject* object, VMFrame* frame);
     void PrintString_(VMObject* object, VMFrame* frame);

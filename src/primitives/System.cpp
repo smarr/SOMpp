@@ -66,6 +66,17 @@ void _System::Global_put_(VMObject* /*object*/, VMFrame* frame) {
     GetUniverse()->SetGlobal(arg, value);
 }
 
+void _System::HasGlobal_(VMObject* /*object*/, VMFrame* frame) {
+    VMSymbol* arg = static_cast<VMSymbol*>(frame->Pop());
+    frame->Pop(); // pop self (system)
+
+    if (GetUniverse()->HasGlobal(arg)) {
+        frame->Push(load_ptr(trueObject));
+    } else {
+        frame->Push(load_ptr(falseObject));
+    }
+}
+
 void _System::Load_(VMObject* /*object*/, VMFrame* frame) {
     VMSymbol* arg = static_cast<VMSymbol*>(frame->Pop());
     frame->Pop();
@@ -134,6 +145,7 @@ _System::_System(void) : PrimitiveContainer() {
 
     SetPrimitive("global_",      new Routine<_System>(this, &_System::Global_));
     SetPrimitive("global_put_",  new Routine<_System>(this, &_System::Global_put_));
+    SetPrimitive("hasGlobal_",   new Routine<_System>(this, &_System::HasGlobal_));
     SetPrimitive("load_",        new Routine<_System>(this, &_System::Load_));
     SetPrimitive("exit_",        new Routine<_System>(this, &_System::Exit_));
     SetPrimitive("printString_", new Routine<_System>(this, &_System::PrintString_));
