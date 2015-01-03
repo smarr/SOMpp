@@ -309,17 +309,17 @@ void Universe::initialize(long _argc, char** _argv) {
 
     InitializeGlobals();
 
-    VMObject* systemObject = NewInstance(systemClass);
+    VMObject* systemObject = NewInstance(load_ptr(systemClass));
 
-    SetGlobal(SymbolForChars("nil"), nilObject);
-    SetGlobal(SymbolForChars("true"), trueObject);
-    SetGlobal(SymbolForChars("false"), falseObject);
+    SetGlobal(SymbolForChars("nil"),    load_ptr(nilObject));
+    SetGlobal(SymbolForChars("true"),   load_ptr(trueObject));
+    SetGlobal(SymbolForChars("false"),  load_ptr(falseObject));
     SetGlobal(SymbolForChars("system"), systemObject);
-    SetGlobal(SymbolForChars("System"), systemClass);
-    SetGlobal(SymbolForChars("Block"), blockClass);
+    SetGlobal(SymbolForChars("System"), load_ptr(systemClass));
+    SetGlobal(SymbolForChars("Block"),  load_ptr(blockClass));
 
-    symbolIfTrue  = SymbolForChars("ifTrue:");
-    symbolIfFalse = SymbolForChars("ifFalse:");
+    symbolIfTrue  = _store_ptr(SymbolForChars("ifTrue:"));
+    symbolIfFalse = _store_ptr(SymbolForChars("ifFalse:"));
 
     
 
@@ -328,7 +328,7 @@ void Universe::initialize(long _argc, char** _argv) {
     bootstrapMethod->SetNumberOfLocals(0);
 
     bootstrapMethod->SetMaximumNumberOfStackElements(2);
-    bootstrapMethod->SetHolder(systemClass);
+    bootstrapMethod->SetHolder(load_ptr(systemClass));
 
     if (argv.size() == 0) {
         Shell* shell = new Shell(bootstrapMethod);
@@ -347,7 +347,8 @@ void Universe::initialize(long _argc, char** _argv) {
     bootstrapFrame->Push(systemObject);
     bootstrapFrame->Push(argumentsArray);
 
-    VMInvokable* initialize = systemClass->LookupInvokable(SymbolForChars("initialize:"));
+    VMInvokable* initialize = load_ptr(systemClass)->LookupInvokable(
+                                            SymbolForChars("initialize:"));
     (*initialize)(bootstrapFrame);
 
     // reset "-d" indicator
@@ -478,76 +479,77 @@ Universe::~Universe() {
 void Universe::InitializeGlobals() {
     set_vt_to_null();
     
+# warning is _store_ptr sufficient?
+    
     //
     //allocate nil object
     //
-    nilObject = new (GetHeap<HEAP_CLS>()) VMObject;
-    static_cast<VMObject*>(nilObject)->SetClass((VMClass*)nilObject);
+    VMObject* nil = new (GetHeap<HEAP_CLS>()) VMObject;
+    nilObject = _store_ptr(nil);
+    nil->SetClass((VMClass*) nil);
 
-    metaClassClass = NewMetaclassClass();
+    metaClassClass = _store_ptr(NewMetaclassClass());
 
-    objectClass = NewSystemClass();
-    nilClass = NewSystemClass();
-    classClass = NewSystemClass();
-    arrayClass = NewSystemClass();
-    symbolClass = NewSystemClass();
-    methodClass = NewSystemClass();
-    integerClass = NewSystemClass();
-    bigIntegerClass = NewSystemClass();
-    primitiveClass = NewSystemClass();
-    stringClass = NewSystemClass();
-    doubleClass = NewSystemClass();
+    objectClass     = _store_ptr(NewSystemClass());
+    nilClass        = _store_ptr(NewSystemClass());
+    classClass      = _store_ptr(NewSystemClass());
+    arrayClass      = _store_ptr(NewSystemClass());
+    symbolClass     = _store_ptr(NewSystemClass());
+    methodClass     = _store_ptr(NewSystemClass());
+    integerClass    = _store_ptr(NewSystemClass());
+    bigIntegerClass = _store_ptr(NewSystemClass());
+    primitiveClass  = _store_ptr(NewSystemClass());
+    stringClass     = _store_ptr(NewSystemClass());
+    doubleClass     = _store_ptr(NewSystemClass());
 
-    nilObject->SetClass(nilClass);
+    nil->SetClass(load_ptr(nilClass));
 
-    InitializeSystemClass(objectClass, nullptr, "Object");
-    InitializeSystemClass(classClass, objectClass, "Class");
-    InitializeSystemClass(metaClassClass, classClass, "Metaclass");
-    InitializeSystemClass(nilClass, objectClass, "Nil");
-    InitializeSystemClass(arrayClass, objectClass, "Array");
-    InitializeSystemClass(methodClass, arrayClass, "Method");
-    InitializeSystemClass(symbolClass, objectClass, "Symbol");
-    InitializeSystemClass(integerClass, objectClass, "Integer");
-    InitializeSystemClass(bigIntegerClass, objectClass,
-            "BigInteger");
-    InitializeSystemClass(primitiveClass, objectClass,
-            "Primitive");
-    InitializeSystemClass(stringClass, objectClass, "String");
-    InitializeSystemClass(doubleClass, objectClass, "Double");
+    InitializeSystemClass(load_ptr(objectClass),                  nullptr, "Object");
+    InitializeSystemClass(load_ptr(classClass),     load_ptr(objectClass), "Class");
+    InitializeSystemClass(load_ptr(metaClassClass),  load_ptr(classClass), "Metaclass");
+    InitializeSystemClass(load_ptr(nilClass),       load_ptr(objectClass), "Nil");
+    InitializeSystemClass(load_ptr(arrayClass),     load_ptr(objectClass), "Array");
+    InitializeSystemClass(load_ptr(methodClass),     load_ptr(arrayClass), "Method");
+    InitializeSystemClass(load_ptr(symbolClass),    load_ptr(objectClass), "Symbol");
+    InitializeSystemClass(load_ptr(integerClass),   load_ptr(objectClass), "Integer");
+    InitializeSystemClass(load_ptr(bigIntegerClass),load_ptr(objectClass), "BigInteger");
+    InitializeSystemClass(load_ptr(primitiveClass), load_ptr(objectClass), "Primitive");
+    InitializeSystemClass(load_ptr(stringClass),    load_ptr(objectClass), "String");
+    InitializeSystemClass(load_ptr(doubleClass),    load_ptr(objectClass), "Double");
 
     // Fix up objectClass
-    objectClass->SetSuperClass((VMClass*) nilObject);
+    load_ptr(objectClass)->SetSuperClass((VMClass*) nil);
+
     
 #if USE_TAGGING
     GlobalBox::updateIntegerBox(NewInteger(1));
 #endif
 
-    LoadSystemClass(objectClass);
-    LoadSystemClass(classClass);
-    LoadSystemClass(metaClassClass);
-    LoadSystemClass(nilClass);
-    LoadSystemClass(arrayClass);
-    LoadSystemClass(methodClass);
-    LoadSystemClass(symbolClass);
-    LoadSystemClass(integerClass);
-    LoadSystemClass(bigIntegerClass);
-    LoadSystemClass(primitiveClass);
-    LoadSystemClass(stringClass);
-    LoadSystemClass(doubleClass);
+    LoadSystemClass(load_ptr(objectClass));
+    LoadSystemClass(load_ptr(classClass));
+    LoadSystemClass(load_ptr(metaClassClass));
+    LoadSystemClass(load_ptr(nilClass));
+    LoadSystemClass(load_ptr(arrayClass));
+    LoadSystemClass(load_ptr(methodClass));
+    LoadSystemClass(load_ptr(symbolClass));
+    LoadSystemClass(load_ptr(integerClass));
+    LoadSystemClass(load_ptr(bigIntegerClass));
+    LoadSystemClass(load_ptr(primitiveClass));
+    LoadSystemClass(load_ptr(stringClass));
+    LoadSystemClass(load_ptr(doubleClass));
 
-    blockClass = LoadClass(SymbolForChars("Block"));
+    blockClass = _store_ptr(LoadClass(SymbolForChars("Block")));
 
     VMSymbol* trueClassName = SymbolForChars("True");
-    trueClass  = LoadClass(trueClassName);
-    trueObject = NewInstance(trueClass);
+    trueClass  = _store_ptr(LoadClass(trueClassName));
+    trueObject = _store_ptr(NewInstance(load_ptr(trueClass)));
     
     VMSymbol* falseClassName = SymbolForChars("False");
-    falseClass  = LoadClass(falseClassName);
-    falseObject = NewInstance(falseClass);
-
-    systemClass = LoadClass(SymbolForChars("System"));
+    falseClass  = _store_ptr(LoadClass(falseClassName));
+    falseObject = _store_ptr(NewInstance(load_ptr(falseClass)));
 
     obtain_vtables_of_known_classes(falseClassName);
+    systemClass = _store_ptr(LoadClass(SymbolForChars("System")));
 }
 
 void Universe::Assert(bool value) const {
@@ -558,14 +560,14 @@ void Universe::Assert(bool value) const {
 }
 
 VMClass* Universe::GetBlockClass() const {
-    return blockClass;
+    return load_ptr(blockClass);
 }
 
 VMClass* Universe::GetBlockClassWithArgs(long numberOfArguments) {
-    map<long, VMClass*>::iterator it =
+    map<long, GCClass*>::iterator it =
     blockClassesByNoOfArgs.find(numberOfArguments);
     if (it != blockClassesByNoOfArgs.end())
-        return it->second;
+        return load_ptr(it->second);
 
     Assert(numberOfArguments < 10);
 
@@ -577,22 +579,25 @@ VMClass* Universe::GetBlockClassWithArgs(long numberOfArguments) {
     result->AddInstancePrimitive(new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(numberOfArguments) );
 
     SetGlobal(name, result);
-    blockClassesByNoOfArgs[numberOfArguments] = result;
+# warning is _store_ptr sufficient here?
+    blockClassesByNoOfArgs[numberOfArguments] = _store_ptr(result);
 
     return result;
 }
 
-oop_t Universe::GetGlobal(VMSymbol* name) {
-    auto it = globals.find(name);
+vm_oop_t Universe::GetGlobal(VMSymbol* name) {
+    # warning is _store_ptr correct here? it relies on _store_ptr not to be really changed...
+    auto it = globals.find(_store_ptr(name));
     if (it == globals.end()) {
         return nullptr;
     } else {
-        return it->second;
+        return load_ptr(it->second);
     }
 }
 
 bool Universe::HasGlobal(VMSymbol* name) {
-    auto it = globals.find(name);
+    # warning is _store_ptr correct here? it relies on _store_ptr not to be really changed...
+    auto it = globals.find(_store_ptr(name));
     if (it == globals.end()) {
         return false;
     } else {
@@ -611,7 +616,7 @@ VMClass* superClass, const char* name) {
         sysClassClass->SetSuperClass(superClassClass);
     } else {
         VMClass* sysClassClass = systemClass->GetClass();
-        sysClassClass->SetSuperClass(classClass);
+        sysClassClass->SetSuperClass(load_ptr(classClass));
     }
 
     VMClass* sysClassClass = systemClass->GetClass();
@@ -709,7 +714,7 @@ VMArray* Universe::NewArray(long size) const {
     if ((GC_TYPE == GENERATIONAL) && outsideNursery)
         result->SetGCField(MASK_OBJECT_IS_OLD);
 
-    result->SetClass(arrayClass);
+    result->SetClass(load_ptr(arrayClass));
     
     LOG_ALLOCATION("VMArray", result->GetObjectSize());
     return result;
@@ -796,8 +801,9 @@ VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method) const {
     long additionalBytes = length * sizeof(VMObject*);
     result = new (GetHeap<HEAP_CLS>(), additionalBytes) VMFrame(length);
     result->clazz = nullptr;
-    result->method = method;
-    result->previousFrame = previousFrame;
+# warning I think _store_ptr is sufficient here, but...
+    result->method        = _store_ptr(method);
+    result->previousFrame = _store_ptr(previousFrame);
     result->ResetStackPointer();
     
     LOG_ALLOCATION("VMFrame", result->GetObjectSize());
@@ -926,7 +932,7 @@ VMMethod* Universe::NewMethod( VMSymbol* signature,
     VMMethod* result = new (GetHeap<HEAP_CLS>(),additionalBytes)
     VMMethod(numberOfBytecodes, numberOfConstants);
 //#endif
-    result->SetClass(methodClass);
+    result->SetClass(load_ptr(methodClass));
 
     result->SetSignature(signature);
 
@@ -951,7 +957,8 @@ VMSymbol* Universe::NewSymbol( const StdString& str) {
 
 VMSymbol* Universe::NewSymbol( const char* str ) {
     VMSymbol* result = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(strlen(str)+1)) VMSymbol(str);
-    symbolsMap[str] = result;
+# warning is _store_ptr sufficient here?
+    symbolsMap[str] = _store_ptr(result);
 
     LOG_ALLOCATION("VMSymbol", result->GetObjectSize());
     return result;
@@ -963,21 +970,22 @@ VMClass* Universe::NewSystemClass() const {
     systemClass->SetClass(new (GetHeap<HEAP_CLS>()) VMClass());
     VMClass* mclass = systemClass->GetClass();
 
-    mclass->SetClass(metaClassClass);
+    mclass->SetClass(load_ptr(metaClassClass));
 
     LOG_ALLOCATION("VMClass", systemClass->GetObjectSize());
     return systemClass;
 }
 
 VMSymbol* Universe::SymbolFor(const StdString& str) {
-    map<string,VMSymbol*>::iterator it = symbolsMap.find(str);
-    return (it == symbolsMap.end()) ? NewSymbol(str) : it->second;
+    map<string,GCSymbol*>::iterator it = symbolsMap.find(str);
+    return (it == symbolsMap.end()) ? NewSymbol(str) : load_ptr(it->second);
 }
 
 VMSymbol* Universe::SymbolForChars(const char* str) {
     return SymbolFor(str);
 }
 
-void Universe::SetGlobal(VMSymbol* name, oop_t val) {
-    globals[name] = val;
+void Universe::SetGlobal(VMSymbol* name, vm_oop_t val) {
+# warning is _store_ptr correct here? it relies on _store_ptr not to be really changed...
+    globals[_store_ptr(name)] = _store_ptr(val);
 }
