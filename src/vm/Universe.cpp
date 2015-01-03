@@ -673,12 +673,11 @@ VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
             }
             return result;
         }
-
     }
     return nullptr;
 }
 
-VMClass* Universe::LoadShellClass( StdString& stmt) {
+VMClass* Universe::LoadShellClass(StdString& stmt) {
     SourcecodeCompiler compiler;
     VMClass* result = compiler.CompileClassString(stmt, nullptr);
     if(dumpBytecodes)
@@ -686,7 +685,7 @@ VMClass* Universe::LoadShellClass( StdString& stmt) {
     return result;
 }
 
-void Universe::LoadSystemClass( VMClass* systemClass) {
+void Universe::LoadSystemClass(VMClass* systemClass) {
     VMClass* result = LoadClassBasic(systemClass->GetName(), systemClass);
     StdString s = systemClass->GetName()->GetStdString();
 
@@ -696,7 +695,7 @@ void Universe::LoadSystemClass( VMClass* systemClass) {
     }
 
     if (result->HasPrimitives() || result->GetClass()->HasPrimitives())
-    result->LoadPrimitives(classPath);
+        result->LoadPrimitives(classPath);
 }
 
 VMArray* Universe::NewArray(long size) const {
@@ -821,7 +820,7 @@ VMObject* Universe::NewInstance(VMClass* classOfInstance) const {
     return result;
 }
 
-VMInteger* Universe::NewInteger( long value) const {
+VMInteger* Universe::NewInteger(long value) const {
 
 #ifdef GENERATE_INTEGER_HISTOGRAM
     integerHist[value/INT_HIST_SIZE] = integerHist[value/INT_HIST_SIZE]+1;
@@ -955,7 +954,7 @@ VMSymbol* Universe::NewSymbol( const StdString& str) {
     return NewSymbol(str.c_str());
 }
 
-VMSymbol* Universe::NewSymbol( const char* str ) {
+VMSymbol* Universe::NewSymbol(const char* str) {
     VMSymbol* result = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(strlen(str)+1)) VMSymbol(str);
 # warning is _store_ptr sufficient here?
     symbolsMap[str] = _store_ptr(result);
