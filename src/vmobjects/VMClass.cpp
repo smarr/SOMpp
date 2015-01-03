@@ -286,8 +286,8 @@ void VMClass::LoadPrimitives(const vector<StdString>& cp) {
     // * do the actual loading for both class and metaclass
     // *
     // */
-    setPrimitives(dlhandle, cname);
-    GetClass()->setPrimitives(dlhandle, cname);
+    setPrimitives(dlhandle, cname, false);
+    GetClass()->setPrimitives(dlhandle, cname, true);
 }
 
 long VMClass::numberOfSuperInstanceFields() const {
@@ -381,7 +381,7 @@ bool VMClass::isResponsible(void* dlhandle, const StdString& cl) const {
  * set the routines for primitive marked invokables of the given class
  *
  */
-void VMClass::setPrimitives(void* dlhandle, const StdString& cname) {
+void VMClass::setPrimitives(void* dlhandle, const StdString& cname, bool classSide) {
 #if defined(__GNUC__)
     CreatePrimitive* create = (CreatePrimitive*) dlsym(dlhandle, "create");
 #endif
@@ -406,12 +406,12 @@ void VMClass::setPrimitives(void* dlhandle, const StdString& cname) {
             PrimitiveRoutine* routine = create(
                 cname, selector, anInvokable->IsPrimitive() && current == this);
             
-            if (routine) {
+            if (routine && classSide == routine->isClassSide()) {
                 VMPrimitive* thePrimitive;
                 if (anInvokable->IsPrimitive()) {
                     thePrimitive = static_cast<VMPrimitive*>(anInvokable);
                 } else {
-                    thePrimitive = VMPrimitive::GetEmptyPrimitive(sig);
+                    thePrimitive = VMPrimitive::GetEmptyPrimitive(sig, classSide);
                     AddInstancePrimitive(thePrimitive);
                 }
 
@@ -420,9 +420,11 @@ void VMClass::setPrimitives(void* dlhandle, const StdString& cname) {
                 thePrimitive->SetEmpty(false);
             } else {
                 if (anInvokable->IsPrimitive() && current == this) {
-                    cout << "could not load primitive '"<< selector <<
-                            "' for class " << cname << endl;
-                    GetUniverse()->Quit(ERR_FAIL);
+                    if (!routine || routine->isClassSide() == classSide) {
+                        cout << "could not load primitive '"<< selector <<
+                                "' for class " << cname << endl;
+                        GetUniverse()->Quit(ERR_FAIL);
+                    }
                 }
             }
         }

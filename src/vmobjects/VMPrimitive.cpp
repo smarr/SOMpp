@@ -33,10 +33,10 @@
 //needed to instanciate the Routine object for the  empty routine
 #include "../primitivesCore/Routine.h"
 
-VMPrimitive* VMPrimitive::GetEmptyPrimitive( VMSymbol* sig ) {
+VMPrimitive* VMPrimitive::GetEmptyPrimitive(VMSymbol* sig, bool classSide) {
     VMPrimitive* prim = new (GetHeap<HEAP_CLS>()) VMPrimitive(sig);
     prim->empty = true;
-    prim->SetRoutine(new Routine<VMPrimitive>(prim, &VMPrimitive::EmptyRoutine));
+    prim->SetRoutine(new Routine<VMPrimitive>(prim, &VMPrimitive::EmptyRoutine, classSide));
     return prim;
 }
 

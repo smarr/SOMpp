@@ -37,7 +37,7 @@
 #include "../primitivesCore/Routine.h"
 
 VMEvaluationPrimitive::VMEvaluationPrimitive(long argc) : VMPrimitive(computeSignatureString(argc)) {
-    SetRoutine(new Routine<VMEvaluationPrimitive>(this, &VMEvaluationPrimitive::evaluationRoutine));
+    SetRoutine(new Routine<VMEvaluationPrimitive>(this, &VMEvaluationPrimitive::evaluationRoutine, false));
     SetEmpty(false);
     store_ptr(numberOfArguments, NEW_INT(argc));
 }

@@ -74,8 +74,8 @@ VMMethod* MethodGenerationContext::Assemble() {
     return meth;
 }
 
-VMPrimitive* MethodGenerationContext::AssemblePrimitive() {
-    return VMPrimitive::GetEmptyPrimitive(signature);
+VMPrimitive* MethodGenerationContext::AssemblePrimitive(bool classSide) {
+    return VMPrimitive::GetEmptyPrimitive(signature, classSide);
 }
 
 MethodGenerationContext::~MethodGenerationContext() {

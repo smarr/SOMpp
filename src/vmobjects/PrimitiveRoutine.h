@@ -35,6 +35,7 @@ public:
     PrimitiveRoutine() {};
 
     virtual void operator()(VMObject*, VMFrame*) = 0;  // call using operator
+    virtual bool isClassSide() = 0;
 };
 
 // Typedefs for Primitive loading

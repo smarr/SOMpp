@@ -206,7 +206,7 @@ void Parser::Classdef(ClassGenerationContext* cgenc) {
         method(&mgenc);
 
         if(mgenc.IsPrimitive())
-            cgenc->AddInstanceMethod(mgenc.AssemblePrimitive());
+            cgenc->AddInstanceMethod(mgenc.AssemblePrimitive(false));
         else
             cgenc->AddInstanceMethod(mgenc.Assemble());
     }
@@ -223,7 +223,7 @@ void Parser::Classdef(ClassGenerationContext* cgenc) {
             method(&mgenc);
 
             if(mgenc.IsPrimitive())
-                cgenc->AddClassMethod(mgenc.AssemblePrimitive());
+                cgenc->AddClassMethod(mgenc.AssemblePrimitive(true));
             else
                 cgenc->AddClassMethod(mgenc.Assemble());
         }

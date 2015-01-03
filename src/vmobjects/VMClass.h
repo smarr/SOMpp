@@ -80,7 +80,7 @@ private:
 
     void* loadLib(const StdString& path) const;
     bool isResponsible(void* handle, const StdString& cl) const;
-    void setPrimitives(void* handle, const StdString& cname);
+    void setPrimitives(void* handle, const StdString& cname, bool classSide);
     long numberOfSuperInstanceFields() const;
 
     GCClass* superClass;

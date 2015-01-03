@@ -42,7 +42,7 @@ public:
     ~MethodGenerationContext();
 
     VMMethod* Assemble();
-    VMPrimitive* AssemblePrimitive();
+    VMPrimitive* AssemblePrimitive(bool classSide);
 
     int8_t FindLiteralIndex(vm_oop_t lit);
     bool FindVar(const StdString& var, size_t* index,

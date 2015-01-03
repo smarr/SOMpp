@@ -143,16 +143,16 @@ void _System::FullGC(VMObject* /*object*/, VMFrame* frame) {
 _System::_System(void) : PrimitiveContainer() {
     gettimeofday(&start_time, nullptr);
 
-    SetPrimitive("global_",      new Routine<_System>(this, &_System::Global_));
-    SetPrimitive("global_put_",  new Routine<_System>(this, &_System::Global_put_));
-    SetPrimitive("hasGlobal_",   new Routine<_System>(this, &_System::HasGlobal_));
-    SetPrimitive("load_",        new Routine<_System>(this, &_System::Load_));
-    SetPrimitive("exit_",        new Routine<_System>(this, &_System::Exit_));
-    SetPrimitive("printString_", new Routine<_System>(this, &_System::PrintString_));
-    SetPrimitive("printNewline", new Routine<_System>(this, &_System::PrintNewline));
-    SetPrimitive("time",         new Routine<_System>(this, &_System::Time));
-    SetPrimitive("ticks",        new Routine<_System>(this, &_System::Ticks));
-    SetPrimitive("fullGC",       new Routine<_System>(this, &_System::FullGC));
+    SetPrimitive("global_",      new Routine<_System>(this, &_System::Global_,     false));
+    SetPrimitive("global_put_",  new Routine<_System>(this, &_System::Global_put_, false));
+    SetPrimitive("hasGlobal_",   new Routine<_System>(this, &_System::HasGlobal_,  false));
+    SetPrimitive("load_",        new Routine<_System>(this, &_System::Load_, false));
+    SetPrimitive("exit_",        new Routine<_System>(this, &_System::Exit_, false));
+    SetPrimitive("printString_", new Routine<_System>(this, &_System::PrintString_, false));
+    SetPrimitive("printNewline", new Routine<_System>(this, &_System::PrintNewline, false));
+    SetPrimitive("time",         new Routine<_System>(this, &_System::Time,   false));
+    SetPrimitive("ticks",        new Routine<_System>(this, &_System::Ticks,  false));
+    SetPrimitive("fullGC",       new Routine<_System>(this, &_System::FullGC, false));
 }
 
 _System::~_System() {}
