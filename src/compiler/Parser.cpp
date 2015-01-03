@@ -741,7 +741,7 @@ void Parser::literal(MethodGenerationContext* mgenc) {
 }
 
 void Parser::literalNumber(MethodGenerationContext* mgenc) {
-    oop_t lit;
+    vm_oop_t lit;
     if (sym == Minus)
         lit = negativeDecimal();
     else
@@ -753,7 +753,7 @@ void Parser::literalNumber(MethodGenerationContext* mgenc) {
     bcGen->EmitPUSHCONSTANT(mgenc, lit);
 }
 
-oop_t Parser::literalDecimal(bool negateValue) {
+vm_oop_t Parser::literalDecimal(bool negateValue) {
     if (sym == Integer) {
         return literalInteger(negateValue);
     } else {
@@ -762,12 +762,12 @@ oop_t Parser::literalDecimal(bool negateValue) {
     }
 }
 
-oop_t Parser::negativeDecimal(void) {
+vm_oop_t Parser::negativeDecimal(void) {
     expect(Minus);
     return literalDecimal(true);
 }
 
-oop_t Parser::literalInteger(bool negateValue) {
+vm_oop_t Parser::literalInteger(bool negateValue) {
     int64_t i = std::strtoll(text.c_str(), nullptr, 10);
     expect(Integer);
     if (negateValue) {
@@ -781,7 +781,7 @@ oop_t Parser::literalInteger(bool negateValue) {
     }
 }
 
-oop_t Parser::literalDouble(bool negateValue) {
+vm_oop_t Parser::literalDouble(bool negateValue) {
     double d = std::strtod(text.c_str(), nullptr);
     if (negateValue) {
         d = 0 - d;

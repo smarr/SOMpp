@@ -7,7 +7,7 @@
 
 #include <assert.h>
 
-class VMObjectBase {
+class VMObjectBase : public VMOop {
 protected:
     size_t gcfield;
 public:

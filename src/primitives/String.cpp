@@ -77,7 +77,7 @@ void _String::Length(VMObject* /*object*/, VMFrame* frame) {
 }
 
 void _String::Equal(VMObject* /*object*/, VMFrame* frame) {
-    oop_t op1 = frame->Pop();
+    vm_oop_t op1 = frame->Pop();
     VMString* op2 = static_cast<VMString*>(frame->Pop());
 
     if (IS_TAGGED(op1)) {
@@ -99,8 +99,8 @@ void _String::Equal(VMObject* /*object*/, VMFrame* frame) {
 }
 
 void _String::PrimSubstringFrom_to_(VMObject* /*object*/, VMFrame* frame) {
-    oop_t end   = frame->Pop();
-    oop_t start = frame->Pop();
+    vm_oop_t end   = frame->Pop();
+    vm_oop_t start = frame->Pop();
 
     VMString* self = static_cast<VMString*>(frame->Pop());
     StdString str = self->GetStdString();

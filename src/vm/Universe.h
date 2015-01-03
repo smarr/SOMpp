@@ -94,7 +94,7 @@ public:
 
     //VMObject instanciation methods. These should probably be refactored to a new class
     VMArray* NewArray(long) const;
-    VMArray* NewArrayList(ExtendedList<oop_t>& list) const;
+    VMArray* NewArrayList(ExtendedList<vm_oop_t>& list) const;
     VMArray* NewArrayList(ExtendedList<VMSymbol*>& list) const;
     VMArray* NewArrayFromStrings(const vector<StdString>&) const;
     VMBlock* NewBlock(VMMethod*, VMFrame*, long);
@@ -115,8 +115,8 @@ public:
 
     void InitializeSystemClass(VMClass*, VMClass*, const char*);
 
-    oop_t GetGlobal(VMSymbol*);
-    void SetGlobal(VMSymbol* name, oop_t val);
+    vm_oop_t GetGlobal(VMSymbol*);
+    void SetGlobal(VMSymbol* name, vm_oop_t val);
     bool HasGlobal(VMSymbol*);
     void InitializeGlobals();
     VMClass* GetBlockClass(void) const;
@@ -139,7 +139,7 @@ public:
 #endif
     //
     
-    static bool IsValidObject(oop_t obj);
+    static bool IsValidObject(vm_oop_t obj);
 private:
     vector<StdString> handleArguments(long argc, char** argv);
     long getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;

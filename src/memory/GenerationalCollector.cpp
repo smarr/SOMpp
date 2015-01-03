@@ -21,7 +21,7 @@ GenerationalCollector::GenerationalCollector(GenerationalHeap* heap) : GarbageCo
     matureObjectsSize = 0;
 }
 
-static oop_t mark_object(oop_t oop) {
+static gc_oop_t mark_object(gc_oop_t oop) {
     // don't process tagged objects
     if (IS_TAGGED(oop))
         return oop;
@@ -31,15 +31,15 @@ static oop_t mark_object(oop_t oop) {
     
 
     if (obj->GetGCField() & MASK_OBJECT_IS_MARKED)
-        return (obj);
+        return oop;
 
     obj->SetGCField(MASK_OBJECT_IS_OLD | MASK_OBJECT_IS_MARKED);
     obj->WalkObjects(&mark_object);
     
-    return obj;
+    return oop;
 }
 
-static oop_t copy_if_necessary(oop_t oop) {
+static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     // don't process tagged objects
     if (IS_TAGGED(oop))
         return oop;
@@ -52,12 +52,12 @@ static oop_t copy_if_necessary(oop_t oop) {
 
     // if this is an old object already, we don't have to copy
     if (gcField & MASK_OBJECT_IS_OLD)
-        return obj;
+        return oop;
 
     // GCField is abused as forwarding pointer here
     // if someone has moved before, return the moved object
     if (gcField != 0)
-        return (oop_t) gcField;
+        return (gc_oop_t) gcField;
     
     // we have to clone ourselves
     AbstractVMObject* newObj = obj->Clone();

@@ -37,13 +37,13 @@ VMArray::VMArray(long size, long nof) :
     // SetIndexableField is not used to prevent the write barrier to be called
     // too often.
     // Fields start after clazz and other fields (GetNumberOfFields)
-    oop_t* arrFields = FIELDS + GetNumberOfFields();
+    gc_oop_t* arrFields = FIELDS + GetNumberOfFields();
     for (long i = 0; i < size; ++i) {
         arrFields[i] = nilObject;
     }
 }
 
-oop_t VMArray::GetIndexableField(long idx) const {
+vm_oop_t VMArray::GetIndexableField(long idx) const {
     if (unlikely(idx > GetNumberOfIndexableFields())) {
         cout << "Array index out of bounds: Accessing " << idx
         << ", but array size is only " << GetNumberOfIndexableFields()
@@ -53,7 +53,7 @@ oop_t VMArray::GetIndexableField(long idx) const {
     return GetField(GetNumberOfFields() + idx);
 }
 
-void VMArray::SetIndexableField(long idx, oop_t value) {
+void VMArray::SetIndexableField(long idx, vm_oop_t value) {
     if (unlikely(idx > GetNumberOfIndexableFields())) {
         cout << "Array index out of bounds: Accessing " << idx
         << ", but array size is only " << GetNumberOfIndexableFields()
@@ -63,7 +63,7 @@ void VMArray::SetIndexableField(long idx, oop_t value) {
     SetField(GetNumberOfFields() + idx, value);
 }
 
-VMArray* VMArray::CopyAndExtendWith(oop_t item) const {
+VMArray* VMArray::CopyAndExtendWith(vm_oop_t item) const {
     size_t fields = GetNumberOfIndexableFields();
     VMArray* result = GetUniverse()->NewArray(fields + 1);
     CopyIndexableFieldsTo(result);
@@ -100,7 +100,7 @@ void VMArray::WalkObjects(oop_t (*walk)(oop_t)) {
     clazz = (VMClass*) walk(clazz);
     long numFields          = GetNumberOfFields();
     long numIndexableFields = GetNumberOfIndexableFields();
-    oop_t* fields = FIELDS;
+    gc_oop_t* fields = FIELDS;
     for (long i = 0; i < numFields + numIndexableFields; i++) {
         fields[i] = walk(fields[i]);
     }

@@ -57,7 +57,7 @@
  */
 
 // FIELDS starts indexing after the clazz field
-#define FIELDS (((oop_t*)&clazz) + 1)
+#define FIELDS (((gc_oop_t*)&clazz) + 1)
 
 class VMObject: public AbstractVMObject {
 
@@ -73,8 +73,8 @@ public:
     virtual        VMSymbol* GetFieldName(long index) const;
     virtual inline long      GetNumberOfFields() const;
     virtual        void      SetNumberOfFields(long nof);
-            inline oop_t GetField(long index) const;
-            inline void      SetField(long index, oop_t value);
+            inline vm_oop_t  GetField(long index) const;
+            inline void      SetField(long index, vm_oop_t value);
     virtual        void      Assert(bool value) const;
     virtual        void      WalkObjects(oop_t (oop_t));
     virtual        VMObject* Clone() const;
@@ -146,11 +146,11 @@ long VMObject::GetAdditionalSpaceConsumption() const {
                + sizeof(VMObject*) * GetNumberOfFields()));
 }
 
-oop_t VMObject::GetField(long index) const {
     return FIELDS[index];
+vm_oop_t VMObject::GetField(long index) const {
 }
 
-void VMObject::SetField(long index, oop_t value) {
     FIELDS[index] = value;
     write_barrier(this, value);
+void VMObject::SetField(long index, vm_oop_t value) {
 }

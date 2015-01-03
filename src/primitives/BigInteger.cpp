@@ -73,7 +73,7 @@ _BigInteger::_BigInteger() : PrimitiveContainer() {
 }
 
 void _BigInteger::Plus(VMObject* /*object*/, VMFrame* frame) {
-    oop_t rightObj = frame->Pop();
+    vm_oop_t rightObj = frame->Pop();
     VMBigInteger* right = nullptr;
     VMBigInteger* left = static_cast<VMBigInteger*>(frame->Pop());
 
@@ -86,7 +86,7 @@ void _BigInteger::Plus(VMObject* /*object*/, VMFrame* frame) {
 }
 
 void _BigInteger::Minus(VMObject* /*object*/, VMFrame* frame) {
-    oop_t rightObj = frame->Pop();
+    vm_oop_t rightObj = frame->Pop();
     VMBigInteger* right = nullptr;
     VMBigInteger* left = static_cast<VMBigInteger*>(frame->Pop());
 
@@ -99,7 +99,7 @@ void _BigInteger::Minus(VMObject* /*object*/, VMFrame* frame) {
 }
 
 void _BigInteger::Star(VMObject* /*object*/, VMFrame* frame) {
-    oop_t rightObj = frame->Pop();
+    vm_oop_t rightObj = frame->Pop();
     VMBigInteger* right = nullptr;
     VMBigInteger* left = static_cast<VMBigInteger*>(frame->Pop());
 
@@ -112,7 +112,7 @@ void _BigInteger::Star(VMObject* /*object*/, VMFrame* frame) {
 }
 
 void _BigInteger::Slash(VMObject* /*object*/, VMFrame* frame) {
-    oop_t rightObj = frame->Pop();
+    vm_oop_t rightObj = frame->Pop();
     VMBigInteger* right = nullptr;
     VMBigInteger* left = static_cast<VMBigInteger*>(frame->Pop());
 
@@ -125,7 +125,7 @@ void _BigInteger::Slash(VMObject* /*object*/, VMFrame* frame) {
 }
 
 void _BigInteger::Percent(VMObject* /*object*/, VMFrame* frame) {
-    oop_t rightObj = frame->Pop();
+    vm_oop_t rightObj = frame->Pop();
     VMBigInteger* right = nullptr;
     VMBigInteger* left = static_cast<VMBigInteger*>(frame->Pop());
 
@@ -138,7 +138,7 @@ void _BigInteger::Percent(VMObject* /*object*/, VMFrame* frame) {
 }
 
 void _BigInteger::And(VMObject* /*object*/, VMFrame* frame) {
-    oop_t rightObj = frame->Pop();
+    vm_oop_t rightObj = frame->Pop();
     VMBigInteger* right = nullptr;
     VMBigInteger* left = static_cast<VMBigInteger*>(frame->Pop());
 
@@ -151,7 +151,7 @@ void _BigInteger::And(VMObject* /*object*/, VMFrame* frame) {
 }
 
 void _BigInteger::Equal(VMObject* /*object*/, VMFrame* frame) {
-    oop_t rightObj = frame->Pop();
+    vm_oop_t rightObj = frame->Pop();
     VMBigInteger* right = nullptr;
     VMBigInteger* left = static_cast<VMBigInteger*>(frame->Pop());
 
@@ -165,7 +165,7 @@ void _BigInteger::Equal(VMObject* /*object*/, VMFrame* frame) {
 }
 
 void _BigInteger::Lowerthan(VMObject* /*object*/, VMFrame* frame) {
-    oop_t rightObj = frame->Pop();
+    vm_oop_t rightObj = frame->Pop();
     VMBigInteger* right = nullptr;
     VMBigInteger* left = static_cast<VMBigInteger*>(frame->Pop());
 

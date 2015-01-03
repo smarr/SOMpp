@@ -77,7 +77,7 @@ void _System::Load_(VMObject* /*object*/, VMFrame* frame) {
 }
 
 void _System::Exit_(VMObject* /*object*/, VMFrame* frame) {
-    oop_t err = frame->Pop();
+    vm_oop_t err = frame->Pop();
 
     long err_no = INT_VAL(err);
     if (err_no != ERR_SUCCESS)

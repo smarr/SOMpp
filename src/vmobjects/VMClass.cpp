@@ -86,7 +86,7 @@ void VMClass::WalkObjects(oop_t (*walk)(oop_t)) {
     instanceFields = static_cast<VMArray*>(walk(instanceFields));
     instanceInvokables = static_cast<VMArray*>(walk(instanceInvokables));
 
-    oop_t* fields = FIELDS;
+    gc_oop_t* fields = FIELDS;
 
     for (long i = VMClassNumberOfFields + 0/*VMObjectNumberOfFields*/; i < numberOfFields; i++)
         fields[i] = walk(fields[i]);

@@ -36,5 +36,5 @@ public:
     static void DumpMethod(VMMethod* method, const char* indent);
     static void DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx);
 private:
-    static void dispatch(oop_t o);
+    static void dispatch(vm_oop_t o);
 };

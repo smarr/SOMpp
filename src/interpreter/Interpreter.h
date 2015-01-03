@@ -41,7 +41,7 @@ public:
     void      WalkGlobals(oop_t (*walk)(oop_t));
     
 private:
-    oop_t GetSelf() const;
+    vm_oop_t GetSelf() const;
     
     VMFrame* frame;
     const StdString unknownGlobal;
@@ -49,7 +49,7 @@ private:
     const StdString escapedBlock;
 
     VMFrame* popFrame();
-    void popFrameAndPushResult(oop_t result);
+    void popFrameAndPushResult(vm_oop_t result);
     void send(VMSymbol* signature, VMClass* receiverClass);
 
     void doDup();

@@ -52,7 +52,7 @@ VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength) {
     result->SetPreviousFrame(from->GetPreviousFrame());
     result->SetMethod(method);
     result->SetContext(from->GetContext());
-    result->stack_ptr = (oop_t*)SHIFTED_PTR(result, (size_t)from->stack_ptr - (size_t)from);
+    result->stack_ptr = (gc_oop_t*)SHIFTED_PTR(result, (size_t)from->stack_ptr - (size_t)from);
 
     result->bytecodeIndex = from->bytecodeIndex;
     // result->arguments is set in VMFrame constructor
@@ -60,8 +60,8 @@ VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength) {
 
     // all other fields are indexable via arguments
     // --> until end of Frame
-    oop_t* from_end   = (oop_t*) SHIFTED_PTR(from,   from->GetObjectSize());
-    oop_t* result_end = (oop_t*) SHIFTED_PTR(result, result->GetObjectSize());
+    gc_oop_t* from_end   = (gc_oop_t*) SHIFTED_PTR(from,   from->GetObjectSize());
+    gc_oop_t* result_end = (gc_oop_t*) SHIFTED_PTR(result, result->GetObjectSize());
 
     long i = 0;
 
@@ -85,9 +85,9 @@ VMFrame* VMFrame::Clone() const {
     const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
     size_t noBytes = GetObjectSize() - sizeof(VMFrame);
     memcpy(destination, source, noBytes);
-    clone->arguments = (oop_t*)&(clone->stack_ptr)+1; //field after stack_ptr
     clone->locals = clone->arguments + clone->method->GetNumberOfArguments();
-    clone->stack_ptr = (oop_t*)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
+    clone->arguments = (gc_oop_t*)&(clone->stack_ptr)+1; //field after stack_ptr
+    clone->stack_ptr = (gc_oop_t*)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
     return clone;
 }
 
@@ -98,13 +98,13 @@ VMFrame::VMFrame(long size, long nof) :
                 nullptr), method(nullptr) {
     clazz = nullptr; // Not a proper class anymore
     bytecodeIndex = 0;
-    arguments = (oop_t*)&(stack_ptr)+1;
+    arguments = (gc_oop_t*)&(stack_ptr)+1;
     locals = arguments;
     stack_ptr = locals;
 
     // initilize all other fields
     // --> until end of Frame
-    oop_t* end = (oop_t*) SHIFTED_PTR(this, objectSize);
+    gc_oop_t* end = (gc_oop_t*) SHIFTED_PTR(this, objectSize);
     long i = 0;
     while (arguments + i < end) {
         arguments[i] = nilObject;
@@ -149,7 +149,7 @@ void VMFrame::WalkObjects(oop_t (*walk)(oop_t)) {
     long i = 0;
     while (arguments + i <= stack_ptr) {
         if (arguments[i] != nullptr)
-            arguments[i] = walk((oop_t)arguments[i]);
+            arguments[i] = walk((gc_oop_t)arguments[i]);
         i++;
     }
 }
@@ -175,10 +175,10 @@ void VMFrame::PrintStack() const {
     cout << "SP: " << GetStackPointer() << endl;
     //all other fields are indexable via arguments array
     // --> until end of Frame
-    oop_t* end = (oop_t*) SHIFTED_PTR(this, objectSize);
+    gc_oop_t* end = (gc_oop_t*) SHIFTED_PTR(this, objectSize);
     long i = 0;
     while (arguments + i < end) {
-        oop_t vmo = arguments[i];
+        gc_oop_t vmo = arguments[i];
         cout << i << ": ";
         if (vmo == nullptr)
             cout << "nullptr" << endl;
@@ -204,28 +204,28 @@ void VMFrame::ResetStackPointer() {
     stack_ptr = locals + meth->GetNumberOfLocals() - 1;
 }
 
-oop_t VMFrame::GetStackElement(long index) const {
     return stack_ptr[-index];
+vm_oop_t VMFrame::GetStackElement(long index) const {
 }
 
-oop_t VMFrame::GetLocal(long index, long contextLevel) {
+vm_oop_t VMFrame::GetLocal(long index, long contextLevel) {
     VMFrame* context = GetContextLevel(contextLevel);
     return context->locals[index];
 }
 
-void VMFrame::SetLocal(long index, long contextLevel, oop_t value) {
+void VMFrame::SetLocal(long index, long contextLevel, vm_oop_t value) {
     VMFrame* context = GetContextLevel(contextLevel);
     context->locals[index] = value;
     write_barrier(context, value);
 }
 
-oop_t VMFrame::GetArgument(long index, long contextLevel) {
+vm_oop_t VMFrame::GetArgument(long index, long contextLevel) {
     // get the context
     VMFrame* context = GetContextLevel(contextLevel);
     return context->arguments[index];
 }
 
-void VMFrame::SetArgument(long index, long contextLevel, oop_t value) {
+void VMFrame::SetArgument(long index, long contextLevel, vm_oop_t value) {
     VMFrame* context = GetContextLevel(contextLevel);
     context->arguments[index] = value;
     write_barrier(context, value);
@@ -246,9 +246,9 @@ void VMFrame::CopyArgumentsFrom(VMFrame* frame) {
     // - copy them into the argument area of the current frame
     long num_args = GetMethod()->GetNumberOfArguments();
     for (long i = 0; i < num_args; ++i) {
-        oop_t stackElem = frame->GetStackElement(num_args - 1 - i);
         arguments[i] = stackElem;
         write_barrier(this, stackElem);
+        vm_oop_t stackElem = frame->GetStackElement(num_args - 1 - i);
     }
 }
 

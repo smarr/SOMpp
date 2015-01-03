@@ -43,15 +43,15 @@ _Array::_Array() : PrimitiveContainer() {
 }
 
 void _Array::At_(VMObject* /*object*/, VMFrame* frame) {
-    oop_t idx = frame->Pop();
+    vm_oop_t idx = frame->Pop();
     VMArray* self = static_cast<VMArray*>(frame->Pop());
-    oop_t elem = self->GetIndexableField(INT_VAL(idx) - 1);
+    vm_oop_t elem = self->GetIndexableField(INT_VAL(idx) - 1);
     frame->Push(elem);
 }
 
 void _Array::At_Put_(VMObject* /*object*/, VMFrame* frame) {
-    oop_t value = frame->Pop();
-    oop_t index = frame->Pop();
+    vm_oop_t value = frame->Pop();
+    vm_oop_t index = frame->Pop();
     VMArray* self = static_cast<VMArray*>(frame->GetStackElement(0));
     long i = INT_VAL(index);
     self->SetIndexableField(i - 1, value);
@@ -64,7 +64,7 @@ void _Array::Length(VMObject* /*object*/, VMFrame* frame) {
 }
 
 void _Array::New_(VMObject* /*object*/, VMFrame* frame) {
-    oop_t arg = frame->Pop();
+    vm_oop_t arg = frame->Pop();
     frame->Pop();
     long size = INT_VAL(arg);
     frame->Push(GetUniverse()->NewArray(size));

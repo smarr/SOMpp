@@ -38,9 +38,9 @@ public:
     virtual void WalkObjects(oop_t (oop_t));
 
     inline  long GetNumberOfIndexableFields() const;
-    VMArray* CopyAndExtendWith(oop_t) const;
-    oop_t GetIndexableField(long idx) const;
-    void SetIndexableField(long idx, oop_t value);
+    VMArray* CopyAndExtendWith(vm_oop_t) const;
+    vm_oop_t GetIndexableField(long idx) const;
+    void SetIndexableField(long idx, vm_oop_t value);
     void CopyIndexableFieldsTo(VMArray*) const;
     virtual VMArray* Clone() const;
 

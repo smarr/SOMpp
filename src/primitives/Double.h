@@ -46,5 +46,5 @@ public:
     void Round(VMObject* object, VMFrame* frame);
 
 private:
-    double coerceDouble(oop_t x);
+    double coerceDouble(vm_oop_t x);
 };

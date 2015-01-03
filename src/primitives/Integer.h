@@ -55,7 +55,7 @@ public:
 
 private:
     void pushResult(VMObject* object, VMFrame* frame, int64_t result);
-    void resendAsBigInteger(const char* op, oop_t left, VMBigInteger* right);
-    void resendAsDouble(const char* op, oop_t left, VMDouble* right);
+    void resendAsBigInteger(const char* op, vm_oop_t left, VMBigInteger* right);
+    void resendAsDouble(const char* op, vm_oop_t left, VMDouble* right);
 
 };

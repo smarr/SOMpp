@@ -45,7 +45,7 @@
  * This function coerces any right-hand parameter to a double, regardless of its
  * true nature. This is to make sure that all Double operations return Doubles.
  */
-double _Double::coerceDouble(oop_t x) {
+double _Double::coerceDouble(vm_oop_t x) {
     if (IS_TAGGED(x))
         return (double) INT_VAL(x);
     

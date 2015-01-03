@@ -216,7 +216,7 @@ void Interpreter::SetFrame(VMFrame* frame) {
     currentBytecodes    = method->GetBytecodes();
 }
 
-oop_t Interpreter::GetSelf() const {
+vm_oop_t Interpreter::GetSelf() const {
     VMFrame* context = GetFrame()->GetOuterContext();
     return context->GetArgument(0, 0);
 }
@@ -234,7 +234,7 @@ VMFrame* Interpreter::popFrame() {
     return result;
 }
 
-void Interpreter::popFrameAndPushResult(oop_t result) {
+void Interpreter::popFrameAndPushResult(vm_oop_t result) {
     VMFrame* prevFrame = popFrame();
 
     VMMethod* method = prevFrame->GetMethod();
@@ -266,15 +266,15 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
         //doesNotUnderstand
         long numberOfArgs = Signature::GetNumberOfArguments(signature);
 
-        oop_t receiver = GetFrame()->GetStackElement(numberOfArgs-1);
+        vm_oop_t receiver = GetFrame()->GetStackElement(numberOfArgs-1);
 
         VMArray* argumentsArray = GetUniverse()->NewArray(numberOfArgs);
 
         for (long i = numberOfArgs - 1; i >= 0; --i) {
-            oop_t o = GetFrame()->Pop();
+            vm_oop_t o = GetFrame()->Pop();
             argumentsArray->SetIndexableField(i, o);
         }
-        oop_t arguments[] = {signature, argumentsArray};
+        vm_oop_t arguments[] = {signature, argumentsArray};
 
         //check if current frame is big enough for this unplanned Send
         //doesNotUnderstand: needs 3 slots, one for this, one for method name, one for args
@@ -289,7 +289,7 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
 }
 
 void Interpreter::doDup() {
-    oop_t elem = GetFrame()->GetStackElement(0);
+    vm_oop_t elem = GetFrame()->GetStackElement(0);
     GetFrame()->Push(elem);
 }
 
@@ -297,7 +297,7 @@ void Interpreter::doPushLocal(long bytecodeIndex) {
     uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
 
-    oop_t local = GetFrame()->GetLocal(bc1, bc2);
+    vm_oop_t local = GetFrame()->GetLocal(bc1, bc2);
 
     GetFrame()->Push(local);
 }
@@ -306,15 +306,15 @@ void Interpreter::doPushArgument(long bytecodeIndex) {
     uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
 
-    oop_t argument = GetFrame()->GetArgument(bc1, bc2);
+    vm_oop_t argument = GetFrame()->GetArgument(bc1, bc2);
 
     GetFrame()->Push(argument);
 }
 
 void Interpreter::doPushField(long bytecodeIndex) {
     uint8_t fieldIndex = method->GetBytecode(bytecodeIndex + 1);
-    oop_t self = GetSelf();
-    oop_t o;
+    vm_oop_t self = GetSelf();
+    vm_oop_t o;
 
     if (unlikely(IS_TAGGED(self))) {
         o = nullptr;
@@ -349,19 +349,19 @@ void Interpreter::doPushBlock(long bytecodeIndex) {
 }
 
 void Interpreter::doPushConstant(long bytecodeIndex) {
-    oop_t constant = method->GetConstant(bytecodeIndex);
+    vm_oop_t constant = method->GetConstant(bytecodeIndex);
     GetFrame()->Push(constant);
 }
 
 void Interpreter::doPushGlobal(long bytecodeIndex) {
     VMSymbol* globalName = static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
-    oop_t global = GetUniverse()->GetGlobal(globalName);
+    vm_oop_t global = GetUniverse()->GetGlobal(globalName);
 
     if (global != nullptr)
         GetFrame()->Push(global);
     else {
-        oop_t arguments[] = {globalName};
-        oop_t self = GetSelf();
+        vm_oop_t arguments[] = {globalName};
+        vm_oop_t self = GetSelf();
 
         //check if there is enough space on the stack for this unplanned Send
         //unknowGlobal: needs 2 slots, one for "this" and one for the argument
@@ -384,7 +384,7 @@ void Interpreter::doPopLocal(long bytecodeIndex) {
     uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
 
-    oop_t o = GetFrame()->Pop();
+    vm_oop_t o = GetFrame()->Pop();
 
     GetFrame()->SetLocal(bc1, bc2, o);
 }
@@ -393,15 +393,15 @@ void Interpreter::doPopArgument(long bytecodeIndex) {
     uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
 
-    oop_t o = GetFrame()->Pop();
+    vm_oop_t o = GetFrame()->Pop();
     GetFrame()->SetArgument(bc1, bc2, o);
 }
 
 void Interpreter::doPopField(long bytecodeIndex) {
     uint8_t field_index = method->GetBytecode(bytecodeIndex + 1);
 
-    oop_t self = GetSelf();
-    oop_t o = GetFrame()->Pop();
+    vm_oop_t self = GetSelf();
+    vm_oop_t o = GetFrame()->Pop();
 
     if (unlikely(IS_TAGGED(self))) {
         GetUniverse()->ErrorExit("Integers do not have fields that can be set");
@@ -416,7 +416,7 @@ void Interpreter::doSend(long bytecodeIndex) {
 
     int numOfArgs = Signature::GetNumberOfArguments(signature);
 
-    oop_t receiver = GetFrame()->GetStackElement(numOfArgs-1);
+    vm_oop_t receiver = GetFrame()->GetStackElement(numOfArgs-1);
     assert(Universe::IsValidObject(receiver));
     assert(dynamic_cast<VMClass*>(CLASS_OF(receiver)) != nullptr); // make sure it is really a class
     
@@ -444,26 +444,26 @@ void Interpreter::doSuperSend(long bytecodeIndex) {
         (*invokable)(GetFrame());
     else {
         long numOfArgs = Signature::GetNumberOfArguments(signature);
-        oop_t receiver = GetFrame()->GetStackElement(numOfArgs - 1);
+        vm_oop_t receiver = GetFrame()->GetStackElement(numOfArgs - 1);
         VMArray* argumentsArray = GetUniverse()->NewArray(numOfArgs);
 
         for (long i = numOfArgs - 1; i >= 0; --i) {
-            oop_t o = GetFrame()->Pop();
+            vm_oop_t o = GetFrame()->Pop();
             argumentsArray->SetIndexableField(i, o);
         }
-        oop_t arguments[] = {signature, argumentsArray};
+        vm_oop_t arguments[] = {signature, argumentsArray};
 
         AS_OBJ(receiver)->Send(doesNotUnderstand, arguments, 2);
     }
 }
 
 void Interpreter::doReturnLocal() {
-    oop_t result = GetFrame()->Pop();
+    vm_oop_t result = GetFrame()->Pop();
     popFrameAndPushResult(result);
 }
 
 void Interpreter::doReturnNonLocal() {
-    oop_t result = GetFrame()->Pop();
+    vm_oop_t result = GetFrame()->Pop();
 
     VMFrame* context = GetFrame()->GetOuterContext();
 
@@ -471,8 +471,8 @@ void Interpreter::doReturnNonLocal() {
         VMBlock* block = static_cast<VMBlock*>(GetFrame()->GetArgument(0, 0));
         VMFrame* prevFrame = GetFrame()->GetPreviousFrame();
         VMFrame* outerContext = prevFrame->GetOuterContext();
-        oop_t sender = outerContext->GetArgument(0, 0);
-        oop_t arguments[] = {block};
+        vm_oop_t sender = outerContext->GetArgument(0, 0);
+        vm_oop_t arguments[] = {block};
 
         popFrame();
 
@@ -486,14 +486,14 @@ void Interpreter::doReturnNonLocal() {
 }
 
 void Interpreter::doJumpIfFalse(long bytecodeIndex) {
-    oop_t value = GetFrame()->Pop();
     if (value == falseObject)
+    vm_oop_t value = GetFrame()->Pop();
         doJump(bytecodeIndex);
 }
 
 void Interpreter::doJumpIfTrue(long bytecodeIndex) {
-    oop_t value = GetFrame()->Pop();
     if (value == trueObject)
+    vm_oop_t value = GetFrame()->Pop();
         doJump(bytecodeIndex);
 }
 

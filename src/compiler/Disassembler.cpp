@@ -56,7 +56,7 @@
 /** 
  * Dispatch an object to its content and write out
  */
-void Disassembler::dispatch(oop_t o) {
+void Disassembler::dispatch(vm_oop_t o) {
     //dispatch
     // can't switch() objects, so:
     if (o == nullptr)
@@ -180,7 +180,7 @@ void Disassembler::DumpMethod(VMMethod* method, const char* indent) {
                 break;
             }
             case BC_PUSH_CONSTANT: {
-                oop_t constant = method->GetConstant(bc_idx);
+                vm_oop_t constant = method->GetConstant(bc_idx);
                 VMClass* cl = CLASS_OF(constant);
                 VMSymbol* cname = cl->GetName();
 
@@ -190,7 +190,7 @@ void Disassembler::DumpMethod(VMMethod* method, const char* indent) {
                 break;
             }
             case BC_PUSH_GLOBAL: {
-                oop_t cst = method->GetConstant(bc_idx);
+                vm_oop_t cst = method->GetConstant(bc_idx);
 
                 if (cst != nullptr) {
                     VMSymbol* name = static_cast<VMSymbol*>(cst);
@@ -288,7 +288,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
             break;
         }
         case BC_DUP: {
-            oop_t o = frame->GetStackElement(0);
+            vm_oop_t o = frame->GetStackElement(0);
             if (o) {
                 VMClass* c = CLASS_OF(o);
                 VMSymbol* cname = c->GetName();
@@ -303,7 +303,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
         }
         case BC_PUSH_LOCAL: {
             uint8_t bc1 = BC_1, bc2 = BC_2;
-            oop_t o = frame->GetLocal(bc1, bc2);
+            vm_oop_t o = frame->GetLocal(bc1, bc2);
             VMClass* c = CLASS_OF(o);
             VMSymbol* cname = c->GetName();
 
@@ -316,7 +316,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
         }
         case BC_PUSH_ARGUMENT: {
             uint8_t bc1 = BC_1, bc2 = BC_2;
-            oop_t o = frame->GetArgument(bc1, bc2);
+            vm_oop_t o = frame->GetArgument(bc1, bc2);
             DebugPrint("argument: %d, context: %d", bc1, bc2);
 
             if (cl != nullptr) {
@@ -333,10 +333,10 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
         }
         case BC_PUSH_FIELD: {
             VMFrame* ctxt = frame->GetOuterContext();
-            oop_t arg = ctxt->GetArgument(0, 0);
+            vm_oop_t arg = ctxt->GetArgument(0, 0);
             uint8_t field_index = BC_1;
             
-            oop_t o = ((VMObject*) arg)->GetField(field_index);
+            vm_oop_t o = ((VMObject*) arg)->GetField(field_index);
             VMClass* c = CLASS_OF(o);
             VMSymbol* cname = c->GetName();
             long fieldIdx = BC_1;
@@ -355,7 +355,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
             break;
         }
         case BC_PUSH_CONSTANT: {
-            oop_t constant = method->GetConstant(bc_idx);
+            vm_oop_t constant = method->GetConstant(bc_idx);
             VMClass* c = CLASS_OF(constant);
             VMSymbol* cname = c->GetName();
 
@@ -367,7 +367,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
         }
         case BC_PUSH_GLOBAL: {
             VMSymbol* name = static_cast<VMSymbol*>(method->GetConstant(bc_idx));
-            oop_t o = GetUniverse()->GetGlobal(name);
+            vm_oop_t o = GetUniverse()->GetGlobal(name);
             VMSymbol* cname;
 
             const char* c_cname;
@@ -386,7 +386,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
             break;
         }
         case BC_POP: {
-            oop_t o = frame->GetStackElement(0);
+            vm_oop_t o = frame->GetStackElement(0);
             VMClass* c = CLASS_OF(o);
             VMSymbol* cname = c->GetName();
 
@@ -397,7 +397,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
             break;
         }
         case BC_POP_LOCAL: {
-            oop_t o = frame->GetStackElement(0);
+            vm_oop_t o = frame->GetStackElement(0);
             VMClass* c = CLASS_OF(o);
             VMSymbol* cname = c->GetName();
 
@@ -409,7 +409,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
             break;
         }
         case BC_POP_ARGUMENT: {
-            oop_t o = frame->GetStackElement(0);
+            vm_oop_t o = frame->GetStackElement(0);
             VMClass* c = CLASS_OF(o);
             VMSymbol* cname = c->GetName();
             DebugPrint("argument: %d, context: %d <(%s) ", BC_1, BC_2,
@@ -420,7 +420,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
             break;
         }
         case BC_POP_FIELD: {
-            oop_t o = frame->GetStackElement(0);
+            vm_oop_t o = frame->GetStackElement(0);
             VMClass* c = CLASS_OF(o);
             long fieldIdx = BC_1;
             VMSymbol* name = method->GetHolder()->GetInstanceFieldName(fieldIdx);

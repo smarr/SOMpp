@@ -62,7 +62,7 @@ VMMethod* MethodGenerationContext::Assemble() {
 
     // copy literals into the method
     for (int i = 0; i < numLiterals; i++) {
-        oop_t l = literals.Get(i);
+        vm_oop_t l = literals.Get(i);
         meth->SetIndexableField(i, l);
     }
     // copy bytecodes into method
@@ -81,7 +81,7 @@ VMPrimitive* MethodGenerationContext::AssemblePrimitive() {
 MethodGenerationContext::~MethodGenerationContext() {
 }
 
-int8_t MethodGenerationContext::FindLiteralIndex(oop_t lit) {
+int8_t MethodGenerationContext::FindLiteralIndex(vm_oop_t lit) {
     return (int8_t)literals.IndexOf(lit);
 }
 
@@ -220,7 +220,7 @@ void MethodGenerationContext::AddLocal(const StdString& local) {
     locals.PushBack(local);
 }
 
-void MethodGenerationContext::AddLiteral(oop_t lit) {
+void MethodGenerationContext::AddLiteral(vm_oop_t lit) {
     literals.PushBack(lit);
 }
 
@@ -238,8 +238,8 @@ bool MethodGenerationContext::AddLocalIfAbsent(const StdString& local) {
     return true;
 }
 
-bool MethodGenerationContext::AddLiteralIfAbsent(oop_t lit) {
-    if (literals.IndexOf( lit) != -1) return false;
+bool MethodGenerationContext::AddLiteralIfAbsent(vm_oop_t lit) {
+    if (literals.IndexOf(lit) != -1) return false;
     literals.PushBack(lit);
     return true;
 }

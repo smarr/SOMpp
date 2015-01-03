@@ -54,20 +54,20 @@ _Object::_Object() : PrimitiveContainer() {
 }
 
 void _Object::Equalequal(VMObject* /*object*/, VMFrame* frame) {
-    oop_t op1 = frame->Pop();
-    oop_t op2 = frame->Pop();
+    vm_oop_t op1 = frame->Pop();
+    vm_oop_t op2 = frame->Pop();
 
     frame->Push( op1 == op2 ? trueObject : falseObject );
 }
 
 void _Object::ObjectSize(VMObject* /*object*/, VMFrame* frame) {
-    oop_t self = frame->Pop();
+    vm_oop_t self = frame->Pop();
 
     frame->Push(NEW_INT(AS_OBJ(self)->GetObjectSize()));
 }
 
 void _Object::Hashcode(VMObject* /*object*/, VMFrame* frame) {
-    oop_t self = frame->Pop();
+    vm_oop_t self = frame->Pop();
 
     if (IS_TAGGED(self))
         frame->Push(self);
@@ -89,7 +89,7 @@ void _Object::Halt(VMObject*, VMFrame* frame) {
 
 void _Object::Perform(VMObject*, VMFrame* frame) {
     VMSymbol* selector = (VMSymbol*)frame->Pop();
-    oop_t self = frame->GetStackElement(0);
+    vm_oop_t self = frame->GetStackElement(0);
 
     VMClass* clazz = CLASS_OF(self);
     VMInvokable* invokable = clazz->LookupInvokable(selector);
@@ -109,11 +109,11 @@ void _Object::PerformInSuperclass(VMObject* object, VMFrame* frame) {
 void _Object::PerformWithArguments(VMObject* object, VMFrame* frame) {
     VMArray* args = (VMArray*) frame->Pop();
     VMSymbol* selector = (VMSymbol*)frame->Pop();
-    oop_t self = frame->GetStackElement(0);
+    vm_oop_t self = frame->GetStackElement(0);
 
     size_t num_args = args->GetNumberOfIndexableFields();
     for (size_t i = 0; i < num_args; i++) {
-        oop_t arg = args->GetIndexableField(i);
+        vm_oop_t arg = args->GetIndexableField(i);
         frame->Push(arg);
     }
 
@@ -130,7 +130,7 @@ void _Object::PerformWithArgumentsInSuperclass(VMObject* object, VMFrame* frame)
 
     size_t num_args = args->GetNumberOfIndexableFields();
     for (size_t i = 0; i < num_args; i++) {
-        oop_t arg = args->GetIndexableField(i);
+        vm_oop_t arg = args->GetIndexableField(i);
         frame->Push(arg);
     }
 
@@ -140,19 +140,19 @@ void _Object::PerformWithArgumentsInSuperclass(VMObject* object, VMFrame* frame)
 }
 
 void _Object::InstVarAt(VMObject* object, VMFrame* frame) {
-    oop_t idx = frame->Pop();
-    oop_t self = frame->Pop();
+    vm_oop_t idx = frame->Pop();
+    vm_oop_t self = frame->Pop();
 
     long field_idx = INT_VAL(idx) - 1;
-    oop_t value = static_cast<VMObject*>(self)->GetField(field_idx);
+    vm_oop_t value = static_cast<VMObject*>(self)->GetField(field_idx);
 
     frame->Push(value);
 }
 
 void _Object::InstVarAtPut(VMObject* object, VMFrame* frame) {
-    oop_t value = frame->Pop();
-    oop_t idx   = frame->Pop();
-    oop_t self  = frame->GetStackElement(0);
+    vm_oop_t value = frame->Pop();
+    vm_oop_t idx   = frame->Pop();
+    vm_oop_t self  = frame->GetStackElement(0);
 
     long field_idx = INT_VAL(idx) - 1;
 
@@ -161,15 +161,15 @@ void _Object::InstVarAtPut(VMObject* object, VMFrame* frame) {
 
 void _Object::InstVarNamed(VMObject* object, VMFrame* frame) {
     VMSymbol* name = (VMSymbol*) frame->Pop();
-    oop_t self = frame->Pop();
+    vm_oop_t self = frame->Pop();
 
     long field_idx = AS_OBJ(self)->GetFieldIndex(name);
-    oop_t value = static_cast<VMObject*>(self)->GetField(field_idx);
+    vm_oop_t value = static_cast<VMObject*>(self)->GetField(field_idx);
 
     frame->Push(value);
 }
 
 void _Object::Class(VMObject* object, VMFrame* frame) {
-    oop_t self = frame->Pop();
+    vm_oop_t self = frame->Pop();
     frame->Push(CLASS_OF(self));
 }

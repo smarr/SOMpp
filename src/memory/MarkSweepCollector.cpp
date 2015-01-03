@@ -44,18 +44,18 @@ void MarkSweepCollector::Collect() {
     Timer::GCTimer->Halt();
 }
 
-static oop_t mark_object(oop_t oop) {
+static gc_oop_t mark_object(gc_oop_t oop) {
     if (IS_TAGGED(oop))
         return oop;
     
     AbstractVMObject* obj = AS_OBJ(oop);
 
     if (obj->GetGCField())
-        return obj;
+        return oop;
 
     obj->SetGCField(GC_MARKED);
     obj->WalkObjects(mark_object);
-    return obj;
+    return oop;
 }
 
 void MarkSweepCollector::markReachableObjects() {

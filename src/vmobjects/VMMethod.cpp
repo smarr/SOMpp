@@ -57,7 +57,7 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
     numberOfArguments            = NEW_INT(0);
     this->numberOfConstants      = NEW_INT(numberOfConstants);
 
-    indexableFields = (oop_t*)(&indexableFields + 2);
+    indexableFields = (gc_oop_t*)(&indexableFields + 2);
     for (long i = 0; i < numberOfConstants; ++i) {
         indexableFields[i] = nilObject;
     }
@@ -69,7 +69,7 @@ VMMethod* VMMethod::Clone() const {
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,
                     sizeof(VMObject)), GetObjectSize() -
             sizeof(VMObject));
-    clone->indexableFields = (oop_t*)(&(clone->indexableFields) + 2);
+    clone->indexableFields = (gc_oop_t*)(&(clone->indexableFields) + 2);
     clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + GetNumberOfIndexableFields());
     return clone;
 }
@@ -146,7 +146,7 @@ void VMMethod::operator()(VMFrame* frame) {
 void VMMethod::SetHolderAll(VMClass* hld) {
     long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {
-        oop_t o = GetIndexableField(i);
+        vm_oop_t o = GetIndexableField(i);
         if (!IS_TAGGED(o)) {
             VMInvokable* vmi = dynamic_cast<VMInvokable*>(AS_OBJ(o));
             if (vmi != nullptr) {
@@ -156,7 +156,7 @@ void VMMethod::SetHolderAll(VMClass* hld) {
     }
 }
 
-oop_t VMMethod::GetConstant(long indx) const {
+vm_oop_t VMMethod::GetConstant(long indx) const {
     uint8_t bc = bytecodes[indx + 1];
     if (bc >= GetNumberOfIndexableFields()) {
         cout << "Error: Constant index out of range" << endl;

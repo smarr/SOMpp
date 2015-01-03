@@ -50,7 +50,7 @@ public:
             void      SetNumberOfArguments(long);
             long      GetNumberOfBytecodes() const;
             void      SetHolderAll(VMClass* hld);
-            oop_t GetConstant(long indx) const;
+            vm_oop_t GetConstant(long indx) const;
     inline  uint8_t   GetBytecode(long indx) const;
     inline  void      SetBytecode(long indx, uint8_t);
 #ifdef UNSAFE_FRAME_OPTIMIZATION
@@ -61,7 +61,7 @@ public:
     inline  long      GetNumberOfIndexableFields() const;
     virtual VMMethod* Clone() const;
 
-    inline  void      SetIndexableField(long idx, oop_t item);
+    inline  void      SetIndexableField(long idx, vm_oop_t item);
 
     //-----------VMInvokable-------------//
     //operator "()" to invoke the method
@@ -71,7 +71,7 @@ public:
 
 private:
     inline uint8_t* GetBytecodes() const;
-    inline oop_t GetIndexableField(long idx) const;
+    inline vm_oop_t GetIndexableField(long idx) const;
 
     VMInteger* numberOfLocals;
     VMInteger* maximumNumberOfStackElements;
@@ -81,7 +81,7 @@ private:
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     VMFrame* cachedFrame;
 #endif
-    oop_t* indexableFields;
+    gc_oop_t* indexableFields;
     uint8_t* bytecodes;
     static const long VMMethodNumberOfFields;
 };
@@ -104,13 +104,13 @@ inline long VMMethod::GetNumberOfArguments() const {
     return INT_VAL(numberOfArguments);
 }
 
-oop_t VMMethod::GetIndexableField(long idx) const {
     return indexableFields[idx];
+vm_oop_t VMMethod::GetIndexableField(long idx) const {
 }
 
-void VMMethod::SetIndexableField(long idx, oop_t item) {
     indexableFields[idx] = item;
     write_barrier(this, item);
+void VMMethod::SetIndexableField(long idx, vm_oop_t item) {
 }
 
 uint8_t VMMethod::GetBytecode(long indx) const {
