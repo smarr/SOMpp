@@ -143,5 +143,4 @@ _System::_System(void) : PrimitiveContainer() {
     SetPrimitive("fullGC",       new Routine<_System>(this, &_System::FullGC));
 }
 
-_System::~_System() {
-}
+_System::~_System() {}
