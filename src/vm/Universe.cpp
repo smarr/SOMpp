@@ -511,11 +511,11 @@ void Universe::InitializeGlobals() {
     InitializeSystemClass(load_ptr(nilClass),       load_ptr(objectClass), "Nil");
     InitializeSystemClass(load_ptr(arrayClass),     load_ptr(objectClass), "Array");
     InitializeSystemClass(load_ptr(methodClass),     load_ptr(arrayClass), "Method");
-    InitializeSystemClass(load_ptr(symbolClass),    load_ptr(objectClass), "Symbol");
+    InitializeSystemClass(load_ptr(stringClass),    load_ptr(objectClass), "String");
+    InitializeSystemClass(load_ptr(symbolClass),    load_ptr(stringClass), "Symbol");
     InitializeSystemClass(load_ptr(integerClass),   load_ptr(objectClass), "Integer");
     InitializeSystemClass(load_ptr(bigIntegerClass),load_ptr(objectClass), "BigInteger");
     InitializeSystemClass(load_ptr(primitiveClass), load_ptr(objectClass), "Primitive");
-    InitializeSystemClass(load_ptr(stringClass),    load_ptr(objectClass), "String");
     InitializeSystemClass(load_ptr(doubleClass),    load_ptr(objectClass), "Double");
 
     // Fix up objectClass
@@ -956,7 +956,7 @@ VMString* Universe::NewString( const char* str) const {
     return result;
 }
 
-VMSymbol* Universe::NewSymbol( const StdString& str) {
+VMSymbol* Universe::NewSymbol(const StdString& str) {
     return NewSymbol(str.c_str());
 }
 
