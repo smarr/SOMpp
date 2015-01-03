@@ -50,11 +50,11 @@ double _Double::coerceDouble(vm_oop_t x) {
         return (double) INT_VAL(x);
     
     VMClass* cl = ((AbstractVMObject*)x)->GetClass();
-    if (cl == doubleClass)
+    if (cl == load_ptr(doubleClass))
         return static_cast<VMDouble*>(x)->GetEmbeddedDouble();
-    else if(cl == integerClass)
+    else if(cl == load_ptr(integerClass))
         return (double)static_cast<VMInteger*>(x)->GetEmbeddedInteger();
-    else if(cl == bigIntegerClass)
+    else if(cl == load_ptr(bigIntegerClass))
         return (double)static_cast<VMBigInteger*>(x)->GetEmbeddedInteger();
     else
         GetUniverse()->ErrorExit("Attempt to apply Double operation to non-number.");
@@ -118,17 +118,17 @@ void _Double::BitwiseXor(VMObject* /*object*/, VMFrame* frame) {
 void _Double::Equal(VMObject* /*object*/, VMFrame* frame) {
     PREPARE_OPERANDS;
     if(left == right)
-    frame->Push(trueObject);
+    frame->Push(load_ptr(trueObject));
     else
-    frame->Push(falseObject);
+    frame->Push(load_ptr(falseObject));
 }
 
 void _Double::Lowerthan(VMObject* /*object*/, VMFrame* frame) {
     PREPARE_OPERANDS;
     if(left < right)
-        frame->Push(trueObject);
+        frame->Push(load_ptr(trueObject));
     else
-        frame->Push(falseObject);
+        frame->Push(load_ptr(falseObject));
 }
 
 void _Double::AsString(VMObject* /*object*/, VMFrame* frame) {

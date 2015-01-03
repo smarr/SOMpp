@@ -81,21 +81,21 @@ void _String::Equal(VMObject* /*object*/, VMFrame* frame) {
     VMString* op2 = static_cast<VMString*>(frame->Pop());
 
     if (IS_TAGGED(op1)) {
-        frame->Push(falseObject);
+        frame->Push(load_ptr(falseObject));
         return;
     }
 
     VMClass* otherClass = CLASS_OF(op1);
-    if(otherClass == stringClass) {
+    if(otherClass == load_ptr(stringClass)) {
         StdString s1 = static_cast<VMString*>(op1)->GetStdString();
         StdString s2 = op2->GetStdString();
 
         if(s1 == s2) {
-            frame->Push(trueObject);
+            frame->Push(load_ptr(trueObject));
             return;
         }
     }
-    frame->Push(falseObject);
+    frame->Push(load_ptr(falseObject));
 }
 
 void _String::PrimSubstringFrom_to_(VMObject* /*object*/, VMFrame* frame) {

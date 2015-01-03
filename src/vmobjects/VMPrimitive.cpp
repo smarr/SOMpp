@@ -44,7 +44,7 @@ const int VMPrimitive::VMPrimitiveNumberOfFields = 2;
 
 VMPrimitive::VMPrimitive(VMSymbol* signature) : VMInvokable(VMPrimitiveNumberOfFields) {
     //the only class that explicitly does this.
-    SetClass(primitiveClass);
+    SetClass(load_ptr(primitiveClass));
     SetSignature(signature);
     routine = nullptr;
     empty = false;
@@ -55,10 +55,10 @@ VMPrimitive* VMPrimitive::Clone() const {
     return prim;
 }
 
-    clazz     = static_cast<VMClass*>(walk(clazz));
-    signature = static_cast<VMSymbol*>(walk(signature));
-    holder    = static_cast<VMClass*>(walk(holder));
 void VMPrimitive::WalkObjects(walk_heap_fn walk) {
+    clazz     = static_cast<GCClass*>(walk(clazz));
+    signature = static_cast<GCSymbol*>(walk(signature));
+    holder    = static_cast<GCClass*>(walk(holder));
 }
 
 void VMPrimitive::EmptyRoutine( VMObject* _self, VMFrame* /*frame*/) {

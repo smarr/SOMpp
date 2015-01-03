@@ -330,13 +330,13 @@ void Interpreter::doPushField(long bytecodeIndex) {
 void Interpreter::doPushBlock(long bytecodeIndex) {
     // Short cut the negative case of #ifTrue: and #ifFalse:
     if (currentBytecodes[bytecodeIndexGlobal] == BC_SEND) {
-        if (GetFrame()->GetStackElement(0) == falseObject &&
-            method->GetConstant(bytecodeIndexGlobal) == symbolIfTrue) {
-            GetFrame()->Push(nilObject);
+        if (GetFrame()->GetStackElement(0) == load_ptr(falseObject) &&
+            method->GetConstant(bytecodeIndexGlobal) == load_ptr(symbolIfTrue)) {
+            GetFrame()->Push(load_ptr(nilObject));
             return;
-        } else if (GetFrame()->GetStackElement(0) == trueObject &&
-                   method->GetConstant(bytecodeIndexGlobal) == symbolIfFalse) {
-            GetFrame()->Push(nilObject);
+        } else if (GetFrame()->GetStackElement(0) == load_ptr(trueObject) &&
+                   method->GetConstant(bytecodeIndexGlobal) == load_ptr(symbolIfFalse)) {
+            GetFrame()->Push(load_ptr(nilObject));
             return;
         }
     }
@@ -486,14 +486,14 @@ void Interpreter::doReturnNonLocal() {
 }
 
 void Interpreter::doJumpIfFalse(long bytecodeIndex) {
-    if (value == falseObject)
     vm_oop_t value = GetFrame()->Pop();
+    if (value == load_ptr(falseObject))
         doJump(bytecodeIndex);
 }
 
 void Interpreter::doJumpIfTrue(long bytecodeIndex) {
-    if (value == trueObject)
     vm_oop_t value = GetFrame()->Pop();
+    if (value == load_ptr(trueObject))
         doJump(bytecodeIndex);
 }
 

@@ -57,27 +57,27 @@ void VMObject::SetNumberOfFields(long nof) {
 }
 
 void VMObject::SetClass(VMClass* cl) {
-    clazz = cl;
-    write_barrier(this, cl);
+    store_ptr(clazz, cl);
 }
 
 VMSymbol* VMObject::GetFieldName(long index) const {
-    return clazz->GetInstanceFieldName(index);
+    return load_ptr(clazz)->GetInstanceFieldName(index);
 }
 
 void VMObject::Assert(bool value) const {
     GetUniverse()->Assert(value);
 }
 
-    clazz = (VMClass*) walk(clazz);
 void VMObject::WalkObjects(walk_heap_fn walk) {
+    clazz = static_cast<GCClass*>(walk(clazz));
     
     long numFields = GetNumberOfFields();
     for (long i = 0; i < numFields; ++i) {
-        FIELDS[i] = walk((oop_t)GetField(i));
+# warning not sure whether the use of _store_ptr is correct and robust here
+        FIELDS[i] = walk(_store_ptr(GetField(i)));
     }
 }
 
 void VMObject::MarkObjectAsInvalid() {
-    clazz = (VMClass*) INVALID_POINTER;
+    clazz = (GCClass*) INVALID_GC_POINTER;
 }

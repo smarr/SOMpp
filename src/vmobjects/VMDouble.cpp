@@ -33,5 +33,5 @@ VMDouble* VMDouble::Clone() const {
 }
 
 VMClass* VMDouble::GetClass() const {
-    return doubleClass;
+    return load_ptr(doubleClass);
 }

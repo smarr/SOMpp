@@ -29,8 +29,6 @@
 #include <vector>
 
 #include "VMObject.h"
-#include "VMSymbol.h"
-#include "VMArray.h"
 
 #include <misc/defs.h>
 
@@ -93,38 +91,38 @@ private:
     static const long VMClassNumberOfFields;
 };
 
+#include "VMSymbol.h"
+#include "VMArray.h"
+
 VMClass* VMClass::GetSuperClass() const {
-    return superClass;
+    return load_ptr(superClass);
 }
 
 void VMClass::SetSuperClass(VMClass* sup) {
-    superClass = sup;
-    write_barrier(this, sup);
+    store_ptr(superClass, sup);
 }
 
 VMSymbol* VMClass::GetName() const {
-    return name;
+    return load_ptr(name);
 }
 
 void VMClass::SetName(VMSymbol* nam) {
-    name = nam;
-    write_barrier(this, nam);
+    store_ptr(name, nam);
 }
 
 bool VMClass::HasSuperClass() const {
-    assert(Universe::IsValidObject(superClass));
-    return superClass != nilObject;
+    assert(Universe::IsValidObject(load_ptr(superClass)));
+    return load_ptr(superClass) != load_ptr(nilObject);
 }
 
 VMArray* VMClass::GetInstanceFields() const {
-    return instanceFields;
+    return load_ptr(instanceFields);
 }
 
 void VMClass::SetInstanceFields(VMArray* instFields) {
-    instanceFields = instFields;
-    write_barrier(this, instFields);
+    store_ptr(instanceFields, instFields);
 }
 
 VMArray* VMClass::GetInstanceInvokables() const {
-    return instanceInvokables;
+    return load_ptr(instanceInvokables);
 }

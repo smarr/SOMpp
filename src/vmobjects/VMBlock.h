@@ -48,11 +48,12 @@ private:
     static const int VMBlockNumberOfFields;
 };
 
+#include "VMFrame.h"
+
 void VMBlock::SetContext(VMFrame* contxt) {
-    context = contxt;
-    write_barrier(this, contxt);
+    store_ptr(context, contxt);
 }
 
 VMFrame* VMBlock::GetContext() const {
-    return context;
+    return load_ptr(context);
 }

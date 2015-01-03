@@ -56,7 +56,7 @@ VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength) {
 
     result->bytecodeIndex = from->bytecodeIndex;
     // result->arguments is set in VMFrame constructor
-    result->locals = result->arguments + result->method->GetNumberOfArguments();
+    result->locals = result->arguments + method->GetNumberOfArguments();
 
     // all other fields are indexable via arguments
     // --> until end of Frame
@@ -85,8 +85,8 @@ VMFrame* VMFrame::Clone() const {
     const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
     size_t noBytes = GetObjectSize() - sizeof(VMFrame);
     memcpy(destination, source, noBytes);
-    clone->locals = clone->arguments + clone->method->GetNumberOfArguments();
     clone->arguments = (gc_oop_t*)&(clone->stack_ptr)+1; //field after stack_ptr
+    clone->locals = clone->arguments + GetMethod()->GetNumberOfArguments();
     clone->stack_ptr = (gc_oop_t*)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
     return clone;
 }
@@ -107,14 +107,14 @@ VMFrame::VMFrame(long size, long nof) :
     gc_oop_t* end = (gc_oop_t*) SHIFTED_PTR(this, objectSize);
     long i = 0;
     while (arguments + i < end) {
+# warning is the direct use of gc_oop_t here safe for all GCs?
         arguments[i] = nilObject;
         i++;
     }
 }
 
 void VMFrame::SetMethod(VMMethod* method) {
-    this->method = method;
-    write_barrier(this, method);
+    store_ptr(this->method, method);
 }
 
 VMFrame* VMFrame::GetContextLevel(long lvl) {
@@ -162,13 +162,15 @@ long VMFrame::RemainingStackSize() const {
     return size - 1;
 }
 
-    return *stack_ptr--;
 vm_oop_t VMFrame::Pop() {
+    vm_oop_t result = load_ptr(*stack_ptr);
+    stack_ptr--;
+    return result;
 }
 
-    *(++stack_ptr) = obj;
-    write_barrier(this, obj);
 void VMFrame::Push(vm_oop_t obj) {
+    ++stack_ptr;
+    store_ptr(*stack_ptr, obj);
 }
 
 void VMFrame::PrintStack() const {
@@ -188,7 +190,7 @@ void VMFrame::PrintStack() const {
             cout << "index: " << i << " object: VMInteger" << endl;
         else if (((AbstractVMObject*)(vmo))->GetClass() == nullptr)
             cout << "VMObject with Class == nullptr" << endl;
-        else if (((AbstractVMObject*)(vmo))->GetClass() == nilObject)
+        else if (((AbstractVMObject*)(vmo))->GetClass() == load_ptr(nilObject))
             cout << "VMObject with Class == NIL_OBJECT" << endl;
         else
             cout << "index: " << i << " object:" << ((AbstractVMObject*)(vmo))->GetClass()->GetName()->GetChars() << endl;
@@ -204,31 +206,29 @@ void VMFrame::ResetStackPointer() {
     stack_ptr = locals + meth->GetNumberOfLocals() - 1;
 }
 
-    return stack_ptr[-index];
 vm_oop_t VMFrame::GetStackElement(long index) const {
+    return load_ptr(stack_ptr[-index]);
 }
 
 vm_oop_t VMFrame::GetLocal(long index, long contextLevel) {
     VMFrame* context = GetContextLevel(contextLevel);
-    return context->locals[index];
+    return load_ptr(context->locals[index]);
 }
 
 void VMFrame::SetLocal(long index, long contextLevel, vm_oop_t value) {
     VMFrame* context = GetContextLevel(contextLevel);
-    context->locals[index] = value;
-    write_barrier(context, value);
+    context->SetLocal(index, value);
 }
 
 vm_oop_t VMFrame::GetArgument(long index, long contextLevel) {
     // get the context
     VMFrame* context = GetContextLevel(contextLevel);
-    return context->arguments[index];
+    return load_ptr(context->arguments[index]);
 }
 
 void VMFrame::SetArgument(long index, long contextLevel, vm_oop_t value) {
     VMFrame* context = GetContextLevel(contextLevel);
-    context->arguments[index] = value;
-    write_barrier(context, value);
+    SetArgument(index, value);
 }
 
 void VMFrame::PrintStackTrace() const {
@@ -246,9 +246,8 @@ void VMFrame::CopyArgumentsFrom(VMFrame* frame) {
     // - copy them into the argument area of the current frame
     long num_args = GetMethod()->GetNumberOfArguments();
     for (long i = 0; i < num_args; ++i) {
-        arguments[i] = stackElem;
-        write_barrier(this, stackElem);
         vm_oop_t stackElem = frame->GetStackElement(num_args - 1 - i);
+        store_ptr(arguments[i], stackElem);
     }
 }
 

@@ -124,8 +124,8 @@ void VMObject::SetObjectSize(size_t size) {
 }
 
 VMClass* VMObject::GetClass() const {
-    assert(Universe::IsValidObject((VMObject*) clazz));
-    return clazz;
+    assert(Universe::IsValidObject((VMObject*) load_ptr(clazz)));
+    return load_ptr(clazz);
 }
 
 long VMObject::GetNumberOfFields() const {
@@ -142,11 +142,13 @@ long VMObject::GetAdditionalSpaceConsumption() const {
                + sizeof(VMObject*) * GetNumberOfFields()));
 }
 
-    return FIELDS[index];
 vm_oop_t VMObject::GetField(long index) const {
+    vm_oop_t result = load_ptr(FIELDS[index]);
+    assert(Universe::IsValidObject(result));
+    return result;
 }
 
-    FIELDS[index] = value;
-    write_barrier(this, value);
 void VMObject::SetField(long index, vm_oop_t value) {
+    assert(Universe::IsValidObject(value));
+    store_ptr(FIELDS[index], value);
 }

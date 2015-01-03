@@ -67,7 +67,7 @@ void Shell::Start() {
     long bytecodeIndex, counter = 0;
     VMFrame* currentFrame;
     VMClass* runClass;
-    oop_t it = nilObject;// last evaluation result.
+    vm_oop_t it = load_ptr(nilObject); // last evaluation result.
 
     cout << "SOM Shell. Type \"" << QUIT_CMD << "\" to exit.\n";
 

@@ -50,10 +50,10 @@
  */
 #define CHECK_COERCION(obj,receiver,op) { \
   VMClass* cl = CLASS_OF(obj);\
-  if (cl== bigIntegerClass) { \
+  if (cl == load_ptr(bigIntegerClass)) { \
     resendAsBigInteger((op), (receiver), static_cast<VMBigInteger*>(obj)); \
     return; \
-  } else if(cl== doubleClass) { \
+  } else if(cl == load_ptr(doubleClass)) { \
     resendAsDouble((op), (receiver), static_cast<VMDouble*>(obj)); \
     return; \
   } \
@@ -224,15 +224,15 @@ void _Integer::Equal(VMObject* object, VMFrame* frame) {
 
     CHECK_COERCION(rightObj, leftObj, "=");
 
-    if (IS_TAGGED(rightObj) || CLASS_OF(rightObj) == integerClass) {
+    if (IS_TAGGED(rightObj) || CLASS_OF(rightObj) == load_ptr(integerClass)) {
         if (INT_VAL(leftObj) == INT_VAL(rightObj))
-            frame->Push(trueObject);
+            frame->Push(load_ptr(trueObject));
         else
-            frame->Push(falseObject);
-    } else if (CLASS_OF(rightObj) == doubleClass) {
+            frame->Push(load_ptr(falseObject));
+    } else if (CLASS_OF(rightObj) == load_ptr(doubleClass)) {
         assert(false);
     } else {
-        frame->Push(falseObject);
+        frame->Push(load_ptr(falseObject));
     }
 }
 
@@ -243,9 +243,9 @@ void _Integer::Lowerthan(VMObject* object, VMFrame* frame) {
     CHECK_COERCION(rightObj, leftObj, "<");
 
     if (INT_VAL(leftObj) < INT_VAL(rightObj))
-        frame->Push(trueObject);
+        frame->Push(load_ptr(trueObject));
     else
-        frame->Push(falseObject);
+        frame->Push(load_ptr(falseObject));
 }
 
 void _Integer::AsString(VMObject* /*object*/, VMFrame* frame) {

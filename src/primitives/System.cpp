@@ -57,7 +57,7 @@ void _System::Global_(VMObject* /*object*/, VMFrame* frame) {
     frame->Pop();
     vm_oop_t result = GetUniverse()->GetGlobal(arg);
 
-    frame->Push( result ? result : nilObject);
+    frame->Push(result ? result : load_ptr(nilObject));
 }
 
 void _System::Global_put_(VMObject* /*object*/, VMFrame* frame) {
@@ -73,7 +73,7 @@ void _System::Load_(VMObject* /*object*/, VMFrame* frame) {
     if (result)
         frame->Push(result);
     else
-        frame->Push(nilObject);
+        frame->Push(load_ptr(nilObject));
 }
 
 void _System::Exit_(VMObject* /*object*/, VMFrame* frame) {
@@ -126,7 +126,7 @@ void _System::Ticks(VMObject* /*object*/, VMFrame* frame) {
 void _System::FullGC(VMObject* /*object*/, VMFrame* frame) {
     frame->Pop();
     GetHeap<HEAP_CLS>()->triggerGC(); // not safe to do it immediatly, will be done when it is ok, i.e., in the interpreter loop
-    frame->Push(trueObject);
+    frame->Push(load_ptr(trueObject));
 }
 
 _System::_System(void) : PrimitiveContainer() {

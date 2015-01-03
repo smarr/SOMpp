@@ -56,21 +56,23 @@ private:
     friend class VMClass;
 };
 
+
+#include "VMClass.h"
+#include "VMInvokable.h"
+
+
 VMInvokable* VMSymbol::GetCachedInvokable(const VMClass* cls) const {
-    if (cls == cachedClass_invokable[0])
-        return cachedInvokable[0];
-    else if (cls == cachedClass_invokable[1])
-        return cachedInvokable[1];
-    else if (cls == cachedClass_invokable[2])
-        return cachedInvokable[2];
+    if (cls == load_ptr(cachedClass_invokable[0]))
+        return load_ptr(cachedInvokable[0]);
+    else if (cls == load_ptr(cachedClass_invokable[1]))
+        return load_ptr(cachedInvokable[1]);
+    else if (cls == load_ptr(cachedClass_invokable[2]))
+        return load_ptr(cachedInvokable[2]);
     return nullptr;
 }
 
 void VMSymbol::UpdateCachedInvokable(const VMClass* cls, VMInvokable* invo) {
-    cachedInvokable[nextCachePos] = invo;
-    cachedClass_invokable[nextCachePos] = cls;
+    store_ptr(cachedInvokable[nextCachePos], invo);
+    store_ptr(cachedClass_invokable[nextCachePos], const_cast<VMClass*>(cls));
     nextCachePos = (nextCachePos + 1) % 3;
-    
-    write_barrier(this, invo);
-    write_barrier(this, cls);
 }

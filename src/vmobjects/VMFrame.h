@@ -110,12 +110,11 @@ bool VMFrame::IsBootstrapFrame() const {
 }
 
 VMFrame* VMFrame::GetContext() const {
-    return context;
+    return load_ptr(context);
 }
 
 void VMFrame::SetContext(VMFrame* frm) {
-    context = frm;
-    write_barrier(this, frm);
+    store_ptr(context, frm);
 }
 
 void* VMFrame::GetStackPointer() const {
@@ -123,12 +122,11 @@ void* VMFrame::GetStackPointer() const {
 }
 
 VMFrame* VMFrame::GetPreviousFrame() const {
-    return previousFrame;
+    return load_ptr(previousFrame);
 }
 
 void VMFrame::SetPreviousFrame(VMFrame* frm) {
-    previousFrame = frm;
-    write_barrier(this, frm);
+    store_ptr(previousFrame, frm);
 }
 
 void VMFrame::ClearPreviousFrame() {
@@ -136,5 +134,5 @@ void VMFrame::ClearPreviousFrame() {
 }
 
 VMMethod* VMFrame::GetMethod() const {
-    return method;
+    return load_ptr(method);
 }

@@ -44,8 +44,8 @@
 
 #define CHECK_BIGINT(object, result) { \
     /* Check second parameter type: */ \
-    if (IS_TAGGED(object) || CLASS_OF(object) == integerClass) {\
-      result = GetUniverse()->NewBigInteger((int64_t)INT_VAL(object));\
+    if (IS_TAGGED(object) || CLASS_OF(object) == load_ptr(integerClass)) {\
+      result = GetUniverse()->NewBigInteger((int64_t) INT_VAL(object));\
     } else\
       result = static_cast<VMBigInteger*>(object);\
 }
@@ -159,9 +159,9 @@ void _BigInteger::Equal(VMObject* /*object*/, VMFrame* frame) {
 
     // Do operation:
     if(left->GetEmbeddedInteger() == right->GetEmbeddedInteger())
-    frame->Push(trueObject);
+    frame->Push(load_ptr(trueObject));
     else
-    frame->Push(falseObject);
+    frame->Push(load_ptr(falseObject));
 }
 
 void _BigInteger::Lowerthan(VMObject* /*object*/, VMFrame* frame) {
@@ -173,9 +173,9 @@ void _BigInteger::Lowerthan(VMObject* /*object*/, VMFrame* frame) {
 
     // Do operation:
     if(left->GetEmbeddedInteger() < right->GetEmbeddedInteger())
-        frame->Push(trueObject);
+        frame->Push(load_ptr(trueObject));
     else
-        frame->Push(falseObject);
+        frame->Push(load_ptr(falseObject));
 }
 
 void _BigInteger::AsString(VMObject* /*object*/, VMFrame* frame) {

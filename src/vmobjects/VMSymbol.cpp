@@ -63,7 +63,7 @@ VMSymbol* VMSymbol::Clone() const {
 }
 
 VMClass* VMSymbol::GetClass() const {
-    return symbolClass;
+    return load_ptr(symbolClass);
 }
 
 StdString VMSymbol::GetPlainString() const {
@@ -132,8 +132,9 @@ StdString VMSymbol::GetPlainString() const {
 
 void VMSymbol::WalkObjects(walk_heap_fn walk) {
     for (long i = 0; i < nextCachePos; i++) {
-        cachedClass_invokable[i] = (VMClass*) walk((oop_t) cachedClass_invokable[i]);
-        cachedInvokable[i] = (VMInvokable*) walk((oop_t) cachedInvokable[i]);
+        cachedClass_invokable[i] = static_cast<GCClass*>(walk(
+                                        const_cast<GCClass*>(cachedClass_invokable[i])));
+        cachedInvokable[i] = static_cast<GCInvokable*>(walk(cachedInvokable[i]));
     }
 }
 

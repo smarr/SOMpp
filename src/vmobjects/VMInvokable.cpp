@@ -33,12 +33,11 @@ bool VMInvokable::IsPrimitive() const {
 }
 
 VMSymbol* VMInvokable::GetSignature() const {
-    return signature;
+    return load_ptr(signature);
 }
 
 void VMInvokable::SetSignature(VMSymbol* sig) {
-    signature = sig;
-    write_barrier(this, sig);
+    store_ptr(signature, sig);
 }
 
     clazz = static_cast<VMClass*>(walk(clazz));
@@ -49,10 +48,9 @@ void VMInvokable::WalkObjects(walk_heap_fn walk) {
 }
 
 VMClass* VMInvokable::GetHolder() const {
-    return holder;
+    return load_ptr(holder);
 }
 
 void VMInvokable::SetHolder(VMClass* hld) {
-    holder = hld;
-    write_barrier(this, hld);
+    store_ptr(holder, hld);
 }

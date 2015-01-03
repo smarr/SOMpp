@@ -73,7 +73,7 @@ size_t VMString::GetObjectSize() const {
 }
 
 VMClass* VMString::GetClass() const {
-    return stringClass;
+    return load_ptr(stringClass);
 }
 
 size_t VMString::GetStringLength() const {

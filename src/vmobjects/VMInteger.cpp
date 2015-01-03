@@ -32,5 +32,5 @@ VMInteger* VMInteger::Clone() const {
 }
 
 VMClass* VMInteger::GetClass() const {
-    return integerClass;
+    return load_ptr(integerClass);
 }

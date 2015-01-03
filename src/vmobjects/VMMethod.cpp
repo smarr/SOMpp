@@ -76,7 +76,7 @@ VMMethod* VMMethod::Clone() const {
 
 void VMMethod::SetSignature(VMSymbol* sig) {
     VMInvokable::SetSignature(sig);
-    SetNumberOfArguments(Signature::GetNumberOfArguments(signature));
+    SetNumberOfArguments(Signature::GetNumberOfArguments(sig));
 }
 
 void VMMethod::WalkObjects(walk_heap_fn walk) {
@@ -95,7 +95,8 @@ void VMMethod::WalkObjects(walk_heap_fn walk) {
     long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {
         if (GetIndexableField(i) != nullptr)
-            indexableFields[i] = walk(GetIndexableField(i));
+# warning not sure _store_ptr is the best way, perhaps we should access the array content directly
+            indexableFields[i] = walk(_store_ptr(GetIndexableField(i)));
     }
 }
 
@@ -121,7 +122,7 @@ void VMMethod::SetNumberOfLocals(long nol) {
 }
 
 long VMMethod::GetMaximumNumberOfStackElements() const {
-    return INT_VAL(maximumNumberOfStackElements);
+    return INT_VAL(load_ptr(maximumNumberOfStackElements));
 }
 
 void VMMethod::SetMaximumNumberOfStackElements(long stel) {
@@ -135,7 +136,7 @@ void VMMethod::SetNumberOfArguments(long noa) {
 }
 
 long VMMethod::GetNumberOfBytecodes() const {
-    return INT_VAL(bcLength);
+    return INT_VAL(load_ptr(bcLength));
 }
 
 void VMMethod::operator()(VMFrame* frame) {

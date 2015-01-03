@@ -38,8 +38,7 @@ VMBlock::VMBlock() :
 }
 
 void VMBlock::SetMethod(VMMethod* bMethod) {
-    blockMethod = bMethod;
-    write_barrier(this, bMethod);
+    store_ptr(blockMethod, bMethod);
 }
 
 VMBlock* VMBlock::Clone() const {
@@ -49,7 +48,7 @@ VMBlock* VMBlock::Clone() const {
 }
 
 VMMethod* VMBlock::GetMethod() const {
-    return (blockMethod);
+    return load_ptr(blockMethod);
 }
 
 VMEvaluationPrimitive* VMBlock::GetEvaluationPrimitive(int numberOfArguments) {

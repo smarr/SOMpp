@@ -37,5 +37,5 @@ size_t VMBigInteger::GetObjectSize() const {
 }
 
 VMClass* VMBigInteger::GetClass() const {
-    return bigIntegerClass;
+    return load_ptr(bigIntegerClass);
 }

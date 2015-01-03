@@ -48,7 +48,7 @@
   #define INT_VAL(X) (IS_TAGGED(X) ? ((long)(X)>>1) : (((VMInteger*)(X))->GetEmbeddedInteger()))
   #define NEW_INT(X) (TAG_INTEGER((X)))
   #define IS_TAGGED(X) ((long)X&1)
-  #define CLASS_OF(X) (IS_TAGGED(X)?integerClass:((AbstractVMObject*)(X))->GetClass())
+  #define CLASS_OF(X) (IS_TAGGED(X)?load_ptr(integerClass):((AbstractVMObject*)(X))->GetClass())
   #define AS_OBJ(X) (IS_TAGGED(X)?GlobalBox::IntegerBox():((AbstractVMObject*)(X)))
 #else
   #define INT_VAL(X) (static_cast<VMInteger*>(X)->GetEmbeddedInteger())
@@ -131,6 +131,19 @@ class GCSymbol    : public GCString      { public: typedef VMSymbol Loaded; };
 #define INVALID_VM_POINTER ((VMObject*)0x101010)
 #define INVALID_GC_POINTER ((GCObject*)0x101010)
 
+
+template<typename T>
+inline typename T::Loaded* load_ptr(T* gc_val) {
+    return (typename T::Loaded*) gc_val;
+}
+
+template<typename T>
+inline typename T::Stored* _store_ptr(T* vm_val) {
+    return (typename T::Stored*) vm_val;
+}
+
+
+#define store_ptr(field, val) field = _store_ptr(val); write_barrier(this, val)
 
 typedef gc_oop_t (*walk_heap_fn)(gc_oop_t);
 

@@ -61,29 +61,29 @@ void Disassembler::dispatch(vm_oop_t o) {
     // can't switch() objects, so:
     if (o == nullptr)
         return; // nullptr isn't interesting.
-    else if(o == nilObject)
+    else if (o == load_ptr(nilObject))
         DebugPrint("{Nil}");
-    else if(o == trueObject)
+    else if (o == load_ptr(trueObject))
         DebugPrint("{True}");
-    else if(o == falseObject)
+    else if (o == load_ptr(falseObject))
         DebugPrint("{False}");
-    else if(o == systemClass)
+    else if (o == load_ptr(systemClass))
         DebugPrint("{System Class object}");
-    else if(o == blockClass)
+    else if (o == load_ptr(blockClass))
         DebugPrint("{Block Class object}");
-    else if(o == GetUniverse()->GetGlobal(GetUniverse()->SymbolForChars("system")))
+    else if (o == GetUniverse()->GetGlobal(GetUniverse()->SymbolForChars("system")))
         DebugPrint("{System}");
     else {
         VMClass* c = CLASS_OF(o);
-        if (c == stringClass) {
+        if (c == load_ptr(stringClass)) {
             DebugPrint("\"%s\"", static_cast<VMString*>(o)->GetChars());
-        } else if(c == doubleClass)
+        } else if(c == load_ptr(doubleClass))
             DebugPrint("%g", static_cast<VMDouble*>(o)->GetEmbeddedDouble());
-        else if(c == bigIntegerClass)
+        else if(c == load_ptr(bigIntegerClass))
             DebugPrint("%lld", static_cast<VMBigInteger*>(o)->GetEmbeddedInteger());
-        else if(c == integerClass)
+        else if(c == load_ptr(integerClass))
             DebugPrint("%d", INT_VAL(o));
-        else if(c == symbolClass) {
+        else if(c == load_ptr(symbolClass)) {
             DebugPrint("#%s", static_cast<VMSymbol*>(o)->GetChars());
         } else
             DebugPrint("address: %p", (void*)o);

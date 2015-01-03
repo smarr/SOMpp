@@ -57,7 +57,7 @@ void _Object::Equalequal(VMObject* /*object*/, VMFrame* frame) {
     vm_oop_t op1 = frame->Pop();
     vm_oop_t op2 = frame->Pop();
 
-    frame->Push( op1 == op2 ? trueObject : falseObject );
+    frame->Push(load_ptr(op1 == op2 ? trueObject : falseObject));
 }
 
 void _Object::ObjectSize(VMObject* /*object*/, VMFrame* frame) {
@@ -78,13 +78,13 @@ void _Object::Hashcode(VMObject* /*object*/, VMFrame* frame) {
 void _Object::Inspect(VMObject*, VMFrame* frame) {
     // not implemeted
     frame->Pop();
-    frame->Push(falseObject);
+    frame->Push(load_ptr(falseObject));
 }
 
 void _Object::Halt(VMObject*, VMFrame* frame) {
     // not implemeted
     frame->Pop();
-    frame->Push(falseObject);
+    frame->Push(load_ptr(falseObject));
 }
 
 void _Object::Perform(VMObject*, VMFrame* frame) {
