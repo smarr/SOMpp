@@ -853,33 +853,33 @@ VMClass* Universe::NewMetaclassClass() const {
     return result;
 }
 
-    nilObject   = (VMObject*)walk(nilObject);
-    trueObject  = (VMObject*)walk(trueObject);
-    falseObject = (VMObject*)walk(falseObject);
 void Universe::WalkGlobals(walk_heap_fn walk) {
+    nilObject   = static_cast<GCObject*>(walk(nilObject));
+    trueObject  = static_cast<GCObject*>(walk(trueObject));
+    falseObject = static_cast<GCObject*>(walk(falseObject));
 
 #if USE_TAGGING
     GlobalBox::updateIntegerBox(static_cast<VMInteger*>(walk(GlobalBox::IntegerBox())));
 #endif
 
-    objectClass    = static_cast<VMClass*>(walk(objectClass));
-    classClass     = static_cast<VMClass*>(walk(classClass));
-    metaClassClass = static_cast<VMClass*>(walk(metaClassClass));
+    objectClass    = static_cast<GCClass*>(walk(objectClass));
+    classClass     = static_cast<GCClass*>(walk(classClass));
+    metaClassClass = static_cast<GCClass*>(walk(metaClassClass));
 
-    nilClass        = static_cast<VMClass*>(walk(nilClass));
-    integerClass    = static_cast<VMClass*>(walk(integerClass));
-    bigIntegerClass = static_cast<VMClass*>(walk(bigIntegerClass));
-    arrayClass      = static_cast<VMClass*>(walk(arrayClass));
-    methodClass     = static_cast<VMClass*>(walk(methodClass));
-    symbolClass     = static_cast<VMClass*>(walk(symbolClass));
-    primitiveClass  = static_cast<VMClass*>(walk(primitiveClass));
-    stringClass     = static_cast<VMClass*>(walk(stringClass));
-    systemClass     = static_cast<VMClass*>(walk(systemClass));
-    blockClass      = static_cast<VMClass*>(walk(blockClass));
-    doubleClass     = static_cast<VMClass*>(walk(doubleClass));
+    nilClass        = static_cast<GCClass*>(walk(nilClass));
+    integerClass    = static_cast<GCClass*>(walk(integerClass));
+    bigIntegerClass = static_cast<GCClass*>(walk(bigIntegerClass));
+    arrayClass      = static_cast<GCClass*>(walk(arrayClass));
+    methodClass     = static_cast<GCClass*>(walk(methodClass));
+    symbolClass     = static_cast<GCClass*>(walk(symbolClass));
+    primitiveClass  = static_cast<GCClass*>(walk(primitiveClass));
+    stringClass     = static_cast<GCClass*>(walk(stringClass));
+    systemClass     = static_cast<GCClass*>(walk(systemClass));
+    blockClass      = static_cast<GCClass*>(walk(blockClass));
+    doubleClass     = static_cast<GCClass*>(walk(doubleClass));
     
-    trueClass  = static_cast<VMClass*>(walk(trueClass));
-    falseClass = static_cast<VMClass*>(walk(falseClass));
+    trueClass  = static_cast<GCClass*>(walk(trueClass));
+    falseClass = static_cast<GCClass*>(walk(falseClass));
 
 #if CACHE_INTEGER
     for (unsigned long i = 0; i < (INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE); i++)
@@ -891,31 +891,31 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
 #endif
 
     // walk all entries in globals map
-    map<VMSymbol*, oop_t> globs = globals;
+    map<GCSymbol*, gc_oop_t> globs = globals;
     globals.clear();
-    map<VMSymbol*, oop_t>::iterator iter;
+    map<GCSymbol*, gc_oop_t>::iterator iter;
     for (iter = globs.begin(); iter != globs.end(); iter++) {
         assert(iter->second != nullptr);
 
-        VMSymbol* key = static_cast<VMSymbol*>(walk(iter->first));
+        GCSymbol* key = static_cast<GCSymbol*>(walk(iter->first));
         gc_oop_t val = walk(iter->second);
         globals[key] = val;
     }
     
     // walk all entries in symbols map
-    map<StdString, VMSymbol*>::iterator symbolIter;
+    map<StdString, GCSymbol*>::iterator symbolIter;
     for (symbolIter = symbolsMap.begin();
          symbolIter != symbolsMap.end();
          symbolIter++) {
         //insert overwrites old entries inside the internal map
-        symbolIter->second = static_cast<VMSymbol*>(walk(symbolIter->second));
+        symbolIter->second = static_cast<GCSymbol*>(walk(symbolIter->second));
     }
 
-    map<long, VMClass*>::iterator bcIter;
+    map<long, GCClass*>::iterator bcIter;
     for (bcIter = blockClassesByNoOfArgs.begin();
          bcIter != blockClassesByNoOfArgs.end();
          bcIter++) {
-        bcIter->second = static_cast<VMClass*>(walk(bcIter->second));
+        bcIter->second = static_cast<GCClass*>(walk(bcIter->second));
     }
 
     //reassign ifTrue ifFalse Symbols
