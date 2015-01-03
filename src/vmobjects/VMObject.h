@@ -62,12 +62,10 @@
 class VMObject: public AbstractVMObject {
 
 public:
-    /* Constructor */
     typedef GCObject Stored;
     
     VMObject(long numberOfFields = 0);
 
-    /* Virtual member functions */
     virtual inline VMClass*  GetClass() const;
     virtual        void      SetClass(VMClass* cl);
     virtual        VMSymbol* GetFieldName(long index) const;
@@ -82,8 +80,6 @@ public:
     virtual inline void      SetObjectSize(size_t size);
     
     virtual        void      MarkObjectAsInvalid();
-
-    /* Operators */
 
     /**
      * usage: new( <heap> [, <additional_bytes>] ) VMObject( <constructor params> )
