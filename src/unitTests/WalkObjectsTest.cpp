@@ -36,18 +36,18 @@ static const size_t NoOfFields_Block = 2 + NoOfFields_Object;
 static const size_t NoOfFields_Primitive = NoOfFields_Invokable;
 static const size_t NoOfFields_EvaluationPrimitive = 1 + NoOfFields_Primitive;
 
-static vector<oop_t> walkedObjects;
+static vector<gc_oop_t> walkedObjects;
 /*
  * This method simply pushes all objects into the vector walkedObjects
  */
-oop_t collectMembers(oop_t obj) {
+gc_oop_t collectMembers(gc_oop_t obj) {
     walkedObjects.push_back(obj);
     return obj;
 }
 /*
  * Helper function that searches the result vector for a field
  */
-bool WalkerHasFound(oop_t obj) {
+bool WalkerHasFound(gc_oop_t obj) {
     return find(walkedObjects.begin(), walkedObjects.end(), obj)
     != walkedObjects.end();
 }
@@ -86,9 +86,9 @@ void WalkObjectsTest::testWalkEvaluationPrimitive() {
     evPrim->WalkObjects(collectMembers);
 
     CPPUNIT_ASSERT(WalkerHasFound(evPrim->numberOfArguments));
-    CPPUNIT_ASSERT(WalkerHasFound(evPrim->GetClass()));
-    CPPUNIT_ASSERT(WalkerHasFound(evPrim->GetSignature()));
-    CPPUNIT_ASSERT(WalkerHasFound(evPrim->GetHolder()));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(evPrim->GetClass())));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(evPrim->GetSignature())));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(evPrim->GetHolder())));
     CPPUNIT_ASSERT_EQUAL(NoOfFields_EvaluationPrimitive, walkedObjects.size());
 }
 
@@ -100,7 +100,7 @@ void WalkObjectsTest::testWalkObject() {
 
     //Objects should only have one member -> Class
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Object, walkedObjects.size());
-    CPPUNIT_ASSERT(WalkerHasFound(obj->GetClass()));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(obj->GetClass())));
 }
 
 void WalkObjectsTest::testWalkString() {
@@ -126,11 +126,11 @@ void WalkObjectsTest::testWalkClass() {
     meta->WalkObjects(collectMembers);
 
     //Now check if we found all class fields
-    CPPUNIT_ASSERT(WalkerHasFound(meta->GetClass()));
-    CPPUNIT_ASSERT(WalkerHasFound(meta->GetSuperClass()));
-    CPPUNIT_ASSERT(WalkerHasFound(meta->GetName()));
-    CPPUNIT_ASSERT(WalkerHasFound(meta->GetInstanceFields()));
-    CPPUNIT_ASSERT(WalkerHasFound(meta->GetInstanceInvokables()));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(meta->GetClass())));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(meta->GetSuperClass())));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(meta->GetName())));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(meta->GetInstanceFields())));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(meta->GetInstanceInvokables())));
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Class, walkedObjects.size());
 }
 
@@ -141,9 +141,9 @@ void WalkObjectsTest::testWalkPrimitive() {
 
     prim->WalkObjects(collectMembers);
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Primitive, walkedObjects.size());
-    CPPUNIT_ASSERT(WalkerHasFound(prim->GetClass()));
-    CPPUNIT_ASSERT(WalkerHasFound(prim->GetSignature()));
-    CPPUNIT_ASSERT(WalkerHasFound(prim->GetHolder()));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(prim->GetClass())));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(prim->GetSignature())));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(prim->GetHolder())));
 }
 
 void WalkObjectsTest::testWalkFrame() {
@@ -158,11 +158,11 @@ void WalkObjectsTest::testWalkFrame() {
     frame->WalkObjects(collectMembers);
 
     // CPPUNIT_ASSERT(WalkerHasFound(frame->GetClass()));  // VMFrame does no longer have a SOM representation
-    CPPUNIT_ASSERT(WalkerHasFound(frame->GetPreviousFrame()));
-    CPPUNIT_ASSERT(WalkerHasFound(frame->GetContext()));
-    CPPUNIT_ASSERT(WalkerHasFound(frame->GetMethod()));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(frame->GetPreviousFrame())));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(frame->GetContext())));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(frame->GetMethod())));
     //CPPUNIT_ASSERT(WalkerHasFound(frame->bytecodeIndex));
-    CPPUNIT_ASSERT(WalkerHasFound(dummyArg));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(dummyArg)));
     CPPUNIT_ASSERT_EQUAL(
             (long) (NoOfFields_Frame + method->GetNumberOfArguments()),
             (long) walkedObjects.size() + 1);  // + 1 for the class field that's still in there
@@ -174,15 +174,15 @@ void WalkObjectsTest::testWalkMethod() {
     VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
     method->WalkObjects(collectMembers);
 
-    CPPUNIT_ASSERT(WalkerHasFound(method->GetClass()));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(method->GetClass())));
     //the following fields had no getters -> had to become friend
     CPPUNIT_ASSERT(WalkerHasFound(method->numberOfLocals));
     CPPUNIT_ASSERT(WalkerHasFound(method->bcLength));
     CPPUNIT_ASSERT(WalkerHasFound(method->maximumNumberOfStackElements));
     CPPUNIT_ASSERT(WalkerHasFound(method->numberOfArguments));
     CPPUNIT_ASSERT(WalkerHasFound(method->numberOfConstants));
-    CPPUNIT_ASSERT(WalkerHasFound(method->GetHolder()));
-    CPPUNIT_ASSERT(WalkerHasFound(method->GetSignature()));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(method->GetHolder())));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(method->GetSignature())));
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Method, walkedObjects.size());
 }
 
@@ -195,9 +195,9 @@ void WalkObjectsTest::testWalkBlock() {
             method->GetNumberOfArguments());
     block->WalkObjects(collectMembers);
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Block, walkedObjects.size());
-    CPPUNIT_ASSERT(WalkerHasFound(block->GetClass()));
-    CPPUNIT_ASSERT(WalkerHasFound(block->GetContext()));
-    CPPUNIT_ASSERT(WalkerHasFound(method));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(block->GetClass())));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(block->GetContext())));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(method)));
 }
 
 void WalkObjectsTest::testWalkArray() {
@@ -210,7 +210,7 @@ void WalkObjectsTest::testWalkArray() {
     a->WalkObjects(collectMembers);
 
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Array + 2, walkedObjects.size());
-    CPPUNIT_ASSERT(WalkerHasFound(a->GetClass()));
-    CPPUNIT_ASSERT(WalkerHasFound(str1));
-    CPPUNIT_ASSERT(WalkerHasFound(int1));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(a->GetClass())));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(str1)));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(int1)));
 }

@@ -10,6 +10,7 @@
 #define private public
 #define protected public
 
+#include "vmobjects/ObjectFormats.h"
 #include "vmobjects/VMObjectBase.h"
 #include "vmobjects/VMObject.h"
 #include "vmobjects/VMInteger.h"
@@ -188,29 +189,29 @@ void CloneObjectsTest::testCloneMethod() {
     CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfFields differs!!", orig->numberOfFields, clone->numberOfFields);
 
     CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfLocals differs!!",
-            INT_VAL(orig->numberOfLocals),
-            INT_VAL(clone->numberOfLocals));
+            INT_VAL(load_ptr(orig->numberOfLocals)),
+            INT_VAL(load_ptr(clone->numberOfLocals)));
     CPPUNIT_ASSERT_EQUAL_MESSAGE("bcLength differs!!",
-            INT_VAL(orig->bcLength),
-            INT_VAL(clone->bcLength));
+            INT_VAL(load_ptr(orig->bcLength)),
+            INT_VAL(load_ptr(clone->bcLength)));
     CPPUNIT_ASSERT_EQUAL_MESSAGE("maximumNumberOfStackElements differs!!",
-            INT_VAL(orig->maximumNumberOfStackElements),
-            INT_VAL(clone->maximumNumberOfStackElements));
+            INT_VAL(load_ptr(orig->maximumNumberOfStackElements)),
+            INT_VAL(load_ptr(clone->maximumNumberOfStackElements)));
     CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfArguments differs!!",
-            INT_VAL(orig->numberOfArguments),
-            INT_VAL(clone->numberOfArguments));
+            INT_VAL(load_ptr(orig->numberOfArguments)),
+            INT_VAL(load_ptr(clone->numberOfArguments)));
     CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfConstants differs!!",
-            INT_VAL(orig->numberOfConstants),
-            INT_VAL(clone->numberOfConstants));
+            INT_VAL(load_ptr(orig->numberOfConstants)),
+            INT_VAL(load_ptr(clone->numberOfConstants)));
 
     CPPUNIT_ASSERT_EQUAL_MESSAGE("GetHolder() differs!!", orig->GetHolder(), clone->GetHolder());
     CPPUNIT_ASSERT_EQUAL_MESSAGE("GetSignature() differs!!", orig->GetSignature(), clone->GetSignature());
 }
 
 void CloneObjectsTest::testCloneClass() {
-    VMClass* orig = GetUniverse()->NewClass(integerClass);
+    VMClass* orig = GetUniverse()->NewClass(load_ptr(integerClass));
     orig->SetName(GetUniverse()->NewSymbol("MyClass"));
-    orig->SetSuperClass(doubleClass);
+    orig->SetSuperClass(load_ptr(doubleClass));
     orig->SetInstanceFields(GetUniverse()->NewArray(2));
     orig->SetInstanceInvokables(GetUniverse()->NewArray(4));
     VMClass* clone = orig->Clone();

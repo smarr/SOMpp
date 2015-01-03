@@ -26,7 +26,7 @@ void WriteBarrierTest::testWriteArray() {
     VMInteger* newInt = GetUniverse()->NewInteger(12345);
     VMString* str = GetUniverse()->NewString("asdfghjkl");
     VMDouble* doub = GetUniverse()->NewDouble(9876.654);
-    VMClass* cloneClass = arrayClass->Clone();
+    VMClass* cloneClass = load_ptr(arrayClass)->Clone();
     VMClass* clone2Class = cloneClass->Clone();
     arr->SetClass(cloneClass);
     arr->SetField(0, clone2Class);
@@ -38,11 +38,11 @@ void WriteBarrierTest::testWriteArray() {
     TEST_WB_CALLED("VMArray failed to call writeBarrier for an element", arr, newInt);
     TEST_WB_CALLED("VMArray failed to call writeBarrier for an element", arr, str);
     TEST_WB_CALLED("VMArray failed to call writeBarrier for an element", arr, doub);
-    TEST_WB_CALLED("VMArray failed to call writeBarrier for clazz", arr, arrayClass);
+    TEST_WB_CALLED("VMArray failed to call writeBarrier for clazz", arr, load_ptr(arrayClass));
     TEST_WB_CALLED("VMArray failed to call writeBarrier for clazz", arr, cloneClass);
     TEST_WB_CALLED("VMArray failed to call writeBarrier for clazz", arr, clone2Class);
     //nilObject is assigned in constructor
-    TEST_WB_CALLED("VMArray failed to call writeBarrier for an element", arr, nilObject);
+    TEST_WB_CALLED("VMArray failed to call writeBarrier for an element", arr, load_ptr(nilObject));
 }
 
 void WriteBarrierTest::testWriteBlock() {
@@ -89,7 +89,7 @@ void WriteBarrierTest::testWriteFrame() {
     frame->SetContext(frame->GetContext()->Clone());
     TEST_WB_CALLED("VMFrame failed to call writeBarrier on SetContext", frame, frame->GetContext());
     frame->ClearPreviousFrame();
-    TEST_WB_CALLED("VMFrame failed to call writeBarrier on ClearPreviousFrame", frame, nilObject);
+    TEST_WB_CALLED("VMFrame failed to call writeBarrier on ClearPreviousFrame", frame, load_ptr(nilObject));
 }
 
 void WriteBarrierTest::testWriteMethod() {
@@ -100,8 +100,8 @@ void WriteBarrierTest::testWriteMethod() {
     // reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
     VMMethod* method = GetUniverse()->GetInterpreter()->GetFrame()->GetMethod()->Clone();
-    method->SetHolder(integerClass);
-    TEST_WB_CALLED("VMMethod failed to call writeBarrier on SetHolder", method, integerClass);
+    method->SetHolder(load_ptr(integerClass));
+    TEST_WB_CALLED("VMMethod failed to call writeBarrier on SetHolder", method, load_ptr(integerClass));
     method->SetSignature(method->GetSignature());
     TEST_WB_CALLED("VMMethod failed to call writeBarrier on SetSignature", method, method->GetSignature());
 }
@@ -115,7 +115,7 @@ void WriteBarrierTest::testWriteEvaluationPrimitive() {
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
     VMEvaluationPrimitive* evPrim = new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(1);
     TEST_WB_CALLED("VMEvaluationPrimitive failed to call writeBarrier when creating", evPrim, evPrim->GetClass());
-    TEST_WB_CALLED("VMEvaluationPrimitive failed to call writeBarrier when creating", evPrim, evPrim->numberOfArguments);
+    TEST_WB_CALLED("VMEvaluationPrimitive failed to call writeBarrier when creating", evPrim, load_ptr(evPrim->numberOfArguments));
 }
 
 void WriteBarrierTest::testWriteClass() {
@@ -125,11 +125,11 @@ void WriteBarrierTest::testWriteClass() {
     
     //reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
-    VMClass* cl = integerClass->Clone();
+    VMClass* cl = load_ptr(integerClass)->Clone();
     //now test all methods that change members
-    cl->SetSuperClass(integerClass);
+    cl->SetSuperClass(load_ptr(integerClass));
     TEST_WB_CALLED("VMClass failed to call writeBarrier on SetSuperClass", cl,
-            integerClass);
+            load_ptr(integerClass));
     VMSymbol* newName = GetUniverse()->NewSymbol("andererName");
     cl->SetName(newName);
     TEST_WB_CALLED("VMClass failed to call writeBarrier on SetName", cl,
