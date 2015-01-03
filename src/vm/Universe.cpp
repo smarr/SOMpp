@@ -520,6 +520,7 @@ void Universe::InitializeGlobals() {
     // Fix up objectClass
     load_ptr(objectClass)->SetSuperClass((VMClass*) nil);
 
+    obtain_vtables_of_known_classes(nil->GetClass()->GetName());
     
 #if USE_TAGGING
     GlobalBox::updateIntegerBox(NewInteger(1));
@@ -548,7 +549,6 @@ void Universe::InitializeGlobals() {
     falseClass  = _store_ptr(LoadClass(falseClassName));
     falseObject = _store_ptr(NewInstance(load_ptr(falseClass)));
 
-    obtain_vtables_of_known_classes(falseClassName);
     systemClass = _store_ptr(LoadClass(SymbolForChars("System")));
 }
 
