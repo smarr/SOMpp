@@ -85,7 +85,7 @@ void VMArray::MarkObjectAsInvalid() {
     VMObject::MarkObjectAsInvalid();
     long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {
-        FIELDS[i] = INVALID_POINTER;
+        FIELDS[i] = INVALID_GC_POINTER;
     }
 }
 

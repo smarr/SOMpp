@@ -89,7 +89,7 @@ public:
         result = (void*) heap->AllocateObject(numBytes + add);
 #endif
 
-        assert(result != INVALID_POINTER);
+        assert(result != INVALID_VM_POINTER);
         return result;
     }
 

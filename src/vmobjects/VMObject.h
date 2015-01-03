@@ -92,7 +92,7 @@ public:
      */
     void* operator new(size_t numBytes, HEAP_CLS* heap, unsigned long additionalBytes = 0 ALLOC_OUTSIDE_NURSERY_DECL) {
         void* mem = AbstractVMObject::operator new(numBytes, heap, additionalBytes ALLOC_OUTSIDE_NURSERY(outsideNursery));
-        assert(mem != INVALID_POINTER);
+        assert(mem != INVALID_VM_POINTER);
         
         ((VMObject*) mem)->objectSize = numBytes + PADDED_SIZE(additionalBytes);
         return mem;
