@@ -737,6 +737,11 @@ VMArray* Universe::NewArrayList(ExtendedList<VMSymbol*>& list) const {
 }
 
 VMArray* Universe::NewArrayList(ExtendedList<VMInvokable*>& list) const {
+    ExtendedList<vm_oop_t>& objList = (ExtendedList<vm_oop_t>&) list;
+    return NewArrayList(objList);
+}
+
+VMArray* Universe::NewArrayList(ExtendedList<vm_oop_t>& list) const {
     long size = list.Size();
     VMArray* result = NewArray(size);
 
