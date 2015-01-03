@@ -50,12 +50,13 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     cachedFrame = nullptr;
 #endif
+# warning not sure whether the use of _store_ptr is ok here
 
-    bcLength                     = NEW_INT(bcCount);
-    numberOfLocals               = NEW_INT(0);
-    maximumNumberOfStackElements = NEW_INT(0);
-    numberOfArguments            = NEW_INT(0);
-    this->numberOfConstants      = NEW_INT(numberOfConstants);
+    bcLength                     = _store_ptr(NEW_INT(bcCount));
+    numberOfLocals               = _store_ptr(NEW_INT(0));
+    maximumNumberOfStackElements = _store_ptr(NEW_INT(0));
+    numberOfArguments            = _store_ptr(NEW_INT(0));
+    this->numberOfConstants      = _store_ptr(NEW_INT(numberOfConstants));
 
     indexableFields = (gc_oop_t*)(&indexableFields + 2);
     for (long i = 0; i < numberOfConstants; ++i) {
@@ -82,11 +83,11 @@ void VMMethod::SetSignature(VMSymbol* sig) {
 void VMMethod::WalkObjects(walk_heap_fn walk) {
     VMInvokable::WalkObjects(walk);
 
-    numberOfLocals = static_cast<VMInteger*>(walk(numberOfLocals));
-    maximumNumberOfStackElements = static_cast<VMInteger*>(walk(maximumNumberOfStackElements));
-    bcLength = static_cast<VMInteger*>(walk(bcLength));
-    numberOfArguments = static_cast<VMInteger*>(walk(numberOfArguments));
-    numberOfConstants = static_cast<VMInteger*>(walk(numberOfConstants));
+    numberOfLocals    = walk(numberOfLocals);
+    maximumNumberOfStackElements = walk(maximumNumberOfStackElements);
+    bcLength          = walk(bcLength);
+    numberOfArguments = walk(numberOfArguments);
+    numberOfConstants = walk(numberOfConstants);
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     if (cachedFrame != nullptr)
         cachedFrame = static_cast<VMFrame*>(walk(cachedFrame));
@@ -117,8 +118,7 @@ void VMMethod::SetCachedFrame(VMFrame* frame) {
 #endif
 
 void VMMethod::SetNumberOfLocals(long nol) {
-    numberOfLocals = NEW_INT(nol);
-    write_barrier(this, numberOfLocals);
+    store_ptr(numberOfLocals, NEW_INT(nol));
 }
 
 long VMMethod::GetMaximumNumberOfStackElements() const {
@@ -126,13 +126,11 @@ long VMMethod::GetMaximumNumberOfStackElements() const {
 }
 
 void VMMethod::SetMaximumNumberOfStackElements(long stel) {
-    maximumNumberOfStackElements = NEW_INT(stel);
-    write_barrier(this, maximumNumberOfStackElements);
+    store_ptr(maximumNumberOfStackElements, NEW_INT(stel));
 }
 
 void VMMethod::SetNumberOfArguments(long noa) {
-    numberOfArguments = NEW_INT(noa);
-    write_barrier(this, numberOfArguments);
+    store_ptr(numberOfArguments, NEW_INT(noa));
 }
 
 long VMMethod::GetNumberOfBytecodes() const {
