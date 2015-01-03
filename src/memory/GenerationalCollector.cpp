@@ -77,15 +77,8 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
 }
 
 void GenerationalCollector::MinorCollection() {
-    // walk all globals
+    // walk all globals of universe, and implicily the interpreter
     GetUniverse()->WalkGlobals(&copy_if_necessary);
-
-    // and the current frame
-    VMFrame* currentFrame = GetUniverse()->GetInterpreter()->GetFrame();
-    if (currentFrame != nullptr) {
-        VMFrame* newFrame = static_cast<VMFrame*>(copy_if_necessary(currentFrame));
-        GetUniverse()->GetInterpreter()->SetFrame(newFrame);
-    }
 
     // and also all objects that have been detected by the write barriers
     for (vector<size_t>::iterator objIter =
@@ -104,14 +97,8 @@ void GenerationalCollector::MinorCollection() {
 }
 
 void GenerationalCollector::MajorCollection() {
-    //first we have to mark all objects (globals and current frame recursively)
+    // first we have to mark all objects (globals and current frame recursively)
     GetUniverse()->WalkGlobals(&mark_object);
-    //and the current frame
-    VMFrame* currentFrame = GetUniverse()->GetInterpreter()->GetFrame();
-    if (currentFrame != nullptr) {
-        VMFrame* newFrame = static_cast<VMFrame*>(mark_object(currentFrame));
-        GetUniverse()->GetInterpreter()->SetFrame(newFrame);
-    }
 
     //now that all objects are marked we can safely delete all allocated objects that are not marked
     vector<AbstractVMObject*>* survivors = new vector<AbstractVMObject*>();

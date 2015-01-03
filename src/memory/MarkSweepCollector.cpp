@@ -59,14 +59,6 @@ static gc_oop_t mark_object(gc_oop_t oop) {
 }
 
 void MarkSweepCollector::markReachableObjects() {
+    // This walks the globals of the universe, and the interpreter
     GetUniverse()->WalkGlobals(mark_object);
-    // Get the current frame and mark it.
-    // Since marking is done recursively, this automatically
-    // marks the whole stack
-    VMFrame* currentFrame = GetUniverse()->GetInterpreter()->GetFrame();
-    if (currentFrame != nullptr) {
-        VMFrame* newFrame = static_cast<VMFrame*>(mark_object(currentFrame));
-        GetUniverse()->GetInterpreter()->SetFrame(newFrame);
-    }
 }
-

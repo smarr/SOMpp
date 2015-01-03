@@ -61,11 +61,6 @@ void CopyingCollector::Collect() {
     memset(heap->currentBuffer, 0x0, (size_t)(heap->currentBufferEnd) -
             (size_t)(heap->currentBuffer));
     GetUniverse()->WalkGlobals(copy_if_necessary);
-    VMFrame* currentFrame = GetUniverse()->GetInterpreter()->GetFrame();
-    if (currentFrame != nullptr) {
-        VMFrame* newFrame = static_cast<VMFrame*>(copy_if_necessary(currentFrame));
-        GetUniverse()->GetInterpreter()->SetFrame(newFrame);
-    }
 
     //now copy all objects that are referenced by the objects we have moved so far
     AbstractVMObject* curObject = (AbstractVMObject*)(heap->currentBuffer);
