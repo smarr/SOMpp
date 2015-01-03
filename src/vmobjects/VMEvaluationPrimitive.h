@@ -38,6 +38,6 @@ public:
 private:
     static VMSymbol* computeSignatureString(long argc);
     void evaluationRoutine(VMObject* object, VMFrame* frame);
-    GCInteger* numberOfArguments;
+    gc_oop_t numberOfArguments;
 
 };
