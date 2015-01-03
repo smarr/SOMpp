@@ -9,4 +9,6 @@ public:
     
     void Signature(VMObject* object, VMFrame* frame);
     void Holder   (VMObject* object, VMFrame* frame);
+    void InvokeOn_With_(VMObject* object, VMFrame* frame);
+
 };
