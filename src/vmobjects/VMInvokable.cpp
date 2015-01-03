@@ -40,11 +40,12 @@ void VMInvokable::SetSignature(VMSymbol* sig) {
     store_ptr(signature, sig);
 }
 
-    clazz = static_cast<VMClass*>(walk(clazz));
-    signature = static_cast<VMSymbol*>(walk(signature));
 void VMInvokable::WalkObjects(walk_heap_fn walk) {
-    if (holder)
-        holder = static_cast<VMClass*>(walk(holder));
+    clazz     = static_cast<GCClass*>(walk(clazz));
+    signature = static_cast<GCSymbol*>(walk(signature));
+    if (holder) {
+        holder = static_cast<GCClass*>(walk(holder));
+    }
 }
 
 VMClass* VMInvokable::GetHolder() const {

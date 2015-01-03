@@ -138,18 +138,21 @@ void VMFrame::WalkObjects(walk_heap_fn walk) {
     // VMFrame is not a proper SOM object any longer, we don't have a class for it.
     // clazz = (VMClass*) walk(clazz);
     
-    if (previousFrame)
-        previousFrame = (VMFrame*) walk(previousFrame);
-    if (context)
-        context = (VMFrame*) walk(context);
-    method = (VMMethod*) walk(method);
+    if (previousFrame) {
+        previousFrame = static_cast<GCFrame*>(walk(previousFrame));
+    }
+    if (context) {
+        context = static_cast<GCFrame*>(walk(context));
+    }
+    method = static_cast<GCMethod*>(walk(method));
 
     // all other fields are indexable via arguments array
     // --> until end of Frame
     long i = 0;
     while (arguments + i <= stack_ptr) {
-        if (arguments[i] != nullptr)
-            arguments[i] = walk((gc_oop_t)arguments[i]);
+        if (arguments[i] != nullptr) {
+            arguments[i] = walk(arguments[i]);
+        }
         i++;
     }
 }

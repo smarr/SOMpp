@@ -78,13 +78,14 @@ VMClass::VMClass(long numberOfFields) :
         VMObject(numberOfFields + VMClassNumberOfFields) {
 }
 
-    clazz = static_cast<VMClass*>(walk(clazz));
 void VMClass::WalkObjects(walk_heap_fn walk) {
-    if (superClass)
-        superClass = static_cast<VMClass*>(walk(superClass));
-    name = static_cast<VMSymbol*>(walk(name));
-    instanceFields = static_cast<VMArray*>(walk(instanceFields));
-    instanceInvokables = static_cast<VMArray*>(walk(instanceInvokables));
+    clazz = static_cast<GCClass*>(walk(clazz));
+    if (superClass) {
+        superClass = static_cast<GCClass*>(walk(superClass));
+    }
+    name               = static_cast<GCSymbol*>(walk(name));
+    instanceFields     = static_cast<GCArray*>(walk(instanceFields));
+    instanceInvokables = static_cast<GCArray*>(walk(instanceInvokables));
 
     gc_oop_t* fields = FIELDS;
 

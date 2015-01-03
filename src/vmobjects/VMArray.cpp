@@ -96,8 +96,8 @@ void VMArray::CopyIndexableFieldsTo(VMArray* to) const {
     }
 }
 
-    clazz = (VMClass*) walk(clazz);
 void VMArray::WalkObjects(walk_heap_fn walk) {
+    clazz = static_cast<GCClass*>(walk(clazz));
     long numFields          = GetNumberOfFields();
     long numIndexableFields = GetNumberOfIndexableFields();
     gc_oop_t* fields = FIELDS;
