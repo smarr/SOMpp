@@ -80,11 +80,11 @@ int16_t ClassGenerationContext::GetFieldIndex(VMSymbol* field) {
     }
 }
 
-void ClassGenerationContext::AddInstanceMethod(VMObject* method) {
+void ClassGenerationContext::AddInstanceMethod(VMInvokable* method) {
     instanceMethods.Add(method);
 }
 
-void ClassGenerationContext::AddClassMethod(VMObject* method) {
+void ClassGenerationContext::AddClassMethod(VMInvokable* method) {
     classMethods.Add(method);
 }
 

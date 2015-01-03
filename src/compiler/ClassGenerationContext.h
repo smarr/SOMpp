@@ -42,8 +42,8 @@ public:
     bool HasField(const StdString&);
     void AddInstanceField(VMSymbol*);
     void AddClassField(VMSymbol*);
-    void AddInstanceMethod(VMObject*);
-    void AddClassMethod(VMObject*);
+    void AddInstanceMethod(VMInvokable*);
+    void AddClassMethod(VMInvokable*);
     void SetName(VMSymbol* n) {name = n;}
     void SetSuperName(VMSymbol* sn) {superName = sn;}
     void SetClassSide(bool cs) {classSide = cs;}
@@ -60,9 +60,9 @@ private:
     VMSymbol* name;
     VMSymbol* superName;
     bool classSide;
-    ExtendedList<VMSymbol*> instanceFields;
-    ExtendedList<oop_t> instanceMethods;
-    ExtendedList<VMSymbol*> classFields;
-    ExtendedList<oop_t> classMethods;
+    ExtendedList<VMSymbol*>    instanceFields;
+    ExtendedList<VMInvokable*> instanceMethods;
+    ExtendedList<VMSymbol*>    classFields;
+    ExtendedList<VMInvokable*> classMethods;
 
 };
