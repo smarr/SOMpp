@@ -162,13 +162,13 @@ long VMFrame::RemainingStackSize() const {
     return size - 1;
 }
 
-oop_t VMFrame::Pop() {
     return *stack_ptr--;
+vm_oop_t VMFrame::Pop() {
 }
 
-void VMFrame::Push(oop_t obj) {
     *(++stack_ptr) = obj;
     write_barrier(this, obj);
+void VMFrame::Push(vm_oop_t obj) {
 }
 
 void VMFrame::PrintStack() const {

@@ -51,16 +51,16 @@ public:
     VMFrame* GetOuterContext();
     inline VMMethod* GetMethod() const;
     void SetMethod(VMMethod*);
-    oop_t Pop();
-    void Push(oop_t);
+    vm_oop_t Pop();
+    void Push(vm_oop_t);
     void ResetStackPointer();
     inline long GetBytecodeIndex() const;
     inline void SetBytecodeIndex(long);
-    oop_t GetStackElement(long) const;
-    oop_t GetLocal(long, long);
-    void SetLocal(long, long, oop_t);
-    oop_t GetArgument(long, long);
-    void SetArgument(long, long, oop_t);
+    vm_oop_t GetStackElement(long) const;
+    vm_oop_t GetLocal(long, long);
+    void SetLocal(long index, long context_level, vm_oop_t);
+    vm_oop_t GetArgument(long, long);
+    void SetArgument(long, long, vm_oop_t);
     void PrintStackTrace() const;
     long ArgumentStackIndex(long index) const;
     void CopyArgumentsFrom(VMFrame* frame);
@@ -76,9 +76,9 @@ private:
     VMFrame* context;
     VMMethod* method;
     long bytecodeIndex;
-    oop_t* arguments;
-    oop_t* locals;
-    oop_t* stack_ptr;
+    gc_oop_t* arguments;
+    gc_oop_t* locals;
+    gc_oop_t* stack_ptr;
 
     static const long VMFrameNumberOfFields;
 };
