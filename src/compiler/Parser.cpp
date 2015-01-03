@@ -206,9 +206,9 @@ void Parser::Classdef(ClassGenerationContext* cgenc) {
         method(&mgenc);
 
         if(mgenc.IsPrimitive())
-            cgenc->AddInstanceMethod((mgenc.AssemblePrimitive()));
+            cgenc->AddInstanceMethod(mgenc.AssemblePrimitive());
         else
-            cgenc->AddInstanceMethod((mgenc.Assemble()));
+            cgenc->AddInstanceMethod(mgenc.Assemble());
     }
 
     if (accept(Separator)) {
