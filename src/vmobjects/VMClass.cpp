@@ -100,9 +100,8 @@ void VMClass::MarkObjectAsInvalid() {
     instanceInvokables = (GCArray*)  INVALID_GC_POINTER;
 }
 
-bool VMClass::AddInstanceInvokable(VMObject* ptr) {
-    VMInvokable* newInvokable = static_cast<VMInvokable*>(ptr);
-    if (newInvokable == nullptr) {
+bool VMClass::AddInstanceInvokable(VMInvokable* ptr) {
+    if (ptr == nullptr) {
         GetUniverse()->ErrorExit("Error: trying to add non-invokable to invokables array");
         return false;
     }
@@ -112,7 +111,7 @@ bool VMClass::AddInstanceInvokable(VMObject* ptr) {
     for (long i = 0; i < numIndexableFields; ++i) {
         VMInvokable* inv = static_cast<VMInvokable*>(instInvokables->GetIndexableField(i));
         if (inv != nullptr) {
-            if (newInvokable->GetSignature() == inv->GetSignature()) {
+            if (ptr->GetSignature() == inv->GetSignature()) {
                 SetInstanceInvokable(i, ptr);
                 return false;
             }

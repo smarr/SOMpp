@@ -57,10 +57,10 @@ public:
            void         SetInstanceInvokables(VMArray*);
            long         GetNumberOfInstanceInvokables() const;
            VMInvokable* GetInstanceInvokable(long) const;
-           void         SetInstanceInvokable(long, VMObject*);
+           void         SetInstanceInvokable(long, VMInvokable*);
            VMInvokable* LookupInvokable(VMSymbol*) const;
            long         LookupFieldIndex(VMSymbol*) const;
-           bool         AddInstanceInvokable(VMObject*);
+           bool         AddInstanceInvokable(VMInvokable*);
            void         AddInstancePrimitive(VMPrimitive*);
            VMSymbol*    GetInstanceFieldName(long)const;
            long         GetNumberOfInstanceFields() const;
