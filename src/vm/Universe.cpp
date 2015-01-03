@@ -859,7 +859,7 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
     falseObject = static_cast<GCObject*>(walk(falseObject));
 
 #if USE_TAGGING
-    GlobalBox::updateIntegerBox(static_cast<VMInteger*>(walk(GlobalBox::IntegerBox())));
+    GlobalBox::WalkGlobals(walk);
 #endif
 
     objectClass    = static_cast<GCClass*>(walk(objectClass));

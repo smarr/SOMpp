@@ -5,9 +5,11 @@
 class GlobalBox {
 public:
     static VMInteger* IntegerBox();
+    
+    static void WalkGlobals(walk_heap_fn walk);
 
 private:
     static void updateIntegerBox(VMInteger*);
-    static VMInteger* integerBox;
+    static GCInteger* integerBox;
     friend class Universe;
 };
