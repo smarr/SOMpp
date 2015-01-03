@@ -32,6 +32,8 @@
 
 class VMInteger: public AbstractVMObject {
 public:
+    typedef GCInteger Stored;
+    
     VMInteger(long val) : embeddedInteger(val), AbstractVMObject() {}
 
     inline long GetEmbeddedInteger() const;

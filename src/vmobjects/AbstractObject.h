@@ -29,6 +29,8 @@ using namespace std;
 //this is the base class for all VMObjects
 class AbstractVMObject: public VMObjectBase {
 public:
+    typedef GCAbstractObject Stored;
+    
     virtual size_t GetHash();
     virtual VMClass* GetClass() const = 0;
     virtual AbstractVMObject* Clone() const = 0;

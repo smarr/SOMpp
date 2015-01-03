@@ -30,6 +30,8 @@
 
 class VMEvaluationPrimitive: public VMPrimitive {
 public:
+    typedef GCEvaluationPrimitive Stored;
+    
     VMEvaluationPrimitive(long argc);
     virtual void WalkObjects(oop_t (oop_t));
     virtual VMEvaluationPrimitive* Clone() const;

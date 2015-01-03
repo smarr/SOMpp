@@ -38,6 +38,8 @@ class VMMethod: public VMInvokable {
     friend class Interpreter;
 
 public:
+    typedef GCMethod Stored;
+    
     VMMethod(long bcCount, long numberOfConstants, long nof = 0);
 
     inline  long      GetNumberOfLocals() const;

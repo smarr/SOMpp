@@ -32,6 +32,8 @@
 
 class VMBigInteger: public AbstractVMObject {
 public:
+    typedef GCBigInteger Stored;
+    
     VMBigInteger(int64_t val) : embeddedInteger(val), AbstractVMObject() {}
 
     inline int64_t GetEmbeddedInteger() const;

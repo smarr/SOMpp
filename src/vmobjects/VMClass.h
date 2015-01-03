@@ -43,6 +43,8 @@ class ClassGenerationContext;
 
 class VMClass: public VMObject {
 public:
+    typedef GCClass Stored;
+    
     VMClass();
     VMClass(long numberOfFields);
 

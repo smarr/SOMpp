@@ -32,6 +32,8 @@
 
 class VMPrimitive: public VMInvokable {
 public:
+    typedef GCPrimitive Stored;
+    
     static VMPrimitive* GetEmptyPrimitive(VMSymbol* sig);
 
     VMPrimitive(VMSymbol* sig);

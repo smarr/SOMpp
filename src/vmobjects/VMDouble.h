@@ -30,6 +30,8 @@
 
 class VMDouble: public AbstractVMObject {
 public:
+    typedef GCDouble Stored;
+    
     VMDouble(double val) : embeddedDouble(val), AbstractVMObject() {}
 
     virtual VMDouble* Clone() const;

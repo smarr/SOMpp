@@ -30,6 +30,8 @@
 
 class VMBlock: public VMObject {
 public:
+    typedef GCBlock Stored;
+    
     VMBlock();
 
             VMMethod* GetMethod() const;
