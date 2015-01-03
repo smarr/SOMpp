@@ -382,50 +382,51 @@ bool VMClass::isResponsible(void* dlhandle, const StdString& cl) const {
  *
  */
 void VMClass::setPrimitives(void* dlhandle, const StdString& cname) {
-    VMPrimitive* thePrimitive;
-    PrimitiveRoutine* routine = nullptr;
-    VMInvokable* anInvokable;
-    // iterate invokables
-    long numInvokables = GetNumberOfInstanceInvokables();
-    for (long i = 0; i < numInvokables; i++) {
-        anInvokable = GetInstanceInvokable(i);
-#ifdef __DEBUG
-        cout << "cname: >" << cname << "<"<< endl;
-        cout << anInvokable->GetSignature()->GetStdString() << endl;
-#endif
-        if(anInvokable->IsPrimitive()) {
-#ifdef __DEBUG
-            cout << "... is a primitive, and is going to be loaded now" << endl;
-#endif
-            thePrimitive = static_cast<VMPrimitive*>( anInvokable );
-            //
-            // we have a primitive to load
-            // get it's selector
-            //
-            VMSymbol* sig = thePrimitive->GetSignature();
-            StdString selector = sig->GetPlainString();
 #if defined(__GNUC__)
-            CreatePrimitive* create =
-            (CreatePrimitive*) dlsym(dlhandle, "create");
+    CreatePrimitive* create = (CreatePrimitive*) dlsym(dlhandle, "create");
 #endif
-            routine = create(cname, selector);
+    
+    VMClass* current = this;
+    
+    // Try loading class-specific primitives for all super class' methods as well.
+    while (current != load_ptr(nilObject)) {
+    
+        // iterate invokables
+        long numInvokables = current->GetNumberOfInstanceInvokables();
+        for (long i = 0; i < numInvokables; i++) {
+            VMInvokable* anInvokable = current->GetInstanceInvokable(i);
+    #ifdef __DEBUG
+            cout << "cname: >" << cname << "<"<< endl;
+            cout << anInvokable->GetSignature()->GetStdString() << endl;
+    #endif
 
-            if(!routine) {
-                cout << "could not load primitive '"<< selector
-                <<"' for class " << cname << endl;
+            VMSymbol* sig = anInvokable->GetSignature();
+            StdString selector = sig->GetPlainString();
+            
+            PrimitiveRoutine* routine = create(
+                cname, selector, anInvokable->IsPrimitive() && current == this);
+            
+            if (routine) {
+                VMPrimitive* thePrimitive;
+                if (anInvokable->IsPrimitive()) {
+                    thePrimitive = static_cast<VMPrimitive*>(anInvokable);
+                } else {
+                    thePrimitive = VMPrimitive::GetEmptyPrimitive(sig);
+                    AddInstancePrimitive(thePrimitive);
+                }
 
-                GetUniverse()->Quit(ERR_FAIL);
+                // set routine
+                thePrimitive->SetRoutine(routine);
+                thePrimitive->SetEmpty(false);
+            } else {
+                if (anInvokable->IsPrimitive() && current == this) {
+                    cout << "could not load primitive '"<< selector <<
+                            "' for class " << cname << endl;
+                    GetUniverse()->Quit(ERR_FAIL);
+                }
             }
-
-            // set routine
-            thePrimitive->SetRoutine(routine);
-            thePrimitive->SetEmpty(false);
         }
-#ifdef __DEBUG
-        else {
-            cout << "... is not a primitive" << endl;
-        }
-#endif
+        current = current->GetSuperClass();
     }
 }
 

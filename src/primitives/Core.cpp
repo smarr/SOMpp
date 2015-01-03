@@ -112,14 +112,14 @@ extern "C" void tearDown() {
 
 //"Factory method"
 extern "C" PrimitiveRoutine* create(const StdString& cname,
-        const StdString& fname) {
+        const StdString& fname, bool isPrimitive) {
 
 #ifdef __DEBUG
     cout << "Loading PrimitiveContainer: " << cname << "::" << fname << endl;
 #endif
     if (!loader)
         setup();
-    return loader->GetPrimitiveRoutine(cname, fname);
+    return loader->GetPrimitiveRoutine(cname, fname, isPrimitive);
 }
 
 /* Lib initialization */

@@ -52,7 +52,8 @@ public:
     PrimitiveLoader();
     virtual ~PrimitiveLoader();
     virtual PrimitiveRoutine*
-    GetPrimitiveRoutine(const std::string& cname, const std::string& mname);
+    GetPrimitiveRoutine(const std::string& cname, const std::string& mname,
+                        bool isPrimitive);
     virtual void AddPrimitiveObject(const char*, PrimitiveContainer*);
     virtual bool SupportsClass(const char*);
 private:
