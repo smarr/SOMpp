@@ -94,10 +94,10 @@ void VMClass::WalkObjects(walk_heap_fn walk) {
 }
 
 void VMClass::MarkObjectAsInvalid() {
-    superClass         = (VMClass*)  INVALID_POINTER;
-    name               = (VMSymbol*) INVALID_POINTER;
-    instanceFields     = (VMArray*)  INVALID_POINTER;
-    instanceInvokables = (VMArray*)  INVALID_POINTER;
+    superClass         = (GCClass*)  INVALID_GC_POINTER;
+    name               = (GCSymbol*) INVALID_GC_POINTER;
+    instanceFields     = (GCArray*)  INVALID_GC_POINTER;
+    instanceInvokables = (GCArray*)  INVALID_GC_POINTER;
 }
 
 bool VMClass::AddInstanceInvokable(VMObject* ptr) {
