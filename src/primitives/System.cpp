@@ -55,13 +55,13 @@ void _System::Global_(VMObject* /*object*/, VMFrame* frame) {
     VMSymbol* arg = static_cast<VMSymbol*>(frame->Pop());
     /*VMObject* self = */
     frame->Pop();
-    oop_t result = GetUniverse()->GetGlobal(arg);
+    vm_oop_t result = GetUniverse()->GetGlobal(arg);
 
     frame->Push( result ? result : nilObject);
 }
 
 void _System::Global_put_(VMObject* /*object*/, VMFrame* frame) {
-    oop_t value = frame->Pop();
+    vm_oop_t value = frame->Pop();
     VMSymbol* arg = static_cast<VMSymbol*>(frame->Pop());
     GetUniverse()->SetGlobal(arg, value);
 }
