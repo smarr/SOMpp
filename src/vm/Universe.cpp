@@ -691,7 +691,7 @@ void Universe::LoadSystemClass(VMClass* systemClass) {
     StdString s = systemClass->GetName()->GetStdString();
 
     if (!result) {
-        cout << "Can't load system class: " << s;
+        cout << "Can't load system class: " << s << endl;
         Universe::Quit(ERR_FAIL);
     }
 
