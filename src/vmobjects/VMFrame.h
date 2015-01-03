@@ -64,7 +64,6 @@ public:
     void PrintStackTrace() const;
     long ArgumentStackIndex(long index) const;
     void CopyArgumentsFrom(VMFrame* frame);
-    inline  oop_t GetField(long index) const;
     virtual void WalkObjects(walk_heap_fn);
     virtual VMFrame* Clone() const;
 
@@ -82,12 +81,6 @@ private:
 
     static const long VMFrameNumberOfFields;
 };
-
-oop_t VMFrame::GetField(long index) const {
-    if (index == 4)
-        return NEW_INT(bytecodeIndex);
-    return VMObject::GetField(index);
-}
 
 bool VMFrame::HasContext() const {
     return context != nullptr;
