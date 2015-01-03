@@ -78,6 +78,9 @@ private:
     gc_oop_t* arguments;
     gc_oop_t* locals;
     gc_oop_t* stack_ptr;
+    
+    inline void SetLocal(long, vm_oop_t);
+    inline void SetArgument(long index, vm_oop_t value);
 
     static const long VMFrameNumberOfFields;
 };
@@ -128,4 +131,12 @@ void VMFrame::ClearPreviousFrame() {
 
 VMMethod* VMFrame::GetMethod() const {
     return load_ptr(method);
+}
+
+void VMFrame::SetLocal(long index, vm_oop_t value) {
+    store_ptr(locals[index], value);
+}
+
+void VMFrame::SetArgument(long index, vm_oop_t value) {
+    store_ptr(arguments[index], value);
 }
