@@ -54,7 +54,7 @@
 #include "../vmobjects/IntegerBox.h"
 
 #if CACHE_INTEGER
-VMInteger* prebuildInts[INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE + 1];
+gc_oop_t prebuildInts[INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE + 1];
 #endif
 
 #define INT_HIST_SIZE 1
@@ -301,9 +301,10 @@ void Universe::initialize(long _argc, char** _argv) {
     interpreter = new Interpreter();
 
 #if CACHE_INTEGER
+# warning is _store_ptr sufficient/correct here?
     // create prebuilt integers
     for (long it = INT_CACHE_MIN_VALUE; it <= INT_CACHE_MAX_VALUE; ++it) {
-        prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = new (GetHeap<HEAP_CLS>()) VMInteger(it);
+        prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = _store_ptr(new (GetHeap<HEAP_CLS>()) VMInteger(it));
     }
 #endif
 
@@ -834,7 +835,7 @@ VMInteger* Universe::NewInteger(long value) const {
 #if CACHE_INTEGER
     unsigned long index = (unsigned long)value - (unsigned long)INT_CACHE_MIN_VALUE;
     if (index < (unsigned long)(INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE)) {
-        return prebuildInts[index];
+        return static_cast<VMInteger*>(load_ptr(prebuildInts[index]));
     }
 #endif
 
@@ -886,7 +887,7 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
 #if USE_TAGGING
         prebuildInts[i] = TAG_INTEGER(INT_CACHE_MIN_VALUE + i);
 #else
-        prebuildInts[i] = static_cast<VMInteger*>(walk(prebuildInts[i]));
+        prebuildInts[i] = walk(prebuildInts[i]);
 #endif
 #endif
 
