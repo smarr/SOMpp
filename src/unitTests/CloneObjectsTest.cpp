@@ -122,7 +122,7 @@ void CloneObjectsTest::testCloneBlock() {
 }
 void CloneObjectsTest::testClonePrimitive() {
     VMSymbol* primitiveSymbol = GetUniverse()->NewSymbol("myPrimitive");
-    VMPrimitive* orig = VMPrimitive::GetEmptyPrimitive(primitiveSymbol);
+    VMPrimitive* orig = VMPrimitive::GetEmptyPrimitive(primitiveSymbol, false);
     VMPrimitive* clone = orig->Clone();
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("objectSize differs!!", orig->objectSize, clone->objectSize);

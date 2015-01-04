@@ -127,7 +127,7 @@ void WalkObjectsTest::testWalkClass() {
 void WalkObjectsTest::testWalkPrimitive() {
     walkedObjects.clear();
     VMSymbol* primitiveSymbol = GetUniverse()->NewSymbol("myPrimitive");
-    VMPrimitive* prim = VMPrimitive::GetEmptyPrimitive(primitiveSymbol);
+    VMPrimitive* prim = VMPrimitive::GetEmptyPrimitive(primitiveSymbol, false);
 
     prim->WalkObjects(collectMembers);
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Primitive, walkedObjects.size());
