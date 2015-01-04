@@ -183,27 +183,54 @@ void VMFrame::PrintBytecode() const {
     Disassembler::DumpMethod(GetMethod(), "  ");
 }
 
+static void print_oop(gc_oop_t vmo) {
+    if (vmo == nullptr)
+        cout << "nullptr" << endl;
+    else if (vmo == nilObject)
+        cout << "NIL_OBJECT" << endl;
+    else {
+        AbstractVMObject* o = AS_OBJ(vmo);
+        cout << o->AsDebugString() << endl;
+    }
+}
+
 void VMFrame::PrintStack() const {
-    cout << "SP: " << GetStackPointer() << endl;
-    //all other fields are indexable via arguments array
-    // --> until end of Frame
+    cout << GetMethod()->AsDebugString() << ", bc: " << GetBytecodeIndex() << endl;
+    cout << "Args: " << GetMethod()->GetNumberOfArguments() <<
+            " Locals: " << GetMethod()->GetNumberOfLocals() <<
+            " MaxStack:" << GetMethod()->GetMaximumNumberOfStackElements() << endl;
+
+    for (size_t i = 0; i < GetMethod()->GetNumberOfArguments(); i++) {
+        cout << "   arg " << i << ": ";
+        print_oop(arguments[i]);
+    }
+    
+    size_t local_offset = 0;
+    for (size_t i = 0; i < GetMethod()->GetNumberOfLocals(); i++) {
+        cout << "   loc " << i << ": ";
+        print_oop(locals[i]);
+        local_offset++;
+    }
+    
+    size_t max = GetMethod()->GetMaximumNumberOfStackElements();
+    for (size_t i = 0; i < max; i++) {
+        if (stack_ptr == &locals[local_offset + i]) {
+            cout << "-> stk " << i << ": ";
+        } else {
+            cout << "   stk " << i << ": ";
+        }
+        print_oop(locals[local_offset + i]);
+    }
+    
     gc_oop_t* end = (gc_oop_t*) SHIFTED_PTR(this, objectSize);
-    long i = 0;
-    while (arguments + i < end) {
-        gc_oop_t vmo = arguments[i];
-        cout << i << ": ";
-        if (vmo == nullptr)
-            cout << "nullptr" << endl;
-        else if (vmo == nilObject)
-            cout << "NIL_OBJECT" << endl;
-        else if (IS_TAGGED(vmo))
-            cout << "index: " << i << " object: VMInteger" << endl;
-        else if (((AbstractVMObject*)(vmo))->GetClass() == nullptr)
-            cout << "VMObject with Class == nullptr" << endl;
-        else if (((AbstractVMObject*)(vmo))->GetClass() == load_ptr(nilObject))
-            cout << "VMObject with Class == NIL_OBJECT" << endl;
-        else
-            cout << "index: " << i << " object:" << ((AbstractVMObject*)(vmo))->GetClass()->GetName()->GetChars() << endl;
+    size_t i = 0;
+    while (&locals[local_offset + max + i] < end) {
+        if (stack_ptr == &locals[local_offset + max + i]) {
+            cout << "->estk " << i << ": ";
+        } else {
+            cout << "  estk " << i << ": ";
+        }
+        print_oop(locals[local_offset + max + i]);
         i++;
     }
 }
