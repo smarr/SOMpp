@@ -251,14 +251,14 @@ void _Integer::Sqrt(VMObject* object, VMFrame* frame) {
     double result = sqrt((double)INT_VAL(self));
 
     if (result == rint(result))
-        frame->Push(NEW_INT(result));
+        frame->Push(NEW_INT((int64_t) result));
     else
         frame->Push(GetUniverse()->NewDouble(result));
 }
 
 void _Integer::AtRandom(VMObject* /*object*/, VMFrame* frame) {
     vm_oop_t self = frame->Pop();
-    int32_t result = (INT_VAL(self) * rand())%INT32_MAX;
+    int64_t result = INT_VAL(self) * rand();
     frame->Push(NEW_INT(result));
 }
 
@@ -266,7 +266,7 @@ void _Integer::FromString(VMObject*, VMFrame* frame) {
     VMString* self = (VMString*) frame->Pop();
     frame->Pop();
 
-    int32_t integer = atoi(self->GetChars());
+    int64_t integer = atol(self->GetChars());
     vm_oop_t new_int = NEW_INT(integer);
     frame->Push(new_int);
 }
