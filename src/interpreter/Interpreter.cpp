@@ -257,6 +257,7 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
         (*invokable)(GetFrame());
         bytecodeIndexGlobal = GetFrame()->GetBytecodeIndex();
     } else {
+        GetFrame()->PrintStackTrace();
         //doesNotUnderstand
         long numberOfArgs = Signature::GetNumberOfArguments(signature);
 
@@ -469,6 +470,14 @@ void Interpreter::doReturnNonLocal() {
         vm_oop_t arguments[] = {block};
 
         popFrame();
+        
+        // check if current frame is big enough for this unplanned send
+        // #escapedBlock: needs 2 slots, one for self, and one for the block
+        long additionalStackSlots = 2 - GetFrame()->RemainingStackSize();
+        if (additionalStackSlots > 0) {
+            // copy current frame into a bigger one, and replace it
+            SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
+        }
 
         AS_OBJ(sender)->Send(escapedBlock, arguments, 1);
         return;
