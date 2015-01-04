@@ -174,6 +174,7 @@ vm_oop_t VMFrame::Pop() {
 }
 
 void VMFrame::Push(vm_oop_t obj) {
+    assert(RemainingStackSize() > 0);
     ++stack_ptr;
     store_ptr(*stack_ptr, obj);
 }
