@@ -59,7 +59,6 @@
 		0A1887431832C62100A2CBCA /* LICENSE in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A18873C1832C62100A2CBCA /* LICENSE */; };
 		0A1887441832C62100A2CBCA /* README.md in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A18873D1832C62100A2CBCA /* README.md */; };
 		0A1887451832C62100A2CBCA /* Smalltalk in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A18873E1832C62100A2CBCA /* Smalltalk */; };
-		0A1887461832C62100A2CBCA /* SUnit in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A18873F1832C62100A2CBCA /* SUnit */; };
 		0A1887471832C62100A2CBCA /* TestSuite in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A1887401832C62100A2CBCA /* TestSuite */; };
 		0A32B7FE199D6143002825DF /* IntegerBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A32B7FC199D6143002825DF /* IntegerBox.cpp */; };
 		0A335F6D1832D64100D7CFC8 /* Method.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A335F6B1832D64100D7CFC8 /* Method.cpp */; };
@@ -105,7 +104,6 @@
 		0A67EA9D19ACDB4600830E3B /* LICENSE in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A18873C1832C62100A2CBCA /* LICENSE */; };
 		0A67EA9E19ACDB4600830E3B /* README.md in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A18873D1832C62100A2CBCA /* README.md */; };
 		0A67EA9F19ACDB4600830E3B /* Smalltalk in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A18873E1832C62100A2CBCA /* Smalltalk */; };
-		0A67EAA019ACDB4600830E3B /* SUnit in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A18873F1832C62100A2CBCA /* SUnit */; };
 		0A67EAA119ACDB4600830E3B /* TestSuite in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A1887401832C62100A2CBCA /* TestSuite */; };
 		0A67EAA219ACDD1B00830E3B /* GenerationalHeap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1887231832C10E00A2CBCA /* GenerationalHeap.cpp */; };
 /* End PBXBuildFile section */
@@ -132,7 +130,6 @@
 				0A1887431832C62100A2CBCA /* LICENSE in CopyFiles */,
 				0A1887441832C62100A2CBCA /* README.md in CopyFiles */,
 				0A1887451832C62100A2CBCA /* Smalltalk in CopyFiles */,
-				0A1887461832C62100A2CBCA /* SUnit in CopyFiles */,
 				0A1887471832C62100A2CBCA /* TestSuite in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -148,7 +145,6 @@
 				0A67EA9D19ACDB4600830E3B /* LICENSE in CopyFiles */,
 				0A67EA9E19ACDB4600830E3B /* README.md in CopyFiles */,
 				0A67EA9F19ACDB4600830E3B /* Smalltalk in CopyFiles */,
-				0A67EAA019ACDB4600830E3B /* SUnit in CopyFiles */,
 				0A67EAA119ACDB4600830E3B /* TestSuite in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -179,7 +175,6 @@
 		0A18873C1832C62100A2CBCA /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; name = LICENSE; path = "core-lib/LICENSE"; sourceTree = "<group>"; };
 		0A18873D1832C62100A2CBCA /* README.md */ = {isa = PBXFileReference; lastKnownFileType = text; name = README.md; path = "core-lib/README.md"; sourceTree = "<group>"; };
 		0A18873E1832C62100A2CBCA /* Smalltalk */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Smalltalk; path = "core-lib/Smalltalk"; sourceTree = "<group>"; };
-		0A18873F1832C62100A2CBCA /* SUnit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SUnit; path = "core-lib/SUnit"; sourceTree = "<group>"; };
 		0A1887401832C62100A2CBCA /* TestSuite */ = {isa = PBXFileReference; lastKnownFileType = folder; name = TestSuite; path = "core-lib/TestSuite"; sourceTree = "<group>"; };
 		0A32B7FC199D6143002825DF /* IntegerBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IntegerBox.cpp; sourceTree = "<group>"; };
 		0A32B7FD199D6143002825DF /* IntegerBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntegerBox.h; sourceTree = "<group>"; };
@@ -434,7 +429,6 @@
 				0A18873C1832C62100A2CBCA /* LICENSE */,
 				0A18873D1832C62100A2CBCA /* README.md */,
 				0A18873E1832C62100A2CBCA /* Smalltalk */,
-				0A18873F1832C62100A2CBCA /* SUnit */,
 				0A1887401832C62100A2CBCA /* TestSuite */,
 				E18AE2C90FB1C46B00EE6540 /* TestSuite */,
 				E18AE29C0FB1C45E00EE6540 /* Examples */,
