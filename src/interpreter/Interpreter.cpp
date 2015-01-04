@@ -275,6 +275,7 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
         //doesNotUnderstand: needs 3 slots, one for this, one for method name, one for args
         long additionalStackSlots = 3 - GetFrame()->RemainingStackSize();
         if (additionalStackSlots > 0) {
+            GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
             //copy current frame into a bigger one and replace the current frame
             SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
         }
@@ -481,6 +482,7 @@ void Interpreter::doReturnNonLocal() {
         // #escapedBlock: needs 2 slots, one for self, and one for the block
         long additionalStackSlots = 2 - GetFrame()->RemainingStackSize();
         if (additionalStackSlots > 0) {
+            GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
             // copy current frame into a bigger one, and replace it
             SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
         }
