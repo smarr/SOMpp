@@ -80,6 +80,8 @@ public:
     virtual inline void      SetObjectSize(size_t size);
     
     virtual        void      MarkObjectAsInvalid();
+    
+    virtual        StdString AsDebugString() const;
 
     /**
      * usage: new( <heap> [, <additional_bytes>] ) VMObject( <constructor params> )

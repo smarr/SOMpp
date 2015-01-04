@@ -105,3 +105,7 @@ void VMArray::WalkObjects(walk_heap_fn walk) {
         fields[i] = walk(fields[i]);
     }
 }
+
+StdString VMArray::AsDebugString() const {
+    return "Array(" + to_string(GetNumberOfIndexableFields()) + ")";
+}

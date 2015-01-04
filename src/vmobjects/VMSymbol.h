@@ -42,6 +42,9 @@ public:
     virtual size_t GetObjectSize() const;
     virtual VMSymbol* Clone() const;
     virtual VMClass* GetClass() const;
+    
+    virtual StdString AsDebugString() const;
+    
 private:
     const int numberOfArgumentsOfSignature;
     const GCClass* cachedClass_invokable[3];

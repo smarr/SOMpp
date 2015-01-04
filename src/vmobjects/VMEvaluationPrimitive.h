@@ -35,6 +35,9 @@ public:
     VMEvaluationPrimitive(long argc);
     virtual void WalkObjects(walk_heap_fn);
     virtual VMEvaluationPrimitive* Clone() const;
+    
+    virtual StdString AsDebugString() const;
+    
 private:
     static VMSymbol* computeSignatureString(long argc);
     void evaluationRoutine(VMObject* object, VMFrame* frame);

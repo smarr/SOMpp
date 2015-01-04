@@ -45,6 +45,8 @@ public:
     virtual void WalkObjects(walk_heap_fn);
     
     virtual void MarkObjectAsInvalid();
+    
+    virtual StdString AsDebugString() const;
 
 protected:
     //this could be replaced by the CHARS macro in VMString.cpp

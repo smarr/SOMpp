@@ -81,3 +81,14 @@ void VMObject::WalkObjects(walk_heap_fn walk) {
 void VMObject::MarkObjectAsInvalid() {
     clazz = (GCClass*) INVALID_GC_POINTER;
 }
+
+StdString VMObject::AsDebugString() const {
+    if (this == load_ptr(nilObject)) {
+        return "nilObject";
+    } else if (this == load_ptr(trueObject)) {
+        return "trueObject";
+    } else if (this == load_ptr(falseObject)) {
+        return "falseObject";
+    }
+    return "Object(" + GetClass()->GetName()->GetStdString() + ")";
+}

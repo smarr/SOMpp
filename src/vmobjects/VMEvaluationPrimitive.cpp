@@ -94,3 +94,8 @@ void VMEvaluationPrimitive::evaluationRoutine(VMObject* object, VMFrame* frame) 
     NewFrame->CopyArgumentsFrom(frame);
     NewFrame->SetContext(context);
 }
+
+StdString VMEvaluationPrimitive::AsDebugString() const {
+    return "VMEvaluationPrimitive(" + to_string(
+                    INT_VAL(load_ptr(numberOfArguments))) + ")";
+}

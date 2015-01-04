@@ -432,3 +432,6 @@ void VMClass::setPrimitives(void* dlhandle, const StdString& cname, bool classSi
     }
 }
 
+StdString VMClass::AsDebugString() const {
+    return "Class(" + GetName()->GetStdString() + ")";
+}

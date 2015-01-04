@@ -49,6 +49,8 @@ public:
     virtual void operator()(VMFrame* frm) {(*routine)(this, frm);};
 
     virtual bool IsPrimitive() const {return true;};
+    
+    virtual StdString AsDebugString() const;
 
 private:
     void EmptyRoutine(VMObject* self, VMFrame* frame);

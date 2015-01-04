@@ -34,3 +34,7 @@ VMInteger* VMInteger::Clone() const {
 VMClass* VMInteger::GetClass() const {
     return load_ptr(integerClass);
 }
+
+StdString VMInteger::AsDebugString() const {
+    return "Integer(" + to_string(embeddedInteger) + ")";
+}

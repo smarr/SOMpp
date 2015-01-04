@@ -70,6 +70,8 @@ public:
            void         WalkObjects(walk_heap_fn walk);
     
     virtual void MarkObjectAsInvalid();
+    
+    virtual StdString AsDebugString() const;
 
 private:
     StdString genLoadstring(const StdString& cp,

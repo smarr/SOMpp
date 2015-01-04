@@ -54,3 +54,7 @@ VMMethod* VMBlock::GetMethod() const {
 VMEvaluationPrimitive* VMBlock::GetEvaluationPrimitive(int numberOfArguments) {
     return new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(numberOfArguments);
 }
+
+StdString VMBlock::AsDebugString() const {
+    return "Block(" + load_ptr(blockMethod)->AsDebugString() + ")";
+}

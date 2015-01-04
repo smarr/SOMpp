@@ -38,6 +38,8 @@ public:
     virtual size_t GetObjectSize() const = 0;
     
     virtual void MarkObjectAsInvalid() = 0;
+    
+    virtual StdString AsDebugString() const = 0;
 
     AbstractVMObject() {
         gcfield = 0;

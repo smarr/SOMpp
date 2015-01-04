@@ -35,3 +35,7 @@ VMDouble* VMDouble::Clone() const {
 VMClass* VMDouble::GetClass() const {
     return load_ptr(doubleClass);
 }
+
+StdString VMDouble::AsDebugString() const {
+    return "Double(" + to_string(embeddedDouble) + ")";
+}

@@ -43,6 +43,8 @@ public:
     void SetIndexableField(long idx, vm_oop_t value);
     void CopyIndexableFieldsTo(VMArray*) const;
     virtual VMArray* Clone() const;
+    
+    virtual StdString AsDebugString() const;
 
 private:
     virtual void MarkObjectAsInvalid();

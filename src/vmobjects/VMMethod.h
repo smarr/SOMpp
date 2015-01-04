@@ -68,6 +68,8 @@ public:
     virtual void operator()(VMFrame* frame);
 
     void SetSignature(VMSymbol* sig);
+    
+    virtual StdString AsDebugString() const;
 
 private:
     inline uint8_t* GetBytecodes() const;

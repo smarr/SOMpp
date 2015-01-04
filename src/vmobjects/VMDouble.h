@@ -40,6 +40,9 @@ public:
     inline virtual size_t GetObjectSize() const;
     
     virtual void MarkObjectAsInvalid() {}
+    
+    virtual StdString AsDebugString() const;
+    
 private:
     const double embeddedDouble;
 };

@@ -39,6 +39,8 @@ public:
     inline  void      SetContext(VMFrame*);
     inline  VMFrame*  GetContext() const;
     virtual VMBlock*  Clone() const;
+    
+    virtual StdString AsDebugString() const;
 
     static VMEvaluationPrimitive* GetEvaluationPrimitive(int);
 private:

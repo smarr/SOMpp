@@ -67,3 +67,8 @@ void VMPrimitive::EmptyRoutine( VMObject* _self, VMFrame* /*frame*/) {
     cout << "undefined primitive called: " << sig->GetChars() << endl;
 }
 
+StdString VMPrimitive::AsDebugString() const {
+    return "Primitive(" + GetClass()->GetName()->GetStdString() + ">>#"
+                        + GetSignature()->GetStdString() + ")";
+}
+

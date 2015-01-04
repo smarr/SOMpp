@@ -42,6 +42,8 @@ public:
     virtual inline size_t GetObjectSize() const;
     
     virtual void MarkObjectAsInvalid() {}
+    
+    virtual StdString AsDebugString() const;
 
 private:
     const int64_t embeddedInteger;

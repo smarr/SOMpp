@@ -163,3 +163,14 @@ vm_oop_t VMMethod::GetConstant(long indx) const {
     }
     return GetIndexableField(bc);
 }
+
+StdString VMMethod::AsDebugString() const {
+    VMClass* holder = GetHolder();
+    StdString holder_str;
+    if (holder == load_ptr(nilObject)) {
+        holder_str = "nil";
+    } else {
+        holder_str = holder->GetName()->GetStdString();
+    }
+    return "Method(" + holder_str + ">>#" + GetSignature()->GetStdString() + ")";
+}

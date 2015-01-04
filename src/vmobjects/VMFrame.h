@@ -70,6 +70,9 @@ public:
     void PrintStack() const;
     inline void* GetStackPointer() const;
     long RemainingStackSize() const;
+    
+    virtual StdString AsDebugString() const;
+    
 private:
     GCFrame* previousFrame;
     GCFrame* context;
