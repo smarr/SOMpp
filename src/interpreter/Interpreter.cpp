@@ -257,7 +257,6 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
         (*invokable)(GetFrame());
         bytecodeIndexGlobal = GetFrame()->GetBytecodeIndex();
     } else {
-        GetFrame()->PrintStackTrace();
         //doesNotUnderstand
         long numberOfArgs = Signature::GetNumberOfArguments(signature);
 
