@@ -16,7 +16,6 @@
 #include "vmobjects/VMInteger.h"
 #include "vmobjects/VMDouble.h"
 #include "vmobjects/VMString.h"
-#include "vmobjects/VMBigInteger.h"
 #include "vmobjects/VMArray.h"
 #include "vmobjects/VMMethod.h"
 #include "vmobjects/VMBlock.h"
@@ -83,15 +82,6 @@ void CloneObjectsTest::testCloneSymbol() {
             clone->GetObjectSize());
     //CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfFields differs!!", orig->numberOfFields, clone->numberOfFields);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("string differs!!!", orig->GetPlainString(), clone->GetPlainString());
-}
-
-void CloneObjectsTest::testCloneBigInteger() {
-    VMBigInteger* orig = GetUniverse()->NewBigInteger(0xdeadbeef);
-    VMBigInteger* clone = orig->Clone();
-
-    CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->GetClass(), clone->GetClass());
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("bigint value differs!!", orig->embeddedInteger, clone->embeddedInteger);
 }
 
 void CloneObjectsTest::testCloneArray() {

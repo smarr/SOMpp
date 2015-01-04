@@ -12,7 +12,6 @@
 #include "vmobjects/VMSymbol.h"
 #include "vmobjects/VMClass.h"
 #include "vmobjects/VMDouble.h"
-#include "vmobjects/VMBigInteger.h"
 #include "vmobjects/VMInteger.h"
 #include "vmobjects/VMArray.h"
 #include "vmobjects/VMMethod.h"
@@ -59,15 +58,6 @@ void WalkObjectsTest::testWalkInteger() {
 
     //Integers have no additional members
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Integer, walkedObjects.size());
-}
-
-void WalkObjectsTest::testWalkBigInteger() {
-    walkedObjects.clear();
-    VMBigInteger* int1 = GetUniverse()->NewBigInteger(4711);
-    int1->WalkObjects(collectMembers);
-
-    //Integers have no additional members
-    CPPUNIT_ASSERT_EQUAL(NoOfFields_BigInteger, walkedObjects.size());
 }
 
 void WalkObjectsTest::testWalkDouble() {

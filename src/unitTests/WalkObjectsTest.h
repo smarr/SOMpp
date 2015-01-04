@@ -10,7 +10,6 @@
 #include "vmobjects/VMSymbol.h"
 #include "vmobjects/VMClass.h"
 #include "vmobjects/VMDouble.h"
-#include "vmobjects/VMBigInteger.h"
 #include "vmobjects/VMInteger.h"
 #include "vmobjects/VMArray.h"
 #include "vmobjects/VMMethod.h"
@@ -39,7 +38,6 @@ class WalkObjectsTest: public CPPUNIT_NS::TestCase {
     CPPUNIT_TEST (testWalkEvaluationPrimitive);
     CPPUNIT_TEST (testWalkFrame);
     CPPUNIT_TEST (testWalkInteger);
-    CPPUNIT_TEST (testWalkBigInteger);
     CPPUNIT_TEST (testWalkString);
     CPPUNIT_TEST (testWalkMethod);
     CPPUNIT_TEST (testWalkObject);
@@ -60,7 +58,6 @@ private:
     void testWalkEvaluationPrimitive();
     void testWalkFrame();
     void testWalkInteger();
-    void testWalkBigInteger();
     void testWalkString();
     void testWalkMethod();
     void testWalkObject();

@@ -19,7 +19,6 @@ class CloneObjectsTest: public CPPUNIT_NS::TestCase {
     CPPUNIT_TEST (testCloneMethod);
     CPPUNIT_TEST (testCloneBlock);
     CPPUNIT_TEST (testClonePrimitive);
-    CPPUNIT_TEST (testCloneBigInteger);
     CPPUNIT_TEST (testCloneClass);
     CPPUNIT_TEST (testCloneFrame);
     CPPUNIT_TEST (testCloneEvaluationPrimitive);CPPUNIT_TEST_SUITE_END();
@@ -38,7 +37,6 @@ private:
     void testCloneArray();
     void testCloneBlock();
     void testClonePrimitive();
-    void testCloneBigInteger();
     void testCloneClass();
     void testCloneFrame();
     void testCloneMethod();
