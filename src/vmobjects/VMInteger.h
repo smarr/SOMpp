@@ -27,6 +27,7 @@
  */
 
 #include "AbstractObject.h"
+#include "IntegerBox.h"
 
 #include "../misc/defs.h"
 
