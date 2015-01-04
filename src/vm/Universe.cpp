@@ -90,8 +90,6 @@ GCClass* falseClass;
 GCSymbol* symbolIfTrue;
 GCSymbol* symbolIfFalse;
 
-std::map<std::string, GCSymbol*> symbolsMap;
-
 std::string bm_name;
 
 #ifdef GENERATE_ALLOCATION_STATISTICS
