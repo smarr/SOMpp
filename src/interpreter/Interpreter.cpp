@@ -263,13 +263,17 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
 
         vm_oop_t receiver = GetFrame()->GetStackElement(numberOfArgs-1);
 
-        VMArray* argumentsArray = GetUniverse()->NewArray(numberOfArgs);
+        VMArray* argumentsArray = GetUniverse()->NewArray(numberOfArgs - 1); // without receiver
 
-        for (long i = numberOfArgs - 1; i >= 0; --i) {
+        // the receiver should not go into the argumentsArray
+        // so, numberOfArgs - 2
+        for (long i = numberOfArgs - 2; i >= 0; --i) {
             vm_oop_t o = GetFrame()->Pop();
             argumentsArray->SetIndexableField(i, o);
         }
         vm_oop_t arguments[] = {signature, argumentsArray};
+        
+        GetFrame()->Pop(); // pop the receiver
 
         //check if current frame is big enough for this unplanned Send
         //doesNotUnderstand: needs 3 slots, one for this, one for method name, one for args
