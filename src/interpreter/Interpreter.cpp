@@ -471,6 +471,12 @@ void Interpreter::doReturnNonLocal() {
 
         popFrame();
         
+        // Pop old arguments from stack
+        VMMethod* method = GetFrame()->GetMethod();
+        long numberOfArgs = method->GetNumberOfArguments();
+        for (long i = 0; i < numberOfArgs; ++i)
+            GetFrame()->Pop();
+
         // check if current frame is big enough for this unplanned send
         // #escapedBlock: needs 2 slots, one for self, and one for the block
         long additionalStackSlots = 2 - GetFrame()->RemainingStackSize();
