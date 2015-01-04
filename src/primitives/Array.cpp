@@ -59,7 +59,7 @@ void _Array::At_Put_(VMObject* /*object*/, VMFrame* frame) {
 
 void _Array::Length(VMObject* /*object*/, VMFrame* frame) {
     VMArray* self = static_cast<VMArray*>(frame->Pop());
-    VMInteger* new_int = NEW_INT(self->GetNumberOfIndexableFields());
+    vm_oop_t new_int = NEW_INT(self->GetNumberOfIndexableFields());
     frame->Push(new_int);
 }
 
