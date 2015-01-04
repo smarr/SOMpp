@@ -31,6 +31,8 @@
 #include "VMClass.h"
 #include "VMSymbol.h"
 
+#include <compiler/Disassembler.h>
+
 #include <vm/Universe.h>
 
 // when doesNotUnderstand or UnknownGlobal is sent, additional stack slots might
@@ -174,6 +176,10 @@ vm_oop_t VMFrame::Pop() {
 void VMFrame::Push(vm_oop_t obj) {
     ++stack_ptr;
     store_ptr(*stack_ptr, obj);
+}
+
+void VMFrame::PrintBytecode() const {
+    Disassembler::DumpMethod(GetMethod(), "  ");
 }
 
 void VMFrame::PrintStack() const {

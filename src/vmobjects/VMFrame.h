@@ -68,6 +68,7 @@ public:
     virtual VMFrame* Clone() const;
 
     void PrintStack() const;
+    void PrintBytecode() const;
     inline void* GetStackPointer() const;
     long RemainingStackSize() const;
     
