@@ -173,4 +173,4 @@ test: all
 # bench: run the benchmarks
 #
 bench: all
-	export LD_LIBRARY_PATH=.; ./$(CSOM_NAME) -cp ./Smalltalk ./Examples/Benchmarks/All.som
+	export LD_LIBRARY_PATH=.; ./$(CSOM_NAME) -cp ./Smalltalk:./Examples/Benchmarks/LanguageFeatures ./Examples/Benchmarks/All.som

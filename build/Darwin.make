@@ -163,4 +163,4 @@ test: all
 # bench: run the benchmarks
 #
 bench: all
-	./$(CSOM_NAME) -cp ./Smalltalk ./Examples/Benchmarks/All.som
+	./$(CSOM_NAME) -cp ./Smalltalk:./Examples/Benchmarks/LanguageFeatures ./Examples/Benchmarks/All.som
