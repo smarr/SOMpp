@@ -269,7 +269,18 @@ void VMFrame::SetArgument(long index, long contextLevel, vm_oop_t value) {
 }
 
 void VMFrame::PrintStackTrace() const {
-    //TODO
+    VMMethod* meth = GetMethod();
+    
+    if (meth->GetHolder() == load_ptr(nilObject)) {
+        cout << "nil";
+    } else {
+        cout << meth->GetHolder()->GetName()->GetStdString();
+    }
+    cout << ">>#" <<
+        meth->GetSignature()->GetStdString() << endl;
+    if (previousFrame) {
+        load_ptr(previousFrame)->PrintStackTrace();
+    }
 }
 
 long VMFrame::ArgumentStackIndex(long index) const {
