@@ -19,7 +19,6 @@
 		0A1886E51832BCD700A2CBCA /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203050FA6624C00E75857 /* Main.cpp */; };
 		0A1886E71832BCDC00A2CBCA /* Heap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203090FA6624C00E75857 /* Heap.cpp */; };
 		0A1886E81832BCE700A2CBCA /* Array.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203120FA6624C00E75857 /* Array.cpp */; };
-		0A1886E91832BCE700A2CBCA /* BigInteger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203140FA6624C00E75857 /* BigInteger.cpp */; };
 		0A1886EA1832BCE700A2CBCA /* Block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203160FA6624C00E75857 /* Block.cpp */; };
 		0A1886EB1832BCE700A2CBCA /* Class.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203180FA6624C00E75857 /* Class.cpp */; };
 		0A1886EC1832BCE700A2CBCA /* Core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F52031A0FA6624C00E75857 /* Core.cpp */; };
@@ -35,7 +34,6 @@
 		0A1886F61832BCED00A2CBCA /* Universe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203320FA6624C00E75857 /* Universe.cpp */; };
 		0A1886F71832BCF500A2CBCA /* Signature.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203370FA6624C00E75857 /* Signature.cpp */; };
 		0A1886F91832BCF500A2CBCA /* VMArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F52033B0FA6624C00E75857 /* VMArray.cpp */; };
-		0A1886FA1832BCF500A2CBCA /* VMBigInteger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F52033D0FA6624C00E75857 /* VMBigInteger.cpp */; };
 		0A1886FB1832BCF500A2CBCA /* VMBlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F52033F0FA6624C00E75857 /* VMBlock.cpp */; };
 		0A1886FC1832BCF500A2CBCA /* VMClass.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203410FA6624C00E75857 /* VMClass.cpp */; };
 		0A1886FD1832BCF500A2CBCA /* VMDouble.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203430FA6624C00E75857 /* VMDouble.cpp */; };
@@ -76,7 +74,6 @@
 		0A67EA7C19ACD74800830E3B /* AbstractObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1887091832C0E400A2CBCA /* AbstractObject.cpp */; };
 		0A67EA7D19ACD74800830E3B /* Signature.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203370FA6624C00E75857 /* Signature.cpp */; };
 		0A67EA7E19ACD74800830E3B /* VMArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F52033B0FA6624C00E75857 /* VMArray.cpp */; };
-		0A67EA7F19ACD74800830E3B /* VMBigInteger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F52033D0FA6624C00E75857 /* VMBigInteger.cpp */; };
 		0A67EA8019ACD74800830E3B /* VMBlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F52033F0FA6624C00E75857 /* VMBlock.cpp */; };
 		0A67EA8119ACD74800830E3B /* VMClass.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203410FA6624C00E75857 /* VMClass.cpp */; };
 		0A67EA8219ACD74800830E3B /* VMDouble.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203430FA6624C00E75857 /* VMDouble.cpp */; };
@@ -231,8 +228,6 @@
 		3F52030F0FA6624C00E75857 /* gettimeofday.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gettimeofday.h; sourceTree = "<group>"; };
 		3F5203120FA6624C00E75857 /* Array.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Array.cpp; sourceTree = "<group>"; };
 		3F5203130FA6624C00E75857 /* Array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Array.h; sourceTree = "<group>"; };
-		3F5203140FA6624C00E75857 /* BigInteger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BigInteger.cpp; sourceTree = "<group>"; };
-		3F5203150FA6624C00E75857 /* BigInteger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BigInteger.h; sourceTree = "<group>"; };
 		3F5203160FA6624C00E75857 /* Block.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Block.cpp; sourceTree = "<group>"; };
 		3F5203170FA6624C00E75857 /* Block.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Block.h; sourceTree = "<group>"; };
 		3F5203180FA6624C00E75857 /* Class.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Class.cpp; sourceTree = "<group>"; };
@@ -267,8 +262,6 @@
 		3F5203380FA6624C00E75857 /* Signature.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Signature.h; sourceTree = "<group>"; };
 		3F52033B0FA6624C00E75857 /* VMArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VMArray.cpp; sourceTree = "<group>"; };
 		3F52033C0FA6624C00E75857 /* VMArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMArray.h; sourceTree = "<group>"; };
-		3F52033D0FA6624C00E75857 /* VMBigInteger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VMBigInteger.cpp; sourceTree = "<group>"; };
-		3F52033E0FA6624C00E75857 /* VMBigInteger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMBigInteger.h; sourceTree = "<group>"; };
 		3F52033F0FA6624C00E75857 /* VMBlock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VMBlock.cpp; sourceTree = "<group>"; };
 		3F5203400FA6624C00E75857 /* VMBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMBlock.h; sourceTree = "<group>"; };
 		3F5203410FA6624C00E75857 /* VMClass.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VMClass.cpp; sourceTree = "<group>"; };
@@ -553,8 +546,6 @@
 			children = (
 				3F5203120FA6624C00E75857 /* Array.cpp */,
 				3F5203130FA6624C00E75857 /* Array.h */,
-				3F5203140FA6624C00E75857 /* BigInteger.cpp */,
-				3F5203150FA6624C00E75857 /* BigInteger.h */,
 				3F5203160FA6624C00E75857 /* Block.cpp */,
 				3F5203170FA6624C00E75857 /* Block.h */,
 				3F5203180FA6624C00E75857 /* Class.cpp */,
@@ -618,8 +609,6 @@
 				3F5203380FA6624C00E75857 /* Signature.h */,
 				3F52033B0FA6624C00E75857 /* VMArray.cpp */,
 				3F52033C0FA6624C00E75857 /* VMArray.h */,
-				3F52033D0FA6624C00E75857 /* VMBigInteger.cpp */,
-				3F52033E0FA6624C00E75857 /* VMBigInteger.h */,
 				3F52033F0FA6624C00E75857 /* VMBlock.cpp */,
 				3F5203400FA6624C00E75857 /* VMBlock.h */,
 				3F5203410FA6624C00E75857 /* VMClass.cpp */,
@@ -938,7 +927,6 @@
 				0A1887321832C10E00A2CBCA /* CopyingHeap.cpp in Sources */,
 				0A1887061832BCFA00A2CBCA /* VMSymbol.cpp in Sources */,
 				0A1887011832BCFA00A2CBCA /* VMInvokable.cpp in Sources */,
-				0A1886FA1832BCF500A2CBCA /* VMBigInteger.cpp in Sources */,
 				0A1886E11832BCC800A2CBCA /* Parser.cpp in Sources */,
 				0A1886FD1832BCF500A2CBCA /* VMDouble.cpp in Sources */,
 				0A32B7FE199D6143002825DF /* IntegerBox.cpp in Sources */,
@@ -962,7 +950,6 @@
 				0A1886F11832BCE700A2CBCA /* Symbol.cpp in Sources */,
 				0A1886EE1832BCE700A2CBCA /* Integer.cpp in Sources */,
 				0A335F6D1832D64100D7CFC8 /* Method.cpp in Sources */,
-				0A1886E91832BCE700A2CBCA /* BigInteger.cpp in Sources */,
 				0A1886ED1832BCE700A2CBCA /* Double.cpp in Sources */,
 				0A67EAA219ACDD1B00830E3B /* GenerationalHeap.cpp in Sources */,
 				0A1886EA1832BCE700A2CBCA /* Block.cpp in Sources */,
@@ -980,7 +967,6 @@
 				0A67EA7D19ACD74800830E3B /* Signature.cpp in Sources */,
 				0A67EA7E19ACD74800830E3B /* VMArray.cpp in Sources */,
 				0A67EA8719ACD74800830E3B /* VMObject.cpp in Sources */,
-				0A67EA7F19ACD74800830E3B /* VMBigInteger.cpp in Sources */,
 				0A67EA8619ACD74800830E3B /* VMMethod.cpp in Sources */,
 				0A67EA7519ACD43A00830E3B /* CloneObjectsTest.cpp in Sources */,
 				0A67EA7919ACD43A00830E3B /* WriteBarrierTest.cpp in Sources */,
@@ -1303,6 +1289,7 @@
 					"-DGC_TYPE=COPYING",
 					"-DUSE_TAGGING=false",
 				);
+				VALID_ARCHS = x86_64;
 			};
 			name = Debug;
 		};
@@ -1315,6 +1302,7 @@
 					"-DGC_TYPE=COPYING",
 					"-DUSE_TAGGING=false",
 				);
+				VALID_ARCHS = x86_64;
 			};
 			name = Release;
 		};

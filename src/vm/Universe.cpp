@@ -43,7 +43,6 @@
 #include <vmobjects/VMDouble.h>
 #include <vmobjects/VMInteger.h>
 #include <vmobjects/VMString.h>
-#include <vmobjects/VMBigInteger.h>
 #include <vmobjects/VMEvaluationPrimitive.h>
 
 #include <interpreter/bytecodes.h>
@@ -76,7 +75,6 @@ GCClass* metaClassClass;
 
 GCClass* nilClass;
 GCClass* integerClass;
-GCClass* bigIntegerClass;
 GCClass* arrayClass;
 GCClass* methodClass;
 GCClass* symbolClass;
@@ -104,7 +102,7 @@ std::map<std::string, struct alloc_data> allocationStats;
 #define LOG_ALLOCATION(TYPE,SIZE)
 #endif
 
-map<long, long> integerHist;
+map<int64_t, int64_t> integerHist;
 
 void Universe::Start(long argc, char** argv) {
     theUniverse = new Universe();
@@ -375,7 +373,6 @@ Universe::~Universe() {
     }
 #else
     void* vt_array;
-    void* vt_biginteger;
     void* vt_block;
     void* vt_class;
     void* vt_double;
@@ -408,7 +405,6 @@ Universe::~Universe() {
         
         void* vt = *(void**) obj;
         bool b = vt == vt_array    ||
-               vt == vt_biginteger ||
                vt == vt_block      ||
                vt == vt_class      ||
                vt == vt_double     ||
@@ -426,7 +422,6 @@ Universe::~Universe() {
 
     static void set_vt_to_null() {
         vt_array      = nullptr;
-        vt_biginteger = nullptr;
         vt_block      = nullptr;
         vt_class      = nullptr;
         vt_double     = nullptr;
@@ -443,9 +438,6 @@ Universe::~Universe() {
     static void obtain_vtables_of_known_classes(VMSymbol* className) {
         VMArray* arr  = new (GetHeap<HEAP_CLS>()) VMArray(0, 0);
         vt_array      = *(void**) arr;
-        
-        VMBigInteger* bi = new (GetHeap<HEAP_CLS>()) VMBigInteger(0);
-        vt_biginteger = *(void**) bi;
         
         VMBlock* blck = new (GetHeap<HEAP_CLS>()) VMBlock();
         vt_block      = *(void**) blck;
@@ -498,7 +490,6 @@ void Universe::InitializeGlobals() {
     symbolClass     = _store_ptr(NewSystemClass());
     methodClass     = _store_ptr(NewSystemClass());
     integerClass    = _store_ptr(NewSystemClass());
-    bigIntegerClass = _store_ptr(NewSystemClass());
     primitiveClass  = _store_ptr(NewSystemClass());
     stringClass     = _store_ptr(NewSystemClass());
     doubleClass     = _store_ptr(NewSystemClass());
@@ -514,7 +505,6 @@ void Universe::InitializeGlobals() {
     InitializeSystemClass(load_ptr(stringClass),    load_ptr(objectClass), "String");
     InitializeSystemClass(load_ptr(symbolClass),    load_ptr(stringClass), "Symbol");
     InitializeSystemClass(load_ptr(integerClass),   load_ptr(objectClass), "Integer");
-    InitializeSystemClass(load_ptr(bigIntegerClass),load_ptr(objectClass), "BigInteger");
     InitializeSystemClass(load_ptr(primitiveClass), load_ptr(objectClass), "Primitive");
     InitializeSystemClass(load_ptr(doubleClass),    load_ptr(objectClass), "Double");
 
@@ -535,7 +525,6 @@ void Universe::InitializeGlobals() {
     LoadSystemClass(load_ptr(methodClass));
     LoadSystemClass(load_ptr(symbolClass));
     LoadSystemClass(load_ptr(integerClass));
-    LoadSystemClass(load_ptr(bigIntegerClass));
     LoadSystemClass(load_ptr(primitiveClass));
     LoadSystemClass(load_ptr(stringClass));
     LoadSystemClass(load_ptr(doubleClass));
@@ -755,11 +744,6 @@ VMArray* Universe::NewArrayList(ExtendedList<vm_oop_t>& list) const {
     return result;
 }
 
-VMBigInteger* Universe::NewBigInteger( int64_t value) const {
-    LOG_ALLOCATION("VMBigInteger", sizeof(VMBigInteger));
-    return new (GetHeap<HEAP_CLS>()) VMBigInteger(value);
-}
-
 VMBlock* Universe::NewBlock(VMMethod* method, VMFrame* context, long arguments) {
     VMBlock* result = new (GetHeap<HEAP_CLS>()) VMBlock;
     result->SetClass(GetBlockClassWithArgs(arguments));
@@ -826,15 +810,15 @@ VMObject* Universe::NewInstance(VMClass* classOfInstance) const {
     return result;
 }
 
-VMInteger* Universe::NewInteger(long value) const {
+VMInteger* Universe::NewInteger(int64_t value) const {
 
 #ifdef GENERATE_INTEGER_HISTOGRAM
     integerHist[value/INT_HIST_SIZE] = integerHist[value/INT_HIST_SIZE]+1;
 #endif
 
 #if CACHE_INTEGER
-    unsigned long index = (unsigned long)value - (unsigned long)INT_CACHE_MIN_VALUE;
-    if (index < (unsigned long)(INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE)) {
+    size_t index = (size_t) value - (size_t)INT_CACHE_MIN_VALUE;
+    if (index < (size_t)(INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE)) {
         return static_cast<VMInteger*>(load_ptr(prebuildInts[index]));
     }
 #endif
@@ -869,7 +853,6 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
 
     nilClass        = static_cast<GCClass*>(walk(nilClass));
     integerClass    = static_cast<GCClass*>(walk(integerClass));
-    bigIntegerClass = static_cast<GCClass*>(walk(bigIntegerClass));
     arrayClass      = static_cast<GCClass*>(walk(arrayClass));
     methodClass     = static_cast<GCClass*>(walk(methodClass));
     symbolClass     = static_cast<GCClass*>(walk(symbolClass));

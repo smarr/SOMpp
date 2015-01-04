@@ -30,7 +30,6 @@
 #include <vmobjects/VMMethod.h>
 #include <vmobjects/VMPrimitive.h>
 #include <vmobjects/VMObject.h>
-#include <vmobjects/VMBigInteger.h>
 #include <vmobjects/VMDouble.h>
 #include <vmobjects/VMSymbol.h>
 #include <vmobjects/VMClass.h>
@@ -774,11 +773,7 @@ vm_oop_t Parser::literalInteger(bool negateValue) {
         i = 0 - i;
     }
     
-    if (i < INT32_MIN || i > INT32_MAX) {
-        return GetUniverse()->NewBigInteger(i);
-    } else {
-        return NEW_INT(i);
-    }
+    return NEW_INT(i);
 }
 
 vm_oop_t Parser::literalDouble(bool negateValue) {

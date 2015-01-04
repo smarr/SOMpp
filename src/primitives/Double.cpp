@@ -34,7 +34,6 @@
 #include <vmobjects/VMDouble.h>
 #include <vmobjects/VMString.h>
 #include <vmobjects/VMInteger.h>
-#include <vmobjects/VMBigInteger.h>
 
 #include <vm/Universe.h>
 
@@ -54,8 +53,6 @@ double _Double::coerceDouble(vm_oop_t x) {
         return static_cast<VMDouble*>(x)->GetEmbeddedDouble();
     else if(cl == load_ptr(integerClass))
         return (double)static_cast<VMInteger*>(x)->GetEmbeddedInteger();
-    else if(cl == load_ptr(bigIntegerClass))
-        return (double)static_cast<VMBigInteger*>(x)->GetEmbeddedInteger();
     else
         GetUniverse()->ErrorExit("Attempt to apply Double operation to non-number.");
 
@@ -149,14 +146,9 @@ void _Double::Sqrt(VMObject* /*object*/, VMFrame* frame) {
 
 void _Double::Round(VMObject* /*object*/, VMFrame* frame) {
     VMDouble* self = (VMDouble*)frame->Pop();
-    long int rounded = lround(self->GetEmbeddedDouble());
+    int64_t rounded = llround(self->GetEmbeddedDouble());
 
-    // Check with integer bounds and push:
-    if (rounded > INT32_MAX || rounded < INT32_MIN)
-    frame->Push(GetUniverse()->NewBigInteger(rounded));
-    else {
-        frame->Push(NEW_INT((int32_t)rounded));
-    }
+    frame->Push(NEW_INT(rounded));
 }
 
 _Double::_Double() : PrimitiveContainer() {

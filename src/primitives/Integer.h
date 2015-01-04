@@ -44,6 +44,7 @@ public:
     void Percent(VMObject* object, VMFrame* frame);
     void And(VMObject* object, VMFrame* frame);
     void Equal(VMObject* object, VMFrame* frame);
+    void EqualEqual(VMObject* object, VMFrame* frame);
     void Lowerthan(VMObject* object, VMFrame* frame);
     void AsString(VMObject* object, VMFrame* frame);
     void Sqrt(VMObject* object, VMFrame* frame);
@@ -54,8 +55,7 @@ public:
     _Integer(void);
 
 private:
-    void pushResult(VMObject* object, VMFrame* frame, int64_t result);
-    void resendAsBigInteger(const char* op, vm_oop_t left, VMBigInteger* right);
+
     void resendAsDouble(const char* op, vm_oop_t left, VMDouble* right);
 
 };

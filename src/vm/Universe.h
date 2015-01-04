@@ -57,7 +57,6 @@ extern GCClass* metaClassClass;
 
 extern GCClass* nilClass;
 extern GCClass* integerClass;
-extern GCClass* bigIntegerClass;
 extern GCClass* arrayClass;
 extern GCClass* methodClass;
 extern GCClass* symbolClass;
@@ -103,9 +102,8 @@ public:
     VMFrame* NewFrame(VMFrame*, VMMethod*) const;
     VMMethod* NewMethod(VMSymbol*, size_t, size_t) const;
     VMObject* NewInstance(VMClass*) const;
-    VMInteger* NewInteger(long) const;
+    VMInteger* NewInteger(int64_t) const;
     void WalkGlobals(walk_heap_fn);
-    VMBigInteger* NewBigInteger(int64_t) const;
     VMDouble* NewDouble(double) const;
     VMClass* NewMetaclassClass(void) const;
     VMString* NewString(const StdString&) const;

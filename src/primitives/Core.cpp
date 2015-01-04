@@ -29,7 +29,6 @@
 #include <vmobjects/PrimitiveRoutine.h>
 
 #include "Array.h"
-#include "BigInteger.h"
 #include "Block.h"
 #include "Class.h"
 #include "Double.h"
@@ -61,9 +60,6 @@ extern "C" void setup() {
         loader = new PrimitiveLoader();
         loader->AddPrimitiveObject("Array",
                 static_cast<PrimitiveContainer*>(new _Array()));
-
-        loader->AddPrimitiveObject("BigInteger",
-                static_cast<PrimitiveContainer*>(new _BigInteger()));
 
         loader->AddPrimitiveObject("Block",
                 static_cast<PrimitiveContainer*>(new _Block()));

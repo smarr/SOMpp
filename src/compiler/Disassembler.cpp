@@ -35,7 +35,6 @@
 #include "../interpreter/Interpreter.h"
 
 #include "../vmobjects/VMArray.h"
-#include "../vmobjects/VMBigInteger.h"
 #include "../vmobjects/VMBlock.h"
 #include "../vmobjects/VMClass.h"
 #include "../vmobjects/VMDouble.h"
@@ -79,10 +78,8 @@ void Disassembler::dispatch(vm_oop_t o) {
             DebugPrint("\"%s\"", static_cast<VMString*>(o)->GetChars());
         } else if(c == load_ptr(doubleClass))
             DebugPrint("%g", static_cast<VMDouble*>(o)->GetEmbeddedDouble());
-        else if(c == load_ptr(bigIntegerClass))
-            DebugPrint("%lld", static_cast<VMBigInteger*>(o)->GetEmbeddedInteger());
         else if(c == load_ptr(integerClass))
-            DebugPrint("%d", INT_VAL(o));
+            DebugPrint("%lld", INT_VAL(o));
         else if(c == load_ptr(symbolClass)) {
             DebugPrint("#%s", static_cast<VMSymbol*>(o)->GetChars());
         } else

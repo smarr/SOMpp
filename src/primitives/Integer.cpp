@@ -36,24 +36,20 @@
 #include <vmobjects/VMDouble.h>
 #include <vmobjects/VMInteger.h>
 #include <vmobjects/VMString.h>
-#include <vmobjects/VMBigInteger.h>
 #include <vm/Universe.h>
 
 #include "Integer.h"
 #include "../primitivesCore/Routine.h"
 
 /*
- * This macro performs a coercion check to BigInteger and Double. Depending on
+ * This macro performs a coercion check to Double. Depending on
  * the right-hand operand, an Integer operation will have to be resent as a
- * BigInteger or Double operation (those types impose themselves on the result
+ * Double operation (this type imposes itselves on the result
  * of an Integer operation).
  */
 #define CHECK_COERCION(obj,receiver,op) { \
   VMClass* cl = CLASS_OF(obj);\
-  if (cl == load_ptr(bigIntegerClass)) { \
-    resendAsBigInteger((op), (receiver), static_cast<VMBigInteger*>(obj)); \
-    return; \
-  } else if(cl == load_ptr(doubleClass)) { \
+  if(cl == load_ptr(doubleClass)) { \
     resendAsDouble((op), (receiver), static_cast<VMDouble*>(obj)); \
     return; \
   } \
@@ -72,6 +68,7 @@ _Integer::_Integer() : PrimitiveContainer() {
     SetPrimitive("percent",            new Routine<_Integer>(this, &_Integer::Percent,    false));
     SetPrimitive("and",                new Routine<_Integer>(this, &_Integer::And,        false));
     SetPrimitive("equal",              new Routine<_Integer>(this, &_Integer::Equal,      false));
+    SetPrimitive("equalequal",         new Routine<_Integer>(this, &_Integer::EqualEqual, false));
     SetPrimitive("lowerthan",          new Routine<_Integer>(this, &_Integer::Lowerthan,  false));
     SetPrimitive("asString",           new Routine<_Integer>(this, &_Integer::AsString,   false));
     SetPrimitive("sqrt",               new Routine<_Integer>(this, &_Integer::Sqrt,       false));
@@ -82,27 +79,6 @@ _Integer::_Integer() : PrimitiveContainer() {
 //
 // private functions for Integer
 //
-
-void _Integer::pushResult(VMObject* /*object*/, VMFrame* frame,
-                          int64_t result) {
-    int32_t i32min = INT32_MIN;
-    // Check with integer bounds and push:
-    if(result > INT32_MAX || result < i32min)
-        frame->Push(GetUniverse()->NewBigInteger(result));
-    else
-        frame->Push(NEW_INT((int32_t)result));
-}
-
-void _Integer::resendAsBigInteger(const char* op, vm_oop_t left, VMBigInteger* right) {
-    // Construct left value as BigInteger:
-    VMBigInteger* leftBigInteger = GetUniverse()->NewBigInteger((int64_t)INT_VAL(left));
-
-    // Resend message:
-    vm_oop_t operands[] = {right};
-
-    leftBigInteger->Send(op, operands, 1);
-    // no reference
-}
 
 void _Integer::resendAsDouble(const char* op, vm_oop_t left, VMDouble* right) {
     VMDouble* leftDouble = GetUniverse()->NewDouble((double)INT_VAL(left));
@@ -122,7 +98,7 @@ void _Integer::Plus(VMObject* object, VMFrame* frame) {
     CHECK_COERCION(rightObj, leftObj, "+");
 
     int64_t result = (int64_t)INT_VAL(leftObj) + (int64_t)INT_VAL(rightObj);
-    pushResult(object, frame, result);
+    frame->Push(NEW_INT(result));
 }
 
 void _Integer::BitwiseAnd(VMObject* object, VMFrame* frame) {
@@ -130,7 +106,7 @@ void _Integer::BitwiseAnd(VMObject* object, VMFrame* frame) {
     vm_oop_t leftObj  = frame->Pop();
 
     int64_t result = (int64_t)INT_VAL(leftObj) & (int64_t)INT_VAL(rightObj);
-    pushResult(object, frame, result);
+    frame->Push(NEW_INT(result));
 }
 
 void _Integer::BitwiseXor(VMObject* object, VMFrame* frame) {
@@ -138,7 +114,7 @@ void _Integer::BitwiseXor(VMObject* object, VMFrame* frame) {
     vm_oop_t leftObj  = frame->Pop();
     
     int64_t result = (int64_t)INT_VAL(leftObj) ^ (int64_t)INT_VAL(rightObj);
-    pushResult(object, frame, result);
+    frame->Push(NEW_INT(result));
 }
 
 
@@ -147,7 +123,7 @@ void _Integer::LeftShift(VMObject* object, VMFrame* frame) {
     vm_oop_t leftObj  = frame->Pop();
     
     int64_t result = (int64_t)INT_VAL(leftObj) << (int64_t)INT_VAL(rightObj);
-    pushResult(object, frame, result);
+    frame->Push(NEW_INT(result));
 }
 
 void _Integer::Minus(VMObject* object, VMFrame* frame) {
@@ -157,7 +133,7 @@ void _Integer::Minus(VMObject* object, VMFrame* frame) {
     CHECK_COERCION(rightObj, leftObj, "-");
 
     int64_t result = (int64_t)INT_VAL(leftObj) - (int64_t)INT_VAL(rightObj);
-    pushResult(object, frame, result);
+    frame->Push(NEW_INT(result));
 }
 
 void _Integer::Star(VMObject* object, VMFrame* frame) {
@@ -167,7 +143,7 @@ void _Integer::Star(VMObject* object, VMFrame* frame) {
     CHECK_COERCION(rightObj, leftObj, "*");
 
     int64_t result = (int64_t)INT_VAL(leftObj) * (int64_t)INT_VAL(rightObj);
-    pushResult(object, frame, result);
+    frame->Push(NEW_INT(result));
 }
 
 void _Integer::Slashslash(VMObject* object, VMFrame* frame) {
@@ -187,7 +163,7 @@ void _Integer::Slash(VMObject* object, VMFrame* frame) {
     CHECK_COERCION(rightObj, leftObj, "/");
 
     int64_t result = (int64_t)INT_VAL(leftObj) / (int64_t)INT_VAL(rightObj);
-    pushResult(object, frame, result);
+    frame->Push(NEW_INT(result));
 }
 
 void _Integer::Percent(VMObject* object, VMFrame* frame) {
@@ -205,7 +181,7 @@ void _Integer::Percent(VMObject* object, VMFrame* frame) {
         result += r;
     }
 
-    pushResult(object, frame, result);
+    frame->Push(NEW_INT(result));
 }
 
 void _Integer::And(VMObject* object, VMFrame* frame) {
@@ -215,7 +191,7 @@ void _Integer::And(VMObject* object, VMFrame* frame) {
     CHECK_COERCION(rightObj, leftObj, "&");
 
     int64_t result = (int64_t)INT_VAL(leftObj) & (int64_t)INT_VAL(rightObj);
-    pushResult(object, frame, result);
+    frame->Push(NEW_INT(result));
 }
 
 void _Integer::Equal(VMObject* object, VMFrame* frame) {
@@ -231,6 +207,20 @@ void _Integer::Equal(VMObject* object, VMFrame* frame) {
             frame->Push(load_ptr(falseObject));
     } else if (CLASS_OF(rightObj) == load_ptr(doubleClass)) {
         assert(false);
+    } else {
+        frame->Push(load_ptr(falseObject));
+    }
+}
+
+void _Integer::EqualEqual(VMObject* object, VMFrame* frame) {
+    vm_oop_t rightObj = frame->Pop();
+    vm_oop_t leftObj  = frame->Pop();
+    
+    if (IS_TAGGED(rightObj) || CLASS_OF(rightObj) == load_ptr(integerClass)) {
+        if (INT_VAL(leftObj) == INT_VAL(rightObj))
+            frame->Push(load_ptr(trueObject));
+        else
+            frame->Push(load_ptr(falseObject));
     } else {
         frame->Push(load_ptr(falseObject));
     }
@@ -261,7 +251,7 @@ void _Integer::Sqrt(VMObject* object, VMFrame* frame) {
     double result = sqrt((double)INT_VAL(self));
 
     if (result == rint(result))
-        pushResult(object, frame, result);
+        frame->Push(NEW_INT(result));
     else
         frame->Push(GetUniverse()->NewDouble(result));
 }

@@ -117,7 +117,7 @@ void _System::Time(VMObject* /*object*/, VMFrame* frame) {
     ((now.tv_sec - start_time.tv_sec) * 1000) + //seconds
     ((now.tv_usec - start_time.tv_usec) / 1000);// useconds
 
-    frame->Push(NEW_INT((int32_t)diff));
+    frame->Push(NEW_INT(diff));
 }
 
 void _System::Ticks(VMObject* /*object*/, VMFrame* frame) {
@@ -131,7 +131,7 @@ void _System::Ticks(VMObject* /*object*/, VMFrame* frame) {
     ((now.tv_sec - start_time.tv_sec) * 1000 * 1000) + //seconds
     ((now.tv_usec - start_time.tv_usec));// useconds
 
-    frame->Push((VMObject*)GetUniverse()->NewBigInteger(diff));
+    frame->Push(NEW_INT(diff));
 }
 
 void _System::FullGC(VMObject* /*object*/, VMFrame* frame) {

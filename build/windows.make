@@ -27,7 +27,7 @@
 # THE SOFTWARE.
 
 CC			=g++
-CFLAGS		=-Wno-endif-labels -O3 $(DBG_FLAGS) $(INCLUDES)
+CFLAGS		=-Wno-endif-labels -O3 -m64 $(DBG_FLAGS) $(INCLUDES)
 LDFLAGS		=--enable-auto-import $(LIBRARIES)
 
 INSTALL		=install
