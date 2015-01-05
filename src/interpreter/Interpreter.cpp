@@ -41,10 +41,12 @@
 
 #include <compiler/Disassembler.h>
 
+const StdString Interpreter::unknownGlobal     = "unknownGlobal:";
+const StdString Interpreter::doesNotUnderstand = "doesNotUnderstand:arguments:";
+const StdString Interpreter::escapedBlock      = "escapedBlock:";
 
-Interpreter::Interpreter() : unknownGlobal("unknownGlobal:"),
-  doesNotUnderstand("doesNotUnderstand:arguments:"),
-  escapedBlock("escapedBlock:"), frame(nullptr) {}
+
+Interpreter::Interpreter() : frame(nullptr) {}
 
 Interpreter::~Interpreter() {}
 

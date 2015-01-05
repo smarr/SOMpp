@@ -52,9 +52,9 @@ private:
     uint8_t*  currentBytecodes;
 
     
-    const StdString unknownGlobal;
-    const StdString doesNotUnderstand;
-    const StdString escapedBlock;
+    static const StdString unknownGlobal;
+    static const StdString doesNotUnderstand;
+    static const StdString escapedBlock;
 
     VMFrame* popFrame();
     void popFrameAndPushResult(vm_oop_t result);
