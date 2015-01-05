@@ -90,6 +90,8 @@ public:
     
     virtual void checkCollectionTreshold() {};
     
+    vector<Page*>* allPages;
+    
 protected:
     long pageSize;
     GarbageCollector* gc;
@@ -99,7 +101,7 @@ protected:
     //void* collectionLimit;
     void* memoryStart;
     size_t memoryEnd;
-    vector<Page*>* allPages;
+    //vector<Page*>* allPages;
     vector<Page*>* availablePages;
     vector<Page*>* fullPages;
     
