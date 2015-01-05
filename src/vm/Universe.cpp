@@ -544,7 +544,6 @@ void Universe::Assert(bool value) const {
     if (!value) {
         cout << "Assertion failed" << endl;
     }
-
 }
 
 VMClass* Universe::GetBlockClass() const {
@@ -907,7 +906,7 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
     interpreter->WalkGlobals(walk);
 }
 
-VMMethod* Universe::NewMethod( VMSymbol* signature,
+VMMethod* Universe::NewMethod(VMSymbol* signature,
         size_t numberOfBytecodes, size_t numberOfConstants) const {
     //Method needs space for the bytecodes and the pointers to the constants
     long additionalBytes = PADDED_SIZE(numberOfBytecodes + numberOfConstants*sizeof(VMObject*));
@@ -926,11 +925,11 @@ VMMethod* Universe::NewMethod( VMSymbol* signature,
     return result;
 }
 
-VMString* Universe::NewString( const StdString& str) const {
+VMString* Universe::NewString(const StdString& str) const {
     return NewString(str.c_str());
 }
 
-VMString* Universe::NewString( const char* str) const {
+VMString* Universe::NewString(const char* str) const {
     VMString* result = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(strlen(str) + 1)) VMString(str);
 
     LOG_ALLOCATION("VMString", result->GetObjectSize());
