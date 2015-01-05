@@ -112,8 +112,8 @@ pVMFrame VMFrame::Clone(Interpreter* thread) {
     clone->arguments = (GCAbstractObject**)&(clone->stack_ptr)+1; //field after stack_ptr
     clone->locals = clone->arguments + ReadBarrier(&(clone->method))->GetNumberOfArguments();
     clone->stack_ptr = (GCAbstractObject**)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
-    /* clone->IncreaseVersion();
-    this->MarkObjectAsInvalid(); */
+    clone->IncreaseVersion();
+    /* this->MarkObjectAsInvalid(); */
     return clone;
 }
 pVMFrame VMFrame::Clone(PauselessCollectorThread* thread) {
@@ -126,8 +126,8 @@ pVMFrame VMFrame::Clone(PauselessCollectorThread* thread) {
     clone->arguments = (GCAbstractObject**)&(clone->stack_ptr)+1; //field after stack_ptr
     clone->locals = clone->arguments + ReadBarrierForGCThread(&(clone->method))->GetNumberOfArgumentsGC();
     clone->stack_ptr = (GCAbstractObject**)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
-    /* clone->IncreaseVersion();
-    this->MarkObjectAsInvalid(); */
+    clone->IncreaseVersion();
+    /* this->MarkObjectAsInvalid(); */
     return clone;
 }
 #else
@@ -324,18 +324,22 @@ void VMFrame::MarkReferences() {
 void VMFrame::CheckMarking(void (*walk)(AbstractVMObject*)) {
     if (previousFrame) {
         assert(GetNMTValue(previousFrame) == _HEAP->GetGCThread()->GetExpectedNMT());
+        CheckBlocked(Untag(previousFrame));
         walk(Untag(previousFrame));
     }
     if (context) {
         assert(GetNMTValue(context) == _HEAP->GetGCThread()->GetExpectedNMT());
+        CheckBlocked(Untag(context));
         walk(Untag(context));
     }
     assert(GetNMTValue(method) == _HEAP->GetGCThread()->GetExpectedNMT());
+    CheckBlocked(Untag(method));
     walk(Untag(method));
     long i = 0;
     while (arguments + i <= stack_ptr) {
         if (arguments[i]) {
             assert(GetNMTValue(arguments[i]) == _HEAP->GetGCThread()->GetExpectedNMT());
+            CheckBlocked(Untag(arguments[i]));
             walk(Untag(arguments[i]));
         }
         i++;

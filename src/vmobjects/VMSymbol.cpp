@@ -64,15 +64,15 @@ pVMSymbol VMSymbol::Clone() {
 pVMSymbol VMSymbol::Clone(Interpreter* thread) {
     sync_out(ostringstream() << "[VMSYM] Clone: " << GetChars());
     pVMSymbol clone = new (_HEAP, thread, PADDED_SIZE(strlen(chars) + 1)) VMSymbol(chars);
-    /* clone->IncreaseVersion();
-    this->MarkObjectAsInvalid(); */
+    clone->IncreaseVersion();
+    /* this->MarkObjectAsInvalid(); */
     return clone;
 }
 pVMSymbol VMSymbol::Clone(PauselessCollectorThread* thread) {
     sync_out(ostringstream() << "[VMSYM] Clone: " << GetChars());
     pVMSymbol clone = new (_HEAP, thread, PADDED_SIZE(strlen(chars) + 1)) VMSymbol(chars);
-    /* clone->IncreaseVersion();
-    this->MarkObjectAsInvalid(); */
+    clone->IncreaseVersion();
+    /* this->MarkObjectAsInvalid(); */
     return clone;
 }
 #else

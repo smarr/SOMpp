@@ -90,8 +90,8 @@ pVMArray VMArray::Clone(Interpreter* thread) {
     const void* source = SHIFTED_PTR(this, sizeof(VMArray));
     size_t noBytes = GetObjectSize() - sizeof(VMArray);
     memcpy(destination, source, noBytes);
-    /* clone->IncreaseVersion();
-    this->MarkObjectAsInvalid(); */
+    clone->IncreaseVersion();
+    /* this->MarkObjectAsInvalid(); */
     return clone;
 }
 pVMArray VMArray::Clone(PauselessCollectorThread* thread) {
@@ -101,8 +101,8 @@ pVMArray VMArray::Clone(PauselessCollectorThread* thread) {
     const void* source = SHIFTED_PTR(this, sizeof(VMArray));
     size_t noBytes = GetObjectSize() - sizeof(VMArray);
     memcpy(destination, source, noBytes);
-    /* clone->IncreaseVersion();
-    this->MarkObjectAsInvalid(); */
+    clone->IncreaseVersion();
+    /* this->MarkObjectAsInvalid(); */
     return clone;
 }
 #else
@@ -137,17 +137,21 @@ void VMArray::MarkReferences() {
     ReadBarrierForGCThread(&clazz);
     long numFields          = GetNumberOfFields();
     long numIndexableFields = GetNumberOfIndexableFields();
-    for (long i = 0; i < numFields + numIndexableFields; i++)
+    for (long i = 0; i < numFields + numIndexableFields; i++) {
         ReadBarrierForGCThread(&FIELDS[i]);
+        assert(Universe::IsValidObject((AbstractVMObject*) Untag(*(&FIELDS[i]))));
+    }
 }
 void VMArray::CheckMarking(void (*walk)(AbstractVMObject*)) {
     // ensure that the NMT bit was set during the pauseless marking
     assert(GetNMTValue(clazz) == _HEAP->GetGCThread()->GetExpectedNMT());
+    CheckBlocked(Untag(clazz));
     walk(Untag(clazz));
     long numFields          = GetNumberOfFields();
     long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numFields + numIndexableFields; i++) {
         assert(GetNMTValue(AS_GC_POINTER(FIELDS[i])) == _HEAP->GetGCThread()->GetExpectedNMT());
+        CheckBlocked(Untag(AS_GC_POINTER(FIELDS[i])));
         walk(Untag(AS_GC_POINTER(FIELDS[i])));
     }
 }

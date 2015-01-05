@@ -68,11 +68,14 @@ void VMInvokable::MarkReferences() {
 }
 void VMInvokable::CheckMarking(void (*walk)(AbstractVMObject*)) {
     assert(GetNMTValue(clazz) == _HEAP->GetGCThread()->GetExpectedNMT());
+    CheckBlocked(Untag(clazz));
     walk(Untag(clazz));
     assert(GetNMTValue(signature) == _HEAP->GetGCThread()->GetExpectedNMT());
+    CheckBlocked(Untag(signature));
     walk(Untag(signature));
     if (holder) {
         assert(GetNMTValue(holder) == _HEAP->GetGCThread()->GetExpectedNMT());
+        CheckBlocked(Untag(holder));
         walk(Untag(holder));
     }
 }

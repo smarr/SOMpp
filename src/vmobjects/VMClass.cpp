@@ -62,15 +62,15 @@ pVMClass VMClass::Clone() {
 pVMClass VMClass::Clone(Interpreter* thread) {
     pVMClass clone = new (_HEAP, thread, objectSize - sizeof(VMClass)) VMClass(*this);
     memcpy(SHIFTED_PTR(clone,sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    /* clone->IncreaseVersion();
-    this->MarkObjectAsInvalid(); */
+    clone->IncreaseVersion();
+    /* this->MarkObjectAsInvalid(); */
     return clone;
 }
 pVMClass VMClass::Clone(PauselessCollectorThread* thread) {
     pVMClass clone = new (_HEAP, thread, objectSize - sizeof(VMClass)) VMClass(*this);
     memcpy(SHIFTED_PTR(clone,sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    /* clone->IncreaseVersion();
-    this->MarkObjectAsInvalid(); */
+    clone->IncreaseVersion();
+    /* this->MarkObjectAsInvalid(); */
     return clone;
 }
 #else
@@ -305,22 +305,27 @@ void VMClass::MarkReferences() {
     }
 }
 void VMClass::CheckMarking(void (*walk)(AbstractVMObject*)) {
-    pVMClass test = Untag(clazz);
     assert(GetNMTValue(clazz) == _HEAP->GetGCThread()->GetExpectedNMT());
+    CheckBlocked(Untag(clazz));
     walk(Untag(clazz));
     if (superClass) {
         assert(GetNMTValue(superClass) == _HEAP->GetGCThread()->GetExpectedNMT());
+        CheckBlocked(Untag(superClass));
         walk(Untag(superClass));
         
     }
     assert(GetNMTValue(name) == _HEAP->GetGCThread()->GetExpectedNMT());
+    CheckBlocked(Untag(name));
     walk(Untag(name));
     assert(GetNMTValue(instanceFields) == _HEAP->GetGCThread()->GetExpectedNMT());
+    CheckBlocked(Untag(instanceFields));
     walk(Untag(instanceFields));
     assert(GetNMTValue(instanceInvokables) == _HEAP->GetGCThread()->GetExpectedNMT());
+    CheckBlocked(Untag(instanceInvokables));
     walk(Untag(instanceInvokables));
     for (long i = VMClassNumberOfFields + 0/*VMObjectNumberOfFields*/; i < numberOfFields; i++) {
         assert(GetNMTValue(AS_GC_POINTER(FIELDS[i])) == _HEAP->GetGCThread()->GetExpectedNMT());
+        CheckBlocked(Untag(AS_GC_POINTER(FIELDS[i])));
         walk(Untag(AS_GC_POINTER(FIELDS[i])));
     }
 }

@@ -58,14 +58,14 @@ pVMEvaluationPrimitive VMEvaluationPrimitive::Clone() {
 #elif GC_TYPE==PAUSELESS
 pVMEvaluationPrimitive VMEvaluationPrimitive::Clone(Interpreter* thread) {
     pVMEvaluationPrimitive clone = new (_HEAP, thread) VMEvaluationPrimitive(*this);
-    /* clone->IncreaseVersion();
-    this->MarkObjectAsInvalid(); */
+    clone->IncreaseVersion();
+    /* this->MarkObjectAsInvalid(); */
     return clone;
 }
 pVMEvaluationPrimitive VMEvaluationPrimitive::Clone(PauselessCollectorThread* thread) {
     pVMEvaluationPrimitive clone = new (_HEAP, thread) VMEvaluationPrimitive(*this);
-    /* clone->IncreaseVersion();
-    this->MarkObjectAsInvalid(); */
+    clone->IncreaseVersion();
+    /* this->MarkObjectAsInvalid(); */
     return clone;
 }
 #else
@@ -133,6 +133,7 @@ void VMEvaluationPrimitive::MarkReferences() {
 void VMEvaluationPrimitive::CheckMarking(void (*walk)(AbstractVMObject*)) {
     VMPrimitive::CheckMarking(walk);
     assert(GetNMTValue(numberOfArguments) == _HEAP->GetGCThread()->GetExpectedNMT());
+    CheckBlocked(Untag(numberOfArguments));
     walk(Untag(numberOfArguments));
 }
 #else

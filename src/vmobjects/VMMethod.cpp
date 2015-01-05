@@ -85,7 +85,7 @@ pVMMethod VMMethod::Clone(Interpreter* thread) {
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this, sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     clone->indexableFields = (GCAbstractObject**)(&(clone->indexableFields) + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
     clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + GetNumberOfIndexableFields());
-    /*clone->IncreaseVersion(); */
+    clone->IncreaseVersion();
     return clone;
 }
 pVMMethod VMMethod::Clone(PauselessCollectorThread* thread) {
@@ -93,7 +93,7 @@ pVMMethod VMMethod::Clone(PauselessCollectorThread* thread) {
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this, sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     clone->indexableFields = (GCAbstractObject**)(&(clone->indexableFields) + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
     clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + ReadBarrierForGCThread(&numberOfConstants)->GetEmbeddedInteger());
-    /*clone->IncreaseVersion(); */
+    clone->IncreaseVersion();
     return clone;
 }
 #else
@@ -222,18 +222,24 @@ void VMMethod::MarkReferences() {
 void VMMethod::CheckMarking(void (*walk)(AbstractVMObject*)) {
     VMInvokable::CheckMarking(walk);
     assert(GetNMTValue(numberOfLocals) == _HEAP->GetGCThread()->GetExpectedNMT());
+    CheckBlocked(Untag(numberOfLocals));
     walk(Untag(numberOfLocals));
     assert(GetNMTValue(maximumNumberOfStackElements) == _HEAP->GetGCThread()->GetExpectedNMT());
+    CheckBlocked(Untag(maximumNumberOfStackElements));
     walk(Untag(maximumNumberOfStackElements));
     assert(GetNMTValue(bcLength) == _HEAP->GetGCThread()->GetExpectedNMT());
+    CheckBlocked(Untag(bcLength));
     walk(Untag(bcLength));
     assert(GetNMTValue(numberOfArguments) == _HEAP->GetGCThread()->GetExpectedNMT());
+    CheckBlocked(Untag(numberOfArguments));
     walk(Untag(numberOfArguments));
     assert(GetNMTValue(numberOfConstants) == _HEAP->GetGCThread()->GetExpectedNMT());
+    CheckBlocked(Untag(numberOfConstants));
     walk(Untag(numberOfConstants));
     long numIndexableFields = Untag(numberOfConstants)->GetEmbeddedInteger();
     for (long i = 0; i < numIndexableFields; ++i) {
         assert(GetNMTValue(AS_GC_POINTER(indexableFields[i])) == _HEAP->GetGCThread()->GetExpectedNMT());
+        CheckBlocked(Untag(AS_GC_POINTER(indexableFields[i])));
         walk(Untag(AS_GC_POINTER(indexableFields[i])));
     }
 }
