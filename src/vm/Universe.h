@@ -117,7 +117,7 @@ public:
     vm_oop_t GetGlobal(VMSymbol*);
     void SetGlobal(VMSymbol* name, vm_oop_t val);
     bool HasGlobal(VMSymbol*);
-    void InitializeGlobals();
+    VMObject* InitializeGlobals();
     VMClass* GetBlockClass(void) const;
     VMClass* GetBlockClassWithArgs(long);
 
@@ -143,6 +143,8 @@ public:
 private:
     vector<StdString> handleArguments(long argc, char** argv);
     long getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;
+
+    VMMethod* createBootstrapMethod(VMClass* holder, long numArgsOfMsgSend);
 
     friend Universe* GetUniverse();
     static Universe* theUniverse;

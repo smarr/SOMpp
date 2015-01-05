@@ -279,6 +279,15 @@ Universe::Universe() {
     interpreter = nullptr;
 }
 
+VMMethod* Universe::createBootstrapMethod(VMClass* holder, long numArgsOfMsgSend) {
+    VMMethod* bootstrapMethod = NewMethod(SymbolForChars("bootstrap"), 1, 0);
+    bootstrapMethod->SetBytecode(0, BC_HALT);
+    bootstrapMethod->SetNumberOfLocals(0);
+    bootstrapMethod->SetMaximumNumberOfStackElements(numArgsOfMsgSend);
+    bootstrapMethod->SetHolder(holder);
+    return bootstrapMethod;
+}
+
 void Universe::initialize(long _argc, char** _argv) {
 #ifdef GENERATE_ALLOCATION_STATISTICS
     allocationStats["VMArray"] = {0,0};
@@ -304,28 +313,10 @@ void Universe::initialize(long _argc, char** _argv) {
     }
 #endif
 
-    InitializeGlobals();
-
-    VMObject* systemObject = NewInstance(load_ptr(systemClass));
-
-    SetGlobal(SymbolForChars("nil"),    load_ptr(nilObject));
-    SetGlobal(SymbolForChars("true"),   load_ptr(trueObject));
-    SetGlobal(SymbolForChars("false"),  load_ptr(falseObject));
-    SetGlobal(SymbolForChars("system"), systemObject);
-    SetGlobal(SymbolForChars("System"), load_ptr(systemClass));
-    SetGlobal(SymbolForChars("Block"),  load_ptr(blockClass));
-
-    symbolIfTrue  = _store_ptr(SymbolForChars("ifTrue:"));
-    symbolIfFalse = _store_ptr(SymbolForChars("ifFalse:"));
+    VMObject* systemObject = InitializeGlobals();
 
     
-
-    VMMethod* bootstrapMethod = NewMethod(SymbolForChars("bootstrap"), 1, 0);
-    bootstrapMethod->SetBytecode(0, BC_HALT);
-    bootstrapMethod->SetNumberOfLocals(0);
-
-    bootstrapMethod->SetMaximumNumberOfStackElements(2);
-    bootstrapMethod->SetHolder(load_ptr(systemClass));
+    VMMethod* bootstrapMethod = createBootstrapMethod(load_ptr(systemClass), 2);
 
     if (argv.size() == 0) {
         Shell* shell = new Shell(bootstrapMethod);
@@ -467,7 +458,7 @@ Universe::~Universe() {
     }
 #endif
 
-void Universe::InitializeGlobals() {
+VMObject* Universe::InitializeGlobals() {
     set_vt_to_null();
     
 # warning is _store_ptr sufficient?
@@ -538,6 +529,21 @@ void Universe::InitializeGlobals() {
     falseObject = _store_ptr(NewInstance(load_ptr(falseClass)));
 
     systemClass = _store_ptr(LoadClass(SymbolForChars("System")));
+    
+    
+    VMObject* systemObject = NewInstance(load_ptr(systemClass));
+    
+    SetGlobal(SymbolForChars("nil"),    load_ptr(nilObject));
+    SetGlobal(SymbolForChars("true"),   load_ptr(trueObject));
+    SetGlobal(SymbolForChars("false"),  load_ptr(falseObject));
+    SetGlobal(SymbolForChars("system"), systemObject);
+    SetGlobal(SymbolForChars("System"), load_ptr(systemClass));
+    SetGlobal(SymbolForChars("Block"),  load_ptr(blockClass));
+    
+    symbolIfTrue  = _store_ptr(SymbolForChars("ifTrue:"));
+    symbolIfFalse = _store_ptr(SymbolForChars("ifFalse:"));
+    
+    return systemObject;
 }
 
 void Universe::Assert(bool value) const {
