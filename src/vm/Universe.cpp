@@ -320,7 +320,7 @@ void Universe::initialize(long _argc, char** _argv) {
 
     if (argv.size() == 0) {
         Shell* shell = new Shell(bootstrapMethod);
-        shell->Start();
+        shell->Start(interpreter);
         return;
     }
 
