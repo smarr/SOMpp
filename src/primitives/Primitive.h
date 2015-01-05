@@ -7,8 +7,8 @@ class _Primitive: public PrimitiveContainer {
 public:
     _Primitive(void);
     
-    void Signature(VMObject* object, VMFrame* frame);
-    void Holder   (VMObject* object, VMFrame* frame);
-    void InvokeOn_With_(VMObject* object, VMFrame* frame);
+    void Signature(Interpreter*, VMFrame*);
+    void Holder   (Interpreter*, VMFrame*);
+    void InvokeOn_With_(Interpreter*, VMFrame*);
 
 };

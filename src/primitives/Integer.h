@@ -33,29 +33,29 @@ class _Integer: public PrimitiveContainer {
 
 public:
 
-    void Plus(VMObject* object, VMFrame* frame);
-    void Minus(VMObject* object, VMFrame* frame);
-    void Star(VMObject* object, VMFrame* frame);
-    void BitwiseAnd(VMObject* object, VMFrame* frame);
-    void BitwiseXor(VMObject* object, VMFrame* frame);
-    void LeftShift(VMObject* object, VMFrame* frame);
-    void Slash(VMObject* object, VMFrame* frame);
-    void Slashslash(VMObject* object, VMFrame* frame);
-    void Percent(VMObject* object, VMFrame* frame);
-    void And(VMObject* object, VMFrame* frame);
-    void Equal(VMObject* object, VMFrame* frame);
-    void EqualEqual(VMObject* object, VMFrame* frame);
-    void Lowerthan(VMObject* object, VMFrame* frame);
-    void AsString(VMObject* object, VMFrame* frame);
-    void Sqrt(VMObject* object, VMFrame* frame);
-    void AtRandom(VMObject* object, VMFrame* frame);
+    void Plus(Interpreter*, VMFrame*);
+    void Minus(Interpreter*, VMFrame*);
+    void Star(Interpreter*, VMFrame*);
+    void BitwiseAnd(Interpreter*, VMFrame*);
+    void BitwiseXor(Interpreter*, VMFrame*);
+    void LeftShift(Interpreter*, VMFrame*);
+    void Slash(Interpreter*, VMFrame*);
+    void Slashslash(Interpreter*, VMFrame*);
+    void Percent(Interpreter*, VMFrame*);
+    void And(Interpreter*, VMFrame*);
+    void Equal(Interpreter*, VMFrame*);
+    void EqualEqual(Interpreter*, VMFrame*);
+    void Lowerthan(Interpreter*, VMFrame*);
+    void AsString(Interpreter*, VMFrame*);
+    void Sqrt(Interpreter*, VMFrame*);
+    void AtRandom(Interpreter*, VMFrame*);
 
-    void FromString(VMObject* object, VMFrame* frame);
+    void FromString(Interpreter*, VMFrame*);
 
     _Integer(void);
 
 private:
 
-    void resendAsDouble(VMFrame*, const char* op, vm_oop_t left, VMDouble* right);
+    void resendAsDouble(Interpreter* interp, const char* op, vm_oop_t left, VMDouble* right);
 
 };

@@ -41,7 +41,7 @@ public:
         return bootstrapMethod;
     }
     ;
-    void Start();
+    void Start(Interpreter*);
 private:
     VMMethod* bootstrapMethod;
 };

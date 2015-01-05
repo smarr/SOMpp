@@ -337,7 +337,7 @@ void Universe::initialize(long _argc, char** _argv) {
 
     VMInvokable* initialize = load_ptr(systemClass)->LookupInvokable(
                                             SymbolForChars("initialize:"));
-    (*initialize)(bootstrapFrame);
+    initialize->Invoke(interpreter, bootstrapFrame);
 
     // reset "-d" indicator
     if (!(trace > 0))

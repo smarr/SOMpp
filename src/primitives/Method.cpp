@@ -12,17 +12,17 @@ _Method::_Method() : PrimitiveContainer() {
     SetPrimitive("invokeOn_with_", new Routine<_Method>(this, &_Method::InvokeOn_With_, false));
 }
 
-void _Method::Holder(VMObject*, VMFrame* frame) {
+void _Method::Holder(Interpreter*, VMFrame* frame) {
     VMMethod* self = static_cast<VMMethod*>(frame->Pop());
     frame->Push(self->GetHolder());
 }
 
-void _Method::Signature(VMObject*, VMFrame* frame) {
+void _Method::Signature(Interpreter*, VMFrame* frame) {
     VMMethod* self = static_cast<VMMethod*>(frame->Pop());
     frame->Push(self->GetSignature());
 }
 
-void _Method::InvokeOn_With_(VMObject*, VMFrame* frame) {
+void _Method::InvokeOn_With_(Interpreter* interp, VMFrame* frame) {
     // REM: this is a clone with _Primitive::InvokeOn_With_
     VMArray* args  = static_cast<VMArray*>(frame->Pop());
     vm_oop_t rcvr  = static_cast<vm_oop_t>(frame->Pop());
@@ -36,5 +36,5 @@ void _Method::InvokeOn_With_(VMObject*, VMFrame* frame) {
         vm_oop_t arg = args->GetIndexableField(i);
         frame->Push(arg);
     }
-    (*mthd)(frame);
+    mthd->Invoke(interp, frame);
 }

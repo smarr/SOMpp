@@ -36,16 +36,16 @@ public:
     _System(void);
     virtual ~_System();
 
-    void Global_(VMObject* object, VMFrame* frame);
-    void Global_put_(VMObject* object, VMFrame* frame);
-    void HasGlobal_(VMObject* object, VMFrame* frame);
-    void Load_(VMObject* object, VMFrame* frame);
-    void Exit_(VMObject* object, VMFrame* frame);
-    void PrintString_(VMObject* object, VMFrame* frame);
-    void PrintNewline(VMObject* object, VMFrame* frame);
-    void Time(VMObject* object, VMFrame* frame);
-    void Ticks(VMObject* object, VMFrame* frame);
-    void FullGC(VMObject* object, VMFrame* frame);
+    void Global_(Interpreter*, VMFrame*);
+    void Global_put_(Interpreter*, VMFrame*);
+    void HasGlobal_(Interpreter*, VMFrame*);
+    void Load_(Interpreter*, VMFrame*);
+    void Exit_(Interpreter*, VMFrame*);
+    void PrintString_(Interpreter*, VMFrame*);
+    void PrintNewline(Interpreter*, VMFrame*);
+    void Time(Interpreter*, VMFrame*);
+    void Ticks(Interpreter*, VMFrame*);
+    void FullGC(Interpreter*, VMFrame*);
 
 private:
     struct timeval start_time;

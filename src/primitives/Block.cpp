@@ -33,19 +33,19 @@
 
 #include <vm/Universe.h>
 
-void _Block::Value(VMObject* /*object*/, VMFrame* /*frame*/) {
+void _Block::Value(Interpreter*, VMFrame*) {
     // intentionally left blank
 }
 
-void _Block::Value_(VMObject* /*object*/, VMFrame* /*frame*/) {
+void _Block::Value_(Interpreter*, VMFrame*) {
     // intentionally left blank
 }
 
-void _Block::Value_with_(VMObject* /*object*/, VMFrame* /*frame*/) {
+void _Block::Value_with_(Interpreter*, VMFrame*) {
     // intentionally left blank
 }
 
-void _Block::Restart(VMObject* /*object*/, VMFrame* frame) {
+void _Block::Restart(Interpreter*, VMFrame* frame) {
     frame->SetBytecodeIndex(0);
     frame->ResetStackPointer();
 }

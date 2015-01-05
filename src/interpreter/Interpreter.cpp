@@ -254,7 +254,7 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
         // since an invokable is able to change/use the frame, we have to write
         // cached values before, and read cached values after calling
         GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
-        (*invokable)(GetFrame());
+        invokable->Invoke(this, GetFrame());
         bytecodeIndexGlobal = GetFrame()->GetBytecodeIndex();
     } else {
         //doesNotUnderstand
@@ -283,7 +283,7 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
             SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
         }
 
-        AS_OBJ(receiver)->Send(GetFrame(), doesNotUnderstand, arguments, 2);
+        AS_OBJ(receiver)->Send(this, doesNotUnderstand, arguments, 2);
     }
 }
 
@@ -371,7 +371,7 @@ void Interpreter::doPushGlobal(long bytecodeIndex) {
             SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
         }
 
-        AS_OBJ(self)->Send(GetFrame(), unknownGlobal, arguments, 1);
+        AS_OBJ(self)->Send(this, unknownGlobal, arguments, 1);
     }
 }
 
@@ -440,7 +440,7 @@ void Interpreter::doSuperSend(long bytecodeIndex) {
     VMInvokable* invokable = static_cast<VMInvokable*>(super->LookupInvokable(signature));
 
     if (invokable != nullptr)
-        (*invokable)(GetFrame());
+        invokable->Invoke(this, GetFrame());
     else {
         long numOfArgs = Signature::GetNumberOfArguments(signature);
         vm_oop_t receiver = GetFrame()->GetStackElement(numOfArgs - 1);
@@ -452,7 +452,7 @@ void Interpreter::doSuperSend(long bytecodeIndex) {
         }
         vm_oop_t arguments[] = {signature, argumentsArray};
 
-        AS_OBJ(receiver)->Send(GetFrame(), doesNotUnderstand, arguments, 2);
+        AS_OBJ(receiver)->Send(this, doesNotUnderstand, arguments, 2);
     }
 }
 
@@ -490,7 +490,7 @@ void Interpreter::doReturnNonLocal() {
             SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
         }
 
-        AS_OBJ(sender)->Send(GetFrame(), escapedBlock, arguments, 1);
+        AS_OBJ(sender)->Send(this, escapedBlock, arguments, 1);
         return;
     }
 

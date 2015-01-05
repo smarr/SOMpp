@@ -63,9 +63,7 @@ public:
 
     inline  void      SetIndexableField(long idx, vm_oop_t item);
 
-    //-----------VMInvokable-------------//
-    //operator "()" to invoke the method
-    virtual void operator()(VMFrame* frame);
+    virtual void Invoke(Interpreter* interp, VMFrame* frame);
 
     void SetSignature(VMSymbol* sig);
     

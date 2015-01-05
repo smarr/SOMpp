@@ -36,14 +36,14 @@
 
 _Symbol* Symbol;
 
-void _Symbol::AsString(VMObject* /*object*/, VMFrame* frame) {
+void _Symbol::AsString(Interpreter*, VMFrame* frame) {
     VMSymbol* sym = static_cast<VMSymbol*>(frame->Pop());
 
     StdString str = sym->GetStdString();
     frame->Push(GetUniverse()->NewString(str));
 }
 
-void _Symbol::Equal(VMObject*, VMFrame* frame) {
+void _Symbol::Equal(Interpreter*, VMFrame* frame) {
     vm_oop_t op1 = frame->Pop();
     vm_oop_t op2 = frame->Pop();
     

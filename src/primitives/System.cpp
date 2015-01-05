@@ -51,7 +51,7 @@
 
 _System* System_;
 
-void _System::Global_(VMObject* /*object*/, VMFrame* frame) {
+void _System::Global_(Interpreter*, VMFrame* frame) {
     VMSymbol* arg = static_cast<VMSymbol*>(frame->Pop());
     /*VMObject* self = */
     frame->Pop();
@@ -60,13 +60,13 @@ void _System::Global_(VMObject* /*object*/, VMFrame* frame) {
     frame->Push(result ? result : load_ptr(nilObject));
 }
 
-void _System::Global_put_(VMObject* /*object*/, VMFrame* frame) {
+void _System::Global_put_(Interpreter*, VMFrame* frame) {
     vm_oop_t value = frame->Pop();
     VMSymbol* arg = static_cast<VMSymbol*>(frame->Pop());
     GetUniverse()->SetGlobal(arg, value);
 }
 
-void _System::HasGlobal_(VMObject* /*object*/, VMFrame* frame) {
+void _System::HasGlobal_(Interpreter*, VMFrame* frame) {
     VMSymbol* arg = static_cast<VMSymbol*>(frame->Pop());
     frame->Pop(); // pop self (system)
 
@@ -77,7 +77,7 @@ void _System::HasGlobal_(VMObject* /*object*/, VMFrame* frame) {
     }
 }
 
-void _System::Load_(VMObject* /*object*/, VMFrame* frame) {
+void _System::Load_(Interpreter*, VMFrame* frame) {
     VMSymbol* arg = static_cast<VMSymbol*>(frame->Pop());
     frame->Pop();
     VMClass* result = GetUniverse()->LoadClass(arg);
@@ -87,7 +87,7 @@ void _System::Load_(VMObject* /*object*/, VMFrame* frame) {
         frame->Push(load_ptr(nilObject));
 }
 
-void _System::Exit_(VMObject* /*object*/, VMFrame* frame) {
+void _System::Exit_(Interpreter*, VMFrame* frame) {
     vm_oop_t err = frame->Pop();
 
     long err_no = INT_VAL(err);
@@ -96,17 +96,17 @@ void _System::Exit_(VMObject* /*object*/, VMFrame* frame) {
     GetUniverse()->Quit(err_no);
 }
 
-void _System::PrintString_(VMObject* /*object*/, VMFrame* frame) {
+void _System::PrintString_(Interpreter*, VMFrame* frame) {
     VMString* arg = static_cast<VMString*>(frame->Pop());
     std::string str = arg->GetStdString();
     cout << str;
 }
 
-void _System::PrintNewline(VMObject* /*object*/, VMFrame* /*frame*/) {
+void _System::PrintNewline(Interpreter*, VMFrame*) {
     cout << endl;
 }
 
-void _System::Time(VMObject* /*object*/, VMFrame* frame) {
+void _System::Time(Interpreter*, VMFrame* frame) {
     /*VMObject* self = */
     frame->Pop();
     struct timeval now;
@@ -120,7 +120,7 @@ void _System::Time(VMObject* /*object*/, VMFrame* frame) {
     frame->Push(NEW_INT(diff));
 }
 
-void _System::Ticks(VMObject* /*object*/, VMFrame* frame) {
+void _System::Ticks(Interpreter*, VMFrame* frame) {
     /*VMObject* self = */
     frame->Pop();
     struct timeval now;
@@ -134,7 +134,7 @@ void _System::Ticks(VMObject* /*object*/, VMFrame* frame) {
     frame->Push(NEW_INT(diff));
 }
 
-void _System::FullGC(VMObject* /*object*/, VMFrame* frame) {
+void _System::FullGC(Interpreter*, VMFrame* frame) {
     frame->Pop();
     GetHeap<HEAP_CLS>()->triggerGC(); // not safe to do it immediatly, will be done when it is ok, i.e., in the interpreter loop
     frame->Push(load_ptr(trueObject));

@@ -28,25 +28,27 @@
 
 #include <vmobjects/PrimitiveRoutine.h>
 
+class Interpreter;
+
 ///Implementation for a functor class with PrimitiveRoutine as base class.
 //It stores an object and a pointer to one of its methods. It is invoked
 //by calling the Routine's operator "()".
 template<class TClass> class Routine: public PrimitiveRoutine {
 private:
-    void (TClass::*fpt)(VMObject*, VMFrame*);   // pointer to member function
+    void (TClass::*func)(Interpreter*, VMFrame*);   // pointer to member function
     TClass* const pt2Object;                    // pointer to object
     const bool    classSide;
 
 public:
 
     // constructor - takes pointer to an object, pointer to a member, and a bool indicating whether it is a class-side primitive or not
-    Routine(TClass* _pt2Object, void (TClass::*_fpt)(VMObject*, VMFrame*),
+    Routine(TClass* _pt2Object, void (TClass::*_fpt)(Interpreter*, VMFrame*),
             bool classSide)
-    : classSide(classSide), pt2Object(_pt2Object), fpt(_fpt), PrimitiveRoutine() {};
+    : classSide(classSide), pt2Object(_pt2Object), func(_fpt), PrimitiveRoutine() {};
 
     // override operator "()"
-    virtual void operator()(VMObject* obj, VMFrame* frm) {
-        (*pt2Object.*fpt)(obj, frm);  // execute member function
+    virtual void Invoke(Interpreter* interp, VMFrame* frm) {
+        (*pt2Object.*func)(interp, frm);  // execute member function
     }
     
     virtual bool isClassSide() { return classSide; }

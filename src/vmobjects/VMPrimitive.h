@@ -44,16 +44,16 @@ public:
             void SetEmpty(bool value) {empty = value;};
     virtual VMPrimitive* Clone() const;
 
-    //-----------VMInvokable-------//
-    //operator "()" to invoke the primitive
-    virtual void operator()(VMFrame* frm) {(*routine)(this, frm);};
+    virtual void Invoke(Interpreter* interp, VMFrame* frm) {
+        routine->Invoke(interp, frm);
+    };
 
     virtual bool IsPrimitive() const {return true;};
     
     virtual StdString AsDebugString() const;
 
 private:
-    void EmptyRoutine(VMObject* self, VMFrame* frame);
+    void EmptyRoutine(Interpreter*, VMFrame*);
 
     PrimitiveRoutine* routine;
     bool empty;
