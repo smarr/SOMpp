@@ -13,6 +13,7 @@
 
 #include <vmobjects/VMString.h>
 #include <vmobjects/VMBlock.h>
+#include <vmObjects/VMClass.h>
 
 const int VMThread::VMThreadNumberOfFields = 5;
 
@@ -102,5 +103,40 @@ pVMThread VMThread::Clone(PauselessCollectorThread* thread) {
     pVMThread clone = new (_HEAP, thread, objectSize - sizeof(VMThread)) VMThread(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     return clone;
+}
+
+void VMThread::MarkReferences() {
+    ReadBarrierForGCThread(&clazz);
+    ReadBarrierForGCThread(&resumeSignal);
+    ReadBarrierForGCThread(&shouldStop);
+    ReadBarrierForGCThread(&blockToRun);
+    ReadBarrierForGCThread(&name);
+    ReadBarrierForGCThread(&argument);
+}
+
+void VMThread::CheckMarking(void (*walk)(AbstractVMObject*)) {
+    assert(GetNMTValue(clazz) == _HEAP->GetGCThread()->GetExpectedNMT());
+    CheckBlocked(Untag(clazz));
+    walk(Untag(clazz));
+    assert(GetNMTValue(resumeSignal) == _HEAP->GetGCThread()->GetExpectedNMT());
+    CheckBlocked(Untag(resumeSignal));
+    walk(Untag(resumeSignal));
+    assert(GetNMTValue(shouldStop) == _HEAP->GetGCThread()->GetExpectedNMT());
+    CheckBlocked(Untag(shouldStop));
+    walk(Untag(shouldStop));
+    assert(GetNMTValue(blockToRun) == _HEAP->GetGCThread()->GetExpectedNMT());
+    CheckBlocked(Untag(blockToRun));
+    walk(Untag(blockToRun));
+    assert(GetNMTValue(name) == _HEAP->GetGCThread()->GetExpectedNMT());
+    CheckBlocked(Untag(name));
+    walk(Untag(name));
+    assert(GetNMTValue(argument) == _HEAP->GetGCThread()->GetExpectedNMT());
+    CheckBlocked(Untag(argument));
+    walk(Untag(argument));
+}
+
+#else
+void VMThread::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
+    //still to do!
 }
 #endif

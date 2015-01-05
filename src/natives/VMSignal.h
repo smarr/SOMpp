@@ -27,6 +27,11 @@ public:
 #if GC_TYPE==PAUSELESS
     virtual pVMSignal Clone(Interpreter*);
     virtual pVMSignal Clone(PauselessCollectorThread*);
+    virtual void MarkReferences();
+    virtual void CheckMarking(void (AbstractVMObject*));
+#else
+    virtual pVMSignal Clone();
+    virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
 #endif
     
 private:

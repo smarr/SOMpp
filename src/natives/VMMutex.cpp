@@ -7,6 +7,7 @@
 //
 
 #include "VMMutex.h"
+#include <vmObjects/VMClass.h>
 
 const int VMMutex::VMMutexNumberOfFields = 0;
 
@@ -52,5 +53,20 @@ pVMMutex VMMutex::Clone(PauselessCollectorThread* thread) {
     pVMMutex clone = new (_HEAP, thread, objectSize - sizeof(VMMutex)) VMMutex(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     return clone;
+}
+
+void VMMutex::MarkReferences() {
+    ReadBarrierForGCThread(&clazz);
+}
+
+void VMMutex::CheckMarking(void (*walk)(AbstractVMObject*)) {
+    assert(GetNMTValue(clazz) == _HEAP->GetGCThread()->GetExpectedNMT());
+    CheckBlocked(Untag(clazz));
+    walk(Untag(clazz));
+}
+
+#else
+void VMMutex::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
+    //still to do!
 }
 #endif

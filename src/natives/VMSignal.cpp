@@ -7,6 +7,7 @@
 //
 
 #include "VMSignal.h"
+#include <vmObjects/VMClass.h>
 
 const int VMSignal::VMSignalNumberOfFields = 0;
 
@@ -57,5 +58,19 @@ pVMSignal VMSignal::Clone(PauselessCollectorThread* thread) {
     pVMSignal clone = new (_HEAP, thread, objectSize - sizeof(VMSignal)) VMSignal(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     return clone;
+}
+
+void VMSignal::MarkReferences() {
+    ReadBarrierForGCThread(&clazz);
+}
+
+void VMSignal::CheckMarking(void (*walk)(AbstractVMObject*)) {
+    assert(GetNMTValue(clazz) == _HEAP->GetGCThread()->GetExpectedNMT());
+    CheckBlocked(Untag(clazz));
+    walk(Untag(clazz));
+}
+#else
+void VMSignal::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
+    //still to do!
 }
 #endif
