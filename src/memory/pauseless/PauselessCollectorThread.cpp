@@ -26,6 +26,7 @@
  6) provide a lock for the fullpages (at the moment it is "only" accessed when doing a root-set marking
     it is however also accessed when a threads'destructor is called
  7) Take amount of live data into account when doing relocation of pages
+ 8) Remove some unnecessary locks
  
  1) Clean up the new operator for VMObject / VMAbstractObject
  2) Change name of blockedMutex, ....
