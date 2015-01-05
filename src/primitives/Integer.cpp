@@ -50,7 +50,7 @@
 #define CHECK_COERCION(obj,receiver,op) { \
   VMClass* cl = CLASS_OF(obj);\
   if(cl == load_ptr(doubleClass)) { \
-    resendAsDouble((op), (receiver), static_cast<VMDouble*>(obj)); \
+    resendAsDouble(frame, (op), (receiver), static_cast<VMDouble*>(obj)); \
     return; \
   } \
 }
@@ -80,11 +80,11 @@ _Integer::_Integer() : PrimitiveContainer() {
 // private functions for Integer
 //
 
-void _Integer::resendAsDouble(const char* op, vm_oop_t left, VMDouble* right) {
+void _Integer::resendAsDouble(VMFrame* frame, const char* op, vm_oop_t left, VMDouble* right) {
     VMDouble* leftDouble = GetUniverse()->NewDouble((double)INT_VAL(left));
     vm_oop_t operands[] = {right};
 
-    leftDouble->Send(op, operands, 1);
+    leftDouble->Send(frame, op, operands, 1);
 }
 
 //

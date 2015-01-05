@@ -283,7 +283,7 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
             SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
         }
 
-        AS_OBJ(receiver)->Send(doesNotUnderstand, arguments, 2);
+        AS_OBJ(receiver)->Send(GetFrame(), doesNotUnderstand, arguments, 2);
     }
 }
 
@@ -371,7 +371,7 @@ void Interpreter::doPushGlobal(long bytecodeIndex) {
             SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
         }
 
-        AS_OBJ(self)->Send(unknownGlobal, arguments, 1);
+        AS_OBJ(self)->Send(GetFrame(), unknownGlobal, arguments, 1);
     }
 }
 
@@ -452,7 +452,7 @@ void Interpreter::doSuperSend(long bytecodeIndex) {
         }
         vm_oop_t arguments[] = {signature, argumentsArray};
 
-        AS_OBJ(receiver)->Send(doesNotUnderstand, arguments, 2);
+        AS_OBJ(receiver)->Send(GetFrame(), doesNotUnderstand, arguments, 2);
     }
 }
 
@@ -490,7 +490,7 @@ void Interpreter::doReturnNonLocal() {
             SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
         }
 
-        AS_OBJ(sender)->Send(escapedBlock, arguments, 1);
+        AS_OBJ(sender)->Send(GetFrame(), escapedBlock, arguments, 1);
         return;
     }
 

@@ -56,6 +56,6 @@ public:
 
 private:
 
-    void resendAsDouble(const char* op, vm_oop_t left, VMDouble* right);
+    void resendAsDouble(VMFrame*, const char* op, vm_oop_t left, VMDouble* right);
 
 };
