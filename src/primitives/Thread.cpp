@@ -31,7 +31,7 @@ void _Thread::Join(pVMObject object, pVMFrame frame){
     _HEAP->DecrementWaitingForGCThreads();
 #endif
     
-    //frame->Push(thread);
+    frame->Push(thread);
 }
 
 void _Thread::Priority_(pVMObject object, pVMFrame frame){
