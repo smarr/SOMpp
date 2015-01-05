@@ -27,6 +27,7 @@
 #include "Parser.h"
 #include "BytecodeGenerator.h"
 
+#include <misc/debug.h>
 #include <vmobjects/VMMethod.h>
 #include <vmobjects/VMPrimitive.h>
 #include <vmobjects/VMObject.h>
@@ -237,7 +238,11 @@ void Parser::superclass(ClassGenerationContext *cgenc) {
     cgenc->SetSuperName(superName);
     
     // Load the super class, if it is not nil (break the dependency cycle)
-    if (superName != _UNIVERSE->SymbolFor("nil")) {
+    VMSymbol* nil = _UNIVERSE->SymbolFor("nil");
+    if (superName != nil) {
+        assert(0 != strcmp(superName->GetChars(), nil->GetChars()));
+        
+        //sync_out(ostringstream() << "Loading super class: " << superName->GetChars());
         pVMClass superClass = _UNIVERSE->LoadClass(superName);
         cgenc->SetInstanceFieldsOfSuper(superClass->GetInstanceFields());
         cgenc->SetClassFieldsOfSuper(superClass->GetClass()->GetInstanceFields());
