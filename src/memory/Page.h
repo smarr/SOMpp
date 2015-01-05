@@ -37,10 +37,6 @@ public:
     long GetAmountOfLiveData();
     void Free(size_t);
     void RelocatePage();
-    
-    //void GetPageStart();
-    //void ClearMarkBits();
-    
 #endif
     
 private:

@@ -50,6 +50,7 @@ void Page::Block() {
 
 void Page::UnBlock() {
     assert(blocked == true);
+    memset((void*)pageStart, 0xa, heap->pageSize);
     blocked = false;
     delete [] sideArray;
 }
@@ -63,12 +64,13 @@ AbstractVMObject* Page::LookupNewAddress(AbstractVMObject* oldAddress, Interpret
     if (!sideArray[position]) {
         AbstractVMObject* newLocation = oldAddress->Clone(thread);
         AbstractVMObject* test = nullptr;
+        void* oldPosition = thread->GetPage()->nextFreePosition;
         if (!sideArray[position].compare_exchange_strong(test, newLocation)) {
-            //_UNIVERSE->GetInterpreter()->GetPage()->Free(newLocation->GetObjectSize());
+            thread->GetPage()->nextFreePosition = oldPosition;
         }
     }
     assert(Universe::IsValidObject((AbstractVMObject*) sideArray[position]));
-    return static_cast<AbstractVMObject*>(sideArray[position]);
+    return sideArray[position];
 }
 
 AbstractVMObject* Page::LookupNewAddress(AbstractVMObject* oldAddress, PauselessCollectorThread* thread) {
@@ -76,11 +78,13 @@ AbstractVMObject* Page::LookupNewAddress(AbstractVMObject* oldAddress, Pauseless
     if (!sideArray[position]) {
         AbstractVMObject* newLocation = oldAddress->Clone(thread);
         AbstractVMObject* test = nullptr;
+        void* oldPosition = thread->GetPage()->nextFreePosition;
         if (!sideArray[position].compare_exchange_strong(test, newLocation)) {
-            //_UNIVERSE->GetInterpreter()->GetPage()->Free(newLocation->GetObjectSize());
+            thread->GetPage()->nextFreePosition = oldPosition;
         }
     }
-    return static_cast<AbstractVMObject*>(sideArray[position]);
+    assert(Universe::IsValidObject((AbstractVMObject*) sideArray[position]));
+    return sideArray[position];
 }
 
 void Page::AddAmountLiveData(size_t objectSize) {
@@ -98,17 +102,12 @@ void Page::Free(size_t numBytes) {
 }
 
 void Page::RelocatePage() {
-    AbstractVMObject* prevObject = NULL;
     for (AbstractVMObject* currentObject = (AbstractVMObject*) pageStart;
          (size_t) currentObject < (size_t) nextFreePosition;
          currentObject = (AbstractVMObject*) (currentObject->GetObjectSize() + (size_t) currentObject)) {
-        //size_t pageNumber = ((size_t)currentObject - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
-        //assert(pageNumber < 1280);
         assert(Universe::IsValidObject(currentObject));
-        if (currentObject->GetGCField()) {
+        if (currentObject->GetGCField() == _HEAP->GetMarkValue()) {
             AbstractVMObject* newLocation = currentObject->Clone(_HEAP->GetGCThread());
-            //size_t pageNumber2 = ((size_t)newLocation - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
-            //assert(pageNumber2 < 1280);
             long positionSideArray = ((size_t)currentObject - pageStart)/8;
             AbstractVMObject* test = nullptr;
             pthread_mutex_lock(_HEAP->GetCompareAndSwapTestMutex());
@@ -118,7 +117,6 @@ void Page::RelocatePage() {
             pthread_mutex_unlock(_HEAP->GetCompareAndSwapTestMutex());
             assert(Universe::IsValidObject((AbstractVMObject*) sideArray[positionSideArray]));
         }
-        //prevObject = currentObject;
     }
     amountLiveData = 0;
     nextFreePosition = (void*)pageStart;
