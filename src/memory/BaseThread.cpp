@@ -18,7 +18,7 @@ BaseThread::BaseThread() {
 BaseThread::BaseThread(bool expectedNMT) {
     page = _HEAP->RequestPage();
     worklist = Worklist();
-    this->expectedNMT = expectedNMT; //start value should false
+    this->expectedNMT = expectedNMT;
 }
 #endif
 
