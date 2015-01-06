@@ -185,29 +185,31 @@ void VMFrame::PrintBytecode() const {
 
 static void print_oop(gc_oop_t vmo) {
     if (vmo == nullptr)
-        cout << "nullptr" << endl;
+        Universe::Print("nullptr\n");
     else if (vmo == nilObject)
-        cout << "NIL_OBJECT" << endl;
+        Universe::Print("NIL_OBJECT\n");
     else {
         AbstractVMObject* o = AS_OBJ(vmo);
-        cout << o->AsDebugString() << endl;
+        Universe::Print(o->AsDebugString() + "\n");
     }
 }
 
 void VMFrame::PrintStack() const {
-    cout << GetMethod()->AsDebugString() << ", bc: " << GetBytecodeIndex() << endl;
-    cout << "Args: " << GetMethod()->GetNumberOfArguments() <<
-            " Locals: " << GetMethod()->GetNumberOfLocals() <<
-            " MaxStack:" << GetMethod()->GetMaximumNumberOfStackElements() << endl;
+    Universe::Print(GetMethod()->AsDebugString() + ", bc: " +
+                    to_string(GetBytecodeIndex()) + "\n" + "Args: " +
+                    to_string(GetMethod()->GetNumberOfArguments()) +
+                    " Locals: " + to_string(GetMethod()->GetNumberOfLocals()) +
+                    " MaxStack:" + to_string(GetMethod()->GetMaximumNumberOfStackElements()) +
+                    "\n");
 
     for (size_t i = 0; i < GetMethod()->GetNumberOfArguments(); i++) {
-        cout << "   arg " << i << ": ";
+        Universe::Print("   arg " + to_string(i) + ": ");
         print_oop(arguments[i]);
     }
     
     size_t local_offset = 0;
     for (size_t i = 0; i < GetMethod()->GetNumberOfLocals(); i++) {
-        cout << "   loc " << i << ": ";
+        Universe::Print("   loc " + to_string(i) + ": ");
         print_oop(locals[i]);
         local_offset++;
     }
@@ -215,9 +217,9 @@ void VMFrame::PrintStack() const {
     size_t max = GetMethod()->GetMaximumNumberOfStackElements();
     for (size_t i = 0; i < max; i++) {
         if (stack_ptr == &locals[local_offset + i]) {
-            cout << "-> stk " << i << ": ";
+            Universe::Print("-> stk " + to_string(i) + ": ");
         } else {
-            cout << "   stk " << i << ": ";
+            Universe::Print("   stk " + to_string(i) + ": ");
         }
         print_oop(locals[local_offset + i]);
     }
@@ -226,9 +228,9 @@ void VMFrame::PrintStack() const {
     size_t i = 0;
     while (&locals[local_offset + max + i] < end) {
         if (stack_ptr == &locals[local_offset + max + i]) {
-            cout << "->estk " << i << ": ";
+            Universe::Print("->estk " + to_string(i) + ": ");
         } else {
-            cout << "  estk " << i << ": ";
+            Universe::Print("  estk " + to_string(i) + ": ");
         }
         print_oop(locals[local_offset + max + i]);
         i++;
@@ -272,12 +274,11 @@ void VMFrame::PrintStackTrace() const {
     VMMethod* meth = GetMethod();
     
     if (meth->GetHolder() == load_ptr(nilObject)) {
-        cout << "nil";
+        Universe::Print("nil");
     } else {
-        cout << meth->GetHolder()->GetName()->GetStdString();
+        Universe::Print(meth->GetHolder()->GetName()->GetStdString());
     }
-    cout << ">>#" <<
-        meth->GetSignature()->GetStdString() << endl;
+    Universe::Print(">>#" + meth->GetSignature()->GetStdString() + "\n");
     if (previousFrame) {
         load_ptr(previousFrame)->PrintStackTrace();
     }

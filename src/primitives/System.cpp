@@ -99,17 +99,17 @@ void _System::Exit_(Interpreter*, VMFrame* frame) {
 void _System::PrintString_(Interpreter*, VMFrame* frame) {
     VMString* arg = static_cast<VMString*>(frame->Pop());
     std::string str = arg->GetStdString();
-    cout << str;
+    Universe::Print(str);
 }
 
 void _System::PrintNewline(Interpreter*, VMFrame*) {
-    cout << endl;
+    Universe::Print("\n");
 }
 
 void _System::PrintNewline_(Interpreter*, VMFrame* frame) {
     VMString* arg = static_cast<VMString*>(frame->Pop());
     std::string str = arg->GetStdString();
-    cout << (str + "\n");
+    Universe::Print(str + "\n");
 }
 
 

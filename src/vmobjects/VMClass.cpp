@@ -247,7 +247,7 @@ void VMClass::LoadPrimitives(const vector<StdString>& cp) {
         // the core library is not found or not responsible, 
         // continue w/ class file
         loadstring = genLoadstring(*i, cname);
-        cout << loadstring.c_str() << endl;
+        Universe::ErrorPrint(loadstring + "\n");
         dlhandle = loadLib(loadstring);
         if (dlhandle != nullptr) {
             //
@@ -276,8 +276,7 @@ void VMClass::LoadPrimitives(const vector<StdString>& cp) {
     // finished cycling,
     // check if a lib was found.
     if (dlhandle == nullptr) {
-        cout << "load failure: ";
-        cout << "could not load primitive library for " << cname << endl;
+        Universe::ErrorPrint("load failure: could not load primitive library for " + cname + "\n");
         GetUniverse()->Quit(ERR_FAIL);
     }
 
@@ -329,7 +328,7 @@ StdString VMClass::genCoreLoadstring(const StdString& cp) const {
  */
 void* VMClass::loadLib(const StdString& path) const {
 #ifdef __DEBUG
-    cout << "loadLib " << path << endl;
+    Universe::ErrorPrint("loadLib " + path + "\n");
 #endif
 #if defined(__GNUC__)
 #if DEBUG
@@ -345,7 +344,8 @@ void* VMClass::loadLib(const StdString& path) const {
         //found.
         return dlhandle;
     } else {
-        cout << "Error loading library " << path << ": " << dlerror() << endl;
+        Universe::ErrorPrint("Error loading library " + path + ": " +
+                             StdString(dlerror()) + "\n");
         return nullptr;
     }
 #else
@@ -365,8 +365,8 @@ bool VMClass::isResponsible(void* dlhandle, const StdString& cl) const {
 
     supports_class = (SupportsClass*) dlsym(dlhandle, "supportsClass");
     if (!supports_class) {
-        cout << "error: " << dlerror() << endl;
-        GetUniverse()->ErrorExit("Library doesn't have expected format: ");
+        GetUniverse()->ErrorExit(("Library doesn't have expected format: " +
+                                  StdString(dlerror())).c_str());
         return false;
     }
 
@@ -396,8 +396,8 @@ void VMClass::setPrimitives(void* dlhandle, const StdString& cname, bool classSi
         for (long i = 0; i < numInvokables; i++) {
             VMInvokable* anInvokable = current->GetInstanceInvokable(i);
     #ifdef __DEBUG
-            cout << "cname: >" << cname << "<"<< endl;
-            cout << anInvokable->GetSignature()->GetStdString() << endl;
+            Universe::ErrorPrint("cname: >" + cname + "<\n" +
+                                 anInvokable->GetSignature()->GetStdString() + "\n");
     #endif
 
             VMSymbol* sig = anInvokable->GetSignature();
@@ -421,8 +421,9 @@ void VMClass::setPrimitives(void* dlhandle, const StdString& cname, bool classSi
             } else {
                 if (anInvokable->IsPrimitive() && current == this) {
                     if (!routine || routine->isClassSide() == classSide) {
-                        cout << "could not load primitive '"<< selector <<
-                                "' for class " << cname << endl;
+                        Universe::ErrorPrint("could not load primitive '" +
+                                             selector + "' for class " +
+                                             cname + "\n");
                         GetUniverse()->Quit(ERR_FAIL);
                     }
                 }

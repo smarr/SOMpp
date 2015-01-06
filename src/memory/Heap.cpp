@@ -37,8 +37,8 @@ HEAP_T* Heap<HEAP_T>::theHeap = nullptr;
 template<class HEAP_T>
 void Heap<HEAP_T>::InitializeHeap(long objectSpaceSize) {
     if (theHeap) {
-        cout << "Warning, reinitializing already initialized Heap, "
-                << "all data will be lost!" << endl;
+        Universe::ErrorPrint("Warning, reinitializing already initialized Heap, "
+                             "all data will be lost!\n");
         delete theHeap;
     }
     theHeap = new HEAP_CLS(objectSpaceSize);

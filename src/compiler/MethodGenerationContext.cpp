@@ -180,9 +180,10 @@ uint8_t MethodGenerationContext::ComputeStackDepth() {
         case BC_JUMP:
             i += 5;
             break;
-        default :
-            cout << "Illegal bytecode: " << bytecode[i];
+        default: {
+            Universe::ErrorPrint("Illegal bytecode: " + to_string(bytecode[i]) + "\n");
             GetUniverse()->Quit(1);
+          }
         }
 
         if (depth > maxDepth)

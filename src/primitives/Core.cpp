@@ -54,7 +54,7 @@ static PrimitiveLoader* loader = nullptr;
 extern "C" void setup() {
     if (!loader) {
 #ifdef __DEBUG
-        cout << "Setting up the Core library" << endl;
+        Universe::ErrorPrint("Setting up the Core library\n");
 #endif
         //Initialize loader
         loader = new PrimitiveLoader();
@@ -90,7 +90,7 @@ extern "C" PrimitiveRoutine* create(const StdString& cname,
         const StdString& fname, bool isPrimitive) {
 
 #ifdef __DEBUG
-    cout << "Loading PrimitiveContainer: " << cname << "::" << fname << endl;
+    Universe::ErrorPrint("Loading PrimitiveContainer: " + cname + "::" + fname + "\n");
 #endif
     if (!loader)
         setup();

@@ -45,20 +45,18 @@ VMArray::VMArray(long size, long nof) :
 
 vm_oop_t VMArray::GetIndexableField(long idx) const {
     if (unlikely(idx > GetNumberOfIndexableFields())) {
-        cout << "Array index out of bounds: Accessing " << idx
-        << ", but array size is only " << GetNumberOfIndexableFields()
-        << endl;
-        GetUniverse()->ErrorExit("Array index out of bounds");
+        GetUniverse()->ErrorExit(("Array index out of bounds: Accessing " +
+                                 to_string(idx) + ", but array size is only " +
+                                 to_string(GetNumberOfIndexableFields()) + "\n").c_str());
     }
     return GetField(GetNumberOfFields() + idx);
 }
 
 void VMArray::SetIndexableField(long idx, vm_oop_t value) {
     if (unlikely(idx > GetNumberOfIndexableFields())) {
-        cout << "Array index out of bounds: Accessing " << idx
-        << ", but array size is only " << GetNumberOfIndexableFields()
-        << endl;
-        GetUniverse()->ErrorExit("Array index out of bounds");
+        GetUniverse()->ErrorExit(("Array index out of bounds: Accessing " +
+                                  to_string(idx) + ", but array size is only " +
+                                  to_string(GetNumberOfIndexableFields()) + "\n").c_str());
     }
     SetField(GetNumberOfFields() + idx, value);
 }

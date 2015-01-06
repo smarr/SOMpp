@@ -101,6 +101,7 @@ std::map<std::string, struct alloc_data> allocationStats;
 #endif
 
 map<int64_t, int64_t> integerHist;
+mutex Universe::output_mutex;
 
 void Universe::Start(long argc, char** argv) {
     theUniverse = new Universe();
@@ -108,8 +109,7 @@ void Universe::Start(long argc, char** argv) {
 }
 
 __attribute__((noreturn)) void Universe::Quit(long err) {
-    cout << "Time spent in GC: [" << Timer::GCTimer->GetTotalTime() << "] msec"
-            << endl;
+    Universe::ErrorPrint("Time spent in GC: [" + to_string(Timer::GCTimer->GetTotalTime()) + "] msec\n");
 #ifdef GENERATE_INTEGER_HISTOGRAM
     std::string file_name_hist = std::string(bm_name);
     file_name_hist.append("_integer_histogram.csv");
@@ -154,7 +154,7 @@ __attribute__((noreturn)) void Universe::Quit(long err) {
 }
 
 __attribute__((noreturn)) void Universe::ErrorExit(const char* err) {
-    cout << "Runtime error: " << err << endl;
+    Universe::ErrorPrint("Runtime error: " + StdString(err) + "\n");
     Quit(ERR_FAIL);
 }
 
@@ -548,7 +548,7 @@ VMObject* Universe::InitializeGlobals() {
 
 void Universe::Assert(bool value) const {
     if (!value) {
-        cout << "Assertion failed" << endl;
+        Universe::ErrorPrint("Universe::Assert Assertion failed\n");
     }
 }
 
@@ -652,7 +652,6 @@ VMClass* Universe::LoadClass(VMSymbol* name) {
 
 VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
     StdString s_name = name->GetStdString();
-    //cout << s_name.c_str() << endl;
     VMClass* result;
 
     for (vector<StdString>::iterator i = classPath.begin();
@@ -683,7 +682,7 @@ void Universe::LoadSystemClass(VMClass* systemClass) {
     StdString s = systemClass->GetName()->GetStdString();
 
     if (!result) {
-        cout << "Can't load system class: " << s << endl;
+        Universe::ErrorPrint("Can't load system class: " + s + "\n");
         Universe::Quit(ERR_FAIL);
     }
 

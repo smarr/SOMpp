@@ -139,6 +139,9 @@ public:
     //
     
     static bool IsValidObject(vm_oop_t obj);
+    
+    static void Print(StdString str);
+    static void ErrorPrint(StdString str);
 
 private:
     vector<StdString> handleArguments(long argc, char** argv);
@@ -162,6 +165,8 @@ private:
     vector<StdString> classPath;
 
     Interpreter* interpreter;
+    
+    static mutex output_mutex;
 };
 
 //Singleton accessor

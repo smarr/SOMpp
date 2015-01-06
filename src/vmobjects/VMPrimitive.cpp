@@ -63,7 +63,7 @@ void VMPrimitive::WalkObjects(walk_heap_fn walk) {
 
 void VMPrimitive::EmptyRoutine(Interpreter*, VMFrame*) {
     VMSymbol* sig = GetSignature();
-    cout << "undefined primitive called: " << sig->GetChars() << endl;
+    Universe::ErrorPrint("undefined primitive called: " + sig->GetStdString() + "\n");
 }
 
 StdString VMPrimitive::AsDebugString() const {

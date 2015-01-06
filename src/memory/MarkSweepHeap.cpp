@@ -17,7 +17,7 @@ AbstractVMObject* MarkSweepHeap::AllocateObject(size_t size) {
     //TODO: PADDING wird eigentlich auch durch malloc erledigt
     AbstractVMObject* newObject = (AbstractVMObject*) malloc(size);
     if (newObject == nullptr) {
-        cout << "Failed to allocate " << size << " Bytes." << endl;
+        Universe::ErrorPrint("Failed to allocate " + to_string(size) + " Bytes.\n");
         GetUniverse()->Quit(-1);
     }
     spcAlloc += size;

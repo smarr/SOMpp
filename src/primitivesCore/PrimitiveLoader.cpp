@@ -55,13 +55,13 @@ PrimitiveRoutine* PrimitiveLoader::GetPrimitiveRoutine(const std::string& cname,
     PrimitiveRoutine* result;
     PrimitiveContainer* primitive = primitiveObjects[cname];
     if (!primitive) {
-        cout << "Primitive object not found for name: " << cname << endl;
+        Universe::ErrorPrint("Primitive object not found for name: " + cname + "\n");
         return nullptr;
     }
     result = primitive->GetPrimitive(mname);
     if (!result) {
         if (isPrimitive) {
-            cout << "method " << mname << " not found in class " << cname << endl;
+            Universe::ErrorPrint("method " + mname + " not found in class " + cname + "\n");
         }
         return nullptr;
     }
