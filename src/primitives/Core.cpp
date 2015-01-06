@@ -58,38 +58,17 @@ extern "C" void setup() {
 #endif
         //Initialize loader
         loader = new PrimitiveLoader();
-        loader->AddPrimitiveObject("Array",
-                static_cast<PrimitiveContainer*>(new _Array()));
-
-        loader->AddPrimitiveObject("Block",
-                static_cast<PrimitiveContainer*>(new _Block()));
-
-        loader->AddPrimitiveObject("Class",
-                static_cast<PrimitiveContainer*>(new _Class()));
-
-        loader->AddPrimitiveObject("Double",
-                static_cast<PrimitiveContainer*>(new _Double()));
-
-        loader->AddPrimitiveObject("Integer",
-                static_cast<PrimitiveContainer*>(new _Integer()));
-        
-        loader->AddPrimitiveObject("Method",
-                static_cast<PrimitiveContainer*>(new _Method()));
-
-        loader->AddPrimitiveObject("Object",
-                static_cast<PrimitiveContainer*>(new _Object()));
-        
-        loader->AddPrimitiveObject("Primitive",
-                static_cast<PrimitiveContainer*>(new _Primitive()));
-
-        loader->AddPrimitiveObject("String",
-                static_cast<PrimitiveContainer*>(new _String()));
-
-        loader->AddPrimitiveObject("Symbol",
-                static_cast<PrimitiveContainer*>(new _Symbol()));
-
-        loader->AddPrimitiveObject("System",
-                static_cast<PrimitiveContainer*>(new _System()));
+        loader->AddPrimitiveObject("Array",     new _Array());
+        loader->AddPrimitiveObject("Block",     new _Block());
+        loader->AddPrimitiveObject("Class",     new _Class());
+        loader->AddPrimitiveObject("Double",    new _Double());
+        loader->AddPrimitiveObject("Integer",   new _Integer());
+        loader->AddPrimitiveObject("Method",    new _Method());
+        loader->AddPrimitiveObject("Object",    new _Object());
+        loader->AddPrimitiveObject("Primitive", new _Primitive());
+        loader->AddPrimitiveObject("String",    new _String());
+        loader->AddPrimitiveObject("Symbol",    new _Symbol());
+        loader->AddPrimitiveObject("System",    new _System());
     }
 }
 
