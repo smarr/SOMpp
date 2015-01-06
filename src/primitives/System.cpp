@@ -106,6 +106,13 @@ void _System::PrintNewline(Interpreter*, VMFrame*) {
     cout << endl;
 }
 
+void _System::PrintNewline_(Interpreter*, VMFrame* frame) {
+    VMString* arg = static_cast<VMString*>(frame->Pop());
+    std::string str = arg->GetStdString();
+    cout << (str + "\n");
+}
+
+
 void _System::Time(Interpreter*, VMFrame* frame) {
     /*VMObject* self = */
     frame->Pop();
@@ -150,6 +157,7 @@ _System::_System(void) : PrimitiveContainer() {
     SetPrimitive("exit_",        new Routine<_System>(this, &_System::Exit_, false));
     SetPrimitive("printString_", new Routine<_System>(this, &_System::PrintString_, false));
     SetPrimitive("printNewline", new Routine<_System>(this, &_System::PrintNewline, false));
+    SetPrimitive("printNewline_",new Routine<_System>(this, &_System::PrintNewline_, false));
     SetPrimitive("time",         new Routine<_System>(this, &_System::Time,   false));
     SetPrimitive("ticks",        new Routine<_System>(this, &_System::Ticks,  false));
     SetPrimitive("fullGC",       new Routine<_System>(this, &_System::FullGC, false));
