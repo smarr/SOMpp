@@ -34,8 +34,6 @@
 #include "../primitivesCore/Routine.h"
 #include "Symbol.h"
 
-_Symbol* Symbol;
-
 void _Symbol::AsString(Interpreter*, VMFrame* frame) {
     VMSymbol* sym = static_cast<VMSymbol*>(frame->Pop());
 
