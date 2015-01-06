@@ -37,7 +37,7 @@
 #include "../primitivesCore/Routine.h"
 
 VMEvaluationPrimitive::VMEvaluationPrimitive(long argc) : VMPrimitive(computeSignatureString(argc)) {
-    SetRoutine(new Routine<VMEvaluationPrimitive>(this, &VMEvaluationPrimitive::evaluationRoutine, false));
+    SetRoutine(new EvaluationRoutine(this));
     SetEmpty(false);
     store_ptr(numberOfArguments, NEW_INT(argc));
 }
@@ -50,6 +50,7 @@ VMEvaluationPrimitive* VMEvaluationPrimitive::Clone() const {
 void VMEvaluationPrimitive::WalkObjects(walk_heap_fn walk) {
     VMPrimitive::WalkObjects(walk);
     numberOfArguments = walk(numberOfArguments);
+    static_cast<EvaluationRoutine*>(routine)->WalkObjects(walk);
 }
 
 VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc) {
@@ -78,9 +79,11 @@ VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc) {
     return GetUniverse()->SymbolFor(signatureString);
 }
 
-void VMEvaluationPrimitive::evaluationRoutine(Interpreter* interp, VMFrame* frame) {
+void EvaluationRoutine::Invoke(Interpreter* interp, VMFrame* frame) {
+    VMEvaluationPrimitive* prim = load_ptr(evalPrim);
+    
     // Get the block (the receiver) from the stack
-    long numArgs = INT_VAL(load_ptr(numberOfArguments));
+    long numArgs = prim->GetNumberOfArguments();
     VMBlock* block = static_cast<VMBlock*>(frame->GetStackElement(numArgs - 1));
 
     // Get the context of the block...
@@ -90,6 +93,10 @@ void VMEvaluationPrimitive::evaluationRoutine(Interpreter* interp, VMFrame* fram
     VMFrame* NewFrame = interp->PushNewFrame(block->GetMethod());
     NewFrame->CopyArgumentsFrom(frame);
     NewFrame->SetContext(context);
+}
+
+void EvaluationRoutine::WalkObjects(walk_heap_fn walk) {
+    evalPrim = static_cast<GCEvaluationPrimitive*>(walk(evalPrim));
 }
 
 StdString VMEvaluationPrimitive::AsDebugString() const {

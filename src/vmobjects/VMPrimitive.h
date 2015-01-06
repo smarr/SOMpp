@@ -54,8 +54,12 @@ public:
 
 private:
     void EmptyRoutine(Interpreter*, VMFrame*);
-
+protected:
+    // protected to be able to access the field in subclass,
+    // for instance VMEvaluationPrimitive needs to GC the primitive object
+    // hold in the special routine subclass
     PrimitiveRoutine* routine;
+private:
     bool empty;
 
     static const int VMPrimitiveNumberOfFields;

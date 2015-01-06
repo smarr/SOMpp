@@ -38,9 +38,22 @@ public:
     
     virtual StdString AsDebugString() const;
     
+    int64_t GetNumberOfArguments() { return INT_VAL(load_ptr(numberOfArguments)); };
+    
 private:
     static VMSymbol* computeSignatureString(long argc);
     void evaluationRoutine(Interpreter*, VMFrame*);
     gc_oop_t numberOfArguments;
 
+};
+
+class EvaluationRoutine : public PrimitiveRoutine {
+private:
+    GCEvaluationPrimitive* evalPrim;
+public:
+    EvaluationRoutine(VMEvaluationPrimitive* prim)
+        : PrimitiveRoutine(), evalPrim(_store_ptr(prim)) {};
+    void WalkObjects(walk_heap_fn);
+    virtual bool isClassSide() { return false; }
+    virtual void Invoke(Interpreter* interp, VMFrame* frame);
 };
