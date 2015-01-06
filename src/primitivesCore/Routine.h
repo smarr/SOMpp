@@ -36,19 +36,19 @@ class Interpreter;
 template<class TClass> class Routine: public PrimitiveRoutine {
 private:
     void (TClass::*func)(Interpreter*, VMFrame*);   // pointer to member function
-    TClass* const pt2Object;                    // pointer to object
-    const bool    classSide;
+    TClass* primContainerObj;
+    const bool classSide;
 
 public:
 
-    // constructor - takes pointer to an object, pointer to a member, and a bool indicating whether it is a class-side primitive or not
-    Routine(TClass* _pt2Object, void (TClass::*_fpt)(Interpreter*, VMFrame*),
+    // takes pointer to an object, pointer to a member, and a bool indicating whether it is a class-side primitive or not
+    Routine(TClass* primContainerObj, void (TClass::*_fpt)(Interpreter*, VMFrame*),
             bool classSide)
-    : classSide(classSide), pt2Object(_pt2Object), func(_fpt), PrimitiveRoutine() {};
+        : classSide(classSide), primContainerObj(primContainerObj),
+          func(_fpt), PrimitiveRoutine() {};
 
-    // override operator "()"
     virtual void Invoke(Interpreter* interp, VMFrame* frm) {
-        (*pt2Object.*func)(interp, frm);  // execute member function
+        (*primContainerObj.*func)(interp, frm);  // execute member function
     }
     
     virtual bool isClassSide() { return classSide; }
