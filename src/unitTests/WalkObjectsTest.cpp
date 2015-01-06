@@ -79,7 +79,8 @@ void WalkObjectsTest::testWalkEvaluationPrimitive() {
     CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(evPrim->GetClass())));
     CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(evPrim->GetSignature())));
     CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(evPrim->GetHolder())));
-    CPPUNIT_ASSERT_EQUAL(NoOfFields_EvaluationPrimitive, walkedObjects.size());
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(evPrim)));
+    CPPUNIT_ASSERT_EQUAL(NoOfFields_EvaluationPrimitive + 1, walkedObjects.size());
 }
 
 void WalkObjectsTest::testWalkObject() {
