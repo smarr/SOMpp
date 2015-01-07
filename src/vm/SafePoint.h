@@ -21,12 +21,12 @@ public:
     }
     
     static void UnregisterMutator() {
-        std::unique_lock<std::mutex> lock(mutex);
+        std::lock_guard<std::mutex> lock(mutex);
         
         numTotalMutators--;
         assert(numTotalMutators >= 0);
         
-        doSafePoint(lock);
+        doSafePointWithoutBlocking(true);
     }
     
     static void ReachSafePoint(std::function<void()> action) {
@@ -47,10 +47,7 @@ public:
         std::lock_guard<std::mutex> lock(mutex);
         // perform the normal safepoint logic,
         // which reduces and increase numActivateMutators,
-        doSafePointWithoutBlocking();
-        
-        // and afterwards, make sure we subtract the mutator for real
-        numActiveMutators--;
+        doSafePointWithoutBlocking(true);
     }
     
     static void ReturnFromBlockingMutator() {
@@ -61,22 +58,24 @@ public:
 private:
     
     static void doSafePoint(std::unique_lock<std::mutex>& lock) {
-        if (!doSafePointWithoutBlocking()) {
+        if (!doSafePointWithoutBlocking(false)) {
             awaitSafePoint(lock);
+        } else {
+            assert(1 == numActiveMutators);
         }
     }
     
-    static bool doSafePointWithoutBlocking() {
+    static bool doSafePointWithoutBlocking(bool blockExternally) {
         numActiveMutators--;
         
         bool isLast = numActiveMutators == 0;
         if (isLast) {
-            completeSafePoint();
+            completeSafePoint(blockExternally);
         }
         return isLast;
     }
     
-    static void completeSafePoint() {
+    static void completeSafePoint(bool blockExternally) {
         if (action_fn) {
             action_fn();
         }
@@ -84,7 +83,9 @@ private:
         // prepare next safepoint
         safepoint_i++;
         action_fn = nullptr;
-        numActiveMutators++;
+        if (!blockExternally) {
+            numActiveMutators++;
+        }
         
         // wake all other mutators
         condvar.notify_all();
