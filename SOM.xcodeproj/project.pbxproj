@@ -55,6 +55,7 @@
 		0A3A3C881A5C143C004CB03B /* VMThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A3C731A59D5C9004CB03B /* VMThread.cpp */; };
 		0A3A3C891A5C1451004CB03B /* VMCondition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A3C761A59D60A004CB03B /* VMCondition.cpp */; };
 		0A3A3C8A1A5C1451004CB03B /* VMMutex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A3C791A59D619004CB03B /* VMMutex.cpp */; };
+		0A3A3C911A5C7577004CB03B /* SafePoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A3C8F1A5C7577004CB03B /* SafePoint.cpp */; };
 		0A3A3C921A5D546D004CB03B /* Array.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203120FA6624C00E75857 /* Array.cpp */; };
 		0A3A3C931A5D546D004CB03B /* Block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203160FA6624C00E75857 /* Block.cpp */; };
 		0A3A3C941A5D546D004CB03B /* Class.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203180FA6624C00E75857 /* Class.cpp */; };
@@ -209,6 +210,8 @@
 		0A3A3C851A5BE97A004CB03B /* Mutex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mutex.h; sourceTree = "<group>"; };
 		0A3A3C8B1A5C1C3D004CB03B /* Delay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Delay.cpp; sourceTree = "<group>"; };
 		0A3A3C8C1A5C1C3D004CB03B /* Delay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Delay.h; sourceTree = "<group>"; };
+		0A3A3C8F1A5C7577004CB03B /* SafePoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SafePoint.cpp; sourceTree = "<group>"; };
+		0A3A3C901A5C7577004CB03B /* SafePoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SafePoint.h; sourceTree = "<group>"; };
 		0A67EA6719ACD37200830E3B /* unittests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = unittests; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A67EA7019ACD43A00830E3B /* CloneObjectsTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CloneObjectsTest.cpp; path = unitTests/CloneObjectsTest.cpp; sourceTree = "<group>"; };
 		0A67EA7119ACD43A00830E3B /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = unitTests/main.cpp; sourceTree = "<group>"; };
@@ -606,6 +609,8 @@
 				3F5203310FA6624C00E75857 /* Shell.h */,
 				3F5203320FA6624C00E75857 /* Universe.cpp */,
 				3F5203330FA6624C00E75857 /* Universe.h */,
+				0A3A3C8F1A5C7577004CB03B /* SafePoint.cpp */,
+				0A3A3C901A5C7577004CB03B /* SafePoint.h */,
 			);
 			path = vm;
 			sourceTree = "<group>";
@@ -907,6 +912,7 @@
 				0A1887001832BCFA00A2CBCA /* VMInteger.cpp in Sources */,
 				0A3A3C931A5D546D004CB03B /* Block.cpp in Sources */,
 				0A3A3CB01A5D5475004CB03B /* PrimitiveContainer.cpp in Sources */,
+				0A3A3C911A5C7577004CB03B /* SafePoint.cpp in Sources */,
 				0A3A3C981A5D546D004CB03B /* Object.cpp in Sources */,
 				0A1886E01832BCC800A2CBCA /* MethodGenerationContext.cpp in Sources */,
 				0A3A3C9C1A5D546D004CB03B /* System.cpp in Sources */,
