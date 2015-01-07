@@ -38,7 +38,7 @@ void CopyingCollector::Collect() {
     //reset collection trigger
     heap->resetGCTrigger();
 
-    static bool increaseMemory;
+    static bool increaseMemory; // not nice, but since stop-the-world-gc, it's threadsafe
     size_t newSize = ((size_t)(heap->currentBufferEnd) -
             (size_t)(heap->currentBuffer)) * 2;
 
