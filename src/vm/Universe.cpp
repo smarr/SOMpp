@@ -87,6 +87,10 @@ GCClass* doubleClass;
 GCClass* trueClass;
 GCClass* falseClass;
 
+GCClass* conditionClass;
+GCClass* mutexClass;
+GCClass* threadClass;
+
 GCSymbol* symbolIfTrue;
 GCSymbol* symbolIfFalse;
 
@@ -373,6 +377,9 @@ Universe::~Universe() {
     void* vt_primitive;
     void* vt_string;
     void* vt_symbol;
+    void* vt_condition;
+    void* vt_mutex;
+    void* vt_thread;
 
     bool Universe::IsValidObject(vm_oop_t obj) {
         if (IS_TAGGED(obj))
@@ -404,7 +411,10 @@ Universe::~Universe() {
                vt == vt_object     ||
                vt == vt_primitive  ||
                vt == vt_string     ||
-               vt == vt_symbol;
+               vt == vt_symbol     ||
+               vt == vt_condition  ||
+               vt == vt_mutex      ||
+               vt == vt_thread;
         assert(b);
         return b;
     }
@@ -422,6 +432,9 @@ Universe::~Universe() {
         vt_primitive  = nullptr;
         vt_string     = nullptr;
         vt_symbol     = nullptr;
+        vt_condition  = nullptr;
+        vt_mutex      = nullptr;
+        vt_thread     = nullptr;
     }
 
     static void obtain_vtables_of_known_classes(VMSymbol* className) {
@@ -455,6 +468,15 @@ Universe::~Universe() {
         VMString* str = new (GetHeap<HEAP_CLS>()) VMString("");
         vt_string     = *(void**) str;
         vt_symbol     = *(void**) className;
+        
+        VMCondition* cond = new (GetHeap<HEAP_CLS>()) VMCondition(nullptr);
+        vt_condition  = *(void**) cond;
+        
+        VMMutex* mutex = new (GetHeap<HEAP_CLS>()) VMMutex();
+        vt_mutex      = *(void**) mutex;
+        
+        VMThread* thread = new (GetHeap<HEAP_CLS>()) VMThread();
+        vt_thread     = *(void**) thread;
     }
 #endif
 
@@ -482,6 +504,10 @@ VMObject* Universe::InitializeGlobals() {
     primitiveClass  = _store_ptr(NewSystemClass());
     stringClass     = _store_ptr(NewSystemClass());
     doubleClass     = _store_ptr(NewSystemClass());
+    
+    conditionClass  = _store_ptr(NewSystemClass());
+    mutexClass      = _store_ptr(NewSystemClass());
+    threadClass     = _store_ptr(NewSystemClass());
 
     nil->SetClass(load_ptr(nilClass));
 
@@ -496,6 +522,10 @@ VMObject* Universe::InitializeGlobals() {
     InitializeSystemClass(load_ptr(integerClass),   load_ptr(objectClass), "Integer");
     InitializeSystemClass(load_ptr(primitiveClass), load_ptr(objectClass), "Primitive");
     InitializeSystemClass(load_ptr(doubleClass),    load_ptr(objectClass), "Double");
+    
+    InitializeSystemClass(load_ptr(conditionClass), load_ptr(objectClass), "Condition");
+    InitializeSystemClass(load_ptr(mutexClass),     load_ptr(objectClass), "Mutex");
+    InitializeSystemClass(load_ptr(threadClass),    load_ptr(objectClass), "Thread");
 
     // Fix up objectClass
     load_ptr(objectClass)->SetSuperClass((VMClass*) nil);
@@ -517,6 +547,10 @@ VMObject* Universe::InitializeGlobals() {
     LoadSystemClass(load_ptr(primitiveClass));
     LoadSystemClass(load_ptr(stringClass));
     LoadSystemClass(load_ptr(doubleClass));
+    
+    LoadSystemClass(load_ptr(conditionClass));
+    LoadSystemClass(load_ptr(mutexClass));
+    LoadSystemClass(load_ptr(threadClass));
 
     blockClass = _store_ptr(LoadClass(SymbolForChars("Block")));
 
@@ -864,6 +898,10 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
     blockClass      = static_cast<GCClass*>(walk(blockClass));
     doubleClass     = static_cast<GCClass*>(walk(doubleClass));
     
+    conditionClass  = static_cast<GCClass*>(walk(conditionClass));
+    mutexClass      = static_cast<GCClass*>(walk(mutexClass));
+    threadClass     = static_cast<GCClass*>(walk(threadClass));
+    
     trueClass  = static_cast<GCClass*>(walk(trueClass));
     falseClass = static_cast<GCClass*>(walk(falseClass));
 
@@ -964,6 +1002,27 @@ VMClass* Universe::NewSystemClass() const {
 
     LOG_ALLOCATION("VMClass", systemClass->GetObjectSize());
     return systemClass;
+}
+
+VMCondition* Universe::NewCondition(VMMutex* mutex) const {
+    VMCondition* cond = new (GetHeap<HEAP_CLS>()) VMCondition(mutex->GetLock());
+    cond->SetClass(load_ptr(conditionClass));
+    return cond;
+}
+
+VMMutex* Universe::NewMutex() const {
+    VMMutex* mutex = new (GetHeap<HEAP_CLS>()) VMMutex();
+    mutex->SetClass(load_ptr(mutexClass));
+    return mutex;
+}
+
+VMThread* Universe::NewThread(VMBlock* block, vm_oop_t arguments) {
+    VMThread* threadObj = new (GetHeap<HEAP_CLS>()) VMThread();
+    threadObj->SetClass(load_ptr(threadClass));
+    thread* thread = new std::thread(&Universe::startInterpreterInThread, this, threadObj, block, arguments);
+    threadObj->SetThread(thread);
+
+    return threadObj;
 }
 
 VMSymbol* Universe::SymbolFor(const StdString& str) {

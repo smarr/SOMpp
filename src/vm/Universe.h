@@ -70,6 +70,10 @@ extern GCClass* doubleClass;
 extern GCClass* trueClass;
 extern GCClass* falseClass;
 
+extern GCClass* conditionClass;
+extern GCClass* mutexClass;
+extern GCClass* threadClass;
+
 extern GCSymbol* symbolIfTrue;
 extern GCSymbol* symbolIfFalse;
 
@@ -112,6 +116,10 @@ public:
     VMString* NewString(const char*) const;
     VMSymbol* NewSymbol(const char*);
     VMClass* NewSystemClass(void) const;
+    
+    VMCondition* NewCondition(VMMutex*) const;
+    VMMutex*     NewMutex() const;
+    VMThread*    NewThread(VMBlock* block, vm_oop_t arguments);
 
     void InitializeSystemClass(VMClass*, VMClass*, const char*);
 
