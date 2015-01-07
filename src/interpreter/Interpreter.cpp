@@ -61,10 +61,7 @@ Interpreter::~Interpreter() {}
 
 #define DISPATCH_GC() {\
   if (GetHeap<HEAP_CLS>()->isCollectionTriggered()) {\
-    GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);\
     GetHeap<HEAP_CLS>()->FullGC();\
-    method = GetFrame()->GetMethod(); \
-    currentBytecodes = method->GetBytecodes(); \
   }\
   goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];\
 }
@@ -528,6 +525,7 @@ void Interpreter::WalkGlobals(walk_heap_fn walk) {
 #warning method and frame are stored as VMptrs, is that acceptable? Is the solution here with _store_ptr and load_ptr robust?
     
     method = load_ptr(static_cast<GCMethod*>(walk(_store_ptr(method))));
+    currentBytecodes = method->GetBytecodes();
     
     // Get the current frame and mark it.
     // Since marking is done recursively, this automatically
