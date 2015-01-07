@@ -36,12 +36,6 @@
 #include <primitives/Symbol.h>
 #include <primitives/System.h>
 
-#include <primitives/Condition.h>
-#include <primitives/Delay.h>
-#include <primitives/Mutex.h>
-#include <primitives/Thread.h>
-
-
 #include "PrimitiveLoader.h"
 #include "PrimitiveContainer.h"
 
@@ -63,11 +57,6 @@ PrimitiveLoader::PrimitiveLoader() {
     AddPrimitiveObject("String",    new _String());
     AddPrimitiveObject("Symbol",    new _Symbol());
     AddPrimitiveObject("System",    new _System());
-
-    AddPrimitiveObject("Condition", new _Condition());
-    AddPrimitiveObject("Delay",     new _Delay());
-    AddPrimitiveObject("Mutex",     new _Mutex());
-    AddPrimitiveObject("Thread",    new _Thread());
 }
 
 PrimitiveLoader::~PrimitiveLoader() {
