@@ -21,16 +21,16 @@ public:
     }
     
     static void UnregisterMutator() {
-        std::lock_guard<std::mutex> lock(mutex);
+        std::unique_lock<std::mutex> lock(mutex);
         
         numTotalMutators--;
         assert(numTotalMutators >= 0);
         
-        doSafePoint();
+        doSafePoint(lock);
     }
     
     static void ReachSafePoint(std::function<void()> action) {
-        std::lock_guard<std::mutex> lock(mutex);
+        std::unique_lock<std::mutex> lock(mutex);
         
         if (action_fn == nullptr) {
             action_fn = action;
@@ -40,7 +40,7 @@ public:
             // assert(action_fn == action);
         }
         
-        doSafePoint();
+        doSafePoint(lock);
     }
     
     static void AnnounceBlockingMutator() {
@@ -60,9 +60,9 @@ public:
     
 private:
     
-    static void doSafePoint() {
+    static void doSafePoint(std::unique_lock<std::mutex>& lock) {
         if (!doSafePointWithoutBlocking()) {
-            awaitSafePoint();
+            awaitSafePoint(lock);
         }
     }
     
@@ -90,9 +90,8 @@ private:
         condvar.notify_all();
     }
     
-    static void awaitSafePoint() {
+    static void awaitSafePoint(std::unique_lock<std::mutex>& lock) {
         int64_t current_sp = safepoint_i;
-        std::unique_lock<std::mutex> lock(mutex, std::adopt_lock);
         
         while (current_sp == safepoint_i) {
             condvar.wait(lock);
