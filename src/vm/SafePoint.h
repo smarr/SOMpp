@@ -9,7 +9,7 @@
 
 class SafePoint {
 public:
-    // register a thread as being a mutator in the system and
+    // register a thread as being a mutator in the system
     static void RegisterMutator() {
         std::lock_guard<std::mutex> lock(mutex);
         
