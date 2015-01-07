@@ -74,15 +74,8 @@ public:
     virtual StdString AsDebugString() const;
 
 private:
-    StdString genLoadstring(const StdString& cp,
-            const StdString& cname
-    ) const;
-
-    StdString genCoreLoadstring(const StdString& cp) const;
-
-    void* loadLib(const StdString& path) const;
-    bool isResponsible(void* handle, const StdString& cl) const;
-    void setPrimitives(void* handle, const StdString& cname, bool classSide);
+    bool hasPrimitivesFor(const StdString& cl) const;
+    void setPrimitives(const StdString& cname, bool classSide);
     long numberOfSuperInstanceFields() const;
 
     GCClass* superClass;

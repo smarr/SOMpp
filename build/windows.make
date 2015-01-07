@@ -32,13 +32,9 @@ LDFLAGS		=--enable-auto-import $(LIBRARIES)
 
 INSTALL		=install
 
-CSOM_LIBS	=
-CORE_LIBS	=-lm
+CSOM_LIBS	=-lm
 
 CSOM_NAME	        =SOM++
-CORE_NAME	        =SOMCore
-PRIMITIVESCORE_NAME  =PrimitiveCore
-SHARED_EXTENSION    =dll
 
 ############ global stuff -- overridden by ../Makefile
 
@@ -75,9 +71,7 @@ VMOBJECTS_SRC	= $(wildcard $(VMOBJECTS_DIR)/*.cpp)
 VMOBJECTS_OBJ	= $(VMOBJECTS_SRC:.cpp=.o)
 
 MAIN_SRC		= $(wildcard $(SRC_DIR)/*.cpp)
-#$(SRC_DIR)/Main.cpp
 MAIN_OBJ		= $(MAIN_SRC:.cpp=.o)
-#$(SRC_DIR)/main.o
 
 ############# snake primitives
 
@@ -108,7 +102,8 @@ LIBRARIES		=-L$(ROOT_DIR)
 CSOM_OBJ		=  $(MEMORY_OBJ) $(MISC_OBJ) $(VMOBJECTS_OBJ) \
 				$(COMPILER_OBJ) $(INTERPRETER_OBJ) $(VM_OBJ) 
 
-OBJECTS			= $(CSOM_OBJ) $(PRIMITIVES_OBJ) $(PRIMITIVESCORE_OBJ) $(SNAKEPRIMITIVESCORE_OBJ) $(MAIN_OBJ)
+ALL_OBJ			= $(CSOM_OBJ) $(PRIMITIVES_OBJ) $(PRIMITIVESCORE_OBJ) $(MAIN_OBJ)
+OBJECTS			= $(ALL_OBJ) $(SNAKEPRIMITIVESCORE_OBJ)
 
 SOURCES			=  $(COMPILER_SRC) $(INTERPRETER_SRC) $(MEMORY_SRC) \
 				$(MISC_SRC) $(VM_SRC) $(VMOBJECTS_SRC)  \
@@ -118,9 +113,7 @@ SOURCES			=  $(COMPILER_SRC) $(INTERPRETER_SRC) $(MEMORY_SRC) \
 
 CLEAN			= $(OBJECTS) \
 				$(DIST_DIR) $(DEST_DIR) CORE
-############# Tools
 
-#OSTOOL			= $(BUILD_DIR)/ostool.exe
 
 #
 #
@@ -128,25 +121,13 @@ CLEAN			= $(OBJECTS) \
 #  metarules
 #
 
-.SUFFIXES: .pic.o .fpic.o
-
 .PHONY: clean clobber test
 
-all: $(CSOM_NAME).exe \
-	$(CSOM_NAME).$(SHARED_EXTENSION) \
-	$(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION) \
-	CORE 
+all: $(CSOM_NAME).exe
 
 
 debug : DBG_FLAGS=-DDEBUG -g
 debug: all
-
-.cpp.pic.o:
-	$(CC) $(CFLAGS) -c $< -o $*.pic.o
-
-
-.cpp.o:
-	$(CC) $(CFLAGS) -c $< -o $*.o
 
 clean:
 	rm -Rf $(CLEAN)
@@ -159,36 +140,11 @@ clean:
 # product rules
 #
 
-$(CSOM_NAME).exe: $(CSOM_NAME).$(SHARED_EXTENSION) $(MAIN_OBJ)
+$(CSOM_NAME).exe: $(ALL_OBJ)
 	@echo Linking $(CSOM_NAME) loader
 	$(CC) $(LDFLAGS) \
-		-o $(CSOM_NAME).exe $(MAIN_OBJ) -l$(CSOM_NAME)
+		-o $(CSOM_NAME).exe $(ALL_OBJ) -l$(CSOM_NAME)
 	@echo loader done.
-
-$(CSOM_NAME).$(SHARED_EXTENSION): $(CSOM_OBJ)
-	@echo Linking $(CSOM_NAME) Dynamic Library
-	$(CC) $(LDFLAGS) -shared \
-		-o $(CSOM_NAME).$(SHARED_EXTENSION) $(CSOM_OBJ) $(CSOM_LIBS)
-	@echo CSOM done.
-
-$(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION): $(CSOM_NAME).$(SHARED_EXTENSION) $(PRIMITIVESCORE_OBJ)
-	@echo Linking PrimitivesCore lib
-	$(CC) $(LDFLAGS) -shared \
-		-o $(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION) \
-		$(PRIMITIVESCORE_OBJ) \
-		-l$(CSOM_NAME)
-	@touch $(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION)
-	@echo PrimitivesCore done.
-
-CORE: $(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION) $(CSOM_NAME).$(SHARED_EXTENSION) $(PRIMITIVES_OBJ)
-	@echo Linking SOMCore lib
-	$(CC) $(LDFLAGS) -shared \
-		-o $(CORE_NAME).csp \
-		$(PRIMITIVES_OBJ) \
-		$(CORE_LIBS) -l$(CSOM_NAME) -l$(PRIMITIVESCORE_NAME)
-	mv $(CORE_NAME).csp $(ST_DIR)
-	@touch CORE
-	@echo SOMCore done.
 
 SNAKE: $(PRIMITIVESCORE_NAME).dll $(CSOM_NAME).$(SHARED_EXTENSION) $(SNAKEPRIMITIVES_OBJ)
 	@echo Linking Snake lib

@@ -30,42 +30,26 @@ CXX		?=clang++
 CFLAGS	=-std=c++11 -m64 -Wno-endif-labels $(OPT_FLAGS) $(DBG_FLAGS) $(FEATURE_FLAGS) $(INCLUDES)
 OPT_FLAGS?=-O3 -DNDEBUG
 
-SHAREDFLAGS =-fPIC -mmacosx-version-min=10.4 -undefined dynamic_lookup \
-                -dynamiclib -Wl,-single_module -Wl,-Y,1455
-
 LIBRARIES	=-L$(ROOT_DIR)
 LDFLAGS		=$(DBG_FLAGS) $(LIBRARIES)
 
 INSTALL		=install
 
-CSOM_LIBS	=
-CORE_LIBS	=-lm
+CSOM_LIBS	=-lm
 
 CSOM_NAME	=SOM++
-CORE_NAME	=SOMCore
-PRIMITIVESCORE_NAME  =PrimitiveCore
-SHARED_EXTENSION    =so
 
 include $(BUILD_DIR)/sources.make
-
-############# Tools
-
-#OSTOOL			= $(BUILD_DIR)/ostool
 
 #
 #  metarules
 #
 
-.SUFFIXES: .pic.o .fpic.o
-
 .PHONY: clean clobber test
 
 include $(BUILD_DIR)/config.make
 
-all: $(CSOM_NAME)\
-	$(CSOM_NAME).$(SHARED_EXTENSION) \
-	$(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION) \
-	CORE
+all: $(CSOM_NAME)
 
 debug : OPT_FLAGS=
 debug : DBG_FLAGS=-DDEBUG -O0 -g
@@ -76,9 +60,6 @@ profiling : LDFLAGS+=-pg
 profiling: all
 
 
-.cpp.pic.o:
-	$(CXX) $(CFLAGS) -fPIC -c $< -o $*.pic.o
-
 .cpp.o:
 	$(CXX) $(CFLAGS) -c $< -o $*.o
 
@@ -86,44 +67,15 @@ clean:
 	rm -Rf $(CLEAN)
 	#just to be sure delete again
 	find . -name "*.o" -delete
-	-rm -Rf $(CORE_NAME).csp $(ST_DIR)/$(CORE_NAME).csp
-	-rm -Rf *.so
-
-
 
 #
 # product rules
 #
 
-$(CSOM_NAME): $(CSOM_NAME).$(SHARED_EXTENSION) $(MAIN_OBJ)
+$(CSOM_NAME): $(ALL_OBJ)
 	@echo Linking $(CSOM_NAME)
-	$(CXX) \
-		-o $(CSOM_NAME) $(MAIN_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION) $(LDFLAGS) -ldl
+	$(CXX) -o $(CSOM_NAME) $(ALL_OBJ) $(LDFLAGS) $(CSOM_LIBS)
 	@echo Linking $(CSOM_NAME) done.
-
-$(CSOM_NAME).$(SHARED_EXTENSION): $(CSOM_OBJ)
-	@echo Linking $(CSOM_NAME) Dynamic Library
-	$(CXX) $(SHAREDFLAGS) \
-		-o $(CSOM_NAME).$(SHARED_EXTENSION) $(CSOM_OBJ) $(CSOM_LIBS) $(LDFLAGS)
-	@echo CSOM done.
-
-$(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION): $(CSOM_NAME) $(PRIMITIVESCORE_OBJ)
-	@echo Linking PrimitivesCore lib
-	$(CXX) $(SHAREDFLAGS) \
-		-o $(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION) \
-		$(PRIMITIVESCORE_OBJ) $(LDFLAGS)
-	@touch $(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION)
-	@echo PrimitivesCore done.
-
-CORE: $(CSOM_NAME) $(PRIMITIVESCORE_OBJ) $(PRIMITIVES_OBJ)
-	@echo Linking SOMCore lib
-	$(CXX) $(SHAREDFLAGS) -o $(CORE_NAME).csp \
-		$(PRIMITIVES_OBJ) \
-		$(PRIMITIVESCORE_OBJ) \
-		$(CORE_LIBS) $(LDFLAGS)
-	mv $(CORE_NAME).csp $(ST_DIR)
-	@touch CORE
-	@echo SOMCore done.
 
 install: all
 	@echo installing CSOM into build
@@ -142,8 +94,8 @@ console: all
 
 units : INCLUDES+=-I/opt/local/include
 units : CPPUNIT_LIB=-L/opt/local/lib
-units: $(UNITTEST_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION)
-	$(CXX) $(LIBRARIES) $(CPPUNIT_LIB) $(UNITTEST_OBJ) SOM++.so -lcppunit -o unittest
+units: $(ALL_TEST_OBJ)
+	$(CXX) $(LIBRARIES) $(CPPUNIT_LIB) $(ALL_TEST_OBJ) -lcppunit -o unittest
 
 richards: all
 	./$(CSOM_NAME) -cp ./Smalltalk ./Examples/Benchmarks/Richards/RichardsBenchmarks.som

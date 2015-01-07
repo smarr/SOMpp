@@ -31,33 +31,8 @@
 #include "VMPrimitive.h"
 #include "PrimitiveRoutine.h"
 
-#include <fstream>
-#include <typeinfo>
+#include <primitivesCore/PrimitiveLoader.h>
 
-#if defined(__GNUC__)
-#   include <dlfcn.h>
-#else   //Visual Studio
-/**
- * Emualting the dl-interface with win32 means
- */
-#   define WIN32_LEAN_AND_MEAN
-#   define dlerror()   "Load Error"
-#   define dlsym       GetProcAddress
-#   define DL_LOADMODE nullptr, LOAD_WITH_ALTERED_SEARCH_PATH
-#   define dlopen      LoadLibrary
-#   define dlclose     FreeLibrary
-//#   include <windows.h> //included in VMClass.h if necessary
-
-#endif
-
-/*
- * Format definitions for Primitive naming scheme.
- *
- */
-#define CLASS_METHOD_FORMAT_S "%s::%s"
-// as in AClass::aClassMethod
-#define INSTANCE_METHOD_FORMAT_S "%s::%s_"
-// as in AClass::anInstanceMethod_
 
 const long VMClass::VMClassNumberOfFields = 4;
 
@@ -224,69 +199,12 @@ bool VMClass::HasPrimitives() const {
 }
 
 void VMClass::LoadPrimitives(const vector<StdString>& cp) {
-    // the library handle
-    void* dlhandle = nullptr;
-
-    // cached object properties
     StdString cname = load_ptr(name)->GetStdString();
-
-#if defined (__GNUC__)
-    //// iterate the classpathes
-    for (vector<StdString>::const_iterator i = cp.begin();
-            (i != cp.end()) && dlhandle == nullptr; ++i) {
-        // check the core library
-        StdString loadstring = genCoreLoadstring(*i);
-        dlhandle = loadLib(loadstring);
-        if (dlhandle != nullptr) {
-
-            if (isResponsible(dlhandle, cname))
-                // the core library is found and responsible
-                break;
-        }
-
-        // the core library is not found or not responsible, 
-        // continue w/ class file
-        loadstring = genLoadstring(*i, cname);
-        Universe::ErrorPrint(loadstring + "\n");
-        dlhandle = loadLib(loadstring);
-        if (dlhandle != nullptr) {
-            //
-            // the class library was found...
-            //
-            if (isResponsible(dlhandle, cname)) {
-                //
-                // ...and is responsible.
-                //
-                break;
-            } else {
-                //
-                // ... but says not responsible, but we have to
-                // close it nevertheless
-                //
-                dlclose(dlhandle);
-                GetUniverse()->ErrorExit("Library claims no resonsibility, but musn't!");
-            }
-
-        }
-        /*
-         * continue checking the next class path
-         */
+    
+    if (hasPrimitivesFor(cname)) {
+        setPrimitives(cname, false);
+        GetClass()->setPrimitives(cname, true);
     }
-
-    // finished cycling,
-    // check if a lib was found.
-    if (dlhandle == nullptr) {
-        Universe::ErrorPrint("load failure: could not load primitive library for " + cname + "\n");
-        GetUniverse()->Quit(ERR_FAIL);
-    }
-
-#endif
-    ///*
-    // * do the actual loading for both class and metaclass
-    // *
-    // */
-    setPrimitives(dlhandle, cname, false);
-    GetClass()->setPrimitives(dlhandle, cname, true);
 }
 
 long VMClass::numberOfSuperInstanceFields() const {
@@ -295,96 +213,14 @@ long VMClass::numberOfSuperInstanceFields() const {
     return 0;
 }
 
-//LoadPrimitives helper
-#define sharedExtension ".csp"
-
-StdString VMClass::genLoadstring(const StdString& cp,
-        const StdString& cname) const {
-
-    StdString loadstring = string(cp);
-    loadstring += fileSeparator;
-    loadstring += cname;
-    loadstring += sharedExtension;
-
-    return loadstring;
-}
-
-/**
- *  generate the string containing the path to a SOMCore which may be located
- *  at the classpath given.
- *
- */
-StdString VMClass::genCoreLoadstring(const StdString& cp) const {
-#define S_CORE "SOMCore"
-    StdString corename = string(S_CORE);
-    StdString result = genLoadstring(cp, corename);
-
-    return result;
-}
-
-/**
- * load the given library, return the handle
- *
- */
-void* VMClass::loadLib(const StdString& path) const {
-#ifdef __DEBUG
-    Universe::ErrorPrint("loadLib " + path + "\n");
-#endif
-#if defined(__GNUC__)
-#if DEBUG
-#define    DL_LOADMODE RTLD_NOW
-#else
-#define    DL_LOADMODE RTLD_LAZY
-#endif
-
-    // static handle. will be returned
-    void* dlhandle;
-    // try load lib
-    if ((dlhandle = dlopen(path.c_str(), DL_LOADMODE))) {
-        //found.
-        return dlhandle;
-    } else {
-        Universe::ErrorPrint("Error loading library " + path + ": " +
-                             StdString(dlerror()) + "\n");
-        return nullptr;
-    }
-#else
-    return nullptr;
-#endif
-
-}
-
-/**
- * check, whether the lib referenced by the handle supports the class given
- *
- */
-bool VMClass::isResponsible(void* dlhandle, const StdString& cl) const {
-#if defined(__GNUC__)
-    // function handler
-    SupportsClass* supports_class = nullptr;
-
-    supports_class = (SupportsClass*) dlsym(dlhandle, "supportsClass");
-    if (!supports_class) {
-        GetUniverse()->ErrorExit(("Library doesn't have expected format: " +
-                                  StdString(dlerror())).c_str());
-        return false;
-    }
-
-    // test class responsibility
-    return supports_class(cl.c_str());
-#else 
-    return true;
-#endif
+bool VMClass::hasPrimitivesFor(const StdString& cl) const {
+    return PrimitiveLoader::SupportsClass(cl);
 }
 
 /*
  * set the routines for primitive marked invokables of the given class
- *
  */
-void VMClass::setPrimitives(void* dlhandle, const StdString& cname, bool classSide) {
-#if defined(__GNUC__)
-    CreatePrimitive* create = (CreatePrimitive*) dlsym(dlhandle, "create");
-#endif
+void VMClass::setPrimitives(const StdString& cname, bool classSide) {
     
     VMClass* current = this;
     
@@ -395,15 +231,15 @@ void VMClass::setPrimitives(void* dlhandle, const StdString& cname, bool classSi
         long numInvokables = current->GetNumberOfInstanceInvokables();
         for (long i = 0; i < numInvokables; i++) {
             VMInvokable* anInvokable = current->GetInstanceInvokable(i);
-    #ifdef __DEBUG
+#ifdef __DEBUG
             Universe::ErrorPrint("cname: >" + cname + "<\n" +
                                  anInvokable->GetSignature()->GetStdString() + "\n");
-    #endif
+#endif
 
             VMSymbol* sig = anInvokable->GetSignature();
             StdString selector = sig->GetPlainString();
             
-            PrimitiveRoutine* routine = create(
+            PrimitiveRoutine* routine = PrimitiveLoader::GetPrimitiveRoutine(
                 cname, selector, anInvokable->IsPrimitive() && current == this);
             
             if (routine && classSide == routine->isClassSide()) {
