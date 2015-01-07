@@ -76,6 +76,10 @@ class VMPrimitive;
 class VMString;
 class VMSymbol;
 
+class VMCondition;
+class VMMutex;
+class VMThread;
+
 // VMOop and GCOop are classes to be able to type the pointer that can be
 // tagged ints as well as AbstractVMObjects. Distinguish between stored
 // pointers and loaded pointers, i.e., GCOop and VMOop respectively.
@@ -124,11 +128,17 @@ class GCEvaluationPrimitive : public GCPrimitive { public: typedef VMEvaluationP
 class GCString    : public GCAbstractObject { public: typedef VMString Loaded; };
 class GCSymbol    : public GCString      { public: typedef VMSymbol Loaded; };
 
+class GCCondition : public GCObject      { public: typedef VMCondition Loaded; };
+class GCMutex     : public GCObject      { public: typedef VMMutex Loaded; };
+class GCThread    : public GCObject      { public: typedef VMThread Loaded; };
 
 
 // Used to mark object fields as invalid
 #define INVALID_VM_POINTER ((VMObject*)0x101010)
 #define INVALID_GC_POINTER ((GCObject*)0x101010)
+
+//#define load_ptr(reference) (ReadBarrier(&(reference)))
+//#define load_ptr(reference) (ReadBarrier(&(reference)))
 
 
 template<typename T>
