@@ -16,7 +16,6 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     AbstractVMObject* obj = AS_OBJ(oop);
     assert(Universe::IsValidObject(obj));
 
-
     long gcField = obj->GetGCField();
     //GCField is abused as forwarding pointer here
     //if someone has moved before, return the moved object

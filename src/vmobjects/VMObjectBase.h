@@ -18,6 +18,7 @@ public:
 size_t VMObjectBase::GetGCField() const {
     return gcfield;
 }
+
 void VMObjectBase::SetGCField(size_t val) {
     // if gcfield is used as a forwarding pointer it should not be overwritten
     // with simple mark bits, because the object itself is garbage but the
