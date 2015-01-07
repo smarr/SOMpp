@@ -979,3 +979,13 @@ void Universe::SetGlobal(VMSymbol* name, vm_oop_t val) {
 # warning is _store_ptr correct here? it relies on _store_ptr not to be really changed...
     globals[_store_ptr(name)] = _store_ptr(val);
 }
+
+void Universe::Print(StdString str) {
+    lock_guard<mutex> lock(output_mutex);
+    cout << str << flush;
+}
+
+void Universe::ErrorPrint(StdString str) {
+    lock_guard<mutex> lock(output_mutex);
+    cerr << str << flush;
+}
