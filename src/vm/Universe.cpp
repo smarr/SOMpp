@@ -577,6 +577,8 @@ VMObject* Universe::InitializeGlobals() {
     symbolIfTrue  = _store_ptr(SymbolForChars("ifTrue:"));
     symbolIfFalse = _store_ptr(SymbolForChars("ifFalse:"));
     
+    VMThread::Initialize();
+    
     return systemObject;
 }
 
@@ -947,6 +949,8 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
     symbolIfFalse = symbolsMap["ifFalse:"];
     
     interpreter->WalkGlobals(walk);
+    
+    VMThread::WalkGlobals(walk);
 }
 
 VMMethod* Universe::NewMethod(VMSymbol* signature,
