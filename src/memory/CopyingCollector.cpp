@@ -63,10 +63,10 @@ void CopyingCollector::Collect() {
     GetUniverse()->WalkGlobals(copy_if_necessary);
 
     //now copy all objects that are referenced by the objects we have moved so far
-    AbstractVMObject* curObject = (AbstractVMObject*)(heap->currentBuffer);
+    AbstractVMObject* curObject = static_cast<AbstractVMObject*>(heap->currentBuffer);
     while (curObject < heap->nextFreePosition) {
         curObject->WalkObjects(copy_if_necessary);
-        curObject = (AbstractVMObject*)((size_t)curObject + curObject->GetObjectSize());
+        curObject = reinterpret_cast<AbstractVMObject*>((size_t)curObject + curObject->GetObjectSize());
     }
     
     //increase memory if scheduled in collection before
