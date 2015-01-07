@@ -83,18 +83,14 @@ void GenerationalCollector::MinorCollection() {
     GetUniverse()->WalkGlobals(&copy_if_necessary);
 
     // and also all objects that have been detected by the write barriers
-    for (vector<size_t>::iterator objIter =
-            heap->oldObjsWithRefToYoungObjs->begin();
-         objIter != heap->oldObjsWithRefToYoungObjs->end();
-         objIter++) {
+    for (AbstractVMObject* obj : heap->oldObjsWithRefToYoungObjs) {
         // content of oldObjsWithRefToYoungObjs is not altered while iteration,
         // because copy_if_necessary returns old objs only -> ignored by
         // write_barrier
-        AbstractVMObject* obj = (AbstractVMObject*)(*objIter);
         obj->SetGCField(MASK_OBJECT_IS_OLD);
         obj->WalkObjects(&copy_if_necessary);
     }
-    heap->oldObjsWithRefToYoungObjs->clear();
+    heap->oldObjsWithRefToYoungObjs.clear();
     heap->nextFreePosition = heap->nursery;
 }
 

@@ -41,7 +41,7 @@ private:
     void writeBarrier_OldHolder(AbstractVMObject* holder, const vm_oop_t
             referencedObject);
     void* collectionLimit;
-    vector<size_t>* oldObjsWithRefToYoungObjs;
+    vector<AbstractVMObject*> oldObjsWithRefToYoungObjs;
     vector<AbstractVMObject*>* allocatedObjects;
 };
 
