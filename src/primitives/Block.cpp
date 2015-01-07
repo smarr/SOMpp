@@ -30,6 +30,8 @@
 
 #include <vmobjects/VMObject.h>
 #include <vmobjects/VMFrame.h>
+#include <vmobjects/VMBlock.h>
+#include <vmobjects/VMThread.h>
 
 #include <vm/Universe.h>
 
@@ -50,10 +52,29 @@ void _Block::Restart(Interpreter*, VMFrame* frame) {
     frame->ResetStackPointer();
 }
 
+// spawns a new thread that will execute the receiver block
+void _Block::Spawn(Interpreter*, VMFrame* frame) {
+    VMBlock* block = static_cast<VMBlock*>(frame->Pop());
+    VMThread* thread = GetUniverse()->NewThread(block, nullptr);
+    frame->Push(thread);
+}
+
+void _Block::Spawn_(Interpreter*, VMFrame* frame) {
+    vm_oop_t arguments = frame->Pop();
+    VMBlock* block = static_cast<VMBlock*>(frame->Pop());
+    
+    VMThread* thread = GetUniverse()->NewThread(block, arguments);
+    frame->Push(thread);
+}
+
+
 _Block::_Block() : PrimitiveContainer() {
     SetPrimitive("value",       new Routine<_Block>(this, &_Block::Value,       false));
     SetPrimitive("restart",     new Routine<_Block>(this, &_Block::Restart,     false));
     SetPrimitive("value_",      new Routine<_Block>(this, &_Block::Value_,      false));
     SetPrimitive("value_with_", new Routine<_Block>(this, &_Block::Value_with_, false));
+    
+    SetPrimitive("spawn_",      new Routine<_Block>(this, &_Block::Spawn_, false));
+    SetPrimitive("spawn",       new Routine<_Block>(this, &_Block::Spawn,  false));
 }
 
