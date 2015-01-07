@@ -52,7 +52,12 @@ StdString VMThread::AsDebugString() const {
     stringstream id_ss;
     id_ss << id;
     
-    return "Thread(" + load_ptr(name)->GetStdString() + ", " + id_ss.str() + ")";
+    VMString* n = load_ptr(name);
+    if (n == reinterpret_cast<VMString*>(load_ptr(nilObject))) {
+        return "Thread(id: " + id_ss.str() + ")";
+    } else {
+        return "Thread(" + n->GetStdString() + ", " + id_ss.str() + ")";
+    }
 }
 
 VMThread* VMThread::Clone() const {
