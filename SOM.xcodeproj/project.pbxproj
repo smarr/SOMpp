@@ -49,6 +49,12 @@
 		0A1887451832C62100A2CBCA /* Smalltalk in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A18873E1832C62100A2CBCA /* Smalltalk */; };
 		0A1887471832C62100A2CBCA /* TestSuite in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A1887401832C62100A2CBCA /* TestSuite */; };
 		0A32B7FE199D6143002825DF /* IntegerBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A32B7FC199D6143002825DF /* IntegerBox.cpp */; };
+		0A3A3C751A59D5C9004CB03B /* VMThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A3C731A59D5C9004CB03B /* VMThread.cpp */; };
+		0A3A3C781A59D60A004CB03B /* VMCondition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A3C761A59D60A004CB03B /* VMCondition.cpp */; };
+		0A3A3C7B1A59D619004CB03B /* VMMutex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A3C791A59D619004CB03B /* VMMutex.cpp */; };
+		0A3A3C881A5C143C004CB03B /* VMThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A3C731A59D5C9004CB03B /* VMThread.cpp */; };
+		0A3A3C891A5C1451004CB03B /* VMCondition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A3C761A59D60A004CB03B /* VMCondition.cpp */; };
+		0A3A3C8A1A5C1451004CB03B /* VMMutex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A3C791A59D619004CB03B /* VMMutex.cpp */; };
 		0A3A3C921A5D546D004CB03B /* Array.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203120FA6624C00E75857 /* Array.cpp */; };
 		0A3A3C931A5D546D004CB03B /* Block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203160FA6624C00E75857 /* Block.cpp */; };
 		0A3A3C941A5D546D004CB03B /* Class.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203180FA6624C00E75857 /* Class.cpp */; };
@@ -60,6 +66,10 @@
 		0A3A3C9A1A5D546D004CB03B /* String.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203220FA6624C00E75857 /* String.cpp */; };
 		0A3A3C9B1A5D546D004CB03B /* Symbol.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203240FA6624C00E75857 /* Symbol.cpp */; };
 		0A3A3C9C1A5D546D004CB03B /* System.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203260FA6624C00E75857 /* System.cpp */; };
+		0A3A3C9D1A5D546D004CB03B /* Thread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A3C7C1A5BE951004CB03B /* Thread.cpp */; };
+		0A3A3C9E1A5D546D004CB03B /* Condition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A3C801A5BE961004CB03B /* Condition.cpp */; };
+		0A3A3C9F1A5D546D004CB03B /* Mutex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A3C841A5BE97A004CB03B /* Mutex.cpp */; };
+		0A3A3CA01A5D546D004CB03B /* Delay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A3C8B1A5C1C3D004CB03B /* Delay.cpp */; };
 		0A3A3CA11A5D546D004CB03B /* Array.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203120FA6624C00E75857 /* Array.cpp */; };
 		0A3A3CA21A5D546D004CB03B /* Block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203160FA6624C00E75857 /* Block.cpp */; };
 		0A3A3CA31A5D546D004CB03B /* Class.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203180FA6624C00E75857 /* Class.cpp */; };
@@ -71,6 +81,10 @@
 		0A3A3CA91A5D546D004CB03B /* String.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203220FA6624C00E75857 /* String.cpp */; };
 		0A3A3CAA1A5D546D004CB03B /* Symbol.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203240FA6624C00E75857 /* Symbol.cpp */; };
 		0A3A3CAB1A5D546D004CB03B /* System.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203260FA6624C00E75857 /* System.cpp */; };
+		0A3A3CAC1A5D546D004CB03B /* Thread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A3C7C1A5BE951004CB03B /* Thread.cpp */; };
+		0A3A3CAD1A5D546D004CB03B /* Condition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A3C801A5BE961004CB03B /* Condition.cpp */; };
+		0A3A3CAE1A5D546D004CB03B /* Mutex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A3C841A5BE97A004CB03B /* Mutex.cpp */; };
+		0A3A3CAF1A5D546D004CB03B /* Delay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A3A3C8B1A5C1C3D004CB03B /* Delay.cpp */; };
 		0A3A3CB01A5D5475004CB03B /* PrimitiveContainer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203290FA6624C00E75857 /* PrimitiveContainer.cpp */; };
 		0A3A3CB11A5D5475004CB03B /* PrimitiveLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F52032B0FA6624C00E75857 /* PrimitiveLoader.cpp */; };
 		0A3A3CB21A5D5476004CB03B /* PrimitiveContainer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203290FA6624C00E75857 /* PrimitiveContainer.cpp */; };
@@ -181,6 +195,20 @@
 		0A335F6C1832D64100D7CFC8 /* Method.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Method.h; sourceTree = "<group>"; };
 		0A335F6F1832D65100D7CFC8 /* Primitive.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Primitive.cpp; sourceTree = "<group>"; };
 		0A335F701832D65100D7CFC8 /* Primitive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Primitive.h; sourceTree = "<group>"; };
+		0A3A3C731A59D5C9004CB03B /* VMThread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VMThread.cpp; sourceTree = "<group>"; };
+		0A3A3C741A59D5C9004CB03B /* VMThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMThread.h; sourceTree = "<group>"; };
+		0A3A3C761A59D60A004CB03B /* VMCondition.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VMCondition.cpp; sourceTree = "<group>"; };
+		0A3A3C771A59D60A004CB03B /* VMCondition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMCondition.h; sourceTree = "<group>"; };
+		0A3A3C791A59D619004CB03B /* VMMutex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VMMutex.cpp; sourceTree = "<group>"; };
+		0A3A3C7A1A59D619004CB03B /* VMMutex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMMutex.h; sourceTree = "<group>"; };
+		0A3A3C7C1A5BE951004CB03B /* Thread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Thread.cpp; sourceTree = "<group>"; };
+		0A3A3C7D1A5BE951004CB03B /* Thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Thread.h; sourceTree = "<group>"; };
+		0A3A3C801A5BE961004CB03B /* Condition.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Condition.cpp; sourceTree = "<group>"; };
+		0A3A3C811A5BE961004CB03B /* Condition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Condition.h; sourceTree = "<group>"; };
+		0A3A3C841A5BE97A004CB03B /* Mutex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Mutex.cpp; sourceTree = "<group>"; };
+		0A3A3C851A5BE97A004CB03B /* Mutex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mutex.h; sourceTree = "<group>"; };
+		0A3A3C8B1A5C1C3D004CB03B /* Delay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Delay.cpp; sourceTree = "<group>"; };
+		0A3A3C8C1A5C1C3D004CB03B /* Delay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Delay.h; sourceTree = "<group>"; };
 		0A67EA6719ACD37200830E3B /* unittests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = unittests; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A67EA7019ACD43A00830E3B /* CloneObjectsTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CloneObjectsTest.cpp; path = unitTests/CloneObjectsTest.cpp; sourceTree = "<group>"; };
 		0A67EA7119ACD43A00830E3B /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = unitTests/main.cpp; sourceTree = "<group>"; };
@@ -547,6 +575,14 @@
 				3F5203250FA6624C00E75857 /* Symbol.h */,
 				3F5203260FA6624C00E75857 /* System.cpp */,
 				3F5203270FA6624C00E75857 /* System.h */,
+				0A3A3C7C1A5BE951004CB03B /* Thread.cpp */,
+				0A3A3C7D1A5BE951004CB03B /* Thread.h */,
+				0A3A3C801A5BE961004CB03B /* Condition.cpp */,
+				0A3A3C811A5BE961004CB03B /* Condition.h */,
+				0A3A3C841A5BE97A004CB03B /* Mutex.cpp */,
+				0A3A3C851A5BE97A004CB03B /* Mutex.h */,
+				0A3A3C8B1A5C1C3D004CB03B /* Delay.cpp */,
+				0A3A3C8C1A5C1C3D004CB03B /* Delay.h */,
 			);
 			path = primitives;
 			sourceTree = "<group>";
@@ -612,6 +648,12 @@
 				3F5203560FA6624C00E75857 /* VMString.h */,
 				3F5203570FA6624C00E75857 /* VMSymbol.cpp */,
 				3F5203580FA6624C00E75857 /* VMSymbol.h */,
+				0A3A3C731A59D5C9004CB03B /* VMThread.cpp */,
+				0A3A3C741A59D5C9004CB03B /* VMThread.h */,
+				0A3A3C761A59D60A004CB03B /* VMCondition.cpp */,
+				0A3A3C771A59D60A004CB03B /* VMCondition.h */,
+				0A3A3C791A59D619004CB03B /* VMMutex.cpp */,
+				0A3A3C7A1A59D619004CB03B /* VMMutex.h */,
 			);
 			path = vmobjects;
 			sourceTree = "<group>";
@@ -845,6 +887,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0A1887041832BCFA00A2CBCA /* VMPrimitive.cpp in Sources */,
+				0A3A3C7B1A59D619004CB03B /* VMMutex.cpp in Sources */,
 				0A1886E31832BCD300A2CBCA /* bytecodes.cpp in Sources */,
 				0A1887361832C10E00A2CBCA /* MarkSweepHeap.cpp in Sources */,
 				0A1886DD1832BCC800A2CBCA /* ClassGenerationContext.cpp in Sources */,
@@ -879,17 +922,22 @@
 				0A3A3C9A1A5D546D004CB03B /* String.cpp in Sources */,
 				0A3A3C951A5D546D004CB03B /* Double.cpp in Sources */,
 				0A1886F61832BCED00A2CBCA /* Universe.cpp in Sources */,
+				0A3A3CA01A5D546D004CB03B /* Delay.cpp in Sources */,
 				0A1886E21832BCC800A2CBCA /* SourcecodeCompiler.cpp in Sources */,
+				0A3A3C751A59D5C9004CB03B /* VMThread.cpp in Sources */,
 				0A1886FC1832BCF500A2CBCA /* VMClass.cpp in Sources */,
 				0A1886DF1832BCC800A2CBCA /* Lexer.cpp in Sources */,
 				0A1886F51832BCED00A2CBCA /* Shell.cpp in Sources */,
 				0A1887321832C10E00A2CBCA /* CopyingHeap.cpp in Sources */,
 				0A1887061832BCFA00A2CBCA /* VMSymbol.cpp in Sources */,
+				0A3A3C781A59D60A004CB03B /* VMCondition.cpp in Sources */,
 				0A1887011832BCFA00A2CBCA /* VMInvokable.cpp in Sources */,
 				0A3A3C921A5D546D004CB03B /* Array.cpp in Sources */,
+				0A3A3C9F1A5D546D004CB03B /* Mutex.cpp in Sources */,
 				0A1886E11832BCC800A2CBCA /* Parser.cpp in Sources */,
 				0A1886FD1832BCF500A2CBCA /* VMDouble.cpp in Sources */,
 				0A3A3C9B1A5D546D004CB03B /* Symbol.cpp in Sources */,
+				0A3A3C9D1A5D546D004CB03B /* Thread.cpp in Sources */,
 				0A32B7FE199D6143002825DF /* IntegerBox.cpp in Sources */,
 				0A1886FE1832BCF500A2CBCA /* VMEvaluationPrimitive.cpp in Sources */,
 				0A1887311832C10E00A2CBCA /* CopyingCollector.cpp in Sources */,
@@ -904,6 +952,7 @@
 				0A3A3CAB1A5D546D004CB03B /* System.cpp in Sources */,
 				0A3A3CA31A5D546D004CB03B /* Class.cpp in Sources */,
 				0A67EA9019ACD83200830E3B /* Lexer.cpp in Sources */,
+				0A3A3CAD1A5D546D004CB03B /* Condition.cpp in Sources */,
 				0A3A3CA71A5D546D004CB03B /* Object.cpp in Sources */,
 				0A3A3CB21A5D5476004CB03B /* PrimitiveContainer.cpp in Sources */,
 				0A67EA8419ACD74800830E3B /* VMFrame.cpp in Sources */,
@@ -911,14 +960,18 @@
 				0A67EA7E19ACD74800830E3B /* VMArray.cpp in Sources */,
 				0A67EA8719ACD74800830E3B /* VMObject.cpp in Sources */,
 				0A3A3CA11A5D546D004CB03B /* Array.cpp in Sources */,
+				0A3A3CAC1A5D546D004CB03B /* Thread.cpp in Sources */,
 				0A3A3CAA1A5D546D004CB03B /* Symbol.cpp in Sources */,
+				0A3A3C8A1A5C1451004CB03B /* VMMutex.cpp in Sources */,
 				0A67EA8619ACD74800830E3B /* VMMethod.cpp in Sources */,
 				0A67EA7519ACD43A00830E3B /* CloneObjectsTest.cpp in Sources */,
+				0A3A3CAE1A5D546D004CB03B /* Mutex.cpp in Sources */,
 				0A67EA7919ACD43A00830E3B /* WriteBarrierTest.cpp in Sources */,
 				0A67EA9819ACD85300830E3B /* GenerationalCollector.cpp in Sources */,
 				0A67EA7B19ACD72C00830E3B /* VMInvokable.cpp in Sources */,
 				0A67EA9119ACD83200830E3B /* MethodGenerationContext.cpp in Sources */,
 				0A3A3CA61A5D546D004CB03B /* Method.cpp in Sources */,
+				0A3A3CAF1A5D546D004CB03B /* Delay.cpp in Sources */,
 				0A67EA7819ACD43A00830E3B /* WalkObjectsTest.cpp in Sources */,
 				0A67EA8B19ACD82100830E3B /* Shell.cpp in Sources */,
 				0A67EA8C19ACD82100830E3B /* Universe.cpp in Sources */,
@@ -939,7 +992,9 @@
 				0A67EA9A19ACD85E00830E3B /* Heap.cpp in Sources */,
 				0A67EA8119ACD74800830E3B /* VMClass.cpp in Sources */,
 				0A3A3CA81A5D546D004CB03B /* Primitive.cpp in Sources */,
+				0A3A3C881A5C143C004CB03B /* VMThread.cpp in Sources */,
 				0A67EA9619ACD84300830E3B /* Timer.cpp in Sources */,
+				0A3A3C891A5C1451004CB03B /* VMCondition.cpp in Sources */,
 				0A67EA8D19ACD83200830E3B /* BytecodeGenerator.cpp in Sources */,
 				0A67EA7619ACD43A00830E3B /* main.cpp in Sources */,
 				0A67EA8819ACD74800830E3B /* VMPrimitive.cpp in Sources */,
