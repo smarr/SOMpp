@@ -70,6 +70,12 @@ VMThread* VMThread::Clone() const {
     return clone;
 }
 
+void VMThread::MarkObjectAsInvalid() {
+    clazz  = (GCClass*) INVALID_GC_POINTER;
+    name   = (GCString*) INVALID_GC_POINTER;
+    thread = nullptr;
+}
+
 void VMThread::Yield() {
     this_thread::yield();
 }

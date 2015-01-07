@@ -33,3 +33,12 @@ VMCondition* VMCondition::Clone() const {
     clone->clazz = clazz;
     return clone;
 }
+
+void VMCondition::MarkObjectAsInvalid() {
+    clazz = (GCClass*) INVALID_GC_POINTER;
+    std::unique_lock<recursive_mutex>** lock_for_reset = const_cast<std::unique_lock<recursive_mutex>**>(&lock);
+    *lock_for_reset = nullptr;
+    
+    std::condition_variable_any** cv_for_reset = const_cast<std::condition_variable_any**>(&cond_var);
+    *cv_for_reset = nullptr;
+}

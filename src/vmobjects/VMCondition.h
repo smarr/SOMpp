@@ -20,6 +20,7 @@ public:
     
     virtual StdString AsDebugString() const;
     virtual VMCondition* Clone() const;
+    virtual void MarkObjectAsInvalid();
     
 private:
     VMCondition(std::unique_lock<recursive_mutex>* const lock,

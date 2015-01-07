@@ -17,6 +17,7 @@ public:
     
     virtual StdString AsDebugString() const;
     virtual VMThread* Clone() const;
+    virtual void MarkObjectAsInvalid();
     
     void SetThread(std::thread*);
 

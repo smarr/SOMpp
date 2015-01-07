@@ -4,14 +4,17 @@
 const long VMMutex::VMMutexNumberOfFields = 0;
 
 void VMMutex::Lock() {
+    assert(lock);
     lock->lock();
 }
 
 void VMMutex::Unlock() {
+    assert(lock);
     lock->unlock();
 }
 
 bool VMMutex::IsLocked() const {
+    assert(lock);
     return lock->owns_lock();
 }
 
@@ -32,3 +35,8 @@ VMMutex* VMMutex::Clone() const {
     return clone;
 }
 
+void VMMutex::MarkObjectAsInvalid() {
+    clazz = (GCClass*) INVALID_GC_POINTER;
+    std::unique_lock<recursive_mutex>** lock_for_reset = const_cast<std::unique_lock<recursive_mutex>**>(&lock);
+    *lock_for_reset = nullptr;
+}
