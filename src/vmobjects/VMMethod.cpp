@@ -142,6 +142,11 @@ void VMMethod::Invoke(Interpreter* interp, VMFrame* frame) {
     frm->CopyArgumentsFrom(frame);
 }
 
+void VMMethod::SetHolder(VMClass *hld) {
+    VMInvokable::SetHolder(hld);
+    SetHolderAll(hld);
+}
+
 void VMMethod::SetHolderAll(VMClass* hld) {
     long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {

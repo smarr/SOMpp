@@ -41,7 +41,7 @@ public:
             VMSymbol* GetSignature() const;
     virtual void      SetSignature(VMSymbol* sig);
             VMClass*  GetHolder() const;
-            void      SetHolder(VMClass* hld);
+    virtual void      SetHolder(VMClass* hld);
 
     void WalkObjects(walk_heap_fn);
 
