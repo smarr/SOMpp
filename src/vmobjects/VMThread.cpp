@@ -63,7 +63,7 @@ StdString VMThread::AsDebugString() const {
 VMThread* VMThread::Clone() const {
 // TODO: Clone() should be renamed to Move or Reallocate or something,
 // it should indicate that the old copy is going to be invalidated.
-    VMThread* clone = new (GetHeap<HEAP_CLS>(), GetAdditionalSpaceConsumption() ALLOC_MATURE) VMThread();
+    VMThread* clone = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMThread();
     clone->clazz  = clazz;
     clone->thread = thread;
     clone->name   = name;

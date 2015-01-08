@@ -28,9 +28,7 @@ StdString VMMutex::AsDebugString() const {
 }
 
 VMMutex* VMMutex::Clone() const {
-    VMMutex* clone = new (GetHeap<HEAP_CLS>(),
-                              GetAdditionalSpaceConsumption() ALLOC_MATURE)
-        VMMutex(lock);
+    VMMutex* clone = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMMutex(lock);
     clone->clazz = clazz;
     return clone;
 }
