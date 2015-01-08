@@ -13,6 +13,8 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     if (IS_TAGGED(oop))
         return oop;
     
+    assert(oop != nullptr);
+    
     AbstractVMObject* obj = AS_OBJ(oop);
     assert(Universe::IsValidObject(obj));
 
