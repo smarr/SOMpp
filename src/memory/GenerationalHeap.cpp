@@ -26,6 +26,7 @@ GenerationalHeap::GenerationalHeap(long objectSpaceSize) : Heap<GenerationalHeap
 }
 
 AbstractVMObject* GenerationalHeap::AllocateNurseryObject(size_t size) {
+    lock_guard<mutex> lock(allocation_mutex);
     AbstractVMObject* newObject = (AbstractVMObject*) nextFreePosition;
     nextFreePosition = (void*)((size_t)nextFreePosition + size);
     if ((size_t)nextFreePosition > nursery_end) {
@@ -52,6 +53,7 @@ AbstractVMObject* GenerationalHeap::AllocateMatureObject(size_t size) {
 void GenerationalHeap::writeBarrier_OldHolder(AbstractVMObject* holder,
                                               const vm_oop_t referencedObject) {
     if (isObjectInNursery(referencedObject)) {
+        lock_guard<mutex> lock(oldObjRef_mutex);
         oldObjsWithRefToYoungObjs.push_back(holder);
         holder->SetGCField(holder->GetGCField() | MASK_SEEN_BY_WRITE_BARRIER);
     }

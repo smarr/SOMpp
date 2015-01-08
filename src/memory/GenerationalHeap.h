@@ -32,6 +32,8 @@ public:
     std::set< pair<AbstractVMObject*, vm_oop_t>, VMObjectCompare > writeBarrierCalledOn;
 #endif
 private:
+    mutex oldObjRef_mutex;
+    
     void* nursery;
     size_t nursery_end;
     size_t nurserySize;
@@ -43,6 +45,7 @@ private:
     void* collectionLimit;
     vector<AbstractVMObject*> oldObjsWithRefToYoungObjs;
     vector<AbstractVMObject*>* allocatedObjects;
+    mutex allocation_mutex;
 };
 
 inline bool GenerationalHeap::isObjectInNursery(vm_oop_t obj) {
