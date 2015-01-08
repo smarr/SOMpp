@@ -29,9 +29,12 @@
 #include <vector>
 #include <set>
 #include <cstdlib>
+#include <thread>
+
 #include "GarbageCollector.h"
 #include "../misc/defs.h"
 #include "../vmobjects/ObjectFormats.h"
+
 
 using namespace std;
 
@@ -56,7 +59,7 @@ private:
     static HEAP_T* theHeap;
     
     // flag that shows if a Collection is triggered
-    bool gcTriggered;
+    atomic<bool> gcTriggered;
 };
 
 template<class HEAP_T>
