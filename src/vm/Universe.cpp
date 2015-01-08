@@ -45,6 +45,10 @@
 #include <vmobjects/VMString.h>
 #include <vmobjects/VMEvaluationPrimitive.h>
 
+#include <vmobjects/VMCondition.h>
+#include <vmobjects/VMMutex.h>
+#include <vmobjects/VMThread.h>
+
 #include <interpreter/bytecodes.h>
 
 #include <compiler/Disassembler.h>
