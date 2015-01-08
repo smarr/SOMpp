@@ -506,6 +506,16 @@ Universe::~Universe() {
         
         VMThread* thread = new (GetHeap<HEAP_CLS>()) VMThread();
         vt_thread     = *(void**) thread;
+        
+        // Make sure the classes for VMObjects are set to something
+        arr ->SetClass(static_cast<VMClass*>(load_ptr(nilObject)));
+        blck->SetClass(static_cast<VMClass*>(load_ptr(nilObject)));
+        ev  ->SetClass(static_cast<VMClass*>(load_ptr(nilObject)));
+        mth ->SetClass(static_cast<VMClass*>(load_ptr(nilObject)));
+        prm ->SetClass(static_cast<VMClass*>(load_ptr(nilObject)));
+        cond->SetClass(static_cast<VMClass*>(load_ptr(nilObject)));
+        mutex->SetClass(static_cast<VMClass*>(load_ptr(nilObject)));
+        thread->SetClass(static_cast<VMClass*>(load_ptr(nilObject)));
     }
 #endif
 
