@@ -2,6 +2,10 @@
 
 #include "Heap.h"
 #include <string.h>
+#include <mutex>
+
+
+using namespace std;
 
 class CopyingHeap : public Heap<CopyingHeap> {
     friend class CopyingCollector;

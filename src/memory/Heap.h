@@ -29,7 +29,7 @@
 #include <vector>
 #include <set>
 #include <cstdlib>
-#include <thread>
+#include <atomic>
 
 #include "GarbageCollector.h"
 #include "../misc/defs.h"
