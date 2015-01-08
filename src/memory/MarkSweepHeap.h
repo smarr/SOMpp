@@ -14,4 +14,5 @@ private:
     size_t spcAlloc;
     long collectionLimit;
 
+    mutex allocatedObjects_mutex;
 };
