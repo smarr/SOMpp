@@ -31,6 +31,8 @@
 #include "../vmobjects/VMObject.h"
 #include "../vm/Universe.h"
 
+#include <vm/SafePoint.h>
+
 template<class HEAP_T>
 HEAP_T* Heap<HEAP_T>::theHeap = nullptr;
 
@@ -57,7 +59,7 @@ Heap<HEAP_T>::~Heap() {
 
 template<class HEAP_T>
 void Heap<HEAP_T>::FullGC() {
-    gc->Collect();
+    SafePoint::ReachSafePoint([this]() { gc->Collect(); });
 }
 
 // Instantitate Template for the heap classes
