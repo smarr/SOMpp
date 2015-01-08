@@ -9,17 +9,17 @@
 
 class VMObjectBase : public VMOop {
 protected:
-    size_t gcfield;
+    intptr_t gcfield;
 public:
-    inline size_t GetGCField() const;
-    inline void SetGCField(size_t);
+    inline intptr_t GetGCField() const;
+    inline void SetGCField(intptr_t);
 };
 
-size_t VMObjectBase::GetGCField() const {
+intptr_t VMObjectBase::GetGCField() const {
     return gcfield;
 }
 
-void VMObjectBase::SetGCField(size_t val) {
+void VMObjectBase::SetGCField(intptr_t val) {
     // if gcfield is used as a forwarding pointer it should not be overwritten
     // with simple mark bits, because the object itself is garbage but the
     // forwarding address needs to be maintained incase any object still points
