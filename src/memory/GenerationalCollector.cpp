@@ -62,11 +62,11 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     // we have to clone ourselves
     AbstractVMObject* newObj = obj->Clone();
 
-    if (DEBUG)
-        obj->MarkObjectAsInvalid();
-
     assert( (((size_t) newObj) & MASK_OBJECT_IS_MARKED) == 0 );
     assert( obj->GetObjectSize() == newObj->GetObjectSize());
+
+    if (DEBUG)
+        obj->MarkObjectAsInvalid();
     
     obj->SetGCField((size_t) newObj);
     newObj->SetGCField(MASK_OBJECT_IS_OLD);
