@@ -14,23 +14,19 @@ MarkSweepHeap::MarkSweepHeap(long objectSpaceSize) : Heap<MarkSweepHeap>(new Mar
 }
 
 AbstractVMObject* MarkSweepHeap::AllocateObject(size_t size) {
-    // TODO: PADDING wird eigentlich auch durch malloc erledigt
     AbstractVMObject* newObject = reinterpret_cast<AbstractVMObject*>(malloc(size));
     if (newObject == nullptr) {
-        Universe::ErrorPrint("Failed to allocate " + to_string(size) + " Bytes.\n");
-        GetUniverse()->Quit(-1);
+        Universe::ErrorExit(("Failed to allocate " + to_string(size) + " Bytes.\n").c_str());
     }
     spcAlloc += size;
     memset((void*) newObject, 0, size);
-    //AbstractObjects (Integer,...) have no Size field anymore -> set within VMObject's new operator
-    //newObject->SetObjectSize(size);
     
     {
         lock_guard<mutex> lock(allocatedObjects_mutex);
         allocatedObjects->push_back(newObject);
     }
     
-    //let's see if we have to trigger the GC
+    // let's see if we have to trigger the GC
     if (spcAlloc >= collectionLimit)
         triggerGC();
     return newObject;
