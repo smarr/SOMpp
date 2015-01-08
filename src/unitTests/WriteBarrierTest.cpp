@@ -56,7 +56,7 @@ void WriteBarrierTest::testWriteBlock() {
     VMSymbol* methodSymbol = GetUniverse()->NewSymbol("someMethod");
     VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
     VMBlock* block = GetUniverse()->NewBlock(method,
-            GetUniverse()->GetInterpreter()->GetFrame(),
+            GetUniverse()->NewFrame(nullptr, method),
             method->GetNumberOfArguments());
     TEST_WB_CALLED("VMBlock failed to call writeBarrier when creating", block,
             block->GetClass());
@@ -80,12 +80,15 @@ void WriteBarrierTest::testWriteFrame() {
     
     // reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
+    
+    VMSymbol* methodSymbol = GetUniverse()->NewSymbol("someMethod");
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
 
-    VMFrame* frame = GetUniverse()->GetInterpreter()->GetFrame()->Clone();
+    VMFrame* frame = GetUniverse()->NewFrame(nullptr, method);
     frame->SetContext(frame->Clone());
 
-    frame->SetPreviousFrame(GetUniverse()->GetInterpreter()->GetFrame());
-    TEST_WB_CALLED("VMFrame failed to call writeBarrier on SetPreviousFrame", frame, GetUniverse()->GetInterpreter()->GetFrame());
+    frame->SetPreviousFrame(GetUniverse()->NewFrame(nullptr, method));
+    TEST_WB_CALLED("VMFrame failed to call writeBarrier on SetPreviousFrame", frame, GetUniverse()->NewFrame(nullptr, method));
     frame->SetContext(frame->GetContext()->Clone());
     TEST_WB_CALLED("VMFrame failed to call writeBarrier on SetContext", frame, frame->GetContext());
     frame->ClearPreviousFrame();
@@ -99,7 +102,10 @@ void WriteBarrierTest::testWriteMethod() {
     
     // reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
-    VMMethod* method = GetUniverse()->GetInterpreter()->GetFrame()->GetMethod()->Clone();
+
+    VMSymbol* methodSymbol = GetUniverse()->NewSymbol("someMethod");
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
+
     method->SetHolder(load_ptr(integerClass));
     TEST_WB_CALLED("VMMethod failed to call writeBarrier on SetHolder", method, load_ptr(integerClass));
     method->SetSignature(method->GetSignature());

@@ -182,7 +182,7 @@ void WalkObjectsTest::testWalkBlock() {
     VMSymbol* methodSymbol = GetUniverse()->NewSymbol("someMethod");
     VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
     VMBlock* block = GetUniverse()->NewBlock(method,
-            GetUniverse()->GetInterpreter()->GetFrame(),
+            GetUniverse()->NewFrame(nullptr, method),
             method->GetNumberOfArguments());
     block->WalkObjects(collectMembers);
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Block, walkedObjects.size());

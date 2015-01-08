@@ -30,6 +30,7 @@
 #include <map>
 #include <mutex>
 #include <vector>
+#include <unordered_set>
 
 #include "../misc/defs.h"
 #include "../misc/Timer.h"
@@ -86,10 +87,6 @@ public:
     static void Start(long argc, char** argv);
     static void Quit(long);
     static void ErrorExit(const char*);
-
-    Interpreter* GetInterpreter() {
-        return interpreter;
-    }
     
     void Assert(bool) const;
 
@@ -157,6 +154,9 @@ private:
     long getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;
 
     VMMethod* createBootstrapMethod(VMClass* holder, long numArgsOfMsgSend);
+    
+    void registerInterpreter(Interpreter*);
+    void unregisterInterpreter(Interpreter*);
 
     friend Universe* GetUniverse();
     static Universe* theUniverse;
@@ -173,7 +173,8 @@ private:
     map<long, GCClass*> blockClassesByNoOfArgs;
     vector<StdString> classPath;
 
-    Interpreter* interpreter;
+    unordered_set<Interpreter*> interpreters;
+    mutex interpreters_mutex;
     
     static mutex output_mutex;
 };

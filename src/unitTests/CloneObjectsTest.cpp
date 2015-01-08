@@ -109,7 +109,7 @@ void CloneObjectsTest::testCloneBlock() {
     VMSymbol* methodSymbol = GetUniverse()->NewSymbol("someMethod");
     VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
     VMBlock* orig = GetUniverse()->NewBlock(method,
-            GetUniverse()->GetInterpreter()->GetFrame(),
+            GetUniverse()->NewFrame(nullptr, method),
             method->GetNumberOfArguments());
     VMBlock* clone = orig->Clone();
 

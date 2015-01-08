@@ -279,9 +279,7 @@ void Universe::printUsageAndExit(char* executable) const {
     Quit(ERR_SUCCESS);
 }
 
-Universe::Universe() {
-    interpreter = nullptr;
-}
+Universe::Universe() {}
 
 VMMethod* Universe::createBootstrapMethod(VMClass* holder, long numArgsOfMsgSend) {
     VMMethod* bootstrapMethod = NewMethod(SymbolForChars("bootstrap"), 1, 0);
@@ -307,7 +305,8 @@ void Universe::initialize(long _argc, char** _argv) {
 
     Heap<HEAP_CLS>::InitializeHeap(heapSize);
 
-    interpreter = new Interpreter();
+    Interpreter* interpreter = new Interpreter();
+    registerInterpreter(interpreter);
 
 #if CACHE_INTEGER
 # warning is _store_ptr sufficient/correct here?
@@ -351,8 +350,6 @@ void Universe::initialize(long _argc, char** _argv) {
 }
 
 Universe::~Universe() {
-    if (interpreter)
-        delete (interpreter);
 
     // check done inside
     Heap<HEAP_CLS>::DestroyHeap();
@@ -948,7 +945,9 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
     symbolIfTrue  = symbolsMap["ifTrue:"];
     symbolIfFalse = symbolsMap["ifFalse:"];
     
-    interpreter->WalkGlobals(walk);
+    for (auto interp : interpreters) {
+        interp->WalkGlobals(walk);
+    }
     
     VMThread::WalkGlobals(walk);
 }
@@ -1041,6 +1040,20 @@ VMSymbol* Universe::SymbolForChars(const char* str) {
 void Universe::SetGlobal(VMSymbol* name, vm_oop_t val) {
 # warning is _store_ptr correct here? it relies on _store_ptr not to be really changed...
     globals[_store_ptr(name)] = _store_ptr(val);
+}
+
+void Universe::registerInterpreter(Interpreter* interp) {
+    lock_guard<mutex> lock(interpreters_mutex);
+    
+    assert(interpreters.find(interp) == interpreters.end()); // not already in the set
+    interpreters.insert(interp);
+}
+
+void Universe::unregisterInterpreter(Interpreter* interp) {
+    lock_guard<mutex> lock(interpreters_mutex);
+    
+    auto cnt = interpreters.erase(interp);
+    assert(cnt == 1);
 }
 
 void Universe::Print(StdString str) {
