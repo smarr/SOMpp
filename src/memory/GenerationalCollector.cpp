@@ -63,12 +63,18 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     AbstractVMObject* newObj = obj->Clone();
 
     assert( (((size_t) newObj) & MASK_OBJECT_IS_MARKED) == 0 );
+    if (obj->GetObjectSize() != newObj->GetObjectSize()) {
+        cerr << obj->AsDebugString() << endl;
+        cerr << newObj->AsDebugString() << endl;
+        asm("int3");
+        assert(obj->GetObjectSize() == newObj->GetObjectSize());
+    }
     assert( obj->GetObjectSize() == newObj->GetObjectSize());
 
     if (DEBUG)
         obj->MarkObjectAsInvalid();
     
-    obj->SetGCField((size_t) newObj);
+    obj->SetGCField(reinterpret_cast<intptr_t>(newObj));
     newObj->SetGCField(MASK_OBJECT_IS_OLD);
 
     // walk recursively
