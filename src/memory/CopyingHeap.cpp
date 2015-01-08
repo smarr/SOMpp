@@ -28,6 +28,8 @@ void CopyingHeap::switchBuffers() {
 }
 
 AbstractVMObject* CopyingHeap::AllocateObject(size_t size) {
+    lock_guard<mutex> lock(allocation_mutex);
+    
     AbstractVMObject* newObject = (AbstractVMObject*) nextFreePosition;
     nextFreePosition = (void*)((size_t)nextFreePosition + size);
     if (nextFreePosition > currentBufferEnd) {

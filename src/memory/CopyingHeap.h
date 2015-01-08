@@ -9,10 +9,13 @@ public:
     CopyingHeap(long heapSize);
     AbstractVMObject* AllocateObject(size_t size);
 private:
+    void switchBuffers(void);
+    
     void* currentBuffer;
     void* collectionLimit;
     void* oldBuffer;
     void* currentBufferEnd;
-    void switchBuffers(void);
     void* nextFreePosition;
+    
+    mutex allocation_mutex;
 };
