@@ -349,6 +349,38 @@ void Universe::initialize(long _argc, char** _argv) {
     interpreter->Start();
 }
 
+void Universe::startInterpreterInThread(VMThread* thread, VMBlock* block,
+                                        vm_oop_t arguments) {
+    // Note: since this is a long running method, most pointers in here are
+    //       not GC safe!
+    Interpreter* interp = new Interpreter();
+    registerInterpreter(interp);
+    
+    VMThread::RegisterThread(this_thread::get_id(), thread);
+    
+
+    long numArgsInclSelf = arguments == nullptr ? 1 : 2;
+    
+    VMMethod* bootstrap = createBootstrapMethod(block->GetClass(), numArgsInclSelf);
+    VMFrame*  frame = interp->PushNewFrame(bootstrap);
+    frame->Push(block); // aka receiver
+    
+    VMInvokable* value;
+    if (arguments == nullptr) {
+        value = block->GetClass()->LookupInvokable(SymbolFor("value"));
+    } else {
+        frame->Push(arguments);
+        value = block->GetClass()->LookupInvokable(SymbolFor("value:"));
+    }
+    
+    value->Invoke(interp, frame);
+    interp->Start();
+    
+    VMThread::UnregisterThread(this_thread::get_id());
+    // thread is done
+    unregisterInterpreter(interp);
+}
+
 Universe::~Universe() {
 
     // check done inside

@@ -154,6 +154,7 @@ private:
     long getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;
 
     VMMethod* createBootstrapMethod(VMClass* holder, long numArgsOfMsgSend);
+    void startInterpreterInThread(VMThread* thread, VMBlock* block, vm_oop_t arguments);
     
     void registerInterpreter(Interpreter*);
     void unregisterInterpreter(Interpreter*);
