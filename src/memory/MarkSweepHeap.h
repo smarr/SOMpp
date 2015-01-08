@@ -12,10 +12,14 @@ class MarkSweepHeap : public Heap<MarkSweepHeap> {
 public:
     MarkSweepHeap(long objectSpaceSize = 1048576);
     AbstractVMObject* AllocateObject(size_t size);
+    
+    void RegisterThread();
+    void UnregisterThread();
 private:
-    vector<AbstractVMObject*>* allocatedObjects;
+    static __thread vector<AbstractVMObject*>* allocatedObjects;
     size_t spcAlloc;
     long collectionLimit;
-
-    mutex allocatedObjects_mutex;
+    
+    mutex allObject_mutex;
+    vector<vector<AbstractVMObject*>**> allObjects;
 };

@@ -6,11 +6,23 @@
 #include "../vmobjects/AbstractObject.h"
 #include "../vm/Universe.h"
 
+__thread vector<AbstractVMObject*>* MarkSweepHeap::allocatedObjects;
+
 MarkSweepHeap::MarkSweepHeap(long objectSpaceSize) : Heap<MarkSweepHeap>(new MarkSweepCollector(this), objectSpaceSize) {
     //our initial collection limit is 90% of objectSpaceSize
     collectionLimit = objectSpaceSize * 0.9;
     spcAlloc = 0;
+}
+
+# warning we never clean up the vector of thread-local vectors
+
+void MarkSweepHeap::RegisterThread() {
     allocatedObjects = new vector<AbstractVMObject*>();
+    allObjects.push_back(&allocatedObjects);
+}
+
+void MarkSweepHeap::UnregisterThread() {
+    // TODO: move to global list, which is cleaned up on every GC, or so
 }
 
 AbstractVMObject* MarkSweepHeap::AllocateObject(size_t size) {
@@ -21,10 +33,7 @@ AbstractVMObject* MarkSweepHeap::AllocateObject(size_t size) {
     spcAlloc += size;
     memset((void*) newObject, 0, size);
     
-    {
-        lock_guard<mutex> lock(allocatedObjects_mutex);
-        allocatedObjects->push_back(newObject);
-    }
+    allocatedObjects->push_back(newObject);
     
     // let's see if we have to trigger the GC
     if (spcAlloc >= collectionLimit)

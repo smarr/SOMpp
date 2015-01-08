@@ -311,6 +311,8 @@ void Universe::initialize(long _argc, char** _argv) {
 
     Interpreter* interpreter = new Interpreter();
     registerInterpreter(interpreter);
+    
+    GetHeap<HEAP_CLS>()->RegisterThread();
 
 #if CACHE_INTEGER
 # warning is _store_ptr sufficient/correct here?
@@ -351,6 +353,8 @@ void Universe::initialize(long _argc, char** _argv) {
         dumpBytecodes = 2 - trace;
 
     interpreter->Start();
+    
+    GetHeap<HEAP_CLS>()->UnregisterThread();
 }
 
 void Universe::startInterpreterInThread(VMThread* thread, VMBlock* block,
@@ -359,6 +363,8 @@ void Universe::startInterpreterInThread(VMThread* thread, VMBlock* block,
     //       not GC safe!
     Interpreter* interp = new Interpreter();
     registerInterpreter(interp);
+
+    GetHeap<HEAP_CLS>()->RegisterThread();
     
     VMThread::RegisterThread(this_thread::get_id(), thread);
     
@@ -383,6 +389,7 @@ void Universe::startInterpreterInThread(VMThread* thread, VMBlock* block,
     VMThread::UnregisterThread(this_thread::get_id());
     // thread is done
     unregisterInterpreter(interp);
+    GetHeap<HEAP_CLS>()->UnregisterThread();
 }
 
 Universe::~Universe() {
