@@ -14,8 +14,8 @@ MarkSweepHeap::MarkSweepHeap(long objectSpaceSize) : Heap<MarkSweepHeap>(new Mar
 }
 
 AbstractVMObject* MarkSweepHeap::AllocateObject(size_t size) {
-    //TODO: PADDING wird eigentlich auch durch malloc erledigt
-    AbstractVMObject* newObject = (AbstractVMObject*) malloc(size);
+    // TODO: PADDING wird eigentlich auch durch malloc erledigt
+    AbstractVMObject* newObject = reinterpret_cast<AbstractVMObject*>(malloc(size));
     if (newObject == nullptr) {
         Universe::ErrorPrint("Failed to allocate " + to_string(size) + " Bytes.\n");
         GetUniverse()->Quit(-1);

@@ -21,17 +21,16 @@ void MarkSweepCollector::Collect() {
     auto survivors = new vector<AbstractVMObject*>();
     size_t survivorsSize = 0;
 
-    vector<AbstractVMObject*>::iterator iter;
-    for (iter = heap->allocatedObjects->begin(); iter !=
-            heap->allocatedObjects->end(); iter++) {
-        if ((*iter)->GetGCField() == GC_MARKED) {
-            //object ist marked -> let it survive
-            survivors->push_back(*iter);
-            survivorsSize += (*iter)->GetObjectSize();
-            (*iter)->SetGCField(0);
+
+    for (AbstractVMObject* obj : *heap->allocatedObjects) {
+        if (obj->GetGCField() == GC_MARKED) {
+            // object ist marked -> let it survive
+            survivors->push_back(obj);
+            survivorsSize += obj->GetObjectSize();
+            obj->SetGCField(0);
         } else {
-            //not marked -> kill it
-            heap->FreeObject(*iter);
+            // not marked -> kill it
+            heap->FreeObject(obj);
         }
     }
 
@@ -39,7 +38,7 @@ void MarkSweepCollector::Collect() {
     heap->allocatedObjects = survivors;
 
     heap->spcAlloc = survivorsSize;
-    //TODO: Maybe choose another constant to calculate new collectionLimit here
+    // TODO: Maybe choose another constant to calculate new collectionLimit here
     heap->collectionLimit = 2 * survivorsSize;
     Timer::GCTimer->Halt();
 }
