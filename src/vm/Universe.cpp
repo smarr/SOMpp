@@ -654,6 +654,8 @@ VMClass* Universe::GetBlockClassWithArgs(long numberOfArguments) {
 }
 
 vm_oop_t Universe::GetGlobal(VMSymbol* name) {
+    lock_guard<recursive_mutex> lock(globalsAndSymbols_mutex);
+    
     # warning is _store_ptr correct here? it relies on _store_ptr not to be really changed...
     auto it = globals.find(_store_ptr(name));
     if (it == globals.end()) {
@@ -664,6 +666,8 @@ vm_oop_t Universe::GetGlobal(VMSymbol* name) {
 }
 
 bool Universe::HasGlobal(VMSymbol* name) {
+    lock_guard<recursive_mutex> lock(globalsAndSymbols_mutex);
+    
     # warning is _store_ptr correct here? it relies on _store_ptr not to be really changed...
     auto it = globals.find(_store_ptr(name));
     if (it == globals.end()) {
@@ -705,6 +709,7 @@ VMClass* superClass, const char* name) {
 }
 
 VMClass* Universe::LoadClass(VMSymbol* name) {
+    lock_guard<recursive_mutex> lock(globalsAndSymbols_mutex);
     VMClass* result = static_cast<VMClass*>(GetGlobal(name));
     
     if (result != nullptr)
@@ -1029,6 +1034,8 @@ VMSymbol* Universe::NewSymbol(const StdString& str) {
 }
 
 VMSymbol* Universe::NewSymbol(const char* str) {
+    lock_guard<recursive_mutex> lock(globalsAndSymbols_mutex);
+    
     VMSymbol* result = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(strlen(str)+1)) VMSymbol(str);
 # warning is _store_ptr sufficient here?
     symbolsMap[str] = _store_ptr(result);
@@ -1071,6 +1078,8 @@ VMThread* Universe::NewThread(VMBlock* block, vm_oop_t arguments) {
 }
 
 VMSymbol* Universe::SymbolFor(const StdString& str) {
+    lock_guard<recursive_mutex> lock(globalsAndSymbols_mutex);
+    
     map<string,GCSymbol*>::iterator it = symbolsMap.find(str);
     return (it == symbolsMap.end()) ? NewSymbol(str) : load_ptr(it->second);
 }
@@ -1080,6 +1089,8 @@ VMSymbol* Universe::SymbolForChars(const char* str) {
 }
 
 void Universe::SetGlobal(VMSymbol* name, vm_oop_t val) {
+    lock_guard<recursive_mutex> lock(globalsAndSymbols_mutex);
+    
 # warning is _store_ptr correct here? it relies on _store_ptr not to be really changed...
     globals[_store_ptr(name)] = _store_ptr(val);
 }

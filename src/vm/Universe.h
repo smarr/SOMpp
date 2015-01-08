@@ -169,8 +169,12 @@ private:
     void initialize(long, char**);
 
     long heapSize;
+    
     map<GCSymbol*, gc_oop_t> globals;
     map<StdString, GCSymbol*> symbolsMap;
+    recursive_mutex globalsAndSymbols_mutex;
+    
+    
     map<long, GCClass*> blockClassesByNoOfArgs;
     vector<StdString> classPath;
 
