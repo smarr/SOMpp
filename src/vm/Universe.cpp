@@ -1020,40 +1020,34 @@ VMMethod* Universe::NewMethod(VMSymbol* signature,
         size_t numberOfBytecodes, size_t numberOfConstants, Page* page) const {
     //Method needs space for the bytecodes and the pointers to the constants
     long additionalBytes = PADDED_SIZE(numberOfBytecodes + numberOfConstants*sizeof(VMObject*));
-//#if GC_TYPE==GENERATIONAL
-//    VMMethod* result = new (GetHeap<HEAP_CLS>(),additionalBytes, true) 
-//                VMMethod(numberOfBytecodes, numberOfConstants);
-//#else
-    VMMethod* result = new (GetHeap<HEAP_CLS>(),additionalBytes)
-    VMMethod(numberOfBytecodes, numberOfConstants);
-//#endif
+    VMMethod* result = new (page, additionalBytes)
+                    VMMethod(numberOfBytecodes, numberOfConstants, 0, page);
     result->SetClass(load_ptr(methodClass));
-
-    result->SetSignature(signature);
+    result->SetSignature(signature, page);
 
     LOG_ALLOCATION("VMMethod", result->GetObjectSize());
     return result;
 }
 
-VMString* Universe::NewString(const StdString& str) const {
-    return NewString(str.c_str());
+VMString* Universe::NewString(const StdString& str, Page* page) const {
+    return NewString(str.c_str(), page);
 }
 
-VMString* Universe::NewString(const char* str) const {
-    VMString* result = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(strlen(str) + 1)) VMString(str);
+VMString* Universe::NewString(const char* str, Page* page) const {
+    VMString* result = new (page, PADDED_SIZE(strlen(str) + 1)) VMString(str);
 
     LOG_ALLOCATION("VMString", result->GetObjectSize());
     return result;
 }
 
-VMSymbol* Universe::NewSymbol(const StdString& str) {
-    return NewSymbol(str.c_str());
+VMSymbol* Universe::NewSymbol(const StdString& str, Page* page) {
+    return NewSymbol(str.c_str(), page);
 }
 
-VMSymbol* Universe::NewSymbol(const char* str) {
+VMSymbol* Universe::NewSymbol(const char* str, Page* page) {
     lock_guard<recursive_mutex> lock(globalsAndSymbols_mutex);
     
-    VMSymbol* result = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(strlen(str)+1)) VMSymbol(str);
+    VMSymbol* result = new (page, PADDED_SIZE(strlen(str)+1)) VMSymbol(str);
 # warning is _store_ptr sufficient here?
     symbolsMap[str] = _store_ptr(result);
 
@@ -1061,10 +1055,10 @@ VMSymbol* Universe::NewSymbol(const char* str) {
     return result;
 }
 
-VMClass* Universe::NewSystemClass() const {
-    VMClass* systemClass = new (GetHeap<HEAP_CLS>()) VMClass();
+VMClass* Universe::NewSystemClass(Page* page) const {
+    VMClass* systemClass = new (page) VMClass();
 
-    systemClass->SetClass(new (GetHeap<HEAP_CLS>()) VMClass());
+    systemClass->SetClass(new (page) VMClass());
     VMClass* mclass = systemClass->GetClass();
 
     mclass->SetClass(load_ptr(metaClassClass));
@@ -1073,20 +1067,20 @@ VMClass* Universe::NewSystemClass() const {
     return systemClass;
 }
 
-VMCondition* Universe::NewCondition(VMMutex* mutex) const {
-    VMCondition* cond = new (GetHeap<HEAP_CLS>()) VMCondition(mutex->GetLock());
+VMCondition* Universe::NewCondition(VMMutex* mutex, Page* page) const {
+    VMCondition* cond = new (page) VMCondition(mutex->GetLock());
     cond->SetClass(load_ptr(conditionClass));
     return cond;
 }
 
-VMMutex* Universe::NewMutex() const {
-    VMMutex* mutex = new (GetHeap<HEAP_CLS>()) VMMutex();
+VMMutex* Universe::NewMutex(Page* page) const {
+    VMMutex* mutex = new (page) VMMutex();
     mutex->SetClass(load_ptr(mutexClass));
     return mutex;
 }
 
-VMThread* Universe::NewThread(VMBlock* block, vm_oop_t arguments) {
-    VMThread* threadObj = new (GetHeap<HEAP_CLS>()) VMThread();
+VMThread* Universe::NewThread(VMBlock* block, vm_oop_t arguments, Page* page) {
+    VMThread* threadObj = new (page) VMThread();
     threadObj->SetClass(load_ptr(threadClass));
     thread* thread = new std::thread(&Universe::startInterpreterInThread, this, threadObj, block, arguments);
     threadObj->SetThread(thread);
@@ -1094,15 +1088,15 @@ VMThread* Universe::NewThread(VMBlock* block, vm_oop_t arguments) {
     return threadObj;
 }
 
-VMSymbol* Universe::SymbolFor(const StdString& str) {
+VMSymbol* Universe::SymbolFor(const StdString& str, Page* page) {
     lock_guard<recursive_mutex> lock(globalsAndSymbols_mutex);
     
     map<string,GCSymbol*>::iterator it = symbolsMap.find(str);
-    return (it == symbolsMap.end()) ? NewSymbol(str) : load_ptr(it->second);
+    return (it == symbolsMap.end()) ? NewSymbol(str, page) : load_ptr(it->second);
 }
 
-VMSymbol* Universe::SymbolForChars(const char* str) {
-    return SymbolFor(str);
+VMSymbol* Universe::SymbolForChars(const char* str, Page* page) {
+    return SymbolFor(str, page);
 }
 
 void Universe::SetGlobal(VMSymbol* name, vm_oop_t val) {
