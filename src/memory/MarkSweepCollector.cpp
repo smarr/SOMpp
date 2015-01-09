@@ -18,7 +18,7 @@ void MarkSweepCollector::Collect() {
     markReachableObjects();
 
     size_t maxSurvivorsSize = 0;
-    for (Page* page : heap->pages) {
+    for (auto page : heap->pages) {
         size_t survivorsSize = 0;
         
         // in this vector we remember all objects that survived
@@ -48,7 +48,7 @@ void MarkSweepCollector::Collect() {
         auto survivors = new vector<AbstractVMObject*>();
 
         while (true) {
-            Page* page = heap->yieldedPages.back();
+            auto page = heap->yieldedPages.back();
             
             for (AbstractVMObject* obj : *page->allocatedObjects) {
                 if (obj->GetGCField() == GC_MARKED) {

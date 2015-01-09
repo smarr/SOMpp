@@ -16,17 +16,18 @@ MarkSweepHeap::MarkSweepHeap(size_t objectSpaceSize)
 Page* MarkSweepHeap::RegisterThread() {
     lock_guard<mutex> lock(pages_mutex);
     
-    Page* page = new Page(this);
+    MemoryPage<MarkSweepHeap>* page = new MemoryPage<MarkSweepHeap>(this);
     pages.insert(page);
     
-    return page;
+    return reinterpret_cast<Page*>(page); // cast to work around compilation issues with other configurations
 }
 
 void MarkSweepHeap::UnregisterThread(Page* page) {
     lock_guard<mutex> lock(pages_mutex);
+    MemoryPage<MarkSweepHeap>* p = reinterpret_cast<MemoryPage<MarkSweepHeap>*>(page);
     
-    pages.erase(page);
-    yieldedPages.push_back(page);
+    pages.erase(p);
+    yieldedPages.push_back(p);
 }
 
 void* MarkSweepHeap::allocate(size_t size, MemoryPage<MarkSweepHeap>* page ALLOC_OUTSIDE_NURSERY_DECL) {

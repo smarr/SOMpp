@@ -26,8 +26,8 @@ private:
     }
     
     mutex pages_mutex;
-    unordered_set<Page*> pages;
-    vector<Page*> yieldedPages;
+    unordered_set<MemoryPage<MarkSweepHeap>*> pages;
+    vector<MemoryPage<MarkSweepHeap>*> yieldedPages;
     
     friend class MemoryPage<MarkSweepHeap>;
     friend class MarkSweepCollector;
