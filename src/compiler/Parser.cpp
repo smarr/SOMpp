@@ -141,16 +141,15 @@ void Parser::genPushVariable(MethodGenerationContext* mgenc,
             bcGen->EmitPUSHARGUMENT(mgenc, index, context);
         else
             bcGen->EmitPUSHLOCAL(mgenc, index, context);
-    } else if (mgenc->HasField(var)) {
-        VMSymbol* fieldName = GetUniverse()->SymbolFor(var);
-        mgenc->AddLiteralIfAbsent(fieldName);
-        bcGen->EmitPUSHFIELD(mgenc, fieldName);
     } else {
-
-        VMSymbol* global = GetUniverse()->SymbolFor(var);
-        mgenc->AddLiteralIfAbsent(global);
-
-        bcGen->EmitPUSHGLOBAL(mgenc, global);
+        VMSymbol* varSym = GetUniverse()->SymbolFor(var);
+        if (mgenc->HasField(varSym)) {
+            mgenc->AddLiteralIfAbsent(varSym);
+            bcGen->EmitPUSHFIELD(mgenc, varSym);
+        } else {
+            mgenc->AddLiteralIfAbsent(varSym);
+            bcGen->EmitPUSHGLOBAL(mgenc, varSym);
+        }
     }
 }
 

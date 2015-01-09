@@ -64,11 +64,11 @@ void ClassGenerationContext::SetClassFieldsOfSuper(VMArray* fields) {
     }
 }
 
-bool ClassGenerationContext::HasField(const StdString& field) {
+bool ClassGenerationContext::HasField(VMSymbol* field) {
     if (IsClassSide()) {
-        return classFields.IndexOf(GetUniverse()->SymbolFor(field)) != -1;
+        return classFields.IndexOf(field) != -1;
     } else {
-        return instanceFields.IndexOf(GetUniverse()->SymbolFor(field)) != -1;
+        return instanceFields.IndexOf(field) != -1;
     }
 }
 

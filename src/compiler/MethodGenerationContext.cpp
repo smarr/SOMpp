@@ -108,7 +108,8 @@ bool MethodGenerationContext::FindVar(const StdString& var, size_t* index,
     return true;
 }
 
-bool MethodGenerationContext::HasField(const StdString& field) {
+bool MethodGenerationContext::HasField(VMSymbol* field) {
+#warning I think, here, we should already use symbols
     return holderGenc->HasField(field);
 }
 
