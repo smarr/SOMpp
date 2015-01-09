@@ -17,12 +17,14 @@ void MarkSweepCollector::Collect() {
     // now mark all reachables
     markReachableObjects();
 
-    size_t survivorsSize = 0;
-    for (vector<AbstractVMObject*>** thread : heap->allObjects) {
-        // in this survivors stack we will remember all objects that survived
+    size_t maxSurvivorsSize = 0;
+    for (Page* page : heap->pages) {
+        size_t survivorsSize = 0;
+        
+        // in this vector we remember all objects that survived
         auto survivors = new vector<AbstractVMObject*>();
         
-        for (AbstractVMObject* obj : **thread) {
+        for (AbstractVMObject* obj : *page->allocatedObjects) {
             if (obj->GetGCField() == GC_MARKED) {
                 // object ist marked -> let it survive
                 survivors->push_back(obj);
@@ -30,17 +32,44 @@ void MarkSweepCollector::Collect() {
                 obj->SetGCField(0);
             } else {
                 // not marked -> kill it
-                heap->FreeObject(obj);
+                MarkSweepHeap::free(obj);
             }
         }
 
-        delete *thread;
-        *thread = survivors;
+        delete page->allocatedObjects;
+        page->allocatedObjects = survivors;
+        page->spaceAllocated = survivorsSize;
+        
+        maxSurvivorsSize = max(maxSurvivorsSize, survivorsSize);
+    }
+    
+    // go over pages returned from old threads
+    if (heap->yieldedPages.size() > 0) {
+        auto survivors = new vector<AbstractVMObject*>();
+
+        while (true) {
+            Page* page = heap->yieldedPages.back();
+            
+            for (AbstractVMObject* obj : *page->allocatedObjects) {
+                if (obj->GetGCField() == GC_MARKED) {
+                    survivors->push_back(obj);
+                } else {
+                    MarkSweepHeap::free(obj);
+                }
+            }
+            
+            if (heap->yieldedPages.size() == 1) {
+                page->allocatedObjects = survivors;
+                break;
+            } else {
+                delete page;
+                heap->yieldedPages.pop_back();
+            }
+        }
     }
 
-    heap->spcAlloc = survivorsSize;
     // TODO: Maybe choose another constant to calculate new collectionLimit here
-    heap->collectionLimit = 2 * survivorsSize;
+    heap->collectionLimit = 2 * maxSurvivorsSize;
     Timer::GCTimer->Halt();
 }
 

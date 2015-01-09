@@ -1,42 +1,48 @@
-#include "MarkSweepHeap.h"
-
 #include <string.h>
 
 #include "MarkSweepCollector.h"
-#include "../vmobjects/AbstractObject.h"
-#include "../vm/Universe.h"
+#include "MarkSweepHeap.h"
 
-__thread vector<AbstractVMObject*>* MarkSweepHeap::allocatedObjects;
+#include <vm/Universe.h>
+#include <vmobjects/AbstractObject.h>
 
-MarkSweepHeap::MarkSweepHeap(long objectSpaceSize) : Heap<MarkSweepHeap>(new MarkSweepCollector(this), objectSpaceSize) {
-    //our initial collection limit is 90% of objectSpaceSize
-    collectionLimit = objectSpaceSize * 0.9;
-    spcAlloc = 0;
+
+
+MarkSweepHeap::MarkSweepHeap(size_t objectSpaceSize)
+    : Heap<MarkSweepHeap>(new MarkSweepCollector(this), objectSpaceSize),
+        // our initial collection limit is 90% of objectSpaceSize
+        collectionLimit(objectSpaceSize * 0.9) { }
+
+Page* MarkSweepHeap::RegisterThread() {
+    lock_guard<mutex> lock(pages_mutex);
+    
+    Page* page = new Page(this);
+    pages.insert(page);
+    
+    return page;
 }
 
-# warning we never clean up the vector of thread-local vectors
-
-void MarkSweepHeap::RegisterThread() {
-    allocatedObjects = new vector<AbstractVMObject*>();
-    allObjects.push_back(&allocatedObjects);
+void MarkSweepHeap::UnregisterThread(Page* page) {
+    lock_guard<mutex> lock(pages_mutex);
+    
+    pages.erase(page);
+    yieldedPages.push_back(page);
 }
 
-void MarkSweepHeap::UnregisterThread() {
-    // TODO: move to global list, which is cleaned up on every GC, or so
-}
-
-AbstractVMObject* MarkSweepHeap::AllocateObject(size_t size) {
-    AbstractVMObject* newObject = reinterpret_cast<AbstractVMObject*>(malloc(size));
+void* MarkSweepHeap::allocate(size_t size, MemoryPage<MarkSweepHeap>* page ALLOC_OUTSIDE_NURSERY_DECL) {
+    void* newObject = malloc(size);
+    
     if (newObject == nullptr) {
         Universe::ErrorExit(("Failed to allocate " + to_string(size) + " Bytes.\n").c_str());
     }
-    spcAlloc += size;
-    memset((void*) newObject, 0, size);
+    memset(newObject, 0, size);
     
-    allocatedObjects->push_back(newObject);
+    
+    page->spaceAllocated += size;
+    page->allocatedObjects->push_back(reinterpret_cast<AbstractVMObject*>(newObject));
     
     // let's see if we have to trigger the GC
-    if (spcAlloc >= collectionLimit)
-        triggerGC();
+    if (page->spaceAllocated >= page->heap->collectionLimit)
+        page->heap->triggerGC();
     return newObject;
 }

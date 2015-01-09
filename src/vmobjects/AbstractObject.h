@@ -77,19 +77,8 @@ public:
 
     void* operator new(size_t numBytes, Page* page,
             unsigned long additionalBytes = 0 ALLOC_OUTSIDE_NURSERY_DECL) {
-        // if outsideNursery flag is set or object is too big for nursery, we
-        // allocate a mature object
-        unsigned long add = PADDED_SIZE(additionalBytes);
-        void* result;
-#if GC_TYPE==GENERATIONAL
-        if (outsideNursery) {
-            result = (void*) heap->AllocateMatureObject(numBytes + add);
-        } else {
-            result = (void*) heap->AllocateNurseryObject(numBytes + add);
-        }
-#else
-        result = (void*) heap->AllocateObject(numBytes + add);
-#endif
+        size_t total = PADDED_SIZE(numBytes + additionalBytes);
+        void* result = page->AllocateObject(total ALLOC_HINT);
 
         assert(result != INVALID_VM_POINTER);
         return result;
