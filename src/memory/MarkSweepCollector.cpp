@@ -11,10 +11,10 @@
 void MarkSweepCollector::Collect() {
     MarkSweepHeap* heap = GetHeap<MarkSweepHeap>();
     Timer::GCTimer->Resume();
-    //reset collection trigger
+    // reset collection trigger
     heap->resetGCTrigger();
 
-    //now mark all reachables
+    // now mark all reachables
     markReachableObjects();
 
     size_t survivorsSize = 0;

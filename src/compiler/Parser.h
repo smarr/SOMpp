@@ -36,6 +36,7 @@
 #include "MethodGenerationContext.h"
 #include "BytecodeGenerator.h"
 
+
 class Parser {
 public:
     Parser(istream& file, Page*);

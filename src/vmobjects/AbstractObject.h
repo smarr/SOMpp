@@ -26,7 +26,7 @@
 
 using namespace std;
 
-//this is the base class for all VMObjects
+// this is the base class for all VMObjects
 class AbstractVMObject: public VMObjectBase {
 public:
     typedef GCAbstractObject Stored;

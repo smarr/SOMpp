@@ -7,8 +7,8 @@
 class MarkSweepHeap;
 class MarkSweepCollector : public GarbageCollector<MarkSweepHeap> {
 public:
-    MarkSweepCollector(MarkSweepHeap* heap) : GarbageCollector(heap) {
-    }
+    MarkSweepCollector(MarkSweepHeap* heap) : GarbageCollector(heap) {}
+    
     void Collect();
 private:
     void markReachableObjects();

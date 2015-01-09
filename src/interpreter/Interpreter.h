@@ -29,6 +29,7 @@
 #include <misc/defs.h>
 #include <vmobjects/ObjectFormats.h>
 
+
 class Interpreter {
 public:
     Interpreter();

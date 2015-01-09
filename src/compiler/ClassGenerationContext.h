@@ -31,6 +31,7 @@
 #include "../misc/defs.h"
 #include "../misc/ExtendedList.h"
 
+
 class ClassGenerationContext {
 
 public:
