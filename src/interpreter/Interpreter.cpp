@@ -46,7 +46,7 @@ const StdString Interpreter::doesNotUnderstand = "doesNotUnderstand:arguments:";
 const StdString Interpreter::escapedBlock      = "escapedBlock:";
 
 
-Interpreter::Interpreter() : frame(nullptr) {}
+Interpreter::Interpreter(Page* page) : frame(nullptr), page(page) {}
 
 Interpreter::~Interpreter() {}
 

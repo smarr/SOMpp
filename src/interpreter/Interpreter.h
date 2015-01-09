@@ -32,7 +32,7 @@
 
 class Interpreter {
 public:
-    Interpreter();
+    Interpreter(Page*);
     ~Interpreter();
     
     void      Start();

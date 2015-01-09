@@ -309,11 +309,11 @@ void Universe::initialize(long _argc, char** _argv) {
         bm_name = argv[0];
 
     Heap<HEAP_CLS>::InitializeHeap(heapSize);
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
 
-    Interpreter* interpreter = new Interpreter();
+    Interpreter* interpreter = new Interpreter(page);
     registerInterpreter(interpreter);
     
-    GetHeap<HEAP_CLS>()->RegisterThread();
 
 #if CACHE_INTEGER
 # warning is _store_ptr sufficient/correct here?
@@ -355,17 +355,19 @@ void Universe::initialize(long _argc, char** _argv) {
 
     interpreter->Start();
     
-    GetHeap<HEAP_CLS>()->UnregisterThread();
+    GetHeap<HEAP_CLS>()->UnregisterThread(interpreter->GetPage());
 }
 
 void Universe::startInterpreterInThread(VMThread* thread, VMBlock* block,
                                         vm_oop_t arguments) {
     // Note: since this is a long running method, most pointers in here are
     //       not GC safe!
-    Interpreter* interp = new Interpreter();
+    
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+
+    Interpreter* interp = new Interpreter(page);
     registerInterpreter(interp);
 
-    GetHeap<HEAP_CLS>()->RegisterThread();
     
     VMThread::RegisterThread(this_thread::get_id(), thread);
     
@@ -390,7 +392,7 @@ void Universe::startInterpreterInThread(VMThread* thread, VMBlock* block,
     VMThread::UnregisterThread(this_thread::get_id());
     // thread is done
     unregisterInterpreter(interp);
-    GetHeap<HEAP_CLS>()->UnregisterThread();
+    GetHeap<HEAP_CLS>()->UnregisterThread(interp->GetPage());
 }
 
 Universe::~Universe() {
