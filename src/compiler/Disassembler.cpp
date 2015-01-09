@@ -70,7 +70,7 @@ void Disassembler::dispatch(vm_oop_t o) {
         DebugPrint("{System Class object}");
     else if (o == load_ptr(blockClass))
         DebugPrint("{Block Class object}");
-    else if (o == GetUniverse()->GetGlobal(GetUniverse()->SymbolForChars("system")))
+    else if (o == load_ptr(systemObject))
         DebugPrint("{System}");
     else {
         VMClass* c = CLASS_OF(o);

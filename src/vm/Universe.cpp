@@ -72,6 +72,7 @@ Universe* Universe::theUniverse = nullptr;
 GCObject* nilObject;
 GCObject* trueObject;
 GCObject* falseObject;
+GCObject* systemObject;
 
 GCClass* objectClass;
 GCClass* classClass;
@@ -615,21 +616,22 @@ VMObject* Universe::InitializeGlobals() {
     systemClass = _store_ptr(LoadClass(SymbolForChars("System")));
     
     
-    VMObject* systemObject = NewInstance(load_ptr(systemClass));
+    VMObject* systemObj = NewInstance(load_ptr(systemClass));
+    systemObject = _store_ptr(systemObj);
     
     SetGlobal(SymbolForChars("nil"),    load_ptr(nilObject));
     SetGlobal(SymbolForChars("true"),   load_ptr(trueObject));
     SetGlobal(SymbolForChars("false"),  load_ptr(falseObject));
-    SetGlobal(SymbolForChars("system"), systemObject);
     SetGlobal(SymbolForChars("System"), load_ptr(systemClass));
     SetGlobal(SymbolForChars("Block"),  load_ptr(blockClass));
     
     symbolIfTrue  = _store_ptr(SymbolForChars("ifTrue:"));
     symbolIfFalse = _store_ptr(SymbolForChars("ifFalse:"));
+    SetGlobal(SymbolForChars("system", page), systemObj);
     
     VMThread::Initialize();
     
-    return systemObject;
+    return systemObj;
 }
 
 void Universe::Assert(bool value) const {
@@ -935,6 +937,7 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
     nilObject   = static_cast<GCObject*>(walk(nilObject));
     trueObject  = static_cast<GCObject*>(walk(trueObject));
     falseObject = static_cast<GCObject*>(walk(falseObject));
+    systemObject= static_cast<GCObject*>(walk(systemObject));
 
 #if USE_TAGGING
     GlobalBox::WalkGlobals(walk);
