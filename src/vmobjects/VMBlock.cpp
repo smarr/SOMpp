@@ -41,9 +41,9 @@ void VMBlock::SetMethod(VMMethod* bMethod) {
     store_ptr(blockMethod, bMethod);
 }
 
-VMBlock* VMBlock::Clone() const {
+VMBlock* VMBlock::Clone(Page* page) const {
     VMBlock* clone;
-    clone = new (GetHeap<HEAP_CLS>(), GetAdditionalSpaceConsumption() ALLOC_MATURE) VMBlock(*this);
+    clone = new (page, GetAdditionalSpaceConsumption() ALLOC_MATURE) VMBlock(*this);
     return clone;
 }
 
@@ -51,8 +51,8 @@ VMMethod* VMBlock::GetMethod() const {
     return load_ptr(blockMethod);
 }
 
-VMEvaluationPrimitive* VMBlock::GetEvaluationPrimitive(int numberOfArguments) {
-    return new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(numberOfArguments);
+VMEvaluationPrimitive* VMBlock::GetEvaluationPrimitive(int numberOfArguments, Page* page) {
+    return new (page) VMEvaluationPrimitive(numberOfArguments, page);
 }
 
 StdString VMBlock::AsDebugString() const {

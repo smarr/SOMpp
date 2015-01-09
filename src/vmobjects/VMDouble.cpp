@@ -28,8 +28,8 @@
 
 #include <vm/Universe.h>
 
-VMDouble* VMDouble::Clone() const {
-    return new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMDouble(*this);
+VMDouble* VMDouble::Clone(Page* page) const {
+    return new (page, 0 ALLOC_MATURE) VMDouble(*this);
 }
 
 VMClass* VMDouble::GetClass() const {

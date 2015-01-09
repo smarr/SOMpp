@@ -35,7 +35,7 @@ class VMFrame: public VMObject {
 public:
     typedef GCFrame Stored;
     
-    static VMFrame* EmergencyFrameFrom(VMFrame* from, long extraLength);
+    static VMFrame* EmergencyFrameFrom(VMFrame* from, long extraLength, Page* page);
 
     VMFrame(long size, long nof = 0);
 
@@ -64,8 +64,8 @@ public:
     void PrintStackTrace() const;
     long ArgumentStackIndex(long index) const;
     void CopyArgumentsFrom(VMFrame* frame);
-    virtual void WalkObjects(walk_heap_fn);
-    virtual VMFrame* Clone() const;
+    virtual void WalkObjects(walk_heap_fn, Page*);
+    virtual VMFrame* Clone(Page*) const;
 
     void PrintStack() const;
     void PrintBytecode() const;

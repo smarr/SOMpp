@@ -47,18 +47,22 @@ MethodGenerationContext::MethodGenerationContext() {
     finished = false;
 }
 
-VMMethod* MethodGenerationContext::Assemble() {
+VMInvokable* MethodGenerationContext::Assemble(bool classSide, Page* page) {
+    if (primitive) {
+        return VMPrimitive::GetEmptyPrimitive(signature, classSide, page);
+    }
+    
     // create a method instance with the given number of bytecodes and literals
     size_t numLiterals = literals.Size();
 
     VMMethod* meth = GetUniverse()->NewMethod(signature, bytecode.size(),
-            numLiterals);
+            numLiterals, page);
 
     // populate the fields that are immediately available
     size_t numLocals = locals.Size();
-    meth->SetNumberOfLocals(numLocals);
+    meth->SetNumberOfLocals(numLocals, page);
 
-    meth->SetMaximumNumberOfStackElements(ComputeStackDepth());
+    meth->SetMaximumNumberOfStackElements(ComputeStackDepth(), page);
 
     // copy literals into the method
     for (int i = 0; i < numLiterals; i++) {
@@ -72,10 +76,6 @@ VMMethod* MethodGenerationContext::Assemble() {
     }
     // return the method - the holder field is to be set later on!
     return meth;
-}
-
-VMPrimitive* MethodGenerationContext::AssemblePrimitive(bool classSide) {
-    return VMPrimitive::GetEmptyPrimitive(signature, classSide);
 }
 
 MethodGenerationContext::~MethodGenerationContext() {
@@ -259,10 +259,6 @@ MethodGenerationContext* MethodGenerationContext::GetOuter() {
 
 VMSymbol* MethodGenerationContext::GetSignature() {
     return signature;
-}
-
-bool MethodGenerationContext::IsPrimitive() {
-    return primitive;
 }
 
 bool MethodGenerationContext::IsBlockMethod() {

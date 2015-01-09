@@ -41,8 +41,8 @@ VMClass::VMClass() :
                 nullptr), instanceInvokables(nullptr) {
 }
 
-VMClass* VMClass::Clone() const {
-    VMClass* clone = new (GetHeap<HEAP_CLS>(), objectSize - sizeof(VMClass) ALLOC_MATURE) VMClass(*this);
+VMClass* VMClass::Clone(Page* page) const {
+    VMClass* clone = new (page, objectSize - sizeof(VMClass) ALLOC_MATURE) VMClass(*this);
     memcpy(SHIFTED_PTR(clone,sizeof(VMObject)),
             SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() -
             sizeof(VMObject));
@@ -53,19 +53,19 @@ VMClass::VMClass(long numberOfFields) :
         VMObject(numberOfFields + VMClassNumberOfFields) {
 }
 
-void VMClass::WalkObjects(walk_heap_fn walk) {
-    clazz = static_cast<GCClass*>(walk(clazz));
+void VMClass::WalkObjects(walk_heap_fn walk, Page* page) {
+    clazz = static_cast<GCClass*>(walk(clazz, page));
     if (superClass) {
-        superClass = static_cast<GCClass*>(walk(superClass));
+        superClass = static_cast<GCClass*>(walk(superClass, page));
     }
-    name               = static_cast<GCSymbol*>(walk(name));
-    instanceFields     = static_cast<GCArray*>(walk(instanceFields));
-    instanceInvokables = static_cast<GCArray*>(walk(instanceInvokables));
+    name               = static_cast<GCSymbol*>(walk(name, page));
+    instanceFields     = static_cast<GCArray*>(walk(instanceFields, page));
+    instanceInvokables = static_cast<GCArray*>(walk(instanceInvokables, page));
 
     gc_oop_t* fields = FIELDS;
 
     for (long i = VMClassNumberOfFields + 0/*VMObjectNumberOfFields*/; i < numberOfFields; i++)
-        fields[i] = walk(fields[i]);
+        fields[i] = walk(fields[i], page);
 }
 
 void VMClass::MarkObjectAsInvalid() {
@@ -75,7 +75,7 @@ void VMClass::MarkObjectAsInvalid() {
     instanceInvokables = (GCArray*)  INVALID_GC_POINTER;
 }
 
-bool VMClass::AddInstanceInvokable(VMInvokable* ptr) {
+bool VMClass::addInstanceInvokable(VMInvokable* ptr, Page* page) {
     if (ptr == nullptr) {
         GetUniverse()->ErrorExit("Error: trying to add non-invokable to invokables array");
         return false;
@@ -97,13 +97,13 @@ bool VMClass::AddInstanceInvokable(VMInvokable* ptr) {
         }
     }
     //it's a new invokable so we need to expand the invokables array.
-    store_ptr(instanceInvokables, instInvokables->CopyAndExtendWith((vm_oop_t) ptr));
+    store_ptr(instanceInvokables, instInvokables->CopyAndExtendWith(ptr, page));
 
     return true;
 }
 
-void VMClass::AddInstancePrimitive(VMPrimitive* ptr) {
-    if (AddInstanceInvokable(ptr)) {
+void VMClass::AddInstancePrimitive(VMPrimitive* ptr, Page* page) {
+    if (addInstanceInvokable(ptr, page)) {
         //cout << "Warn: Primitive "<<ptr->GetSignature<<" is not in class definition for class " << name->GetStdString() << endl;
     }
 }
@@ -198,12 +198,12 @@ bool VMClass::HasPrimitives() const {
     return false;
 }
 
-void VMClass::LoadPrimitives(const vector<StdString>& cp) {
+void VMClass::LoadPrimitives(const vector<StdString>& cp, Page* page) {
     StdString cname = load_ptr(name)->GetStdString();
     
     if (hasPrimitivesFor(cname)) {
-        setPrimitives(cname, false);
-        GetClass()->setPrimitives(cname, true);
+        setPrimitives(cname, false, page);
+        GetClass()->setPrimitives(cname, true, page);
     }
 }
 
@@ -220,7 +220,7 @@ bool VMClass::hasPrimitivesFor(const StdString& cl) const {
 /*
  * set the routines for primitive marked invokables of the given class
  */
-void VMClass::setPrimitives(const StdString& cname, bool classSide) {
+void VMClass::setPrimitives(const StdString& cname, bool classSide, Page* page) {
     
     VMClass* current = this;
     
@@ -247,8 +247,8 @@ void VMClass::setPrimitives(const StdString& cname, bool classSide) {
                 if (this == current && anInvokable->IsPrimitive()) {
                     thePrimitive = static_cast<VMPrimitive*>(anInvokable);
                 } else {
-                    thePrimitive = VMPrimitive::GetEmptyPrimitive(sig, classSide);
-                    AddInstancePrimitive(thePrimitive);
+                    thePrimitive = VMPrimitive::GetEmptyPrimitive(sig, classSide, page);
+                    AddInstancePrimitive(thePrimitive, page);
                 }
 
                 // set routine

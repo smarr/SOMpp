@@ -77,10 +77,10 @@ void _System::HasGlobal_(Interpreter*, VMFrame* frame) {
     }
 }
 
-void _System::Load_(Interpreter*, VMFrame* frame) {
+void _System::Load_(Interpreter* interp, VMFrame* frame) {
     VMSymbol* arg = static_cast<VMSymbol*>(frame->Pop());
     frame->Pop();
-    VMClass* result = GetUniverse()->LoadClass(arg);
+    VMClass* result = GetUniverse()->LoadClass(arg, interp->GetPage());
     if (result)
         frame->Push(result);
     else
@@ -113,7 +113,7 @@ void _System::PrintNewline_(Interpreter*, VMFrame* frame) {
 }
 
 
-void _System::Time(Interpreter*, VMFrame* frame) {
+void _System::Time(Interpreter* interp, VMFrame* frame) {
     /*VMObject* self = */
     frame->Pop();
     struct timeval now;
@@ -124,10 +124,10 @@ void _System::Time(Interpreter*, VMFrame* frame) {
     ((now.tv_sec - start_time.tv_sec) * 1000) + //seconds
     ((now.tv_usec - start_time.tv_usec) / 1000);// useconds
 
-    frame->Push(NEW_INT(diff));
+    frame->Push(NEW_INT(diff, interp->GetPage()));
 }
 
-void _System::Ticks(Interpreter*, VMFrame* frame) {
+void _System::Ticks(Interpreter* interp, VMFrame* frame) {
     /*VMObject* self = */
     frame->Pop();
     struct timeval now;
@@ -138,7 +138,7 @@ void _System::Ticks(Interpreter*, VMFrame* frame) {
     ((now.tv_sec - start_time.tv_sec) * 1000 * 1000) + //seconds
     ((now.tv_usec - start_time.tv_usec));// useconds
 
-    frame->Push(NEW_INT(diff));
+    frame->Push(NEW_INT(diff, interp->GetPage()));
 }
 
 void _System::FullGC(Interpreter*, VMFrame* frame) {

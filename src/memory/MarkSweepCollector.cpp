@@ -44,7 +44,7 @@ void MarkSweepCollector::Collect() {
     Timer::GCTimer->Halt();
 }
 
-static gc_oop_t mark_object(gc_oop_t oop) {
+static gc_oop_t mark_object(gc_oop_t oop, Page*) {
     if (IS_TAGGED(oop))
         return oop;
     
@@ -54,11 +54,11 @@ static gc_oop_t mark_object(gc_oop_t oop) {
         return oop;
 
     obj->SetGCField(GC_MARKED);
-    obj->WalkObjects(mark_object);
+    obj->WalkObjects(mark_object, nullptr);
     return oop;
 }
 
 void MarkSweepCollector::markReachableObjects() {
     // This walks the globals of the universe, and the interpreter
-    GetUniverse()->WalkGlobals(mark_object);
+    GetUniverse()->WalkGlobals(mark_object, nullptr);
 }

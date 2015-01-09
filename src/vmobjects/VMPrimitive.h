@@ -34,15 +34,15 @@ class VMPrimitive: public VMInvokable {
 public:
     typedef GCPrimitive Stored;
     
-    static VMPrimitive* GetEmptyPrimitive(VMSymbol* sig, bool classSide);
+    static VMPrimitive* GetEmptyPrimitive(VMSymbol* sig, bool classSide, Page*);
 
     VMPrimitive(VMSymbol* sig);
 
     inline  bool IsEmpty() const;
     inline  void SetRoutine(PrimitiveRoutine* rtn);
-    virtual void WalkObjects(walk_heap_fn);
+    virtual void WalkObjects(walk_heap_fn, Page*);
             void SetEmpty(bool value) {empty = value;};
-    virtual VMPrimitive* Clone() const;
+    virtual VMPrimitive* Clone(Page* page) const;
 
     virtual void Invoke(Interpreter* interp, VMFrame* frm) {
         routine->Invoke(interp, frm);

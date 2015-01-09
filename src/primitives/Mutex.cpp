@@ -23,14 +23,14 @@ void _Mutex::IsLocked(Interpreter*, VMFrame* frame) {
     frame->Push(load_ptr(mutex->IsLocked() ? trueObject : falseObject));
 }
 
-void _Mutex::NewCondition(Interpreter*, VMFrame* frame) {
+void _Mutex::NewCondition(Interpreter* interp, VMFrame* frame) {
     VMMutex* mutex = static_cast<VMMutex*>(frame->Pop());
-    frame->Push(mutex->NewCondition());
+    frame->Push(mutex->NewCondition(interp->GetPage()));
 }
 
-void _Mutex::New(Interpreter*, VMFrame* frame) {
+void _Mutex::New(Interpreter* interp, VMFrame* frame) {
     frame->Pop(); // pop receiver, i.e., Mutex class
-    frame->Push(GetUniverse()->NewMutex());
+    frame->Push(GetUniverse()->NewMutex(interp->GetPage()));
 }
 
 _Mutex::_Mutex() : PrimitiveContainer() {

@@ -21,7 +21,7 @@ GenerationalCollector::GenerationalCollector(GenerationalHeap* heap) : GarbageCo
     matureObjectsSize = 0;
 }
 
-static gc_oop_t mark_object(gc_oop_t oop) {
+static gc_oop_t mark_object(gc_oop_t oop, Page*) {
     // don't process tagged objects
     if (IS_TAGGED(oop))
         return oop;
@@ -34,12 +34,12 @@ static gc_oop_t mark_object(gc_oop_t oop) {
         return oop;
 
     obj->SetGCField(MASK_OBJECT_IS_OLD | MASK_OBJECT_IS_MARKED);
-    obj->WalkObjects(&mark_object);
+    obj->WalkObjects(&mark_object, nullptr);
     
     return oop;
 }
 
-static gc_oop_t copy_if_necessary(gc_oop_t oop) {
+static gc_oop_t copy_if_necessary(gc_oop_t oop, Page* target) {
     // don't process tagged objects
     if (IS_TAGGED(oop))
         return oop;
@@ -60,7 +60,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
         return (gc_oop_t) gcField;
     
     // we have to clone ourselves
-    AbstractVMObject* newObj = obj->Clone();
+    AbstractVMObject* newObj = obj->Clone(target);
 
     assert( (((size_t) newObj) & MASK_OBJECT_IS_MARKED) == 0 );
     if (obj->GetObjectSize() != newObj->GetObjectSize()) {
@@ -78,7 +78,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     newObj->SetGCField(MASK_OBJECT_IS_OLD);
 
     // walk recursively
-    newObj->WalkObjects(copy_if_necessary);
+    newObj->WalkObjects(copy_if_necessary, target);
     
 #warning not sure about the use of _store_ptr here, or whether it should be a plain cast
     return _store_ptr(newObj);
@@ -86,7 +86,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
 
 void GenerationalCollector::MinorCollection() {
     // walk all globals of universe, and implicily the interpreter
-    GetUniverse()->WalkGlobals(&copy_if_necessary);
+    GetUniverse()->WalkGlobals(&copy_if_necessary, target);
 
     // and also all objects that have been detected by the write barriers
     for (AbstractVMObject* obj : heap->oldObjsWithRefToYoungObjs) {
@@ -94,7 +94,7 @@ void GenerationalCollector::MinorCollection() {
         // because copy_if_necessary returns old objs only -> ignored by
         // write_barrier
         obj->SetGCField(MASK_OBJECT_IS_OLD);
-        obj->WalkObjects(&copy_if_necessary);
+        obj->WalkObjects(&copy_if_necessary, target);
     }
     heap->oldObjsWithRefToYoungObjs.clear();
     heap->nextFreePosition = heap->nursery;
@@ -102,7 +102,7 @@ void GenerationalCollector::MinorCollection() {
 
 void GenerationalCollector::MajorCollection() {
     // first we have to mark all objects (globals and current frame recursively)
-    GetUniverse()->WalkGlobals(&mark_object);
+    GetUniverse()->WalkGlobals(&mark_object, nullptr);
 
     //now that all objects are marked we can safely delete all allocated objects that are not marked
     vector<AbstractVMObject*>* survivors = new vector<AbstractVMObject*>();

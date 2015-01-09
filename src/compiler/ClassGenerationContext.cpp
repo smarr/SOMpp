@@ -88,43 +88,43 @@ void ClassGenerationContext::AddClassMethod(VMInvokable* method) {
     classMethods.Add(method);
 }
 
-VMClass* ClassGenerationContext::Assemble() {
+VMClass* ClassGenerationContext::Assemble(Page* page) {
     // build class class name
     StdString ccname = string(name->GetStdString()) + " class";
 
     // Load the super class
-    VMClass* superClass = GetUniverse()->LoadClass(superName);
+    VMClass* superClass = GetUniverse()->LoadClass(superName, page);
 
     // Allocate the class of the resulting class
-    VMClass* resultClass = GetUniverse()->NewClass(load_ptr(metaClassClass));
+    VMClass* resultClass = GetUniverse()->NewClass(load_ptr(metaClassClass), page);
 
     // Initialize the class of the resulting class
-    resultClass->SetInstanceFields(GetUniverse()->NewArrayList(classFields));
-    resultClass->SetInstanceInvokables(GetUniverse()->NewArrayList(classMethods));
-    resultClass->SetName(GetUniverse()->SymbolFor(ccname));
+    resultClass->SetInstanceFields(GetUniverse()->NewArrayList(classFields, page));
+    resultClass->SetInstanceInvokables(GetUniverse()->NewArrayList(classMethods, page));
+    resultClass->SetName(GetUniverse()->SymbolFor(ccname, page));
 
     VMClass* superMClass = superClass->GetClass();
     resultClass->SetSuperClass(superMClass);
 
     // Allocate the resulting class
-    VMClass* result = GetUniverse()->NewClass(resultClass);
+    VMClass* result = GetUniverse()->NewClass(resultClass, page);
 
     // Initialize the resulting class
-    result->SetInstanceFields(GetUniverse()->NewArrayList(instanceFields));
-    result->SetInstanceInvokables(GetUniverse()->NewArrayList(instanceMethods));
+    result->SetInstanceFields(GetUniverse()->NewArrayList(instanceFields, page));
+    result->SetInstanceInvokables(GetUniverse()->NewArrayList(instanceMethods, page));
     result->SetName(name);
     result->SetSuperClass(superClass);
 
     return result;
 }
 
-void ClassGenerationContext::AssembleSystemClass(VMClass* systemClass) {
+void ClassGenerationContext::AssembleSystemClass(VMClass* systemClass, Page* page) {
     systemClass->SetInstanceInvokables(GetUniverse()->NewArrayList
-    (instanceMethods));
-    systemClass->SetInstanceFields(GetUniverse()->NewArrayList(instanceFields));
+    (instanceMethods, page));
+    systemClass->SetInstanceFields(GetUniverse()->NewArrayList(instanceFields, page));
     // class-bound == class-instance-bound 
-        VMClass* superMClass = systemClass->GetClass();
-        superMClass->SetInstanceInvokables(GetUniverse()->NewArrayList(classMethods));
-        superMClass->SetInstanceFields(GetUniverse()->NewArrayList(classFields));
-    }
+    VMClass* superMClass = systemClass->GetClass();
+    superMClass->SetInstanceInvokables(GetUniverse()->NewArrayList(classMethods, page));
+    superMClass->SetInstanceFields(GetUniverse()->NewArrayList(classFields, page));
+}
 

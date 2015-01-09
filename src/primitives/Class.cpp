@@ -42,9 +42,9 @@ _Class::_Class() : PrimitiveContainer() {
     SetPrimitive("methods",    new Routine<_Class>(this, &_Class::Methods,    false));
 }
 
-void _Class::New(Interpreter*, VMFrame* frame) {
+void _Class::New(Interpreter* interp, VMFrame* frame) {
     VMClass* self = static_cast<VMClass*>(frame->Pop());
-    frame->Push(GetUniverse()->NewInstance(self));
+    frame->Push(GetUniverse()->NewInstance(self, interp->GetPage()));
 }
 
 void _Class::Name(Interpreter*, VMFrame* frame) {

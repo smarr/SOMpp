@@ -40,7 +40,7 @@ public:
     VMSymbol(const StdString& s);
     virtual StdString GetPlainString() const;
     virtual size_t GetObjectSize() const;
-    virtual VMSymbol* Clone() const;
+    virtual VMSymbol* Clone(Page*) const;
     virtual VMClass* GetClass() const;
     
     virtual StdString AsDebugString() const;
@@ -53,7 +53,7 @@ private:
     inline VMInvokable* GetCachedInvokable(const VMClass*) const;
     inline void UpdateCachedInvokable(const VMClass* cls, VMInvokable* invo);
     
-    virtual void WalkObjects(walk_heap_fn);
+    virtual void WalkObjects(walk_heap_fn, Page*);
     
     friend class Signature;
     friend class VMClass;

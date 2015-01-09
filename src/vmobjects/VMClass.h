@@ -60,22 +60,22 @@ public:
            void         SetInstanceInvokable(long, VMInvokable*);
            VMInvokable* LookupInvokable(VMSymbol*) const;
            long         LookupFieldIndex(VMSymbol*) const;
-           bool         AddInstanceInvokable(VMInvokable*);
-           void         AddInstancePrimitive(VMPrimitive*);
+           void         AddInstancePrimitive(VMPrimitive*, Page*);
            VMSymbol*    GetInstanceFieldName(long)const;
            long         GetNumberOfInstanceFields() const;
            bool         HasPrimitives() const;
-           void         LoadPrimitives(const vector<StdString>&);
-    virtual VMClass*    Clone() const;
-           void         WalkObjects(walk_heap_fn walk);
+           void         LoadPrimitives(const vector<StdString>&, Page* page);
+    virtual VMClass*    Clone(Page* page) const;
+    virtual void        WalkObjects(walk_heap_fn walk, Page*);
     
     virtual void MarkObjectAsInvalid();
     
     virtual StdString AsDebugString() const;
 
 private:
+    bool addInstanceInvokable(VMInvokable*, Page*);
     bool hasPrimitivesFor(const StdString& cl) const;
-    void setPrimitives(const StdString& cname, bool classSide);
+    void setPrimitives(const StdString& cname, bool classSide, Page* page);
     long numberOfSuperInstanceFields() const;
 
     GCClass* superClass;

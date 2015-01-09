@@ -38,7 +38,7 @@ public:
     VMInteger(int64_t val) : embeddedInteger(val), AbstractVMObject() {}
 
     inline int64_t GetEmbeddedInteger() const;
-    virtual VMInteger* Clone() const;
+    virtual VMInteger* Clone(Page*) const;
     virtual VMClass* GetClass() const;
     virtual inline size_t GetObjectSize() const;
     

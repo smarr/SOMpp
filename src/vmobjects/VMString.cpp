@@ -47,8 +47,8 @@ VMString::VMString(const char* str) : AbstractVMObject() {
 
 }
 
-VMString* VMString::Clone() const {
-    return new (GetHeap<HEAP_CLS>(), PADDED_SIZE(strlen(chars)+1) ALLOC_MATURE) VMString(chars);
+VMString* VMString::Clone(Page* page) const {
+    return new (page, PADDED_SIZE(strlen(chars)+1) ALLOC_MATURE) VMString(chars);
 }
 
 void VMString::MarkObjectAsInvalid() {
@@ -59,7 +59,7 @@ void VMString::MarkObjectAsInvalid() {
     }
 }
 
-void VMString::WalkObjects(walk_heap_fn) {
+void VMString::WalkObjects(walk_heap_fn, Page*) {
     //nothing to do
 }
 

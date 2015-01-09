@@ -40,14 +40,14 @@ class VMMethod: public VMInvokable {
 public:
     typedef GCMethod Stored;
     
-    VMMethod(long bcCount, long numberOfConstants, long nof = 0);
+    VMMethod(long bcCount, long numberOfConstants, long nof, Page*);
 
     inline  long      GetNumberOfLocals() const;
-            void      SetNumberOfLocals(long nol);
+            void      SetNumberOfLocals(long nol, Page*);
             long      GetMaximumNumberOfStackElements() const;
-            void      SetMaximumNumberOfStackElements(long stel);
+            void      SetMaximumNumberOfStackElements(long stel, Page*);
     inline  long      GetNumberOfArguments() const;
-            void      SetNumberOfArguments(long);
+            void      SetNumberOfArguments(long, Page*);
             long      GetNumberOfBytecodes() const;
     virtual void      SetHolder(VMClass* hld);
             void      SetHolderAll(VMClass* hld);
@@ -58,15 +58,15 @@ public:
     void SetCachedFrame(VMFrame* frame);
     VMFrame* GetCachedFrame() const;
 #endif
-    virtual void WalkObjects(walk_heap_fn);
+    virtual void WalkObjects(walk_heap_fn, Page*);
     inline  long      GetNumberOfIndexableFields() const;
-    virtual VMMethod* Clone() const;
+    virtual VMMethod* Clone(Page*) const;
 
     inline  void      SetIndexableField(long idx, vm_oop_t item);
 
     virtual void Invoke(Interpreter* interp, VMFrame* frame);
 
-    void SetSignature(VMSymbol* sig);
+    void SetSignature(VMSymbol* sig, Page*);
     
     virtual StdString AsDebugString() const;
 

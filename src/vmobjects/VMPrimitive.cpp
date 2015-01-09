@@ -33,8 +33,8 @@
 //needed to instanciate the Routine object for the  empty routine
 #include "../primitivesCore/Routine.h"
 
-VMPrimitive* VMPrimitive::GetEmptyPrimitive(VMSymbol* sig, bool classSide) {
-    VMPrimitive* prim = new (GetHeap<HEAP_CLS>()) VMPrimitive(sig);
+VMPrimitive* VMPrimitive::GetEmptyPrimitive(VMSymbol* sig, bool classSide, Page* page) {
+    VMPrimitive* prim = new (page) VMPrimitive(sig);
     prim->empty = true;
     prim->SetRoutine(new Routine<VMPrimitive>(prim, &VMPrimitive::EmptyRoutine, classSide));
     return prim;
@@ -50,15 +50,15 @@ VMPrimitive::VMPrimitive(VMSymbol* signature) : VMInvokable(VMPrimitiveNumberOfF
     empty = false;
 }
 
-VMPrimitive* VMPrimitive::Clone() const {
-    VMPrimitive* prim = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMPrimitive(*this);
+VMPrimitive* VMPrimitive::Clone(Page* page) const {
+    VMPrimitive* prim = new (page, 0 ALLOC_MATURE) VMPrimitive(*this);
     return prim;
 }
 
-void VMPrimitive::WalkObjects(walk_heap_fn walk) {
-    clazz     = static_cast<GCClass*>(walk(clazz));
-    signature = static_cast<GCSymbol*>(walk(signature));
-    holder    = static_cast<GCClass*>(walk(holder));
+void VMPrimitive::WalkObjects(walk_heap_fn walk, Page* page) {
+    clazz     = static_cast<GCClass*>(walk(clazz, page));
+    signature = static_cast<GCSymbol*>(walk(signature, page));
+    holder    = static_cast<GCClass*>(walk(holder, page));
 }
 
 void VMPrimitive::EmptyRoutine(Interpreter*, VMFrame*) {

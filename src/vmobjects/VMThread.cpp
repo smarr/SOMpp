@@ -60,10 +60,10 @@ StdString VMThread::AsDebugString() const {
     }
 }
 
-VMThread* VMThread::Clone() const {
+VMThread* VMThread::Clone(Page* page) const {
 // TODO: Clone() should be renamed to Move or Reallocate or something,
 // it should indicate that the old copy is going to be invalidated.
-    VMThread* clone = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMThread();
+    VMThread* clone = new (page, 0 ALLOC_MATURE) VMThread();
     clone->clazz  = clazz;
     clone->thread = thread;
     clone->name   = name;
@@ -118,8 +118,8 @@ void VMThread::UnregisterThread(thread::id threadId) {
     SafePoint::UnregisterMutator();
 }
 
-void VMThread::WalkGlobals(walk_heap_fn walk) {
+void VMThread::WalkGlobals(walk_heap_fn walk, Page* page) {
     for (auto& pair : threads) {
-        pair.second = static_cast<GCThread*>(walk(pair.second));
+        pair.second = static_cast<GCThread*>(walk(pair.second, page));
     }
 }

@@ -41,8 +41,8 @@ VMObject::VMObject(long numberOfFields) {
     // Object size was already set by the heap on allocation
 }
 
-VMObject* VMObject::Clone() const {
-    VMObject* clone = new (GetHeap<HEAP_CLS>(), objectSize - sizeof(VMObject) ALLOC_MATURE) VMObject(*this);
+VMObject* VMObject::Clone(Page* page) const {
+    VMObject* clone = new (page, objectSize - sizeof(VMObject) ALLOC_MATURE) VMObject(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)),
            SHIFTED_PTR(this,  sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     clone->hash = (size_t) &clone;
@@ -68,13 +68,13 @@ void VMObject::Assert(bool value) const {
     GetUniverse()->Assert(value);
 }
 
-void VMObject::WalkObjects(walk_heap_fn walk) {
-    clazz = static_cast<GCClass*>(walk(clazz));
+void VMObject::WalkObjects(walk_heap_fn walk, Page* page) {
+    clazz = static_cast<GCClass*>(walk(clazz, page));
     
     long numFields = GetNumberOfFields();
     for (long i = 0; i < numFields; ++i) {
 # warning not sure whether the use of _store_ptr is correct and robust here
-        FIELDS[i] = walk(_store_ptr(GetField(i)));
+        FIELDS[i] = walk(_store_ptr(GetField(i)), page);
     }
 }
 

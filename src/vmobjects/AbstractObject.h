@@ -33,7 +33,7 @@ public:
     
     virtual size_t GetHash();
     virtual VMClass* GetClass() const = 0;
-    virtual AbstractVMObject* Clone() const = 0;
+    virtual AbstractVMObject* Clone(Page*) const = 0;
     virtual void Send(Interpreter*, StdString, vm_oop_t*, long);
     virtual size_t GetObjectSize() const = 0;
     
@@ -66,7 +66,7 @@ public:
 
     long GetFieldIndex(VMSymbol* fieldName) const;
 
-    inline virtual void WalkObjects(walk_heap_fn) {
+    inline virtual void WalkObjects(walk_heap_fn, Page*) {
         return;
     }
 
@@ -75,7 +75,7 @@ public:
         throw "this object doesn't support GetFieldName";
     }
 
-    void* operator new(size_t numBytes, HEAP_CLS* heap,
+    void* operator new(size_t numBytes, Page* page,
             unsigned long additionalBytes = 0 ALLOC_OUTSIDE_NURSERY_DECL) {
         // if outsideNursery flag is set or object is too big for nursery, we
         // allocate a mature object

@@ -19,7 +19,7 @@ size_t AbstractVMObject::GetHash() {
 
 void AbstractVMObject::Send(Interpreter* interp, StdString selectorString, vm_oop_t* arguments, long argc) {
     VMFrame* frame = interp->GetFrame();
-    VMSymbol* selector = GetUniverse()->SymbolFor(selectorString);
+    VMSymbol* selector = GetUniverse()->SymbolFor(selectorString, interp->GetPage());
     frame->Push(this);
 
     for (long i = 0; i < argc; ++i) {

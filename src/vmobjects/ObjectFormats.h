@@ -47,13 +47,13 @@
 
 #if USE_TAGGING
   #define INT_VAL(X) (IS_TAGGED(X) ? ((int64_t)(X)>>1) : (((VMInteger*)(X))->GetEmbeddedInteger()))
-  #define NEW_INT(X) (TAG_INTEGER((X)))
+  #define NEW_INT(X, page) (TAG_INTEGER((X)))
   #define IS_TAGGED(X) ((int64_t)X&1)
   #define CLASS_OF(X) (IS_TAGGED(X)?load_ptr(integerClass):((AbstractVMObject*)(X))->GetClass())
   #define AS_OBJ(X) (IS_TAGGED(X)?GlobalBox::IntegerBox():((AbstractVMObject*)(X)))
 #else
   #define INT_VAL(X) (static_cast<VMInteger*>(X)->GetEmbeddedInteger())
-  #define NEW_INT(X) (GetUniverse()->NewInteger(X))
+  #define NEW_INT(X, page) (GetUniverse()->NewInteger(X, page))
   #define IS_TAGGED(X) false
   #define CLASS_OF(X) (AS_OBJ(X)->GetClass())
   #define AS_OBJ(X) ((AbstractVMObject*)(X))
@@ -154,6 +154,6 @@ inline typename T::Stored* _store_ptr(T* vm_val) {
 
 #define store_ptr(field, val) field = _store_ptr(val); write_barrier(this, val)
 
-typedef gc_oop_t (*walk_heap_fn)(gc_oop_t);
+typedef gc_oop_t (*walk_heap_fn)(gc_oop_t, Page*);
 
 

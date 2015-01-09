@@ -38,7 +38,7 @@
 
 class Parser {
 public:
-    Parser(istream& file);
+    Parser(istream& file, Page*);
     ~Parser();
 
     void Classdef(ClassGenerationContext* cgenc);
@@ -121,4 +121,6 @@ private:
     StdString nextText;
 
     BytecodeGenerator* bcGen;
+    
+    Page* const page;
 };

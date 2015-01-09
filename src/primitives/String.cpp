@@ -47,7 +47,7 @@ _String::_String() : PrimitiveContainer() {
     SetPrimitive("primSubstringFrom_to_", new Routine<_String>(this, &_String::PrimSubstringFrom_to_, false));
 }
 
-void _String::Concatenate_(Interpreter*, VMFrame* frame) {
+void _String::Concatenate_(Interpreter* interp, VMFrame* frame) {
     VMString* arg  = static_cast<VMString*>(frame->Pop());
     VMString* self = static_cast<VMString*>(frame->Pop());
     StdString a = arg->GetChars();
@@ -55,25 +55,25 @@ void _String::Concatenate_(Interpreter*, VMFrame* frame) {
 
     StdString result = s + a;
 
-    frame->Push(GetUniverse()->NewString(result));
+    frame->Push(GetUniverse()->NewString(result, interp->GetPage()));
 }
 
-void _String::AsSymbol(Interpreter*, VMFrame* frame) {
+void _String::AsSymbol(Interpreter* interp, VMFrame* frame) {
     VMString* self = static_cast<VMString*>(frame->Pop());
     StdString result = self->GetStdString();
-    frame->Push(GetUniverse()->SymbolFor(result));
+    frame->Push(GetUniverse()->SymbolFor(result, interp->GetPage()));
 }
 
-void _String::Hashcode(Interpreter*, VMFrame* frame) {
+void _String::Hashcode(Interpreter* interp, VMFrame* frame) {
     VMString* self = static_cast<VMString*>(frame->Pop());
-    frame->Push(NEW_INT(self->GetHash()));
+    frame->Push(NEW_INT(self->GetHash(), interp->GetPage()));
 }
 
-void _String::Length(Interpreter*, VMFrame* frame) {
+void _String::Length(Interpreter*interp, VMFrame* frame) {
     VMString* self = static_cast<VMString*>(frame->Pop());
 
     size_t len = self->GetStringLength();
-    frame->Push(NEW_INT(len));
+    frame->Push(NEW_INT(len, interp->GetPage()));
 }
 
 void _String::Equal(Interpreter*, VMFrame* frame) {
@@ -98,7 +98,7 @@ void _String::Equal(Interpreter*, VMFrame* frame) {
     frame->Push(load_ptr(falseObject));
 }
 
-void _String::PrimSubstringFrom_to_(Interpreter*, VMFrame* frame) {
+void _String::PrimSubstringFrom_to_(Interpreter* interp, VMFrame* frame) {
     vm_oop_t end   = frame->Pop();
     vm_oop_t start = frame->Pop();
 
@@ -110,6 +110,6 @@ void _String::PrimSubstringFrom_to_(Interpreter*, VMFrame* frame) {
 
     StdString result = str.substr(s, e - s + 1);
 
-    frame->Push( GetUniverse()->NewString(result));
+    frame->Push( GetUniverse()->NewString(result, interp->GetPage()));
 }
 

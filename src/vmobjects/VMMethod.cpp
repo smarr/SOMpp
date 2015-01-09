@@ -45,18 +45,18 @@ const long VMMethod::VMMethodNumberOfFields = 8;
 const long VMMethod::VMMethodNumberOfFields = 7;
 #endif
 
-VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
+VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof, Page* page) :
         VMInvokable(nof + VMMethodNumberOfFields) {
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     cachedFrame = nullptr;
 #endif
 # warning not sure whether the use of _store_ptr is ok here
 
-    bcLength                     = _store_ptr(NEW_INT(bcCount));
-    numberOfLocals               = _store_ptr(NEW_INT(0));
-    maximumNumberOfStackElements = _store_ptr(NEW_INT(0));
-    numberOfArguments            = _store_ptr(NEW_INT(0));
-    this->numberOfConstants      = _store_ptr(NEW_INT(numberOfConstants));
+    bcLength                     = _store_ptr(NEW_INT(bcCount, page));
+    numberOfLocals               = _store_ptr(NEW_INT(0, page));
+    maximumNumberOfStackElements = _store_ptr(NEW_INT(0, page));
+    numberOfArguments            = _store_ptr(NEW_INT(0, page));
+    this->numberOfConstants      = _store_ptr(NEW_INT(numberOfConstants, page));
 
     indexableFields = (gc_oop_t*)(&indexableFields + 2);
     for (long i = 0; i < numberOfConstants; ++i) {
@@ -65,8 +65,8 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
     bytecodes = (uint8_t*)(&indexableFields + 2 + GetNumberOfIndexableFields());
 }
 
-VMMethod* VMMethod::Clone() const {
-    VMMethod* clone = new (GetHeap<HEAP_CLS>(), GetObjectSize() - sizeof(VMMethod) ALLOC_MATURE) VMMethod(*this);
+VMMethod* VMMethod::Clone(Page* page) const {
+    VMMethod* clone = new (page, GetObjectSize() - sizeof(VMMethod) ALLOC_MATURE) VMMethod(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,
                     sizeof(VMObject)), GetObjectSize() -
             sizeof(VMObject));
@@ -75,29 +75,29 @@ VMMethod* VMMethod::Clone() const {
     return clone;
 }
 
-void VMMethod::SetSignature(VMSymbol* sig) {
+void VMMethod::SetSignature(VMSymbol* sig, Page* page) {
     VMInvokable::SetSignature(sig);
-    SetNumberOfArguments(Signature::GetNumberOfArguments(sig));
+    SetNumberOfArguments(Signature::GetNumberOfArguments(sig), page);
 }
 
-void VMMethod::WalkObjects(walk_heap_fn walk) {
-    VMInvokable::WalkObjects(walk);
+void VMMethod::WalkObjects(walk_heap_fn walk, Page* page) {
+    VMInvokable::WalkObjects(walk, page);
 
-    numberOfLocals    = walk(numberOfLocals);
-    maximumNumberOfStackElements = walk(maximumNumberOfStackElements);
-    bcLength          = walk(bcLength);
-    numberOfArguments = walk(numberOfArguments);
-    numberOfConstants = walk(numberOfConstants);
+    numberOfLocals    = walk(numberOfLocals, page);
+    maximumNumberOfStackElements = walk(maximumNumberOfStackElements, page);
+    bcLength          = walk(bcLength, page);
+    numberOfArguments = walk(numberOfArguments, page);
+    numberOfConstants = walk(numberOfConstants, page);
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     if (cachedFrame != nullptr)
-        cachedFrame = static_cast<VMFrame*>(walk(cachedFrame));
+        cachedFrame = static_cast<VMFrame*>(walk(cachedFrame, page));
 #endif
 
     long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {
         if (GetIndexableField(i) != nullptr)
 # warning not sure _store_ptr is the best way, perhaps we should access the array content directly
-            indexableFields[i] = walk(_store_ptr(GetIndexableField(i)));
+            indexableFields[i] = walk(_store_ptr(GetIndexableField(i)), page);
     }
 }
 
@@ -117,20 +117,20 @@ void VMMethod::SetCachedFrame(VMFrame* frame) {
 }
 #endif
 
-void VMMethod::SetNumberOfLocals(long nol) {
-    store_ptr(numberOfLocals, NEW_INT(nol));
+void VMMethod::SetNumberOfLocals(long nol, Page* page) {
+    store_ptr(numberOfLocals, NEW_INT(nol, page));
 }
 
 long VMMethod::GetMaximumNumberOfStackElements() const {
     return INT_VAL(load_ptr(maximumNumberOfStackElements));
 }
 
-void VMMethod::SetMaximumNumberOfStackElements(long stel) {
-    store_ptr(maximumNumberOfStackElements, NEW_INT(stel));
+void VMMethod::SetMaximumNumberOfStackElements(long stel, Page* page) {
+    store_ptr(maximumNumberOfStackElements, NEW_INT(stel, page));
 }
 
-void VMMethod::SetNumberOfArguments(long noa) {
-    store_ptr(numberOfArguments, NEW_INT(noa));
+void VMMethod::SetNumberOfArguments(long noa, Page* page) {
+    store_ptr(numberOfArguments, NEW_INT(noa, page));
 }
 
 long VMMethod::GetNumberOfBytecodes() const {

@@ -18,8 +18,8 @@ bool VMMutex::IsLocked() const {
     return lock->owns_lock();
 }
 
-VMCondition* VMMutex::NewCondition() {
-    return GetUniverse()->NewCondition(this);
+VMCondition* VMMutex::NewCondition(Page* page) {
+    return GetUniverse()->NewCondition(this, page);
 }
 
 
@@ -27,8 +27,8 @@ StdString VMMutex::AsDebugString() const {
     return "VMMutex";
 }
 
-VMMutex* VMMutex::Clone() const {
-    VMMutex* clone = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMMutex(lock);
+VMMutex* VMMutex::Clone(Page* page) const {
+    VMMutex* clone = new (page, 0 ALLOC_MATURE) VMMutex(lock);
     clone->clazz = clazz;
     return clone;
 }

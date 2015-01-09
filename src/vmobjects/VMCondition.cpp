@@ -26,8 +26,8 @@ StdString VMCondition::AsDebugString() const {
     return "VMCondition";
 }
 
-VMCondition* VMCondition::Clone() const {
-    VMCondition* clone = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE)
+VMCondition* VMCondition::Clone(Page* page) const {
+    VMCondition* clone = new (page, 0 ALLOC_MATURE)
                             VMCondition(lock, cond_var);
     clone->clazz = clazz;
     return clone;

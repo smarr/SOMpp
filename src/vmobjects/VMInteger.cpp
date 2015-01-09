@@ -27,8 +27,8 @@
 #include "VMInteger.h"
 #include "../vm/Universe.h"
 
-VMInteger* VMInteger::Clone() const {
-    return new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMInteger(*this);
+VMInteger* VMInteger::Clone(Page* page) const {
+    return new (page, 0 ALLOC_MATURE) VMInteger(*this);
 }
 
 VMClass* VMInteger::GetClass() const {

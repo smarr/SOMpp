@@ -36,29 +36,29 @@
 //needed to instanciate the Routine object for the evaluation routine
 #include "../primitivesCore/Routine.h"
 
-VMEvaluationPrimitive::VMEvaluationPrimitive(long argc) : VMPrimitive(computeSignatureString(argc)) {
+VMEvaluationPrimitive::VMEvaluationPrimitive(long argc, Page* page) : VMPrimitive(computeSignatureString(argc, page)) {
     SetRoutine(new EvaluationRoutine(this));
     SetEmpty(false);
-    store_ptr(numberOfArguments, NEW_INT(argc));
+    store_ptr(numberOfArguments, NEW_INT(argc, page));
 }
 
-VMEvaluationPrimitive* VMEvaluationPrimitive::Clone() const {
-    VMEvaluationPrimitive* evPrim = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMEvaluationPrimitive(*this);
+VMEvaluationPrimitive* VMEvaluationPrimitive::Clone(Page* page) const {
+    VMEvaluationPrimitive* evPrim = new (page, 0 ALLOC_MATURE) VMEvaluationPrimitive(*this);
     return evPrim;
 }
 
-void VMEvaluationPrimitive::WalkObjects(walk_heap_fn walk) {
-    VMPrimitive::WalkObjects(walk);
-    numberOfArguments = walk(numberOfArguments);
-    static_cast<EvaluationRoutine*>(routine)->WalkObjects(walk);
+void VMEvaluationPrimitive::WalkObjects(walk_heap_fn walk, Page* page) {
+    VMPrimitive::WalkObjects(walk, page);
+    numberOfArguments = walk(numberOfArguments, page);
+    static_cast<EvaluationRoutine*>(routine)->WalkObjects(walk, page);
 }
 
-VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc) {
 #define VALUE_S "value"
 #define VALUE_LEN 5
 #define WITH_S    "with:"
 #define WITH_LEN (4+1)
 #define COLON_S ":"
+VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc, Page* page) {
     assert(argc > 0);
 
     StdString signatureString;
@@ -76,7 +76,7 @@ VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc) {
     }
 
     // Return the signature string
-    return GetUniverse()->SymbolFor(signatureString);
+    return GetUniverse()->SymbolFor(signatureString, page);
 }
 
 void EvaluationRoutine::Invoke(Interpreter* interp, VMFrame* frame) {
@@ -95,8 +95,8 @@ void EvaluationRoutine::Invoke(Interpreter* interp, VMFrame* frame) {
     NewFrame->SetContext(context);
 }
 
-void EvaluationRoutine::WalkObjects(walk_heap_fn walk) {
-    evalPrim = static_cast<GCEvaluationPrimitive*>(walk(evalPrim));
+void EvaluationRoutine::WalkObjects(walk_heap_fn walk, Page* page) {
+    evalPrim = static_cast<GCEvaluationPrimitive*>(walk(evalPrim, page));
 }
 
 StdString VMEvaluationPrimitive::AsDebugString() const {

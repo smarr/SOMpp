@@ -38,7 +38,7 @@
 // when doesNotUnderstand or UnknownGlobal is sent, additional stack slots might
 // be necessary, as these cases are not taken into account when the stack
 // depth is calculated. In that case this method is called.
-VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength) {
+VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength, Page* page) {
     VMMethod* method = from->GetMethod();
     long length = method->GetNumberOfArguments()
                     + method->GetNumberOfLocals()
@@ -46,7 +46,7 @@ VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength) {
                     + extraLength;
 
     long additionalBytes = length * sizeof(VMObject*);
-    VMFrame* result = new (GetHeap<HEAP_CLS>(), additionalBytes) VMFrame(length);
+    VMFrame* result = new (page, additionalBytes) VMFrame(length);
 
     result->clazz = nullptr; // result->SetClass(from->GetClass());
 
@@ -80,9 +80,9 @@ VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength) {
     return result;
 }
 
-VMFrame* VMFrame::Clone() const {
+VMFrame* VMFrame::Clone(Page* page) const {
     size_t addSpace = objectSize - sizeof(VMFrame);
-    VMFrame* clone = new (GetHeap<HEAP_CLS>(), addSpace ALLOC_MATURE) VMFrame(*this);
+    VMFrame* clone = new (page, addSpace ALLOC_MATURE) VMFrame(*this);
     void* destination = SHIFTED_PTR(clone, sizeof(VMFrame));
     const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
     size_t noBytes = GetObjectSize() - sizeof(VMFrame);
@@ -136,24 +136,24 @@ VMFrame* VMFrame::GetOuterContext() {
     return current;
 }
 
-void VMFrame::WalkObjects(walk_heap_fn walk) {
+void VMFrame::WalkObjects(walk_heap_fn walk, Page* page) {
     // VMFrame is not a proper SOM object any longer, we don't have a class for it.
     // clazz = (VMClass*) walk(clazz);
     
     if (previousFrame) {
-        previousFrame = static_cast<GCFrame*>(walk(previousFrame));
+        previousFrame = static_cast<GCFrame*>(walk(previousFrame, page));
     }
     if (context) {
-        context = static_cast<GCFrame*>(walk(context));
+        context = static_cast<GCFrame*>(walk(context, page));
     }
-    method = static_cast<GCMethod*>(walk(method));
+    method = static_cast<GCMethod*>(walk(method, page));
 
     // all other fields are indexable via arguments array
     // --> until end of Frame
     long i = 0;
     while (arguments + i <= stack_ptr) {
         if (arguments[i] != nullptr) {
-            arguments[i] = walk(arguments[i]);
+            arguments[i] = walk(arguments[i], page);
         }
         i++;
     }

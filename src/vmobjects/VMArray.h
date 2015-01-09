@@ -35,14 +35,14 @@ public:
     
     VMArray(long size, long nof = 0);
 
-    virtual void WalkObjects(walk_heap_fn);
+    virtual void WalkObjects(walk_heap_fn, Page*);
 
     inline  long GetNumberOfIndexableFields() const;
-    VMArray* CopyAndExtendWith(vm_oop_t) const;
+    VMArray* CopyAndExtendWith(vm_oop_t, Page*) const;
     vm_oop_t GetIndexableField(long idx) const;
     void SetIndexableField(long idx, vm_oop_t value);
     void CopyIndexableFieldsTo(VMArray*) const;
-    virtual VMArray* Clone() const;
+    virtual VMArray* Clone(Page*) const;
     
     virtual StdString AsDebugString() const;
 

@@ -57,8 +57,8 @@ size_t VMSymbol::GetObjectSize() const {
     return size;
 }
 
-VMSymbol* VMSymbol::Clone() const {
-    VMSymbol* result = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(strlen(chars) + 1) ALLOC_MATURE) VMSymbol(chars);
+VMSymbol* VMSymbol::Clone(Page* page) const {
+    VMSymbol* result = new (page, PADDED_SIZE(strlen(chars) + 1) ALLOC_MATURE) VMSymbol(chars);
     return result;
 }
 
@@ -130,11 +130,11 @@ StdString VMSymbol::GetPlainString() const {
     return st;
 }
 
-void VMSymbol::WalkObjects(walk_heap_fn walk) {
+void VMSymbol::WalkObjects(walk_heap_fn walk, Page* page) {
     for (long i = 0; i < nextCachePos; i++) {
         cachedClass_invokable[i] = static_cast<GCClass*>(walk(
-                                        const_cast<GCClass*>(cachedClass_invokable[i])));
-        cachedInvokable[i] = static_cast<GCInvokable*>(walk(cachedInvokable[i]));
+                        const_cast<GCClass*>(cachedClass_invokable[i]), page));
+        cachedInvokable[i] = static_cast<GCInvokable*>(walk(cachedInvokable[i], page));
     }
 }
 

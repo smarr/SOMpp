@@ -41,8 +41,7 @@ public:
     MethodGenerationContext();
     ~MethodGenerationContext();
 
-    VMMethod* Assemble();
-    VMPrimitive* AssemblePrimitive(bool classSide);
+    VMInvokable* Assemble(bool classSide, Page* page);
 
     int8_t FindLiteralIndex(vm_oop_t lit);
     bool FindVar(const StdString& var, size_t* index,
@@ -69,7 +68,6 @@ public:
     MethodGenerationContext* GetOuter();
 
     VMSymbol* GetSignature();
-    bool IsPrimitive();
     bool IsBlockMethod();
     bool IsFinished();
     void RemoveLastBytecode() {bytecode.pop_back();};

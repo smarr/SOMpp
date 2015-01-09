@@ -70,42 +70,42 @@ double _Double::coerceDouble(vm_oop_t x) {
     VMDouble* leftObj = static_cast<VMDouble*>(frame->Pop()); \
     double left = leftObj->GetEmbeddedDouble();
 
-void _Double::Plus(Interpreter*, VMFrame* frame) {
+void _Double::Plus(Interpreter* interp, VMFrame* frame) {
     PREPARE_OPERANDS;
-    frame->Push(GetUniverse()->NewDouble(left + right));
+    frame->Push(GetUniverse()->NewDouble(left + right, interp->GetPage()));
 }
 
-void _Double::Minus(Interpreter*, VMFrame* frame) {
+void _Double::Minus(Interpreter* interp, VMFrame* frame) {
     PREPARE_OPERANDS;
-    frame->Push(GetUniverse()->NewDouble(left - right));
+    frame->Push(GetUniverse()->NewDouble(left - right, interp->GetPage()));
 }
 
-void _Double::Star(Interpreter*, VMFrame* frame) {
+void _Double::Star(Interpreter* interp, VMFrame* frame) {
     PREPARE_OPERANDS;
-    frame->Push(GetUniverse()->NewDouble(left * right));
+    frame->Push(GetUniverse()->NewDouble(left * right, interp->GetPage()));
 }
 
-void _Double::Slashslash(Interpreter*, VMFrame* frame) {
+void _Double::Slashslash(Interpreter* interp, VMFrame* frame) {
     PREPARE_OPERANDS;
-    frame->Push(GetUniverse()->NewDouble(left / right));
+    frame->Push(GetUniverse()->NewDouble(left / right, interp->GetPage()));
 }
 
-void _Double::Percent(Interpreter*, VMFrame* frame) {
+void _Double::Percent(Interpreter* interp, VMFrame* frame) {
     PREPARE_OPERANDS;
     frame->Push(GetUniverse()->NewDouble((double)((int64_t)left %
-                    (int64_t)right)));
+                    (int64_t)right), interp->GetPage()));
 }
 
-void _Double::And(Interpreter*, VMFrame* frame) {
+void _Double::And(Interpreter* interp, VMFrame* frame) {
     PREPARE_OPERANDS;
     frame->Push(GetUniverse()->NewDouble((double)((int64_t)left &
-                    (int64_t)right)));
+                    (int64_t)right), interp->GetPage()));
 }
 
-void _Double::BitwiseXor(Interpreter*, VMFrame* frame) {
+void _Double::BitwiseXor(Interpreter* interp, VMFrame* frame) {
     PREPARE_OPERANDS;
     frame->Push(GetUniverse()->NewDouble((double)((int64_t)left ^
-                    (int64_t)right)));
+                    (int64_t)right), interp->GetPage()));
 }
 
 /*
@@ -128,27 +128,27 @@ void _Double::Lowerthan(Interpreter*, VMFrame* frame) {
         frame->Push(load_ptr(falseObject));
 }
 
-void _Double::AsString(Interpreter*, VMFrame* frame) {
+void _Double::AsString(Interpreter* interp, VMFrame* frame) {
     VMDouble* self = static_cast<VMDouble*>(frame->Pop());
 
     double dbl = self->GetEmbeddedDouble();
     ostringstream Str;
     Str.precision(17);
     Str << dbl;
-    frame->Push( GetUniverse()->NewString( Str.str().c_str() ) );
+    frame->Push( GetUniverse()->NewString(Str.str().c_str(), interp->GetPage()));
 }
 
-void _Double::Sqrt(Interpreter*, VMFrame* frame) {
+void _Double::Sqrt(Interpreter* interp, VMFrame* frame) {
     VMDouble* self = static_cast<VMDouble*>(frame->Pop());
-    VMDouble* result = GetUniverse()->NewDouble( sqrt(self->GetEmbeddedDouble()) );
+    VMDouble* result = GetUniverse()->NewDouble(sqrt(self->GetEmbeddedDouble()), interp->GetPage());
     frame->Push(result);
 }
 
-void _Double::Round(Interpreter*, VMFrame* frame) {
+void _Double::Round(Interpreter* interp, VMFrame* frame) {
     VMDouble* self = (VMDouble*)frame->Pop();
     int64_t rounded = llround(self->GetEmbeddedDouble());
 
-    frame->Push(NEW_INT(rounded));
+    frame->Push(NEW_INT(rounded, interp->GetPage()));
 }
 
 _Double::_Double() : PrimitiveContainer() {

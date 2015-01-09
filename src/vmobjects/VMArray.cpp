@@ -61,17 +61,17 @@ void VMArray::SetIndexableField(long idx, vm_oop_t value) {
     SetField(GetNumberOfFields() + idx, value);
 }
 
-VMArray* VMArray::CopyAndExtendWith(vm_oop_t item) const {
+VMArray* VMArray::CopyAndExtendWith(vm_oop_t item, Page* page) const {
     size_t fields = GetNumberOfIndexableFields();
-    VMArray* result = GetUniverse()->NewArray(fields + 1);
+    VMArray* result = GetUniverse()->NewArray(fields + 1, page);
     CopyIndexableFieldsTo(result);
     result->SetIndexableField(fields, item);
     return result;
 }
 
-VMArray* VMArray::Clone() const {
+VMArray* VMArray::Clone(Page* page) const {
     long addSpace = objectSize - sizeof(VMArray);
-    VMArray* clone = new (GetHeap<HEAP_CLS>(), addSpace ALLOC_MATURE) VMArray(*this);
+    VMArray* clone = new (page, addSpace ALLOC_MATURE) VMArray(*this);
     void* destination  = SHIFTED_PTR(clone, sizeof(VMArray));
     const void* source = SHIFTED_PTR(this, sizeof(VMArray));
     size_t noBytes = GetObjectSize() - sizeof(VMArray);
@@ -94,13 +94,13 @@ void VMArray::CopyIndexableFieldsTo(VMArray* to) const {
     }
 }
 
-void VMArray::WalkObjects(walk_heap_fn walk) {
-    clazz = static_cast<GCClass*>(walk(clazz));
+void VMArray::WalkObjects(walk_heap_fn walk, Page*) {
+    clazz = static_cast<GCClass*>(walk(clazz, nullptr));
     long numFields          = GetNumberOfFields();
     long numIndexableFields = GetNumberOfIndexableFields();
     gc_oop_t* fields = FIELDS;
     for (long i = 0; i < numFields + numIndexableFields; i++) {
-        fields[i] = walk(fields[i]);
+        fields[i] = walk(fields[i], nullptr);
     }
 }
 

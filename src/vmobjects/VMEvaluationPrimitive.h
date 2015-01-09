@@ -32,16 +32,16 @@ class VMEvaluationPrimitive: public VMPrimitive {
 public:
     typedef GCEvaluationPrimitive Stored;
     
-    VMEvaluationPrimitive(long argc);
-    virtual void WalkObjects(walk_heap_fn);
-    virtual VMEvaluationPrimitive* Clone() const;
+    VMEvaluationPrimitive(long argc, Page* page);
+    virtual void WalkObjects(walk_heap_fn, Page*);
+    virtual VMEvaluationPrimitive* Clone(Page* page) const;
     
     virtual StdString AsDebugString() const;
     
     int64_t GetNumberOfArguments() { return INT_VAL(load_ptr(numberOfArguments)); };
     
 private:
-    static VMSymbol* computeSignatureString(long argc);
+    static VMSymbol* computeSignatureString(long argc, Page*);
     void evaluationRoutine(Interpreter*, VMFrame*);
     gc_oop_t numberOfArguments;
 
@@ -53,7 +53,7 @@ private:
 public:
     EvaluationRoutine(VMEvaluationPrimitive* prim)
         : PrimitiveRoutine(), evalPrim(_store_ptr(prim)) {};
-    void WalkObjects(walk_heap_fn);
+    void WalkObjects(walk_heap_fn, Page*);
     virtual bool isClassSide() { return false; }
     virtual void Invoke(Interpreter* interp, VMFrame* frame);
 };

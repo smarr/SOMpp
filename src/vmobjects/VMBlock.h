@@ -38,11 +38,11 @@ public:
             void      SetMethod(VMMethod*);
     inline  void      SetContext(VMFrame*);
     inline  VMFrame*  GetContext() const;
-    virtual VMBlock*  Clone() const;
+    virtual VMBlock*  Clone(Page*) const;
     
     virtual StdString AsDebugString() const;
 
-    static VMEvaluationPrimitive* GetEvaluationPrimitive(int);
+    static VMEvaluationPrimitive* GetEvaluationPrimitive(int, Page*);
 private:
     GCMethod* blockMethod;
     GCFrame* context;

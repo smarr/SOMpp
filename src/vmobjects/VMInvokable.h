@@ -43,7 +43,7 @@ public:
             VMClass*  GetHolder() const;
     virtual void      SetHolder(VMClass* hld);
 
-    void WalkObjects(walk_heap_fn);
+    virtual void WalkObjects(walk_heap_fn, Page*);
 
 protected:
     GCSymbol* signature;

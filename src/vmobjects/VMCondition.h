@@ -19,7 +19,7 @@ public:
     bool Await(int64_t timeoutMilliseconds);
     
     virtual StdString AsDebugString() const;
-    virtual VMCondition* Clone() const;
+    virtual VMCondition* Clone(Page*) const;
     virtual void MarkObjectAsInvalid();
     
 private:

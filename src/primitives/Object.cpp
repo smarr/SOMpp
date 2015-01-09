@@ -60,19 +60,19 @@ void _Object::Equalequal(Interpreter*, VMFrame* frame) {
     frame->Push(load_ptr(op1 == op2 ? trueObject : falseObject));
 }
 
-void _Object::ObjectSize(Interpreter*, VMFrame* frame) {
+void _Object::ObjectSize(Interpreter* interp, VMFrame* frame) {
     vm_oop_t self = frame->Pop();
 
-    frame->Push(NEW_INT(AS_OBJ(self)->GetObjectSize()));
+    frame->Push(NEW_INT(AS_OBJ(self)->GetObjectSize(), interp->GetPage()));
 }
 
-void _Object::Hashcode(Interpreter*, VMFrame* frame) {
+void _Object::Hashcode(Interpreter* interp, VMFrame* frame) {
     vm_oop_t self = frame->Pop();
 
     if (IS_TAGGED(self))
         frame->Push(self);
     else
-        frame->Push(NEW_INT(AS_OBJ(self)->GetHash()));
+        frame->Push(NEW_INT(AS_OBJ(self)->GetHash(), interp->GetPage()));
 }
 
 void _Object::Inspect(Interpreter*, VMFrame* frame) {

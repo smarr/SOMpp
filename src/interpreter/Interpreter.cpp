@@ -193,7 +193,7 @@ void Interpreter::Start() {
 }
 
 VMFrame* Interpreter::PushNewFrame(VMMethod* method) {
-    SetFrame(GetUniverse()->NewFrame(GetFrame(), method));
+    SetFrame(GetUniverse()->NewFrame(GetFrame(), method, page));
     return GetFrame();
 }
 
@@ -261,7 +261,7 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
 
         vm_oop_t receiver = GetFrame()->GetStackElement(numberOfArgs-1);
 
-        VMArray* argumentsArray = GetUniverse()->NewArray(numberOfArgs - 1); // without receiver
+        VMArray* argumentsArray = GetUniverse()->NewArray(numberOfArgs - 1, page); // without receiver
 
         // the receiver should not go into the argumentsArray
         // so, numberOfArgs - 2
@@ -279,7 +279,7 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
         if (additionalStackSlots > 0) {
             GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
             //copy current frame into a bigger one and replace the current frame
-            SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
+            SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots, page));
         }
 
         AS_OBJ(receiver)->Send(this, doesNotUnderstand, arguments, 2);
@@ -343,7 +343,7 @@ void Interpreter::doPushBlock(long bytecodeIndex) {
 
     long numOfArgs = blockMethod->GetNumberOfArguments();
 
-    GetFrame()->Push(GetUniverse()->NewBlock(blockMethod, GetFrame(), numOfArgs));
+    GetFrame()->Push(GetUniverse()->NewBlock(blockMethod, GetFrame(), numOfArgs, page));
 }
 
 void Interpreter::doPushConstant(long bytecodeIndex) {
@@ -367,7 +367,7 @@ void Interpreter::doPushGlobal(long bytecodeIndex) {
         if (additionalStackSlots > 0) {
             GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
             //copy current frame into a bigger one and replace the current frame
-            SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
+            SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots, page));
         }
 
         AS_OBJ(self)->Send(this, unknownGlobal, arguments, 1);
@@ -443,7 +443,7 @@ void Interpreter::doSuperSend(long bytecodeIndex) {
     else {
         long numOfArgs = Signature::GetNumberOfArguments(signature);
         vm_oop_t receiver = GetFrame()->GetStackElement(numOfArgs - 1);
-        VMArray* argumentsArray = GetUniverse()->NewArray(numOfArgs);
+        VMArray* argumentsArray = GetUniverse()->NewArray(numOfArgs, page);
 
         for (long i = numOfArgs - 1; i >= 0; --i) {
             vm_oop_t o = GetFrame()->Pop();
@@ -486,7 +486,7 @@ void Interpreter::doReturnNonLocal() {
         if (additionalStackSlots > 0) {
             GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
             // copy current frame into a bigger one, and replace it
-            SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
+            SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots, page));
         }
 
         AS_OBJ(sender)->Send(this, escapedBlock, arguments, 1);
@@ -521,15 +521,15 @@ void Interpreter::doJump(long bytecodeIndex) {
     bytecodeIndexGlobal = target;
 }
 
-void Interpreter::WalkGlobals(walk_heap_fn walk) {
+void Interpreter::WalkGlobals(walk_heap_fn walk, Page* page) {
 #warning method and frame are stored as VMptrs, is that acceptable? Is the solution here with _store_ptr and load_ptr robust?
     
-    method = load_ptr(static_cast<GCMethod*>(walk(_store_ptr(method))));
+    method = load_ptr(static_cast<GCMethod*>(walk(_store_ptr(method), page)));
     currentBytecodes = method->GetBytecodes();
     
     // Get the current frame and mark it.
     // Since marking is done recursively, this automatically
     // marks the whole stack
 # warning Do I need a null check here?
-    frame  = load_ptr(static_cast<GCFrame*>(walk(_store_ptr(frame))));
+    frame  = load_ptr(static_cast<GCFrame*>(walk(_store_ptr(frame), page)));
 }

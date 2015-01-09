@@ -8,7 +8,7 @@
 
 #include "CopyingCollector.h"
 
-static gc_oop_t copy_if_necessary(gc_oop_t oop) {
+static gc_oop_t copy_if_necessary(gc_oop_t oop, Page* target) {
     // don't process tagged objects
     if (IS_TAGGED(oop))
         return oop;
@@ -25,7 +25,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
         return (gc_oop_t) gcField;
     
     // we have to clone ourselves
-    AbstractVMObject* newObj = obj->Clone();
+    AbstractVMObject* newObj = obj->Clone(target);
     
     if (DEBUG)
         obj->MarkObjectAsInvalid();
@@ -62,12 +62,12 @@ void CopyingCollector::Collect() {
     // init currentBuffer with zeros
     memset(heap->currentBuffer, 0x0, (size_t)(heap->currentBufferEnd) -
             (size_t)(heap->currentBuffer));
-    GetUniverse()->WalkGlobals(copy_if_necessary);
+    GetUniverse()->WalkGlobals(copy_if_necessary, target);
 
     //now copy all objects that are referenced by the objects we have moved so far
     AbstractVMObject* curObject = static_cast<AbstractVMObject*>(heap->currentBuffer);
     while (curObject < heap->nextFreePosition) {
-        curObject->WalkObjects(copy_if_necessary);
+        curObject->WalkObjects(copy_if_necessary, target);
         curObject = reinterpret_cast<AbstractVMObject*>((size_t)curObject + curObject->GetObjectSize());
     }
     

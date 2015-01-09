@@ -16,7 +16,7 @@ public:
     void Join();
     
     virtual StdString AsDebugString() const;
-    virtual VMThread* Clone() const;
+    virtual VMThread* Clone(Page*) const;
     virtual void MarkObjectAsInvalid();
     
     void SetThread(std::thread*);
@@ -25,7 +25,7 @@ public:
     static VMThread* Current();
     
     static void Initialize();
-    static void WalkGlobals(walk_heap_fn walk);
+    static void WalkGlobals(walk_heap_fn walk, Page*);
     static void RegisterThread(thread::id, VMThread*);
     static void UnregisterThread(thread::id);
 

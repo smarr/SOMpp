@@ -34,11 +34,11 @@
 #include "../primitivesCore/Routine.h"
 #include "Symbol.h"
 
-void _Symbol::AsString(Interpreter*, VMFrame* frame) {
+void _Symbol::AsString(Interpreter* interp, VMFrame* frame) {
     VMSymbol* sym = static_cast<VMSymbol*>(frame->Pop());
 
     StdString str = sym->GetStdString();
-    frame->Push(GetUniverse()->NewString(str));
+    frame->Push(GetUniverse()->NewString(str, interp->GetPage()));
 }
 
 void _Symbol::Equal(Interpreter*, VMFrame* frame) {

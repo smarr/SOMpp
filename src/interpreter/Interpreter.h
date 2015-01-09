@@ -38,13 +38,17 @@ public:
     VMFrame*  PushNewFrame(VMMethod* method);
     void      SetFrame(VMFrame* frame);
     inline VMFrame* GetFrame() const;
-    void      WalkGlobals(walk_heap_fn);
+    void      WalkGlobals(walk_heap_fn, Page*);
+    
+    Page*     GetPage() const { return page; }
     
 private:
     vm_oop_t GetSelf() const;
     
     VMFrame* frame;
     VMMethod* method;
+    
+    Page* page;
     
     // The following three variables are used to cache main parts of the
     // current execution context
