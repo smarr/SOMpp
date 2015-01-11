@@ -363,6 +363,7 @@ void Universe::initialize(long _argc, char** _argv) {
 
 void Universe::startInterpreterInThread(VMThread* thread, VMBlock* block,
                                         vm_oop_t arguments) {
+    auto tId = this_thread::get_id();
     // Note: since this is a long running method, most pointers in here are
     //       not GC safe!
     
@@ -392,6 +393,7 @@ void Universe::startInterpreterInThread(VMThread* thread, VMBlock* block,
     value->Invoke(interp, frame);
     interp->Start();
     
+    assert(tId == this_thread::get_id());
     VMThread::UnregisterThread(this_thread::get_id());
     // thread is done
     unregisterInterpreter(interp);
