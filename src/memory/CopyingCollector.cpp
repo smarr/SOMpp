@@ -18,7 +18,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop, Page* target) {
     AbstractVMObject* obj = AS_OBJ(oop);
     assert(Universe::IsValidObject(obj));
 
-    long gcField = obj->GetGCField();
+    intptr_t gcField = obj->GetGCField();
     //GCField is abused as forwarding pointer here
     //if someone has moved before, return the moved object
     if (gcField != 0)
@@ -30,7 +30,8 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop, Page* target) {
     if (DEBUG)
         obj->MarkObjectAsInvalid();
     
-    obj->SetGCField((long)newObj);
+    obj->SetGCField(reinterpret_cast<intptr_t>(newObj));
+    
 #warning not sure about the use of _store_ptr here, or whether it should be a plain cast
     return _store_ptr(newObj);
 }
