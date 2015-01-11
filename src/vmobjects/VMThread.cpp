@@ -95,6 +95,8 @@ VMThread* VMThread::Current() {
 }
 
 void VMThread::Initialize() {
+    lock_guard<mutex> lock(threads_map_mutex);
+    
     // this is initialization time, should be done before any GC stuff starts
     // so, don't need a write barrier
     threads[this_thread::get_id()] = reinterpret_cast<GCThread*>(nilObject);
@@ -102,6 +104,8 @@ void VMThread::Initialize() {
 }
 
 void VMThread::RegisterThread(thread::id threadId, VMThread* thread) {
+    lock_guard<mutex> lock(threads_map_mutex);
+    
     auto thread_i = threads.find(threadId);
     assert(thread_i == threads.end()); // should not be in the map
     
@@ -112,6 +116,8 @@ void VMThread::RegisterThread(thread::id threadId, VMThread* thread) {
 }
 
 void VMThread::UnregisterThread(thread::id threadId) {
+    lock_guard<mutex> lock(threads_map_mutex);
+    
     size_t numRemoved = threads.erase(threadId);
     assert(numRemoved == 1);
     
