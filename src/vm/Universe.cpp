@@ -183,7 +183,7 @@ vector<StdString> Universe::handleArguments(long argc, char** argv) {
         } else if (strncmp(argv[i], "-g", 2) == 0) {
             ++gcVerbosity;
         } else if (strncmp(argv[i], "-H", 2) == 0) {
-            long heap_size = 0;
+            size_t heap_size = 0;
             char unit[3];
             if (sscanf(argv[i], "-H%ld%2s", &heap_size, unit) == 2) {
                 if (strcmp(unit, "KB") == 0)
