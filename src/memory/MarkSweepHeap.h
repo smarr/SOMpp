@@ -11,7 +11,7 @@
 
 class MarkSweepHeap : public Heap<MarkSweepHeap> {
 public:
-    MarkSweepHeap(size_t objectSpaceSize = 1048576);
+    MarkSweepHeap(size_t pageSize, size_t objectSpaceSize);
     void* AllocateObject(size_t size);
     
     Page* RegisterThread();
