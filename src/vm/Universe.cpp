@@ -338,7 +338,7 @@ void Universe::initialize(long _argc, char** _argv) {
 # warning is _store_ptr sufficient/correct here?
     // create prebuilt integers
     for (long it = INT_CACHE_MIN_VALUE; it <= INT_CACHE_MAX_VALUE; ++it) {
-        prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = _store_ptr(new (GetHeap<HEAP_CLS>()) VMInteger(it));
+        prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = _store_ptr(new (page) VMInteger(it));
     }
 #endif
 
@@ -997,7 +997,7 @@ void Universe::WalkGlobals(walk_heap_fn walk, Page* page) {
 #if USE_TAGGING
         prebuildInts[i] = TAG_INTEGER(INT_CACHE_MIN_VALUE + i, page);
 #else
-        prebuildInts[i] = walk(prebuildInts[i]);
+        prebuildInts[i] = walk(prebuildInts[i], page);
 #endif
 #endif
 
