@@ -111,8 +111,11 @@ void VMThread::RegisterThread(thread::id threadId, VMThread* thread) {
     
 #warning this is a global data structure, so, _store_ptr should be ok
     threads[threadId] = _store_ptr(thread);
-    
-    SafePoint::RegisterMutator();
+
+    // SafePoint::RegisterMutator() is already done as part of thread creation.
+    // This is necessary, to make sure that we do not get a GC, before it is
+    // safe to do so. Otherwise the thread, block, and argument pointer are
+    // invalidated by a moving GC
 }
 
 void VMThread::UnregisterThread(thread::id threadId) {

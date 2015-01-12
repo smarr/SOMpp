@@ -1087,6 +1087,8 @@ VMMutex* Universe::NewMutex(Page* page) const {
 VMThread* Universe::NewThread(VMBlock* block, vm_oop_t arguments, Page* page) {
     VMThread* threadObj = new (page) VMThread();
     threadObj->SetClass(load_ptr(threadClass));
+    
+    SafePoint::RegisterMutator();
     thread* thread = new std::thread(&Universe::startInterpreterInThread, this, threadObj, block, arguments);
     threadObj->SetThread(thread);
 
