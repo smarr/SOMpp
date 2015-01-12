@@ -132,6 +132,8 @@ public:
     void LoadSystemClass(VMClass*, Page*);
     VMClass* LoadClassBasic(VMSymbol*, VMClass*, Page*);
     VMClass* LoadShellClass(StdString&, Page*);
+    
+    unordered_set<Interpreter*>* GetInterpreters() { return &interpreters; }
 
     Universe();
     ~Universe();
