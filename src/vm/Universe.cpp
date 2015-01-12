@@ -325,7 +325,7 @@ void Universe::initialize(long _argc, char** _argv) {
     if (argv.size() > 0)
         bm_name = argv[0];
 
-    Heap<HEAP_CLS>::InitializeHeap(heapSize);
+    Heap<HEAP_CLS>::InitializeHeap(pageSize, heapSize);
     Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
 
     Interpreter* interpreter = new Interpreter(page);
