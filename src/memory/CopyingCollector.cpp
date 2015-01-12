@@ -51,56 +51,71 @@ static gc_oop_t objects_are_valid(gc_oop_t oop, Page*) {
 
 void CopyingCollector::Collect() {
     Timer::GCTimer->Resume();
-    //reset collection trigger
+
+    // reset collection trigger
     heap->resetGCTrigger();
-
-    static bool increaseMemory; // not nice, but since stop-the-world-gc, it's threadsafe
-    size_t newSize = ((size_t)(heap->currentBufferEnd) -
-            (size_t)(heap->currentBuffer)) * 2;
-
-    heap->switchBuffers();
-
-    // increase memory if scheduled in collection before
-    if (increaseMemory) {
-        free(heap->currentBuffer);
-        heap->currentBuffer = malloc(newSize);
-        heap->nextFreePosition = heap->currentBuffer;
-        heap->collectionLimit = (void*)((size_t)(heap->currentBuffer) +
-                (size_t)(0.9 * newSize));
-        heap->currentBufferEnd = (void*)((size_t)(heap->currentBuffer) +
-                newSize);
-        if (heap->currentBuffer == nullptr)
-            GetUniverse()->ErrorExit("unable to allocate more memory");
+    
+    vector<CopyingPage*> oldPages(heap->usedPages); // TODO: can we use move constructor here?
+    heap->usedPages.clear();
+    
+    unordered_set<Interpreter*>* interps = GetUniverse()->GetInterpreters();
+    
+    // reset pages in interpreters, just to be sure
+    // use last interpreter as the one for the GC
+    Interpreter* lastI = nullptr;
+    for (Interpreter* interp : *interps) {
+        interp->SetPage(nullptr);
+        lastI = interp;
     }
     
-    // init currentBuffer with zeros
-    memset(heap->currentBuffer, 0x0, (size_t)(heap->currentBufferEnd) -
-            (size_t)(heap->currentBuffer));
-    GetUniverse()->WalkGlobals(copy_if_necessary, target);
+    
+    CopyingPage* target = heap->getNextPage_alreadyLocked();
+    target->SetInterpreter(lastI);
+    lastI->SetPage(reinterpret_cast<Page*>(target));
+    GetUniverse()->WalkGlobals(copy_if_necessary, reinterpret_cast<Page*>(target));
 
-    //now copy all objects that are referenced by the objects we have moved so far
-    AbstractVMObject* curObject = static_cast<AbstractVMObject*>(heap->currentBuffer);
-    while (curObject < heap->nextFreePosition) {
-        curObject->WalkObjects(copy_if_necessary, target);
-        curObject = reinterpret_cast<AbstractVMObject*>((size_t)curObject + curObject->GetObjectSize());
+    
+
+    
+    // now copy all objects that are referenced by the objects were moved
+    // note: we use iteration with a custom loop and [] because the vector
+    //       usedPages can be modified while copying object to include the
+    //       new pages of copied objects, which we also still need to travers
+    size_t i = 0;
+    while (i < heap->usedPages.size()) {
+        heap->usedPages[i]->WalkObjects(
+                            copy_if_necessary, target->GetCurrent());
+        i++;
     }
     
-    //increase memory if scheduled in collection before
-    if (increaseMemory) {
-        increaseMemory = false;
-        free(heap->oldBuffer);
-        heap->oldBuffer = malloc(newSize);
-        if (heap->oldBuffer == nullptr)
-            GetUniverse()->ErrorExit("unable to allocate more memory");
+    for (auto page : oldPages) {
+        page->Reset();
+        heap->freePages.push_back(page);
     }
-
-    // if semispace is still 50% full after collection, we have to realloc
-    //  bigger ones -> done in next collection
-    if ((size_t)(heap->nextFreePosition) - (size_t)(heap->currentBuffer) >=
-            (size_t)(heap->currentBufferEnd) -
-            (size_t)(heap->nextFreePosition)) {
-        increaseMemory = true;
+    
+    if (DEBUG) {
+        size_t j = 0;
+        // let's test whether all objects are valid
+        for (auto page : heap->usedPages) {
+            page->WalkObjects(objects_are_valid, nullptr);
+            j++;
+        }
+        assert(i == j);
     }
+    
+    // redistribute pages of interpreters, except the last one,
+    // which already got a page
+    for (auto interp : *interps) {
+        if (interp != lastI) {
+            auto page = heap->freePages.back();
+            assert(page);
+            heap->freePages.pop_back();
+            interp->SetPage(reinterpret_cast<Page*>(page));
+            page->SetInterpreter(interp);
+            heap->usedPages.push_back(page);
+        }
+    }
+    
 
     Timer::GCTimer->Halt();
 }
