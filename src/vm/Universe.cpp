@@ -425,7 +425,7 @@ Universe::~Universe() {
 
 #if !DEBUG
     static void set_vt_to_null() {}
-    static void obtain_vtables_of_known_classes(VMSymbol* className) {}
+    static void obtain_vtables_of_known_classes(VMSymbol* className, Page*) {}
     bool Universe::IsValidObject(vm_oop_t obj) {
         return true;
     }
@@ -610,7 +610,7 @@ VMObject* Universe::InitializeGlobals(Page* page) {
     obtain_vtables_of_known_classes(nil->GetClass()->GetName(), page);
     
 #if USE_TAGGING
-    GlobalBox::updateIntegerBox(NewInteger(1));
+    GlobalBox::updateIntegerBox(NewInteger(1, page));
 #endif
 
     LoadSystemClass(load_ptr(objectClass),    page);
@@ -995,7 +995,7 @@ void Universe::WalkGlobals(walk_heap_fn walk, Page* page) {
 #if CACHE_INTEGER
     for (unsigned long i = 0; i < (INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE); i++)
 #if USE_TAGGING
-        prebuildInts[i] = TAG_INTEGER(INT_CACHE_MIN_VALUE + i);
+        prebuildInts[i] = TAG_INTEGER(INT_CACHE_MIN_VALUE + i, page);
 #else
         prebuildInts[i] = walk(prebuildInts[i]);
 #endif

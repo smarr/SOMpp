@@ -40,14 +40,14 @@
 #define VMTAGGEDINTEGER_MIN -0x4000000000000000
 
 #if ADDITIONAL_ALLOCATION
-#define TAG_INTEGER(X) (((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX && GetUniverse()->NewInteger(0)) ? ((vm_oop_t)(((X) << 1) | 1)) : (GetUniverse()->NewInteger(X)))
+#define TAG_INTEGER(X, page) (((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX && GetUniverse()->NewInteger(0, page)) ? ((vm_oop_t)(((X) << 1) | 1)) : (GetUniverse()->NewInteger(X, page)))
 #else
-#define TAG_INTEGER(X) (((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX) ? ((vm_oop_t)(((X) << 1) | 1)) : (GetUniverse()->NewInteger(X)))
+#define TAG_INTEGER(X, page) (((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX) ? ((vm_oop_t)(((X) << 1) | 1)) : (GetUniverse()->NewInteger(X, page)))
 #endif
 
 #if USE_TAGGING
   #define INT_VAL(X) (IS_TAGGED(X) ? ((int64_t)(X)>>1) : (((VMInteger*)(X))->GetEmbeddedInteger()))
-  #define NEW_INT(X, page) (TAG_INTEGER((X)))
+  #define NEW_INT(X, page) (TAG_INTEGER((X), page))
   #define IS_TAGGED(X) ((int64_t)X&1)
   #define CLASS_OF(X) (IS_TAGGED(X)?load_ptr(integerClass):((AbstractVMObject*)(X))->GetClass())
   #define AS_OBJ(X) (IS_TAGGED(X)?GlobalBox::IntegerBox():((AbstractVMObject*)(X)))
