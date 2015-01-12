@@ -54,7 +54,8 @@
 #include <compiler/Disassembler.h>
 #include <compiler/SourcecodeCompiler.h>
 
-#include "../vmobjects/IntegerBox.h"
+#include <vmobjects/IntegerBox.h>
+#include <vm/SafePoint.h>
 
 #if CACHE_INTEGER
 gc_oop_t prebuildInts[INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE + 1];
