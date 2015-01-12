@@ -378,6 +378,8 @@ void Universe::initialize(long _argc, char** _argv) {
 void Universe::startInterpreterInThread(VMThread* thread, VMBlock* block,
                                         vm_oop_t arguments) {
     auto tId = this_thread::get_id();
+    VMThread::RegisterThread(tId, thread);
+    
     // Note: since this is a long running method, most pointers in here are
     //       not GC safe!
     
@@ -385,9 +387,6 @@ void Universe::startInterpreterInThread(VMThread* thread, VMBlock* block,
 
     Interpreter* interp = new Interpreter(page);
     registerInterpreter(interp);
-
-    
-    VMThread::RegisterThread(this_thread::get_id(), thread);
     
 
     long numArgsInclSelf = arguments == nullptr ? 1 : 2;
