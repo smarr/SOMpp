@@ -81,6 +81,7 @@
   #define ALLOC_MATURE    , true
   #define ALLOC_OUTSIDE_NURSERY(X) , (X)
   #define ALLOC_OUTSIDE_NURSERY_DECL , bool outsideNursery = false
+  #define ALLOC_OUTSIDE_NURSERY_DECLpp , bool outsideNursery
   #define ALLOC_HINT                 , outsideNursery
 #elif GC_TYPE == COPYING
   class   CopyingHeap;
@@ -89,6 +90,7 @@
   #define ALLOC_MATURE
   #define ALLOC_OUTSIDE_NURSERY(X)
   #define ALLOC_OUTSIDE_NURSERY_DECL
+  #define ALLOC_OUTSIDE_NURSERY_DECLpp
   #define ALLOC_HINT
 #elif GC_TYPE == MARK_SWEEP
   class   MarkSweepHeap;
@@ -97,6 +99,7 @@
   #define ALLOC_MATURE
   #define ALLOC_OUTSIDE_NURSERY(X)
   #define ALLOC_OUTSIDE_NURSERY_DECL
+  #define ALLOC_OUTSIDE_NURSERY_DECLpp
   #define ALLOC_HINT
 #endif
 

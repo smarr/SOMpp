@@ -78,7 +78,7 @@ void MemoryPage<CopyingHeap>::WalkObjects(walk_heap_fn walk,
     }
 }
 
-void* MemoryPage<CopyingHeap>::allocateInNextPage(size_t size ALLOC_OUTSIDE_NURSERY_DECL) {
+void* MemoryPage<CopyingHeap>::allocateInNextPage(size_t size ALLOC_OUTSIDE_NURSERY_DECLpp) {
     assert(interpreter);
     
     if (next == nullptr) {
