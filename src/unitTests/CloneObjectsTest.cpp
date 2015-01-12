@@ -25,8 +25,10 @@
 #include "vmobjects/VMEvaluationPrimitive.h"
 
 void CloneObjectsTest::testCloneObject() {
-    VMObject* orig = new (GetHeap<HEAP_CLS>()) VMObject();
-    VMObject* clone = orig->Clone();
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    
+    VMObject* orig = new (page) VMObject();
+    VMObject* clone = orig->Clone(page);
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->GetClass(),
     clone->GetClass());
@@ -37,8 +39,10 @@ void CloneObjectsTest::testCloneObject() {
 }
 
 void CloneObjectsTest::testCloneInteger() {
-    VMInteger* orig = GetUniverse()->NewInteger(42);
-    VMInteger* clone = orig->Clone();
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    
+    VMInteger* orig = GetUniverse()->NewInteger(42, page);
+    VMInteger* clone = orig->Clone(page);
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->GetClass(), clone->GetClass());
@@ -46,8 +50,10 @@ void CloneObjectsTest::testCloneInteger() {
 }
 
 void CloneObjectsTest::testCloneDouble() {
-    VMDouble* orig = GetUniverse()->NewDouble(123.4);
-    VMDouble* clone = orig->Clone();
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    
+    VMDouble* orig = GetUniverse()->NewDouble(123.4, page);
+    VMDouble* clone = orig->Clone(page);
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->GetClass(), clone->GetClass());
@@ -55,8 +61,10 @@ void CloneObjectsTest::testCloneDouble() {
 }
 
 void CloneObjectsTest::testCloneString() {
-    VMString* orig = GetUniverse()->NewString("foobar");
-    VMString* clone = orig->Clone();
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    
+    VMString* orig = GetUniverse()->NewString("foobar", page);
+    VMString* clone = orig->Clone(page);
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->GetClass(),
@@ -72,8 +80,10 @@ void CloneObjectsTest::testCloneString() {
 }
 
 void CloneObjectsTest::testCloneSymbol() {
-    VMSymbol* orig = GetUniverse()->NewSymbol("foobar");
-    VMSymbol* clone = orig->Clone();
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    
+    VMSymbol* orig = GetUniverse()->NewSymbol("foobar", page);
+    VMSymbol* clone = orig->Clone(page);
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->GetClass(),
@@ -85,11 +95,13 @@ void CloneObjectsTest::testCloneSymbol() {
 }
 
 void CloneObjectsTest::testCloneArray() {
-    VMArray* orig = GetUniverse()->NewArray(3);
-    orig->SetIndexableField(0, GetUniverse()->NewString("foobar42"));
-    orig->SetIndexableField(1, GetUniverse()->NewString("foobar43"));
-    orig->SetIndexableField(2, GetUniverse()->NewString("foobar44"));
-    VMArray* clone = orig->Clone();
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    
+    VMArray* orig = GetUniverse()->NewArray(3, page);
+    orig->SetIndexableField(0, GetUniverse()->NewString("foobar42", page));
+    orig->SetIndexableField(1, GetUniverse()->NewString("foobar43", page));
+    orig->SetIndexableField(2, GetUniverse()->NewString("foobar44", page));
+    VMArray* clone = orig->Clone(page);
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
@@ -106,12 +118,14 @@ void CloneObjectsTest::testCloneArray() {
 }
 
 void CloneObjectsTest::testCloneBlock() {
-    VMSymbol* methodSymbol = GetUniverse()->NewSymbol("someMethod");
-    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    
+    VMSymbol* methodSymbol = GetUniverse()->NewSymbol("someMethod", page);
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, page);
     VMBlock* orig = GetUniverse()->NewBlock(method,
-            GetUniverse()->NewFrame(nullptr, method),
-            method->GetNumberOfArguments());
-    VMBlock* clone = orig->Clone();
+            GetUniverse()->NewFrame(nullptr, method, page),
+            method->GetNumberOfArguments(), page);
+    VMBlock* clone = orig->Clone(page);
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
@@ -121,9 +135,11 @@ void CloneObjectsTest::testCloneBlock() {
     CPPUNIT_ASSERT_EQUAL_MESSAGE("context differs!!", orig->context, clone->context);
 }
 void CloneObjectsTest::testClonePrimitive() {
-    VMSymbol* primitiveSymbol = GetUniverse()->NewSymbol("myPrimitive");
-    VMPrimitive* orig = VMPrimitive::GetEmptyPrimitive(primitiveSymbol, false);
-    VMPrimitive* clone = orig->Clone();
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    
+    VMSymbol* primitiveSymbol = GetUniverse()->NewSymbol("myPrimitive", page);
+    VMPrimitive* orig = VMPrimitive::GetEmptyPrimitive(primitiveSymbol, false, page);
+    VMPrimitive* clone = orig->Clone(page);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("objectSize differs!!", orig->objectSize, clone->objectSize);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfFields differs!!", orig->numberOfFields, clone->numberOfFields);
@@ -134,8 +150,9 @@ void CloneObjectsTest::testClonePrimitive() {
 }
 
 void CloneObjectsTest::testCloneEvaluationPrimitive() {
-    VMEvaluationPrimitive* orig = new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(1);
-    VMEvaluationPrimitive* clone = orig->Clone();
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    VMEvaluationPrimitive* orig = new (page) VMEvaluationPrimitive(1, page);
+    VMEvaluationPrimitive* clone = orig->Clone(page);
 
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("objectSize differs!!", orig->objectSize, clone->objectSize);
@@ -148,14 +165,16 @@ void CloneObjectsTest::testCloneEvaluationPrimitive() {
 }
 
 void CloneObjectsTest::testCloneFrame() {
-    VMSymbol* methodSymbol = GetUniverse()->NewSymbol("frameMethod");
-    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
-    VMFrame* orig = GetUniverse()->NewFrame(nullptr, method);
-    VMFrame* context = orig->Clone();
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    
+    VMSymbol* methodSymbol = GetUniverse()->NewSymbol("frameMethod", page);
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, page);
+    VMFrame* orig = GetUniverse()->NewFrame(nullptr, method, page);
+    VMFrame* context = orig->Clone(page);
     orig->SetContext(context);
-    VMInteger* dummyArg = GetUniverse()->NewInteger(1111);
+    VMInteger* dummyArg = GetUniverse()->NewInteger(1111, page);
     orig->SetArgument(0, 0, dummyArg);
-    VMFrame* clone = orig->Clone();
+    VMFrame* clone = orig->Clone(page);
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
@@ -169,9 +188,11 @@ void CloneObjectsTest::testCloneFrame() {
 }
 
 void CloneObjectsTest::testCloneMethod() {
-    VMSymbol* methodSymbol = GetUniverse()->NewSymbol("myMethod");
-    VMMethod* orig = GetUniverse()->NewMethod(methodSymbol, 0, 0);
-    VMMethod* clone = orig->Clone();
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    
+    VMSymbol* methodSymbol = GetUniverse()->NewSymbol("myMethod", page);
+    VMMethod* orig = GetUniverse()->NewMethod(methodSymbol, 0, 0, page);
+    VMMethod* clone = orig->Clone(page);
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
@@ -199,12 +220,14 @@ void CloneObjectsTest::testCloneMethod() {
 }
 
 void CloneObjectsTest::testCloneClass() {
-    VMClass* orig = GetUniverse()->NewClass(load_ptr(integerClass));
-    orig->SetName(GetUniverse()->NewSymbol("MyClass"));
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    
+    VMClass* orig = GetUniverse()->NewClass(load_ptr(integerClass), page);
+    orig->SetName(GetUniverse()->NewSymbol("MyClass", page));
     orig->SetSuperClass(load_ptr(doubleClass));
-    orig->SetInstanceFields(GetUniverse()->NewArray(2));
-    orig->SetInstanceInvokables(GetUniverse()->NewArray(4));
-    VMClass* clone = orig->Clone();
+    orig->SetInstanceFields(GetUniverse()->NewArray(2, page));
+    orig->SetInstanceInvokables(GetUniverse()->NewArray(4, page));
+    VMClass* clone = orig->Clone(page);
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);

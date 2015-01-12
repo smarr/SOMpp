@@ -20,14 +20,16 @@ void WriteBarrierTest::testWriteArray() {
         CPPUNIT_FAIL("WriteBarrier tests only work in DEBUG builds for speed reasons");
     }
     
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    
     //reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
-    VMArray* arr = GetUniverse()->NewArray(3);
-    VMInteger* newInt = GetUniverse()->NewInteger(12345);
-    VMString* str = GetUniverse()->NewString("asdfghjkl");
-    VMDouble* doub = GetUniverse()->NewDouble(9876.654);
-    VMClass* cloneClass = load_ptr(arrayClass)->Clone();
-    VMClass* clone2Class = cloneClass->Clone();
+    VMArray* arr = GetUniverse()->NewArray(3, page);
+    VMInteger* newInt = GetUniverse()->NewInteger(12345, page);
+    VMString* str = GetUniverse()->NewString("asdfghjkl", page);
+    VMDouble* doub = GetUniverse()->NewDouble(9876.654, page);
+    VMClass* cloneClass = load_ptr(arrayClass)->Clone(page);
+    VMClass* clone2Class = cloneClass->Clone(page);
     arr->SetClass(cloneClass);
     arr->SetField(0, clone2Class);
     arr->SetIndexableField(0, newInt);
@@ -49,15 +51,16 @@ void WriteBarrierTest::testWriteBlock() {
     if (!DEBUG) {
         CPPUNIT_FAIL("WriteBarrier tests only work in DEBUG builds for speed reasons");
     }
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
     
     //reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
 
-    VMSymbol* methodSymbol = GetUniverse()->NewSymbol("someMethod");
-    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
+    VMSymbol* methodSymbol = GetUniverse()->NewSymbol("someMethod", page);
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, page);
     VMBlock* block = GetUniverse()->NewBlock(method,
-            GetUniverse()->NewFrame(nullptr, method),
-            method->GetNumberOfArguments());
+            GetUniverse()->NewFrame(nullptr, method, page),
+            method->GetNumberOfArguments(), page);
     TEST_WB_CALLED("VMBlock failed to call writeBarrier when creating", block,
             block->GetClass());
     TEST_WB_CALLED("VMBlock failed to call writeBarrier when creating", block,
@@ -65,10 +68,10 @@ void WriteBarrierTest::testWriteBlock() {
     TEST_WB_CALLED("VMBlock failed to call writeBarrier when creating", block,
             block->GetContext());
 
-    block->SetMethod(method->Clone());
+    block->SetMethod(method->Clone(page));
     TEST_WB_CALLED("VMBlock failed to call writeBarrier on SetMethod", block,
             block->GetMethod());
-    block->SetContext(block->GetContext()->Clone());
+    block->SetContext(block->GetContext()->Clone(page));
     TEST_WB_CALLED("VMBlock failed to call writeBarrier on SetContext", block,
             block->GetContext());
 }
@@ -77,19 +80,20 @@ void WriteBarrierTest::testWriteFrame() {
     if (!DEBUG) {
         CPPUNIT_FAIL("WriteBarrier tests only work in DEBUG builds for speed reasons");
     }
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
     
     // reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
     
-    VMSymbol* methodSymbol = GetUniverse()->NewSymbol("someMethod");
-    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
+    VMSymbol* methodSymbol = GetUniverse()->NewSymbol("someMethod", page);
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, page);
 
-    VMFrame* frame = GetUniverse()->NewFrame(nullptr, method);
-    frame->SetContext(frame->Clone());
+    VMFrame* frame = GetUniverse()->NewFrame(nullptr, method, page);
+    frame->SetContext(frame->Clone(page));
 
-    frame->SetPreviousFrame(GetUniverse()->NewFrame(nullptr, method));
-    TEST_WB_CALLED("VMFrame failed to call writeBarrier on SetPreviousFrame", frame, GetUniverse()->NewFrame(nullptr, method));
-    frame->SetContext(frame->GetContext()->Clone());
+    frame->SetPreviousFrame(GetUniverse()->NewFrame(nullptr, method, page));
+    TEST_WB_CALLED("VMFrame failed to call writeBarrier on SetPreviousFrame", frame, GetUniverse()->NewFrame(nullptr, method, page));
+    frame->SetContext(frame->GetContext()->Clone(page));
     TEST_WB_CALLED("VMFrame failed to call writeBarrier on SetContext", frame, frame->GetContext());
     frame->ClearPreviousFrame();
     TEST_WB_CALLED("VMFrame failed to call writeBarrier on ClearPreviousFrame", frame, load_ptr(nilObject));
@@ -100,15 +104,17 @@ void WriteBarrierTest::testWriteMethod() {
         CPPUNIT_FAIL("WriteBarrier tests only work in DEBUG builds for speed reasons");
     }
     
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    
     // reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
 
-    VMSymbol* methodSymbol = GetUniverse()->NewSymbol("someMethod");
-    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
+    VMSymbol* methodSymbol = GetUniverse()->NewSymbol("someMethod", page);
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, page);
 
     method->SetHolder(load_ptr(integerClass));
     TEST_WB_CALLED("VMMethod failed to call writeBarrier on SetHolder", method, load_ptr(integerClass));
-    method->SetSignature(method->GetSignature());
+    method->SetSignature(method->GetSignature(), page);
     TEST_WB_CALLED("VMMethod failed to call writeBarrier on SetSignature", method, method->GetSignature());
 }
 
@@ -117,9 +123,11 @@ void WriteBarrierTest::testWriteEvaluationPrimitive() {
         CPPUNIT_FAIL("WriteBarrier tests only work in DEBUG builds for speed reasons");
     }
     
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    
     //reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
-    VMEvaluationPrimitive* evPrim = new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(1);
+    VMEvaluationPrimitive* evPrim = new (page) VMEvaluationPrimitive(1, page);
     TEST_WB_CALLED("VMEvaluationPrimitive failed to call writeBarrier when creating", evPrim, evPrim->GetClass());
     TEST_WB_CALLED("VMEvaluationPrimitive failed to call writeBarrier when creating", evPrim, load_ptr(evPrim->numberOfArguments));
 }
@@ -129,22 +137,24 @@ void WriteBarrierTest::testWriteClass() {
         CPPUNIT_FAIL("WriteBarrier tests only work in DEBUG builds for speed reasons");
     }
     
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    
     //reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
-    VMClass* cl = load_ptr(integerClass)->Clone();
+    VMClass* cl = load_ptr(integerClass)->Clone(page);
     //now test all methods that change members
     cl->SetSuperClass(load_ptr(integerClass));
     TEST_WB_CALLED("VMClass failed to call writeBarrier on SetSuperClass", cl,
             load_ptr(integerClass));
-    VMSymbol* newName = GetUniverse()->NewSymbol("andererName");
+    VMSymbol* newName = GetUniverse()->NewSymbol("andererName", page);
     cl->SetName(newName);
     TEST_WB_CALLED("VMClass failed to call writeBarrier on SetName", cl,
             newName);
-    VMArray* newInstFields = cl->GetInstanceFields()->Clone();
+    VMArray* newInstFields = cl->GetInstanceFields()->Clone(page);
     cl->SetInstanceFields(newInstFields);
     TEST_WB_CALLED("VMClass failed to call writeBarrier on SetInstanceFields", cl,
             newName);
-    VMArray* newInstInvokables = cl->GetInstanceInvokables()->Clone();
+    VMArray* newInstInvokables = cl->GetInstanceInvokables()->Clone(page);
     cl->SetInstanceInvokables(newInstInvokables);
     TEST_WB_CALLED("VMClass failed to call writeBarrier on SetInstanceInvokables", cl,
             newName);
