@@ -20,7 +20,6 @@ public:
 private:
     size_t collectionLimit;
     
-    static void* allocate(size_t size, MemoryPage<MarkSweepHeap>* page ALLOC_OUTSIDE_NURSERY_DECL);
     static void free(void* ptr) {
         ::free(ptr);
     }
@@ -45,7 +44,21 @@ public:
     }
     
     void* AllocateObject(size_t size ALLOC_OUTSIDE_NURSERY_DECL) {
-        return MarkSweepHeap::allocate(size, this ALLOC_HINT);
+        void* newObject = malloc(size);
+        
+        if (newObject == nullptr) {
+            heap->FailedAllocation(size);
+        }
+        memset(newObject, 0, size);
+        
+        
+        spaceAllocated += size;
+        allocatedObjects->push_back(reinterpret_cast<AbstractVMObject*>(newObject));
+        
+        // let's see if we have to trigger the GC
+        if (spaceAllocated >= heap->collectionLimit)
+            heap->triggerGC();
+        return newObject;
     }
 
 private:

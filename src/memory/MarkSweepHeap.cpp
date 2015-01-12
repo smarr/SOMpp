@@ -30,20 +30,3 @@ void MarkSweepHeap::UnregisterThread(Page* page) {
     yieldedPages.push_back(p);
 }
 
-void* MarkSweepHeap::allocate(size_t size, MemoryPage<MarkSweepHeap>* page ALLOC_OUTSIDE_NURSERY_DECL) {
-    void* newObject = malloc(size);
-    
-    if (newObject == nullptr) {
-        Universe::ErrorExit(("Failed to allocate " + to_string(size) + " Bytes.\n").c_str());
-    }
-    memset(newObject, 0, size);
-    
-    
-    page->spaceAllocated += size;
-    page->allocatedObjects->push_back(reinterpret_cast<AbstractVMObject*>(newObject));
-    
-    // let's see if we have to trigger the GC
-    if (page->spaceAllocated >= page->heap->collectionLimit)
-        page->heap->triggerGC();
-    return newObject;
-}
