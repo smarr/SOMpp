@@ -38,6 +38,17 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop, Page* target) {
     return _store_ptr(newObj);
 }
 
+static gc_oop_t objects_are_valid(gc_oop_t oop, Page*) {
+    // don't process tagged objects
+    if (IS_TAGGED(oop))
+        return oop;
+
+    AbstractVMObject* obj = AS_OBJ(oop);
+    assert(Universe::IsValidObject(obj));
+    
+    return oop;
+}
+
 void CopyingCollector::Collect() {
     Timer::GCTimer->Resume();
     //reset collection trigger
