@@ -32,6 +32,8 @@ private:
     friend class MarkSweepCollector;
 };
 
+class Interpreter;
+
 template<>
 class MemoryPage<MarkSweepHeap> {
 public:
@@ -60,6 +62,8 @@ public:
             heap->triggerGC();
         return newObject;
     }
+    
+    void SetInterpreter(Interpreter*) {};
 
 private:
     vector<AbstractVMObject*>* allocatedObjects;
