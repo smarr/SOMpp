@@ -462,6 +462,8 @@ Universe::~Universe() {
             return true;
         
         void* vt = *(void**) obj;
+        assert(vt != nullptr);
+        
         bool b = vt == vt_array    ||
                vt == vt_block      ||
                vt == vt_class      ||
