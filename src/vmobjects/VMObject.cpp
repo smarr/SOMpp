@@ -37,7 +37,7 @@ VMObject::VMObject(long numberOfFields) {
     // this line would be needed if the VMObject** is used instead of the macro:
     // FIELDS = (VMObject**)&clazz;
     SetNumberOfFields(numberOfFields + VMObjectNumberOfFields);
-    hash = (size_t) this;
+    hash = (intptr_t) this;
     // Object size was already set by the heap on allocation
 }
 

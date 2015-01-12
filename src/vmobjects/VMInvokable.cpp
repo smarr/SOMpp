@@ -28,6 +28,8 @@
 #include "VMSymbol.h"
 #include "VMClass.h"
 
+#warning VMInvokable needs a GetHash implementation
+
 bool VMInvokable::IsPrimitive() const {
     return false;
 }

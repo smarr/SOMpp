@@ -79,6 +79,8 @@ public:
     virtual inline size_t    GetObjectSize() const;
     virtual inline void      SetObjectSize(size_t size);
     
+    virtual inline intptr_t  GetHash() { return hash; }
+    
     virtual        void      MarkObjectAsInvalid();
     
     virtual        StdString AsDebugString() const;
@@ -103,7 +105,7 @@ protected:
     inline long GetAdditionalSpaceConsumption() const;
 
     // VMObject essentials
-    long   hash;
+    intptr_t hash;
     size_t objectSize;     // set by the heap at allocation time
     long   numberOfFields;
 

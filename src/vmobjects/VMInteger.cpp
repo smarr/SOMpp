@@ -27,6 +27,9 @@
 #include "VMInteger.h"
 #include "../vm/Universe.h"
 
+#warning VMInteger GetHash does not currently work correctly with tagging, all integers get the same hash...
+
+
 VMInteger* VMInteger::Clone(Page* page) const {
     return new (page, 0 ALLOC_MATURE) VMInteger(*this);
 }

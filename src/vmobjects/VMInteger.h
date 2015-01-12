@@ -42,6 +42,8 @@ public:
     virtual VMClass* GetClass() const;
     virtual inline size_t GetObjectSize() const;
     
+    virtual inline intptr_t GetHash() { return embeddedInteger; }
+    
     virtual void MarkObjectAsInvalid() {}
     
     virtual StdString AsDebugString() const;
