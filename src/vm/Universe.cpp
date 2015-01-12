@@ -330,6 +330,7 @@ void Universe::initialize(long _argc, char** _argv) {
 
     Interpreter* interpreter = new Interpreter(page);
     registerInterpreter(interpreter);
+    page->SetInterpreter(interpreter);
     
 
 #if CACHE_INTEGER
@@ -382,11 +383,13 @@ void Universe::startInterpreterInThread(VMThread* thread, VMBlock* block,
     
     // Note: since this is a long running method, most pointers in here are
     //       not GC safe!
-    
+        
     Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
 
     Interpreter* interp = new Interpreter(page);
     registerInterpreter(interp);
+    page->SetInterpreter(interp);
+    interp->SetPage(page);
     
 
     long numArgsInclSelf = arguments == nullptr ? 1 : 2;
