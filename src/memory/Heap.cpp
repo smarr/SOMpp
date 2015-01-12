@@ -62,10 +62,22 @@ void Heap<HEAP_T>::FullGC() {
     SafePoint::ReachSafePoint([this]() { gc->Collect(); });
 }
 
+template<class HEAP_T>
+void Heap<HEAP_T>::FailedAllocation(size_t size) {
+    GetUniverse()->ErrorExit(("Failed to allocate " + to_string(size) + " Bytes.\n").c_str());
+}
+
+template<class HEAP_T>
+void Heap<HEAP_T>::ReachedMaxNumberOfPages() {
+    GetUniverse()->ErrorExit("Can't allocate more memory pages. Already reached maximum.");
+}
+
 // Instantitate Template for the heap classes
 template void Heap<HEAP_CLS>::InitializeHeap(long);
 template void Heap<HEAP_CLS>::DestroyHeap();
 template void Heap<HEAP_CLS>::FullGC();
+template void Heap<HEAP_CLS>::FailedAllocation(size_t);
+template void Heap<HEAP_CLS>::ReachedMaxNumberOfPages();
 
 class GenerationalHeap;
 template GenerationalHeap* Heap<GenerationalHeap>::theHeap;
