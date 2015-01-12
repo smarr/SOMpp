@@ -42,6 +42,7 @@ public:
     void      WalkGlobals(walk_heap_fn, Page*);
     
     Page*     GetPage() const { return page; }
+    void      SetPage(Page* p) { page = p; }
     
 private:
     vm_oop_t GetSelf() const;
