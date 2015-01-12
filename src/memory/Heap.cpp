@@ -77,17 +77,24 @@ void Heap<HEAP_T>::ReachedMaxNumberOfPages() {
 template void Heap<HEAP_CLS>::InitializeHeap(size_t, size_t);
 template void Heap<HEAP_CLS>::DestroyHeap();
 template void Heap<HEAP_CLS>::FullGC();
-template void Heap<HEAP_CLS>::FailedAllocation(size_t);
-template void Heap<HEAP_CLS>::ReachedMaxNumberOfPages();
 
 class GenerationalHeap;
 template GenerationalHeap* Heap<GenerationalHeap>::theHeap;
 template Heap<GenerationalHeap>::~Heap();
+template void Heap<GenerationalHeap>::FailedAllocation(size_t);
+template void Heap<GenerationalHeap>::ReachedMaxNumberOfPages();
+
 
 class CopyingHeap;
 template CopyingHeap* Heap<CopyingHeap>::theHeap;
 template Heap<CopyingHeap>::~Heap();
+template void Heap<CopyingHeap>::FailedAllocation(size_t);
+template void Heap<CopyingHeap>::ReachedMaxNumberOfPages();
+
 
 class MarkSweepHeap;
 template MarkSweepHeap* Heap<MarkSweepHeap>::theHeap;
 template Heap<MarkSweepHeap>::~Heap();
+template void Heap<MarkSweepHeap>::FailedAllocation(size_t);
+template void Heap<MarkSweepHeap>::ReachedMaxNumberOfPages();
+
