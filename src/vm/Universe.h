@@ -169,7 +169,8 @@ private:
 
     void initialize(long, char**);
 
-    long heapSize;
+    size_t heapSize;
+    size_t pageSize;
     
     map<GCSymbol*, gc_oop_t> globals;
     map<StdString, GCSymbol*> symbolsMap;
