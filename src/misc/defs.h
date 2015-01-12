@@ -69,6 +69,11 @@
 #define COPYING      2
 #define MARK_SWEEP   3
 
+// OS Memory Page Size
+#ifndef PAGE_SIZE
+#define PAGE_SIZE 4096
+#endif
+
 #if   GC_TYPE == GENERATIONAL
   class   GenerationalHeap;
   typedef GenerationalHeap HEAP_CLS;
