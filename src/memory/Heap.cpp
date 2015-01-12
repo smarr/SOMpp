@@ -37,13 +37,13 @@ template<class HEAP_T>
 HEAP_T* Heap<HEAP_T>::theHeap = nullptr;
 
 template<class HEAP_T>
-void Heap<HEAP_T>::InitializeHeap(long objectSpaceSize) {
+void Heap<HEAP_T>::InitializeHeap(size_t pageSize, size_t objectSpaceSize) {
     if (theHeap) {
         Universe::ErrorPrint("Warning, reinitializing already initialized Heap, "
                              "all data will be lost!\n");
         delete theHeap;
     }
-    theHeap = new HEAP_CLS(objectSpaceSize);
+    theHeap = new HEAP_CLS(pageSize, objectSpaceSize);
 }
 
 template<class HEAP_T>
@@ -72,8 +72,9 @@ void Heap<HEAP_T>::ReachedMaxNumberOfPages() {
     GetUniverse()->ErrorExit("Can't allocate more memory pages. Already reached maximum.");
 }
 
+
 // Instantitate Template for the heap classes
-template void Heap<HEAP_CLS>::InitializeHeap(long);
+template void Heap<HEAP_CLS>::InitializeHeap(size_t, size_t);
 template void Heap<HEAP_CLS>::DestroyHeap();
 template void Heap<HEAP_CLS>::FullGC();
 template void Heap<HEAP_CLS>::FailedAllocation(size_t);
