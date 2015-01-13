@@ -92,6 +92,8 @@ void CopyingCollector::Collect() {
     }
     
     if (DEBUG) {
+        GetUniverse()->WalkGlobals(objects_are_valid, nullptr);
+        
         size_t j = 0;
         // let's test whether all objects are valid
         for (auto page : heap->usedPages) {
