@@ -415,7 +415,7 @@ void Interpreter::doPopField(long bytecodeIndex) {
         GetUniverse()->ErrorExit("Integers do not have fields that can be set");
     }
     else {
-        ((VMObject*) self)->SetField(field_index, o);
+        static_cast<VMObject*>(self)->SetField(field_index, o);
     }
 }
 
