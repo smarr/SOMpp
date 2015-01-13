@@ -28,13 +28,13 @@
 
 #include <vector>
 
-#include "VMObject.h"
-
 #include <misc/defs.h>
+
+#include "VMObject.h"
 
 #if defined(_MSC_VER)   //Visual Studio
 #include <windows.h> 
-#include "../primitives/Core.h"
+#include <primitives/Core.h>
 #endif
 
 class ClassGenerationContext;
