@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../misc/defs.h"
+#include <string.h>
+#include <misc/defs.h>
 
 #include "Heap.h"
 #include "Page.h"

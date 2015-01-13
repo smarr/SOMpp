@@ -1,6 +1,7 @@
 #pragma once
 
 #include <assert.h>
+#include <string.h>
 
 #include <misc/defs.h>
 
