@@ -119,6 +119,9 @@ void CloneObjectsTest::testCloneArray() {
 
 void CloneObjectsTest::testCloneBlock() {
     Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    Interpreter interp(page);
+    page->SetInterpreter(&interp);
+
     
     VMSymbol* methodSymbol = GetUniverse()->NewSymbol("someMethod", page);
     VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, page);
@@ -166,6 +169,8 @@ void CloneObjectsTest::testCloneEvaluationPrimitive() {
 
 void CloneObjectsTest::testCloneFrame() {
     Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    Interpreter* interp = new Interpreter(page);
+    page->SetInterpreter(interp);
     
     VMSymbol* methodSymbol = GetUniverse()->NewSymbol("frameMethod", page);
     VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, page);

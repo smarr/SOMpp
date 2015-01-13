@@ -39,8 +39,10 @@ HEAP_T* Heap<HEAP_T>::theHeap = nullptr;
 template<class HEAP_T>
 void Heap<HEAP_T>::InitializeHeap(size_t pageSize, size_t objectSpaceSize) {
     if (theHeap) {
+#ifndef UNITTESTS
         Universe::ErrorPrint("Warning, reinitializing already initialized Heap, "
                              "all data will be lost!\n");
+#endif
         delete theHeap;
     }
     theHeap = new HEAP_CLS(pageSize, objectSpaceSize);

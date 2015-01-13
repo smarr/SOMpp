@@ -52,6 +52,8 @@ void WriteBarrierTest::testWriteBlock() {
         CPPUNIT_FAIL("WriteBarrier tests only work in DEBUG builds for speed reasons");
     }
     Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    Interpreter interp(page);
+    page->SetInterpreter(&interp);
     
     //reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
@@ -80,7 +82,10 @@ void WriteBarrierTest::testWriteFrame() {
     if (!DEBUG) {
         CPPUNIT_FAIL("WriteBarrier tests only work in DEBUG builds for speed reasons");
     }
+    
     Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    Interpreter interp(page);
+    page->SetInterpreter(&interp);
     
     // reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();

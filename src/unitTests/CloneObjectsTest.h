@@ -7,6 +7,7 @@
  */
 
 #include <cppunit/extensions/HelperMacros.h>
+#include <memory/Heap.h>
 
 class CloneObjectsTest: public CPPUNIT_NS::TestCase {
     CPPUNIT_TEST_SUITE (CloneObjectsTest);
@@ -25,6 +26,7 @@ class CloneObjectsTest: public CPPUNIT_NS::TestCase {
 
 public:
     inline void setUp(void) {
+        Heap<HEAP_CLS>::InitializeHeap(512, 1024*1024);
     }
     inline void tearDown(void) {
     }
