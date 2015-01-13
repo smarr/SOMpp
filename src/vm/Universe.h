@@ -170,6 +170,10 @@ private:
     void printUsageAndExit(char* executable) const;
 
     void initialize(long, char**);
+    
+    bool isPowerOfTwo(size_t val) {
+        return !(val == 0) && !(val & (val - 1));
+    }
 
     size_t heapSize;
     size_t pageSize;

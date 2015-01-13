@@ -325,6 +325,10 @@ void Universe::initialize(long _argc, char** _argv) {
     // remember file that was executed (for writing statistics)
     if (argv.size() > 0)
         bm_name = argv[0];
+    
+    if (!isPowerOfTwo(pageSize)) {
+        ErrorExit(("Page size must be a power of two, but was: " + to_string(pageSize)).c_str());
+    }
 
     Heap<HEAP_CLS>::InitializeHeap(pageSize, heapSize);
     Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
