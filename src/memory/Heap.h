@@ -45,13 +45,13 @@ class Heap {
 public:
     static void InitializeHeap(size_t pageSize, size_t objectSpaceSize);
     static void DestroyHeap();
-    Heap(GarbageCollector<HEAP_T>* const gc, long objectSpaceSize) : gc(gc), gcTriggered(false) {}
+    Heap(GarbageCollector<HEAP_T>* const gc) : gc(gc), gcTriggered(false) {}
     ~Heap();
     inline void triggerGC()      { gcTriggered = true; }
     inline void resetGCTrigger() { gcTriggered = false; }
     bool isCollectionTriggered() { return gcTriggered;  }
     void FullGC();
-    inline void FreeObject(AbstractVMObject* o) { free(o); }
+
 protected:
     GarbageCollector<HEAP_T>* const gc;
     void FailedAllocation(size_t size);
