@@ -46,7 +46,6 @@ VMString::VMString(const char* str) : AbstractVMObject() {
         chars[i] = str[i];
     }
     chars[i] = '\0';
-
 }
 
 VMString* VMString::Clone(Page* page) const {

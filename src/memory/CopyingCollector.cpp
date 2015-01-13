@@ -75,8 +75,6 @@ void CopyingCollector::Collect() {
     GetUniverse()->WalkGlobals(copy_if_necessary, reinterpret_cast<Page*>(target));
 
     
-
-    
     // now copy all objects that are referenced by the objects were moved
     // note: we use iteration with a custom loop and [] because the vector
     //       usedPages can be modified while copying object to include the

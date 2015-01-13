@@ -28,6 +28,7 @@
 
 #include "AbstractObject.h"
 
+
 class VMString: public AbstractVMObject {
 public:
     typedef GCString Stored;

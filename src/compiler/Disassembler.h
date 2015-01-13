@@ -30,6 +30,7 @@
 #include "../vmobjects/VMMethod.h"
 #include "../vmobjects/VMFrame.h"
 
+
 class Disassembler {
 public:
     static void Dump(VMClass* cl);
