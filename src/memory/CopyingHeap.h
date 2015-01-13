@@ -16,8 +16,6 @@ class CopyingHeap : public Heap<CopyingHeap> {
 public:
     CopyingHeap(size_t pageSize, size_t maxHeapSize);
     
-    AbstractVMObject* AllocateObject(size_t size);
-    
     Page* RegisterThread();
     void UnregisterThread(Page*);
 
@@ -72,11 +70,8 @@ public:
 
     // return the current page to be used for allocation
     // this is managed by the interpreter associated with a page
-    // when a page fills up, the interpreter can request a new page
-    // we stop using the old page when it is full
-    // and full means, something like failing
-    // on an allocation reqest for an object that
-    // is smaller than 2*sizeof(VMObject)
+    // when a page fills up, the interpreter can request a new page.
+    // we stop using the old page when it is full.
 
     Page* GetCurrent();
     void SetInterpreter(Interpreter* interp) { interpreter = interp; }
@@ -96,7 +91,6 @@ private:
 
     void*              nextFreePosition;
 
-    bool isFull();
     void* allocateInNextPage(size_t size ALLOC_OUTSIDE_NURSERY_DECL);
     
     friend class CopyingHeap;

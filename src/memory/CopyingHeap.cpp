@@ -53,11 +53,6 @@ MemoryPage<CopyingHeap>* CopyingHeap::getNextPage_alreadyLocked() {
     return result;
 }
 
-bool MemoryPage<CopyingHeap>::isFull() {
-    return ((uintptr_t) bufferEnd - (uintptr_t) nextFreePosition)
-                < 2 * sizeof(VMObject);
-}
-
 Page* MemoryPage<CopyingHeap>::GetCurrent() {
     return interpreter->GetPage();
 }
@@ -69,9 +64,6 @@ void MemoryPage<CopyingHeap>::WalkObjects(walk_heap_fn walk,
     AbstractVMObject* curObject = static_cast<AbstractVMObject*>(buffer);
     
     while (curObject < nextFreePosition) {
-        if (dynamic_cast<VMBlock*>(curObject)) {
-            int i = 0;
-        }
         curObject->WalkObjects(walk, target);
         curObject = reinterpret_cast<AbstractVMObject*>(
                         (uintptr_t)curObject + curObject->GetObjectSize());
