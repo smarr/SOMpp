@@ -820,9 +820,12 @@ VMArray* Universe::NewArray(long size, Page* page) const {
     bool outsideNursery;
     
 #if GC_TYPE == GENERATIONAL
+#warning TODO: is it worth to move that into the allocation routine?\
+    then the page would do it for all objects (overhead), but it would also be\
+    benefitial, for uniformity, and large objects.
     // if the array is too big for the nursery, we will directly allocate a
     // mature object
-    outsideNursery = additionalBytes + sizeof(VMArray) > GetHeap<HEAP_CLS>()->GetMaxNurseryObjectSize();
+    outsideNursery = additionalBytes + sizeof(VMArray) > page->GetMaxObjectSize();
 #endif
 
     VMArray* result = new (page, additionalBytes ALLOC_OUTSIDE_NURSERY(outsideNursery)) VMArray(size);

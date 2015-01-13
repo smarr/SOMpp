@@ -16,10 +16,9 @@
 
 #define INITIAL_MAJOR_COLLECTION_THRESHOLD (5 * 1024 * 1024) //5 MB
 
-GenerationalCollector::GenerationalCollector(GenerationalHeap* heap) : GarbageCollector(heap) {
-    majorCollectionThreshold = INITIAL_MAJOR_COLLECTION_THRESHOLD;
-    matureObjectsSize = 0;
-}
+GenerationalCollector::GenerationalCollector(GenerationalHeap* heap)
+    : GarbageCollector(heap),
+      majorCollectionThreshold(INITIAL_MAJOR_COLLECTION_THRESHOLD) {}
 
 static gc_oop_t mark_object(gc_oop_t oop, Page*) {
     // don't process tagged objects
@@ -39,16 +38,14 @@ static gc_oop_t mark_object(gc_oop_t oop, Page*) {
     return oop;
 }
 
-static gc_oop_t copy_if_necessary(gc_oop_t oop, Page* target) {
+static gc_oop_t copy_if_necessary(gc_oop_t oop, Page* page) {
     // don't process tagged objects
     if (IS_TAGGED(oop))
         return oop;
     
     AbstractVMObject* obj = AS_OBJ(oop);
-    assert(Universe::IsValidObject(obj));
 
-
-    size_t gcField = obj->GetGCField();
+    intptr_t gcField = obj->GetGCField();
 
     // if this is an old object already, we don't have to copy
     if (gcField & MASK_OBJECT_IS_OLD)
@@ -59,10 +56,13 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop, Page* target) {
     if (gcField != 0)
         return (gc_oop_t) gcField;
     
+    assert(Universe::IsValidObject(obj));
+    
     // we have to clone ourselves
-    AbstractVMObject* newObj = obj->Clone(target);
+    AbstractVMObject* newObj = obj->Clone(page); // page only used to obtain heap
 
-    assert( (((size_t) newObj) & MASK_OBJECT_IS_MARKED) == 0 );
+    assert( (((uintptr_t) newObj) & MASK_OBJECT_IS_MARKED) == 0 );
+    
     if (obj->GetObjectSize() != newObj->GetObjectSize()) {
         cerr << obj->AsDebugString() << endl;
         cerr << newObj->AsDebugString() << endl;
@@ -78,26 +78,54 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop, Page* target) {
     newObj->SetGCField(MASK_OBJECT_IS_OLD);
 
     // walk recursively
-    newObj->WalkObjects(copy_if_necessary, target);
+    newObj->WalkObjects(copy_if_necessary, page); // page only used to obtain heap
     
 #warning not sure about the use of _store_ptr here, or whether it should be a plain cast
     return _store_ptr(newObj);
 }
 
 void GenerationalCollector::MinorCollection() {
+    unordered_set<Interpreter*>* interps = GetUniverse()->GetInterpreters();
+
+    // reset pages in interpreters, just to be sure
+    Page* page;
+    for (Interpreter* interp : *interps) {
+        page = interp->GetPage();
+        interp->SetPage(nullptr);
+    }
+    
     // walk all globals of universe, and implicily the interpreter
-    GetUniverse()->WalkGlobals(&copy_if_necessary, target);
+    GetUniverse()->WalkGlobals(&copy_if_necessary, page); // page only used to obtain heap
 
     // and also all objects that have been detected by the write barriers
-    for (AbstractVMObject* obj : heap->oldObjsWithRefToYoungObjs) {
-        // content of oldObjsWithRefToYoungObjs is not altered while iteration,
-        // because copy_if_necessary returns old objs only -> ignored by
-        // write_barrier
-        obj->SetGCField(MASK_OBJECT_IS_OLD);
-        obj->WalkObjects(&copy_if_necessary, target);
+    for (NurseryPage* page : heap->usedPages) {
+        for (AbstractVMObject* holderObj : page->oldObjsWithRefToYoungObjs) {
+            // content of oldObjsWithRefToYoungObjs is not altered while iteration,
+            // because copy_if_necessary returns old objs only -> ignored by
+            // write_barrier
+            assert((holderObj->GetGCField() &
+                   (MASK_OBJECT_IS_OLD|MASK_SEEN_BY_WRITE_BARRIER)) == (MASK_OBJECT_IS_OLD|MASK_SEEN_BY_WRITE_BARRIER));
+            holderObj->SetGCField(MASK_OBJECT_IS_OLD); // reset the seen by wb bit for next cycle
+            
+            // obj->SetGCField(MASK_OBJECT_IS_OLD);
+            holderObj->WalkObjects(&copy_if_necessary, reinterpret_cast<Page*>(page));
+        }
+        page->Reset();
+        heap->freePages.push_back(page);
     }
-    heap->oldObjsWithRefToYoungObjs.clear();
-    heap->nextFreePosition = heap->nursery;
+    
+    heap->usedPages.clear();
+    
+    // redistribute pages of interpreters, except the last one,
+    // which already got a page
+    for (auto interp : *interps) {
+        auto page = heap->freePages.back();
+        assert(page);
+        heap->freePages.pop_back();
+        interp->SetPage(reinterpret_cast<Page*>(page));
+        page->SetInterpreter(interp);
+        heap->usedPages.push_back(page);
+    }
 }
 
 void GenerationalCollector::MajorCollection() {
@@ -106,19 +134,17 @@ void GenerationalCollector::MajorCollection() {
 
     //now that all objects are marked we can safely delete all allocated objects that are not marked
     vector<AbstractVMObject*>* survivors = new vector<AbstractVMObject*>();
-    for (vector<AbstractVMObject*>::iterator objIter =
-            heap->allocatedObjects->begin(); objIter !=
-            heap->allocatedObjects->end(); objIter++) {
-        
-        AbstractVMObject* obj = *objIter;
+    size_t heapSize = 0;
+    for (AbstractVMObject* obj : *heap->allocatedObjects) {
         assert(Universe::IsValidObject(obj));
         
         if (obj->GetGCField() & MASK_OBJECT_IS_MARKED) {
             survivors->push_back(obj);
+            heapSize += obj->GetObjectSize();
             obj->SetGCField(MASK_OBJECT_IS_OLD);
         }
         else {
-            heap->FreeObject(obj);
+            free(obj);
         }
     }
     delete heap->allocatedObjects;
@@ -131,10 +157,10 @@ void GenerationalCollector::Collect() {
     heap->resetGCTrigger();
 
     MinorCollection();
-    if (heap->matureObjectsSize > majorCollectionThreshold)
+    if (heap->sizeOfMatureObjectHeap > majorCollectionThreshold)
     {
         MajorCollection();
-        majorCollectionThreshold = 2 * heap->matureObjectsSize;
+        majorCollectionThreshold = 2 * heap->sizeOfMatureObjectHeap;
 
     }
     Timer::GCTimer->Halt();
