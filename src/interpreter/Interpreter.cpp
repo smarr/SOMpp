@@ -239,6 +239,7 @@ void Interpreter::popFrameAndPushResult(vm_oop_t result) {
 }
 
 void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
+    assert(Universe::IsValidObject(receiverClass));
     VMInvokable* invokable = receiverClass->LookupInvokable(signature);
 
     if (invokable != nullptr) {
@@ -313,6 +314,8 @@ void Interpreter::doPushField(long bytecodeIndex) {
     uint8_t fieldIndex = method->GetBytecode(bytecodeIndex + 1);
     vm_oop_t self = GetSelf();
     vm_oop_t o;
+    
+    assert(Universe::IsValidObject(self));
 
     if (unlikely(IS_TAGGED(self))) {
         o = nullptr;
@@ -321,6 +324,8 @@ void Interpreter::doPushField(long bytecodeIndex) {
     else {
         o = ((VMObject*)self)->GetField(fieldIndex);
     }
+    
+    assert(Universe::IsValidObject(o));
 
     GetFrame()->Push(o);
 }
@@ -383,6 +388,7 @@ void Interpreter::doPopLocal(long bytecodeIndex) {
     uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
 
     vm_oop_t o = GetFrame()->Pop();
+    assert(Universe::IsValidObject(o));
 
     GetFrame()->SetLocal(bc1, bc2, o);
 }
@@ -392,6 +398,7 @@ void Interpreter::doPopArgument(long bytecodeIndex) {
     uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
 
     vm_oop_t o = GetFrame()->Pop();
+    assert(Universe::IsValidObject(o));
     GetFrame()->SetArgument(bc1, bc2, o);
 }
 
@@ -400,6 +407,9 @@ void Interpreter::doPopField(long bytecodeIndex) {
 
     vm_oop_t self = GetSelf();
     vm_oop_t o = GetFrame()->Pop();
+    
+    assert(Universe::IsValidObject(self));
+    assert(Universe::IsValidObject(o));
 
     if (unlikely(IS_TAGGED(self))) {
         GetUniverse()->ErrorExit("Integers do not have fields that can be set");
