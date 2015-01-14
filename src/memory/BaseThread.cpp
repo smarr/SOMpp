@@ -2,13 +2,14 @@
 
 #if GC_TYPE==PAUSELESS
     #include "pauseless/PauselessHeap.h"
+#elif GC_TYPE==GENERATIONAL
+    #include "stopTheWorld/GenerationalHeap.h"
 #endif
 
-#if GC_TYPE!=PAUSELESS
-BaseThread::BaseThread() {
-    page = _HEAP->RequestPage();
-}
-#else
+//#include "stopTheWorld/GenerationalHeap.h"
+
+
+#if GC_TYPE==PAUSELESS
 BaseThread::BaseThread() {
     page = _HEAP->RequestPage();
     worklist = Worklist();
@@ -20,6 +21,10 @@ BaseThread::BaseThread(bool expectedNMT) {
     worklist = Worklist();
     this->expectedNMT = expectedNMT;
 }
+#else
+BaseThread::BaseThread() {
+    page = _HEAP->RequestPage();
+}
 #endif
 
 BaseThread::~BaseThread() {
@@ -27,7 +32,7 @@ BaseThread::~BaseThread() {
 }
 
 Page* BaseThread::GetPage() {
-    return page;
+    return this->page;
 }
 
 void BaseThread::SetPage(Page* page) {

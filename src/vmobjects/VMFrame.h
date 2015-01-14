@@ -152,7 +152,7 @@ pVMFrame VMFrame::GetPreviousFrame() {
 void VMFrame::SetPreviousFrame(pVMFrame frm) {
     this->previousFrame = WRITEBARRIER(frm);
 #if GC_TYPE==GENERATIONAL
-    _HEAP->WriteBarrier(this, AS_POINTER(frm));
+    _HEAP->WriteBarrier(this, AS_VM_POINTER(frm));
 #endif
 }
 

@@ -15,6 +15,8 @@
 #include <vmobjects/VMBlock.h>
 #include <vmObjects/VMClass.h>
 
+#include <interpreter/Interpreter.h>
+
 const int VMThread::VMThreadNumberOfFields = 5;
 
 VMThread::VMThread() : VMObject(VMThreadNumberOfFields) {
@@ -134,9 +136,20 @@ void VMThread::CheckMarking(void (*walk)(AbstractVMObject*)) {
     CheckBlocked(Untag(argument));
     walk(Untag(argument));
 }
-
 #else
+/*
 void VMThread::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    //still to do!
+    //clazz = (GCClass*) (walk(READBARRIER(clazz)));
+    //resumeSignal = (GCSignal*) (walk(READBARRIER(resumeSignal)));
+    //shouldStop = (GCObject*) (walk(READBARRIER(shouldStop)));
+    //blockToRun = (GCBlock*) (walk(READBARRIER(blockToRun)));
+    //name = (GCString*) (walk(READBARRIER(name)));
+    //argument = (GCAbstractObject*) (walk(READBARRIER(argument)));
 }
+
+pVMThread VMThread::Clone() {
+    pVMThread clone = new (_HEAP, _PAGE, objectSize - sizeof(VMThread)) VMThread(*this);
+    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
+    return clone;
+} */
 #endif

@@ -96,9 +96,9 @@ pVMFrame VMFrame::Clone() {
     const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
     size_t noBytes = GetObjectSize() - sizeof(VMFrame);
     memcpy(destination, source, noBytes);
-    clone->arguments = (pVMObject*)&(clone->stack_ptr)+1; //field after stack_ptr
-    clone->locals = clone->arguments + clone->method->GetNumberOfArguments();
-    clone->stack_ptr = (pVMObject*)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
+    clone->arguments = (GCAbstractObject**)&(clone->stack_ptr)+1; //field after stack_ptr
+    clone->locals = clone->arguments + ((VMMethod*)(clone->method))->GetNumberOfArguments();
+    clone->stack_ptr = (GCAbstractObject**)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
     return clone;
 }
 #elif GC_TYPE==PAUSELESS
@@ -112,8 +112,8 @@ pVMFrame VMFrame::Clone(Interpreter* thread) {
     clone->arguments = (GCAbstractObject**)&(clone->stack_ptr)+1; //field after stack_ptr
     clone->locals = clone->arguments + ReadBarrier(&(clone->method))->GetNumberOfArguments();
     clone->stack_ptr = (GCAbstractObject**)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
-    clone->IncreaseVersion();
-    /* this->MarkObjectAsInvalid(); */
+    /* clone->IncreaseVersion();
+    this->MarkObjectAsInvalid(); */
     return clone;
 }
 pVMFrame VMFrame::Clone(PauselessCollectorThread* thread) {
@@ -126,8 +126,8 @@ pVMFrame VMFrame::Clone(PauselessCollectorThread* thread) {
     clone->arguments = (GCAbstractObject**)&(clone->stack_ptr)+1; //field after stack_ptr
     clone->locals = clone->arguments + ReadBarrierForGCThread(&(clone->method))->GetNumberOfArgumentsGC();
     clone->stack_ptr = (GCAbstractObject**)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
-    clone->IncreaseVersion();
-    /* this->MarkObjectAsInvalid(); */
+    /* clone->IncreaseVersion();
+    this->MarkObjectAsInvalid(); */
     return clone;
 }
 #else
@@ -254,20 +254,26 @@ void VMFrame::ResetStackPointer() {
     locals = arguments + meth->GetNumberOfArguments();
     // Set the stack pointer to its initial value thereby clearing the stack
     stack_ptr = locals + meth->GetNumberOfLocals() - 1;
+    std::atomic_thread_fence(std::memory_order_seq_cst);
 }
 
 pVMObject VMFrame::GetStackElement(long index) const {
+    std::atomic_thread_fence(std::memory_order_seq_cst);
     return READBARRIER(stack_ptr[-index]);
 }
 
 pVMObject VMFrame::GetLocal(long index, long contextLevel) {
     pVMFrame context = this->GetContextLevel(contextLevel);
+    
+    std::atomic_thread_fence(std::memory_order_seq_cst);
+    
     return READBARRIER(context->locals[index]);
 }
 
 void VMFrame::SetLocal(long index, long contextLevel, pVMObject value) {
     pVMFrame context = this->GetContextLevel(contextLevel);
     context->locals[index] = WRITEBARRIER(value);
+    std::atomic_thread_fence(std::memory_order_seq_cst);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(context, (VMOBJECT_PTR)value);
 #endif
@@ -276,12 +282,17 @@ void VMFrame::SetLocal(long index, long contextLevel, pVMObject value) {
 pVMObject VMFrame::GetArgument(long index, long contextLevel) {
     // get the context
     pVMFrame context = this->GetContextLevel(contextLevel);
+
+    std::atomic_thread_fence(std::memory_order_seq_cst);
+    
     return READBARRIER(context->arguments[index]);
 }
 
 void VMFrame::SetArgument(long index, long contextLevel, pVMObject value) {
     pVMFrame context = this->GetContextLevel(contextLevel);
     context->arguments[index] = WRITEBARRIER(value);
+    std::atomic_thread_fence(std::memory_order_seq_cst);
+    
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(context, (VMOBJECT_PTR)value);
 #endif
@@ -351,17 +362,17 @@ void VMFrame::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     // clazz = (pVMClass) walk(clazz);
     
     if (previousFrame)
-        previousFrame = (pVMFrame) walk(previousFrame);
+        previousFrame = (GCFrame*) walk(READBARRIER(previousFrame));
     if (context)
-        context = (pVMFrame) walk(context);
-    method = (pVMMethod) walk(method);
+        context = (GCFrame*) walk(READBARRIER(context));
+    method = (GCMethod*) walk(READBARRIER(method));
     
     // all other fields are indexable via arguments array
     // --> until end of Frame
     long i = 0;
     while (arguments + i <= stack_ptr) {
         if (arguments[i] != NULL)
-            arguments[i] = walk((VMOBJECT_PTR)arguments[i]);
+            arguments[i] = (GCAbstractObject*) walk((VMOBJECT_PTR)arguments[i]);
         i++;
     }
 }

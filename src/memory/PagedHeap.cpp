@@ -105,3 +105,7 @@ void PagedHeap::AddEmptyPage(Page* page) {
     availablePages->push_back(page);
     pthread_mutex_unlock(&availablePagesMutex);
 }
+
+int PagedHeap::GetNumberOfCycles() {
+    return gc->GetNumberOfCycles();
+}

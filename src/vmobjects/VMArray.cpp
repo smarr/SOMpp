@@ -90,8 +90,8 @@ pVMArray VMArray::Clone(Interpreter* thread) {
     const void* source = SHIFTED_PTR(this, sizeof(VMArray));
     size_t noBytes = GetObjectSize() - sizeof(VMArray);
     memcpy(destination, source, noBytes);
-    clone->IncreaseVersion();
-    /* this->MarkObjectAsInvalid(); */
+    /* clone->IncreaseVersion();
+    this->MarkObjectAsInvalid(); */
     return clone;
 }
 pVMArray VMArray::Clone(PauselessCollectorThread* thread) {
@@ -101,8 +101,8 @@ pVMArray VMArray::Clone(PauselessCollectorThread* thread) {
     const void* source = SHIFTED_PTR(this, sizeof(VMArray));
     size_t noBytes = GetObjectSize() - sizeof(VMArray);
     memcpy(destination, source, noBytes);
-    clone->IncreaseVersion();
-    /* this->MarkObjectAsInvalid(); */
+    /* clone->IncreaseVersion();
+    this->MarkObjectAsInvalid(); */
     return clone;
 }
 #else
@@ -157,12 +157,12 @@ void VMArray::CheckMarking(void (*walk)(AbstractVMObject*)) {
 }
 #else
 void VMArray::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    clazz = (pVMClass) walk(clazz);
+    clazz = (GCClass*) walk(READBARRIER(clazz));
     long numFields          = GetNumberOfFields();
     long numIndexableFields = GetNumberOfIndexableFields();
-    pVMObject* fields = FIELDS;
+    //pVMObject* fields = FIELDS;
     for (long i = 0; i < numFields + numIndexableFields; i++) {
-        fields[i] = walk(AS_POINTER(fields[i]));
+        FIELDS[i] = (GCAbstractObject*) walk(AS_VM_POINTER(FIELDS[i]));
     }
 }
 #endif

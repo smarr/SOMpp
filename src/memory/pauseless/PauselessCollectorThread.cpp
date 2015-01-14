@@ -66,6 +66,7 @@ int PauselessCollectorThread::numberOfGCThreadsDoneMarking;
 int PauselessCollectorThread::numberOfMutatorsPassedSafepoint;
 int PauselessCollectorThread::numberOfMutators;
 bool PauselessCollectorThread::checkpointRequested;
+bool PauselessCollectorThread::checkpointFinished;
 
 bool PauselessCollectorThread::doneBlockingPages;
 pthread_mutex_t PauselessCollectorThread::blockPagesMutex;
@@ -73,6 +74,11 @@ pthread_mutex_t PauselessCollectorThread::pagesToRelocateMutex;
 pthread_cond_t PauselessCollectorThread::pagesToRelocateCondition;
 vector<Page*>* PauselessCollectorThread::pagesToRelocate;
 vector<Page*>* PauselessCollectorThread::pagesToUnblock;
+
+int PauselessCollectorThread::numberOfGCThreadsFinished;
+pthread_mutex_t PauselessCollectorThread::endOfCycleMutex;
+pthread_cond_t PauselessCollectorThread::endOfCycleCond;
+bool PauselessCollectorThread::endBool;
 
 int PauselessCollectorThread::numberOfCycles;
 
@@ -103,6 +109,7 @@ void PauselessCollectorThread::InitializeCollector(int numberOfThreads) {
     numberOfGCThreadsDoneMarking = 0;
     numberOfMutators = 0;
     checkpointRequested = false;
+    checkpointFinished = false;
     
     doneBlockingPages = false;
     pthread_mutex_init(&blockPagesMutex, nullptr);
@@ -111,10 +118,12 @@ void PauselessCollectorThread::InitializeCollector(int numberOfThreads) {
     pagesToRelocate = new vector<Page*>();
     pagesToUnblock = new vector<Page*>();
     
-    numberOfCycles = 0;
+    numberOfGCThreadsFinished = 0;
+    pthread_mutex_init(&endOfCycleMutex, nullptr);
+    pthread_cond_init(&endOfCycleCond, nullptr);
+    endBool = false;
     
-    //pthread_mutex_init(&blockedMutex, nullptr);
-    //pthread_mutex_init(&markGlobalsMutex, nullptr);
+    numberOfCycles = 0;
 }
 
 void PauselessCollectorThread::MarkObject(VMOBJECT_PTR obj) {
@@ -145,12 +154,15 @@ void PauselessCollectorThread::SignalRootSetMarked() {
 
 void PauselessCollectorThread::AddNonEmptyWorklist(Worklist* worklist) {
     pthread_mutex_lock(&nonEmptyWorklistsMutex);
-    nonEmptyWorklists->push_back(worklist);
-    if (checkpointRequested) {
-        checkpointRequested = false;
-        pthread_cond_signal(&waitingForCheckpointCondition);
-    } else
-        pthread_cond_signal(&waitingForWorkCondition);
+    if (!checkpointFinished) {
+        nonEmptyWorklists->push_back(worklist);
+        if (checkpointRequested) {
+            checkpointRequested = false;
+            pthread_cond_signal(&waitingForCheckpointCondition);
+        } else {
+            pthread_cond_signal(&waitingForWorkCondition);
+        }
+    }
     pthread_mutex_unlock(&nonEmptyWorklistsMutex);
 }
 
@@ -202,7 +214,6 @@ void PauselessCollectorThread::Collect() {
         if (!doneSignalling && pthread_mutex_trylock(&markRootSetsMutex) == 0) {
             numberOfCycles++;
             //sync_out(ostringstream() << "[GC] " << numberOfCycles);
-            
             pthread_mutex_lock(&newInterpreterMutex);
             unique_ptr<vector<Interpreter*>> interpreters = _UNIVERSE->GetInterpretersCopy();
             numberRootSetsToBeMarked = interpreters->size();
@@ -276,7 +287,11 @@ void PauselessCollectorThread::Collect() {
                 numberOfGCThreadsDoneMarking--;
                 pthread_mutex_unlock(&nonEmptyWorklistsMutex);
             } else {
-                // all threads have run out of work -> request a safepoint
+                if (checkpointFinished) {
+                    pthread_mutex_unlock(&nonEmptyWorklistsMutex);
+                    break;
+                }
+                numberOfGCThreadsDoneMarking--;
                 numberOfMutatorsPassedSafepoint = 0;
                 unique_ptr<vector<Interpreter*>> interpreters = _UNIVERSE->GetInterpretersCopy();
                 for (vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
@@ -289,37 +304,28 @@ void PauselessCollectorThread::Collect() {
                     pthread_cond_wait(&waitingForCheckpointCondition, &nonEmptyWorklistsMutex);
                 }
                 if (numberOfMutators == numberOfMutatorsPassedSafepoint && checkpointRequested) {
-                    //pthread_cond_signal() -> should still be done but testing happens with one gc thread for the moment
+                    checkpointFinished = true;
+                    checkpointRequested = false;
+                    numberOfGCThreadsDoneMarking++;
+                    pthread_cond_broadcast(&waitingForWorkCondition);
                     pthread_mutex_unlock(&nonEmptyWorklistsMutex);
-                    checkpointRequested = false; //setup for next cycle
                     break;
-                } else {
+                } else if (!nonEmptyWorklists->empty()) {
                     nonEmptyWorklists->back()->MoveWork(&worklist);
                     nonEmptyWorklists->pop_back();
-                    numberOfGCThreadsDoneMarking--;
+                    //numberOfGCThreadsDoneMarking--;
                     pthread_mutex_unlock(&nonEmptyWorklistsMutex);
                 }
+                checkpointFinished = false;
+                pthread_mutex_unlock(&nonEmptyWorklistsMutex);
             }
         }
-        
-        // DEBUGGING PURPOSES: STOP THE WORLD
-        /* _HEAP->TriggerPause();
-        pthread_mutex_lock(&(_HEAP->threadCountMutex));
-        while (_HEAP->readyForPauseThreads != _UNIVERSE->GetInterpretersCopy()->size()) {
-            pthread_cond_wait(&(_HEAP->stopTheWorldCondition), &(_HEAP->threadCountMutex));
-        }
-        pthread_mutex_unlock(&(_HEAP->threadCountMutex));
-        CheckMarking();
-        _HEAP->ResetPause();
-        pthread_cond_broadcast(&(_HEAP->mayProceed)); */
-        
-        //sync_out(ostringstream() << "[GC] Start Relocate Phase");
-        
+
         //------------------------
         // RELOCATE PHASE
         //------------------------
         if (!doneBlockingPages && pthread_mutex_trylock(&blockPagesMutex) == 0) {
-
+            
             pthread_mutex_lock(&newInterpreterMutex);
             
             // disable GC-trap from running interpreters
@@ -341,8 +347,9 @@ void PauselessCollectorThread::Collect() {
                                 //pthread_mutex_lock();
             for (vector<Page*>::iterator page = _HEAP->fullPages->begin(); page != _HEAP->fullPages->end(); ++page) {
                 (*page)->Block();
+                
                 pagesToRelocate->push_back(*page);
-                pagesToUnblock->push_back(*page); //temporary
+                pagesToUnblock->push_back(*page);
             }
             _HEAP->fullPages->clear();
                                 //pthread_mutex_unlock
@@ -379,7 +386,6 @@ void PauselessCollectorThread::Collect() {
             pthread_mutex_unlock(&pagesToRelocateMutex);
         }
         
-        // do I really need this?
         while (true) {
             pthread_mutex_lock(&pagesToRelocateMutex);
             if (!pagesToRelocate->empty()) {
@@ -393,17 +399,39 @@ void PauselessCollectorThread::Collect() {
             }
         }
         
-        //reset some values for next cycle:
-        doneSignalling = false;
-        doneBlockingPages = false;
-        doneMarkingGlobals = false;
-        numberOfGCThreadsDoneMarking = 0;
-        markValue++;
+        //wait for all gc-threads to finish before starting a new cycle
+        pthread_mutex_lock(&endOfCycleMutex);
+        numberOfGCThreadsFinished++;
+        if (endBool)
+            endBool = false;
+        if (numberOfGCThreadsFinished == numberOfGCThreads) {
+            numberOfGCThreadsDoneMarking = 0;
+            doneSignalling = false;
+            doneBlockingPages = false;
+            doneMarkingGlobals = false;
+            checkpointFinished = false;
+            markValue++;
+            numberOfGCThreadsFinished = 0;
+            endBool = true;
+            //std::cout << "cycle finished: " << numberOfCycles << std::endl;
+        }
+        while (numberOfGCThreads != numberOfGCThreadsFinished && !endBool) {
+            pthread_cond_wait(&endOfCycleCond, &endOfCycleMutex);
+        }
+        pthread_cond_broadcast(&endOfCycleCond);
+        pthread_mutex_unlock(&endOfCycleMutex);
+        
+        //doneSignalling = false;
+        //doneBlockingPages = false;
+        //doneMarkingGlobals = false;
+        //numberOfGCThreadsDoneMarking = 0;
+        //markValue++;
+        //checkpointFinished = false;
+        //numberOfGCThreadsFinished = 0;
+        
         
         //sync_out(ostringstream() << "[GC] End of cycle");
         //sync_out(ostringstream() << "=================");
-        
-        //assert(nonEmptyWorklists->empty());
         
         
     } //end of cycle

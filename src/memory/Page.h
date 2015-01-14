@@ -34,18 +34,19 @@ public:
     AbstractVMObject* LookupNewAddress(AbstractVMObject*, Interpreter*);
     AbstractVMObject* LookupNewAddress(AbstractVMObject*, PauselessCollectorThread*);
     void AddAmountLiveData(size_t);
-    long GetAmountOfLiveData();
+    double GetPercentageLiveData();
     void Free(size_t);
     void RelocatePage();
+    void ResetAmountOfLiveData();
 #endif
     
 private:
     size_t pageStart;
     size_t pageEnd;
-    void* collectionLimit;
+    void* treshold;
     void* volatile nextFreePosition;
     PagedHeap* heap;
-    
+        
 #if GC_TYPE==PAUSELESS
     bool blocked;
     std::atomic<AbstractVMObject*>* sideArray;

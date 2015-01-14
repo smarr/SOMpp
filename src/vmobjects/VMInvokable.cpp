@@ -81,9 +81,9 @@ void VMInvokable::CheckMarking(void (*walk)(AbstractVMObject*)) {
 }
 #else
 void VMInvokable::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    clazz = static_cast<pVMClass>(walk(clazz));
-    signature = static_cast<pVMSymbol>(walk(signature));
+    clazz = (GCClass*) (walk(READBARRIER(clazz)));
+    signature = (GCSymbol*) (walk(READBARRIER(signature)));
     if (holder)
-        holder = static_cast<pVMClass>(walk(holder));
+        holder = (GCClass*) (walk(READBARRIER(holder)));
 }
 #endif

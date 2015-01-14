@@ -92,6 +92,8 @@ public:
     
     vector<Page*>* allPages;
     
+    int GetNumberOfCycles();
+    
 protected:
     long pageSize;
     GarbageCollector* gc;

@@ -22,7 +22,6 @@
 #elif GC_TYPE==PAUSELESS
     #include <memory/Page.h>
     #include <memory/pauseless/PauselessHeap.h>
-    //#include <interpreter/Interpreter.h>
     #include <memory/pauseless/PauselessCollectorThread.h>
     class Worklist;
 #endif
@@ -116,7 +115,7 @@ public:
         } else {
             result = (void*) (page->AllocateObject(numBytes + additionalBytes));
         }
-        assert(result != INVALID_POINTER);
+        assert(result != INVALID_VM_POINTER);
         return result;
     }
 #elif GC_TYPE==PAUSELESS
@@ -155,7 +154,7 @@ public:
 #else
     void* operator new(size_t numBytes, HEAP_CLS* heap, unsigned long additionalBytes = 0) {
         void* mem = (void*) heap->AllocateObject(numBytes + additionalBytes);
-        assert(mem != INVALID_POINTER);
+        assert(mem != INVALID_VM_POINTER);
         return mem;
     }
 #endif

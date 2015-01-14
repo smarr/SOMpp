@@ -21,6 +21,7 @@ public:
 private:
     // data for mature allocation
     pthread_mutex_t allocationLock;
+    pthread_mutex_t writeBarrierLock;
     size_t matureObjectsSize;
     vector<size_t>* oldObjsWithRefToYoungObjs;
     vector<VMOBJECT_PTR>* allocatedObjects;

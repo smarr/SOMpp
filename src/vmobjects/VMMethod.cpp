@@ -75,7 +75,7 @@ pVMMethod VMMethod::Clone() {
     pVMMethod clone = new (_HEAP, _PAGE, GetObjectSize() - sizeof(VMMethod), true)
     VMMethod(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this, sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    clone->indexableFields = (pVMObject*)(&(clone->indexableFields) + 2);
+    clone->indexableFields = (GCAbstractObject**)(&(clone->indexableFields) + 2);
     clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + GetNumberOfIndexableFields());
     return clone;
 }
@@ -85,7 +85,7 @@ pVMMethod VMMethod::Clone(Interpreter* thread) {
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this, sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     clone->indexableFields = (GCAbstractObject**)(&(clone->indexableFields) + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
     clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + GetNumberOfIndexableFields());
-    clone->IncreaseVersion();
+    /* clone->IncreaseVersion(); */
     return clone;
 }
 pVMMethod VMMethod::Clone(PauselessCollectorThread* thread) {
@@ -93,7 +93,7 @@ pVMMethod VMMethod::Clone(PauselessCollectorThread* thread) {
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this, sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     clone->indexableFields = (GCAbstractObject**)(&(clone->indexableFields) + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
     clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + ReadBarrierForGCThread(&numberOfConstants)->GetEmbeddedInteger());
-    clone->IncreaseVersion();
+    /* clone->IncreaseVersion(); */
     return clone;
 }
 #else
@@ -136,7 +136,7 @@ void VMMethod::SetNumberOfLocals(long nol) {
     numberOfLocals = WRITEBARRIER(_UNIVERSE->NewInteger(nol));
 #endif
 #if GC_TYPE==GENERATIONAL
-    _HEAP->WriteBarrier(this, numberOfLocals);
+    _HEAP->WriteBarrier(this, READBARRIER(numberOfLocals));
 #endif
 }
 
@@ -155,7 +155,7 @@ void VMMethod::SetMaximumNumberOfStackElements(long stel) {
     maximumNumberOfStackElements = WRITEBARRIER(_UNIVERSE->NewInteger(stel));
 #endif
 #if GC_TYPE==GENERATIONAL
-    _HEAP->WriteBarrier(this, maximumNumberOfStackElements);
+    _HEAP->WriteBarrier(this, READBARRIER(maximumNumberOfStackElements));
 #endif
 }
 
@@ -166,7 +166,7 @@ void VMMethod::SetNumberOfArguments(long noa) {
     numberOfArguments = WRITEBARRIER(_UNIVERSE->NewInteger(noa));
 #endif
 #if GC_TYPE==GENERATIONAL
-    _HEAP->WriteBarrier(this, numberOfArguments);
+    _HEAP->WriteBarrier(this, READBARRIER(numberOfArguments));
 #endif
 }
 
@@ -247,11 +247,11 @@ void VMMethod::CheckMarking(void (*walk)(AbstractVMObject*)) {
 void VMMethod::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     VMInvokable::WalkObjects(walk);
     
-    numberOfLocals = static_cast<VMInteger*>(walk(numberOfLocals));
-    maximumNumberOfStackElements = static_cast<VMInteger*>(walk(maximumNumberOfStackElements));
-    bcLength = static_cast<VMInteger*>(walk(bcLength));
-    numberOfArguments = static_cast<VMInteger*>(walk(numberOfArguments));
-    numberOfConstants = static_cast<VMInteger*>(walk(numberOfConstants));
+    numberOfLocals = (GCInteger*)(walk(READBARRIER(numberOfLocals)));
+    maximumNumberOfStackElements = (GCInteger*)(walk(READBARRIER(maximumNumberOfStackElements)));
+    bcLength = (GCInteger*)(walk(READBARRIER(bcLength)));
+    numberOfArguments = (GCInteger*)(walk(READBARRIER(numberOfArguments)));
+    numberOfConstants = (GCInteger*)(walk(READBARRIER(numberOfConstants)));
     
     /*
      #ifdef UNSAFE_FRAME_OPTIMIZATION
@@ -263,14 +263,14 @@ void VMMethod::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {
         if (GetIndexableField(i) != NULL)
-            indexableFields[i] = walk(AS_POINTER(GetIndexableField(i)));
+            indexableFields[i] = (GCAbstractObject*) walk(AS_VM_POINTER(GetIndexableField(i)));
     }
 }
 #endif
 
 void VMMethod::MarkObjectAsInvalid() {
     VMInvokable::MarkObjectAsInvalid();
-    long numIndexableFields = Untag(numberOfConstants)->GetEmbeddedInteger();
+    long numIndexableFields = READBARRIER(numberOfConstants)->GetEmbeddedInteger();
     for (long i = 0; i < numIndexableFields; ++i) {
         indexableFields[i] = (GCAbstractObject*) INVALID_GC_POINTER;
     }

@@ -2,6 +2,8 @@
 #ifndef BASETHREAD_H_
 #define BASETHREAD_H_
 
+#include "../misc/defs.h"
+
 #if GC_TYPE==PAUSELESS
     #include "../memory/pauseless/Worklist.h"
 #endif

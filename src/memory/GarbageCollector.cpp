@@ -49,8 +49,17 @@
 
 GarbageCollector::GarbageCollector(PagedHeap* h) {
     heap = h;
+    numberOfCycles = 0;
 }
 
 GarbageCollector::~GarbageCollector() {
     //Heap is deleted by Universe
+}
+
+void GarbageCollector::AddCycle() {
+    numberOfCycles++;
+}
+
+int GarbageCollector::GetNumberOfCycles() {
+    return numberOfCycles;
 }

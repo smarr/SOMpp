@@ -43,7 +43,7 @@ class VMThread;
 
 class Page;
 
-class Interpreter: public BaseThread {
+class Interpreter : public BaseThread {
 public:
     
 #if GC_TYPE!=PAUSELESS
@@ -146,12 +146,7 @@ private:
 
     pthread_mutex_t blockedMutex;
     
-    
-    
     pthread_mutex_t prevent;
-    
-    // for debugging
-    //int cycle;
 #endif
     
     

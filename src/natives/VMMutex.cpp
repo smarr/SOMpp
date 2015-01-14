@@ -9,6 +9,8 @@
 #include "VMMutex.h"
 #include <vmObjects/VMClass.h>
 
+#include <interpreter/Interpreter.h>
+
 const int VMMutex::VMMutexNumberOfFields = 0;
 
 VMMutex::VMMutex() : VMObject(VMMutexNumberOfFields) {
@@ -67,6 +69,12 @@ void VMMutex::CheckMarking(void (*walk)(AbstractVMObject*)) {
 
 #else
 void VMMutex::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    //still to do!
+    clazz = (GCClass*) (walk(READBARRIER(clazz)));
+}
+
+pVMMutex VMMutex::Clone() {
+    pVMMutex clone = new (_HEAP, _PAGE, objectSize - sizeof(VMMutex)) VMMutex(*this);
+    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
+    return clone;
 }
 #endif

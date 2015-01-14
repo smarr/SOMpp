@@ -150,6 +150,9 @@ void Universe::Start(long argc, char** argv) {
 void Universe::Quit(long err) {
     cout << "Time spent in GC: [" << Timer::GCTimer->GetTotalTime() << "] msec"
             << endl;
+#if GC_TYPE!=PAUSELESS
+    cout << "Number of GC cycles performed: " << _HEAP->GetNumberOfCycles() << endl;
+#endif
 #ifdef GENERATE_INTEGER_HISTOGRAM
     std::string file_name_hist = std::string(bm_name);
     file_name_hist.append("_integer_histogram.csv");
@@ -331,8 +334,8 @@ void Universe::initialize(long _argc, char** _argv) {
     allocationStats["VMArray"] = {0,0};
 #endif
 
-    heapSize = 240 * 1024 * 1024;
-    pageSize = 4 * 8192;
+    //heapSize = 240 * 1024 * 1024;
+    //pageSize = 4 * 8192;
 
     vector<StdString> argv = this->handleArguments(_argc, _argv);
     
@@ -340,7 +343,7 @@ void Universe::initialize(long _argc, char** _argv) {
     if (argv.size() > 0)
         bm_name = argv[0];
 
-    PagedHeap::InitializeHeap(heapSize, pageSize);
+    PagedHeap::InitializeHeap(HEAP_SIZE, PAGE_SIZE);
     setup_primitives();
 
     heap = _HEAP;
@@ -413,9 +416,11 @@ void Universe::initialize(long _argc, char** _argv) {
     if (!(trace > 0))
         dumpBytecodes = 2 - trace;
     
+#if GC_TYPE==PAUSELESS
     _HEAP->Start();
+#endif
     interpreter->Start();
-    pthread_exit(0);
+    //pthread_exit(0);
 }
 
 Universe::~Universe() {
@@ -635,7 +640,7 @@ void Universe::InitializeGlobals() {
     //
     
 #if GC_TYPE==GENERATIONAL
-    nilObject = new (_HEAP, _PAGE) VMObject;
+    nilObject = WRITEBARRIER(new (_HEAP, _PAGE) VMObject);
 #elif GC_TYPE==PAUSELESS
     nilObject = WRITEBARRIER(new (_HEAP, _UNIVERSE->GetInterpreter()) VMObject);
 #else
@@ -754,6 +759,7 @@ pVMClass Universe::GetBlockClassWithArgs(long numberOfArguments) {
     return result;
 }
 
+#if GC_TYPE==PAUSELESS
 pVMObject Universe::GetGlobal(pVMSymbol name) {
     pthread_mutex_lock(&testMutex);
     map<GCSymbol*, GCAbstractObject*>::iterator it;
@@ -769,6 +775,16 @@ pVMObject Universe::GetGlobal(pVMSymbol name) {
         return READBARRIER(it->second);
     }
 }
+#else
+pVMObject Universe::GetGlobal(pVMSymbol name) {
+    map<GCSymbol*, GCAbstractObject*>::iterator it;
+    it = globals.find((GCSymbol*) name);
+    if (it == globals.end())
+        return nullptr;
+    else
+        return READBARRIER(it->second);
+}
+#endif
 
 void Universe::InitializeSystemClass(pVMClass systemClass,
 pVMClass superClass, const char* name) {
@@ -1248,36 +1264,36 @@ void  Universe::CheckMarkingGlobals(void (*walk)(AbstractVMObject*)) {
 }
 #else
 void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    nilObject   = (pVMObject)walk(nilObject);
-    trueObject  = (pVMObject)walk(trueObject);
-    falseObject = (pVMObject)walk(falseObject);
+    nilObject   = (GCObject*) walk(READBARRIER(nilObject));
+    trueObject  = (GCObject*) walk(READBARRIER(trueObject));
+    falseObject = (GCObject*) walk(READBARRIER(falseObject));
 
 #ifdef USE_TAGGING
     GlobalBox::updateIntegerBox(static_cast<VMInteger*>(walk(GlobalBox::IntegerBox())));
 #endif
 
-    objectClass    = static_cast<pVMClass>(walk(objectClass));
-    classClass     = static_cast<pVMClass>(walk(classClass));
-    metaClassClass = static_cast<pVMClass>(walk(metaClassClass));
+    objectClass    = (GCClass*) (walk(READBARRIER(objectClass)));
+    classClass     = (GCClass*) (walk(READBARRIER(classClass)));
+    metaClassClass = (GCClass*) (walk(READBARRIER(metaClassClass)));
 
-    nilClass        = static_cast<pVMClass>(walk(nilClass));
-    integerClass    = static_cast<pVMClass>(walk(integerClass));
-    bigIntegerClass = static_cast<pVMClass>(walk(bigIntegerClass));
-    arrayClass      = static_cast<pVMClass>(walk(arrayClass));
-    methodClass     = static_cast<pVMClass>(walk(methodClass));
-    symbolClass     = static_cast<pVMClass>(walk(symbolClass));
-    primitiveClass  = static_cast<pVMClass>(walk(primitiveClass));
-    stringClass     = static_cast<pVMClass>(walk(stringClass));
-    systemClass     = static_cast<pVMClass>(walk(systemClass));
-    blockClass      = static_cast<pVMClass>(walk(blockClass));
-    doubleClass     = static_cast<pVMClass>(walk(doubleClass));
+    nilClass        = (GCClass*) (walk(READBARRIER(nilClass)));
+    integerClass    = (GCClass*) (walk(READBARRIER(integerClass)));
+    bigIntegerClass = (GCClass*) (walk(READBARRIER(bigIntegerClass)));
+    arrayClass      = (GCClass*) (walk(READBARRIER(arrayClass)));
+    methodClass     = (GCClass*) (walk(READBARRIER(methodClass)));
+    symbolClass     = (GCClass*) (walk(READBARRIER(symbolClass)));
+    primitiveClass  = (GCClass*) (walk(READBARRIER(primitiveClass)));
+    stringClass     = (GCClass*) (walk(READBARRIER(stringClass)));
+    systemClass     = (GCClass*) (walk(READBARRIER(systemClass)));
+    blockClass      = (GCClass*) (walk(READBARRIER(blockClass)));
+    doubleClass     = (GCClass*) (walk(READBARRIER(doubleClass)));
     
-    threadClass     = static_cast<pVMClass>(walk(threadClass));
-    mutexClass      = static_cast<pVMClass>(walk(mutexClass));
-    signalClass     = static_cast<pVMClass>(walk(signalClass));
+    threadClass     = (GCClass*) (walk(READBARRIER(threadClass)));
+    mutexClass      = (GCClass*) (walk(READBARRIER(mutexClass)));
+    signalClass     = (GCClass*) (walk(READBARRIER(signalClass)));
     
-    trueClass  = static_cast<pVMClass>(walk(trueClass));
-    falseClass = static_cast<pVMClass>(walk(falseClass));
+    trueClass  = (GCClass*) (walk(READBARRIER(trueClass)));
+    falseClass = (GCClass*) (walk(READBARRIER(falseClass)));
 
 #ifdef CACHE_INTEGER
     for (unsigned long i = 0; i < (INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE); i++)
@@ -1289,32 +1305,32 @@ void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
 #endif
 
     // walk all entries in globals map
-    map<pVMSymbol, pVMObject> globs = globals;
+    map<GCSymbol*, GCAbstractObject*> globs = globals;
     globals.clear();
-    map<pVMSymbol, pVMObject>::iterator iter;
+    map<GCSymbol*, GCAbstractObject*>::iterator iter;
     for (iter = globs.begin(); iter != globs.end(); iter++) {
         if (iter->second == NULL)
             continue;
 
-        pVMSymbol key = static_cast<pVMSymbol>(walk(iter->first));
-        pVMObject val = walk((VMOBJECT_PTR)iter->second);
+        GCSymbol* key = (GCSymbol*) (walk(READBARRIER(iter->first)));
+        GCObject* val = (GCObject*) walk((VMOBJECT_PTR)iter->second);
         globals[key] = val;
     }
     
     // walk all entries in symbols map
-    map<StdString, pVMSymbol>::iterator symbolIter;
+    map<StdString, GCSymbol*>::iterator symbolIter;
     for (symbolIter = symbolsMap.begin();
          symbolIter != symbolsMap.end();
          symbolIter++) {
         //insert overwrites old entries inside the internal map
-        symbolIter->second = static_cast<pVMSymbol>(walk(symbolIter->second));
+        symbolIter->second = (GCSymbol*) (walk(READBARRIER(symbolIter->second)));
     }
 
-    map<long, pVMClass>::iterator bcIter;
+    map<long, GCClass*>::iterator bcIter;
     for (bcIter = blockClassesByNoOfArgs.begin();
          bcIter != blockClassesByNoOfArgs.end();
          bcIter++) {
-        bcIter->second = static_cast<pVMClass>(walk(bcIter->second));
+        bcIter->second = (GCClass*) (walk(READBARRIER(bcIter->second)));
     }
 
     //reassign ifTrue ifFalse Symbols
@@ -1496,45 +1512,10 @@ Interpreter* Universe::NewInterpreter() {
     return interpreter;
 }
 
-unique_ptr<vector<Interpreter*>> Universe::GetInterpretersCopy() {
-    pthread_mutex_lock(&interpreterMutex);
-    unique_ptr<vector<Interpreter*>> copy(new vector<Interpreter*>(interpreters.begin(),interpreters.end()));
-    //vector<Interpreter*>* copy = new vector<Interpreter*>(interpreters.begin(),interpreters.end());
-    pthread_mutex_unlock(&interpreterMutex);
-    return copy;
+vector<Interpreter*>* Universe::GetInterpreters() {
+    return &interpreters;
 }
-
 #else
-/*
-Interpreter* Universe::NewInterpreter() {
-    //pthread_mutex_lock(_HEAP->GetNewInterpreterMutex());
-    //pthread_mutex_lock(&interpreterMutex);
-    
-    
-    pthread_mutex_lock(_HEAP->GetNewInterpreterMutex());
-    
-    Interpreter* interpreter = new Interpreter(interpreters.back()->GetExpectedNMT());
-    
-    Interpreter* spawningInterpreter = this->GetInterpreter();
-    Interpreter* interpreter;
-    if (spawningInterpreter) {
-        bool fuck = this->GetInterpreter()->GetExpectedNMT();
-        interpreter = new Interpreter(fuck);
-    }
-    else
-        interpreter = new Interpreter(false);
-    
-    pthread_setspecific(this->interpreterKey, interpreter);
-    pthread_mutex_lock(&interpreterMutex);
-    interpreters.push_back(interpreter);
-    pthread_mutex_unlock(&interpreterMutex);
-    pthread_mutex_unlock(_HEAP->GetNewInterpreterMutex());//
-    
-    //pthread_mutex_unlock(&interpreterMutex);
-    //pthread_mutex_unlock(_HEAP->GetNewInterpreterMutex());
-    return interpreter;
-} */
-
 Interpreter* Universe::NewInterpreter() {
     pthread_mutex_lock(_HEAP->GetNewInterpreterMutex());
     Interpreter* interpreter;
@@ -1559,12 +1540,13 @@ unique_ptr<vector<Interpreter*>> Universe::GetInterpretersCopy() {
 #endif
 
 // FOR DEBUGGING PURPOSES
+/*
 void Universe::PrintGlobals() {
     map<GCSymbol*, GCAbstractObject*>::iterator it;
     for (it = globals.begin(); it != globals.end(); it++) {
         sync_out(ostringstream() << "[GLOBALS] symbol: " << Untag(it->first)->GetChars()
                  << " ptr: " << it->first << " value ptr: " << it->second);
     }
-}
+} */
 
 

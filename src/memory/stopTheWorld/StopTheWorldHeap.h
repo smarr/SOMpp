@@ -6,10 +6,6 @@
 
 #include "../PagedHeap.h"
 
-
-//#include "../vmobjects/VMObjectBase.h"
-
-
 class StopTheWorldHeap : public PagedHeap {
     
 public:
@@ -50,6 +46,16 @@ void StopTheWorldHeap::resetGCTrigger(void) {
 
 inline bool StopTheWorldHeap::isCollectionTriggered(void) {
     return gcTriggered;
+}
+
+template<typename T>
+inline typename T::Loaded* ReadBarrier(T* reference) {
+    return (typename T::Loaded*) reference;
+}
+
+template<typename T>
+inline typename T::Stored* WriteBarrier(T* reference) {
+    return (typename T::Stored*) reference;
 }
 
 #endif

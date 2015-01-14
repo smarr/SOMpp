@@ -55,16 +55,7 @@
 #define _FRAME this->GetFrame()
 #define _SELF this->GetSelf()
 
-#if GC_TYPE!=PAUSELESS
-Interpreter::Interpreter() : BaseThread() {
-    this->thread = nullptr;
-    this->frame = nullptr;
-    
-    uG = "unknownGlobal:";
-    dnu = "doesNotUnderstand:arguments:";
-    eB = "escapedBlock:";
-}
-#else
+#if GC_TYPE==PAUSELESS
 Interpreter::Interpreter(bool expectedNMT, bool gcTrapEnabled) : BaseThread(expectedNMT) {
     this->thread = nullptr;
     this->frame = nullptr;
@@ -79,6 +70,7 @@ Interpreter::Interpreter(bool expectedNMT, bool gcTrapEnabled) : BaseThread(expe
     safePointRequested = false;
     signalEnableGCTrap = false;
     this->gcTrapEnabled = gcTrapEnabled;
+    //this->gcTrapEnabled = false;
     nonRelocatablePage = _HEAP->RequestPage();
     fullPages = vector<Page*>();
     nonRelocatablePages = vector<Page*>();
@@ -87,6 +79,15 @@ Interpreter::Interpreter(bool expectedNMT, bool gcTrapEnabled) : BaseThread(expe
     
     pthread_mutex_init(&prevent, nullptr);
     
+}
+#else
+Interpreter::Interpreter() : BaseThread() {
+    this->thread = nullptr;
+    this->frame = nullptr;
+
+    uG = "unknownGlobal:";
+    dnu = "doesNotUnderstand:arguments:";
+    eB = "escapedBlock:";
 }
 #endif
 
@@ -276,6 +277,7 @@ void Interpreter::SetFrame(pVMFrame frame) {
         READBARRIER(this->frame)->SetBytecodeIndex(bytecodeIndexGlobal);
 
     this->frame = WRITEBARRIER(frame);
+    
 
     // update cached values
     // method              = WRITEBARRIER(frame->GetMethod());
@@ -666,6 +668,7 @@ void Interpreter::MarkRootSet() {
     // ReadBarrier(&method);
     
     while (!fullPages.empty()) {
+        //fullPages.back().ResetAmountOfLiveData();
         _HEAP->RelinquishPage(fullPages.back());
         fullPages.pop_back();
     }
@@ -689,6 +692,7 @@ void Interpreter::MarkRootSetByGC() {
     // ReadBarrierForGCThread(&method);
     
     while (!fullPages.empty()) {
+        //fullPages.back().ResetAmountOfLiveData();
         _HEAP->RelinquishPage(fullPages.back());
         fullPages.pop_back();
     }
@@ -843,6 +847,8 @@ void Interpreter::CheckMarking(void (*walk)(AbstractVMObject*)) {
 
 #else
 void Interpreter::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    method = (pVMMethod) walk(method);
+    //method = (GCMethod*) walk(READBARRIER(method));
+    thread = (GCThread*) walk(READBARRIER(thread));
+    frame = (GCFrame*) walk(READBARRIER(frame));
 }
 #endif

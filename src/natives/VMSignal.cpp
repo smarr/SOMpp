@@ -9,6 +9,8 @@
 #include "VMSignal.h"
 #include <vmObjects/VMClass.h>
 
+#include <interpreter/Interpreter.h>
+
 const int VMSignal::VMSignalNumberOfFields = 0;
 
 VMSignal::VMSignal() : VMObject(VMSignalNumberOfFields) {
@@ -71,6 +73,12 @@ void VMSignal::CheckMarking(void (*walk)(AbstractVMObject*)) {
 }
 #else
 void VMSignal::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    //still to do!
+    clazz = (GCClass*) (walk(READBARRIER(clazz)));
+}
+
+pVMSignal VMSignal::Clone() {
+    pVMSignal clone = new (_HEAP, _PAGE, objectSize - sizeof(VMSignal)) VMSignal(*this);
+    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
+    return clone;
 }
 #endif

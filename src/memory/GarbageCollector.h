@@ -39,8 +39,11 @@ public:
     virtual ~GarbageCollector();
     void PrintGCStat() const;
     void PrintCollectStat() const;
+    void AddCycle();
+    int GetNumberOfCycles();
 protected:
     PagedHeap* heap;
+    int numberOfCycles;
 };
 
 #endif

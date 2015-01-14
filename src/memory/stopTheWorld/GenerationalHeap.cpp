@@ -11,11 +11,12 @@
 
 #if GC_TYPE == GENERATIONAL
 
-GenerationalHeap::GenerationalHeap(long objectSpaceSize, long pageSize) : PagedHeap(objectSpaceSize, pageSize) {
+GenerationalHeap::GenerationalHeap(long objectSpaceSize, long pageSize) : StopTheWorldHeap(objectSpaceSize, pageSize) {
     //our initial collection limit is 90% of objectSpaceSize
     gc = new GenerationalCollector(this);
     // meta data for mature object allocation
-    pthread_mutex_init(&allocationLock, NULL);
+    pthread_mutex_init(&allocationLock, nullptr);
+    pthread_mutex_init(&writeBarrierLock, nullptr);
     matureObjectsSize = 0;
     allocatedObjects = new vector<VMOBJECT_PTR>();
     oldObjsWithRefToYoungObjs = new vector<size_t>();
@@ -38,7 +39,9 @@ void GenerationalHeap::WriteBarrierOldHolder(VMOBJECT_PTR holder, const VMOBJECT
     if (IsObjectInNursery(referencedObject)) {
         // TODO: thread local mark table??? cross generation pointer vector...
         
+        pthread_mutex_lock(&writeBarrierLock);
         oldObjsWithRefToYoungObjs->push_back((size_t)holder);
+        pthread_mutex_unlock(&writeBarrierLock);
         holder->SetGCField(holder->GetGCField() | MASK_SEEN_BY_WRITE_BARRIER);
     }
 }

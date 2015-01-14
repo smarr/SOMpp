@@ -1,5 +1,6 @@
 #pragma once
 #include "../../misc/defs.h"
+
 #if GC_TYPE==PAUSELESS
 
 #include <memory/GarbageCollector.h>
@@ -66,6 +67,7 @@ private:
     static int numberOfMutatorsPassedSafepoint;
     static int numberOfMutators;
     static bool checkpointRequested;
+    static bool checkpointFinished;
     
     // variables used during the relocate phase
     static bool doneBlockingPages;
@@ -74,6 +76,12 @@ private:
     static pthread_cond_t pagesToRelocateCondition;
     static vector<Page*>* pagesToRelocate;
     static vector<Page*>* pagesToUnblock;
+    
+    // end of cycle variables
+    static int numberOfGCThreadsFinished;
+    static pthread_mutex_t endOfCycleMutex;
+    static pthread_cond_t endOfCycleCond;
+    static bool endBool;
     
     // COLLECTECTING STATISTICS
     static int numberOfCycles;

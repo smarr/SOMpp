@@ -52,14 +52,14 @@ pVMBlock VMBlock::Clone() {
 #elif GC_TYPE==PAUSELESS
 pVMBlock VMBlock::Clone(Interpreter* thread) {
     pVMBlock clone = new (_HEAP, thread, GetAdditionalSpaceConsumption()) VMBlock(*this);
-    clone->IncreaseVersion();
-    /* this->MarkObjectAsInvalid(); */
+    /* clone->IncreaseVersion();
+    this->MarkObjectAsInvalid(); */
     return clone;
 }
 pVMBlock VMBlock::Clone(PauselessCollectorThread* thread) {
     pVMBlock clone = new (_HEAP, thread, GetAdditionalSpaceConsumption()) VMBlock(*this);
-    clone->IncreaseVersion();
-    /* this->MarkObjectAsInvalid(); */
+    /* clone->IncreaseVersion();
+    this->MarkObjectAsInvalid(); */
     return clone;
 }
 #else

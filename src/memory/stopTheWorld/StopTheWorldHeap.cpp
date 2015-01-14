@@ -21,7 +21,7 @@ StopTheWorldHeap::StopTheWorldHeap(long objectSpaceSize, long pageSize) : PagedH
 }
 
 void StopTheWorldHeap::checkCollectionTreshold() {
-    if (availablePages->size() < 4) { //this is for the moment a bit randomly chosen
+    if (availablePages->size() < 10) { //this is for the moment a bit randomly chosen
         triggerGC();
     }
 }
@@ -64,6 +64,7 @@ void StopTheWorldHeap::FullGC() {
         pthread_mutex_unlock(&threadCountMutex);
         // all threads have reached a safe point
         static_cast<StopTheWorldCollector*>(gc)->Collect();
+        gc->AddCycle();
         // signal all the threads that the GC is completed
         pthread_cond_broadcast(&mayProceed);
         pthread_mutex_unlock(&doCollect);

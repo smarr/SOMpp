@@ -62,15 +62,15 @@ pVMClass VMClass::Clone() {
 pVMClass VMClass::Clone(Interpreter* thread) {
     pVMClass clone = new (_HEAP, thread, objectSize - sizeof(VMClass)) VMClass(*this);
     memcpy(SHIFTED_PTR(clone,sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    clone->IncreaseVersion();
-    /* this->MarkObjectAsInvalid(); */
+    /* clone->IncreaseVersion();
+    this->MarkObjectAsInvalid(); */
     return clone;
 }
 pVMClass VMClass::Clone(PauselessCollectorThread* thread) {
     pVMClass clone = new (_HEAP, thread, objectSize - sizeof(VMClass)) VMClass(*this);
     memcpy(SHIFTED_PTR(clone,sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    clone->IncreaseVersion();
-    /* this->MarkObjectAsInvalid(); */
+    /* clone->IncreaseVersion();
+    this->MarkObjectAsInvalid(); */
     return clone;
 }
 #else
@@ -114,7 +114,7 @@ bool VMClass::AddInstanceInvokable(pVMObject ptr) {
     //it's a new invokable so we need to expand the invokables array.
     instanceInvokables = WRITEBARRIER(this->GetInstanceInvokables()->CopyAndExtendWith(ptr));
 #if GC_TYPE==GENERATIONAL
-    _HEAP->WriteBarrier(this, instanceInvokables);
+    _HEAP->WriteBarrier(this, READBARRIER(instanceInvokables));
 #endif
 
     return true;
@@ -138,7 +138,7 @@ pVMSymbol VMClass::GetInstanceFieldName(long index) {
 void VMClass::SetInstanceInvokables(pVMArray invokables) {
     instanceInvokables = WRITEBARRIER(invokables);
 #if GC_TYPE==GENERATIONAL
-    _HEAP->WriteBarrier(this, instanceInvokables);
+    _HEAP->WriteBarrier(this, READBARRIER(instanceInvokables));
 #endif
 
     long numInvokables = GetNumberOfInstanceInvokables();
@@ -331,16 +331,16 @@ void VMClass::CheckMarking(void (*walk)(AbstractVMObject*)) {
 }
 #else
 void VMClass::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    clazz = static_cast<pVMClass>(walk(clazz));
+    clazz = (GCClass*) (walk(READBARRIER(clazz)));
     if (superClass)
-        superClass = static_cast<pVMClass>(walk(superClass));
-    name = static_cast<pVMSymbol>(walk(name));
-    instanceFields = static_cast<pVMArray>(walk(instanceFields));
-    instanceInvokables = static_cast<pVMArray>(walk(instanceInvokables));
+        superClass = (GCClass*) (walk(READBARRIER(superClass)));
+    name = (GCSymbol*) (walk(READBARRIER(name)));
+    instanceFields = (GCArray*) (walk(READBARRIER(instanceFields)));
+    instanceInvokables = (GCArray*) (walk(READBARRIER(instanceInvokables)));
     
-    pVMObject* fields = FIELDS;
+    //pVMObject* fields = FIELDS;
     
     for (long i = VMClassNumberOfFields + 0/*VMObjectNumberOfFields*/; i < numberOfFields; i++)
-        fields[i] = walk(AS_POINTER(fields[i]));
+        FIELDS[i] = (GCAbstractObject*) walk(AS_VM_POINTER(FIELDS[i]));
 }
 #endif

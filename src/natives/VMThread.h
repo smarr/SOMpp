@@ -45,8 +45,8 @@ public:
     virtual void MarkReferences();
     virtual void CheckMarking(void (AbstractVMObject*));
 #else
-    virtual pVMThread Clone();
-    virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
+    //virtual pVMThread Clone();
+    //virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
 #endif
     
 private:

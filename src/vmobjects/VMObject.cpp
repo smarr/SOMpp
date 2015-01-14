@@ -62,8 +62,8 @@ pVMObject VMObject::Clone(Interpreter* thread) {
     //memcpy(&(clone->clazz), &clazz, objectSize - sizeof(VMObject) + sizeof(pVMObject));
     
     clone->hash = (size_t) &clone;
-    clone->IncreaseVersion();
-    /* this->MarkObjectAsInvalid(); */
+    /* clone->IncreaseVersion();
+    this->MarkObjectAsInvalid(); */
     return clone;
 }
 pVMObject VMObject::Clone(PauselessCollectorThread* thread) {
@@ -72,8 +72,8 @@ pVMObject VMObject::Clone(PauselessCollectorThread* thread) {
     //memcpy(&(clone->clazz), &clazz, objectSize - sizeof(VMObject) + sizeof(pVMObject));
     
     clone->hash = (size_t) &clone;
-    clone->IncreaseVersion();
-    /* this->MarkObjectAsInvalid(); */
+    /* clone->IncreaseVersion();
+    this->MarkObjectAsInvalid(); */
     return clone;
 }
 #else
@@ -163,11 +163,11 @@ void VMObject::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     //    int i = 1;
     //}
     
-    clazz = (pVMClass) walk(clazz);
+    clazz = (GCClass*) walk(READBARRIER(clazz));
     
     long numFields = GetNumberOfFields();
     for (long i = 0; i < numFields; ++i) {
-        FIELDS[i] = walk((VMOBJECT_PTR)GetField(i));
+        FIELDS[i] = (GCAbstractObject*) walk((VMOBJECT_PTR)GetField(i));
     }
 }
 #endif
