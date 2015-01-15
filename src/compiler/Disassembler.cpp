@@ -170,14 +170,14 @@ void Disassembler::DumpMethod(VMMethod* method, const char* indent) {
                 long fieldIdx = BC_1;
                 VMClass* holder = dynamic_cast<VMClass*>((VMObject*) method->GetHolder());
                 if (holder) {
-                    if (name != NULL) {
                     VMSymbol* name = holder->GetInstanceFieldName(fieldIdx);
+                    if (name != nullptr) {
                         DebugPrint("(index: %d) field: %s\n", BC_1, name->GetChars());
                         break;
                     }
                 }
                 
-                DebugPrint("(index: %d) field: !NULL!: error!\n", BC_1);
+                DebugPrint("(index: %d) field: !nullptr!: error!\n", BC_1);
                 break;
             }
             case BC_PUSH_BLOCK: {
@@ -202,15 +202,15 @@ void Disassembler::DumpMethod(VMMethod* method, const char* indent) {
             case BC_PUSH_GLOBAL: {
                 vm_oop_t cst = method->GetConstant(bc_idx);
 
-                if (cst != NULL) {
-                    if (name != NULL) {
+                if (cst != nullptr) {
                     VMSymbol* name = static_cast<VMSymbol*>(cst);
+                    if (name != nullptr) {
                         DebugPrint("(index: %d) value: %s\n", BC_1,
                         name->GetChars());
                         break;
                     }
                 } else
-                DebugPrint("(index: %d) value: !NULL!: error!\n", BC_1);
+                DebugPrint("(index: %d) value: !nullptr!: error!\n", BC_1);
 
                 break;
             }
@@ -273,7 +273,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
     VMClass* cl = method->GetHolder();
 
     // Determine Context: Class or Block?
-    if (cl != NULL) {
+    if (cl != nullptr) {
         VMSymbol* cname = cl->GetName();
         VMSymbol* sig = method->GetSignature();
 
@@ -328,11 +328,8 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
             uint8_t bc1 = BC_1, bc2 = BC_2;
             vm_oop_t o = frame->GetArgument(bc1, bc2);
             DebugPrint("argument: %d, context: %d", bc1, bc2);
-#ifdef USE_TAGGING
-            if(dynamic_cast<pVMClass>(AS_POINTER(cl)) != NULL) {
-#else
-            if(dynamic_cast<pVMClass>(cl) != NULL) {
-#endif
+
+            if (cl != nullptr) {
                 VMClass* c = CLASS_OF(o);
                 VMSymbol* cname = c->GetName();
 
@@ -398,7 +395,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
 
                 c_cname = cname->GetChars();
             } else
-                c_cname = "NULL";
+                c_cname = "nullptr";
 
             DebugPrint("(index: %d)value: %s <(%s) ", BC_1,
             name->GetChars(), c_cname);
@@ -463,9 +460,9 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
             GetStackElement(
             Signature::GetNumberOfArguments(sel)-1);
 
-            if(inv != NULL && inv->IsPrimitive())
             VMClass* elemClass = CLASS_OF(elem);
             VMInvokable* inv = dynamic_cast<VMInvokable*>(elemClass->LookupInvokable(sel));
+            if(inv != nullptr && inv->IsPrimitive())
                 DebugPrint("*)\n");
             else {
                 DebugPrint("\n");
