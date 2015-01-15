@@ -54,7 +54,7 @@ class SourcecodeCompiler;
 extern short dumpBytecodes;
 extern short gcVerbosity;
 
-//global VMObjects
+// global VMObjects
 extern GCObject* nilObject;
 extern GCObject* trueObject;
 extern GCObject* falseObject;

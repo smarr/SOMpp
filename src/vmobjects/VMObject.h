@@ -46,7 +46,7 @@
 //class VMClass;
 
 
-//this macro returns a shifted ptr by offset bytes
+// this macro returns a shifted ptr by offset bytes
 #define SHIFTED_PTR(ptr, offset) ((void*)((size_t)(ptr)+(size_t)(offset)))
 
 /* chbol: this table is not correct anymore because of introduction of

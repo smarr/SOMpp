@@ -9,13 +9,10 @@
 //
 
 
-#include "../primitivesCore/PrimitiveContainer.h"
+#include <primitivesCore/PrimitiveContainer.h>
 
-class _Delay : public PrimitiveContainer
-{
-    
+class _Delay : public PrimitiveContainer {
 public:
-    
     _Delay();
     
     /** makes the current thread wait for a certain amount of time */

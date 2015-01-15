@@ -32,7 +32,6 @@
 //
 // error codes
 //
-
 #define ERR_SUCCESS        0x0
 #define ERR_FAIL           0x1
 #define ERR_NOMEM          0x2
@@ -46,6 +45,7 @@
 #define INT32_MIN (-2147483647)
 
 #endif
+
 //
 // defs for classpath extraction
 //
