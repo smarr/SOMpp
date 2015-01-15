@@ -30,18 +30,11 @@ CC			?=clang++
 CFLAGS		=-std=c++11 -Wno-endif-labels -O3 -DNDEBUG $(DBG_FLAGS) $(FEATURE_FLAGS) $(INCLUDES)
 LDFLAGS		=$(DBG_FLAGS) $(LIBRARIES)
 
-SHAREDFLAGS =-fPIC -mmacosx-version-min=10.4 -undefined dynamic_lookup \
-                -dynamiclib -Wl,-single_module -Wl,-Y,1455
-
 INSTALL		=install
 
-CSOM_LIBS	=
-CORE_LIBS	=-lm
+CSOM_LIBS	=-lm
 
 CSOM_NAME	=SOM++
-CORE_NAME	=SOMCore
-PRIMITIVESCORE_NAME  =PrimitiveCore
-SHARED_EXTENSION    =dll
 
 ############ global stuff -- overridden by ../Makefile
 
@@ -95,7 +88,7 @@ MAIN_OBJ		= $(MAIN_SRC:.cpp=.o)
 
 PRIMITIVESCORE_DIR = $(SRC_DIR)/primitivesCore
 PRIMITIVESCORE_SRC = $(wildcard $(PRIMITIVESCORE_DIR)/*.cpp)
-PRIMITIVESCORE_OBJ = $(PRIMITIVESCORE_SRC:.cpp=.pic.o)
+PRIMITIVESCORE_OBJ = $(PRIMITIVESCORE_SRC:.cpp=.o)
 
 ############# primitives location etc.
 
@@ -125,9 +118,7 @@ SOURCES			=  $(COMPILER_SRC) $(INTERPRETER_SRC) $(MEMORY_SRC) \
 ############# Things to clean
 
 CLEAN			= $(OBJECTS) \
-				$(DIST_DIR) $(DEST_DIR) CORE $(CSOM_NAME) \
-				$(CSOM_NAME).$(SHARED_EXTENSION) \
-				$(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION)
+				$(DIST_DIR) $(DEST_DIR) CORE $(CSOM_NAME)
 
 ############# Tools
 
@@ -139,14 +130,12 @@ CLEAN			= $(OBJECTS) \
 #  metarules
 #
 
-.SUFFIXES: .pic.o .fpic.o
-
 .PHONY: clean clobber test
 # some defaults
 TAGGING=false
 #GC_TYPE=generational
 GC_TYPE?=pauseless
-CACHE_INTEGER=true
+CACHE_INTEGER=false
 INT_CACHE_MIN_VALUE=-5
 INT_CACHE_MAX_VALUE=100
 GENERATE_INTEGER_HISTOGRAM=false
@@ -194,14 +183,11 @@ ifeq ($(ADDITIONAL_ALLOCATION),true)
   FEATURE_FLAGS+=-DADDITIONAL_ALLOCATION
 endif
 
-FEATURE_FLAGS+=-DHEAP_SIZE=8388608000
-FEATURE_FLAGS+=-DPAGE_SIZE=32768
+FEATURE_FLAGS+=-DHEAP_SIZE=2013265920
+FEATURE_FLAGS+=-DPAGE_SIZE=131072
 
 
-all: $(CSOM_NAME)\
-	$(CSOM_NAME).$(SHARED_EXTENSION) \
-	$(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION) \
-	CORE
+all: $(CSOM_NAME)
 
 
 debug : DBG_FLAGS=-DDEBUG -O0 -g
@@ -212,9 +198,6 @@ profiling : LDFLAGS+=-pg
 profiling: all
 
 
-.cpp.pic.o:
-	$(CXX) $(CFLAGS) -fPIC -c $< -o $*.pic.o
-
 .cpp.o:
 	$(CXX) $(CFLAGS) -c $< -o $*.o
 
@@ -222,7 +205,6 @@ clean:
 	rm -Rf $(CLEAN)
 	#just to be sure delete again
 	find . -name "*.o" -delete
-	-rm -Rf $(CORE_NAME).csp $(ST_DIR)/$(CORE_NAME).csp
 	-rm -Rf *.so
 
 
@@ -233,36 +215,11 @@ clean:
 # product rules
 #
 
-$(CSOM_NAME): $(CSOM_NAME).$(SHARED_EXTENSION) $(MAIN_OBJ)
-	@echo Linking $(CSOM_NAME) loader
+$(CSOM_NAME): $(CSOM_OBJ) $(MAIN_OBJ) $(PRIMITIVESCORE_OBJ) $(PRIMITIVES_OBJ)
+	@echo Linking $(CSOM_NAME)
 	$(CXX) $(LDFLAGS) \
-		-o $(CSOM_NAME) $(MAIN_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION) -ldl
+		-o $(CSOM_NAME) $(MAIN_OBJ) $(CSOM_OBJ) $(PRIMITIVESCORE_OBJ) $(PRIMITIVES_OBJ) $(CSOM_LIBS)
 	@echo loader done.
-
-$(CSOM_NAME).$(SHARED_EXTENSION): $(CSOM_OBJ)
-	@echo Linking $(CSOM_NAME) Dynamic Library
-	$(CXX) $(LDFLAGS) $(SHAREDFLAGS) \
-		-o $(CSOM_NAME).$(SHARED_EXTENSION) $(CSOM_OBJ) $(CSOM_LIBS)
-	@echo CSOM done.
-
-$(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION): $(CSOM_NAME) $(PRIMITIVESCORE_OBJ)
-	@echo Linking PrimitivesCore lib
-	$(CXX) $(LDFLAGS) $(SHAREDFLAGS) \
-		-o $(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION) \
-		$(PRIMITIVESCORE_OBJ)
-	@touch $(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION)
-	@echo PrimitivesCore done.
-
-CORE: $(CSOM_NAME) $(PRIMITIVESCORE_OBJ) $(PRIMITIVES_OBJ)
-	@echo Linking SOMCore lib
-	$(CXX) $(LDFLAGS)  \
-		$(SHAREDFLAGS) -o $(CORE_NAME).csp \
-		$(PRIMITIVES_OBJ) \
-		$(PRIMITIVESCORE_OBJ) \
-		$(CORE_LIBS)
-	mv $(CORE_NAME).csp $(ST_DIR)
-	@touch CORE
-	@echo SOMCore done.
 
 install: all
 	@echo installing CSOM into build
