@@ -72,4 +72,6 @@ typedef unsigned char uint8_t;
 typedef char int8_t;
 #endif
 
+#define FORCE_INLINE __attribute__ ((always_inline)) inline
+
 #endif

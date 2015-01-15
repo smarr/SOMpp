@@ -127,21 +127,6 @@ std::map<std::string, struct alloc_data> allocationStats;
 
 map<long, long> integerHist;
 
-//Singleton accessor
-Universe* Universe::GetUniverse() {
-    if (!theUniverse) {
-        ErrorExit("Trying to access uninitialized Universe, exiting.");
-    }
-    return theUniverse;
-}
-
-Universe* Universe::operator->() {
-    if (!theUniverse) {
-        ErrorExit("Trying to access uninitialized Universe, exiting.");
-    }
-    return theUniverse;
-}
-
 void Universe::Start(long argc, char** argv) {
     theUniverse = new Universe();
     theUniverse->initialize(argc, argv);

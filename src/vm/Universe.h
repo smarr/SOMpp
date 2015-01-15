@@ -49,7 +49,7 @@ class Interpreter;
 class SourcecodeCompiler;
 
 //Convenience macro for Singleton access
-#define _UNIVERSE Universe::GetUniverse()
+#define _UNIVERSE GetUniverse()
 
 //Convenience macro to get access to an interpreters memory page
 #define _PAGE _UNIVERSE->GetInterpreter()->GetPage()
@@ -92,10 +92,7 @@ extern GCClass* signalClass;
 using namespace std;
 class Universe {
 public:
-    Universe* operator->();
-
     //static methods
-    static Universe* GetUniverse();
     static void Start(long argc, char** argv);
     static void Quit(long);
     static void ErrorExit(const char*);
@@ -198,6 +195,7 @@ private:
     vector<StdString> handleArguments(long argc, char** argv);
     long getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;
 
+    friend Universe* GetUniverse();
     static Universe* theUniverse;
 
     long setupClassPath(const StdString& cp);
@@ -213,5 +211,16 @@ private:
     map<long, GCClass*> blockClassesByNoOfArgs;
     vector<StdString> classPath;
 };
+
+
+//Singleton accessor
+inline Universe* GetUniverse() __attribute__ ((always_inline));
+Universe* GetUniverse() {
+    /*if (DEBUG && !Universe::theUniverse) {
+        Universe::ErrorExit("Trying to access uninitialized Universe, exiting.");
+    }*/
+    return Universe::theUniverse;
+}
+
 
 #endif
