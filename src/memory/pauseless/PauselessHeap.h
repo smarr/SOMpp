@@ -125,12 +125,13 @@ inline typename T::Loaded* ReadBarrier(T** referenceHolder, bool rootSetMarking 
 } */
 
 template<typename T>
-inline typename T::Loaded* ReadBarrier(T** referenceHolder, bool rootSetMarking = false) {
+__attribute__((always_inline)) inline typename T::Loaded* ReadBarrier(T** referenceHolder, bool rootSetMarking = false) {
     typename T::Loaded* reference;
     while (true) {
         T* foo = *referenceHolder;
         if (foo == nullptr)
             return (typename T::Loaded*)nullptr;
+        
         Interpreter* interpreter = _UNIVERSE->GetInterpreter();
         bool correctNMT = (REFERENCE_NMT_VALUE(foo) == interpreter->GetExpectedNMT());
         reference = Untag(foo);
@@ -173,7 +174,7 @@ inline typename T::Loaded* ReadBarrier(T** referenceHolder, bool rootSetMarking 
 }
 
 template<typename T>
-inline typename T::Loaded* ReadBarrierForGCThread(T** referenceHolder, bool rootSetMarking = false) {
+__attribute__((always_inline)) inline typename T::Loaded* ReadBarrierForGCThread(T** referenceHolder, bool rootSetMarking = false) {
     typename T::Loaded* reference;
     while (true) {
         T* foo = *referenceHolder;
