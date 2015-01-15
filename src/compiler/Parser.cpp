@@ -830,8 +830,6 @@ StdString Parser::_string(void) {
 }
 
 void Parser::nestedBlock(MethodGenerationContext* mgenc) {
-#define BLOCK_METHOD_S "$block method"
-#define BLOCK_METHOD_LEN (13)
     mgenc->AddArgumentIfAbsent("$block self");
 
     expect(NewBlock);
@@ -839,7 +837,7 @@ void Parser::nestedBlock(MethodGenerationContext* mgenc) {
         blockPattern(mgenc);
 
     // generate Block signature
-    StdString block_sig = StdString(BLOCK_METHOD_S);
+    StdString block_sig = "$blockMethod@" + to_string(lexer->GetCurrentLineNumber());
     size_t arg_size = mgenc->GetNumberOfArguments();
     for (size_t i = 1; i < arg_size; i++)
         block_sig += ":";
