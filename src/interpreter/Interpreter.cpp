@@ -88,7 +88,7 @@ Interpreter::Interpreter() : BaseThread() {
 //}
 
 #define PROLOGUE(bc_count) {\
-  if (dumpBytecodes > 1) Disassembler::DumpBytecode(_FRAME, _FRAME->GetMethod(), bytecodeIndexGlobal);\
+  if (dumpBytecodes > 1) Disassembler::DumpBytecode(GetFrame(), GetFrame()->GetMethod(), bytecodeIndexGlobal);\
   bytecodeIndexGlobal += bc_count;\
 }
 
@@ -105,7 +105,7 @@ Interpreter::Interpreter() : BaseThread() {
     if (signalEnableGCTrap)\
         EnableGCTrap();\
     if (_HEAP->IsPauseTriggered()) { \
-        _FRAME->SetBytecodeIndex(bytecodeIndexGlobal); \
+        GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal); \
         _HEAP->Pause(); \
         /* method = _FRAME->GetMethod(); */ \
         /* currentBytecodes = method->GetBytecodes(); */ \
@@ -115,7 +115,7 @@ Interpreter::Interpreter() : BaseThread() {
 #else
 #define DISPATCH_GC() {\
   if (_HEAP->isCollectionTriggered()) {\
-    _FRAME->SetBytecodeIndex(bytecodeIndexGlobal);\
+    GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);\
     _HEAP->FullGC();\
     /* method = _FRAME->GetMethod();*/ \
     /* currentBytecodes = method->GetBytecodes(); */ \
@@ -261,12 +261,12 @@ VMFrame* Interpreter::PushNewFrame(VMMethod* method) {
     return GetFrame();
 }
 
-    if (READBARRIER(this->frame) != NULL)
 void Interpreter::SetFrame(VMFrame* frame) {
+    if (READBARRIER(this->frame) != nullptr) {
         READBARRIER(this->frame)->SetBytecodeIndex(bytecodeIndexGlobal);
+    }
 
     this->frame = WRITEBARRIER(frame);
-    
 
     // update cached values
     // method              = WRITEBARRIER(frame->GetMethod());
@@ -283,9 +283,9 @@ vm_oop_t Interpreter::GetSelf() {
     return context->GetArgument(0, 0);
 }
 
-    this->SetFrame(_FRAME->GetPreviousFrame());
 VMFrame* Interpreter::popFrame() {
     VMFrame* result = GetFrame();
+    SetFrame(GetFrame()->GetPreviousFrame());
 
     result->ClearPreviousFrame();
 
@@ -305,9 +305,9 @@ void Interpreter::popFrameAndPushResult(vm_oop_t result) {
     VMMethod* method = prevFrame->GetMethod();
     long numberOfArgs = method->GetNumberOfArguments();
 
-    for (long i = 0; i < numberOfArgs; ++i) _FRAME->Pop();
+    for (long i = 0; i < numberOfArgs; ++i) GetFrame()->Pop();
 
-    _FRAME->Push(result);
+    GetFrame()->Push(result);
 }
 
 void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
@@ -326,9 +326,9 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
 #endif
         // since an invokable is able to change/use the frame, we have to write
         // cached values before, and read cached values after calling
-        _FRAME->SetBytecodeIndex(bytecodeIndexGlobal);
-        (*invokable)(_FRAME);
-        bytecodeIndexGlobal = _FRAME->GetBytecodeIndex();
+        GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
+        (*invokable)(GetFrame());
+        bytecodeIndexGlobal = GetFrame()->GetBytecodeIndex();
     } else {
         //doesNotUnderstand
         long numberOfArgs = Signature::GetNumberOfArguments(signature);
@@ -363,28 +363,28 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
 }
 
 void Interpreter::doDup() {
-    _FRAME->Push(elem);
     vm_oop_t elem = GetFrame()->GetStackElement(0);
+    GetFrame()->Push(elem);
 }
 
 void Interpreter::doPushLocal(long bytecodeIndex) {
-    uint8_t bc1 = this->GetMethod()->GetBytecode(bytecodeIndex + 1);
-    uint8_t bc2 = this->GetMethod()->GetBytecode(bytecodeIndex + 2);
     //VMMethod* method = this->GetMethod();
+    uint8_t bc1 = GetMethod()->GetBytecode(bytecodeIndex + 1);
+    uint8_t bc2 = GetMethod()->GetBytecode(bytecodeIndex + 2);
 
     vm_oop_t local = GetFrame()->GetLocal(bc1, bc2);
 
-    _FRAME->Push(local);
+    GetFrame()->Push(local);
 }
 
 void Interpreter::doPushArgument(long bytecodeIndex) {
-    uint8_t bc1 = this->GetMethod()->GetBytecode(bytecodeIndex + 1);
-    uint8_t bc2 = this->GetMethod()->GetBytecode(bytecodeIndex + 2);
     //VMMethod* method = this->GetMethod();
+    uint8_t bc1 = GetMethod()->GetBytecode(bytecodeIndex + 1);
+    uint8_t bc2 = GetMethod()->GetBytecode(bytecodeIndex + 2);
 
     vm_oop_t argument = GetFrame()->GetArgument(bc1, bc2);
 
-    _FRAME->Push(argument);
+    GetFrame()->Push(argument);
 }
 
 void Interpreter::doPushField(long bytecodeIndex) {
@@ -402,7 +402,7 @@ void Interpreter::doPushField(long bytecodeIndex) {
     o = static_cast<VMObject*>(self)->GetField(fieldIndex);
 #endif
 
-    _FRAME->Push(o);
+    GetFrame()->Push(o);
 }
 
 void Interpreter::doPushBlock(long bytecodeIndex) {
