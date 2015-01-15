@@ -43,6 +43,20 @@ class VMThread;
 
 class Page;
 
+class SpinLock {
+public:
+    void lock() {
+        while(lck.test_and_set(std::memory_order_acquire)) {}
+    }
+    
+    void unlock() {
+        lck.clear(std::memory_order_release);
+    }
+    
+private:
+    std::atomic_flag lck = ATOMIC_FLAG_INIT;
+};
+
 class Interpreter : public BaseThread {
 public:
     
@@ -146,7 +160,7 @@ private:
 
     pthread_mutex_t blockedMutex;
     
-    pthread_mutex_t prevent;
+    SpinLock prevent;
 #endif
     
     

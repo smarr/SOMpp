@@ -75,10 +75,6 @@ Interpreter::Interpreter(bool expectedNMT, bool gcTrapEnabled) : BaseThread(expe
     fullPages = vector<Page*>();
     nonRelocatablePages = vector<Page*>();
     pthread_mutex_init(&blockedMutex, nullptr);
-    
-    
-    pthread_mutex_init(&prevent, nullptr);
-    
 }
 #else
 Interpreter::Interpreter() : BaseThread() {
@@ -737,9 +733,9 @@ void Interpreter::EnableGCTrap() {
 
 // Switch the GC-trap off again, this does not require a safepoint pass
 void Interpreter::DisableGCTrap() {
-    pthread_mutex_lock(&prevent);
+    prevent.lock();
     gcTrapEnabled = false;
-    pthread_mutex_unlock(&prevent);
+    prevent.unlock();
 }
 
 // used when interpreter is in the process of going into a blocked state
@@ -784,9 +780,9 @@ bool Interpreter::GCTrapEnabled() {
 
 //new --->
 bool Interpreter::TriggerGCTrap(Page* page) {
-    pthread_mutex_lock(&prevent);
+    prevent.lock();
     bool result = gcTrapEnabled && page->Blocked();
-    pthread_mutex_unlock(&prevent);
+    prevent.unlock();
     return result;
 }
 // <-----
