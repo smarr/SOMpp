@@ -46,7 +46,7 @@ public:
     int8_t FindLiteralIndex(vm_oop_t lit);
     bool FindVar(const StdString& var, size_t* index,
             int* context, bool* isArgument);
-    bool HasField(const StdString& field);
+    bool HasField(VMSymbol* field);
     uint8_t ComputeStackDepth();
     
     uint8_t GetFieldIndex(VMSymbol* field);
