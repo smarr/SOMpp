@@ -1,3 +1,4 @@
+#pragma once
 //
 //  VMThread.h
 //  SOM
@@ -5,9 +6,6 @@
 //  Created by Jeroen De Geeter on 5/03/14.
 //
 //
-
-#ifndef SOM_VMThread_h
-#define SOM_VMThread_h
 
 #include "VMSignal.h"
 #include "../vmObjects/ObjectFormats.h"
@@ -61,5 +59,3 @@ private:
     static const int VMThreadNumberOfFields;
     
 };
-
-#endif

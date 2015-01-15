@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef DEBUG_H_
-#define DEBUG_H_
-
 /*
  *
  *
@@ -96,5 +93,3 @@ void sync_out(std::ostringstream);
 
 #undef FprintfPass
 #undef DebugPass 
-
-#endif // DEBUG_H_

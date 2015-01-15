@@ -1,6 +1,4 @@
 #pragma once
-#ifndef ROUTINE_H_
-#define ROUTINE_H_
 
 /*
  *
@@ -52,8 +50,6 @@ public:
     // override operator "()"
     virtual void operator()(pVMObject obj, pVMFrame frm) {
         (*pt2Object.*fpt)(obj, frm);  // execute member function
-        };
-
     };
 
-#endif
+};

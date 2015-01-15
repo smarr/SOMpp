@@ -1,3 +1,5 @@
+#pragma once
+
 //
 //  Delay.h
 //  SOM
@@ -6,8 +8,6 @@
 //
 //
 
-#ifndef SOM_Delay_h
-#define SOM_Delay_h
 
 #include "../primitivesCore/PrimitiveContainer.h"
 
@@ -22,5 +22,3 @@ public:
     void Wait(pVMObject object, pVMFrame frame);
     
 };
-
-#endif

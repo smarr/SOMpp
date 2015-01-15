@@ -1,6 +1,4 @@
 #pragma once
-#ifndef GARBAGECOLLECTOR_H_
-#define GARBAGECOLLECTOR_H_
 
 /*
  *
@@ -45,5 +43,3 @@ protected:
     PagedHeap* heap;
     int numberOfCycles;
 };
-
-#endif

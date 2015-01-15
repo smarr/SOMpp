@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef CORE_SYSTEM_H_
-#define CORE_SYSTEM_H_
-
 /*
  *
  *
@@ -55,6 +52,3 @@ private:
     struct timeval start_time;
     pthread_mutex_t outputMutex;
 };
-
-#endif
-

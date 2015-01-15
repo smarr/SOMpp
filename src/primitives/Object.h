@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef CORE_OBJECT_H_
-#define CORE_OBJECT_H_
-
 /*
  *
  *

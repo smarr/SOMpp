@@ -1,6 +1,4 @@
 #pragma once
-#ifndef SOURCECODECOMPILER_H_
-#define SOURCECODECOMPILER_H_
 
 /*
  *
@@ -48,5 +46,3 @@ private:
     pVMClass compile(pVMClass systemClass);
     Parser* parser;
 };
-
-#endif

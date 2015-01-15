@@ -1,6 +1,4 @@
 #pragma once
-#ifndef TIMER_H
-#define TIMER_H
 
 #include <time.h>
 #include <stdint.h>
@@ -17,7 +15,7 @@ static int64_t get_microseconds() {
 #else
     // this is for OSX, might work on other platforms
     struct timeval now;
-    gettimeofday(&now, NULL);
+    gettimeofday(&now, nullptr);
 
     return (now.tv_sec * 1000 * 1000) +  // seconds
             now.tv_usec;                 // microseconds
@@ -44,5 +42,3 @@ public:
     }
 
 };
-
-#endif

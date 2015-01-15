@@ -1,6 +1,4 @@
 #pragma once
-#ifndef VMSYMBOL_H_
-#define VMSYMBOL_H_
 
 /*
  *
@@ -90,4 +88,3 @@ private:
 //#endif
 //}
 
-#endif

@@ -1,6 +1,4 @@
 #pragma once
-#ifndef UNIVERSE_H_
-#define UNIVERSE_H_
 
 /*
  *
@@ -221,6 +219,3 @@ Universe* GetUniverse() {
     }*/
     return Universe::theUniverse;
 }
-
-
-#endif

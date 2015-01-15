@@ -1,6 +1,4 @@
 #pragma once
-#ifndef VMINTEGER_H_
-#define VMINTEGER_H_
 
 /*
  *
@@ -65,5 +63,3 @@ size_t VMInteger::GetObjectSize() const {
     //no need to pad -> sizeof returns padded size anyway
     return sizeof(VMInteger);
 }
-
-#endif

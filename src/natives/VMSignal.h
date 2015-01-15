@@ -1,3 +1,4 @@
+#pragma once
 //
 //  VMSignal.h
 //  SOM
@@ -5,9 +6,6 @@
 //  Created by Jeroen De Geeter on 5/03/14.
 //
 //
-
-#ifndef SOM_VMSignal_h
-#define SOM_VMSignal_h
 
 #include "VMMutex.h"
 
@@ -41,5 +39,3 @@ private:
     static const int VMSignalNumberOfFields;
     
 };
-
-#endif

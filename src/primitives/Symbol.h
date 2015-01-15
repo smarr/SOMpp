@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef CORE_SYMBOL_H_
-#define CORE_SYMBOL_H_
-
 /*
  *
  *
@@ -38,6 +35,3 @@ public:
     _Symbol();
     void AsString(pVMObject object, pVMFrame frame);
 };
-
-#endif
-

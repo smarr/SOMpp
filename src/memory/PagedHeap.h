@@ -1,6 +1,4 @@
 #pragma once
-#ifndef PAGEDHEAP_H_
-#define PAGEDHEAP_H_
 
 /*
  *
@@ -116,4 +114,3 @@ private:
 void PagedHeap::FreeObject(AbstractVMObject* obj) {
     free(obj);
 }
-#endif

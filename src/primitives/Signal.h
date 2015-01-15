@@ -1,3 +1,4 @@
+#pragma once
 //
 //  Signal.h
 //  SOM
@@ -5,9 +6,6 @@
 //  Created by Jeroen De Geeter on 9/11/13.
 //
 //
-
-#ifndef SOM_Signal_h
-#define SOM_Signal_h
 
 #include "../primitivesCore/PrimitiveContainer.h"
 
@@ -29,5 +27,3 @@ public:
     void New(pVMObject object, pVMFrame frame);
     
 };
-
-#endif

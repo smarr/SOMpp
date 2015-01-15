@@ -1,6 +1,4 @@
 #pragma once
-#ifndef VMDOUBLE_H_
-#define VMDOUBLE_H_
 
 /*
  *
@@ -66,5 +64,3 @@ double VMDouble::GetEmbeddedDouble() const {
 size_t VMDouble::GetObjectSize() const {
     return sizeof(VMDouble);
 }
-
-#endif

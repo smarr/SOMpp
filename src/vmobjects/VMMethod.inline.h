@@ -1,6 +1,5 @@
 #pragma once
 
-
 inline long VMMethod::GetNumberOfLocals() {
 #ifdef USE_TAGGING
     return UNTAG_INTEGER(numberOfLocals);

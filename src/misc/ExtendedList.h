@@ -1,6 +1,4 @@
 #pragma once
-#ifndef EXTENDEDLIST_H_
-#define EXTENDEDLIST_H_
 
 /*
  *
@@ -117,5 +115,3 @@ template<class T>
 void ExtendedList<T>::PushBack(const T& ptr) {
     theList.push_back(ptr);
 }
-
-#endif

@@ -1,6 +1,4 @@
 #pragma once
-#ifndef VMINVOKABLE_H_
-#define VMINVOKABLE_H_
 
 /*
  *
@@ -61,5 +59,3 @@ protected:
     GCSymbol* signature;
     GCClass*  holder;
 };
-
-#endif

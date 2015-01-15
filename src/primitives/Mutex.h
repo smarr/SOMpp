@@ -1,3 +1,4 @@
+#pragma once
 //
 //  Mutex.h
 //  SOM
@@ -5,9 +6,6 @@
 //  Created by Jeroen De Geeter on 10/11/13.
 //
 //
-
-#ifndef SOM_Mutex_h
-#define SOM_Mutex_h
 
 class VMObject;
 class VMFrame;
@@ -32,5 +30,3 @@ public:
     void New(pVMObject object, pVMFrame frame);
     
 };
-
-#endif

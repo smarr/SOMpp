@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef CORE_ARRAY_H_
-#define CORE_ARRAY_H_
-
 /*
  *
  *
@@ -42,6 +39,3 @@ public:
     void At_Put_(pVMObject object, pVMFrame frame);
     void Length(pVMObject object, pVMFrame frame);
 };
-
-#endif
-

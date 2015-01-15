@@ -1,6 +1,4 @@
 #pragma once
-#ifndef VMARRAY_H_
-#define VMARRAY_H_
 
 /*
  *
@@ -72,5 +70,3 @@ long VMArray::GetNumberOfIndexableFields() const {
     }*/
     return numIndexableFields;
 }
-
-#endif

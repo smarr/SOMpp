@@ -1,6 +1,4 @@
 #pragma once
-#ifndef VMPRIMITVE_H_
-#define VMPRIMITVE_H_
 
 /*
  *
@@ -81,5 +79,3 @@ bool VMPrimitive::IsEmpty() const {
 void VMPrimitive::SetRoutine(PrimitiveRoutine* rtn) {
     routine = rtn;
 }
-
-#endif

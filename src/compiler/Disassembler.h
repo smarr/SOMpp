@@ -1,6 +1,4 @@
 #pragma once
-#ifndef DISASSEMBELR_H_
-#define DISASSEMBELR_H_
 
 /*
  *
@@ -40,6 +38,3 @@ public:
 private:
     static void dispatch(pVMObject o);
 };
-
-#endif
-

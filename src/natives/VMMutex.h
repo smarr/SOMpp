@@ -1,3 +1,5 @@
+#pragma once
+
 //
 //  VMMutex.h
 //  SOM
@@ -5,9 +7,6 @@
 //  Created by Jeroen De Geeter on 5/03/14.
 //
 //
-
-#ifndef SOM_VMMutex_h
-#define SOM_VMMutex_h
 
 #include <pthread.h>
 #include <vmobjects/VMObject.h>
@@ -41,5 +40,3 @@ private:
     static const int VMMutexNumberOfFields;
     
 };
-
-#endif

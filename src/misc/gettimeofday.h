@@ -1,6 +1,4 @@
 #pragma once
-#ifndef TIMEHELPER_H_
-#define TIMEHELPER_H_
 
 /*
  *
@@ -75,5 +73,3 @@ int gettimeofday(struct timeval *tv, struct timezone *tz) {
 
     return 0;
 }
-
-#endif

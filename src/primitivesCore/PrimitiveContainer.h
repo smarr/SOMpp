@@ -1,6 +1,4 @@
 #pragma once
-#ifndef PRIMITIVECONTAINER_H_
-#define PRIMITIVECONTAINER_H_
 
 /*
  *
@@ -56,5 +54,3 @@ public:
 private:
     std::map<std::string, PrimitiveRoutine*>* methods;
 };
-
-#endif

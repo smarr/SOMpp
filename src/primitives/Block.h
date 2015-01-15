@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef CORE_BLOCK_H_
-#define CORE_BLOCK_H_
-
 /*
  *
  *
@@ -52,5 +49,3 @@ private:
     static void* ThreadForBlockWithArgument(void*);
     
 };
-
-#endif

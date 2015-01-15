@@ -1,3 +1,5 @@
+#pragma once
+
 //
 //  Thread.h
 //  SOM
@@ -5,9 +7,6 @@
 //  Created by Jeroen De Geeter on 31/10/13.
 //
 //
-
-#ifndef SOM_Thread_h
-#define SOM_Thread_h
 
 #include "../primitivesCore/PrimitiveContainer.h"
 
@@ -31,5 +30,3 @@ public:
     void Current(pVMObject object, pVMFrame frame);
 
 };
-
-#endif

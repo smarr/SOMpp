@@ -1,6 +1,4 @@
 #pragma once
-#ifndef VMMETHOD_H_
-#define VMMETHOD_H_
 
 /*
  *
@@ -110,5 +108,3 @@ private:
     uint8_t* bytecodes;
     static const long VMMethodNumberOfFields;
 };
-
-#endif

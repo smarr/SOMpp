@@ -1,6 +1,4 @@
 #pragma once
-#ifndef PRIMITIVEROUTINE_H_
-#define PRIMITIVEROUTINE_H_
 
 /*
  *
@@ -38,6 +36,3 @@ public:
 
     virtual void operator()(pVMObject, pVMFrame) = 0;  // call using operator
 };
-
-
-#endif

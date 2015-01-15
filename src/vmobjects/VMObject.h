@@ -1,6 +1,4 @@
 #pragma once
-#ifndef VMOBJECT_H_
-#define VMOBJECT_H_
 
 #include <assert.h>
 
@@ -177,5 +175,3 @@ pVMClass VMObject::GetClass() {
 long VMObject::GetNumberOfFields() const {
     return this->numberOfFields;
 }
-
-#endif

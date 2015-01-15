@@ -1,6 +1,4 @@
 #pragma once
-#ifndef BASETHREAD_H_
-#define BASETHREAD_H_
 
 #include "../misc/defs.h"
 
@@ -38,5 +36,3 @@ protected:
 #endif
     
 };
-
-#endif

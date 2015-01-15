@@ -1,5 +1,4 @@
-#ifndef CORE_METHOD_H_
-#define CORE_METHOD_H_
+#pragma once
 
 class VMObject;
 class VMFrame;
@@ -13,5 +12,3 @@ public:
     void Signature(pVMObject object, pVMFrame frame);
     void Holder   (pVMObject object, pVMFrame frame);
 };
-
-#endif /* defined(CORE_METHOD_H_) */

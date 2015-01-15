@@ -1,6 +1,4 @@
 #pragma once
-#ifndef DEFS_H_
-#define DEFS_H_
 
 /*
  *
@@ -74,4 +72,3 @@ typedef char int8_t;
 
 #define FORCE_INLINE __attribute__ ((always_inline)) inline
 
-#endif

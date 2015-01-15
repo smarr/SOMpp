@@ -1,6 +1,4 @@
 #pragma once
-#ifndef CLASSGENERATIONCONTEXT_H_
-#define CLASSGENERATIONCONTEXT_H_
 
 /*
  *
@@ -73,5 +71,3 @@ private:
     ExtendedList<pVMObject> classMethods;
 
 };
-
-#endif

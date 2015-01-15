@@ -1,6 +1,4 @@
 #pragma once
-#ifndef VMBLOCK_H_
-#define VMBLOCK_H_
 
 /*
  *
@@ -60,5 +58,3 @@ private:
 
     static const int VMBlockNumberOfFields;
 };
-
-#endif

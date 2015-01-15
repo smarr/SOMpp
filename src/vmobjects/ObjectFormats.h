@@ -1,6 +1,4 @@
 #pragma once
-#ifndef OBJECTFORMATS_H_
-#define OBJECTFORMATS_H_
 
 /*
  *
@@ -127,5 +125,3 @@ class GCThread    : public GCObject      { public: typedef VMThread Loaded; };
 // Used to mark object fields as invalid
 #define INVALID_VM_POINTER ((pVMObject)0x101010)
 #define INVALID_GC_POINTER ((GCObject*)0x101010)
-
-#endif // OBJECTFORMATS_H_

@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef CORE_INTEGER_H_
-#define CORE_INTEGER_H_
-
 /*
  *
  *
@@ -67,5 +64,3 @@ private:
             pVMDouble right);
 
 };
-
-#endif
