@@ -40,10 +40,10 @@ MethodGenerationContext::MethodGenerationContext() {
     //signature = 0;
     holderGenc = 0;
     outerGenc = 0;
-    this->arguments.Clear();
-    this->literals.Clear();
-    this->locals.Clear();
-    this->bytecode.clear();
+    arguments.Clear();
+    literals.Clear();
+    locals.Clear();
+    bytecode.clear();
     primitive = false;
     blockMethod = false;
     finished = false;
@@ -55,16 +55,16 @@ VMInvokable* MethodGenerationContext::Assemble(bool classSide) {
     }
     
     // create a method instance with the given number of bytecodes and literals
-    size_t numLiterals = this->literals.Size();
+    size_t numLiterals = literals.Size();
 
     VMMethod* meth = GetUniverse()->NewMethod(signature, bytecode.size(),
             numLiterals);
 
     // populate the fields that are immediately available
-    size_t numLocals = this->locals.Size();
+    size_t numLocals = locals.Size();
     meth->SetNumberOfLocals(numLocals);
 
-    meth->SetMaximumNumberOfStackElements(this->ComputeStackDepth());
+    meth->SetMaximumNumberOfStackElements(ComputeStackDepth());
 
     // copy literals into the method
     for (int i = 0; i < numLiterals; i++) {
