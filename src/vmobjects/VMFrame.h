@@ -103,7 +103,7 @@ vm_oop_t VMFrame::GetField(long index) {
 #ifdef USE_TAGGING
     return TAG_INTEGER(bytecodeIndex);
 #else
-    return _UNIVERSE->NewInteger(bytecodeIndex);
+    return GetUniverse()->NewInteger(bytecodeIndex);
 #endif
     return VMObject::GetField(index);
 }
