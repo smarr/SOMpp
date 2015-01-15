@@ -65,7 +65,6 @@ extern GCClass* metaClassClass;
 
 extern GCClass* nilClass;
 extern GCClass* integerClass;
-extern GCClass* bigIntegerClass;
 extern GCClass* arrayClass;
 extern GCClass* methodClass;
 extern GCClass* symbolClass;
@@ -118,7 +117,6 @@ public:
     VMSymbol* SymbolForChars(const char*);
 
     //VMObject instanciation methods. These should probably be refactored to a new class
-    pVMBigInteger NewBigInteger(int64_t) const;
     VMArray* NewArray(long) const;
     VMArray* NewArrayList(ExtendedList<VMObject*>& list) const;
     VMArray* NewArrayList(ExtendedList<VMSymbol*>& list) const;

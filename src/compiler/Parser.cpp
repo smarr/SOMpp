@@ -31,7 +31,6 @@
 #include <vmobjects/VMMethod.h>
 #include <vmobjects/VMPrimitive.h>
 #include <vmobjects/VMObject.h>
-#include <vmobjects/VMBigInteger.h>
 #include <vmobjects/VMSymbol.h>
 #include <vmobjects/VMClass.h>
 

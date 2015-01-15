@@ -57,7 +57,6 @@ class VMClass;
 class VMArray;
 class VMBlock;
 class VMDouble;
-class VMBigInteger;
 class VMInteger;
 class VMEvaluationPrimitive;
 class VMInvokable;
@@ -86,7 +85,6 @@ class GCFrame  : public GCObject         { public: typedef VMFrame  Loaded; };
 class GCClass  : public GCObject         { public: typedef VMClass  Loaded; };
 class GCArray  : public GCObject         { public: typedef VMArray  Loaded; };
 class GCBlock  : public GCObject         { public: typedef VMBlock  Loaded; };
-class GCBigInteger : public GCAbstractObject { public: typedef VMBigInteger Loaded; };
 class GCDouble : public GCAbstractObject { public: typedef VMDouble Loaded; };
 class GCInteger : public GCAbstractObject { public: typedef VMInteger Loaded; };
 class GCInvokable : public GCObject      { public: typedef VMInvokable Loaded; };
@@ -103,7 +101,6 @@ class GCThread    : public GCObject      { public: typedef VMThread Loaded; };
 #define pVMMutex VMMutex*
 #define pVMSignal VMSignal*
 #define pVMArray VMArray*
-#define pVMBigInteger VMBigInteger*
 #define pVMBlock VMBlock*
 #define pVMClass VMClass*
 #define pVMDouble VMDouble*
