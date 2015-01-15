@@ -130,7 +130,7 @@ void Disassembler::Dump(VMClass* cl) {
 /**
  * Dump all Bytecode of a method.
  */
-void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
+void Disassembler::DumpMethod(VMMethod* method, const char* indent) {
     DebugPrint("(\n");
     {   // output stack information
         long locals = method->GetNumberOfLocals();

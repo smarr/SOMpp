@@ -72,7 +72,7 @@ bool ClassGenerationContext::HasField(const StdString& field) {
     }
 }
 
-int16_t ClassGenerationContext::GetFieldIndex(pVMSymbol field) {
+int16_t ClassGenerationContext::GetFieldIndex(VMSymbol* field) {
     if (IsClassSide()) {
         return classFields.IndexOf(field);
     } else {
@@ -80,12 +80,12 @@ int16_t ClassGenerationContext::GetFieldIndex(pVMSymbol field) {
     }
 }
 
-void ClassGenerationContext::AddInstanceMethod(pVMObject method) {
-    this->instanceMethods.Add(method);
+void ClassGenerationContext::AddInstanceMethod(VMInvokable* method) {
+    instanceMethods.Add(method);
 }
 
-void ClassGenerationContext::AddClassMethod(pVMObject method) {
-    this->classMethods.Add(method);
+void ClassGenerationContext::AddClassMethod(VMInvokable* method) {
+    classMethods.Add(method);
 }
 
 VMClass* ClassGenerationContext::Assemble() {
@@ -93,38 +93,38 @@ VMClass* ClassGenerationContext::Assemble() {
     StdString ccname = string(name->GetStdString()) + " class";
 
     // Load the super class
-    pVMClass superClass = _UNIVERSE->LoadClass(superName);
+    VMClass* superClass = GetUniverse()->LoadClass(superName);
 
     // Allocate the class of the resulting class
-    pVMClass resultClass = _UNIVERSE->NewClass(READBARRIER(metaClassClass));
+    VMClass* resultClass = GetUniverse()->NewClass(READBARRIER(metaClassClass));
 
     // Initialize the class of the resulting class
-    resultClass->SetInstanceFields(_UNIVERSE->NewArrayList(classFields));
-    resultClass->SetInstanceInvokables(_UNIVERSE->NewArrayList(classMethods));
-    resultClass->SetName(_UNIVERSE->SymbolFor(ccname));
+    resultClass->SetInstanceFields(GetUniverse()->NewArrayList(classFields));
+    resultClass->SetInstanceInvokables(GetUniverse()->NewArrayList(classMethods));
+    resultClass->SetName(GetUniverse()->SymbolFor(ccname));
 
     VMClass* superMClass = superClass->GetClass();
     resultClass->SetSuperClass(superMClass);
 
     // Allocate the resulting class
-    pVMClass result = _UNIVERSE->NewClass(resultClass);
+    VMClass* result = GetUniverse()->NewClass(resultClass);
 
     // Initialize the resulting class
-    result->SetInstanceFields(_UNIVERSE->NewArrayList(instanceFields));
-    result->SetInstanceInvokables(_UNIVERSE->NewArrayList(instanceMethods));
-    result->SetName(this->name);
+    result->SetInstanceFields(GetUniverse()->NewArrayList(instanceFields));
+    result->SetInstanceInvokables(GetUniverse()->NewArrayList(instanceMethods));
+    result->SetName(name);
     result->SetSuperClass(superClass);
 
     return result;
 }
 
-void ClassGenerationContext::AssembleSystemClass( pVMClass systemClass ) {
-    systemClass->SetInstanceInvokables(_UNIVERSE->NewArrayList
+void ClassGenerationContext::AssembleSystemClass(VMClass* systemClass) {
+    systemClass->SetInstanceInvokables(GetUniverse()->NewArrayList
     (instanceMethods));
-    systemClass->SetInstanceFields(_UNIVERSE->NewArrayList(instanceFields));
+    systemClass->SetInstanceFields(GetUniverse()->NewArrayList(instanceFields));
     // class-bound == class-instance-bound 
-        pVMClass superMClass = systemClass->GetClass();
-        superMClass->SetInstanceInvokables(_UNIVERSE->NewArrayList(classMethods));
-        superMClass->SetInstanceFields(_UNIVERSE->NewArrayList(classFields));
-    }
+    VMClass* superMClass = systemClass->GetClass();
+    superMClass->SetInstanceInvokables(GetUniverse()->NewArrayList(classMethods));
+    superMClass->SetInstanceFields(GetUniverse()->NewArrayList(classFields));
+}
 

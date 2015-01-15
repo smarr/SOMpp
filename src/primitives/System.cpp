@@ -82,8 +82,8 @@ void _System::Load_(VMObject* /*object*/, VMFrame* frame) {
     }
 }
 
-void _System::Exit_(pVMObject /*object*/, pVMFrame frame) {
-    pVMInteger err = static_cast<pVMInteger>(frame->Pop());
+void _System::Exit_(VMObject* /*object*/, VMFrame* frame) {
+    VMInteger* err = static_cast<VMInteger*>(frame->Pop());
 #ifdef USE_TAGGING
     long err_no = UNTAG_INTEGER(err);
 #else

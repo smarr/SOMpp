@@ -53,7 +53,7 @@ pVMMethod MethodGenerationContext::Assemble() {
     // create a method instance with the given number of bytecodes and literals
     size_t numLiterals = this->literals.Size();
 
-    pVMMethod meth = _UNIVERSE->NewMethod(this->signature, bytecode.size(),
+    VMMethod* meth = GetUniverse()->NewMethod(signature, bytecode.size(),
             numLiterals);
 
     // populate the fields that are immediately available
@@ -184,7 +184,7 @@ uint8_t MethodGenerationContext::ComputeStackDepth() {
             break;
         default :
             cout << "Illegal bytecode: " << bytecode[i];
-            _UNIVERSE->Quit(1);
+            GetUniverse()->Quit(1);
         }
 
         if (depth > maxDepth)
