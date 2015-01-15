@@ -35,11 +35,11 @@
 #include "../vmobjects/VMSymbol.h"
 
 SourcecodeCompiler::SourcecodeCompiler() {
-    parser = NULL;
+    parser = nullptr;
 }
 
 SourcecodeCompiler::~SourcecodeCompiler() {
-    if (parser != NULL)
+    if (parser != nullptr)
         delete (parser);
 }
 
@@ -53,10 +53,10 @@ VMClass* SourcecodeCompiler::CompileClass(const StdString& path,
     ifstream* fp = new ifstream();
     fp->open(fname.c_str(), std::ios_base::in);
     if (!fp->is_open()) {
-        return NULL;
+        return nullptr;
     }
 
-    if (parser != NULL) delete(parser);
+    if (parser != nullptr) delete(parser);
     parser = new Parser(*fp);
     result = compile(systemClass);
 
@@ -69,10 +69,10 @@ VMClass* SourcecodeCompiler::CompileClass(const StdString& path,
         Str << "Filename: " << file << " does not match class name " << cnameC;
 
         showCompilationError(file, Str.str().c_str());
-        return NULL;
+        return nullptr;
     }
     delete(parser);
-    parser = NULL;
+    parser = nullptr;
     delete(fp);
 #ifdef COMPILER_DEBUG
     std::cout << "Compilation finished" << endl;
@@ -83,12 +83,12 @@ VMClass* SourcecodeCompiler::CompileClass(const StdString& path,
 VMClass* SourcecodeCompiler::CompileClassString(const StdString& stream,
         VMClass* systemClass) {
     istringstream* ss = new istringstream(stream);
-    if (parser != NULL) delete(parser);
+    if (parser != nullptr) delete(parser);
     parser = new Parser(*ss);
 
     VMClass* result = compile(systemClass);
     delete(parser);
-    parser = NULL;
+    parser = nullptr;
     delete(ss);
 
     return result;
@@ -100,9 +100,9 @@ void SourcecodeCompiler::showCompilationError(const StdString& filename,
     cout << message << endl;
 }
 
-    if (parser == NULL) {
         cout << "Parser not initiated" << endl;
 VMClass* SourcecodeCompiler::compile(VMClass* systemClass) {
+    if (parser == nullptr) {
         GetUniverse()->ErrorExit("Compiler error");
     }
     ClassGenerationContext cgc;
@@ -111,7 +111,7 @@ VMClass* SourcecodeCompiler::compile(VMClass* systemClass) {
 
     parser->Classdef(&cgc);
 
-    if (systemClass == NULL)
+    if (systemClass == nullptr)
         result = cgc.Assemble();
     else
         cgc.AssembleSystemClass(result);

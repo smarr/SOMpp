@@ -322,7 +322,7 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
     
     VMInvokable* invokable = receiverClass->LookupInvokable(signature);
 
-    if (invokable != NULL) {
+    if (invokable != nullptr) {
 #ifdef LOG_RECEIVER_TYPES
         StdString name = receiverClass->GetName()->GetStdString();
         if (GetUniverse()->callStats.find(name) == GetUniverse()->callStats.end())

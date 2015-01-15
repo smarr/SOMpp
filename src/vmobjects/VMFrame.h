@@ -109,11 +109,11 @@ pVMObject VMFrame::GetField(long index) {
 }
 
 bool VMFrame::HasContext() {
-    return READBARRIER(this->context) != NULL;
+    return READBARRIER(this->context) != nullptr;
 }
 
 bool VMFrame::HasPreviousFrame() {
-    return READBARRIER(this->previousFrame) != NULL;
+    return READBARRIER(this->previousFrame) != nullptr;
 }
 
 long VMFrame::GetBytecodeIndex() const {
