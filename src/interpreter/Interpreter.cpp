@@ -306,7 +306,7 @@ VMFrame* Interpreter::popFrame() {
     return result;
 }
 
-void Interpreter::popFrameAndPushResult(pVMObject result) {
+void Interpreter::popFrameAndPushResult(vm_oop_t result) {
     VMFrame* prevFrame = popFrame();
 
     VMMethod* method = prevFrame->GetMethod();
@@ -340,15 +340,15 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
         //doesNotUnderstand
         long numberOfArgs = Signature::GetNumberOfArguments(signature);
 
-        pVMObject receiver = _FRAME->GetStackElement(numberOfArgs-1);
+        vm_oop_t receiver = GetFrame()->GetStackElement(numberOfArgs-1);
 
         VMArray* argumentsArray = GetUniverse()->NewArray(numberOfArgs - 1); // without receiver
 
         for (long i = numberOfArgs - 1; i >= 0; --i) {
-            pVMObject o = _FRAME->Pop();
+            vm_oop_t o = GetFrame()->Pop();
             argumentsArray->SetIndexableField(i, o);
         }
-        pVMObject arguments[] = {signature, argumentsArray};
+        vm_oop_t arguments[] = {signature, argumentsArray};
 
         //check if current frame is big enough for this unplanned Send
         //doesNotUnderstand: needs 3 slots, one for this, one for method name, one for args
@@ -370,8 +370,8 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
 }
 
 void Interpreter::doDup() {
-    pVMObject elem = _FRAME->GetStackElement(0);
     _FRAME->Push(elem);
+    vm_oop_t elem = GetFrame()->GetStackElement(0);
 }
 
 void Interpreter::doPushLocal(long bytecodeIndex) {
@@ -379,7 +379,7 @@ void Interpreter::doPushLocal(long bytecodeIndex) {
     uint8_t bc2 = this->GetMethod()->GetBytecode(bytecodeIndex + 2);
     //VMMethod* method = this->GetMethod();
 
-    pVMObject local = _FRAME->GetLocal(bc1, bc2);
+    vm_oop_t local = GetFrame()->GetLocal(bc1, bc2);
 
     _FRAME->Push(local);
 }
@@ -389,18 +389,18 @@ void Interpreter::doPushArgument(long bytecodeIndex) {
     uint8_t bc2 = this->GetMethod()->GetBytecode(bytecodeIndex + 2);
     //VMMethod* method = this->GetMethod();
 
-    pVMObject argument = _FRAME->GetArgument(bc1, bc2);
+    vm_oop_t argument = GetFrame()->GetArgument(bc1, bc2);
 
     _FRAME->Push(argument);
 }
 
 void Interpreter::doPushField(long bytecodeIndex) {
-    uint8_t fieldIndex = this->GetMethod()->GetBytecode(bytecodeIndex + 1);
-    pVMObject self = _SELF;
-    pVMObject o;
 #ifdef USE_TAGGING
     if (IS_TAGGED(self)) {
         o = GlobalBox::IntegerBox()->GetField(fieldIndex);
+    uint8_t fieldIndex = GetMethod()->GetBytecode(bytecodeIndex + 1);
+    vm_oop_t self = GetSelf();
+    vm_oop_t o;
     }
     else {
         o = AS_POINTER(self)->GetField(fieldIndex);

@@ -66,12 +66,12 @@ public:
     //~Interpreter();
     
     void      Start();
-    pVMObject GetSelf();
     VMThread* GetThread();
     void      SetThread(VMThread* thread);
     VMFrame*  PushNewFrame(VMMethod* method);
     void      SetFrame(VMFrame* frame);
     VMFrame*  GetFrame();
+    vm_oop_t  GetSelf();
     
 #if GC_TYPE==PAUSELESS
     virtual void AddGCWork(AbstractVMObject*);
@@ -111,8 +111,8 @@ private:
     StdString dnu;
     StdString eB;
     
-    void popFrameAndPushResult(pVMObject result);
     VMFrame* popFrame();
+    void popFrameAndPushResult(vm_oop_t result);
     void send(VMSymbol* signature, VMClass* receiverClass);
     
     VMMethod* GetMethod();

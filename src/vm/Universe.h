@@ -94,7 +94,7 @@ public:
 
     //Globals accessor (only for GC, could be considered be
     //declared as a private friend method for the GC)
-    map<GCSymbol*, GCAbstractObject*> GetGlobals() {
+    map<GCSymbol*, gc_oop_t> GetGlobals() {
         return globals;
     }
     PagedHeap* GetHeap() {
@@ -171,7 +171,7 @@ public:
 #endif
     //
     
-    static bool IsValidObject(const pVMObject obj);
+    static bool IsValidObject(vm_oop_t obj);
     
     //void PrintGlobals();
     
@@ -201,7 +201,8 @@ private:
     PagedHeap* heap;
     long heapSize;
     long pageSize;
-    map<GCSymbol*, GCAbstractObject*> globals;
+
+    map<GCSymbol*, gc_oop_t> globals;
     map<long, GCClass*> blockClassesByNoOfArgs;
     vector<StdString> classPath;
 };

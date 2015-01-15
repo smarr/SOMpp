@@ -51,24 +51,24 @@ public:
     inline VMFrame* GetContext();
     inline void SetContext(VMFrame*);
     inline bool HasContext();
-    pVMObject Pop();
-    void Push(pVMObject);
     VMFrame* GetContextLevel(long);
     VMFrame* GetOuterContext();
     inline VMMethod* GetMethod();
     void SetMethod(VMMethod*);
+    vm_oop_t Pop();
+    void Push(vm_oop_t);
     void ResetStackPointer();
     inline long GetBytecodeIndex() const;
     inline void SetBytecodeIndex(long);
-    pVMObject GetStackElement(long) const;
-    pVMObject GetLocal(long, long);
-    void SetLocal(long, long, pVMObject);
-    pVMObject GetArgument(long, long);
-    void SetArgument(long, long, pVMObject);
+    vm_oop_t GetStackElement(long) const;
+    vm_oop_t GetLocal(long, long);
+    void SetLocal(long, long, vm_oop_t);
+    vm_oop_t GetArgument(long, long);
+    void SetArgument(long, long, vm_oop_t);
     void PrintStackTrace() const;
     long ArgumentStackIndex(long index);
-    inline  pVMObject GetField(long index);
     void CopyArgumentsFrom(VMFrame* frame);
+    inline  vm_oop_t GetField(long index);
     
     virtual void MarkObjectAsInvalid();
     
@@ -98,7 +98,7 @@ private:
     static const long VMFrameNumberOfFields;
 };
 
-pVMObject VMFrame::GetField(long index) {
+vm_oop_t VMFrame::GetField(long index) {
     if (index==4)
 #ifdef USE_TAGGING
     return TAG_INTEGER(bytecodeIndex);

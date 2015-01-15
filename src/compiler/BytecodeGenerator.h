@@ -43,9 +43,9 @@ public:
     void EmitDUP(MethodGenerationContext* mgenc);
     void EmitPUSHLOCAL(MethodGenerationContext* mgenc,    long idx, int ctx);
     void EmitPUSHARGUMENT(MethodGenerationContext* mgenc, long idx, int ctx);
-    void EmitPUSHCONSTANT(MethodGenerationContext* mgenc, pVMObject cst);
     void EmitPUSHFIELD(MethodGenerationContext* mgenc, VMSymbol* field);
     void EmitPUSHBLOCK(MethodGenerationContext* mgenc, VMMethod* block);
+    void EmitPUSHCONSTANT(MethodGenerationContext* mgenc, vm_oop_t cst);
     void EmitPUSHCONSTANTString(MethodGenerationContext* mgenc, VMString* str);
     void EmitPUSHGLOBAL(MethodGenerationContext* mgenc, VMSymbol* global);
     void EmitPOP(MethodGenerationContext* mgenc);
