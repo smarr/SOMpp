@@ -51,18 +51,15 @@
 #include <vmobjects/VMBlock.inline.h>
 #include <vmobjects/VMMethod.inline.h>
 
-// convenience macros for frequently used function invocations
-#define _FRAME this->GetFrame()
-#define _SELF this->GetSelf()
+const StdString Interpreter::unknownGlobal     = "unknownGlobal:";
+const StdString Interpreter::doesNotUnderstand = "doesNotUnderstand:arguments:";
+const StdString Interpreter::escapedBlock      = "escapedBlock:";
+
 
 #if GC_TYPE==PAUSELESS
 Interpreter::Interpreter(bool expectedNMT, bool gcTrapEnabled) : BaseThread(expectedNMT) {
     this->thread = nullptr;
     this->frame = nullptr;
-    
-    uG = "unknownGlobal:";
-    dnu = "doesNotUnderstand:arguments:";
-    eB = "escapedBlock:";
 
     stopped = false;
     blocked = false;
@@ -80,10 +77,6 @@ Interpreter::Interpreter(bool expectedNMT, bool gcTrapEnabled) : BaseThread(expe
 Interpreter::Interpreter() : BaseThread() {
     this->thread = nullptr;
     this->frame = nullptr;
-
-    uG = "unknownGlobal:";
-    dnu = "doesNotUnderstand:arguments:";
-    eB = "escapedBlock:";
 }
 #endif
 

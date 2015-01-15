@@ -107,9 +107,10 @@ public:
 private:
     GCThread* thread;
     GCFrame* frame;
-    StdString uG;
-    StdString dnu;
-    StdString eB;
+
+    static const StdString unknownGlobal;
+    static const StdString doesNotUnderstand;
+    static const StdString escapedBlock;
     
     VMFrame* popFrame();
     void popFrameAndPushResult(vm_oop_t result);
