@@ -8,8 +8,10 @@
 
 #include "Delay.h"
 
-#include "../primitivesCore/Routine.h"
-#include "../natives/VMThread.h"
+#include <primitivesCore/Routine.h>
+#include <natives/VMThread.h>
+
+#include <vmobjects/ObjectFormats.h>
 
 #include <unistd.h>
 #include <stdio.h>

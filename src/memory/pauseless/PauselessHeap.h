@@ -5,13 +5,15 @@
 
 #if GC_TYPE == PAUSELESS
 
-#include "../../interpreter/Interpreter.h"
+
 #include <memory/PagedHeap.h>
 #include <memory/Page.h>
-#include "../../vmobjects/VMObjectBase.h"
-#include "../../vmobjects/AbstractObject.h"
-#include "../../vm/Universe.h"
+#include <vmobjects/VMObjectBase.h>
+#include <vmobjects/AbstractObject.h>
+#include <vm/Universe.h>
 #include "PauselessCollectorThread.h"
+
+#include <interpreter/Interpreter.h>
 
 #define MASK_OBJECT_NMT (1 << 1)
 #define REFERENCE_NMT_VALUE(REFERENCE) (((reinterpret_cast<intptr_t>(REFERENCE) & MASK_OBJECT_NMT) == 0) ? false : true)

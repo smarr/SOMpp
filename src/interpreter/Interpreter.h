@@ -26,9 +26,9 @@
  THE SOFTWARE.
  */
 
-#include "../misc/defs.h"
-#include "../vmobjects/ObjectFormats.h"
-#include "../memory/BaseThread.h"
+#include <misc/defs.h>
+#include <vmobjects/ObjectFormats.h>
+#include <memory/BaseThread.h>
 
 class VMMethod;
 class VMFrame;

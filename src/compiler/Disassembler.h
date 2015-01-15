@@ -26,9 +26,10 @@
  THE SOFTWARE.
  */
 
-#include "../vmobjects/VMClass.h"
-#include "../vmobjects/VMMethod.h"
-#include "../vmobjects/VMFrame.h"
+#include <vmobjects/VMClass.h>
+#include <vmobjects/VMMethod.h>
+#include <vmobjects/VMFrame.h>
+
 
 class Disassembler {
 public:

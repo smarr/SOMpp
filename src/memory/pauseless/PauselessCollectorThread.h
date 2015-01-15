@@ -6,7 +6,7 @@
 #include <memory/GarbageCollector.h>
 #include "../BaseThread.h"
 #include "Worklist.h"
-#include "../../vm/Universe.h"
+#include <vm/Universe.h>
 
 #include <pthread.h>
 

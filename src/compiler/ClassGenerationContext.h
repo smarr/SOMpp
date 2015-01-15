@@ -30,11 +30,11 @@ class VMSymbol;
 class AbstractVMObject;
 class VMClass;
 class VMArray;
+#include <vmobjects/ObjectFormats.h>
 
-#include "../vmobjects/ObjectFormats.h"
+#include <misc/defs.h>
+#include <misc/ExtendedList.h>
 
-#include "../misc/defs.h"
-#include "../misc/ExtendedList.h"
 
 class ClassGenerationContext {
 

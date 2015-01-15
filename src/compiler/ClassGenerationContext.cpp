@@ -26,9 +26,9 @@
 
 #include "ClassGenerationContext.h"
 
-#include "../vmobjects/VMSymbol.h"
-#include "../vmobjects/VMObject.h"
-#include "../vmobjects/VMClass.h"
+#include <vmobjects/VMSymbol.h>
+#include <vmobjects/VMObject.h>
+#include <vmobjects/VMClass.h>
 
 ClassGenerationContext::ClassGenerationContext() :
         instanceFields(), instanceMethods(), classFields(), classMethods() {

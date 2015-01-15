@@ -44,8 +44,8 @@
 #include "Delay.h"
 #include "Signal.h"
 
-#include "../primitivesCore/PrimitiveContainer.h"
-#include "../primitivesCore/PrimitiveLoader.h"
+#include <primitivesCore/PrimitiveContainer.h>
+#include <primitivesCore/PrimitiveLoader.h>
 
 #if defined (_MSC_VER)
 #include "Core.h"

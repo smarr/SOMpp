@@ -26,11 +26,12 @@
 
 #include "Class.h"
 
-#include "../primitivesCore/Routine.h"
+#include <primitivesCore/Routine.h>
 
 #include <vmobjects/VMObject.h>
 #include <vmobjects/VMFrame.h>
 #include <vmobjects/VMClass.h>
+#include <vmobjects/VMSymbol.h>
 
 #include <vm/Universe.h>
 

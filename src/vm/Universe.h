@@ -30,16 +30,16 @@
 #include <map>
 #include <vector>
 
-#include "../misc/defs.h"
-#include "../misc/Timer.h"
-#include "../misc/ExtendedList.h"
+#include <misc/defs.h>
+#include <misc/Timer.h>
+#include <misc/ExtendedList.h>
 
-#include "../vmobjects/ObjectFormats.h"
+#include <vmobjects/ObjectFormats.h>
 
-#include "../memory/PagedHeap.h"
+#include <memory/PagedHeap.h>
 
 #if GC_TYPE==PAUSELESS
-#include "../memory/pauseless/Worklist.h"
+#include <memory/pauseless/Worklist.h>
 #endif
 
 class Interpreter;
