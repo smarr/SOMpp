@@ -37,6 +37,9 @@
 #define ERR_NOMEM          0x2
 #define ERR_PANIC          0xFFFF
 
+//
+// Integer Ranges
+//
 #ifndef INT32_MAX
 /*Maximum value of 32-bit integer is 0x7FFF FFFF (2 147 483 647)         */
 #define INT32_MAX 0x7FFFFFFF  /*2 147 483 647*/
@@ -52,6 +55,9 @@
 #define pathSeparator ':'
 #define fileSeparator '/'
 
+//
+// GC Types
+//
 #define GENERATIONAL 1
 #define COPYING      2
 #define MARK_SWEEP   3
