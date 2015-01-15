@@ -17,8 +17,8 @@ Page::Page(void* pageStart, PagedHeap* heap) {
     this->heap = heap;
     this->nextFreePosition = pageStart;
     this->pageStart = (size_t)pageStart;
-    this->pageEnd = this->pageStart + heap->pageSize;
-    treshold = (void*)((size_t)pageStart + ((size_t)(heap->pageSize * 0.9)));
+    this->pageEnd = this->pageStart + PAGE_SIZE;
+    treshold = (void*)((size_t)pageStart + ((size_t)(PAGE_SIZE * 0.9)));
 }
 
 AbstractVMObject* Page::AllocateObject(size_t size) {
@@ -49,15 +49,15 @@ void Page::ClearPage() {
 #if GC_TYPE==PAUSELESS
 void Page::Block() {
     blocked = true;
-    sideArray = new std::atomic<AbstractVMObject*>[heap->pageSize / 8];
-    for (int i=0; i < (heap->pageSize / 8); i++) {
+    sideArray = new std::atomic<AbstractVMObject*>[PAGE_SIZE / 8];
+    for (int i=0; i < (PAGE_SIZE / 8); i++) {
         sideArray[i] = nullptr;
     }
 }
 
 void Page::UnBlock() {
     assert(blocked == true);
-    memset((void*)pageStart, 0xa, heap->pageSize);
+    memset((void*)pageStart, 0xa, PAGE_SIZE);
     blocked = false;
     delete [] sideArray;
 }
@@ -101,7 +101,7 @@ void Page::AddAmountLiveData(size_t objectSize) {
 }
 
 double Page::GetPercentageLiveData() {
-    return amountLiveData / heap->pageSize;
+    return amountLiveData / PAGE_SIZE;
 }
 
 void Page::ResetAmountOfLiveData() {

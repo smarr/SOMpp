@@ -130,7 +130,7 @@ void PauselessCollectorThread::MarkObject(VMOBJECT_PTR obj) {
     if (obj->GetGCField() == markValue)
         return;
     //assert(obj->GetGCField() == 0 || obj->GetGCField() == markValue-1);
-    Page* page = _HEAP->allPages->at(((size_t)obj - (size_t)_HEAP->memoryStart) / _HEAP->pageSize);
+    Page* page = _HEAP->allPages->at(((size_t)obj - (size_t)_HEAP->memoryStart) / PAGE_SIZE);
     assert(REFERENCE_NMT_VALUE(obj) == false);
     assert(Universe::IsValidObject(obj));
     page->AddAmountLiveData(obj->GetObjectSize());
@@ -444,7 +444,7 @@ void PauselessCollectorThread::CheckMarkingOfObject(AbstractVMObject* obj) {
     if (obj->GetGCField2() == markValue)
         return;
     obj->SetGCField2(markValue);
-    size_t pageNumber = ((size_t)obj - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
+    size_t pageNumber = ((size_t)obj - (size_t)(_HEAP->GetMemoryStart())) / PAGE_SIZE;
     Page* page = _HEAP->allPages->at(pageNumber);
     if (std::find(_HEAP->fullPages->begin(), _HEAP->fullPages->end(), page) != _HEAP->fullPages->end()) {
         assert(obj->GetGCField() == markValue);

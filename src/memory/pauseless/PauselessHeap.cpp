@@ -15,7 +15,7 @@
 
 #define NUMBER_OF_GC_THREADS 1
 
-PauselessHeap::PauselessHeap(long objectSpaceSize, long pageSize) : PagedHeap(objectSpaceSize, pageSize) {
+PauselessHeap::PauselessHeap(long, long) : PagedHeap(HEAP_SIZE, PAGE_SIZE) {
     pthread_key_create(&pauselessCollectorThread, NULL);
     pthread_mutex_init(&gcTrapEnabledMutex, NULL);
     pthread_cond_init(&gcTrapEnabledCondition, NULL);

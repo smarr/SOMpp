@@ -36,13 +36,13 @@
 
 HEAP_CLS* PagedHeap::theHeap = NULL;
 
-void PagedHeap::InitializeHeap(long objectSpaceSize, long pageSize) {
+void PagedHeap::InitializeHeap(long, long) {
     if (theHeap) {
         sync_out(ostringstream() << "Warning, reinitializing already initialized Heap, "
                 << "all data will be lost!");
         delete theHeap;
     }
-    theHeap = new HEAP_CLS(objectSpaceSize, pageSize);
+    theHeap = new HEAP_CLS(HEAP_SIZE, PAGE_SIZE);
 }
 
 void PagedHeap::DestroyHeap() {
@@ -50,17 +50,16 @@ void PagedHeap::DestroyHeap() {
         delete theHeap;
 }
 
-PagedHeap::PagedHeap(long objectSpaceSize, long pageSize) {
-    this->pageSize = pageSize;
+PagedHeap::PagedHeap(long, long) {
     pthread_mutex_init(&fullPagesMutex, NULL);
     pthread_mutex_init(&availablePagesMutex, NULL);
     allPages = new vector<Page*>();
     availablePages = new vector<Page*>();
     fullPages = new vector<Page*>();
-    memoryStart = mmap(NULL, objectSpaceSize, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, 0, 0);
-    memset(memoryStart, 0x0, objectSpaceSize);
-    memoryEnd = (size_t)memoryStart + objectSpaceSize;
-    maxObjSize = pageSize / 2;
+    memoryStart = mmap(NULL, HEAP_SIZE, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, 0, 0);
+    memset(memoryStart, 0x0, HEAP_SIZE);
+    memoryEnd = (size_t)memoryStart + HEAP_SIZE;
+    maxObjSize = PAGE_SIZE / 2;
     CreatePages();
 }
 
@@ -71,7 +70,7 @@ void PagedHeap::CreatePages() {
         newPage = new Page(nextFreePagePosition, this);
         allPages->push_back(newPage);
         availablePages->push_back(newPage);
-        nextFreePagePosition = (void*) ((size_t)nextFreePagePosition + pageSize);
+        nextFreePagePosition = (void*) ((size_t)nextFreePagePosition + PAGE_SIZE);
     }
 }
 

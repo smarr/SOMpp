@@ -95,7 +95,6 @@ public:
     int GetNumberOfCycles();
     
 protected:
-    long pageSize;
     GarbageCollector* gc;
     pthread_mutex_t fullPagesMutex;
     pthread_mutex_t availablePagesMutex;

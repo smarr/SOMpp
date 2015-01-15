@@ -40,7 +40,6 @@ public:
     
     // DIRTY
     inline void* GetMemoryStart() {return memoryStart;}
-    inline long GetPageSize() {return pageSize;}
     inline vector<Page*>* GetAllPages() {return allPages;}
     inline int GetNumberOfMutatorsNeedEnableGCTrap() {return numberOfMutatorsNeedEnableGCTrap;}
     inline int GetNumberOfMutatorsWithEnabledGCTrap() {return numberOfMutatorsWithEnabledGCTrap;}
@@ -137,15 +136,18 @@ inline typename T::Loaded* ReadBarrier(T** referenceHolder, bool rootSetMarking 
         reference = Untag(foo);
         bool trapTriggered = false;
         //gc-trap stuff ------>
-        size_t pageNumber = ((size_t)reference - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
-        Page* page = _HEAP->GetAllPages()->at(pageNumber);
+
+        HEAP_CLS* const heap = _HEAP;
+        size_t pageNumber = ((size_t)reference - (size_t)(heap->GetMemoryStart())) / PAGE_SIZE;
+        vector<Page*>* allPages = heap->GetAllPages();
+        Page* page = (*allPages)[pageNumber];
         
         if (interpreter->TriggerGCTrap(page)) {
-            pthread_mutex_lock(_HEAP->GetGcTrapEnabledMutex());
-            while (_HEAP->GetNumberOfMutatorsNeedEnableGCTrap() != _HEAP->GetNumberOfMutatorsWithEnabledGCTrap()) {
-                pthread_cond_wait(_HEAP->GetGcTrapEnabledCondition(), _HEAP->GetGcTrapEnabledMutex());
+            pthread_mutex_lock(heap->GetGcTrapEnabledMutex());
+            while (heap->GetNumberOfMutatorsNeedEnableGCTrap() != heap->GetNumberOfMutatorsWithEnabledGCTrap()) {
+                pthread_cond_wait(heap->GetGcTrapEnabledCondition(), heap->GetGcTrapEnabledMutex());
             }
-            pthread_mutex_unlock(_HEAP->GetGcTrapEnabledMutex());
+            pthread_mutex_unlock(heap->GetGcTrapEnabledMutex());
             trapTriggered = true;
             reference = (typename T::Loaded*) page->LookupNewAddress((AbstractVMObject*)reference, interpreter);
         }
@@ -182,7 +184,7 @@ inline typename T::Loaded* ReadBarrierForGCThread(T** referenceHolder, bool root
         reference = Untag(foo);
         bool trapTriggered = false;
         //gc-trap stuff ------>
-        size_t pageNumber = ((size_t)reference - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
+        size_t pageNumber = ((size_t)reference - (size_t)(_HEAP->GetMemoryStart())) / PAGE_SIZE;
         Page* page = _HEAP->GetAllPages()->at(pageNumber);
         if (page->Blocked()) {
             trapTriggered = true;
@@ -218,7 +220,7 @@ inline bool GetNMTValue(T* reference) {
 
 template<typename T>
 inline void CheckBlocked(T* reference) {
-    size_t pageNumber = ((size_t)reference - (size_t)(_HEAP->GetMemoryStart())) / _HEAP->GetPageSize();
+    size_t pageNumber = ((size_t)reference - (size_t)(_HEAP->GetMemoryStart())) / PAGE_SIZE;
     Page* page = _HEAP->allPages->at(pageNumber);
     assert(!page->Blocked());
 }
