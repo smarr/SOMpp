@@ -215,7 +215,7 @@ void PauselessCollectorThread::Collect() {
             numberOfCycles++;
             //sync_out(ostringstream() << "[GC] " << numberOfCycles);
             pthread_mutex_lock(&newInterpreterMutex);
-            unique_ptr<vector<Interpreter*>> interpreters = _UNIVERSE->GetInterpretersCopy();
+            unique_ptr<vector<Interpreter*>> interpreters = GetUniverse()->GetInterpretersCopy();
             numberRootSetsToBeMarked = interpreters->size();
             numberRootSetsMarked = 0;
             for (vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
@@ -232,7 +232,7 @@ void PauselessCollectorThread::Collect() {
         
         // one gc thread marks the globals
         if (!doneMarkingGlobals && pthread_mutex_trylock(&markGlobalsMutex) == 0) {
-            _UNIVERSE->MarkGlobals();
+            GetUniverse()->MarkGlobals();
             doneMarkingGlobals = true;
             pthread_mutex_unlock(&markGlobalsMutex);
         }
@@ -293,7 +293,7 @@ void PauselessCollectorThread::Collect() {
                 }
                 numberOfGCThreadsDoneMarking--;
                 numberOfMutatorsPassedSafepoint = 0;
-                unique_ptr<vector<Interpreter*>> interpreters = _UNIVERSE->GetInterpretersCopy();
+                unique_ptr<vector<Interpreter*>> interpreters = GetUniverse()->GetInterpretersCopy();
                 for (vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
                     (*it)->RequestSafePoint();
                 }
@@ -329,7 +329,7 @@ void PauselessCollectorThread::Collect() {
             pthread_mutex_lock(&newInterpreterMutex);
             
             // disable GC-trap from running interpreters
-            unique_ptr<vector<Interpreter*>> interpreters = _UNIVERSE->GetInterpretersCopy();
+            unique_ptr<vector<Interpreter*>> interpreters = GetUniverse()->GetInterpretersCopy();
             for (vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
                 (*it)->DisableGCTrap();
             }
@@ -358,7 +358,7 @@ void PauselessCollectorThread::Collect() {
             
             
             // enable the GC-trap again
-            interpreters = _UNIVERSE->GetInterpretersCopy();
+            interpreters = GetUniverse()->GetInterpretersCopy();
             _HEAP->numberOfMutatorsNeedEnableGCTrap = interpreters->size();
             assert(_HEAP->numberOfMutatorsWithEnabledGCTrap == 0);
             for (vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
@@ -453,8 +453,8 @@ void PauselessCollectorThread::CheckMarkingOfObject(AbstractVMObject* obj) {
 }
 
 void PauselessCollectorThread::CheckMarking() {
-    _UNIVERSE->CheckMarkingGlobals(CheckMarkingOfObject);
-    unique_ptr<vector<Interpreter*>> interpreters = _UNIVERSE->GetInterpretersCopy();
+    GetUniverse()->CheckMarkingGlobals(CheckMarkingOfObject);
+    unique_ptr<vector<Interpreter*>> interpreters = GetUniverse()->GetInterpretersCopy();
     for (vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
         (*it)->CheckMarking(CheckMarkingOfObject);
     }

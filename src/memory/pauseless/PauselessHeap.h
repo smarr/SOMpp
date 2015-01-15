@@ -96,7 +96,7 @@ template<typename T>
 inline typename T::Stored* WriteBarrier(T* reference) {
     if (reference == nullptr)
         return (typename T::Stored*) nullptr;
-    if (_UNIVERSE->GetInterpreter()->GetExpectedNMT())
+    if (GetUniverse()->GetInterpreter()->GetExpectedNMT())
         return (typename T::Stored*) FLIP_NMT_VALUE(reference);
     else
         return (typename T::Stored*) reference;
@@ -131,13 +131,13 @@ __attribute__((always_inline)) inline typename T::Loaded* ReadBarrier(T** refere
         T* foo = *referenceHolder;
         if (foo == nullptr)
             return (typename T::Loaded*)nullptr;
-        
-        Interpreter* interpreter = _UNIVERSE->GetInterpreter();
+
+        Interpreter* interpreter = GetUniverse()->GetInterpreter();
         bool correctNMT = (REFERENCE_NMT_VALUE(foo) == interpreter->GetExpectedNMT());
         reference = Untag(foo);
         bool trapTriggered = false;
         //gc-trap stuff ------>
-
+        
         HEAP_CLS* const heap = _HEAP;
         size_t pageNumber = ((size_t)reference - (size_t)(heap->GetMemoryStart())) / PAGE_SIZE;
         vector<Page*>* allPages = heap->GetAllPages();

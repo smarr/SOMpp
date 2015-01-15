@@ -39,7 +39,7 @@ VMPrimitive* VMPrimitive::GetEmptyPrimitive( VMSymbol* sig ) {
 #if GC_TYPE==GENERATIONAL
     VMPrimitive* prim = new (_HEAP, _PAGE) VMPrimitive(sig);
 #elif GC_TYPE==PAUSELESS
-    pVMPrimitive prim = new (_HEAP, _UNIVERSE->GetInterpreter(), 0, true) VMPrimitive(sig);
+    VMPrimitive* prim = new (_HEAP, GetUniverse()->GetInterpreter(), 0, true) VMPrimitive(sig);
 #else
     VMPrimitive* prim = new (_HEAP) VMPrimitive(sig);
 #endif

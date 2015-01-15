@@ -31,7 +31,7 @@ void _Signal::SignalAll(VMObject* object, VMFrame* frame){
 
 void _Signal::New(VMObject* object, VMFrame* frame){
     frame->Pop();
-    pVMSignal signal = _UNIVERSE->NewSignal();
+    VMSignal* signal = GetUniverse()->NewSignal();
     frame->Push(signal);
 }
 

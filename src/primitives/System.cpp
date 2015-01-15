@@ -65,16 +65,16 @@ void _System::Global_(VMObject* /*object*/, VMFrame* frame) {
     frame->Push( result ? result : READBARRIER(nilObject));
 }
 
-    _UNIVERSE->SetGlobal(arg, value);
 void _System::Global_put_(VMObject* /*object*/, VMFrame* frame) {
     VMObject* value = frame->Pop();
     VMSymbol* arg = static_cast<VMSymbol*>(frame->Pop());
+    GetUniverse()->SetGlobal(arg, value);
 }
 
 void _System::Load_(VMObject* /*object*/, VMFrame* frame) {
     VMSymbol* arg = static_cast<VMSymbol*>(frame->Pop());
     frame->Pop();
-    pVMClass result = _UNIVERSE->LoadClass(arg);
+    VMClass* result = GetUniverse()->LoadClass(arg);
     if (result)
         frame->Push(result);
     else {
@@ -92,7 +92,7 @@ void _System::Exit_(pVMObject /*object*/, pVMFrame frame) {
 
     if (err_no != ERR_SUCCESS)
         frame->PrintStackTrace();
-    _UNIVERSE->Quit(err_no);
+    GetUniverse()->Quit(err_no);
 }
 
 void _System::PrintString_(VMObject* /*object*/, VMFrame* frame) {
@@ -123,7 +123,7 @@ void _System::Time(VMObject* /*object*/, VMFrame* frame) {
 #ifdef USE_TAGGING
     frame->Push(TAG_INTEGER((int32_t)diff));
 #else
-    frame->Push(_UNIVERSE->NewInteger((int32_t)diff));
+    frame->Push(GetUniverse()->NewInteger((int32_t)diff));
 #endif
 }
 
@@ -172,8 +172,8 @@ void _System::GetNumberOfCPUs(VMObject* object, VMFrame* frame) {
     i = -1;
 #endif
     
-    //Based on the other methods I have also done _UNIVERSE->... this also takes care of the heap allocation of the VMInteger but why is this necearry? Or can I simply do frame->Push(VMInteger(i))?
-    frame->Push((pVMObject)_UNIVERSE->NewInteger(i));
+    //Based on the other methods I have also done GetUniverse()->... this also takes care of the heap allocation of the VMInteger but why is this necearry? Or can I simply do frame->Push(VMInteger(i))?
+    frame->Push((VMObject*)GetUniverse()->NewInteger(i));
 }
 
 _System::_System(void) :

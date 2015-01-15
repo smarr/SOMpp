@@ -34,7 +34,7 @@ void _Mutex::IsLocked(VMObject* object, VMFrame* frame){
 
 void _Mutex::New(VMObject* object, VMFrame* frame){
     frame->Pop();
-    pVMMutex mutex = _UNIVERSE->NewMutex();
+    VMMutex* mutex = GetUniverse()->NewMutex();
     frame->Push(mutex);
 }
 

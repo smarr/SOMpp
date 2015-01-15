@@ -85,7 +85,7 @@ size_t PagedHeap::GetMaxObjectSize() {
 Page* PagedHeap::RequestPage() {
     pthread_mutex_lock(&availablePagesMutex);
     if (availablePages->empty())
-        _UNIVERSE->ErrorExit("Unable to respond to page request");
+        GetUniverse()->ErrorExit("Unable to respond to page request");
     Page* newPage = availablePages->back();
     availablePages->pop_back();
     checkCollectionTreshold();

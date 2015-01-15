@@ -122,12 +122,12 @@ int64_t result) {
     int32_t i32min = INT32_MIN;
     // Check with integer bounds and push:
     if(result > INT32_MAX || result < i32min)
-    frame->Push(_UNIVERSE->NewBigInteger(result));
+    frame->Push(GetUniverse()->NewBigInteger(result));
     else
 #ifdef USE_TAGGING
     frame->Push(TAG_INTEGER((int32_t)result));
 #else
-    frame->Push(_UNIVERSE->NewInteger((int32_t)result));
+    frame->Push(GetUniverse()->NewInteger((int32_t)result));
 #endif
 }
 
@@ -136,9 +136,9 @@ VMInteger* left, pVMBigInteger right) {
     // Construct left value as BigInteger:
     pVMBigInteger leftBigInteger =
 #ifdef USE_TAGGING
-    _UNIVERSE->NewBigInteger((int64_t)UNTAG_INTEGER(left));
+    GetUniverse()->NewBigInteger((int64_t)UNTAG_INTEGER(left));
 #else
-    _UNIVERSE->NewBigInteger((int64_t)left->GetEmbeddedInteger());
+    GetUniverse()->NewBigInteger((int64_t)left->GetEmbeddedInteger());
 #endif
 
     // Resend message:
@@ -153,9 +153,9 @@ VMInteger* left, VMDouble* right
 ) {
     VMDouble* leftDouble =
 #ifdef USE_TAGGING
-    _UNIVERSE->NewDouble((double)UNTAG_INTEGER(left));
+    GetUniverse()->NewDouble((double)UNTAG_INTEGER(left));
 #else
-    _UNIVERSE->NewDouble((double)left->GetEmbeddedInteger());
+    GetUniverse()->NewDouble((double)left->GetEmbeddedInteger());
 #endif
     VMObject* operands[] = {right};
 
@@ -251,7 +251,7 @@ void _Integer::Slashslash(VMObject* object, VMFrame* frame) {
     double result = (double)left->GetEmbeddedInteger() /
     (double)right->GetEmbeddedInteger();
 #endif
-    frame->Push(_UNIVERSE->NewDouble(result));
+    frame->Push(GetUniverse()->NewDouble(result));
 }
 
 void _Integer::Slash(VMObject* object, VMFrame* frame) {
@@ -381,7 +381,7 @@ void _Integer::AsString(VMObject* /*object*/, VMFrame* frame) {
 #endif
     ostringstream Str;
     Str << integer;
-    frame->Push(_UNIVERSE->NewString( Str.str()));
+    frame->Push(GetUniverse()->NewString( Str.str()));
 }
 
 void _Integer::Sqrt(VMObject* object, VMFrame* frame) {
@@ -395,7 +395,7 @@ void _Integer::Sqrt(VMObject* object, VMFrame* frame) {
     if (result == rint(result))
     pushResult(object, frame, result);
     else
-    frame->Push(_UNIVERSE->NewDouble(result));
+    frame->Push(GetUniverse()->NewDouble(result));
 }
 
 void _Integer::AtRandom(VMObject* /*object*/, VMFrame* frame) {
@@ -405,7 +405,7 @@ void _Integer::AtRandom(VMObject* /*object*/, VMFrame* frame) {
     frame->Push(TAG_INTEGER(result));
 #else
     int32_t result = (self->GetEmbeddedInteger() * rand())%INT32_MAX;
-    frame->Push(_UNIVERSE->NewInteger(result));
+    frame->Push(GetUniverse()->NewInteger(result));
 #endif
 }
 
@@ -418,7 +418,7 @@ void _Integer::FromString(VMObject*, VMFrame* frame) {
 #ifdef USE_TAGGING
         VMInteger* new_int = TAG_INTEGER(integer);
 #else
-        pVMInteger new_int = _UNIVERSE->NewInteger(integer);
+        VMInteger* new_int = GetUniverse()->NewInteger(integer);
 #endif
 
         frame->Push(new_int);

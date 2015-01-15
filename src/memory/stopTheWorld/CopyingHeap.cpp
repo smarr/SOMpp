@@ -36,7 +36,7 @@ AbstractVMObject* CopyingHeap::AllocateObject(size_t size) {
     nextFreePosition = (void*)((size_t)nextFreePosition + size);
     if (nextFreePosition > currentBufferEnd) {
         cout << "Failed to allocate " << size << " Bytes." << endl;
-        _UNIVERSE->Quit(-1);
+        GetUniverse()->Quit(-1);
     }
     //let's see if we have to trigger the GC
     if (nextFreePosition > collectionLimit)

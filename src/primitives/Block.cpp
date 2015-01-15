@@ -91,7 +91,7 @@ VMMethod* _Block::CreateFakeBootstrapMethod() {
     bootstrapVMMethod->SetBytecode(0, BC_HALT);
     bootstrapVMMethod->SetNumberOfLocals(0);
     bootstrapVMMethod->SetMaximumNumberOfStackElements(2);
-    bootstrapVMMethod->SetHolder(_UNIVERSE->GetBlockClass());
+    bootstrapVMMethod->SetHolder(GetUniverse()->GetBlockClass());
     return bootstrapVMMethod;
 }
 
@@ -107,7 +107,7 @@ VMThread* _Block::CreateNewThread(VMBlock* block) {
 
 void* _Block::ThreadForBlock(void* threadPointer) {
     //create new interpreter which will process the block
-    Interpreter* interpreter = _UNIVERSE->NewInterpreter();
+    Interpreter* interpreter = GetUniverse()->NewInterpreter();
     VMThread* thread = (VMThread*)threadPointer;
     VMBlock* block = thread->GetBlockToRun();
     interpreter->SetThread(thread);
@@ -119,7 +119,7 @@ void* _Block::ThreadForBlock(void* threadPointer) {
     bootstrapVMFrame->Push((VMObject*)block);
     
     // lookup the initialize invokable on the system class
-    pVMInvokable initialize = (pVMInvokable)_UNIVERSE->GetBlockClass()->LookupInvokable(_UNIVERSE->SymbolForChars("evaluate"));
+    VMInvokable* initialize = (VMInvokable*)GetUniverse()->GetBlockClass()->LookupInvokable(GetUniverse()->SymbolForChars("evaluate"));
     // invoke the initialize invokable
     (*initialize)(bootstrapVMFrame);
     // start the interpreter
@@ -130,7 +130,7 @@ void* _Block::ThreadForBlock(void* threadPointer) {
     _HEAP->DecrementThreadCount();
 #endif
     
-    _UNIVERSE->RemoveInterpreter();
+    GetUniverse()->RemoveInterpreter();
     
 #if GC_TYPE!=PAUSELESS
     delete interpreter;
@@ -141,7 +141,7 @@ void* _Block::ThreadForBlock(void* threadPointer) {
 
 void* _Block::ThreadForBlockWithArgument(void* threadPointer) {
     //create new interpreter which will process the block
-    Interpreter* interpreter = _UNIVERSE->NewInterpreter();
+    Interpreter* interpreter = GetUniverse()->NewInterpreter();
     VMThread* thread = (VMThread*)threadPointer;
     VMBlock* block = thread->GetBlockToRun();
     interpreter->SetThread(thread);
@@ -155,7 +155,7 @@ void* _Block::ThreadForBlockWithArgument(void* threadPointer) {
     bootstrapVMFrame->Push(arg);
     
     // lookup the initialize invokable on the system class
-    pVMInvokable initialize = (pVMInvokable)_UNIVERSE->GetBlockClass()->LookupInvokable(_UNIVERSE->SymbolForChars("evaluate"));
+    VMInvokable* initialize = (VMInvokable*)GetUniverse()->GetBlockClass()->LookupInvokable(GetUniverse()->SymbolForChars("evaluate"));
     // invoke the initialize invokable
     (*initialize)(bootstrapVMFrame);
     // start the interpreter
@@ -166,7 +166,7 @@ void* _Block::ThreadForBlockWithArgument(void* threadPointer) {
     _HEAP->DecrementThreadCount();
 #endif
     
-    _UNIVERSE->RemoveInterpreter();
+    GetUniverse()->RemoveInterpreter();
     
     //still need to happen at the end of each cycle of the pauseless, we should thus keep track of interpreters that need to be deleted
 #if GC_TYPE!=PAUSELESS
@@ -186,7 +186,7 @@ void _Block::Spawn(VMObject* object, VMFrame* frame) {
 #if GC_TYPE!=PAUSELESS
     _HEAP->IncrementThreadCount();
 #endif
-    //_UNIVERSE->IncrementThreadCount();
+    //GetUniverse()->IncrementThreadCount();
     pthread_create(&tid, NULL, &ThreadForBlock, (void*)thread);
     thread->SetEmbeddedThreadId(tid);
     frame->Push(thread);
@@ -204,7 +204,7 @@ void _Block::SpawnWithArgument(VMObject* object, VMFrame* frame) {
 #if GC_TYPE!=PAUSELESS
     _HEAP->IncrementThreadCount();
 #endif
-    //_UNIVERSE->IncrementThreadCount();
+    //GetUniverse()->IncrementThreadCount();
     pthread_create(&tid, NULL, &ThreadForBlockWithArgument, (void *)thread);
     thread->SetEmbeddedThreadId(tid);
     frame->Push(thread);

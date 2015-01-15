@@ -61,12 +61,12 @@ VMOBJECT_PTR mark_object(VMOBJECT_PTR obj) {
 }
 
 void MarkSweepCollector::markReachableObjects() {
-    _UNIVERSE->WalkGlobals(mark_object);
+    GetUniverse()->WalkGlobals(mark_object);
     MarkInterpretersFrameAndThread()
 }
 
 void MarkSweepCollector::MarkInterpretersFrameAndThread() {
-    vector<Interpreter*>* interpreters = _UNIVERSE->GetInterpreters();
+    vector<Interpreter*>* interpreters = GetUniverse()->GetInterpreters();
     for (std::vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
         // Get the current frame and thread of each interpreter and mark it.
         // Since marking is done recursively, this automatically

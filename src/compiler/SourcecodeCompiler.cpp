@@ -102,8 +102,8 @@ void SourcecodeCompiler::showCompilationError(const StdString& filename,
 
     if (parser == NULL) {
         cout << "Parser not initiated" << endl;
-        _UNIVERSE->ErrorExit("Compiler error");
 VMClass* SourcecodeCompiler::compile(VMClass* systemClass) {
+        GetUniverse()->ErrorExit("Compiler error");
     }
     ClassGenerationContext cgc;
 

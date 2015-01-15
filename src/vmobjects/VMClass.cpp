@@ -96,7 +96,7 @@ void VMClass::MarkObjectAsInvalid() {
 bool VMClass::AddInstanceInvokable(VMObject* ptr) {
     VMInvokable* newInvokable = static_cast<VMInvokable*>(ptr);
     if (newInvokable == NULL) {
-        _UNIVERSE->ErrorExit("Error: trying to add non-invokable to invokables array");
+        GetUniverse()->ErrorExit("Error: trying to add non-invokable to invokables array");
     }
     //Check whether an invokable with the same signature exists and replace it if that's the case
     long numIndexableFields = this->GetInstanceInvokables()->GetNumberOfIndexableFields();
@@ -108,7 +108,7 @@ bool VMClass::AddInstanceInvokable(VMObject* ptr) {
                 return false;
             }
         } else {
-            _UNIVERSE->ErrorExit("Invokables array corrupted. Either NULL pointer added or pointer to non-invokable.");
+            GetUniverse()->ErrorExit("Invokables array corrupted. Either NULL pointer added or pointer to non-invokable.");
         }
     }
     //it's a new invokable so we need to expand the invokables array.
@@ -277,7 +277,7 @@ void VMClass::setPrimitives(const StdString& cname) {
                 cout << "could not load primitive '"<< selector
                 <<"' for class " << cname << endl;
 
-                _UNIVERSE->Quit(ERR_FAIL);
+                GetUniverse()->Quit(ERR_FAIL);
             }
 
             // set routine

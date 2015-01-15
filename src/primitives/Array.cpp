@@ -80,7 +80,7 @@ void _Array::Length(VMObject* /*object*/, VMFrame* frame) {
 #ifdef USE_TAGGING
     VMInteger* new_int = TAG_INTEGER(self->GetNumberOfIndexableFields());
 #else
-    pVMInteger new_int = _UNIVERSE->NewInteger(self->GetNumberOfIndexableFields());
+    VMInteger* new_int = GetUniverse()->NewInteger(self->GetNumberOfIndexableFields());
 #endif
     frame->Push(new_int);
 }
@@ -93,6 +93,6 @@ void _Array::New_(VMObject* /*object*/, VMFrame* frame) {
 #else
     long size = length->GetEmbeddedInteger();
 #endif
-    frame->Push(_UNIVERSE->NewArray(size));
+    frame->Push(GetUniverse()->NewArray(size));
 }
 

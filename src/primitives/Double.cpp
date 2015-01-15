@@ -64,7 +64,7 @@ double _Double::coerceDouble(VMObject* x) {
     else if(cl == READBARRIER(bigIntegerClass))
         return (double)static_cast<pVMBigInteger>(x)->GetEmbeddedInteger();
     else
-        _UNIVERSE->ErrorExit("Attempt to apply Double operation to non-number.");
+        GetUniverse()->ErrorExit("Attempt to apply Double operation to non-number.");
     return 0.0f;
 }
 
@@ -81,39 +81,39 @@ double _Double::coerceDouble(VMObject* x) {
 
 void _Double::Plus(VMObject* /*object*/, VMFrame* frame) {
     PREPARE_OPERANDS;
-    frame->Push(_UNIVERSE->NewDouble(left + right));
+    frame->Push(GetUniverse()->NewDouble(left + right));
 }
 
 void _Double::Minus(VMObject* /*object*/, VMFrame* frame) {
     PREPARE_OPERANDS;
-    frame->Push(_UNIVERSE->NewDouble(left - right));
+    frame->Push(GetUniverse()->NewDouble(left - right));
 }
 
 void _Double::Star(VMObject* /*object*/, VMFrame* frame) {
     PREPARE_OPERANDS;
-    frame->Push(_UNIVERSE->NewDouble(left * right));
+    frame->Push(GetUniverse()->NewDouble(left * right));
 }
 
 void _Double::Slashslash(VMObject* /*object*/, VMFrame* frame) {
     PREPARE_OPERANDS;
-    frame->Push(_UNIVERSE->NewDouble(left / right));
+    frame->Push(GetUniverse()->NewDouble(left / right));
 }
 
 void _Double::Percent(VMObject* /*object*/, VMFrame* frame) {
     PREPARE_OPERANDS;
-    frame->Push(_UNIVERSE->NewDouble((double)((int64_t)left %
+    frame->Push(GetUniverse()->NewDouble((double)((int64_t)left %
                     (int64_t)right)));
 }
 
 void _Double::And(VMObject* /*object*/, VMFrame* frame) {
     PREPARE_OPERANDS;
-    frame->Push(_UNIVERSE->NewDouble((double)((int64_t)left &
+    frame->Push(GetUniverse()->NewDouble((double)((int64_t)left &
                     (int64_t)right)));
 }
 
 void _Double::BitwiseXor(VMObject* /*object*/, VMFrame* frame) {
     PREPARE_OPERANDS;
-    frame->Push(_UNIVERSE->NewDouble((double)((int64_t)left ^
+    frame->Push(GetUniverse()->NewDouble((double)((int64_t)left ^
                     (int64_t)right)));
 }
 
@@ -144,7 +144,7 @@ void _Double::AsString(VMObject* /*object*/, VMFrame* frame) {
     ostringstream Str;
     Str.precision(17);
     Str << dbl;
-    frame->Push( _UNIVERSE->NewString( Str.str().c_str() ) );
+    frame->Push( GetUniverse()->NewString( Str.str().c_str() ) );
 }
 
 void _Double::Sqrt(VMObject* /*object*/, VMFrame* frame) {
@@ -159,12 +159,12 @@ void _Double::Round(VMObject* /*object*/, VMFrame* frame) {
 
     // Check with integer bounds and push:
     if (rounded > INT32_MAX || rounded < INT32_MIN)
-    frame->Push(_UNIVERSE->NewBigInteger(rounded));
+    frame->Push(GetUniverse()->NewBigInteger(rounded));
     else {
 #ifdef USE_TAGGING
         frame->Push(TAG_INTEGER((int32_t)rounded));
 #else
-        frame->Push(_UNIVERSE->NewInteger((int32_t)rounded));
+        frame->Push(GetUniverse()->NewInteger((int32_t)rounded));
 #endif
     }
 }

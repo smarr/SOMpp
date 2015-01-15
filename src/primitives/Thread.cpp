@@ -18,7 +18,7 @@ void _Thread::Join(VMObject* object, VMFrame* frame){
     pthread_t threadid = thread->GetEmbeddedThreadId();
 
 #if GC_TYPE==PAUSELESS
-    _UNIVERSE->GetInterpreter()->EnableBlocked();
+    GetUniverse()->GetInterpreter()->EnableBlocked();
 #else
     _HEAP->IncrementWaitingForGCThreads();
 #endif
@@ -26,7 +26,7 @@ void _Thread::Join(VMObject* object, VMFrame* frame){
     thread->Join(&returnValue);
     
 #if GC_TYPE==PAUSELESS
-    _UNIVERSE->GetInterpreter()->DisableBlocked();
+    GetUniverse()->GetInterpreter()->DisableBlocked();
 #else
     _HEAP->DecrementWaitingForGCThreads();
 #endif
@@ -58,9 +58,9 @@ void _Thread::Yield(VMObject* object, VMFrame* frame) {
 // Thread class >> #current
 // assert (threadClass != Interpreter_get_thread());
 // assert (Interpreter_get_thread()->GetClass() == threadClass);
-    frame->Push(_UNIVERSE->GetInterpreter()->GetThread());
 void _Thread::Current(VMObject* object, VMFrame* frame) {
     VMClass* threadClass = (VMClass*)frame->Pop();
+    frame->Push(GetUniverse()->GetInterpreter()->GetThread());
 }
 
  

@@ -27,12 +27,12 @@ AbstractVMObject* Page::AllocateObject(size_t size) {
 #if GC_TYPE==PAUSELESS
     if ((size_t)nextFreePosition > pageEnd) {
         sync_out(ostringstream() << "Failed to allocate " << size << " Bytes in page.");
-        _UNIVERSE->Quit(-1);
+        GetUniverse()->Quit(-1);
     }
 #elif GC_TYPE==GENERATIONAL
     if (nextFreePosition > treshold) {
         heap->RelinquishPage(this);
-        _UNIVERSE->GetInterpreter()->SetPage(_HEAP->RequestPage());
+        GetUniverse()->GetInterpreter()->SetPage(_HEAP->RequestPage());
     }
 #endif
     return newObject;

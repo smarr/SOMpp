@@ -34,13 +34,12 @@
 #include "../primitivesCore/Routine.h"
 #include "Symbol.h"
 
-_Symbol* Symbol;
 
 void _Symbol::AsString(VMObject* /*object*/, VMFrame* frame) {
     VMSymbol* sym = static_cast<VMSymbol*>(frame->Pop());
 
     StdString str = sym->GetStdString();
-    frame->Push(_UNIVERSE->NewString(str));
+    frame->Push(GetUniverse()->NewString(str));
 }
 
 _Symbol::_Symbol() :

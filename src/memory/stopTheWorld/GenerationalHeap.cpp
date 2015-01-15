@@ -26,7 +26,7 @@ AbstractVMObject* GenerationalHeap::AllocateMatureObject(size_t size) {
     VMOBJECT_PTR newObject = (VMOBJECT_PTR)malloc(size);
     if (newObject == NULL) {
         cout << "Failed to allocate " << size << " Bytes." << endl;
-        _UNIVERSE->Quit(-1);
+        GetUniverse()->Quit(-1);
     }
     pthread_mutex_lock(&allocationLock);
     allocatedObjects->push_back(newObject);

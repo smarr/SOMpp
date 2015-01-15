@@ -77,7 +77,7 @@ VMOBJECT_PTR copy_if_necessary(VMOBJECT_PTR obj) {
 
 void GenerationalCollector::MinorCollection() {
     // walk all globals
-    _UNIVERSE->WalkGlobals(&copy_if_necessary);
+    GetUniverse()->WalkGlobals(&copy_if_necessary);
 
     // and the current frames and threads
     CopyInterpretersFrameAndThread();
@@ -102,7 +102,7 @@ void GenerationalCollector::MinorCollection() {
         (*it)->ClearPage();
         _HEAP->availablePages->push_back((*it));
     }
-    vector<Interpreter*>* interpreters = _UNIVERSE->GetInterpreters();
+    vector<Interpreter*>* interpreters = GetUniverse()->GetInterpreters();
     for (std::vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
         Page* newPage = _HEAP->availablePages->back();
         _HEAP->availablePages->pop_back();
@@ -112,7 +112,7 @@ void GenerationalCollector::MinorCollection() {
 
 void GenerationalCollector::MajorCollection() {
     //first we have to mark all objects (globals and current frame recursively)
-    _UNIVERSE->WalkGlobals(&mark_object);
+    GetUniverse()->WalkGlobals(&mark_object);
     //and the current frame
     CopyInterpretersFrameAndThread();
 
@@ -156,7 +156,7 @@ void GenerationalCollector::Collect() {
 }
 
 void GenerationalCollector::CopyInterpretersFrameAndThread() {
-    vector<Interpreter*>* interpreters = _UNIVERSE->GetInterpreters();
+    vector<Interpreter*>* interpreters = GetUniverse()->GetInterpreters();
     for (std::vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
         // Get the current frame and thread of each interpreter and mark it.
         // Since marking is done recursively, this automatically

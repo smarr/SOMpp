@@ -57,11 +57,11 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
     numberOfArguments = TAG_INTEGER(0);
     this->numberOfConstants = TAG_INTEGER(numberOfConstants);
 #else
-    bcLength = WRITEBARRIER(_UNIVERSE->NewInteger(bcCount));
-    numberOfLocals = WRITEBARRIER(_UNIVERSE->NewInteger(0));
-    maximumNumberOfStackElements = WRITEBARRIER(_UNIVERSE->NewInteger(0));
-    numberOfArguments = WRITEBARRIER(_UNIVERSE->NewInteger(0));
-    this->numberOfConstants = WRITEBARRIER(_UNIVERSE->NewInteger(numberOfConstants));
+    bcLength = WRITEBARRIER(GetUniverse()->NewInteger(bcCount));
+    numberOfLocals = WRITEBARRIER(GetUniverse()->NewInteger(0));
+    maximumNumberOfStackElements = WRITEBARRIER(GetUniverse()->NewInteger(0));
+    numberOfArguments = WRITEBARRIER(GetUniverse()->NewInteger(0));
+    this->numberOfConstants = WRITEBARRIER(GetUniverse()->NewInteger(numberOfConstants));
 #endif
     indexableFields = (GCAbstractObject**)(&indexableFields + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
     for (long i = 0; i < numberOfConstants; ++i) {
@@ -133,7 +133,7 @@ void VMMethod::SetNumberOfLocals(long nol) {
 #ifdef USE_TAGGING
     numberOfLocals = TAG_INTEGER(nol);
 #else
-    numberOfLocals = WRITEBARRIER(_UNIVERSE->NewInteger(nol));
+    numberOfLocals = WRITEBARRIER(GetUniverse()->NewInteger(nol));
 #endif
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, READBARRIER(numberOfLocals));
@@ -152,7 +152,7 @@ void VMMethod::SetMaximumNumberOfStackElements(long stel) {
 #ifdef USE_TAGGING
     maximumNumberOfStackElements = TAG_INTEGER(stel);
 #else
-    maximumNumberOfStackElements = WRITEBARRIER(_UNIVERSE->NewInteger(stel));
+    maximumNumberOfStackElements = WRITEBARRIER(GetUniverse()->NewInteger(stel));
 #endif
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, READBARRIER(maximumNumberOfStackElements));
@@ -163,7 +163,7 @@ void VMMethod::SetNumberOfArguments(long noa) {
 #ifdef USE_TAGGING
     numberOfArguments = TAG_INTEGER(noa);
 #else
-    numberOfArguments = WRITEBARRIER(_UNIVERSE->NewInteger(noa));
+    numberOfArguments = WRITEBARRIER(GetUniverse()->NewInteger(noa));
 #endif
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, READBARRIER(numberOfArguments));
@@ -178,8 +178,8 @@ long VMMethod::GetNumberOfBytecodes() {
 #endif
 }
 
-void VMMethod::operator()(pVMFrame frame) {    
-    pVMFrame frm = _UNIVERSE->GetInterpreter()->PushNewFrame(this);
+void VMMethod::operator()(VMFrame* frame) {    
+    VMFrame* frm = GetUniverse()->GetInterpreter()->PushNewFrame(this);
     frm->CopyArgumentsFrom(frame);
 }
 

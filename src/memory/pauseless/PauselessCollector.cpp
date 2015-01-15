@@ -153,7 +153,7 @@ void* PauselessCollector::GCThread(void*) {
     // one thread signals to all mutator threads to mark their root-sets
     // interpreters which are blocked are added to a vector containing pointers to these interpreters so that there root-set can be processed by a gc thread
     if (!doneSignalling && pthread_mutex_trylock(&markRootSetsMutex) == 0) {
-        unique_ptr<vector<Interpreter*>> interpreters = _UNIVERSE->GetInterpretersCopy();
+        unique_ptr<vector<Interpreter*>> interpreters = GetUniverse()->GetInterpretersCopy();
         numberRootSetsToBeMarked = interpreters->size();
         for (vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
             (*it)->TriggerMarkRootSet();
@@ -167,7 +167,7 @@ void* PauselessCollector::GCThread(void*) {
     
     // one gc thread marks the globals
     if (!doneMarkingGlobals && pthread_mutex_trylock(&markGlobalsMutex) == 0) {
-        _UNIVERSE->MarkGlobals();
+        GetUniverse()->MarkGlobals();
         doneMarkingGlobals = true;
         pthread_mutex_unlock(&markGlobalsMutex);
     }
@@ -217,7 +217,7 @@ void* PauselessCollector::GCThread(void*) {
             if (!doneRequestCheckpoint) {
                 doneRequestCheckpoint = true;
                 numberOfMutatorsPassedSafepoint = 0;
-                unique_ptr<vector<Interpreter*>> interpreters = _UNIVERSE->GetInterpretersCopy();
+                unique_ptr<vector<Interpreter*>> interpreters = GetUniverse()->GetInterpretersCopy();
                 numberOfMutators = interpreters->size();
                 for (vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
                     (*it)->RequestSafePoint();
@@ -256,7 +256,7 @@ void* PauselessCollector::GCThread(void*) {
     // what about pages that are newly created at this point in time? They need to be aware of the fact that the GC-trap needs to be swiched off
     /*
     if (!doneBlockingPages && pthread_mutex_trylock(&blockPagesMutex) == 0) {
-        unique_ptr<vector<Interpreter*>> interpreters = _UNIVERSE->GetInterpretersCopy();
+        unique_ptr<vector<Interpreter*>> interpreters = GetUniverse()->GetInterpretersCopy();
         for (vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
             // no need for a barrier that waits till all mutators have reached safepoint as changing the boolean, at this point where we are guaranteed that no GC-trap will trigger anymore, has no consequence
             (*it)->DisableGCTrap();
