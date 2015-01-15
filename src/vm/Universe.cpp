@@ -672,7 +672,7 @@ void Universe::InitializeGlobals() {
     InitializeSystemClass(READBARRIER(signalClass), READBARRIER(objectClass), "Signal");
 
     // Fix up objectClass
-    READBARRIER(objectClass)->SetSuperClass((pVMClass) READBARRIER(nilObject));
+    READBARRIER(objectClass)->SetSuperClass((VMClass*) READBARRIER(nilObject));
 
     LoadSystemClass(READBARRIER(objectClass));
     LoadSystemClass(READBARRIER(classClass));
@@ -692,11 +692,11 @@ void Universe::InitializeGlobals() {
 
     blockClass = WRITEBARRIER(LoadClass(SymbolForChars("Block")));
 
-    pVMSymbol trueClassName = SymbolForChars("True");
+    VMSymbol* trueClassName = SymbolForChars("True");
     trueClass  = WRITEBARRIER(LoadClass(trueClassName));
     trueObject = (GCObject*) WRITEBARRIER(NewInstance(READBARRIER(trueClass)));
     
-    pVMSymbol falseClassName = SymbolForChars("False");
+    VMSymbol* falseClassName = SymbolForChars("False");
     falseClass  = WRITEBARRIER(LoadClass(falseClassName));
     falseObject = (GCObject*) WRITEBARRIER(NewInstance(READBARRIER(falseClass)));
 
@@ -712,11 +712,11 @@ void Universe::Assert(bool value) const {
 
 }
 
-pVMClass Universe::GetBlockClass() const {
+VMClass* Universe::GetBlockClass() const {
     return READBARRIER(blockClass);
 }
 
-pVMClass Universe::GetBlockClassWithArgs(long numberOfArguments) {
+VMClass* Universe::GetBlockClassWithArgs(long numberOfArguments) {
     map<long, GCClass*>::iterator it =
     blockClassesByNoOfArgs.find(numberOfArguments);
     if (it != blockClassesByNoOfArgs.end()) {
@@ -727,8 +727,8 @@ pVMClass Universe::GetBlockClassWithArgs(long numberOfArguments) {
 
     ostringstream Str;
     Str << "Block" << numberOfArguments;
-    pVMSymbol name = SymbolFor(Str.str());
-    pVMClass result = LoadClassBasic(name, NULL);
+    VMSymbol* name = SymbolFor(Str.str());
+    VMClass* result = LoadClassBasic(name, NULL);
     
 #if GC_TYPE==GENERATIONAL
     result->AddInstancePrimitive(new (_HEAP, _PAGE) VMEvaluationPrimitive(numberOfArguments) );
@@ -745,7 +745,7 @@ pVMClass Universe::GetBlockClassWithArgs(long numberOfArguments) {
 }
 
 #if GC_TYPE==PAUSELESS
-pVMObject Universe::GetGlobal(pVMSymbol name) {
+VMObject* Universe::GetGlobal(VMSymbol* name) {
     pthread_mutex_lock(&testMutex);
     map<GCSymbol*, GCAbstractObject*>::iterator it;
     it = globals.find((GCSymbol*) name);
@@ -761,7 +761,7 @@ pVMObject Universe::GetGlobal(pVMSymbol name) {
     }
 }
 #else
-pVMObject Universe::GetGlobal(pVMSymbol name) {
+VMObject* Universe::GetGlobal(VMSymbol* name) {
     map<GCSymbol*, GCAbstractObject*>::iterator it;
     it = globals.find((GCSymbol*) name);
     if (it == globals.end())
@@ -771,21 +771,21 @@ pVMObject Universe::GetGlobal(pVMSymbol name) {
 }
 #endif
 
-void Universe::InitializeSystemClass(pVMClass systemClass,
-pVMClass superClass, const char* name) {
+void Universe::InitializeSystemClass(VMClass* systemClass,
+VMClass* superClass, const char* name) {
     StdString s_name(name);
 
     if (superClass != NULL) {
         systemClass->SetSuperClass(superClass);
-        pVMClass sysClassClass = systemClass->GetClass();
-        pVMClass superClassClass = superClass->GetClass();
+        VMClass* sysClassClass = systemClass->GetClass();
+        VMClass* superClassClass = superClass->GetClass();
         sysClassClass->SetSuperClass(superClassClass);
     } else {
-        pVMClass sysClassClass = systemClass->GetClass();
+        VMClass* sysClassClass = systemClass->GetClass();
         sysClassClass->SetSuperClass(READBARRIER(classClass));
     }
 
-    pVMClass sysClassClass = systemClass->GetClass();
+    VMClass* sysClassClass = systemClass->GetClass();
 
     systemClass->SetInstanceFields(NewArray(0));
     sysClassClass->SetInstanceFields(NewArray(0));
@@ -802,9 +802,9 @@ pVMClass superClass, const char* name) {
     SetGlobal(systemClass->GetName(), systemClass);
 }
 
-pVMClass Universe::LoadClass(pVMSymbol name) {
+VMClass* Universe::LoadClass(VMSymbol* name) {
     pthread_mutex_lock(&classLoading);
-    pVMClass result = static_cast<pVMClass>(GetGlobal(name));
+    VMClass* result = static_cast<VMClass*>(GetGlobal(name));
     
     if (result != nullptr) {
         pthread_mutex_unlock(&classLoading);
@@ -1433,19 +1433,19 @@ VMSymbol* Universe::NewSymbol( const char* str ) {
     return result;
 }
 
-pVMClass Universe::NewSystemClass() const {
+VMClass* Universe::NewSystemClass() const {
 #if GC_TYPE==GENERATIONAL
-    pVMClass systemClass = new (_HEAP, _PAGE) VMClass();
+    VMClass* systemClass = new (_HEAP, _PAGE) VMClass();
     systemClass->SetClass(new (_HEAP, _PAGE) VMClass());
 #elif GC_TYPE==PAUSELESS
     VMClass* systemClass = new (_HEAP, GetUniverse()->GetInterpreter(), 0, true) VMClass();
     systemClass->SetClass(new (_HEAP, GetUniverse()->GetInterpreter(), 0, true) VMClass());
 #else
-    pVMClass systemClass = new (_HEAP) VMClass();
+    VMClass* systemClass = new (_HEAP) VMClass();
     systemClass->SetClass(new (_HEAP) VMClass());
 #endif
     
-    pVMClass mclass = systemClass->GetClass();
+    VMClass* mclass = systemClass->GetClass();
 
     mclass->SetClass(READBARRIER(metaClassClass));
 #ifdef GENERATE_ALLOCATION_STATISTICS
@@ -1455,7 +1455,7 @@ pVMClass Universe::NewSystemClass() const {
     return systemClass;
 }
 
-pVMSymbol Universe::SymbolFor(const StdString& str) {
+VMSymbol* Universe::SymbolFor(const StdString& str) {
     map<string, GCSymbol*>::iterator it = symbolsMap.find(str);
     
     if (it == symbolsMap.end()) {
@@ -1467,11 +1467,11 @@ pVMSymbol Universe::SymbolFor(const StdString& str) {
     //return (it == symbolsMap.end()) ? NewSymbol(str) : it->second;
 }
 
-pVMSymbol Universe::SymbolForChars(const char* str) {
+VMSymbol* Universe::SymbolForChars(const char* str) {
     return SymbolFor(str);
 }
 
-void Universe::SetGlobal(pVMSymbol name, pVMObject val) {
+void Universe::SetGlobal(VMSymbol* name, VMObject* val) {
     pthread_mutex_lock(&testMutex);
     globals[WRITEBARRIER(name)] = WRITEBARRIER(val);
     pthread_mutex_unlock(&testMutex);
