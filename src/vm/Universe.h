@@ -106,7 +106,7 @@ public:
         return heap;
     }
     
-    Interpreter* GetInterpreter();
+    FORCE_INLINE Interpreter* GetInterpreter() { return (Interpreter*)pthread_getspecific(interpreterKey); }
     Interpreter* NewInterpreter();
     void RemoveInterpreter();
     

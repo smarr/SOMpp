@@ -1477,10 +1477,6 @@ void Universe::SetGlobal(pVMSymbol name, pVMObject val) {
     pthread_mutex_unlock(&testMutex);
 }
 
-Interpreter* Universe::GetInterpreter() {
-    return (Interpreter*)pthread_getspecific(this->interpreterKey);
-}
-
 void Universe::RemoveInterpreter() {
     pthread_mutex_lock(&interpreterMutex);
     interpreters.erase(std::remove(interpreters.begin(), interpreters.end(), this->GetInterpreter()), interpreters.end());
