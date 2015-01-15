@@ -74,7 +74,7 @@ class PagedHeap {
     friend class Page;
     
 public:
-    static inline HEAP_CLS* GetHeap();
+    static FORCE_INLINE HEAP_CLS* GetHeap() { return theHeap; }
     static void InitializeHeap(long, long);
     static void DestroyHeap();
     PagedHeap(long, long);
@@ -112,10 +112,6 @@ private:
     static HEAP_CLS* theHeap;
     size_t maxObjSize;
 };
-
-HEAP_CLS* PagedHeap::GetHeap() {
-    return theHeap;
-}
 
 void PagedHeap::FreeObject(AbstractVMObject* obj) {
     free(obj);

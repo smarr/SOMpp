@@ -77,7 +77,7 @@ public:
     void         SignalEnableGCTrap();
     void         EnableGCTrap();
     bool         GCTrapEnabled();
-    bool         GetExpectedNMT();
+    FORCE_INLINE bool         GetExpectedNMT() { return expectedNMT; }
     void         AddFullPage(Page*);
     Page*        GetNonRelocatablePage();
     void         SetNonRelocatablePage(Page*);

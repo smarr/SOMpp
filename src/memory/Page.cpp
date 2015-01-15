@@ -62,10 +62,6 @@ void Page::UnBlock() {
     delete [] sideArray;
 }
 
-bool Page::Blocked() {
-    return blocked;
-}
-
 AbstractVMObject* Page::LookupNewAddress(AbstractVMObject* oldAddress, Interpreter* thread) {
     long position = ((size_t)oldAddress - pageStart)/8;
     if (!sideArray[position]) {

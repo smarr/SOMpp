@@ -782,10 +782,6 @@ bool Interpreter::GCTrapEnabled() {
     return gcTrapEnabled;
 }
 
-bool Interpreter::GetExpectedNMT() {
-    return expectedNMT;
-}
-
 //new --->
 bool Interpreter::TriggerGCTrap(Page* page) {
     pthread_mutex_lock(&prevent);

@@ -30,7 +30,9 @@ public:
 #if GC_TYPE==PAUSELESS
     void Block();
     void UnBlock();
-    bool Blocked();
+    FORCE_INLINE bool Blocked() {
+        return blocked;
+    }
     AbstractVMObject* LookupNewAddress(AbstractVMObject*, Interpreter*);
     AbstractVMObject* LookupNewAddress(AbstractVMObject*, PauselessCollectorThread*);
     void AddAmountLiveData(size_t);

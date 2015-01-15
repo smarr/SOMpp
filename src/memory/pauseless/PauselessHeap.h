@@ -39,8 +39,8 @@ public:
     void AddGCThread(PauselessCollectorThread*);
     
     // DIRTY
-    inline void* GetMemoryStart() {return memoryStart;}
-    inline vector<Page*>* GetAllPages() {return allPages;}
+    FORCE_INLINE void* GetMemoryStart() {return memoryStart;}
+    FORCE_INLINE vector<Page*>* GetAllPages() {return allPages;}
     inline int GetNumberOfMutatorsNeedEnableGCTrap() {return numberOfMutatorsNeedEnableGCTrap;}
     inline int GetNumberOfMutatorsWithEnabledGCTrap() {return numberOfMutatorsWithEnabledGCTrap;}
     inline pthread_mutex_t* GetGcTrapEnabledMutex() {return &gcTrapEnabledMutex;}
@@ -85,7 +85,7 @@ inline T* Flip(T* reference) {
 }
 
 template<typename T>
-inline typename T::Loaded* Untag(T* reference) {
+FORCE_INLINE typename T::Loaded* Untag(T* reference) {
     if (REFERENCE_NMT_VALUE(reference))
         return (typename T::Loaded*) FLIP_NMT_VALUE(reference);
     else
