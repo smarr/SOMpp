@@ -33,22 +33,20 @@ class VMFrame;
 class _Object: public PrimitiveContainer {
 public:
     _Object();
-    void Equalequal(pVMObject object, pVMFrame frame);
-    void ObjectSize(pVMObject object, pVMFrame frame);
-    void Hashcode(pVMObject object, pVMFrame frame);
-    void Inspect(pVMObject object, pVMFrame frame);
-    void Halt(pVMObject object, pVMFrame frame);
+    void Equalequal(VMObject* object, VMFrame* frame);
+    void ObjectSize(VMObject* object, VMFrame* frame);
+    void Hashcode(VMObject* object, VMFrame* frame);
+    void Inspect(VMObject* object, VMFrame* frame);
+    void Halt(VMObject* object, VMFrame* frame);
 
-    void Perform(pVMObject object, pVMFrame frame);
-    void PerformWithArguments(pVMObject object, pVMFrame frame);
-    void PerformInSuperclass(pVMObject object, pVMFrame frame);
-    void PerformWithArgumentsInSuperclass(pVMObject object, pVMFrame frame);
+    void Perform(VMObject* object, VMFrame* frame);
+    void PerformWithArguments(VMObject* object, VMFrame* frame);
+    void PerformInSuperclass(VMObject* object, VMFrame* frame);
+    void PerformWithArgumentsInSuperclass(VMObject* object, VMFrame* frame);
 
-    void InstVarAt(pVMObject object, pVMFrame frame);
-    void InstVarAtPut(pVMObject object, pVMFrame frame);
-    void InstVarNamed(pVMObject object, pVMFrame frame);
+    void InstVarAt(VMObject* object, VMFrame* frame);
+    void InstVarAtPut(VMObject* object, VMFrame* frame);
+    void InstVarNamed(VMObject* object, VMFrame* frame);
     
-    void Class(pVMObject object, pVMFrame frame);
+    void Class(VMObject* object, VMFrame* frame);
 };
-
-#endif

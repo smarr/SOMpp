@@ -38,28 +38,28 @@ VMDouble::VMDouble(double val) {
 }
 
 #if GC_TYPE==GENERATIONAL
-pVMDouble VMDouble::Clone() {
+VMDouble* VMDouble::Clone() {
     return new (_HEAP, _PAGE, 0, true) VMDouble(*this);
 }
 #elif GC_TYPE==PAUSELESS
-pVMDouble VMDouble::Clone(Interpreter* thread) {
-    pVMDouble clone = new (_HEAP, thread) VMDouble(*this);
+VMDouble* VMDouble::Clone(Interpreter* thread) {
+    VMDouble* clone = new (_HEAP, thread) VMDouble(*this);
     /* clone->IncreaseVersion();
     this->MarkObjectAsInvalid(); */
     return clone;
 }
-pVMDouble VMDouble::Clone(PauselessCollectorThread* thread) {
-    pVMDouble clone = new (_HEAP, thread) VMDouble(*this);
+VMDouble* VMDouble::Clone(PauselessCollectorThread* thread) {
+    VMDouble* clone = new (_HEAP, thread) VMDouble(*this);
     /* clone->IncreaseVersion();
     this->MarkObjectAsInvalid(); */
     return clone;
 }
 #else
-pVMDouble VMDouble::Clone() {
+VMDouble* VMDouble::Clone() {
     return new (_HEAP) VMDouble(*this);
 }
 #endif
 
-pVMClass VMDouble::GetClass() {
+VMClass* VMDouble::GetClass() {
     return READBARRIER(doubleClass);
 }

@@ -40,18 +40,18 @@ public:
     virtual void MarkObjectAsInvalid();
     
 #if GC_TYPE==PAUSELESS
-    virtual pVMEvaluationPrimitive Clone(Interpreter*);
-    virtual pVMEvaluationPrimitive Clone(PauselessCollectorThread*);
+    virtual VMEvaluationPrimitive* Clone(Interpreter*);
+    virtual VMEvaluationPrimitive* Clone(PauselessCollectorThread*);
     virtual void MarkReferences();
     virtual void CheckMarking(void (AbstractVMObject*));
 #else
-    virtual pVMEvaluationPrimitive Clone();
+    virtual VMEvaluationPrimitive* Clone();
     virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
 #endif
     
 private:
-    static pVMSymbol computeSignatureString(long argc);
-    void evaluationRoutine(pVMObject object, pVMFrame frame);
+    static VMSymbol* computeSignatureString(long argc);
+    void evaluationRoutine(VMObject* object, VMFrame* frame);
     GCInteger* numberOfArguments;
 
 };

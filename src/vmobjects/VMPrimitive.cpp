@@ -35,13 +35,13 @@
 //needed to instanciate the Routine object for the  empty routine
 #include "../primitivesCore/Routine.h"
 
-pVMPrimitive VMPrimitive::GetEmptyPrimitive( pVMSymbol sig ) {
+VMPrimitive* VMPrimitive::GetEmptyPrimitive( VMSymbol* sig ) {
 #if GC_TYPE==GENERATIONAL
-    pVMPrimitive prim = new (_HEAP, _PAGE) VMPrimitive(sig);
+    VMPrimitive* prim = new (_HEAP, _PAGE) VMPrimitive(sig);
 #elif GC_TYPE==PAUSELESS
     pVMPrimitive prim = new (_HEAP, _UNIVERSE->GetInterpreter(), 0, true) VMPrimitive(sig);
 #else
-    pVMPrimitive prim = new (_HEAP) VMPrimitive(sig);
+    VMPrimitive* prim = new (_HEAP) VMPrimitive(sig);
 #endif
     prim->empty = true;
     prim->SetRoutine(new Routine<VMPrimitive>(prim, &VMPrimitive::EmptyRoutine));
@@ -50,7 +50,7 @@ pVMPrimitive VMPrimitive::GetEmptyPrimitive( pVMSymbol sig ) {
 
 const int VMPrimitive::VMPrimitiveNumberOfFields = 2;
 
-VMPrimitive::VMPrimitive(pVMSymbol signature) : VMInvokable(VMPrimitiveNumberOfFields) {
+VMPrimitive::VMPrimitive(VMSymbol* signature) : VMInvokable(VMPrimitiveNumberOfFields) {
     //the only class that explicitly does this.
     this->SetClass(READBARRIER(primitiveClass));
 
@@ -60,31 +60,31 @@ VMPrimitive::VMPrimitive(pVMSymbol signature) : VMInvokable(VMPrimitiveNumberOfF
 }
 
 #if GC_TYPE==GENERATIONAL
-pVMPrimitive VMPrimitive::Clone() {
+VMPrimitive* VMPrimitive::Clone() {
     return new (_HEAP, _PAGE, 0, true) VMPrimitive(*this);
 }
 #elif GC_TYPE==PAUSELESS
-pVMPrimitive VMPrimitive::Clone(Interpreter* thread) {
-    pVMPrimitive clone = new (_HEAP, thread) VMPrimitive(*this);
+VMPrimitive* VMPrimitive::Clone(Interpreter* thread) {
+    VMPrimitive* clone = new (_HEAP, thread) VMPrimitive(*this);
     /* clone->IncreaseVersion();
     this->MarkObjectAsInvalid(); */
     return clone;
 }
-pVMPrimitive VMPrimitive::Clone(PauselessCollectorThread* thread) {
-    pVMPrimitive clone = new (_HEAP, thread) VMPrimitive(*this);
+VMPrimitive* VMPrimitive::Clone(PauselessCollectorThread* thread) {
+    VMPrimitive* clone = new (_HEAP, thread) VMPrimitive(*this);
     /* clone->IncreaseVersion();
     this->MarkObjectAsInvalid(); */
     return clone;
 }
 #else
-pVMPrimitive VMPrimitive::Clone() {
+VMPrimitive* VMPrimitive::Clone() {
     return new (_HEAP) VMPrimitive(*this);
 }
 #endif
 
-void VMPrimitive::EmptyRoutine( pVMObject _self, pVMFrame /*frame*/) {
-    pVMInvokable self = static_cast<pVMInvokable>(_self);
-    pVMSymbol sig = self->GetSignature();
+void VMPrimitive::EmptyRoutine( VMObject* _self, VMFrame* /*frame*/) {
+    VMInvokable* self = static_cast<VMInvokable*>(_self);
+    VMSymbol* sig = self->GetSignature();
     cout << "undefined primitive called: " << sig->GetChars() << endl;
 }
 

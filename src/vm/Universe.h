@@ -116,31 +116,31 @@ public:
 
     void Assert(bool) const;
 
-    pVMSymbol SymbolFor(const StdString&);
-    pVMSymbol SymbolForChars(const char*);
+    VMSymbol* SymbolFor(const StdString&);
+    VMSymbol* SymbolForChars(const char*);
 
     //VMObject instanciation methods. These should probably be refactored to a new class
-    pVMArray NewArray(long) const;
-    pVMArray NewArrayList(ExtendedList<pVMObject>& list) const;
-    pVMArray NewArrayList(ExtendedList<pVMSymbol>& list) const;
-    pVMArray NewArrayFromStrings(const vector<StdString>&) const;
-    pVMBlock NewBlock(pVMMethod, pVMFrame, long);
-    pVMClass NewClass(pVMClass) const;
-    pVMFrame NewFrame(pVMFrame, pVMMethod) const;
-    pVMMethod NewMethod(pVMSymbol, size_t, size_t) const;
-    pVMObject NewInstance(pVMClass) const;
-    pVMInteger NewInteger(long) const;
     pVMBigInteger NewBigInteger(int64_t) const;
-    pVMDouble NewDouble(double) const;
-    pVMClass NewMetaclassClass(void) const;
-    pVMString NewString(const StdString&) const;
-    pVMSymbol NewSymbol(const StdString&);
-    pVMString NewString(const char*) const;
-    pVMSymbol NewSymbol(const char*);
-    pVMClass NewSystemClass(void) const;
-    pVMMutex NewMutex() const;
-    pVMSignal NewSignal() const;
-    pVMThread NewThread() const;
+    VMArray* NewArray(long) const;
+    VMArray* NewArrayList(ExtendedList<VMObject*>& list) const;
+    VMArray* NewArrayList(ExtendedList<VMSymbol*>& list) const;
+    VMArray* NewArrayFromStrings(const vector<StdString>&) const;
+    VMBlock* NewBlock(VMMethod*, VMFrame*, long);
+    VMClass* NewClass(VMClass*) const;
+    VMFrame* NewFrame(VMFrame*, VMMethod*) const;
+    VMMethod* NewMethod(VMSymbol*, size_t, size_t) const;
+    VMObject* NewInstance(VMClass*) const;
+    VMInteger* NewInteger(long) const;
+    VMDouble* NewDouble(double) const;
+    VMClass* NewMetaclassClass(void) const;
+    VMString* NewString(const StdString&) const;
+    VMSymbol* NewSymbol(const StdString&);
+    VMString* NewString(const char*) const;
+    VMSymbol* NewSymbol(const char*);
+    VMClass* NewSystemClass(void) const;
+    VMMutex* NewMutex() const;
+    VMSignal* NewSignal() const;
+    VMThread* NewThread() const;
    
 #if GC_TYPE==PAUSELESS
     void MarkGlobals();
@@ -149,22 +149,22 @@ public:
     void WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
 #endif
 
-    void InitializeSystemClass(pVMClass, pVMClass, const char*);
+    void InitializeSystemClass(VMClass*, VMClass*, const char*);
 
-    pVMObject GetGlobal(pVMSymbol);
-    void SetGlobal(pVMSymbol name, pVMObject val);
+    VMObject* GetGlobal(VMSymbol*);
+    void SetGlobal(VMSymbol* name, VMObject* val);
     void InitializeGlobals();
-    pVMClass GetBlockClass(void) const;
-    pVMClass GetBlockClassWithArgs(long);
+    VMClass* GetBlockClass(void) const;
+    VMClass* GetBlockClassWithArgs(long);
 
-    pVMClass LoadClass(pVMSymbol);
-    void LoadSystemClass(pVMClass);
-    pVMClass LoadClassBasic(pVMSymbol, pVMClass);
-    pVMClass LoadShellClass(StdString&);
+    VMClass* LoadClass(VMSymbol*);
+    void LoadSystemClass(VMClass*);
+    VMClass* LoadClassBasic(VMSymbol*, VMClass*);
+    VMClass* LoadShellClass(StdString&);
 
     Universe();
     ~Universe();
-    
+
 #ifdef LOG_RECEIVER_TYPES
     struct stat_data {
         long noCalls;

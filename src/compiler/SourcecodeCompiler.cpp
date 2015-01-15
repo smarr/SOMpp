@@ -43,10 +43,10 @@ SourcecodeCompiler::~SourcecodeCompiler() {
         delete (parser);
 }
 
-pVMClass SourcecodeCompiler::CompileClass( const StdString& path,
+VMClass* SourcecodeCompiler::CompileClass(const StdString& path,
         const StdString& file,
-        pVMClass systemClass ) {
-    pVMClass result = systemClass;
+        VMClass* systemClass) {
+    VMClass* result = systemClass;
 
     StdString fname = path + fileSeparator + file + ".som";
 
@@ -60,7 +60,7 @@ pVMClass SourcecodeCompiler::CompileClass( const StdString& path,
     parser = new Parser(*fp);
     result = compile(systemClass);
 
-    pVMSymbol cname = result->GetName();
+    VMSymbol* cname = result->GetName();
     StdString cnameC = cname->GetStdString();
 
     if (file != cnameC) {
@@ -80,13 +80,13 @@ pVMClass SourcecodeCompiler::CompileClass( const StdString& path,
     return result;
 }
 
-pVMClass SourcecodeCompiler::CompileClassString( const StdString& stream,
-        pVMClass systemClass ) {
+VMClass* SourcecodeCompiler::CompileClassString(const StdString& stream,
+        VMClass* systemClass) {
     istringstream* ss = new istringstream(stream);
     if (parser != NULL) delete(parser);
     parser = new Parser(*ss);
 
-    pVMClass result = compile(systemClass);
+    VMClass* result = compile(systemClass);
     delete(parser);
     parser = NULL;
     delete(ss);
@@ -100,14 +100,14 @@ void SourcecodeCompiler::showCompilationError(const StdString& filename,
     cout << message << endl;
 }
 
-pVMClass SourcecodeCompiler::compile(pVMClass systemClass) {
     if (parser == NULL) {
         cout << "Parser not initiated" << endl;
         _UNIVERSE->ErrorExit("Compiler error");
+VMClass* SourcecodeCompiler::compile(VMClass* systemClass) {
     }
     ClassGenerationContext cgc;
 
-    pVMClass result = systemClass;
+    VMClass* result = systemClass;
 
     parser->Classdef(&cgc);
 

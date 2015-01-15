@@ -51,13 +51,13 @@ bool VMSignal::SignalAll() {
 }
 
 #if GC_TYPE==PAUSELESS
-pVMSignal VMSignal::Clone(Interpreter* thread) {
-    pVMSignal clone = new (_HEAP, thread, objectSize - sizeof(VMSignal)) VMSignal(*this);
+VMSignal* VMSignal::Clone(Interpreter* thread) {
+    VMSignal* clone = new (_HEAP, thread, objectSize - sizeof(VMSignal)) VMSignal(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     return clone;
 }
-pVMSignal VMSignal::Clone(PauselessCollectorThread* thread) {
-    pVMSignal clone = new (_HEAP, thread, objectSize - sizeof(VMSignal)) VMSignal(*this);
+VMSignal* VMSignal::Clone(PauselessCollectorThread* thread) {
+    VMSignal* clone = new (_HEAP, thread, objectSize - sizeof(VMSignal)) VMSignal(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     return clone;
 }
@@ -76,8 +76,8 @@ void VMSignal::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     clazz = (GCClass*) (walk(READBARRIER(clazz)));
 }
 
-pVMSignal VMSignal::Clone() {
-    pVMSignal clone = new (_HEAP, _PAGE, objectSize - sizeof(VMSignal)) VMSignal(*this);
+VMSignal* VMSignal::Clone() {
+    VMSignal* clone = new (_HEAP, _PAGE, objectSize - sizeof(VMSignal)) VMSignal(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     return clone;
 }

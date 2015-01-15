@@ -38,18 +38,18 @@ public:
     
     VMBlock();
 
-            pVMMethod GetMethod();
-            void      SetMethod(pVMMethod);
-    inline  void      SetContext(pVMFrame);
-    inline  pVMFrame  GetContext();
+            VMMethod* GetMethod();
+            void      SetMethod(VMMethod*);
+    inline  void      SetContext(VMFrame*);
+    inline  VMFrame*  GetContext();
     
     virtual void MarkObjectAsInvalid();
     
 #if GC_TYPE==PAUSELESS
-    virtual pVMBlock Clone(Interpreter*);
-    virtual pVMBlock Clone(PauselessCollectorThread*);
+    virtual VMBlock* Clone(Interpreter*);
+    virtual VMBlock* Clone(PauselessCollectorThread*);
 #else
-    virtual pVMBlock Clone();
+    virtual VMBlock* Clone();
 #endif
     
 private:

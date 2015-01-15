@@ -37,16 +37,16 @@ public:
 
     inline  void     SetEmbeddedDouble(double);
     inline  double   GetEmbeddedDouble() const;
-    virtual pVMClass GetClass();
+    virtual VMClass* GetClass();
     inline virtual size_t GetObjectSize() const;
     
     virtual void MarkObjectAsInvalid() {}
     
 #if GC_TYPE==PAUSELESS
-    virtual pVMDouble Clone(Interpreter*);
-    virtual pVMDouble Clone(PauselessCollectorThread*);
+    virtual VMDouble* Clone(Interpreter*);
+    virtual VMDouble* Clone(PauselessCollectorThread*);
 #else
-    virtual pVMDouble Clone();
+    virtual VMDouble* Clone();
 #endif
     
 private:

@@ -32,9 +32,9 @@
 
 class Disassembler {
 public:
-    static void Dump(pVMClass cl);
-    static void DumpMethod(pVMMethod method, const char* indent);
-    static void DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx);
+    static void Dump(VMClass* cl);
+    static void DumpMethod(VMMethod* method, const char* indent);
+    static void DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx);
 private:
     static void dispatch(pVMObject o);
 };

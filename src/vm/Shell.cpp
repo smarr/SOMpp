@@ -48,7 +48,7 @@ Shell::Shell() {
     bootstrapMethod = NULL;
 }
 
-Shell::Shell(pVMMethod bsm) {
+Shell::Shell(VMMethod* bsm) {
     this->bootstrapMethod = bsm;
 }
 

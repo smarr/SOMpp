@@ -39,14 +39,14 @@ public:
     StdString GetStdString() const;
     size_t GetStringLength() const;
 
-    virtual pVMClass GetClass();
+    virtual VMClass* GetClass();
     virtual size_t GetObjectSize() const;
 
 #if GC_TYPE==PAUSELESS
-    virtual pVMString Clone(Interpreter*);
-    virtual pVMString Clone(PauselessCollectorThread*);
+    virtual VMString* Clone(Interpreter*);
+    virtual VMString* Clone(PauselessCollectorThread*);
 #else
-    virtual pVMString Clone();
+    virtual VMString* Clone();
 #endif
     
     virtual void MarkObjectAsInvalid();

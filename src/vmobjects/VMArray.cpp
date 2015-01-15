@@ -44,7 +44,7 @@ VMArray::VMArray(long size, long nof) :
     }
 }
 
-pVMObject VMArray::GetIndexableField(long idx) {
+VMObject* VMArray::GetIndexableField(long idx) {
     if (idx > GetNumberOfIndexableFields()) {
         cout << "Array index out of bounds: Accessing " << idx
         << ", but array size is only " << GetNumberOfIndexableFields()
@@ -54,7 +54,7 @@ pVMObject VMArray::GetIndexableField(long idx) {
     return GetField(GetNumberOfFields() + idx);
 }
 
-void VMArray::SetIndexableField(long idx, pVMObject value) {
+void VMArray::SetIndexableField(long idx, VMObject* value) {
     if (idx > GetNumberOfIndexableFields()) {
         cout << "Array index out of bounds: Accessing " << idx
         << ", but array size is only " << GetNumberOfIndexableFields()
@@ -64,18 +64,18 @@ void VMArray::SetIndexableField(long idx, pVMObject value) {
     SetField(GetNumberOfFields() + idx, value);
 }
 
-pVMArray VMArray::CopyAndExtendWith(pVMObject item) {
+VMArray* VMArray::CopyAndExtendWith(VMObject* item) {
     size_t fields = GetNumberOfIndexableFields();
-    pVMArray result = _UNIVERSE->NewArray(fields + 1);
+    VMArray* result = GetUniverse()->NewArray(fields + 1);
     this->CopyIndexableFieldsTo(result);
     result->SetIndexableField(fields, item);
     return result;
 }
 
 #if GC_TYPE==GENERATIONAL
-pVMArray VMArray::Clone() {
+VMArray* VMArray::Clone() {
     long addSpace = objectSize - sizeof(VMArray);
-    pVMArray clone = new (_HEAP, _PAGE, addSpace, true) VMArray(*this);
+    VMArray* clone = new (_HEAP, _PAGE, addSpace, true) VMArray(*this);
     void* destination = SHIFTED_PTR(clone, sizeof(VMArray));
     const void* source = SHIFTED_PTR(this, sizeof(VMArray));
     size_t noBytes = GetObjectSize() - sizeof(VMArray);
@@ -83,9 +83,9 @@ pVMArray VMArray::Clone() {
     return clone;
 }
 #elif GC_TYPE==PAUSELESS
-pVMArray VMArray::Clone(Interpreter* thread) {
+VMArray* VMArray::Clone(Interpreter* thread) {
     long addSpace = objectSize - sizeof(VMArray);
-    pVMArray clone = new (_HEAP, thread, addSpace) VMArray(*this);
+    VMArray* clone = new (_HEAP, thread, addSpace) VMArray(*this);
     void* destination = SHIFTED_PTR(clone, sizeof(VMArray));
     const void* source = SHIFTED_PTR(this, sizeof(VMArray));
     size_t noBytes = GetObjectSize() - sizeof(VMArray);
@@ -94,9 +94,9 @@ pVMArray VMArray::Clone(Interpreter* thread) {
     this->MarkObjectAsInvalid(); */
     return clone;
 }
-pVMArray VMArray::Clone(PauselessCollectorThread* thread) {
+VMArray* VMArray::Clone(PauselessCollectorThread* thread) {
     long addSpace = objectSize - sizeof(VMArray);
-    pVMArray clone = new (_HEAP, thread, addSpace) VMArray(*this);
+    VMArray* clone = new (_HEAP, thread, addSpace) VMArray(*this);
     void* destination = SHIFTED_PTR(clone, sizeof(VMArray));
     const void* source = SHIFTED_PTR(this, sizeof(VMArray));
     size_t noBytes = GetObjectSize() - sizeof(VMArray);
@@ -106,9 +106,9 @@ pVMArray VMArray::Clone(PauselessCollectorThread* thread) {
     return clone;
 }
 #else
-pVMArray VMArray::Clone() {
+VMArray* VMArray::Clone() {
     long addSpace = objectSize - sizeof(VMArray);
-    pVMArray clone = new (_HEAP, addSpace) VMArray(*this);
+    VMArray* clone = new (_HEAP, addSpace) VMArray(*this);
     void* destination = SHIFTED_PTR(clone, sizeof(VMArray));
     const void* source = SHIFTED_PTR(this, sizeof(VMArray));
     size_t noBytes = GetObjectSize() - sizeof(VMArray);
@@ -125,7 +125,7 @@ void VMArray::MarkObjectAsInvalid() {
     }
 }
 
-void VMArray::CopyIndexableFieldsTo(pVMArray to) {
+void VMArray::CopyIndexableFieldsTo(VMArray* to) {
     long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {
         to->SetIndexableField(i, GetIndexableField(i));
@@ -160,7 +160,7 @@ void VMArray::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     clazz = (GCClass*) walk(READBARRIER(clazz));
     long numFields          = GetNumberOfFields();
     long numIndexableFields = GetNumberOfIndexableFields();
-    //pVMObject* fields = FIELDS;
+    //VMObject** fields = FIELDS;
     for (long i = 0; i < numFields + numIndexableFields; i++) {
         FIELDS[i] = (GCAbstractObject*) walk(AS_VM_POINTER(FIELDS[i]));
     }

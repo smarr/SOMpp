@@ -34,8 +34,8 @@ class VMFrame;
 class _Array: public PrimitiveContainer {
 public:
     _Array();
-    void New_(pVMObject object, pVMFrame frame);
-    void At_(pVMObject object, pVMFrame frame);
-    void At_Put_(pVMObject object, pVMFrame frame);
-    void Length(pVMObject object, pVMFrame frame);
+    void New_(VMObject* object, VMFrame* frame);
+    void At_(VMObject* object, VMFrame* frame);
+    void At_Put_(VMObject* object, VMFrame* frame);
+    void Length(VMObject* object, VMFrame* frame);
 };

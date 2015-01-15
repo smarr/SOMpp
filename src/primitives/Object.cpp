@@ -73,15 +73,15 @@ _Object::_Object() :
     this->SetPrimitive("class", new Routine<_Object>(this, &_Object::Class));
 }
 
-void _Object::Equalequal(pVMObject /*object*/, pVMFrame frame) {
-    pVMObject op1 = frame->Pop();
-    pVMObject op2 = frame->Pop();
+void _Object::Equalequal(VMObject* /*object*/, VMFrame* frame) {
+    VMObject* op1 = frame->Pop();
+    VMObject* op2 = frame->Pop();
     
     frame->Push( op1 == op2 ? READBARRIER(trueObject) : READBARRIER(falseObject) );
 }
 
-void _Object::ObjectSize(pVMObject /*object*/, pVMFrame frame) {
-    pVMObject self = frame->Pop();
+void _Object::ObjectSize(VMObject* /*object*/, VMFrame* frame) {
+    VMObject* self = frame->Pop();
 
 #ifdef USE_TAGGING
     if IS_TAGGED(self)
@@ -93,8 +93,8 @@ void _Object::ObjectSize(pVMObject /*object*/, pVMFrame frame) {
 #endif
 }
 
-void _Object::Hashcode(pVMObject /*object*/, pVMFrame frame) {
-    pVMObject self = frame->Pop();
+void _Object::Hashcode(VMObject* /*object*/, VMFrame* frame) {
+    VMObject* self = frame->Pop();
 #ifdef USE_TAGGING
     if (IS_TAGGED(self))
     frame->Push(self);
@@ -105,101 +105,101 @@ void _Object::Hashcode(pVMObject /*object*/, pVMFrame frame) {
 #endif
 }
 
-void _Object::Inspect(pVMObject, pVMFrame frame) {
+void _Object::Inspect(VMObject*, VMFrame* frame) {
     // not implemeted
     frame->Pop();
     frame->Push(READBARRIER(falseObject));
 }
 
-void _Object::Halt(pVMObject, pVMFrame frame) {
+void _Object::Halt(VMObject*, VMFrame* frame) {
     // not implemeted
     frame->Pop();
     frame->Push(READBARRIER(falseObject));
 }
 
-void _Object::Perform(pVMObject, pVMFrame frame) {
-    pVMSymbol selector = (pVMSymbol)frame->Pop();
-    pVMObject self = frame->GetStackElement(0);
+void _Object::Perform(VMObject*, VMFrame* frame) {
+    VMSymbol* selector = (VMSymbol*)frame->Pop();
+    VMObject* self = frame->GetStackElement(0);
 
-    pVMClass clazz = self->GetClass();
-    pVMInvokable invokable = clazz->LookupInvokable(selector);
-
-    (*invokable)(frame);
-}
-
-void _Object::PerformInSuperclass(pVMObject object, pVMFrame frame) {
-    pVMClass clazz = (pVMClass) frame->Pop();
-    pVMSymbol selector = (pVMSymbol)frame->Pop();
-
-    pVMInvokable invokable = clazz->LookupInvokable(selector);
+    VMClass* clazz = self->GetClass();
+    VMInvokable* invokable = clazz->LookupInvokable(selector);
 
     (*invokable)(frame);
 }
 
-void _Object::PerformWithArguments(pVMObject object, pVMFrame frame) {
-    pVMArray args = (pVMArray) frame->Pop();
-    pVMSymbol selector = (pVMSymbol)frame->Pop();
-    pVMObject self = frame->GetStackElement(0);
+void _Object::PerformInSuperclass(VMObject* object, VMFrame* frame) {
+    VMClass* clazz = (VMClass*) frame->Pop();
+    VMSymbol* selector = (VMSymbol*)frame->Pop();
+
+    VMInvokable* invokable = clazz->LookupInvokable(selector);
+
+    (*invokable)(frame);
+}
+
+void _Object::PerformWithArguments(VMObject* object, VMFrame* frame) {
+    VMArray* args = (VMArray*) frame->Pop();
+    VMSymbol* selector = (VMSymbol*)frame->Pop();
+    VMObject* self = frame->GetStackElement(0);
 
     size_t num_args = args->GetNumberOfIndexableFields();
     for (size_t i = 0; i < num_args; i++) {
-        pVMObject arg = args->GetIndexableField(i);
+        VMObject* arg = args->GetIndexableField(i);
         frame->Push(arg);
     }
 
-    pVMClass clazz = self->GetClass();
-    pVMInvokable invokable = clazz->LookupInvokable(selector);
+    VMClass* clazz = self->GetClass();
+    VMInvokable* invokable = clazz->LookupInvokable(selector);
 
     (*invokable)(frame);
 }
 
-void _Object::PerformWithArgumentsInSuperclass(pVMObject object, pVMFrame frame) {
-    pVMClass clazz = (pVMClass) frame->Pop();
-    pVMArray args = (pVMArray) frame->Pop();
-    pVMSymbol selector = (pVMSymbol)frame->Pop();
+void _Object::PerformWithArgumentsInSuperclass(VMObject* object, VMFrame* frame) {
+    VMClass* clazz = (VMClass*) frame->Pop();
+    VMArray* args = (VMArray*) frame->Pop();
+    VMSymbol* selector = (VMSymbol*)frame->Pop();
 
     size_t num_args = args->GetNumberOfIndexableFields();
     for (size_t i = 0; i < num_args; i++) {
-        pVMObject arg = args->GetIndexableField(i);
+        VMObject* arg = args->GetIndexableField(i);
         frame->Push(arg);
     }
 
-    pVMInvokable invokable = clazz->LookupInvokable(selector);
+    VMInvokable* invokable = clazz->LookupInvokable(selector);
 
     (*invokable)(frame);
 }
 
-void _Object::InstVarAt(pVMObject object, pVMFrame frame) {
-    pVMInteger idx = (pVMInteger) frame->Pop();
-    pVMObject self = frame->Pop();
+void _Object::InstVarAt(VMObject* object, VMFrame* frame) {
+    VMInteger* idx = (VMInteger*) frame->Pop();
+    VMObject* self = frame->Pop();
 
     long field_idx = idx->GetEmbeddedInteger() - 1;
-    pVMObject value = static_cast<VMObject*>(self)->GetField(field_idx);
+    VMObject* value = static_cast<VMObject*>(self)->GetField(field_idx);
 
     frame->Push(value);
 }
 
-void _Object::InstVarAtPut(pVMObject object, pVMFrame frame) {
-    pVMObject value = frame->Pop();
-    pVMInteger idx = (pVMInteger) frame->Pop();
-    pVMObject self = frame->GetStackElement(0);
+void _Object::InstVarAtPut(VMObject* object, VMFrame* frame) {
+    VMObject* value = frame->Pop();
+    VMInteger* idx = (VMInteger*) frame->Pop();
+    VMObject* self = frame->GetStackElement(0);
 
     long field_idx = idx->GetEmbeddedInteger() - 1;
 
     static_cast<VMObject*>(self)->SetField(field_idx, value);
 }
 
-void _Object::InstVarNamed(pVMObject object, pVMFrame frame) {
-    pVMSymbol name = (pVMSymbol) frame->Pop();
-    pVMObject self = frame->Pop();
+void _Object::InstVarNamed(VMObject* object, VMFrame* frame) {
+    VMSymbol* name = (VMSymbol*) frame->Pop();
+    VMObject* self = frame->Pop();
 
     long field_idx = self->GetFieldIndex(name);
-    pVMObject value = static_cast<VMObject*>(self)->GetField(field_idx);
+    VMObject* value = static_cast<VMObject*>(self)->GetField(field_idx);
 
     frame->Push(value);
 }
 
-void _Object::Class(pVMObject object, pVMFrame frame) {
-    pVMObject self = frame->Pop();
+void _Object::Class(VMObject* object, VMFrame* frame) {
+    VMObject* self = frame->Pop();
     frame->Push(self->GetClass());
 }

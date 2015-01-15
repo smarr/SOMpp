@@ -1,13 +1,13 @@
 #pragma once
 
-void VMBlock::SetContext(pVMFrame contxt) {
+void VMBlock::SetContext(VMFrame* contxt) {
     context = WRITEBARRIER(contxt);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, (AbstractVMObject*)contxt);
 #endif
 }
 
-pVMFrame VMBlock::GetContext() {
+VMFrame* VMBlock::GetContext() {
     return READBARRIER(context);
 }
 

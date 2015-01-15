@@ -38,13 +38,13 @@ public:
     
     VMInvokable(long nof = 0) : VMObject(nof + 2) {};
     // virtual operator "()" to invoke the invokable
-    virtual void      operator()(pVMFrame) = 0;
+    virtual void      operator()(VMFrame*) = 0;
 
     virtual bool      IsPrimitive() const;
-            pVMSymbol GetSignature();
-    virtual void      SetSignature(pVMSymbol sig);
-            pVMClass  GetHolder();
-            void      SetHolder(pVMClass hld);
+            VMSymbol* GetSignature();
+    virtual void      SetSignature(VMSymbol* sig);
+            VMClass*  GetHolder();
+            void      SetHolder(VMClass* hld);
     
     virtual        void      MarkObjectAsInvalid();
 

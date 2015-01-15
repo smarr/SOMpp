@@ -19,6 +19,6 @@ public:
     _Delay();
     
     /** makes the current thread wait for a certain amount of time */
-    void Wait(pVMObject object, pVMFrame frame);
+    void Wait(VMObject* object, VMFrame* frame);
     
 };

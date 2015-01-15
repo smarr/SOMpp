@@ -18,20 +18,20 @@ size_t AbstractVMObject::GetHash() {
     return (size_t) this;
 }
 
-void AbstractVMObject::Send(StdString selectorString, pVMObject* arguments, long argc) {
-    pVMSymbol selector = _UNIVERSE->SymbolFor(selectorString);
-    pVMFrame frame = _UNIVERSE->GetInterpreter()->GetFrame();
+void AbstractVMObject::Send(StdString selectorString, VMObject** arguments, long argc) {
+    VMSymbol* selector = GetUniverse()->SymbolFor(selectorString);
+    VMFrame* frame = GetUniverse()->GetInterpreter()->GetFrame();
     frame->Push(this);
 
     for (long i = 0; i < argc; ++i) {
         frame->Push(arguments[i]);
     }
 
-    pVMClass cl = this->GetClass();
-    pVMInvokable invokable = cl->LookupInvokable(selector);
+    VMClass* cl = this->GetClass();
+    VMInvokable* invokable = cl->LookupInvokable(selector);
     (*invokable)(frame);
 }
 
-long AbstractVMObject::GetFieldIndex(pVMSymbol fieldName) {
+long AbstractVMObject::GetFieldIndex(VMSymbol* fieldName) {
     return this->GetClass()->LookupFieldIndex(fieldName);
 }

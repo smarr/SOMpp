@@ -42,27 +42,27 @@ _Class::_Class() : PrimitiveContainer() {
     SetPrimitive("methods",    new Routine<_Class>(this, &_Class::Methods));
 }
 
-void _Class::New(pVMObject /*object*/, pVMFrame frame) {
-    pVMClass self = static_cast<pVMClass>(frame->Pop());
     frame->Push(_UNIVERSE->NewInstance(self));
+void _Class::New(VMObject* /*object*/, VMFrame* frame) {
+    VMClass* self = static_cast<VMClass*>(frame->Pop());
 }
 
-void _Class::Name(pVMObject, pVMFrame frame) {
-    pVMClass self = static_cast<pVMClass>(frame->Pop());
+void _Class::Name(VMObject*, VMFrame* frame) {
+    VMClass* self = static_cast<VMClass*>(frame->Pop());
     frame->Push(self->GetName());
 }
 
-void _Class::Superclass(pVMObject, pVMFrame frame) {
-    pVMClass self = static_cast<pVMClass>(frame->Pop());
+void _Class::Superclass(VMObject*, VMFrame* frame) {
+    VMClass* self = static_cast<VMClass*>(frame->Pop());
     frame->Push(self->GetSuperClass());
 }
 
-void _Class::Methods(pVMObject, pVMFrame frame) {
-    pVMClass self = static_cast<pVMClass>(frame->Pop());
+void _Class::Methods(VMObject*, VMFrame* frame) {
+    VMClass* self = static_cast<VMClass*>(frame->Pop());
     frame->Push(self->GetInstanceInvokables());
 }
 
-void _Class::Fields(pVMObject, pVMFrame frame) {
-    pVMClass self = static_cast<pVMClass>(frame->Pop());
+void _Class::Fields(VMObject*, VMFrame* frame) {
+    VMClass* self = static_cast<VMClass*>(frame->Pop());
     frame->Push(self->GetInstanceFields());
 }

@@ -38,11 +38,11 @@ public:
     SourcecodeCompiler();
     ~SourcecodeCompiler();
 
-    pVMClass CompileClass(const StdString& path, const StdString& file,
-            pVMClass systemClass);
-    pVMClass CompileClassString(const StdString& stream, pVMClass systemClass);
+    VMClass* CompileClass(const StdString& path, const StdString& file,
+            VMClass* systemClass);
+    VMClass* CompileClassString(const StdString& stream, VMClass* systemClass);
 private:
     void showCompilationError(const StdString& filename, const char* message);
-    pVMClass compile(pVMClass systemClass);
+    VMClass* compile(VMClass* systemClass);
     Parser* parser;
 };

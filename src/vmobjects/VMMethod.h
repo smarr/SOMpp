@@ -57,42 +57,42 @@ public:
 #endif
             void      SetNumberOfArguments(long);
             long      GetNumberOfBytecodes();
-            void      SetHolderAll(pVMClass hld);
-            pVMObject GetConstant(long indx);
+            void      SetHolderAll(VMClass* hld);
+            VMObject* GetConstant(long indx);
     inline  uint8_t   GetBytecode(long indx) const;
     inline  void      SetBytecode(long indx, uint8_t);
     
 #ifdef UNSAFE_FRAME_OPTIMIZATION
-    void SetCachedFrame(pVMFrame frame);
-    pVMFrame GetCachedFrame() const;
+    void SetCachedFrame(VMFrame* frame);
+    VMFrame* GetCachedFrame() const;
 #endif
     
 #if GC_TYPE==PAUSELESS
-    virtual pVMMethod Clone(Interpreter*);
-    virtual pVMMethod Clone(PauselessCollectorThread*);
+    virtual VMMethod* Clone(Interpreter*);
+    virtual VMMethod* Clone(PauselessCollectorThread*);
     virtual void MarkReferences();
     virtual void CheckMarking(void (AbstractVMObject*));
 #else
-    virtual pVMMethod Clone();
+    virtual VMMethod* Clone();
     virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
 #endif
     
     inline  long      GetNumberOfIndexableFields();
 
-    inline  void      SetIndexableField(long idx, pVMObject item);
+    inline  void      SetIndexableField(long idx, VMObject* item);
 
     //-----------VMInvokable-------------//
     //operator "()" to invoke the method
-    virtual void operator()(pVMFrame frame);
+    virtual void operator()(VMFrame* frame);
 
-    void SetSignature(pVMSymbol sig);
+    void SetSignature(VMSymbol* sig);
     
     virtual void MarkObjectAsInvalid();
 
 
 private:
     inline uint8_t* GetBytecodes() const;
-    inline pVMObject GetIndexableField(long idx);
+    inline VMObject* GetIndexableField(long idx);
 
     GCInteger* numberOfLocals;
     GCInteger* maximumNumberOfStackElements;

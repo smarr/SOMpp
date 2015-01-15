@@ -37,28 +37,28 @@ VMInteger::VMInteger(long val) {
 }
 
 #if GC_TYPE==GENERATIONAL
-pVMInteger VMInteger::Clone() {
+VMInteger* VMInteger::Clone() {
     return new (_HEAP, _PAGE, 0, true) VMInteger(*this);
 }
 #elif GC_TYPE==PAUSELESS
-pVMInteger VMInteger::Clone(Interpreter* thread) {
-    pVMInteger clone = new (_HEAP, thread) VMInteger(*this);
+VMInteger* VMInteger::Clone(Interpreter* thread) {
+    VMInteger* clone = new (_HEAP, thread) VMInteger(*this);
     /* clone->IncreaseVersion();
     this->MarkObjectAsInvalid(); */
     return clone;
 }
-pVMInteger VMInteger::Clone(PauselessCollectorThread* thread) {
-    pVMInteger clone = new (_HEAP, thread) VMInteger(*this);
+VMInteger* VMInteger::Clone(PauselessCollectorThread* thread) {
+    VMInteger* clone = new (_HEAP, thread) VMInteger(*this);
     /* clone->IncreaseVersion();
     this->MarkObjectAsInvalid(); */
     return clone;
 }
 #else
-pVMInteger VMInteger::Clone() {
+VMInteger* VMInteger::Clone() {
     return new (_HEAP) VMInteger(*this);
 }
 #endif
 
-pVMClass VMInteger::GetClass() {
+VMClass* VMInteger::GetClass() {
     return READBARRIER(integerClass);
 }

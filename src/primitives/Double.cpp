@@ -49,18 +49,18 @@
  * This function coerces any right-hand parameter to a double, regardless of its
  * true nature. This is to make sure that all Double operations return Doubles.
  */
-double _Double::coerceDouble(pVMObject x) {
+double _Double::coerceDouble(VMObject* x) {
 #ifdef USE_TAGGING
     if (IS_TAGGED(x))
     return (double)UNTAG_INTEGER(x);
 #endif
     
-    pVMClass cl = ((AbstractVMObject*)x)->GetClass();
+    VMClass* cl = ((AbstractVMObject*)x)->GetClass();
     
     if (cl == READBARRIER(doubleClass))
-        return static_cast<pVMDouble>(x)->GetEmbeddedDouble();
+        return static_cast<VMDouble*>(x)->GetEmbeddedDouble();
     else if(cl == READBARRIER(integerClass))
-        return (double)static_cast<pVMInteger>(x)->GetEmbeddedInteger();
+        return (double)static_cast<VMInteger*>(x)->GetEmbeddedInteger();
     else if(cl == READBARRIER(bigIntegerClass))
         return (double)static_cast<pVMBigInteger>(x)->GetEmbeddedInteger();
     else
@@ -76,42 +76,42 @@ double _Double::coerceDouble(pVMObject x) {
  */
 #define PREPARE_OPERANDS \
     double right = coerceDouble(frame->Pop()); \
-    pVMDouble leftObj = static_cast<pVMDouble>(frame->Pop()); \
+    VMDouble* leftObj = static_cast<VMDouble*>(frame->Pop()); \
     double left = leftObj->GetEmbeddedDouble();
 
-void _Double::Plus(pVMObject /*object*/, pVMFrame frame) {
+void _Double::Plus(VMObject* /*object*/, VMFrame* frame) {
     PREPARE_OPERANDS;
     frame->Push(_UNIVERSE->NewDouble(left + right));
 }
 
-void _Double::Minus(pVMObject /*object*/, pVMFrame frame) {
+void _Double::Minus(VMObject* /*object*/, VMFrame* frame) {
     PREPARE_OPERANDS;
     frame->Push(_UNIVERSE->NewDouble(left - right));
 }
 
-void _Double::Star(pVMObject /*object*/, pVMFrame frame) {
+void _Double::Star(VMObject* /*object*/, VMFrame* frame) {
     PREPARE_OPERANDS;
     frame->Push(_UNIVERSE->NewDouble(left * right));
 }
 
-void _Double::Slashslash(pVMObject /*object*/, pVMFrame frame) {
+void _Double::Slashslash(VMObject* /*object*/, VMFrame* frame) {
     PREPARE_OPERANDS;
     frame->Push(_UNIVERSE->NewDouble(left / right));
 }
 
-void _Double::Percent(pVMObject /*object*/, pVMFrame frame) {
+void _Double::Percent(VMObject* /*object*/, VMFrame* frame) {
     PREPARE_OPERANDS;
     frame->Push(_UNIVERSE->NewDouble((double)((int64_t)left %
                     (int64_t)right)));
 }
 
-void _Double::And(pVMObject /*object*/, pVMFrame frame) {
+void _Double::And(VMObject* /*object*/, VMFrame* frame) {
     PREPARE_OPERANDS;
     frame->Push(_UNIVERSE->NewDouble((double)((int64_t)left &
                     (int64_t)right)));
 }
 
-void _Double::BitwiseXor(pVMObject /*object*/, pVMFrame frame) {
+void _Double::BitwiseXor(VMObject* /*object*/, VMFrame* frame) {
     PREPARE_OPERANDS;
     frame->Push(_UNIVERSE->NewDouble((double)((int64_t)left ^
                     (int64_t)right)));
@@ -121,7 +121,7 @@ void _Double::BitwiseXor(pVMObject /*object*/, pVMFrame frame) {
  * This function implements strict (bit-wise) equality and is therefore
  * inaccurate.
  */
-void _Double::Equal(pVMObject /*object*/, pVMFrame frame) {
+void _Double::Equal(VMObject* /*object*/, VMFrame* frame) {
     PREPARE_OPERANDS;
     if(left == right)
         frame->Push(READBARRIER(trueObject));
@@ -129,7 +129,7 @@ void _Double::Equal(pVMObject /*object*/, pVMFrame frame) {
         frame->Push(READBARRIER(falseObject));
 }
 
-void _Double::Lowerthan(pVMObject /*object*/, pVMFrame frame) {
+void _Double::Lowerthan(VMObject* /*object*/, VMFrame* frame) {
     PREPARE_OPERANDS;
     if(left < right)
         frame->Push(READBARRIER(trueObject));
@@ -137,8 +137,8 @@ void _Double::Lowerthan(pVMObject /*object*/, pVMFrame frame) {
         frame->Push(READBARRIER(falseObject));
 }
 
-void _Double::AsString(pVMObject /*object*/, pVMFrame frame) {
-    pVMDouble self = static_cast<pVMDouble>(frame->Pop());
+void _Double::AsString(VMObject* /*object*/, VMFrame* frame) {
+    VMDouble* self = static_cast<VMDouble*>(frame->Pop());
 
     double dbl = self->GetEmbeddedDouble();
     ostringstream Str;
@@ -147,14 +147,14 @@ void _Double::AsString(pVMObject /*object*/, pVMFrame frame) {
     frame->Push( _UNIVERSE->NewString( Str.str().c_str() ) );
 }
 
-void _Double::Sqrt(pVMObject /*object*/, pVMFrame frame) {
-    pVMDouble self = static_cast<pVMDouble>(frame->Pop());
-    pVMDouble result = _UNIVERSE->NewDouble( sqrt(self->GetEmbeddedDouble()) );
+void _Double::Sqrt(VMObject* /*object*/, VMFrame* frame) {
+    VMDouble* self = static_cast<VMDouble*>(frame->Pop());
+    VMDouble* result = GetUniverse()->NewDouble( sqrt(self->GetEmbeddedDouble()) );
     frame->Push(result);
 }
 
-void _Double::Round(pVMObject /*object*/, pVMFrame frame) {
-    pVMDouble self = (pVMDouble)frame->Pop();
+void _Double::Round(VMObject* /*object*/, VMFrame* frame) {
+    VMDouble* self = (VMDouble*)frame->Pop();
     long int rounded = lround(self->GetEmbeddedDouble());
 
     // Check with integer bounds and push:

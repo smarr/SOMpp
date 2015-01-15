@@ -82,13 +82,13 @@ void Disassembler::dispatch(pVMObject o) {
     else if(o == _UNIVERSE->GetGlobal(_UNIVERSE->SymbolForChars("system")))
         DebugPrint("{System}");
     else {
-        pVMClass c = CLASS_OF(o);
+        VMClass* c = CLASS_OF(o);
         if (c == READBARRIER(stringClass)) {
-            DebugPrint("\"%s\"", static_cast<pVMString>(o)->GetChars());
+            DebugPrint("\"%s\"", static_cast<VMString*>(o)->GetChars());
         } else if(c == READBARRIER(doubleClass))
-            DebugPrint("%g", static_cast<pVMDouble>(o)->GetEmbeddedDouble());
         else if(c == READBARRIER(bigIntegerClass))
             DebugPrint("%lld", static_cast<pVMBigInteger>(o)->GetEmbeddedInteger());
+            DebugPrint("%g", static_cast<VMDouble*>(o)->GetEmbeddedDouble());
         else if(c == READBARRIER(integerClass))
 #ifdef USE_TAGGING
             DebugPrint("%d", UNTAG_INTEGER(o));
@@ -96,7 +96,7 @@ void Disassembler::dispatch(pVMObject o) {
             DebugPrint("%d", static_cast<pVMInteger>(o)->GetEmbeddedInteger());
 #endif
         else if(c == READBARRIER(symbolClass)) {
-            DebugPrint("#%s", static_cast<pVMSymbol>(o)->GetChars());
+            DebugPrint("#%s", static_cast<VMSymbol*>(o)->GetChars());
         } else
             DebugPrint("address: %p", (void*)o);
     }
@@ -105,20 +105,20 @@ void Disassembler::dispatch(pVMObject o) {
 /**
  * Dump a class and all subsequent methods.
  */
-void Disassembler::Dump(pVMClass cl) {
+void Disassembler::Dump(VMClass* cl) {
     long numInvokables = cl->GetNumberOfInstanceInvokables();
     for (long i = 0; i < numInvokables; ++i) {
-        pVMInvokable inv = static_cast<pVMInvokable>(cl->GetInstanceInvokable(i));
+        VMInvokable* inv = static_cast<VMInvokable*>(cl->GetInstanceInvokable(i));
         // output header and skip if the Invokable is a Primitive
-        pVMSymbol sig = inv->GetSignature();
-        pVMSymbol cname = cl->GetName();
+        VMSymbol* sig = inv->GetSignature();
+        VMSymbol* cname = cl->GetName();
         DebugDump("%s>>%s = ", cname->GetChars(), sig->GetChars());
         if (inv->IsPrimitive()) {
             DebugPrint("<primitive>\n");
             continue;
         }
         // output actual method
-        DumpMethod(static_cast<pVMMethod>(inv), "\t");
+        DumpMethod(static_cast<VMMethod*>(inv), "\t");
     }
 }
 
@@ -170,10 +170,10 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
                 DebugPrint("argument: %d, context %d\n", BC_1, BC_2); break;
             case BC_PUSH_FIELD: {
                 long fieldIdx = BC_1;
-                pVMClass holder = dynamic_cast<pVMClass>((pVMObject) method->GetHolder());
+                VMClass* holder = dynamic_cast<VMClass*>((VMObject*) method->GetHolder());
                 if (holder) {
-                    pVMSymbol name = holder->GetInstanceFieldName(fieldIdx);
                     if (name != NULL) {
+                    VMSymbol* name = holder->GetInstanceFieldName(fieldIdx);
                         DebugPrint("(index: %d) field: %s\n", BC_1, name->GetChars());
                         break;
                     }
@@ -188,13 +188,13 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
                 sprintf(nindent, "%s\t", indent);
 
                 Disassembler::DumpMethod(
-                static_cast<pVMMethod>(method->GetConstant(bc_idx)), nindent);
+                static_cast<VMMethod*>(method->GetConstant(bc_idx)), nindent);
                 break;
             }
             case BC_PUSH_CONSTANT: {
                 pVMObject constant = method->GetConstant(bc_idx);
-                pVMClass cl = CLASS_OF(constant);
-                pVMSymbol cname = cl->GetName();
+                VMClass* cl = CLASS_OF(constant);
+                VMSymbol* cname = cl->GetName();
 
                 DebugPrint("(index: %d) value: (%s) ",
                 BC_1, cname->GetChars());
@@ -205,8 +205,8 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
                 pVMObject cst = method->GetConstant(bc_idx);
 
                 if (cst != NULL) {
-                    pVMSymbol name = static_cast<pVMSymbol>(cst);
                     if (name != NULL) {
+                    VMSymbol* name = static_cast<VMSymbol*>(cst);
                         DebugPrint("(index: %d) value: %s\n", BC_1,
                         name->GetChars());
                         break;
@@ -224,9 +224,9 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
                 break;
             case BC_POP_FIELD: {
                 long fieldIdx = BC_1;
-                pVMClass holder = dynamic_cast<pVMClass>((pVMObject) method->GetHolder());
+                VMClass* holder = dynamic_cast<VMClass*>((VMObject*) method->GetHolder());
                 if (holder) {
-                    pVMSymbol name = holder->GetInstanceFieldName(fieldIdx);
+                    VMSymbol* name = holder->GetInstanceFieldName(fieldIdx);
                     DebugPrint("(index: %d) field: %s\n", fieldIdx, name->GetChars());
                 } else {
                     DebugPrint("(index: %d) block holder is not a class!!\n", fieldIdx);
@@ -234,14 +234,14 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
                 break;
             }
             case BC_SEND: {
-                pVMSymbol name = static_cast<pVMSymbol>(method->GetConstant(bc_idx));
+                VMSymbol* name = static_cast<VMSymbol*>(method->GetConstant(bc_idx));
 
                 DebugPrint("(index: %d) signature: %s\n", BC_1,
                 name->GetChars());
                 break;
             }
             case BC_SUPER_SEND: {
-                pVMSymbol name = static_cast<pVMSymbol>(method->GetConstant(bc_idx));
+                VMSymbol* name = static_cast<VMSymbol*>(method->GetConstant(bc_idx));
 
                 DebugPrint("(index: %d) signature: %s\n", BC_1,
                 name->GetChars());
@@ -268,24 +268,23 @@ void Disassembler::DumpMethod(pVMMethod method, const char* indent) {
 /**
  * Dump bytecode from the frame running
  */
-void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
+void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
     static long long indentc = 0;
     static char ikind = '@';
     uint8_t bc = BC_0;
-    VMOBJECT_PTR clo = method->GetHolder();
-    pVMClass cl = dynamic_cast<pVMClass>(clo);
+    VMClass* cl = method->GetHolder();
 
     // Determine Context: Class or Block?
     if (cl != NULL) {
-        pVMSymbol cname = cl->GetName();
-        pVMSymbol sig = method->GetSignature();
+        VMSymbol* cname = cl->GetName();
+        VMSymbol* sig = method->GetSignature();
 
         DebugTrace("%20s>>%-20s% 10lld %c %04d: %s\t",
         cname->GetChars(), sig->GetChars(),
         indentc, ikind, bc_idx,
         Bytecode::GetBytecodeName(bc));
     } else {
-        pVMSymbol sig = method->GetSignature();
+        VMSymbol* sig = method->GetSignature();
 
         DebugTrace("%-42s% 10lld %c %04d: %s\t",
         sig->GetChars(),
@@ -303,8 +302,8 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
         case BC_DUP: {
             pVMObject o = frame->GetStackElement(0);
             if (o) {
-                pVMClass c = CLASS_OF(o);
-                pVMSymbol cname = c->GetName();
+                VMClass* c = CLASS_OF(o);
+                VMSymbol* cname = c->GetName();
 
                 DebugPrint("<to dup: (%s) ", cname->GetChars());
                 //dispatch
@@ -317,8 +316,8 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
         case BC_PUSH_LOCAL: {
             uint8_t bc1 = BC_1, bc2 = BC_2;
             pVMObject o = frame->GetLocal(bc1, bc2);
-            pVMClass c = CLASS_OF(o);
-            pVMSymbol cname = c->GetName();
+            VMClass* c = CLASS_OF(o);
+            VMSymbol* cname = c->GetName();
 
             DebugPrint("local: %d, context: %d <(%s) ",
             BC_1, BC_2, cname->GetChars());
@@ -336,8 +335,8 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
 #else
             if(dynamic_cast<pVMClass>(cl) != NULL) {
 #endif
-                pVMClass c = CLASS_OF(o);
-                pVMSymbol cname = c->GetName();
+                VMClass* c = CLASS_OF(o);
+                VMSymbol* cname = c->GetName();
 
                 DebugPrint("<(%s) ", cname->GetChars());
                 //dispatch
@@ -348,8 +347,8 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
             break;
         }
         case BC_PUSH_FIELD: {
-            pVMFrame ctxt = frame->GetOuterContext();
             pVMObject arg = ctxt->GetArgument(0, 0);
+            VMFrame* ctxt = frame->GetOuterContext();
             uint8_t field_index = BC_1;
             
 #ifdef USE_TAGGING
@@ -357,10 +356,10 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
 #else
             pVMObject o = static_cast<VMObject*>(arg)->GetField(field_index);
 #endif
-            pVMClass c = CLASS_OF(o);
-            pVMSymbol cname = c->GetName();
+            VMClass* c = CLASS_OF(o);
+            VMSymbol* cname = c->GetName();
             long fieldIdx = BC_1;
-            pVMSymbol name = method->GetHolder()->GetInstanceFieldName(fieldIdx);
+            VMSymbol* name = method->GetHolder()->GetInstanceFieldName(fieldIdx);
             DebugPrint("(index: %d) field: %s <(%s) ", BC_1, name->GetChars(),
                        cname->GetChars());
             //dispatch
@@ -370,18 +369,14 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
         }
         case BC_PUSH_BLOCK: {
             DebugPrint("block: (index: %d) ", BC_1);
-#ifdef USE_TAGGING
-            pVMMethod meth = dynamic_cast<pVMMethod>(AS_POINTER(method->GetConstant(bc_idx)));
-#else
-            pVMMethod meth = dynamic_cast<pVMMethod>(method->GetConstant(bc_idx));
-#endif
+            VMMethod* meth = dynamic_cast<VMMethod*>((AbstractVMObject*)method->GetConstant(bc_idx));
             DumpMethod(meth, "$");
             break;
         }
         case BC_PUSH_CONSTANT: {
             pVMObject constant = method->GetConstant(bc_idx);
-            pVMClass c = CLASS_OF(constant);
-            pVMSymbol cname = c->GetName();
+            VMClass* c = CLASS_OF(constant);
+            VMSymbol* cname = c->GetName();
 
             DebugPrint("(index: %d) value: (%s) ", BC_1,
             cname->GetChars());
@@ -396,11 +391,11 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
             pVMSymbol name = static_cast<pVMSymbol>(method->GetConstant(bc_idx));
 #endif
             pVMObject o = _UNIVERSE->GetGlobal(name);
-            pVMSymbol cname;
+            VMSymbol* cname;
 
             const char* c_cname;
             if (o) {
-                pVMClass c = CLASS_OF(o);
+                VMClass* c = CLASS_OF(o);
                 cname = c->GetName();
 
                 c_cname = cname->GetChars();
@@ -415,8 +410,8 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
         }
         case BC_POP: {
             pVMObject o = frame->GetStackElement(0);
-            pVMClass c = CLASS_OF(o);
-            pVMSymbol cname = c->GetName();
+            VMClass* c = CLASS_OF(o);
+            VMSymbol* cname = c->GetName();
 
             DebugPrint("popped <(%s) ", cname->GetChars());
             //dispatch
@@ -426,8 +421,8 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
         }
         case BC_POP_LOCAL: {
             pVMObject o = frame->GetStackElement(0);
-            pVMClass c = CLASS_OF(o);
-            pVMSymbol cname = c->GetName();
+            VMClass* c = CLASS_OF(o);
+            VMSymbol* cname = c->GetName();
 
             DebugPrint("popped local: %d, context: %d <(%s) ", BC_1, BC_2,
             cname->GetChars());
@@ -438,8 +433,8 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
         }
         case BC_POP_ARGUMENT: {
             pVMObject o = frame->GetStackElement(0);
-            pVMClass c = CLASS_OF(o);
-            pVMSymbol cname = c->GetName();
+            VMClass* c = CLASS_OF(o);
+            VMSymbol* cname = c->GetName();
             DebugPrint("argument: %d, context: %d <(%s) ", BC_1, BC_2,
             cname->GetChars());
             //dispatch
@@ -449,10 +444,10 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
         }
         case BC_POP_FIELD: {
             pVMObject o = frame->GetStackElement(0);
-            pVMClass c = CLASS_OF(o);
+            VMClass* c = CLASS_OF(o);
             long fieldIdx = BC_1;
-            pVMSymbol name = method->GetHolder()->GetInstanceFieldName(fieldIdx);
-            pVMSymbol cname = c->GetName();
+            VMSymbol* name = method->GetHolder()->GetInstanceFieldName(fieldIdx);
+            VMSymbol* cname = c->GetName();
             DebugPrint("(index: %d) field: %s <(%s) ", fieldIdx, name->GetChars(),
                        cname->GetChars());
             dispatch(o);
@@ -461,7 +456,7 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
         }
         case BC_SUPER_SEND:
         case BC_SEND: {
-            pVMSymbol sel = static_cast<pVMSymbol>(method->GetConstant(bc_idx));
+            VMSymbol* sel = static_cast<VMSymbol*>(method->GetConstant(bc_idx));
 
             DebugPrint("(index: %d) signature: %s (", BC_1,
             sel->GetChars());
@@ -469,10 +464,10 @@ void Disassembler::DumpBytecode(pVMFrame frame, pVMMethod method, long bc_idx) {
             pVMObject elem = _UNIVERSE->GetInterpreter()->GetFrame()->
             GetStackElement(
             Signature::GetNumberOfArguments(sel)-1);
-            pVMClass elemClass = CLASS_OF(elem);
-            pVMInvokable inv = dynamic_cast<pVMInvokable>(elemClass->LookupInvokable(sel));
 
             if(inv != NULL && inv->IsPrimitive())
+            VMClass* elemClass = CLASS_OF(elem);
+            VMInvokable* inv = dynamic_cast<VMInvokable*>(elemClass->LookupInvokable(sel));
                 DebugPrint("*)\n");
             else {
                 DebugPrint("\n");

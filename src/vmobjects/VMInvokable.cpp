@@ -32,22 +32,22 @@ bool VMInvokable::IsPrimitive() const {
     return false;
 }
 
-pVMSymbol VMInvokable::GetSignature() {
+VMSymbol* VMInvokable::GetSignature() {
     return READBARRIER(signature);
 }
 
-void VMInvokable::SetSignature(pVMSymbol sig) {
+void VMInvokable::SetSignature(VMSymbol* sig) {
     signature = WRITEBARRIER(sig);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, sig);
 #endif
 }
 
-pVMClass VMInvokable::GetHolder() {
+VMClass* VMInvokable::GetHolder() {
     return READBARRIER(holder);
 }
 
-void VMInvokable::SetHolder(pVMClass hld) {
+void VMInvokable::SetHolder(VMClass* hld) {
     holder = WRITEBARRIER(hld);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, hld);

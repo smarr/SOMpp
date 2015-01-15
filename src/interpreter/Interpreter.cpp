@@ -263,13 +263,13 @@ LABEL_BC_JUMP:
     DISPATCH_NOGC();
 }
 
-pVMFrame Interpreter::PushNewFrame(pVMMethod method) {
     SetFrame(_UNIVERSE->NewFrame(_FRAME, method));
     return _FRAME;
+VMFrame* Interpreter::PushNewFrame(VMMethod* method) {
 }
 
-void Interpreter::SetFrame(pVMFrame frame) {
     if (READBARRIER(this->frame) != NULL)
+void Interpreter::SetFrame(VMFrame* frame) {
         READBARRIER(this->frame)->SetBytecodeIndex(bytecodeIndexGlobal);
 
     this->frame = WRITEBARRIER(frame);
@@ -281,18 +281,18 @@ void Interpreter::SetFrame(pVMFrame frame) {
     // currentBytecodes    = READBARRIER(method)->GetBytecodes();
 }
 
-pVMFrame Interpreter::GetFrame() {
+VMFrame* Interpreter::GetFrame() {
     return READBARRIER(this->frame);
 }
 
-pVMObject Interpreter::GetSelf() {
-    pVMFrame context = _FRAME->GetOuterContext();
-    return context->GetArgument(0,0);
+vm_oop_t Interpreter::GetSelf() {
+    VMFrame* context = GetFrame()->GetOuterContext();
+    return context->GetArgument(0, 0);
 }
 
-pVMFrame Interpreter::popFrame() {
-    pVMFrame result = _FRAME;
     this->SetFrame(_FRAME->GetPreviousFrame());
+VMFrame* Interpreter::popFrame() {
+    VMFrame* result = GetFrame();
 
     result->ClearPreviousFrame();
 
@@ -307,9 +307,9 @@ pVMFrame Interpreter::popFrame() {
 }
 
 void Interpreter::popFrameAndPushResult(pVMObject result) {
-    pVMFrame prevFrame = this->popFrame();
+    VMFrame* prevFrame = popFrame();
 
-    pVMMethod method = prevFrame->GetMethod();
+    VMMethod* method = prevFrame->GetMethod();
     long numberOfArgs = method->GetNumberOfArguments();
 
     for (long i = 0; i < numberOfArgs; ++i) _FRAME->Pop();
@@ -317,10 +317,10 @@ void Interpreter::popFrameAndPushResult(pVMObject result) {
     _FRAME->Push(result);
 }
 
-void Interpreter::send(pVMSymbol signature, pVMClass receiverClass) {
+void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
     //sync_out(ostringstream() << "[Send] " << signature->GetChars());
     
-    pVMInvokable invokable = receiverClass->LookupInvokable(signature);
+    VMInvokable* invokable = receiverClass->LookupInvokable(signature);
 
     if (invokable != NULL) {
 #ifdef LOG_RECEIVER_TYPES
@@ -375,9 +375,9 @@ void Interpreter::doDup() {
 }
 
 void Interpreter::doPushLocal(long bytecodeIndex) {
-    //pVMMethod method = this->GetMethod();
     uint8_t bc1 = this->GetMethod()->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = this->GetMethod()->GetBytecode(bytecodeIndex + 2);
+    //VMMethod* method = this->GetMethod();
 
     pVMObject local = _FRAME->GetLocal(bc1, bc2);
 
@@ -385,9 +385,9 @@ void Interpreter::doPushLocal(long bytecodeIndex) {
 }
 
 void Interpreter::doPushArgument(long bytecodeIndex) {
-    //pVMMethod method = this->GetMethod();
     uint8_t bc1 = this->GetMethod()->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = this->GetMethod()->GetBytecode(bytecodeIndex + 2);
+    //VMMethod* method = this->GetMethod();
 
     pVMObject argument = _FRAME->GetArgument(bc1, bc2);
 
@@ -427,7 +427,7 @@ void Interpreter::doPushBlock(long bytecodeIndex) {
         }
     }
 
-    pVMMethod blockMethod = static_cast<pVMMethod>(this->GetMethod()->GetConstant(bytecodeIndex));
+    VMMethod* blockMethod = static_cast<VMMethod*>(this->GetMethod()->GetConstant(bytecodeIndex));
     
     long numOfArgs = blockMethod->GetNumberOfArguments();
 
@@ -435,19 +435,19 @@ void Interpreter::doPushBlock(long bytecodeIndex) {
 }
 
 void Interpreter::doPushConstant(long bytecodeIndex) {
-    pVMObject constant = this->GetMethod()->GetConstant(bytecodeIndex);
+    VMObject* constant = this->GetMethod()->GetConstant(bytecodeIndex);
     _FRAME->Push(constant);
 }
 
 void Interpreter::doPushGlobal(long bytecodeIndex) {
-    pVMSymbol globalName = static_cast<pVMSymbol>(this->GetMethod()->GetConstant(bytecodeIndex));
     pVMObject global = _UNIVERSE->GetGlobal(globalName);
+    VMSymbol* globalName = static_cast<VMSymbol*>(this->GetMethod()->GetConstant(bytecodeIndex));
 
     if(global != NULL)
         _FRAME->Push(global);
     else {
-        pVMObject arguments[] = {globalName};
-        pVMObject self = _SELF;
+        VMObject* arguments[] = {globalName};
+        VMObject* self = _SELF;
 
         //check if there is enough space on the stack for this unplanned Send
         //unknowGlobal: needs 2 slots, one for "this" and one for the argument
@@ -475,29 +475,29 @@ void Interpreter::doPop() {
 }
 
 void Interpreter::doPopLocal(long bytecodeIndex) {
-    //pVMMethod method = this->GetMethod();
+    //VMMethod* method = this->GetMethod();
     uint8_t bc1 = this->GetMethod()->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = this->GetMethod()->GetBytecode(bytecodeIndex + 2);
 
-    pVMObject o = _FRAME->Pop();
+    VMObject* o = _FRAME->Pop();
 
     _FRAME->SetLocal(bc1, bc2, o);
 }
 
 void Interpreter::doPopArgument(long bytecodeIndex) {
-    //pVMMethod method = this->GetMethod();
+    //VMMethod* method = this->GetMethod();
     uint8_t bc1 = this->GetMethod()->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = this->GetMethod()->GetBytecode(bytecodeIndex + 2);
 
-    pVMObject o = _FRAME->Pop();
+    VMObject* o = _FRAME->Pop();
     _FRAME->SetArgument(bc1, bc2, o);
 }
 
 void Interpreter::doPopField(long bytecodeIndex) {
     uint8_t field_index = this->GetMethod()->GetBytecode(bytecodeIndex + 1);
 
-    pVMObject self = _SELF;
-    pVMObject o = _FRAME->Pop();
+    VMObject* self = _SELF;
+    VMObject* o = _FRAME->Pop();
 #ifdef USE_TAGGING
     if (IS_TAGGED(self)) {
         GlobalBox::IntegerBox()->SetField(field_index, o);
@@ -511,18 +511,18 @@ void Interpreter::doPopField(long bytecodeIndex) {
 }
 
 void Interpreter::doSend(long bytecodeIndex) {
-    pVMSymbol signature = static_cast<pVMSymbol>(this->GetMethod()->GetConstant(bytecodeIndex));
+    VMSymbol* signature = static_cast<VMSymbol*>(this->GetMethod()->GetConstant(bytecodeIndex));
 
     long numOfArgs = Signature::GetNumberOfArguments(signature);
 
-    pVMObject receiver = _FRAME->GetStackElement(numOfArgs-1);
+    VMObject* receiver = _FRAME->GetStackElement(numOfArgs-1);
     assert(Universe::IsValidObject(receiver));
-    assert(dynamic_cast<pVMClass>((pVMObject)receiver->GetClass()) != nullptr); // make sure it is really a class
+    assert(dynamic_cast<VMClass*>((VMObject*)receiver->GetClass()) != nullptr); // make sure it is really a class
     
 #ifdef USE_TAGGING
-    pVMClass receiverClass = IS_TAGGED(receiver) ? integerClass : AS_POINTER(receiver)->GetClass();
+    VMClass* receiverClass = IS_TAGGED(receiver) ? integerClass : AS_POINTER(receiver)->GetClass();
 #else
-    pVMClass receiverClass = receiver->GetClass();
+    VMClass* receiverClass = receiver->GetClass();
 #endif
     
     assert(Universe::IsValidObject(receiverClass));
@@ -535,26 +535,26 @@ void Interpreter::doSend(long bytecodeIndex) {
 }
 
 void Interpreter::doSuperSend(long bytecodeIndex) {
-    pVMSymbol signature = static_cast<pVMSymbol>(this->GetMethod()->GetConstant(bytecodeIndex));
+    VMSymbol* signature = static_cast<VMSymbol*>(this->GetMethod()->GetConstant(bytecodeIndex));
 
-    pVMFrame ctxt = _FRAME->GetOuterContext();
-    pVMMethod realMethod = ctxt->GetMethod();
-    pVMClass holder = realMethod->GetHolder();
-    pVMClass super = holder->GetSuperClass();
-    pVMInvokable invokable = static_cast<pVMInvokable>(super->LookupInvokable(signature));
+    VMFrame* ctxt = _FRAME->GetOuterContext();
+    VMMethod* realMethod = ctxt->GetMethod();
+    VMClass* holder = realMethod->GetHolder();
+    VMClass* super = holder->GetSuperClass();
+    VMInvokable* invokable = static_cast<VMInvokable*>(super->LookupInvokable(signature));
 
     if (invokable != NULL)
         (*invokable)(_FRAME);
     else {
         long numOfArgs = Signature::GetNumberOfArguments(signature);
-        pVMObject receiver = _FRAME->GetStackElement(numOfArgs - 1);
-        pVMArray argumentsArray = _UNIVERSE->NewArray(numOfArgs);
+        VMObject* receiver = _FRAME->GetStackElement(numOfArgs - 1);
+        VMArray* argumentsArray = GetUniverse()->NewArray(numOfArgs);
 
         for (long i = numOfArgs - 1; i >= 0; --i) {
-            pVMObject o = _FRAME->Pop();
+            VMObject* o = _FRAME->Pop();
             argumentsArray->SetIndexableField(i, o);
         }
-        pVMObject arguments[] = {signature, argumentsArray};
+        VMObject* arguments[] = {signature, argumentsArray};
 #ifdef USE_TAGGING
         if (IS_TAGGED(receiver))
             GlobalBox::IntegerBox()->Send(dnu, arguments, 2);
@@ -567,22 +567,22 @@ void Interpreter::doSuperSend(long bytecodeIndex) {
 }
 
 void Interpreter::doReturnLocal() {
-    pVMObject result = _FRAME->Pop();
+    VMObject* result = _FRAME->Pop();
 
     this->popFrameAndPushResult(result);
 }
 
 void Interpreter::doReturnNonLocal() {
-    pVMObject result = _FRAME->Pop();
+    VMObject* result = _FRAME->Pop();
 
-    pVMFrame context = _FRAME->GetOuterContext();
+    VMFrame* context = _FRAME->GetOuterContext();
 
     if (!context->HasPreviousFrame()) {
-        pVMBlock block = static_cast<pVMBlock>(_FRAME->GetArgument(0, 0));
-        pVMFrame prevFrame = _FRAME->GetPreviousFrame();
-        pVMFrame outerContext = prevFrame->GetOuterContext();
-        pVMObject sender = outerContext->GetArgument(0, 0);
-        pVMObject arguments[] = {block};
+        VMBlock* block = static_cast<VMBlock*>(_FRAME->GetArgument(0, 0));
+        VMFrame* prevFrame = _FRAME->GetPreviousFrame();
+        VMFrame* outerContext = prevFrame->GetOuterContext();
+        VMObject* sender = outerContext->GetArgument(0, 0);
+        VMObject* arguments[] = {block};
 
         this->popFrame();
 
@@ -603,20 +603,20 @@ void Interpreter::doReturnNonLocal() {
 }
 
 void Interpreter::doJumpIfFalse(long bytecodeIndex) {
-    pVMObject value = _FRAME->Pop();
+    VMObject* value = _FRAME->Pop();
     if (value == READBARRIER(falseObject))
         doJump(bytecodeIndex);
 }
 
 void Interpreter::doJumpIfTrue(long bytecodeIndex) {
-    pVMObject value = _FRAME->Pop();
+    VMObject* value = _FRAME->Pop();
     if (value == READBARRIER(trueObject))
         doJump(bytecodeIndex);
 }
 
 void Interpreter::doJump(long bytecodeIndex) {
     long target = 0;
-    pVMMethod method = this->GetMethod();
+    VMMethod* method = this->GetMethod();
     target |= method->GetBytecode(bytecodeIndex + 1);
     target |= method->GetBytecode(bytecodeIndex + 2) << 8;
     target |= method->GetBytecode(bytecodeIndex + 3) << 16;
@@ -626,16 +626,16 @@ void Interpreter::doJump(long bytecodeIndex) {
     bytecodeIndexGlobal = target;
 }
 
-pVMMethod Interpreter::GetMethod() {
+VMMethod* Interpreter::GetMethod() {
     return GetFrame()->GetMethod();
     // return READBARRIER(this->method);
 }
 
-pVMThread Interpreter::GetThread(void) {
+VMThread* Interpreter::GetThread(void) {
     return READBARRIER(this->thread);
 }
 
-void Interpreter::SetThread(pVMThread thread) {
+void Interpreter::SetThread(VMThread* thread) {
     this->thread = WRITEBARRIER(thread);
 }
 
@@ -806,7 +806,7 @@ void Interpreter::AddFullNonRelocatablePage(Page* page) {
 
 // debug procedures
 void Interpreter::CheckMarking(void (*walk)(AbstractVMObject*)) {
-    // pVMMethod testMethodGCSet = Untag(method);
+    // VMMethod* testMethodGCSet = Untag(method);
     if (frame) {
         //assert(GetNMTValue(frame) == _HEAP->GetGCThread()->GetExpectedNMT());
         walk(Untag(frame));

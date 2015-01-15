@@ -43,31 +43,31 @@ public:
     VMSymbol(const StdString& s);
     virtual StdString GetPlainString() const;
     virtual size_t GetObjectSize() const;
-    virtual pVMClass GetClass();
+    virtual VMClass* GetClass();
     
     virtual void MarkObjectAsInvalid();
     
 #if GC_TYPE==PAUSELESS
-    virtual pVMSymbol Clone(Interpreter*);
-    virtual pVMSymbol Clone(PauselessCollectorThread*);
+    virtual VMSymbol* Clone(Interpreter*);
+    virtual VMSymbol* Clone(PauselessCollectorThread*);
     //virtual void MarkReferences();
 #else
-    virtual pVMSymbol Clone();
+    virtual VMSymbol* Clone();
     //virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
 #endif
     
     
 private:
-//    const pVMClass cachedClass_invokable[3];
+//    const VMClass* cachedClass_invokable[3];
 //    long nextCachePos;
-//    pVMInvokable cachedInvokable[3];
-//    inline pVMInvokable GetCachedInvokable(const pVMClass) const;
-//    inline void UpdateCachedInvokable(const pVMClass cls, pVMInvokable invo);
+//    VMInvokable* cachedInvokable[3];
+//    inline VMInvokable* GetCachedInvokable(const VMClass*) const;
+//    inline void UpdateCachedInvokable(const VMClass* cls, VMInvokable* invo);
     
     friend class VMClass;
 };
 
-//pVMInvokable VMSymbol::GetCachedInvokable(const pVMClass cls) const {
+//VMInvokable* VMSymbol::GetCachedInvokable(const VMClass* cls) const {
 //    if (cls == cachedClass_invokable[0])
 //        return cachedInvokable[0];
 //    else if (cls == cachedClass_invokable[1])
@@ -77,7 +77,7 @@ private:
 //    return NULL;
 //}
 
-//void VMSymbol::UpdateCachedInvokable(const pVMClass cls, pVMInvokable invo) {
+//void VMSymbol::UpdateCachedInvokable(const VMClass* cls, VMInvokable* invo) {
 //    cachedInvokable[nextCachePos] = invo;
 //    cachedClass_invokable[nextCachePos] = cls;
 //    nextCachePos = (nextCachePos + 1) % 3;

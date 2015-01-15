@@ -36,34 +36,34 @@ class VMPrimitive: public VMInvokable {
 public:
     typedef GCPrimitive Stored;
     
-    static pVMPrimitive GetEmptyPrimitive(pVMSymbol sig);
+    static VMPrimitive* GetEmptyPrimitive(VMSymbol* sig);
 
-    VMPrimitive(pVMSymbol sig);
+    VMPrimitive(VMSymbol* sig);
 
     inline  bool IsEmpty() const;
     inline  void SetRoutine(PrimitiveRoutine* rtn);
             void SetEmpty(bool value) {empty = value;};
     
 #if GC_TYPE==PAUSELESS
-    virtual pVMPrimitive Clone(Interpreter*);
-    virtual pVMPrimitive Clone(PauselessCollectorThread*);
+    virtual VMPrimitive* Clone(Interpreter*);
+    virtual VMPrimitive* Clone(PauselessCollectorThread*);
     virtual void         MarkReferences();
     virtual void         CheckMarking(void (AbstractVMObject*));
 #else
-    virtual pVMPrimitive Clone();
+    virtual VMPrimitive* Clone();
     virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
 #endif
 
     //-----------VMInvokable-------//
     //operator "()" to invoke the primitive
-    virtual void operator()(pVMFrame frm) {(*routine)(this, frm);};
+    virtual void operator()(VMFrame* frm) {(*routine)(this, frm);};
 
     virtual bool IsPrimitive() const {return true;};
     
     virtual        void      MarkObjectAsInvalid();
 
 private:
-    void EmptyRoutine(pVMObject self, pVMFrame frame);
+    void EmptyRoutine(VMObject* self, VMFrame* frame);
 
     PrimitiveRoutine* routine;
     bool empty;

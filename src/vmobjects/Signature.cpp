@@ -27,7 +27,7 @@
 #include "Signature.h"
 #include "VMSymbol.h"
 
-int Signature::GetNumberOfArguments(pVMSymbol sig) {
+int Signature::GetNumberOfArguments(VMSymbol* sig) {
     // check default binaries
     if (Signature::IsBinary(sig))
         return 2;
@@ -43,7 +43,7 @@ int Signature::GetNumberOfArguments(pVMSymbol sig) {
     return numColons + 1;
 }
 
-bool Signature::IsBinary(pVMSymbol sig) {
+bool Signature::IsBinary(VMSymbol* sig) {
     char* sigstr = sig->GetChars();
     switch(sigstr[0]) {
         case '~' :

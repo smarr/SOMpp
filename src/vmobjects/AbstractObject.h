@@ -47,8 +47,8 @@ public:
     typedef GCAbstractObject Stored;
     
     virtual size_t GetHash();
-    virtual pVMClass GetClass() = 0;
-    virtual void Send(StdString, pVMObject*, long);
+    virtual VMClass* GetClass() = 0;
+    virtual void Send(StdString, VMObject**, long);
     virtual size_t GetObjectSize() const = 0;
     
     virtual void MarkObjectAsInvalid() = 0;
@@ -74,14 +74,14 @@ public:
         cout << "this object doesn't support SetNumberOfFields" << endl;
         throw "this object doesn't support SetNumberOfFields";
     }
-    inline virtual void SetClass(pVMClass cl) {
+    inline virtual void SetClass(VMClass* cl) {
         cout << "this object doesn't support SetClass" << endl;
         throw "this object doesn't support SetClass";
     }
 
-    long GetFieldIndex(pVMSymbol fieldName);
+    long GetFieldIndex(VMSymbol* fieldName);
     
-    inline virtual pVMSymbol GetFieldName(long index) const {
+    inline virtual VMSymbol* GetFieldName(long index) const {
         cout << "this object doesn't support GetFieldName" << endl;
         throw "this object doesn't support GetFieldName";
     }

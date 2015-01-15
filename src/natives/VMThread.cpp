@@ -26,12 +26,12 @@ void VMThread::Yield() {
     sched_yield();
 }
 
-pVMSignal VMThread::GetResumeSignal() {
+VMSignal* VMThread::GetResumeSignal() {
     return READBARRIER(resumeSignal);
 }
 
 
-void VMThread::SetResumeSignal(pVMSignal value) {
+void VMThread::SetResumeSignal(VMSignal* value) {
     resumeSignal = WRITEBARRIER(value);
 }
 
@@ -50,32 +50,32 @@ void VMThread::SetShouldStop(bool value) {
 }
 
 
-pVMBlock VMThread::GetBlockToRun() {
+VMBlock* VMThread::GetBlockToRun() {
     return READBARRIER(blockToRun);
 }
 
 
-void VMThread::SetBlockToRun(pVMBlock value) {
+void VMThread::SetBlockToRun(VMBlock* value) {
     blockToRun = WRITEBARRIER(value);
 }
 
 
-pVMString VMThread::GetName() {
+VMString* VMThread::GetName() {
     return READBARRIER(name);
 }
 
 
-void VMThread::SetName(pVMString value) {
+void VMThread::SetName(VMString* value) {
     name = WRITEBARRIER(value);
 }
 
 
-pVMObject VMThread::GetArgument() {
+VMObject* VMThread::GetArgument() {
     return READBARRIER(argument);
 }
 
 
-void VMThread::SetArgument(pVMObject value) {
+void VMThread::SetArgument(VMObject* value) {
     argument = WRITEBARRIER(value);
 }
 
@@ -96,13 +96,13 @@ void VMThread::Join(int* exitStatus) {
 }
 
 #if GC_TYPE==PAUSELESS
-pVMThread VMThread::Clone(Interpreter* thread) {
-    pVMThread clone = new (_HEAP, thread, objectSize - sizeof(VMThread)) VMThread(*this);
+VMThread* VMThread::Clone(Interpreter* thread) {
+    VMThread* clone = new (_HEAP, thread, objectSize - sizeof(VMThread)) VMThread(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     return clone;
 }
-pVMThread VMThread::Clone(PauselessCollectorThread* thread) {
-    pVMThread clone = new (_HEAP, thread, objectSize - sizeof(VMThread)) VMThread(*this);
+VMThread* VMThread::Clone(PauselessCollectorThread* thread) {
+    VMThread* clone = new (_HEAP, thread, objectSize - sizeof(VMThread)) VMThread(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     return clone;
 }
@@ -147,8 +147,8 @@ void VMThread::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     //argument = (GCAbstractObject*) (walk(READBARRIER(argument)));
 }
 
-pVMThread VMThread::Clone() {
-    pVMThread clone = new (_HEAP, _PAGE, objectSize - sizeof(VMThread)) VMThread(*this);
+VMThread* VMThread::Clone() {
+    VMThread* clone = new (_HEAP, _PAGE, objectSize - sizeof(VMThread)) VMThread(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     return clone;
 } */

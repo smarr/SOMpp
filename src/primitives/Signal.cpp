@@ -11,25 +11,25 @@
 #include "../natives/VMSignal.h"
 #include "../primitivesCore/Routine.h"
 
-void _Signal::Wait(pVMObject object, pVMFrame frame){
-    pVMSignal signal = (pVMSignal)frame->Pop();
+void _Signal::Wait(VMObject* object, VMFrame* frame){
+    VMSignal* signal = (VMSignal*)frame->Pop();
     signal->Wait();
     frame->Push(signal);
 }
 
-void _Signal::Signal(pVMObject object, pVMFrame frame){
-    pVMSignal signal = (pVMSignal)frame->Pop();
+void _Signal::Signal(VMObject* object, VMFrame* frame){
+    VMSignal* signal = (VMSignal*)frame->Pop();
     signal->Signal();
     frame->Push(signal);
 }
 
-void _Signal::SignalAll(pVMObject object, pVMFrame frame){
-    pVMSignal signal = (pVMSignal)frame->Pop();
+void _Signal::SignalAll(VMObject* object, VMFrame* frame){
+    VMSignal* signal = (VMSignal*)frame->Pop();
     signal->SignalAll();
     frame->Push(signal);
 }
 
-void _Signal::New(pVMObject object, pVMFrame frame){
+void _Signal::New(VMObject* object, VMFrame* frame){
     frame->Pop();
     pVMSignal signal = _UNIVERSE->NewSignal();
     frame->Push(signal);

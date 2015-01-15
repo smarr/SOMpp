@@ -31,17 +31,17 @@ class VMMethod;
 class Shell {
 public:
     Shell();
-    Shell (pVMMethod);
+    Shell (VMMethod*);
     ~Shell();
-    void SetBootstrapMethod(pVMMethod bsm) {
+    void SetBootstrapMethod(VMMethod* bsm) {
         bootstrapMethod = bsm;
     }
     ;
-    pVMMethod GetBootstrapMethod() const {
+    VMMethod* GetBootstrapMethod() const {
         return bootstrapMethod;
     }
     ;
     void Start();
 private:
-    pVMMethod bootstrapMethod;
+    VMMethod* bootstrapMethod;
 };

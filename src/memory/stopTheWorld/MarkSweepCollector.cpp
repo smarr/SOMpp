@@ -71,15 +71,15 @@ void MarkSweepCollector::MarkInterpretersFrameAndThread() {
         // Get the current frame and thread of each interpreter and mark it.
         // Since marking is done recursively, this automatically
         // marks the whole stack
-        pVMFrame currentFrame = (*it)->GetFrame();
+        VMFrame* currentFrame = (*it)->GetFrame();
         if (currentFrame != NULL) {
-            pVMFrame newFrame = static_cast<pVMFrame>(mark_object(currentFrame));
+            VMFrame* newFrame = static_cast<VMFrame*>(mark_object(currentFrame));
             (*it)->SetFrame(newFrame);
             
         }
-        pVMThread currentThread = (*it)->GetThread();
+        VMThread* currentThread = (*it)->GetThread();
         if (currentThread != NULL) {
-            pVMThread newThread = static_cast<pVMThread>(mark_object(currentThread));
+            VMThread* newThread = static_cast<VMThread*>(mark_object(currentThread));
             (*it)->SetThread(newThread);
         }
     }

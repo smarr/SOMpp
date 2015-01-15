@@ -36,7 +36,7 @@ const long VMObject::VMObjectNumberOfFields = 0;
 
 VMObject::VMObject(long numberOfFields) {
     // this line would be needed if the VMObject** is used instead of the macro:
-    // FIELDS = (pVMObject*)&clazz;
+    // FIELDS = (VMObject**)&clazz;
     this->SetNumberOfFields(numberOfFields + VMObjectNumberOfFields);
     gcfield = 0;
     #if GC_TYPE==PAUSELESS
@@ -47,7 +47,7 @@ VMObject::VMObject(long numberOfFields) {
 }
 
 #if GC_TYPE==GENERATIONAL
-pVMObject VMObject::Clone() {
+VMObject* VMObject::Clone() {
     VMObject* clone = new (_HEAP, _PAGE, objectSize - sizeof(VMObject), true) VMObject(*this);
     
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
@@ -56,20 +56,20 @@ pVMObject VMObject::Clone() {
     return clone;
 }
 #elif GC_TYPE==PAUSELESS
-pVMObject VMObject::Clone(Interpreter* thread) {
+VMObject* VMObject::Clone(Interpreter* thread) {
     VMObject* clone = new (_HEAP, thread, objectSize - sizeof(VMObject)) VMObject(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    //memcpy(&(clone->clazz), &clazz, objectSize - sizeof(VMObject) + sizeof(pVMObject));
+    //memcpy(&(clone->clazz), &clazz, objectSize - sizeof(VMObject) + sizeof(VMObject*));
     
     clone->hash = (size_t) &clone;
     /* clone->IncreaseVersion();
     this->MarkObjectAsInvalid(); */
     return clone;
 }
-pVMObject VMObject::Clone(PauselessCollectorThread* thread) {
+VMObject* VMObject::Clone(PauselessCollectorThread* thread) {
     VMObject* clone = new (_HEAP, thread, objectSize - sizeof(VMObject)) VMObject(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    //memcpy(&(clone->clazz), &clazz, objectSize - sizeof(VMObject) + sizeof(pVMObject));
+    //memcpy(&(clone->clazz), &clazz, objectSize - sizeof(VMObject) + sizeof(VMObject*));
     
     clone->hash = (size_t) &clone;
     /* clone->IncreaseVersion();
@@ -77,10 +77,10 @@ pVMObject VMObject::Clone(PauselessCollectorThread* thread) {
     return clone;
 }
 #else
-pVMObject VMObject::Clone() {
+VMObject* VMObject::Clone() {
     VMObject* clone = new (_HEAP, objectSize - sizeof(VMObject)) VMObject(*this);
     
-    memcpy(&(clone->clazz), &clazz, objectSize - sizeof(VMObject) + sizeof(pVMObject));
+    memcpy(&(clone->clazz), &clazz, objectSize - sizeof(VMObject) + sizeof(VMObject*));
     
     clone->hash = (size_t) &clone;
     return clone;
@@ -95,7 +95,7 @@ void VMObject::SetNumberOfFields(long nof) {
     }
 }
 
-void VMObject::SetClass(pVMClass cl) {
+void VMObject::SetClass(VMClass* cl) {
     assert(Universe::IsValidObject((AbstractVMObject*) cl));
     clazz = WRITEBARRIER(cl);
 #if GC_TYPE==GENERATIONAL
@@ -103,7 +103,7 @@ void VMObject::SetClass(pVMClass cl) {
 #endif
 }
 
-pVMSymbol VMObject::GetFieldName(long index) /*const*/ {
+VMSymbol* VMObject::GetFieldName(long index) /*const*/ {
     //return this->clazz->GetInstanceFieldName(index);
     //because we want to make sure that the ReadBarrier is triggered
     return this->GetClass()->GetInstanceFieldName(index);
@@ -113,11 +113,11 @@ void VMObject::Assert(bool value) const {
     _UNIVERSE->Assert(value);
 }
 
-pVMObject VMObject::GetField(long index) /*const*/ {
+VMObject* VMObject::GetField(long index) /*const*/ {
     return READBARRIER(FIELDS[index]);
 }
 
-void VMObject::SetField(long index, pVMObject value) {
+void VMObject::SetField(long index, VMObject* value) {
     FIELDS[index] = WRITEBARRIER(value);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, (VMOBJECT_PTR)value);
@@ -128,10 +128,10 @@ void VMObject::SetField(long index, pVMObject value) {
 long VMObject::GetAdditionalSpaceConsumption() const {
     //The VM*-Object's additional memory used needs to be calculated.
     //It's      the total object size   MINUS   sizeof(VMObject) for basic
-    //VMObject  MINUS   the number of fields times sizeof(pVMObject)
+    //VMObject  MINUS   the number of fields times sizeof(VMObject*)
     return (objectSize
             - (sizeof(VMObject)
-                    + sizeof(pVMObject) * GetNumberOfFields()));
+                    + sizeof(VMObject*) * GetNumberOfFields()));
 }
 
 void VMObject::MarkObjectAsInvalid() {

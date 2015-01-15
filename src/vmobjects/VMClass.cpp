@@ -53,29 +53,29 @@ VMClass::VMClass() :
 }
 
 #if GC_TYPE==GENERATIONAL
-pVMClass VMClass::Clone() {
-    pVMClass clone = new (_HEAP, _PAGE, objectSize - sizeof(VMClass), true)VMClass(*this);
+VMClass* VMClass::Clone() {
+    VMClass* clone = new (_HEAP, _PAGE, objectSize - sizeof(VMClass), true)VMClass(*this);
     memcpy(SHIFTED_PTR(clone,sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     return clone;
 }
 #elif GC_TYPE==PAUSELESS
-pVMClass VMClass::Clone(Interpreter* thread) {
-    pVMClass clone = new (_HEAP, thread, objectSize - sizeof(VMClass)) VMClass(*this);
+VMClass* VMClass::Clone(Interpreter* thread) {
+    VMClass* clone = new (_HEAP, thread, objectSize - sizeof(VMClass)) VMClass(*this);
     memcpy(SHIFTED_PTR(clone,sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     /* clone->IncreaseVersion();
     this->MarkObjectAsInvalid(); */
     return clone;
 }
-pVMClass VMClass::Clone(PauselessCollectorThread* thread) {
-    pVMClass clone = new (_HEAP, thread, objectSize - sizeof(VMClass)) VMClass(*this);
+VMClass* VMClass::Clone(PauselessCollectorThread* thread) {
+    VMClass* clone = new (_HEAP, thread, objectSize - sizeof(VMClass)) VMClass(*this);
     memcpy(SHIFTED_PTR(clone,sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     /* clone->IncreaseVersion();
     this->MarkObjectAsInvalid(); */
     return clone;
 }
 #else
-pVMClass VMClass::Clone() {
-    pVMClass clone = new (_HEAP, objectSize - sizeof(VMClass))VMClass(*this);
+VMClass* VMClass::Clone() {
+    VMClass* clone = new (_HEAP, objectSize - sizeof(VMClass))VMClass(*this);
     memcpy(SHIFTED_PTR(clone,sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     return clone;
 }
@@ -93,15 +93,15 @@ void VMClass::MarkObjectAsInvalid() {
     instanceInvokables = (GCArray*)  INVALID_GC_POINTER;
 }
 
-bool VMClass::AddInstanceInvokable(pVMObject ptr) {
-    pVMInvokable newInvokable = static_cast<pVMInvokable>(ptr);
+bool VMClass::AddInstanceInvokable(VMObject* ptr) {
+    VMInvokable* newInvokable = static_cast<VMInvokable*>(ptr);
     if (newInvokable == NULL) {
         _UNIVERSE->ErrorExit("Error: trying to add non-invokable to invokables array");
     }
     //Check whether an invokable with the same signature exists and replace it if that's the case
     long numIndexableFields = this->GetInstanceInvokables()->GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {
-        pVMInvokable inv = static_cast<pVMInvokable>(this->GetInstanceInvokables()->GetIndexableField(i));
+        VMInvokable* inv = static_cast<VMInvokable*>(this->GetInstanceInvokables()->GetIndexableField(i));
         if (inv != NULL) {
             if (newInvokable->GetSignature() == inv->GetSignature()) {
                 this->SetInstanceInvokable(i, ptr);
@@ -120,22 +120,22 @@ bool VMClass::AddInstanceInvokable(pVMObject ptr) {
     return true;
 }
 
-void VMClass::AddInstancePrimitive(pVMPrimitive ptr) {
+void VMClass::AddInstancePrimitive(VMPrimitive* ptr) {
     if (AddInstanceInvokable(ptr)) {
         //cout << "Warn: Primitive "<<ptr->GetSignature<<" is not in class definition for class " << name->GetStdString() << endl;
     }
 }
 
-pVMSymbol VMClass::GetInstanceFieldName(long index) {
+VMSymbol* VMClass::GetInstanceFieldName(long index) {
     long numSuperInstanceFields = numberOfSuperInstanceFields();
     if (index >= numSuperInstanceFields) {
         index -= numSuperInstanceFields;
-        return static_cast<pVMSymbol>(this->GetInstanceFields()->GetIndexableField(index));
+        return static_cast<VMSymbol*>(this->GetInstanceFields()->GetIndexableField(index));
     }
     return this->GetSuperClass()->GetInstanceFieldName(index);
 }
 
-void VMClass::SetInstanceInvokables(pVMArray invokables) {
+void VMClass::SetInstanceInvokables(VMArray* invokables) {
     instanceInvokables = WRITEBARRIER(invokables);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, READBARRIER(instanceInvokables));
@@ -143,11 +143,11 @@ void VMClass::SetInstanceInvokables(pVMArray invokables) {
 
     long numInvokables = GetNumberOfInstanceInvokables();
     for (long i = 0; i < numInvokables; ++i) {
-        pVMObject invo = READBARRIER(instanceInvokables)->GetIndexableField(i);
+        VMObject* invo = READBARRIER(instanceInvokables)->GetIndexableField(i);
         //check for Nil object
         if (invo != READBARRIER(nilObject)) {
             //not Nil, so this actually is an invokable
-            pVMInvokable inv = static_cast<pVMInvokable>(invo);
+            VMInvokable* inv = static_cast<VMInvokable*>(invo);
             inv->SetHolder(this);
         }
     }
@@ -157,39 +157,39 @@ long VMClass::GetNumberOfInstanceInvokables() {
     return this->GetInstanceInvokables()->GetNumberOfIndexableFields();
 }
 
-pVMInvokable VMClass::GetInstanceInvokable(long index) {
-    return static_cast<pVMInvokable>(this->GetInstanceInvokables()->GetIndexableField(index));
+VMInvokable* VMClass::GetInstanceInvokable(long index) {
+    return static_cast<VMInvokable*>(this->GetInstanceInvokables()->GetIndexableField(index));
 }
 
-void VMClass::SetInstanceInvokable(long index, pVMObject invokable) {
+void VMClass::SetInstanceInvokable(long index, VMObject* invokable) {
     this->GetInstanceInvokables()->SetIndexableField(index, invokable);
     if (invokable != READBARRIER(nilObject)) {
-        pVMInvokable inv = static_cast<pVMInvokable>(invokable);
+        VMInvokable* inv = static_cast<VMInvokable*>(invokable);
         inv->SetHolder(this);
     }
 }
 
-pVMInvokable VMClass::LookupInvokable(pVMSymbol name) {
+VMInvokable* VMClass::LookupInvokable(VMSymbol* name) {
     assert(Universe::IsValidObject(this));
     
     /*
-    pVMInvokable invokable = name->GetCachedInvokable(this);
+    VMInvokable* invokable = name->GetCachedInvokable(this);
     if (invokable != NULL)
         return invokable; */
-    pVMInvokable invokable;
+    VMInvokable* invokable;
 
     long numInvokables = GetNumberOfInstanceInvokables();
     for (long i = 0; i < numInvokables; ++i) {
         invokable = GetInstanceInvokable(i);
         
-        pVMSymbol sig = invokable->GetSignature();
+        VMSymbol* sig = invokable->GetSignature();
         if (sig == name) {
         //if (invokable->GetSignature() == name) {
             //name->UpdateCachedInvokable(this, invokable);
             return invokable;
         } else {
             if (strcmp(sig->GetChars(), name->GetChars()) == 0) {
-                pVMSymbol sigTest = invokable->GetSignature();
+                VMSymbol* sigTest = invokable->GetSignature();
                 assert(0 != strcmp(sig->GetChars(), name->GetChars()));
             }
         }
@@ -204,7 +204,7 @@ pVMInvokable VMClass::LookupInvokable(pVMSymbol name) {
     return NULL;
 }
 
-long VMClass::LookupFieldIndex(pVMSymbol name) {
+long VMClass::LookupFieldIndex(VMSymbol* name) {
     long numInstanceFields = GetNumberOfInstanceFields();
     for (long i = 0; i <= numInstanceFields; ++i)
         // even with GetNumberOfInstanceFields == 0 there is the class field
@@ -222,7 +222,7 @@ long VMClass::GetNumberOfInstanceFields() {
 bool VMClass::HasPrimitives() {
     long numInvokables = GetNumberOfInstanceInvokables();
     for (long i = 0; i < numInvokables; ++i) {
-        pVMInvokable invokable = GetInstanceInvokable(i);
+        VMInvokable* invokable = GetInstanceInvokable(i);
         if (invokable->IsPrimitive())
             return true;
     }
@@ -249,9 +249,9 @@ long VMClass::numberOfSuperInstanceFields() {
  *
  */
 void VMClass::setPrimitives(const StdString& cname) {
-    pVMPrimitive thePrimitive;
+    VMPrimitive* thePrimitive;
     PrimitiveRoutine* routine = NULL;
-    pVMInvokable anInvokable;
+    VMInvokable* anInvokable;
     // iterate invokables
     long numInvokables = GetNumberOfInstanceInvokables();
     for (long i = 0; i < numInvokables; i++) {
@@ -264,12 +264,12 @@ void VMClass::setPrimitives(const StdString& cname) {
 #ifdef __DEBUG
             cout << "... is a primitive, and is going to be loaded now" << endl;
 #endif
-            thePrimitive = static_cast<pVMPrimitive>(anInvokable);
+            thePrimitive = static_cast<VMPrimitive*>(anInvokable);
             //
             // we have a primitive to load
             // get it's selector
             //
-            pVMSymbol sig = thePrimitive->GetSignature();
+            VMSymbol* sig = thePrimitive->GetSignature();
             StdString selector = sig->GetPlainString();
             routine = get_primitive(cname, selector);
 
@@ -338,7 +338,7 @@ void VMClass::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     instanceFields = (GCArray*) (walk(READBARRIER(instanceFields)));
     instanceInvokables = (GCArray*) (walk(READBARRIER(instanceInvokables)));
     
-    //pVMObject* fields = FIELDS;
+    //VMObject** fields = FIELDS;
     
     for (long i = VMClassNumberOfFields + 0/*VMObjectNumberOfFields*/; i < numberOfFields; i++)
         FIELDS[i] = (GCAbstractObject*) walk(AS_VM_POINTER(FIELDS[i]));

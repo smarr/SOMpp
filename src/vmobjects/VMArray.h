@@ -36,20 +36,20 @@ public:
     VMArray(long size, long nof = 0);
 
 #if GC_TYPE==PAUSELESS
-    virtual pVMArray Clone(Interpreter*);
-    virtual pVMArray Clone(PauselessCollectorThread*);
+    virtual VMArray* Clone(Interpreter*);
+    virtual VMArray* Clone(PauselessCollectorThread*);
     virtual void MarkReferences();
     virtual void CheckMarking(void (AbstractVMObject*));
 #else
-    virtual pVMArray Clone();
+    virtual VMArray* Clone();
     virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));    
 #endif
 
     inline  long GetNumberOfIndexableFields() const;
-    pVMArray CopyAndExtendWith(pVMObject);
-    pVMObject GetIndexableField(long idx);
-    void SetIndexableField(long idx, pVMObject value);
-    void CopyIndexableFieldsTo(pVMArray);
+    VMArray* CopyAndExtendWith(VMObject*);
+    VMObject* GetIndexableField(long idx);
+    void SetIndexableField(long idx, VMObject* value);
+    void CopyIndexableFieldsTo(VMArray*);
     
     virtual void MarkObjectAsInvalid();
 
@@ -59,13 +59,13 @@ private:
 };
 
 long VMArray::GetNumberOfIndexableFields() const {
-    long numIndexableFields = GetAdditionalSpaceConsumption() / sizeof(pVMObject);
+    long numIndexableFields = GetAdditionalSpaceConsumption() / sizeof(VMObject*);
     /*
-    static const pVMArray cachedArray = NULL;
+    static const VMArray* cachedArray = NULL;
     static long numIndexableFields = -1;
 
     if (this != cachedArray) {
-        numIndexableFields = GetAdditionalSpaceConsumption() / sizeof(pVMObject);
+        numIndexableFields = GetAdditionalSpaceConsumption() / sizeof(VMObject*);
         cachedArray = this;
     }*/
     return numIndexableFields;

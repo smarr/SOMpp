@@ -42,19 +42,19 @@
 
 #include <vmobjects/VMMethod.inline.h>
 
-void _Block::Value(pVMObject /*object*/, pVMFrame /*frame*/) {
+void _Block::Value(VMObject* /*object*/, VMFrame* /*frame*/) {
     // intentionally left blank
 }
 
-void _Block::Value_(pVMObject /*object*/, pVMFrame /*frame*/) {
+void _Block::Value_(VMObject* /*object*/, VMFrame* /*frame*/) {
     // intentionally left blank
 }
 
-void _Block::Value_with_(pVMObject /*object*/, pVMFrame /*frame*/) {
+void _Block::Value_with_(VMObject* /*object*/, VMFrame* /*frame*/) {
     // intentionally left blank
 }
 
-void _Block::Restart(pVMObject /*object*/, pVMFrame frame) {
+void _Block::Restart(VMObject* /*object*/, VMFrame* frame) {
     frame->SetBytecodeIndex(0);
     frame->ResetStackPointer();
 }
@@ -86,8 +86,8 @@ _Block::_Block() :
                     &_Block::Spawn)));
 }
 
-pVMMethod _Block::CreateFakeBootstrapMethod() {
-    pVMMethod bootstrapVMMethod = _UNIVERSE->NewMethod(_UNIVERSE->SymbolForChars("bootstrap"), 1, 0);
+VMMethod* _Block::CreateFakeBootstrapMethod() {
+    VMMethod* bootstrapVMMethod = GetUniverse()->NewMethod(GetUniverse()->SymbolForChars("bootstrap"), 1, 0);
     bootstrapVMMethod->SetBytecode(0, BC_HALT);
     bootstrapVMMethod->SetNumberOfLocals(0);
     bootstrapVMMethod->SetMaximumNumberOfStackElements(2);
@@ -96,9 +96,9 @@ pVMMethod _Block::CreateFakeBootstrapMethod() {
 }
 
 //setting up thread object
-pVMThread _Block::CreateNewThread(pVMBlock block) {
-    pVMThread thread = _UNIVERSE->NewThread();
-    pVMSignal signal = _UNIVERSE->NewSignal();
+VMThread* _Block::CreateNewThread(VMBlock* block) {
+    VMThread* thread = GetUniverse()->NewThread();
+    VMSignal* signal = GetUniverse()->NewSignal();
     thread->SetResumeSignal(signal);
     thread->SetShouldStop(false);
     thread->SetBlockToRun(block);
@@ -108,15 +108,15 @@ pVMThread _Block::CreateNewThread(pVMBlock block) {
 void* _Block::ThreadForBlock(void* threadPointer) {
     //create new interpreter which will process the block
     Interpreter* interpreter = _UNIVERSE->NewInterpreter();
-    pVMThread thread = (pVMThread)threadPointer;
-    pVMBlock block = thread->GetBlockToRun();
+    VMThread* thread = (VMThread*)threadPointer;
+    VMBlock* block = thread->GetBlockToRun();
     interpreter->SetThread(thread);
     
     // fake bootstrap method to simplify later frame traversal
-    pVMMethod bootstrapVMMethod = CreateFakeBootstrapMethod();
+    VMMethod* bootstrapVMMethod = CreateFakeBootstrapMethod();
     // create a fake bootstrap frame with the block object on the stack
-    pVMFrame bootstrapVMFrame = interpreter->PushNewFrame(bootstrapVMMethod);
-    bootstrapVMFrame->Push((pVMObject)block);
+    VMFrame* bootstrapVMFrame = interpreter->PushNewFrame(bootstrapVMMethod);
+    bootstrapVMFrame->Push((VMObject*)block);
     
     // lookup the initialize invokable on the system class
     pVMInvokable initialize = (pVMInvokable)_UNIVERSE->GetBlockClass()->LookupInvokable(_UNIVERSE->SymbolForChars("evaluate"));
@@ -142,16 +142,16 @@ void* _Block::ThreadForBlock(void* threadPointer) {
 void* _Block::ThreadForBlockWithArgument(void* threadPointer) {
     //create new interpreter which will process the block
     Interpreter* interpreter = _UNIVERSE->NewInterpreter();
-    pVMThread thread = (pVMThread)threadPointer;
-    pVMBlock block = thread->GetBlockToRun();
+    VMThread* thread = (VMThread*)threadPointer;
+    VMBlock* block = thread->GetBlockToRun();
     interpreter->SetThread(thread);
     
     // fake bootstrap method to simplify later frame traversal
-    pVMMethod bootstrapVMMethod = CreateFakeBootstrapMethod();
+    VMMethod* bootstrapVMMethod = CreateFakeBootstrapMethod();
     // create a fake bootstrap frame with the block object on the stack
-    pVMFrame bootstrapVMFrame = interpreter->PushNewFrame(bootstrapVMMethod);
-    bootstrapVMFrame->Push((pVMObject)block);
-    pVMObject arg = thread->GetArgument();
+    VMFrame* bootstrapVMFrame = interpreter->PushNewFrame(bootstrapVMMethod);
+    bootstrapVMFrame->Push((VMObject*)block);
+    VMObject* arg = thread->GetArgument();
     bootstrapVMFrame->Push(arg);
     
     // lookup the initialize invokable on the system class
@@ -177,11 +177,11 @@ void* _Block::ThreadForBlockWithArgument(void* threadPointer) {
 }
 
 //spawning of new thread that will run the block
-void _Block::Spawn(pVMObject object, pVMFrame frame) {
+void _Block::Spawn(VMObject* object, VMFrame* frame) {
     pthread_t tid = 0;
-    pVMBlock block = (pVMBlock)frame->Pop();
+    VMBlock* block = (VMBlock*)frame->Pop();
     // create the thread object and setting it up
-    pVMThread thread = CreateNewThread(block);
+    VMThread* thread = CreateNewThread(block);
     // create the pthread but first increment the number of active threads (this is part of a thread barrier needed for GC)
 #if GC_TYPE!=PAUSELESS
     _HEAP->IncrementThreadCount();
@@ -192,13 +192,13 @@ void _Block::Spawn(pVMObject object, pVMFrame frame) {
     frame->Push(thread);
 }
 
-void _Block::SpawnWithArgument(pVMObject object, pVMFrame frame) {
+void _Block::SpawnWithArgument(VMObject* object, VMFrame* frame) {
     pthread_t tid = 0;
     // Get the argument
-    pVMObject argument = frame->Pop();
-    pVMBlock block = (pVMBlock)frame->Pop();
+    VMObject* argument = frame->Pop();
+    VMBlock* block = (VMBlock*)frame->Pop();
     // create the thread object and setting it up
-    pVMThread thread = CreateNewThread(block);
+    VMThread* thread = CreateNewThread(block);
     thread->SetArgument(argument);
     // create the pthread but first increment the number of active threads (this is part of a thread barrier needed for GC)
 #if GC_TYPE!=PAUSELESS

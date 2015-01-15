@@ -53,34 +53,34 @@ public:
     VMClass();
     VMClass(long numberOfFields);
 
-    inline pVMClass     GetSuperClass();
-    inline void         SetSuperClass(pVMClass);
+    inline VMClass*     GetSuperClass();
+    inline void         SetSuperClass(VMClass*);
     inline bool         HasSuperClass();
-    inline pVMSymbol    GetName();
-    inline void         SetName(pVMSymbol);
-    inline pVMArray     GetInstanceFields();
-    inline void         SetInstanceFields(pVMArray);
-    inline pVMArray     GetInstanceInvokables();
-           void         SetInstanceInvokables(pVMArray);
+    inline VMSymbol*    GetName();
+    inline void         SetName(VMSymbol*);
+    inline VMArray*     GetInstanceFields();
+    inline void         SetInstanceFields(VMArray*);
+    inline VMArray*     GetInstanceInvokables();
+           void         SetInstanceInvokables(VMArray*);
            long         GetNumberOfInstanceInvokables();
-           pVMInvokable GetInstanceInvokable(long);
-           void         SetInstanceInvokable(long, pVMObject);
-           pVMInvokable LookupInvokable(pVMSymbol);
-           long         LookupFieldIndex(pVMSymbol);
-           bool         AddInstanceInvokable(pVMObject);
-           void         AddInstancePrimitive(pVMPrimitive);
-           pVMSymbol    GetInstanceFieldName(long);
+           VMInvokable* GetInstanceInvokable(long);
+           void         SetInstanceInvokable(long, VMObject*);
+           VMInvokable* LookupInvokable(VMSymbol*);
+           long         LookupFieldIndex(VMSymbol*);
+           bool         AddInstanceInvokable(VMObject*);
+           void         AddInstancePrimitive(VMPrimitive*);
+           VMSymbol*    GetInstanceFieldName(long);
            long         GetNumberOfInstanceFields();
            bool         HasPrimitives();
            void         LoadPrimitives();
     
 #if GC_TYPE==PAUSELESS
-    virtual pVMClass    Clone(Interpreter*);
-    virtual pVMClass    Clone(PauselessCollectorThread*);
+    virtual VMClass*    Clone(Interpreter*);
+    virtual VMClass*    Clone(PauselessCollectorThread*);
     virtual void MarkReferences();
     virtual void CheckMarking(void (AbstractVMObject*));
 #else
-    virtual pVMClass    Clone();
+    virtual VMClass*    Clone();
     void         WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
 #endif
     
@@ -98,22 +98,22 @@ private:
     static const long VMClassNumberOfFields;
 };
 
-pVMClass VMClass::GetSuperClass() {
+VMClass* VMClass::GetSuperClass() {
     return READBARRIER(superClass);
 }
 
-void VMClass::SetSuperClass(pVMClass sup) {
+void VMClass::SetSuperClass(VMClass* sup) {
     superClass = WRITEBARRIER(sup);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, sup);
 #endif
 }
 
-pVMSymbol VMClass::GetName() {
+VMSymbol* VMClass::GetName() {
     return READBARRIER(name);
 }
 
-void VMClass::SetName(pVMSymbol nam) {
+void VMClass::SetName(VMSymbol* nam) {
     name = WRITEBARRIER(nam);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, nam);
@@ -121,7 +121,7 @@ void VMClass::SetName(pVMSymbol nam) {
 }
 
 bool VMClass::HasSuperClass() {
-    pVMClass sc = READBARRIER(superClass);
+    VMClass* sc = READBARRIER(superClass);
     assert(Universe::IsValidObject(sc));
 
     // TODO: only for debugging, REMOVE!
@@ -132,17 +132,17 @@ bool VMClass::HasSuperClass() {
     return sc != READBARRIER(nilObject);
 }
 
-pVMArray VMClass::GetInstanceFields() {
+VMArray* VMClass::GetInstanceFields() {
     return READBARRIER(instanceFields);
 }
 
-void VMClass::SetInstanceFields(pVMArray instFields) {
+void VMClass::SetInstanceFields(VMArray* instFields) {
     instanceFields = WRITEBARRIER(instFields);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, instFields);
 #endif
 }
 
-pVMArray VMClass::GetInstanceInvokables() {
+VMArray* VMClass::GetInstanceInvokables() {
     return READBARRIER(instanceInvokables);
 }

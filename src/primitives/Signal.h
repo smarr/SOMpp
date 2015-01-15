@@ -17,13 +17,13 @@ public:
     _Signal();
     
     /** Blocking wait for this signal */
-    void Wait(pVMObject object, pVMFrame frame);
+    void Wait(VMObject* object, VMFrame* frame);
     /** Signal one waiting Thread */
-    void Signal(pVMObject object, pVMFrame frame);
+    void Signal(VMObject* object, VMFrame* frame);
     /** Wakes up all the Threads waiting for the signal */
-    void SignalAll(pVMObject object, pVMFrame frame);
+    void SignalAll(VMObject* object, VMFrame* frame);
     
     /** creates a new Signal Object with encapsulated pthread signal */
-    void New(pVMObject object, pVMFrame frame);
+    void New(VMObject* object, VMFrame* frame);
     
 };

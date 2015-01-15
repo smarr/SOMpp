@@ -34,17 +34,17 @@ class VMFrame;
 class _Block: public PrimitiveContainer {
 public:
     _Block();
-    void Value(pVMObject object, pVMFrame frame);
-    void Restart(pVMObject object, pVMFrame frame);
-    void Value_(pVMObject object, pVMFrame frame);
-    void Value_with_(pVMObject object, pVMFrame frame);
+    void Value(VMObject* object, VMFrame* frame);
+    void Restart(VMObject* object, VMFrame* frame);
+    void Value_(VMObject* object, VMFrame* frame);
+    void Value_with_(VMObject* object, VMFrame* frame);
     
-    void Spawn(pVMObject object, pVMFrame frame);
-    void SpawnWithArgument(pVMObject object, pVMFrame frame);
+    void Spawn(VMObject* object, VMFrame* frame);
+    void SpawnWithArgument(VMObject* object, VMFrame* frame);
     
 private:
-    static pVMMethod CreateFakeBootstrapMethod();
-    static pVMThread CreateNewThread(pVMBlock);
+    static VMMethod* CreateFakeBootstrapMethod();
+    static VMThread* CreateNewThread(VMBlock*);
     static void* ThreadForBlock(void* threadPointer);
     static void* ThreadForBlockWithArgument(void*);
     

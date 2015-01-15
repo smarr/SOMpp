@@ -39,20 +39,20 @@
 // when doesNotUnderstand or UnknownGlobal is sent, additional stack slots might
 // be necessary, as these cases are not taken into account when the stack
 // depth is calculated. In that case this method is called.
-pVMFrame VMFrame::EmergencyFrameFrom(pVMFrame from, long extraLength) {
-    pVMMethod method = from->GetMethod();
+VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength) {
+    VMMethod* method = from->GetMethod();
     long length = method->GetNumberOfArguments()
                     + method->GetNumberOfLocals()
                     + method->GetMaximumNumberOfStackElements()
                     + extraLength;
 
-    long additionalBytes = length * sizeof(pVMObject);
+    long additionalBytes = length * sizeof(VMObject*);
 #if GC_TYPE==GENERATIONAL
-    pVMFrame result = new (_HEAP, _PAGE, additionalBytes) VMFrame(length);
+    VMFrame* result = new (_HEAP, _PAGE, additionalBytes) VMFrame(length);
 #elif GC_TYPE==PAUSELESS
-    pVMFrame result = new (_HEAP, _UNIVERSE->GetInterpreter(), additionalBytes) VMFrame(length);
+    VMFrame* result = new (_HEAP, GetUniverse()->GetInterpreter(), additionalBytes) VMFrame(length);
 #else
-    pVMFrame result = new (_HEAP, additionalBytes) VMFrame(length);
+    VMFrame* result = new (_HEAP, additionalBytes) VMFrame(length);
 #endif
 
     result->clazz = nullptr; // result->SetClass(from->GetClass());
@@ -89,9 +89,9 @@ pVMFrame VMFrame::EmergencyFrameFrom(pVMFrame from, long extraLength) {
 }
 
 #if GC_TYPE==GENERATIONAL
-pVMFrame VMFrame::Clone() {
+VMFrame* VMFrame::Clone() {
     size_t addSpace = objectSize - sizeof(VMFrame);
-    pVMFrame clone = new (_HEAP, _PAGE, addSpace, true) VMFrame(*this);
+    VMFrame* clone = new (_HEAP, _PAGE, addSpace, true) VMFrame(*this);
     void* destination = SHIFTED_PTR(clone, sizeof(VMFrame));
     const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
     size_t noBytes = GetObjectSize() - sizeof(VMFrame);
@@ -102,9 +102,9 @@ pVMFrame VMFrame::Clone() {
     return clone;
 }
 #elif GC_TYPE==PAUSELESS
-pVMFrame VMFrame::Clone(Interpreter* thread) {
+VMFrame* VMFrame::Clone(Interpreter* thread) {
     size_t addSpace = objectSize - sizeof(VMFrame);
-    pVMFrame clone = new (_HEAP, thread, addSpace) VMFrame(*this);
+    VMFrame* clone = new (_HEAP, thread, addSpace) VMFrame(*this);
     void* destination = SHIFTED_PTR(clone, sizeof(VMFrame));
     const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
     size_t noBytes = GetObjectSize() - sizeof(VMFrame);
@@ -116,9 +116,9 @@ pVMFrame VMFrame::Clone(Interpreter* thread) {
     this->MarkObjectAsInvalid(); */
     return clone;
 }
-pVMFrame VMFrame::Clone(PauselessCollectorThread* thread) {
+VMFrame* VMFrame::Clone(PauselessCollectorThread* thread) {
     size_t addSpace = objectSize - sizeof(VMFrame);
-    pVMFrame clone = new (_HEAP, thread, addSpace) VMFrame(*this);
+    VMFrame* clone = new (_HEAP, thread, addSpace) VMFrame(*this);
     void* destination = SHIFTED_PTR(clone, sizeof(VMFrame));
     const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
     size_t noBytes = GetObjectSize() - sizeof(VMFrame);
@@ -131,16 +131,16 @@ pVMFrame VMFrame::Clone(PauselessCollectorThread* thread) {
     return clone;
 }
 #else
-pVMFrame VMFrame::Clone() {
+VMFrame* VMFrame::Clone() {
     size_t addSpace = objectSize - sizeof(VMFrame);
-    pVMFrame clone = new (_HEAP, addSpace) VMFrame(*this);
+    VMFrame* clone = new (_HEAP, addSpace) VMFrame(*this);
     void* destination = SHIFTED_PTR(clone, sizeof(VMFrame));
     const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
     size_t noBytes = GetObjectSize() - sizeof(VMFrame);
     memcpy(destination, source, noBytes);
-    clone->arguments = (pVMObject*)&(clone->stack_ptr)+1; //field after stack_ptr
+    clone->arguments = (VMObject**)&(clone->stack_ptr)+1; //field after stack_ptr
     clone->locals = clone->arguments + clone->method->GetNumberOfArguments();
-    clone->stack_ptr = (pVMObject*)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
+    clone->stack_ptr = (VMObject**)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
     return clone;
 }
 #endif
@@ -166,15 +166,15 @@ VMFrame::VMFrame(long size, long nof) :
     }
 }
 
-void VMFrame::SetMethod(pVMMethod method) {
+void VMFrame::SetMethod(VMMethod* method) {
     this->method = WRITEBARRIER(method);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, method);
 #endif
 }
 
-pVMFrame VMFrame::GetContextLevel(long lvl) {
-    pVMFrame current = this;
+VMFrame* VMFrame::GetContextLevel(long lvl) {
+    VMFrame* current = this;
     while (lvl > 0) {
         current = current->GetContext();
         --lvl;
@@ -182,8 +182,8 @@ pVMFrame VMFrame::GetContextLevel(long lvl) {
     return current;
 }
 
-pVMFrame VMFrame::GetOuterContext() {
-    pVMFrame current = this;
+VMFrame* VMFrame::GetOuterContext() {
+    VMFrame* current = this;
     while (current->HasContext()) {
         current = current->GetContext();
     }
@@ -194,15 +194,15 @@ long VMFrame::RemainingStackSize() const {
     // - 1 because the stack pointer points at the top entry,
     // so the next entry would be put at stackPointer+1
     size_t size = ((size_t) this + objectSize - size_t(stack_ptr))
-            / sizeof(pVMObject);
+            / sizeof(VMObject*);
     return size - 1;
 }
 
-pVMObject VMFrame::Pop() {
+VMObject* VMFrame::Pop() {
     return READBARRIER(*stack_ptr--);
 }
 
-void VMFrame::Push(pVMObject obj) {
+void VMFrame::Push(VMObject* obj) {
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, (VMOBJECT_PTR)obj);
 #endif
@@ -216,7 +216,7 @@ void VMFrame::PrintStack() const {
     GCAbstractObject** end = (GCAbstractObject**) SHIFTED_PTR(this, objectSize);
     long i = 0;
     while (arguments + i < end) {
-        pVMObject vmo = READBARRIER(arguments[i]);
+        VMObject* vmo = READBARRIER(arguments[i]);
         cout << i << ": ";
         if (vmo == NULL)
         cout << "NULL" << endl;
@@ -250,28 +250,28 @@ void VMFrame::PrintStack() const {
 
 void VMFrame::ResetStackPointer() {
     // arguments are stored in front of local variables
-    pVMMethod meth = this->GetMethod();
+    VMMethod* meth = this->GetMethod();
     locals = arguments + meth->GetNumberOfArguments();
     // Set the stack pointer to its initial value thereby clearing the stack
     stack_ptr = locals + meth->GetNumberOfLocals() - 1;
     std::atomic_thread_fence(std::memory_order_seq_cst);
 }
 
-pVMObject VMFrame::GetStackElement(long index) const {
+VMObject* VMFrame::GetStackElement(long index) const {
     std::atomic_thread_fence(std::memory_order_seq_cst);
     return READBARRIER(stack_ptr[-index]);
 }
 
-pVMObject VMFrame::GetLocal(long index, long contextLevel) {
-    pVMFrame context = this->GetContextLevel(contextLevel);
+VMObject* VMFrame::GetLocal(long index, long contextLevel) {
+    VMFrame* context = this->GetContextLevel(contextLevel);
     
     std::atomic_thread_fence(std::memory_order_seq_cst);
     
     return READBARRIER(context->locals[index]);
 }
 
-void VMFrame::SetLocal(long index, long contextLevel, pVMObject value) {
-    pVMFrame context = this->GetContextLevel(contextLevel);
+void VMFrame::SetLocal(long index, long contextLevel, VMObject* value) {
+    VMFrame* context = this->GetContextLevel(contextLevel);
     context->locals[index] = WRITEBARRIER(value);
     std::atomic_thread_fence(std::memory_order_seq_cst);
 #if GC_TYPE==GENERATIONAL
@@ -279,17 +279,17 @@ void VMFrame::SetLocal(long index, long contextLevel, pVMObject value) {
 #endif
 }
 
-pVMObject VMFrame::GetArgument(long index, long contextLevel) {
+VMObject* VMFrame::GetArgument(long index, long contextLevel) {
     // get the context
-    pVMFrame context = this->GetContextLevel(contextLevel);
+    VMFrame* context = this->GetContextLevel(contextLevel);
 
     std::atomic_thread_fence(std::memory_order_seq_cst);
     
     return READBARRIER(context->arguments[index]);
 }
 
-void VMFrame::SetArgument(long index, long contextLevel, pVMObject value) {
-    pVMFrame context = this->GetContextLevel(contextLevel);
+void VMFrame::SetArgument(long index, long contextLevel, VMObject* value) {
+    VMFrame* context = this->GetContextLevel(contextLevel);
     context->arguments[index] = WRITEBARRIER(value);
     std::atomic_thread_fence(std::memory_order_seq_cst);
     
@@ -303,17 +303,17 @@ void VMFrame::PrintStackTrace() const {
 }
 
 long VMFrame::ArgumentStackIndex(long index) {
-    pVMMethod meth = this->GetMethod();
+    VMMethod* meth = this->GetMethod();
     return meth->GetNumberOfArguments() - index - 1;
 }
 
-void VMFrame::CopyArgumentsFrom(pVMFrame frame) {
+void VMFrame::CopyArgumentsFrom(VMFrame* frame) {
     // copy arguments from frame:
     // - arguments are at the top of the stack of frame.
     // - copy them into the argument area of the current frame
     long num_args = GetMethod()->GetNumberOfArguments();
     for (long i = 0; i < num_args; ++i) {
-        pVMObject stackElem = frame->GetStackElement(num_args - 1 - i);
+        VMObject* stackElem = frame->GetStackElement(num_args - 1 - i);
         arguments[i] = WRITEBARRIER(stackElem);
 #if GC_TYPE==GENERATIONAL
         _HEAP->WriteBarrier(this, (VMOBJECT_PTR)stackElem);
@@ -359,7 +359,7 @@ void VMFrame::CheckMarking(void (*walk)(AbstractVMObject*)) {
 #else
 void VMFrame::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     // VMFrame is not a proper SOM object any longer, we don't have a class for it.
-    // clazz = (pVMClass) walk(clazz);
+    // clazz = (VMClass*) walk(clazz);
     
     if (previousFrame)
         previousFrame = (GCFrame*) walk(READBARRIER(previousFrame));

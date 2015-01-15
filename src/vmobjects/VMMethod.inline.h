@@ -36,11 +36,11 @@ inline  long VMMethod::GetNumberOfArgumentsGC() {
 }
 #endif
 
-pVMObject VMMethod::GetIndexableField(long idx) {
+VMObject* VMMethod::GetIndexableField(long idx) {
     return READBARRIER(indexableFields[idx]);
 }
 
-void VMMethod::SetIndexableField(long idx, pVMObject item) {
+void VMMethod::SetIndexableField(long idx, VMObject* item) {
     indexableFields[idx] = WRITEBARRIER(item);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, item);

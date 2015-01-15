@@ -60,8 +60,8 @@ private:
     void unaryPattern(MethodGenerationContext* mgenc);
     void binaryPattern(MethodGenerationContext* mgenc);
     void keywordPattern(MethodGenerationContext* mgenc);
-    void methodBlock(MethodGenerationContext* mgenc);pVMSymbol unarySelector(void);
-    pVMSymbol binarySelector(void);
+    void methodBlock(MethodGenerationContext* mgenc);VMSymbol* unarySelector(void);
+    VMSymbol* binarySelector(void);
     StdString identifier(void);
     StdString keyword(void);
     StdString argument(void);

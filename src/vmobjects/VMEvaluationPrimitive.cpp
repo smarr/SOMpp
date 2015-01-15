@@ -52,29 +52,29 @@ VMEvaluationPrimitive::VMEvaluationPrimitive(long argc) :
 }
 
 #if GC_TYPE==GENERATIONAL
-pVMEvaluationPrimitive VMEvaluationPrimitive::Clone() {
+VMEvaluationPrimitive* VMEvaluationPrimitive::Clone() {
     return new (_HEAP, _PAGE, 0, true) VMEvaluationPrimitive(*this);
 }
 #elif GC_TYPE==PAUSELESS
-pVMEvaluationPrimitive VMEvaluationPrimitive::Clone(Interpreter* thread) {
-    pVMEvaluationPrimitive clone = new (_HEAP, thread) VMEvaluationPrimitive(*this);
+VMEvaluationPrimitive* VMEvaluationPrimitive::Clone(Interpreter* thread) {
+    VMEvaluationPrimitive* clone = new (_HEAP, thread) VMEvaluationPrimitive(*this);
     /* clone->IncreaseVersion();
     this->MarkObjectAsInvalid(); */
     return clone;
 }
-pVMEvaluationPrimitive VMEvaluationPrimitive::Clone(PauselessCollectorThread* thread) {
-    pVMEvaluationPrimitive clone = new (_HEAP, thread) VMEvaluationPrimitive(*this);
+VMEvaluationPrimitive* VMEvaluationPrimitive::Clone(PauselessCollectorThread* thread) {
+    VMEvaluationPrimitive* clone = new (_HEAP, thread) VMEvaluationPrimitive(*this);
     /* clone->IncreaseVersion();
     this->MarkObjectAsInvalid(); */
     return clone;
 }
 #else
-pVMEvaluationPrimitive VMEvaluationPrimitive::Clone() {
+VMEvaluationPrimitive* VMEvaluationPrimitive::Clone() {
     return new (_HEAP) VMEvaluationPrimitive(*this);
 }
 #endif
     
-pVMSymbol VMEvaluationPrimitive::computeSignatureString(long argc) {
+VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc) {
 #define VALUE_S "value"
 #define VALUE_LEN 5
 #define WITH_S    "with:"
@@ -100,8 +100,8 @@ pVMSymbol VMEvaluationPrimitive::computeSignatureString(long argc) {
     return _UNIVERSE->SymbolFor(signatureString);
 }
 
-void VMEvaluationPrimitive::evaluationRoutine(pVMObject object, pVMFrame frame) {
-    pVMEvaluationPrimitive self = static_cast<pVMEvaluationPrimitive>(object);
+void VMEvaluationPrimitive::evaluationRoutine(VMObject* object, VMFrame* frame) {
+    VMEvaluationPrimitive* self = static_cast<VMEvaluationPrimitive*>(object);
 
     // Get the block (the receiver) from the stack
 #ifdef USE_TAGGING
@@ -109,10 +109,10 @@ void VMEvaluationPrimitive::evaluationRoutine(pVMObject object, pVMFrame frame) 
 #else
     long numArgs = READBARRIER(self->numberOfArguments)->GetEmbeddedInteger();
 #endif
-    pVMBlock block = static_cast<pVMBlock>(frame->GetStackElement(numArgs - 1));
+    VMBlock* block = static_cast<VMBlock*>(frame->GetStackElement(numArgs - 1));
 
     // Get the context of the block...
-    pVMFrame context = block->GetContext();
+    VMFrame* context = block->GetContext();
     
     // Push a new frame and set its context to be the one specified in the block
     pVMFrame NewFrame = _UNIVERSE->GetInterpreter()->PushNewFrame(block->GetMethod());

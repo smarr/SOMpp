@@ -39,24 +39,24 @@ class VMFrame: public VMObject {
 public:
     typedef GCFrame Stored;
     
-    static pVMFrame EmergencyFrameFrom(pVMFrame from, long extraLength);
+    static VMFrame* EmergencyFrameFrom(VMFrame* from, long extraLength);
 
     VMFrame(long size, long nof = 0);
 
     inline VMFrame* GetPreviousFrame();
-    inline void SetPreviousFrame(pVMFrame);
+    inline void SetPreviousFrame(VMFrame*);
     inline void ClearPreviousFrame();
     inline bool HasPreviousFrame();
     inline bool IsBootstrapFrame();
-    inline pVMFrame GetContext();
-    inline void SetContext(pVMFrame);
+    inline VMFrame* GetContext();
+    inline void SetContext(VMFrame*);
     inline bool HasContext();
-    pVMFrame GetContextLevel(long);
-    pVMFrame GetOuterContext();
-    inline pVMMethod GetMethod();
-    void SetMethod(pVMMethod);
     pVMObject Pop();
     void Push(pVMObject);
+    VMFrame* GetContextLevel(long);
+    VMFrame* GetOuterContext();
+    inline VMMethod* GetMethod();
+    void SetMethod(VMMethod*);
     void ResetStackPointer();
     inline long GetBytecodeIndex() const;
     inline void SetBytecodeIndex(long);
@@ -67,18 +67,18 @@ public:
     void SetArgument(long, long, pVMObject);
     void PrintStackTrace() const;
     long ArgumentStackIndex(long index);
-    void CopyArgumentsFrom(pVMFrame frame);
     inline  pVMObject GetField(long index);
+    void CopyArgumentsFrom(VMFrame* frame);
     
     virtual void MarkObjectAsInvalid();
     
 #if GC_TYPE==PAUSELESS
-    virtual pVMFrame Clone(Interpreter*);
-    virtual pVMFrame Clone(PauselessCollectorThread*);
+    virtual VMFrame* Clone(Interpreter*);
+    virtual VMFrame* Clone(PauselessCollectorThread*);
     virtual void MarkReferences();
     virtual void CheckMarking(void (AbstractVMObject*));
 #else
-    virtual pVMFrame Clone();
+    virtual VMFrame* Clone();
     virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
 #endif
 
@@ -90,10 +90,10 @@ private:
     GCFrame*  previousFrame;
     GCFrame*  context;
     GCMethod* method;
-    long bytecodeIndex;       //// TODO: figure out why having the stray LONG in here is not a problem for the GC. binary/non-gc data should be always at the end... but, then, again, we got three variable sized fields here. Ugh...
-    GCAbstractObject** arguments;
-    GCAbstractObject** locals;
-    GCAbstractObject** stack_ptr;
+    long bytecodeIndex;
+    gc_oop_t* arguments;
+    gc_oop_t* locals;
+    gc_oop_t* stack_ptr;
 
     static const long VMFrameNumberOfFields;
 };
@@ -128,11 +128,11 @@ bool VMFrame::IsBootstrapFrame() {
     return !HasPreviousFrame();
 }
 
-pVMFrame VMFrame::GetContext() {
+VMFrame* VMFrame::GetContext() {
     return READBARRIER(this->context);
 }
 
-void VMFrame::SetContext(pVMFrame frm) {
+void VMFrame::SetContext(VMFrame* frm) {
     this->context = WRITEBARRIER(frm);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, frm);
@@ -143,11 +143,11 @@ void* VMFrame::GetStackPointer() const {
     return stack_ptr;
 }
 
-pVMFrame VMFrame::GetPreviousFrame() {
+VMFrame* VMFrame::GetPreviousFrame() {
     return READBARRIER(this->previousFrame);
 }
 
-void VMFrame::SetPreviousFrame(pVMFrame frm) {
+void VMFrame::SetPreviousFrame(VMFrame* frm) {
     this->previousFrame = WRITEBARRIER(frm);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, AS_VM_POINTER(frm));
@@ -158,6 +158,6 @@ void VMFrame::ClearPreviousFrame() {
     this->previousFrame = NULL;
 }
 
-pVMMethod VMFrame::GetMethod() {
+VMMethod* VMFrame::GetMethod() {
     return READBARRIER(this->method);
 }

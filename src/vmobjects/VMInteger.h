@@ -38,16 +38,16 @@ public:
     VMInteger(long);
 
     inline long GetEmbeddedInteger() const;
-    virtual pVMClass GetClass();
+    virtual VMClass* GetClass();
     virtual inline size_t GetObjectSize() const;
     
     virtual void MarkObjectAsInvalid() {}
     
 #if GC_TYPE==PAUSELESS
-    virtual pVMInteger Clone(Interpreter*);
-    virtual pVMInteger Clone(PauselessCollectorThread*);
+    virtual VMInteger* Clone(Interpreter*);
+    virtual VMInteger* Clone(PauselessCollectorThread*);
 #else
-    virtual pVMInteger Clone();
+    virtual VMInteger* Clone();
 #endif
 
 

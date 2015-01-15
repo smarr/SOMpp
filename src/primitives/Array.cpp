@@ -51,22 +51,22 @@ _Array::_Array() :
                     &_Array::Length)));
 }
 
-void _Array::At_(pVMObject /*object*/, pVMFrame frame) {
-    pVMInteger index = static_cast<pVMInteger>(frame->Pop());
-    pVMArray self = static_cast<pVMArray>(frame->Pop());
+void _Array::At_(VMObject* /*object*/, VMFrame* frame) {
+    VMInteger* index = static_cast<VMInteger*>(frame->Pop());
+    VMArray* self = static_cast<VMArray*>(frame->Pop());
 #ifdef USE_TAGGING
     long i = UNTAG_INTEGER(index);
 #else
     long i = index->GetEmbeddedInteger();
 #endif
-    pVMObject elem = self->GetIndexableField(i - 1);
+    VMObject* elem = self->GetIndexableField(i - 1);
     frame->Push(elem);
 }
 
-void _Array::At_Put_(pVMObject /*object*/, pVMFrame frame) {
-    pVMObject value = frame->Pop();
-    pVMInteger index = static_cast<pVMInteger>(frame->Pop());
-    pVMArray self = static_cast<pVMArray>(frame->GetStackElement(0));
+void _Array::At_Put_(VMObject* /*object*/, VMFrame* frame) {
+    VMObject* value = frame->Pop();
+    VMInteger* index = static_cast<VMInteger*>(frame->Pop());
+    VMArray* self = static_cast<VMArray*>(frame->GetStackElement(0));
 #ifdef USE_TAGGING
     long i = UNTAG_INTEGER(index);
 #else
@@ -75,18 +75,18 @@ void _Array::At_Put_(pVMObject /*object*/, pVMFrame frame) {
     self->SetIndexableField(i - 1, value);
 }
 
-void _Array::Length(pVMObject /*object*/, pVMFrame frame) {
-    pVMArray self = static_cast<pVMArray>(frame->Pop());
+void _Array::Length(VMObject* /*object*/, VMFrame* frame) {
+    VMArray* self = static_cast<VMArray*>(frame->Pop());
 #ifdef USE_TAGGING
-    pVMInteger new_int = TAG_INTEGER(self->GetNumberOfIndexableFields());
+    VMInteger* new_int = TAG_INTEGER(self->GetNumberOfIndexableFields());
 #else
     pVMInteger new_int = _UNIVERSE->NewInteger(self->GetNumberOfIndexableFields());
 #endif
     frame->Push(new_int);
 }
 
-void _Array::New_(pVMObject /*object*/, pVMFrame frame) {
-    pVMInteger length = static_cast<pVMInteger>(frame->Pop());
+void _Array::New_(VMObject* /*object*/, VMFrame* frame) {
+    VMInteger* length = static_cast<VMInteger*>(frame->Pop());
     frame->Pop();
 #ifdef USE_TAGGING
     long size = UNTAG_INTEGER(length);

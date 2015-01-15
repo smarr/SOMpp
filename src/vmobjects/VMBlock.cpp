@@ -38,7 +38,7 @@ VMBlock::VMBlock() :
         VMObject(VMBlockNumberOfFields), blockMethod(), context() {
 }
 
-void VMBlock::SetMethod(pVMMethod bMethod) {
+void VMBlock::SetMethod(VMMethod* bMethod) {
     blockMethod = WRITEBARRIER(bMethod);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, bMethod);
@@ -46,29 +46,29 @@ void VMBlock::SetMethod(pVMMethod bMethod) {
 }
 
 #if GC_TYPE==GENERATIONAL
-pVMBlock VMBlock::Clone() {
+VMBlock* VMBlock::Clone() {
     return new (_HEAP, _PAGE, GetAdditionalSpaceConsumption(), true) VMBlock(*this);
 }
 #elif GC_TYPE==PAUSELESS
-pVMBlock VMBlock::Clone(Interpreter* thread) {
-    pVMBlock clone = new (_HEAP, thread, GetAdditionalSpaceConsumption()) VMBlock(*this);
+VMBlock* VMBlock::Clone(Interpreter* thread) {
+    VMBlock* clone = new (_HEAP, thread, GetAdditionalSpaceConsumption()) VMBlock(*this);
     /* clone->IncreaseVersion();
     this->MarkObjectAsInvalid(); */
     return clone;
 }
-pVMBlock VMBlock::Clone(PauselessCollectorThread* thread) {
-    pVMBlock clone = new (_HEAP, thread, GetAdditionalSpaceConsumption()) VMBlock(*this);
+VMBlock* VMBlock::Clone(PauselessCollectorThread* thread) {
+    VMBlock* clone = new (_HEAP, thread, GetAdditionalSpaceConsumption()) VMBlock(*this);
     /* clone->IncreaseVersion();
     this->MarkObjectAsInvalid(); */
     return clone;
 }
 #else
-pVMBlock VMBlock::Clone() {
+VMBlock* VMBlock::Clone() {
     return new (_HEAP, GetAdditionalSpaceConsumption()) VMBlock(*this);
 }
 #endif
 
-pVMMethod VMBlock::GetMethod() {
+VMMethod* VMBlock::GetMethod() {
     return READBARRIER(blockMethod);
 }
 

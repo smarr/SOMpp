@@ -19,16 +19,16 @@ public:
     
     static void     Yield();
     
-    pVMSignal   GetResumeSignal();
-    void        SetResumeSignal(pVMSignal value);
+    VMSignal*   GetResumeSignal();
+    void        SetResumeSignal(VMSignal* value);
     bool        ShouldStop();
     void        SetShouldStop(bool value);
-    pVMBlock    GetBlockToRun();
-    void        SetBlockToRun(pVMBlock value);
-    pVMString   GetName();
-    void        SetName(pVMString value);
-    pVMObject   GetArgument();
-    void        SetArgument(pVMObject value);
+    VMBlock*    GetBlockToRun();
+    void        SetBlockToRun(VMBlock* value);
+    VMString*   GetName();
+    void        SetName(VMString* value);
+    VMObject*   GetArgument();
+    void        SetArgument(VMObject* value);
     pthread_t   GetEmbeddedThreadId();
     void        SetEmbeddedThreadId(pthread_t value);
     
@@ -38,12 +38,12 @@ public:
     void        Join(int* exitStatus);
     
 #if GC_TYPE==PAUSELESS
-    virtual pVMThread Clone(Interpreter*);
-    virtual pVMThread Clone(PauselessCollectorThread*);
+    virtual VMThread* Clone(Interpreter*);
+    virtual VMThread* Clone(PauselessCollectorThread*);
     virtual void MarkReferences();
     virtual void CheckMarking(void (AbstractVMObject*));
 #else
-    //virtual pVMThread Clone();
+    //virtual VMThread* Clone();
     //virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
 #endif
     

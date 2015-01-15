@@ -23,12 +23,12 @@ public:
     bool SignalAll();
     
 #if GC_TYPE==PAUSELESS
-    virtual pVMSignal Clone(Interpreter*);
-    virtual pVMSignal Clone(PauselessCollectorThread*);
+    virtual VMSignal* Clone(Interpreter*);
+    virtual VMSignal* Clone(PauselessCollectorThread*);
     virtual void MarkReferences();
     virtual void CheckMarking(void (AbstractVMObject*));
 #else
-    virtual pVMSignal Clone();
+    virtual VMSignal* Clone();
     virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
 #endif
     

@@ -41,33 +41,33 @@ class ClassGenerationContext {
 public:
     ClassGenerationContext();
     ~ClassGenerationContext();
-    pVMClass Assemble();
-    void AssembleSystemClass(pVMClass systemClass);
+    VMClass* Assemble();
+    void AssembleSystemClass(VMClass* systemClass);
 
     bool HasField(const StdString&);
-    void AddInstanceField(pVMSymbol);
-    void AddClassField(pVMSymbol);
     void AddInstanceMethod(pVMObject);
     void AddClassMethod(pVMObject);
-    void SetName(pVMSymbol n) {name = n;}
-    void SetSuperName(pVMSymbol sn) {superName = sn;}
+    void AddInstanceField(VMSymbol*);
+    void AddClassField(VMSymbol*);
+    void SetName(VMSymbol* n) {name = n;}
+    void SetSuperName(VMSymbol* sn) {superName = sn;}
     void SetClassSide(bool cs) {classSide = cs;}
-    pVMSymbol GetName(void) {return name;};
-    pVMSymbol GetSuperName(void) {return superName;};
+    VMSymbol* GetName(void) {return name;};
+    VMSymbol* GetSuperName(void) {return superName;};
     bool IsClassSide(void) {return classSide;};
     
-    int16_t GetFieldIndex(pVMSymbol field);
+    int16_t GetFieldIndex(VMSymbol* field);
     
-    void SetInstanceFieldsOfSuper(pVMArray fields);
-    void SetClassFieldsOfSuper(pVMArray fields);
+    void SetInstanceFieldsOfSuper(VMArray* fields);
+    void SetClassFieldsOfSuper(VMArray* fields);
 
 private:
-    pVMSymbol name;
-    pVMSymbol superName;
+    VMSymbol* name;
+    VMSymbol* superName;
     bool classSide;
-    ExtendedList<pVMSymbol> instanceFields;
     ExtendedList<pVMObject> instanceMethods;
-    ExtendedList<pVMSymbol> classFields;
     ExtendedList<pVMObject> classMethods;
+    ExtendedList<VMSymbol*>    instanceFields;
+    ExtendedList<VMSymbol*>    classFields;
 
 };

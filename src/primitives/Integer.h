@@ -38,29 +38,29 @@ class _Integer: public PrimitiveContainer {
 
 public:
 
-    void Plus(pVMObject object, pVMFrame frame);
-    void Minus(pVMObject object, pVMFrame frame);
-    void Star(pVMObject object, pVMFrame frame);
-    void BitwiseAnd(pVMObject object, pVMFrame frame);
-    void Slash(pVMObject object, pVMFrame frame);
-    void Slashslash(pVMObject object, pVMFrame frame);
-    void Percent(pVMObject object, pVMFrame frame);
-    void And(pVMObject object, pVMFrame frame);
-    void Equal(pVMObject object, pVMFrame frame);
-    void Lowerthan(pVMObject object, pVMFrame frame);
-    void AsString(pVMObject object, pVMFrame frame);
-    void Sqrt(pVMObject object, pVMFrame frame);
-    void AtRandom(pVMObject object, pVMFrame frame);
+    void Plus(VMObject* object, VMFrame* frame);
+    void Minus(VMObject* object, VMFrame* frame);
+    void Star(VMObject* object, VMFrame* frame);
+    void BitwiseAnd(VMObject* object, VMFrame* frame);
+    void Slash(VMObject* object, VMFrame* frame);
+    void Slashslash(VMObject* object, VMFrame* frame);
+    void Percent(VMObject* object, VMFrame* frame);
+    void And(VMObject* object, VMFrame* frame);
+    void Equal(VMObject* object, VMFrame* frame);
+    void Lowerthan(VMObject* object, VMFrame* frame);
+    void AsString(VMObject* object, VMFrame* frame);
+    void Sqrt(VMObject* object, VMFrame* frame);
+    void AtRandom(VMObject* object, VMFrame* frame);
 
-    void FromString(pVMObject object, pVMFrame frame);
+    void FromString(VMObject* object, VMFrame* frame);
 
     _Integer(void);
 
 private:
-    void pushResult(pVMObject object, pVMFrame frame, int64_t result);
-    void resendAsBigInteger(pVMObject object, const char* op, pVMInteger left,
+    void pushResult(VMObject* object, VMFrame* frame, int64_t result);
+    void resendAsBigInteger(VMObject* object, const char* op, VMInteger* left,
             pVMBigInteger right);
-    void resendAsDouble(pVMObject object, const char* op, pVMInteger left,
-            pVMDouble right);
+    void resendAsDouble(VMObject* object, const char* op, VMInteger* left,
+            VMDouble* right);
 
 };

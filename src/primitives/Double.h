@@ -34,19 +34,19 @@ class VMFrame;
 class _Double: public PrimitiveContainer {
 public:
     _Double();
-    void Plus(pVMObject object, pVMFrame frame);
-    void Minus(pVMObject object, pVMFrame frame);
-    void Star(pVMObject object, pVMFrame frame);
-    void Slashslash(pVMObject object, pVMFrame frame);
-    void Percent(pVMObject object, pVMFrame frame);
-    void And(pVMObject object, pVMFrame frame);
-    void Equal(pVMObject object, pVMFrame frame);
-    void Lowerthan(pVMObject object, pVMFrame frame);
-    void AsString(pVMObject object, pVMFrame frame);
-    void Sqrt(pVMObject object, pVMFrame frame);
-    void BitwiseXor(pVMObject object, pVMFrame frame);
-    void Round(pVMObject object, pVMFrame frame);
+    void Plus(VMObject* object, VMFrame* frame);
+    void Minus(VMObject* object, VMFrame* frame);
+    void Star(VMObject* object, VMFrame* frame);
+    void Slashslash(VMObject* object, VMFrame* frame);
+    void Percent(VMObject* object, VMFrame* frame);
+    void And(VMObject* object, VMFrame* frame);
+    void Equal(VMObject* object, VMFrame* frame);
+    void Lowerthan(VMObject* object, VMFrame* frame);
+    void AsString(VMObject* object, VMFrame* frame);
+    void Sqrt(VMObject* object, VMFrame* frame);
+    void BitwiseXor(VMObject* object, VMFrame* frame);
+    void Round(VMObject* object, VMFrame* frame);
 
 private:
-    double coerceDouble(pVMObject x);
+    double coerceDouble(VMObject* x);
 };

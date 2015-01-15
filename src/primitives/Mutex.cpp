@@ -11,20 +11,20 @@
 #include "../natives/VMMutex.h"
 #include "../primitivesCore/Routine.h"
 
-void _Mutex::Lock(pVMObject object, pVMFrame frame){
-    pVMMutex mutex = (pVMMutex)frame->Pop();
+void _Mutex::Lock(VMObject* object, VMFrame* frame){
+    VMMutex* mutex = (VMMutex*)frame->Pop();
     mutex->Lock();
     frame->Push(mutex);
 }
 
-void _Mutex::Unlock(pVMObject object, pVMFrame frame){
-    pVMMutex mutex = (pVMMutex)frame->Pop();
+void _Mutex::Unlock(VMObject* object, VMFrame* frame){
+    VMMutex* mutex = (VMMutex*)frame->Pop();
     mutex->Unlock();
     frame->Push(mutex);
 }
 
-void _Mutex::IsLocked(pVMObject object, pVMFrame frame){
-    pVMMutex mutex = (pVMMutex)frame->Pop();
+void _Mutex::IsLocked(VMObject* object, VMFrame* frame){
+    VMMutex* mutex = (VMMutex*)frame->Pop();
     if (mutex->IsLocked()) {
         frame->Push(READBARRIER(trueObject));
     } else {
@@ -32,7 +32,7 @@ void _Mutex::IsLocked(pVMObject object, pVMFrame frame){
     }
 }
 
-void _Mutex::New(pVMObject object, pVMFrame frame){
+void _Mutex::New(VMObject* object, VMFrame* frame){
     frame->Pop();
     pVMMutex mutex = _UNIVERSE->NewMutex();
     frame->Push(mutex);

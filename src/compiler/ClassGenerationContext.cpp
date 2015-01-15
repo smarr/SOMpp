@@ -40,26 +40,26 @@ ClassGenerationContext::ClassGenerationContext() :
 ClassGenerationContext::~ClassGenerationContext() {
 }
 
-void ClassGenerationContext::AddClassField(pVMSymbol field) {
-    this->classFields.Add(field);
+void ClassGenerationContext::AddClassField(VMSymbol* field) {
+    classFields.Add(field);
 }
 
-void ClassGenerationContext::AddInstanceField(pVMSymbol field) {
-    this->instanceFields.Add(field);
+void ClassGenerationContext::AddInstanceField(VMSymbol* field) {
+    instanceFields.Add(field);
 }
 
-void ClassGenerationContext::SetInstanceFieldsOfSuper(pVMArray fields) {
+void ClassGenerationContext::SetInstanceFieldsOfSuper(VMArray* fields) {
     long num = fields->GetNumberOfIndexableFields();
     for (long i = 0; i < num; i ++) {
-        pVMSymbol fieldName = (pVMSymbol)fields->GetIndexableField(i);
+        VMSymbol* fieldName = (VMSymbol*)fields->GetIndexableField(i);
         instanceFields.Add(fieldName);
     }
 }
 
-void ClassGenerationContext::SetClassFieldsOfSuper(pVMArray fields) {
+void ClassGenerationContext::SetClassFieldsOfSuper(VMArray* fields) {
     long num = fields->GetNumberOfIndexableFields();
     for (long i = 0; i < num; i ++) {
-        pVMSymbol fieldName = (pVMSymbol)fields->GetIndexableField(i);
+        VMSymbol* fieldName = (VMSymbol*)fields->GetIndexableField(i);
         classFields.Add(fieldName);
     }
 }
@@ -88,7 +88,7 @@ void ClassGenerationContext::AddClassMethod(pVMObject method) {
     this->classMethods.Add(method);
 }
 
-pVMClass ClassGenerationContext::Assemble() {
+VMClass* ClassGenerationContext::Assemble() {
     // build class class name
     StdString ccname = string(name->GetStdString()) + " class";
 
@@ -103,7 +103,7 @@ pVMClass ClassGenerationContext::Assemble() {
     resultClass->SetInstanceInvokables(_UNIVERSE->NewArrayList(classMethods));
     resultClass->SetName(_UNIVERSE->SymbolFor(ccname));
 
-    pVMClass superMClass = superClass->GetClass();
+    VMClass* superMClass = superClass->GetClass();
     resultClass->SetSuperClass(superMClass);
 
     // Allocate the resulting class

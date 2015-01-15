@@ -19,14 +19,14 @@ public:
     _Mutex();
 
     //Locks the access to the encapsulated Mutex
-    void Lock(pVMObject object, pVMFrame frame);
+    void Lock(VMObject* object, VMFrame* frame);
     // Frees the mutex
-    void Unlock(pVMObject object, pVMFrame frame);
+    void Unlock(VMObject* object, VMFrame* frame);
     /* Returns true if the mutex is free, false otherwise
      * Enables nonblocking mutex checks
      */
-    void IsLocked(pVMObject object, pVMFrame frame);
+    void IsLocked(VMObject* object, VMFrame* frame);
 
-    void New(pVMObject object, pVMFrame frame);
+    void New(VMObject* object, VMFrame* frame);
     
 };

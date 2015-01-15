@@ -75,13 +75,13 @@ public:
     
     VMObject(long numberOfFields = 0);
 
-    virtual inline pVMClass  GetClass();
-    virtual        void      SetClass(pVMClass cl);
-    virtual        pVMSymbol GetFieldName(long index);
+    virtual inline VMClass*  GetClass();
+    virtual        void      SetClass(VMClass* cl);
+    virtual        VMSymbol* GetFieldName(long index);
     virtual inline long      GetNumberOfFields() const;
     virtual        void      SetNumberOfFields(long nof);
-                   pVMObject GetField(long index);
-                   void      SetField(long index, pVMObject value);
+                   VMObject* GetField(long index);
+                   void      SetField(long index, VMObject* value);
     virtual        void      Assert(bool value) const;
     virtual inline size_t    GetObjectSize() const;
     virtual inline void      SetObjectSize(size_t size);
@@ -89,12 +89,12 @@ public:
     virtual        void      MarkObjectAsInvalid();
 
 #if GC_TYPE==PAUSELESS
-    virtual        pVMObject Clone(Interpreter*);
-    virtual        pVMObject Clone(PauselessCollectorThread*);
+    virtual        VMObject* Clone(Interpreter*);
+    virtual        VMObject* Clone(PauselessCollectorThread*);
     virtual        void      MarkReferences();
     virtual        void      CheckMarking(void (AbstractVMObject*));
 #else
-    virtual        pVMObject Clone();
+    virtual        VMObject* Clone();
     virtual        void      WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
 #endif
     
@@ -104,10 +104,10 @@ public:
      * usage: new( <heap> [, <additional_bytes>] ) VMObject( <constructor params> )
      * num_bytes parameter is set by the compiler.
      * parameter additional_bytes (a_b) is used for:
-     *   - fields in VMObject, a_b must be set to (numberOfFields*sizeof(pVMObject))
+     *   - fields in VMObject, a_b must be set to (numberOfFields*sizeof(VMObject*))
      *   - chars in VMString/VMSymbol, a_b must be set to (Stringlength + 1)
      *   - array size in VMArray; a_b must be set to (size_of_array*sizeof(VMObect*))
-     *   - fields in VMMethod, a_b must be set to (number_of_bc + number_of_csts*sizeof(pVMObject))
+     *   - fields in VMMethod, a_b must be set to (number_of_bc + number_of_csts*sizeof(VMObject*))
      */
     void* operator new(size_t numBytes,
 #if GC_TYPE==GENERATIONAL
@@ -166,9 +166,9 @@ void VMObject::SetObjectSize(size_t size) {
     objectSize = size;
 }
 
-pVMClass VMObject::GetClass() {
-    pVMClass res = READBARRIER(clazz);
-    assert(Universe::IsValidObject((pVMObject) res));
+VMClass* VMObject::GetClass() {
+    VMClass* res = READBARRIER(clazz);
+    assert(Universe::IsValidObject(reinterpret_cast<VMObject*>(res)));
     return res;
 }
 

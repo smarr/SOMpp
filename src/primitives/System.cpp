@@ -56,23 +56,23 @@
 
 _System* System_;
 
-void _System::Global_(pVMObject /*object*/, pVMFrame frame) {
-    pVMSymbol arg = static_cast<pVMSymbol>(frame->Pop());
-    /*pVMObject self = */
+void _System::Global_(VMObject* /*object*/, VMFrame* frame) {
+    VMSymbol* arg = static_cast<VMSymbol*>(frame->Pop());
+    /*VMObject* self = */
     frame->Pop();
-    pVMObject result = _UNIVERSE->GetGlobal(arg);
+    VMObject* result = GetUniverse()->GetGlobal(arg);
     
     frame->Push( result ? result : READBARRIER(nilObject));
 }
 
-void _System::Global_put_(pVMObject /*object*/, pVMFrame frame) {
-    pVMObject value = frame->Pop();
-    pVMSymbol arg = static_cast<pVMSymbol>(frame->Pop());
     _UNIVERSE->SetGlobal(arg, value);
+void _System::Global_put_(VMObject* /*object*/, VMFrame* frame) {
+    VMObject* value = frame->Pop();
+    VMSymbol* arg = static_cast<VMSymbol*>(frame->Pop());
 }
 
-void _System::Load_(pVMObject /*object*/, pVMFrame frame) {
-    pVMSymbol arg = static_cast<pVMSymbol>(frame->Pop());
+void _System::Load_(VMObject* /*object*/, VMFrame* frame) {
+    VMSymbol* arg = static_cast<VMSymbol*>(frame->Pop());
     frame->Pop();
     pVMClass result = _UNIVERSE->LoadClass(arg);
     if (result)
@@ -95,22 +95,22 @@ void _System::Exit_(pVMObject /*object*/, pVMFrame frame) {
     _UNIVERSE->Quit(err_no);
 }
 
-void _System::PrintString_(pVMObject /*object*/, pVMFrame frame) {
-    pVMString arg = static_cast<pVMString>(frame->Pop());
+void _System::PrintString_(VMObject* /*object*/, VMFrame* frame) {
+    VMString* arg = static_cast<VMString*>(frame->Pop());
     std::string str = arg->GetStdString();
     pthread_mutex_lock(&outputMutex);
     cout << str;
     pthread_mutex_unlock(&outputMutex);
 }
 
-void _System::PrintNewline(pVMObject /*object*/, pVMFrame /*frame*/) {
+void _System::PrintNewline(VMObject* /*object*/, VMFrame* /*frame*/) {
     pthread_mutex_lock(&outputMutex);
     cout << endl;
     pthread_mutex_unlock(&outputMutex);
 }
 
-void _System::Time(pVMObject /*object*/, pVMFrame frame) {
-    /*pVMObject self = */
+void _System::Time(VMObject* /*object*/, VMFrame* frame) {
+    /*VMObject* self = */
     frame->Pop();
     struct timeval now;
 
@@ -127,8 +127,8 @@ void _System::Time(pVMObject /*object*/, pVMFrame frame) {
 #endif
 }
 
-void _System::Ticks(pVMObject /*object*/, pVMFrame frame) {
-    /*pVMObject self = */
+void _System::Ticks(VMObject* /*object*/, VMFrame* frame) {
+    /*VMObject* self = */
     frame->Pop();
     struct timeval now;
 
@@ -138,10 +138,10 @@ void _System::Ticks(pVMObject /*object*/, pVMFrame frame) {
     ((now.tv_sec - start_time.tv_sec) * 1000 * 1000) + //seconds
     ((now.tv_usec - start_time.tv_usec));// useconds
 
-    frame->Push((pVMObject)_UNIVERSE->NewBigInteger(diff));
+    frame->Push((VMObject*)GetUniverse()->NewBigInteger(diff));
 }
 
-void _System::FullGC(pVMObject /*object*/, pVMFrame frame) {
+void _System::FullGC(VMObject* /*object*/, VMFrame* frame) {
 #if GC_TYPE!=PAUSELESS
     frame->Pop();
     _HEAP->triggerGC(); // not safe to do it immediatly, will be done when it is ok, i.e., in the interpreter loop
@@ -149,7 +149,7 @@ void _System::FullGC(pVMObject /*object*/, pVMFrame frame) {
 #endif
 }
 
-void _System::GetNumberOfCPUs(pVMObject object, pVMFrame frame) {
+void _System::GetNumberOfCPUs(VMObject* object, VMFrame* frame) {
     frame->Pop();
     int i = 0;
     

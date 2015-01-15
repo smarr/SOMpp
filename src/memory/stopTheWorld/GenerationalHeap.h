@@ -16,7 +16,7 @@ public:
     AbstractVMObject* AllocateMatureObject(size_t);
     
     void WriteBarrier(VMOBJECT_PTR holder, const VMOBJECT_PTR referencedObject);
-    inline bool IsObjectInNursery(const pVMObject obj);
+    inline bool IsObjectInNursery(const VMObject* obj);
 
 private:
     // data for mature allocation
@@ -29,7 +29,7 @@ private:
     void WriteBarrierOldHolder(VMOBJECT_PTR holder, const VMOBJECT_PTR referencedObject);
 };
 
-inline bool GenerationalHeap::IsObjectInNursery(const pVMObject obj) {
+inline bool GenerationalHeap::IsObjectInNursery(const VMObject* obj) {
     return (size_t) obj >= (size_t)memoryStart && (size_t) obj < memoryEnd;
 }
 

@@ -122,7 +122,7 @@ void GenerationalCollector::MajorCollection() {
             _HEAP->allocatedObjects->begin(); objIter !=
             _HEAP->allocatedObjects->end(); objIter++) {
         
-        pVMObject obj = *objIter;
+        VMObject* obj = *objIter;
         assert(Universe::IsValidObject(obj));
         
         if (obj->GetGCField() & MASK_OBJECT_IS_MARKED) {
@@ -161,14 +161,14 @@ void GenerationalCollector::CopyInterpretersFrameAndThread() {
         // Get the current frame and thread of each interpreter and mark it.
         // Since marking is done recursively, this automatically
         // marks the whole stack
-        pVMFrame currentFrame = (*it)->GetFrame();
+        VMFrame* currentFrame = (*it)->GetFrame();
         if (currentFrame != NULL) {
-            pVMFrame newFrame = static_cast<pVMFrame>(copy_if_necessary(currentFrame));
+            VMFrame* newFrame = static_cast<VMFrame*>(copy_if_necessary(currentFrame));
             (*it)->SetFrame(newFrame);
         }
-        pVMThread currentThread = (*it)->GetThread();
+        VMThread* currentThread = (*it)->GetThread();
         if (currentThread != NULL) {
-            pVMThread newThread = static_cast<pVMThread>(copy_if_necessary(currentThread));
+            VMThread* newThread = static_cast<VMThread*>(copy_if_necessary(currentThread));
             (*it)->SetThread(newThread);
         }
     }

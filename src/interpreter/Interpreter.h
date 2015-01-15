@@ -66,12 +66,12 @@ public:
     //~Interpreter();
     
     void      Start();
-    pVMThread GetThread();
-    void      SetThread(pVMThread thread);
-    pVMFrame  PushNewFrame(pVMMethod method);
-    void      SetFrame(pVMFrame frame);
-    pVMFrame  GetFrame();
     pVMObject GetSelf();
+    VMThread* GetThread();
+    void      SetThread(VMThread* thread);
+    VMFrame*  PushNewFrame(VMMethod* method);
+    void      SetFrame(VMFrame* frame);
+    VMFrame*  GetFrame();
     
 #if GC_TYPE==PAUSELESS
     virtual void AddGCWork(AbstractVMObject*);
@@ -111,11 +111,11 @@ private:
     StdString dnu;
     StdString eB;
     
-    pVMFrame popFrame();
     void popFrameAndPushResult(pVMObject result);
-    void send(pVMSymbol signature, pVMClass receiverClass);
+    VMFrame* popFrame();
+    void send(VMSymbol* signature, VMClass* receiverClass);
     
-    pVMMethod GetMethod();
+    VMMethod* GetMethod();
 
     void doDup();
     void doPushLocal(long bytecodeIndex);
@@ -140,7 +140,7 @@ private:
     // current execution context
     long      bytecodeIndexGlobal;
 
-    //    pVMMethod method; // not safe for parallel moving
+    //    VMMethod* method; // not safe for parallel moving
     //    uint8_t*  currentBytecodes;
     
 #if GC_TYPE==PAUSELESS

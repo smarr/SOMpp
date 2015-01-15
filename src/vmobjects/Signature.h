@@ -31,7 +31,7 @@ class VMSymbol;
 
 class Signature {
 public:
-    static int GetNumberOfArguments(pVMSymbol sig);
-    static bool IsBinary(pVMSymbol sig);
+    static int GetNumberOfArguments(VMSymbol* sig);
+    static bool IsBinary(VMSymbol* sig);
 
 };

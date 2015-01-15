@@ -57,31 +57,31 @@ size_t VMSymbol::GetObjectSize() const {
 }
 
 #if GC_TYPE==GENERATIONAL
-pVMSymbol VMSymbol::Clone() {
+VMSymbol* VMSymbol::Clone() {
     return new (_HEAP, _PAGE, PADDED_SIZE(strlen(chars) + 1), true) VMSymbol(chars);
 }
 #elif GC_TYPE==PAUSELESS
-pVMSymbol VMSymbol::Clone(Interpreter* thread) {
+VMSymbol* VMSymbol::Clone(Interpreter* thread) {
     sync_out(ostringstream() << "[VMSYM] Clone: " << GetChars());
-    pVMSymbol clone = new (_HEAP, thread, PADDED_SIZE(strlen(chars) + 1)) VMSymbol(chars);
+    VMSymbol* clone = new (_HEAP, thread, PADDED_SIZE(strlen(chars) + 1)) VMSymbol(chars);
     /* clone->IncreaseVersion();
     this->MarkObjectAsInvalid(); */
     return clone;
 }
-pVMSymbol VMSymbol::Clone(PauselessCollectorThread* thread) {
+VMSymbol* VMSymbol::Clone(PauselessCollectorThread* thread) {
     sync_out(ostringstream() << "[VMSYM] Clone: " << GetChars());
-    pVMSymbol clone = new (_HEAP, thread, PADDED_SIZE(strlen(chars) + 1)) VMSymbol(chars);
+    VMSymbol* clone = new (_HEAP, thread, PADDED_SIZE(strlen(chars) + 1)) VMSymbol(chars);
     /* clone->IncreaseVersion();
     this->MarkObjectAsInvalid(); */
     return clone;
 }
 #else
-pVMSymbol VMSymbol::Clone() {
+VMSymbol* VMSymbol::Clone() {
     return new (_HEAP, PADDED_SIZE(strlen(chars) + 1)) VMSymbol(chars);
 }
 #endif
 
-pVMClass VMSymbol::GetClass() {
+VMClass* VMSymbol::GetClass() {
     return READBARRIER(symbolClass);
 }
 
@@ -162,8 +162,8 @@ void VMSymbol::MarkReferences() {
 void VMSymbol::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     //Since we don't use the cache, nothing should be done here.
     // for (long i = 0; i < nextCachePos; i++) {
-    // cachedClass_invokable[i] = (pVMClass) walk((VMOBJECT_PTR) cachedClass_invokable[i]);
-    // cachedInvokable[i] = (pVMInvokable) walk((VMOBJECT_PTR) cachedInvokable[i]);
+    // cachedClass_invokable[i] = (VMClass*) walk((VMOBJECT_PTR) cachedClass_invokable[i]);
+    // cachedInvokable[i] = (VMInvokable*) walk((VMOBJECT_PTR) cachedInvokable[i]);
     // }
 }
 #endif */

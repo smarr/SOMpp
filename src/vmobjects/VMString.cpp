@@ -32,10 +32,10 @@
 #include "../vm/Universe.h"
 #include "../interpreter/Interpreter.h"
 
-//extern pVMClass stringClass;
+//extern VMClass* stringClass;
 
 //this macro could replace the chars member variable
-//#define CHARS ((char*)&clazz+sizeof(pVMObject))
+//#define CHARS ((char*)&clazz+sizeof(VMObject*))
 
 VMString::VMString(const char* str) : AbstractVMObject() {
     //set the chars-pointer to point at the position of the first character
@@ -54,24 +54,24 @@ VMString::VMString(const char* str) : AbstractVMObject() {
 }
 
 #if GC_TYPE==GENERATIONAL
-pVMString VMString::Clone() {
+VMString* VMString::Clone() {
     return new (_HEAP, _PAGE, PADDED_SIZE(strlen(chars)+1), true) VMString(chars);
 }
 #elif GC_TYPE==PAUSELESS
-pVMString VMString::Clone(Interpreter* thread) {
-    pVMString clone = new (_HEAP, thread, PADDED_SIZE(strlen(chars)+1)) VMString(chars);
+VMString* VMString::Clone(Interpreter* thread) {
+    VMString* clone = new (_HEAP, thread, PADDED_SIZE(strlen(chars)+1)) VMString(chars);
     /* clone->IncreaseVersion();
     this->MarkObjectAsInvalid(); */
     return clone;
 }
-pVMString VMString::Clone(PauselessCollectorThread* thread) {
-    pVMString clone = new (_HEAP, thread, PADDED_SIZE(strlen(chars)+1)) VMString(chars);
+VMString* VMString::Clone(PauselessCollectorThread* thread) {
+    VMString* clone = new (_HEAP, thread, PADDED_SIZE(strlen(chars)+1)) VMString(chars);
     /* clone->IncreaseVersion();
     this->MarkObjectAsInvalid(); */
     return clone;
 }
 #else
-pVMString VMString::Clone() {
+VMString* VMString::Clone() {
     return new (_HEAP, PADDED_SIZE(strlen(chars)+1)) VMString(chars);
 }
 #endif
@@ -93,7 +93,7 @@ size_t VMString::GetObjectSize() const {
     return size;
 }
 
-pVMClass VMString::GetClass() {
+VMClass* VMString::GetClass() {
     return READBARRIER(stringClass);
 }
 

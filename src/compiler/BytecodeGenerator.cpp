@@ -60,11 +60,11 @@ void BytecodeGenerator::EmitPUSHARGUMENT(MethodGenerationContext* mgenc,
     EMIT3(BC_PUSH_ARGUMENT, idx, ctx);
 }
 
-void BytecodeGenerator::EmitPUSHFIELD(MethodGenerationContext* mgenc, pVMSymbol field) {
+void BytecodeGenerator::EmitPUSHFIELD(MethodGenerationContext* mgenc, VMSymbol* field) {
     EMIT2(BC_PUSH_FIELD, mgenc->GetFieldIndex(field));
 }
 
-void BytecodeGenerator::EmitPUSHBLOCK(MethodGenerationContext* mgenc, pVMMethod block) {
+void BytecodeGenerator::EmitPUSHBLOCK(MethodGenerationContext* mgenc, VMMethod* block) {
     EMIT2(BC_PUSH_BLOCK, mgenc->FindLiteralIndex(block));
 }
 
@@ -74,11 +74,11 @@ void BytecodeGenerator::EmitPUSHCONSTANT(MethodGenerationContext* mgenc,
 }
 
 void BytecodeGenerator::EmitPUSHCONSTANTString(MethodGenerationContext* mgenc,
-        pVMString str ) {
+        VMString* str) {
     EMIT2(BC_PUSH_CONSTANT, mgenc->FindLiteralIndex(str));
 }
 
-void BytecodeGenerator::EmitPUSHGLOBAL(MethodGenerationContext* mgenc, pVMSymbol global ) {
+void BytecodeGenerator::EmitPUSHGLOBAL(MethodGenerationContext* mgenc, VMSymbol* global) {
     EMIT2(BC_PUSH_GLOBAL, mgenc->FindLiteralIndex(global));
 }
 
@@ -96,15 +96,15 @@ void BytecodeGenerator::EmitPOPARGUMENT(MethodGenerationContext* mgenc,
     EMIT3(BC_POP_ARGUMENT, idx, ctx);
 }
 
-void BytecodeGenerator::EmitPOPFIELD(MethodGenerationContext* mgenc, pVMSymbol field ) {
+void BytecodeGenerator::EmitPOPFIELD(MethodGenerationContext* mgenc, VMSymbol* field) {
     EMIT2(BC_POP_FIELD, mgenc->GetFieldIndex(field));
 }
 
-void BytecodeGenerator::EmitSEND(MethodGenerationContext* mgenc, pVMSymbol msg ) {
+void BytecodeGenerator::EmitSEND(MethodGenerationContext* mgenc, VMSymbol* msg) {
     EMIT2(BC_SEND, mgenc->FindLiteralIndex(msg));
 }
 
-void BytecodeGenerator::EmitSUPERSEND(MethodGenerationContext* mgenc, pVMSymbol msg ) {
+void BytecodeGenerator::EmitSUPERSEND(MethodGenerationContext* mgenc, VMSymbol* msg) {
     EMIT2(BC_SUPER_SEND, mgenc->FindLiteralIndex(msg));
 }
 
