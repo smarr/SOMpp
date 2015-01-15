@@ -41,8 +41,7 @@ public:
     MethodGenerationContext();
     ~MethodGenerationContext();
 
-    pVMMethod Assemble();
-    pVMPrimitive AssemblePrimitive();
+    VMInvokable* Assemble(bool classSide);
 
     int8_t FindLiteralIndex(vm_oop_t lit);
     bool FindVar(const StdString& var, size_t* index,
@@ -68,7 +67,6 @@ public:
     ClassGenerationContext* GetHolder();
     MethodGenerationContext* GetOuter();
 
-    bool IsPrimitive();
     VMSymbol* GetSignature();
     bool IsBlockMethod();
     bool IsFinished();

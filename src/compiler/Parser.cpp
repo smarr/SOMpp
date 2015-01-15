@@ -203,11 +203,7 @@ void Parser::Classdef(ClassGenerationContext* cgenc) {
         mgenc.AddArgument("self");
 
         method(&mgenc);
-
-        if(mgenc.IsPrimitive())
-            cgenc->AddInstanceMethod((mgenc.AssemblePrimitive()));
-        else
-            cgenc->AddInstanceMethod((mgenc.Assemble()));
+        cgenc->AddInstanceMethod(mgenc.Assemble(false));
     }
 
     if (accept(Separator)) {
@@ -220,11 +216,7 @@ void Parser::Classdef(ClassGenerationContext* cgenc) {
             mgenc.AddArgument("self");
 
             method(&mgenc);
-
-            if(mgenc.IsPrimitive())
-                cgenc->AddClassMethod(mgenc.AssemblePrimitive());
-            else
-                cgenc->AddClassMethod(mgenc.Assemble());
+            cgenc->AddClassMethod(mgenc.Assemble(true));
         }
     }
     expect(EndTerm);
@@ -521,7 +513,7 @@ void Parser::primary(MethodGenerationContext* mgenc, bool* super) {
 
         nestedBlock(bgenc);
 
-        pVMMethod block_method = bgenc->Assemble();
+        VMMethod* block_method = static_cast<VMMethod*>(bgenc->Assemble(/*doesn't really matter:*/ true));
         mgenc->AddLiteral(block_method);
         bcGen->EmitPUSHBLOCK(mgenc, block_method);
         delete (bgenc);

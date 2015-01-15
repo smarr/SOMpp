@@ -49,7 +49,11 @@ MethodGenerationContext::MethodGenerationContext() {
     finished = false;
 }
 
-pVMMethod MethodGenerationContext::Assemble() {
+VMInvokable* MethodGenerationContext::Assemble(bool classSide) {
+    if (primitive) {
+        return VMPrimitive::GetEmptyPrimitive(signature, classSide);
+    }
+    
     // create a method instance with the given number of bytecodes and literals
     size_t numLiterals = this->literals.Size();
 
@@ -74,10 +78,6 @@ pVMMethod MethodGenerationContext::Assemble() {
     }
     // return the method - the holder field is to be set later on!
     return meth;
-}
-
-pVMPrimitive MethodGenerationContext::AssemblePrimitive() {
-    return VMPrimitive::GetEmptyPrimitive(this->signature);
 }
 
 MethodGenerationContext::~MethodGenerationContext() {
@@ -259,10 +259,6 @@ MethodGenerationContext* MethodGenerationContext::GetOuter() {
 
 VMSymbol* MethodGenerationContext::GetSignature() {
     return signature;
-}
-
-bool MethodGenerationContext::IsPrimitive() {
-    return primitive;
 }
 
 bool MethodGenerationContext::IsBlockMethod() {
