@@ -36,6 +36,7 @@
 #include "MethodGenerationContext.h"
 #include "BytecodeGenerator.h"
 
+
 class Parser {
 public:
     Parser(istream& file);
@@ -43,7 +44,12 @@ public:
 
     void Classdef(ClassGenerationContext* cgenc);
 private:
+    void GetSym();
+    void Peek();
+    
     bool eob(void);
+    
+    bool symIsIdentifier();
 
     bool symIn(Symbol* ss);
     bool accept(Symbol s);
@@ -89,13 +95,14 @@ private:
     void nestedTerm(MethodGenerationContext* mgenc);
     void literal(MethodGenerationContext* mgenc);
     void literalNumber(MethodGenerationContext* mgenc);
-    uint64_t literalDecimal(void);
-    int64_t negativeDecimal(void);
-    uint64_t literalInteger(void);
+    vm_oop_t literalDecimal(bool negateValue);
+    vm_oop_t negativeDecimal(void);
+    vm_oop_t literalInteger(bool negateValue);
+    vm_oop_t literalDouble(bool  negateValue);
     void literalSymbol(MethodGenerationContext* mgenc);
     void literalString(MethodGenerationContext* mgenc);
-    pVMSymbol selector(void);
-    pVMSymbol keywordSelector(void);
+    VMSymbol* selector(void);
+    VMSymbol* keywordSelector(void);
     StdString _string(void);
     void nestedBlock(MethodGenerationContext* mgenc);
     void inlinedBlock(MethodGenerationContext* mgenc);

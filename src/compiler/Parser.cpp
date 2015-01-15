@@ -31,6 +31,7 @@
 #include <vmobjects/VMMethod.h>
 #include <vmobjects/VMPrimitive.h>
 #include <vmobjects/VMObject.h>
+#include <vmobjects/VMDouble.h>
 #include <vmobjects/VMSymbol.h>
 #include <vmobjects/VMClass.h>
 
@@ -39,16 +40,19 @@
 #include <iostream>
 #include <cctype>
 #include <sstream>
-#include <stdlib.h>
 #include <string.h>
 
 #include <assert.h>
 
-#define GETSYM sym = lexer->GetSym(); \
-			   text = lexer->GetText()
+void Parser::GetSym() {
+    sym  = lexer->GetSym();
+    text = lexer->GetText();
+}
 
-#define PEEK nextSym = lexer->Peek(); \
-			 nextText = lexer->GetNextText()
+void Parser::Peek() {
+    nextSym = lexer->Peek();
+	nextText = lexer->GetNextText();
+}
 
 Parser::Parser(istream& file) {
     sym = NONE;
@@ -56,8 +60,7 @@ Parser::Parser(istream& file) {
     bcGen = new BytecodeGenerator();
     nextSym = NONE;
 
-    GETSYM
-    ;
+    GetSym();
 }
 
 Parser::~Parser() {
@@ -78,8 +81,7 @@ bool Parser::symIn(Symbol* ss) {
 
 bool Parser::accept(Symbol s) {
     if (sym == s) {
-        GETSYM
-        ;
+        GetSym();
         return true;
     }
     return false;
@@ -87,14 +89,17 @@ bool Parser::accept(Symbol s) {
 
 bool Parser::acceptOneOf(Symbol* ss) {
     if (symIn(ss)) {
-        GETSYM
-        ;
+        GetSym();
         return true;
     }
     return false;
 }
 
 #define _PRINTABLE_SYM (sym == Integer || sym >= STString)
+
+bool Parser::symIsIdentifier() {
+    return sym == Identifier || sym == Primitive;
+}
 
 bool Parser::expect(Symbol s) {
     if (accept(s))
@@ -137,16 +142,15 @@ void Parser::genPushVariable(MethodGenerationContext* mgenc,
             bcGen->EmitPUSHARGUMENT(mgenc, index, context);
         else
             bcGen->EmitPUSHLOCAL(mgenc, index, context);
-    } else if (mgenc->HasField(var)) {
-        pVMSymbol fieldName = _UNIVERSE->SymbolFor(var);
-        mgenc->AddLiteralIfAbsent(fieldName);
-        bcGen->EmitPUSHFIELD(mgenc, fieldName);
     } else {
-
-        pVMSymbol global = _UNIVERSE->SymbolFor(var);
-        mgenc->AddLiteralIfAbsent(global);
-
-        bcGen->EmitPUSHGLOBAL(mgenc, global);
+        VMSymbol* varSym = GetUniverse()->SymbolFor(var);
+        if (mgenc->HasField(varSym)) {
+            mgenc->AddLiteralIfAbsent(varSym);
+            bcGen->EmitPUSHFIELD(mgenc, varSym);
+        } else {
+            mgenc->AddLiteralIfAbsent(varSym);
+            bcGen->EmitPUSHGLOBAL(mgenc, varSym);
+        }
     }
 }
 
@@ -191,7 +195,7 @@ void Parser::Classdef(ClassGenerationContext* cgenc) {
 
     expect(NewTerm);
     instanceFields(cgenc);
-    while (sym == Identifier || sym == Keyword || sym == OperatorSequence ||
+    while (symIsIdentifier() || sym == Keyword || sym == OperatorSequence ||
            symIn(binaryOpSyms)) {
 
         MethodGenerationContext mgenc;
@@ -209,7 +213,7 @@ void Parser::Classdef(ClassGenerationContext* cgenc) {
     if (accept(Separator)) {
         cgenc->SetClassSide(true);
         classFields(cgenc);
-        while (sym == Identifier || sym == Keyword || sym == OperatorSequence ||
+        while (symIsIdentifier() || sym == Keyword || sym == OperatorSequence ||
         symIn(binaryOpSyms)) {
             MethodGenerationContext mgenc;
             mgenc.SetHolder(cgenc);
@@ -237,11 +241,7 @@ void Parser::superclass(ClassGenerationContext *cgenc) {
     cgenc->SetSuperName(superName);
     
     // Load the super class, if it is not nil (break the dependency cycle)
-    VMSymbol* nil = _UNIVERSE->SymbolFor("nil");
-    if (superName != nil) {
-        assert(0 != strcmp(superName->GetChars(), nil->GetChars()));
-        
-        //sync_out(ostringstream() << "Loading super class: " << superName->GetChars());
+    if (superName != GetUniverse()->SymbolFor("nil")) {
         VMClass* superClass = GetUniverse()->LoadClass(superName);
         cgenc->SetInstanceFieldsOfSuper(superClass->GetInstanceFields());
         cgenc->SetClassFieldsOfSuper(superClass->GetClass()->GetInstanceFields());
@@ -260,7 +260,7 @@ void Parser::superclass(ClassGenerationContext *cgenc) {
 
 void Parser::instanceFields(ClassGenerationContext* cgenc) {
     if (accept(Or)) {
-        while (sym == Identifier) {
+        while (symIsIdentifier()) {
             StdString var = variable();
             cgenc->AddInstanceField(GetUniverse()->SymbolFor(var));
         }
@@ -270,7 +270,7 @@ void Parser::instanceFields(ClassGenerationContext* cgenc) {
 
 void Parser::classFields(ClassGenerationContext* cgenc) {
     if (accept(Or)) {
-        while (sym == Identifier) {
+        while (symIsIdentifier()) {
             StdString var = variable();
             cgenc->AddClassField(GetUniverse()->SymbolFor(var));
         }
@@ -296,6 +296,7 @@ void Parser::primitiveBlock(void) {
 void Parser::pattern(MethodGenerationContext* mgenc) {
     switch (sym) {
     case Identifier:
+    case Primitive:
         unaryPattern(mgenc);
         break;
     case Keyword:
@@ -398,7 +399,7 @@ void Parser::blockContents(MethodGenerationContext* mgenc, bool is_inlined) {
 }
 
 void Parser::locals(MethodGenerationContext* mgenc) {
-    while (sym == Identifier)
+    while (symIsIdentifier())
         mgenc->AddLocalIfAbsent(variable());
 }
 
@@ -445,8 +446,7 @@ void Parser::result(MethodGenerationContext* mgenc) {
 }
 
 void Parser::expression(MethodGenerationContext* mgenc) {
-    PEEK
-    ;
+    Peek();
     if (nextSym == Assign)
         assignation(mgenc);
     else
@@ -467,10 +467,10 @@ void Parser::assignation(MethodGenerationContext* mgenc) {
 }
 
 void Parser::assignments(MethodGenerationContext* mgenc, list<StdString>& l) {
-    if (sym == Identifier) {
+    if (symIsIdentifier()) {
         l.push_back(assignment(mgenc));
-        PEEK
-        ;
+        Peek();
+        
         if (nextSym == Assign)
             assignments(mgenc, l);
     }
@@ -489,7 +489,7 @@ StdString Parser::assignment(MethodGenerationContext* mgenc) {
 void Parser::evaluation(MethodGenerationContext* mgenc) {
     bool super;
     primary(mgenc, &super);
-    if (sym == Identifier || sym == Keyword || sym == OperatorSequence
+    if (symIsIdentifier() || sym == Keyword || sym == OperatorSequence
             || symIn(binaryOpSyms)) {
         messages(mgenc, super);
     }
@@ -498,6 +498,7 @@ void Parser::evaluation(MethodGenerationContext* mgenc) {
 void Parser::primary(MethodGenerationContext* mgenc, bool* super) {
     *super = false;
     switch (sym) {
+    case Primitive:
     case Identifier: {
         StdString v = variable();
         if (v == "super") {
@@ -537,12 +538,12 @@ StdString Parser::variable(void) {
 }
 
 void Parser::messages(MethodGenerationContext* mgenc, bool super) {
-    if (sym == Identifier) {
+    if (symIsIdentifier()) {
         do {
             // only the first message in a sequence can be a super send
             unaryMessage(mgenc, super);
             super = false;
-        } while (sym == Identifier);
+        } while (symIsIdentifier());
 
         while (sym == OperatorSequence || symIn(binaryOpSyms)) {
             binaryMessage(mgenc, false);
@@ -593,7 +594,7 @@ void Parser::binaryMessage(MethodGenerationContext* mgenc, bool super) {
 void Parser::binaryOperand(MethodGenerationContext* mgenc, bool* super) {
     primary(mgenc, super);
 
-    while (sym == Identifier)
+    while (symIsIdentifier())
         unaryMessage(mgenc, *super);
 }
 
@@ -739,40 +740,47 @@ void Parser::literal(MethodGenerationContext* mgenc) {
 }
 
 void Parser::literalNumber(MethodGenerationContext* mgenc) {
-    int64_t val;
+    vm_oop_t lit;
     if (sym == Minus)
-        val = negativeDecimal();
+        lit = negativeDecimal();
     else
-        val = literalDecimal();
-
-    pVMObject lit;
-    if (val < INT32_MIN || val > INT32_MAX) {
-        lit = _UNIVERSE->NewBigInteger(val);
-    } else {
-        #ifdef USE_TAGGING
-            lit = TAG_INTEGER(val);
-        #else
-            lit = _UNIVERSE->NewInteger(val);
-        #endif
-    }
+        lit = literalDecimal(false);
 
     mgenc->AddLiteralIfAbsent(lit);
     bcGen->EmitPUSHCONSTANT(mgenc, lit);
 }
 
-uint64_t Parser::literalDecimal(void) {
-    return literalInteger();
+vm_oop_t Parser::literalDecimal(bool negateValue) {
+    if (sym == Integer) {
+        return literalInteger(negateValue);
+    } else {
+        assert(sym == Double);
+        return literalDouble(negateValue);
+    }
 }
 
-int64_t Parser::negativeDecimal(void) {
+vm_oop_t Parser::negativeDecimal(void) {
     expect(Minus);
-    return -literalInteger();
+    return literalDecimal(true);
 }
 
-uint64_t Parser::literalInteger(void) {
-    uint64_t i = strtoull(text.c_str(), NULL, 10);
+vm_oop_t Parser::literalInteger(bool negateValue) {
+    int64_t i = std::strtoll(text.c_str(), nullptr, 10);
     expect(Integer);
-    return i;
+    if (negateValue) {
+        i = 0 - i;
+    }
+    
+    return NEW_INT(i);
+}
+
+vm_oop_t Parser::literalDouble(bool negateValue) {
+    double d = std::strtod(text.c_str(), nullptr);
+    if (negateValue) {
+        d = 0 - d;
+    }
+    expect(Double);
+    return GetUniverse()->NewDouble(d);
 }
 
 void Parser::literalSymbol(MethodGenerationContext* mgenc) {
