@@ -195,8 +195,8 @@ Symbol Lexer::GetSym(void) {
             sprintf(text, "-");
         }
     } else if (_ISOP(_BC)) {
-    } else if (!buf.substr(bufp, PRIMITIVE.length()).compare(PRIMITIVE)) {
         lexOperator();
+    } else if (nextWordInBufferIs(PRIMITIVE)) {
         bufp += PRIMITIVE.length();
         sym = Primitive;
         symc = 0;
@@ -227,6 +227,16 @@ Symbol Lexer::GetSym(void) {
     }
 
     return sym;
+}
+
+bool Lexer::nextWordInBufferIs(StdString word) {
+    if (0 != buf.substr(bufp, PRIMITIVE.length()).compare(PRIMITIVE)) {
+        return false;
+    }
+    if (bufp + PRIMITIVE.length() >= buf.length()) {
+        return true;
+    }
+    return not isalnum(buf[bufp + PRIMITIVE.length()]);
 }
 
 Symbol Lexer::Peek(void) {
