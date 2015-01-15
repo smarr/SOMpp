@@ -30,19 +30,16 @@
 
 #include "VMSymbol.h"
 #include "VMInteger.h"
-#include "../interpreter/Interpreter.h"
+
+#include <interpreter/Interpreter.h>
 
 extern GCClass* symbolClass;
 
 VMSymbol::VMSymbol(const char* str) : VMString(str) {
 //    nextCachePos = 0;
 //    // set the chars-pointer to point at the position of the first character
-//    chars = (char*) &cachedInvokable + +3 * sizeof(pVMInvokable);
-//    size_t i = 0;
-//    for (; i < strlen(str); ++i) {
-//        chars[i] = str[i];
-//    }
-//    chars[i] = '\0';
+//    chars = (char*) &cachedInvokable + +3 * sizeof(VMInvokable*);
+
 //    //clear caching fields
 //    memset(&cachedClass_invokable, 0, 6 * sizeof(void*) + 1 * sizeof(long));
 }
