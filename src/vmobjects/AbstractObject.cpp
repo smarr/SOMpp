@@ -14,8 +14,8 @@
 #include "VMClass.h"
 #include "VMInvokable.h"
 
-size_t AbstractVMObject::GetHash() {
-    return (size_t) this;
+intptr_t AbstractVMObject::GetHash() {
+    return reinterpret_cast<intptr_t>(this);
 }
 
 void AbstractVMObject::Send(StdString selectorString, vm_oop_t* arguments, long argc) {
