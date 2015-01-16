@@ -59,6 +59,7 @@ extern short gcVerbosity;
 extern GCObject* nilObject;
 extern GCObject* trueObject;
 extern GCObject* falseObject;
+extern GCObject* systemObject;
 
 extern GCClass* objectClass;
 extern GCClass* classClass;

@@ -71,15 +71,13 @@ void Disassembler::dispatch(vm_oop_t o) {
         DebugPrint("{System Class object}");
     else if (o == READBARRIER(blockClass))
         DebugPrint("{Block Class object}");
-    else if(o == _UNIVERSE->GetGlobal(_UNIVERSE->SymbolForChars("system")))
+    else if (o == READBARRIER(systemObject))
         DebugPrint("{System}");
     else {
         VMClass* c = CLASS_OF(o);
         if (c == READBARRIER(stringClass)) {
             DebugPrint("\"%s\"", static_cast<VMString*>(o)->GetChars());
         } else if(c == READBARRIER(doubleClass))
-        else if(c == READBARRIER(bigIntegerClass))
-            DebugPrint("%lld", static_cast<pVMBigInteger>(o)->GetEmbeddedInteger());
             DebugPrint("%g", static_cast<VMDouble*>(o)->GetEmbeddedDouble());
         else if(c == READBARRIER(integerClass))
             DebugPrint("%lld", INT_VAL(o));

@@ -88,6 +88,7 @@ Universe* Universe::theUniverse = NULL;
 GCObject* nilObject;
 GCObject* trueObject;
 GCObject* falseObject;
+GCObject* systemObject;
 
 GCClass* objectClass;
 GCClass* classClass;
@@ -349,24 +350,12 @@ void Universe::initialize(long _argc, char** _argv) {
     }
 #endif
 
-    InitializeGlobals();
-
-    VMObject* systemObject = NewInstance(READBARRIER(systemClass));
-
-    this->SetGlobal(SymbolForChars("nil"),    READBARRIER(nilObject));
-    this->SetGlobal(SymbolForChars("true"),   READBARRIER(trueObject));
-    this->SetGlobal(SymbolForChars("false"),  READBARRIER(falseObject));
-    this->SetGlobal(SymbolForChars("system"), systemObject);
-    this->SetGlobal(SymbolForChars("System"), READBARRIER(systemClass));
-    this->SetGlobal(SymbolForChars("Block"),  READBARRIER(blockClass));
-
-    symbolIfTrue  = WRITEBARRIER(SymbolForChars("ifTrue:"));
-    symbolIfFalse = WRITEBARRIER(SymbolForChars("ifFalse:"));
-
+    VMObject* systemObject = InitializeGlobals();
+    
     VMMethod* bootstrapMethod = NewMethod(SymbolForChars("bootstrap"), 1, 0);
     bootstrapMethod->SetBytecode(0, BC_HALT);
     bootstrapMethod->SetNumberOfLocals(0);
-
+    
     bootstrapMethod->SetMaximumNumberOfStackElements(2);
     bootstrapMethod->SetHolder(READBARRIER(systemClass));
     
@@ -605,20 +594,20 @@ Universe::~Universe() {
     }
 #endif
 
-void Universe::InitializeGlobals() {
+VMObject* Universe::InitializeGlobals() {
     set_vt_to_null();
     
     //
     //allocate nil object
     //
-    
 #if GC_TYPE==GENERATIONAL
-    nilObject = WRITEBARRIER(new (_HEAP, _PAGE) VMObject);
+    VMObject* nil = new (_HEAP, _PAGE) VMObject;
 #elif GC_TYPE==PAUSELESS
-    nilObject = WRITEBARRIER(new (_HEAP, GetUniverse()->GetInterpreter()) VMObject);
+    VMObject* nil = new (_HEAP, GetUniverse()->GetInterpreter()) VMObject;
 #else
-    nilObject = new (_HEAP) VMObject;
+    VMObject* nil = new (_HEAP) VMObject;
 #endif
+    nilObject = WRITEBARRIER(nil);
     
     static_cast<VMObject*>(READBARRIER(nilObject))->SetField(0, READBARRIER(nilObject));
 
@@ -658,6 +647,8 @@ void Universe::InitializeGlobals() {
 
     // Fix up objectClass
     READBARRIER(objectClass)->SetSuperClass((VMClass*) READBARRIER(nilObject));
+    
+    obtain_vtables_of_known_classes(nil->GetClass()->GetName());
 
     LoadSystemClass(READBARRIER(objectClass));
     LoadSystemClass(READBARRIER(classClass));
@@ -686,7 +677,22 @@ void Universe::InitializeGlobals() {
 
     systemClass = WRITEBARRIER(LoadClass(SymbolForChars("System")));
 
-    obtain_vtables_of_known_classes(falseClassName);
+    
+    VMObject* systemObj = NewInstance(READBARRIER(systemClass));
+    systemObject = WRITEBARRIER(systemObj);
+    
+    
+    SetGlobal(SymbolForChars("nil"),    READBARRIER(nilObject));
+    SetGlobal(SymbolForChars("true"),   READBARRIER(trueObject));
+    SetGlobal(SymbolForChars("false"),  READBARRIER(falseObject));
+    SetGlobal(SymbolForChars("system"), systemObj);
+    SetGlobal(SymbolForChars("System"), READBARRIER(systemClass));
+    SetGlobal(SymbolForChars("Block"),  READBARRIER(blockClass));
+    
+    symbolIfTrue  = WRITEBARRIER(SymbolForChars("ifTrue:"));
+    symbolIfFalse = WRITEBARRIER(SymbolForChars("ifFalse:"));
+
+    return systemObj;
 }
 
 void Universe::Assert(bool value) const {
