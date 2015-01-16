@@ -456,11 +456,8 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
 
             DebugPrint("(index: %d) signature: %s (", BC_1,
             sel->GetChars());
-            //handle primitives, they don't increase call-depth
-            pVMObject elem = _UNIVERSE->GetInterpreter()->GetFrame()->
-            GetStackElement(
-            Signature::GetNumberOfArguments(sel)-1);
-
+            // handle primitives, they don't increase call-depth
+            vm_oop_t elem = frame->GetStackElement(Signature::GetNumberOfArguments(sel)-1);
             VMClass* elemClass = CLASS_OF(elem);
             VMInvokable* inv = dynamic_cast<VMInvokable*>(elemClass->LookupInvokable(sel));
 

@@ -113,11 +113,11 @@ void VMObject::Assert(bool value) const {
     GetUniverse()->Assert(value);
 }
 
-VMObject* VMObject::GetField(long index) /*const*/ {
+vm_oop_t VMObject::GetField(long index) /*const*/ {
     return READBARRIER(FIELDS[index]);
 }
 
-void VMObject::SetField(long index, VMObject* value) {
+void VMObject::SetField(long index, vm_oop_t value) {
     FIELDS[index] = WRITEBARRIER(value);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, (VMOBJECT_PTR)value);

@@ -80,8 +80,8 @@ public:
     virtual        VMSymbol* GetFieldName(long index);
     virtual inline long      GetNumberOfFields() const;
     virtual        void      SetNumberOfFields(long nof);
-                   VMObject* GetField(long index);
-                   void      SetField(long index, VMObject* value);
+                   vm_oop_t  GetField(long index);
+                   void      SetField(long index, vm_oop_t value);
     virtual        void      Assert(bool value) const;
     virtual inline size_t    GetObjectSize() const;
     virtual inline void      SetObjectSize(size_t size);

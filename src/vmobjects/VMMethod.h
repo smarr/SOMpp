@@ -92,7 +92,7 @@ public:
 
 private:
     inline uint8_t* GetBytecodes() const;
-    inline VMObject* GetIndexableField(long idx);
+    inline vm_oop_t GetIndexableField(long idx);
 
     GCInteger* numberOfLocals;
     GCInteger* maximumNumberOfStackElements;

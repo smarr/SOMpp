@@ -46,9 +46,9 @@ public:
 #endif
 
     inline  long GetNumberOfIndexableFields() const;
-    VMArray* CopyAndExtendWith(VMObject*);
-    VMObject* GetIndexableField(long idx);
-    void SetIndexableField(long idx, VMObject* value);
+    VMArray* CopyAndExtendWith(vm_oop_t);
+    vm_oop_t GetIndexableField(long idx);
+    void SetIndexableField(long idx, vm_oop_t value);
     void CopyIndexableFieldsTo(VMArray*);
     
     virtual void MarkObjectAsInvalid();

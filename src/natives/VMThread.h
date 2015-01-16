@@ -27,8 +27,8 @@ public:
     void        SetBlockToRun(VMBlock* value);
     VMString*   GetName();
     void        SetName(VMString* value);
-    VMObject*   GetArgument();
-    void        SetArgument(VMObject* value);
+    vm_oop_t    GetArgument();
+    void        SetArgument(vm_oop_t value);
     pthread_t   GetEmbeddedThreadId();
     void        SetEmbeddedThreadId(pthread_t value);
     
@@ -53,7 +53,7 @@ private:
     GCObject* shouldStop;
     GCBlock*  blockToRun;
     GCString* name;
-    GCAbstractObject* argument;
+    gc_oop_t  argument;
     pthread_t embeddedThreadId;
     
     static const int VMThreadNumberOfFields;

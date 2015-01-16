@@ -54,7 +54,7 @@ VMObject* VMArray::GetIndexableField(long idx) {
     return GetField(GetNumberOfFields() + idx);
 }
 
-void VMArray::SetIndexableField(long idx, VMObject* value) {
+void VMArray::SetIndexableField(long idx, vm_oop_t value) {
     if (idx > GetNumberOfIndexableFields()) {
         cout << "Array index out of bounds: Accessing " << idx
         << ", but array size is only " << GetNumberOfIndexableFields()
@@ -64,7 +64,7 @@ void VMArray::SetIndexableField(long idx, VMObject* value) {
     SetField(GetNumberOfFields() + idx, value);
 }
 
-VMArray* VMArray::CopyAndExtendWith(VMObject* item) {
+VMArray* VMArray::CopyAndExtendWith(vm_oop_t item) {
     size_t fields = GetNumberOfIndexableFields();
     VMArray* result = GetUniverse()->NewArray(fields + 1);
     this->CopyIndexableFieldsTo(result);

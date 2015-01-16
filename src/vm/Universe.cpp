@@ -910,17 +910,17 @@ VMArray* Universe::NewArrayFromStrings(const vector<StdString>& argv) const {
 }
 
 VMArray* Universe::NewArrayList(ExtendedList<VMSymbol*>& list) const {
-    ExtendedList<VMObject*>& objList = (ExtendedList<VMObject*>&) list;
+    ExtendedList<vm_oop_t>& objList = (ExtendedList<vm_oop_t>&) list;
     return NewArrayList(objList);
 }
 
-VMArray* Universe::NewArrayList(ExtendedList<VMObject*>& list) const {
+VMArray* Universe::NewArrayList(ExtendedList<vm_oop_t>& list) const {
     long size = list.Size();
     VMArray* result = NewArray(size);
 
     if (result) {
         for (long i = 0; i < size; ++i) {
-            VMObject* elem = list.Get(i);
+            vm_oop_t elem = list.Get(i);
             result->SetIndexableField(i, elem);
         }
     }

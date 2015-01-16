@@ -48,7 +48,7 @@ public:
     
     virtual size_t GetHash();
     virtual VMClass* GetClass() = 0;
-    virtual void Send(StdString, VMObject**, long);
+    virtual void Send(StdString, vm_oop_t*, long);
     virtual size_t GetObjectSize() const = 0;
     
     virtual void MarkObjectAsInvalid() = 0;

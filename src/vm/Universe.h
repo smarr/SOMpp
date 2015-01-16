@@ -148,8 +148,8 @@ public:
 
     void InitializeSystemClass(VMClass*, VMClass*, const char*);
 
-    VMObject* GetGlobal(VMSymbol*);
-    void SetGlobal(VMSymbol* name, VMObject* val);
+    vm_oop_t GetGlobal(VMSymbol*);
+    void SetGlobal(VMSymbol* name, vm_oop_t val);
     void InitializeGlobals();
     VMClass* GetBlockClass(void) const;
     VMClass* GetBlockClassWithArgs(long);

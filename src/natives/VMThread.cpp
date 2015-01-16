@@ -70,12 +70,12 @@ void VMThread::SetName(VMString* value) {
 }
 
 
-VMObject* VMThread::GetArgument() {
+vm_oop_t VMThread::GetArgument() {
     return READBARRIER(argument);
 }
 
 
-void VMThread::SetArgument(VMObject* value) {
+void VMThread::SetArgument(vm_oop_t value) {
     argument = WRITEBARRIER(value);
 }
 
