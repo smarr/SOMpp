@@ -79,7 +79,7 @@ VMSymbol* VMSymbol::Clone() {
 #endif
 
 VMClass* VMSymbol::GetClass() {
-    return READBARRIER(symbolClass);
+    return load_ptr(symbolClass);
 }
 
 StdString VMSymbol::GetPlainString() const {

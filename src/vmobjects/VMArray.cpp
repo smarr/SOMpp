@@ -40,7 +40,7 @@ VMArray::VMArray(long size, long nof) :
     // Fields start after clazz and other fields (GetNumberOfFields)
     gc_oop_t* arrFields = FIELDS + GetNumberOfFields();
     for (long i = 0; i < size; ++i) {
-        arrFields[i] = WRITEBARRIER(READBARRIER(nilObject));
+        arrFields[i] = WRITEBARRIER(load_ptr(nilObject));
     }
 }
 
@@ -157,7 +157,7 @@ void VMArray::CheckMarking(void (*walk)(vm_oop_t)) {
 }
 #else
 void VMArray::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    clazz = (GCClass*) walk(READBARRIER(clazz));
+    clazz = (GCClass*) walk(load_ptr(clazz));
     long numFields          = GetNumberOfFields();
     long numIndexableFields = GetNumberOfIndexableFields();
     //VMObject** fields = FIELDS;

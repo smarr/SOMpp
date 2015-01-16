@@ -107,7 +107,7 @@ void VMEvaluationPrimitive::evaluationRoutine(VMObject* object, VMFrame* frame) 
 #ifdef USE_TAGGING
     long numArgs = UNTAG_INTEGER(self->numberOfArguments);
 #else
-    long numArgs = READBARRIER(self->numberOfArguments)->GetEmbeddedInteger();
+    long numArgs = load_ptr(self->numberOfArguments)->GetEmbeddedInteger();
 #endif
     VMBlock* block = static_cast<VMBlock*>(frame->GetStackElement(numArgs - 1));
 
@@ -139,6 +139,6 @@ void VMEvaluationPrimitive::CheckMarking(void (*walk)(vm_oop_t)) {
 #else
 void VMEvaluationPrimitive::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     VMPrimitive::WalkObjects(walk);
-    numberOfArguments = (GCInteger*) (walk(READBARRIER(numberOfArguments)));
+    numberOfArguments = (GCInteger*) (walk(load_ptr(numberOfArguments)));
 }
 #endif

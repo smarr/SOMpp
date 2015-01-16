@@ -33,7 +33,7 @@ bool VMInvokable::IsPrimitive() const {
 }
 
 VMSymbol* VMInvokable::GetSignature() {
-    return READBARRIER(signature);
+    return load_ptr(signature);
 }
 
 void VMInvokable::SetSignature(VMSymbol* sig) {
@@ -44,7 +44,7 @@ void VMInvokable::SetSignature(VMSymbol* sig) {
 }
 
 VMClass* VMInvokable::GetHolder() {
-    return READBARRIER(holder);
+    return load_ptr(holder);
 }
 
 void VMInvokable::SetHolder(VMClass* hld) {
@@ -81,9 +81,9 @@ void VMInvokable::CheckMarking(void (*walk)(vm_oop_t)) {
 }
 #else
 void VMInvokable::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    clazz = (GCClass*) (walk(READBARRIER(clazz)));
-    signature = (GCSymbol*) (walk(READBARRIER(signature)));
+    clazz = (GCClass*) (walk(load_ptr(clazz)));
+    signature = (GCSymbol*) (walk(load_ptr(signature)));
     if (holder)
-        holder = (GCClass*) (walk(READBARRIER(holder)));
+        holder = (GCClass*) (walk(load_ptr(holder)));
 }
 #endif

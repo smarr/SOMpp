@@ -27,7 +27,7 @@ void VMThread::Yield() {
 }
 
 VMSignal* VMThread::GetResumeSignal() {
-    return READBARRIER(resumeSignal);
+    return load_ptr(resumeSignal);
 }
 
 
@@ -37,21 +37,21 @@ void VMThread::SetResumeSignal(VMSignal* value) {
 
 
 bool VMThread::ShouldStop() {
-    return READBARRIER(shouldStop) == READBARRIER(trueObject);
+    return load_ptr(shouldStop) == load_ptr(trueObject);
 }
 
 
 void VMThread::SetShouldStop(bool value) {
     if (value) {
-    	shouldStop = WRITEBARRIER(READBARRIER(trueObject));
+    	shouldStop = WRITEBARRIER(load_ptr(trueObject));
     } else {
-    	shouldStop = WRITEBARRIER(READBARRIER(falseObject));
+    	shouldStop = WRITEBARRIER(load_ptr(falseObject));
     }
 }
 
 
 VMBlock* VMThread::GetBlockToRun() {
-    return READBARRIER(blockToRun);
+    return load_ptr(blockToRun);
 }
 
 
@@ -61,7 +61,7 @@ void VMThread::SetBlockToRun(VMBlock* value) {
 
 
 VMString* VMThread::GetName() {
-    return READBARRIER(name);
+    return load_ptr(name);
 }
 
 
@@ -71,7 +71,7 @@ void VMThread::SetName(VMString* value) {
 
 
 vm_oop_t VMThread::GetArgument() {
-    return READBARRIER(argument);
+    return load_ptr(argument);
 }
 
 
@@ -139,12 +139,12 @@ void VMThread::CheckMarking(void (*walk)(vm_oop_t)) {
 #else
 /*
 void VMThread::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    //clazz = (GCClass*) (walk(READBARRIER(clazz)));
-    //resumeSignal = (GCSignal*) (walk(READBARRIER(resumeSignal)));
-    //shouldStop = (GCObject*) (walk(READBARRIER(shouldStop)));
-    //blockToRun = (GCBlock*) (walk(READBARRIER(blockToRun)));
-    //name = (GCString*) (walk(READBARRIER(name)));
-    //argument = (GCAbstractObject*) (walk(READBARRIER(argument)));
+    //clazz = (GCClass*) (walk(load_ptr(clazz)));
+    //resumeSignal = (GCSignal*) (walk(load_ptr(resumeSignal)));
+    //shouldStop = (GCObject*) (walk(load_ptr(shouldStop)));
+    //blockToRun = (GCBlock*) (walk(load_ptr(blockToRun)));
+    //name = (GCString*) (walk(load_ptr(name)));
+    //argument = (GCAbstractObject*) (walk(load_ptr(argument)));
 }
 
 VMThread* VMThread::Clone() {

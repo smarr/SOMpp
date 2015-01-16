@@ -261,8 +261,8 @@ VMFrame* Interpreter::PushNewFrame(VMMethod* method) {
 }
 
 void Interpreter::SetFrame(VMFrame* frame) {
-    if (READBARRIER(this->frame) != nullptr) {
-        READBARRIER(this->frame)->SetBytecodeIndex(bytecodeIndexGlobal);
+    if (load_ptr(this->frame) != nullptr) {
+        load_ptr(this->frame)->SetBytecodeIndex(bytecodeIndexGlobal);
     }
 
     this->frame = WRITEBARRIER(frame);
@@ -270,11 +270,11 @@ void Interpreter::SetFrame(VMFrame* frame) {
     // update cached values
     // method              = WRITEBARRIER(frame->GetMethod());
     bytecodeIndexGlobal = frame->GetBytecodeIndex();
-    // currentBytecodes    = READBARRIER(method)->GetBytecodes();
+    // currentBytecodes    = load_ptr(method)->GetBytecodes();
 }
 
 VMFrame* Interpreter::GetFrame() {
-    return READBARRIER(this->frame);
+    return load_ptr(this->frame);
 }
 
 vm_oop_t Interpreter::GetSelf() {
@@ -407,14 +407,14 @@ void Interpreter::doPushField(long bytecodeIndex) {
 void Interpreter::doPushBlock(long bytecodeIndex) {
     // Short cut the negative case of #ifTrue: and #ifFalse:
     if (/* currentBytecodes */ GetFrame()->GetMethod()->GetBytecodes()[bytecodeIndexGlobal] == BC_SEND) {
-        if (GetFrame()->GetStackElement(0) == READBARRIER(falseObject) &&
-            this->GetMethod()->GetConstant(bytecodeIndexGlobal) == READBARRIER(symbolIfTrue)) {
-            GetFrame()->Push(READBARRIER(nilObject));
+        if (GetFrame()->GetStackElement(0) == load_ptr(falseObject) &&
+            this->GetMethod()->GetConstant(bytecodeIndexGlobal) == load_ptr(symbolIfTrue)) {
+            GetFrame()->Push(load_ptr(nilObject));
             return;
         }
-        if (GetFrame()->GetStackElement(0) == READBARRIER(trueObject) &&
-            this->GetMethod()->GetConstant(bytecodeIndexGlobal) == READBARRIER(symbolIfFalse)) {
-            GetFrame()->Push(READBARRIER(nilObject));
+        if (GetFrame()->GetStackElement(0) == load_ptr(trueObject) &&
+            this->GetMethod()->GetConstant(bytecodeIndexGlobal) == load_ptr(symbolIfFalse)) {
+            GetFrame()->Push(load_ptr(nilObject));
             return;
         }
     }
@@ -572,13 +572,13 @@ void Interpreter::doReturnNonLocal() {
 
 void Interpreter::doJumpIfFalse(long bytecodeIndex) {
     vm_oop_t value = GetFrame()->Pop();
-    if (value == READBARRIER(falseObject))
+    if (value == load_ptr(falseObject))
         doJump(bytecodeIndex);
 }
 
 void Interpreter::doJumpIfTrue(long bytecodeIndex) {
     vm_oop_t value = GetFrame()->Pop();
-    if (value == READBARRIER(trueObject))
+    if (value == load_ptr(trueObject))
         doJump(bytecodeIndex);
 }
 
@@ -596,11 +596,11 @@ void Interpreter::doJump(long bytecodeIndex) {
 
 VMMethod* Interpreter::GetMethod() {
     return GetFrame()->GetMethod();
-    // return READBARRIER(this->method);
+    // return load_ptr(this->method);
 }
 
 VMThread* Interpreter::GetThread(void) {
-    return READBARRIER(this->thread);
+    return load_ptr(this->thread);
 }
 
 void Interpreter::SetThread(VMThread* thread) {
@@ -807,8 +807,8 @@ void Interpreter::CheckMarking(void (*walk)(vm_oop_t)) {
 
 #else
 void Interpreter::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    //method = (GCMethod*) walk(READBARRIER(method));
-    thread = (GCThread*) walk(READBARRIER(thread));
-    frame = (GCFrame*) walk(READBARRIER(frame));
+    //method = (GCMethod*) walk(load_ptr(method));
+    thread = (GCThread*) walk(load_ptr(thread));
+    frame = (GCFrame*) walk(load_ptr(frame));
 }
 #endif

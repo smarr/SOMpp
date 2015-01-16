@@ -99,7 +99,7 @@ private:
 };
 
 VMClass* VMClass::GetSuperClass() {
-    return READBARRIER(superClass);
+    return load_ptr(superClass);
 }
 
 void VMClass::SetSuperClass(VMClass* sup) {
@@ -110,7 +110,7 @@ void VMClass::SetSuperClass(VMClass* sup) {
 }
 
 VMSymbol* VMClass::GetName() {
-    return READBARRIER(name);
+    return load_ptr(name);
 }
 
 void VMClass::SetName(VMSymbol* nam) {
@@ -121,19 +121,19 @@ void VMClass::SetName(VMSymbol* nam) {
 }
 
 bool VMClass::HasSuperClass() {
-    VMClass* sc = READBARRIER(superClass);
+    VMClass* sc = load_ptr(superClass);
     assert(Universe::IsValidObject(sc));
 
     // TODO: only for debugging, REMOVE!
-    if (sc != READBARRIER(nilObject)) {
+    if (sc != load_ptr(nilObject)) {
         assert((void*) sc != (void*) nilObject);
     }
     
-    return sc != READBARRIER(nilObject);
+    return sc != load_ptr(nilObject);
 }
 
 VMArray* VMClass::GetInstanceFields() {
-    return READBARRIER(instanceFields);
+    return load_ptr(instanceFields);
 }
 
 void VMClass::SetInstanceFields(VMArray* instFields) {
@@ -144,5 +144,5 @@ void VMClass::SetInstanceFields(VMArray* instFields) {
 }
 
 VMArray* VMClass::GetInstanceInvokables() {
-    return READBARRIER(instanceInvokables);
+    return load_ptr(instanceInvokables);
 }

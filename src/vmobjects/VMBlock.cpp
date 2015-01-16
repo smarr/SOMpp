@@ -69,7 +69,7 @@ VMBlock* VMBlock::Clone() {
 #endif
 
 VMMethod* VMBlock::GetMethod() {
-    return READBARRIER(blockMethod);
+    return load_ptr(blockMethod);
 }
 
 void VMBlock::MarkObjectAsInvalid() {

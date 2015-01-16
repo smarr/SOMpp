@@ -75,7 +75,7 @@ void Shell::Start() {
     // Create a fake bootstrap frame
     currentFrame = WRITEBARRIER(GetUniverse()->GetInterpreter()->PushNewFrame(GetBootstrapMethod()));
     // Remember the first bytecode index, e.g. index of the halt instruction
-    bytecodeIndex = READBARRIER(currentFrame)->GetBytecodeIndex();
+    bytecodeIndex = load_ptr(currentFrame)->GetBytecodeIndex();
 
     /**
      * Main Shell Loop
@@ -112,27 +112,27 @@ void Shell::Start() {
 
         // Go back, so we will evaluate the bootstrap frames halt
         // instruction again
-        READBARRIER(currentFrame)->SetBytecodeIndex(bytecodeIndex);
+        load_ptr(currentFrame)->SetBytecodeIndex(bytecodeIndex);
 
         // Create and push a new instance of our class on the stack
-        READBARRIER(currentFrame)->Push(GetUniverse()->NewInstance(READBARRIER(runClass)));
+        load_ptr(currentFrame)->Push(GetUniverse()->NewInstance(load_ptr(runClass)));
 
         // Push the old value of "it" on the stack
-        READBARRIER(currentFrame)->Push(READBARRIER(it));
+        load_ptr(currentFrame)->Push(load_ptr(it));
 
         // Lookup the run: method
-        VMInvokable* initialize = READBARRIER(runClass)->LookupInvokable(
+        VMInvokable* initialize = load_ptr(runClass)->LookupInvokable(
                                         GetUniverse()->SymbolFor("run:"));
 
         // Invoke the run method
-        (*initialize)(READBARRIER(currentFrame));
+        (*initialize)(load_ptr(currentFrame));
 
         // Start the Interpreter
 
         GetUniverse()->GetInterpreter()->Start();
 
         // Save the result of the run method
-        it = WRITEBARRIER(READBARRIER(currentFrame)->Pop());
+        it = WRITEBARRIER(load_ptr(currentFrame)->Pop());
     }
 }
 

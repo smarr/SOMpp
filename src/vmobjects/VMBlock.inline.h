@@ -8,6 +8,6 @@ void VMBlock::SetContext(VMFrame* contxt) {
 }
 
 VMFrame* VMBlock::GetContext() {
-    return READBARRIER(context);
+    return load_ptr(context);
 }
 

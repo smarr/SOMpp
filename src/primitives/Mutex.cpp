@@ -26,9 +26,9 @@ void _Mutex::Unlock(VMObject* object, VMFrame* frame){
 void _Mutex::IsLocked(VMObject* object, VMFrame* frame){
     VMMutex* mutex = (VMMutex*)frame->Pop();
     if (mutex->IsLocked()) {
-        frame->Push(READBARRIER(trueObject));
+        frame->Push(load_ptr(trueObject));
     } else {
-        frame->Push(READBARRIER(falseObject));
+        frame->Push(load_ptr(falseObject));
     }
 }
 

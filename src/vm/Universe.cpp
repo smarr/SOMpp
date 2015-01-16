@@ -359,7 +359,7 @@ void Universe::initialize(long _argc, char** _argv) {
     bootstrapMethod->SetNumberOfLocals(0);
     
     bootstrapMethod->SetMaximumNumberOfStackElements(2);
-    bootstrapMethod->SetHolder(READBARRIER(systemClass));
+    bootstrapMethod->SetHolder(load_ptr(systemClass));
     
     VMThread* thread = NewThread();
     VMSignal* signal = NewSignal();
@@ -385,7 +385,7 @@ void Universe::initialize(long _argc, char** _argv) {
     bootstrapFrame->Push(argumentsArray);
 
     VMInvokable* initialize =
-        static_cast<VMInvokable*>(READBARRIER(systemClass)->LookupInvokable(this->SymbolForChars("initialize:")));
+        static_cast<VMInvokable*>(load_ptr(systemClass)->LookupInvokable(this->SymbolForChars("initialize:")));
     (*initialize)(bootstrapFrame);
 
     // reset "-d" indicator
@@ -611,7 +611,7 @@ VMObject* Universe::InitializeGlobals() {
 #endif
     nilObject = WRITEBARRIER(nil);
     
-    static_cast<VMObject*>(READBARRIER(nilObject))->SetField(0, READBARRIER(nilObject));
+    static_cast<VMObject*>(load_ptr(nilObject))->SetField(0, load_ptr(nilObject));
 
     metaClassClass = WRITEBARRIER(NewMetaclassClass());
 
@@ -629,67 +629,67 @@ VMObject* Universe::InitializeGlobals() {
     mutexClass      = WRITEBARRIER(NewSystemClass());
     signalClass     = WRITEBARRIER(NewSystemClass());
 
-    READBARRIER(nilObject)->SetClass(READBARRIER(nilClass));
+    load_ptr(nilObject)->SetClass(load_ptr(nilClass));
 
-    InitializeSystemClass(READBARRIER(objectClass),    nullptr, "Object");
-    InitializeSystemClass(READBARRIER(classClass),     READBARRIER(objectClass), "Class");
-    InitializeSystemClass(READBARRIER(metaClassClass), READBARRIER(classClass), "Metaclass");
-    InitializeSystemClass(READBARRIER(nilClass),    READBARRIER(objectClass), "Nil");
-    InitializeSystemClass(READBARRIER(arrayClass),  READBARRIER(objectClass), "Array");
-    InitializeSystemClass(READBARRIER(methodClass), READBARRIER(arrayClass), "Method");
-    InitializeSystemClass(READBARRIER(symbolClass), READBARRIER(objectClass), "Symbol");
-    InitializeSystemClass(READBARRIER(integerClass), READBARRIER(objectClass), "Integer");
-    InitializeSystemClass(READBARRIER(primitiveClass), READBARRIER(objectClass),
+    InitializeSystemClass(load_ptr(objectClass),    nullptr, "Object");
+    InitializeSystemClass(load_ptr(classClass),     load_ptr(objectClass), "Class");
+    InitializeSystemClass(load_ptr(metaClassClass), load_ptr(classClass), "Metaclass");
+    InitializeSystemClass(load_ptr(nilClass),    load_ptr(objectClass), "Nil");
+    InitializeSystemClass(load_ptr(arrayClass),  load_ptr(objectClass), "Array");
+    InitializeSystemClass(load_ptr(methodClass), load_ptr(arrayClass), "Method");
+    InitializeSystemClass(load_ptr(symbolClass), load_ptr(objectClass), "Symbol");
+    InitializeSystemClass(load_ptr(integerClass), load_ptr(objectClass), "Integer");
+    InitializeSystemClass(load_ptr(primitiveClass), load_ptr(objectClass),
             "Primitive");
-    InitializeSystemClass(READBARRIER(stringClass), READBARRIER(objectClass), "String");
-    InitializeSystemClass(READBARRIER(doubleClass), READBARRIER(objectClass), "Double");
-    InitializeSystemClass(READBARRIER(threadClass), READBARRIER(objectClass), "Thread");
-    InitializeSystemClass(READBARRIER(mutexClass), READBARRIER(objectClass), "Mutex");
-    InitializeSystemClass(READBARRIER(signalClass), READBARRIER(objectClass), "Signal");
+    InitializeSystemClass(load_ptr(stringClass), load_ptr(objectClass), "String");
+    InitializeSystemClass(load_ptr(doubleClass), load_ptr(objectClass), "Double");
+    InitializeSystemClass(load_ptr(threadClass), load_ptr(objectClass), "Thread");
+    InitializeSystemClass(load_ptr(mutexClass), load_ptr(objectClass), "Mutex");
+    InitializeSystemClass(load_ptr(signalClass), load_ptr(objectClass), "Signal");
 
     // Fix up objectClass
-    READBARRIER(objectClass)->SetSuperClass((VMClass*) READBARRIER(nilObject));
+    load_ptr(objectClass)->SetSuperClass((VMClass*) load_ptr(nilObject));
     
     obtain_vtables_of_known_classes(nil->GetClass()->GetName());
 
-    LoadSystemClass(READBARRIER(objectClass));
-    LoadSystemClass(READBARRIER(classClass));
-    LoadSystemClass(READBARRIER(metaClassClass));
-    LoadSystemClass(READBARRIER(nilClass));
-    LoadSystemClass(READBARRIER(arrayClass));
-    LoadSystemClass(READBARRIER(methodClass));
-    LoadSystemClass(READBARRIER(symbolClass));
-    LoadSystemClass(READBARRIER(integerClass));
-    LoadSystemClass(READBARRIER(primitiveClass));
-    LoadSystemClass(READBARRIER(stringClass));
-    LoadSystemClass(READBARRIER(doubleClass));
-    LoadSystemClass(READBARRIER(threadClass));
-    LoadSystemClass(READBARRIER(mutexClass));
-    LoadSystemClass(READBARRIER(signalClass));
+    LoadSystemClass(load_ptr(objectClass));
+    LoadSystemClass(load_ptr(classClass));
+    LoadSystemClass(load_ptr(metaClassClass));
+    LoadSystemClass(load_ptr(nilClass));
+    LoadSystemClass(load_ptr(arrayClass));
+    LoadSystemClass(load_ptr(methodClass));
+    LoadSystemClass(load_ptr(symbolClass));
+    LoadSystemClass(load_ptr(integerClass));
+    LoadSystemClass(load_ptr(primitiveClass));
+    LoadSystemClass(load_ptr(stringClass));
+    LoadSystemClass(load_ptr(doubleClass));
+    LoadSystemClass(load_ptr(threadClass));
+    LoadSystemClass(load_ptr(mutexClass));
+    LoadSystemClass(load_ptr(signalClass));
 
     blockClass = WRITEBARRIER(LoadClass(SymbolForChars("Block")));
 
     VMSymbol* trueClassName = SymbolForChars("True");
     trueClass  = WRITEBARRIER(LoadClass(trueClassName));
-    trueObject = (GCObject*) WRITEBARRIER(NewInstance(READBARRIER(trueClass)));
+    trueObject = (GCObject*) WRITEBARRIER(NewInstance(load_ptr(trueClass)));
     
     VMSymbol* falseClassName = SymbolForChars("False");
     falseClass  = WRITEBARRIER(LoadClass(falseClassName));
-    falseObject = (GCObject*) WRITEBARRIER(NewInstance(READBARRIER(falseClass)));
+    falseObject = (GCObject*) WRITEBARRIER(NewInstance(load_ptr(falseClass)));
 
     systemClass = WRITEBARRIER(LoadClass(SymbolForChars("System")));
 
     
-    VMObject* systemObj = NewInstance(READBARRIER(systemClass));
+    VMObject* systemObj = NewInstance(load_ptr(systemClass));
     systemObject = WRITEBARRIER(systemObj);
     
     
-    SetGlobal(SymbolForChars("nil"),    READBARRIER(nilObject));
-    SetGlobal(SymbolForChars("true"),   READBARRIER(trueObject));
-    SetGlobal(SymbolForChars("false"),  READBARRIER(falseObject));
+    SetGlobal(SymbolForChars("nil"),    load_ptr(nilObject));
+    SetGlobal(SymbolForChars("true"),   load_ptr(trueObject));
+    SetGlobal(SymbolForChars("false"),  load_ptr(falseObject));
     SetGlobal(SymbolForChars("system"), systemObj);
-    SetGlobal(SymbolForChars("System"), READBARRIER(systemClass));
-    SetGlobal(SymbolForChars("Block"),  READBARRIER(blockClass));
+    SetGlobal(SymbolForChars("System"), load_ptr(systemClass));
+    SetGlobal(SymbolForChars("Block"),  load_ptr(blockClass));
     
     symbolIfTrue  = WRITEBARRIER(SymbolForChars("ifTrue:"));
     symbolIfFalse = WRITEBARRIER(SymbolForChars("ifFalse:"));
@@ -704,14 +704,14 @@ void Universe::Assert(bool value) const {
 }
 
 VMClass* Universe::GetBlockClass() const {
-    return READBARRIER(blockClass);
+    return load_ptr(blockClass);
 }
 
 VMClass* Universe::GetBlockClassWithArgs(long numberOfArguments) {
     map<long, GCClass*>::iterator it =
     blockClassesByNoOfArgs.find(numberOfArguments);
     if (it != blockClassesByNoOfArgs.end()) {
-        return READBARRIER(it->second);
+        return load_ptr(it->second);
     }
 
     this->Assert(numberOfArguments < 10);
@@ -748,7 +748,7 @@ vm_oop_t Universe::GetGlobal(VMSymbol* name) {
         return nullptr;
     } else {
         pthread_mutex_unlock(&testMutex);
-        return READBARRIER(it->second);
+        return load_ptr(it->second);
     }
 }
 #else
@@ -758,7 +758,7 @@ VMObject* Universe::GetGlobal(VMSymbol* name) {
     if (it == globals.end())
         return nullptr;
     else
-        return READBARRIER(it->second);
+        return load_ptr(it->second);
 }
 #endif
 
@@ -787,7 +787,7 @@ VMClass* superClass, const char* name) {
         sysClassClass->SetSuperClass(superClassClass);
     } else {
         VMClass* sysClassClass = systemClass->GetClass();
-        sysClassClass->SetSuperClass(READBARRIER(classClass));
+        sysClassClass->SetSuperClass(load_ptr(classClass));
     }
 
     VMClass* sysClassClass = systemClass->GetClass();
@@ -821,7 +821,7 @@ VMClass* Universe::LoadClass(VMSymbol* name) {
     if (!result) {
 		// we fail silently, it is not fatal that loading a class failed
         pthread_mutex_unlock(&classLoading);
-		return (VMClass*) READBARRIER(nilObject);
+		return (VMClass*) load_ptr(nilObject);
     }
 
     if (result->HasPrimitives() || result->GetClass()->HasPrimitives())
@@ -892,7 +892,7 @@ VMArray* Universe::NewArray(long size) const {
     VMArray* result = new (_HEAP, additionalBytes) VMArray(size);
 #endif
 
-    result->SetClass(READBARRIER(arrayClass));
+    result->SetClass(load_ptr(arrayClass));
     
     LOG_ALLOCATION("VMArray", result->GetObjectSize());
     return result;
@@ -1225,36 +1225,36 @@ void  Universe::CheckMarkingGlobals(void (*walk)(vm_oop_t)) {
 }
 #else
 void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    nilObject   = (GCObject*) walk(READBARRIER(nilObject));
-    trueObject  = (GCObject*) walk(READBARRIER(trueObject));
-    falseObject = (GCObject*) walk(READBARRIER(falseObject));
+    nilObject   = (GCObject*) walk(load_ptr(nilObject));
+    trueObject  = (GCObject*) walk(load_ptr(trueObject));
+    falseObject = (GCObject*) walk(load_ptr(falseObject));
 
 #ifdef USE_TAGGING
     GlobalBox::updateIntegerBox(static_cast<VMInteger*>(walk(GlobalBox::IntegerBox())));
 #endif
 
-    objectClass    = (GCClass*) (walk(READBARRIER(objectClass)));
-    classClass     = (GCClass*) (walk(READBARRIER(classClass)));
-    metaClassClass = (GCClass*) (walk(READBARRIER(metaClassClass)));
+    objectClass    = (GCClass*) (walk(load_ptr(objectClass)));
+    classClass     = (GCClass*) (walk(load_ptr(classClass)));
+    metaClassClass = (GCClass*) (walk(load_ptr(metaClassClass)));
 
-    nilClass        = (GCClass*) (walk(READBARRIER(nilClass)));
-    integerClass    = (GCClass*) (walk(READBARRIER(integerClass)));
-    bigIntegerClass = (GCClass*) (walk(READBARRIER(bigIntegerClass)));
-    arrayClass      = (GCClass*) (walk(READBARRIER(arrayClass)));
-    methodClass     = (GCClass*) (walk(READBARRIER(methodClass)));
-    symbolClass     = (GCClass*) (walk(READBARRIER(symbolClass)));
-    primitiveClass  = (GCClass*) (walk(READBARRIER(primitiveClass)));
-    stringClass     = (GCClass*) (walk(READBARRIER(stringClass)));
-    systemClass     = (GCClass*) (walk(READBARRIER(systemClass)));
-    blockClass      = (GCClass*) (walk(READBARRIER(blockClass)));
-    doubleClass     = (GCClass*) (walk(READBARRIER(doubleClass)));
+    nilClass        = (GCClass*) (walk(load_ptr(nilClass)));
+    integerClass    = (GCClass*) (walk(load_ptr(integerClass)));
+    bigIntegerClass = (GCClass*) (walk(load_ptr(bigIntegerClass)));
+    arrayClass      = (GCClass*) (walk(load_ptr(arrayClass)));
+    methodClass     = (GCClass*) (walk(load_ptr(methodClass)));
+    symbolClass     = (GCClass*) (walk(load_ptr(symbolClass)));
+    primitiveClass  = (GCClass*) (walk(load_ptr(primitiveClass)));
+    stringClass     = (GCClass*) (walk(load_ptr(stringClass)));
+    systemClass     = (GCClass*) (walk(load_ptr(systemClass)));
+    blockClass      = (GCClass*) (walk(load_ptr(blockClass)));
+    doubleClass     = (GCClass*) (walk(load_ptr(doubleClass)));
     
-    threadClass     = (GCClass*) (walk(READBARRIER(threadClass)));
-    mutexClass      = (GCClass*) (walk(READBARRIER(mutexClass)));
-    signalClass     = (GCClass*) (walk(READBARRIER(signalClass)));
+    threadClass     = (GCClass*) (walk(load_ptr(threadClass)));
+    mutexClass      = (GCClass*) (walk(load_ptr(mutexClass)));
+    signalClass     = (GCClass*) (walk(load_ptr(signalClass)));
     
-    trueClass  = (GCClass*) (walk(READBARRIER(trueClass)));
-    falseClass = (GCClass*) (walk(READBARRIER(falseClass)));
+    trueClass  = (GCClass*) (walk(load_ptr(trueClass)));
+    falseClass = (GCClass*) (walk(load_ptr(falseClass)));
 
 #ifdef CACHE_INTEGER
     for (unsigned long i = 0; i < (INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE); i++)
@@ -1273,7 +1273,7 @@ void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
         if (iter->second == NULL)
             continue;
 
-        GCSymbol* key = (GCSymbol*) (walk(READBARRIER(iter->first)));
+        GCSymbol* key = (GCSymbol*) (walk(load_ptr(iter->first)));
         GCObject* val = (GCObject*) walk((VMOBJECT_PTR)iter->second);
         globals[key] = val;
     }
@@ -1284,14 +1284,14 @@ void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
          symbolIter != symbolsMap.end();
          symbolIter++) {
         //insert overwrites old entries inside the internal map
-        symbolIter->second = (GCSymbol*) (walk(READBARRIER(symbolIter->second)));
+        symbolIter->second = (GCSymbol*) (walk(load_ptr(symbolIter->second)));
     }
 
     map<long, GCClass*>::iterator bcIter;
     for (bcIter = blockClassesByNoOfArgs.begin();
          bcIter != blockClassesByNoOfArgs.end();
          bcIter++) {
-        bcIter->second = (GCClass*) (walk(READBARRIER(bcIter->second)));
+        bcIter->second = (GCClass*) (walk(load_ptr(bcIter->second)));
     }
 
     //reassign ifTrue ifFalse Symbols
@@ -1315,7 +1315,7 @@ VMMethod* Universe::NewMethod( VMSymbol* signature,
 #endif
     VMMethod(numberOfBytecodes, numberOfConstants, 0);
 
-    result->SetClass(READBARRIER(methodClass));
+    result->SetClass(load_ptr(methodClass));
 
     result->SetSignature(signature);
 
@@ -1332,7 +1332,7 @@ VMMutex* Universe::NewMutex() const {
 #else
     VMMutex* result = new (_HEAP) VMMutex();
 #endif
-    result->SetClass(READBARRIER(mutexClass));
+    result->SetClass(load_ptr(mutexClass));
 
     LOG_ALLOCATION("VMMutex", sizeof(VMMutex));
     return result;
@@ -1346,7 +1346,7 @@ VMSignal* Universe::NewSignal() const {
 #else
     VMSignal* result = new (_HEAP) VMSignal();
 #endif
-    result->SetClass(READBARRIER(signalClass));
+    result->SetClass(load_ptr(signalClass));
 
     LOG_ALLOCATION("VMSignal", sizeof(VMSignal));
     return result;
@@ -1362,7 +1362,7 @@ VMThread* Universe::NewThread() const {
 #endif
     //result->SetThreadId(threadCounter);
     //threadCounter += 1;
-    result->SetClass(READBARRIER(threadClass));
+    result->SetClass(load_ptr(threadClass));
 
     LOG_ALLOCATION("VMThread", sizeof(VMThread));
     return result;
@@ -1417,7 +1417,7 @@ VMClass* Universe::NewSystemClass() const {
     
     VMClass* mclass = systemClass->GetClass();
 
-    mclass->SetClass(READBARRIER(metaClassClass));
+    mclass->SetClass(load_ptr(metaClassClass));
 
     LOG_ALLOCATION("VMClass", systemClass->GetObjectSize());
     return systemClass;
@@ -1430,7 +1430,7 @@ VMSymbol* Universe::SymbolFor(const StdString& str) {
         //sync_out(ostringstream() << "Create new symbol: " << str.c_str());
         return NewSymbol(str);
     } else {
-        return READBARRIER(it->second);
+        return load_ptr(it->second);
     }
     //return (it == symbolsMap.end()) ? NewSymbol(str) : it->second;
 }

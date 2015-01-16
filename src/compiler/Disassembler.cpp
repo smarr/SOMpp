@@ -61,27 +61,27 @@ void Disassembler::dispatch(vm_oop_t o) {
     // can't switch() objects, so:
     if (o == nullptr)
         return; // nullptr isn't interesting.
-    else if (o == READBARRIER(nilObject))
+    else if (o == load_ptr(nilObject))
         DebugPrint("{Nil}");
-    else if (o == READBARRIER(trueObject))
+    else if (o == load_ptr(trueObject))
         DebugPrint("{True}");
-    else if (o == READBARRIER(falseObject))
+    else if (o == load_ptr(falseObject))
         DebugPrint("{False}");
-    else if (o == READBARRIER(systemClass))
+    else if (o == load_ptr(systemClass))
         DebugPrint("{System Class object}");
-    else if (o == READBARRIER(blockClass))
+    else if (o == load_ptr(blockClass))
         DebugPrint("{Block Class object}");
-    else if (o == READBARRIER(systemObject))
+    else if (o == load_ptr(systemObject))
         DebugPrint("{System}");
     else {
         VMClass* c = CLASS_OF(o);
-        if (c == READBARRIER(stringClass)) {
+        if (c == load_ptr(stringClass)) {
             DebugPrint("\"%s\"", static_cast<VMString*>(o)->GetChars());
-        } else if(c == READBARRIER(doubleClass))
+        } else if(c == load_ptr(doubleClass))
             DebugPrint("%g", static_cast<VMDouble*>(o)->GetEmbeddedDouble());
-        else if(c == READBARRIER(integerClass))
+        else if(c == load_ptr(integerClass))
             DebugPrint("%lld", INT_VAL(o));
-        else if(c == READBARRIER(symbolClass)) {
+        else if(c == load_ptr(symbolClass)) {
             DebugPrint("#%s", static_cast<VMSymbol*>(o)->GetChars());
         } else
             DebugPrint("address: %p", (void*)o);

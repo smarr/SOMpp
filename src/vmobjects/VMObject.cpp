@@ -91,7 +91,7 @@ void VMObject::SetNumberOfFields(long nof) {
     this->numberOfFields = nof;
     // initialize fields with NilObject
     for (long i = 0; i < nof; ++i) {
-        FIELDS[i] = WRITEBARRIER(READBARRIER(nilObject));
+        FIELDS[i] = WRITEBARRIER(load_ptr(nilObject));
     }
 }
 
@@ -114,7 +114,7 @@ void VMObject::Assert(bool value) const {
 }
 
 vm_oop_t VMObject::GetField(long index) /*const*/ {
-    return READBARRIER(FIELDS[index]);
+    return load_ptr(FIELDS[index]);
 }
 
 void VMObject::SetField(long index, vm_oop_t value) {
@@ -163,7 +163,7 @@ void VMObject::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     //    int i = 1;
     //}
     
-    clazz = (GCClass*) walk(READBARRIER(clazz));
+    clazz = (GCClass*) walk(load_ptr(clazz));
     
     long numFields = GetNumberOfFields();
     for (long i = 0; i < numFields; ++i) {

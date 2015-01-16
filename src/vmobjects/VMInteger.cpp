@@ -54,5 +54,5 @@ VMInteger* VMInteger::Clone() {
 #endif
 
 VMClass* VMInteger::GetClass() {
-    return READBARRIER(integerClass);
+    return load_ptr(integerClass);
 }

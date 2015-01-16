@@ -109,11 +109,11 @@ vm_oop_t VMFrame::GetField(long index) {
 }
 
 bool VMFrame::HasContext() {
-    return READBARRIER(this->context) != nullptr;
+    return load_ptr(this->context) != nullptr;
 }
 
 bool VMFrame::HasPreviousFrame() {
-    return READBARRIER(this->previousFrame) != nullptr;
+    return load_ptr(this->previousFrame) != nullptr;
 }
 
 long VMFrame::GetBytecodeIndex() const {
@@ -129,7 +129,7 @@ bool VMFrame::IsBootstrapFrame() {
 }
 
 VMFrame* VMFrame::GetContext() {
-    return READBARRIER(this->context);
+    return load_ptr(this->context);
 }
 
 void VMFrame::SetContext(VMFrame* frm) {
@@ -144,7 +144,7 @@ void* VMFrame::GetStackPointer() const {
 }
 
 VMFrame* VMFrame::GetPreviousFrame() {
-    return READBARRIER(this->previousFrame);
+    return load_ptr(this->previousFrame);
 }
 
 void VMFrame::SetPreviousFrame(VMFrame* frm) {
@@ -159,5 +159,5 @@ void VMFrame::ClearPreviousFrame() {
 }
 
 VMMethod* VMFrame::GetMethod() {
-    return READBARRIER(this->method);
+    return load_ptr(this->method);
 }

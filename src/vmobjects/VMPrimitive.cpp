@@ -52,7 +52,7 @@ const int VMPrimitive::VMPrimitiveNumberOfFields = 2;
 
 VMPrimitive::VMPrimitive(VMSymbol* signature) : VMInvokable(VMPrimitiveNumberOfFields) {
     //the only class that explicitly does this.
-    this->SetClass(READBARRIER(primitiveClass));
+    this->SetClass(load_ptr(primitiveClass));
 
     this->SetSignature(signature);
     this->routine = NULL;
@@ -107,9 +107,9 @@ void VMPrimitive::CheckMarking(void (*walk)(vm_oop_t)) {
 }
 #else
 void VMPrimitive::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    clazz     = (GCClass*)(walk(READBARRIER(clazz)));
-    signature = (GCSymbol*)(walk(READBARRIER(signature)));
-    holder    = (GCClass*)(walk(READBARRIER(holder)));
+    clazz     = (GCClass*)(walk(load_ptr(clazz)));
+    signature = (GCSymbol*)(walk(load_ptr(signature)));
+    holder    = (GCClass*)(walk(load_ptr(holder)));
 }
 #endif
 

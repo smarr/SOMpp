@@ -167,7 +167,7 @@ void VMObject::SetObjectSize(size_t size) {
 }
 
 VMClass* VMObject::GetClass() {
-    VMClass* res = READBARRIER(clazz);
+    VMClass* res = load_ptr(clazz);
     assert(Universe::IsValidObject(reinterpret_cast<VMObject*>(res)));
     return res;
 }

@@ -49,7 +49,7 @@
  */
 #define CHECK_COERCION(obj,receiver,op) { \
   VMClass* cl = CLASS_OF(obj);\
-  if(cl == READBARRIER(doubleClass)) { \
+  if(cl == load_ptr(doubleClass)) { \
     resendAsDouble((op), (receiver), static_cast<VMDouble*>(obj)); \
     return; \
   } \
@@ -199,15 +199,15 @@ void _Integer::Equal(VMObject* object, VMFrame* frame) {
 
     CHECK_COERCION(rightObj, leftObj, "=");
 
-    if (IS_TAGGED(rightObj) || CLASS_OF(rightObj) == READBARRIER(integerClass)) {
+    if (IS_TAGGED(rightObj) || CLASS_OF(rightObj) == load_ptr(integerClass)) {
         if (INT_VAL(leftObj) == INT_VAL(rightObj))
-            frame->Push(READBARRIER(trueObject));
+            frame->Push(load_ptr(trueObject));
         else
-            frame->Push(READBARRIER(falseObject));
-    } else if (CLASS_OF(rightObj) == READBARRIER(doubleClass)) {
+            frame->Push(load_ptr(falseObject));
+    } else if (CLASS_OF(rightObj) == load_ptr(doubleClass)) {
         assert(false);
     } else {
-        frame->Push(READBARRIER(falseObject));
+        frame->Push(load_ptr(falseObject));
     }
 }
 
@@ -215,13 +215,13 @@ void _Integer::EqualEqual(VMObject* object, VMFrame* frame) {
     vm_oop_t rightObj = frame->Pop();
     vm_oop_t leftObj  = frame->Pop();
     
-    if (IS_TAGGED(rightObj) || CLASS_OF(rightObj) == READBARRIER(integerClass)) {
+    if (IS_TAGGED(rightObj) || CLASS_OF(rightObj) == load_ptr(integerClass)) {
         if (INT_VAL(leftObj) == INT_VAL(rightObj))
-            frame->Push(READBARRIER(trueObject));
+            frame->Push(load_ptr(trueObject));
         else
-            frame->Push(READBARRIER(falseObject));
+            frame->Push(load_ptr(falseObject));
     } else {
-        frame->Push(READBARRIER(falseObject));
+        frame->Push(load_ptr(falseObject));
     }
 }
 
@@ -232,9 +232,9 @@ void _Integer::Lowerthan(VMObject* object, VMFrame* frame) {
     CHECK_COERCION(rightObj, leftObj, "<");
 
     if (INT_VAL(leftObj) < INT_VAL(rightObj))
-        frame->Push(READBARRIER(trueObject));
+        frame->Push(load_ptr(trueObject));
     else
-        frame->Push(READBARRIER(falseObject));
+        frame->Push(load_ptr(falseObject));
 }
 
 void _Integer::AsString(VMObject* /*object*/, VMFrame* frame) {

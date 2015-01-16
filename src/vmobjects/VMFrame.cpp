@@ -79,12 +79,12 @@ VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength) {
 
     // copy all fields from other frame
     while (from->arguments + i < from_end) {
-        result->arguments[i] = WRITEBARRIER(READBARRIER(from->arguments[i]));
+        result->arguments[i] = WRITEBARRIER(load_ptr(from->arguments[i]));
         i++;
     }
     // initialize others with nilObject
     while (result->arguments + i < result_end) {
-        result->arguments[i] = WRITEBARRIER(READBARRIER(nilObject));
+        result->arguments[i] = WRITEBARRIER(load_ptr(nilObject));
         i++;
     }
     return result;
@@ -163,7 +163,7 @@ VMFrame::VMFrame(long size, long nof) :
     gc_oop_t* end = (gc_oop_t*) SHIFTED_PTR(this, objectSize);
     long i = 0;
     while (arguments + i < end) {
-        arguments[i] = WRITEBARRIER(READBARRIER(nilObject));
+        arguments[i] = WRITEBARRIER(load_ptr(nilObject));
         i++;
     }
 }
@@ -201,7 +201,7 @@ long VMFrame::RemainingStackSize() const {
 }
 
 vm_oop_t VMFrame::Pop() {
-    vm_oop_t result = READBARRIER(*stack_ptr);
+    vm_oop_t result = load_ptr(*stack_ptr);
     stack_ptr--;
     return result;
 }
@@ -222,11 +222,11 @@ void VMFrame::PrintStack() const {
     gc_oop_t* end = (gc_oop_t*) SHIFTED_PTR(this, objectSize);
     long i = 0;
     while (arguments + i < end) {
-        vm_oop_t vmo = READBARRIER(arguments[i]);
+        vm_oop_t vmo = load_ptr(arguments[i]);
         cout << i << ": ";
         if (vmo == nullptr)
             cout << "NULL" << endl;
-        if (vmo == READBARRIER(nilObject))
+        if (vmo == load_ptr(nilObject))
             cout << "NIL_OBJECT" << endl;
 #ifdef USE_TAGGING
         if (IS_TAGGED(vmo)) {
@@ -235,7 +235,7 @@ void VMFrame::PrintStack() const {
         else {
             if (((VMOBJECT_PTR)vmo)->GetClass() == nullptr)
                 cout << "VMObject with Class == NULL" << endl;
-            if (((VMOBJECT_PTR)vmo)->GetClass() == READBARRIER(nilObject))
+            if (((VMOBJECT_PTR)vmo)->GetClass() == load_ptr(nilObject))
                 cout << "VMObject with Class == NIL_OBJECT" << endl;
             else
                 cout << "index: " << i << " object:"
@@ -244,7 +244,7 @@ void VMFrame::PrintStack() const {
 #else
         if (CLASS_OF(vmo) == nullptr)
             cout << "VMObject with Class == NULL" << endl;
-        if (CLASS_OF(vmo) == READBARRIER(nilObject))
+        if (CLASS_OF(vmo) == load_ptr(nilObject))
             cout << "VMObject with Class == NIL_OBJECT" << endl;
         else
             cout << "index: " << i << " object:"
@@ -265,7 +265,7 @@ void VMFrame::ResetStackPointer() {
 
 vm_oop_t VMFrame::GetStackElement(long index) const {
     std::atomic_thread_fence(std::memory_order_seq_cst);
-    return READBARRIER(stack_ptr[-index]);
+    return load_ptr(stack_ptr[-index]);
 }
 
 vm_oop_t VMFrame::GetLocal(long index, long contextLevel) {
@@ -273,7 +273,7 @@ vm_oop_t VMFrame::GetLocal(long index, long contextLevel) {
 
     std::atomic_thread_fence(std::memory_order_seq_cst);
 
-    return READBARRIER(context->locals[index]);
+    return load_ptr(context->locals[index]);
 }
 
 void VMFrame::SetLocal(long index, long contextLevel, vm_oop_t value) {
@@ -291,7 +291,7 @@ vm_oop_t VMFrame::GetArgument(long index, long contextLevel) {
 
     std::atomic_thread_fence(std::memory_order_seq_cst);
 
-    return READBARRIER(context->arguments[index]);
+    return load_ptr(context->arguments[index]);
 }
 
 void VMFrame::SetArgument(long index, long contextLevel, vm_oop_t value) {
@@ -368,10 +368,10 @@ void VMFrame::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     // clazz = (VMClass*) walk(clazz);
     
     if (previousFrame)
-        previousFrame = (GCFrame*) walk(READBARRIER(previousFrame));
+        previousFrame = (GCFrame*) walk(load_ptr(previousFrame));
     if (context)
-        context = (GCFrame*) walk(READBARRIER(context));
-    method = (GCMethod*) walk(READBARRIER(method));
+        context = (GCFrame*) walk(load_ptr(context));
+    method = (GCMethod*) walk(load_ptr(method));
     
     // all other fields are indexable via arguments array
     // --> until end of Frame

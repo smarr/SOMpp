@@ -114,7 +114,7 @@ bool VMClass::AddInstanceInvokable(VMObject* ptr) {
     //it's a new invokable so we need to expand the invokables array.
     instanceInvokables = WRITEBARRIER(this->GetInstanceInvokables()->CopyAndExtendWith(ptr));
 #if GC_TYPE==GENERATIONAL
-    _HEAP->WriteBarrier(this, READBARRIER(instanceInvokables));
+    _HEAP->WriteBarrier(this, load_ptr(instanceInvokables));
 #endif
 
     return true;
@@ -138,14 +138,14 @@ VMSymbol* VMClass::GetInstanceFieldName(long index) {
 void VMClass::SetInstanceInvokables(VMArray* invokables) {
     instanceInvokables = WRITEBARRIER(invokables);
 #if GC_TYPE==GENERATIONAL
-    _HEAP->WriteBarrier(this, READBARRIER(instanceInvokables));
+    _HEAP->WriteBarrier(this, load_ptr(instanceInvokables));
 #endif
 
     long numInvokables = GetNumberOfInstanceInvokables();
     for (long i = 0; i < numInvokables; ++i) {
-        vm_oop_t invo = READBARRIER(instanceInvokables)->GetIndexableField(i);
+        vm_oop_t invo = load_ptr(instanceInvokables)->GetIndexableField(i);
         //check for Nil object
-        if (invo != READBARRIER(nilObject)) {
+        if (invo != load_ptr(nilObject)) {
             //not Nil, so this actually is an invokable
             VMInvokable* inv = static_cast<VMInvokable*>(invo);
             inv->SetHolder(this);
@@ -163,7 +163,7 @@ VMInvokable* VMClass::GetInstanceInvokable(long index) {
 
 void VMClass::SetInstanceInvokable(long index, VMObject* invokable) {
     this->GetInstanceInvokables()->SetIndexableField(index, invokable);
-    if (invokable != READBARRIER(nilObject)) {
+    if (invokable != load_ptr(nilObject)) {
         VMInvokable* inv = static_cast<VMInvokable*>(invokable);
         inv->SetHolder(this);
     }
@@ -331,12 +331,12 @@ void VMClass::CheckMarking(void (*walk)(vm_oop_t)) {
 }
 #else
 void VMClass::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    clazz = (GCClass*) (walk(READBARRIER(clazz)));
+    clazz = (GCClass*) (walk(load_ptr(clazz)));
     if (superClass)
-        superClass = (GCClass*) (walk(READBARRIER(superClass)));
-    name = (GCSymbol*) (walk(READBARRIER(name)));
-    instanceFields = (GCArray*) (walk(READBARRIER(instanceFields)));
-    instanceInvokables = (GCArray*) (walk(READBARRIER(instanceInvokables)));
+        superClass = (GCClass*) (walk(load_ptr(superClass)));
+    name = (GCSymbol*) (walk(load_ptr(name)));
+    instanceFields = (GCArray*) (walk(load_ptr(instanceFields)));
+    instanceInvokables = (GCArray*) (walk(load_ptr(instanceInvokables)));
     
     //VMObject** fields = FIELDS;
     

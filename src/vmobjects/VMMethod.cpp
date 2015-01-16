@@ -59,7 +59,7 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
 
     indexableFields = (gc_oop_t*)(&indexableFields + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
     for (long i = 0; i < numberOfConstants; ++i) {
-        indexableFields[i] = WRITEBARRIER(READBARRIER(nilObject));
+        indexableFields[i] = WRITEBARRIER(load_ptr(nilObject));
     }
     bytecodes = (uint8_t*)(&indexableFields + 2 + GetNumberOfIndexableFields());
 }
@@ -126,30 +126,30 @@ void VMMethod::SetCachedFrame(VMFrame* frame) {
 void VMMethod::SetNumberOfLocals(long nol) {
     numberOfLocals = WRITEBARRIER(NEW_INT(nol));
 #if GC_TYPE==GENERATIONAL
-    _HEAP->WriteBarrier(this, READBARRIER(numberOfLocals));
+    _HEAP->WriteBarrier(this, load_ptr(numberOfLocals));
 #endif
 }
 
 long VMMethod::GetMaximumNumberOfStackElements() {
-    return INT_VAL(READBARRIER(maximumNumberOfStackElements));
+    return INT_VAL(load_ptr(maximumNumberOfStackElements));
 }
 
 void VMMethod::SetMaximumNumberOfStackElements(long stel) {
     maximumNumberOfStackElements = WRITEBARRIER(NEW_INT(stel));
 #if GC_TYPE==GENERATIONAL
-    _HEAP->WriteBarrier(this, READBARRIER(maximumNumberOfStackElements));
+    _HEAP->WriteBarrier(this, load_ptr(maximumNumberOfStackElements));
 #endif
 }
 
 void VMMethod::SetNumberOfArguments(long noa) {
     numberOfArguments = WRITEBARRIER(NEW_INT(noa));
 #if GC_TYPE==GENERATIONAL
-    _HEAP->WriteBarrier(this, READBARRIER(numberOfArguments));
+    _HEAP->WriteBarrier(this, load_ptr(numberOfArguments));
 #endif
 }
 
 long VMMethod::GetNumberOfBytecodes() {
-    return INT_VAL(READBARRIER(bcLength));
+    return INT_VAL(load_ptr(bcLength));
 }
 
 void VMMethod::operator()(VMFrame* frame) {
@@ -226,11 +226,11 @@ void VMMethod::CheckMarking(void (*walk)(vm_oop_t)) {
 void VMMethod::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     VMInvokable::WalkObjects(walk);
     
-    numberOfLocals = (GCInteger*)(walk(READBARRIER(numberOfLocals)));
-    maximumNumberOfStackElements = (GCInteger*)(walk(READBARRIER(maximumNumberOfStackElements)));
-    bcLength = (GCInteger*)(walk(READBARRIER(bcLength)));
-    numberOfArguments = (GCInteger*)(walk(READBARRIER(numberOfArguments)));
-    numberOfConstants = (GCInteger*)(walk(READBARRIER(numberOfConstants)));
+    numberOfLocals = (GCInteger*)(walk(load_ptr(numberOfLocals)));
+    maximumNumberOfStackElements = (GCInteger*)(walk(load_ptr(maximumNumberOfStackElements)));
+    bcLength = (GCInteger*)(walk(load_ptr(bcLength)));
+    numberOfArguments = (GCInteger*)(walk(load_ptr(numberOfArguments)));
+    numberOfConstants = (GCInteger*)(walk(load_ptr(numberOfConstants)));
     
     /*
      #ifdef UNSAFE_FRAME_OPTIMIZATION
@@ -249,7 +249,7 @@ void VMMethod::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
 
 void VMMethod::MarkObjectAsInvalid() {
     VMInvokable::MarkObjectAsInvalid();
-    long numIndexableFields = INT_VAL(READBARRIER(numberOfConstants));
+    long numIndexableFields = INT_VAL(load_ptr(numberOfConstants));
     for (long i = 0; i < numIndexableFields; ++i) {
         indexableFields[i] = (GCAbstractObject*) INVALID_GC_POINTER;
     }

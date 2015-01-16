@@ -1,13 +1,13 @@
 #pragma once
 
 inline long VMMethod::GetNumberOfLocals() {
-    return INT_VAL(READBARRIER(numberOfLocals));
+    return INT_VAL(load_ptr(numberOfLocals));
 }
 
 long VMMethod::GetNumberOfIndexableFields() {
     //cannot be done using GetAdditionalSpaceConsumption,
     //as bytecodes need space, too, and there might be padding
-    return INT_VAL(READBARRIER(this->numberOfConstants));
+    return INT_VAL(load_ptr(this->numberOfConstants));
 }
 
 uint8_t* VMMethod::GetBytecodes() const {
@@ -15,7 +15,7 @@ uint8_t* VMMethod::GetBytecodes() const {
 }
 
 inline long VMMethod::GetNumberOfArguments() {
-    return INT_VAL(READBARRIER(numberOfArguments));
+    return INT_VAL(load_ptr(numberOfArguments));
 }
 
 #if GC_TYPE==PAUSELESS
@@ -25,7 +25,7 @@ inline  long VMMethod::GetNumberOfArgumentsGC() {
 #endif
 
 vm_oop_t VMMethod::GetIndexableField(long idx) {
-    return READBARRIER(indexableFields[idx]);
+    return load_ptr(indexableFields[idx]);
 }
 
 void VMMethod::SetIndexableField(long idx, vm_oop_t item) {

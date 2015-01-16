@@ -73,7 +73,7 @@ void VMSignal::CheckMarking(void (*walk)(vm_oop_t)) {
 }
 #else
 void VMSignal::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    clazz = (GCClass*) (walk(READBARRIER(clazz)));
+    clazz = (GCClass*) (walk(load_ptr(clazz)));
 }
 
 VMSignal* VMSignal::Clone() {

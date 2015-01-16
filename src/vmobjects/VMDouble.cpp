@@ -61,5 +61,5 @@ VMDouble* VMDouble::Clone() {
 #endif
 
 VMClass* VMDouble::GetClass() {
-    return READBARRIER(doubleClass);
+    return load_ptr(doubleClass);
 }

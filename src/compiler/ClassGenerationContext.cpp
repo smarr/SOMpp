@@ -96,7 +96,7 @@ VMClass* ClassGenerationContext::Assemble() {
     VMClass* superClass = GetUniverse()->LoadClass(superName);
 
     // Allocate the class of the resulting class
-    VMClass* resultClass = GetUniverse()->NewClass(READBARRIER(metaClassClass));
+    VMClass* resultClass = GetUniverse()->NewClass(load_ptr(metaClassClass));
 
     // Initialize the class of the resulting class
     resultClass->SetInstanceFields(GetUniverse()->NewArrayList(classFields));

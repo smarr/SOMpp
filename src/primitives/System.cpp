@@ -62,7 +62,7 @@ void _System::Global_(VMObject* /*object*/, VMFrame* frame) {
     frame->Pop();
     vm_oop_t result = GetUniverse()->GetGlobal(arg);
 
-    frame->Push(result ? result : READBARRIER(nilObject));
+    frame->Push(result ? result : load_ptr(nilObject));
 }
 
 void _System::Global_put_(VMObject* /*object*/, VMFrame* frame) {
@@ -76,9 +76,9 @@ void _System::HasGlobal_(VMObject* /*object*/, VMFrame* frame) {
     frame->Pop(); // pop self (system)
 
     if (GetUniverse()->HasGlobal(arg)) {
-        frame->Push(READBARRIER(trueObject));
+        frame->Push(load_ptr(trueObject));
     } else {
-        frame->Push(READBARRIER(falseObject));
+        frame->Push(load_ptr(falseObject));
     }
 }
 
@@ -89,7 +89,7 @@ void _System::Load_(VMObject* /*object*/, VMFrame* frame) {
     if (result)
         frame->Push(result);
     else
-        frame->Push(READBARRIER(nilObject));
+        frame->Push(load_ptr(nilObject));
 }
 
 void _System::Exit_(VMObject* /*object*/, VMFrame* frame) {
@@ -154,7 +154,7 @@ void _System::FullGC(VMObject* /*object*/, VMFrame* frame) {
 #if GC_TYPE!=PAUSELESS
     frame->Pop();
     _HEAP->triggerGC(); // not safe to do it immediatly, will be done when it is ok, i.e., in the interpreter loop
-    frame->Push(READBARRIER(trueObject));
+    frame->Push(load_ptr(trueObject));
 #endif
 }
 
