@@ -38,18 +38,6 @@
 #define ERR_PANIC          0xFFFF
 
 //
-// Integer Ranges
-//
-#ifndef INT32_MAX
-/*Maximum value of 32-bit integer is 0x7FFF FFFF (2 147 483 647)         */
-#define INT32_MAX 0x7FFFFFFF  /*2 147 483 647*/
-#endif
-#ifndef INT32_MIN
-#define INT32_MIN (-2147483647)
-
-#endif
-
-//
 // defs for classpath extraction
 //
 #define pathSeparator ':'
