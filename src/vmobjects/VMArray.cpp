@@ -38,13 +38,13 @@ VMArray::VMArray(long size, long nof) :
     // SetIndexableField is not used to prevent the write barrier to be called
     // too often.
     // Fields start after clazz and other fields (GetNumberOfFields)
-    GCAbstractObject** arrFields = FIELDS + GetNumberOfFields();
+    gc_oop_t* arrFields = FIELDS + GetNumberOfFields();
     for (long i = 0; i < size; ++i) {
         arrFields[i] = WRITEBARRIER(READBARRIER(nilObject));
     }
 }
 
-VMObject* VMArray::GetIndexableField(long idx) {
+vm_oop_t VMArray::GetIndexableField(long idx) {
     if (idx > GetNumberOfIndexableFields()) {
         cout << "Array index out of bounds: Accessing " << idx
         << ", but array size is only " << GetNumberOfIndexableFields()

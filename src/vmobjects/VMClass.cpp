@@ -143,7 +143,7 @@ void VMClass::SetInstanceInvokables(VMArray* invokables) {
 
     long numInvokables = GetNumberOfInstanceInvokables();
     for (long i = 0; i < numInvokables; ++i) {
-        VMObject* invo = READBARRIER(instanceInvokables)->GetIndexableField(i);
+        vm_oop_t invo = READBARRIER(instanceInvokables)->GetIndexableField(i);
         //check for Nil object
         if (invo != READBARRIER(nilObject)) {
             //not Nil, so this actually is an invokable
@@ -299,7 +299,7 @@ void VMClass::MarkReferences() {
     ReadBarrierForGCThread(&name);
     ReadBarrierForGCThread(&instanceFields);
     ReadBarrierForGCThread(&instanceInvokables);
-    GCAbstractObject** fields = FIELDS;
+    gc_oop_t* fields = FIELDS;
     for (long i = VMClassNumberOfFields + 0/*VMObjectNumberOfFields*/; i < numberOfFields; i++) {
         ReadBarrierForGCThread(&fields[i]);
     }

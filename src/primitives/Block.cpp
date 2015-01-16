@@ -133,7 +133,7 @@ void* _Block::ThreadForBlockWithArgument(void* threadPointer) {
     // create a fake bootstrap frame with the block object on the stack
     VMFrame* bootstrapVMFrame = interpreter->PushNewFrame(bootstrapVMMethod);
     bootstrapVMFrame->Push((VMObject*)block);
-    VMObject* arg = thread->GetArgument();
+    vm_oop_t arg = thread->GetArgument();
     bootstrapVMFrame->Push(arg);
     
     // lookup the initialize invokable on the system class
@@ -177,7 +177,7 @@ void _Block::Spawn(VMObject* object, VMFrame* frame) {
 void _Block::SpawnWithArgument(VMObject* object, VMFrame* frame) {
     pthread_t tid = 0;
     // Get the argument
-    VMObject* argument = frame->Pop();
+    vm_oop_t argument = frame->Pop();
     VMBlock* block = (VMBlock*)frame->Pop();
     // create the thread object and setting it up
     VMThread* thread = CreateNewThread(block);

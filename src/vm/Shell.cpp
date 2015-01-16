@@ -68,7 +68,7 @@ void Shell::Start() {
     long bytecodeIndex, counter = 0;
     GCFrame* currentFrame;
     GCClass* runClass;
-    GCAbstractObject* it = nilObject;  // last evaluation result.
+    gc_oop_t it = nilObject;  // last evaluation result.
 
     cout << "SOM Shell. Type \"" << QUIT_CMD << "\" to exit.\n";
 

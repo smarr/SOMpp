@@ -728,9 +728,9 @@ VMClass* Universe::GetBlockClassWithArgs(long numberOfArguments) {
 }
 
 #if GC_TYPE==PAUSELESS
-VMObject* Universe::GetGlobal(VMSymbol* name) {
+vm_oop_t Universe::GetGlobal(VMSymbol* name) {
     pthread_mutex_lock(&testMutex);
-    map<GCSymbol*, GCAbstractObject*>::iterator it;
+    map<GCSymbol*, gc_oop_t>::iterator it;
     it = globals.find((GCSymbol*) name);
     if (it == globals.end()) {
         it = globals.find(Flip((GCSymbol*) name));
@@ -1108,10 +1108,10 @@ void Universe::MarkGlobals() {
     pthread_mutex_lock(&testMutex);
     
     // walk all entries in globals map
-    map<GCSymbol*, GCAbstractObject*> globs;
-    map<GCSymbol*, GCAbstractObject*>::iterator iter;
+    map<GCSymbol*, gc_oop_t> globs;
+    map<GCSymbol*, gc_oop_t>::iterator iter;
     for (iter = globals.begin(); iter != globals.end(); iter++) {
-        VMObject* val = ReadBarrierForGCThread(&iter->second, true);
+        vm_oop_t val = ReadBarrierForGCThread(&iter->second, true);
         if (val == NULL)
             continue;
         GCSymbol* key = iter->first;
@@ -1195,7 +1195,7 @@ void  Universe::CheckMarkingGlobals(void (*walk)(vm_oop_t)) {
     walk(Untag(falseClass));
     
     // walk all entries in globals map
-    map<GCSymbol*, GCAbstractObject*>::iterator iter;
+    map<GCSymbol*, gc_oop_t>::iterator iter;
     for (iter = globals.begin(); iter != globals.end(); iter++) {
         if (iter->second == NULL)
             continue;
@@ -1443,7 +1443,7 @@ VMSymbol* Universe::SymbolForChars(const char* str) {
     return SymbolFor(str);
 }
 
-void Universe::SetGlobal(VMSymbol* name, VMObject* val) {
+void Universe::SetGlobal(VMSymbol* name, vm_oop_t val) {
     pthread_mutex_lock(&testMutex);
     globals[WRITEBARRIER(name)] = WRITEBARRIER(val);
     pthread_mutex_unlock(&testMutex);
