@@ -121,28 +121,7 @@ class GCMutex     : public GCObject      { public: typedef VMMutex Loaded; };
 class GCSignal    : public GCObject      { public: typedef VMSignal Loaded; };
 class GCThread    : public GCObject      { public: typedef VMThread Loaded; };
 
-#define pVMThread VMThread*
-#define pVMMutex VMMutex*
-#define pVMSignal VMSignal*
-#define pVMArray VMArray*
-#define pVMBlock VMBlock*
-#define pVMClass VMClass*
-#define pVMDouble VMDouble*
-#define pVMEvaluationPrimitive VMEvaluationPrimitive*
-#define pVMFrame VMFrame*
-#define pVMInteger VMInteger* 
-#define pVMInvokable VMInvokable*
-#define pVMMethod VMMethod* 
-#ifdef USE_TAGGING
-#define pVMObject void*
-#else
-#define pVMObject AbstractVMObject*
-#endif
-#define pVMPrimitive VMPrimitive* 
-#define pVMString VMString* 
-#define pVMSymbol VMSymbol* 
-#define VMOBJECT_PTR AbstractVMObject*
 
 // Used to mark object fields as invalid
-#define INVALID_VM_POINTER ((pVMObject)0x101010)
+#define INVALID_VM_POINTER ((VMObject*)0x101010)
 #define INVALID_GC_POINTER ((GCObject*)0x101010)
