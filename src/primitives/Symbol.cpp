@@ -44,7 +44,6 @@ void _Symbol::AsString(VMObject* /*object*/, VMFrame* frame) {
 
 _Symbol::_Symbol() :
         PrimitiveContainer() {
-    this->SetPrimitive("asString",
-            new Routine<_Symbol>(this, &_Symbol::AsString));
+    SetPrimitive("asString", new Routine<_Symbol>(this, &_Symbol::AsString));
 }
 

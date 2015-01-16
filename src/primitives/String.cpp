@@ -38,22 +38,13 @@
 #include "String.h"
 #include "../primitivesCore/Routine.h"
 
-_String::_String() :
-        PrimitiveContainer() {
-    this->SetPrimitive("concatenate_",
-            new Routine<_String>(this, &_String::Concatenate_));
-
-    this->SetPrimitive("asSymbol",
-            new Routine<_String>(this, &_String::AsSymbol));
-
-    this->SetPrimitive("hashcode",
-            new Routine<_String>(this, &_String::Hashcode));
-
-    this->SetPrimitive("length", new Routine<_String>(this, &_String::Length));
-
-    this->SetPrimitive("equal", new Routine<_String>(this, &_String::Equal));
-
-    this->SetPrimitive("primSubstringFrom_to_",
+_String::_String() : PrimitiveContainer() {
+    SetPrimitive("concatenate_", new Routine<_String>(this, &_String::Concatenate_));
+    SetPrimitive("asSymbol",     new Routine<_String>(this, &_String::AsSymbol));
+    SetPrimitive("hashcode",     new Routine<_String>(this, &_String::Hashcode));
+    SetPrimitive("length",       new Routine<_String>(this, &_String::Length));
+    SetPrimitive("equal",        new Routine<_String>(this, &_String::Equal));
+    SetPrimitive("primSubstringFrom_to_",
             new Routine<_String>(this, &_String::PrimSubstringFrom_to_));
 }
 

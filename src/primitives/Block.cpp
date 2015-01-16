@@ -59,31 +59,13 @@ void _Block::Restart(VMObject* /*object*/, VMFrame* frame) {
     frame->ResetStackPointer();
 }
 
-_Block::_Block() :
-        PrimitiveContainer() {
-    this->SetPrimitive("value",
-            static_cast<PrimitiveRoutine*>(new Routine<_Block>(this,
-                    &_Block::Value)));
-
-    this->SetPrimitive("restart",
-            static_cast<PrimitiveRoutine*>(new Routine<_Block>(this,
-                    &_Block::Restart)));
-
-    this->SetPrimitive("value_",
-            static_cast<PrimitiveRoutine*>(new Routine<_Block>(this,
-                    &_Block::Value_)));
-
-    this->SetPrimitive("value_with_",
-            static_cast<PrimitiveRoutine*>(new Routine<_Block>(this,
-                    &_Block::Value_with_)));
-            
-    this->SetPrimitive("spawnWithArgument_",
-            static_cast<PrimitiveRoutine*>(new Routine<_Block>(this,
-                    &_Block::SpawnWithArgument)));
-            
-    this->SetPrimitive("spawn",
-            static_cast<PrimitiveRoutine*>(new Routine<_Block>(this,
-                    &_Block::Spawn)));
+_Block::_Block() : PrimitiveContainer() {
+    SetPrimitive("value",              new Routine<_Block>(this, &_Block::Value));
+    SetPrimitive("restart",            new Routine<_Block>(this, &_Block::Restart));
+    SetPrimitive("value_",             new Routine<_Block>(this, &_Block::Value_));
+    SetPrimitive("value_with_",        new Routine<_Block>(this, &_Block::Value_with_));
+    SetPrimitive("spawnWithArgument_", new Routine<_Block>(this, &_Block::SpawnWithArgument));
+    SetPrimitive("spawn",              new Routine<_Block>(this, &_Block::Spawn));
 }
 
 VMMethod* _Block::CreateFakeBootstrapMethod() {
