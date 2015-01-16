@@ -20,7 +20,7 @@
 #define WRITEBARRIER(reference) (WriteBarrier(reference))
 #endif
 
-class VMObjectBase {
+class VMObjectBase : public VMOop {
 protected:
     volatile size_t gcfield;
 #if GC_TYPE==PAUSELESS

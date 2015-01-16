@@ -70,6 +70,29 @@ class VMMutex;
 class VMSignal;
 class VMThread;
 
+// VMOop and GCOop are classes to be able to type the pointer that can be
+// tagged ints as well as AbstractVMObjects. Distinguish between stored
+// pointers and loaded pointers, i.e., GCOop and VMOop respectively.
+// Every GCAbstractObject can be directly stored as a GCOop.
+// Integers need to be tagged first, but pointers don't.
+// On the other hand, VMOops need to be untagged first to become useful.
+class GCOop;
+class VMOop {
+    virtual void dummyVirtualFunctionToForceVTableCreation() {
+        /* With the current class hierarchy, we need to force the compiler to
+           create a VTable early, otherwise, the object layout is having
+           vtables in the body of the objects, and casting is messed up, 
+           leading to offset pointers to the vtables of subclasses. */ };
+    public: typedef GCOop Stored; };
+class GCOop { public: typedef VMOop Loaded; };
+
+// oop_t: Ordinary Object Pointer type
+// an oop_t can refer to tagged integers as well as normal AbstractVMObjects
+typedef VMOop* vm_oop_t;
+typedef GCOop* gc_oop_t;
+
+
+
 /**
  We need to distinguish between pointers that need to be handled with a
  read barrier, and between pointers that already went through it.
@@ -80,7 +103,7 @@ class VMThread;
  And all the stuff that was already processed:
     loaded values, or VM* pointers.
 */
-class GCAbstractObject                   { public: typedef AbstractVMObject Loaded; };
+class GCAbstractObject : public GCOop    { public: typedef AbstractVMObject Loaded; };
 class GCObject : public GCAbstractObject { public: typedef VMObject Loaded; };
 class GCFrame  : public GCObject         { public: typedef VMFrame  Loaded; };
 class GCClass  : public GCObject         { public: typedef VMClass  Loaded; };
