@@ -50,17 +50,18 @@
 #define IS_TAGGED(X) ((long)X&1)
 
 
+// Forward definitions of VM object classes
 class AbstractVMObject;
-class VMObject;
-class VMFrame;
-class VMClass;
 class VMArray;
 class VMBlock;
+class VMClass;
 class VMDouble;
-class VMInteger;
 class VMEvaluationPrimitive;
+class VMFrame;
+class VMInteger;
 class VMInvokable;
 class VMMethod;
+class VMObject;
 class VMPrimitive;
 class VMString;
 class VMSymbol;
