@@ -334,7 +334,7 @@ void VMFrame::MarkReferences() {
         i++;
     }
 }
-void VMFrame::CheckMarking(void (*walk)(AbstractVMObject*)) {
+void VMFrame::CheckMarking(void (*walk)(vm_oop_t)) {
     if (previousFrame) {
         assert(GetNMTValue(previousFrame) == _HEAP->GetGCThread()->GetExpectedNMT());
         CheckBlocked(Untag(previousFrame));

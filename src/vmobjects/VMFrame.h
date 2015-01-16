@@ -76,7 +76,7 @@ public:
     virtual VMFrame* Clone(Interpreter*);
     virtual VMFrame* Clone(PauselessCollectorThread*);
     virtual void MarkReferences();
-    virtual void CheckMarking(void (AbstractVMObject*));
+    virtual void CheckMarking(void (vm_oop_t));
 #else
     virtual VMFrame* Clone();
     virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));

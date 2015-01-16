@@ -94,7 +94,7 @@ void VMPrimitive::MarkReferences() {
     ReadBarrierForGCThread(&signature);
     ReadBarrierForGCThread(&holder);
 }
-void VMPrimitive::CheckMarking(void (*walk)(AbstractVMObject*)) {
+void VMPrimitive::CheckMarking(void (*walk)(vm_oop_t)) {
     assert(GetNMTValue(clazz) == _HEAP->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(clazz));
     walk(Untag(clazz));

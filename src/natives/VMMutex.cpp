@@ -61,7 +61,7 @@ void VMMutex::MarkReferences() {
     ReadBarrierForGCThread(&clazz);
 }
 
-void VMMutex::CheckMarking(void (*walk)(AbstractVMObject*)) {
+void VMMutex::CheckMarking(void (*walk)(vm_oop_t)) {
     assert(GetNMTValue(clazz) == _HEAP->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(clazz));
     walk(Untag(clazz));

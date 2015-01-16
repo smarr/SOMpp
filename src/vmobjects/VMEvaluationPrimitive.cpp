@@ -130,7 +130,7 @@ void VMEvaluationPrimitive::MarkReferences() {
     VMPrimitive::MarkReferences();
     ReadBarrierForGCThread(&numberOfArguments);
 }
-void VMEvaluationPrimitive::CheckMarking(void (*walk)(AbstractVMObject*)) {
+void VMEvaluationPrimitive::CheckMarking(void (*walk)(vm_oop_t)) {
     VMPrimitive::CheckMarking(walk);
     assert(GetNMTValue(numberOfArguments) == _HEAP->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(numberOfArguments));

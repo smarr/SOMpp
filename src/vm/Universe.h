@@ -142,7 +142,7 @@ public:
    
 #if GC_TYPE==PAUSELESS
     void MarkGlobals();
-    void  CheckMarkingGlobals(void (AbstractVMObject*));
+    void  CheckMarkingGlobals(void (vm_oop_t));
 #else
     void WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
 #endif

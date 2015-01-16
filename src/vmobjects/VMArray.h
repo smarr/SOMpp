@@ -39,7 +39,7 @@ public:
     virtual VMArray* Clone(Interpreter*);
     virtual VMArray* Clone(PauselessCollectorThread*);
     virtual void MarkReferences();
-    virtual void CheckMarking(void (AbstractVMObject*));
+    virtual void CheckMarking(void (vm_oop_t));
 #else
     virtual VMArray* Clone();
     virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));    

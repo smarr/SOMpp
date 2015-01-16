@@ -1166,7 +1166,7 @@ void Universe::MarkGlobals() {
     
     
 }
-void  Universe::CheckMarkingGlobals(void (*walk)(AbstractVMObject*)) {
+void  Universe::CheckMarkingGlobals(void (*walk)(vm_oop_t)) {
     walk(Untag(nilObject));
     walk(Untag(trueObject));
     walk(Untag(falseObject));

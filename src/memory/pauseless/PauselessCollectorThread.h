@@ -20,7 +20,7 @@ public:
     
     static void InitializeCollector(int);
     
-    static void MarkObject(VMOBJECT_PTR);
+    static void MarkObject(AbstractVMObject*);
     static void AddBlockedInterpreter(Interpreter*);
     static void SignalRootSetMarked();
     static void AddNonEmptyWorklist(Worklist*);
@@ -87,7 +87,7 @@ private:
     static int numberOfCycles;
     
     // FOR DEBUGGING PURPOSES
-    static void CheckMarkingOfObject(VMOBJECT_PTR);
+    static void CheckMarkingOfObject(vm_oop_t);
     static void CheckMarking();
 };
 

@@ -92,7 +92,7 @@ public:
     virtual        VMObject* Clone(Interpreter*);
     virtual        VMObject* Clone(PauselessCollectorThread*);
     virtual        void      MarkReferences();
-    virtual        void      CheckMarking(void (AbstractVMObject*));
+    virtual        void      CheckMarking(void (vm_oop_t));
 #else
     virtual        VMObject* Clone();
     virtual        void      WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));

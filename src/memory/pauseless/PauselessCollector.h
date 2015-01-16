@@ -15,7 +15,7 @@ class PauselessCollector : public GarbageCollector {
     
 public:
     PauselessCollector(PagedHeap* heap, int numberOfGCThreads);
-    static void MarkObject(VMOBJECT_PTR, Worklist*);
+    static void MarkObject(vm_oop_t, Worklist*);
     void AddBlockedInterpreter(Interpreter*);
     void SignalRootSetMarked();
     void AddNonEmptyWorklist(Worklist*);

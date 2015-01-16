@@ -28,9 +28,9 @@ void Worklist::AddWorkMutator(AbstractVMObject* reference) {
     }
 }
 
-VMOBJECT_PTR Worklist::GetWork() {
+AbstractVMObject* Worklist::GetWork() {
     pthread_mutex_lock(&lock);
-    VMOBJECT_PTR reference = work.back();
+    AbstractVMObject* reference = work.back();
     work.pop_back();
     pthread_mutex_unlock(&lock);
     return reference;

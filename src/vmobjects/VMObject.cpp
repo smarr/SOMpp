@@ -146,7 +146,7 @@ void VMObject::MarkReferences() {
         ReadBarrierForGCThread(&FIELDS[i]);
     }
 }
-void VMObject::CheckMarking(void (*walk)(AbstractVMObject*)) {
+void VMObject::CheckMarking(void (*walk)(vm_oop_t)) {
     assert(GetNMTValue(clazz) == _HEAP->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(clazz));
     walk(Untag(clazz));

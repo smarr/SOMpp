@@ -142,7 +142,7 @@ void VMArray::MarkReferences() {
         assert(Universe::IsValidObject((AbstractVMObject*) Untag(*(&FIELDS[i]))));
     }
 }
-void VMArray::CheckMarking(void (*walk)(AbstractVMObject*)) {
+void VMArray::CheckMarking(void (*walk)(vm_oop_t)) {
     // ensure that the NMT bit was set during the pauseless marking
     assert(GetNMTValue(clazz) == _HEAP->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(clazz));

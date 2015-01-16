@@ -126,7 +126,7 @@ void PauselessCollectorThread::InitializeCollector(int numberOfThreads) {
     numberOfCycles = 0;
 }
 
-void PauselessCollectorThread::MarkObject(VMOBJECT_PTR obj) {
+void PauselessCollectorThread::MarkObject(AbstractVMObject* obj) {
     if (obj->GetGCField() == markValue)
         return;
     //assert(obj->GetGCField() == 0 || obj->GetGCField() == markValue-1);
@@ -271,7 +271,7 @@ void PauselessCollectorThread::Collect() {
         while (true) {
             
             while (!worklist.Empty()) {
-                VMOBJECT_PTR obj = worklist.GetWork();
+                AbstractVMObject* obj = worklist.GetWork();
                 MarkObject(obj);
             }
             
@@ -439,7 +439,12 @@ void PauselessCollectorThread::Collect() {
 }
 
 // FOR DEBUGGING PURPOSES
-void PauselessCollectorThread::CheckMarkingOfObject(AbstractVMObject* obj) {
+void PauselessCollectorThread::CheckMarkingOfObject(vm_oop_t oop) {
+    if (IS_TAGGED(oop))
+        return;
+    
+    AbstractVMObject* obj = static_cast<AbstractVMObject*>(oop);
+    
     assert(Universe::IsValidObject(obj));
     if (obj->GetGCField2() == markValue)
         return;

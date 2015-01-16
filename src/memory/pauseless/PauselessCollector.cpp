@@ -46,14 +46,16 @@ pthread_mutex_t PauselessCollector::pagesToRelocateMutex;
 pthread_cond_t PauselessCollector::pagesToRelocateCondition;
 vector<Page*>* PauselessCollector::pagesToRelocate;
 
-void PauselessCollector::MarkObject(VMOBJECT_PTR obj, Worklist* worklist) {
-    //still need to add code so that the marked object it's size is taken into account
-    assert(Universe::IsValidObject(obj));
-#ifdef USE_TAGGING
+void PauselessCollector::MarkObject(vm_oop_t oop, Worklist* worklist) {
+#warning still need to add code so that the marked object it's size is taken into account
+    
     //don't process tagged objects
-    if (IS_TAGGED(obj))
+    if (IS_TAGGED(oop))
         return;
-#endif
+    
+    AbstractVMObject* obj = static_cast<AbstractVMObject*>(oop);
+    assert(Universe::IsValidObject(obj));
+
     if (obj->GetGCField() & MASK_OBJECT_IS_MARKED)
         return;
     
@@ -240,7 +242,7 @@ void* PauselessCollector::GCThread(void*) {
         }
         
         while (!localWorklist->Empty()) {
-            VMOBJECT_PTR obj = localWorklist->GetWork();
+            AbstractVMObject* obj = localWorklist->GetWork();
             MarkObject(obj, localWorklist);
         }
         

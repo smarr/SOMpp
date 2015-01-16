@@ -768,7 +768,7 @@ void Interpreter::AddFullNonRelocatablePage(Page* page) {
 }
 
 // debug procedures
-void Interpreter::CheckMarking(void (*walk)(AbstractVMObject*)) {
+void Interpreter::CheckMarking(void (*walk)(vm_oop_t)) {
     // VMMethod* testMethodGCSet = Untag(method);
     if (frame) {
         //assert(GetNMTValue(frame) == _HEAP->GetGCThread()->GetExpectedNMT());

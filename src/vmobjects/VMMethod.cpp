@@ -198,7 +198,7 @@ void VMMethod::MarkReferences() {
         ReadBarrierForGCThread(&indexableFields[i]);
     }
 }
-void VMMethod::CheckMarking(void (*walk)(AbstractVMObject*)) {
+void VMMethod::CheckMarking(void (*walk)(vm_oop_t)) {
     VMInvokable::CheckMarking(walk);
     assert(GetNMTValue(numberOfLocals) == _HEAP->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(numberOfLocals));
