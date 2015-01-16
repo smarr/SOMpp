@@ -35,8 +35,7 @@
 
 #include <vm/Universe.h>
 
-_Array::_Array() :
-        PrimitiveContainer() {
+_Array::_Array() : PrimitiveContainer() {
     SetPrimitive("new_",    new Routine<_Array>(this, &_Array::New_));
     SetPrimitive("at_",     new Routine<_Array>(this, &_Array::At_));
     SetPrimitive("at_put_", new Routine<_Array>(this, &_Array::At_Put_));
@@ -44,47 +43,30 @@ _Array::_Array() :
 }
 
 void _Array::At_(VMObject* /*object*/, VMFrame* frame) {
-    VMInteger* index = static_cast<VMInteger*>(frame->Pop());
+    vm_oop_t idx = frame->Pop();
     VMArray* self = static_cast<VMArray*>(frame->Pop());
-#ifdef USE_TAGGING
-    long i = UNTAG_INTEGER(index);
-#else
-    long i = index->GetEmbeddedInteger();
-#endif
-    VMObject* elem = self->GetIndexableField(i - 1);
+    vm_oop_t elem = self->GetIndexableField(INT_VAL(idx) - 1);
     frame->Push(elem);
 }
 
 void _Array::At_Put_(VMObject* /*object*/, VMFrame* frame) {
-    VMObject* value = frame->Pop();
-    VMInteger* index = static_cast<VMInteger*>(frame->Pop());
+    vm_oop_t value = frame->Pop();
+    vm_oop_t index = frame->Pop();
     VMArray* self = static_cast<VMArray*>(frame->GetStackElement(0));
-#ifdef USE_TAGGING
-    long i = UNTAG_INTEGER(index);
-#else
-    long i = index->GetEmbeddedInteger();
-#endif
+    long i = INT_VAL(index);
     self->SetIndexableField(i - 1, value);
 }
 
 void _Array::Length(VMObject* /*object*/, VMFrame* frame) {
     VMArray* self = static_cast<VMArray*>(frame->Pop());
-#ifdef USE_TAGGING
-    VMInteger* new_int = TAG_INTEGER(self->GetNumberOfIndexableFields());
-#else
-    VMInteger* new_int = GetUniverse()->NewInteger(self->GetNumberOfIndexableFields());
-#endif
+    vm_oop_t new_int = NEW_INT(self->GetNumberOfIndexableFields());
     frame->Push(new_int);
 }
 
 void _Array::New_(VMObject* /*object*/, VMFrame* frame) {
-    VMInteger* length = static_cast<VMInteger*>(frame->Pop());
+    vm_oop_t arg = frame->Pop();
     frame->Pop();
-#ifdef USE_TAGGING
-    long size = UNTAG_INTEGER(length);
-#else
-    long size = length->GetEmbeddedInteger();
-#endif
+    long size = INT_VAL(arg);
     frame->Push(GetUniverse()->NewArray(size));
 }
 
