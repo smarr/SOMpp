@@ -51,6 +51,14 @@
 #define MARK_SWEEP   3
 #define PAUSELESS    4
 
+
+//
+// Performance Optimization
+//
+#define likely(x)       __builtin_expect((x),1)
+#define unlikely(x)     __builtin_expect((x),0)
+
+
 typedef std::string StdString;
 
 #if defined(_MSC_VER)
