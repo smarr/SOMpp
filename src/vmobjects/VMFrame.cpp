@@ -147,8 +147,8 @@ VMFrame* VMFrame::Clone() {
 const long VMFrame::VMFrameNumberOfFields = 0;
 
 VMFrame::VMFrame(long size, long nof) :
-        VMObject(nof + VMFrameNumberOfFields), previousFrame(NULL), context(
-                NULL), method(NULL) {
+        VMObject(nof + VMFrameNumberOfFields), previousFrame(nullptr), context(
+                nullptr), method(nullptr) {
     clazz = nullptr; // Not a proper class anymore
     bytecodeIndex = 0;
     arguments = (gc_oop_t*)&(stack_ptr)+1;
@@ -217,31 +217,31 @@ void VMFrame::PrintStack() const {
     while (arguments + i < end) {
         vm_oop_t vmo = READBARRIER(arguments[i]);
         cout << i << ": ";
-        if (vmo == NULL)
-        cout << "NULL" << endl;
+        if (vmo == nullptr)
+            cout << "NULL" << endl;
         if (vmo == READBARRIER(nilObject))
-        cout << "NIL_OBJECT" << endl;
+            cout << "NIL_OBJECT" << endl;
 #ifdef USE_TAGGING
         if (IS_TAGGED(vmo)) {
             cout << "index: " << i << " object: VMInteger" << endl;
         }
         else {
-            if (((VMOBJECT_PTR)vmo)->GetClass() == NULL)
-            cout << "VMObject with Class == NULL" << endl;
+            if (((VMOBJECT_PTR)vmo)->GetClass() == nullptr)
+                cout << "VMObject with Class == NULL" << endl;
             if (((VMOBJECT_PTR)vmo)->GetClass() == READBARRIER(nilObject))
-            cout << "VMObject with Class == NIL_OBJECT" << endl;
+                cout << "VMObject with Class == NIL_OBJECT" << endl;
             else
-            cout << "index: " << i << " object:"
-            << ((VMOBJECT_PTR)vmo)->GetClass()->GetName()->GetChars() << endl;
+                cout << "index: " << i << " object:"
+                     << ((VMOBJECT_PTR)vmo)->GetClass()->GetName()->GetChars() << endl;
         }
 #else
-        if (vmo->GetClass() == NULL)
-        cout << "VMObject with Class == NULL" << endl;
-        if (vmo->GetClass() == READBARRIER(nilObject))
-        cout << "VMObject with Class == NIL_OBJECT" << endl;
+        if (CLASS_OF(vmo) == nullptr)
+            cout << "VMObject with Class == NULL" << endl;
+        if (CLASS_OF(vmo) == READBARRIER(nilObject))
+            cout << "VMObject with Class == NIL_OBJECT" << endl;
         else
-        cout << "index: " << i << " object:"
-        << vmo->GetClass()->GetName()->GetChars() << endl;
+            cout << "index: " << i << " object:"
+                 << CLASS_OF(vmo)->GetName()->GetChars() << endl;
 #endif
         i++;
     }
@@ -249,7 +249,7 @@ void VMFrame::PrintStack() const {
 
 void VMFrame::ResetStackPointer() {
     // arguments are stored in front of local variables
-    VMMethod* meth = this->GetMethod();
+    VMMethod* meth = GetMethod();
     locals = arguments + meth->GetNumberOfArguments();
     // Set the stack pointer to its initial value thereby clearing the stack
     stack_ptr = locals + meth->GetNumberOfLocals() - 1;
@@ -261,16 +261,16 @@ vm_oop_t VMFrame::GetStackElement(long index) const {
     return READBARRIER(stack_ptr[-index]);
 }
 
-    VMFrame* context = this->GetContextLevel(contextLevel);
-    
 vm_oop_t VMFrame::GetLocal(long index, long contextLevel) {
+    VMFrame* context = GetContextLevel(contextLevel);
+
     std::atomic_thread_fence(std::memory_order_seq_cst);
-    
+
     return READBARRIER(context->locals[index]);
 }
 
-    VMFrame* context = this->GetContextLevel(contextLevel);
 void VMFrame::SetLocal(long index, long contextLevel, vm_oop_t value) {
+    VMFrame* context = GetContextLevel(contextLevel);
     context->locals[index] = WRITEBARRIER(value);
     std::atomic_thread_fence(std::memory_order_seq_cst);
 #if GC_TYPE==GENERATIONAL
@@ -280,15 +280,15 @@ void VMFrame::SetLocal(long index, long contextLevel, vm_oop_t value) {
 
 vm_oop_t VMFrame::GetArgument(long index, long contextLevel) {
     // get the context
-    VMFrame* context = this->GetContextLevel(contextLevel);
+    VMFrame* context = GetContextLevel(contextLevel);
 
     std::atomic_thread_fence(std::memory_order_seq_cst);
-    
+
     return READBARRIER(context->arguments[index]);
 }
 
-    VMFrame* context = this->GetContextLevel(contextLevel);
 void VMFrame::SetArgument(long index, long contextLevel, vm_oop_t value) {
+    VMFrame* context = GetContextLevel(contextLevel);
     context->arguments[index] = WRITEBARRIER(value);
     std::atomic_thread_fence(std::memory_order_seq_cst);
     
@@ -302,7 +302,7 @@ void VMFrame::PrintStackTrace() const {
 }
 
 long VMFrame::ArgumentStackIndex(long index) {
-    VMMethod* meth = this->GetMethod();
+    VMMethod* meth = GetMethod();
     return meth->GetNumberOfArguments() - index - 1;
 }
 

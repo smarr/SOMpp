@@ -322,7 +322,7 @@ void Universe::initialize(long _argc, char** _argv) {
     //heapSize = 240 * 1024 * 1024;
     //pageSize = 4 * 8192;
 
-    vector<StdString> argv = this->handleArguments(_argc, _argv);
+    vector<StdString> argv = handleArguments(_argc, _argv);
     
     // remember file that was executed (for writing statistics)
     if (argv.size() > 0)
@@ -759,7 +759,7 @@ void Universe::InitializeSystemClass(VMClass* systemClass,
 VMClass* superClass, const char* name) {
     StdString s_name(name);
 
-    if (superClass != NULL) {
+    if (superClass != nullptr) {
         systemClass->SetSuperClass(superClass);
         VMClass* sysClassClass = systemClass->GetClass();
         VMClass* superClassClass = superClass->GetClass();
@@ -794,8 +794,8 @@ VMClass* Universe::LoadClass(VMSymbol* name) {
         pthread_mutex_unlock(&classLoading);
         return result;
     }
-    
-    result = LoadClassBasic(name, NULL);
+
+    result = LoadClassBasic(name, nullptr);
 
     if (!result) {
 		// we fail silently, it is not fatal that loading a class failed
@@ -831,12 +831,12 @@ VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
             return result;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
-VMClass* Universe::LoadShellClass( StdString& stmt) {
+VMClass* Universe::LoadShellClass(StdString& stmt) {
     SourcecodeCompiler compiler;
-    VMClass* result = compiler.CompileClassString(stmt, NULL);
+    VMClass* result = compiler.CompileClassString(stmt, nullptr);
     if(dumpBytecodes)
         Disassembler::Dump(result);
     return result;

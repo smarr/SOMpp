@@ -48,7 +48,7 @@ const long VMMethod::VMMethodNumberOfFields = 7;
 VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
         VMInvokable(nof + VMMethodNumberOfFields) {
 #ifdef UNSAFE_FRAME_OPTIMIZATION
-    cachedFrame = NULL;
+    cachedFrame = nullptr;
 #endif
 #ifdef USE_TAGGING
     bcLength = TAG_INTEGER(bcCount);
@@ -108,7 +108,7 @@ VMMethod* VMMethod::Clone() {
 
 void VMMethod::SetSignature(VMSymbol* sig) {
     VMInvokable::SetSignature(sig);
-    SetNumberOfArguments(Signature::GetNumberOfArguments(this->GetSignature()));
+    SetNumberOfArguments(Signature::GetNumberOfArguments(sig));
 }
 
 #ifdef UNSAFE_FRAME_OPTIMIZATION
@@ -118,8 +118,8 @@ VMFrame* VMMethod::GetCachedFrame() const {
 
 void VMMethod::SetCachedFrame(VMFrame* frame) {
     cachedFrame = frame;
-    if (frame != NULL) {
-        frame->SetContext(NULL);
+    if (frame != nullptr) {
+        frame->SetContext(nullptr);
         frame->SetBytecodeIndex(0);
         frame->ResetStackPointer();
 #if GC_TYPE == GENERATIONAL
@@ -193,8 +193,8 @@ void VMMethod::SetHolderAll(VMClass* hld) {
     for (long i = 0; i < numIndexableFields; ++i) {
         vm_oop_t o = GetIndexableField(i);
         if (!IS_TAGGED(o)) {
-            if (vmi != NULL) {
             VMInvokable* vmi = dynamic_cast<VMInvokable*>(AS_OBJ(o));
+            if (vmi != nullptr) {
                 vmi->SetHolder(hld);
             }
         }
@@ -203,9 +203,9 @@ void VMMethod::SetHolderAll(VMClass* hld) {
 
 vm_oop_t VMMethod::GetConstant(long indx) {
     uint8_t bc = bytecodes[indx + 1];
-    if (bc >= this->GetNumberOfIndexableFields()) {
+    if (bc >= GetNumberOfIndexableFields()) {
         cout << "Error: Constant index out of range" << endl;
-        return NULL;
+        return nullptr;
     }
     return this->GetIndexableField(bc);
 }
