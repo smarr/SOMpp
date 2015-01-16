@@ -34,10 +34,9 @@ class VMInteger: public AbstractVMObject {
 public:
     typedef GCInteger Stored;
     
-    VMInteger();
-    VMInteger(long);
+    VMInteger(int64_t val) : embeddedInteger(val), AbstractVMObject() {}
 
-    inline long GetEmbeddedInteger() const;
+    inline int64_t GetEmbeddedInteger() const;
     virtual VMClass* GetClass();
     virtual inline size_t GetObjectSize() const;
     
@@ -52,11 +51,11 @@ public:
 
 
 private:
-    long embeddedInteger;
+    const int64_t embeddedInteger;
 };
 
-long VMInteger::GetEmbeddedInteger() const {
-    return this->embeddedInteger;
+int64_t VMInteger::GetEmbeddedInteger() const {
+    return embeddedInteger;
 }
 
 size_t VMInteger::GetObjectSize() const {

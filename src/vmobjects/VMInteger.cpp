@@ -25,16 +25,10 @@
  */
 
 #include "VMInteger.h"
-#include "../vm/Universe.h"
-#include "../interpreter/Interpreter.h"
+#include <vm/Universe.h>
 
-VMInteger::VMInteger() {
-    embeddedInteger = 0;
-}
+#warning VMInteger GetHash does not currently work correctly with tagging, all integers get the same hash...
 
-VMInteger::VMInteger(long val) {
-    embeddedInteger = val;
-}
 
 #if GC_TYPE==GENERATIONAL
 VMInteger* VMInteger::Clone() {
