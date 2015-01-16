@@ -57,6 +57,7 @@ public:
 #endif
             void      SetNumberOfArguments(long);
             long      GetNumberOfBytecodes();
+    virtual void      SetHolder(VMClass* hld);
             void      SetHolderAll(VMClass* hld);
             vm_oop_t  GetConstant(long indx);
     inline  uint8_t   GetBytecode(long indx) const;
