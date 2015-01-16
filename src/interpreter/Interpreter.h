@@ -30,16 +30,8 @@
 #include <vmobjects/ObjectFormats.h>
 #include <memory/BaseThread.h>
 
-class VMMethod;
-class VMFrame;
-class VMMethod;
-class VMObject;
-class VMSymbol;
-class VMClass;
-class AbstractVMObject;
-class VMThread;
 
-class Page;
+class VMSymbol;
 
 class SpinLock {
 public:

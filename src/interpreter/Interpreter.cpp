@@ -93,7 +93,7 @@ Interpreter::Interpreter() : BaseThread() {
 }
 
 #define DISPATCH_NOGC() {\
-  goto *loopTargets[/* currentBytecodes */ _FRAME->GetMethod()->GetBytecodes()[bytecodeIndexGlobal]]; \
+  goto *loopTargets[/* currentBytecodes */ GetFrame()->GetMethod()->GetBytecodes()[bytecodeIndexGlobal]]; \
 }
 
 #if GC_TYPE==PAUSELESS
@@ -107,20 +107,20 @@ Interpreter::Interpreter() : BaseThread() {
     if (_HEAP->IsPauseTriggered()) { \
         GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal); \
         _HEAP->Pause(); \
-        /* method = _FRAME->GetMethod(); */ \
+        /* method = GetFrame()->GetMethod(); */ \
         /* currentBytecodes = method->GetBytecodes(); */ \
     } \
-    goto *loopTargets[/* currentBytecodes */ _FRAME->GetMethod()->GetBytecodes()[bytecodeIndexGlobal]];\
+    goto *loopTargets[/* currentBytecodes */ GetFrame()->GetMethod()->GetBytecodes()[bytecodeIndexGlobal]];\
 }
 #else
 #define DISPATCH_GC() {\
   if (_HEAP->isCollectionTriggered()) {\
     GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);\
     _HEAP->FullGC();\
-    /* method = _FRAME->GetMethod();*/ \
+    /* method = GetFrame()->GetMethod();*/ \
     /* currentBytecodes = method->GetBytecodes(); */ \
   }\
-  goto *loopTargets[/* currentBytecodes */ _FRAME->GetMethod()->GetBytecodes() [bytecodeIndexGlobal]];\
+  goto *loopTargets[/* currentBytecodes */ GetFrame()->GetMethod()->GetBytecodes() [bytecodeIndexGlobal]];\
 }
 #endif
 
@@ -128,7 +128,7 @@ Interpreter::Interpreter() : BaseThread() {
 void Interpreter::Start() {
     // initialization
 
-    // method = WRITEBARRIER(_FRAME->GetMethod());
+    // method = WRITEBARRIER(GetFrame()->GetMethod());
     // currentBytecodes = method->GetBytecodes();
 
     void* loopTargets[] = {
@@ -153,7 +153,7 @@ void Interpreter::Start() {
         &&LABEL_BC_JUMP
     };
 
-    goto *loopTargets[/* currentBytecodes */ _FRAME->GetMethod()->GetBytecodes()[bytecodeIndexGlobal]];
+    goto *loopTargets[/* currentBytecodes */ GetFrame()->GetMethod()->GetBytecodes()[bytecodeIndexGlobal]];
 
     //
     // THIS IS THE former interpretation loop
@@ -344,10 +344,10 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
 
         //check if current frame is big enough for this unplanned Send
         //doesNotUnderstand: needs 3 slots, one for this, one for method name, one for args
-        long additionalStackSlots = 3 - _FRAME->RemainingStackSize();
+        long additionalStackSlots = 3 - GetFrame()->RemainingStackSize();
         if (additionalStackSlots > 0) {
             //copy current frame into a bigger one and replace the current frame
-            this->SetFrame(VMFrame::EmergencyFrameFrom(_FRAME, additionalStackSlots));
+            SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
         }
 
         AS_OBJ(receiver)->Send(doesNotUnderstand, arguments, 2);
@@ -401,49 +401,48 @@ void Interpreter::doPushField(long bytecodeIndex) {
 
 void Interpreter::doPushBlock(long bytecodeIndex) {
     // Short cut the negative case of #ifTrue: and #ifFalse:
-    if (/* currentBytecodes */ _FRAME->GetMethod()->GetBytecodes()[bytecodeIndexGlobal] == BC_SEND) {
-        if (_FRAME->GetStackElement(0) == READBARRIER(falseObject) &&
+    if (/* currentBytecodes */ GetFrame()->GetMethod()->GetBytecodes()[bytecodeIndexGlobal] == BC_SEND) {
+        if (GetFrame()->GetStackElement(0) == READBARRIER(falseObject) &&
             this->GetMethod()->GetConstant(bytecodeIndexGlobal) == READBARRIER(symbolIfTrue)) {
-            _FRAME->Push(READBARRIER(nilObject));
+            GetFrame()->Push(READBARRIER(nilObject));
             return;
         }
-        if (_FRAME->GetStackElement(0) == READBARRIER(trueObject) &&
+        if (GetFrame()->GetStackElement(0) == READBARRIER(trueObject) &&
             this->GetMethod()->GetConstant(bytecodeIndexGlobal) == READBARRIER(symbolIfFalse)) {
-            _FRAME->Push(READBARRIER(nilObject));
+            GetFrame()->Push(READBARRIER(nilObject));
             return;
         }
     }
 
-    VMMethod* blockMethod = static_cast<VMMethod*>(this->GetMethod()->GetConstant(bytecodeIndex));
-    
+    VMMethod* blockMethod = static_cast<VMMethod*>(GetMethod()->GetConstant(bytecodeIndex));
+
     long numOfArgs = blockMethod->GetNumberOfArguments();
 
-    _FRAME->Push(GetUniverse()->NewBlock(blockMethod, _FRAME, numOfArgs));
+    GetFrame()->Push(GetUniverse()->NewBlock(blockMethod, GetFrame(), numOfArgs));
 }
 
 void Interpreter::doPushConstant(long bytecodeIndex) {
-    _FRAME->Push(constant);
     vm_oop_t constant = GetMethod()->GetConstant(bytecodeIndex);
+    GetFrame()->Push(constant);
 }
 
 void Interpreter::doPushGlobal(long bytecodeIndex) {
-    VMSymbol* globalName = static_cast<VMSymbol*>(this->GetMethod()->GetConstant(bytecodeIndex));
+    VMSymbol* globalName = static_cast<VMSymbol*>(GetMethod()->GetConstant(bytecodeIndex));
     vm_oop_t global = GetUniverse()->GetGlobal(globalName);
 
-    if(global != NULL)
-        _FRAME->Push(global);
+    if (global != nullptr)
+        GetFrame()->Push(global);
     else {
         vm_oop_t arguments[] = {globalName};
         vm_oop_t self = GetSelf();
 
         //check if there is enough space on the stack for this unplanned Send
         //unknowGlobal: needs 2 slots, one for "this" and one for the argument
-        long additionalStackSlots = 2 - _FRAME->RemainingStackSize();
+        long additionalStackSlots = 2 - GetFrame()->RemainingStackSize();
         if (additionalStackSlots > 0) {
-            _FRAME->SetBytecodeIndex(bytecodeIndexGlobal);
+            GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
             //copy current frame into a bigger one and replace the current frame
-            this->SetFrame(VMFrame::EmergencyFrameFrom(_FRAME,
-                            additionalStackSlots));
+            SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
         }
 
         AS_OBJ(self)->Send(unknownGlobal, arguments, 1);
@@ -451,30 +450,32 @@ void Interpreter::doPushGlobal(long bytecodeIndex) {
 }
 
 void Interpreter::doPop() {
-    _FRAME->Pop();
+    GetFrame()->Pop();
 }
 
 void Interpreter::doPopLocal(long bytecodeIndex) {
     //VMMethod* method = this->GetMethod();
-    uint8_t bc1 = this->GetMethod()->GetBytecode(bytecodeIndex + 1);
-    uint8_t bc2 = this->GetMethod()->GetBytecode(bytecodeIndex + 2);
+    uint8_t bc1 = GetMethod()->GetBytecode(bytecodeIndex + 1);
+    uint8_t bc2 = GetMethod()->GetBytecode(bytecodeIndex + 2);
 
     vm_oop_t o = GetFrame()->Pop();
+    assert(Universe::IsValidObject(o));
 
-    _FRAME->SetLocal(bc1, bc2, o);
+    GetFrame()->SetLocal(bc1, bc2, o);
 }
 
 void Interpreter::doPopArgument(long bytecodeIndex) {
     //VMMethod* method = this->GetMethod();
-    uint8_t bc1 = this->GetMethod()->GetBytecode(bytecodeIndex + 1);
-    uint8_t bc2 = this->GetMethod()->GetBytecode(bytecodeIndex + 2);
+    uint8_t bc1 = GetMethod()->GetBytecode(bytecodeIndex + 1);
+    uint8_t bc2 = GetMethod()->GetBytecode(bytecodeIndex + 2);
 
-    _FRAME->SetArgument(bc1, bc2, o);
     vm_oop_t o = GetFrame()->Pop();
+    assert(Universe::IsValidObject(o));
+    GetFrame()->SetArgument(bc1, bc2, o);
 }
 
 void Interpreter::doPopField(long bytecodeIndex) {
-    uint8_t field_index = this->GetMethod()->GetBytecode(bytecodeIndex + 1);
+    uint8_t field_index = GetMethod()->GetBytecode(bytecodeIndex + 1);
 
 #ifdef USE_TAGGING
     if (IS_TAGGED(self)) {
@@ -491,9 +492,9 @@ void Interpreter::doPopField(long bytecodeIndex) {
 }
 
 void Interpreter::doSend(long bytecodeIndex) {
-    VMSymbol* signature = static_cast<VMSymbol*>(this->GetMethod()->GetConstant(bytecodeIndex));
+    VMSymbol* signature = static_cast<VMSymbol*>(GetMethod()->GetConstant(bytecodeIndex));
 
-    long numOfArgs = Signature::GetNumberOfArguments(signature);
+    int numOfArgs = Signature::GetNumberOfArguments(signature);
 
     vm_oop_t receiver = GetFrame()->GetStackElement(numOfArgs-1);
     assert(Universe::IsValidObject(receiver));
@@ -511,20 +512,20 @@ void Interpreter::doSend(long bytecodeIndex) {
     GetUniverse()->receiverTypes[receiverClass->GetName()->GetStdString()]++;
 #endif
 
-    this->send(signature, receiverClass);
+    send(signature, receiverClass);
 }
 
 void Interpreter::doSuperSend(long bytecodeIndex) {
-    VMSymbol* signature = static_cast<VMSymbol*>(this->GetMethod()->GetConstant(bytecodeIndex));
+    VMSymbol* signature = static_cast<VMSymbol*>(GetMethod()->GetConstant(bytecodeIndex));
 
-    VMFrame* ctxt = _FRAME->GetOuterContext();
+    VMFrame* ctxt = GetFrame()->GetOuterContext();
     VMMethod* realMethod = ctxt->GetMethod();
     VMClass* holder = realMethod->GetHolder();
     VMClass* super = holder->GetSuperClass();
     VMInvokable* invokable = static_cast<VMInvokable*>(super->LookupInvokable(signature));
 
-    if (invokable != NULL)
-        (*invokable)(_FRAME);
+    if (invokable != nullptr)
+        (*invokable)(GetFrame());
     else {
         long numOfArgs = Signature::GetNumberOfArguments(signature);
         vm_oop_t receiver = GetFrame()->GetStackElement(numOfArgs - 1);
@@ -554,16 +555,16 @@ void Interpreter::doReturnLocal() {
 void Interpreter::doReturnNonLocal() {
     vm_oop_t result = GetFrame()->Pop();
 
-    VMFrame* context = _FRAME->GetOuterContext();
+    VMFrame* context = GetFrame()->GetOuterContext();
 
     if (!context->HasPreviousFrame()) {
-        VMBlock* block = static_cast<VMBlock*>(_FRAME->GetArgument(0, 0));
-        VMFrame* prevFrame = _FRAME->GetPreviousFrame();
+        VMBlock* block = static_cast<VMBlock*>(GetFrame()->GetArgument(0, 0));
+        VMFrame* prevFrame = GetFrame()->GetPreviousFrame();
         VMFrame* outerContext = prevFrame->GetOuterContext();
         vm_oop_t sender = outerContext->GetArgument(0, 0);
         vm_oop_t arguments[] = {block};
 
-        this->popFrame();
+        popFrame();
 
 #ifdef USE_TAGGING
         if (IS_TAGGED(sender))
@@ -576,9 +577,9 @@ void Interpreter::doReturnNonLocal() {
         return;
     }
 
-    while (_FRAME != context) this->popFrame();
+    while (GetFrame() != context) popFrame();
 
-    this->popFrameAndPushResult(result);
+    popFrameAndPushResult(result);
 }
 
 void Interpreter::doJumpIfFalse(long bytecodeIndex) {

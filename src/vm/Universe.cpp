@@ -218,9 +218,8 @@ vector<StdString> Universe::handleArguments(long argc, char** argv) {
         } else {
             vector<StdString> extPathTokens = vector<StdString>(2);
             StdString tmpString = StdString(argv[i]);
-            if (this->getClassPathExt(extPathTokens, tmpString) ==
-            ERR_SUCCESS) {
-                this->addClassPath(extPathTokens[0]);
+            if (getClassPathExt(extPathTokens, tmpString) == ERR_SUCCESS) {
+                addClassPath(extPathTokens[0]);
             }
             //Different from CSOM!!!:
             //In CSOM there is an else, where the original filename is pushed into the vm_args.

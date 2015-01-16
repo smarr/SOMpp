@@ -12,6 +12,8 @@
 #include <natives/VMThread.h>
 
 #include <vmobjects/ObjectFormats.h>
+#include <vmobjects/VMObject.h>
+#include <vmobjects/VMInteger.h>
 
 #include <unistd.h>
 #include <stdio.h>

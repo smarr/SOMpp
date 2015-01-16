@@ -28,10 +28,10 @@
 
 #include "VMArray.h"
 #include "VMObject.h"
+#include "VMInteger.h"
 
-//class VMObject;
+
 class VMMethod;
-class VMInteger;
 class Universe;
 
 class VMFrame: public VMObject {

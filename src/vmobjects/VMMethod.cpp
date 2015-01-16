@@ -152,7 +152,7 @@ long VMMethod::GetNumberOfBytecodes() {
     return INT_VAL(READBARRIER(bcLength));
 }
 
-void VMMethod::operator()(VMFrame* frame) {    
+void VMMethod::operator()(VMFrame* frame) {
     VMFrame* frm = GetUniverse()->GetInterpreter()->PushNewFrame(this);
     frm->CopyArgumentsFrom(frame);
 }

@@ -30,7 +30,10 @@
 #include "VMInteger.h"
 #include "VMClass.h"
 #include "VMSymbol.h"
-#include "../interpreter/Interpreter.h"
+
+#include <compiler/Disassembler.h>
+
+#include <interpreter/Interpreter.h>
 
 #include <vm/Universe.h>
 

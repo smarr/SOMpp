@@ -45,11 +45,11 @@
 #define SHELL_PART_2 "). 'it = ' print. ^tmp println) )"
 
 Shell::Shell() {
-    bootstrapMethod = NULL;
+    bootstrapMethod = nullptr;
 }
 
 Shell::Shell(VMMethod* bsm) {
-    this->bootstrapMethod = bsm;
+    bootstrapMethod = bsm;
 }
 
 Shell::~Shell() {
@@ -60,7 +60,7 @@ void Shell::Start() {
 #define QUIT_CMD "system exit"
 #define QUIT_CMD_L 11 + 1
 
-    if (bootstrapMethod == NULL) {
+    if (bootstrapMethod == nullptr) {
         GetUniverse()->ErrorExit("Shell needs bootstrap method!");
     }
     // the statement to evaluate
@@ -73,7 +73,7 @@ void Shell::Start() {
     cout << "SOM Shell. Type \"" << QUIT_CMD << "\" to exit.\n";
 
     // Create a fake bootstrap frame
-    currentFrame = WRITEBARRIER(GetUniverse()->GetInterpreter()->PushNewFrame(this->GetBootstrapMethod()));
+    currentFrame = WRITEBARRIER(GetUniverse()->GetInterpreter()->PushNewFrame(GetBootstrapMethod()));
     // Remember the first bytecode index, e.g. index of the halt instruction
     bytecodeIndex = READBARRIER(currentFrame)->GetBytecodeIndex();
 
@@ -103,7 +103,7 @@ void Shell::Start() {
         ++counter;
         runClass = WRITEBARRIER(GetUniverse()->LoadShellClass(statement));
         // Compile and load the newly generated class
-        if(runClass == NULL) {
+        if(runClass == nullptr) {
             cout << "can't compile statement.";
             continue;
         }

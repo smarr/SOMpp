@@ -31,8 +31,6 @@
 #include "VMString.h"
 #include "VMObject.h"
 
-class VMInteger;
-class VMInvokable;
 
 class VMSymbol: public VMString {
 
