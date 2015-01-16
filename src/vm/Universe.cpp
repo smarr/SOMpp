@@ -422,7 +422,6 @@ Universe::~Universe() {
     static void obtain_vtables_of_known_classes(VMSymbol* className) {}
 #else
     void* vt_array;
-    void* vt_biginteger;
     void* vt_block;
     void* vt_class;
     void* vt_double;
@@ -455,7 +454,6 @@ Universe::~Universe() {
         
         void* vt = *(void**) obj;
         bool b = vt == vt_array    ||
-               vt == vt_biginteger ||
                vt == vt_block      ||
                vt == vt_class      ||
                vt == vt_double     ||
@@ -476,7 +474,6 @@ Universe::~Universe() {
 
     static void set_vt_to_null() {
         vt_array      = nullptr;
-        vt_biginteger = nullptr;
         vt_block      = nullptr;
         vt_class      = nullptr;
         vt_double     = nullptr;
@@ -502,15 +499,6 @@ Universe::~Universe() {
         VMArray* arr  = new (_HEAP) VMArray(0, 0);
 #endif
         vt_array      = *(void**) arr;
-        
-#if GC_TYPE==GENERATIONAL
-        pVMBigInteger bi = new (_HEAP, _PAGE) VMBigInteger();
-#elif GC_TYPE==PAUSELESS
-        pVMBigInteger bi = new (_HEAP, GetUniverse()->GetInterpreter()) VMBigInteger();
-#else
-        pVMBigInteger bi = new (_HEAP) VMBigInteger();
-#endif
-        vt_biginteger = *(void**) bi;
         
 #if GC_TYPE==GENERATIONAL
         VMBlock* blck = new (_HEAP, _PAGE) VMBlock();
@@ -643,7 +631,6 @@ void Universe::InitializeGlobals() {
     symbolClass     = WRITEBARRIER(NewSystemClass());
     methodClass     = WRITEBARRIER(NewSystemClass());
     integerClass    = WRITEBARRIER(NewSystemClass());
-    bigIntegerClass = WRITEBARRIER(NewSystemClass());
     primitiveClass  = WRITEBARRIER(NewSystemClass());
     stringClass     = WRITEBARRIER(NewSystemClass());
     doubleClass     = WRITEBARRIER(NewSystemClass());
@@ -661,8 +648,6 @@ void Universe::InitializeGlobals() {
     InitializeSystemClass(READBARRIER(methodClass), READBARRIER(arrayClass), "Method");
     InitializeSystemClass(READBARRIER(symbolClass), READBARRIER(objectClass), "Symbol");
     InitializeSystemClass(READBARRIER(integerClass), READBARRIER(objectClass), "Integer");
-    InitializeSystemClass(READBARRIER(bigIntegerClass), READBARRIER(objectClass),
-            "BigInteger");
     InitializeSystemClass(READBARRIER(primitiveClass), READBARRIER(objectClass),
             "Primitive");
     InitializeSystemClass(READBARRIER(stringClass), READBARRIER(objectClass), "String");
@@ -682,7 +667,6 @@ void Universe::InitializeGlobals() {
     LoadSystemClass(READBARRIER(methodClass));
     LoadSystemClass(READBARRIER(symbolClass));
     LoadSystemClass(READBARRIER(integerClass));
-    LoadSystemClass(READBARRIER(bigIntegerClass));
     LoadSystemClass(READBARRIER(primitiveClass));
     LoadSystemClass(READBARRIER(stringClass));
     LoadSystemClass(READBARRIER(doubleClass));
@@ -925,19 +909,6 @@ VMArray* Universe::NewArrayList(ExtendedList<vm_oop_t>& list) const {
         }
     }
     return result;
-}
-
-pVMBigInteger Universe::NewBigInteger( int64_t value) const {
-#ifdef GENERATE_ALLOCATION_STATISTICS
-    LOG_ALLOCATION("VMBigInteger", sizeof(VMBigInteger));
-#endif
-#if GC_TYPE==GENERATIONAL
-    return new (_HEAP, _PAGE) VMBigInteger(value);
-#elif GC_TYPE==PAUSELESS
-    return new (_HEAP, GetUniverse()->GetInterpreter()) VMBigInteger(value);
-#else
-    return new (_HEAP) VMBigInteger(value);
-#endif
 }
 
 VMBlock* Universe::NewBlock(VMMethod* method, VMFrame* context, long arguments) {
