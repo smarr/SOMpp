@@ -60,15 +60,26 @@ void _System::Global_(VMObject* /*object*/, VMFrame* frame) {
     VMSymbol* arg = static_cast<VMSymbol*>(frame->Pop());
     /*VMObject* self = */
     frame->Pop();
-    VMObject* result = GetUniverse()->GetGlobal(arg);
-    
-    frame->Push( result ? result : READBARRIER(nilObject));
+    vm_oop_t result = GetUniverse()->GetGlobal(arg);
+
+    frame->Push(result ? result : READBARRIER(nilObject));
 }
 
 void _System::Global_put_(VMObject* /*object*/, VMFrame* frame) {
-    VMObject* value = frame->Pop();
+    vm_oop_t value = frame->Pop();
     VMSymbol* arg = static_cast<VMSymbol*>(frame->Pop());
     GetUniverse()->SetGlobal(arg, value);
+}
+
+void _System::HasGlobal_(VMObject* /*object*/, VMFrame* frame) {
+    VMSymbol* arg = static_cast<VMSymbol*>(frame->Pop());
+    frame->Pop(); // pop self (system)
+
+    if (GetUniverse()->HasGlobal(arg)) {
+        frame->Push(READBARRIER(trueObject));
+    } else {
+        frame->Push(READBARRIER(falseObject));
+    }
 }
 
 void _System::Load_(VMObject* /*object*/, VMFrame* frame) {
@@ -77,19 +88,14 @@ void _System::Load_(VMObject* /*object*/, VMFrame* frame) {
     VMClass* result = GetUniverse()->LoadClass(arg);
     if (result)
         frame->Push(result);
-    else {
+    else
         frame->Push(READBARRIER(nilObject));
-    }
 }
 
 void _System::Exit_(VMObject* /*object*/, VMFrame* frame) {
-    VMInteger* err = static_cast<VMInteger*>(frame->Pop());
-#ifdef USE_TAGGING
-    long err_no = UNTAG_INTEGER(err);
-#else
-    long err_no = err->GetEmbeddedInteger();
-#endif
+    vm_oop_t err = frame->Pop();
 
+    long err_no = INT_VAL(err);
     if (err_no != ERR_SUCCESS)
         frame->PrintStackTrace();
     GetUniverse()->Quit(err_no);
@@ -105,6 +111,12 @@ void _System::PrintString_(VMObject* /*object*/, VMFrame* frame) {
 
 void _System::PrintNewline(VMObject* /*object*/, VMFrame* /*frame*/) {
     pthread_mutex_lock(&outputMutex);
+    cout << arg->GetStdString() << endl;
+    pthread_mutex_unlock(&outputMutex);
+}
+
+void _System::PrintNewline_(VMObject* /*object*/, VMFrame* /*frame*/) {
+    pthread_mutex_lock(&outputMutex);
     cout << endl;
     pthread_mutex_unlock(&outputMutex);
 }
@@ -114,17 +126,13 @@ void _System::Time(VMObject* /*object*/, VMFrame* frame) {
     frame->Pop();
     struct timeval now;
 
-    gettimeofday(&now, NULL);
+    gettimeofday(&now, nullptr);
 
     long long diff =
     ((now.tv_sec - start_time.tv_sec) * 1000) + //seconds
     ((now.tv_usec - start_time.tv_usec) / 1000);// useconds
 
-#ifdef USE_TAGGING
-    frame->Push(TAG_INTEGER((int32_t)diff));
-#else
-    frame->Push(GetUniverse()->NewInteger((int32_t)diff));
-#endif
+    frame->Push(NEW_INT(diff));
 }
 
 void _System::Ticks(VMObject* /*object*/, VMFrame* frame) {
@@ -132,13 +140,13 @@ void _System::Ticks(VMObject* /*object*/, VMFrame* frame) {
     frame->Pop();
     struct timeval now;
 
-    gettimeofday(&now, NULL);
+    gettimeofday(&now, nullptr);
 
     long long diff =
     ((now.tv_sec - start_time.tv_sec) * 1000 * 1000) + //seconds
     ((now.tv_usec - start_time.tv_usec));// useconds
 
-    frame->Push((VMObject*)GetUniverse()->NewBigInteger(diff));
+    frame->Push(NEW_INT(diff));
 }
 
 void _System::FullGC(VMObject* /*object*/, VMFrame* frame) {
@@ -177,14 +185,17 @@ void _System::GetNumberOfCPUs(VMObject* object, VMFrame* frame) {
 }
 
 _System::_System(void) : PrimitiveContainer() {
-    pthread_mutex_init(&outputMutex, NULL);
-    gettimeofday(&start_time, NULL);
+    pthread_mutex_init(&outputMutex, nullptr);
+    gettimeofday(&start_time, nullptr);
+
     SetPrimitive("global_",         new Routine<_System>(this, &_System::Global_));
     SetPrimitive("global_put_",     new Routine<_System>(this, &_System::Global_put_));
+    SetPrimitive("hasGlobal_",      new Routine<_System>(this, &_System::HasGlobal_));
     SetPrimitive("load_",           new Routine<_System>(this, &_System::Load_));
     SetPrimitive("exit_",           new Routine<_System>(this, &_System::Exit_));
     SetPrimitive("printString_",    new Routine<_System>(this, &_System::PrintString_));
     SetPrimitive("printNewline",    new Routine<_System>(this, &_System::PrintNewline));
+    SetPrimitive("printNewline_",   new Routine<_System>(this, &_System::PrintNewline_));
     SetPrimitive("time",            new Routine<_System>(this, &_System::Time));
     SetPrimitive("ticks",           new Routine<_System>(this, &_System::Ticks));
     SetPrimitive("fullGC",          new Routine<_System>(this, &_System::FullGC));

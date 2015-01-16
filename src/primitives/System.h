@@ -26,9 +26,8 @@
  THE SOFTWARE.
  */
 
-class VMObject;
-class VMFrame;
-#include "../primitivesCore/PrimitiveContainer.h"
+#include <vmobjects/ObjectFormats.h>
+#include <primitivesCore/PrimitiveContainer.h>
 
 struct timeval;
 
@@ -39,10 +38,12 @@ public:
 
     void Global_(VMObject* object, VMFrame* frame);
     void Global_put_(VMObject* object, VMFrame* frame);
+    void HasGlobal_(VMObject* object, VMFrame* frame);
     void Load_(VMObject* object, VMFrame* frame);
     void Exit_(VMObject* object, VMFrame* frame);
     void PrintString_(VMObject* object, VMFrame* frame);
     void PrintNewline(VMObject* object, VMFrame* frame);
+    void PrintNewline_(VMObject* object, VMFrame* frame);
     void Time(VMObject* object, VMFrame* frame);
     void Ticks(VMObject* object, VMFrame* frame);
     void FullGC(VMObject* object, VMFrame* frame);
