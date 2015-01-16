@@ -754,6 +754,20 @@ VMObject* Universe::GetGlobal(VMSymbol* name) {
 }
 #endif
 
+bool Universe::HasGlobal(VMSymbol* name) {
+    pthread_mutex_lock(&testMutex);
+    map<GCSymbol*, gc_oop_t>::iterator it;
+    it = globals.find((GCSymbol*) name);
+    if (it == globals.end()) {
+        it = globals.find(Flip((GCSymbol*) name));
+    }
+    if (it == globals.end()) {
+        pthread_mutex_unlock(&testMutex);
+        return false;
+    }
+    return true;
+}
+
 void Universe::InitializeSystemClass(VMClass* systemClass,
 VMClass* superClass, const char* name) {
     StdString s_name(name);
