@@ -127,7 +127,7 @@ public:
     VMFrame* NewFrame(VMFrame*, VMMethod*) const;
     VMMethod* NewMethod(VMSymbol*, size_t, size_t) const;
     VMObject* NewInstance(VMClass*) const;
-    VMInteger* NewInteger(long) const;
+    VMInteger* NewInteger(int64_t) const;
     VMDouble* NewDouble(double) const;
     VMClass* NewMetaclassClass(void) const;
     VMString* NewString(const StdString&) const;

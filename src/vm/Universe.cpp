@@ -1030,7 +1030,7 @@ VMObject* Universe::NewInstance( VMClass* classOfInstance) const {
     return result;
 }
 
-VMInteger* Universe::NewInteger( long value) const {
+VMInteger* Universe::NewInteger(int64_t value) const {
 
 #ifdef GENERATE_INTEGER_HISTOGRAM
     integerHist[value/INT_HIST_SIZE] = integerHist[value/INT_HIST_SIZE]+1;
