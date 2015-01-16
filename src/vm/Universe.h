@@ -134,6 +134,7 @@ public:
     VMString* NewString(const char*) const;
     VMSymbol* NewSymbol(const char*);
     VMClass* NewSystemClass(void) const;
+
     VMMutex* NewMutex() const;
     VMSignal* NewSignal() const;
     VMThread* NewThread() const;

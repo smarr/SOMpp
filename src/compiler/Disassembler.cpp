@@ -66,16 +66,17 @@
 void Disassembler::dispatch(vm_oop_t o) {
     //dispatch
     // can't switch() objects, so:
-    if(!o) return;// NULL isn't interesting.
-    else if(o == READBARRIER(nilObject))
+    if (o == nullptr)
+        return; // nullptr isn't interesting.
+    else if (o == READBARRIER(nilObject))
         DebugPrint("{Nil}");
-    else if(o == READBARRIER(trueObject))
+    else if (o == READBARRIER(trueObject))
         DebugPrint("{True}");
-    else if(o == READBARRIER(falseObject))
+    else if (o == READBARRIER(falseObject))
         DebugPrint("{False}");
-    else if(o == READBARRIER(systemClass))
+    else if (o == READBARRIER(systemClass))
         DebugPrint("{System Class object}");
-    else if(o == READBARRIER(blockClass))
+    else if (o == READBARRIER(blockClass))
         DebugPrint("{Block Class object}");
     else if(o == _UNIVERSE->GetGlobal(_UNIVERSE->SymbolForChars("system")))
         DebugPrint("{System}");
@@ -462,6 +463,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
 
             VMClass* elemClass = CLASS_OF(elem);
             VMInvokable* inv = dynamic_cast<VMInvokable*>(elemClass->LookupInvokable(sel));
+
             if(inv != nullptr && inv->IsPrimitive())
                 DebugPrint("*)\n");
             else {
@@ -492,6 +494,3 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
             break;
     }
 }
-
-// EOF: diassembler.c
-

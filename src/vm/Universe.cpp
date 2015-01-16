@@ -289,7 +289,7 @@ void Universe::printUsageAndExit(char* executable) const {
     cout << "Usage: " << executable << " [-options] [args...]" << endl << endl;
     cout << "where options include:" << endl;
     cout << "    -cp <directories separated by " << pathSeparator << ">"
-            << endl;
+         << endl;
     cout << "        set search path for application classes" << endl;
     cout << "    -d  enable disassembling (twice for tracing)" << endl;
     cout << "    -g  enable garbage collection details:" << endl
@@ -829,8 +829,6 @@ VMClass* Universe::LoadClass(VMSymbol* name) {
 }
 
 VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
-    
-    
     StdString s_name = name->GetStdString();
     //sync_out(ostringstream() << "LoadClassBasic: " << name->GetChars());
     // assert(0 != strcmp(name->GetChars(), "nil")); // NOTE: name can be nil. During assembling we do a load again, unconditionally, also for nil symbol. Should be fixed...
@@ -848,7 +846,6 @@ VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
             }
             return result;
         }
-
     }
     return NULL;
 }
@@ -871,7 +868,7 @@ void Universe::LoadSystemClass( VMClass* systemClass) {
     }
 
     if (result->HasPrimitives() || result->GetClass()->HasPrimitives())
-    result->LoadPrimitives();
+        result->LoadPrimitives();
 }
 
 VMArray* Universe::NewArray(long size) const {

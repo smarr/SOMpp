@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <stdio.h>
 
+
 void _Delay::Wait(VMObject* object, VMFrame* frame){
     VMObject* self = static_cast<VMObject*>(frame->Pop());
     int64_t delay = INT_VAL(self->GetField(0));
