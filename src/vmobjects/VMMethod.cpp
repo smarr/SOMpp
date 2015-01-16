@@ -85,8 +85,8 @@ VMMethod* VMMethod::Clone(Interpreter* thread) {
 VMMethod* VMMethod::Clone(PauselessCollectorThread* thread) {
     VMMethod* clone = new (_HEAP, thread, GetObjectSize() - sizeof(VMMethod)) VMMethod(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this, sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + ReadBarrierForGCThread(&numberOfConstants)->GetEmbeddedInteger());
     clone->indexableFields = (gc_oop_t*)(&(clone->indexableFields) + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
+    clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + INT_VAL(ReadBarrierForGCThread(&numberOfConstants)));
     /* clone->IncreaseVersion(); */
     return clone;
 }

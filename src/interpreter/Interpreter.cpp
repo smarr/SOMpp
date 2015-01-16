@@ -477,18 +477,18 @@ void Interpreter::doPopArgument(long bytecodeIndex) {
 void Interpreter::doPopField(long bytecodeIndex) {
     uint8_t field_index = GetMethod()->GetBytecode(bytecodeIndex + 1);
 
-#ifdef USE_TAGGING
-    if (IS_TAGGED(self)) {
-        GlobalBox::IntegerBox()->SetField(field_index, o);
     vm_oop_t self = GetSelf();
     vm_oop_t o = GetFrame()->Pop();
+    
+    assert(Universe::IsValidObject(self));
+    assert(Universe::IsValidObject(o));
+
+    if (unlikely(IS_TAGGED(self))) {
+        GetUniverse()->ErrorExit("Integers do not have fields that can be set");
     }
     else {
-        AS_POINTER(self)->SetField(field_index, o);
+        static_cast<VMObject*>(self)->SetField(field_index, o);
     }
-#else
-    static_cast<VMObject*>(self)->SetField(field_index, o);
-#endif
 }
 
 void Interpreter::doSend(long bytecodeIndex) {
@@ -498,13 +498,9 @@ void Interpreter::doSend(long bytecodeIndex) {
 
     vm_oop_t receiver = GetFrame()->GetStackElement(numOfArgs-1);
     assert(Universe::IsValidObject(receiver));
-    assert(dynamic_cast<VMClass*>((VMObject*)receiver->GetClass()) != nullptr); // make sure it is really a class
+    assert(dynamic_cast<VMClass*>(CLASS_OF(receiver)) != nullptr); // make sure it is really a class
     
-#ifdef USE_TAGGING
-    VMClass* receiverClass = IS_TAGGED(receiver) ? integerClass : AS_POINTER(receiver)->GetClass();
-#else
-    VMClass* receiverClass = receiver->GetClass();
-#endif
+    VMClass* receiverClass = CLASS_OF(receiver);
     
     assert(Universe::IsValidObject(receiverClass));
 
@@ -535,15 +531,9 @@ void Interpreter::doSuperSend(long bytecodeIndex) {
             vm_oop_t o = GetFrame()->Pop();
             argumentsArray->SetIndexableField(i, o);
         }
-        VMObject* arguments[] = {signature, argumentsArray};
-#ifdef USE_TAGGING
-        if (IS_TAGGED(receiver))
-            GlobalBox::IntegerBox()->Send(dnu, arguments, 2);
-        else
-            AS_POINTER(receiver)->Send(dnu, arguments, 2);
-#else
-        receiver->Send(dnu, arguments, 2);
-#endif
+        vm_oop_t arguments[] = {signature, argumentsArray};
+
+        AS_OBJ(receiver)->Send(doesNotUnderstand, arguments, 2);
     }
 }
 
@@ -566,14 +556,7 @@ void Interpreter::doReturnNonLocal() {
 
         popFrame();
 
-#ifdef USE_TAGGING
-        if (IS_TAGGED(sender))
-            GlobalBox::IntegerBox()->Send(eB, arguments, 1);
-        else
-            AS_POINTER(sender)->Send(eB, arguments, 1);
-#else
-        sender->Send(eB, arguments, 1);
-#endif
+        AS_OBJ(sender)->Send(escapedBlock, arguments, 1);
         return;
     }
 
