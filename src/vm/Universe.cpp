@@ -48,7 +48,6 @@
 #include <vmobjects/VMDouble.h>
 #include <vmobjects/VMInteger.h>
 #include <vmobjects/VMString.h>
-#include <vmobjects/VMBigInteger.h>
 #include <vmobjects/VMEvaluationPrimitive.h>
 
 #include <natives/VMThread.h>
