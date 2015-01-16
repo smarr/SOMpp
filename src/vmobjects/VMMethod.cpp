@@ -83,7 +83,7 @@ VMMethod* VMMethod::Clone() {
 VMMethod* VMMethod::Clone(Interpreter* thread) {
     VMMethod* clone = new (_HEAP, thread, GetObjectSize() - sizeof(VMMethod)) VMMethod(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this, sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    clone->indexableFields = (GCAbstractObject**)(&(clone->indexableFields) + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
+    clone->indexableFields = (gc_oop_t*)(&(clone->indexableFields) + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
     clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + GetNumberOfIndexableFields());
     /* clone->IncreaseVersion(); */
     return clone;
@@ -91,8 +91,8 @@ VMMethod* VMMethod::Clone(Interpreter* thread) {
 VMMethod* VMMethod::Clone(PauselessCollectorThread* thread) {
     VMMethod* clone = new (_HEAP, thread, GetObjectSize() - sizeof(VMMethod)) VMMethod(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this, sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    clone->indexableFields = (GCAbstractObject**)(&(clone->indexableFields) + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
     clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + ReadBarrierForGCThread(&numberOfConstants)->GetEmbeddedInteger());
+    clone->indexableFields = (gc_oop_t*)(&(clone->indexableFields) + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
     /* clone->IncreaseVersion(); */
     return clone;
 }
@@ -186,17 +186,17 @@ void VMMethod::operator()(VMFrame* frame) {
 void VMMethod::SetHolderAll(VMClass* hld) {
     long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {
-        VMObject* o = GetIndexableField(i);
+        vm_oop_t o = GetIndexableField(i);
         if (!IS_TAGGED(o)) {
-            VMInvokable* vmi = dynamic_cast<VMInvokable*>(AS_VM_POINTER(o));
             if (vmi != NULL) {
+            VMInvokable* vmi = dynamic_cast<VMInvokable*>(AS_OBJ(o));
                 vmi->SetHolder(hld);
             }
         }
     }
 }
 
-VMObject* VMMethod::GetConstant(long indx) {
+vm_oop_t VMMethod::GetConstant(long indx) {
     uint8_t bc = bytecodes[indx + 1];
     if (bc >= this->GetNumberOfIndexableFields()) {
         cout << "Error: Constant index out of range" << endl;

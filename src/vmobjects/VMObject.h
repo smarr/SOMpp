@@ -66,7 +66,7 @@
  */
 
 // FIELDS starts indexing after the clazz field
-#define FIELDS (((GCAbstractObject**)&clazz) + 1)
+#define FIELDS (((gc_oop_t*)&clazz) + 1)
 
 class VMObject: public AbstractVMObject {
 

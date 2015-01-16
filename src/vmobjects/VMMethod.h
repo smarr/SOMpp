@@ -58,7 +58,7 @@ public:
             void      SetNumberOfArguments(long);
             long      GetNumberOfBytecodes();
             void      SetHolderAll(VMClass* hld);
-            VMObject* GetConstant(long indx);
+            vm_oop_t  GetConstant(long indx);
     inline  uint8_t   GetBytecode(long indx) const;
     inline  void      SetBytecode(long indx, uint8_t);
     
@@ -94,17 +94,17 @@ private:
     inline uint8_t* GetBytecodes() const;
     inline vm_oop_t GetIndexableField(long idx);
 
-    GCInteger* numberOfLocals;
-    GCInteger* maximumNumberOfStackElements;
-    GCInteger* bcLength;
-    GCInteger* numberOfArguments;
-    GCInteger* numberOfConstants;
-    
+    gc_oop_t numberOfLocals;
+    gc_oop_t maximumNumberOfStackElements;
+    gc_oop_t bcLength;
+    gc_oop_t numberOfArguments;
+    gc_oop_t numberOfConstants;
+
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     GCFrame* cachedFrame;
 #endif
-    
-    GCAbstractObject** indexableFields;
+
+    gc_oop_t* indexableFields;
     uint8_t* bytecodes;
     static const long VMMethodNumberOfFields;
 };
