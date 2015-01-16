@@ -129,6 +129,8 @@ std::map<std::string, struct alloc_data> allocationStats;
 
 map<long, long> integerHist;
 
+mutex Universe::output_mutex;
+
 void Universe::Start(long argc, char** argv) {
     theUniverse = new Universe();
     theUniverse->initialize(argc, argv);
