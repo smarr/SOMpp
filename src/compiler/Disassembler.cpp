@@ -29,13 +29,6 @@
 
 #include "Disassembler.h"
 
-
-//some helping macros
-#ifdef USE_TAGGING
-#define CLASS_OF(X) (IS_TAGGED(X)?integerClass:AS_POINTER(X)->GetClass())
-#else
-#define CLASS_OF(X) (X->GetClass())
-#endif
 #include <vm/Universe.h>
 
 #include <interpreter/bytecodes.h>
@@ -89,11 +82,7 @@ void Disassembler::dispatch(vm_oop_t o) {
             DebugPrint("%lld", static_cast<pVMBigInteger>(o)->GetEmbeddedInteger());
             DebugPrint("%g", static_cast<VMDouble*>(o)->GetEmbeddedDouble());
         else if(c == READBARRIER(integerClass))
-#ifdef USE_TAGGING
-            DebugPrint("%d", UNTAG_INTEGER(o));
-#else
-            DebugPrint("%d", static_cast<pVMInteger>(o)->GetEmbeddedInteger());
-#endif
+            DebugPrint("%lld", INT_VAL(o));
         else if(c == READBARRIER(symbolClass)) {
             DebugPrint("#%s", static_cast<VMSymbol*>(o)->GetChars());
         } else
@@ -347,11 +336,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
             vm_oop_t arg = ctxt->GetArgument(0, 0);
             uint8_t field_index = BC_1;
             
-#ifdef USE_TAGGING
-            pVMObject o = AS_POINTER(arg)->GetField(field_index);
-#else
-            pVMObject o = static_cast<VMObject*>(arg)->GetField(field_index);
-#endif
+            vm_oop_t o = ((VMObject*) arg)->GetField(field_index);
             VMClass* c = CLASS_OF(o);
             VMSymbol* cname = c->GetName();
             long fieldIdx = BC_1;
@@ -381,11 +366,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
             break;
         }
         case BC_PUSH_GLOBAL: {
-#ifdef USE_TAGGING
-            pVMSymbol name = static_cast<pVMSymbol>(AS_POINTER(method->GetConstant(bc_idx)));
-#else
-            pVMSymbol name = static_cast<pVMSymbol>(method->GetConstant(bc_idx));
-#endif
+            VMSymbol* name = static_cast<VMSymbol*>(method->GetConstant(bc_idx));
             vm_oop_t o = GetUniverse()->GetGlobal(name);
             VMSymbol* cname;
 

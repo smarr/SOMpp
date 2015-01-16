@@ -50,20 +50,14 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     cachedFrame = nullptr;
 #endif
-#ifdef USE_TAGGING
-    bcLength = TAG_INTEGER(bcCount);
-    numberOfLocals = TAG_INTEGER(0);
-    maximumNumberOfStackElements = TAG_INTEGER(0);
-    numberOfArguments = TAG_INTEGER(0);
-    this->numberOfConstants = TAG_INTEGER(numberOfConstants);
-#else
-    bcLength = WRITEBARRIER(GetUniverse()->NewInteger(bcCount));
-    numberOfLocals = WRITEBARRIER(GetUniverse()->NewInteger(0));
-    maximumNumberOfStackElements = WRITEBARRIER(GetUniverse()->NewInteger(0));
-    numberOfArguments = WRITEBARRIER(GetUniverse()->NewInteger(0));
-    this->numberOfConstants = WRITEBARRIER(GetUniverse()->NewInteger(numberOfConstants));
-#endif
     indexableFields = (GCAbstractObject**)(&indexableFields + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
+
+    bcLength                     = WRITEBARRIER(NEW_INT(bcCount));
+    numberOfLocals               = WRITEBARRIER(NEW_INT(0));
+    maximumNumberOfStackElements = WRITEBARRIER(NEW_INT(0));
+    numberOfArguments            = WRITEBARRIER(NEW_INT(0));
+    this->numberOfConstants      = WRITEBARRIER(NEW_INT(numberOfConstants));
+
     for (long i = 0; i < numberOfConstants; ++i) {
         indexableFields[i] = WRITEBARRIER(READBARRIER(nilObject));
     }
@@ -130,52 +124,32 @@ void VMMethod::SetCachedFrame(VMFrame* frame) {
 #endif
 
 void VMMethod::SetNumberOfLocals(long nol) {
-#ifdef USE_TAGGING
-    numberOfLocals = TAG_INTEGER(nol);
-#else
-    numberOfLocals = WRITEBARRIER(GetUniverse()->NewInteger(nol));
-#endif
+    numberOfLocals = WRITEBARRIER(NEW_INT(nol));
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, READBARRIER(numberOfLocals));
 #endif
 }
 
 long VMMethod::GetMaximumNumberOfStackElements() {
-#ifdef USE_TAGGING
-    return UNTAG_INTEGER(maximumNumberOfStackElements);
-#else
-    return READBARRIER(maximumNumberOfStackElements)->GetEmbeddedInteger();
-#endif
+    return INT_VAL(READBARRIER(maximumNumberOfStackElements));
 }
 
 void VMMethod::SetMaximumNumberOfStackElements(long stel) {
-#ifdef USE_TAGGING
-    maximumNumberOfStackElements = TAG_INTEGER(stel);
-#else
-    maximumNumberOfStackElements = WRITEBARRIER(GetUniverse()->NewInteger(stel));
-#endif
+    maximumNumberOfStackElements = WRITEBARRIER(NEW_INT(stel));
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, READBARRIER(maximumNumberOfStackElements));
 #endif
 }
 
 void VMMethod::SetNumberOfArguments(long noa) {
-#ifdef USE_TAGGING
-    numberOfArguments = TAG_INTEGER(noa);
-#else
-    numberOfArguments = WRITEBARRIER(GetUniverse()->NewInteger(noa));
-#endif
+    numberOfArguments = WRITEBARRIER(NEW_INT(noa));
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, READBARRIER(numberOfArguments));
 #endif
 }
 
 long VMMethod::GetNumberOfBytecodes() {
-#ifdef USE_TAGGING
-    return UNTAG_INTEGER(bcLength);
-#else
-    return READBARRIER(bcLength)->GetEmbeddedInteger();
-#endif
+    return INT_VAL(READBARRIER(bcLength));
 }
 
 void VMMethod::operator()(VMFrame* frame) {    
@@ -218,7 +192,7 @@ void VMMethod::MarkReferences() {
     ReadBarrierForGCThread(&maximumNumberOfStackElements);
     ReadBarrierForGCThread(&bcLength);
     ReadBarrierForGCThread(&numberOfArguments);
-    long numIndexableFields = ReadBarrierForGCThread(&numberOfConstants)->GetEmbeddedInteger();
+    long numIndexableFields = INT_VAL(ReadBarrierForGCThread(&numberOfConstants));
     
     for (long i = 0; i < numIndexableFields; ++i) {
         ReadBarrierForGCThread(&indexableFields[i]);
@@ -241,7 +215,7 @@ void VMMethod::CheckMarking(void (*walk)(AbstractVMObject*)) {
     assert(GetNMTValue(numberOfConstants) == _HEAP->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(numberOfConstants));
     walk(Untag(numberOfConstants));
-    long numIndexableFields = Untag(numberOfConstants)->GetEmbeddedInteger();
+    long numIndexableFields = INT_VAL(Untag(numberOfConstants));
     for (long i = 0; i < numIndexableFields; ++i) {
         assert(GetNMTValue(AS_GC_POINTER(indexableFields[i])) == _HEAP->GetGCThread()->GetExpectedNMT());
         CheckBlocked(Untag(AS_GC_POINTER(indexableFields[i])));
@@ -275,7 +249,7 @@ void VMMethod::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
 
 void VMMethod::MarkObjectAsInvalid() {
     VMInvokable::MarkObjectAsInvalid();
-    long numIndexableFields = READBARRIER(numberOfConstants)->GetEmbeddedInteger();
+    long numIndexableFields = INT_VAL(READBARRIER(numberOfConstants));
     for (long i = 0; i < numIndexableFields; ++i) {
         indexableFields[i] = (GCAbstractObject*) INVALID_GC_POINTER;
     }

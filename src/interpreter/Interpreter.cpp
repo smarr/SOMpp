@@ -350,14 +350,7 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
             this->SetFrame(VMFrame::EmergencyFrameFrom(_FRAME, additionalStackSlots));
         }
 
-#ifdef USE_TAGGING
-        if (IS_TAGGED(receiver))
-            GlobalBox::IntegerBox()->Send(dnu, arguments, 2);
-        else
-            AS_POINTER(receiver)->Send(dnu, arguments, 2);
-#else
-        receiver->Send(dnu, arguments, 2);
-#endif
+        AS_OBJ(receiver)->Send(doesNotUnderstand, arguments, 2);
     }
 }
 
@@ -387,19 +380,21 @@ void Interpreter::doPushArgument(long bytecodeIndex) {
 }
 
 void Interpreter::doPushField(long bytecodeIndex) {
-#ifdef USE_TAGGING
-    if (IS_TAGGED(self)) {
-        o = GlobalBox::IntegerBox()->GetField(fieldIndex);
     uint8_t fieldIndex = GetMethod()->GetBytecode(bytecodeIndex + 1);
     vm_oop_t self = GetSelf();
     vm_oop_t o;
+    
+    assert(Universe::IsValidObject(self));
+
+    if (unlikely(IS_TAGGED(self))) {
+        o = nullptr;
+        Universe()->ErrorExit("Integers do not have fields!");
     }
     else {
-        o = AS_POINTER(self)->GetField(fieldIndex);
+        o = ((VMObject*)self)->GetField(fieldIndex);
     }
-#else
-    o = static_cast<VMObject*>(self)->GetField(fieldIndex);
-#endif
+    
+    assert(Universe::IsValidObject(o));
 
     GetFrame()->Push(o);
 }
@@ -451,14 +446,7 @@ void Interpreter::doPushGlobal(long bytecodeIndex) {
                             additionalStackSlots));
         }
 
-#ifdef USE_TAGGING
-        if (IS_TAGGED(self))
-            GlobalBox::IntegerBox()->Send(uG, arguments, 1);
-        else
-            AS_POINTER(self)->Send(uG, arguments, 1);
-#else
-        self->Send(uG, arguments, 1);
-#endif
+        AS_OBJ(self)->Send(unknownGlobal, arguments, 1);
     }
 }
 

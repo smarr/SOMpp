@@ -1,21 +1,13 @@
 #pragma once
 
 inline long VMMethod::GetNumberOfLocals() {
-#ifdef USE_TAGGING
-    return UNTAG_INTEGER(numberOfLocals);
-#else
-    return READBARRIER(numberOfLocals)->GetEmbeddedInteger();
-#endif
+    return INT_VAL(READBARRIER(numberOfLocals));
 }
 
 long VMMethod::GetNumberOfIndexableFields() {
     //cannot be done using GetAdditionalSpaceConsumption,
     //as bytecodes need space, too, and there might be padding
-#ifdef USE_TAGGING
-    return UNTAG_INTEGER(this->numberOfConstants);
-#else
-    return READBARRIER(this->numberOfConstants)->GetEmbeddedInteger();
-#endif
+    return INT_VAL(READBARRIER(this->numberOfConstants));
 }
 
 uint8_t* VMMethod::GetBytecodes() const {
@@ -23,16 +15,12 @@ uint8_t* VMMethod::GetBytecodes() const {
 }
 
 inline long VMMethod::GetNumberOfArguments() {
-#ifdef USE_TAGGING
-    return UNTAG_INTEGER(numberOfArguments);
-#else
-    return READBARRIER(numberOfArguments)->GetEmbeddedInteger();
-#endif
+    return INT_VAL(READBARRIER(numberOfArguments));
 }
 
 #if GC_TYPE==PAUSELESS
 inline  long VMMethod::GetNumberOfArgumentsGC() {
-    return ReadBarrierForGCThread(&numberOfArguments)->GetEmbeddedInteger();
+    return INT_VAL(ReadBarrierForGCThread(&numberOfArguments));
 }
 #endif
 
