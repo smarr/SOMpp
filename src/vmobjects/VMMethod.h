@@ -80,7 +80,7 @@ public:
     
     inline  long      GetNumberOfIndexableFields();
 
-    inline  void      SetIndexableField(long idx, VMObject* item);
+    inline  void      SetIndexableField(long idx, vm_oop_t item);
 
     //-----------VMInvokable-------------//
     //operator "()" to invoke the method

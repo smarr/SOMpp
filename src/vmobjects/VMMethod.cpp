@@ -50,7 +50,6 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     cachedFrame = nullptr;
 #endif
-    indexableFields = (GCAbstractObject**)(&indexableFields + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
 
     bcLength                     = WRITEBARRIER(NEW_INT(bcCount));
     numberOfLocals               = WRITEBARRIER(NEW_INT(0));
@@ -58,6 +57,7 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
     numberOfArguments            = WRITEBARRIER(NEW_INT(0));
     this->numberOfConstants      = WRITEBARRIER(NEW_INT(numberOfConstants));
 
+    indexableFields = (gc_oop_t*)(&indexableFields + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
     for (long i = 0; i < numberOfConstants; ++i) {
         indexableFields[i] = WRITEBARRIER(READBARRIER(nilObject));
     }

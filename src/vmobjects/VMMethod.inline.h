@@ -28,7 +28,7 @@ vm_oop_t VMMethod::GetIndexableField(long idx) {
     return READBARRIER(indexableFields[idx]);
 }
 
-void VMMethod::SetIndexableField(long idx, VMObject* item) {
+void VMMethod::SetIndexableField(long idx, vm_oop_t item) {
     indexableFields[idx] = WRITEBARRIER(item);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, item);
