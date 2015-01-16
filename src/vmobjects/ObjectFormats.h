@@ -28,26 +28,38 @@
 //some MACROS for integer tagging
 /**
  * max value for tagged integers
- * 01111111 11111111 11111111 1111111X  
+ * 01111111 11111111 ... 11111111 1111111X
+ *
  */
-#define VMTAGGEDINTEGER_MAX  1073741823
+#define VMTAGGEDINTEGER_MAX  0x3FFFFFFFFFFFFFFF
 
 /**
  * min value for tagged integers
- * 10000000 00000000 00000000 0000000X  
+ * 10000000 00000000 ... 00000000 0000000X
  */
-#define VMTAGGEDINTEGER_MIN -1073741824
+#define VMTAGGEDINTEGER_MIN -0x4000000000000000
 #define AS_VM_POINTER(X) ((AbstractVMObject*)X)
 #define AS_GC_POINTER(X) ((GCAbstractObject*)X)
 
-#ifdef ADDITIONAL_ALLOCATION
-#define TAG_INTEGER(X) ((X >= VMTAGGEDINTEGER_MIN && X <= VMTAGGEDINTEGER_MAX && _UNIVERSE->NewInteger(0)) ? ((pVMInteger)((X << 1) | 1)) : (_UNIVERSE->NewInteger(X)))
+#if ADDITIONAL_ALLOCATION
+#define TAG_INTEGER(X) (((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX && GetUniverse()->NewInteger(0)) ? ((vm_oop_t)(((X) << 1) | 1)) : (GetUniverse()->NewInteger(X)))
 #else
-#define TAG_INTEGER(X) ((X >= VMTAGGEDINTEGER_MIN && X <= VMTAGGEDINTEGER_MAX) ? ((pVMInteger)((X << 1) | 1)) : (_UNIVERSE->NewInteger(X)))
+#define TAG_INTEGER(X) (((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX) ? ((vm_oop_t)(((X) << 1) | 1)) : (GetUniverse()->NewInteger(X)))
 #endif
 
-#define UNTAG_INTEGER(X) (((long)X&1) ? ((long)X>>1) : (((VMInteger*)X)->GetEmbeddedInteger()))
-#define IS_TAGGED(X) ((long)X&1)
+#if USE_TAGGING
+  #define INT_VAL(X) (IS_TAGGED(X) ? ((int64_t)(X)>>1) : (((VMInteger*)(X))->GetEmbeddedInteger()))
+  #define NEW_INT(X) (TAG_INTEGER((X)))
+  #define IS_TAGGED(X) ((int64_t)X&1)
+  #define CLASS_OF(X) (IS_TAGGED(X)?load_ptr(integerClass):((AbstractVMObject*)(X))->GetClass())
+  #define AS_OBJ(X) (IS_TAGGED(X)?GlobalBox::IntegerBox():((AbstractVMObject*)(X)))
+#else
+  #define INT_VAL(X) (static_cast<VMInteger*>(X)->GetEmbeddedInteger())
+  #define NEW_INT(X) (GetUniverse()->NewInteger(X))
+  #define IS_TAGGED(X) false
+  #define CLASS_OF(X) (AS_OBJ(X)->GetClass())
+  #define AS_OBJ(X) ((AbstractVMObject*)(X))
+#endif
 
 
 // Forward definitions of VM object classes
