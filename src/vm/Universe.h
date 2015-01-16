@@ -154,7 +154,7 @@ public:
     vm_oop_t GetGlobal(VMSymbol*);
     void SetGlobal(VMSymbol* name, vm_oop_t val);
     bool HasGlobal(VMSymbol*);
-    void InitializeGlobals();
+    VMObject* InitializeGlobals();
     VMClass* GetBlockClass(void) const;
     VMClass* GetBlockClassWithArgs(long);
 
