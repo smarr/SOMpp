@@ -95,7 +95,6 @@ GCClass* metaClassClass;
 
 GCClass* nilClass;
 GCClass* integerClass;
-GCClass* bigIntegerClass;
 GCClass* arrayClass;
 GCClass* methodClass;
 GCClass* symbolClass;
@@ -1072,7 +1071,6 @@ void Universe::MarkGlobals() {
     
     ReadBarrierForGCThread(&nilClass, true);
     ReadBarrierForGCThread(&integerClass, true);
-    ReadBarrierForGCThread(&bigIntegerClass, true);
     ReadBarrierForGCThread(&arrayClass, true);
     ReadBarrierForGCThread(&methodClass, true);
     ReadBarrierForGCThread(&symbolClass, true);
@@ -1162,7 +1160,6 @@ void  Universe::CheckMarkingGlobals(void (*walk)(vm_oop_t)) {
     
     walk(Untag(nilClass));
     walk(Untag(integerClass));
-    walk(Untag(bigIntegerClass));
     walk(Untag(arrayClass));
     walk(Untag(methodClass));
     walk(Untag(symbolClass));
