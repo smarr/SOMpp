@@ -1305,7 +1305,7 @@ VMMethod* Universe::NewMethod( VMSymbol* signature,
 #else
     VMMethod* result = new (_HEAP,additionalBytes)
 #endif
-    VMMethod(numberOfBytecodes, numberOfConstants);
+    VMMethod(numberOfBytecodes, numberOfConstants, 0);
 
     result->SetClass(READBARRIER(methodClass));
 

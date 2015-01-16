@@ -45,7 +45,7 @@ class VMMethod: public VMInvokable {
 public:
     typedef GCMethod Stored;
     
-    VMMethod(long bcCount, long numberOfConstants, long nof = 0);
+    VMMethod(long bcCount, long numberOfConstants, long nof);
 
     inline  long      GetNumberOfLocals();
             void      SetNumberOfLocals(long nol);
