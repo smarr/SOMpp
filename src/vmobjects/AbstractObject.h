@@ -27,11 +27,13 @@
 
 #include "VMObjectBase.h"
 
+#include <interpreter/Interpreter.h>
+
 
 /*
  * macro for padding - only word-aligned memory must be allocated
  */
-#define PADDED_SIZE(N) ((((uint32_t)N)+(sizeof(void*)-1) & ~(sizeof(void*)-1)))
+#define PADDED_SIZE(N) ((((size_t)(N))+(sizeof(void*)-1) & ~(sizeof(void*)-1)))
 
 class VMClass;
 class VMObject;
