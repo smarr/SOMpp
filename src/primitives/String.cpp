@@ -67,39 +67,27 @@ void _String::AsSymbol(VMObject* /*object*/, VMFrame* frame) {
 
 void _String::Hashcode(VMObject* /*object*/, VMFrame* frame) {
     VMString* self = static_cast<VMString*>(frame->Pop());
-#ifdef USE_TAGGING
-    frame->Push(TAG_INTEGER(AS_POINTER(self)->GetHash()));
-#else
-    frame->Push(GetUniverse()->NewInteger(self->GetHash()));
-#endif
+    frame->Push(NEW_INT(self->GetHash()));
 }
 
 void _String::Length(VMObject* /*object*/, VMFrame* frame) {
     VMString* self = static_cast<VMString*>(frame->Pop());
 
     size_t len = self->GetStringLength();
-#ifdef USE_TAGGING
-    frame->Push(TAG_INTEGER(len));
-#else
-    frame->Push(GetUniverse()->NewInteger((long)len));
-#endif
+    frame->Push(NEW_INT(len));
 }
 
 void _String::Equal(VMObject* /*object*/, VMFrame* frame) {
-    VMObject* op1 = frame->Pop();
+    vm_oop_t  op1 = frame->Pop();
     VMString* op2 = static_cast<VMString*>(frame->Pop());
 
-#ifdef USE_TAGGING
     if (IS_TAGGED(op1)) {
-        frame->Push(falseObject);
+        frame->Push(READBARRIER(falseObject));
         return;
     }
-    VMClass* otherClass = AS_POINTER(op1)->GetClass();
-#else
-    VMClass* otherClass = op1->GetClass();
-#endif
-    if(otherClass == READBARRIER(stringClass)) {
 
+    VMClass* otherClass = CLASS_OF(op1);
+    if(otherClass == READBARRIER(stringClass)) {
         StdString s1 = static_cast<VMString*>(op1)->GetStdString();
         StdString s2 = op2->GetStdString();
 
@@ -112,21 +100,17 @@ void _String::Equal(VMObject* /*object*/, VMFrame* frame) {
 }
 
 void _String::PrimSubstringFrom_to_(VMObject* /*object*/, VMFrame* frame) {
-    VMInteger* end = static_cast<VMInteger*>(frame->Pop());
-    VMInteger* start = static_cast<VMInteger*>(frame->Pop());
+    vm_oop_t end   = frame->Pop();
+    vm_oop_t start = frame->Pop();
 
     VMString* self = static_cast<VMString*>(frame->Pop());
     StdString str = self->GetStdString();
-#ifdef USE_TAGGING
-    long s = UNTAG_INTEGER(start) - 1;
-    long e = UNTAG_INTEGER(end) - 1;
-#else
-    long s = start->GetEmbeddedInteger() - 1;
-    long e = end->GetEmbeddedInteger() - 1;
-#endif
+
+    long s = INT_VAL(start) - 1;
+    long e = INT_VAL(end) - 1;
 
     StdString result = str.substr(s, e - s + 1);
 
-    frame->Push( GetUniverse()->NewString(result));
+    frame->Push(GetUniverse()->NewString(result));
 }
 
