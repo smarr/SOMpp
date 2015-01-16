@@ -118,7 +118,8 @@ public:
 
     //VMObject instanciation methods. These should probably be refactored to a new class
     VMArray* NewArray(long) const;
-    VMArray* NewArrayList(ExtendedList<VMObject*>& list) const;
+    VMArray* NewArrayList(ExtendedList<vm_oop_t>& list) const;
+    VMArray* NewArrayList(ExtendedList<VMInvokable*>& list) const;
     VMArray* NewArrayList(ExtendedList<VMSymbol*>& list) const;
     VMArray* NewArrayFromStrings(const vector<StdString>&) const;
     VMBlock* NewBlock(VMMethod*, VMFrame*, long);
