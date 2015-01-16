@@ -118,10 +118,13 @@ GCSymbol* symbolIfFalse;
 std::map<std::string, GCSymbol*> symbolsMap;
 
 std::string bm_name;
+
 #ifdef GENERATE_ALLOCATION_STATISTICS
 struct alloc_data {long noObjects; long sizeObjects;};
 std::map<std::string, struct alloc_data> allocationStats;
 #define LOG_ALLOCATION(TYPE,SIZE) {struct alloc_data tmp=allocationStats[TYPE];tmp.noObjects++;tmp.sizeObjects+=(SIZE);allocationStats[TYPE]=tmp;}
+#else
+#define LOG_ALLOCATION(TYPE,SIZE)
 #endif
 
 map<long, long> integerHist;
@@ -870,10 +873,7 @@ VMArray* Universe::NewArray(long size) const {
 
     result->SetClass(READBARRIER(arrayClass));
     
-#ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION("VMArray", result->GetObjectSize());
-#endif
-    
     return result;
 }
 
@@ -924,10 +924,8 @@ VMBlock* Universe::NewBlock(VMMethod* method, VMFrame* context, long arguments) 
 
     result->SetMethod(method);
     result->SetContext(context);
-#ifdef GENERATE_ALLOCATION_STATISTICS
-    LOG_ALLOCATION("VMBlock", result->GetObjectSize());
-#endif
 
+    LOG_ALLOCATION("VMBlock", result->GetObjectSize());
     return result;
 }
 
@@ -953,17 +951,13 @@ VMClass* Universe::NewClass(VMClass* classOfClass) const {
 #endif
 
     result->SetClass(classOfClass);
-#ifdef GENERATE_ALLOCATION_STATISTICS
-    LOG_ALLOCATION("VMClass", result->GetObjectSize());
-#endif
 
+    LOG_ALLOCATION("VMClass", result->GetObjectSize());
     return result;
 }
 
 VMDouble* Universe::NewDouble(double value) const {
-#ifdef GENERATE_ALLOCATION_STATISTICS
     LOG_ALLOCATION("VMDouble", sizeof(VMDouble));
-#endif
 #if GC_TYPE==GENERATIONAL
     return new (_HEAP, _PAGE) VMDouble(value);
 #elif GC_TYPE==PAUSELESS
@@ -1001,9 +995,8 @@ VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method) const {
 #endif
     result->clazz = nullptr;
     result->method = WRITEBARRIER(method);
-#ifdef GENERATE_ALLOCATION_STATISTICS
+
     LOG_ALLOCATION("VMFrame", result->GetObjectSize());
-#endif
     result->previousFrame = WRITEBARRIER(previousFrame);
     result->ResetStackPointer();
     return result;
@@ -1021,9 +1014,8 @@ VMObject* Universe::NewInstance( VMClass* classOfInstance) const {
     VMObject* result = new (_HEAP, additionalBytes) VMObject(numOfFields);
 #endif
     result->SetClass(classOfInstance);
-#ifdef GENERATE_ALLOCATION_STATISTICS
+
     LOG_ALLOCATION(classOfInstance->GetName()->GetStdString(), result->GetObjectSize());
-#endif
     return result;
 }
 
@@ -1039,10 +1031,8 @@ VMInteger* Universe::NewInteger(int64_t value) const {
         return prebuildInts[index];
     }
 #endif
-#ifdef GENERATE_ALLOCATION_STATISTICS
-    LOG_ALLOCATION("VMInteger", sizeof(VMInteger));
-#endif
 
+    LOG_ALLOCATION("VMInteger", sizeof(VMInteger));
 #if GC_TYPE==GENERATIONAL
     return new (_HEAP, _PAGE) VMInteger(value);
 #elif GC_TYPE==PAUSELESS
@@ -1065,10 +1055,8 @@ VMClass* Universe::NewMetaclassClass() const {
 #endif
     VMClass* mclass = result->GetClass();
     mclass->SetClass(result);
-#ifdef GENERATE_ALLOCATION_STATISTICS
-    LOG_ALLOCATION("VMClass", result->GetObjectSize());
-#endif
 
+    LOG_ALLOCATION("VMClass", result->GetObjectSize());
     return result;
 }
 
@@ -1311,10 +1299,9 @@ VMMethod* Universe::NewMethod( VMSymbol* signature,
     result->SetClass(READBARRIER(methodClass));
 
     result->SetSignature(signature);
-#ifdef GENERATE_ALLOCATION_STATISTICS
-    LOG_ALLOCATION("VMMethod", result->GetObjectSize());
-#endif
 
+
+    LOG_ALLOCATION("VMMethod", result->GetObjectSize());
     return result;
 }
 
@@ -1327,9 +1314,8 @@ VMMutex* Universe::NewMutex() const {
     VMMutex* result = new (_HEAP) VMMutex();
 #endif
     result->SetClass(READBARRIER(mutexClass));
-#ifdef GENERATE_ALLOCATION_STATISTICS
+
     LOG_ALLOCATION("VMMutex", sizeof(VMMutex));
-#endif
     return result;
 }
 
@@ -1342,9 +1328,8 @@ VMSignal* Universe::NewSignal() const {
     VMSignal* result = new (_HEAP) VMSignal();
 #endif
     result->SetClass(READBARRIER(signalClass));
-#ifdef GENERATE_ALLOCATION_STATISTICS
+
     LOG_ALLOCATION("VMSignal", sizeof(VMSignal));
-#endif
     return result;
 }
 
@@ -1359,9 +1344,8 @@ VMThread* Universe::NewThread() const {
     //result->SetThreadId(threadCounter);
     //threadCounter += 1;
     result->SetClass(READBARRIER(threadClass));
-#ifdef GENERATE_ALLOCATION_STATISTICS
+
     LOG_ALLOCATION("VMThread", sizeof(VMThread));
-#endif
     return result;
 }
 
@@ -1377,9 +1361,8 @@ VMString* Universe::NewString( const char* str) const {
 #else
     VMString* result = new (_HEAP, PADDED_SIZE(strlen(str) + 1)) VMString(str);
 #endif
-#ifdef GENERATE_ALLOCATION_STATISTICS
+
     LOG_ALLOCATION("VMString", result->GetObjectSize());
-#endif
     return result;
 }
 
@@ -1396,9 +1379,8 @@ VMSymbol* Universe::NewSymbol( const char* str ) {
     VMSymbol* result = new (_HEAP, PADDED_SIZE(strlen(str)+1)) VMSymbol(str);
 #endif
     symbolsMap[str] = WRITEBARRIER(result);
-#ifdef GENERATE_ALLOCATION_STATISTICS
+
     LOG_ALLOCATION("VMSymbol", result->GetObjectSize());
-#endif
     return result;
 }
 
@@ -1417,10 +1399,8 @@ VMClass* Universe::NewSystemClass() const {
     VMClass* mclass = systemClass->GetClass();
 
     mclass->SetClass(READBARRIER(metaClassClass));
-#ifdef GENERATE_ALLOCATION_STATISTICS
-    LOG_ALLOCATION("VMClass", systemClass->GetObjectSize());
-#endif
 
+    LOG_ALLOCATION("VMClass", systemClass->GetObjectSize());
     return systemClass;
 }
 
