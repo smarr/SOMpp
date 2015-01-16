@@ -151,6 +151,7 @@ public:
 
     vm_oop_t GetGlobal(VMSymbol*);
     void SetGlobal(VMSymbol* name, vm_oop_t val);
+    bool HasGlobal(VMSymbol*);
     void InitializeGlobals();
     VMClass* GetBlockClass(void) const;
     VMClass* GetBlockClassWithArgs(long);
@@ -201,8 +202,8 @@ private:
     void initialize(long, char**);
 
     PagedHeap* heap;
-    long heapSize;
-    long pageSize;
+    size_t heapSize;
+    size_t pageSize;
 
     map<GCSymbol*, gc_oop_t> globals;
     map<long, GCClass*> blockClassesByNoOfArgs;

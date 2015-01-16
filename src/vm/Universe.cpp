@@ -201,7 +201,7 @@ vector<StdString> Universe::handleArguments(long argc, char** argv) {
         } else if (strncmp(argv[i], "-g", 2) == 0) {
             ++gcVerbosity;
         } else if (strncmp(argv[i], "-H", 2) == 0) {
-            long heap_size = 0;
+            size_t heap_size = 0;
             char unit[3];
             if (sscanf(argv[i], "-H%ld%2s", &heap_size, unit) == 2) {
                 if (strcmp(unit, "KB") == 0)
@@ -435,8 +435,8 @@ Universe::~Universe() {
     void* vt_mutex;
     void* vt_signal;
 
-    bool Universe::IsValidObject(const VMObject* const obj) {
-        if (obj == (VMObject*) INVALID_VM_POINTER
+    bool Universe::IsValidObject(vm_oop_t obj) {
+        if (obj == INVALID_VM_POINTER
             // || obj == nullptr
             ) {
             assert(false);
@@ -539,7 +539,7 @@ Universe::~Universe() {
 #if GC_TYPE==GENERATIONAL
         VMInteger* i  = new (_HEAP, _PAGE) VMInteger();
 #elif GC_TYPE==PAUSELESS
-        VMInteger* i  = new (_HEAP, GetUniverse()->GetInterpreter()) VMInteger();
+        VMInteger* i  = new (_HEAP, GetUniverse()->GetInterpreter()) VMInteger(0);
 #else
         VMInteger* i  = new (_HEAP) VMInteger();
 #endif

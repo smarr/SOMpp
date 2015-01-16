@@ -82,7 +82,7 @@ VMPrimitive* VMPrimitive::Clone() {
 }
 #endif
 
-void VMPrimitive::EmptyRoutine( VMObject* _self, VMFrame* /*frame*/) {
+void VMPrimitive::EmptyRoutine(VMObject* _self, VMFrame* /*frame*/) {
     VMInvokable* self = static_cast<VMInvokable*>(_self);
     VMSymbol* sig = self->GetSignature();
     cout << "undefined primitive called: " << sig->GetChars() << endl;
