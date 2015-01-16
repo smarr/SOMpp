@@ -79,12 +79,12 @@ VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength) {
 
     // copy all fields from other frame
     while (from->arguments + i < from_end) {
-        result->arguments[i] = WRITEBARRIER(load_ptr(from->arguments[i]));
+        result->arguments[i] = store_ptr(load_ptr(from->arguments[i]));
         i++;
     }
     // initialize others with nilObject
     while (result->arguments + i < result_end) {
-        result->arguments[i] = WRITEBARRIER(load_ptr(nilObject));
+        result->arguments[i] = store_ptr(load_ptr(nilObject));
         i++;
     }
     return result;
@@ -163,13 +163,13 @@ VMFrame::VMFrame(long size, long nof) :
     gc_oop_t* end = (gc_oop_t*) SHIFTED_PTR(this, objectSize);
     long i = 0;
     while (arguments + i < end) {
-        arguments[i] = WRITEBARRIER(load_ptr(nilObject));
+        arguments[i] = store_ptr(load_ptr(nilObject));
         i++;
     }
 }
 
 void VMFrame::SetMethod(VMMethod* method) {
-    this->method = WRITEBARRIER(method);
+    this->method = store_ptr(method);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, method);
 #endif
@@ -212,7 +212,7 @@ void VMFrame::Push(vm_oop_t obj) {
     _HEAP->WriteBarrier(this, (VMOBJECT_PTR)obj);
 #endif
     ++stack_ptr;
-    *stack_ptr = WRITEBARRIER(obj);
+    *stack_ptr = store_ptr(obj);
 }
 
 void VMFrame::PrintStack() const {
@@ -278,7 +278,7 @@ vm_oop_t VMFrame::GetLocal(long index, long contextLevel) {
 
 void VMFrame::SetLocal(long index, long contextLevel, vm_oop_t value) {
     VMFrame* context = GetContextLevel(contextLevel);
-    context->locals[index] = WRITEBARRIER(value);
+    context->locals[index] = store_ptr(value);
     std::atomic_thread_fence(std::memory_order_seq_cst);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(context, (VMOBJECT_PTR)value);
@@ -296,7 +296,7 @@ vm_oop_t VMFrame::GetArgument(long index, long contextLevel) {
 
 void VMFrame::SetArgument(long index, long contextLevel, vm_oop_t value) {
     VMFrame* context = GetContextLevel(contextLevel);
-    context->arguments[index] = WRITEBARRIER(value);
+    context->arguments[index] = store_ptr(value);
     std::atomic_thread_fence(std::memory_order_seq_cst);
     
 #if GC_TYPE==GENERATIONAL
@@ -320,7 +320,7 @@ void VMFrame::CopyArgumentsFrom(VMFrame* frame) {
     long num_args = GetMethod()->GetNumberOfArguments();
     for (long i = 0; i < num_args; ++i) {
         vm_oop_t stackElem = frame->GetStackElement(num_args - 1 - i);
-        arguments[i] = WRITEBARRIER(stackElem);
+        arguments[i] = store_ptr(stackElem);
 #if GC_TYPE==GENERATIONAL
         _HEAP->WriteBarrier(this, (VMOBJECT_PTR)stackElem);
 #endif

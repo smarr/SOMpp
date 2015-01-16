@@ -609,25 +609,25 @@ VMObject* Universe::InitializeGlobals() {
 #else
     VMObject* nil = new (_HEAP) VMObject;
 #endif
-    nilObject = WRITEBARRIER(nil);
+    nilObject = store_ptr(nil);
     
     static_cast<VMObject*>(load_ptr(nilObject))->SetField(0, load_ptr(nilObject));
 
-    metaClassClass = WRITEBARRIER(NewMetaclassClass());
+    metaClassClass = store_ptr(NewMetaclassClass());
 
-    objectClass     = WRITEBARRIER(NewSystemClass());
-    nilClass        = WRITEBARRIER(NewSystemClass());
-    classClass      = WRITEBARRIER(NewSystemClass());
-    arrayClass      = WRITEBARRIER(NewSystemClass());
-    symbolClass     = WRITEBARRIER(NewSystemClass());
-    methodClass     = WRITEBARRIER(NewSystemClass());
-    integerClass    = WRITEBARRIER(NewSystemClass());
-    primitiveClass  = WRITEBARRIER(NewSystemClass());
-    stringClass     = WRITEBARRIER(NewSystemClass());
-    doubleClass     = WRITEBARRIER(NewSystemClass());
-    threadClass     = WRITEBARRIER(NewSystemClass());
-    mutexClass      = WRITEBARRIER(NewSystemClass());
-    signalClass     = WRITEBARRIER(NewSystemClass());
+    objectClass     = store_ptr(NewSystemClass());
+    nilClass        = store_ptr(NewSystemClass());
+    classClass      = store_ptr(NewSystemClass());
+    arrayClass      = store_ptr(NewSystemClass());
+    symbolClass     = store_ptr(NewSystemClass());
+    methodClass     = store_ptr(NewSystemClass());
+    integerClass    = store_ptr(NewSystemClass());
+    primitiveClass  = store_ptr(NewSystemClass());
+    stringClass     = store_ptr(NewSystemClass());
+    doubleClass     = store_ptr(NewSystemClass());
+    threadClass     = store_ptr(NewSystemClass());
+    mutexClass      = store_ptr(NewSystemClass());
+    signalClass     = store_ptr(NewSystemClass());
 
     load_ptr(nilObject)->SetClass(load_ptr(nilClass));
 
@@ -667,21 +667,21 @@ VMObject* Universe::InitializeGlobals() {
     LoadSystemClass(load_ptr(mutexClass));
     LoadSystemClass(load_ptr(signalClass));
 
-    blockClass = WRITEBARRIER(LoadClass(SymbolForChars("Block")));
+    blockClass = store_ptr(LoadClass(SymbolForChars("Block")));
 
     VMSymbol* trueClassName = SymbolForChars("True");
-    trueClass  = WRITEBARRIER(LoadClass(trueClassName));
-    trueObject = (GCObject*) WRITEBARRIER(NewInstance(load_ptr(trueClass)));
+    trueClass  = store_ptr(LoadClass(trueClassName));
+    trueObject = (GCObject*) store_ptr(NewInstance(load_ptr(trueClass)));
     
     VMSymbol* falseClassName = SymbolForChars("False");
-    falseClass  = WRITEBARRIER(LoadClass(falseClassName));
-    falseObject = (GCObject*) WRITEBARRIER(NewInstance(load_ptr(falseClass)));
+    falseClass  = store_ptr(LoadClass(falseClassName));
+    falseObject = (GCObject*) store_ptr(NewInstance(load_ptr(falseClass)));
 
-    systemClass = WRITEBARRIER(LoadClass(SymbolForChars("System")));
+    systemClass = store_ptr(LoadClass(SymbolForChars("System")));
 
     
     VMObject* systemObj = NewInstance(load_ptr(systemClass));
-    systemObject = WRITEBARRIER(systemObj);
+    systemObject = store_ptr(systemObj);
     
     
     SetGlobal(SymbolForChars("nil"),    load_ptr(nilObject));
@@ -691,8 +691,8 @@ VMObject* Universe::InitializeGlobals() {
     SetGlobal(SymbolForChars("System"), load_ptr(systemClass));
     SetGlobal(SymbolForChars("Block"),  load_ptr(blockClass));
     
-    symbolIfTrue  = WRITEBARRIER(SymbolForChars("ifTrue:"));
-    symbolIfFalse = WRITEBARRIER(SymbolForChars("ifFalse:"));
+    symbolIfTrue  = store_ptr(SymbolForChars("ifTrue:"));
+    symbolIfFalse = store_ptr(SymbolForChars("ifFalse:"));
 
     return systemObj;
 }
@@ -730,7 +730,7 @@ VMClass* Universe::GetBlockClassWithArgs(long numberOfArguments) {
 #endif
 
     SetGlobal(name, result);
-    blockClassesByNoOfArgs[numberOfArguments] = WRITEBARRIER(result);
+    blockClassesByNoOfArgs[numberOfArguments] = store_ptr(result);
 
     return result;
 }
@@ -1015,10 +1015,10 @@ VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method) const {
     result = new (_HEAP, additionalBytes) VMFrame(length);
 #endif
     result->clazz = nullptr;
-    result->method = WRITEBARRIER(method);
+    result->method = store_ptr(method);
 
     LOG_ALLOCATION("VMFrame", result->GetObjectSize());
-    result->previousFrame = WRITEBARRIER(previousFrame);
+    result->previousFrame = store_ptr(previousFrame);
     result->ResetStackPointer();
     return result;
 }
@@ -1397,7 +1397,7 @@ VMSymbol* Universe::NewSymbol( const char* str ) {
 #else
     VMSymbol* result = new (_HEAP, PADDED_SIZE(strlen(str)+1)) VMSymbol(str);
 #endif
-    symbolsMap[str] = WRITEBARRIER(result);
+    symbolsMap[str] = store_ptr(result);
 
     LOG_ALLOCATION("VMSymbol", result->GetObjectSize());
     return result;
@@ -1441,7 +1441,7 @@ VMSymbol* Universe::SymbolForChars(const char* str) {
 
 void Universe::SetGlobal(VMSymbol* name, vm_oop_t val) {
     pthread_mutex_lock(&testMutex);
-    globals[WRITEBARRIER(name)] = WRITEBARRIER(val);
+    globals[store_ptr(name)] = store_ptr(val);
     pthread_mutex_unlock(&testMutex);
 }
 

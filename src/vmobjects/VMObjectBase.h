@@ -12,9 +12,9 @@
 #endif
 
 #if GC_TYPE==PAUSELESS
-#define WRITEBARRIER(reference) (WriteBarrier(reference))
+#define store_ptr(reference) (WriteBarrier(reference))
 #else
-#define WRITEBARRIER(reference) (WriteBarrier(reference))
+#define store_ptr(reference) (WriteBarrier(reference))
 #endif
 
 class VMObjectBase : public VMOop {

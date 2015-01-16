@@ -91,13 +91,13 @@ void VMObject::SetNumberOfFields(long nof) {
     this->numberOfFields = nof;
     // initialize fields with NilObject
     for (long i = 0; i < nof; ++i) {
-        FIELDS[i] = WRITEBARRIER(load_ptr(nilObject));
+        FIELDS[i] = store_ptr(load_ptr(nilObject));
     }
 }
 
 void VMObject::SetClass(VMClass* cl) {
     assert(Universe::IsValidObject((AbstractVMObject*) cl));
-    clazz = WRITEBARRIER(cl);
+    clazz = store_ptr(cl);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, cl);
 #endif
@@ -118,7 +118,7 @@ vm_oop_t VMObject::GetField(long index) /*const*/ {
 }
 
 void VMObject::SetField(long index, vm_oop_t value) {
-    FIELDS[index] = WRITEBARRIER(value);
+    FIELDS[index] = store_ptr(value);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, (VMOBJECT_PTR)value);
 #endif

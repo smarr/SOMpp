@@ -128,7 +128,7 @@ Interpreter::Interpreter() : BaseThread() {
 void Interpreter::Start() {
     // initialization
 
-    // method = WRITEBARRIER(GetFrame()->GetMethod());
+    // method = store_ptr(GetFrame()->GetMethod());
     // currentBytecodes = method->GetBytecodes();
 
     void* loopTargets[] = {
@@ -265,10 +265,10 @@ void Interpreter::SetFrame(VMFrame* frame) {
         load_ptr(this->frame)->SetBytecodeIndex(bytecodeIndexGlobal);
     }
 
-    this->frame = WRITEBARRIER(frame);
+    this->frame = store_ptr(frame);
 
     // update cached values
-    // method              = WRITEBARRIER(frame->GetMethod());
+    // method              = store_ptr(frame->GetMethod());
     bytecodeIndexGlobal = frame->GetBytecodeIndex();
     // currentBytecodes    = load_ptr(method)->GetBytecodes();
 }
@@ -604,7 +604,7 @@ VMThread* Interpreter::GetThread(void) {
 }
 
 void Interpreter::SetThread(VMThread* thread) {
-    this->thread = WRITEBARRIER(thread);
+    this->thread = store_ptr(thread);
 }
 
 #if GC_TYPE==PAUSELESS

@@ -47,7 +47,7 @@ VMEvaluationPrimitive::VMEvaluationPrimitive(long argc) :
 #ifdef USE_TAGGING
     this->numberOfArguments = TAG_INTEGER(argc);
 #else
-    this->numberOfArguments = WRITEBARRIER(GetUniverse()->NewInteger(argc));
+    this->numberOfArguments = store_ptr(GetUniverse()->NewInteger(argc));
 #endif
 }
 

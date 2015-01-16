@@ -133,7 +133,7 @@ VMFrame* VMFrame::GetContext() {
 }
 
 void VMFrame::SetContext(VMFrame* frm) {
-    this->context = WRITEBARRIER(frm);
+    this->context = store_ptr(frm);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, frm);
 #endif
@@ -148,7 +148,7 @@ VMFrame* VMFrame::GetPreviousFrame() {
 }
 
 void VMFrame::SetPreviousFrame(VMFrame* frm) {
-    this->previousFrame = WRITEBARRIER(frm);
+    this->previousFrame = store_ptr(frm);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, AS_VM_POINTER(frm));
 #endif

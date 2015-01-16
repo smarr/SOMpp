@@ -112,7 +112,7 @@ bool VMClass::AddInstanceInvokable(VMObject* ptr) {
         }
     }
     //it's a new invokable so we need to expand the invokables array.
-    instanceInvokables = WRITEBARRIER(this->GetInstanceInvokables()->CopyAndExtendWith(ptr));
+    instanceInvokables = store_ptr(this->GetInstanceInvokables()->CopyAndExtendWith(ptr));
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, load_ptr(instanceInvokables));
 #endif
@@ -136,7 +136,7 @@ VMSymbol* VMClass::GetInstanceFieldName(long index) {
 }
 
 void VMClass::SetInstanceInvokables(VMArray* invokables) {
-    instanceInvokables = WRITEBARRIER(invokables);
+    instanceInvokables = store_ptr(invokables);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, load_ptr(instanceInvokables));
 #endif

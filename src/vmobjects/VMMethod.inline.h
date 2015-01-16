@@ -29,7 +29,7 @@ vm_oop_t VMMethod::GetIndexableField(long idx) {
 }
 
 void VMMethod::SetIndexableField(long idx, vm_oop_t item) {
-    indexableFields[idx] = WRITEBARRIER(item);
+    indexableFields[idx] = store_ptr(item);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, item);
 #endif

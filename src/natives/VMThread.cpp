@@ -32,7 +32,7 @@ VMSignal* VMThread::GetResumeSignal() {
 
 
 void VMThread::SetResumeSignal(VMSignal* value) {
-    resumeSignal = WRITEBARRIER(value);
+    resumeSignal = store_ptr(value);
 }
 
 
@@ -43,9 +43,9 @@ bool VMThread::ShouldStop() {
 
 void VMThread::SetShouldStop(bool value) {
     if (value) {
-    	shouldStop = WRITEBARRIER(load_ptr(trueObject));
+    	shouldStop = store_ptr(load_ptr(trueObject));
     } else {
-    	shouldStop = WRITEBARRIER(load_ptr(falseObject));
+    	shouldStop = store_ptr(load_ptr(falseObject));
     }
 }
 
@@ -56,7 +56,7 @@ VMBlock* VMThread::GetBlockToRun() {
 
 
 void VMThread::SetBlockToRun(VMBlock* value) {
-    blockToRun = WRITEBARRIER(value);
+    blockToRun = store_ptr(value);
 }
 
 
@@ -66,7 +66,7 @@ VMString* VMThread::GetName() {
 
 
 void VMThread::SetName(VMString* value) {
-    name = WRITEBARRIER(value);
+    name = store_ptr(value);
 }
 
 
@@ -76,7 +76,7 @@ vm_oop_t VMThread::GetArgument() {
 
 
 void VMThread::SetArgument(vm_oop_t value) {
-    argument = WRITEBARRIER(value);
+    argument = store_ptr(value);
 }
 
 

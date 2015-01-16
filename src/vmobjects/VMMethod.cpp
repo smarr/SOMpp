@@ -51,15 +51,15 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
     cachedFrame = nullptr;
 #endif
 
-    bcLength                     = WRITEBARRIER(NEW_INT(bcCount));
-    numberOfLocals               = WRITEBARRIER(NEW_INT(0));
-    maximumNumberOfStackElements = WRITEBARRIER(NEW_INT(0));
-    numberOfArguments            = WRITEBARRIER(NEW_INT(0));
-    this->numberOfConstants      = WRITEBARRIER(NEW_INT(numberOfConstants));
+    bcLength                     = store_ptr(NEW_INT(bcCount));
+    numberOfLocals               = store_ptr(NEW_INT(0));
+    maximumNumberOfStackElements = store_ptr(NEW_INT(0));
+    numberOfArguments            = store_ptr(NEW_INT(0));
+    this->numberOfConstants      = store_ptr(NEW_INT(numberOfConstants));
 
     indexableFields = (gc_oop_t*)(&indexableFields + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
     for (long i = 0; i < numberOfConstants; ++i) {
-        indexableFields[i] = WRITEBARRIER(load_ptr(nilObject));
+        indexableFields[i] = store_ptr(load_ptr(nilObject));
     }
     bytecodes = (uint8_t*)(&indexableFields + 2 + GetNumberOfIndexableFields());
 }
@@ -124,7 +124,7 @@ void VMMethod::SetCachedFrame(VMFrame* frame) {
 #endif
 
 void VMMethod::SetNumberOfLocals(long nol) {
-    numberOfLocals = WRITEBARRIER(NEW_INT(nol));
+    numberOfLocals = store_ptr(NEW_INT(nol));
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, load_ptr(numberOfLocals));
 #endif
@@ -135,14 +135,14 @@ long VMMethod::GetMaximumNumberOfStackElements() {
 }
 
 void VMMethod::SetMaximumNumberOfStackElements(long stel) {
-    maximumNumberOfStackElements = WRITEBARRIER(NEW_INT(stel));
+    maximumNumberOfStackElements = store_ptr(NEW_INT(stel));
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, load_ptr(maximumNumberOfStackElements));
 #endif
 }
 
 void VMMethod::SetNumberOfArguments(long noa) {
-    numberOfArguments = WRITEBARRIER(NEW_INT(noa));
+    numberOfArguments = store_ptr(NEW_INT(noa));
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, load_ptr(numberOfArguments));
 #endif
