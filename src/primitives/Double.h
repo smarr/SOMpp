@@ -26,10 +26,8 @@
  THE SOFTWARE.
  */
 
-class VMObject;
-class VMFrame;
-
-#include "../primitivesCore/PrimitiveContainer.h"
+#include <vmobjects/ObjectFormats.h>
+#include <primitivesCore/PrimitiveContainer.h>
 
 class _Double: public PrimitiveContainer {
 public:
@@ -48,5 +46,5 @@ public:
     void Round(VMObject* object, VMFrame* frame);
 
 private:
-    double coerceDouble(VMObject* x);
+    double coerceDouble(vm_oop_t x);
 };

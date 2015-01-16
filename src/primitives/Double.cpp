@@ -35,10 +35,7 @@
 #include <vmobjects/VMDouble.h>
 #include <vmobjects/VMString.h>
 #include <vmobjects/VMInteger.h>
-#include <vmobjects/VMBigInteger.h>
-
-
-#include<vmobjects/VMClass.h>
+#include <vmobjects/VMClass.h>
 
 #include <vm/Universe.h>
 
@@ -49,22 +46,18 @@
  * This function coerces any right-hand parameter to a double, regardless of its
  * true nature. This is to make sure that all Double operations return Doubles.
  */
-double _Double::coerceDouble(VMObject* x) {
-#ifdef USE_TAGGING
+double _Double::coerceDouble(vm_oop_t x) {
     if (IS_TAGGED(x))
-    return (double)UNTAG_INTEGER(x);
-#endif
+        return (double) INT_VAL(x);
     
     VMClass* cl = ((AbstractVMObject*)x)->GetClass();
-    
     if (cl == READBARRIER(doubleClass))
         return static_cast<VMDouble*>(x)->GetEmbeddedDouble();
     else if(cl == READBARRIER(integerClass))
         return (double)static_cast<VMInteger*>(x)->GetEmbeddedInteger();
-    else if(cl == READBARRIER(bigIntegerClass))
-        return (double)static_cast<pVMBigInteger>(x)->GetEmbeddedInteger();
     else
         GetUniverse()->ErrorExit("Attempt to apply Double operation to non-number.");
+
     return 0.0f;
 }
 
@@ -144,29 +137,20 @@ void _Double::AsString(VMObject* /*object*/, VMFrame* frame) {
     ostringstream Str;
     Str.precision(17);
     Str << dbl;
-    frame->Push( GetUniverse()->NewString( Str.str().c_str() ) );
+    frame->Push( GetUniverse()->NewString(Str.str().c_str()));
 }
 
 void _Double::Sqrt(VMObject* /*object*/, VMFrame* frame) {
     VMDouble* self = static_cast<VMDouble*>(frame->Pop());
-    VMDouble* result = GetUniverse()->NewDouble( sqrt(self->GetEmbeddedDouble()) );
+    VMDouble* result = GetUniverse()->NewDouble(sqrt(self->GetEmbeddedDouble()));
     frame->Push(result);
 }
 
 void _Double::Round(VMObject* /*object*/, VMFrame* frame) {
     VMDouble* self = (VMDouble*)frame->Pop();
-    long int rounded = lround(self->GetEmbeddedDouble());
+    int64_t rounded = llround(self->GetEmbeddedDouble());
 
-    // Check with integer bounds and push:
-    if (rounded > INT32_MAX || rounded < INT32_MIN)
-    frame->Push(GetUniverse()->NewBigInteger(rounded));
-    else {
-#ifdef USE_TAGGING
-        frame->Push(TAG_INTEGER((int32_t)rounded));
-#else
-        frame->Push(GetUniverse()->NewInteger((int32_t)rounded));
-#endif
-    }
+    frame->Push(NEW_INT(rounded));
 }
 
 _Double::_Double() : PrimitiveContainer() {
@@ -183,4 +167,3 @@ _Double::_Double() : PrimitiveContainer() {
     SetPrimitive("bitXor_",    new Routine<_Double>(this, &_Double::BitwiseXor));
     SetPrimitive("round",      new Routine<_Double>(this, &_Double::Round));
 }
-
