@@ -26,13 +26,8 @@
  THE SOFTWARE.
  */
 
-class VMObject;
-class VMFrame;
-class VMInteger;
-class VMBigInteger;
-class VMDouble;
-
-#include "../primitivesCore/PrimitiveContainer.h"
+#include <vmobjects/ObjectFormats.h>
+#include <primitivesCore/PrimitiveContainer.h>
 
 class _Integer: public PrimitiveContainer {
 
@@ -42,11 +37,14 @@ public:
     void Minus(VMObject* object, VMFrame* frame);
     void Star(VMObject* object, VMFrame* frame);
     void BitwiseAnd(VMObject* object, VMFrame* frame);
+    void BitwiseXor(VMObject* object, VMFrame* frame);
+    void LeftShift(VMObject* object, VMFrame* frame);
     void Slash(VMObject* object, VMFrame* frame);
     void Slashslash(VMObject* object, VMFrame* frame);
     void Percent(VMObject* object, VMFrame* frame);
     void And(VMObject* object, VMFrame* frame);
     void Equal(VMObject* object, VMFrame* frame);
+    void EqualEqual(VMObject* object, VMFrame* frame);
     void Lowerthan(VMObject* object, VMFrame* frame);
     void AsString(VMObject* object, VMFrame* frame);
     void Sqrt(VMObject* object, VMFrame* frame);
@@ -57,10 +55,7 @@ public:
     _Integer(void);
 
 private:
-    void pushResult(VMObject* object, VMFrame* frame, int64_t result);
-    void resendAsBigInteger(VMObject* object, const char* op, VMInteger* left,
-            pVMBigInteger right);
-    void resendAsDouble(VMObject* object, const char* op, VMInteger* left,
-            VMDouble* right);
+
+    void resendAsDouble(const char* op, vm_oop_t left, VMDouble* right);
 
 };
