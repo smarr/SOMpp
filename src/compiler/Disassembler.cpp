@@ -129,12 +129,12 @@ void Disassembler::DumpMethod(VMMethod* method, const char* indent) {
         max_stack, method->GetNumberOfBytecodes());
     }
 #ifdef _DEBUG
-    cout << "bytecodes: ";
+    Universe::Print("bytecodes: ");
     long numBytecodes = method->GetNumberOfBytecodes();
     for (long i = 0; i < numBytecodes; ++i) {
-        cout << (int)(*method)[i] << " ";
+        Universe::Print(to_string((int)(*method)[i]) + " ");
     }
-    cout << endl;
+    Universe::Print("\n");
 #endif
     // output bytecodes
     long numBytecodes = method->GetNumberOfBytecodes();

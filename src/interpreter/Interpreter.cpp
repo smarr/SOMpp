@@ -393,7 +393,7 @@ void Interpreter::doPushField(long bytecodeIndex) {
 
     if (unlikely(IS_TAGGED(self))) {
         o = nullptr;
-        Universe()->ErrorExit("Integers do not have fields!");
+        GetUniverse()->ErrorExit("Integers do not have fields!");
     }
     else {
         o = ((VMObject*)self)->GetField(fieldIndex);

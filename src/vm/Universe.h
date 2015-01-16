@@ -28,6 +28,7 @@
 
 //#define __DEBUG
 #include <map>
+#include <mutex>
 #include <vector>
 
 #include <misc/defs.h>
@@ -90,7 +91,7 @@ public:
     //static methods
     static void Start(long argc, char** argv);
     static void Quit(long);
-    static void ErrorExit(const char*);
+    static void ErrorExit(StdString);
 
     //Globals accessor (only for GC, could be considered be
     //declared as a private friend method for the GC)
@@ -176,6 +177,9 @@ public:
     
     static bool IsValidObject(vm_oop_t obj);
     
+    static void Print(StdString str);
+    static void ErrorPrint(StdString str);
+
     //void PrintGlobals();
     
 private:
@@ -208,6 +212,8 @@ private:
     map<GCSymbol*, gc_oop_t> globals;
     map<long, GCClass*> blockClassesByNoOfArgs;
     vector<StdString> classPath;
+
+    static mutex output_mutex;
 };
 
 

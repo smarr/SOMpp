@@ -75,7 +75,7 @@ VMClass* SourcecodeCompiler::CompileClass(const StdString& path,
     parser = nullptr;
     delete(fp);
 #ifdef COMPILER_DEBUG
-    std::cout << "Compilation finished" << endl;
+    Universe::ErrorPrint("Compilation finished\n");
 #endif
     return result;
 }
@@ -96,14 +96,15 @@ VMClass* SourcecodeCompiler::CompileClassString(const StdString& stream,
 
 void SourcecodeCompiler::showCompilationError(const StdString& filename,
         const char* message) {
-    cout << "Error when compiling " << filename << ":" << endl;
-    cout << message << endl;
+    Universe::ErrorPrint("Error when compiling " + filename + ":\n" +
+                         message + "\n");
 }
 
-        cout << "Parser not initiated" << endl;
 VMClass* SourcecodeCompiler::compile(VMClass* systemClass) {
     if (parser == nullptr) {
+        Universe::ErrorPrint("Parser not initiated\n");
         GetUniverse()->ErrorExit("Compiler error");
+        return nullptr;
     }
     ClassGenerationContext cgc;
 

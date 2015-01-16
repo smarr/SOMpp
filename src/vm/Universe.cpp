@@ -180,8 +180,8 @@ void Universe::Quit(long err) {
     exit((int) err);
 }
 
-void Universe::ErrorExit(const char* err) {
-    cout << "Runtime error: " << err << endl;
+__attribute__((noreturn)) void Universe::ErrorExit(StdString err) {
+    Universe::ErrorPrint("Runtime error: " + err + "\n");
     Quit(ERR_FAIL);
 }
 
@@ -689,9 +689,8 @@ void Universe::InitializeGlobals() {
 
 void Universe::Assert(bool value) const {
     if (!value) {
-        cout << "Assertion failed" << endl;
+        Universe::ErrorPrint("Universe::Assert Assertion failed\n");
     }
-
 }
 
 VMClass* Universe::GetBlockClass() const {
@@ -845,8 +844,7 @@ void Universe::LoadSystemClass( VMClass* systemClass) {
     StdString s = systemClass->GetName()->GetStdString();
 
     if (!result) {
-        cout << "Can't load system class: " << s << endl;
-        Universe::Quit(ERR_FAIL);
+        ErrorExit("Can't load system class: " + s + "\n");
     }
 
     if (result->HasPrimitives() || result->GetClass()->HasPrimitives())
@@ -1501,4 +1499,12 @@ void Universe::PrintGlobals() {
     }
 } */
 
+void Universe::Print(StdString str) {
+    lock_guard<mutex> lock(output_mutex);
+    cout << str << flush;
+}
 
+void Universe::ErrorPrint(StdString str) {
+    lock_guard<mutex> lock(output_mutex);
+    cerr << str << flush;
+}
