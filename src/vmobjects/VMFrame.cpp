@@ -200,15 +200,19 @@ long VMFrame::RemainingStackSize() const {
     return size - 1;
 }
 
-    return READBARRIER(*stack_ptr--);
 vm_oop_t VMFrame::Pop() {
+    vm_oop_t result = READBARRIER(*stack_ptr);
+    stack_ptr--;
+    return result;
 }
 
 void VMFrame::Push(vm_oop_t obj) {
+    assert(RemainingStackSize() > 0);
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, (VMOBJECT_PTR)obj);
 #endif
-    *(++stack_ptr) = WRITEBARRIER(obj);
+    ++stack_ptr;
+    *stack_ptr = WRITEBARRIER(obj);
 }
 
 void VMFrame::PrintStack() const {
