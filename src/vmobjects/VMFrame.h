@@ -101,12 +101,6 @@ private:
 };
 
 vm_oop_t VMFrame::GetField(long index) {
-    if (index==4)
-#ifdef USE_TAGGING
-    return TAG_INTEGER(bytecodeIndex);
-#else
-    return GetUniverse()->NewInteger(bytecodeIndex);
-#endif
     return VMObject::GetField(index);
 }
 
