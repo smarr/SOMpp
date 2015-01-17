@@ -56,3 +56,7 @@ VMInteger* VMInteger::Clone() {
 VMClass* VMInteger::GetClass() {
     return load_ptr(integerClass);
 }
+
+StdString VMInteger::AsDebugString() {
+    return "Integer(" + to_string(embeddedInteger) + ")";
+}

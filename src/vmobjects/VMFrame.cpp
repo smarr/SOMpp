@@ -395,3 +395,7 @@ void VMFrame::MarkObjectAsInvalid() {
         i++;
     }
 }
+
+StdString VMFrame::AsDebugString() {
+    return "VMFrame(" + GetMethod()->AsDebugString() + ")";
+}

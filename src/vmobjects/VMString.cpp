@@ -108,3 +108,7 @@ StdString VMString::GetStdString() const {
         return StdString("");
     return StdString(chars);
 }
+
+StdString VMString::AsDebugString() {
+    return "String(" + GetStdString() + ")";
+}

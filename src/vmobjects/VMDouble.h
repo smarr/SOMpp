@@ -48,7 +48,9 @@ public:
 #else
     virtual VMDouble* Clone();
 #endif
-    
+
+    virtual StdString AsDebugString();
+
 private:
     double embeddedDouble;
 };

@@ -54,7 +54,8 @@ public:
     //virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
 #endif
     
-    
+    virtual StdString AsDebugString();
+
 private:
 //    const VMClass* cachedClass_invokable[3];
 //    long nextCachePos;

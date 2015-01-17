@@ -166,3 +166,7 @@ void VMArray::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     }
 }
 #endif
+
+StdString VMArray::AsDebugString() {
+    return "Array(" + to_string(GetNumberOfIndexableFields()) + ")";
+}

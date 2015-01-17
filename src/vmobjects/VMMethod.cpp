@@ -259,3 +259,14 @@ void VMMethod::MarkObjectAsInvalid() {
     bcLength = (GCInteger*) INVALID_GC_POINTER;
     numberOfArguments = (GCInteger*) INVALID_GC_POINTER;
 }
+
+StdString VMMethod::AsDebugString() {
+    VMClass* holder = GetHolder();
+    StdString holder_str;
+    if (holder == load_ptr(nilObject)) {
+        holder_str = "nil";
+    } else {
+        holder_str = holder->GetName()->GetStdString();
+    }
+    return "Method(" + holder_str + ">>#" + GetSignature()->GetStdString() + ")";
+}

@@ -86,6 +86,8 @@ public:
     inline void* GetStackPointer() const;
     long RemainingStackSize() const;
     
+    virtual StdString AsDebugString();
+    
 private:
     GCFrame*  previousFrame;
     GCFrame*  context;

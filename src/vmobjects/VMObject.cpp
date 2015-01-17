@@ -171,3 +171,14 @@ void VMObject::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     }
 }
 #endif
+
+StdString VMObject::AsDebugString() {
+    if (this == load_ptr(nilObject)) {
+        return "nilObject";
+    } else if (this == load_ptr(trueObject)) {
+        return "trueObject";
+    } else if (this == load_ptr(falseObject)) {
+        return "falseObject";
+    }
+    return "Object(" + GetClass()->GetName()->GetStdString() + ")";
+}

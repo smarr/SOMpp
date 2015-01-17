@@ -43,6 +43,8 @@ public:
     inline  void      SetContext(VMFrame*);
     inline  VMFrame*  GetContext();
     
+    virtual StdString AsDebugString();
+
     virtual void MarkObjectAsInvalid();
     
 #if GC_TYPE==PAUSELESS

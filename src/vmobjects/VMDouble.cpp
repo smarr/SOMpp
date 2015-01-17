@@ -63,3 +63,7 @@ VMDouble* VMDouble::Clone() {
 VMClass* VMDouble::GetClass() {
     return load_ptr(doubleClass);
 }
+
+StdString VMDouble::AsDebugString() {
+    return "Double(" + to_string(embeddedDouble) + ")";
+}

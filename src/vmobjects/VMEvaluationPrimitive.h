@@ -38,6 +38,8 @@ public:
     VMEvaluationPrimitive(long argc);
     
     virtual void MarkObjectAsInvalid();
+
+    virtual StdString AsDebugString();
     
 #if GC_TYPE==PAUSELESS
     virtual VMEvaluationPrimitive* Clone(Interpreter*);

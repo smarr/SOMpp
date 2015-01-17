@@ -61,6 +61,7 @@ public:
     virtual bool IsPrimitive() const {return true;};
     
     virtual        void      MarkObjectAsInvalid();
+    virtual StdString AsDebugString();
 
 private:
     void EmptyRoutine(Interpreter*, VMFrame*);

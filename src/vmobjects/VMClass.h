@@ -83,6 +83,8 @@ public:
     
     virtual void MarkObjectAsInvalid();
 
+    virtual StdString AsDebugString();
+
 private:
     bool addInstanceInvokable(VMInvokable*);
     bool hasPrimitivesFor(const StdString& cl) const;

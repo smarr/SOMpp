@@ -164,3 +164,7 @@ void VMSymbol::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     // }
 }
 #endif */
+
+StdString VMSymbol::AsDebugString() {
+    return "Symbol(" + GetStdString() + ")";
+}

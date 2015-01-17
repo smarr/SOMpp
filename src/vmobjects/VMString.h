@@ -50,6 +50,8 @@ public:
 #endif
     
     virtual void MarkObjectAsInvalid();
+    
+    virtual StdString AsDebugString();
 
 protected:
     //this could be replaced by the CHARS macro in VMString.cpp

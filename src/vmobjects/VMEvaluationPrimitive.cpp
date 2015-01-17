@@ -138,3 +138,8 @@ void EvaluationRoutine::CheckMarking(void (*walk)(vm_oop_t)) {
     walk(Untag(evalPrim));
 }
 #endif
+
+StdString VMEvaluationPrimitive::AsDebugString() {
+    return "VMEvaluationPrimitive(" + to_string(
+                    INT_VAL(load_ptr(numberOfArguments))) + ")";
+}

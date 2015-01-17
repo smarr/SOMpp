@@ -88,6 +88,7 @@ public:
     
     virtual void MarkObjectAsInvalid();
 
+    virtual StdString AsDebugString();
 
 private:
     inline uint8_t* GetBytecodes() const;

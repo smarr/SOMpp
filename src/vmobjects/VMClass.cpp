@@ -353,3 +353,7 @@ void VMClass::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
         FIELDS[i] = (GCAbstractObject*) walk(AS_VM_POINTER(FIELDS[i]));
 }
 #endif
+
+StdString VMClass::AsDebugString() {
+    return "Class(" + GetName()->GetStdString() + ")";
+}

@@ -42,6 +42,8 @@ public:
     
     virtual void MarkObjectAsInvalid() {}
     
+    virtual StdString AsDebugString();
+
 #if GC_TYPE==PAUSELESS
     virtual VMInteger* Clone(Interpreter*);
     virtual VMInteger* Clone(PauselessCollectorThread*);

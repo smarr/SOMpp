@@ -115,3 +115,9 @@ void VMPrimitive::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
 void VMPrimitive::MarkObjectAsInvalid() {
     VMInvokable::MarkObjectAsInvalid();
 }
+
+StdString VMPrimitive::AsDebugString() {
+    return "Primitive(" + GetClass()->GetName()->GetStdString() + ">>#"
+                        + GetSignature()->GetStdString() + ")";
+}
+

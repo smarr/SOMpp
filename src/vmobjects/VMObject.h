@@ -98,7 +98,7 @@ public:
     virtual        void      WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
 #endif
     
-    /* Operators */
+    virtual        StdString AsDebugString();
 
     /**
      * usage: new( <heap> [, <additional_bytes>] ) VMObject( <constructor params> )
