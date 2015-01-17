@@ -41,38 +41,34 @@
 #include "vmobjects/VMArray.h"
 #include "vmobjects/ObjectFormats.h"
 
-#include <misc/debug.h>
-#include <sstream>
-
 int main(int argc, char** argv) {
-    sync_out(ostringstream() << "CWD: " << getwd(nullptr));
+
+    cout << "This is SOM++" << endl;
+
+    if (GC_TYPE == GENERATIONAL)
+        cout << "\tgarbage collector: generational" << endl;
+    else if (GC_TYPE == COPYING)
+        cout << "\tgarbage collector: copying" << endl;
+    else if (GC_TYPE == MARK_SWEEP)
+        cout << "\tgarbage collector: mark-sweep" << endl;
+    else if (GC_TYPE == PAUSELESS)
+        cout << "\tgarbage collector: pauseless" << endl;
+    else
+        cout << "\tgarbage collector: unknown" << endl;
+
+    if (USE_TAGGING)
+        cout << "\twith tagged integers" << endl;
+    else
+        cout << "\tnot tagging integers" << endl;
+
+    if (CACHE_INTEGER)
+        cout << "\tcaching integers from " << INT_CACHE_MIN_VALUE
+             << " to " << INT_CACHE_MAX_VALUE << endl;
+    else
+        cout << "\tnot caching integers" << endl;
 
 
-    sync_out(ostringstream() << "This is SOM++");
-#if GC_TYPE==GENERATIONAL
-    sync_out(ostringstream() << "\tgarbage collector: generational");
-#elif GC_TYPE==COPYING
-    sync_out(ostringstream() << "\tgarbage collector: copying");
-#elif GC_TYPE==MARK_SWEEP
-    sync_out(ostringstream() << "\tgarbage collector: mark-sweep");
-#elif GC_TYPE==PAUSELESS
-    sync_out(ostringstream() << "\tgarbage collector: pauseless");
-#endif
-
-#ifdef USE_TAGGING
-    sync_out(ostringstream() << "\twith tagged integers");
-#else
-    sync_out(ostringstream() << "\tnot tagging integers");
-#endif
-
-#ifdef CACHE_INTEGER
-    sync_out(ostringstream() << "\tcaching integers from " << INT_CACHE_MIN_VALUE
-        << " to " << INT_CACHE_MAX_VALUE);
-#else
-    sync_out(ostringstream() << "\tnot caching integers");
-#endif
-
-    sync_out(ostringstream() << "--------------------------------------");
+    cout << "--------------------------------------" << endl;
 
 
     Universe::Start(argc, argv);
