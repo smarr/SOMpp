@@ -41,9 +41,7 @@ public:
     
     virtual StdString AsDebugString() const = 0;
 
-    AbstractVMObject() {
-        gcfield = 0;
-    }
+    AbstractVMObject() : VMObjectBase() {}
 
     inline virtual void SetObjectSize(size_t size) {
         Universe::ErrorPrint("this object doesn't support SetObjectSize\n");

@@ -9,6 +9,8 @@
 
 class VMObjectBase : public VMOop {
 protected:
+    VMObjectBase() : gcfield(0) {}
+    
     intptr_t gcfield;
 public:
     inline intptr_t GetGCField() const;
