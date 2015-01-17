@@ -8,28 +8,28 @@
 
 #include "Signal.h"
 
-#include "../natives/VMSignal.h"
-#include "../primitivesCore/Routine.h"
+#include <natives/VMSignal.h>
+#include <primitivesCore/Routine.h>
 
-void _Signal::Wait(VMObject* object, VMFrame* frame){
+void _Signal::Wait(Interpreter*, VMFrame* frame) {
     VMSignal* signal = (VMSignal*)frame->Pop();
     signal->Wait();
     frame->Push(signal);
 }
 
-void _Signal::Signal(VMObject* object, VMFrame* frame){
+void _Signal::Signal(Interpreter*, VMFrame* frame) {
     VMSignal* signal = (VMSignal*)frame->Pop();
     signal->Signal();
     frame->Push(signal);
 }
 
-void _Signal::SignalAll(VMObject* object, VMFrame* frame){
+void _Signal::SignalAll(Interpreter*, VMFrame* frame) {
     VMSignal* signal = (VMSignal*)frame->Pop();
     signal->SignalAll();
     frame->Push(signal);
 }
 
-void _Signal::New(VMObject* object, VMFrame* frame){
+void _Signal::New(Interpreter*, VMFrame* frame) {
     frame->Pop();
     VMSignal* signal = GetUniverse()->NewSignal();
     frame->Push(signal);

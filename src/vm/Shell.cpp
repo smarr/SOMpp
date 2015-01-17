@@ -56,7 +56,7 @@ Shell::~Shell() {
     // TODO
 }
 
-void Shell::Start() {
+void Shell::Start(Interpreter* interp) {
 #define QUIT_CMD "system exit"
 #define QUIT_CMD_L 11 + 1
 
@@ -73,7 +73,7 @@ void Shell::Start() {
     cout << "SOM Shell. Type \"" << QUIT_CMD << "\" to exit.\n";
 
     // Create a fake bootstrap frame
-    currentFrame = store_ptr(GetUniverse()->GetInterpreter()->PushNewFrame(GetBootstrapMethod()));
+    currentFrame = store_ptr(interp->PushNewFrame(GetBootstrapMethod()));
     // Remember the first bytecode index, e.g. index of the halt instruction
     bytecodeIndex = load_ptr(currentFrame)->GetBytecodeIndex();
 
@@ -108,7 +108,7 @@ void Shell::Start() {
             continue;
         }
 
-        currentFrame = store_ptr(GetUniverse()->GetInterpreter()->GetFrame());
+        currentFrame = store_ptr(interp->GetFrame());
 
         // Go back, so we will evaluate the bootstrap frames halt
         // instruction again
@@ -125,11 +125,11 @@ void Shell::Start() {
                                         GetUniverse()->SymbolFor("run:"));
 
         // Invoke the run method
-        initialize->Invoke(load_ptr(currentFrame));
+        initialize->Invoke(interp, load_ptr(currentFrame));
 
         // Start the Interpreter
 
-        GetUniverse()->GetInterpreter()->Start();
+        interp->Start();
 
         // Save the result of the run method
         it = store_ptr(load_ptr(currentFrame)->Pop());

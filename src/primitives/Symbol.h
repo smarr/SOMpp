@@ -26,12 +26,12 @@
  THE SOFTWARE.
  */
 
-class VMObject;
-class VMFrame;
-#include "../primitivesCore/PrimitiveContainer.h"
+#include <vmobjects/ObjectFormats.h>
+#include <primitivesCore/PrimitiveContainer.h>
 
 class _Symbol: public PrimitiveContainer {
 public:
     _Symbol();
-    void AsString(VMObject* object, VMFrame* frame);
+    void AsString(Interpreter*, VMFrame*);
+    void Equal(Interpreter*, VMFrame*);
 };

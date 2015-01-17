@@ -32,18 +32,18 @@
 class _Double: public PrimitiveContainer {
 public:
     _Double();
-    void Plus(VMObject* object, VMFrame* frame);
-    void Minus(VMObject* object, VMFrame* frame);
-    void Star(VMObject* object, VMFrame* frame);
-    void Slashslash(VMObject* object, VMFrame* frame);
-    void Percent(VMObject* object, VMFrame* frame);
-    void And(VMObject* object, VMFrame* frame);
-    void Equal(VMObject* object, VMFrame* frame);
-    void Lowerthan(VMObject* object, VMFrame* frame);
-    void AsString(VMObject* object, VMFrame* frame);
-    void Sqrt(VMObject* object, VMFrame* frame);
-    void BitwiseXor(VMObject* object, VMFrame* frame);
-    void Round(VMObject* object, VMFrame* frame);
+    void Plus(Interpreter*, VMFrame*);
+    void Minus(Interpreter*, VMFrame*);
+    void Star(Interpreter*, VMFrame*);
+    void Slashslash(Interpreter*, VMFrame*);
+    void Percent(Interpreter*, VMFrame*);
+    void And(Interpreter*, VMFrame*);
+    void Equal(Interpreter*, VMFrame*);
+    void Lowerthan(Interpreter*, VMFrame*);
+    void AsString(Interpreter*, VMFrame*);
+    void Sqrt(Interpreter*, VMFrame*);
+    void BitwiseXor(Interpreter*, VMFrame*);
+    void Round(Interpreter*, VMFrame*);
 
 private:
     double coerceDouble(vm_oop_t x);

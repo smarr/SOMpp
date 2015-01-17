@@ -50,7 +50,7 @@ public:
     
     virtual intptr_t GetHash();
     virtual VMClass* GetClass() = 0;
-    virtual void Send(StdString, vm_oop_t*, long);
+    virtual void Send(Interpreter*, StdString, vm_oop_t*, long);
     virtual size_t GetObjectSize() const = 0;
     
     virtual void MarkObjectAsInvalid() = 0;

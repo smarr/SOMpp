@@ -72,39 +72,39 @@ double _Double::coerceDouble(vm_oop_t x) {
     VMDouble* leftObj = static_cast<VMDouble*>(frame->Pop()); \
     double left = leftObj->GetEmbeddedDouble();
 
-void _Double::Plus(VMObject* /*object*/, VMFrame* frame) {
+void _Double::Plus(Interpreter* interp, VMFrame* frame) {
     PREPARE_OPERANDS;
     frame->Push(GetUniverse()->NewDouble(left + right));
 }
 
-void _Double::Minus(VMObject* /*object*/, VMFrame* frame) {
+void _Double::Minus(Interpreter* interp, VMFrame* frame) {
     PREPARE_OPERANDS;
     frame->Push(GetUniverse()->NewDouble(left - right));
 }
 
-void _Double::Star(VMObject* /*object*/, VMFrame* frame) {
+void _Double::Star(Interpreter* interp, VMFrame* frame) {
     PREPARE_OPERANDS;
     frame->Push(GetUniverse()->NewDouble(left * right));
 }
 
-void _Double::Slashslash(VMObject* /*object*/, VMFrame* frame) {
+void _Double::Slashslash(Interpreter* interp, VMFrame* frame) {
     PREPARE_OPERANDS;
     frame->Push(GetUniverse()->NewDouble(left / right));
 }
 
-void _Double::Percent(VMObject* /*object*/, VMFrame* frame) {
+void _Double::Percent(Interpreter* interp, VMFrame* frame) {
     PREPARE_OPERANDS;
     frame->Push(GetUniverse()->NewDouble((double)((int64_t)left %
                     (int64_t)right)));
 }
 
-void _Double::And(VMObject* /*object*/, VMFrame* frame) {
+void _Double::And(Interpreter* interp, VMFrame* frame) {
     PREPARE_OPERANDS;
     frame->Push(GetUniverse()->NewDouble((double)((int64_t)left &
                     (int64_t)right)));
 }
 
-void _Double::BitwiseXor(VMObject* /*object*/, VMFrame* frame) {
+void _Double::BitwiseXor(Interpreter* interp, VMFrame* frame) {
     PREPARE_OPERANDS;
     frame->Push(GetUniverse()->NewDouble((double)((int64_t)left ^
                     (int64_t)right)));
@@ -114,7 +114,7 @@ void _Double::BitwiseXor(VMObject* /*object*/, VMFrame* frame) {
  * This function implements strict (bit-wise) equality and is therefore
  * inaccurate.
  */
-void _Double::Equal(VMObject* /*object*/, VMFrame* frame) {
+void _Double::Equal(Interpreter*, VMFrame* frame) {
     PREPARE_OPERANDS;
     if(left == right)
         frame->Push(load_ptr(trueObject));
@@ -122,7 +122,7 @@ void _Double::Equal(VMObject* /*object*/, VMFrame* frame) {
         frame->Push(load_ptr(falseObject));
 }
 
-void _Double::Lowerthan(VMObject* /*object*/, VMFrame* frame) {
+void _Double::Lowerthan(Interpreter*, VMFrame* frame) {
     PREPARE_OPERANDS;
     if(left < right)
         frame->Push(load_ptr(trueObject));
@@ -130,23 +130,23 @@ void _Double::Lowerthan(VMObject* /*object*/, VMFrame* frame) {
         frame->Push(load_ptr(falseObject));
 }
 
-void _Double::AsString(VMObject* /*object*/, VMFrame* frame) {
+void _Double::AsString(Interpreter* interp, VMFrame* frame) {
     VMDouble* self = static_cast<VMDouble*>(frame->Pop());
 
     double dbl = self->GetEmbeddedDouble();
     ostringstream Str;
     Str.precision(17);
     Str << dbl;
-    frame->Push( GetUniverse()->NewString(Str.str().c_str()));
+    frame->Push(GetUniverse()->NewString(Str.str().c_str()));
 }
 
-void _Double::Sqrt(VMObject* /*object*/, VMFrame* frame) {
+void _Double::Sqrt(Interpreter* interp, VMFrame* frame) {
     VMDouble* self = static_cast<VMDouble*>(frame->Pop());
     VMDouble* result = GetUniverse()->NewDouble(sqrt(self->GetEmbeddedDouble()));
     frame->Push(result);
 }
 
-void _Double::Round(VMObject* /*object*/, VMFrame* frame) {
+void _Double::Round(Interpreter* interp, VMFrame* frame) {
     VMDouble* self = (VMDouble*)frame->Pop();
     int64_t rounded = llround(self->GetEmbeddedDouble());
 

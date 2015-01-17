@@ -69,5 +69,5 @@ public:
     void CheckMarking(void (vm_oop_t));
 #endif
     virtual bool isClassSide() { return false; }
-    virtual void Invoke(VMObject* object, VMFrame* frame);
+    virtual void Invoke(Interpreter* interp, VMFrame* frame);
 };

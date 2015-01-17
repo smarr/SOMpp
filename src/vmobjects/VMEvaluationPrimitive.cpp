@@ -89,7 +89,7 @@ VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc) {
     return GetUniverse()->SymbolFor(signatureString);
 }
 
-void EvaluationRoutine::Invoke(VMObject* object, VMFrame* frame) {
+void EvaluationRoutine::Invoke(Interpreter* interp, VMFrame* frame) {
     VMEvaluationPrimitive* prim = load_ptr(evalPrim);
 
     // Get the block (the receiver) from the stack
@@ -100,7 +100,7 @@ void EvaluationRoutine::Invoke(VMObject* object, VMFrame* frame) {
     VMFrame* context = block->GetContext();
 
     // Push a new frame and set its context to be the one specified in the block
-    VMFrame* NewFrame = GetUniverse()->GetInterpreter()->PushNewFrame(block->GetMethod());
+    VMFrame* NewFrame = interp->PushNewFrame(block->GetMethod());
     NewFrame->CopyArgumentsFrom(frame);
     NewFrame->SetContext(context);
 }

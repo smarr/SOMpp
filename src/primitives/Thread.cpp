@@ -8,11 +8,11 @@
 
 #include "Thread.h"
 
-#include "../natives/VMThread.h"
-#include "../primitivesCore/Routine.h"
-#include "../interpreter/Interpreter.h"
+#include <natives/VMThread.h>
+#include <primitivesCore/Routine.h>
+#include <interpreter/Interpreter.h>
 
-void _Thread::Join(VMObject* object, VMFrame* frame){
+void _Thread::Join(Interpreter*, VMFrame* frame){
     VMThread* thread = (VMThread*)frame->Pop();
     int returnValue;
     pthread_t threadid = thread->GetEmbeddedThreadId();
@@ -34,7 +34,7 @@ void _Thread::Join(VMObject* object, VMFrame* frame){
     frame->Push(thread);
 }
 
-void _Thread::Priority_(VMObject* object, VMFrame* frame){
+void _Thread::Priority_(Interpreter*, VMFrame* frame){
     VMInteger* arg = (VMInteger*)frame->Pop();
     int prio = arg->GetEmbeddedInteger();
     VMThread* thread = (VMThread*)frame->Pop();
@@ -51,14 +51,14 @@ void _Thread::Priority_(VMObject* object, VMFrame* frame){
 
 // Thread class >> #yield
 // |-|-|-| Thread class | <- top of stack
-void _Thread::Yield(VMObject* object, VMFrame* frame) {
+void _Thread::Yield(Interpreter*, VMFrame* frame) {
     VMThread::Yield();
 }
 
 // Thread class >> #current
 // assert (threadClass != Interpreter_get_thread());
 // assert (Interpreter_get_thread()->GetClass() == threadClass);
-void _Thread::Current(VMObject* object, VMFrame* frame) {
+void _Thread::Current(Interpreter*, VMFrame* frame) {
     VMClass* threadClass = (VMClass*)frame->Pop();
     frame->Push(GetUniverse()->GetInterpreter()->GetThread());
 }

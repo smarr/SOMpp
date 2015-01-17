@@ -26,7 +26,7 @@
  THE SOFTWARE.
  */
 
-class VMMethod;
+#include <vmobjects/ObjectFormats.h>
 
 class Shell {
 public:
@@ -41,7 +41,7 @@ public:
         return bootstrapMethod;
     }
     ;
-    void Start();
+    void Start(Interpreter*);
 private:
     VMMethod* bootstrapMethod;
 };

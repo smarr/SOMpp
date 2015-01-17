@@ -11,28 +11,23 @@
 #include "../natives/VMMutex.h"
 #include "../primitivesCore/Routine.h"
 
-void _Mutex::Lock(VMObject* object, VMFrame* frame){
-    VMMutex* mutex = (VMMutex*)frame->Pop();
+void _Mutex::Lock(Interpreter*, VMFrame* frame) {
+    VMMutex* mutex = static_cast<VMMutex*>(frame->GetStackElement(0));
     mutex->Lock();
-    frame->Push(mutex);
 }
 
-void _Mutex::Unlock(VMObject* object, VMFrame* frame){
-    VMMutex* mutex = (VMMutex*)frame->Pop();
+void _Mutex::Unlock(Interpreter*, VMFrame* frame) {
+    VMMutex* mutex = static_cast<VMMutex*>(frame->GetStackElement(0));
     mutex->Unlock();
-    frame->Push(mutex);
 }
 
-void _Mutex::IsLocked(VMObject* object, VMFrame* frame){
-    VMMutex* mutex = (VMMutex*)frame->Pop();
-    if (mutex->IsLocked()) {
-        frame->Push(load_ptr(trueObject));
-    } else {
-        frame->Push(load_ptr(falseObject));
-    }
+void _Mutex::IsLocked(Interpreter*, VMFrame* frame) {
+    VMMutex* mutex = static_cast<VMMutex*>(frame->Pop());
+
+    frame->Push(load_ptr(mutex->IsLocked() ? trueObject : falseObject));
 }
 
-void _Mutex::New(VMObject* object, VMFrame* frame){
+void _Mutex::New(Interpreter* interp, VMFrame* frame){
     frame->Pop();
     VMMutex* mutex = GetUniverse()->NewMutex();
     frame->Push(mutex);

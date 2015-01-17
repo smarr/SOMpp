@@ -33,20 +33,20 @@
 //by calling the Routine's operator "()".
 template<class TClass> class Routine: public PrimitiveRoutine {
 private:
-    void (TClass::*func)(VMObject*, VMFrame*);   // pointer to member function
+    void (TClass::*func)(Interpreter*, VMFrame*);   // pointer to member function
     TClass* primContainerObj;
     const bool classSide;
 
 public:
 
     // takes pointer to an object, pointer to a member, and a bool indicating whether it is a class-side primitive or not
-    Routine(TClass* primContainerObj, void (TClass::*_fpt)(VMObject*, VMFrame*),
+    Routine(TClass* primContainerObj, void (TClass::*_fpt)(Interpreter*, VMFrame*),
             bool classSide)
         : classSide(classSide), primContainerObj(primContainerObj),
           func(_fpt), PrimitiveRoutine() {};
 
-    virtual void Invoke(VMObject* object, VMFrame* frm) {
-        (*primContainerObj.*func)(object, frm);  // execute member function
+    virtual void Invoke(Interpreter* interp, VMFrame* frm) {
+        (*primContainerObj.*func)(interp, frm);  // execute member function
     }
     
     virtual bool isClassSide() { return classSide; }

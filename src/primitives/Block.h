@@ -26,21 +26,19 @@
  THE SOFTWARE.
  */
 
-class VMObject;
-class VMFrame;
-
-#include "../primitivesCore/PrimitiveContainer.h"
+#include <vmobjects/ObjectFormats.h>
+#include <primitivesCore/PrimitiveContainer.h>
 
 class _Block: public PrimitiveContainer {
 public:
     _Block();
-    void Value(VMObject* object, VMFrame* frame);
-    void Restart(VMObject* object, VMFrame* frame);
-    void Value_(VMObject* object, VMFrame* frame);
-    void Value_with_(VMObject* object, VMFrame* frame);
+    void Value(Interpreter*, VMFrame*);
+    void Restart(Interpreter*, VMFrame*);
+    void Value_(Interpreter*, VMFrame*);
+    void Value_with_(Interpreter*, VMFrame*);
     
-    void Spawn(VMObject* object, VMFrame* frame);
-    void SpawnWithArgument(VMObject* object, VMFrame* frame);
+    void Spawn(Interpreter*, VMFrame*);
+    void SpawnWithArgument(Interpreter*, VMFrame*);
     
 private:
     static VMMethod* CreateFakeBootstrapMethod();

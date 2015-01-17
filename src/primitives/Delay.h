@@ -8,7 +8,6 @@
 //
 //
 
-
 #include <primitivesCore/PrimitiveContainer.h>
 
 class _Delay : public PrimitiveContainer {
@@ -16,6 +15,6 @@ public:
     _Delay();
     
     /** makes the current thread wait for a certain amount of time */
-    void Wait(VMObject* object, VMFrame* frame);
+    void Wait(Interpreter*, VMFrame*);
     
 };

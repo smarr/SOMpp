@@ -19,7 +19,7 @@
 #include <stdio.h>
 
 
-void _Delay::Wait(VMObject* object, VMFrame* frame){
+void _Delay::Wait(Interpreter*, VMFrame* frame) {
     VMObject* self = static_cast<VMObject*>(frame->Pop());
     int64_t delay = INT_VAL(self->GetField(0));
 

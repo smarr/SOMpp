@@ -31,7 +31,6 @@
 #include <vmobjects/VMObject.h>
 #include <vmobjects/VMFrame.h>
 #include <vmobjects/VMClass.h>
-#include <vmobjects/VMSymbol.h>
 
 #include <vm/Universe.h>
 
@@ -43,27 +42,27 @@ _Class::_Class() : PrimitiveContainer() {
     SetPrimitive("methods",    new Routine<_Class>(this, &_Class::Methods,    false));
 }
 
-void _Class::New(VMObject* /*object*/, VMFrame* frame) {
+void _Class::New(Interpreter* interp, VMFrame* frame) {
     VMClass* self = static_cast<VMClass*>(frame->Pop());
     frame->Push(GetUniverse()->NewInstance(self));
 }
 
-void _Class::Name(VMObject*, VMFrame* frame) {
+void _Class::Name(Interpreter*, VMFrame* frame) {
     VMClass* self = static_cast<VMClass*>(frame->Pop());
     frame->Push(self->GetName());
 }
 
-void _Class::Superclass(VMObject*, VMFrame* frame) {
+void _Class::Superclass(Interpreter*, VMFrame* frame) {
     VMClass* self = static_cast<VMClass*>(frame->Pop());
     frame->Push(self->GetSuperClass());
 }
 
-void _Class::Methods(VMObject*, VMFrame* frame) {
+void _Class::Methods(Interpreter*, VMFrame* frame) {
     VMClass* self = static_cast<VMClass*>(frame->Pop());
     frame->Push(self->GetInstanceInvokables());
 }
 
-void _Class::Fields(VMObject*, VMFrame* frame) {
+void _Class::Fields(Interpreter*, VMFrame* frame) {
     VMClass* self = static_cast<VMClass*>(frame->Pop());
     frame->Push(self->GetInstanceFields());
 }

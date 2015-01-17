@@ -54,16 +54,22 @@ public:
     virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
 #endif
 
-    virtual void Invoke(VMFrame* frm) {routine->Invoke(this, frm);};
+    virtual void Invoke(Interpreter* interp, VMFrame* frm) {
+        routine->Invoke(interp, frm);
+    };
 
     virtual bool IsPrimitive() const {return true;};
     
     virtual        void      MarkObjectAsInvalid();
 
 private:
-    void EmptyRoutine(VMObject* self, VMFrame* frame);
-
+    void EmptyRoutine(Interpreter*, VMFrame*);
+protected:
+    // protected to be able to access the field in subclass,
+    // for instance VMEvaluationPrimitive needs to GC the primitive object
+    // hold in the special routine subclass
     PrimitiveRoutine* routine;
+private:
     bool empty;
 
     static const int VMPrimitiveNumberOfFields;

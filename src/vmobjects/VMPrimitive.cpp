@@ -82,10 +82,9 @@ VMPrimitive* VMPrimitive::Clone() {
 }
 #endif
 
-void VMPrimitive::EmptyRoutine(VMObject* _self, VMFrame* /*frame*/) {
-    VMInvokable* self = static_cast<VMInvokable*>(_self);
-    VMSymbol* sig = self->GetSignature();
-    cout << "undefined primitive called: " << sig->GetChars() << endl;
+void VMPrimitive::EmptyRoutine(Interpreter*, VMFrame*) {
+    VMSymbol* sig = GetSignature();
+    Universe::ErrorPrint("undefined primitive called: " + sig->GetStdString() + "\n");
 }
 
 #if GC_TYPE==PAUSELESS

@@ -7,26 +7,24 @@
 //
 //
 
-class VMObject;
-class VMFrame;
 
-#include "../primitivesCore/PrimitiveContainer.h"
+#include <vmobjects/ObjectFormats.h>
+#include <primitivesCore/PrimitiveContainer.h>
 
 class _Mutex: public PrimitiveContainer {
-
 public:
     
     _Mutex();
 
     //Locks the access to the encapsulated Mutex
-    void Lock(VMObject* object, VMFrame* frame);
+    void Lock(Interpreter*, VMFrame*);
     // Frees the mutex
-    void Unlock(VMObject* object, VMFrame* frame);
+    void Unlock(Interpreter*, VMFrame*);
     /* Returns true if the mutex is free, false otherwise
      * Enables nonblocking mutex checks
      */
-    void IsLocked(VMObject* object, VMFrame* frame);
+    void IsLocked(Interpreter*, VMFrame*);
 
-    void New(VMObject* object, VMFrame* frame);
+    void New(Interpreter*, VMFrame*);
     
 };

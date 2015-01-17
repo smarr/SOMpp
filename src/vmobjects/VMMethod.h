@@ -82,7 +82,7 @@ public:
 
     inline  void      SetIndexableField(long idx, vm_oop_t item);
 
-    virtual void Invoke(VMFrame* frame);
+    virtual void Invoke(Interpreter* interp, VMFrame* frame);
 
     void SetSignature(VMSymbol* sig);
     

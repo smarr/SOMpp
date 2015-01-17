@@ -367,7 +367,7 @@ void Universe::initialize(long _argc, char** _argv) {
 
     if (argv.size() == 0) {
         Shell* shell = new Shell(bootstrapMethod);
-        shell->Start();
+        shell->Start(interpreter);
         return;
     }
 
@@ -384,7 +384,7 @@ void Universe::initialize(long _argc, char** _argv) {
 
     VMInvokable* initialize =
         static_cast<VMInvokable*>(load_ptr(systemClass)->LookupInvokable(this->SymbolForChars("initialize:")));
-    initialize->Invoke(bootstrapFrame);
+    initialize->Invoke(interpreter, bootstrapFrame);
 
     // reset "-d" indicator
     if (!(trace > 0))

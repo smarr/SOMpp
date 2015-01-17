@@ -18,20 +18,20 @@ intptr_t AbstractVMObject::GetHash() {
     return reinterpret_cast<intptr_t>(this);
 }
 
-void AbstractVMObject::Send(StdString selectorString, vm_oop_t* arguments, long argc) {
+void AbstractVMObject::Send(Interpreter* interp, StdString selectorString, vm_oop_t* arguments, long argc) {
+    VMFrame* frame = interp->GetFrame();
     VMSymbol* selector = GetUniverse()->SymbolFor(selectorString);
-    VMFrame* frame = GetUniverse()->GetInterpreter()->GetFrame();
     frame->Push(this);
 
     for (long i = 0; i < argc; ++i) {
         frame->Push(arguments[i]);
     }
 
-    VMClass* cl = this->GetClass();
+    VMClass* cl = GetClass();
     VMInvokable* invokable = cl->LookupInvokable(selector);
-    invokable->Invoke(frame);
+    invokable->Invoke(interp, frame);
 }
 
 long AbstractVMObject::GetFieldIndex(VMSymbol* fieldName) {
-    return this->GetClass()->LookupFieldIndex(fieldName);
+    return GetClass()->LookupFieldIndex(fieldName);
 }

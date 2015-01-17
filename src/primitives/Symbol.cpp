@@ -34,16 +34,13 @@
 #include "../primitivesCore/Routine.h"
 #include "Symbol.h"
 
-
-void _Symbol::AsString(VMObject* /*object*/, VMFrame* frame) {
+void _Symbol::AsString(Interpreter* interp, VMFrame* frame) {
     VMSymbol* sym = static_cast<VMSymbol*>(frame->Pop());
 
     StdString str = sym->GetStdString();
     frame->Push(GetUniverse()->NewString(str));
 }
 
-_Symbol::_Symbol() :
-        PrimitiveContainer() {
+_Symbol::_Symbol() : PrimitiveContainer() {
     SetPrimitive("asString", new Routine<_Symbol>(this, &_Symbol::AsString, false));
 }
-

@@ -11,12 +11,12 @@ _Primitive::_Primitive() : PrimitiveContainer() {
     SetPrimitive("holder",    new Routine<_Primitive>(this, &_Primitive::Holder,    false));
 }
 
-void _Primitive::Holder(VMObject*, VMFrame* frame) {
+void _Primitive::Holder(Interpreter*, VMFrame* frame) {
     VMMethod* self = static_cast<VMMethod*>(frame->Pop());
     frame->Push(self->GetHolder());
 }
 
-void _Primitive::Signature(VMObject*, VMFrame* frame) {
+void _Primitive::Signature(Interpreter*, VMFrame* frame) {
     VMMethod* self = static_cast<VMMethod*>(frame->Pop());
     frame->Push(self->GetSignature());
 }

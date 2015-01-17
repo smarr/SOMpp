@@ -32,20 +32,20 @@
 class _Object: public PrimitiveContainer {
 public:
     _Object();
-    void Equalequal(VMObject* object, VMFrame* frame);
-    void ObjectSize(VMObject* object, VMFrame* frame);
-    void Hashcode(VMObject* object, VMFrame* frame);
-    void Inspect(VMObject* object, VMFrame* frame);
-    void Halt(VMObject* object, VMFrame* frame);
+    void Equalequal(Interpreter*, VMFrame*);
+    void ObjectSize(Interpreter*, VMFrame*);
+    void Hashcode(Interpreter*, VMFrame*);
+    void Inspect(Interpreter*, VMFrame*);
+    void Halt(Interpreter*, VMFrame*);
 
-    void Perform(VMObject* object, VMFrame* frame);
-    void PerformWithArguments(VMObject* object, VMFrame* frame);
-    void PerformInSuperclass(VMObject* object, VMFrame* frame);
-    void PerformWithArgumentsInSuperclass(VMObject* object, VMFrame* frame);
+    void Perform(Interpreter*, VMFrame*);
+    void PerformWithArguments(Interpreter*, VMFrame*);
+    void PerformInSuperclass(Interpreter*, VMFrame*);
+    void PerformWithArgumentsInSuperclass(Interpreter*, VMFrame*);
 
-    void InstVarAt(VMObject* object, VMFrame* frame);
-    void InstVarAtPut(VMObject* object, VMFrame* frame);
-    void InstVarNamed(VMObject* object, VMFrame* frame);
+    void InstVarAt(Interpreter*, VMFrame*);
+    void InstVarAtPut(Interpreter*, VMFrame*);
+    void InstVarNamed(Interpreter*, VMFrame*);
     
-    void Class(VMObject* object, VMFrame* frame);
+    void Class(Interpreter*, VMFrame*);
 };

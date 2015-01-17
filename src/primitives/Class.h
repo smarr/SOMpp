@@ -26,18 +26,16 @@
  THE SOFTWARE.
  */
 
-class VMObject;
-class VMFrame;
-
-#include "../primitivesCore/PrimitiveContainer.h"
+#include <vmobjects/ObjectFormats.h>
+#include <primitivesCore/PrimitiveContainer.h>
 
 class _Class: public PrimitiveContainer {
 public:
     _Class();
-    void New(VMObject* object, VMFrame* frame);
+    void New(Interpreter*, VMFrame*);
     
-    void Name      (VMObject* object, VMFrame* frame);
-    void Superclass(VMObject* object, VMFrame* frame);
-    void Fields    (VMObject* object, VMFrame* frame);
-    void Methods   (VMObject* object, VMFrame* frame);
+    void Name      (Interpreter*, VMFrame*);
+    void Superclass(Interpreter*, VMFrame*);
+    void Fields    (Interpreter*, VMFrame*);
+    void Methods   (Interpreter*, VMFrame*);
 };

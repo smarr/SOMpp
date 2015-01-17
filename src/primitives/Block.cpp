@@ -42,19 +42,19 @@
 
 #include <vmobjects/VMMethod.inline.h>
 
-void _Block::Value(VMObject* /*object*/, VMFrame* /*frame*/) {
+void _Block::Value(Interpreter*, VMFrame*) {
     // intentionally left blank
 }
 
-void _Block::Value_(VMObject* /*object*/, VMFrame* /*frame*/) {
+void _Block::Value_(Interpreter*, VMFrame*) {
     // intentionally left blank
 }
 
-void _Block::Value_with_(VMObject* /*object*/, VMFrame* /*frame*/) {
+void _Block::Value_with_(Interpreter*, VMFrame*) {
     // intentionally left blank
 }
 
-void _Block::Restart(VMObject* /*object*/, VMFrame* frame) {
+void _Block::Restart(Interpreter*, VMFrame* frame) {
     frame->SetBytecodeIndex(0);
     frame->ResetStackPointer();
 }
@@ -104,7 +104,7 @@ void* _Block::ThreadForBlock(void* threadPointer) {
     // lookup the initialize invokable on the system class
     VMInvokable* initialize = (VMInvokable*)GetUniverse()->GetBlockClass()->LookupInvokable(GetUniverse()->SymbolForChars("evaluate"));
     // invoke the initialize invokable
-    initialize->Invoke(bootstrapVMFrame);
+    initialize->Invoke(interpreter, bootstrapVMFrame);
     // start the interpreter
     interpreter->Start();
     
@@ -140,7 +140,7 @@ void* _Block::ThreadForBlockWithArgument(void* threadPointer) {
     // lookup the initialize invokable on the system class
     VMInvokable* initialize = (VMInvokable*)GetUniverse()->GetBlockClass()->LookupInvokable(GetUniverse()->SymbolForChars("evaluate"));
     // invoke the initialize invokable
-    initialize->Invoke(bootstrapVMFrame);
+    initialize->Invoke(interpreter, bootstrapVMFrame);
     // start the interpreter
     interpreter->Start();
     
@@ -160,7 +160,7 @@ void* _Block::ThreadForBlockWithArgument(void* threadPointer) {
 }
 
 //spawning of new thread that will run the block
-void _Block::Spawn(VMObject* object, VMFrame* frame) {
+void _Block::Spawn(Interpreter*, VMFrame* frame) {
     pthread_t tid = 0;
     VMBlock* block = (VMBlock*)frame->Pop();
     // create the thread object and setting it up
@@ -175,7 +175,7 @@ void _Block::Spawn(VMObject* object, VMFrame* frame) {
     frame->Push(thread);
 }
 
-void _Block::SpawnWithArgument(VMObject* object, VMFrame* frame) {
+void _Block::SpawnWithArgument(Interpreter*, VMFrame* frame) {
     pthread_t tid = 0;
     // Get the argument
     vm_oop_t argument = frame->Pop();
