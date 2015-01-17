@@ -32,10 +32,8 @@ class VMDouble: public AbstractVMObject {
 public:
     typedef GCDouble Stored;
     
-    VMDouble();
-    VMDouble(double);
+    VMDouble(double val) : embeddedDouble(val), AbstractVMObject() {}
 
-    inline  void     SetEmbeddedDouble(double);
     inline  double   GetEmbeddedDouble() const;
     virtual VMClass* GetClass();
     inline virtual size_t GetObjectSize() const;
@@ -52,12 +50,8 @@ public:
     virtual StdString AsDebugString();
 
 private:
-    double embeddedDouble;
+    const double embeddedDouble;
 };
-
-void VMDouble::SetEmbeddedDouble(double val) {
-    this->embeddedDouble = val;
-}
 
 double VMDouble::GetEmbeddedDouble() const {
     return this->embeddedDouble;

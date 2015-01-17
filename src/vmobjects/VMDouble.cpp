@@ -29,14 +29,6 @@
 #include <vm/Universe.h>
 #include "../interpreter/Interpreter.h"
 
-VMDouble::VMDouble() {
-    this->embeddedDouble = 0.0;
-}
-
-VMDouble::VMDouble(double val) {
-    this->embeddedDouble = val;
-}
-
 #if GC_TYPE==GENERATIONAL
 VMDouble* VMDouble::Clone() {
     return new (_HEAP, _PAGE, 0, true) VMDouble(*this);

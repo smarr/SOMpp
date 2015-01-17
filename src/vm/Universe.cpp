@@ -497,7 +497,7 @@ Universe::~Universe() {
 #if GC_TYPE==GENERATIONAL
         VMDouble* dbl = new (_HEAP, _PAGE) VMDouble();
 #elif GC_TYPE==PAUSELESS
-        VMDouble* dbl = new (_HEAP, GetUniverse()->GetInterpreter()) VMDouble();
+        VMDouble* dbl = new (_HEAP, GetUniverse()->GetInterpreter()) VMDouble(0.0);
 #else
         VMDouble* dbl = new (_HEAP) VMDouble();
 #endif
