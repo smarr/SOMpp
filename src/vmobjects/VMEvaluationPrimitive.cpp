@@ -70,25 +70,19 @@ VMEvaluationPrimitive* VMEvaluationPrimitive::Clone() {
 #endif
     
 VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc) {
-#define VALUE_S "value"
-#define VALUE_LEN 5
-#define WITH_S    "with:"
-#define WITH_LEN (4+1)
-#define COLON_S ":"
     assert(argc > 0);
 
     StdString signatureString;
 
     // Compute the signature string
     if (argc==1) {
-        signatureString += VALUE_S;
+        signatureString += "value";
     } else {
-        signatureString += VALUE_S;
-        signatureString += COLON_S;
+        signatureString += "value:";
         --argc;
         while (--argc)
             // Add extra value: selector elements if necessary
-            signatureString += WITH_S;
+            signatureString += "with:";
     }
 
     // Return the signature string
