@@ -23,7 +23,6 @@
 		0A1886F61832BCED00A2CBCA /* Universe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203320FA6624C00E75857 /* Universe.cpp */; };
 		0A1886F71832BCF500A2CBCA /* Signature.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203370FA6624C00E75857 /* Signature.cpp */; };
 		0A1886F91832BCF500A2CBCA /* VMArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F52033B0FA6624C00E75857 /* VMArray.cpp */; };
-		0A1886FA1832BCF500A2CBCA /* VMBigInteger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F52033D0FA6624C00E75857 /* VMBigInteger.cpp */; };
 		0A1886FB1832BCF500A2CBCA /* VMBlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F52033F0FA6624C00E75857 /* VMBlock.cpp */; };
 		0A1886FC1832BCF500A2CBCA /* VMClass.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203410FA6624C00E75857 /* VMClass.cpp */; };
 		0A1886FD1832BCF500A2CBCA /* VMDouble.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203430FA6624C00E75857 /* VMDouble.cpp */; };
@@ -46,10 +45,8 @@
 		0A1887461832C62100A2CBCA /* SUnit in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A18873F1832C62100A2CBCA /* SUnit */; };
 		0A1887471832C62100A2CBCA /* TestSuite in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A1887401832C62100A2CBCA /* TestSuite */; };
 		0A8E19D91A161662004CE22B /* Array.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203120FA6624C00E75857 /* Array.cpp */; };
-		0A8E19DA1A161667004CE22B /* BigInteger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203140FA6624C00E75857 /* BigInteger.cpp */; };
 		0A8E19DB1A161667004CE22B /* Block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203160FA6624C00E75857 /* Block.cpp */; };
 		0A8E19DC1A161667004CE22B /* Class.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203180FA6624C00E75857 /* Class.cpp */; };
-		0A8E19DD1A161667004CE22B /* Core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F52031A0FA6624C00E75857 /* Core.cpp */; };
 		0A8E19DE1A161667004CE22B /* Delay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9004031518CD5E7400C0410A /* Delay.cpp */; };
 		0A8E19DF1A161667004CE22B /* Double.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F52031C0FA6624C00E75857 /* Double.cpp */; };
 		0A8E19E01A161667004CE22B /* Integer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F52031E0FA6624C00E75857 /* Integer.cpp */; };
@@ -103,6 +100,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0A17499B1A6992CC007878D9 /* VMObjectBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMObjectBase.h; sourceTree = "<group>"; };
 		0A1886C51832BBC900A2CBCA /* SOM++ */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "SOM++"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A1887091832C0E400A2CBCA /* AbstractObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractObject.cpp; sourceTree = "<group>"; };
 		0A18870A1832C0E400A2CBCA /* AbstractObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractObject.h; sourceTree = "<group>"; };
@@ -156,14 +154,10 @@
 		3F52030F0FA6624C00E75857 /* gettimeofday.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gettimeofday.h; sourceTree = "<group>"; };
 		3F5203120FA6624C00E75857 /* Array.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Array.cpp; sourceTree = "<group>"; };
 		3F5203130FA6624C00E75857 /* Array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Array.h; sourceTree = "<group>"; };
-		3F5203140FA6624C00E75857 /* BigInteger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BigInteger.cpp; sourceTree = "<group>"; };
-		3F5203150FA6624C00E75857 /* BigInteger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BigInteger.h; sourceTree = "<group>"; };
 		3F5203160FA6624C00E75857 /* Block.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Block.cpp; sourceTree = "<group>"; };
 		3F5203170FA6624C00E75857 /* Block.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Block.h; sourceTree = "<group>"; };
 		3F5203180FA6624C00E75857 /* Class.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Class.cpp; sourceTree = "<group>"; };
 		3F5203190FA6624C00E75857 /* Class.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Class.h; sourceTree = "<group>"; };
-		3F52031A0FA6624C00E75857 /* Core.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Core.cpp; sourceTree = "<group>"; };
-		3F52031B0FA6624C00E75857 /* Core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Core.h; sourceTree = "<group>"; };
 		3F52031C0FA6624C00E75857 /* Double.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Double.cpp; sourceTree = "<group>"; };
 		3F52031D0FA6624C00E75857 /* Double.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Double.h; sourceTree = "<group>"; };
 		3F52031E0FA6624C00E75857 /* Integer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Integer.cpp; sourceTree = "<group>"; };
@@ -192,8 +186,6 @@
 		3F5203380FA6624C00E75857 /* Signature.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Signature.h; sourceTree = "<group>"; };
 		3F52033B0FA6624C00E75857 /* VMArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VMArray.cpp; sourceTree = "<group>"; };
 		3F52033C0FA6624C00E75857 /* VMArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMArray.h; sourceTree = "<group>"; };
-		3F52033D0FA6624C00E75857 /* VMBigInteger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VMBigInteger.cpp; sourceTree = "<group>"; };
-		3F52033E0FA6624C00E75857 /* VMBigInteger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMBigInteger.h; sourceTree = "<group>"; };
 		3F52033F0FA6624C00E75857 /* VMBlock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VMBlock.cpp; sourceTree = "<group>"; };
 		3F5203400FA6624C00E75857 /* VMBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMBlock.h; sourceTree = "<group>"; };
 		3F5203410FA6624C00E75857 /* VMClass.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VMClass.cpp; sourceTree = "<group>"; };
@@ -492,14 +484,10 @@
 			children = (
 				3F5203120FA6624C00E75857 /* Array.cpp */,
 				3F5203130FA6624C00E75857 /* Array.h */,
-				3F5203140FA6624C00E75857 /* BigInteger.cpp */,
-				3F5203150FA6624C00E75857 /* BigInteger.h */,
 				3F5203160FA6624C00E75857 /* Block.cpp */,
 				3F5203170FA6624C00E75857 /* Block.h */,
 				3F5203180FA6624C00E75857 /* Class.cpp */,
 				3F5203190FA6624C00E75857 /* Class.h */,
-				3F52031A0FA6624C00E75857 /* Core.cpp */,
-				3F52031B0FA6624C00E75857 /* Core.h */,
 				9004031518CD5E7400C0410A /* Delay.cpp */,
 				9004031618CD5E7400C0410A /* Delay.h */,
 				3F52031C0FA6624C00E75857 /* Double.cpp */,
@@ -555,6 +543,7 @@
 		3F5203340FA6624C00E75857 /* vmobjects */ = {
 			isa = PBXGroup;
 			children = (
+				0A17499B1A6992CC007878D9 /* VMObjectBase.h */,
 				0A1887091832C0E400A2CBCA /* AbstractObject.cpp */,
 				0A18870A1832C0E400A2CBCA /* AbstractObject.h */,
 				3F5203350FA6624C00E75857 /* ObjectFormats.h */,
@@ -563,8 +552,6 @@
 				3F5203380FA6624C00E75857 /* Signature.h */,
 				3F52033B0FA6624C00E75857 /* VMArray.cpp */,
 				3F52033C0FA6624C00E75857 /* VMArray.h */,
-				3F52033D0FA6624C00E75857 /* VMBigInteger.cpp */,
-				3F52033E0FA6624C00E75857 /* VMBigInteger.h */,
 				3F52033F0FA6624C00E75857 /* VMBlock.cpp */,
 				3F5203400FA6624C00E75857 /* VMBlock.h */,
 				3F5203410FA6624C00E75857 /* VMClass.cpp */,
@@ -884,10 +871,8 @@
 				0A8E19DC1A161667004CE22B /* Class.cpp in Sources */,
 				905BB55F198F50380016D8D9 /* GenerationalCollector.cpp in Sources */,
 				905BB561198F50380016D8D9 /* GenerationalHeap.cpp in Sources */,
-				0A8E19DD1A161667004CE22B /* Core.cpp in Sources */,
 				0A1887041832BCFA00A2CBCA /* VMPrimitive.cpp in Sources */,
 				0A8E19E71A161667004CE22B /* Symbol.cpp in Sources */,
-				0A8E19DA1A161667004CE22B /* BigInteger.cpp in Sources */,
 				0A8E19DF1A161667004CE22B /* Double.cpp in Sources */,
 				0A1886E31832BCD300A2CBCA /* bytecodes.cpp in Sources */,
 				0A1886DD1832BCC800A2CBCA /* ClassGenerationContext.cpp in Sources */,
@@ -933,7 +918,6 @@
 				0A8E19ED1A16305B004CE22B /* debug.cpp in Sources */,
 				0A8E19D91A161662004CE22B /* Array.cpp in Sources */,
 				0A1887011832BCFA00A2CBCA /* VMInvokable.cpp in Sources */,
-				0A1886FA1832BCF500A2CBCA /* VMBigInteger.cpp in Sources */,
 				0A1886E11832BCC800A2CBCA /* Parser.cpp in Sources */,
 				0A1886FD1832BCF500A2CBCA /* VMDouble.cpp in Sources */,
 				0A1886FE1832BCF500A2CBCA /* VMEvaluationPrimitive.cpp in Sources */,
