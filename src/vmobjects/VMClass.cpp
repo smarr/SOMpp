@@ -49,8 +49,8 @@
 const long VMClass::VMClassNumberOfFields = 4;
 
 VMClass::VMClass() :
-        VMObject(VMClassNumberOfFields), superClass(NULL), name(NULL), instanceFields(
-                NULL), instanceInvokables(NULL) {
+        VMObject(VMClassNumberOfFields), superClass(nullptr), name(nullptr), instanceFields(
+                nullptr), instanceInvokables(nullptr) {
 }
 
 #if GC_TYPE==GENERATIONAL
@@ -134,9 +134,9 @@ VMSymbol* VMClass::GetInstanceFieldName(long index) {
     long numSuperInstanceFields = numberOfSuperInstanceFields();
     if (index >= numSuperInstanceFields) {
         index -= numSuperInstanceFields;
-        return static_cast<VMSymbol*>(this->GetInstanceFields()->GetIndexableField(index));
+        return static_cast<VMSymbol*>(GetInstanceFields()->GetIndexableField(index));
     }
-    return this->GetSuperClass()->GetInstanceFieldName(index);
+    return GetSuperClass()->GetInstanceFieldName(index);
 }
 
 void VMClass::SetInstanceInvokables(VMArray* invokables) {
@@ -158,11 +158,11 @@ void VMClass::SetInstanceInvokables(VMArray* invokables) {
 }
 
 long VMClass::GetNumberOfInstanceInvokables() {
-    return this->GetInstanceInvokables()->GetNumberOfIndexableFields();
+    return GetInstanceInvokables()->GetNumberOfIndexableFields();
 }
 
 VMInvokable* VMClass::GetInstanceInvokable(long index) {
-    return static_cast<VMInvokable*>(this->GetInstanceInvokables()->GetIndexableField(index));
+    return static_cast<VMInvokable*>(GetInstanceInvokables()->GetIndexableField(index));
 }
 
 void VMClass::SetInstanceInvokable(long index, VMInvokable* invokable) {
@@ -177,18 +177,17 @@ VMInvokable* VMClass::LookupInvokable(VMSymbol* name) {
     
     /*
     VMInvokable* invokable = name->GetCachedInvokable(this);
-    if (invokable != NULL)
+    if (invokable != nullptr)
         return invokable; */
-    VMInvokable* invokable;
 
     long numInvokables = GetNumberOfInstanceInvokables();
     for (long i = 0; i < numInvokables; ++i) {
-        invokable = GetInstanceInvokable(i);
+        VMInvokable* invokable = GetInstanceInvokable(i);
         
         VMSymbol* sig = invokable->GetSignature();
         if (sig == name) {
         //if (invokable->GetSignature() == name) {
-            //name->UpdateCachedInvokable(this, invokable);
+//            name->UpdateCachedInvokable(this, invokable);
             return invokable;
         } else {
             if (strcmp(sig->GetChars(), name->GetChars()) == 0) {
@@ -200,26 +199,27 @@ VMInvokable* VMClass::LookupInvokable(VMSymbol* name) {
 
     // look in super class
     if (HasSuperClass()) {
-        return this->GetSuperClass()->LookupInvokable(name);
+        return GetSuperClass()->LookupInvokable(name);
     }
     
     // invokable not found
-    return NULL;
+    return nullptr;
 }
 
 long VMClass::LookupFieldIndex(VMSymbol* name) {
     long numInstanceFields = GetNumberOfInstanceFields();
-    for (long i = 0; i <= numInstanceFields; ++i)
+    for (long i = 0; i <= numInstanceFields; ++i) {
         // even with GetNumberOfInstanceFields == 0 there is the class field
         if (name == GetInstanceFieldName(i)) {
             return i;
         }
+    }
     return -1;
 }
 
 long VMClass::GetNumberOfInstanceFields() {
-    return this->GetInstanceFields()->GetNumberOfIndexableFields()
-            + this->numberOfSuperInstanceFields();
+    return GetInstanceFields()->GetNumberOfIndexableFields()
+            + numberOfSuperInstanceFields();
 }
 
 bool VMClass::HasPrimitives() {
@@ -242,8 +242,8 @@ void VMClass::LoadPrimitives(const vector<StdString>& cp) {
 }
 
 long VMClass::numberOfSuperInstanceFields() {
-    if (this->HasSuperClass())
-        return this->GetSuperClass()->GetNumberOfInstanceFields();
+    if (HasSuperClass())
+        return GetSuperClass()->GetNumberOfInstanceFields();
     return 0;
 }
 
