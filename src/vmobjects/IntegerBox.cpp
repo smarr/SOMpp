@@ -2,16 +2,16 @@
 #include "VMInteger.h"
 #include "../vm/Universe.h"
 
-VMInteger* GlobalBox::integerBox = NULL;
+GCInteger* GlobalBox::integerBox = nullptr;
 
 void GlobalBox::updateIntegerBox(VMInteger* newValue) {
-    integerBox = newValue;
+    integerBox = store_ptr(newValue);
 }
 
 VMInteger* GlobalBox::IntegerBox() {
-    if (integerBox == NULL) {
-        integerBox = _UNIVERSE->NewInteger(1);
-    }
-    return integerBox;
+    return load_ptr(integerBox);
 }
 
+void GlobalBox::WalkGlobals(walk_heap_fn walk, Page* page) {
+    integerBox = static_cast<GCInteger*>(walk(integerBox, page));
+}

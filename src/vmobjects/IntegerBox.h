@@ -1,19 +1,15 @@
 #pragma once
 
-#ifndef INTEGERBOX_H_
-#define INTEGERBOX_H_
-
-class VMInteger;
+#include <vmobjects/ObjectFormats.h>
 
 class GlobalBox {
 public:
     static VMInteger* IntegerBox();
+    
+    static void WalkGlobals(walk_heap_fn walk, Page*);
 
 private:
     static void updateIntegerBox(VMInteger*);
-    static VMInteger* integerBox;
+    static GCInteger* integerBox;
     friend class Universe;
 };
-
-#endif INTEGERBOX_H_
-
