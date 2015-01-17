@@ -128,7 +128,7 @@ void VMClass::SetInstanceInvokables(VMArray* invokables) {
         //check for Nil object
         if (invo != nil) {
             //not Nil, so this actually is an invokable
-            VMInvokable* inv = (VMInvokable*) invo;
+            VMInvokable* inv = static_cast<VMInvokable*>(invo);
             inv->SetHolder(this);
         }
     }
