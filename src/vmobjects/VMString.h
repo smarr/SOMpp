@@ -28,6 +28,7 @@
 
 #include "AbstractObject.h"
 
+
 class VMString: public AbstractVMObject {
 public:
     typedef GCString Stored;
@@ -57,7 +58,8 @@ protected:
     //this could be replaced by the CHARS macro in VMString.cpp
     //in order to decrease the object size
     char* chars;
-    VMString() {}; //constructor to use by VMSymbol
+
+    VMString() : AbstractVMObject() {}; //constructor to use by VMSymbol
 };
 
 char* VMString::GetChars() const {
