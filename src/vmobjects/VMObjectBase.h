@@ -19,6 +19,7 @@
 
 class VMObjectBase : public VMOop {
 protected:
+    VMObjectBase() : gcfield(0) {}
     volatile size_t gcfield;
 #if GC_TYPE==PAUSELESS
     volatile size_t gcfield2 = 0;

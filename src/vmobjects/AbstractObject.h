@@ -57,8 +57,7 @@ public:
     
     virtual StdString AsDebugString() = 0;
 
-    AbstractVMObject() {
-        gcfield = 0;
+    AbstractVMObject() : VMObjectBase() {
 #if GC_TYPE==PAUSELESS
         gcfield2 = 0;
 #endif
