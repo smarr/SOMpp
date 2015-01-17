@@ -37,8 +37,7 @@ public:
     typedef GCInvokable Stored;
     
     VMInvokable(long nof = 0) : VMObject(nof + 2) {};
-    // virtual operator "()" to invoke the invokable
-    virtual void      operator()(VMFrame*) = 0;
+    virtual void      Invoke(VMFrame*) = 0;
 
     virtual bool      IsPrimitive() const;
             VMSymbol* GetSignature();

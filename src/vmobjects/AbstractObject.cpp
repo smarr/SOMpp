@@ -29,7 +29,7 @@ void AbstractVMObject::Send(StdString selectorString, vm_oop_t* arguments, long 
 
     VMClass* cl = this->GetClass();
     VMInvokable* invokable = cl->LookupInvokable(selector);
-    (*invokable)(frame);
+    invokable->Invoke(frame);
 }
 
 long AbstractVMObject::GetFieldIndex(VMSymbol* fieldName) {

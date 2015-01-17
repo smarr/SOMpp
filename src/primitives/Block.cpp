@@ -104,7 +104,7 @@ void* _Block::ThreadForBlock(void* threadPointer) {
     // lookup the initialize invokable on the system class
     VMInvokable* initialize = (VMInvokable*)GetUniverse()->GetBlockClass()->LookupInvokable(GetUniverse()->SymbolForChars("evaluate"));
     // invoke the initialize invokable
-    (*initialize)(bootstrapVMFrame);
+    initialize->Invoke(bootstrapVMFrame);
     // start the interpreter
     interpreter->Start();
     
@@ -140,7 +140,7 @@ void* _Block::ThreadForBlockWithArgument(void* threadPointer) {
     // lookup the initialize invokable on the system class
     VMInvokable* initialize = (VMInvokable*)GetUniverse()->GetBlockClass()->LookupInvokable(GetUniverse()->SymbolForChars("evaluate"));
     // invoke the initialize invokable
-    (*initialize)(bootstrapVMFrame);
+    initialize->Invoke(bootstrapVMFrame);
     // start the interpreter
     interpreter->Start();
     

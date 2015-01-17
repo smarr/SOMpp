@@ -95,7 +95,7 @@ VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc) {
     return GetUniverse()->SymbolFor(signatureString);
 }
 
-void EvaluationRoutine::operator()(VMObject* object, VMFrame* frame) {
+void EvaluationRoutine::Invoke(VMObject* object, VMFrame* frame) {
     VMEvaluationPrimitive* prim = load_ptr(evalPrim);
 
     // Get the block (the receiver) from the stack

@@ -125,7 +125,7 @@ void Shell::Start() {
                                         GetUniverse()->SymbolFor("run:"));
 
         // Invoke the run method
-        (*initialize)(load_ptr(currentFrame));
+        initialize->Invoke(load_ptr(currentFrame));
 
         // Start the Interpreter
 

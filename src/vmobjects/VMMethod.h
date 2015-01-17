@@ -62,7 +62,7 @@ public:
             vm_oop_t  GetConstant(long indx);
     inline  uint8_t   GetBytecode(long indx) const;
     inline  void      SetBytecode(long indx, uint8_t);
-    
+
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     void SetCachedFrame(VMFrame* frame);
     VMFrame* GetCachedFrame() const;
@@ -82,9 +82,7 @@ public:
 
     inline  void      SetIndexableField(long idx, vm_oop_t item);
 
-    //-----------VMInvokable-------------//
-    //operator "()" to invoke the method
-    virtual void operator()(VMFrame* frame);
+    virtual void Invoke(VMFrame* frame);
 
     void SetSignature(VMSymbol* sig);
     

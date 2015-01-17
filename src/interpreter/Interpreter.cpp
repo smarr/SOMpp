@@ -326,7 +326,7 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
         // since an invokable is able to change/use the frame, we have to write
         // cached values before, and read cached values after calling
         GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
-        (*invokable)(GetFrame());
+        invokable->Invoke(GetFrame());
         bytecodeIndexGlobal = GetFrame()->GetBytecodeIndex();
     } else {
         //doesNotUnderstand
@@ -526,7 +526,7 @@ void Interpreter::doSuperSend(long bytecodeIndex) {
     VMInvokable* invokable = static_cast<VMInvokable*>(super->LookupInvokable(signature));
 
     if (invokable != nullptr)
-        (*invokable)(GetFrame());
+        invokable->Invoke(GetFrame());
     else {
         long numOfArgs = Signature::GetNumberOfArguments(signature);
         vm_oop_t receiver = GetFrame()->GetStackElement(numOfArgs - 1);

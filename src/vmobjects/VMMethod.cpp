@@ -33,7 +33,7 @@
 #include "VMObject.h"
 #include "VMInteger.h"
 #include "Signature.h"
-#include "../interpreter/Interpreter.h"
+#include <interpreter/Interpreter.h>
 
 #include <vm/Universe.h>
 #include <vmobjects/VMBlock.inline.h>
@@ -152,7 +152,7 @@ long VMMethod::GetNumberOfBytecodes() {
     return INT_VAL(load_ptr(bcLength));
 }
 
-void VMMethod::operator()(VMFrame* frame) {
+void VMMethod::Invoke(VMFrame* frame) {
     VMFrame* frm = GetUniverse()->GetInterpreter()->PushNewFrame(this);
     frm->CopyArgumentsFrom(frame);
 }

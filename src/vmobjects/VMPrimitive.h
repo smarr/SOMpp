@@ -54,9 +54,7 @@ public:
     virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
 #endif
 
-    //-----------VMInvokable-------//
-    //operator "()" to invoke the primitive
-    virtual void operator()(VMFrame* frm) {(*routine)(this, frm);};
+    virtual void Invoke(VMFrame* frm) {routine->Invoke(this, frm);};
 
     virtual bool IsPrimitive() const {return true;};
     

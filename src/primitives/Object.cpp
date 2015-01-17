@@ -94,7 +94,7 @@ void _Object::Perform(VMObject*, VMFrame* frame) {
     VMClass* clazz = CLASS_OF(self);
     VMInvokable* invokable = clazz->LookupInvokable(selector);
 
-    (*invokable)(frame);
+    invokable->Invoke(frame);
 }
 
 void _Object::PerformInSuperclass(VMObject* object, VMFrame* frame) {
@@ -103,7 +103,7 @@ void _Object::PerformInSuperclass(VMObject* object, VMFrame* frame) {
 
     VMInvokable* invokable = clazz->LookupInvokable(selector);
 
-    (*invokable)(frame);
+    invokable->Invoke(frame);
 }
 
 void _Object::PerformWithArguments(VMObject* object, VMFrame* frame) {
@@ -120,7 +120,7 @@ void _Object::PerformWithArguments(VMObject* object, VMFrame* frame) {
     VMClass* clazz = CLASS_OF(self);
     VMInvokable* invokable = clazz->LookupInvokable(selector);
 
-    (*invokable)(frame);
+    invokable->Invoke(frame);
 }
 
 void _Object::PerformWithArgumentsInSuperclass(VMObject* object, VMFrame* frame) {
@@ -136,7 +136,7 @@ void _Object::PerformWithArgumentsInSuperclass(VMObject* object, VMFrame* frame)
 
     VMInvokable* invokable = clazz->LookupInvokable(selector);
 
-    (*invokable)(frame);
+    invokable->Invoke(frame);
 }
 
 void _Object::InstVarAt(VMObject* object, VMFrame* frame) {

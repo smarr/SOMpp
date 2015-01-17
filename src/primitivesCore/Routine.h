@@ -45,7 +45,7 @@ public:
         : classSide(classSide), primContainerObj(primContainerObj),
           func(_fpt), PrimitiveRoutine() {};
 
-    virtual void operator()(VMObject* object, VMFrame* frm) {
+    virtual void Invoke(VMObject* object, VMFrame* frm) {
         (*primContainerObj.*func)(object, frm);  // execute member function
     }
     
