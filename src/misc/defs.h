@@ -58,6 +58,58 @@
 #define MARK_SWEEP   3
 #define PAUSELESS    4
 
+// OS Memory Page Size
+#ifndef PAGE_SIZE
+#define PAGE_SIZE 4096
+#endif
+
+//
+// Integer Settings
+//
+#ifndef USE_TAGGING
+  #define USE_TAGGING false
+#endif
+
+#ifdef CACHE_INTEGER
+  // Sanity check
+  #if CACHE_INTEGER && USE_TAGGING
+    # error Caching of small integer instances is only useful without tagged integers
+  #endif
+#endif
+
+#ifndef CACHE_INTEGER
+  #define CACHE_INTEGER false
+#endif
+
+#ifndef INT_CACHE_MIN_VALUE
+  #define INT_CACHE_MIN_VALUE (-5)
+#endif
+
+#ifndef INT_CACHE_MAX_VALUE
+  #define INT_CACHE_MAX_VALUE (100)
+#endif
+
+
+//
+// Debugging
+//
+#ifdef DEBUG
+  // Sanity check
+  #if (!(DEBUG+0))
+    #pragma message(VAR_NAME_VALUE(DEBUG))
+    #error DEBUG needs to be set to a boolean
+  #endif
+#endif
+
+#ifndef NDEBUG
+  #ifndef DEBUG
+    #define DEBUG true
+  #endif
+#else
+  #ifndef DEBUG
+    #define DEBUG false
+  #endif
+#endif
 
 //
 // Performance Optimization
