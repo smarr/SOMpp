@@ -145,7 +145,7 @@ protected:
     long GetAdditionalSpaceConsumption() const;
 
     // VMObject essentials
-    long   hash;
+    intptr_t hash;
     size_t objectSize;     // set by the heap at allocation time
     long   numberOfFields;
 
