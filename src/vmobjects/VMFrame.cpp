@@ -215,41 +215,56 @@ void VMFrame::Push(vm_oop_t obj) {
     *stack_ptr = store_ptr(obj);
 }
 
-void VMFrame::PrintStack() const {
-    cout << "SP: " << this->GetStackPointer() << endl;
-    //all other fields are indexable via arguments array
-    // --> until end of Frame
+static void print_oop(gc_oop_t vmo) {
+    if (vmo == nullptr)
+        Universe::Print("nullptr\n");
+    else if (vmo == nilObject)
+        Universe::Print("NIL_OBJECT\n");
+    else {
+        AbstractVMObject* o = AS_OBJ(vmo);
+        Universe::Print(o->AsDebugString() + "\n");
+    }
+}
+
+void VMFrame::PrintStack() {
+    Universe::Print(GetMethod()->AsDebugString() + ", bc: " +
+                    to_string(GetBytecodeIndex()) + "\n" + "Args: " +
+                    to_string(GetMethod()->GetNumberOfArguments()) +
+                    " Locals: " + to_string(GetMethod()->GetNumberOfLocals()) +
+                    " MaxStack:" + to_string(GetMethod()->GetMaximumNumberOfStackElements()) +
+                    "\n");
+
+    for (size_t i = 0; i < GetMethod()->GetNumberOfArguments(); i++) {
+        Universe::Print("   arg " + to_string(i) + ": ");
+        print_oop(arguments[i]);
+    }
+    
+    size_t local_offset = 0;
+    for (size_t i = 0; i < GetMethod()->GetNumberOfLocals(); i++) {
+        Universe::Print("   loc " + to_string(i) + ": ");
+        print_oop(locals[i]);
+        local_offset++;
+    }
+    
+    size_t max = GetMethod()->GetMaximumNumberOfStackElements();
+    for (size_t i = 0; i < max; i++) {
+        if (stack_ptr == &locals[local_offset + i]) {
+            Universe::Print("-> stk " + to_string(i) + ": ");
+        } else {
+            Universe::Print("   stk " + to_string(i) + ": ");
+        }
+        print_oop(locals[local_offset + i]);
+    }
+    
     gc_oop_t* end = (gc_oop_t*) SHIFTED_PTR(this, objectSize);
-    long i = 0;
-    while (arguments + i < end) {
-        vm_oop_t vmo = load_ptr(arguments[i]);
-        cout << i << ": ";
-        if (vmo == nullptr)
-            cout << "NULL" << endl;
-        if (vmo == load_ptr(nilObject))
-            cout << "NIL_OBJECT" << endl;
-#ifdef USE_TAGGING
-        if (IS_TAGGED(vmo)) {
-            cout << "index: " << i << " object: VMInteger" << endl;
+    size_t i = 0;
+    while (&locals[local_offset + max + i] < end) {
+        if (stack_ptr == &locals[local_offset + max + i]) {
+            Universe::Print("->estk " + to_string(i) + ": ");
+        } else {
+            Universe::Print("  estk " + to_string(i) + ": ");
         }
-        else {
-            if (((VMOBJECT_PTR)vmo)->GetClass() == nullptr)
-                cout << "VMObject with Class == NULL" << endl;
-            if (((VMOBJECT_PTR)vmo)->GetClass() == load_ptr(nilObject))
-                cout << "VMObject with Class == NIL_OBJECT" << endl;
-            else
-                cout << "index: " << i << " object:"
-                     << ((VMOBJECT_PTR)vmo)->GetClass()->GetName()->GetChars() << endl;
-        }
-#else
-        if (CLASS_OF(vmo) == nullptr)
-            cout << "VMObject with Class == NULL" << endl;
-        if (CLASS_OF(vmo) == load_ptr(nilObject))
-            cout << "VMObject with Class == NIL_OBJECT" << endl;
-        else
-            cout << "index: " << i << " object:"
-                 << CLASS_OF(vmo)->GetName()->GetChars() << endl;
-#endif
+        print_oop(locals[local_offset + max + i]);
         i++;
     }
 }

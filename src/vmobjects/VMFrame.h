@@ -82,7 +82,7 @@ public:
     virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
 #endif
 
-    void PrintStack() const;
+    void PrintStack();
     inline void* GetStackPointer() const;
     long RemainingStackSize() const;
     
