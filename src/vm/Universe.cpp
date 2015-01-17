@@ -763,7 +763,7 @@ VMClass* Universe::LoadClass(VMSymbol* name, Page* page) {
 
     if (!result) {
 		// we fail silently, it is not fatal that loading a class failed
-		return (VMClass*) nilObject;
+		return static_cast<VMClass*>(load_ptr(nilObject));
     }
 
     if (result->HasPrimitives() || result->GetClass()->HasPrimitives())
