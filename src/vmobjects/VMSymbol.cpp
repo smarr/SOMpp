@@ -33,21 +33,17 @@
 
 extern GCClass* symbolClass;
 
-VMSymbol::VMSymbol(const char* str) :
+VMSymbol::VMSymbol(const char* str) : VMString(str),
   numberOfArgumentsOfSignature(Signature::DetermineNumberOfArguments(str)) {
     nextCachePos = 0;
     // set the chars-pointer to point at the position of the first character
     chars = (char*) &cachedInvokable + +3 * sizeof(VMInvokable*);
-    size_t i = 0;
-    for (; i < strlen(str); ++i) {
-        chars[i] = str[i];
-    }
-    chars[i] = '\0';
-    //clear caching fields
+
+    // clear caching fields
     memset(&cachedClass_invokable, 0, 6 * sizeof(void*) + 1 * sizeof(long));
 }
 
-VMSymbol::VMSymbol(const StdString& s) :
+VMSymbol::VMSymbol(const StdString& s) : 
   numberOfArgumentsOfSignature(Signature::DetermineNumberOfArguments(s.c_str())) {
     VMSymbol(s.c_str());
 }

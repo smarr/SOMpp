@@ -30,8 +30,8 @@
 #include <vmobjects/VMInvokable.h>
 
 #include <vm/Universe.h>
-#include "../vmobjects/IntegerBox.h"
-#include "../primitivesCore/Routine.h"
+#include <vmobjects/IntegerBox.h>
+#include <primitivesCore/Routine.h>
 #include "Object.h"
 
 _Object::_Object() : PrimitiveContainer() {
@@ -49,7 +49,7 @@ _Object::_Object() : PrimitiveContainer() {
     SetPrimitive("instVarAt_",     new Routine<_Object>(this, &_Object::InstVarAt, false));
     SetPrimitive("instVarAt_put_", new Routine<_Object>(this, &_Object::InstVarAtPut, false));
     SetPrimitive("instVarNamed_",  new Routine<_Object>(this, &_Object::InstVarNamed, false));
-    
+
     SetPrimitive("class", new Routine<_Object>(this, &_Object::Class, false));
 }
 
@@ -140,7 +140,7 @@ void _Object::PerformWithArgumentsInSuperclass(Interpreter* interp, VMFrame* fra
 }
 
 void _Object::InstVarAt(Interpreter*, VMFrame* frame) {
-    vm_oop_t idx = frame->Pop();
+    vm_oop_t idx  = frame->Pop();
     vm_oop_t self = frame->Pop();
 
     long field_idx = INT_VAL(idx) - 1;

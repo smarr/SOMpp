@@ -108,11 +108,11 @@ typedef GCOop* gc_oop_t;
  read barrier, and between pointers that already went through it.
  
  So, we call pointers that need to go through the barrier:
- heap values, or GC* pointers.
+    heap values, or GC* pointers.
  
  And all the stuff that was already processed:
- loaded values, or VM* pointers.
- */
+    loaded values, or VM* pointers.
+*/
 class GCAbstractObject : public GCOop    { public: typedef AbstractVMObject Loaded; };
 class GCObject : public GCAbstractObject { public: typedef VMObject Loaded; };
 class GCFrame  : public GCObject         { public: typedef VMFrame  Loaded; };

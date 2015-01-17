@@ -31,10 +31,10 @@
 #include "VMBlock.h"
 #include "VMInteger.h"
 
-#include "../vm/Universe.h"
+#include <vm/Universe.h>
 
 //needed to instanciate the Routine object for the evaluation routine
-#include "../primitivesCore/Routine.h"
+#include <primitivesCore/Routine.h>
 
 VMEvaluationPrimitive::VMEvaluationPrimitive(long argc, Page* page) : VMPrimitive(computeSignatureString(argc, page)) {
     SetRoutine(new EvaluationRoutine(this));
@@ -75,7 +75,7 @@ VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc, Page* page) {
 
 void EvaluationRoutine::Invoke(Interpreter* interp, VMFrame* frame) {
     VMEvaluationPrimitive* prim = load_ptr(evalPrim);
-    
+
     // Get the block (the receiver) from the stack
     long numArgs = prim->GetNumberOfArguments();
     VMBlock* block = static_cast<VMBlock*>(frame->GetStackElement(numArgs - 1));

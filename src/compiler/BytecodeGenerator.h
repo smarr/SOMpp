@@ -34,6 +34,7 @@
 
 #include "MethodGenerationContext.h"
 
+
 class BytecodeGenerator {
 public:
     void EmitHALT(MethodGenerationContext* mgenc);

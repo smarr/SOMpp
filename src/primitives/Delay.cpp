@@ -15,5 +15,5 @@ void _Delay::Wait(Interpreter*, VMFrame* frame) {
 }
 
 _Delay::_Delay() : PrimitiveContainer() {
-    SetPrimitive("wait",         new Routine<_Delay>(this, &_Delay::Wait, false));
+    SetPrimitive("wait", new Routine<_Delay>(this, &_Delay::Wait, false));
 }

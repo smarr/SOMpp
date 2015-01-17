@@ -194,7 +194,8 @@ bool VMClass::HasPrimitives() const {
     long numInvokables = GetNumberOfInstanceInvokables();
     for (long i = 0; i < numInvokables; ++i) {
         VMInvokable* invokable = GetInstanceInvokable(i);
-        if (invokable->IsPrimitive()) return true;
+        if (invokable->IsPrimitive())
+            return true;
     }
     return false;
 }
@@ -222,12 +223,10 @@ bool VMClass::hasPrimitivesFor(const StdString& cl) const {
  * set the routines for primitive marked invokables of the given class
  */
 void VMClass::setPrimitives(const StdString& cname, bool classSide, Page* page) {
-    
     VMClass* current = this;
-    
+
     // Try loading class-specific primitives for all super class' methods as well.
     while (current != load_ptr(nilObject)) {
-    
         // iterate invokables
         long numInvokables = current->GetNumberOfInstanceInvokables();
         for (long i = 0; i < numInvokables; i++) {
@@ -239,7 +238,7 @@ void VMClass::setPrimitives(const StdString& cname, bool classSide, Page* page) 
 
             VMSymbol* sig = anInvokable->GetSignature();
             StdString selector = sig->GetPlainString();
-            
+
             PrimitiveRoutine* routine = PrimitiveLoader::GetPrimitiveRoutine(
                 cname, selector, anInvokable->IsPrimitive() && current == this);
             

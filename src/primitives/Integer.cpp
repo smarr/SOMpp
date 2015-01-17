@@ -117,7 +117,6 @@ void _Integer::BitwiseXor(Interpreter* interp, VMFrame* frame) {
     frame->Push(NEW_INT(result, interp->GetPage()));
 }
 
-
 void _Integer::LeftShift(Interpreter* interp, VMFrame* frame) {
     vm_oop_t rightObj = frame->Pop();
     vm_oop_t leftObj  = frame->Pop();
@@ -129,7 +128,7 @@ void _Integer::LeftShift(Interpreter* interp, VMFrame* frame) {
 void _Integer::Minus(Interpreter* interp, VMFrame* frame) {
     vm_oop_t rightObj = frame->Pop();
     vm_oop_t leftObj  = frame->Pop();
-    
+
     CHECK_COERCION(rightObj, leftObj, "-");
 
     int64_t result = (int64_t)INT_VAL(leftObj) - (int64_t)INT_VAL(rightObj);
@@ -172,8 +171,8 @@ void _Integer::Percent(Interpreter* interp, VMFrame* frame) {
 
     CHECK_COERCION(rightObj, leftObj, "%");
 
-    int64_t l = (int64_t)INT_VAL(leftObj);
-    int64_t r = (int64_t)INT_VAL(rightObj);
+    int64_t l = INT_VAL(leftObj);
+    int64_t r = INT_VAL(rightObj);
 
     int64_t result = l % r;
 

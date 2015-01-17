@@ -39,7 +39,7 @@ public:
     virtual StdString AsDebugString() const;
     
     int64_t GetNumberOfArguments() { return INT_VAL(load_ptr(numberOfArguments)); };
-    
+
 private:
     static VMSymbol* computeSignatureString(long argc, Page*);
     void evaluationRoutine(Interpreter*, VMFrame*);

@@ -32,15 +32,15 @@
 #include <vector>
 #include <unordered_set>
 
-#include "../misc/defs.h"
-#include "../misc/Timer.h"
-#include "../misc/ExtendedList.h"
+#include <misc/defs.h>
+#include <misc/Timer.h>
+#include <misc/ExtendedList.h>
 
-#include "../vmobjects/ObjectFormats.h"
+#include <vmobjects/ObjectFormats.h>
 
-#include "../interpreter/Interpreter.h"
+#include <interpreter/Interpreter.h>
 
-#include "../memory/Heap.h"
+#include <memory/Heap.h>
 
 class SourcecodeCompiler;
 
@@ -114,7 +114,7 @@ public:
     VMString* NewString(const char*, Page* page) const;
     VMSymbol* NewSymbol(const char*, Page* page);
     VMClass* NewSystemClass(Page* page) const;
-    
+
     VMCondition* NewCondition(VMMutex*, Page* page) const;
     VMMutex*     NewMutex(Page* page) const;
     VMThread*    NewThread(VMBlock* block, vm_oop_t arguments, Page* page);
@@ -137,6 +137,7 @@ public:
 
     Universe();
     ~Universe();
+
 #ifdef LOG_RECEIVER_TYPES
     struct stat_data {
         long noCalls;
@@ -177,7 +178,7 @@ private:
 
     size_t heapSize;
     size_t pageSize;
-    
+
     map<GCSymbol*, gc_oop_t> globals;
     map<StdString, GCSymbol*> symbolsMap;
     recursive_mutex globalsAndSymbols_mutex;

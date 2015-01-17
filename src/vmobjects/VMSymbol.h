@@ -31,6 +31,7 @@
 #include "VMString.h"
 #include "VMObject.h"
 
+
 class VMSymbol: public VMString {
 
 public:
@@ -43,6 +44,7 @@ public:
     virtual VMSymbol* Clone(Page*) const;
     virtual VMClass* GetClass() const;
     
+    virtual void WalkObjects(walk_heap_fn, Page*);
     virtual StdString AsDebugString() const;
     
 private:
@@ -52,8 +54,6 @@ private:
     GCInvokable* cachedInvokable[3];
     inline VMInvokable* GetCachedInvokable(const VMClass*) const;
     inline void UpdateCachedInvokable(const VMClass* cls, VMInvokable* invo);
-    
-    virtual void WalkObjects(walk_heap_fn, Page*);
     
     friend class Signature;
     friend class VMClass;

@@ -115,9 +115,9 @@ void _Double::BitwiseXor(Interpreter* interp, VMFrame* frame) {
 void _Double::Equal(Interpreter*, VMFrame* frame) {
     PREPARE_OPERANDS;
     if(left == right)
-    frame->Push(load_ptr(trueObject));
+        frame->Push(load_ptr(trueObject));
     else
-    frame->Push(load_ptr(falseObject));
+        frame->Push(load_ptr(falseObject));
 }
 
 void _Double::Lowerthan(Interpreter*, VMFrame* frame) {

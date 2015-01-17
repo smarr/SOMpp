@@ -77,7 +77,7 @@ void _String::Length(Interpreter*interp, VMFrame* frame) {
 }
 
 void _String::Equal(Interpreter*, VMFrame* frame) {
-    vm_oop_t op1 = frame->Pop();
+    vm_oop_t  op1 = frame->Pop();
     VMString* op2 = static_cast<VMString*>(frame->Pop());
 
     if (IS_TAGGED(op1)) {
@@ -110,6 +110,6 @@ void _String::PrimSubstringFrom_to_(Interpreter* interp, VMFrame* frame) {
 
     StdString result = str.substr(s, e - s + 1);
 
-    frame->Push( GetUniverse()->NewString(result, interp->GetPage()));
+    frame->Push(GetUniverse()->NewString(result, interp->GetPage()));
 }
 

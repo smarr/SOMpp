@@ -75,8 +75,8 @@ public:
     virtual StdString AsDebugString() const;
     
 private:
-    GCFrame* previousFrame;
-    GCFrame* context;
+    GCFrame*  previousFrame;
+    GCFrame*  context;
     GCMethod* method;
     long bytecodeIndex;
     gc_oop_t* arguments;

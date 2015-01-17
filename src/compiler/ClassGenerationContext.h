@@ -26,10 +26,10 @@
  THE SOFTWARE.
  */
 
-#include "../vmobjects/ObjectFormats.h"
+#include <vmobjects/ObjectFormats.h>
 
-#include "../misc/defs.h"
-#include "../misc/ExtendedList.h"
+#include <misc/defs.h>
+#include <misc/ExtendedList.h>
 
 
 class ClassGenerationContext {

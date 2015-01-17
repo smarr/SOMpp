@@ -51,9 +51,10 @@ public:
             long      GetNumberOfBytecodes() const;
     virtual void      SetHolder(VMClass* hld);
             void      SetHolderAll(VMClass* hld);
-            vm_oop_t GetConstant(long indx) const;
+            vm_oop_t  GetConstant(long indx) const;
     inline  uint8_t   GetBytecode(long indx) const;
     inline  void      SetBytecode(long indx, uint8_t);
+
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     void SetCachedFrame(VMFrame* frame);
     VMFrame* GetCachedFrame() const;
@@ -79,9 +80,11 @@ private:
     gc_oop_t bcLength;
     gc_oop_t numberOfArguments;
     gc_oop_t numberOfConstants;
+
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     GCFrame* cachedFrame;
 #endif
+
     gc_oop_t* indexableFields;
     uint8_t* bytecodes;
     static const long VMMethodNumberOfFields;

@@ -25,7 +25,7 @@
  */
 
 #include "VMInteger.h"
-#include "../vm/Universe.h"
+#include <vm/Universe.h>
 
 #warning VMInteger GetHash does not currently work correctly with tagging, all integers get the same hash...
 

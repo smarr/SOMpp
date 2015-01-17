@@ -78,10 +78,10 @@ private:
     void setPrimitives(const StdString& cname, bool classSide, Page* page);
     long numberOfSuperInstanceFields() const;
 
-    GCClass* superClass;
+    GCClass*  superClass;
     GCSymbol* name;
-    GCArray* instanceFields;
-    GCArray* instanceInvokables;
+    GCArray*  instanceFields;
+    GCArray*  instanceInvokables;
 
     static const long VMClassNumberOfFields;
 };

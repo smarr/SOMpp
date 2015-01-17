@@ -737,8 +737,6 @@ void Parser::literalNumber(MethodGenerationContext* mgenc) {
     else
         lit = literalDecimal(false);
 
-    
-
     mgenc->AddLiteralIfAbsent(lit);
     bcGen->EmitPUSHCONSTANT(mgenc, lit);
 }
