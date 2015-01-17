@@ -35,7 +35,7 @@
 #include <vmobjects/VMMethod.h>
 #include <vmobjects/VMClass.h>
 
-#include <natives/VMThread.h>
+#include <vmobjects/VMThread.h>
 
 #include <interpreter/bytecodes.h>
 #include <vm/Universe.h>

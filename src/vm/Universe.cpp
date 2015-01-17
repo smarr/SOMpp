@@ -49,22 +49,22 @@
 #include <vmobjects/VMString.h>
 #include <vmobjects/VMEvaluationPrimitive.h>
 
-#include <natives/VMThread.h>
-#include <natives/VMMutex.h>
-#include <natives/VMSignal.h>
+#include <vmobjects/VMThread.h>
+#include <vmobjects/VMMutex.h>
+#include <vmobjects/VMSignal.h>
 
 #include <interpreter/bytecodes.h>
 
 #include <compiler/Disassembler.h>
 #include <compiler/SourcecodeCompiler.h>
 
-#include "../vmobjects/IntegerBox.h"
+#include <vmobjects/IntegerBox.h>
 
 #include <vmobjects/VMBlock.inline.h>
 #include <vmobjects/VMMethod.inline.h>
 
 #if CACHE_INTEGER
-VMInteger* prebuildInts[INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE + 1];
+gc_oop_t prebuildInts[INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE + 1];
 #endif
 
 #define INT_HIST_SIZE 1
@@ -74,7 +74,7 @@ VMInteger* prebuildInts[INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE + 1];
 short dumpBytecodes;
 short gcVerbosity;
 
-Universe* Universe::theUniverse = NULL;
+Universe* Universe::theUniverse = nullptr;
 
 GCObject* nilObject;
 GCObject* trueObject;
@@ -118,8 +118,7 @@ std::map<std::string, struct alloc_data> allocationStats;
 #define LOG_ALLOCATION(TYPE,SIZE)
 #endif
 
-map<long, long> integerHist;
-
+map<int64_t, int64_t> integerHist;
 mutex Universe::output_mutex;
 
 void Universe::Start(long argc, char** argv) {
@@ -285,14 +284,17 @@ void Universe::printUsageAndExit(char* executable) const {
     cout << "    -cp <directories separated by " << pathSeparator << ">"
          << endl;
     cout << "        set search path for application classes" << endl;
+    cout << endl;
     cout << "    -d  enable disassembling (twice for tracing)" << endl;
     cout << "    -g  enable garbage collection details:" << endl
-            << "        1x - print statistics when VM shuts down" << endl
-            << "        2x - print statistics upon each collection" << endl
-            << "        3x - print statistics and dump _HEAP upon each " << endl
-            << "collection" << endl;
-    cout << "    -HxMB set the _HEAP size to x MB (default: 1 MB)" << endl;
-    cout << "    -HxKB set the _HEAP size to x KB (default: 1 MB)" << endl;
+         << "        1x - print statistics when VM shuts down" << endl
+         << "        2x - print statistics upon each collection" << endl
+         << "        3x - print statistics and dump heap upon each " << endl
+         << "collection" << endl;
+    cout << endl;
+    cout << "    -HxMB set the heap size to x MB (default: 1 MB)" << endl;
+    cout << "    -HxKB set the heap size to x KB (default: 1 MB)" << endl;
+    cout << endl;
     cout << "    -h  show this help" << endl;
 
     Quit(ERR_SUCCESS);
@@ -1377,11 +1379,11 @@ VMString* Universe::NewString( const char* str) const {
     return result;
 }
 
-VMSymbol* Universe::NewSymbol( const StdString& str) {
+VMSymbol* Universe::NewSymbol(const StdString& str) {
     return NewSymbol(str.c_str());
 }
 
-VMSymbol* Universe::NewSymbol( const char* str ) {
+VMSymbol* Universe::NewSymbol(const char* str) {
 #if GC_TYPE==GENERATIONAL
     VMSymbol* result = new (_HEAP, _PAGE, PADDED_SIZE(strlen(str)+1)) VMSymbol(str);
 #elif GC_TYPE==PAUSELESS

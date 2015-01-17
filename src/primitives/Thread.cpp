@@ -8,7 +8,7 @@
 
 #include "Thread.h"
 
-#include <natives/VMThread.h>
+#include <vmobjects/VMThread.h>
 #include <primitivesCore/Routine.h>
 #include <interpreter/Interpreter.h>
 

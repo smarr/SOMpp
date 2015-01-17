@@ -8,8 +8,8 @@
 
 #include "Mutex.h"
 
-#include "../natives/VMMutex.h"
-#include "../primitivesCore/Routine.h"
+#include <vmobjects/VMMutex.h>
+#include <primitivesCore/Routine.h>
 
 void _Mutex::Lock(Interpreter*, VMFrame* frame) {
     VMMutex* mutex = static_cast<VMMutex*>(frame->GetStackElement(0));

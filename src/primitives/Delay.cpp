@@ -9,7 +9,7 @@
 #include "Delay.h"
 
 #include <primitivesCore/Routine.h>
-#include <natives/VMThread.h>
+#include <vmobjects/VMThread.h>
 
 #include <vmobjects/ObjectFormats.h>
 #include <vmobjects/VMObject.h>

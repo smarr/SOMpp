@@ -42,7 +42,7 @@
 #include <vmobjects/VMInvokable.h>
 #include <vmobjects/Signature.h>
 #include <vmobjects/VMBlock.h>
-#include <natives/VMThread.h>
+#include <vmobjects/VMThread.h>
 #include <vmobjects/IntegerBox.h>
 
 #include <compiler/Disassembler.h>

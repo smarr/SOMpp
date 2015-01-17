@@ -8,7 +8,7 @@
 
 #include "Signal.h"
 
-#include <natives/VMSignal.h>
+#include <vmobjects/VMSignal.h>
 #include <primitivesCore/Routine.h>
 
 void _Signal::Wait(Interpreter*, VMFrame* frame) {
