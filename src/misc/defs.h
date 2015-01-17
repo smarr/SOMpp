@@ -29,6 +29,13 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string>
+
+// Macro Debugging
+#define VALUE_TO_STRING(x) #x
+#define VALUE(x) VALUE_TO_STRING(x)
+#define VAR_NAME_VALUE(var) #var "="  VALUE(var)
+
+
 //
 // error codes
 //
