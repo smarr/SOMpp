@@ -319,8 +319,18 @@ void VMFrame::SetArgument(long index, long contextLevel, vm_oop_t value) {
 #endif
 }
 
-void VMFrame::PrintStackTrace() const {
-    //TODO
+void VMFrame::PrintStackTrace() {
+    VMMethod* meth = GetMethod();
+    
+    if (meth->GetHolder() == load_ptr(nilObject)) {
+        Universe::Print("nil");
+    } else {
+        Universe::Print(meth->GetHolder()->GetName()->GetStdString());
+    }
+    Universe::Print(">>#" + meth->GetSignature()->GetStdString() + "\n");
+    if (previousFrame) {
+        load_ptr(previousFrame)->PrintStackTrace();
+    }
 }
 
 long VMFrame::ArgumentStackIndex(long index) {

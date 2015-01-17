@@ -67,7 +67,7 @@ void VMArray::SetIndexableField(long idx, vm_oop_t value) {
 VMArray* VMArray::CopyAndExtendWith(vm_oop_t item) {
     size_t fields = GetNumberOfIndexableFields();
     VMArray* result = GetUniverse()->NewArray(fields + 1);
-    this->CopyIndexableFieldsTo(result);
+    CopyIndexableFieldsTo(result);
     result->SetIndexableField(fields, item);
     return result;
 }
@@ -76,7 +76,7 @@ VMArray* VMArray::CopyAndExtendWith(vm_oop_t item) {
 VMArray* VMArray::Clone() {
     long addSpace = objectSize - sizeof(VMArray);
     VMArray* clone = new (_HEAP, _PAGE, addSpace, true) VMArray(*this);
-    void* destination = SHIFTED_PTR(clone, sizeof(VMArray));
+    void* destination  = SHIFTED_PTR(clone, sizeof(VMArray));
     const void* source = SHIFTED_PTR(this, sizeof(VMArray));
     size_t noBytes = GetObjectSize() - sizeof(VMArray);
     memcpy(destination, source, noBytes);
@@ -116,7 +116,7 @@ VMArray* VMArray::Clone() {
     return clone;
 }
 #endif
-    
+
 void VMArray::MarkObjectAsInvalid() {
     VMObject::MarkObjectAsInvalid();
     long numIndexableFields = GetNumberOfIndexableFields();

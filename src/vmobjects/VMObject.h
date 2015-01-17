@@ -42,10 +42,6 @@
 
 //#include "ObjectFormats.h"
 
-//class VMSymbol;
-//class VMClass;
-
-
 // this macro returns a shifted ptr by offset bytes
 #define SHIFTED_PTR(ptr, offset) ((void*)((size_t)(ptr)+(size_t)(offset)))
 
@@ -173,5 +169,5 @@ VMClass* VMObject::GetClass() {
 }
 
 long VMObject::GetNumberOfFields() const {
-    return this->numberOfFields;
+    return numberOfFields;
 }

@@ -395,12 +395,12 @@ Universe::~Universe() {
     PagedHeap::DestroyHeap();
 }
 
-#ifdef NDEBUG
-    bool Universe::IsValidObject(const VMObject* const obj) {
-        return true;
-    }
+#if !DEBUG
     static void set_vt_to_null() {}
     static void obtain_vtables_of_known_classes(VMSymbol* className) {}
+    bool Universe::IsValidObject(vm_oop_t obj) {
+        return true;
+    }
 #else
     void* vt_array;
     void* vt_block;
@@ -700,17 +700,16 @@ VMClass* Universe::GetBlockClass() const {
 VMClass* Universe::GetBlockClassWithArgs(long numberOfArguments) {
     map<long, GCClass*>::iterator it =
     blockClassesByNoOfArgs.find(numberOfArguments);
-    if (it != blockClassesByNoOfArgs.end()) {
+    if (it != blockClassesByNoOfArgs.end())
         return load_ptr(it->second);
-    }
 
-    this->Assert(numberOfArguments < 10);
+    Assert(numberOfArguments < 10);
 
     ostringstream Str;
     Str << "Block" << numberOfArguments;
     VMSymbol* name = SymbolFor(Str.str());
-    VMClass* result = LoadClassBasic(name, NULL);
-    
+    VMClass* result = LoadClassBasic(name, nullptr);
+
 #if GC_TYPE==GENERATIONAL
     result->AddInstancePrimitive(new (_HEAP, _PAGE) VMEvaluationPrimitive(numberOfArguments) );
 #elif GC_TYPE==PAUSELESS
@@ -811,7 +810,7 @@ VMClass* Universe::LoadClass(VMSymbol* name) {
     if (!result) {
 		// we fail silently, it is not fatal that loading a class failed
         pthread_mutex_unlock(&classLoading);
-		return (VMClass*) load_ptr(nilObject);
+		return static_cast<VMClass*>(load_ptr(nilObject));
     }
 
     if (result->HasPrimitives() || result->GetClass()->HasPrimitives())
@@ -853,7 +852,7 @@ VMClass* Universe::LoadShellClass(StdString& stmt) {
     return result;
 }
 
-void Universe::LoadSystemClass( VMClass* systemClass) {
+void Universe::LoadSystemClass(VMClass* systemClass) {
     VMClass* result = LoadClassBasic(systemClass->GetName(), systemClass);
     StdString s = systemClass->GetName()->GetStdString();
 

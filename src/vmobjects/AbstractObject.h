@@ -64,28 +64,28 @@ public:
     }
 
     inline virtual void SetObjectSize(size_t size) {
-        cout << "this object doesn't support SetObjectSize" << endl;
+        Universe::ErrorPrint("this object doesn't support SetObjectSize\n");
         throw "this object doesn't support SetObjectSize";
     }
 
     inline virtual long GetNumberOfFields() const {
-        cout << "this object doesn't support GetNumberOfFields" << endl;
+        Universe::ErrorPrint("this object doesn't support GetNumberOfFields\n");
         throw "this object doesn't support GetNumberOfFields";
     }
 
     virtual void SetNumberOfFields(long nof) {
-        cout << "this object doesn't support SetNumberOfFields" << endl;
+        Universe::ErrorPrint("this object doesn't support SetNumberOfFields\n");
         throw "this object doesn't support SetNumberOfFields";
     }
     inline virtual void SetClass(VMClass* cl) {
-        cout << "this object doesn't support SetClass" << endl;
+        Universe::ErrorPrint("this object doesn't support SetClass\n");
         throw "this object doesn't support SetClass";
     }
 
     long GetFieldIndex(VMSymbol* fieldName);
     
     inline virtual VMSymbol* GetFieldName(long index) const {
-        cout << "this object doesn't support GetFieldName" << endl;
+        Universe::ErrorPrint("this object doesn't support GetFieldName\n");
         throw "this object doesn't support GetFieldName";
     }
     

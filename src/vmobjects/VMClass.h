@@ -129,7 +129,7 @@ bool VMClass::HasSuperClass() {
     if (sc != load_ptr(nilObject)) {
         assert((void*) sc != (void*) nilObject);
     }
-    
+
     return sc != load_ptr(nilObject);
 }
 

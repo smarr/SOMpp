@@ -52,11 +52,10 @@ const int VMPrimitive::VMPrimitiveNumberOfFields = 2;
 
 VMPrimitive::VMPrimitive(VMSymbol* signature) : VMInvokable(VMPrimitiveNumberOfFields) {
     //the only class that explicitly does this.
-    this->SetClass(load_ptr(primitiveClass));
-
-    this->SetSignature(signature);
-    this->routine = NULL;
-    this->empty = false;
+    SetClass(load_ptr(primitiveClass));
+    SetSignature(signature);
+    routine = nullptr;
+    empty = false;
 }
 
 #if GC_TYPE==GENERATIONAL

@@ -79,12 +79,12 @@ extern GCClass* doubleClass;
 extern GCClass* trueClass;
 extern GCClass* falseClass;
 
-extern GCSymbol* symbolIfTrue;
-extern GCSymbol* symbolIfFalse;
-
 extern GCClass* threadClass;
 extern GCClass* mutexClass;
 extern GCClass* signalClass;
+
+extern GCSymbol* symbolIfTrue;
+extern GCSymbol* symbolIfFalse;
 
 using namespace std;
 class Universe {
@@ -216,7 +216,6 @@ private:
 
     static mutex output_mutex;
 };
-
 
 //Singleton accessor
 inline Universe* GetUniverse() __attribute__ ((always_inline));

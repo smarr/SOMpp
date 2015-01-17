@@ -68,7 +68,7 @@ VMEvaluationPrimitive* VMEvaluationPrimitive::Clone() {
     return new (_HEAP) VMEvaluationPrimitive(*this);
 }
 #endif
-    
+
 VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc) {
     assert(argc > 0);
 

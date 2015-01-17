@@ -27,8 +27,8 @@ protected:
 #endif
     
 public:
-    inline size_t GetGCField() const;
-    inline void SetGCField(size_t);
+    inline intptr_t GetGCField() const;
+    inline void SetGCField(intptr_t);
     
 #if GC_TYPE==PAUSELESS
     inline size_t GetGCField2() const;
@@ -39,16 +39,19 @@ public:
     
 };
 
-size_t VMObjectBase::GetGCField() const {
+intptr_t VMObjectBase::GetGCField() const {
     return gcfield;
 }
-void VMObjectBase::SetGCField(size_t val) {
+
+void VMObjectBase::SetGCField(intptr_t val) {
     // if gcfield is used as a forwarding pointer it should not be overwritten
     // with simple mark bits, because the object itself is garbage but the
     // forwarding address needs to be maintained incase any object still points
     // to the garbage object.
     #define GCFIELD_IS_NOT_FORWARDING_POINTER (gcfield <= MASK_BITS_ALL)
-    //assert(GCFIELD_IS_NOT_FORWARDING_POINTER || val > MASK_BITS_ALL);
+#if GC_TYPE != MARK_SWEEP
+    assert(GCFIELD_IS_NOT_FORWARDING_POINTER || val > MASK_BITS_ALL);
+#endif
     gcfield = val;
 }
 

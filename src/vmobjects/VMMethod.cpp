@@ -178,10 +178,10 @@ void VMMethod::SetHolderAll(VMClass* hld) {
 vm_oop_t VMMethod::GetConstant(long indx) {
     uint8_t bc = bytecodes[indx + 1];
     if (bc >= GetNumberOfIndexableFields()) {
-        cout << "Error: Constant index out of range" << endl;
+        Universe::ErrorPrint("Error: Constant index out of range\n");
         return nullptr;
     }
-    return this->GetIndexableField(bc);
+    return GetIndexableField(bc);
 }
 
 #if GC_TYPE==PAUSELESS

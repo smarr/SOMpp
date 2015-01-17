@@ -54,7 +54,7 @@ private:
 };
 
 double VMDouble::GetEmbeddedDouble() const {
-    return this->embeddedDouble;
+    return embeddedDouble;
 }
 
 size_t VMDouble::GetObjectSize() const {

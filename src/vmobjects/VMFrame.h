@@ -65,13 +65,12 @@ public:
     void SetLocal(long, long, vm_oop_t);
     vm_oop_t GetArgument(long, long);
     void SetArgument(long, long, vm_oop_t);
-    void PrintStackTrace() const;
+    void PrintStackTrace();
     long ArgumentStackIndex(long index);
     void CopyArgumentsFrom(VMFrame* frame);
-    inline  vm_oop_t GetField(long index);
-    
+
     virtual void MarkObjectAsInvalid();
-    
+
 #if GC_TYPE==PAUSELESS
     virtual VMFrame* Clone(Interpreter*);
     virtual VMFrame* Clone(PauselessCollectorThread*);
@@ -100,16 +99,12 @@ private:
     static const long VMFrameNumberOfFields;
 };
 
-vm_oop_t VMFrame::GetField(long index) {
-    return VMObject::GetField(index);
-}
-
 bool VMFrame::HasContext() {
-    return load_ptr(this->context) != nullptr;
+    return context != nullptr;
 }
 
 bool VMFrame::HasPreviousFrame() {
-    return load_ptr(this->previousFrame) != nullptr;
+    return load_ptr(previousFrame) != nullptr;
 }
 
 long VMFrame::GetBytecodeIndex() const {
@@ -140,7 +135,7 @@ void* VMFrame::GetStackPointer() const {
 }
 
 VMFrame* VMFrame::GetPreviousFrame() {
-    return load_ptr(this->previousFrame);
+    return load_ptr(previousFrame);
 }
 
 void VMFrame::SetPreviousFrame(VMFrame* frm) {
@@ -151,9 +146,9 @@ void VMFrame::SetPreviousFrame(VMFrame* frm) {
 }
 
 void VMFrame::ClearPreviousFrame() {
-    this->previousFrame = NULL;
+    previousFrame = nullptr;
 }
 
 VMMethod* VMFrame::GetMethod() {
-    return load_ptr(this->method);
+    return load_ptr(method);
 }

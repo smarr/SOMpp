@@ -26,8 +26,7 @@
  THE SOFTWARE.
  */
 
-class VMSymbol;
-#include "../vmobjects/ObjectFormats.h"
+#include <vmobjects/ObjectFormats.h>
 
 class Signature {
 public:
