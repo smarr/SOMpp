@@ -104,10 +104,7 @@ VMClass* VMClass::GetSuperClass() {
 }
 
 void VMClass::SetSuperClass(VMClass* sup) {
-    superClass = store_ptr(sup);
-#if GC_TYPE==GENERATIONAL
-    _HEAP->WriteBarrier(this, sup);
-#endif
+    store_ptr(superClass, sup);
 }
 
 VMSymbol* VMClass::GetName() {
@@ -115,10 +112,7 @@ VMSymbol* VMClass::GetName() {
 }
 
 void VMClass::SetName(VMSymbol* nam) {
-    name = store_ptr(nam);
-#if GC_TYPE==GENERATIONAL
-    _HEAP->WriteBarrier(this, nam);
-#endif
+    store_ptr(name, nam);
 }
 
 bool VMClass::HasSuperClass() {
@@ -138,10 +132,7 @@ VMArray* VMClass::GetInstanceFields() {
 }
 
 void VMClass::SetInstanceFields(VMArray* instFields) {
-    instanceFields = store_ptr(instFields);
-#if GC_TYPE==GENERATIONAL
-    _HEAP->WriteBarrier(this, instFields);
-#endif
+    store_ptr(instanceFields, instFields);
 }
 
 VMArray* VMClass::GetInstanceInvokables() {

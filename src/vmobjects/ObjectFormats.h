@@ -137,3 +137,25 @@ class GCThread    : public GCObject      { public: typedef VMThread Loaded; };
 // Used to mark object fields as invalid
 #define INVALID_VM_POINTER ((VMObject*)0x101010)
 #define INVALID_GC_POINTER ((GCObject*)0x101010)
+
+
+#if GC_TYPE==PAUSELESS
+  #define load_ptr(reference) (ReadBarrier(&(reference)))
+  #define  store_ptr(field, val) field = WriteBarrier(val)
+  #define _store_ptr(val)        WriteBarrier(val)
+#else
+  template<typename T>
+  inline typename T::Loaded* load_ptr(T* gc_val) {
+    return (typename T::Loaded*) gc_val;
+  }
+
+  template<typename T>
+  inline typename T::Stored* _store_ptr(T* vm_val) {
+    return (typename T::Stored*) vm_val;
+  }
+
+  #define store_ptr(field, val) field = _store_ptr(val); write_barrier(this, val)
+#endif
+
+
+typedef gc_oop_t (*walk_heap_fn)(gc_oop_t);

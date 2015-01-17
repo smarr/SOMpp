@@ -40,7 +40,8 @@ VMArray::VMArray(long size, long nof) :
     // Fields start after clazz and other fields (GetNumberOfFields)
     gc_oop_t* arrFields = FIELDS + GetNumberOfFields();
     for (long i = 0; i < size; ++i) {
-        arrFields[i] = store_ptr(load_ptr(nilObject));
+# warning not sure whether it is ok to avoid the barriers here
+        arrFields[i] = nilObject;
     }
 }
 

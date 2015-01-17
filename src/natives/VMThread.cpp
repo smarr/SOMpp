@@ -32,7 +32,7 @@ VMSignal* VMThread::GetResumeSignal() {
 
 
 void VMThread::SetResumeSignal(VMSignal* value) {
-    resumeSignal = store_ptr(value);
+    store_ptr(resumeSignal, value);
 }
 
 
@@ -43,9 +43,9 @@ bool VMThread::ShouldStop() {
 
 void VMThread::SetShouldStop(bool value) {
     if (value) {
-    	shouldStop = store_ptr(load_ptr(trueObject));
+    	store_ptr(shouldStop, load_ptr(trueObject));
     } else {
-    	shouldStop = store_ptr(load_ptr(falseObject));
+    	store_ptr(shouldStop, load_ptr(falseObject));
     }
 }
 
@@ -56,7 +56,7 @@ VMBlock* VMThread::GetBlockToRun() {
 
 
 void VMThread::SetBlockToRun(VMBlock* value) {
-    blockToRun = store_ptr(value);
+    store_ptr(blockToRun, value);
 }
 
 
@@ -66,7 +66,7 @@ VMString* VMThread::GetName() {
 
 
 void VMThread::SetName(VMString* value) {
-    name = store_ptr(value);
+    store_ptr(name, value);
 }
 
 
@@ -76,7 +76,7 @@ vm_oop_t VMThread::GetArgument() {
 
 
 void VMThread::SetArgument(vm_oop_t value) {
-    argument = store_ptr(value);
+    store_ptr(argument, value);
 }
 
 

@@ -73,7 +73,7 @@ void Shell::Start(Interpreter* interp) {
     cout << "SOM Shell. Type \"" << QUIT_CMD << "\" to exit.\n";
 
     // Create a fake bootstrap frame
-    currentFrame = store_ptr(interp->PushNewFrame(GetBootstrapMethod()));
+    store_ptr(currentFrame, interp->PushNewFrame(GetBootstrapMethod()));
     // Remember the first bytecode index, e.g. index of the halt instruction
     bytecodeIndex = load_ptr(currentFrame)->GetBytecodeIndex();
 
@@ -101,14 +101,14 @@ void Shell::Start(Interpreter* interp) {
         statement = ss.str();
 
         ++counter;
-        runClass = store_ptr(GetUniverse()->LoadShellClass(statement));
+        store_ptr(runClass, GetUniverse()->LoadShellClass(statement));
         // Compile and load the newly generated class
         if(runClass == nullptr) {
             cout << "can't compile statement.";
             continue;
         }
 
-        currentFrame = store_ptr(interp->GetFrame());
+        store_ptr(currentFrame, interp->GetFrame());
 
         // Go back, so we will evaluate the bootstrap frames halt
         // instruction again
@@ -132,7 +132,7 @@ void Shell::Start(Interpreter* interp) {
         interp->Start();
 
         // Save the result of the run method
-        it = store_ptr(load_ptr(currentFrame)->Pop());
+        store_ptr(it, load_ptr(currentFrame)->Pop());
     }
 }
 

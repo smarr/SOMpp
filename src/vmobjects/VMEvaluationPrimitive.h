@@ -64,7 +64,7 @@ private:
     GCEvaluationPrimitive* evalPrim;
 public:
     EvaluationRoutine(VMEvaluationPrimitive* prim)
-        : PrimitiveRoutine(), evalPrim(store_ptr(prim)) {};
+        : PrimitiveRoutine(), evalPrim(_store_ptr(prim)) {};
 #if GC_TYPE==PAUSELESS
     void MarkReferences();
     void CheckMarking(void (vm_oop_t));

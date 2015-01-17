@@ -599,25 +599,26 @@ VMObject* Universe::InitializeGlobals() {
 #else
     VMObject* nil = new (_HEAP) VMObject;
 #endif
-    nilObject = store_ptr(nil);
+    nilObject = _store_ptr(nil);
     
     static_cast<VMObject*>(load_ptr(nilObject))->SetField(0, load_ptr(nilObject));
 
-    metaClassClass = store_ptr(NewMetaclassClass());
+    metaClassClass = _store_ptr(NewMetaclassClass());
 
-    objectClass     = store_ptr(NewSystemClass());
-    nilClass        = store_ptr(NewSystemClass());
-    classClass      = store_ptr(NewSystemClass());
-    arrayClass      = store_ptr(NewSystemClass());
-    symbolClass     = store_ptr(NewSystemClass());
-    methodClass     = store_ptr(NewSystemClass());
-    integerClass    = store_ptr(NewSystemClass());
-    primitiveClass  = store_ptr(NewSystemClass());
-    stringClass     = store_ptr(NewSystemClass());
-    doubleClass     = store_ptr(NewSystemClass());
-    threadClass     = store_ptr(NewSystemClass());
-    mutexClass      = store_ptr(NewSystemClass());
-    signalClass     = store_ptr(NewSystemClass());
+    objectClass     = _store_ptr(NewSystemClass());
+    nilClass        = _store_ptr(NewSystemClass());
+    classClass      = _store_ptr(NewSystemClass());
+    arrayClass      = _store_ptr(NewSystemClass());
+    symbolClass     = _store_ptr(NewSystemClass());
+    methodClass     = _store_ptr(NewSystemClass());
+    integerClass    = _store_ptr(NewSystemClass());
+    primitiveClass  = _store_ptr(NewSystemClass());
+    stringClass     = _store_ptr(NewSystemClass());
+    doubleClass     = _store_ptr(NewSystemClass());
+
+    signalClass     = _store_ptr(NewSystemClass());
+    mutexClass      = _store_ptr(NewSystemClass());
+    threadClass     = _store_ptr(NewSystemClass());
 
     load_ptr(nilObject)->SetClass(load_ptr(nilClass));
 
@@ -657,21 +658,21 @@ VMObject* Universe::InitializeGlobals() {
     LoadSystemClass(load_ptr(mutexClass));
     LoadSystemClass(load_ptr(signalClass));
 
-    blockClass = store_ptr(LoadClass(SymbolForChars("Block")));
+    blockClass = _store_ptr(LoadClass(SymbolForChars("Block")));
 
     VMSymbol* trueClassName = SymbolForChars("True");
-    trueClass  = store_ptr(LoadClass(trueClassName));
-    trueObject = (GCObject*) store_ptr(NewInstance(load_ptr(trueClass)));
+    trueClass  = _store_ptr(LoadClass(trueClassName));
+    trueObject = _store_ptr(NewInstance(load_ptr(trueClass)));
     
     VMSymbol* falseClassName = SymbolForChars("False");
-    falseClass  = store_ptr(LoadClass(falseClassName));
-    falseObject = (GCObject*) store_ptr(NewInstance(load_ptr(falseClass)));
+    falseClass  = _store_ptr(LoadClass(falseClassName));
+    falseObject = _store_ptr(NewInstance(load_ptr(falseClass)));
 
-    systemClass = store_ptr(LoadClass(SymbolForChars("System")));
+    systemClass = _store_ptr(LoadClass(SymbolForChars("System")));
 
     
     VMObject* systemObj = NewInstance(load_ptr(systemClass));
-    systemObject = store_ptr(systemObj);
+    systemObject = _store_ptr(systemObj);
     
     
     SetGlobal(SymbolForChars("nil"),    load_ptr(nilObject));
@@ -681,8 +682,8 @@ VMObject* Universe::InitializeGlobals() {
     SetGlobal(SymbolForChars("System"), load_ptr(systemClass));
     SetGlobal(SymbolForChars("Block"),  load_ptr(blockClass));
     
-    symbolIfTrue  = store_ptr(SymbolForChars("ifTrue:"));
-    symbolIfFalse = store_ptr(SymbolForChars("ifFalse:"));
+    symbolIfTrue  = _store_ptr(SymbolForChars("ifTrue:"));
+    symbolIfFalse = _store_ptr(SymbolForChars("ifFalse:"));
 
     return systemObj;
 }
@@ -719,7 +720,8 @@ VMClass* Universe::GetBlockClassWithArgs(long numberOfArguments) {
 #endif
 
     SetGlobal(name, result);
-    blockClassesByNoOfArgs[numberOfArguments] = store_ptr(result);
+# warning is _store_ptr sufficient here?
+    blockClassesByNoOfArgs[numberOfArguments] = _store_ptr(result);
 
     return result;
 }
@@ -1004,11 +1006,12 @@ VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method) const {
     result = new (_HEAP, additionalBytes) VMFrame(length);
 #endif
     result->clazz = nullptr;
-    result->method = store_ptr(method);
+# warning I think _store_ptr is sufficient here, but...
+    result->method        = _store_ptr(method);
+    result->previousFrame = _store_ptr(previousFrame);
+    result->ResetStackPointer();
 
     LOG_ALLOCATION("VMFrame", result->GetObjectSize());
-    result->previousFrame = store_ptr(previousFrame);
-    result->ResetStackPointer();
     return result;
 }
 
@@ -1386,7 +1389,7 @@ VMSymbol* Universe::NewSymbol( const char* str ) {
 #else
     VMSymbol* result = new (_HEAP, PADDED_SIZE(strlen(str)+1)) VMSymbol(str);
 #endif
-    symbolsMap[str] = store_ptr(result);
+    symbolsMap[str] = _store_ptr(result);
 
     LOG_ALLOCATION("VMSymbol", result->GetObjectSize());
     return result;
@@ -1430,7 +1433,9 @@ VMSymbol* Universe::SymbolForChars(const char* str) {
 
 void Universe::SetGlobal(VMSymbol* name, vm_oop_t val) {
     pthread_mutex_lock(&testMutex);
-    globals[store_ptr(name)] = store_ptr(val);
+
+# warning is _store_ptr correct here? it relies on _store_ptr not to be really changed...
+    globals[_store_ptr(name)] = _store_ptr(val);
     pthread_mutex_unlock(&testMutex);
 }
 

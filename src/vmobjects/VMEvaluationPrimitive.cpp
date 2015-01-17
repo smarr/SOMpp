@@ -42,8 +42,7 @@
 VMEvaluationPrimitive::VMEvaluationPrimitive(long argc) : VMPrimitive(computeSignatureString(argc)) {
     SetRoutine(new EvaluationRoutine(this));
     SetEmpty(false);
-
-    numberOfArguments = store_ptr(NEW_INT(argc));
+    store_ptr(numberOfArguments, NEW_INT(argc));
 }
 
 #if GC_TYPE==GENERATIONAL

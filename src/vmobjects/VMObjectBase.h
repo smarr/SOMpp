@@ -5,17 +5,6 @@
 #define MASK_SEEN_BY_WRITE_BARRIER (1 << 2)
 #define MASK_BITS_ALL (MASK_OBJECT_IS_MARKED | MASK_OBJECT_IS_OLD | MASK_SEEN_BY_WRITE_BARRIER)
 
-#if GC_TYPE==PAUSELESS
-#define load_ptr(reference) (ReadBarrier(&(reference)))
-#else
-#define load_ptr(reference) (ReadBarrier(reference))
-#endif
-
-#if GC_TYPE==PAUSELESS
-#define store_ptr(reference) (WriteBarrier(reference))
-#else
-#define store_ptr(reference) (WriteBarrier(reference))
-#endif
 
 class VMObjectBase : public VMOop {
 protected:

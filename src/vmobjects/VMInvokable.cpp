@@ -37,10 +37,7 @@ VMSymbol* VMInvokable::GetSignature() {
 }
 
 void VMInvokable::SetSignature(VMSymbol* sig) {
-    signature = store_ptr(sig);
-#if GC_TYPE==GENERATIONAL
-    _HEAP->WriteBarrier(this, sig);
-#endif
+    store_ptr(signature, sig);
 }
 
 VMClass* VMInvokable::GetHolder() {
@@ -48,10 +45,7 @@ VMClass* VMInvokable::GetHolder() {
 }
 
 void VMInvokable::SetHolder(VMClass* hld) {
-    holder = store_ptr(hld);
-#if GC_TYPE==GENERATIONAL
-    _HEAP->WriteBarrier(this, hld);
-#endif
+    store_ptr(holder, hld);
 }
 
 void VMInvokable::MarkObjectAsInvalid() {

@@ -50,16 +50,18 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     cachedFrame = nullptr;
 #endif
-
-    bcLength                     = store_ptr(NEW_INT(bcCount));
-    numberOfLocals               = store_ptr(NEW_INT(0));
-    maximumNumberOfStackElements = store_ptr(NEW_INT(0));
-    numberOfArguments            = store_ptr(NEW_INT(0));
-    this->numberOfConstants      = store_ptr(NEW_INT(numberOfConstants));
+# warning not sure whether the use of _store_ptr is ok here
+# warning, if we use extra parts of the heap for the allocation, we probably need to trigger the generational barrier
+    bcLength                     = _store_ptr(NEW_INT(bcCount));
+    numberOfLocals               = _store_ptr(NEW_INT(0));
+    maximumNumberOfStackElements = _store_ptr(NEW_INT(0));
+    numberOfArguments            = _store_ptr(NEW_INT(0));
+    this->numberOfConstants      = _store_ptr(NEW_INT(numberOfConstants));
 
     indexableFields = (gc_oop_t*)(&indexableFields + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
     for (long i = 0; i < numberOfConstants; ++i) {
-        indexableFields[i] = store_ptr(load_ptr(nilObject));
+#warning do we need to cylce through the barriers here?
+        store_ptr(indexableFields[i], load_ptr(nilObject));
     }
     bytecodes = (uint8_t*)(&indexableFields + 2 + GetNumberOfIndexableFields());
 }
@@ -124,10 +126,7 @@ void VMMethod::SetCachedFrame(VMFrame* frame) {
 #endif
 
 void VMMethod::SetNumberOfLocals(long nol) {
-    numberOfLocals = store_ptr(NEW_INT(nol));
-#if GC_TYPE==GENERATIONAL
-    _HEAP->WriteBarrier(this, load_ptr(numberOfLocals));
-#endif
+    store_ptr(numberOfLocals, NEW_INT(nol));
 }
 
 long VMMethod::GetMaximumNumberOfStackElements() {
@@ -135,17 +134,11 @@ long VMMethod::GetMaximumNumberOfStackElements() {
 }
 
 void VMMethod::SetMaximumNumberOfStackElements(long stel) {
-    maximumNumberOfStackElements = store_ptr(NEW_INT(stel));
-#if GC_TYPE==GENERATIONAL
-    _HEAP->WriteBarrier(this, load_ptr(maximumNumberOfStackElements));
-#endif
+    store_ptr(maximumNumberOfStackElements, NEW_INT(stel));
 }
 
 void VMMethod::SetNumberOfArguments(long noa) {
-    numberOfArguments = store_ptr(NEW_INT(noa));
-#if GC_TYPE==GENERATIONAL
-    _HEAP->WriteBarrier(this, load_ptr(numberOfArguments));
-#endif
+    store_ptr(numberOfArguments, NEW_INT(noa));
 }
 
 long VMMethod::GetNumberOfBytecodes() {

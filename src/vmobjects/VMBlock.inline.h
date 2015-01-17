@@ -1,10 +1,7 @@
 #pragma once
 
 void VMBlock::SetContext(VMFrame* contxt) {
-    context = store_ptr(contxt);
-#if GC_TYPE==GENERATIONAL
-    _HEAP->WriteBarrier(this, (AbstractVMObject*)contxt);
-#endif
+    store_ptr(context, contxt);
 }
 
 VMFrame* VMBlock::GetContext() {

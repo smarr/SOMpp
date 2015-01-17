@@ -263,7 +263,7 @@ void Interpreter::SetFrame(VMFrame* frame) {
         load_ptr(this->frame)->SetBytecodeIndex(bytecodeIndexGlobal);
     }
 
-    this->frame = store_ptr(frame);
+    this->frame = _store_ptr(frame);
 
     // update cached values
     // method              = store_ptr(frame->GetMethod());
@@ -602,7 +602,7 @@ VMThread* Interpreter::GetThread(void) {
 }
 
 void Interpreter::SetThread(VMThread* thread) {
-    this->thread = store_ptr(thread);
+    this->thread = _store_ptr(thread);
 }
 
 #if GC_TYPE==PAUSELESS

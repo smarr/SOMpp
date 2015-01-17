@@ -89,37 +89,22 @@ void VMObject::SetNumberOfFields(long nof) {
     numberOfFields = nof;
     // initialize fields with NilObject
     for (long i = 0; i < nof; ++i) {
-        FIELDS[i] = store_ptr(load_ptr(nilObject));
+#warning do we need to cylce through the barriers here?
+        store_ptr(FIELDS[i], load_ptr(nilObject));
     }
 }
 
 void VMObject::SetClass(VMClass* cl) {
     assert(Universe::IsValidObject((AbstractVMObject*) cl));
-    clazz = store_ptr(cl);
-#if GC_TYPE==GENERATIONAL
-    _HEAP->WriteBarrier(this, cl);
-#endif
+    store_ptr(clazz, cl);
 }
 
 VMSymbol* VMObject::GetFieldName(long index) /*const*/ {
-    //return this->clazz->GetInstanceFieldName(index);
-    //because we want to make sure that the ReadBarrier is triggered
-    return this->GetClass()->GetInstanceFieldName(index);
+    return GetClass()->GetInstanceFieldName(index);
 }
 
 void VMObject::Assert(bool value) const {
     GetUniverse()->Assert(value);
-}
-
-vm_oop_t VMObject::GetField(long index) /*const*/ {
-    return load_ptr(FIELDS[index]);
-}
-
-void VMObject::SetField(long index, vm_oop_t value) {
-    FIELDS[index] = store_ptr(value);
-#if GC_TYPE==GENERATIONAL
-    _HEAP->WriteBarrier(this, (VMOBJECT_PTR)value);
-#endif
 }
 
 //returns the Object's additional memory used (e.g. for Array fields)

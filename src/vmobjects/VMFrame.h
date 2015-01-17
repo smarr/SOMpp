@@ -82,6 +82,7 @@ public:
 #endif
 
     void PrintStack();
+    void PrintBytecode();
     inline void* GetStackPointer() const;
     long RemainingStackSize() const;
     
@@ -95,6 +96,9 @@ private:
     gc_oop_t* arguments;
     gc_oop_t* locals;
     gc_oop_t* stack_ptr;
+    
+    inline void SetLocal(long, vm_oop_t);
+    inline void SetArgument(long index, vm_oop_t value);
 
     static const long VMFrameNumberOfFields;
 };
@@ -104,7 +108,7 @@ bool VMFrame::HasContext() {
 }
 
 bool VMFrame::HasPreviousFrame() {
-    return load_ptr(previousFrame) != nullptr;
+    return previousFrame != nullptr;
 }
 
 long VMFrame::GetBytecodeIndex() const {
@@ -120,14 +124,11 @@ bool VMFrame::IsBootstrapFrame() {
 }
 
 VMFrame* VMFrame::GetContext() {
-    return load_ptr(this->context);
+    return load_ptr(context);
 }
 
 void VMFrame::SetContext(VMFrame* frm) {
-    this->context = store_ptr(frm);
-#if GC_TYPE==GENERATIONAL
-    _HEAP->WriteBarrier(this, frm);
-#endif
+    store_ptr(context, frm);
 }
 
 void* VMFrame::GetStackPointer() const {
@@ -139,10 +140,7 @@ VMFrame* VMFrame::GetPreviousFrame() {
 }
 
 void VMFrame::SetPreviousFrame(VMFrame* frm) {
-    this->previousFrame = store_ptr(frm);
-#if GC_TYPE==GENERATIONAL
-    _HEAP->WriteBarrier(this, AS_VM_POINTER(frm));
-#endif
+    store_ptr(previousFrame, frm);
 }
 
 void VMFrame::ClearPreviousFrame() {
@@ -151,4 +149,12 @@ void VMFrame::ClearPreviousFrame() {
 
 VMMethod* VMFrame::GetMethod() {
     return load_ptr(method);
+}
+
+void VMFrame::SetLocal(long index, vm_oop_t value) {
+    store_ptr(locals[index], value);
+}
+
+void VMFrame::SetArgument(long index, vm_oop_t value) {
+    store_ptr(arguments[index], value);
 }

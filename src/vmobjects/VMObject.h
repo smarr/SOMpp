@@ -76,8 +76,8 @@ public:
     virtual        VMSymbol* GetFieldName(long index);
     virtual inline long      GetNumberOfFields() const;
     virtual        void      SetNumberOfFields(long nof);
-                   vm_oop_t  GetField(long index);
-                   void      SetField(long index, vm_oop_t value);
+            inline vm_oop_t  GetField(long index);
+            inline void      SetField(long index, vm_oop_t value);
     virtual        void      Assert(bool value) const;
     virtual inline size_t    GetObjectSize() const;
     virtual inline void      SetObjectSize(size_t size);
@@ -170,4 +170,13 @@ VMClass* VMObject::GetClass() {
 
 long VMObject::GetNumberOfFields() const {
     return numberOfFields;
+}
+
+vm_oop_t VMObject::GetField(long index) {
+    return load_ptr(FIELDS[index]);
+}
+
+void VMObject::SetField(long index, vm_oop_t value) {
+    assert(Universe::IsValidObject(value));
+    store_ptr(FIELDS[index], value);
 }
