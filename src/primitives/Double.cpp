@@ -135,7 +135,7 @@ void _Double::AsString(Interpreter* interp, VMFrame* frame) {
     ostringstream Str;
     Str.precision(17);
     Str << dbl;
-    frame->Push( GetUniverse()->NewString(Str.str().c_str(), interp->GetPage()));
+    frame->Push(GetUniverse()->NewString(Str.str().c_str(), interp->GetPage()));
 }
 
 void _Double::Sqrt(Interpreter* interp, VMFrame* frame) {
