@@ -85,7 +85,7 @@ public:
     //static methods
     static void Start(long argc, char** argv);
     static void Quit(long);
-    static void ErrorExit(const char*);
+    static void ErrorExit(StdString);
     
     void Assert(bool) const;
 

@@ -163,8 +163,8 @@ __attribute__((noreturn)) void Universe::Quit(long err) {
     exit((int) err);
 }
 
-__attribute__((noreturn)) void Universe::ErrorExit(const char* err) {
-    Universe::ErrorPrint("Runtime error: " + StdString(err) + "\n");
+__attribute__((noreturn)) void Universe::ErrorExit(StdString err) {
+    Universe::ErrorPrint("Runtime error: " + err + "\n");
     Quit(ERR_FAIL);
 }
 
@@ -327,7 +327,7 @@ void Universe::initialize(long _argc, char** _argv) {
         bm_name = argv[0];
     
     if (!isPowerOfTwo(pageSize)) {
-        ErrorExit(("Page size must be a power of two, but was: " + to_string(pageSize)).c_str());
+        ErrorExit("Page size must be a power of two, but was: " + to_string(pageSize));
     }
 
     Heap<HEAP_CLS>::InitializeHeap(pageSize, heapSize);
@@ -806,8 +806,7 @@ void Universe::LoadSystemClass(VMClass* systemClass, Page* page) {
     StdString s = systemClass->GetName()->GetStdString();
 
     if (!result) {
-        Universe::ErrorPrint("Can't load system class: " + s + "\n");
-        Universe::Quit(ERR_FAIL);
+        ErrorExit("Can't load system class: " + s + "\n");
     }
 
     if (result->HasPrimitives() || result->GetClass()->HasPrimitives())

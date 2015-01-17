@@ -66,7 +66,7 @@ void Heap<HEAP_T>::FullGC() {
 
 template<class HEAP_T>
 void Heap<HEAP_T>::FailedAllocation(size_t size) {
-    GetUniverse()->ErrorExit(("Failed to allocate " + to_string(size) + " Bytes.\n").c_str());
+    GetUniverse()->ErrorExit("Failed to allocate " + to_string(size) + " Bytes.\n");
 }
 
 template<class HEAP_T>
