@@ -82,8 +82,6 @@ extern GCSymbol* symbolIfFalse;
 using namespace std;
 class Universe {
 public:
-    inline Universe* operator->();
-
     //static methods
     static void Start(long argc, char** argv);
     static void Quit(long);
@@ -200,11 +198,4 @@ Universe* GetUniverse() {
         Universe::ErrorExit("Trying to access uninitialized Universe, exiting.");
     }
     return Universe::theUniverse;
-}
-
-Universe* Universe::operator->() {
-    if (DEBUG && !theUniverse) {
-        ErrorExit("Trying to access uninitialized Universe, exiting.");
-    }
-    return theUniverse;
 }
