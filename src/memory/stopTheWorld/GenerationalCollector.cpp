@@ -25,11 +25,11 @@ GenerationalCollector::GenerationalCollector(PagedHeap* heap) : StopTheWorldColl
 
 VMOBJECT_PTR mark_object(VMOBJECT_PTR obj) {
     assert(Universe::IsValidObject(obj));
-#ifdef USE_TAGGING
+
     //don't process tagged objects
     if (IS_TAGGED(obj))
         return obj;
-#endif
+
     if (obj->GetGCField() & MASK_OBJECT_IS_MARKED)
         return (obj);
 
@@ -41,11 +41,10 @@ VMOBJECT_PTR mark_object(VMOBJECT_PTR obj) {
 VMOBJECT_PTR copy_if_necessary(VMOBJECT_PTR obj) {
     assert(Universe::IsValidObject(obj));
     
-#ifdef USE_TAGGING
     //don't process tagged objects
     if (IS_TAGGED(obj))
         return obj;
-#endif
+
     size_t gcField = obj->GetGCField();
 
     // if this is an old object already, we don't have to copy

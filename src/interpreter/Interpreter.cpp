@@ -43,9 +43,7 @@
 #include <vmobjects/Signature.h>
 #include <vmobjects/VMBlock.h>
 #include <natives/VMThread.h>
-#ifdef USE_TAGGING
 #include <vmobjects/IntegerBox.h>
-#endif
 
 #include <compiler/Disassembler.h>
 #include <vmobjects/VMBlock.inline.h>

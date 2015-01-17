@@ -10,11 +10,9 @@
 #include "CopyingCollector.h"
 
 VMOBJECT_PTR copy_if_necessary(VMOBJECT_PTR obj) {
-#ifdef USE_TAGGING
     //don't process tagged objects
     if (IS_TAGGED(obj))
-    return obj;
-#endif
+        return obj;
     long gcField = obj->GetGCField();
     //GCField is abused as forwarding pointer here
     //if someone has moved before, return the moved object

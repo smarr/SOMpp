@@ -65,13 +65,7 @@
 #include <vmobjects/VMBlock.inline.h>
 #include <vmobjects/VMMethod.inline.h>
 
-#ifdef CACHE_INTEGER
-#ifndef INT_CACHE_MIN_VALUE
-#define INT_CACHE_MIN_VALUE (-5)
-#endif
-#ifndef INT_CACHE_MAX_VALUE
-#define INT_CACHE_MAX_VALUE (100)
-#endif
+#if CACHE_INTEGER
 VMInteger* prebuildInts[INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE + 1];
 #endif
 
@@ -337,7 +331,7 @@ void Universe::initialize(long _argc, char** _argv) {
     interpreters = vector<Interpreter*>();
     Interpreter* interpreter = this->NewInterpreter();
 
-#ifdef CACHE_INTEGER
+#if CACHE_INTEGER
     //create prebuilt integers
     for (long it = INT_CACHE_MIN_VALUE; it <= INT_CACHE_MAX_VALUE; ++it) {
 #if GC_TYPE==GENERATIONAL
@@ -1044,7 +1038,7 @@ VMInteger* Universe::NewInteger(int64_t value) const {
     integerHist[value/INT_HIST_SIZE] = integerHist[value/INT_HIST_SIZE]+1;
 #endif
 
-#ifdef CACHE_INTEGER
+#if CACHE_INTEGER
     unsigned long index = (unsigned long)value - (unsigned long)INT_CACHE_MIN_VALUE;
     if (index < (unsigned long)(INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE)) {
         return prebuildInts[index];
@@ -1227,7 +1221,7 @@ void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     trueObject  = (GCObject*) walk(load_ptr(trueObject));
     falseObject = (GCObject*) walk(load_ptr(falseObject));
 
-#ifdef USE_TAGGING
+#if USE_TAGGING
     GlobalBox::updateIntegerBox(static_cast<VMInteger*>(walk(GlobalBox::IntegerBox())));
 #endif
 
@@ -1254,9 +1248,9 @@ void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     trueClass  = (GCClass*) (walk(load_ptr(trueClass)));
     falseClass = (GCClass*) (walk(load_ptr(falseClass)));
 
-#ifdef CACHE_INTEGER
+#if CACHE_INTEGER
     for (unsigned long i = 0; i < (INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE); i++)
-#ifdef USE_TAGGING
+#if USE_TAGGING
         prebuildInts[i] = TAG_INTEGER(INT_CACHE_MIN_VALUE + i);
 #else
         prebuildInts[i] = static_cast<VMInteger*>(walk(prebuildInts[i]));
