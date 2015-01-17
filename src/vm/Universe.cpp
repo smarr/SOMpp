@@ -58,9 +58,7 @@
 #include <compiler/Disassembler.h>
 #include <compiler/SourcecodeCompiler.h>
 
-#ifdef USE_TAGGING
 #include "../vmobjects/IntegerBox.h"
-#endif
 
 #include <vmobjects/VMBlock.inline.h>
 #include <vmobjects/VMMethod.inline.h>
