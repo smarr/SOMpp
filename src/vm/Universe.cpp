@@ -33,8 +33,7 @@
 #include "Universe.h"
 #include "Shell.h"
 
-#include "../interpreter/Interpreter.h"
-#include <primitives/Core.h>
+#include <interpreter/Interpreter.h>
 
 #include <misc/debug.h>
 
@@ -332,7 +331,6 @@ void Universe::initialize(long _argc, char** _argv) {
         bm_name = argv[0];
 
     PagedHeap::InitializeHeap(HEAP_SIZE, PAGE_SIZE);
-    setup_primitives();
 
     heap = _HEAP;
 
@@ -825,7 +823,7 @@ VMClass* Universe::LoadClass(VMSymbol* name) {
     }
 
     if (result->HasPrimitives() || result->GetClass()->HasPrimitives())
-        result->LoadPrimitives();
+        result->LoadPrimitives(classPath);
     
     SetGlobal(name, result);
 
@@ -872,7 +870,7 @@ void Universe::LoadSystemClass( VMClass* systemClass) {
     }
 
     if (result->HasPrimitives() || result->GetClass()->HasPrimitives())
-        result->LoadPrimitives();
+        result->LoadPrimitives(classPath);
 }
 
 VMArray* Universe::NewArray(long size) const {

@@ -24,13 +24,50 @@
  THE SOFTWARE.
  */
 
+#include <primitives/Array.h>
+#include <primitives/Block.h>
+#include <primitives/Class.h>
+#include <primitives/Double.h>
+#include <primitives/Integer.h>
+#include <primitives/Method.h>
+#include <primitives/Object.h>
+#include <primitives/Primitive.h>
+#include <primitives/String.h>
+#include <primitives/Symbol.h>
+#include <primitives/System.h>
+
+#include <primitives/Delay.h>
+#include <primitives/Mutex.h>
+#include <primitives/Signal.h>
+#include <primitives/Thread.h>
+
+
 #include "PrimitiveLoader.h"
 #include "PrimitiveContainer.h"
 
 #include <vmobjects/PrimitiveRoutine.h>
 
+PrimitiveLoader PrimitiveLoader::loader;
+
 PrimitiveLoader::PrimitiveLoader() {
     primitiveObjects = map<StdString, PrimitiveContainer*>();
+    
+    AddPrimitiveObject("Array",     new _Array());
+    AddPrimitiveObject("Block",     new _Block());
+    AddPrimitiveObject("Class",     new _Class());
+    AddPrimitiveObject("Double",    new _Double());
+    AddPrimitiveObject("Integer",   new _Integer());
+    AddPrimitiveObject("Method",    new _Method());
+    AddPrimitiveObject("Object",    new _Object());
+    AddPrimitiveObject("Primitive", new _Primitive());
+    AddPrimitiveObject("String",    new _String());
+    AddPrimitiveObject("Symbol",    new _Symbol());
+    AddPrimitiveObject("System",    new _System());
+
+    AddPrimitiveObject("Delay",     new _Delay());
+    AddPrimitiveObject("Mutex",     new _Mutex());
+    AddPrimitiveObject("Signal",    new _Signal());
+    AddPrimitiveObject("Thread",    new _Thread());
 }
 
 PrimitiveLoader::~PrimitiveLoader() {
@@ -38,30 +75,40 @@ PrimitiveLoader::~PrimitiveLoader() {
     for (; it != primitiveObjects.end(); ++it) {
         delete it->second;
     }
-
 }
 
-void PrimitiveLoader::AddPrimitiveObject(const char* name,
+void PrimitiveLoader::AddPrimitiveObject(const std::string& name,
         PrimitiveContainer* prim) {
-    primitiveObjects[StdString(name)] = prim;
+    primitiveObjects[name] = prim;
 }
 
-bool PrimitiveLoader::SupportsClass(const char* name) {
-    return primitiveObjects[StdString(name)] != NULL;
+bool PrimitiveLoader::supportsClass(const std::string& name) {
+    return primitiveObjects[name] != nullptr;
+}
+
+bool PrimitiveLoader::SupportsClass(const std::string& name) {
+    return loader.supportsClass(name);
 }
 
 PrimitiveRoutine* PrimitiveLoader::GetPrimitiveRoutine(const std::string& cname,
-        const std::string& mname) {
+                                                       const std::string& mname, bool isPrimitive) {
+    return loader.getPrimitiveRoutine(cname, mname, isPrimitive);
+}
+
+PrimitiveRoutine* PrimitiveLoader::getPrimitiveRoutine(const std::string& cname,
+        const std::string& mname, bool isPrimitive) {
     PrimitiveRoutine* result;
     PrimitiveContainer* primitive = primitiveObjects[cname];
     if (!primitive) {
-        cout << "Primitive object not found for name: " << cname << endl;
-        return NULL;
+        Universe::ErrorPrint("Primitive object not found for name: " + cname + "\n");
+        return nullptr;
     }
     result = primitive->GetPrimitive(mname);
     if (!result) {
-        cout << "method " << mname << " not found in class " << cname << endl;
-        return NULL;
+        if (isPrimitive) {
+            Universe::ErrorPrint("method " + mname + " not found in class " + cname + "\n");
+        }
+        return nullptr;
     }
     return result;
 }

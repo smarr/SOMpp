@@ -36,8 +36,8 @@ void _Signal::New(VMObject* object, VMFrame* frame){
 }
 
 _Signal::_Signal() : PrimitiveContainer() {
-    SetPrimitive("wait",      new Routine<_Signal>(this, &_Signal::Wait));
-    SetPrimitive("signal",    new Routine<_Signal>(this, &_Signal::Signal));
-    SetPrimitive("signalAll", new Routine<_Signal>(this, &_Signal::SignalAll));
-    SetPrimitive("new",       new Routine<_Signal>(this, &_Signal::New));
+    SetPrimitive("wait",      new Routine<_Signal>(this, &_Signal::Wait,      false));
+    SetPrimitive("signal",    new Routine<_Signal>(this, &_Signal::Signal,    false));
+    SetPrimitive("signalAll", new Routine<_Signal>(this, &_Signal::SignalAll, false));
+    SetPrimitive("new",       new Routine<_Signal>(this, &_Signal::New,       true));
 }

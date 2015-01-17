@@ -37,12 +37,10 @@
 
 #if defined(_MSC_VER)   //Visual Studio
 #include <windows.h> 
-#include "../primitives/Core.h"
+#include <primitives/Core.h>
 #endif
 
 //class ClassGenerationContext;
-//class VMSymbol;
-//class VMArray;
 class VMPrimitive;
 class VMInvokable;
 
@@ -64,15 +62,14 @@ public:
            void         SetInstanceInvokables(VMArray*);
            long         GetNumberOfInstanceInvokables();
            VMInvokable* GetInstanceInvokable(long);
-           void         SetInstanceInvokable(long, VMObject*);
+           void         SetInstanceInvokable(long, VMInvokable*);
            VMInvokable* LookupInvokable(VMSymbol*);
            long         LookupFieldIndex(VMSymbol*);
-           bool         AddInstanceInvokable(VMObject*);
            void         AddInstancePrimitive(VMPrimitive*);
            VMSymbol*    GetInstanceFieldName(long);
            long         GetNumberOfInstanceFields();
            bool         HasPrimitives();
-           void         LoadPrimitives();
+           void         LoadPrimitives(const vector<StdString>&);
     
 #if GC_TYPE==PAUSELESS
     virtual VMClass*    Clone(Interpreter*);
@@ -87,7 +84,9 @@ public:
     virtual void MarkObjectAsInvalid();
 
 private:
-    void setPrimitives(const StdString& cname);
+    bool addInstanceInvokable(VMInvokable*);
+    bool hasPrimitivesFor(const StdString& cl) const;
+    void setPrimitives(const StdString& cname, bool classSide);
     long numberOfSuperInstanceFields();
 
     GCClass*  superClass;

@@ -31,24 +31,19 @@
 #include "VMBlock.h"
 #include "VMInteger.h"
 
-#include "../interpreter/Interpreter.h"
-#include "../vm/Universe.h"
+#include <interpreter/Interpreter.h>
+#include <vm/Universe.h>
 
 //needed to instanciate the Routine object for the evaluation routine
-#include "../primitivesCore/Routine.h"
+#include <primitivesCore/Routine.h>
 
 #include <vmobjects/VMBlock.inline.h>
 
-VMEvaluationPrimitive::VMEvaluationPrimitive(long argc) :
-        VMPrimitive(computeSignatureString(argc)) {
-    this->SetRoutine(new Routine<VMEvaluationPrimitive>(this,
-                    &VMEvaluationPrimitive::evaluationRoutine));
-    this->SetEmpty(false);
-#ifdef USE_TAGGING
-    this->numberOfArguments = TAG_INTEGER(argc);
-#else
-    this->numberOfArguments = store_ptr(GetUniverse()->NewInteger(argc));
-#endif
+VMEvaluationPrimitive::VMEvaluationPrimitive(long argc) : VMPrimitive(computeSignatureString(argc)) {
+    SetRoutine(new EvaluationRoutine(this));
+    SetEmpty(false);
+
+    numberOfArguments = store_ptr(NEW_INT(argc));
 }
 
 #if GC_TYPE==GENERATIONAL
@@ -100,20 +95,16 @@ VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc) {
     return GetUniverse()->SymbolFor(signatureString);
 }
 
-void VMEvaluationPrimitive::evaluationRoutine(VMObject* object, VMFrame* frame) {
-    VMEvaluationPrimitive* self = static_cast<VMEvaluationPrimitive*>(object);
+void EvaluationRoutine::operator()(VMObject* object, VMFrame* frame) {
+    VMEvaluationPrimitive* prim = load_ptr(evalPrim);
 
     // Get the block (the receiver) from the stack
-#ifdef USE_TAGGING
-    long numArgs = UNTAG_INTEGER(self->numberOfArguments);
-#else
-    long numArgs = load_ptr(self->numberOfArguments)->GetEmbeddedInteger();
-#endif
+    long numArgs = prim->GetNumberOfArguments();
     VMBlock* block = static_cast<VMBlock*>(frame->GetStackElement(numArgs - 1));
 
     // Get the context of the block...
     VMFrame* context = block->GetContext();
-    
+
     // Push a new frame and set its context to be the one specified in the block
     VMFrame* NewFrame = GetUniverse()->GetInterpreter()->PushNewFrame(block->GetMethod());
     NewFrame->CopyArgumentsFrom(frame);
@@ -140,5 +131,16 @@ void VMEvaluationPrimitive::CheckMarking(void (*walk)(vm_oop_t)) {
 void VMEvaluationPrimitive::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     VMPrimitive::WalkObjects(walk);
     numberOfArguments = (GCInteger*) (walk(load_ptr(numberOfArguments)));
+}
+#endif
+
+#if GC_TYPE==PAUSELESS
+void EvaluationRoutine::MarkReferences() {
+    ReadBarrierForGCThread(&evalPrim);
+}
+void EvaluationRoutine::CheckMarking(void (*walk)(vm_oop_t)) {
+    assert(GetNMTValue(evalPrim) == _HEAP->GetGCThread()->GetExpectedNMT());
+    CheckBlocked(Untag(evalPrim));
+    walk(Untag(evalPrim));
 }
 #endif

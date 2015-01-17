@@ -7,8 +7,8 @@
 #include <vmobjects/VMMethod.h>
 
 _Method::_Method() : PrimitiveContainer() {
-    SetPrimitive("signature", new Routine<_Method>(this, &_Method::Signature));
-    SetPrimitive("holder",    new Routine<_Method>(this, &_Method::Holder));
+    SetPrimitive("signature", new Routine<_Method>(this, &_Method::Signature, false));
+    SetPrimitive("holder",    new Routine<_Method>(this, &_Method::Holder,    false));
 }
 
 void _Method::Holder(VMObject*, VMFrame* frame) {

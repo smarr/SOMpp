@@ -35,22 +35,22 @@
 #include "Object.h"
 
 _Object::_Object() : PrimitiveContainer() {
-    SetPrimitive("equalequal", new Routine<_Object>(this, &_Object::Equalequal));
-    SetPrimitive("objectSize", new Routine<_Object>(this, &_Object::ObjectSize));
-    SetPrimitive("hashcode",   new Routine<_Object>(this, &_Object::Hashcode));
-    SetPrimitive("inspect",    new Routine<_Object>(this, &_Object::Inspect));
-    SetPrimitive("halt",       new Routine<_Object>(this, &_Object::Halt));
+    SetPrimitive("equalequal", new Routine<_Object>(this, &_Object::Equalequal, false));
+    SetPrimitive("objectSize", new Routine<_Object>(this, &_Object::ObjectSize, false));
+    SetPrimitive("hashcode",   new Routine<_Object>(this, &_Object::Hashcode,   false));
+    SetPrimitive("inspect",    new Routine<_Object>(this, &_Object::Inspect,    false));
+    SetPrimitive("halt",       new Routine<_Object>(this, &_Object::Halt,       false));
 
-    SetPrimitive("perform_",   new Routine<_Object>(this, &_Object::Perform));
-    SetPrimitive("perform_withArguments_", new Routine<_Object>(this, &_Object::PerformWithArguments));
-    SetPrimitive("perform_inSuperclass_",  new Routine<_Object>(this, &_Object::PerformInSuperclass));
-    SetPrimitive("perform_withArguments_inSuperclass_", new Routine<_Object>(this, &_Object::PerformWithArgumentsInSuperclass));
+    SetPrimitive("perform_",   new Routine<_Object>(this, &_Object::Perform, false));
+    SetPrimitive("perform_withArguments_", new Routine<_Object>(this, &_Object::PerformWithArguments, false));
+    SetPrimitive("perform_inSuperclass_",  new Routine<_Object>(this, &_Object::PerformInSuperclass, false));
+    SetPrimitive("perform_withArguments_inSuperclass_", new Routine<_Object>(this, &_Object::PerformWithArgumentsInSuperclass, false));
 
-    SetPrimitive("instVarAt_",     new Routine<_Object>(this, &_Object::InstVarAt));
-    SetPrimitive("instVarAt_put_", new Routine<_Object>(this, &_Object::InstVarAtPut));
-    SetPrimitive("instVarNamed_",  new Routine<_Object>(this, &_Object::InstVarNamed));
+    SetPrimitive("instVarAt_",     new Routine<_Object>(this, &_Object::InstVarAt, false));
+    SetPrimitive("instVarAt_put_", new Routine<_Object>(this, &_Object::InstVarAtPut, false));
+    SetPrimitive("instVarNamed_",  new Routine<_Object>(this, &_Object::InstVarNamed, false));
 
-    SetPrimitive("class", new Routine<_Object>(this, &_Object::Class));
+    SetPrimitive("class", new Routine<_Object>(this, &_Object::Class, false));
 }
 
 void _Object::Equalequal(VMObject* /*object*/, VMFrame* frame) {

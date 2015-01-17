@@ -36,11 +36,11 @@
 #include <vm/Universe.h>
 
 _Class::_Class() : PrimitiveContainer() {
-    SetPrimitive("new",        new Routine<_Class>(this, &_Class::New));
-    SetPrimitive("name",       new Routine<_Class>(this, &_Class::Name));
-    SetPrimitive("superclass", new Routine<_Class>(this, &_Class::Superclass));
-    SetPrimitive("fields",     new Routine<_Class>(this, &_Class::Fields));
-    SetPrimitive("methods",    new Routine<_Class>(this, &_Class::Methods));
+    SetPrimitive("new",        new Routine<_Class>(this, &_Class::New,        false));
+    SetPrimitive("name",       new Routine<_Class>(this, &_Class::Name,       false));
+    SetPrimitive("superclass", new Routine<_Class>(this, &_Class::Superclass, false));
+    SetPrimitive("fields",     new Routine<_Class>(this, &_Class::Fields,     false));
+    SetPrimitive("methods",    new Routine<_Class>(this, &_Class::Methods,    false));
 }
 
 void _Class::New(VMObject* /*object*/, VMFrame* frame) {

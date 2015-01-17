@@ -30,26 +30,25 @@
 
 ///Implementation for a functor class with PrimitiveRoutine as base class.
 //It stores an object and a pointer to one of its methods. It is invoked
-//by calling the Routine's poerator "()".
+//by calling the Routine's operator "()".
 template<class TClass> class Routine: public PrimitiveRoutine {
 private:
-    void (TClass::*fpt)(VMObject*, VMFrame*);   // pointer to member function
-    TClass* pt2Object;                          // pointer to object
+    void (TClass::*func)(VMObject*, VMFrame*);   // pointer to member function
+    TClass* primContainerObj;
+    const bool classSide;
 
 public:
 
-    // constructor - takes pointer to an object and pointer to a member and stores
-    // them in two private variables
-    Routine(TClass* _pt2Object, void (TClass::*_fpt)(VMObject*, VMFrame*)) :
-            PrimitiveRoutine() {
-        pt2Object = _pt2Object;
-        fpt = _fpt;
-    }
-    ;
+    // takes pointer to an object, pointer to a member, and a bool indicating whether it is a class-side primitive or not
+    Routine(TClass* primContainerObj, void (TClass::*_fpt)(VMObject*, VMFrame*),
+            bool classSide)
+        : classSide(classSide), primContainerObj(primContainerObj),
+          func(_fpt), PrimitiveRoutine() {};
 
-    // override operator "()"
-    virtual void operator()(VMObject* obj, VMFrame* frm) {
-        (*pt2Object.*fpt)(obj, frm);  // execute member function
-    };
+    virtual void operator()(VMObject* object, VMFrame* frm) {
+        (*primContainerObj.*func)(object, frm);  // execute member function
+    }
+    
+    virtual bool isClassSide() { return classSide; }
 
 };

@@ -33,16 +33,8 @@ class PrimitiveContainer;
 class PrimitiveRoutine;
 
 ///Core class for primitive loading.
-//In order to implement new primitive libraries, you can use this class
-//to implement the "get_primitive" factory method (of course you can do something
-//totally different, if you chose...)
+//In order to implement new primitive libraries, you can use this class.
 //
-//Functions that are expected to be exported by the library are:
-//bool supportsClass(const char* name)
-//void tearDown()
-//PrimitiveRoutine* create(const StdString& cname, const StdString& fname)
-//
-//The expected file extension is ".csp".
 //Libraries have to take care of initializing any needed data or data structures.
 //When using the PrimitiveLoader class that is the the std::map primitiveObjects.
 //Initialize it by calling the AddPrimitiveObject method, in order to map the 
@@ -51,10 +43,22 @@ class PrimitiveLoader {
 public:
     PrimitiveLoader();
     virtual ~PrimitiveLoader();
-    virtual PrimitiveRoutine*
-    GetPrimitiveRoutine(const std::string& cname, const std::string& mname);
-    virtual void AddPrimitiveObject(const char*, PrimitiveContainer*);
-    virtual bool SupportsClass(const char*);
+    void AddPrimitiveObject(const std::string& name, PrimitiveContainer*);
+    
+    static bool SupportsClass(const std::string& name);
+    static PrimitiveRoutine* GetPrimitiveRoutine(const std::string& cname,
+                                                 const std::string& mname,
+                                                 bool isPrimitive);
+
 private:
+    bool supportsClass(const std::string& name);
+    PrimitiveRoutine* getPrimitiveRoutine(const std::string& cname,
+                                          const std::string& mname,
+                                          bool isPrimitive);
+
+
+    
     std::map<StdString, PrimitiveContainer*> primitiveObjects;
+    
+    static PrimitiveLoader loader;
 };

@@ -64,8 +64,8 @@ void _Thread::Current(VMObject* object, VMFrame* frame) {
 }
 
 _Thread::_Thread() : PrimitiveContainer() {
-    SetPrimitive("join",      new Routine<_Thread>(this, &_Thread::Join));
-    SetPrimitive("priority_", new Routine<_Thread>(this, &_Thread::Priority_));
-    SetPrimitive("yield",     new Routine<_Thread>(this, &_Thread::Yield));
-    SetPrimitive("current",   new Routine<_Thread>(this, &_Thread::Current));
+    SetPrimitive("join",      new Routine<_Thread>(this, &_Thread::Join,      false));
+    SetPrimitive("priority_", new Routine<_Thread>(this, &_Thread::Priority_, false));
+    SetPrimitive("yield",     new Routine<_Thread>(this, &_Thread::Yield,   true));
+    SetPrimitive("current",   new Routine<_Thread>(this, &_Thread::Current, true));
 }

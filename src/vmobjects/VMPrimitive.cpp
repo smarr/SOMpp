@@ -35,7 +35,7 @@
 //needed to instanciate the Routine object for the  empty routine
 #include "../primitivesCore/Routine.h"
 
-VMPrimitive* VMPrimitive::GetEmptyPrimitive( VMSymbol* sig ) {
+VMPrimitive* VMPrimitive::GetEmptyPrimitive(VMSymbol* sig, bool classSide) {
 #if GC_TYPE==GENERATIONAL
     VMPrimitive* prim = new (_HEAP, _PAGE) VMPrimitive(sig);
 #elif GC_TYPE==PAUSELESS
@@ -44,7 +44,7 @@ VMPrimitive* VMPrimitive::GetEmptyPrimitive( VMSymbol* sig ) {
     VMPrimitive* prim = new (_HEAP) VMPrimitive(sig);
 #endif
     prim->empty = true;
-    prim->SetRoutine(new Routine<VMPrimitive>(prim, &VMPrimitive::EmptyRoutine));
+    prim->SetRoutine(new Routine<VMPrimitive>(prim, &VMPrimitive::EmptyRoutine, classSide));
     return prim;
 }
 

@@ -30,8 +30,9 @@
 #include "VMInvokable.h"
 #include "VMPrimitive.h"
 #include "PrimitiveRoutine.h"
-#include "../interpreter/Interpreter.h"
-#include <primitives/Core.h>
+#include <interpreter/Interpreter.h>
+
+#include <primitivesCore/PrimitiveLoader.h>
 
 #include <fstream>
 #include <typeinfo>
@@ -93,26 +94,29 @@ void VMClass::MarkObjectAsInvalid() {
     instanceInvokables = (GCArray*)  INVALID_GC_POINTER;
 }
 
-bool VMClass::AddInstanceInvokable(VMObject* ptr) {
-    VMInvokable* newInvokable = static_cast<VMInvokable*>(ptr);
-    if (newInvokable == NULL) {
+bool VMClass::addInstanceInvokable(VMInvokable* ptr) {
+    if (ptr == nullptr) {
         GetUniverse()->ErrorExit("Error: trying to add non-invokable to invokables array");
+        return false;
     }
     //Check whether an invokable with the same signature exists and replace it if that's the case
-    long numIndexableFields = this->GetInstanceInvokables()->GetNumberOfIndexableFields();
+    VMArray* instInvokables = GetInstanceInvokables();
+    long numIndexableFields = instInvokables->GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {
-        VMInvokable* inv = static_cast<VMInvokable*>(this->GetInstanceInvokables()->GetIndexableField(i));
-        if (inv != NULL) {
-            if (newInvokable->GetSignature() == inv->GetSignature()) {
-                this->SetInstanceInvokable(i, ptr);
+        VMInvokable* inv = static_cast<VMInvokable*>(instInvokables->GetIndexableField(i));
+        if (inv != nullptr) {
+            if (ptr->GetSignature() == inv->GetSignature()) {
+                SetInstanceInvokable(i, ptr);
                 return false;
             }
         } else {
-            GetUniverse()->ErrorExit("Invokables array corrupted. Either NULL pointer added or pointer to non-invokable.");
+            GetUniverse()->ErrorExit("Invokables array corrupted. "
+                                     "Either NULL pointer added or pointer to non-invokable.");
+            return false;
         }
     }
     //it's a new invokable so we need to expand the invokables array.
-    instanceInvokables = store_ptr(this->GetInstanceInvokables()->CopyAndExtendWith(ptr));
+    instanceInvokables = store_ptr(instInvokables->CopyAndExtendWith(ptr));
 #if GC_TYPE==GENERATIONAL
     _HEAP->WriteBarrier(this, load_ptr(instanceInvokables));
 #endif
@@ -121,7 +125,7 @@ bool VMClass::AddInstanceInvokable(VMObject* ptr) {
 }
 
 void VMClass::AddInstancePrimitive(VMPrimitive* ptr) {
-    if (AddInstanceInvokable(ptr)) {
+    if (addInstanceInvokable(ptr)) {
         //cout << "Warn: Primitive "<<ptr->GetSignature<<" is not in class definition for class " << name->GetStdString() << endl;
     }
 }
@@ -161,11 +165,10 @@ VMInvokable* VMClass::GetInstanceInvokable(long index) {
     return static_cast<VMInvokable*>(this->GetInstanceInvokables()->GetIndexableField(index));
 }
 
-void VMClass::SetInstanceInvokable(long index, VMObject* invokable) {
-    this->GetInstanceInvokables()->SetIndexableField(index, invokable);
+void VMClass::SetInstanceInvokable(long index, VMInvokable* invokable) {
+    GetInstanceInvokables()->SetIndexableField(index, invokable);
     if (invokable != load_ptr(nilObject)) {
-        VMInvokable* inv = static_cast<VMInvokable*>(invokable);
-        inv->SetHolder(this);
+        invokable->SetHolder(this);
     }
 }
 
@@ -229,13 +232,13 @@ bool VMClass::HasPrimitives() {
     return false;
 }
 
-void VMClass::LoadPrimitives() {
-
-    // cached object properties
-    StdString cname = this->GetName()->GetStdString();
-
-    setPrimitives(cname);
-    this->GetClass()->setPrimitives(cname);
+void VMClass::LoadPrimitives(const vector<StdString>& cp) {
+    StdString cname = GetName()->GetStdString();
+    
+    if (hasPrimitivesFor(cname)) {
+        setPrimitives(cname, false);
+        GetClass()->setPrimitives(cname, true);
+    }
 }
 
 long VMClass::numberOfSuperInstanceFields() {
@@ -244,51 +247,57 @@ long VMClass::numberOfSuperInstanceFields() {
     return 0;
 }
 
+bool VMClass::hasPrimitivesFor(const StdString& cl) const {
+    return PrimitiveLoader::SupportsClass(cl);
+}
+
 /*
  * set the routines for primitive marked invokables of the given class
- *
  */
-void VMClass::setPrimitives(const StdString& cname) {
-    VMPrimitive* thePrimitive;
-    PrimitiveRoutine* routine = NULL;
-    VMInvokable* anInvokable;
-    // iterate invokables
-    long numInvokables = GetNumberOfInstanceInvokables();
-    for (long i = 0; i < numInvokables; i++) {
-        anInvokable = this->GetInstanceInvokable(i);
+void VMClass::setPrimitives(const StdString& cname, bool classSide) {
+    VMClass* current = this;
+
+    // Try loading class-specific primitives for all super class' methods as well.
+    while (current != load_ptr(nilObject)) {
+        // iterate invokables
+        long numInvokables = current->GetNumberOfInstanceInvokables();
+        for (long i = 0; i < numInvokables; i++) {
+            VMInvokable* anInvokable = current->GetInstanceInvokable(i);
 #ifdef __DEBUG
-        cout << "cname: >" << cname << "<"<< endl;
-        cout << anInvokable->GetSignature()->GetStdString() << endl;
+            Universe::ErrorPrint("cname: >" + cname + "<\n" +
+                                 anInvokable->GetSignature()->GetStdString() + "\n");
 #endif
-        if(anInvokable->IsPrimitive()) {
-#ifdef __DEBUG
-            cout << "... is a primitive, and is going to be loaded now" << endl;
-#endif
-            thePrimitive = static_cast<VMPrimitive*>(anInvokable);
-            //
-            // we have a primitive to load
-            // get it's selector
-            //
-            VMSymbol* sig = thePrimitive->GetSignature();
+
+            VMSymbol* sig = anInvokable->GetSignature();
             StdString selector = sig->GetPlainString();
-            routine = get_primitive(cname, selector);
 
-            if(!routine) {
-                cout << "could not load primitive '"<< selector
-                <<"' for class " << cname << endl;
+            PrimitiveRoutine* routine = PrimitiveLoader::GetPrimitiveRoutine(
+                cname, selector, anInvokable->IsPrimitive() && current == this);
+            
+            if (routine && classSide == routine->isClassSide()) {
+                VMPrimitive* thePrimitive;
+                if (this == current && anInvokable->IsPrimitive()) {
+                    thePrimitive = static_cast<VMPrimitive*>(anInvokable);
+                } else {
+                    thePrimitive = VMPrimitive::GetEmptyPrimitive(sig, classSide);
+                    AddInstancePrimitive(thePrimitive);
+                }
 
-                GetUniverse()->Quit(ERR_FAIL);
+                // set routine
+                thePrimitive->SetRoutine(routine);
+                thePrimitive->SetEmpty(false);
+            } else {
+                if (anInvokable->IsPrimitive() && current == this) {
+                    if (!routine || routine->isClassSide() == classSide) {
+                        Universe::ErrorPrint("could not load primitive '" +
+                                             selector + "' for class " +
+                                             cname + "\n");
+                        GetUniverse()->Quit(ERR_FAIL);
+                    }
+                }
             }
-
-            // set routine
-            thePrimitive->SetRoutine(routine);
-            thePrimitive->SetEmpty(false);
         }
-#ifdef __DEBUG
-        else {
-            cout << "... is not a primitive" << endl;
-        }
-#endif
+        current = current->GetSuperClass();
     }
 }
 

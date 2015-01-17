@@ -39,9 +39,8 @@ void _Mutex::New(VMObject* object, VMFrame* frame){
 }
 
 _Mutex::_Mutex() : PrimitiveContainer() {
-    SetPrimitive("lock",     new Routine<_Mutex>(this, &_Mutex::Lock));
-    SetPrimitive("unlock",   new Routine<_Mutex>(this, &_Mutex::Unlock));
-    SetPrimitive("isLocked", new Routine<_Mutex>(this, &_Mutex::IsLocked));
-    SetPrimitive("new",      new Routine<_Mutex>(this, &_Mutex::New));
+    SetPrimitive("lock",     new Routine<_Mutex>(this, &_Mutex::Lock,     false));
+    SetPrimitive("unlock",   new Routine<_Mutex>(this, &_Mutex::Unlock,   false));
+    SetPrimitive("isLocked", new Routine<_Mutex>(this, &_Mutex::IsLocked, false));
+    SetPrimitive("new",      new Routine<_Mutex>(this, &_Mutex::New,      true));
 }
-

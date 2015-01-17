@@ -48,10 +48,26 @@ public:
     virtual VMEvaluationPrimitive* Clone();
     virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
 #endif
-    
+
+    int64_t GetNumberOfArguments() { return INT_VAL(load_ptr(numberOfArguments)); };
+
 private:
     static VMSymbol* computeSignatureString(long argc);
     void evaluationRoutine(VMObject* object, VMFrame* frame);
-    GCInteger* numberOfArguments;
+    gc_oop_t numberOfArguments;
 
+};
+
+class EvaluationRoutine : public PrimitiveRoutine {
+private:
+    GCEvaluationPrimitive* evalPrim;
+public:
+    EvaluationRoutine(VMEvaluationPrimitive* prim)
+        : PrimitiveRoutine(), evalPrim(store_ptr(prim)) {};
+#if GC_TYPE==PAUSELESS
+    void MarkReferences();
+    void CheckMarking(void (vm_oop_t));
+#endif
+    virtual bool isClassSide() { return false; }
+    virtual void operator()(VMObject* object, VMFrame* frame);
 };
