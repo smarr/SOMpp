@@ -624,21 +624,21 @@ VMObject* Universe::InitializeGlobals() {
 
     load_ptr(nilObject)->SetClass(load_ptr(nilClass));
 
-    InitializeSystemClass(load_ptr(objectClass),    nullptr, "Object");
+    InitializeSystemClass(load_ptr(objectClass),                  nullptr, "Object");
     InitializeSystemClass(load_ptr(classClass),     load_ptr(objectClass), "Class");
-    InitializeSystemClass(load_ptr(metaClassClass), load_ptr(classClass), "Metaclass");
-    InitializeSystemClass(load_ptr(nilClass),    load_ptr(objectClass), "Nil");
-    InitializeSystemClass(load_ptr(arrayClass),  load_ptr(objectClass), "Array");
-    InitializeSystemClass(load_ptr(methodClass), load_ptr(arrayClass), "Method");
-    InitializeSystemClass(load_ptr(symbolClass), load_ptr(objectClass), "Symbol");
-    InitializeSystemClass(load_ptr(integerClass), load_ptr(objectClass), "Integer");
-    InitializeSystemClass(load_ptr(primitiveClass), load_ptr(objectClass),
-            "Primitive");
-    InitializeSystemClass(load_ptr(stringClass), load_ptr(objectClass), "String");
-    InitializeSystemClass(load_ptr(doubleClass), load_ptr(objectClass), "Double");
-    InitializeSystemClass(load_ptr(threadClass), load_ptr(objectClass), "Thread");
-    InitializeSystemClass(load_ptr(mutexClass), load_ptr(objectClass), "Mutex");
-    InitializeSystemClass(load_ptr(signalClass), load_ptr(objectClass), "Signal");
+    InitializeSystemClass(load_ptr(metaClassClass),  load_ptr(classClass), "Metaclass");
+    InitializeSystemClass(load_ptr(nilClass),       load_ptr(objectClass), "Nil");
+    InitializeSystemClass(load_ptr(arrayClass),     load_ptr(objectClass), "Array");
+    InitializeSystemClass(load_ptr(methodClass),     load_ptr(arrayClass), "Method");
+    InitializeSystemClass(load_ptr(stringClass),    load_ptr(objectClass), "String");
+    InitializeSystemClass(load_ptr(symbolClass),    load_ptr(stringClass), "Symbol");
+    InitializeSystemClass(load_ptr(integerClass),   load_ptr(objectClass), "Integer");
+    InitializeSystemClass(load_ptr(primitiveClass), load_ptr(objectClass), "Primitive");
+    InitializeSystemClass(load_ptr(doubleClass),    load_ptr(objectClass), "Double");
+
+    InitializeSystemClass(load_ptr(signalClass),    load_ptr(objectClass), "Signal");
+    InitializeSystemClass(load_ptr(mutexClass),     load_ptr(objectClass), "Mutex");
+    InitializeSystemClass(load_ptr(threadClass),    load_ptr(objectClass), "Thread");
 
     // Fix up objectClass
     load_ptr(objectClass)->SetSuperClass((VMClass*) load_ptr(nilObject));
@@ -656,9 +656,10 @@ VMObject* Universe::InitializeGlobals() {
     LoadSystemClass(load_ptr(primitiveClass));
     LoadSystemClass(load_ptr(stringClass));
     LoadSystemClass(load_ptr(doubleClass));
-    LoadSystemClass(load_ptr(threadClass));
-    LoadSystemClass(load_ptr(mutexClass));
+
     LoadSystemClass(load_ptr(signalClass));
+    LoadSystemClass(load_ptr(mutexClass));
+    LoadSystemClass(load_ptr(threadClass));
 
     blockClass = _store_ptr(LoadClass(SymbolForChars("Block")));
 
