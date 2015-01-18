@@ -8,10 +8,9 @@
 //
 
 #include "VMSignal.h"
-#include "../vmObjects/ObjectFormats.h"
+#include <vmObjects/ObjectFormats.h>
 
 class VMThread : public VMObject {
-    
 public:
     typedef GCThread Stored;
     

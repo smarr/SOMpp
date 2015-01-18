@@ -28,7 +28,7 @@
 
 #include "AbstractObject.h"
 
-#include "../misc/defs.h"
+#include <misc/defs.h>
 
 class VMInteger: public AbstractVMObject {
 public:

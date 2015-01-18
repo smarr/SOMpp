@@ -9,7 +9,7 @@
 #include "VMThread.h"
 
 #include <sched.h>
-#include "../vm/Universe.h"
+#include <vm/Universe.h>
 
 #include <vmobjects/VMString.h>
 #include <vmobjects/VMBlock.h>
