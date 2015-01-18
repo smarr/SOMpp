@@ -34,7 +34,7 @@
 #include "Page.h"
 #include "../vmobjects/VMObject.h"
 
-HEAP_CLS* PagedHeap::theHeap = NULL;
+HEAP_CLS* PagedHeap::theHeap = nullptr;
 
 void PagedHeap::InitializeHeap(long, long) {
     if (theHeap) {
@@ -51,12 +51,12 @@ void PagedHeap::DestroyHeap() {
 }
 
 PagedHeap::PagedHeap(long, long) {
-    pthread_mutex_init(&fullPagesMutex, NULL);
-    pthread_mutex_init(&availablePagesMutex, NULL);
+    pthread_mutex_init(&fullPagesMutex, nullptr);
+    pthread_mutex_init(&availablePagesMutex, nullptr);
     allPages = new vector<Page*>();
     availablePages = new vector<Page*>();
     fullPages = new vector<Page*>();
-    memoryStart = mmap(NULL, HEAP_SIZE, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, 0, 0);
+    memoryStart = mmap(nullptr, HEAP_SIZE, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, 0, 0);
     memset(memoryStart, 0x0, HEAP_SIZE);
     memoryEnd = (size_t)memoryStart + HEAP_SIZE;
     maxObjSize = PAGE_SIZE / 2;

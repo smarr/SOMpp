@@ -13,10 +13,10 @@ StopTheWorldHeap::StopTheWorldHeap(long objectSpaceSize, long pageSize) : PagedH
     this->gcTriggered = false;
     this->threadCount = 0;
     this->readyForGCThreads = 0;
-    pthread_mutex_init(&doCollect, NULL);
-    pthread_mutex_init(&threadCountMutex, NULL);
-    pthread_cond_init(&stopTheWorldCondition, NULL);
-    pthread_cond_init(&mayProceed, NULL);
+    pthread_mutex_init(&doCollect, nullptr);
+    pthread_mutex_init(&threadCountMutex, nullptr);
+    pthread_cond_init(&stopTheWorldCondition, nullptr);
+    pthread_cond_init(&mayProceed, nullptr);
 
 }
 

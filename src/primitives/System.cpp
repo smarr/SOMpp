@@ -165,18 +165,18 @@ void _System::GetNumberOfCPUs(Interpreter*, VMFrame* frame) {
 #ifdef linux
     // count contents of /sys/devices/system/cpu/
     DIR *dip;
-    if ((dip = opendir("/sys/devices/system/cpu")) == NULL) {
+    if ((dip = opendir("/sys/devices/system/cpu")) == nullptr) {
         perror("opendir");
     }
     
-    while (readdir(dip) != NULL) i++;
+    while (readdir(dip) != nullptr) i++;
     i -= 2;
     if (closedir(dip) == -1) {
         perror("closedir");
     }
 #elif __APPLE__
     size_t len = sizeof(i);
-    sysctlbyname("machdep.cpu.core_count", &i, &len, NULL, 0);
+    sysctlbyname("machdep.cpu.core_count", &i, &len, nullptr, 0);
 #else
     i = -1;
 #endif

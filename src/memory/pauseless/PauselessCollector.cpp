@@ -97,7 +97,7 @@ PauselessCollector::PauselessCollector(PagedHeap* heap, int numberOfGCThreads) :
 void PauselessCollector::Start() {
     for (int i=0; i < numberOfGCThreads; i++) {
         pthread_t tid = 0;
-        pthread_create(&tid, NULL, &GCThread, NULL);
+        pthread_create(&tid, nullptr, &GCThread, nullptr);
     }
 }
 
@@ -316,7 +316,7 @@ void* PauselessCollector::GCThread(void*) {
     
     
     
-    pthread_exit(NULL);
+    pthread_exit(nullptr);
 }
 
      */

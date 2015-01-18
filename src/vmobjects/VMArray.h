@@ -63,7 +63,7 @@ private:
 long VMArray::GetNumberOfIndexableFields() const {
     long numIndexableFields = GetAdditionalSpaceConsumption() / sizeof(VMObject*);
     /*
-    static const VMArray* cachedArray = NULL;
+    static const VMArray* cachedArray = nullptr;
     static long numIndexableFields = -1;
 
     if (this != cachedArray) {

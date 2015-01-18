@@ -119,7 +119,7 @@ void* _Block::ThreadForBlock(void* threadPointer) {
     delete interpreter;
 #endif
 
-    pthread_exit(NULL);
+    pthread_exit(nullptr);
 }
 
 void* _Block::ThreadForBlockWithArgument(void* threadPointer) {
@@ -156,7 +156,7 @@ void* _Block::ThreadForBlockWithArgument(void* threadPointer) {
     delete interpreter;
 #endif
     
-    pthread_exit(NULL);
+    pthread_exit(nullptr);
 }
 
 //spawning of new thread that will run the block
@@ -170,7 +170,7 @@ void _Block::Spawn(Interpreter*, VMFrame* frame) {
     _HEAP->IncrementThreadCount();
 #endif
     //GetUniverse()->IncrementThreadCount();
-    pthread_create(&tid, NULL, &ThreadForBlock, (void*)thread);
+    pthread_create(&tid, nullptr, &ThreadForBlock, (void*)thread);
     thread->SetEmbeddedThreadId(tid);
     frame->Push(thread);
 }
@@ -188,7 +188,7 @@ void _Block::SpawnWithArgument(Interpreter*, VMFrame* frame) {
     _HEAP->IncrementThreadCount();
 #endif
     //GetUniverse()->IncrementThreadCount();
-    pthread_create(&tid, NULL, &ThreadForBlockWithArgument, (void *)thread);
+    pthread_create(&tid, nullptr, &ThreadForBlockWithArgument, (void *)thread);
     thread->SetEmbeddedThreadId(tid);
     frame->Push(thread);
 }

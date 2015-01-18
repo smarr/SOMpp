@@ -161,12 +161,12 @@ void GenerationalCollector::CopyInterpretersFrameAndThread() {
         // Since marking is done recursively, this automatically
         // marks the whole stack
         VMFrame* currentFrame = (*it)->GetFrame();
-        if (currentFrame != NULL) {
+        if (currentFrame != nullptr) {
             VMFrame* newFrame = static_cast<VMFrame*>(copy_if_necessary(currentFrame));
             (*it)->SetFrame(newFrame);
         }
         VMThread* currentThread = (*it)->GetThread();
-        if (currentThread != NULL) {
+        if (currentThread != nullptr) {
             VMThread* newThread = static_cast<VMThread*>(copy_if_necessary(currentThread));
             (*it)->SetThread(newThread);
         }

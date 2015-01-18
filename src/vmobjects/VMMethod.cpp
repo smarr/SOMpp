@@ -227,14 +227,14 @@ void VMMethod::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     
     /*
      #ifdef UNSAFE_FRAME_OPTIMIZATION
-     if (cachedFrame != NULL)
+     if (cachedFrame != nullptr)
      cachedFrame = static_cast<VMFrame*>(walk(cachedFrame));
      #endif
      */
     
     long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {
-        if (GetIndexableField(i) != NULL)
+        if (GetIndexableField(i) != nullptr)
             indexableFields[i] = (GCAbstractObject*) walk(AS_VM_POINTER(GetIndexableField(i)));
     }
 }

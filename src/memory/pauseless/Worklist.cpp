@@ -5,7 +5,7 @@
 #if GC_TYPE == PAUSELESS
 
 Worklist::Worklist() {
-    pthread_mutex_init(&lock, NULL);
+    pthread_mutex_init(&lock, nullptr);
     work = vector<AbstractVMObject*>();
 }
 

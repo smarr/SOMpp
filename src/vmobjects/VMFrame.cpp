@@ -392,7 +392,7 @@ void VMFrame::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     // --> until end of Frame
     long i = 0;
     while (arguments + i <= stack_ptr) {
-        if (arguments[i] != NULL)
+        if (arguments[i] != nullptr)
             arguments[i] = (GCAbstractObject*) walk((VMOBJECT_PTR)arguments[i]);
         i++;
     }

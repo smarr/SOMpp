@@ -111,7 +111,7 @@ bool VMClass::addInstanceInvokable(VMInvokable* ptr) {
             }
         } else {
             GetUniverse()->ErrorExit("Invokables array corrupted. "
-                                     "Either NULL pointer added or pointer to non-invokable.");
+                                     "Either nullptr pointer added or pointer to non-invokable.");
             return false;
         }
     }

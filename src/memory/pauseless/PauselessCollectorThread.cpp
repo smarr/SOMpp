@@ -476,7 +476,7 @@ void PauselessCollectorThread::CheckMarking() {
  }
  
  
- pthread_exit(NULL);
+ pthread_exit(nullptr);
  }
  */
 

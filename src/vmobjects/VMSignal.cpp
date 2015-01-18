@@ -14,11 +14,11 @@
 const int VMSignal::VMSignalNumberOfFields = 0;
 
 VMSignal::VMSignal() : VMObject(VMSignalNumberOfFields) {
-    int err = pthread_cond_init(&embeddedSignalId, NULL);
+    int err = pthread_cond_init(&embeddedSignalId, nullptr);
     if(err != 0) {
         fprintf(stderr, "Could not initialise signal.\n");
     }
-    pthread_mutex_init(&embeddedMutexId, NULL);
+    pthread_mutex_init(&embeddedMutexId, nullptr);
 }
 
 

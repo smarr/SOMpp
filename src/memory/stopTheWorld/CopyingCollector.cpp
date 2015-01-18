@@ -47,7 +47,7 @@ void CopyingCollector::Collect() {
                 (size_t)(0.9 * newSize));
         _HEAP->currentBufferEnd = (void*)((size_t)(_HEAP->currentBuffer) +
                 newSize);
-        if (_HEAP->currentBuffer == NULL)
+        if (_HEAP->currentBuffer == nullptr)
         GetUniverse()->ErrorExit("unable to allocate more memory");
     }
     //init currentBuffer with zeros
@@ -68,7 +68,7 @@ void CopyingCollector::Collect() {
         increaseMemory = false;
         free(_HEAP->oldBuffer);
         _HEAP->oldBuffer = malloc(newSize);
-        if (_HEAP->oldBuffer == NULL)
+        if (_HEAP->oldBuffer == nullptr)
         GetUniverse()->ErrorExit("unable to allocate more memory");
     }
 
@@ -93,13 +93,13 @@ void MarkSweepCollector::CopyInterpretersFrameAndThread() {
         // Since marking is done recursively, this automatically
         // marks the whole stack
         VMFrame* currentFrame = (*it)->GetFrame();
-        if (currentFrame != NULL) {
+        if (currentFrame != nullptr) {
             VMFrame* newFrame = static_cast<VMFrame*>(copy_if_necessary(currentFrame));
             (*it)->SetFrame(newFrame);
             
         }
         VMThread* currentThread = (*it)->GetThread();
-        if (currentThread != NULL) {
+        if (currentThread != nullptr) {
             VMThread* newThread = static_cast<VMThread*>(copy_if_necessary(currentThread));
             (*it)->SetThread(newThread);
         }

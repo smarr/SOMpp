@@ -301,13 +301,13 @@ void Universe::printUsageAndExit(char* executable) const {
 }
 
 Universe::Universe() {
-    pthread_key_create(&interpreterKey, NULL);
-    pthread_mutex_init(&interpreterMutex, NULL);
+    pthread_key_create(&interpreterKey, nullptr);
+    pthread_mutex_init(&interpreterMutex, nullptr);
     pthread_mutexattr_init(&attrclassLoading);
     pthread_mutexattr_settype(&attrclassLoading, PTHREAD_MUTEX_RECURSIVE);
     pthread_mutex_init(&classLoading, &attrclassLoading);
     
-    pthread_mutex_init(&testMutex, NULL);
+    pthread_mutex_init(&testMutex, nullptr);
 }
 
 void Universe::initialize(long _argc, char** _argv) {
@@ -672,7 +672,6 @@ VMObject* Universe::InitializeGlobals() {
 
     systemClass = _store_ptr(LoadClass(SymbolForChars("System")));
 
-    
     VMObject* systemObj = NewInstance(load_ptr(systemClass));
     systemObject = _store_ptr(systemObj);
     
@@ -982,13 +981,13 @@ VMDouble* Universe::NewDouble(double value) const {
 }
 
 VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method) const {
-    VMFrame* result = NULL;
+    VMFrame* result = nullptr;
     
     /*
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     result = method->GetCachedFrame();
-    if (result != NULL) {
-        method->SetCachedFrame(NULL);
+    if (result != nullptr) {
+        method->SetCachedFrame(nullptr);
         result->SetPreviousFrame(previousFrame);
         return result;
     }
@@ -1111,7 +1110,7 @@ void Universe::MarkGlobals() {
     map<GCSymbol*, gc_oop_t>::iterator iter;
     for (iter = globals.begin(); iter != globals.end(); iter++) {
         vm_oop_t val = ReadBarrierForGCThread(&iter->second, true);
-        if (val == NULL)
+        if (val == nullptr)
             continue;
         GCSymbol* key = iter->first;
         //sync_out(ostringstream() << "GLOB OLD: " << iter->first);
@@ -1195,7 +1194,7 @@ void  Universe::CheckMarkingGlobals(void (*walk)(vm_oop_t)) {
     // walk all entries in globals map
     map<GCSymbol*, gc_oop_t>::iterator iter;
     for (iter = globals.begin(); iter != globals.end(); iter++) {
-        if (iter->second == NULL)
+        if (iter->second == nullptr)
             continue;
         walk(Untag(iter->first));
         walk(Untag(iter->second));
@@ -1264,7 +1263,7 @@ void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     globals.clear();
     map<GCSymbol*, GCAbstractObject*>::iterator iter;
     for (iter = globs.begin(); iter != globs.end(); iter++) {
-        if (iter->second == NULL)
+        if (iter->second == nullptr)
             continue;
 
         GCSymbol* key = (GCSymbol*) (walk(load_ptr(iter->first)));

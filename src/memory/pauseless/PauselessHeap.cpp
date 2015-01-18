@@ -16,25 +16,25 @@
 #define NUMBER_OF_GC_THREADS 1
 
 PauselessHeap::PauselessHeap(long, long) : PagedHeap(HEAP_SIZE, PAGE_SIZE) {
-    pthread_key_create(&pauselessCollectorThread, NULL);
-    pthread_mutex_init(&gcTrapEnabledMutex, NULL);
-    pthread_cond_init(&gcTrapEnabledCondition, NULL);
+    pthread_key_create(&pauselessCollectorThread, nullptr);
+    pthread_mutex_init(&gcTrapEnabledMutex, nullptr);
+    pthread_cond_init(&gcTrapEnabledCondition, nullptr);
     threads = new pthread_t[NUMBER_OF_GC_THREADS];
     PauselessCollectorThread::InitializeCollector(NUMBER_OF_GC_THREADS);
     
     // FOR DEBUGGING PURPOSES
     this->pauseTriggered = false;
     this->readyForPauseThreads = 0;
-    pthread_mutex_init(&doCollect, NULL);
-    pthread_mutex_init(&threadCountMutex, NULL);
-    pthread_cond_init(&stopTheWorldCondition, NULL);
-    pthread_cond_init(&mayProceed, NULL);
+    pthread_mutex_init(&doCollect, nullptr);
+    pthread_mutex_init(&threadCountMutex, nullptr);
+    pthread_cond_init(&stopTheWorldCondition, nullptr);
+    pthread_cond_init(&mayProceed, nullptr);
 }
 
 void PauselessHeap::Start() {
     for (int i=0; i < NUMBER_OF_GC_THREADS; i++) {
         //pthread_t tid = i;
-        pthread_create(&threads[i], NULL, &ThreadForGC, NULL);
+        pthread_create(&threads[i], nullptr, &ThreadForGC, nullptr);
     }
 }
 

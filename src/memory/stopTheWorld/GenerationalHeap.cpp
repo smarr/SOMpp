@@ -24,7 +24,7 @@ GenerationalHeap::GenerationalHeap(long objectSpaceSize, long pageSize) : StopTh
 
 AbstractVMObject* GenerationalHeap::AllocateMatureObject(size_t size) {
     VMOBJECT_PTR newObject = (VMOBJECT_PTR)malloc(size);
-    if (newObject == NULL) {
+    if (newObject == nullptr) {
         cout << "Failed to allocate " << size << " Bytes." << endl;
         GetUniverse()->Quit(-1);
     }

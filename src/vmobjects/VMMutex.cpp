@@ -14,7 +14,7 @@
 const int VMMutex::VMMutexNumberOfFields = 0;
 
 VMMutex::VMMutex() : VMObject(VMMutexNumberOfFields) {
-    int err = pthread_mutex_init(&embeddedMutexId, NULL);
+    int err = pthread_mutex_init(&embeddedMutexId, nullptr);
     if(err != 0) {
         fprintf(stderr, "Could not initialise mutex.\n");
     }
