@@ -585,7 +585,7 @@ VMObject* Universe::InitializeGlobals(Page* page) {
     primitiveClass  = _store_ptr(NewSystemClass(page));
     stringClass     = _store_ptr(NewSystemClass(page));
     doubleClass     = _store_ptr(NewSystemClass(page));
-    
+
     conditionClass  = _store_ptr(NewSystemClass(page));
     mutexClass      = _store_ptr(NewSystemClass(page));
     threadClass     = _store_ptr(NewSystemClass(page));
@@ -603,7 +603,7 @@ VMObject* Universe::InitializeGlobals(Page* page) {
     InitializeSystemClass(load_ptr(integerClass),   load_ptr(objectClass), "Integer",   page);
     InitializeSystemClass(load_ptr(primitiveClass), load_ptr(objectClass), "Primitive", page);
     InitializeSystemClass(load_ptr(doubleClass),    load_ptr(objectClass), "Double",    page);
-    
+
     InitializeSystemClass(load_ptr(conditionClass), load_ptr(objectClass), "Condition", page);
     InitializeSystemClass(load_ptr(mutexClass),     load_ptr(objectClass), "Mutex",     page);
     InitializeSystemClass(load_ptr(threadClass),    load_ptr(objectClass), "Thread",    page);
@@ -628,7 +628,7 @@ VMObject* Universe::InitializeGlobals(Page* page) {
     LoadSystemClass(load_ptr(primitiveClass), page);
     LoadSystemClass(load_ptr(stringClass),    page);
     LoadSystemClass(load_ptr(doubleClass),    page);
-    
+
     LoadSystemClass(load_ptr(conditionClass), page);
     LoadSystemClass(load_ptr(mutexClass),     page);
     LoadSystemClass(load_ptr(threadClass),    page);
@@ -644,8 +644,7 @@ VMObject* Universe::InitializeGlobals(Page* page) {
     falseObject = _store_ptr(NewInstance(load_ptr(falseClass), page));
 
     systemClass = _store_ptr(LoadClass(SymbolForChars("System", page), page));
-    
-    
+
     VMObject* systemObj = NewInstance(load_ptr(systemClass), page);
     systemObject = _store_ptr(systemObj);
     
@@ -922,7 +921,7 @@ VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method, Page* page
     result->method        = _store_ptr(method);
     result->previousFrame = _store_ptr(previousFrame);
     result->ResetStackPointer();
-    
+
     LOG_ALLOCATION("VMFrame", result->GetObjectSize());
     return result;
 }
@@ -1133,7 +1132,7 @@ VMSymbol* Universe::SymbolForChars(const char* str, Page* page) {
 
 void Universe::SetGlobal(VMSymbol* name, vm_oop_t val) {
     lock_guard<recursive_mutex> lock(globalsAndSymbols_mutex);
-    
+
 # warning is _store_ptr correct here? it relies on _store_ptr not to be really changed...
     globals[_store_ptr(name)] = _store_ptr(val);
 }

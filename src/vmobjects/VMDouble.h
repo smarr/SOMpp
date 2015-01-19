@@ -44,7 +44,7 @@ public:
     virtual void MarkObjectAsInvalid() {}
     
     virtual StdString AsDebugString() const;
-    
+
 private:
     const double embeddedDouble;
 };
