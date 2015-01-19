@@ -5,13 +5,13 @@
 GCInteger* GlobalBox::integerBox = nullptr;
 
 void GlobalBox::updateIntegerBox(VMInteger* newValue) {
-    integerBox = store_ptr(newValue);
+    integerBox = _store_ptr(newValue);
 }
 
 VMInteger* GlobalBox::IntegerBox() {
     return load_ptr(integerBox);
 }
 
-void GlobalBox::WalkGlobals(walk_heap_fn walk, Page* page) {
-    integerBox = static_cast<GCInteger*>(walk(integerBox, page));
+void GlobalBox::WalkGlobals(walk_heap_fn walk) {
+    integerBox = static_cast<GCInteger*>(walk(integerBox));
 }
