@@ -171,7 +171,7 @@ __attribute__((always_inline)) inline typename T::Loaded* ReadBarrier(T** refere
             interpreter->AddGCWork((AbstractVMObject*)reference);
         break;
     }
-    assert(Universe::IsValidObject((AbstractVMObject*) reference));
+    assert(Universe::IsValidObject(reinterpret_cast<vm_oop_t>(reference)));
     return (typename T::Loaded*) reference;
 }
 
@@ -211,7 +211,7 @@ __attribute__((always_inline)) inline typename T::Loaded* ReadBarrierForGCThread
             gcThread->AddGCWork((AbstractVMObject*)reference);
         break;
     }
-    assert(Universe::IsValidObject((AbstractVMObject*) reference));
+    assert(Universe::IsValidObject(reinterpret_cast<vm_oop_t>(reference)));
     return reference;
 }
 
