@@ -262,7 +262,7 @@ void _Integer::AtRandom(Interpreter* interp, VMFrame* frame) {
 }
 
 void _Integer::FromString(Interpreter* interp, VMFrame* frame) {
-    VMString* self = (VMString*) frame->Pop();
+    VMString* self = static_cast<VMString*>(frame->Pop());
     frame->Pop();
 
     int64_t integer = atol(self->GetChars());
