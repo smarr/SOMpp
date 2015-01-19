@@ -27,7 +27,9 @@
 # THE SOFTWARE.
 
 CXX		?=clang++
-CFLAGS	=-std=c++11 -Wno-endif-labels -O3 -DNDEBUG $(DBG_FLAGS) $(FEATURE_FLAGS) $(INCLUDES)
+OPT_FLAGS?=-O3 -DNDEBUG
+CFLAGS	=-std=c++11 -m64 -Wno-endif-labels $(OPT_FLAGS) $(DBG_FLAGS) $(FEATURE_FLAGS) $(INCLUDES)
+
 LBITS := $(shell getconf LONG_BIT)
 ARCH := $(shell arch)
 ifeq ($(LBITS),64)
@@ -38,166 +40,27 @@ ifeq ($(ARCH),armv7l)
 	CFLAGS += -mword-relocations
 endif
 
-
 LDFLAGS		=$(DBG_FLAGS) $(LIBRARIES)
 
 INSTALL		=install
 
-CSOM_LIBS	=
-CORE_LIBS	=-lm
+CSOM_LIBS	=-lm
 
 CSOM_NAME	=SOM++
-CORE_NAME	=SOMCore
-PRIMITIVESCORE_NAME  =PrimitiveCore
-SHARED_EXTENSION    =so
 
-############ global stuff -- overridden by ../Makefile
+include $(BUILD_DIR)/sources.make
 
-ROOT_DIR	?= $(PWD)/..
-SRC_DIR		?= $(ROOT_DIR)/src
-BUILD_DIR 	?= $(ROOT_DIR)/build
-DEST_DIR	?= $(ROOT_DIR)/build.out
-
-ST_DIR		?= $(ROOT_DIR)/core-lib/Smalltalk
-EX_DIR		?= $(ROOT_DIR)/core-lib/Examples
-TEST_DIR	?= $(ROOT_DIR)/core-lib/TestSuite
-
-############# "component" directories
-
-
-COMPILER_DIR 	= $(SRC_DIR)/compiler
-INTERPRETER_DIR = $(SRC_DIR)/interpreter
-MEMORY_DIR 		= $(SRC_DIR)/memory
-MISC_DIR 		= $(SRC_DIR)/misc
-VM_DIR 			= $(SRC_DIR)/vm
-VMOBJECTS_DIR 	= $(SRC_DIR)/vmobjects
-UNITTEST_DIR 	= $(SRC_DIR)/unitTests
-
-COMPILER_SRC	= $(wildcard $(COMPILER_DIR)/*.cpp)
-COMPILER_OBJ	= $(COMPILER_SRC:.cpp=.o)
-INTERPRETER_SRC	= $(wildcard $(INTERPRETER_DIR)/*.cpp)
-INTERPRETER_OBJ	= $(INTERPRETER_SRC:.cpp=.o)
-MEMORY_SRC		= $(wildcard $(MEMORY_DIR)/*.cpp)
-MEMORY_OBJ		= $(MEMORY_SRC:.cpp=.o)
-MISC_SRC		= $(wildcard $(MISC_DIR)/*.cpp)
-MISC_OBJ		= $(MISC_SRC:.cpp=.o)
-VM_SRC			= $(wildcard $(VM_DIR)/*.cpp)
-VM_OBJ			= $(VM_SRC:.cpp=.o)
-VMOBJECTS_SRC	= $(wildcard $(VMOBJECTS_DIR)/*.cpp)
-VMOBJECTS_OBJ	= $(VMOBJECTS_SRC:.cpp=.o)
-UNITTEST_SRC	= $(wildcard $(UNITTEST_DIR)/*.cpp)
-UNITTEST_OBJ	= $(UNITTEST_SRC:.cpp=.o)
-
-
-MAIN_SRC		= $(wildcard $(SRC_DIR)/*.cpp)
-#$(SRC_DIR)/Main.cpp
-MAIN_OBJ		= $(MAIN_SRC:.cpp=.o)
-#$(SRC_DIR)/main.o
-
-############# primitives loading
-
-PRIMITIVESCORE_DIR = $(SRC_DIR)/primitivesCore
-PRIMITIVESCORE_SRC = $(wildcard $(PRIMITIVESCORE_DIR)/*.cpp)
-PRIMITIVESCORE_OBJ = $(PRIMITIVESCORE_SRC:.cpp=.pic.o)
-
-############# primitives location etc.
-
-PRIMITIVES_DIR	= $(SRC_DIR)/primitives
-PRIMITIVES_SRC	= $(wildcard $(PRIMITIVES_DIR)/*.cpp)
-PRIMITIVES_OBJ	= $(PRIMITIVES_SRC:.cpp=.pic.o)
-
-############# include path
-
-INCLUDES		=-I$(SRC_DIR)
-LIBRARIES		=-L$(ROOT_DIR) -lrt
-
-##############
-############## Collections.
-
-CSOM_OBJ		=  $(MEMORY_OBJ) $(MISC_OBJ) $(VMOBJECTS_OBJ) \
-				$(COMPILER_OBJ) $(INTERPRETER_OBJ) $(VM_OBJ)
-
-OBJECTS			= $(CSOM_OBJ) $(PRIMITIVESCORE_OBJ) $(PRIMITIVES_OBJ) $(MAIN_OBJ) $(UNITTEST_OBJ)
-
-SOURCES			=  $(COMPILER_SRC) $(INTERPRETER_SRC) $(MEMORY_SRC) \
-				$(MISC_SRC) $(VM_SRC) $(VMOBJECTS_SRC)  \
-				$(PRIMITIVES_SRC) $(PRIMITIVESCORE_SRC) $(MAIN_SRC)
-
-############# Things to clean
-
-CLEAN			= $(OBJECTS) \
-				$(DIST_DIR) $(DEST_DIR) CORE $(CSOM_NAME) \
-				$(CSOM_NAME).$(SHARED_EXTENSION) \
-				$(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION)
-
-############# Tools
-
-#OSTOOL			= $(BUILD_DIR)/ostool
-
-#
-#
 #
 #  metarules
 #
 
-.SUFFIXES: .pic.o .fpic.o
-
 .PHONY: clean clobber test
-# some defaults
-TAGGING=false
-GC_TYPE=generational
-CACHE_INTEGER=true
-INT_CACHE_MIN_VALUE=-5
-INT_CACHE_MAX_VALUE=100
-GENERATE_INTEGER_HISTOGRAM=false
-GENERATE_ALLOCATION_STATISTICS=false
-LOG_RECEIVER_TYPES=false
-UNSAFE_FRAME_OPTIMIZATION=false
-ADDITIONAL_ALLOCATION=false
 
-#
-# set feature flags 
-#
-ifeq ($(USE_TAGGING),true)
-  FEATURE_FLAGS+=-DUSE_TAGGING
-endif
-ifeq ($(CACHE_INTEGER),true)
-  FEATURE_FLAGS+=-DCACHE_INTEGER
-  FEATURE_FLAGS+=-DINT_CACHE_MIN_VALUE=$(INT_CACHE_MIN_VALUE)
-  FEATURE_FLAGS+=-DINT_CACHE_MAX_VALUE=$(INT_CACHE_MAX_VALUE)
-endif
-ifeq ($(GC_TYPE),copying)
-  FEATURE_FLAGS+=-DGC_TYPE=COPYING
-endif
-ifeq ($(GC_TYPE),mark_sweep)
-  FEATURE_FLAGS+=-DGC_TYPE=MARK_SWEEP
-endif
-ifeq ($(GC_TYPE),generational)
-  FEATURE_FLAGS+=-DGC_TYPE=GENERATIONAL
-endif
-ifeq ($(GENERATE_INTEGER_HISTOGRAM),true)
-  FEATURE_FLAGS+=-DGENERATE_INTEGER_HISTOGRAM
-endif
-ifeq ($(GENERATE_ALLOCATION_STATISTICS),true)
-  FEATURE_FLAGS+=-DGENERATE_ALLOCATION_STATISTICS
-endif
-ifeq ($(UNSAFE_FRAME_OPTIMIZATION),true)
-  FEATURE_FLAGS+=-DUNSAFE_FRAME_OPTIMIZATION
-endif
-ifeq ($(LOG_RECEIVER_TYPES),true)
-  FEATURE_FLAGS+=-DLOG_RECEIVER_TYPES
-endif
-ifeq ($(ADDITIONAL_ALLOCATION),true)
-  FEATURE_FLAGS+=-DADDITIONAL_ALLOCATION
-endif
+include $(BUILD_DIR)/config.make
 
+all: $(CSOM_NAME)
 
-all: $(CSOM_NAME)\
-	$(CSOM_NAME).$(SHARED_EXTENSION) \
-	$(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION) \
-	CORE
-
-
+debug : OPT_FLAGS=
 debug : DBG_FLAGS=-DDEBUG -O0 -g
 debug: all
 
@@ -206,9 +69,6 @@ profiling : LDFLAGS+=-pg
 profiling: all
 
 
-.cpp.pic.o:
-	$(CXX) $(CFLAGS) -fPIC -c $< -o $*.pic.o
-
 .cpp.o:
 	$(CXX) $(CFLAGS) -c $< -o $*.o
 
@@ -216,54 +76,20 @@ clean:
 	rm -Rf $(CLEAN)
 	#just to be sure delete again
 	find . -name "*.o" -delete
-	-rm -Rf $(CORE_NAME).csp $(ST_DIR)/$(CORE_NAME).csp
-	-rm -Rf *.so
 
-
-
-#
-#
 #
 # product rules
 #
 
-$(CSOM_NAME): $(CSOM_NAME).$(SHARED_EXTENSION) $(MAIN_OBJ)
-	@echo Linking $(CSOM_NAME) loader
-	$(CXX) \
-		-o $(CSOM_NAME) $(MAIN_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION) $(LDFLAGS) -lrt -ldl
-	@echo CSOM done.
-
-$(CSOM_NAME).$(SHARED_EXTENSION): $(CSOM_OBJ)
-	@echo "Recompile interpreter/Interpreter.cpp with -fno-gcse option (we're using computed gotos)"
-	$(CXX) $(CFLAGS) -fno-gcse -c $(INTERPRETER_DIR)/Interpreter.cpp -o $(INTERPRETER_DIR)/Interpreter.o
-	@echo Linking $(CSOM_NAME) Dynamic Library
-	$(CXX) -shared \
-		-o $(CSOM_NAME).$(SHARED_EXTENSION) $(CSOM_OBJ) $(CSOM_LIBS) $(LDFLAGS) -ldl
-	@echo CSOM done.
-
-$(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION): $(CSOM_NAME) $(PRIMITIVESCORE_OBJ)
-	@echo Linking PrimitivesCore lib
-	$(CXX) -shared \
-		-o $(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION) \
-		$(PRIMITIVESCORE_OBJ) $(LDFLAGS)
-	@touch $(PRIMITIVESCORE_NAME).$(SHARED_EXTENSION)
-	@echo PrimitivesCore done.
-
-CORE: $(CSOM_NAME) $(PRIMITIVESCORE_OBJ) $(PRIMITIVES_OBJ)
-	@echo Linking SOMCore lib
-	$(CXX) -shared -o $(CORE_NAME).csp \
-		$(PRIMITIVES_OBJ) \
-		$(PRIMITIVESCORE_OBJ) \
-		$(CORE_LIBS) $(LDFLAGS)
-	mv $(CORE_NAME).csp $(ST_DIR)
-	@touch CORE
-	@echo SOMCore done.
+$(CSOM_NAME): $(ALL_OBJ)
+	@echo Linking $(CSOM_NAME)
+	$(CXX) -o $(CSOM_NAME) $(ALL_OBJ) $(LDFLAGS) $(CSOM_LIBS)
+	@echo Linking $(CSOM_NAME) done.
 
 install: all
 	@echo installing CSOM into build
 	$(INSTALL) -d $(DEST_DIR)
 	$(INSTALL) $(CSOM_NAME) $(DEST_DIR)
-	$(INSTALL) $(CSOM_NAME).$(SHARED_EXTENSION) $(DEST_DIR)
 	@echo CSOM.
 	cp -Rpf $(ST_DIR) $(EX_DIR) $(TEST_DIR)  $(DEST_DIR)
 	@echo Library.
@@ -275,23 +101,25 @@ install: all
 console: all
 	./$(CSOM_NAME) -cp ./Smalltalk
 
-units: $(UNITTEST_OBJ) $(CSOM_NAME).$(SHARED_EXTENSION)
-	$(CXX) $(LIBRARIES) $(UNITTEST_OBJ) SOM++.so -lcppunit -lrt -o unittest
+units: $(ALL_TEST_OBJ)
+	$(CXX) $(LIBRARIES) $(ALL_TEST_OBJ) -lcppunit -lrt -o unittest
 
 richards: all
-	export LD_LIBRARY_PATH=.; ./$(CSOM_NAME) -cp ./Smalltalk ./Examples/Benchmarks/Richards/RichardsBenchmarks.som
+	./$(CSOM_NAME) -cp ./Smalltalk ./Examples/Benchmarks/Richards/RichardsBenchmarks.som
 
+unittests : OPT_FLAGS=
+unittests : DBG_FLAGS=-DDEBUG -O0 -g -DUNITTESTS
 unittests: all units
-	export LD_LIBRARY_PATH=.; ./unittest -cp ./Smalltalk ./Examples/Hello/Hello.som
+	./unittest -cp ./Smalltalk ./Examples/Hello.som
 
 #
 # test: run the standard test suite
 #
 test: all
-	export LD_LIBRARY_PATH=.; ./$(CSOM_NAME) -cp ./Smalltalk ./TestSuite/TestHarness.som
+	./$(CSOM_NAME) -cp ./Smalltalk ./TestSuite/TestHarness.som
 
 #
 # bench: run the benchmarks
 #
 bench: all
-	export LD_LIBRARY_PATH=.; ./$(CSOM_NAME) -cp ./Smalltalk ./Examples/Benchmarks/All.som
+	./$(CSOM_NAME) -cp ./Smalltalk:./Examples/Benchmarks/LanguageFeatures ./Examples/Benchmarks/All.som
