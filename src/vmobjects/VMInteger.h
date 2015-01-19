@@ -29,7 +29,7 @@
 #include "AbstractObject.h"
 #include "IntegerBox.h"
 
-#include "../misc/defs.h"
+#include <misc/defs.h>
 
 class VMInteger: public AbstractVMObject {
 public:
