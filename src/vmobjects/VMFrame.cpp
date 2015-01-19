@@ -80,13 +80,13 @@ VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength) {
     // copy all fields from other frame
     while (from->arguments + i < from_end) {
 #warning is it necessary to cycle through the barriers here?
-        store_ptr(result->arguments[i], load_ptr(from->arguments[i]));
+        result->arguments[i] = from->arguments[i];
         i++;
     }
     // initialize others with nilObject
     while (result->arguments + i < result_end) {
 #warning is it necessary to cycle through the barriers here?
-        store_ptr(result->arguments[i], load_ptr(nilObject));
+        result->arguments[i] = nilObject;
         i++;
     }
     return result;
@@ -100,9 +100,9 @@ VMFrame* VMFrame::Clone() {
     const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
     size_t noBytes = GetObjectSize() - sizeof(VMFrame);
     memcpy(destination, source, noBytes);
-    clone->arguments = (GCAbstractObject**)&(clone->stack_ptr)+1; //field after stack_ptr
+    clone->arguments = (gc_oop_t*)&(clone->stack_ptr)+1; //field after stack_ptr
     clone->locals = clone->arguments + ((VMMethod*)(clone->method))->GetNumberOfArguments();
-    clone->stack_ptr = (GCAbstractObject**)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
+    clone->stack_ptr = (gc_oop_t*)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
     return clone;
 }
 #elif GC_TYPE==PAUSELESS
@@ -378,22 +378,22 @@ void VMFrame::CheckMarking(void (*walk)(vm_oop_t)) {
     }
 }
 #else
-void VMFrame::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
+void VMFrame::WalkObjects(walk_heap_fn walk) {
     // VMFrame is not a proper SOM object any longer, we don't have a class for it.
     // clazz = (VMClass*) walk(clazz);
     
     if (previousFrame)
-        previousFrame = (GCFrame*) walk(load_ptr(previousFrame));
+        previousFrame = (GCFrame*) walk(previousFrame);
     if (context)
-        context = (GCFrame*) walk(load_ptr(context));
-    method = (GCMethod*) walk(load_ptr(method));
+        context = (GCFrame*) walk(context);
+    method = (GCMethod*) walk(method);
     
     // all other fields are indexable via arguments array
     // --> until end of Frame
     long i = 0;
     while (arguments + i <= stack_ptr) {
         if (arguments[i] != nullptr)
-            arguments[i] = (GCAbstractObject*) walk((VMOBJECT_PTR)arguments[i]);
+            arguments[i] = (GCAbstractObject*) walk(arguments[i]);
         i++;
     }
 }

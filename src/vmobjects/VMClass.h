@@ -78,7 +78,7 @@ public:
     virtual void CheckMarking(void (vm_oop_t));
 #else
     virtual VMClass*    Clone();
-    void         WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
+    void         WalkObjects(walk_heap_fn walk);
 #endif
     
     virtual void MarkObjectAsInvalid();

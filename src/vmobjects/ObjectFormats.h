@@ -138,8 +138,10 @@ class GCThread    : public GCObject      { public: typedef VMThread Loaded; };
 #define INVALID_VM_POINTER ((VMObject*)0x101010)
 #define INVALID_GC_POINTER ((GCObject*)0x101010)
 
+// TODO: this should be cleaned up somehow, does it really belong here?
+#include <misc/defs.h>
 
-#if GC_TYPE==PAUSELESS
+#if GC_TYPE == PAUSELESS
   #define load_ptr(reference) (ReadBarrier(&(reference)))
   #define  store_ptr(field, val) field = WriteBarrier(val)
   #define _store_ptr(val)        WriteBarrier(val)

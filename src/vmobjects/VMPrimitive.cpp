@@ -104,10 +104,10 @@ void VMPrimitive::CheckMarking(void (*walk)(vm_oop_t)) {
     walk(Untag(holder));
 }
 #else
-void VMPrimitive::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    clazz     = (GCClass*)(walk(load_ptr(clazz)));
-    signature = (GCSymbol*)(walk(load_ptr(signature)));
-    holder    = (GCClass*)(walk(load_ptr(holder)));
+void VMPrimitive::WalkObjects(walk_heap_fn walk) {
+    clazz     = (GCClass*)(walk(clazz));
+    signature = (GCSymbol*)(walk(signature));
+    holder    = (GCClass*)(walk(holder));
 }
 #endif
 

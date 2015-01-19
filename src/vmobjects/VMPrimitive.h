@@ -51,7 +51,7 @@ public:
     virtual void         CheckMarking(void (vm_oop_t));
 #else
     virtual VMPrimitive* Clone();
-    virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
+    virtual void WalkObjects(walk_heap_fn walk);
 #endif
 
     virtual void Invoke(Interpreter* interp, VMFrame* frm) {

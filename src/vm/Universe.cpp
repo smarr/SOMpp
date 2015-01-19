@@ -495,11 +495,11 @@ Universe::~Universe() {
         vt_class      = *(void**) symbolClass;
         
 #if GC_TYPE==GENERATIONAL
-        VMDouble* dbl = new (_HEAP, _PAGE) VMDouble();
+        VMDouble* dbl = new (_HEAP, _PAGE) VMDouble(0.0);
 #elif GC_TYPE==PAUSELESS
         VMDouble* dbl = new (_HEAP, GetUniverse()->GetInterpreter()) VMDouble(0.0);
 #else
-        VMDouble* dbl = new (_HEAP) VMDouble();
+        VMDouble* dbl = new (_HEAP) VMDouble(0.0);
 #endif
         vt_double     = *(void**) dbl;
         
@@ -522,11 +522,11 @@ Universe::~Universe() {
         vt_frame      = *(void**) frm;
         
 #if GC_TYPE==GENERATIONAL
-        VMInteger* i  = new (_HEAP, _PAGE) VMInteger();
+        VMInteger* i  = new (_HEAP, _PAGE) VMInteger(0);
 #elif GC_TYPE==PAUSELESS
         VMInteger* i  = new (_HEAP, GetUniverse()->GetInterpreter()) VMInteger(0);
 #else
-        VMInteger* i  = new (_HEAP) VMInteger();
+        VMInteger* i  = new (_HEAP) VMInteger(0);
 #endif
         vt_integer    = *(void**) i;
         
@@ -745,9 +745,8 @@ vm_oop_t Universe::GetGlobal(VMSymbol* name) {
     }
 }
 #else
-VMObject* Universe::GetGlobal(VMSymbol* name) {
-    map<GCSymbol*, GCAbstractObject*>::iterator it;
-    it = globals.find((GCSymbol*) name);
+vm_oop_t Universe::GetGlobal(VMSymbol* name) {
+    auto it = globals.find(_store_ptr(name));
     if (it == globals.end())
         return nullptr;
     else
@@ -755,6 +754,7 @@ VMObject* Universe::GetGlobal(VMSymbol* name) {
 }
 #endif
 
+#if GC_TYPE==PAUSELESS
 bool Universe::HasGlobal(VMSymbol* name) {
     pthread_mutex_lock(&testMutex);
     map<GCSymbol*, gc_oop_t>::iterator it;
@@ -768,6 +768,17 @@ bool Universe::HasGlobal(VMSymbol* name) {
     }
     return true;
 }
+#else
+bool Universe::HasGlobal(VMSymbol* name) {
+    pthread_mutex_lock(&testMutex);
+    auto it = globals.find(_store_ptr(name));
+    if (it == globals.end()) {
+        pthread_mutex_unlock(&testMutex);
+        return false;
+    }
+    return true;
+}
+#endif
 
 void Universe::InitializeSystemClass(VMClass* systemClass,
 VMClass* superClass, const char* name) {
@@ -1218,37 +1229,36 @@ void  Universe::CheckMarkingGlobals(void (*walk)(vm_oop_t)) {
     }
 }
 #else
-void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    nilObject   = (GCObject*) walk(load_ptr(nilObject));
-    trueObject  = (GCObject*) walk(load_ptr(trueObject));
-    falseObject = (GCObject*) walk(load_ptr(falseObject));
+void Universe::WalkGlobals(walk_heap_fn walk) {
+    nilObject   = (GCObject*) walk(nilObject);
+    trueObject  = (GCObject*) walk(trueObject);
+    falseObject = (GCObject*) walk(falseObject);
 
 #if USE_TAGGING
     GlobalBox::updateIntegerBox(static_cast<VMInteger*>(walk(GlobalBox::IntegerBox())));
 #endif
 
-    objectClass    = (GCClass*) (walk(load_ptr(objectClass)));
-    classClass     = (GCClass*) (walk(load_ptr(classClass)));
-    metaClassClass = (GCClass*) (walk(load_ptr(metaClassClass)));
+    objectClass    = (GCClass*) (walk(objectClass));
+    classClass     = (GCClass*) (walk(classClass));
+    metaClassClass = (GCClass*) (walk(metaClassClass));
 
-    nilClass        = (GCClass*) (walk(load_ptr(nilClass)));
-    integerClass    = (GCClass*) (walk(load_ptr(integerClass)));
-    bigIntegerClass = (GCClass*) (walk(load_ptr(bigIntegerClass)));
-    arrayClass      = (GCClass*) (walk(load_ptr(arrayClass)));
-    methodClass     = (GCClass*) (walk(load_ptr(methodClass)));
-    symbolClass     = (GCClass*) (walk(load_ptr(symbolClass)));
-    primitiveClass  = (GCClass*) (walk(load_ptr(primitiveClass)));
-    stringClass     = (GCClass*) (walk(load_ptr(stringClass)));
-    systemClass     = (GCClass*) (walk(load_ptr(systemClass)));
-    blockClass      = (GCClass*) (walk(load_ptr(blockClass)));
-    doubleClass     = (GCClass*) (walk(load_ptr(doubleClass)));
+    nilClass        = (GCClass*) (walk(nilClass));
+    integerClass    = (GCClass*) (walk(integerClass));
+    arrayClass      = (GCClass*) (walk(arrayClass));
+    methodClass     = (GCClass*) (walk(methodClass));
+    symbolClass     = (GCClass*) (walk(symbolClass));
+    primitiveClass  = (GCClass*) (walk(primitiveClass));
+    stringClass     = (GCClass*) (walk(stringClass));
+    systemClass     = (GCClass*) (walk(systemClass));
+    blockClass      = (GCClass*) (walk(blockClass));
+    doubleClass     = (GCClass*) (walk(doubleClass));
     
-    threadClass     = (GCClass*) (walk(load_ptr(threadClass)));
-    mutexClass      = (GCClass*) (walk(load_ptr(mutexClass)));
-    signalClass     = (GCClass*) (walk(load_ptr(signalClass)));
+    threadClass     = (GCClass*) (walk(threadClass));
+    mutexClass      = (GCClass*) (walk(mutexClass));
+    signalClass     = (GCClass*) (walk(signalClass));
     
-    trueClass  = (GCClass*) (walk(load_ptr(trueClass)));
-    falseClass = (GCClass*) (walk(load_ptr(falseClass)));
+    trueClass  = (GCClass*) (walk(trueClass));
+    falseClass = (GCClass*) (walk(falseClass));
 
 #if CACHE_INTEGER
     for (unsigned long i = 0; i < (INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE); i++)
@@ -1260,15 +1270,14 @@ void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
 #endif
 
     // walk all entries in globals map
-    map<GCSymbol*, GCAbstractObject*> globs = globals;
+    map<GCSymbol*, gc_oop_t> globs = globals;
     globals.clear();
-    map<GCSymbol*, GCAbstractObject*>::iterator iter;
-    for (iter = globs.begin(); iter != globs.end(); iter++) {
+    for (auto iter = globs.begin(); iter != globs.end(); iter++) {
         if (iter->second == nullptr)
             continue;
 
-        GCSymbol* key = (GCSymbol*) (walk(load_ptr(iter->first)));
-        GCObject* val = (GCObject*) walk((VMOBJECT_PTR)iter->second);
+        GCSymbol* key = (GCSymbol*) (walk(iter->first));
+        GCObject* val = (GCObject*) walk(iter->second);
         globals[key] = val;
     }
     
@@ -1278,14 +1287,14 @@ void Universe::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
          symbolIter != symbolsMap.end();
          symbolIter++) {
         //insert overwrites old entries inside the internal map
-        symbolIter->second = (GCSymbol*) (walk(load_ptr(symbolIter->second)));
+        symbolIter->second = (GCSymbol*) (walk(symbolIter->second));
     }
 
     map<long, GCClass*>::iterator bcIter;
     for (bcIter = blockClassesByNoOfArgs.begin();
          bcIter != blockClassesByNoOfArgs.end();
          bcIter++) {
-        bcIter->second = (GCClass*) (walk(load_ptr(bcIter->second)));
+        bcIter->second = (GCClass*) (walk(bcIter->second));
     }
 
     //reassign ifTrue ifFalse Symbols

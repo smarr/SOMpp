@@ -146,7 +146,7 @@ public:
     void MarkGlobals();
     void  CheckMarkingGlobals(void (vm_oop_t));
 #else
-    void WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR));
+    void WalkGlobals(walk_heap_fn);
 #endif
 
     void InitializeSystemClass(VMClass*, VMClass*, const char*);

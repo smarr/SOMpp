@@ -75,7 +75,7 @@ public:
     virtual void CheckMarking(void (vm_oop_t));
 #else
     virtual VMMethod* Clone();
-    virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
+    virtual void WalkObjects(walk_heap_fn walk);
 #endif
     
     inline  long      GetNumberOfIndexableFields();

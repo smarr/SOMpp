@@ -138,7 +138,7 @@ void VMThread::CheckMarking(void (*walk)(vm_oop_t)) {
 }
 #else
 /*
-void VMThread::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
+void VMThread::WalkObjects(walk_heap_fn walk) {
     //clazz = (GCClass*) (walk(load_ptr(clazz)));
     //resumeSignal = (GCSignal*) (walk(load_ptr(resumeSignal)));
     //shouldStop = (GCObject*) (walk(load_ptr(shouldStop)));

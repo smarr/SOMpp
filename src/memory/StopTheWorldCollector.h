@@ -1,8 +1,9 @@
 #pragma once
-#include "../../misc/defs.h"
+#include <misc/defs.h>
+
 #if GC_TYPE != PAUSELESS
 
-#include "../GarbageCollector.h"
+#include "GarbageCollector.h"
 
 class StopTheWorldCollector : public GarbageCollector {
     

@@ -68,8 +68,8 @@ void VMMutex::CheckMarking(void (*walk)(vm_oop_t)) {
 }
 
 #else
-void VMMutex::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    clazz = (GCClass*) (walk(load_ptr(clazz)));
+void VMMutex::WalkObjects(walk_heap_fn walk) {
+    clazz = (GCClass*) (walk(clazz));
 }
 
 VMMutex* VMMutex::Clone() {

@@ -121,9 +121,9 @@ void VMEvaluationPrimitive::CheckMarking(void (*walk)(vm_oop_t)) {
     walk(Untag(numberOfArguments));
 }
 #else
-void VMEvaluationPrimitive::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
+void VMEvaluationPrimitive::WalkObjects(walk_heap_fn walk) {
     VMPrimitive::WalkObjects(walk);
-    numberOfArguments = (GCInteger*) (walk(load_ptr(numberOfArguments)));
+    numberOfArguments = (GCInteger*) (walk(numberOfArguments));
 }
 #endif
 

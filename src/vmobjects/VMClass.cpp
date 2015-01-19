@@ -333,18 +333,18 @@ void VMClass::CheckMarking(void (*walk)(vm_oop_t)) {
     }
 }
 #else
-void VMClass::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    clazz = (GCClass*) (walk(load_ptr(clazz)));
+void VMClass::WalkObjects(walk_heap_fn walk) {
+    clazz = (GCClass*) (walk(clazz));
     if (superClass)
-        superClass = (GCClass*) (walk(load_ptr(superClass)));
-    name = (GCSymbol*) (walk(load_ptr(name)));
-    instanceFields = (GCArray*) (walk(load_ptr(instanceFields)));
-    instanceInvokables = (GCArray*) (walk(load_ptr(instanceInvokables)));
+        superClass = (GCClass*) (walk(superClass));
+    name = (GCSymbol*) (walk(name));
+    instanceFields = (GCArray*) (walk(instanceFields));
+    instanceInvokables = (GCArray*) (walk(instanceInvokables));
     
     //VMObject** fields = FIELDS;
     
     for (long i = VMClassNumberOfFields + 0/*VMObjectNumberOfFields*/; i < numberOfFields; i++)
-        FIELDS[i] = (GCAbstractObject*) walk(AS_VM_POINTER(FIELDS[i]));
+        FIELDS[i] = (GCAbstractObject*) walk(FIELDS[i]);
 }
 #endif
 

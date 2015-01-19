@@ -72,10 +72,6 @@ void VMSignal::CheckMarking(void (*walk)(vm_oop_t)) {
     walk(Untag(clazz));
 }
 #else
-void VMSignal::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    clazz = (GCClass*) (walk(load_ptr(clazz)));
-}
-
 VMSignal* VMSignal::Clone() {
     VMSignal* clone = new (_HEAP, _PAGE, objectSize - sizeof(VMSignal)) VMSignal(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));

@@ -30,7 +30,7 @@ public:
     virtual void CheckMarking(void (vm_oop_t));
 #else
     virtual VMMutex* Clone();
-    virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
+    virtual void WalkObjects(walk_heap_fn walk);
 #endif
     
 private:

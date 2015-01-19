@@ -27,14 +27,14 @@
 #include <sstream>
 
 #include "Universe.h"
-#include "../interpreter/Interpreter.h"
+#include <interpreter/Interpreter.h>
 #include "Shell.h"
 
-#include "../vmobjects/VMMethod.h"
-#include "../vmobjects/VMClass.h"
-#include "../vmobjects/VMFrame.h"
-#include "../vmobjects/VMObject.h"
-#include "../vmobjects/VMInvokable.h"
+#include <vmobjects/VMMethod.h>
+#include <vmobjects/VMClass.h>
+#include <vmobjects/VMFrame.h>
+#include <vmobjects/VMObject.h>
+#include <vmobjects/VMInvokable.h>
 
 // maximal length of an input line from the shell
 #define INPUT_MAX_SIZE BUFSIZ
@@ -73,7 +73,7 @@ void Shell::Start(Interpreter* interp) {
     cout << "SOM Shell. Type \"" << QUIT_CMD << "\" to exit.\n";
 
     // Create a fake bootstrap frame
-    store_ptr(currentFrame, interp->PushNewFrame(GetBootstrapMethod()));
+    currentFrame = _store_ptr(interp->PushNewFrame(GetBootstrapMethod()));
     // Remember the first bytecode index, e.g. index of the halt instruction
     bytecodeIndex = load_ptr(currentFrame)->GetBytecodeIndex();
 
@@ -101,14 +101,14 @@ void Shell::Start(Interpreter* interp) {
         statement = ss.str();
 
         ++counter;
-        store_ptr(runClass, GetUniverse()->LoadShellClass(statement));
+        runClass = _store_ptr(GetUniverse()->LoadShellClass(statement));
         // Compile and load the newly generated class
         if(runClass == nullptr) {
             cout << "can't compile statement.";
             continue;
         }
 
-        store_ptr(currentFrame, interp->GetFrame());
+        currentFrame = _store_ptr(interp->GetFrame());
 
         // Go back, so we will evaluate the bootstrap frames halt
         // instruction again
@@ -132,7 +132,7 @@ void Shell::Start(Interpreter* interp) {
         interp->Start();
 
         // Save the result of the run method
-        store_ptr(it, load_ptr(currentFrame)->Pop());
+        it = _store_ptr(load_ptr(currentFrame)->Pop());
     }
 }
 

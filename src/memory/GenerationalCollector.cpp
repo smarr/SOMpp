@@ -23,55 +23,59 @@ GenerationalCollector::GenerationalCollector(PagedHeap* heap) : StopTheWorldColl
     matureObjectsSize = 0;
 }
 
-VMOBJECT_PTR mark_object(VMOBJECT_PTR obj) {
+static gc_oop_t mark_object(gc_oop_t oop) {
+    // don't process tagged objects
+    if (IS_TAGGED(oop))
+        return oop;
+
+    AbstractVMObject* obj = AS_OBJ(oop);
     assert(Universe::IsValidObject(obj));
 
-    //don't process tagged objects
-    if (IS_TAGGED(obj))
-        return obj;
-
     if (obj->GetGCField() & MASK_OBJECT_IS_MARKED)
-        return (obj);
+        return oop;
 
     obj->SetGCField(MASK_OBJECT_IS_OLD | MASK_OBJECT_IS_MARKED);
     obj->WalkObjects(&mark_object);
-    return obj;
+    return oop;
 }
 
-VMOBJECT_PTR copy_if_necessary(VMOBJECT_PTR obj) {
-    assert(Universe::IsValidObject(obj));
+static gc_oop_t copy_if_necessary(gc_oop_t oop) {
+    // don't process tagged objects
+    if (IS_TAGGED(oop))
+        return oop;
     
-    //don't process tagged objects
-    if (IS_TAGGED(obj))
-        return obj;
+    AbstractVMObject* obj = AS_OBJ(oop);
 
-    size_t gcField = obj->GetGCField();
+    intptr_t gcField = obj->GetGCField();
 
     // if this is an old object already, we don't have to copy
     if (gcField & MASK_OBJECT_IS_OLD)
-        return obj;
+        return oop;
 
     // GCField is abused as forwarding pointer here
     // if someone has moved before, return the moved object
     if (gcField != 0)
-        return (VMOBJECT_PTR) gcField;
+        return (gc_oop_t) gcField;
+    
+    assert(Universe::IsValidObject(obj));
     
     // we have to clone ourselves
-    VMOBJECT_PTR newObj = obj->Clone();
+    AbstractVMObject* newObj = obj->Clone();
 
-#ifndef NDEBUG
-    //obj->MarkObjectAsInvalid();
-#endif
-
-    assert( (((size_t) newObj) & MASK_OBJECT_IS_MARKED) == 0 );
+    assert( (((uintptr_t) newObj) & MASK_OBJECT_IS_MARKED) == 0 );
     assert( obj->GetObjectSize() == newObj->GetObjectSize());
+
+    if (DEBUG)
+        obj->MarkObjectAsInvalid();
     
-    obj->SetGCField((size_t) newObj);
+    obj->SetGCField(reinterpret_cast<intptr_t>(newObj));
     newObj->SetGCField(MASK_OBJECT_IS_OLD);
 
     // walk recursively
     newObj->WalkObjects(copy_if_necessary);
-    return newObj;
+
+#warning not sure about the use of _store_ptr here, or whether it should be a plain cast
+    return _store_ptr(newObj);
 }
 
 void GenerationalCollector::MinorCollection() {
@@ -82,14 +86,10 @@ void GenerationalCollector::MinorCollection() {
     CopyInterpretersFrameAndThread();
 
     // and also all objects that have been detected by the write barriers
-    for (vector<size_t>::iterator objIter =
-            _HEAP->oldObjsWithRefToYoungObjs->begin();
-         objIter != _HEAP->oldObjsWithRefToYoungObjs->end();
-         objIter++) {
+    for (auto obj : *_HEAP->oldObjsWithRefToYoungObjs) {
         // content of oldObjsWithRefToYoungObjs is not altered while iteration,
         // because copy_if_necessary returns old objs only -> ignored by
         // write_barrier
-        VMOBJECT_PTR obj = (VMOBJECT_PTR)(*objIter);
         obj->SetGCField(MASK_OBJECT_IS_OLD);
         obj->WalkObjects(&copy_if_necessary);
     }
@@ -116,12 +116,8 @@ void GenerationalCollector::MajorCollection() {
     CopyInterpretersFrameAndThread();
 
     //now that all objects are marked we can safely delete all allocated objects that are not marked
-    vector<VMOBJECT_PTR>* survivors = new vector<VMOBJECT_PTR>();
-    for (vector<VMOBJECT_PTR>::iterator objIter =
-            _HEAP->allocatedObjects->begin(); objIter !=
-            _HEAP->allocatedObjects->end(); objIter++) {
-        
-        VMObject* obj = *objIter;
+    vector<AbstractVMObject*>* survivors = new vector<AbstractVMObject*>();
+    for (auto obj : *_HEAP->allocatedObjects) {
         assert(Universe::IsValidObject(obj));
         
         if (obj->GetGCField() & MASK_OBJECT_IS_MARKED) {
@@ -156,20 +152,11 @@ void GenerationalCollector::Collect() {
 
 void GenerationalCollector::CopyInterpretersFrameAndThread() {
     vector<Interpreter*>* interpreters = GetUniverse()->GetInterpreters();
-    for (std::vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
+    for (Interpreter* it : *interpreters) {
         // Get the current frame and thread of each interpreter and mark it.
         // Since marking is done recursively, this automatically
         // marks the whole stack
-        VMFrame* currentFrame = (*it)->GetFrame();
-        if (currentFrame != nullptr) {
-            VMFrame* newFrame = static_cast<VMFrame*>(copy_if_necessary(currentFrame));
-            (*it)->SetFrame(newFrame);
-        }
-        VMThread* currentThread = (*it)->GetThread();
-        if (currentThread != nullptr) {
-            VMThread* newThread = static_cast<VMThread*>(copy_if_necessary(currentThread));
-            (*it)->SetThread(newThread);
-        }
+        it->WalkGlobals(copy_if_necessary);
     }
 }
 

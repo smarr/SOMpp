@@ -15,25 +15,25 @@ public:
 
     AbstractVMObject* AllocateMatureObject(size_t);
     
-    void WriteBarrier(VMOBJECT_PTR holder, const VMOBJECT_PTR referencedObject);
-    inline bool IsObjectInNursery(const VMObject* obj);
+    void WriteBarrier(AbstractVMObject* holder, vm_oop_t referencedObject);
+    inline bool IsObjectInNursery(vm_oop_t obj);
 
 private:
     // data for mature allocation
     pthread_mutex_t allocationLock;
     pthread_mutex_t writeBarrierLock;
     size_t matureObjectsSize;
-    vector<size_t>* oldObjsWithRefToYoungObjs;
-    vector<VMOBJECT_PTR>* allocatedObjects;
+    vector<AbstractVMObject*>* oldObjsWithRefToYoungObjs;
+    vector<AbstractVMObject*>* allocatedObjects;
     
-    void WriteBarrierOldHolder(VMOBJECT_PTR holder, const VMOBJECT_PTR referencedObject);
+    void WriteBarrierOldHolder(AbstractVMObject* holder, vm_oop_t referencedObject);
 };
 
-inline bool GenerationalHeap::IsObjectInNursery(const VMObject* obj) {
+inline bool GenerationalHeap::IsObjectInNursery(vm_oop_t obj) {
     return (size_t) obj >= (size_t)memoryStart && (size_t) obj < memoryEnd;
 }
 
-inline void GenerationalHeap::WriteBarrier(VMOBJECT_PTR holder, const VMOBJECT_PTR referencedObject) {
+inline void GenerationalHeap::WriteBarrier(AbstractVMObject* holder, vm_oop_t referencedObject) {
 #ifdef DEBUG
     //XXX Disabled because of speed reasons --> causes some tests to fail
     //writeBarrierCalledOn.insert(make_pair(holder, referencedObject));

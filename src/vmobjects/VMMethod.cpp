@@ -71,7 +71,7 @@ VMMethod* VMMethod::Clone() {
     VMMethod* clone = new (_HEAP, _PAGE, GetObjectSize() - sizeof(VMMethod), true)
     VMMethod(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this, sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    clone->indexableFields = (GCAbstractObject**)(&(clone->indexableFields) + 2);
+    clone->indexableFields = (gc_oop_t*)(&(clone->indexableFields) + 2);
     clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + GetNumberOfIndexableFields());
     return clone;
 }
@@ -216,14 +216,14 @@ void VMMethod::CheckMarking(void (*walk)(vm_oop_t)) {
     }
 }
 #else
-void VMMethod::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
+void VMMethod::WalkObjects(walk_heap_fn walk) {
     VMInvokable::WalkObjects(walk);
     
-    numberOfLocals = (GCInteger*)(walk(load_ptr(numberOfLocals)));
-    maximumNumberOfStackElements = (GCInteger*)(walk(load_ptr(maximumNumberOfStackElements)));
-    bcLength = (GCInteger*)(walk(load_ptr(bcLength)));
-    numberOfArguments = (GCInteger*)(walk(load_ptr(numberOfArguments)));
-    numberOfConstants = (GCInteger*)(walk(load_ptr(numberOfConstants)));
+    numberOfLocals = (GCInteger*)(walk(numberOfLocals));
+    maximumNumberOfStackElements = (GCInteger*)(walk(maximumNumberOfStackElements));
+    bcLength = (GCInteger*)(walk(bcLength));
+    numberOfArguments = (GCInteger*)(walk(numberOfArguments));
+    numberOfConstants = (GCInteger*)(walk(numberOfConstants));
     
     /*
      #ifdef UNSAFE_FRAME_OPTIMIZATION
@@ -235,7 +235,7 @@ void VMMethod::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
     long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {
         if (GetIndexableField(i) != nullptr)
-            indexableFields[i] = (GCAbstractObject*) walk(AS_VM_POINTER(GetIndexableField(i)));
+            indexableFields[i] = (GCAbstractObject*) walk(indexableFields[i]);
     }
 }
 #endif

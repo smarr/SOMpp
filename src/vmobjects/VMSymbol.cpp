@@ -156,7 +156,7 @@ void VMSymbol::MarkReferences() {
     //Since we don't use the cache, nothing should be done here.
 }
 #else
-void VMSymbol::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
+void VMSymbol::WalkObjects(walk_heap_fn walk) {
     //Since we don't use the cache, nothing should be done here.
     // for (long i = 0; i < nextCachePos; i++) {
     // cachedClass_invokable[i] = (VMClass*) walk((VMOBJECT_PTR) cachedClass_invokable[i]);

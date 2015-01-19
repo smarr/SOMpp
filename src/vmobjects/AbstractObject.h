@@ -28,6 +28,7 @@
 #include "VMObjectBase.h"
 
 #include <interpreter/Interpreter.h>
+#include <vm/Universe.h>
 
 
 /*
@@ -102,7 +103,7 @@ public:
 #else
     virtual AbstractVMObject* Clone() = 0;
     
-    inline virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR)) {
+    inline virtual void WalkObjects(walk_heap_fn) {
         return;
     }
 #endif

@@ -51,7 +51,7 @@ public:
     //virtual void MarkReferences();
 #else
     virtual VMSymbol* Clone();
-    //virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
+    //virtual void WalkObjects(walk_heap_fn walk);
 #endif
     
     virtual StdString AsDebugString();

@@ -63,6 +63,12 @@
 #define PAGE_SIZE 4096
 #endif
 
+#if   GC_TYPE == GENERATIONAL
+#define write_barrier(obj, value_ptr) (_HEAP->WriteBarrier(obj, value_ptr))
+#else
+#define write_barrier(obj, value_ptr)
+#endif
+
 //
 // Integer Settings
 //

@@ -29,7 +29,6 @@ public:
     virtual void CheckMarking(void (vm_oop_t));
 #else
     virtual VMSignal* Clone();
-    virtual void WalkObjects(VMOBJECT_PTR (VMOBJECT_PTR));
 #endif
     
 private:

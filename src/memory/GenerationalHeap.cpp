@@ -18,12 +18,12 @@ GenerationalHeap::GenerationalHeap(long objectSpaceSize, long pageSize) : StopTh
     pthread_mutex_init(&allocationLock, nullptr);
     pthread_mutex_init(&writeBarrierLock, nullptr);
     matureObjectsSize = 0;
-    allocatedObjects = new vector<VMOBJECT_PTR>();
-    oldObjsWithRefToYoungObjs = new vector<size_t>();
+    allocatedObjects = new vector<AbstractVMObject*>();
+    oldObjsWithRefToYoungObjs = new vector<AbstractVMObject*>();
 }
 
 AbstractVMObject* GenerationalHeap::AllocateMatureObject(size_t size) {
-    VMOBJECT_PTR newObject = (VMOBJECT_PTR)malloc(size);
+    AbstractVMObject* newObject = (AbstractVMObject*) malloc(size);
     if (newObject == nullptr) {
         cout << "Failed to allocate " << size << " Bytes." << endl;
         GetUniverse()->Quit(-1);
@@ -35,12 +35,12 @@ AbstractVMObject* GenerationalHeap::AllocateMatureObject(size_t size) {
     return newObject;
 }
 
-void GenerationalHeap::WriteBarrierOldHolder(VMOBJECT_PTR holder, const VMOBJECT_PTR referencedObject) {
+void GenerationalHeap::WriteBarrierOldHolder(AbstractVMObject* holder, vm_oop_t referencedObject) {
     if (IsObjectInNursery(referencedObject)) {
         // TODO: thread local mark table??? cross generation pointer vector...
         
         pthread_mutex_lock(&writeBarrierLock);
-        oldObjsWithRefToYoungObjs->push_back((size_t)holder);
+        oldObjsWithRefToYoungObjs->push_back(holder);
         pthread_mutex_unlock(&writeBarrierLock);
         holder->SetGCField(holder->GetGCField() | MASK_SEEN_BY_WRITE_BARRIER);
     }

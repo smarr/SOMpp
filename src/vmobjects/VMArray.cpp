@@ -155,13 +155,13 @@ void VMArray::CheckMarking(void (*walk)(vm_oop_t)) {
     }
 }
 #else
-void VMArray::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
-    clazz = (GCClass*) walk(load_ptr(clazz));
+void VMArray::WalkObjects(walk_heap_fn walk) {
+    clazz = (GCClass*) walk(clazz);
     long numFields          = GetNumberOfFields();
     long numIndexableFields = GetNumberOfIndexableFields();
     //VMObject** fields = FIELDS;
     for (long i = 0; i < numFields + numIndexableFields; i++) {
-        FIELDS[i] = (GCAbstractObject*) walk(AS_VM_POINTER(FIELDS[i]));
+        FIELDS[i] = (GCAbstractObject*) walk(FIELDS[i]);
     }
 }
 #endif

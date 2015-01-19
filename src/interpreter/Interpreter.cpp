@@ -804,9 +804,9 @@ void Interpreter::CheckMarking(void (*walk)(vm_oop_t)) {
  */
 
 #else
-void Interpreter::WalkGlobals(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
+void Interpreter::WalkGlobals(walk_heap_fn walk) {
     //method = (GCMethod*) walk(load_ptr(method));
-    thread = (GCThread*) walk(load_ptr(thread));
-    frame = (GCFrame*) walk(load_ptr(frame));
+    thread = (GCThread*) walk(thread);
+    frame = (GCFrame*) walk(frame);
 }
 #endif

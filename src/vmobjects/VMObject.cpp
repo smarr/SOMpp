@@ -141,16 +141,16 @@ void VMObject::CheckMarking(void (*walk)(vm_oop_t)) {
     }
 }
 #else
-void VMObject::WalkObjects(VMOBJECT_PTR (*walk)(VMOBJECT_PTR)) {
+void VMObject::WalkObjects(walk_heap_fn walk) {
     //if (clazz == threadClass) {
     //    int i = 1;
     //}
     
-    clazz = (GCClass*) walk(load_ptr(clazz));
+    clazz = (GCClass*) walk(clazz);
     
     long numFields = GetNumberOfFields();
     for (long i = 0; i < numFields; ++i) {
-        FIELDS[i] = (GCAbstractObject*) walk((VMOBJECT_PTR)GetField(i));
+        FIELDS[i] = walk(FIELDS[i]);
     }
 }
 #endif
