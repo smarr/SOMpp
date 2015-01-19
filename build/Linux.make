@@ -40,7 +40,7 @@ ifeq ($(ARCH),armv7l)
 	CFLAGS += -mword-relocations
 endif
 
-LDFLAGS		=$(DBG_FLAGS) -pthread
+LDFLAGS		=$(DBG_FLAGS) -pthread -lrt
 
 INSTALL		=install
 
