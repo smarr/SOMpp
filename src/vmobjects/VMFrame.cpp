@@ -267,7 +267,7 @@ vm_oop_t VMFrame::GetArgument(long index, long contextLevel) {
 
 void VMFrame::SetArgument(long index, long contextLevel, vm_oop_t value) {
     VMFrame* context = GetContextLevel(contextLevel);
-    SetArgument(index, value);
+    context->SetArgument(index, value);
 }
 
 void VMFrame::PrintStackTrace() const {
