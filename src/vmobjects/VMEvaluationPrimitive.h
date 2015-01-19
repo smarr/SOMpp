@@ -42,7 +42,6 @@ public:
 
 private:
     static VMSymbol* computeSignatureString(long argc, Page*);
-    void evaluationRoutine(Interpreter*, VMFrame*);
     gc_oop_t numberOfArguments;
 
 };

@@ -37,11 +37,3 @@ public:
     virtual void Invoke(Interpreter*, VMFrame*) = 0;  // call using operator
     virtual bool isClassSide() = 0;
 };
-
-// Typedefs for Primitive loading
-typedef PrimitiveRoutine* CreatePrimitive(const std::string&,
-        const std::string&, bool isPrimitive);
-typedef bool SupportsClass(const char*);
-typedef void TearDown();
-typedef void Setup();
-

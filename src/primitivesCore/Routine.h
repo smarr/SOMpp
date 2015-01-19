@@ -28,8 +28,6 @@
 
 #include <vmobjects/PrimitiveRoutine.h>
 
-class Interpreter;
-
 ///Implementation for a functor class with PrimitiveRoutine as base class.
 //It stores an object and a pointer to one of its methods. It is invoked
 //by calling the Routine's operator "()".
