@@ -46,9 +46,9 @@ public:
     
     virtual StdString AsDebugString() const;
 
-private:
     virtual void MarkObjectAsInvalid();
-    
+
+private:    
     static const long VMArrayNumberOfFields;
 };
 
