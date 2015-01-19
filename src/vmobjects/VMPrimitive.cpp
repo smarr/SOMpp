@@ -24,16 +24,16 @@
  THE SOFTWARE.
  */
 
-#include "../memory/pauseless/PauselessHeap.h"
+#include <memory/PauselessHeap.h>
 #include "VMPrimitive.h"
 #include "VMSymbol.h"
 #include "VMClass.h"
 
-#include "../interpreter/Interpreter.h"
-#include "../vm/Universe.h"
+#include <interpreter/Interpreter.h>
+#include <vm/Universe.h>
 
 //needed to instanciate the Routine object for the  empty routine
-#include "../primitivesCore/Routine.h"
+#include <primitivesCore/Routine.h>
 
 VMPrimitive* VMPrimitive::GetEmptyPrimitive(VMSymbol* sig, bool classSide) {
 #if GC_TYPE==GENERATIONAL

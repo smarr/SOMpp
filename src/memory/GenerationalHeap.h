@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../../misc/defs.h"
+#include <misc/defs.h>
 #include <assert.h>
 #if GC_TYPE ==GENERATIONAL
 
 #include "StopTheWorldHeap.h"
-#include "../../vmobjects/VMObjectBase.h"
+#include <vmobjects/VMObjectBase.h>
 
 class GenerationalHeap : public StopTheWorldHeap {
     friend class GenerationalCollector;

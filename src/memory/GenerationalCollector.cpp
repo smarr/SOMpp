@@ -1,20 +1,20 @@
-#include "../../misc/defs.h"
+#include <misc/defs.h>
 #if GC_TYPE==GENERATIONAL
 
 #include "GenerationalCollector.h"
 
-#include "../PagedHeap.h"
-#include "../../interpreter/Interpreter.h"
-#include "../../vm/Universe.h"
-#include "../../vmobjects/VMMethod.h"
-#include "../../vmobjects/VMObject.h"
-#include "../../vmobjects/VMSymbol.h"
-#include "../../vmobjects/VMFrame.h"
-#include "../../vmobjects/VMBlock.h"
-#include "../../vmobjects/VMPrimitive.h"
-#include "../../vmobjects/VMClass.h"
-#include "../../natives/VMThread.h"
-#include "../../vmobjects/VMEvaluationPrimitive.h"
+#include "PagedHeap.h"
+#include <interpreter/Interpreter.h>
+#include <vm/Universe.h>
+#include <vmobjects/VMMethod.h>
+#include <vmobjects/VMObject.h>
+#include <vmobjects/VMSymbol.h>
+#include <vmobjects/VMFrame.h>
+#include <vmobjects/VMBlock.h>
+#include <vmobjects/VMPrimitive.h>
+#include <vmobjects/VMClass.h>
+#include <vmobjects/VMThread.h>
+#include <vmobjects/VMEvaluationPrimitive.h>
 
 #define INITIAL_MAJOR_COLLECTION_THRESHOLD (5 * 1024 * 1024) //5 MB
 

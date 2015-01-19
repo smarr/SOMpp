@@ -5,7 +5,7 @@
 #include <vector>
 #include <pthread.h>
 
-#include "../../vmobjects/ObjectFormats.h"
+#include <vmobjects/ObjectFormats.h>
 
 class AbstractVMObject;
 

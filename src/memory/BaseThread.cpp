@@ -1,12 +1,12 @@
 #include "BaseThread.h"
 
 #if GC_TYPE==PAUSELESS
-    #include "pauseless/PauselessHeap.h"
+    #include "PauselessHeap.h"
 #elif GC_TYPE==GENERATIONAL
-    #include "stopTheWorld/GenerationalHeap.h"
+    #include "GenerationalHeap.h"
 #endif
 
-//#include "stopTheWorld/GenerationalHeap.h"
+//#include "GenerationalHeap.h"
 
 
 #if GC_TYPE==PAUSELESS

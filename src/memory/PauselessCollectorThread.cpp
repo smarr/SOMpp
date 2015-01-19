@@ -2,7 +2,7 @@
 
 #include <misc/defs.h>
 #include "Worklist.h"
-#include "../PagedHeap.h"
+#include "PagedHeap.h"
 #include <interpreter/Interpreter.h>
 #include <vm/Universe.h>
 #include <vmobjects/VMMethod.h>

@@ -1,11 +1,11 @@
-#include "../../misc/defs.h"
+#include <misc/defs.h>
 
 #if GC_TYPE==COPYING
 
 #include "CopyingHeap.h"
-#include "../vm/Universe.h"
-#include "../vmobjects/AbstractObject.h"
-#include "../vmobjects/VMFrame.h"
+#include <vm/Universe.h>
+#include <vmobjects/AbstractObject.h>
+#include <vmobjects/VMFrame.h>
 
 #include "CopyingCollector.h"
 

@@ -12,16 +12,16 @@
 #include "ObjectFormats.h"
 
 #if GC_TYPE==GENERATIONAL
-    #include <memory/stopTheWorld/GenerationalHeap.h>
+    #include <memory/GenerationalHeap.h>
     #include <memory/Page.h>
 #elif GC_TYPE==COPYING
-    #include <memory/stopTheWorld/CopyingHeap.h>
+    #include <memory/CopyingHeap.h>
 #elif GC_TYPE==MARK_SWEEP
-    #include <memory/stopTheWorld/MarkSweepHeap.h>
+    #include <memory/MarkSweepHeap.h>
 #elif GC_TYPE==PAUSELESS
     #include <memory/Page.h>
-    #include <memory/pauseless/PauselessHeap.h>
-    #include <memory/pauseless/PauselessCollectorThread.h>
+    #include <memory/PauselessHeap.h>
+    #include <memory/PauselessCollectorThread.h>
     class Worklist;
 #endif
 

@@ -1,10 +1,10 @@
 #pragma once
-#include "../../misc/defs.h"
+#include <misc/defs.h>
 #if GC_TYPE==PAUSELESS
 
 #include <memory/GarbageCollector.h>
 #include "Worklist.h"
-#include "../../vm/Universe.h"
+#include <vm/Universe.h>
 
 #include <pthread.h>
 

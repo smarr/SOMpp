@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../misc/defs.h"
+#include <misc/defs.h>
 
 #if GC_TYPE==PAUSELESS
-    #include "../memory/pauseless/Worklist.h"
+    #include <memory/Worklist.h>
 #endif
 
 class Page;

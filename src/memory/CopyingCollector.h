@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../GarbageCollector.h"
+#include "GarbageCollector.h"
 #if GC_TYPE==COPYING
 
 class CopyingCollector: public GarbageCollector {

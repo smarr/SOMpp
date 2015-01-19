@@ -36,7 +36,7 @@
 #include <vm/Universe.h>
 
 #if GC_TYPE==PAUSELESS
-#include <memory/pauseless/PauselessHeap.h>
+#include <memory/PauselessHeap.h>
 #include <pthread.h>
 #endif
 

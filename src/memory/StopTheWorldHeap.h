@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../../misc/defs.h"
+#include <misc/defs.h>
 #include <assert.h>
 #if GC_TYPE!=PAUSELESS
 
-#include "../PagedHeap.h"
+#include "PagedHeap.h"
 
 class StopTheWorldHeap : public PagedHeap {
     

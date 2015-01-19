@@ -1,8 +1,8 @@
 #include "GenerationalHeap.h"
 #include "GenerationalCollector.h"
 //#include "Page.h"
-#include "../../vmobjects/AbstractObject.h"
-#include "../../vm/Universe.h"
+#include <vmobjects/AbstractObject.h>
+#include <vm/Universe.h>
 
 #include <string.h>
 #include <iostream>

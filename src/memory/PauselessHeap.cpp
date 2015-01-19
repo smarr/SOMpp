@@ -1,8 +1,8 @@
 #include "PauselessHeap.h"
-#include "../Page.h"
+#include "Page.h"
 //#include "PauselessCollector.h"
-#include "../../vmobjects/AbstractObject.h"
-#include "../../vm/Universe.h"
+#include <vmobjects/AbstractObject.h>
+#include <vm/Universe.h>
 #include "PauselessCollectorThread.h"
 
 #include <string.h>

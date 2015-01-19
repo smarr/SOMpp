@@ -29,7 +29,7 @@
 #include "bytecodes.h"
 
 #if GC_TYPE==PAUSELESS
-    #include "../memory/pauseless/PauselessCollector.h"
+    #include <memory/PauselessCollector.h>
 #endif
 
 #include <vmobjects/VMMethod.h>

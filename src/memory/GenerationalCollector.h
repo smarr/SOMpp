@@ -1,5 +1,5 @@
 #pragma once
-#include "../../misc/defs.h"
+#include <misc/defs.h>
 #if GC_TYPE == GENERATIONAL
 
 #include "StopTheWorldCollector.h"

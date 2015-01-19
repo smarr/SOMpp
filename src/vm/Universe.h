@@ -40,7 +40,7 @@
 #include <memory/PagedHeap.h>
 
 #if GC_TYPE==PAUSELESS
-#include <memory/pauseless/Worklist.h>
+#include <memory/Worklist.h>
 #endif
 
 class Interpreter;
