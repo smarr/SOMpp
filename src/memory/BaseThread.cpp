@@ -12,13 +12,11 @@
 #if GC_TYPE==PAUSELESS
 BaseThread::BaseThread() {
     page = _HEAP->RequestPage();
-    worklist = Worklist();
     this->expectedNMT = false;
 }
 
 BaseThread::BaseThread(bool expectedNMT) {
     page = _HEAP->RequestPage();
-    worklist = Worklist();
     this->expectedNMT = expectedNMT;
 }
 #else

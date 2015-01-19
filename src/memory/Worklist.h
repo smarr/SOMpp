@@ -3,7 +3,7 @@
 #if GC_TYPE == PAUSELESS
 
 #include <vector>
-#include <pthread.h>
+#include <mutex>
 
 #include <vmobjects/ObjectFormats.h>
 
@@ -13,19 +13,21 @@ using namespace std;
 
 class Worklist {
     
-public:
-    Worklist();
-    ~Worklist();
-    
+public:    
     void AddWorkGC(AbstractVMObject*);
     void AddWorkMutator(AbstractVMObject*);
     AbstractVMObject* GetWork();
     void MoveWork(Worklist*);
-    bool Empty();
-    void Clear();
+    
+    inline bool Empty() { return work.empty(); }
+
+    void Clear() {
+        lock_guard<mutex> lock(mtx);
+        work.clear();
+    }
     
 private:
-    pthread_mutex_t lock;
+    mutex mtx;
     vector<AbstractVMObject*> work;
     
 };
