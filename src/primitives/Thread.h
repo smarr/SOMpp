@@ -4,7 +4,7 @@
 #include <vmobjects/ObjectFormats.h>
 #include <primitivesCore/PrimitiveContainer.h>
 
-class _Thread: public PrimitiveContainer {
+class _Thread : public PrimitiveContainer {
 public:
     _Thread();
     void Name(Interpreter*, VMFrame*);

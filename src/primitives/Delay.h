@@ -4,7 +4,7 @@
 #include <vmobjects/ObjectFormats.h>
 #include <primitivesCore/PrimitiveContainer.h>
 
-class _Delay: public PrimitiveContainer {
+class _Delay : public PrimitiveContainer {
 public:
     _Delay();
     
