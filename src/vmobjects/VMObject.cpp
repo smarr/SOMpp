@@ -61,7 +61,7 @@ void VMObject::SetClass(VMClass* cl) {
 }
 
 VMSymbol* VMObject::GetFieldName(long index) const {
-    return load_ptr(clazz)->GetInstanceFieldName(index);
+    return GetClass()->GetInstanceFieldName(index);
 }
 
 void VMObject::Assert(bool value) const {
