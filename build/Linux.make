@@ -27,8 +27,8 @@
 # THE SOFTWARE.
 
 CXX		?=clang++
-CFLAGS	=-std=c++11 -m64 -Wno-endif-labels $(OPT_FLAGS) $(DBG_FLAGS) $(FEATURE_FLAGS) $(INCLUDES)
 OPT_FLAGS?=-O3 -DNDEBUG
+CFLAGS	=-std=c++11 -m64 -Wno-endif-labels $(OPT_FLAGS) $(DBG_FLAGS) $(FEATURE_FLAGS) $(INCLUDES)
 
 LBITS := $(shell getconf LONG_BIT)
 ARCH := $(shell arch)
@@ -40,9 +40,6 @@ ifeq ($(ARCH),armv7l)
 	CFLAGS += -mword-relocations
 endif
 
-SHAREDFLAGS = -shared
-
-LIBRARIES	=-L$(ROOT_DIR) -lrt
 LDFLAGS		=$(DBG_FLAGS) $(LIBRARIES)
 
 INSTALL		=install
