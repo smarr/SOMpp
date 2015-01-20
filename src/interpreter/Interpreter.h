@@ -33,7 +33,6 @@
 class Interpreter {
 public:
     Interpreter(Page*);
-    ~Interpreter();
     
     void      Start();
     VMFrame*  PushNewFrame(VMMethod* method);

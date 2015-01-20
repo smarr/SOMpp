@@ -48,8 +48,6 @@ const StdString Interpreter::escapedBlock      = "escapedBlock:";
 
 Interpreter::Interpreter(Page* page) : frame(nullptr), page(page) {}
 
-Interpreter::~Interpreter() {}
-
 #define PROLOGUE(bc_count) {\
   if (dumpBytecodes > 1) Disassembler::DumpBytecode(GetFrame(), GetFrame()->GetMethod(), bytecodeIndexGlobal);\
   bytecodeIndexGlobal += bc_count;\

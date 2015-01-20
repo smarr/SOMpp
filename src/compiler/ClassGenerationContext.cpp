@@ -37,9 +37,6 @@ ClassGenerationContext::ClassGenerationContext() :
     classSide = false;
 }
 
-ClassGenerationContext::~ClassGenerationContext() {
-}
-
 void ClassGenerationContext::AddClassField(VMSymbol* field) {
     classFields.Add(field);
 }

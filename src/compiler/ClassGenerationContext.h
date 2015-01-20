@@ -36,7 +36,7 @@ class ClassGenerationContext {
 
 public:
     ClassGenerationContext();
-    ~ClassGenerationContext();
+
     VMClass* Assemble(Page*);
     void AssembleSystemClass(VMClass* systemClass, Page*);
 
