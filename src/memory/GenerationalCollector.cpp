@@ -62,7 +62,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop, Page* page) {
 
     assert( (((uintptr_t) newObj) & MASK_OBJECT_IS_MARKED) == 0 );
     
-    if (obj->GetObjectSize() != newObj->GetObjectSize()) {
+    if (DEBUG && (obj->GetObjectSize() != newObj->GetObjectSize())) {
         cerr << obj->AsDebugString() << endl;
         cerr << newObj->AsDebugString() << endl;
         asm("int3");
