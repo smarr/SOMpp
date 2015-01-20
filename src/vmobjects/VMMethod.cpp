@@ -181,9 +181,9 @@ void VMMethod::CheckMarking(void (*walk)(vm_oop_t)) {
     walk(Untag(numberOfConstants));
     long numIndexableFields = INT_VAL(Untag(numberOfConstants));
     for (long i = 0; i < numIndexableFields; ++i) {
-        assert(GetNMTValue(AS_GC_POINTER(indexableFields[i])) == _HEAP->GetGCThread()->GetExpectedNMT());
-        CheckBlocked(Untag(AS_GC_POINTER(indexableFields[i])));
-        walk(Untag(AS_GC_POINTER(indexableFields[i])));
+        assert(GetNMTValue(indexableFields[i]) == _HEAP->GetGCThread()->GetExpectedNMT());
+        CheckBlocked(Untag(indexableFields[i]));
+        walk(Untag(indexableFields[i]));
     }
 }
 #else

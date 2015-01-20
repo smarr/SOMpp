@@ -38,8 +38,6 @@
  * 10000000 00000000 ... 00000000 0000000X
  */
 #define VMTAGGEDINTEGER_MIN -0x4000000000000000
-#define AS_VM_POINTER(X) ((AbstractVMObject*)X)
-#define AS_GC_POINTER(X) ((GCAbstractObject*)X)
 
 #if ADDITIONAL_ALLOCATION
 #define TAG_INTEGER(X, page) (((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX && GetUniverse()->NewInteger(0, page)) ? ((vm_oop_t)(((X) << 1) | 1)) : (GetUniverse()->NewInteger(X, page)))

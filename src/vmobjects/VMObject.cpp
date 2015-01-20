@@ -102,9 +102,9 @@ void VMObject::CheckMarking(void (*walk)(vm_oop_t)) {
     walk(Untag(clazz));
     long numFields = GetNumberOfFields();
     for (long i = 0; i < numFields; ++i) {
-        assert(GetNMTValue(AS_GC_POINTER(FIELDS[i])) == _HEAP->GetGCThread()->GetExpectedNMT());
-        CheckBlocked(Untag(AS_GC_POINTER(FIELDS[i])));
-        walk(Untag(AS_GC_POINTER(FIELDS[i])));
+        assert(GetNMTValue(FIELDS[i]) == _HEAP->GetGCThread()->GetExpectedNMT());
+        CheckBlocked(Untag(FIELDS[i]));
+        walk(Untag(FIELDS[i]));
     }
 }
 #else
