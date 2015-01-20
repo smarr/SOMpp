@@ -41,7 +41,7 @@ VMSymbol::VMSymbol(const char* str)
 //    nextCachePos = 0;
     // set the chars-pointer to point at the position of the first character
 //    chars = (char*) &cachedInvokable + +3 * sizeof(VMInvokable*);
-    chars = (char*) &chars + sizeof(char*);
+    chars = (char*) &numberOfArgumentsOfSignature + sizeof(numberOfArgumentsOfSignature);
     size_t i = 0;
     for (; i < strlen(str); ++i) {
         chars[i] = str[i];
