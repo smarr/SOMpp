@@ -32,7 +32,7 @@ class VMEvaluationPrimitive: public VMPrimitive {
 public:
     typedef GCEvaluationPrimitive Stored;
     
-    VMEvaluationPrimitive(long argc, Page* page);
+    VMEvaluationPrimitive(long argc, Page*);
     virtual void WalkObjects(walk_heap_fn, Page*);
     virtual VMEvaluationPrimitive* Clone(Page* page) const;
     

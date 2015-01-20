@@ -35,7 +35,7 @@ class VMFrame: public VMObject {
 public:
     typedef GCFrame Stored;
     
-    static VMFrame* EmergencyFrameFrom(VMFrame* from, long extraLength, Page* page);
+    static VMFrame* EmergencyFrameFrom(VMFrame* from, long extraLength, Page*);
 
     VMFrame(long size, long nof = 0);
 

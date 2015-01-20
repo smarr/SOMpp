@@ -34,7 +34,7 @@ public:
     
     VMDouble(double val) : embeddedDouble(val), AbstractVMObject() {}
 
-    virtual VMDouble* Clone(Page* page) const;
+    virtual VMDouble* Clone(Page*) const;
     inline  double   GetEmbeddedDouble() const;
     virtual VMClass* GetClass() const;
     inline virtual size_t GetObjectSize() const;

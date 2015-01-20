@@ -40,7 +40,7 @@ public:
     StdString GetStdString() const;
     size_t GetStringLength() const;
 
-    virtual VMString* Clone(Page* page) const;
+    virtual VMString* Clone(Page*) const;
     virtual VMClass* GetClass() const;
     virtual size_t GetObjectSize() const;
     virtual void WalkObjects(walk_heap_fn, Page*);

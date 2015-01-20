@@ -64,8 +64,8 @@ public:
            VMSymbol*    GetInstanceFieldName(long)const;
            long         GetNumberOfInstanceFields() const;
            bool         HasPrimitives() const;
-           void         LoadPrimitives(const vector<StdString>&, Page* page);
-    virtual VMClass*    Clone(Page* page) const;
+           void         LoadPrimitives(const vector<StdString>&, Page*);
+    virtual VMClass*    Clone(Page*) const;
     virtual void        WalkObjects(walk_heap_fn walk, Page*);
     
     virtual void MarkObjectAsInvalid();
@@ -75,7 +75,7 @@ public:
 private:
     bool addInstanceInvokable(VMInvokable*, Page*);
     bool hasPrimitivesFor(const StdString& cl) const;
-    void setPrimitives(const StdString& cname, bool classSide, Page* page);
+    void setPrimitives(const StdString& cname, bool classSide, Page*);
     long numberOfSuperInstanceFields() const;
 
     GCClass*  superClass;

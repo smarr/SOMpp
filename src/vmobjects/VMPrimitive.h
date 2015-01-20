@@ -42,7 +42,7 @@ public:
     inline  void SetRoutine(PrimitiveRoutine* rtn);
     virtual void WalkObjects(walk_heap_fn, Page*);
             void SetEmpty(bool value) {empty = value;};
-    virtual VMPrimitive* Clone(Page* page) const;
+    virtual VMPrimitive* Clone(Page*) const;
 
     virtual void Invoke(Interpreter* interp, VMFrame* frm) {
         routine->Invoke(interp, frm);
