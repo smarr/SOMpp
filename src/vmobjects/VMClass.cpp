@@ -34,17 +34,6 @@
 
 #include <primitivesCore/PrimitiveLoader.h>
 
-#include <fstream>
-#include <typeinfo>
-
-/*
- * Format definitions for Primitive naming scheme.
- *
- */
-#define CLASS_METHOD_FORMAT_S "%s::%s"
-// as in AClass::aClassMethod
-#define INSTANCE_METHOD_FORMAT_S "%s::%s_"
-// as in AClass::anInstanceMethod_
 
 const long VMClass::VMClassNumberOfFields = 4;
 
