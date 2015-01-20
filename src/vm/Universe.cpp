@@ -423,6 +423,9 @@ Universe::~Universe() {
     void* vt_signal;
 
     bool Universe::IsValidObject(vm_oop_t obj) {
+        if (IS_TAGGED(obj))
+            return true;
+
         if (obj == INVALID_VM_POINTER
             // || obj == nullptr
             ) {
@@ -438,6 +441,8 @@ Universe::~Universe() {
             return true;
         
         void* vt = *(void**) obj;
+        assert(vt != nullptr);
+        
         bool b = vt == vt_array    ||
                vt == vt_block      ||
                vt == vt_class      ||
