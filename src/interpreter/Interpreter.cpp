@@ -67,8 +67,6 @@ Interpreter::Interpreter(bool expectedNMT, bool gcTrapEnabled) : BaseThread(expe
     this->gcTrapEnabled = gcTrapEnabled;
     //this->gcTrapEnabled = false;
     nonRelocatablePage = _HEAP->RequestPage();
-    fullPages = vector<Page*>();
-    nonRelocatablePages = vector<Page*>();
     pthread_mutex_init(&blockedMutex, nullptr);
 }
 #else
