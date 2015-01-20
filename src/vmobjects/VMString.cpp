@@ -48,7 +48,7 @@ VMString::VMString(const char* str) : AbstractVMObject() {
 }
 
 VMString* VMString::Clone(Page* page) {
-    return new (page, PADDED_SIZE(strlen(chars)+1)) VMString(chars);
+    return new (page, PADDED_SIZE(strlen(chars)+1) ALLOC_MATURE) VMString(chars);
 }
 
 void VMString::MarkObjectAsInvalid() {
