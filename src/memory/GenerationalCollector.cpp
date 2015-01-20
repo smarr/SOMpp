@@ -24,17 +24,16 @@ static gc_oop_t mark_object(gc_oop_t oop, Page*) {
     // don't process tagged objects
     if (IS_TAGGED(oop))
         return oop;
-    
+
     AbstractVMObject* obj = AS_OBJ(oop);
     assert(Universe::IsValidObject(obj));
-    
 
     if (obj->GetGCField() & MASK_OBJECT_IS_MARKED)
         return oop;
 
     obj->SetGCField(MASK_OBJECT_IS_OLD | MASK_OBJECT_IS_MARKED);
     obj->WalkObjects(&mark_object, nullptr);
-    
+
     return oop;
 }
 
@@ -79,7 +78,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop, Page* page) {
 
     // walk recursively
     newObj->WalkObjects(copy_if_necessary, page); // page only used to obtain heap
-    
+
 #warning not sure about the use of _store_ptr here, or whether it should be a plain cast
     return _store_ptr(newObj);
 }
@@ -132,7 +131,7 @@ void GenerationalCollector::MajorCollection() {
     // first we have to mark all objects (globals and current frame recursively)
     GetUniverse()->WalkGlobals(&mark_object, nullptr);
 
-    //now that all objects are marked we can safely delete all allocated objects that are not marked
+    // now that all objects are marked we can safely delete all allocated objects that are not marked
     vector<AbstractVMObject*>* survivors = new vector<AbstractVMObject*>();
     size_t heapSize = 0;
     for (AbstractVMObject* obj : *heap->allocatedObjects) {

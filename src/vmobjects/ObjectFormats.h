@@ -157,5 +157,3 @@ inline typename T::Stored* _store_ptr(T* vm_val) {
 #include <memory/Page.h>
 typedef MemoryPage<HEAP_CLS> Page;
 typedef gc_oop_t (*walk_heap_fn)(gc_oop_t, Page*);
-
-

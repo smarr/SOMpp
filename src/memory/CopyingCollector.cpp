@@ -12,7 +12,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop, Page* target) {
     // don't process tagged objects
     if (IS_TAGGED(oop))
         return oop;
-    
+
     assert(oop != nullptr);
     
     AbstractVMObject* obj = AS_OBJ(oop);
@@ -27,10 +27,10 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop, Page* target) {
     
     // we have to clone ourselves
     AbstractVMObject* newObj = obj->Clone(target);
-    
+
     if (DEBUG)
         obj->MarkObjectAsInvalid();
-    
+
     obj->SetGCField(reinterpret_cast<intptr_t>(newObj));
     assert(newObj->GetGCField() == 0);
     
@@ -45,7 +45,7 @@ static gc_oop_t objects_are_valid(gc_oop_t oop, Page*) {
 
     AbstractVMObject* obj = AS_OBJ(oop);
     assert(Universe::IsValidObject(obj));
-    
+
     return oop;
 }
 
@@ -90,7 +90,7 @@ void CopyingCollector::Collect() {
         page->Reset();
         heap->freePages.push_back(page);
     }
-    
+
     if (DEBUG) {
         GetUniverse()->WalkGlobals(objects_are_valid, nullptr);
         
@@ -115,7 +115,6 @@ void CopyingCollector::Collect() {
             heap->usedPages.push_back(page);
         }
     }
-    
 
     Timer::GCTimer->Halt();
 }

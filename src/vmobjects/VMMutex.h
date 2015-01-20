@@ -21,7 +21,7 @@ public:
     virtual StdString AsDebugString() const;
     virtual VMMutex* Clone(Page*) const;
     virtual void MarkObjectAsInvalid();
-    
+
     std::unique_lock<recursive_mutex>* GetLock() const { return lock; }
     
 private:

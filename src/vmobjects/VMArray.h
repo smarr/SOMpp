@@ -48,7 +48,7 @@ public:
 
     virtual void MarkObjectAsInvalid();
 
-private:    
+private:
     static const long VMArrayNumberOfFields;
 };
 

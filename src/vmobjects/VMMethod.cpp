@@ -67,9 +67,8 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof, Page* page) :
 
 VMMethod* VMMethod::Clone(Page* page) const {
     VMMethod* clone = new (page, GetObjectSize() - sizeof(VMMethod) ALLOC_MATURE) VMMethod(*this);
-    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,
-                    sizeof(VMObject)), GetObjectSize() -
-            sizeof(VMObject));
+    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)),
+           SHIFTED_PTR(this,  sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     clone->indexableFields = (gc_oop_t*)(&(clone->indexableFields) + 2);
     clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + GetNumberOfIndexableFields());
     return clone;

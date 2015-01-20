@@ -112,7 +112,6 @@ void _System::PrintNewline_(Interpreter*, VMFrame* frame) {
     Universe::Print(str + "\n");
 }
 
-
 void _System::Time(Interpreter* interp, VMFrame* frame) {
     /*VMObject* self = */
     frame->Pop();

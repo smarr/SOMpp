@@ -44,8 +44,8 @@ VMClass::VMClass() :
 VMClass* VMClass::Clone(Page* page) const {
     VMClass* clone = new (page, objectSize - sizeof(VMClass) ALLOC_MATURE) VMClass(*this);
     memcpy(SHIFTED_PTR(clone,sizeof(VMObject)),
-            SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() -
-            sizeof(VMObject));
+           SHIFTED_PTR(this,sizeof(VMObject)),
+           GetObjectSize() - sizeof(VMObject));
     return clone;
 }
 
