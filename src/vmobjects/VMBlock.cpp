@@ -50,12 +50,6 @@ VMMethod* VMBlock::GetMethod() {
     return load_ptr(blockMethod);
 }
 
-void VMBlock::MarkObjectAsInvalid() {
-    VMObject::MarkObjectAsInvalid();
-    blockMethod = (GCMethod*)  INVALID_GC_POINTER;
-    context = (GCFrame*) INVALID_GC_POINTER;
-}
-
 StdString VMBlock::AsDebugString() {
     return "Block(" + load_ptr(blockMethod)->AsDebugString() + ")";
 }

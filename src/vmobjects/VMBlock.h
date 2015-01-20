@@ -46,8 +46,6 @@ public:
     
     virtual StdString AsDebugString();
 
-    virtual void MarkObjectAsInvalid();
-
 private:
     GCMethod* blockMethod;
     GCFrame* context;
