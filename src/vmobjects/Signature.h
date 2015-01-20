@@ -34,6 +34,8 @@ public:
     static bool IsBinary(VMSymbol* sig);
     
     static int DetermineNumberOfArguments(const char* sig);
-    static bool IsBinary(const char* sig);
+
+private:
+    static bool isBinary(const char* sig);
 
 };

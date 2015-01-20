@@ -37,7 +37,7 @@ bool Signature::IsBinary(VMSymbol* sig) {
 
 int Signature::DetermineNumberOfArguments(const char* sig) {
     // check default binaries
-    if (Signature::IsBinary(sig))
+    if (Signature::isBinary(sig))
         return 2;
 
     // colons in str
@@ -49,7 +49,7 @@ int Signature::DetermineNumberOfArguments(const char* sig) {
     return numColons + 1;
 }
 
-bool Signature::IsBinary(const char* sig) {
+bool Signature::isBinary(const char* sig) {
     switch(sig[0]) {
         case '~' :
         case '&' :
