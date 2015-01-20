@@ -1,31 +1,17 @@
-//
-//  Delay.cpp
-//  SOM
-//
-//  Created by Jeroen De Geeter on 10/11/13.
-//
-//
-
 #include "Delay.h"
 
 #include <primitivesCore/Routine.h>
-#include <vmobjects/VMThread.h>
-
-#include <vmobjects/ObjectFormats.h>
+#include <vm/Universe.h>
 #include <vmobjects/VMObject.h>
-#include <vmobjects/VMInteger.h>
 
-#include <unistd.h>
-#include <stdio.h>
-
+#include <chrono>
+#include <thread>
 
 void _Delay::Wait(Interpreter*, VMFrame* frame) {
-    VMObject* self = static_cast<VMObject*>(frame->Pop());
-    int64_t delay = INT_VAL(self->GetField(0));
-
-    usleep((useconds_t) delay * 1000);
-
-    frame->Push(self);
+    VMObject* mutex = static_cast<VMObject*>(frame->GetStackElement(0));
+    
+    std::chrono::milliseconds durationInMilliseconds(INT_VAL(mutex->GetField(0)));
+    std::this_thread::sleep_for(durationInMilliseconds);
 }
 
 _Delay::_Delay() : PrimitiveContainer() {
