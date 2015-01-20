@@ -32,5 +32,10 @@ class Signature {
 public:
     static int GetNumberOfArguments(VMSymbol* sig);
     static bool IsBinary(VMSymbol* sig);
+    
+    static int DetermineNumberOfArguments(const char* sig);
+
+private:
+    static bool isBinary(const char* sig);
 
 };

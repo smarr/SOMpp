@@ -28,24 +28,29 @@
 #include "VMSymbol.h"
 
 int Signature::GetNumberOfArguments(VMSymbol* sig) {
-    // check default binaries
-    if (Signature::IsBinary(sig))
-        return 2;
+    return sig->numberOfArgumentsOfSignature;
+}
 
-    char* str = sig->GetChars();
+bool Signature::IsBinary(VMSymbol* sig) {
+    return sig->numberOfArgumentsOfSignature == 2;
+}
+
+int Signature::DetermineNumberOfArguments(const char* sig) {
+    // check default binaries
+    if (Signature::isBinary(sig))
+        return 2;
 
     // colons in str
     int numColons = 0;
     int i = 0;
-    while (str[i] != '\0')
-        if (str[i++] == ':')
+    while (sig[i] != '\0')
+        if (sig[i++] == ':')
             numColons++;
     return numColons + 1;
 }
 
-bool Signature::IsBinary(VMSymbol* sig) {
-    char* sigstr = sig->GetChars();
-    switch(sigstr[0]) {
+bool Signature::isBinary(const char* sig) {
+    switch(sig[0]) {
         case '~' :
         case '&' :
         case '|' :

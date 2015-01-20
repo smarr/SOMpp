@@ -29,21 +29,30 @@
 
 #include "VMSymbol.h"
 #include "VMInteger.h"
+#include "Signature.h"
 
 #include <interpreter/Interpreter.h>
 
 extern GCClass* symbolClass;
 
-VMSymbol::VMSymbol(const char* str) : VMString(str) {
+VMSymbol::VMSymbol(const char* str)
+ : numberOfArgumentsOfSignature(Signature::DetermineNumberOfArguments(str)),
+   VMString() {
 //    nextCachePos = 0;
-//    // set the chars-pointer to point at the position of the first character
+    // set the chars-pointer to point at the position of the first character
 //    chars = (char*) &cachedInvokable + +3 * sizeof(VMInvokable*);
-
-//    //clear caching fields
+    chars = (char*) &chars + sizeof(char*);
+    size_t i = 0;
+    for (; i < strlen(str); ++i) {
+        chars[i] = str[i];
+    }
+    chars[i] = '\0';
+    //clear caching fields
 //    memset(&cachedClass_invokable, 0, 6 * sizeof(void*) + 1 * sizeof(long));
 }
 
-VMSymbol::VMSymbol(const StdString& s) {
+VMSymbol::VMSymbol(const StdString& s) : 
+  numberOfArgumentsOfSignature(Signature::DetermineNumberOfArguments(s.c_str())) {
     VMSymbol(s.c_str());
 }
 
@@ -63,7 +72,7 @@ VMClass* VMSymbol::GetClass() {
 
 StdString VMSymbol::GetPlainString() const {
     ostringstream str;
-    char* chars = this->GetChars();
+    char* chars = GetChars();
     size_t length = GetStringLength();
     for (size_t i = 0; i <= length; i++) {
         char c = chars[i];
