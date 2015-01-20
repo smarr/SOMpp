@@ -34,7 +34,6 @@
 #include <interpreter/bytecodes.h>
 #include <interpreter/Interpreter.h>
 
-#include <vmobjects/ObjectFormats.h>
 #include <vmobjects/VMArray.h>
 #include <vmobjects/VMBlock.h>
 #include <vmobjects/VMClass.h>
