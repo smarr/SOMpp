@@ -30,28 +30,9 @@
 #warning VMInteger GetHash does not currently work correctly with tagging, all integers get the same hash...
 
 
-#if GC_TYPE==GENERATIONAL
-VMInteger* VMInteger::Clone() {
-    return new (_HEAP, _PAGE, 0, true) VMInteger(*this);
+VMInteger* VMInteger::Clone(Page* page) {
+    return new (page, 0 ALLOC_MATURE) VMInteger(*this);
 }
-#elif GC_TYPE==PAUSELESS
-VMInteger* VMInteger::Clone(Interpreter* thread) {
-    VMInteger* clone = new (_HEAP, thread) VMInteger(*this);
-    /* clone->IncreaseVersion();
-    this->MarkObjectAsInvalid(); */
-    return clone;
-}
-VMInteger* VMInteger::Clone(PauselessCollectorThread* thread) {
-    VMInteger* clone = new (_HEAP, thread) VMInteger(*this);
-    /* clone->IncreaseVersion();
-    this->MarkObjectAsInvalid(); */
-    return clone;
-}
-#else
-VMInteger* VMInteger::Clone() {
-    return new (_HEAP) VMInteger(*this);
-}
-#endif
 
 VMClass* VMInteger::GetClass() {
     return load_ptr(integerClass);

@@ -51,11 +51,10 @@ class Interpreter : public BaseThread {
 public:
     
 #if GC_TYPE!=PAUSELESS
-    Interpreter();
+    Interpreter(Page*);
 #else
-    Interpreter(bool, bool);
+    Interpreter(Page*, bool, bool);
 #endif
-    //~Interpreter();
     
     void      Start();
     VMThread* GetThread();
@@ -100,10 +99,12 @@ private:
     GCThread* thread;
     GCFrame* frame;
 
+    Page* page;
+
     static const StdString unknownGlobal;
     static const StdString doesNotUnderstand;
     static const StdString escapedBlock;
-    
+
     VMFrame* popFrame();
     void popFrameAndPushResult(vm_oop_t result);
     void send(VMSymbol* signature, VMClass* receiverClass);
@@ -128,29 +129,29 @@ private:
     void doJumpIfFalse(long bytecodeIndex);
     void doJumpIfTrue(long bytecodeIndex);
     void doJump(long bytecodeIndex);
-    
+
     // The following three variables are used to cache main parts of the
     // current execution context
     long      bytecodeIndexGlobal;
 
     //    VMMethod* method; // not safe for parallel moving
     //    uint8_t*  currentBytecodes;
-    
+
 #if GC_TYPE==PAUSELESS
     bool stopped;
     bool blocked;
-    
+
     bool markRootSet;
     bool safePointRequested;
     bool signalEnableGCTrap;
     bool gcTrapEnabled;
-    
+
     Page* nonRelocatablePage;
     vector<Page*> fullPages;
     vector<Page*> nonRelocatablePages;
 
     pthread_mutex_t blockedMutex;
-    
+
     SpinLock prevent;
 #endif
 

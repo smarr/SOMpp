@@ -85,7 +85,7 @@ void _System::HasGlobal_(Interpreter*, VMFrame* frame) {
 void _System::Load_(Interpreter* interp, VMFrame* frame) {
     VMSymbol* arg = static_cast<VMSymbol*>(frame->Pop());
     frame->Pop();
-    VMClass* result = GetUniverse()->LoadClass(arg);
+    VMClass* result = GetUniverse()->LoadClass(arg, interp->GetPage());
     if (result)
         frame->Push(result);
     else
@@ -122,7 +122,7 @@ void _System::PrintNewline(Interpreter*, VMFrame*) {
     pthread_mutex_unlock(&outputMutex);
 }
 
-void _System::Time(Interpreter*, VMFrame* frame) {
+void _System::Time(Interpreter* interp, VMFrame* frame) {
     /*VMObject* self = */
     frame->Pop();
     struct timeval now;
@@ -133,7 +133,7 @@ void _System::Time(Interpreter*, VMFrame* frame) {
     ((now.tv_sec - start_time.tv_sec) * 1000) + //seconds
     ((now.tv_usec - start_time.tv_usec) / 1000);// useconds
 
-    frame->Push(NEW_INT(diff));
+    frame->Push(NEW_INT(diff, interp->GetPage()));
 }
 
 void _System::Ticks(Interpreter* interp, VMFrame* frame) {
@@ -147,7 +147,7 @@ void _System::Ticks(Interpreter* interp, VMFrame* frame) {
     ((now.tv_sec - start_time.tv_sec) * 1000 * 1000) + //seconds
     ((now.tv_usec - start_time.tv_usec));// useconds
 
-    frame->Push(NEW_INT(diff));
+    frame->Push(NEW_INT(diff, interp->GetPage()));
 }
 
 void _System::FullGC(Interpreter*, VMFrame* frame) {
@@ -158,7 +158,7 @@ void _System::FullGC(Interpreter*, VMFrame* frame) {
 #endif
 }
 
-void _System::GetNumberOfCPUs(Interpreter*, VMFrame* frame) {
+void _System::GetNumberOfCPUs(Interpreter* interp, VMFrame* frame) {
     frame->Pop();
     int i = 0;
     
@@ -182,7 +182,7 @@ void _System::GetNumberOfCPUs(Interpreter*, VMFrame* frame) {
 #endif
     
     //Based on the other methods I have also done GetUniverse()->... this also takes care of the heap allocation of the VMInteger but why is this necearry? Or can I simply do frame->Push(VMInteger(i))?
-    frame->Push((VMObject*)GetUniverse()->NewInteger(i));
+    frame->Push((VMObject*)GetUniverse()->NewInteger(i, interp->GetPage()));
 }
 
 _System::_System(void) : PrimitiveContainer() {

@@ -55,7 +55,7 @@ const StdString Interpreter::escapedBlock      = "escapedBlock:";
 
 
 #if GC_TYPE==PAUSELESS
-Interpreter::Interpreter(bool expectedNMT, bool gcTrapEnabled) : BaseThread(expectedNMT) {
+Interpreter::Interpreter(Page* page, bool expectedNMT, bool gcTrapEnabled) : BaseThread(expectedNMT), page(page) {
     this->thread = nullptr;
     this->frame = nullptr;
 
@@ -72,7 +72,7 @@ Interpreter::Interpreter(bool expectedNMT, bool gcTrapEnabled) : BaseThread(expe
     pthread_mutex_init(&blockedMutex, nullptr);
 }
 #else
-Interpreter::Interpreter() : BaseThread() {
+Interpreter::Interpreter(Page* page) : BaseThread(), page(page) {
     this->thread = nullptr;
     this->frame = nullptr;
 }
@@ -254,7 +254,7 @@ void Interpreter::Start() {
 }
 
 VMFrame* Interpreter::PushNewFrame(VMMethod* method) {
-    SetFrame(GetUniverse()->NewFrame(GetFrame(), method));
+    SetFrame(GetUniverse()->NewFrame(GetFrame(), method, page));
     return GetFrame();
 }
 
@@ -332,7 +332,7 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
 
         vm_oop_t receiver = GetFrame()->GetStackElement(numberOfArgs-1);
 
-        VMArray* argumentsArray = GetUniverse()->NewArray(numberOfArgs - 1); // without receiver
+        VMArray* argumentsArray = GetUniverse()->NewArray(numberOfArgs - 1, page); // without receiver
 
         // the receiver should not go into the argumentsArray
         // so, numberOfArgs - 2
@@ -350,7 +350,7 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
         if (additionalStackSlots > 0) {
             GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
             //copy current frame into a bigger one and replace the current frame
-            SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
+            SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots, page));
         }
 
         AS_OBJ(receiver)->Send(this, doesNotUnderstand, arguments, 2);
@@ -421,7 +421,7 @@ void Interpreter::doPushBlock(long bytecodeIndex) {
 
     long numOfArgs = blockMethod->GetNumberOfArguments();
 
-    GetFrame()->Push(GetUniverse()->NewBlock(blockMethod, GetFrame(), numOfArgs));
+    GetFrame()->Push(GetUniverse()->NewBlock(blockMethod, GetFrame(), numOfArgs, page));
 }
 
 void Interpreter::doPushConstant(long bytecodeIndex) {
@@ -445,7 +445,7 @@ void Interpreter::doPushGlobal(long bytecodeIndex) {
         if (additionalStackSlots > 0) {
             GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
             //copy current frame into a bigger one and replace the current frame
-            SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
+            SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots, page));
         }
 
         AS_OBJ(self)->Send(this, unknownGlobal, arguments, 1);
@@ -528,7 +528,7 @@ void Interpreter::doSuperSend(long bytecodeIndex) {
     else {
         long numOfArgs = Signature::GetNumberOfArguments(signature);
         vm_oop_t receiver = GetFrame()->GetStackElement(numOfArgs - 1);
-        VMArray* argumentsArray = GetUniverse()->NewArray(numOfArgs);
+        VMArray* argumentsArray = GetUniverse()->NewArray(numOfArgs, page);
 
         for (long i = numOfArgs - 1; i >= 0; --i) {
             vm_oop_t o = GetFrame()->Pop();

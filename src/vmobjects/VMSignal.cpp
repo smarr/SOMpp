@@ -21,23 +21,19 @@ VMSignal::VMSignal() : VMObject(VMSignalNumberOfFields) {
     pthread_mutex_init(&embeddedMutexId, nullptr);
 }
 
-
 pthread_cond_t* VMSignal::GetEmbeddedSignalId() {
     return &embeddedSignalId;
 }
 
-
 pthread_mutex_t* VMSignal::GetEmbeddedMutexId() {
     return &embeddedMutexId;
 }
-
 
 void VMSignal::Wait() {
     pthread_mutex_lock(&embeddedMutexId);
     pthread_cond_wait(&embeddedSignalId, &embeddedMutexId);
     pthread_mutex_unlock(&embeddedMutexId);
 }
-
 
 void VMSignal::Signal() {
     pthread_mutex_lock(&embeddedMutexId);
@@ -50,18 +46,13 @@ bool VMSignal::SignalAll() {
     return pthread_cond_broadcast(&embeddedSignalId);
 }
 
-#if GC_TYPE==PAUSELESS
-VMSignal* VMSignal::Clone(Interpreter* thread) {
-    VMSignal* clone = new (_HEAP, thread, objectSize - sizeof(VMSignal)) VMSignal(*this);
-    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    return clone;
-}
-VMSignal* VMSignal::Clone(PauselessCollectorThread* thread) {
-    VMSignal* clone = new (_HEAP, thread, objectSize - sizeof(VMSignal)) VMSignal(*this);
+VMSignal* VMSignal::Clone(Page* page) {
+    VMSignal* clone = new (page, objectSize - sizeof(VMSignal)) VMSignal(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     return clone;
 }
 
+#if GC_TYPE==PAUSELESS
 void VMSignal::MarkReferences() {
     ReadBarrierForGCThread(&clazz);
 }
@@ -70,11 +61,5 @@ void VMSignal::CheckMarking(void (*walk)(vm_oop_t)) {
     assert(GetNMTValue(clazz) == _HEAP->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(clazz));
     walk(Untag(clazz));
-}
-#else
-VMSignal* VMSignal::Clone() {
-    VMSignal* clone = new (_HEAP, _PAGE, objectSize - sizeof(VMSignal)) VMSignal(*this);
-    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    return clone;
 }
 #endif

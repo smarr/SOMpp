@@ -35,11 +35,11 @@
 //needed to instanciate the Routine object for the  empty routine
 #include <primitivesCore/Routine.h>
 
-VMPrimitive* VMPrimitive::GetEmptyPrimitive(VMSymbol* sig, bool classSide) {
+VMPrimitive* VMPrimitive::GetEmptyPrimitive(VMSymbol* sig, bool classSide, Page* page) {
 #if GC_TYPE==GENERATIONAL
     VMPrimitive* prim = new (_HEAP, _PAGE) VMPrimitive(sig);
 #elif GC_TYPE==PAUSELESS
-    VMPrimitive* prim = new (_HEAP, GetUniverse()->GetInterpreter(), 0, true) VMPrimitive(sig);
+    VMPrimitive* prim = new (page, 0, true) VMPrimitive(sig);
 #else
     VMPrimitive* prim = new (_HEAP) VMPrimitive(sig);
 #endif
@@ -58,28 +58,10 @@ VMPrimitive::VMPrimitive(VMSymbol* signature) : VMInvokable(VMPrimitiveNumberOfF
     empty = false;
 }
 
-#if GC_TYPE==GENERATIONAL
-VMPrimitive* VMPrimitive::Clone() {
-    return new (_HEAP, _PAGE, 0, true) VMPrimitive(*this);
+VMPrimitive* VMPrimitive::Clone(Page* page) {
+    VMPrimitive* prim = new (page, 0, true) VMPrimitive(*this);
+    return prim;
 }
-#elif GC_TYPE==PAUSELESS
-VMPrimitive* VMPrimitive::Clone(Interpreter* thread) {
-    VMPrimitive* clone = new (_HEAP, thread) VMPrimitive(*this);
-    /* clone->IncreaseVersion();
-    this->MarkObjectAsInvalid(); */
-    return clone;
-}
-VMPrimitive* VMPrimitive::Clone(PauselessCollectorThread* thread) {
-    VMPrimitive* clone = new (_HEAP, thread) VMPrimitive(*this);
-    /* clone->IncreaseVersion();
-    this->MarkObjectAsInvalid(); */
-    return clone;
-}
-#else
-VMPrimitive* VMPrimitive::Clone() {
-    return new (_HEAP) VMPrimitive(*this);
-}
-#endif
 
 void VMPrimitive::EmptyRoutine(Interpreter*, VMFrame*) {
     VMSymbol* sig = GetSignature();

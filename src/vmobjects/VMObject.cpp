@@ -29,7 +29,6 @@
 #include "VMSymbol.h"
 #include "VMFrame.h"
 #include "VMInvokable.h"
-#include "../interpreter/Interpreter.h"
 
 // clazz is the only field of VMObject so
 const long VMObject::VMObjectNumberOfFields = 0;
@@ -45,45 +44,13 @@ VMObject::VMObject(long numberOfFields) : AbstractVMObject() {
     // Object size was already set by the heap on allocation
 }
 
-#if GC_TYPE==GENERATIONAL
-VMObject* VMObject::Clone() {
-    VMObject* clone = new (_HEAP, _PAGE, objectSize - sizeof(VMObject), true) VMObject(*this);
+VMObject* VMObject::Clone(Page* page) {
+    VMObject* clone = new (page, objectSize - sizeof(VMObject) ALLOC_MATURE) VMObject(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)),
            SHIFTED_PTR(this,  sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     clone->hash = (size_t) &clone;
     return clone;
 }
-#elif GC_TYPE==PAUSELESS
-VMObject* VMObject::Clone(Interpreter* thread) {
-    VMObject* clone = new (_HEAP, thread, objectSize - sizeof(VMObject)) VMObject(*this);
-    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    //memcpy(&(clone->clazz), &clazz, objectSize - sizeof(VMObject) + sizeof(VMObject*));
-    
-    clone->hash = (size_t) &clone;
-    /* clone->IncreaseVersion();
-    this->MarkObjectAsInvalid(); */
-    return clone;
-}
-VMObject* VMObject::Clone(PauselessCollectorThread* thread) {
-    VMObject* clone = new (_HEAP, thread, objectSize - sizeof(VMObject)) VMObject(*this);
-    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    //memcpy(&(clone->clazz), &clazz, objectSize - sizeof(VMObject) + sizeof(VMObject*));
-    
-    clone->hash = (size_t) &clone;
-    /* clone->IncreaseVersion();
-    this->MarkObjectAsInvalid(); */
-    return clone;
-}
-#else
-VMObject* VMObject::Clone() {
-    VMObject* clone = new (_HEAP, objectSize - sizeof(VMObject)) VMObject(*this);
-    
-    memcpy(&(clone->clazz), &clazz, objectSize - sizeof(VMObject) + sizeof(VMObject*));
-    
-    clone->hash = (size_t) &clone;
-    return clone;
-}
-#endif
 
 void VMObject::SetNumberOfFields(long nof) {
     numberOfFields = nof;

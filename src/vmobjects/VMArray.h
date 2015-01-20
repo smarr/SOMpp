@@ -36,39 +36,27 @@ public:
     VMArray(long size, long nof = 0);
 
 #if GC_TYPE==PAUSELESS
-    virtual VMArray* Clone(Interpreter*);
-    virtual VMArray* Clone(PauselessCollectorThread*);
     virtual void MarkReferences();
     virtual void CheckMarking(void (vm_oop_t));
 #else
-    virtual VMArray* Clone();
-    virtual void WalkObjects(walk_heap_fn);    
+    virtual void WalkObjects(walk_heap_fn);
 #endif
 
     inline  long GetNumberOfIndexableFields() const;
-    VMArray* CopyAndExtendWith(vm_oop_t);
+    VMArray* CopyAndExtendWith(vm_oop_t, Page*);
     vm_oop_t GetIndexableField(long idx);
     void SetIndexableField(long idx, vm_oop_t value);
     void CopyIndexableFieldsTo(VMArray*);
+    virtual VMArray* Clone(Page*);
     
     virtual StdString AsDebugString();
 
     virtual void MarkObjectAsInvalid();
 
 private:
-    
     static const long VMArrayNumberOfFields;
 };
 
 long VMArray::GetNumberOfIndexableFields() const {
-    long numIndexableFields = GetAdditionalSpaceConsumption() / sizeof(VMObject*);
-    /*
-    static const VMArray* cachedArray = nullptr;
-    static long numIndexableFields = -1;
-
-    if (this != cachedArray) {
-        numIndexableFields = GetAdditionalSpaceConsumption() / sizeof(VMObject*);
-        cachedArray = this;
-    }*/
-    return numIndexableFields;
+    return GetAdditionalSpaceConsumption() / sizeof(VMObject*);
 }

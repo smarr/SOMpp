@@ -95,18 +95,14 @@ void VMThread::Join(int* exitStatus) {
     //pthread_join(embeddedThreadId, (void**)&exitStatus);
 }
 
-#if GC_TYPE==PAUSELESS
-VMThread* VMThread::Clone(Interpreter* thread) {
-    VMThread* clone = new (_HEAP, thread, objectSize - sizeof(VMThread)) VMThread(*this);
-    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    return clone;
-}
-VMThread* VMThread::Clone(PauselessCollectorThread* thread) {
-    VMThread* clone = new (_HEAP, thread, objectSize - sizeof(VMThread)) VMThread(*this);
+
+VMThread* VMThread::Clone(Page* page) {
+    VMThread* clone = new (page, objectSize - sizeof(VMThread)) VMThread(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     return clone;
 }
 
+#if GC_TYPE==PAUSELESS
 void VMThread::MarkReferences() {
     ReadBarrierForGCThread(&clazz);
     ReadBarrierForGCThread(&resumeSignal);
@@ -146,10 +142,5 @@ void VMThread::WalkObjects(walk_heap_fn walk) {
     //name = (GCString*) (walk(load_ptr(name)));
     //argument = (GCAbstractObject*) (walk(load_ptr(argument)));
 }
-
-VMThread* VMThread::Clone() {
-    VMThread* clone = new (_HEAP, _PAGE, objectSize - sizeof(VMThread)) VMThread(*this);
-    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    return clone;
-} */
+*/
 #endif

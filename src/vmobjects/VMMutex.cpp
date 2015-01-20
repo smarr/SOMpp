@@ -45,18 +45,13 @@ bool VMMutex::IsLocked() {
     }
 }
 
-#if GC_TYPE==PAUSELESS
-VMMutex* VMMutex::Clone(Interpreter* thread) {
-    VMMutex* clone = new (_HEAP, thread, objectSize - sizeof(VMMutex)) VMMutex(*this);
-    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    return clone;
-}
-VMMutex* VMMutex::Clone(PauselessCollectorThread* thread) {
-    VMMutex* clone = new (_HEAP, thread, objectSize - sizeof(VMMutex)) VMMutex(*this);
+VMMutex* VMMutex::Clone(Page* page) {
+    VMMutex* clone = new (page, objectSize - sizeof(VMMutex)) VMMutex(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     return clone;
 }
 
+#if GC_TYPE==PAUSELESS
 void VMMutex::MarkReferences() {
     ReadBarrierForGCThread(&clazz);
 }
@@ -70,11 +65,5 @@ void VMMutex::CheckMarking(void (*walk)(vm_oop_t)) {
 #else
 void VMMutex::WalkObjects(walk_heap_fn walk) {
     clazz = (GCClass*) (walk(clazz));
-}
-
-VMMutex* VMMutex::Clone() {
-    VMMutex* clone = new (_HEAP, _PAGE, objectSize - sizeof(VMMutex)) VMMutex(*this);
-    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    return clone;
 }
 #endif

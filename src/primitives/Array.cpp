@@ -59,7 +59,7 @@ void _Array::At_Put_(Interpreter*, VMFrame* frame) {
 
 void _Array::Length(Interpreter* interp, VMFrame* frame) {
     VMArray* self = static_cast<VMArray*>(frame->Pop());
-    vm_oop_t new_int = NEW_INT(self->GetNumberOfIndexableFields());
+    vm_oop_t new_int = NEW_INT(self->GetNumberOfIndexableFields(), interp->GetPage());
     frame->Push(new_int);
 }
 
@@ -67,6 +67,6 @@ void _Array::New_(Interpreter* interp, VMFrame* frame) {
     vm_oop_t arg = frame->Pop();
     frame->Pop();
     long size = INT_VAL(arg);
-    frame->Push(GetUniverse()->NewArray(size));
+    frame->Push(GetUniverse()->NewArray(size, interp->GetPage()));
 }
 

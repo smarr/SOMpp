@@ -53,34 +53,13 @@ VMClass::VMClass() :
                 nullptr), instanceInvokables(nullptr) {
 }
 
-#if GC_TYPE==GENERATIONAL
-VMClass* VMClass::Clone() {
-    VMClass* clone = new (_HEAP, _PAGE, objectSize - sizeof(VMClass), true)VMClass(*this);
-    memcpy(SHIFTED_PTR(clone,sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
+VMClass* VMClass::Clone(Page* page) {
+    VMClass* clone = new (page, objectSize - sizeof(VMClass) ALLOC_MATURE) VMClass(*this);
+    memcpy(SHIFTED_PTR(clone,sizeof(VMObject)),
+           SHIFTED_PTR(this,sizeof(VMObject)),
+           GetObjectSize() - sizeof(VMObject));
     return clone;
 }
-#elif GC_TYPE==PAUSELESS
-VMClass* VMClass::Clone(Interpreter* thread) {
-    VMClass* clone = new (_HEAP, thread, objectSize - sizeof(VMClass)) VMClass(*this);
-    memcpy(SHIFTED_PTR(clone,sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    /* clone->IncreaseVersion();
-    this->MarkObjectAsInvalid(); */
-    return clone;
-}
-VMClass* VMClass::Clone(PauselessCollectorThread* thread) {
-    VMClass* clone = new (_HEAP, thread, objectSize - sizeof(VMClass)) VMClass(*this);
-    memcpy(SHIFTED_PTR(clone,sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    /* clone->IncreaseVersion();
-    this->MarkObjectAsInvalid(); */
-    return clone;
-}
-#else
-VMClass* VMClass::Clone() {
-    VMClass* clone = new (_HEAP, objectSize - sizeof(VMClass))VMClass(*this);
-    memcpy(SHIFTED_PTR(clone,sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    return clone;
-}
-#endif
 
 VMClass::VMClass(long numberOfFields) :
         VMObject(numberOfFields + VMClassNumberOfFields) {
@@ -94,7 +73,7 @@ void VMClass::MarkObjectAsInvalid() {
     instanceInvokables = (GCArray*)  INVALID_GC_POINTER;
 }
 
-bool VMClass::addInstanceInvokable(VMInvokable* ptr) {
+bool VMClass::addInstanceInvokable(VMInvokable* ptr, Page* page) {
     if (ptr == nullptr) {
         GetUniverse()->ErrorExit("Error: trying to add non-invokable to invokables array");
         return false;
@@ -116,13 +95,13 @@ bool VMClass::addInstanceInvokable(VMInvokable* ptr) {
         }
     }
     //it's a new invokable so we need to expand the invokables array.
-    store_ptr(instanceInvokables, instInvokables->CopyAndExtendWith(ptr));
+    store_ptr(instanceInvokables, instInvokables->CopyAndExtendWith(ptr, page));
 
     return true;
 }
 
-void VMClass::AddInstancePrimitive(VMPrimitive* ptr) {
-    if (addInstanceInvokable(ptr)) {
+void VMClass::AddInstancePrimitive(VMPrimitive* ptr, Page* page) {
+    if (addInstanceInvokable(ptr, page)) {
         //cout << "Warn: Primitive "<<ptr->GetSignature<<" is not in class definition for class " << name->GetStdString() << endl;
     }
 }
@@ -226,12 +205,12 @@ bool VMClass::HasPrimitives() {
     return false;
 }
 
-void VMClass::LoadPrimitives(const vector<StdString>& cp) {
+void VMClass::LoadPrimitives(const vector<StdString>& cp, Page* page) {
     StdString cname = GetName()->GetStdString();
     
     if (hasPrimitivesFor(cname)) {
-        setPrimitives(cname, false);
-        GetClass()->setPrimitives(cname, true);
+        setPrimitives(cname, false, page);
+        GetClass()->setPrimitives(cname, true, page);
     }
 }
 
@@ -248,7 +227,7 @@ bool VMClass::hasPrimitivesFor(const StdString& cl) const {
 /*
  * set the routines for primitive marked invokables of the given class
  */
-void VMClass::setPrimitives(const StdString& cname, bool classSide) {
+void VMClass::setPrimitives(const StdString& cname, bool classSide, Page* page) {
     VMClass* current = this;
 
     // Try loading class-specific primitives for all super class' methods as well.
@@ -273,8 +252,8 @@ void VMClass::setPrimitives(const StdString& cname, bool classSide) {
                 if (this == current && anInvokable->IsPrimitive()) {
                     thePrimitive = static_cast<VMPrimitive*>(anInvokable);
                 } else {
-                    thePrimitive = VMPrimitive::GetEmptyPrimitive(sig, classSide);
-                    AddInstancePrimitive(thePrimitive);
+                    thePrimitive = VMPrimitive::GetEmptyPrimitive(sig, classSide, page);
+                    AddInstancePrimitive(thePrimitive, page);
                 }
 
                 // set routine

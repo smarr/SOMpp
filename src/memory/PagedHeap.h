@@ -31,8 +31,9 @@
 #include <set>
 #include <cstdlib>
 #include "GarbageCollector.h"
-#include "../misc/defs.h"
-#include "../vmobjects/ObjectFormats.h"
+
+#include <misc/defs.h>
+#include <vmobjects/ObjectFormats.h>
 
 class AbstractVMObject;
 class Page;

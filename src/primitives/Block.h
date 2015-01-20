@@ -41,8 +41,8 @@ public:
     void SpawnWithArgument(Interpreter*, VMFrame*);
     
 private:
-    static VMMethod* CreateFakeBootstrapMethod();
-    static VMThread* CreateNewThread(VMBlock*);
+    static VMMethod* CreateFakeBootstrapMethod(Page*);
+    static VMThread* CreateNewThread(VMBlock*, Page*);
     static void* ThreadForBlock(void* threadPointer);
     static void* ThreadForBlockWithArgument(void*);
     

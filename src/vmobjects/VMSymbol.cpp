@@ -53,30 +53,10 @@ size_t VMSymbol::GetObjectSize() const {
     return size;
 }
 
-#if GC_TYPE==GENERATIONAL
-VMSymbol* VMSymbol::Clone() {
-    return new (_HEAP, _PAGE, PADDED_SIZE(strlen(chars) + 1), true) VMSymbol(chars);
+VMSymbol* VMSymbol::Clone(Page* page) {
+    VMSymbol* result = new (page, PADDED_SIZE(strlen(chars) + 1)) VMSymbol(chars);
+    return result;
 }
-#elif GC_TYPE==PAUSELESS
-VMSymbol* VMSymbol::Clone(Interpreter* thread) {
-    sync_out(ostringstream() << "[VMSYM] Clone: " << GetChars());
-    VMSymbol* clone = new (_HEAP, thread, PADDED_SIZE(strlen(chars) + 1)) VMSymbol(chars);
-    /* clone->IncreaseVersion();
-    this->MarkObjectAsInvalid(); */
-    return clone;
-}
-VMSymbol* VMSymbol::Clone(PauselessCollectorThread* thread) {
-    sync_out(ostringstream() << "[VMSYM] Clone: " << GetChars());
-    VMSymbol* clone = new (_HEAP, thread, PADDED_SIZE(strlen(chars) + 1)) VMSymbol(chars);
-    /* clone->IncreaseVersion();
-    this->MarkObjectAsInvalid(); */
-    return clone;
-}
-#else
-VMSymbol* VMSymbol::Clone() {
-    return new (_HEAP, PADDED_SIZE(strlen(chars) + 1)) VMSymbol(chars);
-}
-#endif
 
 VMClass* VMSymbol::GetClass() {
     return load_ptr(symbolClass);

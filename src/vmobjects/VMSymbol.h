@@ -45,24 +45,26 @@ public:
     
     virtual void MarkObjectAsInvalid();
     
+    virtual VMSymbol* Clone(Page*);
+
+
 #if GC_TYPE==PAUSELESS
-    virtual VMSymbol* Clone(Interpreter*);
-    virtual VMSymbol* Clone(PauselessCollectorThread*);
     //virtual void MarkReferences();
 #else
-    virtual VMSymbol* Clone();
     //virtual void WalkObjects(walk_heap_fn walk);
 #endif
     
     virtual StdString AsDebugString();
 
 private:
-//    const VMClass* cachedClass_invokable[3];
+    const int numberOfArgumentsOfSignature;
+//    const GCClass* cachedClass_invokable[3];
 //    long nextCachePos;
-//    VMInvokable* cachedInvokable[3];
+//    GCInvokable* cachedInvokable[3];
 //    inline VMInvokable* GetCachedInvokable(const VMClass*) const;
 //    inline void UpdateCachedInvokable(const VMClass* cls, VMInvokable* invo);
     
+    friend class Signature;
     friend class VMClass;
 };
 

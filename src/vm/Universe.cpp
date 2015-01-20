@@ -327,9 +327,10 @@ void Universe::initialize(long _argc, char** _argv) {
     PagedHeap::InitializeHeap(HEAP_SIZE, PAGE_SIZE);
 
     heap = _HEAP;
+    Page* page = heap->RequestPage();
 
     interpreters = vector<Interpreter*>();
-    Interpreter* interpreter = this->NewInterpreter();
+    Interpreter* interpreter = NewInterpreter(page);
 
 #if CACHE_INTEGER
     //create prebuilt integers
@@ -337,24 +338,25 @@ void Universe::initialize(long _argc, char** _argv) {
 #if GC_TYPE==GENERATIONAL
         prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = new (_HEAP, _PAGE) VMInteger(it);
 #elif GC_TYPE==PAUSELESS
-        prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = new (_HEAP, GetUniverse()->GetInterpreter()) VMInteger(it);
+        prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = new (page) VMInteger(it);
 #else
         prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = new (_HEAP) VMInteger(it);
 #endif
     }
 #endif
 
-    VMObject* systemObject = InitializeGlobals();
+    VMObject* systemObject = InitializeGlobals(page);
+
     
-    VMMethod* bootstrapMethod = NewMethod(SymbolForChars("bootstrap"), 1, 0);
+    VMMethod* bootstrapMethod = NewMethod(SymbolForChars("bootstrap", page), 1, 0, page);
     bootstrapMethod->SetBytecode(0, BC_HALT);
-    bootstrapMethod->SetNumberOfLocals(0);
+    bootstrapMethod->SetNumberOfLocals(0, page);
     
-    bootstrapMethod->SetMaximumNumberOfStackElements(2);
+    bootstrapMethod->SetMaximumNumberOfStackElements(2, page);
     bootstrapMethod->SetHolder(load_ptr(systemClass));
     
-    VMThread* thread = NewThread();
-    VMSignal* signal = NewSignal();
+    VMThread* thread = NewThread(page);
+    VMSignal* signal = NewSignal(page);
     thread->SetResumeSignal(signal);
     thread->SetShouldStop(false);
     interpreter->SetThread(thread);
@@ -370,14 +372,14 @@ void Universe::initialize(long _argc, char** _argv) {
     if (!(trace > 0))
         dumpBytecodes = 1;
 
-    VMArray* argumentsArray = NewArrayFromStrings(argv);
+    VMArray* argumentsArray = NewArrayFromStrings(argv, page);
 
     VMFrame* bootstrapFrame = interpreter->PushNewFrame(bootstrapMethod);
     bootstrapFrame->Push(systemObject);
     bootstrapFrame->Push(argumentsArray);
 
-    VMInvokable* initialize =
-        static_cast<VMInvokable*>(load_ptr(systemClass)->LookupInvokable(this->SymbolForChars("initialize:")));
+    VMInvokable* initialize = load_ptr(systemClass)->LookupInvokable(
+                                            SymbolForChars("initialize:", page));
     initialize->Invoke(interpreter, bootstrapFrame);
 
     // reset "-d" indicator
@@ -399,7 +401,7 @@ Universe::~Universe() {
 
 #if !DEBUG
     static void set_vt_to_null() {}
-    static void obtain_vtables_of_known_classes(VMSymbol* className) {}
+    static void obtain_vtables_of_known_classes(VMSymbol* className, Page*) {}
     bool Universe::IsValidObject(vm_oop_t obj) {
         return true;
     }
@@ -473,11 +475,11 @@ Universe::~Universe() {
         vt_signal     = nullptr;
     }
 
-    static void obtain_vtables_of_known_classes(VMSymbol* className) {
+    static void obtain_vtables_of_known_classes(VMSymbol* className, Page* page) {
 #if GC_TYPE==GENERATIONAL
         VMArray* arr  = new (_HEAP, _PAGE) VMArray(0, 0);
 #elif GC_TYPE==PAUSELESS
-        VMArray* arr  = new (_HEAP, GetUniverse()->GetInterpreter()) VMArray(0, 0);
+        VMArray* arr  = new (page) VMArray(0, 0);
 #else
         VMArray* arr  = new (_HEAP) VMArray(0, 0);
 #endif
@@ -486,7 +488,7 @@ Universe::~Universe() {
 #if GC_TYPE==GENERATIONAL
         VMBlock* blck = new (_HEAP, _PAGE) VMBlock();
 #elif GC_TYPE==PAUSELESS
-        VMBlock* blck = new (_HEAP, GetUniverse()->GetInterpreter()) VMBlock();
+        VMBlock* blck = new (page) VMBlock();
 #else
         VMBlock* blck = new (_HEAP) VMBlock();
 #endif
@@ -497,7 +499,7 @@ Universe::~Universe() {
 #if GC_TYPE==GENERATIONAL
         VMDouble* dbl = new (_HEAP, _PAGE) VMDouble(0.0);
 #elif GC_TYPE==PAUSELESS
-        VMDouble* dbl = new (_HEAP, GetUniverse()->GetInterpreter()) VMDouble(0.0);
+        VMDouble* dbl = new (page) VMDouble(0.0);
 #else
         VMDouble* dbl = new (_HEAP) VMDouble(0.0);
 #endif
@@ -506,7 +508,7 @@ Universe::~Universe() {
 #if GC_TYPE==GENERATIONAL
         VMEvaluationPrimitive* ev = new (_HEAP, _PAGE) VMEvaluationPrimitive(1);
 #elif GC_TYPE==PAUSELESS
-        VMEvaluationPrimitive* ev = new (_HEAP, GetUniverse()->GetInterpreter()) VMEvaluationPrimitive(1);
+        VMEvaluationPrimitive* ev = new (page) VMEvaluationPrimitive(1, page);
 #else
         VMEvaluationPrimitive* ev = new (_HEAP) VMEvaluationPrimitive(1);
 #endif
@@ -515,7 +517,7 @@ Universe::~Universe() {
 #if GC_TYPE==GENERATIONAL
         VMFrame* frm  = new (_HEAP, _PAGE) VMFrame(0, 0);
 #elif GC_TYPE==PAUSELESS
-        VMFrame* frm  = new (_HEAP, GetUniverse()->GetInterpreter()) VMFrame(0, 0);
+        VMFrame* frm  = new (page) VMFrame(0, 0);
 #else
         VMFrame* frm  = new (_HEAP) VMFrame(0, 0);
 #endif
@@ -524,7 +526,7 @@ Universe::~Universe() {
 #if GC_TYPE==GENERATIONAL
         VMInteger* i  = new (_HEAP, _PAGE) VMInteger(0);
 #elif GC_TYPE==PAUSELESS
-        VMInteger* i  = new (_HEAP, GetUniverse()->GetInterpreter()) VMInteger(0);
+        VMInteger* i  = new (page) VMInteger(0);
 #else
         VMInteger* i  = new (_HEAP) VMInteger(0);
 #endif
@@ -533,7 +535,7 @@ Universe::~Universe() {
 #if GC_TYPE==GENERATIONAL
         VMMethod* mth = new (_HEAP, _PAGE) VMMethod(0, 0, 0);
 #elif GC_TYPE==PAUSELESS
-        VMMethod* mth = new (_HEAP, GetUniverse()->GetInterpreter()) VMMethod(0, 0, 0);
+        VMMethod* mth = new (page) VMMethod(0, 0, 0, page);
 #else
         VMMethod* mth = new (_HEAP) VMMethod(0, 0, 0);
 #endif
@@ -543,7 +545,7 @@ Universe::~Universe() {
 #if GC_TYPE==GENERATIONAL
         VMPrimitive* prm = new (_HEAP, _PAGE) VMPrimitive(className);
 #elif GC_TYPE==PAUSELESS
-        VMPrimitive* prm = new (_HEAP, GetUniverse()->GetInterpreter()) VMPrimitive(className);
+        VMPrimitive* prm = new (page) VMPrimitive(className);
 #else
         VMPrimitive* prm = new (_HEAP) VMPrimitive(className);
 #endif
@@ -552,7 +554,7 @@ Universe::~Universe() {
 #if GC_TYPE==GENERATIONAL
         VMString* str = new (_HEAP, _PAGE, PADDED_SIZE(7)) VMString("foobar");
 #elif GC_TYPE==PAUSELESS
-        VMString* str = new (_HEAP, GetUniverse()->GetInterpreter(), PADDED_SIZE(7)) VMString("foobar");
+        VMString* str = new (page) VMString("");
 #else
         VMString* str = new (_HEAP, PADDED_SIZE(7)) VMString("foobar");
 #endif
@@ -562,7 +564,7 @@ Universe::~Universe() {
 #if GC_TYPE==GENERATIONAL
         VMThread* thr = new (_HEAP, _PAGE) VMThread();
 #elif GC_TYPE==PAUSELESS
-        VMThread* thr = new (_HEAP, GetUniverse()->GetInterpreter()) VMThread();
+        VMThread* thr = new (page) VMThread();
 #else
         VMThread* thr = new (_HEAP) VMThread();
 #endif
@@ -571,7 +573,7 @@ Universe::~Universe() {
 #if GC_TYPE==GENERATIONAL
         VMMutex* mtx  = new (_HEAP, _PAGE) VMMutex();
 #elif GC_TYPE==PAUSELESS
-        VMMutex* mtx  = new (_HEAP, GetUniverse()->GetInterpreter()) VMMutex();
+        VMMutex* mtx  = new (page) VMMutex();
 #else
         VMMutex* mtx  = new (_HEAP) VMMutex();
 #endif
@@ -580,7 +582,7 @@ Universe::~Universe() {
 #if GC_TYPE==GENERATIONAL
         VMSignal* sgnl = new (_HEAP, _PAGE) VMSignal();
 #elif GC_TYPE==PAUSELESS
-        VMSignal* sgnl = new (_HEAP, GetUniverse()->GetInterpreter()) VMSignal();
+        VMSignal* sgnl = new (page) VMSignal();
 #else
         VMSignal* sgnl = new (_HEAP) VMSignal();
 #endif
@@ -588,7 +590,7 @@ Universe::~Universe() {
     }
 #endif
 
-VMObject* Universe::InitializeGlobals() {
+VMObject* Universe::InitializeGlobals(Page* page) {
     set_vt_to_null();
     
     //
@@ -597,95 +599,94 @@ VMObject* Universe::InitializeGlobals() {
 #if GC_TYPE==GENERATIONAL
     VMObject* nil = new (_HEAP, _PAGE) VMObject;
 #elif GC_TYPE==PAUSELESS
-    VMObject* nil = new (_HEAP, GetUniverse()->GetInterpreter()) VMObject;
+    VMObject* nil = new (page) VMObject;
 #else
     VMObject* nil = new (_HEAP) VMObject;
 #endif
     nilObject = _store_ptr(nil);
-    
-    static_cast<VMObject*>(load_ptr(nilObject))->SetField(0, load_ptr(nilObject));
+    nil->SetClass((VMClass*) nil);
 
-    metaClassClass = _store_ptr(NewMetaclassClass());
+    metaClassClass = _store_ptr(NewMetaclassClass(page));
 
-    objectClass     = _store_ptr(NewSystemClass());
-    nilClass        = _store_ptr(NewSystemClass());
-    classClass      = _store_ptr(NewSystemClass());
-    arrayClass      = _store_ptr(NewSystemClass());
-    symbolClass     = _store_ptr(NewSystemClass());
-    methodClass     = _store_ptr(NewSystemClass());
-    integerClass    = _store_ptr(NewSystemClass());
-    primitiveClass  = _store_ptr(NewSystemClass());
-    stringClass     = _store_ptr(NewSystemClass());
-    doubleClass     = _store_ptr(NewSystemClass());
+    objectClass     = _store_ptr(NewSystemClass(page));
+    nilClass        = _store_ptr(NewSystemClass(page));
+    classClass      = _store_ptr(NewSystemClass(page));
+    arrayClass      = _store_ptr(NewSystemClass(page));
+    symbolClass     = _store_ptr(NewSystemClass(page));
+    methodClass     = _store_ptr(NewSystemClass(page));
+    integerClass    = _store_ptr(NewSystemClass(page));
+    primitiveClass  = _store_ptr(NewSystemClass(page));
+    stringClass     = _store_ptr(NewSystemClass(page));
+    doubleClass     = _store_ptr(NewSystemClass(page));
 
-    signalClass     = _store_ptr(NewSystemClass());
-    mutexClass      = _store_ptr(NewSystemClass());
-    threadClass     = _store_ptr(NewSystemClass());
+    signalClass     = _store_ptr(NewSystemClass(page));
+    mutexClass      = _store_ptr(NewSystemClass(page));
+    threadClass     = _store_ptr(NewSystemClass(page));
 
     load_ptr(nilObject)->SetClass(load_ptr(nilClass));
 
-    InitializeSystemClass(load_ptr(objectClass),                  nullptr, "Object");
-    InitializeSystemClass(load_ptr(classClass),     load_ptr(objectClass), "Class");
-    InitializeSystemClass(load_ptr(metaClassClass),  load_ptr(classClass), "Metaclass");
-    InitializeSystemClass(load_ptr(nilClass),       load_ptr(objectClass), "Nil");
-    InitializeSystemClass(load_ptr(arrayClass),     load_ptr(objectClass), "Array");
-    InitializeSystemClass(load_ptr(methodClass),     load_ptr(arrayClass), "Method");
-    InitializeSystemClass(load_ptr(stringClass),    load_ptr(objectClass), "String");
-    InitializeSystemClass(load_ptr(symbolClass),    load_ptr(stringClass), "Symbol");
-    InitializeSystemClass(load_ptr(integerClass),   load_ptr(objectClass), "Integer");
-    InitializeSystemClass(load_ptr(primitiveClass), load_ptr(objectClass), "Primitive");
-    InitializeSystemClass(load_ptr(doubleClass),    load_ptr(objectClass), "Double");
+    InitializeSystemClass(load_ptr(objectClass),                  nullptr, "Object",    page);
+    InitializeSystemClass(load_ptr(classClass),     load_ptr(objectClass), "Class",     page);
+    InitializeSystemClass(load_ptr(metaClassClass),  load_ptr(classClass), "Metaclass", page);
+    InitializeSystemClass(load_ptr(nilClass),       load_ptr(objectClass), "Nil",       page);
+    InitializeSystemClass(load_ptr(arrayClass),     load_ptr(objectClass), "Array",     page);
+    InitializeSystemClass(load_ptr(methodClass),     load_ptr(arrayClass), "Method",    page);
+    InitializeSystemClass(load_ptr(stringClass),    load_ptr(objectClass), "String",    page);
+    InitializeSystemClass(load_ptr(symbolClass),    load_ptr(stringClass), "Symbol",    page);
+    InitializeSystemClass(load_ptr(integerClass),   load_ptr(objectClass), "Integer",   page);
+    InitializeSystemClass(load_ptr(primitiveClass), load_ptr(objectClass), "Primitive", page);
+    InitializeSystemClass(load_ptr(doubleClass),    load_ptr(objectClass), "Double",    page);
 
-    InitializeSystemClass(load_ptr(signalClass),    load_ptr(objectClass), "Signal");
-    InitializeSystemClass(load_ptr(mutexClass),     load_ptr(objectClass), "Mutex");
-    InitializeSystemClass(load_ptr(threadClass),    load_ptr(objectClass), "Thread");
+    InitializeSystemClass(load_ptr(signalClass),    load_ptr(objectClass), "Signal",    page);
+    InitializeSystemClass(load_ptr(mutexClass),     load_ptr(objectClass), "Mutex",     page);
+    InitializeSystemClass(load_ptr(threadClass),    load_ptr(objectClass), "Thread",    page);
 
     // Fix up objectClass
     load_ptr(objectClass)->SetSuperClass((VMClass*) load_ptr(nilObject));
     
-    obtain_vtables_of_known_classes(nil->GetClass()->GetName());
+    obtain_vtables_of_known_classes(nil->GetClass()->GetName(), page);
 
-    LoadSystemClass(load_ptr(objectClass));
-    LoadSystemClass(load_ptr(classClass));
-    LoadSystemClass(load_ptr(metaClassClass));
-    LoadSystemClass(load_ptr(nilClass));
-    LoadSystemClass(load_ptr(arrayClass));
-    LoadSystemClass(load_ptr(methodClass));
-    LoadSystemClass(load_ptr(symbolClass));
-    LoadSystemClass(load_ptr(integerClass));
-    LoadSystemClass(load_ptr(primitiveClass));
-    LoadSystemClass(load_ptr(stringClass));
-    LoadSystemClass(load_ptr(doubleClass));
+    LoadSystemClass(load_ptr(objectClass),    page);
+    LoadSystemClass(load_ptr(classClass),     page);
+    LoadSystemClass(load_ptr(metaClassClass), page);
+    LoadSystemClass(load_ptr(nilClass),       page);
+    LoadSystemClass(load_ptr(arrayClass),     page);
+    LoadSystemClass(load_ptr(methodClass),    page);
+    LoadSystemClass(load_ptr(symbolClass),    page);
+    LoadSystemClass(load_ptr(integerClass),   page);
+    LoadSystemClass(load_ptr(primitiveClass), page);
+    LoadSystemClass(load_ptr(stringClass),    page);
+    LoadSystemClass(load_ptr(doubleClass),    page);
 
-    LoadSystemClass(load_ptr(signalClass));
-    LoadSystemClass(load_ptr(mutexClass));
-    LoadSystemClass(load_ptr(threadClass));
+    LoadSystemClass(load_ptr(signalClass),    page);
+    LoadSystemClass(load_ptr(mutexClass),     page);
+    LoadSystemClass(load_ptr(threadClass),    page);
 
-    blockClass = _store_ptr(LoadClass(SymbolForChars("Block")));
+    blockClass = _store_ptr(LoadClass(SymbolForChars("Block", page), page));
 
-    VMSymbol* trueClassName = SymbolForChars("True");
-    trueClass  = _store_ptr(LoadClass(trueClassName));
-    trueObject = _store_ptr(NewInstance(load_ptr(trueClass)));
+    VMSymbol* trueClassName = SymbolForChars("True", page);
+    trueClass  = _store_ptr(LoadClass(trueClassName, page));
+    trueObject = _store_ptr(NewInstance(load_ptr(trueClass), page));
     
-    VMSymbol* falseClassName = SymbolForChars("False");
-    falseClass  = _store_ptr(LoadClass(falseClassName));
-    falseObject = _store_ptr(NewInstance(load_ptr(falseClass)));
+    VMSymbol* falseClassName = SymbolForChars("False", page);
+    falseClass  = _store_ptr(LoadClass(falseClassName, page));
+    falseObject = _store_ptr(NewInstance(load_ptr(falseClass), page));
 
-    systemClass = _store_ptr(LoadClass(SymbolForChars("System")));
+    systemClass = _store_ptr(LoadClass(SymbolForChars("System", page), page));
 
-    VMObject* systemObj = NewInstance(load_ptr(systemClass));
+    VMObject* systemObj = NewInstance(load_ptr(systemClass), page);
     systemObject = _store_ptr(systemObj);
     
     
-    SetGlobal(SymbolForChars("nil"),    load_ptr(nilObject));
-    SetGlobal(SymbolForChars("true"),   load_ptr(trueObject));
-    SetGlobal(SymbolForChars("false"),  load_ptr(falseObject));
-    SetGlobal(SymbolForChars("system"), systemObj);
-    SetGlobal(SymbolForChars("System"), load_ptr(systemClass));
-    SetGlobal(SymbolForChars("Block"),  load_ptr(blockClass));
+    SetGlobal(SymbolForChars("nil",    page), load_ptr(nilObject));
+    SetGlobal(SymbolForChars("true",   page), load_ptr(trueObject));
+    SetGlobal(SymbolForChars("false",  page), load_ptr(falseObject));
+    SetGlobal(SymbolForChars("system", page), systemObj);
+    SetGlobal(SymbolForChars("System", page), load_ptr(systemClass));
+    SetGlobal(SymbolForChars("Block",  page), load_ptr(blockClass));
     
-    symbolIfTrue  = _store_ptr(SymbolForChars("ifTrue:"));
-    symbolIfFalse = _store_ptr(SymbolForChars("ifFalse:"));
+    symbolIfTrue  = _store_ptr(SymbolForChars("ifTrue:", page));
+    symbolIfFalse = _store_ptr(SymbolForChars("ifFalse:", page));
 
     return systemObj;
 }
@@ -700,7 +701,7 @@ VMClass* Universe::GetBlockClass() const {
     return load_ptr(blockClass);
 }
 
-VMClass* Universe::GetBlockClassWithArgs(long numberOfArguments) {
+VMClass* Universe::GetBlockClassWithArgs(long numberOfArguments, Page* page) {
     map<long, GCClass*>::iterator it =
     blockClassesByNoOfArgs.find(numberOfArguments);
     if (it != blockClassesByNoOfArgs.end())
@@ -710,13 +711,13 @@ VMClass* Universe::GetBlockClassWithArgs(long numberOfArguments) {
 
     ostringstream Str;
     Str << "Block" << numberOfArguments;
-    VMSymbol* name = SymbolFor(Str.str());
-    VMClass* result = LoadClassBasic(name, nullptr);
+    VMSymbol* name = SymbolFor(Str.str(), page);
+    VMClass* result = LoadClassBasic(name, nullptr, page);
 
 #if GC_TYPE==GENERATIONAL
     result->AddInstancePrimitive(new (_HEAP, _PAGE) VMEvaluationPrimitive(numberOfArguments) );
 #elif GC_TYPE==PAUSELESS
-    result->AddInstancePrimitive(new (_HEAP, GetUniverse()->GetInterpreter(), 0, true) VMEvaluationPrimitive(numberOfArguments) );
+    result->AddInstancePrimitive(new (page, 0, true) VMEvaluationPrimitive(numberOfArguments, page), page);
 #else
     result->AddInstancePrimitive(new (_HEAP) VMEvaluationPrimitive(numberOfArguments) );
 #endif
@@ -781,7 +782,7 @@ bool Universe::HasGlobal(VMSymbol* name) {
 #endif
 
 void Universe::InitializeSystemClass(VMClass* systemClass,
-VMClass* superClass, const char* name) {
+VMClass* superClass, const char* name, Page* page) {
     StdString s_name(name);
 
     if (superClass != nullptr) {
@@ -796,22 +797,22 @@ VMClass* superClass, const char* name) {
 
     VMClass* sysClassClass = systemClass->GetClass();
 
-    systemClass->SetInstanceFields(NewArray(0));
-    sysClassClass->SetInstanceFields(NewArray(0));
+    systemClass->SetInstanceFields(NewArray(0, page));
+    sysClassClass->SetInstanceFields(NewArray(0, page));
 
-    systemClass->SetInstanceInvokables(NewArray(0));
-    sysClassClass->SetInstanceInvokables(NewArray(0));
+    systemClass->SetInstanceInvokables(NewArray(0, page));
+    sysClassClass->SetInstanceInvokables(NewArray(0, page));
 
-    systemClass->SetName(SymbolFor(s_name));
+    systemClass->SetName(SymbolFor(s_name, page));
     ostringstream Str;
     Str << s_name << " class";
     StdString classClassName(Str.str());
-    sysClassClass->SetName(SymbolFor(classClassName));
+    sysClassClass->SetName(SymbolFor(classClassName, page));
 
     SetGlobal(systemClass->GetName(), systemClass);
 }
 
-VMClass* Universe::LoadClass(VMSymbol* name) {
+VMClass* Universe::LoadClass(VMSymbol* name, Page* page) {
     pthread_mutex_lock(&classLoading);
     VMClass* result = static_cast<VMClass*>(GetGlobal(name));
     
@@ -820,7 +821,7 @@ VMClass* Universe::LoadClass(VMSymbol* name) {
         return result;
     }
 
-    result = LoadClassBasic(name, nullptr);
+    result = LoadClassBasic(name, nullptr, page);
 
     if (!result) {
 		// we fail silently, it is not fatal that loading a class failed
@@ -829,7 +830,7 @@ VMClass* Universe::LoadClass(VMSymbol* name) {
     }
 
     if (result->HasPrimitives() || result->GetClass()->HasPrimitives())
-        result->LoadPrimitives(classPath);
+        result->LoadPrimitives(classPath, page);
     
     SetGlobal(name, result);
 
@@ -837,7 +838,7 @@ VMClass* Universe::LoadClass(VMSymbol* name) {
     return result;
 }
 
-VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
+VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass, Page* page) {
     StdString s_name = name->GetStdString();
     //sync_out(ostringstream() << "LoadClassBasic: " << name->GetChars());
     // assert(0 != strcmp(name->GetChars(), "nil")); // NOTE: name can be nil. During assembling we do a load again, unconditionally, also for nil symbol. Should be fixed...
@@ -847,7 +848,7 @@ VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
     for (vector<StdString>::iterator i = classPath.begin();
             i != classPath.end(); ++i) {
         SourcecodeCompiler compiler;
-        result = compiler.CompileClass(*i, name->GetStdString(), systemClass);
+        result = compiler.CompileClass(*i, name->GetStdString(), systemClass, page);
         if (result) {
             if (dumpBytecodes) {
                 Disassembler::Dump(result->GetClass());
@@ -859,16 +860,16 @@ VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
     return nullptr;
 }
 
-VMClass* Universe::LoadShellClass(StdString& stmt) {
+VMClass* Universe::LoadShellClass(StdString& stmt, Page* page) {
     SourcecodeCompiler compiler;
-    VMClass* result = compiler.CompileClassString(stmt, nullptr);
+    VMClass* result = compiler.CompileClassString(stmt, nullptr, page);
     if(dumpBytecodes)
         Disassembler::Dump(result);
     return result;
 }
 
-void Universe::LoadSystemClass(VMClass* systemClass) {
-    VMClass* result = LoadClassBasic(systemClass->GetName(), systemClass);
+void Universe::LoadSystemClass(VMClass* systemClass, Page* page) {
+    VMClass* result = LoadClassBasic(systemClass->GetName(), systemClass, page);
     StdString s = systemClass->GetName()->GetStdString();
 
     if (!result) {
@@ -876,10 +877,10 @@ void Universe::LoadSystemClass(VMClass* systemClass) {
     }
 
     if (result->HasPrimitives() || result->GetClass()->HasPrimitives())
-        result->LoadPrimitives(classPath);
+        result->LoadPrimitives(classPath, page);
 }
 
-VMArray* Universe::NewArray(long size) const {
+VMArray* Universe::NewArray(long size, Page* page) const {
     long additionalBytes = size * sizeof(VMObject*);
     
 #if GC_TYPE==GENERATIONAL
@@ -891,7 +892,7 @@ VMArray* Universe::NewArray(long size) const {
     if (outsideNursery)
         result->SetGCField(MASK_OBJECT_IS_OLD);
 #elif GC_TYPE==PAUSELESS
-    VMArray* result = new (_HEAP, GetUniverse()->GetInterpreter(), additionalBytes) VMArray(size);
+    VMArray* result = new (page, additionalBytes) VMArray(size);
 #else
     VMArray* result = new (_HEAP, additionalBytes) VMArray(size);
 #endif
@@ -902,31 +903,31 @@ VMArray* Universe::NewArray(long size) const {
     return result;
 }
 
-VMArray* Universe::NewArrayFromStrings(const vector<StdString>& argv) const {
-    VMArray* result = NewArray(argv.size());
+VMArray* Universe::NewArrayFromStrings(const vector<StdString>& argv, Page* page) const {
+    VMArray* result = NewArray(argv.size(), page);
     long j = 0;
     for (vector<StdString>::const_iterator i = argv.begin();
             i != argv.end(); ++i) {
-        result->SetIndexableField(j, NewString(*i));
+        result->SetIndexableField(j, NewString(*i, page));
         ++j;
     }
 
     return result;
 }
 
-VMArray* Universe::NewArrayList(ExtendedList<VMSymbol*>& list) const {
+VMArray* Universe::NewArrayList(ExtendedList<VMSymbol*>& list, Page* page) const {
     ExtendedList<vm_oop_t>& objList = (ExtendedList<vm_oop_t>&) list;
-    return NewArrayList(objList);
+    return NewArrayList(objList, page);
 }
 
-VMArray* Universe::NewArrayList(ExtendedList<VMInvokable*>& list) const {
+VMArray* Universe::NewArrayList(ExtendedList<VMInvokable*>& list, Page* page) const {
     ExtendedList<vm_oop_t>& objList = (ExtendedList<vm_oop_t>&) list;
-    return NewArrayList(objList);
+    return NewArrayList(objList, page);
 }
 
-VMArray* Universe::NewArrayList(ExtendedList<vm_oop_t>& list) const {
+VMArray* Universe::NewArrayList(ExtendedList<vm_oop_t>& list, Page* page) const {
     long size = list.Size();
-    VMArray* result = NewArray(size);
+    VMArray* result = NewArray(size, page);
 
     if (result) {
         for (long i = 0; i < size; ++i) {
@@ -937,15 +938,15 @@ VMArray* Universe::NewArrayList(ExtendedList<vm_oop_t>& list) const {
     return result;
 }
 
-VMBlock* Universe::NewBlock(VMMethod* method, VMFrame* context, long arguments) {
+VMBlock* Universe::NewBlock(VMMethod* method, VMFrame* context, long arguments, Page* page) {
 #if GC_TYPE==GENERATIONAL
     VMBlock* result = new (_HEAP, _PAGE) VMBlock;
 #elif GC_TYPE==PAUSELESS
-    VMBlock* result = new (_HEAP, GetUniverse()->GetInterpreter()) VMBlock;
+    VMBlock* result = new (page) VMBlock;
 #else
     VMBlock* result = new (_HEAP) VMBlock;
 #endif
-    result->SetClass(this->GetBlockClassWithArgs(arguments));
+    result->SetClass(GetBlockClassWithArgs(arguments, page));
 
     result->SetMethod(method);
     result->SetContext(context);
@@ -954,7 +955,7 @@ VMBlock* Universe::NewBlock(VMMethod* method, VMFrame* context, long arguments) 
     return result;
 }
 
-VMClass* Universe::NewClass(VMClass* classOfClass) const {
+VMClass* Universe::NewClass(VMClass* classOfClass, Page* page) const {
     long numFields = classOfClass->GetNumberOfInstanceFields();
     VMClass* result;
     long additionalBytes = numFields * sizeof(VMObject*);
@@ -962,7 +963,7 @@ VMClass* Universe::NewClass(VMClass* classOfClass) const {
 #if GC_TYPE==GENERATIONAL
     result = new (_HEAP, _PAGE, additionalBytes) VMClass(numFields);
 #elif GC_TYPE==PAUSELESS
-    result = new (_HEAP, GetUniverse()->GetInterpreter(), additionalBytes, true) VMClass(numFields);
+    result = new (page, additionalBytes, true) VMClass(numFields);
 #else
     result = new (_HEAP, additionalBytes) VMClass(numFields);
 #endif
@@ -970,7 +971,7 @@ VMClass* Universe::NewClass(VMClass* classOfClass) const {
 #if GC_TYPE==GENERATIONAL
         result = new (_HEAP, _PAGE) VMClass;
 #elif GC_TYPE==PAUSELESS
-        result = new (_HEAP, GetUniverse()->GetInterpreter(), 0, true) VMClass;
+        result = new (page, 0, true) VMClass;
 #else
         result = new (_HEAP) VMClass;
 #endif
@@ -981,18 +982,18 @@ VMClass* Universe::NewClass(VMClass* classOfClass) const {
     return result;
 }
 
-VMDouble* Universe::NewDouble(double value) const {
+VMDouble* Universe::NewDouble(double value, Page* page) const {
     LOG_ALLOCATION("VMDouble", sizeof(VMDouble));
 #if GC_TYPE==GENERATIONAL
     return new (_HEAP, _PAGE) VMDouble(value);
 #elif GC_TYPE==PAUSELESS
-    return new (_HEAP, GetUniverse()->GetInterpreter()) VMDouble(value);
+    return new (page) VMDouble(value);
 #else
     return new (_HEAP) VMDouble(value);
 #endif
 }
 
-VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method) const {
+VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method, Page* page) const {
     VMFrame* result = nullptr;
     
     /*
@@ -1014,7 +1015,7 @@ VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method) const {
 #if GC_TYPE==GENERATIONAL
     result = new (_HEAP, _PAGE, additionalBytes) VMFrame(length);
 #elif GC_TYPE==PAUSELESS
-    result = new (_HEAP, GetUniverse()->GetInterpreter(), additionalBytes) VMFrame(length);
+    result = new (page, additionalBytes) VMFrame(length);
 #else
     result = new (_HEAP, additionalBytes) VMFrame(length);
 #endif
@@ -1028,14 +1029,14 @@ VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method) const {
     return result;
 }
 
-VMObject* Universe::NewInstance( VMClass* classOfInstance) const {
+VMObject* Universe::NewInstance(VMClass* classOfInstance, Page* page) const {
     long numOfFields = classOfInstance->GetNumberOfInstanceFields();
     //the additional space needed is calculated from the number of fields
     long additionalBytes = numOfFields * sizeof(VMObject*);
 #if GC_TYPE==GENERATIONAL
     VMObject* result = new (_HEAP, _PAGE, additionalBytes) VMObject(numOfFields);
 #elif GC_TYPE==PAUSELESS
-    VMObject* result = new (_HEAP, GetUniverse()->GetInterpreter(), additionalBytes) VMObject(numOfFields);
+    VMObject* result = new (page, additionalBytes) VMObject(numOfFields);
 #else
     VMObject* result = new (_HEAP, additionalBytes) VMObject(numOfFields);
 #endif
@@ -1045,7 +1046,7 @@ VMObject* Universe::NewInstance( VMClass* classOfInstance) const {
     return result;
 }
 
-VMInteger* Universe::NewInteger(int64_t value) const {
+VMInteger* Universe::NewInteger(int64_t value, Page* page) const {
 
 #ifdef GENERATE_INTEGER_HISTOGRAM
     integerHist[value/INT_HIST_SIZE] = integerHist[value/INT_HIST_SIZE]+1;
@@ -1062,19 +1063,19 @@ VMInteger* Universe::NewInteger(int64_t value) const {
 #if GC_TYPE==GENERATIONAL
     return new (_HEAP, _PAGE) VMInteger(value);
 #elif GC_TYPE==PAUSELESS
-    return new (_HEAP, GetUniverse()->GetInterpreter()) VMInteger(value);
+    return new (page) VMInteger(value);
 #else
     return new (_HEAP) VMInteger(value);
 #endif
 }
 
-VMClass* Universe::NewMetaclassClass() const {
+VMClass* Universe::NewMetaclassClass(Page* page) const {
 #if GC_TYPE==GENERATIONAL
     VMClass* result = new (_HEAP, _PAGE) VMClass;
     result->SetClass(new (_HEAP, _PAGE) VMClass);
 #elif GC_TYPE==PAUSELESS
-    VMClass* result = new (_HEAP, GetUniverse()->GetInterpreter(), 0, true) VMClass;
-    result->SetClass(new (_HEAP, GetUniverse()->GetInterpreter(), 0, true) VMClass);
+    VMClass* result = new (page, 0, true) VMClass;
+    result->SetClass(new (page, 0, true) VMClass);
 #else
     VMClass* result = new (_HEAP) VMClass;
     result->SetClass(new (_HEAP) VMClass);
@@ -1229,43 +1230,44 @@ void  Universe::CheckMarkingGlobals(void (*walk)(vm_oop_t)) {
     }
 }
 #else
-void Universe::WalkGlobals(walk_heap_fn walk) {
-    nilObject   = (GCObject*) walk(nilObject);
-    trueObject  = (GCObject*) walk(trueObject);
-    falseObject = (GCObject*) walk(falseObject);
+void Universe::WalkGlobals(walk_heap_fn walk, Page* page) {
+    nilObject   = static_cast<GCObject*>(walk(nilObject,    page));
+    trueObject  = static_cast<GCObject*>(walk(trueObject,   page));
+    falseObject = static_cast<GCObject*>(walk(falseObject,  page));
+    systemObject= static_cast<GCObject*>(walk(systemObject, page));
 
 #if USE_TAGGING
-    GlobalBox::updateIntegerBox(static_cast<VMInteger*>(walk(GlobalBox::IntegerBox())));
+    GlobalBox::WalkGlobals(walk, page);
 #endif
 
-    objectClass    = (GCClass*) (walk(objectClass));
-    classClass     = (GCClass*) (walk(classClass));
-    metaClassClass = (GCClass*) (walk(metaClassClass));
+    objectClass    = static_cast<GCClass*>(walk(objectClass,     page));
+    classClass     = static_cast<GCClass*>(walk(classClass,      page));
+    metaClassClass = static_cast<GCClass*>(walk(metaClassClass,  page));
 
-    nilClass        = (GCClass*) (walk(nilClass));
-    integerClass    = (GCClass*) (walk(integerClass));
-    arrayClass      = (GCClass*) (walk(arrayClass));
-    methodClass     = (GCClass*) (walk(methodClass));
-    symbolClass     = (GCClass*) (walk(symbolClass));
-    primitiveClass  = (GCClass*) (walk(primitiveClass));
-    stringClass     = (GCClass*) (walk(stringClass));
-    systemClass     = (GCClass*) (walk(systemClass));
-    blockClass      = (GCClass*) (walk(blockClass));
-    doubleClass     = (GCClass*) (walk(doubleClass));
+    nilClass        = static_cast<GCClass*>(walk(nilClass,       page));
+    integerClass    = static_cast<GCClass*>(walk(integerClass,   page));
+    arrayClass      = static_cast<GCClass*>(walk(arrayClass,     page));
+    methodClass     = static_cast<GCClass*>(walk(methodClass,    page));
+    symbolClass     = static_cast<GCClass*>(walk(symbolClass,    page));
+    primitiveClass  = static_cast<GCClass*>(walk(primitiveClass, page));
+    stringClass     = static_cast<GCClass*>(walk(stringClass,    page));
+    systemClass     = static_cast<GCClass*>(walk(systemClass,    page));
+    blockClass      = static_cast<GCClass*>(walk(blockClass,     page));
+    doubleClass     = static_cast<GCClass*>(walk(doubleClass,    page));
     
-    threadClass     = (GCClass*) (walk(threadClass));
-    mutexClass      = (GCClass*) (walk(mutexClass));
-    signalClass     = (GCClass*) (walk(signalClass));
+    signalClass     = static_cast<GCClass*>(walk(signalClass,    page));
+    mutexClass      = static_cast<GCClass*>(walk(mutexClass,     page));
+    threadClass     = static_cast<GCClass*>(walk(threadClass,    page));
     
-    trueClass  = (GCClass*) (walk(trueClass));
-    falseClass = (GCClass*) (walk(falseClass));
+    trueClass  = static_cast<GCClass*>(walk(trueClass,  page));
+    falseClass = static_cast<GCClass*>(walk(falseClass, page));
 
 #if CACHE_INTEGER
     for (unsigned long i = 0; i < (INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE); i++)
 #if USE_TAGGING
-        prebuildInts[i] = TAG_INTEGER(INT_CACHE_MIN_VALUE + i);
+        prebuildInts[i] = TAG_INTEGER(INT_CACHE_MIN_VALUE + i, page);
 #else
-        prebuildInts[i] = static_cast<VMInteger*>(walk(prebuildInts[i]));
+        prebuildInts[i] = walk(prebuildInts[i], page);
 #endif
 #endif
 
@@ -1276,8 +1278,8 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
         if (iter->second == nullptr)
             continue;
 
-        GCSymbol* key = (GCSymbol*) (walk(iter->first));
-        GCObject* val = (GCObject*) walk(iter->second);
+        GCSymbol* key = static_cast<GCSymbol*>(walk(iter->first, page));
+        gc_oop_t val = walk(iter->second, page);
         globals[key] = val;
     }
     
@@ -1287,14 +1289,14 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
          symbolIter != symbolsMap.end();
          symbolIter++) {
         //insert overwrites old entries inside the internal map
-        symbolIter->second = (GCSymbol*) (walk(symbolIter->second));
+        symbolIter->second = static_cast<GCSymbol*>(walk(symbolIter->second, page));
     }
 
     map<long, GCClass*>::iterator bcIter;
     for (bcIter = blockClassesByNoOfArgs.begin();
          bcIter != blockClassesByNoOfArgs.end();
          bcIter++) {
-        bcIter->second = (GCClass*) (walk(bcIter->second));
+        bcIter->second = static_cast<GCClass*>(walk(bcIter->second, page));
     }
 
     //reassign ifTrue ifFalse Symbols
@@ -1304,34 +1306,32 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
 }
 #endif
 
-VMMethod* Universe::NewMethod( VMSymbol* signature,
-        size_t numberOfBytecodes, size_t numberOfConstants) const {
+VMMethod* Universe::NewMethod(VMSymbol* signature,
+        size_t numberOfBytecodes, size_t numberOfConstants, Page* page) const {
     //Method needs space for the bytecodes and the pointers to the constants
     long additionalBytes = PADDED_SIZE(numberOfBytecodes + numberOfConstants*sizeof(VMObject*));
 
 #if GC_TYPE==GENERATIONAL
     VMMethod* result = new (_HEAP, _PAGE, additionalBytes)
 #elif GC_TYPE==PAUSELESS
-    VMMethod* result = new (_HEAP, GetUniverse()->GetInterpreter(), additionalBytes, true)
+    VMMethod* result = new (page, additionalBytes, true)
 #else
     VMMethod* result = new (_HEAP,additionalBytes)
 #endif
-    VMMethod(numberOfBytecodes, numberOfConstants, 0);
+                VMMethod(numberOfBytecodes, numberOfConstants, 0, page);
 
     result->SetClass(load_ptr(methodClass));
-
-    result->SetSignature(signature);
-
+    result->SetSignature(signature, page);
 
     LOG_ALLOCATION("VMMethod", result->GetObjectSize());
     return result;
 }
 
-VMMutex* Universe::NewMutex() const {
+VMMutex* Universe::NewMutex(Page* page) const {
 #if GC_TYPE==GENERATIONAL
     VMMutex* result = new (_HEAP, _PAGE) VMMutex();
 #elif GC_TYPE==PAUSELESS
-    VMMutex* result = new (_HEAP, GetUniverse()->GetInterpreter()) VMMutex();
+    VMMutex* result = new (page) VMMutex();
 #else
     VMMutex* result = new (_HEAP) VMMutex();
 #endif
@@ -1341,11 +1341,11 @@ VMMutex* Universe::NewMutex() const {
     return result;
 }
 
-VMSignal* Universe::NewSignal() const {
+VMSignal* Universe::NewSignal(Page* page) const {
 #if GC_TYPE==GENERATIONAL
     VMSignal* result = new (_HEAP, _PAGE) VMSignal();
 #elif GC_TYPE==PAUSELESS
-    VMSignal* result = new (_HEAP, GetUniverse()->GetInterpreter()) VMSignal();
+    VMSignal* result = new (page) VMSignal();
 #else
     VMSignal* result = new (_HEAP) VMSignal();
 #endif
@@ -1355,11 +1355,11 @@ VMSignal* Universe::NewSignal() const {
     return result;
 }
 
-VMThread* Universe::NewThread() const {
+VMThread* Universe::NewThread(Page* page) const {
 #if GC_TYPE==GENERATIONAL
     VMThread* result = new (_HEAP, _PAGE) VMThread();
 #elif GC_TYPE==PAUSELESS
-    VMThread* result = new (_HEAP, GetUniverse()->GetInterpreter()) VMThread();
+    VMThread* result = new (page) VMThread();
 #else
     VMThread* result = new (_HEAP) VMThread();
 #endif
@@ -1371,15 +1371,15 @@ VMThread* Universe::NewThread() const {
     return result;
 }
 
-VMString* Universe::NewString( const StdString& str) const {
-    return NewString(str.c_str());
+VMString* Universe::NewString(const StdString& str, Page* page) const {
+    return NewString(str.c_str(), page);
 }
 
-VMString* Universe::NewString( const char* str) const {
+VMString* Universe::NewString(const char* str, Page* page) const {
 #if GC_TYPE==GENERATIONAL
     VMString* result = new (_HEAP, _PAGE, PADDED_SIZE(strlen(str) + 1)) VMString(str);
 #elif GC_TYPE==PAUSELESS
-    VMString* result = new (_HEAP, GetUniverse()->GetInterpreter(), PADDED_SIZE(strlen(str) + 1)) VMString(str);
+    VMString* result = new (page, PADDED_SIZE(strlen(str) + 1)) VMString(str);
 #else
     VMString* result = new (_HEAP, PADDED_SIZE(strlen(str) + 1)) VMString(str);
 #endif
@@ -1388,15 +1388,15 @@ VMString* Universe::NewString( const char* str) const {
     return result;
 }
 
-VMSymbol* Universe::NewSymbol(const StdString& str) {
-    return NewSymbol(str.c_str());
+VMSymbol* Universe::NewSymbol(const StdString& str, Page* page) {
+    return NewSymbol(str.c_str(), page);
 }
 
-VMSymbol* Universe::NewSymbol(const char* str) {
+VMSymbol* Universe::NewSymbol(const char* str, Page* page) {
 #if GC_TYPE==GENERATIONAL
     VMSymbol* result = new (_HEAP, _PAGE, PADDED_SIZE(strlen(str)+1)) VMSymbol(str);
 #elif GC_TYPE==PAUSELESS
-    VMSymbol* result = new (_HEAP, GetUniverse()->GetInterpreter(), PADDED_SIZE(strlen(str)+1), true) VMSymbol(str);
+    VMSymbol* result = new (page, PADDED_SIZE(strlen(str)+1), true) VMSymbol(str);
 #else
     VMSymbol* result = new (_HEAP, PADDED_SIZE(strlen(str)+1)) VMSymbol(str);
 #endif
@@ -1406,18 +1406,18 @@ VMSymbol* Universe::NewSymbol(const char* str) {
     return result;
 }
 
-VMClass* Universe::NewSystemClass() const {
+VMClass* Universe::NewSystemClass(Page* page) const {
 #if GC_TYPE==GENERATIONAL
     VMClass* systemClass = new (_HEAP, _PAGE) VMClass();
     systemClass->SetClass(new (_HEAP, _PAGE) VMClass());
 #elif GC_TYPE==PAUSELESS
-    VMClass* systemClass = new (_HEAP, GetUniverse()->GetInterpreter(), 0, true) VMClass();
-    systemClass->SetClass(new (_HEAP, GetUniverse()->GetInterpreter(), 0, true) VMClass());
+    VMClass* systemClass = new (page, 0, true) VMClass();
+    systemClass->SetClass(new (page, 0, true) VMClass());
 #else
     VMClass* systemClass = new (_HEAP) VMClass();
     systemClass->SetClass(new (_HEAP) VMClass());
 #endif
-    
+
     VMClass* mclass = systemClass->GetClass();
 
     mclass->SetClass(load_ptr(metaClassClass));
@@ -1426,20 +1426,20 @@ VMClass* Universe::NewSystemClass() const {
     return systemClass;
 }
 
-VMSymbol* Universe::SymbolFor(const StdString& str) {
+VMSymbol* Universe::SymbolFor(const StdString& str, Page* page) {
     map<string, GCSymbol*>::iterator it = symbolsMap.find(str);
     
     if (it == symbolsMap.end()) {
         //sync_out(ostringstream() << "Create new symbol: " << str.c_str());
-        return NewSymbol(str);
+        return NewSymbol(str, page);
     } else {
         return load_ptr(it->second);
     }
     //return (it == symbolsMap.end()) ? NewSymbol(str) : it->second;
 }
 
-VMSymbol* Universe::SymbolForChars(const char* str) {
-    return SymbolFor(str);
+VMSymbol* Universe::SymbolForChars(const char* str, Page* page) {
+    return SymbolFor(str, page);
 }
 
 void Universe::SetGlobal(VMSymbol* name, vm_oop_t val) {
@@ -1457,7 +1457,7 @@ void Universe::RemoveInterpreter() {
 }
 
 #if GC_TYPE!=PAUSELESS
-Interpreter* Universe::NewInterpreter() {
+Interpreter* Universe::NewInterpreter(Page*) {
     Interpreter* interpreter = new Interpreter();
     pthread_setspecific(this->interpreterKey, interpreter);
     pthread_mutex_lock(&interpreterMutex);
@@ -1470,14 +1470,14 @@ vector<Interpreter*>* Universe::GetInterpreters() {
     return &interpreters;
 }
 #else
-Interpreter* Universe::NewInterpreter() {
+Interpreter* Universe::NewInterpreter(Page* page) {
     pthread_mutex_lock(_HEAP->GetNewInterpreterMutex());
     Interpreter* interpreter;
     pthread_mutex_lock(&interpreterMutex);
     if (interpreters.empty())
-        interpreter = new Interpreter(false, true);
+        interpreter = new Interpreter(page, false, true);
     else
-        interpreter = new Interpreter(interpreters.back()->GetExpectedNMT(), interpreters.back()->GCTrapEnabled());
+        interpreter = new Interpreter(page, interpreters.back()->GetExpectedNMT(), interpreters.back()->GCTrapEnabled());
     pthread_setspecific(this->interpreterKey, interpreter);
     interpreters.push_back(interpreter);
     pthread_mutex_unlock(&interpreterMutex);

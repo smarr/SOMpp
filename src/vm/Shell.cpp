@@ -101,7 +101,7 @@ void Shell::Start(Interpreter* interp) {
         statement = ss.str();
 
         ++counter;
-        runClass = _store_ptr(GetUniverse()->LoadShellClass(statement));
+        runClass = _store_ptr(GetUniverse()->LoadShellClass(statement, interp->GetPage()));
         // Compile and load the newly generated class
         if(runClass == nullptr) {
             cout << "can't compile statement.";
@@ -115,14 +115,14 @@ void Shell::Start(Interpreter* interp) {
         load_ptr(currentFrame)->SetBytecodeIndex(bytecodeIndex);
 
         // Create and push a new instance of our class on the stack
-        load_ptr(currentFrame)->Push(GetUniverse()->NewInstance(load_ptr(runClass)));
+        load_ptr(currentFrame)->Push(GetUniverse()->NewInstance(load_ptr(runClass), interp->GetPage()));
 
         // Push the old value of "it" on the stack
         load_ptr(currentFrame)->Push(load_ptr(it));
 
         // Lookup the run: method
         VMInvokable* initialize = load_ptr(runClass)->LookupInvokable(
-                                        GetUniverse()->SymbolFor("run:"));
+                                        GetUniverse()->SymbolFor("run:", interp->GetPage()));
 
         // Invoke the run method
         initialize->Invoke(interp, load_ptr(currentFrame));

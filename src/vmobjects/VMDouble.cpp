@@ -27,30 +27,10 @@
 #include "VMDouble.h"
 
 #include <vm/Universe.h>
-#include "../interpreter/Interpreter.h"
 
-#if GC_TYPE==GENERATIONAL
-VMDouble* VMDouble::Clone() {
-    return new (_HEAP, _PAGE, 0, true) VMDouble(*this);
+VMDouble* VMDouble::Clone(Page* page) {
+    return new (page, 0 ALLOC_MATURE) VMDouble(*this);
 }
-#elif GC_TYPE==PAUSELESS
-VMDouble* VMDouble::Clone(Interpreter* thread) {
-    VMDouble* clone = new (_HEAP, thread) VMDouble(*this);
-    /* clone->IncreaseVersion();
-    this->MarkObjectAsInvalid(); */
-    return clone;
-}
-VMDouble* VMDouble::Clone(PauselessCollectorThread* thread) {
-    VMDouble* clone = new (_HEAP, thread) VMDouble(*this);
-    /* clone->IncreaseVersion();
-    this->MarkObjectAsInvalid(); */
-    return clone;
-}
-#else
-VMDouble* VMDouble::Clone() {
-    return new (_HEAP) VMDouble(*this);
-}
-#endif
 
 VMClass* VMDouble::GetClass() {
     return load_ptr(doubleClass);

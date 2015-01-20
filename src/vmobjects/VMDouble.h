@@ -34,19 +34,13 @@ public:
     
     VMDouble(double val) : embeddedDouble(val), AbstractVMObject() {}
 
+    virtual VMDouble* Clone(Page*);
     inline  double   GetEmbeddedDouble() const;
     virtual VMClass* GetClass();
     inline virtual size_t GetObjectSize() const;
     
     virtual void MarkObjectAsInvalid() {}
     
-#if GC_TYPE==PAUSELESS
-    virtual VMDouble* Clone(Interpreter*);
-    virtual VMDouble* Clone(PauselessCollectorThread*);
-#else
-    virtual VMDouble* Clone();
-#endif
-
     virtual StdString AsDebugString();
 
 private:

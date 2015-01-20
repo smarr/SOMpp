@@ -37,8 +37,9 @@ class ClassGenerationContext {
 public:
     ClassGenerationContext();
     ~ClassGenerationContext();
-    VMClass* Assemble();
-    void AssembleSystemClass(VMClass* systemClass);
+
+    VMClass* Assemble(Page*);
+    void AssembleSystemClass(VMClass* systemClass, Page*);
 
     bool HasField(VMSymbol*);
     void AddInstanceField(VMSymbol*);

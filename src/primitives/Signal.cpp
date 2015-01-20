@@ -29,9 +29,9 @@ void _Signal::SignalAll(Interpreter*, VMFrame* frame) {
     frame->Push(signal);
 }
 
-void _Signal::New(Interpreter*, VMFrame* frame) {
+void _Signal::New(Interpreter* interp, VMFrame* frame) {
     frame->Pop();
-    VMSignal* signal = GetUniverse()->NewSignal();
+    VMSignal* signal = GetUniverse()->NewSignal(interp->GetPage());
     frame->Push(signal);
 }
 

@@ -40,7 +40,7 @@ public:
             VMSymbol* GetSignature();
     virtual void      SetSignature(VMSymbol* sig);
             VMClass*  GetHolder();
-            void      SetHolder(VMClass* hld);
+    virtual void      SetHolder(VMClass* hld);
     
     virtual        void      MarkObjectAsInvalid();
 
@@ -50,7 +50,7 @@ public:
 #else
     void WalkObjects(walk_heap_fn walk);
 #endif
-    
+
 protected:
     GCSymbol* signature;
     GCClass*  holder;

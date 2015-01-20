@@ -7,11 +7,13 @@
 //
 
 #include "Page.h"
-#include "../vmobjects/AbstractObject.h"
-#include "../vm/Universe.h"
-#include "../interpreter/Interpreter.h"
+#include <vmobjects/AbstractObject.h>
+#include <vm/Universe.h>
+#include <interpreter/Interpreter.h>
 #include <atomic>
 #include <misc/debug.h>
+#include <misc/defs.h>
+
 
 Page::Page(void* pageStart, PagedHeap* heap) {
     this->heap = heap;
@@ -21,7 +23,7 @@ Page::Page(void* pageStart, PagedHeap* heap) {
     treshold = (void*)((size_t)pageStart + ((size_t)(PAGE_SIZE * 0.9)));
 }
 
-AbstractVMObject* Page::AllocateObject(size_t size) {
+AbstractVMObject* Page::AllocateObject(size_t size ALLOC_OUTSIDE_NURSERY_DECLpp ALLOC_NON_RELOCATABLE_DECLpp) {
     AbstractVMObject* newObject = (AbstractVMObject*) nextFreePosition;
     nextFreePosition = (void*)((size_t)nextFreePosition + size);
 #if GC_TYPE==PAUSELESS
@@ -65,7 +67,7 @@ void Page::UnBlock() {
 AbstractVMObject* Page::LookupNewAddress(AbstractVMObject* oldAddress, Interpreter* thread) {
     long position = ((size_t)oldAddress - pageStart)/8;
     if (!sideArray[position]) {
-        AbstractVMObject* newLocation = oldAddress->Clone(thread);
+        AbstractVMObject* newLocation = oldAddress->Clone(this);
         AbstractVMObject* test = nullptr;
         void* oldPosition = thread->GetPage()->nextFreePosition;
         if (!sideArray[position].compare_exchange_strong(test, newLocation)) {
@@ -79,7 +81,7 @@ AbstractVMObject* Page::LookupNewAddress(AbstractVMObject* oldAddress, Interpret
 AbstractVMObject* Page::LookupNewAddress(AbstractVMObject* oldAddress, PauselessCollectorThread* thread) {
     long position = ((size_t)oldAddress - pageStart)/8;
     if (!sideArray[position]) {
-        AbstractVMObject* newLocation = oldAddress->Clone(thread);
+        AbstractVMObject* newLocation = oldAddress->Clone(this);
         AbstractVMObject* test = nullptr;
         void* oldPosition = thread->GetPage()->nextFreePosition;
         if (!sideArray[position].compare_exchange_strong(test, newLocation)) {
@@ -115,7 +117,7 @@ void Page::RelocatePage() {
          currentObject = (AbstractVMObject*) (currentObject->GetObjectSize() + (size_t) currentObject)) {
         assert(Universe::IsValidObject(currentObject));
         if (currentObject->GetGCField() == _HEAP->GetMarkValue()) {
-            AbstractVMObject* newLocation = currentObject->Clone(_HEAP->GetGCThread());
+            AbstractVMObject* newLocation = currentObject->Clone(this);
             long positionSideArray = ((size_t)currentObject - pageStart)/8;
             AbstractVMObject* test = nullptr;
             void* oldPosition = thread->GetPage()->nextFreePosition;

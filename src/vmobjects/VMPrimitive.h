@@ -36,21 +36,20 @@ class VMPrimitive: public VMInvokable {
 public:
     typedef GCPrimitive Stored;
     
-    static VMPrimitive* GetEmptyPrimitive(VMSymbol* sig, bool classSide);
+    static VMPrimitive* GetEmptyPrimitive(VMSymbol* sig, bool classSide, Page*);
 
     VMPrimitive(VMSymbol* sig);
 
     inline  bool IsEmpty() const;
     inline  void SetRoutine(PrimitiveRoutine* rtn);
             void SetEmpty(bool value) {empty = value;};
-    
+
+    virtual VMPrimitive* Clone(Page*);
+
 #if GC_TYPE==PAUSELESS
-    virtual VMPrimitive* Clone(Interpreter*);
-    virtual VMPrimitive* Clone(PauselessCollectorThread*);
     virtual void         MarkReferences();
     virtual void         CheckMarking(void (vm_oop_t));
 #else
-    virtual VMPrimitive* Clone();
     virtual void WalkObjects(walk_heap_fn walk);
 #endif
 

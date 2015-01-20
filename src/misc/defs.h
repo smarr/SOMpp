@@ -63,11 +63,30 @@
 #define PAGE_SIZE 4096
 #endif
 
-#if   GC_TYPE == GENERATIONAL
-#define write_barrier(obj, value_ptr) (_HEAP->WriteBarrier(obj, value_ptr))
+#if GC_TYPE == GENERATIONAL
+  #define write_barrier(obj, value_ptr) (_HEAP->WriteBarrier(obj, value_ptr))
+  #define ALLOC_MATURE    , true
+  #define ALLOC_OUTSIDE_NURSERY_DECL   , bool outsideNursery = false
+  #define ALLOC_OUTSIDE_NURSERY_DECLpp , bool outsideNursery
+  #define ALLOC_HINT                   , outsideNursery
 #else
-#define write_barrier(obj, value_ptr)
+  #define write_barrier(obj, value_ptr)
+  #define ALLOC_MATURE
+  #define ALLOC_OUTSIDE_NURSERY_DECL
+  #define ALLOC_OUTSIDE_NURSERY_DECLpp
+  #define ALLOC_HINT
 #endif
+
+#if GC_TYPE == PAUSELESS
+  #define ALLOC_NON_RELOCATABLE_DECL   , bool nonRelocatable = false
+  #define ALLOC_NON_RELOCATABLE_DECLpp , bool nonRelocatable
+  #define RELOC_HINT                   , nonRelocatable
+#else
+  #define ALLOC_NON_RELOCATABLE_DECL
+  #define ALLOC_NON_RELOCATABLE_DECLpp
+  #define RELOC_HINT
+#endif
+
 
 //
 // Integer Settings

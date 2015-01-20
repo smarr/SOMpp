@@ -49,22 +49,22 @@ MethodGenerationContext::MethodGenerationContext() {
     finished = false;
 }
 
-VMInvokable* MethodGenerationContext::Assemble(bool classSide) {
+VMInvokable* MethodGenerationContext::Assemble(bool classSide, Page* page) {
     if (primitive) {
-        return VMPrimitive::GetEmptyPrimitive(signature, classSide);
+        return VMPrimitive::GetEmptyPrimitive(signature, classSide, page);
     }
     
     // create a method instance with the given number of bytecodes and literals
     size_t numLiterals = literals.Size();
 
     VMMethod* meth = GetUniverse()->NewMethod(signature, bytecode.size(),
-            numLiterals);
+            numLiterals, page);
 
     // populate the fields that are immediately available
     size_t numLocals = locals.Size();
-    meth->SetNumberOfLocals(numLocals);
+    meth->SetNumberOfLocals(numLocals, page);
 
-    meth->SetMaximumNumberOfStackElements(ComputeStackDepth());
+    meth->SetMaximumNumberOfStackElements(ComputeStackDepth(), page);
 
     // copy literals into the method
     for (int i = 0; i < numLiterals; i++) {

@@ -41,7 +41,7 @@ public:
     MethodGenerationContext();
     ~MethodGenerationContext();
 
-    VMInvokable* Assemble(bool classSide);
+    VMInvokable* Assemble(bool classSide, Page* page);
 
     int8_t FindLiteralIndex(vm_oop_t lit);
     bool FindVar(const StdString& var, size_t* index,

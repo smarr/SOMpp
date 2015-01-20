@@ -12,7 +12,6 @@
 #include <vmobjects/VMObject.h>
 
 class VMMutex : public VMObject {
-    
 public:
     typedef GCMutex Stored;
     
@@ -23,13 +22,12 @@ public:
     void Unlock();
     bool IsLocked();
     
+    virtual VMMutex* Clone(Page*);
+
 #if GC_TYPE==PAUSELESS
-    virtual VMMutex* Clone(Interpreter*);
-    virtual VMMutex* Clone(PauselessCollectorThread*);
     virtual void MarkReferences();
     virtual void CheckMarking(void (vm_oop_t));
 #else
-    virtual VMMutex* Clone();
     virtual void WalkObjects(walk_heap_fn walk);
 #endif
     

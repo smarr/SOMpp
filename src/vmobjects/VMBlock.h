@@ -42,18 +42,12 @@ public:
             void      SetMethod(VMMethod*);
     inline  void      SetContext(VMFrame*);
     inline  VMFrame*  GetContext();
+    virtual VMBlock*  Clone(Page*);
     
     virtual StdString AsDebugString();
 
     virtual void MarkObjectAsInvalid();
-    
-#if GC_TYPE==PAUSELESS
-    virtual VMBlock* Clone(Interpreter*);
-    virtual VMBlock* Clone(PauselessCollectorThread*);
-#else
-    virtual VMBlock* Clone();
-#endif
-    
+
 private:
     GCMethod* blockMethod;
     GCFrame* context;

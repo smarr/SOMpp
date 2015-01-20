@@ -40,15 +40,9 @@ public:
     StdString GetStdString() const;
     size_t GetStringLength() const;
 
+    virtual VMString* Clone(Page*);
     virtual VMClass* GetClass();
     virtual size_t GetObjectSize() const;
-
-#if GC_TYPE==PAUSELESS
-    virtual VMString* Clone(Interpreter*);
-    virtual VMString* Clone(PauselessCollectorThread*);
-#else
-    virtual VMString* Clone();
-#endif
     
     virtual void MarkObjectAsInvalid();
     

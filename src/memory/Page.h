@@ -8,8 +8,12 @@
 //
 
 #include <cstdlib>
-#include "PagedHeap.h"
+#include <atomic>
 
+#include <misc/defs.h>
+
+class AbstractVMObject;
+class PagedHeap;
 class PauselessCollectorThread;
 class Interpreter;
 
@@ -21,7 +25,7 @@ public:
     
     Page(void* pageStart, PagedHeap* heap);
     
-    AbstractVMObject* AllocateObject(size_t size);
+    AbstractVMObject* AllocateObject(size_t size ALLOC_OUTSIDE_NURSERY_DECL ALLOC_NON_RELOCATABLE_DECL);
     bool Full();
     void ClearPage();
     

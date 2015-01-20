@@ -38,10 +38,7 @@
 #include <vmobjects/ObjectFormats.h>
 
 #include <memory/PagedHeap.h>
-
-#if GC_TYPE==PAUSELESS
 #include <memory/Worklist.h>
-#endif
 
 class Interpreter;
 
@@ -104,7 +101,7 @@ public:
     }
     
     FORCE_INLINE Interpreter* GetInterpreter() { return (Interpreter*)pthread_getspecific(interpreterKey); }
-    Interpreter* NewInterpreter();
+    Interpreter* NewInterpreter(Page*);
     void RemoveInterpreter();
     
 #if GC_TYPE==PAUSELESS
@@ -115,32 +112,32 @@ public:
 
     void Assert(bool) const;
 
-    VMSymbol* SymbolFor(const StdString&);
-    VMSymbol* SymbolForChars(const char*);
+    VMSymbol* SymbolFor(const StdString&, Page*);
+    VMSymbol* SymbolForChars(const char*, Page*);
 
     //VMObject instanciation methods. These should probably be refactored to a new class
-    VMArray* NewArray(long) const;
-    VMArray* NewArrayList(ExtendedList<vm_oop_t>& list) const;
-    VMArray* NewArrayList(ExtendedList<VMInvokable*>& list) const;
-    VMArray* NewArrayList(ExtendedList<VMSymbol*>& list) const;
-    VMArray* NewArrayFromStrings(const vector<StdString>&) const;
-    VMBlock* NewBlock(VMMethod*, VMFrame*, long);
-    VMClass* NewClass(VMClass*) const;
-    VMFrame* NewFrame(VMFrame*, VMMethod*) const;
-    VMMethod* NewMethod(VMSymbol*, size_t, size_t) const;
-    VMObject* NewInstance(VMClass*) const;
-    VMInteger* NewInteger(int64_t) const;
-    VMDouble* NewDouble(double) const;
-    VMClass* NewMetaclassClass(void) const;
-    VMString* NewString(const StdString&) const;
-    VMSymbol* NewSymbol(const StdString&);
-    VMString* NewString(const char*) const;
-    VMSymbol* NewSymbol(const char*);
-    VMClass* NewSystemClass(void) const;
+    VMArray* NewArray(long, Page* page) const;
+    VMArray* NewArrayList(ExtendedList<vm_oop_t>& list, Page* page) const;
+    VMArray* NewArrayList(ExtendedList<VMInvokable*>& list, Page* page) const;
+    VMArray* NewArrayList(ExtendedList<VMSymbol*>& list, Page* page) const;
+    VMArray* NewArrayFromStrings(const vector<StdString>&, Page* page) const;
+    VMBlock* NewBlock(VMMethod*, VMFrame*, long, Page* page);
+    VMClass* NewClass(VMClass*, Page* page) const;
+    VMFrame* NewFrame(VMFrame*, VMMethod*, Page* page) const;
+    VMMethod* NewMethod(VMSymbol*, size_t, size_t, Page* page) const;
+    VMObject* NewInstance(VMClass*, Page* page) const;
+    VMInteger* NewInteger(int64_t, Page* page) const;
+    VMDouble* NewDouble(double, Page* page) const;
+    VMClass* NewMetaclassClass(Page* page) const;
+    VMString* NewString(const StdString&, Page* page) const;
+    VMSymbol* NewSymbol(const StdString&, Page* page);
+    VMString* NewString(const char*, Page* page) const;
+    VMSymbol* NewSymbol(const char*, Page* page);
+    VMClass* NewSystemClass(Page* page) const;
 
-    VMMutex* NewMutex() const;
-    VMSignal* NewSignal() const;
-    VMThread* NewThread() const;
+    VMMutex* NewMutex(Page* page) const;
+    VMSignal* NewSignal(Page* page) const;
+    VMThread* NewThread(Page* page) const;
    
 #if GC_TYPE==PAUSELESS
     void MarkGlobals();
@@ -149,19 +146,19 @@ public:
     void WalkGlobals(walk_heap_fn);
 #endif
 
-    void InitializeSystemClass(VMClass*, VMClass*, const char*);
+    void InitializeSystemClass(VMClass*, VMClass*, const char*, Page*);
 
     vm_oop_t GetGlobal(VMSymbol*);
     void SetGlobal(VMSymbol* name, vm_oop_t val);
     bool HasGlobal(VMSymbol*);
-    VMObject* InitializeGlobals();
+    VMObject* InitializeGlobals(Page* page);
     VMClass* GetBlockClass(void) const;
-    VMClass* GetBlockClassWithArgs(long);
+    VMClass* GetBlockClassWithArgs(long, Page*);
 
-    VMClass* LoadClass(VMSymbol*);
-    void LoadSystemClass(VMClass*);
-    VMClass* LoadClassBasic(VMSymbol*, VMClass*);
-    VMClass* LoadShellClass(StdString&);
+    VMClass* LoadClass(VMSymbol*, Page*);
+    void LoadSystemClass(VMClass*, Page*);
+    VMClass* LoadClassBasic(VMSymbol*, VMClass*, Page*);
+    VMClass* LoadShellClass(StdString&, Page*);
 
     Universe();
     ~Universe();

@@ -28,12 +28,13 @@
 
 #include <vector>
 
+#include <misc/defs.h>
+
 #include "VMObject.h"
 #include "VMArray.h"
 #include "VMSymbol.h"
 //#include "VMClass.h"
 
-#include "../misc/defs.h"
 
 #if defined(_MSC_VER)   //Visual Studio
 #include <windows.h> 
@@ -65,19 +66,17 @@ public:
            void         SetInstanceInvokable(long, VMInvokable*);
            VMInvokable* LookupInvokable(VMSymbol*);
            long         LookupFieldIndex(VMSymbol*);
-           void         AddInstancePrimitive(VMPrimitive*);
+           void         AddInstancePrimitive(VMPrimitive*, Page*);
            VMSymbol*    GetInstanceFieldName(long);
            long         GetNumberOfInstanceFields();
            bool         HasPrimitives();
-           void         LoadPrimitives(const vector<StdString>&);
+           void         LoadPrimitives(const vector<StdString>&, Page*);
+    virtual VMClass*    Clone(Page*);
     
 #if GC_TYPE==PAUSELESS
-    virtual VMClass*    Clone(Interpreter*);
-    virtual VMClass*    Clone(PauselessCollectorThread*);
     virtual void MarkReferences();
     virtual void CheckMarking(void (vm_oop_t));
 #else
-    virtual VMClass*    Clone();
     void         WalkObjects(walk_heap_fn walk);
 #endif
     
@@ -86,9 +85,9 @@ public:
     virtual StdString AsDebugString();
 
 private:
-    bool addInstanceInvokable(VMInvokable*);
+    bool addInstanceInvokable(VMInvokable*, Page*);
     bool hasPrimitivesFor(const StdString& cl) const;
-    void setPrimitives(const StdString& cname, bool classSide);
+    void setPrimitives(const StdString& cname, bool classSide, Page*);
     long numberOfSuperInstanceFields();
 
     GCClass*  superClass;

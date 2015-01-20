@@ -30,7 +30,6 @@
 #include "VMEvaluationPrimitive.h"
 
 #include "../vm/Universe.h"
-#include "../interpreter/Interpreter.h"
 
 const int VMBlock::VMBlockNumberOfFields = 2;
 
@@ -42,28 +41,10 @@ void VMBlock::SetMethod(VMMethod* bMethod) {
     store_ptr(blockMethod, bMethod);
 }
 
-#if GC_TYPE==GENERATIONAL
-VMBlock* VMBlock::Clone() {
-    return new (_HEAP, _PAGE, GetAdditionalSpaceConsumption(), true) VMBlock(*this);
-}
-#elif GC_TYPE==PAUSELESS
-VMBlock* VMBlock::Clone(Interpreter* thread) {
-    VMBlock* clone = new (_HEAP, thread, GetAdditionalSpaceConsumption()) VMBlock(*this);
-    /* clone->IncreaseVersion();
-    this->MarkObjectAsInvalid(); */
+VMBlock* VMBlock::Clone(Page* page) {
+    VMBlock* clone = new (page, GetAdditionalSpaceConsumption() ALLOC_MATURE) VMBlock(*this);
     return clone;
 }
-VMBlock* VMBlock::Clone(PauselessCollectorThread* thread) {
-    VMBlock* clone = new (_HEAP, thread, GetAdditionalSpaceConsumption()) VMBlock(*this);
-    /* clone->IncreaseVersion();
-    this->MarkObjectAsInvalid(); */
-    return clone;
-}
-#else
-VMBlock* VMBlock::Clone() {
-    return new (_HEAP, GetAdditionalSpaceConsumption()) VMBlock(*this);
-}
-#endif
 
 VMMethod* VMBlock::GetMethod() {
     return load_ptr(blockMethod);

@@ -29,7 +29,7 @@ void _Mutex::IsLocked(Interpreter*, VMFrame* frame) {
 
 void _Mutex::New(Interpreter* interp, VMFrame* frame){
     frame->Pop();
-    VMMutex* mutex = GetUniverse()->NewMutex();
+    VMMutex* mutex = GetUniverse()->NewMutex(interp->GetPage());
     frame->Push(mutex);
 }
 

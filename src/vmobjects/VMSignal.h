@@ -22,13 +22,11 @@ public:
     void Signal();
     bool SignalAll();
     
+    virtual VMSignal* Clone(Page*);
+
 #if GC_TYPE==PAUSELESS
-    virtual VMSignal* Clone(Interpreter*);
-    virtual VMSignal* Clone(PauselessCollectorThread*);
     virtual void MarkReferences();
     virtual void CheckMarking(void (vm_oop_t));
-#else
-    virtual VMSignal* Clone();
 #endif
     
 private:

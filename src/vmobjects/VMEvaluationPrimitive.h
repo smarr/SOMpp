@@ -35,26 +35,24 @@ class VMEvaluationPrimitive: public VMPrimitive {
 public:
     typedef GCEvaluationPrimitive Stored;
     
-    VMEvaluationPrimitive(long argc);
-    
+    VMEvaluationPrimitive(long argc, Page*);
+    virtual VMEvaluationPrimitive* Clone(Page*);
+
     virtual void MarkObjectAsInvalid();
 
     virtual StdString AsDebugString();
     
 #if GC_TYPE==PAUSELESS
-    virtual VMEvaluationPrimitive* Clone(Interpreter*);
-    virtual VMEvaluationPrimitive* Clone(PauselessCollectorThread*);
     virtual void MarkReferences();
     virtual void CheckMarking(void (vm_oop_t));
 #else
-    virtual VMEvaluationPrimitive* Clone();
     virtual void WalkObjects(walk_heap_fn walk);
 #endif
 
     int64_t GetNumberOfArguments() { return INT_VAL(load_ptr(numberOfArguments)); };
 
 private:
-    static VMSymbol* computeSignatureString(long argc);
+    static VMSymbol* computeSignatureString(long argc, Page*);
     gc_oop_t numberOfArguments;
 
 };

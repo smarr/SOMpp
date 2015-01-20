@@ -63,58 +63,23 @@ void VMArray::SetIndexableField(long idx, vm_oop_t value) {
     SetField(GetNumberOfFields() + idx, value);
 }
 
-VMArray* VMArray::CopyAndExtendWith(vm_oop_t item) {
+VMArray* VMArray::CopyAndExtendWith(vm_oop_t item, Page* page) {
     size_t fields = GetNumberOfIndexableFields();
-    VMArray* result = GetUniverse()->NewArray(fields + 1);
+    VMArray* result = GetUniverse()->NewArray(fields + 1, page);
     CopyIndexableFieldsTo(result);
     result->SetIndexableField(fields, item);
     return result;
 }
 
-#if GC_TYPE==GENERATIONAL
-VMArray* VMArray::Clone() {
+VMArray* VMArray::Clone(Page* page) {
     long addSpace = objectSize - sizeof(VMArray);
-    VMArray* clone = new (_HEAP, _PAGE, addSpace, true) VMArray(*this);
+    VMArray* clone = new (page, addSpace ALLOC_MATURE) VMArray(*this);
     void* destination  = SHIFTED_PTR(clone, sizeof(VMArray));
     const void* source = SHIFTED_PTR(this, sizeof(VMArray));
     size_t noBytes = GetObjectSize() - sizeof(VMArray);
     memcpy(destination, source, noBytes);
     return clone;
 }
-#elif GC_TYPE==PAUSELESS
-VMArray* VMArray::Clone(Interpreter* thread) {
-    long addSpace = objectSize - sizeof(VMArray);
-    VMArray* clone = new (_HEAP, thread, addSpace) VMArray(*this);
-    void* destination = SHIFTED_PTR(clone, sizeof(VMArray));
-    const void* source = SHIFTED_PTR(this, sizeof(VMArray));
-    size_t noBytes = GetObjectSize() - sizeof(VMArray);
-    memcpy(destination, source, noBytes);
-    /* clone->IncreaseVersion();
-    this->MarkObjectAsInvalid(); */
-    return clone;
-}
-VMArray* VMArray::Clone(PauselessCollectorThread* thread) {
-    long addSpace = objectSize - sizeof(VMArray);
-    VMArray* clone = new (_HEAP, thread, addSpace) VMArray(*this);
-    void* destination = SHIFTED_PTR(clone, sizeof(VMArray));
-    const void* source = SHIFTED_PTR(this, sizeof(VMArray));
-    size_t noBytes = GetObjectSize() - sizeof(VMArray);
-    memcpy(destination, source, noBytes);
-    /* clone->IncreaseVersion();
-    this->MarkObjectAsInvalid(); */
-    return clone;
-}
-#else
-VMArray* VMArray::Clone() {
-    long addSpace = objectSize - sizeof(VMArray);
-    VMArray* clone = new (_HEAP, addSpace) VMArray(*this);
-    void* destination = SHIFTED_PTR(clone, sizeof(VMArray));
-    const void* source = SHIFTED_PTR(this, sizeof(VMArray));
-    size_t noBytes = GetObjectSize() - sizeof(VMArray);
-    memcpy(destination, source, noBytes);
-    return clone;
-}
-#endif
 
 void VMArray::MarkObjectAsInvalid() {
     VMObject::MarkObjectAsInvalid();

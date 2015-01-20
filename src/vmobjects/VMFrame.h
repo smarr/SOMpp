@@ -39,7 +39,7 @@ class VMFrame: public VMObject {
 public:
     typedef GCFrame Stored;
     
-    static VMFrame* EmergencyFrameFrom(VMFrame* from, long extraLength);
+    static VMFrame* EmergencyFrameFrom(VMFrame* from, long extraLength, Page*);
 
     VMFrame(long size, long nof = 0);
 
@@ -68,16 +68,14 @@ public:
     void PrintStackTrace();
     long ArgumentStackIndex(long index);
     void CopyArgumentsFrom(VMFrame* frame);
+    virtual VMFrame* Clone(Page*);
 
     virtual void MarkObjectAsInvalid();
 
 #if GC_TYPE==PAUSELESS
-    virtual VMFrame* Clone(Interpreter*);
-    virtual VMFrame* Clone(PauselessCollectorThread*);
     virtual void MarkReferences();
     virtual void CheckMarking(void (vm_oop_t));
 #else
-    virtual VMFrame* Clone();
     virtual void WalkObjects(walk_heap_fn walk);
 #endif
 

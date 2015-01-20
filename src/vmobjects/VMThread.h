@@ -35,14 +35,13 @@ public:
     void SetThreadId(int);
     
     void        Join(int* exitStatus);
-    
+
+    virtual VMThread* Clone(Page*);
+
 #if GC_TYPE==PAUSELESS
-    virtual VMThread* Clone(Interpreter*);
-    virtual VMThread* Clone(PauselessCollectorThread*);
     virtual void MarkReferences();
     virtual void CheckMarking(void (vm_oop_t));
 #else
-    //virtual VMThread* Clone();
     //virtual void WalkObjects(walk_heap_fn walk);
 #endif
     

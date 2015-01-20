@@ -45,7 +45,7 @@ SourcecodeCompiler::~SourcecodeCompiler() {
 
 VMClass* SourcecodeCompiler::CompileClass(const StdString& path,
         const StdString& file,
-        VMClass* systemClass) {
+        VMClass* systemClass, Page* page) {
     VMClass* result = systemClass;
 
     StdString fname = path + fileSeparator + file + ".som";
@@ -57,8 +57,8 @@ VMClass* SourcecodeCompiler::CompileClass(const StdString& path,
     }
 
     if (parser != nullptr) delete(parser);
-    parser = new Parser(*fp);
-    result = compile(systemClass);
+    parser = new Parser(*fp, page);
+    result = compile(systemClass, page);
 
     VMSymbol* cname = result->GetName();
     StdString cnameC = cname->GetStdString();
@@ -81,12 +81,12 @@ VMClass* SourcecodeCompiler::CompileClass(const StdString& path,
 }
 
 VMClass* SourcecodeCompiler::CompileClassString(const StdString& stream,
-        VMClass* systemClass) {
+        VMClass* systemClass, Page* page) {
     istringstream* ss = new istringstream(stream);
     if (parser != nullptr) delete(parser);
-    parser = new Parser(*ss);
+    parser = new Parser(*ss, page);
 
-    VMClass* result = compile(systemClass);
+    VMClass* result = compile(systemClass, page);
     delete(parser);
     parser = nullptr;
     delete(ss);
@@ -100,7 +100,7 @@ void SourcecodeCompiler::showCompilationError(const StdString& filename,
                          message + "\n");
 }
 
-VMClass* SourcecodeCompiler::compile(VMClass* systemClass) {
+VMClass* SourcecodeCompiler::compile(VMClass* systemClass, Page* page) {
     if (parser == nullptr) {
         Universe::ErrorPrint("Parser not initiated\n");
         GetUniverse()->ErrorExit("Compiler error");
@@ -113,9 +113,9 @@ VMClass* SourcecodeCompiler::compile(VMClass* systemClass) {
     parser->Classdef(&cgc);
 
     if (systemClass == nullptr)
-        result = cgc.Assemble();
+        result = cgc.Assemble(page);
     else
-        cgc.AssembleSystemClass(result);
+        cgc.AssembleSystemClass(result, page);
 
     return result;
 }

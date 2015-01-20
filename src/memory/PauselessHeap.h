@@ -15,6 +15,8 @@
 
 #include <interpreter/Interpreter.h>
 
+class PauselessCollectorThread;
+
 #define MASK_OBJECT_NMT (1 << 1)
 #define REFERENCE_NMT_VALUE(REFERENCE) (((reinterpret_cast<intptr_t>(REFERENCE) & MASK_OBJECT_NMT) == 0) ? false : true)
 #define FLIP_NMT_VALUE(REFERENCE) ( (reinterpret_cast<intptr_t>(REFERENCE) ^ MASK_OBJECT_NMT) )

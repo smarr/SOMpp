@@ -37,10 +37,10 @@ public:
     ~SourcecodeCompiler();
 
     VMClass* CompileClass(const StdString& path, const StdString& file,
-            VMClass* systemClass);
-    VMClass* CompileClassString(const StdString& stream, VMClass* systemClass);
+            VMClass* systemClass, Page* page);
+    VMClass* CompileClassString(const StdString& stream, VMClass* systemClass, Page*);
 private:
     void showCompilationError(const StdString& filename, const char* message);
-    VMClass* compile(VMClass* systemClass);
+    VMClass* compile(VMClass* systemClass, Page*);
     Parser* parser;
 };

@@ -81,7 +81,7 @@ _Integer::_Integer() : PrimitiveContainer() {
 //
 
 void _Integer::resendAsDouble(Interpreter* interp, const char* op, vm_oop_t left, VMDouble* right) {
-    VMDouble* leftDouble = GetUniverse()->NewDouble((double)INT_VAL(left));
+    VMDouble* leftDouble = GetUniverse()->NewDouble((double)INT_VAL(left), interp->GetPage());
     vm_oop_t operands[] = {right};
 
     leftDouble->Send(interp, op, operands, 1);
@@ -98,7 +98,7 @@ void _Integer::Plus(Interpreter* interp, VMFrame* frame) {
     CHECK_COERCION(rightObj, leftObj, "+");
 
     int64_t result = (int64_t)INT_VAL(leftObj) + (int64_t)INT_VAL(rightObj);
-    frame->Push(NEW_INT(result));
+    frame->Push(NEW_INT(result, interp->GetPage()));
 }
 
 void _Integer::BitwiseAnd(Interpreter* interp, VMFrame* frame) {
@@ -106,7 +106,7 @@ void _Integer::BitwiseAnd(Interpreter* interp, VMFrame* frame) {
     vm_oop_t leftObj  = frame->Pop();
 
     int64_t result = (int64_t)INT_VAL(leftObj) & (int64_t)INT_VAL(rightObj);
-    frame->Push(NEW_INT(result));
+    frame->Push(NEW_INT(result, interp->GetPage()));
 }
 
 void _Integer::BitwiseXor(Interpreter* interp, VMFrame* frame) {
@@ -114,7 +114,7 @@ void _Integer::BitwiseXor(Interpreter* interp, VMFrame* frame) {
     vm_oop_t leftObj  = frame->Pop();
     
     int64_t result = (int64_t)INT_VAL(leftObj) ^ (int64_t)INT_VAL(rightObj);
-    frame->Push(NEW_INT(result));
+    frame->Push(NEW_INT(result, interp->GetPage()));
 }
 
 void _Integer::LeftShift(Interpreter* interp, VMFrame* frame) {
@@ -122,7 +122,7 @@ void _Integer::LeftShift(Interpreter* interp, VMFrame* frame) {
     vm_oop_t leftObj  = frame->Pop();
     
     int64_t result = (int64_t)INT_VAL(leftObj) << (int64_t)INT_VAL(rightObj);
-    frame->Push(NEW_INT(result));
+    frame->Push(NEW_INT(result, interp->GetPage()));
 }
 
 void _Integer::Minus(Interpreter* interp, VMFrame* frame) {
@@ -132,7 +132,7 @@ void _Integer::Minus(Interpreter* interp, VMFrame* frame) {
     CHECK_COERCION(rightObj, leftObj, "-");
 
     int64_t result = (int64_t)INT_VAL(leftObj) - (int64_t)INT_VAL(rightObj);
-    frame->Push(NEW_INT(result));
+    frame->Push(NEW_INT(result, interp->GetPage()));
 }
 
 void _Integer::Star(Interpreter* interp, VMFrame* frame) {
@@ -142,7 +142,7 @@ void _Integer::Star(Interpreter* interp, VMFrame* frame) {
     CHECK_COERCION(rightObj, leftObj, "*");
 
     int64_t result = (int64_t)INT_VAL(leftObj) * (int64_t)INT_VAL(rightObj);
-    frame->Push(NEW_INT(result));
+    frame->Push(NEW_INT(result, interp->GetPage()));
 }
 
 void _Integer::Slashslash(Interpreter* interp, VMFrame* frame) {
@@ -152,7 +152,7 @@ void _Integer::Slashslash(Interpreter* interp, VMFrame* frame) {
     CHECK_COERCION(rightObj, leftObj, "/");
 
     double result = (double)INT_VAL(leftObj) / (double)INT_VAL(rightObj);
-    frame->Push(GetUniverse()->NewDouble(result));
+    frame->Push(GetUniverse()->NewDouble(result, interp->GetPage()));
 }
 
 void _Integer::Slash(Interpreter* interp, VMFrame* frame) {
@@ -162,7 +162,7 @@ void _Integer::Slash(Interpreter* interp, VMFrame* frame) {
     CHECK_COERCION(rightObj, leftObj, "/");
 
     int64_t result = (int64_t)INT_VAL(leftObj) / (int64_t)INT_VAL(rightObj);
-    frame->Push(NEW_INT(result));
+    frame->Push(NEW_INT(result, interp->GetPage()));
 }
 
 void _Integer::Percent(Interpreter* interp, VMFrame* frame) {
@@ -180,7 +180,7 @@ void _Integer::Percent(Interpreter* interp, VMFrame* frame) {
         result += r;
     }
 
-    frame->Push(NEW_INT(result));
+    frame->Push(NEW_INT(result, interp->GetPage()));
 }
 
 void _Integer::And(Interpreter* interp, VMFrame* frame) {
@@ -190,7 +190,7 @@ void _Integer::And(Interpreter* interp, VMFrame* frame) {
     CHECK_COERCION(rightObj, leftObj, "&");
 
     int64_t result = (int64_t)INT_VAL(leftObj) & (int64_t)INT_VAL(rightObj);
-    frame->Push(NEW_INT(result));
+    frame->Push(NEW_INT(result, interp->GetPage()));
 }
 
 void _Integer::Equal(Interpreter* interp, VMFrame* frame) {
@@ -242,7 +242,7 @@ void _Integer::AsString(Interpreter* interp, VMFrame* frame) {
     long integer = INT_VAL(self);
     ostringstream Str;
     Str << integer;
-    frame->Push(GetUniverse()->NewString(Str.str()));
+    frame->Push(GetUniverse()->NewString(Str.str(), interp->GetPage()));
 }
 
 void _Integer::Sqrt(Interpreter* interp, VMFrame* frame) {
@@ -250,15 +250,15 @@ void _Integer::Sqrt(Interpreter* interp, VMFrame* frame) {
     double result = sqrt((double)INT_VAL(self));
 
     if (result == rint(result))
-        frame->Push(NEW_INT((int64_t) result));
+        frame->Push(NEW_INT((int64_t) result, interp->GetPage()));
     else
-        frame->Push(GetUniverse()->NewDouble(result));
+        frame->Push(GetUniverse()->NewDouble(result, interp->GetPage()));
 }
 
 void _Integer::AtRandom(Interpreter* interp, VMFrame* frame) {
     vm_oop_t self = frame->Pop();
     int64_t result = INT_VAL(self) * rand();
-    frame->Push(NEW_INT(result));
+    frame->Push(NEW_INT(result, interp->GetPage()));
 }
 
 void _Integer::FromString(Interpreter* interp, VMFrame* frame) {
@@ -266,7 +266,7 @@ void _Integer::FromString(Interpreter* interp, VMFrame* frame) {
     frame->Pop();
 
     int64_t integer = atol(self->GetChars());
-    vm_oop_t new_int = NEW_INT(integer);
+    vm_oop_t new_int = NEW_INT(integer, interp->GetPage());
     frame->Push(new_int);
 }
 

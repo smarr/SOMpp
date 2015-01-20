@@ -79,18 +79,16 @@ public:
             inline vm_oop_t  GetField(long index);
             inline void      SetField(long index, vm_oop_t value);
     virtual        void      Assert(bool value) const;
+    virtual        VMObject* Clone(Page*);
     virtual inline size_t    GetObjectSize() const;
     virtual inline void      SetObjectSize(size_t size);
     
     virtual        void      MarkObjectAsInvalid();
 
 #if GC_TYPE==PAUSELESS
-    virtual        VMObject* Clone(Interpreter*);
-    virtual        VMObject* Clone(PauselessCollectorThread*);
     virtual        void      MarkReferences();
     virtual        void      CheckMarking(void (vm_oop_t));
 #else
-    virtual        VMObject* Clone();
     virtual        void      WalkObjects(walk_heap_fn);
 #endif
     
@@ -105,38 +103,13 @@ public:
      *   - array size in VMArray; a_b must be set to (size_of_array*sizeof(VMObect*))
      *   - fields in VMMethod, a_b must be set to (number_of_bc + number_of_csts*sizeof(VMObject*))
      */
-    void* operator new(size_t numBytes,
-#if GC_TYPE==GENERATIONAL
-        PagedHeap* heap, Page* page, unsigned long additionalBytes = 0, bool outsideNursery = false) {
-            void* mem = AbstractVMObject::operator new(numBytes, heap, page, PADDED_SIZE(additionalBytes), outsideNursery);
-#elif GC_TYPE==COPYING
-        PagedHeap* heap, unsigned long additionalBytes = 0) {
-            void* mem = (void*) ((CopyingHeap*)heap)->AllocateObject(numBytes + PADDED_SIZE(additionalBytes));
-#elif GC_TYPE==MARK_SWEEP
-        PagedHeap* heap, unsigned long additionalBytes = 0) {
-            void* mem = (void*) ((MarkSweepHeap*)heap)->AllocateObject(numBytes + PADDED_SIZE(additionalBytes));
-#elif GC_TYPE==PAUSELESS
-        PagedHeap* heap, Interpreter* thread, unsigned long additionalBytes = 0, bool notRelocated = false) {
-            void* mem = AbstractVMObject::operator new(numBytes, heap, thread, PADDED_SIZE(additionalBytes), notRelocated);
-#endif
-        size_t objSize = numBytes + PADDED_SIZE(additionalBytes);
-        ((VMObject*) mem)->objectSize = objSize;
-        assert(mem != INVALID_VM_POINTER);
+    void* operator new(size_t numBytes, Page* page, unsigned long additionalBytes = 0, bool notRelocated = false) {
+        void* mem = AbstractVMObject::operator new(numBytes, page, additionalBytes, notRelocated);
+
+        static_cast<VMObject*>(mem)->objectSize = PADDED_SIZE(numBytes + additionalBytes);
         return mem;
     }
 
-          
-#if GC_TYPE==PAUSELESS
-    void* operator new(size_t numBytes, PagedHeap* heap, PauselessCollectorThread* thread, unsigned long additionalBytes = 0, bool notRelocated = false) {
-        void* mem = AbstractVMObject::operator new(numBytes, heap, thread, PADDED_SIZE(additionalBytes), notRelocated);
-        size_t objSize = numBytes + PADDED_SIZE(additionalBytes);
-        ((VMObject*) mem)->objectSize = objSize;
-        assert(mem != INVALID_VM_POINTER);
-        return mem;
-    }
-#endif
-            
-            
 protected:
     long GetAdditionalSpaceConsumption() const;
 

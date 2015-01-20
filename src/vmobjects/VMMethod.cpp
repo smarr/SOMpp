@@ -45,18 +45,18 @@ const long VMMethod::VMMethodNumberOfFields = 8;
 const long VMMethod::VMMethodNumberOfFields = 7;
 #endif
 
-VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
+VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof, Page* page) :
         VMInvokable(nof + VMMethodNumberOfFields) {
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     cachedFrame = nullptr;
 #endif
 # warning not sure whether the use of _store_ptr is ok here
 # warning, if we use extra parts of the heap for the allocation, we probably need to trigger the generational barrier
-    bcLength                     = _store_ptr(NEW_INT(bcCount));
-    numberOfLocals               = _store_ptr(NEW_INT(0));
-    maximumNumberOfStackElements = _store_ptr(NEW_INT(0));
-    numberOfArguments            = _store_ptr(NEW_INT(0));
-    this->numberOfConstants      = _store_ptr(NEW_INT(numberOfConstants));
+    bcLength                     = _store_ptr(NEW_INT(bcCount, page));
+    numberOfLocals               = _store_ptr(NEW_INT(0, page));
+    maximumNumberOfStackElements = _store_ptr(NEW_INT(0, page));
+    numberOfArguments            = _store_ptr(NEW_INT(0, page));
+    this->numberOfConstants      = _store_ptr(NEW_INT(numberOfConstants, page));
 
     indexableFields = (gc_oop_t*)(&indexableFields + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
     for (long i = 0; i < numberOfConstants; ++i) {
@@ -66,45 +66,18 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
     bytecodes = (uint8_t*)(&indexableFields + 2 + GetNumberOfIndexableFields());
 }
 
-#if GC_TYPE==GENERATIONAL
-VMMethod* VMMethod::Clone() {
-    VMMethod* clone = new (_HEAP, _PAGE, GetObjectSize() - sizeof(VMMethod), true)
-    VMMethod(*this);
-    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this, sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
+VMMethod* VMMethod::Clone(Page* page) {
+    VMMethod* clone = new (page, GetObjectSize() - sizeof(VMMethod) ALLOC_MATURE) VMMethod(*this);
+    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)),
+           SHIFTED_PTR(this,  sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     clone->indexableFields = (gc_oop_t*)(&(clone->indexableFields) + 2);
     clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + GetNumberOfIndexableFields());
     return clone;
 }
-#elif GC_TYPE==PAUSELESS
-VMMethod* VMMethod::Clone(Interpreter* thread) {
-    VMMethod* clone = new (_HEAP, thread, GetObjectSize() - sizeof(VMMethod)) VMMethod(*this);
-    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this, sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    clone->indexableFields = (gc_oop_t*)(&(clone->indexableFields) + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
-    clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + GetNumberOfIndexableFields());
-    /* clone->IncreaseVersion(); */
-    return clone;
-}
-VMMethod* VMMethod::Clone(PauselessCollectorThread* thread) {
-    VMMethod* clone = new (_HEAP, thread, GetObjectSize() - sizeof(VMMethod)) VMMethod(*this);
-    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this, sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    clone->indexableFields = (gc_oop_t*)(&(clone->indexableFields) + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
-    clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + INT_VAL(ReadBarrierForGCThread(&numberOfConstants)));
-    /* clone->IncreaseVersion(); */
-    return clone;
-}
-#else
-VMMethod* VMMethod::Clone() {
-    VMMethod* clone = new (_HEAP, GetObjectSize() - sizeof(VMMethod)) VMMethod(*this);
-    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this, sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    clone->indexableFields = (VMObject**)(&(clone->indexableFields) + 2);
-    clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + GetNumberOfIndexableFields());
-    return clone;
-}
-#endif
 
-void VMMethod::SetSignature(VMSymbol* sig) {
+void VMMethod::SetSignature(VMSymbol* sig, Page* page) {
     VMInvokable::SetSignature(sig);
-    SetNumberOfArguments(Signature::GetNumberOfArguments(sig));
+    SetNumberOfArguments(Signature::GetNumberOfArguments(sig), page);
 }
 
 #ifdef UNSAFE_FRAME_OPTIMIZATION
@@ -118,27 +91,25 @@ void VMMethod::SetCachedFrame(VMFrame* frame) {
         frame->SetContext(nullptr);
         frame->SetBytecodeIndex(0);
         frame->ResetStackPointer();
-#if GC_TYPE == GENERATIONAL
-        _HEAP->WriteBarrier(this, cachedFrame);
-#endif
+        write_barrier(this, cachedFrame);
     }
 }
 #endif
 
-void VMMethod::SetNumberOfLocals(long nol) {
-    store_ptr(numberOfLocals, NEW_INT(nol));
+void VMMethod::SetNumberOfLocals(long nol, Page* page) {
+    store_ptr(numberOfLocals, NEW_INT(nol, page));
 }
 
 long VMMethod::GetMaximumNumberOfStackElements() {
     return INT_VAL(load_ptr(maximumNumberOfStackElements));
 }
 
-void VMMethod::SetMaximumNumberOfStackElements(long stel) {
-    store_ptr(maximumNumberOfStackElements, NEW_INT(stel));
+void VMMethod::SetMaximumNumberOfStackElements(long stel, Page* page) {
+    store_ptr(maximumNumberOfStackElements, NEW_INT(stel, page));
 }
 
-void VMMethod::SetNumberOfArguments(long noa) {
-    store_ptr(numberOfArguments, NEW_INT(noa));
+void VMMethod::SetNumberOfArguments(long noa, Page* page) {
+    store_ptr(numberOfArguments, NEW_INT(noa, page));
 }
 
 long VMMethod::GetNumberOfBytecodes() {

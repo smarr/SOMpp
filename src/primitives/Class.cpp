@@ -44,7 +44,7 @@ _Class::_Class() : PrimitiveContainer() {
 
 void _Class::New(Interpreter* interp, VMFrame* frame) {
     VMClass* self = static_cast<VMClass*>(frame->Pop());
-    frame->Push(GetUniverse()->NewInstance(self));
+    frame->Push(GetUniverse()->NewInstance(self, interp->GetPage()));
 }
 
 void _Class::Name(Interpreter*, VMFrame* frame) {

@@ -69,19 +69,19 @@ _Block::_Block() : PrimitiveContainer() {
     SetPrimitive("spawn",       new Routine<_Block>(this, &_Block::Spawn,       false));
 }
 
-VMMethod* _Block::CreateFakeBootstrapMethod() {
-    VMMethod* bootstrapVMMethod = GetUniverse()->NewMethod(GetUniverse()->SymbolForChars("bootstrap"), 1, 0);
+VMMethod* _Block::CreateFakeBootstrapMethod(Page* page) {
+    VMMethod* bootstrapVMMethod = GetUniverse()->NewMethod(GetUniverse()->SymbolForChars("bootstrap", page), 1, 0, page);
     bootstrapVMMethod->SetBytecode(0, BC_HALT);
-    bootstrapVMMethod->SetNumberOfLocals(0);
-    bootstrapVMMethod->SetMaximumNumberOfStackElements(2);
+    bootstrapVMMethod->SetNumberOfLocals(0, page);
+    bootstrapVMMethod->SetMaximumNumberOfStackElements(2, page);
     bootstrapVMMethod->SetHolder(GetUniverse()->GetBlockClass());
     return bootstrapVMMethod;
 }
 
 //setting up thread object
-VMThread* _Block::CreateNewThread(VMBlock* block) {
-    VMThread* thread = GetUniverse()->NewThread();
-    VMSignal* signal = GetUniverse()->NewSignal();
+VMThread* _Block::CreateNewThread(VMBlock* block, Page* page) {
+    VMThread* thread = GetUniverse()->NewThread(page);
+    VMSignal* signal = GetUniverse()->NewSignal(page);
     thread->SetResumeSignal(signal);
     thread->SetShouldStop(false);
     thread->SetBlockToRun(block);
@@ -90,19 +90,20 @@ VMThread* _Block::CreateNewThread(VMBlock* block) {
 
 void* _Block::ThreadForBlock(void* threadPointer) {
     //create new interpreter which will process the block
-    Interpreter* interpreter = GetUniverse()->NewInterpreter();
+    Interpreter* interpreter = GetUniverse()->NewInterpreter(_HEAP->RequestPage());
     VMThread* thread = (VMThread*)threadPointer;
     VMBlock* block = thread->GetBlockToRun();
     interpreter->SetThread(thread);
     
     // fake bootstrap method to simplify later frame traversal
-    VMMethod* bootstrapVMMethod = CreateFakeBootstrapMethod();
+    VMMethod* bootstrapVMMethod = CreateFakeBootstrapMethod(interpreter->GetPage());
     // create a fake bootstrap frame with the block object on the stack
     VMFrame* bootstrapVMFrame = interpreter->PushNewFrame(bootstrapVMMethod);
     bootstrapVMFrame->Push((VMObject*)block);
     
     // lookup the initialize invokable on the system class
-    VMInvokable* initialize = (VMInvokable*)GetUniverse()->GetBlockClass()->LookupInvokable(GetUniverse()->SymbolForChars("evaluate"));
+    VMInvokable* initialize = GetUniverse()->GetBlockClass()->LookupInvokable(
+                GetUniverse()->SymbolForChars("evaluate", interpreter->GetPage()));
     // invoke the initialize invokable
     initialize->Invoke(interpreter, bootstrapVMFrame);
     // start the interpreter
@@ -124,13 +125,13 @@ void* _Block::ThreadForBlock(void* threadPointer) {
 
 void* _Block::ThreadForBlockWithArgument(void* threadPointer) {
     //create new interpreter which will process the block
-    Interpreter* interpreter = GetUniverse()->NewInterpreter();
+    Interpreter* interpreter = GetUniverse()->NewInterpreter(_HEAP->RequestPage());
     VMThread* thread = (VMThread*)threadPointer;
     VMBlock* block = thread->GetBlockToRun();
     interpreter->SetThread(thread);
     
     // fake bootstrap method to simplify later frame traversal
-    VMMethod* bootstrapVMMethod = CreateFakeBootstrapMethod();
+    VMMethod* bootstrapVMMethod = CreateFakeBootstrapMethod(interpreter->GetPage());
     // create a fake bootstrap frame with the block object on the stack
     VMFrame* bootstrapVMFrame = interpreter->PushNewFrame(bootstrapVMMethod);
     bootstrapVMFrame->Push((VMObject*)block);
@@ -138,7 +139,8 @@ void* _Block::ThreadForBlockWithArgument(void* threadPointer) {
     bootstrapVMFrame->Push(arg);
     
     // lookup the initialize invokable on the system class
-    VMInvokable* initialize = (VMInvokable*)GetUniverse()->GetBlockClass()->LookupInvokable(GetUniverse()->SymbolForChars("evaluate"));
+    VMInvokable* initialize = GetUniverse()->GetBlockClass()->LookupInvokable(
+                    GetUniverse()->SymbolForChars("evaluate", interpreter->GetPage()));
     // invoke the initialize invokable
     initialize->Invoke(interpreter, bootstrapVMFrame);
     // start the interpreter
@@ -160,11 +162,11 @@ void* _Block::ThreadForBlockWithArgument(void* threadPointer) {
 }
 
 //spawning of new thread that will run the block
-void _Block::Spawn(Interpreter*, VMFrame* frame) {
+void _Block::Spawn(Interpreter* interp, VMFrame* frame) {
     pthread_t tid = 0;
     VMBlock* block = (VMBlock*)frame->Pop();
     // create the thread object and setting it up
-    VMThread* thread = CreateNewThread(block);
+    VMThread* thread = CreateNewThread(block, interp->GetPage());
     // create the pthread but first increment the number of active threads (this is part of a thread barrier needed for GC)
 #if GC_TYPE!=PAUSELESS
     _HEAP->IncrementThreadCount();
@@ -175,13 +177,13 @@ void _Block::Spawn(Interpreter*, VMFrame* frame) {
     frame->Push(thread);
 }
 
-void _Block::SpawnWithArgument(Interpreter*, VMFrame* frame) {
+void _Block::SpawnWithArgument(Interpreter* interp, VMFrame* frame) {
     pthread_t tid = 0;
     // Get the argument
     vm_oop_t argument = frame->Pop();
     VMBlock* block = (VMBlock*)frame->Pop();
     // create the thread object and setting it up
-    VMThread* thread = CreateNewThread(block);
+    VMThread* thread = CreateNewThread(block, interp->GetPage());
     thread->SetArgument(argument);
     // create the pthread but first increment the number of active threads (this is part of a thread barrier needed for GC)
 #if GC_TYPE!=PAUSELESS

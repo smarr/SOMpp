@@ -31,7 +31,6 @@
 #include "VMBlock.h"
 #include "VMInteger.h"
 
-#include <interpreter/Interpreter.h>
 #include <vm/Universe.h>
 
 //needed to instanciate the Routine object for the evaluation routine
@@ -39,36 +38,18 @@
 
 #include <vmobjects/VMBlock.inline.h>
 
-VMEvaluationPrimitive::VMEvaluationPrimitive(long argc) : VMPrimitive(computeSignatureString(argc)) {
+VMEvaluationPrimitive::VMEvaluationPrimitive(long argc, Page* page) : VMPrimitive(computeSignatureString(argc, page)) {
     SetRoutine(new EvaluationRoutine(this));
     SetEmpty(false);
-    store_ptr(numberOfArguments, NEW_INT(argc));
+    store_ptr(numberOfArguments, NEW_INT(argc, page));
 }
 
-#if GC_TYPE==GENERATIONAL
-VMEvaluationPrimitive* VMEvaluationPrimitive::Clone() {
-    return new (_HEAP, _PAGE, 0, true) VMEvaluationPrimitive(*this);
+VMEvaluationPrimitive* VMEvaluationPrimitive::Clone(Page* page) {
+    VMEvaluationPrimitive* evPrim = new (page, 0 ALLOC_MATURE) VMEvaluationPrimitive(*this);
+    return evPrim;
 }
-#elif GC_TYPE==PAUSELESS
-VMEvaluationPrimitive* VMEvaluationPrimitive::Clone(Interpreter* thread) {
-    VMEvaluationPrimitive* clone = new (_HEAP, thread) VMEvaluationPrimitive(*this);
-    /* clone->IncreaseVersion();
-    this->MarkObjectAsInvalid(); */
-    return clone;
-}
-VMEvaluationPrimitive* VMEvaluationPrimitive::Clone(PauselessCollectorThread* thread) {
-    VMEvaluationPrimitive* clone = new (_HEAP, thread) VMEvaluationPrimitive(*this);
-    /* clone->IncreaseVersion();
-    this->MarkObjectAsInvalid(); */
-    return clone;
-}
-#else
-VMEvaluationPrimitive* VMEvaluationPrimitive::Clone() {
-    return new (_HEAP) VMEvaluationPrimitive(*this);
-}
-#endif
 
-VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc) {
+VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc, Page* page) {
     assert(argc > 0);
 
     StdString signatureString;
@@ -85,7 +66,7 @@ VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc) {
     }
 
     // Return the signature string
-    return GetUniverse()->SymbolFor(signatureString);
+    return GetUniverse()->SymbolFor(signatureString, page);
 }
 
 void EvaluationRoutine::Invoke(Interpreter* interp, VMFrame* frame) {

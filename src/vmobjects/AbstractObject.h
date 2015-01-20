@@ -51,6 +51,7 @@ public:
     
     virtual intptr_t GetHash();
     virtual VMClass* GetClass() = 0;
+    virtual AbstractVMObject* Clone(Page*) = 0;
     virtual void Send(Interpreter*, StdString, vm_oop_t*, long);
     virtual size_t GetObjectSize() const = 0;
     
@@ -91,9 +92,6 @@ public:
     }
     
 #if GC_TYPE==PAUSELESS
-    virtual AbstractVMObject* Clone(Interpreter*) = 0;
-    virtual AbstractVMObject* Clone(PauselessCollectorThread*) = 0;
-    
     inline virtual void MarkReferences() {
         return;
     }
@@ -101,65 +99,18 @@ public:
         return;
     }
 #else
-    virtual AbstractVMObject* Clone() = 0;
-    
     inline virtual void WalkObjects(walk_heap_fn) {
         return;
     }
 #endif
 
-#if GC_TYPE==GENERATIONAL
-    void* operator new(size_t numBytes, PagedHeap* heap, Page* page, unsigned long additionalBytes = 0, bool outsideNursery = false) {
-        //if outsideNursery flag is set or object is too big for nursery, we
-        // allocate a mature object
-        void* result;
-        if (outsideNursery) {
-            result = (void*) ((GenerationalHeap*)heap)->AllocateMatureObject(numBytes + additionalBytes);
-        } else {
-            result = (void*) (page->AllocateObject(numBytes + additionalBytes));
-        }
+    void* operator new(size_t numBytes, Page* page,
+            unsigned long additionalBytes = 0 ALLOC_OUTSIDE_NURSERY_DECL ALLOC_NON_RELOCATABLE_DECL) {
+        size_t total = PADDED_SIZE(numBytes + additionalBytes);
+        void* result = page->AllocateObject(total ALLOC_HINT RELOC_HINT);
+
         assert(result != INVALID_VM_POINTER);
         return result;
     }
-#elif GC_TYPE==PAUSELESS
-    //this should probably be cleaned up a bit
-    void* operator new(size_t numBytes, PagedHeap* heap, Interpreter* thread, unsigned long additionalBytes = 0, bool notRelocated = false) {
-        void* result;
-        if (!notRelocated) {
-            Page* page = thread->GetPage();
-            result = (void*) (page->AllocateObject(numBytes + additionalBytes));
-            if (page->Full()) {
-                thread->AddFullPage(page);
-                thread->SetPage(heap->RequestPage());
-            }
-        } else {
-            Page* page = thread->GetNonRelocatablePage();
-            result = (void*) (page->AllocateObject(numBytes + additionalBytes));
-            if (page->Full()) {
-                thread->AddFullNonRelocatablePage(page);
-                thread->SetNonRelocatablePage(heap->RequestPage());
-            }
-        }
-        assert(result != INVALID_VM_POINTER);
-        return result;
-    }
-    
-    void* operator new(size_t numBytes, PagedHeap* heap, PauselessCollectorThread* thread, unsigned long additionalBytes = 0, bool notRelocated = false) {
-        Page* page = thread->GetPage();
-        void* result = (void*) (page->AllocateObject(numBytes + additionalBytes));
-        if (page->Full()) {
-            heap->RelinquishPage(page);
-            thread->SetPage(heap->RequestPage());
-        }
-        assert(result != INVALID_VM_POINTER);
-        return result;
-    }
-#else
-    void* operator new(size_t numBytes, HEAP_CLS* heap, unsigned long additionalBytes = 0) {
-        void* mem = (void*) heap->AllocateObject(numBytes + additionalBytes);
-        assert(mem != INVALID_VM_POINTER);
-        return mem;
-    }
-#endif
 
 };

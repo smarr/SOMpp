@@ -45,17 +45,17 @@ class VMMethod: public VMInvokable {
 public:
     typedef GCMethod Stored;
     
-    VMMethod(long bcCount, long numberOfConstants, long nof);
+    VMMethod(long bcCount, long numberOfConstants, long nof, Page*);
 
     inline  long      GetNumberOfLocals();
-            void      SetNumberOfLocals(long nol);
+            void      SetNumberOfLocals(long nol, Page*);
             long      GetMaximumNumberOfStackElements();
-            void      SetMaximumNumberOfStackElements(long stel);
+            void      SetMaximumNumberOfStackElements(long stel, Page*);
     inline  long      GetNumberOfArguments();
 #if GC_TYPE==PAUSELESS
     inline  long      GetNumberOfArgumentsGC();
 #endif
-            void      SetNumberOfArguments(long);
+            void      SetNumberOfArguments(long, Page*);
             long      GetNumberOfBytecodes();
     virtual void      SetHolder(VMClass* hld);
             void      SetHolderAll(VMClass* hld);
@@ -67,24 +67,22 @@ public:
     void SetCachedFrame(VMFrame* frame);
     VMFrame* GetCachedFrame() const;
 #endif
-    
+
 #if GC_TYPE==PAUSELESS
-    virtual VMMethod* Clone(Interpreter*);
-    virtual VMMethod* Clone(PauselessCollectorThread*);
     virtual void MarkReferences();
     virtual void CheckMarking(void (vm_oop_t));
 #else
-    virtual VMMethod* Clone();
     virtual void WalkObjects(walk_heap_fn walk);
 #endif
-    
+
     inline  long      GetNumberOfIndexableFields();
+    virtual VMMethod* Clone(Page*);
 
     inline  void      SetIndexableField(long idx, vm_oop_t item);
 
     virtual void Invoke(Interpreter* interp, VMFrame* frame);
 
-    void SetSignature(VMSymbol* sig);
+    void SetSignature(VMSymbol* sig, Page*);
     
     virtual void MarkObjectAsInvalid();
 
