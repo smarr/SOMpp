@@ -27,7 +27,6 @@
 #include "Parser.h"
 #include "BytecodeGenerator.h"
 
-#include <misc/debug.h>
 #include <vmobjects/VMMethod.h>
 #include <vmobjects/VMPrimitive.h>
 #include <vmobjects/VMObject.h>
