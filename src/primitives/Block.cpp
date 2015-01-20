@@ -90,7 +90,7 @@ VMThread* _Block::CreateNewThread(VMBlock* block, Page* page) {
 
 void* _Block::ThreadForBlock(void* threadPointer) {
     //create new interpreter which will process the block
-    Interpreter* interpreter = GetUniverse()->NewInterpreter(_HEAP->RequestPage());
+    Interpreter* interpreter = GetUniverse()->NewInterpreter();
     VMThread* thread = (VMThread*)threadPointer;
     VMBlock* block = thread->GetBlockToRun();
     interpreter->SetThread(thread);
@@ -125,7 +125,7 @@ void* _Block::ThreadForBlock(void* threadPointer) {
 
 void* _Block::ThreadForBlockWithArgument(void* threadPointer) {
     //create new interpreter which will process the block
-    Interpreter* interpreter = GetUniverse()->NewInterpreter(_HEAP->RequestPage());
+    Interpreter* interpreter = GetUniverse()->NewInterpreter();
     VMThread* thread = (VMThread*)threadPointer;
     VMBlock* block = thread->GetBlockToRun();
     interpreter->SetThread(thread);

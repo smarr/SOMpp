@@ -51,9 +51,9 @@ class Interpreter : public BaseThread {
 public:
     
 #if GC_TYPE!=PAUSELESS
-    Interpreter(Page*);
+    Interpreter();
 #else
-    Interpreter(Page*, bool, bool);
+    Interpreter(bool, bool);
 #endif
     
     void      Start();
@@ -98,9 +98,7 @@ public:
 private:
     GCThread* thread;
     GCFrame* frame;
-
-    Page* page;
-
+    
     static const StdString unknownGlobal;
     static const StdString doesNotUnderstand;
     static const StdString escapedBlock;

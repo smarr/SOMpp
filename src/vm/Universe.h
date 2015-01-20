@@ -101,7 +101,7 @@ public:
     }
     
     FORCE_INLINE Interpreter* GetInterpreter() { return (Interpreter*)pthread_getspecific(interpreterKey); }
-    Interpreter* NewInterpreter(Page*);
+    Interpreter* NewInterpreter();
     void RemoveInterpreter();
     
 #if GC_TYPE==PAUSELESS

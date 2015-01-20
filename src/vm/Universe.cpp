@@ -327,10 +327,11 @@ void Universe::initialize(long _argc, char** _argv) {
     PagedHeap::InitializeHeap(HEAP_SIZE, PAGE_SIZE);
 
     heap = _HEAP;
-    Page* page = heap->RequestPage();
 
     interpreters = vector<Interpreter*>();
-    Interpreter* interpreter = NewInterpreter(page);
+    Interpreter* interpreter = NewInterpreter();
+    Page* page = interpreter->GetPage();
+    assert(page);
 
 #if CACHE_INTEGER
     //create prebuilt integers
@@ -1314,7 +1315,7 @@ void Universe::WalkGlobals(walk_heap_fn walk, Page* page) {
 VMMethod* Universe::NewMethod(VMSymbol* signature,
         size_t numberOfBytecodes, size_t numberOfConstants, Page* page) const {
     //Method needs space for the bytecodes and the pointers to the constants
-    long additionalBytes = PADDED_SIZE(numberOfBytecodes + numberOfConstants*sizeof(VMObject*));
+    long additionalBytes = numberOfBytecodes + numberOfConstants*sizeof(VMObject*);
 
 #if GC_TYPE==GENERATIONAL
     VMMethod* result = new (_HEAP, _PAGE, additionalBytes)
@@ -1462,7 +1463,7 @@ void Universe::RemoveInterpreter() {
 }
 
 #if GC_TYPE!=PAUSELESS
-Interpreter* Universe::NewInterpreter(Page*) {
+Interpreter* Universe::NewInterpreter() {
     Interpreter* interpreter = new Interpreter();
     pthread_setspecific(this->interpreterKey, interpreter);
     pthread_mutex_lock(&interpreterMutex);
@@ -1475,14 +1476,14 @@ vector<Interpreter*>* Universe::GetInterpreters() {
     return &interpreters;
 }
 #else
-Interpreter* Universe::NewInterpreter(Page* page) {
+Interpreter* Universe::NewInterpreter() {
     pthread_mutex_lock(_HEAP->GetNewInterpreterMutex());
     Interpreter* interpreter;
     pthread_mutex_lock(&interpreterMutex);
     if (interpreters.empty())
-        interpreter = new Interpreter(page, false, true);
+        interpreter = new Interpreter(false, true);
     else
-        interpreter = new Interpreter(page, interpreters.back()->GetExpectedNMT(), interpreters.back()->GCTrapEnabled());
+        interpreter = new Interpreter(interpreters.back()->GetExpectedNMT(), interpreters.back()->GCTrapEnabled());
     pthread_setspecific(this->interpreterKey, interpreter);
     interpreters.push_back(interpreter);
     pthread_mutex_unlock(&interpreterMutex);
