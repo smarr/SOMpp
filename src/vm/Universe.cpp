@@ -1009,8 +1009,7 @@ void Universe::WalkGlobals(walk_heap_fn walk, Page* page) {
     // walk all entries in globals map
     map<GCSymbol*, gc_oop_t> globs = globals;
     globals.clear();
-    map<GCSymbol*, gc_oop_t>::iterator iter;
-    for (iter = globs.begin(); iter != globs.end(); iter++) {
+    for (auto iter = globs.begin(); iter != globs.end(); iter++) {
         assert(iter->second != nullptr);
 
         GCSymbol* key = static_cast<GCSymbol*>(walk(iter->first, page));
