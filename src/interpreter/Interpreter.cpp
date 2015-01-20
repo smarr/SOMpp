@@ -65,14 +65,12 @@ Interpreter::Interpreter(bool expectedNMT, bool gcTrapEnabled) : BaseThread(expe
     safePointRequested = false;
     signalEnableGCTrap = false;
     this->gcTrapEnabled = gcTrapEnabled;
-    //this->gcTrapEnabled = false;
-    nonRelocatablePage = _HEAP->RequestPage();
     pthread_mutex_init(&blockedMutex, nullptr);
 }
 #else
 Interpreter::Interpreter(Page* page) : BaseThread(), page(page) {
-    this->thread = nullptr;
-    this->frame = nullptr;
+    thread = nullptr;
+    frame = nullptr;
 }
 #endif
 
@@ -754,18 +752,6 @@ bool Interpreter::TriggerGCTrap(Page* page) {
 // page management
 void Interpreter::AddFullPage(Page* page) {
     fullPages.push_back(page);
-}
-
-Page* Interpreter::GetNonRelocatablePage() {
-    return nonRelocatablePage;
-}
-
-void Interpreter::SetNonRelocatablePage(Page* page) {
-    this->nonRelocatablePage = page;
-}
-
-void Interpreter::AddFullNonRelocatablePage(Page* page) {
-    nonRelocatablePages.push_back(page);
 }
 
 // debug procedures

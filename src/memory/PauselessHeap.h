@@ -42,6 +42,10 @@ public:
     PauselessCollectorThread* GetGCThread();
     void AddGCThread(PauselessCollectorThread*);
     
+    void AddFullNonRelocatablePage(Page* page) {
+        nonRelocatablePages.push_back(page);
+    }
+    
     // DIRTY
     FORCE_INLINE void* GetMemoryStart() {return memoryStart;}
     FORCE_INLINE vector<Page*>* GetAllPages() {return allPages;}
@@ -70,6 +74,8 @@ private:
     pthread_cond_t gcTrapEnabledCondition;
     int numberOfMutatorsNeedEnableGCTrap;
     int numberOfMutatorsWithEnabledGCTrap;
+    
+    vector<Page*> nonRelocatablePages;
     
     static void* ThreadForGC(void*);
     

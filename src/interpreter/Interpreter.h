@@ -81,10 +81,13 @@ public:
     void         EnableGCTrap();
     bool         GCTrapEnabled();
     FORCE_INLINE bool         GetExpectedNMT() { return expectedNMT; }
+
     void         AddFullPage(Page*);
+    
     Page*        GetNonRelocatablePage();
     void         SetNonRelocatablePage(Page*);
-    void         AddFullNonRelocatablePage(Page*);
+
+    
     void         EnableStop();
     
     bool         TriggerGCTrap(Page*);
@@ -144,9 +147,7 @@ private:
     bool signalEnableGCTrap;
     bool gcTrapEnabled;
 
-    Page* nonRelocatablePage;
     vector<Page*> fullPages;
-    vector<Page*> nonRelocatablePages;
 
     pthread_mutex_t blockedMutex;
 

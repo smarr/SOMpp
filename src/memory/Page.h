@@ -43,7 +43,12 @@ public:
     void ResetAmountOfLiveData();
 #endif
     
+    void SetNonRelocatablePage(Page* page) { nonRelocatablePage = page; }
+    
 private:
+    AbstractVMObject* allocate(size_t);
+    AbstractVMObject* allocateNonRelocatable(size_t);
+    
     bool isFull() { return nextFreePosition > treshold; }
     
     size_t pageStart;
@@ -51,6 +56,8 @@ private:
     void* treshold;
     void* volatile nextFreePosition;
     PagedHeap* heap;
+    
+    Page* nonRelocatablePage;
         
 #if GC_TYPE==PAUSELESS
     bool blocked;

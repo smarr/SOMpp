@@ -23,7 +23,7 @@ Page::Page(void* pageStart, PagedHeap* heap) {
     treshold = (void*)((size_t)pageStart + ((size_t)(PAGE_SIZE * 0.9)));
 }
 
-AbstractVMObject* Page::AllocateObject(size_t size ALLOC_OUTSIDE_NURSERY_DECLpp ALLOC_NON_RELOCATABLE_DECLpp) {
+AbstractVMObject* Page::allocate(size_t size) {
     AbstractVMObject* newObject = (AbstractVMObject*) nextFreePosition;
     nextFreePosition = (void*)((size_t)nextFreePosition + size);
 #if GC_TYPE==PAUSELESS
@@ -32,11 +32,33 @@ AbstractVMObject* Page::AllocateObject(size_t size ALLOC_OUTSIDE_NURSERY_DECLpp 
         GetUniverse()->Quit(-1);
     }
 #endif
+    return newObject;
+}
+
+AbstractVMObject* Page::allocateNonRelocatable(size_t size) {
+    assert(nonRelocatablePage != nullptr);
+    AbstractVMObject* newObject = nonRelocatablePage->allocate(size);
+    if (nonRelocatablePage->isFull()) {
+        assert(dynamic_cast<PauselessHeap*>(heap));
+        static_cast<PauselessHeap*>(heap)->AddFullNonRelocatablePage(nonRelocatablePage);
+        nonRelocatablePage = heap->RequestPage();
+    }
+    return newObject;
+}
+
+AbstractVMObject* Page::AllocateObject(size_t size ALLOC_OUTSIDE_NURSERY_DECLpp ALLOC_NON_RELOCATABLE_DECLpp) {
+    if (nonRelocatable) {
+        return allocateNonRelocatable(size);
+    }
+    
+    AbstractVMObject* newObject = allocate(size);
     
     if (isFull()) {
         heap->RelinquishPage(this);
 #warning might not work on GC threads!!!!
-        GetUniverse()->GetInterpreter()->SetPage(heap->RequestPage());
+        Page* newPage = heap->RequestPage();
+        GetUniverse()->GetInterpreter()->SetPage(newPage);
+        newPage->SetNonRelocatablePage(nonRelocatablePage);
     }
      
     return newObject;
