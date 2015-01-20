@@ -109,16 +109,16 @@ void _System::PrintString_(Interpreter*, VMFrame* frame) {
     pthread_mutex_unlock(&outputMutex);
 }
 
+void _System::PrintNewline(Interpreter*, VMFrame*) {
+    pthread_mutex_lock(&outputMutex);
+    cout << endl;
+    pthread_mutex_unlock(&outputMutex);
+}
+
 void _System::PrintNewline_(Interpreter*, VMFrame* frame) {
     VMString* arg = static_cast<VMString*>(frame->Pop());
     pthread_mutex_lock(&outputMutex);
     cout << arg->GetStdString() << endl;
-    pthread_mutex_unlock(&outputMutex);
-}
-
-void _System::PrintNewline(Interpreter*, VMFrame*) {
-    pthread_mutex_lock(&outputMutex);
-    cout << endl;
     pthread_mutex_unlock(&outputMutex);
 }
 
