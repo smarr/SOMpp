@@ -26,7 +26,6 @@ public:
     Page(void* pageStart, PagedHeap* heap);
     
     AbstractVMObject* AllocateObject(size_t size ALLOC_OUTSIDE_NURSERY_DECL ALLOC_NON_RELOCATABLE_DECL);
-    bool Full();
     void ClearPage();
     
 #if GC_TYPE==PAUSELESS
@@ -45,6 +44,8 @@ public:
 #endif
     
 private:
+    bool isFull() { return nextFreePosition > treshold; }
+    
     size_t pageStart;
     size_t pageEnd;
     void* treshold;

@@ -31,17 +31,15 @@ AbstractVMObject* Page::AllocateObject(size_t size ALLOC_OUTSIDE_NURSERY_DECLpp 
         sync_out(ostringstream() << "Failed to allocate " << size << " Bytes in page.");
         GetUniverse()->Quit(-1);
     }
-#elif GC_TYPE==GENERATIONAL
-    if (nextFreePosition > treshold) {
-        heap->RelinquishPage(this);
-        GetUniverse()->GetInterpreter()->SetPage(_HEAP->RequestPage());
-    }
 #endif
+    
+    if (isFull()) {
+        heap->RelinquishPage(this);
+#warning might not work on GC threads!!!!
+        GetUniverse()->GetInterpreter()->SetPage(heap->RequestPage());
+    }
+     
     return newObject;
-}
-
-bool Page::Full() {
-    return nextFreePosition > treshold;
 }
 
 void Page::ClearPage() {
