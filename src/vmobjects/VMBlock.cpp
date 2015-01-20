@@ -42,8 +42,7 @@ void VMBlock::SetMethod(VMMethod* bMethod) {
 }
 
 VMBlock* VMBlock::Clone(Page* page) const {
-    VMBlock* clone;
-    clone = new (page, GetAdditionalSpaceConsumption() ALLOC_MATURE) VMBlock(*this);
+    VMBlock* clone = new (page, GetAdditionalSpaceConsumption() ALLOC_MATURE) VMBlock(*this);
     return clone;
 }
 
