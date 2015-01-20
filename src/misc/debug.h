@@ -52,7 +52,7 @@ static inline void DebugPrefix(const char* prefix) {
     va_end(ap)
 
 static inline void DebugInfo(const char* fmt, ...) {
-#ifdef DEBUG
+#if DEBUG
     DebugPrefix("INFO:");
     DebugPass(fmt);
 #else
@@ -61,7 +61,7 @@ static inline void DebugInfo(const char* fmt, ...) {
 }
 
 static inline void DebugLog(const char* fmt, ...) {
-#ifdef DEBUG
+#if DEBUG
     DebugPrefix("LOG:");
     DebugPass(fmt);
 #else
