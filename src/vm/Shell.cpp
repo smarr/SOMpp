@@ -29,11 +29,11 @@
 #include "Universe.h"
 #include "Shell.h"
 
-#include "../vmobjects/VMMethod.h"
-#include "../vmobjects/VMClass.h"
-#include "../vmobjects/VMFrame.h"
-#include "../vmobjects/VMObject.h"
-#include "../vmobjects/VMInvokable.h"
+#include <vmobjects/VMMethod.h>
+#include <vmobjects/VMClass.h>
+#include <vmobjects/VMFrame.h>
+#include <vmobjects/VMObject.h>
+#include <vmobjects/VMInvokable.h>
 
 // maximal length of an input line from the shell
 #define INPUT_MAX_SIZE BUFSIZ

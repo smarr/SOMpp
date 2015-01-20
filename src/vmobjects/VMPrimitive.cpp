@@ -28,10 +28,10 @@
 #include "VMSymbol.h"
 #include "VMClass.h"
 
-#include "../vm/Universe.h"
+#include <vm/Universe.h>
 
 //needed to instanciate the Routine object for the  empty routine
-#include "../primitivesCore/Routine.h"
+#include <primitivesCore/Routine.h>
 
 VMPrimitive* VMPrimitive::GetEmptyPrimitive(VMSymbol* sig, bool classSide, Page* page) {
     VMPrimitive* prim = new (page) VMPrimitive(sig);

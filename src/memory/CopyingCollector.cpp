@@ -1,9 +1,9 @@
-#include "../misc/defs.h"
+#include <misc/defs.h>
 
 #include "CopyingHeap.h"
-#include "../vm/Universe.h"
-#include "../vmobjects/AbstractObject.h"
-#include "../vmobjects/VMFrame.h"
+#include <vm/Universe.h>
+#include <vmobjects/AbstractObject.h>
+#include <vmobjects/VMFrame.h>
 #include <vmobjects/IntegerBox.h>
 
 #include "CopyingCollector.h"
