@@ -62,7 +62,7 @@ size_t VMSymbol::GetObjectSize() const {
 }
 
 VMSymbol* VMSymbol::Clone(Page* page) {
-    VMSymbol* result = new (page, PADDED_SIZE(strlen(chars) + 1)) VMSymbol(chars);
+    VMSymbol* result = new (page, PADDED_SIZE(strlen(chars) + 1) ALLOC_MATURE) VMSymbol(chars);
     return result;
 }
 
