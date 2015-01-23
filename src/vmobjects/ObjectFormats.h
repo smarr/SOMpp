@@ -76,7 +76,7 @@ class VMPrimitive;
 class VMString;
 class VMSymbol;
 
-class VMSignal;
+class VMCondition;
 class VMMutex;
 class VMThread;
 
@@ -128,7 +128,7 @@ class GCEvaluationPrimitive : public GCPrimitive { public: typedef VMEvaluationP
 class GCString    : public GCAbstractObject { public: typedef VMString Loaded; };
 class GCSymbol    : public GCString      { public: typedef VMSymbol Loaded; };
 
-class GCSignal    : public GCObject      { public: typedef VMSignal Loaded; };
+class GCCondition : public GCObject      { public: typedef VMCondition Loaded; };
 class GCMutex     : public GCObject      { public: typedef VMMutex Loaded; };
 class GCThread    : public GCObject      { public: typedef VMThread Loaded; };
 

@@ -1,146 +1,162 @@
-//
-//  VMThread.cpp
-//  SOM
-//
-//  Created by Jeroen De Geeter on 5/03/14.
-//
-//
-
 #include "VMThread.h"
+#include "VMString.h"
 
-#include <sched.h>
+#include <vm/SafePoint.h>
 #include <vm/Universe.h>
 
-#include <vmobjects/VMString.h>
-#include <vmobjects/VMBlock.h>
-#include <vmObjects/VMClass.h>
-
-#include <interpreter/Interpreter.h>
-
-const int VMThread::VMThreadNumberOfFields = 5;
-
-VMThread::VMThread() : VMObject(VMThreadNumberOfFields) {
-}
-
-void VMThread::Yield() {
-    sched_yield();
-}
-
-VMSignal* VMThread::GetResumeSignal() {
-    return load_ptr(resumeSignal);
-}
+#include <sstream>
 
 
-void VMThread::SetResumeSignal(VMSignal* value) {
-    store_ptr(resumeSignal, value);
-}
+const int VMThread::VMThreadNumberOfFields = 1;
+mutex VMThread::threads_map_mutex;
+map<thread::id, GCThread*> VMThread::threads;
 
 
-bool VMThread::ShouldStop() {
-    return load_ptr(shouldStop) == load_ptr(trueObject);
-}
+VMThread::VMThread() :
+                VMObject(VMThreadNumberOfFields),
+                    thread(nullptr),
+                    name(reinterpret_cast<GCString*>(nilObject)) {}
 
-
-void VMThread::SetShouldStop(bool value) {
-    if (value) {
-    	store_ptr(shouldStop, load_ptr(trueObject));
-    } else {
-    	store_ptr(shouldStop, load_ptr(falseObject));
-    }
-}
-
-
-VMBlock* VMThread::GetBlockToRun() {
-    return load_ptr(blockToRun);
-}
-
-
-void VMThread::SetBlockToRun(VMBlock* value) {
-    store_ptr(blockToRun, value);
-}
-
-
-VMString* VMThread::GetName() {
+VMString* VMThread::GetName() const {
     return load_ptr(name);
 }
 
-
-void VMThread::SetName(VMString* value) {
-    store_ptr(name, value);
+void VMThread::SetName(VMString* val) {
+    store_ptr(name, val);
 }
 
-
-vm_oop_t VMThread::GetArgument() {
-    return load_ptr(argument);
+void VMThread::SetThread(std::thread* t) {
+    thread = t;
 }
 
+void VMThread::Join() {
+# warning there is a race condition on the thread field, \
+  because it is set after construction, \
+  thank you C++11 API which doesn't allow me to create threads without executing them.
+    try {
+        // this join() needs always to be in tail position with respect to all
+        // operations, before going back to the interpreter loop.
+        // Specifically, we can't use any object pointers that might have moved.
+        
+        
+#if GC_TYPE==PAUSELESS
+        GetUniverse()->GetInterpreter()->EnableBlocked();
+#else
+        SafePoint::AnnounceBlockingMutator();
+#endif
 
-void VMThread::SetArgument(vm_oop_t value) {
-    store_ptr(argument, value);
+        thread->join();
+        
+#if GC_TYPE==PAUSELESS
+        GetUniverse()->GetInterpreter()->DisableBlocked();
+#else
+        SafePoint::ReturnFromBlockingMutator();
+#endif
+    } catch(const std::system_error& e) {
+        Universe::ErrorPrint("Error when joining thread: error code " +
+                             to_string(e.code().value()) + " meaning " +
+                             e.what() + "\n");
+    }
 }
 
-
-pthread_t VMThread::GetEmbeddedThreadId() {
-	return embeddedThreadId;
+StdString VMThread::AsDebugString() const {
+    auto id = thread->get_id();
+    stringstream id_ss;
+    id_ss << id;
+    
+    VMString* n = load_ptr(name);
+    if (n == reinterpret_cast<VMString*>(load_ptr(nilObject))) {
+        return "Thread(id: " + id_ss.str() + ")";
+    } else {
+        return "Thread(" + n->GetStdString() + ", " + id_ss.str() + ")";
+    }
 }
 
-
-void VMThread::SetEmbeddedThreadId(pthread_t value) {
-    embeddedThreadId = value;
-}
-
-void VMThread::Join(int* exitStatus) {
-    int returnValue;
-	pthread_join(embeddedThreadId, (void**)&returnValue);
-    //pthread_join(embeddedThreadId, (void**)&exitStatus);
-}
-
-
-VMThread* VMThread::Clone(Page* page) {
-    VMThread* clone = new (page, objectSize - sizeof(VMThread)) VMThread(*this);
-    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
+VMThread* VMThread::Clone(Page* page) const {
+// TODO: Clone() should be renamed to Move or Reallocate or something,
+// it should indicate that the old copy is going to be invalidated.
+    VMThread* clone = new (page, 0 ALLOC_MATURE) VMThread();
+    clone->clazz  = clazz;
+    clone->thread = thread;
+    clone->name   = name;
     return clone;
+}
+
+void VMThread::MarkObjectAsInvalid() {
+    clazz  = (GCClass*) INVALID_GC_POINTER;
+    name   = (GCString*) INVALID_GC_POINTER;
+    thread = nullptr;
+}
+
+void VMThread::Yield() {
+    this_thread::yield();
+}
+
+VMThread* VMThread::Current() {
+    thread::id id = this_thread::get_id();
+    
+    lock_guard<mutex> lock(threads_map_mutex);
+    auto thread_i = threads.find(id);
+    if (thread_i != threads.end()) {
+        return load_ptr(thread_i->second);
+    } else {
+        Universe::ErrorExit("Did not find object for current thread. "
+                            "This is a bug, i.e., should not happen.");
+        return reinterpret_cast<VMThread*>(load_ptr(nilObject));
+    }
+}
+
+void VMThread::Initialize() {
+    lock_guard<mutex> lock(threads_map_mutex);
+    
+    // this is initialization time, should be done before any GC stuff starts
+    // so, don't need a write barrier
+    threads[this_thread::get_id()] = reinterpret_cast<GCThread*>(nilObject);
+    SafePoint::RegisterMutator(); // registers the main thread with the safepoint
+}
+
+void VMThread::RegisterThread(thread::id threadId, VMThread* thread) {
+    lock_guard<mutex> lock(threads_map_mutex);
+    
+    auto thread_i = threads.find(threadId);
+    assert(thread_i == threads.end()); // should not be in the map
+    
+#warning this is a global data structure, so, _store_ptr should be ok
+    threads[threadId] = _store_ptr(thread);
+
+    // SafePoint::RegisterMutator() is already done as part of thread creation.
+    // This is necessary, to make sure that we do not get a GC, before it is
+    // safe to do so. Otherwise the thread, block, and argument pointer are
+    // invalidated by a moving GC
+}
+
+void VMThread::UnregisterThread(thread::id threadId) {
+    lock_guard<mutex> lock(threads_map_mutex);
+    
+    size_t numRemoved = threads.erase(threadId);
+    assert(numRemoved == 1);
+    
+    SafePoint::UnregisterMutator();
+}
+
+void VMThread::WalkGlobals(walk_heap_fn walk, Page* page) {
+    for (auto& pair : threads) {
+        pair.second = static_cast<GCThread*>(walk(pair.second, page));
+    }
 }
 
 #if GC_TYPE==PAUSELESS
 void VMThread::MarkReferences() {
     ReadBarrierForGCThread(&clazz);
-    ReadBarrierForGCThread(&resumeSignal);
-    ReadBarrierForGCThread(&shouldStop);
-    ReadBarrierForGCThread(&blockToRun);
     ReadBarrierForGCThread(&name);
-    ReadBarrierForGCThread(&argument);
 }
 
 void VMThread::CheckMarking(void (*walk)(vm_oop_t)) {
     assert(GetNMTValue(clazz) == _HEAP->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(clazz));
     walk(Untag(clazz));
-    assert(GetNMTValue(resumeSignal) == _HEAP->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(resumeSignal));
-    walk(Untag(resumeSignal));
-    assert(GetNMTValue(shouldStop) == _HEAP->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(shouldStop));
-    walk(Untag(shouldStop));
-    assert(GetNMTValue(blockToRun) == _HEAP->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(blockToRun));
-    walk(Untag(blockToRun));
     assert(GetNMTValue(name) == _HEAP->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(name));
     walk(Untag(name));
-    assert(GetNMTValue(argument) == _HEAP->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(argument));
-    walk(Untag(argument));
 }
-#else
-/*
-void VMThread::WalkObjects(walk_heap_fn walk) {
-    //clazz = (GCClass*) (walk(load_ptr(clazz)));
-    //resumeSignal = (GCSignal*) (walk(load_ptr(resumeSignal)));
-    //shouldStop = (GCObject*) (walk(load_ptr(shouldStop)));
-    //blockToRun = (GCBlock*) (walk(load_ptr(blockToRun)));
-    //name = (GCString*) (walk(load_ptr(name)));
-    //argument = (GCAbstractObject*) (walk(load_ptr(argument)));
-}
-*/
 #endif

@@ -26,21 +26,14 @@
 
 #include "Block.h"
 
-#include "../primitivesCore/Routine.h"
-
-#include "../interpreter/Interpreter.h"
+#include <primitivesCore/Routine.h>
 
 #include <vmobjects/VMObject.h>
 #include <vmobjects/VMFrame.h>
-#include <vmobjects/VMMethod.h>
-#include <vmobjects/VMClass.h>
-
+#include <vmobjects/VMBlock.h>
 #include <vmobjects/VMThread.h>
 
-#include <interpreter/bytecodes.h>
 #include <vm/Universe.h>
-
-#include <vmobjects/VMMethod.inline.h>
 
 void _Block::Value(Interpreter*, VMFrame*) {
     // intentionally left blank
@@ -64,9 +57,9 @@ _Block::_Block() : PrimitiveContainer() {
     SetPrimitive("restart",     new Routine<_Block>(this, &_Block::Restart,     false));
     SetPrimitive("value_",      new Routine<_Block>(this, &_Block::Value_,      false));
     SetPrimitive("value_with_", new Routine<_Block>(this, &_Block::Value_with_, false));
-
-    SetPrimitive("spawnWithArgument_", new Routine<_Block>(this, &_Block::SpawnWithArgument, false));
-    SetPrimitive("spawn",       new Routine<_Block>(this, &_Block::Spawn,       false));
+    
+    SetPrimitive("spawn_",      new Routine<_Block>(this, &_Block::Spawn_, false));
+    SetPrimitive("spawn",       new Routine<_Block>(this, &_Block::Spawn,  false));
 }
 
 VMMethod* _Block::CreateFakeBootstrapMethod(Page* page) {

@@ -49,9 +49,9 @@
 #include <vmobjects/VMString.h>
 #include <vmobjects/VMEvaluationPrimitive.h>
 
-#include <vmobjects/VMThread.h>
+#include <vmobjects/VMCondition.h>
 #include <vmobjects/VMMutex.h>
-#include <vmobjects/VMSignal.h>
+#include <vmobjects/VMThread.h>
 
 #include <interpreter/bytecodes.h>
 
@@ -99,9 +99,9 @@ GCClass* doubleClass;
 GCClass* trueClass;
 GCClass* falseClass;
 
-GCClass* threadClass;
+GCClass* conditionClass;
 GCClass* mutexClass;
-GCClass* signalClass;
+GCClass* threadClass;
 
 GCSymbol* symbolIfTrue;
 GCSymbol* symbolIfFalse;
@@ -355,12 +355,6 @@ void Universe::initialize(long _argc, char** _argv) {
     
     bootstrapMethod->SetMaximumNumberOfStackElements(2, page);
     bootstrapMethod->SetHolder(load_ptr(systemClass));
-    
-    VMThread* thread = NewThread(page);
-    VMSignal* signal = NewSignal(page);
-    thread->SetResumeSignal(signal);
-    thread->SetShouldStop(false);
-    interpreter->SetThread(thread);
 
     if (argv.size() == 0) {
         Shell* shell = new Shell(bootstrapMethod);
@@ -419,9 +413,9 @@ Universe::~Universe() {
     void* vt_primitive;
     void* vt_string;
     void* vt_symbol;
-    void* vt_thread;
+    void* vt_condition;
     void* vt_mutex;
-    void* vt_signal;
+    void* vt_thread;
 
     bool Universe::IsValidObject(vm_oop_t obj) {
         if (IS_TAGGED(obj))
@@ -456,9 +450,9 @@ Universe::~Universe() {
                vt == vt_primitive  ||
                vt == vt_string     ||
                vt == vt_symbol     ||
-               vt == vt_thread     ||
+               vt == vt_condition  ||
                vt == vt_mutex      ||
-               vt == vt_signal;
+               vt == vt_thread;
         assert(b);
         return b;
     }
@@ -476,9 +470,9 @@ Universe::~Universe() {
         vt_primitive  = nullptr;
         vt_string     = nullptr;
         vt_symbol     = nullptr;
-        vt_thread     = nullptr;
+        vt_condition  = nullptr;
         vt_mutex      = nullptr;
-        vt_signal     = nullptr;
+        vt_thread     = nullptr;
     }
 
     static void obtain_vtables_of_known_classes(VMSymbol* className, Page* page) {
@@ -567,6 +561,12 @@ Universe::~Universe() {
         vt_string     = *(void**) str;
         vt_symbol     = *(void**) className;
         
+        VMCondition* cond = new (page) VMCondition(nullptr);
+        vt_condition  = *(void**) cond;
+
+        VMMutex* mutex = new (page) VMMutex();
+        vt_mutex       = *(void**) mutex;
+
 #if GC_TYPE==GENERATIONAL
         VMThread* thr = new (_HEAP, _PAGE) VMThread();
 #elif GC_TYPE==PAUSELESS
@@ -576,23 +576,6 @@ Universe::~Universe() {
 #endif
         vt_thread     = *(void**) thr;
         
-#if GC_TYPE==GENERATIONAL
-        VMMutex* mtx  = new (_HEAP, _PAGE) VMMutex();
-#elif GC_TYPE==PAUSELESS
-        VMMutex* mtx  = new (page) VMMutex();
-#else
-        VMMutex* mtx  = new (_HEAP) VMMutex();
-#endif
-        vt_mutex      = *(void**) mtx;
-        
-#if GC_TYPE==GENERATIONAL
-        VMSignal* sgnl = new (_HEAP, _PAGE) VMSignal();
-#elif GC_TYPE==PAUSELESS
-        VMSignal* sgnl = new (page) VMSignal();
-#else
-        VMSignal* sgnl = new (_HEAP) VMSignal();
-#endif
-        vt_signal      = *(void**) sgnl;
     }
 #endif
 
@@ -625,7 +608,7 @@ VMObject* Universe::InitializeGlobals(Page* page) {
     stringClass     = _store_ptr(NewSystemClass(page));
     doubleClass     = _store_ptr(NewSystemClass(page));
 
-    signalClass     = _store_ptr(NewSystemClass(page));
+    conditionClass  = _store_ptr(NewSystemClass(page));
     mutexClass      = _store_ptr(NewSystemClass(page));
     threadClass     = _store_ptr(NewSystemClass(page));
 
@@ -643,7 +626,7 @@ VMObject* Universe::InitializeGlobals(Page* page) {
     InitializeSystemClass(load_ptr(primitiveClass), load_ptr(objectClass), "Primitive", page);
     InitializeSystemClass(load_ptr(doubleClass),    load_ptr(objectClass), "Double",    page);
 
-    InitializeSystemClass(load_ptr(signalClass),    load_ptr(objectClass), "Signal",    page);
+    InitializeSystemClass(load_ptr(conditionClass), load_ptr(objectClass), "Condition", page);
     InitializeSystemClass(load_ptr(mutexClass),     load_ptr(objectClass), "Mutex",     page);
     InitializeSystemClass(load_ptr(threadClass),    load_ptr(objectClass), "Thread",    page);
 
@@ -664,7 +647,7 @@ VMObject* Universe::InitializeGlobals(Page* page) {
     LoadSystemClass(load_ptr(stringClass),    page);
     LoadSystemClass(load_ptr(doubleClass),    page);
 
-    LoadSystemClass(load_ptr(signalClass),    page);
+    LoadSystemClass(load_ptr(conditionClass), page);
     LoadSystemClass(load_ptr(mutexClass),     page);
     LoadSystemClass(load_ptr(threadClass),    page);
 
@@ -693,6 +676,8 @@ VMObject* Universe::InitializeGlobals(Page* page) {
     
     symbolIfTrue  = _store_ptr(SymbolForChars("ifTrue:", page));
     symbolIfFalse = _store_ptr(SymbolForChars("ifFalse:", page));
+
+    VMThread::Initialize();
 
     return systemObj;
 }
@@ -1114,9 +1099,9 @@ void Universe::MarkGlobals() {
     ReadBarrierForGCThread(&blockClass, true);
     ReadBarrierForGCThread(&doubleClass, true);
     
+    ReadBarrierForGCThread(&conditionClass, true);
     ReadBarrierForGCThread(&threadClass, true);
     ReadBarrierForGCThread(&mutexClass, true);
-    ReadBarrierForGCThread(&signalClass, true);
     
     ReadBarrierForGCThread(&trueClass, true);
     ReadBarrierForGCThread(&falseClass, true);
@@ -1203,9 +1188,9 @@ void  Universe::CheckMarkingGlobals(void (*walk)(vm_oop_t)) {
     walk(Untag(blockClass));
     walk(Untag(doubleClass));
     
+    walk(Untag(conditionClass));
     walk(Untag(threadClass));
     walk(Untag(mutexClass));
-    walk(Untag(signalClass));
     
     walk(Untag(trueClass));
     walk(Untag(falseClass));
@@ -1261,7 +1246,7 @@ void Universe::WalkGlobals(walk_heap_fn walk, Page* page) {
     blockClass      = static_cast<GCClass*>(walk(blockClass,     page));
     doubleClass     = static_cast<GCClass*>(walk(doubleClass,    page));
     
-    signalClass     = static_cast<GCClass*>(walk(signalClass,    page));
+    conditionClass  = static_cast<GCClass*>(walk(conditionClass, page));
     mutexClass      = static_cast<GCClass*>(walk(mutexClass,     page));
     threadClass     = static_cast<GCClass*>(walk(threadClass,    page));
     
@@ -1333,50 +1318,6 @@ VMMethod* Universe::NewMethod(VMSymbol* signature,
     return result;
 }
 
-VMMutex* Universe::NewMutex(Page* page) const {
-#if GC_TYPE==GENERATIONAL
-    VMMutex* result = new (_HEAP, _PAGE) VMMutex();
-#elif GC_TYPE==PAUSELESS
-    VMMutex* result = new (page) VMMutex();
-#else
-    VMMutex* result = new (_HEAP) VMMutex();
-#endif
-    result->SetClass(load_ptr(mutexClass));
-
-    LOG_ALLOCATION("VMMutex", sizeof(VMMutex));
-    return result;
-}
-
-VMSignal* Universe::NewSignal(Page* page) const {
-#if GC_TYPE==GENERATIONAL
-    VMSignal* result = new (_HEAP, _PAGE) VMSignal();
-#elif GC_TYPE==PAUSELESS
-    VMSignal* result = new (page) VMSignal();
-#else
-    VMSignal* result = new (_HEAP) VMSignal();
-#endif
-    result->SetClass(load_ptr(signalClass));
-
-    LOG_ALLOCATION("VMSignal", sizeof(VMSignal));
-    return result;
-}
-
-VMThread* Universe::NewThread(Page* page) const {
-#if GC_TYPE==GENERATIONAL
-    VMThread* result = new (_HEAP, _PAGE) VMThread();
-#elif GC_TYPE==PAUSELESS
-    VMThread* result = new (page) VMThread();
-#else
-    VMThread* result = new (_HEAP) VMThread();
-#endif
-    //result->SetThreadId(threadCounter);
-    //threadCounter += 1;
-    result->SetClass(load_ptr(threadClass));
-
-    LOG_ALLOCATION("VMThread", sizeof(VMThread));
-    return result;
-}
-
 VMString* Universe::NewString(const StdString& str, Page* page) const {
     return NewString(str.c_str(), page);
 }
@@ -1430,6 +1371,49 @@ VMClass* Universe::NewSystemClass(Page* page) const {
 
     LOG_ALLOCATION("VMClass", systemClass->GetObjectSize());
     return systemClass;
+}
+
+VMCondition* Universe::NewCondition(VMMutex* mutex, Page* page) const {
+    VMCondition* cond = new (page) VMCondition(mutex->GetLock());
+    cond->SetClass(load_ptr(conditionClass));
+
+    LOG_ALLOCATION("VMCondition", sizeof(VMCondition));
+    return cond;
+}
+
+VMMutex* Universe::NewMutex(Page* page) const {
+#if GC_TYPE==GENERATIONAL
+    VMMutex* mutex = new (_HEAP, _PAGE) VMMutex();
+#elif GC_TYPE==PAUSELESS
+    VMMutex* mutex = new (page) VMMutex();
+#else
+    VMMutex* mutex = new (_HEAP) VMMutex();
+#endif
+    mutex->SetClass(load_ptr(mutexClass));
+
+    LOG_ALLOCATION("VMMutex", sizeof(VMMutex));
+    return mutex;
+}
+
+VMThread* Universe::NewThread(VMBlock* block, vm_oop_t arguments, Page* page) const {
+#if GC_TYPE==GENERATIONAL
+    VMThread* threadObj = new (_HEAP, _PAGE) VMThread();
+#elif GC_TYPE==PAUSELESS
+    VMThread* threadObj = new (page) VMThread();
+#else
+    VMThread* threadObj = new (_HEAP) VMThread();
+#endif
+
+    threadObj->SetClass(load_ptr(threadClass));
+
+#if GC_TYPE != PAUSELESS
+    SafePoint::RegisterMutator();
+#endif
+    thread* thread = new std::thread(&Universe::startInterpreterInThread, this, threadObj, block, arguments);
+    threadObj->SetThread(thread);
+
+    LOG_ALLOCATION("VMThread", sizeof(VMThread));
+    return threadObj;
 }
 
 VMSymbol* Universe::SymbolFor(const StdString& str, Page* page) {

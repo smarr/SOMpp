@@ -1,28 +1,26 @@
 #pragma once
 
-//
-//  VMMutex.h
-//  SOM
-//
-//  Created by Jeroen De Geeter on 5/03/14.
-//
-//
+#include <mutex>
 
-#include <pthread.h>
-#include <vmobjects/VMObject.h>
+#include "VMObject.h"
 
 class VMMutex : public VMObject {
 public:
     typedef GCMutex Stored;
     
-    VMMutex();
+    VMMutex() : VMObject(VMMutexNumberOfFields),
+                lock(new unique_lock<recursive_mutex>(
+                                *new recursive_mutex(), std::defer_lock)) {};
     
-    pthread_mutex_t* GetEmbeddedMutexId();
     void Lock();
     void Unlock();
-    bool IsLocked();
+    bool IsLocked() const;
+
+    VMCondition* NewCondition(Page* page);
     
-    virtual VMMutex* Clone(Page*);
+    virtual StdString AsDebugString() const;
+    virtual VMMutex* Clone(Page*) const;
+    virtual void MarkObjectAsInvalid();
 
 #if GC_TYPE==PAUSELESS
     virtual void MarkReferences();
@@ -30,11 +28,14 @@ public:
 #else
     virtual void WalkObjects(walk_heap_fn walk);
 #endif
+
+    std::unique_lock<recursive_mutex>* GetLock() const { return lock; }
     
 private:
+    VMMutex(std::unique_lock<recursive_mutex>* const lock)
+        : VMObject(VMMutexNumberOfFields), lock(lock) {};
+    std::unique_lock<recursive_mutex>* const lock;
     
-    pthread_mutex_t embeddedMutexId;
-    
-    static const int VMMutexNumberOfFields;
+    static const long VMMutexNumberOfFields;
     
 };

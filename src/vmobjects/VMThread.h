@@ -1,59 +1,45 @@
 #pragma once
-//
-//  VMThread.h
-//  SOM
-//
-//  Created by Jeroen De Geeter on 5/03/14.
-//
-//
 
-#include "VMSignal.h"
-#include <vmObjects/ObjectFormats.h>
+#include "VMObject.h"
+
+#include <thread>
 
 class VMThread : public VMObject {
 public:
     typedef GCThread Stored;
     
     VMThread();
-    
-    static void     Yield();
-    
-    VMSignal*   GetResumeSignal();
-    void        SetResumeSignal(VMSignal* value);
-    bool        ShouldStop();
-    void        SetShouldStop(bool value);
-    VMBlock*    GetBlockToRun();
-    void        SetBlockToRun(VMBlock* value);
-    VMString*   GetName();
-    void        SetName(VMString* value);
-    vm_oop_t    GetArgument();
-    void        SetArgument(vm_oop_t value);
-    pthread_t   GetEmbeddedThreadId();
-    void        SetEmbeddedThreadId(pthread_t value);
-    
-    int GetThreadId();
-    void SetThreadId(int);
-    
-    void        Join(int* exitStatus);
 
-    virtual VMThread* Clone(Page*);
+    VMString* GetName() const;
+    void      SetName(VMString*);
+    
+    void Join();
+    
+    virtual StdString AsDebugString() const;
+    virtual VMThread* Clone(Page*) const;
+    virtual void MarkObjectAsInvalid();
+    
+    void SetThread(std::thread*);
+
+    static void Yield();
+    static VMThread* Current();
+    
+    static void Initialize();
+    static void WalkGlobals(walk_heap_fn walk, Page*);
+    static void RegisterThread(thread::id, VMThread*);
+    static void UnregisterThread(thread::id);
 
 #if GC_TYPE==PAUSELESS
     virtual void MarkReferences();
     virtual void CheckMarking(void (vm_oop_t));
-#else
-    //virtual void WalkObjects(walk_heap_fn walk);
 #endif
     
 private:
-    
-    GCSignal* resumeSignal;
-    GCObject* shouldStop;
-    GCBlock*  blockToRun;
     GCString* name;
-    gc_oop_t  argument;
-    pthread_t embeddedThreadId;
+    std::thread* thread;
     
     static const int VMThreadNumberOfFields;
     
+    static mutex threads_map_mutex;
+    static map<thread::id, GCThread*> threads;
 };

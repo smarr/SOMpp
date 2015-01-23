@@ -76,9 +76,9 @@ extern GCClass* doubleClass;
 extern GCClass* trueClass;
 extern GCClass* falseClass;
 
-extern GCClass* threadClass;
+extern GCClass* conditionClass;
 extern GCClass* mutexClass;
-extern GCClass* signalClass;
+extern GCClass* threadClass;
 
 extern GCSymbol* symbolIfTrue;
 extern GCSymbol* symbolIfFalse;
@@ -135,10 +135,10 @@ public:
     VMSymbol* NewSymbol(const char*, Page* page);
     VMClass* NewSystemClass(Page* page) const;
 
-    VMMutex* NewMutex(Page* page) const;
-    VMSignal* NewSignal(Page* page) const;
-    VMThread* NewThread(Page* page) const;
-   
+    VMCondition* NewCondition(VMMutex*, Page* page) const;
+    VMMutex*     NewMutex(Page* page) const;
+    VMThread*    NewThread(VMBlock*, vm_oop_t arguments, Page* page) const;
+
 #if GC_TYPE==PAUSELESS
     void MarkGlobals();
     void  CheckMarkingGlobals(void (vm_oop_t));
