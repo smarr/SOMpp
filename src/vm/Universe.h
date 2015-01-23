@@ -194,6 +194,7 @@ private:
     vector<StdString> handleArguments(long argc, char** argv);
     long getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;
 
+    VMMethod* createBootstrapMethod(VMClass* holder, long numArgsOfMsgSend, Page*);
     friend Universe* GetUniverse();
     static Universe* theUniverse;
 

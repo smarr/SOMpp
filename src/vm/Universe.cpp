@@ -310,6 +310,15 @@ Universe::Universe() {
     pthread_mutex_init(&testMutex, nullptr);
 }
 
+VMMethod* Universe::createBootstrapMethod(VMClass* holder, long numArgsOfMsgSend, Page* page) {
+    VMMethod* bootstrapMethod = NewMethod(SymbolForChars("bootstrap", page), 1, 0, page);
+    bootstrapMethod->SetBytecode(0, BC_HALT);
+    bootstrapMethod->SetNumberOfLocals(0, page);
+    bootstrapMethod->SetMaximumNumberOfStackElements(numArgsOfMsgSend, page);
+    bootstrapMethod->SetHolder(holder);
+    return bootstrapMethod;
+}
+
 void Universe::initialize(long _argc, char** _argv) {
 #ifdef GENERATE_ALLOCATION_STATISTICS
     allocationStats["VMArray"] = {0,0};
@@ -349,12 +358,7 @@ void Universe::initialize(long _argc, char** _argv) {
     VMObject* systemObject = InitializeGlobals(page);
 
     
-    VMMethod* bootstrapMethod = NewMethod(SymbolForChars("bootstrap", page), 1, 0, page);
-    bootstrapMethod->SetBytecode(0, BC_HALT);
-    bootstrapMethod->SetNumberOfLocals(0, page);
-    
-    bootstrapMethod->SetMaximumNumberOfStackElements(2, page);
-    bootstrapMethod->SetHolder(load_ptr(systemClass));
+    VMMethod* bootstrapMethod = createBootstrapMethod(load_ptr(systemClass), 2, page);
 
     if (argv.size() == 0) {
         Shell* shell = new Shell(bootstrapMethod);
