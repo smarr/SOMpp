@@ -38,11 +38,9 @@ public:
     void Value_with_(Interpreter*, VMFrame*);
     
     void Spawn(Interpreter*, VMFrame*);
-    void SpawnWithArgument(Interpreter*, VMFrame*);
+    void Spawn_(Interpreter*, VMFrame*);
     
 private:
-    static VMMethod* CreateFakeBootstrapMethod(Page*);
-    static VMThread* CreateNewThread(VMBlock*, Page*);
     static void* ThreadForBlock(void* threadPointer);
     static void* ThreadForBlockWithArgument(void*);
     

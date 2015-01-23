@@ -52,6 +52,21 @@ void _Block::Restart(Interpreter*, VMFrame* frame) {
     frame->ResetStackPointer();
 }
 
+// spawns a new thread that will execute the receiver block
+void _Block::Spawn(Interpreter* interp, VMFrame* frame) {
+    VMBlock* block = static_cast<VMBlock*>(frame->Pop());
+    VMThread* thread = GetUniverse()->NewThread(block, nullptr, interp->GetPage());
+    frame->Push(thread);
+}
+
+void _Block::Spawn_(Interpreter* interp, VMFrame* frame) {
+    vm_oop_t arguments = frame->Pop();
+    VMBlock* block = static_cast<VMBlock*>(frame->Pop());
+    
+    VMThread* thread = GetUniverse()->NewThread(block, arguments, interp->GetPage());
+    frame->Push(thread);
+}
+
 _Block::_Block() : PrimitiveContainer() {
     SetPrimitive("value",       new Routine<_Block>(this, &_Block::Value,       false));
     SetPrimitive("restart",     new Routine<_Block>(this, &_Block::Restart,     false));
@@ -61,138 +76,3 @@ _Block::_Block() : PrimitiveContainer() {
     SetPrimitive("spawn_",      new Routine<_Block>(this, &_Block::Spawn_, false));
     SetPrimitive("spawn",       new Routine<_Block>(this, &_Block::Spawn,  false));
 }
-
-VMMethod* _Block::CreateFakeBootstrapMethod(Page* page) {
-    VMMethod* bootstrapVMMethod = GetUniverse()->NewMethod(GetUniverse()->SymbolForChars("bootstrap", page), 1, 0, page);
-    bootstrapVMMethod->SetBytecode(0, BC_HALT);
-    bootstrapVMMethod->SetNumberOfLocals(0, page);
-    bootstrapVMMethod->SetMaximumNumberOfStackElements(2, page);
-    bootstrapVMMethod->SetHolder(GetUniverse()->GetBlockClass());
-    return bootstrapVMMethod;
-}
-
-//setting up thread object
-VMThread* _Block::CreateNewThread(VMBlock* block, Page* page) {
-    VMThread* thread = GetUniverse()->NewThread(page);
-    VMSignal* signal = GetUniverse()->NewSignal(page);
-    thread->SetResumeSignal(signal);
-    thread->SetShouldStop(false);
-    thread->SetBlockToRun(block);
-    return thread;
-}
-
-void* _Block::ThreadForBlock(void* threadPointer) {
-    //create new interpreter which will process the block
-    Interpreter* interpreter = GetUniverse()->NewInterpreter();
-    VMThread* thread = (VMThread*)threadPointer;
-    VMBlock* block = thread->GetBlockToRun();
-    interpreter->SetThread(thread);
-    
-    // fake bootstrap method to simplify later frame traversal
-    VMMethod* bootstrapVMMethod = CreateFakeBootstrapMethod(interpreter->GetPage());
-    // create a fake bootstrap frame with the block object on the stack
-    VMFrame* bootstrapVMFrame = interpreter->PushNewFrame(bootstrapVMMethod);
-    bootstrapVMFrame->Push((VMObject*)block);
-    
-    // lookup the initialize invokable on the system class
-    VMInvokable* initialize = GetUniverse()->GetBlockClass()->LookupInvokable(
-                GetUniverse()->SymbolForChars("evaluate", interpreter->GetPage()));
-    // invoke the initialize invokable
-    initialize->Invoke(interpreter, bootstrapVMFrame);
-    // start the interpreter
-    interpreter->Start();
-    
-#if GC_TYPE != PAUSELESS
-    // exit this thread and decrement the number of active threads, this is part of a stop the world thread barrier needed for GC
-    _HEAP->DecrementThreadCount();
-#endif
-    
-    GetUniverse()->RemoveInterpreter();
-    
-#if GC_TYPE!=PAUSELESS
-    delete interpreter;
-#endif
-
-    pthread_exit(nullptr);
-}
-
-void* _Block::ThreadForBlockWithArgument(void* threadPointer) {
-    //create new interpreter which will process the block
-    Interpreter* interpreter = GetUniverse()->NewInterpreter();
-    VMThread* thread = (VMThread*)threadPointer;
-    VMBlock* block = thread->GetBlockToRun();
-    interpreter->SetThread(thread);
-    
-    // fake bootstrap method to simplify later frame traversal
-    VMMethod* bootstrapVMMethod = CreateFakeBootstrapMethod(interpreter->GetPage());
-    // create a fake bootstrap frame with the block object on the stack
-    VMFrame* bootstrapVMFrame = interpreter->PushNewFrame(bootstrapVMMethod);
-    bootstrapVMFrame->Push((VMObject*)block);
-    vm_oop_t arg = thread->GetArgument();
-    bootstrapVMFrame->Push(arg);
-    
-    // lookup the initialize invokable on the system class
-    VMInvokable* initialize = GetUniverse()->GetBlockClass()->LookupInvokable(
-                    GetUniverse()->SymbolForChars("evaluate", interpreter->GetPage()));
-    // invoke the initialize invokable
-    initialize->Invoke(interpreter, bootstrapVMFrame);
-    // start the interpreter
-    interpreter->Start();
-    
-#if GC_TYPE != PAUSELESS
-    // exit this thread and decrement the number of active threads, this is part of a stop the world thread barrier needed for GC
-    _HEAP->DecrementThreadCount();
-#endif
-    
-    GetUniverse()->RemoveInterpreter();
-    
-    //still need to happen at the end of each cycle of the pauseless, we should thus keep track of interpreters that need to be deleted
-#if GC_TYPE!=PAUSELESS
-    delete interpreter;
-#endif
-    
-    pthread_exit(nullptr);
-}
-
-//spawning of new thread that will run the block
-void _Block::Spawn(Interpreter* interp, VMFrame* frame) {
-    pthread_t tid = 0;
-    VMBlock* block = (VMBlock*)frame->Pop();
-    // create the thread object and setting it up
-    VMThread* thread = CreateNewThread(block, interp->GetPage());
-    // create the pthread but first increment the number of active threads (this is part of a thread barrier needed for GC)
-#if GC_TYPE!=PAUSELESS
-    _HEAP->IncrementThreadCount();
-#endif
-    //GetUniverse()->IncrementThreadCount();
-    pthread_create(&tid, nullptr, &ThreadForBlock, (void*)thread);
-    thread->SetEmbeddedThreadId(tid);
-    frame->Push(thread);
-}
-
-void _Block::SpawnWithArgument(Interpreter* interp, VMFrame* frame) {
-    pthread_t tid = 0;
-    // Get the argument
-    vm_oop_t argument = frame->Pop();
-    VMBlock* block = (VMBlock*)frame->Pop();
-    // create the thread object and setting it up
-    VMThread* thread = CreateNewThread(block, interp->GetPage());
-    thread->SetArgument(argument);
-    // create the pthread but first increment the number of active threads (this is part of a thread barrier needed for GC)
-#if GC_TYPE!=PAUSELESS
-    _HEAP->IncrementThreadCount();
-#endif
-    //GetUniverse()->IncrementThreadCount();
-    pthread_create(&tid, nullptr, &ThreadForBlockWithArgument, (void *)thread);
-    thread->SetEmbeddedThreadId(tid);
-    frame->Push(thread);
-}
-
-
-
-//# define VALUE_TO_STRING(x) #x
-//# define VALUE(x) VALUE_TO_STRING(x)
-//# define VAR_NAME_VALUE(var) #var "=" VALUE(var)
-//
-//# pragma message (VAR_NAME_VALUE(GC_TYPE))
-//# error test
