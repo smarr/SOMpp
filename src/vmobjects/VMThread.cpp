@@ -1,5 +1,6 @@
 #include "VMThread.h"
 #include "VMString.h"
+#include "VMClass.h"
 
 #include <vm/SafePoint.h>
 #include <vm/Universe.h>
