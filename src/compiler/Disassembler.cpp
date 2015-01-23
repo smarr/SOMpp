@@ -52,6 +52,8 @@
 #include <misc/debug.h>
 #include <misc/defs.h>
 
+#include <vmobjects/VMMethod.inline.h>
+
 /** 
  * Dispatch an object to its content and write out
  */
