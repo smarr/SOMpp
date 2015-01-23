@@ -57,8 +57,6 @@ public:
 #endif
     
     void      Start();
-    VMThread* GetThread();
-    void      SetThread(VMThread* thread);
     VMFrame*  PushNewFrame(VMMethod* method);
     void      SetFrame(VMFrame* frame);
     VMFrame*  GetFrame();
@@ -99,7 +97,6 @@ public:
 #endif
     
 private:
-    GCThread* thread;
     GCFrame* frame;
     
     static const StdString unknownGlobal;

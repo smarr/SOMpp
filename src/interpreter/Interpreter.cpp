@@ -42,7 +42,6 @@
 #include <vmobjects/VMInvokable.h>
 #include <vmobjects/Signature.h>
 #include <vmobjects/VMBlock.h>
-#include <vmobjects/VMThread.h>
 #include <vmobjects/IntegerBox.h>
 
 #include <compiler/Disassembler.h>
@@ -56,7 +55,6 @@ const StdString Interpreter::escapedBlock      = "escapedBlock:";
 
 #if GC_TYPE==PAUSELESS
 Interpreter::Interpreter(bool expectedNMT, bool gcTrapEnabled) : BaseThread(expectedNMT) {
-    this->thread = nullptr;
     this->frame = nullptr;
 
     stopped = false;
@@ -69,7 +67,6 @@ Interpreter::Interpreter(bool expectedNMT, bool gcTrapEnabled) : BaseThread(expe
 }
 #else
 Interpreter::Interpreter(Page* page) : BaseThread(), page(page) {
-    thread = nullptr;
     frame = nullptr;
 }
 #endif
@@ -608,14 +605,6 @@ VMMethod* Interpreter::GetMethod() {
     // return load_ptr(this->method);
 }
 
-VMThread* Interpreter::GetThread(void) {
-    return load_ptr(this->thread);
-}
-
-void Interpreter::SetThread(VMThread* thread) {
-    this->thread = _store_ptr(thread);
-}
-
 #if GC_TYPE==PAUSELESS
 // Request a marking of the interpreters' root set
 void Interpreter::TriggerMarkRootSet() {
@@ -635,8 +624,7 @@ void Interpreter::MarkRootSet() {
     expectedNMT = !expectedNMT;
     worklist.Clear();
     
-    // this will also destructively change the thread, frame and method pointers so that the NMT bit is flipped
-    ReadBarrier(&thread, true);
+    // this will also destructively change the frame and method pointers so that the NMT bit is flipped
     ReadBarrier(&frame, true);
     // ReadBarrier(&method);
     
@@ -659,8 +647,7 @@ void Interpreter::MarkRootSetByGC() {
     expectedNMT = !expectedNMT;
     worklist.Clear();
     
-    // this will also destructively change the thread, frame and method pointers so that the NMT bit is flipped
-    ReadBarrierForGCThread(&thread, true);
+    // this will also destructively change the frame and method pointers so that the NMT bit is flipped
     ReadBarrierForGCThread(&frame, true);
     // ReadBarrierForGCThread(&method);
     
@@ -776,10 +763,6 @@ void Interpreter::CheckMarking(void (*walk)(vm_oop_t)) {
         //assert(GetNMTValue(frame) == _HEAP->GetGCThread()->GetExpectedNMT());
         walk(Untag(frame));
     }
-    if (thread) {
-        //assert(GetNMTValue(thread) == _HEAP->GetGCThread()->GetExpectedNMT());
-        walk(Untag(thread));
-    }
 }
 
 
@@ -805,7 +788,6 @@ void Interpreter::CheckMarking(void (*walk)(vm_oop_t)) {
 #else
 void Interpreter::WalkGlobals(walk_heap_fn walk) {
     //method = (GCMethod*) walk(load_ptr(method));
-    thread = (GCThread*) walk(thread);
     frame = (GCFrame*) walk(frame);
 }
 #endif
