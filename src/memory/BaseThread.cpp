@@ -10,16 +10,13 @@
 
 
 #if GC_TYPE==PAUSELESS
-BaseThread::BaseThread() {
-    page = _HEAP->RequestPage();
+BaseThread::BaseThread(Page* page) : page(page), expectedNMT(false) {
     page->SetNonRelocatablePage(_HEAP->RequestPage());
-    this->expectedNMT = false;
+
 }
 
-BaseThread::BaseThread(bool expectedNMT) {
-    page = _HEAP->RequestPage();
+BaseThread::BaseThread(Page* page, bool expectedNMT) : page(page), expectedNMT(expectedNMT) {
     page->SetNonRelocatablePage(_HEAP->RequestPage());
-    this->expectedNMT = expectedNMT;
 }
 #else
 BaseThread::BaseThread() {

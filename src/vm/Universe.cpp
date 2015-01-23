@@ -1399,11 +1399,11 @@ VMMutex* Universe::NewMutex(Page* page) const {
     return mutex;
 }
 
-VMThread* Universe::NewThread(VMBlock* block, vm_oop_t arguments, Page* page) const {
+VMThread* Universe::NewThread(VMBlock* block, vm_oop_t arguments, Interpreter* interp) {
 #if GC_TYPE==GENERATIONAL
     VMThread* threadObj = new (_HEAP, _PAGE) VMThread();
 #elif GC_TYPE==PAUSELESS
-    VMThread* threadObj = new (page) VMThread();
+    VMThread* threadObj = new (interp->GetPage()) VMThread();
 #else
     VMThread* threadObj = new (_HEAP) VMThread();
 #endif
@@ -1413,7 +1413,7 @@ VMThread* Universe::NewThread(VMBlock* block, vm_oop_t arguments, Page* page) co
 #if GC_TYPE != PAUSELESS
     SafePoint::RegisterMutator();
 #endif
-    thread* thread = new std::thread(&Universe::startInterpreterInThread, this, threadObj, block, arguments);
+    thread* thread = new std::thread(&Universe::startInterpreterInThread, this, threadObj, block, arguments, interp->GetExpectedNMT(), interp->GCTrapEnabled());
     threadObj->SetThread(thread);
 
     LOG_ALLOCATION("VMThread", sizeof(VMThread));

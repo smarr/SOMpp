@@ -137,7 +137,7 @@ public:
 
     VMCondition* NewCondition(VMMutex*, Page* page) const;
     VMMutex*     NewMutex(Page* page) const;
-    VMThread*    NewThread(VMBlock*, vm_oop_t arguments, Page* page) const;
+    VMThread*    NewThread(VMBlock*, vm_oop_t arguments, Interpreter*);
 
 #if GC_TYPE==PAUSELESS
     void MarkGlobals();

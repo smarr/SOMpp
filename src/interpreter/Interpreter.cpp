@@ -54,7 +54,7 @@ const StdString Interpreter::escapedBlock      = "escapedBlock:";
 
 
 #if GC_TYPE==PAUSELESS
-Interpreter::Interpreter(bool expectedNMT, bool gcTrapEnabled) : BaseThread(expectedNMT) {
+Interpreter::Interpreter(Page* page, bool expectedNMT, bool gcTrapEnabled) : BaseThread(page, expectedNMT) {
     this->frame = nullptr;
 
     stopped = false;
@@ -66,7 +66,7 @@ Interpreter::Interpreter(bool expectedNMT, bool gcTrapEnabled) : BaseThread(expe
     pthread_mutex_init(&blockedMutex, nullptr);
 }
 #else
-Interpreter::Interpreter(Page* page) : BaseThread(), page(page) {
+Interpreter::Interpreter(Page* page) : BaseThread(page) {
     frame = nullptr;
 }
 #endif

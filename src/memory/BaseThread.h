@@ -12,9 +12,9 @@ class BaseThread {
 
 public:
     
-    BaseThread();
+    BaseThread(Page*);
 #if GC_TYPE==PAUSELESS
-    BaseThread(bool);
+    BaseThread(Page*, bool);
 #endif
     
     ~BaseThread();

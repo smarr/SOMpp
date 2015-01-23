@@ -51,9 +51,9 @@ class Interpreter : public BaseThread {
 public:
     
 #if GC_TYPE!=PAUSELESS
-    Interpreter();
+    Interpreter(Page*);
 #else
-    Interpreter(bool, bool);
+    Interpreter(Page*, bool, bool);
 #endif
     
     void      Start();
