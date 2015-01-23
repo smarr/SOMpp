@@ -43,8 +43,6 @@
 int PauselessCollectorThread::numberOfGCThreads;
 int PauselessCollectorThread::markValue;
 
-pthread_mutex_t PauselessCollectorThread::newInterpreterMutex;
-
 pthread_mutex_t PauselessCollectorThread::blockedMutex;
 pthread_mutex_t PauselessCollectorThread::markGlobalsMutex;
 pthread_mutex_t PauselessCollectorThread::markRootSetsMutex;
@@ -85,8 +83,6 @@ int PauselessCollectorThread::numberOfCycles;
 void PauselessCollectorThread::InitializeCollector(int numberOfThreads) {
     numberOfGCThreads = numberOfThreads;
     markValue = 1;
-    
-    pthread_mutex_init(&newInterpreterMutex, nullptr);
     
     pthread_mutex_init(&blockedMutex, nullptr);
     pthread_mutex_init(&markGlobalsMutex, nullptr);
@@ -186,10 +182,6 @@ pthread_mutex_t* PauselessCollectorThread::GetBlockPagesMutex() {
     return &SignalGCTrapMutex;
 } */
 
-pthread_mutex_t* PauselessCollectorThread::GetNewInterpreterMutex() {
-    return &newInterpreterMutex;
-}
-
 int PauselessCollectorThread::GetCycle() {
     return numberOfCycles;
 }
@@ -198,7 +190,10 @@ int PauselessCollectorThread::GetMarkValue() {
     return markValue;
 }
 
-PauselessCollectorThread::PauselessCollectorThread() : BaseThread() {}
+PauselessCollectorThread::PauselessCollectorThread() : BaseThread(nullptr) {
+    GetUniverse()->RegisterGCThreadInThreadLocal(this);
+}
+
 
 void PauselessCollectorThread::Collect() {
     
@@ -214,14 +209,16 @@ void PauselessCollectorThread::Collect() {
         if (!doneSignalling && pthread_mutex_trylock(&markRootSetsMutex) == 0) {
             numberOfCycles++;
             //sync_out(ostringstream() << "[GC] " << numberOfCycles);
-            pthread_mutex_lock(&newInterpreterMutex);
-            unique_ptr<vector<Interpreter*>> interpreters = GetUniverse()->GetInterpretersCopy();
-            numberRootSetsToBeMarked = interpreters->size();
-            numberRootSetsMarked = 0;
-            for (vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
-                (*it)->TriggerMarkRootSet();
+            
+            {
+#warning TODO: we need to make sure in this block, that no new interpreters are going to join, because then, we might have an inconsistent rootset? don't know exactly what the problem is. But, all rootsets need to be marked.
+                unique_ptr<vector<Interpreter*>> interpreters = GetUniverse()->GetInterpretersCopy();
+                numberRootSetsToBeMarked = interpreters->size();
+                numberRootSetsMarked = 0;
+                for (vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
+                    (*it)->TriggerMarkRootSet();
+                }
             }
-            pthread_mutex_unlock(&newInterpreterMutex);
             
             pthread_mutex_lock(&blockedMutex);
             doneSignalling = true;
@@ -326,15 +323,16 @@ void PauselessCollectorThread::Collect() {
         //------------------------
         if (!doneBlockingPages && pthread_mutex_trylock(&blockPagesMutex) == 0) {
             
-            pthread_mutex_lock(&newInterpreterMutex);
-            
-            // disable GC-trap from running interpreters
-            unique_ptr<vector<Interpreter*>> interpreters = GetUniverse()->GetInterpretersCopy();
-            for (vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
-                (*it)->DisableGCTrap();
+            {
+#warning in this block, we usually made sure that now new interpreters are joining, to be sure that all traps are correctly set. \
+ we might be able to solve that differently, first the GC thread writes the expected value to a public location (synchronized),  \
+ and then, it starts flipping the other bits
+                // disable GC-trap from running interpreters
+                unique_ptr<vector<Interpreter*>> interpreters = GetUniverse()->GetInterpretersCopy();
+                for (vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
+                    (*it)->DisableGCTrap();
+                }
             }
-            
-            pthread_mutex_unlock(&newInterpreterMutex);
             
             _HEAP->numberOfMutatorsWithEnabledGCTrap = 0;
             // unblock pages that were blocked during the previous cycle
@@ -354,18 +352,20 @@ void PauselessCollectorThread::Collect() {
             _HEAP->fullPages->clear();
                                 //pthread_mutex_unlock
             
-            pthread_mutex_lock(&newInterpreterMutex);
             
-            
-            // enable the GC-trap again
-            interpreters = GetUniverse()->GetInterpretersCopy();
-            _HEAP->numberOfMutatorsNeedEnableGCTrap = interpreters->size();
-            assert(_HEAP->numberOfMutatorsWithEnabledGCTrap == 0);
-            for (vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
-                (*it)->SignalEnableGCTrap();
+            {
+
+#warning some as above: in this block, we usually made sure that now new interpreters are joining, to be sure that all traps are correctly set. \
+we might be able to solve that differently, first the GC thread writes the expected value to a public location (synchronized),  \
+and then, it starts flipping the other bits
+                // enable the GC-trap again
+                auto interpreters = GetUniverse()->GetInterpretersCopy();
+                _HEAP->numberOfMutatorsNeedEnableGCTrap = interpreters->size();
+                assert(_HEAP->numberOfMutatorsWithEnabledGCTrap == 0);
+                for (auto interp : *interpreters) {
+                    interp->SignalEnableGCTrap();
+                }
             }
-            
-            pthread_mutex_unlock(&newInterpreterMutex);
             
             // All gc-threads need to wait till all mutators have the gc-trap enabled before starting relocation
             pthread_mutex_lock(&(_HEAP->gcTrapEnabledMutex));

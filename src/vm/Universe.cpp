@@ -302,7 +302,6 @@ void Universe::printUsageAndExit(char* executable) const {
 
 Universe::Universe() {
     pthread_key_create(&interpreterKey, nullptr);
-    pthread_mutex_init(&interpreterMutex, nullptr);
     pthread_mutexattr_init(&attrclassLoading);
     pthread_mutexattr_settype(&attrclassLoading, PTHREAD_MUTEX_RECURSIVE);
     pthread_mutex_init(&classLoading, &attrclassLoading);
@@ -337,9 +336,14 @@ void Universe::initialize(long _argc, char** _argv) {
 
     heap = _HEAP;
 
-    interpreters = vector<Interpreter*>();
-    Interpreter* interpreter = NewInterpreter();
-    Page* page = interpreter->GetPage();
+    Page* page = _HEAP->RegisterThread();
+    Interpreter* interpreter = new Interpreter(page, false, true);
+
+    pthread_setspecific(this->interpreterKey, interpreter);
+    
+    registerInterpreter(interpreter);
+
+
     assert(page);
 
 #if CACHE_INTEGER
@@ -389,12 +393,53 @@ void Universe::initialize(long _argc, char** _argv) {
     _HEAP->Start();
 #endif
     interpreter->Start();
-    //pthread_exit(0);
+}
+
+void Universe::startInterpreterInThread(VMThread* thread, VMBlock* block,
+                                        vm_oop_t arguments, bool expectedNMT, bool gcTrapEnabled) {
+    auto tId = this_thread::get_id();
+    VMThread::RegisterThread(tId, thread);
+    
+    // Note: since this is a long running method, most pointers in here are
+    //       not GC safe!
+    
+#warning this should get all the necessary info, also with regard to the pauseless GC, to initialize the interpreter's flags, (if it has any global state)
+    Page* page = _HEAP->RegisterThread();
+
+    Interpreter* interp = new Interpreter(page, expectedNMT, gcTrapEnabled);
+    pthread_setspecific(this->interpreterKey, interp);
+    
+    registerInterpreter(interp);
+    page->SetInterpreter(interp);
+    interp->SetPage(page);
+    
+
+    long numArgsInclSelf = arguments == nullptr ? 1 : 2;
+    
+    VMMethod* bootstrap = createBootstrapMethod(block->GetClass(), numArgsInclSelf, page);
+    VMFrame*  frame = interp->PushNewFrame(bootstrap);
+    frame->Push(block); // aka receiver
+    
+    VMInvokable* value;
+    if (arguments == nullptr) {
+        value = block->GetClass()->LookupInvokable(SymbolFor("value", page));
+    } else {
+        frame->Push(arguments);
+        value = block->GetClass()->LookupInvokable(SymbolFor("value:", page));
+    }
+    
+    value->Invoke(interp, frame);
+    interp->Start();
+    
+    assert(tId == this_thread::get_id());
+    VMThread::UnregisterThread(this_thread::get_id());
+    // thread is done
+    unregisterInterpreter(interp);
+    _HEAP->UnregisterThread(interp->GetPage());
 }
 
 Universe::~Universe() {
     pthread_key_delete(interpreterKey);
-    pthread_mutex_destroy(&interpreterMutex);
     PagedHeap::DestroyHeap();
 }
 
@@ -1444,48 +1489,28 @@ void Universe::SetGlobal(VMSymbol* name, vm_oop_t val) {
     pthread_mutex_unlock(&testMutex);
 }
 
-void Universe::RemoveInterpreter() {
-    pthread_mutex_lock(&interpreterMutex);
-    interpreters.erase(std::remove(interpreters.begin(), interpreters.end(), this->GetInterpreter()), interpreters.end());
-    pthread_mutex_unlock(&interpreterMutex);
+void Universe::registerInterpreter(Interpreter* interp) {
+    lock_guard<mutex> lock(interpreters_mutex);
+    
+    assert(interpreters.find(interp) == interpreters.end()); // not already in the set
+    interpreters.insert(interp);
 }
 
-#if GC_TYPE!=PAUSELESS
-Interpreter* Universe::NewInterpreter() {
-    Interpreter* interpreter = new Interpreter();
-    pthread_setspecific(this->interpreterKey, interpreter);
-    pthread_mutex_lock(&interpreterMutex);
-    interpreters.push_back(interpreter);
-    pthread_mutex_unlock(&interpreterMutex);
-    return interpreter;
-}
-
-vector<Interpreter*>* Universe::GetInterpreters() {
-    return &interpreters;
-}
-#else
-Interpreter* Universe::NewInterpreter() {
-    pthread_mutex_lock(_HEAP->GetNewInterpreterMutex());
-    Interpreter* interpreter;
-    pthread_mutex_lock(&interpreterMutex);
-    if (interpreters.empty())
-        interpreter = new Interpreter(false, true);
-    else
-        interpreter = new Interpreter(interpreters.back()->GetExpectedNMT(), interpreters.back()->GCTrapEnabled());
-    pthread_setspecific(this->interpreterKey, interpreter);
-    interpreters.push_back(interpreter);
-    pthread_mutex_unlock(&interpreterMutex);
-    pthread_mutex_unlock(_HEAP->GetNewInterpreterMutex());
-    return interpreter;
+void Universe::unregisterInterpreter(Interpreter* interp) {
+    lock_guard<mutex> lock(interpreters_mutex);
+    
+    auto cnt = interpreters.erase(interp);
+    assert(cnt == 1);
 }
 
 unique_ptr<vector<Interpreter*>> Universe::GetInterpretersCopy() {
-    pthread_mutex_lock(&interpreterMutex);
+#warning Don't think we want this approach here
+    lock_guard<mutex> lock(interpreters_mutex);
+
     unique_ptr<vector<Interpreter*>> copy(new vector<Interpreter*>(interpreters.begin(),interpreters.end()));
-    pthread_mutex_unlock(&interpreterMutex);
     return copy;
 }
-#endif
+
 
 // FOR DEBUGGING PURPOSES
 /*

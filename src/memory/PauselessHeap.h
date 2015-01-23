@@ -32,10 +32,6 @@ public:
     void SignalSafepointReached(bool*);
     void SignalGCTrapEnabled();
     
-    //pthread_mutex_t* GetMarkRootSetMutex();
-    //pthread_mutex_t* GetBlockPagesMutex();
-    pthread_mutex_t* GetNewInterpreterMutex();
-    
     void Start();
     //void Stop();
     
@@ -62,6 +58,9 @@ public:
     void ResetPause();
     int GetCycle();
     int GetMarkValue();
+    
+    Page* RegisterThread() { return RequestPage(); /* TODO: do we need to do anything else here? */}
+    void UnregisterThread(Page*) { /* TODO: do we need to do anything here? */ }
     
 
 private:

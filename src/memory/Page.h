@@ -44,6 +44,7 @@ public:
 #endif
     
     void SetNonRelocatablePage(Page* page) { nonRelocatablePage = page; }
+    void SetInterpreter(Interpreter* interp) { interpreter = interp; }
     
 private:
     AbstractVMObject* allocate(size_t);
@@ -51,6 +52,7 @@ private:
     
     bool isFull() { return nextFreePosition > treshold; }
     
+    Interpreter* interpreter;
     size_t pageStart;
     size_t pageEnd;
     void* treshold;

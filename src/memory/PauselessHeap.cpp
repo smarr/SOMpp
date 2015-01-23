@@ -89,10 +89,6 @@ pthread_mutex_t* PauselessHeap::GetBlockPagesMutex() {
     return PauselessCollectorThread::GetBlockPagesMutex();
 } */
 
-pthread_mutex_t* PauselessHeap::GetNewInterpreterMutex() {
-    return PauselessCollectorThread::GetNewInterpreterMutex();
-}
-
 // FOR DEBUGGING PURPOSES
 void PauselessHeap::Pause() {
     pthread_mutex_lock(&threadCountMutex);

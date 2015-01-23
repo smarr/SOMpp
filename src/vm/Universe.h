@@ -30,6 +30,7 @@
 #include <map>
 #include <mutex>
 #include <vector>
+#include <unordered_set>
 
 #include <misc/defs.h>
 #include <misc/Timer.h>
@@ -102,7 +103,6 @@ public:
     
     FORCE_INLINE Interpreter* GetInterpreter() { return (Interpreter*)pthread_getspecific(interpreterKey); }
     Interpreter* NewInterpreter();
-    void RemoveInterpreter();
     
 #if GC_TYPE==PAUSELESS
     unique_ptr<vector<Interpreter*>> GetInterpretersCopy();
@@ -162,6 +162,10 @@ public:
 
     Universe();
     ~Universe();
+    
+    void RegisterGCThreadInThreadLocal(BaseThread* thread) {
+        pthread_setspecific(interpreterKey, thread);
+    }
 
 #ifdef LOG_RECEIVER_TYPES
     struct stat_data {
@@ -184,9 +188,7 @@ private:
     
     pthread_mutex_t testMutex;
     
-    pthread_mutex_t interpreterMutex;
     pthread_key_t interpreterKey;
-    vector<Interpreter*> interpreters;
 
     pthread_mutexattr_t attrclassLoading;
     pthread_mutex_t classLoading;
@@ -195,6 +197,11 @@ private:
     long getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;
 
     VMMethod* createBootstrapMethod(VMClass* holder, long numArgsOfMsgSend, Page*);
+    void startInterpreterInThread(VMThread* thread, VMBlock* block, vm_oop_t arguments, bool expectedNMT, bool gcTrapEnabled);
+    
+    void registerInterpreter(Interpreter*);
+    void unregisterInterpreter(Interpreter*);
+
     friend Universe* GetUniverse();
     static Universe* theUniverse;
 
@@ -212,6 +219,9 @@ private:
     map<long, GCClass*> blockClassesByNoOfArgs;
     vector<StdString> classPath;
 
+    unordered_set<Interpreter*> interpreters;
+    mutex interpreters_mutex;
+    
     static mutex output_mutex;
 };
 

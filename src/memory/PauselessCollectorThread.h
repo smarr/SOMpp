@@ -26,8 +26,6 @@ public:
     static void AddNonEmptyWorklist(Worklist*);
     static void SignalSafepointReached(bool*);
     
-    static pthread_mutex_t* GetNewInterpreterMutex();
-    
     void Collect();
     
     virtual void AddGCWork(AbstractVMObject*);
@@ -40,10 +38,7 @@ private:
     static int numberOfGCThreads;
     
     static int markValue;
-    
-    // variables used so that new mutator threads can be created
-    static pthread_mutex_t newInterpreterMutex;
-    
+        
     // variables used during root-set marking phase
     static pthread_mutex_t blockedMutex;
     static pthread_mutex_t markGlobalsMutex;
