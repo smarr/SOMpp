@@ -43,8 +43,6 @@ public:
     virtual size_t GetObjectSize() const;
     virtual VMClass* GetClass();
     
-    virtual void MarkObjectAsInvalid();
-    
     virtual VMSymbol* Clone(Page*);
 
 

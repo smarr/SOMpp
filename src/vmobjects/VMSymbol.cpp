@@ -134,10 +134,6 @@ StdString VMSymbol::GetPlainString() const {
     return st;
 }
 
-void VMSymbol::MarkObjectAsInvalid() {
-    VMString::MarkObjectAsInvalid();
-}
-
 /*
 #if GC_TYPE==PAUSELESS
 void VMSymbol::MarkReferences() {
