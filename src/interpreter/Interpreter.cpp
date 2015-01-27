@@ -25,6 +25,7 @@
  */
 
 #include "Interpreter.h"
+#include "Interpreter.inline.h"
 #include "bytecodes.h"
 
 #include <vmobjects/VMMethod.h>
