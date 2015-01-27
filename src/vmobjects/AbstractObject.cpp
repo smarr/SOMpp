@@ -13,6 +13,9 @@
 #include "VMClass.h"
 #include "VMInvokable.h"
 
+#include <interpreter/Interpreter.inline.h>
+
+
 intptr_t AbstractVMObject::GetHash() {
     return reinterpret_cast<intptr_t>(this);
 }

@@ -264,10 +264,6 @@ void Interpreter::SetFrame(VMFrame* frame) {
     // currentBytecodes    = load_ptr(method)->GetBytecodes();
 }
 
-VMFrame* Interpreter::GetFrame() {
-    return load_ptr(this->frame);
-}
-
 vm_oop_t Interpreter::GetSelf() {
     VMFrame* context = GetFrame()->GetOuterContext();
     return context->GetArgument(0, 0);

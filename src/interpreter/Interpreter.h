@@ -45,7 +45,6 @@ public:
     void      Start();
     VMFrame*  PushNewFrame(VMMethod* method);
     void      SetFrame(VMFrame* frame);
-    VMFrame*  GetFrame();
     vm_oop_t  GetSelf();
     
 #if GC_TYPE==PAUSELESS
