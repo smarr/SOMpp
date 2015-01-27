@@ -26,13 +26,13 @@
 
 #include "MethodGenerationContext.h"
 
-#include "../interpreter/bytecodes.h"
+#include <interpreter/bytecodes.h>
 
-#include "../vmobjects/VMSymbol.h"
-#include "../vmobjects/VMMethod.h"
-#include "../vmobjects/Signature.h"
-#include "../vmobjects/VMMethod.h"
-#include "../vmobjects/VMPrimitive.h"
+#include <vmobjects/VMSymbol.h>
+#include <vmobjects/VMMethod.h>
+#include <vmobjects/Signature.h>
+#include <vmobjects/VMMethod.h>
+#include <vmobjects/VMPrimitive.h>
 
 #include <vmobjects/VMMethod.inline.h>
 
