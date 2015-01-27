@@ -216,6 +216,7 @@ private:
     size_t pageSize;
 
     map<GCSymbol*, gc_oop_t> globals;
+    map<StdString, GCSymbol*> symbolsMap;
     map<long, GCClass*> blockClassesByNoOfArgs;
     vector<StdString> classPath;
 
