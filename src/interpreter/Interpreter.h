@@ -84,7 +84,3 @@ private:
     void doJumpIfTrue(long bytecodeIndex);
     void doJump(long bytecodeIndex);
 };
-
-VMFrame* Interpreter::GetFrame() const {
-    return frame;
-}

@@ -7,6 +7,7 @@
 
 #include "AbstractObject.h"
 
+#include <interpreter/Interpreter.inline.h>
 #include <vm/Universe.h>
 
 #include "VMFrame.h"

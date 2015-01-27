@@ -223,6 +223,7 @@
 		0A67EAA619ACE09700830E3B /* WriteBarrierTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WriteBarrierTest.h; path = unitTests/WriteBarrierTest.h; sourceTree = "<group>"; };
 		0A8793531A77F6DE00F2DE5F /* VMMethod.inline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMMethod.inline.h; sourceTree = "<group>"; };
 		0A8793541A77FBA900F2DE5F /* VMBlock.inline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMBlock.inline.h; sourceTree = "<group>"; };
+		0A8793581A78033900F2DE5F /* Interpreter.inline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Interpreter.inline.h; sourceTree = "<group>"; };
 		0ABEAA8D1A601979009F314D /* Page.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Page.h; sourceTree = "<group>"; };
 		3F5202930FA6624C00E75857 /* build_darwin.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = build_darwin.sh; sourceTree = "<group>"; };
 		3F5202940FA6624C00E75857 /* Darwin.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Darwin.make; sourceTree = "<group>"; };
@@ -518,6 +519,7 @@
 				3F5203020FA6624C00E75857 /* bytecodes.h */,
 				3F5203030FA6624C00E75857 /* Interpreter.cpp */,
 				3F5203040FA6624C00E75857 /* Interpreter.h */,
+				0A8793581A78033900F2DE5F /* Interpreter.inline.h */,
 			);
 			path = interpreter;
 			sourceTree = "<group>";
