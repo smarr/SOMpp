@@ -269,6 +269,6 @@ void VMClass::setPrimitives(const StdString& cname, bool classSide, Page* page) 
     }
 }
 
-StdString VMClass::AsDebugString() const {
+StdString VMClass::AsDebugString() {
     return "Class(" + GetName()->GetStdString() + ")";
 }
