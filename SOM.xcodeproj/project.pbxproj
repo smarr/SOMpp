@@ -221,6 +221,7 @@
 		0A67EAA319ACE09700830E3B /* CloneObjectsTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CloneObjectsTest.h; path = unitTests/CloneObjectsTest.h; sourceTree = "<group>"; };
 		0A67EAA519ACE09700830E3B /* WalkObjectsTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WalkObjectsTest.h; path = unitTests/WalkObjectsTest.h; sourceTree = "<group>"; };
 		0A67EAA619ACE09700830E3B /* WriteBarrierTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WriteBarrierTest.h; path = unitTests/WriteBarrierTest.h; sourceTree = "<group>"; };
+		0A8793531A77F6DE00F2DE5F /* VMMethod.inline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMMethod.inline.h; sourceTree = "<group>"; };
 		0ABEAA8D1A601979009F314D /* Page.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Page.h; sourceTree = "<group>"; };
 		3F5202930FA6624C00E75857 /* build_darwin.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = build_darwin.sh; sourceTree = "<group>"; };
 		3F5202940FA6624C00E75857 /* Darwin.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Darwin.make; sourceTree = "<group>"; };
@@ -662,6 +663,7 @@
 				0A3A3C771A59D60A004CB03B /* VMCondition.h */,
 				0A3A3C791A59D619004CB03B /* VMMutex.cpp */,
 				0A3A3C7A1A59D619004CB03B /* VMMutex.h */,
+				0A8793531A77F6DE00F2DE5F /* VMMethod.inline.h */,
 			);
 			path = vmobjects;
 			sourceTree = "<group>";
