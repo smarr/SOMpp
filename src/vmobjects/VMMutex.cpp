@@ -23,11 +23,11 @@ VMCondition* VMMutex::NewCondition(Page* page) {
 }
 
 
-StdString VMMutex::AsDebugString() const {
+StdString VMMutex::AsDebugString() {
     return "VMMutex";
 }
 
-VMMutex* VMMutex::Clone(Page* page) const {
+VMMutex* VMMutex::Clone(Page* page) {
     VMMutex* clone = new (page, 0 ALLOC_MATURE) VMMutex(lock);
     clone->clazz = clazz;
     return clone;

@@ -38,9 +38,9 @@ public:
     virtual void      Invoke(Interpreter*, VMFrame*) = 0;
 
     virtual bool      IsPrimitive() const;
-            VMSymbol* GetSignature() const;
+            VMSymbol* GetSignature();
     virtual void      SetSignature(VMSymbol* sig);
-            VMClass*  GetHolder() const;
+            VMClass*  GetHolder();
     virtual void      SetHolder(VMClass* hld);
 
     virtual void WalkObjects(walk_heap_fn, Page*);

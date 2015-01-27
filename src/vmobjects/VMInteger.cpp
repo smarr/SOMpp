@@ -30,14 +30,14 @@
 #warning VMInteger GetHash does not currently work correctly with tagging, all integers get the same hash...
 
 
-VMInteger* VMInteger::Clone(Page* page) const {
+VMInteger* VMInteger::Clone(Page* page) {
     return new (page, 0 ALLOC_MATURE) VMInteger(*this);
 }
 
-VMClass* VMInteger::GetClass() const {
+VMClass* VMInteger::GetClass() {
     return load_ptr(integerClass);
 }
 
-StdString VMInteger::AsDebugString() const {
+StdString VMInteger::AsDebugString() {
     return "Integer(" + to_string(embeddedInteger) + ")";
 }

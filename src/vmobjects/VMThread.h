@@ -10,13 +10,13 @@ public:
     
     VMThread();
 
-    VMString* GetName() const;
+    VMString* GetName();
     void      SetName(VMString*);
     
     void Join();
     
-    virtual StdString AsDebugString() const;
-    virtual VMThread* Clone(Page*) const;
+    virtual StdString AsDebugString();
+    virtual VMThread* Clone(Page*);
     virtual void MarkObjectAsInvalid();
     
     void SetThread(std::thread*);

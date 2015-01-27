@@ -38,15 +38,15 @@ public:
     VMInteger(int64_t val) : embeddedInteger(val), AbstractVMObject() {}
 
     inline int64_t GetEmbeddedInteger() const;
-    virtual VMInteger* Clone(Page*) const;
-    virtual VMClass* GetClass() const;
+    virtual VMInteger* Clone(Page*);
+    virtual VMClass* GetClass();
     virtual inline size_t GetObjectSize() const;
     
     virtual inline intptr_t GetHash() { return embeddedInteger; }
     
     virtual void MarkObjectAsInvalid() {}
     
-    virtual StdString AsDebugString() const;
+    virtual StdString AsDebugString();
 
 private:
     const int64_t embeddedInteger;

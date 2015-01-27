@@ -46,37 +46,37 @@ public:
     VMClass();
     VMClass(long numberOfFields);
 
-    inline VMClass*     GetSuperClass() const;
+    inline VMClass*     GetSuperClass();
     inline void         SetSuperClass(VMClass*);
-    inline bool         HasSuperClass() const;
-    inline VMSymbol*    GetName() const;
+    inline bool         HasSuperClass();
+    inline VMSymbol*    GetName();
     inline void         SetName(VMSymbol*);
-    inline VMArray*     GetInstanceFields() const;
+    inline VMArray*     GetInstanceFields();
     inline void         SetInstanceFields(VMArray*);
-    inline VMArray*     GetInstanceInvokables() const;
+    inline VMArray*     GetInstanceInvokables();
            void         SetInstanceInvokables(VMArray*);
-           long         GetNumberOfInstanceInvokables() const;
-           VMInvokable* GetInstanceInvokable(long) const;
+           long         GetNumberOfInstanceInvokables();
+           VMInvokable* GetInstanceInvokable(long);
            void         SetInstanceInvokable(long, VMInvokable*);
-           VMInvokable* LookupInvokable(VMSymbol*) const;
-           long         LookupFieldIndex(VMSymbol*) const;
+           VMInvokable* LookupInvokable(VMSymbol*);
+           long         LookupFieldIndex(VMSymbol*);
            void         AddInstancePrimitive(VMPrimitive*, Page*);
-           VMSymbol*    GetInstanceFieldName(long)const;
-           long         GetNumberOfInstanceFields() const;
-           bool         HasPrimitives() const;
+           VMSymbol*    GetInstanceFieldName(long);
+           long         GetNumberOfInstanceFields();
+           bool         HasPrimitives();
            void         LoadPrimitives(const vector<StdString>&, Page*);
-    virtual VMClass*    Clone(Page*) const;
+    virtual VMClass*    Clone(Page*);
     virtual void        WalkObjects(walk_heap_fn walk, Page*);
     
     virtual void MarkObjectAsInvalid();
     
-    virtual StdString AsDebugString() const;
+    virtual StdString AsDebugString();
 
 private:
     bool addInstanceInvokable(VMInvokable*, Page*);
     bool hasPrimitivesFor(const StdString& cl) const;
     void setPrimitives(const StdString& cname, bool classSide, Page*);
-    long numberOfSuperInstanceFields() const;
+    long numberOfSuperInstanceFields();
 
     GCClass*  superClass;
     GCSymbol* name;
@@ -89,7 +89,7 @@ private:
 #include "VMSymbol.h"
 #include "VMArray.h"
 
-VMClass* VMClass::GetSuperClass() const {
+VMClass* VMClass::GetSuperClass() {
     return load_ptr(superClass);
 }
 
@@ -97,7 +97,7 @@ void VMClass::SetSuperClass(VMClass* sup) {
     store_ptr(superClass, sup);
 }
 
-VMSymbol* VMClass::GetName() const {
+VMSymbol* VMClass::GetName() {
     return load_ptr(name);
 }
 
@@ -105,12 +105,12 @@ void VMClass::SetName(VMSymbol* nam) {
     store_ptr(name, nam);
 }
 
-bool VMClass::HasSuperClass() const {
+bool VMClass::HasSuperClass() {
     assert(Universe::IsValidObject(load_ptr(superClass)));
     return load_ptr(superClass) != load_ptr(nilObject);
 }
 
-VMArray* VMClass::GetInstanceFields() const {
+VMArray* VMClass::GetInstanceFields() {
     return load_ptr(instanceFields);
 }
 
@@ -118,6 +118,6 @@ void VMClass::SetInstanceFields(VMArray* instFields) {
     store_ptr(instanceFields, instFields);
 }
 
-VMArray* VMClass::GetInstanceInvokables() const {
+VMArray* VMClass::GetInstanceInvokables() {
     return load_ptr(instanceInvokables);
 }

@@ -18,8 +18,8 @@ public:
 
     VMCondition* NewCondition(Page* page);
     
-    virtual StdString AsDebugString() const;
-    virtual VMMutex* Clone(Page*) const;
+    virtual StdString AsDebugString();
+    virtual VMMutex* Clone(Page*);
     virtual void MarkObjectAsInvalid();
 
     std::unique_lock<recursive_mutex>* GetLock() const { return lock; }

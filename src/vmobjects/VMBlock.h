@@ -34,13 +34,13 @@ public:
     
     VMBlock();
 
-            VMMethod* GetMethod() const;
+            VMMethod* GetMethod();
             void      SetMethod(VMMethod*);
     inline  void      SetContext(VMFrame*);
-    inline  VMFrame*  GetContext() const;
-    virtual VMBlock*  Clone(Page*) const;
+    inline  VMFrame*  GetContext();
+    virtual VMBlock*  Clone(Page*);
     
-    virtual StdString AsDebugString() const;
+    virtual StdString AsDebugString();
 
     static VMEvaluationPrimitive* GetEvaluationPrimitive(int, Page*);
 private:

@@ -1,10 +1,10 @@
 #pragma once
 
-inline long VMMethod::GetNumberOfLocals() const {
+inline long VMMethod::GetNumberOfLocals() {
     return INT_VAL(load_ptr(numberOfLocals));
 }
 
-inline long VMMethod::GetNumberOfIndexableFields() const {
+inline long VMMethod::GetNumberOfIndexableFields() {
     //cannot be done using GetAdditionalSpaceConsumption,
     //as bytecodes need space, too, and there might be padding
     return INT_VAL(load_ptr(numberOfConstants));
@@ -14,11 +14,11 @@ inline uint8_t* VMMethod::GetBytecodes() const {
     return bytecodes;
 }
 
-inline long VMMethod::GetNumberOfArguments() const {
+inline long VMMethod::GetNumberOfArguments() {
     return INT_VAL(load_ptr(numberOfArguments));
 }
 
-inline vm_oop_t VMMethod::GetIndexableField(long idx) const {
+inline vm_oop_t VMMethod::GetIndexableField(long idx) {
     return load_ptr(indexableFields[idx]);
 }
 

@@ -38,13 +38,13 @@ public:
     virtual void WalkObjects(walk_heap_fn, Page*);
 
     inline  long GetNumberOfIndexableFields() const;
-    VMArray* CopyAndExtendWith(vm_oop_t, Page*) const;
-    vm_oop_t GetIndexableField(long idx) const;
+    VMArray* CopyAndExtendWith(vm_oop_t, Page*);
+    vm_oop_t GetIndexableField(long idx);
     void SetIndexableField(long idx, vm_oop_t value);
-    void CopyIndexableFieldsTo(VMArray*) const;
-    virtual VMArray* Clone(Page*) const;
+    void CopyIndexableFieldsTo(VMArray*);
+    virtual VMArray* Clone(Page*);
     
-    virtual StdString AsDebugString() const;
+    virtual StdString AsDebugString();
 
     virtual void MarkObjectAsInvalid();
 

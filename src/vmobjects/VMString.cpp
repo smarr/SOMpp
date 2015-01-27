@@ -48,7 +48,7 @@ VMString::VMString(const char* str) : AbstractVMObject() {
     chars[i] = '\0';
 }
 
-VMString* VMString::Clone(Page* page) const {
+VMString* VMString::Clone(Page* page) {
     return new (page, PADDED_SIZE(strlen(chars)+1) ALLOC_MATURE) VMString(chars);
 }
 
@@ -73,7 +73,7 @@ size_t VMString::GetObjectSize() const {
     return size;
 }
 
-VMClass* VMString::GetClass() const {
+VMClass* VMString::GetClass() {
     return load_ptr(stringClass);
 }
 
@@ -89,6 +89,6 @@ StdString VMString::GetStdString() const {
     return StdString(chars);
 }
 
-StdString VMString::AsDebugString() const {
+StdString VMString::AsDebugString() {
     return "String(" + GetStdString() + ")";
 }

@@ -80,7 +80,7 @@ VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength, Page* page
     return result;
 }
 
-VMFrame* VMFrame::Clone(Page* page) const {
+VMFrame* VMFrame::Clone(Page* page) {
     size_t addSpace = objectSize - sizeof(VMFrame);
     VMFrame* clone = new (page, addSpace ALLOC_MATURE) VMFrame(*this);
     void* destination = SHIFTED_PTR(clone, sizeof(VMFrame));
@@ -179,7 +179,7 @@ void VMFrame::Push(vm_oop_t obj) {
     store_ptr(*stack_ptr, obj);
 }
 
-void VMFrame::PrintBytecode() const {
+void VMFrame::PrintBytecode() {
     Disassembler::DumpMethod(GetMethod(), "  ");
 }
 
@@ -194,7 +194,7 @@ static void print_oop(gc_oop_t vmo) {
     }
 }
 
-void VMFrame::PrintStack() const {
+void VMFrame::PrintStack() {
     Universe::Print(GetMethod()->AsDebugString() + ", bc: " +
                     to_string(GetBytecodeIndex()) + "\n" + "Args: " +
                     to_string(GetMethod()->GetNumberOfArguments()) +
@@ -245,7 +245,7 @@ void VMFrame::ResetStackPointer() {
     stack_ptr = locals + meth->GetNumberOfLocals() - 1;
 }
 
-vm_oop_t VMFrame::GetStackElement(long index) const {
+vm_oop_t VMFrame::GetStackElement(long index) {
     return load_ptr(stack_ptr[-index]);
 }
 
@@ -270,7 +270,7 @@ void VMFrame::SetArgument(long index, long contextLevel, vm_oop_t value) {
     context->SetArgument(index, value);
 }
 
-void VMFrame::PrintStackTrace() const {
+void VMFrame::PrintStackTrace() {
     VMMethod* meth = GetMethod();
     
     if (meth->GetHolder() == load_ptr(nilObject)) {
@@ -284,7 +284,7 @@ void VMFrame::PrintStackTrace() const {
     }
 }
 
-long VMFrame::ArgumentStackIndex(long index) const {
+long VMFrame::ArgumentStackIndex(long index) {
     VMMethod* meth = GetMethod();
     return meth->GetNumberOfArguments() - index - 1;
 }
@@ -300,6 +300,6 @@ void VMFrame::CopyArgumentsFrom(VMFrame* frame) {
     }
 }
 
-StdString VMFrame::AsDebugString() const {
+StdString VMFrame::AsDebugString() {
     return "VMFrame(" + GetMethod()->AsDebugString() + ")";
 }

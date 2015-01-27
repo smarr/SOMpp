@@ -44,7 +44,7 @@ VMEvaluationPrimitive::VMEvaluationPrimitive(long argc, Page* page) : VMPrimitiv
     store_ptr(numberOfArguments, NEW_INT(argc, page));
 }
 
-VMEvaluationPrimitive* VMEvaluationPrimitive::Clone(Page* page) const {
+VMEvaluationPrimitive* VMEvaluationPrimitive::Clone(Page* page) {
     VMEvaluationPrimitive* evPrim = new (page, 0 ALLOC_MATURE) VMEvaluationPrimitive(*this);
     return evPrim;
 }
@@ -95,7 +95,7 @@ void EvaluationRoutine::WalkObjects(walk_heap_fn walk, Page* page) {
     evalPrim = static_cast<GCEvaluationPrimitive*>(walk(evalPrim, page));
 }
 
-StdString VMEvaluationPrimitive::AsDebugString() const {
+StdString VMEvaluationPrimitive::AsDebugString() {
     return "VMEvaluationPrimitive(" + to_string(
                     INT_VAL(load_ptr(numberOfArguments))) + ")";
 }

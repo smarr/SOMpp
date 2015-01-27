@@ -32,6 +32,6 @@ void AbstractVMObject::Send(Interpreter* interp, StdString selectorString, vm_oo
     invokable->Invoke(interp, frame);
 }
 
-long AbstractVMObject::GetFieldIndex(VMSymbol* fieldName) const {
+long AbstractVMObject::GetFieldIndex(VMSymbol* fieldName) {
     return GetClass()->LookupFieldIndex(fieldName);
 }

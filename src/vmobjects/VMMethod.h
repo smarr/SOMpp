@@ -42,16 +42,16 @@ public:
     
     VMMethod(long bcCount, long numberOfConstants, long nof, Page*);
 
-    inline  long      GetNumberOfLocals() const;
+    inline  long      GetNumberOfLocals();
             void      SetNumberOfLocals(long nol, Page*);
-            long      GetMaximumNumberOfStackElements() const;
+            long      GetMaximumNumberOfStackElements();
             void      SetMaximumNumberOfStackElements(long stel, Page*);
-    inline  long      GetNumberOfArguments() const;
+    inline  long      GetNumberOfArguments();
             void      SetNumberOfArguments(long, Page*);
-            long      GetNumberOfBytecodes() const;
+            long      GetNumberOfBytecodes();
     virtual void      SetHolder(VMClass* hld);
             void      SetHolderAll(VMClass* hld);
-            vm_oop_t  GetConstant(long indx) const;
+            vm_oop_t  GetConstant(long indx);
     inline  uint8_t   GetBytecode(long indx) const;
     inline  void      SetBytecode(long indx, uint8_t);
 
@@ -60,8 +60,8 @@ public:
     VMFrame* GetCachedFrame() const;
 #endif
     virtual void WalkObjects(walk_heap_fn, Page*);
-    inline  long      GetNumberOfIndexableFields() const;
-    virtual VMMethod* Clone(Page*) const;
+    inline  long      GetNumberOfIndexableFields();
+    virtual VMMethod* Clone(Page*);
 
     inline  void      SetIndexableField(long idx, vm_oop_t item);
 
@@ -69,11 +69,11 @@ public:
 
     void SetSignature(VMSymbol* sig, Page*);
     
-    virtual StdString AsDebugString() const;
+    virtual StdString AsDebugString();
 
 private:
     inline uint8_t* GetBytecodes() const;
-    inline vm_oop_t GetIndexableField(long idx) const;
+    inline vm_oop_t GetIndexableField(long idx);
 
     gc_oop_t numberOfLocals;
     gc_oop_t maximumNumberOfStackElements;

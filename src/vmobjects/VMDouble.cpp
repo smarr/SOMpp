@@ -28,14 +28,14 @@
 
 #include <vm/Universe.h>
 
-VMDouble* VMDouble::Clone(Page* page) const {
+VMDouble* VMDouble::Clone(Page* page) {
     return new (page, 0 ALLOC_MATURE) VMDouble(*this);
 }
 
-VMClass* VMDouble::GetClass() const {
+VMClass* VMDouble::GetClass() {
     return load_ptr(doubleClass);
 }
 
-StdString VMDouble::AsDebugString() const {
+StdString VMDouble::AsDebugString() {
     return "Double(" + to_string(embeddedDouble) + ")";
 }

@@ -39,40 +39,41 @@ public:
 
     VMFrame(long size, long nof = 0);
 
-    inline VMFrame* GetPreviousFrame() const;
+    inline VMFrame* GetPreviousFrame();
     inline void SetPreviousFrame(VMFrame*);
     inline void ClearPreviousFrame();
     inline bool HasPreviousFrame() const;
     inline bool IsBootstrapFrame() const;
-    inline VMFrame* GetContext() const;
+    inline VMFrame* GetContext();
     inline void SetContext(VMFrame*);
     inline bool HasContext() const;
     VMFrame* GetContextLevel(long);
     VMFrame* GetOuterContext();
-    inline VMMethod* GetMethod() const;
+    inline VMMethod* GetMethod();
     void SetMethod(VMMethod*);
     vm_oop_t Pop();
     void Push(vm_oop_t);
     void ResetStackPointer();
     inline long GetBytecodeIndex() const;
     inline void SetBytecodeIndex(long);
-    vm_oop_t GetStackElement(long) const;
+    vm_oop_t GetStackElement(long);
     vm_oop_t GetLocal(long, long);
     void SetLocal(long index, long context_level, vm_oop_t);
     vm_oop_t GetArgument(long, long);
     void SetArgument(long, long, vm_oop_t);
-    void PrintStackTrace() const;
-    long ArgumentStackIndex(long index) const;
+    long ArgumentStackIndex(long index);
     void CopyArgumentsFrom(VMFrame* frame);
     virtual void WalkObjects(walk_heap_fn, Page*);
-    virtual VMFrame* Clone(Page*) const;
+    virtual VMFrame* Clone(Page*);
 
-    void PrintStack() const;
-    void PrintBytecode() const;
+    void PrintStack();
+    void PrintStackTrace();
+    void PrintBytecode();
+
     inline void* GetStackPointer() const;
     long RemainingStackSize() const;
     
-    virtual StdString AsDebugString() const;
+    virtual StdString AsDebugString();
     
 private:
     GCFrame*  previousFrame;
@@ -109,7 +110,7 @@ bool VMFrame::IsBootstrapFrame() const {
     return !HasPreviousFrame();
 }
 
-VMFrame* VMFrame::GetContext() const {
+VMFrame* VMFrame::GetContext() {
     return load_ptr(context);
 }
 
@@ -121,7 +122,7 @@ void* VMFrame::GetStackPointer() const {
     return stack_ptr;
 }
 
-VMFrame* VMFrame::GetPreviousFrame() const {
+VMFrame* VMFrame::GetPreviousFrame() {
     return load_ptr(previousFrame);
 }
 
@@ -133,7 +134,7 @@ void VMFrame::ClearPreviousFrame() {
     previousFrame = nullptr;
 }
 
-VMMethod* VMFrame::GetMethod() const {
+VMMethod* VMFrame::GetMethod() {
     return load_ptr(method);
 }
 

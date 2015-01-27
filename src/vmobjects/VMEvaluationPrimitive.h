@@ -34,9 +34,9 @@ public:
     
     VMEvaluationPrimitive(long argc, Page*);
     virtual void WalkObjects(walk_heap_fn, Page*);
-    virtual VMEvaluationPrimitive* Clone(Page* page) const;
+    virtual VMEvaluationPrimitive* Clone(Page* page);
     
-    virtual StdString AsDebugString() const;
+    virtual StdString AsDebugString();
     
     int64_t GetNumberOfArguments() { return INT_VAL(load_ptr(numberOfArguments)); };
 

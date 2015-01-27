@@ -41,18 +41,18 @@ public:
     VMSymbol(const StdString& s);
     virtual StdString GetPlainString() const;
     virtual size_t GetObjectSize() const;
-    virtual VMSymbol* Clone(Page*) const;
-    virtual VMClass* GetClass() const;
+    virtual VMSymbol* Clone(Page*);
+    virtual VMClass* GetClass();
     
     virtual void WalkObjects(walk_heap_fn, Page*);
-    virtual StdString AsDebugString() const;
+    virtual StdString AsDebugString();
     
 private:
     const int numberOfArgumentsOfSignature;
     const GCClass* cachedClass_invokable[3];
     long nextCachePos;
     GCInvokable* cachedInvokable[3];
-    inline VMInvokable* GetCachedInvokable(const VMClass*) const;
+    inline VMInvokable* GetCachedInvokable(const VMClass*);
     inline void UpdateCachedInvokable(const VMClass* cls, VMInvokable* invo);
     
     friend class Signature;
@@ -64,7 +64,7 @@ private:
 #include "VMInvokable.h"
 
 
-VMInvokable* VMSymbol::GetCachedInvokable(const VMClass* cls) const {
+VMInvokable* VMSymbol::GetCachedInvokable(const VMClass* cls) {
     if (cls == load_ptr(cachedClass_invokable[0]))
         return load_ptr(cachedInvokable[0]);
     else if (cls == load_ptr(cachedClass_invokable[1]))

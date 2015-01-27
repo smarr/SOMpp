@@ -31,14 +31,14 @@ public:
     typedef GCAbstractObject Stored;
     
     virtual intptr_t GetHash();
-    virtual VMClass* GetClass() const = 0;
-    virtual AbstractVMObject* Clone(Page*) const = 0;
+    virtual VMClass* GetClass() = 0;
+    virtual AbstractVMObject* Clone(Page*) = 0;
     virtual void Send(Interpreter*, StdString, vm_oop_t*, long);
     virtual size_t GetObjectSize() const = 0;
     
     virtual void MarkObjectAsInvalid() = 0;
     
-    virtual StdString AsDebugString() const = 0;
+    virtual StdString AsDebugString() = 0;
 
     AbstractVMObject() : VMObjectBase() {}
 
@@ -61,7 +61,7 @@ public:
         throw "this object doesn't support SetClass";
     }
 
-    long GetFieldIndex(VMSymbol* fieldName) const;
+    long GetFieldIndex(VMSymbol* fieldName);
 
     inline virtual void WalkObjects(walk_heap_fn, Page*) {
         return;

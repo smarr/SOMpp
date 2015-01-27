@@ -41,12 +41,12 @@ void VMBlock::SetMethod(VMMethod* bMethod) {
     store_ptr(blockMethod, bMethod);
 }
 
-VMBlock* VMBlock::Clone(Page* page) const {
+VMBlock* VMBlock::Clone(Page* page) {
     VMBlock* clone = new (page, GetAdditionalSpaceConsumption() ALLOC_MATURE) VMBlock(*this);
     return clone;
 }
 
-VMMethod* VMBlock::GetMethod() const {
+VMMethod* VMBlock::GetMethod() {
     return load_ptr(blockMethod);
 }
 
@@ -54,6 +54,6 @@ VMEvaluationPrimitive* VMBlock::GetEvaluationPrimitive(int numberOfArguments, Pa
     return new (page) VMEvaluationPrimitive(numberOfArguments, page);
 }
 
-StdString VMBlock::AsDebugString() const {
+StdString VMBlock::AsDebugString() {
     return "Block(" + load_ptr(blockMethod)->AsDebugString() + ")";
 }

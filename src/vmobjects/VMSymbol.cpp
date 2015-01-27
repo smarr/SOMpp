@@ -58,12 +58,12 @@ size_t VMSymbol::GetObjectSize() const {
     return size;
 }
 
-VMSymbol* VMSymbol::Clone(Page* page) const {
+VMSymbol* VMSymbol::Clone(Page* page) {
     VMSymbol* result = new (page, PADDED_SIZE(strlen(chars) + 1) ALLOC_MATURE) VMSymbol(chars);
     return result;
 }
 
-VMClass* VMSymbol::GetClass() const {
+VMClass* VMSymbol::GetClass() {
     return load_ptr(symbolClass);
 }
 
@@ -139,6 +139,6 @@ void VMSymbol::WalkObjects(walk_heap_fn walk, Page* page) {
     }
 }
 
-StdString VMSymbol::AsDebugString() const {
+StdString VMSymbol::AsDebugString() {
     return "Symbol(" + GetStdString() + ")";
 }

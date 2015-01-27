@@ -66,7 +66,7 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof, Page* page) :
     bytecodes = (uint8_t*)(&indexableFields + 2 + GetNumberOfIndexableFields());
 }
 
-VMMethod* VMMethod::Clone(Page* page) const {
+VMMethod* VMMethod::Clone(Page* page) {
     VMMethod* clone = new (page, GetObjectSize() - sizeof(VMMethod) ALLOC_MATURE) VMMethod(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)),
            SHIFTED_PTR(this,  sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
@@ -121,7 +121,7 @@ void VMMethod::SetNumberOfLocals(long nol, Page* page) {
     store_ptr(numberOfLocals, NEW_INT(nol, page));
 }
 
-long VMMethod::GetMaximumNumberOfStackElements() const {
+long VMMethod::GetMaximumNumberOfStackElements() {
     return INT_VAL(load_ptr(maximumNumberOfStackElements));
 }
 
@@ -133,7 +133,7 @@ void VMMethod::SetNumberOfArguments(long noa, Page* page) {
     store_ptr(numberOfArguments, NEW_INT(noa, page));
 }
 
-long VMMethod::GetNumberOfBytecodes() const {
+long VMMethod::GetNumberOfBytecodes() {
     return INT_VAL(load_ptr(bcLength));
 }
 
@@ -160,16 +160,17 @@ void VMMethod::SetHolderAll(VMClass* hld) {
     }
 }
 
-vm_oop_t VMMethod::GetConstant(long indx) const {
+vm_oop_t VMMethod::GetConstant(long indx) {
     uint8_t bc = bytecodes[indx + 1];
     if (bc >= GetNumberOfIndexableFields()) {
+#warning this check looks incredibly slow
         Universe::ErrorPrint("Error: Constant index out of range\n");
         return nullptr;
     }
     return GetIndexableField(bc);
 }
 
-StdString VMMethod::AsDebugString() const {
+StdString VMMethod::AsDebugString() {
     VMClass* holder = GetHolder();
     StdString holder_str;
     if (holder == load_ptr(nilObject)) {

@@ -41,7 +41,7 @@ VMObject::VMObject(long numberOfFields) : AbstractVMObject() {
     // Object size was already set by the heap on allocation
 }
 
-VMObject* VMObject::Clone(Page* page) const {
+VMObject* VMObject::Clone(Page* page) {
     VMObject* clone = new (page, objectSize - sizeof(VMObject) ALLOC_MATURE) VMObject(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)),
            SHIFTED_PTR(this,  sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
@@ -60,7 +60,7 @@ void VMObject::SetClass(VMClass* cl) {
     store_ptr(clazz, cl);
 }
 
-VMSymbol* VMObject::GetFieldName(long index) const {
+VMSymbol* VMObject::GetFieldName(long index) {
     return GetClass()->GetInstanceFieldName(index);
 }
 
@@ -82,7 +82,7 @@ void VMObject::MarkObjectAsInvalid() {
     clazz = (GCClass*) INVALID_GC_POINTER;
 }
 
-StdString VMObject::AsDebugString() const {
+StdString VMObject::AsDebugString() {
     if (this == load_ptr(nilObject)) {
         return "nilObject";
     } else if (this == load_ptr(trueObject)) {

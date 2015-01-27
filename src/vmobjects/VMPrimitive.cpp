@@ -50,7 +50,7 @@ VMPrimitive::VMPrimitive(VMSymbol* signature) : VMInvokable(VMPrimitiveNumberOfF
     empty = false;
 }
 
-VMPrimitive* VMPrimitive::Clone(Page* page) const {
+VMPrimitive* VMPrimitive::Clone(Page* page) {
     VMPrimitive* prim = new (page, 0 ALLOC_MATURE) VMPrimitive(*this);
     return prim;
 }
@@ -66,7 +66,7 @@ void VMPrimitive::EmptyRoutine(Interpreter*, VMFrame*) {
     Universe::ErrorPrint("undefined primitive called: " + sig->GetStdString() + "\n");
 }
 
-StdString VMPrimitive::AsDebugString() const {
+StdString VMPrimitive::AsDebugString() {
     return "Primitive(" + GetClass()->GetName()->GetStdString() + ">>#"
                         + GetSignature()->GetStdString() + ")";
 }

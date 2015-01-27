@@ -41,7 +41,7 @@ VMClass::VMClass() :
                 nullptr), instanceInvokables(nullptr) {
 }
 
-VMClass* VMClass::Clone(Page* page) const {
+VMClass* VMClass::Clone(Page* page) {
     VMClass* clone = new (page, objectSize - sizeof(VMClass) ALLOC_MATURE) VMClass(*this);
     memcpy(SHIFTED_PTR(clone,sizeof(VMObject)),
            SHIFTED_PTR(this,sizeof(VMObject)),
@@ -109,7 +109,7 @@ void VMClass::AddInstancePrimitive(VMPrimitive* ptr, Page* page) {
     }
 }
 
-VMSymbol* VMClass::GetInstanceFieldName(long index) const {
+VMSymbol* VMClass::GetInstanceFieldName(long index) {
     long numSuperInstanceFields = numberOfSuperInstanceFields();
     if (index >= numSuperInstanceFields) {
         index -= numSuperInstanceFields;
@@ -134,11 +134,11 @@ void VMClass::SetInstanceInvokables(VMArray* invokables) {
     }
 }
 
-long VMClass::GetNumberOfInstanceInvokables() const {
+long VMClass::GetNumberOfInstanceInvokables() {
     return GetInstanceInvokables()->GetNumberOfIndexableFields();
 }
 
-VMInvokable* VMClass::GetInstanceInvokable(long index) const {
+VMInvokable* VMClass::GetInstanceInvokable(long index) {
     return static_cast<VMInvokable*>(GetInstanceInvokables()->GetIndexableField(index));
 }
 
@@ -149,7 +149,7 @@ void VMClass::SetInstanceInvokable(long index, VMInvokable* invokable) {
     }
 }
 
-VMInvokable* VMClass::LookupInvokable(VMSymbol* name) const {
+VMInvokable* VMClass::LookupInvokable(VMSymbol* name) {
     assert(Universe::IsValidObject(const_cast<VMClass*>(this)));
     
     VMInvokable* invokable = name->GetCachedInvokable(this);
@@ -174,7 +174,7 @@ VMInvokable* VMClass::LookupInvokable(VMSymbol* name) const {
     return nullptr;
 }
 
-long VMClass::LookupFieldIndex(VMSymbol* name) const {
+long VMClass::LookupFieldIndex(VMSymbol* name) {
     long numInstanceFields = GetNumberOfInstanceFields();
     for (long i = 0; i <= numInstanceFields; ++i) {
         // even with GetNumberOfInstanceFields == 0 there is the class field
@@ -185,12 +185,12 @@ long VMClass::LookupFieldIndex(VMSymbol* name) const {
     return -1;
 }
 
-long VMClass::GetNumberOfInstanceFields() const {
+long VMClass::GetNumberOfInstanceFields() {
     return GetInstanceFields()->GetNumberOfIndexableFields()
             + numberOfSuperInstanceFields();
 }
 
-bool VMClass::HasPrimitives() const {
+bool VMClass::HasPrimitives() {
     long numInvokables = GetNumberOfInstanceInvokables();
     for (long i = 0; i < numInvokables; ++i) {
         VMInvokable* invokable = GetInstanceInvokable(i);
@@ -209,7 +209,7 @@ void VMClass::LoadPrimitives(const vector<StdString>& cp, Page* page) {
     }
 }
 
-long VMClass::numberOfSuperInstanceFields() const {
+long VMClass::numberOfSuperInstanceFields() {
     if (HasSuperClass())
         return GetSuperClass()->GetNumberOfInstanceFields();
     return 0;

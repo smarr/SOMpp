@@ -65,16 +65,16 @@ public:
     
     VMObject(long numberOfFields = 0);
 
-    virtual inline VMClass*  GetClass() const;
+    virtual inline VMClass*  GetClass();
     virtual        void      SetClass(VMClass* cl);
-    virtual        VMSymbol* GetFieldName(long index) const;
+    virtual        VMSymbol* GetFieldName(long index);
     virtual inline long      GetNumberOfFields() const;
     virtual        void      SetNumberOfFields(long nof);
-            inline vm_oop_t  GetField(long index) const;
+            inline vm_oop_t  GetField(long index);
             inline void      SetField(long index, vm_oop_t value);
     virtual        void      Assert(bool value) const;
     virtual        void      WalkObjects(walk_heap_fn walk, Page*);
-    virtual        VMObject* Clone(Page*) const;
+    virtual        VMObject* Clone(Page*);
     virtual inline size_t    GetObjectSize() const;
     virtual inline void      SetObjectSize(size_t size);
     
@@ -82,7 +82,7 @@ public:
     
     virtual        void      MarkObjectAsInvalid();
     
-    virtual        StdString AsDebugString() const;
+    virtual        StdString AsDebugString();
 
     /**
      * usage: new( <heap> [, <additional_bytes>] ) VMObject( <constructor params> )
@@ -125,8 +125,8 @@ void VMObject::SetObjectSize(size_t size) {
     objectSize = size;
 }
 
-VMClass* VMObject::GetClass() const {
-    assert(Universe::IsValidObject((VMObject*) load_ptr(clazz)));
+VMClass* VMObject::GetClass() {
+    // assert(Universe::IsValidObject((VMObject*) load_ptr(clazz)));
     return load_ptr(clazz);
 }
 
@@ -144,7 +144,7 @@ long VMObject::GetAdditionalSpaceConsumption() const {
                + sizeof(VMObject*) * GetNumberOfFields()));
 }
 
-vm_oop_t VMObject::GetField(long index) const {
+vm_oop_t VMObject::GetField(long index) {
     vm_oop_t result = load_ptr(FIELDS[index]);
     assert(Universe::IsValidObject(result));
     return result;

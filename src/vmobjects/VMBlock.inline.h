@@ -6,6 +6,6 @@ inline void VMBlock::SetContext(VMFrame* contxt) {
     store_ptr(context, contxt);
 }
 
-inline VMFrame* VMBlock::GetContext() const {
+inline VMFrame* VMBlock::GetContext() {
     return load_ptr(context);
 }

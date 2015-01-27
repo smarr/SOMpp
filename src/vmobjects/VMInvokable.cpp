@@ -34,7 +34,7 @@ bool VMInvokable::IsPrimitive() const {
     return false;
 }
 
-VMSymbol* VMInvokable::GetSignature() const {
+VMSymbol* VMInvokable::GetSignature() {
     return load_ptr(signature);
 }
 
@@ -50,7 +50,7 @@ void VMInvokable::WalkObjects(walk_heap_fn walk, Page* page) {
     }
 }
 
-VMClass* VMInvokable::GetHolder() const {
+VMClass* VMInvokable::GetHolder() {
     return load_ptr(holder);
 }
 

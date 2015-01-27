@@ -17,7 +17,7 @@ VMThread::VMThread() :
                     thread(nullptr),
                     name(reinterpret_cast<GCString*>(nilObject)) {}
 
-VMString* VMThread::GetName() const {
+VMString* VMThread::GetName() {
     return load_ptr(name);
 }
 
@@ -47,7 +47,7 @@ void VMThread::Join() {
     }
 }
 
-StdString VMThread::AsDebugString() const {
+StdString VMThread::AsDebugString() {
     auto id = thread->get_id();
     stringstream id_ss;
     id_ss << id;
@@ -60,7 +60,7 @@ StdString VMThread::AsDebugString() const {
     }
 }
 
-VMThread* VMThread::Clone(Page* page) const {
+VMThread* VMThread::Clone(Page* page) {
 // TODO: Clone() should be renamed to Move or Reallocate or something,
 // it should indicate that the old copy is going to be invalidated.
     VMThread* clone = new (page, 0 ALLOC_MATURE) VMThread();

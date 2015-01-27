@@ -40,14 +40,14 @@ public:
     StdString GetStdString() const;
     size_t GetStringLength() const;
 
-    virtual VMString* Clone(Page*) const;
-    virtual VMClass* GetClass() const;
+    virtual VMString* Clone(Page*);
+    virtual VMClass* GetClass();
     virtual size_t GetObjectSize() const;
     virtual void WalkObjects(walk_heap_fn, Page*);
 
     virtual void MarkObjectAsInvalid();
     
-    virtual StdString AsDebugString() const;
+    virtual StdString AsDebugString();
 
 protected:
     //this could be replaced by the CHARS macro in VMString.cpp

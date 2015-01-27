@@ -43,7 +43,7 @@ VMArray::VMArray(long size, long nof) :
     }
 }
 
-vm_oop_t VMArray::GetIndexableField(long idx) const {
+vm_oop_t VMArray::GetIndexableField(long idx) {
     if (unlikely(idx > GetNumberOfIndexableFields())) {
         GetUniverse()->ErrorExit("Array index out of bounds: Accessing " +
                                  to_string(idx) + ", but array size is only " +
@@ -61,7 +61,7 @@ void VMArray::SetIndexableField(long idx, vm_oop_t value) {
     SetField(GetNumberOfFields() + idx, value);
 }
 
-VMArray* VMArray::CopyAndExtendWith(vm_oop_t item, Page* page) const {
+VMArray* VMArray::CopyAndExtendWith(vm_oop_t item, Page* page) {
     size_t fields = GetNumberOfIndexableFields();
     VMArray* result = GetUniverse()->NewArray(fields + 1, page);
     CopyIndexableFieldsTo(result);
@@ -69,7 +69,7 @@ VMArray* VMArray::CopyAndExtendWith(vm_oop_t item, Page* page) const {
     return result;
 }
 
-VMArray* VMArray::Clone(Page* page) const {
+VMArray* VMArray::Clone(Page* page) {
     long addSpace = objectSize - sizeof(VMArray);
     VMArray* clone = new (page, addSpace ALLOC_MATURE) VMArray(*this);
     void* destination  = SHIFTED_PTR(clone, sizeof(VMArray));
@@ -87,7 +87,7 @@ void VMArray::MarkObjectAsInvalid() {
     }
 }
 
-void VMArray::CopyIndexableFieldsTo(VMArray* to) const {
+void VMArray::CopyIndexableFieldsTo(VMArray* to) {
     long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {
         to->SetIndexableField(i, GetIndexableField(i));
@@ -104,6 +104,6 @@ void VMArray::WalkObjects(walk_heap_fn walk, Page* page) {
     }
 }
 
-StdString VMArray::AsDebugString() const {
+StdString VMArray::AsDebugString() {
     return "Array(" + to_string(GetNumberOfIndexableFields()) + ")";
 }
