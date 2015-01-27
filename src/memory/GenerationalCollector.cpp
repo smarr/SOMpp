@@ -2,7 +2,6 @@
 
 #include "GenerationalCollector.h"
 
-#include "Heap.h"
 #include <vm/Universe.h>
 #include <vmobjects/VMMethod.h>
 #include <vmobjects/VMObject.h>
@@ -12,7 +11,6 @@
 #include <vmobjects/VMPrimitive.h>
 #include <vmobjects/VMClass.h>
 #include <vmobjects/VMEvaluationPrimitive.h>
-#include <vmobjects/IntegerBox.h>
 
 #define INITIAL_MAJOR_COLLECTION_THRESHOLD (5 * 1024 * 1024) //5 MB
 

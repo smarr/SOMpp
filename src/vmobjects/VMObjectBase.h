@@ -7,6 +7,8 @@
 
 #include <assert.h>
 
+#include "ObjectFormats.h"
+
 class VMObjectBase : public VMOop {
 protected:
     VMObjectBase() : gcfield(0) {}

@@ -1,6 +1,5 @@
-#include "VMCondition.h"
-
 #include <chrono>
+#include <vmobjects/VMCondition.h>
 
 const long VMCondition::VMConditionNumberOfFields = 0;
 

@@ -35,7 +35,6 @@
 #include <misc/defs.h>
 #include <vm/Universe.h>
 
-#include "ObjectFormats.h"
 
 // this macro returns a shifted ptr by offset bytes
 #define SHIFTED_PTR(ptr, offset) ((void*)((size_t)(ptr)+(size_t)(offset)))
