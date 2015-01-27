@@ -5,6 +5,8 @@
 #include <vm/Universe.h>
 #include <vmobjects/AbstractObject.h>
 #include <vmobjects/VMObject.h>
+#include <vmobjects/IntegerBox.h>
+#include <vmobjects/VMInteger.h>
 
 
 CopyingHeap::CopyingHeap(size_t pageSize, size_t maxHeapSize)
