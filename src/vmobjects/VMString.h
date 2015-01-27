@@ -44,7 +44,7 @@ public:
     virtual VMClass* GetClass() const;
     virtual size_t GetObjectSize() const;
     virtual void WalkObjects(walk_heap_fn, Page*);
-    
+
     virtual void MarkObjectAsInvalid();
     
     virtual StdString AsDebugString() const;

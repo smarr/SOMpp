@@ -318,7 +318,6 @@ void Universe::initialize(long _argc, char** _argv) {
 
     heapSize = 1 * 1024 * 1024;
     pageSize = PAGE_SIZE * 16;  // let's use larger pages, to reduce management overhead
-    
 
     vector<StdString> argv = handleArguments(_argc, _argv);
     

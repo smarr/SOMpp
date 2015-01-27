@@ -142,4 +142,3 @@ void VMSymbol::WalkObjects(walk_heap_fn walk, Page* page) {
 StdString VMSymbol::AsDebugString() const {
     return "Symbol(" + GetStdString() + ")";
 }
-

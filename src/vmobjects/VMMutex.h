@@ -15,7 +15,7 @@ public:
     void Lock();
     void Unlock();
     bool IsLocked() const;
-    
+
     VMCondition* NewCondition(Page* page);
     
     virtual StdString AsDebugString() const;

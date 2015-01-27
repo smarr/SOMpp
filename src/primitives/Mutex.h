@@ -7,7 +7,7 @@
 class _Mutex: public PrimitiveContainer {
 public:
     _Mutex();
-    
+
     void Lock(Interpreter*, VMFrame*);
     void Unlock(Interpreter*, VMFrame*);
     void IsLocked(Interpreter*, VMFrame*);

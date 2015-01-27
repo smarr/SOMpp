@@ -30,7 +30,6 @@ void _Thread::Current(Interpreter*, VMFrame* frame) {
     frame->Push(VMThread::Current());
 }
 
-
 _Thread::_Thread() : PrimitiveContainer() {
     SetPrimitive("name",    new Routine<_Thread>(this, &_Thread::Name,    false));
     SetPrimitive("name_",   new Routine<_Thread>(this, &_Thread::Name_,   false));

@@ -70,7 +70,7 @@ void VMObject::Assert(bool value) const {
 
 void VMObject::WalkObjects(walk_heap_fn walk, Page* page) {
     clazz = static_cast<GCClass*>(walk(clazz, page));
-    
+
     long numFields = GetNumberOfFields();
     for (long i = 0; i < numFields; ++i) {
 # warning not sure whether the use of _store_ptr is correct and robust here
