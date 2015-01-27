@@ -27,25 +27,11 @@
  */
 
 #include <misc/defs.h>
+#include <misc/SpinLock.h>
 #include <vmobjects/ObjectFormats.h>
 #include <memory/BaseThread.h>
 
-
 class VMSymbol;
-
-class SpinLock {
-public:
-    void lock() {
-        while(lck.test_and_set(std::memory_order_acquire)) {}
-    }
-    
-    void unlock() {
-        lck.clear(std::memory_order_release);
-    }
-    
-private:
-    std::atomic_flag lck = ATOMIC_FLAG_INIT;
-};
 
 class Interpreter : public BaseThread {
 public:
