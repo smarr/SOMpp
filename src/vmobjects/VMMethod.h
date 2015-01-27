@@ -89,7 +89,3 @@ private:
     uint8_t* bytecodes;
     static const long VMMethodNumberOfFields;
 };
-
-inline long VMMethod::GetNumberOfLocals() const {
-    return INT_VAL(load_ptr(numberOfLocals));
-}
