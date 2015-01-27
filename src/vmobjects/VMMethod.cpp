@@ -38,6 +38,7 @@
 #include <compiler/MethodGenerationContext.h>
 #include <vmobjects/IntegerBox.h>
 
+#include <vmobjects/VMMethod.inline.h>
 
 #ifdef UNSAFE_FRAME_OPTIMIZATION
 const long VMMethod::VMMethodNumberOfFields = 8;

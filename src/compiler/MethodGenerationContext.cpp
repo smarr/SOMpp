@@ -34,6 +34,8 @@
 #include "../vmobjects/VMMethod.h"
 #include "../vmobjects/VMPrimitive.h"
 
+#include <vmobjects/VMMethod.inline.h>
+
 MethodGenerationContext::MethodGenerationContext() {
     //signature = 0;
     holderGenc = 0;

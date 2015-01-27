@@ -40,6 +40,7 @@
 #include <vmobjects/IntegerBox.h>
 
 #include <compiler/Disassembler.h>
+#include <vmobjects/VMMethod.inline.h>
 
 const StdString Interpreter::unknownGlobal     = "unknownGlobal:";
 const StdString Interpreter::doesNotUnderstand = "doesNotUnderstand:arguments:";
