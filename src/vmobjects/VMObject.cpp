@@ -66,7 +66,7 @@ void VMObject::SetClass(VMClass* cl) {
     store_ptr(clazz, cl);
 }
 
-VMSymbol* VMObject::GetFieldName(long index) /*const*/ {
+VMSymbol* VMObject::GetFieldName(long index) {
     return GetClass()->GetInstanceFieldName(index);
 }
 

@@ -18,8 +18,8 @@ public:
     void Await();
     bool Await(int64_t timeoutMilliseconds);
     
-    virtual StdString AsDebugString() const;
-    virtual VMCondition* Clone(Page*) const;
+    virtual StdString AsDebugString();
+    virtual VMCondition* Clone(Page*);
     virtual void MarkObjectAsInvalid();
     
 private:

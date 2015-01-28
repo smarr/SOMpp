@@ -46,11 +46,11 @@ public:
     inline VMFrame* GetPreviousFrame();
     inline void SetPreviousFrame(VMFrame*);
     inline void ClearPreviousFrame();
-    inline bool HasPreviousFrame();
-    inline bool IsBootstrapFrame();
+    inline bool HasPreviousFrame() const;
+    inline bool IsBootstrapFrame() const;
     inline VMFrame* GetContext();
     inline void SetContext(VMFrame*);
-    inline bool HasContext();
+    inline bool HasContext() const;
     VMFrame* GetContextLevel(long);
     VMFrame* GetOuterContext();
     inline VMMethod* GetMethod();
@@ -60,9 +60,9 @@ public:
     void ResetStackPointer();
     inline long GetBytecodeIndex() const;
     inline void SetBytecodeIndex(long);
-    vm_oop_t GetStackElement(long) const;
+    vm_oop_t GetStackElement(long);
     vm_oop_t GetLocal(long, long);
-    void SetLocal(long, long, vm_oop_t);
+    void SetLocal(long index, long context_level, vm_oop_t);
     vm_oop_t GetArgument(long, long);
     void SetArgument(long, long, vm_oop_t);
     void PrintStackTrace();
@@ -101,11 +101,11 @@ private:
     static const long VMFrameNumberOfFields;
 };
 
-bool VMFrame::HasContext() {
+bool VMFrame::HasContext() const {
     return context != nullptr;
 }
 
-bool VMFrame::HasPreviousFrame() {
+bool VMFrame::HasPreviousFrame() const {
     return previousFrame != nullptr;
 }
 
@@ -117,7 +117,7 @@ void VMFrame::SetBytecodeIndex(long index) {
     bytecodeIndex = index;
 }
 
-bool VMFrame::IsBootstrapFrame() {
+bool VMFrame::IsBootstrapFrame() const {
     return !HasPreviousFrame();
 }
 

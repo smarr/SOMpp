@@ -73,7 +73,8 @@ StdString VMThread::AsDebugString() {
     }
 }
 
-VMThread* VMThread::Clone(Page* page) const {
+VMThread* VMThread::Clone(Page* page) {
+#warning should there be read barriers here?
 // TODO: Clone() should be renamed to Move or Reallocate or something,
 // it should indicate that the old copy is going to be invalidated.
     VMThread* clone = new (page, 0 ALLOC_MATURE) VMThread();

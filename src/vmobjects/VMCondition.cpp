@@ -22,11 +22,11 @@ bool VMCondition::Await(int64_t timeoutMilliseconds) {
                     *lock, std::chrono::milliseconds(timeoutMilliseconds));
 }
 
-StdString VMCondition::AsDebugString() const {
+StdString VMCondition::AsDebugString() {
     return "VMCondition";
 }
 
-VMCondition* VMCondition::Clone(Page* page) const {
+VMCondition* VMCondition::Clone(Page* page) {
     VMCondition* clone = new (page, 0 ALLOC_MATURE)
                             VMCondition(lock, cond_var);
     clone->clazz = clazz;

@@ -16,7 +16,7 @@ public:
     void Join();
     
     virtual StdString AsDebugString();
-    virtual VMThread* Clone(Page*) const;
+    virtual VMThread* Clone(Page*);
     virtual void MarkObjectAsInvalid();
     
     void SetThread(std::thread*);

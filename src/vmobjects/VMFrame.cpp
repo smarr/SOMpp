@@ -235,7 +235,7 @@ void VMFrame::ResetStackPointer() {
     std::atomic_thread_fence(std::memory_order_seq_cst);
 }
 
-vm_oop_t VMFrame::GetStackElement(long index) const {
+vm_oop_t VMFrame::GetStackElement(long index) {
     std::atomic_thread_fence(std::memory_order_seq_cst);
     return load_ptr(stack_ptr[-index]);
 }

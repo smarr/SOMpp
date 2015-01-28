@@ -18,8 +18,8 @@ public:
 
     VMCondition* NewCondition(Page* page);
     
-    virtual StdString AsDebugString() const;
-    virtual VMMutex* Clone(Page*) const;
+    virtual StdString AsDebugString();
+    virtual VMMutex* Clone(Page*);
     virtual void MarkObjectAsInvalid();
 
 #if GC_TYPE==PAUSELESS

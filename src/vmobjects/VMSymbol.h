@@ -59,7 +59,7 @@ private:
 //    const GCClass* cachedClass_invokable[3];
 //    long nextCachePos;
 //    GCInvokable* cachedInvokable[3];
-//    inline VMInvokable* GetCachedInvokable(const VMClass*) const;
+//    inline VMInvokable* GetCachedInvokable(const VMClass*);
 //    inline void UpdateCachedInvokable(const VMClass* cls, VMInvokable* invo);
     
     friend class Signature;
