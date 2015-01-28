@@ -45,7 +45,7 @@ public:
     void      Start();
     VMFrame*  PushNewFrame(VMMethod* method);
     void      SetFrame(VMFrame* frame);
-    vm_oop_t  GetSelf();
+    inline VMFrame* GetFrame();
     
 #if GC_TYPE==PAUSELESS
     virtual void AddGCWork(AbstractVMObject*);
@@ -82,6 +82,8 @@ public:
 #endif
     
 private:
+    vm_oop_t  GetSelf();
+
     GCFrame* frame;
     
     static const StdString unknownGlobal;
