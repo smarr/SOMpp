@@ -131,6 +131,10 @@
 		0A67EA9E19ACDB4600830E3B /* README.md in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A18873D1832C62100A2CBCA /* README.md */; };
 		0A67EA9F19ACDB4600830E3B /* Smalltalk in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A18873E1832C62100A2CBCA /* Smalltalk */; };
 		0A67EAA119ACDB4600830E3B /* TestSuite in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A1887401832C62100A2CBCA /* TestSuite */; };
+		0A87935C1A790E8D00F2DE5F /* MarkSweepHeap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1887271832C10E00A2CBCA /* MarkSweepHeap.cpp */; };
+		0A87935D1A790E9B00F2DE5F /* MarkSweepCollector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1887251832C10E00A2CBCA /* MarkSweepCollector.cpp */; };
+		0A87935E1A790EAF00F2DE5F /* CopyingHeap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A18871F1832C10E00A2CBCA /* CopyingHeap.cpp */; };
+		0A87935F1A790EB400F2DE5F /* CopyingCollector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A18871D1832C10E00A2CBCA /* CopyingCollector.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -974,7 +978,10 @@
 				0A3A3CAD1A5D546D004CB03B /* Condition.cpp in Sources */,
 				0A3A3CA71A5D546D004CB03B /* Object.cpp in Sources */,
 				0A3A3CB21A5D5476004CB03B /* PrimitiveContainer.cpp in Sources */,
+				0A87935D1A790E9B00F2DE5F /* MarkSweepCollector.cpp in Sources */,
 				0A67EA8419ACD74800830E3B /* VMFrame.cpp in Sources */,
+				0A87935C1A790E8D00F2DE5F /* MarkSweepHeap.cpp in Sources */,
+				0A87935E1A790EAF00F2DE5F /* CopyingHeap.cpp in Sources */,
 				0A67EA7D19ACD74800830E3B /* Signature.cpp in Sources */,
 				0A67EA7E19ACD74800830E3B /* VMArray.cpp in Sources */,
 				0A67EA8719ACD74800830E3B /* VMObject.cpp in Sources */,
@@ -983,6 +990,7 @@
 				0A3A3CAA1A5D546D004CB03B /* Symbol.cpp in Sources */,
 				0A3A3C8A1A5C1451004CB03B /* VMMutex.cpp in Sources */,
 				0A67EA8619ACD74800830E3B /* VMMethod.cpp in Sources */,
+				0A87935F1A790EB400F2DE5F /* CopyingCollector.cpp in Sources */,
 				0A67EA7519ACD43A00830E3B /* CloneObjectsTest.cpp in Sources */,
 				0A3A3CAE1A5D546D004CB03B /* Mutex.cpp in Sources */,
 				0A67EA7919ACD43A00830E3B /* WriteBarrierTest.cpp in Sources */,
