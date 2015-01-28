@@ -8,7 +8,9 @@ class GenerationalHeap;
 class GenerationalCollector : public GarbageCollector<GenerationalHeap> {
 public:
     GenerationalCollector(GenerationalHeap* heap);
-    void Collect();
+    
+    virtual void Collect();
+
 private:
     size_t majorCollectionThreshold;
 
