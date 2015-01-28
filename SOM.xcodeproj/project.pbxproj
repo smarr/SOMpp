@@ -224,7 +224,9 @@
 		0A8793531A77F6DE00F2DE5F /* VMMethod.inline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMMethod.inline.h; sourceTree = "<group>"; };
 		0A8793541A77FBA900F2DE5F /* VMBlock.inline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMBlock.inline.h; sourceTree = "<group>"; };
 		0A8793581A78033900F2DE5F /* Interpreter.inline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Interpreter.inline.h; sourceTree = "<group>"; };
-		0ABEAA8D1A601979009F314D /* Page.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Page.h; sourceTree = "<group>"; };
+		0A8793591A7845EF00F2DE5F /* CopyingPage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CopyingPage.h; sourceTree = "<group>"; };
+		0A87935A1A78463E00F2DE5F /* MarkSweepPage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MarkSweepPage.h; sourceTree = "<group>"; };
+		0A87935B1A78464F00F2DE5F /* GenerationalPage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GenerationalPage.h; sourceTree = "<group>"; };
 		3F5202930FA6624C00E75857 /* build_darwin.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = build_darwin.sh; sourceTree = "<group>"; };
 		3F5202940FA6624C00E75857 /* Darwin.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Darwin.make; sourceTree = "<group>"; };
 		3F5202950FA6624C00E75857 /* Linux.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Linux.make; sourceTree = "<group>"; };
@@ -542,7 +544,9 @@
 				3F5203080FA6624C00E75857 /* GarbageCollector.h */,
 				3F5203090FA6624C00E75857 /* Heap.cpp */,
 				3F52030A0FA6624C00E75857 /* Heap.h */,
-				0ABEAA8D1A601979009F314D /* Page.h */,
+				0A8793591A7845EF00F2DE5F /* CopyingPage.h */,
+				0A87935A1A78463E00F2DE5F /* MarkSweepPage.h */,
+				0A87935B1A78464F00F2DE5F /* GenerationalPage.h */,
 			);
 			path = memory;
 			sourceTree = "<group>";

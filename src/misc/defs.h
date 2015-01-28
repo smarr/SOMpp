@@ -64,6 +64,8 @@
 
 #if   GC_TYPE == GENERATIONAL
   class   GenerationalHeap;
+  class   NurseryPage;
+  typedef NurseryPage Page;
   typedef GenerationalHeap HEAP_CLS;
   #define write_barrier(obj, value_ptr) ((GetHeap<GenerationalHeap>())->writeBarrier(obj, value_ptr))
   #define ALLOC_MATURE    , true
@@ -73,6 +75,8 @@
   #define ALLOC_HINT                 , outsideNursery
 #elif GC_TYPE == COPYING
   class   CopyingHeap;
+  class   CopyingPage;
+  typedef CopyingPage Page;
   typedef CopyingHeap HEAP_CLS;
   #define write_barrier(obj, value_ptr)
   #define ALLOC_MATURE
@@ -82,6 +86,8 @@
   #define ALLOC_HINT
 #elif GC_TYPE == MARK_SWEEP
   class   MarkSweepHeap;
+  class   MarkSweepPage;
+  typedef MarkSweepPage Page;
   typedef MarkSweepHeap HEAP_CLS;
   #define write_barrier(obj, value_ptr)
   #define ALLOC_MATURE
@@ -90,6 +96,10 @@
   #define ALLOC_OUTSIDE_NURSERY_DECLpp
   #define ALLOC_HINT
 #endif
+
+class GCOop;
+typedef GCOop* gc_oop_t;
+typedef gc_oop_t (*walk_heap_fn)(gc_oop_t, Page*);
 
 //
 // Integer Settings

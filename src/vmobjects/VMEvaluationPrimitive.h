@@ -34,7 +34,7 @@ public:
     
     VMEvaluationPrimitive(long argc, Page*);
     virtual void WalkObjects(walk_heap_fn, Page*);
-    virtual VMEvaluationPrimitive* Clone(Page* page);
+    virtual VMEvaluationPrimitive* Clone(Page*);
     
     virtual StdString AsDebugString();
     

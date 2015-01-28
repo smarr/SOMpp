@@ -13,20 +13,18 @@ MarkSweepHeap::MarkSweepHeap(size_t pageSize, size_t objectSpaceSize)
         // our initial collection limit is 90% of objectSpaceSize
         collectionLimit(objectSpaceSize * 0.9) { }
 
-Page* MarkSweepHeap::RegisterThread() {
+MarkSweepPage* MarkSweepHeap::RegisterThread() {
     lock_guard<mutex> lock(pages_mutex);
     
-    MemoryPage<MarkSweepHeap>* page = new MemoryPage<MarkSweepHeap>(this);
+    MarkSweepPage* page = new MarkSweepPage(this);
     pages.insert(page);
     
-    return reinterpret_cast<Page*>(page); // cast to work around compilation issues with other configurations
+    return page;
 }
 
-void MarkSweepHeap::UnregisterThread(Page* page) {
+void MarkSweepHeap::UnregisterThread(MarkSweepPage* page) {
     lock_guard<mutex> lock(pages_mutex);
-    MemoryPage<MarkSweepHeap>* p = reinterpret_cast<MemoryPage<MarkSweepHeap>*>(page);
-    
-    pages.erase(p);
-    yieldedPages.push_back(p);
+    pages.erase(page);
+    yieldedPages.push_back(page);
 }
 

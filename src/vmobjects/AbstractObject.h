@@ -13,10 +13,15 @@
 
 #include <misc/defs.h>
 #include <memory/GenerationalHeap.h>
+#include <memory/GenerationalPage.h>
 #include <memory/CopyingHeap.h>
+#include <memory/CopyingPage.h>
 #include <memory/MarkSweepHeap.h>
+#include <memory/MarkSweepPage.h>
 
 #include "VMObjectBase.h"
+
+#include <vm/Universe.h>
 
 /*
  * macro for padding - only word-aligned memory must be allocated

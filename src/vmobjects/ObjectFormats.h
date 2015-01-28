@@ -151,9 +151,4 @@ inline typename T::Stored* _store_ptr(T* vm_val) {
     return (typename T::Stored*) vm_val;
 }
 
-
 #define store_ptr(field, val) field = _store_ptr(val); write_barrier(this, val)
-
-#include <memory/Page.h>
-typedef MemoryPage<HEAP_CLS> Page;
-typedef gc_oop_t (*walk_heap_fn)(gc_oop_t, Page*);

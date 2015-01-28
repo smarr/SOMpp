@@ -7,6 +7,7 @@
  */
 
 #include <cppunit/extensions/HelperMacros.h>
+#include <misc/defs.h>
 #include <memory/Heap.h>
 
 class CloneObjectsTest: public CPPUNIT_NS::TestCase {

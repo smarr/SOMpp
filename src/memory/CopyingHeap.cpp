@@ -23,8 +23,8 @@ void CopyingHeap::UnregisterThread(Page* page) {
     // NOOP, because we the page is still in use
 }
 
-MemoryPage<CopyingHeap>* CopyingHeap::getNextPage_alreadyLocked() {
-    MemoryPage<CopyingHeap>* result;
+CopyingPage* CopyingHeap::getNextPage_alreadyLocked() {
+    CopyingPage* result;
 
     if (freePages.empty()) {
         currentNumPages++;
@@ -55,14 +55,13 @@ MemoryPage<CopyingHeap>* CopyingHeap::getNextPage_alreadyLocked() {
     return result;
 }
 
-Page* MemoryPage<CopyingHeap>::GetCurrent() {
+Page* CopyingPage::GetCurrent() {
     return interpreter->GetPage();
 }
 
 #include <vmobjects/VMBlock.h>
 
-void MemoryPage<CopyingHeap>::WalkObjects(walk_heap_fn walk,
-                                          Page* target) {
+void CopyingPage::WalkObjects(walk_heap_fn walk, Page* target) {
     AbstractVMObject* curObject = static_cast<AbstractVMObject*>(buffer);
     
     while (curObject < nextFreePosition) {
@@ -72,7 +71,7 @@ void MemoryPage<CopyingHeap>::WalkObjects(walk_heap_fn walk,
     }
 }
 
-void* MemoryPage<CopyingHeap>::allocateInNextPage(size_t size ALLOC_OUTSIDE_NURSERY_DECLpp) {
+void* CopyingPage::allocateInNextPage(size_t size ALLOC_OUTSIDE_NURSERY_DECLpp) {
     assert(interpreter);
     
     if (next == nullptr) {
@@ -100,7 +99,7 @@ static gc_oop_t invalidate_objects(gc_oop_t oop, Page*) {
     return oop;
 }
 
-void MemoryPage<CopyingHeap>::Reset() {
+void CopyingPage::Reset() {
     next             = nullptr;
     interpreter      = nullptr;
     nextFreePosition = buffer;

@@ -26,14 +26,9 @@
  THE SOFTWARE.
  */
 
-#include <vector>
-#include <set>
-#include <cstdlib>
 #include <atomic>
 
 #include "GarbageCollector.h"
-#include "../misc/defs.h"
-#include "../vmobjects/ObjectFormats.h"
 
 
 using namespace std;

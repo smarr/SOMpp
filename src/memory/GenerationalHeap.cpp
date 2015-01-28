@@ -19,12 +19,12 @@ GenerationalHeap::GenerationalHeap(size_t pageSize, size_t objectSpaceSize)
       currentNumPages(0), sizeOfMatureObjectHeap(0),
       allocatedObjects(new vector<AbstractVMObject*>()) {}
 
-Page* GenerationalHeap::RegisterThread() {
+NurseryPage* GenerationalHeap::RegisterThread() {
     lock_guard<mutex> lock(pages_mutex);
-    return reinterpret_cast<Page*>(getNextPage_alreadyLocked());
+    return getNextPage_alreadyLocked();
 }
 
-void GenerationalHeap::UnregisterThread(Page* page) {
+void GenerationalHeap::UnregisterThread(NurseryPage* page) {
     // NOOP, because we the page is still in use
 }
 
@@ -41,8 +41,8 @@ void GenerationalHeap::writeBarrier_OldHolder(AbstractVMObject* holder,
     holder->SetGCField(holder->GetGCField() | MASK_SEEN_BY_WRITE_BARRIER);
 }
 
-MemoryPage<GenerationalHeap>* GenerationalHeap::getNextPage_alreadyLocked() {
-    MemoryPage<GenerationalHeap>* result;
+NurseryPage* GenerationalHeap::getNextPage_alreadyLocked() {
+    NurseryPage* result;
     
     if (freePages.empty()) {
         currentNumPages++;
@@ -67,7 +67,7 @@ MemoryPage<GenerationalHeap>* GenerationalHeap::getNextPage_alreadyLocked() {
     return result;
 }
 
-void* MemoryPage<GenerationalHeap>::allocateInNextPage(size_t size ALLOC_OUTSIDE_NURSERY_DECLpp) {
+void* NurseryPage::allocateInNextPage(size_t size ALLOC_OUTSIDE_NURSERY_DECLpp) {
     assert(interpreter);
     
     if (next == nullptr) {
@@ -85,7 +85,7 @@ void* MemoryPage<GenerationalHeap>::allocateInNextPage(size_t size ALLOC_OUTSIDE
     return next->AllocateObject(size ALLOC_HINT);
 }
 
-void MemoryPage<GenerationalHeap>::WalkObjects(walk_heap_fn walk,
+void NurseryPage::WalkObjects(walk_heap_fn walk,
                                                Page* target) {
     AbstractVMObject* curObject = reinterpret_cast<AbstractVMObject*>(buffer);
     
@@ -106,7 +106,7 @@ static gc_oop_t invalidate_objects(gc_oop_t oop, Page*) {
     return oop;
 }
 
-void MemoryPage<GenerationalHeap>::Reset() {
+void NurseryPage::Reset() {
     next             = nullptr;
     interpreter      = nullptr;
     nextFreePosition = buffer;
