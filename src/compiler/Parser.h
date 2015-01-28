@@ -29,7 +29,7 @@
 #include <fstream>
 #include <string>
 
-#include "../misc/defs.h"
+#include <misc/defs.h>
 
 #include "Lexer.h"
 #include "ClassGenerationContext.h"
