@@ -59,7 +59,7 @@ VMPrimitive::VMPrimitive(VMSymbol* signature) : VMInvokable(VMPrimitiveNumberOfF
 }
 
 VMPrimitive* VMPrimitive::Clone(Page* page) {
-    VMPrimitive* prim = new (page, 0, true) VMPrimitive(*this);
+    VMPrimitive* prim = new (page, 0 ALLOC_MATURE) VMPrimitive(*this);
     return prim;
 }
 

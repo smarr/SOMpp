@@ -94,7 +94,7 @@ VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength, Page* page
 
 VMFrame* VMFrame::Clone(Page* page) {
     size_t addSpace = objectSize - sizeof(VMFrame);
-    VMFrame* clone = new (page, addSpace, true) VMFrame(*this);
+    VMFrame* clone = new (page, addSpace ALLOC_MATURE) VMFrame(*this);
     void* destination = SHIFTED_PTR(clone, sizeof(VMFrame));
     const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
     size_t noBytes = GetObjectSize() - sizeof(VMFrame);
