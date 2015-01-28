@@ -544,7 +544,7 @@ Universe::~Universe() {
         
         VMCondition* cond = new (page) VMCondition(nullptr);
         vt_condition  = *(void**) cond;
-        
+
         VMMutex* mutex = new (page) VMMutex();
         vt_mutex      = *(void**) mutex;
         
@@ -660,9 +660,9 @@ VMObject* Universe::InitializeGlobals(Page* page) {
     
     symbolIfTrue  = _store_ptr(SymbolForChars("ifTrue:", page));
     symbolIfFalse = _store_ptr(SymbolForChars("ifFalse:", page));
-    
+
     VMThread::Initialize();
-    
+
     return systemObj;
 }
 
@@ -1116,7 +1116,7 @@ VMMutex* Universe::NewMutex(Page* page) const {
 VMThread* Universe::NewThread(VMBlock* block, vm_oop_t arguments, Page* page) {
     VMThread* threadObj = new (page) VMThread();
     threadObj->SetClass(load_ptr(threadClass));
-    
+
     SafePoint::RegisterMutator();
     thread* thread = new std::thread(&Universe::startInterpreterInThread, this, threadObj, block, arguments);
     threadObj->SetThread(thread);
