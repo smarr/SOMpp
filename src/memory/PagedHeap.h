@@ -26,6 +26,7 @@
  THE SOFTWARE.
  */
 
+#include <mutex>
 #include <vector>
 #include <pthread.h>
 #include <set>
@@ -94,7 +95,9 @@ public:
 protected:
     GarbageCollector<HEAP_CLS>* gc;
     pthread_mutex_t fullPagesMutex;
-    pthread_mutex_t availablePagesMutex;
+
+    mutex availablePages_mutex;
+    
     //void* nextFreePagePosition;
     //void* collectionLimit;
     void* memoryStart;
