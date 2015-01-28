@@ -62,33 +62,32 @@
 #define PAGE_SIZE 4096
 #endif
 
-#if   GC_TYPE == GENERATIONAL
+#if GC_TYPE == GENERATIONAL
   class   GenerationalHeap;
   class   NurseryPage;
   typedef NurseryPage Page;
   typedef GenerationalHeap HEAP_CLS;
+
   #define write_barrier(obj, value_ptr) ((GetHeap<GenerationalHeap>())->writeBarrier(obj, value_ptr))
   #define ALLOC_MATURE    , true
-  #define ALLOC_OUTSIDE_NURSERY(X) , (X)
-  #define ALLOC_OUTSIDE_NURSERY_DECL , bool outsideNursery = false
+  #define ALLOC_OUTSIDE_NURSERY(X)     , (X)
+  #define ALLOC_OUTSIDE_NURSERY_DECL   , bool outsideNursery = false
   #define ALLOC_OUTSIDE_NURSERY_DECLpp , bool outsideNursery
-  #define ALLOC_HINT                 , outsideNursery
-#elif GC_TYPE == COPYING
-  class   CopyingHeap;
-  class   CopyingPage;
-  typedef CopyingPage Page;
-  typedef CopyingHeap HEAP_CLS;
-  #define write_barrier(obj, value_ptr)
-  #define ALLOC_MATURE
-  #define ALLOC_OUTSIDE_NURSERY(X)
-  #define ALLOC_OUTSIDE_NURSERY_DECL
-  #define ALLOC_OUTSIDE_NURSERY_DECLpp
-  #define ALLOC_HINT
-#elif GC_TYPE == MARK_SWEEP
-  class   MarkSweepHeap;
-  class   MarkSweepPage;
-  typedef MarkSweepPage Page;
-  typedef MarkSweepHeap HEAP_CLS;
+  #define ALLOC_HINT                   , outsideNursery
+#else
+  #if GC_TYPE == COPYING
+    class   CopyingHeap;
+    class   CopyingPage;
+    typedef CopyingPage Page;
+    typedef CopyingHeap HEAP_CLS;
+  #elif GC_TYPE == MARK_SWEEP
+    class   MarkSweepHeap;
+    class   MarkSweepPage;
+    typedef MarkSweepPage Page;
+    typedef MarkSweepHeap HEAP_CLS;
+  #else
+    # error Unexpected GC_TYPE
+  #endif
   #define write_barrier(obj, value_ptr)
   #define ALLOC_MATURE
   #define ALLOC_OUTSIDE_NURSERY(X)
