@@ -64,20 +64,43 @@
 #endif
 
 #if GC_TYPE == GENERATIONAL
+  class   GenerationalHeap;
+  class   NurseryPage;
+  typedef NurseryPage Page;
+  typedef GenerationalHeap HEAP_CLS;
+
   #define write_barrier(obj, value_ptr) (_HEAP->WriteBarrier(obj, value_ptr))
   #define ALLOC_MATURE    , true
+  #define ALLOC_OUTSIDE_NURSERY(X)     , (X)
   #define ALLOC_OUTSIDE_NURSERY_DECL   , bool outsideNursery = false
   #define ALLOC_OUTSIDE_NURSERY_DECLpp , bool outsideNursery
   #define ALLOC_HINT                   , outsideNursery
 #else
+  #if GC_TYPE == COPYING
+    class   CopyingHeap;
+    class   CopyingPage;
+    typedef CopyingPage Page;
+    typedef CopyingHeap HEAP_CLS;
+  #elif GC_TYPE == MARK_SWEEP
+    class   MarkSweepHeap;
+    class   MarkSweepPage;
+    typedef MarkSweepPage Page;
+    typedef MarkSweepHeap HEAP_CLS;
+  #endif
   #define write_barrier(obj, value_ptr)
   #define ALLOC_MATURE
+  #define ALLOC_OUTSIDE_NURSERY(X)
   #define ALLOC_OUTSIDE_NURSERY_DECL
   #define ALLOC_OUTSIDE_NURSERY_DECLpp
   #define ALLOC_HINT
 #endif
 
 #if GC_TYPE == PAUSELESS
+  class PauselessHeap;
+  class PauselessPage;
+  typedef PauselessPage Page;
+  typedef PauselessHeap HEAP_CLS;
+
   #define ALLOC_NON_RELOCATABLE_DECL   , bool nonRelocatable = false
   #define ALLOC_NON_RELOCATABLE_DECLpp , bool nonRelocatable
   #define RELOC_HINT                   , nonRelocatable
@@ -87,6 +110,9 @@
   #define RELOC_HINT
 #endif
 
+class GCOop;
+typedef GCOop* gc_oop_t;
+typedef gc_oop_t (*walk_heap_fn)(gc_oop_t, Page*);
 
 //
 // Integer Settings

@@ -10,11 +10,11 @@
 
 using namespace std;
 
-class PauselessCollector : public GarbageCollector {
+class PauselessCollector : public GarbageCollector<PauselessHeap> {
     //friend PagedHeap;
     
 public:
-    PauselessCollector(PagedHeap* heap, int numberOfGCThreads);
+    PauselessCollector(PauselessHeap* heap, int numberOfGCThreads);
     static void MarkObject(vm_oop_t, Worklist*);
     void AddBlockedInterpreter(Interpreter*);
     void SignalRootSetMarked();

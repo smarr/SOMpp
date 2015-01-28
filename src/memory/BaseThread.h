@@ -6,8 +6,6 @@
     #include <memory/Worklist.h>
 #endif
 
-class Page;
-
 class BaseThread {
 
 public:

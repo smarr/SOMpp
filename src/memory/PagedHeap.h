@@ -36,7 +36,7 @@
 #include <vmobjects/ObjectFormats.h>
 
 class AbstractVMObject;
-class Page;
+
 using namespace std;
 //macro to access the heap
 #define _HEAP PagedHeap::GetHeap()
@@ -67,10 +67,10 @@ class PauselessHeap;
 #endif
 
 class PagedHeap {
-    friend class GarbageCollector;
+    friend class GarbageCollector<HEAP_CLS>;
     friend class PauselessCollector; //this should probably also be made compile time dependend
     friend class PauselessCollectorThread;
-    friend class Page;
+    friend class PauselessPage;
     
 public:
     static FORCE_INLINE HEAP_CLS* GetHeap() { return theHeap; }
@@ -91,10 +91,8 @@ public:
     
     vector<Page*>* allPages;
     
-    int GetNumberOfCycles();
-    
 protected:
-    GarbageCollector* gc;
+    GarbageCollector<HEAP_CLS>* gc;
     pthread_mutex_t fullPagesMutex;
     pthread_mutex_t availablePagesMutex;
     //void* nextFreePagePosition;
@@ -102,8 +100,8 @@ protected:
     void* memoryStart;
     size_t memoryEnd;
     //vector<Page*>* allPages;
-    vector<Page*>* availablePages;
-    vector<Page*>* fullPages;
+    vector<PauselessPage*>* availablePages;
+    vector<PauselessPage*>* fullPages;
     
 private:
     void CreatePages();

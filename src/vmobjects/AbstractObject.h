@@ -19,7 +19,7 @@
 #elif GC_TYPE==MARK_SWEEP
     #include <memory/MarkSweepHeap.h>
 #elif GC_TYPE==PAUSELESS
-    #include <memory/Page.h>
+    #include <memory/PauselessPage.h>
     #include <memory/PauselessHeap.h>
     #include <memory/PauselessCollectorThread.h>
     class Worklist;

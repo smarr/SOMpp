@@ -7,7 +7,7 @@
 
 
 #include <memory/PagedHeap.h>
-#include <memory/Page.h>
+#include <memory/PauselessPage.h>
 #include <vmobjects/VMObjectBase.h>
 #include <vmobjects/AbstractObject.h>
 #include <vm/Universe.h>

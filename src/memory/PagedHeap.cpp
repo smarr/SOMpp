@@ -31,8 +31,9 @@
 #include <sys/mman.h>
 
 #include "PagedHeap.h"
-#include "Page.h"
-#include "../vmobjects/VMObject.h"
+#include "PauselessPage.h"
+
+#include <vmobjects/VMObject.h>
 
 HEAP_CLS* PagedHeap::theHeap = nullptr;
 
@@ -103,8 +104,4 @@ void PagedHeap::AddEmptyPage(Page* page) {
     pthread_mutex_lock(&availablePagesMutex);
     availablePages->push_back(page);
     pthread_mutex_unlock(&availablePagesMutex);
-}
-
-int PagedHeap::GetNumberOfCycles() {
-    return gc->GetNumberOfCycles();
 }

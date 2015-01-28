@@ -30,7 +30,6 @@
 		0A1886E31832BCD300A2CBCA /* bytecodes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203010FA6624C00E75857 /* bytecodes.cpp */; };
 		0A1886E41832BCD300A2CBCA /* Interpreter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203030FA6624C00E75857 /* Interpreter.cpp */; };
 		0A1886E51832BCD700A2CBCA /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203050FA6624C00E75857 /* Main.cpp */; };
-		0A1886E61832BCDC00A2CBCA /* GarbageCollector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203070FA6624C00E75857 /* GarbageCollector.cpp */; };
 		0A1886E71832BCDC00A2CBCA /* PagedHeap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203090FA6624C00E75857 /* PagedHeap.cpp */; };
 		0A1886F51832BCED00A2CBCA /* Shell.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203300FA6624C00E75857 /* Shell.cpp */; };
 		0A1886F61832BCED00A2CBCA /* Universe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203320FA6624C00E75857 /* Universe.cpp */; };
@@ -75,7 +74,7 @@
 		0A8E19EA1A16166C004CE22B /* PrimitiveLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F52032B0FA6624C00E75857 /* PrimitiveLoader.cpp */; };
 		0A8E19EB1A16166F004CE22B /* PrimitiveContainer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203290FA6624C00E75857 /* PrimitiveContainer.cpp */; };
 		0A8E19ED1A16305B004CE22B /* debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A8E19EC1A16305B004CE22B /* debug.cpp */; };
-		90B4A87F18F202AA00C437BE /* Page.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90B4A87E18F202AA00C437BE /* Page.cpp */; };
+		90B4A87F18F202AA00C437BE /* PauselessPage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90B4A87E18F202AA00C437BE /* PauselessPage.cpp */; };
 		90D7D49A19F9260F00EFB4B6 /* BaseThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90D7D49919F9260F00EFB4B6 /* BaseThread.cpp */; };
 /* End PBXBuildFile section */
 
@@ -172,7 +171,6 @@
 		3F5203030FA6624C00E75857 /* Interpreter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Interpreter.cpp; sourceTree = "<group>"; };
 		3F5203040FA6624C00E75857 /* Interpreter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Interpreter.h; sourceTree = "<group>"; };
 		3F5203050FA6624C00E75857 /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Main.cpp; sourceTree = "<group>"; };
-		3F5203070FA6624C00E75857 /* GarbageCollector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GarbageCollector.cpp; sourceTree = "<group>"; };
 		3F5203080FA6624C00E75857 /* GarbageCollector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GarbageCollector.h; sourceTree = "<group>"; };
 		3F5203090FA6624C00E75857 /* PagedHeap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PagedHeap.cpp; sourceTree = "<group>"; };
 		3F52030A0FA6624C00E75857 /* PagedHeap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PagedHeap.h; sourceTree = "<group>"; };
@@ -251,8 +249,8 @@
 		90A52B6C18DF762A000B3D32 /* Thread.som */ = {isa = PBXFileReference; lastKnownFileType = text; path = Thread.som; sourceTree = "<group>"; };
 		90A52B6D18DFB9F8000B3D32 /* ThreadPrioTest.som */ = {isa = PBXFileReference; lastKnownFileType = text; name = ThreadPrioTest.som; path = "../core-lib/TestSuite/nativeThreads/ThreadPrioTest.som"; sourceTree = "<group>"; };
 		90A52B6E18DFB9F8000B3D32 /* ThreadTest.som */ = {isa = PBXFileReference; lastKnownFileType = text; name = ThreadTest.som; path = "../core-lib/TestSuite/nativeThreads/ThreadTest.som"; sourceTree = "<group>"; };
-		90B4A87D18F2029000C437BE /* Page.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Page.h; sourceTree = "<group>"; };
-		90B4A87E18F202AA00C437BE /* Page.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Page.cpp; sourceTree = "<group>"; };
+		90B4A87D18F2029000C437BE /* PauselessPage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PauselessPage.h; sourceTree = "<group>"; };
+		90B4A87E18F202AA00C437BE /* PauselessPage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PauselessPage.cpp; sourceTree = "<group>"; };
 		90D7D49819F9230900EFB4B6 /* BaseThread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BaseThread.h; sourceTree = "<group>"; };
 		90D7D49919F9260F00EFB4B6 /* BaseThread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BaseThread.cpp; sourceTree = "<group>"; };
 		E18AE2800FB1C44700EE6540 /* Array.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Array.som; sourceTree = "<group>"; };
@@ -450,10 +448,9 @@
 			children = (
 				90D7D49919F9260F00EFB4B6 /* BaseThread.cpp */,
 				90D7D49819F9230900EFB4B6 /* BaseThread.h */,
-				3F5203070FA6624C00E75857 /* GarbageCollector.cpp */,
 				3F5203080FA6624C00E75857 /* GarbageCollector.h */,
-				90B4A87E18F202AA00C437BE /* Page.cpp */,
-				90B4A87D18F2029000C437BE /* Page.h */,
+				90B4A87E18F202AA00C437BE /* PauselessPage.cpp */,
+				90B4A87D18F2029000C437BE /* PauselessPage.h */,
 				3F5203090FA6624C00E75857 /* PagedHeap.cpp */,
 				3F52030A0FA6624C00E75857 /* PagedHeap.h */,
 				0A1749A51A6D341D007878D9 /* CopyingCollector.cpp */,
@@ -871,11 +868,10 @@
 				0A8E19DB1A161667004CE22B /* Block.cpp in Sources */,
 				0A1887031832BCFA00A2CBCA /* VMObject.cpp in Sources */,
 				0A8E19E11A161667004CE22B /* Method.cpp in Sources */,
-				90B4A87F18F202AA00C437BE /* Page.cpp in Sources */,
+				90B4A87F18F202AA00C437BE /* PauselessPage.cpp in Sources */,
 				0A1886DC1832BCC800A2CBCA /* BytecodeGenerator.cpp in Sources */,
 				0A1887051832BCFA00A2CBCA /* VMString.cpp in Sources */,
 				0A1749C11A6D341D007878D9 /* MarkSweepHeap.cpp in Sources */,
-				0A1886E61832BCDC00A2CBCA /* GarbageCollector.cpp in Sources */,
 				0A1749BF1A6D341D007878D9 /* GenerationalHeap.cpp in Sources */,
 				0A8E19E31A161667004CE22B /* Object.cpp in Sources */,
 				0A1886F61832BCED00A2CBCA /* Universe.cpp in Sources */,

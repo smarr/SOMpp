@@ -19,11 +19,11 @@ class Interpreter;
 
 using namespace std;
 
-class Page {
+class PauselessPage {
     
 public:
     
-    Page(void* pageStart, PagedHeap* heap);
+    PauselessPage(void* pageStart, PagedHeap* heap);
     
     AbstractVMObject* AllocateObject(size_t size ALLOC_OUTSIDE_NURSERY_DECL ALLOC_NON_RELOCATABLE_DECL);
     void ClearPage();
@@ -59,7 +59,7 @@ private:
     void* volatile nextFreePosition;
     PagedHeap* heap;
     
-    Page* nonRelocatablePage;
+    PauselessPage* nonRelocatablePage;
         
 #if GC_TYPE==PAUSELESS
     bool blocked;

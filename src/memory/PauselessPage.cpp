@@ -6,7 +6,7 @@
 //
 //
 
-#include "Page.h"
+
 #include <vmobjects/AbstractObject.h>
 #include <vm/Universe.h>
 #include <interpreter/Interpreter.h>
@@ -15,7 +15,7 @@
 #include <misc/defs.h>
 
 
-Page::Page(void* pageStart, PagedHeap* heap) {
+PauselessPage::PauselessPage(void* pageStart, PagedHeap* heap) {
     this->heap = heap;
     this->nextFreePosition = pageStart;
     this->pageStart = (size_t)pageStart;
@@ -23,19 +23,18 @@ Page::Page(void* pageStart, PagedHeap* heap) {
     treshold = (void*)((size_t)pageStart + ((size_t)(PAGE_SIZE * 0.9)));
 }
 
-AbstractVMObject* Page::allocate(size_t size) {
+AbstractVMObject* PauselessPage::allocate(size_t size) {
     AbstractVMObject* newObject = (AbstractVMObject*) nextFreePosition;
     nextFreePosition = (void*)((size_t)nextFreePosition + size);
-#if GC_TYPE==PAUSELESS
+
     if ((size_t)nextFreePosition > pageEnd) {
         sync_out(ostringstream() << "Failed to allocate " << size << " Bytes in page.");
         GetUniverse()->Quit(-1);
     }
-#endif
     return newObject;
 }
 
-AbstractVMObject* Page::allocateNonRelocatable(size_t size) {
+AbstractVMObject* PauselessPage::allocateNonRelocatable(size_t size) {
     assert(nonRelocatablePage != nullptr);
     AbstractVMObject* newObject = nonRelocatablePage->allocate(size);
     if (nonRelocatablePage->isFull()) {
@@ -46,16 +45,18 @@ AbstractVMObject* Page::allocateNonRelocatable(size_t size) {
     return newObject;
 }
 
-AbstractVMObject* Page::AllocateObject(size_t size ALLOC_OUTSIDE_NURSERY_DECLpp ALLOC_NON_RELOCATABLE_DECLpp) {
+AbstractVMObject* PauselessPage::AllocateObject(size_t size ALLOC_OUTSIDE_NURSERY_DECLpp ALLOC_NON_RELOCATABLE_DECLpp) {
     if (nonRelocatable) {
         return allocateNonRelocatable(size);
     }
     
-    AbstractVMObject* newObject = allocate(size);
-    
-    if (isFull()) {
+    AbstractVMObject* newObject = (AbstractVMObject*) nextFreePosition;
+    nextFreePosition = (void*)((size_t)nextFreePosition + size);
+
+    if ((size_t)nextFreePosition > pageEnd) {
+        nextFreePosition = (void*)((size_t)nextFreePosition - size); // reset pointer
+        
         heap->RelinquishPage(this);
-#warning might not work on GC threads!!!!
         Page* newPage = heap->RequestPage();
         GetUniverse()->GetInterpreter()->SetPage(newPage);
         newPage->SetNonRelocatablePage(nonRelocatablePage);
@@ -64,12 +65,12 @@ AbstractVMObject* Page::AllocateObject(size_t size ALLOC_OUTSIDE_NURSERY_DECLpp 
     return newObject;
 }
 
-void Page::ClearPage() {
+void PauselessPage::ClearPage() {
     nextFreePosition = (void*) pageStart;
 }
 
 #if GC_TYPE==PAUSELESS
-void Page::Block() {
+void PauselessPage::Block() {
     blocked = true;
     sideArray = new std::atomic<AbstractVMObject*>[PAGE_SIZE / 8];
     for (int i=0; i < (PAGE_SIZE / 8); i++) {
@@ -77,14 +78,14 @@ void Page::Block() {
     }
 }
 
-void Page::UnBlock() {
+void PauselessPage::UnBlock() {
     assert(blocked == true);
     memset((void*)pageStart, 0xa, PAGE_SIZE);
     blocked = false;
     delete [] sideArray;
 }
 
-AbstractVMObject* Page::LookupNewAddress(AbstractVMObject* oldAddress, Interpreter* thread) {
+AbstractVMObject* PauselessPage::LookupNewAddress(AbstractVMObject* oldAddress, Interpreter* thread) {
     long position = ((size_t)oldAddress - pageStart)/8;
     if (!sideArray[position]) {
         AbstractVMObject* newLocation = oldAddress->Clone(this);
@@ -98,7 +99,7 @@ AbstractVMObject* Page::LookupNewAddress(AbstractVMObject* oldAddress, Interpret
     return sideArray[position];
 }
 
-AbstractVMObject* Page::LookupNewAddress(AbstractVMObject* oldAddress, PauselessCollectorThread* thread) {
+AbstractVMObject* PauselessPage::LookupNewAddress(AbstractVMObject* oldAddress, PauselessCollectorThread* thread) {
     long position = ((size_t)oldAddress - pageStart)/8;
     if (!sideArray[position]) {
         AbstractVMObject* newLocation = oldAddress->Clone(this);
@@ -112,25 +113,25 @@ AbstractVMObject* Page::LookupNewAddress(AbstractVMObject* oldAddress, Pauseless
     return sideArray[position];
 }
 
-void Page::AddAmountLiveData(size_t objectSize) {
+void PauselessPage::AddAmountLiveData(size_t objectSize) {
     //pthread_mutex_lock
     amountLiveData += objectSize;
     //pthread_mutex_unlock
 }
 
-double Page::GetPercentageLiveData() {
+double PauselessPage::GetPercentageLiveData() {
     return amountLiveData / PAGE_SIZE;
 }
 
-void Page::ResetAmountOfLiveData() {
+void PauselessPage::ResetAmountOfLiveData() {
     amountLiveData = 0;
 }
 
-void Page::Free(size_t numBytes) {
+void PauselessPage::Free(size_t numBytes) {
     nextFreePosition = (void*)((size_t)nextFreePosition - numBytes);
 }
 
-void Page::RelocatePage() {
+void PauselessPage::RelocatePage() {
     PauselessCollectorThread* thread = _HEAP->GetGCThread();
     for (AbstractVMObject* currentObject = (AbstractVMObject*) pageStart;
          (size_t) currentObject < (size_t) nextFreePosition;

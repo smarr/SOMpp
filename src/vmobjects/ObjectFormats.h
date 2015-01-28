@@ -157,7 +157,3 @@ class GCThread    : public GCObject      { public: typedef VMThread Loaded; };
 
   #define store_ptr(field, val) field = _store_ptr(val); write_barrier(this, val)
 #endif
-
-
-#include <memory/Page.h>
-typedef gc_oop_t (*walk_heap_fn)(gc_oop_t, Page*);

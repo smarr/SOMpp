@@ -67,7 +67,7 @@ void PauselessCollector::MarkObject(vm_oop_t oop, Worklist* worklist) {
 }
 
 
-PauselessCollector::PauselessCollector(PagedHeap* heap, int numberOfGCThreads) : GarbageCollector(heap) {
+PauselessCollector::PauselessCollector(PauselessHeap* heap, int numberOfGCThreads) : GarbageCollector<PauselessHeap>(heap) {
        
     this->numberOfGCThreads = numberOfGCThreads;
     

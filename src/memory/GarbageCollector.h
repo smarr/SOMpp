@@ -26,20 +26,12 @@
  THE SOFTWARE.
  */
 
-#include "../vmobjects/ObjectFormats.h"
-#include "../misc/defs.h"
-
-class PagedHeap;
-
+template <class HEAP_T>
 class GarbageCollector {
 public:
-    GarbageCollector(PagedHeap* h);
-    virtual ~GarbageCollector();
+    GarbageCollector(HEAP_T* h) : heap(h) {}
     void PrintGCStat() const;
     void PrintCollectStat() const;
-    void AddCycle();
-    int GetNumberOfCycles();
 protected:
-    PagedHeap* heap;
-    int numberOfCycles;
+    HEAP_T* const heap;
 };
