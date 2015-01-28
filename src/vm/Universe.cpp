@@ -1100,12 +1100,16 @@ VMClass* Universe::NewSystemClass(Page* page) const {
 VMCondition* Universe::NewCondition(VMMutex* mutex, Page* page) const {
     VMCondition* cond = new (page) VMCondition(mutex->GetLock());
     cond->SetClass(load_ptr(conditionClass));
+
+    LOG_ALLOCATION("VMCondition", sizeof(VMCondition));
     return cond;
 }
 
 VMMutex* Universe::NewMutex(Page* page) const {
     VMMutex* mutex = new (page) VMMutex();
     mutex->SetClass(load_ptr(mutexClass));
+
+    LOG_ALLOCATION("VMMutex", sizeof(VMMutex));
     return mutex;
 }
 
@@ -1117,6 +1121,7 @@ VMThread* Universe::NewThread(VMBlock* block, vm_oop_t arguments, Page* page) {
     thread* thread = new std::thread(&Universe::startInterpreterInThread, this, threadObj, block, arguments);
     threadObj->SetThread(thread);
 
+    LOG_ALLOCATION("VMThread", sizeof(VMThread));
     return threadObj;
 }
 
