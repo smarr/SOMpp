@@ -7,14 +7,12 @@
 
 #include "AbstractObject.h"
 
+#include <interpreter/Interpreter.inline.h>
 #include <vm/Universe.h>
 
 #include "VMFrame.h"
 #include "VMClass.h"
 #include "VMInvokable.h"
-
-#include <interpreter/Interpreter.inline.h>
-
 
 intptr_t AbstractVMObject::GetHash() {
     return reinterpret_cast<intptr_t>(this);

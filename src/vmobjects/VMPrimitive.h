@@ -43,7 +43,6 @@ public:
     inline  bool IsEmpty() const;
     inline  void SetRoutine(PrimitiveRoutine* rtn);
             void SetEmpty(bool value) {empty = value;};
-
     virtual VMPrimitive* Clone(Page*);
 
 #if GC_TYPE==PAUSELESS

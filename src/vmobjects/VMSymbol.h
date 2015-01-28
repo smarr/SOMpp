@@ -41,10 +41,8 @@ public:
     VMSymbol(const StdString& s);
     virtual StdString GetPlainString() const;
     virtual size_t GetObjectSize() const;
-    virtual VMClass* GetClass();
-    
     virtual VMSymbol* Clone(Page*);
-
+    virtual VMClass* GetClass();
 
 #if GC_TYPE==PAUSELESS
     //virtual void MarkReferences();

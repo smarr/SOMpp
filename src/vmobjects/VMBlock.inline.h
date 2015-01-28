@@ -7,4 +7,3 @@ void VMBlock::SetContext(VMFrame* contxt) {
 VMFrame* VMBlock::GetContext() {
     return load_ptr(context);
 }
-
