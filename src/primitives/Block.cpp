@@ -67,7 +67,6 @@ void _Block::Spawn_(Interpreter* interp, VMFrame* frame) {
     frame->Push(thread);
 }
 
-
 _Block::_Block() : PrimitiveContainer() {
     SetPrimitive("value",       new Routine<_Block>(this, &_Block::Value,       false));
     SetPrimitive("restart",     new Routine<_Block>(this, &_Block::Restart,     false));
@@ -77,4 +76,3 @@ _Block::_Block() : PrimitiveContainer() {
     SetPrimitive("spawn_",      new Routine<_Block>(this, &_Block::Spawn_, false));
     SetPrimitive("spawn",       new Routine<_Block>(this, &_Block::Spawn,  false));
 }
-

@@ -46,7 +46,7 @@ public:
     
     virtual void WalkObjects(walk_heap_fn, Page*);
     virtual StdString AsDebugString();
-    
+
 private:
     const int numberOfArgumentsOfSignature;
     const GCClass* cachedClass_invokable[3];
