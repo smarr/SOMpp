@@ -4,13 +4,13 @@ inline long VMMethod::GetNumberOfLocals() {
     return INT_VAL(load_ptr(numberOfLocals));
 }
 
-long VMMethod::GetNumberOfIndexableFields() {
+inline long VMMethod::GetNumberOfIndexableFields() {
     //cannot be done using GetAdditionalSpaceConsumption,
     //as bytecodes need space, too, and there might be padding
-    return INT_VAL(load_ptr(this->numberOfConstants));
+    return INT_VAL(load_ptr(numberOfConstants));
 }
 
-uint8_t* VMMethod::GetBytecodes() const {
+inline uint8_t* VMMethod::GetBytecodes() const {
     return bytecodes;
 }
 
@@ -24,18 +24,18 @@ inline  long VMMethod::GetNumberOfArgumentsGC() {
 }
 #endif
 
-vm_oop_t VMMethod::GetIndexableField(long idx) {
+inline vm_oop_t VMMethod::GetIndexableField(long idx) {
     return load_ptr(indexableFields[idx]);
 }
 
-void VMMethod::SetIndexableField(long idx, vm_oop_t item) {
+inline void VMMethod::SetIndexableField(long idx, vm_oop_t item) {
     store_ptr(indexableFields[idx], item);
 }
 
-uint8_t VMMethod::GetBytecode(long indx) const {
+inline uint8_t VMMethod::GetBytecode(long indx) const {
     return bytecodes[indx];
 }
 
-void VMMethod::SetBytecode(long indx, uint8_t val) {
+inline void VMMethod::SetBytecode(long indx, uint8_t val) {
     bytecodes[indx] = val;
 }
