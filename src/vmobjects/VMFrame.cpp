@@ -50,13 +50,7 @@ VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength, Page* page
                     + extraLength;
 
     long additionalBytes = length * sizeof(VMObject*);
-#if GC_TYPE==GENERATIONAL
-    VMFrame* result = new (_HEAP, _PAGE, additionalBytes) VMFrame(length);
-#elif GC_TYPE==PAUSELESS
     VMFrame* result = new (page, additionalBytes) VMFrame(length);
-#else
-    VMFrame* result = new (_HEAP, additionalBytes) VMFrame(length);
-#endif
 
     result->clazz = nullptr; // result->SetClass(from->GetClass());
 

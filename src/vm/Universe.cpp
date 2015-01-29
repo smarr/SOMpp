@@ -347,13 +347,7 @@ void Universe::initialize(long _argc, char** _argv) {
 #if CACHE_INTEGER
     //create prebuilt integers
     for (long it = INT_CACHE_MIN_VALUE; it <= INT_CACHE_MAX_VALUE; ++it) {
-#if GC_TYPE==GENERATIONAL
-        prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = new (_HEAP, _PAGE) VMInteger(it);
-#elif GC_TYPE==PAUSELESS
         prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = new (page) VMInteger(it);
-#else
-        prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = new (_HEAP) VMInteger(it);
-#endif
     }
 #endif
 
@@ -523,88 +517,34 @@ Universe::~Universe() {
     }
 
     static void obtain_vtables_of_known_classes(VMSymbol* className, Page* page) {
-#if GC_TYPE==GENERATIONAL
-        VMArray* arr  = new (_HEAP, _PAGE) VMArray(0, 0);
-#elif GC_TYPE==PAUSELESS
         VMArray* arr  = new (page) VMArray(0, 0);
-#else
-        VMArray* arr  = new (_HEAP) VMArray(0, 0);
-#endif
         vt_array      = *(void**) arr;
         
-#if GC_TYPE==GENERATIONAL
-        VMBlock* blck = new (_HEAP, _PAGE) VMBlock();
-#elif GC_TYPE==PAUSELESS
         VMBlock* blck = new (page) VMBlock();
-#else
-        VMBlock* blck = new (_HEAP) VMBlock();
-#endif
         vt_block      = *(void**) blck;
         
         vt_class      = *(void**) symbolClass;
         
-#if GC_TYPE==GENERATIONAL
-        VMDouble* dbl = new (_HEAP, _PAGE) VMDouble(0.0);
-#elif GC_TYPE==PAUSELESS
         VMDouble* dbl = new (page) VMDouble(0.0);
-#else
-        VMDouble* dbl = new (_HEAP) VMDouble(0.0);
-#endif
         vt_double     = *(void**) dbl;
         
-#if GC_TYPE==GENERATIONAL
-        VMEvaluationPrimitive* ev = new (_HEAP, _PAGE) VMEvaluationPrimitive(1);
-#elif GC_TYPE==PAUSELESS
         VMEvaluationPrimitive* ev = new (page) VMEvaluationPrimitive(1, page);
-#else
-        VMEvaluationPrimitive* ev = new (_HEAP) VMEvaluationPrimitive(1);
-#endif
         vt_eval_primitive = *(void**) ev;
         
-#if GC_TYPE==GENERATIONAL
-        VMFrame* frm  = new (_HEAP, _PAGE) VMFrame(0, 0);
-#elif GC_TYPE==PAUSELESS
         VMFrame* frm  = new (page) VMFrame(0, 0);
-#else
-        VMFrame* frm  = new (_HEAP) VMFrame(0, 0);
-#endif
         vt_frame      = *(void**) frm;
         
-#if GC_TYPE==GENERATIONAL
-        VMInteger* i  = new (_HEAP, _PAGE) VMInteger(0);
-#elif GC_TYPE==PAUSELESS
         VMInteger* i  = new (page) VMInteger(0);
-#else
-        VMInteger* i  = new (_HEAP) VMInteger(0);
-#endif
         vt_integer    = *(void**) i;
         
-#if GC_TYPE==GENERATIONAL
-        VMMethod* mth = new (_HEAP, _PAGE) VMMethod(0, 0, 0);
-#elif GC_TYPE==PAUSELESS
         VMMethod* mth = new (page) VMMethod(0, 0, 0, page);
-#else
-        VMMethod* mth = new (_HEAP) VMMethod(0, 0, 0);
-#endif
         vt_method     = *(void**) mth;
         vt_object     = *(void**) nilObject;
         
-#if GC_TYPE==GENERATIONAL
-        VMPrimitive* prm = new (_HEAP, _PAGE) VMPrimitive(className);
-#elif GC_TYPE==PAUSELESS
         VMPrimitive* prm = new (page) VMPrimitive(className);
-#else
-        VMPrimitive* prm = new (_HEAP) VMPrimitive(className);
-#endif
         vt_primitive  = *(void**) prm;
         
-#if GC_TYPE==GENERATIONAL
-        VMString* str = new (_HEAP, _PAGE, PADDED_SIZE(7)) VMString("foobar");
-#elif GC_TYPE==PAUSELESS
         VMString* str = new (page) VMString("");
-#else
-        VMString* str = new (_HEAP, PADDED_SIZE(7)) VMString("foobar");
-#endif
         vt_string     = *(void**) str;
         vt_symbol     = *(void**) className;
         
@@ -612,15 +552,9 @@ Universe::~Universe() {
         vt_condition  = *(void**) cond;
 
         VMMutex* mutex = new (page) VMMutex();
-        vt_mutex       = *(void**) mutex;
+        vt_mutex      = *(void**) mutex;
 
-#if GC_TYPE==GENERATIONAL
-        VMThread* thr = new (_HEAP, _PAGE) VMThread();
-#elif GC_TYPE==PAUSELESS
         VMThread* thr = new (page) VMThread();
-#else
-        VMThread* thr = new (_HEAP) VMThread();
-#endif
         vt_thread     = *(void**) thr;
         
     }
@@ -632,13 +566,7 @@ VMObject* Universe::InitializeGlobals(Page* page) {
     //
     //allocate nil object
     //
-#if GC_TYPE==GENERATIONAL
-    VMObject* nil = new (_HEAP, _PAGE) VMObject;
-#elif GC_TYPE==PAUSELESS
-    VMObject* nil = new (page) VMObject;
-#else
-    VMObject* nil = new (_HEAP) VMObject;
-#endif
+    VMObject* nil = new (page, 0 ALLOC_MATURE ALLOC_NON_RELOCATABLE) VMObject;
     nilObject = _store_ptr(nil);
     nil->SetClass((VMClass*) nil);
 
@@ -752,13 +680,7 @@ VMClass* Universe::GetBlockClassWithArgs(long numberOfArguments, Page* page) {
     VMSymbol* name = SymbolFor(Str.str(), page);
     VMClass* result = LoadClassBasic(name, nullptr, page);
 
-#if GC_TYPE==GENERATIONAL
-    result->AddInstancePrimitive(new (_HEAP, _PAGE) VMEvaluationPrimitive(numberOfArguments) );
-#elif GC_TYPE==PAUSELESS
-    result->AddInstancePrimitive(new (page, 0, true) VMEvaluationPrimitive(numberOfArguments, page), page);
-#else
-    result->AddInstancePrimitive(new (_HEAP) VMEvaluationPrimitive(numberOfArguments) );
-#endif
+    result->AddInstancePrimitive(new (page, 0 ALLOC_MATURE ALLOC_NON_RELOCATABLE) VMEvaluationPrimitive(numberOfArguments, page), page);
 
     SetGlobal(name, result);
 # warning is _store_ptr sufficient here?
@@ -921,19 +843,20 @@ void Universe::LoadSystemClass(VMClass* systemClass, Page* page) {
 VMArray* Universe::NewArray(long size, Page* page) const {
     long additionalBytes = size * sizeof(VMObject*);
     
-#if GC_TYPE==GENERATIONAL
+    bool outsideNursery;
+    
+#if GC_TYPE == GENERATIONAL
+#warning TODO: is it worth to move that into the allocation routine?\
+    then the page would do it for all objects (overhead), but it would also be\
+    benefitial, for uniformity, and large objects.
     // if the array is too big for the nursery, we will directly allocate a
     // mature object
-    bool outsideNursery = additionalBytes + sizeof(VMArray) > _HEAP->GetMaxObjectSize();
-
-    VMArray* result = new (_HEAP, _PAGE, additionalBytes, outsideNursery) VMArray(size);
-    if (outsideNursery)
-        result->SetGCField(MASK_OBJECT_IS_OLD);
-#elif GC_TYPE==PAUSELESS
-    VMArray* result = new (page, additionalBytes) VMArray(size);
-#else
-    VMArray* result = new (_HEAP, additionalBytes) VMArray(size);
+    outsideNursery = additionalBytes + sizeof(VMArray) > page->GetMaxObjectSize();
 #endif
+
+    VMArray* result = new (page, additionalBytes ALLOC_OUTSIDE_NURSERY(outsideNursery) ALLOC_RELOCATABLE) VMArray(size);
+    if ((GC_TYPE == GENERATIONAL) && outsideNursery)
+        result->SetGCField(MASK_OBJECT_IS_OLD);
 
     result->SetClass(load_ptr(arrayClass));
     
@@ -977,13 +900,7 @@ VMArray* Universe::NewArrayList(ExtendedList<vm_oop_t>& list, Page* page) const 
 }
 
 VMBlock* Universe::NewBlock(VMMethod* method, VMFrame* context, long arguments, Page* page) {
-#if GC_TYPE==GENERATIONAL
-    VMBlock* result = new (_HEAP, _PAGE) VMBlock;
-#elif GC_TYPE==PAUSELESS
     VMBlock* result = new (page) VMBlock;
-#else
-    VMBlock* result = new (_HEAP) VMBlock;
-#endif
     result->SetClass(GetBlockClassWithArgs(arguments, page));
 
     result->SetMethod(method);
@@ -997,22 +914,7 @@ VMClass* Universe::NewClass(VMClass* classOfClass, Page* page) const {
     long numFields = classOfClass->GetNumberOfInstanceFields();
     VMClass* result;
     long additionalBytes = numFields * sizeof(VMObject*);
-    if (numFields)
-#if GC_TYPE==GENERATIONAL
-    result = new (_HEAP, _PAGE, additionalBytes) VMClass(numFields);
-#elif GC_TYPE==PAUSELESS
-    result = new (page, additionalBytes, true) VMClass(numFields);
-#else
-    result = new (_HEAP, additionalBytes) VMClass(numFields);
-#endif
-    else
-#if GC_TYPE==GENERATIONAL
-        result = new (_HEAP, _PAGE) VMClass;
-#elif GC_TYPE==PAUSELESS
-        result = new (page, 0, true) VMClass;
-#else
-        result = new (_HEAP) VMClass;
-#endif
+    result = new (page, additionalBytes ALLOC_MATURE ALLOC_NON_RELOCATABLE) VMClass(numFields);
 
     result->SetClass(classOfClass);
 
@@ -1022,13 +924,7 @@ VMClass* Universe::NewClass(VMClass* classOfClass, Page* page) const {
 
 VMDouble* Universe::NewDouble(double value, Page* page) const {
     LOG_ALLOCATION("VMDouble", sizeof(VMDouble));
-#if GC_TYPE==GENERATIONAL
-    return new (_HEAP, _PAGE) VMDouble(value);
-#elif GC_TYPE==PAUSELESS
     return new (page) VMDouble(value);
-#else
-    return new (_HEAP) VMDouble(value);
-#endif
 }
 
 VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method, Page* page) const {
@@ -1050,13 +946,7 @@ VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method, Page* page
                   method->GetMaximumNumberOfStackElements();
 
     long additionalBytes = length * sizeof(VMObject*);
-#if GC_TYPE==GENERATIONAL
-    result = new (_HEAP, _PAGE, additionalBytes) VMFrame(length);
-#elif GC_TYPE==PAUSELESS
     result = new (page, additionalBytes) VMFrame(length);
-#else
-    result = new (_HEAP, additionalBytes) VMFrame(length);
-#endif
     result->clazz = nullptr;
 # warning I think _store_ptr is sufficient here, but...
     result->method        = _store_ptr(method);
@@ -1071,13 +961,7 @@ VMObject* Universe::NewInstance(VMClass* classOfInstance, Page* page) const {
     long numOfFields = classOfInstance->GetNumberOfInstanceFields();
     //the additional space needed is calculated from the number of fields
     long additionalBytes = numOfFields * sizeof(VMObject*);
-#if GC_TYPE==GENERATIONAL
-    VMObject* result = new (_HEAP, _PAGE, additionalBytes) VMObject(numOfFields);
-#elif GC_TYPE==PAUSELESS
     VMObject* result = new (page, additionalBytes) VMObject(numOfFields);
-#else
-    VMObject* result = new (_HEAP, additionalBytes) VMObject(numOfFields);
-#endif
     result->SetClass(classOfInstance);
 
     LOG_ALLOCATION(classOfInstance->GetName()->GetStdString(), result->GetObjectSize());
@@ -1098,26 +982,12 @@ VMInteger* Universe::NewInteger(int64_t value, Page* page) const {
 #endif
 
     LOG_ALLOCATION("VMInteger", sizeof(VMInteger));
-#if GC_TYPE==GENERATIONAL
-    return new (_HEAP, _PAGE) VMInteger(value);
-#elif GC_TYPE==PAUSELESS
     return new (page) VMInteger(value);
-#else
-    return new (_HEAP) VMInteger(value);
-#endif
 }
 
 VMClass* Universe::NewMetaclassClass(Page* page) const {
-#if GC_TYPE==GENERATIONAL
-    VMClass* result = new (_HEAP, _PAGE) VMClass;
-    result->SetClass(new (_HEAP, _PAGE) VMClass);
-#elif GC_TYPE==PAUSELESS
-    VMClass* result = new (page, 0, true) VMClass;
-    result->SetClass(new (page, 0, true) VMClass);
-#else
-    VMClass* result = new (_HEAP) VMClass;
-    result->SetClass(new (_HEAP) VMClass);
-#endif
+    VMClass* result = new (page, 0 ALLOC_MATURE ALLOC_NON_RELOCATABLE) VMClass;
+    result->SetClass( new (page, 0 ALLOC_MATURE ALLOC_NON_RELOCATABLE) VMClass);
     VMClass* mclass = result->GetClass();
     mclass->SetClass(result);
 
@@ -1349,13 +1219,7 @@ VMMethod* Universe::NewMethod(VMSymbol* signature,
     //Method needs space for the bytecodes and the pointers to the constants
     long additionalBytes = numberOfBytecodes + numberOfConstants*sizeof(VMObject*);
 
-#if GC_TYPE==GENERATIONAL
-    VMMethod* result = new (_HEAP, _PAGE, additionalBytes)
-#elif GC_TYPE==PAUSELESS
-    VMMethod* result = new (page, additionalBytes, true)
-#else
-    VMMethod* result = new (_HEAP,additionalBytes)
-#endif
+    VMMethod* result = new (page, additionalBytes ALLOC_MATURE ALLOC_NON_RELOCATABLE)
                 VMMethod(numberOfBytecodes, numberOfConstants, 0, page);
 
     result->SetClass(load_ptr(methodClass));
@@ -1370,13 +1234,7 @@ VMString* Universe::NewString(const StdString& str, Page* page) const {
 }
 
 VMString* Universe::NewString(const char* str, Page* page) const {
-#if GC_TYPE==GENERATIONAL
-    VMString* result = new (_HEAP, _PAGE, PADDED_SIZE(strlen(str) + 1)) VMString(str);
-#elif GC_TYPE==PAUSELESS
     VMString* result = new (page, PADDED_SIZE(strlen(str) + 1)) VMString(str);
-#else
-    VMString* result = new (_HEAP, PADDED_SIZE(strlen(str) + 1)) VMString(str);
-#endif
 
     LOG_ALLOCATION("VMString", result->GetObjectSize());
     return result;
@@ -1387,13 +1245,7 @@ VMSymbol* Universe::NewSymbol(const StdString& str, Page* page) {
 }
 
 VMSymbol* Universe::NewSymbol(const char* str, Page* page) {
-#if GC_TYPE==GENERATIONAL
-    VMSymbol* result = new (_HEAP, _PAGE, PADDED_SIZE(strlen(str)+1)) VMSymbol(str);
-#elif GC_TYPE==PAUSELESS
-    VMSymbol* result = new (page, PADDED_SIZE(strlen(str)+1), true) VMSymbol(str);
-#else
-    VMSymbol* result = new (_HEAP, PADDED_SIZE(strlen(str)+1)) VMSymbol(str);
-#endif
+    VMSymbol* result = new (page, PADDED_SIZE(strlen(str)+1) ALLOC_MATURE ALLOC_NON_RELOCATABLE) VMSymbol(str);
     symbolsMap[str] = _store_ptr(result);
 
     LOG_ALLOCATION("VMSymbol", result->GetObjectSize());
@@ -1401,16 +1253,8 @@ VMSymbol* Universe::NewSymbol(const char* str, Page* page) {
 }
 
 VMClass* Universe::NewSystemClass(Page* page) const {
-#if GC_TYPE==GENERATIONAL
-    VMClass* systemClass = new (_HEAP, _PAGE) VMClass();
-    systemClass->SetClass(new (_HEAP, _PAGE) VMClass());
-#elif GC_TYPE==PAUSELESS
-    VMClass* systemClass = new (page, 0, true) VMClass();
-    systemClass->SetClass(new (page, 0, true) VMClass());
-#else
-    VMClass* systemClass = new (_HEAP) VMClass();
-    systemClass->SetClass(new (_HEAP) VMClass());
-#endif
+    VMClass* systemClass = new (page, 0 ALLOC_MATURE ALLOC_NON_RELOCATABLE) VMClass();
+    systemClass->SetClass( new (page, 0 ALLOC_MATURE ALLOC_NON_RELOCATABLE) VMClass());
 
     VMClass* mclass = systemClass->GetClass();
 
@@ -1429,13 +1273,7 @@ VMCondition* Universe::NewCondition(VMMutex* mutex, Page* page) const {
 }
 
 VMMutex* Universe::NewMutex(Page* page) const {
-#if GC_TYPE==GENERATIONAL
-    VMMutex* mutex = new (_HEAP, _PAGE) VMMutex();
-#elif GC_TYPE==PAUSELESS
     VMMutex* mutex = new (page) VMMutex();
-#else
-    VMMutex* mutex = new (_HEAP) VMMutex();
-#endif
     mutex->SetClass(load_ptr(mutexClass));
 
     LOG_ALLOCATION("VMMutex", sizeof(VMMutex));
@@ -1443,14 +1281,7 @@ VMMutex* Universe::NewMutex(Page* page) const {
 }
 
 VMThread* Universe::NewThread(VMBlock* block, vm_oop_t arguments, Interpreter* interp) {
-#if GC_TYPE==GENERATIONAL
-    VMThread* threadObj = new (_HEAP, _PAGE) VMThread();
-#elif GC_TYPE==PAUSELESS
     VMThread* threadObj = new (interp->GetPage()) VMThread();
-#else
-    VMThread* threadObj = new (_HEAP) VMThread();
-#endif
-
     threadObj->SetClass(load_ptr(threadClass));
 
 #if GC_TYPE != PAUSELESS

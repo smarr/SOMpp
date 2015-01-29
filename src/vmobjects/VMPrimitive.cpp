@@ -36,13 +36,7 @@
 #include <primitivesCore/Routine.h>
 
 VMPrimitive* VMPrimitive::GetEmptyPrimitive(VMSymbol* sig, bool classSide, Page* page) {
-#if GC_TYPE==GENERATIONAL
-    VMPrimitive* prim = new (_HEAP, _PAGE) VMPrimitive(sig);
-#elif GC_TYPE==PAUSELESS
-    VMPrimitive* prim = new (page, 0, true) VMPrimitive(sig);
-#else
-    VMPrimitive* prim = new (_HEAP) VMPrimitive(sig);
-#endif
+    VMPrimitive* prim = new (page, 0 ALLOC_YOUNG ALLOC_NON_RELOCATABLE) VMPrimitive(sig);
     prim->empty = true;
     prim->SetRoutine(new Routine<VMPrimitive>(prim, &VMPrimitive::EmptyRoutine, classSide));
     return prim;
