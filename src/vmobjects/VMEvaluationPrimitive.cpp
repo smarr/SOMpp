@@ -94,12 +94,14 @@ void VMEvaluationPrimitive::MarkObjectAsInvalid() {
 void VMEvaluationPrimitive::MarkReferences() {
     VMPrimitive::MarkReferences();
     ReadBarrierForGCThread(&numberOfArguments);
+    static_cast<EvaluationRoutine*>(routine)->WalkObjects(walk, page);
 }
 void VMEvaluationPrimitive::CheckMarking(void (*walk)(vm_oop_t)) {
     VMPrimitive::CheckMarking(walk);
     assert(GetNMTValue(numberOfArguments) == _HEAP->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(numberOfArguments));
     walk(Untag(numberOfArguments));
+    static_cast<EvaluationRoutine*>(routine)->WalkObjects(walk, page);
 }
 #else
 void VMEvaluationPrimitive::WalkObjects(walk_heap_fn walk, Page* page) {
