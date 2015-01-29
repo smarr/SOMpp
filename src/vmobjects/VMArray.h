@@ -39,7 +39,7 @@ public:
     virtual void MarkReferences();
     virtual void CheckMarking(void (vm_oop_t));
 #else
-    virtual void WalkObjects(walk_heap_fn);
+    virtual void WalkObjects(walk_heap_fn, Page*);
 #endif
 
     inline  long GetNumberOfIndexableFields() const;

@@ -78,7 +78,7 @@ public:
     // for debugging purposes
     void         CheckMarking(void (vm_oop_t));
 #else
-    void      WalkGlobals(walk_heap_fn);
+    void      WalkGlobals(walk_heap_fn, Page*);
 #endif
     
 private:

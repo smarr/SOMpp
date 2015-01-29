@@ -80,6 +80,69 @@ void VMMethod::SetSignature(VMSymbol* sig, Page* page) {
     SetNumberOfArguments(Signature::GetNumberOfArguments(sig), page);
 }
 
+#if GC_TYPE==PAUSELESS
+void VMMethod::MarkReferences() {
+    VMInvokable::MarkReferences();
+    
+    ReadBarrierForGCThread(&numberOfLocals);
+    ReadBarrierForGCThread(&maximumNumberOfStackElements);
+    ReadBarrierForGCThread(&bcLength);
+    ReadBarrierForGCThread(&numberOfArguments);
+    long numIndexableFields = INT_VAL(ReadBarrierForGCThread(&numberOfConstants));
+    
+    for (long i = 0; i < numIndexableFields; ++i) {
+        ReadBarrierForGCThread(&indexableFields[i]);
+    }
+}
+void VMMethod::CheckMarking(void (*walk)(vm_oop_t)) {
+    VMInvokable::CheckMarking(walk);
+    assert(GetNMTValue(numberOfLocals) == _HEAP->GetGCThread()->GetExpectedNMT());
+    CheckBlocked(Untag(numberOfLocals));
+    walk(Untag(numberOfLocals));
+    assert(GetNMTValue(maximumNumberOfStackElements) == _HEAP->GetGCThread()->GetExpectedNMT());
+    CheckBlocked(Untag(maximumNumberOfStackElements));
+    walk(Untag(maximumNumberOfStackElements));
+    assert(GetNMTValue(bcLength) == _HEAP->GetGCThread()->GetExpectedNMT());
+    CheckBlocked(Untag(bcLength));
+    walk(Untag(bcLength));
+    assert(GetNMTValue(numberOfArguments) == _HEAP->GetGCThread()->GetExpectedNMT());
+    CheckBlocked(Untag(numberOfArguments));
+    walk(Untag(numberOfArguments));
+    assert(GetNMTValue(numberOfConstants) == _HEAP->GetGCThread()->GetExpectedNMT());
+    CheckBlocked(Untag(numberOfConstants));
+    walk(Untag(numberOfConstants));
+    long numIndexableFields = INT_VAL(Untag(numberOfConstants));
+    for (long i = 0; i < numIndexableFields; ++i) {
+        assert(GetNMTValue(indexableFields[i]) == _HEAP->GetGCThread()->GetExpectedNMT());
+        CheckBlocked(Untag(indexableFields[i]));
+        walk(Untag(indexableFields[i]));
+    }
+}
+#else
+void VMMethod::WalkObjects(walk_heap_fn walk, Page* page) {
+    VMInvokable::WalkObjects(walk, page);
+
+    numberOfLocals    = walk(numberOfLocals, page);
+    maximumNumberOfStackElements = walk(maximumNumberOfStackElements, page);
+    bcLength          = walk(bcLength, page);
+    numberOfArguments = walk(numberOfArguments, page);
+    numberOfConstants = walk(numberOfConstants, page);
+
+    /*
+#ifdef UNSAFE_FRAME_OPTIMIZATION
+    if (cachedFrame != nullptr)
+        cachedFrame = static_cast<VMFrame*>(walk(cachedFrame, page));
+#endif
+     */
+
+    long numIndexableFields = GetNumberOfIndexableFields();
+    for (long i = 0; i < numIndexableFields; ++i) {
+        if (GetIndexableField(i) != nullptr)
+            indexableFields[i] = (GCAbstractObject*) walk(indexableFields[i], page);
+    }
+}
+#endif
+
 #ifdef UNSAFE_FRAME_OPTIMIZATION
 VMFrame* VMMethod::GetCachedFrame() const {
     return cachedFrame;
@@ -147,69 +210,6 @@ vm_oop_t VMMethod::GetConstant(long indx) {
     }
     return GetIndexableField(bc);
 }
-
-#if GC_TYPE==PAUSELESS
-void VMMethod::MarkReferences() {
-    VMInvokable::MarkReferences();
-    
-    ReadBarrierForGCThread(&numberOfLocals);
-    ReadBarrierForGCThread(&maximumNumberOfStackElements);
-    ReadBarrierForGCThread(&bcLength);
-    ReadBarrierForGCThread(&numberOfArguments);
-    long numIndexableFields = INT_VAL(ReadBarrierForGCThread(&numberOfConstants));
-    
-    for (long i = 0; i < numIndexableFields; ++i) {
-        ReadBarrierForGCThread(&indexableFields[i]);
-    }
-}
-void VMMethod::CheckMarking(void (*walk)(vm_oop_t)) {
-    VMInvokable::CheckMarking(walk);
-    assert(GetNMTValue(numberOfLocals) == _HEAP->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(numberOfLocals));
-    walk(Untag(numberOfLocals));
-    assert(GetNMTValue(maximumNumberOfStackElements) == _HEAP->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(maximumNumberOfStackElements));
-    walk(Untag(maximumNumberOfStackElements));
-    assert(GetNMTValue(bcLength) == _HEAP->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(bcLength));
-    walk(Untag(bcLength));
-    assert(GetNMTValue(numberOfArguments) == _HEAP->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(numberOfArguments));
-    walk(Untag(numberOfArguments));
-    assert(GetNMTValue(numberOfConstants) == _HEAP->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(numberOfConstants));
-    walk(Untag(numberOfConstants));
-    long numIndexableFields = INT_VAL(Untag(numberOfConstants));
-    for (long i = 0; i < numIndexableFields; ++i) {
-        assert(GetNMTValue(indexableFields[i]) == _HEAP->GetGCThread()->GetExpectedNMT());
-        CheckBlocked(Untag(indexableFields[i]));
-        walk(Untag(indexableFields[i]));
-    }
-}
-#else
-void VMMethod::WalkObjects(walk_heap_fn walk) {
-    VMInvokable::WalkObjects(walk);
-    
-    numberOfLocals = (GCInteger*)(walk(numberOfLocals));
-    maximumNumberOfStackElements = (GCInteger*)(walk(maximumNumberOfStackElements));
-    bcLength = (GCInteger*)(walk(bcLength));
-    numberOfArguments = (GCInteger*)(walk(numberOfArguments));
-    numberOfConstants = (GCInteger*)(walk(numberOfConstants));
-    
-    /*
-     #ifdef UNSAFE_FRAME_OPTIMIZATION
-     if (cachedFrame != nullptr)
-     cachedFrame = static_cast<VMFrame*>(walk(cachedFrame));
-     #endif
-     */
-    
-    long numIndexableFields = GetNumberOfIndexableFields();
-    for (long i = 0; i < numIndexableFields; ++i) {
-        if (GetIndexableField(i) != nullptr)
-            indexableFields[i] = (GCAbstractObject*) walk(indexableFields[i]);
-    }
-}
-#endif
 
 void VMMethod::MarkObjectAsInvalid() {
     VMInvokable::MarkObjectAsInvalid();

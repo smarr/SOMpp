@@ -49,7 +49,7 @@ public:
     virtual void         MarkReferences();
     virtual void         CheckMarking(void (vm_oop_t));
 #else
-    virtual void WalkObjects(walk_heap_fn walk);
+    virtual void WalkObjects(walk_heap_fn, Page*);
 #endif
 
     virtual void Invoke(Interpreter* interp, VMFrame* frm) {

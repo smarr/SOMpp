@@ -46,7 +46,7 @@ public:
     virtual void MarkReferences();
     virtual void CheckMarking(void (vm_oop_t));
 #else
-    virtual void WalkObjects(walk_heap_fn walk);
+    virtual void WalkObjects(walk_heap_fn, Page*);
 #endif
 
     int64_t GetNumberOfArguments() { return INT_VAL(load_ptr(numberOfArguments)); };
@@ -66,6 +66,8 @@ public:
 #if GC_TYPE==PAUSELESS
     void MarkReferences();
     void CheckMarking(void (vm_oop_t));
+#else
+    void WalkObjects(walk_heap_fn, Page*);
 #endif
     virtual bool isClassSide() { return false; }
     virtual void Invoke(Interpreter* interp, VMFrame* frame);

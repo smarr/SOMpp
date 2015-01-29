@@ -59,6 +59,10 @@ void VMString::MarkObjectAsInvalid() {
     }
 }
 
+void VMString::WalkObjects(walk_heap_fn, Page*) {
+    //nothing to do
+}
+
 VMString::VMString(const StdString& s) {
     VMString(s.c_str());
 }

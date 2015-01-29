@@ -108,16 +108,12 @@ void VMObject::CheckMarking(void (*walk)(vm_oop_t)) {
     }
 }
 #else
-void VMObject::WalkObjects(walk_heap_fn walk) {
-    //if (clazz == threadClass) {
-    //    int i = 1;
-    //}
-    
-    clazz = (GCClass*) walk(clazz);
+void VMObject::WalkObjects(walk_heap_fn walk, Page* page) {
+    clazz = static_cast<GCClass*>(walk(clazz, page));
     
     long numFields = GetNumberOfFields();
     for (long i = 0; i < numFields; ++i) {
-        FIELDS[i] = walk(FIELDS[i]);
+        FIELDS[i] = walk(FIELDS[i], page);
     }
 }
 #endif

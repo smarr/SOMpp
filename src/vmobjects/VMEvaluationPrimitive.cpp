@@ -102,9 +102,10 @@ void VMEvaluationPrimitive::CheckMarking(void (*walk)(vm_oop_t)) {
     walk(Untag(numberOfArguments));
 }
 #else
-void VMEvaluationPrimitive::WalkObjects(walk_heap_fn walk) {
-    VMPrimitive::WalkObjects(walk);
-    numberOfArguments = (GCInteger*) (walk(numberOfArguments));
+void VMEvaluationPrimitive::WalkObjects(walk_heap_fn walk, Page* page) {
+    VMPrimitive::WalkObjects(walk, page);
+    numberOfArguments = walk(numberOfArguments, page);
+    static_cast<EvaluationRoutine*>(routine)->WalkObjects(walk, page);
 }
 #endif
 
@@ -116,6 +117,10 @@ void EvaluationRoutine::CheckMarking(void (*walk)(vm_oop_t)) {
     assert(GetNMTValue(evalPrim) == _HEAP->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(evalPrim));
     walk(Untag(evalPrim));
+}
+#else
+void EvaluationRoutine::WalkObjects(walk_heap_fn walk, Page* page) {
+    evalPrim = static_cast<GCEvaluationPrimitive*>(walk(evalPrim, page));
 }
 #endif
 

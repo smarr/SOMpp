@@ -74,10 +74,11 @@ void VMInvokable::CheckMarking(void (*walk)(vm_oop_t)) {
     }
 }
 #else
-void VMInvokable::WalkObjects(walk_heap_fn walk) {
-    clazz = (GCClass*) (walk(clazz));
-    signature = (GCSymbol*) (walk(signature));
-    if (holder)
-        holder = (GCClass*) (walk(holder));
+void VMInvokable::WalkObjects(walk_heap_fn walk, Page* page) {
+    clazz     = static_cast<GCClass*>(walk(clazz, page));
+    signature = static_cast<GCSymbol*>(walk(signature, page));
+    if (holder) {
+        holder = static_cast<GCClass*>(walk(holder, page));
+    }
 }
 #endif

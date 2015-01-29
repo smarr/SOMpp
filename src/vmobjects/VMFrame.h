@@ -65,7 +65,6 @@ public:
     void SetLocal(long index, long context_level, vm_oop_t);
     vm_oop_t GetArgument(long, long);
     void SetArgument(long, long, vm_oop_t);
-    void PrintStackTrace();
     long ArgumentStackIndex(long index);
     void CopyArgumentsFrom(VMFrame* frame);
     virtual VMFrame* Clone(Page*);
@@ -76,11 +75,13 @@ public:
     virtual void MarkReferences();
     virtual void CheckMarking(void (vm_oop_t));
 #else
-    virtual void WalkObjects(walk_heap_fn walk);
+    virtual void WalkObjects(walk_heap_fn, Page*);
 #endif
 
     void PrintStack();
+    void PrintStackTrace();
     void PrintBytecode();
+
     inline void* GetStackPointer() const;
     long RemainingStackSize() const;
     

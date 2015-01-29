@@ -143,7 +143,7 @@ public:
     void MarkGlobals();
     void  CheckMarkingGlobals(void (vm_oop_t));
 #else
-    void WalkGlobals(walk_heap_fn);
+    void WalkGlobals(walk_heap_fn, Page*);
 #endif
 
     void InitializeSystemClass(VMClass*, VMClass*, const char*, Page*);

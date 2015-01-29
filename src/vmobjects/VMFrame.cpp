@@ -148,6 +148,66 @@ VMFrame* VMFrame::GetOuterContext() {
     return current;
 }
 
+#if GC_TYPE==PAUSELESS
+void VMFrame::MarkReferences() {
+    ReadBarrierForGCThread(&previousFrame);
+    ReadBarrierForGCThread(&context);
+    ReadBarrierForGCThread(&method);
+    long i = 0;
+    while (arguments + i <= stack_ptr) {
+        ReadBarrierForGCThread(&arguments[i]);
+        i++;
+    }
+}
+void VMFrame::CheckMarking(void (*walk)(vm_oop_t)) {
+    if (previousFrame) {
+        assert(GetNMTValue(previousFrame) == _HEAP->GetGCThread()->GetExpectedNMT());
+        CheckBlocked(Untag(previousFrame));
+        walk(Untag(previousFrame));
+    }
+    if (context) {
+        assert(GetNMTValue(context) == _HEAP->GetGCThread()->GetExpectedNMT());
+        CheckBlocked(Untag(context));
+        walk(Untag(context));
+    }
+    assert(GetNMTValue(method) == _HEAP->GetGCThread()->GetExpectedNMT());
+    CheckBlocked(Untag(method));
+    walk(Untag(method));
+    long i = 0;
+    while (arguments + i <= stack_ptr) {
+        if (arguments[i]) {
+            assert(GetNMTValue(arguments[i]) == _HEAP->GetGCThread()->GetExpectedNMT());
+            CheckBlocked(Untag(arguments[i]));
+            walk(Untag(arguments[i]));
+        }
+        i++;
+    }
+}
+#else
+void VMFrame::WalkObjects(walk_heap_fn walk, Page* page) {
+    // VMFrame is not a proper SOM object any longer, we don't have a class for it.
+    // clazz = (VMClass*) walk(clazz);
+    
+    if (previousFrame) {
+        previousFrame = static_cast<GCFrame*>(walk(previousFrame, page));
+    }
+    if (context) {
+        context = static_cast<GCFrame*>(walk(context, page));
+    }
+    method = static_cast<GCMethod*>(walk(method, page));
+
+    // all other fields are indexable via arguments array
+    // --> until end of Frame
+    long i = 0;
+    while (arguments + i <= stack_ptr) {
+        if (arguments[i] != nullptr) {
+            arguments[i] = walk(arguments[i], page);
+        }
+        i++;
+    }
+}
+#endif
+
 long VMFrame::RemainingStackSize() const {
     // - 1 because the stack pointer points at the top entry,
     // so the next entry would be put at stackPointer+1
@@ -297,63 +357,6 @@ void VMFrame::CopyArgumentsFrom(VMFrame* frame) {
         store_ptr(arguments[i], stackElem);
     }
 }
-
-#if GC_TYPE==PAUSELESS
-void VMFrame::MarkReferences() {
-    ReadBarrierForGCThread(&previousFrame);
-    ReadBarrierForGCThread(&context);
-    ReadBarrierForGCThread(&method);
-    long i = 0;
-    while (arguments + i <= stack_ptr) {
-        ReadBarrierForGCThread(&arguments[i]);
-        i++;
-    }
-}
-void VMFrame::CheckMarking(void (*walk)(vm_oop_t)) {
-    if (previousFrame) {
-        assert(GetNMTValue(previousFrame) == _HEAP->GetGCThread()->GetExpectedNMT());
-        CheckBlocked(Untag(previousFrame));
-        walk(Untag(previousFrame));
-    }
-    if (context) {
-        assert(GetNMTValue(context) == _HEAP->GetGCThread()->GetExpectedNMT());
-        CheckBlocked(Untag(context));
-        walk(Untag(context));
-    }
-    assert(GetNMTValue(method) == _HEAP->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(method));
-    walk(Untag(method));
-    long i = 0;
-    while (arguments + i <= stack_ptr) {
-        if (arguments[i]) {
-            assert(GetNMTValue(arguments[i]) == _HEAP->GetGCThread()->GetExpectedNMT());
-            CheckBlocked(Untag(arguments[i]));
-            walk(Untag(arguments[i]));
-        }
-        i++;
-    }
-}
-#else
-void VMFrame::WalkObjects(walk_heap_fn walk) {
-    // VMFrame is not a proper SOM object any longer, we don't have a class for it.
-    // clazz = (VMClass*) walk(clazz);
-    
-    if (previousFrame)
-        previousFrame = (GCFrame*) walk(previousFrame);
-    if (context)
-        context = (GCFrame*) walk(context);
-    method = (GCMethod*) walk(method);
-    
-    // all other fields are indexable via arguments array
-    // --> until end of Frame
-    long i = 0;
-    while (arguments + i <= stack_ptr) {
-        if (arguments[i] != nullptr)
-            arguments[i] = (GCAbstractObject*) walk(arguments[i]);
-        i++;
-    }
-}
-#endif
 
 void VMFrame::MarkObjectAsInvalid() {
     VMObject::MarkObjectAsInvalid();

@@ -99,7 +99,7 @@ public:
         return;
     }
 #else
-    inline virtual void WalkObjects(walk_heap_fn) {
+    inline virtual void WalkObjects(walk_heap_fn, Page*) {
         return;
     }
 #endif
