@@ -39,8 +39,7 @@ const long VMClass::VMClassNumberOfFields = 4;
 
 VMClass::VMClass() :
         VMObject(VMClassNumberOfFields), superClass(nullptr), name(nullptr), instanceFields(
-                nullptr), instanceInvokables(nullptr) {
-}
+                nullptr), instanceInvokables(nullptr) {}
 
 VMClass* VMClass::Clone(Page* page) {
     VMClass* clone = new (page, objectSize - sizeof(VMClass) ALLOC_MATURE) VMClass(*this);
@@ -51,8 +50,8 @@ VMClass* VMClass::Clone(Page* page) {
 }
 
 VMClass::VMClass(long numberOfFields) :
-        VMObject(numberOfFields + VMClassNumberOfFields) {
-}
+        VMObject(numberOfFields + VMClassNumberOfFields), superClass(nullptr),
+        name(nullptr), instanceFields(nullptr), instanceInvokables(nullptr) {}
 
 #if GC_TYPE==PAUSELESS
 void VMClass::MarkReferences() {

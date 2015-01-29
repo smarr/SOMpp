@@ -341,7 +341,6 @@ void Universe::initialize(long _argc, char** _argv) {
     
     registerInterpreter(interpreter);
 
-
     assert(page);
 
 #if CACHE_INTEGER
@@ -394,13 +393,13 @@ void Universe::startInterpreterInThread(VMThread* thread, VMBlock* block,
     
     // Note: since this is a long running method, most pointers in here are
     //       not GC safe!
-    
+
 #warning this should get all the necessary info, also with regard to the pauseless GC, to initialize the interpreter's flags, (if it has any global state)
     Page* page = _HEAP->RegisterThread();
 
     Interpreter* interp = new Interpreter(page, expectedNMT, gcTrapEnabled);
     pthread_setspecific(this->interpreterKey, interp);
-    
+
     registerInterpreter(interp);
     page->SetInterpreter(interp);
     interp->SetPage(page);
