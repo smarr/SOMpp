@@ -90,7 +90,7 @@ VMFrame* VMFrame::Clone(Page* page) {
     size_t noBytes = GetObjectSize() - sizeof(VMFrame);
     memcpy(destination, source, noBytes);
     clone->arguments = (gc_oop_t*)&(clone->stack_ptr)+1; //field after stack_ptr
-    clone->locals = clone->arguments + GetMethod()->GetNumberOfArguments();
+    clone->locals = clone->arguments + (locals - arguments);
     clone->stack_ptr = (gc_oop_t*)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
     return clone;
 }
