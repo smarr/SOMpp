@@ -31,17 +31,9 @@
 #include "ClassGenerationContext.h"
 #include "Parser.h"
 
-#include "../vmobjects/VMClass.h"
-#include "../vmobjects/VMSymbol.h"
+#include <vmobjects/VMClass.h>
+#include <vmobjects/VMSymbol.h>
 
-SourcecodeCompiler::SourcecodeCompiler() {
-    parser = nullptr;
-}
-
-SourcecodeCompiler::~SourcecodeCompiler() {
-    if (parser != nullptr)
-        delete (parser);
-}
 
 VMClass* SourcecodeCompiler::CompileClass(const StdString& path,
         const StdString& file,
@@ -50,15 +42,14 @@ VMClass* SourcecodeCompiler::CompileClass(const StdString& path,
 
     StdString fname = path + fileSeparator + file + ".som";
 
-    ifstream* fp = new ifstream();
-    fp->open(fname.c_str(), std::ios_base::in);
-    if (!fp->is_open()) {
+    ifstream fp;
+    fp.open(fname.c_str(), std::ios_base::in);
+    if (!fp.is_open()) {
         return nullptr;
     }
 
-    if (parser != nullptr) delete(parser);
-    parser = new Parser(*fp, page);
-    result = compile(systemClass, page);
+    Parser parser(fp, page);
+    result = compile(parser, systemClass, page);
 
     VMSymbol* cname = result->GetName();
     StdString cnameC = cname->GetStdString();
@@ -71,9 +62,7 @@ VMClass* SourcecodeCompiler::CompileClass(const StdString& path,
         showCompilationError(file, Str.str().c_str());
         return nullptr;
     }
-    delete(parser);
-    parser = nullptr;
-    delete(fp);
+
 #ifdef COMPILER_DEBUG
     Universe::ErrorPrint("Compilation finished\n");
 #endif
@@ -82,14 +71,10 @@ VMClass* SourcecodeCompiler::CompileClass(const StdString& path,
 
 VMClass* SourcecodeCompiler::CompileClassString(const StdString& stream,
         VMClass* systemClass, Page* page) {
-    istringstream* ss = new istringstream(stream);
-    if (parser != nullptr) delete(parser);
-    parser = new Parser(*ss, page);
+    istringstream ss(stream);
+    Parser parser(ss, page);
 
-    VMClass* result = compile(systemClass, page);
-    delete(parser);
-    parser = nullptr;
-    delete(ss);
+    VMClass* result = compile(parser, systemClass, page);
 
     return result;
 }
@@ -100,17 +85,12 @@ void SourcecodeCompiler::showCompilationError(const StdString& filename,
                          message + "\n");
 }
 
-VMClass* SourcecodeCompiler::compile(VMClass* systemClass, Page* page) {
-    if (parser == nullptr) {
-        Universe::ErrorPrint("Parser not initiated\n");
-        GetUniverse()->ErrorExit("Compiler error");
-        return nullptr;
-    }
+VMClass* SourcecodeCompiler::compile(Parser& parser, VMClass* systemClass, Page* page) {
     ClassGenerationContext cgc;
 
     VMClass* result = systemClass;
 
-    parser->Classdef(&cgc);
+    parser.Classdef(&cgc);
 
     if (systemClass == nullptr)
         result = cgc.Assemble(page);
