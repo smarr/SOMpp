@@ -234,6 +234,9 @@ void Parser::superclass(ClassGenerationContext *cgenc) {
     // Load the super class, if it is not nil (break the dependency cycle)
     if (superName != GetUniverse()->SymbolFor("nil", page)) {
         VMClass* superClass = GetUniverse()->LoadClass(superName, page);
+        if (superClass == load_ptr(nilObject)) {
+            GetUniverse()->ErrorExit("Super class " + superName->GetStdString() + " could not be loaded.");
+        }
         cgenc->SetInstanceFieldsOfSuper(superClass->GetInstanceFields());
         cgenc->SetClassFieldsOfSuper(superClass->GetClass()->GetInstanceFields());
     } else {
