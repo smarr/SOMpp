@@ -782,8 +782,7 @@ VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass, Page* pa
     
     VMClass* result;
 
-    for (vector<StdString>::iterator i = classPath.begin();
-            i != classPath.end(); ++i) {
+    for (StdString path : classPath) {
         result = SourcecodeCompiler::CompileClass(path, name->GetStdString(), systemClass, page);
         if (result) {
             if (dumpBytecodes) {
