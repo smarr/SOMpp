@@ -91,7 +91,7 @@ private:
     GCFrame*  previousFrame;
     GCFrame*  context;
     GCMethod* method;
-    long bytecodeIndex;
+    size_t    bytecodeIndex;
     gc_oop_t* arguments;
     gc_oop_t* locals;
     gc_oop_t* stack_ptr;
@@ -127,6 +127,7 @@ VMFrame* VMFrame::GetContext() {
 }
 
 void VMFrame::SetContext(VMFrame* frm) {
+    assert(Universe::IsValidObject(frm));
     store_ptr(context, frm);
 }
 
