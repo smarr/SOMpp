@@ -358,8 +358,11 @@ void VMFrame::MarkObjectAsInvalid() {
     context = (GCFrame*) INVALID_GC_POINTER;
     method = (GCMethod*)  INVALID_GC_POINTER;
     long i = 0;
-    while (arguments + i <= stack_ptr) {
-        arguments[i] =  (GCAbstractObject*) INVALID_GC_POINTER;
+    
+    gc_oop_t* end = (gc_oop_t*) SHIFTED_PTR(this, objectSize);
+    
+    while (arguments + i < end) {
+        arguments[i] = INVALID_GC_POINTER;
         i++;
     }
 }
