@@ -28,10 +28,6 @@
 #include "Interpreter.h"
 #include "bytecodes.h"
 
-#if GC_TYPE==PAUSELESS
-    #include <memory/PauselessCollector.h>
-#endif
-
 #include <vmobjects/VMMethod.h>
 #include <vmobjects/VMFrame.h>
 #include <vmobjects/VMMethod.h>
