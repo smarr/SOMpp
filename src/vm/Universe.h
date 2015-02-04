@@ -185,13 +185,7 @@ public:
     //void PrintGlobals();
     
 private:
-    
-    pthread_mutex_t testMutex;
-    
     pthread_key_t interpreterKey;
-
-    pthread_mutexattr_t attrclassLoading;
-    pthread_mutex_t classLoading;
     
     vector<StdString> handleArguments(long argc, char** argv);
     long getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;
@@ -215,8 +209,11 @@ private:
     size_t heapSize;
     size_t pageSize;
 
-    map<GCSymbol*, gc_oop_t> globals;
+    map<GCSymbol*, gc_oop_t>  globals;
     map<StdString, GCSymbol*> symbolsMap;
+    recursive_mutex globalsAndSymbols_mutex;
+    
+    
     map<long, GCClass*> blockClassesByNoOfArgs;
     vector<StdString> classPath;
 

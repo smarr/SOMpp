@@ -300,11 +300,6 @@ void Universe::printUsageAndExit(char* executable) const {
 
 Universe::Universe() {
     pthread_key_create(&interpreterKey, nullptr);
-    pthread_mutexattr_init(&attrclassLoading);
-    pthread_mutexattr_settype(&attrclassLoading, PTHREAD_MUTEX_RECURSIVE);
-    pthread_mutex_init(&classLoading, &attrclassLoading);
-    
-    pthread_mutex_init(&testMutex, nullptr);
 }
 
 VMMethod* Universe::createBootstrapMethod(VMClass* holder, long numArgsOfMsgSend, Page* page) {
@@ -688,57 +683,44 @@ VMClass* Universe::GetBlockClassWithArgs(long numberOfArguments, Page* page) {
     return result;
 }
 
-#if GC_TYPE==PAUSELESS
 vm_oop_t Universe::GetGlobal(VMSymbol* name) {
-    pthread_mutex_lock(&testMutex);
-    map<GCSymbol*, gc_oop_t>::iterator it;
-    it = globals.find((GCSymbol*) name);
-    if (it == globals.end()) {
-        it = globals.find(Flip((GCSymbol*) name));
+    lock_guard<recursive_mutex> lock(globalsAndSymbols_mutex);
+
+    # warning is _store_ptr correct here? it relies on _store_ptr not to be really changed...
+    auto it = globals.find(_store_ptr(name));
+    if (GC_TYPE == PAUSELESS) {
+        // for the PAUSELESS GC, we also try with a reference with the NMT bit flipped, just
+        # warning I really don't like this approach, what was the problem with having the references without ever being marked?
+        if (it == globals.end()) {
+            it = globals.find(Flip((GCSymbol*) name));
+        }
     }
+    
     if (it == globals.end()) {
-        pthread_mutex_unlock(&testMutex);
         return nullptr;
     } else {
-        pthread_mutex_unlock(&testMutex);
         return load_ptr(it->second);
     }
 }
-#else
-vm_oop_t Universe::GetGlobal(VMSymbol* name) {
-    auto it = globals.find(_store_ptr(name));
-    if (it == globals.end())
-        return nullptr;
-    else
-        return load_ptr(it->second);
-}
-#endif
 
-#if GC_TYPE==PAUSELESS
 bool Universe::HasGlobal(VMSymbol* name) {
-    pthread_mutex_lock(&testMutex);
-    map<GCSymbol*, gc_oop_t>::iterator it;
-    it = globals.find((GCSymbol*) name);
-    if (it == globals.end()) {
-        it = globals.find(Flip((GCSymbol*) name));
-    }
-    if (it == globals.end()) {
-        pthread_mutex_unlock(&testMutex);
-        return false;
-    }
-    return true;
-}
-#else
-bool Universe::HasGlobal(VMSymbol* name) {
-    pthread_mutex_lock(&testMutex);
+    lock_guard<recursive_mutex> lock(globalsAndSymbols_mutex);
+    
+    # warning is _store_ptr correct here? it relies on _store_ptr not to be really changed...
     auto it = globals.find(_store_ptr(name));
-    if (it == globals.end()) {
-        pthread_mutex_unlock(&testMutex);
-        return false;
+    
+    if (GC_TYPE == PAUSELESS) {
+        if (it == globals.end()) {
+            it = globals.find(Flip((GCSymbol*) name));
+        }
     }
-    return true;
+    
+    if (it == globals.end()) {
+        return false;
+    } else {
+        return true;
+    }
 }
-#endif
 
 void Universe::InitializeSystemClass(VMClass* systemClass,
 VMClass* superClass, const char* name, Page* page) {
@@ -772,19 +754,16 @@ VMClass* superClass, const char* name, Page* page) {
 }
 
 VMClass* Universe::LoadClass(VMSymbol* name, Page* page) {
-    pthread_mutex_lock(&classLoading);
+    lock_guard<recursive_mutex> lock(globalsAndSymbols_mutex);
     VMClass* result = static_cast<VMClass*>(GetGlobal(name));
     
-    if (result != nullptr) {
-        pthread_mutex_unlock(&classLoading);
+    if (result != nullptr)
         return result;
-    }
 
     result = LoadClassBasic(name, nullptr, page);
 
     if (!result) {
 		// we fail silently, it is not fatal that loading a class failed
-        pthread_mutex_unlock(&classLoading);
 		return static_cast<VMClass*>(load_ptr(nilObject));
     }
 
@@ -793,7 +772,6 @@ VMClass* Universe::LoadClass(VMSymbol* name, Page* page) {
     
     SetGlobal(name, result);
 
-    pthread_mutex_unlock(&classLoading);
     return result;
 }
 
@@ -1292,15 +1270,10 @@ VMThread* Universe::NewThread(VMBlock* block, vm_oop_t arguments, Interpreter* i
 }
 
 VMSymbol* Universe::SymbolFor(const StdString& str, Page* page) {
+    lock_guard<recursive_mutex> lock(globalsAndSymbols_mutex);
+
     map<string, GCSymbol*>::iterator it = symbolsMap.find(str);
-    
-    if (it == symbolsMap.end()) {
-        //sync_out(ostringstream() << "Create new symbol: " << str.c_str());
-        return NewSymbol(str, page);
-    } else {
-        return load_ptr(it->second);
-    }
-    //return (it == symbolsMap.end()) ? NewSymbol(str) : it->second;
+    return (it == symbolsMap.end()) ? NewSymbol(str, page) : load_ptr(it->second);
 }
 
 VMSymbol* Universe::SymbolForChars(const char* str, Page* page) {
@@ -1308,11 +1281,10 @@ VMSymbol* Universe::SymbolForChars(const char* str, Page* page) {
 }
 
 void Universe::SetGlobal(VMSymbol* name, vm_oop_t val) {
-    pthread_mutex_lock(&testMutex);
+    lock_guard<recursive_mutex> lock(globalsAndSymbols_mutex);
 
 # warning is _store_ptr correct here? it relies on _store_ptr not to be really changed...
     globals[_store_ptr(name)] = _store_ptr(val);
-    pthread_mutex_unlock(&testMutex);
 }
 
 void Universe::registerInterpreter(Interpreter* interp) {
