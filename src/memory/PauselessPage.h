@@ -43,7 +43,7 @@ public:
     void ResetAmountOfLiveData();
 #endif
     
-    void SetNonRelocatablePage(Page* page) { nonRelocatablePage = page; }
+    void SetNonRelocatablePage(PauselessPage* page) { nonRelocatablePage = page; }
     void SetInterpreter(Interpreter* interp) { interpreter = interp; }
     
 private:

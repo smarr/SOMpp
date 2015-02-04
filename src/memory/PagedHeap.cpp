@@ -53,9 +53,9 @@ void PagedHeap::DestroyHeap() {
 
 PagedHeap::PagedHeap(long, long) {
     pthread_mutex_init(&fullPagesMutex, nullptr);
-    allPages = new vector<Page*>();
-    availablePages = new vector<Page*>();
-    fullPages = new vector<Page*>();
+    allPages = new vector<PauselessPage*>();
+    availablePages = new vector<PauselessPage*>();
+    fullPages = new vector<PauselessPage*>();
     memoryStart = mmap(nullptr, HEAP_SIZE, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, 0, 0);
     memset(memoryStart, 0x0, HEAP_SIZE);
     memoryEnd = (size_t)memoryStart + HEAP_SIZE;
@@ -65,9 +65,9 @@ PagedHeap::PagedHeap(long, long) {
 
 void PagedHeap::CreatePages() {
     void* nextFreePagePosition = memoryStart;
-    Page* newPage;
+    PauselessPage* newPage;
     while (nextFreePagePosition < (void*) memoryEnd) {
-        newPage = new Page(nextFreePagePosition, this);
+        newPage = new PauselessPage(nextFreePagePosition, static_cast<PauselessHeap*>(this));
         allPages->push_back(newPage);
         availablePages->push_back(newPage);
         nextFreePagePosition = (void*) ((size_t)nextFreePagePosition + PAGE_SIZE);
@@ -82,25 +82,25 @@ size_t PagedHeap::GetMaxObjectSize() {
     return maxObjSize;
 }
 
-Page* PagedHeap::RequestPage() {
+PauselessPage* PagedHeap::RequestPage() {
     lock_guard<mutex> lock(availablePages_mutex);
     
     if (availablePages->empty())
         GetUniverse()->ErrorExit("Unable to respond to page request");
-    Page* newPage = availablePages->back();
+    PauselessPage* newPage = availablePages->back();
     availablePages->pop_back();
     checkCollectionTreshold();
     
     return newPage;
 }
 
-void PagedHeap::RelinquishPage(Page* page) {
+void PagedHeap::RelinquishPage(PauselessPage* page) {
     pthread_mutex_lock(&fullPagesMutex);
     fullPages->push_back(page);
     pthread_mutex_unlock(&fullPagesMutex);
 }
 
-void PagedHeap::AddEmptyPage(Page* page) {
+void PagedHeap::AddEmptyPage(PauselessPage* page) {
     lock_guard<mutex> lock(availablePages_mutex);
     
     availablePages->push_back(page);

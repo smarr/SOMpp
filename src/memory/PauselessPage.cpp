@@ -57,8 +57,8 @@ AbstractVMObject* PauselessPage::AllocateObject(size_t size ALLOC_OUTSIDE_NURSER
         nextFreePosition = (void*)((size_t)nextFreePosition - size); // reset pointer
         
         heap->RelinquishPage(this);
-        Page* newPage = heap->RequestPage();
-        GetUniverse()->GetInterpreter()->SetPage(newPage);
+        PauselessPage* newPage = heap->RequestPage();
+        GetUniverse()->GetInterpreter()->SetPage(reinterpret_cast<Page*>(newPage));
         newPage->SetNonRelocatablePage(nonRelocatablePage);
     }
      

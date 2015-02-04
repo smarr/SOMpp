@@ -83,14 +83,14 @@ public:
 
     inline void FreeObject(AbstractVMObject* o);
     
-    Page* RequestPage();
-    void RelinquishPage(Page*);
-    //void RelinquishFullPage(Page*);
-    void AddEmptyPage(Page*);
+    PauselessPage* RequestPage();
+    void RelinquishPage(PauselessPage*);
+    //void RelinquishFullPage(PauselessPage*);
+    void AddEmptyPage(PauselessPage*);
     
     virtual void checkCollectionTreshold() {};
     
-    vector<Page*>* allPages;
+    vector<PauselessPage*>* allPages;
     
 protected:
     GarbageCollector<HEAP_CLS>* gc;
