@@ -1,17 +1,14 @@
 #pragma once
 
 #include "GarbageCollector.h"
-#if GC_TYPE==COPYING
 
-class CopyingCollector: public GarbageCollector {
+class CopyingHeap;
+
+class CopyingCollector: public GarbageCollector<CopyingHeap> {
 public:
-    CopyingCollector(Heap* h) :
-            GarbageCollector(h) {
-    }
-    ;
-private:
-    void Collect();
-    void CopyInterpretersFrameAndThread();
+    CopyingCollector(CopyingHeap* h) : GarbageCollector(h) {};
+    virtual ~CopyingCollector() {}
+    
+    virtual void Collect();
 
 };
-#endif

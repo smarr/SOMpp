@@ -1,21 +1,41 @@
 #pragma once
 
-#include "PagedHeap.h"
-#include <string.h>
+#include <mutex>
+#include <vector>
 
-#if GC_TYPE==COPYING
+#include "Heap.h"
 
-class CopyingHeap : public StopTheWorldHeap {
-    friend class CopyingCollector;
+#include <misc/defs.h>
+
+using namespace std;
+
+class CopyingPage;
+
+class CopyingHeap : public Heap<CopyingHeap> {
 public:
-    CopyingHeap(long heapSize);
-    AbstractVMObject* AllocateObject(size_t size);
+    typedef CopyingPage MemoryPage;
+    
+    CopyingHeap(size_t pageSize, size_t maxHeapSize);
+    
+    Page* RegisterThread();
+    void UnregisterThread(Page*);
+
 private:
-    void* currentBuffer;
-    void* collectionLimit;
-    void* oldBuffer;
-    void* currentBufferEnd;
-    void switchBuffers(void);
-    void* nextFreePosition;
+    const size_t pageSize;
+    const size_t maxNumPages;
+    size_t currentNumPages;
+    
+    mutex pages_mutex;
+    vector<CopyingPage*> usedPages;
+    vector<CopyingPage*> freePages;
+    
+    
+    CopyingPage* getNextPage() {
+        lock_guard<mutex> lock(pages_mutex);
+        return getNextPage_alreadyLocked();
+    }
+    CopyingPage* getNextPage_alreadyLocked();
+
+    friend class CopyingCollector;
+    friend CopyingPage;
 };
-#endif

@@ -1,109 +1,122 @@
-#include <misc/defs.h>
+#include <unordered_set>
 
-#if GC_TYPE==COPYING
+#include <misc/defs.h>
 
 #include "CopyingHeap.h"
 #include <vm/Universe.h>
 #include <vmobjects/AbstractObject.h>
 #include <vmobjects/VMFrame.h>
+#include <vmobjects/IntegerBox.h>
 
 #include "CopyingCollector.h"
 
-VMOBJECT_PTR copy_if_necessary(VMOBJECT_PTR obj) {
-    //don't process tagged objects
-    if (IS_TAGGED(obj))
-        return obj;
-    long gcField = obj->GetGCField();
-    //GCField is abused as forwarding pointer here
-    //if someone has moved before, return the moved object
+static gc_oop_t copy_if_necessary(gc_oop_t oop, Page* target) {
+    // don't process tagged objects
+    if (IS_TAGGED(oop))
+        return oop;
+
+    assert(oop != nullptr);
+    
+    AbstractVMObject* obj = AS_OBJ(oop);
+
+    intptr_t gcField = obj->GetGCField();
+    // GCField is abused as forwarding pointer here
+    // if someone has moved before, return the moved object
     if (gcField != 0)
-    return (VMOBJECT_PTR)gcField;
-    //we have to clone ourselves
-    VMOBJECT_PTR newObj = obj->Clone();
+        return (gc_oop_t) gcField;
     
-#ifndef NDEBUG
-    obj->MarkObjectAsInvalid();
-#endif
+    assert(Universe::IsValidObject(obj));
     
-    obj->SetGCField((long)newObj);
-    return newObj;
+    // we have to clone ourselves
+    AbstractVMObject* newObj = obj->Clone(target);
+
+    if (DEBUG)
+        obj->MarkObjectAsInvalid();
+
+    obj->SetGCField(reinterpret_cast<intptr_t>(newObj));
+    assert(newObj->GetGCField() == 0);
+    
+#warning not sure about the use of _store_ptr here, or whether it should be a plain cast
+    return _store_ptr(newObj);
+}
+
+static gc_oop_t objects_are_valid(gc_oop_t oop, Page*) {
+    // don't process tagged objects
+    if (IS_TAGGED(oop))
+        return oop;
+
+    AbstractVMObject* obj = AS_OBJ(oop);
+    assert(Universe::IsValidObject(obj));
+
+    return oop;
 }
 
 void CopyingCollector::Collect() {
     Timer::GCTimer->Resume();
 
-    static bool increaseMemory;
-    size_t newSize = ((size_t)(_HEAP->currentBufferEnd) -
-            (size_t)(_HEAP->currentBuffer)) * 2;
-
-    _HEAP->switchBuffers();
-    //increase memory if scheduled in collection before
-    if (increaseMemory)
-    {
-        free(_HEAP->currentBuffer);
-        _HEAP->currentBuffer = malloc(newSize);
-        _HEAP->nextFreePosition = _HEAP->currentBuffer;
-        _HEAP->collectionLimit = (void*)((size_t)(_HEAP->currentBuffer) +
-                (size_t)(0.9 * newSize));
-        _HEAP->currentBufferEnd = (void*)((size_t)(_HEAP->currentBuffer) +
-                newSize);
-        if (_HEAP->currentBuffer == nullptr)
-        GetUniverse()->ErrorExit("unable to allocate more memory");
-    }
-    //init currentBuffer with zeros
-    memset(_HEAP->currentBuffer, 0x0, (size_t)(_HEAP->currentBufferEnd) -
-            (size_t)(_HEAP->currentBuffer));
-    GetUniverse()->WalkGlobals(copy_if_necessary);
-    CopyInterpretersFrameAndThread();
-
-    //now copy all objects that are referenced by the objects we have moved so far
-    VMOBJECT_PTR curObject = (VMOBJECT_PTR)(_HEAP->currentBuffer);
-    while (curObject < _HEAP->nextFreePosition) {
-        curObject->WalkObjects(copy_if_necessary);
-        curObject = (VMOBJECT_PTR)((size_t)curObject + curObject->GetObjectSize());
-    }
-    //increase memory if scheduled in collection before
-    if (increaseMemory)
-    {
-        increaseMemory = false;
-        free(_HEAP->oldBuffer);
-        _HEAP->oldBuffer = malloc(newSize);
-        if (_HEAP->oldBuffer == nullptr)
-        GetUniverse()->ErrorExit("unable to allocate more memory");
-    }
-
-    //if semispace is still 50% full after collection, we have to realloc
-    //  bigger ones -> done in next collection
-    if ((size_t)(_HEAP->nextFreePosition) - (size_t)(_HEAP->currentBuffer) >=
-            (size_t)(_HEAP->currentBufferEnd) -
-            (size_t)(_HEAP->nextFreePosition)) {
-        increaseMemory = true;
+    // reset collection trigger
+    heap->resetGCTrigger();
+    
+    vector<CopyingPage*> oldPages(heap->usedPages); // TODO: can we use move constructor here?
+    heap->usedPages.clear();
+    
+    unordered_set<Interpreter*>* interps = GetUniverse()->GetInterpreters();
+    
+    // reset pages in interpreters, just to be sure
+    // use last interpreter as the one for the GC
+    Interpreter* lastI = nullptr;
+    for (Interpreter* interp : *interps) {
+        interp->SetPage(nullptr);
+        lastI = interp;
     }
     
-    //reset collection trigger
-    heap->resetGCTrigger();
+    
+    CopyingPage* target = heap->getNextPage_alreadyLocked();
+    target->SetInterpreter(lastI);
+    lastI->SetPage(reinterpret_cast<Page*>(target));
+    GetUniverse()->WalkGlobals(copy_if_necessary, reinterpret_cast<Page*>(target));
+
+    
+    // now copy all objects that are referenced by the objects were moved
+    // note: we use iteration with a custom loop and [] because the vector
+    //       usedPages can be modified while copying object to include the
+    //       new pages of copied objects, which we also still need to travers
+    size_t i = 0;
+    while (i < heap->usedPages.size()) {
+        heap->usedPages[i]->WalkObjects(
+                            copy_if_necessary, target->GetCurrent());
+        i++;
+    }
+    
+    for (auto page : oldPages) {
+        page->Reset();
+        heap->freePages.push_back(page);
+    }
+
+    if (DEBUG) {
+        GetUniverse()->WalkGlobals(objects_are_valid, nullptr);
+        
+        size_t j = 0;
+        // let's test whether all objects are valid
+        for (auto page : heap->usedPages) {
+            page->WalkObjects(objects_are_valid, nullptr);
+            j++;
+        }
+        assert(i == j);
+    }
+    
+    // redistribute pages of interpreters, except the last one,
+    // which already got a page
+    for (auto interp : *interps) {
+        if (interp != lastI) {
+            auto page = heap->freePages.back();
+            assert(page);
+            heap->freePages.pop_back();
+            interp->SetPage(reinterpret_cast<Page*>(page));
+            page->SetInterpreter(interp);
+            heap->usedPages.push_back(page);
+        }
+    }
 
     Timer::GCTimer->Halt();
 }
-
-void MarkSweepCollector::CopyInterpretersFrameAndThread() {
-    vector<Interpreter*>* interpreters = GetUniverse()->GetInterpreters();
-    for (std::vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
-        // Get the current frame and thread of each interpreter and mark it.
-        // Since marking is done recursively, this automatically
-        // marks the whole stack
-        VMFrame* currentFrame = (*it)->GetFrame();
-        if (currentFrame != nullptr) {
-            VMFrame* newFrame = static_cast<VMFrame*>(copy_if_necessary(currentFrame));
-            (*it)->SetFrame(newFrame);
-            
-        }
-        VMThread* currentThread = (*it)->GetThread();
-        if (currentThread != nullptr) {
-            VMThread* newThread = static_cast<VMThread*>(copy_if_necessary(currentThread));
-            (*it)->SetThread(newThread);
-        }
-    }
-}
-
-#endif

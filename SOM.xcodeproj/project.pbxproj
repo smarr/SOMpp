@@ -149,6 +149,7 @@
 		0A8793511A72966800F2DE5F /* Condition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Condition.h; sourceTree = "<group>"; };
 		0A8793551A77FE2800F2DE5F /* SpinLock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SpinLock.h; sourceTree = "<group>"; };
 		0A8793571A7802DD00F2DE5F /* Interpreter.inline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Interpreter.inline.h; sourceTree = "<group>"; };
+		0A8793601A79254900F2DE5F /* CopyingPage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CopyingPage.h; sourceTree = "<group>"; };
 		0A8E19EC1A16305B004CE22B /* debug.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = debug.cpp; sourceTree = "<group>"; };
 		0A8E19EF1A16688E004CE22B /* VMBlock.inline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMBlock.inline.h; sourceTree = "<group>"; };
 		0A8E19F01A16691C004CE22B /* VMMethod.inline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMMethod.inline.h; sourceTree = "<group>"; };
@@ -450,6 +451,7 @@
 		3F5203060FA6624C00E75857 /* memory */ = {
 			isa = PBXGroup;
 			children = (
+				0A8793601A79254900F2DE5F /* CopyingPage.h */,
 				90D7D49919F9260F00EFB4B6 /* BaseThread.cpp */,
 				90D7D49819F9230900EFB4B6 /* BaseThread.h */,
 				3F5203080FA6624C00E75857 /* GarbageCollector.h */,
