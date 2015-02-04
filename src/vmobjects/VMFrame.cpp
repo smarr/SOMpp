@@ -155,22 +155,22 @@ void VMFrame::MarkReferences() {
 }
 void VMFrame::CheckMarking(void (*walk)(vm_oop_t)) {
     if (previousFrame) {
-        assert(GetNMTValue(previousFrame) == _HEAP->GetGCThread()->GetExpectedNMT());
+        assert(GetNMTValue(previousFrame) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
         CheckBlocked(Untag(previousFrame));
         walk(Untag(previousFrame));
     }
     if (context) {
-        assert(GetNMTValue(context) == _HEAP->GetGCThread()->GetExpectedNMT());
+        assert(GetNMTValue(context) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
         CheckBlocked(Untag(context));
         walk(Untag(context));
     }
-    assert(GetNMTValue(method) == _HEAP->GetGCThread()->GetExpectedNMT());
+    assert(GetNMTValue(method) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(method));
     walk(Untag(method));
     long i = 0;
     while (arguments + i <= stack_ptr) {
         if (arguments[i]) {
-            assert(GetNMTValue(arguments[i]) == _HEAP->GetGCThread()->GetExpectedNMT());
+            assert(GetNMTValue(arguments[i]) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
             CheckBlocked(Untag(arguments[i]));
             walk(Untag(arguments[i]));
         }

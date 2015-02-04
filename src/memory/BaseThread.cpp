@@ -11,12 +11,12 @@
 
 #if GC_TYPE==PAUSELESS
 BaseThread::BaseThread(Page* page) : page(page), expectedNMT(false) {
-    page->SetNonRelocatablePage(_HEAP->RequestPage());
+        page->SetNonRelocatablePage(GetHeap<HEAP_CLS>()->RequestPage());
 
 }
 
 BaseThread::BaseThread(Page* page, bool expectedNMT) : page(page), expectedNMT(expectedNMT) {
-    page->SetNonRelocatablePage(_HEAP->RequestPage());
+        page->SetNonRelocatablePage(GetHeap<HEAP_CLS>()->RequestPage());
 }
 #else
 BaseThread::BaseThread() {
@@ -25,7 +25,8 @@ BaseThread::BaseThread() {
 #endif
 
 BaseThread::~BaseThread() {
-   _HEAP->RelinquishPage(page);
+#warning TODO: is the page properly reglingushed even if not done here?
+//   GetHeap<HEAP_CLS>()->RelinquishPage(page);
 }
 
 Page* BaseThread::GetPage() {

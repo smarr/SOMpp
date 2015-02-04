@@ -96,24 +96,24 @@ void VMMethod::MarkReferences() {
 }
 void VMMethod::CheckMarking(void (*walk)(vm_oop_t)) {
     VMInvokable::CheckMarking(walk);
-    assert(GetNMTValue(numberOfLocals) == _HEAP->GetGCThread()->GetExpectedNMT());
+    assert(GetNMTValue(numberOfLocals) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(numberOfLocals));
     walk(Untag(numberOfLocals));
-    assert(GetNMTValue(maximumNumberOfStackElements) == _HEAP->GetGCThread()->GetExpectedNMT());
+    assert(GetNMTValue(maximumNumberOfStackElements) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(maximumNumberOfStackElements));
     walk(Untag(maximumNumberOfStackElements));
-    assert(GetNMTValue(bcLength) == _HEAP->GetGCThread()->GetExpectedNMT());
+    assert(GetNMTValue(bcLength) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(bcLength));
     walk(Untag(bcLength));
-    assert(GetNMTValue(numberOfArguments) == _HEAP->GetGCThread()->GetExpectedNMT());
+    assert(GetNMTValue(numberOfArguments) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(numberOfArguments));
     walk(Untag(numberOfArguments));
-    assert(GetNMTValue(numberOfConstants) == _HEAP->GetGCThread()->GetExpectedNMT());
+    assert(GetNMTValue(numberOfConstants) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(numberOfConstants));
     walk(Untag(numberOfConstants));
     long numIndexableFields = INT_VAL(Untag(numberOfConstants));
     for (long i = 0; i < numIndexableFields; ++i) {
-        assert(GetNMTValue(indexableFields[i]) == _HEAP->GetGCThread()->GetExpectedNMT());
+        assert(GetNMTValue(indexableFields[i]) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
         CheckBlocked(Untag(indexableFields[i]));
         walk(Untag(indexableFields[i]));
     }

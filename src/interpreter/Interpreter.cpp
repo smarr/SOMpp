@@ -69,7 +69,7 @@ Interpreter::Interpreter(Page* page) : BaseThread(page) {
 
 //Interpreter::~Interpreter() {
     /*while (!fullPages.empty()) {
-        _HEAP->RelinquishPage(fullPages.back());
+        GetHeap<HEAP_CLS>()->RelinquishPage(fullPages.back());
         fullPages.pop_back();
     } */
 //}
@@ -88,12 +88,12 @@ Interpreter::Interpreter(Page* page) : BaseThread(page) {
     if (markRootSet)\
         MarkRootSet();\
     if (safePointRequested)\
-        _HEAP->SignalSafepointReached(&safePointRequested);\
+        GetHeap<HEAP_CLS>()->SignalSafepointReached(&safePointRequested);\
     if (signalEnableGCTrap)\
         EnableGCTrap();\
-    if (_HEAP->IsPauseTriggered()) { \
+    if (GetHeap<HEAP_CLS>()->IsPauseTriggered()) { \
         GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal); \
-        _HEAP->Pause(); \
+        GetHeap<HEAP_CLS>()->Pause(); \
         /* method = GetFrame()->GetMethod(); */ \
         /* currentBytecodes = method->GetBytecodes(); */ \
     } \
@@ -602,9 +602,9 @@ VMMethod* Interpreter::GetMethod() {
 void Interpreter::TriggerMarkRootSet() {
     pthread_mutex_lock(&blockedMutex);
     if (blocked)
-        _HEAP->SignalInterpreterBlocked(this);
+        GetHeap<HEAP_CLS>()->SignalInterpreterBlocked(this);
     else if (stopped)
-        _HEAP->SignalRootSetMarked();
+        GetHeap<HEAP_CLS>()->SignalRootSetMarked();
     else
         markRootSet = true;
     pthread_mutex_unlock(&blockedMutex);
@@ -621,16 +621,17 @@ void Interpreter::MarkRootSet() {
     // ReadBarrier(&method);
     
     while (!fullPages.empty()) {
-        //fullPages.back().ResetAmountOfLiveData();
-        _HEAP->RelinquishPage(fullPages.back());
+#warning TODO: see what's going on here, are we sure that the GC has only access to full pages?
+
+        GetHeap<HEAP_CLS>()->RelinquishPage(fullPages.back());
         fullPages.pop_back();
     }
     
     // signal that root-set has been marked
-    _HEAP->SignalRootSetMarked();
+    GetHeap<HEAP_CLS>()->SignalRootSetMarked();
     
-    //_HEAP->TriggerPause();
-    //_HEAP->Pause();
+    //GetHeap<HEAP_CLS>()->TriggerPause();
+    //GetHeap<HEAP_CLS>()->Pause();
 }
 
 // The interpreter is unable to mark its root set himself and thus one of the gc threads does it
@@ -645,15 +646,15 @@ void Interpreter::MarkRootSetByGC() {
     
     while (!fullPages.empty()) {
         //fullPages.back().ResetAmountOfLiveData();
-        _HEAP->RelinquishPage(fullPages.back());
+        GetHeap<HEAP_CLS>()->RelinquishPage(fullPages.back());
         fullPages.pop_back();
     }
     
     // signal that root-set has been marked
-    _HEAP->SignalRootSetMarked();
+    GetHeap<HEAP_CLS>()->SignalRootSetMarked();
     
-    //_HEAP->TriggerPause();
-    //_HEAP->PauseGC();
+    //GetHeap<HEAP_CLS>()->TriggerPause();
+    //GetHeap<HEAP_CLS>()->PauseGC();
 }
 
 // Request that the mutator thread passes a safepoint so that marking can finish
@@ -662,7 +663,7 @@ void Interpreter::RequestSafePoint() {
     if (!safePointRequested) {
         pthread_mutex_lock(&blockedMutex);
         if (blocked || stopped)
-            _HEAP->SignalSafepointReached(&safePointRequested);
+            GetHeap<HEAP_CLS>()->SignalSafepointReached(&safePointRequested);
         else
             safePointRequested = true;
         pthread_mutex_unlock(&blockedMutex);
@@ -674,7 +675,7 @@ void Interpreter::SignalEnableGCTrap() {
     pthread_mutex_lock(&blockedMutex);
     if (blocked || stopped) {
         gcTrapEnabled = true;
-        _HEAP->SignalGCTrapEnabled();
+        GetHeap<HEAP_CLS>()->SignalGCTrapEnabled();
     } else
         signalEnableGCTrap = true;
     pthread_mutex_unlock(&blockedMutex);
@@ -684,7 +685,7 @@ void Interpreter::SignalEnableGCTrap() {
 void Interpreter::EnableGCTrap() {
     signalEnableGCTrap = false;
     gcTrapEnabled = true;
-    _HEAP->SignalGCTrapEnabled();
+    GetHeap<HEAP_CLS>()->SignalGCTrapEnabled();
 }
 
 // Switch the GC-trap off again, this does not require a safepoint pass
@@ -700,7 +701,7 @@ void Interpreter::EnableBlocked() {
     if (markRootSet)
         MarkRootSet();
     if (safePointRequested)
-        _HEAP->SignalSafepointReached(&safePointRequested);
+        GetHeap<HEAP_CLS>()->SignalSafepointReached(&safePointRequested);
     if (signalEnableGCTrap)
         EnableGCTrap();
     blocked = true;
@@ -716,11 +717,11 @@ void Interpreter::DisableBlocked() {
 void Interpreter::EnableStop() {
     pthread_mutex_lock(&blockedMutex);
     if (markRootSet)
-        _HEAP->SignalRootSetMarked();
+        GetHeap<HEAP_CLS>()->SignalRootSetMarked();
     if (safePointRequested)
-        _HEAP->SignalSafepointReached(&safePointRequested);
+        GetHeap<HEAP_CLS>()->SignalSafepointReached(&safePointRequested);
     if (signalEnableGCTrap)
-        _HEAP->SignalGCTrapEnabled();
+        GetHeap<HEAP_CLS>()->SignalGCTrapEnabled();
     stopped = true;
     pthread_mutex_unlock(&blockedMutex);
 }
@@ -752,7 +753,7 @@ void Interpreter::AddFullPage(Page* page) {
 void Interpreter::CheckMarking(void (*walk)(vm_oop_t)) {
     // VMMethod* testMethodGCSet = Untag(method);
     if (frame) {
-        //assert(GetNMTValue(frame) == _HEAP->GetGCThread()->GetExpectedNMT());
+        //assert(GetNMTValue(frame) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
         walk(Untag(frame));
     }
 }
@@ -766,13 +767,13 @@ void Interpreter::CheckMarking(void (*walk)(vm_oop_t)) {
  
  // Since the interpreter is going to stop anyway it sufices to only signal the gc threads that the root set is marked without actually doing it
  void Interpreter::DummyMarkRootSet() {
- _HEAP->SignalRootSetMarked();
+ GetHeap<HEAP_CLS>()->SignalRootSetMarked();
  }
  
  
  // Signal the fact that a safepoint is reached
  void Interpreter::SignalSafepointReached() {
- _HEAP->SignalSafepointReached();
+ GetHeap<HEAP_CLS>()->SignalSafepointReached();
  }
  
  */

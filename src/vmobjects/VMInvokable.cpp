@@ -28,6 +28,8 @@
 #include "VMSymbol.h"
 #include "VMClass.h"
 
+#warning VMInvokable needs a GetHash implementation
+
 bool VMInvokable::IsPrimitive() const {
     return false;
 }
@@ -61,14 +63,14 @@ void VMInvokable::MarkReferences() {
     ReadBarrierForGCThread(&holder);
 }
 void VMInvokable::CheckMarking(void (*walk)(vm_oop_t)) {
-    assert(GetNMTValue(clazz) == _HEAP->GetGCThread()->GetExpectedNMT());
+    assert(GetNMTValue(clazz) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(clazz));
     walk(Untag(clazz));
-    assert(GetNMTValue(signature) == _HEAP->GetGCThread()->GetExpectedNMT());
+    assert(GetNMTValue(signature) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(signature));
     walk(Untag(signature));
     if (holder) {
-        assert(GetNMTValue(holder) == _HEAP->GetGCThread()->GetExpectedNMT());
+        assert(GetNMTValue(holder) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
         CheckBlocked(Untag(holder));
         walk(Untag(holder));
     }

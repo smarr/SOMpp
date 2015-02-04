@@ -126,7 +126,7 @@ void PauselessCollectorThread::MarkObject(AbstractVMObject* obj) {
     if (obj->GetGCField() == markValue)
         return;
     //assert(obj->GetGCField() == 0 || obj->GetGCField() == markValue-1);
-    Page* page = _HEAP->allPages->at(((size_t)obj - (size_t)_HEAP->memoryStart) / PAGE_SIZE);
+    Page* page = GetHeap<HEAP_CLS>()->allPages->at(((size_t)obj - (size_t)GetHeap<HEAP_CLS>()->memoryStart) / PAGE_SIZE);
     assert(REFERENCE_NMT_VALUE(obj) == false);
     assert(Universe::IsValidObject(obj));
     page->AddAmountLiveData(obj->GetObjectSize());
@@ -200,7 +200,7 @@ void PauselessCollectorThread::Collect() {
     while (true) {
         
         expectedNMT = !expectedNMT;
-        PagedHeap* test = _HEAP;
+        PagedHeap* test = GetHeap<HEAP_CLS>();
         
         //sync_out(ostringstream() << "[GC] Start RootSet Marking");
         //------------------------
@@ -334,22 +334,22 @@ void PauselessCollectorThread::Collect() {
                 }
             }
             
-            _HEAP->numberOfMutatorsWithEnabledGCTrap = 0;
+            GetHeap<HEAP_CLS>()->numberOfMutatorsWithEnabledGCTrap = 0;
             // unblock pages that were blocked during the previous cycle
             for (vector<Page*>::iterator page = pagesToUnblock->begin(); page != pagesToUnblock->end(); ++page) {
                 (*page)->UnBlock();
-                _HEAP->AddEmptyPage(*page);
+                GetHeap<HEAP_CLS>()->AddEmptyPage(*page);
             }
             pagesToUnblock->clear();
             // block pages that will be subject for relocation
                                 //pthread_mutex_lock();
-            for (vector<Page*>::iterator page = _HEAP->fullPages->begin(); page != _HEAP->fullPages->end(); ++page) {
+            for (vector<Page*>::iterator page = GetHeap<HEAP_CLS>()->fullPages->begin(); page != GetHeap<HEAP_CLS>()->fullPages->end(); ++page) {
                 (*page)->Block();
                 
                 pagesToRelocate->push_back(*page);
                 pagesToUnblock->push_back(*page);
             }
-            _HEAP->fullPages->clear();
+            GetHeap<HEAP_CLS>()->fullPages->clear();
                                 //pthread_mutex_unlock
             
             
@@ -360,19 +360,19 @@ we might be able to solve that differently, first the GC thread writes the expec
 and then, it starts flipping the other bits
                 // enable the GC-trap again
                 auto interpreters = GetUniverse()->GetInterpretersCopy();
-                _HEAP->numberOfMutatorsNeedEnableGCTrap = interpreters->size();
-                assert(_HEAP->numberOfMutatorsWithEnabledGCTrap == 0);
+                GetHeap<HEAP_CLS>()->numberOfMutatorsNeedEnableGCTrap = interpreters->size();
+                assert(GetHeap<HEAP_CLS>()->numberOfMutatorsWithEnabledGCTrap == 0);
                 for (auto interp : *interpreters) {
                     interp->SignalEnableGCTrap();
                 }
             }
             
             // All gc-threads need to wait till all mutators have the gc-trap enabled before starting relocation
-            pthread_mutex_lock(&(_HEAP->gcTrapEnabledMutex));
-            while (_HEAP->numberOfMutatorsNeedEnableGCTrap != _HEAP->numberOfMutatorsWithEnabledGCTrap) {
-                pthread_cond_wait(&(_HEAP->gcTrapEnabledCondition), &(_HEAP->gcTrapEnabledMutex));
+            pthread_mutex_lock(&(GetHeap<HEAP_CLS>()->gcTrapEnabledMutex));
+            while (GetHeap<HEAP_CLS>()->numberOfMutatorsNeedEnableGCTrap != GetHeap<HEAP_CLS>()->numberOfMutatorsWithEnabledGCTrap) {
+                pthread_cond_wait(&(GetHeap<HEAP_CLS>()->gcTrapEnabledCondition), &(GetHeap<HEAP_CLS>()->gcTrapEnabledMutex));
             }
-            pthread_mutex_unlock(&(_HEAP->gcTrapEnabledMutex));
+            pthread_mutex_unlock(&(GetHeap<HEAP_CLS>()->gcTrapEnabledMutex));
             
             
             // signal the other gc-threads that they may start relocating
@@ -449,9 +449,9 @@ void PauselessCollectorThread::CheckMarkingOfObject(vm_oop_t oop) {
     if (obj->GetGCField2() == markValue)
         return;
     obj->SetGCField2(markValue);
-    size_t pageNumber = ((size_t)obj - (size_t)(_HEAP->GetMemoryStart())) / PAGE_SIZE;
-    Page* page = _HEAP->allPages->at(pageNumber);
-    if (std::find(_HEAP->fullPages->begin(), _HEAP->fullPages->end(), page) != _HEAP->fullPages->end()) {
+    size_t pageNumber = ((size_t)obj - (size_t)(GetHeap<HEAP_CLS>()->GetMemoryStart())) / PAGE_SIZE;
+    Page* page = GetHeap<HEAP_CLS>()->allPages->at(pageNumber);
+    if (std::find(GetHeap<HEAP_CLS>()->fullPages->begin(), GetHeap<HEAP_CLS>()->fullPages->end(), page) != GetHeap<HEAP_CLS>()->fullPages->end()) {
         assert(obj->GetGCField() == markValue);
         obj->CheckMarking(CheckMarkingOfObject);
     }

@@ -97,12 +97,12 @@ void VMObject::MarkReferences() {
     }
 }
 void VMObject::CheckMarking(void (*walk)(vm_oop_t)) {
-    assert(GetNMTValue(clazz) == _HEAP->GetGCThread()->GetExpectedNMT());
+    assert(GetNMTValue(clazz) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(clazz));
     walk(Untag(clazz));
     long numFields = GetNumberOfFields();
     for (long i = 0; i < numFields; ++i) {
-        assert(GetNMTValue(FIELDS[i]) == _HEAP->GetGCThread()->GetExpectedNMT());
+        assert(GetNMTValue(FIELDS[i]) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
         CheckBlocked(Untag(FIELDS[i]));
         walk(Untag(FIELDS[i]));
     }

@@ -86,25 +86,25 @@ void GenerationalCollector::MinorCollection() {
     CopyInterpretersFrameAndThread();
 
     // and also all objects that have been detected by the write barriers
-    for (auto obj : *_HEAP->oldObjsWithRefToYoungObjs) {
+    for (auto obj : *GetHeap<HEAP_CLS>()->oldObjsWithRefToYoungObjs) {
         // content of oldObjsWithRefToYoungObjs is not altered while iteration,
         // because copy_if_necessary returns old objs only -> ignored by
         // write_barrier
         obj->SetGCField(MASK_OBJECT_IS_OLD);
         obj->WalkObjects(&copy_if_necessary);
     }
-    _HEAP->oldObjsWithRefToYoungObjs->clear();
+    GetHeap<HEAP_CLS>()->oldObjsWithRefToYoungObjs->clear();
     
     //need to clean this up a bit
-    _HEAP->fullPages->erase(_HEAP->fullPages->begin(),_HEAP->fullPages->end());
-    for (std::vector<Page*>::iterator it = _HEAP->allPages->begin() ; it != _HEAP->allPages->end(); ++it) {
+    GetHeap<HEAP_CLS>()->fullPages->erase(GetHeap<HEAP_CLS>()->fullPages->begin(),GetHeap<HEAP_CLS>()->fullPages->end());
+    for (std::vector<Page*>::iterator it = GetHeap<HEAP_CLS>()->allPages->begin() ; it != GetHeap<HEAP_CLS>()->allPages->end(); ++it) {
         (*it)->ClearPage();
-        _HEAP->availablePages->push_back((*it));
+        GetHeap<HEAP_CLS>()->availablePages->push_back((*it));
     }
     vector<Interpreter*>* interpreters = GetUniverse()->GetInterpreters();
     for (std::vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
-        Page* newPage = _HEAP->availablePages->back();
-        _HEAP->availablePages->pop_back();
+        Page* newPage = GetHeap<HEAP_CLS>()->availablePages->back();
+        GetHeap<HEAP_CLS>()->availablePages->pop_back();
         (*it)->SetPage(newPage);
     }
 }
@@ -117,7 +117,7 @@ void GenerationalCollector::MajorCollection() {
 
     //now that all objects are marked we can safely delete all allocated objects that are not marked
     vector<AbstractVMObject*>* survivors = new vector<AbstractVMObject*>();
-    for (auto obj : *_HEAP->allocatedObjects) {
+    for (auto obj : *GetHeap<HEAP_CLS>()->allocatedObjects) {
         assert(Universe::IsValidObject(obj));
         
         if (obj->GetGCField() & MASK_OBJECT_IS_MARKED) {
@@ -125,27 +125,27 @@ void GenerationalCollector::MajorCollection() {
             obj->SetGCField(MASK_OBJECT_IS_OLD);
         }
         else {
-            _HEAP->FreeObject(obj);
+            GetHeap<HEAP_CLS>()->FreeObject(obj);
         }
     }
-    delete _HEAP->allocatedObjects;
-    _HEAP->allocatedObjects = survivors;
+    delete GetHeap<HEAP_CLS>()->allocatedObjects;
+    GetHeap<HEAP_CLS>()->allocatedObjects = survivors;
 }
 
 void GenerationalCollector::Collect() {
     Timer::GCTimer->Resume();
 
     MinorCollection();
-    if (_HEAP->matureObjectsSize > majorCollectionThreshold)
+    if (GetHeap<HEAP_CLS>()->matureObjectsSize > majorCollectionThreshold)
     {
         MajorCollection();
-        majorCollectionThreshold = 2 * _HEAP->matureObjectsSize;
+        majorCollectionThreshold = 2 * GetHeap<HEAP_CLS>()->matureObjectsSize;
 
     }
     
     //reset collection trigger
     //heap->resetGCTrigger();
-    _HEAP->resetGCTrigger();
+    GetHeap<HEAP_CLS>()->resetGCTrigger();
     
     Timer::GCTimer->Halt();
 }

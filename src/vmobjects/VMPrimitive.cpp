@@ -69,13 +69,13 @@ void VMPrimitive::MarkReferences() {
     ReadBarrierForGCThread(&holder);
 }
 void VMPrimitive::CheckMarking(void (*walk)(vm_oop_t)) {
-    assert(GetNMTValue(clazz) == _HEAP->GetGCThread()->GetExpectedNMT());
+    assert(GetNMTValue(clazz) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(clazz));
     walk(Untag(clazz));
-    assert(GetNMTValue(signature) == _HEAP->GetGCThread()->GetExpectedNMT());
+    assert(GetNMTValue(signature) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(signature));
     walk(Untag(signature));
-    assert(GetNMTValue(holder) == _HEAP->GetGCThread()->GetExpectedNMT());
+    assert(GetNMTValue(holder) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(holder));
     walk(Untag(holder));
 }

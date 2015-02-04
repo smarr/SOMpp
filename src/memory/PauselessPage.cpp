@@ -132,12 +132,12 @@ void PauselessPage::Free(size_t numBytes) {
 }
 
 void PauselessPage::RelocatePage() {
-    PauselessCollectorThread* thread = _HEAP->GetGCThread();
+    PauselessCollectorThread* thread = GetHeap<HEAP_CLS>()->GetGCThread();
     for (AbstractVMObject* currentObject = (AbstractVMObject*) pageStart;
          (size_t) currentObject < (size_t) nextFreePosition;
          currentObject = (AbstractVMObject*) (currentObject->GetObjectSize() + (size_t) currentObject)) {
         assert(Universe::IsValidObject(currentObject));
-        if (currentObject->GetGCField() == _HEAP->GetMarkValue()) {
+        if (currentObject->GetGCField() == GetHeap<HEAP_CLS>()->GetMarkValue()) {
             AbstractVMObject* newLocation = currentObject->Clone(this);
             long positionSideArray = ((size_t)currentObject - pageStart)/8;
             AbstractVMObject* test = nullptr;

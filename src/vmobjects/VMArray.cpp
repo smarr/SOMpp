@@ -108,13 +108,13 @@ void VMArray::MarkReferences() {
 }
 void VMArray::CheckMarking(void (*walk)(vm_oop_t)) {
     // ensure that the NMT bit was set during the pauseless marking
-    assert(GetNMTValue(clazz) == _HEAP->GetGCThread()->GetExpectedNMT());
+    assert(GetNMTValue(clazz) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(clazz));
     walk(Untag(clazz));
     long numFields          = GetNumberOfFields();
     long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numFields + numIndexableFields; i++) {
-        assert(GetNMTValue(FIELDS[i]) == _HEAP->GetGCThread()->GetExpectedNMT());
+        assert(GetNMTValue(FIELDS[i]) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
         CheckBlocked(Untag(FIELDS[i]));
         walk(Untag(FIELDS[i]));
     }

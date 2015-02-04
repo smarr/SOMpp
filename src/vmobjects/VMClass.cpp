@@ -66,26 +66,26 @@ void VMClass::MarkReferences() {
     }
 }
 void VMClass::CheckMarking(void (*walk)(vm_oop_t)) {
-    assert(GetNMTValue(clazz) == _HEAP->GetGCThread()->GetExpectedNMT());
+    assert(GetNMTValue(clazz) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(clazz));
     walk(Untag(clazz));
     if (superClass) {
-        assert(GetNMTValue(superClass) == _HEAP->GetGCThread()->GetExpectedNMT());
+        assert(GetNMTValue(superClass) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
         CheckBlocked(Untag(superClass));
         walk(Untag(superClass));
         
     }
-    assert(GetNMTValue(name) == _HEAP->GetGCThread()->GetExpectedNMT());
+    assert(GetNMTValue(name) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(name));
     walk(Untag(name));
-    assert(GetNMTValue(instanceFields) == _HEAP->GetGCThread()->GetExpectedNMT());
+    assert(GetNMTValue(instanceFields) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(instanceFields));
     walk(Untag(instanceFields));
-    assert(GetNMTValue(instanceInvokables) == _HEAP->GetGCThread()->GetExpectedNMT());
+    assert(GetNMTValue(instanceInvokables) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(instanceInvokables));
     walk(Untag(instanceInvokables));
     for (long i = VMClassNumberOfFields + 0/*VMObjectNumberOfFields*/; i < numberOfFields; i++) {
-        assert(GetNMTValue(FIELDS[i]) == _HEAP->GetGCThread()->GetExpectedNMT());
+        assert(GetNMTValue(FIELDS[i]) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
         CheckBlocked(Untag(FIELDS[i]));
         walk(Untag(FIELDS[i]));
     }

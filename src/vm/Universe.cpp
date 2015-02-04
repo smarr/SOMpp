@@ -325,11 +325,9 @@ void Universe::initialize(long _argc, char** _argv) {
     if (argv.size() > 0)
         bm_name = argv[0];
 
-    PagedHeap::InitializeHeap(HEAP_SIZE, PAGE_SIZE);
+    Heap<HEAP_CLS>::InitializeHeap(PAGE_SIZE, HEAP_SIZE);
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
 
-    heap = _HEAP;
-
-    Page* page = _HEAP->RegisterThread();
     Interpreter* interpreter = new Interpreter(page, false, true);
 
     pthread_setspecific(this->interpreterKey, interpreter);
@@ -376,7 +374,7 @@ void Universe::initialize(long _argc, char** _argv) {
         dumpBytecodes = 2 - trace;
     
 #if GC_TYPE==PAUSELESS
-    _HEAP->Start();
+    GetHeap<HEAP_CLS>()->Start();
 #endif
     interpreter->Start();
 }
@@ -390,7 +388,7 @@ void Universe::startInterpreterInThread(VMThread* thread, VMBlock* block,
     //       not GC safe!
 
 #warning this should get all the necessary info, also with regard to the pauseless GC, to initialize the interpreter's flags, (if it has any global state)
-    Page* page = _HEAP->RegisterThread();
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
 
     Interpreter* interp = new Interpreter(page, expectedNMT, gcTrapEnabled);
     pthread_setspecific(this->interpreterKey, interp);
@@ -421,7 +419,7 @@ void Universe::startInterpreterInThread(VMThread* thread, VMBlock* block,
     VMThread::UnregisterThread(this_thread::get_id());
     // thread is done
     unregisterInterpreter(interp);
-    _HEAP->UnregisterThread(interp->GetPage());
+    GetHeap<HEAP_CLS>()->UnregisterThread(interp->GetPage());
 }
 
 Universe::~Universe() {

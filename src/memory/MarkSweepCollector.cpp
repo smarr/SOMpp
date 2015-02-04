@@ -10,7 +10,7 @@
 #define GC_MARKED 3456
 
 void MarkSweepCollector::Collect() {
-    MarkSweepHeap* heap = _HEAP;
+    MarkSweepHeap* heap = GetHeap<HEAP_CLS>();
     Timer::GCTimer->Resume();
 
     //now mark all reachables

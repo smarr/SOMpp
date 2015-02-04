@@ -40,7 +40,7 @@ void PauselessHeap::Start() {
 
 void* PauselessHeap::ThreadForGC(void*) {
     PauselessCollectorThread* gcThread = new PauselessCollectorThread();
-    _HEAP->AddGCThread(gcThread);
+    GetHeap<HEAP_CLS>()->AddGCThread(gcThread);
     gcThread->Collect();
     return nullptr;
 }

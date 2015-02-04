@@ -121,7 +121,7 @@ template<typename T>
 inline typename T::Stored* WriteBarrierForGCThread(T* reference) {
     if (reference == nullptr)
         return (typename T::Stored*) nullptr;
-    if (_HEAP->GetGCThread()->GetExpectedNMT())
+    if (GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT())
         return (typename T::Stored*) FLIP_NMT_VALUE(reference);
     else
         return (typename T::Stored*) reference;
@@ -147,7 +147,7 @@ __attribute__((always_inline)) inline typename T::Loaded* ReadBarrier(T** refere
         bool trapTriggered = false;
         //gc-trap stuff ------>
         
-        HEAP_CLS* const heap = _HEAP;
+        HEAP_CLS* const heap = GetHeap<HEAP_CLS>();
         size_t pageNumber = ((size_t)reference - (size_t)(heap->GetMemoryStart())) / PAGE_SIZE;
         vector<Page*>* allPages = heap->GetAllPages();
         Page* page = (*allPages)[pageNumber];
@@ -189,13 +189,13 @@ __attribute__((always_inline)) inline typename T::Loaded* ReadBarrierForGCThread
         T* foo = *referenceHolder;
         if (foo == nullptr)
             return (typename T::Loaded*)nullptr;
-        PauselessCollectorThread* gcThread = _HEAP->GetGCThread();
+        PauselessCollectorThread* gcThread = GetHeap<HEAP_CLS>()->GetGCThread();
         bool correctNMT = (REFERENCE_NMT_VALUE(foo) == gcThread->GetExpectedNMT());
         reference = Untag(foo);
         bool trapTriggered = false;
         //gc-trap stuff ------>
-        size_t pageNumber = ((size_t)reference - (size_t)(_HEAP->GetMemoryStart())) / PAGE_SIZE;
-        Page* page = _HEAP->GetAllPages()->at(pageNumber);
+        size_t pageNumber = ((size_t)reference - (size_t)(GetHeap<HEAP_CLS>()->GetMemoryStart())) / PAGE_SIZE;
+        Page* page = GetHeap<HEAP_CLS>()->GetAllPages()->at(pageNumber);
         if (page->Blocked()) {
             trapTriggered = true;
             reference = (typename T::Loaded*) page->LookupNewAddress((AbstractVMObject*)reference, gcThread);
@@ -230,8 +230,8 @@ inline bool GetNMTValue(T* reference) {
 
 template<typename T>
 inline void CheckBlocked(T* reference) {
-    size_t pageNumber = ((size_t)reference - (size_t)(_HEAP->GetMemoryStart())) / PAGE_SIZE;
-    Page* page = _HEAP->allPages->at(pageNumber);
+    size_t pageNumber = ((size_t)reference - (size_t)(GetHeap<HEAP_CLS>()->GetMemoryStart())) / PAGE_SIZE;
+    Page* page = GetHeap<HEAP_CLS>()->allPages->at(pageNumber);
     assert(!page->Blocked());
 }
 

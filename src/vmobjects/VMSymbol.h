@@ -80,8 +80,8 @@ private:
 //    nextCachePos = (nextCachePos + 1) % 3;
 //    
 //#if GC_TYPE==GENERATIONAL
-//    _HEAP->WriteBarrier(this, (VMOBJECT_PTR) invo);
-//    _HEAP->WriteBarrier(this, (VMOBJECT_PTR) cls);
+//    GetHeap<HEAP_CLS>()->WriteBarrier(this, (VMOBJECT_PTR) invo);
+//    GetHeap<HEAP_CLS>()->WriteBarrier(this, (VMOBJECT_PTR) cls);
 //#endif
 //}
 

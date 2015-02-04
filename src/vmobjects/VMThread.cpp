@@ -154,10 +154,10 @@ void VMThread::MarkReferences() {
 }
 
 void VMThread::CheckMarking(void (*walk)(vm_oop_t)) {
-    assert(GetNMTValue(clazz) == _HEAP->GetGCThread()->GetExpectedNMT());
+    assert(GetNMTValue(clazz) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(clazz));
     walk(Untag(clazz));
-    assert(GetNMTValue(name) == _HEAP->GetGCThread()->GetExpectedNMT());
+    assert(GetNMTValue(name) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(name));
     walk(Untag(name));
 }

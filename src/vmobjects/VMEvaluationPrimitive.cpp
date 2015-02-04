@@ -98,7 +98,7 @@ void VMEvaluationPrimitive::MarkReferences() {
 }
 void VMEvaluationPrimitive::CheckMarking(void (*walk)(vm_oop_t)) {
     VMPrimitive::CheckMarking(walk);
-    assert(GetNMTValue(numberOfArguments) == _HEAP->GetGCThread()->GetExpectedNMT());
+    assert(GetNMTValue(numberOfArguments) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(numberOfArguments));
     walk(Untag(numberOfArguments));
     static_cast<EvaluationRoutine*>(routine)->WalkObjects(walk, page);
@@ -116,7 +116,7 @@ void EvaluationRoutine::MarkReferences() {
     ReadBarrierForGCThread(&evalPrim);
 }
 void EvaluationRoutine::CheckMarking(void (*walk)(vm_oop_t)) {
-    assert(GetNMTValue(evalPrim) == _HEAP->GetGCThread()->GetExpectedNMT());
+    assert(GetNMTValue(evalPrim) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(evalPrim));
     walk(Untag(evalPrim));
 }
