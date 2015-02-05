@@ -1004,7 +1004,7 @@ void Universe::MarkGlobals() {
     ReadBarrierForGCThread(&falseClass, true);
     
     
-    pthread_mutex_lock(&testMutex);
+    lock_guard<recursive_mutex> lock(globalsAndSymbols_mutex);
     
     // walk all entries in globals map
     map<GCSymbol*, gc_oop_t> globs;
@@ -1060,11 +1060,8 @@ void Universe::MarkGlobals() {
 
     assert(glob_ptr_val == Untag(trueObject));
 */
-    
-    pthread_mutex_unlock(&testMutex);
-    
-    
 }
+
 void  Universe::CheckMarkingGlobals(void (*walk)(vm_oop_t)) {
     walk(Untag(nilObject));
     walk(Untag(trueObject));
@@ -1091,6 +1088,8 @@ void  Universe::CheckMarkingGlobals(void (*walk)(vm_oop_t)) {
     
     walk(Untag(trueClass));
     walk(Untag(falseClass));
+    
+    lock_guard<recursive_mutex> lock(globalsAndSymbols_mutex);
     
     // walk all entries in globals map
     map<GCSymbol*, gc_oop_t>::iterator iter;
