@@ -1,9 +1,10 @@
-#include "MarkSweepCollector.h"
+#include <memory/MarkSweepCollector.h>
+#include <memory/MarkSweepPage.h>
 
-#include "../vm/Universe.h"
-#include "MarkSweepHeap.h"
-#include "../vmobjects/AbstractObject.h"
-#include "../vmobjects/VMFrame.h"
+#include <vm/Universe.h>
+#include <memory/MarkSweepHeap.h>
+#include <vmobjects/AbstractObject.h>
+#include <vmobjects/VMFrame.h>
 #include <vmobjects/IntegerBox.h>
 
 #define GC_MARKED 3456

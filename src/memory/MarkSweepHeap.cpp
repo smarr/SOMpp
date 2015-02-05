@@ -1,7 +1,8 @@
 #include <string.h>
 
-#include "MarkSweepCollector.h"
-#include "MarkSweepHeap.h"
+#include <memory/MarkSweepCollector.h>
+#include <memory/MarkSweepHeap.h>
+#include <memory/MarkSweepPage.h>
 
 #include <vm/Universe.h>
 #include <vmobjects/AbstractObject.h>

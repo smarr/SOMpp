@@ -1,6 +1,7 @@
-#include "Heap.h"
-#include "GenerationalHeap.h"
-#include "GenerationalCollector.h"
+#include <memory/Heap.h>
+#include <memory/GenerationalHeap.h>
+#include <memory/GenerationalCollector.h>
+#include <memory/GenerationalPage.h>
 
 #include <vmobjects/VMObjectBase.h>
 #include <vmobjects/AbstractObject.h>

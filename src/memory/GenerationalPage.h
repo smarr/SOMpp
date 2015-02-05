@@ -1,5 +1,9 @@
 #pragma once
 
+#include <vector>
+
+#include <memory/GenerationalHeap.h>
+
 class Interpreter;
 
 class NurseryPage {

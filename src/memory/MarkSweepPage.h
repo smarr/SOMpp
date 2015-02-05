@@ -1,6 +1,15 @@
 #pragma once
 
+#include <cstdlib>
+#include <vector>
+
+#include <memory/MarkSweepHeap.h>
+
+
+class AbstractVMObject;
 class Interpreter;
+
+using namespace std;
 
 class MarkSweepPage {
 public:

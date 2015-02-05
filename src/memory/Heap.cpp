@@ -28,8 +28,8 @@
 #include <string.h>
 
 #include "Heap.h"
-#include "../vmobjects/VMObject.h"
-#include "../vm/Universe.h"
+#include <vmobjects/VMObject.h>
+#include <vm/Universe.h>
 
 #include <vm/SafePoint.h>
 

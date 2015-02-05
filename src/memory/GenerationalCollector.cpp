@@ -1,6 +1,7 @@
 #include <misc/defs.h>
 
-#include "GenerationalCollector.h"
+#include <memory/GenerationalCollector.h>
+#include <memory/GenerationalPage.h>
 
 #include <vm/Universe.h>
 #include <vmobjects/VMMethod.h>

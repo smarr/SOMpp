@@ -1,3 +1,5 @@
+#include <unordered_set>
+
 #include <misc/defs.h>
 
 #include "CopyingHeap.h"
