@@ -47,9 +47,7 @@ public:
     void Time(Interpreter*, VMFrame*);
     void Ticks(Interpreter*, VMFrame*);
     void FullGC(Interpreter*, VMFrame*);
-    void GetNumberOfCPUs(Interpreter*, VMFrame*);
 
 private:
     struct timeval start_time;
-    pthread_mutex_t outputMutex;
 };

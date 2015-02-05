@@ -49,11 +49,6 @@
 
 #endif
 
-#ifdef __APPLE__
-    #include <sys/types.h>
-    #include <sys/sysctl.h>
-#endif
-
 _System* System_;
 
 void _System::Global_(Interpreter*, VMFrame* frame) {
@@ -104,22 +99,17 @@ void _System::Exit_(Interpreter*, VMFrame* frame) {
 void _System::PrintString_(Interpreter*, VMFrame* frame) {
     VMString* arg = static_cast<VMString*>(frame->Pop());
     std::string str = arg->GetStdString();
-    pthread_mutex_lock(&outputMutex);
-    cout << str;
-    pthread_mutex_unlock(&outputMutex);
+    Universe::Print(str);
 }
 
 void _System::PrintNewline(Interpreter*, VMFrame*) {
-    pthread_mutex_lock(&outputMutex);
-    cout << endl;
-    pthread_mutex_unlock(&outputMutex);
+    Universe::Print("\n");
 }
 
 void _System::PrintNewline_(Interpreter*, VMFrame* frame) {
     VMString* arg = static_cast<VMString*>(frame->Pop());
-    pthread_mutex_lock(&outputMutex);
-    cout << arg->GetStdString() << endl;
-    pthread_mutex_unlock(&outputMutex);
+    std::string str = arg->GetStdString();
+    Universe::Print(str + "\n");
 }
 
 void _System::Time(Interpreter* interp, VMFrame* frame) {
@@ -158,35 +148,7 @@ void _System::FullGC(Interpreter*, VMFrame* frame) {
     }
 }
 
-void _System::GetNumberOfCPUs(Interpreter* interp, VMFrame* frame) {
-    frame->Pop();
-    int i = 0;
-    
-#ifdef linux
-    // count contents of /sys/devices/system/cpu/
-    DIR *dip;
-    if ((dip = opendir("/sys/devices/system/cpu")) == nullptr) {
-        perror("opendir");
-    }
-    
-    while (readdir(dip) != nullptr) i++;
-    i -= 2;
-    if (closedir(dip) == -1) {
-        perror("closedir");
-    }
-#elif __APPLE__
-    size_t len = sizeof(i);
-    sysctlbyname("machdep.cpu.core_count", &i, &len, nullptr, 0);
-#else
-    i = -1;
-#endif
-    
-    //Based on the other methods I have also done GetUniverse()->... this also takes care of the heap allocation of the VMInteger but why is this necearry? Or can I simply do frame->Push(VMInteger(i))?
-    frame->Push((VMObject*)GetUniverse()->NewInteger(i, interp->GetPage()));
-}
-
 _System::_System(void) : PrimitiveContainer() {
-    pthread_mutex_init(&outputMutex, nullptr);
     gettimeofday(&start_time, nullptr);
 
     SetPrimitive("global_",      new Routine<_System>(this, &_System::Global_,     false));
@@ -200,8 +162,6 @@ _System::_System(void) : PrimitiveContainer() {
     SetPrimitive("time",         new Routine<_System>(this, &_System::Time,   false));
     SetPrimitive("ticks",        new Routine<_System>(this, &_System::Ticks,  false));
     SetPrimitive("fullGC",       new Routine<_System>(this, &_System::FullGC, false));
-
-    SetPrimitive("getNumberOfCPUs", new Routine<_System>(this, &_System::GetNumberOfCPUs, false));
 }
 
 _System::~_System() {}
