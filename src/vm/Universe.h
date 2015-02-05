@@ -175,14 +175,13 @@ public:
     map<StdString, long> receiverTypes;
     map<StdString, stat_data> callStats;
 #endif
-    //
     
     static bool IsValidObject(vm_oop_t obj);
     
     static void Print(StdString str);
     static void ErrorPrint(StdString str);
 
-    //void PrintGlobals();
+    void PrintGlobals();
     
 private:
     pthread_key_t interpreterKey;

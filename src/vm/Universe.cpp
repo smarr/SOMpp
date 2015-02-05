@@ -1321,14 +1321,14 @@ unique_ptr<vector<Interpreter*>> Universe::GetInterpretersCopy() {
 
 
 // FOR DEBUGGING PURPOSES
-/*
 void Universe::PrintGlobals() {
-    map<GCSymbol*, GCAbstractObject*>::iterator it;
-    for (it = globals.begin(); it != globals.end(); it++) {
-        GetUniverse()->ErrorPrint("[GLOBALS] symbol: " << Untag(it->first)->GetChars()
-                 << " ptr: " << it->first << " value ptr: " << it->second);
+    for (auto assoc : globals) {
+        GetUniverse()->ErrorPrint("[GLOBALS] symbol: " +
+            Untag(assoc.first)->GetStdString() + " ptr: " +
+            to_string((intptr_t)assoc.first) + " value ptr: " +
+            to_string((intptr_t)assoc.second));
     }
-} */
+}
 
 void Universe::Print(StdString str) {
     lock_guard<mutex> lock(output_mutex);
