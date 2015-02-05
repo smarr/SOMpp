@@ -8,6 +8,8 @@ class MarkSweepHeap;
 class MarkSweepCollector : public GarbageCollector<MarkSweepHeap> {
 public:
     MarkSweepCollector(MarkSweepHeap* heap) : GarbageCollector(heap) {}
+    virtual ~MarkSweepCollector() {}
+    
     virtual void Collect();
 
 private:

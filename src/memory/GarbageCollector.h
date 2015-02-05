@@ -30,8 +30,12 @@ template <class HEAP_T>
 class GarbageCollector {
 public:
     GarbageCollector(HEAP_T* h) : heap(h) {}
+    virtual ~GarbageCollector() {};
     void PrintGCStat() const;
     void PrintCollectStat() const;
+    
+    virtual void Collect() = 0;
+
 protected:
     HEAP_T* const heap;
 };

@@ -8,6 +8,7 @@ class GenerationalHeap;
 class GenerationalCollector : public GarbageCollector<GenerationalHeap> {
 public:
     GenerationalCollector(GenerationalHeap* heap);
+    virtual ~GenerationalCollector() {}
     
     virtual void Collect();
 
