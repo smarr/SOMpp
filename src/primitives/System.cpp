@@ -151,11 +151,11 @@ void _System::Ticks(Interpreter* interp, VMFrame* frame) {
 }
 
 void _System::FullGC(Interpreter*, VMFrame* frame) {
-#if GC_TYPE!=PAUSELESS
-    frame->Pop();
-    frame->Push(load_ptr(trueObject));
-#endif
+    if (GC_TYPE != PAUSELESS) {
+        frame->Pop();
         GetHeap<HEAP_CLS>()->triggerGC(); // not safe to do it immediatly, will be done when it is ok, i.e., in the interpreter loop
+        frame->Push(load_ptr(trueObject));
+    }
 }
 
 void _System::GetNumberOfCPUs(Interpreter* interp, VMFrame* frame) {
