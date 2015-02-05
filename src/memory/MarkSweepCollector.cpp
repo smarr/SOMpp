@@ -1,87 +1,94 @@
-#include "MarkSweepCollector.h"
+#include <memory/MarkSweepCollector.h>
+#include <memory/MarkSweepPage.h>
 
-#if GC_TYPE==MARK_SWEEP
-
-#include "../vm/Universe.h"
-#include "MarkSweepHeap.h"
-#include "../vmobjects/AbstractObject.h"
-#include "../vmobjects/VMFrame.h"
+#include <vm/Universe.h>
+#include <memory/MarkSweepHeap.h>
+#include <vmobjects/AbstractObject.h>
+#include <vmobjects/VMFrame.h>
+#include <vmobjects/IntegerBox.h>
 
 #define GC_MARKED 3456
 
 void MarkSweepCollector::Collect() {
-    MarkSweepHeap* heap = GetHeap<HEAP_CLS>();
+    MarkSweepHeap* heap = GetHeap<MarkSweepHeap>();
     Timer::GCTimer->Resume();
+    // reset collection trigger
+    heap->resetGCTrigger();
 
-    //now mark all reachables
+    // now mark all reachables
     markReachableObjects();
 
-    //in this survivors stack we will remember all objects that survived
-    vector<VMOBJECT_PTR>* survivors = new vector<VMOBJECT_PTR>();
-    size_t survivorsSize = 0;
+    size_t maxSurvivorsSize = 0;
+    for (auto page : heap->pages) {
+        size_t survivorsSize = 0;
+        
+        // in this vector we remember all objects that survived
+        auto survivors = new vector<AbstractVMObject*>();
+        
+        for (AbstractVMObject* obj : *page->allocatedObjects) {
+            if (obj->GetGCField() == GC_MARKED) {
+                // object ist marked -> let it survive
+                survivors->push_back(obj);
+                survivorsSize += obj->GetObjectSize();
+                obj->SetGCField(0);
+            } else {
+                // not marked -> kill it
+                MarkSweepHeap::free(obj);
+            }
+        }
 
-    vector<VMOBJECT_PTR>::iterator iter;
-    for (iter = heap->allocatedObjects->begin(); iter !=
-            heap->allocatedObjects->end(); iter++) {
-        if ((*iter)->GetGCField() == GC_MARKED) {
-            //object ist marked -> let it survive
-            survivors->push_back(*iter);
-            survivorsSize += (*iter)->GetObjectSize();
-            (*iter)->SetGCField(0);
-        } else {
-            //not marked -> kill it
-            heap->FreeObject(*iter);
+        delete page->allocatedObjects;
+        page->allocatedObjects = survivors;
+        page->spaceAllocated = survivorsSize;
+        
+        maxSurvivorsSize = max(maxSurvivorsSize, survivorsSize);
+    }
+    
+    // go over pages returned from old threads
+    if (heap->yieldedPages.size() > 0) {
+        auto survivors = new vector<AbstractVMObject*>();
+
+        while (true) {
+            auto page = heap->yieldedPages.back();
+            
+            for (AbstractVMObject* obj : *page->allocatedObjects) {
+                if (obj->GetGCField() == GC_MARKED) {
+                    survivors->push_back(obj);
+                } else {
+                    MarkSweepHeap::free(obj);
+                }
+            }
+            
+            if (heap->yieldedPages.size() == 1) {
+                page->allocatedObjects = survivors;
+                break;
+            } else {
+                delete page;
+                heap->yieldedPages.pop_back();
+            }
         }
     }
 
-    delete heap->allocatedObjects;
-    heap->allocatedObjects = survivors;
-
-    heap->spcAlloc = survivorsSize;
-    //TODO: Maybe choose another constant to calculate new collectionLimit here
-    heap->collectionLimit = 2 * survivorsSize;
-    
-    //reset collection trigger
-    heap->resetGCTrigger();
-    
+    // TODO: Maybe choose another constant to calculate new collectionLimit here
+    heap->collectionLimit = 2 * maxSurvivorsSize;
     Timer::GCTimer->Halt();
 }
 
-VMOBJECT_PTR mark_object(VMOBJECT_PTR obj) {
-    if (IS_TAGGED(obj))
-        return obj;
+static gc_oop_t mark_object(gc_oop_t oop, Page*) {
+    if (IS_TAGGED(oop))
+        return oop;
+    
+    AbstractVMObject* obj = AS_OBJ(oop);
 
     if (obj->GetGCField())
-        return obj;
+        return oop;
 
     obj->SetGCField(GC_MARKED);
-    obj->WalkObjects(mark_object);
-    return obj;
+    obj->WalkObjects(mark_object, nullptr);
+    return oop;
 }
 
 void MarkSweepCollector::markReachableObjects() {
-    GetUniverse()->WalkGlobals(mark_object);
-    MarkInterpretersFrameAndThread()
+    // This walks the globals of the universe, and the interpreter
+    GetUniverse()->WalkGlobals(mark_object, nullptr);
 }
-
-void MarkSweepCollector::MarkInterpretersFrameAndThread() {
-    vector<Interpreter*>* interpreters = GetUniverse()->GetInterpreters();
-    for (std::vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
-        // Get the current frame and thread of each interpreter and mark it.
-        // Since marking is done recursively, this automatically
-        // marks the whole stack
-        VMFrame* currentFrame = (*it)->GetFrame();
-        if (currentFrame != nullptr) {
-            VMFrame* newFrame = static_cast<VMFrame*>(mark_object(currentFrame));
-            (*it)->SetFrame(newFrame);
-            
-        }
-        VMThread* currentThread = (*it)->GetThread();
-        if (currentThread != nullptr) {
-            VMThread* newThread = static_cast<VMThread*>(mark_object(currentThread));
-            (*it)->SetThread(newThread);
-        }
-    }
-}
-
-#endif

@@ -1,20 +1,38 @@
 #pragma once
 
+#include <cstdlib>
 #include <misc/defs.h>
-#if GC_TYPE == MARK_SWEEP
 
-#include "PagedHeap.h"
+#include "Heap.h"
 
-class MarkSweepHeap : public StopTheWorldHeap {
-    friend class MarkSweepCollector;
+#include <mutex>
+#include <unordered_set>
+#include <vector>
+
+
+class MarkSweepPage;
+
+class MarkSweepHeap : public Heap<MarkSweepHeap> {
 public:
-    MarkSweepHeap(long objectSpaceSize = 1048576);
-    AbstractVMObject* AllocateObject(size_t size);
+    typedef MarkSweepPage MemoryPage;
+    
+    MarkSweepHeap(size_t pageSize, size_t objectSpaceSize);
+    void* AllocateObject(size_t size);
+    
+    MarkSweepPage* RegisterThread();
+    void UnregisterThread(MarkSweepPage* current);
+    
 private:
-    vector<VMOBJECT_PTR>* allocatedObjects;
-    size_t spcAlloc;
-    long collectionLimit;
-
+    size_t collectionLimit;
+    
+    static void free(void* ptr) {
+        ::free(ptr);
+    }
+    
+    mutex pages_mutex;
+    unordered_set<MarkSweepPage*> pages;
+    vector<MarkSweepPage*> yieldedPages;
+    
+    friend class MarkSweepPage;
+    friend class MarkSweepCollector;
 };
-
-#endif

@@ -13,7 +13,7 @@
 #include <memory/CopyingHeap.h>
 #include <memory/CopyingPage.h>
 #include <memory/MarkSweepHeap.h>
-// TODO: #include <memory/MarkSweepPage.h>
+#include <memory/MarkSweepPage.h>
 #include <memory/PauselessPage.h>
 #include <memory/PauselessHeap.h>
 #include <memory/PauselessCollectorThread.h>

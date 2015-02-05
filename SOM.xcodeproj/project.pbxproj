@@ -154,6 +154,7 @@
 		0A8E19EF1A16688E004CE22B /* VMBlock.inline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMBlock.inline.h; sourceTree = "<group>"; };
 		0A8E19F01A16691C004CE22B /* VMMethod.inline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMMethod.inline.h; sourceTree = "<group>"; };
 		0A9B712E1A83644C00A04080 /* GenerationalPage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GenerationalPage.h; sourceTree = "<group>"; };
+		0A9B71301A839D1A00A04080 /* MarkSweepPage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MarkSweepPage.h; sourceTree = "<group>"; };
 		3F5202930FA6624C00E75857 /* build_darwin.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = build_darwin.sh; sourceTree = "<group>"; };
 		3F5202940FA6624C00E75857 /* Darwin.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Darwin.make; sourceTree = "<group>"; };
 		3F5202950FA6624C00E75857 /* Linux.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Linux.make; sourceTree = "<group>"; };
@@ -471,6 +472,7 @@
 				0A1749AE1A6D341D007878D9 /* MarkSweepCollector.h */,
 				0A1749AF1A6D341D007878D9 /* MarkSweepHeap.cpp */,
 				0A1749B01A6D341D007878D9 /* MarkSweepHeap.h */,
+				0A9B71301A839D1A00A04080 /* MarkSweepPage.h */,
 				3F5203090FA6624C00E75857 /* PagedHeap.cpp */,
 				3F52030A0FA6624C00E75857 /* PagedHeap.h */,
 				0A1749B31A6D341D007878D9 /* PauselessCollectorThread.cpp */,

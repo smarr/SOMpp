@@ -1,18 +1,15 @@
 #pragma once
 
 #include <misc/defs.h>
-#if GC_TYPE == MARK_SWEEP
 
 #include "GarbageCollector.h"
 
-class MarkSweepCollector : public GarbageCollector {
+class MarkSweepHeap;
+class MarkSweepCollector : public GarbageCollector<MarkSweepHeap> {
 public:
-    MarkSweepCollector(Heap* heap) : GarbageCollector(heap) {
-    }
-    void Collect();
+    MarkSweepCollector(MarkSweepHeap* heap) : GarbageCollector(heap) {}
+    virtual void Collect();
+
 private:
     void markReachableObjects();
-    void MarkInterpretersFrameAndThread();
 };
-
-#endif
