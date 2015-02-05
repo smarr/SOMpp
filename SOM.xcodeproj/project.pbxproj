@@ -17,7 +17,6 @@
 		0A1749C11A6D341D007878D9 /* MarkSweepHeap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1749AF1A6D341D007878D9 /* MarkSweepHeap.cpp */; };
 		0A1749C31A6D341D007878D9 /* PauselessCollectorThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1749B31A6D341D007878D9 /* PauselessCollectorThread.cpp */; };
 		0A1749C41A6D341D007878D9 /* PauselessHeap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1749B51A6D341D007878D9 /* PauselessHeap.cpp */; };
-		0A1749C51A6D341D007878D9 /* StopTheWorldHeap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1749B81A6D341D007878D9 /* StopTheWorldHeap.cpp */; };
 		0A1749C61A6D341D007878D9 /* Worklist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1749BA1A6D341D007878D9 /* Worklist.cpp */; };
 		0A1886DC1832BCC800A2CBCA /* BytecodeGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5202F10FA6624C00E75857 /* BytecodeGenerator.cpp */; };
 		0A1886DD1832BCC800A2CBCA /* ClassGenerationContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5202F30FA6624C00E75857 /* ClassGenerationContext.cpp */; };
@@ -119,9 +118,6 @@
 		0A1749B41A6D341D007878D9 /* PauselessCollectorThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PauselessCollectorThread.h; sourceTree = "<group>"; };
 		0A1749B51A6D341D007878D9 /* PauselessHeap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PauselessHeap.cpp; sourceTree = "<group>"; };
 		0A1749B61A6D341D007878D9 /* PauselessHeap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PauselessHeap.h; sourceTree = "<group>"; };
-		0A1749B71A6D341D007878D9 /* StopTheWorldCollector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StopTheWorldCollector.h; sourceTree = "<group>"; };
-		0A1749B81A6D341D007878D9 /* StopTheWorldHeap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StopTheWorldHeap.cpp; sourceTree = "<group>"; };
-		0A1749B91A6D341D007878D9 /* StopTheWorldHeap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StopTheWorldHeap.h; sourceTree = "<group>"; };
 		0A1749BA1A6D341D007878D9 /* Worklist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Worklist.cpp; sourceTree = "<group>"; };
 		0A1749BB1A6D341D007878D9 /* Worklist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Worklist.h; sourceTree = "<group>"; };
 		0A1886C51832BBC900A2CBCA /* SOM++ */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "SOM++"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -479,9 +475,6 @@
 				0A1749B41A6D341D007878D9 /* PauselessCollectorThread.h */,
 				0A1749B51A6D341D007878D9 /* PauselessHeap.cpp */,
 				0A1749B61A6D341D007878D9 /* PauselessHeap.h */,
-				0A1749B71A6D341D007878D9 /* StopTheWorldCollector.h */,
-				0A1749B81A6D341D007878D9 /* StopTheWorldHeap.cpp */,
-				0A1749B91A6D341D007878D9 /* StopTheWorldHeap.h */,
 				90B4A87E18F202AA00C437BE /* PauselessPage.cpp */,
 				90B4A87D18F2029000C437BE /* PauselessPage.h */,
 				0A1749BA1A6D341D007878D9 /* Worklist.cpp */,
@@ -893,7 +886,6 @@
 				0A8E19E31A161667004CE22B /* Object.cpp in Sources */,
 				0A1886F61832BCED00A2CBCA /* Universe.cpp in Sources */,
 				0A1886E21832BCC800A2CBCA /* SourcecodeCompiler.cpp in Sources */,
-				0A1749C51A6D341D007878D9 /* StopTheWorldHeap.cpp in Sources */,
 				0A1886FC1832BCF500A2CBCA /* VMClass.cpp in Sources */,
 				0A1886DF1832BCC800A2CBCA /* Lexer.cpp in Sources */,
 				0A1886F51832BCED00A2CBCA /* Shell.cpp in Sources */,
