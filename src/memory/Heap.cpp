@@ -86,13 +86,11 @@ template Heap<GenerationalHeap>::~Heap();
 template void Heap<GenerationalHeap>::FailedAllocation(size_t);
 template void Heap<GenerationalHeap>::ReachedMaxNumberOfPages();
 
-
 class CopyingHeap;
 template CopyingHeap* Heap<CopyingHeap>::theHeap;
 template Heap<CopyingHeap>::~Heap();
 template void Heap<CopyingHeap>::FailedAllocation(size_t);
 template void Heap<CopyingHeap>::ReachedMaxNumberOfPages();
-
 
 class MarkSweepHeap;
 template MarkSweepHeap* Heap<MarkSweepHeap>::theHeap;

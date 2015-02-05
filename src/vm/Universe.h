@@ -178,7 +178,7 @@ private:
     size_t heapSize;
     size_t pageSize;
 
-    map<GCSymbol*, gc_oop_t> globals;
+    map<GCSymbol*, gc_oop_t>  globals;
     map<StdString, GCSymbol*> symbolsMap;
     recursive_mutex globalsAndSymbols_mutex;
     

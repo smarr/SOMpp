@@ -7,9 +7,9 @@ public:
     
     NurseryPage(GenerationalHeap* heap)
     : heap(heap), interpreter(nullptr), next(nullptr),
-    bufferEnd((void*)((uintptr_t)buffer + heap->pageSize - sizeof(NurseryPage))),
-    nextFreePosition(buffer),
-    maxObjectSize(heap->pageSize / 2) {
+      bufferEnd((void*)((uintptr_t)buffer + heap->pageSize - sizeof(NurseryPage))),
+      nextFreePosition(buffer),
+      maxObjectSize(heap->pageSize / 2) {
         memset(buffer, 0, heap->pageSize - sizeof(NurseryPage));
     }
     

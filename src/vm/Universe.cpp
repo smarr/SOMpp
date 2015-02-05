@@ -390,7 +390,7 @@ void Universe::startInterpreterInThread(VMThread* thread, VMBlock* block,
     
     // Note: since this is a long running method, most pointers in here are
     //       not GC safe!
-        
+
     Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
 
     Interpreter* interp = new Interpreter(page);
@@ -700,7 +700,7 @@ VMClass* Universe::GetBlockClassWithArgs(long numberOfArguments, Page* page) {
 
 vm_oop_t Universe::GetGlobal(VMSymbol* name) {
     lock_guard<recursive_mutex> lock(globalsAndSymbols_mutex);
-    
+
     # warning is _store_ptr correct here? it relies on _store_ptr not to be really changed...
     auto it = globals.find(_store_ptr(name));
     if (it == globals.end()) {
@@ -1124,8 +1124,8 @@ VMThread* Universe::NewThread(VMBlock* block, vm_oop_t arguments, Page* page) {
 
 VMSymbol* Universe::SymbolFor(const StdString& str, Page* page) {
     lock_guard<recursive_mutex> lock(globalsAndSymbols_mutex);
-    
-    map<string,GCSymbol*>::iterator it = symbolsMap.find(str);
+
+    map<string, GCSymbol*>::iterator it = symbolsMap.find(str);
     return (it == symbolsMap.end()) ? NewSymbol(str, page) : load_ptr(it->second);
 }
 
