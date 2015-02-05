@@ -107,9 +107,9 @@ public:
     
 #if GC_TYPE==PAUSELESS
     unique_ptr<vector<Interpreter*>> GetInterpretersCopy();
-#else
-    vector<Interpreter*>* GetInterpreters();
 #endif
+    unordered_set<Interpreter*>* GetInterpreters() { return &interpreters; }
+
 
     void Assert(bool) const;
 
