@@ -72,7 +72,6 @@ VMClass* SourcecodeCompiler::CompileClass(const StdString& path,
 VMClass* SourcecodeCompiler::CompileClassString(const StdString& stream,
         VMClass* systemClass, Page* page) {
     istringstream ss(stream);
-
     Parser parser(ss, page);
 
     VMClass* result = compile(parser, systemClass, page);
