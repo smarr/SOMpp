@@ -103,13 +103,12 @@ void VMEvaluationPrimitive::CheckMarking(void (*walk)(vm_oop_t)) {
     walk(Untag(numberOfArguments));
     static_cast<EvaluationRoutine*>(routine)->WalkObjects(walk, page);
 }
-#else
+#endif
 void VMEvaluationPrimitive::WalkObjects(walk_heap_fn walk, Page* page) {
     VMPrimitive::WalkObjects(walk, page);
     numberOfArguments = walk(numberOfArguments, page);
     static_cast<EvaluationRoutine*>(routine)->WalkObjects(walk, page);
 }
-#endif
 
 #if GC_TYPE==PAUSELESS
 void EvaluationRoutine::MarkReferences() {
@@ -120,11 +119,10 @@ void EvaluationRoutine::CheckMarking(void (*walk)(vm_oop_t)) {
     CheckBlocked(Untag(evalPrim));
     walk(Untag(evalPrim));
 }
-#else
+#endif
 void EvaluationRoutine::WalkObjects(walk_heap_fn walk, Page* page) {
     evalPrim = static_cast<GCEvaluationPrimitive*>(walk(evalPrim, page));
 }
-#endif
 
 StdString VMEvaluationPrimitive::AsDebugString() {
     return "VMEvaluationPrimitive(" + to_string(

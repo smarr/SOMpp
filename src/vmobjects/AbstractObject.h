@@ -98,11 +98,11 @@ public:
     virtual void CheckMarking(void (vm_oop_t)) {
         return;
     }
-#else
+#endif
     inline virtual void WalkObjects(walk_heap_fn, Page*) {
         return;
     }
-#endif
+
 
     void* operator new(size_t numBytes, Page* page,
             unsigned long additionalBytes = 0 ALLOC_OUTSIDE_NURSERY_DECL ALLOC_NON_RELOCATABLE_DECL) {

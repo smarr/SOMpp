@@ -777,10 +777,9 @@ void Interpreter::CheckMarking(void (*walk)(vm_oop_t)) {
  }
  
  */
+#endif
 
-#else
 void Interpreter::WalkGlobals(walk_heap_fn walk, Page* page) {
     //method = static_cast<GCMethod*>(walk(method, page));
     frame  = static_cast<GCFrame*>(walk(frame, page));
 }
-#endif

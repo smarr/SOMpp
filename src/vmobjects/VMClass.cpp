@@ -90,7 +90,8 @@ void VMClass::CheckMarking(void (*walk)(vm_oop_t)) {
         walk(Untag(FIELDS[i]));
     }
 }
-#else
+#endif
+
 void VMClass::WalkObjects(walk_heap_fn walk, Page* page) {
     clazz = static_cast<GCClass*>(walk(clazz, page));
     if (superClass) {
@@ -105,8 +106,6 @@ void VMClass::WalkObjects(walk_heap_fn walk, Page* page) {
     for (long i = VMClassNumberOfFields + 0/*VMObjectNumberOfFields*/; i < numberOfFields; i++)
         fields[i] = walk(fields[i], page);
 }
-#endif
-
 
 void VMClass::MarkObjectAsInvalid() {
     VMObject::MarkObjectAsInvalid();

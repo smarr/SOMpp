@@ -76,9 +76,9 @@ public:
 #if GC_TYPE==PAUSELESS
     virtual void MarkReferences();
     virtual void CheckMarking(void (vm_oop_t));
-#else
-    void         WalkObjects(walk_heap_fn, Page*);
 #endif
+    void         WalkObjects(walk_heap_fn, Page*);
+
     
     virtual void MarkObjectAsInvalid();
 

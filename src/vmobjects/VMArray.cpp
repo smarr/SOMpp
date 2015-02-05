@@ -119,7 +119,7 @@ void VMArray::CheckMarking(void (*walk)(vm_oop_t)) {
         walk(Untag(FIELDS[i]));
     }
 }
-#else
+#endif
 void VMArray::WalkObjects(walk_heap_fn walk, Page* page) {
     clazz = static_cast<GCClass*>(walk(clazz, page));
     long numFields          = GetNumberOfFields();
@@ -129,7 +129,6 @@ void VMArray::WalkObjects(walk_heap_fn walk, Page* page) {
         fields[i] = walk(fields[i], page);
     }
 }
-#endif
 
 StdString VMArray::AsDebugString() {
     return "Array(" + to_string(GetNumberOfIndexableFields()) + ")";

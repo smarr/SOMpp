@@ -1109,7 +1109,7 @@ void  Universe::CheckMarkingGlobals(void (*walk)(vm_oop_t)) {
         walk(Untag(bcIter->second));
     }
 }
-#else
+#endif
 void Universe::WalkGlobals(walk_heap_fn walk, Page* page) {
     nilObject   = static_cast<GCObject*>(walk(nilObject,    page));
     trueObject  = static_cast<GCObject*>(walk(trueObject,   page));
@@ -1184,7 +1184,6 @@ void Universe::WalkGlobals(walk_heap_fn walk, Page* page) {
     symbolIfFalse = symbolsMap["ifFalse:"];
     
 }
-#endif
 
 VMMethod* Universe::NewMethod(VMSymbol* signature,
         size_t numberOfBytecodes, size_t numberOfConstants, Page* page) const {

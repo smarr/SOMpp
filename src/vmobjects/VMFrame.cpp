@@ -177,7 +177,7 @@ void VMFrame::CheckMarking(void (*walk)(vm_oop_t)) {
         i++;
     }
 }
-#else
+#endif
 void VMFrame::WalkObjects(walk_heap_fn walk, Page* page) {
     // VMFrame is not a proper SOM object any longer, we don't have a class for it.
     // clazz = (VMClass*) walk(clazz);
@@ -200,7 +200,6 @@ void VMFrame::WalkObjects(walk_heap_fn walk, Page* page) {
         i++;
     }
 }
-#endif
 
 long VMFrame::RemainingStackSize() const {
     // - 1 because the stack pointer points at the top entry,

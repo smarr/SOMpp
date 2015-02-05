@@ -46,9 +46,8 @@ public:
 
 #if GC_TYPE==PAUSELESS
     //virtual void MarkReferences();
-#else
-    virtual void WalkObjects(walk_heap_fn walk, Page*);
 #endif
+    //virtual void WalkObjects(walk_heap_fn walk, Page*); // TODO: restore if we enable caching again...
     
     virtual StdString AsDebugString();
 

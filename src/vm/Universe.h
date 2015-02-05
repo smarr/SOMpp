@@ -142,9 +142,8 @@ public:
 #if GC_TYPE==PAUSELESS
     void MarkGlobals();
     void  CheckMarkingGlobals(void (vm_oop_t));
-#else
-    void WalkGlobals(walk_heap_fn, Page*);
 #endif
+    void WalkGlobals(walk_heap_fn, Page*);
 
     void InitializeSystemClass(VMClass*, VMClass*, const char*, Page*);
 

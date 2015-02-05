@@ -118,7 +118,7 @@ void VMMethod::CheckMarking(void (*walk)(vm_oop_t)) {
         walk(Untag(indexableFields[i]));
     }
 }
-#else
+#endif
 void VMMethod::WalkObjects(walk_heap_fn walk, Page* page) {
     VMInvokable::WalkObjects(walk, page);
 
@@ -141,7 +141,6 @@ void VMMethod::WalkObjects(walk_heap_fn walk, Page* page) {
             indexableFields[i] = (GCAbstractObject*) walk(indexableFields[i], page);
     }
 }
-#endif
 
 #ifdef UNSAFE_FRAME_OPTIMIZATION
 VMFrame* VMMethod::GetCachedFrame() const {

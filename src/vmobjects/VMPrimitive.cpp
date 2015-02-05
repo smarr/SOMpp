@@ -79,13 +79,12 @@ void VMPrimitive::CheckMarking(void (*walk)(vm_oop_t)) {
     CheckBlocked(Untag(holder));
     walk(Untag(holder));
 }
-#else
+#endif
 void VMPrimitive::WalkObjects(walk_heap_fn walk, Page* page) {
     clazz     = (GCClass*)(walk(clazz, page));
     signature = (GCSymbol*)(walk(signature, page));
     holder    = (GCClass*)(walk(holder, page));
 }
-#endif
 
 void VMPrimitive::MarkObjectAsInvalid() {
     VMInvokable::MarkObjectAsInvalid();
