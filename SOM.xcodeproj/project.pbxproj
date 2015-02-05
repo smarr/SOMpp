@@ -57,6 +57,7 @@
 		0A87934C1A6D596800F2DE5F /* SafePoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A87934A1A6D596800F2DE5F /* SafePoint.cpp */; };
 		0A87934F1A6EDCA700F2DE5F /* VMCondition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A87934D1A6EDCA700F2DE5F /* VMCondition.cpp */; };
 		0A8793521A72966800F2DE5F /* Condition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A8793501A72966800F2DE5F /* Condition.cpp */; };
+		0A8793631A79259E00F2DE5F /* Heap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A8793611A79259E00F2DE5F /* Heap.cpp */; };
 		0A8E19D91A161662004CE22B /* Array.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203120FA6624C00E75857 /* Array.cpp */; };
 		0A8E19DB1A161667004CE22B /* Block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203160FA6624C00E75857 /* Block.cpp */; };
 		0A8E19DC1A161667004CE22B /* Class.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203180FA6624C00E75857 /* Class.cpp */; };
@@ -147,6 +148,8 @@
 		0A8793551A77FE2800F2DE5F /* SpinLock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SpinLock.h; sourceTree = "<group>"; };
 		0A8793571A7802DD00F2DE5F /* Interpreter.inline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Interpreter.inline.h; sourceTree = "<group>"; };
 		0A8793601A79254900F2DE5F /* CopyingPage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CopyingPage.h; sourceTree = "<group>"; };
+		0A8793611A79259E00F2DE5F /* Heap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Heap.cpp; sourceTree = "<group>"; };
+		0A8793621A79259E00F2DE5F /* Heap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Heap.h; sourceTree = "<group>"; };
 		0A8E19EC1A16305B004CE22B /* debug.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = debug.cpp; sourceTree = "<group>"; };
 		0A8E19EF1A16688E004CE22B /* VMBlock.inline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMBlock.inline.h; sourceTree = "<group>"; };
 		0A8E19F01A16691C004CE22B /* VMMethod.inline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMMethod.inline.h; sourceTree = "<group>"; };
@@ -448,6 +451,8 @@
 		3F5203060FA6624C00E75857 /* memory */ = {
 			isa = PBXGroup;
 			children = (
+				0A8793611A79259E00F2DE5F /* Heap.cpp */,
+				0A8793621A79259E00F2DE5F /* Heap.h */,
 				0A8793601A79254900F2DE5F /* CopyingPage.h */,
 				90D7D49919F9260F00EFB4B6 /* BaseThread.cpp */,
 				90D7D49819F9230900EFB4B6 /* BaseThread.h */,
@@ -871,6 +876,7 @@
 				0A1886E51832BCD700A2CBCA /* Main.cpp in Sources */,
 				90D7D49A19F9260F00EFB4B6 /* BaseThread.cpp in Sources */,
 				0A8E19DB1A161667004CE22B /* Block.cpp in Sources */,
+				0A8793631A79259E00F2DE5F /* Heap.cpp in Sources */,
 				0A1887031832BCFA00A2CBCA /* VMObject.cpp in Sources */,
 				0A87934C1A6D596800F2DE5F /* SafePoint.cpp in Sources */,
 				0A8E19E11A161667004CE22B /* Method.cpp in Sources */,
