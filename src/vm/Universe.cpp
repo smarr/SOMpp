@@ -1190,6 +1190,11 @@ void Universe::WalkGlobals(walk_heap_fn walk, Page* page) {
     symbolIfTrue  = symbolsMap["ifTrue:"];
     symbolIfFalse = symbolsMap["ifFalse:"];
     
+    for (auto interp : interpreters) {
+        interp->WalkGlobals(walk, page);
+    }
+    
+    VMThread::WalkGlobals(walk, page);
 }
 
 VMMethod* Universe::NewMethod(VMSymbol* signature,
