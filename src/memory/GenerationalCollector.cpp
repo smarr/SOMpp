@@ -86,11 +86,13 @@ void GenerationalCollector::MinorCollection() {
     unordered_set<Interpreter*>* interps = GetUniverse()->GetInterpreters();
 
     // reset pages in interpreters, just to be sure
-    Page* page;
+    Page* page = nullptr;
     for (Interpreter* interp : *interps) {
         page = interp->GetPage();
         interp->SetPage(nullptr);
     }
+    
+    assert(page);
     
     // walk all globals of universe, and implicily the interpreter
     GetUniverse()->WalkGlobals(&copy_if_necessary, page); // page only used to obtain heap

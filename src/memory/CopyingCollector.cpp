@@ -69,7 +69,8 @@ void CopyingCollector::Collect() {
         interp->SetPage(nullptr);
         lastI = interp;
     }
-    
+
+    assert(lastI);
     
     CopyingPage* target = heap->getNextPage_alreadyLocked();
     target->SetInterpreter(lastI);
