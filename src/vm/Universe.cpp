@@ -332,7 +332,7 @@ void Universe::initialize(long _argc, char** _argv) {
     Heap<HEAP_CLS>::InitializeHeap(PAGE_SIZE, HEAP_SIZE);
     Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
 
-    Interpreter* interpreter = new Interpreter(page, false, true);
+    Interpreter* interpreter = new Interpreter(page PAUSELESS_ONLY(, false, true));
 
     pthread_setspecific(this->interpreterKey, interpreter);
     
@@ -384,7 +384,8 @@ void Universe::initialize(long _argc, char** _argv) {
 }
 
 void Universe::startInterpreterInThread(VMThread* thread, VMBlock* block,
-                                        vm_oop_t arguments, bool expectedNMT, bool gcTrapEnabled) {
+                                        vm_oop_t arguments
+                                        PAUSELESS_ONLY(, bool expectedNMT, bool gcTrapEnabled)) {
     auto tId = this_thread::get_id();
     VMThread::RegisterThread(tId, thread);
     
@@ -394,7 +395,7 @@ void Universe::startInterpreterInThread(VMThread* thread, VMBlock* block,
 #warning this should get all the necessary info, also with regard to the pauseless GC, to initialize the interpreter's flags, (if it has any global state)
     Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
 
-    Interpreter* interp = new Interpreter(page, expectedNMT, gcTrapEnabled);
+    Interpreter* interp = new Interpreter(page PAUSELESS_ONLY(, expectedNMT, gcTrapEnabled));
     pthread_setspecific(this->interpreterKey, interp);
 
     registerInterpreter(interp);
@@ -1262,7 +1263,9 @@ VMThread* Universe::NewThread(VMBlock* block, vm_oop_t arguments, Interpreter* i
 #if GC_TYPE != PAUSELESS
     SafePoint::RegisterMutator();
 #endif
-    thread* thread = new std::thread(&Universe::startInterpreterInThread, this, threadObj, block, arguments, interp->GetExpectedNMT(), interp->GCTrapEnabled());
+    thread* thread = new std::thread(&Universe::startInterpreterInThread,
+                                     this, threadObj, block, arguments
+                                     PAUSELESS_ONLY(, interp->GetExpectedNMT(), interp->GCTrapEnabled()));
     threadObj->SetThread(thread);
 
     LOG_ALLOCATION("VMThread", sizeof(VMThread));

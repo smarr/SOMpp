@@ -102,6 +102,7 @@
   class PauselessPage;
   typedef PauselessPage Page;
   typedef PauselessHeap HEAP_CLS;
+  #define PAUSELESS_ONLY(args...)    args
 
   #define ALLOC_NON_RELOCATABLE_DECL   , bool nonRelocatable = false
   #define ALLOC_NON_RELOCATABLE_DECLpp , bool nonRelocatable
@@ -109,6 +110,8 @@
   #define ALLOC_NON_RELOCATABLE        , true
   #define ALLOC_RELOCATABLE            , false
 #else
+  #define PAUSELESS_ONLY(args...)
+
   #define ALLOC_NON_RELOCATABLE_DECL
   #define ALLOC_NON_RELOCATABLE_DECLpp
   #define RELOC_HINT

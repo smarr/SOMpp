@@ -191,7 +191,8 @@ private:
     long getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;
 
     VMMethod* createBootstrapMethod(VMClass* holder, long numArgsOfMsgSend, Page*);
-    void startInterpreterInThread(VMThread* thread, VMBlock* block, vm_oop_t arguments, bool expectedNMT, bool gcTrapEnabled);
+    void startInterpreterInThread(VMThread* thread, VMBlock* block, vm_oop_t arguments
+                                  PAUSELESS_ONLY(, bool expectedNMT, bool gcTrapEnabled));
     
     void registerInterpreter(Interpreter*);
     void unregisterInterpreter(Interpreter*);
