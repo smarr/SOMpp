@@ -131,9 +131,9 @@ void Universe::Start(long argc, char** argv) {
 void Universe::Quit(long err) {
     cout << "Time spent in GC: [" << Timer::GCTimer->GetTotalTime() << "] msec"
             << endl;
-#if GC_TYPE!=PAUSELESS
-    cout << "Number of GC cycles performed: " << _HEAP->GetNumberOfCycles() << endl;
-#endif
+    
+    GetHeap<HEAP_CLS>()->ReportGCDetails();
+
 #ifdef GENERATE_INTEGER_HISTOGRAM
     std::string file_name_hist = std::string(bm_name);
     file_name_hist.append("_integer_histogram.csv");
