@@ -80,6 +80,10 @@ void Heap<HEAP_T>::ReachedMaxNumberOfPages() {
 
 template<class HEAP_T>
 void Heap<HEAP_T>::ReportGCDetails() {
+    Universe::ErrorPrint("Time spent in GC: [" +
+                         to_string(Timer::GCTimer->GetTotalTime()) +
+                         "] msec\n");
+    
     // The pauseless heap was counting number of cycles performed
     // the generational probably wants to distinguish between full and
     // only minor GCs
