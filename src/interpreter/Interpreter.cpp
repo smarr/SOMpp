@@ -736,6 +736,12 @@ bool Interpreter::GCTrapEnabled() {
 }
 
 //new --->
+
+/// The GC trap is to make sure that a page is blocked atomically, and
+//  not observable by a mutator. The mutator are not allowed to see the
+//  blocking change within the period of two safepoints, because otherwise
+//  they could be seeing two different pointers for the same object
+
 bool Interpreter::TriggerGCTrap(Page* page) {
     prevent.lock();
     bool result = gcTrapEnabled && page->Blocked();
