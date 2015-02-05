@@ -1,8 +1,8 @@
-#ifndef WRITEBARRIERTEST_H_
-#define WRITEBARRIERTEST_H_
+#pragma once
 
-#include "vmobjects/VMArray.h"
+#include <vmobjects/VMArray.h>
 #include <cppunit/extensions/HelperMacros.h>
+#include <memory/Heap.h>
 
 using namespace std;
 
@@ -18,6 +18,7 @@ class WriteBarrierTest: public CPPUNIT_NS::TestCase {
 
 public:
     inline void setUp(void) {
+        Heap<HEAP_CLS>::InitializeHeap(512, 1024*1024);
     }
     inline void tearDown(void) {
     }
@@ -31,5 +32,3 @@ private:
     void testWriteEvaluationPrimitive();
 
 };
-
-#endif /* WRITEBARRIERTEST_H_ */

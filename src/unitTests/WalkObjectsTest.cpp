@@ -12,7 +12,6 @@
 #include "vmobjects/VMSymbol.h"
 #include "vmobjects/VMClass.h"
 #include "vmobjects/VMDouble.h"
-#include "vmobjects/VMBigInteger.h"
 #include "vmobjects/VMInteger.h"
 #include "vmobjects/VMArray.h"
 #include "vmobjects/VMMethod.h"
@@ -36,181 +35,197 @@ static const size_t NoOfFields_Block = 2 + NoOfFields_Object;
 static const size_t NoOfFields_Primitive = NoOfFields_Invokable;
 static const size_t NoOfFields_EvaluationPrimitive = 1 + NoOfFields_Primitive;
 
-static vector<VMOBJECT_PTR> walkedObjects;
+static vector<gc_oop_t> walkedObjects;
 /*
  * This method simply pushes all objects into the vector walkedObjects
  */
-VMOBJECT_PTR collectMembers(VMOBJECT_PTR obj) {
+gc_oop_t collectMembers(gc_oop_t obj, Page*) {
     walkedObjects.push_back(obj);
     return obj;
 }
 /*
  * Helper function that searches the result vector for a field
  */
-bool WalkerHasFound(VMOBJECT_PTR obj) {
+bool WalkerHasFound(gc_oop_t obj) {
     return find(walkedObjects.begin(), walkedObjects.end(), obj)
     != walkedObjects.end();
 }
 
 void WalkObjectsTest::testWalkInteger() {
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    
     walkedObjects.clear();
-    pVMInteger int1 = _UNIVERSE->NewInteger(42);
-    int1->WalkObjects(collectMembers);
+    VMInteger* int1 = GetUniverse()->NewInteger(42, page);
+    int1->WalkObjects(collectMembers, page);
 
     //Integers have no additional members
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Integer, walkedObjects.size());
 }
 
-void WalkObjectsTest::testWalkBigInteger() {
-    walkedObjects.clear();
-    pVMBigInteger int1 = _UNIVERSE->NewBigInteger(4711);
-    int1->WalkObjects(collectMembers);
-
-    //Integers have no additional members
-    CPPUNIT_ASSERT_EQUAL(NoOfFields_BigInteger, walkedObjects.size());
-}
-
 void WalkObjectsTest::testWalkDouble() {
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    
     walkedObjects.clear();
-    pVMDouble d1 = _UNIVERSE->NewDouble(432.1);
-    d1->WalkObjects(collectMembers);
+    VMDouble* d1 = GetUniverse()->NewDouble(432.1, page);
+    d1->WalkObjects(collectMembers, page);
 
     //Doubles have no additional members
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Double, walkedObjects.size());
 }
 
 void WalkObjectsTest::testWalkEvaluationPrimitive() {
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    
     walkedObjects.clear();
 
-    pVMEvaluationPrimitive evPrim = new (_UNIVERSE->GetHeap()) VMEvaluationPrimitive(1);
-    evPrim->WalkObjects(collectMembers);
+    VMEvaluationPrimitive* evPrim = new (page) VMEvaluationPrimitive(1, page);
+    evPrim->WalkObjects(collectMembers, page);
 
     CPPUNIT_ASSERT(WalkerHasFound(evPrim->numberOfArguments));
-    CPPUNIT_ASSERT(WalkerHasFound(evPrim->GetClass()));
-    CPPUNIT_ASSERT(WalkerHasFound(evPrim->GetSignature()));
-    CPPUNIT_ASSERT(WalkerHasFound(evPrim->GetHolder()));
-    CPPUNIT_ASSERT_EQUAL(NoOfFields_EvaluationPrimitive, walkedObjects.size());
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(evPrim->GetClass())));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(evPrim->GetSignature())));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(evPrim->GetHolder())));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(evPrim)));
+    CPPUNIT_ASSERT_EQUAL(NoOfFields_EvaluationPrimitive + 1, walkedObjects.size());
 }
 
 void WalkObjectsTest::testWalkObject() {
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    
     walkedObjects.clear();
 
-    VMObject* obj = new (_UNIVERSE->GetHeap()) VMObject();
-    obj->WalkObjects(collectMembers);
+    VMObject* obj = new (page) VMObject();
+    obj->WalkObjects(collectMembers, page);
 
     //Objects should only have one member -> Class
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Object, walkedObjects.size());
-    CPPUNIT_ASSERT(WalkerHasFound(obj->GetClass()));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(obj->GetClass())));
 }
 
 void WalkObjectsTest::testWalkString() {
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    
     walkedObjects.clear();
-    pVMString str1 = _UNIVERSE->NewString("str1");
-    str1->WalkObjects(collectMembers);
+    VMString* str1 = GetUniverse()->NewString("str1", page);
+    str1->WalkObjects(collectMembers, page);
 
     CPPUNIT_ASSERT_EQUAL(NoOfFields_String, walkedObjects.size());
 }
 
 void WalkObjectsTest::testWalkSymbol() {
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    
     walkedObjects.clear();
-    pVMSymbol sym = _UNIVERSE->NewSymbol("symbol");
-    sym->WalkObjects(collectMembers);
+    VMSymbol* sym = GetUniverse()->NewSymbol("symbol", page);
+    sym->WalkObjects(collectMembers, page);
 
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Symbol, walkedObjects.size());
 }
 
 void WalkObjectsTest::testWalkClass() {
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    
     walkedObjects.clear();
-    pVMClass meta = _UNIVERSE->NewMetaclassClass();
+    VMClass* meta = GetUniverse()->NewMetaclassClass(page);
     meta->superClass = stringClass;
-    meta->WalkObjects(collectMembers);
+    meta->WalkObjects(collectMembers, page);
 
     //Now check if we found all class fields
-    CPPUNIT_ASSERT(WalkerHasFound(meta->GetClass()));
-    CPPUNIT_ASSERT(WalkerHasFound(meta->GetSuperClass()));
-    CPPUNIT_ASSERT(WalkerHasFound(meta->GetName()));
-    CPPUNIT_ASSERT(WalkerHasFound(meta->GetInstanceFields()));
-    CPPUNIT_ASSERT(WalkerHasFound(meta->GetInstanceInvokables()));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(meta->GetClass())));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(meta->GetSuperClass())));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(meta->GetName())));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(meta->GetInstanceFields())));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(meta->GetInstanceInvokables())));
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Class, walkedObjects.size());
 }
 
 void WalkObjectsTest::testWalkPrimitive() {
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    
     walkedObjects.clear();
-    pVMSymbol primitiveSymbol = _UNIVERSE->NewSymbol("myPrimitive");
-    pVMPrimitive prim = VMPrimitive::GetEmptyPrimitive(primitiveSymbol);
+    VMSymbol* primitiveSymbol = GetUniverse()->NewSymbol("myPrimitive", page);
+    VMPrimitive* prim = VMPrimitive::GetEmptyPrimitive(primitiveSymbol, false, page);
 
-    prim->WalkObjects(collectMembers);
+    prim->WalkObjects(collectMembers, page);
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Primitive, walkedObjects.size());
-    CPPUNIT_ASSERT(WalkerHasFound(prim->GetClass()));
-    CPPUNIT_ASSERT(WalkerHasFound(prim->GetSignature()));
-    CPPUNIT_ASSERT(WalkerHasFound(prim->GetHolder()));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(prim->GetClass())));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(prim->GetSignature())));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(prim->GetHolder())));
 }
 
 void WalkObjectsTest::testWalkFrame() {
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    
     walkedObjects.clear();
-    pVMSymbol methodSymbol = _UNIVERSE->NewSymbol("frameMethod");
-    pVMMethod method = _UNIVERSE->NewMethod(methodSymbol, 0, 0);
-    pVMFrame frame = _UNIVERSE->NewFrame(NULL, method);
-    frame->SetPreviousFrame(frame->Clone());
-    frame->SetContext(frame->Clone());
-    pVMInteger dummyArg = _UNIVERSE->NewInteger(1111);
+    VMSymbol* methodSymbol = GetUniverse()->NewSymbol("frameMethod", page);
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, page);
+    VMFrame* frame = GetUniverse()->NewFrame(nullptr, method, page);
+    frame->SetPreviousFrame(frame->Clone(page));
+    frame->SetContext(frame->Clone(page));
+    VMInteger* dummyArg = GetUniverse()->NewInteger(1111, page);
     frame->SetArgument(0, 0, dummyArg);
-    frame->WalkObjects(collectMembers);
+    frame->WalkObjects(collectMembers, page);
 
-    CPPUNIT_ASSERT(WalkerHasFound(frame->GetClass()));
-    CPPUNIT_ASSERT(WalkerHasFound(frame->GetPreviousFrame()));
-    CPPUNIT_ASSERT(WalkerHasFound(frame->GetContext()));
-    CPPUNIT_ASSERT(WalkerHasFound(frame->GetMethod()));
+    // CPPUNIT_ASSERT(WalkerHasFound(frame->GetClass()));  // VMFrame does no longer have a SOM representation
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(frame->GetPreviousFrame())));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(frame->GetContext())));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(frame->GetMethod())));
     //CPPUNIT_ASSERT(WalkerHasFound(frame->bytecodeIndex));
-    CPPUNIT_ASSERT(WalkerHasFound(dummyArg));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(dummyArg)));
     CPPUNIT_ASSERT_EQUAL(
             (long) (NoOfFields_Frame + method->GetNumberOfArguments()),
-            (long) walkedObjects.size());
+            (long) walkedObjects.size() + 1);  // + 1 for the class field that's still in there
 }
 
 void WalkObjectsTest::testWalkMethod() {
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    
     walkedObjects.clear();
-    pVMSymbol methodSymbol = _UNIVERSE->NewSymbol("myMethod");
-    pVMMethod method = _UNIVERSE->NewMethod(methodSymbol, 0, 0);
-    method->WalkObjects(collectMembers);
+    VMSymbol* methodSymbol = GetUniverse()->NewSymbol("myMethod", page);
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, page);
+    method->WalkObjects(collectMembers, page);
 
-    CPPUNIT_ASSERT(WalkerHasFound(method->GetClass()));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(method->GetClass())));
     //the following fields had no getters -> had to become friend
     CPPUNIT_ASSERT(WalkerHasFound(method->numberOfLocals));
     CPPUNIT_ASSERT(WalkerHasFound(method->bcLength));
     CPPUNIT_ASSERT(WalkerHasFound(method->maximumNumberOfStackElements));
     CPPUNIT_ASSERT(WalkerHasFound(method->numberOfArguments));
     CPPUNIT_ASSERT(WalkerHasFound(method->numberOfConstants));
-    CPPUNIT_ASSERT(WalkerHasFound(method->GetHolder()));
-    CPPUNIT_ASSERT(WalkerHasFound(method->GetSignature()));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(method->GetHolder())));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(method->GetSignature())));
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Method, walkedObjects.size());
 }
 
 void WalkObjectsTest::testWalkBlock() {
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    
     walkedObjects.clear();
-    pVMSymbol methodSymbol = _UNIVERSE->NewSymbol("someMethod");
-    pVMMethod method = _UNIVERSE->NewMethod(methodSymbol, 0, 0);
-    pVMBlock block = _UNIVERSE->NewBlock(method,
-            _UNIVERSE->GetInterpreter()->GetFrame(),
-            method->GetNumberOfArguments());
-    block->WalkObjects(collectMembers);
+    VMSymbol* methodSymbol = GetUniverse()->NewSymbol("someMethod", page);
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, page);
+    VMBlock* block = GetUniverse()->NewBlock(method,
+            GetUniverse()->NewFrame(nullptr, method, page),
+            method->GetNumberOfArguments(), page);
+    block->WalkObjects(collectMembers, page);
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Block, walkedObjects.size());
-    CPPUNIT_ASSERT(WalkerHasFound(block->GetClass()));
-    CPPUNIT_ASSERT(WalkerHasFound(block->GetContext()));
-    CPPUNIT_ASSERT(WalkerHasFound(method));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(block->GetClass())));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(block->GetContext())));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(method)));
 }
 
 void WalkObjectsTest::testWalkArray() {
+    Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
+    
     walkedObjects.clear();
-    pVMString str1 = _UNIVERSE->NewString("str1");
-    pVMInteger int1 = _UNIVERSE->NewInteger(42);
-    pVMArray a = _UNIVERSE->NewArray(2);
+    VMString* str1 = GetUniverse()->NewString("str1", page);
+    VMInteger* int1 = GetUniverse()->NewInteger(42, page);
+    VMArray* a = GetUniverse()->NewArray(2, page);
     a->SetIndexableField(0, str1);
     a->SetIndexableField(1, int1);
-    a->WalkObjects(collectMembers);
+    a->WalkObjects(collectMembers, page);
 
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Array + 2, walkedObjects.size());
-    CPPUNIT_ASSERT(WalkerHasFound(a->GetClass()));
-    CPPUNIT_ASSERT(WalkerHasFound(str1));
-    CPPUNIT_ASSERT(WalkerHasFound(int1));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(a->GetClass())));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(str1)));
+    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(int1)));
 }

@@ -1,3 +1,4 @@
+#pragma once
 /*
  * CloneObjectsTest.h
  *
@@ -5,10 +6,9 @@
  *      Author: christian
  */
 
-#ifndef CLONEOBJECTSTEST_H_
-#define CLONEOBJECTSTEST_H_
-
 #include <cppunit/extensions/HelperMacros.h>
+#include <misc/defs.h>
+#include <memory/Heap.h>
 
 class CloneObjectsTest: public CPPUNIT_NS::TestCase {
     CPPUNIT_TEST_SUITE (CloneObjectsTest);
@@ -21,13 +21,13 @@ class CloneObjectsTest: public CPPUNIT_NS::TestCase {
     CPPUNIT_TEST (testCloneMethod);
     CPPUNIT_TEST (testCloneBlock);
     CPPUNIT_TEST (testClonePrimitive);
-    CPPUNIT_TEST (testCloneBigInteger);
     CPPUNIT_TEST (testCloneClass);
     CPPUNIT_TEST (testCloneFrame);
     CPPUNIT_TEST (testCloneEvaluationPrimitive);CPPUNIT_TEST_SUITE_END();
 
 public:
     inline void setUp(void) {
+        Heap<HEAP_CLS>::InitializeHeap(512, 1024*1024);
     }
     inline void tearDown(void) {
     }
@@ -40,11 +40,8 @@ private:
     void testCloneArray();
     void testCloneBlock();
     void testClonePrimitive();
-    void testCloneBigInteger();
     void testCloneClass();
     void testCloneFrame();
     void testCloneMethod();
     void testCloneEvaluationPrimitive();
 };
-
-#endif /* CLONEOBJECTSTEST_H_ */
