@@ -382,6 +382,8 @@ void Universe::initialize(long _argc, char** _argv) {
     GetHeap<HEAP_CLS>()->Start();
 #endif
     interpreter->Start();
+
+    GetHeap<HEAP_CLS>()->UnregisterThread(interpreter->GetPage());
 }
 
 void Universe::startInterpreterInThread(VMThread* thread, VMBlock* block,
