@@ -29,6 +29,7 @@
 
 #include "VMString.h"
 
+#warning VMString needs a GetHash implementation
 
 extern GCClass* stringClass;
 

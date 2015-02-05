@@ -41,6 +41,7 @@ void VMMutex::MarkObjectAsInvalid() {
 }
 
 #if GC_TYPE==PAUSELESS
+# warning Why aren't the methods in Object sufficient?
 void VMMutex::MarkReferences() {
     ReadBarrierForGCThread(&clazz);
 }
