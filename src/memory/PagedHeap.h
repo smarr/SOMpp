@@ -34,6 +34,7 @@
 #include "GarbageCollector.h"
 
 #include <misc/defs.h>
+#include <memory/Heap.h>
 #include <vmobjects/ObjectFormats.h>
 
 class AbstractVMObject;

@@ -30,10 +30,9 @@
 
 #include <misc/defs.h>
 
-#include "VMObject.h"
-#include "VMArray.h"
-#include "VMSymbol.h"
-//#include "VMClass.h"
+#include <vmobjects/VMObject.h>
+#include <vmobjects/VMArray.h>
+#include <vmobjects/VMSymbol.h>
 
 
 #if defined(_MSC_VER)   //Visual Studio

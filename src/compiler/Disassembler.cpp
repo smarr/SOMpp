@@ -27,7 +27,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "Disassembler.h"
+#include <compiler/Disassembler.h>
 
 #include <vm/Universe.h>
 

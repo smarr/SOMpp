@@ -40,6 +40,7 @@
 
 #include <memory/PagedHeap.h>
 #include <memory/Worklist.h>
+#include <memory/BaseThread.h>
 
 class Interpreter;
 

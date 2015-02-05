@@ -13,6 +13,7 @@
 #include <atomic>
 #include <misc/debug.h>
 #include <misc/defs.h>
+#include <memory/PauselessHeap.h>
 
 
 PauselessPage::PauselessPage(void* pageStart, PagedHeap* heap) {

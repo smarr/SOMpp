@@ -8,22 +8,16 @@
  */
 
 #include <misc/defs.h>
-
-#include "ObjectFormats.h"
-
-#if GC_TYPE==GENERATIONAL
-    #include <memory/GenerationalHeap.h>
-    #include <memory/Page.h>
-#elif GC_TYPE==COPYING
-    #include <memory/CopyingHeap.h>
-#elif GC_TYPE==MARK_SWEEP
-    #include <memory/MarkSweepHeap.h>
-#elif GC_TYPE==PAUSELESS
-    #include <memory/PauselessPage.h>
-    #include <memory/PauselessHeap.h>
-    #include <memory/PauselessCollectorThread.h>
-    class Worklist;
-#endif
+#include <memory/GenerationalHeap.h>
+// TODO: #include <memory/GenerationalPage.h>
+#include <memory/CopyingHeap.h>
+#include <memory/CopyingPage.h>
+#include <memory/MarkSweepHeap.h>
+// TODO: #include <memory/MarkSweepPage.h>
+#include <memory/PauselessPage.h>
+#include <memory/PauselessHeap.h>
+#include <memory/PauselessCollectorThread.h>
+class Worklist;
 
 #include "VMObjectBase.h"
 

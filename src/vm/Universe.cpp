@@ -36,6 +36,7 @@
 #include <interpreter/Interpreter.h>
 
 #include <misc/debug.h>
+#include <misc/defs.h>
 
 #include <vmobjects/VMSymbol.h>
 #include <vmobjects/VMObject.h>
@@ -60,8 +61,11 @@
 
 #include <vmobjects/IntegerBox.h>
 
+#include <vm/SafePoint.h>
+
 #include <vmobjects/VMBlock.inline.h>
 #include <vmobjects/VMMethod.inline.h>
+
 
 #if CACHE_INTEGER
 gc_oop_t prebuildInts[INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE + 1];
