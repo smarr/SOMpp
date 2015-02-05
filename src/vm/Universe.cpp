@@ -333,6 +333,7 @@ void Universe::initialize(long _argc, char** _argv) {
     Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
 
     Interpreter* interpreter = new Interpreter(page PAUSELESS_ONLY(, false, true));
+    page->SetInterpreter(interpreter);
 
     pthread_setspecific(this->interpreterKey, interpreter);
     
