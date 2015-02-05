@@ -9,7 +9,7 @@
 
 #include <misc/defs.h>
 #include <memory/GenerationalHeap.h>
-// TODO: #include <memory/GenerationalPage.h>
+#include <memory/GenerationalPage.h>
 #include <memory/CopyingHeap.h>
 #include <memory/CopyingPage.h>
 #include <memory/MarkSweepHeap.h>

@@ -69,7 +69,7 @@
   typedef NurseryPage Page;
   typedef GenerationalHeap HEAP_CLS;
 
-  #define write_barrier(obj, value_ptr) (GetHeap<HEAP_CLS>()->WriteBarrier(obj, value_ptr))
+  #define write_barrier(obj, value_ptr) (GetHeap<GenerationalHeap>()->writeBarrier(obj, value_ptr))
   #define ALLOC_MATURE    , true
   #define ALLOC_YOUNG     , false
   #define ALLOC_OUTSIDE_NURSERY(X)     , (X)

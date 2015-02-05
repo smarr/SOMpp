@@ -1,49 +1,121 @@
-#include "GenerationalHeap.h"
-#include "GenerationalCollector.h"
-//#include "Page.h"
+#include <memory/Heap.h>
+#include <memory/GenerationalHeap.h>
+#include <memory/GenerationalCollector.h>
+#include <memory/GenerationalPage.h>
+
+#include <vmobjects/VMObjectBase.h>
 #include <vmobjects/AbstractObject.h>
+#include <vmobjects/VMInteger.h>
+#include <vmobjects/IntegerBox.h>
 #include <vm/Universe.h>
 
 #include <string.h>
 #include <iostream>
 
-#include <sys/mman.h>
+using namespace std;
 
-#if GC_TYPE == GENERATIONAL
+GenerationalHeap::GenerationalHeap(size_t pageSize, size_t objectSpaceSize)
+    : Heap<GenerationalHeap>(new GenerationalCollector(this)),
+      pageSize(pageSize), maxNumPages(objectSpaceSize / pageSize),
+      currentNumPages(0), sizeOfMatureObjectHeap(0),
+      allocatedObjects(new vector<AbstractVMObject*>()) {}
 
-GenerationalHeap::GenerationalHeap(long objectSpaceSize, long pageSize) : StopTheWorldHeap(objectSpaceSize, pageSize) {
-    //our initial collection limit is 90% of objectSpaceSize
-    gc = new GenerationalCollector(this);
-    // meta data for mature object allocation
-    pthread_mutex_init(&allocationLock, nullptr);
-    pthread_mutex_init(&writeBarrierLock, nullptr);
-    matureObjectsSize = 0;
-    allocatedObjects = new vector<AbstractVMObject*>();
-    oldObjsWithRefToYoungObjs = new vector<AbstractVMObject*>();
+NurseryPage* GenerationalHeap::RegisterThread() {
+    lock_guard<mutex> lock(pages_mutex);
+    return getNextPage_alreadyLocked();
 }
 
-AbstractVMObject* GenerationalHeap::AllocateMatureObject(size_t size) {
-    AbstractVMObject* newObject = (AbstractVMObject*) malloc(size);
-    if (newObject == nullptr) {
-        cout << "Failed to allocate " << size << " Bytes." << endl;
-        GetUniverse()->Quit(-1);
+void GenerationalHeap::UnregisterThread(NurseryPage* page) {
+    // NOOP, because we the page is still in use
+}
+
+void GenerationalHeap::writeBarrier_OldHolder(AbstractVMObject* holder,
+                                              const vm_oop_t referencedObject) {
+    AbstractVMObject* obj = reinterpret_cast<AbstractVMObject*>(referencedObject);
+    if (obj->GetGCField() & MASK_OBJECT_IS_OLD) {
+        return;
     }
-    pthread_mutex_lock(&allocationLock);
-    allocatedObjects->push_back(newObject);
-    matureObjectsSize += size;
-    pthread_mutex_unlock(&allocationLock);
-    return newObject;
+    
+    NurseryPage* page = getPageFromObj(reinterpret_cast<AbstractVMObject*>(referencedObject));
+
+    page->oldObjsWithRefToYoungObjs.push_back(holder);
+    holder->SetGCField(holder->GetGCField() | MASK_SEEN_BY_WRITE_BARRIER);
 }
 
-void GenerationalHeap::WriteBarrierOldHolder(AbstractVMObject* holder, vm_oop_t referencedObject) {
-    if (IsObjectInNursery(referencedObject)) {
-        // TODO: thread local mark table??? cross generation pointer vector...
+NurseryPage* GenerationalHeap::getNextPage_alreadyLocked() {
+    NurseryPage* result;
+    
+    if (freePages.empty()) {
+        currentNumPages++;
+        if (currentNumPages > maxNumPages) {
+            ReachedMaxNumberOfPages(); // won't return
+            return nullptr;            // is not executed!
+        }
         
-        pthread_mutex_lock(&writeBarrierLock);
-        oldObjsWithRefToYoungObjs->push_back(holder);
-        pthread_mutex_unlock(&writeBarrierLock);
-        holder->SetGCField(holder->GetGCField() | MASK_SEEN_BY_WRITE_BARRIER);
+        result = new NurseryPage(this);
+    } else {
+        result = freePages.back();
+        freePages.pop_back();
+    }
+    
+    usedPages.push_back(result);
+    
+    // let's see if we have to trigger the GC
+    if (usedPages.size() > 0.9 * maxNumPages) {
+        triggerGC();
+    }
+    
+    return result;
+}
+
+void* NurseryPage::allocateInNextPage(size_t size ALLOC_OUTSIDE_NURSERY_DECLpp) {
+    assert(interpreter);
+    
+    if (next == nullptr) {
+        next = heap->getNextPage();
+        next->SetInterpreter(interpreter);
+        
+        // need to set the page unconditionally, even if it is not yet
+        // completely full. Otherwise, we can have the situation that during
+        // the copying phase, an object gets moved to a previous page, and
+        // is missed while moving all dependent objects, and thus, not moving
+        // its dependent objects.
+        interpreter->SetPage(reinterpret_cast<Page*>(next));
+    }
+    
+    return next->AllocateObject(size ALLOC_HINT);
+}
+
+void NurseryPage::WalkObjects(walk_heap_fn walk,
+                                               Page* target) {
+    AbstractVMObject* curObject = reinterpret_cast<AbstractVMObject*>(buffer);
+    
+    while (curObject < nextFreePosition) {
+        curObject->WalkObjects(walk, target);
+        curObject = reinterpret_cast<AbstractVMObject*>(
+                                                        (uintptr_t)curObject + curObject->GetObjectSize());
     }
 }
 
-#endif
+static gc_oop_t invalidate_objects(gc_oop_t oop, Page*) {
+    if (IS_TAGGED(oop)) {
+        return oop;
+    }
+    
+    AbstractVMObject* obj = AS_OBJ(oop);
+    obj->MarkObjectAsInvalid();
+    return oop;
+}
+
+void NurseryPage::Reset() {
+    next             = nullptr;
+    interpreter      = nullptr;
+    nextFreePosition = buffer;
+    
+    if (DEBUG) {
+        //        memset(buffer, 0, heap->pageSize);
+        WalkObjects(invalidate_objects, nullptr);
+    }
+    
+    oldObjsWithRefToYoungObjs.clear();
+}

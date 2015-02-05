@@ -153,6 +153,7 @@
 		0A8E19EC1A16305B004CE22B /* debug.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = debug.cpp; sourceTree = "<group>"; };
 		0A8E19EF1A16688E004CE22B /* VMBlock.inline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMBlock.inline.h; sourceTree = "<group>"; };
 		0A8E19F01A16691C004CE22B /* VMMethod.inline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMMethod.inline.h; sourceTree = "<group>"; };
+		0A9B712E1A83644C00A04080 /* GenerationalPage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GenerationalPage.h; sourceTree = "<group>"; };
 		3F5202930FA6624C00E75857 /* build_darwin.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = build_darwin.sh; sourceTree = "<group>"; };
 		3F5202940FA6624C00E75857 /* Darwin.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Darwin.make; sourceTree = "<group>"; };
 		3F5202950FA6624C00E75857 /* Linux.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Linux.make; sourceTree = "<group>"; };
@@ -451,28 +452,27 @@
 		3F5203060FA6624C00E75857 /* memory */ = {
 			isa = PBXGroup;
 			children = (
-				0A8793611A79259E00F2DE5F /* Heap.cpp */,
-				0A8793621A79259E00F2DE5F /* Heap.h */,
-				0A8793601A79254900F2DE5F /* CopyingPage.h */,
 				90D7D49919F9260F00EFB4B6 /* BaseThread.cpp */,
 				90D7D49819F9230900EFB4B6 /* BaseThread.h */,
-				3F5203080FA6624C00E75857 /* GarbageCollector.h */,
-				90B4A87E18F202AA00C437BE /* PauselessPage.cpp */,
-				90B4A87D18F2029000C437BE /* PauselessPage.h */,
-				3F5203090FA6624C00E75857 /* PagedHeap.cpp */,
-				3F52030A0FA6624C00E75857 /* PagedHeap.h */,
 				0A1749A51A6D341D007878D9 /* CopyingCollector.cpp */,
 				0A1749A61A6D341D007878D9 /* CopyingCollector.h */,
 				0A1749A71A6D341D007878D9 /* CopyingHeap.cpp */,
 				0A1749A81A6D341D007878D9 /* CopyingHeap.h */,
+				0A8793601A79254900F2DE5F /* CopyingPage.h */,
+				3F5203080FA6624C00E75857 /* GarbageCollector.h */,
 				0A1749A91A6D341D007878D9 /* GenerationalCollector.cpp */,
 				0A1749AA1A6D341D007878D9 /* GenerationalCollector.h */,
 				0A1749AB1A6D341D007878D9 /* GenerationalHeap.cpp */,
 				0A1749AC1A6D341D007878D9 /* GenerationalHeap.h */,
+				0A9B712E1A83644C00A04080 /* GenerationalPage.h */,
+				0A8793611A79259E00F2DE5F /* Heap.cpp */,
+				0A8793621A79259E00F2DE5F /* Heap.h */,
 				0A1749AD1A6D341D007878D9 /* MarkSweepCollector.cpp */,
 				0A1749AE1A6D341D007878D9 /* MarkSweepCollector.h */,
 				0A1749AF1A6D341D007878D9 /* MarkSweepHeap.cpp */,
 				0A1749B01A6D341D007878D9 /* MarkSweepHeap.h */,
+				3F5203090FA6624C00E75857 /* PagedHeap.cpp */,
+				3F52030A0FA6624C00E75857 /* PagedHeap.h */,
 				0A1749B31A6D341D007878D9 /* PauselessCollectorThread.cpp */,
 				0A1749B41A6D341D007878D9 /* PauselessCollectorThread.h */,
 				0A1749B51A6D341D007878D9 /* PauselessHeap.cpp */,
@@ -480,6 +480,8 @@
 				0A1749B71A6D341D007878D9 /* StopTheWorldCollector.h */,
 				0A1749B81A6D341D007878D9 /* StopTheWorldHeap.cpp */,
 				0A1749B91A6D341D007878D9 /* StopTheWorldHeap.h */,
+				90B4A87E18F202AA00C437BE /* PauselessPage.cpp */,
+				90B4A87D18F2029000C437BE /* PauselessPage.h */,
 				0A1749BA1A6D341D007878D9 /* Worklist.cpp */,
 				0A1749BB1A6D341D007878D9 /* Worklist.h */,
 			);

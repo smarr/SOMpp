@@ -1,19 +1,19 @@
 #pragma once
+
 #include <misc/defs.h>
-#if GC_TYPE == GENERATIONAL
 
-#include "StopTheWorldCollector.h"
+#include "GarbageCollector.h"
 
-class GenerationalCollector : public StopTheWorldCollector {
+class GenerationalHeap;
+class GenerationalCollector : public GarbageCollector<GenerationalHeap> {
 public:
-    GenerationalCollector(PagedHeap* heap);
-    void Collect();
+    GenerationalCollector(GenerationalHeap* heap);
+    
+    virtual void Collect();
+
 private:
-    intptr_t majorCollectionThreshold;
-    size_t matureObjectsSize;
+    size_t majorCollectionThreshold;
+
     void MajorCollection();
     void MinorCollection();
-    void CopyInterpretersFrameAndThread();
 };
-
-#endif
