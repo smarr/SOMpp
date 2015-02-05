@@ -29,8 +29,7 @@ AbstractVMObject* PauselessPage::allocate(size_t size) {
     nextFreePosition = (void*)((size_t)nextFreePosition + size);
 
     if ((size_t)nextFreePosition > pageEnd) {
-        sync_out(ostringstream() << "Failed to allocate " << size << " Bytes in page.");
-        GetUniverse()->Quit(-1);
+        GetUniverse()->ErrorExit("Failed to allocate " + to_string(size) + " Bytes in page.");
     }
     return newObject;
 }

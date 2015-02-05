@@ -293,7 +293,7 @@ void Interpreter::popFrameAndPushResult(vm_oop_t result) {
 }
 
 void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
-    //sync_out(ostringstream() << "[Send] " << signature->GetChars());
+    //GetUniverse()->ErrorPrint("[Send] " + to_string(signature->GetChars()));
     
     VMInvokable* invokable = receiverClass->LookupInvokable(signature);
 

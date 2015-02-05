@@ -203,13 +203,13 @@ void PauselessCollectorThread::Collect() {
         expectedNMT = !expectedNMT;
         PagedHeap* test = GetHeap<HEAP_CLS>();
         
-        //sync_out(ostringstream() << "[GC] Start RootSet Marking");
+        GetUniverse()->ErrorPrint("[GC] Start RootSet Marking");
         //------------------------
         // ROOT-SET MARKING
         //------------------------
         if (!doneSignalling && pthread_mutex_trylock(&markRootSetsMutex) == 0) {
             numberOfCycles++;
-            //sync_out(ostringstream() << "[GC] " << numberOfCycles);
+            //GetUniverse()->ErrorPrint("[GC] " + to_string(numberOfCycles));
             
             {
 #warning TODO: we need to make sure in this block, that no new interpreters are going to join, because then, we might have an inconsistent rootset? don't know exactly what the problem is. But, all rootsets need to be marked.
@@ -260,7 +260,7 @@ void PauselessCollectorThread::Collect() {
         pthread_cond_broadcast(&doneMarkingRootSetsCondition);
         pthread_mutex_unlock(&markRootSetsCheckpointMutex);
         
-        //sync_out(ostringstream() << "[GC] Start Marking Phase");
+        //GetUniverse()->ErrorPrint("[GC] Start Marking Phase");
         
         //------------------------
         // CONTINUE MARKING PHASE
@@ -431,8 +431,8 @@ and then, it starts flipping the other bits
         //numberOfGCThreadsFinished = 0;
         
         
-        //sync_out(ostringstream() << "[GC] End of cycle");
-        //sync_out(ostringstream() << "=================");
+        GetUniverse()->ErrorPrint("[GC] End of cycle");
+        GetUniverse()->ErrorPrint("=================");
         
         
     } //end of cycle

@@ -73,7 +73,6 @@
 		0A8E19E91A161667004CE22B /* Thread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9004031F18CD735E00C0410A /* Thread.cpp */; };
 		0A8E19EA1A16166C004CE22B /* PrimitiveLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F52032B0FA6624C00E75857 /* PrimitiveLoader.cpp */; };
 		0A8E19EB1A16166F004CE22B /* PrimitiveContainer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203290FA6624C00E75857 /* PrimitiveContainer.cpp */; };
-		0A8E19ED1A16305B004CE22B /* debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A8E19EC1A16305B004CE22B /* debug.cpp */; };
 		90B4A87F18F202AA00C437BE /* PauselessPage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90B4A87E18F202AA00C437BE /* PauselessPage.cpp */; };
 		90D7D49A19F9260F00EFB4B6 /* BaseThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90D7D49919F9260F00EFB4B6 /* BaseThread.cpp */; };
 /* End PBXBuildFile section */
@@ -146,7 +145,6 @@
 		0A8793601A79254900F2DE5F /* CopyingPage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CopyingPage.h; sourceTree = "<group>"; };
 		0A8793611A79259E00F2DE5F /* Heap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Heap.cpp; sourceTree = "<group>"; };
 		0A8793621A79259E00F2DE5F /* Heap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Heap.h; sourceTree = "<group>"; };
-		0A8E19EC1A16305B004CE22B /* debug.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = debug.cpp; sourceTree = "<group>"; };
 		0A8E19EF1A16688E004CE22B /* VMBlock.inline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMBlock.inline.h; sourceTree = "<group>"; };
 		0A8E19F01A16691C004CE22B /* VMMethod.inline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMMethod.inline.h; sourceTree = "<group>"; };
 		0A9B712E1A83644C00A04080 /* GenerationalPage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GenerationalPage.h; sourceTree = "<group>"; };
@@ -492,7 +490,6 @@
 				3F52030F0FA6624C00E75857 /* gettimeofday.h */,
 				0A1887371832C12E00A2CBCA /* Timer.cpp */,
 				0A1887381832C12E00A2CBCA /* Timer.h */,
-				0A8E19EC1A16305B004CE22B /* debug.cpp */,
 				0A8793551A77FE2800F2DE5F /* SpinLock.h */,
 			);
 			path = misc;
@@ -891,7 +888,6 @@
 				0A1886F51832BCED00A2CBCA /* Shell.cpp in Sources */,
 				0A1887061832BCFA00A2CBCA /* VMSymbol.cpp in Sources */,
 				0A1749A41A6B2AB8007878D9 /* VMThread.cpp in Sources */,
-				0A8E19ED1A16305B004CE22B /* debug.cpp in Sources */,
 				0A8E19D91A161662004CE22B /* Array.cpp in Sources */,
 				0A1887011832BCFA00A2CBCA /* VMInvokable.cpp in Sources */,
 				0A1886E11832BCC800A2CBCA /* Parser.cpp in Sources */,

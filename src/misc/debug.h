@@ -28,8 +28,6 @@
 
 #include <stdio.h>
 #include <stdarg.h>
-#include <string>
-#include <sstream>
 
 #define FprintfPass(f,x) \
     va_list ap; \
@@ -88,8 +86,6 @@ static inline void DebugTrace(const char* fmt, ...) {
     DebugPrefix("TRACE:");
     DebugPass(fmt);
 }
-
-void sync_out(std::ostringstream);
 
 #undef FprintfPass
 #undef DebugPass 

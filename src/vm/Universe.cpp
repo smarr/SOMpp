@@ -1014,13 +1014,13 @@ void Universe::MarkGlobals() {
         if (val == nullptr)
             continue;
         GCSymbol* key = iter->first;
-        //sync_out(ostringstream() << "GLOB OLD: " << iter->first);
+        //GetUniverse()->ErrorPrint("GLOB OLD: " << iter->first);
         //globs[key] = WriteBarrierForGCThread(val);
         
         GCSymbol* new_ptr = WriteBarrierForGCThread(ReadBarrierForGCThread(&key,true));
         globs[new_ptr] = WriteBarrierForGCThread(val);
         
-        //sync_out(ostringstream() << "GLOB NEW: " << new_ptr);
+        //GetUniverse()->ErrorPrint("GLOB NEW: " << new_ptr);
     }
     globals = globs;
     
@@ -1325,7 +1325,7 @@ unique_ptr<vector<Interpreter*>> Universe::GetInterpretersCopy() {
 void Universe::PrintGlobals() {
     map<GCSymbol*, GCAbstractObject*>::iterator it;
     for (it = globals.begin(); it != globals.end(); it++) {
-        sync_out(ostringstream() << "[GLOBALS] symbol: " << Untag(it->first)->GetChars()
+        GetUniverse()->ErrorPrint("[GLOBALS] symbol: " << Untag(it->first)->GetChars()
                  << " ptr: " << it->first << " value ptr: " << it->second);
     }
 } */
