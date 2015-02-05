@@ -46,6 +46,8 @@ public:
     inline void resetGCTrigger() { gcTriggered = false; }
     bool isCollectionTriggered() { return gcTriggered;  }
     void FullGC();
+    
+    void ReportGCDetails();
 
 protected:
     GarbageCollector<HEAP_T>* const gc;

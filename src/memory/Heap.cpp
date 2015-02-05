@@ -74,11 +74,23 @@ void Heap<HEAP_T>::ReachedMaxNumberOfPages() {
     GetUniverse()->ErrorExit("Can't allocate more memory pages. Already reached maximum.");
 }
 
+template<class HEAP_T>
+void Heap<HEAP_T>::ReportGCDetails() {
+    Universe::ErrorPrint("Time spent in GC: [" +
+                         to_string(Timer::GCTimer->GetTotalTime()) +
+                         "] msec\n");
+    
+    // The pauseless heap was counting number of cycles performed
+    // the generational probably wants to distinguish between full and
+    // only minor GCs
+    GetUniverse()->Print("TODO: implement some statistics for GCs");
+}
 
 // Instantitate Template for the heap classes
 template void Heap<HEAP_CLS>::InitializeHeap(size_t, size_t);
 template void Heap<HEAP_CLS>::DestroyHeap();
 template void Heap<HEAP_CLS>::FullGC();
+template void Heap<HEAP_CLS>::ReportGCDetails();
 
 class GenerationalHeap;
 template GenerationalHeap* Heap<GenerationalHeap>::theHeap;
