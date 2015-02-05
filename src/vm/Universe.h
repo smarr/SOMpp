@@ -85,8 +85,8 @@ class Universe {
 public:
     //static methods
     static void Start(long argc, char** argv);
-    static void Quit(long);
-    static void ErrorExit(StdString);
+    static void Quit(long) __attribute__((noreturn));
+    static void ErrorExit(StdString) __attribute__((noreturn));
     
     void Assert(bool) const;
 

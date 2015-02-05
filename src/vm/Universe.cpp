@@ -121,7 +121,7 @@ void Universe::Start(long argc, char** argv) {
     theUniverse->initialize(argc, argv);
 }
 
-__attribute__((noreturn)) void Universe::Quit(long err) {
+void Universe::Quit(long err) {
     GetHeap<HEAP_CLS>()->ReportGCDetails();
 
 #ifdef GENERATE_INTEGER_HISTOGRAM
