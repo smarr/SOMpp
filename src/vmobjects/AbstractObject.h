@@ -68,13 +68,13 @@ public:
 
     long GetFieldIndex(VMSymbol* fieldName);
 
-    inline virtual void WalkObjects(walk_heap_fn, Page*) {
-        return;
-    }
-
     inline virtual VMSymbol* GetFieldName(long index) const {
         Universe::ErrorPrint("this object doesn't support GetFieldName\n");
         throw "this object doesn't support GetFieldName";
+    }
+
+    inline virtual void WalkObjects(walk_heap_fn, Page*) {
+        return;
     }
 
     void* operator new(size_t numBytes, Page* page,

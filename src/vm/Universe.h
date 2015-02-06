@@ -105,7 +105,6 @@ public:
     VMMethod* NewMethod(VMSymbol*, size_t, size_t, Page* page) const;
     VMObject* NewInstance(VMClass*, Page* page) const;
     VMInteger* NewInteger(int64_t, Page* page) const;
-    void WalkGlobals(walk_heap_fn, Page*);
     VMDouble* NewDouble(double, Page* page) const;
     VMClass* NewMetaclassClass(Page* page) const;
     VMString* NewString(const StdString&, Page* page) const;
@@ -117,6 +116,8 @@ public:
     VMCondition* NewCondition(VMMutex*, Page* page) const;
     VMMutex*     NewMutex(Page* page) const;
     VMThread*    NewThread(VMBlock* block, vm_oop_t arguments, Page* page);
+
+    void WalkGlobals(walk_heap_fn, Page*);
 
     void InitializeSystemClass(VMClass*, VMClass*, const char*, Page*);
 
@@ -145,7 +146,6 @@ public:
     map<StdString, long> receiverTypes;
     map<StdString, stat_data> callStats;
 #endif
-    //
     
     static bool IsValidObject(vm_oop_t obj);
     

@@ -548,9 +548,9 @@ Universe::~Universe() {
 
         VMMutex* mutex = new (page) VMMutex();
         vt_mutex      = *(void**) mutex;
-        
-        VMThread* thread = new (page) VMThread();
-        vt_thread     = *(void**) thread;
+
+        VMThread* thr = new (page) VMThread();
+        vt_thread     = *(void**) thr;
         
         // Make sure the classes for VMObjects are set to something
         arr ->SetClass(static_cast<VMClass*>(load_ptr(nilObject)));
@@ -560,7 +560,7 @@ Universe::~Universe() {
         prm ->SetClass(static_cast<VMClass*>(load_ptr(nilObject)));
         cond->SetClass(static_cast<VMClass*>(load_ptr(nilObject)));
         mutex->SetClass(static_cast<VMClass*>(load_ptr(nilObject)));
-        thread->SetClass(static_cast<VMClass*>(load_ptr(nilObject)));
+        thr->SetClass(static_cast<VMClass*>(load_ptr(nilObject)));
     }
 #endif
 
@@ -950,7 +950,7 @@ VMInteger* Universe::NewInteger(int64_t value, Page* page) const {
 #endif
 
 #if CACHE_INTEGER
-    size_t index = (size_t) value - (size_t)INT_CACHE_MIN_VALUE;
+    size_t index = (size_t)value - (size_t)INT_CACHE_MIN_VALUE;
     if (index < (size_t)(INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE)) {
         return static_cast<VMInteger*>(load_ptr(prebuildInts[index]));
     }
@@ -1055,7 +1055,7 @@ VMMethod* Universe::NewMethod(VMSymbol* signature,
     //Method needs space for the bytecodes and the pointers to the constants
     long additionalBytes = PADDED_SIZE(numberOfBytecodes + numberOfConstants*sizeof(VMObject*));
     VMMethod* result = new (page, additionalBytes)
-                    VMMethod(numberOfBytecodes, numberOfConstants, 0, page);
+                VMMethod(numberOfBytecodes, numberOfConstants, 0, page);
     result->SetClass(load_ptr(methodClass));
     result->SetSignature(signature, page);
 
@@ -1080,7 +1080,7 @@ VMSymbol* Universe::NewSymbol(const StdString& str, Page* page) {
 
 VMSymbol* Universe::NewSymbol(const char* str, Page* page) {
     lock_guard<recursive_mutex> lock(globalsAndSymbols_mutex);
-    
+
     VMSymbol* result = new (page, PADDED_SIZE(strlen(str)+1)) VMSymbol(str);
 # warning is _store_ptr sufficient here?
     symbolsMap[str] = _store_ptr(result);
@@ -1091,8 +1091,8 @@ VMSymbol* Universe::NewSymbol(const char* str, Page* page) {
 
 VMClass* Universe::NewSystemClass(Page* page) const {
     VMClass* systemClass = new (page) VMClass();
+    systemClass->SetClass( new (page) VMClass());
 
-    systemClass->SetClass(new (page) VMClass());
     VMClass* mclass = systemClass->GetClass();
 
     mclass->SetClass(load_ptr(metaClassClass));
@@ -1122,7 +1122,8 @@ VMThread* Universe::NewThread(VMBlock* block, vm_oop_t arguments, Page* page) {
     threadObj->SetClass(load_ptr(threadClass));
 
     SafePoint::RegisterMutator();
-    thread* thread = new std::thread(&Universe::startInterpreterInThread, this, threadObj, block, arguments);
+    thread* thread = new std::thread(&Universe::startInterpreterInThread,
+                                     this, threadObj, block, arguments);
     threadObj->SetThread(thread);
 
     LOG_ALLOCATION("VMThread", sizeof(VMThread));
