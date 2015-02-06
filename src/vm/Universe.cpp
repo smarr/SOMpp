@@ -1053,7 +1053,8 @@ void Universe::WalkGlobals(walk_heap_fn walk, Page* page) {
 VMMethod* Universe::NewMethod(VMSymbol* signature,
         size_t numberOfBytecodes, size_t numberOfConstants, Page* page) const {
     //Method needs space for the bytecodes and the pointers to the constants
-    long additionalBytes = PADDED_SIZE(numberOfBytecodes + numberOfConstants*sizeof(VMObject*));
+    long additionalBytes = numberOfBytecodes + numberOfConstants*sizeof(VMObject*);
+
     VMMethod* result = new (page, additionalBytes)
                 VMMethod(numberOfBytecodes, numberOfConstants, 0, page);
     result->SetClass(load_ptr(methodClass));
