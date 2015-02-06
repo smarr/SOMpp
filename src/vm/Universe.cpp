@@ -633,6 +633,10 @@ VMObject* Universe::InitializeGlobals(Page* page) {
     
     obtain_vtables_of_known_classes(nil->GetClass()->GetName(), page);
 
+#if USE_TAGGING
+    GlobalBox::updateIntegerBox(NewInteger(1, page));
+#endif
+
     LoadSystemClass(load_ptr(objectClass),    page);
     LoadSystemClass(load_ptr(classClass),     page);
     LoadSystemClass(load_ptr(metaClassClass), page);
