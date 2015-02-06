@@ -344,19 +344,17 @@ void Universe::initialize(long _argc, char** _argv) {
     Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
 
     Interpreter* interpreter = new Interpreter(page PAUSELESS_ONLY(, false, true));
+    registerInterpreter(interpreter);
     page->SetInterpreter(interpreter);
 
     pthread_setspecific(this->interpreterKey, interpreter);
     
-    registerInterpreter(interpreter);
-
-    assert(page);
 
 #if CACHE_INTEGER
 # warning is _store_ptr sufficient/correct here?
     // create prebuilt integers
     for (long it = INT_CACHE_MIN_VALUE; it <= INT_CACHE_MAX_VALUE; ++it) {
-        prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = new (page) VMInteger(it);
+        prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = _store_ptr(new (page) VMInteger(it));
     }
 #endif
 
