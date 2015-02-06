@@ -26,10 +26,6 @@
 
 #include "VMBlock.h"
 #include "VMMethod.h"
-#include "VMFrame.h"
-#include "VMEvaluationPrimitive.h"
-
-#include "../vm/Universe.h"
 
 const int VMBlock::VMBlockNumberOfFields = 2;
 
@@ -48,10 +44,6 @@ VMBlock* VMBlock::Clone(Page* page) {
 
 VMMethod* VMBlock::GetMethod() {
     return load_ptr(blockMethod);
-}
-
-VMEvaluationPrimitive* VMBlock::GetEvaluationPrimitive(int numberOfArguments, Page* page) {
-    return new (page) VMEvaluationPrimitive(numberOfArguments, page);
 }
 
 StdString VMBlock::AsDebugString() {

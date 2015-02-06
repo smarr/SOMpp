@@ -42,7 +42,6 @@ public:
     
     virtual StdString AsDebugString();
 
-    static VMEvaluationPrimitive* GetEvaluationPrimitive(int, Page*);
 private:
     GCMethod* blockMethod;
     GCFrame* context;
