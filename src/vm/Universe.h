@@ -115,7 +115,7 @@ public:
 
     VMCondition* NewCondition(VMMutex*, Page* page) const;
     VMMutex*     NewMutex(Page* page) const;
-    VMThread*    NewThread(VMBlock* block, vm_oop_t arguments, Page* page);
+    VMThread*    NewThread(VMBlock*, vm_oop_t arguments, Interpreter*);
 
     void WalkGlobals(walk_heap_fn, Page*);
 

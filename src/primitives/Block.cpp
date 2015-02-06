@@ -55,7 +55,7 @@ void _Block::Restart(Interpreter*, VMFrame* frame) {
 // spawns a new thread that will execute the receiver block
 void _Block::Spawn(Interpreter* interp, VMFrame* frame) {
     VMBlock* block = static_cast<VMBlock*>(frame->Pop());
-    VMThread* thread = GetUniverse()->NewThread(block, nullptr, interp->GetPage());
+    VMThread* thread = GetUniverse()->NewThread(block, nullptr, interp);
     frame->Push(thread);
 }
 
@@ -63,7 +63,7 @@ void _Block::Spawn_(Interpreter* interp, VMFrame* frame) {
     vm_oop_t arguments = frame->Pop();
     VMBlock* block = static_cast<VMBlock*>(frame->Pop());
     
-    VMThread* thread = GetUniverse()->NewThread(block, arguments, interp->GetPage());
+    VMThread* thread = GetUniverse()->NewThread(block, arguments, interp);
     frame->Push(thread);
 }
 

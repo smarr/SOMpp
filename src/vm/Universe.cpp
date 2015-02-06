@@ -1117,8 +1117,8 @@ VMMutex* Universe::NewMutex(Page* page) const {
     return mutex;
 }
 
-VMThread* Universe::NewThread(VMBlock* block, vm_oop_t arguments, Page* page) {
-    VMThread* threadObj = new (page) VMThread();
+VMThread* Universe::NewThread(VMBlock* block, vm_oop_t arguments, Interpreter* interp) {
+    VMThread* threadObj = new (interp->GetPage()) VMThread();
     threadObj->SetClass(load_ptr(threadClass));
 
     SafePoint::RegisterMutator();
