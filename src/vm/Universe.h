@@ -98,9 +98,6 @@ public:
     map<GCSymbol*, gc_oop_t> GetGlobals() {
         return globals;
     }
-    PagedHeap* GetHeap() {
-        return heap;
-    }
     
     FORCE_INLINE Interpreter* GetInterpreter() { return (Interpreter*)pthread_getspecific(interpreterKey); }
     Interpreter* NewInterpreter();

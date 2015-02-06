@@ -39,9 +39,5 @@ public:
     
     void Spawn(Interpreter*, VMFrame*);
     void Spawn_(Interpreter*, VMFrame*);
-    
-private:
-    static void* ThreadForBlock(void* threadPointer);
-    static void* ThreadForBlockWithArgument(void*);
-    
+
 };
