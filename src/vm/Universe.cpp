@@ -964,8 +964,8 @@ VMInteger* Universe::NewInteger(int64_t value, Page* page) const {
 #endif
 
 #if CACHE_INTEGER
-    unsigned long index = (unsigned long)value - (unsigned long)INT_CACHE_MIN_VALUE;
-    if (index < (unsigned long)(INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE)) {
+    size_t index = (size_t)value - (size_t)INT_CACHE_MIN_VALUE;
+    if (index < (size_t)(INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE)) {
         return prebuildInts[index];
     }
 #endif
