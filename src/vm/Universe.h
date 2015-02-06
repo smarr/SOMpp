@@ -226,8 +226,8 @@ private:
 //Singleton accessor
 inline Universe* GetUniverse() __attribute__ ((always_inline));
 Universe* GetUniverse() {
-    /*if (DEBUG && !Universe::theUniverse) {
+    if (DEBUG && !Universe::theUniverse) {
         Universe::ErrorExit("Trying to access uninitialized Universe, exiting.");
-    }*/
+    }
     return Universe::theUniverse;
 }

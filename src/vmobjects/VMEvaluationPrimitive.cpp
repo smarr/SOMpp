@@ -49,6 +49,12 @@ VMEvaluationPrimitive* VMEvaluationPrimitive::Clone(Page* page) {
     return evPrim;
 }
 
+void VMEvaluationPrimitive::WalkObjects(walk_heap_fn walk, Page* page) {
+    VMPrimitive::WalkObjects(walk, page);
+    numberOfArguments = walk(numberOfArguments, page);
+    static_cast<EvaluationRoutine*>(routine)->WalkObjects(walk, page);
+}
+
 VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc, Page* page) {
     assert(argc > 0);
 
@@ -104,11 +110,6 @@ void VMEvaluationPrimitive::CheckMarking(void (*walk)(vm_oop_t)) {
     static_cast<EvaluationRoutine*>(routine)->WalkObjects(walk, page);
 }
 #endif
-void VMEvaluationPrimitive::WalkObjects(walk_heap_fn walk, Page* page) {
-    VMPrimitive::WalkObjects(walk, page);
-    numberOfArguments = walk(numberOfArguments, page);
-    static_cast<EvaluationRoutine*>(routine)->WalkObjects(walk, page);
-}
 
 #if GC_TYPE==PAUSELESS
 void EvaluationRoutine::MarkReferences() {

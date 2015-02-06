@@ -60,12 +60,10 @@
 #include <compiler/SourcecodeCompiler.h>
 
 #include <vmobjects/IntegerBox.h>
-
 #include <vm/SafePoint.h>
 
 #include <vmobjects/VMBlock.inline.h>
 #include <vmobjects/VMMethod.inline.h>
-
 
 #if CACHE_INTEGER
 gc_oop_t prebuildInts[INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE + 1];
@@ -168,8 +166,8 @@ void Universe::Quit(long err) {
         file_alloc_stats << iter->first << ", " << iter->second.noObjects << ", " << iter->second.sizeObjects << std::endl;
     }
 #endif
-    //if (theUniverse)
-    //    delete (theUniverse);
+//    if (theUniverse)
+//        delete (theUniverse);
 
     exit((int) err);
 }
@@ -355,7 +353,8 @@ void Universe::initialize(long _argc, char** _argv) {
     assert(page);
 
 #if CACHE_INTEGER
-    //create prebuilt integers
+# warning is _store_ptr sufficient/correct here?
+    // create prebuilt integers
     for (long it = INT_CACHE_MIN_VALUE; it <= INT_CACHE_MAX_VALUE; ++it) {
         prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = new (page) VMInteger(it);
     }
@@ -444,6 +443,10 @@ void Universe::startInterpreterInThread(VMThread* thread, VMBlock* block,
 }
 
 Universe::~Universe() {
+# warning TODO Delete interpretes...
+//    if (interpreter)
+//        delete (interpreter);
+
     pthread_key_delete(interpreterKey);
     PagedHeap::DestroyHeap();
 }

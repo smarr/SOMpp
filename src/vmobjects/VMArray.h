@@ -41,7 +41,6 @@ public:
 #endif
     virtual void WalkObjects(walk_heap_fn, Page*);
 
-
     inline  long GetNumberOfIndexableFields() const;
     VMArray* CopyAndExtendWith(vm_oop_t, Page*);
     vm_oop_t GetIndexableField(long idx);

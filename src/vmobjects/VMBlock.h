@@ -28,10 +28,6 @@
 
 #include "VMObject.h"
 
-class VMMethod;
-class VMFrame;
-class VMEvaluationPrimitive;
-
 class VMBlock: public VMObject {
 public:
     typedef GCBlock Stored;

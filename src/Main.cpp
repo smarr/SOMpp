@@ -23,23 +23,9 @@
  */
 
 #include <iostream>
-#include <fstream>
-#include <unistd.h>
 
-#include "compiler/ClassGenerationContext.h"
-
-#include "memory/PagedHeap.h"
-
-#include "misc/ExtendedList.h"
-#include "misc/defs.h"
-
-#include "vm/Universe.h"
-
-#include "vmobjects/VMObject.h"
-#include "vmobjects/VMMethod.h"
-#include "vmobjects/VMString.h"
-#include "vmobjects/VMArray.h"
-#include "vmobjects/ObjectFormats.h"
+#include <misc/defs.h>
+#include <vm/Universe.h>
 
 int main(int argc, char** argv) {
 

@@ -26,7 +26,6 @@
 
 #include "VMArray.h"
 #include "VMClass.h"
-#include "../interpreter/Interpreter.h"
 
 #include <vm/Universe.h>
 

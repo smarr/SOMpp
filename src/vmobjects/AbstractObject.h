@@ -7,6 +7,10 @@
  *      Author: christian
  */
 
+#include <assert.h>
+#include <iostream>
+
+
 #include <misc/defs.h>
 #include <memory/GenerationalHeap.h>
 #include <memory/GenerationalPage.h>
@@ -16,26 +20,16 @@
 #include <memory/MarkSweepPage.h>
 #include <memory/PauselessPage.h>
 #include <memory/PauselessHeap.h>
-#include <memory/PauselessCollectorThread.h>
-class Worklist;
 
 #include "VMObjectBase.h"
 
-#include <interpreter/Interpreter.h>
 #include <vm/Universe.h>
-
 
 /*
  * macro for padding - only word-aligned memory must be allocated
  */
 #define PADDED_SIZE(N) ((((size_t)(N))+(sizeof(void*)-1) & ~(sizeof(void*)-1)))
 
-class VMClass;
-class VMObject;
-class VMSymbol;
-
-#include <iostream>
-#include <assert.h>
 using namespace std;
 
 // this is the base class for all VMObjects
@@ -79,12 +73,12 @@ public:
     }
 
     long GetFieldIndex(VMSymbol* fieldName);
-    
+
     inline virtual VMSymbol* GetFieldName(long index) const {
         Universe::ErrorPrint("this object doesn't support GetFieldName\n");
         throw "this object doesn't support GetFieldName";
     }
-    
+
 #if GC_TYPE==PAUSELESS
     inline virtual void MarkReferences() {
         return;
@@ -96,7 +90,6 @@ public:
     inline virtual void WalkObjects(walk_heap_fn, Page*) {
         return;
     }
-
 
     void* operator new(size_t numBytes, Page* page,
             unsigned long additionalBytes = 0 ALLOC_OUTSIDE_NURSERY_DECL ALLOC_NON_RELOCATABLE_DECL) {
