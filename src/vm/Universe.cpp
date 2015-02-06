@@ -129,9 +129,6 @@ void Universe::Start(long argc, char** argv) {
 }
 
 void Universe::Quit(long err) {
-    cout << "Time spent in GC: [" << Timer::GCTimer->GetTotalTime() << "] msec"
-            << endl;
-    
     GetHeap<HEAP_CLS>()->ReportGCDetails();
 
 #ifdef GENERATE_INTEGER_HISTOGRAM
