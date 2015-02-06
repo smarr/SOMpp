@@ -115,6 +115,7 @@ VMFrame* VMFrame::GetContext() {
 }
 
 void VMFrame::SetContext(VMFrame* frm) {
+    assert(Universe::IsValidObject(frm));
     store_ptr(context, frm);
 }
 
