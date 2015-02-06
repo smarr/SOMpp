@@ -24,12 +24,13 @@
  THE SOFTWARE.
  */
 
-#include "VMFrame.h"
-#include "VMMethod.h"
-#include "VMObject.h"
-#include "VMInteger.h"
-#include "VMClass.h"
-#include "VMSymbol.h"
+#include <vmobjects/VMFrame.h>
+#include <vmobjects/VMMethod.h>
+#include <vmobjects/VMObject.h>
+#include <vmobjects/VMInteger.h>
+#include <vmobjects/VMClass.h>
+#include <vmobjects/VMSymbol.h>
+#include <vmobjects/IntegerBox.h>
 
 #include <compiler/Disassembler.h>
 
