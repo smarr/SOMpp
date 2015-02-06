@@ -1292,9 +1292,7 @@ VMThread* Universe::NewThread(VMBlock* block, vm_oop_t arguments, Interpreter* i
     VMThread* threadObj = new (interp->GetPage()) VMThread();
     threadObj->SetClass(load_ptr(threadClass));
 
-#if GC_TYPE != PAUSELESS
     SafePoint::RegisterMutator();
-#endif
     thread* thread = new std::thread(&Universe::startInterpreterInThread,
                                      this, threadObj, block, arguments
                                      PAUSELESS_ONLY(, interp->GetExpectedNMT(), interp->GCTrapEnabled()));

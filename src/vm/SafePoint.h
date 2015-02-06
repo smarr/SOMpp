@@ -6,12 +6,16 @@
 #include <iostream>
 
 #include <assert.h>
+#include <misc/defs.h>
 
 
 class SafePoint {
 public:
     // register a thread as being a mutator in the system
     static void RegisterMutator() {
+        if (GC_TYPE == PAUSELESS)
+            return; // not needed for pauseless
+        
         std::lock_guard<std::mutex> lock(mutex);
         
         numTotalMutators++;
@@ -22,6 +26,9 @@ public:
     }
     
     static void UnregisterMutator() {
+        if (GC_TYPE == PAUSELESS)
+            return; // not needed for pauseless
+        
         std::lock_guard<std::mutex> lock(mutex);
         
         numTotalMutators--;
