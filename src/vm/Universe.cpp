@@ -1162,6 +1162,16 @@ void Universe::unregisterInterpreter(Interpreter* interp) {
     assert(cnt == 1);
 }
 
+// FOR DEBUGGING PURPOSES
+void Universe::PrintGlobals() {
+    for (auto assoc : globals) {
+        GetUniverse()->ErrorPrint("[GLOBALS] symbol: " +
+            load_ptr(assoc.first)->GetStdString() + " ptr: " +
+            to_string((intptr_t)assoc.first) + " value ptr: " +
+            to_string((intptr_t)assoc.second));
+    }
+}
+
 void Universe::Print(StdString str) {
     lock_guard<mutex> lock(output_mutex);
     cout << str << flush;

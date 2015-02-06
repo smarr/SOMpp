@@ -152,6 +152,8 @@ public:
     static void Print(StdString str);
     static void ErrorPrint(StdString str);
 
+    void PrintGlobals();
+    
 private:
     vector<StdString> handleArguments(long argc, char** argv);
     long getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;
