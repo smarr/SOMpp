@@ -808,9 +808,6 @@ VMClass* Universe::LoadClass(VMSymbol* name, Page* page) {
 
 VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass, Page* page) {
     StdString s_name = name->GetStdString();
-    //sync_out(ostringstream() << "LoadClassBasic: " << name->GetChars());
-    // assert(0 != strcmp(name->GetChars(), "nil")); // NOTE: name can be nil. During assembling we do a load again, unconditionally, also for nil symbol. Should be fixed...
-    
     VMClass* result;
 
     for (StdString path : classPath) {
@@ -844,6 +841,11 @@ void Universe::LoadSystemClass(VMClass* systemClass, Page* page) {
     if (result->HasPrimitives() || result->GetClass()->HasPrimitives())
         result->LoadPrimitives(classPath, page);
 }
+
+
+#warning None of the current paged heap implementations can handled allocations\
+ that do not fit into one page...
+
 
 VMArray* Universe::NewArray(long size, Page* page) const {
     long additionalBytes = size * sizeof(VMObject*);
@@ -934,9 +936,8 @@ VMDouble* Universe::NewDouble(double value, Page* page) const {
 
 VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method, Page* page) const {
     VMFrame* result = nullptr;
-    
-    /*
 #ifdef UNSAFE_FRAME_OPTIMIZATION
+# error not supported in multithreaded mode
     result = method->GetCachedFrame();
     if (result != nullptr) {
         method->SetCachedFrame(nullptr);
@@ -944,8 +945,6 @@ VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method, Page* page
         return result;
     }
 #endif
-    */
-    
     long length = method->GetNumberOfArguments() +
                   method->GetNumberOfLocals() +
                   method->GetMaximumNumberOfStackElements();
@@ -1187,8 +1186,7 @@ void Universe::WalkGlobals(walk_heap_fn walk, Page* page) {
     map<GCSymbol*, gc_oop_t> globs = globals;
     globals.clear();
     for (auto iter = globs.begin(); iter != globs.end(); iter++) {
-        if (iter->second == nullptr)
-            continue;
+        assert(iter->second != nullptr);
 
         GCSymbol* key = static_cast<GCSymbol*>(walk(iter->first, page));
         gc_oop_t val = walk(iter->second, page);
@@ -1229,7 +1227,6 @@ VMMethod* Universe::NewMethod(VMSymbol* signature,
 
     VMMethod* result = new (page, additionalBytes ALLOC_MATURE ALLOC_NON_RELOCATABLE)
                 VMMethod(numberOfBytecodes, numberOfConstants, 0, page);
-
     result->SetClass(load_ptr(methodClass));
     result->SetSignature(signature, page);
 
@@ -1256,6 +1253,7 @@ VMSymbol* Universe::NewSymbol(const char* str, Page* page) {
     lock_guard<recursive_mutex> lock(globalsAndSymbols_mutex);
 
     VMSymbol* result = new (page, PADDED_SIZE(strlen(str)+1) ALLOC_MATURE ALLOC_NON_RELOCATABLE) VMSymbol(str);
+# warning is _store_ptr sufficient here?
     symbolsMap[str] = _store_ptr(result);
 
     LOG_ALLOCATION("VMSymbol", result->GetObjectSize());
