@@ -3,9 +3,6 @@
 #include <misc/defs.h>
 #include <assert.h>
 
-#if GC_TYPE == PAUSELESS
-
-
 #include <memory/PagedHeap.h>
 #include <memory/PauselessPage.h>
 #include <vmobjects/VMObjectBase.h>
@@ -25,8 +22,8 @@ class PauselessHeap : public PagedHeap {
     friend class PauselessCollectorThread;
  
 public:
-    PauselessHeap(long, long);
-    
+    PauselessHeap(size_t pageSize, size_t maxHeapSize);
+        
     void SignalRootSetMarked();
     void SignalInterpreterBlocked(Interpreter*);
     void SignalSafepointReached(bool*);
@@ -38,13 +35,13 @@ public:
     PauselessCollectorThread* GetGCThread();
     void AddGCThread(PauselessCollectorThread*);
     
-    void AddFullNonRelocatablePage(Page* page) {
+    void AddFullNonRelocatablePage(PauselessPage* page) {
         nonRelocatablePages.push_back(page);
     }
     
     // DIRTY
     FORCE_INLINE void* GetMemoryStart() {return memoryStart;}
-    FORCE_INLINE vector<Page*>* GetAllPages() {return allPages;}
+    FORCE_INLINE vector<PauselessPage*>* GetAllPages() {return allPages;}
     inline int GetNumberOfMutatorsNeedEnableGCTrap() {return numberOfMutatorsNeedEnableGCTrap;}
     inline int GetNumberOfMutatorsWithEnabledGCTrap() {return numberOfMutatorsWithEnabledGCTrap;}
     inline pthread_mutex_t* GetGcTrapEnabledMutex() {return &gcTrapEnabledMutex;}
@@ -59,7 +56,7 @@ public:
     int GetCycle();
     int GetMarkValue();
     
-    Page* RegisterThread() { return RequestPage(); /* TODO: do we need to do anything else here? */}
+    Page* RegisterThread() { return reinterpret_cast<Page*>(RequestPage()); /* TODO: do we need to do anything else here? */}
     void UnregisterThread(Page*) { /* TODO: do we need to do anything here? */ }
     
 
@@ -74,7 +71,7 @@ private:
     int numberOfMutatorsNeedEnableGCTrap;
     int numberOfMutatorsWithEnabledGCTrap;
     
-    vector<Page*> nonRelocatablePages;
+    vector<PauselessPage*> nonRelocatablePages;
     
     static void* ThreadForGC(void*);
     
@@ -101,6 +98,8 @@ FORCE_INLINE typename T::Loaded* Untag(T* reference) {
         return (typename T::Loaded*) reference;
 }
 
+
+#if GC_TYPE == PAUSELESS
 template<typename T>
 inline typename T::Stored* WriteBarrier(T* reference) {
     if (reference == nullptr)
@@ -144,6 +143,8 @@ __attribute__((always_inline)) inline typename T::Loaded* ReadBarrier(T** refere
         Interpreter* interpreter = GetUniverse()->GetInterpreter();
         bool correctNMT = (REFERENCE_NMT_VALUE(foo) == interpreter->GetExpectedNMT());
         reference = Untag(foo);
+        assert(Universe::IsValidObject(reinterpret_cast<vm_oop_t>(reference)));
+        
         bool trapTriggered = false;
         //gc-trap stuff ------>
         
@@ -175,7 +176,7 @@ __attribute__((always_inline)) inline typename T::Loaded* ReadBarrier(T** refere
         }
         std::atomic_thread_fence(std::memory_order_seq_cst);
         if (!correctNMT || rootSetMarking)
-            interpreter->AddGCWork((AbstractVMObject*)reference);
+            interpreter->AddGCWork(reinterpret_cast<AbstractVMObject*>(reference));
         break;
     }
     assert(Universe::IsValidObject(reinterpret_cast<vm_oop_t>(reference)));

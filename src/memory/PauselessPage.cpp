@@ -16,7 +16,7 @@
 #include <memory/PauselessHeap.h>
 
 
-PauselessPage::PauselessPage(void* pageStart, PagedHeap* heap) {
+PauselessPage::PauselessPage(void* pageStart, PauselessHeap* heap) {
     this->heap = heap;
     this->nextFreePosition = pageStart;
     this->pageStart = (size_t)pageStart;
@@ -38,14 +38,13 @@ AbstractVMObject* PauselessPage::allocateNonRelocatable(size_t size) {
     assert(nonRelocatablePage != nullptr);
     AbstractVMObject* newObject = nonRelocatablePage->allocate(size);
     if (nonRelocatablePage->isFull()) {
-        assert(dynamic_cast<PauselessHeap*>(heap));
-        static_cast<PauselessHeap*>(heap)->AddFullNonRelocatablePage(nonRelocatablePage);
+        heap->AddFullNonRelocatablePage(nonRelocatablePage);
         nonRelocatablePage = heap->RequestPage();
     }
     return newObject;
 }
 
-AbstractVMObject* PauselessPage::AllocateObject(size_t size ALLOC_OUTSIDE_NURSERY_DECLpp ALLOC_NON_RELOCATABLE_DECLpp) {
+AbstractVMObject* PauselessPage::AllocateObject(size_t size, bool nonRelocatable) {
     if (nonRelocatable) {
         return allocateNonRelocatable(size);
     }

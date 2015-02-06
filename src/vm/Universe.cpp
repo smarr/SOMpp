@@ -1336,6 +1336,7 @@ void Universe::unregisterInterpreter(Interpreter* interp) {
     assert(cnt == 1);
 }
 
+#if GC_TYPE==PAUSELESS
 unique_ptr<vector<Interpreter*>> Universe::GetInterpretersCopy() {
 #warning Don't think we want this approach here
     lock_guard<mutex> lock(interpreters_mutex);
@@ -1343,7 +1344,7 @@ unique_ptr<vector<Interpreter*>> Universe::GetInterpretersCopy() {
     unique_ptr<vector<Interpreter*>> copy(new vector<Interpreter*>(interpreters.begin(),interpreters.end()));
     return copy;
 }
-
+#endif
 
 // FOR DEBUGGING PURPOSES
 void Universe::PrintGlobals() {

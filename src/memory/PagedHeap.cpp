@@ -37,21 +37,9 @@
 
 HEAP_CLS* PagedHeap::theHeap = nullptr;
 
-void PagedHeap::InitializeHeap(long, long) {
-    if (theHeap) {
-        sync_out(ostringstream() << "Warning, reinitializing already initialized Heap, "
-                << "all data will be lost!");
-        delete theHeap;
-    }
-    theHeap = new HEAP_CLS(HEAP_SIZE, PAGE_SIZE);
-}
 
-void PagedHeap::DestroyHeap() {
-    if (theHeap)
-        delete theHeap;
-}
-
-PagedHeap::PagedHeap(long, long) {
+PagedHeap::PagedHeap(size_t pageSize, size_t maxHeapSize)
+    : Heap<PauselessHeap>(nullptr) {
     pthread_mutex_init(&fullPagesMutex, nullptr);
     allPages = new vector<PauselessPage*>();
     availablePages = new vector<PauselessPage*>();

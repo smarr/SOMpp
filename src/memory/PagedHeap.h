@@ -40,45 +40,18 @@
 class AbstractVMObject;
 
 using namespace std;
-//macro to access the heap
-#define _HEAP PagedHeap::GetHeap()
 
-# ifndef GC_TYPE
-# error GC_TYPE is not defined
-# endif
-
-#if GC_TYPE==GENERATIONAL
-class GenerationalHeap;
-#define HEAP_CLS GenerationalHeap
-#elif GC_TYPE==COPYING
-class CopyingHeap;
-#define HEAP_CLS CopyingHeap
-#elif GC_TYPE==MARK_SWEEP
-class MarkSweepHeap;
-#define HEAP_CLS MarkSweepHeap
-#elif GC_TYPE==PAUSELESS
+class PauselessPage;
 class PauselessHeap;
-#define HEAP_CLS PauselessHeap
-#else
-  # define VALUE_TO_STRING(x) #x
-  # define VALUE(x) VALUE_TO_STRING(x)
-  # define VAR_NAME_VALUE(var) #var "=" VALUE(var)
 
-  # pragma message(VAR_NAME_VALUE(GC_TYPE))
-  # error The given value of GC_TYPE is not known
-#endif
-
-class PagedHeap {
+class PagedHeap : public Heap<PauselessHeap> {
     friend class GarbageCollector<HEAP_CLS>;
     friend class PauselessCollector; //this should probably also be made compile time dependend
     friend class PauselessCollectorThread;
     friend class PauselessPage;
     
 public:
-    static FORCE_INLINE HEAP_CLS* GetHeap() { return theHeap; }
-    static void InitializeHeap(long, long);
-    static void DestroyHeap();
-    PagedHeap(long, long);
+    PagedHeap(size_t pageSize, size_t maxHeapSize);
     ~PagedHeap();
     size_t GetMaxObjectSize();
 
@@ -94,7 +67,6 @@ public:
     vector<PauselessPage*>* allPages;
     
 protected:
-    GarbageCollector<HEAP_CLS>* gc;
     pthread_mutex_t fullPagesMutex;
 
     mutex availablePages_mutex;

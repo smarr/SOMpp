@@ -96,6 +96,11 @@ template void Heap<HEAP_CLS>::DestroyHeap();
 template void Heap<HEAP_CLS>::FullGC();
 template void Heap<HEAP_CLS>::ReportGCDetails();
 
+#if GC_TYPE != PAUSELESS
+# warning TODO: remove once the heap base classes are properly unified
+template void Heap<PauselessHeap>::DestroyHeap();
+#endif
+
 class GenerationalHeap;
 template GenerationalHeap* Heap<GenerationalHeap>::theHeap;
 template Heap<GenerationalHeap>::~Heap();

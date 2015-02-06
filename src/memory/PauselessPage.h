@@ -13,7 +13,7 @@
 #include <misc/defs.h>
 
 class AbstractVMObject;
-class PagedHeap;
+class PauselessHeap;
 class PauselessCollectorThread;
 class Interpreter;
 
@@ -23,12 +23,11 @@ class PauselessPage {
     
 public:
     
-    PauselessPage(void* pageStart, PagedHeap* heap);
+    PauselessPage(void* pageStart, PauselessHeap* heap);
     
-    AbstractVMObject* AllocateObject(size_t size ALLOC_OUTSIDE_NURSERY_DECL ALLOC_NON_RELOCATABLE_DECL);
+    AbstractVMObject* AllocateObject(size_t size, bool nonRelocatable = false);
     void ClearPage();
     
-#if GC_TYPE==PAUSELESS
     void Block();
     void UnBlock();
     FORCE_INLINE bool Blocked() {
@@ -41,7 +40,7 @@ public:
     void Free(size_t);
     void RelocatePage();
     void ResetAmountOfLiveData();
-#endif
+
     
     void SetNonRelocatablePage(PauselessPage* page) { nonRelocatablePage = page; }
     void SetInterpreter(Interpreter* interp) { interpreter = interp; }
@@ -57,14 +56,11 @@ private:
     size_t pageEnd;
     void* treshold;
     void* volatile nextFreePosition;
-    PagedHeap* heap;
+    PauselessHeap* heap;
     
     PauselessPage* nonRelocatablePage;
-        
-#if GC_TYPE==PAUSELESS
+
     bool blocked;
     std::atomic<AbstractVMObject*>* sideArray;
     long amountLiveData;
-#endif
-    
 };
