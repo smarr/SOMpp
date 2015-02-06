@@ -204,6 +204,16 @@ vector<StdString> Universe::handleArguments(long argc, char** argv) {
                     heapSize = heap_size * 1024 * 1024;
             } else
                 printUsageAndExit(argv[0]);
+        } else if (strncmp(argv[i], "-P", 2) == 0) {
+            size_t page_size = 0;
+            char unit[3];
+            if (sscanf(argv[i], "-P%ld%2s", &page_size, unit) == 2) {
+                if (strcmp(unit, "KB") == 0)
+                    pageSize = page_size * 1024;
+                else if (strcmp(unit, "MB") == 0)
+                    pageSize = page_size * 1024 * 1024;
+            } else
+                printUsageAndExit(argv[0]);
 
         } else if ((strncmp(argv[i], "-h", 2) == 0)
                 || (strncmp(argv[i], "--help", 6) == 0)) {
@@ -293,6 +303,8 @@ void Universe::printUsageAndExit(char* executable) const {
     cout << endl;
     cout << "    -HxMB set the heap size to x MB (default: 1 MB)" << endl;
     cout << "    -HxKB set the heap size to x KB (default: 1 MB)" << endl;
+    cout << "    -PxMB set the page size to x MB (default: 1 MB)" << endl;
+    cout << "    -PxKB set the page size to x KB (default: 1 MB)" << endl;
     cout << endl;
     cout << "    -h  show this help" << endl;
 
@@ -317,16 +329,20 @@ void Universe::initialize(long _argc, char** _argv) {
     allocationStats["VMArray"] = {0,0};
 #endif
 
-    //heapSize = 240 * 1024 * 1024;
-    //pageSize = 4 * 8192;
+    heapSize = 1 * 1024 * 1024;
+    pageSize = PAGE_SIZE * 16;  // let's use larger pages, to reduce management overhead
 
     vector<StdString> argv = handleArguments(_argc, _argv);
     
     // remember file that was executed (for writing statistics)
     if (argv.size() > 0)
         bm_name = argv[0];
+    
+    if (!isPowerOfTwo(pageSize)) {
+        ErrorExit("Page size must be a power of two, but was: " + to_string(pageSize));
+    }
 
-    Heap<HEAP_CLS>::InitializeHeap(PAGE_SIZE, HEAP_SIZE);
+    Heap<HEAP_CLS>::InitializeHeap(pageSize, heapSize);
     Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
 
     Interpreter* interpreter = new Interpreter(page PAUSELESS_ONLY(, false, true));
