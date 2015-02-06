@@ -161,8 +161,9 @@ void Universe::Quit(long err) {
         file_alloc_stats << iter->first << ", " << iter->second.noObjects << ", " << iter->second.sizeObjects << std::endl;
     }
 #endif
-    if (theUniverse)
-        delete (theUniverse);
+# warning TODO:
+//    if (theUniverse)
+//        delete (theUniverse);
 
     exit((int) err);
 }
