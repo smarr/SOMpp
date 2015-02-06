@@ -148,6 +148,13 @@ typedef gc_oop_t (*walk_heap_fn)(gc_oop_t, Page*);
   #endif
 #endif
 
+#ifdef UNITTESTS
+  #undef  UNITTESTS
+  #define UNITTESTS true
+#else
+  #define UNITTESTS false
+#endif
+
 //
 // Performance Optimization
 //

@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include <mutex>
-#ifdef UNITTESTS
+#if UNITTESTS
   #include <set>
 #endif
 #include <vector>
@@ -16,7 +16,7 @@
 #include <vmobjects/VMObjectBase.h>
 
 
-#ifdef UNITTESTS
+#if UNITTESTS
 struct VMObjectCompare {
     bool operator() (pair<vm_oop_t, vm_oop_t> lhs,
                      pair<vm_oop_t, vm_oop_t> rhs) const
@@ -62,7 +62,7 @@ public:
     void UnregisterThread(NurseryPage*);
 
 
-#ifdef UNITTESTS
+#if UNITTESTS
     std::set< pair<AbstractVMObject*, vm_oop_t>, VMObjectCompare > writeBarrierCalledOn;
 #endif
     

@@ -86,7 +86,7 @@ private:
 
 inline void GenerationalHeap::writeBarrier(AbstractVMObject* holder,
                                            vm_oop_t referencedObject) {
-#ifdef UNITTESTS
+#if UNITTESTS
     writeBarrierCalledOn.insert(make_pair(holder, referencedObject));
 #endif
     
