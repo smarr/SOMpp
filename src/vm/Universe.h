@@ -90,8 +90,8 @@ class Universe {
 public:
     //static methods
     static void Start(long argc, char** argv);
-    static void Quit(long);
-    static void ErrorExit(StdString);
+    [[noreturn]] static void Quit(long);
+    [[noreturn]] static void ErrorExit(StdString);
 
     //Globals accessor (only for GC, could be considered be
     //declared as a private friend method for the GC)
