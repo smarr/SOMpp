@@ -557,6 +557,15 @@ Universe::~Universe() {
         VMThread* thr = new (page) VMThread();
         vt_thread     = *(void**) thr;
         
+        // Make sure the classes for VMObjects are set to something
+        arr ->SetClass(static_cast<VMClass*>(load_ptr(nilObject)));
+        blck->SetClass(static_cast<VMClass*>(load_ptr(nilObject)));
+        ev  ->SetClass(static_cast<VMClass*>(load_ptr(nilObject)));
+        mth ->SetClass(static_cast<VMClass*>(load_ptr(nilObject)));
+        prm ->SetClass(static_cast<VMClass*>(load_ptr(nilObject)));
+        cond->SetClass(static_cast<VMClass*>(load_ptr(nilObject)));
+        mutex->SetClass(static_cast<VMClass*>(load_ptr(nilObject)));
+        thr->SetClass(static_cast<VMClass*>(load_ptr(nilObject)));
     }
 #endif
 
