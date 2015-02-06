@@ -18,7 +18,7 @@ public:
     }
     
     void* AllocateObject(size_t size ALLOC_OUTSIDE_NURSERY_DECL) {
-        assert(interpreter);
+        assert(UNITTESTS || interpreter);
         
         void* newObject = nextFreePosition;
         void* newFreePosition = (void*)((uintptr_t)nextFreePosition + size);
