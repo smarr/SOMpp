@@ -65,6 +65,7 @@ private:
 
 
 VMInvokable* VMSymbol::GetCachedInvokable(const VMClass* cls) {
+# warning TODO: make thread-safe
     if (cls == load_ptr(cachedClass_invokable[0]))
         return load_ptr(cachedInvokable[0]);
     else if (cls == load_ptr(cachedClass_invokable[1]))

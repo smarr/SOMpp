@@ -812,6 +812,11 @@ void Universe::LoadSystemClass(VMClass* systemClass, Page* page) {
         result->LoadPrimitives(classPath, page);
 }
 
+
+#warning None of the current paged heap implementations can handled allocations\
+ that do not fit into one page...
+
+
 VMArray* Universe::NewArray(long size, Page* page) const {
     long additionalBytes = size * sizeof(VMObject*);
     
@@ -903,6 +908,7 @@ VMDouble* Universe::NewDouble(double value, Page* page) const {
 VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method, Page* page) const {
     VMFrame* result = nullptr;
 #ifdef UNSAFE_FRAME_OPTIMIZATION
+# error not supported in multithreaded mode
     result = method->GetCachedFrame();
     if (result != nullptr) {
         method->SetCachedFrame(nullptr);
