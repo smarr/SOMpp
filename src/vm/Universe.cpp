@@ -425,6 +425,9 @@ void Universe::startInterpreterInThread(VMThread* thread, VMBlock* block,
 }
 
 Universe::~Universe() {
+# warning TODO Delete interpretes...
+//    if (interpreter)
+//        delete (interpreter);
 
     // check done inside
     Heap<HEAP_CLS>::DestroyHeap();
