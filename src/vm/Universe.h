@@ -204,6 +204,10 @@ private:
     void printUsageAndExit(char* executable) const;
 
     void initialize(long, char**);
+    
+    bool isPowerOfTwo(size_t val) {
+        return !(val == 0) && !(val & (val - 1));
+    }
 
     PagedHeap* heap;
     size_t heapSize;
