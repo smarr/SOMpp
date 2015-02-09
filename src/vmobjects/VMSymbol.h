@@ -62,25 +62,3 @@ private:
     friend class Signature;
     friend class VMClass;
 };
-
-//VMInvokable* VMSymbol::GetCachedInvokable(const VMClass* cls) const {
-//    if (cls == cachedClass_invokable[0])
-//        return cachedInvokable[0];
-//    else if (cls == cachedClass_invokable[1])
-//        return cachedInvokable[1];
-//    else if (cls == cachedClass_invokable[2])
-//        return cachedInvokable[2];
-//    return nullptr;
-//}
-
-//void VMSymbol::UpdateCachedInvokable(const VMClass* cls, VMInvokable* invo) {
-//    cachedInvokable[nextCachePos] = invo;
-//    cachedClass_invokable[nextCachePos] = cls;
-//    nextCachePos = (nextCachePos + 1) % 3;
-//    
-//#if GC_TYPE==GENERATIONAL
-//    GetHeap<HEAP_CLS>()->WriteBarrier(this, (VMOBJECT_PTR) invo);
-//    GetHeap<HEAP_CLS>()->WriteBarrier(this, (VMOBJECT_PTR) cls);
-//#endif
-//}
-
