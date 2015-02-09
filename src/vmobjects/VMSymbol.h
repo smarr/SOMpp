@@ -45,19 +45,20 @@ public:
     virtual VMClass* GetClass();
 
 #if GC_TYPE==PAUSELESS
+# warning TODO: add GC support for Pauseless
     //virtual void MarkReferences();
 #endif
-    //virtual void WalkObjects(walk_heap_fn walk, Page*); // TODO: restore if we enable caching again...
-    
+
+    virtual void WalkObjects(walk_heap_fn, Page*);
     virtual StdString AsDebugString();
 
 private:
     const int numberOfArgumentsOfSignature;
-//    const GCClass* cachedClass_invokable[3];
-//    long nextCachePos;
-//    GCInvokable* cachedInvokable[3];
-//    inline VMInvokable* GetCachedInvokable(const VMClass*);
-//    inline void UpdateCachedInvokable(const VMClass* cls, VMInvokable* invo);
+    const GCClass* cachedClass_invokable[3];
+    long nextCachePos;
+    GCInvokable* cachedInvokable[3];
+    inline VMInvokable* GetCachedInvokable(const VMClass*);
+    inline void UpdateCachedInvokable(VMClass* cls, VMInvokable* invo);
     
     friend class Signature;
     friend class VMClass;

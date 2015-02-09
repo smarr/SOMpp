@@ -31,24 +31,21 @@
 #include "VMInteger.h"
 #include "Signature.h"
 
-#include <interpreter/Interpreter.h>
-
 extern GCClass* symbolClass;
 
 VMSymbol::VMSymbol(const char* str)
  : numberOfArgumentsOfSignature(Signature::DetermineNumberOfArguments(str)),
    VMString() {
-//    nextCachePos = 0;
+    nextCachePos = 0;
     // set the chars-pointer to point at the position of the first character
-//    chars = (char*) &cachedInvokable + +3 * sizeof(VMInvokable*);
-    chars = (char*) &numberOfArgumentsOfSignature + sizeof(numberOfArgumentsOfSignature);
+    chars = (char*) &cachedInvokable + +3 * sizeof(VMInvokable*);
     size_t i = 0;
     for (; i < strlen(str); ++i) {
         chars[i] = str[i];
     }
     chars[i] = '\0';
     //clear caching fields
-//    memset(&cachedClass_invokable, 0, 6 * sizeof(void*) + 1 * sizeof(long));
+    memset(&cachedClass_invokable, 0, 6 * sizeof(void*) + 1 * sizeof(long));
 }
 
 VMSymbol::VMSymbol(const StdString& s) : 
@@ -139,15 +136,15 @@ StdString VMSymbol::GetPlainString() const {
 void VMSymbol::MarkReferences() {
     //Since we don't use the cache, nothing should be done here.
 }
-#else
-void VMSymbol::WalkObjects(walk_heap_fn walk) {
-    //Since we don't use the cache, nothing should be done here.
-    // for (long i = 0; i < nextCachePos; i++) {
-    // cachedClass_invokable[i] = (VMClass*) walk((VMOBJECT_PTR) cachedClass_invokable[i]);
-    // cachedInvokable[i] = (VMInvokable*) walk((VMOBJECT_PTR) cachedInvokable[i]);
-    // }
-}
 #endif */
+
+void VMSymbol::WalkObjects(walk_heap_fn walk, Page* page) {
+    for (long i = 0; i < nextCachePos; i++) {
+        cachedClass_invokable[i] = static_cast<GCClass*>(walk(
+                        const_cast<GCClass*>(cachedClass_invokable[i]), page));
+        cachedInvokable[i] = static_cast<GCInvokable*>(walk(cachedInvokable[i], page));
+    }
+}
 
 StdString VMSymbol::AsDebugString() {
     return "Symbol(" + GetStdString() + ")";
