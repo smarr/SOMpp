@@ -41,7 +41,7 @@ public:
     virtual void MarkObjectAsInvalid();
 
     virtual StdString AsDebugString();
-    
+
 #if GC_TYPE==PAUSELESS
     virtual void MarkReferences();
     virtual void CheckMarking(void (vm_oop_t));
@@ -67,7 +67,6 @@ public:
     void CheckMarking(void (vm_oop_t));
 #endif
     void WalkObjects(walk_heap_fn, Page*);
-
     virtual bool isClassSide() { return false; }
     virtual void Invoke(Interpreter* interp, VMFrame* frame);
 };

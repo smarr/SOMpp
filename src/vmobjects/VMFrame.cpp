@@ -24,12 +24,13 @@
  THE SOFTWARE.
  */
 
-#include "VMFrame.h"
-#include "VMMethod.h"
-#include "VMObject.h"
-#include "VMInteger.h"
-#include "VMClass.h"
-#include "VMSymbol.h"
+#include <vmobjects/VMFrame.h>
+#include <vmobjects/VMMethod.h>
+#include <vmobjects/VMObject.h>
+#include <vmobjects/VMInteger.h>
+#include <vmobjects/VMClass.h>
+#include <vmobjects/VMSymbol.h>
+#include <vmobjects/IntegerBox.h>
 
 #include <compiler/Disassembler.h>
 
@@ -353,10 +354,10 @@ void VMFrame::CopyArgumentsFrom(VMFrame* frame) {
 
 void VMFrame::MarkObjectAsInvalid() {
     VMObject::MarkObjectAsInvalid();
-    previousFrame = (GCFrame*)  INVALID_GC_POINTER;
-    context = (GCFrame*) INVALID_GC_POINTER;
-    method = (GCMethod*)  INVALID_GC_POINTER;
-    long i = 0;
+    previousFrame = (GCFrame*) INVALID_GC_POINTER;
+    context = (GCFrame*)  INVALID_GC_POINTER;
+    method  = (GCMethod*) INVALID_GC_POINTER;
+    size_t i = 0;
     
     gc_oop_t* end = (gc_oop_t*) SHIFTED_PTR(this, objectSize);
     

@@ -1,6 +1,8 @@
 #pragma once
 
+#include <misc/defs.h>
 #include <vmobjects/ObjectFormats.h>
+
 
 class GlobalBox {
 public:

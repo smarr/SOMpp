@@ -76,11 +76,10 @@ public:
     virtual void MarkReferences();
     virtual void CheckMarking(void (vm_oop_t));
 #endif
-    void         WalkObjects(walk_heap_fn, Page*);
+    virtual void        WalkObjects(walk_heap_fn, Page*);
 
     
     virtual void MarkObjectAsInvalid();
-
     virtual StdString AsDebugString();
 
 private:

@@ -31,12 +31,6 @@
 #include "VMInvokable.h"
 #include "VMInteger.h"
 
-class VMArray;
-class VMObject;
-class VMInteger;
-//class MethodGenerationContext;
-class VMFrame;
-
 class Interpreter;
 
 class VMMethod: public VMInvokable {
@@ -73,7 +67,6 @@ public:
     virtual void CheckMarking(void (vm_oop_t));
 #endif
     virtual void WalkObjects(walk_heap_fn, Page*);
-
     inline  long      GetNumberOfIndexableFields();
     virtual VMMethod* Clone(Page*);
 

@@ -33,7 +33,6 @@
 #include "VMObject.h"
 #include "VMInteger.h"
 #include "Signature.h"
-#include <interpreter/Interpreter.h>
 
 #include <vm/Universe.h>
 #include <vmobjects/VMBlock.inline.h>
@@ -127,13 +126,10 @@ void VMMethod::WalkObjects(walk_heap_fn walk, Page* page) {
     bcLength          = walk(bcLength, page);
     numberOfArguments = walk(numberOfArguments, page);
     numberOfConstants = walk(numberOfConstants, page);
-
-    /*
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     if (cachedFrame != nullptr)
         cachedFrame = static_cast<VMFrame*>(walk(cachedFrame, page));
 #endif
-     */
 
     long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {
