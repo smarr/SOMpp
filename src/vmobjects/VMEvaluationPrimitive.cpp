@@ -104,14 +104,16 @@ void EvaluationRoutine::Invoke(Interpreter* interp, VMFrame* frame) {
 void VMEvaluationPrimitive::MarkReferences() {
     VMPrimitive::MarkReferences();
     ReadBarrierForGCThread(&numberOfArguments);
-    static_cast<EvaluationRoutine*>(routine)->WalkObjects(walk, page);
+# warning TODO: walk routine
+//    static_cast<EvaluationRoutine*>(routine)->WalkObjects(walk, page);
 }
 void VMEvaluationPrimitive::CheckMarking(void (*walk)(vm_oop_t)) {
     VMPrimitive::CheckMarking(walk);
     assert(GetNMTValue(numberOfArguments) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(numberOfArguments));
     walk(Untag(numberOfArguments));
-    static_cast<EvaluationRoutine*>(routine)->WalkObjects(walk, page);
+# warning TODO: walk routine
+    // static_cast<EvaluationRoutine*>(routine)->WalkObjects(walk, page);
 }
 #endif
 
