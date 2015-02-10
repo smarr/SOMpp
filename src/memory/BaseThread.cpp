@@ -28,7 +28,7 @@ BaseThread::~BaseThread() {
 }
 
 Page* BaseThread::GetPage() {
-    return this->page;
+    return page;
 }
 
 void BaseThread::SetPage(Page* page) {

@@ -166,6 +166,7 @@ void Universe::Quit(long err) {
         file_alloc_stats << iter->first << ", " << iter->second.noObjects << ", " << iter->second.sizeObjects << std::endl;
     }
 #endif
+# warning TODO:
 //    if (theUniverse)
 //        delete (theUniverse);
 
@@ -585,6 +586,8 @@ Universe::~Universe() {
 
 VMObject* Universe::InitializeGlobals(Page* page) {
     set_vt_to_null();
+    
+# warning is _store_ptr sufficient?
     
     //
     //allocate nil object

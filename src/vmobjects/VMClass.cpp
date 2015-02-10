@@ -128,26 +128,17 @@ void VMClass::SetInstanceInvokable(long index, VMInvokable* invokable) {
 
 VMInvokable* VMClass::LookupInvokable(VMSymbol* name) {
     assert(Universe::IsValidObject(this));
-    
-    /*
-    VMInvokable* invokable = name->GetCachedInvokable(this);
-    if (invokable != nullptr)
-        return invokable; */
+# warning TODO: renable lookup caching in multithreaded and pauseless version    
+//    VMInvokable* invokable = name->GetCachedInvokable(this);
+//    if (invokable != nullptr)
+//        return invokable;
 
     long numInvokables = GetNumberOfInstanceInvokables();
     for (long i = 0; i < numInvokables; ++i) {
         VMInvokable* invokable = GetInstanceInvokable(i);
-        
-        VMSymbol* sig = invokable->GetSignature();
-        if (sig == name) {
-        //if (invokable->GetSignature() == name) {
+        if (invokable->GetSignature() == name) {
 //            name->UpdateCachedInvokable(this, invokable);
             return invokable;
-        } else {
-            if (strcmp(sig->GetChars(), name->GetChars()) == 0) {
-                VMSymbol* sigTest = invokable->GetSignature();
-                assert(0 != strcmp(sig->GetChars(), name->GetChars()));
-            }
         }
     }
 

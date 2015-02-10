@@ -40,7 +40,6 @@
 #include <primitives/Core.h>
 #endif
 
-//class ClassGenerationContext;
 class VMPrimitive;
 class VMInvokable;
 

@@ -117,6 +117,7 @@ void EvaluationRoutine::CheckMarking(void (*walk)(vm_oop_t)) {
     walk(Untag(evalPrim));
 }
 #endif
+
 void EvaluationRoutine::WalkObjects(walk_heap_fn walk, Page* page) {
     evalPrim = static_cast<GCEvaluationPrimitive*>(walk(evalPrim, page));
 }

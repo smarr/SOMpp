@@ -1,5 +1,4 @@
 #include "VMMutex.h"
-#include "VMClass.h"
 #include <vm/Universe.h>
 
 const size_t VMMutex::VMMutexNumberOfGcPtrFields = 0;

@@ -179,6 +179,7 @@ void VMFrame::CheckMarking(void (*walk)(vm_oop_t)) {
     }
 }
 #endif
+
 void VMFrame::WalkObjects(walk_heap_fn walk, Page* page) {
     // VMFrame is not a proper SOM object any longer, we don't have a class for it.
     // clazz = (VMClass*) walk(clazz);

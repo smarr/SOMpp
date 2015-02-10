@@ -28,7 +28,7 @@ public:
     static void WalkGlobals(walk_heap_fn walk, Page*);
     static void RegisterThread(thread::id, VMThread*);
     static void UnregisterThread(thread::id);
-    
+
 private:
     GCString* name;
     std::thread* thread;

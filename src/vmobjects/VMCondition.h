@@ -1,6 +1,6 @@
 #pragma once
 
-#include "VMObject.h"
+#include <vmobjects/VMObject.h>
 
 #include <condition_variable>
 

@@ -119,6 +119,7 @@ void VMArray::CheckMarking(void (*walk)(vm_oop_t)) {
     }
 }
 #endif
+
 void VMArray::WalkObjects(walk_heap_fn walk, Page* page) {
     clazz = static_cast<GCClass*>(walk(clazz, page));
     size_t numFields          = GetNumberOfFields();
