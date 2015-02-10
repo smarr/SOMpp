@@ -52,7 +52,7 @@ VMMethod::VMMethod(size_t bcCount, size_t numberOfConstants, size_t nof, Page* p
     cachedFrame = nullptr;
 #endif
 # warning not sure whether the use of _store_ptr is ok here
-
+# warning, if we use extra parts of the heap for the allocation, we probably need to trigger the generational barrier
     bcLength                     = _store_ptr(NEW_INT(bcCount, page));
     numberOfLocals               = _store_ptr(NEW_INT(0, page));
     maximumNumberOfStackElements = _store_ptr(NEW_INT(0, page));
