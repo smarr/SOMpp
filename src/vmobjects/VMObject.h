@@ -86,10 +86,9 @@ public:
 #if GC_TYPE==PAUSELESS
     virtual        void      MarkReferences();
     virtual        void      CheckMarking(void (vm_oop_t));
-#else
-    virtual        void      WalkObjects(walk_heap_fn, Page*);
 #endif
-    
+    virtual        void      WalkObjects(walk_heap_fn, Page*);
+
     virtual        StdString AsDebugString();
 
     /**

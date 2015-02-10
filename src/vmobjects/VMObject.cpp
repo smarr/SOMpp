@@ -104,7 +104,8 @@ void VMObject::CheckMarking(void (*walk)(vm_oop_t)) {
         walk(Untag(FIELDS[i]));
     }
 }
-#else
+#endif
+
 void VMObject::WalkObjects(walk_heap_fn walk, Page* page) {
     clazz = static_cast<GCClass*>(walk(clazz, page));
 
@@ -113,7 +114,7 @@ void VMObject::WalkObjects(walk_heap_fn walk, Page* page) {
         FIELDS[i] = walk(FIELDS[i], page);
     }
 }
-#endif
+
 void VMObject::MarkObjectAsInvalid() {
     clazz = (GCClass*) INVALID_GC_POINTER;
     
