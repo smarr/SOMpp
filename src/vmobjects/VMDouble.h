@@ -39,6 +39,8 @@ public:
     virtual VMClass* GetClass();
     inline virtual size_t GetObjectSize() const;
     
+    virtual inline intptr_t GetHash() { return *(reinterpret_cast<intptr_t*>(const_cast<double*>(&embeddedDouble))); }
+    
     virtual void MarkObjectAsInvalid() {}
     
     virtual StdString AsDebugString();
