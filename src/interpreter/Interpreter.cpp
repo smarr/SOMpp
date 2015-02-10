@@ -234,7 +234,7 @@ VMFrame* Interpreter::PushNewFrame(VMMethod* method) {
 }
 
 void Interpreter::SetFrame(VMFrame* frame) {
-    if (load_ptr(this->frame) != nullptr) {
+    if (this->frame != nullptr) {
         load_ptr(this->frame)->SetBytecodeIndex(bytecodeIndexGlobal);
     }
 
