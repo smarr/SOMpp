@@ -87,6 +87,8 @@ void EvaluationRoutine::Invoke(Interpreter* interp, VMFrame* frame) {
 
     // Get the block (the receiver) from the stack
     long numArgs = prim->GetNumberOfArguments();
+    assert(numArgs >= 1 && numArgs <= 3);
+    
     VMBlock* block = static_cast<VMBlock*>(frame->GetStackElement(numArgs - 1));
 
     // Get the context of the block...
