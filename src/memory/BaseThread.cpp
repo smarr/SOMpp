@@ -11,11 +11,13 @@
 
 #if GC_TYPE==PAUSELESS
 BaseThread::BaseThread(Page* page) : page(page), expectedNMT(false) {
+    if (page)
         page->SetNonRelocatablePage(GetHeap<HEAP_CLS>()->RequestPage());
 
 }
 
 BaseThread::BaseThread(Page* page, bool expectedNMT) : page(page), expectedNMT(expectedNMT) {
+    if (page)
         page->SetNonRelocatablePage(GetHeap<HEAP_CLS>()->RequestPage());
 }
 #else
