@@ -33,7 +33,8 @@ VMCondition* VMCondition::Clone(Page* page) {
 }
 
 void VMCondition::MarkObjectAsInvalid() {
-    clazz = (GCClass*) INVALID_GC_POINTER;
+    VMObject::MarkObjectAsInvalid();
+    
     std::unique_lock<recursive_mutex>** lock_for_reset = const_cast<std::unique_lock<recursive_mutex>**>(&lock);
     *lock_for_reset = nullptr;
     

@@ -28,11 +28,6 @@ public:
     static void WalkGlobals(walk_heap_fn walk, Page*);
     static void RegisterThread(thread::id, VMThread*);
     static void UnregisterThread(thread::id);
-
-#if GC_TYPE==PAUSELESS
-    virtual void MarkReferences();
-    virtual void CheckMarking(void (vm_oop_t));
-#endif
     
 private:
     GCString* name;

@@ -26,13 +26,14 @@
  THE SOFTWARE.
  */
 
+#include "ObjectFormats.h"
 #include "VMObject.h"
 
 class VMInvokable: public VMObject {
 public:
     typedef GCInvokable Stored;
     
-    VMInvokable(size_t numOfGCPtrFields = 0) : VMObject(numOfGCPtrFields + 2) {};
+    VMInvokable(size_t numOfGCPtrFields = 0) : VMObject(numOfGCPtrFields + VMInvokableNumberOfGcPtrFields) {};
 
     virtual void      Invoke(Interpreter*, VMFrame*) = 0;
 
@@ -41,16 +42,10 @@ public:
     virtual void      SetSignature(VMSymbol* sig);
             VMClass*  GetHolder();
     virtual void      SetHolder(VMClass* hld);
-    
-    virtual        void      MarkObjectAsInvalid();
-
-#if GC_TYPE==PAUSELESS
-    virtual void MarkReferences();
-    virtual void CheckMarking(void (vm_oop_t));
-#endif
-    virtual void WalkObjects(walk_heap_fn, Page*);
 
 protected:
     GCSymbol* signature;
     GCClass*  holder;
+    
+    static const size_t VMInvokableNumberOfGcPtrFields = 2;
 };

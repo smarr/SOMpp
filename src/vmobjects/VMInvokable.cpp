@@ -49,37 +49,3 @@ VMClass* VMInvokable::GetHolder() {
 void VMInvokable::SetHolder(VMClass* hld) {
     store_ptr(holder, hld);
 }
-
-void VMInvokable::MarkObjectAsInvalid() {
-    VMObject::MarkObjectAsInvalid();
-    signature = (GCSymbol*) INVALID_GC_POINTER;
-    holder = (GCClass*) INVALID_GC_POINTER;
-}
-
-#if GC_TYPE==PAUSELESS
-void VMInvokable::MarkReferences() {
-    ReadBarrierForGCThread(&clazz);
-    ReadBarrierForGCThread(&signature);
-    ReadBarrierForGCThread(&holder);
-}
-void VMInvokable::CheckMarking(void (*walk)(vm_oop_t)) {
-    assert(GetNMTValue(clazz) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(clazz));
-    walk(Untag(clazz));
-    assert(GetNMTValue(signature) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(signature));
-    walk(Untag(signature));
-    if (holder) {
-        assert(GetNMTValue(holder) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-        CheckBlocked(Untag(holder));
-        walk(Untag(holder));
-    }
-}
-#endif
-void VMInvokable::WalkObjects(walk_heap_fn walk, Page* page) {
-    clazz     = static_cast<GCClass*>(walk(clazz, page));
-    signature = static_cast<GCSymbol*>(walk(signature, page));
-    if (holder) {
-        holder = static_cast<GCClass*>(walk(holder, page));
-    }
-}

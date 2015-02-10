@@ -35,20 +35,7 @@ VMMutex* VMMutex::Clone(Page* page) {
 }
 
 void VMMutex::MarkObjectAsInvalid() {
-    clazz = (GCClass*) INVALID_GC_POINTER;
+    VMObject::MarkObjectAsInvalid();
     std::unique_lock<recursive_mutex>** lock_for_reset = const_cast<std::unique_lock<recursive_mutex>**>(&lock);
     *lock_for_reset = nullptr;
 }
-
-#if GC_TYPE==PAUSELESS
-# warning Why aren't the methods in Object sufficient?
-void VMMutex::MarkReferences() {
-    ReadBarrierForGCThread(&clazz);
-}
-
-void VMMutex::CheckMarking(void (*walk)(vm_oop_t)) {
-    assert(GetNMTValue(clazz) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(clazz));
-    walk(Untag(clazz));
-}
-#endif

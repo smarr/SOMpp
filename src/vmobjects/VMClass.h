@@ -71,15 +71,7 @@ public:
            bool         HasPrimitives();
            void         LoadPrimitives(const vector<StdString>&, Page*);
     virtual VMClass*    Clone(Page*);
-    
-#if GC_TYPE==PAUSELESS
-    virtual void MarkReferences();
-    virtual void CheckMarking(void (vm_oop_t));
-#endif
-    virtual void        WalkObjects(walk_heap_fn, Page*);
 
-    
-    virtual void MarkObjectAsInvalid();
     virtual StdString AsDebugString();
 
 private:
@@ -88,6 +80,7 @@ private:
     void setPrimitives(const StdString& cname, bool classSide, Page*);
     size_t numberOfSuperInstanceFields();
 
+    // normal GC ptr fields, handled implicitly by VMObject
     GCClass*  superClass;
     GCSymbol* name;
     GCArray*  instanceFields;

@@ -22,11 +22,6 @@ public:
     virtual VMMutex* Clone(Page*);
     virtual void MarkObjectAsInvalid();
 
-#if GC_TYPE==PAUSELESS
-    virtual void MarkReferences();
-    virtual void CheckMarking(void (vm_oop_t));
-#endif
-
     std::unique_lock<recursive_mutex>* GetLock() const { return lock; }
     
 private:

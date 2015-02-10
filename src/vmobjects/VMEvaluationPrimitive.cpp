@@ -51,7 +51,6 @@ VMEvaluationPrimitive* VMEvaluationPrimitive::Clone(Page* page) {
 
 void VMEvaluationPrimitive::WalkObjects(walk_heap_fn walk, Page* page) {
     VMPrimitive::WalkObjects(walk, page);
-    numberOfArguments = walk(numberOfArguments, page);
     static_cast<EvaluationRoutine*>(routine)->WalkObjects(walk, page);
 }
 
@@ -89,11 +88,6 @@ void EvaluationRoutine::Invoke(Interpreter* interp, VMFrame* frame) {
     VMFrame* NewFrame = interp->PushNewFrame(block->GetMethod());
     NewFrame->CopyArgumentsFrom(frame);
     NewFrame->SetContext(context);
-}
-
-void VMEvaluationPrimitive::MarkObjectAsInvalid() {
-    VMPrimitive::MarkObjectAsInvalid();
-    numberOfArguments = (GCInteger*)  INVALID_GC_POINTER;
 }
 
 #if GC_TYPE==PAUSELESS

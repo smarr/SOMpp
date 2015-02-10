@@ -62,34 +62,6 @@ void VMPrimitive::EmptyRoutine(Interpreter*, VMFrame*) {
     Universe::ErrorPrint("undefined primitive called: " + sig->GetStdString() + "\n");
 }
 
-#if GC_TYPE==PAUSELESS
-void VMPrimitive::MarkReferences() {
-    ReadBarrierForGCThread(&clazz);
-    ReadBarrierForGCThread(&signature);
-    ReadBarrierForGCThread(&holder);
-}
-void VMPrimitive::CheckMarking(void (*walk)(vm_oop_t)) {
-    assert(GetNMTValue(clazz) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(clazz));
-    walk(Untag(clazz));
-    assert(GetNMTValue(signature) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(signature));
-    walk(Untag(signature));
-    assert(GetNMTValue(holder) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(holder));
-    walk(Untag(holder));
-}
-#endif
-void VMPrimitive::WalkObjects(walk_heap_fn walk, Page* page) {
-    clazz     = (GCClass*)(walk(clazz, page));
-    signature = (GCSymbol*)(walk(signature, page));
-    holder    = (GCClass*)(walk(holder, page));
-}
-
-void VMPrimitive::MarkObjectAsInvalid() {
-    VMInvokable::MarkObjectAsInvalid();
-}
-
 StdString VMPrimitive::AsDebugString() {
     return "Primitive(" + GetClass()->GetName()->GetStdString() + ">>#"
                         + GetSignature()->GetStdString() + ")";

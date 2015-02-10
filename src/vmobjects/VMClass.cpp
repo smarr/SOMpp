@@ -53,68 +53,6 @@ VMClass::VMClass(size_t numberOfGcPtrFields) :
         VMObject(numberOfGcPtrFields + VMClassNumberOfGcPtrFields), superClass(nullptr),
         name(nullptr), instanceFields(nullptr), instanceInvokables(nullptr) {}
 
-#if GC_TYPE==PAUSELESS
-void VMClass::MarkReferences() {
-    ReadBarrierForGCThread(&clazz);
-    ReadBarrierForGCThread(&superClass);
-    ReadBarrierForGCThread(&name);
-    ReadBarrierForGCThread(&instanceFields);
-    ReadBarrierForGCThread(&instanceInvokables);
-    gc_oop_t* fields = FIELDS;
-    for (size_t i = VMClassNumberOfGcPtrFields + VMObjectNumberOfGcPtrFields; i < numberOfGcPtrFields; i++) {
-        ReadBarrierForGCThread(&fields[i]);
-    }
-}
-void VMClass::CheckMarking(void (*walk)(vm_oop_t)) {
-    assert(GetNMTValue(clazz) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(clazz));
-    walk(Untag(clazz));
-    if (superClass) {
-        assert(GetNMTValue(superClass) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-        CheckBlocked(Untag(superClass));
-        walk(Untag(superClass));
-        
-    }
-    assert(GetNMTValue(name) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(name));
-    walk(Untag(name));
-    assert(GetNMTValue(instanceFields) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(instanceFields));
-    walk(Untag(instanceFields));
-    assert(GetNMTValue(instanceInvokables) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(instanceInvokables));
-    walk(Untag(instanceInvokables));
-    for (size_t i = VMClassNumberOfGcPtrFields + VMObjectNumberOfGcPtrFields; i < numberOfGcPtrFields; i++) {
-        assert(GetNMTValue(FIELDS[i]) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-        CheckBlocked(Untag(FIELDS[i]));
-        walk(Untag(FIELDS[i]));
-    }
-}
-#endif
-
-void VMClass::WalkObjects(walk_heap_fn walk, Page* page) {
-    clazz = static_cast<GCClass*>(walk(clazz, page));
-    if (superClass) {
-        superClass = static_cast<GCClass*>(walk(superClass, page));
-    }
-    name               = static_cast<GCSymbol*>(walk(name, page));
-    instanceFields     = static_cast<GCArray*>(walk(instanceFields, page));
-    instanceInvokables = static_cast<GCArray*>(walk(instanceInvokables, page));
-
-    gc_oop_t* fields = FIELDS;
-
-    for (long i = VMClassNumberOfGcPtrFields + VMObjectNumberOfGcPtrFields; i < numberOfGcPtrFields; i++)
-        fields[i] = walk(fields[i], page);
-}
-
-void VMClass::MarkObjectAsInvalid() {
-    VMObject::MarkObjectAsInvalid();
-    superClass         = (GCClass*)  INVALID_GC_POINTER;
-    name               = (GCSymbol*) INVALID_GC_POINTER;
-    instanceFields     = (GCArray*)  INVALID_GC_POINTER;
-    instanceInvokables = (GCArray*)  INVALID_GC_POINTER;
-}
-
 bool VMClass::addInstanceInvokable(VMInvokable* ptr, Page* page) {
     if (ptr == nullptr) {
         GetUniverse()->ErrorExit("Error: trying to add non-invokable to invokables array");

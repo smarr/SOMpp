@@ -38,8 +38,6 @@ public:
     VMEvaluationPrimitive(long argc, Page*);
     virtual VMEvaluationPrimitive* Clone(Page*);
 
-    virtual void MarkObjectAsInvalid();
-
     virtual StdString AsDebugString();
 
 #if GC_TYPE==PAUSELESS
@@ -53,7 +51,6 @@ public:
 private:
     static VMSymbol* computeSignatureString(long argc, Page*);
     gc_oop_t numberOfArguments;
-
 };
 
 class EvaluationRoutine : public PrimitiveRoutine {

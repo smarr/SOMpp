@@ -117,6 +117,14 @@ void VMObject::WalkObjects(walk_heap_fn walk, Page* page) {
     }
 }
 #endif
+void VMObject::MarkObjectAsInvalid() {
+    clazz = (GCClass*) INVALID_GC_POINTER;
+    
+    size_t numFields = GetNumberOfFields();
+    for (size_t i = 0; i < numFields; ++i) {
+        FIELDS[i] = INVALID_GC_POINTER;
+    }
+}
 
 StdString VMObject::AsDebugString() {
     if (this == load_ptr(nilObject)) {

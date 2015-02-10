@@ -39,9 +39,9 @@
 #include <vmobjects/VMMethod.inline.h>
 
 #ifdef UNSAFE_FRAME_OPTIMIZATION
-const size_t VMMethod::VMMethodNumberOfGcPtrFields = 8;
+const size_t VMMethod::VMMethodNumberOfGcPtrFields = 6;
 #else
-const size_t VMMethod::VMMethodNumberOfGcPtrFields = 7;
+const size_t VMMethod::VMMethodNumberOfGcPtrFields = 5;
 #endif
 
 VMMethod::VMMethod(size_t bcCount, size_t numberOfConstants, size_t nof, Page* page) :
@@ -83,58 +83,33 @@ void VMMethod::SetSignature(VMSymbol* sig, Page* page) {
 void VMMethod::MarkReferences() {
     VMInvokable::MarkReferences();
     
-    ReadBarrierForGCThread(&numberOfLocals);
-    ReadBarrierForGCThread(&maximumNumberOfStackElements);
-    ReadBarrierForGCThread(&bcLength);
-    ReadBarrierForGCThread(&numberOfArguments);
-    long numIndexableFields = INT_VAL(ReadBarrierForGCThread(&numberOfConstants));
-    
+    int64_t numIndexableFields = GetNumberOfIndexableFields();
     for (size_t i = 0; i < numIndexableFields; ++i) {
         ReadBarrierForGCThread(&indexableFields[i]);
     }
 }
+
 void VMMethod::CheckMarking(void (*walk)(vm_oop_t)) {
     VMInvokable::CheckMarking(walk);
-    assert(GetNMTValue(numberOfLocals) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(numberOfLocals));
-    walk(Untag(numberOfLocals));
-    assert(GetNMTValue(maximumNumberOfStackElements) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(maximumNumberOfStackElements));
-    walk(Untag(maximumNumberOfStackElements));
-    assert(GetNMTValue(bcLength) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(bcLength));
-    walk(Untag(bcLength));
-    assert(GetNMTValue(numberOfArguments) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(numberOfArguments));
-    walk(Untag(numberOfArguments));
-    assert(GetNMTValue(numberOfConstants) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(numberOfConstants));
-    walk(Untag(numberOfConstants));
-    long numIndexableFields = INT_VAL(Untag(numberOfConstants));
-    for (long i = 0; i < numIndexableFields; ++i) {
+
+    int64_t numIndexableFields = GetNumberOfIndexableFields();
+    for (size_t i = 0; i < numIndexableFields; ++i) {
         assert(GetNMTValue(indexableFields[i]) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
         CheckBlocked(Untag(indexableFields[i]));
         walk(Untag(indexableFields[i]));
     }
 }
 #endif
+
 void VMMethod::WalkObjects(walk_heap_fn walk, Page* page) {
     VMInvokable::WalkObjects(walk, page);
 
-    numberOfLocals    = walk(numberOfLocals, page);
-    maximumNumberOfStackElements = walk(maximumNumberOfStackElements, page);
-    bcLength          = walk(bcLength, page);
-    numberOfArguments = walk(numberOfArguments, page);
-    numberOfConstants = walk(numberOfConstants, page);
-#ifdef UNSAFE_FRAME_OPTIMIZATION
-    if (cachedFrame != nullptr)
-        cachedFrame = static_cast<VMFrame*>(walk(cachedFrame, page));
-#endif
-
-    long numIndexableFields = GetNumberOfIndexableFields();
-    for (long i = 0; i < numIndexableFields; ++i) {
-        if (GetIndexableField(i) != nullptr)
-            indexableFields[i] = (GCAbstractObject*) walk(indexableFields[i], page);
+    int64_t numIndexableFields = GetNumberOfIndexableFields();
+    for (size_t i = 0; i < numIndexableFields; ++i) {
+# warning is this check necessary?
+        if (indexableFields[i] != nullptr)
+# warning not sure _store_ptr is the best way, perhaps we should access the array content directly
+            indexableFields[i] = static_cast<GCAbstractObject*>(walk(indexableFields[i], page));
     }
 }
 
@@ -208,15 +183,11 @@ vm_oop_t VMMethod::GetConstant(long indx) {
 
 void VMMethod::MarkObjectAsInvalid() {
     VMInvokable::MarkObjectAsInvalid();
-    long numIndexableFields = INT_VAL(load_ptr(numberOfConstants));
-    for (long i = 0; i < numIndexableFields; ++i) {
+
+    int64_t numIndexableFields = INT_VAL(load_ptr(numberOfConstants));
+    for (size_t i = 0; i < numIndexableFields; ++i) {
         indexableFields[i] = (GCAbstractObject*) INVALID_GC_POINTER;
     }
-    numberOfConstants = (GCInteger*) INVALID_GC_POINTER;
-    numberOfLocals = (GCInteger*) INVALID_GC_POINTER;
-    maximumNumberOfStackElements = (GCInteger*) INVALID_GC_POINTER;
-    bcLength = (GCInteger*) INVALID_GC_POINTER;
-    numberOfArguments = (GCInteger*) INVALID_GC_POINTER;
 }
 
 StdString VMMethod::AsDebugString() {

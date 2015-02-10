@@ -85,8 +85,7 @@ VMThread* VMThread::Clone(Page* page) {
 }
 
 void VMThread::MarkObjectAsInvalid() {
-    clazz  = (GCClass*) INVALID_GC_POINTER;
-    name   = (GCString*) INVALID_GC_POINTER;
+    VMObject::MarkObjectAsInvalid();
     thread = nullptr;
 }
 
@@ -146,19 +145,3 @@ void VMThread::WalkGlobals(walk_heap_fn walk, Page* page) {
         pair.second = static_cast<GCThread*>(walk(pair.second, page));
     }
 }
-
-#if GC_TYPE==PAUSELESS
-void VMThread::MarkReferences() {
-    ReadBarrierForGCThread(&clazz);
-    ReadBarrierForGCThread(&name);
-}
-
-void VMThread::CheckMarking(void (*walk)(vm_oop_t)) {
-    assert(GetNMTValue(clazz) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(clazz));
-    walk(Untag(clazz));
-    assert(GetNMTValue(name) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(name));
-    walk(Untag(name));
-}
-#endif

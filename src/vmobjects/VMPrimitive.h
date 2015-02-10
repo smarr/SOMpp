@@ -30,8 +30,6 @@
 #include "VMInvokable.h"
 #include "PrimitiveRoutine.h"
 
-class VMSymbol;
-
 class VMPrimitive: public VMInvokable {
 public:
     typedef GCPrimitive Stored;
@@ -45,19 +43,12 @@ public:
             void SetEmpty(bool value) {empty = value;};
     virtual VMPrimitive* Clone(Page*);
 
-#if GC_TYPE==PAUSELESS
-    virtual void         MarkReferences();
-    virtual void         CheckMarking(void (vm_oop_t));
-#endif
-    virtual void WalkObjects(walk_heap_fn, Page*);
-
     virtual void Invoke(Interpreter* interp, VMFrame* frm) {
         routine->Invoke(interp, frm);
     };
 
     virtual bool IsPrimitive() const {return true;};
     
-    virtual        void      MarkObjectAsInvalid();
     virtual StdString AsDebugString();
 
 private:
