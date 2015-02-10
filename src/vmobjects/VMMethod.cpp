@@ -59,8 +59,9 @@ VMMethod::VMMethod(size_t bcCount, size_t numberOfConstants, size_t nof, Page* p
     numberOfArguments            = _store_ptr(NEW_INT(0, page));
     this->numberOfConstants      = _store_ptr(NEW_INT(numberOfConstants, page));
 
-    indexableFields = (gc_oop_t*)(&indexableFields + 2);
-    for (long i = 0; i < numberOfConstants; ++i) {
+    indexableFields = (gc_oop_t*)(&indexableFields + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
+    for (size_t i = 0; i < numberOfConstants; ++i) {
+#warning do we need to cylce through the barriers here?
         indexableFields[i] = nilObject;
     }
     bytecodes = (uint8_t*)(&indexableFields + 2 + GetNumberOfIndexableFields());
