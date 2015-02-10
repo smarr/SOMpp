@@ -19,9 +19,7 @@ BaseThread::BaseThread(Page* page, bool expectedNMT) : page(page), expectedNMT(e
         page->SetNonRelocatablePage(GetHeap<HEAP_CLS>()->RequestPage());
 }
 #else
-BaseThread::BaseThread() {
-    page = _HEAP->RequestPage();
-}
+BaseThread::BaseThread(Page* page) : page(page) {}
 #endif
 
 BaseThread::~BaseThread() {
