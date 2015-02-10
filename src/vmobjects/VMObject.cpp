@@ -49,15 +49,6 @@ VMObject* VMObject::Clone(Page* page) {
     return clone;
 }
 
-void VMObject::SetNumberOfFields(long nof) {
-    numberOfFields = nof;
-    // initialize fields with NilObject
-    for (long i = 0; i < nof; ++i) {
-#warning do we need to cylce through the barriers here?
-        store_ptr(FIELDS[i], load_ptr(nilObject));
-    }
-}
-
 void VMObject::SetClass(VMClass* cl) {
     assert(Universe::IsValidObject((AbstractVMObject*) cl));
     store_ptr(clazz, cl);

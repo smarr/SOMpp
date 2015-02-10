@@ -47,11 +47,6 @@ public:
     
     virtual StdString AsDebugString() = 0;
 
-
-    inline virtual void SetObjectSize(size_t size) {
-        Universe::ErrorPrint("this object doesn't support SetObjectSize\n");
-        throw "this object doesn't support SetObjectSize";
-    }
     AbstractVMObject() : VMObjectBase() {}
 
     inline virtual void SetClass(VMClass* cl) {
