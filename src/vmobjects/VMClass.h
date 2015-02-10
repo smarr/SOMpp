@@ -106,15 +106,8 @@ void VMClass::SetName(VMSymbol* nam) {
 }
 
 bool VMClass::HasSuperClass() {
-    VMClass* sc = load_ptr(superClass);
-    assert(Universe::IsValidObject(sc));
-
-    // TODO: only for debugging, REMOVE!
-    if (sc != load_ptr(nilObject)) {
-        assert((void*) sc != (void*) nilObject);
-    }
-
-    return sc != load_ptr(nilObject);
+    assert(Universe::IsValidObject(load_ptr(superClass)));
+    return load_ptr(superClass) != load_ptr(nilObject);
 }
 
 VMArray* VMClass::GetInstanceFields() {
