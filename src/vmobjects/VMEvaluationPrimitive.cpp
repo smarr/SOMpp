@@ -53,7 +53,13 @@ VMEvaluationPrimitive* VMEvaluationPrimitive::Clone(Page* page) {
 
 void VMEvaluationPrimitive::WalkObjects(walk_heap_fn walk, Page* page) {
     VMPrimitive::WalkObjects(walk, page);
+    numberOfArguments = walk(numberOfArguments, page);
     static_cast<EvaluationRoutine*>(routine)->WalkObjects(walk, page);
+}
+
+void VMEvaluationPrimitive::MarkObjectAsInvalid() {
+    VMPrimitive::MarkObjectAsInvalid();
+    numberOfArguments = INVALID_GC_POINTER;
 }
 
 VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc, Page* page) {

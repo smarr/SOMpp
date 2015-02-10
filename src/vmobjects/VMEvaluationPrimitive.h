@@ -45,6 +45,7 @@ public:
     virtual void CheckMarking(void (vm_oop_t));
 #endif
     virtual void WalkObjects(walk_heap_fn, Page*);
+    virtual void MarkObjectAsInvalid();
 
     int64_t GetNumberOfArguments() { return INT_VAL(load_ptr(numberOfArguments)); };
 
