@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdlib>
+#include <cstring>
 #include <vector>
 
 #include <memory/MarkSweepHeap.h>
