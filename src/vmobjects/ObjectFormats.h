@@ -137,10 +137,6 @@ class GCThread    : public GCObject      { public: typedef VMThread Loaded; };
 #define INVALID_VM_POINTER ((VMObject*)0x101010)
 #define INVALID_GC_POINTER ((GCObject*)0x101010)
 
-//#define load_ptr(reference) (ReadBarrier(&(reference)))
-//#define load_ptr(reference) (ReadBarrier(&(reference)))
-
-
 template<typename T>
 inline typename T::Loaded* load_ptr(T* gc_val) {
     return (typename T::Loaded*) gc_val;
