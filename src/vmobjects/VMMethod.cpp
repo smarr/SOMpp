@@ -183,9 +183,9 @@ vm_oop_t VMMethod::GetConstant(long indx) {
 }
 
 void VMMethod::MarkObjectAsInvalid() {
+    int64_t numIndexableFields = INT_VAL(load_ptr(numberOfConstants)); // load value before marking stuff invalid
     VMInvokable::MarkObjectAsInvalid();
 
-    int64_t numIndexableFields = INT_VAL(load_ptr(numberOfConstants));
     for (size_t i = 0; i < numIndexableFields; ++i) {
         indexableFields[i] = (GCAbstractObject*) INVALID_GC_POINTER;
     }
