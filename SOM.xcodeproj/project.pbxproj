@@ -55,7 +55,6 @@
 		0A1887471832C62100A2CBCA /* TestSuite in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A1887401832C62100A2CBCA /* TestSuite */; };
 		0A8793491A6D581000F2DE5F /* IntegerBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A8793471A6D581000F2DE5F /* IntegerBox.cpp */; };
 		0A87934C1A6D596800F2DE5F /* SafePoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A87934A1A6D596800F2DE5F /* SafePoint.cpp */; };
-		0A87934F1A6EDCA700F2DE5F /* VMCondition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A87934D1A6EDCA700F2DE5F /* VMCondition.cpp */; };
 		0A8793521A72966800F2DE5F /* Condition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A8793501A72966800F2DE5F /* Condition.cpp */; };
 		0A8793631A79259E00F2DE5F /* Heap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A8793611A79259E00F2DE5F /* Heap.cpp */; };
 		0A8E19D91A161662004CE22B /* Array.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203120FA6624C00E75857 /* Array.cpp */; };
@@ -74,6 +73,7 @@
 		0A8E19E91A161667004CE22B /* Thread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9004031F18CD735E00C0410A /* Thread.cpp */; };
 		0A8E19EA1A16166C004CE22B /* PrimitiveLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F52032B0FA6624C00E75857 /* PrimitiveLoader.cpp */; };
 		0A8E19EB1A16166F004CE22B /* PrimitiveContainer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203290FA6624C00E75857 /* PrimitiveContainer.cpp */; };
+		0AD4F80A1A8A38E700F79905 /* VMCondition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AD4F8081A8A38E700F79905 /* VMCondition.cpp */; };
 		90B4A87F18F202AA00C437BE /* PauselessPage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90B4A87E18F202AA00C437BE /* PauselessPage.cpp */; };
 		90D7D49A19F9260F00EFB4B6 /* BaseThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90D7D49919F9260F00EFB4B6 /* BaseThread.cpp */; };
 /* End PBXBuildFile section */
@@ -139,8 +139,6 @@
 		0A8793481A6D581000F2DE5F /* IntegerBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntegerBox.h; sourceTree = "<group>"; };
 		0A87934A1A6D596800F2DE5F /* SafePoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SafePoint.cpp; sourceTree = "<group>"; };
 		0A87934B1A6D596800F2DE5F /* SafePoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SafePoint.h; sourceTree = "<group>"; };
-		0A87934D1A6EDCA700F2DE5F /* VMCondition.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VMCondition.cpp; path = ../../../SOMpp/src/vmobjects/VMCondition.cpp; sourceTree = "<group>"; };
-		0A87934E1A6EDCA700F2DE5F /* VMCondition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VMCondition.h; path = ../../../SOMpp/src/vmobjects/VMCondition.h; sourceTree = "<group>"; };
 		0A8793501A72966800F2DE5F /* Condition.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Condition.cpp; sourceTree = "<group>"; };
 		0A8793511A72966800F2DE5F /* Condition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Condition.h; sourceTree = "<group>"; };
 		0A8793551A77FE2800F2DE5F /* SpinLock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SpinLock.h; sourceTree = "<group>"; };
@@ -153,6 +151,8 @@
 		0A9B712E1A83644C00A04080 /* GenerationalPage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GenerationalPage.h; sourceTree = "<group>"; };
 		0A9B71301A839D1A00A04080 /* MarkSweepPage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MarkSweepPage.h; sourceTree = "<group>"; };
 		0AD4F8071A895A3D00F79905 /* VMSymbol.inline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMSymbol.inline.h; sourceTree = "<group>"; };
+		0AD4F8081A8A38E700F79905 /* VMCondition.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VMCondition.cpp; sourceTree = "<group>"; };
+		0AD4F8091A8A38E700F79905 /* VMCondition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMCondition.h; sourceTree = "<group>"; };
 		3F5202930FA6624C00E75857 /* build_darwin.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = build_darwin.sh; sourceTree = "<group>"; };
 		3F5202940FA6624C00E75857 /* Darwin.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Darwin.make; sourceTree = "<group>"; };
 		3F5202950FA6624C00E75857 /* Linux.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Linux.make; sourceTree = "<group>"; };
@@ -578,8 +578,8 @@
 				0A8E19EF1A16688E004CE22B /* VMBlock.inline.h */,
 				3F5203410FA6624C00E75857 /* VMClass.cpp */,
 				3F5203420FA6624C00E75857 /* VMClass.h */,
-				0A87934D1A6EDCA700F2DE5F /* VMCondition.cpp */,
-				0A87934E1A6EDCA700F2DE5F /* VMCondition.h */,
+				0AD4F8081A8A38E700F79905 /* VMCondition.cpp */,
+				0AD4F8091A8A38E700F79905 /* VMCondition.h */,
 				3F5203430FA6624C00E75857 /* VMDouble.cpp */,
 				3F5203440FA6624C00E75857 /* VMDouble.h */,
 				3F5203450FA6624C00E75857 /* VMEvaluationPrimitive.cpp */,
@@ -855,7 +855,6 @@
 				0A18870B1832C0E400A2CBCA /* AbstractObject.cpp in Sources */,
 				0A1886FF1832BCF500A2CBCA /* VMFrame.cpp in Sources */,
 				0A8E19E81A161667004CE22B /* System.cpp in Sources */,
-				0A87934F1A6EDCA700F2DE5F /* VMCondition.cpp in Sources */,
 				0A1749BC1A6D341D007878D9 /* CopyingCollector.cpp in Sources */,
 				0A1886E41832BCD300A2CBCA /* Interpreter.cpp in Sources */,
 				0A1886E71832BCDC00A2CBCA /* PagedHeap.cpp in Sources */,
@@ -886,6 +885,7 @@
 				0A1887051832BCFA00A2CBCA /* VMString.cpp in Sources */,
 				0A1749C11A6D341D007878D9 /* MarkSweepHeap.cpp in Sources */,
 				0A1749BF1A6D341D007878D9 /* GenerationalHeap.cpp in Sources */,
+				0AD4F80A1A8A38E700F79905 /* VMCondition.cpp in Sources */,
 				0A8E19E31A161667004CE22B /* Object.cpp in Sources */,
 				0A1886F61832BCED00A2CBCA /* Universe.cpp in Sources */,
 				0A1886E21832BCC800A2CBCA /* SourcecodeCompiler.cpp in Sources */,
