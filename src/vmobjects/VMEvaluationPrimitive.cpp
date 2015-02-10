@@ -38,7 +38,9 @@
 
 #include <vmobjects/VMBlock.inline.h>
 
-VMEvaluationPrimitive::VMEvaluationPrimitive(long argc, Page* page) : VMPrimitive(computeSignatureString(argc, page)) {
+
+VMEvaluationPrimitive::VMEvaluationPrimitive(long argc, Page* page)
+    : VMPrimitive(computeSignatureString(argc, page)) {
     SetRoutine(new EvaluationRoutine(this));
     SetEmpty(false);
     store_ptr(numberOfArguments, NEW_INT(argc, page));

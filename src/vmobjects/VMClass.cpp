@@ -97,12 +97,13 @@ VMSymbol* VMClass::GetInstanceFieldName(long index) {
 
 void VMClass::SetInstanceInvokables(VMArray* invokables) {
     store_ptr(instanceInvokables, invokables);
+    vm_oop_t nil = load_ptr(nilObject);
 
     long numInvokables = GetNumberOfInstanceInvokables();
     for (long i = 0; i < numInvokables; ++i) {
         vm_oop_t invo = load_ptr(instanceInvokables)->GetIndexableField(i);
         //check for Nil object
-        if (invo != load_ptr(nilObject)) {
+        if (invo != nil) {
             //not Nil, so this actually is an invokable
             VMInvokable* inv = static_cast<VMInvokable*>(invo);
             inv->SetHolder(this);

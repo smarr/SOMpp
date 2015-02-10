@@ -4,7 +4,7 @@ inline long VMMethod::GetNumberOfLocals() {
     return INT_VAL(load_ptr(numberOfLocals));
 }
 
-inline long VMMethod::GetNumberOfIndexableFields() {
+inline int64_t VMMethod::GetNumberOfIndexableFields() {
     return INT_VAL(load_ptr(numberOfConstants));
 }
 

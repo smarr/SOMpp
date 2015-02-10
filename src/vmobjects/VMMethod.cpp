@@ -60,7 +60,7 @@ VMMethod::VMMethod(size_t bcCount, size_t numberOfConstants, size_t nof, Page* p
     indexableFields = (gc_oop_t*)(&indexableFields + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
     for (size_t i = 0; i < numberOfConstants; ++i) {
 #warning do we need to cylce through the barriers here?
-        store_ptr(indexableFields[i], load_ptr(nilObject));
+        indexableFields[i] = nilObject;
     }
     bytecodes = (uint8_t*)(&indexableFields + 2 + GetNumberOfIndexableFields());
 }
@@ -175,6 +175,7 @@ void VMMethod::SetHolderAll(VMClass* hld) {
 vm_oop_t VMMethod::GetConstant(long indx) {
     uint8_t bc = bytecodes[indx + 1];
     if (bc >= GetNumberOfIndexableFields()) {
+#warning this check looks incredibly slow
         Universe::ErrorPrint("Error: Constant index out of range\n");
         return nullptr;
     }

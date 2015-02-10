@@ -71,10 +71,10 @@ VMArray* VMArray::CopyAndExtendWith(vm_oop_t item, Page* page) {
 }
 
 VMArray* VMArray::Clone(Page* page) {
-    long addSpace = objectSize - sizeof(VMArray);
-    VMArray* clone = new (page, addSpace ALLOC_MATURE) VMArray(*this);
+    size_t addSpace = objectSize - sizeof(VMArray);
+    VMArray* clone  = new (page, addSpace ALLOC_MATURE) VMArray(*this);
     void* destination  = SHIFTED_PTR(clone, sizeof(VMArray));
-    const void* source = SHIFTED_PTR(this, sizeof(VMArray));
+    const void* source = SHIFTED_PTR(this,  sizeof(VMArray));
     size_t noBytes = GetObjectSize() - sizeof(VMArray);
     memcpy(destination, source, noBytes);
     return clone;
@@ -82,15 +82,15 @@ VMArray* VMArray::Clone(Page* page) {
 
 void VMArray::MarkObjectAsInvalid() {
     VMObject::MarkObjectAsInvalid();
-    long numIndexableFields = GetNumberOfIndexableFields();
-    for (long i = 0; i < numIndexableFields; ++i) {
+    size_t numIndexableFields = GetNumberOfIndexableFields();
+    for (size_t i = GetNumberOfFields(); i < numIndexableFields; ++i) {
         FIELDS[i] = INVALID_GC_POINTER;
     }
 }
 
 void VMArray::CopyIndexableFieldsTo(VMArray* to) {
-    long numIndexableFields = GetNumberOfIndexableFields();
-    for (long i = 0; i < numIndexableFields; ++i) {
+    size_t numIndexableFields = GetNumberOfIndexableFields();
+    for (size_t i = 0; i < numIndexableFields; ++i) {
         to->SetIndexableField(i, GetIndexableField(i));
     }
 }

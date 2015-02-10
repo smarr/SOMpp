@@ -67,7 +67,7 @@ public:
     virtual void CheckMarking(void (vm_oop_t));
 #endif
     virtual void WalkObjects(walk_heap_fn, Page*);
-    inline  long      GetNumberOfIndexableFields();
+    inline  int64_t   GetNumberOfIndexableFields();
     virtual VMMethod* Clone(Page*);
 
     inline  void      SetIndexableField(long idx, vm_oop_t item);
