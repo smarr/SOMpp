@@ -447,7 +447,7 @@ Universe::~Universe() {
 //        delete (interpreter);
 
     pthread_key_delete(interpreterKey);
-    PagedHeap::DestroyHeap();
+    Heap<HEAP_CLS>::DestroyHeap();
 }
 
 #if !DEBUG
