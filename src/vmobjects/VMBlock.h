@@ -46,5 +46,5 @@ private:
     GCMethod* blockMethod;
     GCFrame* context;
 
-    static const int VMBlockNumberOfFields;
+    static const size_t VMBlockNumberOfGcPtrFields;
 };

@@ -33,17 +33,17 @@ public:
     typedef GCEvaluationPrimitive Stored;
     
     VMEvaluationPrimitive(long argc, Page*);
-    virtual void WalkObjects(walk_heap_fn, Page*);
     virtual VMEvaluationPrimitive* Clone(Page*);
-    
+
     virtual StdString AsDebugString();
-    
+
+    virtual void WalkObjects(walk_heap_fn, Page*);
+
     int64_t GetNumberOfArguments() { return INT_VAL(load_ptr(numberOfArguments)); };
 
 private:
     static VMSymbol* computeSignatureString(long argc, Page*);
     gc_oop_t numberOfArguments;
-
 };
 
 class EvaluationRoutine : public PrimitiveRoutine {

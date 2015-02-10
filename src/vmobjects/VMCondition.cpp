@@ -1,7 +1,7 @@
 #include <chrono>
 #include <vmobjects/VMCondition.h>
 
-const long VMCondition::VMConditionNumberOfFields = 0;
+const size_t VMCondition::VMConditionNumberOfGcPtrFields = 0;
 
 void VMCondition::SignalOne() {
     cond_var->notify_one();
@@ -33,7 +33,8 @@ VMCondition* VMCondition::Clone(Page* page) {
 }
 
 void VMCondition::MarkObjectAsInvalid() {
-    clazz = (GCClass*) INVALID_GC_POINTER;
+    VMObject::MarkObjectAsInvalid();
+
     std::unique_lock<recursive_mutex>** lock_for_reset = const_cast<std::unique_lock<recursive_mutex>**>(&lock);
     *lock_for_reset = nullptr;
     

@@ -40,7 +40,6 @@ public:
 
     inline  bool IsEmpty() const;
     inline  void SetRoutine(PrimitiveRoutine* rtn);
-    virtual void WalkObjects(walk_heap_fn, Page*);
             void SetEmpty(bool value) {empty = value;};
     virtual VMPrimitive* Clone(Page*);
 
@@ -62,7 +61,7 @@ protected:
 private:
     bool empty;
 
-    static const int VMPrimitiveNumberOfFields;
+    static const size_t VMPrimitiveNumberOfGcPtrFields;
 
 };
 

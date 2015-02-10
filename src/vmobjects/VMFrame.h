@@ -37,7 +37,7 @@ public:
     
     static VMFrame* EmergencyFrameFrom(VMFrame* from, long extraLength, Page*);
 
-    VMFrame(long size, long nof = 0);
+    VMFrame(size_t size, size_t nof = 0);
 
     inline VMFrame* GetPreviousFrame();
     inline void SetPreviousFrame(VMFrame*);
@@ -63,8 +63,12 @@ public:
     void SetArgument(long, long, vm_oop_t);
     long ArgumentStackIndex(long index);
     void CopyArgumentsFrom(VMFrame* frame);
-    virtual void WalkObjects(walk_heap_fn, Page*);
     virtual VMFrame* Clone(Page*);
+
+    virtual void MarkObjectAsInvalid();
+
+    virtual void WalkObjects(walk_heap_fn, Page*);
+
 
     void PrintStack();
     void PrintStackTrace();
@@ -87,7 +91,7 @@ private:
     inline void SetLocal(long, vm_oop_t);
     inline void SetArgument(long index, vm_oop_t value);
 
-    static const long VMFrameNumberOfFields;
+    static const size_t VMFrameNumberOfGcPtrFields;
 };
 
 bool VMFrame::HasContext() const {

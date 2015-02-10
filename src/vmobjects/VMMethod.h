@@ -31,7 +31,6 @@
 #include "VMInvokable.h"
 #include "VMInteger.h"
 
-class MethodGenerationContext;
 class Interpreter;
 
 class VMMethod: public VMInvokable {
@@ -40,7 +39,7 @@ class VMMethod: public VMInvokable {
 public:
     typedef GCMethod Stored;
     
-    VMMethod(long bcCount, long numberOfConstants, long nof, Page*);
+    VMMethod(size_t bcCount, size_t numberOfConstants, size_t nof, Page*);
 
     inline  long      GetNumberOfLocals();
             void      SetNumberOfLocals(long nol, Page*);
@@ -60,7 +59,7 @@ public:
     VMFrame* GetCachedFrame() const;
 #endif
     virtual void WalkObjects(walk_heap_fn, Page*);
-    inline  long      GetNumberOfIndexableFields();
+    inline  int64_t   GetNumberOfIndexableFields();
     virtual VMMethod* Clone(Page*);
 
     inline  void      SetIndexableField(long idx, vm_oop_t item);
@@ -69,6 +68,8 @@ public:
 
     void SetSignature(VMSymbol* sig, Page*);
     
+    virtual void MarkObjectAsInvalid();
+
     virtual StdString AsDebugString();
 
 private:
@@ -87,5 +88,5 @@ private:
 
     gc_oop_t* indexableFields;
     uint8_t* bytecodes;
-    static const long VMMethodNumberOfFields;
+    static const size_t VMMethodNumberOfGcPtrFields;
 };

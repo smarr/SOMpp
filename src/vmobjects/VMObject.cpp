@@ -31,14 +31,13 @@
 #include "VMInvokable.h"
 
 // clazz is the only field of VMObject so
-const long VMObject::VMObjectNumberOfFields = 0;
+const size_t VMObject::VMObjectNumberOfGcPtrFields = 0;
 
-VMObject::VMObject(long numberOfFields) : AbstractVMObject() {
-    // this line would be needed if the VMObject** is used instead of the macro:
-    // FIELDS = (VMObject**)&clazz;
-    SetNumberOfFields(numberOfFields + VMObjectNumberOfFields);
-    hash = (intptr_t) this;
+VMObject::VMObject(size_t numOfGcPtrFields) : AbstractVMObject(),
+        numberOfGcPtrFields(numOfGcPtrFields + VMObjectNumberOfGcPtrFields),
+        hash((intptr_t) this) {
     // Object size was already set by the heap on allocation
+    initializeGcFields();
 }
 
 VMObject* VMObject::Clone(Page* page) {
@@ -47,13 +46,6 @@ VMObject* VMObject::Clone(Page* page) {
            SHIFTED_PTR(this,  sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
     clone->hash = (size_t) &clone;
     return clone;
-}
-
-void VMObject::SetNumberOfFields(long nof) {
-    numberOfFields = nof;
-    // initialize fields with NilObject
-    for (long i = 0; i < nof; ++i)
-        FIELDS[i] = nilObject;
 }
 
 void VMObject::SetClass(VMClass* cl) {
@@ -71,15 +63,19 @@ void VMObject::Assert(bool value) const {
 void VMObject::WalkObjects(walk_heap_fn walk, Page* page) {
     clazz = static_cast<GCClass*>(walk(clazz, page));
 
-    long numFields = GetNumberOfFields();
-    for (long i = 0; i < numFields; ++i) {
-# warning not sure whether the use of _store_ptr is correct and robust here
-        FIELDS[i] = walk(_store_ptr(GetField(i)), page);
+    size_t numFields = GetNumberOfFields();
+    for (size_t i = 0; i < numFields; ++i) {
+        FIELDS[i] = walk(FIELDS[i], page);
     }
 }
 
 void VMObject::MarkObjectAsInvalid() {
     clazz = (GCClass*) INVALID_GC_POINTER;
+    
+    size_t numFields = GetNumberOfFields();
+    for (size_t i = 0; i < numFields; ++i) {
+        FIELDS[i] = INVALID_GC_POINTER;
+    }
 }
 
 StdString VMObject::AsDebugString() {

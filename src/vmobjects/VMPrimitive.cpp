@@ -40,10 +40,10 @@ VMPrimitive* VMPrimitive::GetEmptyPrimitive(VMSymbol* sig, bool classSide, Page*
     return prim;
 }
 
-const int VMPrimitive::VMPrimitiveNumberOfFields = 2;
+const size_t VMPrimitive::VMPrimitiveNumberOfGcPtrFields = 0;
 
-VMPrimitive::VMPrimitive(VMSymbol* signature) : VMInvokable(VMPrimitiveNumberOfFields) {
-    //the only class that explicitly does this.
+VMPrimitive::VMPrimitive(VMSymbol* signature) : VMInvokable(VMPrimitiveNumberOfGcPtrFields) {
+    // the only class that explicitly does this.
     SetClass(load_ptr(primitiveClass));
     SetSignature(signature);
     routine = nullptr;
@@ -53,12 +53,6 @@ VMPrimitive::VMPrimitive(VMSymbol* signature) : VMInvokable(VMPrimitiveNumberOfF
 VMPrimitive* VMPrimitive::Clone(Page* page) {
     VMPrimitive* prim = new (page, 0 ALLOC_MATURE) VMPrimitive(*this);
     return prim;
-}
-
-void VMPrimitive::WalkObjects(walk_heap_fn walk, Page* page) {
-    clazz     = static_cast<GCClass*>(walk(clazz, page));
-    signature = static_cast<GCSymbol*>(walk(signature, page));
-    holder    = static_cast<GCClass*>(walk(holder, page));
 }
 
 void VMPrimitive::EmptyRoutine(Interpreter*, VMFrame*) {

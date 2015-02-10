@@ -8,7 +8,7 @@ class VMMutex : public VMObject {
 public:
     typedef GCMutex Stored;
     
-    VMMutex() : VMObject(VMMutexNumberOfFields),
+    VMMutex() : VMObject(VMMutexNumberOfGcPtrFields),
                 lock(new unique_lock<recursive_mutex>(
                                 *new recursive_mutex(), std::defer_lock)) {};
     
@@ -26,9 +26,9 @@ public:
     
 private:
     VMMutex(std::unique_lock<recursive_mutex>* const lock)
-        : VMObject(VMMutexNumberOfFields), lock(lock) {};
+        : VMObject(VMMutexNumberOfGcPtrFields), lock(lock) {};
     std::unique_lock<recursive_mutex>* const lock;
     
-    static const long VMMutexNumberOfFields;
+    static const size_t VMMutexNumberOfGcPtrFields;
     
 };

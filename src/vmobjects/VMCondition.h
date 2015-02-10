@@ -1,6 +1,6 @@
 #pragma once
 
-#include "VMObject.h"
+#include <vmobjects/VMObject.h>
 
 #include <condition_variable>
 
@@ -9,7 +9,7 @@ public:
     typedef GCCondition Stored;
     
     VMCondition(std::unique_lock<recursive_mutex>* const lock)
-        : VMObject(VMConditionNumberOfFields),
+        : VMObject(VMConditionNumberOfGcPtrFields),
           lock(lock), cond_var(new condition_variable_any()) {};
     
     void SignalOne();
@@ -25,12 +25,12 @@ public:
 private:
     VMCondition(std::unique_lock<recursive_mutex>* const lock,
                 std::condition_variable_any* const cond_var)
-        : VMObject(VMConditionNumberOfFields),
+        : VMObject(VMConditionNumberOfGcPtrFields),
           lock(lock), cond_var(cond_var) {};
     
     std::unique_lock<recursive_mutex>* const lock;
     std::condition_variable_any* const cond_var;
     
-    static const long VMConditionNumberOfFields;
+    static const size_t VMConditionNumberOfGcPtrFields;
     
 };

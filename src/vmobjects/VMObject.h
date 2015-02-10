@@ -63,25 +63,23 @@ class VMObject: public AbstractVMObject {
 public:
     typedef GCObject Stored;
     
-    VMObject(long numberOfFields = 0);
+    VMObject(size_t numOfGcPtrFields = 0);
 
     virtual inline VMClass*  GetClass();
     virtual        void      SetClass(VMClass* cl);
     virtual        VMSymbol* GetFieldName(long index);
-    virtual inline long      GetNumberOfFields() const;
-    virtual        void      SetNumberOfFields(long nof);
+    virtual inline size_t    GetNumberOfFields() const; // number of continous GC ptr fields in the object
             inline vm_oop_t  GetField(long index);
             inline void      SetField(long index, vm_oop_t value);
     virtual        void      Assert(bool value) const;
-    virtual        void      WalkObjects(walk_heap_fn walk, Page*);
     virtual        VMObject* Clone(Page*);
     virtual inline size_t    GetObjectSize() const;
-    virtual inline void      SetObjectSize(size_t size);
     
     virtual inline intptr_t  GetHash() { return hash; }
     
     virtual        void      MarkObjectAsInvalid();
-    
+    virtual        void      WalkObjects(walk_heap_fn, Page*);
+
     virtual        StdString AsDebugString();
 
     /**
@@ -101,28 +99,23 @@ public:
     }
 
 protected:
-    inline long GetAdditionalSpaceConsumption() const;
 
     // VMObject essentials
     intptr_t hash;
     size_t objectSize;     // set by the heap at allocation time
-    long   numberOfFields;
+    const size_t numberOfGcPtrFields; // number of continous GC ptr fields in the object
 
     GCClass* clazz;
 
     // Start of fields. All members beyond after clazz are indexable.
     // clazz has index -1.
     
-private:
-    static const long VMObjectNumberOfFields;
+protected:
+    static const size_t VMObjectNumberOfGcPtrFields;
 };
 
 size_t VMObject::GetObjectSize() const {
     return objectSize;
-}
-
-void VMObject::SetObjectSize(size_t size) {
-    objectSize = size;
 }
 
 VMClass* VMObject::GetClass() {
@@ -130,18 +123,9 @@ VMClass* VMObject::GetClass() {
     return load_ptr(clazz);
 }
 
-long VMObject::GetNumberOfFields() const {
-    return numberOfFields;
-}
-
-//returns the Object's additional memory used (e.g. for Array fields)
-long VMObject::GetAdditionalSpaceConsumption() const {
-    //The VM*-Object's additional memory used needs to be calculated.
-    //It's      the total object size   MINUS   sizeof(VMObject) for basic
-    //VMObject  MINUS   the number of fields times sizeof(VMObject*)
-    return (objectSize
-            - (sizeof(VMObject)
-               + sizeof(VMObject*) * GetNumberOfFields()));
+size_t VMObject::GetNumberOfFields() const {
+    // number of continous GC ptr fields in the object
+    return numberOfGcPtrFields;
 }
 
 vm_oop_t VMObject::GetField(long index) {

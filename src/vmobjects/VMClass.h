@@ -30,21 +30,20 @@
 
 #include <misc/defs.h>
 
-#include "VMObject.h"
+#include <vmobjects/VMObject.h>
 
 #if defined(_MSC_VER)   //Visual Studio
 #include <windows.h> 
 #include <primitives/Core.h>
 #endif
 
-class ClassGenerationContext;
 
 class VMClass: public VMObject {
 public:
     typedef GCClass Stored;
     
     VMClass();
-    VMClass(long numberOfFields);
+    VMClass(size_t numberOfGcPtrFields);
 
     inline VMClass*     GetSuperClass();
     inline void         SetSuperClass(VMClass*);
@@ -66,24 +65,22 @@ public:
            bool         HasPrimitives();
            void         LoadPrimitives(const vector<StdString>&, Page*);
     virtual VMClass*    Clone(Page*);
-    virtual void        WalkObjects(walk_heap_fn walk, Page*);
-    
-    virtual void MarkObjectAsInvalid();
-    
+
     virtual StdString AsDebugString();
 
 private:
     bool addInstanceInvokable(VMInvokable*, Page*);
     bool hasPrimitivesFor(const StdString& cl) const;
     void setPrimitives(const StdString& cname, bool classSide, Page*);
-    long numberOfSuperInstanceFields();
+    size_t numberOfSuperInstanceFields();
 
+    // normal GC ptr fields, handled implicitly by VMObject
     GCClass*  superClass;
     GCSymbol* name;
     GCArray*  instanceFields;
     GCArray*  instanceInvokables;
 
-    static const long VMClassNumberOfFields;
+    static const size_t VMClassNumberOfGcPtrFields;
 };
 
 #include "VMSymbol.h"

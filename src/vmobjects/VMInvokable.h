@@ -33,7 +33,7 @@ class VMInvokable: public VMObject {
 public:
     typedef GCInvokable Stored;
     
-    VMInvokable(long nof = 0) : VMObject(nof + 2) {};
+    VMInvokable(size_t numOfGCPtrFields = 0) : VMObject(numOfGCPtrFields + VMInvokableNumberOfGcPtrFields) {};
 
     virtual void      Invoke(Interpreter*, VMFrame*) = 0;
 
@@ -43,9 +43,9 @@ public:
             VMClass*  GetHolder();
     virtual void      SetHolder(VMClass* hld);
 
-    virtual void WalkObjects(walk_heap_fn, Page*);
-
 protected:
     GCSymbol* signature;
     GCClass*  holder;
+    
+    static const size_t VMInvokableNumberOfGcPtrFields = 2;
 };

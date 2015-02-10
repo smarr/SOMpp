@@ -33,11 +33,11 @@ class VMArray: public VMObject {
 public:
     typedef GCArray Stored;
     
-    VMArray(long size, long nof = 0);
+    VMArray(size_t size, size_t numberOfGcPtrFields = 0);
 
     virtual void WalkObjects(walk_heap_fn, Page*);
 
-    inline  long GetNumberOfIndexableFields() const;
+    inline  size_t GetNumberOfIndexableFields() const;
     VMArray* CopyAndExtendWith(vm_oop_t, Page*);
     vm_oop_t GetIndexableField(long idx);
     void SetIndexableField(long idx, vm_oop_t value);
@@ -49,9 +49,21 @@ public:
     virtual void MarkObjectAsInvalid();
 
 private:
-    static const long VMArrayNumberOfFields;
+    static const size_t VMArrayNumberOfGcPtrFields;
+    
+    // returns the arrays additional memory used
+    size_t getAdditionalSpaceConsumption() const {
+        //The VMArrays's additional memory used needs to be calculated.
+        //It's the total object size   MINUS   sizeof(VMArray),
+        // MINUS   the number of fields times sizeof(gc_oop_t)
+        //   -> currently, in SOM it is not clear whether arrays should have
+        //      fields, in addition to the indexable fields,
+        //      but it is possible in SOM++
+        return objectSize - (sizeof(VMArray)
+                   + sizeof(gc_oop_t) * GetNumberOfFields());
+    }
 };
 
-long VMArray::GetNumberOfIndexableFields() const {
-    return GetAdditionalSpaceConsumption() / sizeof(VMObject*);
+size_t VMArray::GetNumberOfIndexableFields() const {
+    return getAdditionalSpaceConsumption() / sizeof(gc_oop_t);
 }

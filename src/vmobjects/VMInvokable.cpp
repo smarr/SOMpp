@@ -42,14 +42,6 @@ void VMInvokable::SetSignature(VMSymbol* sig) {
     store_ptr(signature, sig);
 }
 
-void VMInvokable::WalkObjects(walk_heap_fn walk, Page* page) {
-    clazz     = static_cast<GCClass*>(walk(clazz, page));
-    signature = static_cast<GCSymbol*>(walk(signature, page));
-    if (holder) {
-        holder = static_cast<GCClass*>(walk(holder, page));
-    }
-}
-
 VMClass* VMInvokable::GetHolder() {
     return load_ptr(holder);
 }

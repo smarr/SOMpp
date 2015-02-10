@@ -4,9 +4,7 @@ inline long VMMethod::GetNumberOfLocals() {
     return INT_VAL(load_ptr(numberOfLocals));
 }
 
-inline long VMMethod::GetNumberOfIndexableFields() {
-    //cannot be done using GetAdditionalSpaceConsumption,
-    //as bytecodes need space, too, and there might be padding
+inline int64_t VMMethod::GetNumberOfIndexableFields() {
     return INT_VAL(load_ptr(numberOfConstants));
 }
 

@@ -41,13 +41,13 @@
 #include <vmobjects/VMMethod.inline.h>
 
 #ifdef UNSAFE_FRAME_OPTIMIZATION
-const long VMMethod::VMMethodNumberOfFields = 8;
+const size_t VMMethod::VMMethodNumberOfGcPtrFields = 6;
 #else
-const long VMMethod::VMMethodNumberOfFields = 7;
+const size_t VMMethod::VMMethodNumberOfGcPtrFields = 5;
 #endif
 
-VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof, Page* page) :
-        VMInvokable(nof + VMMethodNumberOfFields) {
+VMMethod::VMMethod(size_t bcCount, size_t numberOfConstants, size_t nof, Page* page) :
+        VMInvokable(nof + VMMethodNumberOfGcPtrFields) {
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     cachedFrame = nullptr;
 #endif
@@ -83,21 +83,12 @@ void VMMethod::SetSignature(VMSymbol* sig, Page* page) {
 void VMMethod::WalkObjects(walk_heap_fn walk, Page* page) {
     VMInvokable::WalkObjects(walk, page);
 
-    numberOfLocals    = walk(numberOfLocals, page);
-    maximumNumberOfStackElements = walk(maximumNumberOfStackElements, page);
-    bcLength          = walk(bcLength, page);
-    numberOfArguments = walk(numberOfArguments, page);
-    numberOfConstants = walk(numberOfConstants, page);
-#ifdef UNSAFE_FRAME_OPTIMIZATION
-    if (cachedFrame != nullptr)
-        cachedFrame = static_cast<VMFrame*>(walk(cachedFrame, page));
-#endif
-
-    long numIndexableFields = GetNumberOfIndexableFields();
-    for (long i = 0; i < numIndexableFields; ++i) {
-        if (GetIndexableField(i) != nullptr)
+    int64_t numIndexableFields = GetNumberOfIndexableFields();
+    for (size_t i = 0; i < numIndexableFields; ++i) {
+# warning is this check necessary?
+        if (indexableFields[i] != nullptr)
 # warning not sure _store_ptr is the best way, perhaps we should access the array content directly
-            indexableFields[i] = walk(_store_ptr(GetIndexableField(i)), page);
+            indexableFields[i] = static_cast<GCAbstractObject*>(walk(indexableFields[i], page));
     }
 }
 
@@ -168,6 +159,15 @@ vm_oop_t VMMethod::GetConstant(long indx) {
         return nullptr;
     }
     return GetIndexableField(bc);
+}
+
+void VMMethod::MarkObjectAsInvalid() {
+    VMInvokable::MarkObjectAsInvalid();
+
+    int64_t numIndexableFields = INT_VAL(load_ptr(numberOfConstants));
+    for (size_t i = 0; i < numIndexableFields; ++i) {
+        indexableFields[i] = (GCAbstractObject*) INVALID_GC_POINTER;
+    }
 }
 
 StdString VMMethod::AsDebugString() {

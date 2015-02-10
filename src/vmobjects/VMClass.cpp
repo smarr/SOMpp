@@ -34,12 +34,11 @@
 #include <primitivesCore/PrimitiveLoader.h>
 
 
-const long VMClass::VMClassNumberOfFields = 4;
+const size_t VMClass::VMClassNumberOfGcPtrFields = 4;
 
 VMClass::VMClass() :
-        VMObject(VMClassNumberOfFields), superClass(nullptr), name(nullptr), instanceFields(
-                nullptr), instanceInvokables(nullptr) {
-}
+        VMObject(VMClassNumberOfGcPtrFields), superClass(nullptr), name(nullptr), instanceFields(
+                nullptr), instanceInvokables(nullptr) {}
 
 VMClass* VMClass::Clone(Page* page) {
     VMClass* clone = new (page, objectSize - sizeof(VMClass) ALLOC_MATURE) VMClass(*this);
@@ -49,32 +48,9 @@ VMClass* VMClass::Clone(Page* page) {
     return clone;
 }
 
-VMClass::VMClass(long numberOfFields) :
-        VMObject(numberOfFields + VMClassNumberOfFields) {
-}
-
-void VMClass::WalkObjects(walk_heap_fn walk, Page* page) {
-    clazz = static_cast<GCClass*>(walk(clazz, page));
-    if (superClass) {
-        superClass = static_cast<GCClass*>(walk(superClass, page));
-    }
-    name               = static_cast<GCSymbol*>(walk(name, page));
-    instanceFields     = static_cast<GCArray*>(walk(instanceFields, page));
-    instanceInvokables = static_cast<GCArray*>(walk(instanceInvokables, page));
-
-    gc_oop_t* fields = FIELDS;
-
-    for (long i = VMClassNumberOfFields + 0/*VMObjectNumberOfFields*/; i < numberOfFields; i++)
-        fields[i] = walk(fields[i], page);
-}
-
-void VMClass::MarkObjectAsInvalid() {
-    VMObject::MarkObjectAsInvalid();
-    superClass         = (GCClass*)  INVALID_GC_POINTER;
-    name               = (GCSymbol*) INVALID_GC_POINTER;
-    instanceFields     = (GCArray*)  INVALID_GC_POINTER;
-    instanceInvokables = (GCArray*)  INVALID_GC_POINTER;
-}
+VMClass::VMClass(size_t numberOfGcPtrFields) :
+        VMObject(numberOfGcPtrFields + VMClassNumberOfGcPtrFields), superClass(nullptr),
+        name(nullptr), instanceFields(nullptr), instanceInvokables(nullptr) {}
 
 bool VMClass::addInstanceInvokable(VMInvokable* ptr, Page* page) {
     if (ptr == nullptr) {
@@ -209,7 +185,7 @@ void VMClass::LoadPrimitives(const vector<StdString>& cp, Page* page) {
     }
 }
 
-long VMClass::numberOfSuperInstanceFields() {
+size_t VMClass::numberOfSuperInstanceFields() {
     if (HasSuperClass())
         return GetSuperClass()->GetNumberOfInstanceFields();
     return 0;

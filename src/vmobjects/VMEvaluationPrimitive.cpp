@@ -38,7 +38,9 @@
 
 #include <vmobjects/VMBlock.inline.h>
 
-VMEvaluationPrimitive::VMEvaluationPrimitive(long argc, Page* page) : VMPrimitive(computeSignatureString(argc, page)) {
+
+VMEvaluationPrimitive::VMEvaluationPrimitive(long argc, Page* page)
+    : VMPrimitive(computeSignatureString(argc, page)) {
     SetRoutine(new EvaluationRoutine(this));
     SetEmpty(false);
     store_ptr(numberOfArguments, NEW_INT(argc, page));
@@ -51,7 +53,6 @@ VMEvaluationPrimitive* VMEvaluationPrimitive::Clone(Page* page) {
 
 void VMEvaluationPrimitive::WalkObjects(walk_heap_fn walk, Page* page) {
     VMPrimitive::WalkObjects(walk, page);
-    numberOfArguments = walk(numberOfArguments, page);
     static_cast<EvaluationRoutine*>(routine)->WalkObjects(walk, page);
 }
 

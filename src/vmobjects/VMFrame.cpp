@@ -96,10 +96,10 @@ VMFrame* VMFrame::Clone(Page* page) {
     return clone;
 }
 
-const long VMFrame::VMFrameNumberOfFields = 0;
+const size_t VMFrame::VMFrameNumberOfGcPtrFields = 0;
 
-VMFrame::VMFrame(long size, long nof) :
-        VMObject(nof + VMFrameNumberOfFields), previousFrame(nullptr), context(
+VMFrame::VMFrame(size_t size, size_t nof) :
+        VMObject(nof + VMFrameNumberOfGcPtrFields), previousFrame(nullptr), context(
                 nullptr), method(nullptr) {
     clazz = nullptr; // Not a proper class anymore
     bytecodeIndex = 0;
@@ -300,6 +300,21 @@ void VMFrame::CopyArgumentsFrom(VMFrame* frame) {
     for (long i = 0; i < num_args; ++i) {
         vm_oop_t stackElem = frame->GetStackElement(num_args - 1 - i);
         store_ptr(arguments[i], stackElem);
+    }
+}
+
+void VMFrame::MarkObjectAsInvalid() {
+    VMObject::MarkObjectAsInvalid();
+    previousFrame = (GCFrame*) INVALID_GC_POINTER;
+    context = (GCFrame*)  INVALID_GC_POINTER;
+    method  = (GCMethod*) INVALID_GC_POINTER;
+    size_t i = 0;
+    
+    gc_oop_t* end = (gc_oop_t*) SHIFTED_PTR(this, objectSize);
+    
+    while (arguments + i < end) {
+        arguments[i] = INVALID_GC_POINTER;
+        i++;
     }
 }
 

@@ -1,7 +1,7 @@
 #include "VMMutex.h"
 #include <vm/Universe.h>
 
-const long VMMutex::VMMutexNumberOfFields = 0;
+const size_t VMMutex::VMMutexNumberOfGcPtrFields = 0;
 
 void VMMutex::Lock() {
     assert(lock);
@@ -34,7 +34,7 @@ VMMutex* VMMutex::Clone(Page* page) {
 }
 
 void VMMutex::MarkObjectAsInvalid() {
-    clazz = (GCClass*) INVALID_GC_POINTER;
+    VMObject::MarkObjectAsInvalid();
     std::unique_lock<recursive_mutex>** lock_for_reset = const_cast<std::unique_lock<recursive_mutex>**>(&lock);
     *lock_for_reset = nullptr;
 }

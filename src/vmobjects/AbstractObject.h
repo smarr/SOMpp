@@ -47,20 +47,6 @@ public:
 
     AbstractVMObject() : VMObjectBase() {}
 
-    inline virtual void SetObjectSize(size_t size) {
-        Universe::ErrorPrint("this object doesn't support SetObjectSize\n");
-        throw "this object doesn't support SetObjectSize";
-    }
-
-    inline virtual long GetNumberOfFields() const {
-        Universe::ErrorPrint("this object doesn't support GetNumberOfFields\n");
-        throw "this object doesn't support GetNumberOfFields";
-    }
-
-    virtual void SetNumberOfFields(long nof) {
-        Universe::ErrorPrint("this object doesn't support SetNumberOfFields\n");
-        throw "this object doesn't support SetNumberOfFields";
-    }
     inline virtual void SetClass(VMClass* cl) {
         Universe::ErrorPrint("this object doesn't support SetClass\n");
         throw "this object doesn't support SetClass";
