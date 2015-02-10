@@ -35,12 +35,7 @@ class VMSymbol;
 
 class Interpreter : public BaseThread {
 public:
-    
-#if GC_TYPE!=PAUSELESS
-    Interpreter(Page*);
-#else
-    Interpreter(Page*, bool, bool);
-#endif
+    Interpreter(Page* PAUSELESS_ONLY(, bool, bool));
     
     void      Start();
     VMFrame*  PushNewFrame(VMMethod* method);

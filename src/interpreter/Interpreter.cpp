@@ -134,9 +134,7 @@ void Interpreter::Start() {
     // THIS IS THE former interpretation loop
     LABEL_BC_HALT:
       PROLOGUE(1);
-#if GC_TYPE==PAUSELESS
-    EnableStop();
-#endif
+      PAUSELESS_ONLY(EnableStop());
       return; // handle the halt bytecode
 
     LABEL_BC_DUP:
