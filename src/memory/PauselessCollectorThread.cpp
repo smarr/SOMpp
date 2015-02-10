@@ -197,6 +197,15 @@ PauselessCollectorThread::PauselessCollectorThread() : BaseThread(nullptr) {
 #include <unistd.h>
 
 void PauselessCollectorThread::Collect() {
+#warning there seems to be a bug lurking here, I saw the very first iteration \
+of the GC doing working on the very same page the mutator thread was working\
+with, this should not happen, the mutator should need to yield that page first\
+or, the other way around, the GC should only consider yielded pages. \
+I don't remember well, but, I think, I saw the GC relocating stuff on that page.
+
+#warning hack:
+    sleep(10);
+    
     
     while (true) {
         
