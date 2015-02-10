@@ -35,10 +35,10 @@
 #include <primitivesCore/PrimitiveLoader.h>
 
 
-const long VMClass::VMClassNumberOfFields = 4;
+const size_t VMClass::VMClassNumberOfGcPtrFields = 4;
 
 VMClass::VMClass() :
-        VMObject(VMClassNumberOfFields), superClass(nullptr), name(nullptr), instanceFields(
+        VMObject(VMClassNumberOfGcPtrFields), superClass(nullptr), name(nullptr), instanceFields(
                 nullptr), instanceInvokables(nullptr) {}
 
 VMClass* VMClass::Clone(Page* page) {
@@ -49,8 +49,8 @@ VMClass* VMClass::Clone(Page* page) {
     return clone;
 }
 
-VMClass::VMClass(long numberOfFields) :
-        VMObject(numberOfFields + VMClassNumberOfFields), superClass(nullptr),
+VMClass::VMClass(size_t numberOfGcPtrFields) :
+        VMObject(numberOfGcPtrFields + VMClassNumberOfGcPtrFields), superClass(nullptr),
         name(nullptr), instanceFields(nullptr), instanceInvokables(nullptr) {}
 
 #if GC_TYPE==PAUSELESS
@@ -61,7 +61,7 @@ void VMClass::MarkReferences() {
     ReadBarrierForGCThread(&instanceFields);
     ReadBarrierForGCThread(&instanceInvokables);
     gc_oop_t* fields = FIELDS;
-    for (long i = VMClassNumberOfFields + 0/*VMObjectNumberOfFields*/; i < numberOfFields; i++) {
+    for (size_t i = VMClassNumberOfGcPtrFields + VMObjectNumberOfGcPtrFields; i < numberOfGcPtrFields; i++) {
         ReadBarrierForGCThread(&fields[i]);
     }
 }
@@ -84,7 +84,7 @@ void VMClass::CheckMarking(void (*walk)(vm_oop_t)) {
     assert(GetNMTValue(instanceInvokables) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(instanceInvokables));
     walk(Untag(instanceInvokables));
-    for (long i = VMClassNumberOfFields + 0/*VMObjectNumberOfFields*/; i < numberOfFields; i++) {
+    for (size_t i = VMClassNumberOfGcPtrFields + VMObjectNumberOfGcPtrFields; i < numberOfGcPtrFields; i++) {
         assert(GetNMTValue(FIELDS[i]) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
         CheckBlocked(Untag(FIELDS[i]));
         walk(Untag(FIELDS[i]));
@@ -103,7 +103,7 @@ void VMClass::WalkObjects(walk_heap_fn walk, Page* page) {
 
     gc_oop_t* fields = FIELDS;
 
-    for (long i = VMClassNumberOfFields + 0/*VMObjectNumberOfFields*/; i < numberOfFields; i++)
+    for (long i = VMClassNumberOfGcPtrFields + VMObjectNumberOfGcPtrFields; i < numberOfGcPtrFields; i++)
         fields[i] = walk(fields[i], page);
 }
 
@@ -256,7 +256,7 @@ void VMClass::LoadPrimitives(const vector<StdString>& cp, Page* page) {
     }
 }
 
-long VMClass::numberOfSuperInstanceFields() {
+size_t VMClass::numberOfSuperInstanceFields() {
     if (HasSuperClass())
         return GetSuperClass()->GetNumberOfInstanceFields();
     return 0;

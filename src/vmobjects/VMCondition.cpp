@@ -1,7 +1,7 @@
 #include <chrono>
 #include <vmobjects/VMCondition.h>
 
-const long VMCondition::VMConditionNumberOfFields = 0;
+const size_t VMCondition::VMConditionNumberOfGcPtrFields = 0;
 
 void VMCondition::SignalOne() {
     cond_var->notify_one();

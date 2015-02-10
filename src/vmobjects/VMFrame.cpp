@@ -100,10 +100,10 @@ VMFrame* VMFrame::Clone(Page* page) {
     return clone;
 }
 
-const long VMFrame::VMFrameNumberOfFields = 0;
+const size_t VMFrame::VMFrameNumberOfGcPtrFields = 0;
 
-VMFrame::VMFrame(long size, long nof) :
-        VMObject(nof + VMFrameNumberOfFields), previousFrame(nullptr), context(
+VMFrame::VMFrame(size_t size, size_t nof) :
+        VMObject(nof + VMFrameNumberOfGcPtrFields), previousFrame(nullptr), context(
                 nullptr), method(nullptr) {
     clazz = nullptr; // Not a proper class anymore
     bytecodeIndex = 0;

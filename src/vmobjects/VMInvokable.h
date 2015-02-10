@@ -32,7 +32,7 @@ class VMInvokable: public VMObject {
 public:
     typedef GCInvokable Stored;
     
-    VMInvokable(long nof = 0) : VMObject(nof + 2) {};
+    VMInvokable(size_t numOfGCPtrFields = 0) : VMObject(numOfGCPtrFields + 2) {};
 
     virtual void      Invoke(Interpreter*, VMFrame*) = 0;
 

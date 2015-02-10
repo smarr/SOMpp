@@ -42,10 +42,10 @@ VMPrimitive* VMPrimitive::GetEmptyPrimitive(VMSymbol* sig, bool classSide, Page*
     return prim;
 }
 
-const int VMPrimitive::VMPrimitiveNumberOfFields = 2;
+const size_t VMPrimitive::VMPrimitiveNumberOfGcPtrFields = 0;
 
-VMPrimitive::VMPrimitive(VMSymbol* signature) : VMInvokable(VMPrimitiveNumberOfFields) {
-    //the only class that explicitly does this.
+VMPrimitive::VMPrimitive(VMSymbol* signature) : VMInvokable(VMPrimitiveNumberOfGcPtrFields) {
+    // the only class that explicitly does this.
     SetClass(load_ptr(primitiveClass));
     SetSignature(signature);
     routine = nullptr;

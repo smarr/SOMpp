@@ -2,7 +2,7 @@
 #include "VMClass.h"
 #include <vm/Universe.h>
 
-const long VMMutex::VMMutexNumberOfFields = 0;
+const size_t VMMutex::VMMutexNumberOfGcPtrFields = 0;
 
 void VMMutex::Lock() {
     assert(lock);

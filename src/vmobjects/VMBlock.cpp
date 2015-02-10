@@ -27,10 +27,10 @@
 #include "VMBlock.h"
 #include "VMMethod.h"
 
-const int VMBlock::VMBlockNumberOfFields = 2;
+const size_t VMBlock::VMBlockNumberOfGcPtrFields = 2;
 
 VMBlock::VMBlock() :
-        VMObject(VMBlockNumberOfFields), blockMethod(), context() {
+        VMObject(VMBlockNumberOfGcPtrFields), blockMethod(), context() {
 }
 
 void VMBlock::SetMethod(VMMethod* bMethod) {

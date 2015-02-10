@@ -40,8 +40,6 @@
 #include <pthread.h>
 #endif
 
-//#include "ObjectFormats.h"
-
 // this macro returns a shifted ptr by offset bytes
 #define SHIFTED_PTR(ptr, offset) ((void*)((size_t)(ptr)+(size_t)(offset)))
 
@@ -69,19 +67,17 @@ class VMObject: public AbstractVMObject {
 public:
     typedef GCObject Stored;
     
-    VMObject(long numberOfFields = 0);
+    VMObject(size_t numOfGcPtrFields = 0);
 
     virtual inline VMClass*  GetClass();
     virtual        void      SetClass(VMClass* cl);
     virtual        VMSymbol* GetFieldName(long index);
-    virtual inline long      GetNumberOfFields() const;
-    virtual        void      SetNumberOfFields(long nof);
+    virtual inline size_t    GetNumberOfFields() const; // number of continous GC ptr fields in the object
             inline vm_oop_t  GetField(long index);
             inline void      SetField(long index, vm_oop_t value);
     virtual        void      Assert(bool value) const;
     virtual        VMObject* Clone(Page*);
     virtual inline size_t    GetObjectSize() const;
-    virtual inline void      SetObjectSize(size_t size);
     
     virtual        void      MarkObjectAsInvalid();
 
@@ -111,28 +107,29 @@ public:
     }
 
 protected:
-    long GetAdditionalSpaceConsumption() const;
+    void initializeGcFields() {
+        for (size_t i = 0; i < numberOfGcPtrFields; i++) {
+            #warning do we need to cylce through the barriers here?
+            FIELDS[i] = nilObject;
+        }
+    }
 
     // VMObject essentials
     intptr_t hash;
     size_t objectSize;     // set by the heap at allocation time
-    long   numberOfFields;
+    const size_t numberOfGcPtrFields; // number of continous GC ptr fields in the object
 
     GCClass* clazz;
 
     // Start of fields. All members beyond after clazz are indexable.
     // clazz has index -1.
     
-private:
-    static const long VMObjectNumberOfFields;
+protected:
+    static const size_t VMObjectNumberOfGcPtrFields;
 };
 
 size_t VMObject::GetObjectSize() const {
     return objectSize;
-}
-
-void VMObject::SetObjectSize(size_t size) {
-    objectSize = size;
 }
 
 VMClass* VMObject::GetClass() {
@@ -141,8 +138,9 @@ VMClass* VMObject::GetClass() {
     return res;
 }
 
-long VMObject::GetNumberOfFields() const {
-    return numberOfFields;
+size_t VMObject::GetNumberOfFields() const {
+    // number of continous GC ptr fields in the object
+    return numberOfGcPtrFields;
 }
 
 vm_oop_t VMObject::GetField(long index) {

@@ -8,13 +8,13 @@
 #include <sstream>
 
 
-const int VMThread::VMThreadNumberOfFields = 1;
+const size_t VMThread::VMThreadNumberOfGcPtrFields = 1;
 mutex VMThread::threads_map_mutex;
 map<thread::id, GCThread*> VMThread::threads;
 
 
 VMThread::VMThread() :
-                VMObject(VMThreadNumberOfFields),
+                VMObject(VMThreadNumberOfGcPtrFields),
                     thread(nullptr),
                     name(reinterpret_cast<GCString*>(nilObject)) {}
 

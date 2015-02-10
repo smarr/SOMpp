@@ -33,7 +33,7 @@ class VMArray: public VMObject {
 public:
     typedef GCArray Stored;
     
-    VMArray(long size, long nof = 0);
+    VMArray(size_t size, size_t numberOfGcPtrFields = 0);
 
 #if GC_TYPE==PAUSELESS
     virtual void MarkReferences();
@@ -41,7 +41,7 @@ public:
 #endif
     virtual void WalkObjects(walk_heap_fn, Page*);
 
-    inline  long GetNumberOfIndexableFields() const;
+    inline  size_t GetNumberOfIndexableFields() const;
     VMArray* CopyAndExtendWith(vm_oop_t, Page*);
     vm_oop_t GetIndexableField(long idx);
     void SetIndexableField(long idx, vm_oop_t value);
@@ -53,7 +53,7 @@ public:
     virtual void MarkObjectAsInvalid();
 
 private:
-    static const long VMArrayNumberOfFields;
+    static const size_t VMArrayNumberOfGcPtrFields;
 };
 
 long VMArray::GetNumberOfIndexableFields() const {

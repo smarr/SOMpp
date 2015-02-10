@@ -38,7 +38,7 @@ private:
     GCString* name;
     std::thread* thread;
     
-    static const int VMThreadNumberOfFields;
+    static const size_t VMThreadNumberOfGcPtrFields;
     
     static mutex threads_map_mutex;
     static map<thread::id, GCThread*> threads;

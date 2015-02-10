@@ -41,7 +41,7 @@ public:
     
     static VMFrame* EmergencyFrameFrom(VMFrame* from, long extraLength, Page*);
 
-    VMFrame(long size, long nof = 0);
+    VMFrame(size_t size, size_t nof = 0);
 
     inline VMFrame* GetPreviousFrame();
     inline void SetPreviousFrame(VMFrame*);
@@ -99,7 +99,7 @@ private:
     inline void SetLocal(long, vm_oop_t);
     inline void SetArgument(long index, vm_oop_t value);
 
-    static const long VMFrameNumberOfFields;
+    static const size_t VMFrameNumberOfGcPtrFields;
 };
 
 bool VMFrame::HasContext() const {

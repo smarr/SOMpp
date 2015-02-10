@@ -39,13 +39,13 @@
 #include <vmobjects/VMMethod.inline.h>
 
 #ifdef UNSAFE_FRAME_OPTIMIZATION
-const long VMMethod::VMMethodNumberOfFields = 8;
+const size_t VMMethod::VMMethodNumberOfGcPtrFields = 8;
 #else
-const long VMMethod::VMMethodNumberOfFields = 7;
+const size_t VMMethod::VMMethodNumberOfGcPtrFields = 7;
 #endif
 
-VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof, Page* page) :
-        VMInvokable(nof + VMMethodNumberOfFields) {
+VMMethod::VMMethod(size_t bcCount, size_t numberOfConstants, size_t nof, Page* page) :
+        VMInvokable(nof + VMMethodNumberOfGcPtrFields) {
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     cachedFrame = nullptr;
 #endif
@@ -58,7 +58,7 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof, Page* page) :
     this->numberOfConstants      = _store_ptr(NEW_INT(numberOfConstants, page));
 
     indexableFields = (gc_oop_t*)(&indexableFields + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
-    for (long i = 0; i < numberOfConstants; ++i) {
+    for (size_t i = 0; i < numberOfConstants; ++i) {
 #warning do we need to cylce through the barriers here?
         store_ptr(indexableFields[i], load_ptr(nilObject));
     }
@@ -89,7 +89,7 @@ void VMMethod::MarkReferences() {
     ReadBarrierForGCThread(&numberOfArguments);
     long numIndexableFields = INT_VAL(ReadBarrierForGCThread(&numberOfConstants));
     
-    for (long i = 0; i < numIndexableFields; ++i) {
+    for (size_t i = 0; i < numIndexableFields; ++i) {
         ReadBarrierForGCThread(&indexableFields[i]);
     }
 }

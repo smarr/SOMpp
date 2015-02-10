@@ -70,7 +70,7 @@ protected:
 private:
     bool empty;
 
-    static const int VMPrimitiveNumberOfFields;
+    static const size_t VMPrimitiveNumberOfGcPtrFields;
 
 };
 

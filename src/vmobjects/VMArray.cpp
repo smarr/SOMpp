@@ -29,16 +29,16 @@
 
 #include <vm/Universe.h>
 
-const long VMArray::VMArrayNumberOfFields = 0;
+const size_t VMArray::VMArrayNumberOfGcPtrFields = 0;
 
-VMArray::VMArray(long size, long nof) :
-        VMObject(nof + VMArrayNumberOfFields) {
+VMArray::VMArray(size_t size, size_t numberOfGcPtrFields) :
+        VMObject(numberOfGcPtrFields + VMArrayNumberOfGcPtrFields) {
     // initialize fields with nilObject
     // SetIndexableField is not used to prevent the write barrier to be called
     // too often.
     // Fields start after clazz and other fields (GetNumberOfFields)
     gc_oop_t* arrFields = FIELDS + GetNumberOfFields();
-    for (long i = 0; i < size; ++i) {
+    for (size_t i = 0; i < size; ++i) {
 # warning not sure whether it is ok to avoid the barriers here
         arrFields[i] = nilObject;
     }
@@ -98,9 +98,9 @@ void VMArray::CopyIndexableFieldsTo(VMArray* to) {
 #if GC_TYPE==PAUSELESS
 void VMArray::MarkReferences() {
     ReadBarrierForGCThread(&clazz);
-    long numFields          = GetNumberOfFields();
-    long numIndexableFields = GetNumberOfIndexableFields();
-    for (long i = 0; i < numFields + numIndexableFields; i++) {
+    size_t numFields          = GetNumberOfFields();
+    size_t numIndexableFields = GetNumberOfIndexableFields();
+    for (size_t i = 0; i < numFields + numIndexableFields; i++) {
         ReadBarrierForGCThread(&FIELDS[i]);
         assert(Universe::IsValidObject((AbstractVMObject*) Untag(*(&FIELDS[i]))));
     }
@@ -110,9 +110,9 @@ void VMArray::CheckMarking(void (*walk)(vm_oop_t)) {
     assert(GetNMTValue(clazz) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(clazz));
     walk(Untag(clazz));
-    long numFields          = GetNumberOfFields();
-    long numIndexableFields = GetNumberOfIndexableFields();
-    for (long i = 0; i < numFields + numIndexableFields; i++) {
+    size_t numFields          = GetNumberOfFields();
+    size_t numIndexableFields = GetNumberOfIndexableFields();
+    for (size_t i = 0; i < numFields + numIndexableFields; i++) {
         assert(GetNMTValue(FIELDS[i]) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
         CheckBlocked(Untag(FIELDS[i]));
         walk(Untag(FIELDS[i]));
@@ -121,10 +121,10 @@ void VMArray::CheckMarking(void (*walk)(vm_oop_t)) {
 #endif
 void VMArray::WalkObjects(walk_heap_fn walk, Page* page) {
     clazz = static_cast<GCClass*>(walk(clazz, page));
-    long numFields          = GetNumberOfFields();
-    long numIndexableFields = GetNumberOfIndexableFields();
+    size_t numFields          = GetNumberOfFields();
+    size_t numIndexableFields = GetNumberOfIndexableFields();
     gc_oop_t* fields = FIELDS;
-    for (long i = 0; i < numFields + numIndexableFields; i++) {
+    for (size_t i = 0; i < numFields + numIndexableFields; i++) {
         fields[i] = walk(fields[i], page);
     }
 }

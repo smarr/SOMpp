@@ -49,7 +49,7 @@ public:
     typedef GCClass Stored;
     
     VMClass();
-    VMClass(long numberOfFields);
+    VMClass(size_t numberOfGcPtrFields);
 
     inline VMClass*     GetSuperClass();
     inline void         SetSuperClass(VMClass*);
@@ -86,14 +86,14 @@ private:
     bool addInstanceInvokable(VMInvokable*, Page*);
     bool hasPrimitivesFor(const StdString& cl) const;
     void setPrimitives(const StdString& cname, bool classSide, Page*);
-    long numberOfSuperInstanceFields();
+    size_t numberOfSuperInstanceFields();
 
     GCClass*  superClass;
     GCSymbol* name;
     GCArray*  instanceFields;
     GCArray*  instanceInvokables;
 
-    static const long VMClassNumberOfFields;
+    static const size_t VMClassNumberOfGcPtrFields;
 };
 
 VMClass* VMClass::GetSuperClass() {

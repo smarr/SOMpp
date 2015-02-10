@@ -31,7 +31,7 @@
 #include "VMInvokable.h"
 
 // clazz is the only field of VMObject so
-const long VMObject::VMObjectNumberOfFields = 0;
+const size_t VMObject::VMObjectNumberOfGcPtrFields = 0;
 
 VMObject::VMObject(long numberOfFields) : AbstractVMObject() {
     // this line would be needed if the VMObject** is used instead of the macro:
@@ -91,8 +91,8 @@ void VMObject::MarkObjectAsInvalid() {
 #if GC_TYPE==PAUSELESS
 void VMObject::MarkReferences() {
     ReadBarrierForGCThread(&clazz);
-    long numFields = GetNumberOfFields();
-    for (long i = 0; i < numFields; ++i) {
+    size_t numFields = GetNumberOfFields();
+    for (size_t i = 0; i < numFields; ++i) {
         ReadBarrierForGCThread(&FIELDS[i]);
     }
 }
@@ -100,8 +100,8 @@ void VMObject::CheckMarking(void (*walk)(vm_oop_t)) {
     assert(GetNMTValue(clazz) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(clazz));
     walk(Untag(clazz));
-    long numFields = GetNumberOfFields();
-    for (long i = 0; i < numFields; ++i) {
+    size_t numFields = GetNumberOfFields();
+    for (size_t i = 0; i < numFields; ++i) {
         assert(GetNMTValue(FIELDS[i]) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
         CheckBlocked(Untag(FIELDS[i]));
         walk(Untag(FIELDS[i]));
@@ -110,9 +110,9 @@ void VMObject::CheckMarking(void (*walk)(vm_oop_t)) {
 #else
 void VMObject::WalkObjects(walk_heap_fn walk, Page* page) {
     clazz = static_cast<GCClass*>(walk(clazz, page));
-    
-    long numFields = GetNumberOfFields();
-    for (long i = 0; i < numFields; ++i) {
+
+    size_t numFields = GetNumberOfFields();
+    for (size_t i = 0; i < numFields; ++i) {
         FIELDS[i] = walk(FIELDS[i], page);
     }
 }

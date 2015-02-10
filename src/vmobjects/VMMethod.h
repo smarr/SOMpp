@@ -39,7 +39,7 @@ class VMMethod: public VMInvokable {
 public:
     typedef GCMethod Stored;
     
-    VMMethod(long bcCount, long numberOfConstants, long nof, Page*);
+    VMMethod(size_t bcCount, size_t numberOfConstants, size_t nof, Page*);
 
     inline  long      GetNumberOfLocals();
             void      SetNumberOfLocals(long nol, Page*);
@@ -96,5 +96,5 @@ private:
 
     gc_oop_t* indexableFields;
     uint8_t* bytecodes;
-    static const long VMMethodNumberOfFields;
+    static const size_t VMMethodNumberOfGcPtrFields;
 };
