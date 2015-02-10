@@ -82,6 +82,12 @@ private:
 
     GCFrame* frame;
     
+    // The following three variables are used to cache main parts of the
+    // current execution context
+    VMMethod* method; // relies on method objects not being relocated in pauseless GC
+    long      bytecodeIndexGlobal;
+    uint8_t*  currentBytecodes;
+
     static const StdString unknownGlobal;
     static const StdString doesNotUnderstand;
     static const StdString escapedBlock;
@@ -89,8 +95,6 @@ private:
     VMFrame* popFrame();
     void popFrameAndPushResult(vm_oop_t result);
     void send(VMSymbol* signature, VMClass* receiverClass);
-    
-    VMMethod* GetMethod();
 
     void doDup();
     void doPushLocal(long bytecodeIndex);
@@ -110,13 +114,6 @@ private:
     void doJumpIfFalse(long bytecodeIndex);
     void doJumpIfTrue(long bytecodeIndex);
     void doJump(long bytecodeIndex);
-
-    // The following three variables are used to cache main parts of the
-    // current execution context
-    long      bytecodeIndexGlobal;
-
-    //    VMMethod* method; // not safe for parallel moving
-    //    uint8_t*  currentBytecodes;
 
 #if GC_TYPE==PAUSELESS
     bool stopped;

@@ -73,7 +73,7 @@ Interpreter::Interpreter(Page* page) : BaseThread(page) {
 }
 
 #define DISPATCH_NOGC() {\
-  goto *loopTargets[/* currentBytecodes */ GetFrame()->GetMethod()->GetBytecodes()[bytecodeIndexGlobal]]; \
+  goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]]; \
 }
 
 #if GC_TYPE==PAUSELESS
@@ -87,29 +87,24 @@ Interpreter::Interpreter(Page* page) : BaseThread(page) {
     if (GetHeap<HEAP_CLS>()->IsPauseTriggered()) { \
         GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal); \
         GetHeap<HEAP_CLS>()->Pause(); \
-        /* method = GetFrame()->GetMethod(); */ \
-        /* currentBytecodes = method->GetBytecodes(); */ \
+        method = GetFrame()->GetMethod(); \
+        currentBytecodes = method->GetBytecodes(); \
     } \
-    goto *loopTargets[/* currentBytecodes */ GetFrame()->GetMethod()->GetBytecodes()[bytecodeIndexGlobal]];\
+    goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];\
 }
 #else
 #define DISPATCH_GC() {\
-  if (_HEAP->isCollectionTriggered()) {\
-    GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);\
-    _HEAP->FullGC();\
-    /* method = GetFrame()->GetMethod();*/ \
-    /* currentBytecodes = method->GetBytecodes(); */ \
+  if (GetHeap<HEAP_CLS>()->isCollectionTriggered()) {\
+    GetHeap<HEAP_CLS>()->FullGC();\
   }\
-  goto *loopTargets[/* currentBytecodes */ GetFrame()->GetMethod()->GetBytecodes() [bytecodeIndexGlobal]];\
+  goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];\
 }
 #endif
 
-
 void Interpreter::Start() {
     // initialization
-
-    // method = store_ptr(GetFrame()->GetMethod());
-    // currentBytecodes = method->GetBytecodes();
+    method = GetFrame()->GetMethod();
+    currentBytecodes = method->GetBytecodes();
 
     void* loopTargets[] = {
         &&LABEL_BC_HALT,
@@ -133,7 +128,7 @@ void Interpreter::Start() {
         &&LABEL_BC_JUMP
     };
 
-    goto *loopTargets[/* currentBytecodes */ GetFrame()->GetMethod()->GetBytecodes()[bytecodeIndexGlobal]];
+    goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];
 
     //
     // THIS IS THE former interpretation loop
@@ -248,9 +243,9 @@ void Interpreter::SetFrame(VMFrame* frame) {
     this->frame = _store_ptr(frame);
 
     // update cached values
-    // method              = store_ptr(frame->GetMethod());
+    method              = frame->GetMethod();
     bytecodeIndexGlobal = frame->GetBytecodeIndex();
-    // currentBytecodes    = load_ptr(method)->GetBytecodes();
+    currentBytecodes    = method->GetBytecodes();
 }
 
 vm_oop_t Interpreter::GetSelf() {
@@ -339,9 +334,8 @@ void Interpreter::doDup() {
 }
 
 void Interpreter::doPushLocal(long bytecodeIndex) {
-    //VMMethod* method = this->GetMethod();
-    uint8_t bc1 = GetMethod()->GetBytecode(bytecodeIndex + 1);
-    uint8_t bc2 = GetMethod()->GetBytecode(bytecodeIndex + 2);
+    uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
+    uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
 
     vm_oop_t local = GetFrame()->GetLocal(bc1, bc2);
 
@@ -349,9 +343,8 @@ void Interpreter::doPushLocal(long bytecodeIndex) {
 }
 
 void Interpreter::doPushArgument(long bytecodeIndex) {
-    //VMMethod* method = this->GetMethod();
-    uint8_t bc1 = GetMethod()->GetBytecode(bytecodeIndex + 1);
-    uint8_t bc2 = GetMethod()->GetBytecode(bytecodeIndex + 2);
+    uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
+    uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
 
     vm_oop_t argument = GetFrame()->GetArgument(bc1, bc2);
 
@@ -359,7 +352,7 @@ void Interpreter::doPushArgument(long bytecodeIndex) {
 }
 
 void Interpreter::doPushField(long bytecodeIndex) {
-    uint8_t fieldIndex = GetMethod()->GetBytecode(bytecodeIndex + 1);
+    uint8_t fieldIndex = method->GetBytecode(bytecodeIndex + 1);
     vm_oop_t self = GetSelf();
     vm_oop_t o;
     
@@ -380,20 +373,19 @@ void Interpreter::doPushField(long bytecodeIndex) {
 
 void Interpreter::doPushBlock(long bytecodeIndex) {
     // Short cut the negative case of #ifTrue: and #ifFalse:
-    if (/* currentBytecodes */ GetFrame()->GetMethod()->GetBytecodes()[bytecodeIndexGlobal] == BC_SEND) {
+    if (currentBytecodes[bytecodeIndexGlobal] == BC_SEND) {
         if (GetFrame()->GetStackElement(0) == load_ptr(falseObject) &&
-            this->GetMethod()->GetConstant(bytecodeIndexGlobal) == load_ptr(symbolIfTrue)) {
+            method->GetConstant(bytecodeIndexGlobal) == load_ptr(symbolIfTrue)) {
             GetFrame()->Push(load_ptr(nilObject));
             return;
-        }
-        if (GetFrame()->GetStackElement(0) == load_ptr(trueObject) &&
-            this->GetMethod()->GetConstant(bytecodeIndexGlobal) == load_ptr(symbolIfFalse)) {
+        } else if (GetFrame()->GetStackElement(0) == load_ptr(trueObject) &&
+                   method->GetConstant(bytecodeIndexGlobal) == load_ptr(symbolIfFalse)) {
             GetFrame()->Push(load_ptr(nilObject));
             return;
         }
     }
 
-    VMMethod* blockMethod = static_cast<VMMethod*>(GetMethod()->GetConstant(bytecodeIndex));
+    VMMethod* blockMethod = static_cast<VMMethod*>(method->GetConstant(bytecodeIndex));
 
     long numOfArgs = blockMethod->GetNumberOfArguments();
 
@@ -401,12 +393,12 @@ void Interpreter::doPushBlock(long bytecodeIndex) {
 }
 
 void Interpreter::doPushConstant(long bytecodeIndex) {
-    vm_oop_t constant = GetMethod()->GetConstant(bytecodeIndex);
+    vm_oop_t constant = method->GetConstant(bytecodeIndex);
     GetFrame()->Push(constant);
 }
 
 void Interpreter::doPushGlobal(long bytecodeIndex) {
-    VMSymbol* globalName = static_cast<VMSymbol*>(GetMethod()->GetConstant(bytecodeIndex));
+    VMSymbol* globalName = static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
     vm_oop_t global = GetUniverse()->GetGlobal(globalName);
 
     if (global != nullptr)
@@ -433,9 +425,8 @@ void Interpreter::doPop() {
 }
 
 void Interpreter::doPopLocal(long bytecodeIndex) {
-    //VMMethod* method = this->GetMethod();
-    uint8_t bc1 = GetMethod()->GetBytecode(bytecodeIndex + 1);
-    uint8_t bc2 = GetMethod()->GetBytecode(bytecodeIndex + 2);
+    uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
+    uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
 
     vm_oop_t o = GetFrame()->Pop();
     assert(Universe::IsValidObject(o));
@@ -444,9 +435,8 @@ void Interpreter::doPopLocal(long bytecodeIndex) {
 }
 
 void Interpreter::doPopArgument(long bytecodeIndex) {
-    //VMMethod* method = this->GetMethod();
-    uint8_t bc1 = GetMethod()->GetBytecode(bytecodeIndex + 1);
-    uint8_t bc2 = GetMethod()->GetBytecode(bytecodeIndex + 2);
+    uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
+    uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
 
     vm_oop_t o = GetFrame()->Pop();
     assert(Universe::IsValidObject(o));
@@ -454,7 +444,7 @@ void Interpreter::doPopArgument(long bytecodeIndex) {
 }
 
 void Interpreter::doPopField(long bytecodeIndex) {
-    uint8_t field_index = GetMethod()->GetBytecode(bytecodeIndex + 1);
+    uint8_t field_index = method->GetBytecode(bytecodeIndex + 1);
 
     vm_oop_t self = GetSelf();
     vm_oop_t o = GetFrame()->Pop();
@@ -471,7 +461,7 @@ void Interpreter::doPopField(long bytecodeIndex) {
 }
 
 void Interpreter::doSend(long bytecodeIndex) {
-    VMSymbol* signature = static_cast<VMSymbol*>(GetMethod()->GetConstant(bytecodeIndex));
+    VMSymbol* signature = static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
 
     int numOfArgs = Signature::GetNumberOfArguments(signature);
 
@@ -491,7 +481,7 @@ void Interpreter::doSend(long bytecodeIndex) {
 }
 
 void Interpreter::doSuperSend(long bytecodeIndex) {
-    VMSymbol* signature = static_cast<VMSymbol*>(GetMethod()->GetConstant(bytecodeIndex));
+    VMSymbol* signature = static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
 
     VMFrame* ctxt = GetFrame()->GetOuterContext();
     VMMethod* realMethod = ctxt->GetMethod();
@@ -573,7 +563,6 @@ void Interpreter::doJumpIfTrue(long bytecodeIndex) {
 
 void Interpreter::doJump(long bytecodeIndex) {
     long target = 0;
-    VMMethod* method = this->GetMethod();
     target |= method->GetBytecode(bytecodeIndex + 1);
     target |= method->GetBytecode(bytecodeIndex + 2) << 8;
     target |= method->GetBytecode(bytecodeIndex + 3) << 16;
@@ -581,11 +570,6 @@ void Interpreter::doJump(long bytecodeIndex) {
 
     // do the jump
     bytecodeIndexGlobal = target;
-}
-
-VMMethod* Interpreter::GetMethod() {
-    return GetFrame()->GetMethod();
-    // return load_ptr(this->method);
 }
 
 #if GC_TYPE==PAUSELESS
@@ -757,6 +741,15 @@ void Interpreter::CheckMarking(void (*walk)(vm_oop_t)) {
 #endif
 
 void Interpreter::WalkGlobals(walk_heap_fn walk, Page* page) {
-    //method = static_cast<GCMethod*>(walk(method, page));
+#warning Is the solution here with _store_ptr and load_ptr robust?
+    // some barriers need a field to work on, so use a temporary
+    GCMethod* m = _store_ptr(method);
+    m = static_cast<GCMethod*>(walk(m, page));
+    method = load_ptr(m); // could have moved, for instance with generational GC
+    currentBytecodes = method->GetBytecodes();
+
+    // Get the current frame and mark it.
+    // Since marking is done recursively, this automatically
+    // marks the whole stack
     frame  = static_cast<GCFrame*>(walk(frame, page));
 }
