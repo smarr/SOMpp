@@ -92,7 +92,7 @@ public:
      *   - fields in VMMethod, a_b must be set to (number_of_bc + number_of_csts*sizeof(VMObject*))
      */
     void* operator new(size_t numBytes, Page* page, unsigned long additionalBytes = 0 ALLOC_OUTSIDE_NURSERY_DECL) {
-        void* mem = AbstractVMObject::operator new(numBytes, page, additionalBytes ALLOC_OUTSIDE_NURSERY(outsideNursery));
+        void* mem = AbstractVMObject::operator new(numBytes, page, additionalBytes ALLOC_HINT);
 
         static_cast<VMObject*>(mem)->objectSize = PADDED_SIZE(numBytes + additionalBytes);
         return mem;
