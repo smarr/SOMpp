@@ -389,9 +389,8 @@ void Universe::initialize(long _argc, char** _argv) {
     if (!(trace > 0))
         dumpBytecodes = 2 - trace;
     
-#if GC_TYPE==PAUSELESS
-    GetHeap<HEAP_CLS>()->Start();
-#endif
+    PAUSELESS_ONLY(GetHeap<HEAP_CLS>()->Start());
+
     interpreter->Start();
 
     GetHeap<HEAP_CLS>()->UnregisterThread(interpreter->GetPage());
@@ -633,7 +632,7 @@ VMObject* Universe::InitializeGlobals(Page* page) {
 
     // Fix up objectClass
     load_ptr(objectClass)->SetSuperClass((VMClass*) load_ptr(nilObject));
-    
+
     obtain_vtables_of_known_classes(nil->GetClass()->GetName(), page);
 
 #if USE_TAGGING
