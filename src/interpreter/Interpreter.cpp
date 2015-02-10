@@ -277,8 +277,7 @@ void Interpreter::popFrameAndPushResult(vm_oop_t result) {
 }
 
 void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
-    //GetUniverse()->ErrorPrint("[Send] " + to_string(signature->GetChars()));
-    
+    assert(Universe::IsValidObject(receiverClass));
     VMInvokable* invokable = receiverClass->LookupInvokable(signature);
 
     if (invokable != nullptr) {
