@@ -67,13 +67,6 @@ Interpreter::Interpreter(Page* page) : BaseThread(page) {
 }
 #endif
 
-//Interpreter::~Interpreter() {
-    /*while (!fullPages.empty()) {
-        GetHeap<HEAP_CLS>()->RelinquishPage(fullPages.back());
-        fullPages.pop_back();
-    } */
-//}
-
 #define PROLOGUE(bc_count) {\
   if (dumpBytecodes > 1) Disassembler::DumpBytecode(GetFrame(), GetFrame()->GetMethod(), bytecodeIndexGlobal);\
   bytecodeIndexGlobal += bc_count;\
@@ -761,26 +754,6 @@ void Interpreter::CheckMarking(void (*walk)(vm_oop_t)) {
         walk(Untag(frame));
     }
 }
-
-
-/*
- 
- void Interpreter::CancelSafePoint() {
- safePointRequested = false;
- }
- 
- // Since the interpreter is going to stop anyway it sufices to only signal the gc threads that the root set is marked without actually doing it
- void Interpreter::DummyMarkRootSet() {
- GetHeap<HEAP_CLS>()->SignalRootSetMarked();
- }
- 
- 
- // Signal the fact that a safepoint is reached
- void Interpreter::SignalSafepointReached() {
- GetHeap<HEAP_CLS>()->SignalSafepointReached();
- }
- 
- */
 #endif
 
 void Interpreter::WalkGlobals(walk_heap_fn walk, Page* page) {

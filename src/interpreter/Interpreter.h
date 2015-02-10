@@ -54,11 +54,8 @@ public:
     void         TriggerMarkRootSet();
     void         MarkRootSet();
     void         MarkRootSetByGC();
-    void         DummyMarkRootSet();
     void         ResetAlreadyMarked();
     void         RequestSafePoint();
-    void         CancelSafePoint();
-    void         SignalSafepointReached();
     void         DisableGCTrap();
     void         SignalEnableGCTrap();
     void         EnableGCTrap();
