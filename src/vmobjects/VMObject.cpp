@@ -33,15 +33,11 @@
 // clazz is the only field of VMObject so
 const size_t VMObject::VMObjectNumberOfGcPtrFields = 0;
 
-VMObject::VMObject(long numberOfFields) : AbstractVMObject() {
-    // this line would be needed if the VMObject** is used instead of the macro:
-    // FIELDS = (VMObject**)&clazz;
-    SetNumberOfFields(numberOfFields + VMObjectNumberOfFields);
-    #if GC_TYPE==PAUSELESS
-     gcfield2 = 0;
-    #endif
-    hash = (intptr_t) this;
+VMObject::VMObject(size_t numOfGcPtrFields) : AbstractVMObject(),
+        numberOfGcPtrFields(numOfGcPtrFields + VMObjectNumberOfGcPtrFields),
+        hash((intptr_t) this) {
     // Object size was already set by the heap on allocation
+    initializeGcFields();
 }
 
 VMObject* VMObject::Clone(Page* page) {

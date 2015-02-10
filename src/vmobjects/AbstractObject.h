@@ -47,16 +47,12 @@ public:
     
     virtual StdString AsDebugString() = 0;
 
-    AbstractVMObject() : VMObjectBase() {
-#if GC_TYPE==PAUSELESS
-        gcfield2 = 0;
-#endif
-    }
 
     inline virtual void SetObjectSize(size_t size) {
         Universe::ErrorPrint("this object doesn't support SetObjectSize\n");
         throw "this object doesn't support SetObjectSize";
     }
+    AbstractVMObject() : VMObjectBase() {}
 
     inline virtual void SetClass(VMClass* cl) {
         Universe::ErrorPrint("this object doesn't support SetClass\n");
