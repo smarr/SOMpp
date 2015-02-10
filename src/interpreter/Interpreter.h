@@ -47,16 +47,15 @@ private:
     vm_oop_t GetSelf() const;
     
     VMFrame* frame;
-    VMMethod* method;
     
     Page* page;
     
     // The following three variables are used to cache main parts of the
     // current execution context
+    VMMethod* method;
     long      bytecodeIndexGlobal;
     uint8_t*  currentBytecodes;
 
-    
     static const StdString unknownGlobal;
     static const StdString doesNotUnderstand;
     static const StdString escapedBlock;
