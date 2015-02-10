@@ -71,20 +71,6 @@ void VMObject::Assert(bool value) const {
     GetUniverse()->Assert(value);
 }
 
-//returns the Object's additional memory used (e.g. for Array fields)
-long VMObject::GetAdditionalSpaceConsumption() const {
-    //The VM*-Object's additional memory used needs to be calculated.
-    //It's      the total object size   MINUS   sizeof(VMObject) for basic
-    //VMObject  MINUS   the number of fields times sizeof(VMObject*)
-    return (objectSize
-            - (sizeof(VMObject)
-                    + sizeof(VMObject*) * GetNumberOfFields()));
-}
-
-void VMObject::MarkObjectAsInvalid() {
-    clazz = (GCClass*) INVALID_GC_POINTER;
-}
-
 #if GC_TYPE==PAUSELESS
 void VMObject::MarkReferences() {
     ReadBarrierForGCThread(&clazz);

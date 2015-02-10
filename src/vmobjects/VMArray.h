@@ -54,8 +54,20 @@ public:
 
 private:
     static const size_t VMArrayNumberOfGcPtrFields;
+    
+    // returns the arrays additional memory used
+    size_t getAdditionalSpaceConsumption() const {
+        //The VMArrays's additional memory used needs to be calculated.
+        //It's the total object size   MINUS   sizeof(VMArray),
+        // MINUS   the number of fields times sizeof(gc_oop_t)
+        //   -> currently, in SOM it is not clear whether arrays should have
+        //      fields, in addition to the indexable fields,
+        //      but it is possible in SOM++
+        return objectSize - (sizeof(VMArray)
+                   + sizeof(gc_oop_t) * GetNumberOfFields());
+    }
 };
 
-long VMArray::GetNumberOfIndexableFields() const {
-    return GetAdditionalSpaceConsumption() / sizeof(VMObject*);
+size_t VMArray::GetNumberOfIndexableFields() const {
+    return getAdditionalSpaceConsumption() / sizeof(gc_oop_t);
 }
