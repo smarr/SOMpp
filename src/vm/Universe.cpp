@@ -381,7 +381,7 @@ void Universe::initialize(long _argc, char** _argv) {
         dumpBytecodes = 2 - trace;
 
     interpreter->Start();
-    
+
     GetHeap<HEAP_CLS>()->UnregisterThread(interpreter->GetPage());
 }
 
@@ -619,7 +619,7 @@ VMObject* Universe::InitializeGlobals(Page* page) {
     load_ptr(objectClass)->SetSuperClass((VMClass*) nil);
 
     obtain_vtables_of_known_classes(nil->GetClass()->GetName(), page);
-    
+
 #if USE_TAGGING
     GlobalBox::updateIntegerBox(NewInteger(1, page));
 #endif
