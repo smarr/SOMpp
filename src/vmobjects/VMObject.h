@@ -79,6 +79,8 @@ public:
     virtual        VMObject* Clone(Page*);
     virtual inline size_t    GetObjectSize() const;
     
+    virtual inline intptr_t  GetHash() { return hash; }
+    
     virtual        void      MarkObjectAsInvalid();
 
 #if GC_TYPE==PAUSELESS
@@ -115,7 +117,7 @@ protected:
     }
 
     // VMObject essentials
-    intptr_t hash;
+    const intptr_t hash;
     size_t objectSize;     // set by the heap at allocation time
     const size_t numberOfGcPtrFields; // number of continous GC ptr fields in the object
 
