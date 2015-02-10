@@ -198,8 +198,9 @@ VMFrame* Interpreter::PushNewFrame(VMMethod* method) {
 }
 
 void Interpreter::SetFrame(VMFrame* frame) {
-    if (this->frame != nullptr)
+    if (this->frame != nullptr) {
         this->frame->SetBytecodeIndex(bytecodeIndexGlobal);
+    }
 
     this->frame = frame;
 
@@ -533,7 +534,7 @@ void Interpreter::doJump(long bytecodeIndex) {
 }
 
 void Interpreter::WalkGlobals(walk_heap_fn walk, Page* page) {
-#warning method and frame are stored as VMptrs, is that acceptable? Is the solution here with _store_ptr and load_ptr robust?
+#warning Is the solution here with _store_ptr and load_ptr robust?
     method = load_ptr(static_cast<GCMethod*>(walk(_store_ptr(method), page)));
     currentBytecodes = method->GetBytecodes();
 
