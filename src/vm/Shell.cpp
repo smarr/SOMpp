@@ -58,25 +58,20 @@ Shell::~Shell() {
 }
 
 void Shell::Start(Interpreter* interp) {
-#define QUIT_CMD "system exit"
-#define QUIT_CMD_L 11 + 1
-
     if (bootstrapMethod == nullptr) {
         GetUniverse()->ErrorExit("Shell needs bootstrap method!");
     }
+    
     // the statement to evaluate
     char inbuf[INPUT_MAX_SIZE];
     long bytecodeIndex, counter = 0;
-    VMFrame* currentFrame;
-    VMClass* runClass;
-    vm_oop_t it = load_ptr(nilObject); // last evaluation result.
+    gc_oop_t it = nilObject;  // last evaluation result.
 
-    cout << "SOM Shell. Type \"" << QUIT_CMD << "\" to exit.\n";
+    cout << "SOM Shell. Type \"system exit\" to exit.\n";
 
     // Create a fake bootstrap frame
-    currentFrame = interp->PushNewFrame(GetBootstrapMethod());
-    // Remember the first bytecode index, e.g. index of the halt instruction
-    bytecodeIndex = currentFrame->GetBytecodeIndex();
+    // And remember the first bytecode index, e.g. index of the halt instruction
+    bytecodeIndex = interp->PushNewFrame(GetBootstrapMethod())->GetBytecodeIndex();
 
     /**
      * Main Shell Loop
@@ -102,14 +97,14 @@ void Shell::Start(Interpreter* interp) {
         statement = ss.str();
 
         ++counter;
-        runClass = GetUniverse()->LoadShellClass(statement, interp->GetPage());
+        VMClass* runClass = GetUniverse()->LoadShellClass(statement, interp->GetPage());
         // Compile and load the newly generated class
-        if(runClass == nullptr) {
+        if (runClass == nullptr) {
             cout << "can't compile statement.";
             continue;
         }
 
-        currentFrame = interp->GetFrame();
+        VMFrame* currentFrame = interp->GetFrame();
 
         // Go back, so we will evaluate the bootstrap frames halt
         // instruction again
@@ -119,7 +114,7 @@ void Shell::Start(Interpreter* interp) {
         currentFrame->Push(GetUniverse()->NewInstance(runClass, interp->GetPage()));
 
         // Push the old value of "it" on the stack
-        currentFrame->Push(it);
+        currentFrame->Push(load_ptr(it));
 
         // Lookup the run: method
         VMInvokable* initialize = runClass->LookupInvokable(
@@ -133,7 +128,7 @@ void Shell::Start(Interpreter* interp) {
         interp->Start();
 
         // Save the result of the run method
-        it = currentFrame->Pop();
+        it = _store_ptr(currentFrame->Pop());
     }
 }
 
