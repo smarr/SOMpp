@@ -50,6 +50,7 @@ VMObject* VMObject::Clone(Page* page) {
 }
 
 void VMObject::SetClass(VMClass* cl) {
+    assert(Universe::IsValidObject((AbstractVMObject*) cl));
     store_ptr(clazz, cl);
 }
 

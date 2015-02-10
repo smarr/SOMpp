@@ -125,7 +125,7 @@ size_t VMObject::GetObjectSize() const {
 }
 
 VMClass* VMObject::GetClass() {
-    // assert(Universe::IsValidObject((VMObject*) load_ptr(clazz)));
+    // assert(Universe::IsValidObject(reinterpret_cast<VMObject*>(load_ptr(clazz))));
     return load_ptr(clazz);
 }
 
