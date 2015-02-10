@@ -27,6 +27,7 @@
 #include "VMClass.h"
 #include "VMArray.h"
 #include "VMSymbol.h"
+#include "VMSymbol.inline.h"
 #include "VMInvokable.h"
 #include "VMPrimitive.h"
 #include "PrimitiveRoutine.h"
