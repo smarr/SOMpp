@@ -44,7 +44,8 @@ VMObject* VMObject::Clone(Page* page) {
     VMObject* clone = new (page, objectSize - sizeof(VMObject) ALLOC_MATURE) VMObject(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)),
            SHIFTED_PTR(this,  sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    clone->hash = (size_t) &clone;
+    intptr_t* cloneHash = const_cast<intptr_t*>(&clone->hash);
+    *cloneHash = hash;
     return clone;
 }
 

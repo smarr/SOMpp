@@ -101,7 +101,7 @@ public:
 protected:
 
     // VMObject essentials
-    intptr_t hash;
+    const intptr_t hash;
     size_t objectSize;     // set by the heap at allocation time
     const size_t numberOfGcPtrFields; // number of continous GC ptr fields in the object
 
