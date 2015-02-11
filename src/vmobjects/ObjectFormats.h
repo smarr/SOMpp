@@ -142,7 +142,7 @@ class GCThread    : public GCObject      { public: typedef VMThread Loaded; };
 
 #if GC_TYPE == PAUSELESS
   #define load_ptr(reference) (ReadBarrier(&(reference)))
-  #define  store_ptr(field, val) field = WriteBarrier(val)
+  #define  store_ptr(field, val) field = toGcOop(val)
   #define  to_gc_ptr(val)        toGcOop(val)
 #else
   template<typename T>
