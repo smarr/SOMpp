@@ -31,6 +31,7 @@
 #include "VMInvokable.h"
 #include "VMPrimitive.h"
 #include "PrimitiveRoutine.h"
+#include <interpreter/Interpreter.h>
 
 #include <primitivesCore/PrimitiveLoader.h>
 
@@ -121,14 +122,14 @@ VMInvokable* VMClass::GetInstanceInvokable(long index) {
 
 void VMClass::SetInstanceInvokable(long index, VMInvokable* invokable) {
     GetInstanceInvokables()->SetIndexableField(index, invokable);
-    if (invokable != reinterpret_cast<VMInvokable*>(load_ptr(nilObject))) {
+    if (invokable != load_ptr(nilObject)) {
         invokable->SetHolder(this);
     }
 }
 
 VMInvokable* VMClass::LookupInvokable(VMSymbol* name) {
     assert(Universe::IsValidObject(this));
-# warning TODO: renable lookup caching in multithreaded version    
+# warning TODO: renable lookup caching in multithreaded and pauseless version    
 //    VMInvokable* invokable = name->GetCachedInvokable(this);
 //    if (invokable != nullptr)
 //        return invokable;

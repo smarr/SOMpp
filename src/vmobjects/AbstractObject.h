@@ -18,6 +18,8 @@
 #include <memory/CopyingPage.h>
 #include <memory/MarkSweepHeap.h>
 #include <memory/MarkSweepPage.h>
+#include <memory/PauselessPage.h>
+#include <memory/PauselessHeap.h>
 
 #include "VMObjectBase.h"
 
@@ -59,14 +61,22 @@ public:
         throw "this object doesn't support GetFieldName";
     }
 
+#if GC_TYPE==PAUSELESS
+    inline virtual void MarkReferences() {
+        return;
+    }
+    virtual void CheckMarking(void (vm_oop_t)) {
+        return;
+    }
+#endif
     inline virtual void WalkObjects(walk_heap_fn, Page*) {
         return;
     }
 
     void* operator new(size_t numBytes, Page* page,
-            unsigned long additionalBytes = 0 ALLOC_OUTSIDE_NURSERY_DECL) {
+            unsigned long additionalBytes = 0 ALLOC_OUTSIDE_NURSERY_DECL ALLOC_NON_RELOCATABLE_DECL) {
         size_t total = PADDED_SIZE(numBytes + additionalBytes);
-        void* result = page->AllocateObject(total ALLOC_HINT);
+        void* result = page->AllocateObject(total ALLOC_HINT RELOC_HINT);
 
         assert(result != INVALID_VM_POINTER);
         return result;

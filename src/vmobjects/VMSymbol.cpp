@@ -131,6 +131,13 @@ StdString VMSymbol::GetPlainString() const {
     return st;
 }
 
+/*
+#if GC_TYPE==PAUSELESS
+void VMSymbol::MarkReferences() {
+    //Since we don't use the cache, nothing should be done here.
+}
+#endif */
+
 void VMSymbol::WalkObjects(walk_heap_fn walk, Page* page) {
     for (long i = 0; i < nextCachePos; i++) {
         cachedClass_invokable[i] = static_cast<GCClass*>(walk(

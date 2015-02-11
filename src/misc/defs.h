@@ -56,6 +56,7 @@
 #define GENERATIONAL 1
 #define COPYING      2
 #define MARK_SWEEP   3
+#define PAUSELESS    4
 
 // OS Memory Page Size
 #ifndef PAGE_SIZE
@@ -70,6 +71,7 @@
 
   #define write_barrier(obj, value_ptr) (GetHeap<GenerationalHeap>()->writeBarrier(obj, value_ptr))
   #define ALLOC_MATURE    , true
+  #define ALLOC_YOUNG     , false
   #define ALLOC_OUTSIDE_NURSERY(X)     , (X)
   #define ALLOC_OUTSIDE_NURSERY_DECL   , bool outsideNursery = false
   #define ALLOC_OUTSIDE_NURSERY_DECLpp , bool outsideNursery
@@ -85,15 +87,36 @@
     class   MarkSweepPage;
     typedef MarkSweepPage Page;
     typedef MarkSweepHeap HEAP_CLS;
-  #else
-    # error Unexpected GC_TYPE
   #endif
   #define write_barrier(obj, value_ptr)
   #define ALLOC_MATURE
+  #define ALLOC_YOUNG
   #define ALLOC_OUTSIDE_NURSERY(X)
   #define ALLOC_OUTSIDE_NURSERY_DECL
   #define ALLOC_OUTSIDE_NURSERY_DECLpp
   #define ALLOC_HINT
+#endif
+
+#if GC_TYPE == PAUSELESS
+  class PauselessHeap;
+  class PauselessPage;
+  typedef PauselessPage Page;
+  typedef PauselessHeap HEAP_CLS;
+  #define PAUSELESS_ONLY(args...)    args
+
+  #define ALLOC_NON_RELOCATABLE_DECL   , bool nonRelocatable = false
+  #define ALLOC_NON_RELOCATABLE_DECLpp , bool nonRelocatable
+  #define RELOC_HINT                   , nonRelocatable
+  #define ALLOC_NON_RELOCATABLE        , true
+  #define ALLOC_RELOCATABLE            , false
+#else
+  #define PAUSELESS_ONLY(args...)
+
+  #define ALLOC_NON_RELOCATABLE_DECL
+  #define ALLOC_NON_RELOCATABLE_DECLpp
+  #define RELOC_HINT
+  #define ALLOC_NON_RELOCATABLE
+  #define ALLOC_RELOCATABLE
 #endif
 
 class GCOop;

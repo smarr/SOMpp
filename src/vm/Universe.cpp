@@ -33,6 +33,11 @@
 #include "Universe.h"
 #include "Shell.h"
 
+#include <interpreter/Interpreter.h>
+
+#include <misc/debug.h>
+#include <misc/defs.h>
+
 #include <vmobjects/VMSymbol.h>
 #include <vmobjects/VMObject.h>
 #include <vmobjects/VMMethod.h>
@@ -60,8 +65,8 @@
 #include <vmobjects/VMBlock.inline.h>
 #include <vmobjects/VMMethod.inline.h>
 
-#if CACHE_INTEGER
-gc_oop_t prebuildInts[INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE + 1];
+#if CACHE_INTEGER && !USE_TAGGING
+GCInteger* prebuildInts[INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE + 1];
 #endif
 
 #define INT_HIST_SIZE 1
@@ -305,7 +310,9 @@ void Universe::printUsageAndExit(char* executable) const {
     Quit(ERR_SUCCESS);
 }
 
-Universe::Universe() {}
+Universe::Universe() {
+    pthread_key_create(&interpreterKey, nullptr);
+}
 
 VMMethod* Universe::createBootstrapMethod(VMClass* holder, long numArgsOfMsgSend, Page* page) {
     VMMethod* bootstrapMethod = NewMethod(SymbolForChars("bootstrap", page), 1, 0, page);
@@ -337,12 +344,14 @@ void Universe::initialize(long _argc, char** _argv) {
     Heap<HEAP_CLS>::InitializeHeap(pageSize, heapSize);
     Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
 
-    Interpreter* interpreter = new Interpreter(page);
+    Interpreter* interpreter = new Interpreter(page PAUSELESS_ONLY(, false, true));
     registerInterpreter(interpreter);
     page->SetInterpreter(interpreter);
+
+    pthread_setspecific(this->interpreterKey, interpreter);
     
 
-#if CACHE_INTEGER
+#if CACHE_INTEGER && !USE_TAGGING
 # warning is _store_ptr sufficient/correct here?
     // create prebuilt integers
     for (long it = INT_CACHE_MIN_VALUE; it <= INT_CACHE_MAX_VALUE; ++it) {
@@ -379,6 +388,8 @@ void Universe::initialize(long _argc, char** _argv) {
     // reset "-d" indicator
     if (!(trace > 0))
         dumpBytecodes = 2 - trace;
+    
+    PAUSELESS_ONLY(GetHeap<HEAP_CLS>()->Start());
 
     interpreter->Start();
 
@@ -386,16 +397,20 @@ void Universe::initialize(long _argc, char** _argv) {
 }
 
 void Universe::startInterpreterInThread(VMThread* thread, VMBlock* block,
-                                        vm_oop_t arguments) {
+                                        vm_oop_t arguments
+                                        PAUSELESS_ONLY(, bool expectedNMT, bool gcTrapEnabled)) {
     auto tId = this_thread::get_id();
     VMThread::RegisterThread(tId, thread);
     
     // Note: since this is a long running method, most pointers in here are
     //       not GC safe!
 
+#warning this should get all the necessary info, also with regard to the pauseless GC, to initialize the interpreter's flags, (if it has any global state)
     Page* page = GetHeap<HEAP_CLS>()->RegisterThread();
 
-    Interpreter* interp = new Interpreter(page);
+    Interpreter* interp = new Interpreter(page PAUSELESS_ONLY(, expectedNMT, gcTrapEnabled));
+    pthread_setspecific(this->interpreterKey, interp);
+
     registerInterpreter(interp);
     page->SetInterpreter(interp);
     interp->SetPage(page);
@@ -430,7 +445,7 @@ Universe::~Universe() {
 //    if (interpreter)
 //        delete (interpreter);
 
-    // check done inside
+    pthread_key_delete(interpreterKey);
     Heap<HEAP_CLS>::DestroyHeap();
 }
 
@@ -576,7 +591,7 @@ VMObject* Universe::InitializeGlobals(Page* page) {
     //
     //allocate nil object
     //
-    VMObject* nil = new (page) VMObject;
+    VMObject* nil = new (page, 0 ALLOC_MATURE ALLOC_NON_RELOCATABLE) VMObject;
     nilObject = _store_ptr(nil);
     nil->SetClass((VMClass*) nil);
 
@@ -597,7 +612,7 @@ VMObject* Universe::InitializeGlobals(Page* page) {
     mutexClass      = _store_ptr(NewSystemClass(page));
     threadClass     = _store_ptr(NewSystemClass(page));
 
-    nil->SetClass(load_ptr(nilClass));
+    load_ptr(nilObject)->SetClass(load_ptr(nilClass));
 
     InitializeSystemClass(load_ptr(objectClass),                  nullptr, "Object",    page);
     InitializeSystemClass(load_ptr(classClass),     load_ptr(objectClass), "Class",     page);
@@ -616,7 +631,7 @@ VMObject* Universe::InitializeGlobals(Page* page) {
     InitializeSystemClass(load_ptr(threadClass),    load_ptr(objectClass), "Thread",    page);
 
     // Fix up objectClass
-    load_ptr(objectClass)->SetSuperClass((VMClass*) nil);
+    load_ptr(objectClass)->SetSuperClass((VMClass*) load_ptr(nilObject));
 
     obtain_vtables_of_known_classes(nil->GetClass()->GetName(), page);
 
@@ -694,7 +709,7 @@ VMClass* Universe::GetBlockClassWithArgs(long numberOfArguments, Page* page) {
     VMSymbol* name = SymbolFor(Str.str(), page);
     VMClass* result = LoadClassBasic(name, nullptr, page);
 
-    result->AddInstancePrimitive(new (page) VMEvaluationPrimitive(numberOfArguments, page), page);
+    result->AddInstancePrimitive(new (page, 0 ALLOC_MATURE ALLOC_NON_RELOCATABLE) VMEvaluationPrimitive(numberOfArguments, page), page);
 
     SetGlobal(name, result);
 # warning is _store_ptr sufficient here?
@@ -708,6 +723,14 @@ vm_oop_t Universe::GetGlobal(VMSymbol* name) {
 
     # warning is _store_ptr correct here? it relies on _store_ptr not to be really changed...
     auto it = globals.find(_store_ptr(name));
+    if (GC_TYPE == PAUSELESS) {
+        // for the PAUSELESS GC, we also try with a reference with the NMT bit flipped, just
+        # warning I really don't like this approach, what was the problem with having the references without ever being marked?
+        if (it == globals.end()) {
+            it = globals.find(Flip((GCSymbol*) name));
+        }
+    }
+    
     if (it == globals.end()) {
         return nullptr;
     } else {
@@ -720,6 +743,13 @@ bool Universe::HasGlobal(VMSymbol* name) {
     
     # warning is _store_ptr correct here? it relies on _store_ptr not to be really changed...
     auto it = globals.find(_store_ptr(name));
+    
+    if (GC_TYPE == PAUSELESS) {
+        if (it == globals.end()) {
+            it = globals.find(Flip((GCSymbol*) name));
+        }
+    }
+    
     if (it == globals.end()) {
         return false;
     } else {
@@ -835,7 +865,7 @@ VMArray* Universe::NewArray(long size, Page* page) const {
     outsideNursery = additionalBytes + sizeof(VMArray) > page->GetMaxObjectSize();
 #endif
 
-    VMArray* result = new (page, additionalBytes ALLOC_OUTSIDE_NURSERY(outsideNursery)) VMArray(size);
+    VMArray* result = new (page, additionalBytes ALLOC_OUTSIDE_NURSERY(outsideNursery) ALLOC_RELOCATABLE) VMArray(size);
     if ((GC_TYPE == GENERATIONAL) && outsideNursery)
         result->SetGCField(MASK_OBJECT_IS_OLD);
 
@@ -895,8 +925,7 @@ VMClass* Universe::NewClass(VMClass* classOfClass, Page* page) const {
     long numFields = classOfClass->GetNumberOfInstanceFields();
     VMClass* result;
     long additionalBytes = numFields * sizeof(VMObject*);
-    if (numFields) result = new (page, additionalBytes) VMClass(numFields);
-    else result = new (page) VMClass;
+    result = new (page, additionalBytes ALLOC_MATURE ALLOC_NON_RELOCATABLE) VMClass(numFields);
 
     result->SetClass(classOfClass);
 
@@ -953,10 +982,10 @@ VMInteger* Universe::NewInteger(int64_t value, Page* page) const {
     integerHist[value/INT_HIST_SIZE] = integerHist[value/INT_HIST_SIZE]+1;
 #endif
 
-#if CACHE_INTEGER
+#if CACHE_INTEGER && !USE_TAGGING
     size_t index = (size_t)value - (size_t)INT_CACHE_MIN_VALUE;
     if (index < (size_t)(INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE)) {
-        return static_cast<VMInteger*>(load_ptr(prebuildInts[index]));
+        return load_ptr(prebuildInts[index]);
     }
 #endif
 
@@ -965,8 +994,8 @@ VMInteger* Universe::NewInteger(int64_t value, Page* page) const {
 }
 
 VMClass* Universe::NewMetaclassClass(Page* page) const {
-    VMClass* result = new (page) VMClass;
-    result->SetClass(new (page) VMClass);
+    VMClass* result = new (page, 0 ALLOC_MATURE ALLOC_NON_RELOCATABLE) VMClass;
+    result->SetClass( new (page, 0 ALLOC_MATURE ALLOC_NON_RELOCATABLE) VMClass);
 
     VMClass* mclass = result->GetClass();
     mclass->SetClass(result);
@@ -975,6 +1004,148 @@ VMClass* Universe::NewMetaclassClass(Page* page) const {
     return result;
 }
 
+#if GC_TYPE==PAUSELESS
+void Universe::MarkGlobals() {
+    ReadBarrierForGCThread(&nilObject, true);
+    ReadBarrierForGCThread(&trueObject, true);
+    ReadBarrierForGCThread(&falseObject, true);
+    
+    ReadBarrierForGCThread(&objectClass, true);
+    ReadBarrierForGCThread(&classClass, true);
+    ReadBarrierForGCThread(&metaClassClass, true);
+    
+    ReadBarrierForGCThread(&nilClass, true);
+    ReadBarrierForGCThread(&integerClass, true);
+    ReadBarrierForGCThread(&arrayClass, true);
+    ReadBarrierForGCThread(&methodClass, true);
+    ReadBarrierForGCThread(&symbolClass, true);
+    ReadBarrierForGCThread(&primitiveClass, true);
+    ReadBarrierForGCThread(&stringClass, true);
+    ReadBarrierForGCThread(&systemClass, true);
+    ReadBarrierForGCThread(&blockClass, true);
+    ReadBarrierForGCThread(&doubleClass, true);
+    
+    ReadBarrierForGCThread(&conditionClass, true);
+    ReadBarrierForGCThread(&threadClass, true);
+    ReadBarrierForGCThread(&mutexClass, true);
+    
+    ReadBarrierForGCThread(&trueClass, true);
+    ReadBarrierForGCThread(&falseClass, true);
+    
+    
+    lock_guard<recursive_mutex> lock(globalsAndSymbols_mutex);
+    
+    // walk all entries in globals map
+    map<GCSymbol*, gc_oop_t> globs;
+    map<GCSymbol*, gc_oop_t>::iterator iter;
+    for (iter = globals.begin(); iter != globals.end(); iter++) {
+        vm_oop_t val = ReadBarrierForGCThread(&iter->second, true);
+        if (val == nullptr)
+            continue;
+        GCSymbol* key = iter->first;
+        //GetUniverse()->ErrorPrint("GLOB OLD: " << iter->first);
+        //globs[key] = WriteBarrierForGCThread(val);
+        
+        GCSymbol* new_ptr = WriteBarrierForGCThread(ReadBarrierForGCThread(&key,true));
+        globs[new_ptr] = WriteBarrierForGCThread(val);
+        
+        //GetUniverse()->ErrorPrint("GLOB NEW: " << new_ptr);
+    }
+    globals = globs;
+    
+    //cout << "Mark symbol map" << endl;
+    // walk all entries in symbols map
+    map<StdString, GCSymbol*>::iterator symbolIter;
+    for (symbolIter = symbolsMap.begin();
+         symbolIter != symbolsMap.end();
+         symbolIter++) {
+        //insert overwrites old entries inside the internal map
+        symbolIter->second = WriteBarrierForGCThread(ReadBarrierForGCThread(&symbolIter->second, true));
+    }
+    //cout << "Mark block classes" << endl;
+    map<long, GCClass*>::iterator bcIter;
+    for (bcIter = blockClassesByNoOfArgs.begin();
+         bcIter != blockClassesByNoOfArgs.end();
+         bcIter++) {
+        bcIter->second = WriteBarrierForGCThread(ReadBarrierForGCThread(&bcIter->second, true));
+    }
+    
+    //reassign ifTrue ifFalse Symbols
+    symbolIfTrue  = symbolsMap["ifTrue:"];
+    symbolIfFalse = symbolsMap["ifFalse:"];
+
+/*
+    map<string, GCSymbol*>::iterator it = symbolsMap.find("true");
+    //VMSymbol* trueSym = (VMSymbol*) ReadBarrierForGCThread(&it->second);
+    VMSymbol* trueSym = Untag(it->second);
+    
+    
+    GCAbstractObject* raw_glob = globals[(GCSymbol*) trueSym];  // Cast is Performance HACK to avoid barrier!!!
+    if (raw_glob == nullptr)
+        raw_glob = globals[(GCSymbol*) Flip(trueSym)];
+    
+    //VMObject* glob_ptr_val = ReadBarrierForGCThread(&raw_glob);
+    VMObject* glob_ptr_val = Untag(raw_glob);
+
+    assert(glob_ptr_val == Untag(trueObject));
+*/
+}
+
+void  Universe::CheckMarkingGlobals(void (*walk)(vm_oop_t)) {
+    walk(Untag(nilObject));
+    walk(Untag(trueObject));
+    walk(Untag(falseObject));
+
+    walk(Untag(objectClass));
+    walk(Untag(classClass));
+    walk(Untag(metaClassClass));
+    
+    walk(Untag(nilClass));
+    walk(Untag(integerClass));
+    walk(Untag(arrayClass));
+    walk(Untag(methodClass));
+    walk(Untag(symbolClass));
+    walk(Untag(primitiveClass));
+    walk(Untag(stringClass));
+    walk(Untag(systemClass));
+    walk(Untag(blockClass));
+    walk(Untag(doubleClass));
+    
+    walk(Untag(conditionClass));
+    walk(Untag(threadClass));
+    walk(Untag(mutexClass));
+    
+    walk(Untag(trueClass));
+    walk(Untag(falseClass));
+    
+    lock_guard<recursive_mutex> lock(globalsAndSymbols_mutex);
+    
+    // walk all entries in globals map
+    map<GCSymbol*, gc_oop_t>::iterator iter;
+    for (iter = globals.begin(); iter != globals.end(); iter++) {
+        if (iter->second == nullptr)
+            continue;
+        walk(Untag(iter->first));
+        walk(Untag(iter->second));
+    }
+    
+    // walk all entries in symbols map
+    map<StdString, GCSymbol*>::iterator symbolIter;
+    for (symbolIter = symbolsMap.begin();
+         symbolIter != symbolsMap.end();
+         symbolIter++) {
+        //insert overwrites old entries inside the internal map
+        walk(Untag(symbolIter->second));
+    }
+    
+    map<long, GCClass*>::iterator bcIter;
+    for (bcIter = blockClassesByNoOfArgs.begin();
+         bcIter != blockClassesByNoOfArgs.end();
+         bcIter++) {
+        walk(Untag(bcIter->second));
+    }
+}
+#endif
 void Universe::WalkGlobals(walk_heap_fn walk, Page* page) {
     nilObject   = static_cast<GCObject*>(walk(nilObject,    page));
     trueObject  = static_cast<GCObject*>(walk(trueObject,   page));
@@ -1008,12 +1179,9 @@ void Universe::WalkGlobals(walk_heap_fn walk, Page* page) {
     falseClass = static_cast<GCClass*>(walk(falseClass, page));
 
 #if CACHE_INTEGER
-    for (unsigned long i = 0; i < (INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE); i++)
-#if USE_TAGGING
-        prebuildInts[i] = TAG_INTEGER(INT_CACHE_MIN_VALUE + i, page);
-#else
-        prebuildInts[i] = walk(prebuildInts[i], page);
-#endif
+    for (unsigned long i = 0; i < (INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE); i++) {
+        prebuildInts[i] = static_cast<GCInteger*>(walk(prebuildInts[i], page));
+    }
 #endif
 
     // walk all entries in globals map
@@ -1059,7 +1227,7 @@ VMMethod* Universe::NewMethod(VMSymbol* signature,
     //Method needs space for the bytecodes and the pointers to the constants
     long additionalBytes = numberOfBytecodes + numberOfConstants*sizeof(VMObject*);
 
-    VMMethod* result = new (page, additionalBytes)
+    VMMethod* result = new (page, additionalBytes ALLOC_MATURE ALLOC_NON_RELOCATABLE)
                 VMMethod(numberOfBytecodes, numberOfConstants, 0, page);
     result->SetClass(load_ptr(methodClass));
     result->SetSignature(signature, page);
@@ -1086,7 +1254,7 @@ VMSymbol* Universe::NewSymbol(const StdString& str, Page* page) {
 VMSymbol* Universe::NewSymbol(const char* str, Page* page) {
     lock_guard<recursive_mutex> lock(globalsAndSymbols_mutex);
 
-    VMSymbol* result = new (page, PADDED_SIZE(strlen(str)+1)) VMSymbol(str);
+    VMSymbol* result = new (page, PADDED_SIZE(strlen(str)+1) ALLOC_MATURE ALLOC_NON_RELOCATABLE) VMSymbol(str);
 # warning is _store_ptr sufficient here?
     symbolsMap[str] = _store_ptr(result);
 
@@ -1095,8 +1263,8 @@ VMSymbol* Universe::NewSymbol(const char* str, Page* page) {
 }
 
 VMClass* Universe::NewSystemClass(Page* page) const {
-    VMClass* systemClass = new (page) VMClass();
-    systemClass->SetClass( new (page) VMClass());
+    VMClass* systemClass = new (page, 0 ALLOC_MATURE ALLOC_NON_RELOCATABLE) VMClass();
+    systemClass->SetClass( new (page, 0 ALLOC_MATURE ALLOC_NON_RELOCATABLE) VMClass());
 
     VMClass* mclass = systemClass->GetClass();
 
@@ -1128,7 +1296,8 @@ VMThread* Universe::NewThread(VMBlock* block, vm_oop_t arguments, Interpreter* i
 
     SafePoint::RegisterMutator();
     thread* thread = new std::thread(&Universe::startInterpreterInThread,
-                                     this, threadObj, block, arguments);
+                                     this, threadObj, block, arguments
+                                     PAUSELESS_ONLY(, interp->GetExpectedNMT(), interp->GCTrapEnabled()));
     threadObj->SetThread(thread);
 
     LOG_ALLOCATION("VMThread", sizeof(VMThread));
@@ -1167,11 +1336,21 @@ void Universe::unregisterInterpreter(Interpreter* interp) {
     assert(cnt == 1);
 }
 
+#if GC_TYPE==PAUSELESS
+unique_ptr<vector<Interpreter*>> Universe::GetInterpretersCopy() {
+#warning Don't think we want this approach here
+    lock_guard<mutex> lock(interpreters_mutex);
+
+    unique_ptr<vector<Interpreter*>> copy(new vector<Interpreter*>(interpreters.begin(),interpreters.end()));
+    return copy;
+}
+#endif
+
 // FOR DEBUGGING PURPOSES
 void Universe::PrintGlobals() {
     for (auto assoc : globals) {
         GetUniverse()->ErrorPrint("[GLOBALS] symbol: " +
-            load_ptr(assoc.first)->GetStdString() + " ptr: " +
+            Untag(assoc.first)->GetStdString() + " ptr: " +
             to_string((intptr_t)assoc.first) + " value ptr: " +
             to_string((intptr_t)assoc.second));
     }

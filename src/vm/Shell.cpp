@@ -27,8 +27,8 @@
 #include <sstream>
 
 #include "Universe.h"
+#include <interpreter/Interpreter.h>
 #include "Shell.h"
-
 #include <interpreter/Interpreter.inline.h>
 
 #include <vmobjects/VMMethod.h>

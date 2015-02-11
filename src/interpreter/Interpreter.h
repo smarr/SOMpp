@@ -27,32 +27,59 @@
  */
 
 #include <misc/defs.h>
+#include <misc/SpinLock.h>
 #include <vmobjects/ObjectFormats.h>
+#include <memory/BaseThread.h>
 
+class VMSymbol;
 
-class Interpreter {
+class Interpreter : public BaseThread {
 public:
-    Interpreter(Page*);
+    Interpreter(Page* PAUSELESS_ONLY(, bool, bool));
     
     void      Start();
     VMFrame*  PushNewFrame(VMMethod* method);
     void      SetFrame(VMFrame* frame);
-    inline VMFrame* GetFrame() const;
+    inline VMFrame* GetFrame();
+    
+#if GC_TYPE==PAUSELESS
+    virtual void AddGCWork(AbstractVMObject*);
+    void         EnableBlocked();
+    void         DisableBlocked();
+    void         TriggerMarkRootSet();
+    void         MarkRootSet();
+    void         MarkRootSetByGC();
+    void         ResetAlreadyMarked();
+    void         RequestSafePoint();
+    void         DisableGCTrap();
+    void         SignalEnableGCTrap();
+    void         EnableGCTrap();
+    bool         GCTrapEnabled();
+    FORCE_INLINE bool         GetExpectedNMT() { return expectedNMT; }
+
+    void         AddFullPage(Page*);
+    
+    Page*        GetNonRelocatablePage();
+    void         SetNonRelocatablePage(Page*);
+
+    
+    void         EnableStop();
+    
+    bool         TriggerGCTrap(Page*);
+    
+    // for debugging purposes
+    void         CheckMarking(void (vm_oop_t));
+#endif
     void      WalkGlobals(walk_heap_fn, Page*);
     
-    Page*     GetPage() const { return page; }
-    void      SetPage(Page* p) { page = p; }
-    
 private:
-    vm_oop_t GetSelf() const;
-    
-    VMFrame* frame;
-    
-    Page* page;
+    vm_oop_t  GetSelf();
+
+    GCFrame* frame;
     
     // The following three variables are used to cache main parts of the
     // current execution context
-    VMMethod* method;
+    VMMethod* method; // relies on method objects not being relocated in pauseless GC
     long      bytecodeIndexGlobal;
     uint8_t*  currentBytecodes;
 
@@ -82,4 +109,21 @@ private:
     void doJumpIfFalse(long bytecodeIndex);
     void doJumpIfTrue(long bytecodeIndex);
     void doJump(long bytecodeIndex);
+
+#if GC_TYPE==PAUSELESS
+    bool stopped;
+    bool blocked;
+
+    bool markRootSet;
+    bool safePointRequested;
+    bool signalEnableGCTrap;
+    bool gcTrapEnabled;
+
+    vector<Page*> fullPages;
+
+    pthread_mutex_t blockedMutex;
+
+    SpinLock prevent;
+#endif
+
 };

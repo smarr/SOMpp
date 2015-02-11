@@ -38,12 +38,17 @@
 
 #include <vmobjects/ObjectFormats.h>
 
-#include <interpreter/Interpreter.h>
+#include <memory/PagedHeap.h>
+#include <memory/Worklist.h>
+#include <memory/BaseThread.h>
 
-#include <memory/Heap.h>
-
+class Interpreter;
 
 class SourcecodeCompiler;
+
+
+//Convenience macro to get access to an interpreters memory page
+#define _PAGE GetUniverse()->GetInterpreter()->GetPage()
 
 // for runtime debug
 extern short dumpBytecodes;
@@ -87,7 +92,23 @@ public:
     static void Start(long argc, char** argv);
     [[noreturn]] static void Quit(long);
     [[noreturn]] static void ErrorExit(StdString);
+
+# warning TODO: remove, do that in the universe walk globals and related methods
+    //Globals accessor (only for GC, could be considered be
+    //declared as a private friend method for the GC)
+    map<GCSymbol*, gc_oop_t> GetGlobals() {
+        return globals;
+    }
     
+    FORCE_INLINE Interpreter* GetInterpreter() { return (Interpreter*)pthread_getspecific(interpreterKey); }
+    Interpreter* NewInterpreter();
+    
+#if GC_TYPE==PAUSELESS
+    unique_ptr<vector<Interpreter*>> GetInterpretersCopy();
+#endif
+    unordered_set<Interpreter*>* GetInterpreters() { return &interpreters; }
+
+
     void Assert(bool) const;
 
     VMSymbol* SymbolFor(const StdString&, Page*);
@@ -117,6 +138,10 @@ public:
     VMMutex*     NewMutex(Page* page) const;
     VMThread*    NewThread(VMBlock*, vm_oop_t arguments, Interpreter*);
 
+#if GC_TYPE==PAUSELESS
+    void MarkGlobals();
+    void  CheckMarkingGlobals(void (vm_oop_t));
+#endif
     void WalkGlobals(walk_heap_fn, Page*);
 
     void InitializeSystemClass(VMClass*, VMClass*, const char*, Page*);
@@ -132,11 +157,13 @@ public:
     void LoadSystemClass(VMClass*, Page*);
     VMClass* LoadClassBasic(VMSymbol*, VMClass*, Page*);
     VMClass* LoadShellClass(StdString&, Page*);
-    
-    unordered_set<Interpreter*>* GetInterpreters() { return &interpreters; }
 
     Universe();
     ~Universe();
+    
+    void RegisterGCThreadInThreadLocal(BaseThread* thread) {
+        pthread_setspecific(interpreterKey, thread);
+    }
 
 #ifdef LOG_RECEIVER_TYPES
     struct stat_data {
@@ -155,11 +182,14 @@ public:
     void PrintGlobals();
     
 private:
+    pthread_key_t interpreterKey;
+    
     vector<StdString> handleArguments(long argc, char** argv);
     long getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;
 
     VMMethod* createBootstrapMethod(VMClass* holder, long numArgsOfMsgSend, Page*);
-    void startInterpreterInThread(VMThread* thread, VMBlock* block, vm_oop_t arguments);
+    void startInterpreterInThread(VMThread* thread, VMBlock* block, vm_oop_t arguments
+                                  PAUSELESS_ONLY(, bool expectedNMT, bool gcTrapEnabled));
     
     void registerInterpreter(Interpreter*);
     void unregisterInterpreter(Interpreter*);
@@ -177,6 +207,7 @@ private:
         return !(val == 0) && !(val & (val - 1));
     }
 
+    PagedHeap* heap;
     size_t heapSize;
     size_t pageSize;
 

@@ -31,12 +31,16 @@
 #include <misc/defs.h>
 
 #include <vmobjects/VMObject.h>
+#include <vmobjects/VMArray.h>
+#include <vmobjects/VMSymbol.h>
 
 #if defined(_MSC_VER)   //Visual Studio
 #include <windows.h> 
 #include <primitives/Core.h>
 #endif
 
+class VMPrimitive;
+class VMInvokable;
 
 class VMClass: public VMObject {
 public:
@@ -82,9 +86,6 @@ private:
 
     static const size_t VMClassNumberOfGcPtrFields;
 };
-
-#include "VMSymbol.h"
-#include "VMArray.h"
 
 VMClass* VMClass::GetSuperClass() {
     return load_ptr(superClass);

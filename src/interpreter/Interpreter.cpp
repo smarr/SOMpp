@@ -24,6 +24,7 @@
  THE SOFTWARE.
  */
 
+#include <misc/debug.h>
 #include "Interpreter.h"
 #include "Interpreter.inline.h"
 #include "bytecodes.h"
@@ -41,6 +42,7 @@
 #include <vmobjects/IntegerBox.h>
 
 #include <compiler/Disassembler.h>
+#include <vmobjects/VMBlock.inline.h>
 #include <vmobjects/VMMethod.inline.h>
 
 const StdString Interpreter::unknownGlobal     = "unknownGlobal:";
@@ -48,7 +50,23 @@ const StdString Interpreter::doesNotUnderstand = "doesNotUnderstand:arguments:";
 const StdString Interpreter::escapedBlock      = "escapedBlock:";
 
 
-Interpreter::Interpreter(Page* page) : frame(nullptr), page(page) {}
+#if GC_TYPE==PAUSELESS
+Interpreter::Interpreter(Page* page, bool expectedNMT, bool gcTrapEnabled) : BaseThread(page, expectedNMT) {
+    frame = nullptr;
+
+    stopped = false;
+    blocked = false;
+    markRootSet = false;
+    safePointRequested = false;
+    signalEnableGCTrap = false;
+    this->gcTrapEnabled = gcTrapEnabled;
+    pthread_mutex_init(&blockedMutex, nullptr);
+}
+#else
+Interpreter::Interpreter(Page* page) : BaseThread(page) {
+    frame = nullptr;
+}
+#endif
 
 #define PROLOGUE(bc_count) {\
   if (dumpBytecodes > 1) Disassembler::DumpBytecode(GetFrame(), GetFrame()->GetMethod(), bytecodeIndexGlobal);\
@@ -59,12 +77,30 @@ Interpreter::Interpreter(Page* page) : frame(nullptr), page(page) {}
   goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]]; \
 }
 
+#if GC_TYPE==PAUSELESS
+#define DISPATCH_GC() {\
+    if (markRootSet)\
+        MarkRootSet();\
+    if (safePointRequested)\
+        GetHeap<HEAP_CLS>()->SignalSafepointReached(&safePointRequested);\
+    if (signalEnableGCTrap)\
+        EnableGCTrap();\
+    if (GetHeap<HEAP_CLS>()->IsPauseTriggered()) { \
+        GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal); \
+        GetHeap<HEAP_CLS>()->Pause(); \
+        method = GetFrame()->GetMethod(); \
+        currentBytecodes = method->GetBytecodes(); \
+    } \
+    goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];\
+}
+#else
 #define DISPATCH_GC() {\
   if (GetHeap<HEAP_CLS>()->isCollectionTriggered()) {\
     GetHeap<HEAP_CLS>()->FullGC();\
   }\
   goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];\
 }
+#endif
 
 void Interpreter::Start() {
     // initialization
@@ -99,6 +135,7 @@ void Interpreter::Start() {
     // THIS IS THE former interpretation loop
     LABEL_BC_HALT:
       PROLOGUE(1);
+      PAUSELESS_ONLY(EnableStop());
       return; // handle the halt bytecode
 
     LABEL_BC_DUP:
@@ -199,10 +236,10 @@ VMFrame* Interpreter::PushNewFrame(VMMethod* method) {
 
 void Interpreter::SetFrame(VMFrame* frame) {
     if (this->frame != nullptr) {
-        this->frame->SetBytecodeIndex(bytecodeIndexGlobal);
+        load_ptr(this->frame)->SetBytecodeIndex(bytecodeIndexGlobal);
     }
 
-    this->frame = frame;
+    this->frame = _store_ptr(frame);
 
     // update cached values
     method              = frame->GetMethod();
@@ -210,7 +247,7 @@ void Interpreter::SetFrame(VMFrame* frame) {
     currentBytecodes    = method->GetBytecodes();
 }
 
-vm_oop_t Interpreter::GetSelf() const {
+vm_oop_t Interpreter::GetSelf() {
     VMFrame* context = GetFrame()->GetOuterContext();
     return context->GetArgument(0, 0);
 }
@@ -533,13 +570,184 @@ void Interpreter::doJump(long bytecodeIndex) {
     bytecodeIndexGlobal = target;
 }
 
+#if GC_TYPE==PAUSELESS
+// Request a marking of the interpreters' root set
+void Interpreter::TriggerMarkRootSet() {
+    pthread_mutex_lock(&blockedMutex);
+    if (blocked)
+        GetHeap<HEAP_CLS>()->SignalInterpreterBlocked(this);
+    else if (stopped)
+        GetHeap<HEAP_CLS>()->SignalRootSetMarked();
+    else
+        markRootSet = true;
+    pthread_mutex_unlock(&blockedMutex);
+}
+
+// The interpreter is able to mark its root set himself
+void Interpreter::MarkRootSet() {
+    markRootSet = false;
+    expectedNMT = !expectedNMT;
+    worklist.Clear();
+    
+    // this will also destructively change the frame and method pointers so that the NMT bit is flipped
+    ReadBarrier(&frame, true);
+    // ReadBarrier(&method);
+    
+    while (!fullPages.empty()) {
+#warning TODO: see what's going on here, are we sure that the GC has only access to full pages?
+
+        GetHeap<HEAP_CLS>()->RelinquishPage(fullPages.back());
+        fullPages.pop_back();
+    }
+    
+    // signal that root-set has been marked
+    GetHeap<HEAP_CLS>()->SignalRootSetMarked();
+    
+    //GetHeap<HEAP_CLS>()->TriggerPause();
+    //GetHeap<HEAP_CLS>()->Pause();
+}
+
+// The interpreter is unable to mark its root set himself and thus one of the gc threads does it
+void Interpreter::MarkRootSetByGC() {
+    markRootSet = false;
+    expectedNMT = !expectedNMT;
+    worklist.Clear();
+    
+    // this will also destructively change the frame and method pointers so that the NMT bit is flipped
+    ReadBarrierForGCThread(&frame, true);
+    // ReadBarrierForGCThread(&method);
+    
+    while (!fullPages.empty()) {
+        //fullPages.back().ResetAmountOfLiveData();
+        GetHeap<HEAP_CLS>()->RelinquishPage(fullPages.back());
+        fullPages.pop_back();
+    }
+    
+    // signal that root-set has been marked
+    GetHeap<HEAP_CLS>()->SignalRootSetMarked();
+    
+    //GetHeap<HEAP_CLS>()->TriggerPause();
+    //GetHeap<HEAP_CLS>()->PauseGC();
+}
+
+// Request that the mutator thread passes a safepoint so that marking can finish
+void Interpreter::RequestSafePoint() {
+    // if test to prevent deadlocking in case safePointRequesting was still true and the mutator thread is performing an enableBlocked
+    if (!safePointRequested) {
+        pthread_mutex_lock(&blockedMutex);
+        if (blocked || stopped)
+            GetHeap<HEAP_CLS>()->SignalSafepointReached(&safePointRequested);
+        else
+            safePointRequested = true;
+        pthread_mutex_unlock(&blockedMutex);
+    }
+}
+
+// Request that the mutator thread enables its GC-trap
+void Interpreter::SignalEnableGCTrap() {
+    pthread_mutex_lock(&blockedMutex);
+    if (blocked || stopped) {
+        gcTrapEnabled = true;
+        GetHeap<HEAP_CLS>()->SignalGCTrapEnabled();
+    } else
+        signalEnableGCTrap = true;
+    pthread_mutex_unlock(&blockedMutex);
+}
+
+// Switch the GC-trap on when in a safepoint and notify the collector of the fact that the trap is switched on
+void Interpreter::EnableGCTrap() {
+    signalEnableGCTrap = false;
+    gcTrapEnabled = true;
+    GetHeap<HEAP_CLS>()->SignalGCTrapEnabled();
+}
+
+// Switch the GC-trap off again, this does not require a safepoint pass
+void Interpreter::DisableGCTrap() {
+    prevent.lock();
+    gcTrapEnabled = false;
+    prevent.unlock();
+}
+
+// used when interpreter is in the process of going into a blocked state
+void Interpreter::EnableBlocked() {
+    pthread_mutex_lock(&blockedMutex);
+    if (markRootSet)
+        MarkRootSet();
+    if (safePointRequested)
+        GetHeap<HEAP_CLS>()->SignalSafepointReached(&safePointRequested);
+    if (signalEnableGCTrap)
+        EnableGCTrap();
+    blocked = true;
+    pthread_mutex_unlock(&blockedMutex);
+}
+
+// Used when interpreter gets out of a blocked state
+void Interpreter::DisableBlocked() {
+    blocked = false;
+}
+
+// used when interpreter is in the processes of halting
+void Interpreter::EnableStop() {
+    pthread_mutex_lock(&blockedMutex);
+    if (markRootSet)
+        GetHeap<HEAP_CLS>()->SignalRootSetMarked();
+    if (safePointRequested)
+        GetHeap<HEAP_CLS>()->SignalSafepointReached(&safePointRequested);
+    if (signalEnableGCTrap)
+        GetHeap<HEAP_CLS>()->SignalGCTrapEnabled();
+    stopped = true;
+    pthread_mutex_unlock(&blockedMutex);
+}
+
+// methods used by the read barrier
+void Interpreter::AddGCWork(AbstractVMObject* work) {
+    worklist.AddWorkMutator(work);
+}
+
+bool Interpreter::GCTrapEnabled() {
+    return gcTrapEnabled;
+}
+
+//new --->
+
+/// The GC trap is to make sure that a page is blocked atomically, and
+//  not observable by a mutator. The mutator are not allowed to see the
+//  blocking change within the period of two safepoints, because otherwise
+//  they could be seeing two different pointers for the same object
+
+bool Interpreter::TriggerGCTrap(Page* page) {
+    prevent.lock();
+    bool result = gcTrapEnabled && page->Blocked();
+    prevent.unlock();
+    return result;
+}
+// <-----
+
+// page management
+void Interpreter::AddFullPage(Page* page) {
+    fullPages.push_back(page);
+}
+
+// debug procedures
+void Interpreter::CheckMarking(void (*walk)(vm_oop_t)) {
+    // VMMethod* testMethodGCSet = Untag(method);
+    if (frame) {
+        //assert(GetNMTValue(frame) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
+        walk(Untag(frame));
+    }
+}
+#endif
+
 void Interpreter::WalkGlobals(walk_heap_fn walk, Page* page) {
 #warning Is the solution here with _store_ptr and load_ptr robust?
-    method = load_ptr(static_cast<GCMethod*>(walk(_store_ptr(method), page)));
+    // some barriers need a field to work on, so use a temporary
+    GCMethod* m = _store_ptr(method);
+    m = static_cast<GCMethod*>(walk(m, page));
+    method = load_ptr(m); // could have moved, for instance with generational GC
     currentBytecodes = method->GetBytecodes();
 
     // Get the current frame and mark it.
     // Since marking is done recursively, this automatically
     // marks the whole stack
-    frame  = load_ptr(static_cast<GCFrame*>(walk(_store_ptr(frame), page)));
+    frame  = static_cast<GCFrame*>(walk(frame, page));
 }

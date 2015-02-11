@@ -46,6 +46,9 @@ public:
             long      GetMaximumNumberOfStackElements();
             void      SetMaximumNumberOfStackElements(long stel, Page*);
     inline  long      GetNumberOfArguments();
+#if GC_TYPE==PAUSELESS
+    inline  long      GetNumberOfArgumentsGC();
+#endif
             void      SetNumberOfArguments(long, Page*);
             long      GetNumberOfBytecodes();
     virtual void      SetHolder(VMClass* hld);
@@ -57,6 +60,11 @@ public:
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     void SetCachedFrame(VMFrame* frame);
     VMFrame* GetCachedFrame() const;
+#endif
+
+#if GC_TYPE==PAUSELESS
+    virtual void MarkReferences();
+    virtual void CheckMarking(void (vm_oop_t));
 #endif
     virtual void WalkObjects(walk_heap_fn, Page*);
     inline  int64_t   GetNumberOfIndexableFields();

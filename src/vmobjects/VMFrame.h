@@ -27,7 +27,11 @@
  */
 
 #include "VMArray.h"
+#include "VMObject.h"
+#include "VMInteger.h"
 
+
+class VMMethod;
 class Universe;
 
 class VMFrame: public VMObject {
@@ -67,6 +71,10 @@ public:
 
     virtual void MarkObjectAsInvalid();
 
+#if GC_TYPE==PAUSELESS
+    virtual void MarkReferences();
+    virtual void CheckMarking(void (vm_oop_t));
+#endif
     virtual void WalkObjects(walk_heap_fn, Page*);
 
 

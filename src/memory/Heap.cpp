@@ -92,6 +92,11 @@ template void Heap<HEAP_CLS>::DestroyHeap();
 template void Heap<HEAP_CLS>::FullGC();
 template void Heap<HEAP_CLS>::ReportGCDetails();
 
+#if GC_TYPE != PAUSELESS
+# warning TODO: remove once the heap base classes are properly unified
+template void Heap<PauselessHeap>::DestroyHeap();
+#endif
+
 class GenerationalHeap;
 template GenerationalHeap* Heap<GenerationalHeap>::theHeap;
 template Heap<GenerationalHeap>::~Heap();
@@ -110,3 +115,8 @@ template Heap<MarkSweepHeap>::~Heap();
 template void Heap<MarkSweepHeap>::FailedAllocation(size_t);
 template void Heap<MarkSweepHeap>::ReachedMaxNumberOfPages();
 
+class PauselessHeap;
+template PauselessHeap* Heap<PauselessHeap>::theHeap;
+template Heap<PauselessHeap>::~Heap();
+template void Heap<PauselessHeap>::FailedAllocation(size_t);
+template void Heap<PauselessHeap>::ReachedMaxNumberOfPages();

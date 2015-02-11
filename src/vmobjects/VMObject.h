@@ -35,6 +35,10 @@
 #include <misc/defs.h>
 #include <vm/Universe.h>
 
+#if GC_TYPE==PAUSELESS
+#include <memory/PauselessHeap.h>
+#include <pthread.h>
+#endif
 
 // this macro returns a shifted ptr by offset bytes
 #define SHIFTED_PTR(ptr, offset) ((void*)((size_t)(ptr)+(size_t)(offset)))
@@ -78,6 +82,11 @@ public:
     virtual inline intptr_t  GetHash() { return hash; }
     
     virtual        void      MarkObjectAsInvalid();
+
+#if GC_TYPE==PAUSELESS
+    virtual        void      MarkReferences();
+    virtual        void      CheckMarking(void (vm_oop_t));
+#endif
     virtual        void      WalkObjects(walk_heap_fn, Page*);
 
     virtual        StdString AsDebugString();
@@ -91,8 +100,8 @@ public:
      *   - array size in VMArray; a_b must be set to (size_of_array*sizeof(VMObect*))
      *   - fields in VMMethod, a_b must be set to (number_of_bc + number_of_csts*sizeof(VMObject*))
      */
-    void* operator new(size_t numBytes, Page* page, unsigned long additionalBytes = 0 ALLOC_OUTSIDE_NURSERY_DECL) {
-        void* mem = AbstractVMObject::operator new(numBytes, page, additionalBytes ALLOC_HINT);
+    void* operator new(size_t numBytes, Page* page, unsigned long additionalBytes = 0 ALLOC_OUTSIDE_NURSERY_DECL ALLOC_NON_RELOCATABLE_DECL) {
+        void* mem = AbstractVMObject::operator new(numBytes, page, additionalBytes ALLOC_HINT RELOC_HINT);
 
         static_cast<VMObject*>(mem)->objectSize = PADDED_SIZE(numBytes + additionalBytes);
         return mem;

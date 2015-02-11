@@ -34,6 +34,8 @@
 
 #include <compiler/Disassembler.h>
 
+#include <interpreter/Interpreter.h>
+
 #include <vm/Universe.h>
 
 #include <vmobjects/VMMethod.inline.h>
@@ -61,7 +63,7 @@ VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength, Page* page
 
     result->bytecodeIndex = from->bytecodeIndex;
     // result->arguments is set in VMFrame constructor
-    result->locals = result->arguments + method->GetNumberOfArguments();
+    result->locals = result->arguments + result->GetMethod()->GetNumberOfArguments();
 
     // all other fields are indexable via arguments
     // --> until end of Frame
@@ -72,11 +74,13 @@ VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength, Page* page
 
     // copy all fields from other frame
     while (from->arguments + i < from_end) {
+#warning is it necessary to cycle through the barriers here?
         result->arguments[i] = from->arguments[i];
         i++;
     }
     // initialize others with nilObject
     while (result->arguments + i < result_end) {
+#warning is it necessary to cycle through the barriers here?
         result->arguments[i] = nilObject;
         i++;
     }
@@ -138,6 +142,43 @@ VMFrame* VMFrame::GetOuterContext() {
     }
     return current;
 }
+
+#if GC_TYPE==PAUSELESS
+void VMFrame::MarkReferences() {
+    ReadBarrierForGCThread(&previousFrame);
+    ReadBarrierForGCThread(&context);
+    ReadBarrierForGCThread(&method);
+    long i = 0;
+    while (arguments + i <= stack_ptr) {
+        ReadBarrierForGCThread(&arguments[i]);
+        i++;
+    }
+}
+void VMFrame::CheckMarking(void (*walk)(vm_oop_t)) {
+    if (previousFrame) {
+        assert(GetNMTValue(previousFrame) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
+        CheckBlocked(Untag(previousFrame));
+        walk(Untag(previousFrame));
+    }
+    if (context) {
+        assert(GetNMTValue(context) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
+        CheckBlocked(Untag(context));
+        walk(Untag(context));
+    }
+    assert(GetNMTValue(method) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
+    CheckBlocked(Untag(method));
+    walk(Untag(method));
+    long i = 0;
+    while (arguments + i <= stack_ptr) {
+        if (arguments[i]) {
+            assert(GetNMTValue(arguments[i]) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
+            CheckBlocked(Untag(arguments[i]));
+            walk(Untag(arguments[i]));
+        }
+        i++;
+    }
+}
+#endif
 
 void VMFrame::WalkObjects(walk_heap_fn walk, Page* page) {
     // VMFrame is not a proper SOM object any longer, we don't have a class for it.

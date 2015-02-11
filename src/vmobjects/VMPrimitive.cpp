@@ -24,17 +24,19 @@
  THE SOFTWARE.
  */
 
+#include <memory/PauselessHeap.h>
 #include "VMPrimitive.h"
 #include "VMSymbol.h"
 #include "VMClass.h"
 
+#include <interpreter/Interpreter.h>
 #include <vm/Universe.h>
 
 //needed to instanciate the Routine object for the  empty routine
 #include <primitivesCore/Routine.h>
 
 VMPrimitive* VMPrimitive::GetEmptyPrimitive(VMSymbol* sig, bool classSide, Page* page) {
-    VMPrimitive* prim = new (page) VMPrimitive(sig);
+    VMPrimitive* prim = new (page, 0 ALLOC_YOUNG ALLOC_NON_RELOCATABLE) VMPrimitive(sig);
     prim->empty = true;
     prim->SetRoutine(new Routine<VMPrimitive>(prim, &VMPrimitive::EmptyRoutine, classSide));
     return prim;

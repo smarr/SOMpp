@@ -10,12 +10,24 @@
 
 class VMObjectBase : public VMOop {
 protected:
-    VMObjectBase() : gcfield(0) {}
+    VMObjectBase() : gcfield(0) PAUSELESS_ONLY(, gcfield2(0)) {}
+    volatile size_t gcfield;
+#if GC_TYPE==PAUSELESS
+    volatile size_t gcfield2 = 0;
+    volatile int version = 0;
+#endif
     
-    intptr_t gcfield;
 public:
     inline intptr_t GetGCField() const;
     inline void SetGCField(intptr_t);
+    
+#if GC_TYPE==PAUSELESS
+    inline size_t GetGCField2() const;
+    inline void SetGCField2(size_t);
+    inline void IncreaseVersion();
+    inline int GetVersion();
+#endif
+    
 };
 
 intptr_t VMObjectBase::GetGCField() const {
@@ -33,3 +45,18 @@ void VMObjectBase::SetGCField(intptr_t val) {
 #endif
     gcfield = val;
 }
+
+#if GC_TYPE==PAUSELESS
+size_t VMObjectBase::GetGCField2() const {
+    return gcfield2;
+}
+void VMObjectBase::SetGCField2(size_t val) {
+    gcfield2 = val;
+}
+void VMObjectBase::IncreaseVersion() {
+    version++;
+}
+int VMObjectBase::GetVersion() {
+    return version;
+}
+#endif

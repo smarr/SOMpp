@@ -37,6 +37,10 @@ public:
 
     virtual StdString AsDebugString();
 
+#if GC_TYPE==PAUSELESS
+    virtual void MarkReferences();
+    virtual void CheckMarking(void (vm_oop_t));
+#endif
     virtual void WalkObjects(walk_heap_fn, Page*);
     virtual void MarkObjectAsInvalid();
 
@@ -53,6 +57,10 @@ private:
 public:
     EvaluationRoutine(VMEvaluationPrimitive* prim)
         : PrimitiveRoutine(), evalPrim(_store_ptr(prim)) {};
+#if GC_TYPE==PAUSELESS
+    void MarkReferences();
+    void CheckMarking(void (vm_oop_t));
+#endif
     void WalkObjects(walk_heap_fn, Page*);
     virtual bool isClassSide() { return false; }
     virtual void Invoke(Interpreter* interp, VMFrame* frame);

@@ -1,5 +1,6 @@
 #include "VMThread.h"
 #include "VMString.h"
+#include "VMClass.h"
 
 #include <vm/SafePoint.h>
 #include <vm/Universe.h>
@@ -37,9 +38,21 @@ void VMThread::Join() {
         // this join() needs always to be in tail position with respect to all
         // operations, before going back to the interpreter loop.
         // Specifically, we can't use any object pointers that might have moved.
+        
+        
+#if GC_TYPE==PAUSELESS
+        GetUniverse()->GetInterpreter()->EnableBlocked();
+#else
         SafePoint::AnnounceBlockingMutator();
+#endif
+
         thread->join();
+        
+#if GC_TYPE==PAUSELESS
+        GetUniverse()->GetInterpreter()->DisableBlocked();
+#else
         SafePoint::ReturnFromBlockingMutator();
+#endif
     } catch(const std::system_error& e) {
         Universe::ErrorPrint("Error when joining thread: error code " +
                              to_string(e.code().value()) + " meaning " +

@@ -43,7 +43,12 @@ public:
     virtual size_t GetObjectSize() const;
     virtual VMSymbol* Clone(Page*);
     virtual VMClass* GetClass();
-    
+
+#if GC_TYPE==PAUSELESS
+# warning TODO: add GC support for Pauseless
+    //virtual void MarkReferences();
+#endif
+
     virtual void WalkObjects(walk_heap_fn, Page*);
     virtual StdString AsDebugString();
 
@@ -53,7 +58,7 @@ private:
     long nextCachePos;
     GCInvokable* cachedInvokable[3];
     inline VMInvokable* GetCachedInvokable(const VMClass*);
-    inline void UpdateCachedInvokable(const VMClass* cls, VMInvokable* invo);
+    inline void UpdateCachedInvokable(VMClass* cls, VMInvokable* invo);
     
     friend class Signature;
     friend class VMClass;
