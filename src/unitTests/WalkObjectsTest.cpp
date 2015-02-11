@@ -82,10 +82,10 @@ void WalkObjectsTest::testWalkEvaluationPrimitive() {
     evPrim->WalkObjects(collectMembers, page);
 
     CPPUNIT_ASSERT(WalkerHasFound(evPrim->numberOfArguments));
-    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(evPrim->GetClass())));
-    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(evPrim->GetSignature())));
-    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(evPrim->GetHolder())));
-    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(evPrim)));
+    CPPUNIT_ASSERT(WalkerHasFound(to_gc_ptr(evPrim->GetClass())));
+    CPPUNIT_ASSERT(WalkerHasFound(to_gc_ptr(evPrim->GetSignature())));
+    CPPUNIT_ASSERT(WalkerHasFound(to_gc_ptr(evPrim->GetHolder())));
+    CPPUNIT_ASSERT(WalkerHasFound(to_gc_ptr(evPrim)));
     CPPUNIT_ASSERT_EQUAL(NoOfFields_EvaluationPrimitive + 1, walkedObjects.size());
 }
 
@@ -99,7 +99,7 @@ void WalkObjectsTest::testWalkObject() {
 
     //Objects should only have one member -> Class
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Object, walkedObjects.size());
-    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(obj->GetClass())));
+    CPPUNIT_ASSERT(WalkerHasFound(to_gc_ptr(obj->GetClass())));
 }
 
 void WalkObjectsTest::testWalkString() {
@@ -131,11 +131,11 @@ void WalkObjectsTest::testWalkClass() {
     meta->WalkObjects(collectMembers, page);
 
     //Now check if we found all class fields
-    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(meta->GetClass())));
-    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(meta->GetSuperClass())));
-    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(meta->GetName())));
-    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(meta->GetInstanceFields())));
-    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(meta->GetInstanceInvokables())));
+    CPPUNIT_ASSERT(WalkerHasFound(to_gc_ptr(meta->GetClass())));
+    CPPUNIT_ASSERT(WalkerHasFound(to_gc_ptr(meta->GetSuperClass())));
+    CPPUNIT_ASSERT(WalkerHasFound(to_gc_ptr(meta->GetName())));
+    CPPUNIT_ASSERT(WalkerHasFound(to_gc_ptr(meta->GetInstanceFields())));
+    CPPUNIT_ASSERT(WalkerHasFound(to_gc_ptr(meta->GetInstanceInvokables())));
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Class, walkedObjects.size());
 }
 
@@ -148,9 +148,9 @@ void WalkObjectsTest::testWalkPrimitive() {
 
     prim->WalkObjects(collectMembers, page);
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Primitive, walkedObjects.size());
-    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(prim->GetClass())));
-    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(prim->GetSignature())));
-    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(prim->GetHolder())));
+    CPPUNIT_ASSERT(WalkerHasFound(to_gc_ptr(prim->GetClass())));
+    CPPUNIT_ASSERT(WalkerHasFound(to_gc_ptr(prim->GetSignature())));
+    CPPUNIT_ASSERT(WalkerHasFound(to_gc_ptr(prim->GetHolder())));
 }
 
 void WalkObjectsTest::testWalkFrame() {
@@ -167,11 +167,11 @@ void WalkObjectsTest::testWalkFrame() {
     frame->WalkObjects(collectMembers, page);
 
     // CPPUNIT_ASSERT(WalkerHasFound(frame->GetClass()));  // VMFrame does no longer have a SOM representation
-    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(frame->GetPreviousFrame())));
-    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(frame->GetContext())));
-    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(frame->GetMethod())));
+    CPPUNIT_ASSERT(WalkerHasFound(to_gc_ptr(frame->GetPreviousFrame())));
+    CPPUNIT_ASSERT(WalkerHasFound(to_gc_ptr(frame->GetContext())));
+    CPPUNIT_ASSERT(WalkerHasFound(to_gc_ptr(frame->GetMethod())));
     //CPPUNIT_ASSERT(WalkerHasFound(frame->bytecodeIndex));
-    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(dummyArg)));
+    CPPUNIT_ASSERT(WalkerHasFound(to_gc_ptr(dummyArg)));
     CPPUNIT_ASSERT_EQUAL(
             (long) (NoOfFields_Frame + method->GetNumberOfArguments()),
             (long) walkedObjects.size() + 1);  // + 1 for the class field that's still in there
@@ -185,15 +185,15 @@ void WalkObjectsTest::testWalkMethod() {
     VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, page);
     method->WalkObjects(collectMembers, page);
 
-    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(method->GetClass())));
+    CPPUNIT_ASSERT(WalkerHasFound(to_gc_ptr(method->GetClass())));
     //the following fields had no getters -> had to become friend
     CPPUNIT_ASSERT(WalkerHasFound(method->numberOfLocals));
     CPPUNIT_ASSERT(WalkerHasFound(method->bcLength));
     CPPUNIT_ASSERT(WalkerHasFound(method->maximumNumberOfStackElements));
     CPPUNIT_ASSERT(WalkerHasFound(method->numberOfArguments));
     CPPUNIT_ASSERT(WalkerHasFound(method->numberOfConstants));
-    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(method->GetHolder())));
-    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(method->GetSignature())));
+    CPPUNIT_ASSERT(WalkerHasFound(to_gc_ptr(method->GetHolder())));
+    CPPUNIT_ASSERT(WalkerHasFound(to_gc_ptr(method->GetSignature())));
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Method, walkedObjects.size());
 }
 
@@ -208,9 +208,9 @@ void WalkObjectsTest::testWalkBlock() {
             method->GetNumberOfArguments(), page);
     block->WalkObjects(collectMembers, page);
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Block, walkedObjects.size());
-    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(block->GetClass())));
-    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(block->GetContext())));
-    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(method)));
+    CPPUNIT_ASSERT(WalkerHasFound(to_gc_ptr(block->GetClass())));
+    CPPUNIT_ASSERT(WalkerHasFound(to_gc_ptr(block->GetContext())));
+    CPPUNIT_ASSERT(WalkerHasFound(to_gc_ptr(method)));
 }
 
 void WalkObjectsTest::testWalkArray() {
@@ -225,7 +225,7 @@ void WalkObjectsTest::testWalkArray() {
     a->WalkObjects(collectMembers, page);
 
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Array + 2, walkedObjects.size());
-    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(a->GetClass())));
-    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(str1)));
-    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(int1)));
+    CPPUNIT_ASSERT(WalkerHasFound(to_gc_ptr(a->GetClass())));
+    CPPUNIT_ASSERT(WalkerHasFound(to_gc_ptr(str1)));
+    CPPUNIT_ASSERT(WalkerHasFound(to_gc_ptr(int1)));
 }
