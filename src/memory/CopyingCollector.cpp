@@ -36,8 +36,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop, Page* target) {
     obj->SetGCField(reinterpret_cast<intptr_t>(newObj));
     assert(newObj->GetGCField() == 0);
     
-#warning not sure about the use of _store_ptr here, or whether it should be a plain cast
-    return _store_ptr(newObj);
+    return to_gc_ptr(newObj);
 }
 
 static gc_oop_t objects_are_valid(gc_oop_t oop, Page*) {

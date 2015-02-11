@@ -128,7 +128,7 @@ void Shell::Start(Interpreter* interp) {
         interp->Start();
 
         // Save the result of the run method
-        it = _store_ptr(currentFrame->Pop());
+        it = to_gc_ptr(currentFrame->Pop());
     }
 }
 

@@ -143,7 +143,7 @@ class GCThread    : public GCObject      { public: typedef VMThread Loaded; };
 #if GC_TYPE == PAUSELESS
   #define load_ptr(reference) (ReadBarrier(&(reference)))
   #define  store_ptr(field, val) field = WriteBarrier(val)
-  #define _store_ptr(val)        WriteBarrier(val)
+  #define  to_gc_ptr(val)        toGcOop(val)
 #else
   template<typename T>
   inline typename T::Loaded* load_ptr(T* gc_val) {
@@ -151,9 +151,9 @@ class GCThread    : public GCObject      { public: typedef VMThread Loaded; };
   }
 
   template<typename T>
-  inline typename T::Stored* _store_ptr(T* vm_val) {
+  inline typename T::Stored* to_gc_ptr(T* vm_val) {
     return (typename T::Stored*) vm_val;
   }
 
-  #define store_ptr(field, val) field = _store_ptr(val); write_barrier(this, val)
+  #define store_ptr(field, val) field = to_gc_ptr(val); write_barrier(this, val)
 #endif

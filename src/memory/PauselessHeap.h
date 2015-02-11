@@ -101,7 +101,7 @@ FORCE_INLINE typename T::Loaded* Untag(T* reference) {
 
 #if GC_TYPE == PAUSELESS
 template<typename T>
-inline typename T::Stored* WriteBarrier(T* reference) {
+inline typename T::Stored* toGcOop(T* reference) {
     if (reference == nullptr)
         return (typename T::Stored*) nullptr;
     if (GetUniverse()->GetInterpreter()->GetExpectedNMT())
@@ -109,12 +109,6 @@ inline typename T::Stored* WriteBarrier(T* reference) {
     else
         return (typename T::Stored*) reference;
 }
-
-/*
-template<typename T>
-inline typename T::Stored* WriteBarrier(T* reference) {
-    return (typename T::Stored*) reference;
-} */
 
 template<typename T>
 inline typename T::Stored* WriteBarrierForGCThread(T* reference) {

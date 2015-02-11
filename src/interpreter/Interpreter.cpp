@@ -239,7 +239,7 @@ void Interpreter::SetFrame(VMFrame* frame) {
         load_ptr(this->frame)->SetBytecodeIndex(bytecodeIndexGlobal);
     }
 
-    this->frame = _store_ptr(frame);
+    this->frame = to_gc_ptr(frame);
 
     // update cached values
     method              = frame->GetMethod();
@@ -739,9 +739,8 @@ void Interpreter::CheckMarking(void (*walk)(vm_oop_t)) {
 #endif
 
 void Interpreter::WalkGlobals(walk_heap_fn walk, Page* page) {
-#warning Is the solution here with _store_ptr and load_ptr robust?
     // some barriers need a field to work on, so use a temporary
-    GCMethod* m = _store_ptr(method);
+    GCMethod* m = to_gc_ptr(method);
     m = static_cast<GCMethod*>(walk(m, page));
     method = load_ptr(m); // could have moved, for instance with generational GC
     currentBytecodes = method->GetBytecodes();

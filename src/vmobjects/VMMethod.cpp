@@ -50,17 +50,15 @@ VMMethod::VMMethod(size_t bcCount, size_t numberOfConstants, size_t nof, Page* p
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     cachedFrame = nullptr;
 #endif
-# warning not sure whether the use of _store_ptr is ok here
 # warning, if we use extra parts of the heap for the allocation, we probably need to trigger the generational barrier
-    bcLength                     = _store_ptr(NEW_INT(bcCount, page));
-    numberOfLocals               = _store_ptr(NEW_INT(0, page));
-    maximumNumberOfStackElements = _store_ptr(NEW_INT(0, page));
-    numberOfArguments            = _store_ptr(NEW_INT(0, page));
-    this->numberOfConstants      = _store_ptr(NEW_INT(numberOfConstants, page));
+    bcLength                     = to_gc_ptr(NEW_INT(bcCount, page));
+    numberOfLocals               = to_gc_ptr(NEW_INT(0, page));
+    maximumNumberOfStackElements = to_gc_ptr(NEW_INT(0, page));
+    numberOfArguments            = to_gc_ptr(NEW_INT(0, page));
+    this->numberOfConstants      = to_gc_ptr(NEW_INT(numberOfConstants, page));
 
     indexableFields = (gc_oop_t*)(&indexableFields + 2);  // this is just a hack to get the convenience pointer, the fields start after the two other remaining fields in VMMethod
     for (size_t i = 0; i < numberOfConstants; ++i) {
-#warning do we need to cylce through the barriers here?
         indexableFields[i] = nilObject;
     }
     bytecodes = (uint8_t*)(&indexableFields + 2 + GetNumberOfIndexableFields());

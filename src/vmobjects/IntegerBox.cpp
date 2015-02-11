@@ -6,8 +6,7 @@
 GCInteger* GlobalBox::integerBox = nullptr;
 
 void GlobalBox::updateIntegerBox(VMInteger* newValue) {
-# warning Is this acceptable use of _store_ptr??
-    integerBox = _store_ptr(newValue);
+    integerBox = to_gc_ptr(newValue);
 }
 
 VMInteger* GlobalBox::IntegerBox() {

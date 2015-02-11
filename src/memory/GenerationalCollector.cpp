@@ -80,7 +80,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop, Page* page) {
     newObj->WalkObjects(copy_if_necessary, page); // page only used to obtain heap
 
 #warning not sure about the use of _store_ptr here, or whether it should be a plain cast
-    return _store_ptr(newObj);
+    return to_gc_ptr(newObj);
 }
 
 void GenerationalCollector::MinorCollection() {

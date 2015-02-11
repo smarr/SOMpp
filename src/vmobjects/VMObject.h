@@ -110,7 +110,6 @@ public:
 protected:
     void initializeGcFields() {
         for (size_t i = 0; i < numberOfGcPtrFields; i++) {
-            #warning do we need to cylce through the barriers here?
             FIELDS[i] = nilObject;
         }
     }

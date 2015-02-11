@@ -122,8 +122,7 @@ void VMThread::RegisterThread(thread::id threadId, VMThread* thread) {
     auto thread_i = threads.find(threadId);
     assert(thread_i == threads.end()); // should not be in the map
     
-#warning this is a global data structure, so, _store_ptr should be ok
-    threads[threadId] = _store_ptr(thread);
+    threads[threadId] = to_gc_ptr(thread);
 
     // SafePoint::RegisterMutator() is already done as part of thread creation.
     // This is necessary, to make sure that we do not get a GC, before it is

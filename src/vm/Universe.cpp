@@ -352,10 +352,9 @@ void Universe::initialize(long _argc, char** _argv) {
     
 
 #if CACHE_INTEGER && !USE_TAGGING
-# warning is _store_ptr sufficient/correct here?
     // create prebuilt integers
     for (long it = INT_CACHE_MIN_VALUE; it <= INT_CACHE_MAX_VALUE; ++it) {
-        prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = _store_ptr(new (page) VMInteger(it));
+        prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = to_gc_ptr(new (page) VMInteger(it));
     }
 #endif
 
@@ -586,31 +585,29 @@ Universe::~Universe() {
 VMObject* Universe::InitializeGlobals(Page* page) {
     set_vt_to_null();
     
-# warning is _store_ptr sufficient?
-    
     //
     //allocate nil object
     //
     VMObject* nil = new (page, 0 ALLOC_MATURE ALLOC_NON_RELOCATABLE) VMObject;
-    nilObject = _store_ptr(nil);
+    nilObject = to_gc_ptr(nil);
     nil->SetClass((VMClass*) nil);
 
-    metaClassClass = _store_ptr(NewMetaclassClass(page));
+    metaClassClass = to_gc_ptr(NewMetaclassClass(page));
 
-    objectClass     = _store_ptr(NewSystemClass(page));
-    nilClass        = _store_ptr(NewSystemClass(page));
-    classClass      = _store_ptr(NewSystemClass(page));
-    arrayClass      = _store_ptr(NewSystemClass(page));
-    symbolClass     = _store_ptr(NewSystemClass(page));
-    methodClass     = _store_ptr(NewSystemClass(page));
-    integerClass    = _store_ptr(NewSystemClass(page));
-    primitiveClass  = _store_ptr(NewSystemClass(page));
-    stringClass     = _store_ptr(NewSystemClass(page));
-    doubleClass     = _store_ptr(NewSystemClass(page));
+    objectClass     = to_gc_ptr(NewSystemClass(page));
+    nilClass        = to_gc_ptr(NewSystemClass(page));
+    classClass      = to_gc_ptr(NewSystemClass(page));
+    arrayClass      = to_gc_ptr(NewSystemClass(page));
+    symbolClass     = to_gc_ptr(NewSystemClass(page));
+    methodClass     = to_gc_ptr(NewSystemClass(page));
+    integerClass    = to_gc_ptr(NewSystemClass(page));
+    primitiveClass  = to_gc_ptr(NewSystemClass(page));
+    stringClass     = to_gc_ptr(NewSystemClass(page));
+    doubleClass     = to_gc_ptr(NewSystemClass(page));
 
-    conditionClass  = _store_ptr(NewSystemClass(page));
-    mutexClass      = _store_ptr(NewSystemClass(page));
-    threadClass     = _store_ptr(NewSystemClass(page));
+    conditionClass  = to_gc_ptr(NewSystemClass(page));
+    mutexClass      = to_gc_ptr(NewSystemClass(page));
+    threadClass     = to_gc_ptr(NewSystemClass(page));
 
     load_ptr(nilObject)->SetClass(load_ptr(nilClass));
 
@@ -655,20 +652,20 @@ VMObject* Universe::InitializeGlobals(Page* page) {
     LoadSystemClass(load_ptr(mutexClass),     page);
     LoadSystemClass(load_ptr(threadClass),    page);
 
-    blockClass = _store_ptr(LoadClass(SymbolForChars("Block", page), page));
+    blockClass = to_gc_ptr(LoadClass(SymbolForChars("Block", page), page));
 
     VMSymbol* trueClassName = SymbolForChars("True", page);
-    trueClass  = _store_ptr(LoadClass(trueClassName, page));
-    trueObject = _store_ptr(NewInstance(load_ptr(trueClass), page));
+    trueClass  = to_gc_ptr(LoadClass(trueClassName, page));
+    trueObject = to_gc_ptr(NewInstance(load_ptr(trueClass), page));
     
     VMSymbol* falseClassName = SymbolForChars("False", page);
-    falseClass  = _store_ptr(LoadClass(falseClassName, page));
-    falseObject = _store_ptr(NewInstance(load_ptr(falseClass), page));
+    falseClass  = to_gc_ptr(LoadClass(falseClassName, page));
+    falseObject = to_gc_ptr(NewInstance(load_ptr(falseClass), page));
 
-    systemClass = _store_ptr(LoadClass(SymbolForChars("System", page), page));
+    systemClass = to_gc_ptr(LoadClass(SymbolForChars("System", page), page));
 
     VMObject* systemObj = NewInstance(load_ptr(systemClass), page);
-    systemObject = _store_ptr(systemObj);
+    systemObject = to_gc_ptr(systemObj);
     
     
     SetGlobal(SymbolForChars("nil",    page), load_ptr(nilObject));
@@ -678,8 +675,8 @@ VMObject* Universe::InitializeGlobals(Page* page) {
     SetGlobal(SymbolForChars("System", page), load_ptr(systemClass));
     SetGlobal(SymbolForChars("Block",  page), load_ptr(blockClass));
     
-    symbolIfTrue  = _store_ptr(SymbolForChars("ifTrue:", page));
-    symbolIfFalse = _store_ptr(SymbolForChars("ifFalse:", page));
+    symbolIfTrue  = to_gc_ptr(SymbolForChars("ifTrue:", page));
+    symbolIfFalse = to_gc_ptr(SymbolForChars("ifFalse:", page));
 
     VMThread::Initialize();
 
@@ -712,8 +709,7 @@ VMClass* Universe::GetBlockClassWithArgs(long numberOfArguments, Page* page) {
     result->AddInstancePrimitive(new (page, 0 ALLOC_MATURE ALLOC_NON_RELOCATABLE) VMEvaluationPrimitive(numberOfArguments, page), page);
 
     SetGlobal(name, result);
-# warning is _store_ptr sufficient here?
-    blockClassesByNoOfArgs[numberOfArguments] = _store_ptr(result);
+    blockClassesByNoOfArgs[numberOfArguments] = to_gc_ptr(result);
 
     return result;
 }
@@ -721,8 +717,7 @@ VMClass* Universe::GetBlockClassWithArgs(long numberOfArguments, Page* page) {
 vm_oop_t Universe::GetGlobal(VMSymbol* name) {
     lock_guard<recursive_mutex> lock(globalsAndSymbols_mutex);
 
-    # warning is _store_ptr correct here? it relies on _store_ptr not to be really changed...
-    auto it = globals.find(_store_ptr(name));
+    auto it = globals.find(to_gc_ptr(name));
     if (GC_TYPE == PAUSELESS) {
         // for the PAUSELESS GC, we also try with a reference with the NMT bit flipped, just
         # warning I really don't like this approach, what was the problem with having the references without ever being marked?
@@ -741,8 +736,7 @@ vm_oop_t Universe::GetGlobal(VMSymbol* name) {
 bool Universe::HasGlobal(VMSymbol* name) {
     lock_guard<recursive_mutex> lock(globalsAndSymbols_mutex);
     
-    # warning is _store_ptr correct here? it relies on _store_ptr not to be really changed...
-    auto it = globals.find(_store_ptr(name));
+    auto it = globals.find(to_gc_ptr(name));
     
     if (GC_TYPE == PAUSELESS) {
         if (it == globals.end()) {
@@ -956,9 +950,8 @@ VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method, Page* page
     long additionalBytes = length * sizeof(VMObject*);
     result = new (page, additionalBytes) VMFrame(length);
     result->clazz = nullptr;
-# warning I think _store_ptr is sufficient here, but...
-    result->method        = _store_ptr(method);
-    result->previousFrame = _store_ptr(previousFrame);
+    result->method        = to_gc_ptr(method);
+    result->previousFrame = to_gc_ptr(previousFrame);
     result->ResetStackPointer();
 
     LOG_ALLOCATION("VMFrame", result->GetObjectSize());
@@ -1255,8 +1248,8 @@ VMSymbol* Universe::NewSymbol(const char* str, Page* page) {
     lock_guard<recursive_mutex> lock(globalsAndSymbols_mutex);
 
     VMSymbol* result = new (page, PADDED_SIZE(strlen(str)+1) ALLOC_MATURE ALLOC_NON_RELOCATABLE) VMSymbol(str);
-# warning is _store_ptr sufficient here?
-    symbolsMap[str] = _store_ptr(result);
+
+    symbolsMap[str] = to_gc_ptr(result);
 
     LOG_ALLOCATION("VMSymbol", result->GetObjectSize());
     return result;
@@ -1317,9 +1310,7 @@ VMSymbol* Universe::SymbolForChars(const char* str, Page* page) {
 
 void Universe::SetGlobal(VMSymbol* name, vm_oop_t val) {
     lock_guard<recursive_mutex> lock(globalsAndSymbols_mutex);
-
-# warning is _store_ptr correct here? it relies on _store_ptr not to be really changed...
-    globals[_store_ptr(name)] = _store_ptr(val);
+    globals[to_gc_ptr(name)] = to_gc_ptr(val);
 }
 
 void Universe::registerInterpreter(Interpreter* interp) {
