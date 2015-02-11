@@ -74,13 +74,11 @@ VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength, Page* page
 
     // copy all fields from other frame
     while (from->arguments + i < from_end) {
-#warning is it necessary to cycle through the barriers here?
         result->arguments[i] = from->arguments[i];
         i++;
     }
     // initialize others with nilObject
     while (result->arguments + i < result_end) {
-#warning is it necessary to cycle through the barriers here?
         result->arguments[i] = nilObject;
         i++;
     }
@@ -116,7 +114,6 @@ VMFrame::VMFrame(size_t size, size_t nof) :
     gc_oop_t* end = (gc_oop_t*) SHIFTED_PTR(this, objectSize);
     long i = 0;
     while (arguments + i < end) {
-# warning is the direct use of gc_oop_t here safe for all GCs?
         arguments[i] = nilObject;
         i++;
     }
