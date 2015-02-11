@@ -1,5 +1,7 @@
 #pragma once
 
+#include <atomic>
+
 // simple spin lock implementation based on test_and_set
 // Implementation 'taken' from http://anki3d.org/spinlock/
 // (no license?, but it's kind of trivial)
