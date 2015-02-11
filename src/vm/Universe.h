@@ -93,13 +93,6 @@ public:
     [[noreturn]] static void Quit(long);
     [[noreturn]] static void ErrorExit(StdString);
 
-# warning TODO: remove, do that in the universe walk globals and related methods
-    //Globals accessor (only for GC, could be considered be
-    //declared as a private friend method for the GC)
-    map<GCSymbol*, gc_oop_t> GetGlobals() {
-        return globals;
-    }
-    
     FORCE_INLINE Interpreter* GetInterpreter() { return (Interpreter*)pthread_getspecific(interpreterKey); }
     Interpreter* NewInterpreter();
     
