@@ -59,6 +59,7 @@ AbstractVMObject* PauselessPage::AllocateObject(size_t size, bool nonRelocatable
         PauselessPage* newPage = heap->RequestPage();
         GetUniverse()->GetInterpreter()->SetPage(reinterpret_cast<Page*>(newPage));
         newPage->SetNonRelocatablePage(nonRelocatablePage);
+        newObject = newPage->AllocateObject(size, nonRelocatable);
     }
      
     return newObject;
