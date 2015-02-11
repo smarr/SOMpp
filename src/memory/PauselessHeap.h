@@ -120,12 +120,6 @@ inline typename T::Stored* WriteBarrierForGCThread(T* reference) {
         return (typename T::Stored*) reference;
 }
 
-/*
-template<typename T>
-inline typename T::Loaded* ReadBarrier(T** referenceHolder, bool rootSetMarking = false) {
-    return (typename T::Loaded*) *referenceHolder;
-} */
-
 template<typename T>
 __attribute__((always_inline)) inline typename T::Loaded* ReadBarrier(T** referenceHolder, bool rootSetMarking = false) {
     typename T::Loaded* reference;
