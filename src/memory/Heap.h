@@ -42,9 +42,9 @@ public:
     static void DestroyHeap();
     Heap(GarbageCollector<HEAP_T>* const gc) : gc(gc), gcTriggered(false) {}
     ~Heap();
-    inline void triggerGC()      { gcTriggered = true; }
-    inline void resetGCTrigger() { gcTriggered = false; }
-    bool isCollectionTriggered() { return gcTriggered;  }
+    inline void TriggerGC()      { gcTriggered = true; }
+    inline void ResetGCTrigger() { gcTriggered = false; }
+    bool IsCollectionTriggered() { return gcTriggered;  }
     void FullGC();
     
     void ReportGCDetails();

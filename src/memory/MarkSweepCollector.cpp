@@ -13,7 +13,7 @@ void MarkSweepCollector::Collect() {
     MarkSweepHeap* heap = GetHeap<MarkSweepHeap>();
     Timer::GCTimer->Resume();
     // reset collection trigger
-    heap->resetGCTrigger();
+    heap->ResetGCTrigger();
 
     // now mark all reachables
     markReachableObjects();

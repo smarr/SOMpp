@@ -36,7 +36,7 @@ public:
         
         // let's see if we have to trigger the GC
         if (spaceAllocated >= heap->collectionLimit)
-            heap->triggerGC();
+            heap->TriggerGC();
         return newObject;
     }
     

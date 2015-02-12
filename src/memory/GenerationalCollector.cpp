@@ -154,7 +154,7 @@ void GenerationalCollector::MajorCollection() {
 void GenerationalCollector::Collect() {
     Timer::GCTimer->Resume();
     //reset collection trigger
-    heap->resetGCTrigger();
+    heap->ResetGCTrigger();
 
     MinorCollection();
     if (heap->sizeOfMatureObjectHeap > majorCollectionThreshold)
