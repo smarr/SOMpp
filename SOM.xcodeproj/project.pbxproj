@@ -131,8 +131,8 @@
 		0ABBA19A1A8BAAD000EEBEAC /* Delay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBA1981A8BAAD000EEBEAC /* Delay.cpp */; };
 		0ABBA19C1A8BAADB00EEBEAC /* Thread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBA19B1A8BAADB00EEBEAC /* Thread.cpp */; };
 		0ABBA19D1A8BAADB00EEBEAC /* Thread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBA19B1A8BAADB00EEBEAC /* Thread.cpp */; };
-		0ABBA1A01A8BAC8000EEBEAC /* PagedHeap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBA19E1A8BAC8000EEBEAC /* PagedHeap.cpp */; };
-		0ABBA1A11A8BAC8000EEBEAC /* PagedHeap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBA19E1A8BAC8000EEBEAC /* PagedHeap.cpp */; };
+		0ABBA1A01A8BAC8000EEBEAC /* PauselessPagedHeap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBA19E1A8BAC8000EEBEAC /* PauselessPagedHeap.cpp */; };
+		0ABBA1A11A8BAC8000EEBEAC /* PauselessPagedHeap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBA19E1A8BAC8000EEBEAC /* PauselessPagedHeap.cpp */; };
 		0ABBA1AA1A8BACF600EEBEAC /* PauselessPage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90B4A87E18F202AA00C437BE /* PauselessPage.cpp */; };
 		0ABBA1AB1A8BACF700EEBEAC /* PauselessPage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90B4A87E18F202AA00C437BE /* PauselessPage.cpp */; };
 		0ABBA1AC1A8BAD3900EEBEAC /* PrimitiveContainer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203290FA6624C00E75857 /* PrimitiveContainer.cpp */; };
@@ -234,8 +234,8 @@
 		0ABBA1951A8BAAAF00EEBEAC /* VMThread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VMThread.cpp; sourceTree = "<group>"; };
 		0ABBA1981A8BAAD000EEBEAC /* Delay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Delay.cpp; sourceTree = "<group>"; };
 		0ABBA19B1A8BAADB00EEBEAC /* Thread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Thread.cpp; sourceTree = "<group>"; };
-		0ABBA19E1A8BAC8000EEBEAC /* PagedHeap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PagedHeap.cpp; sourceTree = "<group>"; };
-		0ABBA19F1A8BAC8000EEBEAC /* PagedHeap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PagedHeap.h; sourceTree = "<group>"; };
+		0ABBA19E1A8BAC8000EEBEAC /* PauselessPagedHeap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PauselessPagedHeap.cpp; sourceTree = "<group>"; };
+		0ABBA19F1A8BAC8000EEBEAC /* PauselessPagedHeap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PauselessPagedHeap.h; sourceTree = "<group>"; };
 		0ABBA1A31A8BACBB00EEBEAC /* VMCondition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMCondition.h; sourceTree = "<group>"; };
 		0ABBA1A71A8BACD800EEBEAC /* SafePoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SafePoint.h; sourceTree = "<group>"; };
 		0ABBA1B61A8BAEE500EEBEAC /* IntegerBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IntegerBox.cpp; sourceTree = "<group>"; };
@@ -566,8 +566,8 @@
 				0A1749B01A6D341D007878D9 /* MarkSweepHeap.h */,
 				3F5203090FA6624C00E75857 /* Heap.cpp */,
 				3F52030A0FA6624C00E75857 /* Heap.h */,
-				0ABBA19E1A8BAC8000EEBEAC /* PagedHeap.cpp */,
-				0ABBA19F1A8BAC8000EEBEAC /* PagedHeap.h */,
+				0ABBA19E1A8BAC8000EEBEAC /* PauselessPagedHeap.cpp */,
+				0ABBA19F1A8BAC8000EEBEAC /* PauselessPagedHeap.h */,
 				0A1749B31A6D341D007878D9 /* PauselessCollectorThread.cpp */,
 				0A1749B41A6D341D007878D9 /* PauselessCollectorThread.h */,
 				0A1749B51A6D341D007878D9 /* PauselessHeap.cpp */,
@@ -982,7 +982,7 @@
 				0A3A3C9B1A5D546D004CB03B /* Symbol.cpp in Sources */,
 				0A97ED021A8BC9EA00F654B0 /* SafePoint.cpp in Sources */,
 				0A97ECFF1A8BC9D600F654B0 /* VMCondition.cpp in Sources */,
-				0ABBA1A01A8BAC8000EEBEAC /* PagedHeap.cpp in Sources */,
+				0ABBA1A01A8BAC8000EEBEAC /* PauselessPagedHeap.cpp in Sources */,
 				0A1886FE1832BCF500A2CBCA /* VMEvaluationPrimitive.cpp in Sources */,
 				0A97ECF11A8BC86000F654B0 /* CopyingHeap.cpp in Sources */,
 				0A1886DE1832BCC800A2CBCA /* Disassembler.cpp in Sources */,
@@ -1015,7 +1015,7 @@
 				0A67EA7919ACD43A00830E3B /* WriteBarrierTest.cpp in Sources */,
 				0A67EA7B19ACD72C00830E3B /* VMInvokable.cpp in Sources */,
 				0A67EA9119ACD83200830E3B /* MethodGenerationContext.cpp in Sources */,
-				0ABBA1A11A8BAC8000EEBEAC /* PagedHeap.cpp in Sources */,
+				0ABBA1A11A8BAC8000EEBEAC /* PauselessPagedHeap.cpp in Sources */,
 				0A3A3CA61A5D546D004CB03B /* Method.cpp in Sources */,
 				0ABBA18F1A8BAA1B00EEBEAC /* BaseThread.cpp in Sources */,
 				0A67EA7819ACD43A00830E3B /* WalkObjectsTest.cpp in Sources */,
