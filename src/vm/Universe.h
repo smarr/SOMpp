@@ -200,7 +200,7 @@ private:
         return !(val == 0) && !(val & (val - 1));
     }
 
-    PagedHeap* heap;
+    PauselessPagedHeap* heap;
     size_t heapSize;
     size_t pageSize;
 

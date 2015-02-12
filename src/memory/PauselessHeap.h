@@ -18,7 +18,7 @@ class PauselessCollectorThread;
 #define REFERENCE_NMT_VALUE(REFERENCE) (((reinterpret_cast<intptr_t>(REFERENCE) & MASK_OBJECT_NMT) == 0) ? false : true)
 #define FLIP_NMT_VALUE(REFERENCE) ( (reinterpret_cast<intptr_t>(REFERENCE) ^ MASK_OBJECT_NMT) )
 
-class PauselessHeap : public PagedHeap {
+class PauselessHeap : public PauselessPagedHeap {
     friend class PauselessCollectorThread;
  
 public:

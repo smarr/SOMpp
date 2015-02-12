@@ -35,10 +35,10 @@
 
 #include <vmobjects/VMObject.h>
 
-HEAP_CLS* PagedHeap::theHeap = nullptr;
+HEAP_CLS* PauselessPagedHeap::theHeap = nullptr;
 
 
-PagedHeap::PagedHeap(size_t pageSize, size_t maxHeapSize)
+PauselessPagedHeap::PauselessPagedHeap(size_t pageSize, size_t maxHeapSize)
     : Heap<PauselessHeap>(nullptr) {
     pthread_mutex_init(&fullPagesMutex, nullptr);
     allPages = new vector<PauselessPage*>();
@@ -51,7 +51,7 @@ PagedHeap::PagedHeap(size_t pageSize, size_t maxHeapSize)
     CreatePages();
 }
 
-void PagedHeap::CreatePages() {
+void PauselessPagedHeap::CreatePages() {
     void* nextFreePagePosition = memoryStart;
     PauselessPage* newPage;
     while (nextFreePagePosition < (void*) memoryEnd) {
@@ -62,15 +62,15 @@ void PagedHeap::CreatePages() {
     }
 }
 
-PagedHeap::~PagedHeap() {
+PauselessPagedHeap::~PauselessPagedHeap() {
     delete gc;
 }
 
-size_t PagedHeap::GetMaxObjectSize() {
+size_t PauselessPagedHeap::GetMaxObjectSize() {
     return maxObjSize;
 }
 
-PauselessPage* PagedHeap::RequestPage() {
+PauselessPage* PauselessPagedHeap::RequestPage() {
     lock_guard<mutex> lock(availablePages_mutex);
     
     if (availablePages->empty())
@@ -82,13 +82,13 @@ PauselessPage* PagedHeap::RequestPage() {
     return newPage;
 }
 
-void PagedHeap::RelinquishPage(PauselessPage* page) {
+void PauselessPagedHeap::RelinquishPage(PauselessPage* page) {
     pthread_mutex_lock(&fullPagesMutex);
     fullPages->push_back(page);
     pthread_mutex_unlock(&fullPagesMutex);
 }
 
-void PagedHeap::AddEmptyPage(PauselessPage* page) {
+void PauselessPagedHeap::AddEmptyPage(PauselessPage* page) {
     lock_guard<mutex> lock(availablePages_mutex);
     
     availablePages->push_back(page);

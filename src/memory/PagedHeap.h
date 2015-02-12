@@ -44,15 +44,15 @@ using namespace std;
 class PauselessPage;
 class PauselessHeap;
 
-class PagedHeap : public Heap<PauselessHeap> {
+class PauselessPagedHeap : public Heap<PauselessHeap> {
     friend class GarbageCollector<HEAP_CLS>;
     friend class PauselessCollector; //this should probably also be made compile time dependend
     friend class PauselessCollectorThread;
     friend class PauselessPage;
     
 public:
-    PagedHeap(size_t pageSize, size_t maxHeapSize);
-    ~PagedHeap();
+    PauselessPagedHeap(size_t pageSize, size_t maxHeapSize);
+    ~PauselessPagedHeap();
     size_t GetMaxObjectSize();
 
     inline void FreeObject(AbstractVMObject* o);
@@ -86,6 +86,6 @@ private:
     size_t maxObjSize;
 };
 
-void PagedHeap::FreeObject(AbstractVMObject* obj) {
+void PauselessPagedHeap::FreeObject(AbstractVMObject* obj) {
     free(obj);
 }

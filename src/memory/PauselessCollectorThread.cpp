@@ -210,7 +210,7 @@ I don't remember well, but, I think, I saw the GC relocating stuff on that page.
     while (true) {
         
         expectedNMT = !expectedNMT;
-        PagedHeap* test = GetHeap<HEAP_CLS>();
+        PauselessPagedHeap* test = GetHeap<HEAP_CLS>();
         
         GetUniverse()->ErrorPrint("[GC] Start RootSet Marking");
         //------------------------
