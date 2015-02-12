@@ -95,7 +95,7 @@ Interpreter::Interpreter(Page* page) : BaseThread(page) {
 }
 #else
 #define DISPATCH_GC() {\
-  if (GetHeap<HEAP_CLS>()->isCollectionTriggered()) {\
+  if (GetHeap<HEAP_CLS>()->IsCollectionTriggered()) {\
     GetHeap<HEAP_CLS>()->FullGC();\
   }\
   goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];\
