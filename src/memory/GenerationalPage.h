@@ -11,10 +11,10 @@ public:
     
     NurseryPage(GenerationalHeap* heap)
     : heap(heap), interpreter(nullptr), next(nullptr),
-      bufferEnd((void*)((uintptr_t)buffer + heap->pageSize - sizeof(NurseryPage))),
+      bufferEnd((void*)((uintptr_t)buffer + heap->pagedHeap.pageSize - sizeof(NurseryPage))),
       nextFreePosition(buffer),
-      maxObjectSize(heap->pageSize / 2) {
-        memset(buffer, 0, heap->pageSize - sizeof(NurseryPage));
+      maxObjectSize(heap->pagedHeap.pageSize / 2) {
+        memset(buffer, 0, heap->pagedHeap.pageSize - sizeof(NurseryPage));
     }
     
     ~NurseryPage() {
@@ -52,7 +52,7 @@ public:
     // out the address of a pointer in the page, and get to the page object.
     void* operator new(size_t count) {
         assert(count == sizeof(NurseryPage));
-        size_t size = GetHeap<GenerationalHeap>()->pageSize;
+        size_t size = GetHeap<GenerationalHeap>()->pagedHeap.pageSize;
         assert(size > count);
         
         void* result;

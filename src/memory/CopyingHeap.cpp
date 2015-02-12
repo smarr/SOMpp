@@ -11,48 +11,14 @@
 
 CopyingHeap::CopyingHeap(size_t pageSize, size_t maxHeapSize)
     : Heap<CopyingHeap>(new CopyingCollector(this)),
-      pageSize(pageSize), maxNumPages(maxHeapSize / pageSize),
-      currentNumPages(0) {}
+      pagedHeap(this, pageSize, maxHeapSize / pageSize) {}
 
 Page* CopyingHeap::RegisterThread() {
-    lock_guard<mutex> lock(pages_mutex);
-    return reinterpret_cast<Page*>(getNextPage_alreadyLocked());
+    return reinterpret_cast<Page*>(pagedHeap.GetNextPage());
 }
 
 void CopyingHeap::UnregisterThread(Page* page) {
     // NOOP, because we the page is still in use
-}
-
-CopyingPage* CopyingHeap::getNextPage_alreadyLocked() {
-    CopyingPage* result;
-
-    if (freePages.empty()) {
-        currentNumPages++;
-        if (currentNumPages > maxNumPages) {
-            // during the copy phase, we need twice as many pages, i.e.,
-            // a heap twice as large. This is similar to the classic
-            // semi-space copy-collector design. Except, that we allow
-            // too much allocation.
-            if (currentNumPages > maxNumPages * 2) {
-                ReachedMaxNumberOfPages(); // won't return
-                return nullptr;            // is not executed!
-            }
-        }
-        
-        result = new CopyingPage(this);
-    } else {
-        result = freePages.back();
-        freePages.pop_back();
-    }
-    
-    usedPages.push_back(result);
-    
-    // let's see if we have to trigger the GC
-    if (usedPages.size() > 0.9 * maxNumPages) {
-        triggerGC();
-    }
-    
-    return result;
 }
 
 Page* CopyingPage::GetCurrent() {
@@ -75,7 +41,7 @@ void* CopyingPage::allocateInNextPage(size_t size ALLOC_OUTSIDE_NURSERY_DECLpp) 
     assert(interpreter);
     
     if (next == nullptr) {
-        next = heap->getNextPage();
+        next = heap->pagedHeap.GetNextPage();
         next->SetInterpreter(interpreter);
         
         // need to set the page unconditionally, even if it is not yet

@@ -7,10 +7,10 @@ class CopyingPage {
 public:
     CopyingPage(CopyingHeap* heap)
     : heap(heap), interpreter(nullptr), next(nullptr),
-    buffer(malloc(heap->pageSize)),
-    bufferEnd((void*)((uintptr_t)buffer + heap->pageSize)),
+    buffer(malloc(heap->pagedHeap.pageSize)),
+    bufferEnd((void*)((uintptr_t)buffer + heap->pagedHeap.pageSize)),
     nextFreePosition(buffer) {
-        memset(buffer, 0, heap->pageSize);
+        memset(buffer, 0, heap->pagedHeap.pageSize);
     }
     
     ~CopyingPage() {

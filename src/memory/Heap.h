@@ -49,10 +49,11 @@ public:
     
     void ReportGCDetails();
 
+    [[noreturn]] void ReachedMaxNumberOfPages();
+    
 protected:
     GarbageCollector<HEAP_T>* const gc;
     void FailedAllocation(size_t size);
-    void ReachedMaxNumberOfPages();
     
 private:
     template<class HEAP_U> friend HEAP_U* GetHeap();

@@ -6,6 +6,8 @@
 #include "Heap.h"
 
 #include <misc/defs.h>
+#include <memory/PagedHeap.h>
+
 
 using namespace std;
 
@@ -19,22 +21,18 @@ public:
     
     Page* RegisterThread();
     void UnregisterThread(Page*);
+    
+    bool HasReachedMaxPageCount(size_t currentNumPages, size_t maxNumPages) {
+        // during the copy phase, we need twice as many pages, i.e.,
+        // a heap twice as large. This is similar to the classic
+        // semi-space copy-collector design. Except, that we allow
+        // too much allocation.
+        return currentNumPages > maxNumPages * 2;
+    }
 
 private:
-    const size_t pageSize;
-    const size_t maxNumPages;
-    size_t currentNumPages;
+    PagedHeap<CopyingPage, CopyingHeap> pagedHeap;
     
-    mutex pages_mutex;
-    vector<CopyingPage*> usedPages;
-    vector<CopyingPage*> freePages;
-    
-    
-    CopyingPage* getNextPage() {
-        lock_guard<mutex> lock(pages_mutex);
-        return getNextPage_alreadyLocked();
-    }
-    CopyingPage* getNextPage_alreadyLocked();
 
     friend class CopyingCollector;
     friend CopyingPage;

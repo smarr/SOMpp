@@ -13,6 +13,7 @@
 
 #include "Heap.h"
 
+#include <memory/PagedHeap.h>
 #include <vmobjects/VMObjectBase.h>
 
 
@@ -57,6 +58,9 @@ public:
         return newObject;
     }
 
+    bool HasReachedMaxPageCount(size_t currentNumPages, size_t maxNumPages) {
+        return currentNumPages > maxNumPages;
+    }
     
     NurseryPage* RegisterThread();
     void UnregisterThread(NurseryPage*);
@@ -67,31 +71,18 @@ public:
 #endif
     
 private:
-    const size_t pageSize;
-    const size_t maxNumPages;
-    size_t currentNumPages;
-    
-    mutex pages_mutex;
-    vector<NurseryPage*> usedPages;
-    vector<NurseryPage*> freePages;
+    PagedHeap<NurseryPage, GenerationalHeap> pagedHeap;
     
     mutex allocatedObjects_mutex;
     size_t sizeOfMatureObjectHeap;
     vector<AbstractVMObject*>* allocatedObjects;
-    
-    NurseryPage* getNextPage() {
-        lock_guard<mutex> lock(pages_mutex);
-        return getNextPage_alreadyLocked();
-    }
-    
-    NurseryPage* getNextPage_alreadyLocked();
     
     void writeBarrier_OldHolder(AbstractVMObject* holder, const vm_oop_t
                                 referencedObject);
     
     inline NurseryPage* getPageFromObj(AbstractVMObject* obj) {
         uintptr_t bits = reinterpret_cast<uintptr_t>(obj);
-        uintptr_t mask = ~(pageSize - 1);
+        uintptr_t mask = ~(pagedHeap.pageSize - 1);
         uintptr_t page = bits & mask;
         return reinterpret_cast<NurseryPage*>(page);
     }

@@ -16,13 +16,12 @@ using namespace std;
 
 GenerationalHeap::GenerationalHeap(size_t pageSize, size_t objectSpaceSize)
     : Heap<GenerationalHeap>(new GenerationalCollector(this)),
-      pageSize(pageSize), maxNumPages(objectSpaceSize / pageSize),
-      currentNumPages(0), sizeOfMatureObjectHeap(0),
+      pagedHeap(this, pageSize, objectSpaceSize / pageSize),
+      sizeOfMatureObjectHeap(0),
       allocatedObjects(new vector<AbstractVMObject*>()) {}
 
 NurseryPage* GenerationalHeap::RegisterThread() {
-    lock_guard<mutex> lock(pages_mutex);
-    return getNextPage_alreadyLocked();
+    return pagedHeap.GetNextPage();
 }
 
 void GenerationalHeap::UnregisterThread(NurseryPage* page) {
@@ -42,37 +41,11 @@ void GenerationalHeap::writeBarrier_OldHolder(AbstractVMObject* holder,
     holder->SetGCField(holder->GetGCField() | MASK_SEEN_BY_WRITE_BARRIER);
 }
 
-NurseryPage* GenerationalHeap::getNextPage_alreadyLocked() {
-    NurseryPage* result;
-    
-    if (freePages.empty()) {
-        currentNumPages++;
-        if (currentNumPages > maxNumPages) {
-            ReachedMaxNumberOfPages(); // won't return
-            return nullptr;            // is not executed!
-        }
-        
-        result = new NurseryPage(this);
-    } else {
-        result = freePages.back();
-        freePages.pop_back();
-    }
-    
-    usedPages.push_back(result);
-    
-    // let's see if we have to trigger the GC
-    if (usedPages.size() > 0.9 * maxNumPages) {
-        triggerGC();
-    }
-    
-    return result;
-}
-
 void* NurseryPage::allocateInNextPage(size_t size ALLOC_OUTSIDE_NURSERY_DECLpp) {
     assert(interpreter);
     
     if (next == nullptr) {
-        next = heap->getNextPage();
+        next = heap->pagedHeap.GetNextPage();
         next->SetInterpreter(interpreter);
         
         // need to set the page unconditionally, even if it is not yet

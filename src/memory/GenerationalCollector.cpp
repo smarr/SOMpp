@@ -98,7 +98,7 @@ void GenerationalCollector::MinorCollection() {
     GetUniverse()->WalkGlobals(&copy_if_necessary, page); // page only used to obtain heap
 
     // and also all objects that have been detected by the write barriers
-    for (NurseryPage* page : heap->usedPages) {
+    for (NurseryPage* page : heap->pagedHeap.usedPages) {
         for (AbstractVMObject* holderObj : page->oldObjsWithRefToYoungObjs) {
             // content of oldObjsWithRefToYoungObjs is not altered while iteration,
             // because copy_if_necessary returns old objs only -> ignored by
@@ -111,20 +111,20 @@ void GenerationalCollector::MinorCollection() {
             holderObj->WalkObjects(&copy_if_necessary, reinterpret_cast<Page*>(page));
         }
         page->Reset();
-        heap->freePages.push_back(page);
+        heap->pagedHeap.freePages.push_back(page);
     }
     
-    heap->usedPages.clear();
+    heap->pagedHeap.usedPages.clear();
     
     // redistribute pages of interpreters, except the last one,
     // which already got a page
     for (auto interp : *interps) {
-        auto page = heap->freePages.back();
+        auto page = heap->pagedHeap.freePages.back();
         assert(page);
-        heap->freePages.pop_back();
+        heap->pagedHeap.freePages.pop_back();
         interp->SetPage(reinterpret_cast<Page*>(page));
         page->SetInterpreter(interp);
-        heap->usedPages.push_back(page);
+        heap->pagedHeap.usedPages.push_back(page);
     }
 }
 
