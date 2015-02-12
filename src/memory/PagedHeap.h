@@ -59,7 +59,6 @@ public:
     
     PauselessPage* RequestPage();
     void RelinquishPage(PauselessPage*);
-    //void RelinquishFullPage(PauselessPage*);
     void AddEmptyPage(PauselessPage*);
     
     virtual void checkCollectionTreshold() {};
@@ -71,11 +70,9 @@ protected:
 
     mutex availablePages_mutex;
     
-    //void* nextFreePagePosition;
-    //void* collectionLimit;
     void* memoryStart;
     size_t memoryEnd;
-    //vector<Page*>* allPages;
+
     vector<PauselessPage*>* availablePages;
     vector<PauselessPage*>* fullPages;
     
