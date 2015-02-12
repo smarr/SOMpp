@@ -38,7 +38,7 @@
 
 #include <vmobjects/ObjectFormats.h>
 
-#include <memory/PagedHeap.h>
+#include <memory/PauselessPagedHeap.h>
 #include <memory/Worklist.h>
 #include <memory/BaseThread.h>
 

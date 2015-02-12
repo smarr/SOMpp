@@ -3,7 +3,7 @@
 #include <misc/defs.h>
 #include <assert.h>
 
-#include <memory/PagedHeap.h>
+#include <memory/PauselessPagedHeap.h>
 #include <memory/PauselessPage.h>
 #include <vmobjects/VMObjectBase.h>
 #include <vmobjects/AbstractObject.h>

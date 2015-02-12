@@ -30,7 +30,7 @@
 
 #include <sys/mman.h>
 
-#include "PagedHeap.h"
+#include <memory/PauselessPagedHeap.h>
 #include "PauselessPage.h"
 
 #include <vmobjects/VMObject.h>
