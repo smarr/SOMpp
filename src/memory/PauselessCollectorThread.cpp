@@ -346,8 +346,8 @@ I don't remember well, but, I think, I saw the GC relocating stuff on that page.
             
             GetHeap<HEAP_CLS>()->numberOfMutatorsWithEnabledGCTrap = 0;
             // unblock pages that were blocked during the previous cycle
-            for (vector<Page*>::iterator page = pagesToUnblock->begin(); page != pagesToUnblock->end(); ++page) {
-                (*page)->UnBlock();
+            for (PauselessPage* page : *pagesToUnblock) {
+                page->UnBlock();
                 GetHeap<PauselessHeap>()->pagedHeap.ReturnFreePage(page);
             }
             pagesToUnblock->clear();
