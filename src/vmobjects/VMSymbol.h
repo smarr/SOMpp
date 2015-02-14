@@ -54,10 +54,10 @@ public:
 
 private:
     const int numberOfArgumentsOfSignature;
-    const GCClass* cachedClass_invokable[3];
-    long nextCachePos;
+    GCClass* cachedClass_invokable[3];
+    size_t nextCachePos;
     GCInvokable* cachedInvokable[3];
-    inline VMInvokable* GetCachedInvokable(const VMClass*);
+    inline VMInvokable* GetCachedInvokable(VMClass*);
     inline void UpdateCachedInvokable(VMClass* cls, VMInvokable* invo);
     
     friend class Signature;

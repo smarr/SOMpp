@@ -4,7 +4,7 @@
 #include "VMInvokable.h"
 
 
-VMInvokable* VMSymbol::GetCachedInvokable(const VMClass* cls) {
+VMInvokable* VMSymbol::GetCachedInvokable(VMClass* cls) {
 # warning TODO: figure out whether we can do something for the pauseless GC
     if (GC_TYPE == PAUSELESS)  // not supported in PAUSELESS
         return nullptr;
