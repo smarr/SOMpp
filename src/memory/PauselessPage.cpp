@@ -36,7 +36,7 @@ AbstractVMObject* PauselessPage::allocate(size_t size) {
     AbstractVMObject* newObject = (AbstractVMObject*) nextFreePosition;
     nextFreePosition = (void*)((size_t)nextFreePosition + size);
 
-    if ((size_t)nextFreePosition > pageEnd) {
+    if (nextFreePosition > bufferEnd) {
         GetUniverse()->ErrorExit("Failed to allocate " + to_string(size) + " Bytes in page.");
     }
     return newObject;
@@ -60,7 +60,7 @@ AbstractVMObject* PauselessPage::AllocateObject(size_t size, bool nonRelocatable
     AbstractVMObject* newObject = (AbstractVMObject*) nextFreePosition;
     nextFreePosition = (void*)((size_t)nextFreePosition + size);
 
-    if ((size_t)nextFreePosition > pageEnd) {
+    if (nextFreePosition > bufferEnd) {
         nextFreePosition = (void*)((size_t)nextFreePosition - size); // reset pointer
         
         heap->pagedHeap.ReturnFullPage(this);
@@ -74,7 +74,7 @@ AbstractVMObject* PauselessPage::AllocateObject(size_t size, bool nonRelocatable
 }
 
 void PauselessPage::ClearPage() {
-    nextFreePosition = (void*) pageStart;
+    nextFreePosition = buffer;
 }
 
 #if GC_TYPE==PAUSELESS
@@ -88,13 +88,13 @@ void PauselessPage::Block() {
 
 void PauselessPage::UnBlock() {
     assert(blocked == true);
-    memset((void*)pageStart, 0xa, PAGE_SIZE);
+    memset(buffer, 0xa, (uintptr_t)bufferEnd - (uintptr_t)buffer);
     blocked = false;
     delete [] sideArray;
 }
 
 AbstractVMObject* PauselessPage::LookupNewAddress(AbstractVMObject* oldAddress, Interpreter* thread) {
-    long position = ((size_t)oldAddress - pageStart)/8;
+    uintptr_t position = ((uintptr_t)oldAddress - (uintptr_t)buffer)/8;
     if (!sideArray[position]) {
         AbstractVMObject* newLocation = oldAddress->Clone(this);
         AbstractVMObject* test = nullptr;
@@ -108,7 +108,7 @@ AbstractVMObject* PauselessPage::LookupNewAddress(AbstractVMObject* oldAddress, 
 }
 
 AbstractVMObject* PauselessPage::LookupNewAddress(AbstractVMObject* oldAddress, PauselessCollectorThread* thread) {
-    long position = ((size_t)oldAddress - pageStart)/8;
+    uintptr_t position = ((uintptr_t)oldAddress - (uintptr_t)buffer)/8;
     if (!sideArray[position]) {
         AbstractVMObject* newLocation = oldAddress->Clone(this);
         AbstractVMObject* test = nullptr;
@@ -122,13 +122,11 @@ AbstractVMObject* PauselessPage::LookupNewAddress(AbstractVMObject* oldAddress, 
 }
 
 void PauselessPage::AddAmountLiveData(size_t objectSize) {
-    //pthread_mutex_lock
     amountLiveData += objectSize;
-    //pthread_mutex_unlock
 }
 
 double PauselessPage::GetPercentageLiveData() {
-    return amountLiveData / PAGE_SIZE;
+    return amountLiveData / ((uintptr_t) bufferEnd - (uintptr_t) buffer);
 }
 
 void PauselessPage::ResetAmountOfLiveData() {
@@ -141,13 +139,13 @@ void PauselessPage::Free(size_t numBytes) {
 
 void PauselessPage::RelocatePage() {
     PauselessCollectorThread* thread = GetHeap<HEAP_CLS>()->GetGCThread();
-    for (AbstractVMObject* currentObject = (AbstractVMObject*) pageStart;
+    for (AbstractVMObject* currentObject = (AbstractVMObject*) buffer;
          (size_t) currentObject < (size_t) nextFreePosition;
          currentObject = (AbstractVMObject*) (currentObject->GetObjectSize() + (size_t) currentObject)) {
         assert(Universe::IsValidObject(currentObject));
         if (currentObject->GetGCField() == GetHeap<HEAP_CLS>()->GetMarkValue()) {
             AbstractVMObject* newLocation = currentObject->Clone(this);
-            long positionSideArray = ((size_t)currentObject - pageStart)/8;
+            uintptr_t positionSideArray = ((uintptr_t)currentObject - (uintptr_t) buffer)/8;
             AbstractVMObject* test = nullptr;
             void* oldPosition = thread->GetPage()->nextFreePosition;
             if (!sideArray[positionSideArray].compare_exchange_strong(test, newLocation)) {
@@ -157,7 +155,8 @@ void PauselessPage::RelocatePage() {
         }
     }
     amountLiveData = 0;
-    nextFreePosition = (void*)pageStart;
+
+    ClearPage();
 }
 
 #endif

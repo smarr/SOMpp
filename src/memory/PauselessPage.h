@@ -56,17 +56,20 @@ private:
     AbstractVMObject* allocateNonRelocatable(size_t);
     
     bool isFull() { return nextFreePosition > treshold; }
-    
+
+    PauselessHeap* const heap;
     Interpreter* interpreter;
-    size_t pageStart;
-    size_t pageEnd;
+
     void* treshold;
-    void* volatile nextFreePosition;
-    PauselessHeap* heap;
     
+    void* const       bufferEnd;
+    void*             nextFreePosition;
+
     PauselessPage* nonRelocatablePage;
 
     bool blocked;
     std::atomic<AbstractVMObject*>* sideArray;
-    long amountLiveData;
+    uintptr_t amountLiveData;
+    
+    void* buffer[];
 };
