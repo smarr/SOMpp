@@ -458,10 +458,10 @@ void PauselessCollectorThread::CheckMarkingOfObject(vm_oop_t oop) {
     if (obj->GetGCField2() == markValue)
         return;
     obj->SetGCField2(markValue);
-    if (std::find(GetHeap<HEAP_CLS>()->fullPages->begin(), GetHeap<HEAP_CLS>()->fullPages->end(), page) != GetHeap<HEAP_CLS>()->fullPages->end()) {
     PauselessHeap* const heap = GetHeap<PauselessHeap>();
     PauselessPage* page = heap->GetPageFromObj(obj);
     
+    if (heap->pagedHeap.IsInFullPages(page)) {
         assert(obj->GetGCField() == markValue);
         obj->CheckMarking(CheckMarkingOfObject);
     }
