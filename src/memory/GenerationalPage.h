@@ -17,9 +17,7 @@ public:
         memset(buffer, 0, heap->pagedHeap.pageSize - sizeof(NurseryPage));
     }
     
-    ~NurseryPage() {
-        free(buffer);
-    }
+    ~NurseryPage() {}
     
     void* AllocateObject(size_t size, bool outsideNursery = false) {
         if (outsideNursery) {
