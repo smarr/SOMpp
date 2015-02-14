@@ -43,10 +43,6 @@ class Interpreter;
 
 class SourcecodeCompiler;
 
-
-//Convenience macro to get access to an interpreters memory page
-#define _PAGE GetUniverse()->GetInterpreter()->GetPage()
-
 // for runtime debug
 extern short dumpBytecodes;
 extern short gcVerbosity;
