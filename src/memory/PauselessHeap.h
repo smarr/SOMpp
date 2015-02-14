@@ -59,6 +59,12 @@ public:
     Page* RegisterThread() { return reinterpret_cast<Page*>(pagedHeap.GetNextPage()); /* TODO: do we need to do anything else here? */}
     void UnregisterThread(Page*) { /* TODO: do we need to do anything here? */ }
     
+    inline PauselessPage* GetPageFromObj(AbstractVMObject* obj) {
+        uintptr_t bits = reinterpret_cast<uintptr_t>(obj);
+        uintptr_t mask = ~(pagedHeap.pageSize - 1);
+        uintptr_t page = bits & mask;
+        return reinterpret_cast<PauselessPage*>(page);
+    }
 
 private:
     
@@ -83,6 +89,7 @@ private:
     pthread_cond_t stopTheWorldCondition;
     pthread_cond_t mayProceed;
     
+    friend PauselessPage;
 };
 
 template<typename T>
@@ -136,10 +143,8 @@ __attribute__((always_inline)) inline typename T::Loaded* ReadBarrier(T** refere
         bool trapTriggered = false;
         //gc-trap stuff ------>
         
-        HEAP_CLS* const heap = GetHeap<HEAP_CLS>();
-        size_t pageNumber = ((size_t)reference - (size_t)(heap->GetMemoryStart())) / PAGE_SIZE;
-        vector<Page*>* allPages = heap->GetAllPages();
-        Page* page = (*allPages)[pageNumber];
+        PauselessHeap* const heap = GetHeap<PauselessHeap>();
+        PauselessPage* page = heap->GetPageFromObj(reference);
         
         if (interpreter->TriggerGCTrap(page)) {
             pthread_mutex_lock(heap->GetGcTrapEnabledMutex());
@@ -183,8 +188,8 @@ __attribute__((always_inline)) inline typename T::Loaded* ReadBarrierForGCThread
         reference = Untag(foo);
         bool trapTriggered = false;
         //gc-trap stuff ------>
-        size_t pageNumber = ((size_t)reference - (size_t)(GetHeap<HEAP_CLS>()->GetMemoryStart())) / PAGE_SIZE;
-        Page* page = GetHeap<HEAP_CLS>()->GetAllPages()->at(pageNumber);
+        PauselessHeap* const heap = GetHeap<PauselessHeap>();
+        PauselessPage* page = heap->GetPageFromObj(reference);
         if (page->Blocked()) {
             trapTriggered = true;
             reference = (typename T::Loaded*) page->LookupNewAddress((AbstractVMObject*)reference, gcThread);
@@ -219,8 +224,9 @@ inline bool GetNMTValue(T* reference) {
 
 template<typename T>
 inline void CheckBlocked(T* reference) {
-    size_t pageNumber = ((size_t)reference - (size_t)(GetHeap<HEAP_CLS>()->GetMemoryStart())) / PAGE_SIZE;
-    Page* page = GetHeap<HEAP_CLS>()->allPages->at(pageNumber);
+    PauselessHeap* const heap = GetHeap<PauselessHeap>();
+    PauselessPage* page = heap->GetPageFromObj(
+                            reinterpret_cast<AbstractVMObject*>(reference));
     assert(!page->Blocked());
 }
 

@@ -125,8 +125,9 @@ void PauselessCollectorThread::InitializeCollector(int numberOfThreads) {
 void PauselessCollectorThread::MarkObject(AbstractVMObject* obj) {
     if (obj->GetGCField() == markValue)
         return;
-    //assert(obj->GetGCField() == 0 || obj->GetGCField() == markValue-1);
-    Page* page = GetHeap<HEAP_CLS>()->allPages->at(((size_t)obj - (size_t)GetHeap<HEAP_CLS>()->memoryStart) / PAGE_SIZE);
+    PauselessHeap* const heap = GetHeap<PauselessHeap>();
+    PauselessPage* page = heap->GetPageFromObj(obj);
+
     assert(REFERENCE_NMT_VALUE(obj) == false);
     assert(Universe::IsValidObject(obj));
     page->AddAmountLiveData(obj->GetObjectSize());
@@ -210,7 +211,7 @@ I don't remember well, but, I think, I saw the GC relocating stuff on that page.
     while (true) {
         
         expectedNMT = !expectedNMT;
-        PauselessPagedHeap* test = GetHeap<HEAP_CLS>();
+        PauselessHeap* const test = GetHeap<PauselessHeap>();
         
         GetUniverse()->ErrorPrint("[GC] Start RootSet Marking");
         //------------------------
@@ -458,9 +459,10 @@ void PauselessCollectorThread::CheckMarkingOfObject(vm_oop_t oop) {
     if (obj->GetGCField2() == markValue)
         return;
     obj->SetGCField2(markValue);
-    size_t pageNumber = ((size_t)obj - (size_t)(GetHeap<HEAP_CLS>()->GetMemoryStart())) / PAGE_SIZE;
-    Page* page = GetHeap<HEAP_CLS>()->allPages->at(pageNumber);
     if (std::find(GetHeap<HEAP_CLS>()->fullPages->begin(), GetHeap<HEAP_CLS>()->fullPages->end(), page) != GetHeap<HEAP_CLS>()->fullPages->end()) {
+    PauselessHeap* const heap = GetHeap<PauselessHeap>();
+    PauselessPage* page = heap->GetPageFromObj(obj);
+    
         assert(obj->GetGCField() == markValue);
         obj->CheckMarking(CheckMarkingOfObject);
     }

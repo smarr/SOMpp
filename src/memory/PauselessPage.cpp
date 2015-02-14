@@ -6,7 +6,6 @@
 //
 //
 
-
 #include <vmobjects/AbstractObject.h>
 #include <vm/Universe.h>
 #include <interpreter/Interpreter.h>
@@ -16,13 +15,22 @@
 #include <memory/PauselessHeap.h>
 
 
-PauselessPage::PauselessPage(void* pageStart, PauselessHeap* heap) {
-    this->heap = heap;
-    this->nextFreePosition = pageStart;
-    this->pageStart = (size_t)pageStart;
-    this->pageEnd = this->pageStart + PAGE_SIZE;
-    treshold = (void*)((size_t)pageStart + ((size_t)(PAGE_SIZE * 0.9)));
+void* PauselessPage::operator new(size_t count) {
+    assert(count == sizeof(PauselessPage));
+    size_t size = GetHeap<PauselessHeap>()->pagedHeap.pageSize;
+    assert(size > count);
+    
+    void* result;
+    int r = posix_memalign(&result, size, size);
+    assert(r == 0);
+    
+    return result;
 }
+
+PauselessPage::PauselessPage(PauselessHeap* heap)
+    : heap(heap), nextFreePosition(buffer),
+      bufferEnd((void*)((uintptr_t)buffer + heap->pagedHeap.pageSize - sizeof(PauselessPage))),
+      treshold((void*)((size_t)buffer + ((size_t)(heap->pagedHeap.pageSize * 0.9)))) { }
 
 AbstractVMObject* PauselessPage::allocate(size_t size) {
     AbstractVMObject* newObject = (AbstractVMObject*) nextFreePosition;

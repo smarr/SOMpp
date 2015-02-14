@@ -23,7 +23,7 @@ class PauselessPage {
     
 public:
     
-    PauselessPage(void* pageStart, PauselessHeap* heap);
+    PauselessPage(PauselessHeap* heap);
     
     AbstractVMObject* AllocateObject(size_t size, bool nonRelocatable = false);
     void ClearPage();
@@ -44,6 +44,12 @@ public:
     
     void SetNonRelocatablePage(PauselessPage* page) { nonRelocatablePage = page; }
     void SetInterpreter(Interpreter* interp) { interpreter = interp; }
+    
+    // These pages are allocated in aligned memory. The page is aligned with
+    // its size, which should be a power of two, and thereby allow us to mask
+    // out the address of a pointer in the page, and get to the page object.
+    void* operator new(size_t count);
+
     
 private:
     AbstractVMObject* allocate(size_t);
