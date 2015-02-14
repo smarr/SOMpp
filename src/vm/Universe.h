@@ -36,7 +36,6 @@
 
 #include <vmobjects/ObjectFormats.h>
 
-#include <memory/PauselessPagedHeap.h>
 #include <memory/Worklist.h>
 #include <memory/BaseThread.h>
 
@@ -198,7 +197,6 @@ private:
         return !(val == 0) && !(val & (val - 1));
     }
 
-    PauselessPagedHeap* heap;
     size_t heapSize;
     size_t pageSize;
 
