@@ -398,9 +398,6 @@ void Universe::initialize(long _argc, char** _argv) {
 void Universe::startInterpreterInThread(VMThread* thread, VMBlock* block,
                                         vm_oop_t arguments
                                         PAUSELESS_ONLY(, bool expectedNMT, bool gcTrapEnabled)) {
-    auto tId = this_thread::get_id();
-    VMThread::RegisterThread(tId, thread);
-    
     // Note: since this is a long running method, most pointers in here are
     //       not GC safe!
 
@@ -409,6 +406,9 @@ void Universe::startInterpreterInThread(VMThread* thread, VMBlock* block,
 
     Interpreter* interp = new Interpreter(page PAUSELESS_ONLY(, expectedNMT, gcTrapEnabled));
     pthread_setspecific(this->interpreterKey, interp);
+    
+    auto tId = this_thread::get_id();
+    VMThread::RegisterThread(tId, thread);
 
     registerInterpreter(interp);
     page->SetInterpreter(interp);
