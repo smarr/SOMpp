@@ -38,9 +38,10 @@ public:
         nonRelocatablePages.push_back(page);
     }
     
-    // DIRTY
-    FORCE_INLINE void* GetMemoryStart() {return memoryStart;}
-    FORCE_INLINE vector<PauselessPage*>* GetAllPages() {return allPages;}
+    bool HasReachedMaxPageCount(size_t currentNumPages, size_t maxNumPages) {
+        return currentNumPages > maxNumPages;
+    }
+    
     inline int GetNumberOfMutatorsNeedEnableGCTrap() {return numberOfMutatorsNeedEnableGCTrap;}
     inline int GetNumberOfMutatorsWithEnabledGCTrap() {return numberOfMutatorsWithEnabledGCTrap;}
     inline pthread_mutex_t* GetGcTrapEnabledMutex() {return &gcTrapEnabledMutex;}
