@@ -1,6 +1,6 @@
 #include "PauselessHeap.h"
 #include "PauselessPage.h"
-//#include "PauselessCollector.h"
+#include <memory/Heap.h>
 #include <vmobjects/AbstractObject.h>
 #include <vm/Universe.h>
 #include "PauselessCollectorThread.h"
@@ -15,7 +15,9 @@
 
 #define NUMBER_OF_GC_THREADS 1
 
-PauselessHeap::PauselessHeap(size_t pageSize, size_t maxHeapSize) : PauselessPagedHeap(pageSize, maxHeapSize) {
+PauselessHeap::PauselessHeap(size_t pageSize, size_t maxHeapSize)
+    : Heap<PauselessHeap>(nullptr),
+      pagedHeap(this, pageSize, maxHeapSize / pageSize) {
     pthread_key_create(&pauselessCollectorThread, nullptr);
     pthread_mutex_init(&gcTrapEnabledMutex, nullptr);
     pthread_cond_init(&gcTrapEnabledCondition, nullptr);

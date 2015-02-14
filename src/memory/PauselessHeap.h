@@ -3,7 +3,6 @@
 #include <misc/defs.h>
 #include <assert.h>
 
-#include <memory/PauselessPagedHeap.h>
 #include <memory/PauselessPage.h>
 #include <vmobjects/VMObjectBase.h>
 #include <vmobjects/AbstractObject.h>
@@ -18,7 +17,7 @@ class PauselessCollectorThread;
 #define REFERENCE_NMT_VALUE(REFERENCE) (((reinterpret_cast<intptr_t>(REFERENCE) & MASK_OBJECT_NMT) == 0) ? false : true)
 #define FLIP_NMT_VALUE(REFERENCE) ( (reinterpret_cast<intptr_t>(REFERENCE) ^ MASK_OBJECT_NMT) )
 
-class PauselessHeap : public PauselessPagedHeap {
+class PauselessHeap : public Heap<PauselessHeap> {
     friend class PauselessCollectorThread;
  
 public:
@@ -65,6 +64,8 @@ public:
         uintptr_t page = bits & mask;
         return reinterpret_cast<PauselessPage*>(page);
     }
+
+    PagedHeap<PauselessPage, PauselessHeap> pagedHeap;
 
 private:
     

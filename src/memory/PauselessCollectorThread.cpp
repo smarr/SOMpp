@@ -2,7 +2,6 @@
 
 #include <misc/defs.h>
 #include "Worklist.h"
-#include <memory/PauselessPagedHeap.h>
 #include <interpreter/Interpreter.h>
 #include <vm/Universe.h>
 #include <vmobjects/VMMethod.h>
