@@ -596,7 +596,7 @@ void Interpreter::MarkRootSet() {
     while (!fullPages.empty()) {
 #warning TODO: see what's going on here, are we sure that the GC has only access to full pages?
 
-        GetHeap<HEAP_CLS>()->RelinquishPage(fullPages.back());
+        GetHeap<HEAP_CLS>()->pagedHeap.ReturnFullPage(fullPages.back());
         fullPages.pop_back();
     }
     
@@ -619,7 +619,7 @@ void Interpreter::MarkRootSetByGC() {
     
     while (!fullPages.empty()) {
         //fullPages.back().ResetAmountOfLiveData();
-        GetHeap<HEAP_CLS>()->RelinquishPage(fullPages.back());
+        GetHeap<HEAP_CLS>()->pagedHeap.ReturnFullPage(fullPages.back());
         fullPages.pop_back();
     }
     

@@ -56,7 +56,7 @@ public:
     int GetCycle();
     int GetMarkValue();
     
-    Page* RegisterThread() { return reinterpret_cast<Page*>(RequestPage()); /* TODO: do we need to do anything else here? */}
+    Page* RegisterThread() { return reinterpret_cast<Page*>(pagedHeap.GetNextPage()); /* TODO: do we need to do anything else here? */}
     void UnregisterThread(Page*) { /* TODO: do we need to do anything here? */ }
     
 

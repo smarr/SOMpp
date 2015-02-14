@@ -348,21 +348,20 @@ I don't remember well, but, I think, I saw the GC relocating stuff on that page.
             // unblock pages that were blocked during the previous cycle
             for (vector<Page*>::iterator page = pagesToUnblock->begin(); page != pagesToUnblock->end(); ++page) {
                 (*page)->UnBlock();
-                GetHeap<HEAP_CLS>()->AddEmptyPage(*page);
+                GetHeap<PauselessHeap>()->pagedHeap.ReturnFreePage(page);
             }
             pagesToUnblock->clear();
             // block pages that will be subject for relocation
                                 //pthread_mutex_lock();
-            for (vector<Page*>::iterator page = GetHeap<HEAP_CLS>()->fullPages->begin(); page != GetHeap<HEAP_CLS>()->fullPages->end(); ++page) {
-                (*page)->Block();
-                
-                pagesToRelocate->push_back(*page);
-                pagesToUnblock->push_back(*page);
+            vector<PauselessPage*>& fullPages = GetHeap<PauselessHeap>()->
+                                                    pagedHeap.GetFullPages_alreadyLocked();
+            for (PauselessPage* page : fullPages) {
+                page->Block();
+                pagesToRelocate->push_back(page);
+                pagesToUnblock->push_back(page);
             }
-            GetHeap<HEAP_CLS>()->fullPages->clear();
-                                //pthread_mutex_unlock
-            
-            
+            fullPages.clear();
+
             {
 
 #warning some as above: in this block, we usually made sure that now new interpreters are joining, to be sure that all traps are correctly set. \

@@ -15,6 +15,7 @@ public:
         lock_guard<mutex> lock(pages_mutex);
         return GetNextPage_alreadyLocked();
     }
+
     PAGE_T* GetNextPage_alreadyLocked() {
         PAGE_T* result;
         
@@ -40,13 +41,44 @@ public:
         
         return result;
     }
+
+    void ReturnFullPage(PAGE_T* page) {
+        lock_guard<mutex> lock(pages_mutex);
+        ReturnFullPage_alreadyLocked(page);
+    }
     
+    void ReturnFullPage_alreadyLocked(PAGE_T* page) {
+        fullPages.push_back(page);
+    }
+    
+    void ReturnFreePage(PAGE_T* page) {
+        lock_guard<mutex> lock(pages_mutex);
+        ReturnFreePage_alreadyLocked(page);
+    }
+
+    void ReturnFreePage_alreadyLocked(PAGE_T* page) {
+        freePages.push_back(page);
+    }
+    
+    bool IsInFullPages(PAGE_T* page) {
+        lock_guard<mutex> lock(pages_mutex);
+        return IsInFullPages_alreadyLocked(page);
+    }
+    
+    bool IsInFullPages_alreadyLocked(PAGE_T* page) {
+        return std::find(fullPages.begin(), fullPages.end(), page) != fullPages.end();
+    }
+    
+    vector<PAGE_T*>& GetUsedPages_alreadyLocked() {
+        return usedPages;
+    }
+    
+    vector<PAGE_T*>& GetFullPages_alreadyLocked() {
+        return fullPages;
+    }
+
+
     const size_t pageSize;
-
-# warning TODO: make private again, or protect the fields somehow
-    vector<PAGE_T*> usedPages;
-    vector<PAGE_T*> freePages;
-
     
 private:
     HEAP_T* const heap;
@@ -55,4 +87,8 @@ private:
     size_t currentNumPages;
 
     mutex pages_mutex;
+    
+    vector<PAGE_T*> usedPages;
+    vector<PAGE_T*> freePages;
+    vector<PAGE_T*> fullPages;  // currently only used by pauseless GC
 };

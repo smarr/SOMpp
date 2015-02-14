@@ -12,13 +12,13 @@
 #if GC_TYPE==PAUSELESS
 BaseThread::BaseThread(Page* page) : page(page), expectedNMT(false) {
     if (page)
-        page->SetNonRelocatablePage(GetHeap<HEAP_CLS>()->RequestPage());
+        page->SetNonRelocatablePage(GetHeap<HEAP_CLS>()->pagedHeap.GetNextPage());
 
 }
 
 BaseThread::BaseThread(Page* page, bool expectedNMT) : page(page), expectedNMT(expectedNMT) {
     if (page)
-        page->SetNonRelocatablePage(GetHeap<HEAP_CLS>()->RequestPage());
+        page->SetNonRelocatablePage(GetHeap<HEAP_CLS>()->pagedHeap.GetNextPage());
 }
 #else
 BaseThread::BaseThread(Page* page) : page(page) {}

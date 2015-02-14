@@ -56,8 +56,8 @@ void CopyingCollector::Collect() {
     // reset collection trigger
     heap->ResetGCTrigger();
     
-    vector<CopyingPage*> oldPages(heap->pagedHeap.usedPages); // TODO: can we use move constructor here?
-    heap->pagedHeap.usedPages.clear();
+    vector<CopyingPage*> oldPages(heap->pagedHeap.GetUsedPages_alreadyLocked()); // TODO: can we use move constructor here?
+    heap->pagedHeap.GetUsedPages_alreadyLocked().clear();
     
     unordered_set<Interpreter*>* interps = GetUniverse()->GetInterpreters();
     
@@ -82,15 +82,15 @@ void CopyingCollector::Collect() {
     //       usedPages can be modified while copying object to include the
     //       new pages of copied objects, which we also still need to travers
     size_t i = 0;
-    while (i < heap->pagedHeap.usedPages.size()) {
-        heap->pagedHeap.usedPages[i]->WalkObjects(
-                            copy_if_necessary, target->GetCurrent());
+    vector<CopyingPage*>& usedPages = heap->pagedHeap.GetUsedPages_alreadyLocked();
+    while (i < usedPages.size()) {
+        usedPages[i]->WalkObjects(copy_if_necessary, target->GetCurrent());
         i++;
     }
     
     for (auto page : oldPages) {
         page->Reset();
-        heap->pagedHeap.freePages.push_back(page);
+        heap->pagedHeap.ReturnFreePage(page);
     }
 
     if (DEBUG) {
@@ -98,7 +98,7 @@ void CopyingCollector::Collect() {
         
         size_t j = 0;
         // let's test whether all objects are valid
-        for (auto page : heap->pagedHeap.usedPages) {
+        for (auto page : usedPages) {
             page->WalkObjects(objects_are_valid, nullptr);
             j++;
         }
@@ -109,12 +109,10 @@ void CopyingCollector::Collect() {
     // which already got a page
     for (auto interp : *interps) {
         if (interp != lastI) {
-            auto page = heap->pagedHeap.freePages.back();
+            auto page = heap->pagedHeap.GetNextPage_alreadyLocked();
             assert(page);
-            heap->pagedHeap.freePages.pop_back();
             interp->SetPage(reinterpret_cast<Page*>(page));
             page->SetInterpreter(interp);
-            heap->pagedHeap.usedPages.push_back(page);
         }
     }
 

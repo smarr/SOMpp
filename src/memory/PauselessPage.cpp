@@ -39,7 +39,7 @@ AbstractVMObject* PauselessPage::allocateNonRelocatable(size_t size) {
     AbstractVMObject* newObject = nonRelocatablePage->allocate(size);
     if (nonRelocatablePage->isFull()) {
         heap->AddFullNonRelocatablePage(nonRelocatablePage);
-        nonRelocatablePage = heap->RequestPage();
+        nonRelocatablePage = heap->pagedHeap.GetNextPage();
     }
     return newObject;
 }
@@ -55,8 +55,8 @@ AbstractVMObject* PauselessPage::AllocateObject(size_t size, bool nonRelocatable
     if ((size_t)nextFreePosition > pageEnd) {
         nextFreePosition = (void*)((size_t)nextFreePosition - size); // reset pointer
         
-        heap->RelinquishPage(this);
-        PauselessPage* newPage = heap->RequestPage();
+        heap->pagedHeap.ReturnFullPage(this);
+        PauselessPage* newPage = heap->pagedHeap.GetNextPage();
         GetUniverse()->GetInterpreter()->SetPage(reinterpret_cast<Page*>(newPage));
         newPage->SetNonRelocatablePage(nonRelocatablePage);
         newObject = newPage->AllocateObject(size, nonRelocatable);
