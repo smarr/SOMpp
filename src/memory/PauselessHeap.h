@@ -131,11 +131,14 @@ inline typename T::Stored* WriteBarrierForGCThread(T* reference) {
 
 template<typename T>
 __attribute__((always_inline)) inline typename T::Loaded* ReadBarrier(T** referenceHolder, bool rootSetMarking = false) {
-    typename T::Loaded* reference;
+    AbstractVMObject* reference;
     while (true) {
-        T* foo = *referenceHolder;
+        if (IS_TAGGED(*referenceHolder))
+            return reinterpret_cast<typename T::Loaded*>(*referenceHolder);
+
+        GCAbstractObject* foo = reinterpret_cast<GCAbstractObject*>(*referenceHolder);
         if (foo == nullptr)
-            return (typename T::Loaded*)nullptr;
+            return nullptr;
 
         Interpreter* interpreter = GetUniverse()->GetInterpreter();
         bool correctNMT = (REFERENCE_NMT_VALUE(foo) == interpreter->GetExpectedNMT());
@@ -155,16 +158,20 @@ __attribute__((always_inline)) inline typename T::Loaded* ReadBarrier(T** refere
             }
             pthread_mutex_unlock(heap->GetGcTrapEnabledMutex());
             trapTriggered = true;
-            reference = (typename T::Loaded*) page->LookupNewAddress((AbstractVMObject*)reference, interpreter);
+            reference = page->LookupNewAddress(reference, interpreter);
         }
         // <-----------
         if (!correctNMT || trapTriggered) {
             if (interpreter->GetExpectedNMT()) {
-                if (! __sync_bool_compare_and_swap(referenceHolder, foo, (T*) FLIP_NMT_VALUE(reference))) {
+                if (! __sync_bool_compare_and_swap(referenceHolder,
+                                                   reinterpret_cast<T*>(foo),
+                                                   reinterpret_cast<T*>(FLIP_NMT_VALUE(reference)))) {
                     continue;
                 }
             } else {
-                if (! __sync_bool_compare_and_swap(referenceHolder, foo, (T*) reference)) {
+                if (! __sync_bool_compare_and_swap(referenceHolder,
+                                                   reinterpret_cast<T*>(foo),
+                                                   reinterpret_cast<T*>(reference))) {
                     continue;
                 }
             }
@@ -180,11 +187,15 @@ __attribute__((always_inline)) inline typename T::Loaded* ReadBarrier(T** refere
 
 template<typename T>
 __attribute__((always_inline)) inline typename T::Loaded* ReadBarrierForGCThread(T** referenceHolder, bool rootSetMarking = false) {
-    typename T::Loaded* reference;
+    AbstractVMObject* reference;
     while (true) {
-        T* foo = *referenceHolder;
+        if (IS_TAGGED(*referenceHolder))
+            return reinterpret_cast<typename T::Loaded*>(*referenceHolder);
+
+        GCAbstractObject* foo = reinterpret_cast<GCAbstractObject*>(*referenceHolder);
         if (foo == nullptr)
-            return (typename T::Loaded*)nullptr;
+            return nullptr;
+        
         PauselessCollectorThread* gcThread = GetHeap<HEAP_CLS>()->GetGCThread();
         bool correctNMT = (REFERENCE_NMT_VALUE(foo) == gcThread->GetExpectedNMT());
         reference = Untag(foo);
@@ -194,16 +205,20 @@ __attribute__((always_inline)) inline typename T::Loaded* ReadBarrierForGCThread
         PauselessPage* page = heap->GetPageFromObj(reference);
         if (page->Blocked()) {
             trapTriggered = true;
-            reference = (typename T::Loaded*) page->LookupNewAddress((AbstractVMObject*)reference, gcThread);
+            reference = page->LookupNewAddress(reference, gcThread);
         }
         // <-----------
         if (!correctNMT || trapTriggered) {
             if (gcThread->GetExpectedNMT()) {
-                if (! __sync_bool_compare_and_swap(referenceHolder, foo, (T*) FLIP_NMT_VALUE(reference))) {
+                if (! __sync_bool_compare_and_swap(referenceHolder,
+                                                   reinterpret_cast<T*>(foo),
+                                                   reinterpret_cast<T*>(FLIP_NMT_VALUE(reference)))) {
                     continue;
                 }
             } else {
-                if (! __sync_bool_compare_and_swap(referenceHolder, foo, (T*) reference)) {
+                if (! __sync_bool_compare_and_swap(referenceHolder,
+                                                   reinterpret_cast<T*>(foo),
+                                                   reinterpret_cast<T*>(reference))) {
                     continue;
                 }
             }
@@ -215,7 +230,7 @@ __attribute__((always_inline)) inline typename T::Loaded* ReadBarrierForGCThread
         break;
     }
     assert(Universe::IsValidObject(reinterpret_cast<vm_oop_t>(reference)));
-    return reference;
+    return reinterpret_cast<typename T::Loaded*>(reference);
 }
 
 // FOR DEBUGGING PURPOSES
@@ -224,8 +239,10 @@ inline bool GetNMTValue(T* reference) {
     return REFERENCE_NMT_VALUE(reference);
 }
 
-template<typename T>
-inline void CheckBlocked(T* reference) {
+inline void CheckBlocked(vm_oop_t reference) {
+    if (IS_TAGGED(reference))
+        return;
+    
     PauselessHeap* const heap = GetHeap<PauselessHeap>();
     PauselessPage* page = heap->GetPageFromObj(
                             reinterpret_cast<AbstractVMObject*>(reference));
