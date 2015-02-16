@@ -18,7 +18,6 @@
 PauselessHeap::PauselessHeap(size_t pageSize, size_t maxHeapSize)
     : Heap<PauselessHeap>(nullptr),
       pagedHeap(this, pageSize, maxHeapSize / pageSize) {
-    pthread_key_create(&pauselessCollectorThread, nullptr);
     pthread_mutex_init(&gcTrapEnabledMutex, nullptr);
     pthread_cond_init(&gcTrapEnabledCondition, nullptr);
     threads = new pthread_t[NUMBER_OF_GC_THREADS];
@@ -42,17 +41,9 @@ void PauselessHeap::Start() {
 
 void* PauselessHeap::ThreadForGC(void*) {
     PauselessCollectorThread* gcThread = new PauselessCollectorThread();
-    GetHeap<HEAP_CLS>()->AddGCThread(gcThread);
+    GetUniverse()->RegisterGCThreadInThreadLocal(gcThread);
     gcThread->Collect();
     return nullptr;
-}
-
-PauselessCollectorThread* PauselessHeap::GetGCThread() {
-    return (PauselessCollectorThread*)pthread_getspecific(pauselessCollectorThread);
-}
-
-void PauselessHeap::AddGCThread(PauselessCollectorThread* gcThread) {
-    pthread_setspecific(pauselessCollectorThread, gcThread);
 }
 
 void PauselessHeap::SignalRootSetMarked() {

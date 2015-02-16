@@ -59,7 +59,6 @@ Interpreter::Interpreter(Page* page, bool expectedNMT, bool gcTrapEnabled) : Bas
     markRootSet = false;
     safePointRequested = false;
     signalEnableGCTrap = false;
-    this->gcTrapEnabled = gcTrapEnabled;
     pthread_mutex_init(&blockedMutex, nullptr);
 }
 #else
@@ -640,9 +639,9 @@ void Interpreter::EnableGCTrap() {
 
 // Switch the GC-trap off again, this does not require a safepoint pass
 void Interpreter::DisableGCTrap() {
-    prevent.lock();
+    gcTrap_mutex.lock();
     gcTrapEnabled = false;
-    prevent.unlock();
+    gcTrap_mutex.unlock();
 }
 
 // used when interpreter is in the process of going into a blocked state
@@ -680,25 +679,6 @@ void Interpreter::EnableStop() {
 void Interpreter::AddGCWork(AbstractVMObject* work) {
     worklist.AddWorkMutator(work);
 }
-
-bool Interpreter::GCTrapEnabled() {
-    return gcTrapEnabled;
-}
-
-//new --->
-
-/// The GC trap is to make sure that a page is blocked atomically, and
-//  not observable by a mutator. The mutator are not allowed to see the
-//  blocking change within the period of two safepoints, because otherwise
-//  they could be seeing two different pointers for the same object
-
-bool Interpreter::TriggerGCTrap(Page* page) {
-    prevent.lock();
-    bool result = gcTrapEnabled && page->Blocked();
-    prevent.unlock();
-    return result;
-}
-// <-----
 
 // page management
 void Interpreter::AddFullPage(Page* page) {

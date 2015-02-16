@@ -27,7 +27,6 @@
  */
 
 #include <misc/defs.h>
-#include <misc/SpinLock.h>
 #include <vmobjects/ObjectFormats.h>
 #include <memory/BaseThread.h>
 
@@ -54,7 +53,6 @@ public:
     void         DisableGCTrap();
     void         SignalEnableGCTrap();
     void         EnableGCTrap();
-    bool         GCTrapEnabled();
     FORCE_INLINE bool         GetExpectedNMT() { return expectedNMT; }
 
     void         AddFullPage(Page*);
@@ -64,8 +62,6 @@ public:
 
     
     void         EnableStop();
-    
-    bool         TriggerGCTrap(Page*);
     
     // for debugging purposes
     void         CheckMarking(void (vm_oop_t));
@@ -117,13 +113,10 @@ private:
     bool markRootSet;
     bool safePointRequested;
     bool signalEnableGCTrap;
-    bool gcTrapEnabled;
 
     vector<Page*> fullPages;
 
     pthread_mutex_t blockedMutex;
-
-    SpinLock prevent;
 #endif
 
 };

@@ -86,7 +86,10 @@ public:
     [[noreturn]] static void Quit(long);
     [[noreturn]] static void ErrorExit(StdString);
 
-    FORCE_INLINE Interpreter* GetInterpreter() { return (Interpreter*)pthread_getspecific(interpreterKey); }
+    FORCE_INLINE BaseThread* GetBaseThread() {
+        return reinterpret_cast<BaseThread*>(
+                    pthread_getspecific(interpreterKey));
+    }
     Interpreter* NewInterpreter();
     
 #if GC_TYPE==PAUSELESS

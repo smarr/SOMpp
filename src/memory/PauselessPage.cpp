@@ -65,7 +65,7 @@ AbstractVMObject* PauselessPage::AllocateObject(size_t size, bool nonRelocatable
         
         heap->pagedHeap.ReturnFullPage(this);
         PauselessPage* newPage = heap->pagedHeap.GetNextPage();
-        GetUniverse()->GetInterpreter()->SetPage(reinterpret_cast<Page*>(newPage));
+        GetUniverse()->GetBaseThread()->SetPage(reinterpret_cast<Page*>(newPage));
         newPage->SetNonRelocatablePage(nonRelocatablePage);
         newObject = newPage->AllocateObject(size, nonRelocatable);
     }
@@ -93,7 +93,7 @@ void PauselessPage::UnBlock() {
     delete [] sideArray;
 }
 
-AbstractVMObject* PauselessPage::LookupNewAddress(AbstractVMObject* oldAddress, PauselessCollectorThread* thread) {
+AbstractVMObject* PauselessPage::LookupNewAddress(AbstractVMObject* oldAddress, BaseThread* thread) {
     uintptr_t position = ((uintptr_t)oldAddress - (uintptr_t)buffer)/8;
     if (!sideArray[position]) {
         AbstractVMObject* newLocation = oldAddress->Clone(this);
@@ -124,7 +124,7 @@ void PauselessPage::Free(size_t numBytes) {
 }
 
 void PauselessPage::RelocatePage() {
-    PauselessCollectorThread* thread = GetHeap<HEAP_CLS>()->GetGCThread();
+    BaseThread* thread = GetUniverse()->GetBaseThread();
     for (AbstractVMObject* currentObject = (AbstractVMObject*) buffer;
          (size_t) currentObject < (size_t) nextFreePosition;
          currentObject = (AbstractVMObject*) (currentObject->GetObjectSize() + (size_t) currentObject)) {

@@ -16,7 +16,8 @@ class PauselessCollectorThread: public BaseThread {
     
 public:
     
-    PauselessCollectorThread();
+    // GC thread should never trigger GC trap
+    PauselessCollectorThread() : BaseThread(nullptr, false) {};
     
     static void InitializeCollector(int);
     

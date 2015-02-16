@@ -11,6 +11,7 @@
 #include <atomic>
 
 #include <misc/defs.h>
+#include <memory/BaseThread.h>
 
 class AbstractVMObject;
 class PauselessHeap;
@@ -33,7 +34,7 @@ public:
     FORCE_INLINE bool Blocked() {
         return blocked;
     }
-    AbstractVMObject* LookupNewAddress(AbstractVMObject*, Interpreter*);
+    AbstractVMObject* LookupNewAddress(AbstractVMObject*, BaseThread*);
     void AddAmountLiveData(size_t);
     double GetPercentageLiveData();
     void Free(size_t);

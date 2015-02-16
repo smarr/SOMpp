@@ -194,10 +194,6 @@ int PauselessCollectorThread::GetMarkValue() {
     return markValue;
 }
 
-PauselessCollectorThread::PauselessCollectorThread() : BaseThread(nullptr) {
-    GetUniverse()->RegisterGCThreadInThreadLocal(this);
-}
-
 #include <unistd.h>
 
 void PauselessCollectorThread::Collect() {

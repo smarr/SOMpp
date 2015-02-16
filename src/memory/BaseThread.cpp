@@ -10,13 +10,17 @@
 
 
 #if GC_TYPE==PAUSELESS
-BaseThread::BaseThread(Page* page) : page(page), expectedNMT(false) {
+BaseThread::BaseThread(Page* page, bool gcTrapEnabled)
+    : page(page), expectedNMT(false), gcTrapEnabled(gcTrapEnabled)
+{
     if (page)
         page->SetNonRelocatablePage(GetHeap<HEAP_CLS>()->pagedHeap.GetNextPage());
 
 }
 
-BaseThread::BaseThread(Page* page, bool expectedNMT) : page(page), expectedNMT(expectedNMT) {
+BaseThread::BaseThread(Page* page, bool expectedNMT, bool gcTrapEnabled)
+    : page(page), expectedNMT(expectedNMT), gcTrapEnabled(gcTrapEnabled)
+{
     if (page)
         page->SetNonRelocatablePage(GetHeap<HEAP_CLS>()->pagedHeap.GetNextPage());
 }
@@ -42,3 +46,20 @@ bool BaseThread::GetExpectedNMT() {
     return expectedNMT;
 }
 #endif
+
+bool BaseThread::GCTrapEnabled() {
+    return gcTrapEnabled;
+}
+
+/// The GC trap is to make sure that a page is blocked atomically, and
+//  not observable by a mutator. The mutator are not allowed to see the
+//  blocking change within the period of two safepoints, because otherwise
+//  they could be seeing two different pointers for the same object
+
+bool BaseThread::TriggerGCTrap(Page* page) {
+    gcTrap_mutex.lock();
+    bool result = gcTrapEnabled && page->Blocked();
+    gcTrap_mutex.unlock();
+    return result;
+}
+

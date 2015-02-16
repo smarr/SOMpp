@@ -30,10 +30,7 @@ public:
     
     void Start();
     //void Stop();
-    
-    PauselessCollectorThread* GetGCThread();
-    void AddGCThread(PauselessCollectorThread*);
-    
+        
     void AddFullNonRelocatablePage(PauselessPage* page) {
         nonRelocatablePages.push_back(page);
     }
@@ -72,7 +69,6 @@ private:
     
     //seems a bit illogical to place this here
     pthread_t* threads;
-    pthread_key_t pauselessCollectorThread;
     
     pthread_mutex_t gcTrapEnabledMutex;
     pthread_cond_t gcTrapEnabledCondition;
@@ -130,8 +126,8 @@ __attribute__((always_inline)) inline typename T::Loaded* ReadBarrier(T** refere
         if (foo == nullptr)
             return nullptr;
 
-        Interpreter* interpreter = GetUniverse()->GetInterpreter();
-        bool correctNMT = (REFERENCE_NMT_VALUE(foo) == interpreter->GetExpectedNMT());
+        BaseThread* thread = GetUniverse()->GetBaseThread();
+        bool correctNMT = (REFERENCE_NMT_VALUE(foo) == thread->GetExpectedNMT());
         reference = Untag(foo);
         assert(Universe::IsValidObject(reinterpret_cast<vm_oop_t>(reference)));
         
@@ -140,19 +136,22 @@ __attribute__((always_inline)) inline typename T::Loaded* ReadBarrier(T** refere
         
         PauselessHeap* const heap = GetHeap<PauselessHeap>();
         PauselessPage* page = heap->GetPageFromObj(reference);
+
+        // make sure the GC thread never triggers GC trap, should alway return false
+        assert(dynamic_cast<PauselessCollectorThread*>(thread) == nullptr || thread->TriggerGCTrap(page) == false);
         
-        if (interpreter->TriggerGCTrap(page)) {
+        if (thread->TriggerGCTrap(page)) {
             pthread_mutex_lock(heap->GetGcTrapEnabledMutex());
             while (heap->GetNumberOfMutatorsNeedEnableGCTrap() != heap->GetNumberOfMutatorsWithEnabledGCTrap()) {
                 pthread_cond_wait(heap->GetGcTrapEnabledCondition(), heap->GetGcTrapEnabledMutex());
             }
             pthread_mutex_unlock(heap->GetGcTrapEnabledMutex());
             trapTriggered = true;
-            reference = page->LookupNewAddress(reference, interpreter);
+            reference = page->LookupNewAddress(reference, thread);
         }
         // <-----------
         if (!correctNMT || trapTriggered) {
-            if (interpreter->GetExpectedNMT()) {
+            if (thread->GetExpectedNMT()) {
                 if (! __sync_bool_compare_and_swap(referenceHolder,
                                                    reinterpret_cast<T*>(foo),
                                                    reinterpret_cast<T*>(FLIP_NMT_VALUE(reference)))) {
@@ -168,7 +167,7 @@ __attribute__((always_inline)) inline typename T::Loaded* ReadBarrier(T** refere
         }
         std::atomic_thread_fence(std::memory_order_seq_cst);
         if (!correctNMT || rootSetMarking)
-            interpreter->AddGCWork(reinterpret_cast<AbstractVMObject*>(reference));
+            thread->AddGCWork(reinterpret_cast<AbstractVMObject*>(reference));
         break;
     }
     assert(Universe::IsValidObject(reinterpret_cast<vm_oop_t>(reference)));
