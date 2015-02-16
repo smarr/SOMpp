@@ -479,19 +479,4 @@ void PauselessCollectorThread::CheckMarking() {
     }
 }
 
-
-
-/*
- if (gcThreadId == MASTER_GC_THREAD) {
- lock vector
- for each Interpreter in to_be_delete_vector
- do delte
- unlock vector
- }
- 
- 
- pthread_exit(nullptr);
- }
- */
-
 #endif
