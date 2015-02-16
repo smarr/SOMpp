@@ -39,9 +39,8 @@ static vector<gc_oop_t> walkedObjects;
 /*
  * This method simply pushes all objects into the vector walkedObjects
  */
-gc_oop_t collectMembers(gc_oop_t obj, Page*) {
-    walkedObjects.push_back(obj);
-    return obj;
+void collectMembers(gc_oop_t* obj_p, Page*) {
+    walkedObjects.push_back(*obj_p);
 }
 /*
  * Helper function that searches the result vector for a field
