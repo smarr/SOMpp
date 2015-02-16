@@ -10,20 +10,20 @@
 
 #include "CopyingCollector.h"
 
-static gc_oop_t copy_if_necessary(gc_oop_t oop, Page* target) {
+static void copy_if_necessary(gc_oop_t* oop, Page* target) {
     // don't process tagged objects
-    if (IS_TAGGED(oop))
-        return oop;
-
-    assert(oop != nullptr);
+    if (IS_TAGGED(*oop) || *oop == nullptr)
+        return;
     
-    AbstractVMObject* obj = AS_OBJ(oop);
+    AbstractVMObject* obj = AS_OBJ(*oop);
 
     intptr_t gcField = obj->GetGCField();
     // GCField is abused as forwarding pointer here
     // if someone has moved before, return the moved object
-    if (gcField != 0)
-        return (gc_oop_t) gcField;
+    if (gcField != 0) {
+        *oop = reinterpret_cast<gc_oop_t>(gcField);
+        return;
+    }
     
     assert(Universe::IsValidObject(obj));
     
@@ -36,18 +36,16 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop, Page* target) {
     obj->SetGCField(reinterpret_cast<intptr_t>(newObj));
     assert(newObj->GetGCField() == 0);
     
-    return to_gc_ptr(newObj);
+    *oop = to_gc_ptr(newObj);
 }
 
-static gc_oop_t objects_are_valid(gc_oop_t oop, Page*) {
+static void objects_are_valid(gc_oop_t* oop, Page*) {
     // don't process tagged objects
-    if (IS_TAGGED(oop))
-        return oop;
+    if (IS_TAGGED(*oop) || *oop == nullptr)
+        return;
 
-    AbstractVMObject* obj = AS_OBJ(oop);
+    AbstractVMObject* obj = AS_OBJ(*oop);
     assert(Universe::IsValidObject(obj));
-
-    return oop;
 }
 
 void CopyingCollector::Collect() {

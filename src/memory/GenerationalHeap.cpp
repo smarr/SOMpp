@@ -70,14 +70,13 @@ void NurseryPage::WalkObjects(walk_heap_fn walk,
     }
 }
 
-static gc_oop_t invalidate_objects(gc_oop_t oop, Page*) {
-    if (IS_TAGGED(oop)) {
-        return oop;
+static void invalidate_objects(gc_oop_t* oop, Page*) {
+    if (IS_TAGGED(*oop) || *oop == nullptr) {
+        return;
     }
     
-    AbstractVMObject* obj = AS_OBJ(oop);
+    AbstractVMObject* obj = AS_OBJ(*oop);
     obj->MarkObjectAsInvalid();
-    return oop;
 }
 
 void NurseryPage::Reset() {

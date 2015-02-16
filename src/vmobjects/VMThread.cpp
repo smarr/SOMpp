@@ -140,6 +140,6 @@ void VMThread::UnregisterThread(thread::id threadId) {
 
 void VMThread::WalkGlobals(walk_heap_fn walk, Page* page) {
     for (auto& pair : threads) {
-        pair.second = static_cast<GCThread*>(walk(pair.second, page));
+        do_walk(pair.second);
     }
 }

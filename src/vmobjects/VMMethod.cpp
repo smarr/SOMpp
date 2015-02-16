@@ -105,10 +105,7 @@ void VMMethod::WalkObjects(walk_heap_fn walk, Page* page) {
 
     int64_t numIndexableFields = GetNumberOfIndexableFields();
     for (size_t i = 0; i < numIndexableFields; ++i) {
-# warning is this check necessary?
-        if (indexableFields[i] != nullptr)
-# warning not sure _store_ptr is the best way, perhaps we should access the array content directly
-            indexableFields[i] = static_cast<GCAbstractObject*>(walk(indexableFields[i], page));
+        do_walk(indexableFields[i]);
     }
 }
 

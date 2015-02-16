@@ -53,7 +53,7 @@ VMEvaluationPrimitive* VMEvaluationPrimitive::Clone(Page* page) {
 
 void VMEvaluationPrimitive::WalkObjects(walk_heap_fn walk, Page* page) {
     VMPrimitive::WalkObjects(walk, page);
-    numberOfArguments = walk(numberOfArguments, page);
+    do_walk(numberOfArguments);
     static_cast<EvaluationRoutine*>(routine)->WalkObjects(walk, page);
 }
 
@@ -129,7 +129,7 @@ void EvaluationRoutine::CheckMarking(void (*walk)(vm_oop_t)) {
 #endif
 
 void EvaluationRoutine::WalkObjects(walk_heap_fn walk, Page* page) {
-    evalPrim = static_cast<GCEvaluationPrimitive*>(walk(evalPrim, page));
+    do_walk(evalPrim);
 }
 
 StdString VMEvaluationPrimitive::AsDebugString() {

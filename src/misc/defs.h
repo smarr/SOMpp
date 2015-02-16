@@ -121,7 +121,8 @@
 
 class GCOop;
 typedef GCOop* gc_oop_t;
-typedef gc_oop_t (*walk_heap_fn)(gc_oop_t, Page*);
+typedef void (*walk_heap_fn)(gc_oop_t*, Page*);
+#define do_walk(field) walk(reinterpret_cast<gc_oop_t*>(&(field)), page)
 
 //
 // Integer Settings

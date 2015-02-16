@@ -14,5 +14,8 @@ VMInteger* GlobalBox::IntegerBox() {
 }
 
 void GlobalBox::WalkGlobals(walk_heap_fn walk, Page* page) {
-    integerBox = static_cast<GCInteger*>(walk(integerBox, page));
+#warning is this #if necessary?
+#if USE_TAGGING
+    do_walk(integerBox);
+#endif
 }

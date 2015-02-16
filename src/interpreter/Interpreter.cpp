@@ -741,12 +741,12 @@ void Interpreter::CheckMarking(void (*walk)(vm_oop_t)) {
 void Interpreter::WalkGlobals(walk_heap_fn walk, Page* page) {
     // some barriers need a field to work on, so use a temporary
     GCMethod* m = to_gc_ptr(method);
-    m = static_cast<GCMethod*>(walk(m, page));
+    do_walk(m);
     method = load_ptr(m); // could have moved, for instance with generational GC
     currentBytecodes = method->GetBytecodes();
 
     // Get the current frame and mark it.
     // Since marking is done recursively, this automatically
     // marks the whole stack
-    frame  = static_cast<GCFrame*>(walk(frame, page));
+    do_walk(frame);
 }

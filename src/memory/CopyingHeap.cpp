@@ -55,14 +55,13 @@ void* CopyingPage::allocateInNextPage(size_t size ALLOC_OUTSIDE_NURSERY_DECLpp) 
     return next->AllocateObject(size ALLOC_HINT);
 }
 
-static gc_oop_t invalidate_objects(gc_oop_t oop, Page*) {
-    if (IS_TAGGED(oop)) {
-        return oop;
+static void invalidate_objects(gc_oop_t* oop, Page*) {
+    if (IS_TAGGED(*oop) || *oop == nullptr) {
+        return;
     }
     
-    AbstractVMObject* obj = AS_OBJ(oop);
+    AbstractVMObject* obj = AS_OBJ(*oop);
     obj->MarkObjectAsInvalid();
-    return oop;
 }
 
 void CopyingPage::Reset() {

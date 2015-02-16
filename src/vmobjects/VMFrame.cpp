@@ -180,22 +180,15 @@ void VMFrame::CheckMarking(void (*walk)(vm_oop_t)) {
 void VMFrame::WalkObjects(walk_heap_fn walk, Page* page) {
     // VMFrame is not a proper SOM object any longer, we don't have a class for it.
     // clazz = (VMClass*) walk(clazz);
+    do_walk(previousFrame);
+    do_walk(context);
+    do_walk(method);
     
-    if (previousFrame) {
-        previousFrame = static_cast<GCFrame*>(walk(previousFrame, page));
-    }
-    if (context) {
-        context = static_cast<GCFrame*>(walk(context, page));
-    }
-    method = static_cast<GCMethod*>(walk(method, page));
-
     // all other fields are indexable via arguments array
     // --> until end of Frame
-    long i = 0;
+    size_t i = 0;
     while (arguments + i <= stack_ptr) {
-        if (arguments[i] != nullptr) {
-            arguments[i] = walk(arguments[i], page);
-        }
+        do_walk(arguments[i]);
         i++;
     }
 }

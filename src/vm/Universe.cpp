@@ -1140,77 +1140,78 @@ void  Universe::CheckMarkingGlobals(void (*walk)(vm_oop_t)) {
 }
 #endif
 void Universe::WalkGlobals(walk_heap_fn walk, Page* page) {
-    nilObject   = static_cast<GCObject*>(walk(nilObject,    page));
-    trueObject  = static_cast<GCObject*>(walk(trueObject,   page));
-    falseObject = static_cast<GCObject*>(walk(falseObject,  page));
-    systemObject= static_cast<GCObject*>(walk(systemObject, page));
+    do_walk(nilObject);
+    do_walk(trueObject);
+    do_walk(falseObject);
+    do_walk(systemObject);
 
-#if USE_TAGGING
     GlobalBox::WalkGlobals(walk, page);
-#endif
-
-    objectClass    = static_cast<GCClass*>(walk(objectClass,     page));
-    classClass     = static_cast<GCClass*>(walk(classClass,      page));
-    metaClassClass = static_cast<GCClass*>(walk(metaClassClass,  page));
-
-    nilClass        = static_cast<GCClass*>(walk(nilClass,       page));
-    integerClass    = static_cast<GCClass*>(walk(integerClass,   page));
-    arrayClass      = static_cast<GCClass*>(walk(arrayClass,     page));
-    methodClass     = static_cast<GCClass*>(walk(methodClass,    page));
-    symbolClass     = static_cast<GCClass*>(walk(symbolClass,    page));
-    primitiveClass  = static_cast<GCClass*>(walk(primitiveClass, page));
-    stringClass     = static_cast<GCClass*>(walk(stringClass,    page));
-    systemClass     = static_cast<GCClass*>(walk(systemClass,    page));
-    blockClass      = static_cast<GCClass*>(walk(blockClass,     page));
-    doubleClass     = static_cast<GCClass*>(walk(doubleClass,    page));
     
-    conditionClass  = static_cast<GCClass*>(walk(conditionClass, page));
-    mutexClass      = static_cast<GCClass*>(walk(mutexClass,     page));
-    threadClass     = static_cast<GCClass*>(walk(threadClass,    page));
+    do_walk(objectClass);
+    do_walk(classClass);
+    do_walk(metaClassClass);
     
-    trueClass  = static_cast<GCClass*>(walk(trueClass,  page));
-    falseClass = static_cast<GCClass*>(walk(falseClass, page));
+    do_walk(nilClass);
+    do_walk(integerClass);
+    do_walk(arrayClass);
+    do_walk(methodClass);
+    do_walk(symbolClass);
+    do_walk(primitiveClass);
+    do_walk(stringClass);
+    do_walk(systemClass);
+    do_walk(blockClass);
+    do_walk(doubleClass);
+    
+    do_walk(conditionClass);
+    do_walk(mutexClass);
+    do_walk(threadClass);
+    
+    do_walk(trueClass);
+    do_walk(falseClass);
 
 #if CACHE_INTEGER
-    for (unsigned long i = 0; i < (INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE); i++) {
-        prebuildInts[i] = static_cast<GCInteger*>(walk(prebuildInts[i], page));
+    for (size_t i = 0; i < (INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE); i++) {
+        do_walk(prebuildInts[i]);
     }
 #endif
 
-    // walk all entries in globals map
-    map<GCSymbol*, gc_oop_t> globs = globals;
-    globals.clear();
-    for (auto iter = globs.begin(); iter != globs.end(); iter++) {
-        assert(iter->second != nullptr);
-
-        GCSymbol* key = static_cast<GCSymbol*>(walk(iter->first, page));
-        gc_oop_t val = walk(iter->second, page);
-        globals[key] = val;
-    }
+    {   lock_guard<recursive_mutex> lock(globalsAndSymbols_mutex);
     
-    // walk all entries in symbols map
-    map<StdString, GCSymbol*>::iterator symbolIter;
-    for (symbolIter = symbolsMap.begin();
-         symbolIter != symbolsMap.end();
-         symbolIter++) {
-        //insert overwrites old entries inside the internal map
-        symbolIter->second = static_cast<GCSymbol*>(walk(symbolIter->second, page));
+        // walk all entries in globals map
+        map<GCSymbol*, gc_oop_t> globs = globals;
+        globals.clear();
+        for (auto iter = globs.begin(); iter != globs.end(); iter++) {
+            assert(iter->second != nullptr);
+
+            GCSymbol* key = iter->first;
+            gc_oop_t  val = iter->second;
+            do_walk(key);
+            do_walk(val);
+            
+            globals[key] = val;
+        }
+        
+        // walk all entries in symbols map
+        for (auto assoc : symbolsMap) {
+            // insert overwrites old entries inside the internal map
+            do_walk(assoc.second);
+        }
+
+        for (auto assoc : blockClassesByNoOfArgs) {
+            do_walk(assoc.second);
+        }
+
+        // reassign ifTrue ifFalse Symbols
+        symbolIfTrue  = symbolsMap["ifTrue:"];
+        symbolIfFalse = symbolsMap["ifFalse:"];
     }
 
-    map<long, GCClass*>::iterator bcIter;
-    for (bcIter = blockClassesByNoOfArgs.begin();
-         bcIter != blockClassesByNoOfArgs.end();
-         bcIter++) {
-        bcIter->second = static_cast<GCClass*>(walk(bcIter->second, page));
-    }
-
-    //reassign ifTrue ifFalse Symbols
-    symbolIfTrue  = symbolsMap["ifTrue:"];
-    symbolIfFalse = symbolsMap["ifFalse:"];
-    
+#if GC_TYPE != PAUSELESS
+    // the pauseless GC asks the interpreters themselves to mark the roots
     for (auto interp : interpreters) {
         interp->WalkGlobals(walk, page);
     }
+#endif
     
     VMThread::WalkGlobals(walk, page);
 }

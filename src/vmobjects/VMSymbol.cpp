@@ -139,10 +139,9 @@ void VMSymbol::MarkReferences() {
 #endif */
 
 void VMSymbol::WalkObjects(walk_heap_fn walk, Page* page) {
-    for (long i = 0; i < nextCachePos; i++) {
-        cachedClass_invokable[i] = static_cast<GCClass*>(walk(
-                        const_cast<GCClass*>(cachedClass_invokable[i]), page));
-        cachedInvokable[i] = static_cast<GCInvokable*>(walk(cachedInvokable[i], page));
+    for (size_t i = 0; i < nextCachePos; i++) {
+        do_walk(cachedClass_invokable[i]);
+        do_walk(cachedInvokable[i]);
     }
 }
 

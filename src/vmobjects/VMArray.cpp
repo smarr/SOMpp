@@ -120,12 +120,13 @@ void VMArray::CheckMarking(void (*walk)(vm_oop_t)) {
 #endif
 
 void VMArray::WalkObjects(walk_heap_fn walk, Page* page) {
-    clazz = static_cast<GCClass*>(walk(clazz, page));
+    do_walk(clazz);
+
     size_t numFields          = GetNumberOfFields();
     size_t numIndexableFields = GetNumberOfIndexableFields();
     gc_oop_t* fields = FIELDS;
     for (size_t i = 0; i < numFields + numIndexableFields; i++) {
-        fields[i] = walk(fields[i], page);
+        do_walk(fields[i]);
     }
 }
 

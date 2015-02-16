@@ -84,11 +84,11 @@ void VMObject::CheckMarking(void (*walk)(vm_oop_t)) {
 #endif
 
 void VMObject::WalkObjects(walk_heap_fn walk, Page* page) {
-    clazz = static_cast<GCClass*>(walk(clazz, page));
+    do_walk(clazz);
 
     size_t numFields = GetNumberOfFields();
     for (size_t i = 0; i < numFields; ++i) {
-        FIELDS[i] = walk(FIELDS[i], page);
+        do_walk(FIELDS[i]);
     }
 }
 
