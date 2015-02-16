@@ -997,62 +997,6 @@ VMClass* Universe::NewMetaclassClass(Page* page) const {
     return result;
 }
 
-#if GC_TYPE==PAUSELESS
-void  Universe::CheckMarkingGlobals(void (*walk)(vm_oop_t)) {
-    walk(Untag(nilObject));
-    walk(Untag(trueObject));
-    walk(Untag(falseObject));
-
-    walk(Untag(objectClass));
-    walk(Untag(classClass));
-    walk(Untag(metaClassClass));
-    
-    walk(Untag(nilClass));
-    walk(Untag(integerClass));
-    walk(Untag(arrayClass));
-    walk(Untag(methodClass));
-    walk(Untag(symbolClass));
-    walk(Untag(primitiveClass));
-    walk(Untag(stringClass));
-    walk(Untag(systemClass));
-    walk(Untag(blockClass));
-    walk(Untag(doubleClass));
-    
-    walk(Untag(conditionClass));
-    walk(Untag(threadClass));
-    walk(Untag(mutexClass));
-    
-    walk(Untag(trueClass));
-    walk(Untag(falseClass));
-    
-    lock_guard<recursive_mutex> lock(globalsAndSymbols_mutex);
-    
-    // walk all entries in globals map
-    map<GCSymbol*, gc_oop_t>::iterator iter;
-    for (iter = globals.begin(); iter != globals.end(); iter++) {
-        if (iter->second == nullptr)
-            continue;
-        walk(Untag(iter->first));
-        walk(Untag(iter->second));
-    }
-    
-    // walk all entries in symbols map
-    map<StdString, GCSymbol*>::iterator symbolIter;
-    for (symbolIter = symbolsMap.begin();
-         symbolIter != symbolsMap.end();
-         symbolIter++) {
-        //insert overwrites old entries inside the internal map
-        walk(Untag(symbolIter->second));
-    }
-    
-    map<long, GCClass*>::iterator bcIter;
-    for (bcIter = blockClassesByNoOfArgs.begin();
-         bcIter != blockClassesByNoOfArgs.end();
-         bcIter++) {
-        walk(Untag(bcIter->second));
-    }
-}
-#endif
 void Universe::WalkGlobals(walk_heap_fn walk, Page* page) {
     do_walk(nilObject);
     do_walk(trueObject);

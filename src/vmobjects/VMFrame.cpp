@@ -140,33 +140,6 @@ VMFrame* VMFrame::GetOuterContext() {
     return current;
 }
 
-#if GC_TYPE==PAUSELESS
-void VMFrame::CheckMarking(void (*walk)(vm_oop_t)) {
-    if (previousFrame) {
-        assert(GetNMTValue(previousFrame) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-        CheckBlocked(Untag(previousFrame));
-        walk(Untag(previousFrame));
-    }
-    if (context) {
-        assert(GetNMTValue(context) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-        CheckBlocked(Untag(context));
-        walk(Untag(context));
-    }
-    assert(GetNMTValue(method) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(method));
-    walk(Untag(method));
-    long i = 0;
-    while (arguments + i <= stack_ptr) {
-        if (arguments[i]) {
-            assert(GetNMTValue(arguments[i]) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-            CheckBlocked(Untag(arguments[i]));
-            walk(Untag(arguments[i]));
-        }
-        i++;
-    }
-}
-#endif
-
 void VMFrame::WalkObjects(walk_heap_fn walk, Page* page) {
     // VMFrame is not a proper SOM object any longer, we don't have a class for it.
     // clazz = (VMClass*) walk(clazz);

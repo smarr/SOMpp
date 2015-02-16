@@ -452,30 +452,38 @@ and then, it starts flipping the other bits
 }
 
 // FOR DEBUGGING PURPOSES
-void PauselessCollectorThread::CheckMarkingOfObject(vm_oop_t oop) {
-    if (IS_TAGGED(oop))
+
+static void check_marking(gc_oop_t* oop, Page*) {
+    if (IS_TAGGED(*oop) || *oop == nullptr)
         return;
     
-    AbstractVMObject* obj = static_cast<AbstractVMObject*>(oop);
+    BaseThread* thread = GetUniverse()->GetBaseThread();
+    assert(GetNMTValue(*oop) == thread->GetExpectedNMT());
+    CheckBlocked(Untag(*oop));
+    
+    AbstractVMObject* obj = AS_OBJ(*oop);
     
     assert(Universe::IsValidObject(obj));
-    if (obj->GetGCField2() == markValue)
+    if (obj->GetGCField2() == PauselessCollectorThread::GetMarkValue())
         return;
-    obj->SetGCField2(markValue);
+    
+    obj->SetGCField2(PauselessCollectorThread::GetMarkValue());
+    
     PauselessHeap* const heap = GetHeap<PauselessHeap>();
     PauselessPage* page = heap->GetPageFromObj(obj);
     
     if (heap->pagedHeap.IsInFullPages(page)) {
-        assert(obj->GetGCField() == markValue);
-        obj->CheckMarking(CheckMarkingOfObject);
+        assert(obj->GetGCField() == PauselessCollectorThread::GetMarkValue());
+        obj->WalkObjects(check_marking, nullptr);
     }
 }
 
 void PauselessCollectorThread::CheckMarking() {
-    GetUniverse()->CheckMarkingGlobals(CheckMarkingOfObject);
+    GetUniverse()->WalkGlobals(check_marking, nullptr);
+
     unique_ptr<vector<Interpreter*>> interpreters = GetUniverse()->GetInterpretersCopy();
-    for (vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
-        (*it)->CheckMarking(CheckMarkingOfObject);
+    for (Interpreter* i : *interpreters) {
+        i->WalkGlobals(check_marking, nullptr);
     }
 }
 

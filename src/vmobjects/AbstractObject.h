@@ -61,11 +61,6 @@ public:
         throw "this object doesn't support GetFieldName";
     }
 
-#if GC_TYPE==PAUSELESS
-    virtual void CheckMarking(void (vm_oop_t)) {
-        return;
-    }
-#endif
     inline virtual void WalkObjects(walk_heap_fn, Page*) {
         return;
     }

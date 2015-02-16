@@ -78,19 +78,6 @@ void VMMethod::SetSignature(VMSymbol* sig, Page* page) {
     SetNumberOfArguments(Signature::GetNumberOfArguments(sig), page);
 }
 
-#if GC_TYPE==PAUSELESS
-void VMMethod::CheckMarking(void (*walk)(vm_oop_t)) {
-    VMInvokable::CheckMarking(walk);
-
-    int64_t numIndexableFields = GetNumberOfIndexableFields();
-    for (size_t i = 0; i < numIndexableFields; ++i) {
-        assert(GetNMTValue(indexableFields[i]) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-        CheckBlocked(Untag(indexableFields[i]));
-        walk(Untag(indexableFields[i]));
-    }
-}
-#endif
-
 void VMMethod::WalkObjects(walk_heap_fn walk, Page* page) {
     VMInvokable::WalkObjects(walk, page);
 

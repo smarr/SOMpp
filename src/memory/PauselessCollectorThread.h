@@ -82,7 +82,6 @@ private:
     static int numberOfCycles;
     
     // FOR DEBUGGING PURPOSES
-    static void CheckMarkingOfObject(vm_oop_t);
     static void CheckMarking();
 };
 

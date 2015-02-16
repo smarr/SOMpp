@@ -100,25 +100,6 @@ void EvaluationRoutine::Invoke(Interpreter* interp, VMFrame* frame) {
     NewFrame->SetContext(context);
 }
 
-#if GC_TYPE==PAUSELESS
-void VMEvaluationPrimitive::CheckMarking(void (*walk)(vm_oop_t)) {
-    VMPrimitive::CheckMarking(walk);
-    assert(GetNMTValue(numberOfArguments) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(numberOfArguments));
-    walk(Untag(numberOfArguments));
-# warning TODO: walk routine
-    // static_cast<EvaluationRoutine*>(routine)->WalkObjects(walk, page);
-}
-#endif
-
-#if GC_TYPE==PAUSELESS
-void EvaluationRoutine::CheckMarking(void (*walk)(vm_oop_t)) {
-    assert(GetNMTValue(evalPrim) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(evalPrim));
-    walk(Untag(evalPrim));
-}
-#endif
-
 void EvaluationRoutine::WalkObjects(walk_heap_fn walk, Page* page) {
     do_walk(evalPrim);
 }

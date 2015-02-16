@@ -94,22 +94,6 @@ void VMArray::CopyIndexableFieldsTo(VMArray* to) {
     }
 }
 
-#if GC_TYPE==PAUSELESS
-void VMArray::CheckMarking(void (*walk)(vm_oop_t)) {
-    // ensure that the NMT bit was set during the pauseless marking
-    assert(GetNMTValue(clazz) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(clazz));
-    walk(Untag(clazz));
-    size_t numFields          = GetNumberOfFields();
-    size_t numIndexableFields = GetNumberOfIndexableFields();
-    for (size_t i = 0; i < numFields + numIndexableFields; i++) {
-        assert(GetNMTValue(FIELDS[i]) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-        CheckBlocked(Untag(FIELDS[i]));
-        walk(Untag(FIELDS[i]));
-    }
-}
-#endif
-
 void VMArray::WalkObjects(walk_heap_fn walk, Page* page) {
     do_walk(clazz);
 

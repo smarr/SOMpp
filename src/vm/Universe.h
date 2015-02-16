@@ -124,9 +124,6 @@ public:
     VMMutex*     NewMutex(Page* page) const;
     VMThread*    NewThread(VMBlock*, vm_oop_t arguments, Interpreter*);
 
-#if GC_TYPE==PAUSELESS
-    void  CheckMarkingGlobals(void (vm_oop_t));
-#endif
     void WalkGlobals(walk_heap_fn, Page*);
 
     void InitializeSystemClass(VMClass*, VMClass*, const char*, Page*);

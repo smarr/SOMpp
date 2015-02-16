@@ -62,20 +62,6 @@ void VMObject::Assert(bool value) const {
     GetUniverse()->Assert(value);
 }
 
-#if GC_TYPE==PAUSELESS
-void VMObject::CheckMarking(void (*walk)(vm_oop_t)) {
-    assert(GetNMTValue(clazz) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-    CheckBlocked(Untag(clazz));
-    walk(Untag(clazz));
-    size_t numFields = GetNumberOfFields();
-    for (size_t i = 0; i < numFields; ++i) {
-        assert(GetNMTValue(FIELDS[i]) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-        CheckBlocked(Untag(FIELDS[i]));
-        walk(Untag(FIELDS[i]));
-    }
-}
-#endif
-
 void VMObject::WalkObjects(walk_heap_fn walk, Page* page) {
     do_walk(clazz);
 
