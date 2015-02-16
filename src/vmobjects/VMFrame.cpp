@@ -141,16 +141,6 @@ VMFrame* VMFrame::GetOuterContext() {
 }
 
 #if GC_TYPE==PAUSELESS
-void VMFrame::MarkReferences() {
-    ReadBarrierForGCThread(&previousFrame);
-    ReadBarrierForGCThread(&context);
-    ReadBarrierForGCThread(&method);
-    long i = 0;
-    while (arguments + i <= stack_ptr) {
-        ReadBarrierForGCThread(&arguments[i]);
-        i++;
-    }
-}
 void VMFrame::CheckMarking(void (*walk)(vm_oop_t)) {
     if (previousFrame) {
         assert(GetNMTValue(previousFrame) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());

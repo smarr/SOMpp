@@ -44,11 +44,6 @@ public:
     virtual VMSymbol* Clone(Page*);
     virtual VMClass* GetClass();
 
-#if GC_TYPE==PAUSELESS
-# warning TODO: add GC support for Pauseless
-    //virtual void MarkReferences();
-#endif
-
     virtual void WalkObjects(walk_heap_fn, Page*);
     virtual StdString AsDebugString();
 

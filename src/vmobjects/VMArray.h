@@ -36,7 +36,6 @@ public:
     VMArray(size_t size, size_t numberOfGcPtrFields = 0);
 
 #if GC_TYPE==PAUSELESS
-    virtual void MarkReferences();
     virtual void CheckMarking(void (vm_oop_t));
 #endif
     virtual void WalkObjects(walk_heap_fn, Page*);

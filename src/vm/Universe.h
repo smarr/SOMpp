@@ -125,7 +125,6 @@ public:
     VMThread*    NewThread(VMBlock*, vm_oop_t arguments, Interpreter*);
 
 #if GC_TYPE==PAUSELESS
-    void MarkGlobals();
     void  CheckMarkingGlobals(void (vm_oop_t));
 #endif
     void WalkGlobals(walk_heap_fn, Page*);

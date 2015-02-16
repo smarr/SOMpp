@@ -95,15 +95,6 @@ void VMArray::CopyIndexableFieldsTo(VMArray* to) {
 }
 
 #if GC_TYPE==PAUSELESS
-void VMArray::MarkReferences() {
-    ReadBarrierForGCThread(&clazz);
-    size_t numFields          = GetNumberOfFields();
-    size_t numIndexableFields = GetNumberOfIndexableFields();
-    for (size_t i = 0; i < numFields + numIndexableFields; i++) {
-        ReadBarrierForGCThread(&FIELDS[i]);
-        assert(Universe::IsValidObject((AbstractVMObject*) Untag(*(&FIELDS[i]))));
-    }
-}
 void VMArray::CheckMarking(void (*walk)(vm_oop_t)) {
     // ensure that the NMT bit was set during the pauseless marking
     assert(GetNMTValue(clazz) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());

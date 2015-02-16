@@ -79,15 +79,6 @@ void VMMethod::SetSignature(VMSymbol* sig, Page* page) {
 }
 
 #if GC_TYPE==PAUSELESS
-void VMMethod::MarkReferences() {
-    VMInvokable::MarkReferences();
-    
-    int64_t numIndexableFields = GetNumberOfIndexableFields();
-    for (size_t i = 0; i < numIndexableFields; ++i) {
-        ReadBarrierForGCThread(&indexableFields[i]);
-    }
-}
-
 void VMMethod::CheckMarking(void (*walk)(vm_oop_t)) {
     VMInvokable::CheckMarking(walk);
 

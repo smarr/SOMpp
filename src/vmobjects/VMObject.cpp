@@ -63,13 +63,6 @@ void VMObject::Assert(bool value) const {
 }
 
 #if GC_TYPE==PAUSELESS
-void VMObject::MarkReferences() {
-    ReadBarrierForGCThread(&clazz);
-    size_t numFields = GetNumberOfFields();
-    for (size_t i = 0; i < numFields; ++i) {
-        ReadBarrierForGCThread(&FIELDS[i]);
-    }
-}
 void VMObject::CheckMarking(void (*walk)(vm_oop_t)) {
     assert(GetNMTValue(clazz) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(clazz));

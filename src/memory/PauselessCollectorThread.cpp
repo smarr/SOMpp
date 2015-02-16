@@ -121,6 +121,10 @@ void PauselessCollectorThread::InitializeCollector(int numberOfThreads) {
     numberOfCycles = 0;
 }
 
+static void mark_object(gc_oop_t* oop, Page*) {
+    ReadBarrier(oop);
+}
+
 void PauselessCollectorThread::MarkObject(AbstractVMObject* obj) {
     if (obj->GetGCField() == markValue)
         return;
@@ -131,7 +135,7 @@ void PauselessCollectorThread::MarkObject(AbstractVMObject* obj) {
     assert(Universe::IsValidObject(obj));
     page->AddAmountLiveData(obj->GetObjectSize());
     obj->SetGCField(markValue);
-    obj->MarkReferences();
+    obj->WalkObjects(mark_object, nullptr);
 }
 
 void PauselessCollectorThread::AddBlockedInterpreter(Interpreter* interpreter) {
@@ -239,7 +243,7 @@ I don't remember well, but, I think, I saw the GC relocating stuff on that page.
         
         // one gc thread marks the globals
         if (!doneMarkingGlobals && pthread_mutex_trylock(&markGlobalsMutex) == 0) {
-            GetUniverse()->MarkGlobals();
+            GetUniverse()->WalkGlobals(mark_object, nullptr);
             doneMarkingGlobals = true;
             pthread_mutex_unlock(&markGlobalsMutex);
         }

@@ -62,9 +62,6 @@ public:
     }
 
 #if GC_TYPE==PAUSELESS
-    inline virtual void MarkReferences() {
-        return;
-    }
     virtual void CheckMarking(void (vm_oop_t)) {
         return;
     }

@@ -101,12 +101,6 @@ void EvaluationRoutine::Invoke(Interpreter* interp, VMFrame* frame) {
 }
 
 #if GC_TYPE==PAUSELESS
-void VMEvaluationPrimitive::MarkReferences() {
-    VMPrimitive::MarkReferences();
-    ReadBarrierForGCThread(&numberOfArguments);
-# warning TODO: walk routine
-//    static_cast<EvaluationRoutine*>(routine)->WalkObjects(walk, page);
-}
 void VMEvaluationPrimitive::CheckMarking(void (*walk)(vm_oop_t)) {
     VMPrimitive::CheckMarking(walk);
     assert(GetNMTValue(numberOfArguments) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
@@ -118,9 +112,6 @@ void VMEvaluationPrimitive::CheckMarking(void (*walk)(vm_oop_t)) {
 #endif
 
 #if GC_TYPE==PAUSELESS
-void EvaluationRoutine::MarkReferences() {
-    ReadBarrierForGCThread(&evalPrim);
-}
 void EvaluationRoutine::CheckMarking(void (*walk)(vm_oop_t)) {
     assert(GetNMTValue(evalPrim) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
     CheckBlocked(Untag(evalPrim));

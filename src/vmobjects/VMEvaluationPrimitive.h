@@ -38,7 +38,6 @@ public:
     virtual StdString AsDebugString();
 
 #if GC_TYPE==PAUSELESS
-    virtual void MarkReferences();
     virtual void CheckMarking(void (vm_oop_t));
 #endif
     virtual void WalkObjects(walk_heap_fn, Page*);
@@ -58,7 +57,6 @@ public:
     EvaluationRoutine(VMEvaluationPrimitive* prim)
         : PrimitiveRoutine(), evalPrim(to_gc_ptr(prim)) {};
 #if GC_TYPE==PAUSELESS
-    void MarkReferences();
     void CheckMarking(void (vm_oop_t));
 #endif
     void WalkObjects(walk_heap_fn, Page*);
