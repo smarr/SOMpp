@@ -430,15 +430,6 @@ and then, it starts flipping the other bits
         pthread_cond_broadcast(&endOfCycleCond);
         pthread_mutex_unlock(&endOfCycleMutex);
         
-        //doneSignalling = false;
-        //doneBlockingPages = false;
-        //doneMarkingGlobals = false;
-        //numberOfGCThreadsDoneMarking = 0;
-        //markValue++;
-        //checkpointFinished = false;
-        //numberOfGCThreadsFinished = 0;
-        
-        
         GetUniverse()->ErrorPrint("[GC] End of cycle");
         GetUniverse()->ErrorPrint("=================");
         

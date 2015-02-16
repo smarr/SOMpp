@@ -86,10 +86,4 @@ private:
     static void CheckMarking();
 };
 
-//static pthread_mutex_t signalRootSetMarkingMutex;
-//static pthread_mutex_t SignalGCTrapMutex;
-
-//static pthread_mutex_t* GetMarkRootSetMutex();
-//static pthread_mutex_t* GetBlockPagesMutex();
-
 #endif
