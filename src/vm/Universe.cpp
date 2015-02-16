@@ -1050,12 +1050,12 @@ void Universe::WalkGlobals(walk_heap_fn walk, Page* page) {
         }
         
         // walk all entries in symbols map
-        for (auto assoc : symbolsMap) {
+        for (auto& assoc : symbolsMap) {
             // insert overwrites old entries inside the internal map
             do_walk(assoc.second);
         }
 
-        for (auto assoc : blockClassesByNoOfArgs) {
+        for (auto& assoc : blockClassesByNoOfArgs) {
             do_walk(assoc.second);
         }
 
@@ -1198,7 +1198,7 @@ unique_ptr<vector<Interpreter*>> Universe::GetInterpretersCopy() {
 
 // FOR DEBUGGING PURPOSES
 void Universe::PrintGlobals() {
-    for (auto assoc : globals) {
+    for (auto& assoc : globals) {
         GetUniverse()->ErrorPrint("[GLOBALS] symbol: " +
             Untag(assoc.first)->GetStdString() + " ptr: " +
             to_string((intptr_t)assoc.first) + " value ptr: " +
