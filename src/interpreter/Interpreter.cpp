@@ -684,15 +684,6 @@ void Interpreter::AddGCWork(AbstractVMObject* work) {
 void Interpreter::AddFullPage(Page* page) {
     fullPages.push_back(page);
 }
-
-// debug procedures
-void Interpreter::CheckMarking(void (*walk)(vm_oop_t)) {
-    // VMMethod* testMethodGCSet = Untag(method);
-    if (frame) {
-        //assert(GetNMTValue(frame) == GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT());
-        walk(Untag(frame));
-    }
-}
 #endif
 
 void Interpreter::WalkGlobals(walk_heap_fn walk, Page* page) {

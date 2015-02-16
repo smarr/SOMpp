@@ -47,7 +47,6 @@ public:
     void         DisableBlocked();
     void         TriggerMarkRootSet();
     void         MarkRootSet();
-    void         MarkRootSetByGC();
     void         ResetAlreadyMarked();
     void         RequestSafePoint();
     void         DisableGCTrap();
@@ -63,8 +62,6 @@ public:
     
     void         EnableStop();
     
-    // for debugging purposes
-    void         CheckMarking(void (vm_oop_t));
 #endif
     void      WalkGlobals(walk_heap_fn, Page*);
     
