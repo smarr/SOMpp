@@ -113,17 +113,7 @@ template<typename T>
 inline typename T::Stored* toGcOop(T* reference) {
     if (reference == nullptr)
         return (typename T::Stored*) nullptr;
-    if (GetUniverse()->GetInterpreter()->GetExpectedNMT())
-        return (typename T::Stored*) FLIP_NMT_VALUE(reference);
-    else
-        return (typename T::Stored*) reference;
-}
-
-template<typename T>
-inline typename T::Stored* WriteBarrierForGCThread(T* reference) {
-    if (reference == nullptr)
-        return (typename T::Stored*) nullptr;
-    if (GetHeap<HEAP_CLS>()->GetGCThread()->GetExpectedNMT())
+    if (GetUniverse()->GetBaseThread()->GetExpectedNMT())
         return (typename T::Stored*) FLIP_NMT_VALUE(reference);
     else
         return (typename T::Stored*) reference;
@@ -183,54 +173,6 @@ __attribute__((always_inline)) inline typename T::Loaded* ReadBarrier(T** refere
     }
     assert(Universe::IsValidObject(reinterpret_cast<vm_oop_t>(reference)));
     return (typename T::Loaded*) reference;
-}
-
-template<typename T>
-__attribute__((always_inline)) inline typename T::Loaded* ReadBarrierForGCThread(T** referenceHolder, bool rootSetMarking = false) {
-    AbstractVMObject* reference;
-    while (true) {
-        if (IS_TAGGED(*referenceHolder))
-            return reinterpret_cast<typename T::Loaded*>(*referenceHolder);
-
-        GCAbstractObject* foo = reinterpret_cast<GCAbstractObject*>(*referenceHolder);
-        if (foo == nullptr)
-            return nullptr;
-        
-        PauselessCollectorThread* gcThread = GetHeap<HEAP_CLS>()->GetGCThread();
-        bool correctNMT = (REFERENCE_NMT_VALUE(foo) == gcThread->GetExpectedNMT());
-        reference = Untag(foo);
-        bool trapTriggered = false;
-        //gc-trap stuff ------>
-        PauselessHeap* const heap = GetHeap<PauselessHeap>();
-        PauselessPage* page = heap->GetPageFromObj(reference);
-        if (page->Blocked()) {
-            trapTriggered = true;
-            reference = page->LookupNewAddress(reference, gcThread);
-        }
-        // <-----------
-        if (!correctNMT || trapTriggered) {
-            if (gcThread->GetExpectedNMT()) {
-                if (! __sync_bool_compare_and_swap(referenceHolder,
-                                                   reinterpret_cast<T*>(foo),
-                                                   reinterpret_cast<T*>(FLIP_NMT_VALUE(reference)))) {
-                    continue;
-                }
-            } else {
-                if (! __sync_bool_compare_and_swap(referenceHolder,
-                                                   reinterpret_cast<T*>(foo),
-                                                   reinterpret_cast<T*>(reference))) {
-                    continue;
-                }
-            }
-        }
-        std::atomic_thread_fence(std::memory_order_seq_cst);
-        
-        if (!correctNMT || rootSetMarking)
-            gcThread->AddGCWork((AbstractVMObject*)reference);
-        break;
-    }
-    assert(Universe::IsValidObject(reinterpret_cast<vm_oop_t>(reference)));
-    return reinterpret_cast<typename T::Loaded*>(reference);
 }
 
 // FOR DEBUGGING PURPOSES

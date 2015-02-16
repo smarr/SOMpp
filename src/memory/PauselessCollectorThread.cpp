@@ -258,7 +258,7 @@ I don't remember well, but, I think, I saw the GC relocating stuff on that page.
                 Interpreter* blockedInterpreter = blockedInterpreters->back();
                 blockedInterpreters->pop_back();
                 pthread_mutex_unlock(&blockedMutex);
-                blockedInterpreter->MarkRootSetByGC();
+                blockedInterpreter->MarkRootSet();
             } else {
                 pthread_mutex_unlock(&blockedMutex);
                 break;

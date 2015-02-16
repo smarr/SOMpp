@@ -93,20 +93,6 @@ void PauselessPage::UnBlock() {
     delete [] sideArray;
 }
 
-AbstractVMObject* PauselessPage::LookupNewAddress(AbstractVMObject* oldAddress, Interpreter* thread) {
-    uintptr_t position = ((uintptr_t)oldAddress - (uintptr_t)buffer)/8;
-    if (!sideArray[position]) {
-        AbstractVMObject* newLocation = oldAddress->Clone(this);
-        AbstractVMObject* test = nullptr;
-        void* oldPosition = thread->GetPage()->nextFreePosition;
-        if (!sideArray[position].compare_exchange_strong(test, newLocation)) {
-            thread->GetPage()->nextFreePosition = oldPosition;
-        }
-    }
-    assert(Universe::IsValidObject((AbstractVMObject*) sideArray[position]));
-    return sideArray[position];
-}
-
 AbstractVMObject* PauselessPage::LookupNewAddress(AbstractVMObject* oldAddress, PauselessCollectorThread* thread) {
     uintptr_t position = ((uintptr_t)oldAddress - (uintptr_t)buffer)/8;
     if (!sideArray[position]) {

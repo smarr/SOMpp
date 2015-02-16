@@ -16,12 +16,6 @@ inline long VMMethod::GetNumberOfArguments() {
     return INT_VAL(load_ptr(numberOfArguments));
 }
 
-#if GC_TYPE==PAUSELESS
-inline  long VMMethod::GetNumberOfArgumentsGC() {
-    return INT_VAL(ReadBarrierForGCThread(&numberOfArguments));
-}
-#endif
-
 inline vm_oop_t VMMethod::GetIndexableField(long idx) {
     return load_ptr(indexableFields[idx]);
 }

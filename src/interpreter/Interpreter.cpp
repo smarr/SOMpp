@@ -607,29 +607,6 @@ void Interpreter::MarkRootSet() {
     //GetHeap<HEAP_CLS>()->Pause();
 }
 
-// The interpreter is unable to mark its root set himself and thus one of the gc threads does it
-void Interpreter::MarkRootSetByGC() {
-    markRootSet = false;
-    expectedNMT = !expectedNMT;
-    worklist.Clear();
-    
-    // this will also destructively change the frame and method pointers so that the NMT bit is flipped
-    ReadBarrierForGCThread(&frame, true);
-    // ReadBarrierForGCThread(&method);
-    
-    while (!fullPages.empty()) {
-        //fullPages.back().ResetAmountOfLiveData();
-        GetHeap<HEAP_CLS>()->pagedHeap.ReturnFullPage(fullPages.back());
-        fullPages.pop_back();
-    }
-    
-    // signal that root-set has been marked
-    GetHeap<HEAP_CLS>()->SignalRootSetMarked();
-    
-    //GetHeap<HEAP_CLS>()->TriggerPause();
-    //GetHeap<HEAP_CLS>()->PauseGC();
-}
-
 // Request that the mutator thread passes a safepoint so that marking can finish
 void Interpreter::RequestSafePoint() {
     // if test to prevent deadlocking in case safePointRequesting was still true and the mutator thread is performing an enableBlocked

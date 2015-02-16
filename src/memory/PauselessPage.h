@@ -34,7 +34,6 @@ public:
         return blocked;
     }
     AbstractVMObject* LookupNewAddress(AbstractVMObject*, Interpreter*);
-    AbstractVMObject* LookupNewAddress(AbstractVMObject*, PauselessCollectorThread*);
     void AddAmountLiveData(size_t);
     double GetPercentageLiveData();
     void Free(size_t);
