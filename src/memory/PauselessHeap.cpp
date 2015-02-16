@@ -116,8 +116,4 @@ int PauselessHeap::GetCycle() {
     return PauselessCollectorThread::GetCycle();
 }
 
-int PauselessHeap::GetMarkValue() {
-    return PauselessCollectorThread::GetMarkValue();
-}
-
 #endif

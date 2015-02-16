@@ -129,7 +129,7 @@ void PauselessPage::RelocatePage() {
          (size_t) currentObject < (size_t) nextFreePosition;
          currentObject = (AbstractVMObject*) (currentObject->GetObjectSize() + (size_t) currentObject)) {
         assert(Universe::IsValidObject(currentObject));
-        if (currentObject->GetGCField() == GetHeap<HEAP_CLS>()->GetMarkValue()) {
+        if (currentObject->GetGCField() == PauselessCollectorThread::GetMarkValue()) {
             AbstractVMObject* newLocation = currentObject->Clone(this);
             uintptr_t positionSideArray = ((uintptr_t)currentObject - (uintptr_t) buffer)/8;
             AbstractVMObject* test = nullptr;
