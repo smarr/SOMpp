@@ -43,6 +43,11 @@ public:
     virtual void Send(Interpreter*, StdString, vm_oop_t*, long);
     virtual size_t GetObjectSize() const = 0;
     
+    inline AbstractVMObject* GetNextObject() const {
+        return reinterpret_cast<AbstractVMObject*>(
+                       reinterpret_cast<size_t>(this) + GetObjectSize());
+    }
+    
     virtual void MarkObjectAsInvalid() = 0;
     
     virtual StdString AsDebugString() = 0;

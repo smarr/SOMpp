@@ -65,8 +65,7 @@ void NurseryPage::WalkObjects(walk_heap_fn walk,
     
     while (curObject < nextFreePosition) {
         curObject->WalkObjects(walk, target);
-        curObject = reinterpret_cast<AbstractVMObject*>(
-                                                        (uintptr_t)curObject + curObject->GetObjectSize());
+        curObject = curObject->GetNextObject();
     }
 }
 

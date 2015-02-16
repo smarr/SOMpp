@@ -80,8 +80,8 @@ void PauselessPage::ClearPage() {
 #if GC_TYPE==PAUSELESS
 void PauselessPage::Block() {
     blocked = true;
-    sideArray = new std::atomic<AbstractVMObject*>[PAGE_SIZE / 8];
-    for (int i=0; i < (PAGE_SIZE / 8); i++) {
+    sideArray = new std::atomic<AbstractVMObject*>[((uintptr_t) bufferEnd - (uintptr_t)buffer) / 8];
+    for (int i=0; i < (((uintptr_t) bufferEnd - (uintptr_t)buffer) / 8); i++) {
         sideArray[i] = nullptr;
     }
 }
@@ -125,9 +125,8 @@ void PauselessPage::Free(size_t numBytes) {
 
 void PauselessPage::RelocatePage() {
     BaseThread* thread = GetUniverse()->GetBaseThread();
-    for (AbstractVMObject* currentObject = (AbstractVMObject*) buffer;
-         (size_t) currentObject < (size_t) nextFreePosition;
-         currentObject = (AbstractVMObject*) (currentObject->GetObjectSize() + (size_t) currentObject)) {
+    AbstractVMObject* currentObject = reinterpret_cast<AbstractVMObject*>(buffer);
+    while (currentObject < nextFreePosition) {
         assert(Universe::IsValidObject(currentObject));
         if (currentObject->GetGCField() == PauselessCollectorThread::GetMarkValue()) {
             AbstractVMObject* newLocation = currentObject->Clone(this);
@@ -139,6 +138,8 @@ void PauselessPage::RelocatePage() {
             }
             assert(Universe::IsValidObject((AbstractVMObject*) sideArray[positionSideArray]));
         }
+        
+        currentObject = currentObject->GetNextObject();
     }
     amountLiveData = 0;
 
