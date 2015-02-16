@@ -35,6 +35,9 @@ public:
     static int GetMarkValue();
     
 private:
+    void RootSetMarking();
+    void RelocateObjects();
+    
     
     static int numberOfGCThreads;
     
