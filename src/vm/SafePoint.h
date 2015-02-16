@@ -54,31 +54,29 @@ public:
     }
     
     static void AnnounceBlockingMutator() {
-        if (GC_TYPE == PAUSELESS) {
-            BaseThread* thread = GetUniverse()->GetBaseThread();
-            Interpreter* interp = dynamic_cast<Interpreter*>(thread);
-            assert(interp);
-            interp->EnableBlocked();
-            return;
-        }
-
+#if GC_TYPE == PAUSELESS
+        BaseThread* thread = GetUniverse()->GetBaseThread();
+        Interpreter* interp = dynamic_cast<Interpreter*>(thread);
+        assert(interp);
+        interp->EnableBlocked();
+#else
         std::lock_guard<std::mutex> lock(mutex);
         // perform the normal safepoint logic,
         // which reduces and increase numActivateMutators,
         doSafePointWithoutBlocking(true);
+#endif
     }
     
     static void ReturnFromBlockingMutator() {
-        if (GC_TYPE == PAUSELESS) {
-            BaseThread* thread = GetUniverse()->GetBaseThread();
-            Interpreter* interp = dynamic_cast<Interpreter*>(thread);
-            assert(interp);
-            interp->DisableBlocked();
-            return;
-        }
-        
+#if GC_TYPE == PAUSELESS
+        BaseThread* thread = GetUniverse()->GetBaseThread();
+        Interpreter* interp = dynamic_cast<Interpreter*>(thread);
+        assert(interp);
+        interp->DisableBlocked();
+#else
         std::lock_guard<std::mutex> lock(mutex);
         numActiveMutators++;
+#endif
     }
     
 private:

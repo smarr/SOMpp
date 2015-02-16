@@ -45,7 +45,6 @@ void BaseThread::SetPage(Page* page) {
 bool BaseThread::GetExpectedNMT() {
     return expectedNMT;
 }
-#endif
 
 bool BaseThread::GCTrapEnabled() {
     return gcTrapEnabled;
@@ -63,3 +62,4 @@ bool BaseThread::TriggerGCTrap(Page* page) {
     return result;
 }
 
+#endif
