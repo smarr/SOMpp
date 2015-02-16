@@ -131,7 +131,11 @@ void VMThread::UnregisterThread(thread::id threadId) {
 }
 
 void VMThread::WalkGlobals(walk_heap_fn walk, Page* page) {
+    #if GC_TYPE == PAUSELESS
+    // in the pauseless GC, we won't have aquired the lock already
+    // in all other cases, we come here from a global safe point anyway.
     lock_guard<mutex> lock(threads_map_mutex);
+    #endif
     
     for (auto& pair : threads) {
         do_walk(pair.second);
