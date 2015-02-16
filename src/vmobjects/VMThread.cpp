@@ -139,6 +139,8 @@ void VMThread::UnregisterThread(thread::id threadId) {
 }
 
 void VMThread::WalkGlobals(walk_heap_fn walk, Page* page) {
+    lock_guard<mutex> lock(threads_map_mutex);
+    
     for (auto& pair : threads) {
         do_walk(pair.second);
     }
