@@ -7,7 +7,9 @@
 
 #include <assert.h>
 #include <misc/defs.h>
-
+#include <memory/BaseThread.h>
+#include <vm/Universe.h>
+#include <interpreter/Interpreter.h>
 
 class SafePoint {
 public:
@@ -52,6 +54,14 @@ public:
     }
     
     static void AnnounceBlockingMutator() {
+        if (GC_TYPE == PAUSELESS) {
+            BaseThread* thread = GetUniverse()->GetBaseThread();
+            Interpreter* interp = dynamic_cast<Interpreter*>(thread);
+            assert(interp);
+            interp->EnableBlocked();
+            return;
+        }
+
         std::lock_guard<std::mutex> lock(mutex);
         // perform the normal safepoint logic,
         // which reduces and increase numActivateMutators,
@@ -59,6 +69,14 @@ public:
     }
     
     static void ReturnFromBlockingMutator() {
+        if (GC_TYPE == PAUSELESS) {
+            BaseThread* thread = GetUniverse()->GetBaseThread();
+            Interpreter* interp = dynamic_cast<Interpreter*>(thread);
+            assert(interp);
+            interp->DisableBlocked();
+            return;
+        }
+        
         std::lock_guard<std::mutex> lock(mutex);
         numActiveMutators++;
     }

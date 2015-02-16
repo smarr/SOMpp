@@ -40,19 +40,11 @@ void VMThread::Join() {
         // Specifically, we can't use any object pointers that might have moved.
         
         
-#if GC_TYPE==PAUSELESS
-        GetUniverse()->GetInterpreter()->EnableBlocked();
-#else
         SafePoint::AnnounceBlockingMutator();
-#endif
 
         thread->join();
         
-#if GC_TYPE==PAUSELESS
-        GetUniverse()->GetInterpreter()->DisableBlocked();
-#else
         SafePoint::ReturnFromBlockingMutator();
-#endif
     } catch(const std::system_error& e) {
         Universe::ErrorPrint("Error when joining thread: error code " +
                              to_string(e.code().value()) + " meaning " +
