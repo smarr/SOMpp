@@ -1106,7 +1106,7 @@ VMSymbol* Universe::NewSymbol(const StdString& str, Page* page) {
 VMSymbol* Universe::NewSymbol(const char* str, Page* page) {
     lock_guard<recursive_mutex> lock(globalsAndSymbols_mutex);
 
-    VMSymbol* result = new (page, PADDED_SIZE(strlen(str)+1) ALLOC_MATURE ALLOC_NON_RELOCATABLE) VMSymbol(str);
+    VMSymbol* result = new (page, strlen(str)+1 ALLOC_MATURE ALLOC_NON_RELOCATABLE) VMSymbol(str);
 
     symbolsMap[str] = to_gc_ptr(result);
 
