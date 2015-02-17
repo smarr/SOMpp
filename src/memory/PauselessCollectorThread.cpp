@@ -313,8 +313,8 @@ we might be able to solve that differently, first the GC thread writes the expec
 and then, it starts flipping the other bits
             // disable GC-trap from running interpreters
             unique_ptr<vector<Interpreter*>> interpreters = GetUniverse()->GetInterpretersCopy();
-            for (vector<Interpreter*>::iterator it = interpreters->begin() ; it != interpreters->end(); ++it) {
-                (*it)->DisableGCTrap();
+            for (Interpreter* i : *interpreters) {
+                i->DisableGCTrap();
             }
         }
         
