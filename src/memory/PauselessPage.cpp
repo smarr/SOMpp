@@ -54,7 +54,7 @@ AbstractVMObject* PauselessPage::allocateNonRelocatable(size_t size) {
 
 PauselessPage* PauselessPage::getNextPage(bool nonRelocatable) {
     BaseThread* const thread = GetUniverse()->GetBaseThread();
-    PauselessPage* current = thread->GetPage();
+    PauselessPage* current = reinterpret_cast<PauselessPage*>(thread->GetPage());
     
     if (nonRelocatable) {
         if (current->nonRelocatablePage && current->nonRelocatablePage != this) {
