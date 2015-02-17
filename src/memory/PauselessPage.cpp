@@ -125,15 +125,28 @@ void PauselessPage::UnBlock() {
     delete [] sideArray;
 }
 
+void PauselessPage::relocateObject(BaseThread * thread, AbstractVMObject* oldAddress, uintptr_t position) {
+    void* oldPosition = thread->GetPage()->nextFreePosition;
+    AbstractVMObject* newLocation = oldAddress->Clone(this);
+    AbstractVMObject* expectedNull = nullptr;
+    
+    //        assert(newLocation->GetPage() == thread->GetPage());  // is the use of thread->GetPage() below always going to be correct to rewind the allocation of that object?
+    
+    if (!sideArray[position].compare_exchange_strong(expectedNull, newLocation)) {
+# warning TODO: based on the newLocation's actual page, \
+we still could set back the allocation, \
+but oh well, that's probably slower than just ignoring it, \
+at least for our benchmarks...\
+so, for the moment, just ignore it.
+        //          thread->GetPage()->nextFreePosition = (void*)((uintptr_t)thread->GetPage()->nextFreePosition - oldAddress->GetObjectSize());
+    }
+    oldAddress->MarkObjectAsInvalid();
+}
+
 AbstractVMObject* PauselessPage::LookupNewAddress(AbstractVMObject* oldAddress, BaseThread* thread) {
     uintptr_t position = ((uintptr_t)oldAddress - (uintptr_t)buffer)/8;
     if (!sideArray[position]) {
-        AbstractVMObject* newLocation = oldAddress->Clone(this);
-        AbstractVMObject* test = nullptr;
-        void* oldPosition = thread->GetPage()->nextFreePosition;
-        if (!sideArray[position].compare_exchange_strong(test, newLocation)) {
-            thread->GetPage()->nextFreePosition = oldPosition;
-        }
+        relocateObject(thread, oldAddress, position);
     }
     assert(Universe::IsValidObject((AbstractVMObject*) sideArray[position]));
     return sideArray[position];
@@ -159,11 +172,7 @@ void PauselessPage::RelocatePage() {
         if (currentObject->GetGCField() == PauselessCollectorThread::GetMarkValue()) {
             AbstractVMObject* newLocation = currentObject->Clone(this);
             uintptr_t positionSideArray = ((uintptr_t)currentObject - (uintptr_t) buffer)/8;
-            AbstractVMObject* test = nullptr;
-            void* oldPosition = thread->GetPage()->nextFreePosition;
-            if (!sideArray[positionSideArray].compare_exchange_strong(test, newLocation)) {
-                thread->GetPage()->nextFreePosition = oldPosition;
-            }
+            relocateObject(thread, currentObject, positionSideArray);
             assert(Universe::IsValidObject((AbstractVMObject*) sideArray[positionSideArray]));
         }
         

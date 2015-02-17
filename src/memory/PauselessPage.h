@@ -54,6 +54,8 @@ private:
     AbstractVMObject* allocate(size_t);
     AbstractVMObject* allocateNonRelocatable(size_t);
     
+    void relocateObject(BaseThread*, AbstractVMObject*, uintptr_t);
+
     PauselessPage* getNextPage(bool nonRelocatable);
     
     bool isFull() { return nextFreePosition > treshold; }
