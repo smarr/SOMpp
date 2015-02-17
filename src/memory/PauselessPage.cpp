@@ -170,7 +170,6 @@ void PauselessPage::RelocatePage() {
     while (currentObject < nextFreePosition) {
         assert(Universe::IsValidObject(currentObject));
         if (currentObject->GetGCField() == PauselessCollectorThread::GetMarkValue()) {
-            AbstractVMObject* newLocation = currentObject->Clone(this);
             uintptr_t positionSideArray = ((uintptr_t)currentObject - (uintptr_t) buffer)/8;
             relocateObject(thread, currentObject, positionSideArray);
             assert(Universe::IsValidObject((AbstractVMObject*) sideArray[positionSideArray]));
