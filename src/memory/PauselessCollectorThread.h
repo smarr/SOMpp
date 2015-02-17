@@ -21,7 +21,7 @@ public:
     
     static void InitializeCollector(int);
     
-    static void MarkObject(AbstractVMObject*);
+           void MarkObject(AbstractVMObject*);
     static void AddBlockedInterpreter(Interpreter*);
     static void SignalRootSetMarked();
     static void AddNonEmptyWorklist(Worklist*);
