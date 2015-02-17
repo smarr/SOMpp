@@ -14,6 +14,13 @@
 #include "VMClass.h"
 #include "VMInvokable.h"
 
+#if GC_TYPE==PAUSELESS
+PauselessPage* AbstractVMObject::GetPage() {
+    return GetHeap<PauselessHeap>()->GetPageFromObj(this);
+}
+#endif
+
+
 intptr_t AbstractVMObject::GetHash() {
     return reinterpret_cast<intptr_t>(this);
 }

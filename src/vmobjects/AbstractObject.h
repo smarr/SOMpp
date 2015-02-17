@@ -48,6 +48,10 @@ public:
                        reinterpret_cast<size_t>(this) + GetObjectSize());
     }
     
+#if GC_TYPE==PAUSELESS
+    PauselessPage* GetPage();
+#endif
+    
     virtual void MarkObjectAsInvalid() = 0;
     
     virtual StdString AsDebugString() = 0;
