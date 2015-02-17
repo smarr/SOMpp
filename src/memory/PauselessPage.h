@@ -37,7 +37,6 @@ public:
     AbstractVMObject* LookupNewAddress(AbstractVMObject*, BaseThread*);
     void AddAmountLiveData(size_t);
     double GetPercentageLiveData();
-    void Free(size_t);
     void RelocatePage();
     void ResetAmountOfLiveData();
 

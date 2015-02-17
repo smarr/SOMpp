@@ -119,10 +119,6 @@ void PauselessPage::ResetAmountOfLiveData() {
     amountLiveData = 0;
 }
 
-void PauselessPage::Free(size_t numBytes) {
-    nextFreePosition = (void*)((size_t)nextFreePosition - numBytes);
-}
-
 void PauselessPage::RelocatePage() {
     BaseThread* thread = GetUniverse()->GetBaseThread();
     AbstractVMObject* currentObject = reinterpret_cast<AbstractVMObject*>(buffer);
