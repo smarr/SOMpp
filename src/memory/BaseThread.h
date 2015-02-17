@@ -19,8 +19,8 @@ public:
     
     ~BaseThread();
     
-    Page* GetPage();
-    void SetPage(Page*);
+    Page* GetPage() { return page; };
+    void SetPage(Page* p) { page = p; };
     
 #if GC_TYPE==PAUSELESS
     bool GetExpectedNMT();
@@ -33,7 +33,7 @@ public:
 protected:
     Page* page;
     
-#if GC_TYPE==PAUSELESS
+#if GC_TYPE==PAUSELESS    
     bool expectedNMT;
     Worklist worklist;
 

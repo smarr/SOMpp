@@ -33,13 +33,6 @@ BaseThread::~BaseThread() {
 //   GetHeap<HEAP_CLS>()->RelinquishPage(page);
 }
 
-Page* BaseThread::GetPage() {
-    return page;
-}
-
-void BaseThread::SetPage(Page* page) {
-    this->page = page;
-}
 
 #if GC_TYPE==PAUSELESS
 bool BaseThread::GetExpectedNMT() {
