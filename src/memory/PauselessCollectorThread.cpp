@@ -178,14 +178,6 @@ void PauselessCollectorThread::AddGCWork(AbstractVMObject* work) {
     worklist.AddWorkGC(work);
 }
 
-/*pthread_mutex_t* PauselessCollectorThread::GetMarkRootSetMutex() {
-    return &signalRootSetMarkingMutex;
-}
-
-pthread_mutex_t* PauselessCollectorThread::GetBlockPagesMutex() {
-    return &SignalGCTrapMutex;
-} */
-
 int PauselessCollectorThread::GetCycle() {
     return numberOfCycles;
 }
