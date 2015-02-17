@@ -49,6 +49,7 @@ public:
     }
     
     void ReturnFullPage_alreadyLocked(PAGE_T* page) {
+        assert(!IsInFullPages_alreadyLocked(page));
         fullPages.push_back(page);
     }
     
