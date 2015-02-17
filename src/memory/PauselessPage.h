@@ -54,6 +54,8 @@ private:
     AbstractVMObject* allocate(size_t);
     AbstractVMObject* allocateNonRelocatable(size_t);
     
+    PauselessPage* getNextPage(bool nonRelocatable);
+    
     bool isFull() { return nextFreePosition > treshold; }
 
     PauselessHeap* const heap;
@@ -63,6 +65,10 @@ private:
     
     void* const       bufferEnd;
     void*             nextFreePosition;
+    
+    // whether allocation is legal, and whether the page has not been returned
+    // THREAD-LOCAL: assumed to be accessed only from the owning thread
+    bool canAllocateAndIsNotReturned;
 
     PauselessPage* nonRelocatablePage;
 

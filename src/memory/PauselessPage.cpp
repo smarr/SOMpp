@@ -30,7 +30,8 @@ void* PauselessPage::operator new(size_t count) {
 PauselessPage::PauselessPage(PauselessHeap* heap)
     : heap(heap), nextFreePosition(buffer),
       bufferEnd((void*)((uintptr_t)buffer + heap->pagedHeap.pageSize - sizeof(PauselessPage))),
-      treshold((void*)((size_t)buffer + ((size_t)(heap->pagedHeap.pageSize * 0.9)))) { }
+      treshold((void*)((size_t)buffer + ((size_t)(heap->pagedHeap.pageSize * 0.9)))),
+      canAllocateAndIsNotReturned(true) { }
 
 AbstractVMObject* PauselessPage::allocate(size_t size) {
     AbstractVMObject* newObject = (AbstractVMObject*) nextFreePosition;
@@ -46,10 +47,44 @@ AbstractVMObject* PauselessPage::allocateNonRelocatable(size_t size) {
     assert(nonRelocatablePage != nullptr);
     AbstractVMObject* newObject = nonRelocatablePage->allocate(size);
     if (nonRelocatablePage->isFull()) {
-        heap->AddFullNonRelocatablePage(nonRelocatablePage);
-        nonRelocatablePage = heap->pagedHeap.GetNextPage();
+        nonRelocatablePage->getNextPage(true);
     }
     return newObject;
+}
+
+PauselessPage* PauselessPage::getNextPage(bool nonRelocatable) {
+    BaseThread* const thread = GetUniverse()->GetBaseThread();
+    PauselessPage* current = thread->GetPage();
+    
+    if (nonRelocatable) {
+        if (current->nonRelocatablePage && current->nonRelocatablePage != this) {
+            return current->nonRelocatablePage;
+        }
+    } else {
+        if (current && current != this) {
+            return current;
+        }
+    }
+    
+    PauselessPage* newPage = heap->pagedHeap.GetNextPage();
+    newPage->canAllocateAndIsNotReturned = true;
+    
+    if (nonRelocatable) {
+        assert(current->nonRelocatablePage == this);
+        current->nonRelocatablePage = newPage;
+    } else {
+        assert(current == this);
+        newPage->nonRelocatablePage = current->nonRelocatablePage;
+        thread->SetPage(reinterpret_cast<Page*>(newPage));
+    }
+    
+    canAllocateAndIsNotReturned = false;
+    if (nonRelocatable) {
+        heap->AddFullNonRelocatablePage(this);
+    } else {
+        heap->pagedHeap.ReturnFullPage(this);
+    }
+    return newPage;
 }
 
 AbstractVMObject* PauselessPage::AllocateObject(size_t size, bool nonRelocatable) {
@@ -63,10 +98,7 @@ AbstractVMObject* PauselessPage::AllocateObject(size_t size, bool nonRelocatable
     if (nextFreePosition > bufferEnd) {
         nextFreePosition = (void*)((size_t)nextFreePosition - size); // reset pointer
         
-        heap->pagedHeap.ReturnFullPage(this);
-        PauselessPage* newPage = heap->pagedHeap.GetNextPage();
-        GetUniverse()->GetBaseThread()->SetPage(reinterpret_cast<Page*>(newPage));
-        newPage->SetNonRelocatablePage(nonRelocatablePage);
+        PauselessPage* newPage = getNextPage(false);
         newObject = newPage->AllocateObject(size, nonRelocatable);
     }
      
