@@ -399,10 +399,10 @@ I don't remember well, but, I think, I saw the GC relocating stuff on that page.
         expectedNMT = !expectedNMT;
         PauselessHeap* const test = GetHeap<PauselessHeap>();
         
-        GetUniverse()->ErrorPrint("[GC] Start RootSet Marking");
+        GetUniverse()->ErrorPrint("[GC] Start RootSet Marking\n");
         RootSetMarking();
         
-        GetUniverse()->ErrorPrint("[GC] Start Relocate Phase");
+        GetUniverse()->ErrorPrint("[GC] Start Relocate Phase\n");
 
         RelocateObjects();
         
@@ -428,8 +428,8 @@ I don't remember well, but, I think, I saw the GC relocating stuff on that page.
         pthread_cond_broadcast(&endOfCycleCond);
         pthread_mutex_unlock(&endOfCycleMutex);
         
-        GetUniverse()->ErrorPrint("[GC] End of cycle");
-        GetUniverse()->ErrorPrint("=================");
+        GetUniverse()->ErrorPrint("[GC] End of cycle\n");
+        GetUniverse()->ErrorPrint("=================\n");
         
         
     } //end of cycle
