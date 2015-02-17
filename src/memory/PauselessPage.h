@@ -49,6 +49,12 @@ public:
     // out the address of a pointer in the page, and get to the page object.
     void* operator new(size_t count);
 
+    bool IsRelocated_racy(AbstractVMObject* obj) {
+        uintptr_t position = ((uintptr_t)obj - (uintptr_t)buffer)/8;
+        return sideArray[position];
+    }
+    
+    bool CanAllocateAndIsNotReturned() { return canAllocateAndIsNotReturned; }
     
 private:
     AbstractVMObject* allocate(size_t);
