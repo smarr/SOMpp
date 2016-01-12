@@ -25,8 +25,10 @@ static int64_t get_microseconds() {
 class Timer {
 private:
     int64_t total;
+    int64_t count;
     int64_t last_start;
 public:
+    Timer() : total(0), count(0), last_start(0) {}
     static Timer* GCTimer;
     inline void Resume() {
         last_start = get_microseconds();
@@ -34,11 +36,15 @@ public:
     inline void Halt() {
         int64_t end = get_microseconds();
 
-        total = end - last_start;
+        total += end - last_start;
+        count += 1;
     }
 
     double GetTotalTime() {
         return total / 1000.0;
     }
 
+    int64_t GetTotalCount() {
+        return count;
+    }
 };

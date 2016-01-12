@@ -109,7 +109,7 @@ void Universe::Start(long argc, char** argv) {
 }
 
 __attribute__((noreturn)) void Universe::Quit(long err) {
-    Universe::ErrorPrint("Time spent in GC: [" + to_string(Timer::GCTimer->GetTotalTime()) + "] msec\n");
+    Universe::ErrorPrint("Time spent in GC: [" + to_string(Timer::GCTimer->GetTotalTime()) + "] msec for " + to_string(Timer::GCTimer->GetTotalCount()) + " GCs\n");
 #ifdef GENERATE_INTEGER_HISTOGRAM
     std::string file_name_hist = std::string(bm_name);
     file_name_hist.append("_integer_histogram.csv");
