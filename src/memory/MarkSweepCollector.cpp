@@ -39,8 +39,6 @@ void MarkSweepCollector::Collect() {
     heap->allocatedObjects = survivors;
 
     heap->spcAlloc = survivorsSize;
-    //TODO: Maybe choose another constant to calculate new collectionLimit here
-    heap->collectionLimit = 2 * survivorsSize;
     Timer::GCTimer->Halt();
 }
 
