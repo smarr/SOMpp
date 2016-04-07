@@ -27,8 +27,6 @@
  * Object token definitions to be used by OMR components
  */
 
-#error Please specify the size of object related pointers (defaults may ok)
-
 typedef uintptr_t* languageobjectptr_t;
 typedef uintptr_t* omrobjectptr_t;
 typedef uintptr_t* omrarrayptr_t;

@@ -9,6 +9,12 @@ ST_DIR		?= $(ROOT_DIR)/core-lib/Smalltalk
 EX_DIR		?= $(ROOT_DIR)/core-lib/Examples
 TEST_DIR	?= $(ROOT_DIR)/core-lib/TestSuite
 
+OMRDIR		?= $(ROOT_DIR)/omr
+OMRGLUEDIR	?= $(ROOT_DIR)/omrglue
+OMRLIB		?= $(OMRDIR)/lib/libomrstatic.a
+
+include $(OMRDIR)/omrmakefiles/omr_defs.mk
+
 ############# "component" directories
 
 COMPILER_DIR 	= $(SRC_DIR)/compiler
@@ -52,7 +58,7 @@ PRIMITIVES_OBJ	= $(PRIMITIVES_SRC:.cpp=.o)
 
 ############# include path
 
-INCLUDES		=-I$(SRC_DIR)
+INCLUDES		=$(patsubst %,-I%,$(SRC_DIR) $(OMR_IPATH) $(OMRGC_IPATH) $(OMRGLUEDIR))
 
 ##############
 ############## Collections.

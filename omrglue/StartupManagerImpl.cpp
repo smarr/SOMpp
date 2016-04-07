@@ -87,3 +87,16 @@ MM_StartupManagerImpl::createConfiguration(MM_EnvironmentBase *env, MM_Configura
 		return MM_ConfigurationFlat::newInstance(env, cli);
 	}
 }
+
+bool
+MM_StartupManagerImpl::parseLanguageOptions(MM_GCExtensionsBase *extensions)
+{
+	long heapSize = GetHeap<OMRHeap>()->getHeapSize();
+	extensions->initialMemorySize = heapSize;
+	extensions->minOldSpaceSize = heapSize;
+	extensions->oldSpaceSize = heapSize;
+	extensions->maxOldSpaceSize = heapSize;
+	extensions->memoryMax = heapSize;
+	extensions->maxSizeDefaultMemorySpace = heapSize;
+	return true;
+}

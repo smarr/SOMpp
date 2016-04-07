@@ -20,82 +20,54 @@
 #define LANGUAGETHREADLOCALHEAP_HPP_
 
 #include "omr.h"
+#include "LanguageThreadLocalHeapStruct.h"
+#include "misc/defs.h"
+#include "memory/OMRHeap.h"
 
 #if defined(OMR_GC_THREAD_LOCAL_HEAP)
 
-typedef struct LanguageThreadLocalHeapStruct {
-    uint8_t* heapBase;
-    uint8_t* realHeapAlloc;
-    uintptr_t objectFlags;
-    uintptr_t refreshSize;
-    void* memorySubSpace;
-    void* memoryPool;
-} LanguageThreadLocalHeapStruct;
-
-
 class MM_LanguageThreadLocalHeap {
-
 private:
-	LanguageThreadLocalHeapStruct allocateThreadLocalHeap;
-	LanguageThreadLocalHeapStruct nonZeroAllocateThreadLocalHeap;
-
-	uint8_t* nonZeroHeapAlloc;
-	uint8_t* heapAlloc;
-
-	uint8_t* nonZeroHeapTop;
-	uint8_t* heapTop;
-
-	intptr_t nonZeroTlhPrefetchFTA;
-	intptr_t tlhPrefetchFTA;
-
+protected:
 public:
 	LanguageThreadLocalHeapStruct* getLanguageThreadLocalHeapStruct(MM_EnvironmentBase* env, bool zeroTLH)
 	{
 #if defined(OMR_GC_NON_ZERO_TLH)
 		if (!zeroTLH) {
-			return &nonZeroAllocateThreadLocalHeap;
+			return &((SOM_Thread *)env->getLanguageVMThread())->omrTlh.nonZeroAllocateThreadLocalHeap;
 		}
 #endif /* defined(OMR_GC_NON_ZERO_TLH) */
-		return &allocateThreadLocalHeap;
+		return &((SOM_Thread *)env->getLanguageVMThread())->omrTlh.allocateThreadLocalHeap;
 	}
 
 	uint8_t ** getPointerToHeapAlloc(MM_EnvironmentBase* env, bool zeroTLH) {
 #if defined(OMR_GC_NON_ZERO_TLH)
 		if (!zeroTLH) {
-			return &nonZeroHeapAlloc;
+			return &((SOM_Thread *)env->getLanguageVMThread())->omrTlh.nonZeroHeapAlloc;
 		}
 #endif /* defined(OMR_GC_NON_ZERO_TLH) */
-		return &heapAlloc;
+		return &((SOM_Thread *)env->getLanguageVMThread())->omrTlh.heapAlloc;
 	}
 
 	uint8_t ** getPointerToHeapTop(MM_EnvironmentBase* env, bool zeroTLH) {
 #if defined(OMR_GC_NON_ZERO_TLH)
 		if (!zeroTLH) {
-			return &nonZeroHeapTop;
+			return &((SOM_Thread *)env->getLanguageVMThread())->omrTlh.nonZeroHeapTop;
 		}
 #endif /* defined(OMR_GC_NON_ZERO_TLH) */
-		return &heapTop;
+		return &((SOM_Thread *)env->getLanguageVMThread())->omrTlh.heapTop;
 	}
 
 	intptr_t * getPointerToTlhPrefetchFTA(MM_EnvironmentBase* env, bool zeroTLH) {
 #if defined(OMR_GC_NON_ZERO_TLH)
 		if (!zeroTLH) {
-			return &nonZeroTlhPrefetchFTA;
+			return &((SOM_Thread *)env->getLanguageVMThread())->omrTlh.nonZeroTlhPrefetchFTA;
 		}
 #endif /* defined(OMR_GC_NON_ZERO_TLH) */
-		return &tlhPrefetchFTA;
+		return &((SOM_Thread *)env->getLanguageVMThread())->omrTlh.tlhPrefetchFTA;
 	}
 
-	MM_LanguageThreadLocalHeap() :
-		allocateThreadLocalHeap(),
-		nonZeroAllocateThreadLocalHeap(),
-		nonZeroHeapAlloc(NULL),
-		heapAlloc(NULL),
-		nonZeroHeapTop(NULL),
-		heapTop(NULL),
-		nonZeroTlhPrefetchFTA(0),
-		tlhPrefetchFTA(0)
-	{};
+	MM_LanguageThreadLocalHeap() {};
 
 };
 

@@ -34,6 +34,8 @@
 #include "../vmobjects/VMClass.h"
 #include "../vmobjects/VMSymbol.h"
 
+#include "../omrglue/Profiling.h"
+
 SourcecodeCompiler::SourcecodeCompiler() {
     parser = nullptr;
 }
@@ -116,6 +118,10 @@ VMClass* SourcecodeCompiler::compile(VMClass* systemClass) {
         result = cgc.Assemble();
     else
         cgc.AssembleSystemClass(result);
+
+#if (GC_TYPE == OMR_GARBAGE_COLLECTION)
+    som_omr_add_class_methods_to_dictionary(result);
+#endif
 
     return result;
 }

@@ -106,6 +106,7 @@ MM_EnvironmentLanguageInterfaceImpl::tryAcquireExclusiveVMAccess()
 	if (0 == _exclusiveCount) {
 		_exclusiveCount = 1;
 		_env->getOmrVMThread()->exclusiveCount = 1;
+		omrthread_monitor_enter(_env->getOmrVM()->_vmThreadListMutex);
 		reportExclusiveAccessAcquire();
 	} else {
 		_exclusiveCount += 1;
@@ -145,6 +146,7 @@ MM_EnvironmentLanguageInterfaceImpl::tryAcquireExclusiveVMAccessForGC(MM_Collect
 	if (0 == _exclusiveCount) {
 		_exclusiveCount = 1;
 		_env->getOmrVMThread()->exclusiveCount = 1;
+		omrthread_monitor_enter(_env->getOmrVM()->_vmThreadListMutex);
 		reportExclusiveAccessAcquire();
 	} else {
 		_exclusiveCount += 1;
@@ -158,6 +160,7 @@ MM_EnvironmentLanguageInterfaceImpl::acquireExclusiveVMAccessForGC(MM_Collector 
 	if (0 == _exclusiveCount) {
 		_exclusiveCount = 1;
 		_env->getOmrVMThread()->exclusiveCount = 1;
+		omrthread_monitor_enter(_env->getOmrVM()->_vmThreadListMutex);
 		reportExclusiveAccessAcquire();
 	} else {
 		_exclusiveCount += 1;
@@ -172,6 +175,7 @@ MM_EnvironmentLanguageInterfaceImpl::releaseExclusiveVMAccessForGC()
 	if (0 == _exclusiveCount) {
 		_env->getOmrVMThread()->exclusiveCount = 0;
 		reportExclusiveAccessRelease();
+		omrthread_monitor_exit(_env->getOmrVM()->_vmThreadListMutex);
 	}
 }
 
@@ -182,6 +186,7 @@ MM_EnvironmentLanguageInterfaceImpl::unwindExclusiveVMAccessForGC()
 		_exclusiveCount = 0;
 		_env->getOmrVMThread()->exclusiveCount = 0;
 		reportExclusiveAccessRelease();
+		omrthread_monitor_exit(_env->getOmrVM()->_vmThreadListMutex);
 	}
 }
 
@@ -194,6 +199,7 @@ MM_EnvironmentLanguageInterfaceImpl::acquireExclusiveVMAccess()
 	if (0 == _exclusiveCount) {
 		_exclusiveCount = 1;
 		_env->getOmrVMThread()->exclusiveCount = 1;
+		omrthread_monitor_enter(_env->getOmrVM()->_vmThreadListMutex);
 		reportExclusiveAccessAcquire();
 	} else {
 		_exclusiveCount += 1;
@@ -210,6 +216,7 @@ MM_EnvironmentLanguageInterfaceImpl::releaseExclusiveVMAccess()
 	if (0 == _exclusiveCount) {
 		_env->getOmrVMThread()->exclusiveCount = 0;
 		reportExclusiveAccessRelease();
+		omrthread_monitor_exit(_env->getOmrVM()->_vmThreadListMutex);
 	}
 }
 
