@@ -41,6 +41,8 @@
 
 #include <compiler/Disassembler.h>
 
+#include <../omrglue/Profiling.h>
+
 const StdString Interpreter::unknownGlobal     = "unknownGlobal:";
 const StdString Interpreter::doesNotUnderstand = "doesNotUnderstand:arguments:";
 const StdString Interpreter::escapedBlock      = "escapedBlock:";
@@ -59,15 +61,29 @@ Interpreter::~Interpreter() {}
   goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]]; \
 }
 
+#if (GC_TYPE == OMR_GARBAGE_COLLECTION)
 #define DISPATCH_GC() {\
   if (GetHeap<HEAP_CLS>()->isCollectionTriggered()) {\
     GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);\
     GetHeap<HEAP_CLS>()->FullGC();\
-    method = GetFrame()->GetMethod(); \
-    currentBytecodes = method->GetBytecodes(); \
+    method = GetFrame()->GetMethod();\
+    currentBytecodes = method->GetBytecodes();\
+  } else if ((BC_SEND == currentBytecodes[bytecodeIndexGlobal]) || (BC_SUPER_SEND == currentBytecodes[bytecodeIndexGlobal])) {\
+	  som_omr_checkSampleStack(GetFrame());\
   }\
   goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];\
 }
+#else
+#define DISPATCH_GC() {\
+  if (GetHeap<HEAP_CLS>()->isCollectionTriggered()) {\
+    GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);\
+    GetHeap<HEAP_CLS>()->FullGC();\
+    method = GetFrame()->GetMethod();\
+    currentBytecodes = method->GetBytecodes();\
+  }\
+  goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];\
+}
+#endif
 
 void Interpreter::Start() {
     // initialization

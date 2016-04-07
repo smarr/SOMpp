@@ -18,6 +18,10 @@
 
 #include "omr.h"
 #include "omrvm.h"
+#include "omrport.h"
+#include "LanguageThreadLocalHeapStruct.h"
+
+#include <stdlib.h>
 
 omr_error_t
 OMR_Glue_BindCurrentThread(OMR_VM *omrVM, const char *threadName, OMR_VMThread **omrVMThread)
@@ -100,19 +104,35 @@ done:
 omr_error_t
 OMR_Glue_AllocLanguageThread(void *languageVM, void **languageThread)
 {
-	*languageThread = NULL;
-	return OMR_ERROR_NONE;
+	omr_error_t rc = OMR_ERROR_NONE;
+	void *thread = NULL;
+	
+	thread = malloc(sizeof(SOM_Thread));
+	if (NULL == thread) {
+		*languageThread = NULL;
+		rc = OMR_ERROR_OUT_OF_NATIVE_MEMORY;
+	} else {
+		*languageThread = thread;
+	}
+	return rc;
 }
 
 omr_error_t
 OMR_Glue_FreeLanguageThread(void *languageThread)
 {
+	if (NULL != languageThread) {
+		free(languageThread);
+	}
 	return OMR_ERROR_NONE;
 }
 
 omr_error_t
 OMR_Glue_LinkLanguageThreadToOMRThread(void *languageThread, OMR_VMThread *omrVMThread)
 {
+	if (NULL != languageThread) {
+		SOM_Thread *thread = (SOM_Thread *)languageThread;
+		thread->omrVMThread = omrVMThread;
+	}
 	return OMR_ERROR_NONE;
 }
 

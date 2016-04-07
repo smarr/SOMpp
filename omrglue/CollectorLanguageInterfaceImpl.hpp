@@ -24,6 +24,7 @@
 
 #include "CollectorLanguageInterface.hpp"
 #include "GCExtensionsBase.hpp"
+#include "MarkingScheme.hpp"
 
 class MM_CompactScheme;
 class MM_EnvironmentStandard;
@@ -151,6 +152,8 @@ public:
 	virtual bool concurrentGC_isThreadReferenceBufferEmpty(MM_EnvironmentBase *env) {return true;}
 	virtual void concurrentGC_scanThread(MM_EnvironmentBase *env) {}
 #endif /* OMR_GC_MODRON_CONCURRENT_MARK */
+
+	MMINLINE void markObject(MM_EnvironmentBase *env, omrobjectptr_t object) {_markingScheme->inlineMarkObject(env, object, false);}
 
 };
 

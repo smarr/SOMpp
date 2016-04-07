@@ -76,3 +76,7 @@ template Heap<CopyingHeap>::~Heap();
 class MarkSweepHeap;
 template MarkSweepHeap* Heap<MarkSweepHeap>::theHeap;
 template Heap<MarkSweepHeap>::~Heap();
+
+class OMRHeap;
+template OMRHeap* Heap<OMRHeap>::theHeap;
+template Heap<OMRHeap>::~Heap();
