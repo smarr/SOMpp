@@ -29,11 +29,18 @@
 #include "MarkingScheme.hpp"
 #include "mminitcore.h"
 #include "objectdescription.h"
+#include "ObjectIterator.hpp"
 #include "omr.h"
 #include "omrvm.h"
 #include "OMRVMInterface.hpp"
+#include "ParallelTask.hpp"
 #include "ScanClassesMode.hpp"
-#include "ObjectIterator.hpp"
+
+#include "Heap.hpp"
+#include "HeapRegionIterator.hpp"
+#include "ObjectHeapIteratorAddressOrderedList.hpp"
+
+#include "vm/Universe.h"
 
 /**
  * Initialization
@@ -85,18 +92,22 @@ MM_CollectorLanguageInterfaceImpl::flushNonAllocationCaches(MM_EnvironmentBase *
 OMR_VMThread *
 MM_CollectorLanguageInterfaceImpl::attachVMThread(OMR_VM *omrVM, const char *threadName, uintptr_t reason)
 {
-	OMR_VMThread *vmThread = NULL;
-	omr_error_t rc = OMR_Thread_Init(omrVM, NULL, &vmThread, threadName);
+	OMR_VMThread *omrVMThread = NULL;
+	omr_error_t rc = OMR_ERROR_NONE;
+
+	rc = OMR_Glue_BindCurrentThread(omrVM, threadName, &omrVMThread);
 	if (OMR_ERROR_NONE != rc) {
-		vmThread = NULL;
+		return NULL;
 	}
-	return vmThread;
+	return omrVMThread;
 }
 
 void
 MM_CollectorLanguageInterfaceImpl::detachVMThread(OMR_VM *omrVM, OMR_VMThread *omrVMThread, uintptr_t reason)
 {
-	OMR_Thread_Free(omrVMThread);
+	if (NULL != omrVMThread) {
+		OMR_Glue_UnbindCurrentThread(omrVMThread);
+	}
 }
 
 void
@@ -104,10 +115,29 @@ MM_CollectorLanguageInterfaceImpl::markingScheme_masterSetupForGC(MM_Environment
 {
 }
 
+static gc_oop_t
+mark_object(gc_oop_t oop)
+{
+	if (IS_TAGGED(oop)) {
+		return oop;
+	}
+
+	MM_EnvironmentBase *env = MM_EnvironmentBase::getEnvironment(omr_vmthread_getCurrent(GetHeap<OMRHeap>()->getOMRVM()));
+	MM_CollectorLanguageInterfaceImpl *cli = (MM_CollectorLanguageInterfaceImpl*)env->getExtensions()->collectorLanguageInterface;
+
+	cli->markObject(env, (omrobjectptr_t)oop);
+
+	return oop;
+}
+
 void
 MM_CollectorLanguageInterfaceImpl::markingScheme_scanRoots(MM_EnvironmentBase *env)
 {
-#error implement root walking code
+	if (env->_currentTask->synchronizeGCThreadsAndReleaseSingleThread(env, UNIQUE_ID)) {
+		// This walks the globals of the universe, and the interpreter
+		GetUniverse()->WalkGlobals(mark_object);
+		env->_currentTask->releaseSynchronizedGCThreads(env);
+	}
 }
 
 void
@@ -128,13 +158,32 @@ MM_CollectorLanguageInterfaceImpl::markingScheme_masterSetupForWalk(MM_Environme
 void
 MM_CollectorLanguageInterfaceImpl::markingScheme_masterCleanupAfterGC(MM_EnvironmentBase *env)
 {
+#if DEBUG
+	MM_HeapRegionManager *regionManager = _extensions->getHeap()->getHeapRegionManager();
+	GC_HeapRegionIterator regionIterator(regionManager);
+	MM_HeapRegionDescriptor *hrd = NULL;
+	while (NULL != (hrd = regionIterator.nextRegion())) {
+		GC_ObjectHeapIteratorAddressOrderedList objectIterator(_extensions, hrd, false);
+		omrobjectptr_t omrobjptr = NULL;
+		while (NULL != (omrobjptr = objectIterator.nextObject())) {
+			if (!_markingScheme->isMarked(omrobjptr)) {
+				/* object will be collected. We write the full contents of the object with a known value  */
+				uintptr_t objsize = _extensions->objectModel.getSizeInBytesWithHeader(omrobjptr);
+				memset(omrobjptr,0x5E,(size_t) objsize);
+				MM_HeapLinkedFreeHeader::fillWithHoles(omrobjptr, objsize);
+			}
+		}
+	}
+#endif
 }
 
 uintptr_t
 MM_CollectorLanguageInterfaceImpl::markingScheme_scanObject(MM_EnvironmentBase *env, omrobjectptr_t objectPtr, MarkingSchemeScanReason reason)
 {
-	/* This will likely get moved back into MarkingScheme and use an object scanner to walk the slots of an Object */
-#error implement an object scanner
+    AbstractVMObject* curObject = (AbstractVMObject*)objectPtr;
+    curObject->WalkObjects(mark_object);
+
+    return _extensions->objectModel.getConsumedSizeInBytesWithHeader(objectPtr);
 }
 
 #if defined(OMR_GC_MODRON_CONCURRENT_MARK)

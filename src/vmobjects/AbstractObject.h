@@ -15,14 +15,16 @@
 #include <memory/GenerationalHeap.h>
 #include <memory/CopyingHeap.h>
 #include <memory/MarkSweepHeap.h>
+#include <memory/OMRHeap.h>
 
 #include "ObjectFormats.h"
 #include "VMObjectBase.h"
+#include "../../omrglue/objectdescription.h"
 
 /*
  * macro for padding - only word-aligned memory must be allocated
  */
-#define PADDED_SIZE(N) ((((uint32_t)N)+(sizeof(void*)-1) & ~(sizeof(void*)-1)))
+#define PADDED_SIZE(N) (((((uint32_t)N)+(sizeof(void*)-1)) & ~(sizeof(void*)-1)))
 
 using namespace std;
 

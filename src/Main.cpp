@@ -50,6 +50,8 @@ int main(int argc, char** argv) {
         cout << "\tgarbage collector: copying" << endl;
     else if (GC_TYPE == MARK_SWEEP)
         cout << "\tgarbage collector: mark-sweep" << endl;
+    else if (GC_TYPE == OMR_GARBAGE_COLLECTION)
+    	cout << "\tgarbage collector: omr gc" << endl;
     else
         cout << "\tgarbage collector: unknown" << endl;
 

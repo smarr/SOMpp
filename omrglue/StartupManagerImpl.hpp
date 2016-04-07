@@ -40,7 +40,7 @@ protected:
 #endif /* OMR_GC_SEGREGATED_HEAP */
 public:
 	static const uintptr_t defaultMinimumHeapSize = (uintptr_t) 1*1024*1024;
-	static const uintptr_t defaultMaximumHeapSize = (uintptr_t) 2*1024*1024;
+	static const uintptr_t defaultMaximumHeapSize = (uintptr_t) 1*1024*1024;
 
 	/*
 	 * Function members
@@ -51,6 +51,7 @@ private:
 protected:
 	virtual bool handleOption(MM_GCExtensionsBase *extensions, char *option);
 	virtual char * getOptions(void);
+	virtual bool parseLanguageOptions(MM_GCExtensionsBase *extensions);
 
 public:
 	virtual MM_ConfigurationLanguageInterface * createConfigurationLanguageInterface(MM_EnvironmentBase *env);

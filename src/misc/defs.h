@@ -65,9 +65,10 @@
 //
 // GC Types
 //
-#define GENERATIONAL 1
-#define COPYING      2
-#define MARK_SWEEP   3
+#define GENERATIONAL           1
+#define COPYING                2
+#define MARK_SWEEP             3
+#define OMR_GARBAGE_COLLECTION 4
 
 #if   GC_TYPE == GENERATIONAL
   class   GenerationalHeap;
@@ -87,6 +88,15 @@
   class   MarkSweepHeap;
   typedef MarkSweepHeap HEAP_CLS;
   #define write_barrier(obj, value_ptr)
+  #define ALLOC_MATURE
+  #define ALLOC_OUTSIDE_NURSERY(X)
+  #define ALLOC_OUTSIDE_NURSERY_DECL
+#elif GC_TYPE == OMR_GARBAGE_COLLECTION
+  class  OMRHeap;
+  typedef OMRHeap HEAP_CLS;
+  #define write_barrier(obj, value_ptr)
+// since OMR currently does not require barriers.  Once we add generational support this will be required
+//  #define write_barrier(obj, value_ptr) ((GetHeap<OMRHeap>())->writeBarrier(obj, value_ptr))
   #define ALLOC_MATURE
   #define ALLOC_OUTSIDE_NURSERY(X)
   #define ALLOC_OUTSIDE_NURSERY_DECL
