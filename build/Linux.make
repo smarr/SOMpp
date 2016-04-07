@@ -27,8 +27,9 @@
 # THE SOFTWARE.
 
 CXX		?=clang++
-CFLAGS	=-std=c++11 -m64 -Wno-endif-labels $(OPT_FLAGS) $(DBG_FLAGS) $(FEATURE_FLAGS) $(INCLUDES)
+CFLAGS =$(EXTRA_FLAGS) -DUT_DIRECT_TRACE_REGISTRATION $(OPT_FLAGS) $(DBG_FLAGS) $(FEATURE_FLAGS) $(INCLUDES)
 OPT_FLAGS?=-O3 -DNDEBUG
+EXTRA_FLAGS=-std=c++11 -m64 -Wno-endif-labels -fexceptions
 
 LBITS := $(shell getconf LONG_BIT)
 ARCH := $(shell arch)
@@ -47,9 +48,11 @@ LDFLAGS		=$(DBG_FLAGS) $(LIBRARIES)
 
 INSTALL		=install
 
-CSOM_LIBS	=-lm
+CSOM_LIBS	=-lm -ldl -lpthread
 
 CSOM_NAME	=SOM++
+
+SPEC		?= linux_x86-64
 
 include $(BUILD_DIR)/sources.make
 
@@ -75,7 +78,7 @@ profiling: all
 .cpp.o:
 	$(CXX) $(CFLAGS) -c $< -o $*.o
 
-clean:
+clean: omr-clean
 	rm -Rf $(CLEAN)
 	#just to be sure delete again
 	find . -name "*.o" -delete
@@ -84,9 +87,21 @@ clean:
 # product rules
 #
 
-$(CSOM_NAME): $(ALL_OBJ)
+omr-clean:
+	$(MAKE) -C $(OMRDIR) clean
+	$(MAKE) -C $(OMRDIR) -f run_configure.mk OMRGLUE="$(OMRGLUEDIR)" clean
+	
+omr-config:
+	@echo Configuring OMR
+	$(MAKE) -C $(OMRDIR) -f run_configure.mk OMRGLUE="$(OMRGLUEDIR)" OMRGLUE_INCLUDES="$(SRC_DIR)" SPEC="$(SPEC)" CXX="$(CXX)" OPT_FLAGS="$(OPT_FLAGS)" EXTRA_FLAGS="$(EXTRA_FLAGS)" DBG_FLAGS="$(DBG_FLAGS)" FEATURE_FLAGS="$(FEATURE_FLAGS)" enable_warnings_as_errors=no enable_debug=no
+
+omr: omr-config
+	@echo compiling OMR
+	$(MAKE) -C $(OMRDIR)
+
+$(CSOM_NAME): omr $(ALL_OBJ)
 	@echo Linking $(CSOM_NAME)
-	$(CXX) -o $(CSOM_NAME) $(ALL_OBJ) $(LDFLAGS) $(CSOM_LIBS)
+	$(CXX) -o $(CSOM_NAME) $(ALL_OBJ) $(LDFLAGS) $(OMRLIB) $(CSOM_LIBS)
 	@echo Linking $(CSOM_NAME) done.
 
 install: all
@@ -105,7 +120,7 @@ console: all
 	./$(CSOM_NAME) -cp ./Smalltalk
 
 units: $(ALL_TEST_OBJ)
-	$(CXX) $(LIBRARIES) $(ALL_TEST_OBJ) -lcppunit -lrt -o unittest
+	$(CXX) $(LIBRARIES) $(ALL_TEST_OBJ) $(OMRLIB) -lcppunit -lrt -o unittest
 
 richards: all
 	./$(CSOM_NAME) -cp ./Smalltalk ./Examples/Benchmarks/Richards/RichardsBenchmarks.som
@@ -125,4 +140,4 @@ test: all
 # bench: run the benchmarks
 #
 bench: all
-	./$(CSOM_NAME) -cp ./Smalltalk:./Examples/Benchmarks/LanguageFeatures ./Examples/Benchmarks/All.som
+	./$(CSOM_NAME) -H4MB -cp ./Smalltalk:./Examples/Benchmarks/LanguageFeatures ./Examples/Benchmarks/All.som

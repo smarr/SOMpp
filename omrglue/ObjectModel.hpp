@@ -25,6 +25,10 @@
 #include "Bits.hpp"
 #include "HeapLinkedFreeHeader.hpp"
 
+#include "misc/defs.h"
+#include "vmobjects/AbstractObject.h"
+#include "vmobjects/ObjectFormats.h"
+
 class MM_GCExtensionsBase;
 
 #define J9_GC_OBJECT_ALIGNMENT_IN_BYTES 0x8
@@ -157,7 +161,12 @@ public:
 	MMINLINE uintptr_t
 	getSizeInBytesWithHeader(omrobjectptr_t objectPtr)
 	{
-#error provide an implementation of how big objects are including any header data associated with each object
+		if (IS_TAGGED(objectPtr)) {
+			return 0;
+		} else {
+			AbstractVMObject* o =(AbstractVMObject*)(objectPtr);
+			return o->GetObjectSize();
+		}
 	}
 
 #if defined(OMR_GC_MODRON_COMPACTION)

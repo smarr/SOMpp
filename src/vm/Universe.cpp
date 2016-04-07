@@ -52,6 +52,10 @@
 
 #include "../vmobjects/IntegerBox.h"
 
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+#include "../../omr/include_core/omrvm.h"
+#endif
+
 #if CACHE_INTEGER
 gc_oop_t prebuildInts[INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE + 1];
 #endif
@@ -302,6 +306,15 @@ void Universe::initialize(long _argc, char** _argv) {
         bm_name = argv[0];
 
     Heap<HEAP_CLS>::InitializeHeap(heapSize);
+
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+    SOM_VM *vm = GetHeap<OMRHeap>()->getVM();
+    SOM_Thread *thread = GetHeap<OMRHeap>()->getThread();
+	if (OMR_ERROR_NONE != OMR_Initialize_VM(&vm->omrVM, &thread->omrVMThread, vm, thread)) {
+		Universe::ErrorPrint("Failed startup OMR\n");
+		GetUniverse()->Quit(-1);
+	}
+#endif
 
     interpreter = new Interpreter();
 

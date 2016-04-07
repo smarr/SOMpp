@@ -6,24 +6,27 @@ before_install:
   - sudo apt-get update -qq
   - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; export CXX=g++-4.8; fi
   - sudo apt-get install -qq libcppunit-dev
+  - sudo apt-get install -qq libnuma-dev
 
 compiler:
-  - clang
   - gcc
 
 env:
   - USE_TAGGING=true   GC_TYPE=generational
   - USE_TAGGING=true   GC_TYPE=mark_sweep
   - USE_TAGGING=true   GC_TYPE=copying
+  - USE_TAGGING=true   GC_TYPE=omr_gc
   
   - USE_TAGGING=false  GC_TYPE=generational CACHE_INTEGER=true
   - USE_TAGGING=false  GC_TYPE=mark_sweep   CACHE_INTEGER=true
   - USE_TAGGING=false  GC_TYPE=copying      CACHE_INTEGER=true
+  - USE_TAGGING=false  GC_TYPE=omr_gc       CACHE_INTEGER=true
   
   - USE_TAGGING=false  GC_TYPE=generational CACHE_INTEGER=false
   - USE_TAGGING=false  GC_TYPE=mark_sweep   CACHE_INTEGER=false
   - USE_TAGGING=false  GC_TYPE=copying      CACHE_INTEGER=false
-  
+  - USE_TAGGING=false  GC_TYPE=omr_gc       CACHE_INTEGER=false
+
 
 
 script:
