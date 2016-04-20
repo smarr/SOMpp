@@ -50,7 +50,8 @@ The debug version of CSOM can be built using the `debug` target:
 Information on previous authors are included in the AUTHORS file. This code is
 distributed under the MIT License. Please see the LICENSE file for details.
 Additional documentation, detailing for instance the object model and how to
-implement primitives, is available in the `doc` folder.
+implement primitives, is available in the `doc` folder. The omrglue folder
+is dual licensed under EPL V1.0 and AL V2.0.
 
 Advanced Compilation Settings
 -----------------------------

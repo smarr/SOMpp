@@ -35,7 +35,7 @@ class VMInteger: public AbstractVMObject {
 public:
     typedef GCInteger Stored;
     
-    VMInteger(int64_t val) : embeddedInteger(val), AbstractVMObject() {}
+    VMInteger(int64_t val) : AbstractVMObject(), embeddedInteger(val) {}
 
     inline int64_t GetEmbeddedInteger() const;
     virtual VMInteger* Clone() const;

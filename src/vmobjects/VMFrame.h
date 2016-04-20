@@ -32,6 +32,9 @@ class Universe;
 
 class VMFrame: public VMObject {
     friend class Universe;
+    friend class VMMethod;
+    friend class EvaluationRoutine;
+    friend class SOMppMethod;
 public:
     typedef GCFrame Stored;
     
@@ -71,13 +74,17 @@ public:
     void PrintBytecode() const;
     inline void* GetStackPointer() const;
     long RemainingStackSize() const;
-    
+
+    inline void SetIsJITFrame(bool value);
+    inline bool GetIsJITFrame();
+
     virtual StdString AsDebugString() const;
     
 private:
     GCFrame* previousFrame;
     GCFrame* context;
     GCMethod* method;
+    bool isJITFrame;
     long bytecodeIndex;
     gc_oop_t* arguments;
     gc_oop_t* locals;
@@ -143,4 +150,12 @@ void VMFrame::SetLocal(long index, vm_oop_t value) {
 
 void VMFrame::SetArgument(long index, vm_oop_t value) {
     store_ptr(arguments[index], value);
+}
+
+void VMFrame::SetIsJITFrame(bool value) {
+	isJITFrame = value;
+}
+
+bool VMFrame::GetIsJITFrame() {
+    return isJITFrame;
 }

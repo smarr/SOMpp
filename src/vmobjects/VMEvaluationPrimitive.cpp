@@ -31,6 +31,10 @@
 #include "VMBlock.h"
 #include "VMInteger.h"
 
+#include "VMMethod.h"
+#include "../../omr/include_core/omrlinkedlist.h"
+#include "Jit.hpp"
+
 #include "../vm/Universe.h"
 
 //needed to instanciate the Routine object for the evaluation routine
@@ -93,6 +97,32 @@ void EvaluationRoutine::Invoke(Interpreter* interp, VMFrame* frame) {
     VMFrame* NewFrame = interp->PushNewFrame(block->GetMethod());
     NewFrame->CopyArgumentsFrom(frame);
     NewFrame->SetContext(context);
+
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+    VMMethod *vmMethod = block->GetMethod();
+    if(NULL != vmMethod->compiledMethod) {
+    	NewFrame->SetIsJITFrame(true);
+		int64_t value = vmMethod->compiledMethod((int64_t)interp, (int64_t)NewFrame, (int64_t)&NewFrame->stack_ptr);
+	} else if (vmMethod->invokedCount > 0) {
+        if (0 == --vmMethod->invokedCount) {
+            if (enableJIT) {
+            	SOM_VM *vm = GetHeap<OMRHeap>()->getVM();
+            	OMRPORT_ACCESS_FROM_OMRVM(vm->omrVM);
+            	OMR_CompilationQueueNode *node = (OMR_CompilationQueueNode *)omrmem_allocate_memory(sizeof(OMR_CompilationQueueNode), OMRMEM_CATEGORY_VM);
+            	if (NULL != node) {
+				    omrthread_monitor_enter(vm->jitCompilationQueueMonitor);
+				    node->linkNext = NULL;
+				    node->linkPrevious = NULL;
+				    node->vmMethod = vmMethod;
+				    J9_LINKED_LIST_ADD_LAST(vm->jitCompilationQueue, node);
+				    vm->jitCompilationState = 1;
+				    omrthread_monitor_notify_all(vm->jitCompilationQueueMonitor);
+				    omrthread_monitor_exit(vm->jitCompilationQueueMonitor);
+                }
+            }
+        }
+    }
+#endif
 }
 
 void EvaluationRoutine::WalkObjects(walk_heap_fn walk) {
