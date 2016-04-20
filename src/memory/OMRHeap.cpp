@@ -29,13 +29,12 @@ AbstractVMObject* OMRHeap::AllocateObject(size_t size) {
 #if defined(OMR_GC_TLH_PREFETCH_FTA)
         thread.omrTlh.tlhPrefetchFTA -= allocSize;
 #endif  /* OMR_GC_TLH_PREFETCH_FTA */
-        memset(heapAlloc, 0, allocSize);
         object = (AbstractVMObject *)heapAlloc;
         goto finish;
     }
 #endif  /* OMR_GC_THREAD_LOCAL_HEAP */
 
-    object = (AbstractVMObject*)OMR_GC_AllocateNoGC(thread.omrVMThread, allocSize, OMR_GC_ALLOCATE_ZERO_MEMORY);
+    object = (AbstractVMObject*)OMR_GC_AllocateNoGC(thread.omrVMThread, allocSize, OMR_GC_ALLOCATE_NO_FLAGS);
     if (NULL == object) {
         Universe::ErrorPrint("Failed to allocate " + to_string(allocSize) + " Bytes.\n");
         GetUniverse()->Quit(-1);

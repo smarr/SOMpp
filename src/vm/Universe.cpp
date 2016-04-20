@@ -53,7 +53,11 @@
 #include "../vmobjects/IntegerBox.h"
 
 #if GC_TYPE == OMR_GARBAGE_COLLECTION
+#include "Jit.hpp"
+#include "ilgen/TypeDictionary.hpp"
+#include "../../omrglue/SOMppMethod.hpp"
 #include "../../omr/include_core/omrvm.h"
+#include "../../omr/include_core/omrlinkedlist.h"
 #endif
 
 #if CACHE_INTEGER
@@ -66,6 +70,7 @@ gc_oop_t prebuildInts[INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE + 1];
 
 short dumpBytecodes;
 short gcVerbosity;
+bool enableJIT;
 
 Universe* Universe::theUniverse = nullptr;
 
@@ -166,6 +171,7 @@ vector<StdString> Universe::handleArguments(long argc, char** argv) {
     vector<StdString> vmArgs = vector<StdString>();
     dumpBytecodes = 0;
     gcVerbosity   = 0;
+    enableJIT     = false;
 
     for (long i = 1; i < argc; ++i) {
 
@@ -191,6 +197,8 @@ vector<StdString> Universe::handleArguments(long argc, char** argv) {
         } else if ((strncmp(argv[i], "-h", 2) == 0)
                 || (strncmp(argv[i], "--help", 6) == 0)) {
             printUsageAndExit(argv[0]);
+        } else if (strncmp(argv[i], "-Xjit", 5) == 0) {
+        	enableJIT = true;
         } else {
             vector<StdString> extPathTokens = vector<StdString>(2);
             StdString tmpString = StdString(argv[i]);
@@ -274,6 +282,7 @@ void Universe::printUsageAndExit(char* executable) const {
          << "collection" << endl;
     cout << "    -HxMB set the heap size to x MB (default: 1 MB)" << endl;
     cout << "    -HxKB set the heap size to x KB (default: 1 MB)" << endl;
+    cout << "    -Xjit  enable JIT compilation" << endl;
     cout << "    -h  show this help" << endl;
 
     Quit(ERR_SUCCESS);
@@ -291,6 +300,127 @@ VMMethod* Universe::createBootstrapMethod(VMClass* holder, long numArgsOfMsgSend
     bootstrapMethod->SetHolder(holder);
     return bootstrapMethod;
 }
+
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+int Universe::jitCompilationEntryPoint(void *arg) {
+    SOM_VM *vm = (SOM_VM *) arg;
+    OMR_VMThread *omrVMThread = NULL;
+
+    omr_error_t rc = OMR_Glue_BindCurrentThread(vm->omrVM, "JIT Compilation Thread", &omrVMThread);
+    if (OMR_ERROR_NONE != rc) {
+        omrthread_monitor_enter(vm->jitCompilationQueueMonitor);
+        vm->jitCompilationState = 2;
+        omrthread_monitor_notify_all(vm->jitCompilationQueueMonitor);
+        omrthread_exit(vm->jitCompilationQueueMonitor);
+        return 0;
+    }
+
+    omrthread_monitor_enter(vm->jitCompilationQueueMonitor);
+    vm->jitCompilationState = 0;
+    omrthread_monitor_notify_all(vm->jitCompilationQueueMonitor);
+
+    while (2 != vm->jitCompilationState) {
+        while (0 == vm->jitCompilationState) {
+            omrthread_monitor_wait(vm->jitCompilationQueueMonitor);
+        }
+
+        if (1 == vm->jitCompilationState) {
+        	uint32_t rc = 0;
+            OMR_CompilationQueueNode *node = NULL;
+            if (J9_LINKED_LIST_IS_EMPTY(vm->jitCompilationQueue)) {
+                vm->jitCompilationState = 0;
+                continue;
+            }
+            J9_LINKED_LIST_REMOVE_FIRST(vm->jitCompilationQueue, node);
+
+            omrthread_monitor_exit(vm->jitCompilationQueueMonitor);
+
+			TR::TypeDictionary types;
+
+			/* TODO what is keeping the method alive if a GC happens during compilation? */
+			/* We need a way to interrupt the JIT compile or block the GC from happening during compilation */
+			SOMppMethod methodBuilder(&types, node->vmMethod, true);
+			uint8_t *entry=0;
+
+			rc = (*compileMethodBuilder)(&methodBuilder, &entry);
+			if (0 == rc) {
+				node->vmMethod->compiledMethod = (SOMppFunctionType *)entry;
+			}
+
+        	OMRPORT_ACCESS_FROM_OMRVM(vm->omrVM);
+        	omrmem_free_memory(node);
+
+        	omrthread_monitor_enter(vm->jitCompilationQueueMonitor);
+    	}
+
+    }
+    omrthread_monitor_exit(vm->jitCompilationQueueMonitor);
+
+    OMR_Glue_UnbindCurrentThread(omrVMThread);
+
+    omrthread_monitor_enter(vm->jitCompilationQueueMonitor);
+    vm->jitCompilationState = 3;
+    omrthread_monitor_notify_all(vm->jitCompilationQueueMonitor);
+    omrthread_exit(vm->jitCompilationQueueMonitor);
+
+	return 0;
+}
+
+uintptr_t Universe::createJITAsyncCompileThread(SOM_VM *vm) {
+    omrthread_t self = (omrthread_t)NULL;
+    omrthread_t jitCompilationThread = (omrthread_t)NULL;
+    uintptr_t rc = 0;
+
+    vm->jitCompilationQueue = NULL;
+
+    if (0 == omrthread_attach_ex(&self, J9THREAD_ATTR_DEFAULT)) {
+        vm->jitCompilationQueueMonitor = (omrthread_monitor_t)NULL;
+
+        if (0 != omrthread_monitor_init(&vm->jitCompilationQueueMonitor, 0)) {
+        	omrthread_detach(self);
+        	Universe::ErrorPrint("JIT Compilation failed to create monitor\n");
+            return 1;
+        }
+
+        omrthread_monitor_enter(vm->jitCompilationQueueMonitor);
+
+        vm->jitCompilationState = 0;
+
+        intptr_t rc = omrthread_create(&jitCompilationThread, 128 * 1024, J9THREAD_PRIORITY_NORMAL, 0, &jitCompilationEntryPoint, vm);
+        if (0 != rc) {
+            omrthread_monitor_exit(vm->jitCompilationQueueMonitor);
+            omrthread_detach(self);
+            Universe::ErrorPrint("JIT Compilation thread failed to start\n");
+            return 1;
+        }
+
+        omrthread_monitor_wait(vm->jitCompilationQueueMonitor);
+        if (2 == vm->jitCompilationState) {
+        	Universe::ErrorPrint("JIT Compilation state incorrect\n");
+            rc = 1;
+        }
+        omrthread_monitor_exit(vm->jitCompilationQueueMonitor);
+
+        omrthread_detach(self);
+    } else {
+        Universe::ErrorPrint("JIT Compilation failed to attach main thread\n");
+        return 1;
+    }
+    return rc;
+}
+
+void Universe::shutdownJITAsyncCompileThread(SOM_VM *vm) {
+    omrthread_monitor_enter(vm->jitCompilationQueueMonitor);
+
+    vm->jitCompilationState = 2;
+    omrthread_monitor_notify_all(vm->jitCompilationQueueMonitor);
+    while (3 != vm->jitCompilationState) {
+    	omrthread_monitor_wait(vm->jitCompilationQueueMonitor);
+    }
+
+    omrthread_monitor_exit(vm->jitCompilationQueueMonitor);
+}
+#endif
 
 void Universe::initialize(long _argc, char** _argv) {
 #ifdef GENERATE_ALLOCATION_STATISTICS
@@ -310,10 +440,23 @@ void Universe::initialize(long _argc, char** _argv) {
 #if GC_TYPE == OMR_GARBAGE_COLLECTION
     SOM_VM *vm = GetHeap<OMRHeap>()->getVM();
     SOM_Thread *thread = GetHeap<OMRHeap>()->getThread();
-	if (OMR_ERROR_NONE != OMR_Initialize_VM(&vm->omrVM, &thread->omrVMThread, vm, thread)) {
-		Universe::ErrorPrint("Failed startup OMR\n");
-		GetUniverse()->Quit(-1);
-	}
+    if (OMR_ERROR_NONE != OMR_Initialize_VM(&vm->omrVM, &thread->omrVMThread, vm, thread)) {
+        Universe::ErrorPrint("Failed startup OMR\n");
+        GetUniverse()->Quit(-1);
+    }
+
+    if (enableJIT) {
+    	enableJIT = initializeJit();
+        if (!enableJIT) {
+    	    Universe::ErrorPrint("Could not initialize JIT\n");
+            GetUniverse()->Quit(-1);
+       } else {
+    	   if (0 != createJITAsyncCompileThread(vm)) {
+    		   Universe::ErrorPrint("Could not initialize JIT thread\n");
+    		   GetUniverse()->Quit(-1);
+    	   }
+       }
+    }
 #endif
 
     interpreter = new Interpreter();
@@ -363,6 +506,19 @@ Universe::~Universe() {
     if (interpreter)
         delete (interpreter);
 
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+    SOM_VM *vm = GetHeap<OMRHeap>()->getVM();
+    if (enableJIT) {
+        shutdownJITAsyncCompileThread(vm);
+        shutdownJit();
+    }
+    SOM_Thread *thread = GetHeap<OMRHeap>()->getThread();
+    omr_error_t rc = OMR_Shutdown_VM(vm->omrVM, thread->omrVMThread);
+    if (OMR_ERROR_NONE != rc) {
+    	Universe::ErrorPrint("Error shutting down OMR\n");
+    }
+
+#endif
     // check done inside
     Heap<HEAP_CLS>::DestroyHeap();
 }
@@ -921,6 +1077,21 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
     symbolIfTrue  = symbolsMap["ifTrue:"];
     symbolIfFalse = symbolsMap["ifFalse:"];
     
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+    if (enableJIT) {
+        SOM_VM *vm = GetHeap<OMRHeap>()->getVM();
+        omrthread_monitor_enter(vm->jitCompilationQueueMonitor);
+
+        OMR_CompilationQueueNode *node = J9_LINKED_LIST_START_DO(vm->jitCompilationQueue);
+        while (NULL != node) {
+    	    node->vmMethod = (VMMethod *)walk((gc_oop_t)node->vmMethod);
+    	    node = J9_LINKED_LIST_NEXT_DO(vm->jitCompilationQueue, node);
+        }
+
+        omrthread_monitor_exit(vm->jitCompilationQueueMonitor);
+    }
+#endif
+
     interpreter->WalkGlobals(walk);
 }
 

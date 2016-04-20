@@ -32,7 +32,7 @@
 #include "VMObject.h"
 
 class VMSymbol: public VMString {
-
+	friend class SOMppMethod;
 public:
     typedef GCSymbol Stored;
     

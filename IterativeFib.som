@@ -1,0 +1,41 @@
+IterativeFib = (
+
+  fib: n with: count = (
+    | lastSum sum |
+
+    lastSum := 0.
+    sum := 1.
+
+    (n < 2) ifTrue: [ ^n ].
+
+    1 to: n - 1 do:
+      [ :i | | tempSum |
+        tempSum := sum + lastSum.
+        lastSum := sum.
+        sum := tempSum.
+      ].
+
+    ^sum
+  )
+
+  run = (
+    | a i n |
+    a := 12.
+    i := 400000.
+
+    n := IterativeFib new.
+
+    (n fib: a with: 0) println.
+    n fib: a with: 0.
+    n fib: a with: 0.
+    n fib: a with: 0.
+    n fib: a with: 0.
+    n fib: a with: 0.
+    n fib: a with: 0.
+    n fib: a with: 0.
+    n fib: a with: 0.
+    n fib: a with: 0.
+
+    0 to: i do: [ :index | n fib: a with: index].
+    )
+)

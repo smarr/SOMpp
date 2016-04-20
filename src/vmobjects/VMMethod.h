@@ -27,15 +27,22 @@
  */
 
 #include <iostream>
+#include <map>
 
 #include "VMInvokable.h"
 #include "VMInteger.h"
+#include "vm/Universe.h"
+
+#include "../omrglue/SOMppMethod.hpp"
 
 class MethodGenerationContext;
 class Interpreter;
 
 class VMMethod: public VMInvokable {
     friend class Interpreter;
+    friend class SOMppMethod;
+    friend class Universe;
+    friend class EvaluationRoutine;
 
 public:
     typedef GCMethod Stored;
@@ -70,9 +77,20 @@ public:
     
     virtual StdString AsDebugString() const;
 
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+   inline void setInvokeReceiverCache(VMClass* receiverClass, long bytecodeIndex);
+   inline VMClass* getInvokeReceiverCache(long bytecodeIndex);
+#endif
+
 private:
     inline uint8_t* GetBytecodes() const;
     inline vm_oop_t GetIndexableField(long idx) const;
+
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+    long invokedCount;
+    SOMppFunctionType *compiledMethod;
+    map<long, VMClass *> *sendCache;
+#endif
 
 private_testable:
     gc_oop_t numberOfLocals;
@@ -123,3 +141,17 @@ uint8_t VMMethod::GetBytecode(long indx) const {
 void VMMethod::SetBytecode(long indx, uint8_t val) {
     bytecodes[indx] = val;
 }
+
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+void VMMethod::setInvokeReceiverCache(VMClass* receiverClass, long bytecodeIndex) {
+	sendCache->insert(std::pair<long, VMClass *>(bytecodeIndex, receiverClass));
+}
+
+VMClass* VMMethod::getInvokeReceiverCache(long bytecodeIndex) {
+	if (sendCache->find(bytecodeIndex) == sendCache->end()) {
+		return NULL;
+	} else {
+		return sendCache->find(bytecodeIndex)->second;
+	}
+}
+#endif
