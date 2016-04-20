@@ -93,7 +93,7 @@ omr-clean:
 	
 omr-config:
 	@echo Configuring OMR
-	$(MAKE) -C $(OMRDIR) -f run_configure.mk OMRGLUE="$(OMRGLUEDIR)" OMRGLUE_INCLUDES="$(SRC_DIR)" SPEC="$(SPEC)" CXX="$(CXX)" OPT_FLAGS="$(OPT_FLAGS)" EXTRA_FLAGS="$(EXTRA_FLAGS)" DBG_FLAGS="$(DBG_FLAGS)" FEATURE_FLAGS="$(FEATURE_FLAGS)" enable_warnings_as_errors=no enable_debug=no
+	$(MAKE) -C $(OMRDIR) -f run_configure.mk OMRGLUE="$(OMRGLUEDIR)" OMRGLUE_INCLUDES="$(SRC_DIR) $(LIBJITBUILDER_INCLUDES)" SPEC="$(SPEC)" CXX="$(CXX)" OPT_FLAGS="$(OPT_FLAGS)" EXTRA_FLAGS="$(EXTRA_FLAGS)" DBG_FLAGS="$(DBG_FLAGS)" FEATURE_FLAGS="$(FEATURE_FLAGS)" enable_warnings_as_errors=no enable_debug=no
 
 omr: omr-config
 	@echo compiling OMR
@@ -101,7 +101,7 @@ omr: omr-config
 
 $(CSOM_NAME): omr $(ALL_OBJ)
 	@echo Linking $(CSOM_NAME)
-	$(CXX) -o $(CSOM_NAME) $(ALL_OBJ) $(LDFLAGS) $(OMRLIB) $(CSOM_LIBS)
+	$(CXX) -o $(CSOM_NAME) $(ALL_OBJ) $(LDFLAGS) $(OMRLIB) $(LIBJITBUILDER) $(CSOM_LIBS)
 	@echo Linking $(CSOM_NAME) done.
 
 install: all
@@ -120,7 +120,7 @@ console: all
 	./$(CSOM_NAME) -cp ./Smalltalk
 
 units: $(ALL_TEST_OBJ)
-	$(CXX) $(LIBRARIES) $(ALL_TEST_OBJ) $(OMRLIB) -lcppunit -lrt -o unittest
+	$(CXX) $(LIBRARIES) $(ALL_TEST_OBJ) $(OMRLIB) $(LIBJITBUILDER) -lcppunit -lrt -o unittest
 
 richards: all
 	./$(CSOM_NAME) -cp ./Smalltalk ./Examples/Benchmarks/Richards/RichardsBenchmarks.som

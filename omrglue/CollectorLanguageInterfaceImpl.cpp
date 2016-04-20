@@ -158,7 +158,7 @@ MM_CollectorLanguageInterfaceImpl::markingScheme_masterSetupForWalk(MM_Environme
 void
 MM_CollectorLanguageInterfaceImpl::markingScheme_masterCleanupAfterGC(MM_EnvironmentBase *env)
 {
-#if DEBUG
+#if 0
 	MM_HeapRegionManager *regionManager = _extensions->getHeap()->getHeapRegionManager();
 	GC_HeapRegionIterator regionIterator(regionManager);
 	MM_HeapRegionDescriptor *hrd = NULL;

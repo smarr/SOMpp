@@ -42,10 +42,12 @@
 #include "../memory/Heap.h"
 
 class SourcecodeCompiler;
+struct SOM_VM;
 
 // for runtime debug
 extern short dumpBytecodes;
 extern short gcVerbosity;
+extern bool enableJIT;
 
 //global VMObjects
 extern GCObject* nilObject;
@@ -158,6 +160,12 @@ private:
     void printUsageAndExit(char* executable) const;
 
     void initialize(long, char**);
+
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+    static int jitCompilationEntryPoint(void *arg);
+    uintptr_t createJITAsyncCompileThread(SOM_VM *vm);
+    void shutdownJITAsyncCompileThread(SOM_VM *vm);
+#endif
 
     long heapSize;
     map<GCSymbol*, gc_oop_t> globals;
