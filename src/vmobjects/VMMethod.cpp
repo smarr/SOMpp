@@ -37,12 +37,24 @@
 
 #include <compiler/MethodGenerationContext.h>
 #include <vmobjects/IntegerBox.h>
+#include "../../omrglue/SOMppMethod.hpp"
+#include "../../omr/include_core/omrlinkedlist.h"
+#include "Jit.hpp"
 
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+#define MAX_INVOKES_BEFORE_COMPILE 10
 
+#ifdef UNSAFE_FRAME_OPTIMIZATION
+const long VMMethod::VMMethodNumberOfFields = 11;
+#else
+const long VMMethod::VMMethodNumberOfFields = 10;
+#endif
+#else
 #ifdef UNSAFE_FRAME_OPTIMIZATION
 const long VMMethod::VMMethodNumberOfFields = 8;
 #else
 const long VMMethod::VMMethodNumberOfFields = 7;
+#endif
 #endif
 
 VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
@@ -63,6 +75,13 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
         indexableFields[i] = nilObject;
     }
     bytecodes = (uint8_t*)(&indexableFields + 2 + GetNumberOfIndexableFields());
+
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+    invokedCount = MAX_INVOKES_BEFORE_COMPILE;
+    compiledMethod = NULL;
+
+    sendCache = new map<long, VMClass *>();
+#endif
 }
 
 VMMethod* VMMethod::Clone() const {
@@ -140,6 +159,30 @@ long VMMethod::GetNumberOfBytecodes() const {
 void VMMethod::Invoke(Interpreter* interp, VMFrame* frame) {
     VMFrame* frm = interp->PushNewFrame(this);
     frm->CopyArgumentsFrom(frame);
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+    if(NULL != compiledMethod) {
+    	frm->SetIsJITFrame(true);
+		int64_t value = compiledMethod((int64_t)interp, (int64_t)frm, (int64_t)&frm->stack_ptr);
+	} else if (invokedCount > 0) {
+        if (0 == --invokedCount) {
+            if (enableJIT) {
+            	SOM_VM *vm = GetHeap<OMRHeap>()->getVM();
+            	OMRPORT_ACCESS_FROM_OMRVM(vm->omrVM);
+            	OMR_CompilationQueueNode *node = (OMR_CompilationQueueNode *)omrmem_allocate_memory(sizeof(OMR_CompilationQueueNode), OMRMEM_CATEGORY_VM);
+            	if (NULL != node) {
+				    omrthread_monitor_enter(vm->jitCompilationQueueMonitor);
+				    node->linkNext = NULL;
+				    node->linkPrevious = NULL;
+				    node->vmMethod = this;
+				    J9_LINKED_LIST_ADD_LAST(vm->jitCompilationQueue, node);
+				    vm->jitCompilationState = 1;
+				    omrthread_monitor_notify_all(vm->jitCompilationQueueMonitor);
+				    omrthread_monitor_exit(vm->jitCompilationQueueMonitor);
+                }
+            }
+        }
+    }
+#endif
 }
 
 void VMMethod::SetHolder(VMClass *hld) {

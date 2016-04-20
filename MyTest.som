@@ -1,0 +1,34 @@
+MyTest = (
+
+  foo: a with: b with: c with: d with: e with: f = (
+    (a < b)
+      ifTrue: [
+        (c < d)
+          ifTrue: [
+            ^ (e < f)
+          ] ifFalse: [
+            ^ (f < e)
+          ]
+        ] ifFalse: [
+          ^ (d < c)
+        ]
+  )
+
+  run = (
+    | a b c d e f i n |
+    a := 8.
+    b := 20.
+    c := 4.
+    d := 10.
+    e := 7.
+    f := 11.
+    i := 4000000.
+
+    n := MyTest new.
+
+    n foo: a with: b with: c with: d with: e with: f.
+    n foo: a with: b with: c with: d with: e with: f.
+
+    i timesRepeat: [n foo: a with: b with: c with: d with: e with: f].
+    )
+)

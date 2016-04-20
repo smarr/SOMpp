@@ -30,21 +30,34 @@
 #include <vmobjects/ObjectFormats.h>
 
 class Interpreter {
+	friend class SOMppMethod;
 public:
     Interpreter();
     ~Interpreter();
     
-    void      Start();
+    int       Start();
     VMFrame*  PushNewFrame(VMMethod* method);
     void      SetFrame(VMFrame* frame);
     inline VMFrame* GetFrame() const;
     void      WalkGlobals(walk_heap_fn);
+    inline void setBytecodeIndexGlobal(long index);
+    inline long getBytecodeIndexGlobal();
     
+    static int runInterpreterLoop(Interpreter *interp);
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+    inline int GetReturnCount();
+    inline void IncrementReturnCount();
+    inline void DecrementReturnCount();
+#endif
+
 private:
     vm_oop_t GetSelf() const;
     
     VMFrame* frame;
     VMMethod* method;
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+    int returnCount;
+#endif
     
     // The following three variables are used to cache main parts of the
     // current execution context
@@ -83,3 +96,25 @@ private:
 VMFrame* Interpreter::GetFrame() const {
     return frame;
 }
+
+void Interpreter::setBytecodeIndexGlobal(long index) {
+    bytecodeIndexGlobal = index;
+}
+
+long Interpreter::getBytecodeIndexGlobal() {
+    return bytecodeIndexGlobal;
+}
+
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+int Interpreter::GetReturnCount() {
+    return returnCount;
+}
+
+void Interpreter::IncrementReturnCount() {
+    returnCount += 1;
+}
+
+void Interpreter::DecrementReturnCount() {
+    returnCount -= 1;
+}
+#endif

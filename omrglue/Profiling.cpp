@@ -28,8 +28,8 @@
 #define SOM_OMR_SAMPLESTACK_BACKOFF_MAX 50
 #define SOM_OMR_SAMPLESTACK_BACKOFF_TIMER_DECR 1
 
-#define SOM_OMR_PROF_METHOD_NAME_IDX 0
-#define SOM_OMR_PROF_CLASS_NAME_IDX 1
+#define SOM_OMR_PROF_CLASS_NAME_IDX 0
+#define SOM_OMR_PROF_METHOD_NAME_IDX 1
 
 static void som_omr_sampleStack(OMR_VMThread *omrVMThread, VMFrame *frame);
 static void som_omr_insertMethodEntryInMethodDictionary(OMR_VM *omrVM, VMMethod *method);
@@ -40,8 +40,8 @@ extern "C" {
 #define SOM_OMR_METHOD_PROPERTY_COUNT 2
 
 static const char *methodPropertyNames[SOM_OMR_METHOD_PROPERTY_COUNT] = {
-	"methodName",
 	"className",
+	"methodName",
 };
 
 typedef struct SOM_OMR_MethodDictionaryEntry {

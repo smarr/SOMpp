@@ -12,6 +12,9 @@ TEST_DIR	?= $(ROOT_DIR)/core-lib/TestSuite
 OMRDIR		?= $(ROOT_DIR)/omr
 OMRGLUEDIR	?= $(ROOT_DIR)/omrglue
 OMRLIB		?= $(OMRDIR)/lib/libomrstatic.a
+LIBJITBUILDER_DIR  ?= $(ROOT_DIR)/../libjitbuilder
+LIBJITBUILDER		?= $(LIBJITBUILDER_DIR)/libjitbuilder.a
+LIBJITBUILDER_INCLUDES ?= $(LIBJITBUILDER_DIR)/include $(LIBJITBUILDER_DIR)/include/test $(LIBJITBUILDER_DIR)/include/omr
 
 include $(OMRDIR)/omrmakefiles/omr_defs.mk
 
@@ -58,7 +61,7 @@ PRIMITIVES_OBJ	= $(PRIMITIVES_SRC:.cpp=.o)
 
 ############# include path
 
-INCLUDES		=$(patsubst %,-I%,$(SRC_DIR) $(OMR_IPATH) $(OMRGC_IPATH) $(OMRGLUEDIR))
+INCLUDES		=$(patsubst %,-I%,$(SRC_DIR) $(OMR_IPATH) $(OMRGC_IPATH) $(OMRGLUEDIR) $(LIBJITBUILDER_INCLUDES))
 
 ##############
 ############## Collections.

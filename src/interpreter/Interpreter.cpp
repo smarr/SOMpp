@@ -48,7 +48,7 @@ const StdString Interpreter::doesNotUnderstand = "doesNotUnderstand:arguments:";
 const StdString Interpreter::escapedBlock      = "escapedBlock:";
 
 
-Interpreter::Interpreter() : frame(nullptr) {}
+Interpreter::Interpreter() : frame(nullptr), method(nullptr), returnCount(0), bytecodeIndexGlobal(0), currentBytecodes(nullptr) {}
 
 Interpreter::~Interpreter() {}
 
@@ -85,7 +85,11 @@ Interpreter::~Interpreter() {}
 }
 #endif
 
-void Interpreter::Start() {
+int Interpreter::runInterpreterLoop(Interpreter *interp) {
+    return interp->Start();
+}
+
+int Interpreter::Start() {
     // initialization
     method = GetFrame()->GetMethod();
     currentBytecodes = method->GetBytecodes();
@@ -118,7 +122,7 @@ void Interpreter::Start() {
     // THIS IS THE former interpretation loop
     LABEL_BC_HALT:
       PROLOGUE(1);
-      return; // handle the halt bytecode
+      return 0; // handle the halt bytecode
 
     LABEL_BC_DUP:
       PROLOGUE(1);
@@ -178,21 +182,45 @@ void Interpreter::Start() {
     LABEL_BC_SEND:
       PROLOGUE(2);
       doSend(bytecodeIndexGlobal - 2);
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+      if (GetReturnCount() > 0) {
+          DecrementReturnCount();
+          return 1;
+      }
+#endif
       DISPATCH_GC();
 
     LABEL_BC_SUPER_SEND:
       PROLOGUE(2);
       doSuperSend(bytecodeIndexGlobal - 2);
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+      if (GetReturnCount() > 0) {
+          DecrementReturnCount();
+          return 1;
+      }
+#endif
       DISPATCH_GC();
 
     LABEL_BC_RETURN_LOCAL:
       PROLOGUE(1);
       doReturnLocal();
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+      if (GetReturnCount() > 0) {
+          DecrementReturnCount();
+          return 1;
+      }
+#endif
       DISPATCH_NOGC();
 
     LABEL_BC_RETURN_NON_LOCAL:
       PROLOGUE(1);
       doReturnNonLocal();
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+      if (GetReturnCount() > 0) {
+          DecrementReturnCount();
+          return 1;
+      }
+#endif
       DISPATCH_NOGC();
 
     LABEL_BC_JUMP_IF_FALSE:
@@ -248,6 +276,12 @@ VMFrame* Interpreter::popFrame() {
 
 void Interpreter::popFrameAndPushResult(vm_oop_t result) {
     VMFrame* prevFrame = popFrame();
+
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+    if (GetFrame()->GetIsJITFrame() && !prevFrame->GetIsJITFrame()) {
+        IncrementReturnCount();
+    }
+#endif
 
     VMMethod* method = prevFrame->GetMethod();
     long numberOfArgs = method->GetNumberOfArguments();
@@ -438,7 +472,11 @@ void Interpreter::doSend(long bytecodeIndex) {
     assert(dynamic_cast<VMClass*>(CLASS_OF(receiver)) != nullptr); // make sure it is really a class
     
     VMClass* receiverClass = CLASS_OF(receiver);
-    
+
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+    method->setInvokeReceiverCache(receiverClass, bytecodeIndex);
+#endif
+
     assert(Universe::IsValidObject(receiverClass));
 
 #ifdef LOG_RECEIVER_TYPES
@@ -512,7 +550,35 @@ void Interpreter::doReturnNonLocal() {
         return;
     }
 
-    while (GetFrame() != context) popFrame();
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+    long interpreterFrameCounter = 0;
+#endif
+    VMFrame *currentFrame = GetFrame();
+    while (currentFrame != context) {
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+        if (currentFrame->GetIsJITFrame()) {
+            IncrementReturnCount();
+            if (interpreterFrameCounter > 0) {
+                IncrementReturnCount();
+                interpreterFrameCounter = 0;
+            }
+    	} else {
+            interpreterFrameCounter += 1;
+    	}
+#endif
+        popFrame();
+        currentFrame = GetFrame();
+    }
+
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+    if (context->GetIsJITFrame()) {
+        IncrementReturnCount();
+        if (interpreterFrameCounter > 0) {
+            IncrementReturnCount();
+            interpreterFrameCounter = 0;
+        }
+    }
+#endif
 
     popFrameAndPushResult(result);
 }

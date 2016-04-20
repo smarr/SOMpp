@@ -44,8 +44,18 @@ typedef struct omrTlhStruct {
         intptr_t tlhPrefetchFTA;
 } omrTlhStruct;
 
+typedef struct OMR_CompilationQueueNode {
+	struct OMR_CompilationQueueNode *linkNext;
+	struct OMR_CompilationQueueNode *linkPrevious;
+	struct VMMethod *vmMethod;
+} OMR_CompilationQueueNode;
+
 typedef struct SOM_VM {
         OMR_VM* omrVM;
+        omrthread_monitor_t jitCompilationQueueMonitor;
+        OMR_CompilationQueueNode *jitCompilationQueue;
+        int jitCompilationState;
+        struct TR_Memory* trMemory;
 } SOM_VM;
 
 typedef struct SOM_Thread {
