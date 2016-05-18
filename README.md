@@ -26,6 +26,20 @@ This repository contains the C++ implementation of SOM, including an
 implementation of the SOM standard library and a number of examples. Please see
 the [main project page][SOMst] for links to the VM implementations.
 
+The code in this branch relies on the libjitbuilder.a.  Since this is a binary file
+I have not included here.
+
+To test you can download the Docker image available here:
+https://ibm.app.box.com/v/oscon2016-omr-sompp
+
+Then you need to load the image into Docker with the following command:
+docker load -i oscon_omr_sompp.tgz
+
+Run the docker image:
+docker run --rm -it omr/sompp:latest /bin/bash
+
+The SOM++ code can be found at:
+/home/omr/SOMpp
 
 SOM++ can be built with Make:
 
