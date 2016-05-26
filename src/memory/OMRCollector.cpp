@@ -5,6 +5,7 @@
 #include "../vmobjects/AbstractObject.h"
 #include "../vmobjects/VMFrame.h"
 #include <vmobjects/IntegerBox.h>
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
 #include "../../omr/include_core/omrvm.h"
 #include "../../omr/gc/include/omrgc.h"
 #include "../../omr/gc/base/Heap.hpp"
@@ -25,3 +26,4 @@ void OMRCollector::Collect() {
     heap->collectionLimit = activeMemorySize * 0.9;
     Timer::GCTimer->Halt();
 }
+#endif

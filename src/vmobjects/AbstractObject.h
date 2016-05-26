@@ -15,11 +15,12 @@
 #include <memory/GenerationalHeap.h>
 #include <memory/CopyingHeap.h>
 #include <memory/MarkSweepHeap.h>
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
 #include <memory/OMRHeap.h>
+#endif
 
 #include "ObjectFormats.h"
 #include "VMObjectBase.h"
-#include "../../omrglue/objectdescription.h"
 
 /*
  * macro for padding - only word-aligned memory must be allocated

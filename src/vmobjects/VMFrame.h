@@ -74,10 +74,10 @@ public:
     void PrintBytecode() const;
     inline void* GetStackPointer() const;
     long RemainingStackSize() const;
-
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
     inline void SetIsJITFrame(bool value);
     inline bool GetIsJITFrame();
-
+#endif
     virtual StdString AsDebugString() const;
 
 private_testable:
@@ -87,7 +87,11 @@ private:
     GCFrame* previousFrame;
     GCFrame* context;
     GCMethod* method;
+
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
     bool isJITFrame;
+#endif
+
     gc_oop_t* arguments;
     gc_oop_t* locals;
     gc_oop_t* stack_ptr;
@@ -154,6 +158,7 @@ void VMFrame::SetArgument(long index, vm_oop_t value) {
     store_ptr(arguments[index], value);
 }
 
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
 void VMFrame::SetIsJITFrame(bool value) {
 	isJITFrame = value;
 }
@@ -161,3 +166,4 @@ void VMFrame::SetIsJITFrame(bool value) {
 bool VMFrame::GetIsJITFrame() {
     return isJITFrame;
 }
+#endif

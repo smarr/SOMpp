@@ -39,6 +39,7 @@ public:
 	virtual bool buildIL();
 protected:
 	TR::IlType *pInt64;
+	TR::IlType *pDouble;
 	TR::IlType *vmFrame;
 	TR::IlType *pVMFrame;
 private:
@@ -116,6 +117,12 @@ private:
 	TR::IlBuilder *generateILForBooleanNot(TR::BytecodeBuilder *builder);
 	TR::IlBuilder *generateILForBooleanAnd(TR::BytecodeBuilder *builder);
 	TR::IlBuilder *generateILForBooleanOr(TR::BytecodeBuilder *builder);
+
+	/* Integer methods */
+	TR::IlBuilder *generateILForDoubleOps(TR::BytecodeBuilder *builder, TR::IlBuilder **failPath);
+	TR::IlBuilder *generateILForDoubleLessThanEqual(TR::BytecodeBuilder *builder);
+	TR::IlBuilder *generateILForDoubleGreaterThan(TR::BytecodeBuilder *builder);
+	TR::IlBuilder *generateILForDoubleGreaterThanEqual(TR::BytecodeBuilder *builder);
 };
 
 #endif // !defined(SOMPPMETHOD_INCL)

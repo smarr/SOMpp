@@ -27,6 +27,7 @@ env:
   - CONF="-DUSE_TAGGING=false -DGC_TYPE=MARK_SWEEP   -DCACHE_INTEGER=false"
   - CONF="-DUSE_TAGGING=false -DGC_TYPE=COPYING      -DCACHE_INTEGER=false"
   - CONF="-DUSE_TAGGING=false -DGC_TYPE=OMR_GC       -DCACHE_INTEGER=false"
+  - CONF="-DUSE_TAGGING=false -DGC_TYPE=OMR_GC       -DCACHE_INTEGER=false -DDEFAULT_OMR_JIT_ON=true"
 
 script:
     - cmake . $CONF

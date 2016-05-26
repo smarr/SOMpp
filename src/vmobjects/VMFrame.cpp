@@ -53,7 +53,9 @@ VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength) {
     // set Frame members
     result->SetPreviousFrame(from->GetPreviousFrame());
     result->SetMethod(method);
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
     result->isJITFrame = from->isJITFrame;
+#endif
     result->SetContext(from->GetContext());
     result->stack_ptr = (gc_oop_t*)SHIFTED_PTR(result, (size_t)from->stack_ptr - (size_t)from);
 
@@ -101,7 +103,9 @@ VMFrame::VMFrame(long size, long nof) :
                 nullptr), method(nullptr) {
     clazz = nullptr; // Not a proper class anymore
     bytecodeIndex = 0;
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
     isJITFrame = false;
+#endif
     arguments = (gc_oop_t*)&(stack_ptr)+1;
     locals = arguments;
     stack_ptr = locals;

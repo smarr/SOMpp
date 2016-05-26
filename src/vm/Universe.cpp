@@ -70,7 +70,9 @@ gc_oop_t prebuildInts[INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE + 1];
 
 short dumpBytecodes;
 short gcVerbosity;
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
 bool enableJIT;
+#endif
 
 Universe* Universe::theUniverse = nullptr;
 
@@ -171,7 +173,13 @@ vector<StdString> Universe::handleArguments(long argc, char** argv) {
     vector<StdString> vmArgs = vector<StdString>();
     dumpBytecodes = 0;
     gcVerbosity   = 0;
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+#if DEFAULT_OMR_JIT_ON
+    enableJIT     = true;
+#else
     enableJIT     = false;
+#endif
+#endif
 
     for (long i = 1; i < argc; ++i) {
 
@@ -197,9 +205,15 @@ vector<StdString> Universe::handleArguments(long argc, char** argv) {
         } else if ((strncmp(argv[i], "-h", 2) == 0)
                 || (strncmp(argv[i], "--help", 6) == 0)) {
             printUsageAndExit(argv[0]);
-        } else if (strncmp(argv[i], "-Xjit", 5) == 0) {
+        }
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+        else if (strncmp(argv[i], "-jit", 4) == 0) {
         	enableJIT = true;
-        } else {
+        } else if (strncmp(argv[i], "-int", 4) == 0) {
+        	enableJIT = false;
+        }
+#endif
+        else {
             vector<StdString> extPathTokens = vector<StdString>(2);
             StdString tmpString = StdString(argv[i]);
             if (getClassPathExt(extPathTokens, tmpString) == ERR_SUCCESS) {
@@ -282,7 +296,10 @@ void Universe::printUsageAndExit(char* executable) const {
          << "collection" << endl;
     cout << "    -HxMB set the heap size to x MB (default: 1 MB)" << endl;
     cout << "    -HxKB set the heap size to x KB (default: 1 MB)" << endl;
-    cout << "    -Xjit  enable JIT compilation" << endl;
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+    cout << "    -jit  enable JIT compilation" << endl;
+    cout << "    -int  enable interpreter only" << endl;
+#endif
     cout << "    -h  show this help" << endl;
 
     Quit(ERR_SUCCESS);
