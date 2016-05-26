@@ -2,6 +2,7 @@
 USE_TAGGING?=false
 GC_TYPE?=omr_gc
 CACHE_INTEGER?=false
+DEFAULT_OMR_JIT_ON?=false
 INT_CACHE_MIN_VALUE?=-5
 INT_CACHE_MAX_VALUE?=100
 GENERATE_INTEGER_HISTOGRAM?=false
@@ -35,6 +36,12 @@ ifeq ($(GC_TYPE),mark_sweep)
 endif
 ifeq ($(GC_TYPE),generational)
   FEATURE_FLAGS+=-DGC_TYPE=GENERATIONAL
+endif
+ifeq ($(DEFAULT_OMR_JIT_ON),true)
+  FEATURE_FLAGS+=-DDEFAULT_OMR_JIT_ON=true
+  ifneq ($(GC_TYPE),omr_gc)
+    $(error Can only use the OMR JIT with the OMR_GC.)
+  endif
 endif
 ifeq ($(GENERATE_INTEGER_HISTOGRAM),true)
   FEATURE_FLAGS+=-DGENERATE_INTEGER_HISTOGRAM

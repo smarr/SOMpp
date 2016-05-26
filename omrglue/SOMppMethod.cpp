@@ -143,6 +143,7 @@ void
 SOMppMethod::defineStructures(TR::TypeDictionary *types)
 {
 	pInt64 = types->PointerTo(Int64);
+	pDouble = types->PointerTo(Double);
 
 	defineVMFrameStructure(types);
 }
@@ -694,41 +695,44 @@ SOMppMethod::doSend(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **bytecode
 	/* They are needed for both the generic send and inline path */
 	TR::IlBuilder *sendBuilder = doInlineIfPossible(builder, signature, bytecodeIndex);
 
-	sendBuilder->Store("invokable",
-	sendBuilder->	Call("getInvokable", 2,
-	sendBuilder->		Load("receiverClass"),
-	sendBuilder->		ConstInt64((int64_t)signature)));
+	/* NULL means that there is no failure case so no generic handling*/
+	if (NULL != sendBuilder) {
+		sendBuilder->Store("invokable",
+		sendBuilder->	Call("getInvokable", 2,
+		sendBuilder->		Load("receiverClass"),
+		sendBuilder->		ConstInt64((int64_t)signature)));
 
-	sendBuilder->StoreAt(pInt64,
-	sendBuilder->	Load("spPtr"),
-	sendBuilder->	Load("sp"));
+		sendBuilder->StoreAt(pInt64,
+		sendBuilder->	Load("spPtr"),
+		sendBuilder->	Load("sp"));
 
-	sendBuilder->Store("return",
-	sendBuilder->	Call("doSendIfRequired", 7,
-	sendBuilder->		Load("interpreter"),
-	sendBuilder->		Load("frame"),
-	sendBuilder->		Load("invokable"),
-	sendBuilder->		ConstInt64((int64_t)bytecodeIndex),
-	sendBuilder->		Load("receiverObject"),
-	sendBuilder->		Load("receiverAddress"),
-	sendBuilder->		ConstInt64((int64_t)numOfArgs)));
+		sendBuilder->Store("return",
+		sendBuilder->	Call("doSendIfRequired", 7,
+		sendBuilder->		Load("interpreter"),
+		sendBuilder->		Load("frame"),
+		sendBuilder->		Load("invokable"),
+		sendBuilder->		ConstInt64((int64_t)bytecodeIndex),
+		sendBuilder->		Load("receiverObject"),
+		sendBuilder->		Load("receiverAddress"),
+		sendBuilder->		ConstInt64((int64_t)numOfArgs)));
 
-	TR::IlBuilder *bail = NULL;
-	sendBuilder->IfThen(&bail,
-	sendBuilder->	EqualTo(
-	sendBuilder->		Load("return"),
-	sendBuilder->		ConstInt64(-1)));
+		TR::IlBuilder *bail = NULL;
+		sendBuilder->IfThen(&bail,
+		sendBuilder->	EqualTo(
+		sendBuilder->		Load("return"),
+		sendBuilder->		ConstInt64(-1)));
 
-	justReturn(bail);
+		justReturn(bail);
 
-	sendBuilder->Store("sp",
-	sendBuilder->	LoadAt(pInt64,
-	sendBuilder->		Load("spPtr")));
+		sendBuilder->Store("sp",
+		sendBuilder->	LoadAt(pInt64,
+		sendBuilder->		Load("spPtr")));
 
-	TR::IlBuilder *start = (TR::IlBuilder *)bytecodeBuilderTable[0];
-	sendBuilder->IfCmpNotEqual(&start,
-	sendBuilder->	Load("return"),
-	sendBuilder->	ConstInt64((int64_t)bytecodeIndex));
+		TR::IlBuilder *start = (TR::IlBuilder *)bytecodeBuilderTable[0];
+		sendBuilder->IfCmpNotEqual(&start,
+		sendBuilder->	Load("return"),
+		sendBuilder->	ConstInt64((int64_t)bytecodeIndex));
+	}
 
 	currentStackDepth -= (numOfArgs - 1);
 }
@@ -1602,6 +1606,44 @@ SOMppMethod::generateILForArrayLength(TR::BytecodeBuilder *builder)
 }
 
 TR::IlBuilder *
+SOMppMethod::generateILForNilisNil(TR::BytecodeBuilder *builder)
+{
+	TR::IlBuilder *isNil = NULL;
+	TR::IlBuilder *notNil = NULL;
+
+	builder->Store("currentObject",
+	builder->	LoadAt(pInt64,
+	builder->		ConvertTo(pInt64,
+	builder->			Load("sp"))));
+
+	builder->Store("nilObject",
+	builder->	LoadAt(pInt64,
+	builder->		ConvertTo(pInt64,
+	builder->			ConstInt64((int64_t)&nilObject))));
+
+	builder->IfThenElse(&isNil, &notNil,
+	builder->	EqualTo(
+	builder->		Load("currentObject"),
+	builder->		Load("nilObject")));
+
+	isNil->StoreAt(pInt64,
+	isNil->	ConvertTo(pInt64,
+	isNil->		Load("sp")),
+	isNil-> LoadAt(pInt64,
+	isNil->		ConvertTo(pInt64,
+	isNil->			ConstInt64((int64_t)&trueObject))));
+
+	notNil->StoreAt(pInt64,
+	notNil->	ConvertTo(pInt64,
+	notNil->		Load("sp")),
+	notNil-> LoadAt(pInt64,
+	notNil->		ConvertTo(pInt64,
+	notNil->			ConstInt64((int64_t)&falseObject))));
+
+	return nullptr;
+}
+
+TR::IlBuilder *
 SOMppMethod::generateILForBooleanNot(TR::BytecodeBuilder *builder)
 {
 	TR::IlBuilder *isTrue = NULL;
@@ -1716,6 +1758,164 @@ SOMppMethod::generateILForBooleanOr(TR::BytecodeBuilder *builder)
 	return failInline;
 }
 
+TR::IlBuilder *
+SOMppMethod::generateILForDoubleOps(TR::BytecodeBuilder *builder, TR::IlBuilder **failPath)
+{
+	builder->Store("rightObject",
+	builder->	LoadAt(pInt64,
+	builder->		ConvertTo(pInt64,
+	builder->			Load("sp"))));
+
+	builder->Store("rightClass",
+	builder->	Call("getClass", 1,
+	builder->		Load("rightObject")));
+
+	TR::IlBuilder *rightIsDouble = NULL;
+	builder->IfThenElse(&rightIsDouble, failPath,
+	builder->	EqualTo(
+	builder->		Load("rightClass"),
+	builder->		ConstInt64((int64_t)doubleClass)));
+
+	rightIsDouble->Store("leftObject",
+	rightIsDouble->	LoadAt(pInt64,
+	rightIsDouble->		ConvertTo(pInt64,
+	rightIsDouble->			Sub(
+	rightIsDouble->				Load("sp"),
+	rightIsDouble->				ConstInt64(8)))));
+
+	rightIsDouble->Store("leftClass",
+	rightIsDouble->	Call("getClass", 1,
+	rightIsDouble->		Load("leftObject")));
+
+	TR::IlBuilder *isDoublePath = NULL;
+	rightIsDouble->IfThenElse(&isDoublePath, failPath,
+	rightIsDouble->	EqualTo(
+	rightIsDouble->		Load("leftClass"),
+	rightIsDouble->		ConstInt64((int64_t)doubleClass)));
+
+	/* set the stack up so it is at the right place to store the result */
+	isDoublePath->Store("sp",
+	isDoublePath->	Sub(
+	isDoublePath->		Load("sp"),
+	isDoublePath->		ConstInt64(8)));
+
+	/* Read right embedded slot vtable slot + gcField */
+	isDoublePath->Store("rightValueSlot",
+	isDoublePath->	Add(
+	isDoublePath->		Load("rightObject"),
+	isDoublePath->		ConstInt64((int64_t)(sizeof(int64_t)+sizeof(size_t)))));
+
+	/* Read value */
+	isDoublePath->Store("rightValue",
+	isDoublePath->	LoadAt(pInt64,
+	isDoublePath->		ConvertTo(pInt64,
+	isDoublePath->			Load("rightValueSlot"))));
+
+	/* Read left embedded slot vtable slot + gcField */
+	isDoublePath->Store("leftValueSlot",
+	isDoublePath->	Add(
+	isDoublePath->		Load("leftObject"),
+	isDoublePath->		ConstInt64((int64_t)(sizeof(int64_t)+sizeof(size_t)))));
+
+	/* Read value */
+	isDoublePath->Store("leftValue",
+	isDoublePath->	LoadAt(pInt64,
+	isDoublePath->		ConvertTo(pInt64,
+	isDoublePath->			Load("leftValueSlot"))));
+
+	return isDoublePath;
+}
+
+TR::IlBuilder *
+SOMppMethod::generateILForDoubleLessThanEqual(TR::BytecodeBuilder *builder)
+{
+	TR::IlBuilder *failInline = NULL;
+	TR::IlBuilder *isDoublePath = generateILForDoubleOps(builder, &failInline);
+
+	TR::IlBuilder *thenPath = NULL;
+	TR::IlBuilder *elsePath = NULL;
+	isDoublePath->IfThenElse(&thenPath, &elsePath,
+	isDoublePath->	GreaterThan(
+	isDoublePath->		ConvertTo(Double,
+	isDoublePath->			Load("leftValue")),
+	isDoublePath->		ConvertTo(Double,
+	isDoublePath->			Load("rightValue"))));
+
+	/* store true result */
+	thenPath->StoreAt(pInt64,
+	thenPath->	ConvertTo(pInt64,
+	thenPath->		Load("sp")),
+	thenPath->	ConstInt64((int64_t)falseObject));
+
+	/* store false result */
+	elsePath->StoreAt(pInt64,
+	elsePath->	ConvertTo(pInt64,
+	elsePath->		Load("sp")),
+	elsePath->	ConstInt64((int64_t)trueObject));
+
+	return failInline;
+}
+
+TR::IlBuilder *
+SOMppMethod::generateILForDoubleGreaterThan(TR::BytecodeBuilder *builder)
+{
+	TR::IlBuilder *failInline = NULL;
+	TR::IlBuilder *isDoublePath = generateILForDoubleOps(builder, &failInline);
+
+	TR::IlBuilder *thenPath = NULL;
+	TR::IlBuilder *elsePath = NULL;
+	isDoublePath->IfThenElse(&thenPath, &elsePath,
+	isDoublePath->	GreaterThan(
+	isDoublePath->		ConvertTo(Double,
+	isDoublePath->			Load("leftValue")),
+	isDoublePath->		ConvertTo(Double,
+	isDoublePath->			Load("rightValue"))));
+
+	/* store true result */
+	thenPath->StoreAt(pInt64,
+	thenPath->	ConvertTo(pInt64,
+	thenPath->		Load("sp")),
+	thenPath->	ConstInt64((int64_t)trueObject));
+
+	/* store false result */
+	elsePath->StoreAt(pInt64,
+	elsePath->	ConvertTo(pInt64,
+	elsePath->		Load("sp")),
+	elsePath->	ConstInt64((int64_t)falseObject));
+
+	return failInline;
+}
+
+TR::IlBuilder *
+SOMppMethod::generateILForDoubleGreaterThanEqual(TR::BytecodeBuilder *builder)
+{
+	TR::IlBuilder *failInline = NULL;
+	TR::IlBuilder *isDoublePath = generateILForDoubleOps(builder, &failInline);
+
+	TR::IlBuilder *thenPath = NULL;
+	TR::IlBuilder *elsePath = NULL;
+	isDoublePath->IfThenElse(&thenPath, &elsePath,
+	isDoublePath->	LessThan(
+	isDoublePath->		ConvertTo(Double,
+	isDoublePath->			Load("leftValue")),
+	isDoublePath->		ConvertTo(Double,
+	isDoublePath->			Load("rightValue"))));
+
+	/* store true result */
+	thenPath->StoreAt(pInt64,
+	thenPath->	ConvertTo(pInt64,
+	thenPath->		Load("sp")),
+	thenPath->	ConstInt64((int64_t)falseObject));
+
+	/* store false result */
+	elsePath->StoreAt(pInt64,
+	elsePath->	ConvertTo(pInt64,
+	elsePath->		Load("sp")),
+	elsePath->	ConstInt64((int64_t)trueObject));
+
+	return failInline;
+}
+
 
 TR::IlBuilder *
 SOMppMethod::doInlineIfPossible(TR::BytecodeBuilder *builder, VMSymbol* signature, long bytecodeIndex)
@@ -1775,6 +1975,8 @@ SOMppMethod::generateRecognizedMethod(TR::BytecodeBuilder *builder, VMClass *rec
 			return generateILForIntegerEqual(builder);
 		} else if (0 == strcmp("<>", signatureChars)) {
 			return generateILForIntegerNotEqual(builder);
+		} else if (0 == strcmp("~=", signatureChars)) {
+			return generateILForIntegerNotEqual(builder);
 		} else if (0 == strcmp("+", signatureChars)) {
 			return generateILForIntegerPlus(builder);
 		} else if (0 == strcmp("-", signatureChars)) {
@@ -1796,6 +1998,10 @@ SOMppMethod::generateRecognizedMethod(TR::BytecodeBuilder *builder, VMClass *rec
 		} else if (0 == strcmp("length", signatureChars)) {
 			return generateILForArrayLength(builder);
 		}
+	} else if ((VMClass*)nilClass == receiverFromCache) {
+		if (0 == strcmp("isNil", signatureChars)) {
+			return generateILForNilisNil(builder);
+		}
 	} else if ((((VMClass*)falseClass == receiverFromCache) || ((VMClass*)trueClass == receiverFromCache))) {
 		if (0 == strcmp("not", signatureChars)) {
 			return generateILForBooleanNot(builder);
@@ -1805,6 +2011,14 @@ SOMppMethod::generateRecognizedMethod(TR::BytecodeBuilder *builder, VMClass *rec
 		} else if ((0 == strcmp("and:", signatureChars)) && false) {
 			/* TODO do not gen this for now as they cause more of a perf issue than win */
 			return generateILForBooleanAnd(builder);
+		}
+	} else if ((VMClass*)doubleClass == receiverFromCache) {
+		if (0 == strcmp("<=", signatureChars)) {
+			return generateILForDoubleLessThanEqual(builder);
+		} else if (0 == strcmp(">", signatureChars)) {
+			return generateILForDoubleGreaterThan(builder);
+		} else if (0 == strcmp(">=", signatureChars)) {
+			return generateILForDoubleGreaterThanEqual(builder);
 		}
 	}
 

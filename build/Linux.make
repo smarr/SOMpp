@@ -64,6 +64,11 @@ include $(BUILD_DIR)/sources.make
 
 include $(BUILD_DIR)/config.make
 
+ifeq ($(GC_TYPE),omr_gc)
+OMRLIB ?= $(OMRDIR)/lib/libomrstatic.a
+LIBJITBUILDER ?= $(LIBJITBUILDER_DIR)/libjitbuilder.a
+endif
+
 all: $(CSOM_NAME)
 
 debug : OPT_FLAGS=
@@ -88,16 +93,23 @@ clean: omr-clean
 #
 
 omr-clean:
+	@echo Clean OMR files
+ifeq ($(GC_TYPE),omr_gc)
 	$(MAKE) -C $(OMRDIR) clean
 	$(MAKE) -C $(OMRDIR) -f run_configure.mk OMRGLUE="$(OMRGLUEDIR)" clean
+endif
 	
 omr-config:
 	@echo Configuring OMR
+ifeq ($(GC_TYPE),omr_gc)
 	$(MAKE) -C $(OMRDIR) -f run_configure.mk OMRGLUE="$(OMRGLUEDIR)" OMRGLUE_INCLUDES="$(SRC_DIR) $(LIBJITBUILDER_INCLUDES)" SPEC="$(SPEC)" CXX="$(CXX)" OPT_FLAGS="$(OPT_FLAGS)" EXTRA_FLAGS="$(EXTRA_FLAGS)" DBG_FLAGS="$(DBG_FLAGS)" FEATURE_FLAGS="$(FEATURE_FLAGS)" enable_warnings_as_errors=no enable_debug=no
+endif
 
 omr: omr-config
-	@echo compiling OMR
+	@echo Compiling OMR
+ifeq ($(GC_TYPE),omr_gc)
 	$(MAKE) -C $(OMRDIR)
+endif
 
 $(CSOM_NAME): omr $(ALL_OBJ)
 	@echo Linking $(CSOM_NAME)
@@ -120,7 +132,7 @@ console: all
 	./$(CSOM_NAME) -cp ./Smalltalk
 
 units: $(ALL_TEST_OBJ)
-	$(CXX) $(LIBRARIES) $(ALL_TEST_OBJ) $(OMRLIB) $(LIBJITBUILDER) -lcppunit -lrt -o unittest
+	$(CXX) $(LIBRARIES) $(ALL_TEST_OBJ) $(OMRLIB) $(LIBJITBUILDER) -lcppunit -lrt -ldl -lpthread -o unittest
 
 richards: all
 	./$(CSOM_NAME) -cp ./Smalltalk ./Examples/Benchmarks/Richards/RichardsBenchmarks.som
