@@ -47,7 +47,9 @@ struct SOM_VM;
 // for runtime debug
 extern short dumpBytecodes;
 extern short gcVerbosity;
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
 extern bool enableJIT;
+#endif
 
 //global VMObjects
 extern GCObject* nilObject;

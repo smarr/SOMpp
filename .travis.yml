@@ -1,12 +1,12 @@
 language: c++
+dist: trusty
 
-# attempt to install GCC 4.8 when necessary, otherwise we wont have C++11 support
 before_install:
-  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - sudo apt-get update -qq
-  - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; export CXX=g++-4.8; fi
   - sudo apt-get install -qq libcppunit-dev
   - sudo apt-get install -qq libnuma-dev
+  - chmod +x getLibJitBuilder.sh
+  - ./getLibJitBuilder.sh
 
 compiler:
   - gcc
@@ -26,6 +26,7 @@ env:
   - USE_TAGGING=false  GC_TYPE=mark_sweep   CACHE_INTEGER=false
   - USE_TAGGING=false  GC_TYPE=copying      CACHE_INTEGER=false
   - USE_TAGGING=false  GC_TYPE=omr_gc       CACHE_INTEGER=false
+  - USE_TAGGING=false  GC_TYPE=omr_gc       CACHE_INTEGER=false  DEFAULT_OMR_JIT_ON=true
 
 
 
