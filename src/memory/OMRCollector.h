@@ -4,6 +4,8 @@
 
 #include "GarbageCollector.h"
 
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+
 class OMRHeap;
 class OMRCollector : public GarbageCollector<OMRHeap> {
 public:
@@ -12,3 +14,5 @@ public:
     void Collect();
 private:
 };
+
+#endif

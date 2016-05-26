@@ -7,6 +7,7 @@
 
 #include <vm/Universe.h>
 
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
 #include "../../omr/include_core/omr.h"
 #include "../../omrglue/LanguageThreadLocalHeapStruct.h"
 
@@ -34,3 +35,5 @@ inline void OMRHeap::writeBarrier(AbstractVMObject* holder, vm_oop_t referencedO
 	assert(Universe::IsValidObject(referencedObject));
 	assert(Universe::IsValidObject((vm_oop_t) holder));
 }
+
+#endif

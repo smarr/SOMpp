@@ -48,7 +48,15 @@ const StdString Interpreter::doesNotUnderstand = "doesNotUnderstand:arguments:";
 const StdString Interpreter::escapedBlock      = "escapedBlock:";
 
 
-Interpreter::Interpreter() : frame(nullptr), method(nullptr), returnCount(0), bytecodeIndexGlobal(0), currentBytecodes(nullptr) {}
+Interpreter::Interpreter() :
+		frame(nullptr)
+		,method(nullptr)
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+		,returnCount(0)
+#endif
+		,bytecodeIndexGlobal(0)
+		,currentBytecodes(nullptr)
+{}
 
 Interpreter::~Interpreter() {}
 

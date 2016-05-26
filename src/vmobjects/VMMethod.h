@@ -33,7 +33,9 @@
 #include "VMInteger.h"
 #include "vm/Universe.h"
 
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
 #include "../omrglue/SOMppMethod.hpp"
+#endif
 
 class MethodGenerationContext;
 class Interpreter;

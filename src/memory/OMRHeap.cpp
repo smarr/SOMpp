@@ -5,6 +5,7 @@
 #include "OMRCollector.h"
 #include "../vmobjects/AbstractObject.h"
 #include "../vm/Universe.h"
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
 #include "../../omr/include_core/omrvm.h"
 #include "../../omr/gc/include/omrgc.h"
 #include "../../omr/gc/base/GCExtensionsBase.hpp"
@@ -47,3 +48,5 @@ finish:
     }
     return object;
 }
+
+#endif

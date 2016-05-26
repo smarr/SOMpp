@@ -37,9 +37,11 @@
 
 #include <compiler/MethodGenerationContext.h>
 #include <vmobjects/IntegerBox.h>
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
 #include "../../omrglue/SOMppMethod.hpp"
 #include "../../omr/include_core/omrlinkedlist.h"
 #include "Jit.hpp"
+#endif
 
 #if GC_TYPE == OMR_GARBAGE_COLLECTION
 #define MAX_INVOKES_BEFORE_COMPILE 10
