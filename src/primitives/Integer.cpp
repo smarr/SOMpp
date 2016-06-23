@@ -176,8 +176,8 @@ void _Integer::Percent(Interpreter* interp, VMFrame* frame) {
     int64_t r = (int64_t)INT_VAL(rightObj);
 
     int64_t result = l % r;
-
-    if (l > 0 && r < 0) {
+    
+    if ((result != 0) && ((result < 0) != (r < 0))) {
         result += r;
     }
 
