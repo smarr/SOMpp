@@ -105,11 +105,11 @@ void _String::PrimSubstringFrom_to_(Interpreter*, VMFrame* frame) {
     VMString* self = static_cast<VMString*>(frame->Pop());
     StdString str = self->GetStdString();
 
-    long s = INT_VAL(start) - 1;
-    long e = INT_VAL(end) - 1;
+    int64_t s = INT_VAL(start) - 1;
+    int64_t e = INT_VAL(end) - 1;
 
     StdString result = str.substr(s, e - s + 1);
 
-    frame->Push( GetUniverse()->NewString(result));
+    frame->Push(GetUniverse()->NewString(result));
 }
 
