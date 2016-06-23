@@ -13,8 +13,8 @@
 #include "VMClass.h"
 #include "VMInvokable.h"
 
-size_t AbstractVMObject::GetHash() {
-    return (size_t) this;
+int64_t AbstractVMObject::GetHash() {
+    return (int64_t) this;
 }
 
 void AbstractVMObject::Send(Interpreter* interp, StdString selectorString, vm_oop_t* arguments, long argc) {

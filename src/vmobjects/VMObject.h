@@ -66,6 +66,7 @@ public:
     
     VMObject(long numberOfFields = 0);
 
+    virtual int64_t GetHash() { return hash; }
     virtual inline VMClass*  GetClass() const;
     virtual        void      SetClass(VMClass* cl);
     virtual        VMSymbol* GetFieldName(long index) const;
@@ -104,7 +105,7 @@ protected:
     inline long GetAdditionalSpaceConsumption() const;
 
     // VMObject essentials
-    long   hash;
+    int64_t hash;
     size_t objectSize;     // set by the heap at allocation time
     long   numberOfFields;
 
