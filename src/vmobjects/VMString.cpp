@@ -39,12 +39,12 @@ VMString::VMString(const char* str) : AbstractVMObject() {
     chars = (char*) &chars + sizeof(char*);
 
     size_t i = 0;
-    size_t len = strlen(str);
-    for (; i < len; ++i) {
+    
+    while (str[i] != '\0') {
         chars[i] = str[i];
+        i++;
     }
     chars[i] = '\0';
-
 }
 
 VMString* VMString::Clone() const {
