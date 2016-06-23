@@ -85,10 +85,14 @@ public:
     StdString GetText(void);
     StdString GetNextText(void);
     StdString GetRawBuffer(void);
+    
     int GetCurrentLineNumber() {
         return lineNumber;
     }
-    ;
+    
+    bool GetPeekDone() const {
+        return peekDone;
+    }
 
 private:
     size_t fillBuffer(void);

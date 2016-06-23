@@ -45,6 +45,7 @@ public:
 private:
     void GetSym();
     void Peek();
+    void PeekForNextSymbolFromLexerIfNecessary();
     
     bool eob(void);
     
@@ -94,10 +95,12 @@ private:
     void nestedTerm(MethodGenerationContext* mgenc);
     void literal(MethodGenerationContext* mgenc);
     void literalNumber(MethodGenerationContext* mgenc);
+    vm_oop_t literalNumberOop();
     vm_oop_t literalDecimal(bool negateValue);
     vm_oop_t negativeDecimal(void);
     vm_oop_t literalInteger(bool negateValue);
     vm_oop_t literalDouble(bool  negateValue);
+    void literalArray(MethodGenerationContext* mgenc);
     void literalSymbol(MethodGenerationContext* mgenc);
     void literalString(MethodGenerationContext* mgenc);
     VMSymbol* selector(void);

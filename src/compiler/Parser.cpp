@@ -53,6 +53,12 @@ void Parser::Peek() {
 	nextText = lexer->GetNextText();
 }
 
+void Parser::PeekForNextSymbolFromLexerIfNecessary() {
+    if (!lexer->GetPeekDone()) {
+        nextSym = lexer->Peek();
+    }
+}
+
 Parser::Parser(istream& file) {
     sym = NONE;
     lexer = new Lexer(file);
@@ -728,7 +734,12 @@ void Parser::nestedTerm(MethodGenerationContext* mgenc) {
 void Parser::literal(MethodGenerationContext* mgenc) {
     switch (sym) {
     case Pound:
-        literalSymbol(mgenc);
+        PeekForNextSymbolFromLexerIfNecessary();
+        if (nextSym == NewTerm) {
+            literalArray(mgenc);
+        } else {
+            literalSymbol(mgenc);
+        }
         break;
     case STString:
         literalString(mgenc);
@@ -739,15 +750,15 @@ void Parser::literal(MethodGenerationContext* mgenc) {
     }
 }
 
-void Parser::literalNumber(MethodGenerationContext* mgenc) {
-    vm_oop_t lit;
+vm_oop_t Parser::literalNumberOop() {
     if (sym == Minus)
-        lit = negativeDecimal();
+        return negativeDecimal();
     else
-        lit = literalDecimal(false);
+        return literalDecimal(false);
+}
 
-    
-
+void Parser::literalNumber(MethodGenerationContext* mgenc) {
+    vm_oop_t lit = literalNumberOop();
     mgenc->AddLiteralIfAbsent(lit);
     bcGen->EmitPUSHCONSTANT(mgenc, lit);
 }
@@ -799,6 +810,23 @@ void Parser::literalSymbol(MethodGenerationContext* mgenc) {
     bcGen->EmitPUSHCONSTANT(mgenc, symb);
 }
 
+void Parser::literalArray(MethodGenerationContext* mgenc) {
+    ExtendedList<vm_oop_t> literalValues;
+    expect(Pound);
+    expect(NewTerm);
+    
+    while (sym != EndTerm) {
+        // TODO: add support for all other literals
+        literalValues.Add(literalNumberOop());
+    }
+    
+    expect(EndTerm);
+
+    vm_oop_t arr = GetUniverse()->NewArrayList(literalValues);
+    mgenc->AddLiteralIfAbsent(arr);
+    bcGen->EmitPUSHCONSTANT(mgenc, arr);
+}
+
 void Parser::literalString(MethodGenerationContext* mgenc) {
     StdString s = _string();
 
@@ -806,7 +834,6 @@ void Parser::literalString(MethodGenerationContext* mgenc) {
     mgenc->AddLiteralIfAbsent(str);
 
     bcGen->EmitPUSHCONSTANT(mgenc, str);
-
 }
 
 VMSymbol* Parser::selector(void) {
