@@ -64,6 +64,7 @@ _Integer::_Integer() : PrimitiveContainer() {
     SetPrimitive("bitAnd_",            new Routine<_Integer>(this, &_Integer::BitwiseAnd, false));
     SetPrimitive("bitXor_",            new Routine<_Integer>(this, &_Integer::BitwiseXor, false));
     SetPrimitive("lowerthanlowerthan", new Routine<_Integer>(this, &_Integer::LeftShift,  false));
+    SetPrimitive("greaterthangreaterthangreaterthan", new Routine<_Integer>(this, &_Integer::UnsignedRightShift, false));
     SetPrimitive("slash",              new Routine<_Integer>(this, &_Integer::Slash,      false));
     SetPrimitive("slashslash",         new Routine<_Integer>(this, &_Integer::Slashslash, false));
     SetPrimitive("percent",            new Routine<_Integer>(this, &_Integer::Percent,    false));
@@ -72,6 +73,8 @@ _Integer::_Integer() : PrimitiveContainer() {
     SetPrimitive("equalequal",         new Routine<_Integer>(this, &_Integer::EqualEqual, false));
     SetPrimitive("lowerthan",          new Routine<_Integer>(this, &_Integer::Lowerthan,  false));
     SetPrimitive("asString",           new Routine<_Integer>(this, &_Integer::AsString,   false));
+    SetPrimitive("as32BitSignedValue", new Routine<_Integer>(this, &_Integer::As32BitSigned, false));
+    SetPrimitive("as32BitUnsignedValue", new Routine<_Integer>(this, &_Integer::As32BitUnsigned, false));
     SetPrimitive("sqrt",               new Routine<_Integer>(this, &_Integer::Sqrt,       false));
     SetPrimitive("atRandom",           new Routine<_Integer>(this, &_Integer::AtRandom,   false));
     SetPrimitive("fromString_",        new Routine<_Integer>(this, &_Integer::FromString, true));
@@ -126,6 +129,15 @@ void _Integer::LeftShift(Interpreter* interp, VMFrame* frame) {
     int64_t result = (int64_t)INT_VAL(leftObj) << (int64_t)INT_VAL(rightObj);
     frame->Push(NEW_INT(result));
 }
+
+void _Integer::UnsignedRightShift(Interpreter* interp, VMFrame* frame) {
+    vm_oop_t rightObj = frame->Pop();
+    vm_oop_t leftObj  = frame->Pop();
+    
+    int64_t result = (int64_t)INT_VAL(leftObj) >> (int64_t)INT_VAL(rightObj);
+    frame->Push(NEW_INT(result));
+}
+
 
 void _Integer::Minus(Interpreter* interp, VMFrame* frame) {
     vm_oop_t rightObj = frame->Pop();
@@ -259,6 +271,20 @@ void _Integer::AsString(Interpreter*, VMFrame* frame) {
     ostringstream Str;
     Str << integer;
     frame->Push(GetUniverse()->NewString( Str.str()));
+}
+
+void _Integer::As32BitSigned(Interpreter*, VMFrame* frame) {
+    vm_oop_t self = frame->Pop();
+    int64_t integer = INT_VAL(self);
+    
+    frame->Push(NEW_INT((int64_t)(int32_t) integer));
+}
+
+void _Integer::As32BitUnsigned(Interpreter*, VMFrame* frame) {
+    vm_oop_t self = frame->Pop();
+    int64_t integer = INT_VAL(self);
+    
+    frame->Push(NEW_INT((int64_t)(uint32_t) integer));
 }
 
 void _Integer::Sqrt(Interpreter*, VMFrame* frame) {

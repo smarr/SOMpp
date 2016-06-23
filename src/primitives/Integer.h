@@ -40,6 +40,7 @@ public:
     void BitwiseAnd(Interpreter*, VMFrame*);
     void BitwiseXor(Interpreter*, VMFrame*);
     void LeftShift(Interpreter*, VMFrame*);
+    void UnsignedRightShift(Interpreter*, VMFrame*);
     void Slash(Interpreter*, VMFrame*);
     void Slashslash(Interpreter*, VMFrame*);
     void Percent(Interpreter*, VMFrame*);
@@ -48,6 +49,8 @@ public:
     void EqualEqual(Interpreter*, VMFrame*);
     void Lowerthan(Interpreter*, VMFrame*);
     void AsString(Interpreter*, VMFrame*);
+    void As32BitSigned(Interpreter*, VMFrame*);
+    void As32BitUnsigned(Interpreter*, VMFrame*);
     void Sqrt(Interpreter*, VMFrame*);
     void AtRandom(Interpreter*, VMFrame*);
 
