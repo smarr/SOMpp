@@ -34,6 +34,18 @@ public:
     
     VMString(const char* str);
     VMString(const StdString& s);
+    
+    virtual int64_t GetHash() {
+        int64_t hash = 5381;
+        int64_t c;
+        char* i = chars;
+        
+        while ((c = *i++)) {
+            hash = ((hash << 5) + hash) + c;
+        }
+        
+        return hash;
+    }
 
     inline char* GetChars() const;
     StdString GetStdString() const;
