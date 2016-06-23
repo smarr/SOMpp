@@ -95,8 +95,12 @@ private:
     void skipWhiteSpace(void);
     void skipComment(void);
     
+    bool hasMoreInput();
+    
     void lexNumber();
     void lexOperator();
+    void lexEscapeChar(char*& t);
+    void lexStringChar(char*& t);
     void lexString();
     
     bool nextWordInBufferIs(StdString word);

@@ -25,6 +25,7 @@
  */
 
 #include <string.h>
+#include <assert.h>
 
 #include "Lexer.h"
 
@@ -56,7 +57,7 @@ StdString Lexer::GetRawBuffer(void) {
 
 size_t Lexer::fillBuffer(void) {
     if (!infile.good()) // file stream
-        return 0;
+        return -1;
 
     std::getline(infile, buf);
     ++lineNumber;
@@ -71,8 +72,11 @@ size_t Lexer::fillBuffer(void) {
 void Lexer::skipWhiteSpace(void) {
     while (isspace(_BC)) {
         bufp++;
-        if (EOB)
-            fillBuffer();
+        while (EOB) {
+            if (fillBuffer() == -1) {
+                return;
+            }
+        }
     }
 }
 
@@ -81,8 +85,11 @@ void Lexer::skipComment(void) {
     if (_BC == '"') {
         do {
             bufp++;
-            if (EOB)
-                fillBuffer();
+            while (EOB) {
+                if (fillBuffer() == -1) {
+                    return;
+                }
+            }
         } while (_BC != '"');
         bufp++;
     }
@@ -91,7 +98,7 @@ void Lexer::skipComment(void) {
 #define _ISOP(C) \
     ((C) == '~' || (C) == '&' || (C) == '|' || (C) == '*' || (C) == '/' || \
      (C) == '\\' || (C) == '+' || (C) == '=' || (C) == '>' || (C) == '<' || \
-     (C) == ',' || (C) == '@' || (C) == '%')
+     (C) == ',' || (C) == '@' || (C) == '%' || (C) == '-')
 #define _MATCH(C, S) \
     if(_BC == (C)) { sym = (S); symc = _BC; sprintf(text, "%c", _BC); bufp++;}
 #define SEPARATOR StdString("----") //FIXME
@@ -120,6 +127,52 @@ void Lexer::lexNumber() {
     *t = 0;
 }
 
+void Lexer::lexEscapeChar(char*& t) {
+    assert(!EOB);
+    char current = _BC;
+    switch (current) {
+        case 't': *t++ = '\t'; break;
+        case 'b': *t++ = '\b'; break;
+        case 'n': *t++ = '\n'; break;
+        case 'r': *t++ = '\r'; break;
+        case 'f': *t++ = '\f'; break;
+        case '\'': *t++ = '\''; break;
+        case '\\': *t++ = '\\'; break;
+        default:
+            assert(false);
+            break;
+    }
+    bufp++;
+}
+
+void Lexer::lexStringChar(char*& t) {
+    if (_BC == '\\') {
+        bufp++;
+        lexEscapeChar(t);
+    } else {
+        *t++ = buf[bufp++];
+    }
+}
+
+void Lexer::lexString() {
+    sym = STString;
+    symc = 0;
+    char* t = text;
+    bufp++;
+    
+    while (_BC != '\'') {
+        lexStringChar(t);
+        while (EOB) {
+            if (fillBuffer() == -1) {
+                return;
+            }
+        }
+    }
+    
+    bufp++;
+    *t = 0;
+}
+
 void Lexer::lexOperator() {
     if (_ISOP(buf[bufp + 1])) {
         sym = OperatorSequence;
@@ -132,20 +185,7 @@ void Lexer::lexOperator() {
       else _MATCH('*', Star) else _MATCH('/', Div)   else _MATCH('\\', Mod)
       else _MATCH('+', Plus) else _MATCH('=', Equal) else _MATCH('>', More)
       else _MATCH('<', Less) else _MATCH(',', Comma) else _MATCH('@', At)
-      else _MATCH('%', Per)
-}
-
-void Lexer::lexString() {
-    sym = STString;
-    symc = 0;
-    char* t = text;
-    do {
-        *t++ = buf[++bufp];
-        
-    } while (_BC != '\'');
-    
-    bufp++;
-    *--t = 0;
+      else _MATCH('%', Per)  else _MATCH('-', Minus)
 }
 
 Symbol Lexer::GetSym(void) {
@@ -158,12 +198,14 @@ Symbol Lexer::GetSym(void) {
     }
 
     do {
-        if (EOB)
-            fillBuffer();
+        if (!hasMoreInput()) {
+            sym = NONE;
+            symc = 0;
+            return sym;
+        }
         skipWhiteSpace();
         skipComment();
-
-    } while ((EOB || isspace(_BC) || _BC == '"') && infile.good());
+    } while ((EOB || isspace(_BC) || _BC == '"'));
 
     if (_BC == '\'') {
         lexString();
@@ -189,10 +231,7 @@ Symbol Lexer::GetSym(void) {
             *t = 0;
             sym = Separator;
         } else {
-            bufp++;
-            sym = Minus;
-            symc = '-';
-            sprintf(text, "-");
+            lexOperator();
         }
     } else if (_ISOP(_BC)) {
         lexOperator();
@@ -227,6 +266,15 @@ Symbol Lexer::GetSym(void) {
     }
 
     return sym;
+}
+
+bool Lexer::hasMoreInput() {
+    while (EOB) {
+        if (fillBuffer() == -1) {
+            return false;
+        }
+    }
+    return true;
 }
 
 bool Lexer::nextWordInBufferIs(StdString word) {
