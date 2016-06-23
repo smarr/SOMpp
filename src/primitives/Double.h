@@ -35,6 +35,8 @@ public:
     void Plus(Interpreter*, VMFrame*);
     void Minus(Interpreter*, VMFrame*);
     void Star(Interpreter*, VMFrame*);
+    void Cos(Interpreter*, VMFrame*);
+    void Sin(Interpreter*, VMFrame*);
     void Slashslash(Interpreter*, VMFrame*);
     void Percent(Interpreter*, VMFrame*);
     void And(Interpreter*, VMFrame*);
@@ -44,6 +46,7 @@ public:
     void Sqrt(Interpreter*, VMFrame*);
     void BitwiseXor(Interpreter*, VMFrame*);
     void Round(Interpreter*, VMFrame*);
+    void AsInteger(Interpreter*, VMFrame*);
     
     void PositiveInfinity(Interpreter*, VMFrame*);
 

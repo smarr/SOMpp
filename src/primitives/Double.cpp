@@ -85,6 +85,18 @@ void _Double::Star(Interpreter*, VMFrame* frame) {
     frame->Push(GetUniverse()->NewDouble(left * right));
 }
 
+void _Double::Cos(Interpreter*, VMFrame* frame) {
+    VMDouble* self = (VMDouble*)frame->Pop();
+    double result = cos(self->GetEmbeddedDouble());
+    frame->Push(GetUniverse()->NewDouble(result));
+}
+
+void _Double::Sin(Interpreter*, VMFrame* frame) {
+    VMDouble* self = (VMDouble*)frame->Pop();
+    double result = sin(self->GetEmbeddedDouble());
+    frame->Push(GetUniverse()->NewDouble(result));
+}
+
 void _Double::Slashslash(Interpreter*, VMFrame* frame) {
     PREPARE_OPERANDS;
     frame->Push(GetUniverse()->NewDouble(left / right));
@@ -151,6 +163,13 @@ void _Double::Round(Interpreter*, VMFrame* frame) {
     frame->Push(NEW_INT(rounded));
 }
 
+void _Double::AsInteger(Interpreter*, VMFrame* frame) {
+    VMDouble* self = (VMDouble*)frame->Pop();
+    int64_t rounded = (int64_t) self->GetEmbeddedDouble();
+    
+    frame->Push(NEW_INT(rounded));
+}
+
 void _Double::PositiveInfinity(Interpreter*, VMFrame* frame) {
     frame->Pop();
     frame->Push(GetUniverse()->NewDouble(INFINITY));
@@ -160,6 +179,8 @@ _Double::_Double() : PrimitiveContainer() {
     SetPrimitive("plus",       new Routine<_Double>(this, &_Double::Plus,       false));
     SetPrimitive("minus",      new Routine<_Double>(this, &_Double::Minus,      false));
     SetPrimitive("star",       new Routine<_Double>(this, &_Double::Star,       false));
+    SetPrimitive("cos",        new Routine<_Double>(this, &_Double::Cos,        false));
+    SetPrimitive("sin",        new Routine<_Double>(this, &_Double::Sin,        false));
     SetPrimitive("slashslash", new Routine<_Double>(this, &_Double::Slashslash, false));
     SetPrimitive("percent",    new Routine<_Double>(this, &_Double::Percent,    false));
     SetPrimitive("and",        new Routine<_Double>(this, &_Double::And,        false));
@@ -169,5 +190,6 @@ _Double::_Double() : PrimitiveContainer() {
     SetPrimitive("sqrt",       new Routine<_Double>(this, &_Double::Sqrt,       false));
     SetPrimitive("bitXor_",    new Routine<_Double>(this, &_Double::BitwiseXor, false));
     SetPrimitive("round",      new Routine<_Double>(this, &_Double::Round,      false));
+    SetPrimitive("asInteger",  new Routine<_Double>(this, &_Double::AsInteger,  false));
     SetPrimitive("PositiveInfinity", new Routine<_Double>(this, &_Double::PositiveInfinity, true));
 }
