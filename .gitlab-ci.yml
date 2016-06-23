@@ -9,6 +9,7 @@ variables:
   stage: build-and-test
   tags: [benchmarks, infinity]
   script:
+    - git submodule update --init
     - make test
     - make bench
     - make clean
