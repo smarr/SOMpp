@@ -151,6 +151,11 @@ void _Double::Round(Interpreter*, VMFrame* frame) {
     frame->Push(NEW_INT(rounded));
 }
 
+void _Double::PositiveInfinity(Interpreter*, VMFrame* frame) {
+    frame->Pop();
+    frame->Push(GetUniverse()->NewDouble(INFINITY));
+}
+
 _Double::_Double() : PrimitiveContainer() {
     SetPrimitive("plus",       new Routine<_Double>(this, &_Double::Plus,       false));
     SetPrimitive("minus",      new Routine<_Double>(this, &_Double::Minus,      false));
@@ -164,4 +169,5 @@ _Double::_Double() : PrimitiveContainer() {
     SetPrimitive("sqrt",       new Routine<_Double>(this, &_Double::Sqrt,       false));
     SetPrimitive("bitXor_",    new Routine<_Double>(this, &_Double::BitwiseXor, false));
     SetPrimitive("round",      new Routine<_Double>(this, &_Double::Round,      false));
+    SetPrimitive("PositiveInfinity", new Routine<_Double>(this, &_Double::PositiveInfinity, true));
 }

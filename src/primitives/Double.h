@@ -44,6 +44,8 @@ public:
     void Sqrt(Interpreter*, VMFrame*);
     void BitwiseXor(Interpreter*, VMFrame*);
     void Round(Interpreter*, VMFrame*);
+    
+    void PositiveInfinity(Interpreter*, VMFrame*);
 
 private:
     double coerceDouble(vm_oop_t x);
