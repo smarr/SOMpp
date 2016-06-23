@@ -36,6 +36,7 @@ public:
     void Plus(Interpreter*, VMFrame*);
     void Minus(Interpreter*, VMFrame*);
     void Star(Interpreter*, VMFrame*);
+    void Rem(Interpreter*, VMFrame*);
     void BitwiseAnd(Interpreter*, VMFrame*);
     void BitwiseXor(Interpreter*, VMFrame*);
     void LeftShift(Interpreter*, VMFrame*);

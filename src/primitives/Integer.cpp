@@ -60,6 +60,7 @@ _Integer::_Integer() : PrimitiveContainer() {
     SetPrimitive("plus",               new Routine<_Integer>(this, &_Integer::Plus,       false));
     SetPrimitive("minus",              new Routine<_Integer>(this, &_Integer::Minus,      false));
     SetPrimitive("star",               new Routine<_Integer>(this, &_Integer::Star,       false));
+    SetPrimitive("rem_",               new Routine<_Integer>(this, &_Integer::Rem,        false));
     SetPrimitive("bitAnd_",            new Routine<_Integer>(this, &_Integer::BitwiseAnd, false));
     SetPrimitive("bitXor_",            new Routine<_Integer>(this, &_Integer::BitwiseXor, false));
     SetPrimitive("lowerthanlowerthan", new Routine<_Integer>(this, &_Integer::LeftShift,  false));
@@ -181,6 +182,20 @@ void _Integer::Percent(Interpreter* interp, VMFrame* frame) {
         result += r;
     }
 
+    frame->Push(NEW_INT(result));
+}
+
+void _Integer::Rem(Interpreter* interp, VMFrame* frame) {
+    vm_oop_t rightObj = frame->Pop();
+    vm_oop_t leftObj  = frame->Pop();
+    
+    CHECK_COERCION(rightObj, leftObj, "%");
+    
+    int64_t l = (int64_t)INT_VAL(leftObj);
+    int64_t r = (int64_t)INT_VAL(rightObj);
+    
+    int64_t result = l - (l / r) * r;
+    
     frame->Push(NEW_INT(result));
 }
 
