@@ -163,7 +163,7 @@ void _Integer::Slashslash(Interpreter* interp, VMFrame* frame) {
     vm_oop_t rightObj = frame->Pop();
     vm_oop_t leftObj  = frame->Pop();
     
-    CHECK_COERCION(rightObj, leftObj, "/");
+    CHECK_COERCION(rightObj, leftObj, "//");
 
     double result = (double)INT_VAL(leftObj) / (double)INT_VAL(rightObj);
     frame->Push(GetUniverse()->NewDouble(result));
