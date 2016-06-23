@@ -29,11 +29,13 @@
 
 #include "Lexer.h"
 
-Lexer::Lexer(istream &file) :
-        infile(file) {
+Lexer::Lexer(istream &file) : infile(file) {
     peekDone = false;
     bufp = 0;
     lineNumber = 0;
+    
+    text     = "";
+    nextText = "";
 }
 
 Lexer::~Lexer() {
@@ -100,19 +102,19 @@ void Lexer::skipComment(void) {
      (C) == '\\' || (C) == '+' || (C) == '=' || (C) == '>' || (C) == '<' || \
      (C) == ',' || (C) == '@' || (C) == '%' || (C) == '-')
 #define _MATCH(C, S) \
-    if(_BC == (C)) { sym = (S); symc = _BC; sprintf(text, "%c", _BC); bufp++;}
+    if(_BC == (C)) { sym = (S); symc = _BC; text = _BC; bufp++;}
 #define SEPARATOR StdString("----") //FIXME
 #define PRIMITIVE StdString("primitive")
 
 void Lexer::lexNumber() {
     sym = Integer;
     symc = 0;
-    char* t = text;
-    
+    text.clear();
+
     bool sawDecimalMark = false;
     
     do {
-        *t++ = buf[bufp++];
+        text += buf[bufp++];
         
         if (!sawDecimalMark         and
             '.' == _BC              and
@@ -120,24 +122,24 @@ void Lexer::lexNumber() {
             isdigit(buf[bufp + 1])) {
             sym = Double;
             sawDecimalMark = true;
-            *t++ = buf[bufp++];
+            text += buf[bufp++];
         }
         
     } while (isdigit(_BC));
-    *t = 0;
 }
 
-void Lexer::lexEscapeChar(char*& t) {
+
+void Lexer::lexEscapeChar() {
     assert(!EOB);
     char current = _BC;
     switch (current) {
-        case 't': *t++ = '\t'; break;
-        case 'b': *t++ = '\b'; break;
-        case 'n': *t++ = '\n'; break;
-        case 'r': *t++ = '\r'; break;
-        case 'f': *t++ = '\f'; break;
-        case '\'': *t++ = '\''; break;
-        case '\\': *t++ = '\\'; break;
+        case 't': text += '\t'; break;
+        case 'b': text += '\b'; break;
+        case 'n': text += '\n'; break;
+        case 'r': text += '\r'; break;
+        case 'f': text += '\f'; break;
+        case '\'': text += '\''; break;
+        case '\\': text += '\\'; break;
         default:
             assert(false);
             break;
@@ -145,42 +147,41 @@ void Lexer::lexEscapeChar(char*& t) {
     bufp++;
 }
 
-void Lexer::lexStringChar(char*& t) {
+void Lexer::lexStringChar() {
     if (_BC == '\\') {
         bufp++;
-        lexEscapeChar(t);
+        lexEscapeChar();
     } else {
-        *t++ = buf[bufp++];
+        text += buf[bufp++];
     }
 }
 
 void Lexer::lexString() {
     sym = STString;
     symc = 0;
-    char* t = text;
+    text.clear();
     bufp++;
     
     while (_BC != '\'') {
-        lexStringChar(t);
+        lexStringChar();
         while (EOB) {
             if (fillBuffer() == -1) {
                 return;
             }
         }
     }
-    
     bufp++;
-    *t = 0;
 }
 
 void Lexer::lexOperator() {
     if (_ISOP(buf[bufp + 1])) {
         sym = OperatorSequence;
         symc = 0;
-        char* t = text;
-        while (_ISOP(_BC))
-            *t++ = buf[bufp++];
-        *t = 0;
+        text.clear();
+        while (_ISOP(_BC)) {
+            text += buf[bufp++];
+        }
+
     } else _MATCH('~', Not)  else _MATCH('&', And)   else _MATCH('|', Or)
       else _MATCH('*', Star) else _MATCH('/', Div)   else _MATCH('\\', Mod)
       else _MATCH('+', Plus) else _MATCH('=', Equal) else _MATCH('>', More)
@@ -193,7 +194,7 @@ Symbol Lexer::GetSym(void) {
         peekDone = false;
         sym = nextSym;
         symc = nextSymc;
-        strncpy(text, nextText, 512);
+        text = StdString(nextText);
         return sym;
     }
 
@@ -215,20 +216,20 @@ Symbol Lexer::GetSym(void) {
             bufp += 2;
             sym = Assign;
             symc = 0;
-            sprintf(text, ":=");
+            text = ":=";
         } else {
             bufp++;
             sym = Colon;
             symc = ':';
-            sprintf(text, ":");
+            text = ":";
         }
     } else _MATCH('(', NewTerm) else _MATCH(')', EndTerm) else _MATCH('#', Pound) else _MATCH('^', Exit) else _MATCH('.', Period) else if (_BC
             == '-') {
         if (!buf.substr(bufp, SEPARATOR.length()).compare(SEPARATOR)) {
-            char* t = text;
-            while (_BC == '-')
-                *t++ = buf[bufp++];
-            *t = 0;
+            text.clear();
+            while (_BC == '-') {
+                text += buf[bufp++];
+            }
             sym = Separator;
         } else {
             lexOperator();
@@ -239,30 +240,30 @@ Symbol Lexer::GetSym(void) {
         bufp += PRIMITIVE.length();
         sym = Primitive;
         symc = 0;
-        sprintf(text, "primitive");
+        text = "primitive";
     } else if (isalpha(_BC)) {
-        char* t = text;
+        text.clear();
         symc = 0;
-        while (isalpha(_BC) || isdigit(_BC) || _BC == '_')
-            *t++ = buf[bufp++];
+        while (isalpha(_BC) || isdigit(_BC) || _BC == '_') {
+            text += buf[bufp++];
+        }
         sym = Identifier;
         if (buf[bufp] == ':') {
             sym = Keyword;
             bufp++;
-            *t++ = ':';
+            text += ':';
             if (isalpha(_BC)) {
                 sym = KeywordSequence;
                 while (isalpha(_BC) || _BC == ':')
-                    *t++ = buf[bufp++];
+                    text += buf[bufp++];
             }
         }
-        *t = 0;
     } else if (isdigit(_BC)) {
         lexNumber();
     } else {
         sym = NONE;
         symc = _BC;
-        sprintf(text, "%c", _BC);
+        text = _BC;
     }
 
     return sym;
@@ -290,17 +291,17 @@ bool Lexer::nextWordInBufferIs(StdString word) {
 Symbol Lexer::Peek(void) {
     Symbol saveSym = sym;
     char saveSymc = symc;
-    char saveText[256];
-    strcpy(saveText, text);
-    if (peekDone)
+    StdString saveText = StdString(text);
+    if (peekDone) {
         fprintf(stderr, "Cannot Peek twice!\n");
+    }
     GetSym();
     nextSym = sym;
     nextSymc = symc;
-    strcpy(nextText, text);
+    nextText = StdString(text);
     sym = saveSym;
     symc = saveSymc;
-    strcpy(text, saveText);
+    text = StdString(saveText);
     peekDone = true;
     return nextSym;
 }

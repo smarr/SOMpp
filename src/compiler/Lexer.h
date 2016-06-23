@@ -103,8 +103,8 @@ private:
     
     void lexNumber();
     void lexOperator();
-    void lexEscapeChar(char*& t);
-    void lexStringChar(char*& t);
+    void lexEscapeChar();
+    void lexStringChar();
     void lexString();
     
     bool nextWordInBufferIs(StdString word);
@@ -116,14 +116,14 @@ private:
     Symbol sym;
     char symc;
 
-    char text[BUFSIZ];
-
+    StdString text;
+    
     int lineNumber;
     bool peekDone;
     Symbol nextSym;
     char nextSymc;
     //^^
-    char nextText[BUFSIZ];
+    StdString nextText;
 
     StdString buf;
     unsigned int bufp;
