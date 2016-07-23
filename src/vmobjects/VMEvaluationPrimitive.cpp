@@ -104,7 +104,7 @@ void EvaluationRoutine::Invoke(Interpreter* interp, VMFrame* frame) {
     VMMethod *vmMethod = block->GetMethod();
     if(NULL != vmMethod->compiledMethod) {
     	NewFrame->SetIsJITFrame(true);
-		int64_t value = vmMethod->compiledMethod((int64_t)interp, (int64_t)NewFrame, (int64_t)&NewFrame->stack_ptr);
+		vmMethod->compiledMethod((int64_t)interp, (int64_t)NewFrame);
 	} else if (vmMethod->invokedCount > 0) {
         if (0 == --vmMethod->invokedCount) {
             if (enableJIT) {

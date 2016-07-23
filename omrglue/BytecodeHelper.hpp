@@ -40,43 +40,22 @@ public:
 	static int64_t getNewBlock(int64_t framePtr, int64_t blockMethod, int64_t numOfArgs);
 	static const char* GET_NEW_BLOCK_LINE;
 	
-	static int64_t getLocal(int64_t framePtr, int64_t index, int64_t level);
-	static const char* GET_LOCAL_LINE;
-	
-	static void	setLocal(int64_t framePtr, int64_t index, int64_t level, int64_t value);
-	static const char* SET_LOCAL_LINE;
-	
-	static int64_t getArgument(int64_t framePtr, int64_t index, int64_t level);
-	static const char* GET_ARGUMENT_LINE;
-	
 	static int64_t newInteger(int64_t value);
 	static const char* NEW_INTEGER_LINE;
 	
-	static int64_t getIndexableField(int64_t array, uint64_t index);
-	static const char* GET_INDEXABLE_FIELD_LINE;
-	
-	static void setIndexableField(int64_t array, uint64_t index, uint64_t value);
-	static const char* SET_INDEXABLE_FIELD_LINE;
-	
-	static int64_t getNumberOfIndexableFields(int64_t array);
-	static const char* GET_NUMBER_OF_INDEXABLE_FIELDS_LINE;
+	static int64_t newDouble(double value);
+	static const char* NEW_DOUBLE_LINE;
 	
 	static int64_t getFieldFrom(int64_t selfPtr, int64_t fieldIndex);
 	static const char* GET_FIELD_FROM_LINE;
 	
-	static int64_t getField(int64_t framePtr, int64_t fieldIndex);
-	static const char* GET_FIELD_LINE;
-	
 	static void	setFieldTo(int64_t selfPtr, int64_t fieldIndex, int64_t valuePtr);
 	static const char* SET_FIELD_TO_LINE;
-
-	static void	setField(int64_t framePtr, int64_t fieldIndex, int64_t sp);
-	static const char* SET_FIELD_LINE;
 	
 	static int64_t getInvokable(int64_t receiverClazz, int64_t signature);
 	static const char* GET_INVOKABLE_LINE;
 	
-	static int64_t doSendIfRequired(int64_t interp, int64_t framePtr, int64_t invokablePtr, int64_t bytecodeIndex, int64_t receive, int64_t receiverAddress, int64_t numArgs);
+	static int64_t doSendIfRequired(int64_t interp, int64_t framePtr, int64_t invokablePtr, int64_t bytecodeIndex);
 	static const char* DO_SEND_IF_REQUIRED_LINE;
 	
 	static int64_t doSuperSendHelper(int64_t interp, int64_t framePtr, int64_t signaturePtr, int64_t bytecodeIndex);
@@ -87,9 +66,6 @@ public:
 	
 	static int64_t popToContext(int64_t interp, int64_t framePtr);
 	static const char* POP_TO_CONTEXT_LINE;
-
-	static void verifyArgument(int64_t framePtr, int64_t argumentPtr, int64_t index, int64_t level);
-	static const char* VERIFY_ARGUMENT_LINE;
 };
 	
 #endif /* BYTECODEHELPER_INCL */

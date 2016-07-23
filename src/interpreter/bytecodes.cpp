@@ -45,7 +45,7 @@ const uint8_t Bytecode::bytecodeLengths[] = {
         1, // BC_RETURN_NON_LOCAL
         5, // JUMP_IF_FALSE
         5, // JUMP_IF_TRUE
-        5  // JUMP
+        5, // JUMP
         };
 
 const char* Bytecode::bytecodeNames[] = { "HALT            ",
@@ -54,5 +54,5 @@ const char* Bytecode::bytecodeNames[] = { "HALT            ",
         "PUSH_GLOBAL     ", "POP             ", "POP_LOCAL       ",
         "POP_ARGUMENT    ", "POP_FIELD       ", "SEND            ",
         "SUPER_SEND      ", "RETURN_LOCAL    ", "RETURN_NON_LOCAL",
-        "JUMP_IF_FALSE   ", "JUMP_IF_TRUE    ", "JUMP            " };
+        "JUMP_IF_FALSE   ", "JUMP_IF_TRUE    ", "JUMP            ",};
 
