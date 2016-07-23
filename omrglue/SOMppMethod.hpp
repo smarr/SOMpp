@@ -20,8 +20,6 @@
 #define SOMPPMETHOD_INCL
 
 #include "ilgen/MethodBuilder.hpp"
-#include "ilgen/VirtualMachineOperandStack.hpp"
-#include "ilgen/VirtualMachineRegisterInStruct.hpp"
 
 namespace TR {
 class IlBuilder;
@@ -36,8 +34,6 @@ class VMClass;
 typedef int64_t (SOMppFunctionType)(int64_t interpreter, int64_t frame);
 
 #define FIELDNAMES_LENGTH 10
-#define STACKVALUEILTYPE Int64
-#define	STACKVALUETYPE int64_t
 
 class SOMppMethod: public TR::MethodBuilder {
 public:
@@ -49,9 +45,6 @@ protected:
 	TR::IlType *vmFrame;
 	TR::IlType *pVMFrame;
 	TR::IlType *vmObject;
-	TR::IlType *valueType;
-	OMR::VirtualMachineOperandStack *stack;
-	OMR::VirtualMachineRegister *stackTop;
 	const char * fieldNames[FIELDNAMES_LENGTH];
 private:
 	VMMethod *method;
