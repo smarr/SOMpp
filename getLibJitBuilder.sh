@@ -9,7 +9,7 @@ if [ "${GC_TYPE}" = "omr_gc" ]; then
 	rm -rf ../libjitbuilder
 	mkdir ../libjitbuilder
 	cd ../libjitbuilder
-	wget https://ibm.box.com/shared/static/gv0p9iqavz2dgozoipqh4ut0usbyys6q.tgz
-	tar -zxf gv0p9iqavz2dgozoipqh4ut0usbyys6q.tgz
-	rm -f gv0p9iqavz2dgozoipqh4ut0usbyys6q.tgz
+	wget https://ibm.box.com/shared/static/x4uhlh6rbu2tpth0p3i9bgaff1mf10u1.tgz
+	tar -zxf x4uhlh6rbu2tpth0p3i9bgaff1mf10u1.tgz
+	rm -f x4uhlh6rbu2tpth0p3i9bgaff1mf10u1.tgz
 fi

@@ -31,7 +31,9 @@ class IlType;
 class VMMethod;
 class VMSymbol;
 class VMClass;
-typedef int64_t (SOMppFunctionType)(int64_t interpreter, int64_t frame, int64_t stackPtrPtr);
+typedef int64_t (SOMppFunctionType)(int64_t interpreter, int64_t frame);
+
+#define FIELDNAMES_LENGTH 10
 
 class SOMppMethod: public TR::MethodBuilder {
 public:
@@ -42,6 +44,8 @@ protected:
 	TR::IlType *pDouble;
 	TR::IlType *vmFrame;
 	TR::IlType *pVMFrame;
+	TR::IlType *vmObject;
+	const char * fieldNames[FIELDNAMES_LENGTH];
 private:
 	VMMethod *method;
 	/* Should inlining be attempted */
@@ -57,6 +61,7 @@ private:
 	void defineParameters();
 
 	void defineVMFrameStructure(TR::TypeDictionary *types);
+	void defineVMObjectStructure(TR::TypeDictionary *types);
 
 	void justReturn(TR::IlBuilder *from);
 
@@ -83,6 +88,16 @@ private:
 	void doJumpIfTrue(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **bytecodeBuilderTable, long bytecodeIndex);
 	void doJump(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **bytecodeBuilderTable, long bytecodeIndex);
 
+	TR::IlValue *peek(TR::IlBuilder *builder);
+	void pop(TR::IlBuilder *builder);
+	void push(TR::IlBuilder *builder, TR::IlValue *value);
+	const char *getContext(TR::IlBuilder *builder, uint8_t level);
+	TR::IlValue *getOuterContext(TR::IlBuilder *builder);
+	TR::IlValue *getSelfFromContext(TR::IlBuilder *builder, TR::IlValue *context);
+	int getReceiverForSend(TR::IlBuilder *builder, VMSymbol* signature);
+	TR::IlValue *getNumberOfIndexableFields(TR::IlBuilder *builder, TR::IlValue *array);
+	void getIndexableFieldSlot(TR::IlBuilder *builder, TR::IlValue *array);
+
 	TR::IlBuilder *doInlineIfPossible(TR::BytecodeBuilder *builder, VMSymbol* signature, long bytecodeIndex);
 	TR::IlBuilder *generateRecognizedMethod(TR::BytecodeBuilder *builder, VMClass *receiverFromCache, char *signatureChars);
 	TR::IlBuilder *generateGenericInline(TR::BytecodeBuilder *builder, VMClass *receiverFromCache, VMMethod *vmMethod, char *signatureChars);
@@ -91,6 +106,10 @@ private:
 	/* Generate IL for primitives and known simple methods */
 	/* Integer methods */
 	TR::IlBuilder *generateILForIntergerOps(TR::BytecodeBuilder *builder, TR::IlBuilder **failPath);
+	TR::IlBuilder *verifyIntegerObject(TR::IlBuilder *builder, TR::IlValue *object, TR::IlBuilder **failPath);
+	TR::IlBuilder *getIntegerValue(TR::IlBuilder *builder, TR::IlValue *object, const char *valueName, TR::IlBuilder **failPath);
+	void createNewInteger(TR::IlBuilder *builder, TR::IlValue *integerValue);
+
 	TR::IlBuilder *generateILForIntegerLessThan(TR::BytecodeBuilder *builder);
 	TR::IlBuilder *generateILForIntegerLessThanEqual(TR::BytecodeBuilder *builder);
 	TR::IlBuilder *generateILForIntegerGreaterThan(TR::BytecodeBuilder *builder);
@@ -104,6 +123,7 @@ private:
 	TR::IlBuilder *generateILForIntegerValue(TR::BytecodeBuilder *builder);
 	TR::IlBuilder *generateILForIntegerMax(TR::BytecodeBuilder *builder);
 	TR::IlBuilder *generateILForIntegerNegated(TR::BytecodeBuilder *builder);
+	TR::IlBuilder *generateILForIntegerAbs(TR::BytecodeBuilder *builder);
 
 	/* Array methods */
 	TR::IlBuilder *generateILForArrayAt(TR::BytecodeBuilder *builder);
@@ -120,9 +140,16 @@ private:
 
 	/* Integer methods */
 	TR::IlBuilder *generateILForDoubleOps(TR::BytecodeBuilder *builder, TR::IlBuilder **failPath);
+	TR::IlBuilder *generateILForDoubleLessThan(TR::BytecodeBuilder *builder);
 	TR::IlBuilder *generateILForDoubleLessThanEqual(TR::BytecodeBuilder *builder);
 	TR::IlBuilder *generateILForDoubleGreaterThan(TR::BytecodeBuilder *builder);
 	TR::IlBuilder *generateILForDoubleGreaterThanEqual(TR::BytecodeBuilder *builder);
+	TR::IlBuilder *generateILForDoubleEqual(TR::BytecodeBuilder *builder);
+	TR::IlBuilder *generateILForDoubleNotEqual(TR::BytecodeBuilder *builder);
+	TR::IlBuilder *generateILForDoublePlus(TR::BytecodeBuilder *builder);
+	TR::IlBuilder *generateILForDoubleMinus(TR::BytecodeBuilder *builder);
+	TR::IlBuilder *generateILForDoubleStar(TR::BytecodeBuilder *builder);
+	TR::IlBuilder *generateILForDoubleSlashSlash(TR::BytecodeBuilder *builder);
 };
 
 #endif // !defined(SOMPPMETHOD_INCL)
