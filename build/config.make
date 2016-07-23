@@ -1,5 +1,5 @@
 # some defaults
-USE_TAGGING?=false
+USE_TAGGING?=true
 GC_TYPE?=omr_gc
 CACHE_INTEGER?=false
 DEFAULT_OMR_JIT_ON?=false

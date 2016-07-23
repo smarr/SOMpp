@@ -61,7 +61,7 @@ BytecodeHelper::getClass(int64_t object)
 {
 #define VALUE_FOR_GET_CLASS_LINE LINETOSTR(__LINE__)
 
-	return (int64_t)(((AbstractVMObject*)(object))->GetClass());
+	return (int64_t)CLASS_OF(object);
 }
 
 int64_t
@@ -82,33 +82,6 @@ BytecodeHelper::getNewBlock(int64_t framePtr, int64_t blockMethod, int64_t numOf
 }
 
 int64_t
-BytecodeHelper::getLocal(int64_t framePtr, int64_t index, int64_t level)
-{
-#define VALUE_FOR_GET_LOCAL_LINE LINETOSTR(__LINE__)
-
-	VMFrame *frame = (VMFrame *)framePtr;
-	return (int64_t)frame->GetLocal((long)index, (long)level);
-}
-
-void
-BytecodeHelper::setLocal(int64_t framePtr, int64_t index, int64_t level, int64_t value)
-{
-#define VALUE_FOR_SET_LOCAL_LINE LINETOSTR(__LINE__)
-
-	VMFrame *frame = (VMFrame *)framePtr;
-	frame->SetLocal((long)index, (long)level, (vm_oop_t)value);
-}
-
-int64_t
-BytecodeHelper::getArgument(int64_t framePtr, int64_t index, int64_t level)
-{
-#define VALUE_FOR_GET_ARGUMENT_LINE LINETOSTR(__LINE__)
-
-	VMFrame *frame = (VMFrame *)framePtr;
-	return (int64_t)frame->GetArgument((long)index, (long)level);
-}
-
-int64_t
 BytecodeHelper::newInteger(int64_t value)
 {
 #define VALUE_FOR_NEW_INTEGER_LINE LINETOSTR(__LINE__)
@@ -117,30 +90,11 @@ BytecodeHelper::newInteger(int64_t value)
 }
 
 int64_t
-BytecodeHelper::getIndexableField(int64_t array, uint64_t index)
+BytecodeHelper::newDouble(double value)
 {
-#define VALUE_FOR_GET_INDEXABLE_FIELD_LINE LINETOSTR(__LINE__)
+#define VALUE_FOR_NEW_DOUBLE_LINE LINETOSTR(__LINE__)
 
-	VMArray* self = (VMArray*)array;
-	return (int64_t)self->GetIndexableField((long)index - 1);
-}
-
-void
-BytecodeHelper::setIndexableField(int64_t array, uint64_t index, uint64_t value)
-{
-#define VALUE_FOR_SET_INDEXABLE_FIELD_LINE LINETOSTR(__LINE__)
-
-	VMArray* self = (VMArray*)array;
-	self->SetIndexableField((long)index - 1, (vm_oop_t)value);
-}
-
-int64_t
-BytecodeHelper::getNumberOfIndexableFields(int64_t array)
-{
-#define VALUE_FOR_GET_NUMBER_OF_INDEXABLE_FIELDS_LINE LINETOSTR(__LINE__)
-
-	VMArray* self = (VMArray*)array;
-	return (int64_t)NEW_INT(self->GetNumberOfIndexableFields());
+	return (int64_t)GetUniverse()->NewDouble(value);
 }
 
 int64_t
@@ -149,17 +103,6 @@ BytecodeHelper::getFieldFrom(int64_t selfPtr, int64_t fieldIndex)
 #define VALUE_FOR_GET_FIELD_FROM_LINE LINETOSTR(__LINE__)
 
 	vm_oop_t self = (vm_oop_t)selfPtr;
-	return (int64_t)((VMObject*)self)->GetField(fieldIndex);
-}
-
-int64_t
-BytecodeHelper::getField(int64_t framePtr, int64_t fieldIndex)
-{
-#define VALUE_FOR_GET_FIELD_LINE LINETOSTR(__LINE__)
-
-	VMFrame *frame = (VMFrame *)framePtr;
-	VMFrame* context = frame->GetOuterContext();
-	vm_oop_t self = context->GetArgument(0, 0);
 	return (int64_t)((VMObject*)self)->GetField(fieldIndex);
 }
 
@@ -173,20 +116,6 @@ BytecodeHelper::setFieldTo(int64_t selfPtr, int64_t fieldIndex, int64_t valuePtr
 	((VMObject*) self)->SetField(fieldIndex, value);
 }
 
-void
-BytecodeHelper::setField(int64_t framePtr, int64_t fieldIndex, int64_t sp)
-{
-#define VALUE_FOR_SET_FIELD_LINE LINETOSTR(__LINE__)
-
-	VMFrame *frame = (VMFrame *)framePtr;
-	VMFrame* context = frame->GetOuterContext();
-	vm_oop_t self = context->GetArgument(0, 0);
-
-	vm_oop_t o = frame->Pop();
-
-	((VMObject*) self)->SetField(fieldIndex, o);
-}
-
 int64_t
 BytecodeHelper::getInvokable(int64_t receiverClazz, int64_t signature)
 {
@@ -197,7 +126,7 @@ BytecodeHelper::getInvokable(int64_t receiverClazz, int64_t signature)
 }
 
 int64_t
-BytecodeHelper::doSendIfRequired(int64_t interp, int64_t framePtr, int64_t invokablePtr, int64_t bytecodeIndex, int64_t receive, int64_t receiverAddress, int64_t numArgs)
+BytecodeHelper::doSendIfRequired(int64_t interp, int64_t framePtr, int64_t invokablePtr, int64_t bytecodeIndex)
 {
 #define VALUE_FOR_DO_SEND_IF_REQUIRED_LINE LINETOSTR(__LINE__)
 
@@ -207,7 +136,7 @@ BytecodeHelper::doSendIfRequired(int64_t interp, int64_t framePtr, int64_t invok
 	Interpreter *interpreter = (Interpreter *)interp;
 	interpreter->setBytecodeIndexGlobal((long)bytecodeIndex);
 	frame->SetBytecodeIndex((long)bytecodeIndex);
-	if (NULL == invokable) {
+	if (nullptr == invokable) {
 		long numberOfArgs = Signature::GetNumberOfArguments(currentMethod->GetSignature());
 
 		 vm_oop_t receiver = frame->GetStackElement(numberOfArgs-1);
@@ -425,39 +354,15 @@ BytecodeHelper::popToContext(int64_t interp, int64_t framePtr)
 	return 0;
 }
 
-void
-BytecodeHelper::verifyArgument(int64_t framePtr, int64_t argumentPtr, int64_t index, int64_t level)
-{
-#define VALUE_FOR_VERIFY_ARGUMENT_LINE LINETOSTR(__LINE__)
-
-	VMFrame *frame = (VMFrame *)framePtr;
-	vm_oop_t argument = frame->GetArgument((long)index, (long)level);
-
-	if ((int64_t)argument != argumentPtr) {
-		printf("frame %ld argument %ld argument2 %ld\n", framePtr, argumentPtr, (int64_t)argument);
-		/* TODO replace with a runtime assert */
-		int *x = 0;
-		*x = 0;
-	}
-}
-
 const char* BytecodeHelper::GET_CLASS_LINE = VALUE_FOR_GET_CLASS_LINE;
 const char* BytecodeHelper::GET_GLOBAL_LINE = VALUE_FOR_GET_GLOBAL_LINE;
 const char* BytecodeHelper::GET_NEW_BLOCK_LINE = VALUE_FOR_GET_NEW_BLOCK_LINE;
-const char* BytecodeHelper::GET_LOCAL_LINE = VALUE_FOR_GET_LOCAL_LINE;
-const char* BytecodeHelper::SET_LOCAL_LINE = VALUE_FOR_SET_LOCAL_LINE;
-const char* BytecodeHelper::GET_ARGUMENT_LINE = VALUE_FOR_GET_ARGUMENT_LINE;
 const char* BytecodeHelper::NEW_INTEGER_LINE = VALUE_FOR_NEW_INTEGER_LINE;
-const char* BytecodeHelper::GET_INDEXABLE_FIELD_LINE = VALUE_FOR_GET_INDEXABLE_FIELD_LINE;
-const char* BytecodeHelper::SET_INDEXABLE_FIELD_LINE = VALUE_FOR_SET_INDEXABLE_FIELD_LINE;
-const char* BytecodeHelper::GET_NUMBER_OF_INDEXABLE_FIELDS_LINE = VALUE_FOR_GET_NUMBER_OF_INDEXABLE_FIELDS_LINE;
+const char* BytecodeHelper::NEW_DOUBLE_LINE = VALUE_FOR_NEW_DOUBLE_LINE;
 const char* BytecodeHelper::GET_FIELD_FROM_LINE = VALUE_FOR_GET_FIELD_FROM_LINE;
-const char* BytecodeHelper::GET_FIELD_LINE = VALUE_FOR_GET_FIELD_LINE;
 const char* BytecodeHelper::SET_FIELD_TO_LINE = VALUE_FOR_SET_FIELD_TO_LINE;
-const char* BytecodeHelper::SET_FIELD_LINE = VALUE_FOR_SET_FIELD_LINE;
 const char* BytecodeHelper::GET_INVOKABLE_LINE = VALUE_FOR_GET_INVOKABLE_LINE;
 const char* BytecodeHelper::DO_SEND_IF_REQUIRED_LINE = VALUE_FOR_DO_SEND_IF_REQUIRED_LINE;
 const char* BytecodeHelper::DO_SUPER_SEND_HELPER_LINE = VALUE_FOR_DO_SUPER_SEND_HELPER_LINE;
 const char* BytecodeHelper::POP_FRAME_AND_PUSH_RESULT_LINE = VALUE_FOR_POP_FRAME_AND_PUSH_RESULT_LINE;
 const char* BytecodeHelper::POP_TO_CONTEXT_LINE = VALUE_FOR_POP_TO_CONTEXT_LINE;
-const char* BytecodeHelper::VERIFY_ARGUMENT_LINE = VALUE_FOR_VERIFY_ARGUMENT_LINE;
