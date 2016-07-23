@@ -83,13 +83,6 @@ printString(int64_t stringPointer)
 }
 
 static void
-printInt32(int32_t value)
-{
-#define PRINTINT32_LINE LINETOSTR(__LINE__)
-	fprintf(stderr, "%d", value);
-}
-
-static void
 printInt64(int64_t value)
 {
 #define PRINTINT64_LINE LINETOSTR(__LINE__)
@@ -117,26 +110,52 @@ SOMppMethod::SOMppMethod(TR::TypeDictionary *types, VMMethod *vmMethod, bool inl
 
 	snprintf(methodName, 64, "%s>>#%s", holder, signature);
 
+	fieldNames[0] = "field0";
+	fieldNames[1] = "field1";
+	fieldNames[2] = "field2";
+	fieldNames[3] = "field3";
+	fieldNames[4] = "field4";
+	fieldNames[5] = "field5";
+	fieldNames[6] = "field6";
+	fieldNames[7] = "field7";
+	fieldNames[8] = "field8";
+	fieldNames[9] = "field9";
+
 	DefineName(methodName);
-	DefineReturnType(Int64);
+	DefineReturnType(NoType);
 
 	defineStructures(types);
 	defineParameters();
 	defineLocals();
 	defineFunctions();
+
+	AllLocalsHaveBeenDefined();
 }
 
 void
 SOMppMethod::defineParameters()
 {
 	DefineParameter("interpreter", Int64);
-	DefineParameter("frame", pInt64);
-	DefineParameter("stackPtrPtr", pInt64);
+	DefineParameter("frame", pVMFrame);
 }
 
 void
 SOMppMethod::defineLocals()
 {
+	/* specific for Integer operations */
+	DefineLocal("leftValueInteger", Int64);
+	DefineLocal("rightValueInteger", Int64);
+	DefineLocal("integerValue", Int64);
+
+	/* Specific for Double operations */
+	DefineLocal("rightObjectDouble", Int64);
+	DefineLocal("rightClassDouble", Int64);
+	DefineLocal("rightValueSlotDouble", Int64);
+	DefineLocal("rightValueDouble", Double);
+	DefineLocal("leftObjectDouble", Int64);
+	DefineLocal("leftClassDouble", Int64);
+	DefineLocal("leftValueSlotDouble", Int64);
+	DefineLocal("leftValueDouble", Double);
 }
 
 void
@@ -146,35 +165,27 @@ SOMppMethod::defineStructures(TR::TypeDictionary *types)
 	pDouble = types->PointerTo(Double);
 
 	defineVMFrameStructure(types);
+	defineVMObjectStructure(types);
 }
 
 void
 SOMppMethod::defineFunctions()
 {
 	DefineFunction((char *)"printString", (char *)__FILE__, (char *)PRINTSTRING_LINE, (void *)&printString, NoType, 1, Int64);
-	DefineFunction((char *)"printInt32", (char *)__FILE__, (char *)PRINTINT32_LINE, (void *)&printInt32, NoType, 1, Int32);
 	DefineFunction((char *)"printInt64", (char *)__FILE__, (char *)PRINTINT64_LINE, (void *)&printInt64, NoType, 1, Int64);
 	DefineFunction((char *)"printInt64Hex", (char *)__FILE__, (char *)PRINTINT64HEX_LINE, (void *) &printInt64Hex, NoType, 1, Int64);
 	DefineFunction((char *)"getClass", (char *)BytecodeHelper::BYTECODEHELPER_FILE, (char *)BytecodeHelper::GET_CLASS_LINE, (void *)&BytecodeHelper::getClass, Int64, 1, Int64);
 	DefineFunction((char *)"getGlobal", (char *)BytecodeHelper::BYTECODEHELPER_FILE, (char *)BytecodeHelper::GET_GLOBAL_LINE, (void *)&BytecodeHelper::getGlobal, Int64, 1, Int64);
 	DefineFunction((char *)"getNewBlock", (char *)BytecodeHelper::BYTECODEHELPER_FILE, (char *)BytecodeHelper::GET_NEW_BLOCK_LINE, (void *)&BytecodeHelper::getNewBlock, Int64, 3, Int64, Int64, Int64);
-	DefineFunction((char *)"getLocal", (char *)BytecodeHelper::BYTECODEHELPER_FILE, (char *)BytecodeHelper::GET_LOCAL_LINE, (void *)&BytecodeHelper::getLocal, Int64, 3, Int64, Int64, Int64);
-	DefineFunction((char *)"setLocal", (char *)BytecodeHelper::BYTECODEHELPER_FILE, (char *)BytecodeHelper::SET_LOCAL_LINE, (void *)&BytecodeHelper::setLocal, NoType, 4, Int64, Int64, Int64, Int64);
-	DefineFunction((char *)"getArgument", (char *)BytecodeHelper::BYTECODEHELPER_FILE, (char *)BytecodeHelper::GET_ARGUMENT_LINE, (void *)&BytecodeHelper::getArgument, Int64, 3, Int64, Int64, Int64);
 	DefineFunction((char *)"newInteger", (char *)BytecodeHelper::BYTECODEHELPER_FILE, (char *)BytecodeHelper::NEW_INTEGER_LINE, (void *)&BytecodeHelper::newInteger, Int64, 1, Int64);
-	DefineFunction((char *)"getIndexableField", (char *)BytecodeHelper::BYTECODEHELPER_FILE, (char *)BytecodeHelper::GET_INDEXABLE_FIELD_LINE, (void *)&BytecodeHelper::getIndexableField, Int64, 2, Int64, Int64);
-	DefineFunction((char *)"setIndexableField", (char *)BytecodeHelper::BYTECODEHELPER_FILE, (char *)BytecodeHelper::SET_INDEXABLE_FIELD_LINE, (void *)&BytecodeHelper::setIndexableField, NoType, 3, Int64, Int64, Int64);
-	DefineFunction((char *)"getNumberOfIndexableFields", (char *)BytecodeHelper::BYTECODEHELPER_FILE, (char *)BytecodeHelper::GET_NUMBER_OF_INDEXABLE_FIELDS_LINE, (void *)&BytecodeHelper::getNumberOfIndexableFields, Int64, 1, Int64);
+	DefineFunction((char *)"newDouble", (char *)BytecodeHelper::BYTECODEHELPER_FILE, (char *)BytecodeHelper::NEW_DOUBLE_LINE, (void *)&BytecodeHelper::newDouble, Int64, 1, Double);
 	DefineFunction((char *)"getFieldFrom", (char *)BytecodeHelper::BYTECODEHELPER_FILE, (char *)BytecodeHelper::GET_FIELD_FROM_LINE, (void *)&BytecodeHelper::getFieldFrom, Int64, 2, Int64, Int64);
-	DefineFunction((char *)"getField", (char *)BytecodeHelper::BYTECODEHELPER_FILE, (char *)BytecodeHelper::GET_FIELD_LINE, (void *)&BytecodeHelper::getField, Int64, 2, Int64, Int64);
 	DefineFunction((char *)"setFieldTo", (char *)BytecodeHelper::BYTECODEHELPER_FILE, (char *)BytecodeHelper::SET_FIELD_TO_LINE, (void *)&BytecodeHelper::setFieldTo, NoType, 3, Int64, Int64, Int64);
-	DefineFunction((char *)"setField", (char *)BytecodeHelper::BYTECODEHELPER_FILE, (char *)BytecodeHelper::SET_FIELD_LINE, (void *)&BytecodeHelper::setField, NoType, 3, Int64, Int64, Int64);
 	DefineFunction((char *)"getInvokable", (char *)BytecodeHelper::BYTECODEHELPER_FILE, (char *)BytecodeHelper::GET_INVOKABLE_LINE, (void *)&BytecodeHelper::getInvokable, Int64, 2, Int64, Int64);
-	DefineFunction((char *)"doSendIfRequired", (char *)BytecodeHelper::BYTECODEHELPER_FILE, (char *)BytecodeHelper::DO_SEND_IF_REQUIRED_LINE, (void *)&BytecodeHelper::doSendIfRequired, Int64, 7, Int64, Int64, Int64, Int64, Int64, Int64, Int64);
+	DefineFunction((char *)"doSendIfRequired", (char *)BytecodeHelper::BYTECODEHELPER_FILE, (char *)BytecodeHelper::DO_SEND_IF_REQUIRED_LINE, (void *)&BytecodeHelper::doSendIfRequired, Int64, 4, Int64, Int64, Int64, Int64);
 	DefineFunction((char *)"doSuperSendHelper", (char *)BytecodeHelper::BYTECODEHELPER_FILE, (char *)BytecodeHelper::DO_SUPER_SEND_HELPER_LINE, (void *)&BytecodeHelper::doSuperSendHelper, Int64, 4, Int64, Int64, Int64, Int64);
 	DefineFunction((char *)"popFrameAndPushResult", (char *)BytecodeHelper::BYTECODEHELPER_FILE, (char *)BytecodeHelper::POP_FRAME_AND_PUSH_RESULT_LINE, (void *)&BytecodeHelper::popFrameAndPushResult, NoType, 3, Int64, Int64, Int64);
 	DefineFunction((char *)"popToContext", (char *)BytecodeHelper::BYTECODEHELPER_FILE, (char *)BytecodeHelper::POP_TO_CONTEXT_LINE, (void *)&BytecodeHelper::popToContext, Int64, 2, Int64, Int64);
-	DefineFunction((char *)"verifyArgument", (char *)BytecodeHelper::BYTECODEHELPER_FILE, (char *)BytecodeHelper::VERIFY_ARGUMENT_LINE, (void *)&BytecodeHelper::verifyArgument, NoType, 4, Int64, Int64, Int64, Int64);
 }
 
 void
@@ -199,6 +210,23 @@ SOMppMethod::defineVMFrameStructure(TR::TypeDictionary *types)
 	types->DefineField("VMFrame", "locals", Int64);
 	types->DefineField("VMFrame", "stack_ptr", Int64);
 	types->CloseStruct("VMFrame");
+}
+
+void
+SOMppMethod::defineVMObjectStructure(TR::TypeDictionary *types)
+{
+	vmObject = types->DefineStruct("VMObject");
+
+	types->DefineField("VMObject", "vTable", Int64);
+	types->DefineField("VMObject", "gcField", Int64);
+	types->DefineField("VMObject", "hash", Int64);
+	types->DefineField("VMObject", "objectSize", Int64);
+	types->DefineField("VMObject", "numberOfFields", Int64);
+	types->DefineField("VMObject", "clazz", Int64);
+	for (int i = 0; i < FIELDNAMES_LENGTH; i++) {
+		types->DefineField("VMObject", fieldNames[i], Int64);
+	}
+	types->CloseStruct("VMObject");
 }
 
 int64_t
@@ -230,17 +258,9 @@ SOMppMethod::justReturn(TR::IlBuilder *from)
 bool
 SOMppMethod::buildIL()
 {
-	TR::BytecodeBuilder **bytecodeBuilderTable = NULL;
+	TR::BytecodeBuilder **bytecodeBuilderTable = nullptr;
 	bool canHandle = true;
 	int64_t i = 0;
-
-	Store("spPtr",
-		Load("stackPtrPtr"));
-
-	/* Fetch the actual stack pointer*/
-	Store("sp",
-		LoadAt(pInt64,
-				Load("spPtr")));
 
 #if SOM_METHOD_DEBUG
 	printf("\nGenerating code for %s\n", methodName);
@@ -271,6 +291,7 @@ SOMppMethod::buildIL()
 		printf("\tbytcode %s index %ld started ...", Bytecode::GetBytecodeName(bc), i);
 #endif
 		if (!generateILForBytecode(bytecodeBuilderTable, bc, i)) {
+			canHandle = false;
 			break;
 		}
 #if SOM_METHOD_DEBUG
@@ -290,24 +311,7 @@ SOMppMethod::buildIL()
 void
 SOMppMethod::doDup(TR::BytecodeBuilder *builder)
 {
-	/* read from sp */
-	builder->Store("value",
-	builder->	LoadAt(pInt64,
-	builder->		ConvertTo(pInt64,
-	builder->			Load("sp"))));
-
-	/* increment stack */
-	builder->Store("sp",
-	builder->	Add(
-	builder->		Load("sp"),
-	builder->		ConstInt64(8)));
-
-	/* write to stack */
-	builder->StoreAt(pInt64,
-	builder->	ConvertTo(pInt64,
-	builder->		Load("sp")),
-	builder->	Load("value"));
-
+	push(builder, peek(builder));
 	currentStackDepth += 1;
 }
 
@@ -316,49 +320,16 @@ SOMppMethod::doPushLocal(TR::BytecodeBuilder *builder, long bytecodeIndex)
 {
 	uint8_t index = method->GetBytecode(bytecodeIndex + 1);
 	uint8_t level = method->GetBytecode(bytecodeIndex + 2);
+	const char *contextName = getContext(builder, level);
 
-	const char *contextName = NULL;
+	TR::IlValue *local =
+	builder->LoadAt(pInt64,
+	builder->	IndexAt(pInt64,
+	builder->		LoadIndirect("VMFrame", "locals",
+	builder->			Load(contextName)),
+	builder->		ConstInt64(index)));
 
-	if (level == 0) {
-		contextName = "frame";
-	} else {
-		contextName = "context";
-
-		builder->Store("context",
-		builder->	Load("frame"));
-
-		if (level == 1) {
-			builder->Store("context",
-			builder->	LoadIndirect("VMFrame", "context",
-			builder->		Load("context")));
-		} else {
-			TR::IlBuilder *iloop = NULL;
-			builder->ForLoopUp("i", &iloop,
-			builder->	ConstInt32(0),
-			builder->	ConstInt32(level),
-			builder->	ConstInt32(1));
-
-			iloop->Store("context",
-			iloop->	LoadIndirect("VMFrame", "context",
-			iloop->		Load("context")));
-		}
-	}
-
-	/* increment stack */
-	builder->Store("sp",
-	builder->	Add(
-	builder->		Load("sp"),
-	builder->		ConstInt64(8)));
-
-	/* write local to stack */
-	builder->StoreAt(pInt64,
-	builder->	ConvertTo(pInt64,
-	builder->		Load("sp")),
-	builder->	LoadAt(pInt64,
-	builder->		IndexAt(pInt64,
-	builder->			LoadIndirect("VMFrame", "locals",
-	builder->				Load(contextName)),
-	builder->			ConstInt64(index))));
+	push(builder, local);
 
 	currentStackDepth += 1;
 }
@@ -368,49 +339,16 @@ SOMppMethod::doPushArgument(TR::BytecodeBuilder *builder, long bytecodeIndex)
 {
 	uint8_t index = method->GetBytecode(bytecodeIndex + 1);
 	uint8_t level = method->GetBytecode(bytecodeIndex + 2);
+	const char *contextName = getContext(builder, level);
 
-	const char *contextName = NULL;
+	TR::IlValue *argument =
+	builder->LoadAt(pInt64,
+	builder->	IndexAt(pInt64,
+	builder->		LoadIndirect("VMFrame", "arguments",
+	builder->			Load(contextName)),
+	builder->		ConstInt64(index)));
 
-	if (level == 0) {
-		contextName = "frame";
-	} else {
-		contextName = "context";
-
-		builder->Store("context",
-		builder->	Load("frame"));
-
-		if (level == 1) {
-			builder->Store("context",
-			builder->	LoadIndirect("VMFrame", "context",
-			builder->		Load("context")));
-		} else {
-			TR::IlBuilder *iloop = NULL;
-			builder->ForLoopUp("i", &iloop,
-			builder->	ConstInt32(0),
-			builder->	ConstInt32(level),
-			builder->	ConstInt32(1));
-
-			iloop->Store("context",
-			iloop->	LoadIndirect("VMFrame", "context",
-			iloop->		Load("context")));
-		}
-	}
-
-	/* increment stack */
-	builder->Store("sp",
-	builder->	Add(
-	builder->		Load("sp"),
-	builder->		ConstInt64(8)));
-
-	/* write argument to stack */
-	builder->StoreAt(pInt64,
-	builder->	ConvertTo(pInt64,
-	builder->		Load("sp")),
-	builder->	LoadAt(pInt64,
-	builder->		IndexAt(pInt64,
-	builder->			LoadIndirect("VMFrame", "arguments",
-	builder->				Load(contextName)),
-	builder->			ConstInt64(index))));
+	push(builder, argument);
 
 	currentStackDepth += 1;
 }
@@ -418,24 +356,23 @@ SOMppMethod::doPushArgument(TR::BytecodeBuilder *builder, long bytecodeIndex)
 void
 SOMppMethod::doPushField(TR::BytecodeBuilder *builder, VMMethod *currentMethod, long bytecodeIndex)
 {
-	uint8_t fieldIndex = currentMethod->GetBytecode(bytecodeIndex + 1);
+	uint8_t fieldIndex = method->GetBytecode(bytecodeIndex + 1);
 
-	builder->Store("field",
-	builder->	Call("getField", 2,
-	builder->		Load("frame"),
-	builder->		ConstInt64((int64_t)fieldIndex)));
+	TR::IlValue *outerContext = getOuterContext(builder);
+	TR::IlValue *object = getSelfFromContext(builder, outerContext);
+	TR::IlValue *field = nullptr;
 
-	/* increment stack */
-	builder->Store("sp",
-	builder->	Add(
-	builder->		Load("sp"),
-	builder->		ConstInt64(8)));
+	if (fieldIndex < FIELDNAMES_LENGTH) {
+		const char *fieldName = fieldNames[fieldIndex];
+		field =
+		builder->LoadIndirect("VMObject", fieldName, object);
+	} else {
+		field =
+		builder->Call("getFieldFrom", 2, object,
+		builder->	ConstInt64((int64_t)fieldIndex));
+	}
 
-	/* write field to stack */
-	builder->StoreAt(pInt64,
-	builder->	ConvertTo(pInt64,
-	builder->		Load("sp")),
-	builder->	Load("field"));
+	push(builder, field);
 
 	currentStackDepth += 1;
 }
@@ -447,23 +384,13 @@ SOMppMethod::doPushBlock(TR::BytecodeBuilder *builder, long bytecodeIndex)
 	VMMethod* blockMethod = static_cast<VMMethod*>(method->GetConstant(bytecodeIndex));
 	long numOfArgs = blockMethod->GetNumberOfArguments();
 
-	builder->Store("block",
-	builder->	Call("getNewBlock", 3,
-	builder->		Load("frame"),
-	builder->		ConstInt64((int64_t)blockMethod),
-	builder->		ConstInt64((int64_t)numOfArgs)));
+	TR::IlValue *block =
+	builder->Call("getNewBlock", 3,
+	builder->	Load("frame"),
+	builder->	ConstInt64((int64_t)blockMethod),
+	builder->	ConstInt64((int64_t)numOfArgs));
 
-	/* increment stack */
-	builder->Store("sp",
-	builder->	Add(
-	builder->		Load("sp"),
-	builder->		ConstInt64(8)));
-
-	/* write block to stack */
-	builder->StoreAt(pInt64,
-	builder->	ConvertTo(pInt64,
-	builder->		Load("sp")),
-	builder->	Load("block"));
+	push(builder, block);
 
 	currentStackDepth += 1;
 }
@@ -473,21 +400,14 @@ SOMppMethod::doPushConstant(TR::BytecodeBuilder *builder, long bytecodeIndex)
 {
 	uint8_t valueOffset = method->GetBytecode(bytecodeIndex + 1);
 
-	/* increment stack */
-	builder->Store("sp",
-	builder->	Add(
-	builder->		Load("sp"),
-	builder->		ConstInt64(8)));
+	TR::IlValue *constant =
+	builder->LoadAt(pInt64,
+	builder->	IndexAt(pInt64,
+	builder->		ConvertTo(pInt64,
+	builder->			ConstInt64((int64_t)method->indexableFields)),
+	builder->		ConstInt64(valueOffset)));
 
-	/* write constant to stack */
-	builder->StoreAt(pInt64,
-	builder->	ConvertTo(pInt64,
-	builder->		Load("sp")),
-	builder->	LoadAt(pInt64,
-	builder->		IndexAt(pInt64,
-	builder->			ConvertTo(pInt64,
-	builder->				ConstInt64((int64_t)method->indexableFields)),
-	builder->			ConstInt64(valueOffset))));
+	push(builder, constant);
 
 	currentStackDepth += 1;
 }
@@ -498,14 +418,13 @@ SOMppMethod::doPushGlobal(TR::BytecodeBuilder *builder, long bytecodeIndex)
 	/* TODO If objects can move this is a runtime and not compile time fetch */
 	VMSymbol* globalName = static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
 
-	builder->Store("globalValue",
+	TR::IlValue *global =
 	builder->	Call("getGlobal", 1,
-	builder->		ConstInt64((int64_t)globalName)));
+	builder->		ConstInt64((int64_t)globalName));
 
 	TR::IlBuilder *globalIsNullPtr = NULL;
 	builder->IfThen(&globalIsNullPtr,
-	builder->	EqualTo(
-	builder->		Load("globalValue"),
+	builder->	EqualTo(global,
 	builder->		ConstInt64((int64_t)nullptr)));
 
 	/* TODO Come back and handle */
@@ -518,17 +437,7 @@ SOMppMethod::doPushGlobal(TR::BytecodeBuilder *builder, long bytecodeIndex)
 
 	justReturn(globalIsNullPtr);
 
-	/* increment stack */
-	builder->Store("sp",
-	builder->	Add(
-	builder->		Load("sp"),
-	builder->		ConstInt64(8)));
-
-	/* write global to stack */
-	builder->StoreAt(pInt64,
-	builder->	ConvertTo(pInt64,
-	builder->		Load("sp")),
-	builder->	Load("globalValue"));
+	push(builder, global);
 
 	currentStackDepth += 1;
 }
@@ -536,12 +445,7 @@ SOMppMethod::doPushGlobal(TR::BytecodeBuilder *builder, long bytecodeIndex)
 void
 SOMppMethod::doPop(TR::BytecodeBuilder *builder)
 {
-	/* decrement stack */
-	builder->Store("sp",
-	builder->	Add(
-	builder->		Load("sp"),
-	builder->		ConstInt64(-8)));
-
+	pop(builder);
 	currentStackDepth -= 1;
 }
 
@@ -551,51 +455,16 @@ SOMppMethod::doPopLocal(TR::BytecodeBuilder *builder, long bytecodeIndex)
 	uint8_t index = method->GetBytecode(bytecodeIndex + 1);
 	uint8_t level = method->GetBytecode(bytecodeIndex + 2);
 
-	/* read value from stack */
-	builder->Store("value1",
-	builder->	LoadAt(pInt64,
-	builder->		ConvertTo(pInt64,
-	builder->			Load("sp"))));
+	TR::IlValue *value = peek(builder);
+	pop(builder);
 
-	/* decrement stack */
-	builder->Store("sp",
-	builder->	Sub(
-	builder->		Load("sp"),
-	builder->		ConstInt64(8)));
-
-	const char* contextName = NULL;
-
-	if (level == 0) {
-		contextName = "frame";
-	} else {
-		contextName = "context";
-
-		builder->Store("context",
-		builder->	Load("frame"));
-
-		if (level == 1) {
-			builder->Store("context",
-			builder->	LoadIndirect("VMFrame", "context",
-			builder->		Load("context")));
-		} else if (level > 1) {
-			TR::IlBuilder *iloop = NULL;
-			builder->ForLoopUp("i", &iloop,
-			builder->	ConstInt32(0),
-			builder->	ConstInt32(level),
-			builder->	ConstInt32(1));
-
-			iloop->Store("context",
-			iloop->	LoadIndirect("VMFrame", "context",
-			iloop->		Load("context")));
-		}
-	}
+	const char* contextName = getContext(builder, level);
 
 	builder->StoreAt(pInt64,
 	builder->	IndexAt(pInt64,
 	builder->		LoadIndirect("VMFrame", "locals",
 	builder->			Load(contextName)),
-	builder->		ConstInt64(index)),
-	builder->	Load("value1"));
+	builder->		ConstInt64(index)), value);
 
 	currentStackDepth -= 1;
 }
@@ -609,16 +478,8 @@ SOMppMethod::doPopArgument(TR::BytecodeBuilder *builder, long bytecodeIndex)
 	uint8_t level = method->GetBytecode(bytecodeIndex + 2);
 	*/
 
-	/* read value from stack */
-	builder->Store("value1",
-	builder->	LoadAt(pInt64,
-	builder->		Load("sp")));
-
-	/* decrement stack */
-	builder->Store("sp",
-	builder->	Sub(
-	builder->		Load("sp"),
-	builder->		ConstInt64(8)));
+	TR::IlValue *value = peek(builder);
+	pop(builder);
 
 	/*
 	 * See comment above about level not being used
@@ -642,8 +503,7 @@ SOMppMethod::doPopArgument(TR::BytecodeBuilder *builder, long bytecodeIndex)
 	builder->	IndexAt(pInt64,
 	builder->		LoadIndirect("VMFrame", "arguments",
 	builder->			Load("frame")),
-	builder->		ConstInt64(index)),
-	builder->	Load("value1"));
+	builder->		ConstInt64(index)), value);
 
 	currentStackDepth -= 1;
 }
@@ -653,68 +513,46 @@ SOMppMethod::doPopField(TR::BytecodeBuilder *builder, long bytecodeIndex)
 {
 	uint8_t fieldIndex = method->GetBytecode(bytecodeIndex + 1);
 
-	builder->StoreAt(pInt64,
-	builder->	Load("spPtr"),
-	builder->	Load("sp"));
+	TR::IlValue *outerContext = getOuterContext(builder);
+	TR::IlValue *object = getSelfFromContext(builder, outerContext);
+	TR::IlValue *value = peek(builder);
+	pop(builder);
 
-	builder->Call("setField", 3,
-	builder->	Load("frame"),
-	builder->	ConstInt64((int64_t)fieldIndex),
-	builder->	Load("sp"));
-
-	builder->Store("sp",
-	builder->	LoadAt(pInt64,
-	builder->		Load("spPtr")));
+	if (fieldIndex < FIELDNAMES_LENGTH) {
+		const char *fieldName = fieldNames[fieldIndex];
+		builder->StoreIndirect("VMObject", fieldName, object, value);
+	} else {
+		builder->Call("setFieldTo", 3, object,
+		builder->	ConstInt64((int64_t)fieldIndex), value);
+	}
 
 	currentStackDepth -= 1;
 }
-
-
 
 void
 SOMppMethod::doSend(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **bytecodeBuilderTable, long bytecodeIndex)
 {
 	VMSymbol* signature = static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
-	int numOfArgs = Signature::GetNumberOfArguments(signature);
 
-	builder->Store("receiverAddress",
-	builder->	Add(
-	builder->		Load("sp"),
-	builder->		ConstInt64(((int64_t)numOfArgs - 1) * -8)));
-
-	builder->Store("receiverObject",
-	builder->	LoadAt(pInt64,
-	builder->		ConvertTo(pInt64,
-	builder->			Load("receiverAddress"))));
-
-	builder->Store("receiverClass",
-	builder->	Call("getClass", 1,
-	builder->		Load("receiverObject")));
+	int numOfArgs = getReceiverForSend(builder, signature);
 
 	/* Check for inline now that I have receiver and receiverClass */
 	/* They are needed for both the generic send and inline path */
 	TR::IlBuilder *sendBuilder = doInlineIfPossible(builder, signature, bytecodeIndex);
 
-	/* NULL means that there is no failure case so no generic handling*/
+	/* NULL means that the send was inlined and there is no failure case so no generic handling*/
 	if (NULL != sendBuilder) {
 		sendBuilder->Store("invokable",
 		sendBuilder->	Call("getInvokable", 2,
 		sendBuilder->		Load("receiverClass"),
 		sendBuilder->		ConstInt64((int64_t)signature)));
 
-		sendBuilder->StoreAt(pInt64,
-		sendBuilder->	Load("spPtr"),
-		sendBuilder->	Load("sp"));
-
 		sendBuilder->Store("return",
-		sendBuilder->	Call("doSendIfRequired", 7,
+		sendBuilder->	Call("doSendIfRequired", 4,
 		sendBuilder->		Load("interpreter"),
 		sendBuilder->		Load("frame"),
 		sendBuilder->		Load("invokable"),
-		sendBuilder->		ConstInt64((int64_t)bytecodeIndex),
-		sendBuilder->		Load("receiverObject"),
-		sendBuilder->		Load("receiverAddress"),
-		sendBuilder->		ConstInt64((int64_t)numOfArgs)));
+		sendBuilder->		ConstInt64((int64_t)bytecodeIndex)));
 
 		TR::IlBuilder *bail = NULL;
 		sendBuilder->IfThen(&bail,
@@ -723,10 +561,6 @@ SOMppMethod::doSend(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **bytecode
 		sendBuilder->		ConstInt64(-1)));
 
 		justReturn(bail);
-
-		sendBuilder->Store("sp",
-		sendBuilder->	LoadAt(pInt64,
-		sendBuilder->		Load("spPtr")));
 
 		TR::IlBuilder *start = (TR::IlBuilder *)bytecodeBuilderTable[0];
 		sendBuilder->IfCmpNotEqual(&start,
@@ -748,10 +582,6 @@ SOMppMethod::doSuperSend(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **byt
 	printf(" doSuperSend to %s with inlining %d ", signatureChars, (int)doInlining);
 #endif
 
-	builder->StoreAt(pInt64,
-	builder->	Load("spPtr"),
-	builder->	Load("sp"));
-
 	builder->Store("return",
 	builder->	Call("doSuperSendHelper", 4,
 	builder->		Load("interpreter"),
@@ -767,10 +597,6 @@ SOMppMethod::doSuperSend(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **byt
 
 	justReturn(bail);
 
-	builder->Store("sp",
-	builder->	LoadAt(pInt64,
-	builder->		Load("spPtr")));
-
 	TR::IlBuilder *start = (TR::IlBuilder *)bytecodeBuilderTable[0];
 	builder->IfCmpNotEqual(&start,
 	builder->	Load("return"),
@@ -782,21 +608,19 @@ SOMppMethod::doSuperSend(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **byt
 void
 SOMppMethod::doReturnLocal(TR::BytecodeBuilder *builder, long bytecodeIndex)
 {
-	builder->Store("result",
-	builder->	LoadAt(pInt64,
-	builder->		ConvertTo(pInt64,
-	builder->			Load("sp"))));
+	TR::IlValue *result = peek(builder);
 
-	builder->StoreAt(pInt64,
-	builder->	Load("spPtr"),
-	builder->		Add(
-	builder->			Load("sp"),
-	builder->			ConstInt64(-8)));
+	builder->StoreIndirect("VMFrame", "stack_ptr",
+	builder->	Load("frame"),
+	builder->	ConvertTo(pInt64,
+	builder->		Sub(
+	builder->			LoadIndirect("VMFrame", "stack_ptr",
+	builder->				Load("frame")),
+	builder->			ConstInt64(8))));
 
 	builder->Call("popFrameAndPushResult", 3,
 	builder->	Load("interpreter"),
-	builder->	Load("frame"),
-	builder->	Load("result"));
+	builder->	Load("frame"), result);
 
 	justReturn(builder);
 	/* do not adjust currentStackDepth */
@@ -805,16 +629,15 @@ SOMppMethod::doReturnLocal(TR::BytecodeBuilder *builder, long bytecodeIndex)
 void
 SOMppMethod::doReturnNonLocal(TR::BytecodeBuilder *builder, long bytecodeIndex)
 {
-	builder->Store("result",
-	builder->	LoadAt(pInt64,
-	builder->		ConvertTo(pInt64,
-	builder->			Load("sp"))));
+	TR::IlValue *result = peek(builder);
 
-	builder->StoreAt(pInt64,
-	builder->	Load("spPtr"),
-	builder->		Add(
-	builder->			Load("sp"),
-	builder->			ConstInt64(-8)));
+	builder->StoreIndirect("VMFrame", "stack_ptr",
+	builder->	Load("frame"),
+	builder->	ConvertTo(pInt64,
+	builder->		Sub(
+	builder->			LoadIndirect("VMFrame", "stack_ptr",
+	builder->				Load("frame")),
+	builder->			ConstInt64(8))));
 
 	builder->Store("return",
 	builder->	Call("popToContext", 2,
@@ -838,8 +661,7 @@ SOMppMethod::doReturnNonLocal(TR::BytecodeBuilder *builder, long bytecodeIndex)
 
 	continuePath->Call("popFrameAndPushResult", 3,
 	continuePath->	Load("interpreter"),
-	continuePath->	Load("frame"),
-	continuePath->	Load("result"));
+	continuePath->	Load("frame"), result);
 
 	justReturn(builder);
 	/* do not adjust currentStackDepth */
@@ -848,24 +670,14 @@ SOMppMethod::doReturnNonLocal(TR::BytecodeBuilder *builder, long bytecodeIndex)
 void
 SOMppMethod::doJumpIfFalse(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **bytecodeBuilderTable, long bytecodeIndex)
 {
-	/* read value from stack */
-	builder->Store("value1",
-	builder->	LoadAt(pInt64,
-	builder->		ConvertTo(pInt64,
-	builder->			Load("sp"))));
-
-	/* decrement stack */
-	builder->Store("sp",
-	builder->	Sub(
-	builder->		Load("sp"),
-	builder->		ConstInt64(8)));
+	TR::IlValue *value = peek(builder);
+	pop(builder);
 
 	TR::BytecodeBuilder *destBuilder = bytecodeBuilderTable[calculateBytecodeIndexForJump(bytecodeIndex)];
 	builder->AddSuccessorBuilder(destBuilder);
 
 	TR::IlBuilder *dest = (TR::IlBuilder *)destBuilder;
-	builder->IfCmpEqual(&dest,
-	builder->	Load("value1"),
+	builder->IfCmpEqual(&dest, value,
 	builder->	ConstInt64((int64_t)falseObject));
 
 	currentStackDepth -= 1;
@@ -874,24 +686,18 @@ SOMppMethod::doJumpIfFalse(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **b
 void
 SOMppMethod::doJumpIfTrue(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **bytecodeBuilderTable, long bytecodeIndex)
 {
-	/* read value from stack */
-	builder->Store("value1",
-	builder->	LoadAt(pInt64,
-	builder->		ConvertTo(pInt64,
-	builder->			Load("sp"))));
+	TR::IlValue *value = peek(builder);
+	pop(builder);
 
-	/* decrement stack */
-	builder->Store("sp",
-	builder->	Sub(
-	builder->		Load("sp"),
-	builder->		ConstInt64(8)));
+#if SOM_METHOD_DEBUG
+	printf(" jump to %lu ", calculateBytecodeIndexForJump(bytecodeIndex));
+#endif
 
 	TR::BytecodeBuilder *destBuilder = bytecodeBuilderTable[calculateBytecodeIndexForJump(bytecodeIndex)];
 	builder->AddSuccessorBuilder(destBuilder);
 
 	TR::IlBuilder *dest = (TR::IlBuilder *)destBuilder;
-	builder->IfCmpEqual(&dest,
-	builder->	Load("value1"),
+	builder->IfCmpEqual(&dest, value,
 	builder->	ConstInt64((int64_t)trueObject));
 
 	currentStackDepth -= 1;
@@ -1009,108 +815,330 @@ SOMppMethod::generateILForBytecode(TR::BytecodeBuilder **bytecodeBuilderTable, u
 	return canHandle;
 }
 
+TR::IlValue *
+SOMppMethod::peek(TR::IlBuilder *builder)
+{
+	TR::IlValue *value =
+	builder->LoadAt(pInt64,
+	builder->	ConvertTo(pInt64,
+	builder->		LoadIndirect("VMFrame", "stack_ptr",
+	builder->			Load("frame"))));
+
+	return value;
+}
+
+void
+SOMppMethod::pop(TR::IlBuilder *builder)
+{
+	builder->StoreIndirect("VMFrame", "stack_ptr",
+	builder->	Load("frame"),
+	builder->	ConvertTo(pInt64,
+	builder->		Sub(
+	builder->			LoadIndirect("VMFrame", "stack_ptr",
+	builder->				Load("frame")),
+	builder->			ConstInt64(8))));
+}
+void
+SOMppMethod::push(TR::IlBuilder *builder, TR::IlValue *value)
+{
+	TR::IlValue *newSP =
+	builder->Add(
+	builder->	LoadIndirect("VMFrame", "stack_ptr",
+	builder->		Load("frame")),
+	builder->	ConstInt64(8));
+
+	/* write to stack */
+	builder->StoreAt(pInt64,
+	builder->	ConvertTo(pInt64, newSP), value);
+
+	builder->StoreIndirect("VMFrame", "stack_ptr",
+	builder->	Load("frame"),
+	builder->	ConvertTo(pInt64, newSP));
+}
+
+const char *
+SOMppMethod::getContext(TR::IlBuilder *builder, uint8_t level)
+{
+	if (level == 0) {
+		return "frame";
+	} else {
+		builder->Store("context",
+		builder->	Load("frame"));
+
+		if (level == 1) {
+			builder->Store("context",
+			builder->	LoadIndirect("VMFrame", "context",
+			builder->		Load("context")));
+		} else {
+			TR::IlBuilder *iloop = NULL;
+			builder->ForLoopUp("i", &iloop,
+			builder->	ConstInt32(0),
+			builder->	ConstInt32(level),
+			builder->	ConstInt32(1));
+
+			iloop->Store("context",
+			iloop->	LoadIndirect("VMFrame", "context",
+			iloop->		Load("context")));
+		}
+		return "context";
+	}
+}
+
+TR::IlValue *
+SOMppMethod::getOuterContext(TR::IlBuilder *builder)
+{
+	builder->Store("next",
+	builder->	Load("frame"));
+
+	builder->Store("contextNotNull",
+	builder->	NotEqualTo(
+	builder->		Load("next"),
+	builder->		NullAddress()));
+
+	TR::IlBuilder *loop = nullptr;
+	builder->DoWhileLoop("contextNotNull", &loop);
+
+	loop->Store("outerContext",
+	loop->	Load("next"));
+	loop->Store("next",
+	loop->	LoadIndirect("VMFrame", "context",
+	loop->		Load("outerContext")));
+	loop->Store("contextNotNull",
+	loop->	NotEqualTo(
+	loop->		Load("next"),
+	loop->      NullAddress()));
+
+	return builder->Load("outerContext");
+}
+
+TR::IlValue *
+SOMppMethod::getSelfFromContext(TR::IlBuilder *builder, TR::IlValue *context)
+{
+	TR::IlValue *object =
+	builder->LoadAt(pInt64,
+	builder->	IndexAt(pInt64,
+	builder->		LoadIndirect("VMFrame", "arguments", context),
+	builder->		ConstInt64(0)));
+
+	return object;
+}
+
+int
+SOMppMethod::getReceiverForSend(TR::IlBuilder *builder, VMSymbol* signature)
+{
+	int numOfArgs = Signature::GetNumberOfArguments(signature);
+
+	builder->Store("receiverAddress",
+	builder->	Add(
+	builder->		LoadIndirect("VMFrame", "stack_ptr",
+	builder->			Load("frame")),
+	builder->		ConstInt64(((int64_t)numOfArgs - 1) * -8)));
+
+	builder->Store("receiverObject",
+	builder->	LoadAt(pInt64,
+	builder->		ConvertTo(pInt64,
+	builder->			Load("receiverAddress"))));
+
+	builder->Store("receiverClass",
+	builder->	Call("getClass", 1,
+	builder->		Load("receiverObject")));
+
+	return numOfArgs;
+}
+
+TR::IlValue *
+SOMppMethod::getNumberOfIndexableFields(TR::IlBuilder *builder, TR::IlValue *array)
+{
+	TR::IlValue *objectSize = builder->LoadIndirect("VMObject", "objectSize", array);
+	TR::IlValue *numberOfFields = builder->LoadIndirect("VMObject", "numberOfFields", array);
+
+	TR::IlValue *extraSpace =
+	builder->Sub(objectSize,
+	builder->	Add(
+	builder->		ConstInt64(sizeof(VMObject)),
+	builder->		Mul(
+	builder->			ConstInt64(sizeof(VMObject*)), numberOfFields)));
+
+	TR::IlValue *numberOfIndexableFields =
+	builder->Div(extraSpace,
+	builder->	ConstInt64(sizeof(VMObject*)));
+
+	return numberOfIndexableFields;
+}
+
+void
+SOMppMethod::getIndexableFieldSlot(TR::IlBuilder *builder, TR::IlValue *array)
+{
+	TR::IlValue *numberOfFields = builder->LoadIndirect("VMObject", "numberOfFields", array);
+	TR::IlValue *vmObjectSize = builder->ConstInt64(sizeof(VMObject));
+	TR::IlValue *vmObjectPointerSize = builder->ConstInt64(sizeof(VMObject*));
+	TR::IlValue *index =
+	builder->Add(
+	builder->	Load("indexValue"), numberOfFields);
+
+	TR::IlValue *actualIndex =
+	builder->Sub(index,
+	builder->	ConstInt64(1));
+
+	TR::IlValue *offset =
+	builder->Add(vmObjectSize,
+	builder->	Mul(actualIndex, vmObjectPointerSize));
+
+	builder->Store("indexableFieldSlot",
+	builder->	Add(array, offset));
+}
+
 /*************************************************
  * INLINE HELPERS
  *************************************************/
 
-/**
- * generates IL for integer operations. The builder returned will have
- * popped rightObject and leftObject off of the stack and verified that
- * they are both Integer objects.  It will then fetch rightValue and
- * leftValue from these objects.  If either are not Integers then failPath
- * will have sp at the original state.
- */
 TR::IlBuilder *
-SOMppMethod::generateILForIntergerOps(TR::BytecodeBuilder *builder, TR::IlBuilder **failPath)
+SOMppMethod::verifyIntegerObject(TR::IlBuilder *builder, TR::IlValue *object, TR::IlBuilder **failPath)
 {
-	builder->Store("rightObject",
-	builder->	LoadAt(pInt64,
-	builder->		ConvertTo(pInt64,
-	builder->			Load("sp"))));
+	TR::IlBuilder *isIntegerPath = nullptr;
 
-	builder->Store("rightClass",
-	builder->	Call("getClass", 1,
-	builder->		Load("rightObject")));
+#if USE_TAGGING
+	builder->IfThenElse(&isIntegerPath, failPath,
+	builder->	And(object,
+	builder->		ConstInt64(0x1)));
+#else
+	builder->Store("objectClass",
+	builder->	Call("getClass", 1, object));
 
-	TR::IlBuilder *rightIsInteger = NULL;
-	builder->IfThenElse(&rightIsInteger, failPath,
+	builder->IfThenElse(&isIntegerPath, failPath,
 	builder->	EqualTo(
-	builder->		Load("rightClass"),
+	builder->		Load("objectClass"),
 	builder->		ConstInt64((int64_t)integerClass)));
-
-	rightIsInteger->Store("leftObject",
-	rightIsInteger->	LoadAt(pInt64,
-	rightIsInteger->		ConvertTo(pInt64,
-	rightIsInteger->			Sub(
-	rightIsInteger->				Load("sp"),
-	rightIsInteger->				ConstInt64(8)))));
-
-	rightIsInteger->Store("leftClass",
-	rightIsInteger->	Call("getClass", 1,
-	rightIsInteger->		Load("leftObject")));
-
-	TR::IlBuilder *isIntegerPath = NULL;
-	rightIsInteger->IfThenElse(&isIntegerPath, failPath,
-	rightIsInteger->	EqualTo(
-	rightIsInteger->		Load("leftClass"),
-	rightIsInteger->		ConstInt64((int64_t)integerClass)));
-
-	/* set the stack up so it is at the right place to store the result */
-	isIntegerPath->Store("sp",
-	isIntegerPath->	Sub(
-	isIntegerPath->		Load("sp"),
-	isIntegerPath->		ConstInt64(8)));
-
-	/* Read right embedded slot vtable slot + gcField */
-	isIntegerPath->Store("rightValueSlot",
-	isIntegerPath->	Add(
-	isIntegerPath->		Load("rightObject"),
-	isIntegerPath->		ConstInt64((int64_t)(sizeof(int64_t)+sizeof(size_t)))));
-
-	/* Read value */
-	isIntegerPath->Store("rightValue",
-	isIntegerPath->	LoadAt(pInt64,
-	isIntegerPath->		ConvertTo(pInt64,
-	isIntegerPath->			Load("rightValueSlot"))));
-
-	/* Read left embedded slot vtable slot + gcField */
-	isIntegerPath->Store("leftValueSlot",
-	isIntegerPath->	Add(
-	isIntegerPath->		Load("leftObject"),
-	isIntegerPath->		ConstInt64((int64_t)(sizeof(int64_t)+sizeof(size_t)))));
-
-	/* Read value */
-	isIntegerPath->Store("leftValue",
-	isIntegerPath->	LoadAt(pInt64,
-	isIntegerPath->		ConvertTo(pInt64,
-	isIntegerPath->			Load("leftValueSlot"))));
+#endif
 
 	return isIntegerPath;
 }
 
 TR::IlBuilder *
+SOMppMethod::getIntegerValue(TR::IlBuilder *builder, TR::IlValue *object, const char *valueName, TR::IlBuilder **failPath)
+{
+	TR::IlBuilder *isIntegerPath = verifyIntegerObject(builder, object, failPath);
+
+#if USE_TAGGING
+	isIntegerPath->Store(valueName,
+	isIntegerPath->	ShiftR(object,
+	isIntegerPath->	ConstInt64(1)));
+#else
+	/* Read embedded slot vtable slot + gcField */
+	isIntegerPath->Store("objectValueSlot",
+	isIntegerPath->	Add(object,
+	isIntegerPath->		ConstInt64((int64_t)(sizeof(int64_t)+sizeof(size_t)))));
+
+	/* Read value */
+	isIntegerPath->Store(valueName,
+	isIntegerPath->	LoadAt(pInt64,
+	isIntegerPath->		ConvertTo(pInt64,
+	isIntegerPath->			Load("objectValueSlot"))));
+#endif
+
+	return isIntegerPath;
+}
+
+void
+SOMppMethod::createNewInteger(TR::IlBuilder *builder, TR::IlValue *integerValue)
+{
+#if USE_TAGGING
+	TR::IlBuilder *lessThanMin = nullptr;
+	TR::IlBuilder *possibleForTagging = nullptr;
+	builder->IfThenElse(&lessThanMin, &possibleForTagging,
+	builder->	GreaterThan(
+	builder->		ConstInt64((int64_t)VMTAGGEDINTEGER_MIN), integerValue));
+
+	lessThanMin->Store("newInteger",
+	lessThanMin->	Call("newInteger", 1, integerValue));
+
+	TR::IlBuilder *greaterThanMax = nullptr;
+	TR::IlBuilder *tag = nullptr;
+	possibleForTagging->IfThenElse(&greaterThanMax, &tag,
+	possibleForTagging->	LessThan(
+	possibleForTagging->		ConstInt64((int64_t)VMTAGGEDINTEGER_MAX), integerValue));
+
+	greaterThanMax->Store("newInteger",
+	greaterThanMax->	Call("newInteger", 1, integerValue));
+
+	tag->Store("shiftedValue",
+	tag->	ShiftL(integerValue,
+	tag->		ConstInt64(1)));
+	tag->Store("newInteger",
+	tag->	Add(
+	tag->		Load("shiftedValue"),
+	tag->		ConstInt64(1)));
+#else
+	builder->Store("newInteger",
+	builder->	Call("newInteger", 1, integerValue));
+#endif
+}
+
+/**
+ * generates IL for integer operations. The builder returned will have
+ * verified that the receiver and parameter are both Integers and popped the
+ * parameter off of the stack. It will then fetch rightValueInteger and
+ * leftValueInteger from these objects.  If either are not Integers then failPath
+ * will have sp at the original state.
+ */
+TR::IlBuilder *
+SOMppMethod::generateILForIntergerOps(TR::BytecodeBuilder *builder, TR::IlBuilder **failPath)
+{
+	TR::IlValue *sp =
+	builder->LoadIndirect("VMFrame", "stack_ptr",
+	builder->	Load("frame"));
+
+	TR::IlValue *rightObject =
+	builder->LoadAt(pInt64,
+	builder->	ConvertTo(pInt64, sp));
+
+	TR::IlBuilder *successPath = getIntegerValue(builder, rightObject, "rightValueInteger", failPath);
+
+	successPath->Store("spForIntegerOps",
+	successPath->	Sub(sp,
+	successPath->		ConstInt64(8)));
+
+	TR::IlValue *leftObject =
+	successPath->LoadAt(pInt64,
+	successPath->	ConvertTo(pInt64,
+	successPath->		Load("spForIntegerOps")));
+
+	successPath = getIntegerValue(successPath, leftObject, "leftValueInteger", failPath);
+
+	/* set the stack up so it is at the right place to store the result.
+	 * Effectively popping the second parameter and leaving stack_ptr at
+	 * the first parameter so we can just store the result there */
+	successPath->StoreIndirect("VMFrame", "stack_ptr",
+	successPath->	Load("frame"),
+	successPath->	ConvertTo(pInt64,
+	successPath->		Load("spForIntegerOps")));
+
+	return successPath;
+}
+
+TR::IlBuilder *
 SOMppMethod::generateILForIntegerLessThan(TR::BytecodeBuilder *builder)
 {
-	TR::IlBuilder *failInline = NULL;
+	TR::IlBuilder *failInline = nullptr;
 	TR::IlBuilder *isIntegerPath = generateILForIntergerOps(builder, &failInline);
 
-	TR::IlBuilder *thenPath = NULL;
-	TR::IlBuilder *elsePath = NULL;
+	TR::IlBuilder *thenPath = nullptr;
+	TR::IlBuilder *elsePath = nullptr;
 	isIntegerPath->IfThenElse(&thenPath, &elsePath,
 	isIntegerPath->	LessThan(
-	isIntegerPath->		Load("leftValue"),
-	isIntegerPath->		Load("rightValue")));
+	isIntegerPath->		Load("leftValueInteger"),
+	isIntegerPath->		Load("rightValueInteger")));
 
 	/* store true result */
 	thenPath->StoreAt(pInt64,
 	thenPath->	ConvertTo(pInt64,
-	thenPath->		Load("sp")),
+	thenPath->		Load("spForIntegerOps")),
 	thenPath->	ConstInt64((int64_t)trueObject));
 
 	/* store false result */
 	elsePath->StoreAt(pInt64,
 	elsePath->	ConvertTo(pInt64,
-	elsePath->		Load("sp")),
+	elsePath->		Load("spForIntegerOps")),
 	elsePath->	ConstInt64((int64_t)falseObject));
 
 	return failInline;
@@ -1119,26 +1147,26 @@ SOMppMethod::generateILForIntegerLessThan(TR::BytecodeBuilder *builder)
 TR::IlBuilder *
 SOMppMethod::generateILForIntegerLessThanEqual(TR::BytecodeBuilder *builder)
 {
-	TR::IlBuilder *failInline = NULL;
+	TR::IlBuilder *failInline = nullptr;
 	TR::IlBuilder *isIntegerPath = generateILForIntergerOps(builder, &failInline);
 
-	TR::IlBuilder *thenPath = NULL;
-	TR::IlBuilder *elsePath = NULL;
+	TR::IlBuilder *thenPath = nullptr;
+	TR::IlBuilder *elsePath = nullptr;
 	isIntegerPath->IfThenElse(&thenPath, &elsePath,
 	isIntegerPath->	GreaterThan(
-	isIntegerPath->		Load("leftValue"),
-	isIntegerPath->		Load("rightValue")));
+	isIntegerPath->		Load("leftValueInteger"),
+	isIntegerPath->		Load("rightValueInteger")));
 
 	/* store true result */
 	thenPath->StoreAt(pInt64,
 	thenPath->	ConvertTo(pInt64,
-	thenPath->		Load("sp")),
+	thenPath->		Load("spForIntegerOps")),
 	thenPath->	ConstInt64((int64_t)falseObject));
 
 	/* store false result */
 	elsePath->StoreAt(pInt64,
 	elsePath->	ConvertTo(pInt64,
-	elsePath->		Load("sp")),
+	elsePath->		Load("spForIntegerOps")),
 	elsePath->	ConstInt64((int64_t)trueObject));
 
 	return failInline;
@@ -1147,26 +1175,26 @@ SOMppMethod::generateILForIntegerLessThanEqual(TR::BytecodeBuilder *builder)
 TR::IlBuilder *
 SOMppMethod::generateILForIntegerGreaterThan(TR::BytecodeBuilder *builder)
 {
-	TR::IlBuilder *failInline = NULL;
+	TR::IlBuilder *failInline = nullptr;
 	TR::IlBuilder *isIntegerPath = generateILForIntergerOps(builder, &failInline);
 
-	TR::IlBuilder *thenPath = NULL;
-	TR::IlBuilder *elsePath = NULL;
+	TR::IlBuilder *thenPath = nullptr;
+	TR::IlBuilder *elsePath = nullptr;
 	isIntegerPath->IfThenElse(&thenPath, &elsePath,
 	isIntegerPath->	GreaterThan(
-	isIntegerPath->		Load("leftValue"),
-	isIntegerPath->		Load("rightValue")));
+	isIntegerPath->		Load("leftValueInteger"),
+	isIntegerPath->		Load("rightValueInteger")));
 
 	/* store true result */
 	thenPath->StoreAt(pInt64,
 	thenPath->	ConvertTo(pInt64,
-	thenPath->		Load("sp")),
+	thenPath->		Load("spForIntegerOps")),
 	thenPath->	ConstInt64((int64_t)trueObject));
 
 	/* store false result */
 	elsePath->StoreAt(pInt64,
 	elsePath->	ConvertTo(pInt64,
-	elsePath->		Load("sp")),
+	elsePath->		Load("spForIntegerOps")),
 	elsePath->	ConstInt64((int64_t)falseObject));
 
 	return failInline;
@@ -1175,26 +1203,26 @@ SOMppMethod::generateILForIntegerGreaterThan(TR::BytecodeBuilder *builder)
 TR::IlBuilder *
 SOMppMethod::generateILForIntegerGreaterThanEqual(TR::BytecodeBuilder *builder)
 {
-	TR::IlBuilder *failInline = NULL;
+	TR::IlBuilder *failInline = nullptr;
 	TR::IlBuilder *isIntegerPath = generateILForIntergerOps(builder, &failInline);
 
-	TR::IlBuilder *thenPath = NULL;
-	TR::IlBuilder *elsePath = NULL;
+	TR::IlBuilder *thenPath = nullptr;
+	TR::IlBuilder *elsePath = nullptr;
 	isIntegerPath->IfThenElse(&thenPath, &elsePath,
 	isIntegerPath->	LessThan(
-	isIntegerPath->		Load("leftValue"),
-	isIntegerPath->		Load("rightValue")));
+	isIntegerPath->		Load("leftValueInteger"),
+	isIntegerPath->		Load("rightValueInteger")));
 
 	/* store true result */
 	thenPath->StoreAt(pInt64,
 	thenPath->	ConvertTo(pInt64,
-	thenPath->		Load("sp")),
+	thenPath->		Load("spForIntegerOps")),
 	thenPath->	ConstInt64((int64_t)falseObject));
 
 	/* store false result */
 	elsePath->StoreAt(pInt64,
 	elsePath->	ConvertTo(pInt64,
-	elsePath->		Load("sp")),
+	elsePath->		Load("spForIntegerOps")),
 	elsePath->	ConstInt64((int64_t)trueObject));
 
 	return failInline;
@@ -1203,26 +1231,26 @@ SOMppMethod::generateILForIntegerGreaterThanEqual(TR::BytecodeBuilder *builder)
 TR::IlBuilder *
 SOMppMethod::generateILForIntegerEqual(TR::BytecodeBuilder *builder)
 {
-	TR::IlBuilder *failInline = NULL;
+	TR::IlBuilder *failInline = nullptr;
 	TR::IlBuilder *isIntegerPath = generateILForIntergerOps(builder, &failInline);
 
-	TR::IlBuilder *thenPath = NULL;
-	TR::IlBuilder *elsePath = NULL;
+	TR::IlBuilder *thenPath = nullptr;
+	TR::IlBuilder *elsePath = nullptr;
 	isIntegerPath->IfThenElse(&thenPath, &elsePath,
 	isIntegerPath->	EqualTo(
-	isIntegerPath->		Load("leftValue"),
-	isIntegerPath->		Load("rightValue")));
+	isIntegerPath->		Load("leftValueInteger"),
+	isIntegerPath->		Load("rightValueInteger")));
 
 	/* store true result */
 	thenPath->StoreAt(pInt64,
 	thenPath->	ConvertTo(pInt64,
-	thenPath->		Load("sp")),
+	thenPath->		Load("spForIntegerOps")),
 	thenPath->	ConstInt64((int64_t)trueObject));
 
 	/* store false result */
 	elsePath->StoreAt(pInt64,
 	elsePath->	ConvertTo(pInt64,
-	elsePath->		Load("sp")),
+	elsePath->		Load("spForIntegerOps")),
 	elsePath->	ConstInt64((int64_t)falseObject));
 
 	return failInline;
@@ -1231,26 +1259,26 @@ SOMppMethod::generateILForIntegerEqual(TR::BytecodeBuilder *builder)
 TR::IlBuilder *
 SOMppMethod::generateILForIntegerNotEqual(TR::BytecodeBuilder *builder)
 {
-	TR::IlBuilder *failInline = NULL;
+	TR::IlBuilder *failInline = nullptr;
 	TR::IlBuilder *isIntegerPath = generateILForIntergerOps(builder, &failInline);
 
-	TR::IlBuilder *thenPath = NULL;
-	TR::IlBuilder *elsePath = NULL;
+	TR::IlBuilder *thenPath = nullptr;
+	TR::IlBuilder *elsePath = nullptr;
 	isIntegerPath->IfThenElse(&thenPath, &elsePath,
 	isIntegerPath->	NotEqualTo(
-	isIntegerPath->		Load("leftValue"),
-	isIntegerPath->		Load("rightValue")));
+	isIntegerPath->		Load("leftValueInteger"),
+	isIntegerPath->		Load("rightValueInteger")));
 
 	/* store true result */
 	thenPath->StoreAt(pInt64,
 	thenPath->	ConvertTo(pInt64,
-	thenPath->		Load("sp")),
+	thenPath->		Load("spForIntegerOps")),
 	thenPath->	ConstInt64((int64_t)trueObject));
 
 	/* store false result */
 	elsePath->StoreAt(pInt64,
 	elsePath->	ConvertTo(pInt64,
-	elsePath->		Load("sp")),
+	elsePath->		Load("spForIntegerOps")),
 	elsePath->	ConstInt64((int64_t)falseObject));
 
 	return failInline;
@@ -1259,19 +1287,20 @@ SOMppMethod::generateILForIntegerNotEqual(TR::BytecodeBuilder *builder)
 TR::IlBuilder *
 SOMppMethod::generateILForIntegerPlus(TR::BytecodeBuilder *builder)
 {
-	TR::IlBuilder *failInline = NULL;
+	TR::IlBuilder *failInline = nullptr;
 	TR::IlBuilder *isIntegerPath = generateILForIntergerOps(builder, &failInline);
 
-	isIntegerPath->Store("newInteger",
-	isIntegerPath->	Call("newInteger", 1,
-	isIntegerPath->		Add(
-	isIntegerPath->			Load("leftValue"),
-	isIntegerPath->			Load("rightValue"))));
+	TR::IlValue *integerValue =
+	isIntegerPath->Add(
+	isIntegerPath->	Load("leftValueInteger"),
+	isIntegerPath->	Load("rightValueInteger"));
+
+	createNewInteger(isIntegerPath, integerValue);
 
 	/* store new integer */
 	isIntegerPath->StoreAt(pInt64,
 	isIntegerPath->	ConvertTo(pInt64,
-	isIntegerPath->		Load("sp")),
+	isIntegerPath->		Load("spForIntegerOps")),
 	isIntegerPath->	Load("newInteger"));
 
 	return failInline;
@@ -1280,19 +1309,20 @@ SOMppMethod::generateILForIntegerPlus(TR::BytecodeBuilder *builder)
 TR::IlBuilder *
 SOMppMethod::generateILForIntegerMinus(TR::BytecodeBuilder *builder)
 {
-	TR::IlBuilder *failInline = NULL;
+	TR::IlBuilder *failInline = nullptr;
 	TR::IlBuilder *isIntegerPath = generateILForIntergerOps(builder, &failInline);
 
-	isIntegerPath->Store("newInteger",
-	isIntegerPath->	Call("newInteger", 1,
-	isIntegerPath->		Sub(
-	isIntegerPath->			Load("leftValue"),
-	isIntegerPath->			Load("rightValue"))));
+	TR::IlValue *integerValue =
+	isIntegerPath->Sub(
+	isIntegerPath->	Load("leftValueInteger"),
+	isIntegerPath->	Load("rightValueInteger"));
+
+	createNewInteger(isIntegerPath, integerValue);
 
 	/* store new integer */
 	isIntegerPath->StoreAt(pInt64,
 	isIntegerPath->	ConvertTo(pInt64,
-	isIntegerPath->		Load("sp")),
+	isIntegerPath->		Load("spForIntegerOps")),
 	isIntegerPath->	Load("newInteger"));
 
 	return failInline;
@@ -1301,19 +1331,20 @@ SOMppMethod::generateILForIntegerMinus(TR::BytecodeBuilder *builder)
 TR::IlBuilder *
 SOMppMethod::generateILForIntegerStar(TR::BytecodeBuilder *builder)
 {
-	TR::IlBuilder *failInline = NULL;
+	TR::IlBuilder *failInline = nullptr;
 	TR::IlBuilder *isIntegerPath = generateILForIntergerOps(builder, &failInline);
 
-	isIntegerPath->Store("newInteger",
-	isIntegerPath->	Call("newInteger", 1,
-	isIntegerPath->		Mul(
-	isIntegerPath->			Load("leftValue"),
-	isIntegerPath->			Load("rightValue"))));
+	TR::IlValue *integerValue =
+	isIntegerPath->Mul(
+	isIntegerPath->	Load("leftValueInteger"),
+	isIntegerPath->	Load("rightValueInteger"));
+
+	createNewInteger(isIntegerPath, integerValue);
 
 	/* store new integer */
 	isIntegerPath->StoreAt(pInt64,
 	isIntegerPath->	ConvertTo(pInt64,
-	isIntegerPath->		Load("sp")),
+	isIntegerPath->		Load("spForIntegerOps")),
 	isIntegerPath->	Load("newInteger"));
 
 	return failInline;
@@ -1322,29 +1353,17 @@ SOMppMethod::generateILForIntegerStar(TR::BytecodeBuilder *builder)
 TR::IlBuilder *
 SOMppMethod::generateILForIntegerValue(TR::BytecodeBuilder *builder)
 {
-	TR::IlBuilder *failInline = NULL;
+	TR::IlBuilder *failInline = nullptr;
+	TR::IlValue *sp =
+	builder->LoadIndirect("VMFrame", "stack_ptr",
+	builder->	Load("frame"));
 
-	builder->Store("integerObject",
-	builder->	LoadAt(pInt64,
-	builder->		ConvertTo(pInt64,
-	builder->			Load("sp"))));
+	TR::IlValue *currentObject =
+	builder->LoadAt(pInt64,
+	builder->	ConvertTo(pInt64, sp));
 
-	builder->Store("integerClass",
-	builder->	Call("getClass", 1,
-	builder->		Load("integerObject")));
-
-	TR::IlBuilder *isInteger = NULL;
-
-	builder->IfThenElse(&isInteger, &failInline,
-	builder->	EqualTo(
-	builder->		Load("integerClass"),
-	builder->		ConstInt64((int64_t)integerClass)));
-
-	/* store new integer */
-	isInteger->StoreAt(pInt64,
-	isInteger->	ConvertTo(pInt64,
-	isInteger->		Load("sp")),
-	isInteger->	Load("integerObject"));
+	/* If it is an integer there is nothing to do */
+	verifyIntegerObject(builder, currentObject, &failInline);
 
 	return failInline;
 }
@@ -1352,27 +1371,23 @@ SOMppMethod::generateILForIntegerValue(TR::BytecodeBuilder *builder)
 TR::IlBuilder *
 SOMppMethod::generateILForIntegerMax(TR::BytecodeBuilder *builder)
 {
-	TR::IlBuilder *failInline = NULL;
+	/* TODO fix because rightObject does not exist */
+	TR::IlBuilder *failInline = nullptr;
 	TR::IlBuilder *isIntegerPath = generateILForIntergerOps(builder, &failInline);
 
-	TR::IlBuilder *thenPath = NULL;
-	TR::IlBuilder *elsePath = NULL;
-	isIntegerPath->IfThenElse(&thenPath, &elsePath,
+	TR::IlBuilder *thenPath = nullptr;
+	isIntegerPath->IfThen(&thenPath,
 	isIntegerPath->	LessThan(
-	isIntegerPath->		Load("leftValue"),
-	isIntegerPath->		Load("rightValue")));
+	isIntegerPath->		Load("leftValueInteger"),
+	isIntegerPath->		Load("rightValueInteger")));
 
-	/* store true result */
+	/* store rightObject as it is the max. If leftObject (receiver) is the max value
+	 * there is nothing to do since it is already the value at the right location on
+	 * the stack */
 	thenPath->StoreAt(pInt64,
 	thenPath->	ConvertTo(pInt64,
-	thenPath->		Load("sp")),
+	thenPath->		Load("spForIntegerOps")),
 	thenPath->	Load("rightObject"));
-
-	/* store false result */
-	elsePath->StoreAt(pInt64,
-	elsePath->	ConvertTo(pInt64,
-	elsePath->		Load("sp")),
-	elsePath->	Load("leftObject"));
 
 	return failInline;
 }
@@ -1380,46 +1395,63 @@ SOMppMethod::generateILForIntegerMax(TR::BytecodeBuilder *builder)
 TR::IlBuilder *
 SOMppMethod::generateILForIntegerNegated(TR::BytecodeBuilder *builder)
 {
-	builder->Store("integerObject",
-	builder->	LoadAt(pInt64,
-	builder->		ConvertTo(pInt64,
-	builder->			Load("sp"))));
+	TR::IlValue *sp =
+	builder->LoadIndirect("VMFrame", "stack_ptr",
+	builder->	Load("frame"));
 
-	builder->Store("integerClass",
-	builder->	Call("getClass", 1,
-	builder->		Load("integerObject")));
+	TR::IlValue *integerObject =
+	builder->LoadAt(pInt64,
+	builder->	ConvertTo(pInt64, sp));
 
-	TR::IlBuilder *isInteger = NULL;
-	TR::IlBuilder *failInline = NULL;
+	TR::IlBuilder *failInline = nullptr;
+	TR::IlBuilder *isIntegerPath = getIntegerValue(builder, integerObject, "integerValue", &failInline);
 
-	builder->IfThenElse(&isInteger, &failInline,
-	builder->	EqualTo(
-	builder->		Load("integerClass"),
-	builder->		ConstInt64((int64_t)integerClass)));
+	TR::IlValue *integerValue =
+	isIntegerPath->Sub(
+	isIntegerPath->	ConstInt64(0),
+	isIntegerPath->	Load("integerValue"));
 
-	/* Read right embedded slot vtable slot + gcField */
-	isInteger->Store("valueSlot",
-	isInteger->	Add(
-	isInteger->		Load("integerObject"),
-	isInteger->		ConstInt64((int64_t)(sizeof(int64_t)+sizeof(size_t)))));
-
-	/* Read value */
-	isInteger->Store("integerValue",
-	isInteger->	LoadAt(pInt64,
-	isInteger->		ConvertTo(pInt64,
-	isInteger->			Load("valueSlot"))));
-
-	isInteger->Store("negatedValue",
-	isInteger->	Call("newInteger", 1,
-	isInteger->		Sub(
-	isInteger->			ConstInt64(0),
-	isInteger->			Load("integerValue"))));
+	createNewInteger(isIntegerPath, integerValue);
 
 	/* store new integer */
-	isInteger->StoreAt(pInt64,
-	isInteger->	ConvertTo(pInt64,
-	isInteger->		Load("sp")),
-	isInteger->	Load("negatedValue"));
+	isIntegerPath->StoreAt(pInt64,
+	isIntegerPath->	ConvertTo(pInt64, sp),
+	isIntegerPath->	Load("newInteger"));
+
+	return failInline;
+}
+
+TR::IlBuilder *
+SOMppMethod::generateILForIntegerAbs(TR::BytecodeBuilder *builder)
+{
+	TR::IlValue *sp =
+	builder->LoadIndirect("VMFrame", "stack_ptr",
+	builder->	Load("frame"));
+
+	TR::IlValue *integerObject =
+	builder->LoadAt(pInt64,
+	builder->	ConvertTo(pInt64, sp));
+
+	TR::IlBuilder *failInline = nullptr;
+	TR::IlBuilder *isIntegerPath = getIntegerValue(builder, integerObject, "integerValue", &failInline);
+
+	TR::IlBuilder *isNegative = nullptr;
+	isIntegerPath->IfThen(&isNegative,
+	isIntegerPath->	LessThan(
+	isIntegerPath->		Load("integerValue"),
+	isIntegerPath->		ConstInt64(0)));
+
+	TR::IlValue *integerValue =
+	isNegative->Sub(
+	isNegative->	ConstInt64(0),
+	isNegative->	Load("integerValue"));
+
+	createNewInteger(isNegative, integerValue);
+
+	/* store new integer */
+	isNegative->StoreAt(pInt64,
+	isNegative->	ConvertTo(pInt64, sp),
+	isNegative->	Load("newInteger"));
 
 	return failInline;
 }
@@ -1427,71 +1459,52 @@ SOMppMethod::generateILForIntegerNegated(TR::BytecodeBuilder *builder)
 TR::IlBuilder *
 SOMppMethod::generateILForArrayAt(TR::BytecodeBuilder *builder)
 {
-	TR::IlBuilder *failInline = NULL;
+	TR::IlBuilder *failInline = nullptr;
 
-	builder->Store("indexObject",
-	builder->	LoadAt(pInt64,
-	builder->		ConvertTo(pInt64,
-	builder->			Load("sp"))));
+	TR::IlValue *sp =
+	builder->LoadIndirect("VMFrame", "stack_ptr",
+	builder->	Load("frame"));
 
-	builder->Store("indexClass",
-	builder->	Call("getClass", 1,
-	builder->		Load("indexObject")));
+	TR::IlValue *indexObject =
+	builder->LoadAt(pInt64,
+	builder->	ConvertTo(pInt64, sp));
 
-	TR::IlBuilder *indexIsInteger = NULL;
+	TR::IlBuilder *indexIsInteger = getIntegerValue(builder, indexObject, "indexValue", &failInline);
 
-	builder->IfThenElse(&indexIsInteger, &failInline,
-	builder->	EqualTo(
-	builder->		Load("indexClass"),
-	builder->		ConstInt64((int64_t)integerClass)));
+	TR::IlValue * spForReceiver =
+	indexIsInteger->Sub(sp,
+	indexIsInteger->	ConstInt64(8));
 
-	indexIsInteger->Store("arrayObject",
-	indexIsInteger->	LoadAt(pInt64,
-	indexIsInteger->		ConvertTo(pInt64,
-	indexIsInteger->			Add(
-	indexIsInteger->				Load("sp"),
-	indexIsInteger->				ConstInt64(-8)))));
+	TR::IlValue *arrayObject =
+	indexIsInteger->LoadAt(pInt64,
+	indexIsInteger->	ConvertTo(pInt64, spForReceiver));
 
 	indexIsInteger->Store("arrayClass",
-	indexIsInteger->	Call("getClass", 1,
-	indexIsInteger->		Load("arrayObject")));
+	indexIsInteger->	LoadIndirect("VMObject", "clazz", arrayObject));
 
-	TR::IlBuilder *isArrayPath = NULL;
-
+	TR::IlBuilder *isArrayPath = nullptr;
 	indexIsInteger->IfThenElse(&isArrayPath, &failInline,
 	indexIsInteger->	EqualTo(
 	indexIsInteger->		Load("arrayClass"),
 	indexIsInteger->		ConstInt64((int64_t)arrayClass)));
 
-	/* Read index embedded slot vtable slot + gcField */
-	isArrayPath->Store("indexValueSlot",
-	isArrayPath->	Add(
-	isArrayPath->		Load("indexObject"),
-	isArrayPath->		ConstInt64((int64_t)(sizeof(int64_t)+sizeof(size_t)))));
+	getIndexableFieldSlot(isArrayPath, arrayObject);
 
-	/* Read index value */
-	isArrayPath->Store("indexValue",
+	/* Read value */
+	isArrayPath->Store("result",
 	isArrayPath->	LoadAt(pInt64,
 	isArrayPath->		ConvertTo(pInt64,
-	isArrayPath->			Load("indexValueSlot"))));
-
-	/* fetch array field */
-	isArrayPath->Store("result",
-	isArrayPath->	Call("getIndexableField", 2,
-	isArrayPath->		Load("arrayObject"),
-	isArrayPath->		Load("indexValue")));
+	isArrayPath->			Load("indexableFieldSlot"))));
 
 	/* decrement the stack to hold result */
 	/* this method had 2 args on the stack so it only has to pop 1 arg to store result */
-	isArrayPath->Store("sp",
-	isArrayPath->	Add(
-	isArrayPath->		Load("sp"),
-	isArrayPath->		ConstInt64(-8)));
+	isArrayPath->StoreIndirect("VMFrame", "stack_ptr",
+	isArrayPath->	Load("frame"),
+	isArrayPath->	ConvertTo(pInt64, spForReceiver));
 
 	/* store new integer */
 	isArrayPath->StoreAt(pInt64,
-	isArrayPath->	ConvertTo(pInt64,
-	isArrayPath->		Load("sp")),
+	isArrayPath->	ConvertTo(pInt64, spForReceiver),
 	isArrayPath->	Load("result"));
 
 	return failInline;
@@ -1500,71 +1513,53 @@ SOMppMethod::generateILForArrayAt(TR::BytecodeBuilder *builder)
 TR::IlBuilder *
 SOMppMethod::generateILForArrayAtPut(TR::BytecodeBuilder *builder)
 {
-	TR::IlBuilder *failInline = NULL;
+	TR::IlBuilder *failInline = nullptr;
+
+	TR::IlValue *sp =
+	builder->LoadIndirect("VMFrame", "stack_ptr",
+	builder->	Load("frame"));
 
 	builder->Store("valueObject",
 	builder->	LoadAt(pInt64,
-	builder->		ConvertTo(pInt64,
-	builder->			Load("sp"))));
+	builder->		ConvertTo(pInt64, sp)));
 
-	builder->Store("indexObject",
-	builder->	LoadAt(pInt64,
-	builder->		ConvertTo(pInt64,
-	builder->			Add(
-	builder->				Load("sp"),
-	builder->				ConstInt64(-8)))));
+	TR::IlValue *indexObject =
+	builder->LoadAt(pInt64,
+	builder->	ConvertTo(pInt64,
+	builder->		Sub(sp,
+	builder->			ConstInt64(8))));
 
-	builder->Store("indexClass",
-	builder->	Call("getClass", 1,
-	builder->		Load("indexObject")));
+	TR::IlBuilder *indexIsInteger = getIntegerValue(builder, indexObject, "indexValue", &failInline);
 
-	TR::IlBuilder *indexIsInteger = NULL;
-
-	builder->IfThenElse(&indexIsInteger, &failInline,
-	builder->	EqualTo(
-	builder->		Load("indexClass"),
-	builder->		ConstInt64((int64_t)integerClass)));
+	TR::IlValue * spForReceiver =
+	indexIsInteger->Sub(sp,
+	indexIsInteger->	ConstInt64(16));
 
 	/* peek the array object without popping */
-	indexIsInteger->Store("arrayObject",
-	indexIsInteger->	LoadAt(pInt64,
-	indexIsInteger->		ConvertTo(pInt64,
-	indexIsInteger->			Add(
-	indexIsInteger->				Load("sp"),
-	indexIsInteger->				ConstInt64(-16)))));
+	TR::IlValue *arrayObject =
+	indexIsInteger->LoadAt(pInt64,
+	indexIsInteger->	ConvertTo(pInt64, spForReceiver));
 
 	indexIsInteger->Store("arrayClass",
-	indexIsInteger->	Call("getClass", 1,
-	indexIsInteger->		Load("arrayObject")));
+	indexIsInteger->	LoadIndirect("VMObject", "clazz", arrayObject));
 
-	TR::IlBuilder *isArrayPath = NULL;
-
+	TR::IlBuilder *isArrayPath = nullptr;
 	indexIsInteger->IfThenElse(&isArrayPath, &failInline,
 	indexIsInteger->	EqualTo(
 	indexIsInteger->		Load("arrayClass"),
 	indexIsInteger->		ConstInt64((int64_t)arrayClass)));
 
-	isArrayPath->Store("sp",
-	isArrayPath->	Add(
-	isArrayPath->		Load("sp"),
-	isArrayPath->		ConstInt64(-16)));
+	getIndexableFieldSlot(isArrayPath, arrayObject);
 
-	/* Read index embedded slot vtable slot + gcField */
-	isArrayPath->Store("indexValueSlot",
-	isArrayPath->	Add(
-	isArrayPath->		Load("indexObject"),
-	isArrayPath->		ConstInt64((int64_t)(sizeof(int64_t)+sizeof(size_t)))));
+	/* This function needs to pop 2 params but leave the receiver on the stack */
+	isArrayPath->StoreIndirect("VMFrame", "stack_ptr",
+	isArrayPath->	Load("frame"),
+	isArrayPath->	ConvertTo(pInt64, spForReceiver));
 
-	/* Read index value */
-	isArrayPath->Store("indexValue",
-	isArrayPath->	LoadAt(pInt64,
-	isArrayPath->		ConvertTo(pInt64,
-	isArrayPath->			Load("indexValueSlot"))));
-
-	/* set array field */
-	isArrayPath->Call("setIndexableField", 3,
-	isArrayPath->	Load("arrayObject"),
-	isArrayPath->	Load("indexValue"),
+	/* set indexable field to valueObject */
+	isArrayPath->StoreAt(pInt64,
+	isArrayPath->	ConvertTo(pInt64,
+	isArrayPath->		Load("indexableFieldSlot")),
 	isArrayPath->	Load("valueObject"));
 
 	return failInline;
@@ -1573,34 +1568,32 @@ SOMppMethod::generateILForArrayAtPut(TR::BytecodeBuilder *builder)
 TR::IlBuilder *
 SOMppMethod::generateILForArrayLength(TR::BytecodeBuilder *builder)
 {
-	TR::IlBuilder *failInline = NULL;
+	TR::IlBuilder *failInline = nullptr;
 
-	builder->Store("arrayObject",
-	builder->	LoadAt(pInt64,
-	builder->		ConvertTo(pInt64,
-	builder->			Load("sp"))));
+	TR::IlValue *sp =
+	builder->LoadIndirect("VMFrame", "stack_ptr",
+	builder->	Load("frame"));
+
+	TR::IlValue *arrayObject =
+	builder->LoadAt(pInt64,
+	builder->	ConvertTo(pInt64, sp));
 
 	builder->Store("arrayClass",
-	builder->	Call("getClass", 1,
-	builder->		Load("arrayObject")));
+	builder->	Call("getClass", 1, arrayObject));
 
-	TR::IlBuilder *isArrayPath = NULL;
+	TR::IlBuilder *isArrayPath = nullptr;
 
 	builder->IfThenElse(&isArrayPath, &failInline,
 	builder->	EqualTo(
 	builder->		Load("arrayClass"),
 	builder->		ConstInt64((int64_t)arrayClass)));
 
-	/* fetch array field */
-	isArrayPath->Store("result",
-	isArrayPath->	Call("getNumberOfIndexableFields", 1,
-	isArrayPath->		Load("arrayObject")));
+	createNewInteger(isArrayPath, getNumberOfIndexableFields(isArrayPath, arrayObject));
 
 	/* store new integer */
 	isArrayPath->StoreAt(pInt64,
-	isArrayPath->	ConvertTo(pInt64,
-	isArrayPath->		Load("sp")),
-	isArrayPath->	Load("result"));
+	isArrayPath->	ConvertTo(pInt64, sp),
+	isArrayPath->	Load("newInteger"));
 
 	return failInline;
 }
@@ -1611,10 +1604,13 @@ SOMppMethod::generateILForNilisNil(TR::BytecodeBuilder *builder)
 	TR::IlBuilder *isNil = NULL;
 	TR::IlBuilder *notNil = NULL;
 
+	TR::IlValue *sp =
+	builder->LoadIndirect("VMFrame", "stack_ptr",
+	builder->	Load("frame"));
+
 	builder->Store("currentObject",
 	builder->	LoadAt(pInt64,
-	builder->		ConvertTo(pInt64,
-	builder->			Load("sp"))));
+	builder->		ConvertTo(pInt64, sp)));
 
 	builder->Store("nilObject",
 	builder->	LoadAt(pInt64,
@@ -1627,18 +1623,16 @@ SOMppMethod::generateILForNilisNil(TR::BytecodeBuilder *builder)
 	builder->		Load("nilObject")));
 
 	isNil->StoreAt(pInt64,
-	isNil->	ConvertTo(pInt64,
-	isNil->		Load("sp")),
+	isNil->	ConvertTo(pInt64, sp),
 	isNil-> LoadAt(pInt64,
 	isNil->		ConvertTo(pInt64,
 	isNil->			ConstInt64((int64_t)&trueObject))));
 
 	notNil->StoreAt(pInt64,
-	notNil->	ConvertTo(pInt64,
-	notNil->		Load("sp")),
+	notNil->	ConvertTo(pInt64, sp),
 	notNil-> LoadAt(pInt64,
-	notNil->		ConvertTo(pInt64,
-	notNil->			ConstInt64((int64_t)&falseObject))));
+	notNil->	ConvertTo(pInt64,
+	notNil->		ConstInt64((int64_t)&falseObject))));
 
 	return nullptr;
 }
@@ -1649,10 +1643,13 @@ SOMppMethod::generateILForBooleanNot(TR::BytecodeBuilder *builder)
 	TR::IlBuilder *isTrue = NULL;
 	TR::IlBuilder *notTrue = NULL;
 
+	TR::IlValue *sp =
+	builder->LoadIndirect("VMFrame", "stack_ptr",
+	builder->	Load("frame"));
+
 	builder->Store("currentObject",
 	builder->	LoadAt(pInt64,
-	builder->		ConvertTo(pInt64,
-	builder->			Load("sp"))));
+	builder->		ConvertTo(pInt64, sp)));
 
 	builder->Store("trueObject",
 	builder->	LoadAt(pInt64,
@@ -1670,8 +1667,7 @@ SOMppMethod::generateILForBooleanNot(TR::BytecodeBuilder *builder)
 	builder->		Load("trueObject")));
 
 	isTrue->StoreAt(pInt64,
-	isTrue->	ConvertTo(pInt64,
-	isTrue->		Load("sp")),
+	isTrue->	ConvertTo(pInt64, sp),
 	isTrue->	Load("falseObject"));
 
 	TR::IlBuilder *isFalse = NULL;
@@ -1683,77 +1679,8 @@ SOMppMethod::generateILForBooleanNot(TR::BytecodeBuilder *builder)
 	notTrue->		Load("falseObject")));
 
 	isFalse->StoreAt(pInt64,
-	isFalse->	ConvertTo(pInt64,
-	isFalse->		Load("sp")),
+	isFalse->	ConvertTo(pInt64, sp),
 	isFalse->	Load("trueObject"));
-
-	return failInline;
-}
-
-TR::IlBuilder *
-SOMppMethod::generateILForBooleanAnd(TR::BytecodeBuilder *builder)
-{
-	TR::IlBuilder *isFalse = NULL;
-	TR::IlBuilder *failInline = NULL;
-
-	builder->Store("newsp",
-	builder->	Sub(
-	builder->		Load("sp"),
-	builder->		ConstInt64(8)));
-
-	builder->Store("currentObject",
-	builder->	LoadAt(pInt64,
-	builder->		Load("newsp")));
-
-	builder->Store("falseObject",
-	builder->	LoadAt(pInt64,
-	builder->		ConstInt64((int64_t)&falseObject)));
-
-	builder->IfThenElse(&isFalse, &failInline,
-	builder->	EqualTo(
-	builder->		Load("currentObject"),
-	builder->		Load("falseObject")));
-
-	isFalse->Store("sp",
-	isFalse->	Load("newsp"));
-
-	isFalse->StoreAt(pInt64,
-	isFalse->	Load("sp"),
-	isFalse->	Load("falseObject"));
-
-	return failInline;
-}
-
-TR::IlBuilder *
-SOMppMethod::generateILForBooleanOr(TR::BytecodeBuilder *builder)
-{
-	TR::IlBuilder *isTrue = NULL;
-	TR::IlBuilder *failInline = NULL;
-
-	builder->Store("newsp",
-	builder->	Sub(
-	builder->		Load("sp"),
-	builder->		ConstInt64(8)));
-
-	builder->Store("currentObject",
-	builder->	LoadAt(pInt64,
-	builder->		Load("newsp")));
-
-	builder->Store("trueObject",
-	builder->	LoadAt(pInt64,
-	builder->		ConstInt64((int64_t)&trueObject)));
-
-	builder->IfThenElse(&isTrue, &failInline,
-	builder->	EqualTo(
-	builder->		Load("currentObject"),
-	builder->		Load("trueObject")));
-
-	isTrue->Store("sp",
-	isTrue->	Load("newsp"));
-
-	isTrue->StoreAt(pInt64,
-	isTrue->	Load("sp"),
-	isTrue->	Load("trueObject"));
 
 	return failInline;
 }
@@ -1761,69 +1688,104 @@ SOMppMethod::generateILForBooleanOr(TR::BytecodeBuilder *builder)
 TR::IlBuilder *
 SOMppMethod::generateILForDoubleOps(TR::BytecodeBuilder *builder, TR::IlBuilder **failPath)
 {
-	builder->Store("rightObject",
-	builder->	LoadAt(pInt64,
-	builder->		ConvertTo(pInt64,
-	builder->			Load("sp"))));
+	TR::IlValue *sp =
+	builder->LoadIndirect("VMFrame", "stack_ptr",
+	builder->	Load("frame"));
 
-	builder->Store("rightClass",
+	builder->Store("rightObjectDouble",
+	builder->	LoadAt(pInt64,
+	builder->		ConvertTo(pInt64, sp)));
+
+	builder->Store("rightClassDouble",
 	builder->	Call("getClass", 1,
-	builder->		Load("rightObject")));
+	builder->		Load("rightObjectDouble")));
 
 	TR::IlBuilder *rightIsDouble = NULL;
 	builder->IfThenElse(&rightIsDouble, failPath,
 	builder->	EqualTo(
-	builder->		Load("rightClass"),
+	builder->		Load("rightClassDouble"),
 	builder->		ConstInt64((int64_t)doubleClass)));
 
-	rightIsDouble->Store("leftObject",
+	rightIsDouble->Store("spForDoubleOps",
+	rightIsDouble->	Sub(sp,
+	rightIsDouble->		ConstInt64(8)));
+
+	rightIsDouble->Store("leftObjectDouble",
 	rightIsDouble->	LoadAt(pInt64,
 	rightIsDouble->		ConvertTo(pInt64,
-	rightIsDouble->			Sub(
-	rightIsDouble->				Load("sp"),
-	rightIsDouble->				ConstInt64(8)))));
+	rightIsDouble->			Load("spForDoubleOps"))));
 
-	rightIsDouble->Store("leftClass",
+	rightIsDouble->Store("leftClassDouble",
 	rightIsDouble->	Call("getClass", 1,
-	rightIsDouble->		Load("leftObject")));
+	rightIsDouble->		Load("leftObjectDouble")));
 
 	TR::IlBuilder *isDoublePath = NULL;
 	rightIsDouble->IfThenElse(&isDoublePath, failPath,
 	rightIsDouble->	EqualTo(
-	rightIsDouble->		Load("leftClass"),
+	rightIsDouble->		Load("leftClassDouble"),
 	rightIsDouble->		ConstInt64((int64_t)doubleClass)));
 
-	/* set the stack up so it is at the right place to store the result */
-	isDoublePath->Store("sp",
-	isDoublePath->	Sub(
-	isDoublePath->		Load("sp"),
-	isDoublePath->		ConstInt64(8)));
+	/* set the stack up so it is at the right place to store the result.
+	 * Effectively popping the second parameter and leaving stack_ptr at
+	 * the first parameter so we can just store the result there */
+	isDoublePath->StoreIndirect("VMFrame", "stack_ptr",
+	isDoublePath->	Load("frame"),
+	isDoublePath->	ConvertTo(pInt64,
+	isDoublePath->		Load("spForDoubleOps")));
 
 	/* Read right embedded slot vtable slot + gcField */
-	isDoublePath->Store("rightValueSlot",
+	isDoublePath->Store("rightValueSlotDouble",
 	isDoublePath->	Add(
-	isDoublePath->		Load("rightObject"),
+	isDoublePath->		Load("rightObjectDouble"),
 	isDoublePath->		ConstInt64((int64_t)(sizeof(int64_t)+sizeof(size_t)))));
 
 	/* Read value */
-	isDoublePath->Store("rightValue",
-	isDoublePath->	LoadAt(pInt64,
-	isDoublePath->		ConvertTo(pInt64,
-	isDoublePath->			Load("rightValueSlot"))));
+	isDoublePath->Store("rightValueDouble",
+	isDoublePath->	LoadAt(pDouble,
+	isDoublePath->		ConvertTo(pDouble,
+	isDoublePath->			Load("rightValueSlotDouble"))));
 
 	/* Read left embedded slot vtable slot + gcField */
-	isDoublePath->Store("leftValueSlot",
+	isDoublePath->Store("leftValueSlotDouble",
 	isDoublePath->	Add(
-	isDoublePath->		Load("leftObject"),
+	isDoublePath->		Load("leftObjectDouble"),
 	isDoublePath->		ConstInt64((int64_t)(sizeof(int64_t)+sizeof(size_t)))));
 
 	/* Read value */
-	isDoublePath->Store("leftValue",
-	isDoublePath->	LoadAt(pInt64,
-	isDoublePath->		ConvertTo(pInt64,
-	isDoublePath->			Load("leftValueSlot"))));
+	isDoublePath->Store("leftValueDouble",
+	isDoublePath->	LoadAt(pDouble,
+	isDoublePath->		ConvertTo(pDouble,
+	isDoublePath->			Load("leftValueSlotDouble"))));
 
 	return isDoublePath;
+}
+
+TR::IlBuilder *
+SOMppMethod::generateILForDoubleLessThan(TR::BytecodeBuilder *builder)
+{
+	TR::IlBuilder *failInline = NULL;
+	TR::IlBuilder *isDoublePath = generateILForDoubleOps(builder, &failInline);
+
+	TR::IlBuilder *thenPath = NULL;
+	TR::IlBuilder *elsePath = NULL;
+	isDoublePath->IfThenElse(&thenPath, &elsePath,
+	isDoublePath->	LessThan(
+	isDoublePath->		Load("leftValueDouble"),
+	isDoublePath->		Load("rightValueDouble")));
+
+	/* store true result */
+	thenPath->StoreAt(pInt64,
+	thenPath->	ConvertTo(pInt64,
+	thenPath->		Load("spForDoubleOps")),
+	thenPath->	ConstInt64((int64_t)trueObject));
+
+	/* store false result */
+	elsePath->StoreAt(pInt64,
+	elsePath->	ConvertTo(pInt64,
+	elsePath->		Load("spForDoubleOps")),
+	elsePath->	ConstInt64((int64_t)falseObject));
+
+	return failInline;
 }
 
 TR::IlBuilder *
@@ -1836,21 +1798,19 @@ SOMppMethod::generateILForDoubleLessThanEqual(TR::BytecodeBuilder *builder)
 	TR::IlBuilder *elsePath = NULL;
 	isDoublePath->IfThenElse(&thenPath, &elsePath,
 	isDoublePath->	GreaterThan(
-	isDoublePath->		ConvertTo(Double,
-	isDoublePath->			Load("leftValue")),
-	isDoublePath->		ConvertTo(Double,
-	isDoublePath->			Load("rightValue"))));
+	isDoublePath->		Load("leftValueDouble"),
+	isDoublePath->		Load("rightValueDouble")));
 
 	/* store true result */
 	thenPath->StoreAt(pInt64,
 	thenPath->	ConvertTo(pInt64,
-	thenPath->		Load("sp")),
+	thenPath->		Load("spForDoubleOps")),
 	thenPath->	ConstInt64((int64_t)falseObject));
 
 	/* store false result */
 	elsePath->StoreAt(pInt64,
 	elsePath->	ConvertTo(pInt64,
-	elsePath->		Load("sp")),
+	elsePath->		Load("spForDoubleOps")),
 	elsePath->	ConstInt64((int64_t)trueObject));
 
 	return failInline;
@@ -1866,21 +1826,19 @@ SOMppMethod::generateILForDoubleGreaterThan(TR::BytecodeBuilder *builder)
 	TR::IlBuilder *elsePath = NULL;
 	isDoublePath->IfThenElse(&thenPath, &elsePath,
 	isDoublePath->	GreaterThan(
-	isDoublePath->		ConvertTo(Double,
-	isDoublePath->			Load("leftValue")),
-	isDoublePath->		ConvertTo(Double,
-	isDoublePath->			Load("rightValue"))));
+	isDoublePath->		Load("leftValueDouble"),
+	isDoublePath->		Load("rightValueDouble")));
 
 	/* store true result */
 	thenPath->StoreAt(pInt64,
 	thenPath->	ConvertTo(pInt64,
-	thenPath->		Load("sp")),
+	thenPath->		Load("spForDoubleOps")),
 	thenPath->	ConstInt64((int64_t)trueObject));
 
 	/* store false result */
 	elsePath->StoreAt(pInt64,
 	elsePath->	ConvertTo(pInt64,
-	elsePath->		Load("sp")),
+	elsePath->		Load("spForDoubleOps")),
 	elsePath->	ConstInt64((int64_t)falseObject));
 
 	return failInline;
@@ -1896,26 +1854,147 @@ SOMppMethod::generateILForDoubleGreaterThanEqual(TR::BytecodeBuilder *builder)
 	TR::IlBuilder *elsePath = NULL;
 	isDoublePath->IfThenElse(&thenPath, &elsePath,
 	isDoublePath->	LessThan(
-	isDoublePath->		ConvertTo(Double,
-	isDoublePath->			Load("leftValue")),
-	isDoublePath->		ConvertTo(Double,
-	isDoublePath->			Load("rightValue"))));
+	isDoublePath->		Load("leftValueDouble"),
+	isDoublePath->		Load("rightValueDouble")));
 
 	/* store true result */
 	thenPath->StoreAt(pInt64,
 	thenPath->	ConvertTo(pInt64,
-	thenPath->		Load("sp")),
+	thenPath->		Load("spForDoubleOps")),
 	thenPath->	ConstInt64((int64_t)falseObject));
 
 	/* store false result */
 	elsePath->StoreAt(pInt64,
 	elsePath->	ConvertTo(pInt64,
-	elsePath->		Load("sp")),
+	elsePath->		Load("spForDoubleOps")),
 	elsePath->	ConstInt64((int64_t)trueObject));
 
 	return failInline;
 }
 
+TR::IlBuilder *
+SOMppMethod::generateILForDoubleEqual(TR::BytecodeBuilder *builder)
+{
+	TR::IlBuilder *failInline = NULL;
+	TR::IlBuilder *isDoublePath = generateILForDoubleOps(builder, &failInline);
+
+	TR::IlBuilder *thenPath = NULL;
+	TR::IlBuilder *elsePath = NULL;
+	isDoublePath->IfThenElse(&thenPath, &elsePath,
+	isDoublePath->	EqualTo(
+	isDoublePath->		Load("leftValueDouble"),
+	isDoublePath->		Load("rightValueDouble")));
+
+	/* store true result */
+	thenPath->StoreAt(pInt64,
+	thenPath->	ConvertTo(pInt64,
+	thenPath->		Load("spForDoubleOps")),
+	thenPath->	ConstInt64((int64_t)trueObject));
+
+	/* store false result */
+	elsePath->StoreAt(pInt64,
+	elsePath->	ConvertTo(pInt64,
+	elsePath->		Load("spForDoubleOps")),
+	elsePath->	ConstInt64((int64_t)falseObject));
+
+	return failInline;
+}
+
+TR::IlBuilder *
+SOMppMethod::generateILForDoubleNotEqual(TR::BytecodeBuilder *builder)
+{
+	TR::IlBuilder *failInline = NULL;
+	TR::IlBuilder *isDoublePath = generateILForDoubleOps(builder, &failInline);
+
+	TR::IlBuilder *thenPath = NULL;
+	TR::IlBuilder *elsePath = NULL;
+	isDoublePath->IfThenElse(&thenPath, &elsePath,
+	isDoublePath->	EqualTo(
+	isDoublePath->		Load("leftValueDouble"),
+	isDoublePath->		Load("rightValueDouble")));
+
+	/* store true result */
+	thenPath->StoreAt(pInt64,
+	thenPath->	ConvertTo(pInt64,
+	thenPath->		Load("spForDoubleOps")),
+	thenPath->	ConstInt64((int64_t)falseObject));
+
+	/* store false result */
+	elsePath->StoreAt(pInt64,
+	elsePath->	ConvertTo(pInt64,
+	elsePath->		Load("spForDoubleOps")),
+	elsePath->	ConstInt64((int64_t)trueObject));
+
+	return failInline;
+}
+
+TR::IlBuilder *
+SOMppMethod::generateILForDoublePlus(TR::BytecodeBuilder *builder)
+{
+	TR::IlBuilder *failInline = NULL;
+	TR::IlBuilder *isDoublePath = generateILForDoubleOps(builder, &failInline);
+
+	isDoublePath->StoreAt(pInt64,
+	isDoublePath->	ConvertTo(pInt64,
+	isDoublePath->		Load("spForDoubleOps")),
+	isDoublePath->	Call("newDouble", 1,
+	isDoublePath->		Add(
+	isDoublePath->			Load("leftValueDouble"),
+	isDoublePath->			Load("rightValueDouble"))));
+
+	return failInline;
+}
+
+TR::IlBuilder *
+SOMppMethod::generateILForDoubleMinus(TR::BytecodeBuilder *builder)
+{
+	TR::IlBuilder *failInline = NULL;
+	TR::IlBuilder *isDoublePath = generateILForDoubleOps(builder, &failInline);
+
+	isDoublePath->StoreAt(pInt64,
+	isDoublePath->	ConvertTo(pInt64,
+	isDoublePath->		Load("spForDoubleOps")),
+	isDoublePath->	Call("newDouble", 1,
+	isDoublePath->		Sub(
+	isDoublePath->			Load("leftValueDouble"),
+	isDoublePath->			Load("rightValueDouble"))));
+
+	return failInline;
+}
+
+TR::IlBuilder *
+SOMppMethod::generateILForDoubleStar(TR::BytecodeBuilder *builder)
+{
+	TR::IlBuilder *failInline = NULL;
+	TR::IlBuilder *isDoublePath = generateILForDoubleOps(builder, &failInline);
+
+	isDoublePath->StoreAt(pInt64,
+	isDoublePath->	ConvertTo(pInt64,
+	isDoublePath->		Load("spForDoubleOps")),
+	isDoublePath->	Call("newDouble", 1,
+	isDoublePath->		Mul(
+	isDoublePath->			Load("leftValueDouble"),
+	isDoublePath->			Load("rightValueDouble"))));
+
+	return failInline;
+}
+
+TR::IlBuilder *
+SOMppMethod::generateILForDoubleSlashSlash(TR::BytecodeBuilder *builder)
+{
+	TR::IlBuilder *failInline = NULL;
+	TR::IlBuilder *isDoublePath = generateILForDoubleOps(builder, &failInline);
+
+	isDoublePath->StoreAt(pInt64,
+	isDoublePath->	ConvertTo(pInt64,
+	isDoublePath->		Load("spForDoubleOps")),
+	isDoublePath->	Call("newDouble", 1,
+	isDoublePath->		Div(
+	isDoublePath->			Load("leftValueDouble"),
+	isDoublePath->			Load("rightValueDouble"))));
+
+	return failInline;
+}
 
 TR::IlBuilder *
 SOMppMethod::doInlineIfPossible(TR::BytecodeBuilder *builder, VMSymbol* signature, long bytecodeIndex)
@@ -1985,10 +2064,12 @@ SOMppMethod::generateRecognizedMethod(TR::BytecodeBuilder *builder, VMClass *rec
 			return generateILForIntegerStar(builder);
 		} else if (0 == strcmp("value", signatureChars)) {
 			return generateILForIntegerValue(builder);
-		} else if (0 == strcmp("max:", signatureChars)) {
+		} else if (0 == strcmp("max:", signatureChars) && false) {
 			return generateILForIntegerMax(builder);
 		} else if (0 == strcmp("negated", signatureChars)){
 			return generateILForIntegerNegated(builder);
+		} else if (0 == strcmp("abs", signatureChars)){
+			return generateILForIntegerAbs(builder);
 		}
 	} else if ((VMClass*)arrayClass == receiverFromCache) {
 		if (0 == strcmp("at:", signatureChars)) {
@@ -2005,20 +2086,28 @@ SOMppMethod::generateRecognizedMethod(TR::BytecodeBuilder *builder, VMClass *rec
 	} else if ((((VMClass*)falseClass == receiverFromCache) || ((VMClass*)trueClass == receiverFromCache))) {
 		if (0 == strcmp("not", signatureChars)) {
 			return generateILForBooleanNot(builder);
-		} else if ((0 == strcmp("or:", signatureChars)) && false) {
-			/* TODO do not gen this for now as they cause more of a perf issue than win */
-			return generateILForBooleanOr(builder);
-		} else if ((0 == strcmp("and:", signatureChars)) && false) {
-			/* TODO do not gen this for now as they cause more of a perf issue than win */
-			return generateILForBooleanAnd(builder);
 		}
 	} else if ((VMClass*)doubleClass == receiverFromCache) {
-		if (0 == strcmp("<=", signatureChars)) {
+		if (0 == strcmp("<", signatureChars)) {
+			return generateILForDoubleLessThan(builder);
+		} else if (0 == strcmp("<=", signatureChars)) {
 			return generateILForDoubleLessThanEqual(builder);
 		} else if (0 == strcmp(">", signatureChars)) {
 			return generateILForDoubleGreaterThan(builder);
 		} else if (0 == strcmp(">=", signatureChars)) {
 			return generateILForDoubleGreaterThanEqual(builder);
+		} else if (0 == strcmp("=", signatureChars)) {
+			return generateILForDoubleEqual(builder);
+		} else if (0 == strcmp("<>", signatureChars)) {
+			return generateILForDoubleNotEqual(builder);
+		} else if (0 == strcmp("+", signatureChars)) {
+			return generateILForDoublePlus(builder);
+		} else if (0 == strcmp("-", signatureChars)) {
+			return generateILForDoubleMinus(builder);
+		} else if (0 == strcmp("*", signatureChars)) {
+			return generateILForDoubleStar(builder);
+		} else if (0 == strcmp("//", signatureChars)) {
+			return generateILForDoubleSlashSlash(builder);
 		}
 	}
 
@@ -2060,11 +2149,13 @@ SOMppMethod::generateGenericInline(TR::BytecodeBuilder *builder, VMClass *receiv
 				inlineBuilder->			ConstInt32(i))));
 			}
 
-			/* pop all arguments off of the stack */
-			inlineBuilder->Store("sp",
-			inlineBuilder->	Add(
-			inlineBuilder->		Load("receiverAddress"),
-			inlineBuilder->		ConstInt64(-8)));
+			/* set stack_ptr for the inline method */
+			inlineBuilder->StoreIndirect("VMFrame", "stack_ptr",
+			inlineBuilder->	Load("frame"),
+			inlineBuilder->	ConvertTo(pInt64,
+			inlineBuilder->		Sub(
+			inlineBuilder->			Load("receiverAddress"),
+			inlineBuilder->			ConstInt64(8))));
 
 			long bytecodeCount = vmMethod->GetNumberOfBytecodes();
 			long bytecodeIndex = 0;
@@ -2072,45 +2163,21 @@ SOMppMethod::generateGenericInline(TR::BytecodeBuilder *builder, VMClass *receiv
 				uint8_t bc = vmMethod->GetBytecode(bytecodeIndex);
 
 				switch(bc) {
-				/* TODO call helpers that share an implementation with the general bytecode generation */
 				case BC_DUP:
 				{
-					inlineBuilder->Store("value",
-					inlineBuilder->	LoadAt(pInt64,
-					inlineBuilder->		ConvertTo(pInt64,
-					inlineBuilder->			Load("sp"))));
-
-					/* increment stack */
-					inlineBuilder->Store("sp",
-					inlineBuilder->	Add(
-					inlineBuilder->		Load("sp"),
-					inlineBuilder->		ConstInt64(8)));
-
-					/* write to stack */
-					inlineBuilder->StoreAt(pInt64,
-					inlineBuilder->	ConvertTo(pInt64,
-					inlineBuilder->		Load("sp")),
-					inlineBuilder->	Load("value"));
+					push(inlineBuilder, peek(inlineBuilder));
 					break;
 				}
 				case BC_PUSH_FIELD:
 				{
 					uint8_t fieldIndex = vmMethod->GetBytecode(bytecodeIndex + 1);
 
-					inlineBuilder->Store("fieldValue",
-					inlineBuilder->	Call("getFieldFrom", 2,
-					inlineBuilder->		Load("receiverObject"),
-					inlineBuilder->		ConstInt64((int64_t)fieldIndex)));
+					TR::IlValue *fieldValue =
+					inlineBuilder->Call("getFieldFrom", 2,
+					inlineBuilder->	Load("receiverObject"),
+					inlineBuilder->	ConstInt64((int64_t)fieldIndex));
 
-					inlineBuilder->Store("sp",
-					inlineBuilder->	Add(
-					inlineBuilder->		Load("sp"),
-					inlineBuilder->		ConstInt64((int64_t)8)));
-
-					inlineBuilder->StoreAt(pInt64,
-					inlineBuilder->	ConvertTo(pInt64,
-					inlineBuilder->		Load("sp")),
-					inlineBuilder->	Load("fieldValue"));
+					push(inlineBuilder, fieldValue);
 
 					break;
 				}
@@ -2118,24 +2185,14 @@ SOMppMethod::generateGenericInline(TR::BytecodeBuilder *builder, VMClass *receiv
 				{
 					uint8_t valueOffset = vmMethod->GetBytecode(bytecodeIndex + 1);
 
-					inlineBuilder->Store("constant",
-					inlineBuilder->	LoadAt(pInt64,
-					inlineBuilder->		IndexAt(pInt64,
-					inlineBuilder->			ConvertTo(pInt64,
-					inlineBuilder->				ConstInt64((int64_t)vmMethod->indexableFields)),
-					inlineBuilder->			ConstInt64(valueOffset))));
+					TR::IlValue *constant =
+					inlineBuilder->LoadAt(pInt64,
+					inlineBuilder->	IndexAt(pInt64,
+					inlineBuilder->		ConvertTo(pInt64,
+					inlineBuilder->			ConstInt64((int64_t)vmMethod->indexableFields)),
+					inlineBuilder->		ConstInt64(valueOffset)));
 
-					/* increment stack */
-					inlineBuilder->Store("sp",
-					inlineBuilder->	Add(
-					inlineBuilder->		Load("sp"),
-					inlineBuilder->		ConstInt64(8)));
-
-					/* write constant to stack */
-					inlineBuilder->StoreAt(pInt64,
-					inlineBuilder->	ConvertTo(pInt64,
-					inlineBuilder->		Load("sp")),
-					inlineBuilder->	Load("constant"));
+					push(inlineBuilder, constant);
 
 					break;
 				}
@@ -2143,19 +2200,11 @@ SOMppMethod::generateGenericInline(TR::BytecodeBuilder *builder, VMClass *receiv
 				{
 					VMSymbol* globalName = static_cast<VMSymbol*>(vmMethod->GetConstant(bytecodeIndex));
 
-					inlineBuilder->Store("global",
-					inlineBuilder->	Call("getGlobal", 1,
-					inlineBuilder->		ConstInt64((int64_t)globalName)));
+					TR::IlValue *global =
+					inlineBuilder->Call("getGlobal", 1,
+					inlineBuilder->	ConstInt64((int64_t)globalName));
 
-					inlineBuilder->Store("sp",
-					inlineBuilder->	Add(
-					inlineBuilder->		Load("sp"),
-					inlineBuilder->		ConstInt64((int64_t)8)));
-
-					inlineBuilder->StoreAt(pInt64,
-					inlineBuilder->	ConvertTo(pInt64,
-					inlineBuilder->		Load("sp")),
-					inlineBuilder->	Load("global"));
+					push(inlineBuilder, global);
 
 					break;
 				}
@@ -2163,64 +2212,47 @@ SOMppMethod::generateGenericInline(TR::BytecodeBuilder *builder, VMClass *receiv
 				{
 					uint8_t argumentIndex = vmMethod->GetBytecode(bytecodeIndex + 1);
 
-					inlineBuilder->Store("sp",
-					inlineBuilder->	Add(
-					inlineBuilder->		Load("sp"),
-					inlineBuilder->		ConstInt64((int64_t)8)));
+					TR::IlValue *argument =
+					inlineBuilder->LoadAt(pInt64,
+					inlineBuilder->	IndexAt(pInt64,
+					inlineBuilder->		Load("argumentsArray"),
+					inlineBuilder->		ConstInt32(argumentIndex)));
 
-					inlineBuilder->StoreAt(pInt64,
-					inlineBuilder->	ConvertTo(pInt64,
-					inlineBuilder->		Load("sp")),
-					inlineBuilder-> LoadAt(pInt64,
-					inlineBuilder->		IndexAt(pInt64,
-					inlineBuilder->			Load("argumentsArray"),
-					inlineBuilder->			ConstInt32(argumentIndex))));
-
+					push(inlineBuilder, argument);
 					break;
 				}
 				case BC_POP:
 				{
-					inlineBuilder->Store("sp",
-					inlineBuilder->	Add(
-					inlineBuilder->		Load("sp"),
-					inlineBuilder->		ConstInt64(-8)));
+					pop(inlineBuilder);
 					break;
 				}
 				case BC_POP_FIELD:
 				{
 					uint8_t fieldIndex = vmMethod->GetBytecode(bytecodeIndex + 1);
 
-					inlineBuilder->Store("value",
-					inlineBuilder->	LoadAt(pInt64,
-					inlineBuilder->		ConvertTo(pInt64,
-					inlineBuilder->			Load("sp"))));
-
-					inlineBuilder->Store("sp",
-					inlineBuilder->	Add(
-					inlineBuilder->		Load("sp"),
-					inlineBuilder->		ConstInt64(-8)));
+					TR::IlValue *value = peek(inlineBuilder);
+					pop(inlineBuilder);
 
 					inlineBuilder->Call("setFieldTo", 3,
 					inlineBuilder->	Load("receiverObject"),
-					inlineBuilder->	ConstInt64((int64_t)fieldIndex),
-					inlineBuilder->	Load("value"));
+					inlineBuilder->	ConstInt64((int64_t)fieldIndex), value);
 
 					break;
 				}
 				case BC_RETURN_LOCAL:
 				{
-					inlineBuilder->Store("returnValue",
-					inlineBuilder->	LoadAt(pInt64,
-					inlineBuilder->		ConvertTo(pInt64,
-					inlineBuilder->			Load("sp"))));
+					TR::IlValue *returnValue = peek(inlineBuilder);
 
-					inlineBuilder->Store("sp",
-					inlineBuilder->	Load("receiverAddress"));
-
+					/* store the return value */
 					inlineBuilder->StoreAt(pInt64,
 					inlineBuilder->	ConvertTo(pInt64,
-					inlineBuilder->		Load("sp")),
-					inlineBuilder->	Load("returnValue"));
+					inlineBuilder->		Load("receiverAddress")), returnValue);
+
+					/* set the stack_ptr back to the appropriate place */
+					inlineBuilder->StoreIndirect("VMFrame", "stack_ptr",
+					inlineBuilder->	Load("frame"),
+					inlineBuilder->	ConvertTo(pInt64,
+					inlineBuilder->		Load("receiverAddress")));
 
 					break;
 				}
@@ -2248,7 +2280,9 @@ SOMppMethod::methodIsInlineable(VMMethod *vmMethod)
 {
 	long bytecodeCount = vmMethod->GetNumberOfBytecodes();
 	long i = 0;
-	while (i < bytecodeCount) {
+	bool isInlinable = true;
+	
+	while ((i < bytecodeCount) && isInlinable) {
 		uint8_t bc = vmMethod->GetBytecode(i);
 		switch(bc) {
 		case BC_DUP:
@@ -2263,14 +2297,14 @@ SOMppMethod::methodIsInlineable(VMMethod *vmMethod)
 		{
 			uint8_t level = vmMethod->GetBytecode(i + 2);
 			if (level > 0) {
-				return false;
+				isInlinable = false;
 			}
 			break;
 		}
 		default:
-			return false;
+			isInlinable = false;
 		}
 		i += Bytecode::GetBytecodeLength(bc);
 	}
-	return true;
+	return isInlinable;
 }
