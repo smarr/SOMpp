@@ -12,7 +12,7 @@ TEST_DIR	?= $(ROOT_DIR)/core-lib/TestSuite
 OMRDIR		?= $(ROOT_DIR)/omr
 OMRGLUEDIR	?= $(ROOT_DIR)/omrglue
 LIBJITBUILDER_DIR  ?= $(ROOT_DIR)/../libjitbuilder
-LIBJITBUILDER_INCLUDES ?= $(LIBJITBUILDER_DIR)/include $(LIBJITBUILDER_DIR)/include/test $(LIBJITBUILDER_DIR)/include/omr
+LIBJITBUILDER_INCLUDES ?= $(LIBJITBUILDER_DIR)/include $(LIBJITBUILDER_DIR)/include/compiler
 
 include $(OMRDIR)/omrmakefiles/omr_defs.mk
 
