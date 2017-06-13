@@ -65,6 +65,15 @@ BytecodeHelper::getClass(int64_t object)
 }
 
 int64_t
+BytecodeHelper::getSuperClass(int64_t object)
+{
+#define VALUE_FOR_GET_SUPER_CLASS_LINE LINETOSTR(__LINE__)
+
+	VMClass *clazz = CLASS_OF(object);
+	return (int64_t)clazz->GetSuperClass();
+}
+
+int64_t
 BytecodeHelper::getGlobal(int64_t symbol)
 {
 #define VALUE_FOR_GET_GLOBAL_LINE LINETOSTR(__LINE__)
@@ -355,6 +364,7 @@ BytecodeHelper::popToContext(int64_t interp, int64_t framePtr)
 }
 
 const char* BytecodeHelper::GET_CLASS_LINE = VALUE_FOR_GET_CLASS_LINE;
+const char* BytecodeHelper::GET_SUPER_CLASS_LINE = VALUE_FOR_GET_SUPER_CLASS_LINE;
 const char* BytecodeHelper::GET_GLOBAL_LINE = VALUE_FOR_GET_GLOBAL_LINE;
 const char* BytecodeHelper::GET_NEW_BLOCK_LINE = VALUE_FOR_GET_NEW_BLOCK_LINE;
 const char* BytecodeHelper::NEW_INTEGER_LINE = VALUE_FOR_NEW_INTEGER_LINE;

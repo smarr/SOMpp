@@ -16,6 +16,7 @@ env:
   - USE_TAGGING=true   GC_TYPE=mark_sweep
   - USE_TAGGING=true   GC_TYPE=copying
   - USE_TAGGING=true   GC_TYPE=omr_gc
+  - USE_TAGGING=true   GC_TYPE=omr_gc       CACHE_INTEGER=false  DEFAULT_OMR_JIT_ON=true
   
   - USE_TAGGING=false  GC_TYPE=generational CACHE_INTEGER=true
   - USE_TAGGING=false  GC_TYPE=mark_sweep   CACHE_INTEGER=true
@@ -26,9 +27,6 @@ env:
   - USE_TAGGING=false  GC_TYPE=mark_sweep   CACHE_INTEGER=false
   - USE_TAGGING=false  GC_TYPE=copying      CACHE_INTEGER=false
   - USE_TAGGING=false  GC_TYPE=omr_gc       CACHE_INTEGER=false
-  - USE_TAGGING=false  GC_TYPE=omr_gc       CACHE_INTEGER=false  DEFAULT_OMR_JIT_ON=true
-
-
 
 script:
     - make test

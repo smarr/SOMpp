@@ -34,6 +34,9 @@ public:
 	static int64_t getClass(int64_t object);
 	static const char* GET_CLASS_LINE;
 	
+	static int64_t getSuperClass(int64_t object);
+	static const char* GET_SUPER_CLASS_LINE;
+
 	static int64_t getGlobal(int64_t symbol);
 	static const char* GET_GLOBAL_LINE;
 	
