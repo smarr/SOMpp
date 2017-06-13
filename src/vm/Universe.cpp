@@ -95,6 +95,9 @@ GCClass* systemClass;
 GCClass* blockClass;
 GCClass* doubleClass;
 
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+GCClass* booleanClass;
+#endif
 GCClass* trueClass;
 GCClass* falseClass;
 
@@ -706,6 +709,10 @@ VMObject* Universe::InitializeGlobals() {
 
     blockClass = _store_ptr(LoadClass(SymbolForChars("Block")));
 
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+    booleanClass = _store_ptr(LoadClass(SymbolForChars("Boolean")));
+#endif
+
     VMSymbol* trueClassName = SymbolForChars("True");
     trueClass  = _store_ptr(LoadClass(trueClassName));
     trueObject = _store_ptr(NewInstance(load_ptr(trueClass)));
@@ -1050,6 +1057,9 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
     blockClass      = static_cast<GCClass*>(walk(blockClass));
     doubleClass     = static_cast<GCClass*>(walk(doubleClass));
     
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+    booleanClass  = static_cast<GCClass*>(walk(booleanClass));
+#endif
     trueClass  = static_cast<GCClass*>(walk(trueClass));
     falseClass = static_cast<GCClass*>(walk(falseClass));
 
