@@ -71,6 +71,9 @@ extern GCClass* systemClass;
 extern GCClass* blockClass;
 extern GCClass* doubleClass;
 
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+extern GCClass* booleanClass;
+#endif
 extern GCClass* trueClass;
 extern GCClass* falseClass;
 
