@@ -37,7 +37,7 @@ Afterwards, the tests can be executed with:
    
 A simple Hello World program is executed with:
 
-    $ ./SOM++ -cp Smalltalk Examples/Hello/Hello.som
+    $ ./SOM++ -cp Smalltalk Examples/Hello.som
 
 **Note**: On Linux, the library search path needs to be adapted:
 
