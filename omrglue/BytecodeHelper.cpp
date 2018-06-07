@@ -148,6 +148,8 @@ BytecodeHelper::doSendIfRequired(int64_t interp, int64_t framePtr, int64_t invok
 	if (nullptr == invokable) {
 		long numberOfArgs = Signature::GetNumberOfArguments(currentMethod->GetSignature());
 
+		fprintf(stderr, "trying to send to a NULL invokable from %s\n", currentMethod->GetSignature()->GetChars());
+
 		 vm_oop_t receiver = frame->GetStackElement(numberOfArgs-1);
 
 		 VMArray* argumentsArray = GetUniverse()->NewArray(numberOfArgs - 1); // without receiver

@@ -67,7 +67,7 @@
 
 #include "BytecodeHelper.hpp"
 
-#define DO_DEBUG_PRINTS 0
+#define DO_DEBUG_PRINTS 1
 
 #if DEBUG
 #ifndef UNITTESTS
@@ -698,7 +698,7 @@ SOMppMethod::doSend(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **bytecode
 	TR::BytecodeBuilder *genericSend = nullptr;
 	TR::BytecodeBuilder *merge = nullptr;
 
-	INLINE_STATUS status = doInlineIfPossible(builder, &genericSend, &merge, signature, bytecodeIndex);
+	INLINE_STATUS status = doInlineIfPossible(&builder, &genericSend, &merge, signature, bytecodeIndex);
 
 	if (status != INLINE_FAILED) {
 		builder->Goto(merge);
@@ -892,7 +892,8 @@ SOMppMethod::pushValueFromArray(TR::BytecodeBuilder *builder, TR::IlValue *array
 {
 	TR::IlValue *value =
 	builder->LoadAt(pInt64,
-	builder->	IndexAt(pInt64, array,
+	builder->	IndexAt(pInt64,
+	builder->		ConvertTo(pInt64, array),
 	builder->		ConstInt64(arrayIndex)));
 
 	PUSH(builder, value);
@@ -948,7 +949,8 @@ SOMppMethod::popValueToArray(TR::BytecodeBuilder *builder, TR::IlValue *array, u
 {
 	TR::IlValue *value = POP(builder);
 	builder->StoreAt(
-	builder->	IndexAt(pInt64, array,
+	builder->	IndexAt(pInt64,
+	builder->		ConvertTo(pInt64, array),
 	builder->		ConstInt64(arrayIndex)), value);
 }
 
@@ -1027,7 +1029,8 @@ SOMppMethod::getSelf(TR::IlBuilder *builder)
 	TR::IlValue *self =
 	builder->LoadAt(pInt64,
 	builder->	IndexAt(pInt64,
-	builder->		LoadIndirect("VMFrame", "arguments", context),
+	builder->		ConvertTo(pInt64,
+	builder->			LoadIndirect("VMFrame", "arguments", context)),
 	builder->		ConstInt64(0)));
 
 	return self;
@@ -1068,7 +1071,7 @@ static const char *getLocalName(int32_t recursiveLevel)
 }
 
 SOMppMethod::INLINE_STATUS
-SOMppMethod::doInlineIfPossible(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **merge, VMSymbol *signature, long bytecodeIndex)
+SOMppMethod::doInlineIfPossible(TR::BytecodeBuilder **builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **merge, VMSymbol *signature, long bytecodeIndex)
 {
 	VMClass *receiverFromCache = method->getInvokeReceiverCache(bytecodeIndex);
 	const char *signatureChars = signature->GetChars();
@@ -1084,10 +1087,10 @@ SOMppMethod::doInlineIfPossible(TR::BytecodeBuilder *builder, TR::BytecodeBuilde
 			if (nullptr != invokable) {
 				VMClass *invokableClass = invokable->GetHolder();
 				SOMppMethod::RECOGNIZED_METHOD_INDEX recognizedMethodIndex = getRecognizedMethodIndex(method, receiverFromCache, invokableClass, signatureChars, 0);
-				stackTopForErrorHandling = GET_STACKTOP(builder);
+				stackTopForErrorHandling = GET_STACKTOP(*builder);
 				if (NOT_RECOGNIZED != recognizedMethodIndex) {
 					createBuildersForInlineSends(genericSend, merge, bytecodeIndex);
-					status = generateRecognizedMethod(builder, genericSend, recognizedMethodIndex, receiverFromCache, bytecodeIndex, 0);
+					status = generateRecognizedMethod(*builder, genericSend, recognizedMethodIndex, receiverFromCache, bytecodeIndex, 0);
 				} else {
 					if (!invokable->IsPrimitive()) {
 						VMMethod *methodToInline = static_cast<VMMethod*>(invokable);
@@ -1272,55 +1275,71 @@ SOMppMethod::getArgumentArrayForLevel(TR::BytecodeBuilder *builder, VMMethod *vm
 }
 
 void
-SOMppMethod::generateGenericMethodBody(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, VMMethod *methodToInline, TR::IlValue *receiver, long bytecodeIndex, int32_t recursiveLevel)
+SOMppMethod::generateGenericMethodBody(TR::BytecodeBuilder **ibuilder, TR::BytecodeBuilder **genericSend, VMMethod *methodToInline, TR::IlValue *receiver, long bytecodeIndex, int32_t recursiveLevel)
 {
 	long bytecodeCount = methodToInline->GetNumberOfBytecodes();
 	long bcIndex = 0;
-	/* stackDepth can be tracked with a simple variable since inlining does not support and control flow opcodes */
-	uintptr_t stackDepth = 0;
+	long tableSize = sizeof(TR::BytecodeBuilder *) * bytecodeCount;
+	TR::BytecodeBuilder **bytecodeBuilderTable = (TR::BytecodeBuilder **)malloc(tableSize);
+	if (nullptr != bytecodeBuilderTable) {
+		memset(bytecodeBuilderTable, 0, tableSize);
+		long i = 0;
+		while (i < bytecodeCount) {
+			uint8_t bc = methodToInline->GetBytecode(i);
+			bytecodeBuilderTable[i] = OrphanBytecodeBuilder(bytecodeIndex, Bytecode::GetBytecodeName(BC_SEND));
+			i += Bytecode::GetBytecodeLength(bc);
+		}
+	}
+	int* bytecodeTableEntryHasBeenReached = (int*)malloc(sizeof(int) * bytecodeCount);
+	if (nullptr != bytecodeTableEntryHasBeenReached) {
+		memset(bytecodeTableEntryHasBeenReached, 0, sizeof(int)*bytecodeCount);
+	}
+
+	TR::BytecodeBuilder *merge = OrphanBytecodeBuilder(bytecodeIndex, Bytecode::GetBytecodeName(BC_SEND));
+	TR::BytecodeBuilder *previousBuilder = *ibuilder;
 
 	while (bcIndex < bytecodeCount) {
+		TR::BytecodeBuilder *builder = bytecodeBuilderTable[bcIndex];
+		if (NULL != previousBuilder) {
+			previousBuilder->Goto(builder);
+			bytecodeTableEntryHasBeenReached[bcIndex] = 1;
+		}
 		uint8_t bc = methodToInline->GetBytecode(bcIndex);
+		if (0 == bytecodeTableEntryHasBeenReached[bcIndex]) {
+			//handle unreachable code
+			bcIndex += Bytecode::GetBytecodeLength(bc);
+			continue;
+		}
 		switch(bc) {
 		case BC_DUP:
 			DUP(builder);
-			stackDepth += 1;
 			break;
 		case BC_PUSH_LOCAL:
 			pushValueFromArray(builder, getLocalArrayForLevel(builder, methodToInline, bcIndex, recursiveLevel), methodToInline->GetBytecode(bcIndex + 1));
-			stackDepth += 1;
 			break;
 		case BC_PUSH_FIELD:
 			pushField(builder, receiver, methodToInline->GetBytecode(bcIndex + 1));
-			stackDepth += 1;
 			break;
 		case BC_PUSH_CONSTANT:
 			pushConstant(builder, methodToInline, methodToInline->GetBytecode(bcIndex + 1));
-			stackDepth += 1;
 			break;
 		case BC_PUSH_GLOBAL:
 			pushGlobal(builder, static_cast<VMSymbol*>(methodToInline->GetConstant(bcIndex)));
-			stackDepth += 1;
 			break;
 		case BC_PUSH_ARGUMENT:
 			pushValueFromArray(builder, getArgumentArrayForLevel(builder, methodToInline, bcIndex, recursiveLevel), methodToInline->GetBytecode(bcIndex + 1));
-			stackDepth += 1;
 			break;
 		case BC_POP:
 			POP(builder);
-			stackDepth -= 1;
 			break;
 		case BC_POP_LOCAL:
 			popValueToArray(builder, getLocalArrayForLevel(builder, methodToInline, bcIndex, recursiveLevel), methodToInline->GetBytecode(bcIndex + 1));
-			stackDepth -= 1;
 			break;
 		case BC_POP_FIELD:
 			popField(builder, receiver, methodToInline->GetBytecode(bcIndex + 1));
-			stackDepth -= 1;
 			break;
 		case BC_POP_ARGUMENT:
 			popValueToArray(builder, getArgumentArrayForLevel(builder, methodToInline, bcIndex, recursiveLevel), methodToInline->GetBytecode(bcIndex + 1));
-			stackDepth -= 1;
 			break;
 		case BC_SEND:
 		{
@@ -1332,19 +1351,57 @@ SOMppMethod::generateGenericMethodBody(TR::BytecodeBuilder *builder, TR::Bytecod
 			if (NOT_RECOGNIZED != recognizedMethodIndex) {
 				generateRecognizedMethod(builder, genericSend, recognizedMethodIndex, receiverFromCache, bcIndex, recursiveLevel + 1);
 			} else {
-				generateGenericMethod(builder, genericSend, receiverFromCache->LookupInvokable(signature), receiverFromCache, signature, bytecodeIndex, recursiveLevel + 1);
+				generateGenericMethod(&builder, genericSend, receiverFromCache->LookupInvokable(signature), receiverFromCache, signature, bytecodeIndex, recursiveLevel + 1);
 			}
-
 			DROP(builder, numOfArgs);
 			PUSH(builder, builder->Load("sendResult"));
-			stackDepth -= (numOfArgs - 1);
+			break;
+		}
+		case BC_JUMP_IF_FALSE:
+		{
+			TR::IlValue *value = POP(builder);
+			TR::BytecodeBuilder *destBuilder = bytecodeBuilderTable[calculateBytecodeIndexForJump(methodToInline, bcIndex)];
+			builder->IfCmpEqual(&destBuilder, value,
+			builder->	ConstInt64((int64_t)falseObject));
+			bytecodeTableEntryHasBeenReached[calculateBytecodeIndexForJump(methodToInline, bcIndex)] = 1;
+			break;
+		}
+		case BC_JUMP_IF_TRUE:
+		{
+			TR::IlValue *value = POP(builder);
+			TR::BytecodeBuilder *destBuilder = bytecodeBuilderTable[calculateBytecodeIndexForJump(methodToInline, bcIndex)];
+			builder->IfCmpEqual(&destBuilder, value,
+			builder->	ConstInt64((int64_t)trueObject));
+			bytecodeTableEntryHasBeenReached[calculateBytecodeIndexForJump(methodToInline, bcIndex)] = 1;
+			break;
+		}
+		case BC_JUMP:
+		{
+			TR::BytecodeBuilder *destBuilder = bytecodeBuilderTable[calculateBytecodeIndexForJump(methodToInline, bcIndex)];
+			builder->Goto(&destBuilder);
+			builder = NULL;
+			bytecodeTableEntryHasBeenReached[calculateBytecodeIndexForJump(methodToInline, bcIndex)] = 1;
 			break;
 		}
 		case BC_RETURN_LOCAL:
 		{
 			TR::IlValue *returnValue = POP(builder);
 			builder->Store("sendResult", returnValue);
-			stackDepth -= 1;
+			builder->Goto(merge);
+			builder = NULL;
+			break;
+		}
+		case BC_RETURN_NON_LOCAL:
+		{
+			/* Return non local can only be inlined at recursive level 0 */
+			TR::IlValue *result = POP(builder);
+
+			builder->Call("popFrameAndPushResult", 3,
+			builder->	Load("interpreter"),
+			builder->	Load("frame"), result);
+
+			justReturn(builder);
+			builder = NULL;
 			break;
 		}
 		default:
@@ -1355,15 +1412,20 @@ SOMppMethod::generateGenericMethodBody(TR::BytecodeBuilder *builder, TR::Bytecod
 		}
 		}
 		bcIndex += Bytecode::GetBytecodeLength(bc);
+		previousBuilder = builder;
 	}
+	*ibuilder = merge;
+	free(bytecodeTableEntryHasBeenReached);
+	free(bytecodeBuilderTable);
 }
 
 void
-SOMppMethod::generateGenericMethod(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, VMInvokable *invokable, VMClass *receiverClass, VMSymbol *signature, long bytecodeIndex, int32_t recursiveLevel)
+SOMppMethod::generateGenericMethod(TR::BytecodeBuilder **b, TR::BytecodeBuilder **genericSend, VMInvokable *invokable, VMClass *receiverClass, VMSymbol *signature, long bytecodeIndex, int32_t recursiveLevel)
 {
 	VMMethod *methodToInline = static_cast<VMMethod*>(invokable);
 	long numOfArgs = methodToInline->GetNumberOfArguments();
 	long numOfLocals = methodToInline->GetNumberOfLocals();
+	TR::BytecodeBuilder *builder = *b;
 	TR::IlValue *receiver = PICK(builder, numOfArgs - 1);
 	const char *argumentName = getArgumentName(recursiveLevel);
 
@@ -1373,7 +1435,8 @@ SOMppMethod::generateGenericMethod(TR::BytecodeBuilder *builder, TR::BytecodeBui
 	for (int32_t i = 0; i < (int32_t)numOfArgs; i++) {
 		builder->StoreAt(
 		builder->	IndexAt(pInt64,
-		builder->		Load(argumentName),
+		builder->		ConvertTo(pInt64,
+		builder->			Load(argumentName)),
 		builder->		ConstInt32(i)),
 					PICK(builder, numOfArgs - 1 - i));
 	}
@@ -1385,7 +1448,7 @@ SOMppMethod::generateGenericMethod(TR::BytecodeBuilder *builder, TR::BytecodeBui
 
 	verifyArg(builder, genericSend, receiver, builder->ConstInt64((int64_t)receiverClass));
 
-	generateGenericMethodBody(builder, genericSend, methodToInline, receiver, bytecodeIndex, recursiveLevel);
+	generateGenericMethodBody(b, genericSend, methodToInline, receiver, bytecodeIndex, recursiveLevel);
 }
 
 void
@@ -1593,37 +1656,57 @@ SOMppMethod::generateInlineForIntegerLoop(TR::BytecodeBuilder *builder, TR::Byte
 	builder->Store(arguements,
 	builder->	CreateLocalArray((int32_t)2, Int64));
 
+	long numOfLocals = blockToInline->GetNumberOfLocals();
+	if (numOfLocals > 0) {
+		builder->Store(getLocalName(recursiveLevel),
+		builder->	CreateLocalArray((int32_t)numOfLocals, Int64));
+	}
+
 	builder->StoreAt(
 	builder->	IndexAt(pInt64,
-	builder->		Load(arguements),
+	builder->		ConvertTo(pInt64,
+	builder->			Load(arguements)),
 	builder->		ConstInt32(0)), block);
 
 	TR::BytecodeBuilder *iloop = OrphanBytecodeBuilder(bytecodeIndex, Bytecode::GetBytecodeName(BC_SEND));
 	builder->AddSuccessorBuilder(&iloop);
-	TR::IlBuilder *looper = (TR::IlBuilder *)iloop;
 
+	TR::BytecodeBuilder *first = OrphanBytecodeBuilder(bytecodeIndex, Bytecode::GetBytecodeName(BC_SEND));
+	TR::BytecodeBuilder *last = OrphanBytecodeBuilder(bytecodeIndex, Bytecode::GetBytecodeName(BC_SEND));
+
+	iloop->AddSuccessorBuilder(&first);
+	iloop->AppendBuilder(first);
+	iloop->AddSuccessorBuilder(&last);
+	iloop->AppendBuilder(last);
+
+	// Initialize the loop after the loop code has been created!
+	TR::IlBuilder *looper = (TR::IlBuilder *)iloop;
 	loopFunction(builder, "i", &looper, start, end, increment);
 
 	/* START OF LOOP */
-	TR::IlValue *i = iloop->Load("i");
-	TR::IlValue *iValue = newIntegerObjectForValue(iloop, genericSend, i);
+	TR::IlValue *i = first->Load("i");
+	TR::IlValue *iValue = newIntegerObjectForValue(first, genericSend, i);
 
-	iloop->StoreAt(
-	iloop->	IndexAt(pInt64,
-	iloop->		Load(arguements),
-	iloop->		ConstInt32(1)), iValue);
+	first->StoreAt(
+	first-> IndexAt(pInt64,
+	first->		ConvertTo(pInt64,
+	first->         Load(arguements)),
+	first->         ConstInt32(1)), iValue);
 
 #if SOM_METHOD_DEBUG
 	fprintf(stderr, " %s>>#%s ", blockToInline->GetHolder()->GetName()->GetChars(), blockToInline->GetSignature()->GetChars());
 #endif
 
-	generateGenericMethodBody(iloop, genericSend, blockToInline, getSelf(iloop), bytecodeIndex, recursiveLevel);
+	generateGenericMethodBody(&first, genericSend, blockToInline, getSelf(iloop), bytecodeIndex, recursiveLevel);
+
+	first->Goto(last);
 	/* END OF LOOP */
 
 	TR::IlValue *locals = builder->Load("frameLocals");
 	TR::IlValue *value =
 	builder->LoadAt(pInt64,
-	builder->	IndexAt(pInt64, locals,
+	builder->	IndexAt(pInt64,
+	builder->		ConvertTo(pInt64, locals),
 	builder->		ConstInt64(0)));
 
 	builder->Store("sendResult", value);
@@ -1931,29 +2014,56 @@ SOMppMethod::generateForWhileLoop(TR::BytecodeBuilder *builder, TR::BytecodeBuil
 
 	TR::IlValue *self = getSelf(builder);
 
-	/* generate the initial loop condition. */
-	generateGenericMethodBody(builder, genericSend, whileLoopConditionBlock, self, bytecodeIndex, recursiveLevel);
-	builder->Store("keepIterating",
-	builder->	EqualTo(
-	builder->		Load("sendResult"), condition));
+	long numOfLocals = whileLoopCodeBlock->GetNumberOfLocals();
+	if (numOfLocals > 0) {
+		builder->Store(getLocalName(recursiveLevel),
+		builder->	CreateLocalArray((int32_t)numOfLocals, Int64));
+	}
 
-	builder->WhileDoLoop("keepIterating", &looper);
+	TR::BytecodeBuilder *preStart = OrphanBytecodeBuilder(bytecodeIndex, Bytecode::GetBytecodeName(BC_SEND));
+	TR::BytecodeBuilder *preEnd = OrphanBytecodeBuilder(bytecodeIndex, Bytecode::GetBytecodeName(BC_SEND));
+
+	builder->AddSuccessorBuilder(&preStart);
+	builder->AppendBuilder(preStart);
+	builder->AddSuccessorBuilder(&preEnd);
+	builder->AppendBuilder(preEnd);
+
+	/* generate the initial loop condition. */
+	generateGenericMethodBody(&preStart, genericSend, whileLoopConditionBlock, self, bytecodeIndex, recursiveLevel);
+
+	preStart->Goto(preEnd);
+
+	preEnd->Store("keepIterating",
+	preEnd->	EqualTo(
+	preEnd->		Load("sendResult"), condition));
+
+	TR::BytecodeBuilder *first = OrphanBytecodeBuilder(bytecodeIndex, Bytecode::GetBytecodeName(BC_SEND));
+	TR::BytecodeBuilder *last = OrphanBytecodeBuilder(bytecodeIndex, Bytecode::GetBytecodeName(BC_SEND));
+
+	loopBody->AddSuccessorBuilder(&first);
+	loopBody->AppendBuilder(first);
+	loopBody->AddSuccessorBuilder(&last);
+	loopBody->AppendBuilder(last);
+
+	preEnd->WhileDoLoop("keepIterating", &looper);
 
 	/* START OF LOOP */
 #if SOM_METHOD_DEBUG
 	fprintf(stderr, " %s>>#%s ", whileLoopCodeBlock->GetHolder()->GetName()->GetChars(), whileLoopCodeBlock->GetSignature()->GetChars());
 #endif
-	generateGenericMethodBody(loopBody, genericSend, whileLoopCodeBlock, self, bytecodeIndex, recursiveLevel);
+	generateGenericMethodBody(&first, genericSend, whileLoopCodeBlock, self, bytecodeIndex, recursiveLevel);
 
 	/* Generate code for the loop condition */
-	generateGenericMethodBody(loopBody, genericSend, whileLoopConditionBlock, self, bytecodeIndex, recursiveLevel);
-	loopBody->Store("keepIterating",
-	loopBody->	EqualTo(
-	loopBody->		Load("sendResult"), condition));
+	generateGenericMethodBody(&first, genericSend, whileLoopConditionBlock, self, bytecodeIndex, recursiveLevel);
+	first->Goto(last);
+
+	last->Store("keepIterating",
+	last->	EqualTo(
+	last->		Load("sendResult"), condition));
 	/* END OF LOOP */
 
-	builder->Store("sendResult",
-	builder->	ConstInt64((int64_t)nilObject));
+	preEnd->Store("sendResult",
+	preEnd->	ConstInt64((int64_t)nilObject));
 }
 
 SOMppMethod::INLINE_STATUS
@@ -2034,8 +2144,22 @@ SOMppMethod::methodIsInlineable(VMMethod *vmMethod, int32_t recursiveLevel)
 		case BC_POP:
 		case BC_POP_ARGUMENT:
 		case BC_POP_FIELD:
+			break;
+		case BC_JUMP_IF_FALSE:
+		case BC_JUMP_IF_TRUE:
+		case BC_JUMP:
+		{
+			break;
+		}
 		case BC_RETURN_LOCAL:
 			break;
+		case BC_RETURN_NON_LOCAL:
+		{
+			if (recursiveLevel > 0) {
+				canInline = false;
+			}
+			break;
+		}
 		case BC_PUSH_ARGUMENT:
 		{
 			uint8_t level = vmMethod->GetBytecode(i + 2);
@@ -2108,7 +2232,7 @@ SOMppMethod::getIntegerValue(TR::IlBuilder *builder, TR::IlValue *object)
 	/* All integers are verified to be tagged otherwise it would fall to the generic send */
 	value =
 	builder->ShiftR(object,
-	builder->	ConstInt64(1));
+	builder->	ConstInt32(1));
 #else
 	/* Read embedded slot vtable slot + gcField */
 	builder->Store("integerValueSlot",
@@ -2140,7 +2264,7 @@ SOMppMethod::newIntegerObjectForValue(TR::BytecodeBuilder *builder, TR::Bytecode
 
 	builder->Store("shiftedValue",
 	builder->	ShiftL(value,
-	builder->		ConstInt64(1)));
+	builder->		ConstInt32(1)));
 
 	builder->Store("newInteger",
 	builder->	Add(

@@ -14,21 +14,75 @@ MyTest = (
         ]
   )
 
+  level2: n with: a = (
+     ^(a+1)
+  )
+
+  level1: n with: a = (
+     ^(n level2: n with: a)
+  )
+
+  recursiveInlining: n with: a = (
+     | b |
+     b := 0.
+     1 to: 10000 by: 1 do: [ :i | b := b + (n level1: n with: i)].
+     ^b
+  )
+  
+  sum = ( 
+     | sum |
+     sum := 0.
+     [sum < 20000]
+        whileTrue:
+          [sum := sum + 1].
+     ^ sum
+  )
+
   run = (
-    | a b c d e f i n |
+    | a b c d e f i n r |
     a := 8.
     b := 20.
     c := 4.
     d := 10.
     e := 7.
     f := 11.
-    i := 4000000.
+    i := 40000.
 
     n := MyTest new.
 
+    n foo: b with: a with: c with: d with: e with: f.
+    n foo: a with: b with: d with: c with: e with: f.
     n foo: a with: b with: c with: d with: e with: f.
     n foo: a with: b with: c with: d with: e with: f.
 
     i timesRepeat: [n foo: a with: b with: c with: d with: e with: f].
+    
+    r := n recursiveInlining: n with: a.
+    r println.
+
+    1 to: 1000 do: [ :i | n recursiveInlining: n with: a].
+    
+    n sum.
+    n sum.
+    n sum.
+    n sum.
+    n sum.
+    n sum.
+    n sum.
+    n sum.
+    n sum.
+    n sum.
+    n sum.
+    n sum.
+    n sum.
+    n sum.
+    n sum.
+    n sum.
+    n sum.
+    n sum.
+    n sum.
+    n sum.
+    n sum.
+    n sum.
     )
 )

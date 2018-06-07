@@ -171,10 +171,10 @@ private:
 	TR::IlValue *getLocalArrayForLevel(TR::BytecodeBuilder *builder, VMMethod *vmMethod, long bytecodeIndex, int32_t recursiveLevel);
 	TR::IlValue *getArgumentArrayForLevel(TR::BytecodeBuilder *builder, VMMethod *vmMethod, long bytecodeIndex, int32_t recursiveLevel);
 
-	SOMppMethod::INLINE_STATUS doInlineIfPossible(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **merge, VMSymbol *signature, long bytecodeIndex);
+	SOMppMethod::INLINE_STATUS doInlineIfPossible(TR::BytecodeBuilder **builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **merge, VMSymbol *signature, long bytecodeIndex);
 	SOMppMethod::INLINE_STATUS generateRecognizedMethod(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, SOMppMethod::RECOGNIZED_METHOD_INDEX recognizedMethodIndex, VMClass *receiverFromCache, long bytecodeIndex, int32_t recursiveLevel);
-	void generateGenericMethod(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, VMInvokable *invokable, VMClass *receiverClass, VMSymbol *signature, long bytecodeIndex, int32_t recursiveLevel = 0);
-	void generateGenericMethodBody(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, VMMethod *methodToInline, TR::IlValue *receiver, long bytecodeIndex, int32_t recursiveLevel = 0);
+	void generateGenericMethod(TR::BytecodeBuilder **builder, TR::BytecodeBuilder **genericSend, VMInvokable *invokable, VMClass *receiverClass, VMSymbol *signature, long bytecodeIndex, int32_t recursiveLevel = 0);
+	void generateGenericMethodBody(TR::BytecodeBuilder **builder, TR::BytecodeBuilder **genericSend, VMMethod *methodToInline, TR::IlValue *receiver, long bytecodeIndex, int32_t recursiveLevel = 0);
 	void createBuildersForInlineSends(TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **merge, long bytecodeIndex);
 	bool methodIsInlineable(VMMethod *vmMethod, int32_t recursiveLevel);
 
