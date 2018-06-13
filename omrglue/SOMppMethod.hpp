@@ -87,6 +87,7 @@ class SOMppMethod: public TR::MethodBuilder {
 		BLOCK_WHILEFALSE,
 		BOOLEAN_AND,
 		BOOLEAN_OR,
+		OSR_TO_GENERIC_SEND,
 		NOT_RECOGNIZED
 	};
 public:
@@ -210,6 +211,8 @@ private:
 
 	SOMppMethod::INLINE_STATUS generateInlineForBooleanAnd(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, long bytecodeIndex);
 	SOMppMethod::INLINE_STATUS generateInlineForBooleanOr(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, long bytecodeIndex);
+
+	SOMppMethod::INLINE_STATUS generateInlineOSRToGenericSend(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, long bytecodeIndex);
 
 	void verifyIntegerArg(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::IlValue *value);
 	void verifyDoubleArg(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::IlValue *object, TR::IlValue *objectClass);
