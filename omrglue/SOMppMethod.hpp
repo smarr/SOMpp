@@ -41,6 +41,8 @@ typedef void (*ForLoopFuncType)(TR::BytecodeBuilder *builder, const char *index,
 #define STACKVALUEILTYPE Int64
 #define	STACKVALUETYPE int64_t
 
+#define MAX_RECURSIVE_INLINING_DEPTH 4
+
 class SOMppMethod: public TR::MethodBuilder {
 	enum INLINE_STATUS {
 		INLINE_FAILED,
@@ -121,9 +123,11 @@ private:
 	VMMethod *forLoopBlock;
 	VMMethod *whileLoopConditionBlock;
 	VMMethod *whileLoopCodeBlock;
-	int32_t stackTopForErrorHandling;
+	int32_t stackTopForErrorHandling[MAX_RECURSIVE_INLINING_DEPTH + 1];
+	int32_t extraStackDepthRequired;
 	/* Should inlining be attempted */
 	bool doInlining;
+	bool doLoopInlining;
 	/* Provide a name for the method */
 	char methodName[64];
 
@@ -173,9 +177,9 @@ private:
 	TR::IlValue *getArgumentArrayForLevel(TR::BytecodeBuilder *builder, VMMethod *vmMethod, long bytecodeIndex, int32_t recursiveLevel);
 
 	SOMppMethod::INLINE_STATUS doInlineIfPossible(TR::BytecodeBuilder **builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **merge, VMSymbol *signature, long bytecodeIndex);
-	SOMppMethod::INLINE_STATUS generateRecognizedMethod(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, SOMppMethod::RECOGNIZED_METHOD_INDEX recognizedMethodIndex, VMClass *receiverFromCache, long bytecodeIndex, int32_t recursiveLevel);
-	void generateGenericMethod(TR::BytecodeBuilder **builder, TR::BytecodeBuilder **genericSend, VMInvokable *invokable, VMClass *receiverClass, VMSymbol *signature, long bytecodeIndex, int32_t recursiveLevel = 0);
-	void generateGenericMethodBody(TR::BytecodeBuilder **builder, TR::BytecodeBuilder **genericSend, VMMethod *methodToInline, TR::IlValue *receiver, long bytecodeIndex, int32_t recursiveLevel = 0);
+	SOMppMethod::INLINE_STATUS generateRecognizedMethod(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **merge, SOMppMethod::RECOGNIZED_METHOD_INDEX recognizedMethodIndex, VMClass *receiverFromCache, long bytecodeIndex, int32_t recursiveLevel);
+	void generateGenericMethod(TR::BytecodeBuilder **builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **merge, VMInvokable *invokable, VMClass *receiverClass, VMSymbol *signature, long bytecodeIndex, int32_t recursiveLevel = 0);
+	void generateGenericMethodBody(TR::BytecodeBuilder **builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **merge, VMMethod *methodToInline, TR::IlValue *receiver, long bytecodeIndex, int32_t recursiveLevel = 0);
 	void createBuildersForInlineSends(TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **merge, long bytecodeIndex);
 	bool methodIsInlineable(VMMethod *vmMethod, int32_t recursiveLevel);
 
@@ -192,11 +196,11 @@ private:
 	SOMppMethod::INLINE_STATUS generateInlineForIntegerMax(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend);
 	SOMppMethod::INLINE_STATUS generateInlineForIntegerAbs(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, long bytecodeIndex);
 
-	void generateInlineForIntegerLoop(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, long bytecodeIndex, ForLoopFuncType loopFunction, TR::IlValue *start, TR::IlValue *end, TR::IlValue *increment, TR::IlValue *block, VMMethod *blockToInline, int32_t recursiveLevel);
-	SOMppMethod::INLINE_STATUS generateInlineForIntegerToDo(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, long bytecodeIndex, int32_t recursiveLevel);
-	SOMppMethod::INLINE_STATUS generateInlineForIntegerToByDo(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, long bytecodeIndex, int32_t recursiveLevel);
-	SOMppMethod::INLINE_STATUS generateInlineForIntegerDownToDo(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, long bytecodeIndex, int32_t recursiveLevel);
-	SOMppMethod::INLINE_STATUS generateInlineForIntegerDownToByDo(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, long bytecodeIndex, int32_t recursiveLevel);
+	void generateInlineForIntegerLoop(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, ForLoopFuncType loopFunction, TR::IlValue *start, TR::IlValue *end, TR::IlValue *increment, TR::IlValue *block, VMMethod *blockToInline, int32_t recursiveLevel);
+	SOMppMethod::INLINE_STATUS generateInlineForIntegerToDo(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, int32_t recursiveLevel);
+	SOMppMethod::INLINE_STATUS generateInlineForIntegerToByDo(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, int32_t recursiveLevel);
+	SOMppMethod::INLINE_STATUS generateInlineForIntegerDownToDo(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, int32_t recursiveLevel);
+	SOMppMethod::INLINE_STATUS generateInlineForIntegerDownToByDo(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, int32_t recursiveLevel);
 
 	SOMppMethod::INLINE_STATUS generateInlineForArrayAt(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend);
 	SOMppMethod::INLINE_STATUS generateInlineForArrayAtPut(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend);
@@ -205,9 +209,9 @@ private:
 	SOMppMethod::INLINE_STATUS generateInlineForDoubleMath(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, MathFuncType mathFunction);
 	SOMppMethod::INLINE_STATUS generateInlineForDoubleBoolean(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, BooleanFuncType booleanFunction, TR::IlValue *thenPathValue, TR::IlValue *elsePathValue);
 
-	void generateForWhileLoop(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, long bytecodeIndex, int32_t recursiveLevel, TR::IlValue *condition);
-	SOMppMethod::INLINE_STATUS generateInlineForWhileTrue(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, long bytecodeIndex, int32_t recursiveLevel);
-	SOMppMethod::INLINE_STATUS generateInlineForWhileFalse(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, long bytecodeIndex, int32_t recursiveLevel);
+	void generateForWhileLoop(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, int32_t recursiveLevel, TR::IlValue *condition);
+	SOMppMethod::INLINE_STATUS generateInlineForWhileTrue(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, int32_t recursiveLevel);
+	SOMppMethod::INLINE_STATUS generateInlineForWhileFalse(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, int32_t recursiveLevel);
 
 	SOMppMethod::INLINE_STATUS generateInlineForBooleanAnd(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, long bytecodeIndex);
 	SOMppMethod::INLINE_STATUS generateInlineForBooleanOr(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, long bytecodeIndex);
@@ -224,7 +228,7 @@ private:
 	TR::IlValue *getDoubleValueFromDoubleOrInteger(TR::IlBuilder *builder, TR::IlValue *object, TR::IlValue *objectClass);
 	TR::IlValue *getIndexableFieldSlot(TR::BytecodeBuilder *builder, TR::IlValue *array, TR::IlValue *index);
 
-	SOMppMethod::RECOGNIZED_METHOD_INDEX getRecognizedMethodIndex(VMMethod *sendingMethod, VMClass *receiverFromCache, VMClass *invokableClass, const char *signatureChars, int32_t recursiveLevel);
+	SOMppMethod::RECOGNIZED_METHOD_INDEX getRecognizedMethodIndex(VMMethod *sendingMethod, VMClass *receiverFromCache, VMClass *invokableClass, const char *signatureChars, int32_t recursiveLevel, bool doBlockInliningChecks = true);
 };
 
 #endif // !defined(SOMPPMETHOD_INCL)

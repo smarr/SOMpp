@@ -67,7 +67,7 @@
 
 #include "BytecodeHelper.hpp"
 
-#define DO_DEBUG_PRINTS 1
+#define DO_DEBUG_PRINTS 0
 
 #if DEBUG
 #ifndef UNITTESTS
@@ -240,8 +240,9 @@ SOMppMethod::forLoopDown(TR::BytecodeBuilder *builder, const char *index, TR::Il
 SOMppMethod::SOMppMethod(TR::TypeDictionary *types, VMMethod *vmMethod, bool inlineCalls) :
 		MethodBuilder(types),
 		method(vmMethod),
-		stackTopForErrorHandling(-1),
-		doInlining(inlineCalls)
+		extraStackDepthRequired(0),
+		doInlining(inlineCalls),
+		doLoopInlining(inlineCalls)
 {
 	DefineLine(LINETOSTR(__LINE__));
 	DefineFile(__FILE__);
@@ -261,6 +262,10 @@ SOMppMethod::SOMppMethod(TR::TypeDictionary *types, VMMethod *vmMethod, bool inl
 	fieldNames[7] = "field7";
 	fieldNames[8] = "field8";
 	fieldNames[9] = "field9";
+
+	for (int i = 0; i < MAX_RECURSIVE_INLINING_DEPTH + 1; i++) {
+		stackTopForErrorHandling[i] = 0;
+	}
 
 	DefineName(methodName);
 	DefineReturnType(NoType);
@@ -315,7 +320,7 @@ SOMppMethod::defineFunctions()
 	DefineFunction((char *)"getFieldFrom", (char *)BytecodeHelper::BYTECODEHELPER_FILE, (char *)BytecodeHelper::GET_FIELD_FROM_LINE, (void *)&BytecodeHelper::getFieldFrom, Int64, 2, Int64, Int64);
 	DefineFunction((char *)"setFieldTo", (char *)BytecodeHelper::BYTECODEHELPER_FILE, (char *)BytecodeHelper::SET_FIELD_TO_LINE, (void *)&BytecodeHelper::setFieldTo, NoType, 3, Int64, Int64, Int64);
 	DefineFunction((char *)"getInvokable", (char *)BytecodeHelper::BYTECODEHELPER_FILE, (char *)BytecodeHelper::GET_INVOKABLE_LINE, (void *)&BytecodeHelper::getInvokable, Int64, 2, Int64, Int64);
-	DefineFunction((char *)"doSendIfRequired", (char *)BytecodeHelper::BYTECODEHELPER_FILE, (char *)BytecodeHelper::DO_SEND_IF_REQUIRED_LINE, (void *)&BytecodeHelper::doSendIfRequired, Int64, 4, Int64, Int64, Int64, Int64);
+	DefineFunction((char *)"doSendIfRequired", (char *)BytecodeHelper::BYTECODEHELPER_FILE, (char *)BytecodeHelper::DO_SEND_IF_REQUIRED_LINE, (void *)&BytecodeHelper::doSendIfRequired, Int64, 6, Int64, Int64, Int64, Int64, Int64, Int64);
 	DefineFunction((char *)"doSuperSendHelper", (char *)BytecodeHelper::BYTECODEHELPER_FILE, (char *)BytecodeHelper::DO_SUPER_SEND_HELPER_LINE, (void *)&BytecodeHelper::doSuperSendHelper, Int64, 4, Int64, Int64, Int64, Int64);
 	DefineFunction((char *)"popFrameAndPushResult", (char *)BytecodeHelper::BYTECODEHELPER_FILE, (char *)BytecodeHelper::POP_FRAME_AND_PUSH_RESULT_LINE, (void *)&BytecodeHelper::popFrameAndPushResult, NoType, 3, Int64, Int64, Int64);
 	DefineFunction((char *)"popToContext", (char *)BytecodeHelper::BYTECODEHELPER_FILE, (char *)BytecodeHelper::POP_TO_CONTEXT_LINE, (void *)&BytecodeHelper::popToContext, Int64, 2, Int64, Int64);
@@ -409,6 +414,11 @@ SOMppMethod::buildIL()
 		return false;
 	}
 
+	if (NOT_RECOGNIZED != getRecognizedMethodIndex(method, method->GetHolder(), method->GetHolder(), method->GetSignature()->GetChars(), 0, false)) {
+		/* Do not inline loops into recognized methods when they are being compiled */
+		doLoopInlining = false;
+	}
+
 	TR::BytecodeBuilder **bytecodeBuilderTable = createBytecodesBuilder(method);
 	if (nullptr == bytecodeBuilderTable) {
 		return false;
@@ -417,6 +427,10 @@ SOMppMethod::buildIL()
 #if SOM_METHOD_DEBUG
 	fprintf(stderr, "\nGenerating code for %s\n", methodName);
 #endif
+
+	if (0 == strcmp(methodName, "Towers>>#move:disksFrom:to:!!!!")) {
+		return false;
+	}
 
 	stackTop = new OMR::VirtualMachineRegisterInStruct(this, "VMFrame", "frame", "stack_ptr", "SP");
 	stack = new OMR::VirtualMachineOperandStack(this, 32, valueType, stackTop);
@@ -447,6 +461,12 @@ SOMppMethod::buildIL()
 	canHandle = generateILForBytecodes(method, bytecodeBuilderTable);
 
 	free((void *)bytecodeBuilderTable);
+
+//	if (canHandle) {
+//		if (extraStackDepthRequired > 0) {
+//			method->SetMaximumNumberOfStackElements((uint8_t)extraStackDepthRequired + method->GetMaximumNumberOfStackElements());
+//		}
+//	}
 	return canHandle;
 }
 
@@ -723,10 +743,12 @@ SOMppMethod::doSend(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **bytecode
 		genericSend->		ConstInt64((int64_t)signature)));
 
 		genericSend->Store("return",
-		genericSend->	Call("doSendIfRequired", 4,
+		genericSend->	Call("doSendIfRequired", 6,
 		genericSend->		Load("interpreter"),
 		genericSend->		Load("frame"),
 		genericSend->		Load("invokable"),
+							PICK(genericSend, numOfArgs - 1),
+		genericSend->		ConstInt64((int64_t)signature),
 		genericSend->		ConstInt64((int64_t)bytecodeIndex)));
 
 		TR::IlBuilder *bail = nullptr;
@@ -1090,16 +1112,16 @@ SOMppMethod::doInlineIfPossible(TR::BytecodeBuilder **builder, TR::BytecodeBuild
 			if (nullptr != invokable) {
 				VMClass *invokableClass = invokable->GetHolder();
 				SOMppMethod::RECOGNIZED_METHOD_INDEX recognizedMethodIndex = getRecognizedMethodIndex(method, receiverFromCache, invokableClass, signatureChars, 0);
-				stackTopForErrorHandling = GET_STACKTOP(*builder);
+				stackTopForErrorHandling[0] = GET_STACKTOP(*builder);
 				if (NOT_RECOGNIZED != recognizedMethodIndex) {
 					createBuildersForInlineSends(genericSend, merge, bytecodeIndex);
-					status = generateRecognizedMethod(*builder, genericSend, recognizedMethodIndex, receiverFromCache, bytecodeIndex, 0);
+					status = generateRecognizedMethod(*builder, genericSend, merge, recognizedMethodIndex, receiverFromCache, bytecodeIndex, 0);
 				} else {
 					if (!invokable->IsPrimitive()) {
 						VMMethod *methodToInline = static_cast<VMMethod*>(invokable);
 						if (methodIsInlineable(methodToInline, 0)) {
 							createBuildersForInlineSends(genericSend, merge, bytecodeIndex);
-							generateGenericMethod(builder, genericSend, invokable, receiverFromCache, signature, bytecodeIndex, 0);
+							generateGenericMethod(builder, genericSend, merge, invokable, receiverFromCache, signature, bytecodeIndex, 0);
 							status = INLINE_SUCCESSFUL;
 						}
 					}
@@ -1116,7 +1138,7 @@ SOMppMethod::doInlineIfPossible(TR::BytecodeBuilder **builder, TR::BytecodeBuild
 }
 
 SOMppMethod::INLINE_STATUS
-SOMppMethod::generateRecognizedMethod(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, SOMppMethod::RECOGNIZED_METHOD_INDEX recognizedMethodIndex, VMClass *receiverFromCache, long bytecodeIndex, int32_t recursiveLevel)
+SOMppMethod::generateRecognizedMethod(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, SOMppMethod::RECOGNIZED_METHOD_INDEX recognizedMethodIndex, VMClass *receiverFromCache, long bytecodeIndex, int32_t recursiveLevel)
 {
 	INLINE_STATUS status = INLINE_STATUS::INLINE_FAILED;
 
@@ -1182,16 +1204,16 @@ SOMppMethod::generateRecognizedMethod(TR::BytecodeBuilder *builder, TR::Bytecode
 		status = generateInlineForIntegerAbs(builder, genericSend, bytecodeIndex);
 		break;
 	case INTEGER_TODO:
-		status = generateInlineForIntegerToDo(builder, genericSend, bytecodeIndex, recursiveLevel);
+		status = generateInlineForIntegerToDo(builder, genericSend, mergeSend, bytecodeIndex, recursiveLevel);
 		break;
 	case INTEGER_TOBYDO:
-		status = generateInlineForIntegerToByDo(builder, genericSend, bytecodeIndex, recursiveLevel);
+		status = generateInlineForIntegerToByDo(builder, genericSend, mergeSend, bytecodeIndex, recursiveLevel);
 		break;
 	case INTEGER_DOWNTODO:
-		status = generateInlineForIntegerDownToDo(builder, genericSend, bytecodeIndex, recursiveLevel);
+		status = generateInlineForIntegerDownToDo(builder, genericSend, mergeSend, bytecodeIndex, recursiveLevel);
 		break;
 	case INTEGER_DOWNTOBYDO:
-		status = generateInlineForIntegerDownToByDo(builder, genericSend, bytecodeIndex, recursiveLevel);
+		status = generateInlineForIntegerDownToByDo(builder, genericSend, mergeSend, bytecodeIndex, recursiveLevel);
 		break;
 	case ARRAY_AT:
 		status = generateInlineForArrayAt(builder, genericSend);
@@ -1227,10 +1249,10 @@ SOMppMethod::generateRecognizedMethod(TR::BytecodeBuilder *builder, TR::Bytecode
 		status = generateInlineForDoubleBoolean(builder, genericSend, &SOMppMethod::lessThan, builder->ConstInt64((int64_t)falseObject), builder->ConstInt64((int64_t)trueObject));
 		break;
 	case BLOCK_WHILETRUE:
-		status = generateInlineForWhileTrue(builder, genericSend, bytecodeIndex, recursiveLevel);
+		status = generateInlineForWhileTrue(builder, genericSend, mergeSend, bytecodeIndex, recursiveLevel);
 		break;
 	case BLOCK_WHILEFALSE:
-		status = generateInlineForWhileFalse(builder, genericSend, bytecodeIndex, recursiveLevel);
+		status = generateInlineForWhileFalse(builder, genericSend, mergeSend, bytecodeIndex, recursiveLevel);
 		break;
 	case BOOLEAN_AND:
 		status = generateInlineForBooleanAnd(builder, genericSend, bytecodeIndex);
@@ -1269,7 +1291,7 @@ SOMppMethod::getLocalArrayForLevel(TR::BytecodeBuilder *builder, VMMethod *vmMet
 		if (recursiveLevel > 1) {
 			return builder->Load(getLocalName(recursiveLevel - 2));
 		} else if (recursiveLevel == 1) {
-			return builder->Load("frameArguments");
+			return builder->Load("frameLocals");
 		} else {
 			return builder->Load("frameContextLocals");
 		}
@@ -1303,7 +1325,7 @@ SOMppMethod::getArgumentArrayForLevel(TR::BytecodeBuilder *builder, VMMethod *vm
 }
 
 void
-SOMppMethod::generateGenericMethodBody(TR::BytecodeBuilder **ibuilder, TR::BytecodeBuilder **genericSend, VMMethod *methodToInline, TR::IlValue *receiver, long bytecodeIndex, int32_t recursiveLevel)
+SOMppMethod::generateGenericMethodBody(TR::BytecodeBuilder **ibuilder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **sendMerge, VMMethod *methodToInline, TR::IlValue *receiver, long bytecodeIndex, int32_t recursiveLevel)
 {
 	long bytecodeCount = methodToInline->GetNumberOfBytecodes();
 	long bcIndex = 0;
@@ -1322,6 +1344,8 @@ SOMppMethod::generateGenericMethodBody(TR::BytecodeBuilder **ibuilder, TR::Bytec
 	if (nullptr != bytecodeTableEntryHasBeenReached) {
 		memset(bytecodeTableEntryHasBeenReached, 0, sizeof(int)*bytecodeCount);
 	}
+
+	fprintf(stderr, "inlining generic method body for VMMethod %p %s\n", methodToInline, methodToInline->GetSignature()->GetChars());
 
 	TR::BytecodeBuilder *merge = OrphanBytecodeBuilder(bytecodeIndex, Bytecode::GetBytecodeName(BC_SEND));
 	TR::BytecodeBuilder *previousBuilder = *ibuilder;
@@ -1357,6 +1381,23 @@ SOMppMethod::generateGenericMethodBody(TR::BytecodeBuilder **ibuilder, TR::Bytec
 		case BC_PUSH_ARGUMENT:
 			pushValueFromArray(builder, getArgumentArrayForLevel(builder, methodToInline, bcIndex, recursiveLevel), methodToInline->GetBytecode(bcIndex + 1));
 			break;
+		case BC_PUSH_BLOCK:
+		{
+			VMMethod *blockMethod = static_cast<VMMethod*>(methodToInline->GetConstant(bcIndex));
+			long numOfArgs = blockMethod->GetNumberOfArguments();
+
+			blockMethods.push(blockMethod);
+
+			TR::IlValue *block =
+			builder->Call("getNewBlock", 3,
+			builder->	Load("frame"),
+			builder->	ConstInt64((int64_t)blockMethod),
+			builder->	ConstInt64((int64_t)numOfArgs));
+
+			PUSH(builder, block);//builder->ConstInt64((int64_t)nilObject)); // Just push NIL since the object will not be used
+
+			break;
+		}
 		case BC_POP:
 			POP(builder);
 			break;
@@ -1378,12 +1419,47 @@ SOMppMethod::generateGenericMethodBody(TR::BytecodeBuilder **ibuilder, TR::Bytec
 			if (NULL != receiverFromCache) {
 				invokableClass = receiverFromCache->LookupInvokable(signature)->GetHolder();
 			}
-			SOMppMethod::RECOGNIZED_METHOD_INDEX recognizedMethodIndex = getRecognizedMethodIndex(methodToInline, receiverFromCache, invokableClass, signature->GetChars(), recursiveLevel + 1);
+
+			//Create a generic send location for the inlining.....
+			//if something fails the JIT has to call the actual failing send with the current state....
+			//can not fall back to the original sends generic send since state may have changed! and there is no way to roll it back
+
+
+			SOMppMethod::RECOGNIZED_METHOD_INDEX recognizedMethodIndex = getRecognizedMethodIndex(methodToInline, receiverFromCache, invokableClass, signature->GetChars(), recursiveLevel + 1, false);
 			if (NOT_RECOGNIZED != recognizedMethodIndex) {
-				generateRecognizedMethod(builder, genericSend, recognizedMethodIndex, receiverFromCache, bcIndex, recursiveLevel + 1);
+				generateRecognizedMethod(builder, genericSend, sendMerge, recognizedMethodIndex, receiverFromCache, bytecodeIndex, recursiveLevel + 1);
 			} else {
-				generateGenericMethod(&builder, genericSend, receiverFromCache->LookupInvokable(signature), receiverFromCache, signature, bytecodeIndex, recursiveLevel + 1);
+				generateGenericMethod(&builder, genericSend, sendMerge, receiverFromCache->LookupInvokable(signature), receiverFromCache, signature, bytecodeIndex, recursiveLevel + 1);
 			}
+			int32_t currentStackTop = GET_STACKTOP(builder);
+			int32_t extraDepth = currentStackTop - stackTopForErrorHandling[0];
+			if (extraDepth > extraStackDepthRequired) {
+				extraStackDepthRequired = extraDepth;
+			}
+			// need to update the method so the extra frame stack elements are allocated
+			fprintf(stderr, "send extraStack %d maxExtraStack %d\n", extraDepth, extraStackDepthRequired);
+
+			//do generic send
+
+			//get receiver class
+			/* going to call out of line helper so commit the stack */
+			//COMMIT(genericSend);
+			//get invokable
+			//call the send helper...
+			//should not have to handle Block::restart since it would not be inlined.... maybe yes if I start handling all sends
+			/*
+			genericSend->Store("sendResult",
+			genericSend->	LoadAt(pInt64,
+			genericSend->		LoadIndirect("VMFrame", "stack_ptr",
+			genericSend->			Load("frame"))));
+			 */
+			//fetch sendResult....
+			//drop numOfArgs vmstack elements
+			//read elements back into the vmframe.... not really required since objects do not move
+			//push the result
+
+
+			//end of generic send
 			DROP(builder, numOfArgs);
 			PUSH(builder, builder->Load("sendResult"));
 			break;
@@ -1424,14 +1500,23 @@ SOMppMethod::generateGenericMethodBody(TR::BytecodeBuilder **ibuilder, TR::Bytec
 		}
 		case BC_RETURN_NON_LOCAL:
 		{
-			/* Return non local can only be inlined at recursive level 0 */
 			TR::IlValue *result = POP(builder);
+			if (recursiveLevel == 0) {
+				builder->Call("popFrameAndPushResult", 3,
+				builder->	Load("interpreter"),
+				builder->	Load("frame"), result);
 
-			builder->Call("popFrameAndPushResult", 3,
-			builder->	Load("interpreter"),
-			builder->	Load("frame"), result);
-
-			justReturn(builder);
+				justReturn(builder);
+			} else {
+				builder->Store("sendResult", result);
+				fprintf(stderr, " recursive return non local \n");
+				if (NULL == sendMerge) {
+					fprintf(stderr, "About to crash on a NULL sendMerge\n");
+				}
+				generateInlineOSRToGenericSend(builder, sendMerge, bytecodeIndex);
+//				SET_STACKTOP(builder, stackTopForErrorHandling[0]);
+//				builder->Goto(*sendMerge);
+			}
 			builder = NULL;
 			break;
 		}
@@ -1451,7 +1536,7 @@ SOMppMethod::generateGenericMethodBody(TR::BytecodeBuilder **ibuilder, TR::Bytec
 }
 
 void
-SOMppMethod::generateGenericMethod(TR::BytecodeBuilder **b, TR::BytecodeBuilder **genericSend, VMInvokable *invokable, VMClass *receiverClass, VMSymbol *signature, long bytecodeIndex, int32_t recursiveLevel)
+SOMppMethod::generateGenericMethod(TR::BytecodeBuilder **b, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **merge, VMInvokable *invokable, VMClass *receiverClass, VMSymbol *signature, long bytecodeIndex, int32_t recursiveLevel)
 {
 	VMMethod *methodToInline = static_cast<VMMethod*>(invokable);
 	long numOfArgs = methodToInline->GetNumberOfArguments();
@@ -1459,6 +1544,8 @@ SOMppMethod::generateGenericMethod(TR::BytecodeBuilder **b, TR::BytecodeBuilder 
 	TR::BytecodeBuilder *builder = *b;
 	TR::IlValue *receiver = PICK(builder, numOfArgs - 1);
 	const char *argumentName = getArgumentName(recursiveLevel);
+
+	fprintf(stderr, "inlining generic method for VMMethod %p %s %s\n", methodToInline, methodToInline->GetSignature()->GetChars(), receiverClass->GetName()->GetChars());
 
 	builder->Store(argumentName,
 	builder->	CreateLocalArray((int32_t)numOfArgs, Int64));
@@ -1479,7 +1566,7 @@ SOMppMethod::generateGenericMethod(TR::BytecodeBuilder **b, TR::BytecodeBuilder 
 
 	verifyArg(builder, genericSend, receiver, builder->ConstInt64((int64_t)receiverClass));
 
-	generateGenericMethodBody(b, genericSend, methodToInline, receiver, bytecodeIndex, recursiveLevel);
+	generateGenericMethodBody(b, genericSend, merge, methodToInline, receiver, bytecodeIndex, recursiveLevel);
 }
 
 void
@@ -1502,7 +1589,7 @@ SOMppMethod::verifyIntegerArg(TR::BytecodeBuilder *builder, TR::BytecodeBuilder 
 	builder->	And(integer,
 	builder->		ConstInt64(0x1)));
 
-	SET_STACKTOP(failurePath, stackTopForErrorHandling);
+	SET_STACKTOP(failurePath, stackTopForErrorHandling[0]);
 	failurePath->Goto(*genericSend);
 #else
 	verifyArg(builder, genericSend, integer, builder->ConstInt64((int64_t)integerClass));
@@ -1538,7 +1625,7 @@ SOMppMethod::verifyDoubleArg(TR::BytecodeBuilder *builder, TR::BytecodeBuilder *
 	TR::BytecodeBuilder *failurePath = nullptr;
 	builder->IfCmpNotEqual(&failurePath, builder->Load("isOk"), builder->ConstInt32(1));
 
-	SET_STACKTOP(failurePath, stackTopForErrorHandling);
+	SET_STACKTOP(failurePath, stackTopForErrorHandling[0]);
 	failurePath->Goto(*genericSend);
 }
 
@@ -1551,7 +1638,7 @@ SOMppMethod::verifyArg(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **gener
 	TR::BytecodeBuilder *failurePath = nullptr;
 	builder->IfCmpNotEqual(&failurePath, objectClass, type);
 
-	SET_STACKTOP(failurePath, stackTopForErrorHandling);
+	SET_STACKTOP(failurePath, stackTopForErrorHandling[0]);
 	failurePath->Goto(*genericSend);
 }
 
@@ -1564,7 +1651,7 @@ SOMppMethod::verifyBooleanArg(TR::BytecodeBuilder *builder, TR::BytecodeBuilder 
 	TR::BytecodeBuilder *failurePath = nullptr;
 	builder->IfCmpNotEqual(&failurePath, superClass, builder->ConstInt64((int64_t)booleanClass));
 
-	SET_STACKTOP(failurePath, stackTopForErrorHandling);
+	SET_STACKTOP(failurePath, stackTopForErrorHandling[0]);
 	failurePath->Goto(*genericSend);
 }
 
@@ -1679,25 +1766,69 @@ SOMppMethod::generateInlineForIntegerAbs(TR::BytecodeBuilder *builder, TR::Bytec
 	return INLINE_SUCCESSFUL;
 }
 
+static const char * getIndexName(int64_t recursiveLevel)
+{
+	if (recursiveLevel == 0) {
+		return "_i0";
+	} else if (recursiveLevel == 1) {
+		return "_i1";
+	} else if (recursiveLevel == 2) {
+		return "_i2";
+	} else if (recursiveLevel == 3) {
+		return "_i3";
+	} else if (recursiveLevel == 4) {
+		return "_i4";
+	} else {
+		return nullptr;
+	}
+}
+
 void
-SOMppMethod::generateInlineForIntegerLoop(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, long bytecodeIndex, ForLoopFuncType loopFunction, TR::IlValue *start, TR::IlValue *end, TR::IlValue *increment, TR::IlValue *block, VMMethod *blockToInline, int32_t recursiveLevel)
+SOMppMethod::generateInlineForIntegerLoop(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, ForLoopFuncType loopFunction, TR::IlValue *start, TR::IlValue *end, TR::IlValue *increment, TR::IlValue *block, VMMethod *blockToInline, int32_t recursiveLevel)
 {
 	const char *arguements = getArgumentName(recursiveLevel);
+	const char *localsName = getLocalName(recursiveLevel);
+
+	blockToInline = blockMethods.top();
+	blockMethods.pop();
 
 	builder->Store(arguements,
 	builder->	CreateLocalArray((int32_t)2, Int64));
 
 	long numOfLocals = blockToInline->GetNumberOfLocals();
-	if (numOfLocals > 0) {
-		builder->Store(getLocalName(recursiveLevel),
-		builder->	CreateLocalArray((int32_t)numOfLocals, Int64));
+	if (numOfLocals == 0) {
+		numOfLocals = 1;//need at least one local in case this is a loop than contains another for loop
 	}
+	fprintf(stderr, "SOMppMethod::generateInlineForIntegerLoop numArgs %d numLocals %d recursiveLevel %d\n", 2, numOfLocals, recursiveLevel);
+	if (numOfLocals > 0) {
+		builder->Store(localsName,
+		builder->	CreateLocalArray((int32_t)numOfLocals, Int64));
+
+		for (long i = 0; i < numOfLocals; i++) {
+			builder->StoreAt(
+			builder->	IndexAt(pInt64,
+			builder->		ConvertTo(pInt64,
+			builder->			Load(localsName)),
+			builder->		ConstInt32((int32_t)i)),
+			builder->	ConstInt64((int64_t)nilObject));
+		}
+	}
+
+	const char *indexName = getIndexName(recursiveLevel);
 
 	builder->StoreAt(
 	builder->	IndexAt(pInt64,
 	builder->		ConvertTo(pInt64,
 	builder->			Load(arguements)),
 	builder->		ConstInt32(0)), block);
+
+	builder->StoreAt(
+	builder-> IndexAt(pInt64,
+	builder->		ConvertTo(pInt64,
+	builder->         Load(arguements)),
+	builder->         ConstInt32(1)), start);
+
+	TR::IlValue *self = getSelf(builder);
 
 	TR::BytecodeBuilder *iloop = OrphanBytecodeBuilder(bytecodeIndex, Bytecode::GetBytecodeName(BC_SEND));
 	builder->AddSuccessorBuilder(&iloop);
@@ -1712,11 +1843,16 @@ SOMppMethod::generateInlineForIntegerLoop(TR::BytecodeBuilder *builder, TR::Byte
 
 	// Initialize the loop after the loop code has been created!
 	TR::IlBuilder *looper = (TR::IlBuilder *)iloop;
-	loopFunction(builder, "i", &looper, start, end, increment);
+	loopFunction(builder, indexName, &looper, start, end, increment);
 
 	/* START OF LOOP */
-	TR::IlValue *i = first->Load("i");
+	TR::IlValue *i = first->Load(indexName);
 	TR::IlValue *iValue = newIntegerObjectForValue(first, genericSend, i);
+
+//	first->Call("printString", 1, first->ConstInt64((int64_t)blockToInline->GetSignature()->GetChars()));
+//	first->Call("printString", 1, first->ConstInt64((int64_t)" "));
+//	first->Call("printInt64", 1, first->Load(indexName));
+//	first->Call("printString", 1, first->ConstInt64((int64_t)"\n"));
 
 	first->StoreAt(
 	first-> IndexAt(pInt64,
@@ -1728,12 +1864,22 @@ SOMppMethod::generateInlineForIntegerLoop(TR::BytecodeBuilder *builder, TR::Byte
 	fprintf(stderr, " %s>>#%s ", blockToInline->GetHolder()->GetName()->GetChars(), blockToInline->GetSignature()->GetChars());
 #endif
 
-	generateGenericMethodBody(&first, genericSend, blockToInline, getSelf(iloop), bytecodeIndex, recursiveLevel);
+	generateGenericMethodBody(&first, genericSend, mergeSend, blockToInline, self, bytecodeIndex, recursiveLevel);
 
 	first->Goto(last);
 	/* END OF LOOP */
 
-	TR::IlValue *locals = builder->Load("frameLocals");
+//	last->Call("printString", 1, last->ConstInt64((int64_t)blockToInline->GetSignature()->GetChars()));
+//	last->Call("printString", 1, last->ConstInt64((int64_t)" "));
+//	last->Call("printInt64", 1, last->Load(indexName));
+//	last->Call("printString", 1, last->ConstInt64((int64_t)"\n"));
+
+	TR::IlValue *locals = nullptr;
+	if (recursiveLevel == 0) {
+		locals = builder->Load("frameLocals");
+	} else {
+		locals = builder->Load(getLocalName(recursiveLevel - 1));
+	}
 	TR::IlValue *value =
 	builder->LoadAt(pInt64,
 	builder->	IndexAt(pInt64,
@@ -1744,7 +1890,7 @@ SOMppMethod::generateInlineForIntegerLoop(TR::BytecodeBuilder *builder, TR::Byte
 }
 
 SOMppMethod::INLINE_STATUS
-SOMppMethod::generateInlineForIntegerToByDo(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, long bytecodeIndex, int32_t recursiveLevel)
+SOMppMethod::generateInlineForIntegerToByDo(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, int32_t recursiveLevel)
 {
 	TR::IlValue *loopStart = PICK(builder, 3);
 	TR::IlValue *loopEnd = PICK(builder, 2);
@@ -1761,13 +1907,13 @@ SOMppMethod::generateInlineForIntegerToByDo(TR::BytecodeBuilder *builder, TR::By
 	TR::IlValue *actualLoopEnd = builder->Add(loopEndValue, builder->ConstInt64(1));
 	TR::IlValue *loopIncrementValue = getIntegerValue(builder, loopIncrement);
 
-	generateInlineForIntegerLoop(builder, genericSend, bytecodeIndex, &SOMppMethod::forLoopUp, loopStartValue, actualLoopEnd, loopIncrementValue, block, forLoopBlock, recursiveLevel);
+	generateInlineForIntegerLoop(builder, genericSend, mergeSend, bytecodeIndex, &SOMppMethod::forLoopUp, loopStartValue, actualLoopEnd, loopIncrementValue, block, forLoopBlock, recursiveLevel);
 
 	return INLINE_SUCCESSFUL;
 }
 
 SOMppMethod::INLINE_STATUS
-SOMppMethod::generateInlineForIntegerToDo(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, long bytecodeIndex, int32_t recursiveLevel)
+SOMppMethod::generateInlineForIntegerToDo(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, int32_t recursiveLevel)
 {
 	TR::IlValue *loopStart = PICK(builder, 2); /* receiver for the Integer>>#to:do: (initial loop) */
 	TR::IlValue *loopEnd = PICK(builder, 1); /* the integer for to: (loop end) */
@@ -1782,13 +1928,13 @@ SOMppMethod::generateInlineForIntegerToDo(TR::BytecodeBuilder *builder, TR::Byte
 	TR::IlValue *actualLoopEnd = builder->Add(loopEndValue, builder->ConstInt64(1));
 	TR::IlValue *loopIncrementValue = builder->ConstInt64(1);
 
-	generateInlineForIntegerLoop(builder, genericSend, bytecodeIndex, &SOMppMethod::forLoopUp, loopStartValue, actualLoopEnd, loopIncrementValue, block, forLoopBlock, recursiveLevel);
+	generateInlineForIntegerLoop(builder, genericSend, mergeSend, bytecodeIndex, &SOMppMethod::forLoopUp, loopStartValue, actualLoopEnd, loopIncrementValue, block, forLoopBlock, recursiveLevel);
 
 	return INLINE_SUCCESSFUL;
 }
 
 SOMppMethod::INLINE_STATUS
-SOMppMethod::generateInlineForIntegerDownToDo(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, long bytecodeIndex, int32_t recursiveLevel)
+SOMppMethod::generateInlineForIntegerDownToDo(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, int32_t recursiveLevel)
 {
 	TR::IlValue *loopStart = PICK(builder, 2); /* receiver for the Integer>>#to:do: (initial loop) */
 	TR::IlValue *loopEnd = PICK(builder, 1); /* the integer for to: (loop end) */
@@ -1801,12 +1947,12 @@ SOMppMethod::generateInlineForIntegerDownToDo(TR::BytecodeBuilder *builder, TR::
 	TR::IlValue *loopEndValue = getIntegerValue(builder, loopEnd);
 	TR::IlValue *loopIncrementValue = builder->ConstInt64(1);
 
-	generateInlineForIntegerLoop(builder, genericSend, bytecodeIndex, &SOMppMethod::forLoopDown, loopStartValue, loopEndValue, loopIncrementValue, block, forLoopBlock, recursiveLevel);
+	generateInlineForIntegerLoop(builder, genericSend, mergeSend, bytecodeIndex, &SOMppMethod::forLoopDown, loopStartValue, loopEndValue, loopIncrementValue, block, forLoopBlock, recursiveLevel);
 
 	return INLINE_SUCCESSFUL;
 }
 SOMppMethod::INLINE_STATUS
-SOMppMethod::generateInlineForIntegerDownToByDo(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, long bytecodeIndex, int32_t recursiveLevel)
+SOMppMethod::generateInlineForIntegerDownToByDo(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, int32_t recursiveLevel)
 {
 	TR::IlValue *loopStart = PICK(builder, 3);
 	TR::IlValue *loopEnd = PICK(builder, 2);
@@ -1821,7 +1967,7 @@ SOMppMethod::generateInlineForIntegerDownToByDo(TR::BytecodeBuilder *builder, TR
 	TR::IlValue *loopEndValue = getIntegerValue(builder, loopEnd);
 	TR::IlValue *loopIncrementValue = getIntegerValue(builder, loopIncrement);
 
-	generateInlineForIntegerLoop(builder, genericSend, bytecodeIndex, &SOMppMethod::forLoopDown, loopStartValue, loopEndValue, loopIncrementValue, block, forLoopBlock, recursiveLevel);
+	generateInlineForIntegerLoop(builder, genericSend, mergeSend, bytecodeIndex, &SOMppMethod::forLoopDown, loopStartValue, loopEndValue, loopIncrementValue, block, forLoopBlock, recursiveLevel);
 
 	return INLINE_SUCCESSFUL;
 }
@@ -2036,19 +2182,56 @@ SOMppMethod::generateInlineForGenericNotNil(TR::BytecodeBuilder *builder)
 	return INLINE_SUCCESSFUL_NO_GENERIC_PATH_REQUIRED;
 }
 
-void
-SOMppMethod::generateForWhileLoop(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, long bytecodeIndex, int32_t recursiveLevel, TR::IlValue *condition)
+static const char * getConditionName(int64_t recursiveLevel)
 {
+	if (recursiveLevel == 0) {
+		return "_keepIterating0";
+	} else if (recursiveLevel == 1) {
+		return "_keepIterating1";
+	} else if (recursiveLevel == 2) {
+		return "_keepIterating2";
+	} else if (recursiveLevel == 3) {
+		return "_keepIterating3";
+	} else if (recursiveLevel == 4) {
+		return "_keepIterating4";
+	} else {
+		return nullptr;
+	}
+}
+
+void
+SOMppMethod::generateForWhileLoop(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, int32_t recursiveLevel, TR::IlValue *condition)
+{
+	VMMethod *codeBlock = blockMethods.top();
+	blockMethods.pop();
+	VMMethod *conditionBlock = blockMethods.top();
+	blockMethods.pop();
+
+	const char *condtionName = getConditionName(recursiveLevel);
+
 	TR::BytecodeBuilder *loopBody = OrphanBytecodeBuilder(bytecodeIndex, Bytecode::GetBytecodeName(BC_SEND));
 	builder->AddSuccessorBuilder(&loopBody);
 	TR::IlBuilder *looper = (TR::IlBuilder *)loopBody;
 
 	TR::IlValue *self = getSelf(builder);
 
-	long numOfLocals = whileLoopCodeBlock->GetNumberOfLocals();
+	long numOfLocals = codeBlock->GetNumberOfLocals();
+	if (numOfLocals == 0) {
+		numOfLocals = 1; //We may inline an integer loop inside this loop
+	}
 	if (numOfLocals > 0) {
-		builder->Store(getLocalName(recursiveLevel),
+		const char* locals = getLocalName(recursiveLevel);
+		builder->Store(locals,
 		builder->	CreateLocalArray((int32_t)numOfLocals, Int64));
+
+		for (long i = 0; i < numOfLocals; i++) {
+			builder->StoreAt(
+			builder->	IndexAt(pInt64,
+			builder->		ConvertTo(pInt64,
+			builder->			Load(locals)),
+			builder->		ConstInt32((int32_t)i)),
+			builder->	ConstInt64((int64_t)nilObject));
+		}
 	}
 
 	TR::BytecodeBuilder *preStart = OrphanBytecodeBuilder(bytecodeIndex, Bytecode::GetBytecodeName(BC_SEND));
@@ -2060,11 +2243,11 @@ SOMppMethod::generateForWhileLoop(TR::BytecodeBuilder *builder, TR::BytecodeBuil
 	builder->AppendBuilder(preEnd);
 
 	/* generate the initial loop condition. */
-	generateGenericMethodBody(&preStart, genericSend, whileLoopConditionBlock, self, bytecodeIndex, recursiveLevel);
+	generateGenericMethodBody(&preStart, genericSend, mergeSend, conditionBlock, self, bytecodeIndex, recursiveLevel);
 
 	preStart->Goto(preEnd);
 
-	preEnd->Store("keepIterating",
+	preEnd->Store(condtionName,
 	preEnd->	EqualTo(
 	preEnd->		Load("sendResult"), condition));
 
@@ -2076,19 +2259,19 @@ SOMppMethod::generateForWhileLoop(TR::BytecodeBuilder *builder, TR::BytecodeBuil
 	loopBody->AddSuccessorBuilder(&last);
 	loopBody->AppendBuilder(last);
 
-	preEnd->WhileDoLoop("keepIterating", &looper);
+	preEnd->WhileDoLoop(condtionName, &looper);
 
 	/* START OF LOOP */
 #if SOM_METHOD_DEBUG
-	fprintf(stderr, " %s>>#%s ", whileLoopCodeBlock->GetHolder()->GetName()->GetChars(), whileLoopCodeBlock->GetSignature()->GetChars());
+	fprintf(stderr, " %s>>#%s locals%d", codeBlock->GetHolder()->GetName()->GetChars(), codeBlock->GetSignature()->GetChars());
 #endif
-	generateGenericMethodBody(&first, genericSend, whileLoopCodeBlock, self, bytecodeIndex, recursiveLevel);
+	generateGenericMethodBody(&first, genericSend, mergeSend, codeBlock, self, bytecodeIndex, recursiveLevel);
 
 	/* Generate code for the loop condition */
-	generateGenericMethodBody(&first, genericSend, whileLoopConditionBlock, self, bytecodeIndex, recursiveLevel);
+	generateGenericMethodBody(&first, genericSend, mergeSend, conditionBlock, self, bytecodeIndex, recursiveLevel);
 	first->Goto(last);
 
-	last->Store("keepIterating",
+	last->Store(condtionName,
 	last->	EqualTo(
 	last->		Load("sendResult"), condition));
 	/* END OF LOOP */
@@ -2098,16 +2281,16 @@ SOMppMethod::generateForWhileLoop(TR::BytecodeBuilder *builder, TR::BytecodeBuil
 }
 
 SOMppMethod::INLINE_STATUS
-SOMppMethod::generateInlineForWhileTrue(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, long bytecodeIndex, int32_t recursiveLevel)
+SOMppMethod::generateInlineForWhileTrue(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, int32_t recursiveLevel)
 {
-	generateForWhileLoop(builder, genericSend, bytecodeIndex, recursiveLevel, builder->ConstInt64((int64_t)trueObject));
+	generateForWhileLoop(builder, genericSend, mergeSend, bytecodeIndex, recursiveLevel, builder->ConstInt64((int64_t)trueObject));
 	return INLINE_SUCCESSFUL;
 }
 
 SOMppMethod::INLINE_STATUS
-SOMppMethod::generateInlineForWhileFalse(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, long bytecodeIndex, int32_t recursiveLevel)
+SOMppMethod::generateInlineForWhileFalse(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, int32_t recursiveLevel)
 {
-	generateForWhileLoop(builder, genericSend, bytecodeIndex, recursiveLevel, builder->ConstInt64((int64_t)falseObject));
+	generateForWhileLoop(builder, genericSend, mergeSend, bytecodeIndex, recursiveLevel, builder->ConstInt64((int64_t)falseObject));
 	return INLINE_SUCCESSFUL;
 }
 
@@ -2161,7 +2344,7 @@ SOMppMethod::generateInlineOSRToGenericSend(TR::BytecodeBuilder *builder, TR::By
 	builder->IfCmpEqualZero(&failurePath,
 	builder->		ConstInt64(0x0));
 
-	SET_STACKTOP(failurePath, stackTopForErrorHandling);
+	SET_STACKTOP(failurePath, stackTopForErrorHandling[0]);
 	failurePath->Goto(*genericSend);
 
 	return INLINE_SUCCESSFUL;
@@ -2174,12 +2357,25 @@ SOMppMethod::methodIsInlineable(VMMethod *vmMethod, int32_t recursiveLevel)
 	long i = 0;
 	bool canInline = true;
 
-	if (recursiveLevel > 4) {
+	if (0 == strcmp(method->GetSignature()->GetChars(), vmMethod->GetSignature()->GetChars())) {
+		// can not inline recursively
 		return false;
 	}
 
+	if (0 == strcmp(vmMethod->GetSignature()->GetChars(), "&&")) {
+		return false;
+	}
+
+	if (recursiveLevel > 4) {
+		// can not currently handle more than an inline of depth 4
+		return false;
+	}
+
+	uint32_t blockMethodsSize = blockMethods.size();
+	bool didPush = false;
+
 #if SOM_METHOD_DEBUG
-	fprintf(stderr, "\n\t\tmethodIsInlineable %s\n", vmMethod->GetSignature()->GetChars());
+	fprintf(stderr, "\n\t\tmethodIsInlineable %s recLevel %d args%d locals%d\n", vmMethod->GetSignature()->GetChars(), recursiveLevel, vmMethod->GetNumberOfArguments(), vmMethod->GetNumberOfLocals());
 #endif
 
 	while ((i < bytecodeCount) && canInline) {
@@ -2196,6 +2392,17 @@ SOMppMethod::methodIsInlineable(VMMethod *vmMethod, int32_t recursiveLevel)
 		case BC_POP_ARGUMENT:
 		case BC_POP_FIELD:
 			break;
+		case BC_PUSH_BLOCK:
+		{
+#if 1
+			VMMethod *blockMethod = static_cast<VMMethod*>(vmMethod->GetConstant(i));
+			blockMethods.push(blockMethod);
+			didPush = true;
+#else
+			canInline = false;
+#endif
+			break;
+		}
 		case BC_JUMP_IF_FALSE:
 		case BC_JUMP_IF_TRUE:
 		case BC_JUMP:
@@ -2209,13 +2416,19 @@ SOMppMethod::methodIsInlineable(VMMethod *vmMethod, int32_t recursiveLevel)
 			break;
 		case BC_RETURN_NON_LOCAL:
 		{
-			if (recursiveLevel > 0) {
+			if (recursiveLevel == 1) {
+				fprintf(stderr, " recrusive lvel %d ", recursiveLevel);
+			}
+			if (recursiveLevel > 1) {
 				canInline = false;
 			}
 			break;
 		}
 		case BC_PUSH_ARGUMENT:
 		{
+#if SOM_METHOD_DEBUG
+			fprintf(stderr, " %d %d ", vmMethod->GetBytecode(i + 1), vmMethod->GetBytecode(i + 2));
+#endif
 			uint8_t level = vmMethod->GetBytecode(i + 2);
 			if (level > 2) {
 				canInline = false;
@@ -2224,6 +2437,9 @@ SOMppMethod::methodIsInlineable(VMMethod *vmMethod, int32_t recursiveLevel)
 		}
 		case BC_PUSH_LOCAL:
 		{
+#if SOM_METHOD_DEBUG
+			fprintf(stderr, " %d %d ", vmMethod->GetBytecode(i + 1), vmMethod->GetBytecode(i + 2));
+#endif
 			uint8_t level = vmMethod->GetBytecode(i + 2);
 			if (level > 2) {
 				canInline = false;
@@ -2232,6 +2448,9 @@ SOMppMethod::methodIsInlineable(VMMethod *vmMethod, int32_t recursiveLevel)
 		}
 		case BC_POP_LOCAL:
 		{
+#if SOM_METHOD_DEBUG
+			fprintf(stderr, " %d %d ", vmMethod->GetBytecode(i + 1), vmMethod->GetBytecode(i + 2));
+#endif
 			uint8_t level = vmMethod->GetBytecode(i + 2);
 			if (level > 2) {
 				canInline = false;
@@ -2249,12 +2468,16 @@ SOMppMethod::methodIsInlineable(VMMethod *vmMethod, int32_t recursiveLevel)
 				VMClass *invokableClass = receiverFromCache->LookupInvokable(signature)->GetHolder();
 				SOMppMethod::RECOGNIZED_METHOD_INDEX recognizedMethodIndex = getRecognizedMethodIndex(vmMethod, receiverFromCache, invokableClass, signature->GetChars(), recursiveLevel + 1);
 				if (NOT_RECOGNIZED == recognizedMethodIndex) {
-					VMInvokable *invokable = receiverFromCache->LookupInvokable(signature);
-					if (nullptr == invokable) {
-						canInline = false;
-					} else if (!invokable->IsPrimitive()) {
-						VMMethod *methodToInline = static_cast<VMMethod*>(invokable);
-						if (!methodIsInlineable(methodToInline, recursiveLevel + 1)) {
+					if (NOT_RECOGNIZED == getRecognizedMethodIndex(vmMethod, receiverFromCache, invokableClass, signature->GetChars(), recursiveLevel + 1, false)) {
+						VMInvokable *invokable = receiverFromCache->LookupInvokable(signature);
+						if (nullptr == invokable) {
+							canInline = false;
+						} else if (!invokable->IsPrimitive()) {
+							VMMethod *methodToInline = static_cast<VMMethod*>(invokable);
+							if (!methodIsInlineable(methodToInline, recursiveLevel + 1)) {
+								canInline = false;
+							}
+						} else {
 							canInline = false;
 						}
 					} else {
@@ -2272,6 +2495,15 @@ SOMppMethod::methodIsInlineable(VMMethod *vmMethod, int32_t recursiveLevel)
 		fprintf(stderr, "\n");
 #endif
 		i += Bytecode::GetBytecodeLength(bc);
+	}
+	if (didPush) {
+		if (blockMethods.size() > blockMethodsSize) {
+			fprintf(stderr, " pushed blocks that were not used! %u > %u\n", blockMethods.size(), blockMethodsSize);
+			while (blockMethods.size() > blockMethodsSize) {
+				blockMethods.pop();
+			}
+		}
+		//canInline = false;
 	}
 #if SOM_METHOD_DEBUG
 	if (canInline) {
@@ -2318,7 +2550,7 @@ SOMppMethod::newIntegerObjectForValue(TR::BytecodeBuilder *builder, TR::Bytecode
 	builder->IfCmpGreaterThan(&failurePath, value,
 	builder->	ConstInt64((int64_t)VMTAGGEDINTEGER_MAX));
 
-	SET_STACKTOP(failurePath, stackTopForErrorHandling);
+	SET_STACKTOP(failurePath, stackTopForErrorHandling[0]);
 	failurePath->Goto(*genericSend);
 
 	builder->Store("shiftedValue",
@@ -2389,7 +2621,7 @@ SOMppMethod::getIndexableFieldSlot(TR::BytecodeBuilder *builder, TR::IlValue *ar
 }
 
 SOMppMethod::RECOGNIZED_METHOD_INDEX
-SOMppMethod::getRecognizedMethodIndex(VMMethod *sendingMethod, VMClass *receiverFromCache, VMClass *invokableClass, const char *signatureChars, int32_t recursiveLevel)
+SOMppMethod::getRecognizedMethodIndex(VMMethod *sendingMethod, VMClass *receiverFromCache, VMClass *invokableClass, const char *signatureChars, int32_t recursiveLevel, bool doBlockInliningChecks)
 {
 	if (NULL == receiverFromCache) {
 		/* return an inline for an OSR point back to the calling generic send */
@@ -2468,31 +2700,63 @@ SOMppMethod::getRecognizedMethodIndex(VMMethod *sendingMethod, VMClass *receiver
 		} else if (0 == strcmp("abs", signatureChars)){
 			return INTEGER_ABS;
 		} else if (0 == strcmp("to:by:do:", signatureChars)){
-			if (0 != strcmp("to:do:", sendingMethod->GetSignature()->GetChars())) {
-				forLoopBlock = blockMethods.top();
-				blockMethods.pop();
-				if (methodIsInlineable(forLoopBlock, recursiveLevel)) {
+			//if (0 != strcmp("to:do:", sendingMethod->GetSignature()->GetChars())) {
+				if (doBlockInliningChecks) {
+					if (doLoopInlining && !blockMethods.empty()) {
+						forLoopBlock = blockMethods.top();
+						VMMethod *block = forLoopBlock;
+						blockMethods.pop();
+						if (methodIsInlineable(forLoopBlock, recursiveLevel)) {
+							blockMethods.push(block);
+							return INTEGER_TOBYDO;
+						}
+					}
+				} else {
 					return INTEGER_TOBYDO;
 				}
-			}
+			//}
 		} else if (0 == strcmp("to:do:", signatureChars)){
-			forLoopBlock = blockMethods.top();
-			blockMethods.pop();
-			if (methodIsInlineable(forLoopBlock, recursiveLevel)) {
+			if (doBlockInliningChecks) {
+				if (doLoopInlining && !blockMethods.empty()) {
+					forLoopBlock = blockMethods.top();
+					VMMethod *block = forLoopBlock;
+					blockMethods.pop();
+					if (methodIsInlineable(forLoopBlock, recursiveLevel)) {
+						blockMethods.push(block);
+						return INTEGER_TODO;
+					}
+				}
+			} else {
 				return INTEGER_TODO;
 			}
 		} else if (0 == strcmp("downTo:by:do:", signatureChars)){
-			if (0 != strcmp("downTo:do:", sendingMethod->GetSignature()->GetChars())) {
-				forLoopBlock = blockMethods.top();
-				blockMethods.pop();
-				if (methodIsInlineable(forLoopBlock, recursiveLevel)) {
+			//if (0 != strcmp("downTo:do:", sendingMethod->GetSignature()->GetChars())) {
+				if (doBlockInliningChecks) {
+					if (doLoopInlining && !blockMethods.empty()) {
+						forLoopBlock = blockMethods.top();
+						VMMethod *block = forLoopBlock;
+						blockMethods.pop();
+						if (methodIsInlineable(forLoopBlock, recursiveLevel)) {
+							blockMethods.push(block);
+							return INTEGER_DOWNTOBYDO;
+						}
+					}
+				} else {
 					return INTEGER_DOWNTOBYDO;
 				}
-			}
+			//}
 		} else if (0 == strcmp("downTo:do:", signatureChars)){
-			forLoopBlock = blockMethods.top();
-			blockMethods.pop();
-			if (methodIsInlineable(forLoopBlock, recursiveLevel)) {
+			if (doBlockInliningChecks) {
+				if (doLoopInlining && !blockMethods.empty()) {
+					forLoopBlock = blockMethods.top();
+					VMMethod *block = forLoopBlock;
+					blockMethods.pop();
+					if (methodIsInlineable(forLoopBlock, recursiveLevel)) {
+						blockMethods.push(block);
+						return INTEGER_DOWNTODO;
+					}
+				}
+			} else {
 				return INTEGER_DOWNTODO;
 			}
 		}
@@ -2524,26 +2788,46 @@ SOMppMethod::getRecognizedMethodIndex(VMMethod *sendingMethod, VMClass *receiver
 		}
 	} else if (((VMClass*)blockClass == invokableClass) || ((VMClass*)blockClass == invokableClass->GetSuperClass())) {
 		if (0 == strcmp("whileTrue:", signatureChars)) {
-			char *sendMethodChars = sendingMethod->GetSignature()->GetChars();
-			if ((0 != strcmp("whileFalse:", sendMethodChars)) && (0 != strcmp("to:by:do:", sendMethodChars)) && (0 != strcmp("downTo:by:do:", sendMethodChars))) {
-				whileLoopCodeBlock = blockMethods.top();
-				blockMethods.pop();
-				whileLoopConditionBlock = blockMethods.top();
-				blockMethods.pop();
-				if (methodIsInlineable(whileLoopConditionBlock, recursiveLevel) && methodIsInlineable(whileLoopCodeBlock, recursiveLevel)) {
+			//char *sendMethodChars = sendingMethod->GetSignature()->GetChars();
+			//if ((0 != strcmp("whileFalse:", sendMethodChars)) && (0 != strcmp("to:by:do:", sendMethodChars)) && (0 != strcmp("downTo:by:do:", sendMethodChars))) {
+				if (doBlockInliningChecks) {
+					if (doLoopInlining && (blockMethods.size() > 1)) {
+						whileLoopCodeBlock = blockMethods.top();
+						VMMethod *codeBlock = whileLoopCodeBlock;
+						blockMethods.pop();
+						whileLoopConditionBlock = blockMethods.top();
+						VMMethod *conditionBlock = whileLoopConditionBlock;
+						blockMethods.pop();
+						if (methodIsInlineable(whileLoopConditionBlock, recursiveLevel) && methodIsInlineable(whileLoopCodeBlock, recursiveLevel)) {
+							blockMethods.push(conditionBlock);
+							blockMethods.push(codeBlock);
+							return BLOCK_WHILETRUE;
+						}
+					}
+				} else {
 					return BLOCK_WHILETRUE;
 				}
-			}
+			//}
 		} else if (0 == strcmp("whileFalse:", signatureChars)) {
-			whileLoopCodeBlock = blockMethods.top();
-			blockMethods.pop();
-			whileLoopConditionBlock = blockMethods.top();
-			blockMethods.pop();
-			if (methodIsInlineable(whileLoopConditionBlock, recursiveLevel) && methodIsInlineable(whileLoopCodeBlock, recursiveLevel)) {
+			if (doBlockInliningChecks) {
+				if (doLoopInlining && (blockMethods.size() > 1)) {
+					whileLoopCodeBlock = blockMethods.top();
+					VMMethod *codeBlock = whileLoopCodeBlock;
+					blockMethods.pop();
+					whileLoopConditionBlock = blockMethods.top();
+					VMMethod *conditionBlock = whileLoopConditionBlock;
+					blockMethods.pop();
+					if (methodIsInlineable(whileLoopConditionBlock, recursiveLevel) && methodIsInlineable(whileLoopCodeBlock, recursiveLevel)) {
+						blockMethods.push(conditionBlock);
+						blockMethods.push(codeBlock);
+						return BLOCK_WHILEFALSE;
+					}
+				}
+			} else {
 				return BLOCK_WHILEFALSE;
 			}
 		}
-	} else if (((VMClass*)trueClass == receiverFromCache) || ((VMClass*)falseClass == receiverFromCache)) {
+	} else if ((((VMClass*)trueClass == receiverFromCache) || ((VMClass*)falseClass == receiverFromCache)) && false) {
 		if ((0 == strcmp("&&", signatureChars)) || (0 == strcmp("and:", signatureChars))) {
 			return BOOLEAN_AND;
 		} else if ((0 == strcmp("||", signatureChars)) || (0 == strcmp("or:", signatureChars))) {

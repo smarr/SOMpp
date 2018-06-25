@@ -58,7 +58,7 @@ public:
 	static int64_t getInvokable(int64_t receiverClazz, int64_t signature);
 	static const char* GET_INVOKABLE_LINE;
 	
-	static int64_t doSendIfRequired(int64_t interp, int64_t framePtr, int64_t invokablePtr, int64_t bytecodeIndex);
+	static int64_t doSendIfRequired(int64_t interp, int64_t framePtr, int64_t invokablePtr, int64_t receiverPtr, int64_t signaturePtr, int64_t bytecodeIndex);
 	static const char* DO_SEND_IF_REQUIRED_LINE;
 	
 	static int64_t doSuperSendHelper(int64_t interp, int64_t framePtr, int64_t signaturePtr, int64_t bytecodeIndex);

@@ -135,50 +135,47 @@ BytecodeHelper::getInvokable(int64_t receiverClazz, int64_t signature)
 }
 
 int64_t
-BytecodeHelper::doSendIfRequired(int64_t interp, int64_t framePtr, int64_t invokablePtr, int64_t bytecodeIndex)
+BytecodeHelper::doSendIfRequired(int64_t interp, int64_t framePtr, int64_t invokablePtr, int64_t receiverPtr, int64_t signaturePtr, int64_t bytecodeIndex)
 {
 #define VALUE_FOR_DO_SEND_IF_REQUIRED_LINE LINETOSTR(__LINE__)
 
 	VMFrame *frame = (VMFrame *)framePtr;
-	VMMethod *currentMethod = frame->GetMethod();
 	VMInvokable *invokable = (VMInvokable *)invokablePtr;
 	Interpreter *interpreter = (Interpreter *)interp;
 	interpreter->setBytecodeIndexGlobal((long)bytecodeIndex);
 	frame->SetBytecodeIndex((long)bytecodeIndex);
 	if (nullptr == invokable) {
-		long numberOfArgs = Signature::GetNumberOfArguments(currentMethod->GetSignature());
+		long numberOfArgs = Signature::GetNumberOfArguments((VMSymbol*)signaturePtr);
+		vm_oop_t receiver = (vm_oop_t)receiverPtr;
 
-		fprintf(stderr, "trying to send to a NULL invokable from %s\n", currentMethod->GetSignature()->GetChars());
+		VMArray* argumentsArray = GetUniverse()->NewArray(numberOfArgs - 1); // without receiver
 
-		 vm_oop_t receiver = frame->GetStackElement(numberOfArgs-1);
+		// the receiver should not go into the argumentsArray
+		// so, numberOfArgs - 2
+		for (long i = numberOfArgs - 2; i >= 0; --i) {
+			vm_oop_t o = frame->Pop();
+			argumentsArray->SetIndexableField(i, o);
+		}
+		vm_oop_t arguments[] = {(VMSymbol*)signaturePtr, argumentsArray};
 
-		 VMArray* argumentsArray = GetUniverse()->NewArray(numberOfArgs - 1); // without receiver
+		frame->Pop(); // pop the receiver
 
-		 // the receiver should not go into the argumentsArray
-		 // so, numberOfArgs - 2
-		 for (long i = numberOfArgs - 2; i >= 0; --i) {
-			 vm_oop_t o = frame->Pop();
-			 argumentsArray->SetIndexableField(i, o);
-		 }
-		 vm_oop_t arguments[] = {currentMethod->GetSignature(), argumentsArray};
+		//check if current frame is big enough for this unplanned Send
+		//doesNotUnderstand: needs 3 slots, one for this, one for method name, one for args
+		long additionalStackSlots = 3 - frame->RemainingStackSize();
+		if (additionalStackSlots > 0) {
+			// copy current frame into a bigger one, and replace it
+			interpreter->SetFrame(VMFrame::EmergencyFrameFrom(frame, additionalStackSlots));
+		}
 
-		 frame->Pop(); // pop the receiver
-
-		 //check if current frame is big enough for this unplanned Send
-		 //doesNotUnderstand: needs 3 slots, one for this, one for method name, one for args
-		 long additionalStackSlots = 3 - frame->RemainingStackSize();
-		 if (additionalStackSlots > 0) {
-			 // copy current frame into a bigger one, and replace it
-			 interpreter->SetFrame(VMFrame::EmergencyFrameFrom(frame, additionalStackSlots));
-		 }
-
-		 AS_OBJ(receiver)->Send(interpreter, "doesNotUnderstand:arguments:", arguments, 2);
-		 if (frame != interpreter->GetFrame()) {
-			 printf("Did frame grow in JITFrame.  TODO handle this properly\n");
-			 /* TODO replace with a runtime assert */
-			 int *x = 0;
-			 *x = 0;
-		 }
+		AS_OBJ(receiver)->Send(interpreter, "doesNotUnderstand:arguments:", arguments, 2);
+		Interpreter::runInterpreterLoop(interpreter);
+		if (frame != interpreter->GetFrame()) {
+			printf("Came back from a doesNotUnderstand and the frame was grown!!\n");
+			/* TODO replace with a runtime assert */
+			int *x = 0;
+			*x = 0;
+		}
 	} else {
 		invokable->Invoke(interpreter, frame);
 		if (interpreter->GetReturnCount() > 0) {
@@ -195,7 +192,6 @@ BytecodeHelper::doSendIfRequired(int64_t interp, int64_t framePtr, int64_t invok
 			/* TODO set frame, method, literals, sp, etc. */
 			/* not needed yet because objects do not move??? */
 		}
-
 
 		if (frame != interpreter->GetFrame()) {
 			interpreter->setBytecodeIndexGlobal(interpreter->GetFrame()->GetBytecodeIndex());
