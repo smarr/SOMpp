@@ -147,7 +147,7 @@ long VMMethod::GetMaximumNumberOfStackElements() const {
 }
 
 void VMMethod::SetMaximumNumberOfStackElements(long stel) {
-    store_ptr(maximumNumberOfStackElements, NEW_INT(stel));
+    store_ptr(maximumNumberOfStackElements, NEW_INT(stel + 13));
 }
 
 void VMMethod::SetNumberOfArguments(long noa) {
@@ -162,28 +162,28 @@ void VMMethod::Invoke(Interpreter* interp, VMFrame* frame) {
     VMFrame* frm = interp->PushNewFrame(this);
     frm->CopyArgumentsFrom(frame);
 #if GC_TYPE == OMR_GARBAGE_COLLECTION
-    if(NULL != compiledMethod) {
-    	frm->SetIsJITFrame(true);
+	if(NULL != compiledMethod) {
+		frm->SetIsJITFrame(true);
 		compiledMethod((int64_t)interp, (int64_t)frm);
 	} else if (invokedCount > 0) {
-        if (0 == --invokedCount) {
-            if (enableJIT) {
-            	SOM_VM *vm = GetHeap<OMRHeap>()->getVM();
-            	OMRPORT_ACCESS_FROM_OMRVM(vm->omrVM);
-            	OMR_CompilationQueueNode *node = (OMR_CompilationQueueNode *)omrmem_allocate_memory(sizeof(OMR_CompilationQueueNode), OMRMEM_CATEGORY_VM);
-            	if (NULL != node) {
-				    omrthread_monitor_enter(vm->jitCompilationQueueMonitor);
-				    node->linkNext = NULL;
-				    node->linkPrevious = NULL;
-				    node->vmMethod = this;
-				    J9_LINKED_LIST_ADD_LAST(vm->jitCompilationQueue, node);
-				    vm->jitCompilationState = 1;
-				    omrthread_monitor_notify_all(vm->jitCompilationQueueMonitor);
-				    omrthread_monitor_exit(vm->jitCompilationQueueMonitor);
-                }
-            }
-        }
-    }
+		if (0 == --invokedCount) {
+			if (enableJIT) {
+				SOM_VM *vm = GetHeap<OMRHeap>()->getVM();
+				OMRPORT_ACCESS_FROM_OMRVM(vm->omrVM);
+				OMR_CompilationQueueNode *node = (OMR_CompilationQueueNode *)omrmem_allocate_memory(sizeof(OMR_CompilationQueueNode), OMRMEM_CATEGORY_VM);
+				if (NULL != node) {
+					omrthread_monitor_enter(vm->jitCompilationQueueMonitor);
+					node->linkNext = NULL;
+					node->linkPrevious = NULL;
+					node->vmMethod = this;
+					J9_LINKED_LIST_ADD_LAST(vm->jitCompilationQueue, node);
+					vm->jitCompilationState = 1;
+					omrthread_monitor_notify_all(vm->jitCompilationQueueMonitor);
+					omrthread_monitor_exit(vm->jitCompilationQueueMonitor);
+				}
+			}
+		}
+	}
 #endif
 }
 

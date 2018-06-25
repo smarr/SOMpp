@@ -41,6 +41,9 @@ public:
     static VMFrame* EmergencyFrameFrom(VMFrame* from, long extraLength);
 
     VMFrame(long size, long nof = 0);
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+    VMFrame(vm_oop_t *args, vm_oop_t *locals, vm_oop_t *stack, long recLevel);
+#endif
 
     inline VMFrame* GetPreviousFrame() const;
     inline void SetPreviousFrame(VMFrame*);
@@ -77,6 +80,7 @@ public:
 #if GC_TYPE == OMR_GARBAGE_COLLECTION
     inline void SetIsJITFrame(bool value);
     inline bool GetIsJITFrame();
+    inline long GetRecursiveLevel();
 #endif
     virtual StdString AsDebugString() const;
 
@@ -90,6 +94,8 @@ private:
 
 #if GC_TYPE == OMR_GARBAGE_COLLECTION
     bool isJITFrame;
+//    bool isJITAllocatedFrame;
+    long recursiveLevel;
 #endif
 
     gc_oop_t* arguments;
@@ -160,10 +166,14 @@ void VMFrame::SetArgument(long index, vm_oop_t value) {
 
 #if GC_TYPE == OMR_GARBAGE_COLLECTION
 void VMFrame::SetIsJITFrame(bool value) {
-	isJITFrame = value;
+    isJITFrame = value;
 }
 
 bool VMFrame::GetIsJITFrame() {
     return isJITFrame;
+}
+
+long VMFrame::GetRecursiveLevel() {
+    return recursiveLevel;
 }
 #endif

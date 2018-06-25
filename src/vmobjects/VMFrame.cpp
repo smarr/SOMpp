@@ -105,6 +105,8 @@ VMFrame::VMFrame(long size, long nof) :
     bytecodeIndex = 0;
 #if GC_TYPE == OMR_GARBAGE_COLLECTION
     isJITFrame = false;
+    isJITAllocatedFrame = false;
+    recursiveLevel = -1;
 #endif
     arguments = (gc_oop_t*)&(stack_ptr)+1;
     locals = arguments;
@@ -120,6 +122,24 @@ VMFrame::VMFrame(long size, long nof) :
         i++;
     }
 }
+
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+VMFrame::VMFrame(vm_oop_t *args, vm_oop_t *locs, vm_oop_t* stack, long recLevel) :
+        VMObject(),
+        previousFrame(nullptr),
+        context(nullptr),
+        method(nullptr),
+        isJITFrame(true),
+//        isJITAllocatedFrame(true),
+        recursiveLevel(recLevel),
+        bytecodeIndex(0),
+        arguments((gc_oop_t*)args),
+        locals((gc_oop_t*)locs),
+        stack_ptr((gc_oop_t*)stack)
+{
+    clazz = nullptr; // Not a proper class anymore
+}
+#endif
 
 void VMFrame::SetMethod(VMMethod* method) {
     store_ptr(this->method, method);

@@ -994,6 +994,19 @@ VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method) const {
     return result;
 }
 
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+VMFrame* Universe::NewJITFrame(VMFrame* previousFrame, VMMethod* method, vm_oop_t *args, vm_oop_t *locals, vm_oop_t *stack, long recLevel) const {
+    VMFrame* result = nullptr;
+
+    result = new (GetHeap<HEAP_CLS>(), 0) VMFrame(args, locals, stack, recLevel);
+    result->SetPreviousFrame(previousFrame);
+    result->SetMethod(method);
+
+    LOG_ALLOCATION("VMFrame", result->GetObjectSize());
+    return result;
+}
+#endif
+
 VMObject* Universe::NewInstance(VMClass* classOfInstance) const {
     long numOfFields = classOfInstance->GetNumberOfInstanceFields();
     //the additional space needed is calculated from the number of fields

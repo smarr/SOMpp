@@ -94,6 +94,26 @@ void EvaluationRoutine::Invoke(Interpreter* interp, VMFrame* frame) {
 
     // Get the context of the block...
     VMFrame* context = block->GetContext();
+//    fprintf(stderr, "context %p\n", context);
+    if ((int64_t)context < (int64_t)0x10) {
+        fprintf(stderr, "handling recursiveLevel %p\n", context);
+        VMFrame *currentFrame = frame;
+        while (currentFrame != nullptr) {
+            long counter = 0;
+            long val = (long)context;
+            if (currentFrame->isJITAllocatedFrame) {
+                if (counter == val) {
+//                if (0 == strcmp("pushDisk:onPile:", currentFrame->GetMethod()->GetSignature()->GetChars())) {
+//                if(currentFrame->GetRecursiveLevel() == (long)context) {
+                    context = currentFrame;
+                    fprintf(stderr, "picked jit allocated frame %s\n", currentFrame->GetMethod()->GetSignature()->GetChars());
+                    break;
+                }
+                counter ++;
+            }
+            currentFrame = (VMFrame *)currentFrame->previousFrame;
+        }
+    }
 
     // Push a new frame and set its context to be the one specified in the block
     VMFrame* NewFrame = interp->PushNewFrame(block->GetMethod());
