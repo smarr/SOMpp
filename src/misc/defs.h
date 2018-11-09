@@ -100,6 +100,8 @@
   #define ALLOC_MATURE
   #define ALLOC_OUTSIDE_NURSERY(X)
   #define ALLOC_OUTSIDE_NURSERY_DECL
+#else
+  #error GC_TYPE not defined, or not having one of the values expected in defs.h
 #endif
 
 //
