@@ -856,7 +856,6 @@
 				0A1886E71832BCDC00A2CBCA /* Heap.cpp in Sources */,
 				0A1886F71832BCF500A2CBCA /* Signature.cpp in Sources */,
 				0A1887351832C10E00A2CBCA /* MarkSweepCollector.cpp in Sources */,
-				0A3A3C9E1A5D546D004CB03B /* Condition.cpp in Sources */,
 				0A1886FB1832BCF500A2CBCA /* VMBlock.cpp in Sources */,
 				0A1887391832C12E00A2CBCA /* Timer.cpp in Sources */,
 				0A1887021832BCFA00A2CBCA /* VMMethod.cpp in Sources */,
@@ -1129,11 +1128,19 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
+				HEADER_SEARCH_PATHS = (
+					./omr/build_debug/,
+					./omr/include_core/,
+					./omr/compiler/,
+					./omr/,
+				);
 				MAKE_ARGS = debug;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
-					"-DGC_TYPE=COPYING",
+					"-DGC_TYPE=OMR_GARBAGE_COLLECTION",
 					"-DUSE_TAGGING=false",
+					"-DDEFAULT_OMR_JIT_ON=true",
+					"-D_XOPEN_SOURCE",
 				);
 				VALID_ARCHS = x86_64;
 			};
@@ -1143,10 +1150,18 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
+				HEADER_SEARCH_PATHS = (
+					./omr/build_debug/,
+					./omr/include_core/,
+					./omr/compiler/,
+					./omr/,
+				);
 				MAKE_ARGS = all;
 				OTHER_CFLAGS = (
-					"-DGC_TYPE=COPYING",
+					"-DGC_TYPE=OMR_GARBAGE_COLLECTION",
 					"-DUSE_TAGGING=false",
+					"-DDEFAULT_OMR_JIT_ON=true",
+					"-D_XOPEN_SOURCE",
 				);
 				VALID_ARCHS = x86_64;
 			};
