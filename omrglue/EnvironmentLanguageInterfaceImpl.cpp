@@ -26,7 +26,7 @@
 
 
 MM_EnvironmentLanguageInterfaceImpl::MM_EnvironmentLanguageInterfaceImpl(MM_EnvironmentBase *env)
-	: MM_EnvironmentLanguageInterface(env)
+        : MM_EnvironmentBase(env->getOmrVM())
 	,_portLibrary(env->getPortLibrary())
 	,_env(env)
 	,_exclusiveCount(0)

@@ -35,7 +35,7 @@
 
 #include <misc/defs.h>
 
-#include "String.h"
+#include "SOMString.h"
 #include "../primitivesCore/Routine.h"
 
 _String::_String() : PrimitiveContainer() {

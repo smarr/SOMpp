@@ -19,235 +19,144 @@
 #ifndef SOMPPMETHOD_INCL
 #define SOMPPMETHOD_INCL
 
-#include "ilgen/MethodBuilder.hpp"
+#include "JitBuilder.hpp"
 #include "ilgen/VirtualMachineOperandStack.hpp"
 #include "ilgen/VirtualMachineRegisterInStruct.hpp"
 
-#include <stack>
-#include <map>
+namespace TR {
+class IlBuilder;
+class BytecodeBuilder;
+class TypeDictionary;
+class IlType;
+}
 
-class VMBlock;
 class VMMethod;
 class VMSymbol;
 class VMClass;
-class VMInvokable;
 typedef int64_t (SOMppFunctionType)(int64_t interpreter, int64_t frame);
-
-
-typedef TR::IlValue * (*MathFuncType)(TR::BytecodeBuilder *builder, TR::IlValue *param1, TR::IlValue *param2);
-typedef TR::IlValue * (*BooleanFuncType)(TR::BytecodeBuilder *builder, TR::IlValue *param1, TR::IlValue *param2);
-typedef void (*ForLoopFuncType)(TR::BytecodeBuilder *builder, const char *index, TR::IlBuilder **loop, TR::IlValue *start, TR::IlValue *end, TR::IlValue *increment);
 
 #define FIELDNAMES_LENGTH 10
 #define STACKVALUEILTYPE Int64
 #define	STACKVALUETYPE int64_t
 
-#define MAX_RECURSIVE_INLINING_DEPTH 4
-
-typedef std::map<const void *,TR::IlValue *> BlockToReceiverMap;
-
-class SOMppMethod: public TR::MethodBuilder {
-	enum INLINE_STATUS {
-		INLINE_FAILED,
-		INLINE_SUCCESSFUL,
-		INLINE_SUCCESSFUL_NO_GENERIC_PATH_REQUIRED
-	};
-	enum RECOGNIZED_METHOD_INDEX {
-		OBJECT_EQUAL = 0,
-		OBJECT_NOTEQUAL,
-		OBJECT_VALUE,
-		GENERIC_ISNIL,
-		GENERIC_NOTNIL,
-		INTEGER_PLUS,
-		INTEGER_MINUS,
-		INTEGER_MULTIPLY,
-		INTEGER_DIVIDE,
-		INTEGER_PERCENT,
-		INTEGER_AND,
-		INTEGER_LESSTHAN,
-		INTEGER_LESSTHANEQUAL,
-		INTEGER_GREATERTHAN,
-		INTEGER_GREATERTHANEQUAL,
-		INTEGER_EQUAL,
-		INTEGER_NOTEQUAL,
-		INTEGER_NEGATED,
-		INTEGER_MAX,
-		INTEGER_ABS,
-		INTEGER_TODO,
-		INTEGER_TOBYDO,
-		INTEGER_DOWNTODO,
-		INTEGER_DOWNTOBYDO,
-		ARRAY_AT,
-		ARRAY_ATPUT,
-		ARRAY_LENGTH,
-		ARRAY_DO,
-		ARRAY_DOINDEXES,
-		ARRAY_NEW,
-		DOUBLE_PLUS,
-		DOUBLE_MINUS,
-		DOUBLE_MULTIPLY,
-		DOUBLE_DIVIDE,
-		DOUBLE_LESSTHAN,
-		DOUBLE_LESSTHANEQUAL,
-		DOUBLE_GREATERTHAN,
-		DOUBLE_GREATERTHANEQUAL,
-		BLOCK_WHILETRUE,
-		BLOCK_WHILEFALSE,
-		BOOLEAN_AND,
-		BOOLEAN_AND_NOBLOCK,
-		BOOLEAN_OR,
-		BOOLEAN_OR_NOBLOCK,
-		BOOLEAN_NOT,
-		OSR_TO_GENERIC_SEND,
-		NOT_RECOGNIZED
-	};
+class SOMppMethod: public OMR::JitBuilder::MethodBuilder {
 public:
-	SOMppMethod(TR::TypeDictionary *types, VMMethod *vmMethod, bool inlineCalls);
+	SOMppMethod(OMR::JitBuilder::TypeDictionary *types, VMMethod *vmMethod, bool inlineCalls);
 	virtual bool buildIL();
 protected:
-	TR::IlType *pInt64;
-	TR::IlType *pDouble;
-	TR::IlType *vmFrame;
-	TR::IlType *pVMFrame;
-	TR::IlType *vmObject;
-	TR::IlType *valueType;
-	OMR::VirtualMachineOperandStack *stack;
-	OMR::VirtualMachineRegister *stackTop;
+	OMR::JitBuilder::IlType *pInt64;
+	OMR::JitBuilder::IlType *pDouble;
+	OMR::JitBuilder::IlType *vmFrame;
+	OMR::JitBuilder::IlType *pVMFrame;
+	OMR::JitBuilder::IlType *vmObject;
+        OMR::JitBuilder::IlType *valueType;
+	OMR::JitBuilder::VirtualMachineOperandStack *stack;
+	OMR::JitBuilder::VirtualMachineRegister *stackTop;
 	const char * fieldNames[FIELDNAMES_LENGTH];
-
-	static TR::IlValue *add(TR::BytecodeBuilder *builder, TR::IlValue *param1, TR::IlValue *param2);
-	static TR::IlValue *sub(TR::BytecodeBuilder *builder, TR::IlValue *param1, TR::IlValue *param2);
-	static TR::IlValue *mul(TR::BytecodeBuilder *builder, TR::IlValue *param1, TR::IlValue *param2);
-	static TR::IlValue *div(TR::BytecodeBuilder *builder, TR::IlValue *param1, TR::IlValue *param2);
-	static TR::IlValue *percent(TR::BytecodeBuilder *builder, TR::IlValue *param1, TR::IlValue *param2);
-	static TR::IlValue *andVals(TR::BytecodeBuilder *builder, TR::IlValue *param1, TR::IlValue *param2);
-	static TR::IlValue *lessThan(TR::BytecodeBuilder *builder, TR::IlValue *param1, TR::IlValue *param2);
-	static TR::IlValue *greaterThan(TR::BytecodeBuilder *builder, TR::IlValue *param1, TR::IlValue *param2);
-	static TR::IlValue *equalTo(TR::BytecodeBuilder *builder, TR::IlValue *param1, TR::IlValue *param2);
-	static void forLoopUp(TR::BytecodeBuilder *builder, const char *index, TR::IlBuilder **loop, TR::IlValue *start, TR::IlValue *end, TR::IlValue *increment);
-	static void forLoopDown(TR::BytecodeBuilder *builder, const char *index, TR::IlBuilder **loop, TR::IlValue *start, TR::IlValue *end, TR::IlValue *increment);
 private:
 	VMMethod *method;
-	std::stack<VMMethod *> blockMethods;
-	BlockToReceiverMap blockToReceiverMap;
-	VMMethod *forLoopBlock;
-	VMMethod *whileLoopConditionBlock;
-	VMMethod *whileLoopCodeBlock;
-	int32_t stackTopForErrorHandling[MAX_RECURSIVE_INLINING_DEPTH + 1];
-	VMMethod *inlinedMethods[MAX_RECURSIVE_INLINING_DEPTH + 1];
-	long inlinedBytecodeIndecies[MAX_RECURSIVE_INLINING_DEPTH + 1];
-	int32_t extraStackDepthRequired;
 	/* Should inlining be attempted */
 	bool doInlining;
-	bool doLoopInlining;
+	/* This is used to check if a send can be inlined */
+	long currentStackDepth;
 	/* Provide a name for the method */
 	char methodName[64];
 
 	void defineFunctions();
-	void defineStructures(TR::TypeDictionary *types);
+	void defineStructures(OMR::JitBuilder::TypeDictionary *types);
 	void defineLocals();
 	void defineParameters();
 
-	void defineVMFrameStructure(TR::TypeDictionary *types);
-	void defineVMObjectStructure(TR::TypeDictionary *types);
+	void defineVMFrameStructure(OMR::JitBuilder::TypeDictionary *types);
+	void defineVMObjectStructure(OMR::JitBuilder::TypeDictionary *types);
 
-	void justReturn(TR::IlBuilder *from);
+	void justReturn(OMR::JitBuilder::IlBuilder *from);
 
-	TR::BytecodeBuilder **createBytecodesBuilder(VMMethod *vmMethod);
-	int64_t calculateBytecodeIndexForJump(VMMethod *vmMethod, long bytecodeIndex);
-	bool generateILForBytecodes(VMMethod *vmMethod, TR::BytecodeBuilder **bytecodeBuilderTable);
+	void createBuilderForBytecode(OMR::JitBuilder::BytecodeBuilder **bytecodeBuilderTable, uint8_t bytecode, int64_t bytecodeIndex);
+	int64_t calculateBytecodeIndexForJump(long bytecodeIndex);
+	bool generateILForBytecode(OMR::JitBuilder::BytecodeBuilder **bytecodeBuilderTable, uint8_t bytecode, long bytecodeIndex);
 
-	void doDup(TR::BytecodeBuilder *builder);
-	void doPushLocal(TR::BytecodeBuilder *builder, long bytecodeIndex);
-	void doPushArgument(TR::BytecodeBuilder *builder, long bytecodeIndex);
-	void doPushField(TR::BytecodeBuilder *builder, long bytecodeIndex);
-	void doPushBlock(TR::BytecodeBuilder *builder, long bytecodeIndex);
-	void doPushConstant(TR::BytecodeBuilder *builder, long bytecodeIndex);
-	void doPushGlobal(TR::BytecodeBuilder *builder, long bytecodeIndex);
-	void doPop(TR::BytecodeBuilder *builder);
-	void doPopLocal(TR::BytecodeBuilder *builder, long bytecodeIndex);
-	void doPopArgument(TR::BytecodeBuilder *builder, long bytecodeIndex);
-	void doPopField(TR::BytecodeBuilder *builder, long bytecodeIndex);
-	void doSend(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **bytecodeBuilderTable, long bytecodeIndex, TR::BytecodeBuilder *fallThrough);
-	void doSuperSend(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **bytecodeBuilderTable, long bytecodeIndex);
-	void doReturnLocal(TR::BytecodeBuilder *builder, long bytecodeIndex);
-	void doReturnNonLocal(TR::BytecodeBuilder *builder, long bytecodeIndex);
-	void doJumpIfFalse(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **bytecodeBuilderTable, long bytecodeIndex);
-	void doJumpIfTrue(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **bytecodeBuilderTable, long bytecodeIndex);
-	void doJump(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **bytecodeBuilderTable, long bytecodeIndex);
+	void doDup(OMR::JitBuilder::BytecodeBuilder *builder);
+	void doPushLocal(OMR::JitBuilder::BytecodeBuilder *builder, long bytecodeIndex);
+	void doPushArgument(OMR::JitBuilder::BytecodeBuilder *builder, long bytecodeIndex);
+	void doPushField(OMR::JitBuilder::BytecodeBuilder *builder, VMMethod *currentMethod, long bytecodeIndex);
+	void doPushBlock(OMR::JitBuilder::BytecodeBuilder *builder, long bytecodeIndex);
+	void doPushConstant(OMR::JitBuilder::BytecodeBuilder *builder, long bytecodeIndex);
+	void doPushGlobal(OMR::JitBuilder::BytecodeBuilder *builder, long bytecodeIndex);
+	void doPop(OMR::JitBuilder::BytecodeBuilder *builder);
+	void doPopLocal(OMR::JitBuilder::BytecodeBuilder *builder, long bytecodeIndex);
+	void doPopArgument(OMR::JitBuilder::BytecodeBuilder *builder, long bytecodeIndex);
+	void doPopField(OMR::JitBuilder::BytecodeBuilder *builder, long bytecodeIndex);
+	void doSend(OMR::JitBuilder::BytecodeBuilder *builder, OMR::JitBuilder::BytecodeBuilder **bytecodeBuilderTable, long bytecodeIndex);
+	void doSuperSend(OMR::JitBuilder::BytecodeBuilder *builder, OMR::JitBuilder::BytecodeBuilder **bytecodeBuilderTable, long bytecodeIndex);
+	void doReturnLocal(OMR::JitBuilder::BytecodeBuilder *builder, long bytecodeIndex);
+	void doReturnNonLocal(OMR::JitBuilder::BytecodeBuilder *builder, long bytecodeIndex);
+	void doJumpIfFalse(OMR::JitBuilder::BytecodeBuilder *builder, OMR::JitBuilder::BytecodeBuilder **bytecodeBuilderTable, long bytecodeIndex);
+	void doJumpIfTrue(OMR::JitBuilder::BytecodeBuilder *builder, OMR::JitBuilder::BytecodeBuilder **bytecodeBuilderTable, long bytecodeIndex);
+	void doJump(OMR::JitBuilder::BytecodeBuilder *builder, OMR::JitBuilder::BytecodeBuilder **bytecodeBuilderTable, long bytecodeIndex);
 
-	const char *getContext(TR::IlBuilder *builder, uint8_t level);
-	TR::IlValue *getOuterContext(TR::IlBuilder *builder);
-	TR::IlValue *getSelf(TR::IlBuilder *builder);
-	void pushField(TR::BytecodeBuilder *builder, TR::IlValue *object, uint8_t fieldIndex);
-	void pushConstant(TR::BytecodeBuilder *builder, VMMethod *vmMethod, uint8_t valueOffset);
-	void pushValueFromArray(TR::BytecodeBuilder *builder, TR::IlValue *array, uint8_t arrayIndex);
-	void pushGlobal(TR::BytecodeBuilder *builder, VMSymbol* globalName);
-	void popField(TR::BytecodeBuilder *builder, TR::IlValue *object, uint8_t fieldIndex);
-	void popValueToArray(TR::BytecodeBuilder *builder, TR::IlValue *array, uint8_t arrayIndex);
-	TR::IlValue *getLocalArrayForLevel(TR::BytecodeBuilder *builder, VMMethod *vmMethod, long bytecodeIndex, int32_t recursiveLevel);
-	TR::IlValue *getArgumentArrayForLevel(TR::BytecodeBuilder *builder, VMMethod *vmMethod, long bytecodeIndex, int32_t recursiveLevel);
+	OMR::JitBuilder::IlValue *peek(OMR::JitBuilder::IlBuilder *builder);
+	void pop(OMR::JitBuilder::IlBuilder *builder);
+	void push(OMR::JitBuilder::IlBuilder *builder, OMR::JitBuilder::IlValue *value);
+	const char *getContext(OMR::JitBuilder::IlBuilder *builder, uint8_t level);
+	OMR::JitBuilder::IlValue *getOuterContext(OMR::JitBuilder::IlBuilder *builder);
+	OMR::JitBuilder::IlValue *getSelfFromContext(OMR::JitBuilder::IlBuilder *builder, OMR::JitBuilder::IlValue *context);
+	int getReceiverForSend(OMR::JitBuilder::IlBuilder *builder, VMSymbol* signature);
+	OMR::JitBuilder::IlValue *getNumberOfIndexableFields(OMR::JitBuilder::IlBuilder *builder, OMR::JitBuilder::IlValue *array);
+	void getIndexableFieldSlot(OMR::JitBuilder::IlBuilder *builder, OMR::JitBuilder::IlValue *array);
 
-	SOMppMethod::INLINE_STATUS doInlineIfPossible(TR::BytecodeBuilder **builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **merge, VMSymbol *signature, long bytecodeIndex);
-	SOMppMethod::INLINE_STATUS generateRecognizedMethod(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **merge, SOMppMethod::RECOGNIZED_METHOD_INDEX recognizedMethodIndex, VMClass *receiverFromCache, long bytecodeIndex, int32_t recursiveLevel);
-	void generateGenericMethod(TR::BytecodeBuilder **builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **merge, VMInvokable *invokable, VMClass *receiverClass, VMSymbol *signature, long bytecodeIndex, int32_t recursiveLevel = 0);
-	void generateGenericMethodBody(TR::BytecodeBuilder **builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **merge, VMMethod *methodToInline, TR::IlValue *receiver, long bytecodeIndex, int32_t recursiveLevel = 0);
-	void createBuildersForInlineSends(TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **merge, long bytecodeIndex);
-	bool methodIsInlineable(VMMethod *vmMethod, int32_t recursiveLevel);
+	OMR::JitBuilder::IlBuilder *doInlineIfPossible(OMR::JitBuilder::BytecodeBuilder *builder, VMSymbol* signature, long bytecodeIndex);
+	OMR::JitBuilder::IlBuilder *generateRecognizedMethod(OMR::JitBuilder::BytecodeBuilder *builder, VMClass *receiverFromCache, char *signatureChars);
+	OMR::JitBuilder::IlBuilder *generateGenericInline(OMR::JitBuilder::BytecodeBuilder *builder, VMClass *receiverFromCache, VMMethod *vmMethod, char *signatureChars);
+	bool methodIsInlineable(VMMethod *vmMethod);
 
-	SOMppMethod::INLINE_STATUS generateInlineForObjectNotEqual(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend,VMClass *receiverClass, int32_t recursiveLevel);
-	SOMppMethod::INLINE_STATUS generateInlineForObjectEqual(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, VMClass *receiverClass, int32_t recursiveLevel);
-	SOMppMethod::INLINE_STATUS generateInlineForObjectValue(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, VMClass *receiverClass, int32_t recursiveLevel);
+	/* Generate IL for primitives and known simple methods */
+	/* Integer methods */
+	OMR::JitBuilder::IlBuilder *generateILForIntergerOps(OMR::JitBuilder::BytecodeBuilder *builder, OMR::JitBuilder::IlBuilder **failPath);
+	OMR::JitBuilder::IlBuilder *verifyIntegerObject(OMR::JitBuilder::IlBuilder *builder, OMR::JitBuilder::IlValue *object, OMR::JitBuilder::IlBuilder **failPath);
+	OMR::JitBuilder::IlBuilder *getIntegerValue(OMR::JitBuilder::IlBuilder *builder, OMR::JitBuilder::IlValue *object, const char *valueName, OMR::JitBuilder::IlBuilder **failPath);
+	void createNewInteger(OMR::JitBuilder::IlBuilder *builder, OMR::JitBuilder::IlValue *integerValue);
 
-	SOMppMethod::INLINE_STATUS generateInlineForGenericIsNil(TR::BytecodeBuilder *builder);
-	SOMppMethod::INLINE_STATUS generateInlineForGenericNotNil(TR::BytecodeBuilder *builder);
+	OMR::JitBuilder::IlBuilder *generateILForIntegerLessThan(OMR::JitBuilder::BytecodeBuilder *builder);
+	OMR::JitBuilder::IlBuilder *generateILForIntegerLessThanEqual(OMR::JitBuilder::BytecodeBuilder *builder);
+	OMR::JitBuilder::IlBuilder *generateILForIntegerGreaterThan(OMR::JitBuilder::BytecodeBuilder *builder);
+	OMR::JitBuilder::IlBuilder *generateILForIntegerGreaterThanEqual(OMR::JitBuilder::BytecodeBuilder *builder);
+	OMR::JitBuilder::IlBuilder *generateILForIntegerEqual(OMR::JitBuilder::BytecodeBuilder *builder);
+	OMR::JitBuilder::IlBuilder *generateILForIntegerNotEqual(OMR::JitBuilder::BytecodeBuilder *builder);
+	OMR::JitBuilder::IlBuilder *generateILForIntegerPlus(OMR::JitBuilder::BytecodeBuilder *builder);
+	OMR::JitBuilder::IlBuilder *generateILForIntegerMinus(OMR::JitBuilder::BytecodeBuilder *builder);
+	OMR::JitBuilder::IlBuilder *generateILForIntegerStar(OMR::JitBuilder::BytecodeBuilder *builder);
+	OMR::JitBuilder::IlBuilder *generateILForIntegerPercent(OMR::JitBuilder::BytecodeBuilder *builder);
+	OMR::JitBuilder::IlBuilder *generateILForIntegerValue(OMR::JitBuilder::BytecodeBuilder *builder);
+	OMR::JitBuilder::IlBuilder *generateILForIntegerMax(OMR::JitBuilder::BytecodeBuilder *builder);
+	OMR::JitBuilder::IlBuilder *generateILForIntegerNegated(OMR::JitBuilder::BytecodeBuilder *builder);
+	OMR::JitBuilder::IlBuilder *generateILForIntegerAbs(OMR::JitBuilder::BytecodeBuilder *builder);
 
-	SOMppMethod::INLINE_STATUS generateInlineForIntegerMath(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, MathFuncType mathFunction, int32_t recursiveLevel);
-	SOMppMethod::INLINE_STATUS generateInlineForIntegerBoolean(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, BooleanFuncType booleanFunction, TR::IlValue *thenPathValue, TR::IlValue *elsePathValue, int32_t recursiveLevel);
-	SOMppMethod::INLINE_STATUS generateInlineForIntegerNegated(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, int32_t recursiveLevel);
-	SOMppMethod::INLINE_STATUS generateInlineForIntegerMax(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, int32_t recursiveLevel);
-	SOMppMethod::INLINE_STATUS generateInlineForIntegerAbs(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, long bytecodeIndex, int32_t recursiveLevel);
+	/* Array methods */
+	OMR::JitBuilder::IlBuilder *generateILForArrayAt(OMR::JitBuilder::BytecodeBuilder *builder);
+	OMR::JitBuilder::IlBuilder *generateILForArrayAtPut(OMR::JitBuilder::BytecodeBuilder *builder);
+	OMR::JitBuilder::IlBuilder *generateILForArrayLength(OMR::JitBuilder::BytecodeBuilder *builder);
 
-	void generateInlineForIntegerLoop(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, ForLoopFuncType loopFunction, TR::IlValue *start, TR::IlValue *end, TR::IlValue *increment, TR::IlValue *block, VMMethod *blockToInline, int32_t recursiveLevel);
-	SOMppMethod::INLINE_STATUS generateInlineForIntegerToDo(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, int32_t recursiveLevel);
-	SOMppMethod::INLINE_STATUS generateInlineForIntegerToByDo(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, int32_t recursiveLevel);
-	SOMppMethod::INLINE_STATUS generateInlineForIntegerDownToDo(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, int32_t recursiveLevel);
-	SOMppMethod::INLINE_STATUS generateInlineForIntegerDownToByDo(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, int32_t recursiveLevel);
+	/* Nil methods */
+	OMR::JitBuilder::IlBuilder *generateILForNilisNil(OMR::JitBuilder::BytecodeBuilder *builder);
 
-	SOMppMethod::INLINE_STATUS generateInlineForArrayAt(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, int32_t recursiveLevel);
-	SOMppMethod::INLINE_STATUS generateInlineForArrayAtPut(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, int32_t recursiveLevel);
-	SOMppMethod::INLINE_STATUS generateInlineForArrayLength(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, int32_t recursiveLevel);
-	SOMppMethod::INLINE_STATUS generateInlineForArrayDo(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, int32_t recursiveLevel);
-	SOMppMethod::INLINE_STATUS generateInlineForArrayDoIndexes(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, int32_t recursiveLevel);
-	SOMppMethod::INLINE_STATUS generateInlineForArrayNew(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, int32_t recursiveLevel);
+	/* Boolean methods */
+	OMR::JitBuilder::IlBuilder *generateILForBooleanNot(OMR::JitBuilder::BytecodeBuilder *builder);
+	OMR::JitBuilder::IlBuilder *generateILForBooleanAnd(OMR::JitBuilder::BytecodeBuilder *builder);
+	OMR::JitBuilder::IlBuilder *generateILForBooleanOr(OMR::JitBuilder::BytecodeBuilder *builder);
 
-	SOMppMethod::INLINE_STATUS generateInlineForDoubleMath(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, MathFuncType mathFunction, int32_t recursiveLevel);
-	SOMppMethod::INLINE_STATUS generateInlineForDoubleBoolean(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, BooleanFuncType booleanFunction, TR::IlValue *thenPathValue, TR::IlValue *elsePathValue, int32_t recursiveLevel);
-
-	void generateForWhileLoop(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, int32_t recursiveLevel, TR::IlValue *condition);
-	SOMppMethod::INLINE_STATUS generateInlineForWhileTrue(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, int32_t recursiveLevel);
-	SOMppMethod::INLINE_STATUS generateInlineForWhileFalse(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, int32_t recursiveLevel);
-
-	SOMppMethod::INLINE_STATUS generateInlineForBooleanAnd(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, int32_t recursiveLevel);
-	SOMppMethod::INLINE_STATUS generateInlineForBooleanAndNoBlock(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, int32_t recursiveLevel);
-	SOMppMethod::INLINE_STATUS generateInlineForBooleanOr(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, int32_t recursiveLevel);
-	SOMppMethod::INLINE_STATUS generateInlineForBooleanOrNoBlock(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, int32_t recursiveLevel);
-	SOMppMethod::INLINE_STATUS generateInlineForBooleanNot(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::BytecodeBuilder **mergeSend, long bytecodeIndex, int32_t recursiveLevel);
-
-	SOMppMethod::INLINE_STATUS generateInlineOSRToGenericSend(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, long bytecodeIndex, int32_t recursiveLevel);
-
-	void verifyIntegerArg(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::IlValue *value, int32_t recursiveLevel);
-	void verifyDoubleArg(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::IlValue *object, TR::IlValue *objectClass, int32_t recursiveLevel);
-	void verifyArg(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::IlValue *object, TR::IlValue *type, int32_t recursiveLevel);
-	void verifyArg2(TR::BytecodeBuilder **builder, TR::BytecodeBuilder **genericSend, TR::IlValue *object, TR::IlValue *type, VMMethod *methodToInline, VMSymbol* signature, long bytecodeIndex, int32_t recursiveLevel);
-	void verifyBooleanArg(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::IlValue *object, int32_t recursiveLevel);
-	TR::IlValue *getIntegerValue(TR::IlBuilder *builder, TR::IlValue *object);
-	TR::IlValue *newIntegerObjectForValue(TR::BytecodeBuilder *builder, TR::BytecodeBuilder **genericSend, TR::IlValue *value, int32_t recursiveLevel);
-	TR::IlValue *getDoubleValue(TR::IlBuilder *builder, TR::IlValue *object);
-	TR::IlValue *getDoubleValueFromDoubleOrInteger(TR::IlBuilder *builder, TR::IlValue *object, TR::IlValue *objectClass);
-	TR::IlValue *getIndexableFieldSlot(TR::BytecodeBuilder *builder, TR::IlValue *array, TR::IlValue *index);
-
-	SOMppMethod::RECOGNIZED_METHOD_INDEX getRecognizedMethodIndex(VMMethod *sendingMethod, VMClass *receiverFromCache, VMClass *invokableClass, const char *signatureChars, int32_t recursiveLevel, bool doBlockInliningChecks = true);
+	/* Integer methods */
+	OMR::JitBuilder::IlBuilder *generateILForDoubleOps(OMR::JitBuilder::BytecodeBuilder *builder, OMR::JitBuilder::IlBuilder **failPath);
+	OMR::JitBuilder::IlBuilder *generateILForDoubleLessThan(OMR::JitBuilder::BytecodeBuilder *builder);
+	OMR::JitBuilder::IlBuilder *generateILForDoubleLessThanEqual(OMR::JitBuilder::BytecodeBuilder *builder);
+	OMR::JitBuilder::IlBuilder *generateILForDoubleGreaterThan(OMR::JitBuilder::BytecodeBuilder *builder);
+	OMR::JitBuilder::IlBuilder *generateILForDoubleGreaterThanEqual(OMR::JitBuilder::BytecodeBuilder *builder);
+	OMR::JitBuilder::IlBuilder *generateILForDoubleEqual(OMR::JitBuilder::BytecodeBuilder *builder);
+	OMR::JitBuilder::IlBuilder *generateILForDoubleNotEqual(OMR::JitBuilder::BytecodeBuilder *builder);
+	OMR::JitBuilder::IlBuilder *generateILForDoublePlus(OMR::JitBuilder::BytecodeBuilder *builder);
+	OMR::JitBuilder::IlBuilder *generateILForDoubleMinus(OMR::JitBuilder::BytecodeBuilder *builder);
+	OMR::JitBuilder::IlBuilder *generateILForDoubleStar(OMR::JitBuilder::BytecodeBuilder *builder);
+	OMR::JitBuilder::IlBuilder *generateILForDoubleSlashSlash(OMR::JitBuilder::BytecodeBuilder *builder);
 };
 
 #endif // !defined(SOMPPMETHOD_INCL)

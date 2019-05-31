@@ -32,7 +32,7 @@
 #include <primitives/Method.h>
 #include <primitives/Object.h>
 #include <primitives/Primitive.h>
-#include <primitives/String.h>
+#include <primitives/SOMString.h>
 #include <primitives/Symbol.h>
 #include <primitives/System.h>
 

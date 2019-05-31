@@ -25,6 +25,7 @@
 #include "CollectorLanguageInterface.hpp"
 #include "GCExtensionsBase.hpp"
 #include "MarkingScheme.hpp"
+#include "HeapWalker.hpp"
 
 class MM_CompactScheme;
 class MM_EnvironmentStandard;
@@ -103,9 +104,9 @@ public:
 	virtual void markingScheme_markLiveObjectsComplete(MM_EnvironmentBase *env);
 	virtual void markingScheme_masterSetupForWalk(MM_EnvironmentBase *env);
 	virtual void markingScheme_masterCleanupAfterGC(MM_EnvironmentBase *env);
-	virtual uintptr_t markingScheme_scanObject(MM_EnvironmentBase *env, omrobjectptr_t objectPtr, MarkingSchemeScanReason reason);
+	virtual uintptr_t markingScheme_scanObject(MM_EnvironmentBase *env, omrobjectptr_t objectPtr, MM_MarkingSchemeScanReason reason);
 #if defined(OMR_GC_MODRON_CONCURRENT_MARK)
-	virtual uintptr_t markingScheme_scanObjectWithSize(MM_EnvironmentBase *env, omrobjectptr_t objectPtr, MarkingSchemeScanReason reason, uintptr_t sizeToDo);
+	virtual uintptr_t markingScheme_scanObjectWithSize(MM_EnvironmentBase *env, omrobjectptr_t objectPtr, MM_MarkingSchemeScanReason reason, uintptr_t sizeToDo);
 #endif /* OMR_GC_MODRON_CONCURRENT_MARK */
 
 	virtual bool collectorHeapRegionDescriptorInitialize(MM_EnvironmentBase *env, MM_HeapRegionDescriptor *region) {return true;}

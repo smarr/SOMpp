@@ -21,11 +21,10 @@
 
 #include "omr.h"
 
-#include "EnvironmentLanguageInterface.hpp"
-
+// #include "EnvironmentLanguageInterface.hpp"
 #include "EnvironmentBase.hpp"
 
-class MM_EnvironmentLanguageInterfaceImpl : public MM_EnvironmentLanguageInterface
+class MM_EnvironmentLanguageInterfaceImpl : public MM_EnvironmentBase
 {
 private:
 	OMRPortLibrary *_portLibrary;
@@ -50,7 +49,7 @@ public:
 	static MM_EnvironmentLanguageInterfaceImpl *newInstance(MM_EnvironmentBase *env);
 	virtual void kill(MM_EnvironmentBase *env);
 
-	static MM_EnvironmentLanguageInterfaceImpl *getInterface(MM_EnvironmentLanguageInterface *linterface) { return (MM_EnvironmentLanguageInterfaceImpl *)linterface; }
+	static MM_EnvironmentLanguageInterfaceImpl *getInterface(MM_EnvironmentDelegate *linterface) { return (MM_EnvironmentLanguageInterfaceImpl *)linterface; }
 
 	virtual void acquireVMAccess(MM_EnvironmentBase *env);
 	virtual void releaseVMAccess(MM_EnvironmentBase *env);

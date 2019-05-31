@@ -35,7 +35,7 @@ AbstractVMObject* OMRHeap::AllocateObject(size_t size) {
     }
 #endif  /* OMR_GC_THREAD_LOCAL_HEAP */
 
-    object = (AbstractVMObject*)OMR_GC_AllocateNoGC(thread.omrVMThread, allocSize, OMR_GC_ALLOCATE_NO_FLAGS);
+    object = (AbstractVMObject*)OMR_GC_AllocateObject(thread.omrVMThread, 0, allocSize, OMR_GC_ALLOCATE_OBJECT_NO_GC);
     if (NULL == object) {
         Universe::ErrorPrint("Failed to allocate " + to_string(allocSize) + " Bytes.\n");
         GetUniverse()->Quit(-1);

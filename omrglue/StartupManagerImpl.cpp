@@ -51,7 +51,7 @@ MM_StartupManagerImpl::handleOption(MM_GCExtensionsBase *extensions, char *optio
 	return result;
 }
 
-MM_ConfigurationLanguageInterface *
+MM_ConfigurationLanguageInterfaceImpl *
 MM_StartupManagerImpl::createConfigurationLanguageInterface(MM_EnvironmentBase *env)
 {
 	return MM_ConfigurationLanguageInterfaceImpl::newInstance(env);
@@ -84,7 +84,7 @@ MM_StartupManagerImpl::createConfiguration(MM_EnvironmentBase *env, MM_Configura
 	} else
 #endif /* OMR_GC_SEGREGATED_HEAP */
 	{
-		return MM_ConfigurationFlat::newInstance(env, cli);
+	  return MM_ConfigurationFlat::newInstance(env);
 	}
 }
 

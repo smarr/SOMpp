@@ -53,7 +53,7 @@
 #include "../vmobjects/IntegerBox.h"
 
 #if GC_TYPE == OMR_GARBAGE_COLLECTION
-#include "Jit.hpp"
+#include "JitBuilder.hpp"
 #include "ilgen/TypeDictionary.hpp"
 #include "../../omrglue/SOMppMethod.hpp"
 #include "../../omr/include_core/omrvm.h"
@@ -355,12 +355,12 @@ int Universe::jitCompilationEntryPoint(void *arg) {
 
             omrthread_monitor_exit(vm->jitCompilationQueueMonitor);
 
-			TR::TypeDictionary types;
+			OMR::JitBuilder::TypeDictionary types;
 
 			/* TODO what is keeping the method alive if a GC happens during compilation? */
 			/* We need a way to interrupt the JIT compile or block the GC from happening during compilation */
 			SOMppMethod methodBuilder(&types, node->vmMethod, true);
-			uint8_t *entry=0;
+			void *entry = nullptr;
 
 			rc = (*compileMethodBuilder)(&methodBuilder, &entry);
 			if (0 == rc) {

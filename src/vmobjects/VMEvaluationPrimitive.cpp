@@ -34,7 +34,7 @@
 #include "VMMethod.h"
 #if GC_TYPE == OMR_GARBAGE_COLLECTION
 #include "../../omr/include_core/omrlinkedlist.h"
-#include "Jit.hpp"
+#include "JitBuilder.hpp"
 #endif
 
 #include "../vm/Universe.h"

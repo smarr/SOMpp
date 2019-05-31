@@ -21,22 +21,23 @@
 
 #include "omr.h"
 
-#include "ConfigurationLanguageInterface.hpp"
+//#include "Configuration.hpp"
+#include "BaseVirtual.hpp"
 #include "EnvironmentBase.hpp"
+#include "EnvironmentDelegate.hpp"
 
 /**
  * Class representing a collector language interface.  This implements the API between the OMR
  * functionality and the language being implemented.
  * @ingroup GC_Base
  */
-class MM_ConfigurationLanguageInterfaceImpl : public MM_ConfigurationLanguageInterface {
+class MM_ConfigurationLanguageInterfaceImpl: public MM_BaseVirtual {
 private:
 protected:
 	bool initialize(MM_EnvironmentBase *env);
 	void tearDown(MM_EnvironmentBase *env);
 
 	MM_ConfigurationLanguageInterfaceImpl()
-		: MM_ConfigurationLanguageInterface()
 	{
 		_typeId = __FUNCTION__;
 	}
@@ -49,7 +50,7 @@ public:
 
 	virtual MM_ObjectAllocationInterface* createObjectAllocationInterface(MM_EnvironmentBase* env);
 
-	virtual MM_EnvironmentLanguageInterface *createEnvironmentLanguageInterface(MM_EnvironmentBase *env);
+  	virtual MM_EnvironmentBase *createEnvironmentLanguageInterface(MM_EnvironmentBase *env);
 
 	virtual bool initializeArrayletLeafSize(MM_EnvironmentBase* env);
 	virtual void initializeWriteBarrierType(MM_EnvironmentBase* env, uintptr_t configWriteBarrierType);

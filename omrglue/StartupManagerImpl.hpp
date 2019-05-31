@@ -54,7 +54,7 @@ protected:
 	virtual bool parseLanguageOptions(MM_GCExtensionsBase *extensions);
 
 public:
-	virtual MM_ConfigurationLanguageInterface * createConfigurationLanguageInterface(MM_EnvironmentBase *env);
+	virtual MM_ConfigurationLanguageInterfaceImpl * createConfigurationLanguageInterface(MM_EnvironmentBase *env);
 	virtual MM_Configuration *createConfiguration(MM_EnvironmentBase *env, MM_ConfigurationLanguageInterface *cli);
 	virtual MM_CollectorLanguageInterface * createCollectorLanguageInterface(MM_EnvironmentBase *env);
 	virtual MM_VerboseManagerBase * createVerboseManager(MM_EnvironmentBase* env);

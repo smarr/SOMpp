@@ -91,7 +91,7 @@ MM_ConfigurationLanguageInterfaceImpl::createObjectAllocationInterface(MM_Enviro
 	return MM_TLHAllocationInterface::newInstance(env);
 }
 
-MM_EnvironmentLanguageInterface *
+MM_EnvironmentBase*
 MM_ConfigurationLanguageInterfaceImpl::createEnvironmentLanguageInterface(MM_EnvironmentBase *env)
 {
 	return MM_EnvironmentLanguageInterfaceImpl::newInstance(env);
@@ -116,7 +116,7 @@ MM_ConfigurationLanguageInterfaceImpl::initializeAllocationType(MM_EnvironmentBa
 MM_GlobalCollector *
 MM_ConfigurationLanguageInterfaceImpl::createGlobalCollector(MM_EnvironmentBase *env)
 {
-	return MM_ParallelGlobalGC::newInstance(env, MM_GCExtensionsBase::getExtensions(env->getOmrVM())->collectorLanguageInterface);
+  return MM_ParallelGlobalGC::newInstance(env);//, MM_GCExtensionsBase::getExtensions(env->getOmrVM())->collectorLanguageInterface);
 }
 
 void

@@ -15,6 +15,7 @@
  * Contributors:
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
+
 #include "modronbase.h"
 
 #include "CollectorLanguageInterfaceImpl.hpp"
@@ -27,20 +28,42 @@
 #include "EnvironmentStandard.hpp"
 #include "GCExtensionsBase.hpp"
 #include "MarkingScheme.hpp"
-#include "mminitcore.h"
-#include "objectdescription.h"
 #include "ObjectIterator.hpp"
+#include "mminitcore.h"
 #include "omr.h"
 #include "omrvm.h"
 #include "OMRVMInterface.hpp"
 #include "ParallelTask.hpp"
-#include "ScanClassesMode.hpp"
+// #include "ScanClassesMode.hpp"
 
 #include "Heap.hpp"
 #include "HeapRegionIterator.hpp"
 #include "ObjectHeapIteratorAddressOrderedList.hpp"
 
 #include "vm/Universe.h"
+
+#include "ForwardedHeader.hpp"
+#include "GlobalCollector.hpp"
+
+/* this is to instantiate this member function with omrobjectptr_t = uintrp_t*,
+   which does not exist in libomrgc.a. 
+*/
+void
+MM_MarkingScheme::assertNotForwardedPointer(MM_EnvironmentBase *env, omrobjectptr_t objectPtr)
+{
+	/* This is an expensive assert - fetching class slot during marking operation, thus invalidating benefits of leaf optimization.
+	 * TODO: after some soaking remove it!
+	 */
+	if (_extensions->isConcurrentScavengerEnabled()) {
+		MM_ForwardedHeader forwardHeader(objectPtr);
+		omrobjectptr_t forwardPtr = forwardHeader.getNonStrictForwardedObject();
+		/* It is ok to encounter a forwarded object during overlapped concurrent scavenger/marking (or even root scanning),
+		 * but we must do nothing about it (if in backout, STW global phase will recover them).
+		 */
+		Assert_GC_true_with_message3(env, ((NULL == forwardPtr) || (!_extensions->getGlobalCollector()->isStwCollectionInProgress() && _extensions->isConcurrentScavengerInProgress())),
+			"Encountered object %p forwarded to %p (header %p) while Concurrent Scavenger/Marking not in progress\n", objectPtr, forwardPtr, &forwardHeader);
+	}
+}
 
 /**
  * Initialization
@@ -178,7 +201,7 @@ MM_CollectorLanguageInterfaceImpl::markingScheme_masterCleanupAfterGC(MM_Environ
 }
 
 uintptr_t
-MM_CollectorLanguageInterfaceImpl::markingScheme_scanObject(MM_EnvironmentBase *env, omrobjectptr_t objectPtr, MarkingSchemeScanReason reason)
+MM_CollectorLanguageInterfaceImpl::markingScheme_scanObject(MM_EnvironmentBase *env, omrobjectptr_t objectPtr, MM_MarkingSchemeScanReason reason)
 {
     AbstractVMObject* curObject = (AbstractVMObject*)objectPtr;
     curObject->WalkObjects(mark_object);
@@ -188,7 +211,7 @@ MM_CollectorLanguageInterfaceImpl::markingScheme_scanObject(MM_EnvironmentBase *
 
 #if defined(OMR_GC_MODRON_CONCURRENT_MARK)
 uintptr_t
-MM_CollectorLanguageInterfaceImpl::markingScheme_scanObjectWithSize(MM_EnvironmentBase *env, omrobjectptr_t objectPtr, MarkingSchemeScanReason reason, uintptr_t sizeToDo)
+MM_CollectorLanguageInterfaceImpl::markingScheme_scanObjectWithSize(MM_EnvironmentBase *env, omrobjectptr_t objectPtr, MM_MarkingSchemeScanReason reason, uintptr_t sizeToDo)
 {
 #error implement an object scanner which scans up to sizeToDo bytes
 }

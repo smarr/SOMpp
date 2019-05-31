@@ -23,6 +23,8 @@ project(SOMpp LANGUAGES CXX)
 set(CMAKE_PROJECT_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 set(CMAKE_CXX_STANDARD 14)
 
+add_subdirectory(omr)
+
 set(ROOT_DIR         "${CMAKE_CURRENT_SOURCE_DIR}")
 set(SRC_DIR		       "${ROOT_DIR}/src")
 set(COMPILER_DIR 	   "${SRC_DIR}/compiler")
@@ -36,6 +38,8 @@ set(UNITTEST_DIR 	   "${SRC_DIR}/unitTests")
 set(PRIMITIVES_DIR "${SRC_DIR}/primitives")
 set(PRIMITIVESCORE_DIR "${SRC_DIR}/primitivesCore")
 
+set(OMR_GLUE_DIR 	   "${SRC_DIR}/omrglue")
+
 file(GLOB COMPILER_SRC    ${COMPILER_DIR}/*.cpp)
 file(GLOB INTERPRETER_SRC ${INTERPRETER_DIR}/*.cpp)
 file(GLOB MEMORY_SRC      ${MEMORY_DIR}/*.cpp)
@@ -48,6 +52,27 @@ file(GLOB PRIMITIVES_SRC     ${PRIMITIVES_DIR}/*.cpp)
 file(GLOB PRIMITIVESCORE_SRC ${PRIMITIVESCORE_DIR}/*.cpp)
 
 file(GLOB UNITTEST_SRC    ${UNITTEST_DIR}/*.cpp)
+
+file(GLOB OMR_GLUE_SRC    ${OMR_GLUE_DIR}/*.cpp)
+
+set(OMR_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/omr/compiler"
+  "${CMAKE_CURRENT_SOURCE_DIR}/omr/jitbuilder/release/include"
+  "${CMAKE_CURRENT_SOURCE_DIR}/omr/gc"
+  "${CMAKE_CURRENT_SOURCE_DIR}/omr/gc/structs"
+  "${CMAKE_CURRENT_SOURCE_DIR}/omr/gc/include"
+  "${CMAKE_CURRENT_SOURCE_DIR}/omr/gc/startup"
+  "${CMAKE_CURRENT_SOURCE_DIR}/omr/gc/verbose"
+  "${CMAKE_CURRENT_SOURCE_DIR}/omr/gc/verbose/handler_standard"
+  "${CMAKE_CURRENT_SOURCE_DIR}/omr/gc/api"
+  "${CMAKE_CURRENT_SOURCE_DIR}/omr/gc/base"
+  "${CMAKE_CURRENT_SOURCE_DIR}/omr/gc/base/segregated"
+  "${CMAKE_CURRENT_SOURCE_DIR}/omr/gc/base/standard"
+  "${CMAKE_CURRENT_SOURCE_DIR}/omrglue"
+  "${CMAKE_CURRENT_SOURCE_DIR}/omr/gc/stats"
+  "${CMAKE_CURRENT_SOURCE_DIR}/omr")
+
+# TODO: properly integrate with option system
+add_definitions(-DDEFAULT_OMR_JIT -DGC_TYPE=OMR_GARBAGE_COLLECTION)
 
 option(USE_TAGGING "Enable immediate integers using tagging" FALSE)
 set(GC_TYPE "COPYING" CACHE STRING "Select the type of GC to be used: COPYING, MARK_SWEEP, GENERATIONAL")
@@ -113,15 +138,18 @@ target_sources(SOM++ PRIVATE
 
 	${MAIN_SRC}
 	${PRIMITIVES_SRC}
-	${PRIMITIVESCORE_SRC})
+	${PRIMITIVESCORE_SRC}
+
+    ${OMR_GLUE_SRC})
 
 target_compile_options(SOM++ PRIVATE
 	-m64
 	-Wno-endif-labels)
 
-target_include_directories(SOM++ PRIVATE ${SRC_DIR})
+target_include_directories(SOM++ PRIVATE ${SRC_DIR} ${OMR_INCLUDE})
 
 target_link_libraries(SOM++)
+target_link_libraries(SOM++ omrcore omrgc omrvmstartup jitbuilder)
 
 add_executable(unittests "")
 
