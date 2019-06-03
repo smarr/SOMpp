@@ -159,7 +159,7 @@ MM_CollectorLanguageInterfaceImpl::markingScheme_scanRoots(MM_EnvironmentBase *e
 	if (env->_currentTask->synchronizeGCThreadsAndReleaseSingleThread(env, UNIQUE_ID)) {
 		// This walks the globals of the universe, and the interpreter
 		GetUniverse()->WalkGlobals(mark_object);
-		env->_currentTask->releaseSynchronizedGCThreads(env);
+		Env->_currentTask->releaseSynchronizedGCThreads(env);
 	}
 }
 

@@ -19,6 +19,7 @@
 #ifndef LANGUAGETHREADLOCALHEAPSTRUCT_H
 #define LANGUAGETHREADLOCALHEAPSTRUCT_H
 
+#include "hashtable_api.h"
 #include "omr.h"
 
 typedef struct LanguageThreadLocalHeapStruct {
@@ -52,6 +53,12 @@ typedef struct OMR_CompilationQueueNode {
 
 typedef struct SOM_VM {
         OMR_VM* omrVM;
+	OMR_VMThread *_omrVMThread;
+	J9HashTable *rootTable;
+	J9HashTable *objectTable;
+	omrthread_t self;
+    	omrthread_rwmutex_t _vmAccessMutex;
+	volatile uintptr_t _vmExclusiveAccessCount;  
         omrthread_monitor_t jitCompilationQueueMonitor;
         OMR_CompilationQueueNode *jitCompilationQueue;
         int jitCompilationState;

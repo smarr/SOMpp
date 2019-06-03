@@ -5,7 +5,7 @@
 
 #include "Heap.h"
 
-#include <vm/Universe.h>
+#include "vm/Universe.h"
 
 #if GC_TYPE == OMR_GARBAGE_COLLECTION
 #include "../../omr/include_core/omr.h"

@@ -383,7 +383,7 @@ int Universe::jitCompilationEntryPoint(void *arg) {
     omrthread_monitor_notify_all(vm->jitCompilationQueueMonitor);
     omrthread_exit(vm->jitCompilationQueueMonitor);
 
-	return 0;
+    return 0;
 }
 
 uintptr_t Universe::createJITAsyncCompileThread(SOM_VM *vm) {
@@ -460,11 +460,27 @@ void Universe::initialize(long _argc, char** _argv) {
 #if GC_TYPE == OMR_GARBAGE_COLLECTION
     SOM_VM *vm = GetHeap<OMRHeap>()->getVM();
     SOM_Thread *thread = GetHeap<OMRHeap>()->getThread();
+
     if (OMR_ERROR_NONE != OMR_Initialize_VM(&vm->omrVM, &thread->omrVMThread, vm, thread)) {
         Universe::ErrorPrint("Failed startup OMR\n");
         GetUniverse()->Quit(-1);
     }
 
+    if (OMR_ERROR_NONE != omrthread_rwmutex_init(&vm->_vmAccessMutex, 0, "SOM_VM rwmutex")) {
+        Universe::ErrorPrint("Failed startup OMR\n");
+        GetUniverse()->Quit(-1);
+    }
+
+    /* Initialize root table */
+    vm->rootTable = hashTableNew(vm->omrVM->_runtime->_portLibrary, OMR_GET_CALLSITE(), 0, sizeof(RootEntry),
+				 0, 0, OMRMEM_CATEGORY_MM,
+				 rootTableHashFn, rootTableHashEqualFn, NULL, NULL);
+    
+    /* Initialize object table */
+    vm->objectTable = hashTableNew(vm->omrVM->_runtime->_portLibrary, OMR_GET_CALLSITE(), 0, sizeof(ObjectEntry),
+				   0, 0, OMRMEM_CATEGORY_MM,
+				   objectTableHashFn, objectTableHashEqualFn, NULL, NULL);
+    
     if (enableJIT) {
     	enableJIT = initializeJit();
         if (!enableJIT) {
@@ -489,9 +505,7 @@ void Universe::initialize(long _argc, char** _argv) {
     }
 #endif
 
-    VMObject* systemObject = InitializeGlobals();
-
-    
+    VMObject* systemObject = InitializeGlobals();  
     VMMethod* bootstrapMethod = createBootstrapMethod(load_ptr(systemClass), 2);
 
     if (argv.size() == 0) {
@@ -511,6 +525,16 @@ void Universe::initialize(long _argc, char** _argv) {
     bootstrapFrame->Push(systemObject);
     bootstrapFrame->Push(argumentsArray);
 
+//#if GC_TYPE == OMR_GARBAGE_COLLECTION
+//    OMRPORT_ACCESS_FROM_OMRVM(vm->omrVM);    
+//    RootEntry* entry = (RootEntry*) omrmem_allocate_memory(sizeof(RootEntry), OMRMEM_CATEGORY_UNKNOWN);
+//    
+//    entry->name = "bootstrapFrame";
+//    entry->rootPtr = (omrobjectptr_t) bootstrapFrame;
+//
+//    hashTableAdd(vm->rootTable, entry);
+//#endif
+    
     VMInvokable* initialize = load_ptr(systemClass)->LookupInvokable(
                                             SymbolForChars("initialize:"));
     initialize->Invoke(interpreter, bootstrapFrame);

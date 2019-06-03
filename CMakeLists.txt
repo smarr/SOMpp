@@ -72,7 +72,7 @@ set(OMR_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/omr/compiler"
   "${CMAKE_CURRENT_SOURCE_DIR}/omr")
 
 # TODO: properly integrate with option system
-add_definitions(-DDEFAULT_OMR_JIT -DGC_TYPE=OMR_GARBAGE_COLLECTION)
+add_definitions(-DDEFAULT_OMR_JIT_ON=true -DGC_TYPE=OMR_GARBAGE_COLLECTION)
 
 option(USE_TAGGING "Enable immediate integers using tagging" FALSE)
 set(GC_TYPE "COPYING" CACHE STRING "Select the type of GC to be used: COPYING, MARK_SWEEP, GENERATIONAL")
