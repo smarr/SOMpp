@@ -117,7 +117,7 @@ VMFrame::VMFrame(long size, long nof) :
     gc_oop_t* end = (gc_oop_t*) SHIFTED_PTR(this, objectSize);
     long i = 0;
     while (arguments + i < end) {
-# warning is the direct use of gc_oop_t here safe for all GCs?
+      //# warning is the direct use of gc_oop_t here safe for all GCs?
         arguments[i] = nilObject;
         i++;
     }
@@ -228,13 +228,13 @@ void VMFrame::PrintStack() const {
                     " MaxStack:" + to_string(GetMethod()->GetMaximumNumberOfStackElements()) +
                     "\n");
 
-    for (size_t i = 0; i < GetMethod()->GetNumberOfArguments(); i++) {
+    for (int64_t i = 0; i < GetMethod()->GetNumberOfArguments(); i++) {
         Universe::Print("   arg " + to_string(i) + ": ");
         print_oop(arguments[i]);
     }
     
     size_t local_offset = 0;
-    for (size_t i = 0; i < GetMethod()->GetNumberOfLocals(); i++) {
+    for (int64_t i = 0; i < GetMethod()->GetNumberOfLocals(); i++) {
         Universe::Print("   loc " + to_string(i) + ": ");
         print_oop(locals[i]);
         local_offset++;

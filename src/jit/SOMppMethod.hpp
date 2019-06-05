@@ -20,8 +20,8 @@
 #define SOMPPMETHOD_INCL
 
 #include "JitBuilder.hpp"
-#include "ilgen/VirtualMachineOperandStack.hpp"
-#include "ilgen/VirtualMachineRegisterInStruct.hpp"
+#include "VirtualMachineOperandStack.hpp"
+#include "VirtualMachineRegisterInStruct.hpp"
 
 namespace TR {
 class IlBuilder;

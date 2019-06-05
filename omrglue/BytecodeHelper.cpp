@@ -56,6 +56,9 @@
 #include "interpreter/bytecodes.h"
 #include "interpreter/Interpreter.h"
 
+#define TOSTR(x) #x
+#define LINETOSTR(x) TOSTR(x)
+
 int64_t
 BytecodeHelper::getClass(int64_t object)
 {

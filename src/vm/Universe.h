@@ -41,7 +41,7 @@
 
 #include "../memory/Heap.h"
 
-#include "omrExampleVM.hpp"
+// #include "omrExampleVM.hpp"
 
 class SourcecodeCompiler;
 struct SOM_VM;

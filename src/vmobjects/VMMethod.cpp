@@ -38,7 +38,7 @@
 #include <compiler/MethodGenerationContext.h>
 #include <vmobjects/IntegerBox.h>
 #if GC_TYPE == OMR_GARBAGE_COLLECTION
-#include "../../omrglue/SOMppMethod.hpp"
+#include "../../src/jit/SOMppMethod.hpp"
 #include "../../omr/include_core/omrlinkedlist.h"
 #include "JitBuilder.hpp"
 #endif
@@ -64,7 +64,7 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     cachedFrame = nullptr;
 #endif
-# warning not sure whether the use of _store_ptr is ok here
+    //# warning not sure whether the use of _store_ptr is ok here
 
     bcLength                     = _store_ptr(NEW_INT(bcCount));
     numberOfLocals               = _store_ptr(NEW_INT(0));
@@ -117,7 +117,7 @@ void VMMethod::WalkObjects(walk_heap_fn walk) {
     long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {
         if (GetIndexableField(i) != nullptr)
-# warning not sure _store_ptr is the best way, perhaps we should access the array content directly
+	  //# warning not sure _store_ptr is the best way, perhaps we should access the array content directly
             indexableFields[i] = walk(_store_ptr(GetIndexableField(i)));
     }
 }

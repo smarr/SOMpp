@@ -23,6 +23,8 @@
 #include "omrcfg.h"
 #include "ModronAssertions.h"
 #include "modronbase.h"
+#include "Object.hpp"
+#include "objectdescription.h"
 
 #include "Base.hpp"
 #include "GCExtensionsBase.hpp"

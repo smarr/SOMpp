@@ -16,7 +16,7 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  *******************************************************************************/
 
-//#include "CollectorLanguageInterfaceImpl.hpp"
+#include "CollectorLanguageInterfaceImpl.hpp"
 #include "ConfigurationLanguageInterfaceImpl.hpp"
 #if defined(OMR_GC_SEGREGATED_HEAP)
 #include "ConfigurationSegregated.hpp"

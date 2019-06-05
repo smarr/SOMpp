@@ -19,6 +19,8 @@
 #if !defined(OBJECTMODEL_HPP_)
 #define OBJECTMODEL_HPP_
 
+#include "omrgc.h"
+
 #include "ModronAssertions.h"
 #include "modronbase.h"
 #include "objectdescription.h"
@@ -69,6 +71,12 @@ public:
 
 	void tearDown(MM_GCExtensionsBase *extensions) {}
 
+        omrobjectptr_t
+	initializeAllocation(MM_EnvironmentBase *, void*, MM_AllocateInitialization*);
+
+  uintptr_t
+  getObjectFlags(omrobjectptr_t objectPtr);
+  
 	MMINLINE uintptr_t
 	adjustSizeInBytes(uintptr_t sizeInBytes)
 	{
@@ -216,6 +224,16 @@ public:
 		_objectAlignmentInBytes = objectAlignmentInBytes;
 	}
 
+	MMINLINE void
+	setObjectAlignment(OMR_VM *omrVM)
+	{
+//		_objectAlignmentInBytes = OMR_MAX((uintptr_t)1 << omrVM->_compressedPointersShift, OMR_MINIMUM_OBJECT_ALIGNMENT);
+//		_objectAlignmentShift = OMR_MAX(omrVM->_compressedPointersShift, OMR_MINIMUM_OBJECT_ALIGNMENT_SHIFT);
+
+		omrVM->_objectAlignmentInBytes = _objectAlignmentInBytes;
+		omrVM->_objectAlignmentShift = _objectAlignmentShift;
+	}  
+
  	/**
 	 * Set run-time Object Alignment Shift value
 	 * Function exists because we can only determine it is way after ObjectModel is init
@@ -244,6 +262,31 @@ public:
 		return _objectAlignmentShift;
 	}
 
+        fomrobject_t*
+	getObjectHeaderSlotAddress(omrobjectptr_t objectPtr);
+
+        uintptr_t
+	getObjectHeaderSlotFlagsShift();
+
+  /**
+   * If the received object holds an indirect reference (ie a reference to an object
+   * that is not reachable from the object reference graph) a pointer to the referenced
+   * object should be returned here. This method is called during heap walks for each
+   * heap object.
+   *
+   * @param objectPtr the object to botain indirct reference from
+   * @return a pointer to the indirect object, or NULL if none
+   */
+  MMINLINE omrobjectptr_t
+  getIndirectObject(omrobjectptr_t objectPtr)
+  {
+    return objectPtr;//_delegate.getIndirectObject(objectPtr);
+  }
+  
+        void
+	setObjectFlags(omrobjectptr_t objectPtr, uintptr_t bitsToClear, uintptr_t bitsToSet);
 };
 
+
 #endif /* OBJECTMODEL_HPP_ */
+

@@ -45,26 +45,6 @@
 #include "ForwardedHeader.hpp"
 #include "GlobalCollector.hpp"
 
-/* this is to instantiate this member function with omrobjectptr_t = uintrp_t*,
-   which does not exist in libomrgc.a. 
-*/
-void
-MM_MarkingScheme::assertNotForwardedPointer(MM_EnvironmentBase *env, omrobjectptr_t objectPtr)
-{
-	/* This is an expensive assert - fetching class slot during marking operation, thus invalidating benefits of leaf optimization.
-	 * TODO: after some soaking remove it!
-	 */
-	if (_extensions->isConcurrentScavengerEnabled()) {
-		MM_ForwardedHeader forwardHeader(objectPtr);
-		omrobjectptr_t forwardPtr = forwardHeader.getNonStrictForwardedObject();
-		/* It is ok to encounter a forwarded object during overlapped concurrent scavenger/marking (or even root scanning),
-		 * but we must do nothing about it (if in backout, STW global phase will recover them).
-		 */
-		Assert_GC_true_with_message3(env, ((NULL == forwardPtr) || (!_extensions->getGlobalCollector()->isStwCollectionInProgress() && _extensions->isConcurrentScavengerInProgress())),
-			"Encountered object %p forwarded to %p (header %p) while Concurrent Scavenger/Marking not in progress\n", objectPtr, forwardPtr, &forwardHeader);
-	}
-}
-
 /**
  * Initialization
  */
@@ -159,7 +139,7 @@ MM_CollectorLanguageInterfaceImpl::markingScheme_scanRoots(MM_EnvironmentBase *e
 	if (env->_currentTask->synchronizeGCThreadsAndReleaseSingleThread(env, UNIQUE_ID)) {
 		// This walks the globals of the universe, and the interpreter
 		GetUniverse()->WalkGlobals(mark_object);
-		Env->_currentTask->releaseSynchronizedGCThreads(env);
+		env->_currentTask->releaseSynchronizedGCThreads(env);
 	}
 }
 

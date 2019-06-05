@@ -9,7 +9,7 @@
 #include "../../omr/include_core/omrvm.h"
 #include "../../omr/gc/include/omrgc.h"
 #include "../../omr/gc/base/GCExtensionsBase.hpp"
-#include "../../omr/example/glue/MarkingDelegate.hpp"
+#include "MarkingDelegate.hpp"
 
 OMRHeap::OMRHeap(long objectSpaceSize) : Heap<OMRHeap>(new OMRCollector(this), objectSpaceSize) {
     collectionLimit = objectSpaceSize * 0.9;

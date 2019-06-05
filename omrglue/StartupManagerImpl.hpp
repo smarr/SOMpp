@@ -42,6 +42,7 @@ public:
 	static const uintptr_t defaultMinimumHeapSize = (uintptr_t) 1*1024*1024;
 	static const uintptr_t defaultMaximumHeapSize = (uintptr_t) 1*1024*1024;
 
+  virtual ~MM_StartupManagerImpl() {}
 	/*
 	 * Function members
 	 */

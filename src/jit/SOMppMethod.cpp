@@ -51,7 +51,7 @@
 #include <dlfcn.h>
 #include <errno.h>
 
-//#include "Jit.hpp"
+#include "JitBuilder.hpp"
 #include "ilgen/BytecodeBuilder.hpp"
 #include "ilgen/MethodBuilder.hpp"
 #include "ilgen/TypeDictionary.hpp"

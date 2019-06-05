@@ -33,24 +33,24 @@ class Interpreter;
 ///Implementation for a functor class with PrimitiveRoutine as base class.
 //It stores an object and a pointer to one of its methods. It is invoked
 //by calling the Routine's operator "()".
-template<class TClass> class Routine: public PrimitiveRoutine {
+template<class TClass>
+class Routine: public PrimitiveRoutine {
 private:
-    void (TClass::*func)(Interpreter*, VMFrame*);   // pointer to member function
-    TClass* primContainerObj;
     const bool classSide;
+    TClass* primContainerObj;    
+    void (TClass::*func)(Interpreter*, VMFrame*);   // pointer to member function
 
 public:
 
     // takes pointer to an object, pointer to a member, and a bool indicating whether it is a class-side primitive or not
     Routine(TClass* primContainerObj, void (TClass::*_fpt)(Interpreter*, VMFrame*),
             bool classSide)
-        : classSide(classSide), primContainerObj(primContainerObj),
-          func(_fpt), PrimitiveRoutine() {};
+      : PrimitiveRoutine(), classSide(classSide), primContainerObj(primContainerObj),
+        func(_fpt) {};
 
     virtual void Invoke(Interpreter* interp, VMFrame* frm) {
         (*primContainerObj.*func)(interp, frm);  // execute member function
     }
     
     virtual bool isClassSide() { return classSide; }
-
 };

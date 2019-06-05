@@ -615,13 +615,13 @@ void Interpreter::doJump(long bytecodeIndex) {
 }
 
 void Interpreter::WalkGlobals(walk_heap_fn walk) {
-#warning method and frame are stored as VMptrs, is that acceptable? Is the solution here with _store_ptr and load_ptr robust?
+  // #warning method and frame are stored as VMptrs, is that acceptable? Is the solution here with _store_ptr and load_ptr robust?
     
     method = load_ptr(static_cast<GCMethod*>(walk(_store_ptr(method))));
     
     // Get the current frame and mark it.
     // Since marking is done recursively, this automatically
     // marks the whole stack
-# warning Do I need a null check here?
+    // # warning Do I need a null check here?
     frame  = load_ptr(static_cast<GCFrame*>(walk(_store_ptr(frame))));
 }
