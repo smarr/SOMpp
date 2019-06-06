@@ -66,7 +66,9 @@ public:
 	bool
 	initialize(MM_GCExtensionsBase *extensions)
 	{
-		return true;
+	  _objectAlignmentInBytes = 0x8;
+	  _objectAlignmentShift = 3;
+	  return true;
 	}
 
 	void tearDown(MM_GCExtensionsBase *extensions) {}
