@@ -94,7 +94,7 @@ private:
 
 #if GC_TYPE == OMR_GARBAGE_COLLECTION
     bool isJITFrame;
-//    bool isJITAllocatedFrame;
+    bool isJITAllocatedFrame;
     long recursiveLevel;
 #endif
 
