@@ -255,8 +255,9 @@ SOMppMethod::createBuilderForBytecode(OMR::JitBuilder::BytecodeBuilder **bytecod
 void
 SOMppMethod::justReturn(OMR::JitBuilder::IlBuilder *from)
 {
-	from->Return(
-	from->   ConstInt64(3));
+       from->Return();
+//	from->Return(
+//	from->   ConstInt64(3));
 }
 
 bool
