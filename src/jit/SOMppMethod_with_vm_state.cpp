@@ -290,16 +290,16 @@ SOMppMethod::SOMppMethod(OMR::JitBuilder::TypeDictionary *types, VMMethod *vmMet
 void
 SOMppMethod::defineParameters()
 {
-	DefineParameter("interpreter", Int64);
+	DefineParameter("interpreter", pInt64);
 	DefineParameter("frame", pVMFrame);
 }
 
 void
 SOMppMethod::defineLocals()
 {
-	DefineLocal("frameOuterContext", Int64);
-	DefineLocal("frameArguments", Int64);
-	DefineLocal("frameLocals", Int64);
+	DefineLocal("frameOuterContext", pInt64);
+	DefineLocal("frameArguments", pInt64);
+	DefineLocal("frameLocals", pInt64);
 }
 
 void
@@ -346,20 +346,21 @@ SOMppMethod::defineVMFrameStructure(OMR::JitBuilder::TypeDictionary *types)
 
 	pVMFrame = types->PointerTo("VMFrame");
 
-	types->DefineField("VMFrame", "vTable", Int64);
-	types->DefineField("VMFrame", "gcField", Int64);
+	types->DefineField("VMFrame", "vTable", pInt64);
+	types->DefineField("VMFrame", "gcField", pInt64);
 	types->DefineField("VMFrame", "hash", Int64);
 	types->DefineField("VMFrame", "objectSize", Int64);
 	types->DefineField("VMFrame", "numberOfFields", Int64);
-	types->DefineField("VMFrame", "clazz", Int64);
-	types->DefineField("VMFrame", "previousFrame", Int64);
-	types->DefineField("VMFrame", "context", Int64);
-	types->DefineField("VMFrame", "method", Int64);
+	types->DefineField("VMFrame", "clazz", pInt64);
+	types->DefineField("VMFrame", "previousFrame", pInt64);
+	types->DefineField("VMFrame", "context", pInt64);
+	types->DefineField("VMFrame", "method", pInt64);
 	types->DefineField("VMFrame", "isJITFrame", Int64);
 	types->DefineField("VMFrame", "bytecodeIndex", Int64);
-	types->DefineField("VMFrame", "arguments", Int64);
-	types->DefineField("VMFrame", "locals", Int64);
+	types->DefineField("VMFrame", "arguments", pInt64);
+	types->DefineField("VMFrame", "locals", pInt64);
 	types->DefineField("VMFrame", "stack_ptr", pInt64);
+	
 	types->CloseStruct("VMFrame");
 }
 
@@ -368,22 +369,25 @@ SOMppMethod::defineVMObjectStructure(OMR::JitBuilder::TypeDictionary *types)
 {
 	vmObject = types->DefineStruct("VMObject");
 
-	types->DefineField("VMObject", "vTable", Int64);
-	types->DefineField("VMObject", "gcField", Int64);
+	types->DefineField("VMObject", "vTable", pInt64);
+	types->DefineField("VMObject", "gcField", pInt64);
 	types->DefineField("VMObject", "hash", Int64);
 	types->DefineField("VMObject", "objectSize", Int64);
 	types->DefineField("VMObject", "numberOfFields", Int64);
-	types->DefineField("VMObject", "clazz", Int64);
+	types->DefineField("VMObject", "clazz", pInt64);
+
 	for (int i = 0; i < FIELDNAMES_LENGTH; i++) {
-		types->DefineField("VMObject", fieldNames[i], Int64);
+		types->DefineField("VMObject", fieldNames[i], pInt64);
 	}
+	
 	types->CloseStruct("VMObject");
 }
 
 int64_t
 SOMppMethod::calculateBytecodeIndexForJump(VMMethod *vmMethod, long bytecodeIndex)
 {
-	int64_t target = 0;
+    int64_t target = 0;
+    
     target |= vmMethod->GetBytecode(bytecodeIndex + 1);
     target |= vmMethod->GetBytecode(bytecodeIndex + 2) << 8;
     target |= vmMethod->GetBytecode(bytecodeIndex + 3) << 16;

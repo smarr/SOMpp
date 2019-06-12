@@ -39,7 +39,7 @@ typedef OMR::JitBuilder::IlValue * (*BooleanFuncType)(OMR::JitBuilder::BytecodeB
 typedef void (*ForLoopFuncType)(OMR::JitBuilder::BytecodeBuilder *builder, const char *index, OMR::JitBuilder::IlBuilder **loop, OMR::JitBuilder::IlValue *start, OMR::JitBuilder::IlValue *end, OMR::JitBuilder::IlValue *increment);
 
 #define FIELDNAMES_LENGTH 10
-#define STACKVALUEILTYPE Int64
+#define STACKVALUEILTYPE pInt64
 #define	STACKVALUETYPE int64_t
 
 #define MAX_RECURSIVE_INLINING_DEPTH 4
