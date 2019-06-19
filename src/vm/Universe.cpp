@@ -24,7 +24,7 @@
  THE SOFTWARE.
  */
 
-#include <sstream> 
+#include <sstream>
 #include <string.h>
 #include <stdlib.h>
 #include <fstream>
@@ -353,29 +353,32 @@ int Universe::jitCompilationEntryPoint(void *arg) {
                 vm->jitCompilationState = 0;
                 continue;
             }
+
             J9_LINKED_LIST_REMOVE_FIRST(vm->jitCompilationQueue, node);
 
             omrthread_monitor_exit(vm->jitCompilationQueueMonitor);
 
-			OMR::JitBuilder::TypeDictionary types;
+	    OMR::JitBuilder::TypeDictionary types;
 
-			/* TODO what is keeping the method alive if a GC happens during compilation? */
-			/* We need a way to interrupt the JIT compile or block the GC from happening during compilation */
-			SOMppMethod methodBuilder(&types, node->vmMethod, true);
-			void *entry = nullptr;
+	    /* TODO what is keeping the method alive if a GC happens
+	       during compilation? */
+	    /* We need a way to interrupt the JIT compile or block
+	       the GC from happening during compilation */
+	    SOMppMethod methodBuilder(&types, node->vmMethod, true);
+	    void *entry = nullptr;
 
-			rc = (*compileMethodBuilder)(&methodBuilder, &entry);
-			if (0 == rc) {
-				node->vmMethod->compiledMethod = (SOMppFunctionType *)entry;
-			}
+	    rc = (*compileMethodBuilder)(&methodBuilder, &entry);
+	    if (0 == rc) {
+	      node->vmMethod->compiledMethod = (SOMppFunctionType *)entry;
+	    }
 
-        	OMRPORT_ACCESS_FROM_OMRVM(vm->omrVM);
-        	omrmem_free_memory(node);
+	    OMRPORT_ACCESS_FROM_OMRVM(vm->omrVM);
+	    omrmem_free_memory(node);
 
-        	omrthread_monitor_enter(vm->jitCompilationQueueMonitor);
+	    omrthread_monitor_enter(vm->jitCompilationQueueMonitor);
     	}
-
     }
+
     omrthread_monitor_exit(vm->jitCompilationQueueMonitor);
 
     OMR_Glue_UnbindCurrentThread(omrVMThread);
@@ -436,6 +439,7 @@ void Universe::shutdownJITAsyncCompileThread(SOM_VM *vm) {
 
     vm->jitCompilationState = 2;
     omrthread_monitor_notify_all(vm->jitCompilationQueueMonitor);
+    
     while (3 != vm->jitCompilationState) {
     	omrthread_monitor_wait(vm->jitCompilationQueueMonitor);
     }
@@ -452,7 +456,7 @@ void Universe::initialize(long _argc, char** _argv) {
     heapSize = 1 * 1024 * 1024;
 
     vector<StdString> argv = handleArguments(_argc, _argv);
-    
+
     // remember file that was executed (for writing statistics)
     if (argv.size() > 0)
         bm_name = argv[0];
@@ -477,12 +481,12 @@ void Universe::initialize(long _argc, char** _argv) {
 //    vm->rootTable = hashTableNew(vm->omrVM->_runtime->_portLibrary, OMR_GET_CALLSITE(), 0, sizeof(RootEntry),
 //				 0, 0, OMRMEM_CATEGORY_MM,
 //				 rootTableHashFn, rootTableHashEqualFn, NULL, NULL);
-//    
+//
 //    /* Initialize object table */
 //    vm->objectTable = hashTableNew(vm->omrVM->_runtime->_portLibrary, OMR_GET_CALLSITE(), 0, sizeof(ObjectEntry),
 //				   0, 0, OMRMEM_CATEGORY_MM,
 //				   objectTableHashFn, objectTableHashEqualFn, NULL, NULL);
-    
+
     if (enableJIT) {
     	enableJIT = initializeJit();
         if (!enableJIT) {
@@ -507,7 +511,7 @@ void Universe::initialize(long _argc, char** _argv) {
     }
 #endif
 
-    VMObject* systemObject = InitializeGlobals();  
+    VMObject* systemObject = InitializeGlobals();
     VMMethod* bootstrapMethod = createBootstrapMethod(load_ptr(systemClass), 2);
 
     if (argv.size() == 0) {
@@ -528,15 +532,15 @@ void Universe::initialize(long _argc, char** _argv) {
     bootstrapFrame->Push(argumentsArray);
 
 //#if GC_TYPE == OMR_GARBAGE_COLLECTION
-//    OMRPORT_ACCESS_FROM_OMRVM(vm->omrVM);    
+//    OMRPORT_ACCESS_FROM_OMRVM(vm->omrVM);
 //    RootEntry* entry = (RootEntry*) omrmem_allocate_memory(sizeof(RootEntry), OMRMEM_CATEGORY_UNKNOWN);
-//    
+//
 //    entry->name = "bootstrapFrame";
 //    entry->rootPtr = (omrobjectptr_t) bootstrapFrame;
 //
 //    hashTableAdd(vm->rootTable, entry);
 //#endif
-      
+
     VMInvokable* initialize = load_ptr(systemClass)->LookupInvokable(
                                             SymbolForChars("initialize:"));
     initialize->Invoke(interpreter, bootstrapFrame);
@@ -599,14 +603,14 @@ Universe::~Universe() {
             assert(false);
             return false;
         }
-        
+
         if (obj == nullptr)
             return true;
-        
-        
+
+
         if (vt_symbol == nullptr) // initialization not yet completed
             return true;
-        
+
         void* vt = *(void**) obj;
         bool b = vt == vt_array    ||
                vt == vt_block      ||
@@ -642,31 +646,31 @@ Universe::~Universe() {
     static void obtain_vtables_of_known_classes(VMSymbol* className) {
         VMArray* arr  = new (GetHeap<HEAP_CLS>()) VMArray(0, 0);
         vt_array      = *(void**) arr;
-        
+
         VMBlock* blck = new (GetHeap<HEAP_CLS>()) VMBlock();
         vt_block      = *(void**) blck;
-        
+
         vt_class      = *(void**) symbolClass;
-        
+
         VMDouble* dbl = new (GetHeap<HEAP_CLS>()) VMDouble(0.0);
         vt_double     = *(void**) dbl;
-        
+
         VMEvaluationPrimitive* ev = new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(1);
         vt_eval_primitive = *(void**) ev;
-        
+
         VMFrame* frm  = new (GetHeap<HEAP_CLS>()) VMFrame(0, 0);
         vt_frame      = *(void**) frm;
-        
+
         VMInteger* i  = new (GetHeap<HEAP_CLS>()) VMInteger(0);
         vt_integer    = *(void**) i;
-        
+
         VMMethod* mth = new (GetHeap<HEAP_CLS>()) VMMethod(0, 0, 0);
         vt_method     = *(void**) mth;
         vt_object     = *(void**) nilObject;
-        
+
         VMPrimitive* prm = new (GetHeap<HEAP_CLS>()) VMPrimitive(className);
         vt_primitive  = *(void**) prm;
-        
+
         VMString* str = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(1)) VMString("");
         vt_string     = *(void**) str;
         vt_symbol     = *(void**) className;
@@ -675,9 +679,9 @@ Universe::~Universe() {
 
 VMObject* Universe::InitializeGlobals() {
     set_vt_to_null();
-    
+
     //# warning is _store_ptr sufficient?
-    
+
     //
     //allocate nil object
     //
@@ -716,7 +720,7 @@ VMObject* Universe::InitializeGlobals() {
     load_ptr(objectClass)->SetSuperClass((VMClass*) nil);
 
     obtain_vtables_of_known_classes(nil->GetClass()->GetName());
-    
+
 #if USE_TAGGING
     GlobalBox::updateIntegerBox(NewInteger(1));
 #endif
@@ -742,26 +746,26 @@ VMObject* Universe::InitializeGlobals() {
     VMSymbol* trueClassName = SymbolForChars("True");
     trueClass  = _store_ptr(LoadClass(trueClassName));
     trueObject = _store_ptr(NewInstance(load_ptr(trueClass)));
-    
+
     VMSymbol* falseClassName = SymbolForChars("False");
     falseClass  = _store_ptr(LoadClass(falseClassName));
     falseObject = _store_ptr(NewInstance(load_ptr(falseClass)));
 
     systemClass = _store_ptr(LoadClass(SymbolForChars("System")));
-    
-    
+
+
     VMObject* systemObject = NewInstance(load_ptr(systemClass));
-    
+
     SetGlobal(SymbolForChars("nil"),    load_ptr(nilObject));
     SetGlobal(SymbolForChars("true"),   load_ptr(trueObject));
     SetGlobal(SymbolForChars("false"),  load_ptr(falseObject));
     SetGlobal(SymbolForChars("system"), systemObject);
     SetGlobal(SymbolForChars("System"), load_ptr(systemClass));
     SetGlobal(SymbolForChars("Block"),  load_ptr(blockClass));
-    
+
     symbolIfTrue  = _store_ptr(SymbolForChars("ifTrue:"));
     symbolIfFalse = _store_ptr(SymbolForChars("ifFalse:"));
-    
+
     return systemObject;
 }
 
@@ -850,7 +854,7 @@ VMClass* superClass, const char* name) {
 
 VMClass* Universe::LoadClass(VMSymbol* name) {
     VMClass* result = static_cast<VMClass*>(GetGlobal(name));
-    
+
     if (result != nullptr)
         return result;
 
@@ -863,7 +867,7 @@ VMClass* Universe::LoadClass(VMSymbol* name) {
 
     if (result->HasPrimitives() || result->GetClass()->HasPrimitives())
         result->LoadPrimitives(classPath);
-    
+
     SetGlobal(name, result);
 
     return result;
@@ -911,9 +915,9 @@ void Universe::LoadSystemClass(VMClass* systemClass) {
 
 VMArray* Universe::NewArray(long size) const {
     long additionalBytes = size * sizeof(VMObject*);
-    
+
     bool outsideNursery;
-    
+
 #if GC_TYPE == GENERATIONAL
     // if the array is too big for the nursery, we will directly allocate a
     // mature object
@@ -925,7 +929,7 @@ VMArray* Universe::NewArray(long size) const {
         result->SetGCField(MASK_OBJECT_IS_OLD);
 
     result->SetClass(load_ptr(arrayClass));
-    
+
     LOG_ALLOCATION("VMArray", result->GetObjectSize());
     return result;
 }
@@ -1015,7 +1019,7 @@ VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method) const {
     result->method        = _store_ptr(method);
     result->previousFrame = _store_ptr(previousFrame);
     result->ResetStackPointer();
-    
+
     LOG_ALLOCATION("VMFrame", result->GetObjectSize());
     return result;
 }
@@ -1095,7 +1099,7 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
     systemClass     = static_cast<GCClass*>(walk(systemClass));
     blockClass      = static_cast<GCClass*>(walk(blockClass));
     doubleClass     = static_cast<GCClass*>(walk(doubleClass));
-    
+
 #if GC_TYPE == OMR_GARBAGE_COLLECTION
     booleanClass  = static_cast<GCClass*>(walk(booleanClass));
 #endif
@@ -1122,7 +1126,7 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
         gc_oop_t val = walk(iter->second);
         globals[key] = val;
     }
-    
+
     // walk all entries in symbols map
     map<StdString, GCSymbol*>::iterator symbolIter;
     for (symbolIter = symbolsMap.begin();
@@ -1142,7 +1146,7 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
     //reassign ifTrue ifFalse Symbols
     symbolIfTrue  = symbolsMap["ifTrue:"];
     symbolIfFalse = symbolsMap["ifFalse:"];
-    
+
 #if GC_TYPE == OMR_GARBAGE_COLLECTION
     if (enableJIT) {
         SOM_VM *vm = GetHeap<OMRHeap>()->getVM();
@@ -1166,7 +1170,7 @@ VMMethod* Universe::NewMethod(VMSymbol* signature,
     //Method needs space for the bytecodes and the pointers to the constants
     long additionalBytes = PADDED_SIZE(numberOfBytecodes + numberOfConstants*sizeof(VMObject*));
 //#if GC_TYPE==GENERATIONAL
-//    VMMethod* result = new (GetHeap<HEAP_CLS>(),additionalBytes, true) 
+//    VMMethod* result = new (GetHeap<HEAP_CLS>(),additionalBytes, true)
 //                VMMethod(numberOfBytecodes, numberOfConstants);
 //#else
     VMMethod* result = new (GetHeap<HEAP_CLS>(),additionalBytes)

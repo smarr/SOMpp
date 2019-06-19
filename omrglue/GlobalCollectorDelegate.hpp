@@ -153,7 +153,7 @@ public:
 	bool
 	isAllowUserHeapWalk()
 	{
-		return true;
+	        return false;
 	}
 
 	/**

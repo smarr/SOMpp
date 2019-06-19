@@ -33,6 +33,7 @@
 #include "omr.h"
 #include "omrvm.h"
 #include "OMRVMInterface.hpp"
+#include "ParallelGlobalGC.hpp"
 #include "ParallelTask.hpp"
 // #include "ScanClassesMode.hpp"
 
@@ -84,6 +85,7 @@ MM_CollectorLanguageInterfaceImpl::tearDown(OMR_VM *omrVM)
 bool
 MM_CollectorLanguageInterfaceImpl::initialize(OMR_VM *omrVM)
 {
+  
 	return true;
 }
 

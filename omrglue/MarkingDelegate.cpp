@@ -33,6 +33,7 @@
 #include "omr.h"
 #include "omrvm.h"
 #include "OMRVMInterface.hpp"
+#include "ParallelGlobalGC.hpp"
 #include "ParallelTask.hpp"
 // #include "ScanClassesMode.hpp"
 
@@ -62,20 +63,19 @@ MM_MarkingDelegate::getObjectScanner(MM_EnvironmentBase *env, omrobjectptr_t obj
   return NULL;
 }
 
-
 static gc_oop_t
 mark_object(gc_oop_t oop)
 {
-  if (IS_TAGGED(oop)) {
-    return oop;
-  }
-  
-  MM_EnvironmentBase *env = MM_EnvironmentBase::getEnvironment(omr_vmthread_getCurrent(GetHeap<OMRHeap>()->getOMRVM()));
-  MM_CollectorLanguageInterfaceImpl *cli = (MM_CollectorLanguageInterfaceImpl*)env->getExtensions()->collectorLanguageInterface;
-
-  cli->markObject(env, (omrobjectptr_t)oop);
-
-  return oop;
+ if (IS_TAGGED(oop)) {
+   return oop;
+ }
+ 
+ MM_EnvironmentBase *env = MM_EnvironmentBase::getEnvironment(omr_vmthread_getCurrent(GetHeap<OMRHeap>()->getOMRVM()));
+ MM_GCExtensionsBase* extensions = env->getExtensions();
+ MM_ParallelGlobalGC* collector = (MM_ParallelGlobalGC* )extensions->getGlobalCollector();
+ 
+ collector->getMarkingScheme()->markObject(env, (omrobjectptr_t)oop);
+ return oop;
 }
 
 void
