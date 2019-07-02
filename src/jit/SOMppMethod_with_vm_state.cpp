@@ -2999,7 +2999,7 @@ SOMppMethod::generateInlineForBooleanOr(OMR::JitBuilder::BytecodeBuilder *builde
 //	truePath->IfCmpNotEqual(&failurePath, objectClass, truePath->ConstInt64((int64_t)booleanClass));
 //
 //	//failurePath->Call("printString", 1, failurePath->ConstInt64((int64_t)"boolean and and param is not a block\n"));
-	SET_STACKTOP(failurePath, stackTopForErrorHandling[recursiveLevel]);
+//	SET_STACKTOP(failurePath, stackTopForErrorHandling[recursiveLevel]);
 //	failurePath->Goto(*genericSend);
 
 	truePath->Store("sendResult", receiver);

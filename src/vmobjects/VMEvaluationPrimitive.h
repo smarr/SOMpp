@@ -26,26 +26,34 @@
  THE SOFTWARE.
  */
 
+#include "AbstractObject.h"
 #include "VMPrimitive.h"
 
 class VMEvaluationPrimitive: public VMPrimitive {
 public:
     typedef GCEvaluationPrimitive Stored;
-    
+
     VMEvaluationPrimitive(long argc);
     virtual void WalkObjects(walk_heap_fn);
     virtual VMEvaluationPrimitive* Clone() const;
-    
+
     virtual StdString AsDebugString() const;
-    
+
     int64_t GetNumberOfArguments() { return INT_VAL(load_ptr(numberOfArguments)); };
-    
+
+    std::vector<fomrobject_t*> GetFieldPtrs() {
+      std::vector<fomrobject_t*> fields{VMPrimitive::GetFieldPtrs()};
+
+      fields.push_back((fomrobject_t*) &numberOfArguments);
+      
+      return fields;
+    }
+
 private:
     static VMSymbol* computeSignatureString(long argc);
     void evaluationRoutine(Interpreter*, VMFrame*);
 private_testable:
     gc_oop_t numberOfArguments;
-
 };
 
 class EvaluationRoutine : public PrimitiveRoutine {

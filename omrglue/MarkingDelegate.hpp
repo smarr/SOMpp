@@ -50,6 +50,7 @@ protected:
   //    OMR_VM *_omrVM;
   //	MM_GCExtensionsBase *_extensions;
 	MM_MarkingScheme *_markingScheme;
+        GC_MixedObjectScanner* _scannerAlloc;
 public:
 	enum AttachVMThreadReason {
 		ATTACH_THREAD = 0x0,
@@ -62,6 +63,8 @@ private:
 public:
   MMINLINE void workerCleanupAfterGC(MM_EnvironmentBase*) {}
   MMINLINE void masterCleanupAfterGC(MM_EnvironmentBase*) {}
+
+  virtual ~MM_MarkingDelegate();
   
   bool initialize(MM_EnvironmentBase *env, MM_MarkingScheme *markingScheme);
   //void tearDown(OMR_VM *omrVM);

@@ -33,13 +33,15 @@
 
 #include <primitivesCore/PrimitiveLoader.h>
 
-
 const long VMClass::VMClassNumberOfFields = 4;
 
 VMClass::VMClass() :
-        VMObject(VMClassNumberOfFields), superClass(nullptr), name(nullptr), instanceFields(
-                nullptr), instanceInvokables(nullptr) {
-}
+    VMObject(VMClassNumberOfFields)
+  , superClass(nullptr)
+  , name(nullptr)
+  , instanceFields(nullptr)
+  , instanceInvokables(nullptr)
+{}
 
 VMClass* VMClass::Clone() const {
     VMClass* clone = new (GetHeap<HEAP_CLS>(), objectSize - sizeof(VMClass) ALLOC_MATURE) VMClass(*this);

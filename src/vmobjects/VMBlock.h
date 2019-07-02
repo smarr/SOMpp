@@ -34,6 +34,15 @@ public:
     
     VMBlock();
 
+    std::vector<fomrobject_t*> GetFieldPtrs() {
+      std::vector<fomrobject_t*> fields{ (fomrobject_t*) &clazz };
+
+      fields.push_back((fomrobject_t*) &blockMethod);
+      fields.push_back((fomrobject_t*) &context);
+      
+      return fields;
+    }    
+    
             VMMethod* GetMethod() const;
             void      SetMethod(VMMethod*);
     inline  void      SetContext(VMFrame*);

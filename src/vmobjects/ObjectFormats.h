@@ -84,20 +84,20 @@ class VMSymbol;
 // On the other hand, VMOops need to be untagged first to become useful.
 class GCOop;
 class VMOop {
-    virtual void dummyVirtualFunctionToForceVTableCreation() {
+  virtual void dummyVirtualFunctionToForceVTableCreation() {
         /* With the current class hierarchy, we need to force the compiler to
            create a VTable early, otherwise, the object layout is having
            vtables in the body of the objects, and casting is messed up, 
            leading to offset pointers to the vtables of subclasses. */ };
-    public: typedef GCOop Stored; };
+    public: typedef GCOop Stored;
+};
+
 class GCOop { public: typedef VMOop Loaded; };
 
 // oop_t: Ordinary Object Pointer type
 // an oop_t can refer to tagged integers as well as normal AbstractVMObjects
 typedef VMOop* vm_oop_t;
 typedef GCOop* gc_oop_t;
-
-
 
 /**
  We need to distinguish between pointers that need to be handled with a
@@ -124,12 +124,9 @@ class GCEvaluationPrimitive : public GCPrimitive { public: typedef VMEvaluationP
 class GCString    : public GCAbstractObject { public: typedef VMString Loaded; };
 class GCSymbol    : public GCString      { public: typedef VMSymbol Loaded; };
 
-
-
 // Used to mark object fields as invalid
 #define INVALID_VM_POINTER ((VMObject*)0x101010)
 #define INVALID_GC_POINTER ((GCObject*)0x101010)
-
 
 template<typename T>
 inline typename T::Loaded* load_ptr(T* gc_val) {

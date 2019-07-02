@@ -31,18 +31,22 @@
 class VMDouble: public AbstractVMObject {
 public:
     typedef GCDouble Stored;
-    
+
     VMDouble(double val) : AbstractVMObject(), embeddedDouble(val) {}
+
+    std::vector<fomrobject_t*> GetFieldPtrs() {
+      return {};
+    }
 
     virtual VMDouble* Clone() const;
     inline  double   GetEmbeddedDouble() const;
     virtual VMClass* GetClass() const;
     inline virtual size_t GetObjectSize() const;
-    
+
     virtual void MarkObjectAsInvalid() {}
-    
+
     virtual StdString AsDebugString() const;
-    
+
 private_testable:
     const double embeddedDouble;
 };

@@ -46,6 +46,10 @@ public:
     
     virtual StdString AsDebugString() const;
 
+    std::vector<fomrobject_t*> GetFieldPtrs() {
+        return {};
+    }
+
 private_testable:
     const int64_t embeddedInteger;
 };

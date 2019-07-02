@@ -60,6 +60,10 @@ public:
     
     virtual StdString AsDebugString() const;
 
+    virtual std::vector<fomrobject_t*> GetFieldPtrs() {
+        return {};
+    }
+
 protected_testable:
     //this could be replaced by the CHARS macro in VMString.cpp
     //in order to decrease the object size

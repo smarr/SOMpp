@@ -55,8 +55,6 @@ private:
     PrimitiveRoutine* getPrimitiveRoutine(const std::string& cname,
                                           const std::string& mname,
                                           bool isPrimitive);
-
-
     
     std::map<StdString, PrimitiveContainer*> primitiveObjects;
     

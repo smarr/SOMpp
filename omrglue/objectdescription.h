@@ -31,10 +31,10 @@
  * Object token definitions to be used by OMR components.
  */
 
-class Object;
+class VMObjectBase;
 
-typedef Object* languageobjectptr_t;
-typedef Object* omrobjectptr_t;
+typedef VMObjectBase* languageobjectptr_t;
+typedef VMObjectBase* omrobjectptr_t;
 typedef uintptr_t* omrarrayptr_t;
 
 #if defined (OMR_GC_COMPRESSED_POINTERS)

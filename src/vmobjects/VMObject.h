@@ -57,6 +57,11 @@
  */
 
 // FIELDS starts indexing after the clazz field
+// ACKSHUALLY, they are allocated from the end of the object.
+// VMObject has many subclasses, and they have no way of knowing
+// how many FIELDS the VMObject subobject will have at compile time.
+// They will therefore stamp their own C++ fields over the previous
+// locations of the FIELDS array, which obstructs GC. 
 #define FIELDS (((gc_oop_t*)&clazz) + 1)
 
 class VMObject: public AbstractVMObject {
@@ -101,7 +106,20 @@ public:
         return mem;
     }
 
-protected:
+    std::vector<fomrobject_t*> GetFieldPtrs() {
+      std::vector<fomrobject_t*> fields{ (fomrobject_t*) &clazz };
+
+      // now add the FIELDS, starting at (gc_oop*)clazz + 1.
+      for(uintptr_t i = 0; i < numberOfFields; ++i) {
+	if(FIELDS[i] != nullptr && *(omrobjectptr_t*) FIELDS[i] != nullptr) {
+	  fields.push_back((fomrobject_t*) &FIELDS[i]);
+	}
+      }
+
+      return fields;
+    }    
+    
+protected:      
     inline long GetAdditionalSpaceConsumption() const;
 
     // VMObject essentials

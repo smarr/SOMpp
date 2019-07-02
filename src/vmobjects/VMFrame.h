@@ -44,7 +44,7 @@ public:
 #if GC_TYPE == OMR_GARBAGE_COLLECTION
     VMFrame(vm_oop_t *args, vm_oop_t *locals, vm_oop_t *stack, long recLevel);
 #endif
-
+    
     inline VMFrame* GetPreviousFrame() const;
     inline void SetPreviousFrame(VMFrame*);
     inline void ClearPreviousFrame();
@@ -83,6 +83,7 @@ public:
     inline long GetRecursiveLevel();
 #endif
     virtual StdString AsDebugString() const;
+    virtual std::vector<fomrobject_t*> GetFieldPtrs();
 
 private_testable:
     long bytecodeIndex;

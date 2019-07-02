@@ -45,22 +45,12 @@
 
 #if GC_TYPE == OMR_GARBAGE_COLLECTION
 #define MAX_INVOKES_BEFORE_COMPILE 10
-
-#ifdef UNSAFE_FRAME_OPTIMIZATION
-const long VMMethod::VMMethodNumberOfFields = 11;
-#else
-const long VMMethod::VMMethodNumberOfFields = 10;
-#endif
-#else
-#ifdef UNSAFE_FRAME_OPTIMIZATION
-const long VMMethod::VMMethodNumberOfFields = 8;
-#else
-const long VMMethod::VMMethodNumberOfFields = 7;
-#endif
 #endif
 
-VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
-        VMInvokable(nof + VMMethodNumberOfFields) {
+VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof)
+  : VMInvokable(nof + VMMethodNumberOfFields)
+  , numberOfConstantsEmbedded(numberOfConstants)
+{
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     cachedFrame = nullptr;
 #endif

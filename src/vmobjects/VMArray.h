@@ -29,6 +29,8 @@
 #include "VMObject.h"
 #include "VMInteger.h"
 
+#include <vector>
+
 class VMArray: public VMObject {
 public:
     typedef GCArray Stored;
@@ -37,7 +39,7 @@ public:
 
     virtual void WalkObjects(walk_heap_fn);
 
-    inline  long GetNumberOfIndexableFields() const;
+    inline long GetNumberOfIndexableFields() const;
     VMArray* CopyAndExtendWith(vm_oop_t) const;
     vm_oop_t GetIndexableField(long idx) const;
     void SetIndexableField(long idx, vm_oop_t value);
@@ -45,6 +47,7 @@ public:
     virtual VMArray* Clone() const;
     
     virtual StdString AsDebugString() const;
+    virtual std::vector<fomrobject_t*> GetFieldPtrs();
 
 private:
     virtual void MarkObjectAsInvalid();

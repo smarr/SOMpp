@@ -26,7 +26,7 @@
 #include "ModronAssertions.h"
 
 #include "ForwardedHeader.hpp"
-#include "Object.hpp"
+#include "VMObjectBase.h"
 
 class MM_AllocateInitialization;
 class MM_EnvironmentBase;
@@ -138,7 +138,8 @@ public:
 	MMINLINE uintptr_t
 	getObjectSizeInBytesWithHeader(omrobjectptr_t objectPtr)
         {
-	  return objectPtr->header.sizeInBytes();
+	  return sizeof(VMObjectBase::gcfield);
+	  //return objectPtr->header.sizeInBytes();
 	}
 
 	/**
@@ -213,8 +214,9 @@ public:
 	MMINLINE uintptr_t
 	getForwardedObjectSizeInBytes(MM_ForwardedHeader *forwardedHeader)
 	{
-		ObjectHeader header(forwardedHeader->getPreservedSlot());
-		return header.sizeInBytes();
+//		ObjectHeader header(forwardedHeader->getPreservedSlot());
+//		return header.sizeInBytes();
+	        return sizeof(VMObjectBase::gcfield);
 	}
 
 	/**

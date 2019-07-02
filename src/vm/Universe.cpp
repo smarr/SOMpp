@@ -439,7 +439,7 @@ void Universe::shutdownJITAsyncCompileThread(SOM_VM *vm) {
 
     vm->jitCompilationState = 2;
     omrthread_monitor_notify_all(vm->jitCompilationQueueMonitor);
-    
+
     while (3 != vm->jitCompilationState) {
     	omrthread_monitor_wait(vm->jitCompilationQueueMonitor);
     }
@@ -1165,15 +1165,19 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
     interpreter->WalkGlobals(walk);
 }
 
-VMMethod* Universe::NewMethod(VMSymbol* signature,
-        size_t numberOfBytecodes, size_t numberOfConstants) const {
+VMMethod*
+Universe::NewMethod(VMSymbol* signature, size_t numberOfBytecodes, size_t numberOfConstants) const
+{
     //Method needs space for the bytecodes and the pointers to the constants
-    long additionalBytes = PADDED_SIZE(numberOfBytecodes + numberOfConstants*sizeof(VMObject*));
+    long additionalBytes = PADDED_SIZE(numberOfBytecodes + numberOfConstants * sizeof(VMObject*));
+    
 //#if GC_TYPE==GENERATIONAL
 //    VMMethod* result = new (GetHeap<HEAP_CLS>(),additionalBytes, true)
 //                VMMethod(numberOfBytecodes, numberOfConstants);
 //#else
-    VMMethod* result = new (GetHeap<HEAP_CLS>(),additionalBytes)
+    // include fields as well!
+
+    VMMethod* result = new (GetHeap<HEAP_CLS>(), additionalBytes)
     VMMethod(numberOfBytecodes, numberOfConstants);
 //#endif
     result->SetClass(load_ptr(methodClass));

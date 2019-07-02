@@ -22,6 +22,11 @@
 #include "ObjectFormats.h"
 #include "VMObjectBase.h"
 
+#include <tuple>
+#include <vector>
+
+std::vector<uintptr_t> ComputeSlotMaps(uintptr_t*, const std::vector<uintptr_t*>&);
+
 /*
  * macro for padding - only word-aligned memory must be allocated
  */
@@ -66,7 +71,7 @@ public:
         Universe::ErrorPrint("this object doesn't support SetClass\n");
         throw "this object doesn't support SetClass";
     }
-
+    
     long GetFieldIndex(VMSymbol* fieldName) const;
 
     inline virtual void WalkObjects(walk_heap_fn) {

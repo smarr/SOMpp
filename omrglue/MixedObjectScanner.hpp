@@ -26,12 +26,15 @@
 #include "GCExtensionsBase.hpp"
 #include "ObjectModel.hpp"
 
+#include <vector>
+
 class GC_MixedObjectScanner : public GC_ObjectScanner
 {
 	/* Data Members */
 private:
 	fomrobject_t * const _endPtr;	/**< end scan pointer */
-	fomrobject_t *_mapPtr;			/**< pointer to first slot in current scan segment */
+  //	fomrobject_t *_mapPtr;			/**< pointer to first slot in current scan segment */
+        std::vector<fomrobject_t*> _fieldPtrs;
 
 protected:
 
@@ -47,10 +50,11 @@ protected:
 	 * @param[in] flags Scanning context flags
 	 */
 	MMINLINE GC_MixedObjectScanner(MM_EnvironmentBase *env, omrobjectptr_t objectPtr, uintptr_t flags)
-		: GC_ObjectScanner(env, objectPtr, (fomrobject_t *)objectPtr + 1, 0, flags, 0)
+	        : GC_ObjectScanner(env, objectPtr, (fomrobject_t *)objectPtr, 0, flags, 0)
 		, _endPtr((fomrobject_t *)((uint8_t*)objectPtr + MM_GCExtensionsBase::getExtensions(env->getOmrVM())->objectModel.getConsumedSizeInBytesWithHeader(objectPtr)))
-		, _mapPtr(_scanPtr)
-	{
+//		, _mapPtr(_scanPtr)
+		, _fieldPtrs{objectPtr->GetFieldPtrs()}
+	{	        
 		_typeId = __FUNCTION__;
 	}
 
@@ -63,18 +67,23 @@ protected:
 	{
 		GC_ObjectScanner::initialize(env);
 
-		intptr_t slotCount = _endPtr - _scanPtr;
-
-		/* Initialize the slot map assuming all slots are reference slots or NULL */
-		if (slotCount < _bitsPerScanMap) {
-			_scanMap = (((uintptr_t)1) << slotCount) - 1;
-			setNoMoreSlots();
-		} else {
-			_scanMap = ~((uintptr_t)0);
-			if (slotCount == _bitsPerScanMap) {
-				setNoMoreSlots();
-			}
-		}
+//		if(!_slotMaps.empty()) {
+//		  _scanMap = _slotMaps.back();		
+//		  _slotMaps.pop_back();
+//		}
+		
+//		intptr_t slotCount = _endPtr - _scanPtr;
+//
+//		/* Initialize the slot map assuming all slots are reference slots or NULL */
+//		if (slotCount < _bitsPerScanMap) {
+//			_scanMap = (((uintptr_t)1) << slotCount) - 1;
+//			setNoMoreSlots();
+//		} else {
+//			_scanMap = ~((uintptr_t)0);
+//			if (slotCount == _bitsPerScanMap) {
+//				setNoMoreSlots();
+//			}
+//		}
 	}
 
 public:
@@ -106,19 +115,47 @@ public:
 	virtual fomrobject_t *
 	getNextSlotMap(uintptr_t *slotMap, bool *hasNextSlotMap)
 	{
-		intptr_t slotCount = _endPtr - _scanPtr;
+//	  if(_slotMaps.empty()) {
+//	    *slotMap = 0;
+//	    *hasNextSlotMap = false;
+//	  } else {
+//	    *slotMap = _slotMaps.back();
+//	    _slotMaps.pop_back();
+//
+//	    *hasNextSlotMap = true;
+//	  }
 
-		/* Initialize the slot map assuming all slots are reference slots or NULL */
-		if (slotCount < _bitsPerScanMap) {
-			*slotMap = (((uintptr_t)1) << slotCount) - 1;
-			*hasNextSlotMap = false;
-		} else {
-			*slotMap = ~((uintptr_t)0);
-			*hasNextSlotMap = slotCount > _bitsPerScanMap;
+	  return nullptr;
+//	  return _mapPtr;
+//		intptr_t slotCount = _endPtr - _scanPtr;
+//
+//		/* Initialize the slot map assuming all slots are reference slots or NULL */
+//		if (slotCount < _bitsPerScanMap) {
+//			*slotMap = (((uintptr_t)1) << slotCount) - 1;
+//			*hasNextSlotMap = false;
+//		} else {
+//			*slotMap = ~((uintptr_t)0);
+//			*hasNextSlotMap = slotCount > _bitsPerScanMap;
+//		}
+//
+//		_mapPtr += _bitsPerScanMap;
+//		return _mapPtr;
+	}
+
+        virtual GC_SlotObject *
+	getNextSlot()
+        {
+	    while(!_fieldPtrs.empty()) {
+	        auto fieldPtr = _fieldPtrs.back();
+		_fieldPtrs.pop_back();
+
+		if(nullptr != fieldPtr && 0 != *fieldPtr) {
+		  _slotObject.writeAddressToSlot(fieldPtr);
+		  return &_slotObject;
 		}
+	    }
 
-		_mapPtr += _bitsPerScanMap;
-		return _mapPtr;
+	    return nullptr;
 	}
 
 #if defined(OMR_GC_LEAF_BITS)
@@ -128,8 +165,9 @@ public:
 	virtual fomrobject_t *
 	getNextSlotMap(uintptr_t *slotMap, uintptr_t *leafMap, bool *hasNextSlotMap)
 	{
-		*leafMap = 0;
-		return getNextSlotMap(slotMap, hasNextSlotMap);
+//		*leafMap = 0;
+//		return getNextSlotMap(slotMap, hasNextSlotMap);
+	      return nullptr;
 	}
 #endif /* OMR_GC_LEAF_BITS */
 };

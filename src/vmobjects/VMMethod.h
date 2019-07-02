@@ -50,7 +50,7 @@ class VMMethod: public VMInvokable {
 
 public:
     typedef GCMethod Stored;
-    
+
     VMMethod(long bcCount, long numberOfConstants, long nof = 0);
 
     inline  long      GetNumberOfLocals() const;
@@ -78,7 +78,7 @@ public:
     virtual void Invoke(Interpreter* interp, VMFrame* frame);
 
     void SetSignature(VMSymbol* sig);
-    
+
     virtual StdString AsDebugString() const;
 
 #if GC_TYPE == OMR_GARBAGE_COLLECTION
@@ -86,10 +86,46 @@ public:
    inline VMClass* getInvokeReceiverCache(long bytecodeIndex);
 #endif
 
+public:
+   std::vector<fomrobject_t*> GetFieldPtrs() {
+     std::vector<fomrobject_t*> fields{VMInvokable::GetFieldPtrs()};
+
+     fields.push_back((fomrobject_t*) &numberOfLocals);
+     fields.push_back((fomrobject_t*) &maximumNumberOfStackElements);
+     fields.push_back((fomrobject_t*) &bcLength);
+     fields.push_back((fomrobject_t*) &numberOfArguments);
+     fields.push_back((fomrobject_t*) &numberOfConstants);
+#ifdef UNSAFE_FRAME_OPTIMIZATION
+     fields.push_back((fomrobject_t*) &cachedFrame);
+#endif
+
+     for(auto i = 0; i < numberOfConstantsEmbedded; ++i) {
+       fields.push_back((fomrobject_t*) &indexableFields[i]);
+     }
+
+     return fields;
+   }
+   
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
+#ifdef UNSAFE_FRAME_OPTIMIZATION
+  static constexpr long VMMethodNumberOfFields = 11;
+#else
+  static constexpr long VMMethodNumberOfFields = 10;
+#endif
+#else
+#ifdef UNSAFE_FRAME_OPTIMIZATION
+  static constexpr long VMMethodNumberOfFields = 8;
+#else
+  static constexpr long VMMethodNumberOfFields = 7;
+#endif
+#endif
+
 private:
     inline uint8_t* GetBytecodes() const;
     inline vm_oop_t GetIndexableField(long idx) const;
 
+    long numberOfConstantsEmbedded;
+    
 #if GC_TYPE == OMR_GARBAGE_COLLECTION
     long invokedCount;
     SOMppFunctionType *compiledMethod;
@@ -109,7 +145,6 @@ private:
 #endif
     gc_oop_t* indexableFields;
     uint8_t* bytecodes;
-    static const long VMMethodNumberOfFields;
 };
 
 inline long VMMethod::GetNumberOfLocals() const {

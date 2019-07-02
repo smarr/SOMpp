@@ -5,6 +5,8 @@
 #define MASK_SEEN_BY_WRITE_BARRIER (1 << 2)
 #define MASK_BITS_ALL (MASK_OBJECT_IS_MARKED | MASK_OBJECT_IS_OLD | MASK_SEEN_BY_WRITE_BARRIER)
 
+#include "objectdescription.h"
+
 #include <assert.h>
 
 class VMObjectBase : public VMOop {
@@ -13,6 +15,10 @@ protected:
 public:
     inline size_t GetGCField() const;
     inline void SetGCField(size_t);
+
+    virtual std::vector<fomrobject_t*> GetFieldPtrs() = 0;
+    
+    friend class GC_ObjectModelDelegate;
 };
 
 size_t VMObjectBase::GetGCField() const {

@@ -165,7 +165,7 @@ VMFrame* VMFrame::GetOuterContext() {
 void VMFrame::WalkObjects(walk_heap_fn walk) {
     // VMFrame is not a proper SOM object any longer, we don't have a class for it.
     // clazz = (VMClass*) walk(clazz);
-    
+
     if (previousFrame) {
         previousFrame = static_cast<GCFrame*>(walk(previousFrame));
     }
@@ -220,6 +220,42 @@ static void print_oop(gc_oop_t vmo) {
     }
 }
 
+std::vector<fomrobject_t*> VMFrame::GetFieldPtrs()
+{
+  std::vector<fomrobject_t*> fields{ (fomrobject_t*) &clazz };
+
+  if(previousFrame != nullptr) {
+    fields.push_back((fomrobject_t*) &previousFrame);
+  }
+
+  if(context != nullptr) {
+    fields.push_back((fomrobject_t*) &context);
+  }
+
+  if(method != nullptr) {
+    fields.push_back((fomrobject_t*) &method);
+  }
+
+  // all other fields are indexable via arguments array
+  // --> until end of Frame
+  long i = 0;
+  while (arguments + i <= stack_ptr) {
+    if(arguments[i] != nullptr) {
+      fields.push_back((fomrobject_t*) &arguments[i]);
+    }
+
+    i++;
+  }
+
+  for (int64_t i = 0; i < GetMethod()->GetNumberOfLocals(); i++) {
+    if(locals[i] != nullptr) {
+      fields.push_back((fomrobject_t*) &locals[i]);
+    }
+  }
+
+  return fields;
+}
+
 void VMFrame::PrintStack() const {
     Universe::Print(GetMethod()->AsDebugString() + ", bc: " +
                     to_string(GetBytecodeIndex()) + "\n" + "Args: " +
@@ -232,14 +268,14 @@ void VMFrame::PrintStack() const {
         Universe::Print("   arg " + to_string(i) + ": ");
         print_oop(arguments[i]);
     }
-    
+
     size_t local_offset = 0;
     for (int64_t i = 0; i < GetMethod()->GetNumberOfLocals(); i++) {
         Universe::Print("   loc " + to_string(i) + ": ");
         print_oop(locals[i]);
         local_offset++;
     }
-    
+
     size_t max = GetMethod()->GetMaximumNumberOfStackElements();
     for (size_t i = 0; i < max; i++) {
         if (stack_ptr == &locals[local_offset + i]) {
@@ -249,7 +285,7 @@ void VMFrame::PrintStack() const {
         }
         print_oop(locals[local_offset + i]);
     }
-    
+
     gc_oop_t* end = (gc_oop_t*) SHIFTED_PTR(this, objectSize);
     size_t i = 0;
     while (&locals[local_offset + max + i] < end) {
@@ -298,7 +334,7 @@ void VMFrame::SetArgument(long index, long contextLevel, vm_oop_t value) {
 
 void VMFrame::PrintStackTrace() const {
     VMMethod* meth = GetMethod();
-    
+
     if (meth->GetHolder() == load_ptr(nilObject)) {
         Universe::Print("nil");
     } else {

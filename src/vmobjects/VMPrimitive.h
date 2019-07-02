@@ -33,7 +33,7 @@
 class VMPrimitive: public VMInvokable {
 public:
     typedef GCPrimitive Stored;
-    
+
     static VMPrimitive* GetEmptyPrimitive(VMSymbol* sig, bool classSide);
 
     VMPrimitive(VMSymbol* sig);
@@ -49,9 +49,17 @@ public:
     };
 
     virtual bool IsPrimitive() const {return true;};
-    
+
     virtual StdString AsDebugString() const;
 
+    std::vector<fomrobject_t*> GetFieldPtrs() {
+      std::vector<fomrobject_t*> fields{VMInvokable::GetFieldPtrs()};
+
+      //      fields.push_back((fomrobject_t*) &routine);
+
+      return fields;
+    }
+    
 private:
     void EmptyRoutine(Interpreter*, VMFrame*);
 

@@ -32,7 +32,8 @@
 const long VMArray::VMArrayNumberOfFields = 0;
 
 VMArray::VMArray(long size, long nof) :
-        VMObject(nof + VMArrayNumberOfFields) {
+    VMObject(nof + VMArrayNumberOfFields)
+{
     // initialize fields with nilObject
     // SetIndexableField is not used to prevent the write barrier to be called
     // too often.
@@ -77,6 +78,20 @@ VMArray* VMArray::Clone() const {
     size_t noBytes = GetObjectSize() - sizeof(VMArray);
     memcpy(destination, source, noBytes);
     return clone;
+}
+
+std::vector<fomrobject_t*> VMArray::GetFieldPtrs()
+{
+  std::vector<fomrobject_t*> fields{VMObject::GetFieldPtrs()};
+
+  gc_oop_t* arrFields = FIELDS + GetNumberOfFields();
+  for (long i = 0; i < GetNumberOfIndexableFields(); ++i) {
+    if(FIELDS[i] != nullptr && *(omrobjectptr_t*) FIELDS[i] != nullptr) {
+      fields.push_back((fomrobject_t*) &arrFields[i]);
+    }
+  }
+
+  return fields;
 }
 
 void VMArray::MarkObjectAsInvalid() {

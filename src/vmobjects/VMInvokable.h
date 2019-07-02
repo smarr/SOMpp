@@ -32,7 +32,17 @@
 class VMInvokable: public VMObject {
 public:
     typedef GCInvokable Stored;
-    
+
+    std::vector<fomrobject_t*> GetFieldPtrs() {
+      std::vector<fomrobject_t*> fields{ (fomrobject_t*) &clazz };
+
+      fields.push_back((fomrobject_t*) &signature);
+      fields.push_back((fomrobject_t*) &holder);
+
+      return fields;
+    }
+
+ public:
     VMInvokable(long nof = 0) : VMObject(nof + 2) {};
 
     virtual void      Invoke(Interpreter*, VMFrame*) = 0;

@@ -52,15 +52,30 @@ bool
 MM_MarkingDelegate::initialize(MM_EnvironmentBase *env, MM_MarkingScheme *markingScheme)
 {
   //  _objectModel = &(env->getExtensions()->objectModel);
+  _scannerAlloc = nullptr;
   _markingScheme = markingScheme;
+  
   return true;
+}
+
+MM_MarkingDelegate::~MM_MarkingDelegate() {
+  if(_scannerAlloc) {
+    _scannerAlloc->~GC_MixedObjectScanner();
+    MM_EnvironmentBase *env = MM_EnvironmentBase::getEnvironment(omr_vmthread_getCurrent(GetHeap<OMRHeap>()->getOMRVM()));
+    env->getForge()->free(_scannerAlloc);
+  }
 }
 
 GC_ObjectScanner *
 MM_MarkingDelegate::getObjectScanner(MM_EnvironmentBase *env, omrobjectptr_t objectPtr, GC_ObjectScannerState*, MM_MarkingSchemeScanReason reason, uintptr_t *sizeToDo)
 {
-  //#error provide an object scanner
-  return NULL;
+  if(_scannerAlloc) {
+    _scannerAlloc->~GC_MixedObjectScanner();
+    env->getForge()->free(_scannerAlloc);
+  }
+
+  _scannerAlloc = (GC_MixedObjectScanner *)env->getForge()->allocate(sizeof(GC_MixedObjectScanner), MM_AllocationCategory::FIXED, OMR_GET_CALLSITE());
+  return GC_MixedObjectScanner::newInstance(env, objectPtr, _scannerAlloc, 1);
 }
 
 static gc_oop_t

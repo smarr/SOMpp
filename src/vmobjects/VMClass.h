@@ -73,6 +73,17 @@ public:
     
     virtual StdString AsDebugString() const;
 
+    std::vector<fomrobject_t*> GetFieldPtrs() {
+      std::vector<fomrobject_t*> fields{ VMObject::GetFieldPtrs() };
+
+      fields.push_back((fomrobject_t*) &superClass);
+      fields.push_back((fomrobject_t*) &name);
+      fields.push_back((fomrobject_t*) &instanceFields);
+      fields.push_back((fomrobject_t*) &instanceInvokables);
+
+      return fields;
+    }    
+
 private:
     bool hasPrimitivesFor(const StdString& cl) const;
     void setPrimitives(const StdString& cname, bool classSide);
