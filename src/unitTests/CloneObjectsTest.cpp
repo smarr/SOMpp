@@ -7,9 +7,6 @@
 
 #include "CloneObjectsTest.h"
 
-#define private public
-#define protected public
-
 #include "vmobjects/ObjectFormats.h"
 #include "vmobjects/VMObjectBase.h"
 #include "vmobjects/VMObject.h"

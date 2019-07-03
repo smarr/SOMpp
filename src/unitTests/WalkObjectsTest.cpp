@@ -7,7 +7,6 @@
 #include <vector>
 #include <algorithm>
 
-#define private public
 #include "WalkObjectsTest.h"
 #include "vmobjects/VMSymbol.h"
 #include "vmobjects/VMClass.h"

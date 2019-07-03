@@ -45,7 +45,7 @@ public:
 
     void WalkObjects(walk_heap_fn);
 
-protected:
+protected_testable:
     GCSymbol* signature;
     GCClass*  holder;
 };

@@ -3,7 +3,6 @@
 #include "../src/vmobjects/VMDouble.h"
 #include "../src/vmobjects/VMClass.h"
 #include "../src/vmobjects/VMBlock.h"
-#define private public
 #include "../src/vmobjects/VMMethod.h"
 #include "../src/vmobjects/VMFrame.h"
 #include "../src/vmobjects/VMEvaluationPrimitive.h"
