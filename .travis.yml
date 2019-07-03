@@ -1,4 +1,5 @@
 language: c++
+dist: xenial
 
 # attempt to install GCC 4.8 when necessary, otherwise we wont have C++11 support
 before_install:
