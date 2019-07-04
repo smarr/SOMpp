@@ -32,9 +32,6 @@
 #include "../vm/Universe.h"
 
 template<class HEAP_T>
-HEAP_T* Heap<HEAP_T>::theHeap = nullptr;
-
-template<class HEAP_T>
 void Heap<HEAP_T>::InitializeHeap(long objectSpaceSize) {
     if (theHeap) {
         Universe::ErrorPrint("Warning, reinitializing already initialized Heap, "
