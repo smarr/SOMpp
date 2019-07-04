@@ -50,7 +50,7 @@ AbstractVMObject* GenerationalHeap::AllocateMatureObject(size_t size) {
     return newObject;
 }
 
-void GenerationalHeap::writeBarrier_OldHolder(AbstractVMObject* holder,
+void GenerationalHeap::writeBarrier_OldHolder(VMObjectBase* holder,
                                               const vm_oop_t referencedObject) {
     if (isObjectInNursery(referencedObject)) {
         oldObjsWithRefToYoungObjs->push_back((size_t)holder);

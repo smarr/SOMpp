@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../misc/defs.h"
-#include <assert.h>
+#include <cassert>
 
 
 #include "Heap.h"
@@ -26,10 +26,10 @@ public:
     AbstractVMObject* AllocateNurseryObject(size_t size);
     AbstractVMObject* AllocateMatureObject(size_t size);
     size_t GetMaxNurseryObjectSize();
-    void writeBarrier(AbstractVMObject* holder, vm_oop_t referencedObject);
+    void writeBarrier(VMObjectBase* holder, vm_oop_t referencedObject);
     inline bool isObjectInNursery(vm_oop_t obj);
 #ifdef UNITTESTS
-    std::set< pair<AbstractVMObject*, vm_oop_t>, VMObjectCompare > writeBarrierCalledOn;
+    std::set< pair<vm_oop_t, vm_oop_t>, VMObjectCompare > writeBarrierCalledOn;
 #endif
 private:
     void* nursery;
@@ -38,7 +38,7 @@ private:
     size_t maxNurseryObjSize;
     size_t matureObjectsSize;
     void* nextFreePosition;
-    void writeBarrier_OldHolder(AbstractVMObject* holder, const vm_oop_t
+    void writeBarrier_OldHolder(VMObjectBase* holder, const vm_oop_t
             referencedObject);
     void* collectionLimit;
     vector<size_t>* oldObjsWithRefToYoungObjs;
@@ -55,13 +55,13 @@ inline size_t GenerationalHeap::GetMaxNurseryObjectSize() {
     return maxNurseryObjSize;
 }
 
-inline void GenerationalHeap::writeBarrier(AbstractVMObject* holder, vm_oop_t referencedObject) {
+inline void GenerationalHeap::writeBarrier(VMObjectBase* holder, vm_oop_t referencedObject) {
 #ifdef UNITTESTS
     writeBarrierCalledOn.insert(make_pair(holder, referencedObject));
 #endif
     
     assert(Universe::IsValidObject(referencedObject));
-    assert(Universe::IsValidObject((vm_oop_t) holder));
+    assert(Universe::IsValidObject(holder));
 
     size_t gcfield = *(((size_t*)holder)+1);
     if ((gcfield & 6 /* MASK_OBJECT_IS_OLD + MASK_SEEN_BY_WRITE_BARRIER */) == 2 /* MASK_OBJECT_IS_OLD */)
