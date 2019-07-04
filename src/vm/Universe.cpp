@@ -452,7 +452,7 @@ Universe::~Universe() {
         VMPrimitive* prm = new (GetHeap<HEAP_CLS>()) VMPrimitive(className);
         vt_primitive  = *(void**) prm;
         
-        VMString* str = new (GetHeap<HEAP_CLS>()) VMString("");
+        VMString* str = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(1)) VMString("");
         vt_string     = *(void**) str;
         vt_symbol     = *(void**) className;
     }
