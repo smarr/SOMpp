@@ -78,12 +78,13 @@ private:
     void setPrimitives(const StdString& cname, bool classSide);
     long numberOfSuperInstanceFields() const;
 
-    GCClass* superClass;
+    static const long VMClassNumberOfFields;
+
+private_testable:
     GCSymbol* name;
     GCArray* instanceFields;
     GCArray* instanceInvokables;
-
-    static const long VMClassNumberOfFields;
+    GCClass* superClass;
 };
 
 #include "VMSymbol.h"

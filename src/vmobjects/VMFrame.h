@@ -73,12 +73,14 @@ public:
     long RemainingStackSize() const;
     
     virtual StdString AsDebugString() const;
-    
+
+private_testable:
+    long bytecodeIndex;
+
 private:
     GCFrame* previousFrame;
     GCFrame* context;
     GCMethod* method;
-    long bytecodeIndex;
     gc_oop_t* arguments;
     gc_oop_t* locals;
     gc_oop_t* stack_ptr;

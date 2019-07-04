@@ -52,11 +52,13 @@ private:
     GCInvokable* cachedInvokable[3];
     inline VMInvokable* GetCachedInvokable(const VMClass*) const;
     inline void UpdateCachedInvokable(const VMClass* cls, VMInvokable* invo);
-    
-    virtual void WalkObjects(walk_heap_fn);
-    
+
     friend class Signature;
     friend class VMClass;
+
+private_testable:
+    virtual void WalkObjects(walk_heap_fn);
+
 };
 
 

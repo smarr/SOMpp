@@ -74,11 +74,14 @@ private:
     inline uint8_t* GetBytecodes() const;
     inline vm_oop_t GetIndexableField(long idx) const;
 
+private_testable:
     gc_oop_t numberOfLocals;
     gc_oop_t maximumNumberOfStackElements;
     gc_oop_t bcLength;
     gc_oop_t numberOfArguments;
     gc_oop_t numberOfConstants;
+
+private:
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     GCFrame* cachedFrame;
 #endif

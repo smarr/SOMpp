@@ -46,7 +46,7 @@ public:
     
     virtual StdString AsDebugString() const;
 
-private:
+private_testable:
     const int64_t embeddedInteger;
 };
 

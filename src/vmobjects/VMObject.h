@@ -106,9 +106,11 @@ protected:
 
     // VMObject essentials
     int64_t hash;
+
+protected_testable:
     size_t objectSize;     // set by the heap at allocation time
     long   numberOfFields;
-
+  
     GCClass* clazz;
 
     // Start of fields. All members beyond after clazz are indexable.

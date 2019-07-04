@@ -141,6 +141,18 @@
 #endif
 
 //
+// Testing
+//
+#ifndef UNITTESTS
+  #define private_testable   private
+  #define protected_testable protected
+#else
+  #define private_testable   public
+  #define protected_testable public
+#endif
+
+
+//
 // Performance Optimization
 //
 #define likely(x)       __builtin_expect((x),1)

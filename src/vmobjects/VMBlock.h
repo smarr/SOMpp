@@ -43,10 +43,12 @@ public:
     virtual StdString AsDebugString() const;
 
     static VMEvaluationPrimitive* GetEvaluationPrimitive(int);
-private:
+
+private_testable:
     GCMethod* blockMethod;
     GCFrame* context;
 
+private:
     static const int VMBlockNumberOfFields;
 };
 
