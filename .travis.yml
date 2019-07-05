@@ -5,28 +5,28 @@ addons:
   apt:
     packages:
       - libcppunit-dev
+      - cmake
 
 compiler:
   - clang
   - gcc
 
 env:
-  - USE_TAGGING=true   GC_TYPE=generational
-  - USE_TAGGING=true   GC_TYPE=mark_sweep
-  - USE_TAGGING=true   GC_TYPE=copying
+  - CONF="-DUSE_TAGGING=true  -DGC_TYPE=GENERATIONAL"
+  - CONF="-DUSE_TAGGING=true  -DGC_TYPE=MARK_SWEEP"
+  - CONF="-DUSE_TAGGING=true  -DGC_TYPE=COPYING"
   
-  - USE_TAGGING=false  GC_TYPE=generational CACHE_INTEGER=true
-  - USE_TAGGING=false  GC_TYPE=mark_sweep   CACHE_INTEGER=true
-  - USE_TAGGING=false  GC_TYPE=copying      CACHE_INTEGER=true
+  - CONF="-DUSE_TAGGING=false -DGC_TYPE=GENERATIONAL -DCACHE_INTEGER=true"
+  - CONF="-DUSE_TAGGING=false -DGC_TYPE=MARK_SWEEP   -DCACHE_INTEGER=true"
+  - CONF="-DUSE_TAGGING=false -DGC_TYPE=COPYING      -DCACHE_INTEGER=true"
   
-  - USE_TAGGING=false  GC_TYPE=generational CACHE_INTEGER=false
-  - USE_TAGGING=false  GC_TYPE=mark_sweep   CACHE_INTEGER=false
-  - USE_TAGGING=false  GC_TYPE=copying      CACHE_INTEGER=false
-  
-
+  - CONF="-DUSE_TAGGING=false -DGC_TYPE=GENERATIONAL -DCACHE_INTEGER=false"
+  - CONF="-DUSE_TAGGING=false -DGC_TYPE=MARK_SWEEP   -DCACHE_INTEGER=false"
+  - CONF="-DUSE_TAGGING=false -DGC_TYPE=COPYING      -DCACHE_INTEGER=false"
 
 script:
-    - make test
-    - make bench
-    - make clean
-    - make unittests
+    - cmake . $CONF
+    - make
+    - ./SOM++ -cp ./Smalltalk ./TestSuite/TestHarness.som
+    - ./SOM++ -cp ./Smalltalk:./Examples/Benchmarks/LanguageFeatures ./Examples/Benchmarks/All.som
+    - ./unittests -cp ./Smalltalk ./Examples/Hello.som
