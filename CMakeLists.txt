@@ -20,6 +20,10 @@
 cmake_minimum_required (VERSION 3.12)
 project(SOMpp LANGUAGES CXX)
 
+add_executable(SOM++ "")
+add_executable(unittests "")
+
+
 # set(CMAKE_PROJECT_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 set(CMAKE_CXX_STANDARD 14)
 
@@ -147,12 +151,11 @@ endif ()
 
 if (USE_OMR_JIT)
   set(DEFAULT_OMR_JIT_ON true)
-  target_compile_definitions(SOM++ -DDEFAULT_OMR_JIT_ON=true)
+  target_compile_definitions(SOM++ PRIVATE
+	  -DDEFAULT_OMR_JIT_ON=true)
 endif ()
 
 add_definitions(-DGC_TYPE=${GC_TYPE})
-
-add_executable(SOM++ "")
 
 target_sources(SOM++ PRIVATE
 	${COMPILER_SRC}
@@ -188,8 +191,6 @@ target_link_libraries(SOM++)
 if (USE_OMR)
   target_link_libraries(SOM++ omrcore omrgc omrvmstartup jitbuilder)
 endif ()
-
-add_executable(unittests "")
 
 target_sources(unittests PRIVATE
 	${COMPILER_SRC}
