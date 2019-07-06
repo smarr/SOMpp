@@ -25,8 +25,6 @@ set(CMAKE_CXX_STANDARD 14)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIE -fstack-protector-all")
 
-add_subdirectory(omr)
-
 set(ROOT_DIR         "${CMAKE_CURRENT_SOURCE_DIR}")
 set(SRC_DIR		       "${ROOT_DIR}/src")
 set(COMPILER_DIR 	   "${SRC_DIR}/compiler")
@@ -40,8 +38,6 @@ set(UNITTEST_DIR 	   "${SRC_DIR}/unitTests")
 set(PRIMITIVES_DIR "${SRC_DIR}/primitives")
 set(PRIMITIVESCORE_DIR "${SRC_DIR}/primitivesCore")
 
-set(OMR_GLUE_DIR 	   "${SRC_DIR}/omrglue")
-
 file(GLOB COMPILER_SRC    ${COMPILER_DIR}/*.cpp)
 file(GLOB INTERPRETER_SRC ${INTERPRETER_DIR}/*.cpp)
 file(GLOB MEMORY_SRC      ${MEMORY_DIR}/*.cpp)
@@ -54,32 +50,6 @@ file(GLOB PRIMITIVES_SRC     ${PRIMITIVES_DIR}/*.cpp)
 file(GLOB PRIMITIVESCORE_SRC ${PRIMITIVESCORE_DIR}/*.cpp)
 
 file(GLOB UNITTEST_SRC    ${UNITTEST_DIR}/*.cpp)
-
-file(GLOB OMR_GLUE_SRC    ${OMR_GLUE_DIR}/*.cpp)
-
-set(OMR_INCLUDE
-  "${ROOT_DIR}/omr/compiler"
-  "${ROOT_DIR}/omr/jitbuilder/release/include"
-  "${ROOT_DIR}/omr/gc"
-  "${ROOT_DIR}/omr/gc/structs"
-  "${ROOT_DIR}/omr/gc/include"
-  "${ROOT_DIR}/omr/gc/startup"
-  "${ROOT_DIR}/omr/gc/verbose"
-  "${ROOT_DIR}/omr/gc/verbose/handler_standard"
-  "${ROOT_DIR}/omr/gc/api"
-  "${ROOT_DIR}/omr/gc/base"
-  "${ROOT_DIR}/omr/gc/base/segregated"
-  "${ROOT_DIR}/omr/gc/base/standard"
-  "${ROOT_DIR}/omrglue"
-  "${ROOT_DIR}/omr/gc/stats"
-  "${ROOT_DIR}/omr/include_core"
-  "${ROOT_DIR}/omr"
-  "${CMAKE_BINARY_DIR}/omr")
-
-# TODO: properly integrate with option system
-add_definitions(-DDEFAULT_OMR_JIT_ON=true -DGC_TYPE=OMR_GARBAGE_COLLECTION)
-
-add_definitions(-D_XOPEN_SOURCE)
 
 option(USE_TAGGING "Enable immediate integers using tagging" FALSE)
 set(GC_TYPE "COPYING" CACHE STRING "Select the type of GC to be used: COPYING, MARK_SWEEP, GENERATIONAL")
@@ -96,6 +66,8 @@ option(UNSAFE_FRAME_OPTIMIZATION "Enable unsafe frame optimization" FALSE)
 option(ADDITIONAL_ALLOCATION     "Enable additional allocations" FALSE)
 
 option(FOR_PROFILING "Compile for profiling" FALSE)
+
+option(USE_OMR_JIT "Enable OMR just-in-time compilation" FALSE)
 
 if (USE_TAGGING)
   add_definitions(-DUSE_TAGGING)
@@ -131,6 +103,53 @@ if (FOR_PROFILING)
   add_definitions(-g -pg)
 endif ()
 
+# OSX Hack for C++14
+add_definitions(-D_XOPEN_SOURCE)
+
+
+
+if (GC_TYPE EQUAL "OMR_GC" or USE_OMR_JIT)
+	set(USE_OMR true)
+else()
+  set(USE_OMR false)
+endif()
+
+if (USE_OMR)
+  set(OMR_GLUE_DIR 	   "${SRC_DIR}/omrglue")
+
+  add_subdirectory(omr)
+
+  file(GLOB OMR_GLUE_SRC    ${OMR_GLUE_DIR}/*.cpp)
+  set(OMR_INCLUDE
+    "${ROOT_DIR}/omr/compiler"
+    "${ROOT_DIR}/omr/jitbuilder/release/include"
+    "${ROOT_DIR}/omr/gc"
+    "${ROOT_DIR}/omr/gc/structs"
+    "${ROOT_DIR}/omr/gc/include"
+    "${ROOT_DIR}/omr/gc/startup"
+    "${ROOT_DIR}/omr/gc/verbose"
+    "${ROOT_DIR}/omr/gc/verbose/handler_standard"
+    "${ROOT_DIR}/omr/gc/api"
+    "${ROOT_DIR}/omr/gc/base"
+    "${ROOT_DIR}/omr/gc/base/segregated"
+    "${ROOT_DIR}/omr/gc/base/standard"
+    "${ROOT_DIR}/omrglue"
+    "${ROOT_DIR}/omr/gc/stats"
+    "${ROOT_DIR}/omr/include_core"
+    "${ROOT_DIR}/omr"
+    "${CMAKE_BINARY_DIR}/omr"
+  	"${CMAKE_BINARY_DIR}/omr/gc")
+endif ()
+
+if (GC_TYPE EQUAL "OMR_GC")
+  set(GC_TYPE "OMR_GARBAGE_COLLECTION")
+endif ()
+
+if (USE_OMR_JIT)
+  set(DEFAULT_OMR_JIT_ON true)
+  add_definitions(-DDEFAULT_OMR_JIT_ON=true)
+endif ()
+
 add_definitions(-DGC_TYPE=${GC_TYPE})
 
 add_executable(SOM++ "")
@@ -145,18 +164,30 @@ target_sources(SOM++ PRIVATE
 
 	${MAIN_SRC}
 	${PRIMITIVES_SRC}
-	${PRIMITIVESCORE_SRC}
+	${PRIMITIVESCORE_SRC})
 
+if (USE_OMR)
+  target_sources(SOM++ PRIVATE
     ${OMR_GLUE_SRC})
+endif ()
 
 target_compile_options(SOM++ PRIVATE
 	-m64
 	-Wno-endif-labels)
 
-target_include_directories(SOM++ PRIVATE ${SRC_DIR} ${OMR_INCLUDE})
+target_include_directories(SOM++ PRIVATE ${SRC_DIR})
+
+if (USE_OMR)
+  target_include_directories(SOM++ PRIVATE ${OMR_INCLUDE})
+endif ()
+
+
 
 target_link_libraries(SOM++)
-target_link_libraries(SOM++ omrcore omrgc omrvmstartup jitbuilder)
+
+if (USE_OMR)
+  target_link_libraries(SOM++ omrcore omrgc omrvmstartup jitbuilder)
+endif ()
 
 add_executable(unittests "")
 
@@ -178,8 +209,11 @@ target_compile_options(unittests PRIVATE
 
 target_include_directories(unittests PRIVATE
 	${SRC_DIR}
-	${OMR_INCLUDE}
 	/opt/local/include)
+
+if (USE_OMR)
+  target_include_directories(unittests PRIVATE ${OMR_INCLUDE})
+endif ()
 
 find_library(LIB_CPPUNIT
 	NAMES cppunit
