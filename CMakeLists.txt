@@ -23,9 +23,8 @@ project(SOMpp LANGUAGES CXX)
 add_executable(SOM++ "")
 add_executable(unittests "")
 
-
-# set(CMAKE_PROJECT_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
-set(CMAKE_CXX_STANDARD 14)
+target_compile_features(SOM++     PRIVATE cxx_std_14)
+target_compile_features(unittests PRIVATE cxx_std_14)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIE -fstack-protector-all")
 
