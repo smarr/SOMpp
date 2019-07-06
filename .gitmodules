@@ -1,7 +1,8 @@
 [submodule "core-lib"]
 	path = core-lib
 	url = https://github.com/SOM-st/SOM.git
+	branch = master
 [submodule "omr"]
 	path = omr
-	url = https://bitbucket.org/wasmjitomraot/omr
-	branch = sompp_marking_delegate
+	url = https://github.com/eclipse/omr.git
+	branch = master
