@@ -21,7 +21,7 @@ cmake_minimum_required (VERSION 3.12)
 project(SOMpp LANGUAGES CXX)
 
 # set(CMAKE_PROJECT_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
-# set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 14)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIE -fstack-protector-all")
 
@@ -57,24 +57,29 @@ file(GLOB UNITTEST_SRC    ${UNITTEST_DIR}/*.cpp)
 
 file(GLOB OMR_GLUE_SRC    ${OMR_GLUE_DIR}/*.cpp)
 
-set(OMR_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/omr/compiler"
-  "${CMAKE_CURRENT_SOURCE_DIR}/omr/jitbuilder/release/include"
-  "${CMAKE_CURRENT_SOURCE_DIR}/omr/gc"
-  "${CMAKE_CURRENT_SOURCE_DIR}/omr/gc/structs"
-  "${CMAKE_CURRENT_SOURCE_DIR}/omr/gc/include"
-  "${CMAKE_CURRENT_SOURCE_DIR}/omr/gc/startup"
-  "${CMAKE_CURRENT_SOURCE_DIR}/omr/gc/verbose"
-  "${CMAKE_CURRENT_SOURCE_DIR}/omr/gc/verbose/handler_standard"
-  "${CMAKE_CURRENT_SOURCE_DIR}/omr/gc/api"
-  "${CMAKE_CURRENT_SOURCE_DIR}/omr/gc/base"
-  "${CMAKE_CURRENT_SOURCE_DIR}/omr/gc/base/segregated"
-  "${CMAKE_CURRENT_SOURCE_DIR}/omr/gc/base/standard"
-  "${CMAKE_CURRENT_SOURCE_DIR}/omrglue"
-  "${CMAKE_CURRENT_SOURCE_DIR}/omr/gc/stats"
-  "${CMAKE_CURRENT_SOURCE_DIR}/omr")
+set(OMR_INCLUDE
+  "${ROOT_DIR}/omr/compiler"
+  "${ROOT_DIR}/omr/jitbuilder/release/include"
+  "${ROOT_DIR}/omr/gc"
+  "${ROOT_DIR}/omr/gc/structs"
+  "${ROOT_DIR}/omr/gc/include"
+  "${ROOT_DIR}/omr/gc/startup"
+  "${ROOT_DIR}/omr/gc/verbose"
+  "${ROOT_DIR}/omr/gc/verbose/handler_standard"
+  "${ROOT_DIR}/omr/gc/api"
+  "${ROOT_DIR}/omr/gc/base"
+  "${ROOT_DIR}/omr/gc/base/segregated"
+  "${ROOT_DIR}/omr/gc/base/standard"
+  "${ROOT_DIR}/omrglue"
+  "${ROOT_DIR}/omr/gc/stats"
+  "${ROOT_DIR}/omr/include_core"
+  "${ROOT_DIR}/omr"
+  "${CMAKE_BINARY_DIR}/omr")
 
 # TODO: properly integrate with option system
 add_definitions(-DDEFAULT_OMR_JIT_ON=true -DGC_TYPE=OMR_GARBAGE_COLLECTION)
+
+add_definitions(-D_XOPEN_SOURCE)
 
 option(USE_TAGGING "Enable immediate integers using tagging" FALSE)
 set(GC_TYPE "COPYING" CACHE STRING "Select the type of GC to be used: COPYING, MARK_SWEEP, GENERATIONAL")
@@ -173,6 +178,7 @@ target_compile_options(unittests PRIVATE
 
 target_include_directories(unittests PRIVATE
 	${SRC_DIR}
+	${OMR_INCLUDE}
 	/opt/local/include)
 
 find_library(LIB_CPPUNIT
