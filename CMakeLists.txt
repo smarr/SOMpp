@@ -145,7 +145,7 @@ if (USE_OMR)
   	"${CMAKE_BINARY_DIR}/omr/gc")
 endif ()
 
-if (GC_TYPE EQUAL "OMR_GC")
+if (GC_TYPE STREQUAL "OMR_GC")
   set(GC_TYPE "OMR_GARBAGE_COLLECTION")
 endif ()
 
