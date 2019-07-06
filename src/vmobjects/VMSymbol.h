@@ -45,6 +45,7 @@ public:
 
     virtual StdString AsDebugString() const;
 
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
     std::vector<fomrobject_t*> GetFieldPtrs() {
       std::vector<fomrobject_t*> fields;
 
@@ -52,11 +53,12 @@ public:
       fields.push_back((fomrobject_t*) &cachedClass_invokable[1]);
       fields.push_back((fomrobject_t*) &cachedClass_invokable[2]);
       fields.push_back((fomrobject_t*) &cachedInvokable[0]);
-      fields.push_back((fomrobject_t*) &cachedInvokable[1]);      
+      fields.push_back((fomrobject_t*) &cachedInvokable[1]);
       fields.push_back((fomrobject_t*) &cachedInvokable[2]);
 
       return fields;
     }
+#endif
 
 private:
     const int numberOfArgumentsOfSignature;

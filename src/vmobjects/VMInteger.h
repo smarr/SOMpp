@@ -34,21 +34,23 @@
 class VMInteger: public AbstractVMObject {
 public:
     typedef GCInteger Stored;
-    
+
     VMInteger(int64_t val) : AbstractVMObject(), embeddedInteger(val) {}
 
     inline int64_t GetEmbeddedInteger() const;
     virtual VMInteger* Clone() const;
     virtual VMClass* GetClass() const;
     virtual inline size_t GetObjectSize() const;
-    
+
     virtual void MarkObjectAsInvalid() {}
-    
+
     virtual StdString AsDebugString() const;
 
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
     std::vector<fomrobject_t*> GetFieldPtrs() {
         return {};
     }
+#endif
 
 private_testable:
     const int64_t embeddedInteger;

@@ -37,14 +37,14 @@ class VMFrame: public VMObject {
     friend class SOMppMethod;
 public:
     typedef GCFrame Stored;
-    
+
     static VMFrame* EmergencyFrameFrom(VMFrame* from, long extraLength);
 
     VMFrame(long size, long nof = 0);
 #if GC_TYPE == OMR_GARBAGE_COLLECTION
     VMFrame(vm_oop_t *args, vm_oop_t *locals, vm_oop_t *stack, long recLevel);
 #endif
-    
+
     inline VMFrame* GetPreviousFrame() const;
     inline void SetPreviousFrame(VMFrame*);
     inline void ClearPreviousFrame();
@@ -81,9 +81,9 @@ public:
     inline void SetIsJITFrame(bool value);
     inline bool GetIsJITFrame();
     inline long GetRecursiveLevel();
+    virtual std::vector<fomrobject_t*> GetFieldPtrs();
 #endif
     virtual StdString AsDebugString() const;
-    virtual std::vector<fomrobject_t*> GetFieldPtrs();
 
 private_testable:
     long bytecodeIndex;
@@ -102,7 +102,7 @@ private:
     gc_oop_t* arguments;
     gc_oop_t* locals;
     gc_oop_t* stack_ptr;
-    
+
     inline void SetLocal(long, vm_oop_t);
     inline void SetArgument(long index, vm_oop_t value);
 

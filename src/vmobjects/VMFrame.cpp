@@ -220,6 +220,7 @@ static void print_oop(gc_oop_t vmo) {
     }
 }
 
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
 std::vector<fomrobject_t*> VMFrame::GetFieldPtrs()
 {
   std::vector<fomrobject_t*> fields{ (fomrobject_t*) &clazz };
@@ -255,6 +256,7 @@ std::vector<fomrobject_t*> VMFrame::GetFieldPtrs()
 
   return fields;
 }
+#endif
 
 void VMFrame::PrintStack() const {
     Universe::Print(GetMethod()->AsDebugString() + ", bc: " +

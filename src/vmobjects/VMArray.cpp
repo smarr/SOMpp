@@ -80,6 +80,7 @@ VMArray* VMArray::Clone() const {
     return clone;
 }
 
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
 std::vector<fomrobject_t*> VMArray::GetFieldPtrs()
 {
   std::vector<fomrobject_t*> fields{VMObject::GetFieldPtrs()};
@@ -93,6 +94,7 @@ std::vector<fomrobject_t*> VMArray::GetFieldPtrs()
 
   return fields;
 }
+#endif
 
 void VMArray::MarkObjectAsInvalid() {
     VMObject::MarkObjectAsInvalid();

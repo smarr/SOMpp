@@ -1,11 +1,15 @@
 #pragma once
 
+#include <misc/defs.h>
+
 #define MASK_OBJECT_IS_MARKED (1 << 0)
 #define MASK_OBJECT_IS_OLD (1 << 1)
 #define MASK_SEEN_BY_WRITE_BARRIER (1 << 2)
 #define MASK_BITS_ALL (MASK_OBJECT_IS_MARKED | MASK_OBJECT_IS_OLD | MASK_SEEN_BY_WRITE_BARRIER)
 
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
 #include "objectdescription.h"
+#endif
 
 #include <assert.h>
 
@@ -16,8 +20,10 @@ public:
     inline size_t GetGCField() const;
     inline void SetGCField(size_t);
 
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
     virtual std::vector<fomrobject_t*> GetFieldPtrs() = 0;
-    
+#endif
+
     friend class GC_ObjectModelDelegate;
 };
 

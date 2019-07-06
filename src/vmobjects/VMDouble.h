@@ -34,9 +34,11 @@ public:
 
     VMDouble(double val) : AbstractVMObject(), embeddedDouble(val) {}
 
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
     std::vector<fomrobject_t*> GetFieldPtrs() {
       return {};
     }
+#endif
 
     virtual VMDouble* Clone() const;
     inline  double   GetEmbeddedDouble() const;

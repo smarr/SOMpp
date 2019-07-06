@@ -31,19 +31,19 @@
 class VMString: public AbstractVMObject {
 public:
     typedef GCString Stored;
-    
+
     VMString(const char* str);
     VMString(const StdString& s);
-    
+
     virtual int64_t GetHash() {
         int64_t hash = 5381;
         int64_t c;
         char* i = chars;
-        
+
         while ((c = *i++)) {
             hash = ((hash << 5) + hash) + c;
         }
-        
+
         return hash;
     }
 
@@ -55,14 +55,16 @@ public:
     virtual VMClass* GetClass() const;
     virtual size_t GetObjectSize() const;
     virtual void WalkObjects(walk_heap_fn);
-    
+
     virtual void MarkObjectAsInvalid();
-    
+
     virtual StdString AsDebugString() const;
 
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
     virtual std::vector<fomrobject_t*> GetFieldPtrs() {
         return {};
     }
+#endif
 
 protected_testable:
     //this could be replaced by the CHARS macro in VMString.cpp

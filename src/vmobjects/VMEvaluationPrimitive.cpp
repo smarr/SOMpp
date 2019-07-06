@@ -87,7 +87,7 @@ VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc) {
 
 void EvaluationRoutine::Invoke(Interpreter* interp, VMFrame* frame) {
     VMEvaluationPrimitive* prim = load_ptr(evalPrim);
-    
+
     // Get the block (the receiver) from the stack
     long numArgs = prim->GetNumberOfArguments();
     VMBlock* block = static_cast<VMBlock*>(frame->GetStackElement(numArgs - 1));
@@ -101,6 +101,7 @@ void EvaluationRoutine::Invoke(Interpreter* interp, VMFrame* frame) {
         while (currentFrame != nullptr) {
             long counter = 0;
             long val = (long)context;
+            #if GC_TYPE == OMR_GARBAGE_COLLECTION
             if (currentFrame->isJITAllocatedFrame) {
                 if (counter == val) {
 //                if (0 == strcmp("pushDisk:onPile:", currentFrame->GetMethod()->GetSignature()->GetChars())) {
@@ -111,6 +112,7 @@ void EvaluationRoutine::Invoke(Interpreter* interp, VMFrame* frame) {
                 }
                 counter ++;
             }
+            #endif
             currentFrame = (VMFrame *)currentFrame->previousFrame;
         }
     }

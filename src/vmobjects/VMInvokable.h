@@ -33,6 +33,7 @@ class VMInvokable: public VMObject {
 public:
     typedef GCInvokable Stored;
 
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
     std::vector<fomrobject_t*> GetFieldPtrs() {
       std::vector<fomrobject_t*> fields{ (fomrobject_t*) &clazz };
 
@@ -41,6 +42,7 @@ public:
 
       return fields;
     }
+#endif
 
  public:
     VMInvokable(long nof = 0) : VMObject(nof + 2) {};

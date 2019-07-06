@@ -61,14 +61,14 @@
 // VMObject has many subclasses, and they have no way of knowing
 // how many FIELDS the VMObject subobject will have at compile time.
 // They will therefore stamp their own C++ fields over the previous
-// locations of the FIELDS array, which obstructs GC. 
+// locations of the FIELDS array, which obstructs GC.
 #define FIELDS (((gc_oop_t*)&clazz) + 1)
 
 class VMObject: public AbstractVMObject {
 
 public:
     typedef GCObject Stored;
-    
+
     VMObject(long numberOfFields = 0);
 
     virtual int64_t GetHash() { return hash; }
@@ -84,9 +84,9 @@ public:
     virtual        VMObject* Clone() const;
     virtual inline size_t    GetObjectSize() const;
     virtual inline void      SetObjectSize(size_t size);
-    
+
     virtual        void      MarkObjectAsInvalid();
-    
+
     virtual        StdString AsDebugString() const;
 
     /**
@@ -101,11 +101,12 @@ public:
     void* operator new(size_t numBytes, HEAP_CLS* heap, unsigned long additionalBytes = 0 ALLOC_OUTSIDE_NURSERY_DECL) {
         void* mem = AbstractVMObject::operator new(numBytes, heap, additionalBytes ALLOC_OUTSIDE_NURSERY(outsideNursery));
         assert(mem != INVALID_VM_POINTER);
-        
+
         ((VMObject*) mem)->objectSize = numBytes + PADDED_SIZE(additionalBytes);
         return mem;
     }
 
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
     std::vector<fomrobject_t*> GetFieldPtrs() {
       std::vector<fomrobject_t*> fields{ (fomrobject_t*) &clazz };
 
@@ -117,9 +118,10 @@ public:
       }
 
       return fields;
-    }    
-    
-protected:      
+    }
+#endif
+
+protected:
     inline long GetAdditionalSpaceConsumption() const;
 
     // VMObject essentials
@@ -128,12 +130,12 @@ protected:
 protected_testable:
     size_t objectSize;     // set by the heap at allocation time
     long   numberOfFields;
-  
+
     GCClass* clazz;
 
     // Start of fields. All members beyond after clazz are indexable.
     // clazz has index -1.
-    
+
 private:
     static const long VMObjectNumberOfFields;
 };

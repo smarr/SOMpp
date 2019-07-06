@@ -41,13 +41,15 @@ public:
 
     int64_t GetNumberOfArguments() { return INT_VAL(load_ptr(numberOfArguments)); };
 
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
     std::vector<fomrobject_t*> GetFieldPtrs() {
       std::vector<fomrobject_t*> fields{VMPrimitive::GetFieldPtrs()};
 
       fields.push_back((fomrobject_t*) &numberOfArguments);
-      
+
       return fields;
     }
+#endif
 
 private:
     static VMSymbol* computeSignatureString(long argc);

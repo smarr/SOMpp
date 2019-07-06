@@ -108,7 +108,7 @@ add_definitions(-D_XOPEN_SOURCE)
 
 
 
-if (GC_TYPE EQUAL "OMR_GC" or USE_OMR_JIT)
+if (GC_TYPE EQUAL "OMR_GC" OR USE_OMR_JIT)
 	set(USE_OMR true)
 else()
   set(USE_OMR false)
@@ -147,7 +147,7 @@ endif ()
 
 if (USE_OMR_JIT)
   set(DEFAULT_OMR_JIT_ON true)
-  add_definitions(-DDEFAULT_OMR_JIT_ON=true)
+  target_compile_definitions(SOM++ -DDEFAULT_OMR_JIT_ON=true)
 endif ()
 
 add_definitions(-DGC_TYPE=${GC_TYPE})

@@ -84,7 +84,6 @@ public:
 #if GC_TYPE == OMR_GARBAGE_COLLECTION
    inline void setInvokeReceiverCache(VMClass* receiverClass, long bytecodeIndex);
    inline VMClass* getInvokeReceiverCache(long bytecodeIndex);
-#endif
 
 public:
    std::vector<fomrobject_t*> GetFieldPtrs() {
@@ -105,8 +104,7 @@ public:
 
      return fields;
    }
-   
-#if GC_TYPE == OMR_GARBAGE_COLLECTION
+
 #ifdef UNSAFE_FRAME_OPTIMIZATION
   static constexpr long VMMethodNumberOfFields = 11;
 #else
@@ -125,7 +123,7 @@ private:
     inline vm_oop_t GetIndexableField(long idx) const;
 
     long numberOfConstantsEmbedded;
-    
+
 #if GC_TYPE == OMR_GARBAGE_COLLECTION
     long invokedCount;
     SOMppFunctionType *compiledMethod;

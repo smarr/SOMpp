@@ -52,6 +52,7 @@ public:
 
     virtual StdString AsDebugString() const;
 
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
     std::vector<fomrobject_t*> GetFieldPtrs() {
       std::vector<fomrobject_t*> fields{VMInvokable::GetFieldPtrs()};
 
@@ -59,7 +60,8 @@ public:
 
       return fields;
     }
-    
+#endif
+
 private:
     void EmptyRoutine(Interpreter*, VMFrame*);
 

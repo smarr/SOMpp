@@ -33,7 +33,7 @@
 #include <misc/defs.h>
 
 #if defined(_MSC_VER)   //Visual Studio
-#include <windows.h> 
+#include <windows.h>
 #include "../primitives/Core.h"
 #endif
 
@@ -42,7 +42,7 @@ class ClassGenerationContext;
 class VMClass: public VMObject {
 public:
     typedef GCClass Stored;
-    
+
     VMClass();
     VMClass(long numberOfFields);
 
@@ -68,11 +68,12 @@ public:
            void         LoadPrimitives(const vector<StdString>&);
     virtual VMClass*    Clone() const;
            void         WalkObjects(walk_heap_fn walk);
-    
+
     virtual void MarkObjectAsInvalid();
-    
+
     virtual StdString AsDebugString() const;
 
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
     std::vector<fomrobject_t*> GetFieldPtrs() {
       std::vector<fomrobject_t*> fields{ VMObject::GetFieldPtrs() };
 
@@ -82,7 +83,8 @@ public:
       fields.push_back((fomrobject_t*) &instanceInvokables);
 
       return fields;
-    }    
+    }
+#endif
 
 private:
     bool hasPrimitivesFor(const StdString& cl) const;

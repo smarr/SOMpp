@@ -34,7 +34,7 @@
 class VMArray: public VMObject {
 public:
     typedef GCArray Stored;
-    
+
     VMArray(long size, long nof = 0);
 
     virtual void WalkObjects(walk_heap_fn);
@@ -45,13 +45,15 @@ public:
     void SetIndexableField(long idx, vm_oop_t value);
     void CopyIndexableFieldsTo(VMArray*) const;
     virtual VMArray* Clone() const;
-    
+
     virtual StdString AsDebugString() const;
+#if GC_TYPE == OMR_GARBAGE_COLLECTION
     virtual std::vector<fomrobject_t*> GetFieldPtrs();
+#endif
 
 private:
     virtual void MarkObjectAsInvalid();
-    
+
     static const long VMArrayNumberOfFields;
 };
 
