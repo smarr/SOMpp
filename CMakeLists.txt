@@ -20,11 +20,16 @@
 cmake_minimum_required (VERSION 3.12)
 project(SOMpp LANGUAGES CXX)
 
-add_executable(SOM++ "")
+set(OMR_GC "ON")
+
+add_executable(SOM++     "")
 add_executable(unittests "")
 
-target_compile_features(SOM++     PRIVATE cxx_std_14)
-target_compile_features(unittests PRIVATE cxx_std_14)
+add_library(SOM++_lib     INTERFACE)
+add_library(unittests_lib INTERFACE)
+
+target_compile_features(SOM++         PRIVATE cxx_std_14)
+target_compile_features(unittests     PRIVATE cxx_std_14)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIE -fstack-protector-all")
 
@@ -37,6 +42,8 @@ set(MISC_DIR 		     "${SRC_DIR}/misc")
 set(VM_DIR 			     "${SRC_DIR}/vm")
 set(VMOBJECTS_DIR 	 "${SRC_DIR}/vmobjects")
 set(UNITTEST_DIR 	   "${SRC_DIR}/unitTests")
+
+set(JIT_DIR 			   "${SRC_DIR}/jit")
 
 set(PRIMITIVES_DIR "${SRC_DIR}/primitives")
 set(PRIMITIVESCORE_DIR "${SRC_DIR}/primitivesCore")
@@ -53,6 +60,8 @@ file(GLOB PRIMITIVES_SRC     ${PRIMITIVES_DIR}/*.cpp)
 file(GLOB PRIMITIVESCORE_SRC ${PRIMITIVESCORE_DIR}/*.cpp)
 
 file(GLOB UNITTEST_SRC    ${UNITTEST_DIR}/*.cpp)
+
+file(GLOB JIT_SRC         ${JIT_DIR}/*.cpp)
 
 option(USE_TAGGING "Enable immediate integers using tagging" FALSE)
 set(GC_TYPE "COPYING" CACHE STRING "Select the type of GC to be used: COPYING, MARK_SWEEP, GENERATIONAL")
@@ -118,11 +127,11 @@ else()
 endif()
 
 if (USE_OMR)
-  set(OMR_GLUE_DIR 	   "${SRC_DIR}/omrglue")
+  set(OMR_GLUE_DIR 	        "${SRC_DIR}/omrglue")
+	file(GLOB OMR_GLUE_SRC    ${OMR_GLUE_DIR}/*.cpp)
 
   add_subdirectory(omr)
 
-  file(GLOB OMR_GLUE_SRC    ${OMR_GLUE_DIR}/*.cpp)
   set(OMR_INCLUDE
     "${ROOT_DIR}/omr/compiler"
     "${ROOT_DIR}/omr/jitbuilder/release/include"
@@ -150,13 +159,18 @@ endif ()
 
 if (USE_OMR_JIT)
   set(DEFAULT_OMR_JIT_ON true)
-  target_compile_definitions(SOM++ PRIVATE
+	add_definitions(-DDEFAULT_OMR_JIT_ON=true)
+  target_compile_definitions(SOM++_lib INTERFACE
 	  -DDEFAULT_OMR_JIT_ON=true)
+	target_sources(SOM++_lib INTERFACE
+		${JIT_SRC})
+	target_include_directories(SOM++_lib INTERFACE
+		${JIT_DIR})
 endif ()
 
 add_definitions(-DGC_TYPE=${GC_TYPE})
 
-target_sources(SOM++ PRIVATE
+target_sources(SOM++_lib INTERFACE
 	${COMPILER_SRC}
 	${INTERPRETER_SRC}
 	${MEMORY_SRC}
@@ -169,26 +183,50 @@ target_sources(SOM++ PRIVATE
 	${PRIMITIVESCORE_SRC})
 
 if (USE_OMR)
-  target_sources(SOM++ PRIVATE
+  target_sources(SOM++_lib INTERFACE
     ${OMR_GLUE_SRC})
+
+	add_library(SOM++gc_glue INTERFACE)
+
+	set(OMR_GC_GLUE_TARGET "SOM++gc_glue" CACHE
+    STRING "The gc glue target, must be interface library" FORCE)
+
+	target_sources(SOM++gc_glue INTERFACE
+    ${OMR_GLUE_SRC})
+
+	target_link_libraries(SOM++gc_glue INTERFACE
+    omr_example_base
+    SOM++_lib)
+
+	target_include_directories(SOM++gc_glue INTERFACE
+   "${OMR_GLUE_DIR}" "${OMR_INCLUDE}" "${VM_DIR}")
+
+	target_link_libraries(SOM++ SOM++gc_glue omrgc)
+	target_link_libraries(unittests SOM++gc_glue omrgc)
 endif ()
 
-target_compile_options(SOM++ PRIVATE
+target_link_libraries(SOM++ SOM++_lib)
+target_link_libraries(unittests unittests_lib)
+
+target_compile_options(SOM++_lib INTERFACE
 	-m64
 	-Wno-endif-labels)
 
-target_include_directories(SOM++ PRIVATE ${SRC_DIR})
+target_include_directories(SOM++_lib INTERFACE
+  ${SRC_DIR})
 
 if (USE_OMR)
-  target_include_directories(SOM++ PRIVATE ${OMR_INCLUDE})
+  target_include_directories(SOM++_lib INTERFACE
+	  ${OMR_INCLUDE})
 endif ()
 
-
-
-target_link_libraries(SOM++)
+target_link_libraries(SOM++_lib)
 
 if (USE_OMR)
-  target_link_libraries(SOM++ omrcore omrgc omrvmstartup jitbuilder)
+  target_link_libraries(SOM++_lib INTERFACE
+	  jitbuilder omrcore omrvmstartup)
+	target_link_libraries(unittests_lib INTERFACE
+	  jitbuilder omrcore omrvmstartup)
 endif ()
 
 target_sources(unittests PRIVATE
@@ -205,19 +243,19 @@ target_sources(unittests PRIVATE
 	${UNITTEST_SRC})
 
 target_compile_options(unittests PRIVATE
-	-DDEBUG -O0 -g -DUNITTESTS)
+  -DDEBUG -O0 -g -DUNITTESTS)
 
 target_include_directories(unittests PRIVATE
-	${SRC_DIR}
-	/opt/local/include)
+  ${SRC_DIR}
+  /opt/local/include)
 
 if (USE_OMR)
   target_include_directories(unittests PRIVATE ${OMR_INCLUDE})
 endif ()
 
 find_library(LIB_CPPUNIT
-	NAMES cppunit
-	HINTS /opt/local/lib)
+  NAMES cppunit
+  HINTS /opt/local/lib)
 
 target_link_libraries(unittests ${LIB_CPPUNIT})
 
