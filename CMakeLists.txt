@@ -218,6 +218,8 @@ target_include_directories(SOM++_lib INTERFACE
 if (USE_OMR)
   target_include_directories(SOM++_lib INTERFACE
 	  ${OMR_INCLUDE})
+  target_include_directories(unittests_lib INTERFACE
+    ${OMR_INCLUDE})
 endif ()
 
 target_link_libraries(SOM++_lib)
