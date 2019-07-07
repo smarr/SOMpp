@@ -42,6 +42,9 @@
  THE SOFTWARE.
  */
 
+// currently not used, instead SOMppMethod_with_vm_state.cpp is used
+#if false
+
 #include "SOMppMethod.hpp"
 
 #include <stdio.h>
@@ -613,7 +616,7 @@ SOMppMethod::doSuperSend(OMR::JitBuilder::BytecodeBuilder *builder, OMR::JitBuil
 	justReturn(bail);
 
 	OMR::JitBuilder::BytecodeBuilder *start = bytecodeBuilderTable[0];
-	
+
 	builder->IfCmpNotEqual(&start,
 	builder->	Load("return"),
 	builder->	ConstInt64((int64_t)bytecodeIndex));
@@ -726,7 +729,7 @@ SOMppMethod::doJump(OMR::JitBuilder::BytecodeBuilder *builder, OMR::JitBuilder::
 {
 	OMR::JitBuilder::BytecodeBuilder *destBuilder = bytecodeBuilderTable[calculateBytecodeIndexForJump(bytecodeIndex)];
 	builder->AddSuccessorBuilder(&destBuilder);
-	
+
 	builder->Goto(&destBuilder);
 	/* do not adjust currentStackDepth */
 }
@@ -2296,7 +2299,7 @@ SOMppMethod::methodIsInlineable(VMMethod *vmMethod)
 	long bytecodeCount = vmMethod->GetNumberOfBytecodes();
 	long i = 0;
 	bool isInlinable = true;
-	
+
 	while ((i < bytecodeCount) && isInlinable) {
 		uint8_t bc = vmMethod->GetBytecode(i);
 		switch(bc) {
@@ -2323,3 +2326,5 @@ SOMppMethod::methodIsInlineable(VMMethod *vmMethod)
 	}
 	return isInlinable;
 }
+
+#endif
