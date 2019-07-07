@@ -118,15 +118,21 @@ endif ()
 # OSX Hack for C++14
 add_definitions(-D_XOPEN_SOURCE)
 
-
-
-if (GC_TYPE EQUAL "OMR_GC" OR USE_OMR_JIT)
+if (GC_TYPE STREQUAL "OMR_GC" OR USE_OMR_JIT)
 	set(USE_OMR true)
 else()
   set(USE_OMR false)
 endif()
 
 if (USE_OMR)
+  # we may need to checkout the submodule first
+  find_path(HAS_OMR_SUBMODULE .git ${ROOT_DIR}/omr)
+    if ((NOT HAS_OMR_SUBMODULE) OR (NOT EXISTS ${HAS_OMR_SUBMODULE}))
+    execute_process(
+      COMMAND git submodule update --init ${ROOT_DIR}/omr
+      WORKING_DIRECTORY ${ROOT_DIR})
+  endif()
+
   set(OMR_GLUE_DIR 	        "${SRC_DIR}/omrglue")
 	file(GLOB OMR_GLUE_SRC    ${OMR_GLUE_DIR}/*.cpp)
 
