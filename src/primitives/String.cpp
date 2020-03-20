@@ -45,6 +45,9 @@ _String::_String() : PrimitiveContainer() {
     SetPrimitive("length",       new Routine<_String>(this, &_String::Length,   false));
     SetPrimitive("equal",        new Routine<_String>(this, &_String::Equal,    false));
     SetPrimitive("primSubstringFrom_to_", new Routine<_String>(this, &_String::PrimSubstringFrom_to_, false));
+    SetPrimitive("isWhiteSpace",        new Routine<_String>(this, &_String::IsWhiteSpace, false));
+    SetPrimitive("isLetters",        new Routine<_String>(this, &_String::IsLetters,    false));
+    SetPrimitive("isDigits",        new Routine<_String>(this, &_String::IsDigits,     false));
 }
 
 void _String::Concatenate_(Interpreter*, VMFrame* frame) {
@@ -113,3 +116,65 @@ void _String::PrimSubstringFrom_to_(Interpreter*, VMFrame* frame) {
     frame->Push(GetUniverse()->NewString(result));
 }
 
+void _String::IsWhiteSpace(Interpreter*, VMFrame* frame) {
+    VMString* self = static_cast<VMString*>(frame->Pop());
+
+    size_t len = self->GetStringLength();
+
+    const char* string = self->GetChars();
+
+    for (size_t i = 0; i < len; i++) {
+        if (!isspace(string[i])) {
+            frame->Push(load_ptr(falseObject));
+            return;
+        }
+    }
+
+    if (len > 0) {
+        frame->Push(load_ptr(trueObject));
+    } else {
+        frame->Push(load_ptr(falseObject));
+    }
+}
+
+void _String::IsLetters(Interpreter*, VMFrame* frame) {
+    VMString* self = static_cast<VMString*>(frame->Pop());
+
+    size_t len = self->GetStringLength();
+
+    const char* string = self->GetChars();
+
+    for (size_t i = 0; i < len; i++) {
+        if (!isalpha(string[i])) {
+            frame->Push(load_ptr(falseObject));
+            return;
+        }
+    }
+
+    if (len > 0) {
+        frame->Push(load_ptr(trueObject));
+    } else {
+        frame->Push(load_ptr(falseObject));
+    }
+}
+
+void _String::IsDigits(Interpreter*, VMFrame* frame) {
+    VMString* self = static_cast<VMString*>(frame->Pop());
+
+    size_t len = self->GetStringLength();
+
+    const char* string = self->GetChars();
+
+    for (size_t i = 0; i < len; i++) {
+        if (!isdigit(string[i])) {
+            frame->Push(load_ptr(falseObject));
+            return;
+        }
+    }
+
+    if (len > 0) {
+        frame->Push(load_ptr(trueObject));
+    } else {
+        frame->Push(load_ptr(falseObject));
+    }
+}

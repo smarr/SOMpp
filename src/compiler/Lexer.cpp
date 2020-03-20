@@ -138,6 +138,7 @@ void Lexer::lexEscapeChar() {
         case 'n': text += '\n'; break;
         case 'r': text += '\r'; break;
         case 'f': text += '\f'; break;
+        case '0': text += '\0'; break;
         case '\'': text += '\''; break;
         case '\\': text += '\\'; break;
         default:

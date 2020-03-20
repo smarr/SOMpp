@@ -38,4 +38,8 @@ public:
     void Length(Interpreter*, VMFrame*);
     void Equal(Interpreter*, VMFrame*);
     void PrimSubstringFrom_to_(Interpreter*, VMFrame*);
+
+    void IsWhiteSpace(Interpreter*, VMFrame*);
+    void IsLetters(Interpreter*, VMFrame*);
+    void IsDigits(Interpreter*, VMFrame*);
 };
