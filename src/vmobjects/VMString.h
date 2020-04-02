@@ -34,7 +34,7 @@ public:
     
     VMString(const size_t length, const char* str);
     
-    virtual int64_t GetHash() {
+    virtual int64_t GetHash() const {
         int64_t hash = 5381;
 
         for (size_t i = 0; i < length; i++) {
