@@ -90,7 +90,6 @@ public:
     void Assert(bool) const;
 
     VMSymbol* SymbolFor(const StdString&);
-    VMSymbol* SymbolForChars(const char*);
 
     //VMObject instanciation methods. These should probably be refactored to a new class
     VMArray* NewArray(long) const;
