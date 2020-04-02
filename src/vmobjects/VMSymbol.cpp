@@ -36,7 +36,7 @@ extern GCClass* symbolClass;
 VMSymbol::VMSymbol(const size_t length, const char* const str) :
       // set the chars-pointer to point at the position of the first character
       VMString((char*) &cachedInvokable + +3 * sizeof(VMInvokable*), length),
-      numberOfArgumentsOfSignature(Signature::DetermineNumberOfArguments(str)) {
+      numberOfArgumentsOfSignature(Signature::DetermineNumberOfArguments(str, length)) {
     nextCachePos = 0;
     size_t i = 0;
     for (; i < length; ++i) {
