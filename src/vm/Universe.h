@@ -109,8 +109,8 @@ public:
     VMClass* NewMetaclassClass(void) const;
     VMString* NewString(const StdString&) const;
     VMSymbol* NewSymbol(const StdString&);
-    VMString* NewString(const char*) const;
-    VMSymbol* NewSymbol(const char*);
+    VMString* NewString(const size_t, const char*) const;
+    VMSymbol* NewSymbol(const size_t, const char*);
     VMClass* NewSystemClass(void) const;
 
     void InitializeSystemClass(VMClass*, VMClass*, const char*);

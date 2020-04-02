@@ -36,8 +36,7 @@ class VMSymbol: public VMString {
 public:
     typedef GCSymbol Stored;
     
-    VMSymbol(const char* str);
-    VMSymbol(const StdString& s);
+    VMSymbol(const size_t length, const char* const str);
     virtual StdString GetPlainString() const;
     virtual size_t GetObjectSize() const;
     virtual VMSymbol* Clone() const;

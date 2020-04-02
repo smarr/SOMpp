@@ -34,26 +34,22 @@ extern GCClass* stringClass;
 //this macro could replace the chars member variable
 //#define CHARS ((char*)&clazz+sizeof(VMObject*))
 
-VMString::VMString(const char* str) : AbstractVMObject() {
-    //set the chars-pointer to point at the position of the first character
-    chars = (char*) &chars + sizeof(char*);
-
-    size_t i = 0;
-    
-    while (str[i] != '\0') {
+VMString::VMString(const size_t length, const char* str) :
+        length(length),
+        // set the chars-pointer to point at the position of the first character
+        chars((char*) &chars + sizeof(char*)),
+        AbstractVMObject() {
+    for (size_t i = 0; i < length; i++) {
         chars[i] = str[i];
-        i++;
     }
-    chars[i] = '\0';
 }
 
 VMString* VMString::Clone() const {
-    return new (GetHeap<HEAP_CLS>(), PADDED_SIZE(strlen(chars)+1) ALLOC_MATURE) VMString(chars);
+    return new (GetHeap<HEAP_CLS>(), PADDED_SIZE(length) ALLOC_MATURE) VMString(length, chars);
 }
 
 void VMString::MarkObjectAsInvalid() {
-    size_t i = 0;
-    while (chars[i] != '\0') {
+    for (size_t i = 0; i < length; i++) {
         chars[i] = 'z';
         i++;
     }
@@ -63,12 +59,8 @@ void VMString::WalkObjects(walk_heap_fn) {
     //nothing to do
 }
 
-VMString::VMString(const StdString& s) {
-    VMString(s.c_str());
-}
-
 size_t VMString::GetObjectSize() const {
-    size_t size = sizeof(VMString) + PADDED_SIZE(strlen(chars) + 1);
+    size_t size = sizeof(VMString) + PADDED_SIZE(length);
     return size;
 }
 
@@ -79,13 +71,13 @@ VMClass* VMString::GetClass() const {
 size_t VMString::GetStringLength() const {
     //get the additional memory allocated by this object and substract one
     //for the '0' character and four for the char*
-    return strlen(chars);
+    return length;
 }
 
 StdString VMString::GetStdString() const {
     if (chars == 0)
         return StdString("");
-    return StdString(chars);
+    return StdString(chars, length);
 }
 
 StdString VMString::AsDebugString() const {

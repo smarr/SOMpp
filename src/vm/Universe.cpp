@@ -452,7 +452,7 @@ Universe::~Universe() {
         VMPrimitive* prm = new (GetHeap<HEAP_CLS>()) VMPrimitive(className);
         vt_primitive  = *(void**) prm;
         
-        VMString* str = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(1)) VMString("");
+        VMString* str = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(1)) VMString(0, nullptr);
         vt_string     = *(void**) str;
         vt_symbol     = *(void**) className;
     }
@@ -931,24 +931,24 @@ VMMethod* Universe::NewMethod(VMSymbol* signature,
 }
 
 VMString* Universe::NewString(const StdString& str) const {
-    return NewString(str.c_str());
+    return NewString(str.length(), str.c_str());
 }
 
-VMString* Universe::NewString(const char* str) const {
-    VMString* result = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(strlen(str) + 1)) VMString(str);
+VMString* Universe::NewString(const size_t length, const char* str) const {
+    VMString* result = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(length)) VMString(length, str);
 
     LOG_ALLOCATION("VMString", result->GetObjectSize());
     return result;
 }
 
 VMSymbol* Universe::NewSymbol(const StdString& str) {
-    return NewSymbol(str.c_str());
+    return NewSymbol(str.length(), str.c_str());
 }
 
-VMSymbol* Universe::NewSymbol(const char* str) {
-    VMSymbol* result = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(strlen(str)+1)) VMSymbol(str);
+VMSymbol* Universe::NewSymbol(const size_t length, const char* str) {
+    VMSymbol* result = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(length)) VMSymbol(length, str);
 # warning is _store_ptr sufficient here?
-    symbolsMap[str] = _store_ptr(result);
+    symbolsMap[StdString(str, length)] = _store_ptr(result);
 
     LOG_ALLOCATION("VMSymbol", result->GetObjectSize());
     return result;
