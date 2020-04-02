@@ -248,7 +248,7 @@
 		3F5203330FA6624C00E75857 /* Universe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Universe.h; sourceTree = "<group>"; };
 		3F5203350FA6624C00E75857 /* ObjectFormats.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjectFormats.h; sourceTree = "<group>"; };
 		3F5203360FA6624C00E75857 /* PrimitiveRoutine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrimitiveRoutine.h; sourceTree = "<group>"; };
-		3F5203370FA6624C00E75857 /* Signature.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Signature.cpp; sourceTree = "<group>"; };
+		3F5203370FA6624C00E75857 /* Signature.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Signature.cpp; sourceTree = "<group>"; tabWidth = 4; };
 		3F5203380FA6624C00E75857 /* Signature.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Signature.h; sourceTree = "<group>"; };
 		3F52033B0FA6624C00E75857 /* VMArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VMArray.cpp; sourceTree = "<group>"; };
 		3F52033C0FA6624C00E75857 /* VMArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMArray.h; sourceTree = "<group>"; };
