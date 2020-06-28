@@ -53,8 +53,11 @@ _String::_String() : PrimitiveContainer() {
 void _String::Concatenate_(Interpreter*, VMFrame* frame) {
     VMString* arg  = static_cast<VMString*>(frame->Pop());
     VMString* self = static_cast<VMString*>(frame->Pop());
-    StdString a = arg->GetChars();
-    StdString s = self->GetChars();
+    // TODO: if this really needs to be optimized, than, well, then,
+    // NewString should allow to construct it correctly and simply copy
+    // from both input strings
+    StdString a = arg->GetStdString();
+    StdString s = self->GetStdString();
 
     StdString result = s + a;
 
@@ -121,7 +124,7 @@ void _String::IsWhiteSpace(Interpreter*, VMFrame* frame) {
 
     size_t len = self->GetStringLength();
 
-    const char* string = self->GetChars();
+    const char* string = self->GetRawChars();
 
     for (size_t i = 0; i < len; i++) {
         if (!isspace(string[i])) {
@@ -142,7 +145,7 @@ void _String::IsLetters(Interpreter*, VMFrame* frame) {
 
     size_t len = self->GetStringLength();
 
-    const char* string = self->GetChars();
+    const char* string = self->GetRawChars();
 
     for (size_t i = 0; i < len; i++) {
         if (!isalpha(string[i])) {
@@ -163,7 +166,7 @@ void _String::IsDigits(Interpreter*, VMFrame* frame) {
 
     size_t len = self->GetStringLength();
 
-    const char* string = self->GetChars();
+    const char* string = self->GetRawChars();
 
     for (size_t i = 0; i < len; i++) {
         if (!isdigit(string[i])) {

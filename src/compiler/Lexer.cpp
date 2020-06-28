@@ -164,11 +164,14 @@ void Lexer::lexString() {
     bufp++;
     
     while (_BC != '\'') {
-        lexStringChar();
         while (EOB) {
             if (fillBuffer() == -1) {
                 return;
             }
+            text += '\n';
+        }
+        if (_BC != '\'') {
+            lexStringChar();
         }
     }
     bufp++;

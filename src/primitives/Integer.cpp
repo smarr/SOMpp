@@ -307,7 +307,7 @@ void _Integer::FromString(Interpreter*, VMFrame* frame) {
     VMString* self = (VMString*) frame->Pop();
     frame->Pop();
 
-    int64_t integer = atol(self->GetChars());
+    int64_t integer = stol(StdString(self->GetRawChars(), self->GetStringLength()));
     vm_oop_t new_int = NEW_INT(integer);
     frame->Push(new_int);
 }

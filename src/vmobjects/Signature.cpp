@@ -35,21 +35,25 @@ bool Signature::IsBinary(VMSymbol* sig) {
     return sig->numberOfArgumentsOfSignature == 2;
 }
 
-int Signature::DetermineNumberOfArguments(const char* sig) {
+int Signature::DetermineNumberOfArguments(const char* sig, const size_t length) {
     // check default binaries
-    if (Signature::IsBinary(sig))
+    if (Signature::IsBinary(sig, length))
         return 2;
 
     // colons in str
     int numColons = 0;
-    int i = 0;
-    while (sig[i] != '\0')
-        if (sig[i++] == ':')
+    for (size_t i = 0; i < length; i++) {
+        if (sig[i] == ':') {
             numColons++;
+        }
+    }
     return numColons + 1;
 }
 
-bool Signature::IsBinary(const char* sig) {
+bool Signature::IsBinary(const char* sig, const size_t length) {
+    if (length == 0) {
+        return false;
+    }
     switch(sig[0]) {
         case '~' :
         case '&' :

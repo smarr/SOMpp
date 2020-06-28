@@ -26,6 +26,7 @@
  THE SOFTWARE.
  */
 
+#include <stddef.h>
 #include <vmobjects/ObjectFormats.h>
 
 class Signature {
@@ -33,7 +34,7 @@ public:
     static int GetNumberOfArguments(VMSymbol* sig);
     static bool IsBinary(VMSymbol* sig);
     
-    static int DetermineNumberOfArguments(const char* sig);
-    static bool IsBinary(const char* sig);
+    static int DetermineNumberOfArguments(const char* sig, const size_t length);
+    static bool IsBinary(const char* sig, const size_t length);
 
 };

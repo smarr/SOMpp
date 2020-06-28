@@ -33,32 +33,26 @@
 
 extern GCClass* symbolClass;
 
-VMSymbol::VMSymbol(const char* str) :
-  numberOfArgumentsOfSignature(Signature::DetermineNumberOfArguments(str)) {
+VMSymbol::VMSymbol(const size_t length, const char* const str) :
+      // set the chars-pointer to point at the position of the first character
+      VMString((char*) &cachedInvokable + +3 * sizeof(VMInvokable*), length),
+      numberOfArgumentsOfSignature(Signature::DetermineNumberOfArguments(str, length)) {
     nextCachePos = 0;
-    // set the chars-pointer to point at the position of the first character
-    chars = (char*) &cachedInvokable + +3 * sizeof(VMInvokable*);
     size_t i = 0;
-    for (; i < strlen(str); ++i) {
+    for (; i < length; ++i) {
         chars[i] = str[i];
     }
-    chars[i] = '\0';
     //clear caching fields
     memset(&cachedClass_invokable, 0, 6 * sizeof(void*) + 1 * sizeof(long));
 }
 
-VMSymbol::VMSymbol(const StdString& s) :
-  numberOfArgumentsOfSignature(Signature::DetermineNumberOfArguments(s.c_str())) {
-    VMSymbol(s.c_str());
-}
-
 size_t VMSymbol::GetObjectSize() const {
-    size_t size = sizeof(VMSymbol) + PADDED_SIZE(strlen(chars) + 1);
+    size_t size = sizeof(VMSymbol) + PADDED_SIZE(length);
     return size;
 }
 
 VMSymbol* VMSymbol::Clone() const {
-    VMSymbol* result = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(strlen(chars) + 1) ALLOC_MATURE) VMSymbol(chars);
+    VMSymbol* result = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(length) ALLOC_MATURE) VMSymbol(length, chars);
     return result;
 }
 
@@ -68,9 +62,9 @@ VMClass* VMSymbol::GetClass() const {
 
 StdString VMSymbol::GetPlainString() const {
     ostringstream str;
-    char* chars = GetChars();
-    size_t length = GetStringLength();
-    for (size_t i = 0; i <= length; i++) {
+    char* chars = this->chars;
+    size_t length = this->length;
+    for (size_t i = 0; i < length; i++) {
         char c = chars[i];
         switch (c) {
         case '~':

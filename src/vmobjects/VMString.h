@@ -32,22 +32,19 @@ class VMString: public AbstractVMObject {
 public:
     typedef GCString Stored;
     
-    VMString(const char* str);
-    VMString(const StdString& s);
+    VMString(const size_t length, const char* str);
     
-    virtual int64_t GetHash() {
+    virtual int64_t GetHash() const {
         int64_t hash = 5381;
-        int64_t c;
-        char* i = chars;
-        
-        while ((c = *i++)) {
-            hash = ((hash << 5) + hash) + c;
+
+        for (size_t i = 0; i < length; i++) {
+            hash = ((hash << 5) + hash) + chars[i];
         }
         
         return hash;
     }
 
-    inline char* GetChars() const;
+    inline char* GetRawChars() const;
     StdString GetStdString() const;
     size_t GetStringLength() const;
 
@@ -63,11 +60,12 @@ public:
 protected_testable:
     //this could be replaced by the CHARS macro in VMString.cpp
     //in order to decrease the object size
-    char* chars;
+    const size_t length;
+    char* const chars;
 protected:
-    VMString() {}; //constructor to use by VMSymbol
+    VMString(char* const str, const size_t length) : chars(str), length(length) {}; //constructor to use by VMSymbol
 };
 
-char* VMString::GetChars() const {
+char* VMString::GetRawChars() const {
     return chars;
 }

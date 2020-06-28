@@ -280,7 +280,7 @@ Universe::Universe() {
 }
 
 VMMethod* Universe::createBootstrapMethod(VMClass* holder, long numArgsOfMsgSend) {
-    VMMethod* bootstrapMethod = NewMethod(SymbolForChars("bootstrap"), 1, 0);
+    VMMethod* bootstrapMethod = NewMethod(SymbolFor("bootstrap"), 1, 0);
     bootstrapMethod->SetBytecode(0, BC_HALT);
     bootstrapMethod->SetNumberOfLocals(0);
     bootstrapMethod->SetMaximumNumberOfStackElements(numArgsOfMsgSend);
@@ -336,7 +336,7 @@ void Universe::initialize(long _argc, char** _argv) {
     bootstrapFrame->Push(argumentsArray);
 
     VMInvokable* initialize = load_ptr(systemClass)->LookupInvokable(
-                                            SymbolForChars("initialize:"));
+                                            SymbolFor("initialize:"));
     initialize->Invoke(interpreter, bootstrapFrame);
 
     // reset "-d" indicator
@@ -452,7 +452,7 @@ Universe::~Universe() {
         VMPrimitive* prm = new (GetHeap<HEAP_CLS>()) VMPrimitive(className);
         vt_primitive  = *(void**) prm;
         
-        VMString* str = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(1)) VMString("");
+        VMString* str = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(1)) VMString(0, nullptr);
         vt_string     = *(void**) str;
         vt_symbol     = *(void**) className;
     }
@@ -518,30 +518,30 @@ VMObject* Universe::InitializeGlobals() {
     LoadSystemClass(load_ptr(stringClass));
     LoadSystemClass(load_ptr(doubleClass));
 
-    blockClass = _store_ptr(LoadClass(SymbolForChars("Block")));
+    blockClass = _store_ptr(LoadClass(SymbolFor("Block")));
 
-    VMSymbol* trueClassName = SymbolForChars("True");
+    VMSymbol* trueClassName = SymbolFor("True");
     trueClass  = _store_ptr(LoadClass(trueClassName));
     trueObject = _store_ptr(NewInstance(load_ptr(trueClass)));
     
-    VMSymbol* falseClassName = SymbolForChars("False");
+    VMSymbol* falseClassName = SymbolFor("False");
     falseClass  = _store_ptr(LoadClass(falseClassName));
     falseObject = _store_ptr(NewInstance(load_ptr(falseClass)));
 
-    systemClass = _store_ptr(LoadClass(SymbolForChars("System")));
+    systemClass = _store_ptr(LoadClass(SymbolFor("System")));
     
     
     VMObject* systemObject = NewInstance(load_ptr(systemClass));
     
-    SetGlobal(SymbolForChars("nil"),    load_ptr(nilObject));
-    SetGlobal(SymbolForChars("true"),   load_ptr(trueObject));
-    SetGlobal(SymbolForChars("false"),  load_ptr(falseObject));
-    SetGlobal(SymbolForChars("system"), systemObject);
-    SetGlobal(SymbolForChars("System"), load_ptr(systemClass));
-    SetGlobal(SymbolForChars("Block"),  load_ptr(blockClass));
+    SetGlobal(SymbolFor("nil"),    load_ptr(nilObject));
+    SetGlobal(SymbolFor("true"),   load_ptr(trueObject));
+    SetGlobal(SymbolFor("false"),  load_ptr(falseObject));
+    SetGlobal(SymbolFor("system"), systemObject);
+    SetGlobal(SymbolFor("System"), load_ptr(systemClass));
+    SetGlobal(SymbolFor("Block"),  load_ptr(blockClass));
     
-    symbolIfTrue  = _store_ptr(SymbolForChars("ifTrue:"));
-    symbolIfFalse = _store_ptr(SymbolForChars("ifFalse:"));
+    symbolIfTrue  = _store_ptr(SymbolFor("ifTrue:"));
+    symbolIfFalse = _store_ptr(SymbolFor("ifFalse:"));
     
     return systemObject;
 }
@@ -931,24 +931,24 @@ VMMethod* Universe::NewMethod(VMSymbol* signature,
 }
 
 VMString* Universe::NewString(const StdString& str) const {
-    return NewString(str.c_str());
+    return NewString(str.length(), str.c_str());
 }
 
-VMString* Universe::NewString(const char* str) const {
-    VMString* result = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(strlen(str) + 1)) VMString(str);
+VMString* Universe::NewString(const size_t length, const char* str) const {
+    VMString* result = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(length)) VMString(length, str);
 
     LOG_ALLOCATION("VMString", result->GetObjectSize());
     return result;
 }
 
 VMSymbol* Universe::NewSymbol(const StdString& str) {
-    return NewSymbol(str.c_str());
+    return NewSymbol(str.length(), str.c_str());
 }
 
-VMSymbol* Universe::NewSymbol(const char* str) {
-    VMSymbol* result = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(strlen(str)+1)) VMSymbol(str);
+VMSymbol* Universe::NewSymbol(const size_t length, const char* str) {
+    VMSymbol* result = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(length)) VMSymbol(length, str);
 # warning is _store_ptr sufficient here?
-    symbolsMap[str] = _store_ptr(result);
+    symbolsMap[StdString(str, length)] = _store_ptr(result);
 
     LOG_ALLOCATION("VMSymbol", result->GetObjectSize());
     return result;
@@ -969,10 +969,6 @@ VMClass* Universe::NewSystemClass() const {
 VMSymbol* Universe::SymbolFor(const StdString& str) {
     map<string,GCSymbol*>::iterator it = symbolsMap.find(str);
     return (it == symbolsMap.end()) ? NewSymbol(str) : load_ptr(it->second);
-}
-
-VMSymbol* Universe::SymbolForChars(const char* str) {
-    return SymbolFor(str);
 }
 
 void Universe::SetGlobal(VMSymbol* name, vm_oop_t val) {
