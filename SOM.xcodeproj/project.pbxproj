@@ -203,7 +203,7 @@
 		3F5202F80FA6624C00E75857 /* Lexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Lexer.h; sourceTree = "<group>"; };
 		3F5202F90FA6624C00E75857 /* MethodGenerationContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MethodGenerationContext.cpp; sourceTree = "<group>"; };
 		3F5202FA0FA6624C00E75857 /* MethodGenerationContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MethodGenerationContext.h; sourceTree = "<group>"; };
-		3F5202FB0FA6624C00E75857 /* Parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Parser.cpp; sourceTree = "<group>"; };
+		3F5202FB0FA6624C00E75857 /* Parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Parser.cpp; sourceTree = "<group>"; tabWidth = 4; };
 		3F5202FC0FA6624C00E75857 /* Parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Parser.h; sourceTree = "<group>"; };
 		3F5202FD0FA6624C00E75857 /* SourcecodeCompiler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SourcecodeCompiler.cpp; sourceTree = "<group>"; };
 		3F5202FE0FA6624C00E75857 /* SourcecodeCompiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SourcecodeCompiler.h; sourceTree = "<group>"; };

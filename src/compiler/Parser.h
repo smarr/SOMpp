@@ -80,12 +80,12 @@ private:
     void assignments(MethodGenerationContext* mgenc, list<string>& l);
     StdString assignment(MethodGenerationContext* mgenc);
     void evaluation(MethodGenerationContext* mgenc);
-    void primary(MethodGenerationContext* mgenc, bool* super);
+    bool primary(MethodGenerationContext* mgenc);
     StdString variable(void);
     void messages(MethodGenerationContext* mgenc, bool super);
     void unaryMessage(MethodGenerationContext* mgenc, bool super);
     void binaryMessage(MethodGenerationContext* mgenc, bool super);
-    void binaryOperand(MethodGenerationContext* mgenc, bool* super);
+    bool binaryOperand(MethodGenerationContext* mgenc);
     void keywordMessage(MethodGenerationContext* mgenc, bool super);
     
     void ifTrueMessage(MethodGenerationContext* mgenc);
