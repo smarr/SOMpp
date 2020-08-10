@@ -493,22 +493,21 @@ StdString Parser::assignment(MethodGenerationContext* mgenc) {
 }
 
 void Parser::evaluation(MethodGenerationContext* mgenc) {
-    bool super;
-    primary(mgenc, &super);
+    bool super = primary(mgenc);
     if (symIsIdentifier() || sym == Keyword || sym == OperatorSequence
             || symIn(binaryOpSyms)) {
         messages(mgenc, super);
     }
 }
 
-void Parser::primary(MethodGenerationContext* mgenc, bool* super) {
-    *super = false;
+bool Parser::primary(MethodGenerationContext* mgenc) {
+    bool super = false;
     switch (sym) {
     case Primitive:
     case Identifier: {
         StdString v = variable();
         if (v == "super") {
-            *super = true;
+            super = true;
             // sends to super push self as the receiver
             v = StdString("self");
         }
@@ -537,6 +536,8 @@ void Parser::primary(MethodGenerationContext* mgenc, bool* super) {
         literal(mgenc);
         break;
     }
+
+    return super;
 }
 
 StdString Parser::variable(void) {
@@ -568,19 +569,20 @@ void Parser::messages(MethodGenerationContext* mgenc, bool super) {
         if (sym == Keyword) {
             keywordMessage(mgenc, false);
         }
-    } else
+    } else {
         keywordMessage(mgenc, super);
+    }
 }
 
 void Parser::unaryMessage(MethodGenerationContext* mgenc, bool super) {
     VMSymbol* msg = unarySelector();
     mgenc->AddLiteralIfAbsent(msg);
 
-    if (super)
+    if (super) {
         bcGen->EmitSUPERSEND(mgenc, msg);
-    else
+    } else {
         bcGen->EmitSEND(mgenc, msg);
-
+    }
 }
 
 void Parser::binaryMessage(MethodGenerationContext* mgenc, bool super) {
@@ -588,7 +590,7 @@ void Parser::binaryMessage(MethodGenerationContext* mgenc, bool super) {
     mgenc->AddLiteralIfAbsent(msg);
 
     bool tmp_bool = false;
-    binaryOperand(mgenc, &tmp_bool);
+    binaryOperand(mgenc);
 
     if (super)
         bcGen->EmitSUPERSEND(mgenc, msg);
@@ -597,11 +599,15 @@ void Parser::binaryMessage(MethodGenerationContext* mgenc, bool super) {
 
 }
 
-void Parser::binaryOperand(MethodGenerationContext* mgenc, bool* super) {
-    primary(mgenc, super);
+bool Parser::binaryOperand(MethodGenerationContext* mgenc) {
+    bool super = primary(mgenc);
 
-    while (symIsIdentifier())
-        unaryMessage(mgenc, *super);
+    while (symIsIdentifier()) {
+        unaryMessage(mgenc, super);
+        super = false;
+    }
+
+    return super;
 }
 
 void Parser::ifTrueMessage(MethodGenerationContext* mgenc) {
@@ -715,14 +721,16 @@ void Parser::keywordMessage(MethodGenerationContext* mgenc, bool super) {
 }
 
 void Parser::formula(MethodGenerationContext* mgenc) {
-    bool super;
-    binaryOperand(mgenc, &super);
+    bool super = binaryOperand(mgenc);
 
     // only the first message in a sequence can be a super send
-    if (sym == OperatorSequence || symIn(binaryOpSyms))
+    if (sym == OperatorSequence || symIn(binaryOpSyms)) {
         binaryMessage(mgenc, super);
-    while (sym == OperatorSequence || symIn(binaryOpSyms))
+    }
+
+    while (sym == OperatorSequence || symIn(binaryOpSyms)) {
         binaryMessage(mgenc, false);
+    }
 }
 
 void Parser::nestedTerm(MethodGenerationContext* mgenc) {
