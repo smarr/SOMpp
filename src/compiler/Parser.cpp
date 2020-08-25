@@ -420,6 +420,12 @@ void Parser::blockBody(MethodGenerationContext* mgenc, bool seen_period, bool is
             mgenc->RemoveLastBytecode();
         }
         if (!is_inlined) {
+            // if the block is empty, we need to return nil
+            if (mgenc->IsBlockMethod() && !mgenc->HasBytecodes()) {
+                VMSymbol* nilSym = GetUniverse()->SymbolFor("nil");
+                mgenc->AddLiteralIfAbsent(nilSym);
+                bcGen->EmitPUSHGLOBAL(mgenc, nilSym);
+            }
             bcGen->EmitRETURNLOCAL(mgenc);
             mgenc->SetFinished();
         }
@@ -886,6 +892,12 @@ void Parser::nestedBlock(MethodGenerationContext* mgenc) {
     // if no return has been generated, we can be sure that the last expression
     // in the block was not terminated by ., and can generate a return
     if (!mgenc->IsFinished()) {
+        if (!mgenc->HasBytecodes()) {
+          // if the block is empty, we need to return nil
+          VMSymbol* nilSym = GetUniverse()->SymbolFor("nil");
+          mgenc->AddLiteralIfAbsent(nilSym);
+          bcGen->EmitPUSHGLOBAL(mgenc, nilSym);
+        }
         bcGen->EmitRETURNLOCAL(mgenc);
         mgenc->SetFinished(true);
     }
