@@ -77,6 +77,8 @@ public:
     size_t AddBytecode(uint8_t bc);
     void PatchJumpTarget(size_t jump_position);
 
+    bool HasBytecodes();
+
 private:
     ClassGenerationContext* holderGenc;
     MethodGenerationContext* outerGenc;

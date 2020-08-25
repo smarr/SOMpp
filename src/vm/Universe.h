@@ -80,8 +80,13 @@ public:
 
     //static methods
     static void Start(long argc, char** argv);
+    static void BasicInit();
     static void Quit(long);
     static void ErrorExit(const char*);
+
+    vm_oop_t interpret(StdString className, StdString methodName);
+
+    long setupClassPath(const StdString& cp);
 
     Interpreter* GetInterpreter() {
         return interpreter;
@@ -144,6 +149,8 @@ public:
     static void ErrorPrint(StdString str);
 
 private:
+    vm_oop_t interpretMethod(VMObject* receiver, VMInvokable* initialize, VMArray* argumentsArray);
+
     vector<StdString> handleArguments(long argc, char** argv);
     long getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;
 
@@ -152,7 +159,6 @@ private:
     friend Universe* GetUniverse();
     static Universe* theUniverse;
 
-    long setupClassPath(const StdString& cp);
     long addClassPath(const StdString& cp);
     void printUsageAndExit(char* executable) const;
 

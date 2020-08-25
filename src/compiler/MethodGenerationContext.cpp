@@ -272,6 +272,10 @@ bool MethodGenerationContext::IsFinished() {
     return finished;
 }
 
+bool MethodGenerationContext::HasBytecodes() {
+    return !bytecode.empty();
+}
+
 size_t MethodGenerationContext::AddBytecode(uint8_t bc) {
     bytecode.push_back(bc);
     return bytecode.size();

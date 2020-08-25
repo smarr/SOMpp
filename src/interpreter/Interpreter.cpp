@@ -69,7 +69,7 @@ Interpreter::~Interpreter() {}
   goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];\
 }
 
-void Interpreter::Start() {
+vm_oop_t Interpreter::Start() {
     // initialization
     method = GetFrame()->GetMethod();
     currentBytecodes = method->GetBytecodes();
@@ -102,7 +102,7 @@ void Interpreter::Start() {
     // THIS IS THE former interpretation loop
     LABEL_BC_HALT:
       PROLOGUE(1);
-      return; // handle the halt bytecode
+      return GetFrame()->GetStackElement(0); // handle the halt bytecode
 
     LABEL_BC_DUP:
       PROLOGUE(1);
