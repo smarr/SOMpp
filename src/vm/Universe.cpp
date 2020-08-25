@@ -104,9 +104,15 @@ map<int64_t, int64_t> integerHist;
 mutex Universe::output_mutex;
 
 void Universe::Start(long argc, char** argv) {
-    theUniverse = new Universe();
+    BasicInit();
     theUniverse->initialize(argc, argv);
 }
+
+void Universe::BasicInit() {
+  theUniverse = new Universe();
+}
+
+
 
 __attribute__((noreturn)) void Universe::Quit(long err) {
     Universe::ErrorPrint("Time spent in GC: [" + to_string(Timer::GCTimer->GetTotalTime()) + "] msec\n");
@@ -288,6 +294,55 @@ VMMethod* Universe::createBootstrapMethod(VMClass* holder, long numArgsOfMsgSend
     return bootstrapMethod;
 }
 
+vm_oop_t Universe::interpret(StdString className, StdString methodName) {
+  // This method assumes that SOM++ was already initialized by executing a
+  // Hello World program as part of the unittest main.
+  
+  bm_name = "BasicInterpreterTests";
+
+  interpreter = new Interpreter();
+
+  VMSymbol* classNameSym = SymbolFor(className);
+  VMClass* clazz = LoadClass(classNameSym);
+
+  // Lookup the method to be executed on the class
+  VMMethod* initialize =
+    (VMMethod*) clazz->GetClass()->LookupInvokable(SymbolFor(methodName));
+
+  if (initialize == nullptr) {
+    ErrorPrint("Lookup of " + className + ">>#" + methodName + " failed");
+    return nullptr;
+  }
+
+  return interpretMethod(clazz, initialize, nullptr);
+}
+
+vm_oop_t Universe::interpretMethod(VMObject* receiver, VMInvokable* initialize,  VMArray* argumentsArray) {
+  /* only trace bootstrap if the number of cmd-line "-d"s is > 2 */
+  short trace = 2 - dumpBytecodes;
+  if (!(trace > 0)) {
+    dumpBytecodes = 1;
+  }
+
+  VMMethod* bootstrapMethod = createBootstrapMethod(load_ptr(systemClass), 2);
+
+  VMFrame* bootstrapFrame = interpreter->PushNewFrame(bootstrapMethod);
+  bootstrapFrame->Push(receiver);
+
+  if (argumentsArray != nullptr) {
+    bootstrapFrame->Push(argumentsArray);
+  }
+
+  initialize->Invoke(interpreter, bootstrapFrame);
+
+  // reset "-d" indicator
+  if (!(trace > 0)) {
+    dumpBytecodes = 2 - trace;
+  }
+
+  return interpreter->Start();
+}
+
 void Universe::initialize(long _argc, char** _argv) {
 #ifdef GENERATE_ALLOCATION_STATISTICS
     allocationStats["VMArray"] = {0,0};
@@ -315,35 +370,18 @@ void Universe::initialize(long _argc, char** _argv) {
 
     VMObject* systemObject = InitializeGlobals();
 
-    
-    VMMethod* bootstrapMethod = createBootstrapMethod(load_ptr(systemClass), 2);
-
     if (argv.size() == 0) {
+        VMMethod* bootstrapMethod = createBootstrapMethod(load_ptr(systemClass), 2);
         Shell* shell = new Shell(bootstrapMethod);
         shell->Start(interpreter);
         return;
     }
 
-    /* only trace bootstrap if the number of cmd-line "-d"s is > 2 */
-    short trace = 2 - dumpBytecodes;
-    if (!(trace > 0))
-        dumpBytecodes = 1;
+    VMInvokable* initialize = load_ptr(systemClass)->LookupInvokable(
+                                          SymbolFor("initialize:"));
 
     VMArray* argumentsArray = NewArrayFromStrings(argv);
-
-    VMFrame* bootstrapFrame = interpreter->PushNewFrame(bootstrapMethod);
-    bootstrapFrame->Push(systemObject);
-    bootstrapFrame->Push(argumentsArray);
-
-    VMInvokable* initialize = load_ptr(systemClass)->LookupInvokable(
-                                            SymbolFor("initialize:"));
-    initialize->Invoke(interpreter, bootstrapFrame);
-
-    // reset "-d" indicator
-    if (!(trace > 0))
-        dumpBytecodes = 2 - trace;
-
-    interpreter->Start();
+    interpretMethod(systemObject, initialize, argumentsArray);
 }
 
 Universe::~Universe() {

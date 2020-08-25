@@ -34,7 +34,7 @@ public:
     Interpreter();
     ~Interpreter();
     
-    void      Start();
+    vm_oop_t  Start();
     VMFrame*  PushNewFrame(VMMethod* method);
     void      SetFrame(VMFrame* frame);
     inline VMFrame* GetFrame() const;

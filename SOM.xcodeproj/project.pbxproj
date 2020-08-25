@@ -181,6 +181,7 @@
 		0A335F6C1832D64100D7CFC8 /* Method.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Method.h; sourceTree = "<group>"; };
 		0A335F6F1832D65100D7CFC8 /* Primitive.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Primitive.cpp; sourceTree = "<group>"; };
 		0A335F701832D65100D7CFC8 /* Primitive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Primitive.h; sourceTree = "<group>"; };
+		0A3FABE724F4670D002D4D69 /* BasicInterpreterTests.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.h; fileEncoding = 4; name = BasicInterpreterTests.h; path = unitTests/BasicInterpreterTests.h; sourceTree = "<group>"; };
 		0A67EA6719ACD37200830E3B /* unittests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = unittests; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A67EA7019ACD43A00830E3B /* CloneObjectsTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CloneObjectsTest.cpp; path = unitTests/CloneObjectsTest.cpp; sourceTree = "<group>"; };
 		0A67EA7119ACD43A00830E3B /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = unitTests/main.cpp; sourceTree = "<group>"; };
@@ -397,6 +398,7 @@
 		0A67EA7A19ACD44000830E3B /* unittests */ = {
 			isa = PBXGroup;
 			children = (
+				0A3FABE724F4670D002D4D69 /* BasicInterpreterTests.h */,
 				0A67EA7019ACD43A00830E3B /* CloneObjectsTest.cpp */,
 				0A67EA7119ACD43A00830E3B /* main.cpp */,
 				0A67EAA319ACE09700830E3B /* CloneObjectsTest.h */,

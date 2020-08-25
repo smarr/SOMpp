@@ -18,7 +18,9 @@
 #include "WalkObjectsTest.h"
 #include "CloneObjectsTest.h"
 #include "WriteBarrierTest.h"
+#include "BasicInterpreterTests.h"
 
+CPPUNIT_TEST_SUITE_REGISTRATION (BasicInterpreterTests);
 CPPUNIT_TEST_SUITE_REGISTRATION (WalkObjectsTest);
 CPPUNIT_TEST_SUITE_REGISTRATION (CloneObjectsTest);
 #if GC_TYPE==GENERATIONAL
