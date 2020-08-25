@@ -20,12 +20,12 @@
 #include "WriteBarrierTest.h"
 #include "BasicInterpreterTests.h"
 
-CPPUNIT_TEST_SUITE_REGISTRATION (BasicInterpreterTests);
 CPPUNIT_TEST_SUITE_REGISTRATION (WalkObjectsTest);
 CPPUNIT_TEST_SUITE_REGISTRATION (CloneObjectsTest);
 #if GC_TYPE==GENERATIONAL
 CPPUNIT_TEST_SUITE_REGISTRATION(WriteBarrierTest);
 #endif
+CPPUNIT_TEST_SUITE_REGISTRATION (BasicInterpreterTests);
 
 int main(int ac, char **av) {
     Universe::Start(ac, av);
