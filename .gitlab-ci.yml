@@ -1,60 +1,63 @@
 stages:
   - build-and-test
-  - benchmark
+  - benchmark-completion
 
 variables:
   PYTHONUNBUFFERED: "true"
+
+before_script:
+  - git submodule update --init
 
 .build_and_test_job: &BUILD_AND_TEST
   stage: build-and-test
   tags: [benchmarks, infinity]
   script:
-    - git submodule update --init
-    - make test
-    - make bench
-    - make clean
-    - make unittests
+    - cmake . $CONF
+    - make
+    - ./SOM++ -cp ./Smalltalk ./TestSuite/TestHarness.som
+    - ./unittests -cp ./Smalltalk:./TestSuite/BasicInterpreterTests ./Examples/Hello.som
+    
+    - rebench --experiment="CI ID $CI_PIPELINE_ID" --branch="$CI_COMMIT_REF_NAME" -c rebench.conf all "e:${NAME}"
 
 tagging_gen:
   <<: *BUILD_AND_TEST
-  variables: {USE_TAGGING: "true", GC_TYPE: generational}
+  variables: {CONF: "-DUSE_TAGGING=true -DGC_TYPE=GENERATIONAL", NAME: tag-gen}
 
 tagging_marksweep:
   <<: *BUILD_AND_TEST
-  variables: {USE_TAGGING: "true", GC_TYPE: mark_sweep}
+  variables: {CONF: "-DUSE_TAGGING=true -DGC_TYPE=MARK_SWEEP", NAME: tag-mark}
 
 tagging_copying:
   <<: *BUILD_AND_TEST
-  variables: {USE_TAGGING: "true", GC_TYPE: copying}
+  variables: {CONF: "-DUSE_TAGGING=true -DGC_TYPE=COPYING", NAME: tag-copy}
 
 boxed_generational_cached:
   <<: *BUILD_AND_TEST
-  variables: {USE_TAGGING: "false", GC_TYPE: generational, CACHE_INTEGER: "true"}
+  variables: {CONF: "-DUSE_TAGGING=false -DGC_TYPE=GENERATIONAL -DCACHE_INTEGER=true", NAME: gen-cache}
 
 boxed_mark_sweep_cached:
   <<: *BUILD_AND_TEST
-  variables: {USE_TAGGING: "false", GC_TYPE: mark_sweep, CACHE_INTEGER: "true"}
+  variables: {CONF: "-DUSE_TAGGING=false -DGC_TYPE=MARK_SWEEP -DCACHE_INTEGER=true", NAME: mark-cache}
 
 boxed_copying_cached:
   <<: *BUILD_AND_TEST
-  variables: {USE_TAGGING: "false", GC_TYPE: copying, CACHE_INTEGER: "true"}
+  variables: {CONF: "-DUSE_TAGGING=false -DGC_TYPE=COPYING -DCACHE_INTEGER=true", NAME: copy-cache}
 
 boxed_generational_uncached:
   <<: *BUILD_AND_TEST
-  variables: {USE_TAGGING: "false", GC_TYPE: generational, CACHE_INTEGER: "false"}
+  variables: {CONF: "-DUSE_TAGGING=false -DGC_TYPE=GENERATIONAL -DCACHE_INTEGER=false", NAME: gen}
 
 boxed_mark_sweep_uncached:
   <<: *BUILD_AND_TEST
-  variables: {USE_TAGGING: "false", GC_TYPE: mark_sweep, CACHE_INTEGER: "false"}
+  variables: {CONF: "-DUSE_TAGGING=false -DGC_TYPE=MARK_SWEEP -DCACHE_INTEGER=false", NAME: mark}
 
 boxed_copying_uncached:
   <<: *BUILD_AND_TEST
-  variables: {USE_TAGGING: "false", GC_TYPE: copying, CACHE_INTEGER: "false"}
+  variables: {CONF: "-DUSE_TAGGING=false -DGC_TYPE=COPYING -DCACHE_INTEGER=false", NAME: copy}
 
-benchmark_job:
-  stage: benchmark
+
+complete_benchmarking:
+  stage: benchmark-completion
   tags: [benchmarks, infinity]
-  allow_failure: false
   script:
-    - make
-    - rebench -d --without-nice -c --commit-id="$CI_BUILD_REF" --environment="Infinity Ubuntu" --project=SOMpp --branch="$CI_BUILD_REF_NAME" core-lib/codespeed.conf SOMpp
+    - rebench --experiment="CI ID $CI_PIPELINE_ID" --report-completion rebench.conf
