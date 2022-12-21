@@ -47,8 +47,9 @@ public:
     void BitwiseXor(Interpreter*, VMFrame*);
     void Round(Interpreter*, VMFrame*);
     void AsInteger(Interpreter*, VMFrame*);
-    
+
     void PositiveInfinity(Interpreter*, VMFrame*);
+    void FromString(Interpreter*, VMFrame*);
 
 private:
     double coerceDouble(vm_oop_t x);

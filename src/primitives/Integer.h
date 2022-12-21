@@ -49,6 +49,7 @@ public:
     void EqualEqual(Interpreter*, VMFrame*);
     void Lowerthan(Interpreter*, VMFrame*);
     void AsString(Interpreter*, VMFrame*);
+    void AsDouble(Interpreter*, VMFrame*);
     void As32BitSigned(Interpreter*, VMFrame*);
     void As32BitUnsigned(Interpreter*, VMFrame*);
     void Sqrt(Interpreter*, VMFrame*);

@@ -73,6 +73,7 @@ _Integer::_Integer() : PrimitiveContainer() {
     SetPrimitive("equalequal",         new Routine<_Integer>(this, &_Integer::EqualEqual, false));
     SetPrimitive("lowerthan",          new Routine<_Integer>(this, &_Integer::Lowerthan,  false));
     SetPrimitive("asString",           new Routine<_Integer>(this, &_Integer::AsString,   false));
+    SetPrimitive("asDouble",           new Routine<_Integer>(this, &_Integer::AsDouble,   false));
     SetPrimitive("as32BitSignedValue", new Routine<_Integer>(this, &_Integer::As32BitSigned, false));
     SetPrimitive("as32BitUnsignedValue", new Routine<_Integer>(this, &_Integer::As32BitUnsigned, false));
     SetPrimitive("sqrt",               new Routine<_Integer>(this, &_Integer::Sqrt,       false));
@@ -116,7 +117,7 @@ void _Integer::BitwiseAnd(Interpreter* interp, VMFrame* frame) {
 void _Integer::BitwiseXor(Interpreter* interp, VMFrame* frame) {
     vm_oop_t rightObj = frame->Pop();
     vm_oop_t leftObj  = frame->Pop();
-    
+
     int64_t result = (int64_t)INT_VAL(leftObj) ^ (int64_t)INT_VAL(rightObj);
     frame->Push(NEW_INT(result));
 }
@@ -125,7 +126,7 @@ void _Integer::BitwiseXor(Interpreter* interp, VMFrame* frame) {
 void _Integer::LeftShift(Interpreter* interp, VMFrame* frame) {
     vm_oop_t rightObj = frame->Pop();
     vm_oop_t leftObj  = frame->Pop();
-    
+
     int64_t result = (int64_t)INT_VAL(leftObj) << (int64_t)INT_VAL(rightObj);
     frame->Push(NEW_INT(result));
 }
@@ -133,7 +134,7 @@ void _Integer::LeftShift(Interpreter* interp, VMFrame* frame) {
 void _Integer::UnsignedRightShift(Interpreter* interp, VMFrame* frame) {
     vm_oop_t rightObj = frame->Pop();
     vm_oop_t leftObj  = frame->Pop();
-    
+
     int64_t result = (int64_t)INT_VAL(leftObj) >> (int64_t)INT_VAL(rightObj);
     frame->Push(NEW_INT(result));
 }
@@ -142,7 +143,7 @@ void _Integer::UnsignedRightShift(Interpreter* interp, VMFrame* frame) {
 void _Integer::Minus(Interpreter* interp, VMFrame* frame) {
     vm_oop_t rightObj = frame->Pop();
     vm_oop_t leftObj  = frame->Pop();
-    
+
     CHECK_COERCION(rightObj, leftObj, "-");
 
     int64_t result = (int64_t)INT_VAL(leftObj) - (int64_t)INT_VAL(rightObj);
@@ -152,7 +153,7 @@ void _Integer::Minus(Interpreter* interp, VMFrame* frame) {
 void _Integer::Star(Interpreter* interp, VMFrame* frame) {
     vm_oop_t rightObj = frame->Pop();
     vm_oop_t leftObj  = frame->Pop();
-    
+
     CHECK_COERCION(rightObj, leftObj, "*");
 
     int64_t result = (int64_t)INT_VAL(leftObj) * (int64_t)INT_VAL(rightObj);
@@ -162,7 +163,7 @@ void _Integer::Star(Interpreter* interp, VMFrame* frame) {
 void _Integer::Slashslash(Interpreter* interp, VMFrame* frame) {
     vm_oop_t rightObj = frame->Pop();
     vm_oop_t leftObj  = frame->Pop();
-    
+
     CHECK_COERCION(rightObj, leftObj, "//");
 
     double result = (double)INT_VAL(leftObj) / (double)INT_VAL(rightObj);
@@ -172,7 +173,7 @@ void _Integer::Slashslash(Interpreter* interp, VMFrame* frame) {
 void _Integer::Slash(Interpreter* interp, VMFrame* frame) {
     vm_oop_t rightObj = frame->Pop();
     vm_oop_t leftObj  = frame->Pop();
-    
+
     CHECK_COERCION(rightObj, leftObj, "/");
 
     int64_t result = (int64_t)INT_VAL(leftObj) / (int64_t)INT_VAL(rightObj);
@@ -189,7 +190,7 @@ void _Integer::Percent(Interpreter* interp, VMFrame* frame) {
     int64_t r = (int64_t)INT_VAL(rightObj);
 
     int64_t result = l % r;
-    
+
     if ((result != 0) && ((result < 0) != (r < 0))) {
         result += r;
     }
@@ -200,14 +201,14 @@ void _Integer::Percent(Interpreter* interp, VMFrame* frame) {
 void _Integer::Rem(Interpreter* interp, VMFrame* frame) {
     vm_oop_t rightObj = frame->Pop();
     vm_oop_t leftObj  = frame->Pop();
-    
+
     CHECK_COERCION(rightObj, leftObj, "%");
-    
+
     int64_t l = (int64_t)INT_VAL(leftObj);
     int64_t r = (int64_t)INT_VAL(rightObj);
-    
+
     int64_t result = l - (l / r) * r;
-    
+
     frame->Push(NEW_INT(result));
 }
 
@@ -242,7 +243,7 @@ void _Integer::Equal(Interpreter* interp, VMFrame* frame) {
 void _Integer::EqualEqual(Interpreter* interp, VMFrame* frame) {
     vm_oop_t rightObj = frame->Pop();
     vm_oop_t leftObj  = frame->Pop();
-    
+
     if (IS_TAGGED(rightObj) || CLASS_OF(rightObj) == load_ptr(integerClass)) {
         if (INT_VAL(leftObj) == INT_VAL(rightObj))
             frame->Push(load_ptr(trueObject));
@@ -273,17 +274,23 @@ void _Integer::AsString(Interpreter*, VMFrame* frame) {
     frame->Push(GetUniverse()->NewString( Str.str()));
 }
 
+void _Integer::AsDouble(Interpreter*, VMFrame* frame) {
+    vm_oop_t self = frame->Pop();
+    long integer = INT_VAL(self);
+    frame->Push(GetUniverse()->NewDouble((double) integer));
+}
+
 void _Integer::As32BitSigned(Interpreter*, VMFrame* frame) {
     vm_oop_t self = frame->Pop();
     int64_t integer = INT_VAL(self);
-    
+
     frame->Push(NEW_INT((int64_t)(int32_t) integer));
 }
 
 void _Integer::As32BitUnsigned(Interpreter*, VMFrame* frame) {
     vm_oop_t self = frame->Pop();
     int64_t integer = INT_VAL(self);
-    
+
     frame->Push(NEW_INT((int64_t)(uint32_t) integer));
 }
 
@@ -311,4 +318,3 @@ void _Integer::FromString(Interpreter*, VMFrame* frame) {
     vm_oop_t new_int = NEW_INT(integer);
     frame->Push(new_int);
 }
-

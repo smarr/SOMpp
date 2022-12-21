@@ -47,7 +47,7 @@
 double _Double::coerceDouble(vm_oop_t x) {
     if (IS_TAGGED(x))
         return (double) INT_VAL(x);
-    
+
     VMClass* cl = ((AbstractVMObject*)x)->GetClass();
     if (cl == load_ptr(doubleClass))
         return static_cast<VMDouble*>(x)->GetEmbeddedDouble();
@@ -166,13 +166,21 @@ void _Double::Round(Interpreter*, VMFrame* frame) {
 void _Double::AsInteger(Interpreter*, VMFrame* frame) {
     VMDouble* self = (VMDouble*)frame->Pop();
     int64_t rounded = (int64_t) self->GetEmbeddedDouble();
-    
+
     frame->Push(NEW_INT(rounded));
 }
 
 void _Double::PositiveInfinity(Interpreter*, VMFrame* frame) {
     frame->Pop();
     frame->Push(GetUniverse()->NewDouble(INFINITY));
+}
+
+void _Double::FromString(Interpreter*, VMFrame* frame) {
+    VMString* self = (VMString*) frame->Pop();
+    frame->Pop();
+
+    double value = stod(StdString(self->GetRawChars(), self->GetStringLength()));
+    frame->Push(GetUniverse()->NewDouble(value));
 }
 
 _Double::_Double() : PrimitiveContainer() {
@@ -192,4 +200,5 @@ _Double::_Double() : PrimitiveContainer() {
     SetPrimitive("round",      new Routine<_Double>(this, &_Double::Round,      false));
     SetPrimitive("asInteger",  new Routine<_Double>(this, &_Double::AsInteger,  false));
     SetPrimitive("PositiveInfinity", new Routine<_Double>(this, &_Double::PositiveInfinity, true));
+    SetPrimitive("fromString_", new Routine<_Double>(this, &_Double::FromString, true));
 }
