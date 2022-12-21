@@ -27,17 +27,19 @@ implementation of the SOM standard library and a number of examples. Please see
 the [main project page][SOMst] for links to the VM implementations.
 
 
-SOM++ can be built with Make:
+SOM++ uses CMake for building:
 
+    $ mkdir cmake-build && cd cmake-build
+    $ cmake ..
     $ make
 
 Afterwards, the tests can be executed with:
 
-    $ ./SOM++ -cp Smalltalk TestSuite/TestHarness.som
+    $ ./SOM++ -cp ../Smalltalk ../TestSuite/TestHarness.som
    
 A simple Hello World program is executed with:
 
-    $ ./SOM++ -cp Smalltalk Examples/Hello.som
+    $ ./SOM++ -cp ../Smalltalk ../Examples/Hello.som
 
 **Note**: On Linux, the library search path needs to be adapted:
 
@@ -64,20 +66,21 @@ Tagged integers:
 
     default: off
     option name: TAGGING
-    example: make TAGGING=true
+    example: cmake .. -DUSE_TAGGING=true
 
 Integer caching:
 
     default: off
     option name: INT_CACHE
-    example: make INT_CACHE=true
+    example: cmake .. -DCACHE_INTEGER=true
+
 
 Build Status
 ------------
 
-Thanks to Travis CI, all commits of this repository are tested.
-The current build status is: [![Build Status](https://travis-ci.org/SOM-st/SOMpp.png?branch=master)](https://travis-ci.org/SOM-st/SOMpp/)
+Thanks to GitHub Actions, all commits of this repository are tested.
+The current build status is: [![Build Status](https://github.com/SOM-st/SOMpp/actions/workflows/ci.yml/badge.svg)](https://github.com/SOM-st/SOMpp/actions/workflows/ci.yml)
 
  [SOM]: http://www.hpi.uni-potsdam.de/hirschfeld/projects/som/
- [SOMst]: https://travis-ci.org/SOM-st/
+ [SOMst]: https://som-st.github.io
 
