@@ -44,6 +44,8 @@ public:
     void PrintString_(Interpreter*, VMFrame*);
     void PrintNewline(Interpreter*, VMFrame*);
     void PrintNewline_(Interpreter*, VMFrame*);
+    void ErrorPrint_(Interpreter*, VMFrame*);
+    void ErrorPrintNewline_(Interpreter*, VMFrame*);
     void Time(Interpreter*, VMFrame*);
     void Ticks(Interpreter*, VMFrame*);
     void FullGC(Interpreter*, VMFrame*);

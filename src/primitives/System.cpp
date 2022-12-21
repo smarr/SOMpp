@@ -112,6 +112,18 @@ void _System::PrintNewline_(Interpreter*, VMFrame* frame) {
     Universe::Print(str + "\n");
 }
 
+void _System::ErrorPrint_(Interpreter*, VMFrame* frame) {
+    VMString* arg = static_cast<VMString*>(frame->Pop());
+    std::string str = arg->GetStdString();
+    Universe::ErrorPrint(str);
+}
+
+void _System::ErrorPrintNewline_(Interpreter*, VMFrame* frame) {
+    VMString* arg = static_cast<VMString*>(frame->Pop());
+    std::string str = arg->GetStdString();
+    Universe::ErrorPrint(str + "\n");
+}
+
 
 void _System::Time(Interpreter*, VMFrame* frame) {
     /*VMObject* self = */
@@ -158,6 +170,8 @@ _System::_System(void) : PrimitiveContainer() {
     SetPrimitive("printString_", new Routine<_System>(this, &_System::PrintString_, false));
     SetPrimitive("printNewline", new Routine<_System>(this, &_System::PrintNewline, false));
     SetPrimitive("printNewline_",new Routine<_System>(this, &_System::PrintNewline_, false));
+    SetPrimitive("errorPrint_",  new Routine<_System>(this, &_System::ErrorPrint_, false));
+    SetPrimitive("errorPrintln_",new Routine<_System>(this, &_System::ErrorPrintNewline_, false));
     SetPrimitive("time",         new Routine<_System>(this, &_System::Time,   false));
     SetPrimitive("ticks",        new Routine<_System>(this, &_System::Ticks,  false));
     SetPrimitive("fullGC",       new Routine<_System>(this, &_System::FullGC, false));
