@@ -84,6 +84,11 @@ class BasicInterpreterTests: public CPPUNIT_NS::TestFixture {
     TestData("IfTrueIfFalse", "test2", 33, INTEGER),
     TestData("IfTrueIfFalse", "test3",  4, INTEGER),
 
+    TestData("IfTrueIfFalse", "testIfTrueTrueResult", "Integer", CLASS),
+    TestData("IfTrueIfFalse", "testIfTrueFalseResult", "Nil", CLASS),
+    TestData("IfTrueIfFalse", "testIfFalseTrueResult", "Nil", CLASS),
+    TestData("IfTrueIfFalse", "testIfFalseFalseResult", "Integer", CLASS),
+
     TestData("CompilerSimplification", "testReturnConstantSymbol", "constant", SYMBOL),
     TestData("CompilerSimplification", "testReturnConstantInt", 42, INTEGER),
     TestData("CompilerSimplification", "testReturnSelf", "CompilerSimplification", CLASS),
@@ -107,8 +112,14 @@ class BasicInterpreterTests: public CPPUNIT_NS::TestFixture {
     TestData("BlockInlining", "testOneLevelInliningWithLocalShadowTrue", 2, INTEGER),
     TestData("BlockInlining", "testOneLevelInliningWithLocalShadowFalse", 1, INTEGER),
 
+    TestData("BlockInlining", "testShadowDoesntStoreWrongLocal", 33, INTEGER),
+    TestData("BlockInlining", "testShadowDoesntReadUnrelated", "Nil", CLASS),
+
     TestData("BlockInlining", "testBlockNestedInIfTrue", 2, INTEGER),
     TestData("BlockInlining", "testBlockNestedInIfFalse", 42, INTEGER),
+
+    TestData("BlockInlining", "testStackDisciplineTrue", 1, INTEGER),
+    TestData("BlockInlining", "testStackDisciplineFalse", 2, INTEGER),
 
     TestData("BlockInlining", "testDeepNestedInlinedIfTrue", 3, INTEGER),
     TestData("BlockInlining", "testDeepNestedInlinedIfFalse", 42, INTEGER),
@@ -132,7 +143,7 @@ class BasicInterpreterTests: public CPPUNIT_NS::TestFixture {
 
     TestData("BinaryOperation", "test", 11, INTEGER),
 
-    TestData("NumberOfTests", "numberOfTests", 57, INTEGER),
+    TestData("NumberOfTests", "numberOfTests", 65, INTEGER),
   });
 
   CPPUNIT_TEST_SUITE_END();
