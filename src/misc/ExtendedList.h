@@ -43,6 +43,7 @@ public:
     void Clear();
     size_t Size() const;
     T Get(long index);
+    void Set(long index, const T& ptr);
     int32_t IndexOf(const T& needle);
 
     typedef typename std::list<T>::iterator iterator_t;
@@ -94,6 +95,17 @@ T ExtendedList<T>::Get(long index) {
         --index;
     }
     return nullptr;
+}
+
+template<class T>
+void ExtendedList<T>::Set(long index, const T& ptr) {
+    for (iterator_t it = theList.begin(); it != theList.end(); ++it) {
+        if (index == 0) {
+            *it = ptr;
+            return;
+        }
+        --index;
+    }
 }
 
 template<class T>

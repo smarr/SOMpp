@@ -73,6 +73,11 @@ void BytecodeGenerator::EmitPUSHCONSTANT(MethodGenerationContext* mgenc,
     EMIT2(BC_PUSH_CONSTANT, mgenc->FindLiteralIndex(cst));
 }
 
+void BytecodeGenerator::EmitPUSHCONSTANT(MethodGenerationContext* mgenc,
+        uint8_t literalIndex) {
+    EMIT2(BC_PUSH_CONSTANT, literalIndex);
+}
+
 void BytecodeGenerator::EmitPUSHCONSTANTString(MethodGenerationContext* mgenc,
         VMString* str) {
     EMIT2(BC_PUSH_CONSTANT, mgenc->FindLiteralIndex(str));

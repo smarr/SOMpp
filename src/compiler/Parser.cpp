@@ -825,20 +825,40 @@ void Parser::literalSymbol(MethodGenerationContext* mgenc) {
 }
 
 void Parser::literalArray(MethodGenerationContext* mgenc) {
-    ExtendedList<vm_oop_t> literalValues;
     expect(Pound);
     expect(NewTerm);
-    
-    while (sym != EndTerm) {
-        // TODO: add support for all other literals
-        literalValues.Add(literalNumberOop());
-    }
-    
-    expect(EndTerm);
 
-    vm_oop_t arr = GetUniverse()->NewArrayList(literalValues);
-    mgenc->AddLiteralIfAbsent(arr);
-    bcGen->EmitPUSHCONSTANT(mgenc, arr);
+    VMSymbol* arrayClassName       = GetUniverse()->SymbolFor("Array");
+    VMSymbol* arraySizePlaceholder = GetUniverse()->SymbolFor("ArraySizeLiteralPlaceholder");
+    VMSymbol* newMessage           = GetUniverse()->SymbolFor("new:");
+    VMSymbol* atPutMessage         = GetUniverse()->SymbolFor("at:put:");
+
+    mgenc->AddLiteralIfAbsent(arrayClassName);
+    mgenc->AddLiteralIfAbsent(newMessage);
+    mgenc->AddLiteralIfAbsent(atPutMessage);
+
+    const uint8_t arraySizeLiteralIndex = mgenc->AddLiteral(arraySizePlaceholder);
+
+    // create bytecode sequence for instantiating new array
+    bcGen->EmitPUSHGLOBAL(mgenc, arrayClassName);
+    bcGen->EmitPUSHCONSTANT(mgenc, arraySizeLiteralIndex);
+    bcGen->EmitSEND(mgenc, newMessage);
+
+    size_t i = 1;
+
+    while (sym != EndTerm) {
+        vm_oop_t pushIndex = NEW_INT(i);
+        mgenc->AddLiteralIfAbsent(pushIndex);
+        bcGen->EmitPUSHCONSTANT(mgenc, pushIndex);
+        literal(mgenc);
+        bcGen->EmitSEND(mgenc, atPutMessage);
+        i += 1;
+    }
+
+    // replace the placeholder with the actual array size
+    mgenc->UpdateLiteral(arraySizePlaceholder, arraySizeLiteralIndex, NEW_INT(i - 1));
+
+    expect(EndTerm);
 }
 
 void Parser::literalString(MethodGenerationContext* mgenc) {

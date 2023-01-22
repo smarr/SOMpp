@@ -43,6 +43,7 @@ public:
     void EmitPUSHFIELD(MethodGenerationContext* mgenc, VMSymbol* field);
     void EmitPUSHBLOCK(MethodGenerationContext* mgenc, VMMethod* block);
     void EmitPUSHCONSTANT(MethodGenerationContext* mgenc, vm_oop_t cst);
+    void EmitPUSHCONSTANT(MethodGenerationContext* mgenc, uint8_t literalIndex);
     void EmitPUSHCONSTANTString(MethodGenerationContext* mgenc, VMString* str);
     void EmitPUSHGLOBAL(MethodGenerationContext* mgenc, VMSymbol* global);
     void EmitPOP(MethodGenerationContext* mgenc);
