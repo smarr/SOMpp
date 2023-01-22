@@ -1,12 +1,7 @@
-//
-//  ParseInteger.h
-//  SOM
-//
-//  Created by Stefan Marr on 22/01/2023.
-//
+#pragma once
 
-#ifndef ParseInteger_h
-#define ParseInteger_h
+#include <misc/defs.h>
+#include <vmobjects/ObjectFormats.h>
 
-
-#endif /* ParseInteger_h */
+vm_oop_t ParseInteger(const char* str, int base, bool negateValue);
+vm_oop_t ParseInteger(StdString& str, int base, bool negateValue);

@@ -27,6 +27,8 @@
 #include "Parser.h"
 #include "BytecodeGenerator.h"
 
+#include <misc/ParseInteger.h>
+
 #include <vmobjects/VMMethod.h>
 #include <vmobjects/VMPrimitive.h>
 #include <vmobjects/VMObject.h>
@@ -775,7 +777,6 @@ vm_oop_t Parser::literalDecimal(bool negateValue) {
     if (sym == Integer) {
         return literalInteger(negateValue);
     } else {
-        assert(sym == Double);
         return literalDouble(negateValue);
     }
 }
@@ -786,13 +787,9 @@ vm_oop_t Parser::negativeDecimal(void) {
 }
 
 vm_oop_t Parser::literalInteger(bool negateValue) {
-    int64_t i = std::strtoll(text.c_str(), nullptr, 10);
+    vm_oop_t i = ParseInteger(text.c_str(), 10, negateValue);
     expect(Integer);
-    if (negateValue) {
-        i = 0 - i;
-    }
-    
-    return NEW_INT(i);
+    return i;
 }
 
 vm_oop_t Parser::literalDouble(bool negateValue) {

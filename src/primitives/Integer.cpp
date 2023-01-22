@@ -31,6 +31,8 @@
 #include <limits.h>
 #include <sstream>
 
+#include <misc/ParseInteger.h>
+
 #include <vmobjects/VMObject.h>
 #include <vmobjects/VMFrame.h>
 #include <vmobjects/VMDouble.h>
@@ -314,7 +316,8 @@ void _Integer::FromString(Interpreter*, VMFrame* frame) {
     VMString* self = (VMString*) frame->Pop();
     frame->Pop();
 
-    int64_t integer = stol(StdString(self->GetRawChars(), self->GetStringLength()));
-    vm_oop_t new_int = NEW_INT(integer);
+    StdString str = self->GetStdString();
+
+    vm_oop_t new_int = ParseInteger(str, 10, false);
     frame->Push(new_int);
 }
