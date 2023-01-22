@@ -186,7 +186,7 @@ void Parser::genPopVariable(MethodGenerationContext* mgenc,
 //
 
 Symbol singleOpSyms[] = { Not, And, Or, Star, Div, Mod, Plus, Equal, More, Less,
-        Comma, At, Per, NONE };
+        Comma, At, Per, Minus, NONE };
 
 Symbol binaryOpSyms[] = { Or, Comma, Minus, Equal, Not, And, Or, Star, Div, Mod,
         Plus, Equal, More, Less, Comma, At, Per, NONE };
@@ -358,15 +358,7 @@ VMSymbol* Parser::unarySelector(void) {
 VMSymbol* Parser::binarySelector(void) {
     StdString s(text);
 
-    if(accept(Or))
-    ;
-    else if(accept(Comma))
-    ;
-    else if(accept(Minus))
-    ;
-    else if(accept(Equal))
-    ;
-    else if(acceptOneOf(singleOpSyms))
+    if(acceptOneOf(singleOpSyms))
     ;
     else if(accept(OperatorSequence))
     ;
