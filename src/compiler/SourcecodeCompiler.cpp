@@ -57,7 +57,7 @@ VMClass* SourcecodeCompiler::CompileClass( const StdString& path,
     }
 
     if (parser != nullptr) delete(parser);
-    parser = new Parser(*fp);
+    parser = new Parser(*fp, fname);
     result = compile(systemClass);
 
     VMSymbol* cname = result->GetName();
@@ -84,7 +84,9 @@ VMClass* SourcecodeCompiler::CompileClassString( const StdString& stream,
         VMClass* systemClass ) {
     istringstream* ss = new istringstream(stream);
     if (parser != nullptr) delete(parser);
-    parser = new Parser(*ss);
+
+    StdString fileName = "repl";
+    parser = new Parser(*ss, fileName);
 
     VMClass* result = compile(systemClass);
     delete(parser);

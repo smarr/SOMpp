@@ -59,7 +59,7 @@ void Parser::PeekForNextSymbolFromLexerIfNecessary() {
     }
 }
 
-Parser::Parser(istream& file) {
+Parser::Parser(istream& file, StdString& fname): fname(fname) {
     sym = NONE;
     lexer = new Lexer(file);
     bcGen = new BytecodeGenerator();
@@ -110,8 +110,10 @@ bool Parser::expect(Symbol s) {
     if (accept(s))
         return true;
     fprintf(stderr,
-            "Error: unexpected symbol in line %d. Expected %s, but found %s",
-            lexer->GetCurrentLineNumber(), symnames[s], symnames[sym]);
+            "Error: %s:%d: unexpected symbol. Expected %s, but found %s",
+            fname.c_str(),
+            lexer->GetCurrentLineNumber(),
+            symnames[s], symnames[sym]);
     if (_PRINTABLE_SYM)
         fprintf(stderr, " (%s)", text.c_str());
     fprintf(stderr, ": %s\n", lexer->GetRawBuffer().c_str());
