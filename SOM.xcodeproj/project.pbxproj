@@ -195,15 +195,15 @@
 		3F5202950FA6624C00E75857 /* Linux.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Linux.make; sourceTree = "<group>"; };
 		3F5202A40FA6624C00E75857 /* windows.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = windows.make; sourceTree = "<group>"; };
 		3F5202F10FA6624C00E75857 /* BytecodeGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BytecodeGenerator.cpp; sourceTree = "<group>"; };
-		3F5202F20FA6624C00E75857 /* BytecodeGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BytecodeGenerator.h; sourceTree = "<group>"; };
+		3F5202F20FA6624C00E75857 /* BytecodeGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = BytecodeGenerator.h; sourceTree = "<group>"; tabWidth = 4; };
 		3F5202F30FA6624C00E75857 /* ClassGenerationContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClassGenerationContext.cpp; sourceTree = "<group>"; };
 		3F5202F40FA6624C00E75857 /* ClassGenerationContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClassGenerationContext.h; sourceTree = "<group>"; };
 		3F5202F50FA6624C00E75857 /* Disassembler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Disassembler.cpp; sourceTree = "<group>"; tabWidth = 4; };
 		3F5202F60FA6624C00E75857 /* Disassembler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Disassembler.h; sourceTree = "<group>"; };
 		3F5202F70FA6624C00E75857 /* Lexer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Lexer.cpp; sourceTree = "<group>"; tabWidth = 4; };
 		3F5202F80FA6624C00E75857 /* Lexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Lexer.h; sourceTree = "<group>"; };
-		3F5202F90FA6624C00E75857 /* MethodGenerationContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MethodGenerationContext.cpp; sourceTree = "<group>"; };
-		3F5202FA0FA6624C00E75857 /* MethodGenerationContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MethodGenerationContext.h; sourceTree = "<group>"; };
+		3F5202F90FA6624C00E75857 /* MethodGenerationContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MethodGenerationContext.cpp; sourceTree = "<group>"; tabWidth = 4; };
+		3F5202FA0FA6624C00E75857 /* MethodGenerationContext.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = MethodGenerationContext.h; sourceTree = "<group>"; tabWidth = 4; };
 		3F5202FB0FA6624C00E75857 /* Parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Parser.cpp; sourceTree = "<group>"; tabWidth = 4; };
 		3F5202FC0FA6624C00E75857 /* Parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Parser.h; sourceTree = "<group>"; };
 		3F5202FD0FA6624C00E75857 /* SourcecodeCompiler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SourcecodeCompiler.cpp; sourceTree = "<group>"; };
@@ -218,7 +218,7 @@
 		3F52030A0FA6624C00E75857 /* Heap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Heap.h; sourceTree = "<group>"; };
 		3F52030C0FA6624C00E75857 /* debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug.h; sourceTree = "<group>"; };
 		3F52030D0FA6624C00E75857 /* defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = defs.h; sourceTree = "<group>"; };
-		3F52030E0FA6624C00E75857 /* ExtendedList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExtendedList.h; sourceTree = "<group>"; };
+		3F52030E0FA6624C00E75857 /* ExtendedList.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = ExtendedList.h; sourceTree = "<group>"; tabWidth = 4; };
 		3F52030F0FA6624C00E75857 /* gettimeofday.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gettimeofday.h; sourceTree = "<group>"; };
 		3F5203120FA6624C00E75857 /* Array.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Array.cpp; sourceTree = "<group>"; };
 		3F5203130FA6624C00E75857 /* Array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Array.h; sourceTree = "<group>"; };
@@ -278,7 +278,6 @@
 		3F5203570FA6624C00E75857 /* VMSymbol.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VMSymbol.cpp; sourceTree = "<group>"; };
 		3F5203580FA6624C00E75857 /* VMSymbol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMSymbol.h; sourceTree = "<group>"; };
 		E18AE2800FB1C44700EE6540 /* Array.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Array.som; sourceTree = "<group>"; };
-		E18AE2810FB1C44700EE6540 /* BigInteger.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BigInteger.som; sourceTree = "<group>"; };
 		E18AE2820FB1C44700EE6540 /* Block.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Block.som; sourceTree = "<group>"; };
 		E18AE2830FB1C44700EE6540 /* Block1.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Block1.som; sourceTree = "<group>"; };
 		E18AE2840FB1C44700EE6540 /* Block2.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Block2.som; sourceTree = "<group>"; };
@@ -343,14 +342,12 @@
 		E18AE2C60FB1C45E00EE6540 /* Terminal.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Terminal.som; sourceTree = "<group>"; };
 		E18AE2C80FB1C45E00EE6540 /* StringTest.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = StringTest.som; sourceTree = "<group>"; };
 		E18AE2CA0FB1C46B00EE6540 /* ArrayTest.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ArrayTest.som; sourceTree = "<group>"; };
-		E18AE2CB0FB1C46B00EE6540 /* BigIntegerTest.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BigIntegerTest.som; sourceTree = "<group>"; };
 		E18AE2CC0FB1C46B00EE6540 /* ClosureTest.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ClosureTest.som; sourceTree = "<group>"; };
 		E18AE2CD0FB1C46B00EE6540 /* CoercionTest.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CoercionTest.som; sourceTree = "<group>"; };
 		E18AE2CE0FB1C46B00EE6540 /* DoubleTest.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DoubleTest.som; sourceTree = "<group>"; };
 		E18AE2CF0FB1C46B00EE6540 /* EmptyTest.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = EmptyTest.som; sourceTree = "<group>"; };
 		E18AE2D00FB1C46B00EE6540 /* HashTest.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = HashTest.som; sourceTree = "<group>"; };
 		E18AE2D10FB1C46B00EE6540 /* IntegerTest.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = IntegerTest.som; sourceTree = "<group>"; };
-		E18AE2D20FB1C46B00EE6540 /* ObjectSizeTest.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ObjectSizeTest.som; sourceTree = "<group>"; };
 		E18AE2D30FB1C46B00EE6540 /* PreliminaryTest.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PreliminaryTest.som; sourceTree = "<group>"; };
 		E18AE2D40FB1C46B00EE6540 /* ReflectionTest.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ReflectionTest.som; sourceTree = "<group>"; };
 		E18AE2D50FB1C46B00EE6540 /* SelfBlockTest.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SelfBlockTest.som; sourceTree = "<group>"; };
@@ -622,7 +619,6 @@
 			isa = PBXGroup;
 			children = (
 				E18AE2800FB1C44700EE6540 /* Array.som */,
-				E18AE2810FB1C44700EE6540 /* BigInteger.som */,
 				E18AE2820FB1C44700EE6540 /* Block.som */,
 				E18AE2830FB1C44700EE6540 /* Block1.som */,
 				E18AE2840FB1C44700EE6540 /* Block2.som */,
@@ -741,14 +737,12 @@
 			isa = PBXGroup;
 			children = (
 				E18AE2CA0FB1C46B00EE6540 /* ArrayTest.som */,
-				E18AE2CB0FB1C46B00EE6540 /* BigIntegerTest.som */,
 				E18AE2CC0FB1C46B00EE6540 /* ClosureTest.som */,
 				E18AE2CD0FB1C46B00EE6540 /* CoercionTest.som */,
 				E18AE2CE0FB1C46B00EE6540 /* DoubleTest.som */,
 				E18AE2CF0FB1C46B00EE6540 /* EmptyTest.som */,
 				E18AE2D00FB1C46B00EE6540 /* HashTest.som */,
 				E18AE2D10FB1C46B00EE6540 /* IntegerTest.som */,
-				E18AE2D20FB1C46B00EE6540 /* ObjectSizeTest.som */,
 				E18AE2D30FB1C46B00EE6540 /* PreliminaryTest.som */,
 				E18AE2D40FB1C46B00EE6540 /* ReflectionTest.som */,
 				E18AE2D50FB1C46B00EE6540 /* SelfBlockTest.som */,
