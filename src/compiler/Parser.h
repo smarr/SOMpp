@@ -38,7 +38,7 @@
 
 class Parser {
 public:
-    Parser(istream& file);
+    Parser(istream& file, StdString& fname);
     ~Parser();
 
     void Classdef(ClassGenerationContext* cgenc);
@@ -114,6 +114,7 @@ private:
     void genPopVariable(MethodGenerationContext*, const StdString&);
 
     Lexer* lexer;
+    StdString& fname;
 
     Symbol sym;
 
