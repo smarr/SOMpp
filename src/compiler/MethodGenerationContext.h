@@ -59,7 +59,8 @@ public:
     void AddArgument(const StdString& arg);
     void SetPrimitive(bool prim = true);
     void AddLocal(const StdString& local);
-    void AddLiteral(vm_oop_t lit);
+    uint8_t AddLiteral(vm_oop_t lit);
+    void UpdateLiteral(vm_oop_t oldValue, uint8_t index, vm_oop_t newValue);
     bool AddArgumentIfAbsent(const StdString& arg);
     bool AddLocalIfAbsent(const StdString& local);
     bool AddLiteralIfAbsent(vm_oop_t lit);
