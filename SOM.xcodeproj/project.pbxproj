@@ -115,6 +115,8 @@
 		0A67EA9E19ACDB4600830E3B /* README.md in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A18873D1832C62100A2CBCA /* README.md */; };
 		0A67EA9F19ACDB4600830E3B /* Smalltalk in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A18873E1832C62100A2CBCA /* Smalltalk */; };
 		0A67EAA119ACDB4600830E3B /* TestSuite in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A1887401832C62100A2CBCA /* TestSuite */; };
+		0A70752A297DF9FE00EB9F59 /* ParseInteger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A707529297DF97700EB9F59 /* ParseInteger.cpp */; };
+		0A70752B297DF9FE00EB9F59 /* ParseInteger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A707529297DF97700EB9F59 /* ParseInteger.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -190,6 +192,8 @@
 		0A67EAA319ACE09700830E3B /* CloneObjectsTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CloneObjectsTest.h; path = unitTests/CloneObjectsTest.h; sourceTree = "<group>"; };
 		0A67EAA519ACE09700830E3B /* WalkObjectsTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WalkObjectsTest.h; path = unitTests/WalkObjectsTest.h; sourceTree = "<group>"; };
 		0A67EAA619ACE09700830E3B /* WriteBarrierTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WriteBarrierTest.h; path = unitTests/WriteBarrierTest.h; sourceTree = "<group>"; };
+		0A707528297DF36F00EB9F59 /* ParseInteger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ParseInteger.h; sourceTree = "<group>"; };
+		0A707529297DF97700EB9F59 /* ParseInteger.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ParseInteger.cpp; sourceTree = "<group>"; };
 		3F5202930FA6624C00E75857 /* build_darwin.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = build_darwin.sh; sourceTree = "<group>"; };
 		3F5202940FA6624C00E75857 /* Darwin.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Darwin.make; sourceTree = "<group>"; };
 		3F5202950FA6624C00E75857 /* Linux.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Linux.make; sourceTree = "<group>"; };
@@ -228,7 +232,7 @@
 		3F5203190FA6624C00E75857 /* Class.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Class.h; sourceTree = "<group>"; };
 		3F52031C0FA6624C00E75857 /* Double.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Double.cpp; sourceTree = "<group>"; };
 		3F52031D0FA6624C00E75857 /* Double.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Double.h; sourceTree = "<group>"; };
-		3F52031E0FA6624C00E75857 /* Integer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Integer.cpp; sourceTree = "<group>"; };
+		3F52031E0FA6624C00E75857 /* Integer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Integer.cpp; sourceTree = "<group>"; tabWidth = 4; };
 		3F52031F0FA6624C00E75857 /* Integer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Integer.h; sourceTree = "<group>"; };
 		3F5203200FA6624C00E75857 /* Object.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Object.cpp; sourceTree = "<group>"; };
 		3F5203210FA6624C00E75857 /* Object.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Object.h; sourceTree = "<group>"; };
@@ -517,6 +521,8 @@
 				3F52030F0FA6624C00E75857 /* gettimeofday.h */,
 				0A1887371832C12E00A2CBCA /* Timer.cpp */,
 				0A1887381832C12E00A2CBCA /* Timer.h */,
+				0A707528297DF36F00EB9F59 /* ParseInteger.h */,
+				0A707529297DF97700EB9F59 /* ParseInteger.cpp */,
 			);
 			path = misc;
 			sourceTree = "<group>";
@@ -859,6 +865,7 @@
 				0A3A3CB11A5D5475004CB03B /* PrimitiveLoader.cpp in Sources */,
 				0A1887001832BCFA00A2CBCA /* VMInteger.cpp in Sources */,
 				0A3A3C931A5D546D004CB03B /* Block.cpp in Sources */,
+				0A70752A297DF9FE00EB9F59 /* ParseInteger.cpp in Sources */,
 				0A3A3CB01A5D5475004CB03B /* PrimitiveContainer.cpp in Sources */,
 				0A3A3C981A5D546D004CB03B /* Object.cpp in Sources */,
 				0A1886E01832BCC800A2CBCA /* MethodGenerationContext.cpp in Sources */,
@@ -907,6 +914,7 @@
 				0A67EA7E19ACD74800830E3B /* VMArray.cpp in Sources */,
 				0A67EA8719ACD74800830E3B /* VMObject.cpp in Sources */,
 				0A3A3CA11A5D546D004CB03B /* Array.cpp in Sources */,
+				0A70752B297DF9FE00EB9F59 /* ParseInteger.cpp in Sources */,
 				0A3A3CAA1A5D546D004CB03B /* Symbol.cpp in Sources */,
 				0A67EA8619ACD74800830E3B /* VMMethod.cpp in Sources */,
 				0A67EA7519ACD43A00830E3B /* CloneObjectsTest.cpp in Sources */,
