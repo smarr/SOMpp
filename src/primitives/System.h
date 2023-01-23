@@ -50,6 +50,9 @@ public:
     void Ticks(Interpreter*, VMFrame*);
     void FullGC(Interpreter*, VMFrame*);
 
+    void LoadFile_(Interpreter*, VMFrame*);
+    void PrintStackTrace(Interpreter*, VMFrame*);
+
 private:
     struct timeval start_time;
 };

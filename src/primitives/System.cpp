@@ -25,6 +25,8 @@
  */
 
 #include <stdio.h>
+#include <sstream>
+#include <fstream>
 
 #include <time.h>
 
@@ -159,6 +161,26 @@ void _System::FullGC(Interpreter*, VMFrame* frame) {
     frame->Push(load_ptr(trueObject));
 }
 
+void _System::LoadFile_(Interpreter*, VMFrame* frame) {
+    VMString* fileName = static_cast<VMString*>(frame->Pop());
+    frame->Pop();
+
+    std::ifstream file(fileName->GetStdString(), std::ifstream::in);
+    if (file.is_open()) {
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        
+        VMString* result = GetUniverse()->NewString(buffer.str());
+        frame->Push(result);
+    } else {
+        frame->Push(load_ptr(nilObject));
+    }
+}
+
+void _System::PrintStackTrace(Interpreter*, VMFrame* frame) {
+    frame->PrintStackTrace();
+}
+
 _System::_System(void) : PrimitiveContainer() {
     gettimeofday(&start_time, nullptr);
 
@@ -175,6 +197,9 @@ _System::_System(void) : PrimitiveContainer() {
     SetPrimitive("time",         new Routine<_System>(this, &_System::Time,   false));
     SetPrimitive("ticks",        new Routine<_System>(this, &_System::Ticks,  false));
     SetPrimitive("fullGC",       new Routine<_System>(this, &_System::FullGC, false));
+
+    SetPrimitive("loadFile_",    new Routine<_System>(this, &_System::LoadFile_, false));
+    SetPrimitive("printStackTrace", new Routine<_System>(this, &_System::PrintStackTrace, false));
 }
 
 _System::~_System() {}
