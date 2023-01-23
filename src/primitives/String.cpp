@@ -92,7 +92,7 @@ void _String::Equal(Interpreter*, VMFrame* frame) {
     }
 
     VMClass* otherClass = CLASS_OF(op1);
-    if(otherClass == load_ptr(stringClass)) {
+    if(otherClass == load_ptr(stringClass) || otherClass == load_ptr(symbolClass)) {
         StdString s1 = static_cast<VMString*>(op1)->GetStdString();
         StdString s2 = op2->GetStdString();
 
