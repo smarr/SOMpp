@@ -33,5 +33,4 @@ class _Symbol: public PrimitiveContainer {
 public:
     _Symbol();
     void AsString(Interpreter*, VMFrame*);
-    void Equal(Interpreter*, VMFrame*);
 };
