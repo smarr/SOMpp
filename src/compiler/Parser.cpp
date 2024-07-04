@@ -612,99 +612,10 @@ bool Parser::binaryOperand(MethodGenerationContext* mgenc) {
     return super;
 }
 
-void Parser::ifTrueMessage(MethodGenerationContext* mgenc) {
-    size_t false_block_pos = bcGen->EmitJUMP_IF_FALSE(mgenc);
-    if (sym == NewBlock) {
-        inlinedBlock(mgenc);
-    } else {
-        formula(mgenc);
-        VMSymbol* msg = GetUniverse()->SymbolFor("value");
-        mgenc->AddLiteralIfAbsent(msg);
-        bcGen->EmitSEND(mgenc, msg);
-    }
-    
-    size_t after_pos = bcGen->EmitJUMP(mgenc);
-    mgenc->PatchJumpTarget(false_block_pos);
-    
-    if (sym == Keyword) {
-        StdString ifFalse = keyword();
-        assert(ifFalse == "ifFalse:");
-        if (sym == NewBlock) {
-            inlinedBlock(mgenc);
-        } else {
-            formula(mgenc);
-            VMSymbol* msg = GetUniverse()->SymbolFor("value");
-            mgenc->AddLiteralIfAbsent(msg);
-            bcGen->EmitSEND(mgenc, msg);
-        }
-    } else {
-        VMSymbol* global = GetUniverse()->SymbolFor("nil");
-        mgenc->AddLiteralIfAbsent(global);
-        
-        bcGen->EmitPUSHGLOBAL(mgenc, global);
-    }
-    mgenc->PatchJumpTarget(after_pos);
-    
-    assert(sym != Keyword);
-}
-
-void Parser::ifFalseMessage(MethodGenerationContext* mgenc) {
-    size_t false_block_pos = bcGen->EmitJUMP_IF_TRUE(mgenc);
-    if (sym == NewBlock) {
-        inlinedBlock(mgenc);
-    } else {
-        formula(mgenc);
-        VMSymbol* msg = GetUniverse()->SymbolFor("value");
-        mgenc->AddLiteralIfAbsent(msg);
-        bcGen->EmitSEND(mgenc, msg);
-    }
-    
-    size_t after_pos = bcGen->EmitJUMP(mgenc);
-    mgenc->PatchJumpTarget(false_block_pos);
-    
-    if (sym == Keyword) {
-        StdString ifFalse = keyword();
-        assert(ifFalse == "ifTrue:");
-        if (sym == NewBlock) {
-            inlinedBlock(mgenc);
-        } else {
-            formula(mgenc);
-            VMSymbol* msg = GetUniverse()->SymbolFor("value");
-            mgenc->AddLiteralIfAbsent(msg);
-            bcGen->EmitSEND(mgenc, msg);
-        }
-    } else {
-        VMSymbol* global = GetUniverse()->SymbolFor("nil");
-        mgenc->AddLiteralIfAbsent(global);
-        
-        bcGen->EmitPUSHGLOBAL(mgenc, global);
-    }
-    mgenc->PatchJumpTarget(after_pos);
-    
-    assert(sym != Keyword);
-
-}
-
-void Parser::inlinedBlock(MethodGenerationContext* mgenc) {
-    expect(NewBlock);
-    blockContents(mgenc, true);
-
-    // NON_LOCAL_RETURNS can set it to finished, but since the block is inlined, we don't want that
-    mgenc->SetFinished(false);
-    expect(EndBlock);
-}
 
 void Parser::keywordMessage(MethodGenerationContext* mgenc, bool super) {
     StdString kw = keyword();
     
-    // special compilation for ifTrue and ifFalse
-    if (!super && kw == "ifTrue:") {
-        ifTrueMessage(mgenc);
-        return;
-    } else if (!super && kw == "ifFalse:") {
-        ifFalseMessage(mgenc);
-        return;
-    }
     formula(mgenc);
     while (sym == Keyword) {
         kw.append(keyword());

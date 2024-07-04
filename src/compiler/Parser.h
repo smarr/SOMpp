@@ -88,9 +88,6 @@ private:
     bool binaryOperand(MethodGenerationContext* mgenc);
     void keywordMessage(MethodGenerationContext* mgenc, bool super);
     
-    void ifTrueMessage(MethodGenerationContext* mgenc);
-    void ifFalseMessage(MethodGenerationContext* mgenc);
-    
     void formula(MethodGenerationContext* mgenc);
     void nestedTerm(MethodGenerationContext* mgenc);
     void literal(MethodGenerationContext* mgenc);
@@ -107,7 +104,6 @@ private:
     VMSymbol* keywordSelector(void);
     StdString _string(void);
     void nestedBlock(MethodGenerationContext* mgenc);
-    void inlinedBlock(MethodGenerationContext* mgenc);
     void blockPattern(MethodGenerationContext* mgenc);
     void blockArguments(MethodGenerationContext* mgenc);
     void genPushVariable(MethodGenerationContext*, const StdString&);
