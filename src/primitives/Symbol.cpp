@@ -41,18 +41,7 @@ void _Symbol::AsString(Interpreter*, VMFrame* frame) {
     frame->Push(GetUniverse()->NewString(str));
 }
 
-void _Symbol::Equal(Interpreter*, VMFrame* frame) {
-    vm_oop_t op1 = frame->Pop();
-    vm_oop_t op2 = frame->Pop();
-    
-    if (op1 == op2) {
-        frame->Push(load_ptr(trueObject));
-    } else {
-        frame->Push(load_ptr(falseObject));
-    }
-}
 
 _Symbol::_Symbol() : PrimitiveContainer() {
     SetPrimitive("asString", new Routine<_Symbol>(this, &_Symbol::AsString, false));
-    SetPrimitive("equal",    new Routine<_Symbol>(this, &_Symbol::Equal,    false));
 }

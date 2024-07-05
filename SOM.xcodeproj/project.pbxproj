@@ -115,6 +115,8 @@
 		0A67EA9E19ACDB4600830E3B /* README.md in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A18873D1832C62100A2CBCA /* README.md */; };
 		0A67EA9F19ACDB4600830E3B /* Smalltalk in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A18873E1832C62100A2CBCA /* Smalltalk */; };
 		0A67EAA119ACDB4600830E3B /* TestSuite in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A1887401832C62100A2CBCA /* TestSuite */; };
+		0A70752A297DF9FE00EB9F59 /* ParseInteger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A707529297DF97700EB9F59 /* ParseInteger.cpp */; };
+		0A70752B297DF9FE00EB9F59 /* ParseInteger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A707529297DF97700EB9F59 /* ParseInteger.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -190,6 +192,8 @@
 		0A67EAA319ACE09700830E3B /* CloneObjectsTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CloneObjectsTest.h; path = unitTests/CloneObjectsTest.h; sourceTree = "<group>"; };
 		0A67EAA519ACE09700830E3B /* WalkObjectsTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WalkObjectsTest.h; path = unitTests/WalkObjectsTest.h; sourceTree = "<group>"; };
 		0A67EAA619ACE09700830E3B /* WriteBarrierTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WriteBarrierTest.h; path = unitTests/WriteBarrierTest.h; sourceTree = "<group>"; };
+		0A707528297DF36F00EB9F59 /* ParseInteger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ParseInteger.h; sourceTree = "<group>"; };
+		0A707529297DF97700EB9F59 /* ParseInteger.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ParseInteger.cpp; sourceTree = "<group>"; };
 		3F5202F10FA6624C00E75857 /* BytecodeGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BytecodeGenerator.cpp; sourceTree = "<group>"; };
 		3F5202F20FA6624C00E75857 /* BytecodeGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = BytecodeGenerator.h; sourceTree = "<group>"; tabWidth = 4; };
 		3F5202F30FA6624C00E75857 /* ClassGenerationContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClassGenerationContext.cpp; sourceTree = "<group>"; };
@@ -322,8 +326,6 @@
 		E18AE2B30FB1C45E00EE6540 /* TowersDisk.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TowersDisk.som; sourceTree = "<group>"; };
 		E18AE2B40FB1C45E00EE6540 /* TreeNode.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TreeNode.som; sourceTree = "<group>"; };
 		E18AE2B50FB1C45E00EE6540 /* TreeSort.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TreeSort.som; sourceTree = "<group>"; };
-		E18AE2B70FB1C45E00EE6540 /* Echo.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Echo.som; sourceTree = "<group>"; };
-		E18AE2B90FB1C45E00EE6540 /* Hello.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Hello.som; sourceTree = "<group>"; };
 		E18AE2BB0FB1C45E00EE6540 /* Apple.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Apple.som; sourceTree = "<group>"; };
 		E18AE2BC0FB1C45E00EE6540 /* Board.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Board.som; sourceTree = "<group>"; };
 		E18AE2BD0FB1C45E00EE6540 /* BoardView.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BoardView.som; sourceTree = "<group>"; };
@@ -336,7 +338,6 @@
 		E18AE2C40FB1C45E00EE6540 /* Terminal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Terminal.cpp; sourceTree = "<group>"; };
 		E18AE2C50FB1C45E00EE6540 /* Terminal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Terminal.h; sourceTree = "<group>"; };
 		E18AE2C60FB1C45E00EE6540 /* Terminal.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Terminal.som; sourceTree = "<group>"; };
-		E18AE2C80FB1C45E00EE6540 /* StringTest.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = StringTest.som; sourceTree = "<group>"; };
 		E18AE2CA0FB1C46B00EE6540 /* ArrayTest.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ArrayTest.som; sourceTree = "<group>"; };
 		E18AE2CC0FB1C46B00EE6540 /* ClosureTest.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ClosureTest.som; sourceTree = "<group>"; };
 		E18AE2CD0FB1C46B00EE6540 /* CoercionTest.som */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CoercionTest.som; sourceTree = "<group>"; };
@@ -501,6 +502,8 @@
 				3F52030F0FA6624C00E75857 /* gettimeofday.h */,
 				0A1887371832C12E00A2CBCA /* Timer.cpp */,
 				0A1887381832C12E00A2CBCA /* Timer.h */,
+				0A707528297DF36F00EB9F59 /* ParseInteger.h */,
+				0A707529297DF97700EB9F59 /* ParseInteger.cpp */,
 			);
 			path = misc;
 			sourceTree = "<group>";
@@ -816,6 +819,7 @@
 				0A3A3CB11A5D5475004CB03B /* PrimitiveLoader.cpp in Sources */,
 				0A1887001832BCFA00A2CBCA /* VMInteger.cpp in Sources */,
 				0A3A3C931A5D546D004CB03B /* Block.cpp in Sources */,
+				0A70752A297DF9FE00EB9F59 /* ParseInteger.cpp in Sources */,
 				0A3A3CB01A5D5475004CB03B /* PrimitiveContainer.cpp in Sources */,
 				0A3A3C981A5D546D004CB03B /* Object.cpp in Sources */,
 				0A1886E01832BCC800A2CBCA /* MethodGenerationContext.cpp in Sources */,
@@ -864,6 +868,7 @@
 				0A67EA7E19ACD74800830E3B /* VMArray.cpp in Sources */,
 				0A67EA8719ACD74800830E3B /* VMObject.cpp in Sources */,
 				0A3A3CA11A5D546D004CB03B /* Array.cpp in Sources */,
+				0A70752B297DF9FE00EB9F59 /* ParseInteger.cpp in Sources */,
 				0A3A3CAA1A5D546D004CB03B /* Symbol.cpp in Sources */,
 				0A67EA8619ACD74800830E3B /* VMMethod.cpp in Sources */,
 				0A67EA7519ACD43A00830E3B /* CloneObjectsTest.cpp in Sources */,

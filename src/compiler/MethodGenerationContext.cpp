@@ -221,8 +221,15 @@ void MethodGenerationContext::AddLocal(const StdString& local) {
     locals.PushBack(local);
 }
 
-void MethodGenerationContext::AddLiteral(vm_oop_t lit) {
+uint8_t MethodGenerationContext::AddLiteral(vm_oop_t lit) {
+    uint8_t idx = literals.Size();
     literals.PushBack(lit);
+    return idx;
+}
+
+void MethodGenerationContext::UpdateLiteral(vm_oop_t oldValue, uint8_t index, vm_oop_t newValue) {
+    assert(literals.Get(index) == oldValue);
+    literals.Set(index, newValue);
 }
 
 bool MethodGenerationContext::AddArgumentIfAbsent(const StdString& arg) {

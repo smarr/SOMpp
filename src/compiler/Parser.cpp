@@ -27,6 +27,8 @@
 #include "Parser.h"
 #include "BytecodeGenerator.h"
 
+#include <misc/ParseInteger.h>
+
 #include <vmobjects/VMMethod.h>
 #include <vmobjects/VMPrimitive.h>
 #include <vmobjects/VMObject.h>
@@ -59,7 +61,7 @@ void Parser::PeekForNextSymbolFromLexerIfNecessary() {
     }
 }
 
-Parser::Parser(istream& file) {
+Parser::Parser(istream& file, StdString& fname): fname(fname) {
     sym = NONE;
     lexer = new Lexer(file);
     bcGen = new BytecodeGenerator();
@@ -110,8 +112,10 @@ bool Parser::expect(Symbol s) {
     if (accept(s))
         return true;
     fprintf(stderr,
-            "Error: unexpected symbol in line %d. Expected %s, but found %s",
-            lexer->GetCurrentLineNumber(), symnames[s], symnames[sym]);
+            "Error: %s:%d: unexpected symbol. Expected %s, but found %s",
+            fname.c_str(),
+            lexer->GetCurrentLineNumber(),
+            symnames[s], symnames[sym]);
     if (_PRINTABLE_SYM)
         fprintf(stderr, " (%s)", text.c_str());
     fprintf(stderr, ": %s\n", lexer->GetRawBuffer().c_str());
@@ -184,7 +188,7 @@ void Parser::genPopVariable(MethodGenerationContext* mgenc,
 //
 
 Symbol singleOpSyms[] = { Not, And, Or, Star, Div, Mod, Plus, Equal, More, Less,
-        Comma, At, Per, NONE };
+        Comma, At, Per, Minus, NONE };
 
 Symbol binaryOpSyms[] = { Or, Comma, Minus, Equal, Not, And, Or, Star, Div, Mod,
         Plus, Equal, More, Less, Comma, At, Per, NONE };
@@ -356,15 +360,7 @@ VMSymbol* Parser::unarySelector(void) {
 VMSymbol* Parser::binarySelector(void) {
     StdString s(text);
 
-    if(accept(Or))
-    ;
-    else if(accept(Comma))
-    ;
-    else if(accept(Minus))
-    ;
-    else if(accept(Equal))
-    ;
-    else if(acceptOneOf(singleOpSyms))
+    if(acceptOneOf(singleOpSyms))
     ;
     else if(accept(OperatorSequence))
     ;
@@ -616,99 +612,10 @@ bool Parser::binaryOperand(MethodGenerationContext* mgenc) {
     return super;
 }
 
-void Parser::ifTrueMessage(MethodGenerationContext* mgenc) {
-    size_t false_block_pos = bcGen->EmitJUMP_IF_FALSE(mgenc);
-    if (sym == NewBlock) {
-        inlinedBlock(mgenc);
-    } else {
-        formula(mgenc);
-        VMSymbol* msg = GetUniverse()->SymbolFor("value");
-        mgenc->AddLiteralIfAbsent(msg);
-        bcGen->EmitSEND(mgenc, msg);
-    }
-    
-    size_t after_pos = bcGen->EmitJUMP(mgenc);
-    mgenc->PatchJumpTarget(false_block_pos);
-    
-    if (sym == Keyword) {
-        StdString ifFalse = keyword();
-        assert(ifFalse == "ifFalse:");
-        if (sym == NewBlock) {
-            inlinedBlock(mgenc);
-        } else {
-            formula(mgenc);
-            VMSymbol* msg = GetUniverse()->SymbolFor("value");
-            mgenc->AddLiteralIfAbsent(msg);
-            bcGen->EmitSEND(mgenc, msg);
-        }
-    } else {
-        VMSymbol* global = GetUniverse()->SymbolFor("nil");
-        mgenc->AddLiteralIfAbsent(global);
-        
-        bcGen->EmitPUSHGLOBAL(mgenc, global);
-    }
-    mgenc->PatchJumpTarget(after_pos);
-    
-    assert(sym != Keyword);
-}
-
-void Parser::ifFalseMessage(MethodGenerationContext* mgenc) {
-    size_t false_block_pos = bcGen->EmitJUMP_IF_TRUE(mgenc);
-    if (sym == NewBlock) {
-        inlinedBlock(mgenc);
-    } else {
-        formula(mgenc);
-        VMSymbol* msg = GetUniverse()->SymbolFor("value");
-        mgenc->AddLiteralIfAbsent(msg);
-        bcGen->EmitSEND(mgenc, msg);
-    }
-    
-    size_t after_pos = bcGen->EmitJUMP(mgenc);
-    mgenc->PatchJumpTarget(false_block_pos);
-    
-    if (sym == Keyword) {
-        StdString ifFalse = keyword();
-        assert(ifFalse == "ifTrue:");
-        if (sym == NewBlock) {
-            inlinedBlock(mgenc);
-        } else {
-            formula(mgenc);
-            VMSymbol* msg = GetUniverse()->SymbolFor("value");
-            mgenc->AddLiteralIfAbsent(msg);
-            bcGen->EmitSEND(mgenc, msg);
-        }
-    } else {
-        VMSymbol* global = GetUniverse()->SymbolFor("nil");
-        mgenc->AddLiteralIfAbsent(global);
-        
-        bcGen->EmitPUSHGLOBAL(mgenc, global);
-    }
-    mgenc->PatchJumpTarget(after_pos);
-    
-    assert(sym != Keyword);
-
-}
-
-void Parser::inlinedBlock(MethodGenerationContext* mgenc) {
-    expect(NewBlock);
-    blockContents(mgenc, true);
-
-    // NON_LOCAL_RETURNS can set it to finished, but since the block is inlined, we don't want that
-    mgenc->SetFinished(false);
-    expect(EndBlock);
-}
 
 void Parser::keywordMessage(MethodGenerationContext* mgenc, bool super) {
     StdString kw = keyword();
     
-    // special compilation for ifTrue and ifFalse
-    if (!super && kw == "ifTrue:") {
-        ifTrueMessage(mgenc);
-        return;
-    } else if (!super && kw == "ifFalse:") {
-        ifFalseMessage(mgenc);
-        return;
-    }
     formula(mgenc);
     while (sym == Keyword) {
         kw.append(keyword());
@@ -781,7 +688,6 @@ vm_oop_t Parser::literalDecimal(bool negateValue) {
     if (sym == Integer) {
         return literalInteger(negateValue);
     } else {
-        assert(sym == Double);
         return literalDouble(negateValue);
     }
 }
@@ -792,13 +698,9 @@ vm_oop_t Parser::negativeDecimal(void) {
 }
 
 vm_oop_t Parser::literalInteger(bool negateValue) {
-    int64_t i = std::strtoll(text.c_str(), nullptr, 10);
+    vm_oop_t i = ParseInteger(text.c_str(), 10, negateValue);
     expect(Integer);
-    if (negateValue) {
-        i = 0 - i;
-    }
-    
-    return NEW_INT(i);
+    return i;
 }
 
 vm_oop_t Parser::literalDouble(bool negateValue) {
@@ -825,20 +727,40 @@ void Parser::literalSymbol(MethodGenerationContext* mgenc) {
 }
 
 void Parser::literalArray(MethodGenerationContext* mgenc) {
-    ExtendedList<vm_oop_t> literalValues;
     expect(Pound);
     expect(NewTerm);
-    
-    while (sym != EndTerm) {
-        // TODO: add support for all other literals
-        literalValues.Add(literalNumberOop());
-    }
-    
-    expect(EndTerm);
 
-    vm_oop_t arr = GetUniverse()->NewArrayList(literalValues);
-    mgenc->AddLiteralIfAbsent(arr);
-    bcGen->EmitPUSHCONSTANT(mgenc, arr);
+    VMSymbol* arrayClassName       = GetUniverse()->SymbolFor("Array");
+    VMSymbol* arraySizePlaceholder = GetUniverse()->SymbolFor("ArraySizeLiteralPlaceholder");
+    VMSymbol* newMessage           = GetUniverse()->SymbolFor("new:");
+    VMSymbol* atPutMessage         = GetUniverse()->SymbolFor("at:put:");
+
+    mgenc->AddLiteralIfAbsent(arrayClassName);
+    mgenc->AddLiteralIfAbsent(newMessage);
+    mgenc->AddLiteralIfAbsent(atPutMessage);
+
+    const uint8_t arraySizeLiteralIndex = mgenc->AddLiteral(arraySizePlaceholder);
+
+    // create bytecode sequence for instantiating new array
+    bcGen->EmitPUSHGLOBAL(mgenc, arrayClassName);
+    bcGen->EmitPUSHCONSTANT(mgenc, arraySizeLiteralIndex);
+    bcGen->EmitSEND(mgenc, newMessage);
+
+    size_t i = 1;
+
+    while (sym != EndTerm) {
+        vm_oop_t pushIndex = NEW_INT(i);
+        mgenc->AddLiteralIfAbsent(pushIndex);
+        bcGen->EmitPUSHCONSTANT(mgenc, pushIndex);
+        literal(mgenc);
+        bcGen->EmitSEND(mgenc, atPutMessage);
+        i += 1;
+    }
+
+    // replace the placeholder with the actual array size
+    mgenc->UpdateLiteral(arraySizePlaceholder, arraySizeLiteralIndex, NEW_INT(i - 1));
+
+    expect(EndTerm);
 }
 
 void Parser::literalString(MethodGenerationContext* mgenc) {
