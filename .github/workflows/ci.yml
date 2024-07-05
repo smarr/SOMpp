@@ -1,0 +1,60 @@
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  test_soms:
+    runs-on: ubuntu-22.04
+    # continue-on-error: true
+    strategy:
+      fail-fast: false # we want all jobs to run, because they may fail independently
+      matrix:
+        compiler: [clang, gcc]
+        gc: [GENERATIONAL, MARK_SWEEP, COPYING]
+        integers:
+          - "-DUSE_TAGGING=true"
+          - "-DUSE_TAGGING=false -DCACHE_INTEGER=true"
+          - "-DUSE_TAGGING=false -DCACHE_INTEGER=false"
+
+    steps:
+      - name: Checkout SOM Repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install Apt Packages
+        run: |
+          sudo apt-get install libcppunit-dev
+
+      - name: Build SOM VM
+        run: |
+          if [ "${{ matrix.compiler }}" = "clang" ]
+          then
+            export CC=clang
+            export CXX=clang++
+          else
+            export CC=gcc
+            export CXX=g++
+          fi
+          echo $CC $CXX
+          echo cmake . -DGC_TYPE=${{ matrix.gc}} ${{ matrix.integers }}
+          mkdir cmake-build
+          cd cmake-build
+          cmake .. -DGC_TYPE=${{ matrix.gc}} ${{ matrix.integers }}
+          make
+
+      - name: Run Unit Tests
+        run: |
+          cd cmake-build
+          ./unittests -cp ../Smalltalk:../TestSuite/BasicInterpreterTests ../Examples/Hello.som
+
+      - name: Run Tests on SOM VM
+        run: |
+          cd cmake-build
+          ./SOM++ -cp ../Smalltalk ../TestSuite/TestHarness.som
+
+      # TODO: enable after updating the core-lib
+      # - name: Test SomSom
+      #   run: |
+      #     cd cmake-build
+      #     ./SOM++ -cp ../Smalltalk:../TestSuite:../core-lib/SomSom/src/compiler:../core-lib/SomSom/src/interpreter:../core-lib/SomSom/src/primitives:../core-lib/SomSom/src/vm:../core-lib/SomSom/src/vmobjects ../core-lib/SomSom/tests/SomSomTests.som

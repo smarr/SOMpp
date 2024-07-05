@@ -8,56 +8,71 @@ variables:
 before_script:
   - git submodule update --init
 
-.build_and_test_job: &BUILD_AND_TEST
+build_and_test:
   stage: build-and-test
-  tags: [benchmarks, infinity]
+  parallel:
+    matrix:
+      - MACHINE:
+          - yuria
+          - yuria2
+          - yuria3
+        COMPILER: [clang]
+        GC: [COPYING]
+        INTEGERS:
+          - "-DUSE_TAGGING=true"
+          - "-DUSE_TAGGING=false -DCACHE_INTEGER=true"
+          - "-DUSE_TAGGING=false -DCACHE_INTEGER=false"
+
+      # Track GCC only for one configuration
+      - MACHINE: [yuria, yuria2, yuria3]
+        COMPILER: [gcc]
+        GC: [COPYING]
+        INTEGERS: ["-DUSE_TAGGING=true"]
+
+      # Generational GC is broken it seems, use a configuration that mostly works
+      - MACHINE: [yuria, yuria2, yuria3]
+        COMPILER: [clang]
+        GC: [GENERATIONAL]
+        INTEGERS: ["-DUSE_TAGGING=false -DCACHE_INTEGER=false"]
+
+      # Mark-Sweep working, but not super exciting
+      - MACHINE: [yuria, yuria2, yuria3]
+        COMPILER: [gcc]
+        GC: [MARK_SWEEP]
+        INTEGERS: ["-DUSE_TAGGING=true"]
+
+  tags: [$MACHINE]
   script:
-    - cmake . $CONF
+    - rm -rf cmake-build && mkdir cmake-build
+    - if [ "$COMPILER" = "gcc" ];   then export CC=gcc-13;   export CXX=g++-13; fi
+    - if [ "$COMPILER" = "clang" ]; then export CC=clang-17; export CXX=clang++-17; fi
+
+    # compose a name for this configuration
+    - |+
+      export NAME="som-$COMPILER-$GC"
+      if [[ $INTEGERS =~ "USE_TAGGING=true" ]]; then
+        NAME="$NAME-inttag"
+      else
+        NAME="$NAME-intbox"
+      fi
+      if [[ $INTEGERS =~ "CACHE_INTEGER=true" ]]; then
+        NAME="$NAME-intcache"
+      fi
+      NAME=`echo "$NAME" | tr '[:upper:]' '[:lower:]'`
+
+    - cd cmake-build
+    - cmake .. $INTEGERS -DGC_TYPE=$GC
     - make
-    - ./SOM++ -cp ./Smalltalk ./TestSuite/TestHarness.som
-    - ./unittests -cp ./Smalltalk:./TestSuite/BasicInterpreterTests ./Examples/Hello.som
-    
-    - rebench --experiment="CI ID $CI_PIPELINE_ID" --branch="$CI_COMMIT_REF_NAME" -c rebench.conf all "e:${NAME}"
+    - ./SOM++ -cp ../Smalltalk ../TestSuite/TestHarness.som
+    - ./unittests -cp ../Smalltalk:../TestSuite/BasicInterpreterTests ../Examples/Hello.som
+    - mv SOM++ ../$NAME
+    - cd ..
 
-tagging_gen:
-  <<: *BUILD_AND_TEST
-  variables: {CONF: "-DUSE_TAGGING=true -DGC_TYPE=GENERATIONAL", NAME: tag-gen}
-
-tagging_marksweep:
-  <<: *BUILD_AND_TEST
-  variables: {CONF: "-DUSE_TAGGING=true -DGC_TYPE=MARK_SWEEP", NAME: tag-mark}
-
-tagging_copying:
-  <<: *BUILD_AND_TEST
-  variables: {CONF: "-DUSE_TAGGING=true -DGC_TYPE=COPYING", NAME: tag-copy}
-
-boxed_generational_cached:
-  <<: *BUILD_AND_TEST
-  variables: {CONF: "-DUSE_TAGGING=false -DGC_TYPE=GENERATIONAL -DCACHE_INTEGER=true", NAME: gen-cache}
-
-boxed_mark_sweep_cached:
-  <<: *BUILD_AND_TEST
-  variables: {CONF: "-DUSE_TAGGING=false -DGC_TYPE=MARK_SWEEP -DCACHE_INTEGER=true", NAME: mark-cache}
-
-boxed_copying_cached:
-  <<: *BUILD_AND_TEST
-  variables: {CONF: "-DUSE_TAGGING=false -DGC_TYPE=COPYING -DCACHE_INTEGER=true", NAME: copy-cache}
-
-boxed_generational_uncached:
-  <<: *BUILD_AND_TEST
-  variables: {CONF: "-DUSE_TAGGING=false -DGC_TYPE=GENERATIONAL -DCACHE_INTEGER=false", NAME: gen}
-
-boxed_mark_sweep_uncached:
-  <<: *BUILD_AND_TEST
-  variables: {CONF: "-DUSE_TAGGING=false -DGC_TYPE=MARK_SWEEP -DCACHE_INTEGER=false", NAME: mark}
-
-boxed_copying_uncached:
-  <<: *BUILD_AND_TEST
-  variables: {CONF: "-DUSE_TAGGING=false -DGC_TYPE=COPYING -DCACHE_INTEGER=false", NAME: copy}
-
+    # run the benchmarks
+    - rebench --experiment="CI ID $CI_PIPELINE_ID" --branch="$CI_COMMIT_REF_NAME" -c rebench.conf all "e:${NAME}" "m:$MACHINE"
 
 complete_benchmarking:
   stage: benchmark-completion
-  tags: [benchmarks, infinity]
+  tags: [yuria3]
   script:
     - rebench --experiment="CI ID $CI_PIPELINE_ID" --report-completion rebench.conf
