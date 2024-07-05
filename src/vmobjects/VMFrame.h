@@ -51,12 +51,27 @@ public:
     VMFrame* GetOuterContext();
     inline VMMethod* GetMethod() const;
     void SetMethod(VMMethod*);
-    vm_oop_t Pop();
-    void Push(vm_oop_t);
+    
+    inline vm_oop_t Pop() {
+        vm_oop_t result = load_ptr(*stack_ptr);
+        stack_ptr--;
+        return result;
+    }
+    
+    inline void Push(vm_oop_t obj) {
+        assert(RemainingStackSize() > 0);
+        ++stack_ptr;
+        store_ptr(*stack_ptr, obj);
+    }
+
     void ResetStackPointer();
     inline long GetBytecodeIndex() const;
     inline void SetBytecodeIndex(long);
-    vm_oop_t GetStackElement(long) const;
+    
+    inline vm_oop_t GetStackElement(long index) const {
+        return load_ptr(stack_ptr[-index]);
+    }
+    
     vm_oop_t GetLocal(long, long);
     void SetLocal(long index, long context_level, vm_oop_t);
     vm_oop_t GetArgument(long, long);

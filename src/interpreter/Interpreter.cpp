@@ -289,7 +289,7 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
     }
 }
 
-void Interpreter::doDup() {
+inline void Interpreter::doDup() {
     vm_oop_t elem = GetFrame()->GetStackElement(0);
     GetFrame()->Push(elem);
 }
@@ -377,7 +377,7 @@ void Interpreter::doPushGlobal(long bytecodeIndex) {
     }
 }
 
-void Interpreter::doPop() {
+inline void Interpreter::doPop() {
     GetFrame()->Pop();
 }
 

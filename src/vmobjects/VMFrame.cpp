@@ -167,18 +167,6 @@ long VMFrame::RemainingStackSize() const {
     return size - 1;
 }
 
-vm_oop_t VMFrame::Pop() {
-    vm_oop_t result = load_ptr(*stack_ptr);
-    stack_ptr--;
-    return result;
-}
-
-void VMFrame::Push(vm_oop_t obj) {
-    assert(RemainingStackSize() > 0);
-    ++stack_ptr;
-    store_ptr(*stack_ptr, obj);
-}
-
 void VMFrame::PrintBytecode() const {
     Disassembler::DumpMethod(GetMethod(), "  ");
 }
@@ -243,10 +231,6 @@ void VMFrame::ResetStackPointer() {
     locals = arguments + meth->GetNumberOfArguments();
     // Set the stack pointer to its initial value thereby clearing the stack
     stack_ptr = locals + meth->GetNumberOfLocals() - 1;
-}
-
-vm_oop_t VMFrame::GetStackElement(long index) const {
-    return load_ptr(stack_ptr[-index]);
 }
 
 vm_oop_t VMFrame::GetLocal(long index, long contextLevel) {
