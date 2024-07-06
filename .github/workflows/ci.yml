@@ -41,7 +41,7 @@ jobs:
           mkdir cmake-build
           cd cmake-build
           cmake .. -DGC_TYPE=${{ matrix.gc}} ${{ matrix.integers }}
-          make
+          make -j5
 
       - name: Run Unit Tests
         run: |
