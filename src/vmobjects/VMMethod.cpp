@@ -34,6 +34,7 @@
 #include "Signature.h"
 
 #include <vm/Universe.h>
+#include <vm/Print.h>
 
 #include <compiler/MethodGenerationContext.h>
 #include <vmobjects/IntegerBox.h>
@@ -163,7 +164,7 @@ void VMMethod::SetHolderAll(VMClass* hld) {
 vm_oop_t VMMethod::GetConstant(long indx) const {
     uint8_t bc = bytecodes[indx + 1];
     if (bc >= GetNumberOfIndexableFields()) {
-        Universe::ErrorPrint("Error: Constant index out of range\n");
+        ErrorPrint("Error: Constant index out of range\n");
         return nullptr;
     }
     return GetIndexableField(bc);

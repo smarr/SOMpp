@@ -31,6 +31,8 @@
 #include "VMPrimitive.h"
 #include "PrimitiveRoutine.h"
 
+#include <vm/Print.h>
+#include <vm/IsValidObject.h>
 #include <primitivesCore/PrimitiveLoader.h>
 
 
@@ -149,7 +151,7 @@ void VMClass::SetInstanceInvokable(long index, VMInvokable* invokable) {
 }
 
 VMInvokable* VMClass::LookupInvokable(VMSymbol* name) const {
-    assert(Universe::IsValidObject(const_cast<VMClass*>(this)));
+    assert(IsValidObject(const_cast<VMClass*>(this)));
     
     VMInvokable* invokable = name->GetCachedInvokable(this);
     if (invokable != nullptr)
@@ -232,7 +234,7 @@ void VMClass::setPrimitives(const StdString& cname, bool classSide) {
         for (long i = 0; i < numInvokables; i++) {
             VMInvokable* anInvokable = current->GetInstanceInvokable(i);
 #ifdef __DEBUG
-            Universe::ErrorPrint("cname: >" + cname + "<\n" +
+            ErrorPrint("cname: >" + cname + "<\n" +
                                  anInvokable->GetSignature()->GetStdString() + "\n");
 #endif
 
@@ -257,7 +259,7 @@ void VMClass::setPrimitives(const StdString& cname, bool classSide) {
             } else {
                 if (anInvokable->IsPrimitive() && current == this) {
                     if (!routine || routine->isClassSide() == classSide) {
-                        Universe::ErrorPrint("could not load primitive '" +
+                        ErrorPrint("could not load primitive '" +
                                              selector + "' for class " +
                                              cname + "\n");
                         GetUniverse()->Quit(ERR_FAIL);

@@ -29,7 +29,8 @@
 
 #include "Disassembler.h"
 
-#include "../vm/Universe.h"
+#include <vm/Print.h>
+#include <vm/Universe.h>
 
 #include "../interpreter/bytecodes.h"
 #include "../interpreter/Interpreter.h"
@@ -126,12 +127,12 @@ void Disassembler::DumpMethod(VMMethod* method, const char* indent) {
         max_stack, method->GetNumberOfBytecodes());
     }
 #ifdef _DEBUG
-    Universe::Print("bytecodes: ");
+    Print("bytecodes: ");
     long numBytecodes = method->GetNumberOfBytecodes();
     for (long i = 0; i < numBytecodes; ++i) {
-        Universe::Print(to_string((int)(*method)[i]) + " ");
+        Print(to_string((int)(*method)[i]) + " ");
     }
-    Universe::Print("\n");
+    Print("\n");
 #endif
     // output bytecodes
     long numBytecodes = method->GetNumberOfBytecodes();

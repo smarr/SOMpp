@@ -36,6 +36,7 @@
 #include <vmobjects/VMClass.h>
 #include <vmobjects/VMInteger.h>
 
+#include <vm/Print.h>
 #include <vm/Universe.h>
 
 #include "System.h"
@@ -101,29 +102,29 @@ void _System::Exit_(Interpreter*, VMFrame* frame) {
 void _System::PrintString_(Interpreter*, VMFrame* frame) {
     VMString* arg = static_cast<VMString*>(frame->Pop());
     std::string str = arg->GetStdString();
-    Universe::Print(str);
+    Print(str);
 }
 
 void _System::PrintNewline(Interpreter*, VMFrame*) {
-    Universe::Print("\n");
+    Print("\n");
 }
 
 void _System::PrintNewline_(Interpreter*, VMFrame* frame) {
     VMString* arg = static_cast<VMString*>(frame->Pop());
     std::string str = arg->GetStdString();
-    Universe::Print(str + "\n");
+    Print(str + "\n");
 }
 
 void _System::ErrorPrint_(Interpreter*, VMFrame* frame) {
     VMString* arg = static_cast<VMString*>(frame->Pop());
     std::string str = arg->GetStdString();
-    Universe::ErrorPrint(str);
+    ErrorPrint(str);
 }
 
 void _System::ErrorPrintNewline_(Interpreter*, VMFrame* frame) {
     VMString* arg = static_cast<VMString*>(frame->Pop());
     std::string str = arg->GetStdString();
-    Universe::ErrorPrint(str + "\n");
+    ErrorPrint(str + "\n");
 }
 
 

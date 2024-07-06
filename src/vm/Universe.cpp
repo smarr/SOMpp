@@ -32,6 +32,8 @@
 
 #include "Universe.h"
 #include "Shell.h"
+#include <vm/IsValidObject.h>
+#include <vm/Print.h>
 
 #include <vmobjects/VMSymbol.h>
 #include <vmobjects/VMObject.h>
@@ -101,7 +103,7 @@ std::map<std::string, struct alloc_data> allocationStats;
 #endif
 
 map<int64_t, int64_t> integerHist;
-mutex Universe::output_mutex;
+
 
 void Universe::Start(long argc, char** argv) {
     BasicInit();
@@ -115,7 +117,7 @@ void Universe::BasicInit() {
 
 
 __attribute__((noreturn)) void Universe::Quit(long err) {
-    Universe::ErrorPrint("Time spent in GC: [" + to_string(Timer::GCTimer->GetTotalTime()) + "] msec\n");
+    ErrorPrint("Time spent in GC: [" + to_string(Timer::GCTimer->GetTotalTime()) + "] msec\n");
 #ifdef GENERATE_INTEGER_HISTOGRAM
     std::string file_name_hist = std::string(bm_name);
     file_name_hist.append("_integer_histogram.csv");
@@ -160,7 +162,7 @@ __attribute__((noreturn)) void Universe::Quit(long err) {
 }
 
 __attribute__((noreturn)) void Universe::ErrorExit(const char* err) {
-    Universe::ErrorPrint("Runtime error: " + StdString(err) + "\n");
+    ErrorPrint("Runtime error: " + StdString(err) + "\n");
     Quit(ERR_FAIL);
 }
 
@@ -340,7 +342,10 @@ vm_oop_t Universe::interpretMethod(VMObject* receiver, VMInvokable* initialize, 
     dumpBytecodes = 2 - trace;
   }
 
-  return interpreter->Start();
+  if (dumpBytecodes > 1) {
+    return interpreter->Start<true>();
+  }
+  return interpreter->Start<false>();
 }
 
 void Universe::initialize(long _argc, char** _argv) {
@@ -392,109 +397,7 @@ Universe::~Universe() {
     Heap<HEAP_CLS>::DestroyHeap();
 }
 
-#if !DEBUG
-    static void set_vt_to_null() {}
-    static void obtain_vtables_of_known_classes(VMSymbol* className) {}
-    bool Universe::IsValidObject(vm_oop_t obj) {
-        return true;
-    }
-#else
-    void* vt_array;
-    void* vt_block;
-    void* vt_class;
-    void* vt_double;
-    void* vt_eval_primitive;
-    void* vt_frame;
-    void* vt_integer;
-    void* vt_method;
-    void* vt_object;
-    void* vt_primitive;
-    void* vt_string;
-    void* vt_symbol;
 
-    bool Universe::IsValidObject(vm_oop_t obj) {
-        if (IS_TAGGED(obj))
-            return true;
-
-        if (obj == INVALID_VM_POINTER
-            // || obj == nullptr
-            ) {
-            assert(false);
-            return false;
-        }
-        
-        if (obj == nullptr)
-            return true;
-        
-        
-        if (vt_symbol == nullptr) // initialization not yet completed
-            return true;
-        
-        void* vt = *(void**) obj;
-        bool b = vt == vt_array    ||
-               vt == vt_block      ||
-               vt == vt_class      ||
-               vt == vt_double     ||
-               vt == vt_eval_primitive ||
-               vt == vt_frame      ||
-               vt == vt_integer    ||
-               vt == vt_method     ||
-               vt == vt_object     ||
-               vt == vt_primitive  ||
-               vt == vt_string     ||
-               vt == vt_symbol;
-        assert(b);
-        return b;
-    }
-
-    static void set_vt_to_null() {
-        vt_array      = nullptr;
-        vt_block      = nullptr;
-        vt_class      = nullptr;
-        vt_double     = nullptr;
-        vt_eval_primitive = nullptr;
-        vt_frame      = nullptr;
-        vt_integer    = nullptr;
-        vt_method     = nullptr;
-        vt_object     = nullptr;
-        vt_primitive  = nullptr;
-        vt_string     = nullptr;
-        vt_symbol     = nullptr;
-    }
-
-    static void obtain_vtables_of_known_classes(VMSymbol* className) {
-        VMArray* arr  = new (GetHeap<HEAP_CLS>()) VMArray(0, 0);
-        vt_array      = *(void**) arr;
-        
-        VMBlock* blck = new (GetHeap<HEAP_CLS>()) VMBlock();
-        vt_block      = *(void**) blck;
-        
-        vt_class      = *(void**) symbolClass;
-        
-        VMDouble* dbl = new (GetHeap<HEAP_CLS>()) VMDouble(0.0);
-        vt_double     = *(void**) dbl;
-        
-        VMEvaluationPrimitive* ev = new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(1);
-        vt_eval_primitive = *(void**) ev;
-        
-        VMFrame* frm  = new (GetHeap<HEAP_CLS>()) VMFrame(0, 0);
-        vt_frame      = *(void**) frm;
-        
-        VMInteger* i  = new (GetHeap<HEAP_CLS>()) VMInteger(0);
-        vt_integer    = *(void**) i;
-        
-        VMMethod* mth = new (GetHeap<HEAP_CLS>()) VMMethod(0, 0, 0);
-        vt_method     = *(void**) mth;
-        vt_object     = *(void**) nilObject;
-        
-        VMPrimitive* prm = new (GetHeap<HEAP_CLS>()) VMPrimitive(className);
-        vt_primitive  = *(void**) prm;
-        
-        VMString* str = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(1)) VMString(0, nullptr);
-        vt_string     = *(void**) str;
-        vt_symbol     = *(void**) className;
-    }
-#endif
 
 VMObject* Universe::InitializeGlobals() {
     set_vt_to_null();
@@ -586,7 +489,7 @@ VMObject* Universe::InitializeGlobals() {
 
 void Universe::Assert(bool value) const {
     if (!value) {
-        Universe::ErrorPrint("Universe::Assert Assertion failed\n");
+        ErrorPrint("Universe::Assert Assertion failed\n");
     }
 }
 
@@ -720,7 +623,7 @@ void Universe::LoadSystemClass(VMClass* systemClass) {
     StdString s = systemClass->GetName()->GetStdString();
 
     if (!result) {
-        Universe::ErrorPrint("Can't load system class: " + s + "\n");
+        ErrorPrint("Can't load system class: " + s + "\n");
         Universe::Quit(ERR_FAIL);
     }
 
@@ -1012,14 +915,4 @@ VMSymbol* Universe::SymbolFor(const StdString& str) {
 void Universe::SetGlobal(VMSymbol* name, vm_oop_t val) {
 # warning is _store_ptr correct here? it relies on _store_ptr not to be really changed...
     globals[_store_ptr(name)] = _store_ptr(val);
-}
-
-void Universe::Print(StdString str) {
-    lock_guard<mutex> lock(output_mutex);
-    cout << str << flush;
-}
-
-void Universe::ErrorPrint(StdString str) {
-    lock_guard<mutex> lock(output_mutex);
-    cerr << str << flush;
 }

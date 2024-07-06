@@ -24,6 +24,9 @@
  THE SOFTWARE.
  */
 
+#include <vm/Print.h>
+#include <vm/Universe.h>
+
 #include "MethodGenerationContext.h"
 
 #include "../interpreter/bytecodes.h"
@@ -181,7 +184,7 @@ uint8_t MethodGenerationContext::ComputeStackDepth() {
             i += 5;
             break;
         default: {
-            Universe::ErrorPrint("Illegal bytecode: " + to_string(bytecode[i]) + "\n");
+            ErrorPrint("Illegal bytecode: " + to_string(bytecode[i]) + "\n");
             GetUniverse()->Quit(1);
           }
         }

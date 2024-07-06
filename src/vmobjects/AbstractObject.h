@@ -12,6 +12,7 @@
 
 
 #include <misc/defs.h>
+#include <vm/Print.h>
 #include <memory/GenerationalHeap.h>
 #include <memory/CopyingHeap.h>
 #include <memory/MarkSweepHeap.h>
@@ -25,6 +26,8 @@
 #define PADDED_SIZE(N) ((((uint32_t)N)+(sizeof(void*)-1) & ~(sizeof(void*)-1)))
 
 using namespace std;
+
+class Interpreter;
 
 //this is the base class for all VMObjects
 class AbstractVMObject: public VMObjectBase {
@@ -46,21 +49,21 @@ public:
     }
 
     inline virtual void SetObjectSize(size_t size) {
-        Universe::ErrorPrint("this object doesn't support SetObjectSize\n");
+        ErrorPrint("this object doesn't support SetObjectSize\n");
         throw "this object doesn't support SetObjectSize";
     }
 
     inline virtual long GetNumberOfFields() const {
-        Universe::ErrorPrint("this object doesn't support GetNumberOfFields\n");
+        ErrorPrint("this object doesn't support GetNumberOfFields\n");
         throw "this object doesn't support GetNumberOfFields";
     }
 
     virtual void SetNumberOfFields(long nof) {
-        Universe::ErrorPrint("this object doesn't support SetNumberOfFields\n");
+        ErrorPrint("this object doesn't support SetNumberOfFields\n");
         throw "this object doesn't support SetNumberOfFields";
     }
     inline virtual void SetClass(VMClass* cl) {
-        Universe::ErrorPrint("this object doesn't support SetClass\n");
+        ErrorPrint("this object doesn't support SetClass\n");
         throw "this object doesn't support SetClass";
     }
 
@@ -71,7 +74,7 @@ public:
     }
 
     inline virtual VMSymbol* GetFieldName(long index) const {
-        Universe::ErrorPrint("this object doesn't support GetFieldName\n");
+        ErrorPrint("this object doesn't support GetFieldName\n");
         throw "this object doesn't support GetFieldName";
     }
 

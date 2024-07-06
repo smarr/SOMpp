@@ -26,6 +26,7 @@
 
 #include <iostream>
 #include <string.h>
+#include <vm/Print.h>
 
 #include "Heap.h"
 #include "../vmobjects/VMObject.h"
@@ -34,7 +35,7 @@
 template<class HEAP_T>
 void Heap<HEAP_T>::InitializeHeap(long objectSpaceSize) {
     if (theHeap) {
-        Universe::ErrorPrint("Warning, reinitializing already initialized Heap, "
+        ErrorPrint("Warning, reinitializing already initialized Heap, "
                              "all data will be lost!\n");
         delete theHeap;
     }

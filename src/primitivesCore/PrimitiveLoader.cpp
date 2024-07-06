@@ -39,6 +39,7 @@
 #include "PrimitiveLoader.h"
 #include "PrimitiveContainer.h"
 
+#include <vm/Print.h>
 #include <vmobjects/PrimitiveRoutine.h>
 
 PrimitiveLoader PrimitiveLoader::loader;
@@ -89,13 +90,13 @@ PrimitiveRoutine* PrimitiveLoader::getPrimitiveRoutine(const std::string& cname,
     PrimitiveRoutine* result;
     PrimitiveContainer* primitive = primitiveObjects[cname];
     if (!primitive) {
-        Universe::ErrorPrint("Primitive object not found for name: " + cname + "\n");
+        ErrorPrint("Primitive object not found for name: " + cname + "\n");
         return nullptr;
     }
     result = primitive->GetPrimitive(mname);
     if (!result) {
         if (isPrimitive) {
-            Universe::ErrorPrint("method " + mname + " not found in class " + cname + "\n");
+            ErrorPrint("method " + mname + " not found in class " + cname + "\n");
         }
         return nullptr;
     }

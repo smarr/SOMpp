@@ -7,6 +7,7 @@
 #include <vmobjects/IntegerBox.h>
 
 #include "CopyingCollector.h"
+#include <vm/IsValidObject.h>
 
 static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     // don't process tagged objects
@@ -14,7 +15,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
         return oop;
     
     AbstractVMObject* obj = AS_OBJ(oop);
-    assert(Universe::IsValidObject(obj));
+    assert(IsValidObject(obj));
 
 
     long gcField = obj->GetGCField();

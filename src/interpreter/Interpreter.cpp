@@ -27,9 +27,10 @@
 #include "Interpreter.h"
 #include "bytecodes.h"
 
+#include <vm/IsValidObject.h>
+
 #include <vmobjects/VMMethod.h>
 #include <vmobjects/VMFrame.h>
-#include <vmobjects/VMMethod.h>
 #include <vmobjects/VMClass.h>
 #include <vmobjects/VMObject.h>
 #include <vmobjects/VMSymbol.h>
@@ -50,150 +51,10 @@ Interpreter::Interpreter() : frame(nullptr) {}
 
 Interpreter::~Interpreter() {}
 
-#define PROLOGUE(bc_count) {\
-  if (dumpBytecodes > 1) Disassembler::DumpBytecode(GetFrame(), GetFrame()->GetMethod(), bytecodeIndexGlobal);\
-  bytecodeIndexGlobal += bc_count;\
-}
-
-#define DISPATCH_NOGC() {\
-  goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]]; \
-}
-
-#define DISPATCH_GC() {\
-  if (GetHeap<HEAP_CLS>()->isCollectionTriggered()) {\
-    GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);\
-    GetHeap<HEAP_CLS>()->FullGC();\
-    method = GetFrame()->GetMethod(); \
-    currentBytecodes = method->GetBytecodes(); \
-  }\
-  goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];\
-}
-
-vm_oop_t Interpreter::Start() {
-    // initialization
-    method = GetFrame()->GetMethod();
-    currentBytecodes = method->GetBytecodes();
-
-    void* loopTargets[] = {
-        &&LABEL_BC_HALT,
-        &&LABEL_BC_DUP,
-        &&LABEL_BC_PUSH_LOCAL,
-        &&LABEL_BC_PUSH_ARGUMENT,
-        &&LABEL_BC_PUSH_FIELD,
-        &&LABEL_BC_PUSH_BLOCK,
-        &&LABEL_BC_PUSH_CONSTANT,
-        &&LABEL_BC_PUSH_GLOBAL,
-        &&LABEL_BC_POP,
-        &&LABEL_BC_POP_LOCAL,
-        &&LABEL_BC_POP_ARGUMENT,
-        &&LABEL_BC_POP_FIELD,
-        &&LABEL_BC_SEND,
-        &&LABEL_BC_SUPER_SEND,
-        &&LABEL_BC_RETURN_LOCAL,
-        &&LABEL_BC_RETURN_NON_LOCAL,
-        &&LABEL_BC_JUMP_IF_FALSE,
-        &&LABEL_BC_JUMP_IF_TRUE,
-        &&LABEL_BC_JUMP
-    };
-
-    goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];
-
-    //
-    // THIS IS THE former interpretation loop
-    LABEL_BC_HALT:
-      PROLOGUE(1);
-      return GetFrame()->GetStackElement(0); // handle the halt bytecode
-
-    LABEL_BC_DUP:
-      PROLOGUE(1);
-      doDup();
-      DISPATCH_NOGC();
-
-    LABEL_BC_PUSH_LOCAL:       
-      PROLOGUE(3);
-      doPushLocal(bytecodeIndexGlobal - 3);
-      DISPATCH_NOGC();
-
-    LABEL_BC_PUSH_ARGUMENT:
-      PROLOGUE(3);
-      doPushArgument(bytecodeIndexGlobal - 3);
-      DISPATCH_NOGC();
-
-    LABEL_BC_PUSH_FIELD:
-      PROLOGUE(2);
-      doPushField(bytecodeIndexGlobal - 2);
-      DISPATCH_NOGC();
-
-    LABEL_BC_PUSH_BLOCK:
-      PROLOGUE(2);
-      doPushBlock(bytecodeIndexGlobal - 2);
-      DISPATCH_GC();
-
-    LABEL_BC_PUSH_CONSTANT:
-      PROLOGUE(2);
-      doPushConstant(bytecodeIndexGlobal - 2);
-      DISPATCH_NOGC();
-
-    LABEL_BC_PUSH_GLOBAL:
-      PROLOGUE(2);
-      doPushGlobal(bytecodeIndexGlobal - 2);
-      DISPATCH_GC();
-
-    LABEL_BC_POP:
-      PROLOGUE(1);
-      doPop();
-      DISPATCH_NOGC();
-
-    LABEL_BC_POP_LOCAL:
-      PROLOGUE(3);
-      doPopLocal(bytecodeIndexGlobal - 3);
-      DISPATCH_NOGC();
-
-    LABEL_BC_POP_ARGUMENT:
-      PROLOGUE(3);
-      doPopArgument(bytecodeIndexGlobal - 3);
-      DISPATCH_NOGC();
-
-    LABEL_BC_POP_FIELD:
-      PROLOGUE(2);
-      doPopField(bytecodeIndexGlobal - 2);
-      DISPATCH_NOGC();
-
-    LABEL_BC_SEND:
-      PROLOGUE(2);
-      doSend(bytecodeIndexGlobal - 2);
-      DISPATCH_GC();
-
-    LABEL_BC_SUPER_SEND:
-      PROLOGUE(2);
-      doSuperSend(bytecodeIndexGlobal - 2);
-      DISPATCH_GC();
-
-    LABEL_BC_RETURN_LOCAL:
-      PROLOGUE(1);
-      doReturnLocal();
-      DISPATCH_NOGC();
-
-    LABEL_BC_RETURN_NON_LOCAL:
-      PROLOGUE(1);
-      doReturnNonLocal();
-      DISPATCH_NOGC();
-
-    LABEL_BC_JUMP_IF_FALSE:
-      PROLOGUE(5);
-      doJumpIfFalse(bytecodeIndexGlobal - 5);
-      DISPATCH_NOGC();
-
-    LABEL_BC_JUMP_IF_TRUE:
-      PROLOGUE(5);
-      doJumpIfTrue(bytecodeIndexGlobal - 5);
-      DISPATCH_NOGC();
-
-    LABEL_BC_JUMP:
-      PROLOGUE(5);
-      doJump(bytecodeIndexGlobal - 5);
-      DISPATCH_NOGC();
-}
+template<>
+vm_oop_t Interpreter::Start<true>();
+template<>
+vm_oop_t Interpreter::Start<false>();
 
 VMFrame* Interpreter::PushNewFrame(VMMethod* method) {
     SetFrame(GetUniverse()->NewFrame(GetFrame(), method));
@@ -418,12 +279,12 @@ void Interpreter::doSend(long bytecodeIndex) {
     int numOfArgs = Signature::GetNumberOfArguments(signature);
 
     vm_oop_t receiver = GetFrame()->GetStackElement(numOfArgs-1);
-    assert(Universe::IsValidObject(receiver));
+    assert(IsValidObject(receiver));
     assert(dynamic_cast<VMClass*>(CLASS_OF(receiver)) != nullptr); // make sure it is really a class
     
     VMClass* receiverClass = CLASS_OF(receiver);
     
-    assert(Universe::IsValidObject(receiverClass));
+    assert(IsValidObject(receiverClass));
 
 #ifdef LOG_RECEIVER_TYPES
     GetUniverse()->receiverTypes[receiverClass->GetName()->GetStdString()]++;
@@ -534,4 +395,25 @@ void Interpreter::WalkGlobals(walk_heap_fn walk) {
     // marks the whole stack
 # warning Do I need a null check here?
     frame  = load_ptr(static_cast<GCFrame*>(walk(_store_ptr(frame))));
+}
+
+void Interpreter::triggerGC() {
+    if (GetHeap<HEAP_CLS>()->isCollectionTriggered()) {
+        GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
+        GetHeap<HEAP_CLS>()->FullGC();
+        method = GetFrame()->GetMethod();
+        currentBytecodes = method->GetBytecodes();
+    }
+}
+
+inline VMMethod* Interpreter::GetMethod() const {
+    return GetFrame()->GetMethod();
+}
+
+inline uint8_t* Interpreter::GetBytecodes() const {
+    return method->GetBytecodes();
+}
+
+void Interpreter::disassembleMethod() const {
+    Disassembler::DumpBytecode(GetFrame(), GetMethod(), bytecodeIndexGlobal);
 }

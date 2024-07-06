@@ -28,7 +28,6 @@
 
 //#define __DEBUG
 #include <map>
-#include <mutex>
 #include <vector>
 
 #include "../misc/defs.h"
@@ -142,11 +141,6 @@ public:
     map<StdString, stat_data> callStats;
 #endif
     //
-    
-    static bool IsValidObject(vm_oop_t obj);
-    
-    static void Print(StdString str);
-    static void ErrorPrint(StdString str);
 
 private:
     vm_oop_t interpretMethod(VMObject* receiver, VMInvokable* initialize, VMArray* argumentsArray);
@@ -171,8 +165,6 @@ private:
     vector<StdString> classPath;
 
     Interpreter* interpreter;
-    
-    static mutex output_mutex;
 };
 
 //Singleton accessor

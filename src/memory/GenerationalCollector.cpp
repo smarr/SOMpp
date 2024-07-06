@@ -13,6 +13,7 @@
 #include "../vmobjects/VMClass.h"
 #include "../vmobjects/VMEvaluationPrimitive.h"
 #include <vmobjects/IntegerBox.h>
+#include <vm/IsValidObject.h>
 
 #define INITIAL_MAJOR_COLLECTION_THRESHOLD (5 * 1024 * 1024) //5 MB
 
@@ -27,7 +28,7 @@ static gc_oop_t mark_object(gc_oop_t oop) {
         return oop;
     
     AbstractVMObject* obj = AS_OBJ(oop);
-    assert(Universe::IsValidObject(obj));
+    assert(IsValidObject(obj));
     
 
     if (obj->GetGCField() & MASK_OBJECT_IS_MARKED)
@@ -45,7 +46,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
         return oop;
     
     AbstractVMObject* obj = AS_OBJ(oop);
-    assert(Universe::IsValidObject(obj));
+    assert(IsValidObject(obj));
 
 
     size_t gcField = obj->GetGCField();
@@ -109,7 +110,7 @@ void GenerationalCollector::MajorCollection() {
             heap->allocatedObjects->end(); objIter++) {
         
         AbstractVMObject* obj = *objIter;
-        assert(Universe::IsValidObject(obj));
+        assert(IsValidObject(obj));
         
         if (obj->GetGCField() & MASK_OBJECT_IS_MARKED) {
             survivors->push_back(obj);

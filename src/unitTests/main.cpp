@@ -13,7 +13,7 @@
 #include <cppunit/BriefTestProgressListener.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
 
-#include "vm/Universe.h"
+#include <vm/Universe.h>
 
 #include "WalkObjectsTest.h"
 #include "CloneObjectsTest.h"
