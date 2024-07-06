@@ -1,3 +1,5 @@
+#include <vm/Universe.h>
+
 #include "WriteBarrierTest.h"
 #include "../src/vmobjects/VMSymbol.h"
 #include "../src/vmobjects/VMDouble.h"

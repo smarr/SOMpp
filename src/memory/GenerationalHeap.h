@@ -7,7 +7,7 @@
 #include "Heap.h"
 #include "../vmobjects/VMObjectBase.h"
 
-#include <vm/Universe.h>
+#include <vm/IsValidObject.h>
 
 #ifdef UNITTESTS
 struct VMObjectCompare {
@@ -46,7 +46,7 @@ private:
 };
 
 inline bool GenerationalHeap::isObjectInNursery(vm_oop_t obj) {
-    assert(Universe::IsValidObject(obj));
+    assert(IsValidObject(obj));
     
     return (size_t) obj >= (size_t)nursery && (size_t) obj < nursery_end;
 }
@@ -60,8 +60,8 @@ inline void GenerationalHeap::writeBarrier(VMObjectBase* holder, vm_oop_t refere
     writeBarrierCalledOn.insert(make_pair(holder, referencedObject));
 #endif
     
-    assert(Universe::IsValidObject(referencedObject));
-    assert(Universe::IsValidObject(holder));
+    assert(IsValidObject(referencedObject));
+    assert(IsValidObject(holder));
 
     size_t gcfield = *(((size_t*)holder)+1);
     if ((gcfield & 6 /* MASK_OBJECT_IS_OLD + MASK_SEEN_BY_WRITE_BARRIER */) == 2 /* MASK_OBJECT_IS_OLD */)

@@ -28,7 +28,7 @@
 #include "VMSymbol.h"
 #include "VMClass.h"
 
-#include "../vm/Universe.h"
+#include <vm/Print.h>
 
 //needed to instanciate the Routine object for the  empty routine
 #include "../primitivesCore/Routine.h"
@@ -63,7 +63,7 @@ void VMPrimitive::WalkObjects(walk_heap_fn walk) {
 
 void VMPrimitive::EmptyRoutine(Interpreter*, VMFrame*) {
     VMSymbol* sig = GetSignature();
-    Universe::ErrorPrint("undefined primitive called: " + sig->GetStdString() + "\n");
+    ErrorPrint("undefined primitive called: " + sig->GetStdString() + "\n");
 }
 
 StdString VMPrimitive::AsDebugString() const {

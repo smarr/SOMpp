@@ -26,6 +26,8 @@
 
 #include <sstream>
 #include <fstream>
+#include <vm/Print.h>
+#include <vm/Universe.h>
 
 #include "SourcecodeCompiler.h"
 #include "ClassGenerationContext.h"
@@ -75,7 +77,7 @@ VMClass* SourcecodeCompiler::CompileClass( const StdString& path,
     parser = nullptr;
     delete(fp);
 #ifdef COMPILER_DEBUG
-    Universe::ErrorPrint("Compilation finished\n");
+    ErrorPrint("Compilation finished\n");
 #endif
     return result;
 }
@@ -98,13 +100,13 @@ VMClass* SourcecodeCompiler::CompileClassString( const StdString& stream,
 
 void SourcecodeCompiler::showCompilationError(const StdString& filename,
         const char* message) {
-    Universe::ErrorPrint("Error when compiling " + filename + ":\n" +
+    ErrorPrint("Error when compiling " + filename + ":\n" +
                          message + "\n");
 }
 
 VMClass* SourcecodeCompiler::compile(VMClass* systemClass) {
     if (parser == nullptr) {
-        Universe::ErrorPrint("Parser not initiated\n");
+        ErrorPrint("Parser not initiated\n");
         GetUniverse()->ErrorExit("Compiler error");
         return nullptr;
     }

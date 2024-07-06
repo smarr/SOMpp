@@ -36,6 +36,7 @@
 #include <vmobjects/VMInteger.h>
 
 #include <vm/Universe.h>
+#include <vm/Globals.h>
 
 #include "Double.h"
 #include "../primitivesCore/Routine.h"

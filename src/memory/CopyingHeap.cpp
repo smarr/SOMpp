@@ -1,8 +1,12 @@
+#include <vm/Print.h>
+
 #include "CopyingHeap.h"
 #include "CopyingCollector.h"
 
 #include "../vmobjects/AbstractObject.h"
-#include "../vm/Universe.h"
+
+#include <vm/Universe.h>
+#include <vm/Print.h>
 
 CopyingHeap::CopyingHeap(long objectSpaceSize) : Heap<CopyingHeap>(new CopyingCollector(this), objectSpaceSize) {
     size_t bufSize = objectSpaceSize;
@@ -31,7 +35,7 @@ AbstractVMObject* CopyingHeap::AllocateObject(size_t size) {
     AbstractVMObject* newObject = (AbstractVMObject*) nextFreePosition;
     nextFreePosition = (void*)((size_t)nextFreePosition + size);
     if (nextFreePosition > currentBufferEnd) {
-        Universe::ErrorPrint("Failed to allocate " + to_string(size) + " Bytes.\n");
+        ErrorPrint("Failed to allocate " + to_string(size) + " Bytes.\n");
         GetUniverse()->Quit(-1);
     }
     //let's see if we have to trigger the GC

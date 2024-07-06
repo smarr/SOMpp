@@ -128,7 +128,11 @@ void Shell::Start(Interpreter* interp) {
 
         // Start the Interpreter
 
-        interp->Start();
+        if (dumpBytecodes > 1) {
+            interp->StartAndPrintBytecodes();
+        } else {
+            interp->Start();
+        }
 
         // Save the result of the run method
         it = currentFrame->Pop();

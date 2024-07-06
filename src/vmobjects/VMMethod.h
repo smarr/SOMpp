@@ -27,6 +27,7 @@
  */
 
 #include <iostream>
+#include <vm/Print.h>
 
 #include "VMInvokable.h"
 #include "VMInteger.h"
@@ -51,7 +52,16 @@ public:
             long      GetNumberOfBytecodes() const;
     virtual void      SetHolder(VMClass* hld);
             void      SetHolderAll(VMClass* hld);
-            vm_oop_t GetConstant(long indx) const;
+    
+            inline vm_oop_t GetConstant(long indx) const {
+                uint8_t bc = bytecodes[indx + 1];
+                if (bc >= GetNumberOfIndexableFields()) {
+                    ErrorPrint("Error: Constant index out of range\n");
+                    return nullptr;
+                }
+                return GetIndexableField(bc);
+            }
+    
     inline  uint8_t   GetBytecode(long indx) const;
     inline  void      SetBytecode(long indx, uint8_t);
 #ifdef UNSAFE_FRAME_OPTIMIZATION
@@ -59,10 +69,16 @@ public:
     VMFrame* GetCachedFrame() const;
 #endif
     virtual void WalkObjects(walk_heap_fn);
-    inline  long      GetNumberOfIndexableFields() const;
+    
+    inline  long GetNumberOfIndexableFields() const {
+        //cannot be done using GetAdditionalSpaceConsumption,
+        //as bytecodes need space, too, and there might be padding
+        return INT_VAL(load_ptr(numberOfConstants));
+    }
+    
     virtual VMMethod* Clone() const;
 
-    inline  void      SetIndexableField(long idx, vm_oop_t item);
+    inline  void SetIndexableField(long idx, vm_oop_t item);
 
     virtual void Invoke(Interpreter* interp, VMFrame* frame);
 
@@ -71,8 +87,13 @@ public:
     virtual StdString AsDebugString() const;
 
 private:
-    inline uint8_t* GetBytecodes() const;
-    inline vm_oop_t GetIndexableField(long idx) const;
+    inline uint8_t* GetBytecodes() const {
+        return bytecodes;
+    }
+    
+    inline vm_oop_t GetIndexableField(long idx) const {
+        return load_ptr(indexableFields[idx]);
+    }
 
 private_testable:
     gc_oop_t numberOfLocals;
@@ -94,22 +115,8 @@ inline long VMMethod::GetNumberOfLocals() const {
     return INT_VAL(load_ptr(numberOfLocals));
 }
 
-long VMMethod::GetNumberOfIndexableFields() const {
-    //cannot be done using GetAdditionalSpaceConsumption,
-    //as bytecodes need space, too, and there might be padding
-    return INT_VAL(load_ptr(numberOfConstants));
-}
-
-uint8_t* VMMethod::GetBytecodes() const {
-    return bytecodes;
-}
-
 inline long VMMethod::GetNumberOfArguments() const {
     return INT_VAL(load_ptr(numberOfArguments));
-}
-
-vm_oop_t VMMethod::GetIndexableField(long idx) const {
-    return load_ptr(indexableFields[idx]);
 }
 
 void VMMethod::SetIndexableField(long idx, vm_oop_t item) {

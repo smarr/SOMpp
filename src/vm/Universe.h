@@ -28,7 +28,6 @@
 
 //#define __DEBUG
 #include <map>
-#include <mutex>
 #include <vector>
 
 #include "../misc/defs.h"
@@ -46,32 +45,6 @@ class SourcecodeCompiler;
 // for runtime debug
 extern short dumpBytecodes;
 extern short gcVerbosity;
-
-//global VMObjects
-extern GCObject* nilObject;
-extern GCObject* trueObject;
-extern GCObject* falseObject;
-
-extern GCClass* objectClass;
-extern GCClass* classClass;
-extern GCClass* metaClassClass;
-
-extern GCClass* nilClass;
-extern GCClass* integerClass;
-extern GCClass* arrayClass;
-extern GCClass* methodClass;
-extern GCClass* symbolClass;
-extern GCClass* primitiveClass;
-extern GCClass* stringClass;
-extern GCClass* systemClass;
-extern GCClass* blockClass;
-extern GCClass* doubleClass;
-
-extern GCClass* trueClass;
-extern GCClass* falseClass;
-
-extern GCSymbol* symbolIfTrue;
-extern GCSymbol* symbolIfFalse;
 
 using namespace std;
 class Universe {
@@ -142,11 +115,6 @@ public:
     map<StdString, stat_data> callStats;
 #endif
     //
-    
-    static bool IsValidObject(vm_oop_t obj);
-    
-    static void Print(StdString str);
-    static void ErrorPrint(StdString str);
 
 private:
     vm_oop_t interpretMethod(VMObject* receiver, VMInvokable* initialize, VMArray* argumentsArray);
@@ -171,8 +139,6 @@ private:
     vector<StdString> classPath;
 
     Interpreter* interpreter;
-    
-    static mutex output_mutex;
 };
 
 //Singleton accessor

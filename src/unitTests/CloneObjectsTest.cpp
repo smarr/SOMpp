@@ -5,6 +5,8 @@
  *      Author: christian
  */
 
+#include <vm/Universe.h>
+
 #include "CloneObjectsTest.h"
 
 #include "vmobjects/ObjectFormats.h"

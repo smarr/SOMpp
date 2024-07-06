@@ -33,9 +33,9 @@
 #include "AbstractObject.h"
 
 #include <misc/defs.h>
-#include <vm/Universe.h>
 
 #include "ObjectFormats.h"
+#include <vm/IsValidObject.h>
 
 // this macro returns a shifted ptr by offset bytes
 #define SHIFTED_PTR(ptr, offset) ((void*)((size_t)(ptr)+(size_t)(offset)))
@@ -129,7 +129,7 @@ void VMObject::SetObjectSize(size_t size) {
 }
 
 VMClass* VMObject::GetClass() const {
-    assert(Universe::IsValidObject((VMObject*) load_ptr(clazz)));
+    assert(IsValidObject((VMObject*) load_ptr(clazz)));
     return load_ptr(clazz);
 }
 
@@ -149,11 +149,11 @@ long VMObject::GetAdditionalSpaceConsumption() const {
 
 vm_oop_t VMObject::GetField(long index) const {
     vm_oop_t result = load_ptr(FIELDS[index]);
-    assert(Universe::IsValidObject(result));
+    assert(IsValidObject(result));
     return result;
 }
 
 void VMObject::SetField(long index, vm_oop_t value) {
-    assert(Universe::IsValidObject(value));
+    assert(IsValidObject(value));
     store_ptr(FIELDS[index], value);
 }

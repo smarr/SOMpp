@@ -31,6 +31,8 @@
 #include "VMObject.h"
 
 #include <misc/defs.h>
+#include <vm/IsValidObject.h>
+#include <vm/Globals.h>
 
 #if defined(_MSC_VER)   //Visual Studio
 #include <windows.h> 
@@ -107,7 +109,7 @@ void VMClass::SetName(VMSymbol* nam) {
 }
 
 bool VMClass::HasSuperClass() const {
-    assert(Universe::IsValidObject(load_ptr(superClass)));
+    assert(IsValidObject(load_ptr(superClass)));
     return load_ptr(superClass) != load_ptr(nilObject);
 }
 

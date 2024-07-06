@@ -24,6 +24,8 @@
  THE SOFTWARE.
  */
 
+#include <vm/Globals.h>
+
 #include "VMFrame.h"
 #include "VMMethod.h"
 #include "VMObject.h"
@@ -33,7 +35,7 @@
 
 #include <compiler/Disassembler.h>
 
-#include <vm/Universe.h>
+#include <vm/Print.h>
 
 // when doesNotUnderstand or UnknownGlobal is sent, additional stack slots might
 // be necessary, as these cases are not taken into account when the stack
@@ -167,35 +169,23 @@ long VMFrame::RemainingStackSize() const {
     return size - 1;
 }
 
-vm_oop_t VMFrame::Pop() {
-    vm_oop_t result = load_ptr(*stack_ptr);
-    stack_ptr--;
-    return result;
-}
-
-void VMFrame::Push(vm_oop_t obj) {
-    assert(RemainingStackSize() > 0);
-    ++stack_ptr;
-    store_ptr(*stack_ptr, obj);
-}
-
 void VMFrame::PrintBytecode() const {
     Disassembler::DumpMethod(GetMethod(), "  ");
 }
 
 static void print_oop(gc_oop_t vmo) {
     if (vmo == nullptr)
-        Universe::Print("nullptr\n");
+        Print("nullptr\n");
     else if (vmo == nilObject)
-        Universe::Print("NIL_OBJECT\n");
+        Print("NIL_OBJECT\n");
     else {
         AbstractVMObject* o = AS_OBJ(vmo);
-        Universe::Print(o->AsDebugString() + "\n");
+        Print(o->AsDebugString() + "\n");
     }
 }
 
 void VMFrame::PrintStack() const {
-    Universe::Print(GetMethod()->AsDebugString() + ", bc: " +
+    Print(GetMethod()->AsDebugString() + ", bc: " +
                     to_string(GetBytecodeIndex()) + "\n" + "Args: " +
                     to_string(GetMethod()->GetNumberOfArguments()) +
                     " Locals: " + to_string(GetMethod()->GetNumberOfLocals()) +
@@ -203,13 +193,13 @@ void VMFrame::PrintStack() const {
                     "\n");
 
     for (size_t i = 0; i < GetMethod()->GetNumberOfArguments(); i++) {
-        Universe::Print("   arg " + to_string(i) + ": ");
+        Print("   arg " + to_string(i) + ": ");
         print_oop(arguments[i]);
     }
     
     size_t local_offset = 0;
     for (size_t i = 0; i < GetMethod()->GetNumberOfLocals(); i++) {
-        Universe::Print("   loc " + to_string(i) + ": ");
+        Print("   loc " + to_string(i) + ": ");
         print_oop(locals[i]);
         local_offset++;
     }
@@ -217,9 +207,9 @@ void VMFrame::PrintStack() const {
     size_t max = GetMethod()->GetMaximumNumberOfStackElements();
     for (size_t i = 0; i < max; i++) {
         if (stack_ptr == &locals[local_offset + i]) {
-            Universe::Print("-> stk " + to_string(i) + ": ");
+            Print("-> stk " + to_string(i) + ": ");
         } else {
-            Universe::Print("   stk " + to_string(i) + ": ");
+            Print("   stk " + to_string(i) + ": ");
         }
         print_oop(locals[local_offset + i]);
     }
@@ -228,9 +218,9 @@ void VMFrame::PrintStack() const {
     size_t i = 0;
     while (&locals[local_offset + max + i] < end) {
         if (stack_ptr == &locals[local_offset + max + i]) {
-            Universe::Print("->estk " + to_string(i) + ": ");
+            Print("->estk " + to_string(i) + ": ");
         } else {
-            Universe::Print("  estk " + to_string(i) + ": ");
+            Print("  estk " + to_string(i) + ": ");
         }
         print_oop(locals[local_offset + max + i]);
         i++;
@@ -245,24 +235,9 @@ void VMFrame::ResetStackPointer() {
     stack_ptr = locals + meth->GetNumberOfLocals() - 1;
 }
 
-vm_oop_t VMFrame::GetStackElement(long index) const {
-    return load_ptr(stack_ptr[-index]);
-}
-
-vm_oop_t VMFrame::GetLocal(long index, long contextLevel) {
-    VMFrame* context = GetContextLevel(contextLevel);
-    return load_ptr(context->locals[index]);
-}
-
 void VMFrame::SetLocal(long index, long contextLevel, vm_oop_t value) {
     VMFrame* context = GetContextLevel(contextLevel);
     context->SetLocal(index, value);
-}
-
-vm_oop_t VMFrame::GetArgument(long index, long contextLevel) {
-    // get the context
-    VMFrame* context = GetContextLevel(contextLevel);
-    return load_ptr(context->arguments[index]);
 }
 
 void VMFrame::SetArgument(long index, long contextLevel, vm_oop_t value) {
@@ -274,11 +249,11 @@ void VMFrame::PrintStackTrace() const {
     VMMethod* meth = GetMethod();
     
     if (meth->GetHolder() == load_ptr(nilObject)) {
-        Universe::Print("nil");
+        Print("nil");
     } else {
-        Universe::Print(meth->GetHolder()->GetName()->GetStdString());
+        Print(meth->GetHolder()->GetName()->GetStdString());
     }
-    Universe::Print(">>#" + meth->GetSignature()->GetStdString() + "\n");
+    Print(">>#" + meth->GetSignature()->GetStdString() + "\n");
     if (previousFrame) {
         load_ptr(previousFrame)->PrintStackTrace();
     }

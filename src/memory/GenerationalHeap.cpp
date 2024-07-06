@@ -30,7 +30,7 @@ AbstractVMObject* GenerationalHeap::AllocateNurseryObject(size_t size) {
     AbstractVMObject* newObject = (AbstractVMObject*) nextFreePosition;
     nextFreePosition = (void*)((size_t)nextFreePosition + size);
     if ((size_t)nextFreePosition > nursery_end) {
-        Universe::ErrorPrint("Failed to allocate " + to_string(size) + " Bytes in nursery.\n");
+        ErrorPrint("Failed to allocate " + to_string(size) + " Bytes in nursery.\n");
         GetUniverse()->Quit(-1);
     }
     //let's see if we have to trigger the GC
@@ -42,7 +42,7 @@ AbstractVMObject* GenerationalHeap::AllocateNurseryObject(size_t size) {
 AbstractVMObject* GenerationalHeap::AllocateMatureObject(size_t size) {
     AbstractVMObject* newObject = (AbstractVMObject*) malloc(size);
     if (newObject == nullptr) {
-        Universe::ErrorPrint("Failed to allocate " + to_string(size) + " Bytes.\n");
+        ErrorPrint("Failed to allocate " + to_string(size) + " Bytes.\n");
         GetUniverse()->Quit(-1);
     }
     allocatedObjects->push_back(newObject);

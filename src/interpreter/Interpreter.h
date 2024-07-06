@@ -28,16 +28,32 @@
 
 #include <misc/defs.h>
 #include <vmobjects/ObjectFormats.h>
+#include <vmobjects/VMFrame.h>
+#include <vmobjects/VMMethod.h>
+
+#define DISPATCH_NOGC() {\
+  goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]]; \
+}
+
+#define DISPATCH_GC() {\
+  if (GetHeap<HEAP_CLS>()->isCollectionTriggered()) { triggerGC(); } \
+  goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];\
+}
+
 
 class Interpreter {
 public:
     Interpreter();
     ~Interpreter();
     
-    vm_oop_t  Start();
+    vm_oop_t StartAndPrintBytecodes();
+    vm_oop_t Start();
+    
     VMFrame*  PushNewFrame(VMMethod* method);
     void      SetFrame(VMFrame* frame);
     inline VMFrame* GetFrame() const;
+    VMMethod* GetMethod() const;
+    uint8_t* GetBytecodes() const;
     void      WalkGlobals(walk_heap_fn);
     
 private:
@@ -55,6 +71,9 @@ private:
     static const StdString unknownGlobal;
     static const StdString doesNotUnderstand;
     static const StdString escapedBlock;
+    
+    void triggerGC();
+    void disassembleMethod() const;
 
     VMFrame* popFrame();
     void popFrameAndPushResult(vm_oop_t result);
@@ -65,7 +84,12 @@ private:
     void doPushArgument(long bytecodeIndex);
     void doPushField(long bytecodeIndex);
     void doPushBlock(long bytecodeIndex);
-    void doPushConstant(long bytecodeIndex);
+    
+    inline void doPushConstant(long bytecodeIndex) {
+        vm_oop_t constant = method->GetConstant(bytecodeIndex);
+        GetFrame()->Push(constant);
+    }
+    
     void doPushGlobal(long bytecodeIndex);
     void doPop(void);
     void doPopLocal(long bytecodeIndex);
@@ -80,6 +104,6 @@ private:
     void doJump(long bytecodeIndex);
 };
 
-VMFrame* Interpreter::GetFrame() const {
+inline VMFrame* Interpreter::GetFrame() const {
     return frame;
 }

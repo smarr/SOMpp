@@ -26,8 +26,8 @@
  THE SOFTWARE.
  */
 
-#include "VMObject.h"
-#include "VMInteger.h"
+#include <vmobjects/VMObject.h>
+#include <vmobjects/VMInteger.h>
 
 class VMArray: public VMObject {
 public:

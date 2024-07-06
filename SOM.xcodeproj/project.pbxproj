@@ -117,6 +117,12 @@
 		0A67EAA119ACDB4600830E3B /* TestSuite in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A1887401832C62100A2CBCA /* TestSuite */; };
 		0A70752A297DF9FE00EB9F59 /* ParseInteger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A707529297DF97700EB9F59 /* ParseInteger.cpp */; };
 		0A70752B297DF9FE00EB9F59 /* ParseInteger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A707529297DF97700EB9F59 /* ParseInteger.cpp */; };
+		0AB80ACF2C392811006B6419 /* IsValidObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AB80ACE2C392811006B6419 /* IsValidObject.cpp */; };
+		0AB80AD02C392811006B6419 /* IsValidObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AB80ACE2C392811006B6419 /* IsValidObject.cpp */; };
+		0AB80AD32C392B78006B6419 /* Print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AB80AD12C392B78006B6419 /* Print.cpp */; };
+		0AB80AD42C392B78006B6419 /* Print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AB80AD12C392B78006B6419 /* Print.cpp */; };
+		0AB80AD82C394806006B6419 /* Globals.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AB80AD72C394806006B6419 /* Globals.cpp */; };
+		0AB80AD92C394806006B6419 /* Globals.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AB80AD72C394806006B6419 /* Globals.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -194,6 +200,13 @@
 		0A67EAA619ACE09700830E3B /* WriteBarrierTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WriteBarrierTest.h; path = unitTests/WriteBarrierTest.h; sourceTree = "<group>"; };
 		0A707528297DF36F00EB9F59 /* ParseInteger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ParseInteger.h; sourceTree = "<group>"; };
 		0A707529297DF97700EB9F59 /* ParseInteger.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ParseInteger.cpp; sourceTree = "<group>"; };
+		0AB80ACD2C3927EC006B6419 /* IsValidObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IsValidObject.h; sourceTree = "<group>"; };
+		0AB80ACE2C392811006B6419 /* IsValidObject.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IsValidObject.cpp; sourceTree = "<group>"; };
+		0AB80AD12C392B78006B6419 /* Print.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Print.cpp; sourceTree = "<group>"; };
+		0AB80AD52C392BAD006B6419 /* Print.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Print.h; sourceTree = "<group>"; };
+		0AB80AD62C3947F7006B6419 /* Globals.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Globals.h; sourceTree = "<group>"; };
+		0AB80AD72C394806006B6419 /* Globals.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Globals.cpp; sourceTree = "<group>"; };
+		0AB80ADA2C39AC27006B6419 /* InterpreterLoop.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InterpreterLoop.h; sourceTree = "<group>"; };
 		3F5202F10FA6624C00E75857 /* BytecodeGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BytecodeGenerator.cpp; sourceTree = "<group>"; };
 		3F5202F20FA6624C00E75857 /* BytecodeGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = BytecodeGenerator.h; sourceTree = "<group>"; tabWidth = 4; };
 		3F5202F30FA6624C00E75857 /* ClassGenerationContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClassGenerationContext.cpp; sourceTree = "<group>"; };
@@ -467,6 +480,7 @@
 				3F5203020FA6624C00E75857 /* bytecodes.h */,
 				3F5203030FA6624C00E75857 /* Interpreter.cpp */,
 				3F5203040FA6624C00E75857 /* Interpreter.h */,
+				0AB80ADA2C39AC27006B6419 /* InterpreterLoop.h */,
 			);
 			path = interpreter;
 			sourceTree = "<group>";
@@ -556,6 +570,12 @@
 				3F5203310FA6624C00E75857 /* Shell.h */,
 				3F5203320FA6624C00E75857 /* Universe.cpp */,
 				3F5203330FA6624C00E75857 /* Universe.h */,
+				0AB80ACD2C3927EC006B6419 /* IsValidObject.h */,
+				0AB80ACE2C392811006B6419 /* IsValidObject.cpp */,
+				0AB80AD12C392B78006B6419 /* Print.cpp */,
+				0AB80AD52C392BAD006B6419 /* Print.h */,
+				0AB80AD62C3947F7006B6419 /* Globals.h */,
+				0AB80AD72C394806006B6419 /* Globals.cpp */,
 			);
 			path = vm;
 			sourceTree = "<group>";
@@ -807,6 +827,7 @@
 				0A1886DD1832BCC800A2CBCA /* ClassGenerationContext.cpp in Sources */,
 				0A3A3C941A5D546D004CB03B /* Class.cpp in Sources */,
 				0A18870B1832C0E400A2CBCA /* AbstractObject.cpp in Sources */,
+				0AB80AD82C394806006B6419 /* Globals.cpp in Sources */,
 				0A3A3C991A5D546D004CB03B /* Primitive.cpp in Sources */,
 				0A1886FF1832BCF500A2CBCA /* VMFrame.cpp in Sources */,
 				0A1886E41832BCD300A2CBCA /* Interpreter.cpp in Sources */,
@@ -816,6 +837,7 @@
 				0A1886FB1832BCF500A2CBCA /* VMBlock.cpp in Sources */,
 				0A1887391832C12E00A2CBCA /* Timer.cpp in Sources */,
 				0A1887021832BCFA00A2CBCA /* VMMethod.cpp in Sources */,
+				0AB80AD32C392B78006B6419 /* Print.cpp in Sources */,
 				0A3A3CB11A5D5475004CB03B /* PrimitiveLoader.cpp in Sources */,
 				0A1887001832BCFA00A2CBCA /* VMInteger.cpp in Sources */,
 				0A3A3C931A5D546D004CB03B /* Block.cpp in Sources */,
@@ -836,6 +858,7 @@
 				0A3A3C9A1A5D546D004CB03B /* String.cpp in Sources */,
 				0A3A3C951A5D546D004CB03B /* Double.cpp in Sources */,
 				0A1886F61832BCED00A2CBCA /* Universe.cpp in Sources */,
+				0AB80ACF2C392811006B6419 /* IsValidObject.cpp in Sources */,
 				0A1886E21832BCC800A2CBCA /* SourcecodeCompiler.cpp in Sources */,
 				0A1886FC1832BCF500A2CBCA /* VMClass.cpp in Sources */,
 				0A1886DF1832BCC800A2CBCA /* Lexer.cpp in Sources */,
@@ -861,6 +884,7 @@
 				0A3A3CAB1A5D546D004CB03B /* System.cpp in Sources */,
 				0A3A3CA31A5D546D004CB03B /* Class.cpp in Sources */,
 				0A67EA9019ACD83200830E3B /* Lexer.cpp in Sources */,
+				0AB80AD92C394806006B6419 /* Globals.cpp in Sources */,
 				0A3A3CA71A5D546D004CB03B /* Object.cpp in Sources */,
 				0A3A3CB21A5D5476004CB03B /* PrimitiveContainer.cpp in Sources */,
 				0A67EA8419ACD74800830E3B /* VMFrame.cpp in Sources */,
@@ -888,6 +912,7 @@
 				0A3A3CA51A5D546D004CB03B /* Integer.cpp in Sources */,
 				0A67EA8F19ACD83200830E3B /* Disassembler.cpp in Sources */,
 				0A67EA9719ACD84F00830E3B /* GenerationalHeap.cpp in Sources */,
+				0AB80AD02C392811006B6419 /* IsValidObject.cpp in Sources */,
 				0A67EA9519ACD83900830E3B /* Interpreter.cpp in Sources */,
 				0A67EA8A19ACD74800830E3B /* VMSymbol.cpp in Sources */,
 				0A67EA7C19ACD74800830E3B /* AbstractObject.cpp in Sources */,
@@ -904,6 +929,7 @@
 				0A3A3CA21A5D546D004CB03B /* Block.cpp in Sources */,
 				0A3A3CA91A5D546D004CB03B /* String.cpp in Sources */,
 				0A67EA9319ACD83200830E3B /* SourcecodeCompiler.cpp in Sources */,
+				0AB80AD42C392B78006B6419 /* Print.cpp in Sources */,
 				0A3A3CA41A5D546D004CB03B /* Double.cpp in Sources */,
 				0A67EA8519ACD74800830E3B /* VMInteger.cpp in Sources */,
 			);
@@ -1117,6 +1143,7 @@
 				OTHER_CFLAGS = (
 					"-DGC_TYPE=COPYING",
 					"-DUSE_TAGGING=false",
+					"-DNDEBUG",
 				);
 				VALID_ARCHS = arm64;
 			};
@@ -1156,6 +1183,7 @@
 				OTHER_CFLAGS = (
 					"-DGC_TYPE=COPYING",
 					"-DUSE_TAGGING=false",
+					"-DNDEBUG",
 				);
 				VALID_ARCHS = arm64;
 			};
