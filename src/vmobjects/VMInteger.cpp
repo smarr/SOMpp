@@ -25,7 +25,7 @@
  */
 
 #include "VMInteger.h"
-#include "../vm/Universe.h"
+#include <vm/Globals.h>
 
 VMInteger* VMInteger::Clone() const {
     return new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMInteger(*this);

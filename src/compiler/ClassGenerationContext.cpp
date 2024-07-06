@@ -30,6 +30,8 @@
 #include "../vmobjects/VMObject.h"
 #include "../vmobjects/VMClass.h"
 
+#include <vm/Universe.h>
+
 ClassGenerationContext::ClassGenerationContext() :
         instanceFields(), instanceMethods(), classFields(), classMethods() {
     name = nullptr;

@@ -71,7 +71,10 @@ public:
     virtual StdString AsDebugString() const;
 
 private:
-    inline uint8_t* GetBytecodes() const;
+    inline uint8_t* GetBytecodes() const {
+        return bytecodes;
+    }
+    
     inline vm_oop_t GetIndexableField(long idx) const;
 
 private_testable:
@@ -100,9 +103,6 @@ long VMMethod::GetNumberOfIndexableFields() const {
     return INT_VAL(load_ptr(numberOfConstants));
 }
 
-uint8_t* VMMethod::GetBytecodes() const {
-    return bytecodes;
-}
 
 inline long VMMethod::GetNumberOfArguments() const {
     return INT_VAL(load_ptr(numberOfArguments));

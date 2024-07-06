@@ -33,6 +33,7 @@
 
 #include <vm/Print.h>
 #include <vm/IsValidObject.h>
+#include <vm/Universe.h>
 #include <primitivesCore/PrimitiveLoader.h>
 
 

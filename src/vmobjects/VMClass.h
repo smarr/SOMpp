@@ -32,6 +32,7 @@
 
 #include <misc/defs.h>
 #include <vm/IsValidObject.h>
+#include <vm/Globals.h>
 
 #if defined(_MSC_VER)   //Visual Studio
 #include <windows.h> 

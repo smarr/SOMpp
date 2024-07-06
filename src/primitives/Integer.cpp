@@ -39,6 +39,7 @@
 #include <vmobjects/VMInteger.h>
 #include <vmobjects/VMString.h>
 #include <vm/Universe.h>
+#include <vm/Globals.h>
 
 #include "Integer.h"
 #include "../primitivesCore/Routine.h"

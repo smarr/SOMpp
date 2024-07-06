@@ -34,6 +34,7 @@
 #include "Shell.h"
 #include <vm/IsValidObject.h>
 #include <vm/Print.h>
+#include <vm/Globals.h>
 
 #include <vmobjects/VMSymbol.h>
 #include <vmobjects/VMObject.h>
@@ -66,31 +67,6 @@ short dumpBytecodes;
 short gcVerbosity;
 
 Universe* Universe::theUniverse = nullptr;
-
-GCObject* nilObject;
-GCObject* trueObject;
-GCObject* falseObject;
-
-GCClass* objectClass;
-GCClass* classClass;
-GCClass* metaClassClass;
-
-GCClass* nilClass;
-GCClass* integerClass;
-GCClass* arrayClass;
-GCClass* methodClass;
-GCClass* symbolClass;
-GCClass* primitiveClass;
-GCClass* stringClass;
-GCClass* systemClass;
-GCClass* blockClass;
-GCClass* doubleClass;
-
-GCClass* trueClass;
-GCClass* falseClass;
-
-GCSymbol* symbolIfTrue;
-GCSymbol* symbolIfFalse;
 
 std::string bm_name;
 

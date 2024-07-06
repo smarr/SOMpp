@@ -24,6 +24,8 @@
  THE SOFTWARE.
  */
 
+#include <vm/Universe.h>
+
 #include "VMObject.h"
 #include "VMClass.h"
 #include "VMSymbol.h"

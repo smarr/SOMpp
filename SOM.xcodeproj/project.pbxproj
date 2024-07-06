@@ -121,6 +121,8 @@
 		0AB80AD02C392811006B6419 /* IsValidObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AB80ACE2C392811006B6419 /* IsValidObject.cpp */; };
 		0AB80AD32C392B78006B6419 /* Print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AB80AD12C392B78006B6419 /* Print.cpp */; };
 		0AB80AD42C392B78006B6419 /* Print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AB80AD12C392B78006B6419 /* Print.cpp */; };
+		0AB80AD82C394806006B6419 /* Globals.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AB80AD72C394806006B6419 /* Globals.cpp */; };
+		0AB80AD92C394806006B6419 /* Globals.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AB80AD72C394806006B6419 /* Globals.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -202,6 +204,8 @@
 		0AB80ACE2C392811006B6419 /* IsValidObject.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IsValidObject.cpp; sourceTree = "<group>"; };
 		0AB80AD12C392B78006B6419 /* Print.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Print.cpp; sourceTree = "<group>"; };
 		0AB80AD52C392BAD006B6419 /* Print.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Print.h; sourceTree = "<group>"; };
+		0AB80AD62C3947F7006B6419 /* Globals.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Globals.h; sourceTree = "<group>"; };
+		0AB80AD72C394806006B6419 /* Globals.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Globals.cpp; sourceTree = "<group>"; };
 		3F5202F10FA6624C00E75857 /* BytecodeGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BytecodeGenerator.cpp; sourceTree = "<group>"; };
 		3F5202F20FA6624C00E75857 /* BytecodeGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = BytecodeGenerator.h; sourceTree = "<group>"; tabWidth = 4; };
 		3F5202F30FA6624C00E75857 /* ClassGenerationContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClassGenerationContext.cpp; sourceTree = "<group>"; };
@@ -568,6 +572,8 @@
 				0AB80ACE2C392811006B6419 /* IsValidObject.cpp */,
 				0AB80AD12C392B78006B6419 /* Print.cpp */,
 				0AB80AD52C392BAD006B6419 /* Print.h */,
+				0AB80AD62C3947F7006B6419 /* Globals.h */,
+				0AB80AD72C394806006B6419 /* Globals.cpp */,
 			);
 			path = vm;
 			sourceTree = "<group>";
@@ -819,6 +825,7 @@
 				0A1886DD1832BCC800A2CBCA /* ClassGenerationContext.cpp in Sources */,
 				0A3A3C941A5D546D004CB03B /* Class.cpp in Sources */,
 				0A18870B1832C0E400A2CBCA /* AbstractObject.cpp in Sources */,
+				0AB80AD82C394806006B6419 /* Globals.cpp in Sources */,
 				0A3A3C991A5D546D004CB03B /* Primitive.cpp in Sources */,
 				0A1886FF1832BCF500A2CBCA /* VMFrame.cpp in Sources */,
 				0A1886E41832BCD300A2CBCA /* Interpreter.cpp in Sources */,
@@ -875,6 +882,7 @@
 				0A3A3CAB1A5D546D004CB03B /* System.cpp in Sources */,
 				0A3A3CA31A5D546D004CB03B /* Class.cpp in Sources */,
 				0A67EA9019ACD83200830E3B /* Lexer.cpp in Sources */,
+				0AB80AD92C394806006B6419 /* Globals.cpp in Sources */,
 				0A3A3CA71A5D546D004CB03B /* Object.cpp in Sources */,
 				0A3A3CB21A5D5476004CB03B /* PrimitiveContainer.cpp in Sources */,
 				0A67EA8419ACD74800830E3B /* VMFrame.cpp in Sources */,

@@ -26,7 +26,7 @@
 
 #include "VMDouble.h"
 
-#include <vm/Universe.h>
+#include <vm/Globals.h>
 
 VMDouble* VMDouble::Clone() const {
     return new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMDouble(*this);

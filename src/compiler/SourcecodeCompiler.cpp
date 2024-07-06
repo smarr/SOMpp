@@ -27,6 +27,7 @@
 #include <sstream>
 #include <fstream>
 #include <vm/Print.h>
+#include <vm/Universe.h>
 
 #include "SourcecodeCompiler.h"
 #include "ClassGenerationContext.h"

@@ -180,8 +180,8 @@ public:
     VMFrame*  PushNewFrame(VMMethod* method);
     void      SetFrame(VMFrame* frame);
     inline VMFrame* GetFrame() const;
-    inline VMMethod* GetMethod() const;
-    inline uint8_t* GetBytecodes() const;
+    VMMethod* GetMethod() const;
+    uint8_t* GetBytecodes() const;
     void      WalkGlobals(walk_heap_fn);
     
 private:

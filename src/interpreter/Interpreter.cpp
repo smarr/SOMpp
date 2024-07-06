@@ -28,6 +28,8 @@
 #include "bytecodes.h"
 
 #include <vm/IsValidObject.h>
+#include <vm/Universe.h>
+#include <vm/Globals.h>
 
 #include <vmobjects/VMMethod.h>
 #include <vmobjects/VMFrame.h>
@@ -150,7 +152,7 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
     }
 }
 
-inline void Interpreter::doDup() {
+void Interpreter::doDup() {
     vm_oop_t elem = GetFrame()->GetStackElement(0);
     GetFrame()->Push(elem);
 }
@@ -238,7 +240,7 @@ void Interpreter::doPushGlobal(long bytecodeIndex) {
     }
 }
 
-inline void Interpreter::doPop() {
+void Interpreter::doPop() {
     GetFrame()->Pop();
 }
 
@@ -406,11 +408,11 @@ void Interpreter::triggerGC() {
     }
 }
 
-inline VMMethod* Interpreter::GetMethod() const {
+VMMethod* Interpreter::GetMethod() const {
     return GetFrame()->GetMethod();
 }
 
-inline uint8_t* Interpreter::GetBytecodes() const {
+uint8_t* Interpreter::GetBytecodes() const {
     return method->GetBytecodes();
 }
 

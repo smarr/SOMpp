@@ -6,6 +6,7 @@
  */
 #include <vector>
 #include <algorithm>
+#include <vm/Universe.h>
 
 #include "WalkObjectsTest.h"
 #include "vmobjects/VMSymbol.h"

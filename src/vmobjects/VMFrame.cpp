@@ -24,6 +24,8 @@
  THE SOFTWARE.
  */
 
+#include <vm/Globals.h>
+
 #include "VMFrame.h"
 #include "VMMethod.h"
 #include "VMObject.h"

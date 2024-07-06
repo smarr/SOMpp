@@ -1,6 +1,8 @@
 #include <vm/IsValidObject.h>
+#include <misc/defs.h>
 #include <assert.h>
 #include <vmobjects/ObjectFormats.h>
+#include <vm/Globals.h>
 
 #include <vmobjects/VMSymbol.h>
 #include <vmobjects/VMObject.h>
