@@ -235,20 +235,9 @@ void VMFrame::ResetStackPointer() {
     stack_ptr = locals + meth->GetNumberOfLocals() - 1;
 }
 
-vm_oop_t VMFrame::GetLocal(long index, long contextLevel) {
-    VMFrame* context = GetContextLevel(contextLevel);
-    return load_ptr(context->locals[index]);
-}
-
 void VMFrame::SetLocal(long index, long contextLevel, vm_oop_t value) {
     VMFrame* context = GetContextLevel(contextLevel);
     context->SetLocal(index, value);
-}
-
-vm_oop_t VMFrame::GetArgument(long index, long contextLevel) {
-    // get the context
-    VMFrame* context = GetContextLevel(contextLevel);
-    return load_ptr(context->arguments[index]);
 }
 
 void VMFrame::SetArgument(long index, long contextLevel, vm_oop_t value) {

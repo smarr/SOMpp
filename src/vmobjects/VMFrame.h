@@ -72,9 +72,19 @@ public:
         return load_ptr(stack_ptr[-index]);
     }
     
-    vm_oop_t GetLocal(long, long);
+    inline vm_oop_t GetLocal(long index, long contextLevel) {
+        VMFrame* context = GetContextLevel(contextLevel);
+        return load_ptr(context->locals[index]);
+    }
+    
     void SetLocal(long index, long context_level, vm_oop_t);
-    vm_oop_t GetArgument(long, long);
+    
+    inline vm_oop_t GetArgument(long index, long contextLevel) {
+        // get the context
+        VMFrame* context = GetContextLevel(contextLevel);
+        return load_ptr(context->arguments[index]);
+    }
+    
     void SetArgument(long, long, vm_oop_t);
     void PrintStackTrace() const;
     long ArgumentStackIndex(long index) const;

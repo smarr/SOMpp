@@ -29,13 +29,14 @@
 #include <misc/defs.h>
 #include <vmobjects/ObjectFormats.h>
 #include <vmobjects/VMFrame.h>
+#include <vmobjects/VMMethod.h>
 
 #define DISPATCH_NOGC() {\
   goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]]; \
 }
 
 #define DISPATCH_GC() {\
-  triggerGC(); \
+  if (GetHeap<HEAP_CLS>()->isCollectionTriggered()) { triggerGC(); } \
   goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];\
 }
 
@@ -83,7 +84,12 @@ private:
     void doPushArgument(long bytecodeIndex);
     void doPushField(long bytecodeIndex);
     void doPushBlock(long bytecodeIndex);
-    void doPushConstant(long bytecodeIndex);
+    
+    inline void doPushConstant(long bytecodeIndex) {
+        vm_oop_t constant = method->GetConstant(bytecodeIndex);
+        GetFrame()->Push(constant);
+    }
+    
     void doPushGlobal(long bytecodeIndex);
     void doPop(void);
     void doPopLocal(long bytecodeIndex);

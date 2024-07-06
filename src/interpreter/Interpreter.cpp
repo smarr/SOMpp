@@ -227,11 +227,6 @@ void Interpreter::doPushBlock(long bytecodeIndex) {
     GetFrame()->Push(GetUniverse()->NewBlock(blockMethod, GetFrame(), numOfArgs));
 }
 
-void Interpreter::doPushConstant(long bytecodeIndex) {
-    vm_oop_t constant = method->GetConstant(bytecodeIndex);
-    GetFrame()->Push(constant);
-}
-
 void Interpreter::doPushGlobal(long bytecodeIndex) {
     VMSymbol* globalName = static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
     vm_oop_t global = GetUniverse()->GetGlobal(globalName);
@@ -415,12 +410,10 @@ void Interpreter::WalkGlobals(walk_heap_fn walk) {
 }
 
 void Interpreter::triggerGC() {
-    if (GetHeap<HEAP_CLS>()->isCollectionTriggered()) {
-        GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
-        GetHeap<HEAP_CLS>()->FullGC();
-        method = GetFrame()->GetMethod();
-        currentBytecodes = method->GetBytecodes();
-    }
+    GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
+    GetHeap<HEAP_CLS>()->FullGC();
+    method = GetFrame()->GetMethod();
+    currentBytecodes = method->GetBytecodes();
 }
 
 VMMethod* Interpreter::GetMethod() const {
