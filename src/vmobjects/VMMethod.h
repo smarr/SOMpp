@@ -103,7 +103,8 @@ public:
 
     inline size_t GetObjectSize() const override {
         size_t additionalBytes =
-            PADDED_SIZE(bcLength + numberOfConstants * sizeof(VMObject*));
+            PADDED_SIZE(bcLength + (numberOfConstants + (2 * bcLength)) *
+                                       sizeof(VMObject*));
         return additionalBytes + sizeof(VMMethod);
     }
 
@@ -145,7 +146,11 @@ public:
 
     VMMethod* CloneForMovingGC() const override;
 
-    inline void SetIndexableField(long idx, vm_oop_t item) {
+    inline void SetIndexableField(size_t idx, vm_oop_t item) {
+        assert(idx >= 0);
+        assert(idx <
+               (GetNumberOfIndexableFields() + 2 * GetNumberOfBytecodes() + 1));
+
         store_ptr(indexableFields[idx], item);
     }
 
@@ -161,6 +166,9 @@ public:
     }
 
     StdString AsDebugString() const override;
+
+    VMInvokable* LookupWithCache(VMSymbol* signature, VMClass* receiverClass,
+                                 size_t bytecodeIndex);
 
     void InlineInto(MethodGenerationContext& mgenc,
                     bool mergeScope = true) final;
@@ -180,7 +188,12 @@ private:
 
     inline uint8_t* GetBytecodes() const { return bytecodes; }
 
-    inline vm_oop_t GetIndexableField(long idx) const {
+    make_testable(public);
+
+    inline vm_oop_t GetIndexableField(size_t idx) const {
+        assert(idx >= 0);
+        assert(idx <
+               (GetNumberOfIndexableFields() + 2 * GetNumberOfBytecodes() + 1));
         return load_ptr(indexableFields[idx]);
     }
 
@@ -201,13 +214,18 @@ private:
     const size_t numberOfArguments;
     const size_t numberOfConstants;
 
-private:
+    size_t watermarkLastSetInlineCacheIndex;
+
     LexicalScope* lexicalScope;
     BackJump* inlinedLoops;
 
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     GCFrame* cachedFrame;
 #endif
+
+#define VMMETHOD_FIELD_OFFSET_FOR_INDEXABLE_FIELDS 3U
+
     gc_oop_t* indexableFields;
+    gc_oop_t* inlineCache;
     uint8_t* bytecodes;
 };

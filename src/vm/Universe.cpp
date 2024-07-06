@@ -179,12 +179,12 @@ vector<StdString> Universe::handleArguments(long argc, char** argv) {
                 addClassPath(extPathTokens[0]);
             }
             // Different from CSOM!!!:
-            // In CSOM there is an else, where the original filename is pushed
-            // into the vm_args. But unlike the class name in extPathTokens
-            // (extPathTokens[1]) that could still have the .som suffix though.
-            // So in SOM++ getClassPathExt will strip the suffix and add it to
-            // extPathTokens even if there is no new class path present. So we
-            // can in any case do the following:
+            //  In CSOM there is an else, where the original filename is pushed
+            //  into the vm_args. But unlike the class name in extPathTokens
+            //  (extPathTokens[1]) that could still have the .som suffix though.
+            //  So in SOM++ getClassPathExt will strip the suffix and add it to
+            //  extPathTokens even if there is no new class path present. So we
+            //  can in any case do the following:
             vmArgs.push_back(extPathTokens[1]);
         }
     }
@@ -873,9 +873,15 @@ VMMethod* Universe::NewMethod(VMSymbol* signature, size_t numberOfBytecodes,
         inlinedLoopsArr[i] = BackJump();
     }
 
-    // method needs space for the bytecodes and the pointers to the constants
-    size_t additionalBytes =
-        PADDED_SIZE(numberOfBytecodes + numberOfConstants * sizeof(VMObject*));
+    // method needs space for:
+    //   - the bytecodes
+    //   - the pointers to the constants
+    //   - and an inline cache, which consists of
+    //      - numberOfBytecodes * ReceiverClassPtr
+    //      - numberOfBytecodes * MethodPtr
+    size_t additionalBytes = PADDED_SIZE(
+        numberOfBytecodes +
+        (numberOfConstants + (2 * numberOfBytecodes)) * sizeof(VMObject*));
     VMMethod* result = new (GetHeap<HEAP_CLS>(), additionalBytes)
         VMMethod(signature, numberOfBytecodes, numberOfConstants, numLocals,
                  maxStackDepth, lexicalScope, inlinedLoopsArr);

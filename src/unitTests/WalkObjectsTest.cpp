@@ -45,6 +45,11 @@ static const size_t NoOfFields_Primitive = NoOfFields_Invokable;
 static const size_t NoOfFields_EvaluationPrimitive = NoOfFields_Invokable;
 
 static vector<gc_oop_t> walkedObjects;
+
+void ClearWalkedObjects() {
+    walkedObjects.clear();
+}
+
 /*
  * This method simply pushes all objects into the vector walkedObjects
  */

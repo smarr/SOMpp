@@ -55,3 +55,7 @@ private:
     void testWalkPrimitive();
     void testWalkSymbol();
 };
+
+void ClearWalkedObjects();
+gc_oop_t collectMembers(gc_oop_t obj);
+bool WalkerHasFound(gc_oop_t obj);

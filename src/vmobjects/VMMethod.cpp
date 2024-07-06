@@ -26,6 +26,7 @@
 
 #include "VMMethod.h"
 
+#include <algorithm>
 #include <cassert>
 #include <cstdint>
 #include <cstdio>
@@ -60,17 +61,26 @@ VMMethod::VMMethod(VMSymbol* signature, size_t bcCount,
       numberOfArguments(signature == nullptr
                             ? 0
                             : Signature::GetNumberOfArguments(signature)),
-      numberOfConstants(numberOfConstants), lexicalScope(lexicalScope),
-      inlinedLoops(inlinedLoops) {
+      numberOfConstants(numberOfConstants), watermarkLastSetInlineCacheIndex(0),
+      lexicalScope(lexicalScope), inlinedLoops(inlinedLoops) {
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     cachedFrame = nullptr;
 #endif
 
-    indexableFields = (gc_oop_t*)(&indexableFields + 2);
-    for (size_t i = 0; i < numberOfConstants; ++i) {
-        indexableFields[i] = nilObject;
-    }
-    bytecodes = (uint8_t*)(&indexableFields + 2 + GetNumberOfIndexableFields());
+    indexableFields = (gc_oop_t*)(&indexableFields +
+                                  VMMETHOD_FIELD_OFFSET_FOR_INDEXABLE_FIELDS);
+    inlineCache = (gc_oop_t*)(&indexableFields +
+                              VMMETHOD_FIELD_OFFSET_FOR_INDEXABLE_FIELDS +
+                              numberOfConstants);
+
+    size_t numberOfConstantsAndInlineCacheEntries =
+        numberOfConstants + 2 * bcCount;
+    memset(indexableFields, 0,
+           numberOfConstantsAndInlineCacheEntries * sizeof(gc_oop_t));
+
+    bytecodes = (uint8_t*)(&indexableFields +
+                           VMMETHOD_FIELD_OFFSET_FOR_INDEXABLE_FIELDS +
+                           numberOfConstantsAndInlineCacheEntries);
 
     write_barrier(this, signature);
 }
@@ -82,14 +92,20 @@ VMMethod* VMMethod::CloneForMovingGC() const {
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)),
            SHIFTED_PTR(this, sizeof(VMObject)),
            GetObjectSize() - sizeof(VMObject));
-    clone->indexableFields = (gc_oop_t*)(&(clone->indexableFields) + 2);
 
-    size_t numIndexableFields = GetNumberOfIndexableFields();
-    clone->bytecodes =
-        (uint8_t*)(&(clone->indexableFields) + 2 + numIndexableFields);
+    size_t numberOfConstantsAndInlineCacheEntries =
+        numberOfConstants + 2 * bcLength;
+    clone->indexableFields =
+        (gc_oop_t*)(&(clone->indexableFields) +
+                    VMMETHOD_FIELD_OFFSET_FOR_INDEXABLE_FIELDS);
+    clone->inlineCache =
+        (gc_oop_t*)(&(clone->indexableFields) +
+                    VMMETHOD_FIELD_OFFSET_FOR_INDEXABLE_FIELDS +
+                    numberOfConstants);
 
-    // Use of GetNumberOfIndexableFields() is problematic here, because it may
-    // be invalid object while cloning/moving within GC
+    clone->bytecodes = (uint8_t*)(&(clone->indexableFields) +
+                                  VMMETHOD_FIELD_OFFSET_FOR_INDEXABLE_FIELDS +
+                                  numberOfConstantsAndInlineCacheEntries);
     return clone;
 }
 
@@ -102,10 +118,16 @@ void VMMethod::WalkObjects(walk_heap_fn walk) {
     }
 #endif
 
-    size_t numIndexableFields = GetNumberOfIndexableFields();
-    for (size_t i = 0; i < numIndexableFields; ++i) {
-        if (indexableFields[i] != nullptr) {
-            indexableFields[i] = walk(indexableFields[i]);
+    // + 2*bcLength for the inline cache
+    assert(watermarkLastSetInlineCacheIndex == 0 ||
+           watermarkLastSetInlineCacheIndex <= 2 * bcLength);
+
+    size_t numberOfUsedEntries =
+        numberOfConstants + watermarkLastSetInlineCacheIndex;
+    for (size_t i = 0; i < numberOfUsedEntries; ++i) {
+        gc_oop_t ptr = indexableFields[i];
+        if (ptr != nullptr) {
+            indexableFields[i] = walk(ptr);
         }
     }
 }
@@ -160,6 +182,53 @@ std::string VMMethod::AsDebugString() const {
     }
     return "Method(" + holder_str + ">>#" + GetSignature()->GetStdString() +
            ")";
+}
+
+VMInvokable* VMMethod::LookupWithCache(VMSymbol* signature,
+                                       VMClass* receiverClass,
+                                       size_t bytecodeIndex) {
+    assert(bytecodeIndex <= bcLength - 2);
+    // multiply by 2 because we store pairs of rcvrClass+invokable
+    size_t cacheIndex = bytecodeIndex << 1;
+
+    vm_oop_t cached_rcvr_cls_1 = load_ptr(inlineCache[cacheIndex]);
+    if (cached_rcvr_cls_1 == receiverClass) {
+        return (VMInvokable*)load_ptr(inlineCache[cacheIndex + 1]);
+    }
+
+    if (cached_rcvr_cls_1 == nullptr) {
+        VMInvokable* invokable = receiverClass->LookupInvokable(signature);
+
+        store_ptr(inlineCache[cacheIndex], receiverClass);
+        store_ptr(inlineCache[cacheIndex + 1], invokable);
+        write_barrier(this, receiverClass);
+        write_barrier(this, invokable);
+        watermarkLastSetInlineCacheIndex =
+            max(watermarkLastSetInlineCacheIndex,
+                cacheIndex + 2);  // +2 to make it an exclusive bound
+        return invokable;
+    }
+
+    // second try in the second cache entry, because send bytecodes are two byte
+    // long
+    cacheIndex += 2;
+    vm_oop_t cached_rcvr_cls_2 = load_ptr(inlineCache[cacheIndex]);
+    if (cached_rcvr_cls_2 == receiverClass) {
+        return (VMInvokable*)load_ptr(inlineCache[cacheIndex + 1]);
+    }
+
+    VMInvokable* invokable = receiverClass->LookupInvokable(signature);
+    if (cached_rcvr_cls_2 == nullptr && invokable != nullptr) {
+        store_ptr(inlineCache[cacheIndex], receiverClass);
+        store_ptr(inlineCache[cacheIndex + 1], invokable);
+        write_barrier(this, receiverClass);
+        write_barrier(this, invokable);
+        watermarkLastSetInlineCacheIndex =
+            max(watermarkLastSetInlineCacheIndex,
+                cacheIndex + 2);  // +2 to make it an exclusive bound
+    }
+
+    return invokable;
 }
 
 void VMMethod::InlineInto(MethodGenerationContext& mgenc, bool mergeScope) {

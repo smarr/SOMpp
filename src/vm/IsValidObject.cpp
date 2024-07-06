@@ -129,6 +129,11 @@ bool IsVMInteger(vm_oop_t obj) {
     return get_vtable(AS_OBJ(obj)) == vt_integer;
 }
 
+bool IsVMDouble(vm_oop_t obj) {
+    assert(vt_double != nullptr);
+    return get_vtable(AS_OBJ(obj)) == vt_double;
+}
+
 bool IsVMMethod(vm_oop_t obj) {
     assert(vt_method != nullptr);
     return get_vtable(AS_OBJ(obj)) == vt_method;

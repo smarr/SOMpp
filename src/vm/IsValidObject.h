@@ -6,6 +6,7 @@
 bool IsValidObject(vm_oop_t obj);
 
 bool IsVMInteger(vm_oop_t obj);
+bool IsVMDouble(vm_oop_t obj);
 bool IsVMMethod(vm_oop_t obj);
 bool IsVMSymbol(vm_oop_t obj);
 bool IsLiteralReturn(vm_oop_t obj);

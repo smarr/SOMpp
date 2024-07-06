@@ -27,6 +27,7 @@
 #include "Interpreter.h"
 
 #include <cassert>
+#include <cstddef>
 #include <cstdint>
 #include <string>
 
@@ -129,8 +130,12 @@ void Interpreter::popFrameAndPushResult(vm_oop_t result) {
     GetFrame()->Push(result);
 }
 
-void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
-    VMInvokable* invokable = receiverClass->LookupInvokable(signature);
+void Interpreter::send(VMSymbol* signature,
+                       VMClass* receiverClass,
+                       size_t bytecodeIndex) {
+    VMInvokable* invokable =
+        method->LookupWithCache(signature, receiverClass, bytecodeIndex);
+    assert(invokable == nullptr || !invokable->IsMarkedInvalid());
 
     if (invokable != nullptr) {
 #ifdef LOG_RECEIVER_TYPES
@@ -361,7 +366,7 @@ void Interpreter::doSend(long bytecodeIndex) {
     GetUniverse()->receiverTypes[receiverClass->GetName()->GetStdString()]++;
 #endif
 
-    send(signature, receiverClass);
+    send(signature, receiverClass, bytecodeIndex);
 }
 
 void Interpreter::doSuperSend(long bytecodeIndex) {

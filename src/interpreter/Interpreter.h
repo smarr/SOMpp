@@ -80,7 +80,8 @@ private:
     VMFrame* popFrame();
     void popFrameAndPushResult(vm_oop_t result);
 
-    void send(VMSymbol* signature, VMClass* receiverClass);
+    void send(VMSymbol* signature, VMClass* receiverClass,
+              size_t bytecodeIndex);
 
     void triggerDoesNotUnderstand(VMSymbol* signature);
 
