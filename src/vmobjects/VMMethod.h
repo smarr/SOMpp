@@ -41,7 +41,7 @@ class VMMethod: public VMInvokable {
 public:
     typedef GCMethod Stored;
     
-    VMMethod(long bcCount, long numberOfConstants, long nof = 0);
+    VMMethod(long bcCount, long numberOfConstants);
 
     inline long GetNumberOfLocals() const {
         return INT_VAL(load_ptr(numberOfLocals));

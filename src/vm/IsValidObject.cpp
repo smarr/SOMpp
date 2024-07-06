@@ -104,7 +104,7 @@ void obtain_vtables_of_known_classes(VMSymbol* className) {
     VMInteger* i  = new (GetHeap<HEAP_CLS>()) VMInteger(0);
     vt_integer    = *(void**) i;
     
-    VMMethod* mth = new (GetHeap<HEAP_CLS>()) VMMethod(0, 0, 0);
+    VMMethod* mth = new (GetHeap<HEAP_CLS>()) VMMethod(0, 0);
     vt_method     = *(void**) mth;
     vt_object     = *(void**) nilObject;
     

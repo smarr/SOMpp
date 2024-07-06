@@ -46,8 +46,8 @@ const long VMMethod::VMMethodNumberOfFields = 8;
 const long VMMethod::VMMethodNumberOfFields = 7;
 #endif
 
-VMMethod::VMMethod(long bcCount, long numberOfConstants, long nof) :
-        VMInvokable(nof + VMMethodNumberOfFields) {
+VMMethod::VMMethod(long bcCount, long numberOfConstants) :
+        VMInvokable(VMMethodNumberOfFields) {
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     cachedFrame = nullptr;
 #endif
