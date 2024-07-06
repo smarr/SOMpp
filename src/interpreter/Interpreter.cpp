@@ -53,11 +53,6 @@ Interpreter::Interpreter() : frame(nullptr) {}
 
 Interpreter::~Interpreter() {}
 
-template<>
-__attribute__((used)) vm_oop_t Interpreter::Start<true>();
-template<>
-__attribute__((used)) vm_oop_t Interpreter::Start<false>();
-
 VMFrame* Interpreter::PushNewFrame(VMMethod* method) {
     SetFrame(GetUniverse()->NewFrame(GetFrame(), method));
     return GetFrame();

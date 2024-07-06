@@ -319,9 +319,9 @@ vm_oop_t Universe::interpretMethod(VMObject* receiver, VMInvokable* initialize, 
   }
 
   if (dumpBytecodes > 1) {
-    return interpreter->Start<true>();
+    return interpreter->StartAndPrintBytecodes();
   }
-  return interpreter->Start<false>();
+  return interpreter->Start();
 }
 
 void Universe::initialize(long _argc, char** _argv) {

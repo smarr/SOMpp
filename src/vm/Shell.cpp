@@ -129,9 +129,9 @@ void Shell::Start(Interpreter* interp) {
         // Start the Interpreter
 
         if (dumpBytecodes > 1) {
-            interp->Start<true>();
+            interp->StartAndPrintBytecodes();
         } else {
-            interp->Start<false>();
+            interp->Start();
         }
 
         // Save the result of the run method
