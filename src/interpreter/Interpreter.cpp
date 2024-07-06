@@ -207,19 +207,6 @@ void Interpreter::doPushField(long bytecodeIndex) {
 }
 
 void Interpreter::doPushBlock(long bytecodeIndex) {
-    // Short cut the negative case of #ifTrue: and #ifFalse:
-    if (currentBytecodes[bytecodeIndexGlobal] == BC_SEND) {
-        if (GetFrame()->GetStackElement(0) == load_ptr(falseObject) &&
-            method->GetConstant(bytecodeIndexGlobal) == load_ptr(symbolIfTrue)) {
-            GetFrame()->Push(load_ptr(nilObject));
-            return;
-        } else if (GetFrame()->GetStackElement(0) == load_ptr(trueObject) &&
-                   method->GetConstant(bytecodeIndexGlobal) == load_ptr(symbolIfFalse)) {
-            GetFrame()->Push(load_ptr(nilObject));
-            return;
-        }
-    }
-
     VMMethod* blockMethod = static_cast<VMMethod*>(method->GetConstant(bytecodeIndex));
 
     long numOfArgs = blockMethod->GetNumberOfArguments();
