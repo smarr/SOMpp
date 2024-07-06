@@ -45,27 +45,8 @@ public:
     Interpreter();
     ~Interpreter();
     
-    vm_oop_t StartAndPrintBytecodes() {
-#define PROLOGUE(bc_count) {\
-    disassembleMethod(); \
-    bytecodeIndexGlobal += bc_count;\
-}
-#define HACK_INLINE_START
-#include "InterpreterLoop.h"
-#undef HACK_INLINE_START
-    }
-    
-    vm_oop_t Start() {
-#undef PROLOGUE
-#define PROLOGUE(bc_count) {\
-    bytecodeIndexGlobal += bc_count;\
-  }
-#define HACK_INLINE_START
-#include "InterpreterLoop.h"
-#undef HACK_INLINE_START
-    }
-    
-    
+    vm_oop_t StartAndPrintBytecodes();
+    vm_oop_t Start();
     
     VMFrame*  PushNewFrame(VMMethod* method);
     void      SetFrame(VMFrame* frame);

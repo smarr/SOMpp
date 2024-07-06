@@ -53,6 +53,26 @@ Interpreter::Interpreter() : frame(nullptr) {}
 
 Interpreter::~Interpreter() {}
 
+vm_oop_t Interpreter::StartAndPrintBytecodes() {
+#define PROLOGUE(bc_count) {\
+disassembleMethod(); \
+bytecodeIndexGlobal += bc_count;\
+}
+#define HACK_INLINE_START
+#include "InterpreterLoop.h"
+#undef HACK_INLINE_START
+}
+
+vm_oop_t Interpreter::Start() {
+#undef PROLOGUE
+#define PROLOGUE(bc_count) {\
+bytecodeIndexGlobal += bc_count;\
+}
+#define HACK_INLINE_START
+#include "InterpreterLoop.h"
+#undef HACK_INLINE_START
+}
+
 VMFrame* Interpreter::PushNewFrame(VMMethod* method) {
     SetFrame(GetUniverse()->NewFrame(GetFrame(), method));
     return GetFrame();
