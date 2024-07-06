@@ -137,34 +137,37 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
         invokable->Invoke(this, GetFrame());
         bytecodeIndexGlobal = GetFrame()->GetBytecodeIndex();
     } else {
-        //doesNotUnderstand
-        long numberOfArgs = Signature::GetNumberOfArguments(signature);
-
-        vm_oop_t receiver = GetFrame()->GetStackElement(numberOfArgs-1);
-
-        VMArray* argumentsArray = GetUniverse()->NewArray(numberOfArgs - 1); // without receiver
-
-        // the receiver should not go into the argumentsArray
-        // so, numberOfArgs - 2
-        for (long i = numberOfArgs - 2; i >= 0; --i) {
-            vm_oop_t o = GetFrame()->Pop();
-            argumentsArray->SetIndexableField(i, o);
-        }
-        vm_oop_t arguments[] = {signature, argumentsArray};
-        
-        GetFrame()->Pop(); // pop the receiver
-
-        //check if current frame is big enough for this unplanned Send
-        //doesNotUnderstand: needs 3 slots, one for this, one for method name, one for args
-        long additionalStackSlots = 3 - GetFrame()->RemainingStackSize();
-        if (additionalStackSlots > 0) {
-            GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
-            //copy current frame into a bigger one and replace the current frame
-            SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
-        }
-
-        AS_OBJ(receiver)->Send(this, doesNotUnderstand, arguments, 2);
+        triggerDoesNotUnderstand(signature);
     }
+}
+
+void Interpreter::triggerDoesNotUnderstand(VMSymbol* signature) {
+    long numberOfArgs = Signature::GetNumberOfArguments(signature);
+
+    vm_oop_t receiver = GetFrame()->GetStackElement(numberOfArgs - 1);
+
+    VMArray* argumentsArray = GetUniverse()->NewArray(numberOfArgs - 1); // without receiver
+
+    // the receiver should not go into the argumentsArray
+    // so, numberOfArgs - 2
+    for (long i = numberOfArgs - 2; i >= 0; --i) {
+        vm_oop_t o = GetFrame()->Pop();
+        argumentsArray->SetIndexableField(i, o);
+    }
+    vm_oop_t arguments[] = {signature, argumentsArray};
+    
+    GetFrame()->Pop(); // pop the receiver
+
+    //check if current frame is big enough for this unplanned Send
+    //doesNotUnderstand: needs 3 slots, one for this, one for method name, one for args
+    long additionalStackSlots = 3 - GetFrame()->RemainingStackSize();
+    if (additionalStackSlots > 0) {
+        GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
+        //copy current frame into a bigger one and replace the current frame
+        SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
+    }
+
+    AS_OBJ(receiver)->Send(this, doesNotUnderstand, arguments, 2);
 }
 
 void Interpreter::doDup() {
@@ -278,8 +281,10 @@ void Interpreter::doSend(long bytecodeIndex) {
     int numOfArgs = Signature::GetNumberOfArguments(signature);
 
     vm_oop_t receiver = GetFrame()->GetStackElement(numOfArgs-1);
+    
     assert(IsValidObject(receiver));
-    assert(dynamic_cast<VMClass*>(CLASS_OF(receiver)) != nullptr); // make sure it is really a class
+    // make sure it is really a class
+    assert(dynamic_cast<VMClass*>(CLASS_OF(receiver)) != nullptr);
     
     VMClass* receiverClass = CLASS_OF(receiver);
     

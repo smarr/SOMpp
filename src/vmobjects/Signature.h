@@ -28,13 +28,16 @@
 
 #include <stddef.h>
 #include <vmobjects/ObjectFormats.h>
+#include <vmobjects/VMSymbol.h>
 
 class Signature {
 public:
-    static int GetNumberOfArguments(VMSymbol* sig);
+    inline static int GetNumberOfArguments(VMSymbol* sig) {
+        return sig->numberOfArgumentsOfSignature;
+    }
+
     static bool IsBinary(VMSymbol* sig);
     
     static int DetermineNumberOfArguments(const char* sig, const size_t length);
     static bool IsBinary(const char* sig, const size_t length);
-
 };

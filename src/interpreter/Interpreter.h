@@ -77,7 +77,10 @@ private:
 
     VMFrame* popFrame();
     void popFrameAndPushResult(vm_oop_t result);
+    
     void send(VMSymbol* signature, VMClass* receiverClass);
+    
+    void triggerDoesNotUnderstand(VMSymbol* signature);
 
     void doDup();
     void doPushLocal(long bytecodeIndex);

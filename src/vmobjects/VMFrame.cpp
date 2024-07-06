@@ -227,14 +227,6 @@ void VMFrame::PrintStack() const {
     }
 }
 
-void VMFrame::ResetStackPointer() {
-    // arguments are stored in front of local variables
-    VMMethod* meth = GetMethod();
-    locals = arguments + meth->GetNumberOfArguments();
-    // Set the stack pointer to its initial value thereby clearing the stack
-    stack_ptr = locals + meth->GetNumberOfLocals() - 1;
-}
-
 void VMFrame::SetLocal(long index, long contextLevel, vm_oop_t value) {
     VMFrame* context = GetContextLevel(contextLevel);
     context->SetLocal(index, value);

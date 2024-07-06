@@ -43,11 +43,18 @@ public:
     
     VMMethod(long bcCount, long numberOfConstants, long nof = 0);
 
-    inline  long      GetNumberOfLocals() const;
+    inline long GetNumberOfLocals() const {
+        return INT_VAL(load_ptr(numberOfLocals));
+    }
+    
             void      SetNumberOfLocals(long nol);
             long      GetMaximumNumberOfStackElements() const;
             void      SetMaximumNumberOfStackElements(long stel);
-    inline  long      GetNumberOfArguments() const;
+    
+    inline long GetNumberOfArguments() const {
+        return INT_VAL(load_ptr(numberOfArguments));
+    }
+    
             void      SetNumberOfArguments(long);
             long      GetNumberOfBytecodes() const;
     virtual void      SetHolder(VMClass* hld);
@@ -110,14 +117,6 @@ private:
     uint8_t* bytecodes;
     static const long VMMethodNumberOfFields;
 };
-
-inline long VMMethod::GetNumberOfLocals() const {
-    return INT_VAL(load_ptr(numberOfLocals));
-}
-
-inline long VMMethod::GetNumberOfArguments() const {
-    return INT_VAL(load_ptr(numberOfArguments));
-}
 
 void VMMethod::SetIndexableField(long idx, vm_oop_t item) {
     store_ptr(indexableFields[idx], item);
