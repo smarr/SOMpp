@@ -27,6 +27,7 @@
  */
 
 #include <vmobjects/VMArray.h>
+#include <vmobjects/VMMethod.h>
 
 class Universe;
 
@@ -64,7 +65,14 @@ public:
         store_ptr(*stack_ptr, obj);
     }
 
-    void ResetStackPointer();
+    void ResetStackPointer() {
+        // arguments are stored in front of local variables
+        VMMethod* meth = GetMethod();
+        locals = arguments + meth->GetNumberOfArguments();
+        // Set the stack pointer to its initial value thereby clearing the stack
+        stack_ptr = locals + meth->GetNumberOfLocals() - 1;
+    }
+
     inline long GetBytecodeIndex() const;
     inline void SetBytecodeIndex(long);
     
