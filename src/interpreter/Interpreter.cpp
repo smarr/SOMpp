@@ -184,6 +184,11 @@ void Interpreter::doPushLocal(long bytecodeIndex) {
     GetFrame()->Push(local);
 }
 
+void Interpreter::doPushLocalWithIndex(uint8_t localIndex){
+    vm_oop_t local = GetFrame()->GetLocalInCurrentContext(localIndex);
+    GetFrame()->Push(local);
+}
+
 void Interpreter::doPushArgument(long bytecodeIndex) {
     uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);

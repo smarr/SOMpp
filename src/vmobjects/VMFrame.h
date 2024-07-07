@@ -85,6 +85,10 @@ public:
         return load_ptr(context->locals[index]);
     }
     
+    inline vm_oop_t GetLocalInCurrentContext(uint8_t localIndex) {
+        return load_ptr(this->locals[localIndex]);
+    }
+    
     void SetLocal(long index, long context_level, vm_oop_t);
     
     inline vm_oop_t GetArgument(long index, long contextLevel) {

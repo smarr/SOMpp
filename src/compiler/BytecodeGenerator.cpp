@@ -24,6 +24,8 @@
  THE SOFTWARE.
  */
 
+#include <assert.h>
+
 #include "BytecodeGenerator.h"
 
 #include <vmobjects/VMObject.h>
@@ -52,6 +54,22 @@ void BytecodeGenerator::EmitDUP(MethodGenerationContext* mgenc) {
 
 void BytecodeGenerator::EmitPUSHLOCAL(MethodGenerationContext* mgenc, long idx,
         int ctx) {
+    assert(idx >= 0);
+    assert(ctx >= 0);
+    if (ctx == 0) {
+        if (idx == 0) {
+            EMIT1(BC_PUSH_LOCAL_0);
+            return;
+        }
+        if (idx == 1) {
+            EMIT1(BC_PUSH_LOCAL_1);
+            return;
+        }
+        if (idx == 2) {
+            EMIT1(BC_PUSH_LOCAL_2);
+            return;
+        }
+    }
     EMIT3(BC_PUSH_LOCAL, idx, ctx);
 }
 

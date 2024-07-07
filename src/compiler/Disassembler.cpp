@@ -152,6 +152,12 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, cons
         }
         
         switch(bytecode) {
+            case BC_PUSH_LOCAL_0:
+                DebugPrint("local: 0, context: 0\n"); break;
+            case BC_PUSH_LOCAL_1:
+                DebugPrint("local: 1, context: 0\n"); break;
+            case BC_PUSH_LOCAL_2:
+                DebugPrint("local: 2, context: 0\n"); break;
             case BC_PUSH_LOCAL:
                 DebugPrint("local: %d, context: %d\n", bytecodes[bc_idx+1], bytecodes[bc_idx+2]); break;
             case BC_PUSH_ARGUMENT:
@@ -332,6 +338,31 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
         }
         case BC_PUSH_LOCAL: {
             uint8_t bc1 = BC_1, bc2 = BC_2;
+            vm_oop_t o = frame->GetLocal(bc1, bc2);
+            VMClass* c = CLASS_OF(o);
+            VMSymbol* cname = c->GetName();
+
+            DebugPrint("local: %d, context: %d <(%s) ",
+            BC_1, BC_2, cname->GetStdString().c_str());
+            //dispatch
+            dispatch(o);
+            DebugPrint(">\n");
+            break;
+        }
+        case BC_PUSH_LOCAL_0:
+        case BC_PUSH_LOCAL_1:
+        case BC_PUSH_LOCAL_2: {
+            uint8_t bc1;
+            uint8_t bc2;
+            switch (bc) {
+                case BC_PUSH_LOCAL_0: bc1 = 0; bc2 = 0; break;
+                case BC_PUSH_LOCAL_1: bc1 = 1; bc2 = 0; break;
+                case BC_PUSH_LOCAL_2: bc1 = 2; bc2 = 0; break;
+                default:
+                    DebugPrint("Unexpected bytecode");
+                    return;
+            }
+            
             vm_oop_t o = frame->GetLocal(bc1, bc2);
             VMClass* c = CLASS_OF(o);
             VMSymbol* cname = c->GetName();

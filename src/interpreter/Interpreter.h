@@ -84,6 +84,7 @@ private:
 
     void doDup();
     void doPushLocal(long bytecodeIndex);
+    void doPushLocalWithIndex(uint8_t localIndex);
     void doPushArgument(long bytecodeIndex);
     void doPushField(long bytecodeIndex);
     void doPushBlock(long bytecodeIndex);

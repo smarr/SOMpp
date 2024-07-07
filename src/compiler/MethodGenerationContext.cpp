@@ -133,6 +133,12 @@ uint8_t MethodGenerationContext::ComputeStackDepth() {
             depth++;
             i++;
             break;
+        case BC_PUSH_LOCAL_0:
+        case BC_PUSH_LOCAL_1:
+        case BC_PUSH_LOCAL_2:
+            depth++;
+            i += 1;
+            break;
         case BC_PUSH_LOCAL:
         case BC_PUSH_ARGUMENT:
             depth++;

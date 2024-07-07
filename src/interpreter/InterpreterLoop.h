@@ -60,11 +60,23 @@ LABEL_BC_DUP:
     DISPATCH_NOGC();
     
 LABEL_BC_PUSH_LOCAL:
-LABEL_BC_PUSH_LOCAL_0:
-LABEL_BC_PUSH_LOCAL_1:
-LABEL_BC_PUSH_LOCAL_2:
     PROLOGUE(3);
     doPushLocal(bytecodeIndexGlobal - 3);
+    DISPATCH_NOGC();
+
+LABEL_BC_PUSH_LOCAL_0:
+    PROLOGUE(1);
+    doPushLocalWithIndex(0);
+    DISPATCH_NOGC();
+    
+LABEL_BC_PUSH_LOCAL_1:
+    PROLOGUE(1);
+    doPushLocalWithIndex(1);
+    DISPATCH_NOGC();
+    
+LABEL_BC_PUSH_LOCAL_2:
+    PROLOGUE(1);
+    doPushLocalWithIndex(2);
     DISPATCH_NOGC();
     
 LABEL_BC_PUSH_ARGUMENT:
