@@ -19,12 +19,14 @@
 #include "CloneObjectsTest.h"
 #include "WriteBarrierTest.h"
 #include "BasicInterpreterTests.h"
+#include "BytecodeGenerationTest.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION (WalkObjectsTest);
 CPPUNIT_TEST_SUITE_REGISTRATION (CloneObjectsTest);
 #if GC_TYPE==GENERATIONAL
 CPPUNIT_TEST_SUITE_REGISTRATION(WriteBarrierTest);
 #endif
+CPPUNIT_TEST_SUITE_REGISTRATION (BytecodeGenerationTest);
 CPPUNIT_TEST_SUITE_REGISTRATION (BasicInterpreterTests);
 
 int main(int ac, char **av) {

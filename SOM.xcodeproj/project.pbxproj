@@ -48,6 +48,7 @@
 		0A1887441832C62100A2CBCA /* README.md in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A18873D1832C62100A2CBCA /* README.md */; };
 		0A1887451832C62100A2CBCA /* Smalltalk in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A18873E1832C62100A2CBCA /* Smalltalk */; };
 		0A1887471832C62100A2CBCA /* TestSuite in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A1887401832C62100A2CBCA /* TestSuite */; };
+		0A1C98582C3DD88500735850 /* BytecodeGenerationTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C98572C3DD88500735850 /* BytecodeGenerationTest.cpp */; };
 		0A32B7FE199D6143002825DF /* IntegerBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A32B7FC199D6143002825DF /* IntegerBox.cpp */; };
 		0A3A3C921A5D546D004CB03B /* Array.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203120FA6624C00E75857 /* Array.cpp */; };
 		0A3A3C931A5D546D004CB03B /* Block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203160FA6624C00E75857 /* Block.cpp */; };
@@ -182,6 +183,8 @@
 		0A18873D1832C62100A2CBCA /* README.md */ = {isa = PBXFileReference; lastKnownFileType = text; name = README.md; path = "core-lib/README.md"; sourceTree = "<group>"; };
 		0A18873E1832C62100A2CBCA /* Smalltalk */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Smalltalk; path = "core-lib/Smalltalk"; sourceTree = "<group>"; };
 		0A1887401832C62100A2CBCA /* TestSuite */ = {isa = PBXFileReference; lastKnownFileType = folder; name = TestSuite; path = "core-lib/TestSuite"; sourceTree = "<group>"; };
+		0A1C98562C3DD87300735850 /* BytecodeGenerationTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "unitTests/BytecodeGenerationTest.h"; sourceTree = "<group>"; };
+		0A1C98572C3DD88500735850 /* BytecodeGenerationTest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "unitTests/BytecodeGenerationTest.cpp"; sourceTree = "<group>"; };
 		0A32B7FC199D6143002825DF /* IntegerBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IntegerBox.cpp; sourceTree = "<group>"; };
 		0A32B7FD199D6143002825DF /* IntegerBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntegerBox.h; sourceTree = "<group>"; };
 		0A32B80119A12A03002825DF /* VMObjectBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMObjectBase.h; sourceTree = "<group>"; };
@@ -413,6 +416,8 @@
 				0A67EAA619ACE09700830E3B /* WriteBarrierTest.h */,
 				0A67EA7319ACD43A00830E3B /* WalkObjectsTest.cpp */,
 				0A67EA7419ACD43A00830E3B /* WriteBarrierTest.cpp */,
+				0A1C98562C3DD87300735850 /* BytecodeGenerationTest.h */,
+				0A1C98572C3DD88500735850 /* BytecodeGenerationTest.cpp */,
 			);
 			name = unittests;
 			sourceTree = "<group>";
@@ -887,6 +892,7 @@
 				0AB80AD92C394806006B6419 /* Globals.cpp in Sources */,
 				0A3A3CA71A5D546D004CB03B /* Object.cpp in Sources */,
 				0A3A3CB21A5D5476004CB03B /* PrimitiveContainer.cpp in Sources */,
+				0A1C98582C3DD88500735850 /* BytecodeGenerationTest.cpp in Sources */,
 				0A67EA8419ACD74800830E3B /* VMFrame.cpp in Sources */,
 				0A67EA7D19ACD74800830E3B /* Signature.cpp in Sources */,
 				0A67EA7E19ACD74800830E3B /* VMArray.cpp in Sources */,

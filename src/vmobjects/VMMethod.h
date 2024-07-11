@@ -37,6 +37,7 @@ class Interpreter;
 
 class VMMethod: public VMInvokable {
     friend class Interpreter;
+    friend class Disassembler;
 
 public:
     typedef GCMethod Stored;

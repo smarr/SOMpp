@@ -42,6 +42,8 @@ public:
     ~Parser();
 
     void Classdef(ClassGenerationContext* cgenc);
+    void method(MethodGenerationContext* mgenc);
+    
 private:
     void GetSym();
     void Peek();
@@ -60,7 +62,6 @@ private:
     void superclass(ClassGenerationContext* cgenc);
     void instanceFields(ClassGenerationContext* cgenc);
     void classFields(ClassGenerationContext* cgenc);
-    void method(MethodGenerationContext* mgenc);
     void primitiveBlock(void);
     void pattern(MethodGenerationContext* mgenc);
     void unaryPattern(MethodGenerationContext* mgenc);
