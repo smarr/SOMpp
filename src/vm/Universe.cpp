@@ -383,9 +383,12 @@ VMObject* Universe::InitializeGlobals() {
     //
     //allocate nil object
     //
-    VMObject* nil = new (GetHeap<HEAP_CLS>()) VMObject;
+    VMObject* nil = NewInstanceWithoutFields();
     nilObject = _store_ptr(nil);
     nil->SetClass((VMClass*) nil);
+    
+    trueObject = _store_ptr(NewInstanceWithoutFields());
+    falseObject = _store_ptr(NewInstanceWithoutFields());
 
     metaClassClass = _store_ptr(NewMetaclassClass());
 
@@ -439,11 +442,11 @@ VMObject* Universe::InitializeGlobals() {
 
     VMSymbol* trueClassName = SymbolFor("True");
     trueClass  = _store_ptr(LoadClass(trueClassName));
-    trueObject = _store_ptr(NewInstance(load_ptr(trueClass)));
+    load_ptr(trueObject)->SetClass(load_ptr(trueClass));
     
     VMSymbol* falseClassName = SymbolFor("False");
     falseClass  = _store_ptr(LoadClass(falseClassName));
-    falseObject = _store_ptr(NewInstance(load_ptr(falseClass)));
+    load_ptr(falseObject)->SetClass(load_ptr(falseClass));
 
     systemClass = _store_ptr(LoadClass(SymbolFor("System")));
     
@@ -726,6 +729,11 @@ VMObject* Universe::NewInstance(VMClass* classOfInstance) const {
     result->SetClass(classOfInstance);
 
     LOG_ALLOCATION(classOfInstance->GetName()->GetStdString(), result->GetObjectSize());
+    return result;
+}
+
+VMObject* Universe::NewInstanceWithoutFields() const {
+    VMObject* result = new (GetHeap<HEAP_CLS>(), 0) VMObject(0);
     return result;
 }
 

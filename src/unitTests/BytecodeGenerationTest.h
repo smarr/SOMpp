@@ -9,6 +9,7 @@ class BytecodeGenerationTest: public CPPUNIT_NS::TestCase {
 
     CPPUNIT_TEST_SUITE (BytecodeGenerationTest);
     CPPUNIT_TEST (testEmptyMethodReturnsSelf);
+    CPPUNIT_TEST (testPushConstant);
     CPPUNIT_TEST (testIfPushConstantSame);
     CPPUNIT_TEST (testIfPushConstantDifferent);
     CPPUNIT_TEST_SUITE_END();
@@ -31,6 +32,8 @@ private:
     std::vector<uint8_t> methodToBytecode(MethodGenerationContext* mgenc, const char* source, bool dumpBytecodes = false);
     
     void testEmptyMethodReturnsSelf();
+    
+    void testPushConstant();
     void testIfPushConstantSame();
     void testIfPushConstantDifferent();
     

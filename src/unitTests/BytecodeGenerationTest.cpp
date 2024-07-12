@@ -50,6 +50,25 @@ void BytecodeGenerationTest::testEmptyMethodReturnsSelf() {
         BC_RETURN_LOCAL});
 }
 
+void BytecodeGenerationTest::testPushConstant() {
+    auto* mgenc = makeMGenC();
+    auto bytecodes = methodToBytecode(mgenc, R"""(
+                                      test = (
+                                        0. 1. nil. #a. true. false.
+                                      ) )""");
+    check(bytecodes, {
+        BC_PUSH_0, BC_POP,
+        BC_PUSH_1, BC_POP,
+        BC_PUSH_NIL, BC_POP,
+        BC_PUSH_CONSTANT_0, BC_POP,
+        BC_PUSH_CONSTANT_1, BC_POP,
+        BC_PUSH_CONSTANT_2, BC_POP,
+        BC_PUSH_ARGUMENT, 0, 0,
+        BC_RETURN_LOCAL
+    });
+}
+
+
 void BytecodeGenerationTest::testIfPushConstantSame() {
     auto* mgenc = makeMGenC();
     auto bytecodes = methodToBytecode(mgenc, R"""(
@@ -62,7 +81,7 @@ void BytecodeGenerationTest::testIfPushConstantSame() {
         BC_PUSH_CONSTANT_1, BC_POP,
         BC_PUSH_CONSTANT_2, BC_POP,
         BC_PUSH_CONSTANT, 3, BC_POP,
-        BC_PUSH_GLOBAL, 4,
+        BC_PUSH_CONSTANT, 4,
         BC_PUSH_BLOCK, 5,
         BC_SEND, 6,
         BC_POP,
@@ -83,7 +102,7 @@ void BytecodeGenerationTest::testIfPushConstantDifferent() {
         BC_PUSH_CONSTANT_1, BC_POP,
         BC_PUSH_CONSTANT_2, BC_POP,
         BC_PUSH_CONSTANT, 3, BC_POP,
-        BC_PUSH_GLOBAL, 4,
+        BC_PUSH_CONSTANT, 4,
         BC_PUSH_BLOCK, 5,
         BC_SEND, 6,
         BC_POP,

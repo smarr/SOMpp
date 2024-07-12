@@ -27,6 +27,7 @@
 #include <assert.h>
 
 #include "BytecodeGenerator.h"
+#include <vm/Universe.h>
 
 #include <vmobjects/VMObject.h>
 #include <vmobjects/VMMethod.h>
@@ -132,7 +133,16 @@ void BytecodeGenerator::EmitPUSHCONSTANTString(MethodGenerationContext* mgenc,
 }
 
 void BytecodeGenerator::EmitPUSHGLOBAL(MethodGenerationContext* mgenc, VMSymbol* global) {
-    EMIT2(BC_PUSH_GLOBAL, mgenc->FindLiteralIndex(global));
+    if (global == GetUniverse()->SymbolFor("nil")) {
+        EmitPUSHCONSTANT(mgenc, load_ptr(nilObject));
+    } else if (global == GetUniverse()->SymbolFor("true")) {
+        EmitPUSHCONSTANT(mgenc, load_ptr(trueObject));
+    } else if (global == GetUniverse()->SymbolFor("false")) {
+        EmitPUSHCONSTANT(mgenc, load_ptr(falseObject));
+    } else {
+        int8_t idx = mgenc->AddLiteralIfAbsent(global);
+        EMIT2(BC_PUSH_GLOBAL, idx);
+    }
 }
 
 void BytecodeGenerator::EmitPOP(MethodGenerationContext* mgenc) {
