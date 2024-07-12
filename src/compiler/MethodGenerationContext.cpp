@@ -147,6 +147,18 @@ uint8_t MethodGenerationContext::ComputeStackDepth() {
         case BC_PUSH_FIELD:
         case BC_PUSH_BLOCK:
         case BC_PUSH_CONSTANT:
+            depth++;
+            i += 2;
+            break;
+        case BC_PUSH_CONSTANT_0:
+        case BC_PUSH_CONSTANT_1:
+        case BC_PUSH_CONSTANT_2:
+        case BC_PUSH_0:
+        case BC_PUSH_1:
+        case BC_PUSH_NIL:
+            depth++;
+            i += 1;
+            break;
         case BC_PUSH_GLOBAL:
             depth++;
             i += 2;

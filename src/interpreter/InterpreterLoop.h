@@ -100,14 +100,47 @@ LABEL_BC_PUSH_BLOCK:
     DISPATCH_GC();
     
 LABEL_BC_PUSH_CONSTANT:
-LABEL_BC_PUSH_CONSTANT_0:
-LABEL_BC_PUSH_CONSTANT_1:
-LABEL_BC_PUSH_CONSTANT_2:
-LABEL_BC_PUSH_0:
-LABEL_BC_PUSH_1:
-LABEL_BC_PUSH_NIL:
     PROLOGUE(2);
     doPushConstant(bytecodeIndexGlobal - 2);
+    DISPATCH_NOGC();
+    
+LABEL_BC_PUSH_CONSTANT_0:
+    PROLOGUE(1);
+    {
+        vm_oop_t constant = method->GetIndexableField(0);
+        GetFrame()->Push(constant);
+    }
+    DISPATCH_NOGC();
+    
+LABEL_BC_PUSH_CONSTANT_1:
+    PROLOGUE(1);
+    {
+        vm_oop_t constant = method->GetIndexableField(1);
+        GetFrame()->Push(constant);
+    }
+    DISPATCH_NOGC();
+    
+LABEL_BC_PUSH_CONSTANT_2:
+    PROLOGUE(1);
+    {
+        vm_oop_t constant = method->GetIndexableField(2);
+        GetFrame()->Push(constant);
+    }
+    DISPATCH_NOGC();
+
+LABEL_BC_PUSH_0:
+    PROLOGUE(1);
+    GetFrame()->Push(NEW_INT(0));
+    DISPATCH_NOGC();
+    
+LABEL_BC_PUSH_1:
+    PROLOGUE(1);
+    GetFrame()->Push(NEW_INT(1));
+    DISPATCH_NOGC();
+    
+LABEL_BC_PUSH_NIL:
+    PROLOGUE(1);
+    GetFrame()->Push(load_ptr(nilObject));
     DISPATCH_NOGC();
     
 LABEL_BC_PUSH_GLOBAL:

@@ -88,7 +88,37 @@ void BytecodeGenerator::EmitPUSHBLOCK(MethodGenerationContext* mgenc, VMMethod* 
 
 void BytecodeGenerator::EmitPUSHCONSTANT(MethodGenerationContext* mgenc,
         vm_oop_t cst) {
-    EMIT2(BC_PUSH_CONSTANT, mgenc->FindLiteralIndex(cst));
+    if (CLASS_OF(cst) == load_ptr(integerClass)) {
+        if (INT_VAL(cst) == 0ll) {
+            EMIT1(BC_PUSH_0);
+            return;
+        }
+        if (INT_VAL(cst) == 1ll) {
+            EMIT1(BC_PUSH_1);
+            return;
+        }
+    }
+    
+    if (cst == load_ptr(nilObject)) {
+        EMIT1(BC_PUSH_NIL);
+        return;
+    }
+    
+    int8_t idx = mgenc->FindLiteralIndex(cst);
+    if (idx == 0) {
+        EMIT1(BC_PUSH_CONSTANT_0);
+        return;
+    }
+    if (idx == 1) {
+        EMIT1(BC_PUSH_CONSTANT_1);
+        return;
+    }
+    if (idx == 2) {
+        EMIT1(BC_PUSH_CONSTANT_2);
+        return;
+    }
+    
+    EMIT2(BC_PUSH_CONSTANT, idx);
 }
 
 void BytecodeGenerator::EmitPUSHCONSTANT(MethodGenerationContext* mgenc,
