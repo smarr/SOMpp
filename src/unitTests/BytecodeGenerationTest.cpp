@@ -39,7 +39,7 @@ std::vector<uint8_t> BytecodeGenerationTest::methodToBytecode(MethodGenerationCo
 
 
 void BytecodeGenerationTest::testEmptyMethodReturnsSelf() {
-    auto mgenc = makeMGenC();
+    auto* mgenc = makeMGenC();
     
     auto bytecodes = methodToBytecode(mgenc, "test = ( )");
     
@@ -49,6 +49,50 @@ void BytecodeGenerationTest::testEmptyMethodReturnsSelf() {
         BC_PUSH_ARGUMENT, 0, 0,
         BC_RETURN_LOCAL});
 }
+
+void BytecodeGenerationTest::testIfPushConstantSame() {
+    auto* mgenc = makeMGenC();
+    auto bytecodes = methodToBytecode(mgenc, R"""(
+                                      test = (
+                                        #a. #b. #c. #d.
+                                        true ifFalse: [ #a. #b. #c. #d. ]
+                                      ) )""");
+    check(bytecodes, {
+        BC_PUSH_CONSTANT_0, BC_POP,
+        BC_PUSH_CONSTANT_1, BC_POP,
+        BC_PUSH_CONSTANT_2, BC_POP,
+        BC_PUSH_CONSTANT, 3, BC_POP,
+        BC_PUSH_GLOBAL, 4,
+        BC_PUSH_BLOCK, 5,
+        BC_SEND, 6,
+        BC_POP,
+        BC_PUSH_ARGUMENT, 0, 0,
+        BC_RETURN_LOCAL
+    });
+}
+
+void BytecodeGenerationTest::testIfPushConstantDifferent() {
+    auto* mgenc = makeMGenC();
+    auto bytecodes = methodToBytecode(mgenc, R"""(
+                                      test = (
+                                        #a. #b. #c. #d.
+                                        true ifFalse: [ #e. #f. #g. #h. ]
+                                      ) )""");
+    check(bytecodes, {
+        BC_PUSH_CONSTANT_0, BC_POP,
+        BC_PUSH_CONSTANT_1, BC_POP,
+        BC_PUSH_CONSTANT_2, BC_POP,
+        BC_PUSH_CONSTANT, 3, BC_POP,
+        BC_PUSH_GLOBAL, 4,
+        BC_PUSH_BLOCK, 5,
+        BC_SEND, 6,
+        BC_POP,
+        BC_PUSH_ARGUMENT, 0, 0,
+        BC_RETURN_LOCAL
+    });
+}
+
+
 
 void BytecodeGenerationTest::check(std::vector<uint8_t> actual, std::vector<uint8_t> expected) {
     
@@ -88,6 +132,11 @@ void BytecodeGenerationTest::check(std::vector<uint8_t> actual, std::vector<uint
         }
     }
 
-    CPPUNIT_ASSERT_EQUAL(expected.size(), actual.size());
+    if (expected.size() != actual.size()) {
+        dump(_mgenc);
+    }
+    
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("Number of bytecodes",
+                                 expected.size(), actual.size());
 }
 
