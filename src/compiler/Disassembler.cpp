@@ -184,10 +184,12 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, cons
                 size_t indent_size = strlen(indent)+1+1;
                 char* nindent = new char[indent_size];
                 DebugPrint("block: (index: %d) ", bytecodes[bc_idx+1]);
-                snprintf(nindent, indent_size, "%s\t", indent);
-
+                
                 if (method != nullptr) {
+                    snprintf(nindent, indent_size, "%s\t", indent);
                     Disassembler::DumpMethod(static_cast<VMMethod*>(method->GetConstant(bc_idx)), nindent);
+                } else {
+                    DebugPrint("\n");
                 }
                 break;
             }
@@ -201,7 +203,7 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, cons
                                bytecodes[bc_idx+1], cname->GetStdString().c_str());
                     dispatch(constant);
                 } else {
-                    DebugPrint("(index: %d)");
+                    DebugPrint("(index: %d)", bytecodes[bc_idx+1]);
                 }
                 DebugPrint("\n");
                 break;
