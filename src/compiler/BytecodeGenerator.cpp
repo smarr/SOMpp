@@ -83,11 +83,11 @@ void BytecodeGenerator::EmitPUSHFIELD(MethodGenerationContext* mgenc, VMSymbol* 
 }
 
 void BytecodeGenerator::EmitPUSHBLOCK(MethodGenerationContext* mgenc, VMMethod* block) {
-    EMIT2(BC_PUSH_BLOCK, mgenc->FindLiteralIndex(block));
+    int8_t idx = mgenc->AddLiteralIfAbsent(block);
+    EMIT2(BC_PUSH_BLOCK, idx);
 }
 
-void BytecodeGenerator::EmitPUSHCONSTANT(MethodGenerationContext* mgenc,
-        vm_oop_t cst) {
+void BytecodeGenerator::EmitPUSHCONSTANT(MethodGenerationContext* mgenc, vm_oop_t cst) {
     if (CLASS_OF(cst) == load_ptr(integerClass)) {
         if (INT_VAL(cst) == 0ll) {
             EMIT1(BC_PUSH_0);
@@ -104,7 +104,7 @@ void BytecodeGenerator::EmitPUSHCONSTANT(MethodGenerationContext* mgenc,
         return;
     }
     
-    int8_t idx = mgenc->FindLiteralIndex(cst);
+    int8_t idx = mgenc->AddLiteralIfAbsent(cst);
     if (idx == 0) {
         EMIT1(BC_PUSH_CONSTANT_0);
         return;
@@ -154,11 +154,13 @@ void BytecodeGenerator::EmitPOPFIELD(MethodGenerationContext* mgenc, VMSymbol* f
 }
 
 void BytecodeGenerator::EmitSEND(MethodGenerationContext* mgenc, VMSymbol* msg) {
-    EMIT2(BC_SEND, mgenc->FindLiteralIndex(msg));
+    int8_t idx = mgenc->AddLiteralIfAbsent(msg);
+    EMIT2(BC_SEND, idx);
 }
 
 void BytecodeGenerator::EmitSUPERSEND(MethodGenerationContext* mgenc, VMSymbol* msg) {
-    EMIT2(BC_SUPER_SEND, mgenc->FindLiteralIndex(msg));
+    int8_t idx = mgenc->AddLiteralIfAbsent(msg);
+    EMIT2(BC_SUPER_SEND, idx);
 }
 
 void BytecodeGenerator::EmitRETURNLOCAL(MethodGenerationContext* mgenc) {

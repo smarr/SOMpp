@@ -63,7 +63,7 @@ public:
     void UpdateLiteral(vm_oop_t oldValue, uint8_t index, vm_oop_t newValue);
     bool AddArgumentIfAbsent(const StdString& arg);
     bool AddLocalIfAbsent(const StdString& local);
-    bool AddLiteralIfAbsent(vm_oop_t lit);
+    int8_t AddLiteralIfAbsent(vm_oop_t lit);
     void SetFinished(bool finished = true);
 
     ClassGenerationContext* GetHolder();

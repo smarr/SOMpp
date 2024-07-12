@@ -267,11 +267,15 @@ bool MethodGenerationContext::AddLocalIfAbsent(const StdString& local) {
     return true;
 }
 
-bool MethodGenerationContext::AddLiteralIfAbsent(vm_oop_t lit) {
-    if (literals.IndexOf(lit) != -1) return false;
-    literals.PushBack(lit);
-    return true;
+int8_t MethodGenerationContext::AddLiteralIfAbsent(vm_oop_t lit) {
+    int8_t idx = literals.IndexOf(lit);
+    if (idx == -1) {
+        literals.PushBack(lit);
+        idx = literals.Size() - 1;
+    }
+    return idx;
 }
+
 void MethodGenerationContext::SetFinished(bool finished) {
     this->finished = finished;
 }
