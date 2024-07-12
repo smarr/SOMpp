@@ -79,6 +79,9 @@ public:
     void PatchJumpTarget(size_t jump_position);
 
     bool HasBytecodes();
+    std::vector<uint8_t> GetBytecodes() {
+        return bytecode;
+    }
 
 private:
     ClassGenerationContext* holderGenc;

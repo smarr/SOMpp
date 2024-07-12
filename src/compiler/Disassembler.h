@@ -26,6 +26,8 @@
  THE SOFTWARE.
  */
 
+#include <compiler/MethodGenerationContext.h>
+
 #include "../vmobjects/VMClass.h"
 #include "../vmobjects/VMMethod.h"
 #include "../vmobjects/VMFrame.h"
@@ -34,7 +36,10 @@ class Disassembler {
 public:
     static void Dump(VMClass* cl);
     static void DumpMethod(VMMethod* method, const char* indent);
+    static void DumpMethod(MethodGenerationContext* mgenc, const char* indent);
     static void DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx);
 private:
     static void dispatch(vm_oop_t o);
+    
+    static void dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, const char* indent, VMMethod* method);
 };
