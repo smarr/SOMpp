@@ -10,38 +10,46 @@ void BytecodeGenerationTest::dump(MethodGenerationContext* mgenc) {
     Disassembler::DumpMethod(mgenc, "");
 }
 
-ClassGenerationContext* BytecodeGenerationTest::makeCGenC() {
+void BytecodeGenerationTest::ensureCGenC() {
+    if (_cgenc != nullptr) return;
+    
     _cgenc = new ClassGenerationContext();
     _cgenc->SetName(GetUniverse()->SymbolFor("Test"));
-    return _cgenc;
 }
 
-MethodGenerationContext* BytecodeGenerationTest::makeMGenC() {
+void BytecodeGenerationTest::ensureMGenC() {
+    if (_mgenc != nullptr) return;
+    ensureCGenC();
+    
     _mgenc = new MethodGenerationContext();
-    _mgenc->SetHolder(makeCGenC());
+    _mgenc->SetHolder(_cgenc);
     _mgenc->AddArgument("self");
-    return _mgenc;
 }
 
-std::vector<uint8_t> BytecodeGenerationTest::methodToBytecode(MethodGenerationContext* mgenc, const char* source, bool dumpBytecodes) {
+void BytecodeGenerationTest::addField(const char* fieldName) {
+    ensureCGenC();
+    _cgenc->AddInstanceField(GetUniverse()->SymbolFor(fieldName));
+}
+
+std::vector<uint8_t> BytecodeGenerationTest::methodToBytecode(const char* source, bool dumpBytecodes) {
+    ensureMGenC();
+    
     istringstream ss(source);
     
     StdString fileName = "test";
     Parser parser(ss, fileName);
-    parser.method(mgenc);
+    parser.method(_mgenc);
     
     if (dumpBytecodes) {
-        dump(mgenc);
+        dump(_mgenc);
     }
-    return mgenc->GetBytecodes();
+    return _mgenc->GetBytecodes();
 }
 
 
 
 void BytecodeGenerationTest::testEmptyMethodReturnsSelf() {
-    auto* mgenc = makeMGenC();
-    
-    auto bytecodes = methodToBytecode(mgenc, "test = ( )");
+    auto bytecodes = methodToBytecode("test = ( )");
     
     CPPUNIT_ASSERT_EQUAL((size_t) 4, bytecodes.size());
     
@@ -51,8 +59,7 @@ void BytecodeGenerationTest::testEmptyMethodReturnsSelf() {
 }
 
 void BytecodeGenerationTest::testPushConstant() {
-    auto* mgenc = makeMGenC();
-    auto bytecodes = methodToBytecode(mgenc, R"""(
+    auto bytecodes = methodToBytecode(R"""(
                                       test = (
                                         0. 1. nil. #a. true. false.
                                       ) )""");
@@ -70,8 +77,7 @@ void BytecodeGenerationTest::testPushConstant() {
 
 
 void BytecodeGenerationTest::testIfPushConstantSame() {
-    auto* mgenc = makeMGenC();
-    auto bytecodes = methodToBytecode(mgenc, R"""(
+    auto bytecodes = methodToBytecode(R"""(
                                       test = (
                                         #a. #b. #c. #d.
                                         true ifFalse: [ #a. #b. #c. #d. ]
@@ -91,8 +97,7 @@ void BytecodeGenerationTest::testIfPushConstantSame() {
 }
 
 void BytecodeGenerationTest::testIfPushConstantDifferent() {
-    auto* mgenc = makeMGenC();
-    auto bytecodes = methodToBytecode(mgenc, R"""(
+    auto bytecodes = methodToBytecode(R"""(
                                       test = (
                                         #a. #b. #c. #d.
                                         true ifFalse: [ #e. #f. #g. #h. ]

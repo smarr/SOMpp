@@ -17,19 +17,24 @@ class BytecodeGenerationTest: public CPPUNIT_NS::TestCase {
 public:
     inline void setUp(void) {
     }
+    
     inline void tearDown(void) {
         delete _cgenc;
+        _cgenc = nullptr;
+        
         delete _mgenc;
+        _mgenc = nullptr;
     }
 
 private:
     ClassGenerationContext* _cgenc;
     MethodGenerationContext* _mgenc;
     
-    ClassGenerationContext* makeCGenC();
-    MethodGenerationContext* makeMGenC();
+    void ensureCGenC();
+    void ensureMGenC();
+    void addField(const char* fieldName);
     
-    std::vector<uint8_t> methodToBytecode(MethodGenerationContext* mgenc, const char* source, bool dumpBytecodes = false);
+    std::vector<uint8_t> methodToBytecode(const char* source, bool dumpBytecodes = false);
     
     void testEmptyMethodReturnsSelf();
     
