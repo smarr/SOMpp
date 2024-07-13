@@ -43,6 +43,7 @@ public:
 
     void Classdef(ClassGenerationContext* cgenc);
     void method(MethodGenerationContext* mgenc);
+    void nestedBlock(MethodGenerationContext* mgenc);
     
 private:
     void GetSym();
@@ -104,7 +105,6 @@ private:
     VMSymbol* selector(void);
     VMSymbol* keywordSelector(void);
     StdString _string(void);
-    void nestedBlock(MethodGenerationContext* mgenc);
     void blockPattern(MethodGenerationContext* mgenc);
     void blockArguments(MethodGenerationContext* mgenc);
     void genPushVariable(MethodGenerationContext*, const StdString&);

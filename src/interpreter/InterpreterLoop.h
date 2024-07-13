@@ -9,15 +9,34 @@ vm_oop_t Start() {
         &&LABEL_BC_HALT,
         &&LABEL_BC_DUP,
         &&LABEL_BC_PUSH_LOCAL,
+        &&LABEL_BC_PUSH_LOCAL_0,
+        &&LABEL_BC_PUSH_LOCAL_1,
+        &&LABEL_BC_PUSH_LOCAL_2,
         &&LABEL_BC_PUSH_ARGUMENT,
+        &&LABEL_BC_PUSH_SELF,
+        &&LABEL_BC_PUSH_ARG_1,
+        &&LABEL_BC_PUSH_ARG_2,
         &&LABEL_BC_PUSH_FIELD,
+        &&LABEL_BC_PUSH_FIELD_0,
+        &&LABEL_BC_PUSH_FIELD_1,
         &&LABEL_BC_PUSH_BLOCK,
         &&LABEL_BC_PUSH_CONSTANT,
+        &&LABEL_BC_PUSH_CONSTANT_0,
+        &&LABEL_BC_PUSH_CONSTANT_1,
+        &&LABEL_BC_PUSH_CONSTANT_2,
+        &&LABEL_BC_PUSH_0,
+        &&LABEL_BC_PUSH_1,
+        &&LABEL_BC_PUSH_NIL,
         &&LABEL_BC_PUSH_GLOBAL,
         &&LABEL_BC_POP,
         &&LABEL_BC_POP_LOCAL,
+        &&LABEL_BC_POP_LOCAL_0,
+        &&LABEL_BC_POP_LOCAL_1,
+        &&LABEL_BC_POP_LOCAL_2,
         &&LABEL_BC_POP_ARGUMENT,
         &&LABEL_BC_POP_FIELD,
+        &&LABEL_BC_POP_FIELD_0,
+        &&LABEL_BC_POP_FIELD_1,
         &&LABEL_BC_SEND,
         &&LABEL_BC_SUPER_SEND,
         &&LABEL_BC_RETURN_LOCAL,
@@ -44,15 +63,64 @@ LABEL_BC_PUSH_LOCAL:
     PROLOGUE(3);
     doPushLocal(bytecodeIndexGlobal - 3);
     DISPATCH_NOGC();
+
+LABEL_BC_PUSH_LOCAL_0:
+    PROLOGUE(1);
+    doPushLocalWithIndex(0);
+    DISPATCH_NOGC();
+    
+LABEL_BC_PUSH_LOCAL_1:
+    PROLOGUE(1);
+    doPushLocalWithIndex(1);
+    DISPATCH_NOGC();
+    
+LABEL_BC_PUSH_LOCAL_2:
+    PROLOGUE(1);
+    doPushLocalWithIndex(2);
+    DISPATCH_NOGC();
     
 LABEL_BC_PUSH_ARGUMENT:
     PROLOGUE(3);
     doPushArgument(bytecodeIndexGlobal - 3);
     DISPATCH_NOGC();
+
+LABEL_BC_PUSH_SELF:
+    PROLOGUE(1);
+    {
+        vm_oop_t argument = GetFrame()->GetArgumentInCurrentContext(0);
+        GetFrame()->Push(argument);
+    }
+    DISPATCH_NOGC();
+
+LABEL_BC_PUSH_ARG_1:
+    PROLOGUE(1);
+    {
+        vm_oop_t argument = GetFrame()->GetArgumentInCurrentContext(1);
+        GetFrame()->Push(argument);
+    }
+    DISPATCH_NOGC();
+    
+LABEL_BC_PUSH_ARG_2:
+    PROLOGUE(1);
+    {
+        vm_oop_t argument = GetFrame()->GetArgumentInCurrentContext(2);
+        GetFrame()->Push(argument);
+    }
+    DISPATCH_NOGC();
     
 LABEL_BC_PUSH_FIELD:
     PROLOGUE(2);
     doPushField(bytecodeIndexGlobal - 2);
+    DISPATCH_NOGC();
+
+LABEL_BC_PUSH_FIELD_0:
+    PROLOGUE(1);
+    doPushFieldWithIndex(0);
+    DISPATCH_NOGC();
+
+LABEL_BC_PUSH_FIELD_1:
+    PROLOGUE(1);
+    doPushFieldWithIndex(1);
     DISPATCH_NOGC();
     
 LABEL_BC_PUSH_BLOCK:
@@ -63,6 +131,45 @@ LABEL_BC_PUSH_BLOCK:
 LABEL_BC_PUSH_CONSTANT:
     PROLOGUE(2);
     doPushConstant(bytecodeIndexGlobal - 2);
+    DISPATCH_NOGC();
+    
+LABEL_BC_PUSH_CONSTANT_0:
+    PROLOGUE(1);
+    {
+        vm_oop_t constant = method->GetIndexableField(0);
+        GetFrame()->Push(constant);
+    }
+    DISPATCH_NOGC();
+    
+LABEL_BC_PUSH_CONSTANT_1:
+    PROLOGUE(1);
+    {
+        vm_oop_t constant = method->GetIndexableField(1);
+        GetFrame()->Push(constant);
+    }
+    DISPATCH_NOGC();
+    
+LABEL_BC_PUSH_CONSTANT_2:
+    PROLOGUE(1);
+    {
+        vm_oop_t constant = method->GetIndexableField(2);
+        GetFrame()->Push(constant);
+    }
+    DISPATCH_NOGC();
+
+LABEL_BC_PUSH_0:
+    PROLOGUE(1);
+    GetFrame()->Push(NEW_INT(0));
+    DISPATCH_NOGC();
+    
+LABEL_BC_PUSH_1:
+    PROLOGUE(1);
+    GetFrame()->Push(NEW_INT(1));
+    DISPATCH_NOGC();
+    
+LABEL_BC_PUSH_NIL:
+    PROLOGUE(1);
+    GetFrame()->Push(load_ptr(nilObject));
     DISPATCH_NOGC();
     
 LABEL_BC_PUSH_GLOBAL:
@@ -79,6 +186,21 @@ LABEL_BC_POP_LOCAL:
     PROLOGUE(3);
     doPopLocal(bytecodeIndexGlobal - 3);
     DISPATCH_NOGC();
+
+LABEL_BC_POP_LOCAL_0:
+    PROLOGUE(1);
+    doPopLocalWithIndex(0);
+    DISPATCH_NOGC();
+    
+LABEL_BC_POP_LOCAL_1:
+    PROLOGUE(1);
+    doPopLocalWithIndex(1);
+    DISPATCH_NOGC();
+    
+LABEL_BC_POP_LOCAL_2:
+    PROLOGUE(1);
+    doPopLocalWithIndex(2);
+    DISPATCH_NOGC();
     
 LABEL_BC_POP_ARGUMENT:
     PROLOGUE(3);
@@ -88,6 +210,16 @@ LABEL_BC_POP_ARGUMENT:
 LABEL_BC_POP_FIELD:
     PROLOGUE(2);
     doPopField(bytecodeIndexGlobal - 2);
+    DISPATCH_NOGC();
+
+LABEL_BC_POP_FIELD_0:
+    PROLOGUE(1);
+    doPopFieldWithIndex(0);
+    DISPATCH_NOGC();
+    
+LABEL_BC_POP_FIELD_1:
+    PROLOGUE(1);
+    doPopFieldWithIndex(1);
     DISPATCH_NOGC();
     
 LABEL_BC_SEND:

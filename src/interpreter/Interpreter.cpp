@@ -92,7 +92,7 @@ void Interpreter::SetFrame(VMFrame* frame) {
 
 vm_oop_t Interpreter::GetSelf() const {
     VMFrame* context = GetFrame()->GetOuterContext();
-    return context->GetArgument(0, 0);
+    return context->GetArgumentInCurrentContext(0);
 }
 
 VMFrame* Interpreter::popFrame() {
@@ -184,6 +184,11 @@ void Interpreter::doPushLocal(long bytecodeIndex) {
     GetFrame()->Push(local);
 }
 
+void Interpreter::doPushLocalWithIndex(uint8_t localIndex){
+    vm_oop_t local = GetFrame()->GetLocalInCurrentContext(localIndex);
+    GetFrame()->Push(local);
+}
+
 void Interpreter::doPushArgument(long bytecodeIndex) {
     uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
@@ -195,6 +200,10 @@ void Interpreter::doPushArgument(long bytecodeIndex) {
 
 void Interpreter::doPushField(long bytecodeIndex) {
     uint8_t fieldIndex = method->GetBytecode(bytecodeIndex + 1);
+    doPushFieldWithIndex(fieldIndex);
+}
+
+void Interpreter::doPushFieldWithIndex(uint8_t fieldIndex) {
     vm_oop_t self = GetSelf();
     vm_oop_t o;
 
@@ -253,6 +262,11 @@ void Interpreter::doPopLocal(long bytecodeIndex) {
     GetFrame()->SetLocal(bc1, bc2, o);
 }
 
+void Interpreter::doPopLocalWithIndex(uint8_t localIndex) {
+    vm_oop_t o = GetFrame()->Pop();
+    GetFrame()->SetLocal(localIndex, o);
+}
+
 void Interpreter::doPopArgument(long bytecodeIndex) {
     uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
@@ -262,8 +276,11 @@ void Interpreter::doPopArgument(long bytecodeIndex) {
 }
 
 void Interpreter::doPopField(long bytecodeIndex) {
-    uint8_t field_index = method->GetBytecode(bytecodeIndex + 1);
+    uint8_t fieldIndex = method->GetBytecode(bytecodeIndex + 1);
+    doPopFieldWithIndex(fieldIndex);
+}
 
+void Interpreter::doPopFieldWithIndex(uint8_t fieldIndex) {
     vm_oop_t self = GetSelf();
     vm_oop_t o = GetFrame()->Pop();
 
@@ -271,7 +288,7 @@ void Interpreter::doPopField(long bytecodeIndex) {
         GetUniverse()->ErrorExit("Integers do not have fields that can be set");
     }
     else {
-        ((VMObject*) self)->SetField(field_index, o);
+        ((VMObject*) self)->SetField(fieldIndex, o);
     }
 }
 
@@ -334,10 +351,10 @@ void Interpreter::doReturnNonLocal() {
     VMFrame* context = GetFrame()->GetOuterContext();
 
     if (!context->HasPreviousFrame()) {
-        VMBlock* block = static_cast<VMBlock*>(GetFrame()->GetArgument(0, 0));
+        VMBlock* block = static_cast<VMBlock*>(GetFrame()->GetArgumentInCurrentContext(0));
         VMFrame* prevFrame = GetFrame()->GetPreviousFrame();
         VMFrame* outerContext = prevFrame->GetOuterContext();
-        vm_oop_t sender = outerContext->GetArgument(0, 0);
+        vm_oop_t sender = outerContext->GetArgumentInCurrentContext(0);
         vm_oop_t arguments[] = {block};
 
         popFrame();

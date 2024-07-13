@@ -130,22 +130,50 @@ uint8_t MethodGenerationContext::ComputeStackDepth() {
             i++;
             break;
         case BC_DUP:
+        case BC_PUSH_LOCAL_0:
+        case BC_PUSH_LOCAL_1:
+        case BC_PUSH_LOCAL_2:
+        case BC_PUSH_SELF:
+        case BC_PUSH_ARG_1:
+        case BC_PUSH_ARG_2:
             depth++;
-            i++;
+            i += 1;
             break;
         case BC_PUSH_LOCAL:
         case BC_PUSH_ARGUMENT:
             depth++;
             i += 3;
             break;
+        case BC_PUSH_FIELD_0:
+        case BC_PUSH_FIELD_1:
+            depth++;
+            i += 1;
+            break;
         case BC_PUSH_FIELD:
         case BC_PUSH_BLOCK:
         case BC_PUSH_CONSTANT:
+            depth++;
+            i += 2;
+            break;
+        case BC_PUSH_CONSTANT_0:
+        case BC_PUSH_CONSTANT_1:
+        case BC_PUSH_CONSTANT_2:
+        case BC_PUSH_0:
+        case BC_PUSH_1:
+        case BC_PUSH_NIL:
+            depth++;
+            i += 1;
+            break;
         case BC_PUSH_GLOBAL:
             depth++;
             i += 2;
             break;
         case BC_POP:
+        case BC_POP_LOCAL_0:
+        case BC_POP_LOCAL_1:
+        case BC_POP_LOCAL_2:
+        case BC_POP_FIELD_0:
+        case BC_POP_FIELD_1:
             depth--;
             i++;
             break;
@@ -249,11 +277,15 @@ bool MethodGenerationContext::AddLocalIfAbsent(const StdString& local) {
     return true;
 }
 
-bool MethodGenerationContext::AddLiteralIfAbsent(vm_oop_t lit) {
-    if (literals.IndexOf(lit) != -1) return false;
-    literals.PushBack(lit);
-    return true;
+int8_t MethodGenerationContext::AddLiteralIfAbsent(vm_oop_t lit) {
+    int8_t idx = literals.IndexOf(lit);
+    if (idx == -1) {
+        literals.PushBack(lit);
+        idx = literals.Size() - 1;
+    }
+    return idx;
 }
+
 void MethodGenerationContext::SetFinished(bool finished) {
     this->finished = finished;
 }

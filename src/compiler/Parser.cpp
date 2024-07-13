@@ -153,13 +153,10 @@ void Parser::genPushVariable(MethodGenerationContext* mgenc,
             bcGen->EmitPUSHLOCAL(mgenc, index, context);
     } else if (mgenc->HasField(var)) {
         VMSymbol* fieldName = GetUniverse()->SymbolFor(var);
-        mgenc->AddLiteralIfAbsent(fieldName);
         bcGen->EmitPUSHFIELD(mgenc, fieldName);
     } else {
 
         VMSymbol* global = GetUniverse()->SymbolFor(var);
-        mgenc->AddLiteralIfAbsent(global);
-
         bcGen->EmitPUSHGLOBAL(mgenc, global);
     }
 }
@@ -418,9 +415,7 @@ void Parser::blockBody(MethodGenerationContext* mgenc, bool seen_period, bool is
         if (!is_inlined) {
             // if the block is empty, we need to return nil
             if (mgenc->IsBlockMethod() && !mgenc->HasBytecodes()) {
-                VMSymbol* nilSym = GetUniverse()->SymbolFor("nil");
-                mgenc->AddLiteralIfAbsent(nilSym);
-                bcGen->EmitPUSHGLOBAL(mgenc, nilSym);
+                bcGen->EmitPUSHCONSTANT(mgenc, load_ptr(nilObject));
             }
             bcGen->EmitRETURNLOCAL(mgenc);
             mgenc->SetFinished();
@@ -487,7 +482,6 @@ void Parser::assignments(MethodGenerationContext* mgenc, list<StdString>& l) {
 StdString Parser::assignment(MethodGenerationContext* mgenc) {
     StdString v = variable();
     VMSymbol* var = GetUniverse()->SymbolFor(v);
-    mgenc->AddLiteralIfAbsent(var);
 
     expect(Assign);
 
@@ -529,7 +523,6 @@ bool Parser::primary(MethodGenerationContext* mgenc) {
         nestedBlock(bgenc);
 
         VMMethod* block_method = bgenc->Assemble();
-        mgenc->AddLiteral(block_method);
         bcGen->EmitPUSHBLOCK(mgenc, block_method);
         delete (bgenc);
         break;
@@ -578,7 +571,6 @@ void Parser::messages(MethodGenerationContext* mgenc, bool super) {
 
 void Parser::unaryMessage(MethodGenerationContext* mgenc, bool super) {
     VMSymbol* msg = unarySelector();
-    mgenc->AddLiteralIfAbsent(msg);
 
     if (super) {
         bcGen->EmitSUPERSEND(mgenc, msg);
@@ -589,7 +581,6 @@ void Parser::unaryMessage(MethodGenerationContext* mgenc, bool super) {
 
 void Parser::binaryMessage(MethodGenerationContext* mgenc, bool super) {
     VMSymbol* msg = binarySelector();
-    mgenc->AddLiteralIfAbsent(msg);
 
     bool tmp_bool = false;
     binaryOperand(mgenc);
@@ -623,8 +614,6 @@ void Parser::keywordMessage(MethodGenerationContext* mgenc, bool super) {
     }
 
     VMSymbol* msg = GetUniverse()->SymbolFor(kw);
-
-    mgenc->AddLiteralIfAbsent(msg);
 
     if (super)
         bcGen->EmitSUPERSEND(mgenc, msg);
@@ -680,7 +669,6 @@ vm_oop_t Parser::literalNumberOop() {
 
 void Parser::literalNumber(MethodGenerationContext* mgenc) {
     vm_oop_t lit = literalNumberOop();
-    mgenc->AddLiteralIfAbsent(lit);
     bcGen->EmitPUSHCONSTANT(mgenc, lit);
 }
 
@@ -715,14 +703,13 @@ vm_oop_t Parser::literalDouble(bool negateValue) {
 void Parser::literalSymbol(MethodGenerationContext* mgenc) {
     VMSymbol* symb;
     expect(Pound);
-    if(sym == STString) {
+    if (sym == STString) {
         StdString s = _string();
         symb = GetUniverse()->SymbolFor(s);
 
-    } else
-    symb = selector();
-    mgenc->AddLiteralIfAbsent(symb);
-
+    } else {
+        symb = selector();
+    }
     bcGen->EmitPUSHCONSTANT(mgenc, symb);
 }
 
@@ -735,10 +722,6 @@ void Parser::literalArray(MethodGenerationContext* mgenc) {
     VMSymbol* newMessage           = GetUniverse()->SymbolFor("new:");
     VMSymbol* atPutMessage         = GetUniverse()->SymbolFor("at:put:");
 
-    mgenc->AddLiteralIfAbsent(arrayClassName);
-    mgenc->AddLiteralIfAbsent(newMessage);
-    mgenc->AddLiteralIfAbsent(atPutMessage);
-
     const uint8_t arraySizeLiteralIndex = mgenc->AddLiteral(arraySizePlaceholder);
 
     // create bytecode sequence for instantiating new array
@@ -750,7 +733,6 @@ void Parser::literalArray(MethodGenerationContext* mgenc) {
 
     while (sym != EndTerm) {
         vm_oop_t pushIndex = NEW_INT(i);
-        mgenc->AddLiteralIfAbsent(pushIndex);
         bcGen->EmitPUSHCONSTANT(mgenc, pushIndex);
         literal(mgenc);
         bcGen->EmitSEND(mgenc, atPutMessage);
@@ -767,8 +749,6 @@ void Parser::literalString(MethodGenerationContext* mgenc) {
     StdString s = _string();
 
     VMString* str = GetUniverse()->NewString(s);
-    mgenc->AddLiteralIfAbsent(str);
-
     bcGen->EmitPUSHCONSTANT(mgenc, str);
 }
 
@@ -816,9 +796,7 @@ void Parser::nestedBlock(MethodGenerationContext* mgenc) {
     if (!mgenc->IsFinished()) {
         if (!mgenc->HasBytecodes()) {
           // if the block is empty, we need to return nil
-          VMSymbol* nilSym = GetUniverse()->SymbolFor("nil");
-          mgenc->AddLiteralIfAbsent(nilSym);
-          bcGen->EmitPUSHGLOBAL(mgenc, nilSym);
+          bcGen->EmitPUSHCONSTANT(mgenc, load_ptr(nilObject));
         }
         bcGen->EmitRETURNLOCAL(mgenc);
         mgenc->SetFinished(true);

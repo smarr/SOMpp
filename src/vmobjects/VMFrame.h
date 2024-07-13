@@ -85,12 +85,24 @@ public:
         return load_ptr(context->locals[index]);
     }
     
+    inline vm_oop_t GetLocalInCurrentContext(uint8_t localIndex) {
+        return load_ptr(this->locals[localIndex]);
+    }
+    
     void SetLocal(long index, long context_level, vm_oop_t);
+    
+    inline void SetLocal(long index, vm_oop_t value) {
+        store_ptr(locals[index], value);
+    }
     
     inline vm_oop_t GetArgument(long index, long contextLevel) {
         // get the context
         VMFrame* context = GetContextLevel(contextLevel);
         return load_ptr(context->arguments[index]);
+    }
+    
+    inline vm_oop_t GetArgumentInCurrentContext(long index) {
+        return load_ptr(this->arguments[index]);
     }
     
     void SetArgument(long, long, vm_oop_t);
@@ -118,7 +130,6 @@ private:
     gc_oop_t* locals;
     gc_oop_t* stack_ptr;
     
-    inline void SetLocal(long, vm_oop_t);
     inline void SetArgument(long index, vm_oop_t value);
 
     static const long VMFrameNumberOfFields;
@@ -170,10 +181,6 @@ void VMFrame::ClearPreviousFrame() {
 
 VMMethod* VMFrame::GetMethod() const {
     return load_ptr(method);
-}
-
-void VMFrame::SetLocal(long index, vm_oop_t value) {
-    store_ptr(locals[index], value);
 }
 
 void VMFrame::SetArgument(long index, vm_oop_t value) {

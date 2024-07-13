@@ -24,7 +24,10 @@
  THE SOFTWARE.
  */
 
+#include <assert.h>
+
 #include "BytecodeGenerator.h"
+#include <vm/Universe.h>
 
 #include <vmobjects/VMObject.h>
 #include <vmobjects/VMMethod.h>
@@ -52,25 +55,97 @@ void BytecodeGenerator::EmitDUP(MethodGenerationContext* mgenc) {
 
 void BytecodeGenerator::EmitPUSHLOCAL(MethodGenerationContext* mgenc, long idx,
         int ctx) {
+    assert(idx >= 0);
+    assert(ctx >= 0);
+    if (ctx == 0) {
+        if (idx == 0) {
+            EMIT1(BC_PUSH_LOCAL_0);
+            return;
+        }
+        if (idx == 1) {
+            EMIT1(BC_PUSH_LOCAL_1);
+            return;
+        }
+        if (idx == 2) {
+            EMIT1(BC_PUSH_LOCAL_2);
+            return;
+        }
+    }
     EMIT3(BC_PUSH_LOCAL, idx, ctx);
 }
 
 void BytecodeGenerator::EmitPUSHARGUMENT(MethodGenerationContext* mgenc,
         long idx, int ctx) {
+    assert(idx >= 0);
+    assert(ctx >= 0);
+    
+    if (ctx == 0) {
+        if (idx == 0) {
+            EMIT1(BC_PUSH_SELF);
+            return;
+        }
+        
+        if (idx == 1) {
+            EMIT1(BC_PUSH_ARG_1);
+            return;
+        }
+        
+        if (idx == 2) {
+            EMIT1(BC_PUSH_ARG_2);
+            return;
+        }
+    }
     EMIT3(BC_PUSH_ARGUMENT, idx, ctx);
 }
 
 void BytecodeGenerator::EmitPUSHFIELD(MethodGenerationContext* mgenc, VMSymbol* field) {
-    EMIT2(BC_PUSH_FIELD, mgenc->GetFieldIndex(field));
+    uint8_t idx = mgenc->GetFieldIndex(field);
+    if (idx == 0) {
+        EMIT1(BC_PUSH_FIELD_0);
+    } else if (idx == 1) {
+        EMIT1(BC_PUSH_FIELD_1);
+    } else {
+        EMIT2(BC_PUSH_FIELD, idx);
+    }
 }
 
 void BytecodeGenerator::EmitPUSHBLOCK(MethodGenerationContext* mgenc, VMMethod* block) {
-    EMIT2(BC_PUSH_BLOCK, mgenc->FindLiteralIndex(block));
+    int8_t idx = mgenc->AddLiteralIfAbsent(block);
+    EMIT2(BC_PUSH_BLOCK, idx);
 }
 
-void BytecodeGenerator::EmitPUSHCONSTANT(MethodGenerationContext* mgenc,
-        vm_oop_t cst) {
-    EMIT2(BC_PUSH_CONSTANT, mgenc->FindLiteralIndex(cst));
+void BytecodeGenerator::EmitPUSHCONSTANT(MethodGenerationContext* mgenc, vm_oop_t cst) {
+    if (CLASS_OF(cst) == load_ptr(integerClass)) {
+        if (INT_VAL(cst) == 0ll) {
+            EMIT1(BC_PUSH_0);
+            return;
+        }
+        if (INT_VAL(cst) == 1ll) {
+            EMIT1(BC_PUSH_1);
+            return;
+        }
+    }
+    
+    if (cst == load_ptr(nilObject)) {
+        EMIT1(BC_PUSH_NIL);
+        return;
+    }
+    
+    int8_t idx = mgenc->AddLiteralIfAbsent(cst);
+    if (idx == 0) {
+        EMIT1(BC_PUSH_CONSTANT_0);
+        return;
+    }
+    if (idx == 1) {
+        EMIT1(BC_PUSH_CONSTANT_1);
+        return;
+    }
+    if (idx == 2) {
+        EMIT1(BC_PUSH_CONSTANT_2);
+        return;
+    }
+    
+    EMIT2(BC_PUSH_CONSTANT, idx);
 }
 
 void BytecodeGenerator::EmitPUSHCONSTANT(MethodGenerationContext* mgenc,
@@ -84,7 +159,16 @@ void BytecodeGenerator::EmitPUSHCONSTANTString(MethodGenerationContext* mgenc,
 }
 
 void BytecodeGenerator::EmitPUSHGLOBAL(MethodGenerationContext* mgenc, VMSymbol* global) {
-    EMIT2(BC_PUSH_GLOBAL, mgenc->FindLiteralIndex(global));
+    if (global == GetUniverse()->SymbolFor("nil")) {
+        EmitPUSHCONSTANT(mgenc, load_ptr(nilObject));
+    } else if (global == GetUniverse()->SymbolFor("true")) {
+        EmitPUSHCONSTANT(mgenc, load_ptr(trueObject));
+    } else if (global == GetUniverse()->SymbolFor("false")) {
+        EmitPUSHCONSTANT(mgenc, load_ptr(falseObject));
+    } else {
+        int8_t idx = mgenc->AddLiteralIfAbsent(global);
+        EMIT2(BC_PUSH_GLOBAL, idx);
+    }
 }
 
 void BytecodeGenerator::EmitPOP(MethodGenerationContext* mgenc) {
@@ -93,6 +177,25 @@ void BytecodeGenerator::EmitPOP(MethodGenerationContext* mgenc) {
 
 void BytecodeGenerator::EmitPOPLOCAL(MethodGenerationContext* mgenc, long idx,
         int ctx) {
+    assert(idx >= 0);
+    assert(ctx >= 0);
+    if (ctx == 0) {
+        if (idx == 0) {
+            EMIT1(BC_POP_LOCAL_0);
+            return;
+        }
+        
+        if (idx == 1) {
+            EMIT1(BC_POP_LOCAL_1);
+            return;
+        }
+        
+        if (idx == 2) {
+            EMIT1(BC_POP_LOCAL_2);
+            return;
+        }
+    }
+    
     EMIT3(BC_POP_LOCAL, idx, ctx);
 }
 
@@ -102,15 +205,25 @@ void BytecodeGenerator::EmitPOPARGUMENT(MethodGenerationContext* mgenc,
 }
 
 void BytecodeGenerator::EmitPOPFIELD(MethodGenerationContext* mgenc, VMSymbol* field) {
-    EMIT2(BC_POP_FIELD, mgenc->GetFieldIndex(field));
+    uint8_t idx = mgenc->GetFieldIndex(field);
+    
+    if (idx == 0) {
+        EMIT1(BC_POP_FIELD_0);
+    } else if (idx == 1) {
+        EMIT1(BC_POP_FIELD_1);
+    } else {
+        EMIT2(BC_POP_FIELD, idx);
+    }
 }
 
 void BytecodeGenerator::EmitSEND(MethodGenerationContext* mgenc, VMSymbol* msg) {
-    EMIT2(BC_SEND, mgenc->FindLiteralIndex(msg));
+    int8_t idx = mgenc->AddLiteralIfAbsent(msg);
+    EMIT2(BC_SEND, idx);
 }
 
 void BytecodeGenerator::EmitSUPERSEND(MethodGenerationContext* mgenc, VMSymbol* msg) {
-    EMIT2(BC_SUPER_SEND, mgenc->FindLiteralIndex(msg));
+    int8_t idx = mgenc->AddLiteralIfAbsent(msg);
+    EMIT2(BC_SUPER_SEND, idx);
 }
 
 void BytecodeGenerator::EmitRETURNLOCAL(MethodGenerationContext* mgenc) {

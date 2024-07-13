@@ -80,6 +80,7 @@ public:
     VMFrame* NewFrame(VMFrame*, VMMethod*) const;
     VMMethod* NewMethod(VMSymbol*, size_t, size_t) const;
     VMObject* NewInstance(VMClass*) const;
+    VMObject* NewInstanceWithoutFields() const;
     VMInteger* NewInteger(int64_t) const;
     void WalkGlobals(walk_heap_fn);
     VMDouble* NewDouble(double) const;
