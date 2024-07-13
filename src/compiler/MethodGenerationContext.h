@@ -48,7 +48,6 @@ public:
     bool FindVar(const StdString& var, size_t* index,
             int* context, bool* isArgument);
     bool HasField(const StdString& field);
-    uint8_t ComputeStackDepth();
     
     uint8_t GetFieldIndex(VMSymbol* field);
 
@@ -75,7 +74,8 @@ public:
     bool IsFinished();
     void RemoveLastBytecode() {bytecode.pop_back();};
     size_t GetNumberOfArguments();
-    size_t AddBytecode(uint8_t bc);
+    size_t AddBytecode(uint8_t bc, size_t stackEffect);
+    size_t AddBytecodeArgument(uint8_t bc);
     void PatchJumpTarget(size_t jump_position);
 
     bool HasBytecodes();
@@ -94,4 +94,7 @@ private:
     ExtendedList<vm_oop_t> literals;
     bool finished;
     std::vector<uint8_t> bytecode;
+    
+    size_t currentStackDepth;
+    size_t maxStackDepth;
 };

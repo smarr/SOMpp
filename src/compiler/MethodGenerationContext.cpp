@@ -38,7 +38,7 @@
 #include "../vmobjects/VMPrimitive.h"
 
 MethodGenerationContext::MethodGenerationContext() {
-    //signature = 0;
+    signature = nullptr;
     holderGenc = 0;
     outerGenc = 0;
     arguments.Clear();
@@ -48,6 +48,8 @@ MethodGenerationContext::MethodGenerationContext() {
     primitive = false;
     blockMethod = false;
     finished = false;
+    currentStackDepth = 0;
+    maxStackDepth = 0;
 }
 
 VMMethod* MethodGenerationContext::Assemble() {
@@ -61,7 +63,7 @@ VMMethod* MethodGenerationContext::Assemble() {
     size_t numLocals = locals.Size();
     meth->SetNumberOfLocals(numLocals);
 
-    meth->SetMaximumNumberOfStackElements(ComputeStackDepth());
+    meth->SetMaximumNumberOfStackElements(maxStackDepth);
 
     // copy literals into the method
     for (int i = 0; i < numLiterals; i++) {
@@ -117,111 +119,6 @@ bool MethodGenerationContext::HasField(const StdString& field) {
 
 size_t MethodGenerationContext::GetNumberOfArguments() {
     return arguments.Size();
-}
-
-uint8_t MethodGenerationContext::ComputeStackDepth() {
-    uint8_t depth = 0;
-    uint8_t maxDepth = 0;
-    unsigned int i = 0;
-
-    while (i < bytecode.size()) {
-        switch (bytecode[i]) {
-        case BC_HALT:
-            i++;
-            break;
-        case BC_DUP:
-        case BC_PUSH_LOCAL_0:
-        case BC_PUSH_LOCAL_1:
-        case BC_PUSH_LOCAL_2:
-        case BC_PUSH_SELF:
-        case BC_PUSH_ARG_1:
-        case BC_PUSH_ARG_2:
-            depth++;
-            i += 1;
-            break;
-        case BC_PUSH_LOCAL:
-        case BC_PUSH_ARGUMENT:
-            depth++;
-            i += 3;
-            break;
-        case BC_PUSH_FIELD_0:
-        case BC_PUSH_FIELD_1:
-            depth++;
-            i += 1;
-            break;
-        case BC_PUSH_FIELD:
-        case BC_PUSH_BLOCK:
-        case BC_PUSH_CONSTANT:
-            depth++;
-            i += 2;
-            break;
-        case BC_PUSH_CONSTANT_0:
-        case BC_PUSH_CONSTANT_1:
-        case BC_PUSH_CONSTANT_2:
-        case BC_PUSH_0:
-        case BC_PUSH_1:
-        case BC_PUSH_NIL:
-            depth++;
-            i += 1;
-            break;
-        case BC_PUSH_GLOBAL:
-            depth++;
-            i += 2;
-            break;
-        case BC_POP:
-        case BC_POP_LOCAL_0:
-        case BC_POP_LOCAL_1:
-        case BC_POP_LOCAL_2:
-        case BC_POP_FIELD_0:
-        case BC_POP_FIELD_1:
-            depth--;
-            i++;
-            break;
-        case BC_POP_LOCAL:
-        case BC_POP_ARGUMENT:
-            depth--;
-            i += 3;
-            break;
-        case BC_POP_FIELD:
-            depth--;
-            i += 2;
-            break;
-        case BC_SEND:
-        case BC_SUPER_SEND: {
-            // these are special: they need to look at the number of
-            // arguments (extractable from the signature)
-            VMSymbol* sig = static_cast<VMSymbol*>(literals.Get(bytecode[i + 1]));
-
-            depth -= Signature::GetNumberOfArguments(sig);
-
-            depth++; // return value
-            i += 2;
-            break;
-        }
-        case BC_RETURN_LOCAL:
-        case BC_RETURN_NON_LOCAL: {
-            i++;
-            break;
-        }
-        case BC_JUMP_IF_FALSE:
-        case BC_JUMP_IF_TRUE:
-            depth--;
-            i += 5;
-            break;
-        case BC_JUMP:
-            i += 5;
-            break;
-        default: {
-            ErrorPrint("Illegal bytecode: " + to_string(bytecode[i]) + "\n");
-            GetUniverse()->Quit(1);
-          }
-        }
-
-        if (depth > maxDepth)
-            maxDepth = depth;
-    }
-
-    return maxDepth;
 }
 
 void MethodGenerationContext::SetHolder(ClassGenerationContext* holder) {
@@ -318,10 +215,19 @@ bool MethodGenerationContext::HasBytecodes() {
     return !bytecode.empty();
 }
 
-size_t MethodGenerationContext::AddBytecode(uint8_t bc) {
+size_t MethodGenerationContext::AddBytecode(uint8_t bc, size_t stackEffect) {
+    currentStackDepth += stackEffect;
+    maxStackDepth = max(maxStackDepth, currentStackDepth);
+    
     bytecode.push_back(bc);
     return bytecode.size();
 }
+
+size_t MethodGenerationContext::AddBytecodeArgument(uint8_t bc) {
+    bytecode.push_back(bc);
+    return bytecode.size();
+}
+
 
 void MethodGenerationContext::PatchJumpTarget(size_t jumpPosition) {
     size_t jump_target = bytecode.size();
