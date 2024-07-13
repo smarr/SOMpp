@@ -242,24 +242,3 @@ void BytecodeGenerator::EmitRETURNLOCAL(MethodGenerationContext* mgenc) {
 void BytecodeGenerator::EmitRETURNNONLOCAL(MethodGenerationContext* mgenc) {
     EMIT1(BC_RETURN_NON_LOCAL, 0);
 }
-
-size_t emitJump(MethodGenerationContext* mgenc, uint8_t jumpBC) {
-    size_t pos = mgenc->AddBytecode(jumpBC, -1);
-    EMIT1(0, 0);
-    EMIT1(0, 0);
-    EMIT1(0, 0);
-    EMIT1(0, 0);
-    return pos;
-}
-
-size_t BytecodeGenerator::EmitJUMP_IF_FALSE(MethodGenerationContext* mgenc) {
-    return emitJump(mgenc, BC_JUMP_IF_FALSE);
-}
-
-size_t BytecodeGenerator::EmitJUMP_IF_TRUE(MethodGenerationContext* mgenc) {
-    return emitJump(mgenc, BC_JUMP_IF_TRUE);
-}
-
-size_t BytecodeGenerator::EmitJUMP(MethodGenerationContext* mgenc) {
-    return emitJump(mgenc, BC_JUMP);
-}

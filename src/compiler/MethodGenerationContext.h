@@ -76,7 +76,6 @@ public:
     size_t GetNumberOfArguments();
     size_t AddBytecode(uint8_t bc, size_t stackEffect);
     size_t AddBytecodeArgument(uint8_t bc);
-    void PatchJumpTarget(size_t jump_position);
 
     bool HasBytecodes();
     std::vector<uint8_t> GetBytecodes() {
