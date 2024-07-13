@@ -183,11 +183,23 @@ LABEL_BC_POP:
     DISPATCH_NOGC();
     
 LABEL_BC_POP_LOCAL:
-LABEL_BC_POP_LOCAL_0:
-LABEL_BC_POP_LOCAL_1:
-LABEL_BC_POP_LOCAL_2:
     PROLOGUE(3);
     doPopLocal(bytecodeIndexGlobal - 3);
+    DISPATCH_NOGC();
+
+LABEL_BC_POP_LOCAL_0:
+    PROLOGUE(1);
+    doPopLocalWithIndex(0);
+    DISPATCH_NOGC();
+    
+LABEL_BC_POP_LOCAL_1:
+    PROLOGUE(1);
+    doPopLocalWithIndex(1);
+    DISPATCH_NOGC();
+    
+LABEL_BC_POP_LOCAL_2:
+    PROLOGUE(1);
+    doPopLocalWithIndex(2);
     DISPATCH_NOGC();
     
 LABEL_BC_POP_ARGUMENT:
@@ -196,10 +208,18 @@ LABEL_BC_POP_ARGUMENT:
     DISPATCH_NOGC();
     
 LABEL_BC_POP_FIELD:
-LABEL_BC_POP_FIELD_0:
-LABEL_BC_POP_FIELD_1:
     PROLOGUE(2);
     doPopField(bytecodeIndexGlobal - 2);
+    DISPATCH_NOGC();
+
+LABEL_BC_POP_FIELD_0:
+    PROLOGUE(1);
+    doPopFieldWithIndex(0);
+    DISPATCH_NOGC();
+    
+LABEL_BC_POP_FIELD_1:
+    PROLOGUE(1);
+    doPopFieldWithIndex(1);
     DISPATCH_NOGC();
     
 LABEL_BC_SEND:

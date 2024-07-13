@@ -33,6 +33,8 @@ class BytecodeGenerationTest: public CPPUNIT_NS::TestCase {
     CPPUNIT_TEST(testPushArgOpt);
     CPPUNIT_TEST(testPushFieldOpt);
     CPPUNIT_TEST(testBlockPushFieldOpt);
+    CPPUNIT_TEST(testPopLocalOpt);
+    CPPUNIT_TEST(testPopFieldOpt);
     
     CPPUNIT_TEST_SUITE_END();
 
@@ -92,6 +94,8 @@ private:
     void testPushArgOpt();
     void testPushFieldOpt();
     void testBlockPushFieldOpt();
+    void testPopLocalOpt();
+    void testPopFieldOpt();
     
     void dump(MethodGenerationContext* mgenc);
     

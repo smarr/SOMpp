@@ -98,8 +98,10 @@ private:
     void doPushGlobal(long bytecodeIndex);
     void doPop(void);
     void doPopLocal(long bytecodeIndex);
+    void doPopLocalWithIndex(uint8_t localIndex);
     void doPopArgument(long bytecodeIndex);
     void doPopField(long bytecodeIndex);
+    void doPopFieldWithIndex(uint8_t fieldIndex);
     void doSend(long bytecodeIndex);
     void doSuperSend(long bytecodeIndex);
     void doReturnLocal();

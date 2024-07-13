@@ -180,7 +180,7 @@ void BytecodeGenerationTest::testDupPopLocalPop() {
     check(bytecodes, {
         BC_PUSH_1,
         BC_DUP,
-        BC_POP_LOCAL, 0, 0,
+        BC_POP_LOCAL_0,
         BC_POP,
         BC_PUSH_SELF,
         BC_RETURN_LOCAL
@@ -194,7 +194,7 @@ void BytecodeGenerationTest::testDupPopField0Pop() {
     check(bytecodes, {
         BC_PUSH_1,
         BC_DUP,
-        BC_POP_FIELD, 0,
+        BC_POP_FIELD_0,
         BC_POP,
         BC_PUSH_SELF,
         BC_RETURN_LOCAL
@@ -226,7 +226,7 @@ void BytecodeGenerationTest::testDupPopFieldReturnSelf() {
     check(bytecodes, {
         BC_PUSH_ARG_1,
         BC_DUP,
-        BC_POP_FIELD, 0,
+        BC_POP_FIELD_0,
         BC_POP,
         BC_PUSH_SELF,
         BC_RETURN_LOCAL
@@ -260,7 +260,7 @@ void BytecodeGenerationTest::testSendDupPopFieldReturnLocal() {
         BC_PUSH_SELF,
         BC_SEND, 0,
         BC_DUP,
-        BC_POP_FIELD, 0,
+        BC_POP_FIELD_0,
         BC_RETURN_LOCAL
     });
 }
@@ -273,7 +273,7 @@ void BytecodeGenerationTest::testSendDupPopFieldReturnLocalPeriod() {
         BC_PUSH_SELF,
         BC_SEND, 0,
         BC_DUP,
-        BC_POP_FIELD, 0,
+        BC_POP_FIELD_0,
         BC_RETURN_LOCAL
     });
 }
@@ -317,7 +317,7 @@ void BytecodeGenerationTest::testBlockDupPopLocalReturnLocal() {
     check(bytecodes, {
         BC_PUSH_1,
         BC_DUP,
-        BC_POP_LOCAL, 0, 0,
+        BC_POP_LOCAL_0,
         BC_RETURN_LOCAL
     });
 }
@@ -328,7 +328,7 @@ void BytecodeGenerationTest::testBlockDupPopFieldReturnLocal() {
     check(bytecodes, {
         BC_PUSH_1,
         BC_DUP,
-        BC_POP_FIELD, 0,
+        BC_POP_FIELD_0,
         BC_RETURN_LOCAL
     });
 }
@@ -339,7 +339,7 @@ void BytecodeGenerationTest::testBlockDupPopFieldReturnLocalDot() {
     check(bytecodes, {
         BC_PUSH_1,
         BC_DUP,
-        BC_POP_FIELD, 0,
+        BC_POP_FIELD_0,
         BC_RETURN_LOCAL
     });
 }
@@ -405,6 +405,49 @@ void BytecodeGenerationTest::testBlockPushFieldOpt() {
         BC_PUSH_FIELD_1, BC_POP,
         BC_PUSH_FIELD, 2, BC_POP,
         BC_PUSH_FIELD, 3,
+        BC_RETURN_LOCAL
+    });
+}
+
+void BytecodeGenerationTest::testPopLocalOpt() {
+    auto bytecodes = methodToBytecode(R"""(
+                                      test = (
+                                        | l1 l2 l3 l4 l5 |
+                                        l1 := 1.
+                                        l2 := 1.
+                                        l3 := 1.
+                                        l4 := 1.
+                                        l5 := 1.
+                                      ) )""");
+    check(bytecodes, {
+        BC_PUSH_1, BC_DUP, BC_POP_LOCAL_0, BC_POP,
+        BC_PUSH_1, BC_DUP, BC_POP_LOCAL_1, BC_POP,
+        BC_PUSH_1, BC_DUP, BC_POP_LOCAL_2, BC_POP,
+        BC_PUSH_1, BC_DUP, BC_POP_LOCAL, 3, 0, BC_POP,
+        BC_PUSH_1, BC_DUP, BC_POP_LOCAL, 4, 0, BC_POP,
+        BC_PUSH_SELF,
+        BC_RETURN_LOCAL
+    });
+}
+
+void BytecodeGenerationTest::testPopFieldOpt() {
+    addField("f1");
+    addField("f2");
+    addField("f3");
+    addField("f4");
+    auto bytecodes = methodToBytecode(R"""(
+                                      test = (
+                                        f1 := 1.
+                                        f2 := 1.
+                                        f3 := 1.
+                                        f4 := 1.
+                                      ) )""");
+    check(bytecodes, {
+        BC_PUSH_1, BC_DUP, BC_POP_FIELD_0, BC_POP,
+        BC_PUSH_1, BC_DUP, BC_POP_FIELD_1, BC_POP,
+        BC_PUSH_1, BC_DUP, BC_POP_FIELD, 2, BC_POP,
+        BC_PUSH_1, BC_DUP, BC_POP_FIELD, 3, BC_POP,
+        BC_PUSH_SELF,
         BC_RETURN_LOCAL
     });
 }

@@ -169,6 +169,11 @@ uint8_t MethodGenerationContext::ComputeStackDepth() {
             i += 2;
             break;
         case BC_POP:
+        case BC_POP_LOCAL_0:
+        case BC_POP_LOCAL_1:
+        case BC_POP_LOCAL_2:
+        case BC_POP_FIELD_0:
+        case BC_POP_FIELD_1:
             depth--;
             i++;
             break;

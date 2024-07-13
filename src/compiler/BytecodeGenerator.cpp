@@ -177,6 +177,25 @@ void BytecodeGenerator::EmitPOP(MethodGenerationContext* mgenc) {
 
 void BytecodeGenerator::EmitPOPLOCAL(MethodGenerationContext* mgenc, long idx,
         int ctx) {
+    assert(idx >= 0);
+    assert(ctx >= 0);
+    if (ctx == 0) {
+        if (idx == 0) {
+            EMIT1(BC_POP_LOCAL_0);
+            return;
+        }
+        
+        if (idx == 1) {
+            EMIT1(BC_POP_LOCAL_1);
+            return;
+        }
+        
+        if (idx == 2) {
+            EMIT1(BC_POP_LOCAL_2);
+            return;
+        }
+    }
+    
     EMIT3(BC_POP_LOCAL, idx, ctx);
 }
 
@@ -186,7 +205,15 @@ void BytecodeGenerator::EmitPOPARGUMENT(MethodGenerationContext* mgenc,
 }
 
 void BytecodeGenerator::EmitPOPFIELD(MethodGenerationContext* mgenc, VMSymbol* field) {
-    EMIT2(BC_POP_FIELD, mgenc->GetFieldIndex(field));
+    uint8_t idx = mgenc->GetFieldIndex(field);
+    
+    if (idx == 0) {
+        EMIT1(BC_POP_FIELD_0);
+    } else if (idx == 1) {
+        EMIT1(BC_POP_FIELD_1);
+    } else {
+        EMIT2(BC_POP_FIELD, idx);
+    }
 }
 
 void BytecodeGenerator::EmitSEND(MethodGenerationContext* mgenc, VMSymbol* msg) {
