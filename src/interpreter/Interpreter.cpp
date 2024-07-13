@@ -92,7 +92,7 @@ void Interpreter::SetFrame(VMFrame* frame) {
 
 vm_oop_t Interpreter::GetSelf() const {
     VMFrame* context = GetFrame()->GetOuterContext();
-    return context->GetArgument(0, 0);
+    return context->GetArgumentInCurrentContext(0);
 }
 
 VMFrame* Interpreter::popFrame() {
@@ -339,10 +339,10 @@ void Interpreter::doReturnNonLocal() {
     VMFrame* context = GetFrame()->GetOuterContext();
 
     if (!context->HasPreviousFrame()) {
-        VMBlock* block = static_cast<VMBlock*>(GetFrame()->GetArgument(0, 0));
+        VMBlock* block = static_cast<VMBlock*>(GetFrame()->GetArgumentInCurrentContext(0));
         VMFrame* prevFrame = GetFrame()->GetPreviousFrame();
         VMFrame* outerContext = prevFrame->GetOuterContext();
-        vm_oop_t sender = outerContext->GetArgument(0, 0);
+        vm_oop_t sender = outerContext->GetArgumentInCurrentContext(0);
         vm_oop_t arguments[] = {block};
 
         popFrame();

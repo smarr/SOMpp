@@ -395,7 +395,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
         }
         case BC_PUSH_FIELD: {
             VMFrame* ctxt = frame->GetOuterContext();
-            vm_oop_t arg = ctxt->GetArgument(0, 0);
+            vm_oop_t arg = ctxt->GetArgumentInCurrentContext(0);
             uint8_t field_index = BC_1;
             
             vm_oop_t o = ((VMObject*) arg)->GetField(field_index);
