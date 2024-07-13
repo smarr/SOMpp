@@ -264,15 +264,27 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, cons
                 }
                 break;
             }
-            case BC_JUMP_IF_FALSE:
-            case BC_JUMP_IF_TRUE:
-            case BC_JUMP: {
-                int target = 0;
-                target |= bytecodes[bc_idx + 1];
-                target |= bytecodes[bc_idx + 2] << 8;
-                target |= bytecodes[bc_idx + 3] << 16;
-                target |= bytecodes[bc_idx + 4] << 24;
-                DebugPrint("(target: %d)\n", target);
+            case BC_JUMP:
+            case BC_JUMP_ON_FALSE_POP:
+            case BC_JUMP_ON_TRUE_POP:
+            case BC_JUMP_ON_FALSE_TOP_NIL:
+            case BC_JUMP_ON_TRUE_TOP_NIL:
+            case BC_JUMP_BACKWARD:
+            case BC_JUMP2:
+            case BC_JUMP2_ON_FALSE_POP:
+            case BC_JUMP2_ON_TRUE_POP:
+            case BC_JUMP2_ON_FALSE_TOP_NIL:
+            case BC_JUMP2_ON_TRUE_TOP_NIL:
+            case BC_JUMP2_BACKWARD: {
+                uint16_t offset = ComputeOffset(bytecodes[bc_idx + 1], bytecodes[bc_idx + 2]);
+                
+                int32_t target;
+                if (bytecode == BC_JUMP_BACKWARD || bytecode == BC_JUMP2_BACKWARD) {
+                    target = ((int32_t) bc_idx) - offset;
+                } else {
+                    target = ((int32_t) bc_idx) + offset;
+                }
+                DebugPrint("(jump offset: %d -> jump target: %d)\n", offset, target);
                 break;
             }
             default: {
@@ -520,15 +532,27 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
             indentc--; ikind='<'; //visual
             break;
         }
-        case BC_JUMP_IF_FALSE:
-        case BC_JUMP_IF_TRUE:
-        case BC_JUMP: {
-            int target = 0;
-            target |= method->GetBytecode(bc_idx + 1);
-            target |= method->GetBytecode(bc_idx + 2) << 8;
-            target |= method->GetBytecode(bc_idx + 3) << 16;
-            target |= method->GetBytecode(bc_idx + 4) << 24;
-            DebugPrint("(target: %d)\n", target);
+        case BC_JUMP:
+        case BC_JUMP_ON_FALSE_POP:
+        case BC_JUMP_ON_TRUE_POP:
+        case BC_JUMP_ON_FALSE_TOP_NIL:
+        case BC_JUMP_ON_TRUE_TOP_NIL:
+        case BC_JUMP_BACKWARD:
+        case BC_JUMP2:
+        case BC_JUMP2_ON_FALSE_POP:
+        case BC_JUMP2_ON_TRUE_POP:
+        case BC_JUMP2_ON_FALSE_TOP_NIL:
+        case BC_JUMP2_ON_TRUE_TOP_NIL:
+        case BC_JUMP2_BACKWARD: {
+            uint16_t offset = ComputeOffset(method->GetBytecode(bc_idx + 1), method->GetBytecode(bc_idx + 2));
+            
+            int32_t target;
+            if (bc == BC_JUMP_BACKWARD || bc == BC_JUMP2_BACKWARD) {
+                target = ((int32_t) bc_idx) - offset;
+            } else {
+                target = ((int32_t) bc_idx) + offset;
+            }
+            DebugPrint("(jump offset: %d -> jump target: %d)", offset, target);
             break;
         }
         default:

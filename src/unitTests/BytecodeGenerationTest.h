@@ -4,6 +4,7 @@
 
 #include "../compiler/ClassGenerationContext.h"
 #include "../compiler/MethodGenerationContext.h"
+#include "../interpreter/bytecodes.h"
 
 class BytecodeGenerationTest: public CPPUNIT_NS::TestCase {
 
@@ -35,7 +36,12 @@ class BytecodeGenerationTest: public CPPUNIT_NS::TestCase {
     CPPUNIT_TEST(testBlockPushFieldOpt);
     CPPUNIT_TEST(testPopLocalOpt);
     CPPUNIT_TEST(testPopFieldOpt);
-    
+
+    CPPUNIT_TEST(testWhileInliningWhileTrue);
+    CPPUNIT_TEST(testWhileInliningWhileFalse);
+    CPPUNIT_TEST(testInliningWhileLoopsWithExpandingBranches);
+    CPPUNIT_TEST(testInliningWhileLoopsWithContractingBranches);
+
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -96,7 +102,20 @@ private:
     void testBlockPushFieldOpt();
     void testPopLocalOpt();
     void testPopFieldOpt();
-    
+
+    void testWhileInliningWhileTrue() {
+        testWhileInlining("whileTrue:", BC_JUMP_ON_FALSE_POP);
+    }
+
+    void testWhileInliningWhileFalse() {
+        testWhileInlining("whileFalse:", BC_JUMP_ON_TRUE_POP);
+    }
+
+    void testWhileInlining(const char* selector, uint8_t jumpBytecode);
+
+    void testInliningWhileLoopsWithExpandingBranches();
+    void testInliningWhileLoopsWithContractingBranches();
+
     void dump(MethodGenerationContext* mgenc);
     
     void check(std::vector<uint8_t> actual, std::vector<uint8_t> expected);

@@ -38,6 +38,53 @@
 class MethodGenerationContext;
 class Interpreter;
 
+class Jump {
+public:
+    Jump(size_t originalJumpTargetIdx, uint8_t jumpBc, size_t idx) : originalJumpTargetIdx(originalJumpTargetIdx), jumpBc(jumpBc), idx(idx) {}
+
+//    Jump(Jump&& jmp) = default;
+//    Jump(const Jump& jmp) = default;
+
+    size_t  originalJumpTargetIdx; // order by
+    uint8_t jumpBc;
+    size_t  idx;
+};
+
+bool operator<(const Jump& a, const Jump& b);
+
+
+class BackJump {
+public:
+    BackJump(size_t loopBeginIdx, size_t backwardJumpIdx) : loopBeginIdx(loopBeginIdx), backwardJumpIdx(backwardJumpIdx) {}
+
+    BackJump(const BackJump& jmp) = default;
+
+    BackJump() : loopBeginIdx(-1), backwardJumpIdx(-1) {}
+
+    size_t loopBeginIdx; // order by
+    size_t backwardJumpIdx;
+
+    bool IsValid() const {
+        return loopBeginIdx != -1;
+    }
+};
+
+bool operator<(const BackJump& a, const BackJump& b);
+
+
+class BackJumpPatch {
+public:
+    BackJumpPatch(size_t backwardsJumpIdx, size_t loopBeginIdx) : backwardsJumpIdx(backwardsJumpIdx), loopBeginIdx(loopBeginIdx) {}
+
+    BackJumpPatch(const BackJumpPatch& patch) = default;
+
+    size_t backwardsJumpIdx; // order by
+    size_t loopBeginIdx;
+};
+
+bool operator<(const BackJumpPatch& a, const BackJumpPatch& b);
+
+
 class VMMethod: public VMInvokable {
     friend class Interpreter;
     friend class Disassembler;
@@ -45,7 +92,7 @@ class VMMethod: public VMInvokable {
 public:
     typedef GCMethod Stored;
 
-    VMMethod(VMSymbol* signature, size_t bcCount, size_t numberOfConstants, size_t numLocals, size_t maxStackDepth, LexicalScope* lexicalScope);
+    VMMethod(VMSymbol* signature, size_t bcCount, size_t numberOfConstants, size_t numLocals, size_t maxStackDepth, LexicalScope* lexicalScope, BackJump* inlinedLoops);
 
     ~VMMethod() override {
         delete lexicalScope;
@@ -124,7 +171,14 @@ public:
 
     StdString AsDebugString() const override;
 
+    void InlineInto(MethodGenerationContext& mgenc);
+
+    void AdaptAfterOuterInlined(uint8_t removedCtxLevel, MethodGenerationContext& mgencWithInlined);
+
 private:
+    void inlineInto(MethodGenerationContext& mgenc);
+    std::priority_queue<BackJump> createBackJumpHeap();
+
     inline uint8_t* GetBytecodes() const {
         return bytecodes;
     }
@@ -132,6 +186,10 @@ private:
     inline vm_oop_t GetIndexableField(long idx) const {
         return load_ptr(indexableFields[idx]);
     }
+
+    static void prepareBackJumpToCurrentAddress(std::priority_queue<BackJump>& backJumps, std::priority_queue<BackJumpPatch>& backJumpsToPatch, size_t i, MethodGenerationContext& mgenc);
+
+    static void patchJumpToCurrentAddress(size_t i, std::priority_queue<Jump>& jumps, MethodGenerationContext& mgenc);
 
 private_testable:
     const size_t numberOfLocals;
@@ -142,6 +200,7 @@ private_testable:
 
 private:
     LexicalScope* lexicalScope;
+    BackJump*    inlinedLoops;
 
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     GCFrame* cachedFrame;

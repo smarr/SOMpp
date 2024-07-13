@@ -89,6 +89,7 @@ void Universe::Start(long argc, char** argv) {
 }
 
 void Universe::BasicInit() {
+  assert(Bytecode::BytecodeDefinitionsAreConsistent());
   theUniverse = new Universe();
 }
 
@@ -255,8 +256,10 @@ Universe::Universe() {
 }
 
 VMMethod* Universe::createBootstrapMethod(VMClass* holder, long numArgsOfMsgSend) {
+    vector<BackJump> inlinedLoops;
     LexicalScope* bootStrapScope = new LexicalScope(nullptr, {}, {});
-    VMMethod* bootstrapMethod = NewMethod(SymbolFor("bootstrap"), 1, 0, 0, numArgsOfMsgSend, bootStrapScope);
+    VMMethod* bootstrapMethod = NewMethod(SymbolFor("bootstrap"), 1, 0, 0, numArgsOfMsgSend, bootStrapScope, inlinedLoops);
+
     bootstrapMethod->SetBytecode(0, BC_HALT);
     bootstrapMethod->SetHolder(holder);
     return bootstrapMethod;
@@ -814,13 +817,27 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
 }
 
 VMMethod* Universe::NewMethod(VMSymbol* signature,
-        size_t numberOfBytecodes, size_t numberOfConstants, size_t numLocals, size_t maxStackDepth, LexicalScope* lexicalScope) const {
+        size_t numberOfBytecodes, size_t numberOfConstants, size_t numLocals, size_t maxStackDepth, LexicalScope* lexicalScope, vector<BackJump>& inlinedLoops) const {
     assert(lexicalScope != nullptr && "A method is expected to have a lexical scope");
+
+    // turn inlined loops vector into a nullptr terminated array
+    BackJump* inlinedLoopsArr;
+    if (inlinedLoops.empty()) {
+        inlinedLoopsArr = nullptr;
+    } else {
+        inlinedLoopsArr = new BackJump[inlinedLoops.size() + 1];
+        size_t i = 0;
+        for (; i < inlinedLoops.size(); i += 1) {
+            inlinedLoopsArr[i] = inlinedLoops[i];
+        }
+
+        inlinedLoopsArr[i] = BackJump();
+    }
 
     // method needs space for the bytecodes and the pointers to the constants
     size_t additionalBytes = PADDED_SIZE(numberOfBytecodes + numberOfConstants*sizeof(VMObject*));
     VMMethod* result = new (GetHeap<HEAP_CLS>(),additionalBytes)
-        VMMethod(signature, numberOfBytecodes, numberOfConstants, numLocals, maxStackDepth, lexicalScope);
+        VMMethod(signature, numberOfBytecodes, numberOfConstants, numLocals, maxStackDepth, lexicalScope, inlinedLoopsArr);
 
     LOG_ALLOCATION("VMMethod", result->GetObjectSize());
     return result;

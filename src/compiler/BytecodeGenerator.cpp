@@ -255,3 +255,70 @@ void EmitRETURNLOCAL(MethodGenerationContext& mgenc) {
 void EmitRETURNNONLOCAL(MethodGenerationContext& mgenc) {
     Emit1(mgenc, BC_RETURN_NON_LOCAL, 0);
 }
+
+size_t EmitJumpOnBoolWithDummyOffset(MethodGenerationContext& mgenc, bool isIfTrue, bool needsPop) {
+    // Remember: true and false seem flipped here.
+    // This is because if the test passes, the block is inlined directly.
+    // But if the test fails, we need to jump.
+    // Thus, an  `#ifTrue:` needs to generated a jump_on_false.
+    uint8_t bc;
+    size_t stackEffect;
+    
+    if (needsPop) {
+        bc = isIfTrue ? BC_JUMP_ON_FALSE_POP : BC_JUMP_ON_TRUE_POP;
+        stackEffect = -1;
+    } else {
+        bc = isIfTrue ? BC_JUMP_ON_FALSE_TOP_NIL : BC_JUMP_ON_TRUE_TOP_NIL;
+        stackEffect = 0;
+    }
+
+    Emit1(mgenc, bc, stackEffect);
+
+    size_t idx = mgenc.AddBytecodeArgumentAndGetIndex(0);
+    mgenc.AddBytecodeArgument(0);
+    return idx;
+}
+
+void EmitJumpBackwardWithOffset(MethodGenerationContext& mgenc, size_t jumpOffset) {
+    uint8_t jumpBytecode = jumpOffset <= 0xFF ? BC_JUMP_BACKWARD : BC_JUMP2_BACKWARD;
+    Emit3(mgenc, jumpBytecode, jumpOffset & 0xFF, jumpOffset >> 8, 0);
+}
+
+size_t Emit3WithDummy(MethodGenerationContext& mgenc, uint8_t bytecode, size_t stackEffect) {
+    mgenc.AddBytecode(bytecode, stackEffect);
+    size_t index = mgenc.AddBytecodeArgumentAndGetIndex(0);
+    mgenc.AddBytecodeArgument(0);
+    return index;
+}
+
+void EmitPushFieldWithIndex(MethodGenerationContext& mgenc, uint8_t fieldIdx, uint8_t ctxLevel) {
+    // if (ctxLevel == 0) {
+        if (fieldIdx == 0) {
+            Emit1(mgenc, BC_PUSH_FIELD_0, 1);
+            return;
+        }
+        
+        if (fieldIdx == 1) {
+            Emit1(mgenc, BC_PUSH_FIELD_1, 1);
+            return;
+        }
+    // }
+
+    Emit2(mgenc, BC_PUSH_FIELD, fieldIdx, 1);
+}
+
+void EmitPopFieldWithIndex(MethodGenerationContext& mgenc, uint8_t fieldIdx, uint8_t ctxLevel) {
+    // if (ctxLevel == 0) {
+        if (fieldIdx == 0) {
+            Emit1(mgenc, BC_POP_FIELD_0, 1);
+            return;
+        }
+        
+        if (fieldIdx == 1) {
+            Emit1(mgenc, BC_POP_FIELD_1, 1);
+            return;
+        }
+    // }
+    
+    Emit2(mgenc, BC_POP_FIELD, fieldIdx, 1);
+}

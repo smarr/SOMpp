@@ -55,3 +55,11 @@ void EmitSEND(MethodGenerationContext& mgenc, VMSymbol* msg);
 void EmitSUPERSEND(MethodGenerationContext& mgenc, VMSymbol* msg);
 void EmitRETURNLOCAL(MethodGenerationContext& mgenc);
 void EmitRETURNNONLOCAL(MethodGenerationContext& mgenc);
+
+size_t EmitJumpOnBoolWithDummyOffset(MethodGenerationContext& mgenc, bool isIfTrue, bool needsPop);
+void EmitJumpBackwardWithOffset(MethodGenerationContext& mgenc, size_t jumpOffset);
+size_t Emit3WithDummy(MethodGenerationContext& mgenc, uint8_t bytecode, size_t stackEffect);
+
+void EmitPushFieldWithIndex(MethodGenerationContext& mgenc, uint8_t fieldIdx, uint8_t ctxLevel);
+void EmitPopFieldWithIndex(MethodGenerationContext& mgenc, uint8_t fieldIdx, uint8_t ctxLevel);
+

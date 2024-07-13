@@ -608,11 +608,21 @@ bool Parser::binaryOperand(MethodGenerationContext& mgenc) {
 
 void Parser::keywordMessage(MethodGenerationContext& mgenc, bool super) {
     StdString kw = keyword();
+    int numParts = 1;
 
     formula(mgenc);
     while (sym == Keyword) {
         kw.append(keyword());
+        numParts += 1;
         formula(mgenc);
+    }
+
+    if (!super) {
+        if (numParts == 1 && (
+            (kw == "whileTrue:" && mgenc.InlineWhile(*this, true)) ||
+            (kw == "whileFalse:" && mgenc.InlineWhile(*this, false)))) {
+            return;
+        }
     }
 
     VMSymbol* msg = SymbolFor(kw);
