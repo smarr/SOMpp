@@ -147,17 +147,18 @@ void Parser::genPushVariable(MethodGenerationContext* mgenc,
     bool is_argument = false;
 
     if (mgenc->FindVar(var, &index, &context, &is_argument)) {
-        if (is_argument)
+        if (is_argument) {
             bcGen->EmitPUSHARGUMENT(mgenc, index, context);
-        else
+        } else {
             bcGen->EmitPUSHLOCAL(mgenc, index, context);
-    } else if (mgenc->HasField(var)) {
-        VMSymbol* fieldName = GetUniverse()->SymbolFor(var);
-        bcGen->EmitPUSHFIELD(mgenc, fieldName);
+        }
     } else {
-
-        VMSymbol* global = GetUniverse()->SymbolFor(var);
-        bcGen->EmitPUSHGLOBAL(mgenc, global);
+        VMSymbol* varSym = GetUniverse()->SymbolFor(var);
+        if (mgenc->HasField(varSym)) {
+            bcGen->EmitPUSHFIELD(mgenc, varSym);
+        } else {
+            bcGen->EmitPUSHGLOBAL(mgenc, varSym);
+        }
     }
 }
 
@@ -481,7 +482,6 @@ void Parser::assignments(MethodGenerationContext* mgenc, list<StdString>& l) {
 
 StdString Parser::assignment(MethodGenerationContext* mgenc) {
     StdString v = variable();
-    VMSymbol* var = GetUniverse()->SymbolFor(v);
 
     expect(Assign);
 

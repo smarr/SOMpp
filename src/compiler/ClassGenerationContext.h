@@ -38,7 +38,7 @@ public:
     VMClass* Assemble();
     void AssembleSystemClass(VMClass* systemClass);
 
-    bool HasField(const StdString&);
+    bool HasField(VMSymbol* field);
     void AddInstanceField(VMSymbol*);
     void AddClassField(VMSymbol*);
     void AddInstanceMethod(VMInvokable*);

@@ -68,7 +68,7 @@ void ClassGenerationContext::SetClassFieldsOfSuper(VMArray* fields) {
     }
 }
 
-bool ClassGenerationContext::HasField(const StdString& field) {
+bool ClassGenerationContext::HasField(VMSymbol* field) {
     if (IsClassSide()) {
         return Contains(classFields, field);
     } else {
