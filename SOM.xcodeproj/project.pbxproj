@@ -185,6 +185,7 @@
 		0A1887401832C62100A2CBCA /* TestSuite */ = {isa = PBXFileReference; lastKnownFileType = folder; name = TestSuite; path = "core-lib/TestSuite"; sourceTree = "<group>"; };
 		0A1C98562C3DD87300735850 /* unitTests/BytecodeGenerationTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = unitTests/BytecodeGenerationTest.h; sourceTree = "<group>"; };
 		0A1C98572C3DD88500735850 /* unitTests/BytecodeGenerationTest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = unitTests/BytecodeGenerationTest.cpp; sourceTree = "<group>"; };
+		0A1C98592C432E0E00735850 /* VectorUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VectorUtil.h; sourceTree = "<group>"; };
 		0A32B7FC199D6143002825DF /* IntegerBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IntegerBox.cpp; sourceTree = "<group>"; };
 		0A32B7FD199D6143002825DF /* IntegerBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntegerBox.h; sourceTree = "<group>"; };
 		0A32B80119A12A03002825DF /* VMObjectBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMObjectBase.h; sourceTree = "<group>"; };
@@ -234,7 +235,6 @@
 		3F52030A0FA6624C00E75857 /* Heap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Heap.h; sourceTree = "<group>"; };
 		3F52030C0FA6624C00E75857 /* debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug.h; sourceTree = "<group>"; };
 		3F52030D0FA6624C00E75857 /* defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = defs.h; sourceTree = "<group>"; };
-		3F52030E0FA6624C00E75857 /* ExtendedList.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = ExtendedList.h; sourceTree = "<group>"; tabWidth = 4; };
 		3F52030F0FA6624C00E75857 /* gettimeofday.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gettimeofday.h; sourceTree = "<group>"; };
 		3F5203120FA6624C00E75857 /* Array.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Array.cpp; sourceTree = "<group>"; };
 		3F5203130FA6624C00E75857 /* Array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Array.h; sourceTree = "<group>"; };
@@ -517,12 +517,12 @@
 			children = (
 				3F52030C0FA6624C00E75857 /* debug.h */,
 				3F52030D0FA6624C00E75857 /* defs.h */,
-				3F52030E0FA6624C00E75857 /* ExtendedList.h */,
 				3F52030F0FA6624C00E75857 /* gettimeofday.h */,
 				0A1887371832C12E00A2CBCA /* Timer.cpp */,
 				0A1887381832C12E00A2CBCA /* Timer.h */,
 				0A707528297DF36F00EB9F59 /* ParseInteger.h */,
 				0A707529297DF97700EB9F59 /* ParseInteger.cpp */,
+				0A1C98592C432E0E00735850 /* VectorUtil.h */,
 			);
 			path = misc;
 			sourceTree = "<group>";

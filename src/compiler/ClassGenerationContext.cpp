@@ -24,6 +24,8 @@
  THE SOFTWARE.
  */
 
+#include <misc/VectorUtil.h>
+
 #include "ClassGenerationContext.h"
 
 #include "../vmobjects/VMSymbol.h"
@@ -43,18 +45,18 @@ ClassGenerationContext::~ClassGenerationContext() {
 }
 
 void ClassGenerationContext::AddClassField(VMSymbol* field) {
-    classFields.Add(field);
+    classFields.push_back(field);
 }
 
 void ClassGenerationContext::AddInstanceField(VMSymbol* field) {
-    instanceFields.Add(field);
+    instanceFields.push_back(field);
 }
 
 void ClassGenerationContext::SetInstanceFieldsOfSuper(VMArray* fields) {
     long num = fields->GetNumberOfIndexableFields();
     for (long i = 0; i < num; i ++) {
         VMSymbol* fieldName = (VMSymbol*)fields->GetIndexableField(i);
-        instanceFields.Add(fieldName);
+        instanceFields.push_back(fieldName);
     }
 }
 
@@ -62,32 +64,33 @@ void ClassGenerationContext::SetClassFieldsOfSuper(VMArray* fields) {
     long num = fields->GetNumberOfIndexableFields();
     for (long i = 0; i < num; i ++) {
         VMSymbol* fieldName = (VMSymbol*)fields->GetIndexableField(i);
-        classFields.Add(fieldName);
+        classFields.push_back(fieldName);
     }
 }
 
 bool ClassGenerationContext::HasField(const StdString& field) {
     if (IsClassSide()) {
-        return classFields.IndexOf(GetUniverse()->SymbolFor(field)) != -1;
+        return Contains(classFields, field);
     } else {
-        return instanceFields.IndexOf(GetUniverse()->SymbolFor(field)) != -1;
+        auto it = find(instanceFields.begin(), instanceFields.end(), field);
+        return it != instanceFields.end();
     }
 }
 
 int16_t ClassGenerationContext::GetFieldIndex(VMSymbol* field) {
     if (IsClassSide()) {
-        return classFields.IndexOf(field);
+        return IndexOf(classFields, field);
     } else {
-        return instanceFields.IndexOf(field);
+        return IndexOf(instanceFields, field);
     }
 }
 
 void ClassGenerationContext::AddInstanceMethod(VMInvokable* method) {
-    instanceMethods.Add(method);
+    instanceMethods.push_back(method);
 }
 
 void ClassGenerationContext::AddClassMethod(VMInvokable* method) {
-    classMethods.Add(method);
+    classMethods.push_back(method);
 }
 
 VMClass* ClassGenerationContext::Assemble() {

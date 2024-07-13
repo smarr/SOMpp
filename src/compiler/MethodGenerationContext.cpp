@@ -24,6 +24,7 @@
  THE SOFTWARE.
  */
 
+#include <misc/VectorUtil.h>
 #include <vm/Print.h>
 #include <vm/Universe.h>
 
@@ -41,10 +42,6 @@ MethodGenerationContext::MethodGenerationContext() {
     signature = nullptr;
     holderGenc = 0;
     outerGenc = 0;
-    arguments.Clear();
-    literals.Clear();
-    locals.Clear();
-    bytecode.clear();
     primitive = false;
     blockMethod = false;
     finished = false;
@@ -54,20 +51,20 @@ MethodGenerationContext::MethodGenerationContext() {
 
 VMMethod* MethodGenerationContext::Assemble() {
     // create a method instance with the given number of bytecodes and literals
-    size_t numLiterals = literals.Size();
+    size_t numLiterals = literals.size();
 
     VMMethod* meth = GetUniverse()->NewMethod(signature, bytecode.size(),
             numLiterals);
 
     // populate the fields that are immediately available
-    size_t numLocals = locals.Size();
+    size_t numLocals = locals.size();
     meth->SetNumberOfLocals(numLocals);
 
     meth->SetMaximumNumberOfStackElements(maxStackDepth);
 
     // copy literals into the method
     for (int i = 0; i < numLiterals; i++) {
-        vm_oop_t l = literals.Get(i);
+        vm_oop_t l = literals[i];
         meth->SetIndexableField(i, l);
     }
     // copy bytecodes into method
@@ -87,7 +84,7 @@ MethodGenerationContext::~MethodGenerationContext() {
 }
 
 int8_t MethodGenerationContext::FindLiteralIndex(vm_oop_t lit) {
-    return (int8_t)literals.IndexOf(lit);
+    return (int8_t)IndexOf(literals, lit);
 }
 
 uint8_t MethodGenerationContext::GetFieldIndex(VMSymbol* field) {
@@ -98,8 +95,8 @@ uint8_t MethodGenerationContext::GetFieldIndex(VMSymbol* field) {
 
 bool MethodGenerationContext::FindVar(const StdString& var, size_t* index,
         int* context, bool* isArgument) {
-    if ((*index = locals.IndexOf(var)) == -1) {
-        if ((*index = arguments.IndexOf(var)) == -1) {
+    if ((*index = IndexOf(locals, var)) == -1) {
+        if ((*index = IndexOf(arguments, var)) == -1) {
             if (!outerGenc)
                 return false;
             else {
@@ -118,7 +115,7 @@ bool MethodGenerationContext::HasField(const StdString& field) {
 }
 
 size_t MethodGenerationContext::GetNumberOfArguments() {
-    return arguments.Size();
+    return arguments.size();
 }
 
 void MethodGenerationContext::SetHolder(ClassGenerationContext* holder) {
@@ -142,43 +139,45 @@ void MethodGenerationContext::SetPrimitive(bool prim) {
 }
 
 void MethodGenerationContext::AddArgument(const StdString& arg) {
-    arguments.PushBack(arg);
+    arguments.push_back(arg);
 }
 
 void MethodGenerationContext::AddLocal(const StdString& local) {
-    locals.PushBack(local);
+    locals.push_back(local);
 }
 
 uint8_t MethodGenerationContext::AddLiteral(vm_oop_t lit) {
-    uint8_t idx = literals.Size();
-    literals.PushBack(lit);
+    uint8_t idx = literals.size();
+    literals.push_back(lit);
     return idx;
 }
 
 void MethodGenerationContext::UpdateLiteral(vm_oop_t oldValue, uint8_t index, vm_oop_t newValue) {
-    assert(literals.Get(index) == oldValue);
-    literals.Set(index, newValue);
+    assert(literals.at(index) == oldValue);
+    literals[index] = newValue;
 }
 
 bool MethodGenerationContext::AddArgumentIfAbsent(const StdString& arg) {
-    if (locals.IndexOf(arg) != -1)
+    if (Contains(locals, arg)) {
         return false;
-    arguments.PushBack(arg);
+    }
+    arguments.push_back(arg);
     return true;
 }
 
 bool MethodGenerationContext::AddLocalIfAbsent(const StdString& local) {
-    if (locals.IndexOf(local) != -1)
+    if (Contains(locals, local)) {
         return false;
-    locals.PushBack(local);
+    }
+    locals.push_back(local);
     return true;
 }
 
 int8_t MethodGenerationContext::AddLiteralIfAbsent(vm_oop_t lit) {
-    int8_t idx = literals.IndexOf(lit);
+    int8_t idx = IndexOf(literals, lit);
     if (idx == -1) {
-        literals.PushBack(lit);
-        idx = literals.Size() - 1;
+        literals.push_back(lit);
+        idx = literals.size() - 1;
     }
     return idx;
 }

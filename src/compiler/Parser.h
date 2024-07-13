@@ -27,6 +27,7 @@
  */
 
 #include <fstream>
+#include <list>
 #include <string>
 
 #include "../misc/defs.h"

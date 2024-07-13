@@ -29,7 +29,6 @@
 #include <vector>
 
 #include <misc/defs.h>
-#include <misc/ExtendedList.h>
 
 #include "ClassGenerationContext.h"
 
@@ -87,10 +86,10 @@ private:
     MethodGenerationContext* outerGenc;
     bool blockMethod;
     VMSymbol* signature;
-    ExtendedList<StdString> arguments;
+    std::vector<StdString> arguments;
     bool primitive;
-    ExtendedList<StdString> locals;
-    ExtendedList<vm_oop_t> literals;
+    std::vector<StdString> locals;
+    std::vector<vm_oop_t> literals;
     bool finished;
     std::vector<uint8_t> bytecode;
     

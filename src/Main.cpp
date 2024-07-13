@@ -29,7 +29,6 @@
 
 #include "memory/Heap.h"
 
-#include "misc/ExtendedList.h"
 #include "misc/defs.h"
 
 #include "vm/Universe.h"

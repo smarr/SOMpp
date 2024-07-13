@@ -29,7 +29,6 @@
 #include "../vmobjects/ObjectFormats.h"
 
 #include "../misc/defs.h"
-#include "../misc/ExtendedList.h"
 
 class ClassGenerationContext {
 
@@ -60,9 +59,8 @@ private:
     VMSymbol* name;
     VMSymbol* superName;
     bool classSide;
-    ExtendedList<VMSymbol*>    instanceFields;
-    ExtendedList<VMInvokable*> instanceMethods;
-    ExtendedList<VMSymbol*>    classFields;
-    ExtendedList<VMInvokable*> classMethods;
-
+    std::vector<VMSymbol*>    instanceFields;
+    std::vector<VMInvokable*> instanceMethods;
+    std::vector<VMSymbol*>    classFields;
+    std::vector<VMInvokable*> classMethods;
 };

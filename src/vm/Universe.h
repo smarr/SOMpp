@@ -32,7 +32,6 @@
 
 #include "../misc/defs.h"
 #include "../misc/Timer.h"
-#include "../misc/ExtendedList.h"
 
 #include "../vmobjects/ObjectFormats.h"
 
@@ -71,9 +70,11 @@ public:
 
     //VMObject instanciation methods. These should probably be refactored to a new class
     VMArray* NewArray(long) const;
-    VMArray* NewArrayList(ExtendedList<vm_oop_t>& list) const;
-    VMArray* NewArrayList(ExtendedList<VMInvokable*>& list) const;
-    VMArray* NewArrayList(ExtendedList<VMSymbol*>& list) const;
+    
+    VMArray* NewArrayList(std::vector<vm_oop_t>& list) const;
+    VMArray* NewArrayList(std::vector<VMInvokable*>& list) const;
+    VMArray* NewArrayList(std::vector<VMSymbol*>& list) const;
+    
     VMArray* NewArrayFromStrings(const vector<StdString>&) const;
     VMBlock* NewBlock(VMMethod*, VMFrame*, long);
     VMClass* NewClass(VMClass*) const;
