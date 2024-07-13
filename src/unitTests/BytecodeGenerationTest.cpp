@@ -401,7 +401,7 @@ void BytecodeGenerationTest::check(std::vector<uint8_t> actual, std::vector<uint
                      Bytecode::GetBytecodeName(expectedBc),
                      expected.at(i + 1),
                      actual.at(i + 1));
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expectedBc, actualBc);
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expected.at(i + 1), actual.at(i + 1));
             
             i += 1;
             
@@ -411,7 +411,7 @@ void BytecodeGenerationTest::check(std::vector<uint8_t> actual, std::vector<uint
                          Bytecode::GetBytecodeName(expectedBc),
                          expected.at(i + 1),
                          actual.at(i + 1));
-                CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expectedBc, actualBc);
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expected.at(i + 1), actual.at(i + 1));
                 
                 i += 1;
             }
