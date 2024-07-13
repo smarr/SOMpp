@@ -80,11 +80,32 @@ LABEL_BC_PUSH_LOCAL_2:
     DISPATCH_NOGC();
     
 LABEL_BC_PUSH_ARGUMENT:
-LABEL_BC_PUSH_SELF:
-LABEL_BC_PUSH_ARG_1:
-LABEL_BC_PUSH_ARG_2:
     PROLOGUE(3);
     doPushArgument(bytecodeIndexGlobal - 3);
+    DISPATCH_NOGC();
+
+LABEL_BC_PUSH_SELF:
+    PROLOGUE(1);
+    {
+        vm_oop_t argument = GetFrame()->GetArgumentInCurrentContext(0);
+        GetFrame()->Push(argument);
+    }
+    DISPATCH_NOGC();
+
+LABEL_BC_PUSH_ARG_1:
+    PROLOGUE(1);
+    {
+        vm_oop_t argument = GetFrame()->GetArgumentInCurrentContext(1);
+        GetFrame()->Push(argument);
+    }
+    DISPATCH_NOGC();
+    
+LABEL_BC_PUSH_ARG_2:
+    PROLOGUE(1);
+    {
+        vm_oop_t argument = GetFrame()->GetArgumentInCurrentContext(2);
+        GetFrame()->Push(argument);
+    }
     DISPATCH_NOGC();
     
 LABEL_BC_PUSH_FIELD:

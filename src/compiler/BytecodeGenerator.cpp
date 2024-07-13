@@ -76,6 +76,25 @@ void BytecodeGenerator::EmitPUSHLOCAL(MethodGenerationContext* mgenc, long idx,
 
 void BytecodeGenerator::EmitPUSHARGUMENT(MethodGenerationContext* mgenc,
         long idx, int ctx) {
+    assert(idx >= 0);
+    assert(ctx >= 0);
+    
+    if (ctx == 0) {
+        if (idx == 0) {
+            EMIT1(BC_PUSH_SELF);
+            return;
+        }
+        
+        if (idx == 1) {
+            EMIT1(BC_PUSH_ARG_1);
+            return;
+        }
+        
+        if (idx == 2) {
+            EMIT1(BC_PUSH_ARG_2);
+            return;
+        }
+    }
     EMIT3(BC_PUSH_ARGUMENT, idx, ctx);
 }
 

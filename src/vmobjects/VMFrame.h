@@ -97,6 +97,10 @@ public:
         return load_ptr(context->arguments[index]);
     }
     
+    inline vm_oop_t GetArgumentInCurrentContext(long index) {
+        return load_ptr(this->arguments[index]);
+    }
+    
     void SetArgument(long, long, vm_oop_t);
     void PrintStackTrace() const;
     long ArgumentStackIndex(long index) const;
