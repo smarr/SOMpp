@@ -72,8 +72,7 @@ bool ClassGenerationContext::HasField(VMSymbol* field) {
     if (IsClassSide()) {
         return Contains(classFields, field);
     } else {
-        auto it = find(instanceFields.begin(), instanceFields.end(), field);
-        return it != instanceFields.end();
+        return Contains(instanceFields, field);
     }
 }
 

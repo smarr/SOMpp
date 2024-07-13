@@ -44,7 +44,7 @@ public:
     VMPrimitive* AssemblePrimitive(bool classSide);
 
     int8_t FindLiteralIndex(vm_oop_t lit);
-    bool FindVar(const StdString& var, size_t* index,
+    bool FindVar(VMSymbol* var, size_t* index,
             int* context, bool* isArgument);
     bool HasField(VMSymbol* field);
     
@@ -86,9 +86,9 @@ private:
     MethodGenerationContext* outerGenc;
     bool blockMethod;
     VMSymbol* signature;
-    std::vector<StdString> arguments;
+    std::vector<VMSymbol*> arguments;
     bool primitive;
-    std::vector<StdString> locals;
+    std::vector<VMSymbol*> locals;
     std::vector<vm_oop_t> literals;
     bool finished;
     std::vector<uint8_t> bytecode;

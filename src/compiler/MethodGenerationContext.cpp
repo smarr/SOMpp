@@ -93,7 +93,7 @@ uint8_t MethodGenerationContext::GetFieldIndex(VMSymbol* field) {
     return idx;
 }
 
-bool MethodGenerationContext::FindVar(const StdString& var, size_t* index,
+bool MethodGenerationContext::FindVar(VMSymbol* var, size_t* index,
         int* context, bool* isArgument) {
     if ((*index = IndexOf(locals, var)) == -1) {
         if ((*index = IndexOf(arguments, var)) == -1) {
@@ -139,11 +139,13 @@ void MethodGenerationContext::SetPrimitive(bool prim) {
 }
 
 void MethodGenerationContext::AddArgument(const StdString& arg) {
-    arguments.push_back(arg);
+    VMSymbol* argSym = GetUniverse()->SymbolFor(arg);
+    arguments.push_back(argSym);
 }
 
 void MethodGenerationContext::AddLocal(const StdString& local) {
-    locals.push_back(local);
+    VMSymbol* localSym = GetUniverse()->SymbolFor(local);
+    locals.push_back(localSym);
 }
 
 uint8_t MethodGenerationContext::AddLiteral(vm_oop_t lit) {
@@ -158,18 +160,20 @@ void MethodGenerationContext::UpdateLiteral(vm_oop_t oldValue, uint8_t index, vm
 }
 
 bool MethodGenerationContext::AddArgumentIfAbsent(const StdString& arg) {
-    if (Contains(locals, arg)) {
+    VMSymbol* argSym = GetUniverse()->SymbolFor(arg);
+    if (Contains(locals, argSym)) {
         return false;
     }
-    arguments.push_back(arg);
+    arguments.push_back(argSym);
     return true;
 }
 
 bool MethodGenerationContext::AddLocalIfAbsent(const StdString& local) {
-    if (Contains(locals, local)) {
+    VMSymbol* localSym = GetUniverse()->SymbolFor(local);
+    if (Contains(locals, localSym)) {
         return false;
     }
-    locals.push_back(local);
+    locals.push_back(localSym);
     return true;
 }
 

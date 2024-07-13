@@ -26,6 +26,8 @@
  THE SOFTWARE.
  */
 
+#include <vector>
+
 #include "../vmobjects/ObjectFormats.h"
 
 #include "../misc/defs.h"
