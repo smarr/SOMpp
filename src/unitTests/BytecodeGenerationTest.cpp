@@ -119,6 +119,9 @@ void BytecodeGenerationTest::testIfPushConstantDifferent() {
 
 
 void BytecodeGenerationTest::check(std::vector<uint8_t> actual, std::vector<uint8_t> expected) {
+    if (expected.size() != actual.size()) {
+        dump(_mgenc);
+    }
     
     for (size_t i = 0; i < actual.size() && i < expected.size(); i += 1) {
         uint8_t actualBc = actual.at(i);
@@ -154,10 +157,6 @@ void BytecodeGenerationTest::check(std::vector<uint8_t> actual, std::vector<uint
                 i += 1;
             }
         }
-    }
-
-    if (expected.size() != actual.size()) {
-        dump(_mgenc);
     }
     
     CPPUNIT_ASSERT_EQUAL_MESSAGE("Number of bytecodes",
