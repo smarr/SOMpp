@@ -137,7 +137,7 @@ bool Parser::expectOneOf(Symbol* ss) {
 }
 
 void Parser::genPushVariable(MethodGenerationContext* mgenc,
-        const StdString& var) {
+        VMSymbol* var) {
     // The purpose of this function is to find out whether the variable to be
     // pushed on the stack is a local variable, argument, or object field. This
     // is done by examining all available lexical contexts, starting with the
@@ -147,22 +147,21 @@ void Parser::genPushVariable(MethodGenerationContext* mgenc,
     bool is_argument = false;
 
     if (mgenc->FindVar(var, &index, &context, &is_argument)) {
-        if (is_argument)
+        if (is_argument) {
             bcGen->EmitPUSHARGUMENT(mgenc, index, context);
-        else
+        } else {
             bcGen->EmitPUSHLOCAL(mgenc, index, context);
-    } else if (mgenc->HasField(var)) {
-        VMSymbol* fieldName = GetUniverse()->SymbolFor(var);
-        bcGen->EmitPUSHFIELD(mgenc, fieldName);
+        }
     } else {
-
-        VMSymbol* global = GetUniverse()->SymbolFor(var);
-        bcGen->EmitPUSHGLOBAL(mgenc, global);
+        if (mgenc->HasField(var)) {
+            bcGen->EmitPUSHFIELD(mgenc, var);
+        } else {
+            bcGen->EmitPUSHGLOBAL(mgenc, var);
+        }
     }
 }
 
-void Parser::genPopVariable(MethodGenerationContext* mgenc,
-        const StdString& var) {
+void Parser::genPopVariable(MethodGenerationContext* mgenc, VMSymbol* var) {
     // The purpose of this function is to find out whether the variable to be
     // popped off the stack is a local variable, argument, or object field. This
     // is done by examining all available lexical contexts, starting with the
@@ -177,7 +176,7 @@ void Parser::genPopVariable(MethodGenerationContext* mgenc,
         else
             bcGen->EmitPOPLOCAL(mgenc, index, context);
     } else
-        bcGen->EmitPOPFIELD(mgenc, GetUniverse()->SymbolFor(var));
+        bcGen->EmitPOPFIELD(mgenc, var);
     }
 
 //
@@ -457,11 +456,11 @@ void Parser::expression(MethodGenerationContext* mgenc) {
 }
 
 void Parser::assignation(MethodGenerationContext* mgenc) {
-    list<StdString> l;
+    list<VMSymbol*> l;
 
     assignments(mgenc, l);
     evaluation(mgenc);
-    list<StdString>::iterator i;
+    list<VMSymbol*>::iterator i;
     for (i = l.begin(); i != l.end(); ++i)
         bcGen->EmitDUP(mgenc);
     for (i = l.begin(); i != l.end(); ++i)
@@ -469,7 +468,7 @@ void Parser::assignation(MethodGenerationContext* mgenc) {
 
 }
 
-void Parser::assignments(MethodGenerationContext* mgenc, list<StdString>& l) {
+void Parser::assignments(MethodGenerationContext* mgenc, list<VMSymbol*>& l) {
     if (symIsIdentifier()) {
         l.push_back(assignment(mgenc));
         Peek();
@@ -479,13 +478,12 @@ void Parser::assignments(MethodGenerationContext* mgenc, list<StdString>& l) {
     }
 }
 
-StdString Parser::assignment(MethodGenerationContext* mgenc) {
+VMSymbol* Parser::assignment(MethodGenerationContext* mgenc) {
     StdString v = variable();
-    VMSymbol* var = GetUniverse()->SymbolFor(v);
 
     expect(Assign);
 
-    return v;
+    return GetUniverse()->SymbolFor(v);
 }
 
 void Parser::evaluation(MethodGenerationContext* mgenc) {
@@ -508,7 +506,7 @@ bool Parser::primary(MethodGenerationContext* mgenc) {
             v = StdString("self");
         }
 
-        genPushVariable(mgenc, v);
+        genPushVariable(mgenc, GetUniverse()->SymbolFor(v));
         break;
     }
     case NewTerm:

@@ -26,10 +26,11 @@
  THE SOFTWARE.
  */
 
+#include <vector>
+
 #include "../vmobjects/ObjectFormats.h"
 
 #include "../misc/defs.h"
-#include "../misc/ExtendedList.h"
 
 class ClassGenerationContext {
 
@@ -39,7 +40,7 @@ public:
     VMClass* Assemble();
     void AssembleSystemClass(VMClass* systemClass);
 
-    bool HasField(const StdString&);
+    bool HasField(VMSymbol* field);
     void AddInstanceField(VMSymbol*);
     void AddClassField(VMSymbol*);
     void AddInstanceMethod(VMInvokable*);
@@ -60,9 +61,8 @@ private:
     VMSymbol* name;
     VMSymbol* superName;
     bool classSide;
-    ExtendedList<VMSymbol*>    instanceFields;
-    ExtendedList<VMInvokable*> instanceMethods;
-    ExtendedList<VMSymbol*>    classFields;
-    ExtendedList<VMInvokable*> classMethods;
-
+    std::vector<VMSymbol*>    instanceFields;
+    std::vector<VMInvokable*> instanceMethods;
+    std::vector<VMSymbol*>    classFields;
+    std::vector<VMInvokable*> classMethods;
 };

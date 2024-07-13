@@ -27,6 +27,7 @@
  */
 
 #include <fstream>
+#include <list>
 #include <string>
 
 #include "../misc/defs.h"
@@ -79,8 +80,8 @@ private:
     void result(MethodGenerationContext* mgenc);
     void expression(MethodGenerationContext* mgenc);
     void assignation(MethodGenerationContext* mgenc);
-    void assignments(MethodGenerationContext* mgenc, list<string>& l);
-    StdString assignment(MethodGenerationContext* mgenc);
+    void assignments(MethodGenerationContext* mgenc, list<VMSymbol*>& l);
+    VMSymbol* assignment(MethodGenerationContext* mgenc);
     void evaluation(MethodGenerationContext* mgenc);
     bool primary(MethodGenerationContext* mgenc);
     StdString variable(void);
@@ -107,8 +108,8 @@ private:
     StdString _string(void);
     void blockPattern(MethodGenerationContext* mgenc);
     void blockArguments(MethodGenerationContext* mgenc);
-    void genPushVariable(MethodGenerationContext*, const StdString&);
-    void genPopVariable(MethodGenerationContext*, const StdString&);
+    void genPushVariable(MethodGenerationContext*, VMSymbol*);
+    void genPopVariable(MethodGenerationContext*, VMSymbol*);
 
     Lexer* lexer;
     StdString& fname;

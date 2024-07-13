@@ -26,7 +26,7 @@
  THE SOFTWARE.
  */
 
-#include <stddef.h>
+#include <cstddef>
 #include <vmobjects/ObjectFormats.h>
 #include <vmobjects/VMSymbol.h>
 

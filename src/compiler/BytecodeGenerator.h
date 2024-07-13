@@ -54,8 +54,4 @@ public:
     void EmitSUPERSEND(MethodGenerationContext* mgenc, VMSymbol* msg);
     void EmitRETURNLOCAL(MethodGenerationContext* mgenc);
     void EmitRETURNNONLOCAL(MethodGenerationContext* mgenc);
-
-    size_t EmitJUMP_IF_FALSE(MethodGenerationContext* mgenc);
-    size_t EmitJUMP_IF_TRUE(MethodGenerationContext* mgenc);
-    size_t EmitJUMP(MethodGenerationContext* mgenc);
 };

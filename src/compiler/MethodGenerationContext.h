@@ -29,7 +29,6 @@
 #include <vector>
 
 #include <misc/defs.h>
-#include <misc/ExtendedList.h>
 
 #include "ClassGenerationContext.h"
 
@@ -45,10 +44,9 @@ public:
     VMPrimitive* AssemblePrimitive(bool classSide);
 
     int8_t FindLiteralIndex(vm_oop_t lit);
-    bool FindVar(const StdString& var, size_t* index,
+    bool FindVar(VMSymbol* var, size_t* index,
             int* context, bool* isArgument);
-    bool HasField(const StdString& field);
-    uint8_t ComputeStackDepth();
+    bool HasField(VMSymbol* field);
     
     uint8_t GetFieldIndex(VMSymbol* field);
 
@@ -75,8 +73,8 @@ public:
     bool IsFinished();
     void RemoveLastBytecode() {bytecode.pop_back();};
     size_t GetNumberOfArguments();
-    size_t AddBytecode(uint8_t bc);
-    void PatchJumpTarget(size_t jump_position);
+    size_t AddBytecode(uint8_t bc, size_t stackEffect);
+    size_t AddBytecodeArgument(uint8_t bc);
 
     bool HasBytecodes();
     std::vector<uint8_t> GetBytecodes() {
@@ -88,10 +86,13 @@ private:
     MethodGenerationContext* outerGenc;
     bool blockMethod;
     VMSymbol* signature;
-    ExtendedList<StdString> arguments;
+    std::vector<VMSymbol*> arguments;
     bool primitive;
-    ExtendedList<StdString> locals;
-    ExtendedList<vm_oop_t> literals;
+    std::vector<VMSymbol*> locals;
+    std::vector<vm_oop_t> literals;
     bool finished;
     std::vector<uint8_t> bytecode;
+    
+    size_t currentStackDepth;
+    size_t maxStackDepth;
 };

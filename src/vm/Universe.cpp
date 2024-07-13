@@ -643,23 +643,23 @@ VMArray* Universe::NewArrayFromStrings(const vector<StdString>& argv) const {
     return result;
 }
 
-VMArray* Universe::NewArrayList(ExtendedList<VMSymbol*>& list) const {
-    ExtendedList<vm_oop_t>& objList = (ExtendedList<vm_oop_t>&) list;
+VMArray* Universe::NewArrayList(std::vector<VMSymbol*>& list) const {
+    std::vector<vm_oop_t>& objList = (std::vector<vm_oop_t>&) list;
     return NewArrayList(objList);
 }
 
-VMArray* Universe::NewArrayList(ExtendedList<VMInvokable*>& list) const {
-    ExtendedList<vm_oop_t>& objList = (ExtendedList<vm_oop_t>&) list;
+VMArray* Universe::NewArrayList(std::vector<VMInvokable*>& list) const {
+    std::vector<vm_oop_t>& objList = (std::vector<vm_oop_t>&) list;
     return NewArrayList(objList);
 }
 
-VMArray* Universe::NewArrayList(ExtendedList<vm_oop_t>& list) const {
-    long size = list.Size();
+VMArray* Universe::NewArrayList(std::vector<vm_oop_t>& list) const {
+    size_t size = list.size();
     VMArray* result = NewArray(size);
 
     if (result) {
-        for (long i = 0; i < size; ++i) {
-            vm_oop_t elem = list.Get(i);
+        for (size_t i = 0; i < size; i += 1) {
+            vm_oop_t elem = list[i];
             result->SetIndexableField(i, elem);
         }
     }
