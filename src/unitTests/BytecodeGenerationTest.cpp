@@ -377,6 +377,38 @@ void BytecodeGenerationTest::testPushArgOpt() {
     });
 }
 
+void BytecodeGenerationTest::testPushFieldOpt() {
+    addField("f1");
+    addField("f2");
+    addField("f3");
+    addField("f4");
+    auto bytecodes = methodToBytecode("test = ( f1. f2. f3. f4 )");
+    check(bytecodes, {
+        BC_PUSH_FIELD_0, BC_POP,
+        BC_PUSH_FIELD_1, BC_POP,
+        BC_PUSH_FIELD, 2, BC_POP,
+        BC_PUSH_FIELD, 3, BC_POP,
+        BC_PUSH_SELF,
+        BC_RETURN_LOCAL
+    });
+}
+
+void BytecodeGenerationTest::testBlockPushFieldOpt() {
+    addField("f1");
+    addField("f2");
+    addField("f3");
+    addField("f4");
+    auto bytecodes = blockToBytecode("[ f1. f2. f3. f4 ]");
+    
+    check(bytecodes, {
+        BC_PUSH_FIELD_0, BC_POP,
+        BC_PUSH_FIELD_1, BC_POP,
+        BC_PUSH_FIELD, 2, BC_POP,
+        BC_PUSH_FIELD, 3,
+        BC_RETURN_LOCAL
+    });
+}
+
 void BytecodeGenerationTest::check(std::vector<uint8_t> actual, std::vector<uint8_t> expected) {
     if (expected.size() != actual.size()) {
         dump(_mgenc);

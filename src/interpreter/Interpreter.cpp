@@ -214,6 +214,21 @@ void Interpreter::doPushField(long bytecodeIndex) {
     GetFrame()->Push(o);
 }
 
+void Interpreter::doPushFieldWithIndex(uint8_t fieldIndex) {
+    vm_oop_t self = GetSelf();
+    vm_oop_t o;
+
+    if (unlikely(IS_TAGGED(self))) {
+        o = nullptr;
+        Universe()->ErrorExit("Integers do not have fields!");
+    }
+    else {
+        o = ((VMObject*)self)->GetField(fieldIndex);
+    }
+
+    GetFrame()->Push(o);
+}
+
 void Interpreter::doPushBlock(long bytecodeIndex) {
     VMMethod* blockMethod = static_cast<VMMethod*>(method->GetConstant(bytecodeIndex));
 

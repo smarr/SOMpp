@@ -109,10 +109,18 @@ LABEL_BC_PUSH_ARG_2:
     DISPATCH_NOGC();
     
 LABEL_BC_PUSH_FIELD:
-LABEL_BC_PUSH_FIELD_0:
-LABEL_BC_PUSH_FIELD_1:
     PROLOGUE(2);
     doPushField(bytecodeIndexGlobal - 2);
+    DISPATCH_NOGC();
+
+LABEL_BC_PUSH_FIELD_0:
+    PROLOGUE(1);
+    doPushFieldWithIndex(0);
+    DISPATCH_NOGC();
+
+LABEL_BC_PUSH_FIELD_1:
+    PROLOGUE(1);
+    doPushFieldWithIndex(1);
     DISPATCH_NOGC();
     
 LABEL_BC_PUSH_BLOCK:

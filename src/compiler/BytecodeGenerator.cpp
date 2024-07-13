@@ -99,7 +99,14 @@ void BytecodeGenerator::EmitPUSHARGUMENT(MethodGenerationContext* mgenc,
 }
 
 void BytecodeGenerator::EmitPUSHFIELD(MethodGenerationContext* mgenc, VMSymbol* field) {
-    EMIT2(BC_PUSH_FIELD, mgenc->GetFieldIndex(field));
+    uint8_t idx = mgenc->GetFieldIndex(field);
+    if (idx == 0) {
+        EMIT1(BC_PUSH_FIELD_0);
+    } else if (idx == 1) {
+        EMIT1(BC_PUSH_FIELD_1);
+    } else {
+        EMIT2(BC_PUSH_FIELD, idx);
+    }
 }
 
 void BytecodeGenerator::EmitPUSHBLOCK(MethodGenerationContext* mgenc, VMMethod* block) {
