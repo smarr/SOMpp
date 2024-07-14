@@ -47,6 +47,10 @@ public:
     void nestedBlock(MethodGenerationContext* mgenc);
     
 private:
+    __attribute__((noreturn)) void parseError(const char* msg, Symbol expected);
+    __attribute__((noreturn)) void parseError(const char* msg, Symbol* expected);
+    __attribute__((noreturn)) void parseError(const char* msg, StdString expected);
+    
     void GetSym();
     void Peek();
     void PeekForNextSymbolFromLexerIfNecessary();

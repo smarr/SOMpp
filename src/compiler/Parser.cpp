@@ -41,7 +41,8 @@
 #include <iostream>
 #include <cctype>
 #include <sstream>
-#include <string.h>
+#include <cstring>
+#include <string>
 
 #include <assert.h>
 
@@ -111,28 +112,16 @@ bool Parser::symIsIdentifier() {
 bool Parser::expect(Symbol s) {
     if (accept(s))
         return true;
-    fprintf(stderr,
-            "Error: %s:%d: unexpected symbol. Expected %s, but found %s",
-            fname.c_str(),
-            lexer->GetCurrentLineNumber(),
-            symnames[s], symnames[sym]);
-    if (_PRINTABLE_SYM)
-        fprintf(stderr, " (%s)", text.c_str());
-    fprintf(stderr, ": %s\n", lexer->GetRawBuffer().c_str());
+    
+    parseError("Unexpected symbol. Expected %(expected)s, but found %(found)s\n", s);
     return false;
 }
 
 bool Parser::expectOneOf(Symbol* ss) {
     if (acceptOneOf(ss))
         return true;
-    fprintf(stderr, "Error: unexpected symbol in line %d. Expected one of ",
-            lexer->GetCurrentLineNumber());
-    while (*ss)
-        fprintf(stderr, "%s, ", symnames[*ss++]);
-    fprintf(stderr, "but found %s", symnames[sym]);
-    if (_PRINTABLE_SYM)
-        fprintf(stderr, " (%s)", text.c_str());
-    fprintf(stderr, ": %s\n", lexer->GetRawBuffer().c_str());
+    parseError("Unexpected symbol. Expected one of %(expected)s, but found %(found)s\n", ss);
+    
     return false;
 }
 
@@ -816,3 +805,61 @@ void Parser::blockArguments(MethodGenerationContext* mgenc) {
     } while (sym == Colon);
 }
 
+static bool replace(StdString& str, const char* pattern, StdString& replacement) {
+    size_t pos = str.find(pattern);
+    if (pos == std::string::npos) {
+        return false;
+    }
+    
+    str.replace(pos, strlen(pattern), replacement);
+    return true;
+}
+
+__attribute__((noreturn)) void Parser::parseError(const char* msg, Symbol expected) {
+    StdString expectedStr(symnames[expected]);
+    parseError(msg, expectedStr);
+}
+
+
+__attribute__((noreturn)) void Parser::parseError(const char* msg, StdString expected) {
+    StdString msgWithMeta = "%(file)s:%(line)d:%(column)d: error: " + StdString(msg);
+    
+    StdString foundStr;
+    if (_PRINTABLE_SYM) {
+        foundStr = symnames[sym] + StdString(" (") + text + ")";
+    } else {
+        foundStr = symnames[sym];
+    }
+    
+    replace(msgWithMeta, "%(file)s", fname);
+
+    StdString line = std::to_string(lexer->GetCurrentLineNumber());
+    replace(msgWithMeta, "%(line)d", line);
+    
+    StdString column = std::to_string(lexer->getCurrentColumn());
+    replace(msgWithMeta, "%(column)d", column);
+    replace(msgWithMeta, "%(expected)s", expected);
+    replace(msgWithMeta, "%(found)s", foundStr);
+    
+    ErrorPrint(msgWithMeta);
+    GetUniverse()->Quit(ERR_FAIL);
+}
+
+__attribute__((noreturn)) void Parser::parseError(const char* msg, Symbol* expected) {
+    bool first = true;
+    StdString expectedStr = "";
+    
+    Symbol* next = expected;
+    while (*next) {
+        if (first) {
+            first = false;
+        } else {
+            expectedStr += ", ";
+        }
+        
+        expectedStr += symnames[*next];
+        next += 1;
+    }
+    
+    parseError(msg, expectedStr);
+}
