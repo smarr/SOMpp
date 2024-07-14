@@ -53,8 +53,8 @@ public:
     //static methods
     static void Start(long argc, char** argv);
     static void BasicInit();
-    static void Quit(long);
-    static void ErrorExit(const char*);
+    __attribute__((noreturn)) static void Quit(long);
+    __attribute__((noreturn)) static void ErrorExit(const char*);
 
     vm_oop_t interpret(StdString className, StdString methodName);
 

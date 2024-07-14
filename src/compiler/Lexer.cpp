@@ -28,25 +28,16 @@
 #include <assert.h>
 
 #include "Lexer.h"
+#include <vm/Universe.h>
 
-Lexer::Lexer(istream &file) : infile(file) {
-    peekDone = false;
-    bufp = 0;
-    lineNumber = 0;
-    
-    text     = "";
-    nextText = "";
-}
-
-Lexer::~Lexer() {
-}
+Lexer::Lexer(istream &file) : infile(file), peekDone(false) {}
 
 StdString Lexer::GetText(void) {
-    return StdString(text);
+    return state.text;
 }
 
 StdString Lexer::GetNextText(void) {
-    return StdString(nextText);
+    return stateAfterPeek.text;
 }
 
 StdString Lexer::GetRawBuffer(void) {
@@ -54,16 +45,16 @@ StdString Lexer::GetRawBuffer(void) {
     return StdString(buf);
 }
 
-#define _BC (buf[bufp])
-#define EOB (bufp >= buf.length())
+#define _BC (buf[state.bufp])
+#define EOB (state.bufp >= buf.length())
 
 size_t Lexer::fillBuffer(void) {
     if (!infile.good()) // file stream
         return -1;
 
     std::getline(infile, buf);
-    ++lineNumber;
-    bufp = 0;
+    state.lineNumber += 1;
+    state.bufp = 0;
     return buf.length();
 }
 
@@ -73,7 +64,7 @@ size_t Lexer::fillBuffer(void) {
 
 void Lexer::skipWhiteSpace(void) {
     while (isspace(_BC)) {
-        bufp++;
+        state.incPtr();
         while (EOB) {
             if (fillBuffer() == -1) {
                 return;
@@ -86,14 +77,14 @@ void Lexer::skipComment(void) {
 
     if (_BC == '"') {
         do {
-            bufp++;
+            state.incPtr();
             while (EOB) {
                 if (fillBuffer() == -1) {
                     return;
                 }
             }
         } while (_BC != '"');
-        bufp++;
+        state.incPtr();
     }
 }
 
@@ -102,27 +93,29 @@ void Lexer::skipComment(void) {
      (C) == '\\' || (C) == '+' || (C) == '=' || (C) == '>' || (C) == '<' || \
      (C) == ',' || (C) == '@' || (C) == '%' || (C) == '-')
 #define _MATCH(C, S) \
-    if(_BC == (C)) { sym = (S); symc = _BC; text = _BC; bufp++;}
+    if(_BC == (C)) { state.sym = (S); state.symc = _BC; state.text = _BC; state.incPtr();}
 #define SEPARATOR StdString("----") //FIXME
 #define PRIMITIVE StdString("primitive")
 
 void Lexer::lexNumber() {
-    sym = Integer;
-    symc = 0;
-    text.clear();
+    state.sym = Integer;
+    state.symc = 0;
+    state.text.clear();
 
     bool sawDecimalMark = false;
     
     do {
-        text += buf[bufp++];
+        state.text += _BC;
+        state.incPtr();
         
         if (!sawDecimalMark         and
             '.' == _BC              and
-            bufp + 1 < buf.length() and
-            isdigit(buf[bufp + 1])) {
-            sym = Double;
+            state.bufp + 1 < buf.length() and
+            isdigit(buf[state.bufp + 1])) {
+            state.sym = Double;
             sawDecimalMark = true;
-            text += buf[bufp++];
+            state.text += buf[state.bufp];
+            state.incPtr();
         }
         
     } while (isdigit(_BC));
@@ -133,57 +126,59 @@ void Lexer::lexEscapeChar() {
     assert(!EOB);
     char current = _BC;
     switch (current) {
-        case 't': text += '\t'; break;
-        case 'b': text += '\b'; break;
-        case 'n': text += '\n'; break;
-        case 'r': text += '\r'; break;
-        case 'f': text += '\f'; break;
-        case '0': text += '\0'; break;
-        case '\'': text += '\''; break;
-        case '\\': text += '\\'; break;
+        case 't': state.text += '\t'; break;
+        case 'b': state.text += '\b'; break;
+        case 'n': state.text += '\n'; break;
+        case 'r': state.text += '\r'; break;
+        case 'f': state.text += '\f'; break;
+        case '0': state.text += '\0'; break;
+        case '\'': state.text += '\''; break;
+        case '\\': state.text += '\\'; break;
         default:
             assert(false);
             break;
     }
-    bufp++;
+    state.incPtr();
 }
 
 void Lexer::lexStringChar() {
     if (_BC == '\\') {
-        bufp++;
+        state.incPtr();
         lexEscapeChar();
     } else {
-        text += buf[bufp++];
+        state.text += buf[state.bufp];
+        state.incPtr();
     }
 }
 
 void Lexer::lexString() {
-    sym = STString;
-    symc = 0;
-    text.clear();
-    bufp++;
+    state.sym = STString;
+    state.symc = 0;
+    state.text.clear();
+    state.incPtr();
     
     while (_BC != '\'') {
         while (EOB) {
             if (fillBuffer() == -1) {
                 return;
             }
-            text += '\n';
+            state.text += '\n';
         }
         if (_BC != '\'') {
             lexStringChar();
         }
     }
-    bufp++;
+    state.incPtr();
 }
 
 void Lexer::lexOperator() {
-    if (_ISOP(buf[bufp + 1])) {
-        sym = OperatorSequence;
-        symc = 0;
-        text.clear();
+    if (_ISOP(buf[state.bufp + 1])) {
+        state.sym = OperatorSequence;
+        state.symc = 0;
+        state.text.clear();
         while (_ISOP(_BC)) {
-            text += buf[bufp++];
+            state.text += buf[state.bufp];
+            state.incPtr();
         }
 
     } else _MATCH('~', Not)  else _MATCH('&', And)   else _MATCH('|', Or)
@@ -196,81 +191,86 @@ void Lexer::lexOperator() {
 Symbol Lexer::GetSym(void) {
     if (peekDone) {
         peekDone = false;
-        sym = nextSym;
-        symc = nextSymc;
-        text = StdString(nextText);
-        return sym;
+        state = stateAfterPeek;
+        return state.sym;
     }
 
     do {
         if (!hasMoreInput()) {
-            sym = NONE;
-            symc = 0;
-            return sym;
+            state.sym = NONE;
+            state.symc = 0;
+            state.text = "";
+            return state.sym;
         }
         skipWhiteSpace();
         skipComment();
     } while ((EOB || isspace(_BC) || _BC == '"'));
+    
+    state.startBufp = state.bufp;
 
     if (_BC == '\'') {
         lexString();
     } else _MATCH('[', NewBlock) else _MATCH(']', EndBlock) else if (_BC
             == ':') {
-        if (buf[bufp + 1] == '=') {
-            bufp += 2;
-            sym = Assign;
-            symc = 0;
-            text = ":=";
+        if (buf[state.bufp + 1] == '=') {
+            state.incPtr(2);
+            state.sym = Assign;
+            state.symc = 0;
+            state.text = ":=";
         } else {
-            bufp++;
-            sym = Colon;
-            symc = ':';
-            text = ":";
+            state.incPtr();
+            state.sym = Colon;
+            state.symc = ':';
+            state.text = ":";
         }
     } else _MATCH('(', NewTerm) else _MATCH(')', EndTerm) else _MATCH('#', Pound) else _MATCH('^', Exit) else _MATCH('.', Period) else if (_BC
             == '-') {
-        if (!buf.substr(bufp, SEPARATOR.length()).compare(SEPARATOR)) {
-            text.clear();
+        if (!buf.substr(state.bufp, SEPARATOR.length()).compare(SEPARATOR)) {
+            state.text.clear();
             while (_BC == '-') {
-                text += buf[bufp++];
+                state.text += buf[state.bufp];
+                state.incPtr();
             }
-            sym = Separator;
+            state.sym = Separator;
         } else {
             lexOperator();
         }
     } else if (_ISOP(_BC)) {
         lexOperator();
     } else if (nextWordInBufferIs(PRIMITIVE)) {
-        bufp += PRIMITIVE.length();
-        sym = Primitive;
-        symc = 0;
-        text = "primitive";
+        state.incPtr(PRIMITIVE.length());
+        state.sym = Primitive;
+        state.symc = 0;
+        state.text = "primitive";
     } else if (isalpha(_BC)) {
-        text.clear();
-        symc = 0;
+        state.text.clear();
+        state.symc = 0;
         while (isalpha(_BC) || isdigit(_BC) || _BC == '_') {
-            text += buf[bufp++];
+            state.text += buf[state.bufp];
+            state.incPtr();
         }
-        sym = Identifier;
-        if (buf[bufp] == ':') {
-            sym = Keyword;
-            bufp++;
-            text += ':';
+        state.sym = Identifier;
+        if (buf[state.bufp] == ':') {
+            state.sym = Keyword;
+            state.incPtr();
+            state.text += ':';
             if (isalpha(_BC)) {
-                sym = KeywordSequence;
-                while (isalpha(_BC) || _BC == ':')
-                    text += buf[bufp++];
+                state.sym = KeywordSequence;
+                while (isalpha(_BC) || _BC == ':') {
+                    state.text += buf[state.bufp];
+                    state.incPtr();
+                }
             }
         }
     } else if (isdigit(_BC)) {
         lexNumber();
     } else {
-        sym = NONE;
-        symc = _BC;
-        text = _BC;
+        state.sym = NONE;
+        state.symc = _BC;
+        state.text = _BC;
     }
 
-    return sym;
+    return state.sym;
 }
 
 bool Lexer::hasMoreInput() {
@@ -283,29 +283,27 @@ bool Lexer::hasMoreInput() {
 }
 
 bool Lexer::nextWordInBufferIs(StdString word) {
-    if (0 != buf.substr(bufp, PRIMITIVE.length()).compare(PRIMITIVE)) {
+    if (0 != buf.substr(state.bufp, PRIMITIVE.length()).compare(PRIMITIVE)) {
         return false;
     }
-    if (bufp + PRIMITIVE.length() >= buf.length()) {
+    if (state.bufp + PRIMITIVE.length() >= buf.length()) {
         return true;
     }
-    return not isalnum(buf[bufp + PRIMITIVE.length()]);
+    return not isalnum(buf[state.bufp + PRIMITIVE.length()]);
 }
 
 Symbol Lexer::Peek(void) {
-    Symbol saveSym = sym;
-    char saveSymc = symc;
-    StdString saveText = StdString(text);
+    LexerState old = state;
+    
     if (peekDone) {
-        fprintf(stderr, "Cannot Peek twice!\n");
+        GetUniverse()->ErrorExit("Cannot Peek twice!\n");
     }
     GetSym();
-    nextSym = sym;
-    nextSymc = symc;
-    nextText = StdString(text);
-    sym = saveSym;
-    symc = saveSymc;
-    text = StdString(saveText);
+    Symbol nextSym = state.sym;
+    
+    stateAfterPeek = state;
+    state = old;
+    
     peekDone = true;
     return nextSym;
 }

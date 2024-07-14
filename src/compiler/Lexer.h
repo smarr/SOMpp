@@ -74,20 +74,51 @@ static const char* symnames[] = { "NONE", "Integer", "Not", "And", "Or", "Star",
         "NewTerm", "EndTerm", "Pound", "Primitive", "Separator", "STString",
         "Identifier", "Keyword", "KeywordSequence", "OperatorSequence" };
 
+class LexerState {
+public:
+    LexerState() : bufp(0), lineNumber(0), text(""), sym(Symbol::NONE), symc(0), startBufp(0) {}
+    
+    inline size_t incPtr() {
+        return incPtr(1);
+    }
+    
+    inline size_t incPtr(size_t val) {
+        size_t cur = bufp;
+        bufp += val;
+        startBufp = bufp;
+        return cur;
+    }
+
+    size_t lineNumber;
+    size_t bufp;
+    
+    Symbol sym;
+    char symc;
+    StdString text;
+    
+    size_t startBufp;
+};
+
+
 class Lexer {
 
 public:
     Lexer(istream& file);
     Lexer(const StdString& stream);
-    ~Lexer();
+
     Symbol GetSym(void);
     Symbol Peek(void);
     StdString GetText(void);
     StdString GetNextText(void);
     StdString GetRawBuffer(void);
+    StdString GetCurrentLine();
     
-    int GetCurrentLineNumber() {
-        return lineNumber;
+    size_t getCurrentColumn() {
+        return state.startBufp + 1 - state.text.length();
+    }
+    
+    size_t GetCurrentLineNumber() {
+        return state.lineNumber;
     }
     
     bool GetPeekDone() const {
@@ -111,20 +142,10 @@ private:
 
     istream& infile;
 
-    StdString stringInput;
-
-    Symbol sym;
-    char symc;
-
-    StdString text;
-    
-    int lineNumber;
     bool peekDone;
-    Symbol nextSym;
-    char nextSymc;
-    //^^
-    StdString nextText;
-
+    
+    LexerState state;
+    LexerState stateAfterPeek;
+    
     StdString buf;
-    unsigned int bufp;
 };
