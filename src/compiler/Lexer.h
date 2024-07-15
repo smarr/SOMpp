@@ -106,11 +106,22 @@ public:
     Lexer(istream& file);
     Lexer(const StdString& stream);
 
-    Symbol GetSym(void);
-    Symbol Peek(void);
-    StdString GetText(void);
-    StdString GetNextText(void);
-    StdString GetRawBuffer(void);
+    Symbol GetSym();
+    Symbol Peek();
+    
+    StdString GetText() const {
+        return state.text;
+    }
+    
+    StdString GetNextText() const {
+        return stateAfterPeek.text;
+    }
+    
+    StdString GetRawBuffer() const {
+        //for debug
+        return StdString(buf);
+    }
+    
     StdString GetCurrentLine();
     
     size_t getCurrentColumn() {
@@ -126,9 +137,9 @@ public:
     }
 
 private:
-    size_t fillBuffer(void);
-    void skipWhiteSpace(void);
-    void skipComment(void);
+    size_t fillBuffer();
+    void skipWhiteSpace();
+    void skipComment();
     
     bool hasMoreInput();
     
@@ -138,7 +149,7 @@ private:
     void lexStringChar();
     void lexString();
     
-    bool nextWordInBufferIs(StdString word);
+    bool nextWordInBufferIsPrimitive();
 
     istream& infile;
 

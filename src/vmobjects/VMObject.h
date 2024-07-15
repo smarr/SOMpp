@@ -25,7 +25,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-
+#include <cstddef>
 #include <vector>
 #include <iostream>
 #include <cstring>
@@ -64,7 +64,7 @@ class VMObject: public AbstractVMObject {
 public:
     typedef GCObject Stored;
     
-    VMObject(long numberOfFields = 0);
+    VMObject(size_t numberOfFields = 0);
 
     virtual int64_t GetHash() { return hash; }
     virtual inline VMClass*  GetClass() const;
@@ -72,8 +72,18 @@ public:
     virtual        VMSymbol* GetFieldName(long index) const;
     virtual inline long      GetNumberOfFields() const;
     virtual        void      SetNumberOfFields(long nof);
-            inline vm_oop_t  GetField(long index) const;
-            inline void      SetField(long index, vm_oop_t value);
+    
+    inline vm_oop_t GetField(size_t index) const {
+        vm_oop_t result = load_ptr(FIELDS[index]);
+        assert(IsValidObject(result));
+        return result;
+    }
+    
+    inline void SetField(size_t index, vm_oop_t value) {
+        assert(IsValidObject(value));
+        store_ptr(FIELDS[index], value);
+    }
+    
     virtual        void      Assert(bool value) const;
     virtual        void      WalkObjects(walk_heap_fn walk);
     virtual        VMObject* Clone() const;
@@ -117,7 +127,7 @@ protected_testable:
     // clazz has index -1.
     
 private:
-    static const long VMObjectNumberOfFields;
+    static const size_t VMObjectNumberOfFields;
 };
 
 size_t VMObject::GetObjectSize() const {
@@ -145,15 +155,4 @@ long VMObject::GetAdditionalSpaceConsumption() const {
     return (objectSize
             - (sizeof(VMObject)
                + sizeof(VMObject*) * GetNumberOfFields()));
-}
-
-vm_oop_t VMObject::GetField(long index) const {
-    vm_oop_t result = load_ptr(FIELDS[index]);
-    assert(IsValidObject(result));
-    return result;
-}
-
-void VMObject::SetField(long index, vm_oop_t value) {
-    assert(IsValidObject(value));
-    store_ptr(FIELDS[index], value);
 }
