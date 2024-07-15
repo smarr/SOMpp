@@ -125,6 +125,4 @@ private:
     Symbol nextSym;
 
     StdString nextText;
-
-    BytecodeGenerator* bcGen;
 };
