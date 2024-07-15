@@ -190,6 +190,7 @@ private:
     // The Unit Test harness will initialize Universe for a standard run.
     // This is different from other SOMs.
     vm_oop_t result = GetUniverse()->interpret(data.className, data.methodName);
+    CPPUNIT_ASSERT(result != nullptr);
     assertEqualsSOMValue(result, data);
   }
 };
