@@ -65,7 +65,6 @@ void Parser::PeekForNextSymbolFromLexerIfNecessary() {
 Parser::Parser(istream& file, StdString& fname): fname(fname) {
     sym = NONE;
     lexer = new Lexer(file);
-    bcGen = new BytecodeGenerator();
     nextSym = NONE;
 
     GetSym();
@@ -73,7 +72,6 @@ Parser::Parser(istream& file, StdString& fname): fname(fname) {
 
 Parser::~Parser() {
     delete (lexer);
-    delete (bcGen);
 }
 
 //
@@ -137,15 +135,15 @@ void Parser::genPushVariable(MethodGenerationContext* mgenc,
 
     if (mgenc->FindVar(var, &index, &context, &is_argument)) {
         if (is_argument) {
-            bcGen->EmitPUSHARGUMENT(mgenc, index, context);
+            EmitPUSHARGUMENT(mgenc, index, context);
         } else {
-            bcGen->EmitPUSHLOCAL(mgenc, index, context);
+            EmitPUSHLOCAL(mgenc, index, context);
         }
     } else {
         if (mgenc->HasField(var)) {
-            bcGen->EmitPUSHFIELD(mgenc, var);
+            EmitPUSHFIELD(mgenc, var);
         } else {
-            bcGen->EmitPUSHGLOBAL(mgenc, var);
+            EmitPUSHGLOBAL(mgenc, var);
         }
     }
 }
@@ -161,11 +159,11 @@ void Parser::genPopVariable(MethodGenerationContext* mgenc, VMSymbol* var) {
 
     if (mgenc->FindVar(var, &index, &context, &is_argument)) {
         if (is_argument)
-            bcGen->EmitPOPARGUMENT(mgenc, index, context);
+            EmitPOPARGUMENT(mgenc, index, context);
         else
-            bcGen->EmitPOPLOCAL(mgenc, index, context);
+            EmitPOPLOCAL(mgenc, index, context);
     } else
-        bcGen->EmitPOPFIELD(mgenc, var);
+        EmitPOPFIELD(mgenc, var);
     }
 
 //
@@ -329,9 +327,9 @@ void Parser::methodBlock(MethodGenerationContext* mgenc) {
     // terminating the last expression, so the last expression's value must be
     // popped off the stack and a ^self be generated
     if (!mgenc->IsFinished()) {
-        bcGen->EmitPOP(mgenc);
-        bcGen->EmitPUSHARGUMENT(mgenc, 0, 0);
-        bcGen->EmitRETURNLOCAL(mgenc);
+        EmitPOP(mgenc);
+        EmitPUSHARGUMENT(mgenc, 0, 0);
+        EmitRETURNLOCAL(mgenc);
         mgenc->SetFinished();
     }
 
@@ -403,22 +401,22 @@ void Parser::blockBody(MethodGenerationContext* mgenc, bool seen_period, bool is
         if (!is_inlined) {
             // if the block is empty, we need to return nil
             if (mgenc->IsBlockMethod() && !mgenc->HasBytecodes()) {
-                bcGen->EmitPUSHCONSTANT(mgenc, load_ptr(nilObject));
+                EmitPUSHCONSTANT(mgenc, load_ptr(nilObject));
             }
-            bcGen->EmitRETURNLOCAL(mgenc);
+            EmitRETURNLOCAL(mgenc);
             mgenc->SetFinished();
         }
     } else if (sym == EndTerm) {
         // it does not matter whether a period has been seen, as the end of the
         // method has been found (EndTerm) - so it is safe to emit a "return
         // self"
-        bcGen->EmitPUSHARGUMENT(mgenc, 0, 0);
-        bcGen->EmitRETURNLOCAL(mgenc);
+        EmitPUSHARGUMENT(mgenc, 0, 0);
+        EmitRETURNLOCAL(mgenc);
         mgenc->SetFinished();
     } else {
         expression(mgenc);
         if (accept(Period)) {
-            bcGen->EmitPOP(mgenc);
+            EmitPOP(mgenc);
             blockBody(mgenc, true, is_inlined);
         }
     }
@@ -428,9 +426,9 @@ void Parser::result(MethodGenerationContext* mgenc) {
     expression(mgenc);
 
     if (mgenc->IsBlockMethod())
-        bcGen->EmitRETURNNONLOCAL(mgenc);
+        EmitRETURNNONLOCAL(mgenc);
     else
-        bcGen->EmitRETURNLOCAL(mgenc);
+        EmitRETURNLOCAL(mgenc);
 
     mgenc->SetFinished(true);
     accept(Period);
@@ -451,7 +449,7 @@ void Parser::assignation(MethodGenerationContext* mgenc) {
     evaluation(mgenc);
     list<VMSymbol*>::iterator i;
     for (i = l.begin(); i != l.end(); ++i)
-        bcGen->EmitDUP(mgenc);
+        EmitDUP(mgenc);
     for (i = l.begin(); i != l.end(); ++i)
         genPopVariable(mgenc, (*i));
 
@@ -510,7 +508,7 @@ bool Parser::primary(MethodGenerationContext* mgenc) {
         nestedBlock(bgenc);
 
         VMMethod* block_method = bgenc->Assemble();
-        bcGen->EmitPUSHBLOCK(mgenc, block_method);
+        EmitPUSHBLOCK(mgenc, block_method);
         delete (bgenc);
         break;
     }
@@ -560,9 +558,9 @@ void Parser::unaryMessage(MethodGenerationContext* mgenc, bool super) {
     VMSymbol* msg = unarySelector();
 
     if (super) {
-        bcGen->EmitSUPERSEND(mgenc, msg);
+        EmitSUPERSEND(mgenc, msg);
     } else {
-        bcGen->EmitSEND(mgenc, msg);
+        EmitSEND(mgenc, msg);
     }
 }
 
@@ -573,9 +571,9 @@ void Parser::binaryMessage(MethodGenerationContext* mgenc, bool super) {
     binaryOperand(mgenc);
 
     if (super)
-        bcGen->EmitSUPERSEND(mgenc, msg);
+        EmitSUPERSEND(mgenc, msg);
     else
-        bcGen->EmitSEND(mgenc, msg);
+        EmitSEND(mgenc, msg);
 
 }
 
@@ -603,9 +601,9 @@ void Parser::keywordMessage(MethodGenerationContext* mgenc, bool super) {
     VMSymbol* msg = GetUniverse()->SymbolFor(kw);
 
     if (super)
-        bcGen->EmitSUPERSEND(mgenc, msg);
+        EmitSUPERSEND(mgenc, msg);
     else
-        bcGen->EmitSEND(mgenc, msg);
+        EmitSEND(mgenc, msg);
 
 }
 
@@ -656,7 +654,7 @@ vm_oop_t Parser::literalNumberOop() {
 
 void Parser::literalNumber(MethodGenerationContext* mgenc) {
     vm_oop_t lit = literalNumberOop();
-    bcGen->EmitPUSHCONSTANT(mgenc, lit);
+    EmitPUSHCONSTANT(mgenc, lit);
 }
 
 vm_oop_t Parser::literalDecimal(bool negateValue) {
@@ -697,7 +695,7 @@ void Parser::literalSymbol(MethodGenerationContext* mgenc) {
     } else {
         symb = selector();
     }
-    bcGen->EmitPUSHCONSTANT(mgenc, symb);
+    EmitPUSHCONSTANT(mgenc, symb);
 }
 
 void Parser::literalArray(MethodGenerationContext* mgenc) {
@@ -712,17 +710,17 @@ void Parser::literalArray(MethodGenerationContext* mgenc) {
     const uint8_t arraySizeLiteralIndex = mgenc->AddLiteral(arraySizePlaceholder);
 
     // create bytecode sequence for instantiating new array
-    bcGen->EmitPUSHGLOBAL(mgenc, arrayClassName);
-    bcGen->EmitPUSHCONSTANT(mgenc, arraySizeLiteralIndex);
-    bcGen->EmitSEND(mgenc, newMessage);
+    EmitPUSHGLOBAL(mgenc, arrayClassName);
+    EmitPUSHCONSTANT(mgenc, arraySizeLiteralIndex);
+    EmitSEND(mgenc, newMessage);
 
     size_t i = 1;
 
     while (sym != EndTerm) {
         vm_oop_t pushIndex = NEW_INT(i);
-        bcGen->EmitPUSHCONSTANT(mgenc, pushIndex);
+        EmitPUSHCONSTANT(mgenc, pushIndex);
         literal(mgenc);
-        bcGen->EmitSEND(mgenc, atPutMessage);
+        EmitSEND(mgenc, atPutMessage);
         i += 1;
     }
 
@@ -736,7 +734,7 @@ void Parser::literalString(MethodGenerationContext* mgenc) {
     StdString s = _string();
 
     VMString* str = GetUniverse()->NewString(s);
-    bcGen->EmitPUSHCONSTANT(mgenc, str);
+    EmitPUSHCONSTANT(mgenc, str);
 }
 
 VMSymbol* Parser::selector(void) {
@@ -783,9 +781,9 @@ void Parser::nestedBlock(MethodGenerationContext* mgenc) {
     if (!mgenc->IsFinished()) {
         if (!mgenc->HasBytecodes()) {
           // if the block is empty, we need to return nil
-          bcGen->EmitPUSHCONSTANT(mgenc, load_ptr(nilObject));
+          EmitPUSHCONSTANT(mgenc, load_ptr(nilObject));
         }
-        bcGen->EmitRETURNLOCAL(mgenc);
+        EmitRETURNLOCAL(mgenc);
         mgenc->SetFinished(true);
     }
 

@@ -23,6 +23,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+#include <cstddef>
 
 #include <vm/Universe.h>
 
@@ -33,9 +34,9 @@
 #include "VMInvokable.h"
 
 // clazz is the only field of VMObject so
-const long VMObject::VMObjectNumberOfFields = 0;
+const size_t VMObject::VMObjectNumberOfFields = 0;
 
-VMObject::VMObject(long numberOfFields) {
+VMObject::VMObject(size_t numberOfFields) {
     // this line would be needed if the VMObject** is used instead of the macro:
     // FIELDS = (VMObject**)&clazz;
     SetNumberOfFields(numberOfFields + VMObjectNumberOfFields);

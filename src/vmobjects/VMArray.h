@@ -25,6 +25,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+#include <cstddef>
 
 #include <vmobjects/VMObject.h>
 #include <vmobjects/VMInteger.h>
@@ -33,14 +34,17 @@ class VMArray: public VMObject {
 public:
     typedef GCArray Stored;
     
-    VMArray(long size, long nof = 0);
+    VMArray(size_t size, size_t nof = 0);
 
     virtual void WalkObjects(walk_heap_fn);
 
-    inline  long GetNumberOfIndexableFields() const;
+    inline  size_t GetNumberOfIndexableFields() const {
+        return GetAdditionalSpaceConsumption() / sizeof(VMObject*);
+    }
+    
     VMArray* CopyAndExtendWith(vm_oop_t) const;
-    vm_oop_t GetIndexableField(long idx) const;
-    void SetIndexableField(long idx, vm_oop_t value);
+    vm_oop_t GetIndexableField(size_t idx) const;
+    void SetIndexableField(size_t idx, vm_oop_t value);
     void CopyIndexableFieldsTo(VMArray*) const;
     virtual VMArray* Clone() const;
     
@@ -49,9 +53,5 @@ public:
 private:
     virtual void MarkObjectAsInvalid();
     
-    static const long VMArrayNumberOfFields;
+    static const size_t VMArrayNumberOfFields;
 };
-
-long VMArray::GetNumberOfIndexableFields() const {
-    return GetAdditionalSpaceConsumption() / sizeof(VMObject*);
-}

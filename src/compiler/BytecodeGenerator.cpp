@@ -34,132 +34,135 @@
 #include <vmobjects/VMSymbol.h>
 #include <vmobjects/Signature.h>
 
-#define EMIT1(BC, stackEffect) \
-    mgenc->AddBytecode(BC, stackEffect)
-
-#define EMIT2(BC, IDX, stackEffect) \
-    mgenc->AddBytecode(BC, stackEffect);\
-	mgenc->AddBytecodeArgument(IDX)
-
-#define EMIT3(BC, IDX, CTX, stackEffect) \
-    mgenc->AddBytecode(BC, stackEffect);\
-	mgenc->AddBytecodeArgument(IDX);\
-	mgenc->AddBytecodeArgument(CTX)
-
-void BytecodeGenerator::EmitHALT(MethodGenerationContext* mgenc) {
-    EMIT1(BC_HALT, 0);
+void Emit1(MethodGenerationContext* mgenc, uint8_t bytecode, size_t stackEffect) {
+    mgenc->AddBytecode(bytecode, stackEffect);
 }
 
-void BytecodeGenerator::EmitDUP(MethodGenerationContext* mgenc) {
-    EMIT1(BC_DUP, 1);
+void Emit2(MethodGenerationContext* mgenc, uint8_t bytecode, size_t idx, size_t stackEffect) {
+    mgenc->AddBytecode(bytecode, stackEffect);
+    mgenc->AddBytecodeArgument(idx);
 }
 
-void BytecodeGenerator::EmitPUSHLOCAL(MethodGenerationContext* mgenc, long idx,
+void Emit3(MethodGenerationContext* mgenc, uint8_t bytecode, size_t idx, size_t ctx, size_t stackEffect) {
+    mgenc->AddBytecode(bytecode, stackEffect);
+    mgenc->AddBytecodeArgument(idx);
+    mgenc->AddBytecodeArgument(ctx);
+}
+
+void EmitHALT(MethodGenerationContext* mgenc) {
+    Emit1(mgenc, BC_HALT, 0);
+}
+
+void EmitDUP(MethodGenerationContext* mgenc) {
+    Emit1(mgenc, BC_DUP, 1);
+}
+
+void EmitPUSHLOCAL(MethodGenerationContext* mgenc, long idx,
         int ctx) {
     assert(idx >= 0);
     assert(ctx >= 0);
     if (ctx == 0) {
         if (idx == 0) {
-            EMIT1(BC_PUSH_LOCAL_0, 1);
+            Emit1(mgenc, BC_PUSH_LOCAL_0, 1);
             return;
         }
         if (idx == 1) {
-            EMIT1(BC_PUSH_LOCAL_1, 1);
+            Emit1(mgenc, BC_PUSH_LOCAL_1, 1);
             return;
         }
         if (idx == 2) {
-            EMIT1(BC_PUSH_LOCAL_2, 1);
+            Emit1(mgenc, BC_PUSH_LOCAL_2, 1);
             return;
         }
     }
-    EMIT3(BC_PUSH_LOCAL, idx, ctx, 1);
+    Emit3(mgenc, BC_PUSH_LOCAL, idx, ctx, 1);
 }
 
-void BytecodeGenerator::EmitPUSHARGUMENT(MethodGenerationContext* mgenc,
+void EmitPUSHARGUMENT(MethodGenerationContext* mgenc,
         long idx, int ctx) {
     assert(idx >= 0);
     assert(ctx >= 0);
     
     if (ctx == 0) {
         if (idx == 0) {
-            EMIT1(BC_PUSH_SELF, 1);
+            Emit1(mgenc, BC_PUSH_SELF, 1);
             return;
         }
         
         if (idx == 1) {
-            EMIT1(BC_PUSH_ARG_1, 1);
+            Emit1(mgenc, BC_PUSH_ARG_1, 1);
             return;
         }
         
         if (idx == 2) {
-            EMIT1(BC_PUSH_ARG_2, 1);
+            Emit1(mgenc, BC_PUSH_ARG_2, 1);
             return;
         }
     }
-    EMIT3(BC_PUSH_ARGUMENT, idx, ctx, 1);
+    Emit3(mgenc, BC_PUSH_ARGUMENT, idx, ctx, 1);
 }
 
-void BytecodeGenerator::EmitPUSHFIELD(MethodGenerationContext* mgenc, VMSymbol* field) {
+void EmitPUSHFIELD(MethodGenerationContext* mgenc, VMSymbol* field) {
     uint8_t idx = mgenc->GetFieldIndex(field);
     if (idx == 0) {
-        EMIT1(BC_PUSH_FIELD_0, 1);
+        Emit1(mgenc, BC_PUSH_FIELD_0, 1);
     } else if (idx == 1) {
-        EMIT1(BC_PUSH_FIELD_1, 1);
+        Emit1(mgenc, BC_PUSH_FIELD_1, 1);
     } else {
-        EMIT2(BC_PUSH_FIELD, idx, 1);
+        Emit2(mgenc, BC_PUSH_FIELD, idx, 1);
     }
 }
 
-void BytecodeGenerator::EmitPUSHBLOCK(MethodGenerationContext* mgenc, VMMethod* block) {
+void EmitPUSHBLOCK(MethodGenerationContext* mgenc, VMMethod* block) {
     int8_t idx = mgenc->AddLiteralIfAbsent(block);
-    EMIT2(BC_PUSH_BLOCK, idx, 1);
+    Emit2(mgenc, BC_PUSH_BLOCK, idx, 1);
 }
 
-void BytecodeGenerator::EmitPUSHCONSTANT(MethodGenerationContext* mgenc, vm_oop_t cst) {
+void EmitPUSHCONSTANT(MethodGenerationContext* mgenc, vm_oop_t cst) {
     if (CLASS_OF(cst) == load_ptr(integerClass)) {
         if (INT_VAL(cst) == 0ll) {
-            EMIT1(BC_PUSH_0, 1);
+            Emit1(mgenc, BC_PUSH_0, 1);
             return;
         }
         if (INT_VAL(cst) == 1ll) {
-            EMIT1(BC_PUSH_1, 1);
+            Emit1(mgenc, BC_PUSH_1, 1);
             return;
         }
     }
     
     if (cst == load_ptr(nilObject)) {
-        EMIT1(BC_PUSH_NIL, 1);
+        Emit1(mgenc, BC_PUSH_NIL, 1);
         return;
     }
     
     int8_t idx = mgenc->AddLiteralIfAbsent(cst);
     if (idx == 0) {
-        EMIT1(BC_PUSH_CONSTANT_0, 1);
+        Emit1(mgenc, BC_PUSH_CONSTANT_0, 1);
         return;
     }
     if (idx == 1) {
-        EMIT1(BC_PUSH_CONSTANT_1, 1);
+        Emit1(mgenc, BC_PUSH_CONSTANT_1, 1);
         return;
     }
     if (idx == 2) {
-        EMIT1(BC_PUSH_CONSTANT_2, 1);
+        Emit1(mgenc, BC_PUSH_CONSTANT_2, 1);
         return;
     }
     
-    EMIT2(BC_PUSH_CONSTANT, idx, 1);
+    Emit2(mgenc, BC_PUSH_CONSTANT, idx, 1);
 }
 
-void BytecodeGenerator::EmitPUSHCONSTANT(MethodGenerationContext* mgenc,
+void EmitPUSHCONSTANT(MethodGenerationContext* mgenc,
         uint8_t literalIndex) {
-    EMIT2(BC_PUSH_CONSTANT, literalIndex, 1);
+    Emit2(mgenc, BC_PUSH_CONSTANT, literalIndex, 1);
 }
 
-void BytecodeGenerator::EmitPUSHCONSTANTString(MethodGenerationContext* mgenc,
+void EmitPUSHCONSTANTString(MethodGenerationContext* mgenc,
         VMString* str) {
-    EMIT2(BC_PUSH_CONSTANT, mgenc->FindLiteralIndex(str), 1);
+    Emit2(mgenc, BC_PUSH_CONSTANT, mgenc->FindLiteralIndex(str), 1);
 }
 
-void BytecodeGenerator::EmitPUSHGLOBAL(MethodGenerationContext* mgenc, VMSymbol* global) {
+void EmitPUSHGLOBAL(MethodGenerationContext* mgenc, VMSymbol* global) {
     if (global == GetUniverse()->SymbolFor("nil")) {
         EmitPUSHCONSTANT(mgenc, load_ptr(nilObject));
     } else if (global == GetUniverse()->SymbolFor("true")) {
@@ -168,77 +171,77 @@ void BytecodeGenerator::EmitPUSHGLOBAL(MethodGenerationContext* mgenc, VMSymbol*
         EmitPUSHCONSTANT(mgenc, load_ptr(falseObject));
     } else {
         int8_t idx = mgenc->AddLiteralIfAbsent(global);
-        EMIT2(BC_PUSH_GLOBAL, idx, 1);
+        Emit2(mgenc, BC_PUSH_GLOBAL, idx, 1);
     }
 }
 
-void BytecodeGenerator::EmitPOP(MethodGenerationContext* mgenc) {
-    EMIT1(BC_POP, -1);
+void EmitPOP(MethodGenerationContext* mgenc) {
+    Emit1(mgenc, BC_POP, -1);
 }
 
-void BytecodeGenerator::EmitPOPLOCAL(MethodGenerationContext* mgenc, long idx,
+void EmitPOPLOCAL(MethodGenerationContext* mgenc, long idx,
         int ctx) {
     assert(idx >= 0);
     assert(ctx >= 0);
     if (ctx == 0) {
         if (idx == 0) {
-            EMIT1(BC_POP_LOCAL_0, -1);
+            Emit1(mgenc, BC_POP_LOCAL_0, -1);
             return;
         }
         
         if (idx == 1) {
-            EMIT1(BC_POP_LOCAL_1, -1);
+            Emit1(mgenc, BC_POP_LOCAL_1, -1);
             return;
         }
         
         if (idx == 2) {
-            EMIT1(BC_POP_LOCAL_2, -1);
+            Emit1(mgenc, BC_POP_LOCAL_2, -1);
             return;
         }
     }
     
-    EMIT3(BC_POP_LOCAL, idx, ctx, -1);
+    Emit3(mgenc, BC_POP_LOCAL, idx, ctx, -1);
 }
 
-void BytecodeGenerator::EmitPOPARGUMENT(MethodGenerationContext* mgenc,
+void EmitPOPARGUMENT(MethodGenerationContext* mgenc,
                                         long idx, int ctx) {
-    EMIT3(BC_POP_ARGUMENT, idx, ctx, -1);
+    Emit3(mgenc, BC_POP_ARGUMENT, idx, ctx, -1);
 }
 
-void BytecodeGenerator::EmitPOPFIELD(MethodGenerationContext* mgenc, VMSymbol* field) {
+void EmitPOPFIELD(MethodGenerationContext* mgenc, VMSymbol* field) {
     uint8_t idx = mgenc->GetFieldIndex(field);
     
     if (idx == 0) {
-        EMIT1(BC_POP_FIELD_0, -1);
+        Emit1(mgenc, BC_POP_FIELD_0, -1);
     } else if (idx == 1) {
-        EMIT1(BC_POP_FIELD_1, -1);
+        Emit1(mgenc, BC_POP_FIELD_1, -1);
     } else {
-        EMIT2(BC_POP_FIELD, idx, -1);
+        Emit2(mgenc, BC_POP_FIELD, idx, -1);
     }
 }
 
-void BytecodeGenerator::EmitSEND(MethodGenerationContext* mgenc, VMSymbol* msg) {
+void EmitSEND(MethodGenerationContext* mgenc, VMSymbol* msg) {
     int8_t idx = mgenc->AddLiteralIfAbsent(msg);
     
     int numArgs = Signature::GetNumberOfArguments(msg);
     size_t stackEffect = -numArgs + 1;  // +1 for the result
     
-    EMIT2(BC_SEND, idx, stackEffect);
+    Emit2(mgenc, BC_SEND, idx, stackEffect);
 }
 
-void BytecodeGenerator::EmitSUPERSEND(MethodGenerationContext* mgenc, VMSymbol* msg) {
+void EmitSUPERSEND(MethodGenerationContext* mgenc, VMSymbol* msg) {
     int8_t idx = mgenc->AddLiteralIfAbsent(msg);
     
     int numArgs = Signature::GetNumberOfArguments(msg);
     size_t stackEffect = -numArgs + 1;  // +1 for the result
     
-    EMIT2(BC_SUPER_SEND, idx, stackEffect);
+    Emit2(mgenc, BC_SUPER_SEND, idx, stackEffect);
 }
 
-void BytecodeGenerator::EmitRETURNLOCAL(MethodGenerationContext* mgenc) {
-    EMIT1(BC_RETURN_LOCAL, 0);
+void EmitRETURNLOCAL(MethodGenerationContext* mgenc) {
+    Emit1(mgenc, BC_RETURN_LOCAL, 0);
 }
 
-void BytecodeGenerator::EmitRETURNNONLOCAL(MethodGenerationContext* mgenc) {
-    EMIT1(BC_RETURN_NON_LOCAL, 0);
+void EmitRETURNNONLOCAL(MethodGenerationContext* mgenc) {
+    Emit1(mgenc, BC_RETURN_NON_LOCAL, 0);
 }

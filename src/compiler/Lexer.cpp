@@ -23,34 +23,26 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+#include <cassert>
+#include <cctype>
+#include <cstring>
+#include <istream>
+#include <string>
 
-#include <string.h>
-#include <assert.h>
+#include <misc/defs.h>
 
 #include "Lexer.h"
 #include <vm/Universe.h>
 
 Lexer::Lexer(istream &file) : infile(file), peekDone(false) {}
 
-StdString Lexer::GetText(void) {
-    return state.text;
-}
-
-StdString Lexer::GetNextText(void) {
-    return stateAfterPeek.text;
-}
-
-StdString Lexer::GetRawBuffer(void) {
-    //for debug
-    return StdString(buf);
-}
-
 #define _BC (buf[state.bufp])
 #define EOB (state.bufp >= buf.length())
 
-size_t Lexer::fillBuffer(void) {
-    if (!infile.good()) // file stream
+size_t Lexer::fillBuffer() {
+    if (!infile.good()) { // file stream
         return -1;
+    }
 
     std::getline(infile, buf);
     state.lineNumber += 1;
@@ -62,8 +54,8 @@ size_t Lexer::fillBuffer(void) {
 // basic lexing
 //
 
-void Lexer::skipWhiteSpace(void) {
-    while (isspace(_BC)) {
+void Lexer::skipWhiteSpace() {
+    while (isspace(_BC) != 0) {
         state.incPtr();
         while (EOB) {
             if (fillBuffer() == -1) {
@@ -73,7 +65,7 @@ void Lexer::skipWhiteSpace(void) {
     }
 }
 
-void Lexer::skipComment(void) {
+void Lexer::skipComment() {
 
     if (_BC == '"') {
         do {
@@ -111,20 +103,20 @@ void Lexer::lexNumber() {
         if (!sawDecimalMark         and
             '.' == _BC              and
             state.bufp + 1 < buf.length() and
-            isdigit(buf[state.bufp + 1])) {
+            isdigit(buf[state.bufp + 1]) != 0) {
             state.sym = Double;
             sawDecimalMark = true;
             state.text += buf[state.bufp];
             state.incPtr();
         }
         
-    } while (isdigit(_BC));
+    } while (isdigit(_BC) != 0);
 }
 
 
 void Lexer::lexEscapeChar() {
     assert(!EOB);
-    char current = _BC;
+    const char current = _BC;
     switch (current) {
         case 't': state.text += '\t'; break;
         case 'b': state.text += '\b'; break;
@@ -188,7 +180,7 @@ void Lexer::lexOperator() {
       else _MATCH('%', Per)  else _MATCH('-', Minus)
 }
 
-Symbol Lexer::GetSym(void) {
+Symbol Lexer::GetSym() {
     if (peekDone) {
         peekDone = false;
         state = stateAfterPeek;
@@ -204,7 +196,7 @@ Symbol Lexer::GetSym(void) {
         }
         skipWhiteSpace();
         skipComment();
-    } while ((EOB || isspace(_BC) || _BC == '"'));
+    } while ((EOB || isspace(_BC) != 0 || _BC == '"'));
     
     state.startBufp = state.bufp;
 
@@ -237,15 +229,15 @@ Symbol Lexer::GetSym(void) {
         }
     } else if (_ISOP(_BC)) {
         lexOperator();
-    } else if (nextWordInBufferIs(PRIMITIVE)) {
+    } else if (nextWordInBufferIsPrimitive()) {
         state.incPtr(PRIMITIVE.length());
         state.sym = Primitive;
         state.symc = 0;
         state.text = "primitive";
-    } else if (isalpha(_BC)) {
+    } else if (isalpha(_BC) != 0) {
         state.text.clear();
         state.symc = 0;
-        while (isalpha(_BC) || isdigit(_BC) || _BC == '_') {
+        while (isalpha(_BC) != 0 || isdigit(_BC) != 0 || _BC == '_') {
             state.text += buf[state.bufp];
             state.incPtr();
         }
@@ -254,15 +246,15 @@ Symbol Lexer::GetSym(void) {
             state.sym = Keyword;
             state.incPtr();
             state.text += ':';
-            if (isalpha(_BC)) {
+            if (isalpha(_BC) != 0) {
                 state.sym = KeywordSequence;
-                while (isalpha(_BC) || _BC == ':') {
+                while (isalpha(_BC) != 0 || _BC == ':') {
                     state.text += buf[state.bufp];
                     state.incPtr();
                 }
             }
         }
-    } else if (isdigit(_BC)) {
+    } else if (isdigit(_BC) != 0) {
         lexNumber();
     } else {
         state.sym = NONE;
@@ -282,24 +274,24 @@ bool Lexer::hasMoreInput() {
     return true;
 }
 
-bool Lexer::nextWordInBufferIs(StdString word) {
+bool Lexer::nextWordInBufferIsPrimitive() {
     if (0 != buf.substr(state.bufp, PRIMITIVE.length()).compare(PRIMITIVE)) {
         return false;
     }
     if (state.bufp + PRIMITIVE.length() >= buf.length()) {
         return true;
     }
-    return not isalnum(buf[state.bufp + PRIMITIVE.length()]);
+    return isalnum(buf[state.bufp + PRIMITIVE.length()]) == 0;
 }
 
-Symbol Lexer::Peek(void) {
-    LexerState old = state;
+Symbol Lexer::Peek() {
+    const LexerState old = state;
     
     if (peekDone) {
-        GetUniverse()->ErrorExit("Cannot Peek twice!\n");
+        Universe::ErrorExit("Cannot Peek twice!\n");
     }
     GetSym();
-    Symbol nextSym = state.sym;
+    const Symbol nextSym = state.sym;
     
     stateAfterPeek = state;
     state = old;
