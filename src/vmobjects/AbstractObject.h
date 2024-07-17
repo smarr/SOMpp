@@ -82,7 +82,7 @@ public:
             unsigned long additionalBytes = 0 ALLOC_OUTSIDE_NURSERY_DECL) {
         // if outsideNursery flag is set or object is too big for nursery, we
         // allocate a mature object
-        unsigned long add = PADDED_SIZE(additionalBytes);
+        const unsigned long add = PADDED_SIZE(additionalBytes);
         void* result;
 #if GC_TYPE==GENERATIONAL
         if (outsideNursery) {

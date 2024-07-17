@@ -62,7 +62,7 @@ public:
             void      SetHolderAll(VMClass* hld);
     
             inline vm_oop_t GetConstant(long indx) const {
-                uint8_t bc = bytecodes[indx + 1];
+                const uint8_t bc = bytecodes[indx + 1];
                 if (bc >= GetNumberOfIndexableFields()) {
                     ErrorPrint("Error: Constant index out of range\n");
                     return nullptr;

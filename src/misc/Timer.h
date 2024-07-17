@@ -32,7 +32,7 @@ public:
         last_start = get_microseconds();
     }
     inline void Halt() {
-        int64_t end = get_microseconds();
+        const int64_t end = get_microseconds();
 
         total = end - last_start;
     }
