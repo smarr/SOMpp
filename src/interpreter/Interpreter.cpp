@@ -24,29 +24,33 @@
  THE SOFTWARE.
  */
 
+#include <cassert>
+#include <cstdint>
+#include <string>
+
+#include "../compiler/Disassembler.h"
+#include "../memory/Heap.h"
+#include "../misc/defs.h"
+#include "../vm/Globals.h"
+#include "../vm/IsValidObject.h"
+#include "../vm/Universe.h"
+#include "../vmobjects/IntegerBox.h"
+#include "../vmobjects/ObjectFormats.h"
+#include "../vmobjects/Signature.h"
+#include "../vmobjects/VMArray.h"
+#include "../vmobjects/VMBlock.h"
+#include "../vmobjects/VMClass.h"
+#include "../vmobjects/VMFrame.h"
+#include "../vmobjects/VMInvokable.h"
+#include "../vmobjects/VMMethod.h"
+#include "../vmobjects/VMObject.h"
+#include "../vmobjects/VMSymbol.h"
 #include "Interpreter.h"
-#include "bytecodes.h"
 
-#include <vm/IsValidObject.h>
-#include <vm/Universe.h>
-#include <vm/Globals.h>
 
-#include <vmobjects/VMMethod.h>
-#include <vmobjects/VMFrame.h>
-#include <vmobjects/VMClass.h>
-#include <vmobjects/VMObject.h>
-#include <vmobjects/VMSymbol.h>
-#include <vmobjects/VMArray.h>
-#include <vmobjects/VMInvokable.h>
-#include <vmobjects/Signature.h>
-#include <vmobjects/VMBlock.h>
-#include <vmobjects/IntegerBox.h>
-
-#include <compiler/Disassembler.h>
-
-const StdString Interpreter::unknownGlobal     = "unknownGlobal:";
-const StdString Interpreter::doesNotUnderstand = "doesNotUnderstand:arguments:";
-const StdString Interpreter::escapedBlock      = "escapedBlock:";
+const std::string Interpreter::unknownGlobal     = "unknownGlobal:";
+const std::string Interpreter::doesNotUnderstand = "doesNotUnderstand:arguments:";
+const std::string Interpreter::escapedBlock      = "escapedBlock:";
 
 
 Interpreter::Interpreter() : frame(nullptr) {}
@@ -124,7 +128,7 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
 
     if (invokable != nullptr) {
 #ifdef LOG_RECEIVER_TYPES
-        StdString name = receiverClass->GetName()->GetStdString();
+        std::string name = receiverClass->GetName()->GetStdString();
         if (GetUniverse()->callStats.find(name) == GetUniverse()->callStats.end())
         GetUniverse()->callStats[name] = {0,0};
         GetUniverse()->callStats[name].noCalls++;

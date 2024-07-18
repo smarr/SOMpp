@@ -24,19 +24,19 @@
  THE SOFTWARE.
  */
 
-#include <misc/VectorUtil.h>
-#include <vm/Print.h>
-#include <vm/Universe.h>
+#include <algorithm>
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
+#include <string>
 
-#include "MethodGenerationContext.h"
-
-#include "../interpreter/bytecodes.h"
-
-#include "../vmobjects/VMSymbol.h"
-#include "../vmobjects/VMMethod.h"
-#include "../vmobjects/Signature.h"
+#include "../misc/VectorUtil.h"
+#include "../vm/Universe.h"
+#include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMMethod.h"
 #include "../vmobjects/VMPrimitive.h"
+#include "../vmobjects/VMSymbol.h"
+#include "MethodGenerationContext.h"
 
 MethodGenerationContext::MethodGenerationContext() {
     signature = nullptr;
@@ -138,12 +138,12 @@ void MethodGenerationContext::SetPrimitive(bool prim) {
     primitive = prim;
 }
 
-void MethodGenerationContext::AddArgument(const StdString& arg) {
+void MethodGenerationContext::AddArgument(const std::string& arg) {
     VMSymbol* argSym = GetUniverse()->SymbolFor(arg);
     arguments.push_back(argSym);
 }
 
-void MethodGenerationContext::AddLocal(const StdString& local) {
+void MethodGenerationContext::AddLocal(const std::string& local) {
     VMSymbol* localSym = GetUniverse()->SymbolFor(local);
     locals.push_back(localSym);
 }
@@ -159,7 +159,7 @@ void MethodGenerationContext::UpdateLiteral(vm_oop_t oldValue, uint8_t index, vm
     literals[index] = newValue;
 }
 
-bool MethodGenerationContext::AddArgumentIfAbsent(const StdString& arg) {
+bool MethodGenerationContext::AddArgumentIfAbsent(const std::string& arg) {
     VMSymbol* argSym = GetUniverse()->SymbolFor(arg);
     if (Contains(locals, argSym)) {
         return false;
@@ -168,7 +168,7 @@ bool MethodGenerationContext::AddArgumentIfAbsent(const StdString& arg) {
     return true;
 }
 
-bool MethodGenerationContext::AddLocalIfAbsent(const StdString& local) {
+bool MethodGenerationContext::AddLocalIfAbsent(const std::string& local) {
     VMSymbol* localSym = GetUniverse()->SymbolFor(local);
     if (Contains(locals, localSym)) {
         return false;

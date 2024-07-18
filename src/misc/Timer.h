@@ -1,7 +1,7 @@
 #pragma once
 
-#include <time.h>
-#include <stdint.h>
+#include <cstdint>
+#include <ctime>
 #include <sys/time.h>
 
 static int64_t get_microseconds() {

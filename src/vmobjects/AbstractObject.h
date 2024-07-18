@@ -7,16 +7,14 @@
  *      Author: christian
  */
 
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 
-
-#include <misc/defs.h>
-#include <vm/Print.h>
-#include <memory/GenerationalHeap.h>
-#include <memory/CopyingHeap.h>
-#include <memory/MarkSweepHeap.h>
-
+#include "../memory/CopyingHeap.h"
+#include "../memory/GenerationalHeap.h"
+#include "../memory/MarkSweepHeap.h"
+#include "../misc/defs.h"
+#include "../vm/Print.h"
 #include "ObjectFormats.h"
 #include "VMObjectBase.h"
 

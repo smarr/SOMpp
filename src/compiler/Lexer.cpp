@@ -29,10 +29,9 @@
 #include <istream>
 #include <string>
 
-#include <misc/defs.h>
-
+#include "../misc/defs.h"
+#include "../vm/Universe.h"
 #include "Lexer.h"
-#include <vm/Universe.h>
 
 Lexer::Lexer(istream &file) : infile(file), peekDone(false) {}
 

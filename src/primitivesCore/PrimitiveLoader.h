@@ -27,7 +27,8 @@
  */
 
 #include <map>
-#include <misc/defs.h>
+
+#include "../misc/defs.h"
 
 class PrimitiveContainer;
 class PrimitiveRoutine;

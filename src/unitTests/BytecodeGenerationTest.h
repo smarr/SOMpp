@@ -2,8 +2,8 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <compiler/ClassGenerationContext.h>
-#include <compiler/MethodGenerationContext.h>
+#include "../compiler/ClassGenerationContext.h"
+#include "../compiler/MethodGenerationContext.h"
 
 class BytecodeGenerationTest: public CPPUNIT_NS::TestCase {
 

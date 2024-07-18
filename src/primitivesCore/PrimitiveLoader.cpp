@@ -24,28 +24,29 @@
  THE SOFTWARE.
  */
 
-#include <primitives/Array.h>
-#include <primitives/Block.h>
-#include <primitives/Class.h>
-#include <primitives/Double.h>
-#include <primitives/Integer.h>
-#include <primitives/Method.h>
-#include <primitives/Object.h>
-#include <primitives/Primitive.h>
-#include <primitives/String.h>
-#include <primitives/Symbol.h>
-#include <primitives/System.h>
+#include <map>
+#include <string>
 
-#include "PrimitiveLoader.h"
+#include "../primitives/Array.h"
+#include "../primitives/Block.h"
+#include "../primitives/Class.h"
+#include "../primitives/Double.h"
+#include "../primitives/Integer.h"
+#include "../primitives/Method.h"
+#include "../primitives/Object.h"
+#include "../primitives/Primitive.h"
+#include "../primitives/String.h"
+#include "../primitives/Symbol.h"
+#include "../primitives/System.h"
+#include "../vm/Print.h"
+#include "../vmobjects/PrimitiveRoutine.h"
 #include "PrimitiveContainer.h"
-
-#include <vm/Print.h>
-#include <vmobjects/PrimitiveRoutine.h>
+#include "PrimitiveLoader.h"
 
 PrimitiveLoader PrimitiveLoader::loader;
 
 PrimitiveLoader::PrimitiveLoader() {
-    primitiveObjects = map<StdString, PrimitiveContainer*>();
+    primitiveObjects = map<std::string, PrimitiveContainer*>();
     
     AddPrimitiveObject("Array",     new _Array());
     AddPrimitiveObject("Block",     new _Block());
@@ -61,7 +62,7 @@ PrimitiveLoader::PrimitiveLoader() {
 }
 
 PrimitiveLoader::~PrimitiveLoader() {
-    map<StdString, PrimitiveContainer*>::iterator it = primitiveObjects.begin();
+    map<std::string, PrimitiveContainer*>::iterator it = primitiveObjects.begin();
     for (; it != primitiveObjects.end(); ++it) {
         delete it->second;
     }

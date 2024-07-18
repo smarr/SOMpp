@@ -24,14 +24,18 @@
  THE SOFTWARE.
  */
 
+#include <string>
+
+#include "../memory/Heap.h"
+#include "../misc/defs.h"
+#include "../primitivesCore/Routine.h"
+#include "../vm/Globals.h"
+#include "../vm/Print.h"
+#include "ObjectFormats.h"
+#include "VMClass.h"
+#include "VMFrame.h"
 #include "VMPrimitive.h"
 #include "VMSymbol.h"
-#include "VMClass.h"
-
-#include <vm/Print.h>
-
-//needed to instanciate the Routine object for the  empty routine
-#include "../primitivesCore/Routine.h"
 
 VMPrimitive* VMPrimitive::GetEmptyPrimitive(VMSymbol* sig, bool classSide) {
     VMPrimitive* prim = new (GetHeap<HEAP_CLS>()) VMPrimitive(sig);
@@ -66,7 +70,7 @@ void VMPrimitive::EmptyRoutine(Interpreter*, VMFrame*) {
     ErrorPrint("undefined primitive called: " + sig->GetStdString() + "\n");
 }
 
-StdString VMPrimitive::AsDebugString() const {
+std::string VMPrimitive::AsDebugString() const {
     return "Primitive(" + GetClass()->GetName()->GetStdString() + ">>#"
                         + GetSignature()->GetStdString() + ")";
 }

@@ -24,16 +24,13 @@
  THE SOFTWARE.
  */
 
-#include "Array.h"
-
+#include "../primitivesCore/PrimitiveContainer.h"
 #include "../primitivesCore/Routine.h"
-
-#include <vmobjects/VMInteger.h>
-#include <vmobjects/VMArray.h>
-#include <vmobjects/VMObject.h>
-#include <vmobjects/VMFrame.h>
-
-#include <vm/Universe.h>
+#include "../vm/Universe.h"
+#include "../vmobjects/ObjectFormats.h"
+#include "../vmobjects/VMArray.h"
+#include "../vmobjects/VMFrame.h"
+#include "Array.h"
 
 _Array::_Array() : PrimitiveContainer() {
     SetPrimitive("new_",    new Routine<_Array>(this, &_Array::New_,    true));

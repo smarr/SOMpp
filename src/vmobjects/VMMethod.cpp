@@ -24,21 +24,22 @@
  THE SOFTWARE.
  */
 
-#include "VMMethod.h"
-#include "VMFrame.h"
-#include "VMClass.h"
-#include "VMSymbol.h"
-#include "VMArray.h"
-#include "VMObject.h"
-#include "VMInteger.h"
+#include <cstdint>
+#include <cstring>
+#include <string>
+
+#include "../interpreter/Interpreter.h"
+#include "../memory/Heap.h"
+#include "../misc/defs.h"
+#include "../vm/Globals.h"
+#include "../vm/Universe.h"  // // NOLINT(misc-include-cleaner) it's required to make the types complete
+#include "ObjectFormats.h"
 #include "Signature.h"
-
-#include <vm/Universe.h>
-#include <vm/Print.h>
-
-#include <compiler/MethodGenerationContext.h>
-#include <vmobjects/IntegerBox.h>
-
+#include "VMClass.h"
+#include "VMFrame.h"
+#include "VMMethod.h"
+#include "VMObject.h"
+#include "VMSymbol.h"
 
 #ifdef UNSAFE_FRAME_OPTIMIZATION
 const long VMMethod::VMMethodNumberOfFields = 8;
@@ -161,9 +162,9 @@ void VMMethod::SetHolderAll(VMClass* hld) {
     }
 }
 
-StdString VMMethod::AsDebugString() const {
+std::string VMMethod::AsDebugString() const {
     VMClass* holder = GetHolder();
-    StdString holder_str;
+    std::string holder_str;
     if (holder == load_ptr(nilObject)) {
         holder_str = "nil";
     } else {

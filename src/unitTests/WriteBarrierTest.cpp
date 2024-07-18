@@ -1,15 +1,26 @@
-#include <vm/Universe.h>
-
-#include "WriteBarrierTest.h"
-#include "../src/vmobjects/VMSymbol.h"
-#include "../src/vmobjects/VMDouble.h"
-#include "../src/vmobjects/VMClass.h"
-#include "../src/vmobjects/VMBlock.h"
-#include "../src/vmobjects/VMMethod.h"
-#include "../src/vmobjects/VMFrame.h"
-#include "../src/vmobjects/VMEvaluationPrimitive.h"
+#include "../misc/defs.h"
 
 #if GC_TYPE==GENERATIONAL
+
+#include <cppunit/TestAssert.h>
+#include <utility>
+
+#include "../memory/Heap.h"
+#include "../vm/Globals.h"
+#include "../vm/Universe.h"
+#include "../vmobjects/ObjectFormats.h"
+#include "../vmobjects/VMArray.h"
+#include "../vmobjects/VMBlock.h"
+#include "../vmobjects/VMClass.h"
+#include "../vmobjects/VMDouble.h"
+#include "../vmobjects/VMEvaluationPrimitive.h"
+#include "../vmobjects/VMFrame.h"
+#include "../vmobjects/VMInteger.h"
+#include "../vmobjects/VMMethod.h"
+#include "../vmobjects/VMString.h"
+#include "../vmobjects/VMSymbol.h"
+#include "WriteBarrierTest.h"
+
 
 #define TEST_WB_CALLED(msg, hld, ref) \
         CPPUNIT_ASSERT_MESSAGE(msg, \
@@ -20,7 +31,7 @@ void WriteBarrierTest::testWriteArray() {
     if (!DEBUG) {
         CPPUNIT_FAIL("WriteBarrier tests only work in DEBUG builds for speed reasons");
     }
-    
+
     //reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
     VMArray* arr = GetUniverse()->NewArray(3);
@@ -34,7 +45,7 @@ void WriteBarrierTest::testWriteArray() {
     arr->SetIndexableField(0, newInt);
     arr->SetIndexableField(1, str);
     arr->SetIndexableField(2, doub);
-    
+
     //test for obvious writeBarrier calls
     TEST_WB_CALLED("VMArray failed to call writeBarrier for an element", arr, newInt);
     TEST_WB_CALLED("VMArray failed to call writeBarrier for an element", arr, str);
@@ -50,7 +61,7 @@ void WriteBarrierTest::testWriteBlock() {
     if (!DEBUG) {
         CPPUNIT_FAIL("WriteBarrier tests only work in DEBUG builds for speed reasons");
     }
-    
+
     //reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
 
@@ -78,7 +89,7 @@ void WriteBarrierTest::testWriteFrame() {
     if (!DEBUG) {
         CPPUNIT_FAIL("WriteBarrier tests only work in DEBUG builds for speed reasons");
     }
-    
+
     // reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
 
@@ -97,7 +108,7 @@ void WriteBarrierTest::testWriteMethod() {
     if (!DEBUG) {
         CPPUNIT_FAIL("WriteBarrier tests only work in DEBUG builds for speed reasons");
     }
-    
+
     // reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
     VMMethod* method = GetUniverse()->GetInterpreter()->GetFrame()->GetMethod()->Clone();
@@ -111,7 +122,7 @@ void WriteBarrierTest::testWriteEvaluationPrimitive() {
     if (!DEBUG) {
         CPPUNIT_FAIL("WriteBarrier tests only work in DEBUG builds for speed reasons");
     }
-    
+
     //reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
     VMEvaluationPrimitive* evPrim = new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(1);
@@ -123,7 +134,7 @@ void WriteBarrierTest::testWriteClass() {
     if (!DEBUG) {
         CPPUNIT_FAIL("WriteBarrier tests only work in DEBUG builds for speed reasons");
     }
-    
+
     //reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
     VMClass* cl = load_ptr(integerClass)->Clone();
@@ -145,4 +156,3 @@ void WriteBarrierTest::testWriteClass() {
             newName);
 }
 #endif
-

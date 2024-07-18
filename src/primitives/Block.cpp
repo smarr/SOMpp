@@ -26,12 +26,10 @@
 
 #include "Block.h"
 
+#include "../primitivesCore/PrimitiveContainer.h"
 #include "../primitivesCore/Routine.h"
+#include "../vmobjects/VMFrame.h"
 
-#include <vmobjects/VMObject.h>
-#include <vmobjects/VMFrame.h>
-
-#include <vm/Universe.h>
 
 void _Block::Value(Interpreter*, VMFrame*) {
     // intentionally left blank

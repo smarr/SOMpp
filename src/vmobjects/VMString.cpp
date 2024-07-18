@@ -24,9 +24,13 @@
  THE SOFTWARE.
  */
 
-#include <string.h>
-#include <iostream>
+#include <cstring>
+#include <string>
 
+#include "../memory/Heap.h"
+#include "../misc/defs.h"
+#include "AbstractObject.h"
+#include "ObjectFormats.h"
 #include "VMString.h"
 
 extern GCClass* stringClass;
@@ -72,12 +76,12 @@ size_t VMString::GetStringLength() const {
     return length;
 }
 
-StdString VMString::GetStdString() const {
+std::string VMString::GetStdString() const {
     if (chars == 0)
-        return StdString("");
-    return StdString(chars, length);
+        return std::string("");
+    return std::string(chars, length);
 }
 
-StdString VMString::AsDebugString() const {
+std::string VMString::AsDebugString() const {
     return "String(" + GetStdString() + ")";
 }

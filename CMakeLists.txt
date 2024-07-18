@@ -101,6 +101,10 @@ endif ()
 
 add_definitions(-DGC_TYPE=${GC_TYPE})
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+	add_definitions(-fdiagnostics-absolute-paths)
+endif()
+
 add_executable(SOM++ "")
 
 target_sources(SOM++ PRIVATE

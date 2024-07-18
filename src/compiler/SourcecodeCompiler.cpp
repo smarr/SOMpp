@@ -24,17 +24,20 @@
  THE SOFTWARE.
  */
 
-#include <sstream>
 #include <fstream>
-#include <vm/Print.h>
-#include <vm/Universe.h>
+#include <ios>
+#include <sstream>
+#include <string>
 
-#include "SourcecodeCompiler.h"
-#include "ClassGenerationContext.h"
-#include "Parser.h"
-
+#include "../misc/defs.h"
+#include "../vm/Print.h"
+#include "../vm/Universe.h"
 #include "../vmobjects/VMClass.h"
 #include "../vmobjects/VMSymbol.h"
+#include "ClassGenerationContext.h"
+#include "Parser.h"
+#include "SourcecodeCompiler.h"
+
 
 SourcecodeCompiler::SourcecodeCompiler() {
     parser = nullptr;
@@ -45,12 +48,12 @@ SourcecodeCompiler::~SourcecodeCompiler() {
         delete (parser);
 }
 
-VMClass* SourcecodeCompiler::CompileClass( const StdString& path,
-        const StdString& file,
+VMClass* SourcecodeCompiler::CompileClass( const std::string& path,
+        const std::string& file,
         VMClass* systemClass ) {
     VMClass* result = systemClass;
 
-    StdString fname = path + fileSeparator + file + ".som";
+    std::string fname = path + fileSeparator + file + ".som";
 
     ifstream* fp = new ifstream();
     fp->open(fname.c_str(), std::ios_base::in);

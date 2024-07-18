@@ -1,7 +1,8 @@
 #pragma once
 
-#include "vmobjects/VMArray.h"
 #include <cppunit/extensions/HelperMacros.h>
+
+#include "../vmobjects/VMArray.h"
 
 using namespace std;
 

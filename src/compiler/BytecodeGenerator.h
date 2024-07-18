@@ -26,12 +26,10 @@
  THE SOFTWARE.
  */
 
-#include <misc/defs.h>
-#include <interpreter/bytecodes.h>
-
-#include <vmobjects/ObjectFormats.h>
-#include <primitivesCore/PrimitiveContainer.h>
-
+#include "../interpreter/bytecodes.h"
+#include "../misc/defs.h"
+#include "../primitivesCore/PrimitiveContainer.h"
+#include "../vmobjects/ObjectFormats.h"
 #include "MethodGenerationContext.h"
 
 void Emit1(MethodGenerationContext* mgenc, uint8_t bytecode, size_t stackEffect);

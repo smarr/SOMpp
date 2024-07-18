@@ -1,10 +1,14 @@
-#include "MarkSweepCollector.h"
+#include <cstddef>
+#include <vector>
 
+#include "../memory/Heap.h"
 #include "../vm/Universe.h"
-#include "MarkSweepHeap.h"
 #include "../vmobjects/AbstractObject.h"
+#include "../vmobjects/IntegerBox.h"
+#include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMFrame.h"
-#include <vmobjects/IntegerBox.h>
+#include "MarkSweepCollector.h"
+#include "MarkSweepHeap.h"
 
 #define GC_MARKED 3456
 

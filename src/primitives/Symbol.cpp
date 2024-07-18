@@ -24,20 +24,19 @@
  THE SOFTWARE.
  */
 
-#include "../misc/defs.h"
+#include <string>
 
-#include "../vmobjects/VMObject.h"
+#include "../primitivesCore/PrimitiveContainer.h"
+#include "../primitivesCore/Routine.h"
+#include "../vm/Universe.h"
 #include "../vmobjects/VMFrame.h"
 #include "../vmobjects/VMSymbol.h"
-
-#include "../vm/Universe.h"
-#include "../primitivesCore/Routine.h"
 #include "Symbol.h"
 
 void _Symbol::AsString(Interpreter*, VMFrame* frame) {
     VMSymbol* sym = static_cast<VMSymbol*>(frame->Pop());
 
-    StdString str = sym->GetStdString();
+    std::string str = sym->GetStdString();
     frame->Push(GetUniverse()->NewString(str));
 }
 

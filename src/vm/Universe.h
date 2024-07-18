@@ -30,14 +30,12 @@
 #include <map>
 #include <vector>
 
-#include "../misc/defs.h"
+#include "../interpreter/Interpreter.h"
+#include "../memory/Heap.h"
 #include "../misc/Timer.h"
-
+#include "../misc/defs.h"
 #include "../vmobjects/ObjectFormats.h"
 
-#include "../interpreter/Interpreter.h"
-
-#include "../memory/Heap.h"
 
 class SourcecodeCompiler;
 

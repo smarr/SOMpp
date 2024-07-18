@@ -27,10 +27,10 @@
  */
 
 #include <iostream>
-#include <vm/Print.h>
 
-#include "VMInvokable.h"
+#include "../vm/Print.h"
 #include "VMInteger.h"
+#include "VMInvokable.h"
 
 class MethodGenerationContext;
 class Interpreter;

@@ -24,14 +24,18 @@
  THE SOFTWARE.
  */
 
-#include <vmobjects/VMObject.h>
-#include <vmobjects/VMFrame.h>
-#include <vmobjects/VMClass.h>
-#include <vmobjects/VMInvokable.h>
+#include <cstddef>
 
-#include <vm/Universe.h>
-#include "../vmobjects/IntegerBox.h"
+#include "../primitivesCore/PrimitiveContainer.h"
 #include "../primitivesCore/Routine.h"
+#include "../vm/Globals.h"
+#include "../vm/Universe.h" // NOLINT(misc-include-cleaner) it's required to make the types complete
+#include "../vmobjects/ObjectFormats.h"
+#include "../vmobjects/VMArray.h"
+#include "../vmobjects/VMClass.h" // NOLINT(misc-include-cleaner) it's required to make the types complete
+#include "../vmobjects/VMFrame.h"
+#include "../vmobjects/VMInvokable.h"
+#include "../vmobjects/VMObject.h"
 #include "Object.h"
 
 _Object::_Object() : PrimitiveContainer() {

@@ -24,12 +24,15 @@
  THE SOFTWARE.
  */
 
-#include "VMBlock.h"
-#include "VMMethod.h"
-#include "VMFrame.h"
-#include "VMEvaluationPrimitive.h"
+#include <string>
 
-#include "../vm/Universe.h"
+#include "../memory/Heap.h"
+#include "../misc/defs.h"
+#include "ObjectFormats.h"
+#include "VMBlock.h"
+#include "VMEvaluationPrimitive.h"
+#include "VMMethod.h"
+#include "VMObject.h"
 
 const int VMBlock::VMBlockNumberOfFields = 2;
 
@@ -55,6 +58,6 @@ VMEvaluationPrimitive* VMBlock::GetEvaluationPrimitive(int numberOfArguments) {
     return new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(numberOfArguments);
 }
 
-StdString VMBlock::AsDebugString() const {
+std::string VMBlock::AsDebugString() const {
     return "Block(" + load_ptr(blockMethod)->AsDebugString() + ")";
 }

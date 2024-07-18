@@ -24,19 +24,20 @@
  THE SOFTWARE.
  */
 
-#include <stdio.h>
+#include <cctype>
+#include <cstdint>
+#include <cstdio>
 
-#include <vmobjects/VMObject.h>
-#include <vmobjects/VMFrame.h>
-#include <vmobjects/VMSymbol.h>
-#include <vmobjects/VMInteger.h>
-
-#include <vm/Universe.h>
-
-#include <misc/defs.h>
-
-#include "String.h"
+#include "../misc/defs.h"
+#include "../primitivesCore/PrimitiveContainer.h"
 #include "../primitivesCore/Routine.h"
+#include "../vm/Globals.h"
+#include "../vm/Universe.h"
+#include "../vmobjects/ObjectFormats.h"
+#include "../vmobjects/VMFrame.h"
+#include "../vmobjects/VMString.h"
+#include "../vmobjects/VMSymbol.h" // NOLINT(misc-include-cleaner) it's required to make the types complete
+#include "String.h"
 
 _String::_String() : PrimitiveContainer() {
     SetPrimitive("concatenate_", new Routine<_String>(this, &_String::Concatenate_, false));

@@ -1,13 +1,12 @@
 #pragma once
 
-#include "../misc/defs.h"
 #include <cassert>
 
-
-#include "Heap.h"
+#include "../misc/defs.h"
+#include "../vm/IsValidObject.h"
 #include "../vmobjects/VMObjectBase.h"
+#include "Heap.h"
 
-#include <vm/IsValidObject.h>
 
 #ifdef UNITTESTS
 struct VMObjectCompare {

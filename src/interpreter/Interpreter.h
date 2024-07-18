@@ -26,10 +26,10 @@
  THE SOFTWARE.
  */
 
-#include <misc/defs.h>
-#include <vmobjects/ObjectFormats.h>
-#include <vmobjects/VMFrame.h>
-#include <vmobjects/VMMethod.h>
+#include "../misc/defs.h"
+#include "../vmobjects/ObjectFormats.h"
+#include "../vmobjects/VMFrame.h"
+#include "../vmobjects/VMMethod.h"
 
 #define DISPATCH_NOGC() {\
   goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]]; \

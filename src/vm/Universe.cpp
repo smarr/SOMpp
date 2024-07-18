@@ -24,36 +24,43 @@
  THE SOFTWARE.
  */
 
+#include <cassert>
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <exception>
+#include <iostream>
+#include <map>
 #include <sstream> 
-#include <string.h>
-#include <stdlib.h>
-#include <fstream>
-#include <iomanip>
+#include <string>
+#include <vector>
 
-#include "Universe.h"
-#include "Shell.h"
-#include <vm/IsValidObject.h>
-#include <vm/Print.h>
-#include <vm/Globals.h>
-
-#include <vmobjects/VMSymbol.h>
-#include <vmobjects/VMObject.h>
-#include <vmobjects/VMMethod.h>
-#include <vmobjects/VMClass.h>
-#include <vmobjects/VMFrame.h>
-#include <vmobjects/VMArray.h>
-#include <vmobjects/VMBlock.h>
-#include <vmobjects/VMDouble.h>
-#include <vmobjects/VMInteger.h>
-#include <vmobjects/VMString.h>
-#include <vmobjects/VMEvaluationPrimitive.h>
-
-#include <interpreter/bytecodes.h>
-
-#include <compiler/Disassembler.h>
-#include <compiler/SourcecodeCompiler.h>
-
+#include "../compiler/Disassembler.h"
+#include "../compiler/SourcecodeCompiler.h"
+#include "../interpreter/bytecodes.h"
+#include "../memory/Heap.h"
+#include "../misc/defs.h"
+#include "../vmobjects/AbstractObject.h"
 #include "../vmobjects/IntegerBox.h"
+#include "../vmobjects/ObjectFormats.h"
+#include "../vmobjects/VMArray.h"
+#include "../vmobjects/VMBlock.h"
+#include "../vmobjects/VMClass.h"
+#include "../vmobjects/VMDouble.h"
+#include "../vmobjects/VMEvaluationPrimitive.h"
+#include "../vmobjects/VMFrame.h"
+#include "../vmobjects/VMInteger.h"
+#include "../vmobjects/VMMethod.h"
+#include "../vmobjects/VMObject.h"
+#include "../vmobjects/VMObjectBase.h"
+#include "../vmobjects/VMString.h"
+#include "../vmobjects/VMSymbol.h"
+#include "Globals.h"
+#include "IsValidObject.h"
+#include "Print.h"
+#include "Shell.h"
+#include "Universe.h"
 
 #if CACHE_INTEGER
 gc_oop_t prebuildInts[INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE + 1];

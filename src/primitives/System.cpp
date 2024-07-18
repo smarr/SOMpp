@@ -24,23 +24,24 @@
  THE SOFTWARE.
  */
 
-#include <stdio.h>
-#include <sstream>
+#include <ctime>
 #include <fstream>
+#include <sstream>
+#include <string>
 
-#include <time.h>
-
-#include <vmobjects/VMObject.h>
-#include <vmobjects/VMFrame.h>
-#include <vmobjects/VMSymbol.h>
-#include <vmobjects/VMClass.h>
-#include <vmobjects/VMInteger.h>
-
-#include <vm/Print.h>
-#include <vm/Universe.h>
-
-#include "System.h"
+#include "../memory/Heap.h"
+#include "../misc/defs.h"
+#include "../primitivesCore/PrimitiveContainer.h"
 #include "../primitivesCore/Routine.h"
+#include "../vm/Globals.h"
+#include "../vm/Print.h"
+#include "../vm/Universe.h"
+#include "../vmobjects/ObjectFormats.h"
+#include "../vmobjects/VMClass.h"
+#include "../vmobjects/VMFrame.h"
+#include "../vmobjects/VMString.h"
+#include "../vmobjects/VMSymbol.h"
+#include "System.h"
 
 #if defined(__GNUC__)
 

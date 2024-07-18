@@ -1,10 +1,13 @@
+#include <cstddef>
 
+#include "../primitivesCore/PrimitiveContainer.h"
+#include "../primitivesCore/Routine.h"
+#include "../vmobjects/ObjectFormats.h"
+#include "../vmobjects/VMClass.h" // NOLINT(misc-include-cleaner) it's required to make the types complete
+#include "../vmobjects/VMFrame.h"
+#include "../vmobjects/VMMethod.h"
+#include "../vmobjects/VMSymbol.h" // NOLINT(misc-include-cleaner) it's required to make the types complete
 #include "Primitive.h"
-
-#include <primitivesCore/Routine.h>
-
-#include <vmobjects/VMClass.h>
-#include <vmobjects/VMMethod.h>
 
 _Primitive::_Primitive() : PrimitiveContainer() {
     SetPrimitive("signature", new Routine<_Primitive>(this, &_Primitive::Signature,           false));

@@ -24,10 +24,14 @@
  THE SOFTWARE.
  */
 
+#include <map>
+#include <string>
+
+#include "../vmobjects/PrimitiveRoutine.h"
 #include "PrimitiveContainer.h"
 
 PrimitiveContainer::PrimitiveContainer() {
-    methods = new map<StdString, PrimitiveRoutine*>();
+    methods = new map<std::string, PrimitiveRoutine*>();
 }
 
 PrimitiveContainer::~PrimitiveContainer() {
@@ -36,7 +40,7 @@ PrimitiveContainer::~PrimitiveContainer() {
 
 void PrimitiveContainer::SetPrimitive(const char* name,
         PrimitiveRoutine* routine) {
-    (*methods)[StdString(name)] = routine;
+    (*methods)[std::string(name)] = routine;
 }
 
 PrimitiveRoutine* PrimitiveContainer::GetPrimitive(

@@ -26,7 +26,7 @@
  THE SOFTWARE.
  */
 
-#include <vmobjects/ObjectFormats.h>
+#include "../vmobjects/ObjectFormats.h"
 
 class Shell {
 public:

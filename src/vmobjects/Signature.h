@@ -27,8 +27,9 @@
  */
 
 #include <cstddef>
-#include <vmobjects/ObjectFormats.h>
-#include <vmobjects/VMSymbol.h>
+
+#include "../vmobjects/ObjectFormats.h"
+#include "../vmobjects/VMSymbol.h"
 
 class Signature {
 public:

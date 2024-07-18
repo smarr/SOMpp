@@ -5,21 +5,27 @@
  *      Author: christian
  */
 
-#include <cppunit/TestRunner.h>
+#include <iostream>
+
+#include <cppunit/BriefTestProgressListener.h>
+#include <cppunit/CompilerOutputter.h>
+#include <cppunit/Portability.h>
 #include <cppunit/TestResult.h>
 #include <cppunit/TestResultCollector.h>
-#include <cppunit/CompilerOutputter.h>
+#include <cppunit/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/BriefTestProgressListener.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
 
-#include <vm/Universe.h>
-
-#include "WalkObjectsTest.h"
-#include "CloneObjectsTest.h"
-#include "WriteBarrierTest.h"
+#include "../misc/defs.h"
+#include "../vm/Universe.h"
 #include "BasicInterpreterTests.h"
 #include "BytecodeGenerationTest.h"
+#include "CloneObjectsTest.h"
+#include "WalkObjectsTest.h"
+
+#if GC_TYPE==GENERATIONAL
+#include "WriteBarrierTest.h"
+#endif
 
 CPPUNIT_TEST_SUITE_REGISTRATION (WalkObjectsTest);
 CPPUNIT_TEST_SUITE_REGISTRATION (CloneObjectsTest);

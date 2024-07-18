@@ -1,11 +1,16 @@
-#include "Heap.h"
-#include "GenerationalHeap.h"
-#include "GenerationalCollector.h"
-#include "../vmobjects/AbstractObject.h"
-#include "../vm/Universe.h"
+#include <cstdlib>
+#include <cstring>
+#include <string>
+#include <vector>
 
-#include <string.h>
-#include <iostream>
+#include "../vm/Print.h"
+#include "../vm/Universe.h"
+#include "../vmobjects/AbstractObject.h"
+#include "../vmobjects/ObjectFormats.h"
+#include "../vmobjects/VMObjectBase.h"
+#include "GenerationalCollector.h"
+#include "GenerationalHeap.h"
+#include "Heap.h"
 
 using namespace std;
 

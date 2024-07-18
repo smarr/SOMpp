@@ -1,6 +1,6 @@
 #include "IntegerBox.h"
+#include "ObjectFormats.h"
 #include "VMInteger.h"
-#include "../vm/Universe.h"
 
 GCInteger* GlobalBox::integerBox = nullptr;
 

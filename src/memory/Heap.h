@@ -26,12 +26,13 @@
  THE SOFTWARE.
  */
 
-#include <vector>
-#include <set>
 #include <cstdlib>
-#include "GarbageCollector.h"
+#include <set>
+#include <vector>
+
 #include "../misc/defs.h"
 #include "../vmobjects/ObjectFormats.h"
+#include "GarbageCollector.h"
 
 using namespace std;
 

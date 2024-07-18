@@ -26,10 +26,9 @@
  THE SOFTWARE.
  */
 
-#include <misc/defs.h>
-#include <vmobjects/ObjectFormats.h>
-
-#include <compiler/Parser.h>
+#include "../misc/defs.h"
+#include "../vmobjects/ObjectFormats.h"
+#include "Parser.h"
 
 class SourcecodeCompiler {
 public:

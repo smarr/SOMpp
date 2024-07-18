@@ -6,25 +6,19 @@
  *      Author: christian
  */
 
-#include "WalkObjectsTest.h"
-#include "vmobjects/VMSymbol.h"
-#include "vmobjects/VMClass.h"
-#include "vmobjects/VMDouble.h"
-#include "vmobjects/VMInteger.h"
-#include "vmobjects/VMArray.h"
-#include "vmobjects/VMMethod.h"
-#include "vmobjects/VMBlock.h"
-#include "vmobjects/VMPrimitive.h"
-#include "vmobjects/VMFrame.h"
-#include "vmobjects/VMEvaluationPrimitive.h"
-
-/*
- * WalkObjectsTest.cpp
- *
- *  Created on: 12.01.2011
- *      Author: christian
- */
 #include <cppunit/extensions/HelperMacros.h>
+
+#include "../vmobjects/VMSymbol.h"
+#include "../vmobjects/VMClass.h"
+#include "../vmobjects/VMDouble.h"
+#include "../vmobjects/VMInteger.h"
+#include "../vmobjects/VMArray.h"
+#include "../vmobjects/VMMethod.h"
+#include "../vmobjects/VMBlock.h"
+#include "../vmobjects/VMPrimitive.h"
+#include "../vmobjects/VMFrame.h"
+#include "../vmobjects/VMEvaluationPrimitive.h"
+#include "WalkObjectsTest.h"
 
 using namespace std;
 

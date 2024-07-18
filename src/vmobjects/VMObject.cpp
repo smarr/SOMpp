@@ -24,14 +24,18 @@
  THE SOFTWARE.
  */
 #include <cstddef>
+#include <cstring>
+#include <string>
 
-#include <vm/Universe.h>
-
-#include "VMObject.h"
+#include "../memory/Heap.h"
+#include "../misc/defs.h"
+#include "../vm/Globals.h"
+#include "../vm/Universe.h"
+#include "ObjectFormats.h"
 #include "VMClass.h"
-#include "VMSymbol.h"
 #include "VMFrame.h"
-#include "VMInvokable.h"
+#include "VMObject.h"
+#include "VMSymbol.h"
 
 // clazz is the only field of VMObject so
 const size_t VMObject::VMObjectNumberOfFields = 0;
@@ -85,7 +89,7 @@ void VMObject::MarkObjectAsInvalid() {
     clazz = (GCClass*) INVALID_GC_POINTER;
 }
 
-StdString VMObject::AsDebugString() const {
+std::string VMObject::AsDebugString() const {
     if (this == load_ptr(nilObject)) {
         return "nilObject";
     } else if (this == load_ptr(trueObject)) {

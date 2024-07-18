@@ -24,16 +24,19 @@
  THE SOFTWARE.
  */
 
+#include <cstdio>
+#include <iostream>
 #include <sstream>
+#include <string>
 
-#include "Universe.h"
-#include "Shell.h"
-
-#include "../vmobjects/VMMethod.h"
+#include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMClass.h"
 #include "../vmobjects/VMFrame.h"
-#include "../vmobjects/VMObject.h"
 #include "../vmobjects/VMInvokable.h"
+#include "../vmobjects/VMMethod.h"
+#include "Globals.h"
+#include "Shell.h"
+#include "Universe.h"
 
 // maximal length of an input line from the shell
 #define INPUT_MAX_SIZE BUFSIZ
@@ -81,8 +84,8 @@ void Shell::Start(Interpreter* interp) {
      */
     while (!cin.eof()) {
         // initialize empty strings
-        StdString statement;
-        StdString inp;
+        std::string statement;
+        std::string inp;
 
         cout << "---> ";
         // Read a statement from the keyboard
@@ -90,7 +93,7 @@ void Shell::Start(Interpreter* interp) {
 
         cin.getline(inbuf, INPUT_MAX_SIZE);
 
-        inp = StdString(inbuf);
+        inp = std::string(inbuf);
 
         if (inp.length() == 0) continue;
 

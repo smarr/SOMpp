@@ -24,25 +24,23 @@
  THE SOFTWARE.
  */
 
-#include <math.h>
-#include <stdlib.h>
-#include <time.h>
-#include <stdio.h>
-#include <limits.h>
+#include <cassert>
+#include <cmath>
+#include <cstdint>
+#include <cstdlib>
+#include <ctime>
 #include <sstream>
 
-#include <misc/ParseInteger.h>
-
-#include <vmobjects/VMObject.h>
-#include <vmobjects/VMFrame.h>
-#include <vmobjects/VMDouble.h>
-#include <vmobjects/VMInteger.h>
-#include <vmobjects/VMString.h>
-#include <vm/Universe.h>
-#include <vm/Globals.h>
-
-#include "Integer.h"
+#include "../misc/ParseInteger.h"
+#include "../primitivesCore/PrimitiveContainer.h"
 #include "../primitivesCore/Routine.h"
+#include "../vm/Globals.h"
+#include "../vm/Universe.h"
+#include "../vmobjects/ObjectFormats.h"
+#include "../vmobjects/VMDouble.h"
+#include "../vmobjects/VMFrame.h"
+#include "../vmobjects/VMString.h"
+#include "Integer.h"
 
 /*
  * This macro performs a coercion check to Double. Depending on
@@ -309,7 +307,7 @@ void _Integer::Sqrt(Interpreter*, VMFrame* frame) {
 
 void _Integer::AtRandom(Interpreter*, VMFrame* frame) {
     vm_oop_t self = frame->Pop();
-    int64_t result = INT_VAL(self) * rand();
+    int64_t result = INT_VAL(self) * rand(); // NOLINT(clang-analyzer-security.insecureAPI.rand)
     frame->Push(NEW_INT(result));
 }
 

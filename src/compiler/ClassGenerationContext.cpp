@@ -24,15 +24,19 @@
  THE SOFTWARE.
  */
 
-#include <misc/VectorUtil.h>
+#include <cstdint>
+#include <string>
 
+#include "../misc/VectorUtil.h"
+#include "../vm/Globals.h"
+#include "../vm/Universe.h"
+#include "../vmobjects/ObjectFormats.h"
+#include "../vmobjects/VMArray.h"
+#include "../vmobjects/VMClass.h"
+#include "../vmobjects/VMInvokable.h"
+#include "../vmobjects/VMSymbol.h"
 #include "ClassGenerationContext.h"
 
-#include "../vmobjects/VMSymbol.h"
-#include "../vmobjects/VMObject.h"
-#include "../vmobjects/VMClass.h"
-
-#include <vm/Universe.h>
 
 ClassGenerationContext::ClassGenerationContext() :
         instanceFields(), instanceMethods(), classFields(), classMethods() {
@@ -94,7 +98,7 @@ void ClassGenerationContext::AddClassMethod(VMInvokable* method) {
 
 VMClass* ClassGenerationContext::Assemble() {
     // build class class name
-    StdString ccname = string(name->GetStdString()) + " class";
+    std::string ccname = string(name->GetStdString()) + " class";
 
     // Load the super class
     VMClass* superClass = GetUniverse()->LoadClass(superName);

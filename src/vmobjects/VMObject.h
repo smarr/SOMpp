@@ -26,16 +26,14 @@
  THE SOFTWARE.
  */
 #include <cstddef>
-#include <vector>
-#include <iostream>
 #include <cstring>
+#include <iostream>
+#include <vector>
 
+#include "../misc/defs.h"
+#include "../vm/IsValidObject.h"
 #include "AbstractObject.h"
-
-#include <misc/defs.h>
-
 #include "ObjectFormats.h"
-#include <vm/IsValidObject.h>
 
 // this macro returns a shifted ptr by offset bytes
 #define SHIFTED_PTR(ptr, offset) ((void*)((size_t)(ptr)+(size_t)(offset)))
@@ -71,7 +69,7 @@ public:
     virtual        void      SetClass(VMClass* cl);
     virtual        VMSymbol* GetFieldName(long index) const;
     virtual inline long      GetNumberOfFields() const;
-    virtual        void      SetNumberOfFields(long nof);
+                   void      SetNumberOfFields(long nof);
     
     inline vm_oop_t GetField(size_t index) const {
         vm_oop_t result = load_ptr(FIELDS[index]);

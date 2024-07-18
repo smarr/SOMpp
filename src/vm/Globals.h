@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vmobjects/ObjectFormats.h>
+#include "../vmobjects/ObjectFormats.h"
 
 extern GCObject* nilObject;
 extern GCObject* trueObject;

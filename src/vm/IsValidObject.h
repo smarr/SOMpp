@@ -1,7 +1,7 @@
 #pragma once
 
-#include <misc/defs.h>
-#include <vmobjects/ObjectFormats.h>
+#include "../misc/defs.h"
+#include "../vmobjects/ObjectFormats.h"
 
 bool IsValidObject(vm_oop_t obj);
 

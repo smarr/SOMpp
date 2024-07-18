@@ -24,6 +24,8 @@
  THE SOFTWARE.
  */
 
+#include <cstddef>
+
 #include "Signature.h"
 #include "VMSymbol.h"
 
