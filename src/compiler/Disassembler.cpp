@@ -183,6 +183,7 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, cons
                 } else {
                     DebugPrint("\n");
                 }
+                delete[] nindent;
                 break;
             }
             case BC_PUSH_CONSTANT: {
