@@ -26,12 +26,21 @@ jobs:
         run: |
           sudo apt-get install libcppunit-dev
 
+      - name: Install Clang 18
+        run: |
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+          sudo add-apt-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main"
+          sudo apt-get update
+          sudo apt-get install -y clang-18 clang-tidy-18
+          # clang-format-17
+        if: matrix.compiler == 'clang'
+
       - name: Build SOM VM
         run: |
           if [ "${{ matrix.compiler }}" = "clang" ]
           then
-            export CC=clang
-            export CXX=clang++
+            export CC=clang-18
+            export CXX=clang++-18
           else
             export CC=gcc
             export CXX=g++
@@ -52,6 +61,11 @@ jobs:
         run: |
           cd cmake-build
           ./SOM++ -cp ../Smalltalk ../TestSuite/TestHarness.som
+
+      - name: Clang Tidy
+        if: matrix.compiler == 'clang'
+        run: |
+          clang-tidy-18 --config-file=.clang-tidy src/**/*.cpp -- -fdiagnostics-absolute-paths -DGC_TYPE=${{ matrix.gc}} ${{ matrix.integers }} -DUNITTESTS
 
       - name: Test SomSom
         run: |
