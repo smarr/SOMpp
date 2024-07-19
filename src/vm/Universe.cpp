@@ -385,8 +385,6 @@ Universe::~Universe() {
 VMObject* Universe::InitializeGlobals() {
     set_vt_to_null();
     
-# warning is _store_ptr sufficient?
-    
     //
     //allocate nil object
     //
@@ -499,14 +497,12 @@ VMClass* Universe::GetBlockClassWithArgs(long numberOfArguments) {
     result->AddInstancePrimitive(new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(numberOfArguments) );
 
     SetGlobal(name, result);
-# warning is _store_ptr sufficient here?
     blockClassesByNoOfArgs[numberOfArguments] = _store_ptr(result);
 
     return result;
 }
 
 vm_oop_t Universe::GetGlobal(VMSymbol* name) {
-    # warning is _store_ptr correct here? it relies on _store_ptr not to be really changed...
     auto it = globals.find(_store_ptr(name));
     if (it == globals.end()) {
         return nullptr;
@@ -516,7 +512,6 @@ vm_oop_t Universe::GetGlobal(VMSymbol* name) {
 }
 
 bool Universe::HasGlobal(VMSymbol* name) {
-    # warning is _store_ptr correct here? it relies on _store_ptr not to be really changed...
     auto it = globals.find(_store_ptr(name));
     if (it == globals.end()) {
         return false;
@@ -719,7 +714,6 @@ VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method) const {
     long additionalBytes = length * sizeof(VMObject*);
     result = new (GetHeap<HEAP_CLS>(), additionalBytes) VMFrame(length);
     result->clazz = nullptr;
-# warning I think _store_ptr is sufficient here, but...
     result->method        = _store_ptr(method);
     result->previousFrame = _store_ptr(previousFrame);
     result->ResetStackPointer();
@@ -879,7 +873,6 @@ VMSymbol* Universe::NewSymbol(const StdString& str) {
 
 VMSymbol* Universe::NewSymbol(const size_t length, const char* str) {
     VMSymbol* result = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(length)) VMSymbol(length, str);
-# warning is _store_ptr sufficient here?
     symbolsMap[StdString(str, length)] = _store_ptr(result);
 
     LOG_ALLOCATION("VMSymbol", result->GetObjectSize());
@@ -904,6 +897,5 @@ VMSymbol* Universe::SymbolFor(const StdString& str) {
 }
 
 void Universe::SetGlobal(VMSymbol* name, vm_oop_t val) {
-# warning is _store_ptr correct here? it relies on _store_ptr not to be really changed...
     globals[_store_ptr(name)] = _store_ptr(val);
 }

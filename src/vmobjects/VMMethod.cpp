@@ -52,8 +52,6 @@ VMMethod::VMMethod(long bcCount, long numberOfConstants) :
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     cachedFrame = nullptr;
 #endif
-# warning not sure whether the use of _store_ptr is ok here
-
     bcLength                     = _store_ptr(NEW_INT(bcCount));
     numberOfLocals               = _store_ptr(NEW_INT(0));
     maximumNumberOfStackElements = _store_ptr(NEW_INT(0));
@@ -98,7 +96,6 @@ void VMMethod::WalkObjects(walk_heap_fn walk) {
     long numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {
         if (GetIndexableField(i) != nullptr)
-# warning not sure _store_ptr is the best way, perhaps we should access the array content directly
             indexableFields[i] = walk(_store_ptr(GetIndexableField(i)));
     }
 }

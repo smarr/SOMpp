@@ -72,7 +72,6 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     // walk recursively
     newObj->WalkObjects(copy_if_necessary);
     
-#warning not sure about the use of _store_ptr here, or whether it should be a plain cast
     return _store_ptr(newObj);
 }
 
