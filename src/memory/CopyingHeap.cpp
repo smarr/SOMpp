@@ -1,12 +1,13 @@
-#include <vm/Print.h>
+#include <cstdlib>
+#include <cstring>
+#include <string>
 
-#include "CopyingHeap.h"
-#include "CopyingCollector.h"
-
+#include "../vm/Print.h"
+#include "../vm/Universe.h"
 #include "../vmobjects/AbstractObject.h"
-
-#include <vm/Universe.h>
-#include <vm/Print.h>
+#include "CopyingCollector.h"
+#include "CopyingHeap.h"
+#include "Heap.h"
 
 CopyingHeap::CopyingHeap(long objectSpaceSize) : Heap<CopyingHeap>(new CopyingCollector(this), objectSpaceSize) {
     size_t bufSize = objectSpaceSize;

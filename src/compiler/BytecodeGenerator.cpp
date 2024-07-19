@@ -24,15 +24,18 @@
  THE SOFTWARE.
  */
 
-#include <assert.h>
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
 
+#include "../interpreter/bytecodes.h"
+#include "../vm/Globals.h"
+#include "../vm/Universe.h"
+#include "../vmobjects/ObjectFormats.h"
+#include "../vmobjects/Signature.h"
+#include "../vmobjects/VMMethod.h"
+#include "../vmobjects/VMSymbol.h"
 #include "BytecodeGenerator.h"
-#include <vm/Universe.h>
-
-#include <vmobjects/VMObject.h>
-#include <vmobjects/VMMethod.h>
-#include <vmobjects/VMSymbol.h>
-#include <vmobjects/Signature.h>
 
 void Emit1(MethodGenerationContext* mgenc, uint8_t bytecode, size_t stackEffect) {
     mgenc->AddBytecode(bytecode, stackEffect);

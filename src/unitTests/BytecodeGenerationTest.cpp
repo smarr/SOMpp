@@ -1,10 +1,18 @@
+#include <cppunit/TestAssert.h>
+#include <cstddef>
+#include <cstdint>
+#include <cstdio>
+#include <sstream>
+#include <vector>
+
+
+#include "../compiler/ClassGenerationContext.h"
+#include "../compiler/Disassembler.h"
+#include "../compiler/MethodGenerationContext.h"
+#include "../compiler/Parser.h"
+#include "../interpreter/bytecodes.h"
+#include "../vm/Universe.h"
 #include "BytecodeGenerationTest.h"
-
-#include <cppunit/extensions/HelperMacros.h>
-
-#include <compiler/Disassembler.h>
-#include <compiler/Parser.h>
-#include <vm/Universe.h>
 
 void BytecodeGenerationTest::dump(MethodGenerationContext* mgenc) {
     Disassembler::DumpMethod(mgenc, "");

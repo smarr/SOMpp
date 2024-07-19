@@ -28,11 +28,9 @@
 
 #include <vector>
 
-#include <misc/defs.h>
-
+#include "../misc/defs.h"
+#include "../vmobjects/ObjectFormats.h"
 #include "ClassGenerationContext.h"
-
-#include <vmobjects/ObjectFormats.h>
 
 
 class MethodGenerationContext {

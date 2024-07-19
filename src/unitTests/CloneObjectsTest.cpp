@@ -5,23 +5,27 @@
  *      Author: christian
  */
 
-#include <vm/Universe.h>
+#include <cppunit/TestAssert.h>
+#include <cstdint>
 
+#include "../memory/Heap.h"
+#include "../misc/defs.h"
+#include "../vm/Globals.h"
+#include "../vm/Universe.h"
+#include "../vmobjects/ObjectFormats.h"
+#include "../vmobjects/VMArray.h"
+#include "../vmobjects/VMBlock.h"
+#include "../vmobjects/VMClass.h"
+#include "../vmobjects/VMDouble.h"
+#include "../vmobjects/VMEvaluationPrimitive.h"
+#include "../vmobjects/VMInteger.h"
+#include "../vmobjects/VMMethod.h"
+#include "../vmobjects/VMObject.h"
+#include "../vmobjects/VMPrimitive.h"
+#include "../vmobjects/VMString.h"
+#include "../vmobjects/VMSymbol.h"
 #include "CloneObjectsTest.h"
 
-#include "vmobjects/ObjectFormats.h"
-#include "vmobjects/VMObjectBase.h"
-#include "vmobjects/VMObject.h"
-#include "vmobjects/VMInteger.h"
-#include "vmobjects/VMDouble.h"
-#include "vmobjects/VMString.h"
-#include "vmobjects/VMArray.h"
-#include "vmobjects/VMMethod.h"
-#include "vmobjects/VMBlock.h"
-#include "vmobjects/VMSymbol.h"
-#include "vmobjects/VMClass.h"
-#include "vmobjects/VMPrimitive.h"
-#include "vmobjects/VMEvaluationPrimitive.h"
 
 void CloneObjectsTest::testCloneObject() {
     VMObject* orig = new (GetHeap<HEAP_CLS>()) VMObject();

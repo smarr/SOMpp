@@ -24,13 +24,14 @@
  THE SOFTWARE.
  */
 
-#include <iostream>
-#include <string.h>
-#include <vm/Print.h>
+#include <cstring>
 
+#include "../misc/defs.h"
+#include "../vm/Print.h"
+#include "CopyingHeap.h" // NOLINT(misc-include-cleaner)
+#include "GenerationalHeap.h" // NOLINT(misc-include-cleaner)
 #include "Heap.h"
-#include "../vmobjects/VMObject.h"
-#include "../vm/Universe.h"
+#include "MarkSweepHeap.h" // NOLINT(misc-include-cleaner)
 
 template<class HEAP_T>
 void Heap<HEAP_T>::InitializeHeap(long objectSpaceSize) {

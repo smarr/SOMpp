@@ -24,9 +24,14 @@
  THE SOFTWARE.
  */
 
-#include "VMDouble.h"
+#include <string>
 
-#include <vm/Globals.h>
+#include "../memory/Heap.h"
+#include "../misc/defs.h"
+#include "../vm/Globals.h"
+#include "ObjectFormats.h"
+#include "VMClass.h"
+#include "VMDouble.h"
 
 VMDouble* VMDouble::Clone() const {
     return new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMDouble(*this);
@@ -36,6 +41,6 @@ VMClass* VMDouble::GetClass() const {
     return load_ptr(doubleClass);
 }
 
-StdString VMDouble::AsDebugString() const {
+std::string VMDouble::AsDebugString() const {
     return "Double(" + to_string(embeddedDouble) + ")";
 }

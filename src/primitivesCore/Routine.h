@@ -26,7 +26,7 @@
  THE SOFTWARE.
  */
 
-#include <vmobjects/PrimitiveRoutine.h>
+#include "../vmobjects/PrimitiveRoutine.h"
 
 class Interpreter;
 

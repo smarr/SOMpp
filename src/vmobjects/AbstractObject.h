@@ -7,16 +7,14 @@
  *      Author: christian
  */
 
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 
-
-#include <misc/defs.h>
-#include <vm/Print.h>
-#include <memory/GenerationalHeap.h>
-#include <memory/CopyingHeap.h>
-#include <memory/MarkSweepHeap.h>
-
+#include "../memory/CopyingHeap.h"
+#include "../memory/GenerationalHeap.h"
+#include "../memory/MarkSweepHeap.h"
+#include "../misc/defs.h"
+#include "../vm/Print.h"
 #include "ObjectFormats.h"
 #include "VMObjectBase.h"
 
@@ -58,10 +56,6 @@ public:
         throw "this object doesn't support GetNumberOfFields";
     }
 
-    virtual void SetNumberOfFields(long nof) {
-        ErrorPrint("this object doesn't support SetNumberOfFields\n");
-        throw "this object doesn't support SetNumberOfFields";
-    }
     inline virtual void SetClass(VMClass* cl) {
         ErrorPrint("this object doesn't support SetClass\n");
         throw "this object doesn't support SetClass";
@@ -82,7 +76,7 @@ public:
             unsigned long additionalBytes = 0 ALLOC_OUTSIDE_NURSERY_DECL) {
         // if outsideNursery flag is set or object is too big for nursery, we
         // allocate a mature object
-        unsigned long add = PADDED_SIZE(additionalBytes);
+        const unsigned long add = PADDED_SIZE(additionalBytes);
         void* result;
 #if GC_TYPE==GENERATIONAL
         if (outsideNursery) {

@@ -24,12 +24,19 @@
  THE SOFTWARE.
  */
 
+#include <cstring>
 #include <sstream>
-#include <string.h>
+#include <string>
 
-#include "VMSymbol.h"
-#include "VMInteger.h"
+#include "../memory/Heap.h"
+#include "../misc/defs.h"
+#include "AbstractObject.h"
+#include "ObjectFormats.h"
 #include "Signature.h"
+#include "VMClass.h"
+#include "VMInvokable.h"
+#include "VMString.h"
+#include "VMSymbol.h"
 
 extern GCClass* symbolClass;
 
@@ -60,7 +67,7 @@ VMClass* VMSymbol::GetClass() const {
     return load_ptr(symbolClass);
 }
 
-StdString VMSymbol::GetPlainString() const {
+std::string VMSymbol::GetPlainString() const {
     ostringstream str;
     char* chars = this->chars;
     size_t length = this->length;
@@ -119,7 +126,7 @@ StdString VMSymbol::GetPlainString() const {
             break;
         }
     }
-    StdString st = str.str();
+    std::string st = str.str();
 
     return st;
 }
@@ -132,7 +139,7 @@ void VMSymbol::WalkObjects(walk_heap_fn walk) {
     }
 }
 
-StdString VMSymbol::AsDebugString() const {
+std::string VMSymbol::AsDebugString() const {
     return "Symbol(" + GetStdString() + ")";
 }
 

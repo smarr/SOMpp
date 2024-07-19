@@ -27,8 +27,8 @@
  */
 #include <cstddef>
 
-#include <vmobjects/VMObject.h>
-#include <vmobjects/VMInteger.h>
+#include "../vmobjects/VMInteger.h"
+#include "../vmobjects/VMObject.h"
 
 class VMArray: public VMObject {
 public:

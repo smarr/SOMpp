@@ -26,10 +26,10 @@
  THE SOFTWARE.
  */
 
-#include <misc/defs.h>
-#include <vmobjects/PrimitiveRoutine.h>
-
 #include <map>
+
+#include "../misc/defs.h"
+#include "../vmobjects/PrimitiveRoutine.h"
 
 ///Base class for all container objects holding SOM++ primitives.
 //Primitive container classes need to initialize a std::map<StdString,

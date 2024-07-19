@@ -1,7 +1,7 @@
 #pragma once
 
-#include <time.h>
-#include <stdint.h>
+#include <cstdint>
+#include <ctime>
 #include <sys/time.h>
 
 static int64_t get_microseconds() {
@@ -32,7 +32,7 @@ public:
         last_start = get_microseconds();
     }
     inline void Halt() {
-        int64_t end = get_microseconds();
+        const int64_t end = get_microseconds();
 
         total = end - last_start;
     }

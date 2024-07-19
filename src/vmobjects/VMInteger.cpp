@@ -24,8 +24,14 @@
  THE SOFTWARE.
  */
 
+#include <string>
+
+#include "../memory/Heap.h"
+#include "../misc/defs.h"
+#include "../vm/Globals.h"
+#include "ObjectFormats.h"
+#include "VMClass.h"
 #include "VMInteger.h"
-#include <vm/Globals.h>
 
 VMInteger* VMInteger::Clone() const {
     return new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMInteger(*this);
@@ -35,6 +41,6 @@ VMClass* VMInteger::GetClass() const {
     return load_ptr(integerClass);
 }
 
-StdString VMInteger::AsDebugString() const {
+std::string VMInteger::AsDebugString() const {
     return "Integer(" + to_string(embeddedInteger) + ")";
 }

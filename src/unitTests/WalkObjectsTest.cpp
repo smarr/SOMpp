@@ -4,21 +4,27 @@
  *  Created on: 12.01.2011
  *      Author: christian
  */
-#include <vector>
 #include <algorithm>
-#include <vm/Universe.h>
+#include <cppunit/TestAssert.h>
+#include <cstddef>
+#include <vector>
 
+#include "../memory/Heap.h"
+#include "../misc/defs.h"
+#include "../vm/Globals.h"
+#include "../vm/Universe.h"
+#include "../vmobjects/ObjectFormats.h"
+#include "../vmobjects/VMArray.h"
+#include "../vmobjects/VMBlock.h"
+#include "../vmobjects/VMClass.h"
+#include "../vmobjects/VMDouble.h"
+#include "../vmobjects/VMEvaluationPrimitive.h"
+#include "../vmobjects/VMFrame.h"
+#include "../vmobjects/VMInteger.h"
+#include "../vmobjects/VMMethod.h"
+#include "../vmobjects/VMPrimitive.h"
+#include "../vmobjects/VMSymbol.h"
 #include "WalkObjectsTest.h"
-#include "vmobjects/VMSymbol.h"
-#include "vmobjects/VMClass.h"
-#include "vmobjects/VMDouble.h"
-#include "vmobjects/VMInteger.h"
-#include "vmobjects/VMArray.h"
-#include "vmobjects/VMMethod.h"
-#include "vmobjects/VMBlock.h"
-#include "vmobjects/VMPrimitive.h"
-#include "vmobjects/VMFrame.h"
-#include "vmobjects/VMEvaluationPrimitive.h"
 
 static const size_t NoOfFields_Object = 1;
 static const size_t NoOfFields_String = 0;

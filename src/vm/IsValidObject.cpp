@@ -1,20 +1,20 @@
-#include <vm/IsValidObject.h>
-#include <misc/defs.h>
-#include <assert.h>
-#include <vmobjects/ObjectFormats.h>
-#include <vm/Globals.h>
+#include <cassert>
 
-#include <vmobjects/VMSymbol.h>
-#include <vmobjects/VMObject.h>
-#include <vmobjects/VMMethod.h>
-#include <vmobjects/VMClass.h>
-#include <vmobjects/VMFrame.h>
-#include <vmobjects/VMArray.h>
-#include <vmobjects/VMBlock.h>
-#include <vmobjects/VMDouble.h>
-#include <vmobjects/VMInteger.h>
-#include <vmobjects/VMString.h>
-#include <vmobjects/VMEvaluationPrimitive.h>
+#include "../memory/Heap.h"
+#include "../misc/defs.h"
+#include "../vmobjects/AbstractObject.h"
+#include "../vmobjects/ObjectFormats.h"
+#include "../vmobjects/VMArray.h"
+#include "../vmobjects/VMBlock.h"
+#include "../vmobjects/VMDouble.h"
+#include "../vmobjects/VMEvaluationPrimitive.h"
+#include "../vmobjects/VMFrame.h"
+#include "../vmobjects/VMInteger.h"
+#include "../vmobjects/VMMethod.h"
+#include "../vmobjects/VMString.h"
+#include "../vmobjects/VMSymbol.h"
+#include "Globals.h"
+#include "IsValidObject.h"
 
 void* vt_array;
 void* vt_block;

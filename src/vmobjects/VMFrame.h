@@ -26,8 +26,8 @@
  THE SOFTWARE.
  */
 
-#include <vmobjects/VMArray.h>
-#include <vmobjects/VMMethod.h>
+#include "../vmobjects/VMArray.h"
+#include "../vmobjects/VMMethod.h"
 
 class Universe;
 

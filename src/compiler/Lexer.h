@@ -83,7 +83,7 @@ public:
     }
     
     inline size_t incPtr(size_t val) {
-        size_t cur = bufp;
+        const size_t cur = bufp;
         bufp += val;
         startBufp = bufp;
         return cur;

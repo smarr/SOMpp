@@ -25,7 +25,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-#include <misc/defs.h>
+#include "../misc/defs.h"
 
 //some MACROS for integer tagging
 /**

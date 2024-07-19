@@ -24,15 +24,14 @@
  THE SOFTWARE.
  */
 
+#include "../primitivesCore/PrimitiveContainer.h"
+#include "../primitivesCore/Routine.h"
+#include "../vm/Universe.h"
+#include "../vmobjects/VMClass.h"
+#include "../vmobjects/VMFrame.h"
+#include "../vmobjects/VMSymbol.h" // NOLINT(misc-include-cleaner) it's required to make the types complete
 #include "Class.h"
 
-#include "../primitivesCore/Routine.h"
-
-#include <vmobjects/VMObject.h>
-#include <vmobjects/VMFrame.h>
-#include <vmobjects/VMClass.h>
-
-#include <vm/Universe.h>
 
 _Class::_Class() : PrimitiveContainer() {
     SetPrimitive("new",        new Routine<_Class>(this, &_Class::New,        false));

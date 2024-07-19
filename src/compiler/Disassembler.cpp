@@ -24,34 +24,26 @@
  THE SOFTWARE.
  */
 
+#include <cstdint>
 #include <cstdio>
 #include <cstring>
 
-#include "Disassembler.h"
-
-#include <vm/Print.h>
-#include <vm/Universe.h>
-
 #include "../interpreter/bytecodes.h"
-#include "../interpreter/Interpreter.h"
-
-#include "../vmobjects/VMArray.h"
-#include "../vmobjects/VMBlock.h"
+#include "../misc/debug.h"
+#include "../misc/defs.h"
+#include "../vm/Globals.h"
+#include "../vm/Universe.h"
+#include "../vmobjects/ObjectFormats.h"
+#include "../vmobjects/Signature.h"
 #include "../vmobjects/VMClass.h"
 #include "../vmobjects/VMDouble.h"
-#include "../vmobjects/VMEvaluationPrimitive.h"
 #include "../vmobjects/VMFrame.h"
-#include "../vmobjects/VMInteger.h"
 #include "../vmobjects/VMInvokable.h"
 #include "../vmobjects/VMMethod.h"
 #include "../vmobjects/VMObject.h"
-#include "../vmobjects/VMPrimitive.h"
 #include "../vmobjects/VMString.h"
 #include "../vmobjects/VMSymbol.h"
-#include "../vmobjects/Signature.h"
-
-#include "../misc/debug.h"
-#include "../misc/defs.h"
+#include "Disassembler.h"
 
 /** 
  * Dispatch an object to its content and write out
@@ -191,6 +183,7 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, cons
                 } else {
                     DebugPrint("\n");
                 }
+                delete[] nindent;
                 break;
             }
             case BC_PUSH_CONSTANT: {

@@ -26,8 +26,8 @@
  THE SOFTWARE.
  */
 
-#include "../vmobjects/ObjectFormats.h"
 #include "../misc/defs.h"
+#include "../vmobjects/ObjectFormats.h"
 
 template <class HEAP_T>
 class GarbageCollector {

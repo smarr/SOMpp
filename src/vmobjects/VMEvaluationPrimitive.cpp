@@ -24,17 +24,19 @@
  THE SOFTWARE.
  */
 
-#include "VMEvaluationPrimitive.h"
-#include "VMSymbol.h"
-#include "VMObject.h"
-#include "VMFrame.h"
-#include "VMBlock.h"
-#include "VMInteger.h"
+#include <cassert>
+#include <string>
 
-#include "../vm/Universe.h"
-
-//needed to instanciate the Routine object for the evaluation routine
+#include "../memory/Heap.h"
+#include "../misc/defs.h"
 #include "../primitivesCore/Routine.h"
+#include "../vm/Universe.h"
+#include "ObjectFormats.h"
+#include "VMBlock.h"
+#include "VMEvaluationPrimitive.h"
+#include "VMFrame.h"
+#include "VMPrimitive.h"
+#include "VMSymbol.h"
 
 VMEvaluationPrimitive::VMEvaluationPrimitive(long argc) : VMPrimitive(computeSignatureString(argc)) {
     SetRoutine(new EvaluationRoutine(this));
@@ -61,7 +63,7 @@ VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc) {
 #define COLON_S ":"
     assert(argc > 0);
 
-    StdString signatureString;
+    std::string signatureString;
 
     // Compute the signature string
     if (argc==1) {
@@ -99,7 +101,7 @@ void EvaluationRoutine::WalkObjects(walk_heap_fn walk) {
     evalPrim = static_cast<GCEvaluationPrimitive*>(walk(evalPrim));
 }
 
-StdString VMEvaluationPrimitive::AsDebugString() const {
+std::string VMEvaluationPrimitive::AsDebugString() const {
     return "VMEvaluationPrimitive(" + to_string(
                     INT_VAL(load_ptr(numberOfArguments))) + ")";
 }

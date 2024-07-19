@@ -24,22 +24,22 @@
  THE SOFTWARE.
  */
 
-#include <stdio.h>
+#include <cmath>
+#include <cstdint>
 #include <iostream>
-#include <math.h>
 #include <sstream>
+#include <string>
 
-#include <vmobjects/VMObject.h>
-#include <vmobjects/VMFrame.h>
-#include <vmobjects/VMDouble.h>
-#include <vmobjects/VMString.h>
-#include <vmobjects/VMInteger.h>
-
-#include <vm/Universe.h>
-#include <vm/Globals.h>
-
-#include "Double.h"
+#include "../primitivesCore/PrimitiveContainer.h"
 #include "../primitivesCore/Routine.h"
+#include "../vm/Globals.h"
+#include "../vm/Universe.h"
+#include "../vmobjects/ObjectFormats.h"
+#include "../vmobjects/VMDouble.h"
+#include "../vmobjects/VMFrame.h"
+#include "../vmobjects/VMInteger.h"
+#include "../vmobjects/VMString.h"
+#include "Double.h"
 
 /*
  * This function coerces any right-hand parameter to a double, regardless of its
@@ -180,7 +180,7 @@ void _Double::FromString(Interpreter*, VMFrame* frame) {
     VMString* self = (VMString*) frame->Pop();
     frame->Pop();
 
-    double value = stod(StdString(self->GetRawChars(), self->GetStringLength()));
+    double value = stod(std::string(self->GetRawChars(), self->GetStringLength()));
     frame->Push(GetUniverse()->NewDouble(value));
 }
 

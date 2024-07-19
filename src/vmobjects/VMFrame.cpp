@@ -24,18 +24,21 @@
  THE SOFTWARE.
  */
 
-#include <vm/Globals.h>
+#include <cstddef>
+#include <cstring>
+#include <string>
 
+#include "../compiler/Disassembler.h"
+#include "../memory/Heap.h"
+#include "../misc/defs.h"
+#include "../vm/Globals.h"
+#include "../vm/Print.h"
+#include "ObjectFormats.h"
+#include "VMClass.h"
 #include "VMFrame.h"
 #include "VMMethod.h"
 #include "VMObject.h"
-#include "VMInteger.h"
-#include "VMClass.h"
 #include "VMSymbol.h"
-
-#include <compiler/Disassembler.h>
-
-#include <vm/Print.h>
 
 // when doesNotUnderstand or UnknownGlobal is sent, additional stack slots might
 // be necessary, as these cases are not taken into account when the stack

@@ -1,4 +1,5 @@
-#include <vm/Globals.h>
+#include "../vmobjects/ObjectFormats.h"
+#include "Globals.h"
 
 GCObject* nilObject;
 GCObject* trueObject;

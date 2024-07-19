@@ -24,27 +24,31 @@
  THE SOFTWARE.
  */
 
-#include "Parser.h"
-#include "BytecodeGenerator.h"
-
-#include <misc/ParseInteger.h>
-
-#include <vmobjects/VMMethod.h>
-#include <vmobjects/VMPrimitive.h>
-#include <vmobjects/VMObject.h>
-#include <vmobjects/VMDouble.h>
-#include <vmobjects/VMSymbol.h>
-#include <vmobjects/VMClass.h>
-
-#include <vm/Universe.h>
-
-#include <iostream>
+#include <cassert>
 #include <cctype>
-#include <sstream>
+#include <cstdint>
+#include <cstdlib>
 #include <cstring>
+#include <iostream>
+#include <list>
 #include <string>
+#include <vector>
 
-#include <assert.h>
+#include "../misc/ParseInteger.h"
+#include "../misc/defs.h"
+#include "../vm/Globals.h"
+#include "../vm/Print.h"
+#include "../vm/Universe.h"
+#include "../vmobjects/ObjectFormats.h"
+#include "../vmobjects/VMClass.h"
+#include "../vmobjects/VMDouble.h"     // NOLINT(misc-include-cleaner) it's required to make the types complete
+#include "../vmobjects/VMMethod.h"
+#include "../vmobjects/VMPrimitive.h"  // NOLINT(misc-include-cleaner) it's required to make the types complete
+#include "../vmobjects/VMString.h"
+#include "../vmobjects/VMSymbol.h"
+#include "BytecodeGenerator.h"
+#include "Lexer.h"
+#include "Parser.h"
 
 void Parser::GetSym() {
     sym  = lexer->GetSym();

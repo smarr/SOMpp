@@ -1,19 +1,16 @@
+#include <cassert>
+#include <cstddef>
+#include <vector>
+
 #include "../misc/defs.h"
-
-#include "GenerationalCollector.h"
-
-#include "Heap.h"
+#include "../vm/IsValidObject.h"
 #include "../vm/Universe.h"
-#include "../vmobjects/VMMethod.h"
-#include "../vmobjects/VMObject.h"
-#include "../vmobjects/VMSymbol.h"
+#include "../vmobjects/IntegerBox.h"
+#include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMFrame.h"
-#include "../vmobjects/VMBlock.h"
-#include "../vmobjects/VMPrimitive.h"
-#include "../vmobjects/VMClass.h"
-#include "../vmobjects/VMEvaluationPrimitive.h"
-#include <vmobjects/IntegerBox.h>
-#include <vm/IsValidObject.h>
+#include "../vmobjects/VMObjectBase.h"
+#include "GarbageCollector.h"
+#include "GenerationalCollector.h"
 
 #define INITIAL_MAJOR_COLLECTION_THRESHOLD (5 * 1024 * 1024) //5 MB
 

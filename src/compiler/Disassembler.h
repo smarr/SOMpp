@@ -26,11 +26,10 @@
  THE SOFTWARE.
  */
 
-#include <compiler/MethodGenerationContext.h>
-
 #include "../vmobjects/VMClass.h"
 #include "../vmobjects/VMMethod.h"
 #include "../vmobjects/VMFrame.h"
+#include "MethodGenerationContext.h"
 
 class Disassembler {
 public:

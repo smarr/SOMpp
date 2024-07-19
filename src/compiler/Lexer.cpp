@@ -29,10 +29,9 @@
 #include <istream>
 #include <string>
 
-#include <misc/defs.h>
-
+#include "../misc/defs.h"
+#include "../vm/Universe.h"
 #include "Lexer.h"
-#include <vm/Universe.h>
 
 Lexer::Lexer(istream &file) : infile(file), peekDone(false) {}
 
@@ -95,11 +94,11 @@ void Lexer::lexNumber() {
     state.text.clear();
 
     bool sawDecimalMark = false;
-    
+
     do {
         state.text += _BC;
         state.incPtr();
-        
+
         if (!sawDecimalMark         and
             '.' == _BC              and
             state.bufp + 1 < buf.length() and
@@ -109,7 +108,7 @@ void Lexer::lexNumber() {
             state.text += buf[state.bufp];
             state.incPtr();
         }
-        
+
     } while (isdigit(_BC) != 0);
 }
 
@@ -148,7 +147,7 @@ void Lexer::lexString() {
     state.symc = 0;
     state.text.clear();
     state.incPtr();
-    
+
     while (_BC != '\'') {
         while (EOB) {
             if (fillBuffer() == -1) {
@@ -197,7 +196,7 @@ Symbol Lexer::GetSym() {
         skipWhiteSpace();
         skipComment();
     } while ((EOB || isspace(_BC) != 0 || _BC == '"'));
-    
+
     state.startBufp = state.bufp;
 
     if (_BC == '\'') {
@@ -286,16 +285,16 @@ bool Lexer::nextWordInBufferIsPrimitive() {
 
 Symbol Lexer::Peek() {
     const LexerState old = state;
-    
+
     if (peekDone) {
         Universe::ErrorExit("Cannot Peek twice!\n");
     }
     GetSym();
     const Symbol nextSym = state.sym;
-    
+
     stateAfterPeek = state;
     state = old;
-    
+
     peekDone = true;
     return nextSym;
 }

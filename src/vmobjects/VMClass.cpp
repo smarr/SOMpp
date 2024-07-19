@@ -24,18 +24,26 @@
  THE SOFTWARE.
  */
 
-#include "VMClass.h"
-#include "VMArray.h"
-#include "VMSymbol.h"
-#include "VMInvokable.h"
-#include "VMPrimitive.h"
+#include <cassert>
+#include <cstring>
+#include <string>
+#include <vector>
+
+#include "../memory/Heap.h"
+#include "../misc/defs.h"
+#include "../primitivesCore/PrimitiveLoader.h"
+#include "../vm/Globals.h"
+#include "../vm/IsValidObject.h"
+#include "../vm/Print.h"
+#include "../vm/Universe.h"
+#include "ObjectFormats.h"
 #include "PrimitiveRoutine.h"
-
-#include <vm/Print.h>
-#include <vm/IsValidObject.h>
-#include <vm/Universe.h>
-#include <primitivesCore/PrimitiveLoader.h>
-
+#include "VMArray.h"
+#include "VMClass.h"
+#include "VMInvokable.h"
+#include "VMObject.h"
+#include "VMPrimitive.h"
+#include "VMSymbol.h"
 
 const long VMClass::VMClassNumberOfFields = 4;
 
@@ -201,8 +209,8 @@ bool VMClass::HasPrimitives() const {
     return false;
 }
 
-void VMClass::LoadPrimitives(const vector<StdString>& cp) {
-    StdString cname = load_ptr(name)->GetStdString();
+void VMClass::LoadPrimitives(const vector<std::string>& cp) {
+    std::string cname = load_ptr(name)->GetStdString();
     
     if (hasPrimitivesFor(cname)) {
         setPrimitives(cname, false);
@@ -216,14 +224,14 @@ long VMClass::numberOfSuperInstanceFields() const {
     return 0;
 }
 
-bool VMClass::hasPrimitivesFor(const StdString& cl) const {
+bool VMClass::hasPrimitivesFor(const std::string& cl) const {
     return PrimitiveLoader::SupportsClass(cl);
 }
 
 /*
  * set the routines for primitive marked invokables of the given class
  */
-void VMClass::setPrimitives(const StdString& cname, bool classSide) {
+void VMClass::setPrimitives(const std::string& cname, bool classSide) {
     
     VMClass* current = this;
     
@@ -240,7 +248,7 @@ void VMClass::setPrimitives(const StdString& cname, bool classSide) {
 #endif
 
             VMSymbol* sig = anInvokable->GetSignature();
-            StdString selector = sig->GetPlainString();
+            std::string selector = sig->GetPlainString();
             
             PrimitiveRoutine* routine = PrimitiveLoader::GetPrimitiveRoutine(
                 cname, selector, anInvokable->IsPrimitive() && current == this);
@@ -272,6 +280,39 @@ void VMClass::setPrimitives(const StdString& cname, bool classSide) {
     }
 }
 
-StdString VMClass::AsDebugString() const {
+std::string VMClass::AsDebugString() const {
     return "Class(" + GetName()->GetStdString() + ")";
+}
+
+VMClass* VMClass::GetSuperClass() const {
+    return load_ptr(superClass);
+}
+
+void VMClass::SetSuperClass(VMClass* sup) {
+    store_ptr(superClass, sup);
+}
+
+VMSymbol* VMClass::GetName() const {
+    return load_ptr(name);
+}
+
+void VMClass::SetName(VMSymbol* nam) {
+    store_ptr(name, nam);
+}
+
+bool VMClass::HasSuperClass() const {
+    assert(IsValidObject(load_ptr(superClass)));
+    return load_ptr(superClass) != load_ptr(nilObject);
+}
+
+VMArray* VMClass::GetInstanceFields() const {
+    return load_ptr(instanceFields);
+}
+
+void VMClass::SetInstanceFields(VMArray* instFields) {
+    store_ptr(instanceFields, instFields);
+}
+
+VMArray* VMClass::GetInstanceInvokables() const {
+    return load_ptr(instanceInvokables);
 }

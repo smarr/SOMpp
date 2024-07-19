@@ -28,11 +28,10 @@
 
 #include <vector>
 
+#include "../misc/defs.h"
+#include "../vm/IsValidObject.h"
+#include "../vm/Globals.h"
 #include "VMObject.h"
-
-#include <misc/defs.h>
-#include <vm/IsValidObject.h>
-#include <vm/Globals.h>
 
 #if defined(_MSC_VER)   //Visual Studio
 #include <windows.h> 
@@ -48,14 +47,14 @@ public:
     VMClass();
     VMClass(long numberOfFields);
 
-    inline VMClass*     GetSuperClass() const;
-    inline void         SetSuperClass(VMClass*);
-    inline bool         HasSuperClass() const;
-    inline VMSymbol*    GetName() const;
-    inline void         SetName(VMSymbol*);
-    inline VMArray*     GetInstanceFields() const;
-    inline void         SetInstanceFields(VMArray*);
-    inline VMArray*     GetInstanceInvokables() const;
+           VMClass*     GetSuperClass() const;
+           void         SetSuperClass(VMClass*);
+           bool         HasSuperClass() const;
+           VMSymbol*    GetName() const;
+           void         SetName(VMSymbol*);
+           VMArray*     GetInstanceFields() const;
+           void         SetInstanceFields(VMArray*);
+           VMArray*     GetInstanceInvokables() const;
            void         SetInstanceInvokables(VMArray*);
            long         GetNumberOfInstanceInvokables() const;
            VMInvokable* GetInstanceInvokable(long) const;
@@ -88,39 +87,3 @@ private_testable:
     GCArray* instanceInvokables;
     GCClass* superClass;
 };
-
-#include "VMSymbol.h"
-#include "VMArray.h"
-
-VMClass* VMClass::GetSuperClass() const {
-    return load_ptr(superClass);
-}
-
-void VMClass::SetSuperClass(VMClass* sup) {
-    store_ptr(superClass, sup);
-}
-
-VMSymbol* VMClass::GetName() const {
-    return load_ptr(name);
-}
-
-void VMClass::SetName(VMSymbol* nam) {
-    store_ptr(name, nam);
-}
-
-bool VMClass::HasSuperClass() const {
-    assert(IsValidObject(load_ptr(superClass)));
-    return load_ptr(superClass) != load_ptr(nilObject);
-}
-
-VMArray* VMClass::GetInstanceFields() const {
-    return load_ptr(instanceFields);
-}
-
-void VMClass::SetInstanceFields(VMArray* instFields) {
-    store_ptr(instanceFields, instFields);
-}
-
-VMArray* VMClass::GetInstanceInvokables() const {
-    return load_ptr(instanceInvokables);
-}

@@ -2,6 +2,10 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+#include "../vmobjects/VMClass.h"
+#include "../vmobjects/VMDouble.h"
+#include "../vmobjects/VMSymbol.h"
+
 using namespace std;
 
 enum ResultType {

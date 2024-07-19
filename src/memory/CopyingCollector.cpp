@@ -1,13 +1,17 @@
-#include "../misc/defs.h"
+#include <cassert>
+#include <cstddef>
+#include <cstdlib>
+#include <cstring>
 
-#include "CopyingHeap.h"
+#include "../misc/defs.h"
+#include "../vm/IsValidObject.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/AbstractObject.h"
+#include "../vmobjects/IntegerBox.h"
+#include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMFrame.h"
-#include <vmobjects/IntegerBox.h>
-
 #include "CopyingCollector.h"
-#include <vm/IsValidObject.h>
+#include "CopyingHeap.h"
 
 static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     // don't process tagged objects

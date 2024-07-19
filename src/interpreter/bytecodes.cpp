@@ -26,6 +26,8 @@
  THE SOFTWARE.
  */
 
+#include <cstdint>
+
 const uint8_t Bytecode::bytecodeLengths[] = {
         1, // BC_HALT
         1, // BC_DUP
