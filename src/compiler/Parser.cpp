@@ -571,7 +571,6 @@ void Parser::unaryMessage(MethodGenerationContext* mgenc, bool super) {
 void Parser::binaryMessage(MethodGenerationContext* mgenc, bool super) {
     VMSymbol* msg = binarySelector();
 
-    bool tmp_bool = false;
     binaryOperand(mgenc);
 
     if (super)
