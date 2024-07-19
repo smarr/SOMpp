@@ -56,10 +56,6 @@ public:
         throw "this object doesn't support GetNumberOfFields";
     }
 
-    virtual void SetNumberOfFields(long nof) {
-        ErrorPrint("this object doesn't support SetNumberOfFields\n");
-        throw "this object doesn't support SetNumberOfFields";
-    }
     inline virtual void SetClass(VMClass* cl) {
         ErrorPrint("this object doesn't support SetClass\n");
         throw "this object doesn't support SetClass";
