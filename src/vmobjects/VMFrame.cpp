@@ -114,7 +114,6 @@ VMFrame::VMFrame(long size, long nof) :
     gc_oop_t* end = (gc_oop_t*) SHIFTED_PTR(this, objectSize);
     long i = 0;
     while (arguments + i < end) {
-# warning is the direct use of gc_oop_t here safe for all GCs?
         arguments[i] = nilObject;
         i++;
     }
