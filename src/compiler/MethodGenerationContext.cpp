@@ -38,16 +38,10 @@
 #include "../vmobjects/VMSymbol.h"
 #include "MethodGenerationContext.h"
 
-MethodGenerationContext::MethodGenerationContext() {
-    signature = nullptr;
-    holderGenc = 0;
-    outerGenc = 0;
-    primitive = false;
-    blockMethod = false;
-    finished = false;
-    currentStackDepth = 0;
-    maxStackDepth = 0;
-}
+MethodGenerationContext::MethodGenerationContext() :
+        signature(nullptr), holderGenc(nullptr), outerGenc(nullptr),
+        primitive(false), blockMethod(false), finished(false),
+        currentStackDepth(0), maxStackDepth(0) { }
 
 VMMethod* MethodGenerationContext::Assemble() {
     // create a method instance with the given number of bytecodes and literals
@@ -221,7 +215,7 @@ bool MethodGenerationContext::HasBytecodes() {
 size_t MethodGenerationContext::AddBytecode(uint8_t bc, size_t stackEffect) {
     currentStackDepth += stackEffect;
     maxStackDepth = max(maxStackDepth, currentStackDepth);
-    
+
     bytecode.push_back(bc);
     return bytecode.size();
 }
@@ -230,4 +224,3 @@ size_t MethodGenerationContext::AddBytecodeArgument(uint8_t bc) {
     bytecode.push_back(bc);
     return bytecode.size();
 }
-

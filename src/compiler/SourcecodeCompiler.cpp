@@ -88,7 +88,7 @@ VMClass* SourcecodeCompiler::CompileClass( const std::string& path,
 VMClass* SourcecodeCompiler::CompileClassString( const StdString& stream,
         VMClass* systemClass ) {
     istringstream* ss = new istringstream(stream);
-    if (parser != nullptr) delete(parser);
+    if (parser != nullptr) { delete(parser); }
 
     StdString fileName = "repl";
     parser = new Parser(*ss, fileName);
@@ -110,7 +110,7 @@ void SourcecodeCompiler::showCompilationError(const StdString& filename,
 VMClass* SourcecodeCompiler::compile(VMClass* systemClass) {
     if (parser == nullptr) {
         ErrorPrint("Parser not initiated\n");
-        GetUniverse()->ErrorExit("Compiler error");
+        Universe::ErrorExit("Compiler error");
         return nullptr;
     }
     ClassGenerationContext cgc;
@@ -119,11 +119,11 @@ VMClass* SourcecodeCompiler::compile(VMClass* systemClass) {
 
     parser->Classdef(&cgc);
 
-    if (systemClass == nullptr)
+    if (systemClass == nullptr) {
         result = cgc.Assemble();
-    else
+    } else {
         cgc.AssembleSystemClass(result);
+    }
 
     return result;
 }
-

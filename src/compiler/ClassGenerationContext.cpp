@@ -39,14 +39,8 @@
 
 
 ClassGenerationContext::ClassGenerationContext() :
-        instanceFields(), instanceMethods(), classFields(), classMethods() {
-    name = nullptr;
-    superName = nullptr;
-    classSide = false;
-}
-
-ClassGenerationContext::~ClassGenerationContext() {
-}
+        instanceFields(), instanceMethods(), classFields(), classMethods(),
+        name(nullptr), superName(nullptr), classSide(false) { }
 
 void ClassGenerationContext::AddClassField(VMSymbol* field) {
     classFields.push_back(field);
@@ -75,17 +69,15 @@ void ClassGenerationContext::SetClassFieldsOfSuper(VMArray* fields) {
 bool ClassGenerationContext::HasField(VMSymbol* field) {
     if (IsClassSide()) {
         return Contains(classFields, field);
-    } else {
-        return Contains(instanceFields, field);
     }
+    return Contains(instanceFields, field);
 }
 
 int16_t ClassGenerationContext::GetFieldIndex(VMSymbol* field) {
     if (IsClassSide()) {
         return IndexOf(classFields, field);
-    } else {
-        return IndexOf(instanceFields, field);
     }
+    return IndexOf(instanceFields, field);
 }
 
 void ClassGenerationContext::AddInstanceMethod(VMInvokable* method) {
@@ -130,9 +122,8 @@ void ClassGenerationContext::AssembleSystemClass(VMClass* systemClass) {
     systemClass->SetInstanceInvokables(GetUniverse()->NewArrayList
     (instanceMethods));
     systemClass->SetInstanceFields(GetUniverse()->NewArrayList(instanceFields));
-    // class-bound == class-instance-bound 
+    // class-bound == class-instance-bound
         VMClass* superMClass = systemClass->GetClass();
         superMClass->SetInstanceInvokables(GetUniverse()->NewArrayList(classMethods));
         superMClass->SetInstanceFields(GetUniverse()->NewArrayList(classFields));
     }
-

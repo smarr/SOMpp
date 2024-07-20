@@ -85,18 +85,18 @@ void EmitPUSHARGUMENT(MethodGenerationContext* mgenc,
         long idx, int ctx) {
     assert(idx >= 0);
     assert(ctx >= 0);
-    
+
     if (ctx == 0) {
         if (idx == 0) {
             Emit1(mgenc, BC_PUSH_SELF, 1);
             return;
         }
-        
+
         if (idx == 1) {
             Emit1(mgenc, BC_PUSH_ARG_1, 1);
             return;
         }
-        
+
         if (idx == 2) {
             Emit1(mgenc, BC_PUSH_ARG_2, 1);
             return;
@@ -106,7 +106,7 @@ void EmitPUSHARGUMENT(MethodGenerationContext* mgenc,
 }
 
 void EmitPUSHFIELD(MethodGenerationContext* mgenc, VMSymbol* field) {
-    uint8_t idx = mgenc->GetFieldIndex(field);
+    const uint8_t idx = mgenc->GetFieldIndex(field);
     if (idx == 0) {
         Emit1(mgenc, BC_PUSH_FIELD_0, 1);
     } else if (idx == 1) {
@@ -117,7 +117,7 @@ void EmitPUSHFIELD(MethodGenerationContext* mgenc, VMSymbol* field) {
 }
 
 void EmitPUSHBLOCK(MethodGenerationContext* mgenc, VMMethod* block) {
-    int8_t idx = mgenc->AddLiteralIfAbsent(block);
+    const int8_t idx = mgenc->AddLiteralIfAbsent(block);
     Emit2(mgenc, BC_PUSH_BLOCK, idx, 1);
 }
 
@@ -132,13 +132,13 @@ void EmitPUSHCONSTANT(MethodGenerationContext* mgenc, vm_oop_t cst) {
             return;
         }
     }
-    
+
     if (cst == load_ptr(nilObject)) {
         Emit1(mgenc, BC_PUSH_NIL, 1);
         return;
     }
-    
-    int8_t idx = mgenc->AddLiteralIfAbsent(cst);
+
+    const int8_t idx = mgenc->AddLiteralIfAbsent(cst);
     if (idx == 0) {
         Emit1(mgenc, BC_PUSH_CONSTANT_0, 1);
         return;
@@ -151,7 +151,7 @@ void EmitPUSHCONSTANT(MethodGenerationContext* mgenc, vm_oop_t cst) {
         Emit1(mgenc, BC_PUSH_CONSTANT_2, 1);
         return;
     }
-    
+
     Emit2(mgenc, BC_PUSH_CONSTANT, idx, 1);
 }
 
@@ -173,7 +173,7 @@ void EmitPUSHGLOBAL(MethodGenerationContext* mgenc, VMSymbol* global) {
     } else if (global == GetUniverse()->SymbolFor("false")) {
         EmitPUSHCONSTANT(mgenc, load_ptr(falseObject));
     } else {
-        int8_t idx = mgenc->AddLiteralIfAbsent(global);
+        const int8_t idx = mgenc->AddLiteralIfAbsent(global);
         Emit2(mgenc, BC_PUSH_GLOBAL, idx, 1);
     }
 }
@@ -191,18 +191,18 @@ void EmitPOPLOCAL(MethodGenerationContext* mgenc, long idx,
             Emit1(mgenc, BC_POP_LOCAL_0, -1);
             return;
         }
-        
+
         if (idx == 1) {
             Emit1(mgenc, BC_POP_LOCAL_1, -1);
             return;
         }
-        
+
         if (idx == 2) {
             Emit1(mgenc, BC_POP_LOCAL_2, -1);
             return;
         }
     }
-    
+
     Emit3(mgenc, BC_POP_LOCAL, idx, ctx, -1);
 }
 
@@ -212,8 +212,8 @@ void EmitPOPARGUMENT(MethodGenerationContext* mgenc,
 }
 
 void EmitPOPFIELD(MethodGenerationContext* mgenc, VMSymbol* field) {
-    uint8_t idx = mgenc->GetFieldIndex(field);
-    
+    const uint8_t idx = mgenc->GetFieldIndex(field);
+
     if (idx == 0) {
         Emit1(mgenc, BC_POP_FIELD_0, -1);
     } else if (idx == 1) {
@@ -224,20 +224,20 @@ void EmitPOPFIELD(MethodGenerationContext* mgenc, VMSymbol* field) {
 }
 
 void EmitSEND(MethodGenerationContext* mgenc, VMSymbol* msg) {
-    int8_t idx = mgenc->AddLiteralIfAbsent(msg);
-    
-    int numArgs = Signature::GetNumberOfArguments(msg);
-    size_t stackEffect = -numArgs + 1;  // +1 for the result
-    
+    const int8_t idx = mgenc->AddLiteralIfAbsent(msg);
+
+    const int numArgs = Signature::GetNumberOfArguments(msg);
+    const size_t stackEffect = -numArgs + 1;  // +1 for the result
+
     Emit2(mgenc, BC_SEND, idx, stackEffect);
 }
 
 void EmitSUPERSEND(MethodGenerationContext* mgenc, VMSymbol* msg) {
-    int8_t idx = mgenc->AddLiteralIfAbsent(msg);
-    
-    int numArgs = Signature::GetNumberOfArguments(msg);
-    size_t stackEffect = -numArgs + 1;  // +1 for the result
-    
+    const int8_t idx = mgenc->AddLiteralIfAbsent(msg);
+
+    const int numArgs = Signature::GetNumberOfArguments(msg);
+    const size_t stackEffect = -numArgs + 1;  // +1 for the result
+
     Emit2(mgenc, BC_SUPER_SEND, idx, stackEffect);
 }
 
