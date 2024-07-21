@@ -23,6 +23,3 @@ extern GCClass* doubleClass;
 
 extern GCClass* trueClass;
 extern GCClass* falseClass;
-
-extern GCSymbol* symbolIfTrue;
-extern GCSymbol* symbolIfFalse;

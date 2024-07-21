@@ -17,7 +17,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     // don't process tagged objects
     if (IS_TAGGED(oop))
         return oop;
-    
+
     AbstractVMObject* obj = AS_OBJ(oop);
     assert(IsValidObject(obj));
 
@@ -27,15 +27,14 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     //if someone has moved before, return the moved object
     if (gcField != 0)
         return (gc_oop_t) gcField;
-    
+
     // we have to clone ourselves
     AbstractVMObject* newObj = obj->Clone();
-    
+
     if (DEBUG)
         obj->MarkObjectAsInvalid();
-    
+
     obj->SetGCField((long)newObj);
-#warning not sure about the use of _store_ptr here, or whether it should be a plain cast
     return _store_ptr(newObj);
 }
 
@@ -62,7 +61,7 @@ void CopyingCollector::Collect() {
         if (heap->currentBuffer == nullptr)
             GetUniverse()->ErrorExit("unable to allocate more memory");
     }
-    
+
     // init currentBuffer with zeros
     memset(heap->currentBuffer, 0x0, (size_t)(heap->currentBufferEnd) -
             (size_t)(heap->currentBuffer));
@@ -74,7 +73,7 @@ void CopyingCollector::Collect() {
         curObject->WalkObjects(copy_if_necessary);
         curObject = (AbstractVMObject*)((size_t)curObject + curObject->GetObjectSize());
     }
-    
+
     //increase memory if scheduled in collection before
     if (increaseMemory) {
         increaseMemory = false;

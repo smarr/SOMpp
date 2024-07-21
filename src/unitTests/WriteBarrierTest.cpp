@@ -7,6 +7,7 @@
 
 #include "../memory/Heap.h"
 #include "../vm/Globals.h"
+#include "../vm/Symbols.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMArray.h"
@@ -65,7 +66,7 @@ void WriteBarrierTest::testWriteBlock() {
     //reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
 
-    VMSymbol* methodSymbol = GetUniverse()->NewSymbol("someMethod");
+    VMSymbol* methodSymbol = NewSymbol("someMethod");
     VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
     VMBlock* block = GetUniverse()->NewBlock(method,
             GetUniverse()->GetInterpreter()->GetFrame(),
@@ -142,7 +143,7 @@ void WriteBarrierTest::testWriteClass() {
     cl->SetSuperClass(load_ptr(integerClass));
     TEST_WB_CALLED("VMClass failed to call writeBarrier on SetSuperClass", cl,
             load_ptr(integerClass));
-    VMSymbol* newName = GetUniverse()->NewSymbol("andererName");
+    VMSymbol* newName = NewSymbol("andererName");
     cl->SetName(newName);
     TEST_WB_CALLED("VMClass failed to call writeBarrier on SetName", cl,
             newName);

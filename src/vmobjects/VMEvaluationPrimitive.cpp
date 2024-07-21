@@ -30,7 +30,8 @@
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../primitivesCore/Routine.h"
-#include "../vm/Universe.h"
+#include "../vm/Symbols.h"
+#include "../vm/Universe.h" // NOLINT(misc-include-cleaner) it's required to make the types complete
 #include "ObjectFormats.h"
 #include "VMBlock.h"
 #include "VMEvaluationPrimitive.h"
@@ -78,12 +79,12 @@ VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc) {
     }
 
     // Return the signature string
-    return GetUniverse()->SymbolFor(signatureString);
+    return SymbolFor(signatureString);
 }
 
 void EvaluationRoutine::Invoke(Interpreter* interp, VMFrame* frame) {
     VMEvaluationPrimitive* prim = load_ptr(evalPrim);
-    
+
     // Get the block (the receiver) from the stack
     long numArgs = prim->GetNumberOfArguments();
     VMBlock* block = static_cast<VMBlock*>(frame->GetStackElement(numArgs - 1));

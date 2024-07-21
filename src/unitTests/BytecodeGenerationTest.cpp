@@ -11,7 +11,7 @@
 #include "../compiler/MethodGenerationContext.h"
 #include "../compiler/Parser.h"
 #include "../interpreter/bytecodes.h"
-#include "../vm/Universe.h"
+#include "../vm/Symbols.h"
 #include "BytecodeGenerationTest.h"
 
 void BytecodeGenerationTest::dump(MethodGenerationContext* mgenc) {
@@ -20,15 +20,15 @@ void BytecodeGenerationTest::dump(MethodGenerationContext* mgenc) {
 
 void BytecodeGenerationTest::ensureCGenC() {
     if (_cgenc != nullptr) return;
-    
+
     _cgenc = new ClassGenerationContext();
-    _cgenc->SetName(GetUniverse()->SymbolFor("Test"));
+    _cgenc->SetName(SymbolFor("Test"));
 }
 
 void BytecodeGenerationTest::ensureMGenC() {
     if (_mgenc != nullptr) return;
     ensureCGenC();
-    
+
     _mgenc = new MethodGenerationContext();
     _mgenc->SetHolder(_cgenc);
     _mgenc->AddArgument("self");
@@ -38,8 +38,8 @@ void BytecodeGenerationTest::ensureBGenC() {
     if (_bgenc != nullptr) return;
     ensureCGenC();
     ensureMGenC();
-    
-    _mgenc->SetSignature(GetUniverse()->SymbolFor("test"));
+
+    _mgenc->SetSignature(SymbolFor("test"));
     _bgenc = new MethodGenerationContext();
     _bgenc->SetHolder(_cgenc);
     _bgenc->SetOuter(_mgenc);
@@ -47,18 +47,18 @@ void BytecodeGenerationTest::ensureBGenC() {
 
 void BytecodeGenerationTest::addField(const char* fieldName) {
     ensureCGenC();
-    _cgenc->AddInstanceField(GetUniverse()->SymbolFor(fieldName));
+    _cgenc->AddInstanceField(SymbolFor(fieldName));
 }
 
 std::vector<uint8_t> BytecodeGenerationTest::methodToBytecode(const char* source, bool dumpBytecodes) {
     ensureMGenC();
-    
+
     istringstream ss(source);
-    
+
     StdString fileName = "test";
     Parser parser(ss, fileName);
-    parser.method(_mgenc);
-    
+    parser.method(*_mgenc);
+
     if (dumpBytecodes) {
         dump(_mgenc);
     }
@@ -67,14 +67,14 @@ std::vector<uint8_t> BytecodeGenerationTest::methodToBytecode(const char* source
 
 std::vector<uint8_t> BytecodeGenerationTest::blockToBytecode(const char* source, bool dumpBytecodes) {
     ensureBGenC();
-    
+
     istringstream ss(source);
-    
+
     StdString fileName = "test";
     Parser parser(ss, fileName);
-    
-    parser.nestedBlock(_bgenc);
-    
+
+    parser.nestedBlock(*_bgenc);
+
     if (dumpBytecodes) {
         dump(_bgenc);
     }
@@ -83,7 +83,7 @@ std::vector<uint8_t> BytecodeGenerationTest::blockToBytecode(const char* source,
 
 void BytecodeGenerationTest::testEmptyMethodReturnsSelf() {
     auto bytecodes = methodToBytecode("test = ( )");
-    
+
     check(bytecodes, {
         BC_PUSH_SELF,
         BC_RETURN_LOCAL});
@@ -149,7 +149,7 @@ void BytecodeGenerationTest::testIfPushConstantDifferent() {
 
 void BytecodeGenerationTest::testExplicitReturnSelf() {
     auto bytecodes = methodToBytecode("test = ( ^ self )");
-    
+
     check(bytecodes, {
         BC_PUSH_SELF,
         BC_RETURN_LOCAL
@@ -158,7 +158,7 @@ void BytecodeGenerationTest::testExplicitReturnSelf() {
 
 void BytecodeGenerationTest::testDupPopArgumentPop() {
     auto bytecodes = methodToBytecode("test: arg = ( arg := 1. ^ self )");
-    
+
     check(bytecodes, {
         BC_PUSH_1,
         BC_DUP,
@@ -171,7 +171,7 @@ void BytecodeGenerationTest::testDupPopArgumentPop() {
 
 void BytecodeGenerationTest::testDupPopArgumentPopImplicitReturnSelf() {
     auto bytecodes = methodToBytecode("test: arg = ( arg := 1 )");
-    
+
     check(bytecodes, {
         BC_PUSH_1,
         BC_DUP,
@@ -184,7 +184,7 @@ void BytecodeGenerationTest::testDupPopArgumentPopImplicitReturnSelf() {
 
 void BytecodeGenerationTest::testDupPopLocalPop() {
     auto bytecodes = methodToBytecode("test = ( | local | local := 1. ^ self )");
-    
+
     check(bytecodes, {
         BC_PUSH_1,
         BC_DUP,
@@ -198,7 +198,7 @@ void BytecodeGenerationTest::testDupPopLocalPop() {
 void BytecodeGenerationTest::testDupPopField0Pop() {
     addField("field");
     auto bytecodes = methodToBytecode("test = ( field := 1. ^ self )");
-    
+
     check(bytecodes, {
         BC_PUSH_1,
         BC_DUP,
@@ -216,7 +216,7 @@ void BytecodeGenerationTest::testDupPopFieldPop() {
     addField("d");
     addField("field");
     auto bytecodes = methodToBytecode("test = ( field := 1. ^ self )");
-    
+
     check(bytecodes, {
         BC_PUSH_1,
         BC_DUP,
@@ -230,7 +230,7 @@ void BytecodeGenerationTest::testDupPopFieldPop() {
 void BytecodeGenerationTest::testDupPopFieldReturnSelf() {
     addField("field");
     auto bytecodes = methodToBytecode("test: val = ( field := val )");
-    
+
     check(bytecodes, {
         BC_PUSH_ARG_1,
         BC_DUP,
@@ -249,7 +249,7 @@ void BytecodeGenerationTest::testDupPopFieldNReturnSelf() {
     addField("e");
     addField("field");
     auto bytecodes = methodToBytecode("test: val = ( field := val )");
-    
+
     check(bytecodes, {
         BC_PUSH_ARG_1,
         BC_DUP,
@@ -263,7 +263,7 @@ void BytecodeGenerationTest::testDupPopFieldNReturnSelf() {
 void BytecodeGenerationTest::testSendDupPopFieldReturnLocal() {
     addField("field");
     auto bytecodes = methodToBytecode("test = ( ^ field := self method )");
-    
+
     check(bytecodes, {
         BC_PUSH_SELF,
         BC_SEND, 0,
@@ -276,7 +276,7 @@ void BytecodeGenerationTest::testSendDupPopFieldReturnLocal() {
 void BytecodeGenerationTest::testSendDupPopFieldReturnLocalPeriod() {
     addField("field");
     auto bytecodes = methodToBytecode("test = ( ^ field := self method. )");
-    
+
     check(bytecodes, {
         BC_PUSH_SELF,
         BC_SEND, 0,
@@ -289,7 +289,7 @@ void BytecodeGenerationTest::testSendDupPopFieldReturnLocalPeriod() {
 
 void BytecodeGenerationTest::testBlockDupPopArgumentPopReturnArg() {
     auto bytecodes = blockToBytecode("[:arg | arg := 1. arg ]");
-    
+
     check(bytecodes, {
         BC_PUSH_1,
         BC_DUP,
@@ -407,7 +407,7 @@ void BytecodeGenerationTest::testBlockPushFieldOpt() {
     addField("f3");
     addField("f4");
     auto bytecodes = blockToBytecode("[ f1. f2. f3. f4 ]");
-    
+
     check(bytecodes, {
         BC_PUSH_FIELD_0, BC_POP,
         BC_PUSH_FIELD_1, BC_POP,
@@ -464,20 +464,20 @@ void BytecodeGenerationTest::check(std::vector<uint8_t> actual, std::vector<uint
     if (expected.size() != actual.size()) {
         dump(_mgenc);
     }
-    
+
     for (size_t i = 0; i < actual.size() && i < expected.size(); i += 1) {
         uint8_t actualBc = actual.at(i);
         uint8_t bcLength = Bytecode::GetBytecodeLength(actualBc);
-        
+
         uint8_t expectedBc = expected.at(i);
-        
+
         char msg[1000];
         snprintf(msg, 1000, "Bytecode %zu expected %s but got %s",
                  i,
                  Bytecode::GetBytecodeName(expectedBc),
                  Bytecode::GetBytecodeName(actualBc));
         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expectedBc, actualBc);
-        
+
         if (bcLength > 1) {
             snprintf(msg, 1000, "Bytecode %zu (%s), arg1 expected %hhu but got %hhu",
                      i,
@@ -485,9 +485,9 @@ void BytecodeGenerationTest::check(std::vector<uint8_t> actual, std::vector<uint
                      expected.at(i + 1),
                      actual.at(i + 1));
             CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expected.at(i + 1), actual.at(i + 1));
-            
+
             i += 1;
-            
+
             if (bcLength > 2) {
                 snprintf(msg, 1000, "Bytecode %zu (%s), arg2 expected %hhu but got %hhu",
                          i,
@@ -495,12 +495,12 @@ void BytecodeGenerationTest::check(std::vector<uint8_t> actual, std::vector<uint
                          expected.at(i + 1),
                          actual.at(i + 1));
                 CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expected.at(i + 1), actual.at(i + 1));
-                
+
                 i += 1;
             }
         }
     }
-    
+
     CPPUNIT_ASSERT_EQUAL_MESSAGE("Number of bytecodes",
                                  expected.size(), actual.size());
 }
@@ -518,7 +518,7 @@ void BytecodeGenerationTest::check(std::vector<uint8_t> actual, std::vector<uint
          self.note = note
 
 
- 
+
  @pytest.mark.parametrize(
      "operator,bytecode",
      [
@@ -1525,5 +1525,5 @@ void BytecodeGenerationTest::check(std::vector<uint8_t> actual, std::vector<uint
          ],
      )
 
- 
+
  */

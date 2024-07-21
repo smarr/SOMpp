@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -49,6 +49,10 @@
 		0A1887451832C62100A2CBCA /* Smalltalk in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A18873E1832C62100A2CBCA /* Smalltalk */; };
 		0A1887471832C62100A2CBCA /* TestSuite in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A1887401832C62100A2CBCA /* TestSuite */; };
 		0A1C98582C3DD88500735850 /* unitTests/BytecodeGenerationTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C98572C3DD88500735850 /* unitTests/BytecodeGenerationTest.cpp */; };
+		0A1C98672C4D340300735850 /* Symbols.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C98652C4D340300735850 /* Symbols.cpp */; };
+		0A1C98682C4D340300735850 /* Symbols.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C98652C4D340300735850 /* Symbols.cpp */; };
+		0A1C986B2C4D363A00735850 /* LogAllocation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C986A2C4D363A00735850 /* LogAllocation.cpp */; };
+		0A1C986C2C4D363A00735850 /* LogAllocation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C986A2C4D363A00735850 /* LogAllocation.cpp */; };
 		0A32B7FE199D6143002825DF /* IntegerBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A32B7FC199D6143002825DF /* IntegerBox.cpp */; };
 		0A3A3C921A5D546D004CB03B /* Array.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203120FA6624C00E75857 /* Array.cpp */; };
 		0A3A3C931A5D546D004CB03B /* Block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203160FA6624C00E75857 /* Block.cpp */; };
@@ -186,6 +190,10 @@
 		0A1C98562C3DD87300735850 /* unitTests/BytecodeGenerationTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = unitTests/BytecodeGenerationTest.h; sourceTree = "<group>"; };
 		0A1C98572C3DD88500735850 /* unitTests/BytecodeGenerationTest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = unitTests/BytecodeGenerationTest.cpp; sourceTree = "<group>"; };
 		0A1C98592C432E0E00735850 /* VectorUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VectorUtil.h; sourceTree = "<group>"; };
+		0A1C98642C4D33F300735850 /* Symbols.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Symbols.h; sourceTree = "<group>"; };
+		0A1C98652C4D340300735850 /* Symbols.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Symbols.cpp; sourceTree = "<group>"; };
+		0A1C98692C4D35BB00735850 /* LogAllocation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LogAllocation.h; sourceTree = "<group>"; };
+		0A1C986A2C4D363A00735850 /* LogAllocation.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LogAllocation.cpp; sourceTree = "<group>"; };
 		0A32B7FC199D6143002825DF /* IntegerBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IntegerBox.cpp; sourceTree = "<group>"; };
 		0A32B7FD199D6143002825DF /* IntegerBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntegerBox.h; sourceTree = "<group>"; };
 		0A32B80119A12A03002825DF /* VMObjectBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMObjectBase.h; sourceTree = "<group>"; };
@@ -581,6 +589,10 @@
 				0AB80AD52C392BAD006B6419 /* Print.h */,
 				0AB80AD62C3947F7006B6419 /* Globals.h */,
 				0AB80AD72C394806006B6419 /* Globals.cpp */,
+				0A1C98642C4D33F300735850 /* Symbols.h */,
+				0A1C98652C4D340300735850 /* Symbols.cpp */,
+				0A1C98692C4D35BB00735850 /* LogAllocation.h */,
+				0A1C986A2C4D363A00735850 /* LogAllocation.cpp */,
 			);
 			path = vm;
 			sourceTree = "<group>";
@@ -799,7 +811,8 @@
 		3F5202740FA661D900E75857 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1130;
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1520;
 			};
 			buildConfigurationList = 3F5202770FA661D900E75857 /* Build configuration list for PBXProject "SOM" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -831,6 +844,7 @@
 				0A1887361832C10E00A2CBCA /* MarkSweepHeap.cpp in Sources */,
 				0A1886DD1832BCC800A2CBCA /* ClassGenerationContext.cpp in Sources */,
 				0A3A3C941A5D546D004CB03B /* Class.cpp in Sources */,
+				0A1C98672C4D340300735850 /* Symbols.cpp in Sources */,
 				0A18870B1832C0E400A2CBCA /* AbstractObject.cpp in Sources */,
 				0AB80AD82C394806006B6419 /* Globals.cpp in Sources */,
 				0A3A3C991A5D546D004CB03B /* Primitive.cpp in Sources */,
@@ -868,6 +882,7 @@
 				0A1886FC1832BCF500A2CBCA /* VMClass.cpp in Sources */,
 				0A1886DF1832BCC800A2CBCA /* Lexer.cpp in Sources */,
 				0A1886F51832BCED00A2CBCA /* Shell.cpp in Sources */,
+				0A1C986B2C4D363A00735850 /* LogAllocation.cpp in Sources */,
 				0A1887321832C10E00A2CBCA /* CopyingHeap.cpp in Sources */,
 				0A1887061832BCFA00A2CBCA /* VMSymbol.cpp in Sources */,
 				0A1887011832BCFA00A2CBCA /* VMInvokable.cpp in Sources */,
@@ -934,7 +949,9 @@
 				0A67EA8819ACD74800830E3B /* VMPrimitive.cpp in Sources */,
 				0A3A3CA21A5D546D004CB03B /* Block.cpp in Sources */,
 				0A3A3CA91A5D546D004CB03B /* String.cpp in Sources */,
+				0A1C986C2C4D363A00735850 /* LogAllocation.cpp in Sources */,
 				0A67EA9319ACD83200830E3B /* SourcecodeCompiler.cpp in Sources */,
+				0A1C98682C4D340300735850 /* Symbols.cpp in Sources */,
 				0AB80AD42C392B78006B6419 /* Print.cpp in Sources */,
 				0A3A3CA41A5D546D004CB03B /* Double.cpp in Sources */,
 				0A67EA8519ACD74800830E3B /* VMInteger.cpp in Sources */,
@@ -959,6 +976,7 @@
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				DEAD_CODE_STRIPPING = YES;
 				GCC_C_LANGUAGE_STANDARD = c17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -998,6 +1016,7 @@
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_C_LANGUAGE_STANDARD = c17;
@@ -1034,6 +1053,7 @@
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				DEAD_CODE_STRIPPING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -1084,6 +1104,7 @@
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -1116,6 +1137,7 @@
 		3F5202750FA661D900E75857 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
@@ -1128,14 +1150,17 @@
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -1158,6 +1183,7 @@
 		3F5202760FA661D900E75857 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
@@ -1170,13 +1196,16 @@
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
+				DEAD_CODE_STRIPPING = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -1198,7 +1227,9 @@
 		3F5202870FA661FF00E75857 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				PRODUCT_NAME = make;
@@ -1208,7 +1239,9 @@
 		3F5202880FA661FF00E75857 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
 				COPY_PHASE_STRIP = YES;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				PRODUCT_NAME = make;
 				ZERO_LINK = NO;

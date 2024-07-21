@@ -58,8 +58,10 @@
 #include "../vmobjects/VMSymbol.h"
 #include "Globals.h"
 #include "IsValidObject.h"
+#include "LogAllocation.h"
 #include "Print.h"
 #include "Shell.h"
+#include "Symbols.h"
 #include "Universe.h"
 
 #if CACHE_INTEGER
@@ -76,14 +78,6 @@ short gcVerbosity;
 Universe* Universe::theUniverse = nullptr;
 
 std::string bm_name;
-
-#ifdef GENERATE_ALLOCATION_STATISTICS
-struct alloc_data {long noObjects; long sizeObjects;};
-std::map<std::string, struct alloc_data> allocationStats;
-#define LOG_ALLOCATION(TYPE,SIZE) {struct alloc_data tmp=allocationStats[TYPE];tmp.noObjects++;tmp.sizeObjects+=(SIZE);allocationStats[TYPE]=tmp;}
-#else
-#define LOG_ALLOCATION(TYPE,SIZE)
-#endif
 
 map<int64_t, int64_t> integerHist;
 
@@ -127,17 +121,8 @@ __attribute__((noreturn)) void Universe::Quit(long err) {
     ", " << it->second.noPrimitiveCalls << ", " << it->second.noCalls - it->second.noPrimitiveCalls << endl;
 #endif
 
-#ifdef GENERATE_ALLOCATION_STATISTICS
-    std::string file_name_allocation = std::string(bm_name);
-    file_name_allocation.append("_allocation_statistics.csv");
-
-    fstream file_alloc_stats(file_name_allocation.c_str(), ios::out);
-    map<std::string, struct alloc_data>::iterator iter;
-    for (iter = allocationStats.begin(); iter != allocationStats.end(); iter++)
-    {
-        file_alloc_stats << iter->first << ", " << iter->second.noObjects << ", " << iter->second.sizeObjects << std::endl;
-    }
-#endif
+    OutputAllocationLogFile();
+    
     if (theUniverse)
         delete (theUniverse);
 
@@ -332,9 +317,7 @@ vm_oop_t Universe::interpretMethod(VMObject* receiver, VMInvokable* initialize, 
 }
 
 void Universe::initialize(long _argc, char** _argv) {
-#ifdef GENERATE_ALLOCATION_STATISTICS
-    allocationStats["VMArray"] = {0,0};
-#endif
+    InitializeAllocationLog();
 
     heapSize = 1 * 1024 * 1024;
 
@@ -465,9 +448,7 @@ VMObject* Universe::InitializeGlobals() {
     SetGlobal(SymbolFor("System"), load_ptr(systemClass));
     SetGlobal(SymbolFor("Block"),  load_ptr(blockClass));
     
-    symbolIfTrue  = _store_ptr(SymbolFor("ifTrue:"));
-    symbolIfFalse = _store_ptr(SymbolFor("ifFalse:"));
-    
+    InitializeSymbols();    
     return systemObject;
 }
 
@@ -578,8 +559,7 @@ VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
 
     for (vector<StdString>::iterator i = classPath.begin();
             i != classPath.end(); ++i) {
-        SourcecodeCompiler compiler;
-        result = compiler.CompileClass(*i, name->GetStdString(), systemClass);
+        result = SourcecodeCompiler::CompileClass(*i, name->GetStdString(), systemClass);
         if (result) {
             if (dumpBytecodes) {
                 Disassembler::Dump(result->GetClass());
@@ -592,8 +572,7 @@ VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
 }
 
 VMClass* Universe::LoadShellClass(StdString& stmt) {
-    SourcecodeCompiler compiler;
-    VMClass* result = compiler.CompileClassString(stmt, nullptr);
+    VMClass* result = SourcecodeCompiler::CompileClassString(stmt, nullptr);
     if(dumpBytecodes)
         Disassembler::Dump(result);
     return result;
@@ -814,14 +793,8 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
         globals[key] = val;
     }
     
-    // walk all entries in symbols map
-    map<StdString, GCSymbol*>::iterator symbolIter;
-    for (symbolIter = symbolsMap.begin();
-         symbolIter != symbolsMap.end();
-         symbolIter++) {
-        //insert overwrites old entries inside the internal map
-        symbolIter->second = static_cast<GCSymbol*>(walk(symbolIter->second));
-    }
+    WalkSymbols(walk);
+    
 
     map<long, GCClass*>::iterator bcIter;
     for (bcIter = blockClassesByNoOfArgs.begin();
@@ -829,10 +802,6 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
          bcIter++) {
         bcIter->second = static_cast<GCClass*>(walk(bcIter->second));
     }
-
-    //reassign ifTrue ifFalse Symbols
-    symbolIfTrue  = symbolsMap["ifTrue:"];
-    symbolIfFalse = symbolsMap["ifFalse:"];
     
     interpreter->WalkGlobals(walk);
 }
@@ -867,18 +836,6 @@ VMString* Universe::NewString(const size_t length, const char* str) const {
     return result;
 }
 
-VMSymbol* Universe::NewSymbol(const StdString& str) {
-    return NewSymbol(str.length(), str.c_str());
-}
-
-VMSymbol* Universe::NewSymbol(const size_t length, const char* str) {
-    VMSymbol* result = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(length)) VMSymbol(length, str);
-    symbolsMap[StdString(str, length)] = _store_ptr(result);
-
-    LOG_ALLOCATION("VMSymbol", result->GetObjectSize());
-    return result;
-}
-
 VMClass* Universe::NewSystemClass() const {
     VMClass* systemClass = new (GetHeap<HEAP_CLS>()) VMClass();
 
@@ -889,11 +846,6 @@ VMClass* Universe::NewSystemClass() const {
 
     LOG_ALLOCATION("VMClass", systemClass->GetObjectSize());
     return systemClass;
-}
-
-VMSymbol* Universe::SymbolFor(const StdString& str) {
-    map<string,GCSymbol*>::iterator it = symbolsMap.find(str);
-    return (it == symbolsMap.end()) ? NewSymbol(str) : load_ptr(it->second);
 }
 
 void Universe::SetGlobal(VMSymbol* name, vm_oop_t val) {

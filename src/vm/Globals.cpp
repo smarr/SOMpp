@@ -22,6 +22,3 @@ GCClass* doubleClass;
 
 GCClass* trueClass;
 GCClass* falseClass;
-
-GCSymbol* symbolIfTrue;
-GCSymbol* symbolIfFalse;

@@ -12,6 +12,7 @@
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../vm/Globals.h"
+#include "../vm/Symbols.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMArray.h"
@@ -110,7 +111,7 @@ void WalkObjectsTest::testWalkString() {
 
 void WalkObjectsTest::testWalkSymbol() {
     walkedObjects.clear();
-    VMSymbol* sym = GetUniverse()->NewSymbol("symbol");
+    VMSymbol* sym = NewSymbol("symbol");
     sym->WalkObjects(collectMembers);
 
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Symbol, walkedObjects.size());
@@ -133,7 +134,7 @@ void WalkObjectsTest::testWalkClass() {
 
 void WalkObjectsTest::testWalkPrimitive() {
     walkedObjects.clear();
-    VMSymbol* primitiveSymbol = GetUniverse()->NewSymbol("myPrimitive");
+    VMSymbol* primitiveSymbol = NewSymbol("myPrimitive");
     VMPrimitive* prim = VMPrimitive::GetEmptyPrimitive(primitiveSymbol, false);
 
     prim->WalkObjects(collectMembers);
@@ -145,7 +146,7 @@ void WalkObjectsTest::testWalkPrimitive() {
 
 void WalkObjectsTest::testWalkFrame() {
     walkedObjects.clear();
-    VMSymbol* methodSymbol = GetUniverse()->NewSymbol("frameMethod");
+    VMSymbol* methodSymbol = NewSymbol("frameMethod");
     VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
     VMFrame* frame = GetUniverse()->NewFrame(nullptr, method);
     frame->SetPreviousFrame(frame->Clone());
@@ -167,7 +168,7 @@ void WalkObjectsTest::testWalkFrame() {
 
 void WalkObjectsTest::testWalkMethod() {
     walkedObjects.clear();
-    VMSymbol* methodSymbol = GetUniverse()->NewSymbol("myMethod");
+    VMSymbol* methodSymbol = NewSymbol("myMethod");
     VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
     method->WalkObjects(collectMembers);
 
@@ -185,7 +186,7 @@ void WalkObjectsTest::testWalkMethod() {
 
 void WalkObjectsTest::testWalkBlock() {
     walkedObjects.clear();
-    VMSymbol* methodSymbol = GetUniverse()->NewSymbol("someMethod");
+    VMSymbol* methodSymbol = NewSymbol("someMethod");
     VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
     VMBlock* block = GetUniverse()->NewBlock(method,
             GetUniverse()->GetInterpreter()->GetFrame(),

@@ -8,7 +8,8 @@
 #include <cstdint>
 #include <string>
 
-#include "../vm/Universe.h"
+#include "../interpreter/Interpreter.h"
+#include "../vm/Symbols.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "AbstractObject.h"
 #include "VMClass.h"
@@ -22,7 +23,7 @@ int64_t AbstractVMObject::GetHash() {
 
 void AbstractVMObject::Send(Interpreter* interp, std::string selectorString, vm_oop_t* arguments, long argc) {
     VMFrame* frame = interp->GetFrame();
-    VMSymbol* selector = GetUniverse()->SymbolFor(selectorString);
+    VMSymbol* selector = SymbolFor(selectorString);
     frame->Push(this);
 
     for (long i = 0; i < argc; ++i) {

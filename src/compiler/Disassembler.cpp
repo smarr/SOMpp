@@ -32,6 +32,7 @@
 #include "../misc/debug.h"
 #include "../misc/defs.h"
 #include "../vm/Globals.h"
+#include "../vm/Symbols.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/Signature.h"
@@ -45,38 +46,39 @@
 #include "../vmobjects/VMSymbol.h"
 #include "Disassembler.h"
 
-/** 
+/**
  * Dispatch an object to its content and write out
  */
 void Disassembler::dispatch(vm_oop_t o) {
     //dispatch
     // can't switch() objects, so:
-    if (o == nullptr)
+    if (o == nullptr) {
         return; // nullptr isn't interesting.
-    else if (o == load_ptr(nilObject))
+    } else if (o == load_ptr(nilObject)) {
         DebugPrint("{Nil}");
-    else if (o == load_ptr(trueObject))
+    } else if (o == load_ptr(trueObject)) {
         DebugPrint("{True}");
-    else if (o == load_ptr(falseObject))
+    } else if (o == load_ptr(falseObject)) {
         DebugPrint("{False}");
-    else if (o == load_ptr(systemClass))
+    } else if (o == load_ptr(systemClass)) {
         DebugPrint("{System Class object}");
-    else if (o == load_ptr(blockClass))
+    } else if (o == load_ptr(blockClass)) {
         DebugPrint("{Block Class object}");
-    else if (o == GetUniverse()->GetGlobal(GetUniverse()->SymbolFor("system")))
+    } else if (o == GetUniverse()->GetGlobal(SymbolFor("system"))) {
         DebugPrint("{System}");
-    else {
+    } else {
         VMClass* c = CLASS_OF(o);
         if (c == load_ptr(stringClass)) {
             DebugPrint("\"%s\"", static_cast<VMString*>(o)->GetStdString().c_str());
-        } else if(c == load_ptr(doubleClass))
+        } else if(c == load_ptr(doubleClass)) {
             DebugPrint("%g", static_cast<VMDouble*>(o)->GetEmbeddedDouble());
-        else if(c == load_ptr(integerClass))
+        } else if(c == load_ptr(integerClass)) {
             DebugPrint("%lld", INT_VAL(o));
-        else if(c == load_ptr(symbolClass)) {
+        } else if(c == load_ptr(symbolClass)) {
             DebugPrint("#%s", static_cast<VMSymbol*>(o)->GetStdString().c_str());
-        } else
+        } else {
             DebugPrint("address: %p", (void*)o);
+        }
     }
 }
 
@@ -119,7 +121,7 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, cons
         long max_stack = method->GetMaximumNumberOfStackElements();
         DebugDump("%s<%d locals, %d stack, %d bc_count>\n", indent, locals,
                   max_stack, method->GetNumberOfBytecodes());
-    
+
 #ifdef _DEBUG
         Print("bytecodes: ");
         for (long i = 0; i < numberOfBytecodes; ++i) {
@@ -142,18 +144,23 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, cons
             DebugPrint("\n");
             continue;
         }
-        
+
         switch(bytecode) {
-            case BC_PUSH_LOCAL_0:
+            case BC_PUSH_LOCAL_0: {
                 DebugPrint("local: 0, context: 0\n"); break;
-            case BC_PUSH_LOCAL_1:
+            }
+            case BC_PUSH_LOCAL_1: {
                 DebugPrint("local: 1, context: 0\n"); break;
-            case BC_PUSH_LOCAL_2:
+            }
+            case BC_PUSH_LOCAL_2: {
                 DebugPrint("local: 2, context: 0\n"); break;
-            case BC_PUSH_LOCAL:
+            }
+            case BC_PUSH_LOCAL: {
                 DebugPrint("local: %d, context: %d\n", bytecodes[bc_idx+1], bytecodes[bc_idx+2]); break;
-            case BC_PUSH_ARGUMENT:
+            }
+            case BC_PUSH_ARGUMENT: {
                 DebugPrint("argument: %d, context %d\n", bytecodes[bc_idx+1], bytecodes[bc_idx+2]); break;
+            }
             case BC_PUSH_FIELD: {
                 long fieldIdx = bytecodes[bc_idx+1];
                 if (method != nullptr) {
@@ -168,7 +175,7 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, cons
                         break;
                     }
                 }
-                
+
                 DebugPrint("(index: %d)\n", bytecodes[bc_idx+1]);
                 break;
             }
@@ -176,7 +183,7 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, cons
                 size_t indent_size = strlen(indent)+1+1;
                 char* nindent = new char[indent_size];
                 DebugPrint("block: (index: %d) ", bytecodes[bc_idx+1]);
-                
+
                 if (method != nullptr) {
                     snprintf(nindent, indent_size, "%s\t", indent);
                     Disassembler::DumpMethod(static_cast<VMMethod*>(method->GetConstant(bc_idx)), nindent);
@@ -191,7 +198,7 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, cons
                     vm_oop_t constant = method->GetConstant(bc_idx);
                     VMClass* cl = CLASS_OF(constant);
                     VMSymbol* cname = cl->GetName();
-                    
+
                     DebugPrint("(index: %d) value: (%s) ",
                                bytecodes[bc_idx+1], cname->GetStdString().c_str());
                     dispatch(constant);
@@ -268,8 +275,9 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, cons
                 DebugPrint("(target: %d)\n", target);
                 break;
             }
-            default:
+            default: {
                 DebugPrint("<incorrect bytecode>\n");
+            }
         }
     }
     DebugDump("%s)\n", indent);
@@ -357,7 +365,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
                     DebugPrint("Unexpected bytecode");
                     return;
             }
-            
+
             vm_oop_t o = frame->GetLocal(bc1, bc2);
             VMClass* c = CLASS_OF(o);
             VMSymbol* cname = c->GetName();
@@ -390,7 +398,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
             VMFrame* ctxt = frame->GetOuterContext();
             vm_oop_t arg = ctxt->GetArgumentInCurrentContext(0);
             uint8_t field_index = BC_1;
-            
+
             vm_oop_t o = ((VMObject*) arg)->GetField(field_index);
             VMClass* c = CLASS_OF(o);
             VMSymbol* cname = c->GetName();

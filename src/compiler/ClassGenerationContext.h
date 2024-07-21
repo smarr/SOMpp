@@ -36,7 +36,7 @@ class ClassGenerationContext {
 
 public:
     ClassGenerationContext();
-    ~ClassGenerationContext();
+    ~ClassGenerationContext() = default;
     VMClass* Assemble();
     void AssembleSystemClass(VMClass* systemClass);
 
@@ -51,9 +51,9 @@ public:
     VMSymbol* GetName(void) {return name;};
     VMSymbol* GetSuperName(void) {return superName;};
     bool IsClassSide(void) {return classSide;};
-    
+
     int16_t GetFieldIndex(VMSymbol* field);
-    
+
     void SetInstanceFieldsOfSuper(VMArray* fields);
     void SetClassFieldsOfSuper(VMArray* fields);
 

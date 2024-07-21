@@ -39,15 +39,6 @@
 #include "SourcecodeCompiler.h"
 
 
-SourcecodeCompiler::SourcecodeCompiler() {
-    parser = nullptr;
-}
-
-SourcecodeCompiler::~SourcecodeCompiler() {
-    if (parser != nullptr)
-        delete (parser);
-}
-
 VMClass* SourcecodeCompiler::CompileClass( const std::string& path,
         const std::string& file,
         VMClass* systemClass ) {
@@ -55,15 +46,14 @@ VMClass* SourcecodeCompiler::CompileClass( const std::string& path,
 
     std::string fname = path + fileSeparator + file + ".som";
 
-    ifstream* fp = new ifstream();
-    fp->open(fname.c_str(), std::ios_base::in);
-    if (!fp->is_open()) {
+    ifstream fp{};
+    fp.open(fname.c_str(), std::ios_base::in);
+    if (!fp.is_open()) {
         return nullptr;
     }
 
-    if (parser != nullptr) delete(parser);
-    parser = new Parser(*fp, fname);
-    result = compile(systemClass);
+    Parser parser(fp, fname);
+    result = compile(parser, systemClass);
 
     VMSymbol* cname = result->GetName();
     StdString cnameC = cname->GetStdString();
@@ -76,9 +66,7 @@ VMClass* SourcecodeCompiler::CompileClass( const std::string& path,
         showCompilationError(file, Str.str().c_str());
         return nullptr;
     }
-    delete(parser);
-    parser = nullptr;
-    delete(fp);
+    
 #ifdef COMPILER_DEBUG
     ErrorPrint("Compilation finished\n");
 #endif
@@ -87,17 +75,12 @@ VMClass* SourcecodeCompiler::CompileClass( const std::string& path,
 
 VMClass* SourcecodeCompiler::CompileClassString( const StdString& stream,
         VMClass* systemClass ) {
-    istringstream* ss = new istringstream(stream);
-    if (parser != nullptr) delete(parser);
+    istringstream ss(stream);
 
     StdString fileName = "repl";
-    parser = new Parser(*ss, fileName);
+    Parser parser(ss, fileName);
 
-    VMClass* result = compile(systemClass);
-    delete(parser);
-    parser = nullptr;
-    delete(ss);
-
+    VMClass* result = compile(parser, systemClass);
     return result;
 }
 
@@ -107,23 +90,18 @@ void SourcecodeCompiler::showCompilationError(const StdString& filename,
                          message + "\n");
 }
 
-VMClass* SourcecodeCompiler::compile(VMClass* systemClass) {
-    if (parser == nullptr) {
-        ErrorPrint("Parser not initiated\n");
-        GetUniverse()->ErrorExit("Compiler error");
-        return nullptr;
-    }
+VMClass* SourcecodeCompiler::compile(Parser& parser, VMClass* systemClass) {
     ClassGenerationContext cgc;
 
     VMClass* result = systemClass;
 
-    parser->Classdef(&cgc);
+    parser.Classdef(cgc);
 
-    if (systemClass == nullptr)
+    if (systemClass == nullptr) {
         result = cgc.Assemble();
-    else
+    } else {
         cgc.AssembleSystemClass(result);
+    }
 
     return result;
 }
-

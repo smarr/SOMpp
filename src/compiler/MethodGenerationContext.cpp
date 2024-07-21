@@ -31,6 +31,7 @@
 #include <string>
 
 #include "../misc/VectorUtil.h"
+#include "../vm/Symbols.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMMethod.h"
@@ -38,16 +39,10 @@
 #include "../vmobjects/VMSymbol.h"
 #include "MethodGenerationContext.h"
 
-MethodGenerationContext::MethodGenerationContext() {
-    signature = nullptr;
-    holderGenc = 0;
-    outerGenc = 0;
-    primitive = false;
-    blockMethod = false;
-    finished = false;
-    currentStackDepth = 0;
-    maxStackDepth = 0;
-}
+MethodGenerationContext::MethodGenerationContext() :
+        signature(nullptr), holderGenc(nullptr), outerGenc(nullptr),
+        primitive(false), blockMethod(false), finished(false),
+        currentStackDepth(0), maxStackDepth(0) { }
 
 VMMethod* MethodGenerationContext::Assemble() {
     // create a method instance with the given number of bytecodes and literals
@@ -139,12 +134,12 @@ void MethodGenerationContext::SetPrimitive(bool prim) {
 }
 
 void MethodGenerationContext::AddArgument(const std::string& arg) {
-    VMSymbol* argSym = GetUniverse()->SymbolFor(arg);
+    VMSymbol* argSym = SymbolFor(arg);
     arguments.push_back(argSym);
 }
 
 void MethodGenerationContext::AddLocal(const std::string& local) {
-    VMSymbol* localSym = GetUniverse()->SymbolFor(local);
+    VMSymbol* localSym =SymbolFor(local);
     locals.push_back(localSym);
 }
 
@@ -160,7 +155,7 @@ void MethodGenerationContext::UpdateLiteral(vm_oop_t oldValue, uint8_t index, vm
 }
 
 bool MethodGenerationContext::AddArgumentIfAbsent(const std::string& arg) {
-    VMSymbol* argSym = GetUniverse()->SymbolFor(arg);
+    VMSymbol* argSym = SymbolFor(arg);
     if (Contains(locals, argSym)) {
         return false;
     }
@@ -169,7 +164,7 @@ bool MethodGenerationContext::AddArgumentIfAbsent(const std::string& arg) {
 }
 
 bool MethodGenerationContext::AddLocalIfAbsent(const std::string& local) {
-    VMSymbol* localSym = GetUniverse()->SymbolFor(local);
+    VMSymbol* localSym = SymbolFor(local);
     if (Contains(locals, localSym)) {
         return false;
     }
@@ -221,7 +216,7 @@ bool MethodGenerationContext::HasBytecodes() {
 size_t MethodGenerationContext::AddBytecode(uint8_t bc, size_t stackEffect) {
     currentStackDepth += stackEffect;
     maxStackDepth = max(maxStackDepth, currentStackDepth);
-    
+
     bytecode.push_back(bc);
     return bytecode.size();
 }
@@ -230,4 +225,3 @@ size_t MethodGenerationContext::AddBytecodeArgument(uint8_t bc) {
     bytecode.push_back(bc);
     return bytecode.size();
 }
-
