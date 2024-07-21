@@ -95,7 +95,7 @@ VMClass* SourcecodeCompiler::compile(Parser& parser, VMClass* systemClass) {
 
     VMClass* result = systemClass;
 
-    parser.Classdef(&cgc);
+    parser.Classdef(cgc);
 
     if (systemClass == nullptr) {
         result = cgc.Assemble();

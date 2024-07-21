@@ -183,8 +183,8 @@ Symbol binaryOpSyms[] = { Or, Comma, Minus, Equal, Not, And, Or, Star, Div, Mod,
 
 Symbol keywordSelectorSyms[] = { Keyword, KeywordSequence };
 
-void Parser::Classdef(ClassGenerationContext* cgenc) {
-    cgenc->SetName(GetUniverse()->SymbolFor(text));
+void Parser::Classdef(ClassGenerationContext& cgenc) {
+    cgenc.SetName(GetUniverse()->SymbolFor(text));
     expect(Identifier);
 
     expect(Equal);
@@ -197,40 +197,40 @@ void Parser::Classdef(ClassGenerationContext* cgenc) {
            symIn(binaryOpSyms)) {
 
         MethodGenerationContext mgenc;
-        mgenc.SetHolder(cgenc);
+        mgenc.SetHolder(&cgenc);
         mgenc.AddArgument("self");
 
         method(&mgenc);
 
         if(mgenc.IsPrimitive()) {
-            cgenc->AddInstanceMethod(mgenc.AssemblePrimitive(false));
+            cgenc.AddInstanceMethod(mgenc.AssemblePrimitive(false));
         } else {
-            cgenc->AddInstanceMethod(mgenc.Assemble());
+            cgenc.AddInstanceMethod(mgenc.Assemble());
         }
     }
 
     if (accept(Separator)) {
-        cgenc->SetClassSide(true);
+        cgenc.SetClassSide(true);
         classFields(cgenc);
         while (symIsIdentifier() || sym == Keyword || sym == OperatorSequence ||
         symIn(binaryOpSyms)) {
             MethodGenerationContext mgenc;
-            mgenc.SetHolder(cgenc);
+            mgenc.SetHolder(&cgenc);
             mgenc.AddArgument("self");
 
             method(&mgenc);
 
             if(mgenc.IsPrimitive()) {
-                cgenc->AddClassMethod(mgenc.AssemblePrimitive(true));
+                cgenc.AddClassMethod(mgenc.AssemblePrimitive(true));
             } else {
-                cgenc->AddClassMethod(mgenc.Assemble());
+                cgenc.AddClassMethod(mgenc.Assemble());
             }
         }
     }
     expect(EndTerm);
 }
 
-void Parser::superclass(ClassGenerationContext *cgenc) {
+void Parser::superclass(ClassGenerationContext& cgenc) {
     VMSymbol* superName;
     if (sym == Identifier) {
         superName = GetUniverse()->SymbolFor(text);
@@ -238,13 +238,13 @@ void Parser::superclass(ClassGenerationContext *cgenc) {
     } else {
         superName = GetUniverse()->SymbolFor("Object");
     }
-    cgenc->SetSuperName(superName);
+    cgenc.SetSuperName(superName);
 
     // Load the super class, if it is not nil (break the dependency cycle)
     if (superName != GetUniverse()->SymbolFor("nil")) {
         VMClass* superClass = GetUniverse()->LoadClass(superName);
-        cgenc->SetInstanceFieldsOfSuper(superClass->GetInstanceFields());
-        cgenc->SetClassFieldsOfSuper(superClass->GetClass()->GetInstanceFields());
+        cgenc.SetInstanceFieldsOfSuper(superClass->GetInstanceFields());
+        cgenc.SetClassFieldsOfSuper(superClass->GetClass()->GetInstanceFields());
     } else {
         // we hardcode here the field names for Class
         // since Object class superclass = Class
@@ -254,25 +254,25 @@ void Parser::superclass(ClassGenerationContext *cgenc) {
         vector<StdString> fieldNamesOfClass{ "class", "superClass", "name",
             "instanceFields", "instanceInvokables" };
         VMArray* fieldNames = GetUniverse()->NewArrayFromStrings(fieldNamesOfClass);
-        cgenc->SetClassFieldsOfSuper(fieldNames);
+        cgenc.SetClassFieldsOfSuper(fieldNames);
     }
 }
 
-void Parser::instanceFields(ClassGenerationContext* cgenc) {
+void Parser::instanceFields(ClassGenerationContext& cgenc) {
     if (accept(Or)) {
         while (symIsIdentifier()) {
             StdString var = variable();
-            cgenc->AddInstanceField(GetUniverse()->SymbolFor(var));
+            cgenc.AddInstanceField(GetUniverse()->SymbolFor(var));
         }
         expect(Or);
     }
 }
 
-void Parser::classFields(ClassGenerationContext* cgenc) {
+void Parser::classFields(ClassGenerationContext& cgenc) {
     if (accept(Or)) {
         while (symIsIdentifier()) {
             StdString var = variable();
-            cgenc->AddClassField(GetUniverse()->SymbolFor(var));
+            cgenc.AddClassField(GetUniverse()->SymbolFor(var));
         }
         expect(Or);
     }

@@ -42,7 +42,7 @@ public:
     Parser(istream& file, StdString& fname);
     ~Parser();
 
-    void Classdef(ClassGenerationContext* cgenc);
+    void Classdef(ClassGenerationContext& cgenc);
     void method(MethodGenerationContext* mgenc);
     void nestedBlock(MethodGenerationContext* mgenc);
     
@@ -65,9 +65,9 @@ private:
     bool expect(Symbol s);
     bool expectOneOf(Symbol* ss);
     void SingleOperator(void);
-    void superclass(ClassGenerationContext* cgenc);
-    void instanceFields(ClassGenerationContext* cgenc);
-    void classFields(ClassGenerationContext* cgenc);
+    void superclass(ClassGenerationContext& cgenc);
+    void instanceFields(ClassGenerationContext& cgenc);
+    void classFields(ClassGenerationContext& cgenc);
     void primitiveBlock(void);
     void pattern(MethodGenerationContext* mgenc);
     void unaryPattern(MethodGenerationContext* mgenc);
