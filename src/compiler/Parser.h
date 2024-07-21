@@ -40,7 +40,7 @@
 class Parser {
 public:
     Parser(istream& file, StdString& fname);
-    ~Parser();
+    ~Parser() = default;
 
     void Classdef(ClassGenerationContext& cgenc);
     void method(MethodGenerationContext& mgenc);
@@ -116,7 +116,7 @@ private:
     void genPushVariable(MethodGenerationContext&, VMSymbol*);
     void genPopVariable(MethodGenerationContext&, VMSymbol*);
 
-    Lexer* lexer;
+    Lexer lexer;
     StdString& fname;
 
     Symbol sym;

@@ -52,31 +52,23 @@
 #include "Parser.h"
 
 void Parser::GetSym() {
-    sym  = lexer->GetSym();
-    text = lexer->GetText();
+    sym  = lexer.GetSym();
+    text = lexer.GetText();
 }
 
 void Parser::Peek() {
-    nextSym = lexer->Peek();
-	nextText = lexer->GetNextText();
+    nextSym = lexer.Peek();
+	nextText = lexer.GetNextText();
 }
 
 void Parser::PeekForNextSymbolFromLexerIfNecessary() {
-    if (!lexer->GetPeekDone()) {
-        nextSym = lexer->Peek();
+    if (!lexer.GetPeekDone()) {
+        nextSym = lexer.Peek();
     }
 }
 
-Parser::Parser(istream& file, StdString& fname): fname(fname) {
-    sym = NONE;
-    lexer = new Lexer(file);
-    nextSym = NONE;
-
+Parser::Parser(istream& file, StdString& fname): fname(fname), sym(NONE), nextSym(NONE), lexer(file) {
     GetSym();
-}
-
-Parser::~Parser() {
-    delete (lexer);
 }
 
 //
@@ -780,7 +772,7 @@ void Parser::nestedBlock(MethodGenerationContext& mgenc) {
         blockPattern(mgenc);
 
     // generate Block signature
-    StdString block_sig = "$blockMethod@" + to_string(lexer->GetCurrentLineNumber());
+    StdString block_sig = "$blockMethod@" + to_string(lexer.GetCurrentLineNumber());
     size_t arg_size = mgenc.GetNumberOfArguments();
     for (size_t i = 1; i < arg_size; i++)
         block_sig += ":";
@@ -844,10 +836,10 @@ __attribute__((noreturn)) void Parser::parseError(const char* msg, StdString exp
 
     replace(msgWithMeta, "%(file)s", fname);
 
-    StdString line = std::to_string(lexer->GetCurrentLineNumber());
+    StdString line = std::to_string(lexer.GetCurrentLineNumber());
     replace(msgWithMeta, "%(line)d", line);
 
-    StdString column = std::to_string(lexer->getCurrentColumn());
+    StdString column = std::to_string(lexer.getCurrentColumn());
     replace(msgWithMeta, "%(column)d", column);
     replace(msgWithMeta, "%(expected)s", expected);
     replace(msgWithMeta, "%(found)s", foundStr);
