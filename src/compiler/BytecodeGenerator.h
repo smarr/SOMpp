@@ -32,26 +32,26 @@
 #include "../vmobjects/ObjectFormats.h"
 #include "MethodGenerationContext.h"
 
-void Emit1(MethodGenerationContext* mgenc, uint8_t bytecode, size_t stackEffect);
-void Emit2(MethodGenerationContext* mgenc, uint8_t bytecode, size_t idx, size_t stackEffect);
-void Emit3(MethodGenerationContext* mgenc, uint8_t bytecode, size_t idx, size_t ctx, size_t stackEffect);
+void Emit1(MethodGenerationContext& mgenc, uint8_t bytecode, size_t stackEffect);
+void Emit2(MethodGenerationContext& mgenc, uint8_t bytecode, size_t idx, size_t stackEffect);
+void Emit3(MethodGenerationContext& mgenc, uint8_t bytecode, size_t idx, size_t ctx, size_t stackEffect);
 
 
-void EmitHALT(MethodGenerationContext* mgenc);
-void EmitDUP(MethodGenerationContext* mgenc);
-void EmitPUSHLOCAL(MethodGenerationContext* mgenc,    long idx, int ctx);
-void EmitPUSHARGUMENT(MethodGenerationContext* mgenc, long idx, int ctx);
-void EmitPUSHFIELD(MethodGenerationContext* mgenc, VMSymbol* field);
-void EmitPUSHBLOCK(MethodGenerationContext* mgenc, VMMethod* block);
-void EmitPUSHCONSTANT(MethodGenerationContext* mgenc, vm_oop_t cst);
-void EmitPUSHCONSTANT(MethodGenerationContext* mgenc, uint8_t literalIndex);
-void EmitPUSHCONSTANTString(MethodGenerationContext* mgenc, VMString* str);
-void EmitPUSHGLOBAL(MethodGenerationContext* mgenc, VMSymbol* global);
-void EmitPOP(MethodGenerationContext* mgenc);
-void EmitPOPLOCAL(MethodGenerationContext* mgenc,    long idx, int ctx);
-void EmitPOPARGUMENT(MethodGenerationContext* mgenc, long idx, int ctx);
-void EmitPOPFIELD(MethodGenerationContext* mgenc, VMSymbol* field);
-void EmitSEND(MethodGenerationContext* mgenc, VMSymbol* msg);
-void EmitSUPERSEND(MethodGenerationContext* mgenc, VMSymbol* msg);
-void EmitRETURNLOCAL(MethodGenerationContext* mgenc);
-void EmitRETURNNONLOCAL(MethodGenerationContext* mgenc);
+void EmitHALT(MethodGenerationContext& mgenc);
+void EmitDUP(MethodGenerationContext& mgenc);
+void EmitPUSHLOCAL(MethodGenerationContext& mgenc,    long idx, int ctx);
+void EmitPUSHARGUMENT(MethodGenerationContext& mgenc, long idx, int ctx);
+void EmitPUSHFIELD(MethodGenerationContext& mgenc, VMSymbol* field);
+void EmitPUSHBLOCK(MethodGenerationContext& mgenc, VMMethod* block);
+void EmitPUSHCONSTANT(MethodGenerationContext& mgenc, vm_oop_t cst);
+void EmitPUSHCONSTANT(MethodGenerationContext& mgenc, uint8_t literalIndex);
+void EmitPUSHCONSTANTString(MethodGenerationContext& mgenc, VMString* str);
+void EmitPUSHGLOBAL(MethodGenerationContext& mgenc, VMSymbol* global);
+void EmitPOP(MethodGenerationContext& mgenc);
+void EmitPOPLOCAL(MethodGenerationContext& mgenc,    long idx, int ctx);
+void EmitPOPARGUMENT(MethodGenerationContext& mgenc, long idx, int ctx);
+void EmitPOPFIELD(MethodGenerationContext& mgenc, VMSymbol* field);
+void EmitSEND(MethodGenerationContext& mgenc, VMSymbol* msg);
+void EmitSUPERSEND(MethodGenerationContext& mgenc, VMSymbol* msg);
+void EmitRETURNLOCAL(MethodGenerationContext& mgenc);
+void EmitRETURNNONLOCAL(MethodGenerationContext& mgenc);

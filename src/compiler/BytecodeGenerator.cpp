@@ -37,30 +37,30 @@
 #include "../vmobjects/VMSymbol.h"
 #include "BytecodeGenerator.h"
 
-void Emit1(MethodGenerationContext* mgenc, uint8_t bytecode, size_t stackEffect) {
-    mgenc->AddBytecode(bytecode, stackEffect);
+void Emit1(MethodGenerationContext& mgenc, uint8_t bytecode, size_t stackEffect) {
+    mgenc.AddBytecode(bytecode, stackEffect);
 }
 
-void Emit2(MethodGenerationContext* mgenc, uint8_t bytecode, size_t idx, size_t stackEffect) {
-    mgenc->AddBytecode(bytecode, stackEffect);
-    mgenc->AddBytecodeArgument(idx);
+void Emit2(MethodGenerationContext& mgenc, uint8_t bytecode, size_t idx, size_t stackEffect) {
+    mgenc.AddBytecode(bytecode, stackEffect);
+    mgenc.AddBytecodeArgument(idx);
 }
 
-void Emit3(MethodGenerationContext* mgenc, uint8_t bytecode, size_t idx, size_t ctx, size_t stackEffect) {
-    mgenc->AddBytecode(bytecode, stackEffect);
-    mgenc->AddBytecodeArgument(idx);
-    mgenc->AddBytecodeArgument(ctx);
+void Emit3(MethodGenerationContext& mgenc, uint8_t bytecode, size_t idx, size_t ctx, size_t stackEffect) {
+    mgenc.AddBytecode(bytecode, stackEffect);
+    mgenc.AddBytecodeArgument(idx);
+    mgenc.AddBytecodeArgument(ctx);
 }
 
-void EmitHALT(MethodGenerationContext* mgenc) {
+void EmitHALT(MethodGenerationContext& mgenc) {
     Emit1(mgenc, BC_HALT, 0);
 }
 
-void EmitDUP(MethodGenerationContext* mgenc) {
+void EmitDUP(MethodGenerationContext& mgenc) {
     Emit1(mgenc, BC_DUP, 1);
 }
 
-void EmitPUSHLOCAL(MethodGenerationContext* mgenc, long idx,
+void EmitPUSHLOCAL(MethodGenerationContext& mgenc, long idx,
         int ctx) {
     assert(idx >= 0);
     assert(ctx >= 0);
@@ -81,7 +81,7 @@ void EmitPUSHLOCAL(MethodGenerationContext* mgenc, long idx,
     Emit3(mgenc, BC_PUSH_LOCAL, idx, ctx, 1);
 }
 
-void EmitPUSHARGUMENT(MethodGenerationContext* mgenc,
+void EmitPUSHARGUMENT(MethodGenerationContext& mgenc,
         long idx, int ctx) {
     assert(idx >= 0);
     assert(ctx >= 0);
@@ -105,8 +105,8 @@ void EmitPUSHARGUMENT(MethodGenerationContext* mgenc,
     Emit3(mgenc, BC_PUSH_ARGUMENT, idx, ctx, 1);
 }
 
-void EmitPUSHFIELD(MethodGenerationContext* mgenc, VMSymbol* field) {
-    const uint8_t idx = mgenc->GetFieldIndex(field);
+void EmitPUSHFIELD(MethodGenerationContext& mgenc, VMSymbol* field) {
+    const uint8_t idx = mgenc.GetFieldIndex(field);
     if (idx == 0) {
         Emit1(mgenc, BC_PUSH_FIELD_0, 1);
     } else if (idx == 1) {
@@ -116,12 +116,12 @@ void EmitPUSHFIELD(MethodGenerationContext* mgenc, VMSymbol* field) {
     }
 }
 
-void EmitPUSHBLOCK(MethodGenerationContext* mgenc, VMMethod* block) {
-    const int8_t idx = mgenc->AddLiteralIfAbsent(block);
+void EmitPUSHBLOCK(MethodGenerationContext& mgenc, VMMethod* block) {
+    const int8_t idx = mgenc.AddLiteralIfAbsent(block);
     Emit2(mgenc, BC_PUSH_BLOCK, idx, 1);
 }
 
-void EmitPUSHCONSTANT(MethodGenerationContext* mgenc, vm_oop_t cst) {
+void EmitPUSHCONSTANT(MethodGenerationContext& mgenc, vm_oop_t cst) {
     if (CLASS_OF(cst) == load_ptr(integerClass)) {
         if (INT_VAL(cst) == 0ll) {
             Emit1(mgenc, BC_PUSH_0, 1);
@@ -138,7 +138,7 @@ void EmitPUSHCONSTANT(MethodGenerationContext* mgenc, vm_oop_t cst) {
         return;
     }
 
-    const int8_t idx = mgenc->AddLiteralIfAbsent(cst);
+    const int8_t idx = mgenc.AddLiteralIfAbsent(cst);
     if (idx == 0) {
         Emit1(mgenc, BC_PUSH_CONSTANT_0, 1);
         return;
@@ -155,17 +155,17 @@ void EmitPUSHCONSTANT(MethodGenerationContext* mgenc, vm_oop_t cst) {
     Emit2(mgenc, BC_PUSH_CONSTANT, idx, 1);
 }
 
-void EmitPUSHCONSTANT(MethodGenerationContext* mgenc,
+void EmitPUSHCONSTANT(MethodGenerationContext& mgenc,
         uint8_t literalIndex) {
     Emit2(mgenc, BC_PUSH_CONSTANT, literalIndex, 1);
 }
 
-void EmitPUSHCONSTANTString(MethodGenerationContext* mgenc,
+void EmitPUSHCONSTANTString(MethodGenerationContext& mgenc,
         VMString* str) {
-    Emit2(mgenc, BC_PUSH_CONSTANT, mgenc->FindLiteralIndex(str), 1);
+    Emit2(mgenc, BC_PUSH_CONSTANT, mgenc.FindLiteralIndex(str), 1);
 }
 
-void EmitPUSHGLOBAL(MethodGenerationContext* mgenc, VMSymbol* global) {
+void EmitPUSHGLOBAL(MethodGenerationContext& mgenc, VMSymbol* global) {
     if (global == GetUniverse()->SymbolFor("nil")) {
         EmitPUSHCONSTANT(mgenc, load_ptr(nilObject));
     } else if (global == GetUniverse()->SymbolFor("true")) {
@@ -173,16 +173,16 @@ void EmitPUSHGLOBAL(MethodGenerationContext* mgenc, VMSymbol* global) {
     } else if (global == GetUniverse()->SymbolFor("false")) {
         EmitPUSHCONSTANT(mgenc, load_ptr(falseObject));
     } else {
-        const int8_t idx = mgenc->AddLiteralIfAbsent(global);
+        const int8_t idx = mgenc.AddLiteralIfAbsent(global);
         Emit2(mgenc, BC_PUSH_GLOBAL, idx, 1);
     }
 }
 
-void EmitPOP(MethodGenerationContext* mgenc) {
+void EmitPOP(MethodGenerationContext& mgenc) {
     Emit1(mgenc, BC_POP, -1);
 }
 
-void EmitPOPLOCAL(MethodGenerationContext* mgenc, long idx,
+void EmitPOPLOCAL(MethodGenerationContext& mgenc, long idx,
         int ctx) {
     assert(idx >= 0);
     assert(ctx >= 0);
@@ -206,13 +206,13 @@ void EmitPOPLOCAL(MethodGenerationContext* mgenc, long idx,
     Emit3(mgenc, BC_POP_LOCAL, idx, ctx, -1);
 }
 
-void EmitPOPARGUMENT(MethodGenerationContext* mgenc,
+void EmitPOPARGUMENT(MethodGenerationContext& mgenc,
                                         long idx, int ctx) {
     Emit3(mgenc, BC_POP_ARGUMENT, idx, ctx, -1);
 }
 
-void EmitPOPFIELD(MethodGenerationContext* mgenc, VMSymbol* field) {
-    const uint8_t idx = mgenc->GetFieldIndex(field);
+void EmitPOPFIELD(MethodGenerationContext& mgenc, VMSymbol* field) {
+    const uint8_t idx = mgenc.GetFieldIndex(field);
 
     if (idx == 0) {
         Emit1(mgenc, BC_POP_FIELD_0, -1);
@@ -223,8 +223,8 @@ void EmitPOPFIELD(MethodGenerationContext* mgenc, VMSymbol* field) {
     }
 }
 
-void EmitSEND(MethodGenerationContext* mgenc, VMSymbol* msg) {
-    const int8_t idx = mgenc->AddLiteralIfAbsent(msg);
+void EmitSEND(MethodGenerationContext& mgenc, VMSymbol* msg) {
+    const int8_t idx = mgenc.AddLiteralIfAbsent(msg);
 
     const int numArgs = Signature::GetNumberOfArguments(msg);
     const size_t stackEffect = -numArgs + 1;  // +1 for the result
@@ -232,8 +232,8 @@ void EmitSEND(MethodGenerationContext* mgenc, VMSymbol* msg) {
     Emit2(mgenc, BC_SEND, idx, stackEffect);
 }
 
-void EmitSUPERSEND(MethodGenerationContext* mgenc, VMSymbol* msg) {
-    const int8_t idx = mgenc->AddLiteralIfAbsent(msg);
+void EmitSUPERSEND(MethodGenerationContext& mgenc, VMSymbol* msg) {
+    const int8_t idx = mgenc.AddLiteralIfAbsent(msg);
 
     const int numArgs = Signature::GetNumberOfArguments(msg);
     const size_t stackEffect = -numArgs + 1;  // +1 for the result
@@ -241,10 +241,10 @@ void EmitSUPERSEND(MethodGenerationContext* mgenc, VMSymbol* msg) {
     Emit2(mgenc, BC_SUPER_SEND, idx, stackEffect);
 }
 
-void EmitRETURNLOCAL(MethodGenerationContext* mgenc) {
+void EmitRETURNLOCAL(MethodGenerationContext& mgenc) {
     Emit1(mgenc, BC_RETURN_LOCAL, 0);
 }
 
-void EmitRETURNNONLOCAL(MethodGenerationContext* mgenc) {
+void EmitRETURNNONLOCAL(MethodGenerationContext& mgenc) {
     Emit1(mgenc, BC_RETURN_NON_LOCAL, 0);
 }

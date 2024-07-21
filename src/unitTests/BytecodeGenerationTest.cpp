@@ -57,7 +57,7 @@ std::vector<uint8_t> BytecodeGenerationTest::methodToBytecode(const char* source
     
     StdString fileName = "test";
     Parser parser(ss, fileName);
-    parser.method(_mgenc);
+    parser.method(*_mgenc);
     
     if (dumpBytecodes) {
         dump(_mgenc);
@@ -73,7 +73,7 @@ std::vector<uint8_t> BytecodeGenerationTest::blockToBytecode(const char* source,
     StdString fileName = "test";
     Parser parser(ss, fileName);
     
-    parser.nestedBlock(_bgenc);
+    parser.nestedBlock(*_bgenc);
     
     if (dumpBytecodes) {
         dump(_bgenc);
