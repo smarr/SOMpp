@@ -578,8 +578,7 @@ VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
 
     for (vector<StdString>::iterator i = classPath.begin();
             i != classPath.end(); ++i) {
-        SourcecodeCompiler compiler;
-        result = compiler.CompileClass(*i, name->GetStdString(), systemClass);
+        result = SourcecodeCompiler::CompileClass(*i, name->GetStdString(), systemClass);
         if (result) {
             if (dumpBytecodes) {
                 Disassembler::Dump(result->GetClass());
@@ -592,8 +591,7 @@ VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
 }
 
 VMClass* Universe::LoadShellClass(StdString& stmt) {
-    SourcecodeCompiler compiler;
-    VMClass* result = compiler.CompileClassString(stmt, nullptr);
+    VMClass* result = SourcecodeCompiler::CompileClassString(stmt, nullptr);
     if(dumpBytecodes)
         Disassembler::Dump(result);
     return result;
