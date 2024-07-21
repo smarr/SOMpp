@@ -38,6 +38,7 @@
 #include "../misc/defs.h"
 #include "../vm/Globals.h"
 #include "../vm/Print.h"
+#include "../vm/Symbols.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMClass.h"
@@ -184,7 +185,7 @@ Symbol binaryOpSyms[] = { Or, Comma, Minus, Equal, Not, And, Or, Star, Div, Mod,
 Symbol keywordSelectorSyms[] = { Keyword, KeywordSequence };
 
 void Parser::Classdef(ClassGenerationContext& cgenc) {
-    cgenc.SetName(GetUniverse()->SymbolFor(text));
+    cgenc.SetName(SymbolFor(text));
     expect(Identifier);
 
     expect(Equal);
@@ -233,15 +234,15 @@ void Parser::Classdef(ClassGenerationContext& cgenc) {
 void Parser::superclass(ClassGenerationContext& cgenc) {
     VMSymbol* superName;
     if (sym == Identifier) {
-        superName = GetUniverse()->SymbolFor(text);
+        superName = SymbolFor(text);
         accept(Identifier);
     } else {
-        superName = GetUniverse()->SymbolFor("Object");
+        superName = SymbolFor("Object");
     }
     cgenc.SetSuperName(superName);
 
     // Load the super class, if it is not nil (break the dependency cycle)
-    if (superName != GetUniverse()->SymbolFor("nil")) {
+    if (superName != SymbolFor("nil")) {
         VMClass* superClass = GetUniverse()->LoadClass(superName);
         cgenc.SetInstanceFieldsOfSuper(superClass->GetInstanceFields());
         cgenc.SetClassFieldsOfSuper(superClass->GetClass()->GetInstanceFields());
@@ -262,7 +263,7 @@ void Parser::instanceFields(ClassGenerationContext& cgenc) {
     if (accept(Or)) {
         while (symIsIdentifier()) {
             StdString var = variable();
-            cgenc.AddInstanceField(GetUniverse()->SymbolFor(var));
+            cgenc.AddInstanceField(SymbolFor(var));
         }
         expect(Or);
     }
@@ -272,7 +273,7 @@ void Parser::classFields(ClassGenerationContext& cgenc) {
     if (accept(Or)) {
         while (symIsIdentifier()) {
             StdString var = variable();
-            cgenc.AddClassField(GetUniverse()->SymbolFor(var));
+            cgenc.AddClassField(SymbolFor(var));
         }
         expect(Or);
     }
@@ -325,7 +326,7 @@ void Parser::keywordPattern(MethodGenerationContext& mgenc) {
         mgenc.AddArgumentIfAbsent(argument());
     } while (sym == Keyword);
 
-    mgenc.SetSignature(GetUniverse()->SymbolFor(kw));
+    mgenc.SetSignature(SymbolFor(kw));
 }
 
 void Parser::methodBlock(MethodGenerationContext& mgenc) {
@@ -345,7 +346,7 @@ void Parser::methodBlock(MethodGenerationContext& mgenc) {
 }
 
 VMSymbol* Parser::unarySelector() {
-    return GetUniverse()->SymbolFor(identifier());
+    return SymbolFor(identifier());
 }
 
 VMSymbol* Parser::binarySelector() {
@@ -357,7 +358,7 @@ VMSymbol* Parser::binarySelector() {
         expect(NONE);
     }
 
-    VMSymbol* symb = GetUniverse()->SymbolFor(s);
+    VMSymbol* symb = SymbolFor(s);
     return symb;
 }
 
@@ -484,7 +485,7 @@ VMSymbol* Parser::assignment(MethodGenerationContext& mgenc) {
 
     expect(Assign);
 
-    return GetUniverse()->SymbolFor(v);
+    return SymbolFor(v);
 }
 
 void Parser::evaluation(MethodGenerationContext& mgenc) {
@@ -507,7 +508,7 @@ bool Parser::primary(MethodGenerationContext& mgenc) {
             v = StdString("self");
         }
 
-        genPushVariable(mgenc, GetUniverse()->SymbolFor(v));
+        genPushVariable(mgenc, SymbolFor(v));
         break;
     }
     case NewTerm:
@@ -610,7 +611,7 @@ void Parser::keywordMessage(MethodGenerationContext& mgenc, bool super) {
         formula(mgenc);
     }
 
-    VMSymbol* msg = GetUniverse()->SymbolFor(kw);
+    VMSymbol* msg = SymbolFor(kw);
 
     if (super) {
         EmitSUPERSEND(mgenc, msg);
@@ -702,7 +703,7 @@ void Parser::literalSymbol(MethodGenerationContext& mgenc) {
     expect(Pound);
     if (sym == STString) {
         StdString s = _string();
-        symb = GetUniverse()->SymbolFor(s);
+        symb = SymbolFor(s);
 
     } else {
         symb = selector();
@@ -714,10 +715,10 @@ void Parser::literalArray(MethodGenerationContext& mgenc) {
     expect(Pound);
     expect(NewTerm);
 
-    VMSymbol* arrayClassName       = GetUniverse()->SymbolFor("Array");
-    VMSymbol* arraySizePlaceholder = GetUniverse()->SymbolFor("ArraySizeLiteralPlaceholder");
-    VMSymbol* newMessage           = GetUniverse()->SymbolFor("new:");
-    VMSymbol* atPutMessage         = GetUniverse()->SymbolFor("at:put:");
+    VMSymbol* arrayClassName       = SymbolFor("Array");
+    VMSymbol* arraySizePlaceholder = SymbolFor("ArraySizeLiteralPlaceholder");
+    VMSymbol* newMessage           = SymbolFor("new:");
+    VMSymbol* atPutMessage         = SymbolFor("at:put:");
 
     const uint8_t arraySizeLiteralIndex = mgenc.AddLiteral(arraySizePlaceholder);
 
@@ -761,7 +762,7 @@ VMSymbol* Parser::selector() {
 VMSymbol* Parser::keywordSelector() {
     StdString s(text);
     expectOneOf(keywordSelectorSyms);
-    VMSymbol* symb = GetUniverse()->SymbolFor(s);
+    VMSymbol* symb = SymbolFor(s);
     return symb;
 }
 
@@ -784,7 +785,7 @@ void Parser::nestedBlock(MethodGenerationContext& mgenc) {
     for (size_t i = 1; i < arg_size; i++)
         block_sig += ":";
 
-    mgenc.SetSignature(GetUniverse()->SymbolFor(block_sig));
+    mgenc.SetSignature(SymbolFor(block_sig));
 
     blockContents(mgenc, false);
 

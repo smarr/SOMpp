@@ -29,6 +29,7 @@
 
 #include "../misc/VectorUtil.h"
 #include "../vm/Globals.h"
+#include "../vm/Symbols.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMArray.h"
@@ -101,7 +102,7 @@ VMClass* ClassGenerationContext::Assemble() {
     // Initialize the class of the resulting class
     resultClass->SetInstanceFields(GetUniverse()->NewArrayList(classFields));
     resultClass->SetInstanceInvokables(GetUniverse()->NewArrayList(classMethods));
-    resultClass->SetName(GetUniverse()->SymbolFor(ccname));
+    resultClass->SetName(SymbolFor(ccname));
 
     VMClass* superMClass = superClass->GetClass();
     resultClass->SetSuperClass(superMClass);

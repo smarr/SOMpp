@@ -32,6 +32,7 @@
 #include "../primitivesCore/PrimitiveContainer.h"
 #include "../primitivesCore/Routine.h"
 #include "../vm/Globals.h"
+#include "../vm/Symbols.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMFrame.h"
@@ -68,7 +69,7 @@ void _String::Concatenate_(Interpreter*, VMFrame* frame) {
 void _String::AsSymbol(Interpreter*, VMFrame* frame) {
     VMString* self = static_cast<VMString*>(frame->Pop());
     StdString result = self->GetStdString();
-    frame->Push(GetUniverse()->SymbolFor(result));
+    frame->Push(SymbolFor(result));
 }
 
 void _String::Hashcode(Interpreter*, VMFrame* frame) {

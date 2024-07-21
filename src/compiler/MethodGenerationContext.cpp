@@ -31,6 +31,7 @@
 #include <string>
 
 #include "../misc/VectorUtil.h"
+#include "../vm/Symbols.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMMethod.h"
@@ -133,12 +134,12 @@ void MethodGenerationContext::SetPrimitive(bool prim) {
 }
 
 void MethodGenerationContext::AddArgument(const std::string& arg) {
-    VMSymbol* argSym = GetUniverse()->SymbolFor(arg);
+    VMSymbol* argSym = SymbolFor(arg);
     arguments.push_back(argSym);
 }
 
 void MethodGenerationContext::AddLocal(const std::string& local) {
-    VMSymbol* localSym = GetUniverse()->SymbolFor(local);
+    VMSymbol* localSym =SymbolFor(local);
     locals.push_back(localSym);
 }
 
@@ -154,7 +155,7 @@ void MethodGenerationContext::UpdateLiteral(vm_oop_t oldValue, uint8_t index, vm
 }
 
 bool MethodGenerationContext::AddArgumentIfAbsent(const std::string& arg) {
-    VMSymbol* argSym = GetUniverse()->SymbolFor(arg);
+    VMSymbol* argSym = SymbolFor(arg);
     if (Contains(locals, argSym)) {
         return false;
     }
@@ -163,7 +164,7 @@ bool MethodGenerationContext::AddArgumentIfAbsent(const std::string& arg) {
 }
 
 bool MethodGenerationContext::AddLocalIfAbsent(const std::string& local) {
-    VMSymbol* localSym = GetUniverse()->SymbolFor(local);
+    VMSymbol* localSym = SymbolFor(local);
     if (Contains(locals, localSym)) {
         return false;
     }

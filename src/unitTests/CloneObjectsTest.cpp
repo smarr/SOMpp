@@ -11,6 +11,7 @@
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../vm/Globals.h"
+#include "../vm/Symbols.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMArray.h"
@@ -75,7 +76,7 @@ void CloneObjectsTest::testCloneString() {
 }
 
 void CloneObjectsTest::testCloneSymbol() {
-    VMSymbol* orig = GetUniverse()->NewSymbol("foobar");
+    VMSymbol* orig = NewSymbol("foobar");
     VMSymbol* clone = orig->Clone();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
@@ -109,7 +110,7 @@ void CloneObjectsTest::testCloneArray() {
 }
 
 void CloneObjectsTest::testCloneBlock() {
-    VMSymbol* methodSymbol = GetUniverse()->NewSymbol("someMethod");
+    VMSymbol* methodSymbol = NewSymbol("someMethod");
     VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
     VMBlock* orig = GetUniverse()->NewBlock(method,
             GetUniverse()->GetInterpreter()->GetFrame(),
@@ -124,7 +125,7 @@ void CloneObjectsTest::testCloneBlock() {
     CPPUNIT_ASSERT_EQUAL_MESSAGE("context differs!!", orig->context, clone->context);
 }
 void CloneObjectsTest::testClonePrimitive() {
-    VMSymbol* primitiveSymbol = GetUniverse()->NewSymbol("myPrimitive");
+    VMSymbol* primitiveSymbol = NewSymbol("myPrimitive");
     VMPrimitive* orig = VMPrimitive::GetEmptyPrimitive(primitiveSymbol, false);
     VMPrimitive* clone = orig->Clone();
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
@@ -151,7 +152,7 @@ void CloneObjectsTest::testCloneEvaluationPrimitive() {
 }
 
 void CloneObjectsTest::testCloneFrame() {
-    VMSymbol* methodSymbol = GetUniverse()->NewSymbol("frameMethod");
+    VMSymbol* methodSymbol = NewSymbol("frameMethod");
     VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
     VMFrame* orig = GetUniverse()->NewFrame(nullptr, method);
     VMFrame* context = orig->Clone();
@@ -172,7 +173,7 @@ void CloneObjectsTest::testCloneFrame() {
 }
 
 void CloneObjectsTest::testCloneMethod() {
-    VMSymbol* methodSymbol = GetUniverse()->NewSymbol("myMethod");
+    VMSymbol* methodSymbol = NewSymbol("myMethod");
     VMMethod* orig = GetUniverse()->NewMethod(methodSymbol, 0, 0);
     VMMethod* clone = orig->Clone();
 
@@ -203,7 +204,7 @@ void CloneObjectsTest::testCloneMethod() {
 
 void CloneObjectsTest::testCloneClass() {
     VMClass* orig = GetUniverse()->NewClass(load_ptr(integerClass));
-    orig->SetName(GetUniverse()->NewSymbol("MyClass"));
+    orig->SetName(NewSymbol("MyClass"));
     orig->SetSuperClass(load_ptr(doubleClass));
     orig->SetInstanceFields(GetUniverse()->NewArray(2));
     orig->SetInstanceInvokables(GetUniverse()->NewArray(4));

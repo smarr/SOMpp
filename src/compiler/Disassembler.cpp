@@ -32,6 +32,7 @@
 #include "../misc/debug.h"
 #include "../misc/defs.h"
 #include "../vm/Globals.h"
+#include "../vm/Symbols.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/Signature.h"
@@ -63,7 +64,7 @@ void Disassembler::dispatch(vm_oop_t o) {
         DebugPrint("{System Class object}");
     } else if (o == load_ptr(blockClass)) {
         DebugPrint("{Block Class object}");
-    } else if (o == GetUniverse()->GetGlobal(GetUniverse()->SymbolFor("system"))) {
+    } else if (o == GetUniverse()->GetGlobal(SymbolFor("system"))) {
         DebugPrint("{System}");
     } else {
         VMClass* c = CLASS_OF(o);

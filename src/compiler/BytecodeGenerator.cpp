@@ -30,7 +30,7 @@
 
 #include "../interpreter/bytecodes.h"
 #include "../vm/Globals.h"
-#include "../vm/Universe.h"
+#include "../vm/Symbols.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/Signature.h"
 #include "../vmobjects/VMMethod.h"
@@ -166,11 +166,11 @@ void EmitPUSHCONSTANTString(MethodGenerationContext& mgenc,
 }
 
 void EmitPUSHGLOBAL(MethodGenerationContext& mgenc, VMSymbol* global) {
-    if (global == GetUniverse()->SymbolFor("nil")) {
+    if (global == SymbolFor("nil")) {
         EmitPUSHCONSTANT(mgenc, load_ptr(nilObject));
-    } else if (global == GetUniverse()->SymbolFor("true")) {
+    } else if (global == SymbolFor("true")) {
         EmitPUSHCONSTANT(mgenc, load_ptr(trueObject));
-    } else if (global == GetUniverse()->SymbolFor("false")) {
+    } else if (global == SymbolFor("false")) {
         EmitPUSHCONSTANT(mgenc, load_ptr(falseObject));
     } else {
         const int8_t idx = mgenc.AddLiteralIfAbsent(global);

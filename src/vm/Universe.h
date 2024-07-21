@@ -64,8 +64,6 @@ public:
     
     void Assert(bool) const;
 
-    VMSymbol* SymbolFor(const StdString&);
-
     //VMObject instanciation methods. These should probably be refactored to a new class
     VMArray* NewArray(long) const;
     
@@ -85,9 +83,7 @@ public:
     VMDouble* NewDouble(double) const;
     VMClass* NewMetaclassClass(void) const;
     VMString* NewString(const StdString&) const;
-    VMSymbol* NewSymbol(const StdString&);
     VMString* NewString(const size_t, const char*) const;
-    VMSymbol* NewSymbol(const size_t, const char*);
     VMClass* NewSystemClass(void) const;
 
     void InitializeSystemClass(VMClass*, VMClass*, const char*);
@@ -134,7 +130,7 @@ private:
 
     long heapSize;
     map<GCSymbol*, gc_oop_t> globals;
-    map<StdString, GCSymbol*> symbolsMap;
+    
     map<long, GCClass*> blockClassesByNoOfArgs;
     vector<StdString> classPath;
 

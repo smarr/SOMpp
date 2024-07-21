@@ -36,6 +36,7 @@
 #include "../vmobjects/VMMethod.h"
 #include "Globals.h"
 #include "Shell.h"
+#include "Symbols.h"
 #include "Universe.h"
 
 // maximal length of an input line from the shell
@@ -123,8 +124,7 @@ void Shell::Start(Interpreter* interp) {
         currentFrame->Push(it);
 
         // Lookup the run: method
-        VMInvokable* initialize = runClass->LookupInvokable(
-                                        GetUniverse()->SymbolFor("run:"));
+        VMInvokable* initialize = runClass->LookupInvokable(SymbolFor("run:"));
 
         // Invoke the run method
         initialize->Invoke(interp, currentFrame);
