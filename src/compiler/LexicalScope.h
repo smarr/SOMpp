@@ -22,8 +22,6 @@ public:
         locals.push_back(var);
     }
 
-    void WalkObjects(walk_heap_fn walk);
-
     const Variable* GetLocal(size_t index, uint8_t ctxLevel) {
         if (ctxLevel > 0) {
             return outer->GetLocal(index, ctxLevel - 1);
@@ -41,7 +39,6 @@ public:
         assert(outer->outer != nullptr);
         
         LexicalScope* newOuter = outer->outer;
-        delete outer;
         outer = newOuter;
     }
 

@@ -28,6 +28,7 @@
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
+#include <string>
 #include <vector>
 
 #include "../misc/VectorUtil.h"
@@ -87,9 +88,9 @@ uint8_t MethodGenerationContext::GetFieldIndex(VMSymbol* field) {
     return idx;
 }
 
-bool Contains(std::vector<Variable>& vec, VMSymbol* name) {
+bool Contains(std::vector<Variable>& vec, std::string& name) {
     for (Variable& v : vec) {
-        if (v.GetName() == name) {
+        if (v.IsNamed(name)) {
             return true;
         }
     }
@@ -97,10 +98,10 @@ bool Contains(std::vector<Variable>& vec, VMSymbol* name) {
     return false;
 }
 
-size_t IndexOf(std::vector<Variable>& vec, VMSymbol* name) {
+size_t IndexOf(std::vector<Variable>& vec, std::string& name) {
     size_t i = 0;
     for (Variable& v : vec) {
-        if (v.GetName() == name) {
+        if (v.IsNamed(name)) {
             return i;
         }
         i += 1;
@@ -110,7 +111,7 @@ size_t IndexOf(std::vector<Variable>& vec, VMSymbol* name) {
 }
 
 
-bool MethodGenerationContext::FindVar(VMSymbol* var, int64_t* index,
+bool MethodGenerationContext::FindVar(std::string& var, int64_t* index,
         int* context, bool* isArgument) {
     if ((*index = IndexOf(locals, var)) == -1) {
         if ((*index = IndexOf(arguments, var)) == -1) {
@@ -143,12 +144,12 @@ void MethodGenerationContext::SetPrimitive(bool prim) {
     primitive = prim;
 }
 
-void MethodGenerationContext::AddArgument(VMSymbol* arg, const SourceCoordinate& coord) {
+void MethodGenerationContext::AddArgument(std::string& arg, const SourceCoordinate& coord) {
     size_t index = arguments.size();
     arguments.push_back({arg, index, true, coord});
 }
 
-void MethodGenerationContext::AddLocal(VMSymbol* local, const SourceCoordinate& coord) {
+void MethodGenerationContext::AddLocal(std::string& local, const SourceCoordinate& coord) {
     size_t index = locals.size();
     locals.push_back({local, index, false, coord});
 }
@@ -175,7 +176,7 @@ void MethodGenerationContext::UpdateLiteral(vm_oop_t oldValue, uint8_t index, vm
     literals[index] = newValue;
 }
 
-bool MethodGenerationContext::AddArgumentIfAbsent(VMSymbol* arg, const SourceCoordinate& coord) {
+bool MethodGenerationContext::AddArgumentIfAbsent(std::string& arg, const SourceCoordinate& coord) {
     if (Contains(locals, arg)) {
         return false;
     }
@@ -183,7 +184,7 @@ bool MethodGenerationContext::AddArgumentIfAbsent(VMSymbol* arg, const SourceCoo
     return true;
 }
 
-bool MethodGenerationContext::AddLocalIfAbsent(VMSymbol* local, const SourceCoordinate& coord) {
+bool MethodGenerationContext::AddLocalIfAbsent(std::string& local, const SourceCoordinate& coord) {
     if (Contains(locals, local)) {
         return false;
     }

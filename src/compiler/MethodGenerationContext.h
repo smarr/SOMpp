@@ -45,21 +45,25 @@ public:
     VMPrimitive* AssemblePrimitive(bool classSide);
 
     int8_t FindLiteralIndex(vm_oop_t lit);
-    bool FindVar(VMSymbol* var, int64_t* index,
+    bool FindVar(std::string& var, int64_t* index,
             int* context, bool* isArgument);
     bool HasField(VMSymbol* field);
 
     uint8_t GetFieldIndex(VMSymbol* field);
 
     void SetSignature(VMSymbol* sig);
-    void AddArgument(VMSymbol* arg, const SourceCoordinate& coord);
+    
+    void AddArgument(std::string& arg, const SourceCoordinate& coord);
+    void AddLocal(std::string& local, const SourceCoordinate& coord);
+    bool AddArgumentIfAbsent(std::string& arg, const SourceCoordinate& coord);
+    bool AddLocalIfAbsent(std::string& local, const SourceCoordinate& coord);
+
     void SetPrimitive(bool prim = true);
-    void AddLocal(VMSymbol* local, const SourceCoordinate& coord);
+
     uint8_t AddLiteral(vm_oop_t lit);
-    void UpdateLiteral(vm_oop_t oldValue, uint8_t index, vm_oop_t newValue);
-    bool AddArgumentIfAbsent(VMSymbol* arg, const SourceCoordinate& coord);
-    bool AddLocalIfAbsent(VMSymbol* local, const SourceCoordinate& coord);
     int8_t AddLiteralIfAbsent(vm_oop_t lit);
+    void UpdateLiteral(vm_oop_t oldValue, uint8_t index, vm_oop_t newValue);
+
     void SetFinished(bool finished = true);
 
     ClassGenerationContext* GetHolder() const {

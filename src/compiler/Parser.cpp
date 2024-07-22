@@ -122,7 +122,7 @@ bool Parser::expectOneOf(Symbol* ss) {
 }
 
 void Parser::genPushVariable(MethodGenerationContext& mgenc,
-        VMSymbol* var) {
+        std::string& var) {
     // The purpose of this function is to find out whether the variable to be
     // pushed on the stack is a local variable, argument, or object field. This
     // is done by examining all available lexical contexts, starting with the
@@ -138,15 +138,16 @@ void Parser::genPushVariable(MethodGenerationContext& mgenc,
             EmitPUSHLOCAL(mgenc, index, context);
         }
     } else {
-        if (mgenc.HasField(var)) {
-            EmitPUSHFIELD(mgenc, var);
+        auto varSymbol = SymbolFor(var);
+        if (mgenc.HasField(varSymbol)) {
+            EmitPUSHFIELD(mgenc, varSymbol);
         } else {
-            EmitPUSHGLOBAL(mgenc, var);
+            EmitPUSHGLOBAL(mgenc, varSymbol);
         }
     }
 }
 
-void Parser::genPopVariable(MethodGenerationContext& mgenc, VMSymbol* var) {
+void Parser::genPopVariable(MethodGenerationContext& mgenc, std::string& var) {
     // The purpose of this function is to find out whether the variable to be
     // popped off the stack is a local variable, argument, or object field. This
     // is done by examining all available lexical contexts, starting with the
@@ -156,12 +157,15 @@ void Parser::genPopVariable(MethodGenerationContext& mgenc, VMSymbol* var) {
     bool is_argument = false;
 
     if (mgenc.FindVar(var, &index, &context, &is_argument)) {
-        if (is_argument)
+        if (is_argument) {
             EmitPOPARGUMENT(mgenc, index, context);
-        else
+        } else {
             EmitPOPLOCAL(mgenc, index, context);
-    } else
-        EmitPOPFIELD(mgenc, var);
+        }
+    } else {
+        auto varSymbol = SymbolFor(var);
+        EmitPOPFIELD(mgenc, varSymbol);
+    }
     }
 
 //
@@ -190,7 +194,8 @@ void Parser::Classdef(ClassGenerationContext& cgenc) {
            symIn(binaryOpSyms)) {
 
         MethodGenerationContext mgenc(cgenc);
-        mgenc.AddArgument(load_ptr(symbolSelf), lexer.GetCurrentSource());
+        std::string self = strSelf;
+        mgenc.AddArgument(self, lexer.GetCurrentSource());
 
         method(mgenc);
 
@@ -207,7 +212,8 @@ void Parser::Classdef(ClassGenerationContext& cgenc) {
         while (symIsIdentifier() || sym == Keyword || sym == OperatorSequence ||
         symIn(binaryOpSyms)) {
             MethodGenerationContext mgenc(cgenc);
-            mgenc.AddArgument(load_ptr(symbolSelf), lexer.GetCurrentSource());
+            std::string self = strSelf;
+            mgenc.AddArgument(self, lexer.GetCurrentSource());
 
             method(mgenc);
 
@@ -252,7 +258,8 @@ void Parser::superclass(ClassGenerationContext& cgenc) {
 void Parser::instanceFields(ClassGenerationContext& cgenc) {
     if (accept(Or)) {
         while (symIsIdentifier()) {
-            cgenc.AddInstanceField(variable());
+            auto v = variable();
+            cgenc.AddInstanceField(SymbolFor(v));
         }
         expect(Or);
     }
@@ -261,7 +268,8 @@ void Parser::instanceFields(ClassGenerationContext& cgenc) {
 void Parser::classFields(ClassGenerationContext& cgenc) {
     if (accept(Or)) {
         while (symIsIdentifier()) {
-            cgenc.AddClassField(variable());
+            auto v = variable();
+            cgenc.AddClassField(SymbolFor(v));
         }
         expect(Or);
     }
@@ -306,7 +314,8 @@ void Parser::binaryPattern(MethodGenerationContext& mgenc) {
     mgenc.SetSignature(binarySelector());
 
     auto source = lexer.GetCurrentSource();
-    mgenc.AddArgumentIfAbsent(argument(), source);
+    auto a = argument();
+    mgenc.AddArgumentIfAbsent(a, source);
 }
 
 void Parser::keywordPattern(MethodGenerationContext& mgenc) {
@@ -315,7 +324,8 @@ void Parser::keywordPattern(MethodGenerationContext& mgenc) {
         kw.append(keyword());
 
         auto source = lexer.GetCurrentSource();
-        mgenc.AddArgumentIfAbsent(argument(), source);
+        auto a = argument();
+        mgenc.AddArgumentIfAbsent(a, source);
     } while (sym == Keyword);
 
     mgenc.SetSignature(SymbolFor(kw));
@@ -372,7 +382,7 @@ StdString Parser::keyword() {
     return s;
 }
 
-VMSymbol* Parser::argument() {
+std::string Parser::argument() {
     return variable();
 }
 
@@ -389,7 +399,8 @@ void Parser::blockContents(MethodGenerationContext& mgenc, bool is_inlined) {
 void Parser::locals(MethodGenerationContext& mgenc) {
     while (symIsIdentifier()) {
         auto source = lexer.GetCurrentSource();
-        mgenc.AddLocalIfAbsent(variable(), source);
+        auto v = variable();
+        mgenc.AddLocalIfAbsent(v, source);
     }
 }
 
@@ -451,11 +462,11 @@ void Parser::expression(MethodGenerationContext& mgenc) {
 }
 
 void Parser::assignation(MethodGenerationContext& mgenc) {
-    list<VMSymbol*> l;
+    list<std::string> l;
 
     assignments(mgenc, l);
     evaluation(mgenc);
-    list<VMSymbol*>::iterator i;
+    list<std::string>::iterator i;
     for (i = l.begin(); i != l.end(); ++i) {
         EmitDUP(mgenc);
     }
@@ -465,7 +476,7 @@ void Parser::assignation(MethodGenerationContext& mgenc) {
     }
 }
 
-void Parser::assignments(MethodGenerationContext& mgenc, list<VMSymbol*>& l) {
+void Parser::assignments(MethodGenerationContext& mgenc, list<std::string>& l) {
     if (symIsIdentifier()) {
         l.push_back(assignment());
         Peek();
@@ -476,8 +487,8 @@ void Parser::assignments(MethodGenerationContext& mgenc, list<VMSymbol*>& l) {
     }
 }
 
-VMSymbol* Parser::assignment() {
-    VMSymbol* v = variable();
+std::string Parser::assignment() {
+    auto v = variable();
 
     expect(Assign);
 
@@ -497,11 +508,11 @@ bool Parser::primary(MethodGenerationContext& mgenc) {
     switch (sym) {
     case Primitive:
     case Identifier: {
-        VMSymbol* v = variable();
-        if (v == load_ptr(symbolSuper)) {
+        auto v = variable();
+        if (v == strSuper) {
             super = true;
             // sends to super push self as the receiver
-            v = load_ptr(symbolSelf);
+            v = strSelf;
         }
 
         genPushVariable(mgenc, v);
@@ -527,8 +538,8 @@ bool Parser::primary(MethodGenerationContext& mgenc) {
     return super;
 }
 
-VMSymbol* Parser::variable() {
-    return SymbolFor(identifier());
+std::string Parser::variable() {
+    return identifier();
 }
 
 void Parser::messages(MethodGenerationContext& mgenc, bool super) {
@@ -766,7 +777,8 @@ StdString Parser::_string() {
 }
 
 void Parser::nestedBlock(MethodGenerationContext& mgenc) {
-    mgenc.AddArgumentIfAbsent(load_ptr(symbolBlockSelf), lexer.GetCurrentSource());
+    std::string blockSelf = strBlockSelf;
+    mgenc.AddArgumentIfAbsent(blockSelf, lexer.GetCurrentSource());
 
     expect(NewBlock);
     if (sym == Colon)
@@ -806,7 +818,8 @@ void Parser::blockArguments(MethodGenerationContext& mgenc) {
         expect(Colon);
 
         auto source = lexer.GetCurrentSource();
-        mgenc.AddArgumentIfAbsent(argument(), source);
+        auto a = argument();
+        mgenc.AddArgumentIfAbsent(a, source);
 
     } while (sym == Colon);
 }

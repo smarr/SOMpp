@@ -47,6 +47,10 @@ public:
 
     VMMethod(VMSymbol* signature, size_t bcCount, size_t numberOfConstants, size_t numLocals, size_t maxStackDepth, LexicalScope* lexicalScope);
 
+    ~VMMethod() override {
+        delete lexicalScope;
+    }
+
     inline size_t GetNumberOfLocals() const {
         return numberOfLocals;
     }

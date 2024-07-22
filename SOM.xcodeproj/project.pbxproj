@@ -49,8 +49,6 @@
 		0A1887451832C62100A2CBCA /* Smalltalk in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A18873E1832C62100A2CBCA /* Smalltalk */; };
 		0A1887471832C62100A2CBCA /* TestSuite in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A1887401832C62100A2CBCA /* TestSuite */; };
 		0A1C98582C3DD88500735850 /* unitTests/BytecodeGenerationTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C98572C3DD88500735850 /* unitTests/BytecodeGenerationTest.cpp */; };
-		0A1C985C2C43470F00735850 /* LexicalScope.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C985B2C43470F00735850 /* LexicalScope.cpp */; };
-		0A1C985D2C43470F00735850 /* LexicalScope.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C985B2C43470F00735850 /* LexicalScope.cpp */; };
 		0A1C98602C43D6E200735850 /* Variable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C985F2C43D6E200735850 /* Variable.cpp */; };
 		0A1C98612C43D6E200735850 /* Variable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C985F2C43D6E200735850 /* Variable.cpp */; };
 		0A1C98672C4D340300735850 /* Symbols.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C98652C4D340300735850 /* Symbols.cpp */; };
@@ -201,7 +199,6 @@
 		0A1C98572C3DD88500735850 /* unitTests/BytecodeGenerationTest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = unitTests/BytecodeGenerationTest.cpp; sourceTree = "<group>"; };
 		0A1C98592C432E0E00735850 /* VectorUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VectorUtil.h; sourceTree = "<group>"; };
 		0A1C985A2C4346F900735850 /* LexicalScope.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LexicalScope.h; sourceTree = "<group>"; };
-		0A1C985B2C43470F00735850 /* LexicalScope.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LexicalScope.cpp; sourceTree = "<group>"; };
 		0A1C985E2C43D6D000735850 /* Variable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Variable.h; sourceTree = "<group>"; };
 		0A1C985F2C43D6E200735850 /* Variable.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Variable.cpp; sourceTree = "<group>"; };
 		0A1C98622C499F9400735850 /* SourceCoordinate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SourceCoordinate.h; sourceTree = "<group>"; };
@@ -503,7 +500,6 @@
 				3F5202FD0FA6624C00E75857 /* SourcecodeCompiler.cpp */,
 				3F5202FE0FA6624C00E75857 /* SourcecodeCompiler.h */,
 				0A1C985A2C4346F900735850 /* LexicalScope.h */,
-				0A1C985B2C43470F00735850 /* LexicalScope.cpp */,
 				0A1C985E2C43D6D000735850 /* Variable.h */,
 				0A1C985F2C43D6E200735850 /* Variable.cpp */,
 				0A1C98622C499F9400735850 /* SourceCoordinate.h */,
@@ -882,7 +878,6 @@
 				0A1886E41832BCD300A2CBCA /* Interpreter.cpp in Sources */,
 				0A1C98762C5526AD00735850 /* DebugCopyingCollector.cpp in Sources */,
 				0A1886E71832BCDC00A2CBCA /* Heap.cpp in Sources */,
-				0A1C985C2C43470F00735850 /* LexicalScope.cpp in Sources */,
 				0A1886F71832BCF500A2CBCA /* Signature.cpp in Sources */,
 				0A1887351832C10E00A2CBCA /* MarkSweepCollector.cpp in Sources */,
 				0A1886FB1832BCF500A2CBCA /* VMBlock.cpp in Sources */,
@@ -955,7 +950,6 @@
 				0A67EA7519ACD43A00830E3B /* CloneObjectsTest.cpp in Sources */,
 				0A67EA7919ACD43A00830E3B /* WriteBarrierTest.cpp in Sources */,
 				0A67EA9819ACD85300830E3B /* GenerationalCollector.cpp in Sources */,
-				0A1C985D2C43470F00735850 /* LexicalScope.cpp in Sources */,
 				0A67EA7B19ACD72C00830E3B /* VMInvokable.cpp in Sources */,
 				0A67EA9119ACD83200830E3B /* MethodGenerationContext.cpp in Sources */,
 				0A3A3CA61A5D546D004CB03B /* Method.cpp in Sources */,

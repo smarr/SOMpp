@@ -1,33 +1,38 @@
 #pragma once
 
+#include <string>
+
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMSymbol.h"
 #include "SourceCoordinate.h"
 
 class Variable {
 public:
-    Variable(VMSymbol* name, size_t index, bool isArgument, SourceCoordinate coord) : name(_store_ptr(name)), qualifiedName(_store_ptr(MakeQualifiedName(name, coord))), index(index), isArgument(isArgument), coord(coord) {}
-    Variable() : name(nullptr), index(-1) {}
+    Variable(std::string& name, size_t index, bool isArgument, SourceCoordinate coord) : name(name), index(index), isArgument(isArgument), coord(coord) {
+        assert(index != 0xff);
+    }
+
+    Variable() : name(nullptr), index(0xff) {}
+
+    Variable(const Variable* old, size_t newIndex, bool isArgument) : name(old->name), index(newIndex), isArgument(isArgument), coord(old->coord) {}
     
-    Variable(const Variable* old, size_t newIndex, bool isArgument) : name(old->name), qualifiedName(old->qualifiedName), index(newIndex), isArgument(isArgument), coord(old->coord) {}
-    
-    void WalkObjects(walk_heap_fn walk);
-    
-    bool IsValid() const { return name != nullptr; }
-    
+    bool IsNamed(std::string& n) const {
+        return name == n;
+    }
+
+    bool IsValid() const { return index != 0xff; }
+
     inline uint8_t GetIndex() const { return index; }
     
-    VMSymbol* GetName() const { return load_ptr(name); }
-    VMSymbol* GetQualifiedName() const { return load_ptr(qualifiedName); }
-    
-    static VMSymbol* MakeQualifiedName(VMSymbol* name, const SourceCoordinate& coord);
-    
+    const std::string* GetName() const { return &name; }
+
+    std::string MakeQualifiedName() const;
+
     
     Variable CopyForInlining(size_t newIndex) const;
     
 protected:
-    GCSymbol* name;
-    GCSymbol* qualifiedName;
+    std::string name;
     uint8_t index;
     bool isArgument;
     SourceCoordinate coord;

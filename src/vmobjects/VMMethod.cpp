@@ -80,8 +80,6 @@ void VMMethod::WalkObjects(walk_heap_fn walk) {
         cachedFrame = static_cast<VMFrame*>(walk(cachedFrame));
 #endif
 
-    lexicalScope->WalkObjects(walk);
-
     size_t numIndexableFields = GetNumberOfIndexableFields();
     for (size_t i = 0; i < numIndexableFields; ++i) {
         if (indexableFields[i] != nullptr) {

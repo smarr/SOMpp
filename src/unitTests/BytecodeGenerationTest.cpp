@@ -31,7 +31,8 @@ void BytecodeGenerationTest::ensureMGenC() {
     ensureCGenC();
 
     _mgenc = new MethodGenerationContext(*_cgenc);
-    _mgenc->AddArgument(load_ptr(symbolSelf), {0, 0});
+    std::string self = strSelf;
+    _mgenc->AddArgument(self, {0, 0});
 }
 
 void BytecodeGenerationTest::ensureBGenC() {

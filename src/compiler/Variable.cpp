@@ -1,32 +1,26 @@
 #include <cassert>
 #include <cstddef>
 #include <cstdio>
+#include <string>
 
 #include "../vm/Symbols.h"
-#include "../vmobjects/ObjectFormats.h"
-#include "../vmobjects/VMSymbol.h"
 #include "SourceCoordinate.h"
 #include "Variable.h"
 
-VMSymbol* Variable::MakeQualifiedName(VMSymbol* name, const SourceCoordinate& coord) {
+std::string Variable::MakeQualifiedName() const {
     char qualified[100];
-    assert(name->GetStringLength() < 80);
+    assert(name.size() < 80);
 
     snprintf(qualified, 100, "%.*s:%zu:%zu",
-             (int)name->GetStringLength(), name->GetRawChars(),
+             (int)name.size(), name.data(),
              coord.GetLine(), coord.GetColumn());
 
-    return SymbolFor(qualified);
-}
-
-void Variable::WalkObjects(walk_heap_fn walk) {
-    name = static_cast<GCSymbol*>(walk(name));
-    qualifiedName = static_cast<GCSymbol*>(walk(name));
+    return {qualified};
 }
 
 Variable Variable::CopyForInlining(size_t newIndex) const {
     if (isArgument) {
-        if (load_ptr(name) == load_ptr(symbolBlockSelf)) {
+        if (name == strBlockSelf) {
             return Variable();
         }
         return Variable(this, newIndex, true);
