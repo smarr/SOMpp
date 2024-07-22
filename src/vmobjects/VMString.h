@@ -48,14 +48,14 @@ public:
     StdString GetStdString() const;
     size_t GetStringLength() const;
 
-    virtual VMString* Clone() const;
-    virtual VMClass* GetClass() const;
-    virtual size_t GetObjectSize() const;
-    virtual void WalkObjects(walk_heap_fn);
+    VMString* Clone() const override;
+    VMClass* GetClass() const override;
+    size_t GetObjectSize() const override;
+    void WalkObjects(walk_heap_fn) override;
     
-    virtual void MarkObjectAsInvalid();
+    void MarkObjectAsInvalid() override;
     
-    virtual StdString AsDebugString() const;
+    StdString AsDebugString() const override;
 
 protected_testable:
     //this could be replaced by the CHARS macro in VMString.cpp

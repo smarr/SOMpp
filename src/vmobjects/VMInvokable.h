@@ -32,7 +32,7 @@
 class VMInvokable: public VMObject {
 public:
     typedef GCInvokable Stored;
-    
+
     VMInvokable(long nof = 0) : VMObject(nof + 2) {};
 
     virtual void      Invoke(Interpreter*, VMFrame*) = 0;
@@ -43,7 +43,7 @@ public:
             VMClass*  GetHolder() const;
     virtual void      SetHolder(VMClass* hld);
 
-    void WalkObjects(walk_heap_fn);
+    void WalkObjects(walk_heap_fn) override;
 
 protected_testable:
     GCSymbol* signature;

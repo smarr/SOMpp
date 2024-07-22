@@ -37,12 +37,12 @@ public:
     typedef GCSymbol Stored;
     
     VMSymbol(const size_t length, const char* const str);
-    virtual StdString GetPlainString() const;
-    virtual size_t GetObjectSize() const;
-    virtual VMSymbol* Clone() const;
-    virtual VMClass* GetClass() const;
+    StdString GetPlainString() const;
+    size_t GetObjectSize() const override;
+    VMSymbol* Clone() const override;
+    VMClass* GetClass() const override;
     
-    virtual StdString AsDebugString() const;
+    StdString AsDebugString() const override;
     
 private:
     const int numberOfArgumentsOfSignature;
@@ -56,7 +56,7 @@ private:
     friend class VMClass;
 
 private_testable:
-    virtual void WalkObjects(walk_heap_fn);
+    void WalkObjects(walk_heap_fn) override;
 
 };
 

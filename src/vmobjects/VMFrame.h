@@ -35,7 +35,7 @@ class VMFrame: public VMObject {
     friend class Universe;
 public:
     typedef GCFrame Stored;
-    
+
     static VMFrame* EmergencyFrameFrom(VMFrame* from, long extraLength);
 
     VMFrame(long size, long nof = 0);
@@ -52,13 +52,13 @@ public:
     VMFrame* GetOuterContext();
     inline VMMethod* GetMethod() const;
     void SetMethod(VMMethod*);
-    
+
     inline vm_oop_t Pop() {
         vm_oop_t result = load_ptr(*stack_ptr);
         stack_ptr--;
         return result;
     }
-    
+
     inline void Push(vm_oop_t obj) {
         assert(RemainingStackSize() > 0);
         ++stack_ptr;
@@ -75,49 +75,49 @@ public:
 
     inline long GetBytecodeIndex() const;
     inline void SetBytecodeIndex(long);
-    
+
     inline vm_oop_t GetStackElement(long index) const {
         return load_ptr(stack_ptr[-index]);
     }
-    
+
     inline vm_oop_t GetLocal(long index, long contextLevel) {
         VMFrame* context = GetContextLevel(contextLevel);
         return load_ptr(context->locals[index]);
     }
-    
+
     inline vm_oop_t GetLocalInCurrentContext(uint8_t localIndex) {
         return load_ptr(this->locals[localIndex]);
     }
-    
+
     void SetLocal(long index, long context_level, vm_oop_t);
-    
+
     inline void SetLocal(long index, vm_oop_t value) {
         store_ptr(locals[index], value);
     }
-    
+
     inline vm_oop_t GetArgument(long index, long contextLevel) {
         // get the context
         VMFrame* context = GetContextLevel(contextLevel);
         return load_ptr(context->arguments[index]);
     }
-    
+
     inline vm_oop_t GetArgumentInCurrentContext(long index) {
         return load_ptr(this->arguments[index]);
     }
-    
+
     void SetArgument(long, long, vm_oop_t);
     void PrintStackTrace() const;
     long ArgumentStackIndex(long index) const;
     void CopyArgumentsFrom(VMFrame* frame);
-    virtual void WalkObjects(walk_heap_fn);
-    virtual VMFrame* Clone() const;
+    void WalkObjects(walk_heap_fn) override;
+    VMFrame* Clone() const override;
 
     void PrintStack() const;
     void PrintBytecode() const;
     inline void* GetStackPointer() const;
     long RemainingStackSize() const;
-    
-    virtual StdString AsDebugString() const;
+
+    StdString AsDebugString() const override;
 
 private_testable:
     long bytecodeIndex;
@@ -129,7 +129,7 @@ private:
     gc_oop_t* arguments;
     gc_oop_t* locals;
     gc_oop_t* stack_ptr;
-    
+
     inline void SetArgument(long index, vm_oop_t value);
 
     static const long VMFrameNumberOfFields;

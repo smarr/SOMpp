@@ -47,10 +47,10 @@ public:
         : classSide(classSide), primContainerObj(primContainerObj),
           func(_fpt), PrimitiveRoutine() {};
 
-    virtual void Invoke(Interpreter* interp, VMFrame* frm) {
+    void Invoke(Interpreter* interp, VMFrame* frm) override {
         (*primContainerObj.*func)(interp, frm);  // execute member function
     }
-    
-    virtual bool isClassSide() { return classSide; }
+
+    bool isClassSide() override { return classSide; }
 
 };

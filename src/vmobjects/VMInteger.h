@@ -34,17 +34,17 @@
 class VMInteger: public AbstractVMObject {
 public:
     typedef GCInteger Stored;
-    
+
     VMInteger(int64_t val) : embeddedInteger(val), AbstractVMObject() {}
 
     inline int64_t GetEmbeddedInteger() const;
-    virtual VMInteger* Clone() const;
-    virtual VMClass* GetClass() const;
-    virtual inline size_t GetObjectSize() const;
-    
-    virtual void MarkObjectAsInvalid() {}
-    
-    virtual StdString AsDebugString() const;
+    VMInteger* Clone() const override;
+    VMClass* GetClass() const override;
+    inline size_t GetObjectSize() const override;
+
+    void MarkObjectAsInvalid() override {}
+
+    StdString AsDebugString() const override;
 
 private_testable:
     const int64_t embeddedInteger;

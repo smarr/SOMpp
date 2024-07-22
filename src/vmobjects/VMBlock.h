@@ -31,16 +31,16 @@
 class VMBlock: public VMObject {
 public:
     typedef GCBlock Stored;
-    
+
     VMBlock();
 
             VMMethod* GetMethod() const;
             void      SetMethod(VMMethod*);
     inline  void      SetContext(VMFrame*);
     inline  VMFrame*  GetContext() const;
-    virtual VMBlock*  Clone() const;
-    
-    virtual StdString AsDebugString() const;
+            VMBlock*  Clone() const override;
+
+    StdString AsDebugString() const override;
 
     static VMEvaluationPrimitive* GetEvaluationPrimitive(int);
 
