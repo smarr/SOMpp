@@ -43,11 +43,11 @@ class Heap {
 public:
     static void InitializeHeap(long objectSpaceSize);
     static void DestroyHeap();
-    Heap(GarbageCollector<HEAP_T>* const gc, long objectSpaceSize) : gc(gc), gcTriggered(false) {}
+    Heap(GarbageCollector<HEAP_T>* const gc, long objectSpaceSize) : gc(gc), gcWasRequested(false) {}
     ~Heap();
-    inline void triggerGC()      { gcTriggered = true; }
-    inline void resetGCTrigger() { gcTriggered = false; }
-    bool isCollectionTriggered() { return gcTriggered;  }
+    inline void requestGC()      { gcWasRequested = true; }
+    inline void resetGCTrigger() { gcWasRequested = false; }
+    bool isCollectionTriggered() { return gcWasRequested;  }
     void FullGC();
     inline void FreeObject(AbstractVMObject* o) { free(o); }
 protected:
@@ -57,7 +57,7 @@ private:
     static HEAP_T* theHeap;
     
     // flag that shows if a Collection is triggered
-    bool gcTriggered;
+    bool gcWasRequested;
 };
 
 template<class HEAP_T> HEAP_T* Heap<HEAP_T>::theHeap;

@@ -41,6 +41,6 @@ AbstractVMObject* CopyingHeap::AllocateObject(size_t size) {
     }
     //let's see if we have to trigger the GC
     if (nextFreePosition > collectionLimit)
-        triggerGC();
+        requestGC();
     return newObject;
 }
