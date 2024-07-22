@@ -43,6 +43,8 @@ public:
     StdString AsDebugString() const override;
 
     static VMEvaluationPrimitive* GetEvaluationPrimitive(int);
+    
+    void MarkObjectAsInvalid() override;
 
 private_testable:
     GCMethod* blockMethod;

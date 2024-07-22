@@ -42,12 +42,13 @@ public:
     VMClass* GetClass() const override;
     inline size_t GetObjectSize() const override;
 
-    void MarkObjectAsInvalid() override {}
+    void MarkObjectAsInvalid() override;
+    bool IsMarkedInvalid() const override;
 
     StdString AsDebugString() const override;
 
 private_testable:
-    const int64_t embeddedInteger;
+    int64_t embeddedInteger;
 };
 
 int64_t VMInteger::GetEmbeddedInteger() const {

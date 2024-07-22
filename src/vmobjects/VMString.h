@@ -54,6 +54,7 @@ public:
     void WalkObjects(walk_heap_fn) override;
     
     void MarkObjectAsInvalid() override;
+    bool IsMarkedInvalid() const override;
     
     StdString AsDebugString() const override;
 
@@ -61,7 +62,7 @@ protected_testable:
     //this could be replaced by the CHARS macro in VMString.cpp
     //in order to decrease the object size
     const size_t length;
-    char* const chars;
+    char* chars;
 protected:
     VMString(char* const adaptedCharsPointer, const size_t length) :
         // set the chars-pointer to point at the position of the first character

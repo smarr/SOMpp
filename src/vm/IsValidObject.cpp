@@ -30,27 +30,24 @@ void* vt_string;
 void* vt_symbol;
 
 bool IsValidObject(vm_oop_t obj) {
-    if (DEBUG) {
+    if (!DEBUG) {
         return true;
-    }
-    
-    if (IS_TAGGED(obj))
-        return true;
-
-    if (obj == INVALID_VM_POINTER
-        // || obj == nullptr
-        ) {
-        assert(false);
-        return false;
     }
     
     if (obj == nullptr)
         return true;
-    
-    
+
+    if (IS_TAGGED(obj))
+        return true;
+
     if (vt_symbol == nullptr) // initialization not yet completed
         return true;
-    
+
+    if (obj == INVALID_VM_POINTER) {
+        assert(obj == INVALID_VM_POINTER && "Expected pointer to not be marker for invalid pointers.");
+        return false;
+    }
+
     void* vt = *(void**) obj;
     bool b = vt == vt_array    ||
            vt == vt_block      ||
@@ -64,7 +61,27 @@ bool IsValidObject(vm_oop_t obj) {
            vt == vt_primitive  ||
            vt == vt_string     ||
            vt == vt_symbol;
-    assert(b);
+    if (!b) {
+        assert(b && "Expected vtable to be one of the known ones.");
+        return false;
+    }
+
+# if GC_TYPE == COPYING
+    if (AS_OBJ(obj)->GetGCField() != 0) {
+        // this is a properly forwarded object
+        return true;
+    }
+# elif GC_TYPE == GENERATIONAL
+    if (!(AS_OBJ(obj)->GetGCField() & MASK_OBJECT_IS_OLD)) {
+        if (AS_OBJ(obj)->GetGCField() != 0) {
+            // this is a properly forwarded object
+            return true;
+        }
+    }
+# endif
+
+    b = !AS_OBJ(obj)->IsMarkedInvalid();
+    assert(b && "Expected object not to be marked as invalid.");
     return b;
 }
 

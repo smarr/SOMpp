@@ -44,6 +44,9 @@ public:
         return sizeof(VMEvaluationPrimitive);
     }
 
+    void MarkObjectAsInvalid() override;
+    bool IsMarkedInvalid() const override;
+
 private:
     static VMSymbol* computeSignatureString(long argc);
     void evaluationRoutine(Interpreter*, VMFrame*);

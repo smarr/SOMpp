@@ -61,3 +61,8 @@ VMEvaluationPrimitive* VMBlock::GetEvaluationPrimitive(int numberOfArguments) {
 std::string VMBlock::AsDebugString() const {
     return "Block(" + load_ptr(blockMethod)->AsDebugString() + ")";
 }
+
+void VMBlock::MarkObjectAsInvalid() {
+    blockMethod = (GCMethod*) INVALID_GC_POINTER;
+    context = (GCFrame*) INVALID_GC_POINTER;
+}

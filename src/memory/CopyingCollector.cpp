@@ -28,6 +28,8 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     if (gcField != 0)
         return (gc_oop_t) gcField;
 
+    assert(!obj->IsMarkedInvalid());
+    
     // we have to clone ourselves
     AbstractVMObject* newObj = obj->Clone();
 

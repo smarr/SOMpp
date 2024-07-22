@@ -103,3 +103,13 @@ void EvaluationRoutine::WalkObjects(walk_heap_fn walk) {
 std::string VMEvaluationPrimitive::AsDebugString() const {
     return "VMEvaluationPrimitive(" + to_string(numberOfArguments) + ")";
 }
+
+
+void VMEvaluationPrimitive::MarkObjectAsInvalid() {
+    VMPrimitive::MarkObjectAsInvalid();
+    numberOfArguments = INVALID_GC_POINTER;
+}
+
+bool VMEvaluationPrimitive::IsMarkedInvalid() const {
+    return numberOfArguments == INVALID_GC_POINTER;
+}

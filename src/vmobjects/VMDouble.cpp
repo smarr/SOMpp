@@ -44,3 +44,13 @@ VMClass* VMDouble::GetClass() const {
 std::string VMDouble::AsDebugString() const {
     return "Double(" + to_string(embeddedDouble) + ")";
 }
+
+#define INVALID_DBL_MARKER 9007000000000990
+
+void VMDouble::MarkObjectAsInvalid() {
+    embeddedDouble = INVALID_DBL_MARKER;
+}
+
+bool VMDouble::IsMarkedInvalid() const {
+    return embeddedDouble == INVALID_DBL_MARKER;
+}

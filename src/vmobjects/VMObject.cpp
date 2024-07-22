@@ -86,6 +86,15 @@ void VMObject::WalkObjects(walk_heap_fn walk) {
 
 void VMObject::MarkObjectAsInvalid() {
     clazz = (GCClass*) INVALID_GC_POINTER;
+    
+    long numFields = GetNumberOfFields();
+    for (long i = 0; i < numFields; ++i) {
+        FIELDS[i] = INVALID_GC_POINTER;
+    }
+}
+
+bool VMObject::IsMarkedInvalid() const {
+    return clazz == INVALID_GC_POINTER;
 }
 
 std::string VMObject::AsDebugString() const {

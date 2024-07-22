@@ -89,6 +89,7 @@ public:
     inline void      SetObjectSize(size_t size) override;
     
            void      MarkObjectAsInvalid() override;
+           bool      IsMarkedInvalid() const override final;
     
            StdString AsDebugString() const override;
 

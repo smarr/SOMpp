@@ -55,8 +55,12 @@ VMString* VMString::Clone() const {
 void VMString::MarkObjectAsInvalid() {
     for (size_t i = 0; i < length; i++) {
         chars[i] = 'z';
-        i++;
     }
+    chars = (char*) INVALID_GC_POINTER;
+}
+
+bool VMString::IsMarkedInvalid() const {
+    return chars == (char*) INVALID_GC_POINTER;
 }
 
 void VMString::WalkObjects(walk_heap_fn) {

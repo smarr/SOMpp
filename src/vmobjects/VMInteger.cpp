@@ -44,3 +44,13 @@ VMClass* VMInteger::GetClass() const {
 std::string VMInteger::AsDebugString() const {
     return "Integer(" + to_string(embeddedInteger) + ")";
 }
+
+#define INVALID_INT_MARKER 9002002002002002002
+
+void VMInteger::MarkObjectAsInvalid() {
+    embeddedInteger = INVALID_INT_MARKER;
+}
+
+bool VMInteger::IsMarkedInvalid() const {
+    return embeddedInteger == INVALID_INT_MARKER;
+}

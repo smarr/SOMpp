@@ -41,6 +41,7 @@ public:
     virtual size_t GetObjectSize() const = 0;
 
     virtual void MarkObjectAsInvalid() = 0;
+    virtual bool IsMarkedInvalid() const = 0;
 
     virtual StdString AsDebugString() const = 0;
 

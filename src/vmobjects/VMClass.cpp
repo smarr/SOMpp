@@ -80,6 +80,7 @@ void VMClass::WalkObjects(walk_heap_fn walk) {
 }
 
 void VMClass::MarkObjectAsInvalid() {
+    VMObject::MarkObjectAsInvalid();
     superClass         = (GCClass*)  INVALID_GC_POINTER;
     name               = (GCSymbol*) INVALID_GC_POINTER;
     instanceFields     = (GCArray*)  INVALID_GC_POINTER;
