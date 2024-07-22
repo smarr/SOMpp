@@ -26,8 +26,10 @@
  THE SOFTWARE.
  */
 
-#include <stdio.h>
-#include <stdarg.h>
+#include <cstdarg>
+#include <cstdio>
+
+#include "../vmobjects/ObjectFormats.h"
 
 #define FprintfPass(f,x) \
     va_list ap; \
@@ -89,3 +91,6 @@ static inline void DebugTrace(const char* fmt, ...) {
 
 #undef FprintfPass
 #undef DebugPass 
+
+std::string DebugGetClassName(vm_oop_t);
+std::string DebugGetClassName(gc_oop_t);

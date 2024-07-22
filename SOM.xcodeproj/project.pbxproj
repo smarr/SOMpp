@@ -53,6 +53,8 @@
 		0A1C98682C4D340300735850 /* Symbols.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C98652C4D340300735850 /* Symbols.cpp */; };
 		0A1C986B2C4D363A00735850 /* LogAllocation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C986A2C4D363A00735850 /* LogAllocation.cpp */; };
 		0A1C986C2C4D363A00735850 /* LogAllocation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C986A2C4D363A00735850 /* LogAllocation.cpp */; };
+		0A1C986E2C4F1D3900735850 /* debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C986D2C4F1D3900735850 /* debug.cpp */; };
+		0A1C986F2C4F1D3900735850 /* debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C986D2C4F1D3900735850 /* debug.cpp */; };
 		0A32B7FE199D6143002825DF /* IntegerBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A32B7FC199D6143002825DF /* IntegerBox.cpp */; };
 		0A3A3C921A5D546D004CB03B /* Array.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203120FA6624C00E75857 /* Array.cpp */; };
 		0A3A3C931A5D546D004CB03B /* Block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203160FA6624C00E75857 /* Block.cpp */; };
@@ -194,6 +196,7 @@
 		0A1C98652C4D340300735850 /* Symbols.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Symbols.cpp; sourceTree = "<group>"; };
 		0A1C98692C4D35BB00735850 /* LogAllocation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LogAllocation.h; sourceTree = "<group>"; };
 		0A1C986A2C4D363A00735850 /* LogAllocation.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LogAllocation.cpp; sourceTree = "<group>"; };
+		0A1C986D2C4F1D3900735850 /* debug.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = debug.cpp; sourceTree = "<group>"; };
 		0A32B7FC199D6143002825DF /* IntegerBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IntegerBox.cpp; sourceTree = "<group>"; };
 		0A32B7FD199D6143002825DF /* IntegerBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntegerBox.h; sourceTree = "<group>"; };
 		0A32B80119A12A03002825DF /* VMObjectBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMObjectBase.h; sourceTree = "<group>"; };
@@ -531,6 +534,7 @@
 				0A707528297DF36F00EB9F59 /* ParseInteger.h */,
 				0A707529297DF97700EB9F59 /* ParseInteger.cpp */,
 				0A1C98592C432E0E00735850 /* VectorUtil.h */,
+				0A1C986D2C4F1D3900735850 /* debug.cpp */,
 			);
 			path = misc;
 			sourceTree = "<group>";
@@ -876,6 +880,7 @@
 				0A1887051832BCFA00A2CBCA /* VMString.cpp in Sources */,
 				0A3A3C9A1A5D546D004CB03B /* String.cpp in Sources */,
 				0A3A3C951A5D546D004CB03B /* Double.cpp in Sources */,
+				0A1C986E2C4F1D3900735850 /* debug.cpp in Sources */,
 				0A1886F61832BCED00A2CBCA /* Universe.cpp in Sources */,
 				0AB80ACF2C392811006B6419 /* IsValidObject.cpp in Sources */,
 				0A1886E21832BCC800A2CBCA /* SourcecodeCompiler.cpp in Sources */,
@@ -908,6 +913,7 @@
 				0A3A3CA71A5D546D004CB03B /* Object.cpp in Sources */,
 				0A3A3CB21A5D5476004CB03B /* PrimitiveContainer.cpp in Sources */,
 				0A1C98582C3DD88500735850 /* unitTests/BytecodeGenerationTest.cpp in Sources */,
+				0A1C986F2C4F1D3900735850 /* debug.cpp in Sources */,
 				0A67EA8419ACD74800830E3B /* VMFrame.cpp in Sources */,
 				0A67EA7D19ACD74800830E3B /* Signature.cpp in Sources */,
 				0A67EA7E19ACD74800830E3B /* VMArray.cpp in Sources */,
