@@ -33,7 +33,6 @@
 #include "../misc/defs.h"
 #include "../vm/Globals.h"
 #include "../vm/Universe.h"
-#include "AbstractObject.h"
 #include "ObjectFormats.h"
 #include "VMClass.h"
 #include "VMFrame.h"

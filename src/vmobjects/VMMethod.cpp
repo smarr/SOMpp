@@ -28,11 +28,12 @@
 #include <cstring>
 #include <string>
 
+#include "../compiler/LexicalScope.h"
 #include "../interpreter/Interpreter.h"
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../vm/Globals.h"
-#include "../vm/Universe.h"  // // NOLINT(misc-include-cleaner) it's required to make the types complete
+#include "../vm/Universe.h" // NOLINT(misc-include-cleaner) it's required to make the types complete
 #include "ObjectFormats.h"
 #include "Signature.h"
 #include "VMClass.h"
@@ -41,8 +42,8 @@
 #include "VMObject.h"
 #include "VMSymbol.h"
 
-VMMethod::VMMethod(VMSymbol* signature, size_t bcCount, size_t numberOfConstants, size_t numLocals, size_t maxStackDepth) :
-        VMInvokable(signature), numberOfLocals(numLocals), maximumNumberOfStackElements(maxStackDepth), bcLength(bcCount), numberOfArguments(signature == nullptr ? 0 : Signature::GetNumberOfArguments(signature)), numberOfConstants(numberOfConstants) {
+VMMethod::VMMethod(VMSymbol* signature, size_t bcCount, size_t numberOfConstants, size_t numLocals, size_t maxStackDepth, LexicalScope* lexicalScope) :
+        VMInvokable(signature), numberOfLocals(numLocals), maximumNumberOfStackElements(maxStackDepth), bcLength(bcCount), numberOfArguments(signature == nullptr ? 0 : Signature::GetNumberOfArguments(signature)), numberOfConstants(numberOfConstants), lexicalScope(lexicalScope) {
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     cachedFrame = nullptr;
 #endif
@@ -79,9 +80,10 @@ void VMMethod::WalkObjects(walk_heap_fn walk) {
         cachedFrame = static_cast<VMFrame*>(walk(cachedFrame));
 #endif
 
-    int64_t numIndexableFields = GetNumberOfIndexableFields();
+    lexicalScope->WalkObjects(walk);
 
-    for (long i = 0; i < numIndexableFields; ++i) {
+    size_t numIndexableFields = GetNumberOfIndexableFields();
+    for (size_t i = 0; i < numIndexableFields; ++i) {
         if (indexableFields[i] != nullptr) {
             indexableFields[i] = walk(indexableFields[i]);
         }

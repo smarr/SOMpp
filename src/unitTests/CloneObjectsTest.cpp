@@ -127,7 +127,7 @@ void CloneObjectsTest::testCloneArray() {
 
 void CloneObjectsTest::testCloneBlock() {
     VMSymbol* methodSymbol = NewSymbol("someMethod");
-    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0);
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0, nullptr);
     VMBlock* orig = GetUniverse()->NewBlock(method,
             GetUniverse()->GetInterpreter()->GetFrame(),
             method->GetNumberOfArguments());
@@ -166,7 +166,7 @@ void CloneObjectsTest::testCloneEvaluationPrimitive() {
 
 void CloneObjectsTest::testCloneFrame() {
     VMSymbol* methodSymbol = NewSymbol("frameMethod");
-    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0);
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0, nullptr);
     VMFrame* orig = GetUniverse()->NewFrame(nullptr, method);
     VMFrame* context = orig->CloneForMovingGC();
     orig->SetContext(context);
@@ -187,7 +187,7 @@ void CloneObjectsTest::testCloneFrame() {
 
 void CloneObjectsTest::testCloneMethod() {
     VMSymbol* methodSymbol = NewSymbol("myMethod");
-    VMMethod* orig = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0);
+    VMMethod* orig = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0, nullptr);
     VMMethod* clone = orig->CloneForMovingGC();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);

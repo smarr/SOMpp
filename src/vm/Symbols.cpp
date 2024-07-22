@@ -11,6 +11,10 @@
 
 map<std::string, GCSymbol*> symbolsMap;
 
+GCSymbol* symbolSelf;
+GCSymbol* symbolSuper;
+GCSymbol* symbolBlockSelf;
+
 GCSymbol* symbolIfTrue;
 GCSymbol* symbolIfFalse;
 
@@ -32,6 +36,9 @@ VMSymbol* SymbolFor(const std::string& str) {
 }
 
 void InitializeSymbols() {
+    symbolSelf    = store_root(SymbolFor("self"));
+    symbolSuper   = store_root(SymbolFor("super"));
+    symbolBlockSelf = store_root(SymbolFor("$blockSelf"));
     symbolIfTrue  = store_root(SymbolFor("ifTrue:"));
     symbolIfFalse = store_root(SymbolFor("ifFalse:"));
 }
@@ -46,7 +53,10 @@ void WalkSymbols(walk_heap_fn walk) {
         symbolIter->second = static_cast<GCSymbol*>(walk(symbolIter->second));
     }
 
-    //reassign ifTrue ifFalse Symbols
-    symbolIfTrue  = symbolsMap["ifTrue:"];
-    symbolIfFalse = symbolsMap["ifFalse:"];
+    // reassign symbols
+    symbolSelf    = static_cast<GCSymbol*>(walk(symbolSelf));
+    symbolSuper   = static_cast<GCSymbol*>(walk(symbolSuper));
+    symbolBlockSelf = static_cast<GCSymbol*>(walk(symbolBlockSelf));
+    symbolIfTrue  = static_cast<GCSymbol*>(walk(symbolIfTrue));
+    symbolIfFalse = static_cast<GCSymbol*>(walk(symbolIfFalse));
 }

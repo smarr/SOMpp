@@ -145,7 +145,7 @@ void WalkObjectsTest::testWalkPrimitive() {
 void WalkObjectsTest::testWalkFrame() {
     walkedObjects.clear();
     VMSymbol* methodSymbol = NewSymbol("frameMethod");
-    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0);
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0, nullptr);
     VMFrame* frame = GetUniverse()->NewFrame(nullptr, method);
     frame->SetPreviousFrame(frame->CloneForMovingGC());
     frame->SetContext(frame->CloneForMovingGC());
@@ -166,7 +166,7 @@ void WalkObjectsTest::testWalkFrame() {
 void WalkObjectsTest::testWalkMethod() {
     walkedObjects.clear();
     VMSymbol* methodSymbol = NewSymbol("myMethod");
-    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0);
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0, nullptr);
     method->SetHolder(load_ptr(symbolClass));
     method->WalkObjects(collectMembers);
 
@@ -179,7 +179,7 @@ void WalkObjectsTest::testWalkMethod() {
 void WalkObjectsTest::testWalkBlock() {
     walkedObjects.clear();
     VMSymbol* methodSymbol = NewSymbol("someMethod");
-    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0);
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0, nullptr);
     VMBlock* block = GetUniverse()->NewBlock(method,
             GetUniverse()->GetInterpreter()->GetFrame(),
             method->GetNumberOfArguments());

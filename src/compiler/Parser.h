@@ -77,7 +77,7 @@ private:
     VMSymbol* binarySelector();
     StdString identifier();
     StdString keyword();
-    StdString argument();
+    VMSymbol* argument();
     void blockContents(MethodGenerationContext& mgenc, bool is_inlined);
     void locals(MethodGenerationContext& mgenc);
     void blockBody(MethodGenerationContext& mgenc, bool seen_period, bool is_inlined);
@@ -88,7 +88,7 @@ private:
     VMSymbol* assignment();
     void evaluation(MethodGenerationContext& mgenc);
     bool primary(MethodGenerationContext& mgenc);
-    StdString variable();
+    VMSymbol* variable();
     void messages(MethodGenerationContext& mgenc, bool super);
     void unaryMessage(MethodGenerationContext& mgenc, bool super);
     void binaryMessage(MethodGenerationContext& mgenc, bool super);

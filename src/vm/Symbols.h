@@ -15,5 +15,9 @@ VMSymbol* NewSymbol(const std::string& str);
 VMSymbol* NewSymbol(const size_t length, const char* str);
 #endif
 
+extern GCSymbol* symbolSelf;
+extern GCSymbol* symbolSuper;
+extern GCSymbol* symbolBlockSelf;
+
 extern GCSymbol* symbolIfTrue;
 extern GCSymbol* symbolIfFalse;

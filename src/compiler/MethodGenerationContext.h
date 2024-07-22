@@ -31,11 +31,14 @@
 #include "../misc/defs.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "ClassGenerationContext.h"
+#include "LexicalScope.h"
+#include "SourceCoordinate.h"
 
+class Parser;
 
 class MethodGenerationContext {
 public:
-    MethodGenerationContext();
+    MethodGenerationContext(ClassGenerationContext& holder, MethodGenerationContext* outer = nullptr);
     ~MethodGenerationContext();
 
     VMMethod* Assemble();
@@ -48,48 +51,71 @@ public:
 
     uint8_t GetFieldIndex(VMSymbol* field);
 
-    void SetHolder(ClassGenerationContext* holder);
-    void SetOuter(MethodGenerationContext* outer);
-    void SetIsBlockMethod(bool isBlock = true);
     void SetSignature(VMSymbol* sig);
-    void AddArgument(const StdString& arg);
+    void AddArgument(VMSymbol* arg, const SourceCoordinate& coord);
     void SetPrimitive(bool prim = true);
-    void AddLocal(const StdString& local);
+    void AddLocal(VMSymbol* local, const SourceCoordinate& coord);
     uint8_t AddLiteral(vm_oop_t lit);
     void UpdateLiteral(vm_oop_t oldValue, uint8_t index, vm_oop_t newValue);
-    bool AddArgumentIfAbsent(const StdString& arg);
-    bool AddLocalIfAbsent(const StdString& local);
+    bool AddArgumentIfAbsent(VMSymbol* arg, const SourceCoordinate& coord);
+    bool AddLocalIfAbsent(VMSymbol* local, const SourceCoordinate& coord);
     int8_t AddLiteralIfAbsent(vm_oop_t lit);
     void SetFinished(bool finished = true);
 
-    ClassGenerationContext* GetHolder();
-    MethodGenerationContext* GetOuter();
+    ClassGenerationContext* GetHolder() const {
+        return &holderGenc;
+    }
 
-    VMSymbol* GetSignature();
-    bool IsPrimitive();
-    bool IsBlockMethod();
-    bool IsFinished();
+    MethodGenerationContext* GetOuter() const {
+        return outerGenc;
+    }
+
+    uint8_t GetMaxContextLevel() const { return maxContextLevel; }
+
+    VMSymbol* GetSignature() {
+        return signature;
+    }
+
+    bool IsPrimitive() const {
+        return primitive;
+    }
+
+    bool IsBlockMethod() const {
+        return blockMethod;
+    }
+
+    bool IsFinished() const {
+        return finished;
+    }
+
     void RemoveLastBytecode() {bytecode.pop_back();};
     size_t GetNumberOfArguments();
-    size_t AddBytecode(uint8_t bc, size_t stackEffect);
-    size_t AddBytecodeArgument(uint8_t bc);
+    void AddBytecode(uint8_t bc, size_t stackEffect);
+    void AddBytecodeArgument(uint8_t bc);
 
     bool HasBytecodes();
+
     std::vector<uint8_t> GetBytecodes() {
         return bytecode;
     }
 
+    void CompleteLexicalScope();
+
 private:
-    ClassGenerationContext* holderGenc;
-    MethodGenerationContext* outerGenc;
-    bool blockMethod;
+    ClassGenerationContext& holderGenc;
+    MethodGenerationContext* const outerGenc;
+
+    const uint8_t maxContextLevel;
+
+    const bool blockMethod;
     VMSymbol* signature;
-    std::vector<VMSymbol*> arguments;
+    std::vector<Variable> arguments;
     bool primitive;
-    std::vector<VMSymbol*> locals;
+    std::vector<Variable> locals;
     std::vector<vm_oop_t> literals;
     bool finished;
     std::vector<uint8_t> bytecode;
+    LexicalScope* lexicalScope;
 
     size_t currentStackDepth;
     size_t maxStackDepth;

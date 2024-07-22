@@ -76,7 +76,7 @@ public:
     VMBlock* NewBlock(VMMethod*, VMFrame*, long);
     VMClass* NewClass(VMClass*) const;
     VMFrame* NewFrame(VMFrame*, VMMethod*) const;
-    VMMethod* NewMethod(VMSymbol*, size_t numberOfBytecodes, size_t numberOfConstants, size_t numLocals, size_t maxStackDepth) const;
+    VMMethod* NewMethod(VMSymbol*, size_t numberOfBytecodes, size_t numberOfConstants, size_t numLocals, size_t maxStackDepth, LexicalScope*) const;
     VMObject* NewInstance(VMClass*) const;
     VMObject* NewInstanceWithoutFields() const;
     VMInteger* NewInteger(int64_t) const;

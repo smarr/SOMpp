@@ -124,16 +124,20 @@ public:
 
     StdString GetCurrentLine();
 
-    size_t getCurrentColumn() {
+    size_t GetCurrentColumn() const {
         return state.startBufp + 1 - state.text.length();
     }
 
-    size_t GetCurrentLineNumber() {
+    size_t GetCurrentLineNumber() const {
         return state.lineNumber;
     }
 
     bool GetPeekDone() const {
         return peekDone;
+    }
+
+    SourceCoordinate GetCurrentSource() const {
+        return SourceCoordinate(GetCurrentLineNumber(), GetCurrentColumn());
     }
 
 private:
