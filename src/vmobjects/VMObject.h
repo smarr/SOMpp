@@ -64,11 +64,11 @@ public:
     
     VMObject(size_t numberOfFields = 0);
 
-    virtual int64_t GetHash() { return hash; }
     virtual inline VMClass*  GetClass() const;
     virtual        void      SetClass(VMClass* cl);
     virtual        VMSymbol* GetFieldName(long index) const;
     virtual inline long      GetNumberOfFields() const;
+    int64_t GetHash() const override { return hash; }
                    void      SetNumberOfFields(long nof);
     
     inline vm_oop_t GetField(size_t index) const {
