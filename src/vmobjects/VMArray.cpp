@@ -79,14 +79,6 @@ VMArray* VMArray::CloneForMovingGC() const {
     return clone;
 }
 
-void VMArray::MarkObjectAsInvalid() {
-    VMObject::MarkObjectAsInvalid();
-    const size_t numIndexableFields = GetNumberOfIndexableFields();
-    for (size_t i = 0; i < numIndexableFields; ++i) {
-        FIELDS[i] = INVALID_GC_POINTER;
-    }
-}
-
 void VMArray::CopyIndexableFieldsTo(VMArray* to) const {
     const size_t numIndexableFields = GetNumberOfIndexableFields();
     for (size_t i = 0; i < numIndexableFields; ++i) {

@@ -55,8 +55,6 @@ public:
 
     StdString AsDebugString() const override;
 
-    void MarkObjectAsInvalid() override;
-
 private:
     static const size_t VMArrayNumberOfFields;
 };
