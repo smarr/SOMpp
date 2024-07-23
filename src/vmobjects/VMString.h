@@ -63,7 +63,11 @@ protected_testable:
     const size_t length;
     char* const chars;
 protected:
-    VMString(char* const str, const size_t length) : chars(str), length(length) {}; //constructor to use by VMSymbol
+    VMString(char* const adaptedCharsPointer, const size_t length) :
+        // set the chars-pointer to point at the position of the first character
+        // as determined in the VMSymbol constructor
+        chars(adaptedCharsPointer),
+        length(length) {}; //constructor to use by VMSymbol
 };
 
 char* VMString::GetRawChars() const {
