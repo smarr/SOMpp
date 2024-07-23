@@ -5,7 +5,7 @@
 #define MASK_SEEN_BY_WRITE_BARRIER (1 << 2)
 #define MASK_BITS_ALL (MASK_OBJECT_IS_MARKED | MASK_OBJECT_IS_OLD | MASK_SEEN_BY_WRITE_BARRIER)
 
-#include <assert.h>
+#include <cassert>
 
 class VMObjectBase : public VMOop {
 protected:
