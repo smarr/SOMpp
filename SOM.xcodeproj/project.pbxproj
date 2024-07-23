@@ -1180,7 +1180,7 @@
 				OTHER_CFLAGS = (
 					"-DGC_TYPE=COPYING",
 					"-DUSE_TAGGING=false",
-					"-DNDEBUG",
+					"-DDEBUG=true",
 				);
 				VALID_ARCHS = arm64;
 			};
@@ -1224,7 +1224,7 @@
 				OTHER_CFLAGS = (
 					"-DGC_TYPE=COPYING",
 					"-DUSE_TAGGING=false",
-					"-DNDEBUG",
+					"-DDEBUG=true",
 				);
 				VALID_ARCHS = arm64;
 			};
