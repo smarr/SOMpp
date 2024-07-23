@@ -33,25 +33,25 @@
 class VMArray: public VMObject {
 public:
     typedef GCArray Stored;
-    
+
     VMArray(size_t size, size_t nof = 0);
 
-    virtual void WalkObjects(walk_heap_fn);
+    void WalkObjects(walk_heap_fn) override;
 
     inline  size_t GetNumberOfIndexableFields() const {
         return GetAdditionalSpaceConsumption() / sizeof(VMObject*);
     }
-    
+
     VMArray* CopyAndExtendWith(vm_oop_t) const;
     vm_oop_t GetIndexableField(size_t idx) const;
     void SetIndexableField(size_t idx, vm_oop_t value);
     void CopyIndexableFieldsTo(VMArray*) const;
-    virtual VMArray* Clone() const;
-    
-    virtual StdString AsDebugString() const;
+    VMArray* Clone() const override;
+
+    StdString AsDebugString() const override;
+
+    void MarkObjectAsInvalid() override;
 
 private:
-    virtual void MarkObjectAsInvalid();
-    
     static const size_t VMArrayNumberOfFields;
 };

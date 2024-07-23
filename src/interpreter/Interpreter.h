@@ -36,7 +36,7 @@
 }
 
 #define DISPATCH_GC() {\
-  if (GetHeap<HEAP_CLS>()->isCollectionTriggered()) { triggerGC(); } \
+  if (GetHeap<HEAP_CLS>()->isCollectionTriggered()) { startGC(); } \
   goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];\
 }
 
@@ -72,7 +72,7 @@ private:
     static const StdString doesNotUnderstand;
     static const StdString escapedBlock;
     
-    void triggerGC();
+    void startGC();
     void disassembleMethod() const;
 
     VMFrame* popFrame();

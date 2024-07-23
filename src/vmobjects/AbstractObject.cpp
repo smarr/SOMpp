@@ -17,7 +17,7 @@
 #include "VMInvokable.h"
 #include "VMSymbol.h"
 
-int64_t AbstractVMObject::GetHash() {
+int64_t AbstractVMObject::GetHash() const {
     return (int64_t) this;
 }
 

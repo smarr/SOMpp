@@ -32,7 +32,7 @@ class AbstractVMObject: public VMObjectBase {
 public:
     typedef GCAbstractObject Stored;
     
-    virtual int64_t GetHash();
+    virtual int64_t GetHash() const;
     virtual VMClass* GetClass() const = 0;
     virtual AbstractVMObject* Clone() const = 0;
     virtual void Send(Interpreter*, StdString, vm_oop_t*, long);

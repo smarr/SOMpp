@@ -64,11 +64,11 @@ public:
     
     VMObject(size_t numberOfFields = 0);
 
-    virtual int64_t GetHash() { return hash; }
-    virtual inline VMClass*  GetClass() const;
-    virtual        void      SetClass(VMClass* cl);
-    virtual        VMSymbol* GetFieldName(long index) const;
-    virtual inline long      GetNumberOfFields() const;
+    int64_t GetHash() const override { return hash; }
+    inline VMClass*  GetClass() const override;
+           void      SetClass(VMClass* cl) override;
+           VMSymbol* GetFieldName(long index) const override;
+    inline long      GetNumberOfFields() const override;
                    void      SetNumberOfFields(long nof);
     
     inline vm_oop_t GetField(size_t index) const {
@@ -83,14 +83,14 @@ public:
     }
     
     virtual        void      Assert(bool value) const;
-    virtual        void      WalkObjects(walk_heap_fn walk);
-    virtual        VMObject* Clone() const;
-    virtual inline size_t    GetObjectSize() const;
-    virtual inline void      SetObjectSize(size_t size);
+    void      WalkObjects(walk_heap_fn walk) override;
+    VMObject* Clone() const override;
+    inline size_t    GetObjectSize() const override;
+    inline void      SetObjectSize(size_t size) override;
     
-    virtual        void      MarkObjectAsInvalid();
+           void      MarkObjectAsInvalid() override;
     
-    virtual        StdString AsDebugString() const;
+           StdString AsDebugString() const override;
 
     /**
      * usage: new( <heap> [, <additional_bytes>] ) VMObject( <constructor params> )

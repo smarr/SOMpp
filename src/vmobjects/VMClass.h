@@ -34,7 +34,7 @@
 #include "VMObject.h"
 
 #if defined(_MSC_VER)   //Visual Studio
-#include <windows.h> 
+#include <windows.h>
 #include "../primitives/Core.h"
 #endif
 
@@ -43,7 +43,7 @@ class ClassGenerationContext;
 class VMClass: public VMObject {
 public:
     typedef GCClass Stored;
-    
+
     VMClass();
     VMClass(long numberOfFields);
 
@@ -67,12 +67,12 @@ public:
            long         GetNumberOfInstanceFields() const;
            bool         HasPrimitives() const;
            void         LoadPrimitives(const vector<StdString>&);
-    virtual VMClass*    Clone() const;
-           void         WalkObjects(walk_heap_fn walk);
-    
-    virtual void MarkObjectAsInvalid();
-    
-    virtual StdString AsDebugString() const;
+           VMClass*    Clone() const override;
+           void         WalkObjects(walk_heap_fn walk) override;
+
+    void MarkObjectAsInvalid() override;
+
+           StdString AsDebugString() const override;
 
 private:
     bool hasPrimitivesFor(const StdString& cl) const;

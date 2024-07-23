@@ -419,7 +419,7 @@ void Interpreter::WalkGlobals(walk_heap_fn walk) {
     frame  = load_ptr(static_cast<GCFrame*>(walk(_store_ptr(frame))));
 }
 
-void Interpreter::triggerGC() {
+void Interpreter::startGC() {
     GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
     GetHeap<HEAP_CLS>()->FullGC();
     method = GetFrame()->GetMethod();

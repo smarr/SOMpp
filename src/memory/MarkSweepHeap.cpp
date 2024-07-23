@@ -32,6 +32,6 @@ AbstractVMObject* MarkSweepHeap::AllocateObject(size_t size) {
     allocatedObjects->push_back(newObject);
     //let's see if we have to trigger the GC
     if (spcAlloc >= collectionLimit)
-        triggerGC();
+        requestGC();
     return newObject;
 }

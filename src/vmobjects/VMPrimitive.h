@@ -33,24 +33,24 @@
 class VMPrimitive: public VMInvokable {
 public:
     typedef GCPrimitive Stored;
-    
+
     static VMPrimitive* GetEmptyPrimitive(VMSymbol* sig, bool classSide);
 
     VMPrimitive(VMSymbol* sig);
 
     inline  bool IsEmpty() const;
     inline  void SetRoutine(PrimitiveRoutine* rtn);
-    virtual void WalkObjects(walk_heap_fn);
+            void WalkObjects(walk_heap_fn) override;
             void SetEmpty(bool value) {empty = value;};
-    virtual VMPrimitive* Clone() const;
+            VMPrimitive* Clone() const override;
 
-    virtual void Invoke(Interpreter* interp, VMFrame* frm) {
+    void Invoke(Interpreter* interp, VMFrame* frm) override {
         routine->Invoke(interp, frm);
     };
 
-    virtual bool IsPrimitive() const {return true;};
-    
-    virtual StdString AsDebugString() const;
+    bool IsPrimitive() const override {return true;};
+
+    StdString AsDebugString() const override;
 
 private:
     void EmptyRoutine(Interpreter*, VMFrame*);

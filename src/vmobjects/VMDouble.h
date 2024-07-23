@@ -31,18 +31,18 @@
 class VMDouble: public AbstractVMObject {
 public:
     typedef GCDouble Stored;
-    
+
     VMDouble(double val) : embeddedDouble(val), AbstractVMObject() {}
 
-    virtual VMDouble* Clone() const;
+    VMDouble* Clone() const override;
     inline  double   GetEmbeddedDouble() const;
-    virtual VMClass* GetClass() const;
-    inline virtual size_t GetObjectSize() const;
-    
-    virtual void MarkObjectAsInvalid() {}
-    
-    virtual StdString AsDebugString() const;
-    
+    VMClass* GetClass() const override;
+    inline size_t GetObjectSize() const override;
+
+    void MarkObjectAsInvalid() override {}
+
+    StdString AsDebugString() const override;
+
 private_testable:
     const double embeddedDouble;
 };
