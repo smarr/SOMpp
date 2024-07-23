@@ -26,7 +26,6 @@
  THE SOFTWARE.
  */
 
-//#define __DEBUG
 #include <map>
 #include <vector>
 

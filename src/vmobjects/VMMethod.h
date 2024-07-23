@@ -112,6 +112,10 @@ public:
         indexableFields = (gc_oop_t*) INVALID_GC_POINTER;
     }
 
+    bool IsMarkedInvalid() const override {
+        return indexableFields == (gc_oop_t*) INVALID_GC_POINTER;
+    }
+
     StdString AsDebugString() const override;
 
 private:

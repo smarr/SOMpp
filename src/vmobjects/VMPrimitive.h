@@ -68,6 +68,10 @@ public:
         routine = (PrimitiveRoutine*) INVALID_GC_POINTER;
     }
 
+    bool IsMarkedInvalid() const override {
+        return routine == (PrimitiveRoutine*) INVALID_GC_POINTER;
+    }
+
     StdString AsDebugString() const override;
 
 private:

@@ -32,7 +32,7 @@
 #include <exception>
 #include <iostream>
 #include <map>
-#include <sstream> 
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -122,7 +122,7 @@ __attribute__((noreturn)) void Universe::Quit(long err) {
 #endif
 
     OutputAllocationLogFile();
-    
+
     if (theUniverse)
         delete (theUniverse);
 
@@ -265,7 +265,7 @@ VMMethod* Universe::createBootstrapMethod(VMClass* holder, long numArgsOfMsgSend
 vm_oop_t Universe::interpret(StdString className, StdString methodName) {
   // This method assumes that SOM++ was already initialized by executing a
   // Hello World program as part of the unittest main.
-  
+
   bm_name = "BasicInterpreterTests";
 
   interpreter = new Interpreter();
@@ -320,7 +320,7 @@ void Universe::initialize(long _argc, char** _argv) {
     heapSize = 1 * 1024 * 1024;
 
     vector<StdString> argv = handleArguments(_argc, _argv);
-    
+
     // remember file that was executed (for writing statistics)
     if (argv.size() > 0)
         bm_name = argv[0];
@@ -365,14 +365,14 @@ Universe::~Universe() {
 
 VMObject* Universe::InitializeGlobals() {
     set_vt_to_null();
-    
+
     //
     //allocate nil object
     //
     VMObject* nil = NewInstanceWithoutFields();
     nilObject = _store_ptr(nil);
     nil->SetClass((VMClass*) nil);
-    
+
     trueObject = _store_ptr(NewInstanceWithoutFields());
     falseObject = _store_ptr(NewInstanceWithoutFields());
 
@@ -407,7 +407,7 @@ VMObject* Universe::InitializeGlobals() {
     load_ptr(objectClass)->SetSuperClass((VMClass*) nil);
 
     obtain_vtables_of_known_classes(nil->GetClass()->GetName());
-    
+
 #if USE_TAGGING
     GlobalBox::updateIntegerBox(NewInteger(1));
 #endif
@@ -429,24 +429,24 @@ VMObject* Universe::InitializeGlobals() {
     VMSymbol* trueClassName = SymbolFor("True");
     trueClass  = _store_ptr(LoadClass(trueClassName));
     load_ptr(trueObject)->SetClass(load_ptr(trueClass));
-    
+
     VMSymbol* falseClassName = SymbolFor("False");
     falseClass  = _store_ptr(LoadClass(falseClassName));
     load_ptr(falseObject)->SetClass(load_ptr(falseClass));
 
     systemClass = _store_ptr(LoadClass(SymbolFor("System")));
-    
-    
+
+
     VMObject* systemObject = NewInstance(load_ptr(systemClass));
-    
+
     SetGlobal(SymbolFor("nil"),    load_ptr(nilObject));
     SetGlobal(SymbolFor("true"),   load_ptr(trueObject));
     SetGlobal(SymbolFor("false"),  load_ptr(falseObject));
     SetGlobal(SymbolFor("system"), systemObject);
     SetGlobal(SymbolFor("System"), load_ptr(systemClass));
     SetGlobal(SymbolFor("Block"),  load_ptr(blockClass));
-    
-    InitializeSymbols();    
+
+    InitializeSymbols();
     return systemObject;
 }
 
@@ -532,7 +532,7 @@ VMClass* superClass, const char* name) {
 
 VMClass* Universe::LoadClass(VMSymbol* name) {
     VMClass* result = static_cast<VMClass*>(GetGlobal(name));
-    
+
     if (result != nullptr)
         return result;
 
@@ -545,7 +545,7 @@ VMClass* Universe::LoadClass(VMSymbol* name) {
 
     if (result->HasPrimitives() || result->GetClass()->HasPrimitives())
         result->LoadPrimitives(classPath);
-    
+
     SetGlobal(name, result);
 
     return result;
@@ -591,9 +591,9 @@ void Universe::LoadSystemClass(VMClass* systemClass) {
 
 VMArray* Universe::NewArray(long size) const {
     long additionalBytes = size * sizeof(VMObject*);
-    
+
     bool outsideNursery;
-    
+
 #if GC_TYPE == GENERATIONAL
     // if the array is too big for the nursery, we will directly allocate a
     // mature object
@@ -605,7 +605,7 @@ VMArray* Universe::NewArray(long size) const {
         result->SetGCField(MASK_OBJECT_IS_OLD);
 
     result->SetClass(load_ptr(arrayClass));
-    
+
     LOG_ALLOCATION("VMArray", result->GetObjectSize());
     return result;
 }
@@ -617,7 +617,7 @@ VMArray* Universe::NewArrayFromStrings(const vector<StdString>& argv) const {
             i != argv.end(); ++i) {
         result->SetIndexableField(j, NewString(*i));
         ++j;
-    }
+}
 
     return result;
 }
@@ -694,7 +694,7 @@ VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method) const {
     result->method        = _store_ptr(method);
     result->previousFrame = _store_ptr(previousFrame);
     result->ResetStackPointer();
-    
+
     LOG_ALLOCATION("VMFrame", result->GetObjectSize());
     return result;
 }
@@ -766,7 +766,7 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
     systemClass     = static_cast<GCClass*>(walk(systemClass));
     blockClass      = static_cast<GCClass*>(walk(blockClass));
     doubleClass     = static_cast<GCClass*>(walk(doubleClass));
-    
+
     trueClass  = static_cast<GCClass*>(walk(trueClass));
     falseClass = static_cast<GCClass*>(walk(falseClass));
 
@@ -790,9 +790,9 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
         gc_oop_t val = walk(iter->second);
         globals[key] = val;
     }
-    
+
     WalkSymbols(walk);
-    
+
 
     map<long, GCClass*>::iterator bcIter;
     for (bcIter = blockClassesByNoOfArgs.begin();
@@ -800,7 +800,7 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
          bcIter++) {
         bcIter->second = static_cast<GCClass*>(walk(bcIter->second));
     }
-    
+
     interpreter->WalkGlobals(walk);
 }
 
@@ -808,13 +808,8 @@ VMMethod* Universe::NewMethod(VMSymbol* signature,
         size_t numberOfBytecodes, size_t numberOfConstants, size_t numLocals, size_t maxStackDepth) const {
     // method needs space for the bytecodes and the pointers to the constants
     size_t additionalBytes = PADDED_SIZE(numberOfBytecodes + numberOfConstants*sizeof(VMObject*));
-//#if GC_TYPE==GENERATIONAL
-//    VMMethod* result = new (GetHeap<HEAP_CLS>(),additionalBytes, true) 
-//                VMMethod(numberOfBytecodes, numberOfConstants);
-//#else
     VMMethod* result = new (GetHeap<HEAP_CLS>(), additionalBytes)
         VMMethod(signature, numberOfBytecodes, numberOfConstants, numLocals, maxStackDepth);
-//#endif
 
     LOG_ALLOCATION("VMMethod", result->GetObjectSize());
     return result;

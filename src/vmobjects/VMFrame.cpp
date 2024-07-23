@@ -93,7 +93,22 @@ VMFrame* VMFrame::Clone() const {
     size_t noBytes = GetObjectSize() - sizeof(VMFrame);
     memcpy(destination, source, noBytes);
     clone->arguments = (gc_oop_t*)&(clone->stack_ptr)+1; //field after stack_ptr
-    clone->locals = clone->arguments + GetMethod()->GetNumberOfArguments();
+    
+    // Use of GetMethod() is problematic here, because it may be invalid object while cloning/moving within GC
+    // Use of GetMethod()->GetNumberOfArguments() is problematic here, because it may be invalid object while cloning/moving within GC
+    
+#if GC_TYPE == GENERATIONAL || GC_TYPE == COPYING
+    VMMethod* meth = load_ptr(method);
+    if (meth->GetGCField() != 0 && meth->GetGCField() != MASK_OBJECT_IS_OLD) {
+        meth = (VMMethod*) meth->GetGCField();
+    }
+//    int64_t numArgs = meth->GetNumberOfArgumentsPossiblyFollowingForwardingPointer();
+#else
+    VMMethod* meth = GetMethod();
+#endif
+    int64_t numArgs = meth->GetNumberOfArguments();
+
+    clone->locals = clone->arguments + numArgs;
     clone->stack_ptr = (gc_oop_t*)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
     return clone;
 }

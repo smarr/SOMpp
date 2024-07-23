@@ -60,7 +60,12 @@ VMMethod* VMMethod::Clone() const {
                     sizeof(VMObject)), GetObjectSize() -
             sizeof(VMObject));
     clone->indexableFields = (gc_oop_t*)(&(clone->indexableFields) + 2);
-    clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + GetNumberOfIndexableFields());
+
+
+    size_t numIndexableFields = GetNumberOfIndexableFields();
+    clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + numIndexableFields);
+
+    // Use of GetNumberOfIndexableFields() is problematic here, because it may be invalid object while cloning/moving within GC
     return clone;
 }
 
@@ -72,7 +77,8 @@ void VMMethod::WalkObjects(walk_heap_fn walk) {
         cachedFrame = static_cast<VMFrame*>(walk(cachedFrame));
 #endif
 
-    long numIndexableFields = GetNumberOfIndexableFields();
+    int64_t numIndexableFields = GetNumberOfIndexableFields();
+
     for (long i = 0; i < numIndexableFields; ++i) {
         if (indexableFields[i] != nullptr) {
             indexableFields[i] = walk(indexableFields[i]);

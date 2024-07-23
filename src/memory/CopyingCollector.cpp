@@ -33,6 +33,12 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     // we have to clone ourselves
     AbstractVMObject* newObj = obj->Clone();
 
+    // it looks to me like the Symbols get corrupted somehow, and when we try to clone them, it's too late
+    // there are also waaaay too many symbols now.
+    // I really can't create a new symbol for every fully qualified name, that's just bad
+    
+    
+    
     if (DEBUG)
         obj->MarkObjectAsInvalid();
 
