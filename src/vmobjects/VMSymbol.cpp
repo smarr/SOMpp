@@ -24,12 +24,14 @@
  THE SOFTWARE.
  */
 
+#include <cstdint>
 #include <cstring>
 #include <sstream>
 #include <string>
 
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
+#include "../vm/Globals.h"  // NOLINT (misc-include-cleaner)
 #include "AbstractObject.h"
 #include "ObjectFormats.h"
 #include "Signature.h"
@@ -37,8 +39,6 @@
 #include "VMInvokable.h"
 #include "VMString.h"
 #include "VMSymbol.h"
-
-extern GCClass* symbolClass;
 
 VMSymbol::VMSymbol(const size_t length, const char* const str) :
       // set the chars-pointer to point at the position of the first character
@@ -143,3 +143,18 @@ std::string VMSymbol::AsDebugString() const {
     return "Symbol(" + GetStdString() + ")";
 }
 
+VMInvokable* VMSymbol::GetCachedInvokable(const VMClass* cls) const {
+    if (cls == load_ptr(cachedClass_invokable[0]))
+        return load_ptr(cachedInvokable[0]);
+    else if (cls == load_ptr(cachedClass_invokable[1]))
+        return load_ptr(cachedInvokable[1]);
+    else if (cls == load_ptr(cachedClass_invokable[2]))
+        return load_ptr(cachedInvokable[2]);
+    return nullptr;
+}
+
+void VMSymbol::UpdateCachedInvokable(const VMClass* cls, VMInvokable* invo) {
+    store_ptr(cachedInvokable[nextCachePos], invo);
+    store_ptr(cachedClass_invokable[nextCachePos], const_cast<VMClass*>(cls));
+    nextCachePos = (nextCachePos + 1) % 3;
+}

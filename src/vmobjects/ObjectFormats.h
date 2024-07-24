@@ -119,7 +119,7 @@ class GCArray  : public GCObject         { public: typedef VMArray  Loaded; };
 class GCBlock  : public GCObject         { public: typedef VMBlock  Loaded; };
 class GCDouble : public GCAbstractObject { public: typedef VMDouble Loaded; };
 class GCInteger : public GCAbstractObject { public: typedef VMInteger Loaded; };
-class GCInvokable : public GCObject      { public: typedef VMInvokable Loaded; };
+class GCInvokable : public GCAbstractObject { public: typedef VMInvokable Loaded; };
 class GCMethod : public GCInvokable      { public: typedef VMMethod    Loaded; };
 class GCPrimitive : public GCInvokable   { public: typedef VMPrimitive Loaded; };
 class GCEvaluationPrimitive : public GCPrimitive { public: typedef VMEvaluationPrimitive Loaded; };

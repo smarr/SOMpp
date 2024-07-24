@@ -256,10 +256,8 @@ Universe::Universe() {
 }
 
 VMMethod* Universe::createBootstrapMethod(VMClass* holder, long numArgsOfMsgSend) {
-    VMMethod* bootstrapMethod = NewMethod(SymbolFor("bootstrap"), 1, 0);
+    VMMethod* bootstrapMethod = NewMethod(SymbolFor("bootstrap"), 1, 0, 0, numArgsOfMsgSend);
     bootstrapMethod->SetBytecode(0, BC_HALT);
-    bootstrapMethod->SetNumberOfLocals(0);
-    bootstrapMethod->SetMaximumNumberOfStackElements(numArgsOfMsgSend);
     bootstrapMethod->SetHolder(holder);
     return bootstrapMethod;
 }
@@ -475,7 +473,7 @@ VMClass* Universe::GetBlockClassWithArgs(long numberOfArguments) {
     VMSymbol* name = SymbolFor(Str.str());
     VMClass* result = LoadClassBasic(name, nullptr);
 
-    result->AddInstancePrimitive(new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(numberOfArguments) );
+    result->AddInstancePrimitive(new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(numberOfArguments));
 
     SetGlobal(name, result);
     blockClassesByNoOfArgs[numberOfArguments] = _store_ptr(result);
@@ -807,19 +805,16 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
 }
 
 VMMethod* Universe::NewMethod(VMSymbol* signature,
-        size_t numberOfBytecodes, size_t numberOfConstants) const {
-    //Method needs space for the bytecodes and the pointers to the constants
-    long additionalBytes = PADDED_SIZE(numberOfBytecodes + numberOfConstants*sizeof(VMObject*));
+        size_t numberOfBytecodes, size_t numberOfConstants, size_t numLocals, size_t maxStackDepth) const {
+    // method needs space for the bytecodes and the pointers to the constants
+    size_t additionalBytes = PADDED_SIZE(numberOfBytecodes + numberOfConstants*sizeof(VMObject*));
 //#if GC_TYPE==GENERATIONAL
 //    VMMethod* result = new (GetHeap<HEAP_CLS>(),additionalBytes, true) 
 //                VMMethod(numberOfBytecodes, numberOfConstants);
 //#else
-    VMMethod* result = new (GetHeap<HEAP_CLS>(),additionalBytes)
-    VMMethod(numberOfBytecodes, numberOfConstants);
+    VMMethod* result = new (GetHeap<HEAP_CLS>(), additionalBytes)
+        VMMethod(signature, numberOfBytecodes, numberOfConstants, numLocals, maxStackDepth);
 //#endif
-    result->SetClass(load_ptr(methodClass));
-
-    result->SetSignature(signature);
 
     LOG_ALLOCATION("VMMethod", result->GetObjectSize());
     return result;

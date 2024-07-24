@@ -34,8 +34,8 @@ static const size_t NoOfFields_Double = 0;
 static const size_t NoOfFields_Integer = 0;
 static const size_t NoOfFields_BigInteger = 0;
 static const size_t NoOfFields_Array = NoOfFields_Object;
-static const size_t NoOfFields_Invokable = 2 + NoOfFields_Object;
-static const size_t NoOfFields_Method = 5 + NoOfFields_Invokable;
+static const size_t NoOfFields_Invokable = 2;
+static const size_t NoOfFields_Method = NoOfFields_Invokable;
 static const size_t NoOfFields_Class = 4 + NoOfFields_Object;
 static const size_t NoOfFields_Frame = 3 + NoOfFields_Array;
 static const size_t NoOfFields_Block = 2 + NoOfFields_Object;
@@ -80,14 +80,13 @@ void WalkObjectsTest::testWalkEvaluationPrimitive() {
     walkedObjects.clear();
 
     VMEvaluationPrimitive* evPrim = new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(1);
+    evPrim->SetHolder(load_ptr(classClass));
     evPrim->WalkObjects(collectMembers);
 
-    CPPUNIT_ASSERT(WalkerHasFound(evPrim->numberOfArguments));
-    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(evPrim->GetClass())));
     CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(evPrim->GetSignature())));
     CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(evPrim->GetHolder())));
     CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(evPrim)));
-    CPPUNIT_ASSERT_EQUAL(NoOfFields_EvaluationPrimitive + 1, walkedObjects.size());
+    CPPUNIT_ASSERT_EQUAL(NoOfFields_EvaluationPrimitive, walkedObjects.size());
 }
 
 void WalkObjectsTest::testWalkObject() {
@@ -136,10 +135,10 @@ void WalkObjectsTest::testWalkPrimitive() {
     walkedObjects.clear();
     VMSymbol* primitiveSymbol = NewSymbol("myPrimitive");
     VMPrimitive* prim = VMPrimitive::GetEmptyPrimitive(primitiveSymbol, false);
+    prim->SetHolder(load_ptr(methodClass));
 
     prim->WalkObjects(collectMembers);
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Primitive, walkedObjects.size());
-    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(prim->GetClass())));
     CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(prim->GetSignature())));
     CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(prim->GetHolder())));
 }
@@ -147,7 +146,7 @@ void WalkObjectsTest::testWalkPrimitive() {
 void WalkObjectsTest::testWalkFrame() {
     walkedObjects.clear();
     VMSymbol* methodSymbol = NewSymbol("frameMethod");
-    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0);
     VMFrame* frame = GetUniverse()->NewFrame(nullptr, method);
     frame->SetPreviousFrame(frame->Clone());
     frame->SetContext(frame->Clone());
@@ -155,7 +154,6 @@ void WalkObjectsTest::testWalkFrame() {
     frame->SetArgument(0, 0, dummyArg);
     frame->WalkObjects(collectMembers);
 
-    // CPPUNIT_ASSERT(WalkerHasFound(frame->GetClass()));  // VMFrame does no longer have a SOM representation
     CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(frame->GetPreviousFrame())));
     CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(frame->GetContext())));
     CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(frame->GetMethod())));
@@ -169,16 +167,11 @@ void WalkObjectsTest::testWalkFrame() {
 void WalkObjectsTest::testWalkMethod() {
     walkedObjects.clear();
     VMSymbol* methodSymbol = NewSymbol("myMethod");
-    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0);
+    method->SetHolder(load_ptr(symbolClass));
     method->WalkObjects(collectMembers);
 
-    CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(method->GetClass())));
     //the following fields had no getters -> had to become friend
-    CPPUNIT_ASSERT(WalkerHasFound(method->numberOfLocals));
-    CPPUNIT_ASSERT(WalkerHasFound(method->bcLength));
-    CPPUNIT_ASSERT(WalkerHasFound(method->maximumNumberOfStackElements));
-    CPPUNIT_ASSERT(WalkerHasFound(method->numberOfArguments));
-    CPPUNIT_ASSERT(WalkerHasFound(method->numberOfConstants));
     CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(method->GetHolder())));
     CPPUNIT_ASSERT(WalkerHasFound(_store_ptr(method->GetSignature())));
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Method, walkedObjects.size());
@@ -187,7 +180,7 @@ void WalkObjectsTest::testWalkMethod() {
 void WalkObjectsTest::testWalkBlock() {
     walkedObjects.clear();
     VMSymbol* methodSymbol = NewSymbol("someMethod");
-    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0);
     VMBlock* block = GetUniverse()->NewBlock(method,
             GetUniverse()->GetInterpreter()->GetFrame(),
             method->GetNumberOfArguments());

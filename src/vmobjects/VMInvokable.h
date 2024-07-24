@@ -28,24 +28,30 @@
 
 #include "ObjectFormats.h"
 #include "VMObject.h"
+#include "VMSymbol.h"
 
-class VMInvokable: public VMObject {
+class VMInvokable: public AbstractVMObject {
 public:
     typedef GCInvokable Stored;
 
-    VMInvokable(long nof = 0) : VMObject(nof + 2) {};
+    VMInvokable(VMSymbol* sig) : AbstractVMObject(), hash((intptr_t) this), signature(nullptr), holder(nullptr) {
+        store_ptr(signature, sig);
+    };
+
+    int64_t GetHash() const override { return hash; }
 
     virtual void      Invoke(Interpreter*, VMFrame*) = 0;
 
     virtual bool      IsPrimitive() const;
             VMSymbol* GetSignature() const;
-    virtual void      SetSignature(VMSymbol* sig);
             VMClass*  GetHolder() const;
     virtual void      SetHolder(VMClass* hld);
 
     void WalkObjects(walk_heap_fn) override;
 
 protected_testable:
+    int64_t hash;
+
     GCSymbol* signature;
     GCClass*  holder;
 };

@@ -29,7 +29,7 @@
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../primitivesCore/Routine.h"
-#include "../vm/Globals.h"
+#include "../vm/Globals.h" // NOLINT (misc-include-cleaner)
 #include "../vm/Print.h"
 #include "ObjectFormats.h"
 #include "VMClass.h"
@@ -39,30 +39,15 @@
 
 VMPrimitive* VMPrimitive::GetEmptyPrimitive(VMSymbol* sig, bool classSide) {
     VMPrimitive* prim = new (GetHeap<HEAP_CLS>()) VMPrimitive(sig);
-    prim->empty = true;
-    prim->SetRoutine(new Routine<VMPrimitive>(prim, &VMPrimitive::EmptyRoutine, classSide));
+    prim->SetRoutine(new Routine<VMPrimitive>(prim, &VMPrimitive::EmptyRoutine, classSide), true);
     return prim;
 }
 
-const int VMPrimitive::VMPrimitiveNumberOfFields = 2;
-
-VMPrimitive::VMPrimitive(VMSymbol* signature) : VMInvokable(VMPrimitiveNumberOfFields) {
-    //the only class that explicitly does this.
-    SetClass(load_ptr(primitiveClass));
-    SetSignature(signature);
-    routine = nullptr;
-    empty = false;
-}
+VMPrimitive::VMPrimitive(VMSymbol* signature) : VMInvokable(signature), routine(nullptr), empty(false) {}
 
 VMPrimitive* VMPrimitive::Clone() const {
     VMPrimitive* prim = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMPrimitive(*this);
     return prim;
-}
-
-void VMPrimitive::WalkObjects(walk_heap_fn walk) {
-    clazz     = static_cast<GCClass*>(walk(clazz));
-    signature = static_cast<GCSymbol*>(walk(signature));
-    holder    = static_cast<GCClass*>(walk(holder));
 }
 
 void VMPrimitive::EmptyRoutine(Interpreter*, VMFrame*) {
@@ -74,4 +59,3 @@ std::string VMPrimitive::AsDebugString() const {
     return "Primitive(" + GetClass()->GetName()->GetStdString() + ">>#"
                         + GetSignature()->GetStdString() + ")";
 }
-

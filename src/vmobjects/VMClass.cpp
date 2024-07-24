@@ -263,8 +263,7 @@ void VMClass::setPrimitives(const std::string& cname, bool classSide) {
                 }
 
                 // set routine
-                thePrimitive->SetRoutine(routine);
-                thePrimitive->SetEmpty(false);
+                thePrimitive->SetRoutine(routine, false);
             } else {
                 if (anInvokable->IsPrimitive() && current == this) {
                     if (!routine || routine->isClassSide() == classSide) {
