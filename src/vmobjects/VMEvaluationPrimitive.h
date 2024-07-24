@@ -32,19 +32,23 @@ class VMEvaluationPrimitive: public VMPrimitive {
 public:
     typedef GCEvaluationPrimitive Stored;
 
-    VMEvaluationPrimitive(long argc);
+    VMEvaluationPrimitive(size_t argc);
     void WalkObjects(walk_heap_fn) override;
     VMEvaluationPrimitive* Clone() const override;
 
     StdString AsDebugString() const override;
 
-    int64_t GetNumberOfArguments() { return INT_VAL(load_ptr(numberOfArguments)); };
+    int64_t GetNumberOfArguments() { return numberOfArguments; }
+    
+    inline size_t GetObjectSize() const override {
+        return sizeof(VMEvaluationPrimitive);
+    }
 
 private:
     static VMSymbol* computeSignatureString(long argc);
     void evaluationRoutine(Interpreter*, VMFrame*);
 private_testable:
-    gc_oop_t numberOfArguments;
+    size_t numberOfArguments;
 
 };
 

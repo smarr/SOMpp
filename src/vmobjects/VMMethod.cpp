@@ -41,22 +41,11 @@
 #include "VMObject.h"
 #include "VMSymbol.h"
 
-#ifdef UNSAFE_FRAME_OPTIMIZATION
-const long VMMethod::VMMethodNumberOfFields = 8;
-#else
-const long VMMethod::VMMethodNumberOfFields = 7;
-#endif
-
-VMMethod::VMMethod(long bcCount, long numberOfConstants) :
-        VMInvokable(VMMethodNumberOfFields) {
+VMMethod::VMMethod(VMSymbol* signature, size_t bcCount, size_t numberOfConstants, size_t numLocals, size_t maxStackDepth) :
+        VMInvokable(signature), bcLength(bcCount), numberOfLocals(numLocals), maximumNumberOfStackElements(maxStackDepth), numberOfArguments(signature == nullptr ? 0 : Signature::GetNumberOfArguments(signature)), numberOfConstants(numberOfConstants) {
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     cachedFrame = nullptr;
 #endif
-    store_ptr(bcLength, NEW_INT(bcCount));
-    store_ptr(numberOfLocals, NEW_INT(0));
-    store_ptr(maximumNumberOfStackElements, NEW_INT(0));
-    store_ptr(numberOfArguments, NEW_INT(0));
-    store_ptr(this->numberOfConstants, NEW_INT(numberOfConstants));
 
     indexableFields = (gc_oop_t*)(&indexableFields + 2);
     for (long i = 0; i < numberOfConstants; ++i) {
@@ -75,19 +64,9 @@ VMMethod* VMMethod::Clone() const {
     return clone;
 }
 
-void VMMethod::SetSignature(VMSymbol* sig) {
-    VMInvokable::SetSignature(sig);
-    SetNumberOfArguments(Signature::GetNumberOfArguments(sig));
-}
-
 void VMMethod::WalkObjects(walk_heap_fn walk) {
     VMInvokable::WalkObjects(walk);
 
-    numberOfLocals    = walk(numberOfLocals);
-    maximumNumberOfStackElements = walk(maximumNumberOfStackElements);
-    bcLength          = walk(bcLength);
-    numberOfArguments = walk(numberOfArguments);
-    numberOfConstants = walk(numberOfConstants);
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     if (cachedFrame != nullptr)
         cachedFrame = static_cast<VMFrame*>(walk(cachedFrame));
@@ -116,26 +95,6 @@ void VMMethod::SetCachedFrame(VMFrame* frame) {
     }
 }
 #endif
-
-void VMMethod::SetNumberOfLocals(long nol) {
-    store_ptr(numberOfLocals, NEW_INT(nol));
-}
-
-long VMMethod::GetMaximumNumberOfStackElements() const {
-    return INT_VAL(load_ptr(maximumNumberOfStackElements));
-}
-
-void VMMethod::SetMaximumNumberOfStackElements(long stel) {
-    store_ptr(maximumNumberOfStackElements, NEW_INT(stel));
-}
-
-void VMMethod::SetNumberOfArguments(long noa) {
-    store_ptr(numberOfArguments, NEW_INT(noa));
-}
-
-long VMMethod::GetNumberOfBytecodes() const {
-    return INT_VAL(load_ptr(bcLength));
-}
 
 void VMMethod::Invoke(Interpreter* interp, VMFrame* frame) {
     VMFrame* frm = interp->PushNewFrame(this);

@@ -47,26 +47,22 @@ MethodGenerationContext::MethodGenerationContext() :
 VMMethod* MethodGenerationContext::Assemble() {
     // create a method instance with the given number of bytecodes and literals
     size_t numLiterals = literals.size();
-
-    VMMethod* meth = GetUniverse()->NewMethod(signature, bytecode.size(),
-            numLiterals);
-
-    // populate the fields that are immediately available
     size_t numLocals = locals.size();
-    meth->SetNumberOfLocals(numLocals);
-
-    meth->SetMaximumNumberOfStackElements(maxStackDepth);
+    VMMethod* meth = GetUniverse()->NewMethod(signature, bytecode.size(),
+            numLiterals, numLocals, maxStackDepth);
 
     // copy literals into the method
     for (int i = 0; i < numLiterals; i++) {
         vm_oop_t l = literals[i];
         meth->SetIndexableField(i, l);
     }
+
     // copy bytecodes into method
     size_t bc_size = bytecode.size();
     for (size_t i = 0; i < bc_size; i++) {
         meth->SetBytecode(i, bytecode[i]);
     }
+
     // return the method - the holder field is to be set later on!
     return meth;
 }

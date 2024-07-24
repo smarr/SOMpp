@@ -38,9 +38,23 @@ public:
 
     VMPrimitive(VMSymbol* sig);
 
-    inline  bool IsEmpty() const;
-    inline  void SetRoutine(PrimitiveRoutine* rtn);
-            void WalkObjects(walk_heap_fn) override;
+    VMClass* GetClass() const override {
+        return load_ptr(primitiveClass);
+    }
+
+    inline size_t GetObjectSize() const override {
+        return sizeof(VMPrimitive);
+    }
+
+    inline  bool IsEmpty() const {
+        return empty;
+    }
+
+    inline  void SetRoutine(PrimitiveRoutine* rtn, bool empty) {
+        routine = rtn;
+        this->empty = empty;
+    }
+
             void SetEmpty(bool value) {empty = value;};
             VMPrimitive* Clone() const override;
 
@@ -49,6 +63,10 @@ public:
     };
 
     bool IsPrimitive() const override {return true;};
+
+    void MarkObjectAsInvalid() override {
+        routine = (PrimitiveRoutine*) INVALID_GC_POINTER;
+    }
 
     StdString AsDebugString() const override;
 
@@ -63,16 +81,4 @@ protected_testable:
 
 private_testable:
     bool empty;
-
-private:
-    static const int VMPrimitiveNumberOfFields;
-
 };
-
-bool VMPrimitive::IsEmpty() const {
-    return empty;
-}
-
-void VMPrimitive::SetRoutine(PrimitiveRoutine* rtn) {
-    routine = rtn;
-}

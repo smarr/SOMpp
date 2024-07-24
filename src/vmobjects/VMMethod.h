@@ -28,6 +28,7 @@
 
 #include <iostream>
 
+#include "../vm/Globals.h"
 #include "../vm/Print.h"
 #include "VMInteger.h"
 #include "VMInvokable.h"
@@ -42,22 +43,32 @@ class VMMethod: public VMInvokable {
 public:
     typedef GCMethod Stored;
 
-    VMMethod(long bcCount, long numberOfConstants);
+    VMMethod(VMSymbol* signature, size_t bcCount, size_t numberOfConstants, size_t numLocals, size_t maxStackDepth);
 
-    inline long GetNumberOfLocals() const {
-        return INT_VAL(load_ptr(numberOfLocals));
+    inline size_t GetNumberOfLocals() const {
+        return numberOfLocals;
     }
 
-            void      SetNumberOfLocals(long nol);
-            long      GetMaximumNumberOfStackElements() const;
-            void      SetMaximumNumberOfStackElements(long stel);
+    VMClass* GetClass() const override {
+        return load_ptr(methodClass);
+    }
+
+    inline size_t GetObjectSize() const override {
+        size_t additionalBytes = PADDED_SIZE(bcLength + numberOfConstants*sizeof(VMObject*));
+        return additionalBytes + sizeof(VMMethod);
+    }
+
+    size_t GetMaximumNumberOfStackElements() const {
+        return maximumNumberOfStackElements;
+    }
 
     inline long GetNumberOfArguments() const {
-        return INT_VAL(load_ptr(numberOfArguments));
+        return numberOfArguments;
     }
 
-            void      SetNumberOfArguments(long);
-            long      GetNumberOfBytecodes() const;
+    size_t GetNumberOfBytecodes() const {
+        return bcLength;
+    }
             void      SetHolder(VMClass* hld) override;
             void      SetHolderAll(VMClass* hld);
 
@@ -86,9 +97,7 @@ public:
     void WalkObjects(walk_heap_fn) override;
 
     inline  long GetNumberOfIndexableFields() const {
-        //cannot be done using GetAdditionalSpaceConsumption,
-        //as bytecodes need space, too, and there might be padding
-        return INT_VAL(load_ptr(numberOfConstants));
+        return numberOfConstants;
     }
 
     VMMethod* Clone() const override;
@@ -99,7 +108,9 @@ public:
 
     void Invoke(Interpreter* interp, VMFrame* frame) override;
 
-    void SetSignature(VMSymbol* sig) override;
+    void MarkObjectAsInvalid() override {
+        indexableFields = (gc_oop_t*) INVALID_GC_POINTER;
+    }
 
     StdString AsDebugString() const override;
 
@@ -113,11 +124,11 @@ private:
     }
 
 private_testable:
-    gc_oop_t numberOfLocals;
-    gc_oop_t maximumNumberOfStackElements;
-    gc_oop_t bcLength;
-    gc_oop_t numberOfArguments;
-    gc_oop_t numberOfConstants;
+    const size_t numberOfLocals;
+    const size_t maximumNumberOfStackElements;
+    const size_t bcLength;
+    const size_t numberOfArguments;
+    const size_t numberOfConstants;
 
 private:
 #ifdef UNSAFE_FRAME_OPTIMIZATION
@@ -125,5 +136,4 @@ private:
 #endif
     gc_oop_t* indexableFields;
     uint8_t* bytecodes;
-    static const long VMMethodNumberOfFields;
 };

@@ -67,7 +67,7 @@ void WriteBarrierTest::testWriteBlock() {
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
 
     VMSymbol* methodSymbol = NewSymbol("someMethod");
-    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0);
     VMBlock* block = GetUniverse()->NewBlock(method,
             GetUniverse()->GetInterpreter()->GetFrame(),
             method->GetNumberOfArguments());
@@ -115,8 +115,6 @@ void WriteBarrierTest::testWriteMethod() {
     VMMethod* method = GetUniverse()->GetInterpreter()->GetFrame()->GetMethod()->Clone();
     method->SetHolder(load_ptr(integerClass));
     TEST_WB_CALLED("VMMethod failed to call writeBarrier on SetHolder", method, load_ptr(integerClass));
-    method->SetSignature(method->GetSignature());
-    TEST_WB_CALLED("VMMethod failed to call writeBarrier on SetSignature", method, method->GetSignature());
 }
 
 void WriteBarrierTest::testWriteEvaluationPrimitive() {
@@ -128,7 +126,6 @@ void WriteBarrierTest::testWriteEvaluationPrimitive() {
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
     VMEvaluationPrimitive* evPrim = new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(1);
     TEST_WB_CALLED("VMEvaluationPrimitive failed to call writeBarrier when creating", evPrim, evPrim->GetClass());
-    TEST_WB_CALLED("VMEvaluationPrimitive failed to call writeBarrier when creating", evPrim, load_ptr(evPrim->numberOfArguments));
 }
 
 void WriteBarrierTest::testWriteClass() {

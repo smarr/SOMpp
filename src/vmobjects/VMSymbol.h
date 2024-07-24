@@ -49,8 +49,8 @@ private:
     const GCClass* cachedClass_invokable[3];
     long nextCachePos;
     GCInvokable* cachedInvokable[3];
-    inline VMInvokable* GetCachedInvokable(const VMClass*) const;
-    inline void UpdateCachedInvokable(const VMClass* cls, VMInvokable* invo);
+    VMInvokable* GetCachedInvokable(const VMClass*) const;
+    void UpdateCachedInvokable(const VMClass* cls, VMInvokable* invo);
 
     friend class Signature;
     friend class VMClass;
@@ -59,24 +59,3 @@ private_testable:
     void WalkObjects(walk_heap_fn) override;
 
 };
-
-
-#include "VMClass.h"
-#include "VMInvokable.h"
-
-
-VMInvokable* VMSymbol::GetCachedInvokable(const VMClass* cls) const {
-    if (cls == load_ptr(cachedClass_invokable[0]))
-        return load_ptr(cachedInvokable[0]);
-    else if (cls == load_ptr(cachedClass_invokable[1]))
-        return load_ptr(cachedInvokable[1]);
-    else if (cls == load_ptr(cachedClass_invokable[2]))
-        return load_ptr(cachedInvokable[2]);
-    return nullptr;
-}
-
-void VMSymbol::UpdateCachedInvokable(const VMClass* cls, VMInvokable* invo) {
-    store_ptr(cachedInvokable[nextCachePos], invo);
-    store_ptr(cachedClass_invokable[nextCachePos], const_cast<VMClass*>(cls));
-    nextCachePos = (nextCachePos + 1) % 3;
-}

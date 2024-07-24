@@ -25,6 +25,7 @@
  */
 
 #include <cassert>
+#include <cstddef>
 #include <string>
 
 #include "../memory/Heap.h"
@@ -39,10 +40,8 @@
 #include "VMPrimitive.h"
 #include "VMSymbol.h"
 
-VMEvaluationPrimitive::VMEvaluationPrimitive(long argc) : VMPrimitive(computeSignatureString(argc)) {
-    SetRoutine(new EvaluationRoutine(this));
-    SetEmpty(false);
-    store_ptr(numberOfArguments, NEW_INT(argc));
+VMEvaluationPrimitive::VMEvaluationPrimitive(size_t argc) : VMPrimitive(computeSignatureString(argc)), numberOfArguments(argc) {
+    SetRoutine(new EvaluationRoutine(this), false);
 }
 
 VMEvaluationPrimitive* VMEvaluationPrimitive::Clone() const {
@@ -52,7 +51,6 @@ VMEvaluationPrimitive* VMEvaluationPrimitive::Clone() const {
 
 void VMEvaluationPrimitive::WalkObjects(walk_heap_fn walk) {
     VMPrimitive::WalkObjects(walk);
-    numberOfArguments = walk(numberOfArguments);
     static_cast<EvaluationRoutine*>(routine)->WalkObjects(walk);
 }
 
@@ -103,6 +101,5 @@ void EvaluationRoutine::WalkObjects(walk_heap_fn walk) {
 }
 
 std::string VMEvaluationPrimitive::AsDebugString() const {
-    return "VMEvaluationPrimitive(" + to_string(
-                    INT_VAL(load_ptr(numberOfArguments))) + ")";
+    return "VMEvaluationPrimitive(" + to_string(numberOfArguments) + ")";
 }

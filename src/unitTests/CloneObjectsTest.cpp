@@ -111,7 +111,7 @@ void CloneObjectsTest::testCloneArray() {
 
 void CloneObjectsTest::testCloneBlock() {
     VMSymbol* methodSymbol = NewSymbol("someMethod");
-    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0);
     VMBlock* orig = GetUniverse()->NewBlock(method,
             GetUniverse()->GetInterpreter()->GetFrame(),
             method->GetNumberOfArguments());
@@ -128,9 +128,6 @@ void CloneObjectsTest::testClonePrimitive() {
     VMSymbol* primitiveSymbol = NewSymbol("myPrimitive");
     VMPrimitive* orig = VMPrimitive::GetEmptyPrimitive(primitiveSymbol, false);
     VMPrimitive* clone = orig->Clone();
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("objectSize differs!!", orig->objectSize, clone->objectSize);
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfFields differs!!", orig->numberOfFields, clone->numberOfFields);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("signature differs!!", orig->signature, clone->signature);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("holder differs!!", orig->holder, clone->holder);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("empty differs!!", orig->empty, clone->empty);
@@ -141,9 +138,6 @@ void CloneObjectsTest::testCloneEvaluationPrimitive() {
     VMEvaluationPrimitive* orig = new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(1);
     VMEvaluationPrimitive* clone = orig->Clone();
 
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("objectSize differs!!", orig->objectSize, clone->objectSize);
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfFields differs!!", orig->numberOfFields, clone->numberOfFields);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("signature differs!!", orig->signature, clone->signature);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("holder differs!!", orig->holder, clone->holder);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("empty differs!!", orig->empty, clone->empty);
@@ -153,7 +147,7 @@ void CloneObjectsTest::testCloneEvaluationPrimitive() {
 
 void CloneObjectsTest::testCloneFrame() {
     VMSymbol* methodSymbol = NewSymbol("frameMethod");
-    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0);
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0);
     VMFrame* orig = GetUniverse()->NewFrame(nullptr, method);
     VMFrame* context = orig->Clone();
     orig->SetContext(context);
@@ -174,29 +168,20 @@ void CloneObjectsTest::testCloneFrame() {
 
 void CloneObjectsTest::testCloneMethod() {
     VMSymbol* methodSymbol = NewSymbol("myMethod");
-    VMMethod* orig = GetUniverse()->NewMethod(methodSymbol, 0, 0);
+    VMMethod* orig = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0);
     VMMethod* clone = orig->Clone();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("objectSize differs!!", orig->objectSize, clone->objectSize);
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfFields differs!!", orig->numberOfFields, clone->numberOfFields);
-
     CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfLocals differs!!",
-            INT_VAL(load_ptr(orig->numberOfLocals)),
-            INT_VAL(load_ptr(clone->numberOfLocals)));
+            orig->numberOfLocals, clone->numberOfLocals);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("bcLength differs!!",
-            INT_VAL(load_ptr(orig->bcLength)),
-            INT_VAL(load_ptr(clone->bcLength)));
+            orig->bcLength, clone->bcLength);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("maximumNumberOfStackElements differs!!",
-            INT_VAL(load_ptr(orig->maximumNumberOfStackElements)),
-            INT_VAL(load_ptr(clone->maximumNumberOfStackElements)));
+            orig->maximumNumberOfStackElements, clone->maximumNumberOfStackElements);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfArguments differs!!",
-            INT_VAL(load_ptr(orig->numberOfArguments)),
-            INT_VAL(load_ptr(clone->numberOfArguments)));
+            orig->numberOfArguments, clone->numberOfArguments);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfConstants differs!!",
-            INT_VAL(load_ptr(orig->numberOfConstants)),
-            INT_VAL(load_ptr(clone->numberOfConstants)));
+            orig->numberOfConstants, clone->numberOfConstants);
 
     CPPUNIT_ASSERT_EQUAL_MESSAGE("GetHolder() differs!!", orig->GetHolder(), clone->GetHolder());
     CPPUNIT_ASSERT_EQUAL_MESSAGE("GetSignature() differs!!", orig->GetSignature(), clone->GetSignature());

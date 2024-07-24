@@ -31,15 +31,17 @@ class Interpreter;
 class AbstractVMObject: public VMObjectBase {
 public:
     typedef GCAbstractObject Stored;
-    
+
     virtual int64_t GetHash() const;
     virtual VMClass* GetClass() const = 0;
     virtual AbstractVMObject* Clone() const = 0;
-    virtual void Send(Interpreter*, StdString, vm_oop_t*, long);
+            void Send(Interpreter*, StdString, vm_oop_t*, long);
+
+    /** Size in bytes of the object. */
     virtual size_t GetObjectSize() const = 0;
-    
+
     virtual void MarkObjectAsInvalid() = 0;
-    
+
     virtual StdString AsDebugString() const = 0;
 
     AbstractVMObject() {
@@ -63,7 +65,7 @@ public:
 
     long GetFieldIndex(VMSymbol* fieldName) const;
 
-    inline virtual void WalkObjects(walk_heap_fn) {
+    virtual void WalkObjects(walk_heap_fn) {
         return;
     }
 

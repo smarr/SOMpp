@@ -1,4 +1,6 @@
-#include "../vmobjects/AbstractObject.h"
+#include <string>
+
+#include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMClass.h"
 #include "../vmobjects/VMSymbol.h"
 #include "debug.h"
