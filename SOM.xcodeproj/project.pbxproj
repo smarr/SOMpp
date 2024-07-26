@@ -1084,7 +1084,12 @@
 				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				OTHER_CFLAGS = (
 					"-DGC_TYPE=GENERATIONAL",
+					"-DDEBUG",
 					"-DUNITTESTS",
+					"-DCACHE_INTEGER=false",
+					"-DUSE_TAGGING=false",
+					"-Wall",
+					"-Wextra",
 				);
 				OTHER_LDFLAGS = (
 					"-lcppunit",
@@ -1130,7 +1135,12 @@
 				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				OTHER_CFLAGS = (
 					"-DGC_TYPE=GENERATIONAL",
+					"-DDEBUG",
 					"-DUNITTESTS",
+					"-DCACHE_INTEGER=false",
+					"-DUSE_TAGGING=false",
+					"-Wall",
+					"-Wextra",
 				);
 				OTHER_LDFLAGS = (
 					"-lcppunit",
@@ -1180,7 +1190,8 @@
 				OTHER_CFLAGS = (
 					"-DGC_TYPE=COPYING",
 					"-DUSE_TAGGING=false",
-					"-DDEBUG=true",
+					"-DDEBUG",
+					"-DLOG_LEVEL=3",
 				);
 				VALID_ARCHS = arm64;
 			};
@@ -1224,7 +1235,8 @@
 				OTHER_CFLAGS = (
 					"-DGC_TYPE=COPYING",
 					"-DUSE_TAGGING=false",
-					"-DDEBUG=true",
+					"-DDEBUG",
+					"-DLOG_LEVEL=3",
 				);
 				VALID_ARCHS = arm64;
 			};
