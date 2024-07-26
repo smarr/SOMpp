@@ -43,7 +43,9 @@ VMPrimitive* VMPrimitive::GetEmptyPrimitive(VMSymbol* sig, bool classSide) {
     return prim;
 }
 
-VMPrimitive::VMPrimitive(VMSymbol* signature) : VMInvokable(signature), routine(nullptr), empty(false) {}
+VMPrimitive::VMPrimitive(VMSymbol* signature) : VMInvokable(signature), routine(nullptr), empty(false) {
+    write_barrier(this, signature);
+}
 
 VMPrimitive* VMPrimitive::Clone() const {
     VMPrimitive* prim = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMPrimitive(*this);

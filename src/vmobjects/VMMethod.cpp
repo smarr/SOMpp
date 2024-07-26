@@ -52,6 +52,8 @@ VMMethod::VMMethod(VMSymbol* signature, size_t bcCount, size_t numberOfConstants
         indexableFields[i] = nilObject;
     }
     bytecodes = (uint8_t*)(&indexableFields + 2 + GetNumberOfIndexableFields());
+
+    write_barrier(this, signature);
 }
 
 VMMethod* VMMethod::Clone() const {
