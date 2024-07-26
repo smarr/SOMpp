@@ -2,6 +2,7 @@
 #include <cstddef>
 #include <vector>
 
+#include "../misc/debug.h"
 #include "../misc/defs.h"
 #include "../vm/IsValidObject.h"
 #include "../vm/Universe.h"
@@ -76,6 +77,8 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
 }
 
 void GenerationalCollector::MinorCollection() {
+    DebugLog("GenGC MinorCollection\n");
+
     // walk all globals of universe, and implicily the interpreter
     GetUniverse()->WalkGlobals(&copy_if_necessary);
 
@@ -96,6 +99,8 @@ void GenerationalCollector::MinorCollection() {
 }
 
 void GenerationalCollector::MajorCollection() {
+    DebugLog("GenGC MajorCollection\n");
+
     // first we have to mark all objects (globals and current frame recursively)
     GetUniverse()->WalkGlobals(&mark_object);
 

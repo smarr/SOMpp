@@ -151,6 +151,17 @@
   #define protected_testable public
 #endif
 
+//
+// Log Levels
+//
+#define LOG_LEVEL_ERROR 0
+#define LOG_LEVEL_WARN  1
+#define LOG_LEVEL_LOG   2
+#define LOG_LEVEL_INFO  3
+
+#ifndef LOG_LEVEL
+  #define LOG_LEVEL LOG_LEVEL_ERROR
+#endif
 
 //
 // Performance Optimization

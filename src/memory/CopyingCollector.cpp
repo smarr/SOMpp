@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <cstring>
 
+#include "../misc/debug.h"
 #include "../misc/defs.h"
 #include "../vm/IsValidObject.h"
 #include "../vm/Universe.h"
@@ -47,6 +48,8 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
 }
 
 void CopyingCollector::Collect() {
+    DebugLog("CopyGC Collect\n");
+
     Timer::GCTimer->Resume();
     //reset collection trigger
     heap->resetGCTrigger();
