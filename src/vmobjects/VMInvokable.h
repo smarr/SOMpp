@@ -34,7 +34,7 @@ class VMInvokable: public AbstractVMObject {
 public:
     typedef GCInvokable Stored;
 
-    VMInvokable(VMSymbol* sig) : AbstractVMObject(), hash((intptr_t) this), signature(_store_ptr(sig)), holder(nullptr) {
+    VMInvokable(VMSymbol* sig) : AbstractVMObject(), hash((intptr_t) this), signature(store_with_separate_barrier(sig)), holder(nullptr) {
     };
 
     int64_t GetHash() const override { return hash; }

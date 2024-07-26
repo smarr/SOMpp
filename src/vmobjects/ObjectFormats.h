@@ -138,13 +138,26 @@ inline typename T::Loaded* load_ptr(T* gc_val) {
     return (typename T::Loaded*) gc_val;
 }
 
+/** To store object into a root. */
 template<typename T>
-inline typename T::Stored* _store_ptr(T* vm_val) {
+inline typename T::Stored* store_root(T* vm_val) {
     return (typename T::Stored*) vm_val;
 }
 
+/** For temporary use, but can't be stored, and can't be alive across GC invocations. */
+template<typename T>
+inline typename T::Stored* tmp_ptr(T* vm_val) {
+    return (typename T::Stored*) vm_val;
+}
 
-#define store_ptr(field, val) field = _store_ptr(val); write_barrier(this, val)
+/** To store object a field, needs special care to correctly call `write_barrier()` separately. */
+template<typename T>
+inline typename T::Stored* store_with_separate_barrier(T* vm_val) {
+    return (typename T::Stored*) vm_val;
+}
+
+/** Standard assignment of pointer to field, including write barrier. */
+#define store_ptr(field, val) field = store_with_separate_barrier(val); write_barrier(this, val)
 
 typedef gc_oop_t (*walk_heap_fn)(gc_oop_t);
 

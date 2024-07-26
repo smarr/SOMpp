@@ -44,7 +44,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
         obj->MarkObjectAsInvalid();
 
     obj->SetGCField((long)newObj);
-    return _store_ptr(newObj);
+    return tmp_ptr(newObj);
 }
 
 void CopyingCollector::Collect() {

@@ -73,7 +73,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     // walk recursively
     newObj->WalkObjects(copy_if_necessary);
     
-    return _store_ptr(newObj);
+    return tmp_ptr(newObj);
 }
 
 void GenerationalCollector::MinorCollection() {

@@ -17,7 +17,7 @@ GCSymbol* symbolIfFalse;
 
 VMSymbol* NewSymbol(const size_t length, const char* str) {
     VMSymbol* result = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(length)) VMSymbol(length, str);
-    symbolsMap[StdString(str, length)] = _store_ptr(result);
+    symbolsMap[StdString(str, length)] = store_root(result);
 
     LOG_ALLOCATION("VMSymbol", result->GetObjectSize());
     return result;
@@ -33,8 +33,8 @@ VMSymbol* SymbolFor(const std::string& str) {
 }
 
 void InitializeSymbols() {
-    symbolIfTrue  = _store_ptr(SymbolFor("ifTrue:"));
-    symbolIfFalse = _store_ptr(SymbolFor("ifFalse:"));
+    symbolIfTrue  = store_root(SymbolFor("ifTrue:"));
+    symbolIfFalse = store_root(SymbolFor("ifFalse:"));
 }
 
 void WalkSymbols(walk_heap_fn walk) {

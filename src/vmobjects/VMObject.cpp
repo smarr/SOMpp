@@ -80,7 +80,7 @@ void VMObject::WalkObjects(walk_heap_fn walk) {
     
     long numFields = GetNumberOfFields();
     for (long i = 0; i < numFields; ++i) {
-        FIELDS[i] = walk(_store_ptr(GetField(i)));
+        FIELDS[i] = walk(tmp_ptr(GetField(i)));
     }
 }
 

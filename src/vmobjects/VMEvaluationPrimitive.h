@@ -60,7 +60,12 @@ private:
     GCEvaluationPrimitive* evalPrim;
 public:
     EvaluationRoutine(VMEvaluationPrimitive* prim)
-        : PrimitiveRoutine(), evalPrim(_store_ptr(prim)) {};
+        : PrimitiveRoutine(),
+            // the store without barrier is fine here,
+            // because it's a cyclic structure with `prim` itself,
+            // which will be store in another object,
+            // which will then have a barrier
+            evalPrim(store_with_separate_barrier(prim)) {};
     void WalkObjects(walk_heap_fn);
     bool isClassSide() override { return false; }
     void Invoke(Interpreter* interp, VMFrame* frame) override;
