@@ -49,7 +49,7 @@ jobs:
           echo cmake . -DGC_TYPE=${{ matrix.gc}} ${{ matrix.integers }}
           mkdir cmake-build
           cd cmake-build
-          cmake .. -DGC_TYPE=${{ matrix.gc}} ${{ matrix.integers }}
+          cmake .. -DGC_TYPE=${{ matrix.gc}} ${{ matrix.integers }} -DCMAKE_BUILD_TYPE=Debug
           make -j5
 
       - name: Run Unit Tests

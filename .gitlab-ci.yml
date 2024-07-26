@@ -43,7 +43,9 @@ build_and_test:
 
   tags: [$MACHINE]
   script:
-    - rm -rf cmake-build && mkdir cmake-build
+    - rm -rf release && mkdir release
+    - rm -rf debug && mkdir debug
+
     - if [ "$COMPILER" = "gcc" ];   then export CC=gcc-13;   export CXX=g++-13; fi
     - if [ "$COMPILER" = "clang" ]; then export CC=clang-17; export CXX=clang++-17; fi
 
@@ -60,12 +62,17 @@ build_and_test:
       fi
       NAME=`echo "$NAME" | tr '[:upper:]' '[:lower:]'`
 
-    - cd cmake-build
-    - cmake .. $INTEGERS -DGC_TYPE=$GC
+    - cd release
+    - cmake .. $INTEGERS -DGC_TYPE=$GC -DCMAKE_BUILD_TYPE=Release
+    - make -j10
+    - mv SOM++ ../$NAME
+    - cd ..
+
+    - cd debug
+    - cmake .. $INTEGERS -DGC_TYPE=$GC -DCMAKE_BUILD_TYPE=Debug
     - make -j10
     - ./SOM++ -cp ../Smalltalk ../TestSuite/TestHarness.som
     - ./unittests -cp ../Smalltalk:../TestSuite/BasicInterpreterTests ../Examples/Hello.som
-    - mv SOM++ ../$NAME
     - cd ..
 
     # run the benchmarks
