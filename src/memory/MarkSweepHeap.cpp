@@ -11,7 +11,7 @@
 #include "MarkSweepHeap.h"
 
 
-MarkSweepHeap::MarkSweepHeap(long objectSpaceSize) : Heap<MarkSweepHeap>(new MarkSweepCollector(this), objectSpaceSize) {
+MarkSweepHeap::MarkSweepHeap(size_t objectSpaceSize) : Heap<MarkSweepHeap>(new MarkSweepCollector(this)) {
     //our initial collection limit is 90% of objectSpaceSize
     collectionLimit = objectSpaceSize * 0.9;
     spcAlloc = 0;

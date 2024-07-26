@@ -43,7 +43,7 @@ class Heap {
 public:
     static void InitializeHeap(long objectSpaceSize);
     static void DestroyHeap();
-    Heap(GarbageCollector<HEAP_T>* const gc, long objectSpaceSize) : gc(gc), gcWasRequested(false) {}
+    Heap(GarbageCollector<HEAP_T>* const gc) : gc(gc), gcWasRequested(false) {}
     ~Heap();
     inline void requestGC()      { gcWasRequested = true; }
     inline void resetGCTrigger() { gcWasRequested = false; }

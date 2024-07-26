@@ -9,7 +9,7 @@
 #include "CopyingHeap.h"
 #include "Heap.h"
 
-CopyingHeap::CopyingHeap(long objectSpaceSize) : Heap<CopyingHeap>(new CopyingCollector(this), objectSpaceSize) {
+CopyingHeap::CopyingHeap(size_t objectSpaceSize) : Heap<CopyingHeap>(new CopyingCollector(this)) {
     size_t bufSize = objectSpaceSize;
     currentBuffer = malloc(bufSize);
     oldBuffer = malloc(bufSize);

@@ -1,12 +1,13 @@
 #pragma once
 
+#include <cstring>
+
 #include "Heap.h"
-#include <string.h>
 
 class CopyingHeap : public Heap<CopyingHeap> {
     friend class CopyingCollector;
 public:
-    CopyingHeap(long heapSize);
+    CopyingHeap(size_t objectSpaceSize);
     AbstractVMObject* AllocateObject(size_t size);
 private:
     void* currentBuffer;
