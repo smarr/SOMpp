@@ -23,24 +23,24 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     AbstractVMObject* obj = AS_OBJ(oop);
     assert(IsValidObject(obj));
 
-
-    long gcField = obj->GetGCField();
-    //GCField is abused as forwarding pointer here
-    //if someone has moved before, return the moved object
+    size_t gcField = obj->GetGCField();
+    // GCField is used as forwarding pointer here
+    // if someone has moved before, return the moved object
     if (gcField != 0) {
         return (gc_oop_t) gcField;
     }
 
+    assert(GetHeap<CopyingHeap>()->IsInOldBufferAndOldBufferIsValid(obj));
     assert(!obj->IsMarkedInvalid());
 
     // we have to clone ourselves
     AbstractVMObject* newObj = obj->Clone();
 
+    assert(GetHeap<CopyingHeap>()->IsInCurrentBuffer(newObj));
+
     // it looks to me like the Symbols get corrupted somehow, and when we try to clone them, it's too late
     // there are also waaaay too many symbols now.
     // I really can't create a new symbol for every fully qualified name, that's just bad
-
-
 
     if (DEBUG) {
         obj->MarkObjectAsInvalid();
@@ -58,49 +58,22 @@ void CopyingCollector::Collect() {
     heap->resetGCTrigger();
 
     static bool increaseMemory;
-    size_t newSize = ((size_t)(heap->currentBufferEnd) -
-            (size_t)(heap->currentBuffer)) * 2;
+    heap->switchBuffers(increaseMemory);
+    increaseMemory = false;
 
-    heap->switchBuffers();
-
-    // increase memory if scheduled in collection before
-    if (increaseMemory) {
-        free(heap->currentBuffer);
-        heap->currentBuffer = malloc(newSize);
-        heap->nextFreePosition = heap->currentBuffer;
-        heap->collectionLimit = (void*)((size_t)(heap->currentBuffer) +
-                (size_t)(0.9 * newSize));
-        heap->currentBufferEnd = (void*)((size_t)(heap->currentBuffer) +
-                newSize);
-        if (heap->currentBuffer == nullptr) {
-            Universe::ErrorExit("unable to allocate more memory");
-        }
-    }
-
-    // init currentBuffer with zeros
-    memset(heap->currentBuffer, 0x0, (size_t)(heap->currentBufferEnd) -
-            (size_t)(heap->currentBuffer));
     GetUniverse()->WalkGlobals(copy_if_necessary);
 
-    //now copy all objects that are referenced by the objects we have moved so far
+    // now copy all objects that are referenced by the objects we have moved so far
     AbstractVMObject* curObject = (AbstractVMObject*)(heap->currentBuffer);
     while (curObject < heap->nextFreePosition) {
         curObject->WalkObjects(copy_if_necessary);
         curObject = (AbstractVMObject*)((size_t)curObject + curObject->GetObjectSize());
     }
 
-    //increase memory if scheduled in collection before
-    if (increaseMemory) {
-        increaseMemory = false;
-        free(heap->oldBuffer);
-        heap->oldBuffer = malloc(newSize);
-        if (heap->oldBuffer == nullptr) {
-            Universe::ErrorExit("unable to allocate more memory");
-        }
-    }
+    heap->invalidateOldBuffer();
 
     // if semispace is still 50% full after collection, we have to realloc
-    //  bigger ones -> done in next collection
+    // bigger ones -> done in next collection
     if ((size_t)(heap->nextFreePosition) - (size_t)(heap->currentBuffer) >=
             (size_t)(heap->currentBufferEnd) -
             (size_t)(heap->nextFreePosition)) {
