@@ -52,7 +52,7 @@ VMObject* VMObject::Clone() const {
     VMObject* clone = new (GetHeap<HEAP_CLS>(), objectSize - sizeof(VMObject) ALLOC_MATURE) VMObject(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)),
            SHIFTED_PTR(this,  sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    clone->hash = (size_t) &clone;
+    clone->hash = this->hash;
     return clone;
 }
 
