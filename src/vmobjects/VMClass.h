@@ -47,8 +47,8 @@ public:
     VMClass();
     VMClass(long numberOfFields);
 
-           VMClass*     GetSuperClass() const;
-           void         SetSuperClass(VMClass*);
+           VMObject*    GetSuperClass() const;
+           void         SetSuperClass(VMObject*);
            bool         HasSuperClass() const;
            VMSymbol*    GetName() const;
            void         SetName(VMSymbol*);
@@ -82,8 +82,9 @@ private:
     static const long VMClassNumberOfFields;
 
 private_testable:
+    // Remember to update Parser::superclass when the fields are changed
     GCSymbol* name;
     GCArray* instanceFields;
     GCArray* instanceInvokables;
-    GCClass* superClass;
+    GCObject* superClass;
 };

@@ -126,7 +126,8 @@ VMSymbol* VMClass::GetInstanceFieldName(long index) const {
         index -= numSuperInstanceFields;
         return static_cast<VMSymbol*>(load_ptr(instanceFields)->GetIndexableField(index));
     }
-    return load_ptr(superClass)->GetInstanceFieldName(index);
+    assert(HasSuperClass());
+    return ((VMClass*) load_ptr(superClass))->GetInstanceFieldName(index);
 }
 
 void VMClass::SetInstanceInvokables(VMArray* invokables) {
@@ -178,7 +179,7 @@ VMInvokable* VMClass::LookupInvokable(VMSymbol* name) const {
 
     // look in super class
     if (HasSuperClass()) {
-        return load_ptr(superClass)->LookupInvokable(name);
+        return ((VMClass*) load_ptr(superClass))->LookupInvokable(name);
     }
 
     // invokable not found
@@ -220,8 +221,9 @@ void VMClass::LoadPrimitives() {
 }
 
 long VMClass::numberOfSuperInstanceFields() const {
-    if (HasSuperClass())
-        return load_ptr(superClass)->GetNumberOfInstanceFields();
+    if (HasSuperClass()) {
+        return ((VMClass*) load_ptr(superClass))->GetNumberOfInstanceFields();
+    }
     return 0;
 }
 
@@ -234,15 +236,16 @@ bool VMClass::hasPrimitivesFor(const std::string& cl) const {
  */
 void VMClass::setPrimitives(const std::string& cname, bool classSide) {
 
-    VMClass* current = this;
+    VMObject* current = this;
 
     // Try loading class-specific primitives for all super class' methods as well.
     while (current != load_ptr(nilObject)) {
+        VMClass* currentClass = (VMClass*) current;
 
         // iterate invokables
-        long numInvokables = current->GetNumberOfInstanceInvokables();
+        long numInvokables = currentClass->GetNumberOfInstanceInvokables();
         for (long i = 0; i < numInvokables; i++) {
-            VMInvokable* anInvokable = current->GetInstanceInvokable(i);
+            VMInvokable* anInvokable = currentClass->GetInstanceInvokable(i);
 #ifdef __DEBUG
             ErrorPrint("cname: >" + cname + "<\n" +
                                  anInvokable->GetSignature()->GetStdString() + "\n");
@@ -276,7 +279,7 @@ void VMClass::setPrimitives(const std::string& cname, bool classSide) {
                 }
             }
         }
-        current = current->GetSuperClass();
+        current = currentClass->GetSuperClass();
     }
 }
 
@@ -284,11 +287,11 @@ std::string VMClass::AsDebugString() const {
     return "Class(" + GetName()->GetStdString() + ")";
 }
 
-VMClass* VMClass::GetSuperClass() const {
+VMObject* VMClass::GetSuperClass() const {
     return load_ptr(superClass);
 }
 
-void VMClass::SetSuperClass(VMClass* sup) {
+void VMClass::SetSuperClass(VMObject* sup) {
     store_ptr(superClass, sup);
 }
 

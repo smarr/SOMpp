@@ -368,7 +368,6 @@ VMObject* Universe::InitializeGlobals() {
     //
     VMObject* nil = NewInstanceWithoutFields();
     nilObject = store_root(nil);
-    nil->SetClass((VMClass*) nil);
 
     trueObject = store_root(NewInstanceWithoutFields());
     falseObject = store_root(NewInstanceWithoutFields());
@@ -401,7 +400,7 @@ VMObject* Universe::InitializeGlobals() {
     InitializeSystemClass(load_ptr(doubleClass),    load_ptr(objectClass), "Double");
 
     // Fix up objectClass
-    load_ptr(objectClass)->SetSuperClass((VMClass*) nil);
+    load_ptr(objectClass)->SetSuperClass(nil);
 
     obtain_vtables_of_known_classes(nil->GetClass()->GetName());
 
@@ -735,9 +734,8 @@ VMInteger* Universe::NewInteger(int64_t value) const {
 
 VMClass* Universe::NewMetaclassClass() const {
     VMClass* result = new (GetHeap<HEAP_CLS>()) VMClass;
-    result->SetClass(new (GetHeap<HEAP_CLS>()) VMClass);
-
-    VMClass* mclass = result->GetClass();
+    VMClass* mclass = new (GetHeap<HEAP_CLS>()) VMClass;
+    result->SetClass(mclass);
     mclass->SetClass(result);
 
     LOG_ALLOCATION("VMClass", result->GetObjectSize());
@@ -829,10 +827,9 @@ VMString* Universe::NewString(const size_t length, const char* str) const {
 
 VMClass* Universe::NewSystemClass() const {
     VMClass* systemClass = new (GetHeap<HEAP_CLS>()) VMClass();
+    VMClass* mclass = new (GetHeap<HEAP_CLS>()) VMClass();
 
-    systemClass->SetClass(new (GetHeap<HEAP_CLS>()) VMClass());
-    VMClass* mclass = systemClass->GetClass();
-
+    systemClass->SetClass(mclass);
     mclass->SetClass(load_ptr(metaClassClass));
 
     LOG_ALLOCATION("VMClass", systemClass->GetObjectSize());
