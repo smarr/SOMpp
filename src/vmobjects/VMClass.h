@@ -29,8 +29,8 @@
 #include <vector>
 
 #include "../misc/defs.h"
-#include "../vm/IsValidObject.h"
 #include "../vm/Globals.h"
+#include "../vm/IsValidObject.h"
 #include "VMObject.h"
 
 #if defined(_MSC_VER)   //Visual Studio

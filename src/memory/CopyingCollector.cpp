@@ -16,8 +16,9 @@
 
 static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     // don't process tagged objects
-    if (IS_TAGGED(oop))
+    if (IS_TAGGED(oop)) {
         return oop;
+    }
 
     AbstractVMObject* obj = AS_OBJ(oop);
     assert(IsValidObject(obj));
@@ -26,22 +27,24 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     long gcField = obj->GetGCField();
     //GCField is abused as forwarding pointer here
     //if someone has moved before, return the moved object
-    if (gcField != 0)
+    if (gcField != 0) {
         return (gc_oop_t) gcField;
+    }
 
     assert(!obj->IsMarkedInvalid());
-    
+
     // we have to clone ourselves
     AbstractVMObject* newObj = obj->Clone();
 
     // it looks to me like the Symbols get corrupted somehow, and when we try to clone them, it's too late
     // there are also waaaay too many symbols now.
     // I really can't create a new symbol for every fully qualified name, that's just bad
-    
-    
-    
-    if (DEBUG)
+
+
+
+    if (DEBUG) {
         obj->MarkObjectAsInvalid();
+    }
 
     obj->SetGCField((long)newObj);
     return tmp_ptr(newObj);
@@ -69,8 +72,9 @@ void CopyingCollector::Collect() {
                 (size_t)(0.9 * newSize));
         heap->currentBufferEnd = (void*)((size_t)(heap->currentBuffer) +
                 newSize);
-        if (heap->currentBuffer == nullptr)
-            GetUniverse()->ErrorExit("unable to allocate more memory");
+        if (heap->currentBuffer == nullptr) {
+            Universe::ErrorExit("unable to allocate more memory");
+        }
     }
 
     // init currentBuffer with zeros
@@ -90,8 +94,9 @@ void CopyingCollector::Collect() {
         increaseMemory = false;
         free(heap->oldBuffer);
         heap->oldBuffer = malloc(newSize);
-        if (heap->oldBuffer == nullptr)
-            GetUniverse()->ErrorExit("unable to allocate more memory");
+        if (heap->oldBuffer == nullptr) {
+            Universe::ErrorExit("unable to allocate more memory");
+        }
     }
 
     // if semispace is still 50% full after collection, we have to realloc

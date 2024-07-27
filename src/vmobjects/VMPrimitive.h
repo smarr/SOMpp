@@ -26,9 +26,9 @@
  THE SOFTWARE.
  */
 
-#include "VMObject.h"
-#include "VMInvokable.h"
 #include "PrimitiveRoutine.h"
+#include "VMInvokable.h"
+#include "VMObject.h"
 
 class VMPrimitive: public VMInvokable {
 public:

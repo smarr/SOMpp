@@ -26,8 +26,8 @@
  THE SOFTWARE.
  */
 
-#include "VMObject.h"
 #include "VMFrame.h"
+#include "VMObject.h"
 
 // abstract base class
 class PrimitiveRoutine {
@@ -44,4 +44,3 @@ typedef PrimitiveRoutine* CreatePrimitive(const std::string&,
 typedef bool SupportsClass(const char*);
 typedef void TearDown();
 typedef void Setup();
-

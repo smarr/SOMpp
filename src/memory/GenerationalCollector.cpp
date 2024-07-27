@@ -22,27 +22,30 @@ GenerationalCollector::GenerationalCollector(GenerationalHeap* heap) : GarbageCo
 
 static gc_oop_t mark_object(gc_oop_t oop) {
     // don't process tagged objects
-    if (IS_TAGGED(oop))
+    if (IS_TAGGED(oop)) {
         return oop;
-    
+    }
+
     AbstractVMObject* obj = AS_OBJ(oop);
     assert(IsValidObject(obj));
-    
 
-    if (obj->GetGCField() & MASK_OBJECT_IS_MARKED)
+
+    if ((obj->GetGCField() & MASK_OBJECT_IS_MARKED) != 0) {
         return oop;
+    }
 
     obj->SetGCField(MASK_OBJECT_IS_OLD | MASK_OBJECT_IS_MARKED);
     obj->WalkObjects(&mark_object);
-    
+
     return oop;
 }
 
 static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     // don't process tagged objects
-    if (IS_TAGGED(oop))
+    if (IS_TAGGED(oop)) {
         return oop;
-    
+    }
+
     AbstractVMObject* obj = AS_OBJ(oop);
     assert(IsValidObject(obj));
 
@@ -50,29 +53,32 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     size_t gcField = obj->GetGCField();
 
     // if this is an old object already, we don't have to copy
-    if (gcField & MASK_OBJECT_IS_OLD)
+    if ((gcField & MASK_OBJECT_IS_OLD) != 0) {
         return oop;
+    }
 
     // GCField is abused as forwarding pointer here
     // if someone has moved before, return the moved object
-    if (gcField != 0)
+    if (gcField != 0) {
         return (gc_oop_t) gcField;
-    
+    }
+
     // we have to clone ourselves
     AbstractVMObject* newObj = obj->Clone();
 
-    if (DEBUG)
+    if (DEBUG) {
         obj->MarkObjectAsInvalid();
+    }
 
     assert( (((size_t) newObj) & MASK_OBJECT_IS_MARKED) == 0 );
     assert( obj->GetObjectSize() == newObj->GetObjectSize());
-    
+
     obj->SetGCField((size_t) newObj);
     newObj->SetGCField(MASK_OBJECT_IS_OLD);
 
     // walk recursively
     newObj->WalkObjects(copy_if_necessary);
-    
+
     return tmp_ptr(newObj);
 }
 
@@ -109,11 +115,11 @@ void GenerationalCollector::MajorCollection() {
     for (vector<AbstractVMObject*>::iterator objIter =
             heap->allocatedObjects->begin(); objIter !=
             heap->allocatedObjects->end(); objIter++) {
-        
+
         AbstractVMObject* obj = *objIter;
         assert(IsValidObject(obj));
-        
-        if (obj->GetGCField() & MASK_OBJECT_IS_MARKED) {
+
+        if ((obj->GetGCField() & MASK_OBJECT_IS_MARKED) != 0) {
             survivors->push_back(obj);
             obj->SetGCField(MASK_OBJECT_IS_OLD);
         }

@@ -37,10 +37,11 @@ AbstractVMObject* CopyingHeap::AllocateObject(size_t size) {
     nextFreePosition = (void*)((size_t)nextFreePosition + size);
     if (nextFreePosition > currentBufferEnd) {
         ErrorPrint("Failed to allocate " + to_string(size) + " Bytes.\n");
-        GetUniverse()->Quit(-1);
+        Universe::Quit(-1);
     }
     //let's see if we have to trigger the GC
-    if (nextFreePosition > collectionLimit)
+    if (nextFreePosition > collectionLimit) {
         requestGC();
+    }
     return newObject;
 }

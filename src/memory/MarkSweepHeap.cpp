@@ -23,7 +23,7 @@ AbstractVMObject* MarkSweepHeap::AllocateObject(size_t size) {
     AbstractVMObject* newObject = (AbstractVMObject*) malloc(size);
     if (newObject == nullptr) {
         ErrorPrint("Failed to allocate " + to_string(size) + " Bytes.\n");
-        GetUniverse()->Quit(-1);
+        Universe::Quit(-1);
     }
     spcAlloc += size;
     memset((void*) newObject, 0, size);
@@ -31,7 +31,8 @@ AbstractVMObject* MarkSweepHeap::AllocateObject(size_t size) {
     //newObject->SetObjectSize(size);
     allocatedObjects->push_back(newObject);
     //let's see if we have to trigger the GC
-    if (spcAlloc >= collectionLimit)
+    if (spcAlloc >= collectionLimit) {
         requestGC();
+    }
     return newObject;
 }

@@ -25,6 +25,7 @@
  */
 
 #include <cstddef>
+#include <cstdint>
 #include <cstring>
 #include <string>
 
@@ -38,6 +39,7 @@
 #include "VMFrame.h"
 #include "VMMethod.h"
 #include "VMObject.h"
+#include "VMObjectBase.h"
 #include "VMSymbol.h"
 
 // when doesNotUnderstand or UnknownGlobal is sent, additional stack slots might
@@ -93,10 +95,10 @@ VMFrame* VMFrame::Clone() const {
     size_t noBytes = GetObjectSize() - sizeof(VMFrame);
     memcpy(destination, source, noBytes);
     clone->arguments = (gc_oop_t*)&(clone->stack_ptr)+1; //field after stack_ptr
-    
+
     // Use of GetMethod() is problematic here, because it may be invalid object while cloning/moving within GC
     // Use of GetMethod()->GetNumberOfArguments() is problematic here, because it may be invalid object while cloning/moving within GC
-    
+
 #if GC_TYPE == GENERATIONAL || GC_TYPE == COPYING
     VMMethod* meth = load_ptr(method);
     if (meth->GetGCField() != 0 && meth->GetGCField() != MASK_OBJECT_IS_OLD) {
@@ -158,7 +160,7 @@ VMFrame* VMFrame::GetOuterContext() {
 void VMFrame::WalkObjects(walk_heap_fn walk) {
     // VMFrame is not a proper SOM object any longer, we don't have a class for it.
     // clazz = (VMClass*) walk(clazz);
-    
+
     if (previousFrame) {
         previousFrame = static_cast<GCFrame*>(walk(previousFrame));
     }
@@ -213,14 +215,14 @@ void VMFrame::PrintStack() const {
         Print("   arg " + to_string(i) + ": ");
         print_oop(arguments[i]);
     }
-    
+
     size_t local_offset = 0;
     for (size_t i = 0; i < GetMethod()->GetNumberOfLocals(); i++) {
         Print("   loc " + to_string(i) + ": ");
         print_oop(locals[i]);
         local_offset++;
     }
-    
+
     size_t max = GetMethod()->GetMaximumNumberOfStackElements();
     for (size_t i = 0; i < max; i++) {
         if (stack_ptr == &locals[local_offset + i]) {
@@ -230,7 +232,7 @@ void VMFrame::PrintStack() const {
         }
         print_oop(locals[local_offset + i]);
     }
-    
+
     gc_oop_t* end = (gc_oop_t*) SHIFTED_PTR(this, objectSize);
     size_t i = 0;
     while (&locals[local_offset + max + i] < end) {
@@ -256,7 +258,7 @@ void VMFrame::SetArgument(long index, long contextLevel, vm_oop_t value) {
 
 void VMFrame::PrintStackTrace() const {
     VMMethod* meth = GetMethod();
-    
+
     if (meth->GetHolder() == load_ptr(nilObject)) {
         Print("nil");
     } else {

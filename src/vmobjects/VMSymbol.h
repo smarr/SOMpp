@@ -28,22 +28,22 @@
 
 #include <iostream>
 
-#include "VMString.h"
 #include "VMObject.h"
+#include "VMString.h"
 
 class VMSymbol: public VMString {
 
 public:
     typedef GCSymbol Stored;
-    
+
     VMSymbol(const size_t length, const char* const str);
     StdString GetPlainString() const;
     size_t GetObjectSize() const override;
     VMSymbol* Clone() const override;
     VMClass* GetClass() const override;
-    
+
     StdString AsDebugString() const override;
-    
+
 private:
     const int numberOfArgumentsOfSignature;
     const GCClass* cachedClass_invokable[3];

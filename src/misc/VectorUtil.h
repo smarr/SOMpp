@@ -1,8 +1,8 @@
 #pragma once
 
+#include <algorithm>
 #include <cstddef>
 #include <vector>
-#include <algorithm>
 
 template<typename T>
 inline bool Contains(std::vector<T>& vec, T elem) {

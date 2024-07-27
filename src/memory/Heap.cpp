@@ -45,8 +45,9 @@ void Heap<HEAP_T>::InitializeHeap(long objectSpaceSize) {
 
 template<class HEAP_T>
 void Heap<HEAP_T>::DestroyHeap() {
-    if (theHeap)
+    if (theHeap) {
         delete theHeap;
+    }
 }
 
 template<class HEAP_T>

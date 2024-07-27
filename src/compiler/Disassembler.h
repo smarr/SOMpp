@@ -27,8 +27,8 @@
  */
 
 #include "../vmobjects/VMClass.h"
-#include "../vmobjects/VMMethod.h"
 #include "../vmobjects/VMFrame.h"
+#include "../vmobjects/VMMethod.h"
 #include "MethodGenerationContext.h"
 
 class Disassembler {
@@ -39,6 +39,6 @@ public:
     static void DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx);
 private:
     static void dispatch(vm_oop_t o);
-    
+
     static void dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, const char* indent, VMMethod* method);
 };

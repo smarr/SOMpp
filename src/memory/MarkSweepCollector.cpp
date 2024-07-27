@@ -49,13 +49,15 @@ void MarkSweepCollector::Collect() {
 }
 
 static gc_oop_t mark_object(gc_oop_t oop) {
-    if (IS_TAGGED(oop))
+    if (IS_TAGGED(oop)) {
         return oop;
-    
+    }
+
     AbstractVMObject* obj = AS_OBJ(oop);
 
-    if (obj->GetGCField())
+    if (obj->GetGCField() != 0) {
         return oop;
+    }
 
     obj->SetGCField(GC_MARKED);
     obj->WalkObjects(mark_object);

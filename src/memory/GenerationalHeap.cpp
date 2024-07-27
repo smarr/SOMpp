@@ -39,8 +39,9 @@ AbstractVMObject* GenerationalHeap::AllocateNurseryObject(size_t size) {
         GetUniverse()->Quit(-1);
     }
     //let's see if we have to trigger the GC
-    if (nextFreePosition > collectionLimit)
+    if (nextFreePosition > collectionLimit) {
         requestGC();
+    }
     return newObject;
 }
 
@@ -62,4 +63,3 @@ void GenerationalHeap::writeBarrier_OldHolder(VMObjectBase* holder,
         holder->SetGCField(holder->GetGCField() | MASK_SEEN_BY_WRITE_BARRIER);
     }
 }
-
