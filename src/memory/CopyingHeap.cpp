@@ -1,3 +1,4 @@
+#include <cassert>
 #include <cstdlib>
 #include <cstring>
 #include <string>
@@ -19,7 +20,7 @@ CopyingHeap::CopyingHeap(size_t objectSpaceSize) : Heap<CopyingHeap>(new Copying
     memset(oldBuffer, 0x0, bufSize);
 
     currentBufferEnd = (void*)((size_t)currentBuffer + bufSize);
-    collectionLimit = (void*)((size_t)currentBuffer + ((size_t)(bufSize * 0.9)));
+    collectionLimit = (void*)((size_t)currentBuffer + ((size_t)((double)bufSize * 0.9)));
     nextFreePosition = currentBuffer;
 
     oldBufferEnd = (void*)((size_t)oldBuffer + bufSize);
@@ -27,7 +28,6 @@ CopyingHeap::CopyingHeap(size_t objectSpaceSize) : Heap<CopyingHeap>(new Copying
 }
 
 void CopyingHeap::switchBuffers(bool increaseMemory) {
-    size_t currentBufSizeBeforeSwitch = (size_t)currentBufferEnd - (size_t)currentBuffer;
     size_t oldBufSizeBeforeSwitch = (size_t)oldBufferEnd - (size_t)oldBuffer;
 
     void* oldBufferBeforeSwitch = oldBuffer;
@@ -38,7 +38,7 @@ void CopyingHeap::switchBuffers(bool increaseMemory) {
     oldBufferEnd = currentBufferEnd;
     oldBufferIsValid = true;
 
-    size_t currentBufSize;
+    size_t currentBufSize = 0;
     if (increaseMemory) {
         // increase memory if scheduled in collection before
         free(oldBufferBeforeSwitch);
@@ -48,11 +48,11 @@ void CopyingHeap::switchBuffers(bool increaseMemory) {
         currentBuffer = malloc(newSize);
 
         if (currentBuffer == nullptr) {
-            GetUniverse()->ErrorExit("unable to allocate heap memory");
+            Universe::ErrorExit("unable to allocate heap memory");
         }
 
         currentBufferEnd = (void*)((size_t)currentBuffer + newSize);
-        collectionLimit = (void*)((size_t)currentBuffer + ((size_t)(newSize * 0.9)));
+        collectionLimit = (void*)((size_t)currentBuffer + ((size_t)((double)newSize * 0.9)));
         nextFreePosition = currentBuffer;
         currentBufSize = newSize;
     } else {
@@ -60,7 +60,7 @@ void CopyingHeap::switchBuffers(bool increaseMemory) {
         currentBufferEnd = oldBufferEndBeforeSwitch;
         currentBufSize = oldBufSizeBeforeSwitch;
 
-        collectionLimit = (void*)((size_t)oldBufferBeforeSwitch + (size_t)(oldBufSizeBeforeSwitch * 0.9));
+        collectionLimit = (void*)((size_t)oldBufferBeforeSwitch + (size_t)((double)oldBufSizeBeforeSwitch * 0.9));
         nextFreePosition = currentBuffer;
     }
 
@@ -84,7 +84,7 @@ void CopyingHeap::invalidateOldBuffer() {
         oldBuffer = malloc(currentBufSize);
 
         if (oldBuffer == nullptr) {
-            GetUniverse()->ErrorExit("unable to allocate heap memory");
+            Universe::ErrorExit("unable to allocate heap memory");
         }
 
         oldBufferEnd = (void*)((size_t)oldBuffer + currentBufSize);

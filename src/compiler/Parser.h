@@ -85,7 +85,7 @@ private:
     void expression(MethodGenerationContext& mgenc);
     void assignation(MethodGenerationContext& mgenc);
     void assignments(MethodGenerationContext& mgenc, list<VMSymbol*>& l);
-    VMSymbol* assignment(MethodGenerationContext& mgenc);
+    VMSymbol* assignment();
     void evaluation(MethodGenerationContext& mgenc);
     bool primary(MethodGenerationContext& mgenc);
     StdString variable();

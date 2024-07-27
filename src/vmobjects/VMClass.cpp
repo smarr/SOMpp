@@ -48,8 +48,8 @@
 const long VMClass::VMClassNumberOfFields = 4;
 
 VMClass::VMClass() :
-        VMObject(VMClassNumberOfFields), superClass(nullptr), name(nullptr), instanceFields(
-                nullptr), instanceInvokables(nullptr) {
+        VMObject(VMClassNumberOfFields), name(nullptr), instanceFields(
+                nullptr), instanceInvokables(nullptr), superClass(nullptr) {
 }
 
 VMClass* VMClass::Clone() const {
@@ -94,8 +94,8 @@ bool VMClass::AddInstanceInvokable(VMInvokable* ptr) {
     }
     //Check whether an invokable with the same signature exists and replace it if that's the case
     VMArray* instInvokables = load_ptr(instanceInvokables);
-    long numIndexableFields = instInvokables->GetNumberOfIndexableFields();
-    for (long i = 0; i < numIndexableFields; ++i) {
+    size_t numIndexableFields = instInvokables->GetNumberOfIndexableFields();
+    for (size_t i = 0; i < numIndexableFields; ++i) {
         VMInvokable* inv = static_cast<VMInvokable*>(instInvokables->GetIndexableField(i));
         if (inv != nullptr) {
             if (ptr->GetSignature() == inv->GetSignature()) {
@@ -162,7 +162,7 @@ void VMClass::SetInstanceInvokable(long index, VMInvokable* invokable) {
 
 VMInvokable* VMClass::LookupInvokable(VMSymbol* name) const {
     assert(IsValidObject(const_cast<VMClass*>(this)));
-    
+
     VMInvokable* invokable = name->GetCachedInvokable(this);
     if (invokable != nullptr)
         return invokable;
@@ -180,7 +180,7 @@ VMInvokable* VMClass::LookupInvokable(VMSymbol* name) const {
     if (HasSuperClass()) {
         return load_ptr(superClass)->LookupInvokable(name);
     }
-    
+
     // invokable not found
     return nullptr;
 }
@@ -210,9 +210,9 @@ bool VMClass::HasPrimitives() const {
     return false;
 }
 
-void VMClass::LoadPrimitives(const vector<std::string>& cp) {
+void VMClass::LoadPrimitives() {
     std::string cname = load_ptr(name)->GetStdString();
-    
+
     if (hasPrimitivesFor(cname)) {
         setPrimitives(cname, false);
         GetClass()->setPrimitives(cname, true);
@@ -233,12 +233,12 @@ bool VMClass::hasPrimitivesFor(const std::string& cl) const {
  * set the routines for primitive marked invokables of the given class
  */
 void VMClass::setPrimitives(const std::string& cname, bool classSide) {
-    
+
     VMClass* current = this;
-    
+
     // Try loading class-specific primitives for all super class' methods as well.
     while (current != load_ptr(nilObject)) {
-    
+
         // iterate invokables
         long numInvokables = current->GetNumberOfInstanceInvokables();
         for (long i = 0; i < numInvokables; i++) {
@@ -250,10 +250,10 @@ void VMClass::setPrimitives(const std::string& cname, bool classSide) {
 
             VMSymbol* sig = anInvokable->GetSignature();
             std::string selector = sig->GetPlainString();
-            
+
             PrimitiveRoutine* routine = PrimitiveLoader::GetPrimitiveRoutine(
                 cname, selector, anInvokable->IsPrimitive() && current == this);
-            
+
             if (routine && classSide == routine->isClassSide()) {
                 VMPrimitive* thePrimitive;
                 if (this == current && anInvokable->IsPrimitive()) {

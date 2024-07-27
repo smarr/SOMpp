@@ -40,8 +40,9 @@
 
 
 ClassGenerationContext::ClassGenerationContext() :
-        instanceFields(), instanceMethods(), classFields(), classMethods(),
-        name(nullptr), superName(nullptr), classSide(false) { }
+        name(nullptr), superName(nullptr), classSide(false),
+        instanceFields(), instanceMethods(), classFields(),
+         classMethods() { }
 
 void ClassGenerationContext::AddClassField(VMSymbol* field) {
     classFields.push_back(field);
@@ -52,16 +53,16 @@ void ClassGenerationContext::AddInstanceField(VMSymbol* field) {
 }
 
 void ClassGenerationContext::SetInstanceFieldsOfSuper(VMArray* fields) {
-    long num = fields->GetNumberOfIndexableFields();
-    for (long i = 0; i < num; i ++) {
+    size_t num = fields->GetNumberOfIndexableFields();
+    for (size_t i = 0; i < num; i ++) {
         VMSymbol* fieldName = (VMSymbol*)fields->GetIndexableField(i);
         instanceFields.push_back(fieldName);
     }
 }
 
 void ClassGenerationContext::SetClassFieldsOfSuper(VMArray* fields) {
-    long num = fields->GetNumberOfIndexableFields();
-    for (long i = 0; i < num; i ++) {
+    size_t num = fields->GetNumberOfIndexableFields();
+    for (size_t i = 0; i < num; i ++) {
         VMSymbol* fieldName = (VMSymbol*)fields->GetIndexableField(i);
         classFields.push_back(fieldName);
     }

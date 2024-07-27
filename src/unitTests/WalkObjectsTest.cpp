@@ -32,7 +32,6 @@ static const size_t NoOfFields_String = 0;
 static const size_t NoOfFields_Symbol = 0;
 static const size_t NoOfFields_Double = 0;
 static const size_t NoOfFields_Integer = 0;
-static const size_t NoOfFields_BigInteger = 0;
 static const size_t NoOfFields_Array = NoOfFields_Object;
 static const size_t NoOfFields_Invokable = 2;
 static const size_t NoOfFields_Method = NoOfFields_Invokable;

@@ -66,7 +66,7 @@ public:
            VMSymbol*    GetInstanceFieldName(long)const;
            long         GetNumberOfInstanceFields() const;
            bool         HasPrimitives() const;
-           void         LoadPrimitives(const vector<StdString>&);
+           void         LoadPrimitives();
            VMClass*    Clone() const override;
            void         WalkObjects(walk_heap_fn walk) override;
 

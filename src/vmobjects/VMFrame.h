@@ -114,7 +114,7 @@ public:
 
     void PrintStack() const;
     void PrintBytecode() const;
-    inline void* GetStackPointer() const;
+
     long RemainingStackSize() const;
 
     StdString AsDebugString() const override;
@@ -161,10 +161,6 @@ VMFrame* VMFrame::GetContext() const {
 
 void VMFrame::SetContext(VMFrame* frm) {
     store_ptr(context, frm);
-}
-
-void* VMFrame::GetStackPointer() const {
-    return stack_ptr;
 }
 
 VMFrame* VMFrame::GetPreviousFrame() const {

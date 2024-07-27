@@ -62,7 +62,7 @@ class VMObject: public AbstractVMObject {
 public:
     typedef GCObject Stored;
 
-    VMObject(size_t numberOfFields = 0);
+    explicit VMObject(size_t numberOfFields = 0);
     ~VMObject() override = default;
 
     int64_t GetHash() const override { return hash; }
@@ -90,7 +90,7 @@ public:
     inline void      SetObjectSize(size_t size) override;
 
            void      MarkObjectAsInvalid() override;
-           bool      IsMarkedInvalid() const override final;
+           bool      IsMarkedInvalid() const final;
 
            StdString AsDebugString() const override;
 
@@ -112,7 +112,7 @@ public:
     }
 
 protected:
-    inline long GetAdditionalSpaceConsumption() const;
+    inline size_t GetAdditionalSpaceConsumption() const;
 
     // VMObject essentials
     int64_t hash;
@@ -148,7 +148,7 @@ long VMObject::GetNumberOfFields() const {
 }
 
 //returns the Object's additional memory used (e.g. for Array fields)
-long VMObject::GetAdditionalSpaceConsumption() const {
+size_t VMObject::GetAdditionalSpaceConsumption() const {
     //The VM*-Object's additional memory used needs to be calculated.
     //It's      the total object size   MINUS   sizeof(VMObject) for basic
     //VMObject  MINUS   the number of fields times sizeof(VMObject*)

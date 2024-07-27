@@ -31,17 +31,17 @@
 class VMString: public AbstractVMObject {
 public:
     typedef GCString Stored;
-    
+
     VMString(const size_t length, const char* str);
-    
+
     int64_t GetHash() const override {
-        int64_t hash = 5381;
+        uint64_t hash = 5381U;
 
         for (size_t i = 0; i < length; i++) {
-            hash = ((hash << 5) + hash) + chars[i];
+            hash = ((hash << 5U) + hash) + chars[i];
         }
-        
-        return hash;
+
+        return (int64_t) hash;
     }
 
     inline char* GetRawChars() const;
@@ -52,10 +52,10 @@ public:
     VMClass* GetClass() const override;
     size_t GetObjectSize() const override;
     void WalkObjects(walk_heap_fn) override;
-    
+
     void MarkObjectAsInvalid() override;
     bool IsMarkedInvalid() const override;
-    
+
     StdString AsDebugString() const override;
 
 protected_testable:
@@ -67,8 +67,7 @@ protected:
     VMString(char* const adaptedCharsPointer, const size_t length) :
         // set the chars-pointer to point at the position of the first character
         // as determined in the VMSymbol constructor
-        chars(adaptedCharsPointer),
-        length(length) {}; //constructor to use by VMSymbol
+        length(length), chars(adaptedCharsPointer) {}; //constructor to use by VMSymbol
 };
 
 char* VMString::GetRawChars() const {

@@ -42,13 +42,13 @@
 #include "VMSymbol.h"
 
 VMMethod::VMMethod(VMSymbol* signature, size_t bcCount, size_t numberOfConstants, size_t numLocals, size_t maxStackDepth) :
-        VMInvokable(signature), bcLength(bcCount), numberOfLocals(numLocals), maximumNumberOfStackElements(maxStackDepth), numberOfArguments(signature == nullptr ? 0 : Signature::GetNumberOfArguments(signature)), numberOfConstants(numberOfConstants) {
+        VMInvokable(signature), numberOfLocals(numLocals), maximumNumberOfStackElements(maxStackDepth), bcLength(bcCount), numberOfArguments(signature == nullptr ? 0 : Signature::GetNumberOfArguments(signature)), numberOfConstants(numberOfConstants) {
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     cachedFrame = nullptr;
 #endif
 
     indexableFields = (gc_oop_t*)(&indexableFields + 2);
-    for (long i = 0; i < numberOfConstants; ++i) {
+    for (size_t i = 0; i < numberOfConstants; ++i) {
         indexableFields[i] = nilObject;
     }
     bytecodes = (uint8_t*)(&indexableFields + 2 + GetNumberOfIndexableFields());

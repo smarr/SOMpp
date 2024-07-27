@@ -62,7 +62,7 @@ public:
         return maximumNumberOfStackElements;
     }
 
-    inline long GetNumberOfArguments() const {
+    inline size_t GetNumberOfArguments() const {
         return numberOfArguments;
     }
 
@@ -96,7 +96,7 @@ public:
 
     void WalkObjects(walk_heap_fn) override;
 
-    inline  long GetNumberOfIndexableFields() const {
+    inline  size_t GetNumberOfIndexableFields() const {
         return numberOfConstants;
     }
 

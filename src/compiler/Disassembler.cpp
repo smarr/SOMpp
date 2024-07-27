@@ -132,7 +132,7 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, cons
     }
 
     // output bytecodes
-    for (long bc_idx = 0;
+    for (size_t bc_idx = 0;
          bc_idx < numberOfBytecodes;
          bc_idx += Bytecode::GetBytecodeLength(bytecodes[bc_idx])) {
         // the bytecode.

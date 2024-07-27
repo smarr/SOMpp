@@ -117,7 +117,7 @@ VMFrame* VMFrame::Clone() const {
 
 const long VMFrame::VMFrameNumberOfFields = 0;
 
-VMFrame::VMFrame(long size, long nof) :
+VMFrame::VMFrame(long, long nof) :
         VMObject(nof + VMFrameNumberOfFields), previousFrame(nullptr), context(
                 nullptr), method(nullptr) {
     clazz = nullptr; // Not a proper class anymore

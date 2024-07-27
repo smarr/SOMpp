@@ -44,8 +44,8 @@ public:
     // takes pointer to an object, pointer to a member, and a bool indicating whether it is a class-side primitive or not
     Routine(TClass* primContainerObj, void (TClass::*_fpt)(Interpreter*, VMFrame*),
             bool classSide)
-        : classSide(classSide), primContainerObj(primContainerObj),
-          func(_fpt), PrimitiveRoutine() {};
+        : PrimitiveRoutine(), func(_fpt), primContainerObj(primContainerObj), classSide(classSide)
+           {};
 
     void Invoke(Interpreter* interp, VMFrame* frm) override {
         (*primContainerObj.*func)(interp, frm);  // execute member function

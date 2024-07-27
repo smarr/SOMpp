@@ -67,7 +67,7 @@ void Parser::PeekForNextSymbolFromLexerIfNecessary() {
     }
 }
 
-Parser::Parser(istream& file, StdString& fname): fname(fname), sym(NONE), nextSym(NONE), lexer(file) {
+Parser::Parser(istream& file, StdString& fname): lexer(file), fname(fname), sym(NONE), nextSym(NONE) {
     GetSym();
 }
 
@@ -127,7 +127,7 @@ void Parser::genPushVariable(MethodGenerationContext& mgenc,
     // pushed on the stack is a local variable, argument, or object field. This
     // is done by examining all available lexical contexts, starting with the
     // innermost (i.e., the one represented by mgenc).
-    size_t index = 0;
+    int64_t index = 0;
     int context = 0;
     bool is_argument = false;
 
@@ -151,7 +151,7 @@ void Parser::genPopVariable(MethodGenerationContext& mgenc, VMSymbol* var) {
     // popped off the stack is a local variable, argument, or object field. This
     // is done by examining all available lexical contexts, starting with the
     // innermost (i.e., the one represented by mgenc).
-    size_t index = 0;
+    int64_t index = 0;
     int context = 0;
     bool is_argument = false;
 
@@ -463,7 +463,7 @@ void Parser::assignation(MethodGenerationContext& mgenc) {
 
 void Parser::assignments(MethodGenerationContext& mgenc, list<VMSymbol*>& l) {
     if (symIsIdentifier()) {
-        l.push_back(assignment(mgenc));
+        l.push_back(assignment());
         Peek();
 
         if (nextSym == Assign) {
@@ -472,7 +472,7 @@ void Parser::assignments(MethodGenerationContext& mgenc, list<VMSymbol*>& l) {
     }
 }
 
-VMSymbol* Parser::assignment(MethodGenerationContext& mgenc) {
+VMSymbol* Parser::assignment() {
     StdString v = variable();
 
     expect(Assign);

@@ -21,7 +21,7 @@
 /*
  * macro for padding - only word-aligned memory must be allocated
  */
-#define PADDED_SIZE(N) ((((uint32_t)N)+(sizeof(void*)-1) & ~(sizeof(void*)-1)))
+#define PADDED_SIZE(N) ((((uint32_t)(N))+(sizeof(void*)-1) & ~(sizeof(void*)-1)))
 
 using namespace std;
 
@@ -48,9 +48,9 @@ public:
     AbstractVMObject() {
         gcfield = 0;
     }
-    virtual ~AbstractVMObject() = default;
+    ~AbstractVMObject() override = default;
 
-    inline virtual void SetObjectSize(size_t size) {
+    inline virtual void SetObjectSize(size_t) {
         ErrorPrint("this object doesn't support SetObjectSize\n");
     }
 
@@ -59,17 +59,15 @@ public:
         return -1;
     }
 
-    inline virtual void SetClass(VMClass* cl) {
+    inline virtual void SetClass(VMClass*) {
         ErrorPrint("this object doesn't support SetClass\n");
     }
 
     long GetFieldIndex(VMSymbol* fieldName) const;
 
-    virtual void WalkObjects(walk_heap_fn) {
-        return;
-    }
+    virtual void WalkObjects(walk_heap_fn) {}
 
-    inline virtual VMSymbol* GetFieldName(long index) const {
+    inline virtual VMSymbol* GetFieldName(long) const {
         ErrorPrint("this object doesn't support GetFieldName\n");
         return nullptr;
     }
@@ -79,7 +77,7 @@ public:
         // if outsideNursery flag is set or object is too big for nursery, we
         // allocate a mature object
         const unsigned long add = PADDED_SIZE(additionalBytes);
-        void* result;
+        void* result = nullptr;
 #if GC_TYPE==GENERATIONAL
         if (outsideNursery) {
             result = (void*) heap->AllocateMatureObject(numBytes + add);

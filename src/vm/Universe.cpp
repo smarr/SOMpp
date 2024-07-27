@@ -187,8 +187,8 @@ long Universe::getClassPathExt(vector<StdString>& tokens,
         const StdString& arg) const {
 #define EXT_TOKENS 2
     long result = ERR_SUCCESS;
-    long fpIndex = arg.find_last_of(fileSeparator);
-    long ssepIndex = arg.find(".som");
+    size_t fpIndex = arg.find_last_of(fileSeparator);
+    size_t ssepIndex = arg.find(".som");
 
     if (fpIndex == StdString::npos) { //no new path
         //different from CSOM (see also HandleArguments):
@@ -215,10 +215,8 @@ long Universe::setupClassPath(const StdString& cp) {
         std::stringstream ss(cp);
         StdString token;
 
-        long i = 0;
         while (getline(ss, token, pathSeparator)) {
             classPath.push_back(token);
-            ++i;
         }
 
         return ERR_SUCCESS;
@@ -532,8 +530,9 @@ VMClass* superClass, const char* name) {
 VMClass* Universe::LoadClass(VMSymbol* name) {
     VMClass* result = static_cast<VMClass*>(GetGlobal(name));
 
-    if (result != nullptr)
+    if (result != nullptr) {
         return result;
+    }
 
     result = LoadClassBasic(name, nullptr);
 
@@ -542,8 +541,9 @@ VMClass* Universe::LoadClass(VMSymbol* name) {
 		return (VMClass*) nilObject;
     }
 
-    if (result->HasPrimitives() || result->GetClass()->HasPrimitives())
-        result->LoadPrimitives(classPath);
+    if (result->HasPrimitives() || result->GetClass()->HasPrimitives()) {
+        result->LoadPrimitives();
+    }
 
     SetGlobal(name, result);
 
@@ -584,8 +584,9 @@ void Universe::LoadSystemClass(VMClass* systemClass) {
         Universe::Quit(ERR_FAIL);
     }
 
-    if (result->HasPrimitives() || result->GetClass()->HasPrimitives())
-        result->LoadPrimitives(classPath);
+    if (result->HasPrimitives() || result->GetClass()->HasPrimitives()) {
+        result->LoadPrimitives();
+    }
 }
 
 VMArray* Universe::NewArray(long size) const {
@@ -600,8 +601,9 @@ VMArray* Universe::NewArray(long size) const {
 #endif
 
     VMArray* result = new (GetHeap<HEAP_CLS>(), additionalBytes ALLOC_OUTSIDE_NURSERY(outsideNursery)) VMArray(size);
-    if ((GC_TYPE == GENERATIONAL) && outsideNursery)
+    if ((GC_TYPE == GENERATIONAL) && outsideNursery) {
         result->SetGCField(MASK_OBJECT_IS_OLD);
+    }
 
     result->SetClass(load_ptr(arrayClass));
 

@@ -39,10 +39,9 @@ extern GCClass* stringClass;
 //#define CHARS ((char*)&clazz+sizeof(VMObject*))
 
 VMString::VMString(const size_t length, const char* str) :
-        length(length),
+        AbstractVMObject(), length(length),
         // set the chars-pointer to point at the position of the first character
-        chars((char*) &chars + sizeof(char*)),
-        AbstractVMObject() {
+        chars((char*) &chars + sizeof(char*)) {
     for (size_t i = 0; i < length; i++) {
         chars[i] = str[i];
     }

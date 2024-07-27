@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <cstring>
 
+#include "../memory/Heap.h"
 #include "../misc/debug.h"
 #include "../misc/defs.h"
 #include "../vm/IsValidObject.h"

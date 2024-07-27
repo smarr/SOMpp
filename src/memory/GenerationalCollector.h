@@ -10,7 +10,7 @@ public:
     GenerationalCollector(GenerationalHeap* heap);
     void Collect() override;
 private:
-    intptr_t majorCollectionThreshold;
+    uintptr_t majorCollectionThreshold;
     size_t matureObjectsSize;
     void MajorCollection();
     void MinorCollection();

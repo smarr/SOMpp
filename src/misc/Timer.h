@@ -7,7 +7,7 @@
 static int64_t get_microseconds() {
 #if defined(CLOCK_PROCESS_CPUTIME_ID)
     // this is for Linux
-    timespec now;
+    timespec now{};
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now);
 
     return (now.tv_sec * 1000 * 1000) +// seconds
@@ -38,7 +38,7 @@ public:
     }
 
     double GetTotalTime() {
-        return total / 1000.0;
+        return (double)total / 1000.0;
     }
 
 };
