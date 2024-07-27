@@ -6,6 +6,7 @@
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMArray.h"
 #include "../vmobjects/VMBlock.h"
+#include "../vmobjects/VMClass.h"
 #include "../vmobjects/VMDouble.h"
 #include "../vmobjects/VMEvaluationPrimitive.h"
 #include "../vmobjects/VMFrame.h"
@@ -100,35 +101,44 @@ void set_vt_to_null() {
     vt_symbol     = nullptr;
 }
 
+static void* get_vtable(AbstractVMObject* obj) {
+    return *(void**) obj;
+}
+
+bool IsVMInteger(vm_oop_t obj) {
+    assert(vt_integer != nullptr);
+    return get_vtable(AS_OBJ(obj)) == vt_integer;
+}
+
 void obtain_vtables_of_known_classes(VMSymbol* className) {
     VMArray* arr  = new (GetHeap<HEAP_CLS>()) VMArray(0, 0);
-    vt_array      = *(void**) arr;
-    
+    vt_array      = get_vtable(arr);
+
     VMBlock* blck = new (GetHeap<HEAP_CLS>()) VMBlock();
-    vt_block      = *(void**) blck;
-    
-    vt_class      = *(void**) symbolClass;
-    
+    vt_block      = get_vtable(blck);
+
+    vt_class      = get_vtable(load_ptr(symbolClass));
+
     VMDouble* dbl = new (GetHeap<HEAP_CLS>()) VMDouble(0.0);
-    vt_double     = *(void**) dbl;
-    
+    vt_double     = get_vtable(dbl);
+
     VMEvaluationPrimitive* ev = new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(1);
-    vt_eval_primitive = *(void**) ev;
-    
+    vt_eval_primitive = get_vtable(ev);
+
     VMFrame* frm  = new (GetHeap<HEAP_CLS>()) VMFrame(0, 0);
-    vt_frame      = *(void**) frm;
-    
+    vt_frame      = get_vtable(frm);
+
     VMInteger* i  = new (GetHeap<HEAP_CLS>()) VMInteger(0);
-    vt_integer    = *(void**) i;
-    
+    vt_integer    = get_vtable(i);
+
     VMMethod* mth = new (GetHeap<HEAP_CLS>()) VMMethod(nullptr, 0, 0, 0, 0);
-    vt_method     = *(void**) mth;
-    vt_object     = *(void**) nilObject;
-    
+    vt_method     = get_vtable(mth);
+    vt_object     = get_vtable(load_ptr(nilObject));
+
     VMPrimitive* prm = new (GetHeap<HEAP_CLS>()) VMPrimitive(className);
-    vt_primitive  = *(void**) prm;
-    
+    vt_primitive  = get_vtable(prm);
+
     VMString* str = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(1)) VMString(0, nullptr);
-    vt_string     = *(void**) str;
-    vt_symbol     = *(void**) className;
+    vt_string     = get_vtable(str);
+    vt_symbol     = get_vtable(className);
 }
