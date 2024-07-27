@@ -52,17 +52,15 @@ public:
 
     inline virtual void SetObjectSize(size_t size) {
         ErrorPrint("this object doesn't support SetObjectSize\n");
-        throw "this object doesn't support SetObjectSize";
     }
 
     inline virtual long GetNumberOfFields() const {
         ErrorPrint("this object doesn't support GetNumberOfFields\n");
-        throw "this object doesn't support GetNumberOfFields";
+        return -1;
     }
 
     inline virtual void SetClass(VMClass* cl) {
         ErrorPrint("this object doesn't support SetClass\n");
-        throw "this object doesn't support SetClass";
     }
 
     long GetFieldIndex(VMSymbol* fieldName) const;
@@ -73,7 +71,7 @@ public:
 
     inline virtual VMSymbol* GetFieldName(long index) const {
         ErrorPrint("this object doesn't support GetFieldName\n");
-        throw "this object doesn't support GetFieldName";
+        return nullptr;
     }
 
     void* operator new(size_t numBytes, HEAP_CLS* heap,
