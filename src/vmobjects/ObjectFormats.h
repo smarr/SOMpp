@@ -49,7 +49,7 @@
 
 #if USE_TAGGING
   #define INT_VAL(X) (IS_TAGGED(X) ? ((int64_t)(X)>>1) : (((VMInteger*)(X))->GetEmbeddedInteger()))
-  #define NEW_INT(X) (TAG_INTEGER((X)))
+  #define NEW_INT(X) (TAG_INTEGER((uint64_t)(X)))
   #define IS_TAGGED(X) ((int64_t)X&1)
   #define CLASS_OF(X) (IS_TAGGED(X)?load_ptr(integerClass):((AbstractVMObject*)(X))->GetClass())
   #define AS_OBJ(X) (IS_TAGGED(X)?GlobalBox::IntegerBox():((AbstractVMObject*)(X)))
