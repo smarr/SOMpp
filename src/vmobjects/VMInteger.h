@@ -36,6 +36,7 @@ public:
     typedef GCInteger Stored;
 
     VMInteger(int64_t val) : embeddedInteger(val), AbstractVMObject() {}
+    ~VMInteger() override = default;
 
     inline int64_t GetEmbeddedInteger() const;
     VMInteger* Clone() const override;

@@ -43,7 +43,7 @@ class Heap {
 public:
     static void InitializeHeap(long objectSpaceSize);
     static void DestroyHeap();
-    Heap(GarbageCollector<HEAP_T>* const gc) : gc(gc), gcWasRequested(false) {}
+    explicit Heap(GarbageCollector<HEAP_T>* const gc) : gc(gc) {}
     ~Heap();
     inline void requestGC()      { gcWasRequested = true; }
     inline void resetGCTrigger() { gcWasRequested = false; }
@@ -55,9 +55,9 @@ protected:
 private:
     template<class HEAP_U> friend HEAP_U* GetHeap();
     static HEAP_T* theHeap;
-    
+
     // flag that shows if a Collection is triggered
-    bool gcWasRequested;
+    bool gcWasRequested{false};
 };
 
 template<class HEAP_T> HEAP_T* Heap<HEAP_T>::theHeap;

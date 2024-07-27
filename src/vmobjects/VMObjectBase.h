@@ -13,6 +13,8 @@ protected:
 public:
     inline size_t GetGCField() const;
     inline void SetGCField(size_t);
+    VMObjectBase() : VMOop() {}
+    ~VMObjectBase() override = default;
 };
 
 size_t VMObjectBase::GetGCField() const {

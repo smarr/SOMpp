@@ -21,7 +21,7 @@ struct VMObjectCompare {
 class GenerationalHeap : public Heap<GenerationalHeap> {
     friend class GenerationalCollector;
 public:
-    GenerationalHeap(size_t objectSpaceSize = 1048576);
+    explicit GenerationalHeap(size_t objectSpaceSize = 1048576);
     AbstractVMObject* AllocateNurseryObject(size_t size);
     AbstractVMObject* AllocateMatureObject(size_t size);
     size_t GetMaxNurseryObjectSize();

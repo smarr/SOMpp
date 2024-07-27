@@ -89,9 +89,12 @@ class VMOop {
     virtual void dummyVirtualFunctionToForceVTableCreation() {
         /* With the current class hierarchy, we need to force the compiler to
            create a VTable early, otherwise, the object layout is having
-           vtables in the body of the objects, and casting is messed up, 
+           vtables in the body of the objects, and casting is messed up,
            leading to offset pointers to the vtables of subclasses. */ };
-    public: typedef GCOop Stored; };
+public:
+    typedef GCOop Stored;
+    virtual ~VMOop() = default;
+};
 class GCOop { public: typedef VMOop Loaded; };
 
 // oop_t: Ordinary Object Pointer type
@@ -104,10 +107,10 @@ typedef GCOop* gc_oop_t;
 /**
  We need to distinguish between pointers that need to be handled with a
  read barrier, and between pointers that already went through it.
- 
+
  So, we call pointers that need to go through the barrier:
  heap values, or GC* pointers.
- 
+
  And all the stuff that was already processed:
  loaded values, or VM* pointers.
  */
@@ -160,5 +163,3 @@ inline typename T::Stored* store_with_separate_barrier(T* vm_val) {
 #define store_ptr(field, val) field = store_with_separate_barrier(val); write_barrier(this, val)
 
 typedef gc_oop_t (*walk_heap_fn)(gc_oop_t);
-
-

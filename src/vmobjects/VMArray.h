@@ -34,7 +34,7 @@ class VMArray: public VMObject {
 public:
     typedef GCArray Stored;
 
-    VMArray(size_t size, size_t nof = 0);
+    explicit VMArray(size_t size, size_t nof = 0);
 
     void WalkObjects(walk_heap_fn) override;
 

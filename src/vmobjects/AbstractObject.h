@@ -48,6 +48,7 @@ public:
     AbstractVMObject() {
         gcfield = 0;
     }
+    virtual ~AbstractVMObject() = default;
 
     inline virtual void SetObjectSize(size_t size) {
         ErrorPrint("this object doesn't support SetObjectSize\n");

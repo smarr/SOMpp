@@ -61,8 +61,9 @@ class VMObject: public AbstractVMObject {
 
 public:
     typedef GCObject Stored;
-    
+
     VMObject(size_t numberOfFields = 0);
+    ~VMObject() override = default;
 
     int64_t GetHash() const override { return hash; }
     inline VMClass*  GetClass() const override;
@@ -70,27 +71,27 @@ public:
            VMSymbol* GetFieldName(long index) const override;
     inline long      GetNumberOfFields() const override;
                    void      SetNumberOfFields(long nof);
-    
+
     inline vm_oop_t GetField(size_t index) const {
         vm_oop_t result = load_ptr(FIELDS[index]);
         assert(IsValidObject(result));
         return result;
     }
-    
+
     inline void SetField(size_t index, vm_oop_t value) {
         assert(IsValidObject(value));
         store_ptr(FIELDS[index], value);
     }
-    
+
     virtual        void      Assert(bool value) const;
     void      WalkObjects(walk_heap_fn walk) override;
     VMObject* Clone() const override;
     inline size_t    GetObjectSize() const override;
     inline void      SetObjectSize(size_t size) override;
-    
+
            void      MarkObjectAsInvalid() override;
            bool      IsMarkedInvalid() const override final;
-    
+
            StdString AsDebugString() const override;
 
     /**
@@ -105,7 +106,7 @@ public:
     void* operator new(size_t numBytes, HEAP_CLS* heap, unsigned long additionalBytes = 0 ALLOC_OUTSIDE_NURSERY_DECL) {
         void* mem = AbstractVMObject::operator new(numBytes, heap, additionalBytes ALLOC_OUTSIDE_NURSERY(outsideNursery));
         assert(mem != INVALID_VM_POINTER);
-        
+
         ((VMObject*) mem)->objectSize = numBytes + PADDED_SIZE(additionalBytes);
         return mem;
     }
@@ -119,12 +120,12 @@ protected:
 protected_testable:
     size_t objectSize;     // set by the heap at allocation time
     long   numberOfFields;
-  
+
     GCClass* clazz;
 
     // Start of fields. All members beyond after clazz are indexable.
     // clazz has index -1.
-    
+
 private:
     static const size_t VMObjectNumberOfFields;
 };
