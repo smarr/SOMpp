@@ -56,6 +56,7 @@ void ClassGenerationContext::SetInstanceFieldsOfSuper(VMArray* fields) {
     size_t num = fields->GetNumberOfIndexableFields();
     for (size_t i = 0; i < num; i ++) {
         VMSymbol* fieldName = (VMSymbol*)fields->GetIndexableField(i);
+        assert(IsVMSymbol(fieldName));
         instanceFields.push_back(fieldName);
     }
 }
@@ -64,6 +65,7 @@ void ClassGenerationContext::SetClassFieldsOfSuper(VMArray* fields) {
     size_t num = fields->GetNumberOfIndexableFields();
     for (size_t i = 0; i < num; i ++) {
         VMSymbol* fieldName = (VMSymbol*)fields->GetIndexableField(i);
+        assert(IsVMSymbol(fieldName));
         classFields.push_back(fieldName);
     }
 }

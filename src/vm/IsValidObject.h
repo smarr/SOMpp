@@ -6,6 +6,7 @@
 bool IsValidObject(vm_oop_t obj);
 
 bool IsVMInteger(vm_oop_t obj);
+bool IsVMSymbol(vm_oop_t obj);
 
 void set_vt_to_null();
 

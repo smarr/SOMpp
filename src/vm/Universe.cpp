@@ -610,15 +610,23 @@ VMArray* Universe::NewArray(long size) const {
     return result;
 }
 
-VMArray* Universe::NewArrayFromStrings(const vector<StdString>& argv) const {
-    VMArray* result = NewArray(argv.size());
-    long j = 0;
-    for (vector<StdString>::const_iterator i = argv.begin();
-            i != argv.end(); ++i) {
-        result->SetIndexableField(j, NewString(*i));
-        ++j;
+VMArray* Universe::NewArrayFromStrings(const vector<std::string>& strings) const {
+    VMArray* result = NewArray(strings.size());
+    size_t j = 0;
+    for (const std::string& str : strings) {
+        result->SetIndexableField(j, NewString(str));
+        j += 1;
     }
+    return result;
+}
 
+VMArray* Universe::NewArrayOfSymbolsFromStrings(const vector<std::string>& strings) const {
+    VMArray* result = NewArray(strings.size());
+    size_t j = 0;
+    for (const std::string& str : strings) {
+        result->SetIndexableField(j, SymbolFor(str));
+        j += 1;
+    }
     return result;
 }
 

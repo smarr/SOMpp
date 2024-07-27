@@ -244,9 +244,9 @@ void Parser::superclass(ClassGenerationContext& cgenc) {
         // We avoid here any kind of dynamic solution to avoid further complexity.
         // However, that makes it static, it is going to make it harder to
         // change the definition of Class and Object
-        vector<StdString> fieldNamesOfClass{ "class", "superClass", "name",
-            "instanceFields", "instanceInvokables" };
-        VMArray* fieldNames = GetUniverse()->NewArrayFromStrings(fieldNamesOfClass);
+        vector<StdString> fieldNamesOfClass{ "class", "name",
+            "instanceFields", "instanceInvokables", "superClass" };
+        VMArray* fieldNames = GetUniverse()->NewArrayOfSymbolsFromStrings(fieldNamesOfClass);
         cgenc.SetClassFieldsOfSuper(fieldNames);
     }
 }

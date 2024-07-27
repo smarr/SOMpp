@@ -110,6 +110,11 @@ bool IsVMInteger(vm_oop_t obj) {
     return get_vtable(AS_OBJ(obj)) == vt_integer;
 }
 
+bool IsVMSymbol(vm_oop_t obj) {
+    assert(vt_symbol != nullptr);
+    return get_vtable(AS_OBJ(obj)) == vt_symbol;
+}
+
 void obtain_vtables_of_known_classes(VMSymbol* className) {
     VMArray* arr  = new (GetHeap<HEAP_CLS>()) VMArray(0, 0);
     vt_array      = get_vtable(arr);

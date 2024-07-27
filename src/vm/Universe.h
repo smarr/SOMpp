@@ -71,6 +71,8 @@ public:
     VMArray* NewArrayList(std::vector<VMSymbol*>& list) const;
 
     VMArray* NewArrayFromStrings(const vector<StdString>&) const;
+    VMArray* NewArrayOfSymbolsFromStrings(const vector<StdString>&) const;
+
     VMBlock* NewBlock(VMMethod*, VMFrame*, long);
     VMClass* NewClass(VMClass*) const;
     VMFrame* NewFrame(VMFrame*, VMMethod*) const;
