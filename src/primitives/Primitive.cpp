@@ -16,12 +16,12 @@ _Primitive::_Primitive() : PrimitiveContainer() {
 }
 
 void _Primitive::Holder(Interpreter*, VMFrame* frame) {
-    VMMethod* self = static_cast<VMMethod*>(frame->Pop());
+    VMInvokable* self = static_cast<VMInvokable*>(frame->Pop());
     frame->Push(self->GetHolder());
 }
 
 void _Primitive::Signature(Interpreter*, VMFrame* frame) {
-    VMMethod* self = static_cast<VMMethod*>(frame->Pop());
+    VMInvokable* self = static_cast<VMInvokable*>(frame->Pop());
     frame->Push(self->GetSignature());
 }
 
@@ -29,8 +29,8 @@ void _Primitive::InvokeOn_With_(Interpreter* interp, VMFrame* frame) {
     // REM: this is a clone with _Primitive::InvokeOn_With_
     VMArray* args  = static_cast<VMArray*>(frame->Pop());
     vm_oop_t rcvr  = static_cast<vm_oop_t>(frame->Pop());
-    VMMethod* mthd = static_cast<VMMethod*>(frame->Pop());
-    
+    VMInvokable* mthd = static_cast<VMInvokable*>(frame->Pop());
+
     
     frame->Push(rcvr);
     
