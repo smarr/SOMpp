@@ -67,7 +67,7 @@ void _Object::Equalequal(Interpreter*, VMFrame* frame) {
 void _Object::ObjectSize(Interpreter*, VMFrame* frame) {
     vm_oop_t self = frame->Pop();
 
-    frame->Push(NEW_INT(AS_OBJ(self)->GetObjectSize()));
+    frame->Push(NEW_INT((int64_t) AS_OBJ(self)->GetObjectSize()));
 }
 
 void _Object::Hashcode(Interpreter*, VMFrame* frame) {

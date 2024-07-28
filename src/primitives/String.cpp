@@ -81,7 +81,7 @@ void _String::Length(Interpreter*, VMFrame* frame) {
     VMString* self = static_cast<VMString*>(frame->Pop());
 
     size_t len = self->GetStringLength();
-    frame->Push(NEW_INT(len));
+    frame->Push(NEW_INT((int64_t) len));
 }
 
 void _String::Equal(Interpreter*, VMFrame* frame) {

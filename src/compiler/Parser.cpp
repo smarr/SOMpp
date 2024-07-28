@@ -719,7 +719,7 @@ void Parser::literalArray(MethodGenerationContext& mgenc) {
     EmitPUSHCONSTANT(mgenc, arraySizeLiteralIndex);
     EmitSEND(mgenc, newMessage);
 
-    size_t i = 1;
+    int64_t i = 1;
 
     while (sym != EndTerm) {
         vm_oop_t pushIndex = NEW_INT(i);
