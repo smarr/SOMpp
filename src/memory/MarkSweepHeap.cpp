@@ -22,13 +22,12 @@ AbstractVMObject* MarkSweepHeap::AllocateObject(size_t size) {
     //TODO: PADDING wird eigentlich auch durch malloc erledigt
     AbstractVMObject* newObject = (AbstractVMObject*) malloc(size);
     if (newObject == nullptr) {
-        ErrorPrint("Failed to allocate " + to_string(size) + " Bytes.\n");
+        ErrorPrint("\nFailed to allocate " + to_string(size) + " Bytes.\n");
         Universe::Quit(-1);
     }
     spcAlloc += size;
     memset((void*) newObject, 0, size);
     //AbstractObjects (Integer,...) have no Size field anymore -> set within VMObject's new operator
-    //newObject->SetObjectSize(size);
     allocatedObjects->push_back(newObject);
     //let's see if we have to trigger the GC
     if (spcAlloc >= collectionLimit) {

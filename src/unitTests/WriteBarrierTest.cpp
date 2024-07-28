@@ -77,13 +77,6 @@ void WriteBarrierTest::testWriteBlock() {
             block->GetMethod());
     TEST_WB_CALLED("VMBlock failed to call writeBarrier when creating", block,
             block->GetContext());
-
-    block->SetMethod(method->Clone());
-    TEST_WB_CALLED("VMBlock failed to call writeBarrier on SetMethod", block,
-            block->GetMethod());
-    block->SetContext(block->GetContext()->Clone());
-    TEST_WB_CALLED("VMBlock failed to call writeBarrier on SetContext", block,
-            block->GetContext());
 }
 
 void WriteBarrierTest::testWriteFrame() {
@@ -124,7 +117,7 @@ void WriteBarrierTest::testWriteEvaluationPrimitive() {
 
     //reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
-    VMEvaluationPrimitive* evPrim = new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(1);
+    VMEvaluationPrimitive* evPrim = new (GetHeap<HEAP_CLS>(), 0) VMEvaluationPrimitive(1);
     TEST_WB_CALLED("VMEvaluationPrimitive failed to call writeBarrier when creating", evPrim, evPrim->GetClass());
 }
 

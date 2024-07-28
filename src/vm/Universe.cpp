@@ -330,7 +330,7 @@ void Universe::initialize(long _argc, char** _argv) {
 #if CACHE_INTEGER
     // create prebuilt integers
     for (long it = INT_CACHE_MIN_VALUE; it <= INT_CACHE_MAX_VALUE; ++it) {
-        prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = store_root(new (GetHeap<HEAP_CLS>()) VMInteger(it));
+        prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = store_root(new (GetHeap<HEAP_CLS>(), 0) VMInteger(it));
     }
 #endif
 

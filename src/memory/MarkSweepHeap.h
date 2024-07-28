@@ -12,6 +12,6 @@ public:
 private:
     vector<AbstractVMObject*>* allocatedObjects;
     size_t spcAlloc;
-    long collectionLimit;
+    size_t collectionLimit;
 
 };

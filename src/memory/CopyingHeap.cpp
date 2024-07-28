@@ -95,7 +95,7 @@ AbstractVMObject* CopyingHeap::AllocateObject(size_t size) {
     AbstractVMObject* newObject = (AbstractVMObject*) nextFreePosition;
     nextFreePosition = (void*)((size_t)nextFreePosition + size);
     if (nextFreePosition > currentBufferEnd) {
-        ErrorPrint("Failed to allocate " + to_string(size) + " Bytes.\n");
+        ErrorPrint("\nFailed to allocate " + to_string(size) + " Bytes.\n");
         Universe::Quit(-1);
     }
 

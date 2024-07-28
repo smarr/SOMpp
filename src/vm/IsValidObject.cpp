@@ -67,7 +67,7 @@ bool IsValidObject(vm_oop_t obj) {
         return false;
     }
 
-# if GC_TYPE == COPYING
+# if GC_TYPE == COPYING || GC_TYPE == DEBUG_COPYING
     if (AS_OBJ(obj)->GetGCField() != 0) {
         // this is a properly forwarded object
         return true;

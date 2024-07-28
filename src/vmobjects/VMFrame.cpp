@@ -99,7 +99,7 @@ VMFrame* VMFrame::Clone() const {
     // Use of GetMethod() is problematic here, because it may be invalid object while cloning/moving within GC
     // Use of GetMethod()->GetNumberOfArguments() is problematic here, because it may be invalid object while cloning/moving within GC
 
-#if GC_TYPE == GENERATIONAL || GC_TYPE == COPYING
+#if GC_TYPE == GENERATIONAL || GC_TYPE == COPYING || GC_TYPE == DEBUG_COPYING
     VMMethod* meth = load_ptr(method);
     if (meth->GetGCField() != 0 && meth->GetGCField() != MASK_OBJECT_IS_OLD) {
         meth = (VMMethod*) meth->GetGCField();
