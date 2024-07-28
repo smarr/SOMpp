@@ -38,8 +38,8 @@
 class PrimitiveContainer {
 
 public:
-    PrimitiveContainer();
-    virtual ~PrimitiveContainer();
+    PrimitiveContainer() = default;
+    virtual ~PrimitiveContainer() = default;
 
     ///Every derived Class must use this method to initialize the methods
     //map with the mapping of a StdString with the smalltalk message
@@ -52,5 +52,5 @@ public:
     virtual PrimitiveRoutine* GetPrimitive(const std::string& routineName);
 
 private:
-    std::map<std::string, PrimitiveRoutine*>* methods;
+    std::map<std::string, PrimitiveRoutine*> methods{};
 };

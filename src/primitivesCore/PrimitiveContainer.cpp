@@ -30,20 +30,12 @@
 #include "../vmobjects/PrimitiveRoutine.h"
 #include "PrimitiveContainer.h"
 
-PrimitiveContainer::PrimitiveContainer() {
-    methods = new map<std::string, PrimitiveRoutine*>();
-}
-
-PrimitiveContainer::~PrimitiveContainer() {
-    delete methods;
-}
-
 void PrimitiveContainer::SetPrimitive(const char* name,
         PrimitiveRoutine* routine) {
-    (*methods)[std::string(name)] = routine;
+    methods[std::string(name)] = routine;
 }
 
 PrimitiveRoutine* PrimitiveContainer::GetPrimitive(
         const std::string& routineName) {
-    return (*methods)[routineName];
+    return methods[routineName];
 }

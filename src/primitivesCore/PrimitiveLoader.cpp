@@ -46,8 +46,6 @@
 PrimitiveLoader PrimitiveLoader::loader;
 
 PrimitiveLoader::PrimitiveLoader() {
-    primitiveObjects = map<std::string, PrimitiveContainer*>();
-    
     AddPrimitiveObject("Array",     new _Array());
     AddPrimitiveObject("Block",     new _Block());
     AddPrimitiveObject("Class",     new _Class());
@@ -88,13 +86,12 @@ PrimitiveRoutine* PrimitiveLoader::GetPrimitiveRoutine(const std::string& cname,
 
 PrimitiveRoutine* PrimitiveLoader::getPrimitiveRoutine(const std::string& cname,
         const std::string& mname, bool isPrimitive) {
-    PrimitiveRoutine* result;
     PrimitiveContainer* primitive = primitiveObjects[cname];
     if (!primitive) {
         ErrorPrint("Primitive object not found for name: " + cname + "\n");
         return nullptr;
     }
-    result = primitive->GetPrimitive(mname);
+    PrimitiveRoutine* result = primitive->GetPrimitive(mname);
     if (!result) {
         if (isPrimitive) {
             ErrorPrint("method " + mname + " not found in class " + cname + "\n");
