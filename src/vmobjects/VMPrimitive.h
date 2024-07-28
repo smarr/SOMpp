@@ -26,9 +26,9 @@
  THE SOFTWARE.
  */
 
-#include "VMObject.h"
-#include "VMInvokable.h"
 #include "PrimitiveRoutine.h"
+#include "VMInvokable.h"
+#include "VMObject.h"
 
 class VMPrimitive: public VMInvokable {
 public:
@@ -56,7 +56,7 @@ public:
     }
 
             void SetEmpty(bool value) {empty = value;};
-            VMPrimitive* Clone() const override;
+            VMPrimitive* CloneForMovingGC() const override;
 
     void Invoke(Interpreter* interp, VMFrame* frm) override {
         routine->Invoke(interp, frm);
@@ -66,6 +66,10 @@ public:
 
     void MarkObjectAsInvalid() override {
         routine = (PrimitiveRoutine*) INVALID_GC_POINTER;
+    }
+
+    bool IsMarkedInvalid() const override {
+        return routine == (PrimitiveRoutine*) INVALID_GC_POINTER;
     }
 
     StdString AsDebugString() const override;

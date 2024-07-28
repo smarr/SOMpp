@@ -11,17 +11,13 @@
 #include <iostream>
 
 #include "../memory/CopyingHeap.h"
+#include "../memory/DebugCopyingHeap.h"
 #include "../memory/GenerationalHeap.h"
 #include "../memory/MarkSweepHeap.h"
 #include "../misc/defs.h"
 #include "../vm/Print.h"
 #include "ObjectFormats.h"
 #include "VMObjectBase.h"
-
-/*
- * macro for padding - only word-aligned memory must be allocated
- */
-#define PADDED_SIZE(N) ((((uint32_t)N)+(sizeof(void*)-1) & ~(sizeof(void*)-1)))
 
 using namespace std;
 
@@ -32,62 +28,66 @@ class AbstractVMObject: public VMObjectBase {
 public:
     typedef GCAbstractObject Stored;
 
-    virtual int64_t GetHash() const;
+    virtual int64_t GetHash() const = 0;
     virtual VMClass* GetClass() const = 0;
-    virtual AbstractVMObject* Clone() const = 0;
+    virtual AbstractVMObject* CloneForMovingGC() const = 0;
             void Send(Interpreter*, StdString, vm_oop_t*, long);
 
     /** Size in bytes of the object. */
     virtual size_t GetObjectSize() const = 0;
 
     virtual void MarkObjectAsInvalid() = 0;
+    virtual bool IsMarkedInvalid() const = 0;
 
     virtual StdString AsDebugString() const = 0;
 
     AbstractVMObject() {
         gcfield = 0;
     }
-
-    inline virtual void SetObjectSize(size_t size) {
-        ErrorPrint("this object doesn't support SetObjectSize\n");
-        throw "this object doesn't support SetObjectSize";
-    }
+    ~AbstractVMObject() override = default;
 
     inline virtual long GetNumberOfFields() const {
         ErrorPrint("this object doesn't support GetNumberOfFields\n");
-        throw "this object doesn't support GetNumberOfFields";
+        return -1;
     }
 
-    inline virtual void SetClass(VMClass* cl) {
+    inline virtual void SetClass(VMClass*) {
         ErrorPrint("this object doesn't support SetClass\n");
-        throw "this object doesn't support SetClass";
     }
 
     long GetFieldIndex(VMSymbol* fieldName) const;
 
-    virtual void WalkObjects(walk_heap_fn) {
-        return;
-    }
+    virtual void WalkObjects(walk_heap_fn) {}
 
-    inline virtual VMSymbol* GetFieldName(long index) const {
+    inline virtual VMSymbol* GetFieldName(long) const {
         ErrorPrint("this object doesn't support GetFieldName\n");
-        throw "this object doesn't support GetFieldName";
+        return nullptr;
     }
 
+    /**
+     * usage: new( <heap> , <additionalBytes>) VMObject( <constructor params> )
+     * num_bytes parameter is set by the compiler.
+     * parameter additional_bytes (a_b) is used for:
+     *   - fields in VMObject, a_b must be set to (numberOfFields*sizeof(VMObject*))
+     *   - chars in VMString/VMSymbol, a_b must be set to (Stringlength + 1)
+     *   - array size in VMArray; a_b must be set to (size_of_array*sizeof(VMObect*))
+     *   - fields in VMMethod, a_b must be set to (number_of_bc + number_of_csts*sizeof(VMObject*))
+     */
     void* operator new(size_t numBytes, HEAP_CLS* heap,
-            unsigned long additionalBytes = 0 ALLOC_OUTSIDE_NURSERY_DECL) {
+            size_t additionalBytes ALLOC_OUTSIDE_NURSERY_DECL) {
         // if outsideNursery flag is set or object is too big for nursery, we
         // allocate a mature object
-        const unsigned long add = PADDED_SIZE(additionalBytes);
-        void* result;
+        assert(IS_PADDED_SIZE(additionalBytes));
+
+        void* result = nullptr;
 #if GC_TYPE==GENERATIONAL
         if (outsideNursery) {
-            result = (void*) heap->AllocateMatureObject(numBytes + add);
+            result = (void*) heap->AllocateMatureObject(numBytes + additionalBytes);
         } else {
-            result = (void*) heap->AllocateNurseryObject(numBytes + add);
+            result = (void*) heap->AllocateNurseryObject(numBytes + additionalBytes);
         }
 #else
-        result = (void*) heap->AllocateObject(numBytes + add);
+        result = (void*) heap->AllocateObject(numBytes + additionalBytes);
 #endif
 
         assert(result != INVALID_VM_POINTER);

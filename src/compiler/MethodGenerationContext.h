@@ -42,10 +42,10 @@ public:
     VMPrimitive* AssemblePrimitive(bool classSide);
 
     int8_t FindLiteralIndex(vm_oop_t lit);
-    bool FindVar(VMSymbol* var, size_t* index,
+    bool FindVar(VMSymbol* var, int64_t* index,
             int* context, bool* isArgument);
     bool HasField(VMSymbol* field);
-    
+
     uint8_t GetFieldIndex(VMSymbol* field);
 
     void SetHolder(ClassGenerationContext* holder);
@@ -90,7 +90,7 @@ private:
     std::vector<vm_oop_t> literals;
     bool finished;
     std::vector<uint8_t> bytecode;
-    
+
     size_t currentStackDepth;
     size_t maxStackDepth;
 };

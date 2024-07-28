@@ -25,6 +25,7 @@
  */
 
 #include <cstddef>
+#include <cstdint>
 
 #include "../primitivesCore/PrimitiveContainer.h"
 #include "../primitivesCore/Routine.h"
@@ -53,7 +54,7 @@ _Object::_Object() : PrimitiveContainer() {
     SetPrimitive("instVarAt_",     new Routine<_Object>(this, &_Object::InstVarAt, false));
     SetPrimitive("instVarAt_put_", new Routine<_Object>(this, &_Object::InstVarAtPut, false));
     SetPrimitive("instVarNamed_",  new Routine<_Object>(this, &_Object::InstVarNamed, false));
-    
+
     SetPrimitive("class", new Routine<_Object>(this, &_Object::Class, false));
 }
 
@@ -67,7 +68,7 @@ void _Object::Equalequal(Interpreter*, VMFrame* frame) {
 void _Object::ObjectSize(Interpreter*, VMFrame* frame) {
     vm_oop_t self = frame->Pop();
 
-    frame->Push(NEW_INT(AS_OBJ(self)->GetObjectSize()));
+    frame->Push(NEW_INT((int64_t) AS_OBJ(self)->GetObjectSize()));
 }
 
 void _Object::Hashcode(Interpreter*, VMFrame* frame) {

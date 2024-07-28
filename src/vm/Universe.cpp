@@ -32,7 +32,7 @@
 #include <exception>
 #include <iostream>
 #include <map>
-#include <sstream> 
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -122,7 +122,7 @@ __attribute__((noreturn)) void Universe::Quit(long err) {
 #endif
 
     OutputAllocationLogFile();
-    
+
     if (theUniverse)
         delete (theUniverse);
 
@@ -187,8 +187,8 @@ long Universe::getClassPathExt(vector<StdString>& tokens,
         const StdString& arg) const {
 #define EXT_TOKENS 2
     long result = ERR_SUCCESS;
-    long fpIndex = arg.find_last_of(fileSeparator);
-    long ssepIndex = arg.find(".som");
+    size_t fpIndex = arg.find_last_of(fileSeparator);
+    size_t ssepIndex = arg.find(".som");
 
     if (fpIndex == StdString::npos) { //no new path
         //different from CSOM (see also HandleArguments):
@@ -215,10 +215,8 @@ long Universe::setupClassPath(const StdString& cp) {
         std::stringstream ss(cp);
         StdString token;
 
-        long i = 0;
         while (getline(ss, token, pathSeparator)) {
             classPath.push_back(token);
-            ++i;
         }
 
         return ERR_SUCCESS;
@@ -265,7 +263,7 @@ VMMethod* Universe::createBootstrapMethod(VMClass* holder, long numArgsOfMsgSend
 vm_oop_t Universe::interpret(StdString className, StdString methodName) {
   // This method assumes that SOM++ was already initialized by executing a
   // Hello World program as part of the unittest main.
-  
+
   bm_name = "BasicInterpreterTests";
 
   interpreter = new Interpreter();
@@ -320,7 +318,7 @@ void Universe::initialize(long _argc, char** _argv) {
     heapSize = 1 * 1024 * 1024;
 
     vector<StdString> argv = handleArguments(_argc, _argv);
-    
+
     // remember file that was executed (for writing statistics)
     if (argv.size() > 0)
         bm_name = argv[0];
@@ -330,10 +328,9 @@ void Universe::initialize(long _argc, char** _argv) {
     interpreter = new Interpreter();
 
 #if CACHE_INTEGER
-# warning is _store_ptr sufficient/correct here?
     // create prebuilt integers
     for (long it = INT_CACHE_MIN_VALUE; it <= INT_CACHE_MAX_VALUE; ++it) {
-        prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = _store_ptr(new (GetHeap<HEAP_CLS>()) VMInteger(it));
+        prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = store_root(new (GetHeap<HEAP_CLS>(), 0) VMInteger(it));
     }
 #endif
 
@@ -365,29 +362,28 @@ Universe::~Universe() {
 
 VMObject* Universe::InitializeGlobals() {
     set_vt_to_null();
-    
+
     //
     //allocate nil object
     //
     VMObject* nil = NewInstanceWithoutFields();
-    nilObject = _store_ptr(nil);
-    nil->SetClass((VMClass*) nil);
-    
-    trueObject = _store_ptr(NewInstanceWithoutFields());
-    falseObject = _store_ptr(NewInstanceWithoutFields());
+    nilObject = store_root(nil);
 
-    metaClassClass = _store_ptr(NewMetaclassClass());
+    trueObject = store_root(NewInstanceWithoutFields());
+    falseObject = store_root(NewInstanceWithoutFields());
 
-    objectClass     = _store_ptr(NewSystemClass());
-    nilClass        = _store_ptr(NewSystemClass());
-    classClass      = _store_ptr(NewSystemClass());
-    arrayClass      = _store_ptr(NewSystemClass());
-    symbolClass     = _store_ptr(NewSystemClass());
-    methodClass     = _store_ptr(NewSystemClass());
-    integerClass    = _store_ptr(NewSystemClass());
-    primitiveClass  = _store_ptr(NewSystemClass());
-    stringClass     = _store_ptr(NewSystemClass());
-    doubleClass     = _store_ptr(NewSystemClass());
+    metaClassClass = store_root(NewMetaclassClass());
+
+    objectClass     = store_root(NewSystemClass());
+    nilClass        = store_root(NewSystemClass());
+    classClass      = store_root(NewSystemClass());
+    arrayClass      = store_root(NewSystemClass());
+    symbolClass     = store_root(NewSystemClass());
+    methodClass     = store_root(NewSystemClass());
+    integerClass    = store_root(NewSystemClass());
+    primitiveClass  = store_root(NewSystemClass());
+    stringClass     = store_root(NewSystemClass());
+    doubleClass     = store_root(NewSystemClass());
 
     nil->SetClass(load_ptr(nilClass));
 
@@ -404,10 +400,10 @@ VMObject* Universe::InitializeGlobals() {
     InitializeSystemClass(load_ptr(doubleClass),    load_ptr(objectClass), "Double");
 
     // Fix up objectClass
-    load_ptr(objectClass)->SetSuperClass((VMClass*) nil);
+    load_ptr(objectClass)->SetSuperClass(nil);
 
     obtain_vtables_of_known_classes(nil->GetClass()->GetName());
-    
+
 #if USE_TAGGING
     GlobalBox::updateIntegerBox(NewInteger(1));
 #endif
@@ -424,29 +420,29 @@ VMObject* Universe::InitializeGlobals() {
     LoadSystemClass(load_ptr(stringClass));
     LoadSystemClass(load_ptr(doubleClass));
 
-    blockClass = _store_ptr(LoadClass(SymbolFor("Block")));
+    blockClass = store_root(LoadClass(SymbolFor("Block")));
 
     VMSymbol* trueClassName = SymbolFor("True");
-    trueClass  = _store_ptr(LoadClass(trueClassName));
+    trueClass  = store_root(LoadClass(trueClassName));
     load_ptr(trueObject)->SetClass(load_ptr(trueClass));
-    
+
     VMSymbol* falseClassName = SymbolFor("False");
-    falseClass  = _store_ptr(LoadClass(falseClassName));
+    falseClass  = store_root(LoadClass(falseClassName));
     load_ptr(falseObject)->SetClass(load_ptr(falseClass));
 
-    systemClass = _store_ptr(LoadClass(SymbolFor("System")));
-    
-    
+    systemClass = store_root(LoadClass(SymbolFor("System")));
+
+
     VMObject* systemObject = NewInstance(load_ptr(systemClass));
-    
+
     SetGlobal(SymbolFor("nil"),    load_ptr(nilObject));
     SetGlobal(SymbolFor("true"),   load_ptr(trueObject));
     SetGlobal(SymbolFor("false"),  load_ptr(falseObject));
     SetGlobal(SymbolFor("system"), systemObject);
     SetGlobal(SymbolFor("System"), load_ptr(systemClass));
     SetGlobal(SymbolFor("Block"),  load_ptr(blockClass));
-    
-    InitializeSymbols();    
+
+    InitializeSymbols();
     return systemObject;
 }
 
@@ -473,16 +469,16 @@ VMClass* Universe::GetBlockClassWithArgs(long numberOfArguments) {
     VMSymbol* name = SymbolFor(Str.str());
     VMClass* result = LoadClassBasic(name, nullptr);
 
-    result->AddInstancePrimitive(new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(numberOfArguments));
+    result->AddInstancePrimitive(new (GetHeap<HEAP_CLS>(), 0) VMEvaluationPrimitive(numberOfArguments));
 
     SetGlobal(name, result);
-    blockClassesByNoOfArgs[numberOfArguments] = _store_ptr(result);
+    blockClassesByNoOfArgs[numberOfArguments] = store_root(result);
 
     return result;
 }
 
 vm_oop_t Universe::GetGlobal(VMSymbol* name) {
-    auto it = globals.find(_store_ptr(name));
+    auto it = globals.find(tmp_ptr(name));
     if (it == globals.end()) {
         return nullptr;
     } else {
@@ -491,7 +487,7 @@ vm_oop_t Universe::GetGlobal(VMSymbol* name) {
 }
 
 bool Universe::HasGlobal(VMSymbol* name) {
-    auto it = globals.find(_store_ptr(name));
+    auto it = globals.find(tmp_ptr(name));
     if (it == globals.end()) {
         return false;
     } else {
@@ -532,9 +528,10 @@ VMClass* superClass, const char* name) {
 
 VMClass* Universe::LoadClass(VMSymbol* name) {
     VMClass* result = static_cast<VMClass*>(GetGlobal(name));
-    
-    if (result != nullptr)
+
+    if (result != nullptr) {
         return result;
+    }
 
     result = LoadClassBasic(name, nullptr);
 
@@ -543,9 +540,10 @@ VMClass* Universe::LoadClass(VMSymbol* name) {
 		return (VMClass*) nilObject;
     }
 
-    if (result->HasPrimitives() || result->GetClass()->HasPrimitives())
-        result->LoadPrimitives(classPath);
-    
+    if (result->HasPrimitives() || result->GetClass()->HasPrimitives()) {
+        result->LoadPrimitives();
+    }
+
     SetGlobal(name, result);
 
     return result;
@@ -585,40 +583,50 @@ void Universe::LoadSystemClass(VMClass* systemClass) {
         Universe::Quit(ERR_FAIL);
     }
 
-    if (result->HasPrimitives() || result->GetClass()->HasPrimitives())
-        result->LoadPrimitives(classPath);
+    if (result->HasPrimitives() || result->GetClass()->HasPrimitives()) {
+        result->LoadPrimitives();
+    }
 }
 
-VMArray* Universe::NewArray(long size) const {
-    long additionalBytes = size * sizeof(VMObject*);
-    
+VMArray* Universe::NewArray(size_t size) const {
+    size_t additionalBytes = size * sizeof(VMObject*);
+
     bool outsideNursery;
-    
+
 #if GC_TYPE == GENERATIONAL
     // if the array is too big for the nursery, we will directly allocate a
     // mature object
     outsideNursery = additionalBytes + sizeof(VMArray) > GetHeap<HEAP_CLS>()->GetMaxNurseryObjectSize();
 #endif
 
-    VMArray* result = new (GetHeap<HEAP_CLS>(), additionalBytes ALLOC_OUTSIDE_NURSERY(outsideNursery)) VMArray(size);
-    if ((GC_TYPE == GENERATIONAL) && outsideNursery)
+    VMArray* result = new (GetHeap<HEAP_CLS>(), additionalBytes ALLOC_OUTSIDE_NURSERY(outsideNursery)) VMArray(size, additionalBytes);
+    if ((GC_TYPE == GENERATIONAL) && outsideNursery) {
         result->SetGCField(MASK_OBJECT_IS_OLD);
+    }
 
     result->SetClass(load_ptr(arrayClass));
-    
+
     LOG_ALLOCATION("VMArray", result->GetObjectSize());
     return result;
 }
 
-VMArray* Universe::NewArrayFromStrings(const vector<StdString>& argv) const {
-    VMArray* result = NewArray(argv.size());
-    long j = 0;
-    for (vector<StdString>::const_iterator i = argv.begin();
-            i != argv.end(); ++i) {
-        result->SetIndexableField(j, NewString(*i));
-        ++j;
+VMArray* Universe::NewArrayFromStrings(const vector<std::string>& strings) const {
+    VMArray* result = NewArray(strings.size());
+    size_t j = 0;
+    for (const std::string& str : strings) {
+        result->SetIndexableField(j, NewString(str));
+        j += 1;
     }
+    return result;
+}
 
+VMArray* Universe::NewArrayOfSymbolsFromStrings(const vector<std::string>& strings) const {
+    VMArray* result = NewArray(strings.size());
+    size_t j = 0;
+    for (const std::string& str : strings) {
+        result->SetIndexableField(j, SymbolFor(str));
+        j += 1;
+    }
     return result;
 }
 
@@ -646,22 +654,23 @@ VMArray* Universe::NewArrayList(std::vector<vm_oop_t>& list) const {
 }
 
 VMBlock* Universe::NewBlock(VMMethod* method, VMFrame* context, long arguments) {
-    VMBlock* result = new (GetHeap<HEAP_CLS>()) VMBlock;
+    VMBlock* result = new (GetHeap<HEAP_CLS>(), 0) VMBlock(method, context);
     result->SetClass(GetBlockClassWithArgs(arguments));
-
-    result->SetMethod(method);
-    result->SetContext(context);
 
     LOG_ALLOCATION("VMBlock", result->GetObjectSize());
     return result;
 }
 
 VMClass* Universe::NewClass(VMClass* classOfClass) const {
-    long numFields = classOfClass->GetNumberOfInstanceFields();
-    VMClass* result;
-    long additionalBytes = numFields * sizeof(VMObject*);
-    if (numFields) result = new (GetHeap<HEAP_CLS>(), additionalBytes) VMClass(numFields);
-    else result = new (GetHeap<HEAP_CLS>()) VMClass;
+    size_t numFields = classOfClass->GetNumberOfInstanceFields();
+    VMClass* result = nullptr;
+
+    if (numFields) {
+        size_t additionalBytes = numFields * sizeof(VMObject*);
+        result = new (GetHeap<HEAP_CLS>(), additionalBytes) VMClass(numFields, additionalBytes);
+    } else {
+        result = new (GetHeap<HEAP_CLS>(), 0) VMClass;
+    }
 
     result->SetClass(classOfClass);
 
@@ -671,7 +680,7 @@ VMClass* Universe::NewClass(VMClass* classOfClass) const {
 
 VMDouble* Universe::NewDouble(double value) const {
     LOG_ALLOCATION("VMDouble", sizeof(VMDouble));
-    return new (GetHeap<HEAP_CLS>()) VMDouble(value);
+    return new (GetHeap<HEAP_CLS>(), 0) VMDouble(value);
 }
 
 VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method) const {
@@ -684,17 +693,16 @@ VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method) const {
         return result;
     }
 #endif
-    long length = method->GetNumberOfArguments() +
+    size_t length = method->GetNumberOfArguments() +
                   method->GetNumberOfLocals() +
                   method->GetMaximumNumberOfStackElements();
 
-    long additionalBytes = length * sizeof(VMObject*);
-    result = new (GetHeap<HEAP_CLS>(), additionalBytes) VMFrame(length);
-    result->clazz = nullptr;
-    result->method        = _store_ptr(method);
-    result->previousFrame = _store_ptr(previousFrame);
+    size_t additionalBytes = length * sizeof(VMObject*);
+    result = new (GetHeap<HEAP_CLS>(), additionalBytes) VMFrame(length, additionalBytes);
+    result->method        = store_root(method);
+    result->previousFrame = store_root(previousFrame);
     result->ResetStackPointer();
-    
+
     LOG_ALLOCATION("VMFrame", result->GetObjectSize());
     return result;
 }
@@ -703,7 +711,7 @@ VMObject* Universe::NewInstance(VMClass* classOfInstance) const {
     long numOfFields = classOfInstance->GetNumberOfInstanceFields();
     //the additional space needed is calculated from the number of fields
     long additionalBytes = numOfFields * sizeof(VMObject*);
-    VMObject* result = new (GetHeap<HEAP_CLS>(), additionalBytes) VMObject(numOfFields);
+    VMObject* result = new (GetHeap<HEAP_CLS>(), additionalBytes) VMObject(numOfFields, additionalBytes + sizeof(VMObject));
     result->SetClass(classOfInstance);
 
     LOG_ALLOCATION(classOfInstance->GetName()->GetStdString(), result->GetObjectSize());
@@ -711,7 +719,7 @@ VMObject* Universe::NewInstance(VMClass* classOfInstance) const {
 }
 
 VMObject* Universe::NewInstanceWithoutFields() const {
-    VMObject* result = new (GetHeap<HEAP_CLS>(), 0) VMObject(0);
+    VMObject* result = new (GetHeap<HEAP_CLS>(), 0) VMObject(0, sizeof(VMObject));
     return result;
 }
 
@@ -729,14 +737,13 @@ VMInteger* Universe::NewInteger(int64_t value) const {
 #endif
 
     LOG_ALLOCATION("VMInteger", sizeof(VMInteger));
-    return new (GetHeap<HEAP_CLS>()) VMInteger(value);
+    return new (GetHeap<HEAP_CLS>(), 0) VMInteger(value);
 }
 
 VMClass* Universe::NewMetaclassClass() const {
-    VMClass* result = new (GetHeap<HEAP_CLS>()) VMClass;
-    result->SetClass(new (GetHeap<HEAP_CLS>()) VMClass);
-
-    VMClass* mclass = result->GetClass();
+    VMClass* result = new (GetHeap<HEAP_CLS>(), 0) VMClass;
+    VMClass* mclass = new (GetHeap<HEAP_CLS>(), 0) VMClass;
+    result->SetClass(mclass);
     mclass->SetClass(result);
 
     LOG_ALLOCATION("VMClass", result->GetObjectSize());
@@ -766,7 +773,7 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
     systemClass     = static_cast<GCClass*>(walk(systemClass));
     blockClass      = static_cast<GCClass*>(walk(blockClass));
     doubleClass     = static_cast<GCClass*>(walk(doubleClass));
-    
+
     trueClass  = static_cast<GCClass*>(walk(trueClass));
     falseClass = static_cast<GCClass*>(walk(falseClass));
 
@@ -790,9 +797,9 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
         gc_oop_t val = walk(iter->second);
         globals[key] = val;
     }
-    
+
     WalkSymbols(walk);
-    
+
 
     map<long, GCClass*>::iterator bcIter;
     for (bcIter = blockClassesByNoOfArgs.begin();
@@ -800,7 +807,7 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
          bcIter++) {
         bcIter->second = static_cast<GCClass*>(walk(bcIter->second));
     }
-    
+
     interpreter->WalkGlobals(walk);
 }
 
@@ -808,13 +815,8 @@ VMMethod* Universe::NewMethod(VMSymbol* signature,
         size_t numberOfBytecodes, size_t numberOfConstants, size_t numLocals, size_t maxStackDepth) const {
     // method needs space for the bytecodes and the pointers to the constants
     size_t additionalBytes = PADDED_SIZE(numberOfBytecodes + numberOfConstants*sizeof(VMObject*));
-//#if GC_TYPE==GENERATIONAL
-//    VMMethod* result = new (GetHeap<HEAP_CLS>(),additionalBytes, true) 
-//                VMMethod(numberOfBytecodes, numberOfConstants);
-//#else
     VMMethod* result = new (GetHeap<HEAP_CLS>(), additionalBytes)
         VMMethod(signature, numberOfBytecodes, numberOfConstants, numLocals, maxStackDepth);
-//#endif
 
     LOG_ALLOCATION("VMMethod", result->GetObjectSize());
     return result;
@@ -832,11 +834,10 @@ VMString* Universe::NewString(const size_t length, const char* str) const {
 }
 
 VMClass* Universe::NewSystemClass() const {
-    VMClass* systemClass = new (GetHeap<HEAP_CLS>()) VMClass();
+    VMClass* systemClass = new (GetHeap<HEAP_CLS>(), 0) VMClass();
+    VMClass* mclass = new (GetHeap<HEAP_CLS>(), 0) VMClass();
 
-    systemClass->SetClass(new (GetHeap<HEAP_CLS>()) VMClass());
-    VMClass* mclass = systemClass->GetClass();
-
+    systemClass->SetClass(mclass);
     mclass->SetClass(load_ptr(metaClassClass));
 
     LOG_ALLOCATION("VMClass", systemClass->GetObjectSize());
@@ -844,5 +845,5 @@ VMClass* Universe::NewSystemClass() const {
 }
 
 void Universe::SetGlobal(VMSymbol* name, vm_oop_t val) {
-    globals[_store_ptr(name)] = _store_ptr(val);
+    globals[store_root(name)] = store_root(val);
 }

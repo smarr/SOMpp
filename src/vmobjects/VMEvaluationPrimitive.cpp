@@ -44,7 +44,7 @@ VMEvaluationPrimitive::VMEvaluationPrimitive(size_t argc) : VMPrimitive(computeS
     SetRoutine(new EvaluationRoutine(this), false);
 }
 
-VMEvaluationPrimitive* VMEvaluationPrimitive::Clone() const {
+VMEvaluationPrimitive* VMEvaluationPrimitive::CloneForMovingGC() const {
     VMEvaluationPrimitive* evPrim = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMEvaluationPrimitive(*this);
     return evPrim;
 }
@@ -102,4 +102,15 @@ void EvaluationRoutine::WalkObjects(walk_heap_fn walk) {
 
 std::string VMEvaluationPrimitive::AsDebugString() const {
     return "VMEvaluationPrimitive(" + to_string(numberOfArguments) + ")";
+}
+
+#define INVALID_INT_MARKER 9002002002002002002
+
+void VMEvaluationPrimitive::MarkObjectAsInvalid() {
+    VMPrimitive::MarkObjectAsInvalid();
+    numberOfArguments = INVALID_INT_MARKER;
+}
+
+bool VMEvaluationPrimitive::IsMarkedInvalid() const {
+    return numberOfArguments == INVALID_INT_MARKER;
 }

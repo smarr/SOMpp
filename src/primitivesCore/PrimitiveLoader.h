@@ -59,7 +59,7 @@ private:
 
 
     
-    std::map<StdString, PrimitiveContainer*> primitiveObjects;
+    std::map<StdString, PrimitiveContainer*> primitiveObjects{};
     
     static PrimitiveLoader loader;
 };

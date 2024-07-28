@@ -38,7 +38,7 @@ public:
 
     static VMFrame* EmergencyFrameFrom(VMFrame* from, long extraLength);
 
-    VMFrame(long size, long nof = 0);
+    explicit VMFrame(size_t size, size_t additionalBytes);
 
     inline VMFrame* GetPreviousFrame() const;
     inline void SetPreviousFrame(VMFrame*);
@@ -110,11 +110,11 @@ public:
     long ArgumentStackIndex(long index) const;
     void CopyArgumentsFrom(VMFrame* frame);
     void WalkObjects(walk_heap_fn) override;
-    VMFrame* Clone() const override;
+    VMFrame* CloneForMovingGC() const override;
 
     void PrintStack() const;
     void PrintBytecode() const;
-    inline void* GetStackPointer() const;
+
     long RemainingStackSize() const;
 
     StdString AsDebugString() const override;
@@ -161,10 +161,6 @@ VMFrame* VMFrame::GetContext() const {
 
 void VMFrame::SetContext(VMFrame* frm) {
     store_ptr(context, frm);
-}
-
-void* VMFrame::GetStackPointer() const {
-    return stack_ptr;
 }
 
 VMFrame* VMFrame::GetPreviousFrame() const {

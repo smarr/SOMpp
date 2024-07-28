@@ -24,11 +24,14 @@
  THE SOFTWARE.
  */
 
+#include <cassert>
+#include <cstddef>
 #include <cstdint>
 #include <string>
 
 #include "../misc/VectorUtil.h"
 #include "../vm/Globals.h"
+#include "../vm/IsValidObject.h"
 #include "../vm/Symbols.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
@@ -40,8 +43,9 @@
 
 
 ClassGenerationContext::ClassGenerationContext() :
-        instanceFields(), instanceMethods(), classFields(), classMethods(),
-        name(nullptr), superName(nullptr), classSide(false) { }
+        name(nullptr), superName(nullptr), classSide(false),
+        instanceFields(), instanceMethods(), classFields(),
+         classMethods() { }
 
 void ClassGenerationContext::AddClassField(VMSymbol* field) {
     classFields.push_back(field);
@@ -52,17 +56,19 @@ void ClassGenerationContext::AddInstanceField(VMSymbol* field) {
 }
 
 void ClassGenerationContext::SetInstanceFieldsOfSuper(VMArray* fields) {
-    long num = fields->GetNumberOfIndexableFields();
-    for (long i = 0; i < num; i ++) {
+    size_t num = fields->GetNumberOfIndexableFields();
+    for (size_t i = 0; i < num; i ++) {
         VMSymbol* fieldName = (VMSymbol*)fields->GetIndexableField(i);
+        assert(IsVMSymbol(fieldName));
         instanceFields.push_back(fieldName);
     }
 }
 
 void ClassGenerationContext::SetClassFieldsOfSuper(VMArray* fields) {
-    long num = fields->GetNumberOfIndexableFields();
-    for (long i = 0; i < num; i ++) {
+    size_t num = fields->GetNumberOfIndexableFields();
+    for (size_t i = 0; i < num; i ++) {
         VMSymbol* fieldName = (VMSymbol*)fields->GetIndexableField(i);
+        assert(IsVMSymbol(fieldName));
         classFields.push_back(fieldName);
     }
 }

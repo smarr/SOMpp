@@ -324,7 +324,8 @@ void Interpreter::doSuperSend(long bytecodeIndex) {
     VMFrame* ctxt = GetFrame()->GetOuterContext();
     VMMethod* realMethod = ctxt->GetMethod();
     VMClass* holder = realMethod->GetHolder();
-    VMClass* super = holder->GetSuperClass();
+    assert(holder->HasSuperClass());
+    VMClass* super = (VMClass*) holder->GetSuperClass();
     VMInvokable* invokable = static_cast<VMInvokable*>(super->LookupInvokable(signature));
 
     if (invokable != nullptr)
@@ -411,12 +412,12 @@ void Interpreter::doJump(long bytecodeIndex) {
 }
 
 void Interpreter::WalkGlobals(walk_heap_fn walk) {
-    method = load_ptr(static_cast<GCMethod*>(walk(_store_ptr(method))));
+    method = load_ptr(static_cast<GCMethod*>(walk(tmp_ptr(method))));
     
     // Get the current frame and mark it.
     // Since marking is done recursively, this automatically
     // marks the whole stack
-    frame  = load_ptr(static_cast<GCFrame*>(walk(_store_ptr(frame))));
+    frame  = load_ptr(static_cast<GCFrame*>(walk(tmp_ptr(frame))));
 }
 
 void Interpreter::startGC() {

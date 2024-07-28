@@ -30,6 +30,7 @@
 
 #include "../interpreter/bytecodes.h"
 #include "../vm/Globals.h"
+#include "../vm/IsValidObject.h"
 #include "../vm/Symbols.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/Signature.h"
@@ -122,6 +123,10 @@ void EmitPUSHBLOCK(MethodGenerationContext& mgenc, VMMethod* block) {
 }
 
 void EmitPUSHCONSTANT(MethodGenerationContext& mgenc, vm_oop_t cst) {
+    // this isn't very robust with respect to initialization order
+    // so, we check here, and hope it's working, but alternatively
+    // we also make sure that we don't miss anything in the else
+    // branch of the class check
     if (CLASS_OF(cst) == load_ptr(integerClass)) {
         if (INT_VAL(cst) == 0ll) {
             Emit1(mgenc, BC_PUSH_0, 1);
@@ -131,6 +136,8 @@ void EmitPUSHCONSTANT(MethodGenerationContext& mgenc, vm_oop_t cst) {
             Emit1(mgenc, BC_PUSH_1, 1);
             return;
         }
+    } else {
+        assert(!IsVMInteger(cst));
     }
 
     if (cst == load_ptr(nilObject)) {

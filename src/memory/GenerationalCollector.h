@@ -8,9 +8,9 @@ class GenerationalHeap;
 class GenerationalCollector : public GarbageCollector<GenerationalHeap> {
 public:
     GenerationalCollector(GenerationalHeap* heap);
-    void Collect();
+    void Collect() override;
 private:
-    intptr_t majorCollectionThreshold;
+    uintptr_t majorCollectionThreshold;
     size_t matureObjectsSize;
     void MajorCollection();
     void MinorCollection();

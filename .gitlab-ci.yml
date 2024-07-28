@@ -75,8 +75,8 @@ build_and_test:
     - ./unittests -cp ../Smalltalk:../TestSuite/BasicInterpreterTests ../Examples/Hello.som
     - cd ..
 
-    # Test SomSom
     - |+
+      # Test SomSom
       if [ "$COMPILER" = "clang" ]; then
         # this is to load balance the SomSom testing
         # only when compiling with Clang, and only on one machine for each integer configuration

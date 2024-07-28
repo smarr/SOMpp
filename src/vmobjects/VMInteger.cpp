@@ -33,7 +33,7 @@
 #include "VMClass.h"
 #include "VMInteger.h"
 
-VMInteger* VMInteger::Clone() const {
+VMInteger* VMInteger::CloneForMovingGC() const {
     return new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMInteger(*this);
 }
 
@@ -43,4 +43,14 @@ VMClass* VMInteger::GetClass() const {
 
 std::string VMInteger::AsDebugString() const {
     return "Integer(" + to_string(embeddedInteger) + ")";
+}
+
+#define INVALID_INT_MARKER 9002002002002002002
+
+void VMInteger::MarkObjectAsInvalid() {
+    embeddedInteger = INVALID_INT_MARKER;
+}
+
+bool VMInteger::IsMarkedInvalid() const {
+    return embeddedInteger == INVALID_INT_MARKER;
 }

@@ -31,11 +31,10 @@
 #include <string>
 
 #include "../misc/defs.h"
-
-#include "Lexer.h"
-#include "ClassGenerationContext.h"
-#include "MethodGenerationContext.h"
 #include "BytecodeGenerator.h"
+#include "ClassGenerationContext.h"
+#include "Lexer.h"
+#include "MethodGenerationContext.h"
 
 class Parser {
 public:
@@ -45,18 +44,18 @@ public:
     void Classdef(ClassGenerationContext& cgenc);
     void method(MethodGenerationContext& mgenc);
     void nestedBlock(MethodGenerationContext& mgenc);
-    
+
 private:
     __attribute__((noreturn)) void parseError(const char* msg, Symbol expected);
     __attribute__((noreturn)) void parseError(const char* msg, Symbol* expected);
     __attribute__((noreturn)) void parseError(const char* msg, StdString expected);
-    
+
     void GetSym();
     void Peek();
     void PeekForNextSymbolFromLexerIfNecessary();
-    
+
     bool eob(void);
-    
+
     bool symIsIdentifier();
 
     bool symIn(Symbol* ss);
@@ -86,7 +85,7 @@ private:
     void expression(MethodGenerationContext& mgenc);
     void assignation(MethodGenerationContext& mgenc);
     void assignments(MethodGenerationContext& mgenc, list<VMSymbol*>& l);
-    VMSymbol* assignment(MethodGenerationContext& mgenc);
+    VMSymbol* assignment();
     void evaluation(MethodGenerationContext& mgenc);
     bool primary(MethodGenerationContext& mgenc);
     StdString variable();
@@ -95,7 +94,7 @@ private:
     void binaryMessage(MethodGenerationContext& mgenc, bool super);
     bool binaryOperand(MethodGenerationContext& mgenc);
     void keywordMessage(MethodGenerationContext& mgenc, bool super);
-    
+
     void formula(MethodGenerationContext& mgenc);
     void nestedTerm(MethodGenerationContext& mgenc);
     void literal(MethodGenerationContext& mgenc);

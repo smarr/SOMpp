@@ -29,8 +29,8 @@
 #include <vector>
 
 #include "../misc/defs.h"
-#include "../vm/IsValidObject.h"
 #include "../vm/Globals.h"
+#include "../vm/IsValidObject.h"
 #include "VMObject.h"
 
 #if defined(_MSC_VER)   //Visual Studio
@@ -45,10 +45,10 @@ public:
     typedef GCClass Stored;
 
     VMClass();
-    VMClass(long numberOfFields);
+    VMClass(size_t numberOfFields, size_t additionalBytes);
 
-           VMClass*     GetSuperClass() const;
-           void         SetSuperClass(VMClass*);
+           VMObject*    GetSuperClass() const;
+           void         SetSuperClass(VMObject*);
            bool         HasSuperClass() const;
            VMSymbol*    GetName() const;
            void         SetName(VMSymbol*);
@@ -56,7 +56,7 @@ public:
            void         SetInstanceFields(VMArray*);
            VMArray*     GetInstanceInvokables() const;
            void         SetInstanceInvokables(VMArray*);
-           long         GetNumberOfInstanceInvokables() const;
+           size_t       GetNumberOfInstanceInvokables() const;
            VMInvokable* GetInstanceInvokable(long) const;
            void         SetInstanceInvokable(long, VMInvokable*);
            VMInvokable* LookupInvokable(VMSymbol*) const;
@@ -64,10 +64,10 @@ public:
            bool         AddInstanceInvokable(VMInvokable*);
            void         AddInstancePrimitive(VMPrimitive*);
            VMSymbol*    GetInstanceFieldName(long)const;
-           long         GetNumberOfInstanceFields() const;
+           size_t       GetNumberOfInstanceFields() const;
            bool         HasPrimitives() const;
-           void         LoadPrimitives(const vector<StdString>&);
-           VMClass*    Clone() const override;
+           void         LoadPrimitives();
+           VMClass*     CloneForMovingGC() const override;
            void         WalkObjects(walk_heap_fn walk) override;
 
     void MarkObjectAsInvalid() override;
@@ -77,13 +77,14 @@ public:
 private:
     bool hasPrimitivesFor(const StdString& cl) const;
     void setPrimitives(const StdString& cname, bool classSide);
-    long numberOfSuperInstanceFields() const;
+    size_t numberOfSuperInstanceFields() const;
 
-    static const long VMClassNumberOfFields;
+    static const size_t VMClassNumberOfFields;
 
 private_testable:
+    // Remember to update Parser::superclass when the fields are changed
     GCSymbol* name;
     GCArray* instanceFields;
     GCArray* instanceInvokables;
-    GCClass* superClass;
+    GCObject* superClass;
 };

@@ -32,7 +32,6 @@
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../vm/Globals.h"  // NOLINT (misc-include-cleaner)
-#include "AbstractObject.h"
 #include "ObjectFormats.h"
 #include "Signature.h"
 #include "VMClass.h"
@@ -58,7 +57,7 @@ size_t VMSymbol::GetObjectSize() const {
     return size;
 }
 
-VMSymbol* VMSymbol::Clone() const {
+VMSymbol* VMSymbol::CloneForMovingGC() const {
     VMSymbol* result = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(length) ALLOC_MATURE) VMSymbol(length, chars);
     return result;
 }

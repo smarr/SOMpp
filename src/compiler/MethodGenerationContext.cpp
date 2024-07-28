@@ -40,8 +40,8 @@
 #include "MethodGenerationContext.h"
 
 MethodGenerationContext::MethodGenerationContext() :
-        signature(nullptr), holderGenc(nullptr), outerGenc(nullptr),
-        primitive(false), blockMethod(false), finished(false),
+        holderGenc(nullptr), outerGenc(nullptr),
+        blockMethod(false), signature(nullptr), primitive(false), finished(false),
         currentStackDepth(0), maxStackDepth(0) { }
 
 VMMethod* MethodGenerationContext::Assemble() {
@@ -52,7 +52,7 @@ VMMethod* MethodGenerationContext::Assemble() {
             numLiterals, numLocals, maxStackDepth);
 
     // copy literals into the method
-    for (int i = 0; i < numLiterals; i++) {
+    for (size_t i = 0; i < numLiterals; i++) {
         vm_oop_t l = literals[i];
         meth->SetIndexableField(i, l);
     }
@@ -84,7 +84,7 @@ uint8_t MethodGenerationContext::GetFieldIndex(VMSymbol* field) {
     return idx;
 }
 
-bool MethodGenerationContext::FindVar(VMSymbol* var, size_t* index,
+bool MethodGenerationContext::FindVar(VMSymbol* var, int64_t* index,
         int* context, bool* isArgument) {
     if ((*index = IndexOf(locals, var)) == -1) {
         if ((*index = IndexOf(arguments, var)) == -1) {
@@ -140,9 +140,20 @@ void MethodGenerationContext::AddLocal(const std::string& local) {
 }
 
 uint8_t MethodGenerationContext::AddLiteral(vm_oop_t lit) {
+    assert(!AS_OBJ(lit)->IsMarkedInvalid());
+
     uint8_t idx = literals.size();
     literals.push_back(lit);
     return idx;
+}
+
+int8_t MethodGenerationContext::AddLiteralIfAbsent(vm_oop_t lit) {
+    int8_t idx = IndexOf(literals, lit);
+    if (idx != -1) {
+        assert(idx >= 0 && (size_t)idx < literals.size() && "Expect index to be inside the literals vector.");
+        return idx;
+    }
+    return AddLiteral(lit);
 }
 
 void MethodGenerationContext::UpdateLiteral(vm_oop_t oldValue, uint8_t index, vm_oop_t newValue) {
@@ -166,15 +177,6 @@ bool MethodGenerationContext::AddLocalIfAbsent(const std::string& local) {
     }
     locals.push_back(localSym);
     return true;
-}
-
-int8_t MethodGenerationContext::AddLiteralIfAbsent(vm_oop_t lit) {
-    int8_t idx = IndexOf(literals, lit);
-    if (idx == -1) {
-        literals.push_back(lit);
-        idx = literals.size() - 1;
-    }
-    return idx;
 }
 
 void MethodGenerationContext::SetFinished(bool finished) {

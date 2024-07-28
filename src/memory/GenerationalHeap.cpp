@@ -14,7 +14,7 @@
 
 using namespace std;
 
-GenerationalHeap::GenerationalHeap(long objectSpaceSize) : Heap<GenerationalHeap>(new GenerationalCollector(this), objectSpaceSize) {
+GenerationalHeap::GenerationalHeap(size_t objectSpaceSize) : Heap<GenerationalHeap>(new GenerationalCollector(this)) {
     //our initial collection limit is 90% of objectSpaceSize
     //collectionLimit = objectSpaceSize * 0.9;
 
@@ -35,19 +35,20 @@ AbstractVMObject* GenerationalHeap::AllocateNurseryObject(size_t size) {
     AbstractVMObject* newObject = (AbstractVMObject*) nextFreePosition;
     nextFreePosition = (void*)((size_t)nextFreePosition + size);
     if ((size_t)nextFreePosition > nursery_end) {
-        ErrorPrint("Failed to allocate " + to_string(size) + " Bytes in nursery.\n");
+        ErrorPrint("\nFailed to allocate " + to_string(size) + " Bytes in nursery.\n");
         GetUniverse()->Quit(-1);
     }
     //let's see if we have to trigger the GC
-    if (nextFreePosition > collectionLimit)
+    if (nextFreePosition > collectionLimit) {
         requestGC();
+    }
     return newObject;
 }
 
 AbstractVMObject* GenerationalHeap::AllocateMatureObject(size_t size) {
     AbstractVMObject* newObject = (AbstractVMObject*) malloc(size);
     if (newObject == nullptr) {
-        ErrorPrint("Failed to allocate " + to_string(size) + " Bytes.\n");
+        ErrorPrint("\nFailed to allocate " + to_string(size) + " Bytes.\n");
         GetUniverse()->Quit(-1);
     }
     allocatedObjects->push_back(newObject);
@@ -62,4 +63,3 @@ void GenerationalHeap::writeBarrier_OldHolder(VMObjectBase* holder,
         holder->SetGCField(holder->GetGCField() | MASK_SEEN_BY_WRITE_BARRIER);
     }
 }
-

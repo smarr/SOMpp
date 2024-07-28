@@ -21,7 +21,7 @@ struct VMObjectCompare {
 class GenerationalHeap : public Heap<GenerationalHeap> {
     friend class GenerationalCollector;
 public:
-    GenerationalHeap(long objectSpaceSize = 1048576);
+    explicit GenerationalHeap(size_t objectSpaceSize = 1048576);
     AbstractVMObject* AllocateNurseryObject(size_t size);
     AbstractVMObject* AllocateMatureObject(size_t size);
     size_t GetMaxNurseryObjectSize();
@@ -37,8 +37,7 @@ private:
     size_t maxNurseryObjSize;
     size_t matureObjectsSize;
     void* nextFreePosition;
-    void writeBarrier_OldHolder(VMObjectBase* holder, const vm_oop_t
-            referencedObject);
+    void writeBarrier_OldHolder(VMObjectBase* holder, vm_oop_t referencedObject);
     void* collectionLimit;
     vector<size_t>* oldObjsWithRefToYoungObjs;
     vector<AbstractVMObject*>* allocatedObjects;
@@ -46,7 +45,7 @@ private:
 
 inline bool GenerationalHeap::isObjectInNursery(vm_oop_t obj) {
     assert(IsValidObject(obj));
-    
+
     return (size_t) obj >= (size_t)nursery && (size_t) obj < nursery_end;
 }
 
@@ -58,11 +57,12 @@ inline void GenerationalHeap::writeBarrier(VMObjectBase* holder, vm_oop_t refere
 #ifdef UNITTESTS
     writeBarrierCalledOn.insert(make_pair(holder, referencedObject));
 #endif
-    
+
     assert(IsValidObject(referencedObject));
     assert(IsValidObject(holder));
 
     const size_t gcfield = *(((size_t*)holder)+1);
-    if ((gcfield & 6 /* MASK_OBJECT_IS_OLD + MASK_SEEN_BY_WRITE_BARRIER */) == 2 /* MASK_OBJECT_IS_OLD */)
+    if ((gcfield & 6U /* MASK_OBJECT_IS_OLD + MASK_SEEN_BY_WRITE_BARRIER */) == 2U /* MASK_OBJECT_IS_OLD */) {
         writeBarrier_OldHolder(holder, referencedObject);
+    }
 }

@@ -39,24 +39,27 @@ extern GCClass* stringClass;
 //#define CHARS ((char*)&clazz+sizeof(VMObject*))
 
 VMString::VMString(const size_t length, const char* str) :
-        length(length),
+        AbstractVMObject(), length(length),
         // set the chars-pointer to point at the position of the first character
-        chars((char*) &chars + sizeof(char*)),
-        AbstractVMObject() {
+        chars((char*) &chars + sizeof(char*)) {
     for (size_t i = 0; i < length; i++) {
         chars[i] = str[i];
     }
 }
 
-VMString* VMString::Clone() const {
+VMString* VMString::CloneForMovingGC() const {
     return new (GetHeap<HEAP_CLS>(), PADDED_SIZE(length) ALLOC_MATURE) VMString(length, chars);
 }
 
 void VMString::MarkObjectAsInvalid() {
     for (size_t i = 0; i < length; i++) {
         chars[i] = 'z';
-        i++;
     }
+    chars = (char*) INVALID_GC_POINTER;
+}
+
+bool VMString::IsMarkedInvalid() const {
+    return chars == (char*) INVALID_GC_POINTER;
 }
 
 void VMString::WalkObjects(walk_heap_fn) {

@@ -23,6 +23,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+
+#include <cassert>
 #include <cstddef>
 #include <cstring>
 #include <string>
@@ -31,6 +33,7 @@
 #include "../misc/defs.h"
 #include "../vm/Globals.h"
 #include "../vm/Universe.h"
+#include "AbstractObject.h"
 #include "ObjectFormats.h"
 #include "VMClass.h"
 #include "VMFrame.h"
@@ -40,27 +43,28 @@
 // clazz is the only field of VMObject so
 const size_t VMObject::VMObjectNumberOfFields = 0;
 
-VMObject::VMObject(size_t numberOfFields) {
+VMObject::VMObject(size_t numSubclassFields, size_t totalObjectSize) : totalObjectSize(totalObjectSize), numberOfFields(VMObjectNumberOfFields + numSubclassFields) {
+    assert(IS_PADDED_SIZE(totalObjectSize));
+    assert(totalObjectSize >= sizeof(VMObject));
+
     // this line would be needed if the VMObject** is used instead of the macro:
     // FIELDS = (VMObject**)&clazz;
-    SetNumberOfFields(numberOfFields + VMObjectNumberOfFields);
     hash = (size_t) this;
-    // Object size was already set by the heap on allocation
+
+    nilInitializeFields();
 }
 
-VMObject* VMObject::Clone() const {
-    VMObject* clone = new (GetHeap<HEAP_CLS>(), objectSize - sizeof(VMObject) ALLOC_MATURE) VMObject(*this);
+VMObject* VMObject::CloneForMovingGC() const {
+    VMObject* clone = new (GetHeap<HEAP_CLS>(), totalObjectSize - sizeof(VMObject) ALLOC_MATURE) VMObject(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)),
-           SHIFTED_PTR(this,  sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    clone->hash = (size_t) &clone;
+           SHIFTED_PTR(this,  sizeof(VMObject)), totalObjectSize - sizeof(VMObject));
     return clone;
 }
 
-void VMObject::SetNumberOfFields(long nof) {
-    numberOfFields = nof;
-    // initialize fields with NilObject
-    for (long i = 0; i < nof; ++i)
+void VMObject::nilInitializeFields() {
+    for (size_t i = 0; i < numberOfFields; ++i) {
         FIELDS[i] = nilObject;
+    }
 }
 
 void VMObject::SetClass(VMClass* cl) {
@@ -77,15 +81,24 @@ void VMObject::Assert(bool value) const {
 
 void VMObject::WalkObjects(walk_heap_fn walk) {
     clazz = static_cast<GCClass*>(walk(clazz));
-    
+
     long numFields = GetNumberOfFields();
     for (long i = 0; i < numFields; ++i) {
-        FIELDS[i] = walk(_store_ptr(GetField(i)));
+        FIELDS[i] = walk(tmp_ptr(GetField(i)));
     }
 }
 
 void VMObject::MarkObjectAsInvalid() {
     clazz = (GCClass*) INVALID_GC_POINTER;
+
+    long numFields = GetNumberOfFields();
+    for (long i = 0; i < numFields; ++i) {
+        FIELDS[i] = INVALID_GC_POINTER;
+    }
+}
+
+bool VMObject::IsMarkedInvalid() const {
+    return clazz == INVALID_GC_POINTER;
 }
 
 std::string VMObject::AsDebugString() const {

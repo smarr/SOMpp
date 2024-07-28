@@ -29,6 +29,7 @@
 #include "../misc/defs.h"
 #include "../vm/Print.h"
 #include "CopyingHeap.h" // NOLINT(misc-include-cleaner)
+#include "DebugCopyingHeap.h" // NOLINT(misc-include-cleaner)
 #include "GenerationalHeap.h" // NOLINT(misc-include-cleaner)
 #include "Heap.h"
 #include "MarkSweepHeap.h" // NOLINT(misc-include-cleaner)
@@ -45,8 +46,9 @@ void Heap<HEAP_T>::InitializeHeap(long objectSpaceSize) {
 
 template<class HEAP_T>
 void Heap<HEAP_T>::DestroyHeap() {
-    if (theHeap)
+    if (theHeap) {
         delete theHeap;
+    }
 }
 
 template<class HEAP_T>

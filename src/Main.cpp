@@ -49,6 +49,8 @@ int main(int argc, char** argv) {
         cout << "\tgarbage collector: copying" << endl;
     else if (GC_TYPE == MARK_SWEEP)
         cout << "\tgarbage collector: mark-sweep" << endl;
+    else if (GC_TYPE == DEBUG_COPYING)
+        cout << "\tgarbage collector: debug copying" << endl;
     else
         cout << "\tgarbage collector: unknown" << endl;
 

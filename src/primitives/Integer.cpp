@@ -107,7 +107,7 @@ void _Integer::Plus(Interpreter* interp, VMFrame* frame) {
     frame->Push(NEW_INT(result));
 }
 
-void _Integer::BitwiseAnd(Interpreter* interp, VMFrame* frame) {
+void _Integer::BitwiseAnd(Interpreter*, VMFrame* frame) {
     vm_oop_t rightObj = frame->Pop();
     vm_oop_t leftObj  = frame->Pop();
 
@@ -115,7 +115,7 @@ void _Integer::BitwiseAnd(Interpreter* interp, VMFrame* frame) {
     frame->Push(NEW_INT(result));
 }
 
-void _Integer::BitwiseXor(Interpreter* interp, VMFrame* frame) {
+void _Integer::BitwiseXor(Interpreter*, VMFrame* frame) {
     vm_oop_t rightObj = frame->Pop();
     vm_oop_t leftObj  = frame->Pop();
 
@@ -124,7 +124,7 @@ void _Integer::BitwiseXor(Interpreter* interp, VMFrame* frame) {
 }
 
 
-void _Integer::LeftShift(Interpreter* interp, VMFrame* frame) {
+void _Integer::LeftShift(Interpreter*, VMFrame* frame) {
     vm_oop_t rightObj = frame->Pop();
     vm_oop_t leftObj  = frame->Pop();
 
@@ -132,7 +132,7 @@ void _Integer::LeftShift(Interpreter* interp, VMFrame* frame) {
     frame->Push(NEW_INT(result));
 }
 
-void _Integer::UnsignedRightShift(Interpreter* interp, VMFrame* frame) {
+void _Integer::UnsignedRightShift(Interpreter*, VMFrame* frame) {
     vm_oop_t rightObj = frame->Pop();
     vm_oop_t leftObj  = frame->Pop();
 
@@ -241,7 +241,7 @@ void _Integer::Equal(Interpreter* interp, VMFrame* frame) {
     }
 }
 
-void _Integer::EqualEqual(Interpreter* interp, VMFrame* frame) {
+void _Integer::EqualEqual(Interpreter*, VMFrame* frame) {
     vm_oop_t rightObj = frame->Pop();
     vm_oop_t leftObj  = frame->Pop();
 

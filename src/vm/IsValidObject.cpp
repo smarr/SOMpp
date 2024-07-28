@@ -6,6 +6,7 @@
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMArray.h"
 #include "../vmobjects/VMBlock.h"
+#include "../vmobjects/VMClass.h" // NOLINT(misc-include-cleaner) it's required to make the types complete
 #include "../vmobjects/VMDouble.h"
 #include "../vmobjects/VMEvaluationPrimitive.h"
 #include "../vmobjects/VMFrame.h"
@@ -30,27 +31,24 @@ void* vt_string;
 void* vt_symbol;
 
 bool IsValidObject(vm_oop_t obj) {
-    if (DEBUG) {
+    if (!DEBUG) {
         return true;
     }
-    
+
+    if (obj == nullptr)
+        return true;
+
     if (IS_TAGGED(obj))
         return true;
 
-    if (obj == INVALID_VM_POINTER
-        // || obj == nullptr
-        ) {
-        assert(false);
-        return false;
-    }
-    
-    if (obj == nullptr)
-        return true;
-    
-    
     if (vt_symbol == nullptr) // initialization not yet completed
         return true;
-    
+
+    if (obj == INVALID_VM_POINTER) {
+        assert(obj == INVALID_VM_POINTER && "Expected pointer to not be marker for invalid pointers.");
+        return false;
+    }
+
     void* vt = *(void**) obj;
     bool b = vt == vt_array    ||
            vt == vt_block      ||
@@ -64,7 +62,27 @@ bool IsValidObject(vm_oop_t obj) {
            vt == vt_primitive  ||
            vt == vt_string     ||
            vt == vt_symbol;
-    assert(b);
+    if (!b) {
+        assert(b && "Expected vtable to be one of the known ones.");
+        return false;
+    }
+
+# if GC_TYPE == COPYING || GC_TYPE == DEBUG_COPYING
+    if (AS_OBJ(obj)->GetGCField() != 0) {
+        // this is a properly forwarded object
+        return true;
+    }
+# elif GC_TYPE == GENERATIONAL
+    if (!(AS_OBJ(obj)->GetGCField() & MASK_OBJECT_IS_OLD)) {
+        if (AS_OBJ(obj)->GetGCField() != 0) {
+            // this is a properly forwarded object
+            return true;
+        }
+    }
+# endif
+
+    b = !AS_OBJ(obj)->IsMarkedInvalid();
+    assert(b && "Expected object not to be marked as invalid.");
     return b;
 }
 
@@ -83,35 +101,50 @@ void set_vt_to_null() {
     vt_symbol     = nullptr;
 }
 
+static void* get_vtable(AbstractVMObject* obj) {
+    return *(void**) obj;
+}
+
+bool IsVMInteger(vm_oop_t obj) {
+    assert(vt_integer != nullptr);
+    return get_vtable(AS_OBJ(obj)) == vt_integer;
+}
+
+bool IsVMSymbol(vm_oop_t obj) {
+    assert(vt_symbol != nullptr);
+    return get_vtable(AS_OBJ(obj)) == vt_symbol;
+}
+
 void obtain_vtables_of_known_classes(VMSymbol* className) {
-    VMArray* arr  = new (GetHeap<HEAP_CLS>()) VMArray(0, 0);
-    vt_array      = *(void**) arr;
-    
-    VMBlock* blck = new (GetHeap<HEAP_CLS>()) VMBlock();
-    vt_block      = *(void**) blck;
-    
-    vt_class      = *(void**) symbolClass;
-    
-    VMDouble* dbl = new (GetHeap<HEAP_CLS>()) VMDouble(0.0);
-    vt_double     = *(void**) dbl;
-    
-    VMEvaluationPrimitive* ev = new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(1);
-    vt_eval_primitive = *(void**) ev;
-    
-    VMFrame* frm  = new (GetHeap<HEAP_CLS>()) VMFrame(0, 0);
-    vt_frame      = *(void**) frm;
-    
-    VMInteger* i  = new (GetHeap<HEAP_CLS>()) VMInteger(0);
-    vt_integer    = *(void**) i;
-    
-    VMMethod* mth = new (GetHeap<HEAP_CLS>()) VMMethod(nullptr, 0, 0, 0, 0);
-    vt_method     = *(void**) mth;
-    vt_object     = *(void**) nilObject;
-    
-    VMPrimitive* prm = new (GetHeap<HEAP_CLS>()) VMPrimitive(className);
-    vt_primitive  = *(void**) prm;
-    
+    // These objects are allocated on the heap. So, they will get GC'ed soon enough.
+    VMArray* arr  = new (GetHeap<HEAP_CLS>(), 0) VMArray(0, 0);
+    vt_array      = get_vtable(arr);
+
+    VMBlock* blck = new (GetHeap<HEAP_CLS>(), 0) VMBlock(nullptr, nullptr);
+    vt_block      = get_vtable(blck);
+
+    vt_class      = get_vtable(load_ptr(symbolClass));
+
+    VMDouble* dbl = new (GetHeap<HEAP_CLS>(), 0) VMDouble(0.0);
+    vt_double     = get_vtable(dbl);
+
+    VMEvaluationPrimitive* ev = new (GetHeap<HEAP_CLS>(), 0) VMEvaluationPrimitive(1);
+    vt_eval_primitive = get_vtable(ev);
+
+    VMFrame* frm  = new (GetHeap<HEAP_CLS>(), 0) VMFrame(0, 0);
+    vt_frame      = get_vtable(frm);
+
+    VMInteger* i  = new (GetHeap<HEAP_CLS>(), 0) VMInteger(0);
+    vt_integer    = get_vtable(i);
+
+    VMMethod* mth = new (GetHeap<HEAP_CLS>(), 0) VMMethod(nullptr, 0, 0, 0, 0);
+    vt_method     = get_vtable(mth);
+    vt_object     = get_vtable(load_ptr(nilObject));
+
+    VMPrimitive* prm = new (GetHeap<HEAP_CLS>(), 0) VMPrimitive(className);
+    vt_primitive  = get_vtable(prm);
+
     VMString* str = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(1)) VMString(0, nullptr);
-    vt_string     = *(void**) str;
-    vt_symbol     = *(void**) className;
+    vt_string     = get_vtable(str);
+    vt_symbol     = get_vtable(className);
 }

@@ -55,6 +55,10 @@
 		0A1C986C2C4D363A00735850 /* LogAllocation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C986A2C4D363A00735850 /* LogAllocation.cpp */; };
 		0A1C986E2C4F1D3900735850 /* debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C986D2C4F1D3900735850 /* debug.cpp */; };
 		0A1C986F2C4F1D3900735850 /* debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C986D2C4F1D3900735850 /* debug.cpp */; };
+		0A1C98732C55269E00735850 /* DebugCopyingHeap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C98722C55269E00735850 /* DebugCopyingHeap.cpp */; };
+		0A1C98742C55269E00735850 /* DebugCopyingHeap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C98722C55269E00735850 /* DebugCopyingHeap.cpp */; };
+		0A1C98762C5526AD00735850 /* DebugCopyingCollector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C98752C5526AD00735850 /* DebugCopyingCollector.cpp */; };
+		0A1C98772C5526AD00735850 /* DebugCopyingCollector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C98752C5526AD00735850 /* DebugCopyingCollector.cpp */; };
 		0A32B7FE199D6143002825DF /* IntegerBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A32B7FC199D6143002825DF /* IntegerBox.cpp */; };
 		0A3A3C921A5D546D004CB03B /* Array.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203120FA6624C00E75857 /* Array.cpp */; };
 		0A3A3C931A5D546D004CB03B /* Block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203160FA6624C00E75857 /* Block.cpp */; };
@@ -197,6 +201,10 @@
 		0A1C98692C4D35BB00735850 /* LogAllocation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LogAllocation.h; sourceTree = "<group>"; };
 		0A1C986A2C4D363A00735850 /* LogAllocation.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LogAllocation.cpp; sourceTree = "<group>"; };
 		0A1C986D2C4F1D3900735850 /* debug.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = debug.cpp; sourceTree = "<group>"; };
+		0A1C98702C55250100735850 /* DebugCopyingHeap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DebugCopyingHeap.h; sourceTree = "<group>"; };
+		0A1C98712C55251100735850 /* DebugCopyingCollector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DebugCopyingCollector.h; sourceTree = "<group>"; };
+		0A1C98722C55269E00735850 /* DebugCopyingHeap.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DebugCopyingHeap.cpp; sourceTree = "<group>"; };
+		0A1C98752C5526AD00735850 /* DebugCopyingCollector.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DebugCopyingCollector.cpp; sourceTree = "<group>"; };
 		0A32B7FC199D6143002825DF /* IntegerBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IntegerBox.cpp; sourceTree = "<group>"; };
 		0A32B7FD199D6143002825DF /* IntegerBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntegerBox.h; sourceTree = "<group>"; };
 		0A32B80119A12A03002825DF /* VMObjectBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMObjectBase.h; sourceTree = "<group>"; };
@@ -519,6 +527,10 @@
 				3F5203080FA6624C00E75857 /* GarbageCollector.h */,
 				3F5203090FA6624C00E75857 /* Heap.cpp */,
 				3F52030A0FA6624C00E75857 /* Heap.h */,
+				0A1C98702C55250100735850 /* DebugCopyingHeap.h */,
+				0A1C98712C55251100735850 /* DebugCopyingCollector.h */,
+				0A1C98722C55269E00735850 /* DebugCopyingHeap.cpp */,
+				0A1C98752C5526AD00735850 /* DebugCopyingCollector.cpp */,
 			);
 			path = memory;
 			sourceTree = "<group>";
@@ -854,6 +866,7 @@
 				0A3A3C991A5D546D004CB03B /* Primitive.cpp in Sources */,
 				0A1886FF1832BCF500A2CBCA /* VMFrame.cpp in Sources */,
 				0A1886E41832BCD300A2CBCA /* Interpreter.cpp in Sources */,
+				0A1C98762C5526AD00735850 /* DebugCopyingCollector.cpp in Sources */,
 				0A1886E71832BCDC00A2CBCA /* Heap.cpp in Sources */,
 				0A1886F71832BCF500A2CBCA /* Signature.cpp in Sources */,
 				0A1887351832C10E00A2CBCA /* MarkSweepCollector.cpp in Sources */,
@@ -869,6 +882,7 @@
 				0A3A3C981A5D546D004CB03B /* Object.cpp in Sources */,
 				0A1886E01832BCC800A2CBCA /* MethodGenerationContext.cpp in Sources */,
 				0A3A3C9C1A5D546D004CB03B /* System.cpp in Sources */,
+				0A1C98732C55269E00735850 /* DebugCopyingHeap.cpp in Sources */,
 				0A1886F91832BCF500A2CBCA /* VMArray.cpp in Sources */,
 				0A3A3C971A5D546D004CB03B /* Method.cpp in Sources */,
 				0A1886E51832BCD700A2CBCA /* Main.cpp in Sources */,
@@ -933,6 +947,7 @@
 				0A67EA8C19ACD82100830E3B /* Universe.cpp in Sources */,
 				0A67EA8019ACD74800830E3B /* VMBlock.cpp in Sources */,
 				0A67EA8919ACD74800830E3B /* VMString.cpp in Sources */,
+				0A1C98742C55269E00735850 /* DebugCopyingHeap.cpp in Sources */,
 				0A67EA9419ACD83900830E3B /* bytecodes.cpp in Sources */,
 				0A67EA8319ACD74800830E3B /* VMEvaluationPrimitive.cpp in Sources */,
 				0A67EA9219ACD83200830E3B /* Parser.cpp in Sources */,
@@ -960,6 +975,7 @@
 				0A1C98682C4D340300735850 /* Symbols.cpp in Sources */,
 				0AB80AD42C392B78006B6419 /* Print.cpp in Sources */,
 				0A3A3CA41A5D546D004CB03B /* Double.cpp in Sources */,
+				0A1C98772C5526AD00735850 /* DebugCopyingCollector.cpp in Sources */,
 				0A67EA8519ACD74800830E3B /* VMInteger.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1003,6 +1019,15 @@
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					src,
 				);
+				OTHER_CFLAGS = (
+					"-DGC_TYPE=DEBUG_COPYING",
+					"-DUSE_TAGGING=false",
+					"-DDEBUG",
+					"-DLOG_LEVEL=3",
+					"-Wextra",
+					"-Wall",
+					"-DCACHE_INTEGER=false",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -1038,6 +1063,15 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					src,
+				);
+				OTHER_CFLAGS = (
+					"-DGC_TYPE=DEBUG_COPYING",
+					"-DUSE_TAGGING=false",
+					"-DDEBUG",
+					"-DLOG_LEVEL=3",
+					"-Wextra",
+					"-Wall",
+					"-DCACHE_INTEGER=false",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -1083,8 +1117,14 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				OTHER_CFLAGS = (
-					"-DGC_TYPE=GENERATIONAL",
+					"-DGC_TYPE=DEBUG_COPYING",
+					"-DDEBUG",
 					"-DUNITTESTS",
+					"-DCACHE_INTEGER=false",
+					"-DUSE_TAGGING=false",
+					"-Wall",
+					"-Wextra",
+					"-DLOG_LEVEL=3",
 				);
 				OTHER_LDFLAGS = (
 					"-lcppunit",
@@ -1129,8 +1169,14 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				OTHER_CFLAGS = (
-					"-DGC_TYPE=GENERATIONAL",
+					"-DGC_TYPE=DEBUG_COPYING",
+					"-DDEBUG",
 					"-DUNITTESTS",
+					"-DCACHE_INTEGER=false",
+					"-DUSE_TAGGING=false",
+					"-Wall",
+					"-Wextra",
+					"-DLOG_LEVEL=3",
 				);
 				OTHER_LDFLAGS = (
 					"-lcppunit",
@@ -1180,7 +1226,8 @@
 				OTHER_CFLAGS = (
 					"-DGC_TYPE=COPYING",
 					"-DUSE_TAGGING=false",
-					"-DDEBUG=true",
+					"-DDEBUG",
+					"-DLOG_LEVEL=3",
 				);
 				VALID_ARCHS = arm64;
 			};
@@ -1224,7 +1271,8 @@
 				OTHER_CFLAGS = (
 					"-DGC_TYPE=COPYING",
 					"-DUSE_TAGGING=false",
-					"-DDEBUG=true",
+					"-DDEBUG",
+					"-DLOG_LEVEL=3",
 				);
 				VALID_ARCHS = arm64;
 			};

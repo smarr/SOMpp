@@ -25,6 +25,7 @@
  */
 #include <cassert>
 #include <cctype>
+#include <cstdint>
 #include <cstring>
 #include <istream>
 #include <string>
@@ -38,7 +39,7 @@ Lexer::Lexer(istream &file) : infile(file), peekDone(false) {}
 #define _BC (buf[state.bufp])
 #define EOB (state.bufp >= buf.length())
 
-size_t Lexer::fillBuffer() {
+int64_t Lexer::fillBuffer() {
     if (!infile.good()) { // file stream
         return -1;
     }

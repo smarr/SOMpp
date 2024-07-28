@@ -67,7 +67,7 @@ void Parser::PeekForNextSymbolFromLexerIfNecessary() {
     }
 }
 
-Parser::Parser(istream& file, StdString& fname): fname(fname), sym(NONE), nextSym(NONE), lexer(file) {
+Parser::Parser(istream& file, StdString& fname): lexer(file), fname(fname), sym(NONE), nextSym(NONE) {
     GetSym();
 }
 
@@ -127,7 +127,7 @@ void Parser::genPushVariable(MethodGenerationContext& mgenc,
     // pushed on the stack is a local variable, argument, or object field. This
     // is done by examining all available lexical contexts, starting with the
     // innermost (i.e., the one represented by mgenc).
-    size_t index = 0;
+    int64_t index = 0;
     int context = 0;
     bool is_argument = false;
 
@@ -151,7 +151,7 @@ void Parser::genPopVariable(MethodGenerationContext& mgenc, VMSymbol* var) {
     // popped off the stack is a local variable, argument, or object field. This
     // is done by examining all available lexical contexts, starting with the
     // innermost (i.e., the one represented by mgenc).
-    size_t index = 0;
+    int64_t index = 0;
     int context = 0;
     bool is_argument = false;
 
@@ -244,9 +244,9 @@ void Parser::superclass(ClassGenerationContext& cgenc) {
         // We avoid here any kind of dynamic solution to avoid further complexity.
         // However, that makes it static, it is going to make it harder to
         // change the definition of Class and Object
-        vector<StdString> fieldNamesOfClass{ "class", "superClass", "name",
-            "instanceFields", "instanceInvokables" };
-        VMArray* fieldNames = GetUniverse()->NewArrayFromStrings(fieldNamesOfClass);
+        vector<StdString> fieldNamesOfClass{ "class", "name",
+            "instanceFields", "instanceInvokables", "superClass" };
+        VMArray* fieldNames = GetUniverse()->NewArrayOfSymbolsFromStrings(fieldNamesOfClass);
         cgenc.SetClassFieldsOfSuper(fieldNames);
     }
 }
@@ -463,7 +463,7 @@ void Parser::assignation(MethodGenerationContext& mgenc) {
 
 void Parser::assignments(MethodGenerationContext& mgenc, list<VMSymbol*>& l) {
     if (symIsIdentifier()) {
-        l.push_back(assignment(mgenc));
+        l.push_back(assignment());
         Peek();
 
         if (nextSym == Assign) {
@@ -472,7 +472,7 @@ void Parser::assignments(MethodGenerationContext& mgenc, list<VMSymbol*>& l) {
     }
 }
 
-VMSymbol* Parser::assignment(MethodGenerationContext& mgenc) {
+VMSymbol* Parser::assignment() {
     StdString v = variable();
 
     expect(Assign);
@@ -719,7 +719,7 @@ void Parser::literalArray(MethodGenerationContext& mgenc) {
     EmitPUSHCONSTANT(mgenc, arraySizeLiteralIndex);
     EmitSEND(mgenc, newMessage);
 
-    size_t i = 1;
+    int64_t i = 1;
 
     while (sym != EndTerm) {
         vm_oop_t pushIndex = NEW_INT(i);

@@ -68,6 +68,7 @@
 #define GENERATIONAL 1
 #define COPYING      2
 #define MARK_SWEEP   3
+#define DEBUG_COPYING 4
 
 #if   GC_TYPE == GENERATIONAL
   class   GenerationalHeap;
@@ -86,6 +87,13 @@
 #elif GC_TYPE == MARK_SWEEP
   class   MarkSweepHeap;
   typedef MarkSweepHeap HEAP_CLS;
+  #define write_barrier(obj, value_ptr)
+  #define ALLOC_MATURE
+  #define ALLOC_OUTSIDE_NURSERY(X)
+  #define ALLOC_OUTSIDE_NURSERY_DECL
+#elif GC_TYPE == DEBUG_COPYING
+  class   DebugCopyingHeap;
+  typedef DebugCopyingHeap HEAP_CLS;
   #define write_barrier(obj, value_ptr)
   #define ALLOC_MATURE
   #define ALLOC_OUTSIDE_NURSERY(X)
@@ -151,6 +159,17 @@
   #define protected_testable public
 #endif
 
+//
+// Log Levels
+//
+#define LOG_LEVEL_ERROR 0
+#define LOG_LEVEL_WARN  1
+#define LOG_LEVEL_LOG   2
+#define LOG_LEVEL_INFO  3
+
+#ifndef LOG_LEVEL
+  #define LOG_LEVEL LOG_LEVEL_ERROR
+#endif
 
 //
 // Performance Optimization

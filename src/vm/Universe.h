@@ -26,7 +26,6 @@
  THE SOFTWARE.
  */
 
-//#define __DEBUG
 #include <map>
 #include <vector>
 
@@ -61,17 +60,19 @@ public:
     Interpreter* GetInterpreter() {
         return interpreter;
     }
-    
+
     void Assert(bool) const;
 
     //VMObject instanciation methods. These should probably be refactored to a new class
-    VMArray* NewArray(long) const;
-    
+    VMArray* NewArray(size_t) const;
+
     VMArray* NewArrayList(std::vector<vm_oop_t>& list) const;
     VMArray* NewArrayList(std::vector<VMInvokable*>& list) const;
     VMArray* NewArrayList(std::vector<VMSymbol*>& list) const;
-    
+
     VMArray* NewArrayFromStrings(const vector<StdString>&) const;
+    VMArray* NewArrayOfSymbolsFromStrings(const vector<StdString>&) const;
+
     VMBlock* NewBlock(VMMethod*, VMFrame*, long);
     VMClass* NewClass(VMClass*) const;
     VMFrame* NewFrame(VMFrame*, VMMethod*) const;
@@ -130,7 +131,7 @@ private:
 
     long heapSize;
     map<GCSymbol*, gc_oop_t> globals;
-    
+
     map<long, GCClass*> blockClassesByNoOfArgs;
     vector<StdString> classPath;
 
@@ -140,14 +141,14 @@ private:
 //Singleton accessor
 inline Universe* GetUniverse() __attribute__ ((always_inline));
 Universe* GetUniverse() {
-    if (DEBUG && !Universe::theUniverse) {
+    if (DEBUG && Universe::theUniverse == nullptr) {
         Universe::ErrorExit("Trying to access uninitialized Universe, exiting.");
     }
     return Universe::theUniverse;
 }
 
 Universe* Universe::operator->() {
-    if (DEBUG && !theUniverse) {
+    if (DEBUG && theUniverse == nullptr) {
         ErrorExit("Trying to access uninitialized Universe, exiting.");
     }
     return theUniverse;

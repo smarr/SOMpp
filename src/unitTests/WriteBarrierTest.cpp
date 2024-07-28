@@ -39,8 +39,8 @@ void WriteBarrierTest::testWriteArray() {
     VMInteger* newInt = GetUniverse()->NewInteger(12345);
     VMString* str = GetUniverse()->NewString("asdfghjkl");
     VMDouble* doub = GetUniverse()->NewDouble(9876.654);
-    VMClass* cloneClass = load_ptr(arrayClass)->Clone();
-    VMClass* clone2Class = cloneClass->Clone();
+    VMClass* cloneClass = load_ptr(arrayClass)->CloneForMovingGC();
+    VMClass* clone2Class = cloneClass->CloneForMovingGC();
     arr->SetClass(cloneClass);
     arr->SetField(0, clone2Class);
     arr->SetIndexableField(0, newInt);
@@ -77,13 +77,6 @@ void WriteBarrierTest::testWriteBlock() {
             block->GetMethod());
     TEST_WB_CALLED("VMBlock failed to call writeBarrier when creating", block,
             block->GetContext());
-
-    block->SetMethod(method->Clone());
-    TEST_WB_CALLED("VMBlock failed to call writeBarrier on SetMethod", block,
-            block->GetMethod());
-    block->SetContext(block->GetContext()->Clone());
-    TEST_WB_CALLED("VMBlock failed to call writeBarrier on SetContext", block,
-            block->GetContext());
 }
 
 void WriteBarrierTest::testWriteFrame() {
@@ -94,12 +87,12 @@ void WriteBarrierTest::testWriteFrame() {
     // reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
 
-    VMFrame* frame = GetUniverse()->GetInterpreter()->GetFrame()->Clone();
-    frame->SetContext(frame->Clone());
+    VMFrame* frame = GetUniverse()->GetInterpreter()->GetFrame()->CloneForMovingGC();
+    frame->SetContext(frame->CloneForMovingGC());
 
     frame->SetPreviousFrame(GetUniverse()->GetInterpreter()->GetFrame());
     TEST_WB_CALLED("VMFrame failed to call writeBarrier on SetPreviousFrame", frame, GetUniverse()->GetInterpreter()->GetFrame());
-    frame->SetContext(frame->GetContext()->Clone());
+    frame->SetContext(frame->GetContext()->CloneForMovingGC());
     TEST_WB_CALLED("VMFrame failed to call writeBarrier on SetContext", frame, frame->GetContext());
     frame->ClearPreviousFrame();
     TEST_WB_CALLED("VMFrame failed to call writeBarrier on ClearPreviousFrame", frame, load_ptr(nilObject));
@@ -112,7 +105,7 @@ void WriteBarrierTest::testWriteMethod() {
 
     // reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
-    VMMethod* method = GetUniverse()->GetInterpreter()->GetFrame()->GetMethod()->Clone();
+    VMMethod* method = GetUniverse()->GetInterpreter()->GetFrame()->GetMethod()->CloneForMovingGC();
     method->SetHolder(load_ptr(integerClass));
     TEST_WB_CALLED("VMMethod failed to call writeBarrier on SetHolder", method, load_ptr(integerClass));
 }
@@ -124,7 +117,7 @@ void WriteBarrierTest::testWriteEvaluationPrimitive() {
 
     //reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
-    VMEvaluationPrimitive* evPrim = new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(1);
+    VMEvaluationPrimitive* evPrim = new (GetHeap<HEAP_CLS>(), 0) VMEvaluationPrimitive(1);
     TEST_WB_CALLED("VMEvaluationPrimitive failed to call writeBarrier when creating", evPrim, evPrim->GetClass());
 }
 
@@ -135,7 +128,7 @@ void WriteBarrierTest::testWriteClass() {
 
     //reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
-    VMClass* cl = load_ptr(integerClass)->Clone();
+    VMClass* cl = load_ptr(integerClass)->CloneForMovingGC();
     //now test all methods that change members
     cl->SetSuperClass(load_ptr(integerClass));
     TEST_WB_CALLED("VMClass failed to call writeBarrier on SetSuperClass", cl,
@@ -144,11 +137,11 @@ void WriteBarrierTest::testWriteClass() {
     cl->SetName(newName);
     TEST_WB_CALLED("VMClass failed to call writeBarrier on SetName", cl,
             newName);
-    VMArray* newInstFields = cl->GetInstanceFields()->Clone();
+    VMArray* newInstFields = cl->GetInstanceFields()->CloneForMovingGC();
     cl->SetInstanceFields(newInstFields);
     TEST_WB_CALLED("VMClass failed to call writeBarrier on SetInstanceFields", cl,
             newName);
-    VMArray* newInstInvokables = cl->GetInstanceInvokables()->Clone();
+    VMArray* newInstInvokables = cl->GetInstanceInvokables()->CloneForMovingGC();
     cl->SetInstanceInvokables(newInstInvokables);
     TEST_WB_CALLED("VMClass failed to call writeBarrier on SetInstanceInvokables", cl,
             newName);

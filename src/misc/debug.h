@@ -52,26 +52,30 @@ static inline void DebugPrefix(const char* prefix) {
     va_end(ap)
 
 static inline void DebugInfo(const char* fmt, ...) {
-#if DEBUG
+#if LOG_LEVEL >= LOG_LEVEL_INFO
     DebugPrefix("INFO:");
     DebugPass(fmt);
 #else
     (void) fmt;
-#endif // DEBUG
+#endif
 }
 
 static inline void DebugLog(const char* fmt, ...) {
-#if DEBUG
+#if LOG_LEVEL >= LOG_LEVEL_LOG
     DebugPrefix("LOG:");
     DebugPass(fmt);
 #else
     (void) fmt;
-#endif // DEBUG
+#endif
 }
 
 static inline void DebugWarn(const char* fmt, ...) {
+#if LOG_LEVEL >= LOG_LEVEL_WARN
     DebugPrefix("WARN:");
     DebugPass(fmt);
+#else
+    (void) fmt;
+#endif
 }
 
 static inline void DebugError(const char* fmt, ...) {

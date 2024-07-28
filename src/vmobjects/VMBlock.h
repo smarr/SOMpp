@@ -26,23 +26,28 @@
  THE SOFTWARE.
  */
 
+#include "VMFrame.h"
 #include "VMObject.h"
 
 class VMBlock: public VMObject {
 public:
     typedef GCBlock Stored;
 
-    VMBlock();
+    VMBlock(VMMethod* method, VMFrame* context);
 
             VMMethod* GetMethod() const;
-            void      SetMethod(VMMethod*);
-    inline  void      SetContext(VMFrame*);
-    inline  VMFrame*  GetContext() const;
-            VMBlock*  Clone() const override;
+    
+    inline  VMFrame*  GetContext() const {
+        return load_ptr(context);
+    }
+
+            VMBlock*  CloneForMovingGC() const override;
 
     StdString AsDebugString() const override;
 
     static VMEvaluationPrimitive* GetEvaluationPrimitive(int);
+
+    void MarkObjectAsInvalid() override;
 
 private_testable:
     GCMethod* blockMethod;
@@ -51,13 +56,3 @@ private_testable:
 private:
     static const int VMBlockNumberOfFields;
 };
-
-#include "VMFrame.h"
-
-void VMBlock::SetContext(VMFrame* contxt) {
-    store_ptr(context, contxt);
-}
-
-VMFrame* VMBlock::GetContext() const {
-    return load_ptr(context);
-}

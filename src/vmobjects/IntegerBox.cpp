@@ -5,7 +5,7 @@
 GCInteger* GlobalBox::integerBox = nullptr;
 
 void GlobalBox::updateIntegerBox(VMInteger* newValue) {
-    integerBox = _store_ptr(newValue);
+    integerBox = store_root(newValue);
 }
 
 VMInteger* GlobalBox::IntegerBox() {

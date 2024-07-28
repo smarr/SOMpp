@@ -33,18 +33,18 @@
  * 01111111 11111111 ... 11111111 1111111X
  *
  */
-#define VMTAGGEDINTEGER_MAX  0x3FFFFFFFFFFFFFFF
+#define VMTAGGEDINTEGER_MAX  0x3FFFFFFFFFFFFFFFLL
 
 /**
  * min value for tagged integers
  * 10000000 00000000 ... 00000000 0000000X
  */
-#define VMTAGGEDINTEGER_MIN -0x4000000000000000
+#define VMTAGGEDINTEGER_MIN (-0x4000000000000000LL)
 
 #if ADDITIONAL_ALLOCATION
 #define TAG_INTEGER(X) (((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX && GetUniverse()->NewInteger(0)) ? ((vm_oop_t)(((X) << 1) | 1)) : (GetUniverse()->NewInteger(X)))
 #else
-#define TAG_INTEGER(X) (((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX) ? ((vm_oop_t)(((X) << 1) | 1)) : (GetUniverse()->NewInteger(X)))
+#define TAG_INTEGER(X) (((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX) ? ((vm_oop_t)((((uint64_t)(X)) << 1) | 1U)) : (GetUniverse()->NewInteger(X)))
 #endif
 
 #if USE_TAGGING
@@ -89,9 +89,12 @@ class VMOop {
     virtual void dummyVirtualFunctionToForceVTableCreation() {
         /* With the current class hierarchy, we need to force the compiler to
            create a VTable early, otherwise, the object layout is having
-           vtables in the body of the objects, and casting is messed up, 
+           vtables in the body of the objects, and casting is messed up,
            leading to offset pointers to the vtables of subclasses. */ };
-    public: typedef GCOop Stored; };
+public:
+    typedef GCOop Stored;
+    virtual ~VMOop() = default;
+};
 class GCOop { public: typedef VMOop Loaded; };
 
 // oop_t: Ordinary Object Pointer type
@@ -104,10 +107,10 @@ typedef GCOop* gc_oop_t;
 /**
  We need to distinguish between pointers that need to be handled with a
  read barrier, and between pointers that already went through it.
- 
+
  So, we call pointers that need to go through the barrier:
  heap values, or GC* pointers.
- 
+
  And all the stuff that was already processed:
  loaded values, or VM* pointers.
  */
@@ -138,14 +141,25 @@ inline typename T::Loaded* load_ptr(T* gc_val) {
     return (typename T::Loaded*) gc_val;
 }
 
+/** To store object into a root. */
 template<typename T>
-inline typename T::Stored* _store_ptr(T* vm_val) {
+inline typename T::Stored* store_root(T* vm_val) {
     return (typename T::Stored*) vm_val;
 }
 
+/** For temporary use, but can't be stored, and can't be alive across GC invocations. */
+template<typename T>
+inline typename T::Stored* tmp_ptr(T* vm_val) {
+    return (typename T::Stored*) vm_val;
+}
 
-#define store_ptr(field, val) field = _store_ptr(val); write_barrier(this, val)
+/** To store object a field, needs special care to correctly call `write_barrier()` separately. */
+template<typename T>
+inline typename T::Stored* store_with_separate_barrier(T* vm_val) {
+    return (typename T::Stored*) vm_val;
+}
+
+/** Standard assignment of pointer to field, including write barrier. */
+#define store_ptr(field, val) field = store_with_separate_barrier(val); write_barrier(this, val)
 
 typedef gc_oop_t (*walk_heap_fn)(gc_oop_t);
-
-

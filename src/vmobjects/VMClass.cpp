@@ -27,7 +27,6 @@
 #include <cassert>
 #include <cstring>
 #include <string>
-#include <vector>
 
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
@@ -45,23 +44,23 @@
 #include "VMPrimitive.h"
 #include "VMSymbol.h"
 
-const long VMClass::VMClassNumberOfFields = 4;
+const size_t VMClass::VMClassNumberOfFields = 4;
 
 VMClass::VMClass() :
-        VMObject(VMClassNumberOfFields), superClass(nullptr), name(nullptr), instanceFields(
-                nullptr), instanceInvokables(nullptr) {
+        VMObject(VMClassNumberOfFields, sizeof(VMClass)), name(nullptr), instanceFields(
+                nullptr), instanceInvokables(nullptr), superClass(nullptr) {
 }
 
-VMClass* VMClass::Clone() const {
-    VMClass* clone = new (GetHeap<HEAP_CLS>(), objectSize - sizeof(VMClass) ALLOC_MATURE) VMClass(*this);
+VMClass* VMClass::CloneForMovingGC() const {
+    VMClass* clone = new (GetHeap<HEAP_CLS>(), totalObjectSize - sizeof(VMClass) ALLOC_MATURE) VMClass(*this);
     memcpy(SHIFTED_PTR(clone,sizeof(VMObject)),
             SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() -
             sizeof(VMObject));
     return clone;
 }
 
-VMClass::VMClass(long numberOfFields) :
-        VMObject(numberOfFields + VMClassNumberOfFields) {
+VMClass::VMClass(size_t numberOfFields, size_t additionalBytes) :
+        VMObject(numberOfFields + VMClassNumberOfFields, additionalBytes + sizeof(VMClass)) {
 }
 
 void VMClass::WalkObjects(walk_heap_fn walk) {
@@ -75,11 +74,12 @@ void VMClass::WalkObjects(walk_heap_fn walk) {
 
     gc_oop_t* fields = FIELDS;
 
-    for (long i = VMClassNumberOfFields + 0/*VMObjectNumberOfFields*/; i < numberOfFields; i++)
+    for (size_t i = VMClassNumberOfFields + 0/*VMObjectNumberOfFields*/; i < numberOfFields; i++)
         fields[i] = walk(fields[i]);
 }
 
 void VMClass::MarkObjectAsInvalid() {
+    VMObject::MarkObjectAsInvalid();
     superClass         = (GCClass*)  INVALID_GC_POINTER;
     name               = (GCSymbol*) INVALID_GC_POINTER;
     instanceFields     = (GCArray*)  INVALID_GC_POINTER;
@@ -93,8 +93,8 @@ bool VMClass::AddInstanceInvokable(VMInvokable* ptr) {
     }
     //Check whether an invokable with the same signature exists and replace it if that's the case
     VMArray* instInvokables = load_ptr(instanceInvokables);
-    long numIndexableFields = instInvokables->GetNumberOfIndexableFields();
-    for (long i = 0; i < numIndexableFields; ++i) {
+    size_t numIndexableFields = instInvokables->GetNumberOfIndexableFields();
+    for (size_t i = 0; i < numIndexableFields; ++i) {
         VMInvokable* inv = static_cast<VMInvokable*>(instInvokables->GetIndexableField(i));
         if (inv != nullptr) {
             if (ptr->GetSignature() == inv->GetSignature()) {
@@ -125,15 +125,16 @@ VMSymbol* VMClass::GetInstanceFieldName(long index) const {
         index -= numSuperInstanceFields;
         return static_cast<VMSymbol*>(load_ptr(instanceFields)->GetIndexableField(index));
     }
-    return load_ptr(superClass)->GetInstanceFieldName(index);
+    assert(HasSuperClass());
+    return ((VMClass*) load_ptr(superClass))->GetInstanceFieldName(index);
 }
 
 void VMClass::SetInstanceInvokables(VMArray* invokables) {
     store_ptr(instanceInvokables, invokables);
     vm_oop_t nil = load_ptr(nilObject);
 
-    long numInvokables = GetNumberOfInstanceInvokables();
-    for (long i = 0; i < numInvokables; ++i) {
+    size_t numInvokables = GetNumberOfInstanceInvokables();
+    for (size_t i = 0; i < numInvokables; ++i) {
         vm_oop_t invo = load_ptr(instanceInvokables)->GetIndexableField(i);
         //check for Nil object
         if (invo != nil) {
@@ -144,7 +145,7 @@ void VMClass::SetInstanceInvokables(VMArray* invokables) {
     }
 }
 
-long VMClass::GetNumberOfInstanceInvokables() const {
+size_t VMClass::GetNumberOfInstanceInvokables() const {
     return load_ptr(instanceInvokables)->GetNumberOfIndexableFields();
 }
 
@@ -161,7 +162,7 @@ void VMClass::SetInstanceInvokable(long index, VMInvokable* invokable) {
 
 VMInvokable* VMClass::LookupInvokable(VMSymbol* name) const {
     assert(IsValidObject(const_cast<VMClass*>(this)));
-    
+
     VMInvokable* invokable = name->GetCachedInvokable(this);
     if (invokable != nullptr)
         return invokable;
@@ -177,9 +178,9 @@ VMInvokable* VMClass::LookupInvokable(VMSymbol* name) const {
 
     // look in super class
     if (HasSuperClass()) {
-        return load_ptr(superClass)->LookupInvokable(name);
+        return ((VMClass*) load_ptr(superClass))->LookupInvokable(name);
     }
-    
+
     // invokable not found
     return nullptr;
 }
@@ -195,7 +196,7 @@ long VMClass::LookupFieldIndex(VMSymbol* name) const {
     return -1;
 }
 
-long VMClass::GetNumberOfInstanceFields() const {
+size_t VMClass::GetNumberOfInstanceFields() const {
     return load_ptr(instanceFields)->GetNumberOfIndexableFields()
             + numberOfSuperInstanceFields();
 }
@@ -209,18 +210,19 @@ bool VMClass::HasPrimitives() const {
     return false;
 }
 
-void VMClass::LoadPrimitives(const vector<std::string>& cp) {
+void VMClass::LoadPrimitives() {
     std::string cname = load_ptr(name)->GetStdString();
-    
+
     if (hasPrimitivesFor(cname)) {
         setPrimitives(cname, false);
         GetClass()->setPrimitives(cname, true);
     }
 }
 
-long VMClass::numberOfSuperInstanceFields() const {
-    if (HasSuperClass())
-        return load_ptr(superClass)->GetNumberOfInstanceFields();
+size_t VMClass::numberOfSuperInstanceFields() const {
+    if (HasSuperClass()) {
+        return ((VMClass*) load_ptr(superClass))->GetNumberOfInstanceFields();
+    }
     return 0;
 }
 
@@ -232,16 +234,17 @@ bool VMClass::hasPrimitivesFor(const std::string& cl) const {
  * set the routines for primitive marked invokables of the given class
  */
 void VMClass::setPrimitives(const std::string& cname, bool classSide) {
-    
-    VMClass* current = this;
-    
+
+    VMObject* current = this;
+
     // Try loading class-specific primitives for all super class' methods as well.
     while (current != load_ptr(nilObject)) {
-    
+        VMClass* currentClass = (VMClass*) current;
+
         // iterate invokables
-        long numInvokables = current->GetNumberOfInstanceInvokables();
+        long numInvokables = currentClass->GetNumberOfInstanceInvokables();
         for (long i = 0; i < numInvokables; i++) {
-            VMInvokable* anInvokable = current->GetInstanceInvokable(i);
+            VMInvokable* anInvokable = currentClass->GetInstanceInvokable(i);
 #ifdef __DEBUG
             ErrorPrint("cname: >" + cname + "<\n" +
                                  anInvokable->GetSignature()->GetStdString() + "\n");
@@ -249,10 +252,10 @@ void VMClass::setPrimitives(const std::string& cname, bool classSide) {
 
             VMSymbol* sig = anInvokable->GetSignature();
             std::string selector = sig->GetPlainString();
-            
+
             PrimitiveRoutine* routine = PrimitiveLoader::GetPrimitiveRoutine(
                 cname, selector, anInvokable->IsPrimitive() && current == this);
-            
+
             if (routine && classSide == routine->isClassSide()) {
                 VMPrimitive* thePrimitive;
                 if (this == current && anInvokable->IsPrimitive()) {
@@ -275,7 +278,7 @@ void VMClass::setPrimitives(const std::string& cname, bool classSide) {
                 }
             }
         }
-        current = current->GetSuperClass();
+        current = currentClass->GetSuperClass();
     }
 }
 
@@ -283,11 +286,11 @@ std::string VMClass::AsDebugString() const {
     return "Class(" + GetName()->GetStdString() + ")";
 }
 
-VMClass* VMClass::GetSuperClass() const {
+VMObject* VMClass::GetSuperClass() const {
     return load_ptr(superClass);
 }
 
-void VMClass::SetSuperClass(VMClass* sup) {
+void VMClass::SetSuperClass(VMObject* sup) {
     store_ptr(superClass, sup);
 }
 

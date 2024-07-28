@@ -24,6 +24,8 @@
  THE SOFTWARE.
  */
 
+#include <cstdint>
+
 #include "../primitivesCore/PrimitiveContainer.h"
 #include "../primitivesCore/Routine.h"
 #include "../vm/Universe.h"
@@ -56,7 +58,7 @@ void _Array::At_Put_(Interpreter*, VMFrame* frame) {
 
 void _Array::Length(Interpreter*, VMFrame* frame) {
     VMArray* self = static_cast<VMArray*>(frame->Pop());
-    vm_oop_t new_int = NEW_INT(self->GetNumberOfIndexableFields());
+    vm_oop_t new_int = NEW_INT((int64_t) self->GetNumberOfIndexableFields());
     frame->Push(new_int);
 }
 
@@ -66,4 +68,3 @@ void _Array::New_(Interpreter*, VMFrame* frame) {
     long size = INT_VAL(arg);
     frame->Push(GetUniverse()->NewArray(size));
 }
-

@@ -62,7 +62,7 @@ public:
         return maximumNumberOfStackElements;
     }
 
-    inline long GetNumberOfArguments() const {
+    inline size_t GetNumberOfArguments() const {
         return numberOfArguments;
     }
 
@@ -96,11 +96,11 @@ public:
 
     void WalkObjects(walk_heap_fn) override;
 
-    inline  long GetNumberOfIndexableFields() const {
+    inline  size_t GetNumberOfIndexableFields() const {
         return numberOfConstants;
     }
 
-    VMMethod* Clone() const override;
+    VMMethod* CloneForMovingGC() const override;
 
     inline  void SetIndexableField(long idx, vm_oop_t item) {
         store_ptr(indexableFields[idx], item);
@@ -110,6 +110,10 @@ public:
 
     void MarkObjectAsInvalid() override {
         indexableFields = (gc_oop_t*) INVALID_GC_POINTER;
+    }
+
+    bool IsMarkedInvalid() const override {
+        return indexableFields == (gc_oop_t*) INVALID_GC_POINTER;
     }
 
     StdString AsDebugString() const override;
