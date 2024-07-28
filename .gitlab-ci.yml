@@ -43,7 +43,9 @@ build_and_test:
 
   tags: [$MACHINE]
   script:
-    - rm -rf cmake-build && mkdir cmake-build
+    - rm -rf release && mkdir release
+    - rm -rf debug && mkdir debug
+
     - if [ "$COMPILER" = "gcc" ];   then export CC=gcc-13;   export CXX=g++-13; fi
     - if [ "$COMPILER" = "clang" ]; then export CC=clang-17; export CXX=clang++-17; fi
 
@@ -60,13 +62,28 @@ build_and_test:
       fi
       NAME=`echo "$NAME" | tr '[:upper:]' '[:lower:]'`
 
-    - cd cmake-build
-    - cmake .. $INTEGERS -DGC_TYPE=$GC
+    - cd release
+    - cmake .. $INTEGERS -DGC_TYPE=$GC -DCMAKE_BUILD_TYPE=Release
+    - make -j10
+    - mv SOM++ ../$NAME
+    - cd ..
+
+    - cd debug
+    - cmake .. $INTEGERS -DGC_TYPE=$GC -DCMAKE_BUILD_TYPE=Debug
     - make -j10
     - ./SOM++ -cp ../Smalltalk ../TestSuite/TestHarness.som
     - ./unittests -cp ../Smalltalk:../TestSuite/BasicInterpreterTests ../Examples/Hello.som
-    - mv SOM++ ../$NAME
     - cd ..
+
+    # Test SomSom
+    - |+
+      if [ "$COMPILER" = "clang" ]; then
+        # this is to load balance the SomSom testing
+        # only when compiling with Clang, and only on one machine for each integer configuration
+        if [ "$MACHINE $INTEGERS" = "yuria -DUSE_TAGGING=true" ] || [ "$MACHINE $INTEGERS" = "yuria2 -DUSE_TAGGING=false -DCACHE_INTEGER=true" ] || [ "$MACHINE $INTEGERS" = "yuria3 -DUSE_TAGGING=false -DCACHE_INTEGER=false" ]; then
+          ./$NAME -cp Smalltalk:TestSuite:core-lib/SomSom/src/compiler:core-lib/SomSom/src/interpreter:core-lib/SomSom/src/primitives:core-lib/SomSom/src/vm:core-lib/SomSom/src/vmobjects core-lib/SomSom/tests/SomSomTests.som
+        fi
+      fi
 
     # run the benchmarks
     - rebench --experiment="CI ID $CI_PIPELINE_ID" --branch="$CI_COMMIT_REF_NAME" -c rebench.conf all "e:${NAME}" "m:$MACHINE"
