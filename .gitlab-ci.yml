@@ -75,6 +75,16 @@ build_and_test:
     - ./unittests -cp ../Smalltalk:../TestSuite/BasicInterpreterTests ../Examples/Hello.som
     - cd ..
 
+    # Test SomSom
+    - |+
+      if [ "$COMPILER" = "clang" ]; then
+        # this is to load balance the SomSom testing
+        # only when compiling with Clang, and only on one machine for each integer configuration
+        if [ "$MACHINE $INTEGERS" = "yuria -DUSE_TAGGING=true" ] || [ "$MACHINE $INTEGERS" = "yuria2 -DUSE_TAGGING=false -DCACHE_INTEGER=true" ] || [ "$MACHINE $INTEGERS" = "yuria3 -DUSE_TAGGING=false -DCACHE_INTEGER=false" ]; then
+          ./$NAME -cp Smalltalk:TestSuite:core-lib/SomSom/src/compiler:core-lib/SomSom/src/interpreter:core-lib/SomSom/src/primitives:core-lib/SomSom/src/vm:core-lib/SomSom/src/vmobjects core-lib/SomSom/tests/SomSomTests.som
+        fi
+      fi
+
     # run the benchmarks
     - rebench --experiment="CI ID $CI_PIPELINE_ID" --branch="$CI_COMMIT_REF_NAME" -c rebench.conf all "e:${NAME}" "m:$MACHINE"
 

@@ -67,6 +67,8 @@ jobs:
         run: |
           clang-tidy-18 --config-file=.clang-tidy src/**/*.cpp -- -fdiagnostics-absolute-paths -DGC_TYPE=${{ matrix.gc}} ${{ matrix.integers }} -DUNITTESTS
 
-      - name: Test SomSom
-        run: |
-          cmake-build/SOM++ -cp Smalltalk:TestSuite:core-lib/SomSom/src/compiler:core-lib/SomSom/src/interpreter:core-lib/SomSom/src/primitives:core-lib/SomSom/src/vm:core-lib/SomSom/src/vmobjects core-lib/SomSom/tests/SomSomTests.som
+      # Disabled because it's too slow with the sanitizers
+      # - name: Test SomSom
+      #   run: |
+      #     export ASAN_OPTIONS=detect_leaks=0
+      #     cmake-build/SOM++ -cp Smalltalk:TestSuite:core-lib/SomSom/src/compiler:core-lib/SomSom/src/interpreter:core-lib/SomSom/src/primitives:core-lib/SomSom/src/vm:core-lib/SomSom/src/vmobjects core-lib/SomSom/tests/SomSomTests.som
