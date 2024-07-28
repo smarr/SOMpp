@@ -38,7 +38,7 @@ public:
 
     static VMFrame* EmergencyFrameFrom(VMFrame* from, long extraLength);
 
-    explicit VMFrame(long size, long nof = 0);
+    explicit VMFrame(size_t size, size_t additionalBytes);
 
     inline VMFrame* GetPreviousFrame() const;
     inline void SetPreviousFrame(VMFrame*);

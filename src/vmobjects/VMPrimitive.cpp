@@ -38,7 +38,7 @@
 #include "VMSymbol.h"
 
 VMPrimitive* VMPrimitive::GetEmptyPrimitive(VMSymbol* sig, bool classSide) {
-    VMPrimitive* prim = new (GetHeap<HEAP_CLS>()) VMPrimitive(sig);
+    VMPrimitive* prim = new (GetHeap<HEAP_CLS>(), 0) VMPrimitive(sig);
     prim->SetRoutine(new Routine<VMPrimitive>(prim, &VMPrimitive::EmptyRoutine, classSide), true);
     return prim;
 }

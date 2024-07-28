@@ -36,17 +36,17 @@
 
 const int VMBlock::VMBlockNumberOfFields = 2;
 
-VMBlock::VMBlock() :
-        VMObject(VMBlockNumberOfFields), blockMethod(), context() {
-}
-
-void VMBlock::SetMethod(VMMethod* bMethod) {
-    store_ptr(blockMethod, bMethod);
+VMBlock::VMBlock(VMMethod* method, VMFrame* context) :
+        VMObject(VMBlockNumberOfFields, sizeof(VMBlock)),
+        blockMethod(store_with_separate_barrier(method)),
+        context(store_with_separate_barrier(context)) {
+    write_barrier(this, method);
+    write_barrier(this, context);
 }
 
 VMBlock* VMBlock::Clone() const {
     VMBlock* clone;
-    clone = new (GetHeap<HEAP_CLS>(), GetAdditionalSpaceConsumption() ALLOC_MATURE) VMBlock(*this);
+    clone = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMBlock(*this);
     return clone;
 }
 
@@ -55,7 +55,7 @@ VMMethod* VMBlock::GetMethod() const {
 }
 
 VMEvaluationPrimitive* VMBlock::GetEvaluationPrimitive(int numberOfArguments) {
-    return new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(numberOfArguments);
+    return new (GetHeap<HEAP_CLS>(), 0) VMEvaluationPrimitive(numberOfArguments);
 }
 
 std::string VMBlock::AsDebugString() const {

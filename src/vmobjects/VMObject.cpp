@@ -40,27 +40,28 @@
 // clazz is the only field of VMObject so
 const size_t VMObject::VMObjectNumberOfFields = 0;
 
-VMObject::VMObject(size_t numberOfFields) {
+VMObject::VMObject(size_t numSubclassFields, size_t totalObjectSize) : totalObjectSize(totalObjectSize), numberOfFields(VMObjectNumberOfFields + numSubclassFields) {
+    assert(IS_PADDED_SIZE(totalObjectSize));
+    assert(totalObjectSize >= sizeof(VMObject));
+
     // this line would be needed if the VMObject** is used instead of the macro:
     // FIELDS = (VMObject**)&clazz;
-    SetNumberOfFields(numberOfFields + VMObjectNumberOfFields);
     hash = (size_t) this;
-    // Object size was already set by the heap on allocation
+
+    nilInitializeFields();
 }
 
 VMObject* VMObject::Clone() const {
-    VMObject* clone = new (GetHeap<HEAP_CLS>(), objectSize - sizeof(VMObject) ALLOC_MATURE) VMObject(*this);
+    VMObject* clone = new (GetHeap<HEAP_CLS>(), totalObjectSize - sizeof(VMObject) ALLOC_MATURE) VMObject(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)),
-           SHIFTED_PTR(this,  sizeof(VMObject)), GetObjectSize() - sizeof(VMObject));
-    clone->hash = this->hash;
+           SHIFTED_PTR(this,  sizeof(VMObject)), totalObjectSize - sizeof(VMObject));
     return clone;
 }
 
-void VMObject::SetNumberOfFields(long nof) {
-    numberOfFields = nof;
-    // initialize fields with NilObject
-    for (long i = 0; i < nof; ++i)
+void VMObject::nilInitializeFields() {
+    for (size_t i = 0; i < numberOfFields; ++i) {
         FIELDS[i] = nilObject;
+    }
 }
 
 void VMObject::SetClass(VMClass* cl) {

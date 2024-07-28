@@ -51,10 +51,6 @@ public:
     }
     ~AbstractVMObject() override = default;
 
-    inline virtual void SetObjectSize(size_t) {
-        ErrorPrint("this object doesn't support SetObjectSize\n");
-    }
-
     inline virtual long GetNumberOfFields() const {
         ErrorPrint("this object doesn't support GetNumberOfFields\n");
         return -1;
@@ -73,20 +69,30 @@ public:
         return nullptr;
     }
 
+    /**
+     * usage: new( <heap> , <additionalBytes>) VMObject( <constructor params> )
+     * num_bytes parameter is set by the compiler.
+     * parameter additional_bytes (a_b) is used for:
+     *   - fields in VMObject, a_b must be set to (numberOfFields*sizeof(VMObject*))
+     *   - chars in VMString/VMSymbol, a_b must be set to (Stringlength + 1)
+     *   - array size in VMArray; a_b must be set to (size_of_array*sizeof(VMObect*))
+     *   - fields in VMMethod, a_b must be set to (number_of_bc + number_of_csts*sizeof(VMObject*))
+     */
     void* operator new(size_t numBytes, HEAP_CLS* heap,
-            unsigned long additionalBytes = 0 ALLOC_OUTSIDE_NURSERY_DECL) {
+            size_t additionalBytes ALLOC_OUTSIDE_NURSERY_DECL) {
         // if outsideNursery flag is set or object is too big for nursery, we
         // allocate a mature object
-        const unsigned long add = PADDED_SIZE(additionalBytes);
+        assert(IS_PADDED_SIZE(additionalBytes));
+
         void* result = nullptr;
 #if GC_TYPE==GENERATIONAL
         if (outsideNursery) {
-            result = (void*) heap->AllocateMatureObject(numBytes + add);
+            result = (void*) heap->AllocateMatureObject(numBytes + additionalBytes);
         } else {
-            result = (void*) heap->AllocateNurseryObject(numBytes + add);
+            result = (void*) heap->AllocateNurseryObject(numBytes + additionalBytes);
         }
 #else
-        result = (void*) heap->AllocateObject(numBytes + add);
+        result = (void*) heap->AllocateObject(numBytes + additionalBytes);
 #endif
 
         assert(result != INVALID_VM_POINTER);

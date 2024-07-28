@@ -41,17 +41,17 @@
 /* chbol: this table is not correct anymore because of introduction of
  * class AbstractVMObject
  **************************VMOBJECT****************************
- * __________________________________________________________ *
- *| vtable*          |   0x00 - 0x03                         |*
- *|__________________|_______________________________________|*
- *| hash             |   0x04 - 0x07                         |*
- *| objectSize       |   0x08 - 0x0b                         |*
- *| numberOfFields   |   0x0c - 0x0f                         |*
- *| gcField          |   0x10 - 0x13 (because of alignment)  |*
- *| clazz            |   0x14 - 0x17                         |*
- *|__________________|___0x18________________________________|*
- *                                                            *
- **************************************************************
+ * ____________________________________________________________ *
+ *| vtable*          |   0x00 - 0x03                           |*
+ *|__________________|_________________________________________|*
+ *| hash             |   0x04 - 0x07                           |*
+ *| totalObjectSize  |   0x08 - 0x0b                           |*
+ *| numberOfFields   |   0x0c - 0x0f                           |*
+ *| gcField          |   0x10 - 0x13 (because of alignment)    |*
+ *| clazz            |   0x14 - 0x17 [0 indexed instance field]|*
+ *|__________________|___0x18__________________________________|*
+ *                                                              *
+ ****************************************************************
  */
 
 // FIELDS starts indexing after the clazz field
@@ -62,7 +62,10 @@ class VMObject: public AbstractVMObject {
 public:
     typedef GCObject Stored;
 
-    explicit VMObject(size_t numberOfFields = 0);
+    /**
+     * numberOfFields - including
+     */
+    explicit VMObject(size_t numSubclassFields, size_t totalObjectSize);
     ~VMObject() override = default;
 
     int64_t GetHash() const override { return hash; }
@@ -70,7 +73,6 @@ public:
            void      SetClass(VMClass* cl) override;
            VMSymbol* GetFieldName(long index) const override;
     inline long      GetNumberOfFields() const override;
-                   void      SetNumberOfFields(long nof);
 
     inline vm_oop_t GetField(size_t index) const {
         vm_oop_t result = load_ptr(FIELDS[index]);
@@ -86,40 +88,29 @@ public:
     virtual        void      Assert(bool value) const;
     void      WalkObjects(walk_heap_fn walk) override;
     VMObject* Clone() const override;
-    inline size_t    GetObjectSize() const override;
-    inline void      SetObjectSize(size_t size) override;
+    
+    /** The total size of the object on the heap. */
+    inline size_t GetObjectSize() const override {
+        return totalObjectSize;
+    }
 
            void      MarkObjectAsInvalid() override;
            bool      IsMarkedInvalid() const final;
 
            StdString AsDebugString() const override;
 
-    /**
-     * usage: new( <heap> [, <additional_bytes>] ) VMObject( <constructor params> )
-     * num_bytes parameter is set by the compiler.
-     * parameter additional_bytes (a_b) is used for:
-     *   - fields in VMObject, a_b must be set to (numberOfFields*sizeof(VMObject*))
-     *   - chars in VMString/VMSymbol, a_b must be set to (Stringlength + 1)
-     *   - array size in VMArray; a_b must be set to (size_of_array*sizeof(VMObect*))
-     *   - fields in VMMethod, a_b must be set to (number_of_bc + number_of_csts*sizeof(VMObject*))
-     */
-    void* operator new(size_t numBytes, HEAP_CLS* heap, unsigned long additionalBytes = 0 ALLOC_OUTSIDE_NURSERY_DECL) {
-        void* mem = AbstractVMObject::operator new(numBytes, heap, additionalBytes ALLOC_OUTSIDE_NURSERY(outsideNursery));
-        assert(mem != INVALID_VM_POINTER);
-
-        ((VMObject*) mem)->objectSize = numBytes + PADDED_SIZE(additionalBytes);
-        return mem;
-    }
-
 protected:
-    inline size_t GetAdditionalSpaceConsumption() const;
+    void nilInitializeFields();
 
     // VMObject essentials
     int64_t hash;
 
 protected_testable:
-    size_t objectSize;     // set by the heap at allocation time
-    long   numberOfFields;
+    /** Size of the object in the heap, */
+    size_t totalObjectSize;
+
+    /** Number of fields, excluding `class` but including fields of any subclass. */
+    size_t numberOfFields;
 
     GCClass* clazz{nullptr};
 
@@ -130,14 +121,6 @@ private:
     static const size_t VMObjectNumberOfFields;
 };
 
-size_t VMObject::GetObjectSize() const {
-    return objectSize;
-}
-
-void VMObject::SetObjectSize(size_t size) {
-    objectSize = size;
-}
-
 VMClass* VMObject::GetClass() const {
     assert(IsValidObject((VMObject*) load_ptr(clazz)));
     return load_ptr(clazz);
@@ -145,14 +128,4 @@ VMClass* VMObject::GetClass() const {
 
 long VMObject::GetNumberOfFields() const {
     return numberOfFields;
-}
-
-//returns the Object's additional memory used (e.g. for Array fields)
-size_t VMObject::GetAdditionalSpaceConsumption() const {
-    //The VM*-Object's additional memory used needs to be calculated.
-    //It's      the total object size   MINUS   sizeof(VMObject) for basic
-    //VMObject  MINUS   the number of fields times sizeof(VMObject*)
-    return (objectSize
-            - (sizeof(VMObject)
-               + sizeof(VMObject*) * GetNumberOfFields()));
 }

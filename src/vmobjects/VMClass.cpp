@@ -45,23 +45,23 @@
 #include "VMPrimitive.h"
 #include "VMSymbol.h"
 
-const long VMClass::VMClassNumberOfFields = 4;
+const size_t VMClass::VMClassNumberOfFields = 4;
 
 VMClass::VMClass() :
-        VMObject(VMClassNumberOfFields), name(nullptr), instanceFields(
+        VMObject(VMClassNumberOfFields, sizeof(VMClass)), name(nullptr), instanceFields(
                 nullptr), instanceInvokables(nullptr), superClass(nullptr) {
 }
 
 VMClass* VMClass::Clone() const {
-    VMClass* clone = new (GetHeap<HEAP_CLS>(), objectSize - sizeof(VMClass) ALLOC_MATURE) VMClass(*this);
+    VMClass* clone = new (GetHeap<HEAP_CLS>(), totalObjectSize - sizeof(VMClass) ALLOC_MATURE) VMClass(*this);
     memcpy(SHIFTED_PTR(clone,sizeof(VMObject)),
             SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() -
             sizeof(VMObject));
     return clone;
 }
 
-VMClass::VMClass(long numberOfFields) :
-        VMObject(numberOfFields + VMClassNumberOfFields) {
+VMClass::VMClass(size_t numberOfFields, size_t additionalBytes) :
+        VMObject(numberOfFields + VMClassNumberOfFields, additionalBytes + sizeof(VMClass)) {
 }
 
 void VMClass::WalkObjects(walk_heap_fn walk) {
@@ -75,7 +75,7 @@ void VMClass::WalkObjects(walk_heap_fn walk) {
 
     gc_oop_t* fields = FIELDS;
 
-    for (long i = VMClassNumberOfFields + 0/*VMObjectNumberOfFields*/; i < numberOfFields; i++)
+    for (size_t i = VMClassNumberOfFields + 0/*VMObjectNumberOfFields*/; i < numberOfFields; i++)
         fields[i] = walk(fields[i]);
 }
 
@@ -134,8 +134,8 @@ void VMClass::SetInstanceInvokables(VMArray* invokables) {
     store_ptr(instanceInvokables, invokables);
     vm_oop_t nil = load_ptr(nilObject);
 
-    long numInvokables = GetNumberOfInstanceInvokables();
-    for (long i = 0; i < numInvokables; ++i) {
+    size_t numInvokables = GetNumberOfInstanceInvokables();
+    for (size_t i = 0; i < numInvokables; ++i) {
         vm_oop_t invo = load_ptr(instanceInvokables)->GetIndexableField(i);
         //check for Nil object
         if (invo != nil) {
@@ -146,7 +146,7 @@ void VMClass::SetInstanceInvokables(VMArray* invokables) {
     }
 }
 
-long VMClass::GetNumberOfInstanceInvokables() const {
+size_t VMClass::GetNumberOfInstanceInvokables() const {
     return load_ptr(instanceInvokables)->GetNumberOfIndexableFields();
 }
 
@@ -197,7 +197,7 @@ long VMClass::LookupFieldIndex(VMSymbol* name) const {
     return -1;
 }
 
-long VMClass::GetNumberOfInstanceFields() const {
+size_t VMClass::GetNumberOfInstanceFields() const {
     return load_ptr(instanceFields)->GetNumberOfIndexableFields()
             + numberOfSuperInstanceFields();
 }
@@ -220,7 +220,7 @@ void VMClass::LoadPrimitives() {
     }
 }
 
-long VMClass::numberOfSuperInstanceFields() const {
+size_t VMClass::numberOfSuperInstanceFields() const {
     if (HasSuperClass()) {
         return ((VMClass*) load_ptr(superClass))->GetNumberOfInstanceFields();
     }

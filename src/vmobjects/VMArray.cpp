@@ -37,16 +37,10 @@
 
 const size_t VMArray::VMArrayNumberOfFields = 0;
 
-VMArray::VMArray(size_t size, size_t nof) :
-        VMObject(nof + VMArrayNumberOfFields) {
-    // initialize fields with nilObject
-    // SetIndexableField is not used to prevent the write barrier to be called
-    // too often.
-    // Fields start after clazz and other fields (GetNumberOfFields)
-    gc_oop_t* arrFields = FIELDS + GetNumberOfFields();
-    for (size_t i = 0; i < size; ++i) {
-        arrFields[i] = nilObject;
-    }
+VMArray::VMArray(size_t arraySize, size_t additionalBytes) :
+        VMObject(arraySize + 0 /* VMArray is not allowed to have any fields itself */, additionalBytes + sizeof(VMArray)) {
+    assert(VMArrayNumberOfFields == 0);
+    nilInitializeFields();
 }
 
 vm_oop_t VMArray::GetIndexableField(size_t idx) const {
@@ -55,7 +49,7 @@ vm_oop_t VMArray::GetIndexableField(size_t idx) const {
                              to_string(idx) + ", but array size is only " +
                              to_string(GetNumberOfIndexableFields()) + "\n").c_str());
     }
-    return GetField(GetNumberOfFields() + idx);
+    return GetField(idx);
 }
 
 void VMArray::SetIndexableField(size_t idx, vm_oop_t value) {
@@ -64,7 +58,7 @@ void VMArray::SetIndexableField(size_t idx, vm_oop_t value) {
                              to_string(idx) + ", but array size is only " +
                              to_string(GetNumberOfIndexableFields()) + "\n").c_str());
     }
-    SetField(GetNumberOfFields() + idx, value);
+    SetField(idx, value);
 }
 
 VMArray* VMArray::CopyAndExtendWith(vm_oop_t item) const {
@@ -76,12 +70,11 @@ VMArray* VMArray::CopyAndExtendWith(vm_oop_t item) const {
 }
 
 VMArray* VMArray::Clone() const {
-    const size_t addSpace = objectSize - sizeof(VMArray);
+    const size_t addSpace = totalObjectSize - sizeof(VMArray);
     auto* clone = new (GetHeap<HEAP_CLS>(), addSpace ALLOC_MATURE) VMArray(*this);
     void* destination  = SHIFTED_PTR(clone, sizeof(VMArray));
     const void* source = SHIFTED_PTR(this, sizeof(VMArray));
-    const size_t noBytes = GetObjectSize() - sizeof(VMArray);
-    memcpy(destination, source, noBytes);
+    memcpy(destination, source, addSpace);
     return clone;
 }
 
@@ -97,16 +90,6 @@ void VMArray::CopyIndexableFieldsTo(VMArray* to) const {
     const size_t numIndexableFields = GetNumberOfIndexableFields();
     for (size_t i = 0; i < numIndexableFields; ++i) {
         to->SetIndexableField(i, GetIndexableField(i));
-    }
-}
-
-void VMArray::WalkObjects(walk_heap_fn walk) {
-    clazz = static_cast<GCClass*>(walk(clazz));
-    const size_t numFields          = GetNumberOfFields();
-    const size_t numIndexableFields = GetNumberOfIndexableFields();
-    gc_oop_t* fields = FIELDS;
-    for (size_t i = 0; i < numFields + numIndexableFields; i++) {
-        fields[i] = walk(fields[i]);
     }
 }
 

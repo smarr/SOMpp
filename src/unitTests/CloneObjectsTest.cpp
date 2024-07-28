@@ -29,7 +29,7 @@
 
 
 void CloneObjectsTest::testCloneObject() {
-    VMObject* orig = new (GetHeap<HEAP_CLS>()) VMObject();
+    VMObject* orig = new (GetHeap<HEAP_CLS>(), 0) VMObject(0, sizeof(VMObject));
     VMObject* clone = orig->Clone();
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->GetClass(),
@@ -97,7 +97,9 @@ void CloneObjectsTest::testCloneArray() {
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("objectSize differs!!", orig->objectSize, clone->objectSize);
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("objectSize differs!!",
+                                 orig->totalObjectSize,
+                                 clone->totalObjectSize);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfFields differs!!", orig->numberOfFields, clone->numberOfFields);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfFields differs!!", orig->GetNumberOfIndexableFields(), clone->GetNumberOfIndexableFields());
 
@@ -119,7 +121,7 @@ void CloneObjectsTest::testCloneBlock() {
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("objectSize differs!!", orig->objectSize, clone->objectSize);
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("objectSize differs!!", orig->totalObjectSize, clone->totalObjectSize);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfFields differs!!", orig->numberOfFields, clone->numberOfFields);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("blockMethod differs!!", orig->blockMethod, clone->blockMethod);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("context differs!!", orig->context, clone->context);
@@ -135,7 +137,7 @@ void CloneObjectsTest::testClonePrimitive() {
 }
 
 void CloneObjectsTest::testCloneEvaluationPrimitive() {
-    VMEvaluationPrimitive* orig = new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(1);
+    VMEvaluationPrimitive* orig = new (GetHeap<HEAP_CLS>(), 0) VMEvaluationPrimitive(1);
     VMEvaluationPrimitive* clone = orig->Clone();
 
     CPPUNIT_ASSERT_EQUAL_MESSAGE("signature differs!!", orig->signature, clone->signature);
@@ -157,7 +159,7 @@ void CloneObjectsTest::testCloneFrame() {
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("objectSize differs!!", orig->objectSize, clone->objectSize);
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("objectSize differs!!", orig->totalObjectSize, clone->totalObjectSize);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfFields differs!!", orig->numberOfFields, clone->numberOfFields);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("GetPreviousFrame differs!!", orig->GetPreviousFrame(), clone->GetPreviousFrame());
     CPPUNIT_ASSERT_EQUAL_MESSAGE("GetContext differs!!", orig->GetContext(), clone->GetContext());
@@ -197,7 +199,7 @@ void CloneObjectsTest::testCloneClass() {
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("objectSize differs!!", orig->objectSize, clone->objectSize);
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("objectSize differs!!", orig->totalObjectSize, clone->totalObjectSize);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfFields differs!!", orig->numberOfFields, clone->numberOfFields);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("superClass differs!!", orig->superClass, clone->superClass);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("name differs!!", orig->name, clone->name);

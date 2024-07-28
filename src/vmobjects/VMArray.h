@@ -30,16 +30,21 @@
 #include "../vmobjects/VMInteger.h"
 #include "../vmobjects/VMObject.h"
 
+/**
+ * For the VMArray, we assume that there are no subclasses, and that `Array` doesn't
+ * have any fields itself. This way, we just used the fields as indexable fields.
+ */
 class VMArray: public VMObject {
 public:
     typedef GCArray Stored;
 
-    explicit VMArray(size_t size, size_t nof = 0);
+    explicit VMArray(size_t arraySize, size_t additionalBytes);
 
-    void WalkObjects(walk_heap_fn) override;
+    // VMArray doesn't need to customize `void WalkObjects(walk_heap_fn)`,
+    // because it doesn't need anything special.
 
-    inline  size_t GetNumberOfIndexableFields() const {
-        return GetAdditionalSpaceConsumption() / sizeof(VMObject*);
+    inline size_t GetNumberOfIndexableFields() const {
+        return numberOfFields;
     }
 
     VMArray* CopyAndExtendWith(vm_oop_t) const;

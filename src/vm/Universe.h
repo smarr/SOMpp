@@ -64,7 +64,7 @@ public:
     void Assert(bool) const;
 
     //VMObject instanciation methods. These should probably be refactored to a new class
-    VMArray* NewArray(long) const;
+    VMArray* NewArray(size_t) const;
 
     VMArray* NewArrayList(std::vector<vm_oop_t>& list) const;
     VMArray* NewArrayList(std::vector<VMInvokable*>& list) const;

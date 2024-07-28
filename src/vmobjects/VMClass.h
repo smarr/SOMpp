@@ -45,7 +45,7 @@ public:
     typedef GCClass Stored;
 
     VMClass();
-    VMClass(long numberOfFields);
+    VMClass(size_t numberOfFields, size_t additionalBytes);
 
            VMObject*    GetSuperClass() const;
            void         SetSuperClass(VMObject*);
@@ -56,7 +56,7 @@ public:
            void         SetInstanceFields(VMArray*);
            VMArray*     GetInstanceInvokables() const;
            void         SetInstanceInvokables(VMArray*);
-           long         GetNumberOfInstanceInvokables() const;
+           size_t       GetNumberOfInstanceInvokables() const;
            VMInvokable* GetInstanceInvokable(long) const;
            void         SetInstanceInvokable(long, VMInvokable*);
            VMInvokable* LookupInvokable(VMSymbol*) const;
@@ -64,7 +64,7 @@ public:
            bool         AddInstanceInvokable(VMInvokable*);
            void         AddInstancePrimitive(VMPrimitive*);
            VMSymbol*    GetInstanceFieldName(long)const;
-           long         GetNumberOfInstanceFields() const;
+           size_t       GetNumberOfInstanceFields() const;
            bool         HasPrimitives() const;
            void         LoadPrimitives();
            VMClass*    Clone() const override;
@@ -77,9 +77,9 @@ public:
 private:
     bool hasPrimitivesFor(const StdString& cl) const;
     void setPrimitives(const StdString& cname, bool classSide);
-    long numberOfSuperInstanceFields() const;
+    size_t numberOfSuperInstanceFields() const;
 
-    static const long VMClassNumberOfFields;
+    static const size_t VMClassNumberOfFields;
 
 private_testable:
     // Remember to update Parser::superclass when the fields are changed

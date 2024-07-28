@@ -116,31 +116,32 @@ bool IsVMSymbol(vm_oop_t obj) {
 }
 
 void obtain_vtables_of_known_classes(VMSymbol* className) {
-    VMArray* arr  = new (GetHeap<HEAP_CLS>()) VMArray(0, 0);
+    // These objects are allocated on the heap. So, they will get GC'ed soon enough.
+    VMArray* arr  = new (GetHeap<HEAP_CLS>(), 0) VMArray(0, 0);
     vt_array      = get_vtable(arr);
 
-    VMBlock* blck = new (GetHeap<HEAP_CLS>()) VMBlock();
+    VMBlock* blck = new (GetHeap<HEAP_CLS>(), 0) VMBlock(nullptr, nullptr);
     vt_block      = get_vtable(blck);
 
     vt_class      = get_vtable(load_ptr(symbolClass));
 
-    VMDouble* dbl = new (GetHeap<HEAP_CLS>()) VMDouble(0.0);
+    VMDouble* dbl = new (GetHeap<HEAP_CLS>(), 0) VMDouble(0.0);
     vt_double     = get_vtable(dbl);
 
-    VMEvaluationPrimitive* ev = new (GetHeap<HEAP_CLS>()) VMEvaluationPrimitive(1);
+    VMEvaluationPrimitive* ev = new (GetHeap<HEAP_CLS>(), 0) VMEvaluationPrimitive(1);
     vt_eval_primitive = get_vtable(ev);
 
-    VMFrame* frm  = new (GetHeap<HEAP_CLS>()) VMFrame(0, 0);
+    VMFrame* frm  = new (GetHeap<HEAP_CLS>(), 0) VMFrame(0, 0);
     vt_frame      = get_vtable(frm);
 
-    VMInteger* i  = new (GetHeap<HEAP_CLS>()) VMInteger(0);
+    VMInteger* i  = new (GetHeap<HEAP_CLS>(), 0) VMInteger(0);
     vt_integer    = get_vtable(i);
 
-    VMMethod* mth = new (GetHeap<HEAP_CLS>()) VMMethod(nullptr, 0, 0, 0, 0);
+    VMMethod* mth = new (GetHeap<HEAP_CLS>(), 0) VMMethod(nullptr, 0, 0, 0, 0);
     vt_method     = get_vtable(mth);
     vt_object     = get_vtable(load_ptr(nilObject));
 
-    VMPrimitive* prm = new (GetHeap<HEAP_CLS>()) VMPrimitive(className);
+    VMPrimitive* prm = new (GetHeap<HEAP_CLS>(), 0) VMPrimitive(className);
     vt_primitive  = get_vtable(prm);
 
     VMString* str = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(1)) VMString(0, nullptr);
