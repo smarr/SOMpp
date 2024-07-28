@@ -24,11 +24,14 @@
  THE SOFTWARE.
  */
 
+#include <cassert>
+#include <cstddef>
 #include <cstdint>
 #include <string>
 
 #include "../misc/VectorUtil.h"
 #include "../vm/Globals.h"
+#include "../vm/IsValidObject.h"
 #include "../vm/Symbols.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"

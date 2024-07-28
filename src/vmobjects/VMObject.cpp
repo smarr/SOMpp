@@ -23,6 +23,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+
+#include <cassert>
 #include <cstddef>
 #include <cstring>
 #include <string>
@@ -31,6 +33,7 @@
 #include "../misc/defs.h"
 #include "../vm/Globals.h"
 #include "../vm/Universe.h"
+#include "AbstractObject.h"
 #include "ObjectFormats.h"
 #include "VMClass.h"
 #include "VMFrame.h"
@@ -78,7 +81,7 @@ void VMObject::Assert(bool value) const {
 
 void VMObject::WalkObjects(walk_heap_fn walk) {
     clazz = static_cast<GCClass*>(walk(clazz));
-    
+
     long numFields = GetNumberOfFields();
     for (long i = 0; i < numFields; ++i) {
         FIELDS[i] = walk(tmp_ptr(GetField(i)));
@@ -87,7 +90,7 @@ void VMObject::WalkObjects(walk_heap_fn walk) {
 
 void VMObject::MarkObjectAsInvalid() {
     clazz = (GCClass*) INVALID_GC_POINTER;
-    
+
     long numFields = GetNumberOfFields();
     for (long i = 0; i < numFields; ++i) {
         FIELDS[i] = INVALID_GC_POINTER;

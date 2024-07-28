@@ -6,7 +6,7 @@
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMArray.h"
 #include "../vmobjects/VMBlock.h"
-#include "../vmobjects/VMClass.h"
+#include "../vmobjects/VMClass.h" // NOLINT(misc-include-cleaner) it's required to make the types complete
 #include "../vmobjects/VMDouble.h"
 #include "../vmobjects/VMEvaluationPrimitive.h"
 #include "../vmobjects/VMFrame.h"
@@ -34,7 +34,7 @@ bool IsValidObject(vm_oop_t obj) {
     if (!DEBUG) {
         return true;
     }
-    
+
     if (obj == nullptr)
         return true;
 

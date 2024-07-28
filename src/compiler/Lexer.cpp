@@ -25,6 +25,7 @@
  */
 #include <cassert>
 #include <cctype>
+#include <cstdint>
 #include <cstring>
 #include <istream>
 #include <string>

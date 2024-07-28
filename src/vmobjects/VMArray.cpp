@@ -23,13 +23,14 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+
+#include <cassert>
 #include <cstddef>
 #include <cstring>
 #include <string>
 
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
-#include "../vm/Globals.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMArray.h"

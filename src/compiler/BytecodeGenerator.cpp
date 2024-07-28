@@ -30,6 +30,7 @@
 
 #include "../interpreter/bytecodes.h"
 #include "../vm/Globals.h"
+#include "../vm/IsValidObject.h"
 #include "../vm/Symbols.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/Signature.h"

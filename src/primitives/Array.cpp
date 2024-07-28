@@ -24,6 +24,8 @@
  THE SOFTWARE.
  */
 
+#include <cstdint>
+
 #include "../primitivesCore/PrimitiveContainer.h"
 #include "../primitivesCore/Routine.h"
 #include "../vm/Universe.h"
