@@ -63,29 +63,6 @@ VMClass::VMClass(size_t numberOfFields, size_t additionalBytes) :
         VMObject(numberOfFields + VMClassNumberOfFields, additionalBytes + sizeof(VMClass)) {
 }
 
-void VMClass::WalkObjects(walk_heap_fn walk) {
-    clazz = static_cast<GCClass*>(walk(clazz));
-    if (superClass) {
-        superClass = static_cast<GCClass*>(walk(superClass));
-    }
-    name               = static_cast<GCSymbol*>(walk(name));
-    instanceFields     = static_cast<GCArray*>(walk(instanceFields));
-    instanceInvokables = static_cast<GCArray*>(walk(instanceInvokables));
-
-    gc_oop_t* fields = FIELDS;
-
-    for (size_t i = VMClassNumberOfFields + 0/*VMObjectNumberOfFields*/; i < numberOfFields; i++)
-        fields[i] = walk(fields[i]);
-}
-
-void VMClass::MarkObjectAsInvalid() {
-    VMObject::MarkObjectAsInvalid();
-    superClass         = (GCClass*)  INVALID_GC_POINTER;
-    name               = (GCSymbol*) INVALID_GC_POINTER;
-    instanceFields     = (GCArray*)  INVALID_GC_POINTER;
-    instanceInvokables = (GCArray*)  INVALID_GC_POINTER;
-}
-
 bool VMClass::AddInstanceInvokable(VMInvokable* ptr) {
     if (ptr == nullptr) {
         GetUniverse()->ErrorExit("Error: trying to add non-invokable to invokables array");
