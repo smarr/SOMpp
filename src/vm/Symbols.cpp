@@ -4,7 +4,6 @@
 
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
-#include "../vmobjects/AbstractObject.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMSymbol.h"
 #include "LogAllocation.h"

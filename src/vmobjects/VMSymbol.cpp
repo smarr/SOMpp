@@ -32,7 +32,6 @@
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../vm/Globals.h"  // NOLINT (misc-include-cleaner)
-#include "AbstractObject.h"
 #include "ObjectFormats.h"
 #include "Signature.h"
 #include "VMClass.h"

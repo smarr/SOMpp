@@ -19,7 +19,6 @@ MarkSweepHeap::MarkSweepHeap(size_t objectSpaceSize) : Heap<MarkSweepHeap>(new M
 }
 
 AbstractVMObject* MarkSweepHeap::AllocateObject(size_t size) {
-    //TODO: PADDING wird eigentlich auch durch malloc erledigt
     AbstractVMObject* newObject = (AbstractVMObject*) malloc(size);
     if (newObject == nullptr) {
         ErrorPrint("\nFailed to allocate " + to_string(size) + " Bytes.\n");
