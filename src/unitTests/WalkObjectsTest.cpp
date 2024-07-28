@@ -147,8 +147,8 @@ void WalkObjectsTest::testWalkFrame() {
     VMSymbol* methodSymbol = NewSymbol("frameMethod");
     VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0);
     VMFrame* frame = GetUniverse()->NewFrame(nullptr, method);
-    frame->SetPreviousFrame(frame->Clone());
-    frame->SetContext(frame->Clone());
+    frame->SetPreviousFrame(frame->CloneForMovingGC());
+    frame->SetContext(frame->CloneForMovingGC());
     VMInteger* dummyArg = GetUniverse()->NewInteger(1111);
     frame->SetArgument(0, 0, dummyArg);
     frame->WalkObjects(collectMembers);

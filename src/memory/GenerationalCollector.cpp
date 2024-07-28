@@ -64,7 +64,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     }
 
     // we have to clone ourselves
-    AbstractVMObject* newObj = obj->Clone();
+    AbstractVMObject* newObj = obj->CloneForMovingGC();
 
     if (DEBUG) {
         obj->MarkObjectAsInvalid();

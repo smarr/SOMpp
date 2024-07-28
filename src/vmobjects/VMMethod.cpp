@@ -56,7 +56,7 @@ VMMethod::VMMethod(VMSymbol* signature, size_t bcCount, size_t numberOfConstants
     write_barrier(this, signature);
 }
 
-VMMethod* VMMethod::Clone() const {
+VMMethod* VMMethod::CloneForMovingGC() const {
     VMMethod* clone = new (GetHeap<HEAP_CLS>(), GetObjectSize() - sizeof(VMMethod) ALLOC_MATURE) VMMethod(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,
                     sizeof(VMObject)), GetObjectSize() -

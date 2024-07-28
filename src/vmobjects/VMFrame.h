@@ -110,7 +110,7 @@ public:
     long ArgumentStackIndex(long index) const;
     void CopyArgumentsFrom(VMFrame* frame);
     void WalkObjects(walk_heap_fn) override;
-    VMFrame* Clone() const override;
+    VMFrame* CloneForMovingGC() const override;
 
     void PrintStack() const;
     void PrintBytecode() const;

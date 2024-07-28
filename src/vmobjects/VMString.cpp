@@ -47,7 +47,7 @@ VMString::VMString(const size_t length, const char* str) :
     }
 }
 
-VMString* VMString::Clone() const {
+VMString* VMString::CloneForMovingGC() const {
     return new (GetHeap<HEAP_CLS>(), PADDED_SIZE(length) ALLOC_MATURE) VMString(length, chars);
 }
 

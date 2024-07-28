@@ -39,9 +39,13 @@ public:
     ~VMInteger() override = default;
 
     inline int64_t GetEmbeddedInteger() const;
-    VMInteger* Clone() const override;
+    VMInteger* CloneForMovingGC() const override;
     VMClass* GetClass() const override;
     inline size_t GetObjectSize() const override;
+
+    inline int64_t GetHash() const override {
+        return (int64_t) embeddedInteger;
+    }
 
     void MarkObjectAsInvalid() override;
     bool IsMarkedInvalid() const override;

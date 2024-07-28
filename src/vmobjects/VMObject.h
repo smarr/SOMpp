@@ -87,7 +87,7 @@ public:
 
     virtual        void      Assert(bool value) const;
     void      WalkObjects(walk_heap_fn walk) override;
-    VMObject* Clone() const override;
+    VMObject* CloneForMovingGC() const override;
     
     /** The total size of the object on the heap. */
     inline size_t GetObjectSize() const override {

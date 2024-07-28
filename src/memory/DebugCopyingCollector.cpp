@@ -32,7 +32,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     assert(!obj->IsMarkedInvalid());
 
     // we have to clone ourselves
-    AbstractVMObject* newObj = obj->Clone();
+    AbstractVMObject* newObj = obj->CloneForMovingGC();
 
     assert(GetHeap<DebugCopyingHeap>()->IsInCurrentBuffer(newObj));
 

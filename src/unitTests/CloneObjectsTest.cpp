@@ -30,7 +30,7 @@
 
 void CloneObjectsTest::testCloneObject() {
     VMObject* orig = new (GetHeap<HEAP_CLS>(), 0) VMObject(0, sizeof(VMObject));
-    VMObject* clone = orig->Clone();
+    VMObject* clone = orig->CloneForMovingGC();
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->GetClass(),
     clone->GetClass());
@@ -38,54 +38,66 @@ void CloneObjectsTest::testCloneObject() {
     clone->GetObjectSize());
     CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfFields differs!!",
     orig->GetNumberOfFields(), clone->GetNumberOfFields());
+
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("hash differs!!", orig->GetHash(), clone->GetHash());
 }
 
 void CloneObjectsTest::testCloneInteger() {
     VMInteger* orig = GetUniverse()->NewInteger(42);
-    VMInteger* clone = orig->Clone();
+    VMInteger* clone = orig->CloneForMovingGC();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->GetClass(), clone->GetClass());
     CPPUNIT_ASSERT_EQUAL_MESSAGE("integer value differs!!", orig->embeddedInteger, clone->embeddedInteger);
+
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("hash differs!!", orig->GetHash(), clone->GetHash());
 }
 
 void CloneObjectsTest::testCloneDouble() {
     VMDouble* orig = GetUniverse()->NewDouble(123.4);
-    VMDouble* clone = orig->Clone();
+    VMDouble* clone = orig->CloneForMovingGC();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->GetClass(), clone->GetClass());
     CPPUNIT_ASSERT_EQUAL_MESSAGE("double value differs!!", orig->embeddedDouble, clone->embeddedDouble);
+
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("hash differs!!", orig->GetHash(), clone->GetHash());
 }
 
 void CloneObjectsTest::testCloneString() {
     VMString* orig = GetUniverse()->NewString("foobar");
-    VMString* clone = orig->Clone();
+    VMString* clone = orig->CloneForMovingGC();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->GetClass(),
             clone->GetClass());
     CPPUNIT_ASSERT_EQUAL_MESSAGE("objectSize differs!!", orig->GetObjectSize(),
             clone->GetObjectSize());
-    //CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfFields differs!!", orig->numberOfFields, clone->numberOfFields);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("string differs!!!", orig->GetStdString(), clone->GetStdString());
-    //CPPUNIT_ASSERT_MESSAGE("internal string was not copied", (intptr_t)orig->chars != (intptr_t)clone->chars);
-    orig->chars[0] = 'm';
-    CPPUNIT_ASSERT_MESSAGE("string differs!!!", orig->GetStdString() != clone->GetStdString());
 
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("hash differs!!", orig->GetHash(), clone->GetHash());
+    CPPUNIT_ASSERT_MESSAGE("internal string was not copied", (intptr_t)orig->chars != (intptr_t)clone->chars);
+
+    // change the string
+    orig->chars[0] = 'm';
+    CPPUNIT_ASSERT_MESSAGE("std::string should differ after changing string",
+                           orig->GetStdString() != clone->GetStdString());
+
+    CPPUNIT_ASSERT_MESSAGE("hash should change when changing string",
+                           orig->GetHash() != clone->GetHash());
 }
 
 void CloneObjectsTest::testCloneSymbol() {
     VMSymbol* orig = NewSymbol("foobar");
-    VMSymbol* clone = orig->Clone();
+    VMSymbol* clone = orig->CloneForMovingGC();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->GetClass(),
             clone->GetClass());
     CPPUNIT_ASSERT_EQUAL_MESSAGE("objectSize differs!!", orig->GetObjectSize(),
             clone->GetObjectSize());
-    //CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfFields differs!!", orig->numberOfFields, clone->numberOfFields);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("string differs!!!", orig->GetPlainString(), clone->GetPlainString());
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("hash differs!!", orig->GetHash(), clone->GetHash());
 }
 
 void CloneObjectsTest::testCloneArray() {
@@ -93,7 +105,7 @@ void CloneObjectsTest::testCloneArray() {
     orig->SetIndexableField(0, GetUniverse()->NewString("foobar42"));
     orig->SetIndexableField(1, GetUniverse()->NewString("foobar43"));
     orig->SetIndexableField(2, GetUniverse()->NewString("foobar44"));
-    VMArray* clone = orig->Clone();
+    VMArray* clone = orig->CloneForMovingGC();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
@@ -109,6 +121,8 @@ void CloneObjectsTest::testCloneArray() {
             clone->GetIndexableField(1));
     CPPUNIT_ASSERT_EQUAL_MESSAGE("field 2 differs", orig->GetIndexableField(2),
             clone->GetIndexableField(2));
+
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("hash differs!!", orig->GetHash(), clone->GetHash());
 }
 
 void CloneObjectsTest::testCloneBlock() {
@@ -117,7 +131,7 @@ void CloneObjectsTest::testCloneBlock() {
     VMBlock* orig = GetUniverse()->NewBlock(method,
             GetUniverse()->GetInterpreter()->GetFrame(),
             method->GetNumberOfArguments());
-    VMBlock* clone = orig->Clone();
+    VMBlock* clone = orig->CloneForMovingGC();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
@@ -125,37 +139,40 @@ void CloneObjectsTest::testCloneBlock() {
     CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfFields differs!!", orig->numberOfFields, clone->numberOfFields);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("blockMethod differs!!", orig->blockMethod, clone->blockMethod);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("context differs!!", orig->context, clone->context);
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("hash differs!!", orig->GetHash(), clone->GetHash());
 }
 void CloneObjectsTest::testClonePrimitive() {
     VMSymbol* primitiveSymbol = NewSymbol("myPrimitive");
     VMPrimitive* orig = VMPrimitive::GetEmptyPrimitive(primitiveSymbol, false);
-    VMPrimitive* clone = orig->Clone();
+    VMPrimitive* clone = orig->CloneForMovingGC();
     CPPUNIT_ASSERT_EQUAL_MESSAGE("signature differs!!", orig->signature, clone->signature);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("holder differs!!", orig->holder, clone->holder);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("empty differs!!", orig->empty, clone->empty);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("routine differs!!", orig->routine, clone->routine);
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("hash differs!!", orig->GetHash(), clone->GetHash());
 }
 
 void CloneObjectsTest::testCloneEvaluationPrimitive() {
     VMEvaluationPrimitive* orig = new (GetHeap<HEAP_CLS>(), 0) VMEvaluationPrimitive(1);
-    VMEvaluationPrimitive* clone = orig->Clone();
+    VMEvaluationPrimitive* clone = orig->CloneForMovingGC();
 
     CPPUNIT_ASSERT_EQUAL_MESSAGE("signature differs!!", orig->signature, clone->signature);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("holder differs!!", orig->holder, clone->holder);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("empty differs!!", orig->empty, clone->empty);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("routine differs!!", orig->routine, clone->routine);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfArguments differs!!", orig->numberOfArguments, clone->numberOfArguments);
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("hash differs!!", orig->GetHash(), clone->GetHash());
 }
 
 void CloneObjectsTest::testCloneFrame() {
     VMSymbol* methodSymbol = NewSymbol("frameMethod");
     VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0);
     VMFrame* orig = GetUniverse()->NewFrame(nullptr, method);
-    VMFrame* context = orig->Clone();
+    VMFrame* context = orig->CloneForMovingGC();
     orig->SetContext(context);
     VMInteger* dummyArg = GetUniverse()->NewInteger(1111);
     orig->SetArgument(0, 0, dummyArg);
-    VMFrame* clone = orig->Clone();
+    VMFrame* clone = orig->CloneForMovingGC();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
@@ -164,14 +181,14 @@ void CloneObjectsTest::testCloneFrame() {
     CPPUNIT_ASSERT_EQUAL_MESSAGE("GetPreviousFrame differs!!", orig->GetPreviousFrame(), clone->GetPreviousFrame());
     CPPUNIT_ASSERT_EQUAL_MESSAGE("GetContext differs!!", orig->GetContext(), clone->GetContext());
     CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOGetMethodfFields differs!!", orig->GetMethod(), clone->GetMethod());
-    //CPPUNIT_ASSERT_EQUAL_MESSAGE("GetStackPointer differs!!", orig->GetStackPointer(), clone->GetStackPointer());
     CPPUNIT_ASSERT_EQUAL_MESSAGE("bytecodeIndex differs!!", orig->bytecodeIndex, clone->bytecodeIndex);
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("hash differs!!", orig->GetHash(), clone->GetHash());
 }
 
 void CloneObjectsTest::testCloneMethod() {
     VMSymbol* methodSymbol = NewSymbol("myMethod");
     VMMethod* orig = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0);
-    VMMethod* clone = orig->Clone();
+    VMMethod* clone = orig->CloneForMovingGC();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfLocals differs!!",
@@ -184,6 +201,7 @@ void CloneObjectsTest::testCloneMethod() {
             orig->numberOfArguments, clone->numberOfArguments);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfConstants differs!!",
             orig->numberOfConstants, clone->numberOfConstants);
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("hash differs!!", orig->GetHash(), clone->GetHash());
 
     CPPUNIT_ASSERT_EQUAL_MESSAGE("GetHolder() differs!!", orig->GetHolder(), clone->GetHolder());
     CPPUNIT_ASSERT_EQUAL_MESSAGE("GetSignature() differs!!", orig->GetSignature(), clone->GetSignature());
@@ -195,7 +213,7 @@ void CloneObjectsTest::testCloneClass() {
     orig->SetSuperClass(load_ptr(doubleClass));
     orig->SetInstanceFields(GetUniverse()->NewArray(2));
     orig->SetInstanceInvokables(GetUniverse()->NewArray(4));
-    VMClass* clone = orig->Clone();
+    VMClass* clone = orig->CloneForMovingGC();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
@@ -205,4 +223,5 @@ void CloneObjectsTest::testCloneClass() {
     CPPUNIT_ASSERT_EQUAL_MESSAGE("name differs!!", orig->name, clone->name);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("instanceFields differs!!", orig->instanceFields, clone->instanceFields);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("instanceInvokables differs!!", orig->instanceInvokables, clone->instanceInvokables);
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("hash differs!!", orig->GetHash(), clone->GetHash());
 }

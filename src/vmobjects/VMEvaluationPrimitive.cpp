@@ -44,7 +44,7 @@ VMEvaluationPrimitive::VMEvaluationPrimitive(size_t argc) : VMPrimitive(computeS
     SetRoutine(new EvaluationRoutine(this), false);
 }
 
-VMEvaluationPrimitive* VMEvaluationPrimitive::Clone() const {
+VMEvaluationPrimitive* VMEvaluationPrimitive::CloneForMovingGC() const {
     VMEvaluationPrimitive* evPrim = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMEvaluationPrimitive(*this);
     return evPrim;
 }

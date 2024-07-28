@@ -47,7 +47,7 @@ VMPrimitive::VMPrimitive(VMSymbol* signature) : VMInvokable(signature), routine(
     write_barrier(this, signature);
 }
 
-VMPrimitive* VMPrimitive::Clone() const {
+VMPrimitive* VMPrimitive::CloneForMovingGC() const {
     VMPrimitive* prim = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMPrimitive(*this);
     return prim;
 }

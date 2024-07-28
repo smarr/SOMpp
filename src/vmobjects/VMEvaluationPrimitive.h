@@ -34,7 +34,7 @@ public:
 
     VMEvaluationPrimitive(size_t argc);
     void WalkObjects(walk_heap_fn) override;
-    VMEvaluationPrimitive* Clone() const override;
+    VMEvaluationPrimitive* CloneForMovingGC() const override;
 
     StdString AsDebugString() const override;
 

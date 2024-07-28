@@ -41,7 +41,7 @@ public:
         return load_ptr(context);
     }
 
-            VMBlock*  Clone() const override;
+            VMBlock*  CloneForMovingGC() const override;
 
     StdString AsDebugString() const override;
 

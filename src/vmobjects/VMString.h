@@ -48,7 +48,7 @@ public:
     StdString GetStdString() const;
     size_t GetStringLength() const;
 
-    VMString* Clone() const override;
+    VMString* CloneForMovingGC() const override;
     VMClass* GetClass() const override;
     size_t GetObjectSize() const override;
     void WalkObjects(walk_heap_fn) override;

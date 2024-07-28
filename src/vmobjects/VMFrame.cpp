@@ -87,7 +87,7 @@ VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength) {
     return result;
 }
 
-VMFrame* VMFrame::Clone() const {
+VMFrame* VMFrame::CloneForMovingGC() const {
     size_t addSpace = totalObjectSize - sizeof(VMFrame);
     VMFrame* clone = new (GetHeap<HEAP_CLS>(), addSpace ALLOC_MATURE) VMFrame(*this);
     void* destination = SHIFTED_PTR(clone, sizeof(VMFrame));

@@ -51,7 +51,7 @@ VMClass::VMClass() :
                 nullptr), instanceInvokables(nullptr), superClass(nullptr) {
 }
 
-VMClass* VMClass::Clone() const {
+VMClass* VMClass::CloneForMovingGC() const {
     VMClass* clone = new (GetHeap<HEAP_CLS>(), totalObjectSize - sizeof(VMClass) ALLOC_MATURE) VMClass(*this);
     memcpy(SHIFTED_PTR(clone,sizeof(VMObject)),
             SHIFTED_PTR(this,sizeof(VMObject)), GetObjectSize() -

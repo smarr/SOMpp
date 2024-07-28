@@ -100,7 +100,7 @@ public:
         return numberOfConstants;
     }
 
-    VMMethod* Clone() const override;
+    VMMethod* CloneForMovingGC() const override;
 
     inline  void SetIndexableField(long idx, vm_oop_t item) {
         store_ptr(indexableFields[idx], item);

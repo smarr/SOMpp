@@ -51,7 +51,7 @@ public:
     vm_oop_t GetIndexableField(size_t idx) const;
     void SetIndexableField(size_t idx, vm_oop_t value);
     void CopyIndexableFieldsTo(VMArray*) const;
-    VMArray* Clone() const override;
+    VMArray* CloneForMovingGC() const override;
 
     StdString AsDebugString() const override;
 

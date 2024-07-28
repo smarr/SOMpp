@@ -54,7 +54,7 @@ VMObject::VMObject(size_t numSubclassFields, size_t totalObjectSize) : totalObje
     nilInitializeFields();
 }
 
-VMObject* VMObject::Clone() const {
+VMObject* VMObject::CloneForMovingGC() const {
     VMObject* clone = new (GetHeap<HEAP_CLS>(), totalObjectSize - sizeof(VMObject) ALLOC_MATURE) VMObject(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)),
            SHIFTED_PTR(this,  sizeof(VMObject)), totalObjectSize - sizeof(VMObject));

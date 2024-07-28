@@ -39,7 +39,7 @@ public:
     VMSymbol(const size_t length, const char* const str);
     StdString GetPlainString() const;
     size_t GetObjectSize() const override;
-    VMSymbol* Clone() const override;
+    VMSymbol* CloneForMovingGC() const override;
     VMClass* GetClass() const override;
 
     StdString AsDebugString() const override;

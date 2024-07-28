@@ -33,7 +33,7 @@
 #include "VMClass.h"
 #include "VMInteger.h"
 
-VMInteger* VMInteger::Clone() const {
+VMInteger* VMInteger::CloneForMovingGC() const {
     return new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMInteger(*this);
 }
 

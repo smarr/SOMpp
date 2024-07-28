@@ -34,10 +34,16 @@ public:
 
     VMDouble(double val) : AbstractVMObject(), embeddedDouble(val) {}
 
-    VMDouble* Clone() const override;
+    VMDouble* CloneForMovingGC() const override;
     inline  double   GetEmbeddedDouble() const;
     VMClass* GetClass() const override;
     inline size_t GetObjectSize() const override;
+
+    inline int64_t GetHash() const override {
+        // try to avoid a smart cast of the double value.
+        // instead, try to get to the bit pattern as a int64_t
+        return (*(int64_t*) &embeddedDouble);
+    }
 
     void MarkObjectAsInvalid() override;
     bool IsMarkedInvalid() const override;

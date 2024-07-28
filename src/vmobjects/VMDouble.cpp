@@ -33,7 +33,7 @@
 #include "VMClass.h"
 #include "VMDouble.h"
 
-VMDouble* VMDouble::Clone() const {
+VMDouble* VMDouble::CloneForMovingGC() const {
     return new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMDouble(*this);
 }
 

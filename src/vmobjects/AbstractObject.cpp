@@ -17,10 +17,6 @@
 #include "VMInvokable.h"
 #include "VMSymbol.h"
 
-int64_t AbstractVMObject::GetHash() const {
-    return (int64_t) this;
-}
-
 void AbstractVMObject::Send(Interpreter* interp, std::string selectorString, vm_oop_t* arguments, long argc) {
     VMFrame* frame = interp->GetFrame();
     VMSymbol* selector = SymbolFor(selectorString);

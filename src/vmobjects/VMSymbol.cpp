@@ -57,7 +57,7 @@ size_t VMSymbol::GetObjectSize() const {
     return size;
 }
 
-VMSymbol* VMSymbol::Clone() const {
+VMSymbol* VMSymbol::CloneForMovingGC() const {
     VMSymbol* result = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(length) ALLOC_MATURE) VMSymbol(length, chars);
     return result;
 }

@@ -44,7 +44,7 @@ VMBlock::VMBlock(VMMethod* method, VMFrame* context) :
     write_barrier(this, context);
 }
 
-VMBlock* VMBlock::Clone() const {
+VMBlock* VMBlock::CloneForMovingGC() const {
     VMBlock* clone;
     clone = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMBlock(*this);
     return clone;

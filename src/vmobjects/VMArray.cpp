@@ -70,7 +70,7 @@ VMArray* VMArray::CopyAndExtendWith(vm_oop_t item) const {
     return result;
 }
 
-VMArray* VMArray::Clone() const {
+VMArray* VMArray::CloneForMovingGC() const {
     const size_t addSpace = totalObjectSize - sizeof(VMArray);
     auto* clone = new (GetHeap<HEAP_CLS>(), addSpace ALLOC_MATURE) VMArray(*this);
     void* destination  = SHIFTED_PTR(clone, sizeof(VMArray));
