@@ -28,8 +28,8 @@
 #include <cstdint>
 #include <string>
 
-#include "../interpreter/bytecodes.h" // NOLINT// NOLINT(misc-include-cleaner) it's required to make the types complete
 #include "../compiler/Disassembler.h"
+#include "../interpreter/bytecodes.h" // NOLINT(misc-include-cleaner) it's required for InterpreterLoop.h
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../vm/IsValidObject.h"
