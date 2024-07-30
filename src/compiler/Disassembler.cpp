@@ -105,20 +105,20 @@ void Disassembler::Dump(VMClass* cl) {
 /**
  * Dump all Bytecode of a method.
  */
-void Disassembler::DumpMethod(VMMethod* method, const char* indent) {
-    dumpMethod(method->GetBytecodes(), method->GetNumberOfBytecodes(), indent, method);
+void Disassembler::DumpMethod(VMMethod* method, const char* indent, bool printObjects) {
+    dumpMethod(method->GetBytecodes(), method->GetNumberOfBytecodes(), indent, method, printObjects);
 }
 
 void Disassembler::DumpMethod(MethodGenerationContext* mgenc, const char* indent) {
     auto bytecodes = mgenc->GetBytecodes();
-    dumpMethod(bytecodes.data(), bytecodes.size(), indent, nullptr);
+    dumpMethod(bytecodes.data(), bytecodes.size(), indent, nullptr, true);
 }
 
-void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, const char* indent, VMMethod* method) {
+void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, const char* indent, VMMethod* method, bool printObjects) {
     DebugPrint("(\n");
     if (method != nullptr) {   // output stack information
-        long locals = method->GetNumberOfLocals();
-        long max_stack = method->GetMaximumNumberOfStackElements();
+        size_t locals = method->GetNumberOfLocals();
+        size_t max_stack = method->GetMaximumNumberOfStackElements();
         DebugDump("%s<%d locals, %d stack, %d bc_count>\n", indent, locals,
                   max_stack, method->GetNumberOfBytecodes());
 
@@ -163,7 +163,7 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, cons
             }
             case BC_PUSH_FIELD: {
                 long fieldIdx = bytecodes[bc_idx+1];
-                if (method != nullptr) {
+                if (method != nullptr && printObjects) {
                     VMClass* holder = dynamic_cast<VMClass*>((VMObject*) method->GetHolder());
                     if (holder) {
                         VMSymbol* name = holder->GetInstanceFieldName(fieldIdx);
@@ -184,7 +184,7 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, cons
                 char* nindent = new char[indent_size];
                 DebugPrint("block: (index: %d) ", bytecodes[bc_idx+1]);
 
-                if (method != nullptr) {
+                if (method != nullptr && printObjects) {
                     snprintf(nindent, indent_size, "%s\t", indent);
                     Disassembler::DumpMethod(static_cast<VMMethod*>(method->GetConstant(bc_idx)), nindent);
                 } else {
@@ -194,7 +194,7 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, cons
                 break;
             }
             case BC_PUSH_CONSTANT: {
-                if (method != nullptr) {
+                if (method != nullptr && printObjects) {
                     vm_oop_t constant = method->GetConstant(bc_idx);
                     VMClass* cl = CLASS_OF(constant);
                     VMSymbol* cname = cl->GetName();
@@ -209,7 +209,7 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, cons
                 break;
             }
             case BC_PUSH_GLOBAL: {
-                if (method != nullptr) {
+                if (method != nullptr && printObjects) {
                     vm_oop_t cst = method->GetConstant(bc_idx);
                     if (cst != nullptr) {
                         VMSymbol* name = static_cast<VMSymbol*>(cst);
@@ -233,7 +233,7 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, cons
                 break;
             case BC_POP_FIELD: {
                 long fieldIdx = bytecodes[bc_idx+1];
-                if (method != nullptr) {
+                if (method != nullptr && printObjects) {
                     VMClass* holder = dynamic_cast<VMClass*>((VMObject*) method->GetHolder());
                     if (holder) {
                         VMSymbol* name = holder->GetInstanceFieldName(fieldIdx);
@@ -247,7 +247,7 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, cons
                 break;
             }
             case BC_SEND: {
-                if (method != nullptr) {
+                if (method != nullptr && printObjects) {
                     VMSymbol* name = static_cast<VMSymbol*>(method->GetConstant(bc_idx));
                     DebugPrint("(index: %d) signature: %s\n", bytecodes[bc_idx+1], name->GetStdString().c_str());
                 } else {
@@ -256,7 +256,7 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, cons
                 break;
             }
             case BC_SUPER_SEND: {
-                if (method != nullptr) {
+                if (method != nullptr && printObjects) {
                     VMSymbol* name = static_cast<VMSymbol*>(method->GetConstant(bc_idx));
                     DebugPrint("(index: %d) signature: %s\n", bytecodes[bc_idx+1], name->GetStdString().c_str());
                 } else {
