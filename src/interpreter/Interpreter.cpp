@@ -388,29 +388,6 @@ void Interpreter::doReturnNonLocal() {
     popFrameAndPushResult(result);
 }
 
-void Interpreter::doJumpIfFalse(long bytecodeIndex) {
-    vm_oop_t value = GetFrame()->Pop();
-    if (value == load_ptr(falseObject))
-        doJump(bytecodeIndex);
-}
-
-void Interpreter::doJumpIfTrue(long bytecodeIndex) {
-    vm_oop_t value = GetFrame()->Pop();
-    if (value == load_ptr(trueObject))
-        doJump(bytecodeIndex);
-}
-
-void Interpreter::doJump(long bytecodeIndex) {
-    long target = 0;
-    target |= method->GetBytecode(bytecodeIndex + 1);
-    target |= method->GetBytecode(bytecodeIndex + 2) << 8;
-    target |= method->GetBytecode(bytecodeIndex + 3) << 16;
-    target |= method->GetBytecode(bytecodeIndex + 4) << 24;
-
-    // do the jump
-    bytecodeIndexGlobal = target;
-}
-
 void Interpreter::WalkGlobals(walk_heap_fn walk) {
     method = load_ptr(static_cast<GCMethod*>(walk(tmp_ptr(method))));
 

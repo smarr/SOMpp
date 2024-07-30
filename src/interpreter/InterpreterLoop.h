@@ -41,9 +41,6 @@ vm_oop_t Start() {
         &&LABEL_BC_SUPER_SEND,
         &&LABEL_BC_RETURN_LOCAL,
         &&LABEL_BC_RETURN_NON_LOCAL,
-        &&LABEL_BC_JUMP_IF_FALSE,
-        &&LABEL_BC_JUMP_IF_TRUE,
-        &&LABEL_BC_JUMP
     };
     
     goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];
@@ -241,20 +238,8 @@ LABEL_BC_RETURN_NON_LOCAL:
     PROLOGUE(1);
     doReturnNonLocal();
     DISPATCH_NOGC();
-    
-LABEL_BC_JUMP_IF_FALSE:
-    PROLOGUE(5);
-    doJumpIfFalse(bytecodeIndexGlobal - 5);
     DISPATCH_NOGC();
-    
-LABEL_BC_JUMP_IF_TRUE:
-    PROLOGUE(5);
-    doJumpIfTrue(bytecodeIndexGlobal - 5);
     DISPATCH_NOGC();
-    
-LABEL_BC_JUMP:
-    PROLOGUE(5);
-    doJump(bytecodeIndexGlobal - 5);
     DISPATCH_NOGC();
 
 #ifndef HACK_INLINE_START
