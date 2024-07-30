@@ -20,6 +20,10 @@ public:
         return name == n;
     }
 
+    bool IsSame(const Variable& other) const {
+        return coord == other.coord;
+    }
+
     bool IsValid() const { return index != 0xff; }
 
     inline uint8_t GetIndex() const { return index; }

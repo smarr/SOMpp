@@ -7,7 +7,11 @@ public:
     
     inline size_t GetLine() const { return line; }
     inline size_t GetColumn() const { return column; }
-    
+
+    inline bool operator==(const SourceCoordinate& other) const {
+        return line == other.line && column == other.column;
+    }
+
 private:
     /* 1-based */
     size_t line;
