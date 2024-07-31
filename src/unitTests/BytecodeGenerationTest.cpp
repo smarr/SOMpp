@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <sstream>
+#include <string>
 #include <vector>
 
 
@@ -29,9 +30,9 @@ void BytecodeGenerationTest::ensureMGenC() {
     if (_mgenc != nullptr) return;
     ensureCGenC();
 
-    _mgenc = new MethodGenerationContext();
-    _mgenc->SetHolder(_cgenc);
-    _mgenc->AddArgument("self");
+    _mgenc = new MethodGenerationContext(*_cgenc);
+    std::string self = strSelf;
+    _mgenc->AddArgument(self, {0, 0});
 }
 
 void BytecodeGenerationTest::ensureBGenC() {
@@ -40,9 +41,7 @@ void BytecodeGenerationTest::ensureBGenC() {
     ensureMGenC();
 
     _mgenc->SetSignature(SymbolFor("test"));
-    _bgenc = new MethodGenerationContext();
-    _bgenc->SetHolder(_cgenc);
-    _bgenc->SetOuter(_mgenc);
+    _bgenc = new MethodGenerationContext(*_cgenc, _mgenc);
 }
 
 void BytecodeGenerationTest::addField(const char* fieldName) {
@@ -55,7 +54,7 @@ std::vector<uint8_t> BytecodeGenerationTest::methodToBytecode(const char* source
 
     istringstream ss(source);
 
-    StdString fileName = "test";
+    std::string fileName = "test";
     Parser parser(ss, fileName);
     parser.method(*_mgenc);
 
@@ -70,7 +69,7 @@ std::vector<uint8_t> BytecodeGenerationTest::blockToBytecode(const char* source,
 
     istringstream ss(source);
 
-    StdString fileName = "test";
+    std::string fileName = "test";
     Parser parser(ss, fileName);
 
     parser.nestedBlock(*_bgenc);

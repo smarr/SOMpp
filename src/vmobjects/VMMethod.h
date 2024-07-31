@@ -27,7 +27,9 @@
  */
 
 #include <iostream>
+#include <queue>
 
+#include "../compiler/LexicalScope.h"
 #include "../vm/Globals.h"
 #include "../vm/Print.h"
 #include "VMInteger.h"
@@ -43,7 +45,11 @@ class VMMethod: public VMInvokable {
 public:
     typedef GCMethod Stored;
 
-    VMMethod(VMSymbol* signature, size_t bcCount, size_t numberOfConstants, size_t numLocals, size_t maxStackDepth);
+    VMMethod(VMSymbol* signature, size_t bcCount, size_t numberOfConstants, size_t numLocals, size_t maxStackDepth, LexicalScope* lexicalScope);
+
+    ~VMMethod() override {
+        delete lexicalScope;
+    }
 
     inline size_t GetNumberOfLocals() const {
         return numberOfLocals;
@@ -135,6 +141,8 @@ private_testable:
     const size_t numberOfConstants;
 
 private:
+    LexicalScope* lexicalScope;
+
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     GCFrame* cachedFrame;
 #endif

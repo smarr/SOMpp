@@ -49,6 +49,8 @@
 		0A1887451832C62100A2CBCA /* Smalltalk in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A18873E1832C62100A2CBCA /* Smalltalk */; };
 		0A1887471832C62100A2CBCA /* TestSuite in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0A1887401832C62100A2CBCA /* TestSuite */; };
 		0A1C98582C3DD88500735850 /* unitTests/BytecodeGenerationTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C98572C3DD88500735850 /* unitTests/BytecodeGenerationTest.cpp */; };
+		0A1C98602C43D6E200735850 /* Variable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C985F2C43D6E200735850 /* Variable.cpp */; };
+		0A1C98612C43D6E200735850 /* Variable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C985F2C43D6E200735850 /* Variable.cpp */; };
 		0A1C98672C4D340300735850 /* Symbols.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C98652C4D340300735850 /* Symbols.cpp */; };
 		0A1C98682C4D340300735850 /* Symbols.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C98652C4D340300735850 /* Symbols.cpp */; };
 		0A1C986B2C4D363A00735850 /* LogAllocation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A1C986A2C4D363A00735850 /* LogAllocation.cpp */; };
@@ -196,6 +198,10 @@
 		0A1C98562C3DD87300735850 /* unitTests/BytecodeGenerationTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = unitTests/BytecodeGenerationTest.h; sourceTree = "<group>"; };
 		0A1C98572C3DD88500735850 /* unitTests/BytecodeGenerationTest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = unitTests/BytecodeGenerationTest.cpp; sourceTree = "<group>"; };
 		0A1C98592C432E0E00735850 /* VectorUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VectorUtil.h; sourceTree = "<group>"; };
+		0A1C985A2C4346F900735850 /* LexicalScope.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LexicalScope.h; sourceTree = "<group>"; };
+		0A1C985E2C43D6D000735850 /* Variable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Variable.h; sourceTree = "<group>"; };
+		0A1C985F2C43D6E200735850 /* Variable.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Variable.cpp; sourceTree = "<group>"; };
+		0A1C98622C499F9400735850 /* SourceCoordinate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SourceCoordinate.h; sourceTree = "<group>"; };
 		0A1C98642C4D33F300735850 /* Symbols.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Symbols.h; sourceTree = "<group>"; };
 		0A1C98652C4D340300735850 /* Symbols.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Symbols.cpp; sourceTree = "<group>"; };
 		0A1C98692C4D35BB00735850 /* LogAllocation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LogAllocation.h; sourceTree = "<group>"; };
@@ -493,6 +499,10 @@
 				3F5202FC0FA6624C00E75857 /* Parser.h */,
 				3F5202FD0FA6624C00E75857 /* SourcecodeCompiler.cpp */,
 				3F5202FE0FA6624C00E75857 /* SourcecodeCompiler.h */,
+				0A1C985A2C4346F900735850 /* LexicalScope.h */,
+				0A1C985E2C43D6D000735850 /* Variable.h */,
+				0A1C985F2C43D6E200735850 /* Variable.cpp */,
+				0A1C98622C499F9400735850 /* SourceCoordinate.h */,
 			);
 			path = compiler;
 			sourceTree = "<group>";
@@ -877,6 +887,7 @@
 				0A3A3CB11A5D5475004CB03B /* PrimitiveLoader.cpp in Sources */,
 				0A1887001832BCFA00A2CBCA /* VMInteger.cpp in Sources */,
 				0A3A3C931A5D546D004CB03B /* Block.cpp in Sources */,
+				0A1C98602C43D6E200735850 /* Variable.cpp in Sources */,
 				0A70752A297DF9FE00EB9F59 /* ParseInteger.cpp in Sources */,
 				0A3A3CB01A5D5475004CB03B /* PrimitiveContainer.cpp in Sources */,
 				0A3A3C981A5D546D004CB03B /* Object.cpp in Sources */,
@@ -966,6 +977,7 @@
 				0A3A3CA81A5D546D004CB03B /* Primitive.cpp in Sources */,
 				0A67EA9619ACD84300830E3B /* Timer.cpp in Sources */,
 				0A67EA8D19ACD83200830E3B /* BytecodeGenerator.cpp in Sources */,
+				0A1C98612C43D6E200735850 /* Variable.cpp in Sources */,
 				0A67EA7619ACD43A00830E3B /* main.cpp in Sources */,
 				0A67EA8819ACD74800830E3B /* VMPrimitive.cpp in Sources */,
 				0A3A3CA21A5D546D004CB03B /* Block.cpp in Sources */,

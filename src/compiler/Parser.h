@@ -77,18 +77,18 @@ private:
     VMSymbol* binarySelector();
     StdString identifier();
     StdString keyword();
-    StdString argument();
+    std::string argument();
     void blockContents(MethodGenerationContext& mgenc, bool is_inlined);
     void locals(MethodGenerationContext& mgenc);
     void blockBody(MethodGenerationContext& mgenc, bool seen_period, bool is_inlined);
     void result(MethodGenerationContext& mgenc);
     void expression(MethodGenerationContext& mgenc);
     void assignation(MethodGenerationContext& mgenc);
-    void assignments(MethodGenerationContext& mgenc, list<VMSymbol*>& l);
-    VMSymbol* assignment();
+    void assignments(MethodGenerationContext& mgenc, list<std::string>& l);
+    std::string assignment();
     void evaluation(MethodGenerationContext& mgenc);
     bool primary(MethodGenerationContext& mgenc);
-    StdString variable();
+    std::string variable();
     void messages(MethodGenerationContext& mgenc, bool super);
     void unaryMessage(MethodGenerationContext& mgenc, bool super);
     void binaryMessage(MethodGenerationContext& mgenc, bool super);
@@ -112,8 +112,8 @@ private:
     StdString _string();
     void blockPattern(MethodGenerationContext& mgenc);
     void blockArguments(MethodGenerationContext& mgenc);
-    void genPushVariable(MethodGenerationContext&, VMSymbol*);
-    void genPopVariable(MethodGenerationContext&, VMSymbol*);
+    void genPushVariable(MethodGenerationContext&, std::string&);
+    void genPopVariable(MethodGenerationContext&, std::string&);
 
     Lexer lexer;
     StdString& fname;

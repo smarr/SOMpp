@@ -29,27 +29,31 @@
 #include <cstddef>
 #include <cstdint>
 #include <string>
+#include <vector>
 
 #include "../misc/VectorUtil.h"
-#include "../vm/Symbols.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMMethod.h"
 #include "../vmobjects/VMPrimitive.h"
 #include "../vmobjects/VMSymbol.h"
+#include "ClassGenerationContext.h"
+#include "LexicalScope.h"
 #include "MethodGenerationContext.h"
+#include "SourceCoordinate.h"
+#include "Variable.h"
 
-MethodGenerationContext::MethodGenerationContext() :
-        holderGenc(nullptr), outerGenc(nullptr),
-        blockMethod(false), signature(nullptr), primitive(false), finished(false),
-        currentStackDepth(0), maxStackDepth(0) { }
+MethodGenerationContext::MethodGenerationContext(ClassGenerationContext& holder, MethodGenerationContext* outer) :
+        holderGenc(holder), outerGenc(outer),
+        blockMethod(outer != nullptr), signature(nullptr), primitive(false), finished(false),
+        currentStackDepth(0), maxStackDepth(0), maxContextLevel(outer == nullptr ? 0 : outer->GetMaxContextLevel() + 1) { }
 
 VMMethod* MethodGenerationContext::Assemble() {
     // create a method instance with the given number of bytecodes and literals
     size_t numLiterals = literals.size();
     size_t numLocals = locals.size();
     VMMethod* meth = GetUniverse()->NewMethod(signature, bytecode.size(),
-            numLiterals, numLocals, maxStackDepth);
+            numLiterals, numLocals, maxStackDepth, lexicalScope);
 
     // copy literals into the method
     for (size_t i = 0; i < numLiterals; i++) {
@@ -79,12 +83,35 @@ int8_t MethodGenerationContext::FindLiteralIndex(vm_oop_t lit) {
 }
 
 uint8_t MethodGenerationContext::GetFieldIndex(VMSymbol* field) {
-    int16_t idx = holderGenc->GetFieldIndex(field);
+    int16_t idx = holderGenc.GetFieldIndex(field);
     assert(idx >= 0);
     return idx;
 }
 
-bool MethodGenerationContext::FindVar(VMSymbol* var, int64_t* index,
+bool Contains(std::vector<Variable>& vec, std::string& name) {
+    for (Variable& v : vec) {
+        if (v.IsNamed(name)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+size_t IndexOf(std::vector<Variable>& vec, std::string& name) {
+    size_t i = 0;
+    for (Variable& v : vec) {
+        if (v.IsNamed(name)) {
+            return i;
+        }
+        i += 1;
+    }
+
+    return -1;
+}
+
+
+bool MethodGenerationContext::FindVar(std::string& var, int64_t* index,
         int* context, bool* isArgument) {
     if ((*index = IndexOf(locals, var)) == -1) {
         if ((*index = IndexOf(arguments, var)) == -1) {
@@ -102,23 +129,11 @@ bool MethodGenerationContext::FindVar(VMSymbol* var, int64_t* index,
 }
 
 bool MethodGenerationContext::HasField(VMSymbol* field) {
-    return holderGenc->HasField(field);
+    return holderGenc.HasField(field);
 }
 
 size_t MethodGenerationContext::GetNumberOfArguments() {
     return arguments.size();
-}
-
-void MethodGenerationContext::SetHolder(ClassGenerationContext* holder) {
-    holderGenc = holder;
-}
-
-void MethodGenerationContext::SetOuter(MethodGenerationContext* outer) {
-    outerGenc = outer;
-}
-
-void MethodGenerationContext::SetIsBlockMethod(bool isBlock) {
-    blockMethod = isBlock;
 }
 
 void MethodGenerationContext::SetSignature(VMSymbol* sig) {
@@ -129,14 +144,14 @@ void MethodGenerationContext::SetPrimitive(bool prim) {
     primitive = prim;
 }
 
-void MethodGenerationContext::AddArgument(const std::string& arg) {
-    VMSymbol* argSym = SymbolFor(arg);
-    arguments.push_back(argSym);
+void MethodGenerationContext::AddArgument(std::string& arg, const SourceCoordinate& coord) {
+    size_t index = arguments.size();
+    arguments.push_back({arg, index, true, coord});
 }
 
-void MethodGenerationContext::AddLocal(const std::string& local) {
-    VMSymbol* localSym =SymbolFor(local);
-    locals.push_back(localSym);
+void MethodGenerationContext::AddLocal(std::string& local, const SourceCoordinate& coord) {
+    size_t index = locals.size();
+    locals.push_back({local, index, false, coord});
 }
 
 uint8_t MethodGenerationContext::AddLiteral(vm_oop_t lit) {
@@ -161,21 +176,20 @@ void MethodGenerationContext::UpdateLiteral(vm_oop_t oldValue, uint8_t index, vm
     literals[index] = newValue;
 }
 
-bool MethodGenerationContext::AddArgumentIfAbsent(const std::string& arg) {
-    VMSymbol* argSym = SymbolFor(arg);
-    if (Contains(locals, argSym)) {
+bool MethodGenerationContext::AddArgumentIfAbsent(std::string& arg, const SourceCoordinate& coord) {
+    if (Contains(locals, arg)) {
         return false;
     }
-    arguments.push_back(argSym);
+    AddArgument(arg, coord);
     return true;
 }
 
-bool MethodGenerationContext::AddLocalIfAbsent(const std::string& local) {
-    VMSymbol* localSym = SymbolFor(local);
-    if (Contains(locals, localSym)) {
+bool MethodGenerationContext::AddLocalIfAbsent(std::string& local, const SourceCoordinate& coord) {
+    if (Contains(locals, local)) {
         return false;
     }
-    locals.push_back(localSym);
+
+    AddLocal(local, coord);
     return true;
 }
 
@@ -183,43 +197,22 @@ void MethodGenerationContext::SetFinished(bool finished) {
     this->finished = finished;
 }
 
-ClassGenerationContext* MethodGenerationContext::GetHolder() {
-    return holderGenc;
-}
-
-MethodGenerationContext* MethodGenerationContext::GetOuter() {
-    return outerGenc;
-}
-
-VMSymbol* MethodGenerationContext::GetSignature() {
-    return signature;
-}
-
-bool MethodGenerationContext::IsPrimitive() {
-    return primitive;
-}
-
-bool MethodGenerationContext::IsBlockMethod() {
-    return blockMethod;
-}
-
-bool MethodGenerationContext::IsFinished() {
-    return finished;
-}
-
 bool MethodGenerationContext::HasBytecodes() {
     return !bytecode.empty();
 }
 
-size_t MethodGenerationContext::AddBytecode(uint8_t bc, size_t stackEffect) {
+void MethodGenerationContext::AddBytecode(uint8_t bc, size_t stackEffect) {
     currentStackDepth += stackEffect;
     maxStackDepth = max(maxStackDepth, currentStackDepth);
 
     bytecode.push_back(bc);
-    return bytecode.size();
 }
 
-size_t MethodGenerationContext::AddBytecodeArgument(uint8_t bc) {
+void MethodGenerationContext::AddBytecodeArgument(uint8_t bc) {
     bytecode.push_back(bc);
-    return bytecode.size();
+}
+
+void MethodGenerationContext::CompleteLexicalScope() {
+    lexicalScope = new LexicalScope(outerGenc == nullptr ? nullptr : outerGenc->lexicalScope,
+                                    arguments, locals);
 }

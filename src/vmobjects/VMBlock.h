@@ -47,8 +47,6 @@ public:
 
     static VMEvaluationPrimitive* GetEvaluationPrimitive(int);
 
-    void MarkObjectAsInvalid() override;
-
 private_testable:
     GCMethod* blockMethod;
     GCFrame* context;

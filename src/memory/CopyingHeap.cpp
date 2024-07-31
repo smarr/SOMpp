@@ -3,6 +3,7 @@
 #include <cstring>
 #include <string>
 
+#include "../misc/defs.h"
 #include "../vm/Print.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/AbstractObject.h"

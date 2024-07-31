@@ -68,9 +68,6 @@ public:
            bool         HasPrimitives() const;
            void         LoadPrimitives();
            VMClass*     CloneForMovingGC() const override;
-           void         WalkObjects(walk_heap_fn walk) override;
-
-    void MarkObjectAsInvalid() override;
 
            StdString AsDebugString() const override;
 

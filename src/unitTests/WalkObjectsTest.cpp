@@ -9,6 +9,8 @@
 #include <cstddef>
 #include <vector>
 
+#include "../compiler/LexicalScope.h"
+#include "../compiler/Variable.h"
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../vm/Globals.h"
@@ -145,7 +147,7 @@ void WalkObjectsTest::testWalkPrimitive() {
 void WalkObjectsTest::testWalkFrame() {
     walkedObjects.clear();
     VMSymbol* methodSymbol = NewSymbol("frameMethod");
-    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0);
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0, new LexicalScope(nullptr, {}, {}));
     VMFrame* frame = GetUniverse()->NewFrame(nullptr, method);
     frame->SetPreviousFrame(frame->CloneForMovingGC());
     frame->SetContext(frame->CloneForMovingGC());
@@ -163,23 +165,52 @@ void WalkObjectsTest::testWalkFrame() {
             (long) walkedObjects.size() + 1);  // + 1 for the class field that's still in there
 }
 
+Variable makeVar(const char* const name, bool isArgument) {
+    std::string n = name;
+    return Variable(n, 0, isArgument, {0, 0});
+}
+
 void WalkObjectsTest::testWalkMethod() {
     walkedObjects.clear();
+    // First, we're setting up lexical scopes, just to see that we reach those, too
+
+    vector<Variable> argsInner;
+    vector<Variable> localsInner;
+
+    vector<Variable> args;
+    vector<Variable> locals;
+
+    argsInner.push_back(makeVar("argInner1", true));
+    argsInner.push_back(makeVar("argInner2", true));
+    args.push_back(makeVar("arg1", true));
+    args.push_back(makeVar("arg2", true));
+
+    localsInner.push_back(makeVar("localInner1", false));
+    localsInner.push_back(makeVar("localInner2", false));
+    locals.push_back(makeVar("local1", false));
+    locals.push_back(makeVar("local2", false));
+
+    LexicalScope* inner = new LexicalScope(nullptr, argsInner, localsInner);
+    LexicalScope* scope = new LexicalScope(inner, args, locals);
+
+
     VMSymbol* methodSymbol = NewSymbol("myMethod");
-    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0);
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0, scope);
     method->SetHolder(load_ptr(symbolClass));
     method->WalkObjects(collectMembers);
 
-    //the following fields had no getters -> had to become friend
+    // the following fields had no getters -> had to become friend
     CPPUNIT_ASSERT(WalkerHasFound(tmp_ptr(method->GetHolder())));
     CPPUNIT_ASSERT(WalkerHasFound(tmp_ptr(method->GetSignature())));
-    CPPUNIT_ASSERT_EQUAL(NoOfFields_Method, walkedObjects.size());
+
+    const size_t expectedNumberOfObjects = NoOfFields_Method;
+    CPPUNIT_ASSERT_EQUAL(expectedNumberOfObjects, walkedObjects.size());
 }
 
 void WalkObjectsTest::testWalkBlock() {
     walkedObjects.clear();
     VMSymbol* methodSymbol = NewSymbol("someMethod");
-    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0);
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0, new LexicalScope(nullptr, {}, {}));
     VMBlock* block = GetUniverse()->NewBlock(method,
             GetUniverse()->GetInterpreter()->GetFrame(),
             method->GetNumberOfArguments());

@@ -8,6 +8,7 @@
 #include <cppunit/TestAssert.h>
 #include <cstdint>
 
+#include "../compiler/LexicalScope.h"
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../vm/Globals.h"
@@ -127,7 +128,7 @@ void CloneObjectsTest::testCloneArray() {
 
 void CloneObjectsTest::testCloneBlock() {
     VMSymbol* methodSymbol = NewSymbol("someMethod");
-    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0);
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0, new LexicalScope(nullptr, {}, {}));
     VMBlock* orig = GetUniverse()->NewBlock(method,
             GetUniverse()->GetInterpreter()->GetFrame(),
             method->GetNumberOfArguments());
@@ -166,7 +167,7 @@ void CloneObjectsTest::testCloneEvaluationPrimitive() {
 
 void CloneObjectsTest::testCloneFrame() {
     VMSymbol* methodSymbol = NewSymbol("frameMethod");
-    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0);
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0, new LexicalScope(nullptr, {}, {}));
     VMFrame* orig = GetUniverse()->NewFrame(nullptr, method);
     VMFrame* context = orig->CloneForMovingGC();
     orig->SetContext(context);
@@ -187,7 +188,7 @@ void CloneObjectsTest::testCloneFrame() {
 
 void CloneObjectsTest::testCloneMethod() {
     VMSymbol* methodSymbol = NewSymbol("myMethod");
-    VMMethod* orig = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0);
+    VMMethod* orig = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0, new LexicalScope(nullptr, {}, {}));
     VMMethod* clone = orig->CloneForMovingGC();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
