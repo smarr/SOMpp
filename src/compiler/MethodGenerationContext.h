@@ -124,6 +124,8 @@ private:
     bool hasTwoLiteralBlockArguments();
     bool lastBytecodeIs(size_t indexFromEnd, uint8_t bytecode);
     std::tuple<vm_oop_t, vm_oop_t> extractBlockMethodsAndRemoveBytecodes();
+    vm_oop_t getLastBlockMethodAndFreeLiteral(uint8_t blockLiteralIdx);
+
     void completeJumpsAndEmitReturningNil(Parser& parser, size_t loopBeginIdx, size_t jumpOffsetIdxToSkipLoopBody);
     void inlineLocals(LexicalScope& scopeToBeInlined);
     void checkJumpOffset(size_t jumpOffset, uint8_t bytecode);

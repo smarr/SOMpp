@@ -256,14 +256,26 @@ bool MethodGenerationContext::hasTwoLiteralBlockArguments() {
     return lastBytecodeIs(1, BC_PUSH_BLOCK);
 }
 
+/**
+ * This works only, because we have a simple forward-pass parser,
+ * and inlining, where this is used, happens right after the block was added.
+ * This also means, we need to remove blocks in reverse order.
+ */
+vm_oop_t MethodGenerationContext::getLastBlockMethodAndFreeLiteral(uint8_t blockLiteralIdx) {
+    assert(blockLiteralIdx == literals.size() - 1);
+    vm_oop_t block = literals.back();
+    literals.pop_back();
+    return block;
+}
+
 std::tuple<vm_oop_t, vm_oop_t> MethodGenerationContext::extractBlockMethodsAndRemoveBytecodes() {
     uint8_t block1LitIdx = bytecode.at(bytecode.size() - 3);
     uint8_t block2LitIdx = bytecode.at(bytecode.size() - 1);
 
     // grab the blocks' methods for inlining
-    vm_oop_t toBeInlined1 = literals.at(block1LitIdx);
-    vm_oop_t toBeInlined2 = literals.at(block2LitIdx);
-
+    vm_oop_t toBeInlined2 = getLastBlockMethodAndFreeLiteral(block2LitIdx);
+    vm_oop_t toBeInlined1 = getLastBlockMethodAndFreeLiteral(block1LitIdx);
+    
     removeLastBytecodes(2);
 
     return {toBeInlined1, toBeInlined2};
