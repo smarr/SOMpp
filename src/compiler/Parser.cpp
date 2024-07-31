@@ -35,6 +35,7 @@
 #include <vector>
 
 #include "../misc/ParseInteger.h"
+#include "../misc/StringUtil.h"
 #include "../misc/defs.h"
 #include "../vm/Globals.h"
 #include "../vm/Print.h"
@@ -834,15 +835,7 @@ void Parser::blockArguments(MethodGenerationContext& mgenc) {
     } while (sym == Colon);
 }
 
-static bool replace(StdString& str, const char* pattern, StdString& replacement) {
-    size_t pos = str.find(pattern);
-    if (pos == std::string::npos) {
-        return false;
-    }
 
-    str.replace(pos, strlen(pattern), replacement);
-    return true;
-}
 
 __attribute__((noreturn)) void Parser::parseError(const char* msg, Symbol expected) {
     StdString expectedStr(symnames[expected]);
@@ -860,15 +853,15 @@ __attribute__((noreturn)) void Parser::parseError(const char* msg, StdString exp
         foundStr = symnames[sym];
     }
 
-    replace(msgWithMeta, "%(file)s", fname);
+    ReplacePattern(msgWithMeta, "%(file)s", fname);
 
     StdString line = std::to_string(lexer.GetCurrentLineNumber());
-    replace(msgWithMeta, "%(line)d", line);
+    ReplacePattern(msgWithMeta, "%(line)d", line);
 
     StdString column = std::to_string(lexer.GetCurrentColumn());
-    replace(msgWithMeta, "%(column)d", column);
-    replace(msgWithMeta, "%(expected)s", expected);
-    replace(msgWithMeta, "%(found)s", foundStr);
+    ReplacePattern(msgWithMeta, "%(column)d", column);
+    ReplacePattern(msgWithMeta, "%(expected)s", expected);
+    ReplacePattern(msgWithMeta, "%(found)s", foundStr);
 
     ErrorPrint(msgWithMeta);
     GetUniverse()->Quit(ERR_FAIL);
