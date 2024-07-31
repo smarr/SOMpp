@@ -547,13 +547,13 @@ void VMMethod::AdaptAfterOuterInlined(uint8_t removedCtxLevel, MethodGenerationC
 }
 
 bool operator<(const Jump& a, const Jump& b) {
-  return a.originalJumpTargetIdx < b.originalJumpTargetIdx;
+  return a.originalJumpTargetIdx > b.originalJumpTargetIdx;
 }
 
 bool operator<(const BackJump& a, const BackJump& b) {
-  return a.loopBeginIdx < b.loopBeginIdx;
+  return a.loopBeginIdx > b.loopBeginIdx;
 }
 
 bool operator<(const BackJumpPatch& a, const BackJumpPatch& b) {
-  return a.backwardsJumpIdx < b.backwardsJumpIdx;
+  return a.backwardsJumpIdx > b.backwardsJumpIdx;
 }

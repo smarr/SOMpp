@@ -42,6 +42,8 @@ class BytecodeGenerationTest: public CPPUNIT_NS::TestCase {
     CPPUNIT_TEST(testInliningWhileLoopsWithExpandingBranches);
     CPPUNIT_TEST(testInliningWhileLoopsWithContractingBranches);
 
+    CPPUNIT_TEST(testJumpQueuesOrdering);
+
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -115,6 +117,8 @@ private:
 
     void testInliningWhileLoopsWithExpandingBranches();
     void testInliningWhileLoopsWithContractingBranches();
+
+    void testJumpQueuesOrdering();
 
     void dump(MethodGenerationContext* mgenc);
     

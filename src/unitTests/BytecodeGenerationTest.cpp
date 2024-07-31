@@ -1,7 +1,9 @@
+#include <cassert>
 #include <cppunit/TestAssert.h>
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
+#include <queue>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -11,10 +13,11 @@
 #include "../compiler/Disassembler.h"
 #include "../compiler/MethodGenerationContext.h"
 #include "../compiler/Parser.h"
+#include "../interpreter/bytecodes.h"
 #include "../misc/StringUtil.h"
 #include "../misc/debug.h"
-#include "../interpreter/bytecodes.h"
 #include "../vm/Symbols.h"
+#include "../vmobjects/VMMethod.h"
 #include "BytecodeGenerationTest.h"
 
 void BytecodeGenerationTest::dump(MethodGenerationContext* mgenc) {
@@ -1504,3 +1507,38 @@ void BytecodeGenerationTest::testInliningWhileLoopsWithContractingBranches() {
 
 
  */
+
+void BytecodeGenerationTest::testJumpQueuesOrdering() {
+    std::priority_queue<Jump> jumps;
+
+    jumps.emplace(Jump(1, BC_JUMP, 0));
+    jumps.emplace(Jump(5, BC_JUMP, 0));
+    jumps.emplace(Jump(8, BC_JUMP, 0));
+    jumps.emplace(Jump(2, BC_JUMP, 0));
+
+    CPPUNIT_ASSERT_EQUAL((size_t) 1, jumps.top().originalJumpTargetIdx); jumps.pop();
+    CPPUNIT_ASSERT_EQUAL((size_t) 2, jumps.top().originalJumpTargetIdx); jumps.pop();
+    CPPUNIT_ASSERT_EQUAL((size_t) 5, jumps.top().originalJumpTargetIdx); jumps.pop();
+    CPPUNIT_ASSERT_EQUAL((size_t) 8, jumps.top().originalJumpTargetIdx); jumps.pop();
+
+
+    std::priority_queue<BackJump> backJumps;
+    backJumps.emplace(BackJump(13, 9));
+    backJumps.emplace(BackJump(3, 12));
+    backJumps.emplace(BackJump(54, 54));
+
+    CPPUNIT_ASSERT_EQUAL((size_t) 3, backJumps.top().loopBeginIdx); backJumps.pop();
+    CPPUNIT_ASSERT_EQUAL((size_t) 13, backJumps.top().loopBeginIdx); backJumps.pop();
+    CPPUNIT_ASSERT_EQUAL((size_t) 54, backJumps.top().loopBeginIdx); backJumps.pop();
+
+    std::priority_queue<BackJumpPatch> backJumpsToPatch;
+    backJumpsToPatch.emplace(BackJumpPatch(3, 2));
+    backJumpsToPatch.emplace(BackJumpPatch(32, 44));
+    backJumpsToPatch.emplace(BackJumpPatch(12, 55));
+
+
+    CPPUNIT_ASSERT_EQUAL((size_t) 3, backJumpsToPatch.top().backwardsJumpIdx); backJumpsToPatch.pop();
+    CPPUNIT_ASSERT_EQUAL((size_t) 12, backJumpsToPatch.top().backwardsJumpIdx); backJumpsToPatch.pop();
+    CPPUNIT_ASSERT_EQUAL((size_t) 32, backJumpsToPatch.top().backwardsJumpIdx); backJumpsToPatch.pop();
+
+}
