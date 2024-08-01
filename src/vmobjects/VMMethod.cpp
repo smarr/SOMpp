@@ -187,6 +187,8 @@ std::string VMMethod::AsDebugString() const {
 VMInvokable* VMMethod::LookupWithCache(VMSymbol* signature,
                                        VMClass* receiverClass,
                                        size_t bytecodeIndex) {
+    return receiverClass->LookupInvokable(signature);
+
     assert(bytecodeIndex <= bcLength - 2);
     // multiply by 2 because we store pairs of rcvrClass+invokable
     size_t cacheIndex = bytecodeIndex << 1;
