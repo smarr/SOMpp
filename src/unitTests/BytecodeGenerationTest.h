@@ -57,15 +57,18 @@ class BytecodeGenerationTest : public CPPUNIT_NS::TestCase {
     CPPUNIT_TEST(testWhileInliningWhileFalse);
     CPPUNIT_TEST(testInliningWhileLoopsWithExpandingBranches);
     CPPUNIT_TEST(testInliningWhileLoopsWithContractingBranches);
+    CPPUNIT_TEST(testIfInlineAndConstantBcLength);
+    CPPUNIT_TEST(testIfTrueWithLiteralReturn);
+    CPPUNIT_TEST(testIfTrueWithSomethingAndLiteralReturn);
 
     CPPUNIT_TEST(testJumpQueuesOrdering);
 
     CPPUNIT_TEST_SUITE_END();
 
 public:
-    inline void setUp(void) {}
+    inline void setUp() {}
 
-    inline void tearDown(void) {
+    inline void tearDown() {
         delete _cgenc;
         _cgenc = nullptr;
 
@@ -134,6 +137,13 @@ private:
 
     void testInliningWhileLoopsWithExpandingBranches();
     void testInliningWhileLoopsWithContractingBranches();
+    void testIfInlineAndConstantBcLength();
+
+    void testIfTrueWithLiteralReturn();
+    void ifTrueWithLiteralReturn(std::string literal, BC bytecode);
+
+    void testIfTrueWithSomethingAndLiteralReturn();
+    void ifTrueWithSomethingAndLiteralReturn(std::string literal, BC bytecode);
 
     void testJumpQueuesOrdering();
 
