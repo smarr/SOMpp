@@ -16,7 +16,6 @@
 #include "../compiler/Parser.h"
 #include "../interpreter/bytecodes.h"
 #include "../misc/StringUtil.h"
-#include "../misc/debug.h"
 #include "../vm/Symbols.h"
 #include "../vmobjects/VMMethod.h"
 
@@ -654,6 +653,53 @@ void BytecodeGenerationTest::testIfTrueIfFalseNlrArg2() {
            BC_PUSH_ARG_2, BC_RETURN_LOCAL, BC_POP, BC_PUSH_CONSTANT_2, BC_POP,
            BC_PUSH_SELF, BC_RETURN_LOCAL});
 }
+void BytecodeGenerationTest::testInliningOfOr() {
+    inliningOfOr("or:");
+    inliningOfOr("||");
+}
+
+void BytecodeGenerationTest::inliningOfOr(std::string selector) {
+    std::string source = "test = ( true OR_SEL [ #val ] )";
+    bool wasReplaced = ReplacePattern(source, "OR_SEL", selector);
+    assert(wasReplaced);
+
+    auto bytecodes = methodToBytecode(source.data());
+    check(bytecodes,
+          {BC_PUSH_CONSTANT_0, BC(BC_JUMP_ON_TRUE_POP, 7, 0),
+           // true branch
+           BC_PUSH_CONSTANT_1,  // push the `#val`
+           BC(BC_JUMP, 4, 0),
+           // false branch, jump_on_true target, push true
+           BC_PUSH_CONSTANT_0, BC_POP,
+           // target of the jump in the true branch
+           BC_PUSH_SELF, BC_RETURN_LOCAL});
+
+    tearDown();
+}
+
+void BytecodeGenerationTest::testInliningOfAnd() {
+    inliningOfAnd("and:");
+    inliningOfAnd("&&");
+}
+
+void BytecodeGenerationTest::inliningOfAnd(std::string selector) {
+    std::string source = "test = ( true AND_SEL [ #val ] )";
+    bool wasReplaced = ReplacePattern(source, "AND_SEL", selector);
+    assert(wasReplaced);
+
+    auto bytecodes = methodToBytecode(source.data());
+    check(bytecodes,
+          {BC_PUSH_CONSTANT_0, BC(BC_JUMP_ON_FALSE_POP, 7, 0),
+           // true branch
+           BC_PUSH_CONSTANT_1,  // push the `#val`
+           BC(BC_JUMP, 4, 0),
+           // false branch, jump_on_false target, push false
+           BC_PUSH_CONSTANT_2, BC_POP,
+           // target of the jump in the true branch
+           BC_PUSH_SELF, BC_RETURN_LOCAL});
+
+    tearDown();
+}
 
 /*
  @pytest.mark.parametrize(
@@ -1265,50 +1311,7 @@ void BytecodeGenerationTest::testIfTrueIfFalseNlrArg2() {
      )
 
 
- @pytest.mark.parametrize("and_sel", ["and:", "&&"])
- def test_inlining_of_and(mgenc, and_sel):
-     bytecodes = method_to_bytecodes(
-         mgenc, "test = ( true AND_SEL [ #val ] )".replace("AND_SEL", and_sel)
-     )
 
-     assert len(bytecodes) == 11
-     check(
-         bytecodes,
-         [
-             Bytecodes.push_constant_0,
-             BC(Bytecodes.jump_on_false_pop, 7),
-             # true branch
-             BC_PUSH_CONSTANT_2,  # push the `#val`
-             BC(Bytecodes.jump, 5),
-             # false branch, jump_on_false target, push false
-             Bytecodes.push_constant,
-             # target of the jump in the true branch
-             Bytecodes.return_self,
-         ],
-     )
-
-
- @pytest.mark.parametrize("or_sel", ["or:", "||"])
- def test_inlining_of_or(mgenc, or_sel):
-     bytecodes = method_to_bytecodes(
-         mgenc, "test = ( true OR_SEL [ #val ] )".replace("OR_SEL", or_sel)
-     )
-
-     assert len(bytecodes) == 10
-     check(
-         bytecodes,
-         [
-             Bytecodes.push_constant_0,
-             BC(Bytecodes.jump_on_true_pop, 7),
-             # true branch
-             BC_PUSH_CONSTANT_2,  # push the `#val`
-             BC(Bytecodes.jump, 4),
-             # false branch, jump_on_true target, push true
-             Bytecodes.push_constant_0,
-             # target of the jump in the true branch
-             Bytecodes.return_self,
-         ],
-     )
 
 
  def test_field_read_inlining(cgenc, mgenc):

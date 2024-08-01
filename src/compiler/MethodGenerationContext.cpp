@@ -406,6 +406,39 @@ bool MethodGenerationContext::InlineWhile(Parser& parser, bool isWhileTrue) {
     return true;
 }
 
+bool MethodGenerationContext::InlineAndOr(bool isOr) {
+    // HACK: We do assume that the receiver on the stack is a boolean,
+    // HACK: similar to the IfTrueIfFalseNode.
+    // HACK: We don't support anything but booleans at the moment.
+
+    assert(Bytecode::GetBytecodeLength(BC_PUSH_BLOCK) == 2);
+    if (!hasOneLiteralBlockArgument()) {
+        return false;
+    }
+
+    VMMethod* toBeInlined =
+        static_cast<VMMethod*>(extractBlockMethodAndRemoveBytecode());
+
+    size_t jumpOffsetIdxToSkipBranch =
+        EmitJumpOnBoolWithDummyOffset(*this, !isOr, true);
+
+    isCurrentlyInliningABlock = true;
+    toBeInlined->InlineInto(*this);
+    isCurrentlyInliningABlock = false;
+
+    size_t jumpOffsetIdxToSkipPushTrue = EmitJumpWithDumyOffset(*this);
+
+    PatchJumpOffsetToPointToNextInstruction(jumpOffsetIdxToSkipBranch);
+    EmitPUSHCONSTANT(*this,
+                     isOr ? load_ptr(trueObject) : load_ptr(falseObject));
+
+    PatchJumpOffsetToPointToNextInstruction(jumpOffsetIdxToSkipPushTrue);
+
+    resetLastBytecodeBuffer();
+
+    return true;
+}
+
 void MethodGenerationContext::CompleteLexicalScope() {
     lexicalScope = new LexicalScope(
         outerGenc == nullptr ? nullptr : outerGenc->lexicalScope, arguments,

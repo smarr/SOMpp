@@ -593,9 +593,15 @@ void Parser::unaryMessage(MethodGenerationContext& mgenc, bool super) {
 }
 
 void Parser::binaryMessage(MethodGenerationContext& mgenc, bool super) {
+    std::string msgSelector(text);
     VMSymbol* msg = binarySelector();
 
     binaryOperand(mgenc);
+
+    if (!super && (msgSelector == "||" && mgenc.InlineAndOr(true)) ||
+        (msgSelector == "&&" && mgenc.InlineAndOr(false))) {
+        return;
+    }
 
     if (super) {
         EmitSUPERSEND(mgenc, msg);
@@ -631,7 +637,9 @@ void Parser::keywordMessage(MethodGenerationContext& mgenc, bool super) {
             ((kw == "ifTrue:" && mgenc.InlineIfTrueOrIfFalse(true)) ||
              (kw == "ifFalse:" && mgenc.InlineIfTrueOrIfFalse(false)) ||
              (kw == "whileTrue:" && mgenc.InlineWhile(*this, true)) ||
-             (kw == "whileFalse:" && mgenc.InlineWhile(*this, false)))) {
+             (kw == "whileFalse:" && mgenc.InlineWhile(*this, false)) ||
+             (kw == "or:" && mgenc.InlineAndOr(true)) ||
+             (kw == "and:" && mgenc.InlineAndOr(false)))) {
             return;
         }
 
