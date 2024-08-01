@@ -367,12 +367,11 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
                 break;
             }
             case BC_RETURN_NON_LOCAL: {
-                const uint8_t newCtxLevel = bytecodes[i + 1] - 1;
-                if (newCtxLevel == 0) {
-                    EmitRETURNLOCAL(mgenc);
-                } else {
-                    assert(newCtxLevel == mgenc.GetMaxContextLevel());
+                if (mgenc.IsBlockMethod()) {
+                    assert(mgenc.GetMaxContextLevel() > 0);
                     EmitRETURNNONLOCAL(mgenc);
+                } else {
+                    EmitRETURNLOCAL(mgenc);
                 }
                 break;
             }
