@@ -628,7 +628,9 @@ void Parser::keywordMessage(MethodGenerationContext& mgenc, bool super) {
 
     if (!super) {
         if (numParts == 1 &&
-            ((kw == "whileTrue:" && mgenc.InlineWhile(*this, true)) ||
+            ((kw == "ifTrue:" && mgenc.InlineIfTrueOrIfFalse(true)) ||
+             (kw == "ifFalse:" && mgenc.InlineIfTrueOrIfFalse(false)) ||
+             (kw == "whileTrue:" && mgenc.InlineWhile(*this, true)) ||
              (kw == "whileFalse:" && mgenc.InlineWhile(*this, false)))) {
             return;
         }

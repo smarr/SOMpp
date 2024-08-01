@@ -259,6 +259,10 @@ void MethodGenerationContext::removeLastBytecodes(size_t numBytecodes) {
     bytecode.erase(bytecode.end() - bytesToRemove, bytecode.end());
 }
 
+bool MethodGenerationContext::hasOneLiteralBlockArgument() {
+    return lastBytecodeIs(0, BC_PUSH_BLOCK);
+}
+
 bool MethodGenerationContext::hasTwoLiteralBlockArguments() {
     if (!lastBytecodeIs(0, BC_PUSH_BLOCK)) {
         return false;
@@ -280,6 +284,16 @@ vm_oop_t MethodGenerationContext::getLastBlockMethodAndFreeLiteral(
     return block;
 }
 
+vm_oop_t MethodGenerationContext::extractBlockMethodAndRemoveBytecode() {
+    uint8_t blockLitIdx = bytecode.at(bytecode.size() - 1);
+
+    vm_oop_t toBeInlined = getLastBlockMethodAndFreeLiteral(blockLitIdx);
+
+    removeLastBytecodes(1);
+
+    return toBeInlined;
+}
+
 std::tuple<vm_oop_t, vm_oop_t>
 MethodGenerationContext::extractBlockMethodsAndRemoveBytecodes() {
     uint8_t block1LitIdx = bytecode.at(bytecode.size() - 3);
@@ -292,6 +306,33 @@ MethodGenerationContext::extractBlockMethodsAndRemoveBytecodes() {
     removeLastBytecodes(2);
 
     return {toBeInlined1, toBeInlined2};
+}
+
+bool MethodGenerationContext::InlineIfTrueOrIfFalse(bool isIfTrue) {
+    // HACK: We do assume that the receiver on the stack is a boolean,
+    // HACK: similar to the IfTrueIfFalseNode.
+    // HACK: We don't support anything but booleans at the moment.
+    assert(Bytecode::GetBytecodeLength(BC_PUSH_BLOCK) == 2);
+    if (!hasOneLiteralBlockArgument()) {
+        return false;
+    }
+
+    VMMethod* toBeInlined =
+        static_cast<VMMethod*>(extractBlockMethodAndRemoveBytecode());
+
+    size_t jumpOffsetIdxToSkipBody =
+        EmitJumpOnBoolWithDummyOffset(*this, isIfTrue, false);
+
+    isCurrentlyInliningABlock = true;
+
+    toBeInlined->InlineInto(*this);
+    PatchJumpOffsetToPointToNextInstruction(jumpOffsetIdxToSkipBody);
+
+    // with the jumping, it's best to prevent any subsequent optimizations here
+    // otherwise we may not have the correct jump target
+    resetLastBytecodeBuffer();
+
+    return true;
 }
 
 bool MethodGenerationContext::InlineWhile(Parser& parser, bool isWhileTrue) {
