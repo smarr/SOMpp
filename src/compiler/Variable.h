@@ -14,7 +14,7 @@ public:
         assert(index != 0xff);
     }
 
-    Variable() : name(nullptr), index(0xff) {}
+    Variable() : name({}), index(0xff) {}
 
     Variable(const Variable* old, size_t newIndex, bool isArgument)
         : name(old->name), index(newIndex), isArgument(isArgument),

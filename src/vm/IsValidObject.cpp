@@ -14,6 +14,7 @@
 #include "../vmobjects/VMFrame.h"
 #include "../vmobjects/VMInteger.h"
 #include "../vmobjects/VMMethod.h"
+#include "../vmobjects/VMObjectBase.h"  // NOLINT(misc-include-cleaner) needed for some GCs
 #include "../vmobjects/VMString.h"
 #include "../vmobjects/VMSymbol.h"
 #include "Globals.h"

@@ -4,7 +4,9 @@
 
   #include <cppunit/TestAssert.h>
   #include <utility>
+  #include <vector>
 
+  #include "../compiler/LexicalScope.h"
   #include "../memory/Heap.h"
   #include "../vm/Globals.h"
   #include "../vm/Symbols.h"

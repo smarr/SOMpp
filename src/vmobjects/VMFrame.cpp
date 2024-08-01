@@ -40,7 +40,7 @@
 #include "VMClass.h"
 #include "VMMethod.h"
 #include "VMObject.h"
-#include "VMObjectBase.h"
+#include "VMObjectBase.h"  // NOLINT(misc-include-cleaner) needed for some GCs
 #include "VMSymbol.h"
 
 // when doesNotUnderstand or UnknownGlobal is sent, additional stack slots might
