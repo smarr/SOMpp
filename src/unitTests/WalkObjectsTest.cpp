@@ -147,7 +147,10 @@ void WalkObjectsTest::testWalkPrimitive() {
 void WalkObjectsTest::testWalkFrame() {
     walkedObjects.clear();
     VMSymbol* methodSymbol = NewSymbol("frameMethod");
-    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0, new LexicalScope(nullptr, {}, {}));
+
+    vector<BackJump> inlinedLoops;
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0, new LexicalScope(nullptr, {}, {}), inlinedLoops);
+
     VMFrame* frame = GetUniverse()->NewFrame(nullptr, method);
     frame->SetPreviousFrame(frame->CloneForMovingGC());
     frame->SetContext(frame->CloneForMovingGC());
@@ -195,7 +198,10 @@ void WalkObjectsTest::testWalkMethod() {
 
 
     VMSymbol* methodSymbol = NewSymbol("myMethod");
-    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0, scope);
+
+    vector<BackJump> inlinedLoops;
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0, scope, inlinedLoops);
+
     method->SetHolder(load_ptr(symbolClass));
     method->WalkObjects(collectMembers);
 
@@ -210,7 +216,10 @@ void WalkObjectsTest::testWalkMethod() {
 void WalkObjectsTest::testWalkBlock() {
     walkedObjects.clear();
     VMSymbol* methodSymbol = NewSymbol("someMethod");
-    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0, new LexicalScope(nullptr, {}, {}));
+
+    vector<BackJump> inlinedLoops;
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0, new LexicalScope(nullptr, {}, {}), inlinedLoops);
+
     VMBlock* block = GetUniverse()->NewBlock(method,
             GetUniverse()->GetInterpreter()->GetFrame(),
             method->GetNumberOfArguments());

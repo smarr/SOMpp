@@ -67,7 +67,10 @@ void WriteBarrierTest::testWriteBlock() {
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
 
     VMSymbol* methodSymbol = NewSymbol("someMethod");
-    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0, new LexicalScope(nullptr, {}, {}));
+
+    vector<BackJump> inlinedLoops;
+    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0, new LexicalScope(nullptr, {}, {}), inlinedLoops);
+
     VMBlock* block = GetUniverse()->NewBlock(method,
             GetUniverse()->GetInterpreter()->GetFrame(),
             method->GetNumberOfArguments());

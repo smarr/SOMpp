@@ -26,6 +26,8 @@
  THE SOFTWARE.
  */
 
+#include <cassert>
+
 #include "../misc/defs.h"
 
 // bytecode constants used by SOM++
@@ -65,11 +67,43 @@
 #define BC_SUPER_SEND        32
 #define BC_RETURN_LOCAL      33
 #define BC_RETURN_NON_LOCAL  34
-#define BC_JUMP_IF_FALSE     35
-#define BC_JUMP_IF_TRUE      36
-#define BC_JUMP              37
+#define BC_JUMP                   35
+#define BC_JUMP_ON_FALSE_POP      36
+#define BC_JUMP_ON_TRUE_POP       37
+#define BC_JUMP_ON_FALSE_TOP_NIL  38
+#define BC_JUMP_ON_TRUE_TOP_NIL   39
+#define BC_JUMP_BACKWARD          40
+#define BC_JUMP2                  41
+#define BC_JUMP2_ON_FALSE_POP     42
+#define BC_JUMP2_ON_TRUE_POP      43
+#define BC_JUMP2_ON_FALSE_TOP_NIL 44
+#define BC_JUMP2_ON_TRUE_TOP_NIL  45
+#define BC_JUMP2_BACKWARD         46
 
-// bytecode lengths
+#define _LAST_BYTECODE BC_JUMP2_BACKWARD
+
+#define BC_INVALID           255
+
+// TODO: port support for these bytecodes
+//       they were already named in ported code, and it seemed nicer to just already include that code
+#define BC_INC_FIELD         254
+#define BC_INC_FIELD_PUSH    253
+#define BC_INC               252
+#define BC_DEC               251
+#define BC_SEND_N            250
+#define BC_SEND_3            249
+#define BC_SEND_2            248
+#define BC_SEND_1            247
+#define BC_RETURN_FIELD_0    246
+#define BC_RETURN_FIELD_1    245
+#define BC_RETURN_FIELD_2    244
+#define BC_RETURN_SELF       243
+
+
+// properties of the bytecodes
+
+#define FIRST_DOUBLE_BYTE_JUMP_BYTECODE         BC_JUMP2
+#define NUM_SINGLE_BYTE_JUMP_BYTECODES          ((BC_JUMP_BACKWARD - BC_JUMP) + 1)
 
 class Bytecode {
 
@@ -82,9 +116,18 @@ public:
         return bytecodeLengths[bc]; // Return the length of the given bytecode
     }
 
+    static bool BytecodeDefinitionsAreConsistent();
+
 private:
 
     static const uint8_t bytecodeLengths[];
 
     static const char* bytecodeNames[];
 };
+
+inline uint16_t ComputeOffset(uint8_t byte1, uint8_t byte2) {
+    return ((uint16_t) byte1) | (((uint16_t) byte2) << 8);
+}
+
+bool IsJumpBytecode(uint8_t bc);
+

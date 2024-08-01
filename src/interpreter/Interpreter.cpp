@@ -29,9 +29,9 @@
 #include <string>
 
 #include "../compiler/Disassembler.h"
+#include "../interpreter/bytecodes.h" // NOLINT(misc-include-cleaner) it's required for InterpreterLoop.h
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
-#include "../vm/Globals.h"
 #include "../vm/IsValidObject.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/IntegerBox.h"
@@ -159,7 +159,7 @@ void Interpreter::triggerDoesNotUnderstand(VMSymbol* signature) {
         argumentsArray->SetIndexableField(i, o);
     }
     vm_oop_t arguments[] = {signature, argumentsArray};
-    
+
     GetFrame()->Pop(); // pop the receiver
 
     //check if current frame is big enough for this unplanned Send
@@ -302,13 +302,13 @@ void Interpreter::doSend(long bytecodeIndex) {
     int numOfArgs = Signature::GetNumberOfArguments(signature);
 
     vm_oop_t receiver = GetFrame()->GetStackElement(numOfArgs-1);
-    
+
     assert(IsValidObject(receiver));
     // make sure it is really a class
     assert(dynamic_cast<VMClass*>(CLASS_OF(receiver)) != nullptr);
-    
+
     VMClass* receiverClass = CLASS_OF(receiver);
-    
+
     assert(IsValidObject(receiverClass));
 
 #ifdef LOG_RECEIVER_TYPES
@@ -363,7 +363,7 @@ void Interpreter::doReturnNonLocal() {
         vm_oop_t arguments[] = {block};
 
         popFrame();
-        
+
         // Pop old arguments from stack
         VMMethod* method = GetFrame()->GetMethod();
         long numberOfArgs = method->GetNumberOfArguments();
@@ -388,32 +388,9 @@ void Interpreter::doReturnNonLocal() {
     popFrameAndPushResult(result);
 }
 
-void Interpreter::doJumpIfFalse(long bytecodeIndex) {
-    vm_oop_t value = GetFrame()->Pop();
-    if (value == load_ptr(falseObject))
-        doJump(bytecodeIndex);
-}
-
-void Interpreter::doJumpIfTrue(long bytecodeIndex) {
-    vm_oop_t value = GetFrame()->Pop();
-    if (value == load_ptr(trueObject))
-        doJump(bytecodeIndex);
-}
-
-void Interpreter::doJump(long bytecodeIndex) {
-    long target = 0;
-    target |= method->GetBytecode(bytecodeIndex + 1);
-    target |= method->GetBytecode(bytecodeIndex + 2) << 8;
-    target |= method->GetBytecode(bytecodeIndex + 3) << 16;
-    target |= method->GetBytecode(bytecodeIndex + 4) << 24;
-
-    // do the jump
-    bytecodeIndexGlobal = target;
-}
-
 void Interpreter::WalkGlobals(walk_heap_fn walk) {
     method = load_ptr(static_cast<GCMethod*>(walk(tmp_ptr(method))));
-    
+
     // Get the current frame and mark it.
     // Since marking is done recursively, this automatically
     // marks the whole stack

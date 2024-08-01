@@ -1,7 +1,9 @@
+#include <cassert>
 #include <cppunit/TestAssert.h>
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
+#include <queue>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -12,7 +14,10 @@
 #include "../compiler/MethodGenerationContext.h"
 #include "../compiler/Parser.h"
 #include "../interpreter/bytecodes.h"
+#include "../misc/StringUtil.h"
+#include "../misc/debug.h"
 #include "../vm/Symbols.h"
+#include "../vmobjects/VMMethod.h"
 #include "BytecodeGenerationTest.h"
 
 void BytecodeGenerationTest::dump(MethodGenerationContext* mgenc) {
@@ -504,6 +509,129 @@ void BytecodeGenerationTest::check(std::vector<uint8_t> actual, std::vector<uint
                                  expected.size(), actual.size());
 }
 
+
+
+void BytecodeGenerationTest::testWhileInlining(const char* selector, uint8_t jumpBytecode) {
+    std::string source = R"""(   test: arg = (
+                                      #start.
+                                      [ true ] SELECTOR [ arg ].
+                                      #end
+                                  ) )""";
+    bool wasReplaced = ReplacePattern(source, "SELECTOR", selector);
+    assert(wasReplaced);
+
+    auto bytecodes = methodToBytecode(source.data());
+    check(bytecodes, {
+        BC_PUSH_CONSTANT_0, BC_POP,
+        BC_PUSH_CONSTANT_1,
+        jumpBytecode, 8, 0,
+        BC_PUSH_ARG_1,
+        BC_POP,
+        BC_JUMP_BACKWARD, 6, 0,
+        BC_PUSH_NIL,
+        BC_POP,
+        BC_PUSH_CONSTANT_2,
+        BC_POP,
+        BC_PUSH_SELF,
+        BC_RETURN_LOCAL
+    });
+}
+
+/** This test checks whether the jumps in the while loop are correct after it got inlined. */
+void BytecodeGenerationTest::testInliningWhileLoopsWithExpandingBranches() {
+    DebugPrint("\nTODO: testInliningWhileLoopsWithExpandingBranches is currently ignored, because we do not yet support inlining if #ifTrue:\n");
+    return;
+
+    auto bytecodes = methodToBytecode(R"""(
+        test = (
+          #const0. #const1. #const2.
+          0 ifTrue: [
+            [ #const3. #const4. #const5 ]
+               whileTrue: [
+                 #const6. #const7. #const8 ]
+          ].
+          ^ #end
+        )  )""");
+
+    check(bytecodes, {
+        BC_PUSH_CONSTANT_0, BC_POP,
+        BC_PUSH_CONSTANT_1, BC_POP,
+        BC_PUSH_CONSTANT_2, BC_POP,
+        BC_PUSH_0,
+
+        // jump offset, to jump to the pop BC after the if/right before the push #end
+        BC_JUMP_ON_FALSE_TOP_NIL, 27, 0,
+        BC_PUSH_CONSTANT, 3, BC_POP,
+        BC_PUSH_CONSTANT, 4, BC_POP,
+        BC_PUSH_CONSTANT, 5, BC_POP,
+
+        // jump offset, jump to push_nil as result of whileTrue
+        BC_JUMP_ON_FALSE_POP, 15,
+        BC_PUSH_CONSTANT, 6, BC_POP,
+        BC_PUSH_CONSTANT, 7, BC_POP,
+        BC_PUSH_CONSTANT, 8, BC_POP,
+
+        // jump offset, jump back to the first PUSH_CONST inside if body, pushing #const3
+        BC_PUSH_NIL,
+        BC_POP,
+
+        BC_PUSH_CONSTANT, 9,
+        BC_RETURN_LOCAL
+    });
+}
+
+void BytecodeGenerationTest::testInliningWhileLoopsWithContractingBranches() {
+    DebugPrint("\nTODO: testInliningWhileLoopsWithContractingBranches is currently ignored, because we do not yet support inlining if #ifTrue:\n");
+
+    //def test_inlining_while_loop_with_contracting_branches(mgenc):
+    //    """
+    //    This test checks whether the jumps in the while loop are correct after it got inlined.
+    //    The challenge here is
+    //    """
+    //    bytecodes = method_to_bytecodes(
+    //        mgenc,
+    //        """
+    //        test = (
+    //          0 ifTrue: [
+    //            [ ^ 1 ]
+    //               whileTrue: [
+    //                 ^ 0 ]
+    //          ].
+    //          ^ #end
+    //        )
+    //        """,
+    //    )
+    //
+    //    assert len(bytecodes) == 19
+    //    check(
+    //        bytecodes,
+    //        [
+    //            Bytecodes.push_0,
+    //            BC(
+    //                Bytecodes.jump_on_false_top_nil,
+    //                15,
+    //                note="jump offset to jump to the pop after the if, before pushing #end",
+    //            ),
+    //            Bytecodes.push_1,
+    //            Bytecodes.return_local,
+    //            BC(
+    //                Bytecodes.jump_on_false_pop,
+    //                9,
+    //                note="jump offset, jump to push_nil as result of whileTrue",
+    //            ),
+    //            Bytecodes.push_0,
+    //            Bytecodes.return_local,
+    //            Bytecodes.pop,
+    //            BC(
+    //                Bytecodes.jump_backward,
+    //                8,
+    //                note="jump offset, to the push_1 of the condition",
+    //            ),
+    //            Bytecodes.push_nil,
+    //            Bytecodes.pop,
+    //        ],
+    //    )
+};
 
 
 /*
@@ -1144,153 +1272,6 @@ void BytecodeGenerationTest::check(std::vector<uint8_t> actual, std::vector<uint
      )
 
 
- @pytest.mark.parametrize(
-     "selector,jump_bytecode",
-     [
-         ("whileTrue:", Bytecodes.jump_on_false_pop),
-         ("whileFalse:", Bytecodes.jump_on_true_pop),
-     ],
- )
- def test_while_inlining(mgenc, selector, jump_bytecode):
-     bytecodes = method_to_bytecodes(
-         mgenc,
-         """
-         test: arg = (
-             #start.
-             [ true ] SELECTOR [ arg ].
-             #end
-         )""".replace(
-             "SELECTOR", selector
-         ),
-     )
-
-     assert len(bytecodes) == 19
-     check(
-         bytecodes,
-         [
-             (2, Bytecodes.push_constant),
-             jump_bytecode,
-             Bytecodes.push_argument,
-             Bytecodes.pop,
-             BC(Bytecodes.jump_backward, 9),
-             Bytecodes.push_nil,
-             Bytecodes.pop,
-         ],
-     )
-
-
- def test_inlining_while_loop_with_expanding_branches(mgenc):
-     """
-     This test checks whether the jumps in the while loop are correct after it got inlined.
-     The challenge here is
-     """
-     bytecodes = method_to_bytecodes(
-         mgenc,
-         """
-         test = (
-           #const0. #const1. #const2.
-           0 ifTrue: [
-             [ #const3. #const4. #const5 ]
-                whileTrue: [
-                  #const6. #const7. #const8 ]
-           ].
-           ^ #end
-         )
-         """,
-     )
-
-     assert len(bytecodes) == 38
-     check(
-         bytecodes,
-         [
-             Bytecodes.push_constant_0,
-             Bytecodes.pop,
-             Bytecodes.push_constant_1,
-             Bytecodes.pop,
-             Bytecodes.push_constant_2,
-             Bytecodes.pop,
-             Bytecodes.push_0,
-             BC(
-                 Bytecodes.jump_on_false_top_nil,
-                 27,
-                 note="jump offset, to jump to the pop BC after the if/right before the push #end",
-             ),
-             Bytecodes.push_constant,
-             Bytecodes.pop,
-             Bytecodes.push_constant,
-             Bytecodes.pop,
-             Bytecodes.push_constant,
-             BC(
-                 Bytecodes.jump_on_false_pop,
-                 15,
-                 note="jump offset, jump to push_nil as result of whileTrue",
-             ),
-             Bytecodes.push_constant,
-             Bytecodes.pop,
-             Bytecodes.push_constant,
-             Bytecodes.pop,
-             Bytecodes.push_constant,
-             Bytecodes.pop,
-             BC(
-                 Bytecodes.jump_backward,
-                 20,
-                 note="jump offset, jump back to the first push constant "
-                 + "in the condition, pushing const3",
-             ),
-             Bytecodes.push_nil,
-             Bytecodes.pop,
-         ],
-     )
-
-
- def test_inlining_while_loop_with_contracting_branches(mgenc):
-     """
-     This test checks whether the jumps in the while loop are correct after it got inlined.
-     The challenge here is
-     """
-     bytecodes = method_to_bytecodes(
-         mgenc,
-         """
-         test = (
-           0 ifTrue: [
-             [ ^ 1 ]
-                whileTrue: [
-                  ^ 0 ]
-           ].
-           ^ #end
-         )
-         """,
-     )
-
-     assert len(bytecodes) == 19
-     check(
-         bytecodes,
-         [
-             Bytecodes.push_0,
-             BC(
-                 Bytecodes.jump_on_false_top_nil,
-                 15,
-                 note="jump offset to jump to the pop after the if, before pushing #end",
-             ),
-             Bytecodes.push_1,
-             Bytecodes.return_local,
-             BC(
-                 Bytecodes.jump_on_false_pop,
-                 9,
-                 note="jump offset, jump to push_nil as result of whileTrue",
-             ),
-             Bytecodes.push_0,
-             Bytecodes.return_local,
-             Bytecodes.pop,
-             BC(
-                 Bytecodes.jump_backward,
-                 8,
-                 note="jump offset, to the push_1 of the condition",
-             ),
-             Bytecodes.push_nil,
-             Bytecodes.pop,
-         ],
-     )
 
 
  @pytest.mark.parametrize(
@@ -1526,3 +1507,38 @@ void BytecodeGenerationTest::check(std::vector<uint8_t> actual, std::vector<uint
 
 
  */
+
+void BytecodeGenerationTest::testJumpQueuesOrdering() {
+    std::priority_queue<Jump> jumps;
+
+    jumps.emplace(Jump(1, BC_JUMP, 0));
+    jumps.emplace(Jump(5, BC_JUMP, 0));
+    jumps.emplace(Jump(8, BC_JUMP, 0));
+    jumps.emplace(Jump(2, BC_JUMP, 0));
+
+    CPPUNIT_ASSERT_EQUAL((size_t) 1, jumps.top().originalJumpTargetIdx); jumps.pop();
+    CPPUNIT_ASSERT_EQUAL((size_t) 2, jumps.top().originalJumpTargetIdx); jumps.pop();
+    CPPUNIT_ASSERT_EQUAL((size_t) 5, jumps.top().originalJumpTargetIdx); jumps.pop();
+    CPPUNIT_ASSERT_EQUAL((size_t) 8, jumps.top().originalJumpTargetIdx); jumps.pop();
+
+
+    std::priority_queue<BackJump> backJumps;
+    backJumps.emplace(BackJump(13, 9));
+    backJumps.emplace(BackJump(3, 12));
+    backJumps.emplace(BackJump(54, 54));
+
+    CPPUNIT_ASSERT_EQUAL((size_t) 3, backJumps.top().loopBeginIdx); backJumps.pop();
+    CPPUNIT_ASSERT_EQUAL((size_t) 13, backJumps.top().loopBeginIdx); backJumps.pop();
+    CPPUNIT_ASSERT_EQUAL((size_t) 54, backJumps.top().loopBeginIdx); backJumps.pop();
+
+    std::priority_queue<BackJumpPatch> backJumpsToPatch;
+    backJumpsToPatch.emplace(BackJumpPatch(3, 2));
+    backJumpsToPatch.emplace(BackJumpPatch(32, 44));
+    backJumpsToPatch.emplace(BackJumpPatch(12, 55));
+
+
+    CPPUNIT_ASSERT_EQUAL((size_t) 3, backJumpsToPatch.top().backwardsJumpIdx); backJumpsToPatch.pop();
+    CPPUNIT_ASSERT_EQUAL((size_t) 12, backJumpsToPatch.top().backwardsJumpIdx); backJumpsToPatch.pop();
+    CPPUNIT_ASSERT_EQUAL((size_t) 32, backJumpsToPatch.top().backwardsJumpIdx); backJumpsToPatch.pop();
+
+}

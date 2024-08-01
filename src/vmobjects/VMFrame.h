@@ -59,6 +59,19 @@ public:
         return result;
     }
 
+    inline void PopVoid() {
+        stack_ptr--;
+    }
+
+    inline vm_oop_t Top() {
+        vm_oop_t result = load_ptr(*stack_ptr);
+        return result;
+    }
+
+    inline void SetTop(gc_oop_t val) {
+        *stack_ptr = val;
+    }
+
     inline void Push(vm_oop_t obj) {
         assert(RemainingStackSize() > 0);
         ++stack_ptr;

@@ -28,15 +28,20 @@
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
 #include <string>
+#include <tuple>
 #include <vector>
 
+#include "../interpreter/bytecodes.h"
 #include "../misc/VectorUtil.h"
+#include "../vm/Globals.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMMethod.h"
 #include "../vmobjects/VMPrimitive.h"
 #include "../vmobjects/VMSymbol.h"
+#include "BytecodeGenerator.h"
 #include "ClassGenerationContext.h"
 #include "LexicalScope.h"
 #include "MethodGenerationContext.h"
@@ -46,14 +51,17 @@
 MethodGenerationContext::MethodGenerationContext(ClassGenerationContext& holder, MethodGenerationContext* outer) :
         holderGenc(holder), outerGenc(outer),
         blockMethod(outer != nullptr), signature(nullptr), primitive(false), finished(false),
-        currentStackDepth(0), maxStackDepth(0), maxContextLevel(outer == nullptr ? 0 : outer->GetMaxContextLevel() + 1) { }
+        currentStackDepth(0), maxStackDepth(0), maxContextLevel(outer == nullptr ? 0 : outer->GetMaxContextLevel() + 1) {
+            last4Bytecodes = {BC_INVALID, BC_INVALID, BC_INVALID, BC_INVALID};
+            isCurrentlyInliningABlock = false;
+}
 
 VMMethod* MethodGenerationContext::Assemble() {
     // create a method instance with the given number of bytecodes and literals
     size_t numLiterals = literals.size();
     size_t numLocals = locals.size();
     VMMethod* meth = GetUniverse()->NewMethod(signature, bytecode.size(),
-            numLiterals, numLocals, maxStackDepth, lexicalScope);
+            numLiterals, numLocals, maxStackDepth, lexicalScope, inlinedLoops);
 
     // copy literals into the method
     for (size_t i = 0; i < numLiterals; i++) {
@@ -206,13 +214,203 @@ void MethodGenerationContext::AddBytecode(uint8_t bc, size_t stackEffect) {
     maxStackDepth = max(maxStackDepth, currentStackDepth);
 
     bytecode.push_back(bc);
+
+    last4Bytecodes[0] = last4Bytecodes[1];
+    last4Bytecodes[1] = last4Bytecodes[2];
+    last4Bytecodes[2] = last4Bytecodes[3];
+    last4Bytecodes[3] = bc;
 }
 
 void MethodGenerationContext::AddBytecodeArgument(uint8_t bc) {
     bytecode.push_back(bc);
 }
 
+size_t MethodGenerationContext::AddBytecodeArgumentAndGetIndex(uint8_t bc) {
+    size_t index = bytecode.size();
+    AddBytecodeArgument(bc);
+    return index;
+}
+
+bool MethodGenerationContext::lastBytecodeIs(size_t indexFromEnd, uint8_t bytecode) {
+    assert(indexFromEnd >= 0 && indexFromEnd < 4);
+    uint8_t actual = last4Bytecodes[3 - indexFromEnd];
+    return actual == bytecode;
+}
+
+void MethodGenerationContext::removeLastBytecodes(size_t numBytecodes) {
+    assert(numBytecodes > 0 && numBytecodes <= 4);
+    size_t bytesToRemove = 0;
+
+    for (size_t idxFromEnd = 0; idxFromEnd < numBytecodes; idxFromEnd += 1) {
+        bytesToRemove += Bytecode::GetBytecodeLength(last4Bytecodes[3 - idxFromEnd]);
+    }
+
+    bytecode.erase(bytecode.end() - bytesToRemove, bytecode.end());
+}
+
+bool MethodGenerationContext::hasTwoLiteralBlockArguments() {
+    if (!lastBytecodeIs(0, BC_PUSH_BLOCK)) {
+        return false;
+    }
+
+    return lastBytecodeIs(1, BC_PUSH_BLOCK);
+}
+
+/**
+ * This works only, because we have a simple forward-pass parser,
+ * and inlining, where this is used, happens right after the block was added.
+ * This also means, we need to remove blocks in reverse order.
+ */
+vm_oop_t MethodGenerationContext::getLastBlockMethodAndFreeLiteral(uint8_t blockLiteralIdx) {
+    assert(blockLiteralIdx == literals.size() - 1);
+    vm_oop_t block = literals.back();
+    literals.pop_back();
+    return block;
+}
+
+std::tuple<vm_oop_t, vm_oop_t> MethodGenerationContext::extractBlockMethodsAndRemoveBytecodes() {
+    uint8_t block1LitIdx = bytecode.at(bytecode.size() - 3);
+    uint8_t block2LitIdx = bytecode.at(bytecode.size() - 1);
+
+    // grab the blocks' methods for inlining
+    vm_oop_t toBeInlined2 = getLastBlockMethodAndFreeLiteral(block2LitIdx);
+    vm_oop_t toBeInlined1 = getLastBlockMethodAndFreeLiteral(block1LitIdx);
+    
+    removeLastBytecodes(2);
+
+    return {toBeInlined1, toBeInlined2};
+}
+
+bool MethodGenerationContext::InlineWhile(Parser& parser, bool isWhileTrue) {
+    if (!hasTwoLiteralBlockArguments()) {
+        return false;
+    }
+
+    assert(Bytecode::GetBytecodeLength(BC_PUSH_BLOCK) == 2);
+
+    std::tuple<vm_oop_t, vm_oop_t> methods = extractBlockMethodsAndRemoveBytecodes();
+    VMMethod* condMethod = static_cast<VMMethod*>(std::get<0>(methods));
+    VMMethod* bodyMethod = static_cast<VMMethod*>(std::get<1>(methods));
+
+    size_t loopBeginIdx = OffsetOfNextInstruction();
+
+    isCurrentlyInliningABlock = true;
+    condMethod->InlineInto(*this);
+
+    size_t jumpOffsetIdxToSkipLoopBody = EmitJumpOnBoolWithDummyOffset(*this, isWhileTrue, true);
+
+    bodyMethod->InlineInto(*this);
+
+    completeJumpsAndEmitReturningNil(parser, loopBeginIdx, jumpOffsetIdxToSkipLoopBody);
+
+    isCurrentlyInliningABlock = false;
+
+    return true;
+}
+
 void MethodGenerationContext::CompleteLexicalScope() {
     lexicalScope = new LexicalScope(outerGenc == nullptr ? nullptr : outerGenc->lexicalScope,
                                     arguments, locals);
+}
+
+void MethodGenerationContext::MergeIntoScope(LexicalScope& scopeToBeInlined) {
+    assert(scopeToBeInlined.GetNumberOfArguments() == 1);
+    size_t numLocals = scopeToBeInlined.GetNumberOfLocals();
+    if (numLocals > 0) {
+        inlineLocals(scopeToBeInlined);
+    }
+}
+
+void MethodGenerationContext::inlineLocals(LexicalScope& scopeToBeInlined) {
+    for (const Variable& local : scopeToBeInlined.locals) {
+        Variable freshCopy = local.CopyForInlining(this->locals.size());
+        if (freshCopy.IsValid()) {
+            // freshCopy can be invalid, because we don't need the $blockSelf
+            std::string qualifiedName = local.MakeQualifiedName();
+            assert(!Contains(this->locals, qualifiedName));
+            lexicalScope->AddInlinedLocal(freshCopy);
+            this->locals.push_back(freshCopy);
+        }
+    }
+}
+
+uint8_t MethodGenerationContext::GetInlinedLocalIdx(const Variable* var) const {
+    assert(locals.size() < UINT8_MAX);
+    uint8_t index = locals.size();
+
+    while (index > 0) {
+        index -= 1;
+        if (locals[index].IsSame(*var)) {
+            return index;
+        }
+    }
+
+    char msg[200];
+    std::string qualifiedName = var->MakeQualifiedName();
+    snprintf(msg, 200, "Unexpected issue trying to find an inlined variable. %s could not be found.", qualifiedName.data());
+    Universe::ErrorExit(msg);
+}
+
+void MethodGenerationContext::checkJumpOffset(size_t jumpOffset, uint8_t bytecode) {
+    if (jumpOffset < 0 || jumpOffset > 0xFFFF) {
+        char msg[100];
+        snprintf(msg, 100, "The jumpOffset for the %s bytecode is out of range: %zu\n", Bytecode::GetBytecodeName(bytecode), jumpOffset);
+        Universe::ErrorExit(msg);
+    }
+}
+
+void MethodGenerationContext::EmitBackwardsJumpOffsetToTarget(size_t loopBeginIdx) {
+    size_t addressOfJump = OffsetOfNextInstruction();
+
+    // we are going to jump backward and want a positive value
+    // thus we subtract target_address from address_of_jump
+    size_t jumpOffset = addressOfJump - loopBeginIdx;
+
+    checkJumpOffset(jumpOffset, BC_JUMP_BACKWARD);
+
+    size_t backwardJumpIdx = OffsetOfNextInstruction();
+
+    EmitJumpBackwardWithOffset(*this, jumpOffset);
+    inlinedLoops.push_back(BackJump(loopBeginIdx, backwardJumpIdx));
+}
+
+void MethodGenerationContext::completeJumpsAndEmitReturningNil(Parser& parser, size_t loopBeginIdx, size_t jumpOffsetIdxToSkipLoopBody) {
+    resetLastBytecodeBuffer();
+    EmitPOP(*this);
+
+    EmitBackwardsJumpOffsetToTarget(loopBeginIdx);
+
+    PatchJumpOffsetToPointToNextInstruction(jumpOffsetIdxToSkipLoopBody);
+    EmitPUSHCONSTANT(*this, load_ptr(nilObject));
+    resetLastBytecodeBuffer();
+}
+
+void MethodGenerationContext::PatchJumpOffsetToPointToNextInstruction(size_t indexOfOffset) {
+    size_t instructionStart = indexOfOffset - 1;
+    uint8_t bytecode = this->bytecode[instructionStart];
+    assert(IsJumpBytecode(bytecode));
+
+    size_t jumpOffset = OffsetOfNextInstruction() - instructionStart;
+    checkJumpOffset(jumpOffset, bytecode);
+
+    if (jumpOffset <= 0xFF) {
+        this->bytecode[indexOfOffset] = jumpOffset;
+        this->bytecode[indexOfOffset + 1] = 0;
+    } else {
+        // need to use the JUMP2* version of the bytecode
+        if (bytecode < FIRST_DOUBLE_BYTE_JUMP_BYTECODE) {
+            // still need to bump this one up to
+            this->bytecode[instructionStart] += NUM_SINGLE_BYTE_JUMP_BYTECODES;
+        }
+        assert(IsJumpBytecode(this->bytecode[instructionStart]));
+        this->bytecode[indexOfOffset] = jumpOffset & 0xFF;
+        this->bytecode[indexOfOffset + 1] = jumpOffset >> 8;
+    }
+}
+
+void MethodGenerationContext::resetLastBytecodeBuffer() {
+    last4Bytecodes[0] = BC_INVALID;
+    last4Bytecodes[1] = BC_INVALID;
+    last4Bytecodes[2] = BC_INVALID;
+    last4Bytecodes[3] = BC_INVALID;
 }

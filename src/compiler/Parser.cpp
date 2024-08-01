@@ -35,6 +35,7 @@
 #include <vector>
 
 #include "../misc/ParseInteger.h"
+#include "../misc/StringUtil.h"
 #include "../misc/defs.h"
 #include "../vm/Globals.h"
 #include "../vm/Print.h"
@@ -608,11 +609,21 @@ bool Parser::binaryOperand(MethodGenerationContext& mgenc) {
 
 void Parser::keywordMessage(MethodGenerationContext& mgenc, bool super) {
     StdString kw = keyword();
+    int numParts = 1;
 
     formula(mgenc);
     while (sym == Keyword) {
         kw.append(keyword());
+        numParts += 1;
         formula(mgenc);
+    }
+
+    if (!super) {
+        if (numParts == 1 && (
+            (kw == "whileTrue:" && mgenc.InlineWhile(*this, true)) ||
+            (kw == "whileFalse:" && mgenc.InlineWhile(*this, false)))) {
+            return;
+        }
     }
 
     VMSymbol* msg = SymbolFor(kw);
@@ -824,15 +835,7 @@ void Parser::blockArguments(MethodGenerationContext& mgenc) {
     } while (sym == Colon);
 }
 
-static bool replace(StdString& str, const char* pattern, StdString& replacement) {
-    size_t pos = str.find(pattern);
-    if (pos == std::string::npos) {
-        return false;
-    }
 
-    str.replace(pos, strlen(pattern), replacement);
-    return true;
-}
 
 __attribute__((noreturn)) void Parser::parseError(const char* msg, Symbol expected) {
     StdString expectedStr(symnames[expected]);
@@ -850,15 +853,15 @@ __attribute__((noreturn)) void Parser::parseError(const char* msg, StdString exp
         foundStr = symnames[sym];
     }
 
-    replace(msgWithMeta, "%(file)s", fname);
+    ReplacePattern(msgWithMeta, "%(file)s", fname);
 
     StdString line = std::to_string(lexer.GetCurrentLineNumber());
-    replace(msgWithMeta, "%(line)d", line);
+    ReplacePattern(msgWithMeta, "%(line)d", line);
 
     StdString column = std::to_string(lexer.GetCurrentColumn());
-    replace(msgWithMeta, "%(column)d", column);
-    replace(msgWithMeta, "%(expected)s", expected);
-    replace(msgWithMeta, "%(found)s", foundStr);
+    ReplacePattern(msgWithMeta, "%(column)d", column);
+    ReplacePattern(msgWithMeta, "%(expected)s", expected);
+    ReplacePattern(msgWithMeta, "%(found)s", foundStr);
 
     ErrorPrint(msgWithMeta);
     GetUniverse()->Quit(ERR_FAIL);

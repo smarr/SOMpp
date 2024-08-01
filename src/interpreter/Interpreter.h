@@ -106,9 +106,6 @@ private:
     void doSuperSend(long bytecodeIndex);
     void doReturnLocal();
     void doReturnNonLocal();
-    void doJumpIfFalse(long bytecodeIndex);
-    void doJumpIfTrue(long bytecodeIndex);
-    void doJump(long bytecodeIndex);
 };
 
 inline VMFrame* Interpreter::GetFrame() const {

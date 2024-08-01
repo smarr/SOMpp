@@ -26,6 +26,7 @@
  THE SOFTWARE.
  */
 
+#include <cassert>
 #include <cstdint>
 
 const uint8_t Bytecode::bytecodeLengths[] = {
@@ -64,9 +65,20 @@ const uint8_t Bytecode::bytecodeLengths[] = {
         2, // BC_SUPER_SEND
         1, // BC_RETURN_LOCAL
         1, // BC_RETURN_NON_LOCAL
-        5, // JUMP_IF_FALSE
-        5, // JUMP_IF_TRUE
-        5  // JUMP
+
+        3, // BC_JUMP
+        3, // BC_JUMP_ON_TRUE_TOP_NIL
+        3, // BC_JUMP_ON_FALSE_TOP_NIL
+        3, // BC_JUMP_ON_TRUE_POP
+        3, // BC_JUMP_ON_FALSE_POP
+        3, // BC_JUMP_BACKWARDS
+
+        3, // BC_JUMP2
+        3, // BC_JUMP2_ON_TRUE_TOP_NIL
+        3, // BC_JUMP2_ON_FALSE_TOP_NIL
+        3, // BC_JUMP2_ON_TRUE_POP
+        3, // BC_JUMP2_ON_FALSE_POP
+        3, // BC_JUMP2_BACKWARDS
         };
 
 const char* Bytecode::bytecodeNames[] = {
@@ -78,8 +90,8 @@ const char* Bytecode::bytecodeNames[] = {
     "PUSH_LOCAL_2    ",
     "PUSH_ARGUMENT   ",
     "PUSH_SELF       ",
-    "PUSH_ARG_0      ",
     "PUSH_ARG_1      ",
+    "PUSH_ARG_2      ",
     "PUSH_FIELD      ",
     "PUSH_FIELD_0    ",
     "PUSH_FIELD_1    ",
@@ -105,7 +117,31 @@ const char* Bytecode::bytecodeNames[] = {
     "SUPER_SEND      ",
     "RETURN_LOCAL    ",
     "RETURN_NON_LOCAL",
-    "JUMP_IF_FALSE   ",
-    "JUMP_IF_TRUE    ",
-    "JUMP            "
+    "BC_JUMP         ",
+    "BC_JUMP_ON_TRUE_TOP_NIL",
+    "BC_JUMP_ON_FALSE_TOP_NIL",
+    "BC_JUMP_ON_TRUE_POP",
+    "BC_JUMP_ON_FALSE_POP",
+    "BC_JUMP_BACKWARDS",
+
+    "BC_JUMP2         ",
+    "BC_JUMP2_ON_TRUE_TOP_NIL",
+    "BC_JUMP2_ON_FALSE_TOP_NIL",
+    "BC_JUMP2_ON_TRUE_POP",
+    "BC_JUMP2_ON_FALSE_POP",
+    "BC_JUMP2_BACKWARDS",
 };
+
+bool IsJumpBytecode(uint8_t bc) {
+    assert(BC_JUMP < BC_JUMP2_BACKWARD);
+    assert((BC_JUMP2_BACKWARD - BC_JUMP) == 11);
+
+    return BC_JUMP <= bc && bc <= BC_JUMP2_BACKWARD;
+}
+
+bool Bytecode::BytecodeDefinitionsAreConsistent() {
+    bool namesAndLengthMatch = (sizeof(Bytecode::bytecodeNames) / sizeof(char*))  == (sizeof(Bytecode::bytecodeLengths) / sizeof(uint8_t));
+    bool lastBytecodeLinesUp = _LAST_BYTECODE == (sizeof(Bytecode::bytecodeLengths) - 1); // -1 because null terminated
+
+    return namesAndLengthMatch && lastBytecodeLinesUp;
+}
