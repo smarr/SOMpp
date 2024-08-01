@@ -335,6 +335,47 @@ bool MethodGenerationContext::InlineIfTrueOrIfFalse(bool isIfTrue) {
     return true;
 }
 
+bool MethodGenerationContext::InlineIfTrueFalse(bool isIfTrue) {
+    // HACK: We do assume that the receiver on the stack is a boolean,
+    // HACK: similar to the IfTrueIfFalseNode.
+    // HACK: We don't support anything but booleans at the moment.
+
+    if (!hasTwoLiteralBlockArguments()) {
+        return false;
+    }
+
+    assert(Bytecode::GetBytecodeLength(BC_PUSH_BLOCK) == 2);
+
+    std::tuple<vm_oop_t, vm_oop_t> methods =
+        extractBlockMethodsAndRemoveBytecodes();
+    VMMethod* condMethod = static_cast<VMMethod*>(std::get<0>(methods));
+    VMMethod* bodyMethod = static_cast<VMMethod*>(std::get<1>(methods));
+
+    size_t jumpOffsetIdxToSkipTrueBranch =
+        EmitJumpOnBoolWithDummyOffset(*this, isIfTrue, true);
+
+    isCurrentlyInliningABlock = true;
+    condMethod->InlineInto(*this);
+
+    size_t jumpOffsetIdxToSkipFalseBranch = EmitJumpWithDumyOffset(*this);
+
+    PatchJumpOffsetToPointToNextInstruction(jumpOffsetIdxToSkipTrueBranch);
+
+    // prevent optimizations between blocks to avoid issues with jump targets
+    resetLastBytecodeBuffer();
+
+    bodyMethod->InlineInto(*this);
+
+    isCurrentlyInliningABlock = false;
+
+    PatchJumpOffsetToPointToNextInstruction(jumpOffsetIdxToSkipFalseBranch);
+
+    // prevent optimizations messing with the final jump target
+    resetLastBytecodeBuffer();
+
+    return true;
+}
+
 bool MethodGenerationContext::InlineWhile(Parser& parser, bool isWhileTrue) {
     if (!hasTwoLiteralBlockArguments()) {
         return false;

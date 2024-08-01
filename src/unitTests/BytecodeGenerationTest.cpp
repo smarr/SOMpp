@@ -613,6 +613,48 @@ void BytecodeGenerationTest::ifTrueWithSomethingAndLiteralReturn(
     tearDown();
 }
 
+void BytecodeGenerationTest::testIfTrueIfFalseArg() {
+    auto bytecodes = methodToBytecode(R"""( test: arg1 with: arg2 = (
+            #start.
+            self method ifTrue: [ arg1 ] ifFalse: [ arg2 ].
+            #end
+        ) )""");
+
+    check(bytecodes,
+          {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_SELF, BC(BC_SEND, 1),
+           BC(BC_JUMP_ON_FALSE_POP, 7, 0), BC_PUSH_ARG_1, BC(BC_JUMP, 4, 0),
+           BC_PUSH_ARG_2, BC_POP, BC_PUSH_CONSTANT_2, BC_POP, BC_PUSH_SELF,
+           BC_RETURN_LOCAL});
+}
+
+void BytecodeGenerationTest::testIfTrueIfFalseNlrArg1() {
+    auto bytecodes = methodToBytecode(R"""( test: arg1 with: arg2 = (
+            #start.
+            self method ifTrue: [ ^ arg1 ] ifFalse: [ arg2 ].
+            #end
+        ) )""");
+
+    check(bytecodes,
+          {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_SELF, BC(BC_SEND, 1),
+           BC(BC_JUMP_ON_FALSE_POP, 8, 0), BC_PUSH_ARG_1, BC_RETURN_LOCAL,
+           BC(BC_JUMP, 4, 0), BC_PUSH_ARG_2, BC_POP, BC_PUSH_CONSTANT_2, BC_POP,
+           BC_PUSH_SELF, BC_RETURN_LOCAL});
+}
+
+void BytecodeGenerationTest::testIfTrueIfFalseNlrArg2() {
+    auto bytecodes = methodToBytecode(R"""( test: arg1 with: arg2 = (
+            #start.
+            self method ifTrue: [ arg1 ] ifFalse: [ ^ arg2 ].
+            #end
+        ) )""");
+
+    check(bytecodes,
+          {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_SELF, BC(BC_SEND, 1),
+           BC(BC_JUMP_ON_FALSE_POP, 7, 0), BC_PUSH_ARG_1, BC(BC_JUMP, 5, 0),
+           BC_PUSH_ARG_2, BC_RETURN_LOCAL, BC_POP, BC_PUSH_CONSTANT_2, BC_POP,
+           BC_PUSH_SELF, BC_RETURN_LOCAL});
+}
+
 /*
  @pytest.mark.parametrize(
      "operator,bytecode",
@@ -987,79 +1029,6 @@ void BytecodeGenerationTest::ifTrueWithSomethingAndLiteralReturn(
          ],
      )
 
-
- def test_if_true_if_false_arg(mgenc):
-     bytecodes = method_to_bytecodes(
-         mgenc,
-         """
-         test: arg1 with: arg2 = (
-             #start.
-             self method ifTrue: [ arg1 ] ifFalse: [ arg2 ].
-             #end
-         )""",
-     )
-
-     assert len(bytecodes) == 23
-     check(
-         bytecodes,
-         [
-             (7, BC(Bytecodes.jump_on_false_pop, 9)),
-             BC(Bytecodes.push_argument, 1, 0),
-             BC(Bytecodes.jump, 6),
-             BC(Bytecodes.push_argument, 2, 0),
-             Bytecodes.pop,
-         ],
-     )
-
-
- def test_if_true_if_false_nlr_arg1(mgenc):
-     bytecodes = method_to_bytecodes(
-         mgenc,
-         """
-         test: arg1 with: arg2 = (
-             #start.
-             self method ifTrue: [ ^ arg1 ] ifFalse: [ arg2 ].
-             #end
-         )""",
-     )
-
-     assert len(bytecodes) == 24
-     check(
-         bytecodes,
-         [
-             (7, BC(Bytecodes.jump_on_false_pop, 10)),
-             BC(Bytecodes.push_argument, 1, 0),
-             Bytecodes.return_local,
-             BC(Bytecodes.jump, 6),
-             BC(Bytecodes.push_argument, 2, 0),
-             Bytecodes.pop,
-         ],
-     )
-
-
- def test_if_true_if_false_nlr_arg2(mgenc):
-     bytecodes = method_to_bytecodes(
-         mgenc,
-         """
-         test: arg1 with: arg2 = (
-             #start.
-             self method ifTrue: [ arg1 ] ifFalse: [ ^ arg2 ].
-             #end
-         )""",
-     )
-
-     assert len(bytecodes) == 24
-     check(
-         bytecodes,
-         [
-             (7, BC(Bytecodes.jump_on_false_pop, 9)),
-             BC(Bytecodes.push_argument, 1, 0),
-             BC(Bytecodes.jump, 7),
-             BC(Bytecodes.push_argument, 2, 0),
-             Bytecodes.return_local,
-             Bytecodes.pop,
-         ],
-     )
 
 
  @pytest.mark.parametrize(

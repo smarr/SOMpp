@@ -60,6 +60,9 @@ class BytecodeGenerationTest : public CPPUNIT_NS::TestCase {
     CPPUNIT_TEST(testIfInlineAndConstantBcLength);
     CPPUNIT_TEST(testIfTrueWithLiteralReturn);
     CPPUNIT_TEST(testIfTrueWithSomethingAndLiteralReturn);
+    CPPUNIT_TEST(testIfTrueIfFalseArg);
+    CPPUNIT_TEST(testIfTrueIfFalseNlrArg1);
+    CPPUNIT_TEST(testIfTrueIfFalseNlrArg2);
 
     CPPUNIT_TEST(testJumpQueuesOrdering);
 
@@ -145,6 +148,9 @@ private:
     void testIfTrueWithSomethingAndLiteralReturn();
     void ifTrueWithSomethingAndLiteralReturn(std::string literal, BC bytecode);
 
+    void testIfTrueIfFalseArg();
+    void testIfTrueIfFalseNlrArg1();
+    void testIfTrueIfFalseNlrArg2();
     void testJumpQueuesOrdering();
 
     void dump(MethodGenerationContext* mgenc);

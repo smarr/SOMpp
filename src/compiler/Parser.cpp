@@ -634,6 +634,12 @@ void Parser::keywordMessage(MethodGenerationContext& mgenc, bool super) {
              (kw == "whileFalse:" && mgenc.InlineWhile(*this, false)))) {
             return;
         }
+
+        if (numParts == 2 &&
+            ((kw == "ifTrue:ifFalse:" && mgenc.InlineIfTrueFalse(true)) ||
+             (kw == "ifFalse:ifTrue:" && mgenc.InlineIfTrueFalse(false)))) {
+            return;
+        }
     }
 
     VMSymbol* msg = SymbolFor(kw);

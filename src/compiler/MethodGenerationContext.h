@@ -95,6 +95,7 @@ public:
 
     bool InlineWhile(Parser& parser, bool isWhileTrue);
     bool InlineIfTrueOrIfFalse(bool isIfTrue);
+    bool InlineIfTrueFalse(bool isIfTrue);
 
     inline size_t OffsetOfNextInstruction() { return bytecode.size(); }
 

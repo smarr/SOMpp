@@ -60,6 +60,7 @@ void EmitRETURNNONLOCAL(MethodGenerationContext& mgenc);
 
 size_t EmitJumpOnBoolWithDummyOffset(MethodGenerationContext& mgenc,
                                      bool isIfTrue, bool needsPop);
+size_t EmitJumpWithDumyOffset(MethodGenerationContext& mgenc);
 void EmitJumpBackwardWithOffset(MethodGenerationContext& mgenc,
                                 size_t jumpOffset);
 size_t Emit3WithDummy(MethodGenerationContext& mgenc, uint8_t bytecode,
