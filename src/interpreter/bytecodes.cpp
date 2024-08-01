@@ -60,7 +60,7 @@ const uint8_t Bytecode::bytecodeLengths[] = {
     3,  // BC_POP_ARGUMENT
     2,  // BC_POP_FIELD
     1,  // BC_POP_FIELD_0
-    2,  // BC_POP_FIELD_1
+    1,  // BC_POP_FIELD_1
     2,  // BC_SEND
     2,  // BC_SUPER_SEND
     1,  // BC_RETURN_LOCAL
@@ -71,14 +71,14 @@ const uint8_t Bytecode::bytecodeLengths[] = {
     3,  // BC_JUMP_ON_FALSE_TOP_NIL
     3,  // BC_JUMP_ON_TRUE_POP
     3,  // BC_JUMP_ON_FALSE_POP
-    3,  // BC_JUMP_BACKWARDS
+    3,  // BC_JUMP_BACKWARD
 
     3,  // BC_JUMP2
     3,  // BC_JUMP2_ON_TRUE_TOP_NIL
     3,  // BC_JUMP2_ON_FALSE_TOP_NIL
     3,  // BC_JUMP2_ON_TRUE_POP
     3,  // BC_JUMP2_ON_FALSE_POP
-    3,  // BC_JUMP2_BACKWARDS
+    3,  // BC_JUMP2_BACKWARD
 };
 
 const char* Bytecode::bytecodeNames[] = {
@@ -102,11 +102,11 @@ const char* Bytecode::bytecodeNames[] = {
     "RETURN_NON_LOCAL",          "BC_JUMP         ",
     "BC_JUMP_ON_TRUE_TOP_NIL",   "BC_JUMP_ON_FALSE_TOP_NIL",
     "BC_JUMP_ON_TRUE_POP",       "BC_JUMP_ON_FALSE_POP",
-    "BC_JUMP_BACKWARDS",
+    "BC_JUMP_BACKWARD",
 
     "BC_JUMP2         ",         "BC_JUMP2_ON_TRUE_TOP_NIL",
     "BC_JUMP2_ON_FALSE_TOP_NIL", "BC_JUMP2_ON_TRUE_POP",
-    "BC_JUMP2_ON_FALSE_POP",     "BC_JUMP2_BACKWARDS",
+    "BC_JUMP2_ON_FALSE_POP",     "BC_JUMP2_BACKWARD",
 };
 
 bool IsJumpBytecode(uint8_t bc) {
