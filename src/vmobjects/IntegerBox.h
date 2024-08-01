@@ -5,7 +5,7 @@
 class GlobalBox {
 public:
     static VMInteger* IntegerBox();
-    
+
     static void WalkGlobals(walk_heap_fn walk);
 
 private:

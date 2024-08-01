@@ -24,6 +24,8 @@
  THE SOFTWARE.
  */
 
+#include "PrimitiveLoader.h"
+
 #include <map>
 #include <string>
 
@@ -41,33 +43,33 @@
 #include "../vm/Print.h"
 #include "../vmobjects/PrimitiveRoutine.h"
 #include "PrimitiveContainer.h"
-#include "PrimitiveLoader.h"
 
 PrimitiveLoader PrimitiveLoader::loader;
 
 PrimitiveLoader::PrimitiveLoader() {
-    AddPrimitiveObject("Array",     new _Array());
-    AddPrimitiveObject("Block",     new _Block());
-    AddPrimitiveObject("Class",     new _Class());
-    AddPrimitiveObject("Double",    new _Double());
-    AddPrimitiveObject("Integer",   new _Integer());
-    AddPrimitiveObject("Method",    new _Method());
-    AddPrimitiveObject("Object",    new _Object());
+    AddPrimitiveObject("Array", new _Array());
+    AddPrimitiveObject("Block", new _Block());
+    AddPrimitiveObject("Class", new _Class());
+    AddPrimitiveObject("Double", new _Double());
+    AddPrimitiveObject("Integer", new _Integer());
+    AddPrimitiveObject("Method", new _Method());
+    AddPrimitiveObject("Object", new _Object());
     AddPrimitiveObject("Primitive", new _Primitive());
-    AddPrimitiveObject("String",    new _String());
-    AddPrimitiveObject("Symbol",    new _Symbol());
-    AddPrimitiveObject("System",    new _System());
+    AddPrimitiveObject("String", new _String());
+    AddPrimitiveObject("Symbol", new _Symbol());
+    AddPrimitiveObject("System", new _System());
 }
 
 PrimitiveLoader::~PrimitiveLoader() {
-    map<std::string, PrimitiveContainer*>::iterator it = primitiveObjects.begin();
+    map<std::string, PrimitiveContainer*>::iterator it =
+        primitiveObjects.begin();
     for (; it != primitiveObjects.end(); ++it) {
         delete it->second;
     }
 }
 
 void PrimitiveLoader::AddPrimitiveObject(const std::string& name,
-        PrimitiveContainer* prim) {
+                                         PrimitiveContainer* prim) {
     primitiveObjects[name] = prim;
 }
 
@@ -80,12 +82,14 @@ bool PrimitiveLoader::SupportsClass(const std::string& name) {
 }
 
 PrimitiveRoutine* PrimitiveLoader::GetPrimitiveRoutine(const std::string& cname,
-                                                       const std::string& mname, bool isPrimitive) {
+                                                       const std::string& mname,
+                                                       bool isPrimitive) {
     return loader.getPrimitiveRoutine(cname, mname, isPrimitive);
 }
 
 PrimitiveRoutine* PrimitiveLoader::getPrimitiveRoutine(const std::string& cname,
-        const std::string& mname, bool isPrimitive) {
+                                                       const std::string& mname,
+                                                       bool isPrimitive) {
     PrimitiveContainer* primitive = primitiveObjects[cname];
     if (!primitive) {
         ErrorPrint("Primitive object not found for name: " + cname + "\n");
@@ -94,10 +98,10 @@ PrimitiveRoutine* PrimitiveLoader::getPrimitiveRoutine(const std::string& cname,
     PrimitiveRoutine* result = primitive->GetPrimitive(mname);
     if (!result) {
         if (isPrimitive) {
-            ErrorPrint("method " + mname + " not found in class " + cname + "\n");
+            ErrorPrint("method " + mname + " not found in class " + cname +
+                       "\n");
         }
         return nullptr;
     }
     return result;
 }
-

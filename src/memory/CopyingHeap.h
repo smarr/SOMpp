@@ -6,6 +6,7 @@
 
 class CopyingHeap : public Heap<CopyingHeap> {
     friend class CopyingCollector;
+
 public:
     explicit CopyingHeap(size_t objectSpaceSize);
     AbstractVMObject* AllocateObject(size_t size);

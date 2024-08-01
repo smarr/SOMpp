@@ -4,4 +4,3 @@
 
 void Print(StdString str);
 void ErrorPrint(StdString str);
-

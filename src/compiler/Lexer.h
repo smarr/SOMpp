@@ -30,6 +30,7 @@
 #include <string>
 
 #include "../misc/defs.h"
+#include "SourceCoordinate.h"
 
 using namespace std;
 
@@ -68,19 +69,22 @@ typedef enum {
     KeywordSequence,
     OperatorSequence
 } Symbol;
+
+// clang-format off
 static const char* symnames[] = { "NONE", "Integer", "Not", "And", "Or", "Star",
         "Div", "Mod", "Plus", "Minus", "Equal", "More", "Less", "Comma", "At",
         "Per", "NewBlock", "EndBlock", "Colon", "Period", "Exit", "Assign",
         "NewTerm", "EndTerm", "Pound", "Primitive", "Separator", "STString",
         "Identifier", "Keyword", "KeywordSequence", "OperatorSequence" };
+// clang-format on
 
 class LexerState {
 public:
-    LexerState() : lineNumber(0), bufp(0), sym(Symbol::NONE), symc(0), text(""), startBufp(0) {}
+    LexerState()
+        : lineNumber(0), bufp(0), sym(Symbol::NONE), symc(0), text(""),
+          startBufp(0) {}
 
-    inline size_t incPtr() {
-        return incPtr(1);
-    }
+    inline size_t incPtr() { return incPtr(1); }
 
     inline size_t incPtr(size_t val) {
         const size_t cur = bufp;
@@ -99,9 +103,7 @@ public:
     size_t startBufp;
 };
 
-
 class Lexer {
-
 public:
     Lexer(istream& file);
     Lexer(const StdString& stream);
@@ -109,16 +111,12 @@ public:
     Symbol GetSym();
     Symbol Peek();
 
-    StdString GetText() const {
-        return state.text;
-    }
+    StdString GetText() const { return state.text; }
 
-    StdString GetNextText() const {
-        return stateAfterPeek.text;
-    }
+    StdString GetNextText() const { return stateAfterPeek.text; }
 
     StdString GetRawBuffer() const {
-        //for debug
+        // for debug
         return StdString(buf);
     }
 
@@ -128,13 +126,9 @@ public:
         return state.startBufp + 1 - state.text.length();
     }
 
-    size_t GetCurrentLineNumber() const {
-        return state.lineNumber;
-    }
+    size_t GetCurrentLineNumber() const { return state.lineNumber; }
 
-    bool GetPeekDone() const {
-        return peekDone;
-    }
+    bool GetPeekDone() const { return peekDone; }
 
     SourceCoordinate GetCurrentSource() const {
         return SourceCoordinate(GetCurrentLineNumber(), GetCurrentColumn());

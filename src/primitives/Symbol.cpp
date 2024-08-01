@@ -24,6 +24,8 @@
  THE SOFTWARE.
  */
 
+#include "Symbol.h"
+
 #include <string>
 
 #include "../primitivesCore/PrimitiveContainer.h"
@@ -31,7 +33,6 @@
 #include "../vm/Universe.h"
 #include "../vmobjects/VMFrame.h"
 #include "../vmobjects/VMSymbol.h"
-#include "Symbol.h"
 
 void _Symbol::AsString(Interpreter*, VMFrame* frame) {
     VMSymbol* sym = static_cast<VMSymbol*>(frame->Pop());
@@ -40,7 +41,7 @@ void _Symbol::AsString(Interpreter*, VMFrame* frame) {
     frame->Push(GetUniverse()->NewString(str));
 }
 
-
 _Symbol::_Symbol() : PrimitiveContainer() {
-    SetPrimitive("asString", new Routine<_Symbol>(this, &_Symbol::AsString, false));
+    SetPrimitive("asString",
+                 new Routine<_Symbol>(this, &_Symbol::AsString, false));
 }

@@ -24,6 +24,8 @@
  THE SOFTWARE.
  */
 
+#include "BytecodeGenerator.h"
+
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
@@ -36,18 +38,20 @@
 #include "../vmobjects/Signature.h"
 #include "../vmobjects/VMMethod.h"
 #include "../vmobjects/VMSymbol.h"
-#include "BytecodeGenerator.h"
 
-void Emit1(MethodGenerationContext& mgenc, uint8_t bytecode, size_t stackEffect) {
+void Emit1(MethodGenerationContext& mgenc, uint8_t bytecode,
+           size_t stackEffect) {
     mgenc.AddBytecode(bytecode, stackEffect);
 }
 
-void Emit2(MethodGenerationContext& mgenc, uint8_t bytecode, size_t idx, size_t stackEffect) {
+void Emit2(MethodGenerationContext& mgenc, uint8_t bytecode, size_t idx,
+           size_t stackEffect) {
     mgenc.AddBytecode(bytecode, stackEffect);
     mgenc.AddBytecodeArgument(idx);
 }
 
-void Emit3(MethodGenerationContext& mgenc, uint8_t bytecode, size_t idx, size_t ctx, size_t stackEffect) {
+void Emit3(MethodGenerationContext& mgenc, uint8_t bytecode, size_t idx,
+           size_t ctx, size_t stackEffect) {
     mgenc.AddBytecode(bytecode, stackEffect);
     mgenc.AddBytecodeArgument(idx);
     mgenc.AddBytecodeArgument(ctx);
@@ -61,8 +65,7 @@ void EmitDUP(MethodGenerationContext& mgenc) {
     Emit1(mgenc, BC_DUP, 1);
 }
 
-void EmitPUSHLOCAL(MethodGenerationContext& mgenc, long idx,
-        int ctx) {
+void EmitPUSHLOCAL(MethodGenerationContext& mgenc, long idx, int ctx) {
     assert(idx >= 0);
     assert(ctx >= 0);
     if (ctx == 0) {
@@ -82,8 +85,7 @@ void EmitPUSHLOCAL(MethodGenerationContext& mgenc, long idx,
     Emit3(mgenc, BC_PUSH_LOCAL, idx, ctx, 1);
 }
 
-void EmitPUSHARGUMENT(MethodGenerationContext& mgenc,
-        long idx, int ctx) {
+void EmitPUSHARGUMENT(MethodGenerationContext& mgenc, long idx, int ctx) {
     assert(idx >= 0);
     assert(ctx >= 0);
 
@@ -162,13 +164,11 @@ void EmitPUSHCONSTANT(MethodGenerationContext& mgenc, vm_oop_t cst) {
     Emit2(mgenc, BC_PUSH_CONSTANT, idx, 1);
 }
 
-void EmitPUSHCONSTANT(MethodGenerationContext& mgenc,
-        uint8_t literalIndex) {
+void EmitPUSHCONSTANT(MethodGenerationContext& mgenc, uint8_t literalIndex) {
     Emit2(mgenc, BC_PUSH_CONSTANT, literalIndex, 1);
 }
 
-void EmitPUSHCONSTANTString(MethodGenerationContext& mgenc,
-        VMString* str) {
+void EmitPUSHCONSTANTString(MethodGenerationContext& mgenc, VMString* str) {
     Emit2(mgenc, BC_PUSH_CONSTANT, mgenc.FindLiteralIndex(str), 1);
 }
 
@@ -189,8 +189,7 @@ void EmitPOP(MethodGenerationContext& mgenc) {
     Emit1(mgenc, BC_POP, -1);
 }
 
-void EmitPOPLOCAL(MethodGenerationContext& mgenc, long idx,
-        int ctx) {
+void EmitPOPLOCAL(MethodGenerationContext& mgenc, long idx, int ctx) {
     assert(idx >= 0);
     assert(ctx >= 0);
     if (ctx == 0) {
@@ -213,8 +212,7 @@ void EmitPOPLOCAL(MethodGenerationContext& mgenc, long idx,
     Emit3(mgenc, BC_POP_LOCAL, idx, ctx, -1);
 }
 
-void EmitPOPARGUMENT(MethodGenerationContext& mgenc,
-                                        long idx, int ctx) {
+void EmitPOPARGUMENT(MethodGenerationContext& mgenc, long idx, int ctx) {
     Emit3(mgenc, BC_POP_ARGUMENT, idx, ctx, -1);
 }
 
@@ -256,14 +254,15 @@ void EmitRETURNNONLOCAL(MethodGenerationContext& mgenc) {
     Emit1(mgenc, BC_RETURN_NON_LOCAL, 0);
 }
 
-size_t EmitJumpOnBoolWithDummyOffset(MethodGenerationContext& mgenc, bool isIfTrue, bool needsPop) {
+size_t EmitJumpOnBoolWithDummyOffset(MethodGenerationContext& mgenc,
+                                     bool isIfTrue, bool needsPop) {
     // Remember: true and false seem flipped here.
     // This is because if the test passes, the block is inlined directly.
     // But if the test fails, we need to jump.
     // Thus, an  `#ifTrue:` needs to generated a jump_on_false.
     uint8_t bc;
     size_t stackEffect;
-    
+
     if (needsPop) {
         bc = isIfTrue ? BC_JUMP_ON_FALSE_POP : BC_JUMP_ON_TRUE_POP;
         stackEffect = -1;
@@ -279,46 +278,51 @@ size_t EmitJumpOnBoolWithDummyOffset(MethodGenerationContext& mgenc, bool isIfTr
     return idx;
 }
 
-void EmitJumpBackwardWithOffset(MethodGenerationContext& mgenc, size_t jumpOffset) {
-    uint8_t jumpBytecode = jumpOffset <= 0xFF ? BC_JUMP_BACKWARD : BC_JUMP2_BACKWARD;
+void EmitJumpBackwardWithOffset(MethodGenerationContext& mgenc,
+                                size_t jumpOffset) {
+    uint8_t jumpBytecode =
+        jumpOffset <= 0xFF ? BC_JUMP_BACKWARD : BC_JUMP2_BACKWARD;
     Emit3(mgenc, jumpBytecode, jumpOffset & 0xFF, jumpOffset >> 8, 0);
 }
 
-size_t Emit3WithDummy(MethodGenerationContext& mgenc, uint8_t bytecode, size_t stackEffect) {
+size_t Emit3WithDummy(MethodGenerationContext& mgenc, uint8_t bytecode,
+                      size_t stackEffect) {
     mgenc.AddBytecode(bytecode, stackEffect);
     size_t index = mgenc.AddBytecodeArgumentAndGetIndex(0);
     mgenc.AddBytecodeArgument(0);
     return index;
 }
 
-void EmitPushFieldWithIndex(MethodGenerationContext& mgenc, uint8_t fieldIdx, uint8_t ctxLevel) {
+void EmitPushFieldWithIndex(MethodGenerationContext& mgenc, uint8_t fieldIdx,
+                            uint8_t ctxLevel) {
     // if (ctxLevel == 0) {
-        if (fieldIdx == 0) {
-            Emit1(mgenc, BC_PUSH_FIELD_0, 1);
-            return;
-        }
-        
-        if (fieldIdx == 1) {
-            Emit1(mgenc, BC_PUSH_FIELD_1, 1);
-            return;
-        }
+    if (fieldIdx == 0) {
+        Emit1(mgenc, BC_PUSH_FIELD_0, 1);
+        return;
+    }
+
+    if (fieldIdx == 1) {
+        Emit1(mgenc, BC_PUSH_FIELD_1, 1);
+        return;
+    }
     // }
 
     Emit2(mgenc, BC_PUSH_FIELD, fieldIdx, 1);
 }
 
-void EmitPopFieldWithIndex(MethodGenerationContext& mgenc, uint8_t fieldIdx, uint8_t ctxLevel) {
+void EmitPopFieldWithIndex(MethodGenerationContext& mgenc, uint8_t fieldIdx,
+                           uint8_t ctxLevel) {
     // if (ctxLevel == 0) {
-        if (fieldIdx == 0) {
-            Emit1(mgenc, BC_POP_FIELD_0, 1);
-            return;
-        }
-        
-        if (fieldIdx == 1) {
-            Emit1(mgenc, BC_POP_FIELD_1, 1);
-            return;
-        }
+    if (fieldIdx == 0) {
+        Emit1(mgenc, BC_POP_FIELD_0, 1);
+        return;
+    }
+
+    if (fieldIdx == 1) {
+        Emit1(mgenc, BC_POP_FIELD_1, 1);
+        return;
+    }
     // }
-    
+
     Emit2(mgenc, BC_POP_FIELD, fieldIdx, 1);
 }

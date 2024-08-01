@@ -32,8 +32,11 @@ jobs:
           sudo add-apt-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main"
           sudo apt-get update
           sudo apt-get install -y clang-18 clang-tidy-18
-          # clang-format-17
         if: matrix.compiler == 'clang'
+
+      - name: Install Clang Format
+        run: sudo apt-get install -y clang-format-18
+        if: matrix.compiler == 'clang' && matrix.gc == 'GENERATIONAL'
 
       - name: Build SOM VM
         run: |
@@ -66,6 +69,11 @@ jobs:
         if: matrix.compiler == 'clang'
         run: |
           clang-tidy-18 --config-file=.clang-tidy src/**/*.cpp -- -fdiagnostics-absolute-paths -DGC_TYPE=${{ matrix.gc}} ${{ matrix.integers }} -DUNITTESTS
+
+      - name: Clang Format
+        if: matrix.compiler == 'clang' && matrix.gc == 'GENERATIONAL'
+        run: |
+          clang-format-18 --dry-run --style=file --Werror src/*.cpp  src/**/*.cpp src/**/*.h
 
       # Disabled because it's too slow with the sanitizers
       # - name: Test SomSom

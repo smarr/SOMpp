@@ -1,3 +1,5 @@
+#include "MarkSweepCollector.h"
+
 #include <cstddef>
 #include <vector>
 
@@ -7,7 +9,6 @@
 #include "../vmobjects/IntegerBox.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMFrame.h"
-#include "MarkSweepCollector.h"
 #include "MarkSweepHeap.h"
 
 #define GC_MARKED 3456
@@ -15,26 +16,27 @@
 void MarkSweepCollector::Collect() {
     MarkSweepHeap* heap = GetHeap<MarkSweepHeap>();
     Timer::GCTimer->Resume();
-    //reset collection trigger
+    // reset collection trigger
     heap->resetGCTrigger();
 
-    //now mark all reachables
+    // now mark all reachables
     markReachableObjects();
 
-    //in this survivors stack we will remember all objects that survived
+    // in this survivors stack we will remember all objects that survived
     auto survivors = new vector<AbstractVMObject*>();
     size_t survivorsSize = 0;
 
     vector<AbstractVMObject*>::iterator iter;
-    for (iter = heap->allocatedObjects->begin(); iter !=
-            heap->allocatedObjects->end(); iter++) {
+    for (iter = heap->allocatedObjects->begin();
+         iter != heap->allocatedObjects->end();
+         iter++) {
         if ((*iter)->GetGCField() == GC_MARKED) {
-            //object ist marked -> let it survive
+            // object ist marked -> let it survive
             survivors->push_back(*iter);
             survivorsSize += (*iter)->GetObjectSize();
             (*iter)->SetGCField(0);
         } else {
-            //not marked -> kill it
+            // not marked -> kill it
             heap->FreeObject(*iter);
         }
     }
@@ -43,7 +45,7 @@ void MarkSweepCollector::Collect() {
     heap->allocatedObjects = survivors;
 
     heap->spcAlloc = survivorsSize;
-    //TODO: Maybe choose another constant to calculate new collectionLimit here
+    // TODO: Maybe choose another constant to calculate new collectionLimit here
     heap->collectionLimit = 2 * survivorsSize;
     Timer::GCTimer->Halt();
 }

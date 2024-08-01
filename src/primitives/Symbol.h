@@ -29,7 +29,7 @@
 #include "../primitivesCore/PrimitiveContainer.h"
 #include "../vmobjects/ObjectFormats.h"
 
-class _Symbol: public PrimitiveContainer {
+class _Symbol : public PrimitiveContainer {
 public:
     _Symbol();
     void AsString(Interpreter*, VMFrame*);

@@ -1,19 +1,22 @@
+#include "Method.h"
+
 #include <cstddef>
 
 #include "../primitivesCore/PrimitiveContainer.h"
 #include "../primitivesCore/Routine.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMArray.h"
-#include "../vmobjects/VMClass.h" // NOLINT(misc-include-cleaner) it's required to make the types complete
+#include "../vmobjects/VMClass.h"  // NOLINT(misc-include-cleaner) it's required to make the types complete
 #include "../vmobjects/VMFrame.h"
 #include "../vmobjects/VMMethod.h"
-#include "../vmobjects/VMSymbol.h" // NOLINT(misc-include-cleaner) it's required to make the types complete
-#include "Method.h"
+#include "../vmobjects/VMSymbol.h"  // NOLINT(misc-include-cleaner) it's required to make the types complete
 
 _Method::_Method() : PrimitiveContainer() {
-    SetPrimitive("signature",      new Routine<_Method>(this, &_Method::Signature,      false));
-    SetPrimitive("holder",         new Routine<_Method>(this, &_Method::Holder,         false));
-    SetPrimitive("invokeOn_with_", new Routine<_Method>(this, &_Method::InvokeOn_With_, false));
+    SetPrimitive("signature",
+                 new Routine<_Method>(this, &_Method::Signature, false));
+    SetPrimitive("holder", new Routine<_Method>(this, &_Method::Holder, false));
+    SetPrimitive("invokeOn_with_",
+                 new Routine<_Method>(this, &_Method::InvokeOn_With_, false));
 }
 
 void _Method::Holder(Interpreter*, VMFrame* frame) {
@@ -28,13 +31,12 @@ void _Method::Signature(Interpreter*, VMFrame* frame) {
 
 void _Method::InvokeOn_With_(Interpreter* interp, VMFrame* frame) {
     // REM: this is a clone with _Primitive::InvokeOn_With_
-    VMArray* args  = static_cast<VMArray*>(frame->Pop());
-    vm_oop_t rcvr  = static_cast<vm_oop_t>(frame->Pop());
+    VMArray* args = static_cast<VMArray*>(frame->Pop());
+    vm_oop_t rcvr = static_cast<vm_oop_t>(frame->Pop());
     VMMethod* mthd = static_cast<VMMethod*>(frame->Pop());
-    
-    
+
     frame->Push(rcvr);
-    
+
     size_t num_args = args->GetNumberOfIndexableFields();
     for (size_t i = 0; i < num_args; i++) {
         vm_oop_t arg = args->GetIndexableField(i);

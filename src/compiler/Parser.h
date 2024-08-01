@@ -47,8 +47,10 @@ public:
 
 private:
     __attribute__((noreturn)) void parseError(const char* msg, Symbol expected);
-    __attribute__((noreturn)) void parseError(const char* msg, Symbol* expected);
-    __attribute__((noreturn)) void parseError(const char* msg, StdString expected);
+    __attribute__((noreturn)) void parseError(const char* msg,
+                                              Symbol* expected);
+    __attribute__((noreturn)) void parseError(const char* msg,
+                                              StdString expected);
 
     void GetSym();
     void Peek();
@@ -80,7 +82,8 @@ private:
     std::string argument();
     void blockContents(MethodGenerationContext& mgenc, bool is_inlined);
     void locals(MethodGenerationContext& mgenc);
-    void blockBody(MethodGenerationContext& mgenc, bool seen_period, bool is_inlined);
+    void blockBody(MethodGenerationContext& mgenc, bool seen_period,
+                   bool is_inlined);
     void result(MethodGenerationContext& mgenc);
     void expression(MethodGenerationContext& mgenc);
     void assignation(MethodGenerationContext& mgenc);
@@ -103,7 +106,7 @@ private:
     vm_oop_t literalDecimal(bool negateValue);
     vm_oop_t negativeDecimal(void);
     vm_oop_t literalInteger(bool negateValue);
-    vm_oop_t literalDouble(bool  negateValue);
+    vm_oop_t literalDouble(bool negateValue);
     void literalArray(MethodGenerationContext& mgenc);
     void literalSymbol(MethodGenerationContext& mgenc);
     void literalString(MethodGenerationContext& mgenc);

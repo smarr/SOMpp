@@ -24,6 +24,8 @@
  THE SOFTWARE.
  */
 
+#include "Universe.h"
+
 #include <cassert>
 #include <cstdint>
 #include <cstdio>
@@ -63,7 +65,6 @@
 #include "Print.h"
 #include "Shell.h"
 #include "Symbols.h"
-#include "Universe.h"
 
 #if CACHE_INTEGER
 gc_oop_t prebuildInts[INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE + 1];
@@ -82,27 +83,27 @@ std::string bm_name;
 
 map<int64_t, int64_t> integerHist;
 
-
 void Universe::Start(long argc, char** argv) {
     BasicInit();
     theUniverse->initialize(argc, argv);
 }
 
 void Universe::BasicInit() {
-  assert(Bytecode::BytecodeDefinitionsAreConsistent());
-  theUniverse = new Universe();
+    assert(Bytecode::BytecodeDefinitionsAreConsistent());
+    theUniverse = new Universe();
 }
 
-
-
 __attribute__((noreturn)) void Universe::Quit(long err) {
-    ErrorPrint("Time spent in GC: [" + to_string(Timer::GCTimer->GetTotalTime()) + "] msec\n");
+    ErrorPrint("Time spent in GC: [" +
+               to_string(Timer::GCTimer->GetTotalTime()) + "] msec\n");
 #ifdef GENERATE_INTEGER_HISTOGRAM
     std::string file_name_hist = std::string(bm_name);
     file_name_hist.append("_integer_histogram.csv");
     fstream hist_csv(file_name_hist.c_str(), ios::out);
 
-    for (map<long, long>::iterator it = integerHist.begin(); it != integerHist.end(); it++) {
+    for (map<long, long>::iterator it = integerHist.begin();
+         it != integerHist.end();
+         it++) {
         hist_csv << it->first << ", " << it->second << endl;
     }
 #endif
@@ -111,24 +112,38 @@ __attribute__((noreturn)) void Universe::Quit(long err) {
     std::string file_name_receivers = std::string(bm_name);
     file_name_receivers.append("_receivers.csv");
     fstream receivers(file_name_receivers.c_str(), ios::out);
-    for (map<StdString, long>::iterator it = theUniverse->receiverTypes.begin(); it != theUniverse->receiverTypes.end(); it++)
-    receivers << it->first << ",  " << it->second << endl;
+    for (map<StdString, long>::iterator it = theUniverse->receiverTypes.begin();
+         it != theUniverse->receiverTypes.end();
+         it++) {
+        receivers << it->first << ",  " << it->second << endl;
+    }
 
     std::string file_name_send_types = std::string(bm_name);
     file_name_send_types.append("_send_types.csv");
     fstream send_stat(file_name_send_types.c_str(), ios::out);
-    send_stat << "#name, percentage_primitive_calls, no_primitive_calls, no_non_primitive_calls" << endl;
-    for (map<StdString, Universe::stat_data>::iterator it = theUniverse->callStats.begin(); it != theUniverse->callStats.end(); it++)
-    send_stat << it->first << ", " << setiosflags(ios::fixed) << setprecision(2) << (double)(it->second.noPrimitiveCalls) / (double)(it->second.noCalls) <<
-    ", " << it->second.noPrimitiveCalls << ", " << it->second.noCalls - it->second.noPrimitiveCalls << endl;
+    send_stat << "#name, percentage_primitive_calls, no_primitive_calls, "
+                 "no_non_primitive_calls"
+              << endl;
+    for (map<StdString, Universe::stat_data>::iterator it =
+             theUniverse->callStats.begin();
+         it != theUniverse->callStats.end();
+         it++) {
+        send_stat << it->first << ", " << setiosflags(ios::fixed)
+                  << setprecision(2)
+                  << (double)(it->second.noPrimitiveCalls) /
+                         (double)(it->second.noCalls)
+                  << ", " << it->second.noPrimitiveCalls << ", "
+                  << it->second.noCalls - it->second.noPrimitiveCalls << endl;
+    }
 #endif
 
     OutputAllocationLogFile();
 
-    if (theUniverse)
+    if (theUniverse) {
         delete (theUniverse);
+    }
 
-    exit((int) err);
+    exit((int)err);
 }
 
 __attribute__((noreturn)) void Universe::ErrorExit(const char* err) {
@@ -139,13 +154,13 @@ __attribute__((noreturn)) void Universe::ErrorExit(const char* err) {
 vector<StdString> Universe::handleArguments(long argc, char** argv) {
     vector<StdString> vmArgs = vector<StdString>();
     dumpBytecodes = 0;
-    gcVerbosity   = 0;
+    gcVerbosity = 0;
 
     for (long i = 1; i < argc; ++i) {
-
         if (strncmp(argv[i], "-cp", 3) == 0) {
-            if ((argc == i + 1) || classPath.size() > 0)
+            if ((argc == i + 1) || classPath.size() > 0) {
                 printUsageAndExit(argv[0]);
+            }
             setupClassPath(StdString(argv[++i]));
         } else if (strncmp(argv[i], "-d", 2) == 0) {
             ++dumpBytecodes;
@@ -155,15 +170,17 @@ vector<StdString> Universe::handleArguments(long argc, char** argv) {
             long heap_size = 0;
             char unit[3];
             if (sscanf(argv[i], "-H%ld%2s", &heap_size, unit) == 2) {
-                if (strcmp(unit, "KB") == 0)
+                if (strcmp(unit, "KB") == 0) {
                     heapSize = heap_size * 1024;
-                else if (strcmp(unit, "MB") == 0)
+                } else if (strcmp(unit, "MB") == 0) {
                     heapSize = heap_size * 1024 * 1024;
-            } else
+                }
+            } else {
                 printUsageAndExit(argv[0]);
+            }
 
-        } else if ((strncmp(argv[i], "-h", 2) == 0)
-                || (strncmp(argv[i], "--help", 6) == 0)) {
+        } else if ((strncmp(argv[i], "-h", 2) == 0) ||
+                   (strncmp(argv[i], "--help", 6) == 0)) {
             printUsageAndExit(argv[0]);
         } else {
             vector<StdString> extPathTokens = vector<StdString>(2);
@@ -171,12 +188,13 @@ vector<StdString> Universe::handleArguments(long argc, char** argv) {
             if (getClassPathExt(extPathTokens, tmpString) == ERR_SUCCESS) {
                 addClassPath(extPathTokens[0]);
             }
-            //Different from CSOM!!!:
-            //In CSOM there is an else, where the original filename is pushed into the vm_args.
-            //But unlike the class name in extPathTokens (extPathTokens[1]) that could
-            //still have the .som suffix though.
-            //So in SOM++ getClassPathExt will strip the suffix and add it to extPathTokens
-            //even if there is no new class path present. So we can in any case do the following:
+            // Different from CSOM!!!:
+            // In CSOM there is an else, where the original filename is pushed
+            // into the vm_args. But unlike the class name in extPathTokens
+            // (extPathTokens[1]) that could still have the .som suffix though.
+            // So in SOM++ getClassPathExt will strip the suffix and add it to
+            // extPathTokens even if there is no new class path present. So we
+            // can in any case do the following:
             vmArgs.push_back(extPathTokens[1]);
         }
     }
@@ -186,28 +204,29 @@ vector<StdString> Universe::handleArguments(long argc, char** argv) {
 }
 
 long Universe::getClassPathExt(vector<StdString>& tokens,
-        const StdString& arg) const {
+                               const StdString& arg) const {
 #define EXT_TOKENS 2
     long result = ERR_SUCCESS;
     size_t fpIndex = arg.find_last_of(fileSeparator);
     size_t ssepIndex = arg.find(".som");
 
-    if (fpIndex == StdString::npos) { //no new path
-        //different from CSOM (see also HandleArguments):
-        //we still want to strip the suffix from the filename, so
-        //we set the start to -1, in order to start the substring
-        //from character 0. npos is -1 too, but this is to make sure
+    if (fpIndex == StdString::npos) {  // no new path
+        // different from CSOM (see also HandleArguments):
+        // we still want to strip the suffix from the filename, so
+        // we set the start to -1, in order to start the substring
+        // from character 0. npos is -1 too, but this is to make sure
         fpIndex = -1;
-        //instead of returning here directly, we have to remember that
-        //there is no new class path and return it later
+        // instead of returning here directly, we have to remember that
+        // there is no new class path and return it later
         result = ERR_FAIL;
-    } else
+    } else {
         tokens[0] = arg.substr(0, fpIndex);
+    }
 
-    //adding filename (minus ".som" if present) to second slot
-    ssepIndex =
-            ((ssepIndex != StdString::npos) && (ssepIndex > fpIndex)) ?
-                    (ssepIndex - 1) : arg.length();
+    // adding filename (minus ".som" if present) to second slot
+    ssepIndex = ((ssepIndex != StdString::npos) && (ssepIndex > fpIndex))
+                    ? (ssepIndex - 1)
+                    : arg.length();
     tokens[1] = arg.substr(fpIndex + 1, ssepIndex - (fpIndex));
     return result;
 }
@@ -255,10 +274,13 @@ Universe::Universe() {
     interpreter = nullptr;
 }
 
-VMMethod* Universe::createBootstrapMethod(VMClass* holder, long numArgsOfMsgSend) {
+VMMethod* Universe::createBootstrapMethod(VMClass* holder,
+                                          long numArgsOfMsgSend) {
     vector<BackJump> inlinedLoops;
     LexicalScope* bootStrapScope = new LexicalScope(nullptr, {}, {});
-    VMMethod* bootstrapMethod = NewMethod(SymbolFor("bootstrap"), 1, 0, 0, numArgsOfMsgSend, bootStrapScope, inlinedLoops);
+    VMMethod* bootstrapMethod =
+        NewMethod(SymbolFor("bootstrap"), 1, 0, 0, numArgsOfMsgSend,
+                  bootStrapScope, inlinedLoops);
 
     bootstrapMethod->SetBytecode(0, BC_HALT);
     bootstrapMethod->SetHolder(holder);
@@ -266,55 +288,56 @@ VMMethod* Universe::createBootstrapMethod(VMClass* holder, long numArgsOfMsgSend
 }
 
 vm_oop_t Universe::interpret(StdString className, StdString methodName) {
-  // This method assumes that SOM++ was already initialized by executing a
-  // Hello World program as part of the unittest main.
+    // This method assumes that SOM++ was already initialized by executing a
+    // Hello World program as part of the unittest main.
 
-  bm_name = "BasicInterpreterTests";
+    bm_name = "BasicInterpreterTests";
 
-  interpreter = new Interpreter();
+    interpreter = new Interpreter();
 
-  VMSymbol* classNameSym = SymbolFor(className);
-  VMClass* clazz = LoadClass(classNameSym);
+    VMSymbol* classNameSym = SymbolFor(className);
+    VMClass* clazz = LoadClass(classNameSym);
 
-  // Lookup the method to be executed on the class
-  VMMethod* initialize =
-    (VMMethod*) clazz->GetClass()->LookupInvokable(SymbolFor(methodName));
+    // Lookup the method to be executed on the class
+    VMMethod* initialize =
+        (VMMethod*)clazz->GetClass()->LookupInvokable(SymbolFor(methodName));
 
-  if (initialize == nullptr) {
-    ErrorPrint("Lookup of " + className + ">>#" + methodName + " failed");
-    return nullptr;
-  }
+    if (initialize == nullptr) {
+        ErrorPrint("Lookup of " + className + ">>#" + methodName + " failed");
+        return nullptr;
+    }
 
-  return interpretMethod(clazz, initialize, nullptr);
+    return interpretMethod(clazz, initialize, nullptr);
 }
 
-vm_oop_t Universe::interpretMethod(VMObject* receiver, VMInvokable* initialize,  VMArray* argumentsArray) {
-  /* only trace bootstrap if the number of cmd-line "-d"s is > 2 */
-  short trace = 2 - dumpBytecodes;
-  if (!(trace > 0)) {
-    dumpBytecodes = 1;
-  }
+vm_oop_t Universe::interpretMethod(VMObject* receiver, VMInvokable* initialize,
+                                   VMArray* argumentsArray) {
+    /* only trace bootstrap if the number of cmd-line "-d"s is > 2 */
+    short trace = 2 - dumpBytecodes;
+    if (!(trace > 0)) {
+        dumpBytecodes = 1;
+    }
 
-  VMMethod* bootstrapMethod = createBootstrapMethod(load_ptr(systemClass), 2);
+    VMMethod* bootstrapMethod = createBootstrapMethod(load_ptr(systemClass), 2);
 
-  VMFrame* bootstrapFrame = interpreter->PushNewFrame(bootstrapMethod);
-  bootstrapFrame->Push(receiver);
+    VMFrame* bootstrapFrame = interpreter->PushNewFrame(bootstrapMethod);
+    bootstrapFrame->Push(receiver);
 
-  if (argumentsArray != nullptr) {
-    bootstrapFrame->Push(argumentsArray);
-  }
+    if (argumentsArray != nullptr) {
+        bootstrapFrame->Push(argumentsArray);
+    }
 
-  initialize->Invoke(interpreter, bootstrapFrame);
+    initialize->Invoke(interpreter, bootstrapFrame);
 
-  // reset "-d" indicator
-  if (!(trace > 0)) {
-    dumpBytecodes = 2 - trace;
-  }
+    // reset "-d" indicator
+    if (!(trace > 0)) {
+        dumpBytecodes = 2 - trace;
+    }
 
-  if (dumpBytecodes > 1) {
-    return interpreter->StartAndPrintBytecodes();
-  }
-  return interpreter->Start();
+    if (dumpBytecodes > 1) {
+        return interpreter->StartAndPrintBytecodes();
+    }
+    return interpreter->Start();
 }
 
 void Universe::initialize(long _argc, char** _argv) {
@@ -325,8 +348,9 @@ void Universe::initialize(long _argc, char** _argv) {
     vector<StdString> argv = handleArguments(_argc, _argv);
 
     // remember file that was executed (for writing statistics)
-    if (argv.size() > 0)
+    if (argv.size() > 0) {
         bm_name = argv[0];
+    }
 
     Heap<HEAP_CLS>::InitializeHeap(heapSize);
 
@@ -335,41 +359,42 @@ void Universe::initialize(long _argc, char** _argv) {
 #if CACHE_INTEGER
     // create prebuilt integers
     for (long it = INT_CACHE_MIN_VALUE; it <= INT_CACHE_MAX_VALUE; ++it) {
-        prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] = store_root(new (GetHeap<HEAP_CLS>(), 0) VMInteger(it));
+        prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] =
+            store_root(new (GetHeap<HEAP_CLS>(), 0) VMInteger(it));
     }
 #endif
 
     VMObject* systemObject = InitializeGlobals();
 
     if (argv.size() == 0) {
-        VMMethod* bootstrapMethod = createBootstrapMethod(load_ptr(systemClass), 2);
+        VMMethod* bootstrapMethod =
+            createBootstrapMethod(load_ptr(systemClass), 2);
         Shell* shell = new Shell(bootstrapMethod);
         shell->Start(interpreter);
         return;
     }
 
-    VMInvokable* initialize = load_ptr(systemClass)->LookupInvokable(
-                                          SymbolFor("initialize:"));
+    VMInvokable* initialize =
+        load_ptr(systemClass)->LookupInvokable(SymbolFor("initialize:"));
 
     VMArray* argumentsArray = NewArrayFromStrings(argv);
     interpretMethod(systemObject, initialize, argumentsArray);
 }
 
 Universe::~Universe() {
-    if (interpreter)
+    if (interpreter) {
         delete (interpreter);
+    }
 
     // check done inside
     Heap<HEAP_CLS>::DestroyHeap();
 }
 
-
-
 VMObject* Universe::InitializeGlobals() {
     set_vt_to_null();
 
     //
-    //allocate nil object
+    // allocate nil object
     //
     VMObject* nil = NewInstanceWithoutFields();
     nilObject = store_root(nil);
@@ -379,30 +404,37 @@ VMObject* Universe::InitializeGlobals() {
 
     metaClassClass = store_root(NewMetaclassClass());
 
-    objectClass     = store_root(NewSystemClass());
-    nilClass        = store_root(NewSystemClass());
-    classClass      = store_root(NewSystemClass());
-    arrayClass      = store_root(NewSystemClass());
-    symbolClass     = store_root(NewSystemClass());
-    methodClass     = store_root(NewSystemClass());
-    integerClass    = store_root(NewSystemClass());
-    primitiveClass  = store_root(NewSystemClass());
-    stringClass     = store_root(NewSystemClass());
-    doubleClass     = store_root(NewSystemClass());
+    objectClass = store_root(NewSystemClass());
+    nilClass = store_root(NewSystemClass());
+    classClass = store_root(NewSystemClass());
+    arrayClass = store_root(NewSystemClass());
+    symbolClass = store_root(NewSystemClass());
+    methodClass = store_root(NewSystemClass());
+    integerClass = store_root(NewSystemClass());
+    primitiveClass = store_root(NewSystemClass());
+    stringClass = store_root(NewSystemClass());
+    doubleClass = store_root(NewSystemClass());
 
     nil->SetClass(load_ptr(nilClass));
 
-    InitializeSystemClass(load_ptr(objectClass),                  nullptr, "Object");
-    InitializeSystemClass(load_ptr(classClass),     load_ptr(objectClass), "Class");
-    InitializeSystemClass(load_ptr(metaClassClass),  load_ptr(classClass), "Metaclass");
-    InitializeSystemClass(load_ptr(nilClass),       load_ptr(objectClass), "Nil");
-    InitializeSystemClass(load_ptr(arrayClass),     load_ptr(objectClass), "Array");
-    InitializeSystemClass(load_ptr(methodClass),     load_ptr(arrayClass), "Method");
-    InitializeSystemClass(load_ptr(stringClass),    load_ptr(objectClass), "String");
-    InitializeSystemClass(load_ptr(symbolClass),    load_ptr(stringClass), "Symbol");
-    InitializeSystemClass(load_ptr(integerClass),   load_ptr(objectClass), "Integer");
-    InitializeSystemClass(load_ptr(primitiveClass), load_ptr(objectClass), "Primitive");
-    InitializeSystemClass(load_ptr(doubleClass),    load_ptr(objectClass), "Double");
+    InitializeSystemClass(load_ptr(objectClass), nullptr, "Object");
+    InitializeSystemClass(load_ptr(classClass), load_ptr(objectClass), "Class");
+    InitializeSystemClass(load_ptr(metaClassClass), load_ptr(classClass),
+                          "Metaclass");
+    InitializeSystemClass(load_ptr(nilClass), load_ptr(objectClass), "Nil");
+    InitializeSystemClass(load_ptr(arrayClass), load_ptr(objectClass), "Array");
+    InitializeSystemClass(load_ptr(methodClass), load_ptr(arrayClass),
+                          "Method");
+    InitializeSystemClass(load_ptr(stringClass), load_ptr(objectClass),
+                          "String");
+    InitializeSystemClass(load_ptr(symbolClass), load_ptr(stringClass),
+                          "Symbol");
+    InitializeSystemClass(load_ptr(integerClass), load_ptr(objectClass),
+                          "Integer");
+    InitializeSystemClass(load_ptr(primitiveClass), load_ptr(objectClass),
+                          "Primitive");
+    InitializeSystemClass(load_ptr(doubleClass), load_ptr(objectClass),
+                          "Double");
 
     // Fix up objectClass
     load_ptr(objectClass)->SetSuperClass(nil);
@@ -429,24 +461,23 @@ VMObject* Universe::InitializeGlobals() {
     blockClass = store_root(LoadClass(SymbolFor("Block")));
 
     VMSymbol* trueClassName = SymbolFor("True");
-    trueClass  = store_root(LoadClass(trueClassName));
+    trueClass = store_root(LoadClass(trueClassName));
     load_ptr(trueObject)->SetClass(load_ptr(trueClass));
 
     VMSymbol* falseClassName = SymbolFor("False");
-    falseClass  = store_root(LoadClass(falseClassName));
+    falseClass = store_root(LoadClass(falseClassName));
     load_ptr(falseObject)->SetClass(load_ptr(falseClass));
 
     systemClass = store_root(LoadClass(SymbolFor("System")));
 
-
     VMObject* systemObject = NewInstance(load_ptr(systemClass));
 
-    SetGlobal(SymbolFor("nil"),    load_ptr(nilObject));
-    SetGlobal(SymbolFor("true"),   load_ptr(trueObject));
-    SetGlobal(SymbolFor("false"),  load_ptr(falseObject));
+    SetGlobal(SymbolFor("nil"), load_ptr(nilObject));
+    SetGlobal(SymbolFor("true"), load_ptr(trueObject));
+    SetGlobal(SymbolFor("false"), load_ptr(falseObject));
     SetGlobal(SymbolFor("system"), systemObject);
     SetGlobal(SymbolFor("System"), load_ptr(systemClass));
-    SetGlobal(SymbolFor("Block"),  load_ptr(blockClass));
+    SetGlobal(SymbolFor("Block"), load_ptr(blockClass));
 
     return systemObject;
 }
@@ -463,9 +494,10 @@ VMClass* Universe::GetBlockClass() const {
 
 VMClass* Universe::GetBlockClassWithArgs(long numberOfArguments) {
     map<long, GCClass*>::iterator it =
-    blockClassesByNoOfArgs.find(numberOfArguments);
-    if (it != blockClassesByNoOfArgs.end())
+        blockClassesByNoOfArgs.find(numberOfArguments);
+    if (it != blockClassesByNoOfArgs.end()) {
         return load_ptr(it->second);
+    }
 
     Assert(numberOfArguments < 10);
 
@@ -474,7 +506,8 @@ VMClass* Universe::GetBlockClassWithArgs(long numberOfArguments) {
     VMSymbol* name = SymbolFor(Str.str());
     VMClass* result = LoadClassBasic(name, nullptr);
 
-    result->AddInstancePrimitive(new (GetHeap<HEAP_CLS>(), 0) VMEvaluationPrimitive(numberOfArguments));
+    result->AddInstancePrimitive(new (GetHeap<HEAP_CLS>(), 0)
+                                     VMEvaluationPrimitive(numberOfArguments));
 
     SetGlobal(name, result);
     blockClassesByNoOfArgs[numberOfArguments] = store_root(result);
@@ -500,8 +533,8 @@ bool Universe::HasGlobal(VMSymbol* name) {
     }
 }
 
-void Universe::InitializeSystemClass(VMClass* systemClass,
-VMClass* superClass, const char* name) {
+void Universe::InitializeSystemClass(VMClass* systemClass, VMClass* superClass,
+                                     const char* name) {
     StdString s_name(name);
 
     if (superClass != nullptr) {
@@ -541,8 +574,8 @@ VMClass* Universe::LoadClass(VMSymbol* name) {
     result = LoadClassBasic(name, nullptr);
 
     if (!result) {
-		// we fail silently, it is not fatal that loading a class failed
-		return (VMClass*) nilObject;
+        // we fail silently, it is not fatal that loading a class failed
+        return (VMClass*)nilObject;
     }
 
     if (result->HasPrimitives() || result->GetClass()->HasPrimitives()) {
@@ -559,8 +592,10 @@ VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
     VMClass* result;
 
     for (vector<StdString>::iterator i = classPath.begin();
-            i != classPath.end(); ++i) {
-        result = SourcecodeCompiler::CompileClass(*i, name->GetStdString(), systemClass);
+         i != classPath.end();
+         ++i) {
+        result = SourcecodeCompiler::CompileClass(*i, name->GetStdString(),
+                                                  systemClass);
         if (result) {
             if (dumpBytecodes) {
                 Disassembler::Dump(result->GetClass());
@@ -574,8 +609,9 @@ VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
 
 VMClass* Universe::LoadShellClass(StdString& stmt) {
     VMClass* result = SourcecodeCompiler::CompileClassString(stmt, nullptr);
-    if(dumpBytecodes)
+    if (dumpBytecodes) {
         Disassembler::Dump(result);
+    }
     return result;
 }
 
@@ -601,10 +637,14 @@ VMArray* Universe::NewArray(size_t size) const {
 #if GC_TYPE == GENERATIONAL
     // if the array is too big for the nursery, we will directly allocate a
     // mature object
-    outsideNursery = additionalBytes + sizeof(VMArray) > GetHeap<HEAP_CLS>()->GetMaxNurseryObjectSize();
+    outsideNursery = additionalBytes + sizeof(VMArray) >
+                     GetHeap<HEAP_CLS>()->GetMaxNurseryObjectSize();
 #endif
 
-    VMArray* result = new (GetHeap<HEAP_CLS>(), additionalBytes ALLOC_OUTSIDE_NURSERY(outsideNursery)) VMArray(size, additionalBytes);
+    VMArray* result =
+        new (GetHeap<HEAP_CLS>(),
+             additionalBytes ALLOC_OUTSIDE_NURSERY(outsideNursery))
+            VMArray(size, additionalBytes);
     if ((GC_TYPE == GENERATIONAL) && outsideNursery) {
         result->SetGCField(MASK_OBJECT_IS_OLD);
     }
@@ -615,7 +655,8 @@ VMArray* Universe::NewArray(size_t size) const {
     return result;
 }
 
-VMArray* Universe::NewArrayFromStrings(const vector<std::string>& strings) const {
+VMArray* Universe::NewArrayFromStrings(
+    const vector<std::string>& strings) const {
     VMArray* result = NewArray(strings.size());
     size_t j = 0;
     for (const std::string& str : strings) {
@@ -625,7 +666,8 @@ VMArray* Universe::NewArrayFromStrings(const vector<std::string>& strings) const
     return result;
 }
 
-VMArray* Universe::NewArrayOfSymbolsFromStrings(const vector<std::string>& strings) const {
+VMArray* Universe::NewArrayOfSymbolsFromStrings(
+    const vector<std::string>& strings) const {
     VMArray* result = NewArray(strings.size());
     size_t j = 0;
     for (const std::string& str : strings) {
@@ -636,12 +678,12 @@ VMArray* Universe::NewArrayOfSymbolsFromStrings(const vector<std::string>& strin
 }
 
 VMArray* Universe::NewArrayList(std::vector<VMSymbol*>& list) const {
-    std::vector<vm_oop_t>& objList = (std::vector<vm_oop_t>&) list;
+    std::vector<vm_oop_t>& objList = (std::vector<vm_oop_t>&)list;
     return NewArrayList(objList);
 }
 
 VMArray* Universe::NewArrayList(std::vector<VMInvokable*>& list) const {
-    std::vector<vm_oop_t>& objList = (std::vector<vm_oop_t>&) list;
+    std::vector<vm_oop_t>& objList = (std::vector<vm_oop_t>&)list;
     return NewArrayList(objList);
 }
 
@@ -658,7 +700,8 @@ VMArray* Universe::NewArrayList(std::vector<vm_oop_t>& list) const {
     return result;
 }
 
-VMBlock* Universe::NewBlock(VMMethod* method, VMFrame* context, long arguments) {
+VMBlock* Universe::NewBlock(VMMethod* method, VMFrame* context,
+                            long arguments) {
     VMBlock* result = new (GetHeap<HEAP_CLS>(), 0) VMBlock(method, context);
     result->SetClass(GetBlockClassWithArgs(arguments));
 
@@ -672,7 +715,8 @@ VMClass* Universe::NewClass(VMClass* classOfClass) const {
 
     if (numFields) {
         size_t additionalBytes = numFields * sizeof(VMObject*);
-        result = new (GetHeap<HEAP_CLS>(), additionalBytes) VMClass(numFields, additionalBytes);
+        result = new (GetHeap<HEAP_CLS>(), additionalBytes)
+            VMClass(numFields, additionalBytes);
     } else {
         result = new (GetHeap<HEAP_CLS>(), 0) VMClass;
     }
@@ -699,12 +743,13 @@ VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method) const {
     }
 #endif
     size_t length = method->GetNumberOfArguments() +
-                  method->GetNumberOfLocals() +
-                  method->GetMaximumNumberOfStackElements();
+                    method->GetNumberOfLocals() +
+                    method->GetMaximumNumberOfStackElements();
 
     size_t additionalBytes = length * sizeof(VMObject*);
-    result = new (GetHeap<HEAP_CLS>(), additionalBytes) VMFrame(length, additionalBytes);
-    result->method        = store_root(method);
+    result = new (GetHeap<HEAP_CLS>(), additionalBytes)
+        VMFrame(length, additionalBytes);
+    result->method = store_root(method);
     result->previousFrame = store_root(previousFrame);
     result->ResetStackPointer();
 
@@ -714,28 +759,30 @@ VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method) const {
 
 VMObject* Universe::NewInstance(VMClass* classOfInstance) const {
     long numOfFields = classOfInstance->GetNumberOfInstanceFields();
-    //the additional space needed is calculated from the number of fields
+    // the additional space needed is calculated from the number of fields
     long additionalBytes = numOfFields * sizeof(VMObject*);
-    VMObject* result = new (GetHeap<HEAP_CLS>(), additionalBytes) VMObject(numOfFields, additionalBytes + sizeof(VMObject));
+    VMObject* result = new (GetHeap<HEAP_CLS>(), additionalBytes)
+        VMObject(numOfFields, additionalBytes + sizeof(VMObject));
     result->SetClass(classOfInstance);
 
-    LOG_ALLOCATION(classOfInstance->GetName()->GetStdString(), result->GetObjectSize());
+    LOG_ALLOCATION(classOfInstance->GetName()->GetStdString(),
+                   result->GetObjectSize());
     return result;
 }
 
 VMObject* Universe::NewInstanceWithoutFields() const {
-    VMObject* result = new (GetHeap<HEAP_CLS>(), 0) VMObject(0, sizeof(VMObject));
+    VMObject* result =
+        new (GetHeap<HEAP_CLS>(), 0) VMObject(0, sizeof(VMObject));
     return result;
 }
 
 VMInteger* Universe::NewInteger(int64_t value) const {
-
 #ifdef GENERATE_INTEGER_HISTOGRAM
-    integerHist[value/INT_HIST_SIZE] = integerHist[value/INT_HIST_SIZE]+1;
+    integerHist[value / INT_HIST_SIZE] = integerHist[value / INT_HIST_SIZE] + 1;
 #endif
 
 #if CACHE_INTEGER
-    size_t index = (size_t) value - (size_t)INT_CACHE_MIN_VALUE;
+    size_t index = (size_t)value - (size_t)INT_CACHE_MIN_VALUE;
     if (index < (size_t)(INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE)) {
         return static_cast<VMInteger*>(load_ptr(prebuildInts[index]));
     }
@@ -756,39 +803,40 @@ VMClass* Universe::NewMetaclassClass() const {
 }
 
 void Universe::WalkGlobals(walk_heap_fn walk) {
-    nilObject   = static_cast<GCObject*>(walk(nilObject));
-    trueObject  = static_cast<GCObject*>(walk(trueObject));
+    nilObject = static_cast<GCObject*>(walk(nilObject));
+    trueObject = static_cast<GCObject*>(walk(trueObject));
     falseObject = static_cast<GCObject*>(walk(falseObject));
 
 #if USE_TAGGING
     GlobalBox::WalkGlobals(walk);
 #endif
 
-    objectClass    = static_cast<GCClass*>(walk(objectClass));
-    classClass     = static_cast<GCClass*>(walk(classClass));
+    objectClass = static_cast<GCClass*>(walk(objectClass));
+    classClass = static_cast<GCClass*>(walk(classClass));
     metaClassClass = static_cast<GCClass*>(walk(metaClassClass));
 
-    nilClass        = static_cast<GCClass*>(walk(nilClass));
-    integerClass    = static_cast<GCClass*>(walk(integerClass));
-    arrayClass      = static_cast<GCClass*>(walk(arrayClass));
-    methodClass     = static_cast<GCClass*>(walk(methodClass));
-    symbolClass     = static_cast<GCClass*>(walk(symbolClass));
-    primitiveClass  = static_cast<GCClass*>(walk(primitiveClass));
-    stringClass     = static_cast<GCClass*>(walk(stringClass));
-    systemClass     = static_cast<GCClass*>(walk(systemClass));
-    blockClass      = static_cast<GCClass*>(walk(blockClass));
-    doubleClass     = static_cast<GCClass*>(walk(doubleClass));
+    nilClass = static_cast<GCClass*>(walk(nilClass));
+    integerClass = static_cast<GCClass*>(walk(integerClass));
+    arrayClass = static_cast<GCClass*>(walk(arrayClass));
+    methodClass = static_cast<GCClass*>(walk(methodClass));
+    symbolClass = static_cast<GCClass*>(walk(symbolClass));
+    primitiveClass = static_cast<GCClass*>(walk(primitiveClass));
+    stringClass = static_cast<GCClass*>(walk(stringClass));
+    systemClass = static_cast<GCClass*>(walk(systemClass));
+    blockClass = static_cast<GCClass*>(walk(blockClass));
+    doubleClass = static_cast<GCClass*>(walk(doubleClass));
 
-    trueClass  = static_cast<GCClass*>(walk(trueClass));
+    trueClass = static_cast<GCClass*>(walk(trueClass));
     falseClass = static_cast<GCClass*>(walk(falseClass));
 
 #if CACHE_INTEGER
-    for (unsigned long i = 0; i < (INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE); i++)
-#if USE_TAGGING
+    for (unsigned long i = 0; i < (INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE);
+         i++)
+  #if USE_TAGGING
         prebuildInts[i] = TAG_INTEGER(INT_CACHE_MIN_VALUE + i);
-#else
+  #else
         prebuildInts[i] = walk(prebuildInts[i]);
-#endif
+  #endif
 #endif
 
     // walk all entries in globals map
@@ -805,7 +853,6 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
 
     WalkSymbols(walk);
 
-
     map<long, GCClass*>::iterator bcIter;
     for (bcIter = blockClassesByNoOfArgs.begin();
          bcIter != blockClassesByNoOfArgs.end();
@@ -816,9 +863,12 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
     interpreter->WalkGlobals(walk);
 }
 
-VMMethod* Universe::NewMethod(VMSymbol* signature,
-        size_t numberOfBytecodes, size_t numberOfConstants, size_t numLocals, size_t maxStackDepth, LexicalScope* lexicalScope, vector<BackJump>& inlinedLoops) const {
-    assert(lexicalScope != nullptr && "A method is expected to have a lexical scope");
+VMMethod* Universe::NewMethod(VMSymbol* signature, size_t numberOfBytecodes,
+                              size_t numberOfConstants, size_t numLocals,
+                              size_t maxStackDepth, LexicalScope* lexicalScope,
+                              vector<BackJump>& inlinedLoops) const {
+    assert(lexicalScope != nullptr &&
+           "A method is expected to have a lexical scope");
 
     // turn inlined loops vector into a nullptr terminated array
     BackJump* inlinedLoopsArr;
@@ -835,9 +885,11 @@ VMMethod* Universe::NewMethod(VMSymbol* signature,
     }
 
     // method needs space for the bytecodes and the pointers to the constants
-    size_t additionalBytes = PADDED_SIZE(numberOfBytecodes + numberOfConstants*sizeof(VMObject*));
-    VMMethod* result = new (GetHeap<HEAP_CLS>(),additionalBytes)
-        VMMethod(signature, numberOfBytecodes, numberOfConstants, numLocals, maxStackDepth, lexicalScope, inlinedLoopsArr);
+    size_t additionalBytes =
+        PADDED_SIZE(numberOfBytecodes + numberOfConstants * sizeof(VMObject*));
+    VMMethod* result = new (GetHeap<HEAP_CLS>(), additionalBytes)
+        VMMethod(signature, numberOfBytecodes, numberOfConstants, numLocals,
+                 maxStackDepth, lexicalScope, inlinedLoopsArr);
 
     LOG_ALLOCATION("VMMethod", result->GetObjectSize());
     return result;
@@ -848,7 +900,8 @@ VMString* Universe::NewString(const StdString& str) const {
 }
 
 VMString* Universe::NewString(const size_t length, const char* str) const {
-    VMString* result = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(length)) VMString(length, str);
+    VMString* result =
+        new (GetHeap<HEAP_CLS>(), PADDED_SIZE(length)) VMString(length, str);
 
     LOG_ALLOCATION("VMString", result->GetObjectSize());
     return result;

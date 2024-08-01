@@ -1,3 +1,5 @@
+#include "DebugCopyingHeap.h"
+
 #include <algorithm>
 #include <cassert>
 #include <cstddef>
@@ -7,10 +9,12 @@
 #include "../vm/Print.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/AbstractObject.h"
-#include "DebugCopyingHeap.h"
 
 void DebugCopyingHeap::switchBuffers(bool increaseMemory) {
-    assert(oldHeap.empty() && "At this point, I'd assume the old heap is empty, because we want to use it to store into now");
+    assert(
+        oldHeap.empty() &&
+        "At this point, I'd assume the old heap is empty, because we want to "
+        "use it to store into now");
 
     oldHeap.swap(currentHeap);
     oldHeapIsValid = true;
@@ -18,11 +22,12 @@ void DebugCopyingHeap::switchBuffers(bool increaseMemory) {
 
     if (increaseMemory) {
         currentHeapSize += currentHeapSize;
-        collectionLimit = (double) currentHeapSize * 0.9;
+        collectionLimit = (double)currentHeapSize * 0.9;
     }
 
     currentHeapUsage = 0;
-    assert(currentHeap.empty() && "at the end, the current heap is expected to be empty");
+    assert(currentHeap.empty() &&
+           "at the end, the current heap is expected to be empty");
 }
 
 void DebugCopyingHeap::invalidateOldBuffer() {
@@ -45,7 +50,7 @@ void DebugCopyingHeap::invalidateOldBuffer() {
 }
 
 AbstractVMObject* DebugCopyingHeap::AllocateObject(size_t size) {
-    AbstractVMObject* newObject = (AbstractVMObject*) malloc(size);
+    AbstractVMObject* newObject = (AbstractVMObject*)malloc(size);
     currentHeap.push_back(newObject);
 
     currentHeapUsage += size;
@@ -68,7 +73,8 @@ bool DebugCopyingHeap::IsInCurrentBuffer(AbstractVMObject* obj) {
         return true;
     }
 
-    return find(currentHeap.begin(), currentHeap.end(), obj) != currentHeap.end();
+    return find(currentHeap.begin(), currentHeap.end(), obj) !=
+           currentHeap.end();
 }
 
 bool DebugCopyingHeap::IsInOldBufferAndOldBufferIsValid(AbstractVMObject* obj) {

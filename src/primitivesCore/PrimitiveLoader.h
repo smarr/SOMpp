@@ -33,19 +33,20 @@
 class PrimitiveContainer;
 class PrimitiveRoutine;
 
-///Core class for primitive loading.
-//In order to implement new primitive libraries, you can use this class.
+/// Core class for primitive loading.
+// In order to implement new primitive libraries, you can use this class.
 //
-//Libraries have to take care of initializing any needed data or data structures.
-//When using the PrimitiveLoader class that is the the std::map primitiveObjects.
-//Initialize it by calling the AddPrimitiveObject method, in order to map the 
-//name of the smalltalk class to the corresponding PrimitiveContainer object.
+// Libraries have to take care of initializing any needed data or data
+// structures. When using the PrimitiveLoader class that is the the std::map
+// primitiveObjects. Initialize it by calling the AddPrimitiveObject method, in
+// order to map the name of the smalltalk class to the corresponding
+// PrimitiveContainer object.
 class PrimitiveLoader {
 public:
     PrimitiveLoader();
     virtual ~PrimitiveLoader();
     void AddPrimitiveObject(const std::string& name, PrimitiveContainer*);
-    
+
     static bool SupportsClass(const std::string& name);
     static PrimitiveRoutine* GetPrimitiveRoutine(const std::string& cname,
                                                  const std::string& mname,
@@ -57,9 +58,7 @@ private:
                                           const std::string& mname,
                                           bool isPrimitive);
 
-
-    
     std::map<StdString, PrimitiveContainer*> primitiveObjects{};
-    
+
     static PrimitiveLoader loader;
 };

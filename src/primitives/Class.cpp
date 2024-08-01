@@ -24,21 +24,22 @@
  THE SOFTWARE.
  */
 
+#include "Class.h"
+
 #include "../primitivesCore/PrimitiveContainer.h"
 #include "../primitivesCore/Routine.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/VMClass.h"
 #include "../vmobjects/VMFrame.h"
-#include "../vmobjects/VMSymbol.h" // NOLINT(misc-include-cleaner) it's required to make the types complete
-#include "Class.h"
-
+#include "../vmobjects/VMSymbol.h"  // NOLINT(misc-include-cleaner) it's required to make the types complete
 
 _Class::_Class() : PrimitiveContainer() {
-    SetPrimitive("new",        new Routine<_Class>(this, &_Class::New,        false));
-    SetPrimitive("name",       new Routine<_Class>(this, &_Class::Name,       false));
-    SetPrimitive("superclass", new Routine<_Class>(this, &_Class::Superclass, false));
-    SetPrimitive("fields",     new Routine<_Class>(this, &_Class::Fields,     false));
-    SetPrimitive("methods",    new Routine<_Class>(this, &_Class::Methods,    false));
+    SetPrimitive("new", new Routine<_Class>(this, &_Class::New, false));
+    SetPrimitive("name", new Routine<_Class>(this, &_Class::Name, false));
+    SetPrimitive("superclass",
+                 new Routine<_Class>(this, &_Class::Superclass, false));
+    SetPrimitive("fields", new Routine<_Class>(this, &_Class::Fields, false));
+    SetPrimitive("methods", new Routine<_Class>(this, &_Class::Methods, false));
 }
 
 void _Class::New(Interpreter*, VMFrame* frame) {

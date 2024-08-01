@@ -24,6 +24,8 @@
  THE SOFTWARE.
  */
 
+#include "../vmobjects/VMArray.h"
+
 #include <cassert>
 #include <cstddef>
 #include <cstring>
@@ -33,13 +35,14 @@
 #include "../misc/defs.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
-#include "../vmobjects/VMArray.h"
 #include "../vmobjects/VMObject.h"
 
 const size_t VMArray::VMArrayNumberOfFields = 0;
 
-VMArray::VMArray(size_t arraySize, size_t additionalBytes) :
-        VMObject(arraySize + 0 /* VMArray is not allowed to have any fields itself */, additionalBytes + sizeof(VMArray)) {
+VMArray::VMArray(size_t arraySize, size_t additionalBytes)
+    : VMObject(
+          arraySize + 0 /* VMArray is not allowed to have any fields itself */,
+          additionalBytes + sizeof(VMArray)) {
     assert(VMArrayNumberOfFields == 0);
     nilInitializeFields();
 }
@@ -48,7 +51,8 @@ vm_oop_t VMArray::GetIndexableField(size_t idx) const {
     if (unlikely(idx > GetNumberOfIndexableFields())) {
         Universe::ErrorExit(("Array index out of bounds: Accessing " +
                              to_string(idx) + ", but array size is only " +
-                             to_string(GetNumberOfIndexableFields()) + "\n").c_str());
+                             to_string(GetNumberOfIndexableFields()) + "\n")
+                                .c_str());
     }
     return GetField(idx);
 }
@@ -57,7 +61,8 @@ void VMArray::SetIndexableField(size_t idx, vm_oop_t value) {
     if (unlikely(idx > GetNumberOfIndexableFields())) {
         Universe::ErrorExit(("Array index out of bounds: Accessing " +
                              to_string(idx) + ", but array size is only " +
-                             to_string(GetNumberOfIndexableFields()) + "\n").c_str());
+                             to_string(GetNumberOfIndexableFields()) + "\n")
+                                .c_str());
     }
     SetField(idx, value);
 }
@@ -72,8 +77,9 @@ VMArray* VMArray::CopyAndExtendWith(vm_oop_t item) const {
 
 VMArray* VMArray::CloneForMovingGC() const {
     const size_t addSpace = totalObjectSize - sizeof(VMArray);
-    auto* clone = new (GetHeap<HEAP_CLS>(), addSpace ALLOC_MATURE) VMArray(*this);
-    void* destination  = SHIFTED_PTR(clone, sizeof(VMArray));
+    auto* clone =
+        new (GetHeap<HEAP_CLS>(), addSpace ALLOC_MATURE) VMArray(*this);
+    void* destination = SHIFTED_PTR(clone, sizeof(VMArray));
     const void* source = SHIFTED_PTR(this, sizeof(VMArray));
     memcpy(destination, source, addSpace);
     return clone;

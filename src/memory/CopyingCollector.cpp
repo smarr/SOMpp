@@ -1,3 +1,5 @@
+#include "CopyingCollector.h"
+
 #include <cassert>
 #include <cstddef>
 #include <cstdlib>
@@ -12,7 +14,6 @@
 #include "../vmobjects/IntegerBox.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMFrame.h"
-#include "CopyingCollector.h"
 #include "CopyingHeap.h"
 
 static gc_oop_t copy_if_necessary(gc_oop_t oop) {
@@ -28,7 +29,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     // GCField is used as forwarding pointer here
     // if someone has moved before, return the moved object
     if (gcField != 0) {
-        return (gc_oop_t) gcField;
+        return (gc_oop_t)gcField;
     }
 
     assert(GetHeap<CopyingHeap>()->IsInOldBufferAndOldBufferIsValid(obj));
@@ -51,7 +52,7 @@ void CopyingCollector::Collect() {
     DebugLog("CopyGC Collect\n");
 
     Timer::GCTimer->Resume();
-    //reset collection trigger
+    // reset collection trigger
     heap->resetGCTrigger();
 
     static bool increaseMemory;
@@ -60,11 +61,13 @@ void CopyingCollector::Collect() {
 
     GetUniverse()->WalkGlobals(copy_if_necessary);
 
-    // now copy all objects that are referenced by the objects we have moved so far
+    // now copy all objects that are referenced by the objects we have moved so
+    // far
     AbstractVMObject* curObject = (AbstractVMObject*)(heap->currentBuffer);
     while (curObject < heap->nextFreePosition) {
         curObject->WalkObjects(copy_if_necessary);
-        curObject = (AbstractVMObject*)((size_t)curObject + curObject->GetObjectSize());
+        curObject =
+            (AbstractVMObject*)((size_t)curObject + curObject->GetObjectSize());
     }
 
     heap->invalidateOldBuffer();
@@ -72,8 +75,7 @@ void CopyingCollector::Collect() {
     // if semispace is still 50% full after collection, we have to realloc
     // bigger ones -> done in next collection
     if ((size_t)(heap->nextFreePosition) - (size_t)(heap->currentBuffer) >=
-            (size_t)(heap->currentBufferEnd) -
-            (size_t)(heap->nextFreePosition)) {
+        (size_t)(heap->currentBufferEnd) - (size_t)(heap->nextFreePosition)) {
         increaseMemory = true;
     }
 

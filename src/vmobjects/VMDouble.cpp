@@ -24,6 +24,8 @@
  THE SOFTWARE.
  */
 
+#include "VMDouble.h"
+
 #include <string>
 
 #include "../memory/Heap.h"
@@ -31,7 +33,6 @@
 #include "../vm/Globals.h"
 #include "ObjectFormats.h"
 #include "VMClass.h"
-#include "VMDouble.h"
 
 VMDouble* VMDouble::CloneForMovingGC() const {
     return new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMDouble(*this);

@@ -29,25 +29,25 @@
 #include "VMFrame.h"
 #include "VMObject.h"
 
-class VMBlock: public VMObject {
+class VMBlock : public VMObject {
 public:
     typedef GCBlock Stored;
 
     VMBlock(VMMethod* method, VMFrame* context);
 
-            VMMethod* GetMethod() const;
-    
-    inline  VMFrame*  GetContext() const {
-        return load_ptr(context);
-    }
+    VMMethod* GetMethod() const;
 
-            VMBlock*  CloneForMovingGC() const override;
+    inline VMFrame* GetContext() const { return load_ptr(context); }
+
+    VMBlock* CloneForMovingGC() const override;
 
     StdString AsDebugString() const override;
 
     static VMEvaluationPrimitive* GetEvaluationPrimitive(int);
 
-private_testable:
+private:
+    make_testable(public);
+
     GCMethod* blockMethod;
     GCFrame* context;
 

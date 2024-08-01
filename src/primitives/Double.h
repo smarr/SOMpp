@@ -29,7 +29,7 @@
 #include "../primitivesCore/PrimitiveContainer.h"
 #include "../vmobjects/ObjectFormats.h"
 
-class _Double: public PrimitiveContainer {
+class _Double : public PrimitiveContainer {
 public:
     _Double();
     void Plus(Interpreter*, VMFrame*);

@@ -33,9 +33,12 @@
 class SourcecodeCompiler {
 public:
     static VMClass* CompileClass(const StdString& path, const StdString& file,
-            VMClass* systemClass);
-    static VMClass* CompileClassString(const StdString& stream, VMClass* systemClass);
+                                 VMClass* systemClass);
+    static VMClass* CompileClassString(const StdString& stream,
+                                       VMClass* systemClass);
+
 private:
-    static void showCompilationError(const StdString& filename, const char* message);
+    static void showCompilationError(const StdString& filename,
+                                     const char* message);
     static VMClass* compile(Parser& parser, VMClass* systemClass);
 };

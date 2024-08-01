@@ -29,15 +29,14 @@
 #include "../primitivesCore/PrimitiveContainer.h"
 #include "../vmobjects/ObjectFormats.h"
 
-class _Block: public PrimitiveContainer {
+class _Block : public PrimitiveContainer {
 public:
     _Block();
     void Value(Interpreter*, VMFrame*);
     void Restart(Interpreter*, VMFrame*);
     void Value_(Interpreter*, VMFrame*);
     void Value_with_(Interpreter*, VMFrame*);
-    
+
     void Spawn(Interpreter*, VMFrame*);
     void Spawn_(Interpreter*, VMFrame*);
-
 };

@@ -33,26 +33,25 @@
 // Macro Debugging
 #define VALUE_TO_STRING(x) #x
 #define VALUE(x) VALUE_TO_STRING(x)
-#define VAR_NAME_VALUE(var) #var "="  VALUE(var)
-
+#define VAR_NAME_VALUE(var) #var "=" VALUE(var)
 
 //
 // error codes
 //
-#define ERR_SUCCESS        0x0
-#define ERR_FAIL           0x1
-#define ERR_NOMEM          0x2
-#define ERR_PANIC          0xFFFF
+#define ERR_SUCCESS 0x0
+#define ERR_FAIL 0x1
+#define ERR_NOMEM 0x2
+#define ERR_PANIC 0xFFFF
 
 //
 // Integer Ranges
 //
 #ifndef INT32_MAX
-/*Maximum value of 32-bit integer is 0x7FFF FFFF (2 147 483 647)         */
-#define INT32_MAX 0x7FFFFFFF  /*2 147 483 647*/
+  /*Maximum value of 32-bit integer is 0x7FFF FFFF (2 147 483 647)         */
+  #define INT32_MAX 0x7FFFFFFF /*2 147 483 647*/
 #endif
 #ifndef INT32_MIN
-#define INT32_MIN (-2147483647)
+  #define INT32_MIN (-2147483647)
 
 #endif
 
@@ -66,34 +65,35 @@
 // GC Types
 //
 #define GENERATIONAL 1
-#define COPYING      2
-#define MARK_SWEEP   3
+#define COPYING 2
+#define MARK_SWEEP 3
 #define DEBUG_COPYING 4
 
-#if   GC_TYPE == GENERATIONAL
-  class   GenerationalHeap;
-  typedef GenerationalHeap HEAP_CLS;
-  #define write_barrier(obj, value_ptr) ((GetHeap<GenerationalHeap>())->writeBarrier(obj, value_ptr))
-  #define ALLOC_MATURE    , true
+#if GC_TYPE == GENERATIONAL
+class GenerationalHeap;
+typedef GenerationalHeap HEAP_CLS;
+  #define write_barrier(obj, value_ptr) \
+      ((GetHeap<GenerationalHeap>())->writeBarrier(obj, value_ptr))
+  #define ALLOC_MATURE , true
   #define ALLOC_OUTSIDE_NURSERY(X) , (X)
   #define ALLOC_OUTSIDE_NURSERY_DECL , bool outsideNursery = false
 #elif GC_TYPE == COPYING
-  class   CopyingHeap;
-  typedef CopyingHeap HEAP_CLS;
+class CopyingHeap;
+typedef CopyingHeap HEAP_CLS;
   #define write_barrier(obj, value_ptr)
   #define ALLOC_MATURE
   #define ALLOC_OUTSIDE_NURSERY(X)
   #define ALLOC_OUTSIDE_NURSERY_DECL
 #elif GC_TYPE == MARK_SWEEP
-  class   MarkSweepHeap;
-  typedef MarkSweepHeap HEAP_CLS;
+class MarkSweepHeap;
+typedef MarkSweepHeap HEAP_CLS;
   #define write_barrier(obj, value_ptr)
   #define ALLOC_MATURE
   #define ALLOC_OUTSIDE_NURSERY(X)
   #define ALLOC_OUTSIDE_NURSERY_DECL
 #elif GC_TYPE == DEBUG_COPYING
-  class   DebugCopyingHeap;
-  typedef DebugCopyingHeap HEAP_CLS;
+class DebugCopyingHeap;
+typedef DebugCopyingHeap HEAP_CLS;
   #define write_barrier(obj, value_ptr)
   #define ALLOC_MATURE
   #define ALLOC_OUTSIDE_NURSERY(X)
@@ -110,7 +110,7 @@
 #ifdef CACHE_INTEGER
   // Sanity check
   #if CACHE_INTEGER && USE_TAGGING
-    # error Caching of small integer instances is only useful without tagged integers
+    #error Caching of small integer instances is only useful without tagged integers
   #endif
 #endif
 
@@ -126,13 +126,12 @@
   #define INT_CACHE_MAX_VALUE (100)
 #endif
 
-
 //
 // Debugging
 //
 #ifdef DEBUG
   // Sanity check
-  #if (!(DEBUG+0))
+  #if (!(DEBUG + 0))
     #pragma message(VAR_NAME_VALUE(DEBUG))
     #error DEBUG needs to be set to a boolean
   #endif
@@ -152,20 +151,19 @@
 // Testing
 //
 #ifndef UNITTESTS
-  #define private_testable   private
-  #define protected_testable protected
+  #define make_testable(label)
 #else
-  #define private_testable   public
-  #define protected_testable public
+  #define make_testable(label) \
+  label:
 #endif
 
 //
 // Log Levels
 //
 #define LOG_LEVEL_ERROR 0
-#define LOG_LEVEL_WARN  1
-#define LOG_LEVEL_LOG   2
-#define LOG_LEVEL_INFO  3
+#define LOG_LEVEL_WARN 1
+#define LOG_LEVEL_LOG 2
+#define LOG_LEVEL_INFO 3
 
 #ifndef LOG_LEVEL
   #define LOG_LEVEL LOG_LEVEL_ERROR
@@ -174,9 +172,8 @@
 //
 // Performance Optimization
 //
-#define likely(x)       __builtin_expect((x),1)
-#define unlikely(x)     __builtin_expect((x),0)
-
+#define likely(x) __builtin_expect((x), 1)
+#define unlikely(x) __builtin_expect((x), 0)
 
 typedef std::string StdString;
 

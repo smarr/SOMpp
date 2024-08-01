@@ -24,12 +24,14 @@
  THE SOFTWARE.
  */
 
+#include "Interpreter.h"
+
 #include <cassert>
 #include <cstdint>
 #include <string>
 
 #include "../compiler/Disassembler.h"
-#include "../interpreter/bytecodes.h" // NOLINT(misc-include-cleaner) it's required for InterpreterLoop.h
+#include "../interpreter/bytecodes.h"  // NOLINT(misc-include-cleaner) it's required for InterpreterLoop.h
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../vm/IsValidObject.h"
@@ -45,23 +47,22 @@
 #include "../vmobjects/VMMethod.h"
 #include "../vmobjects/VMObject.h"
 #include "../vmobjects/VMSymbol.h"
-#include "Interpreter.h"
 
-
-const std::string Interpreter::unknownGlobal     = "unknownGlobal:";
-const std::string Interpreter::doesNotUnderstand = "doesNotUnderstand:arguments:";
-const std::string Interpreter::escapedBlock      = "escapedBlock:";
-
+const std::string Interpreter::unknownGlobal = "unknownGlobal:";
+const std::string Interpreter::doesNotUnderstand =
+    "doesNotUnderstand:arguments:";
+const std::string Interpreter::escapedBlock = "escapedBlock:";
 
 Interpreter::Interpreter() : frame(nullptr) {}
 
 Interpreter::~Interpreter() {}
 
 vm_oop_t Interpreter::StartAndPrintBytecodes() {
-#define PROLOGUE(bc_count) {\
-disassembleMethod(); \
-bytecodeIndexGlobal += bc_count;\
-}
+#define PROLOGUE(bc_count)               \
+    {                                    \
+        disassembleMethod();             \
+        bytecodeIndexGlobal += bc_count; \
+    }
 #define HACK_INLINE_START
 #include "InterpreterLoop.h"
 #undef HACK_INLINE_START
@@ -69,9 +70,8 @@ bytecodeIndexGlobal += bc_count;\
 
 vm_oop_t Interpreter::Start() {
 #undef PROLOGUE
-#define PROLOGUE(bc_count) {\
-bytecodeIndexGlobal += bc_count;\
-}
+#define PROLOGUE(bc_count) \
+    { bytecodeIndexGlobal += bc_count; }
 #define HACK_INLINE_START
 #include "InterpreterLoop.h"
 #undef HACK_INLINE_START
@@ -83,15 +83,16 @@ VMFrame* Interpreter::PushNewFrame(VMMethod* method) {
 }
 
 void Interpreter::SetFrame(VMFrame* frame) {
-    if (this->frame != nullptr)
+    if (this->frame != nullptr) {
         this->frame->SetBytecodeIndex(bytecodeIndexGlobal);
+    }
 
     this->frame = frame;
 
     // update cached values
-    method              = frame->GetMethod();
+    method = frame->GetMethod();
     bytecodeIndexGlobal = frame->GetBytecodeIndex();
-    currentBytecodes    = method->GetBytecodes();
+    currentBytecodes = method->GetBytecodes();
 }
 
 vm_oop_t Interpreter::GetSelf() const {
@@ -106,7 +107,7 @@ VMFrame* Interpreter::popFrame() {
     result->ClearPreviousFrame();
 
 #ifdef UNSAFE_FRAME_OPTIMIZATION
-    //remember this frame as free frame
+    // remember this frame as free frame
     result->GetMethod()->SetCachedFrame(result);
 #endif
     return result;
@@ -118,7 +119,9 @@ void Interpreter::popFrameAndPushResult(vm_oop_t result) {
     VMMethod* method = prevFrame->GetMethod();
     long numberOfArgs = method->GetNumberOfArguments();
 
-    for (long i = 0; i < numberOfArgs; ++i) GetFrame()->Pop();
+    for (long i = 0; i < numberOfArgs; ++i) {
+        GetFrame()->Pop();
+    }
 
     GetFrame()->Push(result);
 }
@@ -129,11 +132,14 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
     if (invokable != nullptr) {
 #ifdef LOG_RECEIVER_TYPES
         std::string name = receiverClass->GetName()->GetStdString();
-        if (GetUniverse()->callStats.find(name) == GetUniverse()->callStats.end())
-        GetUniverse()->callStats[name] = {0,0};
+        if (GetUniverse()->callStats.find(name) ==
+            GetUniverse()->callStats.end()) {
+            GetUniverse()->callStats[name] = {0, 0};
+        }
         GetUniverse()->callStats[name].noCalls++;
-        if (invokable->IsPrimitive())
-        GetUniverse()->callStats[name].noPrimitiveCalls++;
+        if (invokable->IsPrimitive()) {
+            GetUniverse()->callStats[name].noPrimitiveCalls++;
+        }
 #endif
         // since an invokable is able to change/use the frame, we have to write
         // cached values before, and read cached values after calling
@@ -150,7 +156,8 @@ void Interpreter::triggerDoesNotUnderstand(VMSymbol* signature) {
 
     vm_oop_t receiver = GetFrame()->GetStackElement(numberOfArgs - 1);
 
-    VMArray* argumentsArray = GetUniverse()->NewArray(numberOfArgs - 1); // without receiver
+    VMArray* argumentsArray =
+        GetUniverse()->NewArray(numberOfArgs - 1);  // without receiver
 
     // the receiver should not go into the argumentsArray
     // so, numberOfArgs - 2
@@ -160,14 +167,15 @@ void Interpreter::triggerDoesNotUnderstand(VMSymbol* signature) {
     }
     vm_oop_t arguments[] = {signature, argumentsArray};
 
-    GetFrame()->Pop(); // pop the receiver
+    GetFrame()->Pop();  // pop the receiver
 
-    //check if current frame is big enough for this unplanned Send
-    //doesNotUnderstand: needs 3 slots, one for this, one for method name, one for args
+    // check if current frame is big enough for this unplanned Send
+    // doesNotUnderstand: needs 3 slots, one for this, one for method name, one
+    // for args
     long additionalStackSlots = 3 - GetFrame()->RemainingStackSize();
     if (additionalStackSlots > 0) {
         GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
-        //copy current frame into a bigger one and replace the current frame
+        // copy current frame into a bigger one and replace the current frame
         SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
     }
 
@@ -188,7 +196,7 @@ void Interpreter::doPushLocal(long bytecodeIndex) {
     GetFrame()->Push(local);
 }
 
-void Interpreter::doPushLocalWithIndex(uint8_t localIndex){
+void Interpreter::doPushLocalWithIndex(uint8_t localIndex) {
     vm_oop_t local = GetFrame()->GetLocalInCurrentContext(localIndex);
     GetFrame()->Push(local);
 }
@@ -214,8 +222,7 @@ void Interpreter::doPushFieldWithIndex(uint8_t fieldIndex) {
     if (unlikely(IS_TAGGED(self))) {
         o = nullptr;
         Universe()->ErrorExit("Integers do not have fields!");
-    }
-    else {
+    } else {
         o = ((VMObject*)self)->GetField(fieldIndex);
     }
 
@@ -223,30 +230,35 @@ void Interpreter::doPushFieldWithIndex(uint8_t fieldIndex) {
 }
 
 void Interpreter::doPushBlock(long bytecodeIndex) {
-    VMMethod* blockMethod = static_cast<VMMethod*>(method->GetConstant(bytecodeIndex));
+    VMMethod* blockMethod =
+        static_cast<VMMethod*>(method->GetConstant(bytecodeIndex));
 
     long numOfArgs = blockMethod->GetNumberOfArguments();
 
-    GetFrame()->Push(GetUniverse()->NewBlock(blockMethod, GetFrame(), numOfArgs));
+    GetFrame()->Push(
+        GetUniverse()->NewBlock(blockMethod, GetFrame(), numOfArgs));
 }
 
 void Interpreter::doPushGlobal(long bytecodeIndex) {
-    VMSymbol* globalName = static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
+    VMSymbol* globalName =
+        static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
     vm_oop_t global = GetUniverse()->GetGlobal(globalName);
 
-    if (global != nullptr)
+    if (global != nullptr) {
         GetFrame()->Push(global);
-    else {
+    } else {
         vm_oop_t arguments[] = {globalName};
         vm_oop_t self = GetSelf();
 
-        //check if there is enough space on the stack for this unplanned Send
-        //unknowGlobal: needs 2 slots, one for "this" and one for the argument
+        // check if there is enough space on the stack for this unplanned Send
+        // unknowGlobal: needs 2 slots, one for "this" and one for the argument
         long additionalStackSlots = 2 - GetFrame()->RemainingStackSize();
         if (additionalStackSlots > 0) {
             GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
-            //copy current frame into a bigger one and replace the current frame
-            SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
+            // copy current frame into a bigger one and replace the current
+            // frame
+            SetFrame(
+                VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
         }
 
         AS_OBJ(self)->Send(this, unknownGlobal, arguments, 1);
@@ -290,18 +302,18 @@ void Interpreter::doPopFieldWithIndex(uint8_t fieldIndex) {
 
     if (unlikely(IS_TAGGED(self))) {
         GetUniverse()->ErrorExit("Integers do not have fields that can be set");
-    }
-    else {
-        ((VMObject*) self)->SetField(fieldIndex, o);
+    } else {
+        ((VMObject*)self)->SetField(fieldIndex, o);
     }
 }
 
 void Interpreter::doSend(long bytecodeIndex) {
-    VMSymbol* signature = static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
+    VMSymbol* signature =
+        static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
 
     int numOfArgs = Signature::GetNumberOfArguments(signature);
 
-    vm_oop_t receiver = GetFrame()->GetStackElement(numOfArgs-1);
+    vm_oop_t receiver = GetFrame()->GetStackElement(numOfArgs - 1);
 
     assert(IsValidObject(receiver));
     // make sure it is really a class
@@ -319,18 +331,20 @@ void Interpreter::doSend(long bytecodeIndex) {
 }
 
 void Interpreter::doSuperSend(long bytecodeIndex) {
-    VMSymbol* signature = static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
+    VMSymbol* signature =
+        static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
 
     VMFrame* ctxt = GetFrame()->GetOuterContext();
     VMMethod* realMethod = ctxt->GetMethod();
     VMClass* holder = realMethod->GetHolder();
     assert(holder->HasSuperClass());
-    VMClass* super = (VMClass*) holder->GetSuperClass();
-    VMInvokable* invokable = static_cast<VMInvokable*>(super->LookupInvokable(signature));
+    VMClass* super = (VMClass*)holder->GetSuperClass();
+    VMInvokable* invokable =
+        static_cast<VMInvokable*>(super->LookupInvokable(signature));
 
-    if (invokable != nullptr)
+    if (invokable != nullptr) {
         invokable->Invoke(this, GetFrame());
-    else {
+    } else {
         long numOfArgs = Signature::GetNumberOfArguments(signature);
         vm_oop_t receiver = GetFrame()->GetStackElement(numOfArgs - 1);
         VMArray* argumentsArray = GetUniverse()->NewArray(numOfArgs);
@@ -356,7 +370,8 @@ void Interpreter::doReturnNonLocal() {
     VMFrame* context = GetFrame()->GetOuterContext();
 
     if (!context->HasPreviousFrame()) {
-        VMBlock* block = static_cast<VMBlock*>(GetFrame()->GetArgumentInCurrentContext(0));
+        VMBlock* block =
+            static_cast<VMBlock*>(GetFrame()->GetArgumentInCurrentContext(0));
         VMFrame* prevFrame = GetFrame()->GetPreviousFrame();
         VMFrame* outerContext = prevFrame->GetOuterContext();
         vm_oop_t sender = outerContext->GetArgumentInCurrentContext(0);
@@ -367,8 +382,9 @@ void Interpreter::doReturnNonLocal() {
         // Pop old arguments from stack
         VMMethod* method = GetFrame()->GetMethod();
         long numberOfArgs = method->GetNumberOfArguments();
-        for (long i = 0; i < numberOfArgs; ++i)
+        for (long i = 0; i < numberOfArgs; ++i) {
             GetFrame()->Pop();
+        }
 
         // check if current frame is big enough for this unplanned send
         // #escapedBlock: needs 2 slots, one for self, and one for the block
@@ -376,14 +392,17 @@ void Interpreter::doReturnNonLocal() {
         if (additionalStackSlots > 0) {
             GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
             // copy current frame into a bigger one, and replace it
-            SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
+            SetFrame(
+                VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
         }
 
         AS_OBJ(sender)->Send(this, escapedBlock, arguments, 1);
         return;
     }
 
-    while (GetFrame() != context) popFrame();
+    while (GetFrame() != context) {
+        popFrame();
+    }
 
     popFrameAndPushResult(result);
 }
@@ -394,7 +413,7 @@ void Interpreter::WalkGlobals(walk_heap_fn walk) {
     // Get the current frame and mark it.
     // Since marking is done recursively, this automatically
     // marks the whole stack
-    frame  = load_ptr(static_cast<GCFrame*>(walk(tmp_ptr(frame))));
+    frame = load_ptr(static_cast<GCFrame*>(walk(tmp_ptr(frame))));
 }
 
 void Interpreter::startGC() {

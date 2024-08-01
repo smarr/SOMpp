@@ -24,6 +24,8 @@
  THE SOFTWARE.
  */
 
+#include "Array.h"
+
 #include <cstdint>
 
 #include "../primitivesCore/PrimitiveContainer.h"
@@ -32,13 +34,12 @@
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMArray.h"
 #include "../vmobjects/VMFrame.h"
-#include "Array.h"
 
 _Array::_Array() : PrimitiveContainer() {
-    SetPrimitive("new_",    new Routine<_Array>(this, &_Array::New_,    true));
-    SetPrimitive("at_",     new Routine<_Array>(this, &_Array::At_,     false));
+    SetPrimitive("new_", new Routine<_Array>(this, &_Array::New_, true));
+    SetPrimitive("at_", new Routine<_Array>(this, &_Array::At_, false));
     SetPrimitive("at_put_", new Routine<_Array>(this, &_Array::At_Put_, false));
-    SetPrimitive("length",  new Routine<_Array>(this, &_Array::Length,  false));
+    SetPrimitive("length", new Routine<_Array>(this, &_Array::Length, false));
 }
 
 void _Array::At_(Interpreter*, VMFrame* frame) {
@@ -58,7 +59,7 @@ void _Array::At_Put_(Interpreter*, VMFrame* frame) {
 
 void _Array::Length(Interpreter*, VMFrame* frame) {
     VMArray* self = static_cast<VMArray*>(frame->Pop());
-    vm_oop_t new_int = NEW_INT((int64_t) self->GetNumberOfIndexableFields());
+    vm_oop_t new_int = NEW_INT((int64_t)self->GetNumberOfIndexableFields());
     frame->Push(new_int);
 }
 

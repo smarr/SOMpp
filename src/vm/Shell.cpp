@@ -24,6 +24,8 @@
  THE SOFTWARE.
  */
 
+#include "Shell.h"
+
 #include <cstdio>
 #include <iostream>
 #include <sstream>
@@ -35,7 +37,6 @@
 #include "../vmobjects/VMInvokable.h"
 #include "../vmobjects/VMMethod.h"
 #include "Globals.h"
-#include "Shell.h"
 #include "Symbols.h"
 #include "Universe.h"
 
@@ -71,7 +72,7 @@ void Shell::Start(Interpreter* interp) {
     long bytecodeIndex, counter = 0;
     VMFrame* currentFrame;
     VMClass* runClass;
-    vm_oop_t it = load_ptr(nilObject); // last evaluation result.
+    vm_oop_t it = load_ptr(nilObject);  // last evaluation result.
 
     cout << "SOM Shell. Type \"" << QUIT_CMD << "\" to exit.\n";
 
@@ -96,7 +97,9 @@ void Shell::Start(Interpreter* interp) {
 
         inp = std::string(inbuf);
 
-        if (inp.length() == 0) continue;
+        if (inp.length() == 0) {
+            continue;
+        }
 
         // Generate a temporary class with a run method
         stringstream ss;
@@ -106,7 +109,7 @@ void Shell::Start(Interpreter* interp) {
         ++counter;
         runClass = GetUniverse()->LoadShellClass(statement);
         // Compile and load the newly generated class
-        if(runClass == nullptr) {
+        if (runClass == nullptr) {
             cout << "can't compile statement.";
             continue;
         }
@@ -141,4 +144,3 @@ void Shell::Start(Interpreter* interp) {
         it = currentFrame->Pop();
     }
 }
-

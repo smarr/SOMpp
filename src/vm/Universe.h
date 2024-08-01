@@ -35,7 +35,6 @@
 #include "../misc/defs.h"
 #include "../vmobjects/ObjectFormats.h"
 
-
 class SourcecodeCompiler;
 
 // for runtime debug
@@ -47,7 +46,7 @@ class Universe {
 public:
     inline Universe* operator->();
 
-    //static methods
+    // static methods
     static void Start(long argc, char** argv);
     static void BasicInit();
     __attribute__((noreturn)) static void Quit(long);
@@ -57,13 +56,12 @@ public:
 
     long setupClassPath(const StdString& cp);
 
-    Interpreter* GetInterpreter() {
-        return interpreter;
-    }
+    Interpreter* GetInterpreter() { return interpreter; }
 
     void Assert(bool) const;
 
-    //VMObject instanciation methods. These should probably be refactored to a new class
+    // VMObject instanciation methods. These should probably be refactored to a
+    // new class
     VMArray* NewArray(size_t) const;
 
     VMArray* NewArrayList(std::vector<vm_oop_t>& list) const;
@@ -76,7 +74,10 @@ public:
     VMBlock* NewBlock(VMMethod*, VMFrame*, long);
     VMClass* NewClass(VMClass*) const;
     VMFrame* NewFrame(VMFrame*, VMMethod*) const;
-    VMMethod* NewMethod(VMSymbol*, size_t numberOfBytecodes, size_t numberOfConstants, size_t numLocals, size_t maxStackDepth, LexicalScope*, vector<BackJump>& inlinedLoops) const;
+    VMMethod* NewMethod(VMSymbol*, size_t numberOfBytecodes,
+                        size_t numberOfConstants, size_t numLocals,
+                        size_t maxStackDepth, LexicalScope*,
+                        vector<BackJump>& inlinedLoops) const;
     VMObject* NewInstance(VMClass*) const;
     VMObject* NewInstanceWithoutFields() const;
     VMInteger* NewInteger(int64_t) const;
@@ -114,7 +115,8 @@ public:
     //
 
 private:
-    vm_oop_t interpretMethod(VMObject* receiver, VMInvokable* initialize, VMArray* argumentsArray);
+    vm_oop_t interpretMethod(VMObject* receiver, VMInvokable* initialize,
+                             VMArray* argumentsArray);
 
     vector<StdString> handleArguments(long argc, char** argv);
     long getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;
@@ -138,11 +140,12 @@ private:
     Interpreter* interpreter;
 };
 
-//Singleton accessor
-inline Universe* GetUniverse() __attribute__ ((always_inline));
+// Singleton accessor
+inline Universe* GetUniverse() __attribute__((always_inline));
 Universe* GetUniverse() {
     if (DEBUG && Universe::theUniverse == nullptr) {
-        Universe::ErrorExit("Trying to access uninitialized Universe, exiting.");
+        Universe::ErrorExit(
+            "Trying to access uninitialized Universe, exiting.");
     }
     return Universe::theUniverse;
 }

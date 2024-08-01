@@ -24,18 +24,19 @@
  THE SOFTWARE.
  */
 
+#include "PrimitiveContainer.h"
+
 #include <map>
 #include <string>
 
 #include "../vmobjects/PrimitiveRoutine.h"
-#include "PrimitiveContainer.h"
 
 void PrimitiveContainer::SetPrimitive(const char* name,
-        PrimitiveRoutine* routine) {
+                                      PrimitiveRoutine* routine) {
     methods[std::string(name)] = routine;
 }
 
 PrimitiveRoutine* PrimitiveContainer::GetPrimitive(
-        const std::string& routineName) {
+    const std::string& routineName) {
     return methods[routineName];
 }

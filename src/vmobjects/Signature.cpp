@@ -24,19 +24,22 @@
  THE SOFTWARE.
  */
 
+#include "Signature.h"
+
 #include <cstddef>
 
-#include "Signature.h"
 #include "VMSymbol.h"
 
 bool Signature::IsBinary(VMSymbol* sig) {
     return sig->numberOfArgumentsOfSignature == 2;
 }
 
-int Signature::DetermineNumberOfArguments(const char* sig, const size_t length) {
+int Signature::DetermineNumberOfArguments(const char* sig,
+                                          const size_t length) {
     // check default binaries
-    if (Signature::IsBinary(sig, length))
+    if (Signature::IsBinary(sig, length)) {
         return 2;
+    }
 
     // colons in str
     int numColons = 0;
@@ -52,23 +55,24 @@ bool Signature::IsBinary(const char* sig, const size_t length) {
     if (length == 0) {
         return false;
     }
-    switch(sig[0]) {
-        case '~' :
-        case '&' :
-        case '|' :
-        case '*' :
-        case '/' :
-        case '@' :
-        case '+' :
-        case '-' :
-        case '=' :
-        case '>' :
-        case '<' :
-        case ',' :
-        case '%' :
+    switch (sig[0]) {
+        case '~':
+        case '&':
+        case '|':
+        case '*':
+        case '/':
+        case '@':
+        case '+':
+        case '-':
+        case '=':
+        case '>':
+        case '<':
+        case ',':
+        case '%':
         case '\\':
-        return true;
-        default: break;
+            return true;
+        default:
+            break;
     }
     return false;
 }

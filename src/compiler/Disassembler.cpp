@@ -24,6 +24,8 @@
  THE SOFTWARE.
  */
 
+#include "Disassembler.h"
+
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
@@ -44,16 +46,13 @@
 #include "../vmobjects/VMObject.h"
 #include "../vmobjects/VMString.h"
 #include "../vmobjects/VMSymbol.h"
-#include "Disassembler.h"
 
 /**
  * Dispatch an object to its content and write out
  */
 void Disassembler::dispatch(vm_oop_t o) {
-    //dispatch
-    // can't switch() objects, so:
     if (o == nullptr) {
-        return; // nullptr isn't interesting.
+        return;  // nullptr isn't interesting.
     } else if (o == load_ptr(nilObject)) {
         DebugPrint("{Nil}");
     } else if (o == load_ptr(trueObject)) {
@@ -69,13 +68,15 @@ void Disassembler::dispatch(vm_oop_t o) {
     } else {
         VMClass* c = CLASS_OF(o);
         if (c == load_ptr(stringClass)) {
-            DebugPrint("\"%s\"", static_cast<VMString*>(o)->GetStdString().c_str());
-        } else if(c == load_ptr(doubleClass)) {
+            DebugPrint("\"%s\"",
+                       static_cast<VMString*>(o)->GetStdString().c_str());
+        } else if (c == load_ptr(doubleClass)) {
             DebugPrint("%g", static_cast<VMDouble*>(o)->GetEmbeddedDouble());
-        } else if(c == load_ptr(integerClass)) {
+        } else if (c == load_ptr(integerClass)) {
             DebugPrint("%lld", INT_VAL(o));
-        } else if(c == load_ptr(symbolClass)) {
-            DebugPrint("#%s", static_cast<VMSymbol*>(o)->GetStdString().c_str());
+        } else if (c == load_ptr(symbolClass)) {
+            DebugPrint("#%s",
+                       static_cast<VMSymbol*>(o)->GetStdString().c_str());
         } else {
             DebugPrint("address: %p", (void*)o);
         }
@@ -88,11 +89,13 @@ void Disassembler::dispatch(vm_oop_t o) {
 void Disassembler::Dump(VMClass* cl) {
     long numInvokables = cl->GetNumberOfInstanceInvokables();
     for (long i = 0; i < numInvokables; ++i) {
-        VMInvokable* inv = static_cast<VMInvokable*>(cl->GetInstanceInvokable(i));
+        VMInvokable* inv =
+            static_cast<VMInvokable*>(cl->GetInstanceInvokable(i));
         // output header and skip if the Invokable is a Primitive
         VMSymbol* sig = inv->GetSignature();
         VMSymbol* cname = cl->GetName();
-        DebugDump("%s>>%s = ", cname->GetStdString().c_str(), sig->GetStdString().c_str());
+        DebugDump("%s>>%s = ", cname->GetStdString().c_str(),
+                  sig->GetStdString().c_str());
         if (inv->IsPrimitive()) {
             DebugPrint("<primitive>\n");
             continue;
@@ -105,18 +108,23 @@ void Disassembler::Dump(VMClass* cl) {
 /**
  * Dump all Bytecode of a method.
  */
-void Disassembler::DumpMethod(VMMethod* method, const char* indent, bool printObjects) {
-    dumpMethod(method->GetBytecodes(), method->GetNumberOfBytecodes(), indent, method, printObjects);
+void Disassembler::DumpMethod(VMMethod* method, const char* indent,
+                              bool printObjects) {
+    dumpMethod(method->GetBytecodes(), method->GetNumberOfBytecodes(), indent,
+               method, printObjects);
 }
 
-void Disassembler::DumpMethod(MethodGenerationContext* mgenc, const char* indent) {
+void Disassembler::DumpMethod(MethodGenerationContext* mgenc,
+                              const char* indent) {
     auto bytecodes = mgenc->GetBytecodes();
     dumpMethod(bytecodes.data(), bytecodes.size(), indent, nullptr, true);
 }
 
-void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, const char* indent, VMMethod* method, bool printObjects) {
+void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes,
+                              const char* indent, VMMethod* method,
+                              bool printObjects) {
     DebugPrint("(\n");
-    if (method != nullptr) {   // output stack information
+    if (method != nullptr) {  // output stack information
         size_t locals = method->GetNumberOfLocals();
         size_t max_stack = method->GetMaximumNumberOfStackElements();
         DebugDump("%s<%d locals, %d stack, %d bc_count>\n", indent, locals,
@@ -132,61 +140,74 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, cons
     }
 
     // output bytecodes
-    for (size_t bc_idx = 0;
-         bc_idx < numberOfBytecodes;
+    for (size_t bc_idx = 0; bc_idx < numberOfBytecodes;
          bc_idx += Bytecode::GetBytecodeLength(bytecodes[bc_idx])) {
         // the bytecode.
         uint8_t bytecode = bytecodes[bc_idx];
         // indent, bytecode index, bytecode mnemonic
-        DebugDump("%s%4d:%s  ", indent, bc_idx, Bytecode::GetBytecodeName(bytecode));
+        DebugDump("%s%4d:%s  ", indent, bc_idx,
+                  Bytecode::GetBytecodeName(bytecode));
         // parameters (if any)
         if (Bytecode::GetBytecodeLength(bytecode) == 1) {
             DebugPrint("\n");
             continue;
         }
 
-        switch(bytecode) {
+        switch (bytecode) {
             case BC_PUSH_LOCAL_0: {
-                DebugPrint("local: 0, context: 0\n"); break;
+                DebugPrint("local: 0, context: 0\n");
+                break;
             }
             case BC_PUSH_LOCAL_1: {
-                DebugPrint("local: 1, context: 0\n"); break;
+                DebugPrint("local: 1, context: 0\n");
+                break;
             }
             case BC_PUSH_LOCAL_2: {
-                DebugPrint("local: 2, context: 0\n"); break;
+                DebugPrint("local: 2, context: 0\n");
+                break;
             }
             case BC_PUSH_LOCAL: {
-                DebugPrint("local: %d, context: %d\n", bytecodes[bc_idx+1], bytecodes[bc_idx+2]); break;
+                DebugPrint("local: %d, context: %d\n", bytecodes[bc_idx + 1],
+                           bytecodes[bc_idx + 2]);
+                break;
             }
             case BC_PUSH_ARGUMENT: {
-                DebugPrint("argument: %d, context %d\n", bytecodes[bc_idx+1], bytecodes[bc_idx+2]); break;
+                DebugPrint("argument: %d, context %d\n", bytecodes[bc_idx + 1],
+                           bytecodes[bc_idx + 2]);
+                break;
             }
             case BC_PUSH_FIELD: {
-                long fieldIdx = bytecodes[bc_idx+1];
+                long fieldIdx = bytecodes[bc_idx + 1];
                 if (method != nullptr && printObjects) {
-                    VMClass* holder = dynamic_cast<VMClass*>((VMObject*) method->GetHolder());
+                    VMClass* holder =
+                        dynamic_cast<VMClass*>((VMObject*)method->GetHolder());
                     if (holder) {
                         VMSymbol* name = holder->GetInstanceFieldName(fieldIdx);
                         if (name != nullptr) {
-                            DebugPrint("(index: %d) field: %s\n", bytecodes[bc_idx+1], name->GetStdString().c_str());
+                            DebugPrint("(index: %d) field: %s\n",
+                                       bytecodes[bc_idx + 1],
+                                       name->GetStdString().c_str());
                         } else {
-                            DebugPrint("(index: %d) field: !nullptr!: error!\n", bytecodes[bc_idx+1]);
+                            DebugPrint("(index: %d) field: !nullptr!: error!\n",
+                                       bytecodes[bc_idx + 1]);
                         }
                         break;
                     }
                 }
 
-                DebugPrint("(index: %d)\n", bytecodes[bc_idx+1]);
+                DebugPrint("(index: %d)\n", bytecodes[bc_idx + 1]);
                 break;
             }
             case BC_PUSH_BLOCK: {
-                size_t indent_size = strlen(indent)+1+1;
+                size_t indent_size = strlen(indent) + 1 + 1;
                 char* nindent = new char[indent_size];
-                DebugPrint("block: (index: %d) ", bytecodes[bc_idx+1]);
+                DebugPrint("block: (index: %d) ", bytecodes[bc_idx + 1]);
 
                 if (method != nullptr && printObjects) {
                     snprintf(nindent, indent_size, "%s\t", indent);
-                    Disassembler::DumpMethod(static_cast<VMMethod*>(method->GetConstant(bc_idx)), nindent);
+                    Disassembler::DumpMethod(
+                        static_cast<VMMethod*>(method->GetConstant(bc_idx)),
+                        nindent);
                 } else {
                     DebugPrint("\n");
                 }
@@ -200,10 +221,11 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, cons
                     VMSymbol* cname = cl->GetName();
 
                     DebugPrint("(index: %d) value: (%s) ",
-                               bytecodes[bc_idx+1], cname->GetStdString().c_str());
+                               bytecodes[bc_idx + 1],
+                               cname->GetStdString().c_str());
                     dispatch(constant);
                 } else {
-                    DebugPrint("(index: %d)", bytecodes[bc_idx+1]);
+                    DebugPrint("(index: %d)", bytecodes[bc_idx + 1]);
                 }
                 DebugPrint("\n");
                 break;
@@ -214,32 +236,41 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, cons
                     if (cst != nullptr) {
                         VMSymbol* name = static_cast<VMSymbol*>(cst);
                         if (name != nullptr) {
-                            DebugPrint("(index: %d) value: %s\n", bytecodes[bc_idx+1], name->GetStdString().c_str());
+                            DebugPrint("(index: %d) value: %s\n",
+                                       bytecodes[bc_idx + 1],
+                                       name->GetStdString().c_str());
                         } else {
-                            DebugPrint("(index: %d) value: !nullptr!: error!\n", bytecodes[bc_idx+1]);
+                            DebugPrint("(index: %d) value: !nullptr!: error!\n",
+                                       bytecodes[bc_idx + 1]);
                         }
                         break;
                     }
                 }
 
-                DebugPrint("(index: %d)\n", bytecodes[bc_idx+1]);
+                DebugPrint("(index: %d)\n", bytecodes[bc_idx + 1]);
                 break;
             }
             case BC_POP_LOCAL:
-                DebugPrint("local: %d, context: %d\n", bytecodes[bc_idx+1], bytecodes[bc_idx+2]);
+                DebugPrint("local: %d, context: %d\n", bytecodes[bc_idx + 1],
+                           bytecodes[bc_idx + 2]);
                 break;
             case BC_POP_ARGUMENT:
-                DebugPrint("argument: %d, context: %d\n", bytecodes[bc_idx+1], bytecodes[bc_idx+2]);
+                DebugPrint("argument: %d, context: %d\n", bytecodes[bc_idx + 1],
+                           bytecodes[bc_idx + 2]);
                 break;
             case BC_POP_FIELD: {
-                long fieldIdx = bytecodes[bc_idx+1];
+                long fieldIdx = bytecodes[bc_idx + 1];
                 if (method != nullptr && printObjects) {
-                    VMClass* holder = dynamic_cast<VMClass*>((VMObject*) method->GetHolder());
+                    VMClass* holder =
+                        dynamic_cast<VMClass*>((VMObject*)method->GetHolder());
                     if (holder) {
                         VMSymbol* name = holder->GetInstanceFieldName(fieldIdx);
-                        DebugPrint("(index: %d) field: %s\n", fieldIdx, name->GetStdString().c_str());
+                        DebugPrint("(index: %d) field: %s\n", fieldIdx,
+                                   name->GetStdString().c_str());
                     } else {
-                        DebugPrint("(index: %d) block holder is not a class!!\n", fieldIdx);
+                        DebugPrint(
+                            "(index: %d) block holder is not a class!!\n",
+                            fieldIdx);
                     }
                 } else {
                     DebugPrint("(index: %d)\n", fieldIdx);
@@ -248,19 +279,25 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, cons
             }
             case BC_SEND: {
                 if (method != nullptr && printObjects) {
-                    VMSymbol* name = static_cast<VMSymbol*>(method->GetConstant(bc_idx));
-                    DebugPrint("(index: %d) signature: %s\n", bytecodes[bc_idx+1], name->GetStdString().c_str());
+                    VMSymbol* name =
+                        static_cast<VMSymbol*>(method->GetConstant(bc_idx));
+                    DebugPrint("(index: %d) signature: %s\n",
+                               bytecodes[bc_idx + 1],
+                               name->GetStdString().c_str());
                 } else {
-                    DebugPrint("(index: %d)\n", bytecodes[bc_idx+1]);
+                    DebugPrint("(index: %d)\n", bytecodes[bc_idx + 1]);
                 }
                 break;
             }
             case BC_SUPER_SEND: {
                 if (method != nullptr && printObjects) {
-                    VMSymbol* name = static_cast<VMSymbol*>(method->GetConstant(bc_idx));
-                    DebugPrint("(index: %d) signature: %s\n", bytecodes[bc_idx+1], name->GetStdString().c_str());
+                    VMSymbol* name =
+                        static_cast<VMSymbol*>(method->GetConstant(bc_idx));
+                    DebugPrint("(index: %d) signature: %s\n",
+                               bytecodes[bc_idx + 1],
+                               name->GetStdString().c_str());
                 } else {
-                    DebugPrint("(index: %d)\n", bytecodes[bc_idx+1]);
+                    DebugPrint("(index: %d)\n", bytecodes[bc_idx + 1]);
                 }
                 break;
             }
@@ -276,15 +313,18 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, cons
             case BC_JUMP2_ON_FALSE_TOP_NIL:
             case BC_JUMP2_ON_TRUE_TOP_NIL:
             case BC_JUMP2_BACKWARD: {
-                uint16_t offset = ComputeOffset(bytecodes[bc_idx + 1], bytecodes[bc_idx + 2]);
-                
+                uint16_t offset =
+                    ComputeOffset(bytecodes[bc_idx + 1], bytecodes[bc_idx + 2]);
+
                 int32_t target;
-                if (bytecode == BC_JUMP_BACKWARD || bytecode == BC_JUMP2_BACKWARD) {
-                    target = ((int32_t) bc_idx) - offset;
+                if (bytecode == BC_JUMP_BACKWARD ||
+                    bytecode == BC_JUMP2_BACKWARD) {
+                    target = ((int32_t)bc_idx) - offset;
                 } else {
-                    target = ((int32_t) bc_idx) + offset;
+                    target = ((int32_t)bc_idx) + offset;
                 }
-                DebugPrint("(jump offset: %d -> jump target: %d)\n", offset, target);
+                DebugPrint("(jump offset: %d -> jump target: %d)\n", offset,
+                           target);
                 break;
             }
             default: {
@@ -299,9 +339,8 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, cons
  * Bytecode Index Accessor macros
  */
 #define BC_0 method->GetBytecode(bc_idx)
-#define BC_1 method->GetBytecode(bc_idx+1)
-#define BC_2 method->GetBytecode(bc_idx+2)
-
+#define BC_1 method->GetBytecode(bc_idx + 1)
+#define BC_2 method->GetBytecode(bc_idx + 2)
 
 /**
  * Dump bytecode from the frame running
@@ -318,21 +357,20 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
         VMSymbol* sig = method->GetSignature();
 
         DebugTrace("%20s>>%-20s% 10lld %c %04d: %s\t",
-        cname->GetStdString().c_str(), sig->GetStdString().c_str(),
-        indentc, ikind, bc_idx,
-        Bytecode::GetBytecodeName(bc));
+                   cname->GetStdString().c_str(), sig->GetStdString().c_str(),
+                   indentc, ikind, bc_idx, Bytecode::GetBytecodeName(bc));
     } else {
         VMSymbol* sig = method->GetSignature();
 
-        DebugTrace("%-42s% 10lld %c %04d: %s\t",
-        sig->GetStdString().c_str(),
-        indentc, ikind, bc_idx,
-        Bytecode::GetBytecodeName(bc));
+        DebugTrace("%-42s% 10lld %c %04d: %s\t", sig->GetStdString().c_str(),
+                   indentc, ikind, bc_idx, Bytecode::GetBytecodeName(bc));
     }
     // reset send indicator
-    if(ikind != '@') ikind = '@';
+    if (ikind != '@') {
+        ikind = '@';
+    }
 
-    switch(bc) {
+    switch (bc) {
         case BC_HALT: {
             DebugPrint("<halting>\n\n\n");
             break;
@@ -344,10 +382,10 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
                 VMSymbol* cname = c->GetName();
 
                 DebugPrint("<to dup: (%s) ", cname->GetStdString().c_str());
-                //dispatch
                 dispatch(o);
-            } else
+            } else {
                 DebugPrint("<to dup: address: %p", (void*)o);
+            }
             DebugPrint(">\n");
             break;
         }
@@ -357,9 +395,8 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
             VMClass* c = CLASS_OF(o);
             VMSymbol* cname = c->GetName();
 
-            DebugPrint("local: %d, context: %d <(%s) ",
-            BC_1, BC_2, cname->GetStdString().c_str());
-            //dispatch
+            DebugPrint("local: %d, context: %d <(%s) ", BC_1, BC_2,
+                       cname->GetStdString().c_str());
             dispatch(o);
             DebugPrint(">\n");
             break;
@@ -370,9 +407,18 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
             uint8_t bc1;
             uint8_t bc2;
             switch (bc) {
-                case BC_PUSH_LOCAL_0: bc1 = 0; bc2 = 0; break;
-                case BC_PUSH_LOCAL_1: bc1 = 1; bc2 = 0; break;
-                case BC_PUSH_LOCAL_2: bc1 = 2; bc2 = 0; break;
+                case BC_PUSH_LOCAL_0:
+                    bc1 = 0;
+                    bc2 = 0;
+                    break;
+                case BC_PUSH_LOCAL_1:
+                    bc1 = 1;
+                    bc2 = 0;
+                    break;
+                case BC_PUSH_LOCAL_2:
+                    bc1 = 2;
+                    bc2 = 0;
+                    break;
                 default:
                     DebugPrint("Unexpected bytecode");
                     return;
@@ -382,9 +428,8 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
             VMClass* c = CLASS_OF(o);
             VMSymbol* cname = c->GetName();
 
-            DebugPrint("local: %d, context: %d <(%s) ",
-            BC_1, BC_2, cname->GetStdString().c_str());
-            //dispatch
+            DebugPrint("local: %d, context: %d <(%s) ", BC_1, BC_2,
+                       cname->GetStdString().c_str());
             dispatch(o);
             DebugPrint(">\n");
             break;
@@ -399,7 +444,6 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
                 VMSymbol* cname = c->GetName();
 
                 DebugPrint("<(%s) ", cname->GetStdString().c_str());
-                //dispatch
                 dispatch(o);
                 DebugPrint(">");
             }
@@ -411,21 +455,23 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
             vm_oop_t arg = ctxt->GetArgumentInCurrentContext(0);
             uint8_t field_index = BC_1;
 
-            vm_oop_t o = ((VMObject*) arg)->GetField(field_index);
+            vm_oop_t o = ((VMObject*)arg)->GetField(field_index);
             VMClass* c = CLASS_OF(o);
             VMSymbol* cname = c->GetName();
             long fieldIdx = BC_1;
-            VMSymbol* name = method->GetHolder()->GetInstanceFieldName(fieldIdx);
-            DebugPrint("(index: %d) field: %s <(%s) ", BC_1, name->GetStdString().c_str(),
+            VMSymbol* name =
+                method->GetHolder()->GetInstanceFieldName(fieldIdx);
+            DebugPrint("(index: %d) field: %s <(%s) ", BC_1,
+                       name->GetStdString().c_str(),
                        cname->GetStdString().c_str());
-            //dispatch
             dispatch(o);
             DebugPrint(">\n");
             break;
         }
         case BC_PUSH_BLOCK: {
             DebugPrint("block: (index: %d) ", BC_1);
-            VMMethod* meth = dynamic_cast<VMMethod*>((AbstractVMObject*)method->GetConstant(bc_idx));
+            VMMethod* meth = dynamic_cast<VMMethod*>(
+                (AbstractVMObject*)method->GetConstant(bc_idx));
             DumpMethod(meth, "$");
             break;
         }
@@ -435,13 +481,14 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
             VMSymbol* cname = c->GetName();
 
             DebugPrint("(index: %d) value: (%s) ", BC_1,
-            cname->GetStdString().c_str());
+                       cname->GetStdString().c_str());
             dispatch(constant);
             DebugPrint("\n");
             break;
         }
         case BC_PUSH_GLOBAL: {
-            VMSymbol* name = static_cast<VMSymbol*>(method->GetConstant(bc_idx));
+            VMSymbol* name =
+                static_cast<VMSymbol*>(method->GetConstant(bc_idx));
             vm_oop_t o = GetUniverse()->GetGlobal(name);
             VMSymbol* cname;
 
@@ -452,11 +499,12 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
                 cname = c->GetName();
                 c_cname_str = cname->GetStdString();
                 c_cname = c_cname_str.c_str();
-            } else
+            } else {
                 c_cname = "nullptr";
+            }
 
             DebugPrint("(index: %d)value: %s <(%s) ", BC_1,
-            name->GetStdString().c_str(), c_cname);
+                       name->GetStdString().c_str(), c_cname);
             dispatch(o);
             DebugPrint(">\n");
             break;
@@ -467,7 +515,6 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
             VMSymbol* cname = c->GetName();
 
             DebugPrint("popped <(%s) ", cname->GetStdString().c_str());
-            //dispatch
             dispatch(o);
             DebugPrint(">\n");
             break;
@@ -478,8 +525,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
             VMSymbol* cname = c->GetName();
 
             DebugPrint("popped local: %d, context: %d <(%s) ", BC_1, BC_2,
-            cname->GetStdString().c_str());
-            //dispatch
+                       cname->GetStdString().c_str());
             dispatch(o);
             DebugPrint(">\n");
             break;
@@ -489,8 +535,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
             VMClass* c = CLASS_OF(o);
             VMSymbol* cname = c->GetName();
             DebugPrint("argument: %d, context: %d <(%s) ", BC_1, BC_2,
-            cname->GetStdString().c_str());
-            //dispatch
+                       cname->GetStdString().c_str());
             dispatch(o);
             DebugPrint(">\n");
             break;
@@ -499,9 +544,11 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
             vm_oop_t o = frame->GetStackElement(0);
             VMClass* c = CLASS_OF(o);
             long fieldIdx = BC_1;
-            VMSymbol* name = method->GetHolder()->GetInstanceFieldName(fieldIdx);
+            VMSymbol* name =
+                method->GetHolder()->GetInstanceFieldName(fieldIdx);
             VMSymbol* cname = c->GetName();
-            DebugPrint("(index: %d) field: %s <(%s) ", fieldIdx, name->GetStdString().c_str(),
+            DebugPrint("(index: %d) field: %s <(%s) ", fieldIdx,
+                       name->GetStdString().c_str(),
                        cname->GetStdString().c_str());
             dispatch(o);
             DebugPrint(">\n");
@@ -512,24 +559,28 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
             VMSymbol* sel = static_cast<VMSymbol*>(method->GetConstant(bc_idx));
 
             DebugPrint("(index: %d) signature: %s (", BC_1,
-            sel->GetStdString().c_str());
+                       sel->GetStdString().c_str());
             // handle primitives, they don't increase call-depth
-            vm_oop_t elem = frame->GetStackElement(Signature::GetNumberOfArguments(sel)-1);
+            vm_oop_t elem = frame->GetStackElement(
+                Signature::GetNumberOfArguments(sel) - 1);
             VMClass* elemClass = CLASS_OF(elem);
-            VMInvokable* inv = dynamic_cast<VMInvokable*>(elemClass->LookupInvokable(sel));
+            VMInvokable* inv =
+                dynamic_cast<VMInvokable*>(elemClass->LookupInvokable(sel));
 
-            if(inv != nullptr && inv->IsPrimitive())
+            if (inv != nullptr && inv->IsPrimitive()) {
                 DebugPrint("*)\n");
-            else {
+            } else {
                 DebugPrint("\n");
-                indentc++; ikind='>'; // visual
+                indentc++;
+                ikind = '>';  // visual
             }
             break;
         }
         case BC_RETURN_LOCAL:
         case BC_RETURN_NON_LOCAL: {
             DebugPrint(")\n");
-            indentc--; ikind='<'; //visual
+            indentc--;
+            ikind = '<';  // visual
             break;
         }
         case BC_JUMP:
@@ -544,13 +595,14 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
         case BC_JUMP2_ON_FALSE_TOP_NIL:
         case BC_JUMP2_ON_TRUE_TOP_NIL:
         case BC_JUMP2_BACKWARD: {
-            uint16_t offset = ComputeOffset(method->GetBytecode(bc_idx + 1), method->GetBytecode(bc_idx + 2));
-            
+            uint16_t offset = ComputeOffset(method->GetBytecode(bc_idx + 1),
+                                            method->GetBytecode(bc_idx + 2));
+
             int32_t target;
             if (bc == BC_JUMP_BACKWARD || bc == BC_JUMP2_BACKWARD) {
-                target = ((int32_t) bc_idx) - offset;
+                target = ((int32_t)bc_idx) - offset;
             } else {
-                target = ((int32_t) bc_idx) + offset;
+                target = ((int32_t)bc_idx) + offset;
             }
             DebugPrint("(jump offset: %d -> jump target: %d)", offset, target);
             break;

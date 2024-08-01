@@ -30,106 +30,83 @@
 #include <cstdint>
 
 const uint8_t Bytecode::bytecodeLengths[] = {
-        1, // BC_HALT
-        1, // BC_DUP
-        3, // BC_PUSH_LOCAL
-        1, // BC_PUSH_LOCAL_0
-        1, // BC_PUSH_LOCAL_1
-        1, // BC_PUSH_LOCAL_2
-        3, // BC_PUSH_ARGUMENT
-        1, // BC_PUSH_SELF
-        1, // BC_PUSH_ARG_1
-        1, // BC_PUSH_ARG_2
-        2, // BC_PUSH_FIELD
-        1, // BC_PUSH_FIELD_0
-        1, // BC_PUSH_FIELD_1
-        2, // BC_PUSH_BLOCK
-        2, // BC_PUSH_CONSTANT
-        1, // BC_PUSH_CONSTANT_0
-        1, // BC_PUSH_CONSTANT_1
-        1, // BC_PUSH_CONSTANT_2
-        1, // BC_PUSH_0
-        1, // BC_PUSH_1
-        1, // BC_PUSH_NIL
-        2, // BC_PUSH_GLOBAL
-        1, // BC_POP
-        3, // BC_POP_LOCAL
-        1, // BC_POP_LOCAL_0
-        1, // BC_POP_LOCAL_1
-        1, // BC_POP_LOCAL_2
-        3, // BC_POP_ARGUMENT
-        2, // BC_POP_FIELD
-        1, // BC_POP_FIELD_0
-        2, // BC_POP_FIELD_1
-        2, // BC_SEND
-        2, // BC_SUPER_SEND
-        1, // BC_RETURN_LOCAL
-        1, // BC_RETURN_NON_LOCAL
+    1,  // BC_HALT
+    1,  // BC_DUP
+    3,  // BC_PUSH_LOCAL
+    1,  // BC_PUSH_LOCAL_0
+    1,  // BC_PUSH_LOCAL_1
+    1,  // BC_PUSH_LOCAL_2
+    3,  // BC_PUSH_ARGUMENT
+    1,  // BC_PUSH_SELF
+    1,  // BC_PUSH_ARG_1
+    1,  // BC_PUSH_ARG_2
+    2,  // BC_PUSH_FIELD
+    1,  // BC_PUSH_FIELD_0
+    1,  // BC_PUSH_FIELD_1
+    2,  // BC_PUSH_BLOCK
+    2,  // BC_PUSH_CONSTANT
+    1,  // BC_PUSH_CONSTANT_0
+    1,  // BC_PUSH_CONSTANT_1
+    1,  // BC_PUSH_CONSTANT_2
+    1,  // BC_PUSH_0
+    1,  // BC_PUSH_1
+    1,  // BC_PUSH_NIL
+    2,  // BC_PUSH_GLOBAL
+    1,  // BC_POP
+    3,  // BC_POP_LOCAL
+    1,  // BC_POP_LOCAL_0
+    1,  // BC_POP_LOCAL_1
+    1,  // BC_POP_LOCAL_2
+    3,  // BC_POP_ARGUMENT
+    2,  // BC_POP_FIELD
+    1,  // BC_POP_FIELD_0
+    1,  // BC_POP_FIELD_1
+    2,  // BC_SEND
+    2,  // BC_SUPER_SEND
+    1,  // BC_RETURN_LOCAL
+    1,  // BC_RETURN_NON_LOCAL
 
-        3, // BC_JUMP
-        3, // BC_JUMP_ON_TRUE_TOP_NIL
-        3, // BC_JUMP_ON_FALSE_TOP_NIL
-        3, // BC_JUMP_ON_TRUE_POP
-        3, // BC_JUMP_ON_FALSE_POP
-        3, // BC_JUMP_BACKWARDS
+    3,  // BC_JUMP
+    3,  // BC_JUMP_ON_TRUE_TOP_NIL
+    3,  // BC_JUMP_ON_FALSE_TOP_NIL
+    3,  // BC_JUMP_ON_TRUE_POP
+    3,  // BC_JUMP_ON_FALSE_POP
+    3,  // BC_JUMP_BACKWARD
 
-        3, // BC_JUMP2
-        3, // BC_JUMP2_ON_TRUE_TOP_NIL
-        3, // BC_JUMP2_ON_FALSE_TOP_NIL
-        3, // BC_JUMP2_ON_TRUE_POP
-        3, // BC_JUMP2_ON_FALSE_POP
-        3, // BC_JUMP2_BACKWARDS
-        };
+    3,  // BC_JUMP2
+    3,  // BC_JUMP2_ON_TRUE_TOP_NIL
+    3,  // BC_JUMP2_ON_FALSE_TOP_NIL
+    3,  // BC_JUMP2_ON_TRUE_POP
+    3,  // BC_JUMP2_ON_FALSE_POP
+    3,  // BC_JUMP2_BACKWARD
+};
 
 const char* Bytecode::bytecodeNames[] = {
-    "HALT            ",
-    "DUP             ",
-    "PUSH_LOCAL      ",
-    "PUSH_LOCAL_0    ",
-    "PUSH_LOCAL_1    ",
-    "PUSH_LOCAL_2    ",
-    "PUSH_ARGUMENT   ",
-    "PUSH_SELF       ",
-    "PUSH_ARG_1      ",
-    "PUSH_ARG_2      ",
-    "PUSH_FIELD      ",
-    "PUSH_FIELD_0    ",
-    "PUSH_FIELD_1    ",
-    "PUSH_BLOCK      ",
-    "PUSH_CONSTANT   ",
-    "PUSH_CONSTANT_0 ",
-    "PUSH_CONSTANT_1 ",
-    "PUSH_CONSTANT_2 ",
-    "PUSH_0          ",
-    "PUSH_1          ",
-    "PUSH_NIL        ",
-    "PUSH_GLOBAL     ",
-    "POP             ",
-    "POP_LOCAL       ",
-    "POP_LOCAL_0     ",
-    "POP_LOCAL_1     ",
-    "POP_LOCAL_2     ",
-    "POP_ARGUMENT    ",
-    "POP_FIELD       ",
-    "POP_FIELD_0     ",
-    "POP_FIELD_1     ",
-    "SEND            ",
-    "SUPER_SEND      ",
-    "RETURN_LOCAL    ",
-    "RETURN_NON_LOCAL",
-    "BC_JUMP         ",
-    "BC_JUMP_ON_TRUE_TOP_NIL",
-    "BC_JUMP_ON_FALSE_TOP_NIL",
-    "BC_JUMP_ON_TRUE_POP",
-    "BC_JUMP_ON_FALSE_POP",
-    "BC_JUMP_BACKWARDS",
+    "HALT            ",          "DUP             ",
+    "PUSH_LOCAL      ",          "PUSH_LOCAL_0    ",
+    "PUSH_LOCAL_1    ",          "PUSH_LOCAL_2    ",
+    "PUSH_ARGUMENT   ",          "PUSH_SELF       ",
+    "PUSH_ARG_1      ",          "PUSH_ARG_2      ",
+    "PUSH_FIELD      ",          "PUSH_FIELD_0    ",
+    "PUSH_FIELD_1    ",          "PUSH_BLOCK      ",
+    "PUSH_CONSTANT   ",          "PUSH_CONSTANT_0 ",
+    "PUSH_CONSTANT_1 ",          "PUSH_CONSTANT_2 ",
+    "PUSH_0          ",          "PUSH_1          ",
+    "PUSH_NIL        ",          "PUSH_GLOBAL     ",
+    "POP             ",          "POP_LOCAL       ",
+    "POP_LOCAL_0     ",          "POP_LOCAL_1     ",
+    "POP_LOCAL_2     ",          "POP_ARGUMENT    ",
+    "POP_FIELD       ",          "POP_FIELD_0     ",
+    "POP_FIELD_1     ",          "SEND            ",
+    "SUPER_SEND      ",          "RETURN_LOCAL    ",
+    "RETURN_NON_LOCAL",          "BC_JUMP         ",
+    "BC_JUMP_ON_TRUE_TOP_NIL",   "BC_JUMP_ON_FALSE_TOP_NIL",
+    "BC_JUMP_ON_TRUE_POP",       "BC_JUMP_ON_FALSE_POP",
+    "BC_JUMP_BACKWARD",
 
-    "BC_JUMP2         ",
-    "BC_JUMP2_ON_TRUE_TOP_NIL",
-    "BC_JUMP2_ON_FALSE_TOP_NIL",
-    "BC_JUMP2_ON_TRUE_POP",
-    "BC_JUMP2_ON_FALSE_POP",
-    "BC_JUMP2_BACKWARDS",
+    "BC_JUMP2         ",         "BC_JUMP2_ON_TRUE_TOP_NIL",
+    "BC_JUMP2_ON_FALSE_TOP_NIL", "BC_JUMP2_ON_TRUE_POP",
+    "BC_JUMP2_ON_FALSE_POP",     "BC_JUMP2_BACKWARD",
 };
 
 bool IsJumpBytecode(uint8_t bc) {
@@ -140,8 +117,12 @@ bool IsJumpBytecode(uint8_t bc) {
 }
 
 bool Bytecode::BytecodeDefinitionsAreConsistent() {
-    bool namesAndLengthMatch = (sizeof(Bytecode::bytecodeNames) / sizeof(char*))  == (sizeof(Bytecode::bytecodeLengths) / sizeof(uint8_t));
-    bool lastBytecodeLinesUp = _LAST_BYTECODE == (sizeof(Bytecode::bytecodeLengths) - 1); // -1 because null terminated
+    bool namesAndLengthMatch =
+        (sizeof(Bytecode::bytecodeNames) / sizeof(char*)) ==
+        (sizeof(Bytecode::bytecodeLengths) / sizeof(uint8_t));
+    bool lastBytecodeLinesUp =
+        _LAST_BYTECODE ==
+        (sizeof(Bytecode::bytecodeLengths) - 1);  // -1 because null terminated
 
     return namesAndLengthMatch && lastBytecodeLinesUp;
 }

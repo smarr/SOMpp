@@ -27,13 +27,13 @@
  */
 #include "../misc/defs.h"
 
-//some MACROS for integer tagging
+// some MACROS for integer tagging
 /**
  * max value for tagged integers
  * 01111111 11111111 ... 11111111 1111111X
  *
  */
-#define VMTAGGEDINTEGER_MAX  0x3FFFFFFFFFFFFFFFLL
+#define VMTAGGEDINTEGER_MAX 0x3FFFFFFFFFFFFFFFLL
 
 /**
  * min value for tagged integers
@@ -42,17 +42,29 @@
 #define VMTAGGEDINTEGER_MIN (-0x4000000000000000LL)
 
 #if ADDITIONAL_ALLOCATION
-#define TAG_INTEGER(X) (((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX && GetUniverse()->NewInteger(0)) ? ((vm_oop_t)(((X) << 1) | 1)) : (GetUniverse()->NewInteger(X)))
+  #define TAG_INTEGER(X)                                            \
+      (((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX && \
+        GetUniverse()->NewInteger(0))                               \
+           ? ((vm_oop_t)(((X) << 1) | 1))                           \
+           : (GetUniverse()->NewInteger(X)))
 #else
-#define TAG_INTEGER(X) (((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX) ? ((vm_oop_t)((((uint64_t)(X)) << 1) | 1U)) : (GetUniverse()->NewInteger(X)))
+  #define TAG_INTEGER(X)                                          \
+      (((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX) \
+           ? ((vm_oop_t)((((uint64_t)(X)) << 1) | 1U))            \
+           : (GetUniverse()->NewInteger(X)))
 #endif
 
 #if USE_TAGGING
-  #define INT_VAL(X) (IS_TAGGED(X) ? ((int64_t)(X)>>1) : (((VMInteger*)(X))->GetEmbeddedInteger()))
+  #define INT_VAL(X)                      \
+      (IS_TAGGED(X) ? ((int64_t)(X) >> 1) \
+                    : (((VMInteger*)(X))->GetEmbeddedInteger()))
   #define NEW_INT(X) (TAG_INTEGER((X)))
-  #define IS_TAGGED(X) ((int64_t)X&1)
-  #define CLASS_OF(X) (IS_TAGGED(X)?load_ptr(integerClass):((AbstractVMObject*)(X))->GetClass())
-  #define AS_OBJ(X) (IS_TAGGED(X)?GlobalBox::IntegerBox():((AbstractVMObject*)(X)))
+  #define IS_TAGGED(X) ((int64_t)X & 1)
+  #define CLASS_OF(X)                        \
+      (IS_TAGGED(X) ? load_ptr(integerClass) \
+                    : ((AbstractVMObject*)(X))->GetClass())
+  #define AS_OBJ(X) \
+      (IS_TAGGED(X) ? GlobalBox::IntegerBox() : ((AbstractVMObject*)(X)))
 #else
   #define INT_VAL(X) (static_cast<VMInteger*>(X)->GetEmbeddedInteger())
   #define NEW_INT(X) (GetUniverse()->NewInteger(X))
@@ -60,7 +72,6 @@
   #define CLASS_OF(X) (AS_OBJ(X)->GetClass())
   #define AS_OBJ(X) ((AbstractVMObject*)(X))
 #endif
-
 
 // Forward definitions of VM object classes
 class AbstractVMObject;
@@ -90,19 +101,23 @@ class VMOop {
         /* With the current class hierarchy, we need to force the compiler to
            create a VTable early, otherwise, the object layout is having
            vtables in the body of the objects, and casting is messed up,
-           leading to offset pointers to the vtables of subclasses. */ };
+           leading to offset pointers to the vtables of subclasses. */
+    };
+
 public:
     typedef GCOop Stored;
     virtual ~VMOop() = default;
 };
-class GCOop { public: typedef VMOop Loaded; };
+
+class GCOop {
+public:
+    typedef VMOop Loaded;
+};
 
 // oop_t: Ordinary Object Pointer type
 // an oop_t can refer to tagged integers as well as normal AbstractVMObjects
 typedef VMOop* vm_oop_t;
 typedef GCOop* gc_oop_t;
-
-
 
 /**
  We need to distinguish between pointers that need to be handled with a
@@ -114,52 +129,55 @@ typedef GCOop* gc_oop_t;
  And all the stuff that was already processed:
  loaded values, or VM* pointers.
  */
-class GCAbstractObject : public GCOop    { public: typedef AbstractVMObject Loaded; };
-class GCObject : public GCAbstractObject { public: typedef VMObject Loaded; };
-class GCFrame  : public GCObject         { public: typedef VMFrame  Loaded; };
-class GCClass  : public GCObject         { public: typedef VMClass  Loaded; };
-class GCArray  : public GCObject         { public: typedef VMArray  Loaded; };
-class GCBlock  : public GCObject         { public: typedef VMBlock  Loaded; };
-class GCDouble : public GCAbstractObject { public: typedef VMDouble Loaded; };
-class GCInteger : public GCAbstractObject { public: typedef VMInteger Loaded; };
-class GCInvokable : public GCAbstractObject { public: typedef VMInvokable Loaded; };
-class GCMethod : public GCInvokable      { public: typedef VMMethod    Loaded; };
-class GCPrimitive : public GCInvokable   { public: typedef VMPrimitive Loaded; };
+// clang-format off
+class GCAbstractObject : public GCOop            { public: typedef AbstractVMObject Loaded; };
+class GCObject         : public GCAbstractObject { public: typedef VMObject         Loaded; };
+class GCFrame          : public GCObject         { public: typedef VMFrame          Loaded; };
+class GCClass          : public GCObject         { public: typedef VMClass          Loaded; };
+class GCArray          : public GCObject         { public: typedef VMArray          Loaded; };
+class GCBlock          : public GCObject         { public: typedef VMBlock          Loaded; };
+class GCDouble         : public GCAbstractObject { public: typedef VMDouble         Loaded; };
+class GCInteger        : public GCAbstractObject { public: typedef VMInteger        Loaded; };
+class GCInvokable      : public GCAbstractObject { public: typedef VMInvokable      Loaded; };
+class GCMethod         : public GCInvokable      { public: typedef VMMethod         Loaded; };
+class GCPrimitive      : public GCInvokable      { public: typedef VMPrimitive      Loaded; };
 class GCEvaluationPrimitive : public GCPrimitive { public: typedef VMEvaluationPrimitive Loaded; };
-class GCString    : public GCAbstractObject { public: typedef VMString Loaded; };
-class GCSymbol    : public GCString      { public: typedef VMSymbol Loaded; };
-
-
+class GCString         : public GCAbstractObject { public: typedef VMString         Loaded; };
+class GCSymbol         : public GCString         { public: typedef VMSymbol         Loaded; };
+// clang-format on
 
 // Used to mark object fields as invalid
 #define INVALID_VM_POINTER ((VMObject*)0x101010)
 #define INVALID_GC_POINTER ((GCObject*)0x101010)
 
-
-template<typename T>
+template <typename T>
 inline typename T::Loaded* load_ptr(T* gc_val) {
-    return (typename T::Loaded*) gc_val;
+    return (typename T::Loaded*)gc_val;
 }
 
 /** To store object into a root. */
-template<typename T>
+template <typename T>
 inline typename T::Stored* store_root(T* vm_val) {
-    return (typename T::Stored*) vm_val;
+    return (typename T::Stored*)vm_val;
 }
 
-/** For temporary use, but can't be stored, and can't be alive across GC invocations. */
-template<typename T>
+/** For temporary use, but can't be stored, and can't be alive across GC
+ * invocations. */
+template <typename T>
 inline typename T::Stored* tmp_ptr(T* vm_val) {
-    return (typename T::Stored*) vm_val;
+    return (typename T::Stored*)vm_val;
 }
 
-/** To store object a field, needs special care to correctly call `write_barrier()` separately. */
-template<typename T>
+/** To store object a field, needs special care to correctly call
+ * `write_barrier()` separately. */
+template <typename T>
 inline typename T::Stored* store_with_separate_barrier(T* vm_val) {
-    return (typename T::Stored*) vm_val;
+    return (typename T::Stored*)vm_val;
 }
 
 /** Standard assignment of pointer to field, including write barrier. */
-#define store_ptr(field, val) field = store_with_separate_barrier(val); write_barrier(this, val)
+#define store_ptr(field, val)                 \
+    field = store_with_separate_barrier(val); \
+    write_barrier(this, val)
 
 typedef gc_oop_t (*walk_heap_fn)(gc_oop_t);

@@ -31,8 +31,7 @@
 #include "VMObject.h"
 #include "VMString.h"
 
-class VMSymbol: public VMString {
-
+class VMSymbol : public VMString {
 public:
     typedef GCSymbol Stored;
 
@@ -55,7 +54,7 @@ private:
     friend class Signature;
     friend class VMClass;
 
-private_testable:
-    void WalkObjects(walk_heap_fn) override;
+    make_testable(public);
 
+    void WalkObjects(walk_heap_fn) override;
 };

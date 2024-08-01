@@ -31,6 +31,7 @@
 
 #include "../misc/defs.h"
 #include "../vmobjects/ObjectFormats.h"
+#include "../vmobjects/VMMethod.h"
 #include "ClassGenerationContext.h"
 #include "LexicalScope.h"
 #include "SourceCoordinate.h"
@@ -39,15 +40,16 @@ class Parser;
 
 class MethodGenerationContext {
 public:
-    MethodGenerationContext(ClassGenerationContext& holder, MethodGenerationContext* outer = nullptr);
+    MethodGenerationContext(ClassGenerationContext& holder,
+                            MethodGenerationContext* outer = nullptr);
     ~MethodGenerationContext();
 
     VMMethod* Assemble();
     VMPrimitive* AssemblePrimitive(bool classSide);
 
     int8_t FindLiteralIndex(vm_oop_t lit);
-    bool FindVar(std::string& var, int64_t* index,
-            int* context, bool* isArgument);
+    bool FindVar(std::string& var, int64_t* index, int* context,
+                 bool* isArgument);
     bool HasField(VMSymbol* field);
 
     uint8_t GetFieldIndex(VMSymbol* field);
@@ -67,33 +69,21 @@ public:
 
     void SetFinished(bool finished = true);
 
-    ClassGenerationContext* GetHolder() const {
-        return &holderGenc;
-    }
+    ClassGenerationContext* GetHolder() const { return &holderGenc; }
 
-    MethodGenerationContext* GetOuter() const {
-        return outerGenc;
-    }
+    MethodGenerationContext* GetOuter() const { return outerGenc; }
 
     uint8_t GetMaxContextLevel() const { return maxContextLevel; }
 
-    VMSymbol* GetSignature() {
-        return signature;
-    }
+    VMSymbol* GetSignature() { return signature; }
 
-    bool IsPrimitive() const {
-        return primitive;
-    }
+    bool IsPrimitive() const { return primitive; }
 
-    bool IsBlockMethod() const {
-        return blockMethod;
-    }
+    bool IsBlockMethod() const { return blockMethod; }
 
-    bool IsFinished() const {
-        return finished;
-    }
+    bool IsFinished() const { return finished; }
 
-    void RemoveLastBytecode() {bytecode.pop_back();};
+    void RemoveLastBytecode() { bytecode.pop_back(); };
     size_t GetNumberOfArguments();
     void AddBytecode(uint8_t bc, size_t stackEffect);
     void AddBytecodeArgument(uint8_t bc);
@@ -101,15 +91,11 @@ public:
 
     bool HasBytecodes();
 
-    std::vector<uint8_t> GetBytecodes() {
-        return bytecode;
-    }
+    std::vector<uint8_t> GetBytecodes() { return bytecode; }
 
     bool InlineWhile(Parser& parser, bool isWhileTrue);
 
-    inline size_t OffsetOfNextInstruction() {
-        return bytecode.size();
-    }
+    inline size_t OffsetOfNextInstruction() { return bytecode.size(); }
 
     void CompleteLexicalScope();
     void MergeIntoScope(LexicalScope& scopeToBeInlined);
@@ -126,7 +112,8 @@ private:
     std::tuple<vm_oop_t, vm_oop_t> extractBlockMethodsAndRemoveBytecodes();
     vm_oop_t getLastBlockMethodAndFreeLiteral(uint8_t blockLiteralIdx);
 
-    void completeJumpsAndEmitReturningNil(Parser& parser, size_t loopBeginIdx, size_t jumpOffsetIdxToSkipLoopBody);
+    void completeJumpsAndEmitReturningNil(Parser& parser, size_t loopBeginIdx,
+                                          size_t jumpOffsetIdxToSkipLoopBody);
     void inlineLocals(LexicalScope& scopeToBeInlined);
     void checkJumpOffset(size_t jumpOffset, uint8_t bytecode);
     void resetLastBytecodeBuffer();

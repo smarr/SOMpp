@@ -24,6 +24,8 @@
  THE SOFTWARE.
  */
 
+#include "VMObject.h"
+
 #include <cassert>
 #include <cstddef>
 #include <cstring>
@@ -36,27 +38,31 @@
 #include "ObjectFormats.h"
 #include "VMClass.h"
 #include "VMFrame.h"
-#include "VMObject.h"
 #include "VMSymbol.h"
 
 // clazz is the only field of VMObject so
 const size_t VMObject::VMObjectNumberOfFields = 0;
 
-VMObject::VMObject(size_t numSubclassFields, size_t totalObjectSize) : totalObjectSize(totalObjectSize), numberOfFields(VMObjectNumberOfFields + numSubclassFields) {
+VMObject::VMObject(size_t numSubclassFields, size_t totalObjectSize)
+    : totalObjectSize(totalObjectSize),
+      numberOfFields(VMObjectNumberOfFields + numSubclassFields) {
     assert(IS_PADDED_SIZE(totalObjectSize));
     assert(totalObjectSize >= sizeof(VMObject));
 
     // this line would be needed if the VMObject** is used instead of the macro:
     // FIELDS = (VMObject**)&clazz;
-    hash = (size_t) this;
+    hash = (size_t)this;
 
     nilInitializeFields();
 }
 
 VMObject* VMObject::CloneForMovingGC() const {
-    VMObject* clone = new (GetHeap<HEAP_CLS>(), totalObjectSize - sizeof(VMObject) ALLOC_MATURE) VMObject(*this);
+    VMObject* clone =
+        new (GetHeap<HEAP_CLS>(),
+             totalObjectSize - sizeof(VMObject) ALLOC_MATURE) VMObject(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)),
-           SHIFTED_PTR(this,  sizeof(VMObject)), totalObjectSize - sizeof(VMObject));
+           SHIFTED_PTR(this, sizeof(VMObject)),
+           totalObjectSize - sizeof(VMObject));
     return clone;
 }
 
@@ -88,7 +94,7 @@ void VMObject::WalkObjects(walk_heap_fn walk) {
 }
 
 void VMObject::MarkObjectAsInvalid() {
-    clazz = (GCClass*) INVALID_GC_POINTER;
+    clazz = (GCClass*)INVALID_GC_POINTER;
 
     long numFields = GetNumberOfFields();
     for (long i = 0; i < numFields; ++i) {

@@ -26,22 +26,18 @@
  THE SOFTWARE.
  */
 
+#include "../interpreter/Interpreter.h"
 #include "../vmobjects/ObjectFormats.h"
 
 class Shell {
 public:
     Shell();
-    Shell (VMMethod*);
+    Shell(VMMethod*);
     ~Shell();
-    void SetBootstrapMethod(VMMethod* bsm) {
-        bootstrapMethod = bsm;
-    }
-    ;
-    VMMethod* GetBootstrapMethod() const {
-        return bootstrapMethod;
-    }
-    ;
+    void SetBootstrapMethod(VMMethod* bsm) { bootstrapMethod = bsm; };
+    VMMethod* GetBootstrapMethod() const { return bootstrapMethod; };
     void Start(Interpreter*);
+
 private:
     VMMethod* bootstrapMethod;
 };

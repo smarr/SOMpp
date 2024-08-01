@@ -22,55 +22,50 @@
  THE SOFTWARE.
  */
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 #include "compiler/ClassGenerationContext.h"
-
 #include "memory/Heap.h"
-
 #include "misc/defs.h"
-
 #include "vm/Universe.h"
-
-#include "vmobjects/VMObject.h"
-#include "vmobjects/VMMethod.h"
-#include "vmobjects/VMString.h"
-#include "vmobjects/VMArray.h"
 #include "vmobjects/ObjectFormats.h"
+#include "vmobjects/VMArray.h"
+#include "vmobjects/VMMethod.h"
+#include "vmobjects/VMObject.h"
+#include "vmobjects/VMString.h"
 
 int main(int argc, char** argv) {
-
     cout << "This is SOM++" << endl;
 
-    if (GC_TYPE == GENERATIONAL)
+    if (GC_TYPE == GENERATIONAL) {
         cout << "\tgarbage collector: generational" << endl;
-    else if (GC_TYPE == COPYING)
+    } else if (GC_TYPE == COPYING) {
         cout << "\tgarbage collector: copying" << endl;
-    else if (GC_TYPE == MARK_SWEEP)
+    } else if (GC_TYPE == MARK_SWEEP) {
         cout << "\tgarbage collector: mark-sweep" << endl;
-    else if (GC_TYPE == DEBUG_COPYING)
+    } else if (GC_TYPE == DEBUG_COPYING) {
         cout << "\tgarbage collector: debug copying" << endl;
-    else
+    } else {
         cout << "\tgarbage collector: unknown" << endl;
+    }
 
-    if (USE_TAGGING)
+    if (USE_TAGGING) {
         cout << "\twith tagged integers" << endl;
-    else
+    } else {
         cout << "\tnot tagging integers" << endl;
+    }
 
-    if (CACHE_INTEGER)
-        cout << "\tcaching integers from " << INT_CACHE_MIN_VALUE
-             << " to " << INT_CACHE_MAX_VALUE << endl;
-    else
+    if (CACHE_INTEGER) {
+        cout << "\tcaching integers from " << INT_CACHE_MIN_VALUE << " to "
+             << INT_CACHE_MAX_VALUE << endl;
+    } else {
         cout << "\tnot caching integers" << endl;
-
+    }
 
     cout << "--------------------------------------" << endl;
-
 
     Universe::Start(argc, argv);
 
     Universe::Quit(ERR_SUCCESS);
 }
-

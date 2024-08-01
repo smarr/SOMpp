@@ -32,6 +32,7 @@
 
 // bytecode constants used by SOM++
 
+// clang-format off
 #define BC_HALT              0
 #define BC_DUP               1
 #define BC_PUSH_LOCAL        2
@@ -83,9 +84,12 @@
 #define _LAST_BYTECODE BC_JUMP2_BACKWARD
 
 #define BC_INVALID           255
+// clang-format on
 
 // TODO: port support for these bytecodes
-//       they were already named in ported code, and it seemed nicer to just already include that code
+//       they were already named in ported code, and it seemed nicer to just
+//       already include that code
+// clang-format off
 #define BC_INC_FIELD         254
 #define BC_INC_FIELD_PUSH    253
 #define BC_INC               252
@@ -98,36 +102,33 @@
 #define BC_RETURN_FIELD_1    245
 #define BC_RETURN_FIELD_2    244
 #define BC_RETURN_SELF       243
-
+// clang-format on
 
 // properties of the bytecodes
 
-#define FIRST_DOUBLE_BYTE_JUMP_BYTECODE         BC_JUMP2
-#define NUM_SINGLE_BYTE_JUMP_BYTECODES          ((BC_JUMP_BACKWARD - BC_JUMP) + 1)
+#define FIRST_DOUBLE_BYTE_JUMP_BYTECODE BC_JUMP2
+#define NUM_SINGLE_BYTE_JUMP_BYTECODES ((BC_JUMP_BACKWARD - BC_JUMP) + 1)
 
 class Bytecode {
-
 public:
     static char* GetBytecodeName(uint8_t bc) {
-        return (char*) bytecodeNames[bc];
+        return (char*)bytecodeNames[bc];
     }
 
     inline static uint8_t GetBytecodeLength(uint8_t bc) {
-        return bytecodeLengths[bc]; // Return the length of the given bytecode
+        return bytecodeLengths[bc];  // Return the length of the given bytecode
     }
 
     static bool BytecodeDefinitionsAreConsistent();
 
 private:
-
     static const uint8_t bytecodeLengths[];
 
     static const char* bytecodeNames[];
 };
 
 inline uint16_t ComputeOffset(uint8_t byte1, uint8_t byte2) {
-    return ((uint16_t) byte1) | (((uint16_t) byte2) << 8);
+    return ((uint16_t)byte1) | (((uint16_t)byte2) << 8);
 }
 
 bool IsJumpBytecode(uint8_t bc);
-

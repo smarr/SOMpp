@@ -24,6 +24,8 @@
  THE SOFTWARE.
  */
 
+#include "MethodGenerationContext.h"
+
 #include <algorithm>
 #include <cassert>
 #include <cstddef>
@@ -44,24 +46,26 @@
 #include "BytecodeGenerator.h"
 #include "ClassGenerationContext.h"
 #include "LexicalScope.h"
-#include "MethodGenerationContext.h"
 #include "SourceCoordinate.h"
 #include "Variable.h"
 
-MethodGenerationContext::MethodGenerationContext(ClassGenerationContext& holder, MethodGenerationContext* outer) :
-        holderGenc(holder), outerGenc(outer),
-        blockMethod(outer != nullptr), signature(nullptr), primitive(false), finished(false),
-        currentStackDepth(0), maxStackDepth(0), maxContextLevel(outer == nullptr ? 0 : outer->GetMaxContextLevel() + 1) {
-            last4Bytecodes = {BC_INVALID, BC_INVALID, BC_INVALID, BC_INVALID};
-            isCurrentlyInliningABlock = false;
+MethodGenerationContext::MethodGenerationContext(ClassGenerationContext& holder,
+                                                 MethodGenerationContext* outer)
+    : holderGenc(holder), outerGenc(outer), blockMethod(outer != nullptr),
+      signature(nullptr), primitive(false), finished(false),
+      currentStackDepth(0), maxStackDepth(0),
+      maxContextLevel(outer == nullptr ? 0 : outer->GetMaxContextLevel() + 1) {
+    last4Bytecodes = {BC_INVALID, BC_INVALID, BC_INVALID, BC_INVALID};
+    isCurrentlyInliningABlock = false;
 }
 
 VMMethod* MethodGenerationContext::Assemble() {
     // create a method instance with the given number of bytecodes and literals
     size_t numLiterals = literals.size();
     size_t numLocals = locals.size();
-    VMMethod* meth = GetUniverse()->NewMethod(signature, bytecode.size(),
-            numLiterals, numLocals, maxStackDepth, lexicalScope, inlinedLoops);
+    VMMethod* meth = GetUniverse()->NewMethod(
+        signature, bytecode.size(), numLiterals, numLocals, maxStackDepth,
+        lexicalScope, inlinedLoops);
 
     // copy literals into the method
     for (size_t i = 0; i < numLiterals; i++) {
@@ -83,8 +87,7 @@ VMPrimitive* MethodGenerationContext::AssemblePrimitive(bool classSide) {
     return VMPrimitive::GetEmptyPrimitive(signature, classSide);
 }
 
-MethodGenerationContext::~MethodGenerationContext() {
-}
+MethodGenerationContext::~MethodGenerationContext() {}
 
 int8_t MethodGenerationContext::FindLiteralIndex(vm_oop_t lit) {
     return (int8_t)IndexOf(literals, lit);
@@ -118,19 +121,19 @@ size_t IndexOf(std::vector<Variable>& vec, std::string& name) {
     return -1;
 }
 
-
 bool MethodGenerationContext::FindVar(std::string& var, int64_t* index,
-        int* context, bool* isArgument) {
+                                      int* context, bool* isArgument) {
     if ((*index = IndexOf(locals, var)) == -1) {
         if ((*index = IndexOf(arguments, var)) == -1) {
-            if (!outerGenc)
+            if (!outerGenc) {
                 return false;
-            else {
+            } else {
                 (*context)++;
                 return outerGenc->FindVar(var, index, context, isArgument);
             }
-        } else
+        } else {
             *isArgument = true;
+        }
     }
 
     return true;
@@ -152,12 +155,14 @@ void MethodGenerationContext::SetPrimitive(bool prim) {
     primitive = prim;
 }
 
-void MethodGenerationContext::AddArgument(std::string& arg, const SourceCoordinate& coord) {
+void MethodGenerationContext::AddArgument(std::string& arg,
+                                          const SourceCoordinate& coord) {
     size_t index = arguments.size();
     arguments.push_back({arg, index, true, coord});
 }
 
-void MethodGenerationContext::AddLocal(std::string& local, const SourceCoordinate& coord) {
+void MethodGenerationContext::AddLocal(std::string& local,
+                                       const SourceCoordinate& coord) {
     size_t index = locals.size();
     locals.push_back({local, index, false, coord});
 }
@@ -173,18 +178,21 @@ uint8_t MethodGenerationContext::AddLiteral(vm_oop_t lit) {
 int8_t MethodGenerationContext::AddLiteralIfAbsent(vm_oop_t lit) {
     int8_t idx = IndexOf(literals, lit);
     if (idx != -1) {
-        assert(idx >= 0 && (size_t)idx < literals.size() && "Expect index to be inside the literals vector.");
+        assert(idx >= 0 && (size_t)idx < literals.size() &&
+               "Expect index to be inside the literals vector.");
         return idx;
     }
     return AddLiteral(lit);
 }
 
-void MethodGenerationContext::UpdateLiteral(vm_oop_t oldValue, uint8_t index, vm_oop_t newValue) {
+void MethodGenerationContext::UpdateLiteral(vm_oop_t oldValue, uint8_t index,
+                                            vm_oop_t newValue) {
     assert(literals.at(index) == oldValue);
     literals[index] = newValue;
 }
 
-bool MethodGenerationContext::AddArgumentIfAbsent(std::string& arg, const SourceCoordinate& coord) {
+bool MethodGenerationContext::AddArgumentIfAbsent(
+    std::string& arg, const SourceCoordinate& coord) {
     if (Contains(locals, arg)) {
         return false;
     }
@@ -192,7 +200,8 @@ bool MethodGenerationContext::AddArgumentIfAbsent(std::string& arg, const Source
     return true;
 }
 
-bool MethodGenerationContext::AddLocalIfAbsent(std::string& local, const SourceCoordinate& coord) {
+bool MethodGenerationContext::AddLocalIfAbsent(std::string& local,
+                                               const SourceCoordinate& coord) {
     if (Contains(locals, local)) {
         return false;
     }
@@ -231,7 +240,8 @@ size_t MethodGenerationContext::AddBytecodeArgumentAndGetIndex(uint8_t bc) {
     return index;
 }
 
-bool MethodGenerationContext::lastBytecodeIs(size_t indexFromEnd, uint8_t bytecode) {
+bool MethodGenerationContext::lastBytecodeIs(size_t indexFromEnd,
+                                             uint8_t bytecode) {
     assert(indexFromEnd >= 0 && indexFromEnd < 4);
     uint8_t actual = last4Bytecodes[3 - indexFromEnd];
     return actual == bytecode;
@@ -242,7 +252,8 @@ void MethodGenerationContext::removeLastBytecodes(size_t numBytecodes) {
     size_t bytesToRemove = 0;
 
     for (size_t idxFromEnd = 0; idxFromEnd < numBytecodes; idxFromEnd += 1) {
-        bytesToRemove += Bytecode::GetBytecodeLength(last4Bytecodes[3 - idxFromEnd]);
+        bytesToRemove +=
+            Bytecode::GetBytecodeLength(last4Bytecodes[3 - idxFromEnd]);
     }
 
     bytecode.erase(bytecode.end() - bytesToRemove, bytecode.end());
@@ -261,21 +272,23 @@ bool MethodGenerationContext::hasTwoLiteralBlockArguments() {
  * and inlining, where this is used, happens right after the block was added.
  * This also means, we need to remove blocks in reverse order.
  */
-vm_oop_t MethodGenerationContext::getLastBlockMethodAndFreeLiteral(uint8_t blockLiteralIdx) {
+vm_oop_t MethodGenerationContext::getLastBlockMethodAndFreeLiteral(
+    uint8_t blockLiteralIdx) {
     assert(blockLiteralIdx == literals.size() - 1);
     vm_oop_t block = literals.back();
     literals.pop_back();
     return block;
 }
 
-std::tuple<vm_oop_t, vm_oop_t> MethodGenerationContext::extractBlockMethodsAndRemoveBytecodes() {
+std::tuple<vm_oop_t, vm_oop_t>
+MethodGenerationContext::extractBlockMethodsAndRemoveBytecodes() {
     uint8_t block1LitIdx = bytecode.at(bytecode.size() - 3);
     uint8_t block2LitIdx = bytecode.at(bytecode.size() - 1);
 
     // grab the blocks' methods for inlining
     vm_oop_t toBeInlined2 = getLastBlockMethodAndFreeLiteral(block2LitIdx);
     vm_oop_t toBeInlined1 = getLastBlockMethodAndFreeLiteral(block1LitIdx);
-    
+
     removeLastBytecodes(2);
 
     return {toBeInlined1, toBeInlined2};
@@ -288,7 +301,8 @@ bool MethodGenerationContext::InlineWhile(Parser& parser, bool isWhileTrue) {
 
     assert(Bytecode::GetBytecodeLength(BC_PUSH_BLOCK) == 2);
 
-    std::tuple<vm_oop_t, vm_oop_t> methods = extractBlockMethodsAndRemoveBytecodes();
+    std::tuple<vm_oop_t, vm_oop_t> methods =
+        extractBlockMethodsAndRemoveBytecodes();
     VMMethod* condMethod = static_cast<VMMethod*>(std::get<0>(methods));
     VMMethod* bodyMethod = static_cast<VMMethod*>(std::get<1>(methods));
 
@@ -297,11 +311,13 @@ bool MethodGenerationContext::InlineWhile(Parser& parser, bool isWhileTrue) {
     isCurrentlyInliningABlock = true;
     condMethod->InlineInto(*this);
 
-    size_t jumpOffsetIdxToSkipLoopBody = EmitJumpOnBoolWithDummyOffset(*this, isWhileTrue, true);
+    size_t jumpOffsetIdxToSkipLoopBody =
+        EmitJumpOnBoolWithDummyOffset(*this, isWhileTrue, true);
 
     bodyMethod->InlineInto(*this);
 
-    completeJumpsAndEmitReturningNil(parser, loopBeginIdx, jumpOffsetIdxToSkipLoopBody);
+    completeJumpsAndEmitReturningNil(parser, loopBeginIdx,
+                                     jumpOffsetIdxToSkipLoopBody);
 
     isCurrentlyInliningABlock = false;
 
@@ -309,8 +325,9 @@ bool MethodGenerationContext::InlineWhile(Parser& parser, bool isWhileTrue) {
 }
 
 void MethodGenerationContext::CompleteLexicalScope() {
-    lexicalScope = new LexicalScope(outerGenc == nullptr ? nullptr : outerGenc->lexicalScope,
-                                    arguments, locals);
+    lexicalScope = new LexicalScope(
+        outerGenc == nullptr ? nullptr : outerGenc->lexicalScope, arguments,
+        locals);
 }
 
 void MethodGenerationContext::MergeIntoScope(LexicalScope& scopeToBeInlined) {
@@ -347,19 +364,27 @@ uint8_t MethodGenerationContext::GetInlinedLocalIdx(const Variable* var) const {
 
     char msg[200];
     std::string qualifiedName = var->MakeQualifiedName();
-    snprintf(msg, 200, "Unexpected issue trying to find an inlined variable. %s could not be found.", qualifiedName.data());
+    snprintf(
+        msg, 200,
+        "Unexpected issue trying to find an inlined variable. %s could not "
+        "be found.",
+        qualifiedName.data());
     Universe::ErrorExit(msg);
 }
 
-void MethodGenerationContext::checkJumpOffset(size_t jumpOffset, uint8_t bytecode) {
+void MethodGenerationContext::checkJumpOffset(size_t jumpOffset,
+                                              uint8_t bytecode) {
     if (jumpOffset < 0 || jumpOffset > 0xFFFF) {
         char msg[100];
-        snprintf(msg, 100, "The jumpOffset for the %s bytecode is out of range: %zu\n", Bytecode::GetBytecodeName(bytecode), jumpOffset);
+        snprintf(msg, 100,
+                 "The jumpOffset for the %s bytecode is out of range: %zu\n",
+                 Bytecode::GetBytecodeName(bytecode), jumpOffset);
         Universe::ErrorExit(msg);
     }
 }
 
-void MethodGenerationContext::EmitBackwardsJumpOffsetToTarget(size_t loopBeginIdx) {
+void MethodGenerationContext::EmitBackwardsJumpOffsetToTarget(
+    size_t loopBeginIdx) {
     size_t addressOfJump = OffsetOfNextInstruction();
 
     // we are going to jump backward and want a positive value
@@ -374,7 +399,8 @@ void MethodGenerationContext::EmitBackwardsJumpOffsetToTarget(size_t loopBeginId
     inlinedLoops.push_back(BackJump(loopBeginIdx, backwardJumpIdx));
 }
 
-void MethodGenerationContext::completeJumpsAndEmitReturningNil(Parser& parser, size_t loopBeginIdx, size_t jumpOffsetIdxToSkipLoopBody) {
+void MethodGenerationContext::completeJumpsAndEmitReturningNil(
+    Parser& parser, size_t loopBeginIdx, size_t jumpOffsetIdxToSkipLoopBody) {
     resetLastBytecodeBuffer();
     EmitPOP(*this);
 
@@ -385,7 +411,8 @@ void MethodGenerationContext::completeJumpsAndEmitReturningNil(Parser& parser, s
     resetLastBytecodeBuffer();
 }
 
-void MethodGenerationContext::PatchJumpOffsetToPointToNextInstruction(size_t indexOfOffset) {
+void MethodGenerationContext::PatchJumpOffsetToPointToNextInstruction(
+    size_t indexOfOffset) {
     size_t instructionStart = indexOfOffset - 1;
     uint8_t bytecode = this->bytecode[instructionStart];
     assert(IsJumpBytecode(bytecode));

@@ -29,7 +29,7 @@
 #include "../primitivesCore/PrimitiveContainer.h"
 #include "../vmobjects/ObjectFormats.h"
 
-class _String: public PrimitiveContainer {
+class _String : public PrimitiveContainer {
 public:
     _String();
     void Concatenate_(Interpreter*, VMFrame*);

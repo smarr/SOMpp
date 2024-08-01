@@ -28,12 +28,10 @@
 
 #include <vector>
 
+#include "../misc/defs.h"
 #include "../vmobjects/ObjectFormats.h"
 
-#include "../misc/defs.h"
-
 class ClassGenerationContext {
-
 public:
     ClassGenerationContext();
     ~ClassGenerationContext() = default;
@@ -45,12 +43,12 @@ public:
     void AddClassField(VMSymbol*);
     void AddInstanceMethod(VMInvokable*);
     void AddClassMethod(VMInvokable*);
-    void SetName(VMSymbol* n) {name = n;}
-    void SetSuperName(VMSymbol* sn) {superName = sn;}
-    void SetClassSide(bool cs) {classSide = cs;}
-    VMSymbol* GetName(void) {return name;};
-    VMSymbol* GetSuperName(void) {return superName;};
-    bool IsClassSide(void) {return classSide;};
+    void SetName(VMSymbol* n) { name = n; }
+    void SetSuperName(VMSymbol* sn) { superName = sn; }
+    void SetClassSide(bool cs) { classSide = cs; }
+    VMSymbol* GetName(void) { return name; };
+    VMSymbol* GetSuperName(void) { return superName; };
+    bool IsClassSide(void) { return classSide; };
 
     int16_t GetFieldIndex(VMSymbol* field);
 
@@ -61,8 +59,8 @@ private:
     VMSymbol* name;
     VMSymbol* superName;
     bool classSide;
-    std::vector<VMSymbol*>    instanceFields;
+    std::vector<VMSymbol*> instanceFields;
     std::vector<VMInvokable*> instanceMethods;
-    std::vector<VMSymbol*>    classFields;
+    std::vector<VMSymbol*> classFields;
     std::vector<VMInvokable*> classMethods;
 };

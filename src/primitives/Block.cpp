@@ -30,7 +30,6 @@
 #include "../primitivesCore/Routine.h"
 #include "../vmobjects/VMFrame.h"
 
-
 void _Block::Value(Interpreter*, VMFrame*) {
     // intentionally left blank
 }
@@ -49,9 +48,9 @@ void _Block::Restart(Interpreter*, VMFrame* frame) {
 }
 
 _Block::_Block() : PrimitiveContainer() {
-    SetPrimitive("value",       new Routine<_Block>(this, &_Block::Value,       false));
-    SetPrimitive("restart",     new Routine<_Block>(this, &_Block::Restart,     false));
-    SetPrimitive("value_",      new Routine<_Block>(this, &_Block::Value_,      false));
-    SetPrimitive("value_with_", new Routine<_Block>(this, &_Block::Value_with_, false));
+    SetPrimitive("value", new Routine<_Block>(this, &_Block::Value, false));
+    SetPrimitive("restart", new Routine<_Block>(this, &_Block::Restart, false));
+    SetPrimitive("value_", new Routine<_Block>(this, &_Block::Value_, false));
+    SetPrimitive("value_with_",
+                 new Routine<_Block>(this, &_Block::Value_with_, false));
 }
-

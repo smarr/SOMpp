@@ -4,6 +4,8 @@
  *  Created on: 12.01.2011
  *      Author: christian
  */
+#include "WalkObjectsTest.h"
+
 #include <algorithm>
 #include <cppunit/TestAssert.h>
 #include <cstddef>
@@ -27,7 +29,6 @@
 #include "../vmobjects/VMMethod.h"
 #include "../vmobjects/VMPrimitive.h"
 #include "../vmobjects/VMSymbol.h"
-#include "WalkObjectsTest.h"
 
 static const size_t NoOfFields_Object = 1;
 static const size_t NoOfFields_String = 0;
@@ -55,8 +56,8 @@ gc_oop_t collectMembers(gc_oop_t obj) {
  * Helper function that searches the result vector for a field
  */
 bool WalkerHasFound(gc_oop_t obj) {
-    return find(walkedObjects.begin(), walkedObjects.end(), obj)
-    != walkedObjects.end();
+    return find(walkedObjects.begin(), walkedObjects.end(), obj) !=
+           walkedObjects.end();
 }
 
 void WalkObjectsTest::testWalkInteger() {
@@ -64,7 +65,7 @@ void WalkObjectsTest::testWalkInteger() {
     VMInteger* int1 = GetUniverse()->NewInteger(42);
     int1->WalkObjects(collectMembers);
 
-    //Integers have no additional members
+    // Integers have no additional members
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Integer, walkedObjects.size());
 }
 
@@ -73,14 +74,15 @@ void WalkObjectsTest::testWalkDouble() {
     VMDouble* d1 = GetUniverse()->NewDouble(432.1);
     d1->WalkObjects(collectMembers);
 
-    //Doubles have no additional members
+    // Doubles have no additional members
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Double, walkedObjects.size());
 }
 
 void WalkObjectsTest::testWalkEvaluationPrimitive() {
     walkedObjects.clear();
 
-    VMEvaluationPrimitive* evPrim = new (GetHeap<HEAP_CLS>(), 0) VMEvaluationPrimitive(1);
+    VMEvaluationPrimitive* evPrim =
+        new (GetHeap<HEAP_CLS>(), 0) VMEvaluationPrimitive(1);
     evPrim->SetHolder(load_ptr(classClass));
     evPrim->WalkObjects(collectMembers);
 
@@ -96,7 +98,7 @@ void WalkObjectsTest::testWalkObject() {
     VMObject* obj = new (GetHeap<HEAP_CLS>(), 0) VMObject(0, sizeof(VMObject));
     obj->WalkObjects(collectMembers);
 
-    //Objects should only have one member -> Class
+    // Objects should only have one member -> Class
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Object, walkedObjects.size());
     CPPUNIT_ASSERT(WalkerHasFound(tmp_ptr(obj->GetClass())));
 }
@@ -123,7 +125,7 @@ void WalkObjectsTest::testWalkClass() {
     meta->superClass = stringClass;
     meta->WalkObjects(collectMembers);
 
-    //Now check if we found all class fields
+    // Now check if we found all class fields
     CPPUNIT_ASSERT(WalkerHasFound(tmp_ptr(meta->GetClass())));
     CPPUNIT_ASSERT(WalkerHasFound(tmp_ptr(meta->GetSuperClass())));
     CPPUNIT_ASSERT(WalkerHasFound(tmp_ptr(meta->GetName())));
@@ -149,7 +151,9 @@ void WalkObjectsTest::testWalkFrame() {
     VMSymbol* methodSymbol = NewSymbol("frameMethod");
 
     vector<BackJump> inlinedLoops;
-    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0, new LexicalScope(nullptr, {}, {}), inlinedLoops);
+    VMMethod* method = GetUniverse()->NewMethod(
+        methodSymbol, 0, 0, 0, 0, new LexicalScope(nullptr, {}, {}),
+        inlinedLoops);
 
     VMFrame* frame = GetUniverse()->NewFrame(nullptr, method);
     frame->SetPreviousFrame(frame->CloneForMovingGC());
@@ -161,11 +165,12 @@ void WalkObjectsTest::testWalkFrame() {
     CPPUNIT_ASSERT(WalkerHasFound(tmp_ptr(frame->GetPreviousFrame())));
     CPPUNIT_ASSERT(WalkerHasFound(tmp_ptr(frame->GetContext())));
     CPPUNIT_ASSERT(WalkerHasFound(tmp_ptr(frame->GetMethod())));
-    //CPPUNIT_ASSERT(WalkerHasFound(frame->bytecodeIndex));
+    // CPPUNIT_ASSERT(WalkerHasFound(frame->bytecodeIndex));
     CPPUNIT_ASSERT(WalkerHasFound(tmp_ptr(dummyArg)));
     CPPUNIT_ASSERT_EQUAL(
-            (long) (NoOfFields_Frame + method->GetNumberOfArguments()),
-            (long) walkedObjects.size() + 1);  // + 1 for the class field that's still in there
+        (long)(NoOfFields_Frame + method->GetNumberOfArguments()),
+        (long)walkedObjects.size() +
+            1);  // + 1 for the class field that's still in there
 }
 
 Variable makeVar(const char* const name, bool isArgument) {
@@ -175,7 +180,8 @@ Variable makeVar(const char* const name, bool isArgument) {
 
 void WalkObjectsTest::testWalkMethod() {
     walkedObjects.clear();
-    // First, we're setting up lexical scopes, just to see that we reach those, too
+    // First, we're setting up lexical scopes, just to see that we reach those,
+    // too
 
     vector<Variable> argsInner;
     vector<Variable> localsInner;
@@ -196,11 +202,11 @@ void WalkObjectsTest::testWalkMethod() {
     LexicalScope* inner = new LexicalScope(nullptr, argsInner, localsInner);
     LexicalScope* scope = new LexicalScope(inner, args, locals);
 
-
     VMSymbol* methodSymbol = NewSymbol("myMethod");
 
     vector<BackJump> inlinedLoops;
-    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0, scope, inlinedLoops);
+    VMMethod* method =
+        GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0, scope, inlinedLoops);
 
     method->SetHolder(load_ptr(symbolClass));
     method->WalkObjects(collectMembers);
@@ -218,11 +224,13 @@ void WalkObjectsTest::testWalkBlock() {
     VMSymbol* methodSymbol = NewSymbol("someMethod");
 
     vector<BackJump> inlinedLoops;
-    VMMethod* method = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0, new LexicalScope(nullptr, {}, {}), inlinedLoops);
+    VMMethod* method = GetUniverse()->NewMethod(
+        methodSymbol, 0, 0, 0, 0, new LexicalScope(nullptr, {}, {}),
+        inlinedLoops);
 
-    VMBlock* block = GetUniverse()->NewBlock(method,
-            GetUniverse()->GetInterpreter()->GetFrame(),
-            method->GetNumberOfArguments());
+    VMBlock* block = GetUniverse()->NewBlock(
+        method, GetUniverse()->GetInterpreter()->GetFrame(),
+        method->GetNumberOfArguments());
     block->WalkObjects(collectMembers);
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Block, walkedObjects.size());
     CPPUNIT_ASSERT(WalkerHasFound(tmp_ptr(block->GetClass())));

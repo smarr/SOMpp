@@ -31,8 +31,9 @@
 
 class Universe;
 
-class VMFrame: public VMObject {
+class VMFrame : public VMObject {
     friend class Universe;
+
 public:
     typedef GCFrame Stored;
 
@@ -59,18 +60,14 @@ public:
         return result;
     }
 
-    inline void PopVoid() {
-        stack_ptr--;
-    }
+    inline void PopVoid() { stack_ptr--; }
 
     inline vm_oop_t Top() {
         vm_oop_t result = load_ptr(*stack_ptr);
         return result;
     }
 
-    inline void SetTop(gc_oop_t val) {
-        *stack_ptr = val;
-    }
+    inline void SetTop(gc_oop_t val) { *stack_ptr = val; }
 
     inline void Push(vm_oop_t obj) {
         assert(RemainingStackSize() > 0);
@@ -132,7 +129,8 @@ public:
 
     StdString AsDebugString() const override;
 
-private_testable:
+    make_testable(public);
+
     long bytecodeIndex;
 
 private:

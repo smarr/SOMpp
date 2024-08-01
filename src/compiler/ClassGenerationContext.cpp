@@ -24,6 +24,8 @@
  THE SOFTWARE.
  */
 
+#include "ClassGenerationContext.h"
+
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
@@ -39,13 +41,10 @@
 #include "../vmobjects/VMClass.h"
 #include "../vmobjects/VMInvokable.h"
 #include "../vmobjects/VMSymbol.h"
-#include "ClassGenerationContext.h"
 
-
-ClassGenerationContext::ClassGenerationContext() :
-        name(nullptr), superName(nullptr), classSide(false),
-        instanceFields(), instanceMethods(), classFields(),
-         classMethods() { }
+ClassGenerationContext::ClassGenerationContext()
+    : name(nullptr), superName(nullptr), classSide(false), instanceFields(),
+      instanceMethods(), classFields(), classMethods() {}
 
 void ClassGenerationContext::AddClassField(VMSymbol* field) {
     classFields.push_back(field);
@@ -57,7 +56,7 @@ void ClassGenerationContext::AddInstanceField(VMSymbol* field) {
 
 void ClassGenerationContext::SetInstanceFieldsOfSuper(VMArray* fields) {
     size_t num = fields->GetNumberOfIndexableFields();
-    for (size_t i = 0; i < num; i ++) {
+    for (size_t i = 0; i < num; i++) {
         VMSymbol* fieldName = (VMSymbol*)fields->GetIndexableField(i);
         assert(IsVMSymbol(fieldName));
         instanceFields.push_back(fieldName);
@@ -66,7 +65,7 @@ void ClassGenerationContext::SetInstanceFieldsOfSuper(VMArray* fields) {
 
 void ClassGenerationContext::SetClassFieldsOfSuper(VMArray* fields) {
     size_t num = fields->GetNumberOfIndexableFields();
-    for (size_t i = 0; i < num; i ++) {
+    for (size_t i = 0; i < num; i++) {
         VMSymbol* fieldName = (VMSymbol*)fields->GetIndexableField(i);
         assert(IsVMSymbol(fieldName));
         classFields.push_back(fieldName);
@@ -107,7 +106,8 @@ VMClass* ClassGenerationContext::Assemble() {
 
     // Initialize the class of the resulting class
     resultClass->SetInstanceFields(GetUniverse()->NewArrayList(classFields));
-    resultClass->SetInstanceInvokables(GetUniverse()->NewArrayList(classMethods));
+    resultClass->SetInstanceInvokables(
+        GetUniverse()->NewArrayList(classMethods));
     resultClass->SetName(SymbolFor(ccname));
 
     VMClass* superMClass = superClass->GetClass();
@@ -126,11 +126,12 @@ VMClass* ClassGenerationContext::Assemble() {
 }
 
 void ClassGenerationContext::AssembleSystemClass(VMClass* systemClass) {
-    systemClass->SetInstanceInvokables(GetUniverse()->NewArrayList
-    (instanceMethods));
+    systemClass->SetInstanceInvokables(
+        GetUniverse()->NewArrayList(instanceMethods));
     systemClass->SetInstanceFields(GetUniverse()->NewArrayList(instanceFields));
     // class-bound == class-instance-bound
-        VMClass* superMClass = systemClass->GetClass();
-        superMClass->SetInstanceInvokables(GetUniverse()->NewArrayList(classMethods));
-        superMClass->SetInstanceFields(GetUniverse()->NewArrayList(classFields));
-    }
+    VMClass* superMClass = systemClass->GetClass();
+    superMClass->SetInstanceInvokables(
+        GetUniverse()->NewArrayList(classMethods));
+    superMClass->SetInstanceFields(GetUniverse()->NewArrayList(classFields));
+}

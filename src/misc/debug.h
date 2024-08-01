@@ -31,9 +31,9 @@
 
 #include "../vmobjects/ObjectFormats.h"
 
-#define FprintfPass(f,x) \
-    va_list ap; \
-    va_start(ap, (x)); \
+#define FprintfPass(f, x)         \
+    va_list ap;                   \
+    va_start(ap, (x));            \
     (void)vfprintf((f), (x), ap); \
     va_end(ap)
 
@@ -45,9 +45,9 @@ static inline void DebugPrefix(const char* prefix) {
     DebugPrint("%-6s ", prefix);
 }
 
-#define DebugPass(x) \
-    va_list ap; \
-    va_start(ap, (x)); \
+#define DebugPass(x)                 \
+    va_list ap;                      \
+    va_start(ap, (x));               \
     (void)vfprintf(stderr, (x), ap); \
     va_end(ap)
 
@@ -56,7 +56,7 @@ static inline void DebugInfo(const char* fmt, ...) {
     DebugPrefix("INFO:");
     DebugPass(fmt);
 #else
-    (void) fmt;
+    (void)fmt;
 #endif
 }
 
@@ -65,7 +65,7 @@ static inline void DebugLog(const char* fmt, ...) {
     DebugPrefix("LOG:");
     DebugPass(fmt);
 #else
-    (void) fmt;
+    (void)fmt;
 #endif
 }
 
@@ -74,7 +74,7 @@ static inline void DebugWarn(const char* fmt, ...) {
     DebugPrefix("WARN:");
     DebugPass(fmt);
 #else
-    (void) fmt;
+    (void)fmt;
 #endif
 }
 
@@ -94,7 +94,7 @@ static inline void DebugTrace(const char* fmt, ...) {
 }
 
 #undef FprintfPass
-#undef DebugPass 
+#undef DebugPass
 
 std::string DebugGetClassName(vm_oop_t);
 std::string DebugGetClassName(gc_oop_t);

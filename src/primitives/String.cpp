@@ -24,6 +24,8 @@
  THE SOFTWARE.
  */
 
+#include "String.h"
+
 #include <cctype>
 #include <cstdint>
 #include <cstdio>
@@ -37,23 +39,30 @@
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMFrame.h"
 #include "../vmobjects/VMString.h"
-#include "../vmobjects/VMSymbol.h" // NOLINT(misc-include-cleaner) it's required to make the types complete
-#include "String.h"
+#include "../vmobjects/VMSymbol.h"  // NOLINT(misc-include-cleaner) it's required to make the types complete
 
 _String::_String() : PrimitiveContainer() {
-    SetPrimitive("concatenate_", new Routine<_String>(this, &_String::Concatenate_, false));
-    SetPrimitive("asSymbol",     new Routine<_String>(this, &_String::AsSymbol, false));
-    SetPrimitive("hashcode",     new Routine<_String>(this, &_String::Hashcode, false));
-    SetPrimitive("length",       new Routine<_String>(this, &_String::Length,   false));
-    SetPrimitive("equal",        new Routine<_String>(this, &_String::Equal,    false));
-    SetPrimitive("primSubstringFrom_to_", new Routine<_String>(this, &_String::PrimSubstringFrom_to_, false));
-    SetPrimitive("isWhiteSpace",        new Routine<_String>(this, &_String::IsWhiteSpace, false));
-    SetPrimitive("isLetters",        new Routine<_String>(this, &_String::IsLetters,    false));
-    SetPrimitive("isDigits",        new Routine<_String>(this, &_String::IsDigits,     false));
+    SetPrimitive("concatenate_",
+                 new Routine<_String>(this, &_String::Concatenate_, false));
+    SetPrimitive("asSymbol",
+                 new Routine<_String>(this, &_String::AsSymbol, false));
+    SetPrimitive("hashcode",
+                 new Routine<_String>(this, &_String::Hashcode, false));
+    SetPrimitive("length", new Routine<_String>(this, &_String::Length, false));
+    SetPrimitive("equal", new Routine<_String>(this, &_String::Equal, false));
+    SetPrimitive(
+        "primSubstringFrom_to_",
+        new Routine<_String>(this, &_String::PrimSubstringFrom_to_, false));
+    SetPrimitive("isWhiteSpace",
+                 new Routine<_String>(this, &_String::IsWhiteSpace, false));
+    SetPrimitive("isLetters",
+                 new Routine<_String>(this, &_String::IsLetters, false));
+    SetPrimitive("isDigits",
+                 new Routine<_String>(this, &_String::IsDigits, false));
 }
 
 void _String::Concatenate_(Interpreter*, VMFrame* frame) {
-    VMString* arg  = static_cast<VMString*>(frame->Pop());
+    VMString* arg = static_cast<VMString*>(frame->Pop());
     VMString* self = static_cast<VMString*>(frame->Pop());
     // TODO: if this really needs to be optimized, than, well, then,
     // NewString should allow to construct it correctly and simply copy
@@ -81,7 +90,7 @@ void _String::Length(Interpreter*, VMFrame* frame) {
     VMString* self = static_cast<VMString*>(frame->Pop());
 
     size_t len = self->GetStringLength();
-    frame->Push(NEW_INT((int64_t) len));
+    frame->Push(NEW_INT((int64_t)len));
 }
 
 void _String::Equal(Interpreter*, VMFrame* frame) {
@@ -94,11 +103,12 @@ void _String::Equal(Interpreter*, VMFrame* frame) {
     }
 
     VMClass* otherClass = CLASS_OF(op1);
-    if(otherClass == load_ptr(stringClass) || otherClass == load_ptr(symbolClass)) {
+    if (otherClass == load_ptr(stringClass) ||
+        otherClass == load_ptr(symbolClass)) {
         StdString s1 = static_cast<VMString*>(op1)->GetStdString();
         StdString s2 = op2->GetStdString();
 
-        if(s1 == s2) {
+        if (s1 == s2) {
             frame->Push(load_ptr(trueObject));
             return;
         }
@@ -107,7 +117,7 @@ void _String::Equal(Interpreter*, VMFrame* frame) {
 }
 
 void _String::PrimSubstringFrom_to_(Interpreter*, VMFrame* frame) {
-    vm_oop_t end   = frame->Pop();
+    vm_oop_t end = frame->Pop();
     vm_oop_t start = frame->Pop();
 
     VMString* self = static_cast<VMString*>(frame->Pop());

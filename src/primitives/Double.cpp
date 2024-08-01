@@ -24,6 +24,8 @@
  THE SOFTWARE.
  */
 
+#include "Double.h"
+
 #include <cmath>
 #include <cstdint>
 #include <iostream>
@@ -39,23 +41,25 @@
 #include "../vmobjects/VMFrame.h"
 #include "../vmobjects/VMInteger.h"
 #include "../vmobjects/VMString.h"
-#include "Double.h"
 
 /*
  * This function coerces any right-hand parameter to a double, regardless of its
  * true nature. This is to make sure that all Double operations return Doubles.
  */
 double _Double::coerceDouble(vm_oop_t x) {
-    if (IS_TAGGED(x))
-        return (double) INT_VAL(x);
+    if (IS_TAGGED(x)) {
+        return (double)INT_VAL(x);
+    }
 
     VMClass* cl = ((AbstractVMObject*)x)->GetClass();
-    if (cl == load_ptr(doubleClass))
+    if (cl == load_ptr(doubleClass)) {
         return static_cast<VMDouble*>(x)->GetEmbeddedDouble();
-    else if(cl == load_ptr(integerClass))
+    } else if (cl == load_ptr(integerClass)) {
         return (double)static_cast<VMInteger*>(x)->GetEmbeddedInteger();
-    else
-        GetUniverse()->ErrorExit("Attempt to apply Double operation to non-number.");
+    } else {
+        GetUniverse()->ErrorExit(
+            "Attempt to apply Double operation to non-number.");
+    }
 
     return 0.0f;
 }
@@ -66,8 +70,8 @@ double _Double::coerceDouble(vm_oop_t x) {
  * extract the left-hand operand as an immediate Double. Afterwards, left and
  * right are prepared for the operation.
  */
-#define PREPARE_OPERANDS \
-    double right = coerceDouble(frame->Pop()); \
+#define PREPARE_OPERANDS                                      \
+    double right = coerceDouble(frame->Pop());                \
     VMDouble* leftObj = static_cast<VMDouble*>(frame->Pop()); \
     double left = leftObj->GetEmbeddedDouble();
 
@@ -105,20 +109,20 @@ void _Double::Slashslash(Interpreter*, VMFrame* frame) {
 
 void _Double::Percent(Interpreter*, VMFrame* frame) {
     PREPARE_OPERANDS;
-    frame->Push(GetUniverse()->NewDouble((double)((int64_t)left %
-                    (int64_t)right)));
+    frame->Push(
+        GetUniverse()->NewDouble((double)((int64_t)left % (int64_t)right)));
 }
 
 void _Double::And(Interpreter*, VMFrame* frame) {
     PREPARE_OPERANDS;
-    frame->Push(GetUniverse()->NewDouble((double)((int64_t)left &
-                    (int64_t)right)));
+    frame->Push(
+        GetUniverse()->NewDouble((double)((int64_t)left & (int64_t)right)));
 }
 
 void _Double::BitwiseXor(Interpreter*, VMFrame* frame) {
     PREPARE_OPERANDS;
-    frame->Push(GetUniverse()->NewDouble((double)((int64_t)left ^
-                    (int64_t)right)));
+    frame->Push(
+        GetUniverse()->NewDouble((double)((int64_t)left ^ (int64_t)right)));
 }
 
 /*
@@ -127,18 +131,20 @@ void _Double::BitwiseXor(Interpreter*, VMFrame* frame) {
  */
 void _Double::Equal(Interpreter*, VMFrame* frame) {
     PREPARE_OPERANDS;
-    if(left == right)
-    frame->Push(load_ptr(trueObject));
-    else
-    frame->Push(load_ptr(falseObject));
+    if (left == right) {
+        frame->Push(load_ptr(trueObject));
+    } else {
+        frame->Push(load_ptr(falseObject));
+    }
 }
 
 void _Double::Lowerthan(Interpreter*, VMFrame* frame) {
     PREPARE_OPERANDS;
-    if(left < right)
+    if (left < right) {
         frame->Push(load_ptr(trueObject));
-    else
+    } else {
         frame->Push(load_ptr(falseObject));
+    }
 }
 
 void _Double::AsString(Interpreter*, VMFrame* frame) {
@@ -148,12 +154,13 @@ void _Double::AsString(Interpreter*, VMFrame* frame) {
     ostringstream Str;
     Str.precision(17);
     Str << dbl;
-    frame->Push( GetUniverse()->NewString( Str.str().c_str() ) );
+    frame->Push(GetUniverse()->NewString(Str.str().c_str()));
 }
 
 void _Double::Sqrt(Interpreter*, VMFrame* frame) {
     VMDouble* self = static_cast<VMDouble*>(frame->Pop());
-    VMDouble* result = GetUniverse()->NewDouble( sqrt(self->GetEmbeddedDouble()) );
+    VMDouble* result =
+        GetUniverse()->NewDouble(sqrt(self->GetEmbeddedDouble()));
     frame->Push(result);
 }
 
@@ -166,7 +173,7 @@ void _Double::Round(Interpreter*, VMFrame* frame) {
 
 void _Double::AsInteger(Interpreter*, VMFrame* frame) {
     VMDouble* self = (VMDouble*)frame->Pop();
-    int64_t rounded = (int64_t) self->GetEmbeddedDouble();
+    int64_t rounded = (int64_t)self->GetEmbeddedDouble();
 
     frame->Push(NEW_INT(rounded));
 }
@@ -177,29 +184,38 @@ void _Double::PositiveInfinity(Interpreter*, VMFrame* frame) {
 }
 
 void _Double::FromString(Interpreter*, VMFrame* frame) {
-    VMString* self = (VMString*) frame->Pop();
+    VMString* self = (VMString*)frame->Pop();
     frame->Pop();
 
-    double value = stod(std::string(self->GetRawChars(), self->GetStringLength()));
+    double value =
+        stod(std::string(self->GetRawChars(), self->GetStringLength()));
     frame->Push(GetUniverse()->NewDouble(value));
 }
 
 _Double::_Double() : PrimitiveContainer() {
-    SetPrimitive("plus",       new Routine<_Double>(this, &_Double::Plus,       false));
-    SetPrimitive("minus",      new Routine<_Double>(this, &_Double::Minus,      false));
-    SetPrimitive("star",       new Routine<_Double>(this, &_Double::Star,       false));
-    SetPrimitive("cos",        new Routine<_Double>(this, &_Double::Cos,        false));
-    SetPrimitive("sin",        new Routine<_Double>(this, &_Double::Sin,        false));
-    SetPrimitive("slashslash", new Routine<_Double>(this, &_Double::Slashslash, false));
-    SetPrimitive("percent",    new Routine<_Double>(this, &_Double::Percent,    false));
-    SetPrimitive("and",        new Routine<_Double>(this, &_Double::And,        false));
-    SetPrimitive("equal",      new Routine<_Double>(this, &_Double::Equal,      false));
-    SetPrimitive("lowerthan",  new Routine<_Double>(this, &_Double::Lowerthan,  false));
-    SetPrimitive("asString",   new Routine<_Double>(this, &_Double::AsString,   false));
-    SetPrimitive("sqrt",       new Routine<_Double>(this, &_Double::Sqrt,       false));
-    SetPrimitive("bitXor_",    new Routine<_Double>(this, &_Double::BitwiseXor, false));
-    SetPrimitive("round",      new Routine<_Double>(this, &_Double::Round,      false));
-    SetPrimitive("asInteger",  new Routine<_Double>(this, &_Double::AsInteger,  false));
-    SetPrimitive("PositiveInfinity", new Routine<_Double>(this, &_Double::PositiveInfinity, true));
-    SetPrimitive("fromString_", new Routine<_Double>(this, &_Double::FromString, true));
+    SetPrimitive("plus", new Routine<_Double>(this, &_Double::Plus, false));
+    SetPrimitive("minus", new Routine<_Double>(this, &_Double::Minus, false));
+    SetPrimitive("star", new Routine<_Double>(this, &_Double::Star, false));
+    SetPrimitive("cos", new Routine<_Double>(this, &_Double::Cos, false));
+    SetPrimitive("sin", new Routine<_Double>(this, &_Double::Sin, false));
+    SetPrimitive("slashslash",
+                 new Routine<_Double>(this, &_Double::Slashslash, false));
+    SetPrimitive("percent",
+                 new Routine<_Double>(this, &_Double::Percent, false));
+    SetPrimitive("and", new Routine<_Double>(this, &_Double::And, false));
+    SetPrimitive("equal", new Routine<_Double>(this, &_Double::Equal, false));
+    SetPrimitive("lowerthan",
+                 new Routine<_Double>(this, &_Double::Lowerthan, false));
+    SetPrimitive("asString",
+                 new Routine<_Double>(this, &_Double::AsString, false));
+    SetPrimitive("sqrt", new Routine<_Double>(this, &_Double::Sqrt, false));
+    SetPrimitive("bitXor_",
+                 new Routine<_Double>(this, &_Double::BitwiseXor, false));
+    SetPrimitive("round", new Routine<_Double>(this, &_Double::Round, false));
+    SetPrimitive("asInteger",
+                 new Routine<_Double>(this, &_Double::AsInteger, false));
+    SetPrimitive("PositiveInfinity",
+                 new Routine<_Double>(this, &_Double::PositiveInfinity, true));
+    SetPrimitive("fromString_",
+                 new Routine<_Double>(this, &_Double::FromString, true));
 }

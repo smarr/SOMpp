@@ -41,7 +41,7 @@ Checks:          '*include*,
 #                  -hicpp-special-member-functions,
 #                  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
 #                  -cppcoreguidelines-owning-memory,
-WarningsAsErrors: ''
+WarningsAsErrors: '*'
 HeaderFilterRegex: '^(?!.*cppunit).*$'
 # AnalyzeTemporaryDtors: false
 FormatStyle:     none
