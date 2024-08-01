@@ -24,6 +24,8 @@
  THE SOFTWARE.
  */
 
+#include "System.h"
+
 #include <ctime>
 #include <fstream>
 #include <sstream>
@@ -41,15 +43,14 @@
 #include "../vmobjects/VMFrame.h"
 #include "../vmobjects/VMString.h"
 #include "../vmobjects/VMSymbol.h"
-#include "System.h"
 
 #if defined(__GNUC__)
 
-#include <sys/time.h>
+  #include <sys/time.h>
 
 #else
 
-#include <misc/gettimeofday.h>
+  #include <misc/gettimeofday.h>
 
 #endif
 
@@ -72,7 +73,7 @@ void _System::Global_put_(Interpreter*, VMFrame* frame) {
 
 void _System::HasGlobal_(Interpreter*, VMFrame* frame) {
     VMSymbol* arg = static_cast<VMSymbol*>(frame->Pop());
-    frame->Pop(); // pop self (system)
+    frame->Pop();  // pop self (system)
 
     if (GetUniverse()->HasGlobal(arg)) {
         frame->Push(load_ptr(trueObject));
@@ -85,18 +86,20 @@ void _System::Load_(Interpreter*, VMFrame* frame) {
     VMSymbol* arg = static_cast<VMSymbol*>(frame->Pop());
     frame->Pop();
     VMClass* result = GetUniverse()->LoadClass(arg);
-    if (result)
+    if (result) {
         frame->Push(result);
-    else
+    } else {
         frame->Push(load_ptr(nilObject));
+    }
 }
 
 void _System::Exit_(Interpreter*, VMFrame* frame) {
     vm_oop_t err = frame->Pop();
 
     long err_no = INT_VAL(err);
-    if (err_no != ERR_SUCCESS)
+    if (err_no != ERR_SUCCESS) {
         frame->PrintStackTrace();
+    }
     GetUniverse()->Quit(err_no);
 }
 
@@ -128,7 +131,6 @@ void _System::ErrorPrintNewline_(Interpreter*, VMFrame* frame) {
     ErrorPrint(str + "\n");
 }
 
-
 void _System::Time(Interpreter*, VMFrame* frame) {
     /*VMObject* self = */
     frame->Pop();
@@ -136,9 +138,8 @@ void _System::Time(Interpreter*, VMFrame* frame) {
 
     gettimeofday(&now, nullptr);
 
-    long long diff =
-    ((now.tv_sec - start_time.tv_sec) * 1000) + //seconds
-    ((now.tv_usec - start_time.tv_usec) / 1000);// useconds
+    long long diff = ((now.tv_sec - start_time.tv_sec) * 1000) +   // seconds
+                     ((now.tv_usec - start_time.tv_usec) / 1000);  // useconds
 
     frame->Push(NEW_INT(diff));
 }
@@ -151,15 +152,17 @@ void _System::Ticks(Interpreter*, VMFrame* frame) {
     gettimeofday(&now, nullptr);
 
     long long diff =
-    ((now.tv_sec - start_time.tv_sec) * 1000 * 1000) + //seconds
-    ((now.tv_usec - start_time.tv_usec));// useconds
+        ((now.tv_sec - start_time.tv_sec) * 1000 * 1000) +  // seconds
+        ((now.tv_usec - start_time.tv_usec));               // useconds
 
     frame->Push(NEW_INT(diff));
 }
 
 void _System::FullGC(Interpreter*, VMFrame* frame) {
     frame->Pop();
-    GetHeap<HEAP_CLS>()->requestGC(); // not safe to do it immediatly, will be done when it is ok, i.e., in the interpreter loop
+    GetHeap<HEAP_CLS>()
+        ->requestGC();  // not safe to do it immediatly, will be done when it is
+                        // ok, i.e., in the interpreter loop
     frame->Push(load_ptr(trueObject));
 }
 
@@ -171,7 +174,7 @@ void _System::LoadFile_(Interpreter*, VMFrame* frame) {
     if (file.is_open()) {
         std::stringstream buffer;
         buffer << file.rdbuf();
-        
+
         VMString* result = GetUniverse()->NewString(buffer.str());
         frame->Push(result);
     } else {
@@ -186,22 +189,33 @@ void _System::PrintStackTrace(Interpreter*, VMFrame* frame) {
 _System::_System(void) : PrimitiveContainer() {
     gettimeofday(&start_time, nullptr);
 
-    SetPrimitive("global_",      new Routine<_System>(this, &_System::Global_,     false));
-    SetPrimitive("global_put_",  new Routine<_System>(this, &_System::Global_put_, false));
-    SetPrimitive("hasGlobal_",   new Routine<_System>(this, &_System::HasGlobal_,  false));
-    SetPrimitive("load_",        new Routine<_System>(this, &_System::Load_, false));
-    SetPrimitive("exit_",        new Routine<_System>(this, &_System::Exit_, false));
-    SetPrimitive("printString_", new Routine<_System>(this, &_System::PrintString_, false));
-    SetPrimitive("printNewline", new Routine<_System>(this, &_System::PrintNewline, false));
-    SetPrimitive("printNewline_",new Routine<_System>(this, &_System::PrintNewline_, false));
-    SetPrimitive("errorPrint_",  new Routine<_System>(this, &_System::ErrorPrint_, false));
-    SetPrimitive("errorPrintln_",new Routine<_System>(this, &_System::ErrorPrintNewline_, false));
-    SetPrimitive("time",         new Routine<_System>(this, &_System::Time,   false));
-    SetPrimitive("ticks",        new Routine<_System>(this, &_System::Ticks,  false));
-    SetPrimitive("fullGC",       new Routine<_System>(this, &_System::FullGC, false));
+    SetPrimitive("global_",
+                 new Routine<_System>(this, &_System::Global_, false));
+    SetPrimitive("global_put_",
+                 new Routine<_System>(this, &_System::Global_put_, false));
+    SetPrimitive("hasGlobal_",
+                 new Routine<_System>(this, &_System::HasGlobal_, false));
+    SetPrimitive("load_", new Routine<_System>(this, &_System::Load_, false));
+    SetPrimitive("exit_", new Routine<_System>(this, &_System::Exit_, false));
+    SetPrimitive("printString_",
+                 new Routine<_System>(this, &_System::PrintString_, false));
+    SetPrimitive("printNewline",
+                 new Routine<_System>(this, &_System::PrintNewline, false));
+    SetPrimitive("printNewline_",
+                 new Routine<_System>(this, &_System::PrintNewline_, false));
+    SetPrimitive("errorPrint_",
+                 new Routine<_System>(this, &_System::ErrorPrint_, false));
+    SetPrimitive(
+        "errorPrintln_",
+        new Routine<_System>(this, &_System::ErrorPrintNewline_, false));
+    SetPrimitive("time", new Routine<_System>(this, &_System::Time, false));
+    SetPrimitive("ticks", new Routine<_System>(this, &_System::Ticks, false));
+    SetPrimitive("fullGC", new Routine<_System>(this, &_System::FullGC, false));
 
-    SetPrimitive("loadFile_",    new Routine<_System>(this, &_System::LoadFile_, false));
-    SetPrimitive("printStackTrace", new Routine<_System>(this, &_System::PrintStackTrace, false));
+    SetPrimitive("loadFile_",
+                 new Routine<_System>(this, &_System::LoadFile_, false));
+    SetPrimitive("printStackTrace",
+                 new Routine<_System>(this, &_System::PrintStackTrace, false));
 }
 
 _System::~_System() {}

@@ -7,15 +7,13 @@ class LexicalScope {
     friend class MethodGenerationContext;
 
 public:
-    LexicalScope(LexicalScope* outer, vector<Variable> arguments, vector<Variable> locals) : outer(outer), arguments(arguments), locals(locals) {}
+    LexicalScope(LexicalScope* outer, vector<Variable> arguments,
+                 vector<Variable> locals)
+        : outer(outer), arguments(arguments), locals(locals) {}
 
-    inline size_t GetNumberOfArguments() const {
-        return arguments.size();
-    }
+    inline size_t GetNumberOfArguments() const { return arguments.size(); }
 
-    inline size_t GetNumberOfLocals() const {
-        return locals.size();
-    }
+    inline size_t GetNumberOfLocals() const { return locals.size(); }
 
     void AddInlinedLocal(Variable& var) {
         assert(var.GetIndex() == locals.size());
@@ -28,7 +26,7 @@ public:
         }
         return &locals.at(index);
     }
-    
+
     /**
      * This removes the inlined scope from the chain.
      * Removal is done exactly once, after all embedded blocks
@@ -37,7 +35,7 @@ public:
     void DropInlinedScope() {
         assert(outer != nullptr);
         assert(outer->outer != nullptr);
-        
+
         LexicalScope* newOuter = outer->outer;
         outer = newOuter;
     }

@@ -29,10 +29,8 @@
 #include "../primitivesCore/PrimitiveContainer.h"
 #include "../vmobjects/ObjectFormats.h"
 
-class _Integer: public PrimitiveContainer {
-
+class _Integer : public PrimitiveContainer {
 public:
-
     void Plus(Interpreter*, VMFrame*);
     void Minus(Interpreter*, VMFrame*);
     void Star(Interpreter*, VMFrame*);
@@ -60,7 +58,6 @@ public:
     _Integer(void);
 
 private:
-
-    void resendAsDouble(Interpreter* interp, const char* op, vm_oop_t left, VMDouble* right);
-
+    void resendAsDouble(Interpreter* interp, const char* op, vm_oop_t left,
+                        VMDouble* right);
 };

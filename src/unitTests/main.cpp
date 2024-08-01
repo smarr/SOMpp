@@ -5,8 +5,6 @@
  *      Author: christian
  */
 
-#include <iostream>
-
 #include <cppunit/BriefTestProgressListener.h>
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/Portability.h>
@@ -15,6 +13,7 @@
 #include <cppunit/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
+#include <iostream>
 
 #include "../misc/defs.h"
 #include "../vm/Universe.h"
@@ -23,19 +22,19 @@
 #include "CloneObjectsTest.h"
 #include "WalkObjectsTest.h"
 
-#if GC_TYPE==GENERATIONAL
-#include "WriteBarrierTest.h"
+#if GC_TYPE == GENERATIONAL
+  #include "WriteBarrierTest.h"
 #endif
 
-CPPUNIT_TEST_SUITE_REGISTRATION (WalkObjectsTest);
-CPPUNIT_TEST_SUITE_REGISTRATION (CloneObjectsTest);
-#if GC_TYPE==GENERATIONAL
+CPPUNIT_TEST_SUITE_REGISTRATION(WalkObjectsTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(CloneObjectsTest);
+#if GC_TYPE == GENERATIONAL
 CPPUNIT_TEST_SUITE_REGISTRATION(WriteBarrierTest);
 #endif
-CPPUNIT_TEST_SUITE_REGISTRATION (BytecodeGenerationTest);
-CPPUNIT_TEST_SUITE_REGISTRATION (BasicInterpreterTests);
+CPPUNIT_TEST_SUITE_REGISTRATION(BytecodeGenerationTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(BasicInterpreterTests);
 
-int main(int ac, char **av) {
+int main(int ac, char** av) {
     Universe::Start(ac, av);
 
     //--- Create the event manager and test controller

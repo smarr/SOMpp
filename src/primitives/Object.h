@@ -29,7 +29,7 @@
 #include "../primitivesCore/PrimitiveContainer.h"
 #include "../vmobjects/ObjectFormats.h"
 
-class _Object: public PrimitiveContainer {
+class _Object : public PrimitiveContainer {
 public:
     _Object();
     void Equalequal(Interpreter*, VMFrame*);
@@ -46,6 +46,6 @@ public:
     void InstVarAt(Interpreter*, VMFrame*);
     void InstVarAtPut(Interpreter*, VMFrame*);
     void InstVarNamed(Interpreter*, VMFrame*);
-    
+
     void Class(Interpreter*, VMFrame*);
 };

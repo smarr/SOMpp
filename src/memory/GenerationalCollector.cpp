@@ -1,3 +1,5 @@
+#include "GenerationalCollector.h"
+
 #include <cassert>
 #include <cstddef>
 #include <vector>
@@ -11,11 +13,11 @@
 #include "../vmobjects/VMFrame.h"
 #include "../vmobjects/VMObjectBase.h"
 #include "GarbageCollector.h"
-#include "GenerationalCollector.h"
 
-#define INITIAL_MAJOR_COLLECTION_THRESHOLD (5 * 1024 * 1024) //5 MB
+#define INITIAL_MAJOR_COLLECTION_THRESHOLD (5 * 1024 * 1024)  // 5 MB
 
-GenerationalCollector::GenerationalCollector(GenerationalHeap* heap) : GarbageCollector(heap) {
+GenerationalCollector::GenerationalCollector(GenerationalHeap* heap)
+    : GarbageCollector(heap) {
     majorCollectionThreshold = INITIAL_MAJOR_COLLECTION_THRESHOLD;
     matureObjectsSize = 0;
 }
@@ -28,7 +30,6 @@ static gc_oop_t mark_object(gc_oop_t oop) {
 
     AbstractVMObject* obj = AS_OBJ(oop);
     assert(IsValidObject(obj));
-
 
     if ((obj->GetGCField() & MASK_OBJECT_IS_MARKED) != 0) {
         return oop;
@@ -49,7 +50,6 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     AbstractVMObject* obj = AS_OBJ(oop);
     assert(IsValidObject(obj));
 
-
     size_t gcField = obj->GetGCField();
 
     // if this is an old object already, we don't have to copy
@@ -60,7 +60,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     // GCField is abused as forwarding pointer here
     // if someone has moved before, return the moved object
     if (gcField != 0) {
-        return (gc_oop_t) gcField;
+        return (gc_oop_t)gcField;
     }
 
     // we have to clone ourselves
@@ -70,10 +70,10 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
         obj->MarkObjectAsInvalid();
     }
 
-    assert( (((size_t) newObj) & MASK_OBJECT_IS_MARKED) == 0 );
-    assert( obj->GetObjectSize() == newObj->GetObjectSize());
+    assert((((size_t)newObj) & MASK_OBJECT_IS_MARKED) == 0);
+    assert(obj->GetObjectSize() == newObj->GetObjectSize());
 
-    obj->SetGCField((size_t) newObj);
+    obj->SetGCField((size_t)newObj);
     newObj->SetGCField(MASK_OBJECT_IS_OLD);
 
     // walk recursively
@@ -90,7 +90,7 @@ void GenerationalCollector::MinorCollection() {
 
     // and also all objects that have been detected by the write barriers
     for (vector<size_t>::iterator objIter =
-            heap->oldObjsWithRefToYoungObjs->begin();
+             heap->oldObjsWithRefToYoungObjs->begin();
          objIter != heap->oldObjsWithRefToYoungObjs->end();
          objIter++) {
         // content of oldObjsWithRefToYoungObjs is not altered while iteration,
@@ -110,20 +110,20 @@ void GenerationalCollector::MajorCollection() {
     // first we have to mark all objects (globals and current frame recursively)
     GetUniverse()->WalkGlobals(&mark_object);
 
-    //now that all objects are marked we can safely delete all allocated objects that are not marked
+    // now that all objects are marked we can safely delete all allocated
+    // objects that are not marked
     vector<AbstractVMObject*>* survivors = new vector<AbstractVMObject*>();
     for (vector<AbstractVMObject*>::iterator objIter =
-            heap->allocatedObjects->begin(); objIter !=
-            heap->allocatedObjects->end(); objIter++) {
-
+             heap->allocatedObjects->begin();
+         objIter != heap->allocatedObjects->end();
+         objIter++) {
         AbstractVMObject* obj = *objIter;
         assert(IsValidObject(obj));
 
         if ((obj->GetGCField() & MASK_OBJECT_IS_MARKED) != 0) {
             survivors->push_back(obj);
             obj->SetGCField(MASK_OBJECT_IS_OLD);
-        }
-        else {
+        } else {
             heap->FreeObject(obj);
         }
     }
@@ -133,15 +133,13 @@ void GenerationalCollector::MajorCollection() {
 
 void GenerationalCollector::Collect() {
     Timer::GCTimer->Resume();
-    //reset collection trigger
+    // reset collection trigger
     heap->resetGCTrigger();
 
     MinorCollection();
-    if (heap->matureObjectsSize > majorCollectionThreshold)
-    {
+    if (heap->matureObjectsSize > majorCollectionThreshold) {
         MajorCollection();
         majorCollectionThreshold = 2 * heap->matureObjectsSize;
-
     }
     Timer::GCTimer->Halt();
 }

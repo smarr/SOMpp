@@ -24,31 +24,36 @@
  THE SOFTWARE.
  */
 
+#include "VMPrimitive.h"
+
 #include <string>
 
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../primitivesCore/Routine.h"
-#include "../vm/Globals.h" // NOLINT (misc-include-cleaner)
+#include "../vm/Globals.h"  // NOLINT (misc-include-cleaner)
 #include "../vm/Print.h"
 #include "ObjectFormats.h"
 #include "VMClass.h"
 #include "VMFrame.h"
-#include "VMPrimitive.h"
 #include "VMSymbol.h"
 
 VMPrimitive* VMPrimitive::GetEmptyPrimitive(VMSymbol* sig, bool classSide) {
     VMPrimitive* prim = new (GetHeap<HEAP_CLS>(), 0) VMPrimitive(sig);
-    prim->SetRoutine(new Routine<VMPrimitive>(prim, &VMPrimitive::EmptyRoutine, classSide), true);
+    prim->SetRoutine(
+        new Routine<VMPrimitive>(prim, &VMPrimitive::EmptyRoutine, classSide),
+        true);
     return prim;
 }
 
-VMPrimitive::VMPrimitive(VMSymbol* signature) : VMInvokable(signature), routine(nullptr), empty(false) {
+VMPrimitive::VMPrimitive(VMSymbol* signature)
+    : VMInvokable(signature), routine(nullptr), empty(false) {
     write_barrier(this, signature);
 }
 
 VMPrimitive* VMPrimitive::CloneForMovingGC() const {
-    VMPrimitive* prim = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMPrimitive(*this);
+    VMPrimitive* prim =
+        new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMPrimitive(*this);
     return prim;
 }
 
@@ -58,6 +63,6 @@ void VMPrimitive::EmptyRoutine(Interpreter*, VMFrame*) {
 }
 
 std::string VMPrimitive::AsDebugString() const {
-    return "Primitive(" + GetClass()->GetName()->GetStdString() + ">>#"
-                        + GetSignature()->GetStdString() + ")";
+    return "Primitive(" + GetClass()->GetName()->GetStdString() + ">>#" +
+           GetSignature()->GetStdString() + ")";
 }

@@ -1,8 +1,9 @@
+#include "Print.h"
+
 #include <iostream>
 #include <mutex>
 
 #include "../misc/defs.h"
-#include "Print.h"
 
 using namespace std;
 

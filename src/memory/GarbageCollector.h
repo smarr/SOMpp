@@ -37,6 +37,7 @@ public:
     virtual void Collect() = 0;
     void PrintGCStat() const;
     void PrintCollectStat() const;
+
 protected:
     HEAP_T* const heap;
 };

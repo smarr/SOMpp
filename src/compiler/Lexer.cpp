@@ -23,6 +23,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+#include "Lexer.h"
+
 #include <cassert>
 #include <cctype>
 #include <cstdint>
@@ -32,15 +34,14 @@
 
 #include "../misc/defs.h"
 #include "../vm/Universe.h"
-#include "Lexer.h"
 
-Lexer::Lexer(istream &file) : infile(file), peekDone(false) {}
+Lexer::Lexer(istream& file) : infile(file), peekDone(false) {}
 
 #define _BC (buf[state.bufp])
 #define EOB (state.bufp >= buf.length())
 
 int64_t Lexer::fillBuffer() {
-    if (!infile.good()) { // file stream
+    if (!infile.good()) {  // file stream
         return -1;
     }
 
@@ -66,7 +67,6 @@ void Lexer::skipWhiteSpace() {
 }
 
 void Lexer::skipComment() {
-
     if (_BC == '"') {
         do {
             state.incPtr();
@@ -80,13 +80,18 @@ void Lexer::skipComment() {
     }
 }
 
-#define _ISOP(C) \
-    ((C) == '~' || (C) == '&' || (C) == '|' || (C) == '*' || (C) == '/' || \
+#define _ISOP(C)                                                            \
+    ((C) == '~' || (C) == '&' || (C) == '|' || (C) == '*' || (C) == '/' ||  \
      (C) == '\\' || (C) == '+' || (C) == '=' || (C) == '>' || (C) == '<' || \
      (C) == ',' || (C) == '@' || (C) == '%' || (C) == '-')
-#define _MATCH(C, S) \
-    if(_BC == (C)) { state.sym = (S); state.symc = _BC; state.text = _BC; state.incPtr();}
-#define SEPARATOR StdString("----") //FIXME
+#define _MATCH(C, S)      \
+    if (_BC == (C)) {     \
+        state.sym = (S);  \
+        state.symc = _BC; \
+        state.text = _BC; \
+        state.incPtr();   \
+    }
+#define SEPARATOR StdString("----")  // FIXME
 #define PRIMITIVE StdString("primitive")
 
 void Lexer::lexNumber() {
@@ -100,9 +105,7 @@ void Lexer::lexNumber() {
         state.text += _BC;
         state.incPtr();
 
-        if (!sawDecimalMark         and
-            '.' == _BC              and
-            state.bufp + 1 < buf.length() and
+        if (!sawDecimalMark and '.' == _BC and state.bufp + 1 < buf.length() and
             isdigit(buf[state.bufp + 1]) != 0) {
             state.sym = Double;
             sawDecimalMark = true;
@@ -113,19 +116,34 @@ void Lexer::lexNumber() {
     } while (isdigit(_BC) != 0);
 }
 
-
 void Lexer::lexEscapeChar() {
     assert(!EOB);
     const char current = _BC;
     switch (current) {
-        case 't': state.text += '\t'; break;
-        case 'b': state.text += '\b'; break;
-        case 'n': state.text += '\n'; break;
-        case 'r': state.text += '\r'; break;
-        case 'f': state.text += '\f'; break;
-        case '0': state.text += '\0'; break;
-        case '\'': state.text += '\''; break;
-        case '\\': state.text += '\\'; break;
+        case 't':
+            state.text += '\t';
+            break;
+        case 'b':
+            state.text += '\b';
+            break;
+        case 'n':
+            state.text += '\n';
+            break;
+        case 'r':
+            state.text += '\r';
+            break;
+        case 'f':
+            state.text += '\f';
+            break;
+        case '0':
+            state.text += '\0';
+            break;
+        case '\'':
+            state.text += '\'';
+            break;
+        case '\\':
+            state.text += '\\';
+            break;
         default:
             assert(false);
             break;
@@ -172,12 +190,14 @@ void Lexer::lexOperator() {
             state.text += buf[state.bufp];
             state.incPtr();
         }
-
-    } else _MATCH('~', Not)  else _MATCH('&', And)   else _MATCH('|', Or)
-      else _MATCH('*', Star) else _MATCH('/', Div)   else _MATCH('\\', Mod)
-      else _MATCH('+', Plus) else _MATCH('=', Equal) else _MATCH('>', More)
-      else _MATCH('<', Less) else _MATCH(',', Comma) else _MATCH('@', At)
-      else _MATCH('%', Per)  else _MATCH('-', Minus)
+    }
+    // clang-format off
+    else _MATCH('~', Not)  else _MATCH('&', And)   else _MATCH('|', Or)
+    else _MATCH('*', Star) else _MATCH('/', Div)   else _MATCH('\\', Mod)
+    else _MATCH('+', Plus) else _MATCH('=', Equal) else _MATCH('>', More)
+    else _MATCH('<', Less) else _MATCH(',', Comma) else _MATCH('@', At)
+    else _MATCH('%', Per)  else _MATCH('-', Minus)
+    // clang-format on
 }
 
 Symbol Lexer::GetSym() {
@@ -202,8 +222,12 @@ Symbol Lexer::GetSym() {
 
     if (_BC == '\'') {
         lexString();
-    } else _MATCH('[', NewBlock) else _MATCH(']', EndBlock) else if (_BC
-            == ':') {
+    }
+    // clang-format off
+    else _MATCH('[', NewBlock)
+    else _MATCH(']', EndBlock)
+        // clang-format on
+        else if (_BC == ':') {
         if (buf[state.bufp + 1] == '=') {
             state.incPtr(2);
             state.sym = Assign;
@@ -215,8 +239,13 @@ Symbol Lexer::GetSym() {
             state.symc = ':';
             state.text = ":";
         }
-    } else _MATCH('(', NewTerm) else _MATCH(')', EndTerm) else _MATCH('#', Pound) else _MATCH('^', Exit) else _MATCH('.', Period) else if (_BC
-            == '-') {
+    }
+    // clang-format off
+    else _MATCH('(', NewTerm) else _MATCH(')', EndTerm)
+    else _MATCH('#', Pound) else _MATCH('^', Exit)
+    else _MATCH('.', Period)
+        // clang-format on
+        else if (_BC == '-') {
         if (!buf.substr(state.bufp, SEPARATOR.length()).compare(SEPARATOR)) {
             state.text.clear();
             while (_BC == '-') {
@@ -227,14 +256,17 @@ Symbol Lexer::GetSym() {
         } else {
             lexOperator();
         }
-    } else if (_ISOP(_BC)) {
+    }
+    else if (_ISOP(_BC)) {
         lexOperator();
-    } else if (nextWordInBufferIsPrimitive()) {
+    }
+    else if (nextWordInBufferIsPrimitive()) {
         state.incPtr(PRIMITIVE.length());
         state.sym = Primitive;
         state.symc = 0;
         state.text = "primitive";
-    } else if (isalpha(_BC) != 0) {
+    }
+    else if (isalpha(_BC) != 0) {
         state.text.clear();
         state.symc = 0;
         while (isalpha(_BC) != 0 || isdigit(_BC) != 0 || _BC == '_') {
@@ -254,9 +286,11 @@ Symbol Lexer::GetSym() {
                 }
             }
         }
-    } else if (isdigit(_BC) != 0) {
+    }
+    else if (isdigit(_BC) != 0) {
         lexNumber();
-    } else {
+    }
+    else {
         state.sym = NONE;
         state.symc = _BC;
         state.text = _BC;

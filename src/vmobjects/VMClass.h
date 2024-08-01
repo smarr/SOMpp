@@ -33,43 +33,44 @@
 #include "../vm/IsValidObject.h"
 #include "VMObject.h"
 
-#if defined(_MSC_VER)   //Visual Studio
-#include <windows.h>
-#include "../primitives/Core.h"
+#if defined(_MSC_VER)  // Visual Studio
+  #include <windows.h>
+
+  #include "../primitives/Core.h"
 #endif
 
 class ClassGenerationContext;
 
-class VMClass: public VMObject {
+class VMClass : public VMObject {
 public:
     typedef GCClass Stored;
 
     VMClass();
     VMClass(size_t numberOfFields, size_t additionalBytes);
 
-           VMObject*    GetSuperClass() const;
-           void         SetSuperClass(VMObject*);
-           bool         HasSuperClass() const;
-           VMSymbol*    GetName() const;
-           void         SetName(VMSymbol*);
-           VMArray*     GetInstanceFields() const;
-           void         SetInstanceFields(VMArray*);
-           VMArray*     GetInstanceInvokables() const;
-           void         SetInstanceInvokables(VMArray*);
-           size_t       GetNumberOfInstanceInvokables() const;
-           VMInvokable* GetInstanceInvokable(long) const;
-           void         SetInstanceInvokable(long, VMInvokable*);
-           VMInvokable* LookupInvokable(VMSymbol*) const;
-           long         LookupFieldIndex(VMSymbol*) const;
-           bool         AddInstanceInvokable(VMInvokable*);
-           void         AddInstancePrimitive(VMPrimitive*);
-           VMSymbol*    GetInstanceFieldName(long)const;
-           size_t       GetNumberOfInstanceFields() const;
-           bool         HasPrimitives() const;
-           void         LoadPrimitives();
-           VMClass*     CloneForMovingGC() const override;
+    VMObject* GetSuperClass() const;
+    void SetSuperClass(VMObject*);
+    bool HasSuperClass() const;
+    VMSymbol* GetName() const;
+    void SetName(VMSymbol*);
+    VMArray* GetInstanceFields() const;
+    void SetInstanceFields(VMArray*);
+    VMArray* GetInstanceInvokables() const;
+    void SetInstanceInvokables(VMArray*);
+    size_t GetNumberOfInstanceInvokables() const;
+    VMInvokable* GetInstanceInvokable(long) const;
+    void SetInstanceInvokable(long, VMInvokable*);
+    VMInvokable* LookupInvokable(VMSymbol*) const;
+    long LookupFieldIndex(VMSymbol*) const;
+    bool AddInstanceInvokable(VMInvokable*);
+    void AddInstancePrimitive(VMPrimitive*);
+    VMSymbol* GetInstanceFieldName(long) const;
+    size_t GetNumberOfInstanceFields() const;
+    bool HasPrimitives() const;
+    void LoadPrimitives();
+    VMClass* CloneForMovingGC() const override;
 
-           StdString AsDebugString() const override;
+    StdString AsDebugString() const override;
 
 private:
     bool hasPrimitivesFor(const StdString& cl) const;
@@ -78,7 +79,8 @@ private:
 
     static const size_t VMClassNumberOfFields;
 
-private_testable:
+    make_testable(public);
+
     // Remember to update Parser::superclass when the fields are changed
     GCSymbol* name;
     GCArray* instanceFields;

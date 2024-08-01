@@ -28,7 +28,7 @@
 
 #include "AbstractObject.h"
 
-class VMString: public AbstractVMObject {
+class VMString : public AbstractVMObject {
 public:
     typedef GCString Stored;
 
@@ -41,7 +41,7 @@ public:
             hash = ((hash << 5U) + hash) + chars[i];
         }
 
-        return (int64_t) hash;
+        return (int64_t)hash;
     }
 
     inline char* GetRawChars() const;
@@ -58,16 +58,19 @@ public:
 
     StdString AsDebugString() const override;
 
-protected_testable:
-    //this could be replaced by the CHARS macro in VMString.cpp
-    //in order to decrease the object size
+    make_testable(public);
+
+    // this could be replaced by the CHARS macro in VMString.cpp
+    // in order to decrease the object size
     const size_t length;
     char* chars;
+
 protected:
-    VMString(char* const adaptedCharsPointer, const size_t length) :
-        // set the chars-pointer to point at the position of the first character
-        // as determined in the VMSymbol constructor
-        length(length), chars(adaptedCharsPointer) {}; //constructor to use by VMSymbol
+    VMString(char* const adaptedCharsPointer, const size_t length)
+        :  // set the chars-pointer to point at the position of the first
+           // character as determined in the VMSymbol constructor
+          length(length),
+          chars(adaptedCharsPointer) {};  // constructor to use by VMSymbol
 };
 
 char* VMString::GetRawChars() const {

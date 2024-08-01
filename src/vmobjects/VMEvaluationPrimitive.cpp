@@ -24,6 +24,8 @@
  THE SOFTWARE.
  */
 
+#include "VMEvaluationPrimitive.h"
+
 #include <cassert>
 #include <cstddef>
 #include <string>
@@ -32,20 +34,21 @@
 #include "../misc/defs.h"
 #include "../primitivesCore/Routine.h"
 #include "../vm/Symbols.h"
-#include "../vm/Universe.h" // NOLINT(misc-include-cleaner) it's required to make the types complete
+#include "../vm/Universe.h"  // NOLINT(misc-include-cleaner) it's required to make the types complete
 #include "ObjectFormats.h"
 #include "VMBlock.h"
-#include "VMEvaluationPrimitive.h"
 #include "VMFrame.h"
 #include "VMPrimitive.h"
 #include "VMSymbol.h"
 
-VMEvaluationPrimitive::VMEvaluationPrimitive(size_t argc) : VMPrimitive(computeSignatureString(argc)), numberOfArguments(argc) {
+VMEvaluationPrimitive::VMEvaluationPrimitive(size_t argc)
+    : VMPrimitive(computeSignatureString(argc)), numberOfArguments(argc) {
     SetRoutine(new EvaluationRoutine(this), false);
 }
 
 VMEvaluationPrimitive* VMEvaluationPrimitive::CloneForMovingGC() const {
-    VMEvaluationPrimitive* evPrim = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMEvaluationPrimitive(*this);
+    VMEvaluationPrimitive* evPrim =
+        new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMEvaluationPrimitive(*this);
     return evPrim;
 }
 
@@ -57,23 +60,24 @@ void VMEvaluationPrimitive::WalkObjects(walk_heap_fn walk) {
 VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc) {
 #define VALUE_S "value"
 #define VALUE_LEN 5
-#define WITH_S    "with:"
-#define WITH_LEN (4+1)
+#define WITH_S "with:"
+#define WITH_LEN (4 + 1)
 #define COLON_S ":"
     assert(argc > 0);
 
     std::string signatureString;
 
     // Compute the signature string
-    if (argc==1) {
+    if (argc == 1) {
         signatureString += VALUE_S;
     } else {
         signatureString += VALUE_S;
         signatureString += COLON_S;
         --argc;
-        while (--argc)
+        while (--argc) {
             // Add extra value: selector elements if necessary
             signatureString += WITH_S;
+        }
     }
 
     // Return the signature string

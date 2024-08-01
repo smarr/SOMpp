@@ -1,3 +1,5 @@
+#include "BytecodeGenerationTest.h"
+
 #include <cassert>
 #include <cppunit/TestAssert.h>
 #include <cstddef>
@@ -8,7 +10,6 @@
 #include <string>
 #include <vector>
 
-
 #include "../compiler/ClassGenerationContext.h"
 #include "../compiler/Disassembler.h"
 #include "../compiler/MethodGenerationContext.h"
@@ -18,21 +19,24 @@
 #include "../misc/debug.h"
 #include "../vm/Symbols.h"
 #include "../vmobjects/VMMethod.h"
-#include "BytecodeGenerationTest.h"
 
 void BytecodeGenerationTest::dump(MethodGenerationContext* mgenc) {
     Disassembler::DumpMethod(mgenc, "");
 }
 
 void BytecodeGenerationTest::ensureCGenC() {
-    if (_cgenc != nullptr) return;
+    if (_cgenc != nullptr) {
+        return;
+    }
 
     _cgenc = new ClassGenerationContext();
     _cgenc->SetName(SymbolFor("Test"));
 }
 
 void BytecodeGenerationTest::ensureMGenC() {
-    if (_mgenc != nullptr) return;
+    if (_mgenc != nullptr) {
+        return;
+    }
     ensureCGenC();
 
     _mgenc = new MethodGenerationContext(*_cgenc);
@@ -41,7 +45,9 @@ void BytecodeGenerationTest::ensureMGenC() {
 }
 
 void BytecodeGenerationTest::ensureBGenC() {
-    if (_bgenc != nullptr) return;
+    if (_bgenc != nullptr) {
+        return;
+    }
     ensureCGenC();
     ensureMGenC();
 
@@ -54,7 +60,8 @@ void BytecodeGenerationTest::addField(const char* fieldName) {
     _cgenc->AddInstanceField(SymbolFor(fieldName));
 }
 
-std::vector<uint8_t> BytecodeGenerationTest::methodToBytecode(const char* source, bool dumpBytecodes) {
+std::vector<uint8_t> BytecodeGenerationTest::methodToBytecode(
+    const char* source, bool dumpBytecodes) {
     ensureMGenC();
 
     istringstream ss(source);
@@ -69,7 +76,8 @@ std::vector<uint8_t> BytecodeGenerationTest::methodToBytecode(const char* source
     return _mgenc->GetBytecodes();
 }
 
-std::vector<uint8_t> BytecodeGenerationTest::blockToBytecode(const char* source, bool dumpBytecodes) {
+std::vector<uint8_t> BytecodeGenerationTest::blockToBytecode(
+    const char* source, bool dumpBytecodes) {
     ensureBGenC();
 
     istringstream ss(source);
@@ -88,9 +96,7 @@ std::vector<uint8_t> BytecodeGenerationTest::blockToBytecode(const char* source,
 void BytecodeGenerationTest::testEmptyMethodReturnsSelf() {
     auto bytecodes = methodToBytecode("test = ( )");
 
-    check(bytecodes, {
-        BC_PUSH_SELF,
-        BC_RETURN_LOCAL});
+    check(bytecodes, {BC(BC_PUSH_SELF), BC(BC_RETURN_LOCAL)});
 }
 
 void BytecodeGenerationTest::testPushConstant() {
@@ -98,18 +104,11 @@ void BytecodeGenerationTest::testPushConstant() {
                                       test = (
                                         0. 1. nil. #a. true. false.
                                       ) )""");
-    check(bytecodes, {
-        BC_PUSH_0, BC_POP,
-        BC_PUSH_1, BC_POP,
-        BC_PUSH_NIL, BC_POP,
-        BC_PUSH_CONSTANT_0, BC_POP,
-        BC_PUSH_CONSTANT_1, BC_POP,
-        BC_PUSH_CONSTANT_2, BC_POP,
-        BC_PUSH_SELF,
-        BC_RETURN_LOCAL
-    });
+    check(bytecodes,
+          {BC_PUSH_0, BC_POP, BC_PUSH_1, BC_POP, BC_PUSH_NIL, BC_POP,
+           BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_CONSTANT_1, BC_POP,
+           BC_PUSH_CONSTANT_2, BC_POP, BC_PUSH_SELF, BC_RETURN_LOCAL});
 }
-
 
 void BytecodeGenerationTest::testIfPushConstantSame() {
     auto bytecodes = methodToBytecode(R"""(
@@ -117,18 +116,10 @@ void BytecodeGenerationTest::testIfPushConstantSame() {
                                         #a. #b. #c. #d.
                                         true ifFalse: [ #a. #b. #c. #d. ]
                                       ) )""");
-    check(bytecodes, {
-        BC_PUSH_CONSTANT_0, BC_POP,
-        BC_PUSH_CONSTANT_1, BC_POP,
-        BC_PUSH_CONSTANT_2, BC_POP,
-        BC_PUSH_CONSTANT, 3, BC_POP,
-        BC_PUSH_CONSTANT, 4,
-        BC_PUSH_BLOCK, 5,
-        BC_SEND, 6,
-        BC_POP,
-        BC_PUSH_SELF,
-        BC_RETURN_LOCAL
-    });
+    check(bytecodes, {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_CONSTANT_1, BC_POP,
+                      BC_PUSH_CONSTANT_2, BC_POP, BC(BC_PUSH_CONSTANT, 3),
+                      BC_POP, BC(BC_PUSH_CONSTANT, 4), BC(BC_PUSH_BLOCK, 5),
+                      BC(BC_SEND, 6), BC_POP, BC_PUSH_SELF, BC_RETURN_LOCAL});
 }
 
 void BytecodeGenerationTest::testIfPushConstantDifferent() {
@@ -137,80 +128,46 @@ void BytecodeGenerationTest::testIfPushConstantDifferent() {
                                         #a. #b. #c. #d.
                                         true ifFalse: [ #e. #f. #g. #h. ]
                                       ) )""");
-    check(bytecodes, {
-        BC_PUSH_CONSTANT_0, BC_POP,
-        BC_PUSH_CONSTANT_1, BC_POP,
-        BC_PUSH_CONSTANT_2, BC_POP,
-        BC_PUSH_CONSTANT, 3, BC_POP,
-        BC_PUSH_CONSTANT, 4,
-        BC_PUSH_BLOCK, 5,
-        BC_SEND, 6,
-        BC_POP,
-        BC_PUSH_SELF,
-        BC_RETURN_LOCAL
-    });
+    check(bytecodes, {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_CONSTANT_1, BC_POP,
+                      BC_PUSH_CONSTANT_2, BC_POP, BC(BC_PUSH_CONSTANT, 3),
+                      BC_POP, BC(BC_PUSH_CONSTANT, 4), BC(BC_PUSH_BLOCK, 5),
+                      BC(BC_SEND, 6), BC_POP, BC_PUSH_SELF, BC_RETURN_LOCAL});
 }
 
 void BytecodeGenerationTest::testExplicitReturnSelf() {
     auto bytecodes = methodToBytecode("test = ( ^ self )");
 
-    check(bytecodes, {
-        BC_PUSH_SELF,
-        BC_RETURN_LOCAL
-    });
+    check(bytecodes, {BC_PUSH_SELF, BC_RETURN_LOCAL});
 }
 
 void BytecodeGenerationTest::testDupPopArgumentPop() {
     auto bytecodes = methodToBytecode("test: arg = ( arg := 1. ^ self )");
 
-    check(bytecodes, {
-        BC_PUSH_1,
-        BC_DUP,
-        BC_POP_ARGUMENT, 1, 0,
-        BC_POP,
-        BC_PUSH_SELF,
-        BC_RETURN_LOCAL
-    });
+    check(bytecodes, {BC_PUSH_1, BC_DUP, BC(BC_POP_ARGUMENT, 1, 0), BC_POP,
+                      BC_PUSH_SELF, BC_RETURN_LOCAL});
 }
 
 void BytecodeGenerationTest::testDupPopArgumentPopImplicitReturnSelf() {
     auto bytecodes = methodToBytecode("test: arg = ( arg := 1 )");
 
-    check(bytecodes, {
-        BC_PUSH_1,
-        BC_DUP,
-        BC_POP_ARGUMENT, 1, 0,
-        BC_POP,
-        BC_PUSH_SELF,
-        BC_RETURN_LOCAL
-    });
+    check(bytecodes, {BC_PUSH_1, BC_DUP, BC(BC_POP_ARGUMENT, 1, 0), BC_POP,
+                      BC_PUSH_SELF, BC_RETURN_LOCAL});
 }
 
 void BytecodeGenerationTest::testDupPopLocalPop() {
-    auto bytecodes = methodToBytecode("test = ( | local | local := 1. ^ self )");
+    auto bytecodes =
+        methodToBytecode("test = ( | local | local := 1. ^ self )");
 
-    check(bytecodes, {
-        BC_PUSH_1,
-        BC_DUP,
-        BC_POP_LOCAL_0,
-        BC_POP,
-        BC_PUSH_SELF,
-        BC_RETURN_LOCAL
-    });
+    check(bytecodes, {BC_PUSH_1, BC_DUP, BC_POP_LOCAL_0, BC_POP, BC_PUSH_SELF,
+                      BC_RETURN_LOCAL});
 }
 
 void BytecodeGenerationTest::testDupPopField0Pop() {
     addField("field");
     auto bytecodes = methodToBytecode("test = ( field := 1. ^ self )");
 
-    check(bytecodes, {
-        BC_PUSH_1,
-        BC_DUP,
-        BC_POP_FIELD_0,
-        BC_POP,
-        BC_PUSH_SELF,
-        BC_RETURN_LOCAL
-    });
+    check(bytecodes, {BC_PUSH_1, BC_DUP, BC_POP_FIELD_0, BC_POP, BC_PUSH_SELF,
+                      BC_RETURN_LOCAL});
 }
 
 void BytecodeGenerationTest::testDupPopFieldPop() {
@@ -221,28 +178,16 @@ void BytecodeGenerationTest::testDupPopFieldPop() {
     addField("field");
     auto bytecodes = methodToBytecode("test = ( field := 1. ^ self )");
 
-    check(bytecodes, {
-        BC_PUSH_1,
-        BC_DUP,
-        BC_POP_FIELD, 4,
-        BC_POP,
-        BC_PUSH_SELF,
-        BC_RETURN_LOCAL
-    });
+    check(bytecodes, {BC_PUSH_1, BC_DUP, BC(BC_POP_FIELD, 4), BC_POP,
+                      BC_PUSH_SELF, BC_RETURN_LOCAL});
 }
 
 void BytecodeGenerationTest::testDupPopFieldReturnSelf() {
     addField("field");
     auto bytecodes = methodToBytecode("test: val = ( field := val )");
 
-    check(bytecodes, {
-        BC_PUSH_ARG_1,
-        BC_DUP,
-        BC_POP_FIELD_0,
-        BC_POP,
-        BC_PUSH_SELF,
-        BC_RETURN_LOCAL
-    });
+    check(bytecodes, {BC_PUSH_ARG_1, BC_DUP, BC_POP_FIELD_0, BC_POP,
+                      BC_PUSH_SELF, BC_RETURN_LOCAL});
 }
 
 void BytecodeGenerationTest::testDupPopFieldNReturnSelf() {
@@ -254,106 +199,62 @@ void BytecodeGenerationTest::testDupPopFieldNReturnSelf() {
     addField("field");
     auto bytecodes = methodToBytecode("test: val = ( field := val )");
 
-    check(bytecodes, {
-        BC_PUSH_ARG_1,
-        BC_DUP,
-        BC_POP_FIELD, 5,
-        BC_POP,
-        BC_PUSH_SELF,
-        BC_RETURN_LOCAL
-    });
+    check(bytecodes, {BC_PUSH_ARG_1, BC_DUP, BC(BC_POP_FIELD, 5), BC_POP,
+                      BC_PUSH_SELF, BC_RETURN_LOCAL});
 }
 
 void BytecodeGenerationTest::testSendDupPopFieldReturnLocal() {
     addField("field");
     auto bytecodes = methodToBytecode("test = ( ^ field := self method )");
 
-    check(bytecodes, {
-        BC_PUSH_SELF,
-        BC_SEND, 0,
-        BC_DUP,
-        BC_POP_FIELD_0,
-        BC_RETURN_LOCAL
-    });
+    check(bytecodes,
+          {BC_PUSH_SELF, BC(BC_SEND, 0), BC_DUP, BC_POP_FIELD_0,
+           BC_RETURN_LOCAL});
 }
 
 void BytecodeGenerationTest::testSendDupPopFieldReturnLocalPeriod() {
     addField("field");
     auto bytecodes = methodToBytecode("test = ( ^ field := self method. )");
 
-    check(bytecodes, {
-        BC_PUSH_SELF,
-        BC_SEND, 0,
-        BC_DUP,
-        BC_POP_FIELD_0,
-        BC_RETURN_LOCAL
-    });
+    check(bytecodes,
+          {BC_PUSH_SELF, BC(BC_SEND, 0), BC_DUP, BC_POP_FIELD_0,
+           BC_RETURN_LOCAL});
 }
-
 
 void BytecodeGenerationTest::testBlockDupPopArgumentPopReturnArg() {
     auto bytecodes = blockToBytecode("[:arg | arg := 1. arg ]");
 
-    check(bytecodes, {
-        BC_PUSH_1,
-        BC_DUP,
-        BC_POP_ARGUMENT, 1, 0,
-        BC_POP,
-        BC_PUSH_ARG_1,
-        BC_RETURN_LOCAL
-    });
+    check(bytecodes, {BC_PUSH_1, BC_DUP, BC(BC_POP_ARGUMENT, 1, 0), BC_POP,
+                      BC_PUSH_ARG_1, BC_RETURN_LOCAL});
 }
 
 void BytecodeGenerationTest::testBlockDupPopArgumentImplicitReturn() {
     auto bytecodes = blockToBytecode("[:arg | arg := 1 ]");
-    check(bytecodes, {
-        BC_PUSH_1,
-        BC_DUP,
-        BC_POP_ARGUMENT, 1, 0,
-        BC_RETURN_LOCAL
-    });
+    check(bytecodes,
+          {BC_PUSH_1, BC_DUP, BC(BC_POP_ARGUMENT, 1, 0), BC_RETURN_LOCAL});
 }
 
 void BytecodeGenerationTest::testBlockDupPopArgumentImplicitReturnDot() {
     auto bytecodes = blockToBytecode("[:arg | arg := 1. ]");
-    check(bytecodes, {
-        BC_PUSH_1,
-        BC_DUP,
-        BC_POP_ARGUMENT, 1, 0,
-        BC_RETURN_LOCAL
-    });
+    check(bytecodes,
+          {BC_PUSH_1, BC_DUP, BC(BC_POP_ARGUMENT, 1, 0), BC_RETURN_LOCAL});
 }
 
 void BytecodeGenerationTest::testBlockDupPopLocalReturnLocal() {
     auto bytecodes = blockToBytecode("[| local | local := 1 ]");
-    check(bytecodes, {
-        BC_PUSH_1,
-        BC_DUP,
-        BC_POP_LOCAL_0,
-        BC_RETURN_LOCAL
-    });
+    check(bytecodes, {BC_PUSH_1, BC_DUP, BC_POP_LOCAL_0, BC_RETURN_LOCAL});
 }
 
 void BytecodeGenerationTest::testBlockDupPopFieldReturnLocal() {
     addField("field");
     auto bytecodes = blockToBytecode("[ field := 1 ]");
-    check(bytecodes, {
-        BC_PUSH_1,
-        BC_DUP,
-        BC_POP_FIELD_0,
-        BC_RETURN_LOCAL
-    });
+    check(bytecodes, {BC_PUSH_1, BC_DUP, BC_POP_FIELD_0, BC_RETURN_LOCAL});
 }
 
 void BytecodeGenerationTest::testBlockDupPopFieldReturnLocalDot() {
     addField("field");
     auto bytecodes = blockToBytecode("[ field := 1 ]");
-    check(bytecodes, {
-        BC_PUSH_1,
-        BC_DUP,
-        BC_POP_FIELD_0,
-        BC_RETURN_LOCAL
-    });
+    check(bytecodes, {BC_PUSH_1, BC_DUP, BC_POP_FIELD_0, BC_RETURN_LOCAL});
 }
 
 void BytecodeGenerationTest::testPushLocalOpt() {
@@ -362,15 +263,10 @@ void BytecodeGenerationTest::testPushLocalOpt() {
                                         | l1 l2 l3 l4 |
                                         l1. l2. l3. l4.
                                       ) )""");
-    check(bytecodes, {
-        BC_PUSH_LOCAL_0, BC_POP,
-        BC_PUSH_LOCAL_1, BC_POP,
-        BC_PUSH_LOCAL_2, BC_POP,
-        BC_PUSH_LOCAL, 3, 0,
-        BC_POP,
-        BC_PUSH_SELF,
-        BC_RETURN_LOCAL
-    });
+    check(bytecodes,
+          {BC_PUSH_LOCAL_0, BC_POP, BC_PUSH_LOCAL_1, BC_POP, BC_PUSH_LOCAL_2,
+           BC_POP, BC(BC_PUSH_LOCAL, 3, 0), BC_POP, BC_PUSH_SELF,
+           BC_RETURN_LOCAL});
 }
 
 void BytecodeGenerationTest::testPushArgOpt() {
@@ -378,15 +274,10 @@ void BytecodeGenerationTest::testPushArgOpt() {
                                       test: a1 and: a2 and: a3 and: a4 = (
                                         self. a1. a2. a3. a4.
                                       ) )""");
-    check(bytecodes, {
-        BC_PUSH_SELF, BC_POP,
-        BC_PUSH_ARG_1, BC_POP,
-        BC_PUSH_ARG_2, BC_POP,
-        BC_PUSH_ARGUMENT, 3, 0, BC_POP,
-        BC_PUSH_ARGUMENT, 4, 0, BC_POP,
-        BC_PUSH_SELF,
-        BC_RETURN_LOCAL
-    });
+    check(bytecodes,
+          {BC_PUSH_SELF, BC_POP, BC_PUSH_ARG_1, BC_POP, BC_PUSH_ARG_2, BC_POP,
+           BC(BC_PUSH_ARGUMENT, 3, 0), BC_POP, BC(BC_PUSH_ARGUMENT, 4, 0),
+           BC_POP, BC_PUSH_SELF, BC_RETURN_LOCAL});
 }
 
 void BytecodeGenerationTest::testPushFieldOpt() {
@@ -395,14 +286,10 @@ void BytecodeGenerationTest::testPushFieldOpt() {
     addField("f3");
     addField("f4");
     auto bytecodes = methodToBytecode("test = ( f1. f2. f3. f4 )");
-    check(bytecodes, {
-        BC_PUSH_FIELD_0, BC_POP,
-        BC_PUSH_FIELD_1, BC_POP,
-        BC_PUSH_FIELD, 2, BC_POP,
-        BC_PUSH_FIELD, 3, BC_POP,
-        BC_PUSH_SELF,
-        BC_RETURN_LOCAL
-    });
+    check(
+        bytecodes,
+        {BC_PUSH_FIELD_0, BC_POP, BC_PUSH_FIELD_1, BC_POP, BC(BC_PUSH_FIELD, 2),
+         BC_POP, BC(BC_PUSH_FIELD, 3), BC_POP, BC_PUSH_SELF, BC_RETURN_LOCAL});
 }
 
 void BytecodeGenerationTest::testBlockPushFieldOpt() {
@@ -412,13 +299,10 @@ void BytecodeGenerationTest::testBlockPushFieldOpt() {
     addField("f4");
     auto bytecodes = blockToBytecode("[ f1. f2. f3. f4 ]");
 
-    check(bytecodes, {
-        BC_PUSH_FIELD_0, BC_POP,
-        BC_PUSH_FIELD_1, BC_POP,
-        BC_PUSH_FIELD, 2, BC_POP,
-        BC_PUSH_FIELD, 3,
-        BC_RETURN_LOCAL
-    });
+    check(
+        bytecodes,
+        {BC_PUSH_FIELD_0, BC_POP, BC_PUSH_FIELD_1, BC_POP, BC(BC_PUSH_FIELD, 2),
+         BC_POP, BC(BC_PUSH_FIELD, 3), BC_RETURN_LOCAL});
 }
 
 void BytecodeGenerationTest::testPopLocalOpt() {
@@ -431,15 +315,13 @@ void BytecodeGenerationTest::testPopLocalOpt() {
                                         l4 := 1.
                                         l5 := 1.
                                       ) )""");
-    check(bytecodes, {
-        BC_PUSH_1, BC_DUP, BC_POP_LOCAL_0, BC_POP,
-        BC_PUSH_1, BC_DUP, BC_POP_LOCAL_1, BC_POP,
-        BC_PUSH_1, BC_DUP, BC_POP_LOCAL_2, BC_POP,
-        BC_PUSH_1, BC_DUP, BC_POP_LOCAL, 3, 0, BC_POP,
-        BC_PUSH_1, BC_DUP, BC_POP_LOCAL, 4, 0, BC_POP,
-        BC_PUSH_SELF,
-        BC_RETURN_LOCAL
-    });
+    check(bytecodes,
+          {BC_PUSH_1,    BC_DUP,         BC_POP_LOCAL_0,         BC_POP,
+           BC_PUSH_1,    BC_DUP,         BC_POP_LOCAL_1,         BC_POP,
+           BC_PUSH_1,    BC_DUP,         BC_POP_LOCAL_2,         BC_POP,
+           BC_PUSH_1,    BC_DUP,         BC(BC_POP_LOCAL, 3, 0), BC_POP,
+           BC_PUSH_1,    BC_DUP,         BC(BC_POP_LOCAL, 4, 0), BC_POP,
+           BC_PUSH_SELF, BC_RETURN_LOCAL});
 }
 
 void BytecodeGenerationTest::testPopFieldOpt() {
@@ -454,64 +336,80 @@ void BytecodeGenerationTest::testPopFieldOpt() {
                                         f3 := 1.
                                         f4 := 1.
                                       ) )""");
-    check(bytecodes, {
-        BC_PUSH_1, BC_DUP, BC_POP_FIELD_0, BC_POP,
-        BC_PUSH_1, BC_DUP, BC_POP_FIELD_1, BC_POP,
-        BC_PUSH_1, BC_DUP, BC_POP_FIELD, 2, BC_POP,
-        BC_PUSH_1, BC_DUP, BC_POP_FIELD, 3, BC_POP,
-        BC_PUSH_SELF,
-        BC_RETURN_LOCAL
-    });
+    check(bytecodes,
+          {BC_PUSH_1, BC_DUP, BC_POP_FIELD_0, BC_POP, BC_PUSH_1, BC_DUP,
+           BC_POP_FIELD_1, BC_POP, BC_PUSH_1, BC_DUP, BC(BC_POP_FIELD, 2),
+           BC_POP, BC_PUSH_1, BC_DUP, BC(BC_POP_FIELD, 3), BC_POP, BC_PUSH_SELF,
+           BC_RETURN_LOCAL});
 }
 
-void BytecodeGenerationTest::check(std::vector<uint8_t> actual, std::vector<uint8_t> expected) {
-    if (expected.size() != actual.size()) {
-        dump(_mgenc);
-    }
-
-    for (size_t i = 0; i < actual.size() && i < expected.size(); i += 1) {
-        uint8_t actualBc = actual.at(i);
+void BytecodeGenerationTest::check(std::vector<uint8_t> actual,
+                                   std::vector<BC>
+                                       expected) {
+    size_t i = 0;
+    size_t bci = 0;
+    for (; bci < actual.size() && i < expected.size();) {
+        uint8_t actualBc = actual.at(bci);
         uint8_t bcLength = Bytecode::GetBytecodeLength(actualBc);
 
-        uint8_t expectedBc = expected.at(i);
+        BC expectedBc = expected.at(i);
 
         char msg[1000];
-        snprintf(msg, 1000, "Bytecode %zu expected %s but got %s",
-                 i,
-                 Bytecode::GetBytecodeName(expectedBc),
+        snprintf(msg, 1000, "Bytecode %zu expected %s but got %s", i,
+                 Bytecode::GetBytecodeName(expectedBc.bytecode),
                  Bytecode::GetBytecodeName(actualBc));
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expectedBc, actualBc);
+        if (expectedBc.bytecode != actualBc) {
+            dump(_mgenc);
+        }
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expectedBc.bytecode, actualBc);
+
+        snprintf(
+            msg, 1000,
+            "Bytecode %zu (%s) was expected to have length %zu, but had %zu", i,
+            Bytecode::GetBytecodeName(actualBc), expectedBc.size,
+            (size_t)bcLength);
+
+        if (expectedBc.size != bcLength) {
+            dump(_mgenc);
+        }
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expectedBc.size, (size_t)bcLength);
 
         if (bcLength > 1) {
-            snprintf(msg, 1000, "Bytecode %zu (%s), arg1 expected %hhu but got %hhu",
-                     i,
-                     Bytecode::GetBytecodeName(expectedBc),
-                     expected.at(i + 1),
-                     actual.at(i + 1));
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expected.at(i + 1), actual.at(i + 1));
-
-            i += 1;
+            snprintf(msg, 1000,
+                     "Bytecode %zu (%s), arg1 expected %hhu but got %hhu", i,
+                     Bytecode::GetBytecodeName(expectedBc.bytecode),
+                     expectedBc.arg1, actual.at(bci + 1));
+            if (expectedBc.arg1 != actual.at(bci + 1)) {
+                dump(_mgenc);
+            }
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expectedBc.arg1,
+                                         actual.at(bci + 1));
 
             if (bcLength > 2) {
-                snprintf(msg, 1000, "Bytecode %zu (%s), arg2 expected %hhu but got %hhu",
-                         i,
-                         Bytecode::GetBytecodeName(expectedBc),
-                         expected.at(i + 1),
-                         actual.at(i + 1));
-                CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expected.at(i + 1), actual.at(i + 1));
-
-                i += 1;
+                snprintf(msg, 1000,
+                         "Bytecode %zu (%s), arg2 expected %hhu but got %hhu",
+                         i, Bytecode::GetBytecodeName(expectedBc.bytecode),
+                         expectedBc.arg2, actual.at(bci + 2));
+                if (expectedBc.arg2 != actual.at(bci + 2)) {
+                    dump(_mgenc);
+                }
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expectedBc.arg2,
+                                             actual.at(bci + 2));
             }
         }
+
+        i += 1;
+        bci += bcLength;
     }
 
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("Number of bytecodes",
-                                 expected.size(), actual.size());
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("All expected bytecodes covered",
+                                 expected.size(), i);
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("All actual bytecodes covered", actual.size(),
+                                 bci);
 }
 
-
-
-void BytecodeGenerationTest::testWhileInlining(const char* selector, uint8_t jumpBytecode) {
+void BytecodeGenerationTest::testWhileInlining(const char* selector,
+                                               uint8_t jumpBytecode) {
     std::string source = R"""(   test: arg = (
                                       #start.
                                       [ true ] SELECTOR [ arg ].
@@ -521,25 +419,19 @@ void BytecodeGenerationTest::testWhileInlining(const char* selector, uint8_t jum
     assert(wasReplaced);
 
     auto bytecodes = methodToBytecode(source.data());
-    check(bytecodes, {
-        BC_PUSH_CONSTANT_0, BC_POP,
-        BC_PUSH_CONSTANT_1,
-        jumpBytecode, 8, 0,
-        BC_PUSH_ARG_1,
-        BC_POP,
-        BC_JUMP_BACKWARD, 6, 0,
-        BC_PUSH_NIL,
-        BC_POP,
-        BC_PUSH_CONSTANT_2,
-        BC_POP,
-        BC_PUSH_SELF,
-        BC_RETURN_LOCAL
-    });
+    check(
+        bytecodes,
+        {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_CONSTANT_1, BC(jumpBytecode, 8, 0),
+         BC_PUSH_ARG_1, BC_POP, BC(BC_JUMP_BACKWARD, 6, 0), BC_PUSH_NIL, BC_POP,
+         BC_PUSH_CONSTANT_2, BC_POP, BC_PUSH_SELF, BC_RETURN_LOCAL});
 }
 
-/** This test checks whether the jumps in the while loop are correct after it got inlined. */
+/** This test checks whether the jumps in the while loop are correct after it
+ * got inlined. */
 void BytecodeGenerationTest::testInliningWhileLoopsWithExpandingBranches() {
-    DebugPrint("\nTODO: testInliningWhileLoopsWithExpandingBranches is currently ignored, because we do not yet support inlining if #ifTrue:\n");
+    DebugPrint(
+        "\nTODO: testInliningWhileLoopsWithExpandingBranches is currently "
+        "ignored, because we do not yet support inlining if #ifTrue:\n");
     return;
 
     auto bytecodes = methodToBytecode(R"""(
@@ -553,86 +445,82 @@ void BytecodeGenerationTest::testInliningWhileLoopsWithExpandingBranches() {
           ^ #end
         )  )""");
 
-    check(bytecodes, {
-        BC_PUSH_CONSTANT_0, BC_POP,
-        BC_PUSH_CONSTANT_1, BC_POP,
-        BC_PUSH_CONSTANT_2, BC_POP,
-        BC_PUSH_0,
+    check(bytecodes,
+          {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_CONSTANT_1, BC_POP,
+           BC_PUSH_CONSTANT_2, BC_POP, BC_PUSH_0,
 
-        // jump offset, to jump to the pop BC after the if/right before the push #end
-        BC_JUMP_ON_FALSE_TOP_NIL, 27, 0,
-        BC_PUSH_CONSTANT, 3, BC_POP,
-        BC_PUSH_CONSTANT, 4, BC_POP,
-        BC_PUSH_CONSTANT, 5, BC_POP,
+           // jump offset, to jump to the pop BC after the if/right before the
+           // push #end
+           BC(BC_JUMP_ON_FALSE_TOP_NIL, 27, 0), BC(BC_PUSH_CONSTANT, 3), BC_POP,
+           BC(BC_PUSH_CONSTANT, 4), BC_POP, BC(BC_PUSH_CONSTANT, 5), BC_POP,
 
-        // jump offset, jump to push_nil as result of whileTrue
-        BC_JUMP_ON_FALSE_POP, 15,
-        BC_PUSH_CONSTANT, 6, BC_POP,
-        BC_PUSH_CONSTANT, 7, BC_POP,
-        BC_PUSH_CONSTANT, 8, BC_POP,
+           // jump offset, jump to push_nil as result of whileTrue
+           BC(BC_JUMP_ON_FALSE_POP, 15), BC(BC_PUSH_CONSTANT, 6), BC_POP,
+           BC(BC_PUSH_CONSTANT, 7), BC_POP, BC(BC_PUSH_CONSTANT, 8), BC_POP,
 
-        // jump offset, jump back to the first PUSH_CONST inside if body, pushing #const3
-        BC_PUSH_NIL,
-        BC_POP,
+           // jump offset, jump back to the first PUSH_CONST inside if body,
+           // pushing #const3
+           BC_PUSH_NIL, BC_POP,
 
-        BC_PUSH_CONSTANT, 9,
-        BC_RETURN_LOCAL
-    });
+           BC(BC_PUSH_CONSTANT, 9), BC_RETURN_LOCAL});
 }
 
 void BytecodeGenerationTest::testInliningWhileLoopsWithContractingBranches() {
-    DebugPrint("\nTODO: testInliningWhileLoopsWithContractingBranches is currently ignored, because we do not yet support inlining if #ifTrue:\n");
+    DebugPrint(
+        "\nTODO: testInliningWhileLoopsWithContractingBranches is currently "
+        "ignored, because we do not yet support inlining if #ifTrue:\n");
 
-    //def test_inlining_while_loop_with_contracting_branches(mgenc):
-    //    """
-    //    This test checks whether the jumps in the while loop are correct after it got inlined.
-    //    The challenge here is
-    //    """
-    //    bytecodes = method_to_bytecodes(
-    //        mgenc,
-    //        """
-    //        test = (
-    //          0 ifTrue: [
-    //            [ ^ 1 ]
-    //               whileTrue: [
-    //                 ^ 0 ]
-    //          ].
-    //          ^ #end
-    //        )
-    //        """,
-    //    )
+    // def test_inlining_while_loop_with_contracting_branches(mgenc):
+    //     """
+    //     This test checks whether the jumps in the while loop are correct
+    //     after it got inlined. The challenge here is
+    //     """
+    //     bytecodes = method_to_bytecodes(
+    //         mgenc,
+    //         """
+    //         test = (
+    //           0 ifTrue: [
+    //             [ ^ 1 ]
+    //                whileTrue: [
+    //                  ^ 0 ]
+    //           ].
+    //           ^ #end
+    //         )
+    //         """,
+    //     )
     //
-    //    assert len(bytecodes) == 19
-    //    check(
-    //        bytecodes,
-    //        [
-    //            Bytecodes.push_0,
-    //            BC(
-    //                Bytecodes.jump_on_false_top_nil,
-    //                15,
-    //                note="jump offset to jump to the pop after the if, before pushing #end",
-    //            ),
-    //            Bytecodes.push_1,
-    //            Bytecodes.return_local,
-    //            BC(
-    //                Bytecodes.jump_on_false_pop,
-    //                9,
-    //                note="jump offset, jump to push_nil as result of whileTrue",
-    //            ),
-    //            Bytecodes.push_0,
-    //            Bytecodes.return_local,
-    //            Bytecodes.pop,
-    //            BC(
-    //                Bytecodes.jump_backward,
-    //                8,
-    //                note="jump offset, to the push_1 of the condition",
-    //            ),
-    //            Bytecodes.push_nil,
-    //            Bytecodes.pop,
-    //        ],
-    //    )
+    //     assert len(bytecodes) == 19
+    //     check(
+    //         bytecodes,
+    //         [
+    //             Bytecodes.push_0,
+    //             BC(
+    //                 Bytecodes.jump_on_false_top_nil,
+    //                 15,
+    //                 note="jump offset to jump to the pop after the if, before
+    //                 pushing #end",
+    //             ),
+    //             Bytecodes.push_1,
+    //             Bytecodes.return_local,
+    //             BC(
+    //                 Bytecodes.jump_on_false_pop,
+    //                 9,
+    //                 note="jump offset, jump to push_nil as result of
+    //                 whileTrue",
+    //             ),
+    //             Bytecodes.push_0,
+    //             Bytecodes.return_local,
+    //             Bytecodes.pop,
+    //             BC(
+    //                 Bytecodes.jump_backward,
+    //                 8,
+    //                 note="jump offset, to the push_1 of the condition",
+    //             ),
+    //             Bytecodes.push_nil,
+    //             Bytecodes.pop,
+    //         ],
+    //     )
 };
-
 
 /*
 
@@ -654,7 +542,8 @@ void BytecodeGenerationTest::testInliningWhileLoopsWithContractingBranches() {
      ],
  )
  def test_inc_dec_bytecodes(mgenc, operator, bytecode):
-     bytecodes = method_to_bytecodes(mgenc, "test = ( 1 OP 1 )".replace("OP", operator))
+     bytecodes = method_to_bytecodes(mgenc, "test = ( 1 OP 1 )".replace("OP",
+ operator))
 
      assert len(bytecodes) == 3
      check(bytecodes, [Bytecodes.push_1, bytecode, Bytecodes.return_self])
@@ -1294,9 +1183,8 @@ void BytecodeGenerationTest::testInliningWhileLoopsWithContractingBranches() {
      ],
  )
  def test_trivial_method_inlining(mgenc, source, bytecode):
-     bytecodes = method_to_bytecodes(mgenc, "test = ( true ifTrue: [ " + source + " ] )")
-     check(
-         bytecodes,
+     bytecodes = method_to_bytecodes(mgenc, "test = ( true ifTrue: [ " + source
+ + " ] )") check( bytecodes,
          [
              Bytecodes.push_constant_0,
              Bytecodes.jump_on_false_top_nil,
@@ -1368,7 +1256,8 @@ void BytecodeGenerationTest::testInliningWhileLoopsWithContractingBranches() {
 
      field_name = "field" + str(field_num)
      bytecodes = method_to_bytecodes(
-         mgenc, "test = ( #foo. ^ " + field_name + " := " + field_name + " + 1 )"
+         mgenc, "test = ( #foo. ^ " + field_name + " := " + field_name + " + 1
+ )"
      )
      check(
          bytecodes,
@@ -1427,7 +1316,8 @@ void BytecodeGenerationTest::testInliningWhileLoopsWithContractingBranches() {
      add_field(cgenc, "field6")
 
      field_name = "field" + str(field_num)
-     bytecodes = method_to_bytecodes(mgenc, "test = ( 1. ^ " + field_name + " )")
+     bytecodes = method_to_bytecodes(mgenc, "test = ( 1. ^ " + field_name + "
+ )")
 
      check(
          bytecodes,
@@ -1516,29 +1406,36 @@ void BytecodeGenerationTest::testJumpQueuesOrdering() {
     jumps.emplace(Jump(8, BC_JUMP, 0));
     jumps.emplace(Jump(2, BC_JUMP, 0));
 
-    CPPUNIT_ASSERT_EQUAL((size_t) 1, jumps.top().originalJumpTargetIdx); jumps.pop();
-    CPPUNIT_ASSERT_EQUAL((size_t) 2, jumps.top().originalJumpTargetIdx); jumps.pop();
-    CPPUNIT_ASSERT_EQUAL((size_t) 5, jumps.top().originalJumpTargetIdx); jumps.pop();
-    CPPUNIT_ASSERT_EQUAL((size_t) 8, jumps.top().originalJumpTargetIdx); jumps.pop();
-
+    CPPUNIT_ASSERT_EQUAL((size_t)1, jumps.top().originalJumpTargetIdx);
+    jumps.pop();
+    CPPUNIT_ASSERT_EQUAL((size_t)2, jumps.top().originalJumpTargetIdx);
+    jumps.pop();
+    CPPUNIT_ASSERT_EQUAL((size_t)5, jumps.top().originalJumpTargetIdx);
+    jumps.pop();
+    CPPUNIT_ASSERT_EQUAL((size_t)8, jumps.top().originalJumpTargetIdx);
+    jumps.pop();
 
     std::priority_queue<BackJump> backJumps;
     backJumps.emplace(BackJump(13, 9));
     backJumps.emplace(BackJump(3, 12));
     backJumps.emplace(BackJump(54, 54));
 
-    CPPUNIT_ASSERT_EQUAL((size_t) 3, backJumps.top().loopBeginIdx); backJumps.pop();
-    CPPUNIT_ASSERT_EQUAL((size_t) 13, backJumps.top().loopBeginIdx); backJumps.pop();
-    CPPUNIT_ASSERT_EQUAL((size_t) 54, backJumps.top().loopBeginIdx); backJumps.pop();
+    CPPUNIT_ASSERT_EQUAL((size_t)3, backJumps.top().loopBeginIdx);
+    backJumps.pop();
+    CPPUNIT_ASSERT_EQUAL((size_t)13, backJumps.top().loopBeginIdx);
+    backJumps.pop();
+    CPPUNIT_ASSERT_EQUAL((size_t)54, backJumps.top().loopBeginIdx);
+    backJumps.pop();
 
     std::priority_queue<BackJumpPatch> backJumpsToPatch;
     backJumpsToPatch.emplace(BackJumpPatch(3, 2));
     backJumpsToPatch.emplace(BackJumpPatch(32, 44));
     backJumpsToPatch.emplace(BackJumpPatch(12, 55));
 
-
-    CPPUNIT_ASSERT_EQUAL((size_t) 3, backJumpsToPatch.top().backwardsJumpIdx); backJumpsToPatch.pop();
-    CPPUNIT_ASSERT_EQUAL((size_t) 12, backJumpsToPatch.top().backwardsJumpIdx); backJumpsToPatch.pop();
-    CPPUNIT_ASSERT_EQUAL((size_t) 32, backJumpsToPatch.top().backwardsJumpIdx); backJumpsToPatch.pop();
-
+    CPPUNIT_ASSERT_EQUAL((size_t)3, backJumpsToPatch.top().backwardsJumpIdx);
+    backJumpsToPatch.pop();
+    CPPUNIT_ASSERT_EQUAL((size_t)12, backJumpsToPatch.top().backwardsJumpIdx);
+    backJumpsToPatch.pop();
+    CPPUNIT_ASSERT_EQUAL((size_t)32, backJumpsToPatch.top().backwardsJumpIdx);
+    backJumpsToPatch.pop();
 }

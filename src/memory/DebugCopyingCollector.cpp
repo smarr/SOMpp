@@ -1,4 +1,6 @@
 
+#include "DebugCopyingCollector.h"
+
 #include <cassert>
 #include <cstddef>
 
@@ -9,7 +11,6 @@
 #include "../vm/IsValidObject.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
-#include "DebugCopyingCollector.h"
 #include "DebugCopyingHeap.h"
 
 static gc_oop_t copy_if_necessary(gc_oop_t oop) {
@@ -25,7 +26,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     // GCField is used as forwarding pointer here
     // if someone has moved before, return the moved object
     if (gcField != 0) {
-        return (gc_oop_t) gcField;
+        return (gc_oop_t)gcField;
     }
 
     assert(GetHeap<DebugCopyingHeap>()->IsInOldBufferAndOldBufferIsValid(obj));
@@ -51,7 +52,7 @@ void DebugCopyingCollector::Collect() {
     assert(heap->oldHeap.empty());
 
     Timer::GCTimer->Resume();
-    //reset collection trigger
+    // reset collection trigger
     heap->resetGCTrigger();
 
     static bool increaseMemory;
@@ -60,7 +61,8 @@ void DebugCopyingCollector::Collect() {
 
     GetUniverse()->WalkGlobals(copy_if_necessary);
 
-    // now copy all objects that are referenced by the objects we have moved so far
+    // now copy all objects that are referenced by the objects we have moved so
+    // far
     for (size_t i = 0; i < heap->currentHeap.size(); i += 1) {
         heap->currentHeap.at(i)->WalkObjects(copy_if_necessary);
     }

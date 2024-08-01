@@ -37,13 +37,14 @@
 /*
  * macro for padding - only word-aligned memory must be allocated
  */
-#define PADDED_SIZE(N) ((((size_t)(N))+(sizeof(void*)-1) & ~(sizeof(void*)-1)))
+#define PADDED_SIZE(N) \
+    ((((size_t)(N)) + (sizeof(void*) - 1) & ~(sizeof(void*) - 1)))
 
 #define IS_PADDED_SIZE(N) ((N) == PADDED_SIZE((N)))
 
 using namespace std;
 
-template<class HEAP_T>
+template <class HEAP_T>
 class Heap {
     friend class GarbageCollector<HEAP_T>;
 
@@ -52,26 +53,30 @@ public:
     static void DestroyHeap();
     explicit Heap(GarbageCollector<HEAP_T>* const gc) : gc(gc) {}
     ~Heap();
-    inline void requestGC()      { gcWasRequested = true; }
+    inline void requestGC() { gcWasRequested = true; }
     inline void resetGCTrigger() { gcWasRequested = false; }
-    bool isCollectionTriggered() { return gcWasRequested;  }
+    bool isCollectionTriggered() { return gcWasRequested; }
     void FullGC();
     inline void FreeObject(AbstractVMObject* o) { free(o); }
+
 protected:
     GarbageCollector<HEAP_T>* const gc;
+
 private:
-    template<class HEAP_U> friend HEAP_U* GetHeap();
+    template <class HEAP_U>
+    friend HEAP_U* GetHeap();
     static HEAP_T* theHeap;
 
     // flag that shows if a Collection is triggered
     bool gcWasRequested{false};
 };
 
-template<class HEAP_T> HEAP_T* Heap<HEAP_T>::theHeap;
+template <class HEAP_T>
+HEAP_T* Heap<HEAP_T>::theHeap;
 
-template<class HEAP_T>
-inline HEAP_T* GetHeap() __attribute__ ((always_inline));
-template<class HEAP_T>
+template <class HEAP_T>
+inline HEAP_T* GetHeap() __attribute__((always_inline));
+template <class HEAP_T>
 HEAP_T* GetHeap() {
     return Heap<HEAP_T>::theHeap;
 }

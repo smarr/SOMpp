@@ -1,3 +1,5 @@
+#include "Variable.h"
+
 #include <cassert>
 #include <cstddef>
 #include <cstdio>
@@ -5,14 +7,12 @@
 
 #include "../vm/Symbols.h"
 #include "SourceCoordinate.h"
-#include "Variable.h"
 
 std::string Variable::MakeQualifiedName() const {
     char qualified[100];
     assert(name.size() < 80);
 
-    snprintf(qualified, 100, "%.*s:%zu:%zu",
-             (int)name.size(), name.data(),
+    snprintf(qualified, 100, "%.*s:%zu:%zu", (int)name.size(), name.data(),
              coord.GetLine(), coord.GetColumn());
 
     return {qualified};

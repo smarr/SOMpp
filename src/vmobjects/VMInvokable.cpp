@@ -24,9 +24,10 @@
  THE SOFTWARE.
  */
 
+#include "VMInvokable.h"
+
 #include "ObjectFormats.h"
 #include "VMClass.h"
-#include "VMInvokable.h"
 #include "VMSymbol.h"
 
 bool VMInvokable::IsPrimitive() const {

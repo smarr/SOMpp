@@ -24,39 +24,41 @@
  THE SOFTWARE.
  */
 
+#include "Heap.h"
+
 #include <cstring>
 
 #include "../misc/defs.h"
 #include "../vm/Print.h"
-#include "CopyingHeap.h" // NOLINT(misc-include-cleaner)
-#include "DebugCopyingHeap.h" // NOLINT(misc-include-cleaner)
-#include "GenerationalHeap.h" // NOLINT(misc-include-cleaner)
-#include "Heap.h"
-#include "MarkSweepHeap.h" // NOLINT(misc-include-cleaner)
+#include "CopyingHeap.h"       // NOLINT(misc-include-cleaner)
+#include "DebugCopyingHeap.h"  // NOLINT(misc-include-cleaner)
+#include "GenerationalHeap.h"  // NOLINT(misc-include-cleaner)
+#include "MarkSweepHeap.h"     // NOLINT(misc-include-cleaner)
 
-template<class HEAP_T>
+template <class HEAP_T>
 void Heap<HEAP_T>::InitializeHeap(long objectSpaceSize) {
     if (theHeap) {
-        ErrorPrint("Warning, reinitializing already initialized Heap, "
-                             "all data will be lost!\n");
+        ErrorPrint(
+            "Warning, reinitializing already initialized Heap, "
+            "all data will be lost!\n");
         delete theHeap;
     }
     theHeap = new HEAP_CLS(objectSpaceSize);
 }
 
-template<class HEAP_T>
+template <class HEAP_T>
 void Heap<HEAP_T>::DestroyHeap() {
     if (theHeap) {
         delete theHeap;
     }
 }
 
-template<class HEAP_T>
+template <class HEAP_T>
 Heap<HEAP_T>::~Heap() {
     delete gc;
 }
 
-template<class HEAP_T>
+template <class HEAP_T>
 void Heap<HEAP_T>::FullGC() {
     gc->Collect();
 }

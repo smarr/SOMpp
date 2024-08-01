@@ -24,6 +24,8 @@
  THE SOFTWARE.
  */
 
+#include "VMMethod.h"
+
 #include <cassert>
 #include <cstdint>
 #include <cstdio>
@@ -40,17 +42,25 @@
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../vm/Globals.h"
-#include "../vm/Universe.h" // NOLINT(misc-include-cleaner) it's required to make the types complete
+#include "../vm/Universe.h"  // NOLINT(misc-include-cleaner) it's required to make the types complete
 #include "ObjectFormats.h"
 #include "Signature.h"
 #include "VMClass.h"
 #include "VMFrame.h"
-#include "VMMethod.h"
 #include "VMObject.h"
 #include "VMSymbol.h"
 
-VMMethod::VMMethod(VMSymbol* signature, size_t bcCount, size_t numberOfConstants, size_t numLocals, size_t maxStackDepth, LexicalScope* lexicalScope, BackJump* inlinedLoops) :
-        VMInvokable(signature), numberOfLocals(numLocals), maximumNumberOfStackElements(maxStackDepth), bcLength(bcCount), numberOfArguments(signature == nullptr ? 0 : Signature::GetNumberOfArguments(signature)), numberOfConstants(numberOfConstants), lexicalScope(lexicalScope), inlinedLoops(inlinedLoops) {
+VMMethod::VMMethod(VMSymbol* signature, size_t bcCount,
+                   size_t numberOfConstants, size_t numLocals,
+                   size_t maxStackDepth, LexicalScope* lexicalScope,
+                   BackJump* inlinedLoops)
+    : VMInvokable(signature), numberOfLocals(numLocals),
+      maximumNumberOfStackElements(maxStackDepth), bcLength(bcCount),
+      numberOfArguments(signature == nullptr
+                            ? 0
+                            : Signature::GetNumberOfArguments(signature)),
+      numberOfConstants(numberOfConstants), lexicalScope(lexicalScope),
+      inlinedLoops(inlinedLoops) {
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     cachedFrame = nullptr;
 #endif
@@ -65,17 +75,20 @@ VMMethod::VMMethod(VMSymbol* signature, size_t bcCount, size_t numberOfConstants
 }
 
 VMMethod* VMMethod::CloneForMovingGC() const {
-    VMMethod* clone = new (GetHeap<HEAP_CLS>(), GetObjectSize() - sizeof(VMMethod) ALLOC_MATURE) VMMethod(*this);
-    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)), SHIFTED_PTR(this,
-                    sizeof(VMObject)), GetObjectSize() -
-            sizeof(VMObject));
+    VMMethod* clone =
+        new (GetHeap<HEAP_CLS>(),
+             GetObjectSize() - sizeof(VMMethod) ALLOC_MATURE) VMMethod(*this);
+    memcpy(SHIFTED_PTR(clone, sizeof(VMObject)),
+           SHIFTED_PTR(this, sizeof(VMObject)),
+           GetObjectSize() - sizeof(VMObject));
     clone->indexableFields = (gc_oop_t*)(&(clone->indexableFields) + 2);
 
-
     size_t numIndexableFields = GetNumberOfIndexableFields();
-    clone->bytecodes = (uint8_t*)(&(clone->indexableFields) + 2 + numIndexableFields);
+    clone->bytecodes =
+        (uint8_t*)(&(clone->indexableFields) + 2 + numIndexableFields);
 
-    // Use of GetNumberOfIndexableFields() is problematic here, because it may be invalid object while cloning/moving within GC
+    // Use of GetNumberOfIndexableFields() is problematic here, because it may
+    // be invalid object while cloning/moving within GC
     return clone;
 }
 
@@ -83,8 +96,9 @@ void VMMethod::WalkObjects(walk_heap_fn walk) {
     VMInvokable::WalkObjects(walk);
 
 #ifdef UNSAFE_FRAME_OPTIMIZATION
-    if (cachedFrame != nullptr)
+    if (cachedFrame != nullptr) {
         cachedFrame = static_cast<VMFrame*>(walk(cachedFrame));
+    }
 #endif
 
     size_t numIndexableFields = GetNumberOfIndexableFields();
@@ -116,7 +130,7 @@ void VMMethod::Invoke(Interpreter* interp, VMFrame* frame) {
     frm->CopyArgumentsFrom(frame);
 }
 
-void VMMethod::SetHolder(VMClass *hld) {
+void VMMethod::SetHolder(VMClass* hld) {
     VMInvokable::SetHolder(hld);
     SetHolderAll(hld);
 }
@@ -142,7 +156,8 @@ std::string VMMethod::AsDebugString() const {
     } else {
         holder_str = holder->GetName()->GetStdString();
     }
-    return "Method(" + holder_str + ">>#" + GetSignature()->GetStdString() + ")";
+    return "Method(" + holder_str + ">>#" + GetSignature()->GetStdString() +
+           ")";
 }
 
 void VMMethod::InlineInto(MethodGenerationContext& mgenc) {
@@ -163,7 +178,8 @@ std::priority_queue<BackJump> VMMethod::createBackJumpHeap() {
 }
 
 void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
-    std::priority_queue<Jump> jumps; // priority queue sorted by originalJumpTargetIdx
+    std::priority_queue<Jump>
+        jumps;  // priority queue sorted by originalJumpTargetIdx
     std::priority_queue<BackJump> backJumps = createBackJumpHeap();
     std::priority_queue<BackJumpPatch> backJumpsToPatch;
 
@@ -191,17 +207,34 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
                     idx = bytecodes[i + 1];
                 } else {
                     switch (bytecode) {
-                        case BC_PUSH_FIELD_0: { idx = 0; break; }
-                        case BC_PUSH_FIELD_1: { idx = 1; break; }
-                        case BC_POP_FIELD_0:  { idx = 0; break; }
-                        case BC_POP_FIELD_1:  { idx = 1; break; }
+                        case BC_PUSH_FIELD_0: {
+                            idx = 0;
+                            break;
+                        }
+                        case BC_PUSH_FIELD_1: {
+                            idx = 1;
+                            break;
+                        }
+                        case BC_POP_FIELD_0: {
+                            idx = 0;
+                            break;
+                        }
+                        case BC_POP_FIELD_1: {
+                            idx = 1;
+                            break;
+                        }
                     }
                 }
 
-                if (bytecode == BC_PUSH_FIELD || bytecode == BC_PUSH_FIELD_0 || bytecode == BC_PUSH_FIELD_1) {
-                    EmitPushFieldWithIndex(mgenc, idx, 0 /* dummy, self is looked up dynamically at the moment. */);
+                if (bytecode == BC_PUSH_FIELD || bytecode == BC_PUSH_FIELD_0 ||
+                    bytecode == BC_PUSH_FIELD_1) {
+                    EmitPushFieldWithIndex(
+              mgenc, idx,
+              0 /* dummy, self is looked up dynamically at the moment. */);
                 } else {
-                    EmitPopFieldWithIndex(mgenc, idx, 0 /* dummy, self is looked up dynamically at the moment. */);
+                    EmitPopFieldWithIndex(
+              mgenc, idx,
+              0 /* dummy, self is looked up dynamically at the moment. */);
                 }
                 break;
             }
@@ -274,7 +307,7 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
             }
 
             case BC_PUSH_BLOCK: {
-                VMMethod* blockMethod = (VMMethod*) GetConstant(i);
+                VMMethod* blockMethod = (VMMethod*)GetConstant(i);
                 blockMethod->AdaptAfterOuterInlined(1, mgenc);
                 EmitPUSHBLOCK(mgenc, blockMethod);
                 break;
@@ -300,7 +333,8 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
             }
             case BC_POP: {
                 // TODO: PySOM simply does Emit1
-                //   not sure whether EmitPOP might cause issues if we try to do optimizations here again
+                //   not sure whether EmitPOP might cause issues if we try to do
+                //   optimizations here again
                 EmitPOP(mgenc);
                 break;
             }
@@ -310,7 +344,7 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
                 break;
             }
             case BC_PUSH_GLOBAL: {
-                VMSymbol* const sym = (VMSymbol*) GetConstant(i);
+                VMSymbol* const sym = (VMSymbol*)GetConstant(i);
                 EmitPUSHGLOBAL(mgenc, sym);
                 break;
             }
@@ -319,12 +353,12 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
             case BC_SEND_2:
             case BC_SEND_3:
             case BC_SEND_N: {
-                VMSymbol* const sym = (VMSymbol*) GetConstant(i);
+                VMSymbol* const sym = (VMSymbol*)GetConstant(i);
                 EmitSEND(mgenc, sym);
                 break;
             }
             case BC_SUPER_SEND: {
-                VMSymbol* const sym = (VMSymbol*) GetConstant(i);
+                VMSymbol* const sym = (VMSymbol*)GetConstant(i);
                 EmitSUPERSEND(mgenc, sym);
                 break;
             }
@@ -350,7 +384,8 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
             case BC_JUMP2_ON_FALSE_TOP_NIL: {
                 // emit the jump, but instead of the offset, emit a dummy
                 const size_t idx = Emit3WithDummy(mgenc, bytecode, 0);
-                const size_t offset = ComputeOffset(bytecodes[i + 1], bytecodes[i + 2]);
+                const size_t offset =
+                    ComputeOffset(bytecodes[i + 1], bytecodes[i + 2]);
 
                 jumps.emplace(Jump(i + offset, bytecode, idx));
                 break;
@@ -361,15 +396,16 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
             case BC_JUMP2_ON_FALSE_POP: {
                 // emit the jump, but instead of the offset, emit a dummy
                 const size_t idx = Emit3WithDummy(mgenc, bytecode, -1);
-                const size_t offset = ComputeOffset(bytecodes[i + 1], bytecodes[i + 2]);
+                const size_t offset =
+                    ComputeOffset(bytecodes[i + 1], bytecodes[i + 2]);
                 jumps.emplace(Jump(i + offset, bytecode, idx));
                 break;
             }
             case BC_JUMP_BACKWARD:
             case BC_JUMP2_BACKWARD: {
                 const size_t loopBeginIdx = backJumpsToPatch.top().loopBeginIdx;
-                assert(backJumpsToPatch.top().backwardsJumpIdx == i
-                       && "the jump should match with the jump instructions");
+                assert(backJumpsToPatch.top().backwardsJumpIdx == i &&
+                       "the jump should match with the jump instructions");
 
                 backJumpsToPatch.pop();
                 mgenc.EmitBackwardsJumpOffsetToTarget(loopBeginIdx);
@@ -385,13 +421,21 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
             case BC_RETURN_FIELD_1:
             case BC_RETURN_FIELD_2: {
                 char msg[120];
-                snprintf(msg, 120, "inlineInto: Found %s bytecode, but it's not expected in a block method", Bytecode::GetBytecodeName(bytecode));
+                snprintf(
+                    msg, 120,
+                    "inlineInto: Found %s bytecode, but it's not expected in a "
+                    "block method",
+                    Bytecode::GetBytecodeName(bytecode));
                 Universe::ErrorExit(msg);
                 break;
             }
             default: {
                 char msg[120];
-                snprintf(msg, 120, "inlineInto: Found %s bytecode, but inlining of it is not yet supported.", Bytecode::GetBytecodeName(bytecode));
+                snprintf(msg, 120,
+                         "inlineInto: Found %s bytecode, but inlining of it is "
+                         "not yet "
+                         "supported.",
+                         Bytecode::GetBytecodeName(bytecode));
                 Universe::ErrorExit(msg);
                 break;
             }
@@ -403,27 +447,40 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
     assert(jumps.empty());
 }
 
-void VMMethod::patchJumpToCurrentAddress(size_t i, std::priority_queue<Jump>& jumps, MethodGenerationContext& mgenc) {
+void VMMethod::patchJumpToCurrentAddress(size_t i,
+                                         std::priority_queue<Jump>& jumps,
+                                         MethodGenerationContext& mgenc) {
     while (!jumps.empty() && jumps.top().originalJumpTargetIdx <= i) {
         Jump jump = jumps.top();
         jumps.pop();
 
-        assert(jump.originalJumpTargetIdx == i && "we use the less or equal, but actually expect it to be strictly equal");
+        assert(
+            jump.originalJumpTargetIdx == i &&
+            "we use the less or equal, but actually expect it to be strictly "
+            "equal");
         mgenc.PatchJumpOffsetToPointToNextInstruction(jump.idx);
     }
 }
 
-void VMMethod::prepareBackJumpToCurrentAddress(std::priority_queue<BackJump>& backJumps, std::priority_queue<BackJumpPatch>& backJumpsToPatch, size_t i, MethodGenerationContext& mgenc) {
+void VMMethod::prepareBackJumpToCurrentAddress(
+    std::priority_queue<BackJump>& backJumps,
+    std::priority_queue<BackJumpPatch>& backJumpsToPatch, size_t i,
+    MethodGenerationContext& mgenc) {
     while (!backJumps.empty() && backJumps.top().loopBeginIdx <= i) {
         BackJump jump = backJumps.top();
         backJumps.pop();
 
-        assert(jump.loopBeginIdx == i && "we use the less or equal, but actually expect it to be strictly equal");
-        backJumpsToPatch.emplace(BackJumpPatch(jump.backwardJumpIdx, mgenc.OffsetOfNextInstruction()));
+        assert(
+            jump.loopBeginIdx == i &&
+            "we use the less or equal, but actually expect it to be strictly "
+            "equal");
+        backJumpsToPatch.emplace(BackJumpPatch(
+            jump.backwardJumpIdx, mgenc.OffsetOfNextInstruction()));
     }
 }
 
-void VMMethod::AdaptAfterOuterInlined(uint8_t removedCtxLevel, MethodGenerationContext& mgencWithInlined) {
+void VMMethod::AdaptAfterOuterInlined(
+    uint8_t removedCtxLevel, MethodGenerationContext& mgencWithInlined) {
     size_t i = 0;
     long numBytecodes = GetNumberOfBytecodes();
 
@@ -440,7 +497,7 @@ void VMMethod::AdaptAfterOuterInlined(uint8_t removedCtxLevel, MethodGenerationC
             case BC_PUSH_0:
             case BC_PUSH_1:
             case BC_PUSH_NIL:
-            case BC_PUSH_GLOBAL: // BC_PUSH_GLOBAL doesn't encode context
+            case BC_PUSH_GLOBAL:  // BC_PUSH_GLOBAL doesn't encode context
             case BC_PUSH_FIELD:
             case BC_POP_FIELD:
             case BC_POP:
@@ -465,7 +522,8 @@ void VMMethod::AdaptAfterOuterInlined(uint8_t removedCtxLevel, MethodGenerationC
             case BC_JUMP2_ON_FALSE_TOP_NIL:
             case BC_JUMP2_ON_FALSE_POP:
             case BC_JUMP2_BACKWARD: {
-                // these bytecodes do not use context and don't need to be adapted
+                // these bytecodes do not use context and don't need to be
+                // adapted
                 break;
             }
 
@@ -482,7 +540,8 @@ void VMMethod::AdaptAfterOuterInlined(uint8_t removedCtxLevel, MethodGenerationC
 
             case BC_PUSH_BLOCK: {
                 VMMethod* blockMethod = static_cast<VMMethod*>(GetConstant(i));
-                blockMethod->AdaptAfterOuterInlined(removedCtxLevel + 1, mgencWithInlined);
+                blockMethod->AdaptAfterOuterInlined(removedCtxLevel + 1,
+                                                    mgencWithInlined);
                 break;
             }
 
@@ -497,7 +556,8 @@ void VMMethod::AdaptAfterOuterInlined(uint8_t removedCtxLevel, MethodGenerationC
                     // at this point, the lexical scope has not been changed
                     // so, we should still be able to find the right one
                     auto* oldVar = lexicalScope->GetLocal(idx, ctxLevel);
-                    uint8_t newIdx = mgencWithInlined.GetInlinedLocalIdx(oldVar);
+                    uint8_t newIdx =
+                        mgencWithInlined.GetInlinedLocalIdx(oldVar);
                     bytecodes[i + 1] = newIdx;
                 } else if (ctxLevel > removedCtxLevel) {
                     bytecodes[i + 2] = ctxLevel - 1;
@@ -515,7 +575,7 @@ void VMMethod::AdaptAfterOuterInlined(uint8_t removedCtxLevel, MethodGenerationC
             case BC_PUSH_FIELD_1:
             case BC_POP_LOCAL_0:
             case BC_POP_LOCAL_1:
-            case BC_POP_LOCAL_2: 
+            case BC_POP_LOCAL_2:
             case BC_POP_FIELD_0:
             case BC_POP_FIELD_1: {
                 break;
@@ -527,13 +587,21 @@ void VMMethod::AdaptAfterOuterInlined(uint8_t removedCtxLevel, MethodGenerationC
             case BC_RETURN_FIELD_1:
             case BC_RETURN_FIELD_2: {
                 char msg[120];
-                snprintf(msg, 120, "AdaptAfterOuterInlined: Found %s bytecode, but it's not expected in a block method", Bytecode::GetBytecodeName(bytecode));
+                snprintf(
+                    msg, 120,
+                    "AdaptAfterOuterInlined: Found %s bytecode, but it's not "
+                    "expected in a block method",
+                    Bytecode::GetBytecodeName(bytecode));
                 Universe::ErrorExit(msg);
             }
 
             default: {
                 char msg[120];
-                snprintf(msg, 120, "Found %s bytecode, but AdaptAfterOuterInlined does not yet support it.", Bytecode::GetBytecodeName(bytecode));
+                snprintf(msg, 120,
+                         "Found %s bytecode, but AdaptAfterOuterInlined does "
+                         "not yet "
+                         "support it.",
+                         Bytecode::GetBytecodeName(bytecode));
                 Universe::ErrorExit(msg);
             }
         }
@@ -547,13 +615,13 @@ void VMMethod::AdaptAfterOuterInlined(uint8_t removedCtxLevel, MethodGenerationC
 }
 
 bool operator<(const Jump& a, const Jump& b) {
-  return a.originalJumpTargetIdx > b.originalJumpTargetIdx;
+    return a.originalJumpTargetIdx > b.originalJumpTargetIdx;
 }
 
 bool operator<(const BackJump& a, const BackJump& b) {
-  return a.loopBeginIdx > b.loopBeginIdx;
+    return a.loopBeginIdx > b.loopBeginIdx;
 }
 
 bool operator<(const BackJumpPatch& a, const BackJumpPatch& b) {
-  return a.backwardsJumpIdx > b.backwardsJumpIdx;
+    return a.backwardsJumpIdx > b.backwardsJumpIdx;
 }

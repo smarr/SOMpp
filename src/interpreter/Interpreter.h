@@ -31,55 +31,55 @@
 #include "../vmobjects/VMFrame.h"
 #include "../vmobjects/VMMethod.h"
 
-#define DISPATCH_NOGC() {\
-  goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]]; \
-}
+#define DISPATCH_NOGC() \
+    { goto* loopTargets[currentBytecodes[bytecodeIndexGlobal]]; }
 
-#define DISPATCH_GC() {\
-  if (GetHeap<HEAP_CLS>()->isCollectionTriggered()) { startGC(); } \
-  goto *loopTargets[currentBytecodes[bytecodeIndexGlobal]];\
-}
-
+#define DISPATCH_GC()                                             \
+    {                                                             \
+        if (GetHeap<HEAP_CLS>()->isCollectionTriggered()) {       \
+            startGC();                                            \
+        }                                                         \
+        goto* loopTargets[currentBytecodes[bytecodeIndexGlobal]]; \
+    }
 
 class Interpreter {
 public:
     Interpreter();
     ~Interpreter();
-    
+
     vm_oop_t StartAndPrintBytecodes();
     vm_oop_t Start();
-    
-    VMFrame*  PushNewFrame(VMMethod* method);
-    void      SetFrame(VMFrame* frame);
+
+    VMFrame* PushNewFrame(VMMethod* method);
+    void SetFrame(VMFrame* frame);
     inline VMFrame* GetFrame() const;
     VMMethod* GetMethod() const;
     uint8_t* GetBytecodes() const;
-    void      WalkGlobals(walk_heap_fn);
-    
+    void WalkGlobals(walk_heap_fn);
+
 private:
     vm_oop_t GetSelf() const;
-    
+
     VMFrame* frame;
     VMMethod* method;
-    
+
     // The following three variables are used to cache main parts of the
     // current execution context
-    long      bytecodeIndexGlobal;
-    uint8_t*  currentBytecodes;
+    long bytecodeIndexGlobal;
+    uint8_t* currentBytecodes;
 
-    
     static const StdString unknownGlobal;
     static const StdString doesNotUnderstand;
     static const StdString escapedBlock;
-    
+
     void startGC();
     void disassembleMethod() const;
 
     VMFrame* popFrame();
     void popFrameAndPushResult(vm_oop_t result);
-    
+
     void send(VMSymbol* signature, VMClass* receiverClass);
-    
+
     void triggerDoesNotUnderstand(VMSymbol* signature);
 
     void doDup();
@@ -89,12 +89,12 @@ private:
     void doPushField(long bytecodeIndex);
     void doPushFieldWithIndex(uint8_t fieldIndex);
     void doPushBlock(long bytecodeIndex);
-    
+
     inline void doPushConstant(long bytecodeIndex) {
         vm_oop_t constant = method->GetConstant(bytecodeIndex);
         GetFrame()->Push(constant);
     }
-    
+
     void doPushGlobal(long bytecodeIndex);
     void doPop(void);
     void doPopLocal(long bytecodeIndex);

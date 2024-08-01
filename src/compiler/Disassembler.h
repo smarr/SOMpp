@@ -34,11 +34,15 @@
 class Disassembler {
 public:
     static void Dump(VMClass* cl);
-    static void DumpMethod(VMMethod* method, const char* indent, bool printObjects = true);
+    static void DumpMethod(VMMethod* method, const char* indent,
+                           bool printObjects = true);
     static void DumpMethod(MethodGenerationContext* mgenc, const char* indent);
     static void DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx);
+
 private:
     static void dispatch(vm_oop_t o);
 
-    static void dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes, const char* indent, VMMethod* method, bool printObjects);
+    static void dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes,
+                           const char* indent, VMMethod* method,
+                           bool printObjects);
 };

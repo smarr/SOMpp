@@ -40,7 +40,7 @@ public:
 
 // Typedefs for Primitive loading
 typedef PrimitiveRoutine* CreatePrimitive(const std::string&,
-        const std::string&, bool isPrimitive);
+                                          const std::string&, bool isPrimitive);
 typedef bool SupportsClass(const char*);
 typedef void TearDown();
 typedef void Setup();

@@ -6,14 +6,30 @@
 #include "../compiler/MethodGenerationContext.h"
 #include "../interpreter/bytecodes.h"
 
-class BytecodeGenerationTest: public CPPUNIT_NS::TestCase {
+class BC {
+public:
+    BC(uint8_t bytecode) : bytecode(bytecode), arg1(0), arg2(0), size(1) {}
 
+    BC(uint8_t bytecode, uint8_t arg1)
+        : bytecode(bytecode), arg1(arg1), arg2(0), size(2) {}
+
+    BC(uint8_t bytecode, uint8_t arg1, uint8_t arg2)
+        : bytecode(bytecode), arg1(arg1), arg2(arg2), size(3) {}
+
+    uint8_t bytecode;
+    uint8_t arg1;
+    uint8_t arg2;
+
+    size_t size;
+};
+
+class BytecodeGenerationTest : public CPPUNIT_NS::TestCase {
     CPPUNIT_TEST_SUITE(BytecodeGenerationTest);
     CPPUNIT_TEST(testEmptyMethodReturnsSelf);
     CPPUNIT_TEST(testPushConstant);
     CPPUNIT_TEST(testIfPushConstantSame);
     CPPUNIT_TEST(testIfPushConstantDifferent);
-    
+
     CPPUNIT_TEST(testExplicitReturnSelf);
     CPPUNIT_TEST(testDupPopArgumentPop);
     CPPUNIT_TEST(testDupPopArgumentPopImplicitReturnSelf);
@@ -47,16 +63,15 @@ class BytecodeGenerationTest: public CPPUNIT_NS::TestCase {
     CPPUNIT_TEST_SUITE_END();
 
 public:
-    inline void setUp(void) {
-    }
-    
+    inline void setUp(void) {}
+
     inline void tearDown(void) {
         delete _cgenc;
         _cgenc = nullptr;
-        
+
         delete _mgenc;
         _mgenc = nullptr;
-        
+
         delete _bgenc;
         _bgenc = nullptr;
     }
@@ -65,21 +80,23 @@ private:
     ClassGenerationContext* _cgenc;
     MethodGenerationContext* _mgenc;
     MethodGenerationContext* _bgenc;
-    
+
     void ensureCGenC();
     void ensureMGenC();
     void ensureBGenC();
     void addField(const char* fieldName);
-    
-    std::vector<uint8_t> methodToBytecode(const char* source, bool dumpBytecodes = false);
-    std::vector<uint8_t> blockToBytecode(const char* source, bool dumpBytecodes = false);
-    
+
+    std::vector<uint8_t> methodToBytecode(const char* source,
+                                          bool dumpBytecodes = false);
+    std::vector<uint8_t> blockToBytecode(const char* source,
+                                         bool dumpBytecodes = false);
+
     void testEmptyMethodReturnsSelf();
-    
+
     void testPushConstant();
     void testIfPushConstantSame();
     void testIfPushConstantDifferent();
-    
+
     void testExplicitReturnSelf();
     void testDupPopArgumentPop();
     void testDupPopArgumentPopImplicitReturnSelf();
@@ -90,14 +107,14 @@ private:
     void testDupPopFieldNReturnSelf();
     void testSendDupPopFieldReturnLocal();
     void testSendDupPopFieldReturnLocalPeriod();
-    
+
     void testBlockDupPopArgumentPopReturnArg();
     void testBlockDupPopArgumentImplicitReturn();
     void testBlockDupPopArgumentImplicitReturnDot();
     void testBlockDupPopLocalReturnLocal();
     void testBlockDupPopFieldReturnLocal();
     void testBlockDupPopFieldReturnLocalDot();
-    
+
     void testPushLocalOpt();
     void testPushArgOpt();
     void testPushFieldOpt();
@@ -121,6 +138,6 @@ private:
     void testJumpQueuesOrdering();
 
     void dump(MethodGenerationContext* mgenc);
-    
-    void check(std::vector<uint8_t> actual, std::vector<uint8_t> expected);
+
+    void check(std::vector<uint8_t> actual, std::vector<BC> expected);
 };

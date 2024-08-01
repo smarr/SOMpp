@@ -24,6 +24,8 @@
  THE SOFTWARE.
  */
 
+#include "Parser.h"
+
 #include <cassert>
 #include <cctype>
 #include <cstdint>
@@ -43,23 +45,22 @@
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMClass.h"
-#include "../vmobjects/VMDouble.h"     // NOLINT(misc-include-cleaner) it's required to make the types complete
+#include "../vmobjects/VMDouble.h"  // NOLINT(misc-include-cleaner) it's required to make the types complete
 #include "../vmobjects/VMMethod.h"
 #include "../vmobjects/VMPrimitive.h"  // NOLINT(misc-include-cleaner) it's required to make the types complete
 #include "../vmobjects/VMString.h"
 #include "../vmobjects/VMSymbol.h"
 #include "BytecodeGenerator.h"
 #include "Lexer.h"
-#include "Parser.h"
 
 void Parser::GetSym() {
-    sym  = lexer.GetSym();
+    sym = lexer.GetSym();
     text = lexer.GetText();
 }
 
 void Parser::Peek() {
     nextSym = lexer.Peek();
-	nextText = lexer.GetNextText();
+    nextText = lexer.GetNextText();
 }
 
 void Parser::PeekForNextSymbolFromLexerIfNecessary() {
@@ -68,7 +69,8 @@ void Parser::PeekForNextSymbolFromLexerIfNecessary() {
     }
 }
 
-Parser::Parser(istream& file, StdString& fname): lexer(file), fname(fname), sym(NONE), nextSym(NONE) {
+Parser::Parser(istream& file, StdString& fname)
+    : lexer(file), fname(fname), sym(NONE), nextSym(NONE) {
     GetSym();
 }
 
@@ -77,9 +79,11 @@ Parser::Parser(istream& file, StdString& fname): lexer(file), fname(fname), sym(
 //
 
 bool Parser::symIn(Symbol* ss) {
-    while (*ss)
-        if (*ss++ == sym)
+    while (*ss) {
+        if (*ss++ == sym) {
             return true;
+        }
+    }
     return false;
 }
 
@@ -110,20 +114,24 @@ bool Parser::expect(Symbol s) {
         return true;
     }
 
-    parseError("Unexpected symbol. Expected %(expected)s, but found %(found)s\n", s);
+    parseError(
+        "Unexpected symbol. Expected %(expected)s, but found %(found)s\n", s);
     return false;
 }
 
 bool Parser::expectOneOf(Symbol* ss) {
-    if (acceptOneOf(ss))
+    if (acceptOneOf(ss)) {
         return true;
-    parseError("Unexpected symbol. Expected one of %(expected)s, but found %(found)s\n", ss);
+    }
+    parseError(
+        "Unexpected symbol. Expected one of %(expected)s, but found "
+        "%(found)s\n",
+        ss);
 
     return false;
 }
 
-void Parser::genPushVariable(MethodGenerationContext& mgenc,
-        std::string& var) {
+void Parser::genPushVariable(MethodGenerationContext& mgenc, std::string& var) {
     // The purpose of this function is to find out whether the variable to be
     // pushed on the stack is a local variable, argument, or object field. This
     // is done by examining all available lexical contexts, starting with the
@@ -167,19 +175,19 @@ void Parser::genPopVariable(MethodGenerationContext& mgenc, std::string& var) {
         auto varSymbol = SymbolFor(var);
         EmitPOPFIELD(mgenc, varSymbol);
     }
-    }
+}
 
 //
 // grammar
 //
 
-Symbol singleOpSyms[] = { Not, And, Or, Star, Div, Mod, Plus, Equal, More, Less,
-        Comma, At, Per, Minus, NONE };
+Symbol singleOpSyms[] = {Not,  And,  Or,    Star, Div, Mod,   Plus, Equal,
+                         More, Less, Comma, At,   Per, Minus, NONE};
 
-Symbol binaryOpSyms[] = { Or, Comma, Minus, Equal, Not, And, Or, Star, Div, Mod,
-        Plus, Equal, More, Less, Comma, At, Per, NONE };
+Symbol binaryOpSyms[] = {Or,  Comma, Minus, Equal, Not,  And,   Or, Star, Div,
+                         Mod, Plus,  Equal, More,  Less, Comma, At, Per,  NONE};
 
-Symbol keywordSelectorSyms[] = { Keyword, KeywordSequence };
+Symbol keywordSelectorSyms[] = {Keyword, KeywordSequence};
 
 void Parser::Classdef(ClassGenerationContext& cgenc) {
     cgenc.SetName(SymbolFor(text));
@@ -193,14 +201,13 @@ void Parser::Classdef(ClassGenerationContext& cgenc) {
     instanceFields(cgenc);
     while (symIsIdentifier() || sym == Keyword || sym == OperatorSequence ||
            symIn(binaryOpSyms)) {
-
         MethodGenerationContext mgenc(cgenc);
         std::string self = strSelf;
         mgenc.AddArgument(self, lexer.GetCurrentSource());
 
         method(mgenc);
 
-        if(mgenc.IsPrimitive()) {
+        if (mgenc.IsPrimitive()) {
             cgenc.AddInstanceMethod(mgenc.AssemblePrimitive(false));
         } else {
             cgenc.AddInstanceMethod(mgenc.Assemble());
@@ -211,14 +218,14 @@ void Parser::Classdef(ClassGenerationContext& cgenc) {
         cgenc.SetClassSide(true);
         classFields(cgenc);
         while (symIsIdentifier() || sym == Keyword || sym == OperatorSequence ||
-        symIn(binaryOpSyms)) {
+               symIn(binaryOpSyms)) {
             MethodGenerationContext mgenc(cgenc);
             std::string self = strSelf;
             mgenc.AddArgument(self, lexer.GetCurrentSource());
 
             method(mgenc);
 
-            if(mgenc.IsPrimitive()) {
+            if (mgenc.IsPrimitive()) {
                 cgenc.AddClassMethod(mgenc.AssemblePrimitive(true));
             } else {
                 cgenc.AddClassMethod(mgenc.Assemble());
@@ -242,16 +249,18 @@ void Parser::superclass(ClassGenerationContext& cgenc) {
     if (superName != SymbolFor("nil")) {
         VMClass* superClass = GetUniverse()->LoadClass(superName);
         cgenc.SetInstanceFieldsOfSuper(superClass->GetInstanceFields());
-        cgenc.SetClassFieldsOfSuper(superClass->GetClass()->GetInstanceFields());
+        cgenc.SetClassFieldsOfSuper(
+            superClass->GetClass()->GetInstanceFields());
     } else {
         // we hardcode here the field names for Class
         // since Object class superclass = Class
-        // We avoid here any kind of dynamic solution to avoid further complexity.
-        // However, that makes it static, it is going to make it harder to
-        // change the definition of Class and Object
-        vector<StdString> fieldNamesOfClass{ "class", "name",
-            "instanceFields", "instanceInvokables", "superClass" };
-        VMArray* fieldNames = GetUniverse()->NewArrayOfSymbolsFromStrings(fieldNamesOfClass);
+        // We avoid here any kind of dynamic solution to avoid further
+        // complexity. However, that makes it static, it is going to make it
+        // harder to change the definition of Class and Object
+        vector<StdString> fieldNamesOfClass{"class", "name", "instanceFields",
+                                            "instanceInvokables", "superClass"};
+        VMArray* fieldNames =
+            GetUniverse()->NewArrayOfSymbolsFromStrings(fieldNamesOfClass);
         cgenc.SetClassFieldsOfSuper(fieldNames);
     }
 }
@@ -294,16 +303,16 @@ void Parser::primitiveBlock() {
 
 void Parser::pattern(MethodGenerationContext& mgenc) {
     switch (sym) {
-    case Identifier:
-    case Primitive:
-        unaryPattern(mgenc);
-        break;
-    case Keyword:
-        keywordPattern(mgenc);
-        break;
-    default:
-        binaryPattern(mgenc);
-        break;
+        case Identifier:
+        case Primitive:
+            unaryPattern(mgenc);
+            break;
+        case Keyword:
+            keywordPattern(mgenc);
+            break;
+        default:
+            binaryPattern(mgenc);
+            break;
     }
 }
 
@@ -355,9 +364,9 @@ VMSymbol* Parser::unarySelector() {
 VMSymbol* Parser::binarySelector() {
     StdString s(text);
 
-    if(acceptOneOf(singleOpSyms)) {}
-    else if(accept(OperatorSequence)) {}
-    else {
+    if (acceptOneOf(singleOpSyms)) {
+    } else if (accept(OperatorSequence)) {
+    } else {
         expect(NONE);
     }
 
@@ -405,11 +414,11 @@ void Parser::locals(MethodGenerationContext& mgenc) {
     }
 }
 
-void Parser::blockBody(MethodGenerationContext& mgenc, bool seen_period, bool is_inlined) {
+void Parser::blockBody(MethodGenerationContext& mgenc, bool seen_period,
+                       bool is_inlined) {
     if (accept(Exit)) {
         result(mgenc);
-    }
-    else if (sym == EndBlock) {
+    } else if (sym == EndBlock) {
         if (seen_period) {
             // a POP has been generated which must be elided (blocks always
             // return the value of the last expression, regardless of whether it
@@ -498,8 +507,8 @@ std::string Parser::assignment() {
 
 void Parser::evaluation(MethodGenerationContext& mgenc) {
     bool super = primary(mgenc);
-    if (symIsIdentifier() || sym == Keyword || sym == OperatorSequence
-            || symIn(binaryOpSyms)) {
+    if (symIsIdentifier() || sym == Keyword || sym == OperatorSequence ||
+        symIn(binaryOpSyms)) {
         messages(mgenc, super);
     }
 }
@@ -507,33 +516,33 @@ void Parser::evaluation(MethodGenerationContext& mgenc) {
 bool Parser::primary(MethodGenerationContext& mgenc) {
     bool super = false;
     switch (sym) {
-    case Primitive:
-    case Identifier: {
-        auto v = variable();
-        if (v == strSuper) {
-            super = true;
-            // sends to super push self as the receiver
-            v = strSelf;
+        case Primitive:
+        case Identifier: {
+            auto v = variable();
+            if (v == strSuper) {
+                super = true;
+                // sends to super push self as the receiver
+                v = strSelf;
+            }
+
+            genPushVariable(mgenc, v);
+            break;
         }
+        case NewTerm:
+            nestedTerm(mgenc);
+            break;
+        case NewBlock: {
+            MethodGenerationContext bgenc{*mgenc.GetHolder(), &mgenc};
 
-        genPushVariable(mgenc, v);
-        break;
-    }
-    case NewTerm:
-        nestedTerm(mgenc);
-        break;
-    case NewBlock: {
-        MethodGenerationContext bgenc{*mgenc.GetHolder(), &mgenc};
+            nestedBlock(bgenc);
 
-        nestedBlock(bgenc);
-
-        VMMethod* blockMethod = bgenc.Assemble();
-        EmitPUSHBLOCK(mgenc, blockMethod);
-        break;
-    }
-    default:
-        literal(mgenc);
-        break;
+            VMMethod* blockMethod = bgenc.Assemble();
+            EmitPUSHBLOCK(mgenc, blockMethod);
+            break;
+        }
+        default:
+            literal(mgenc);
+            break;
     }
 
     return super;
@@ -606,7 +615,6 @@ bool Parser::binaryOperand(MethodGenerationContext& mgenc) {
     return super;
 }
 
-
 void Parser::keywordMessage(MethodGenerationContext& mgenc, bool super) {
     StdString kw = keyword();
     int numParts = 1;
@@ -619,9 +627,9 @@ void Parser::keywordMessage(MethodGenerationContext& mgenc, bool super) {
     }
 
     if (!super) {
-        if (numParts == 1 && (
-            (kw == "whileTrue:" && mgenc.InlineWhile(*this, true)) ||
-            (kw == "whileFalse:" && mgenc.InlineWhile(*this, false)))) {
+        if (numParts == 1 &&
+            ((kw == "whileTrue:" && mgenc.InlineWhile(*this, true)) ||
+             (kw == "whileFalse:" && mgenc.InlineWhile(*this, false)))) {
             return;
         }
     }
@@ -656,28 +664,29 @@ void Parser::nestedTerm(MethodGenerationContext& mgenc) {
 
 void Parser::literal(MethodGenerationContext& mgenc) {
     switch (sym) {
-    case Pound:
-        PeekForNextSymbolFromLexerIfNecessary();
-        if (nextSym == NewTerm) {
-            literalArray(mgenc);
-        } else {
-            literalSymbol(mgenc);
-        }
-        break;
-    case STString:
-        literalString(mgenc);
-        break;
-    default:
-        literalNumber(mgenc);
-        break;
+        case Pound:
+            PeekForNextSymbolFromLexerIfNecessary();
+            if (nextSym == NewTerm) {
+                literalArray(mgenc);
+            } else {
+                literalSymbol(mgenc);
+            }
+            break;
+        case STString:
+            literalString(mgenc);
+            break;
+        default:
+            literalNumber(mgenc);
+            break;
     }
 }
 
 vm_oop_t Parser::literalNumberOop() {
-    if (sym == Minus)
+    if (sym == Minus) {
         return negativeDecimal();
-    else
+    } else {
         return literalDecimal(false);
+    }
 }
 
 void Parser::literalNumber(MethodGenerationContext& mgenc) {
@@ -730,12 +739,13 @@ void Parser::literalArray(MethodGenerationContext& mgenc) {
     expect(Pound);
     expect(NewTerm);
 
-    VMSymbol* arrayClassName       = SymbolFor("Array");
+    VMSymbol* arrayClassName = SymbolFor("Array");
     VMSymbol* arraySizePlaceholder = SymbolFor("ArraySizeLiteralPlaceholder");
-    VMSymbol* newMessage           = SymbolFor("new:");
-    VMSymbol* atPutMessage         = SymbolFor("at:put:");
+    VMSymbol* newMessage = SymbolFor("new:");
+    VMSymbol* atPutMessage = SymbolFor("at:put:");
 
-    const uint8_t arraySizeLiteralIndex = mgenc.AddLiteral(arraySizePlaceholder);
+    const uint8_t arraySizeLiteralIndex =
+        mgenc.AddLiteral(arraySizePlaceholder);
 
     // create bytecode sequence for instantiating new array
     EmitPUSHGLOBAL(mgenc, arrayClassName);
@@ -753,7 +763,8 @@ void Parser::literalArray(MethodGenerationContext& mgenc) {
     }
 
     // replace the placeholder with the actual array size
-    mgenc.UpdateLiteral(arraySizePlaceholder, arraySizeLiteralIndex, NEW_INT(i - 1));
+    mgenc.UpdateLiteral(arraySizePlaceholder, arraySizeLiteralIndex,
+                        NEW_INT(i - 1));
 
     expect(EndTerm);
 }
@@ -766,12 +777,13 @@ void Parser::literalString(MethodGenerationContext& mgenc) {
 }
 
 VMSymbol* Parser::selector() {
-    if(sym == OperatorSequence || symIn(singleOpSyms))
-    return binarySelector();
-    else if(sym == Keyword || sym == KeywordSequence)
-    return keywordSelector();
-    else
-    return unarySelector();
+    if (sym == OperatorSequence || symIn(singleOpSyms)) {
+        return binarySelector();
+    } else if (sym == Keyword || sym == KeywordSequence) {
+        return keywordSelector();
+    } else {
+        return unarySelector();
+    }
 }
 
 VMSymbol* Parser::keywordSelector() {
@@ -784,7 +796,7 @@ VMSymbol* Parser::keywordSelector() {
 StdString Parser::_string() {
     StdString s(text);
     expect(STString);
-    return s; // <-- Literal strings are At Most BUFSIZ chars long.
+    return s;  // <-- Literal strings are At Most BUFSIZ chars long.
 }
 
 void Parser::nestedBlock(MethodGenerationContext& mgenc) {
@@ -792,14 +804,17 @@ void Parser::nestedBlock(MethodGenerationContext& mgenc) {
     mgenc.AddArgumentIfAbsent(blockSelf, lexer.GetCurrentSource());
 
     expect(NewBlock);
-    if (sym == Colon)
+    if (sym == Colon) {
         blockPattern(mgenc);
+    }
 
     // generate Block signature
-    StdString block_sig = "$blockMethod@" + to_string(lexer.GetCurrentLineNumber());
+    StdString block_sig =
+        "$blockMethod@" + to_string(lexer.GetCurrentLineNumber());
     size_t arg_size = mgenc.GetNumberOfArguments();
-    for (size_t i = 1; i < arg_size; i++)
+    for (size_t i = 1; i < arg_size; i++) {
         block_sig += ":";
+    }
 
     mgenc.SetSignature(SymbolFor(block_sig));
 
@@ -809,8 +824,8 @@ void Parser::nestedBlock(MethodGenerationContext& mgenc) {
     // in the block was not terminated by ., and can generate a return
     if (!mgenc.IsFinished()) {
         if (!mgenc.HasBytecodes()) {
-          // if the block is empty, we need to return nil
-          EmitPUSHCONSTANT(mgenc, load_ptr(nilObject));
+            // if the block is empty, we need to return nil
+            EmitPUSHCONSTANT(mgenc, load_ptr(nilObject));
         }
         EmitRETURNLOCAL(mgenc);
         mgenc.SetFinished(true);
@@ -835,16 +850,16 @@ void Parser::blockArguments(MethodGenerationContext& mgenc) {
     } while (sym == Colon);
 }
 
-
-
-__attribute__((noreturn)) void Parser::parseError(const char* msg, Symbol expected) {
+__attribute__((noreturn)) void Parser::parseError(const char* msg,
+                                                  Symbol expected) {
     StdString expectedStr(symnames[expected]);
     parseError(msg, expectedStr);
 }
 
-
-__attribute__((noreturn)) void Parser::parseError(const char* msg, StdString expected) {
-    StdString msgWithMeta = "%(file)s:%(line)d:%(column)d: error: " + StdString(msg);
+__attribute__((noreturn)) void Parser::parseError(const char* msg,
+                                                  StdString expected) {
+    StdString msgWithMeta =
+        "%(file)s:%(line)d:%(column)d: error: " + StdString(msg);
 
     StdString foundStr;
     if (_PRINTABLE_SYM) {
@@ -867,7 +882,8 @@ __attribute__((noreturn)) void Parser::parseError(const char* msg, StdString exp
     GetUniverse()->Quit(ERR_FAIL);
 }
 
-__attribute__((noreturn)) void Parser::parseError(const char* msg, Symbol* expected) {
+__attribute__((noreturn)) void Parser::parseError(const char* msg,
+                                                  Symbol* expected) {
     bool first = true;
     StdString expectedStr = "";
 

@@ -30,7 +30,7 @@
 #include "VMInvokable.h"
 #include "VMObject.h"
 
-class VMPrimitive: public VMInvokable {
+class VMPrimitive : public VMInvokable {
 public:
     typedef GCPrimitive Stored;
 
@@ -38,38 +38,32 @@ public:
 
     VMPrimitive(VMSymbol* sig);
 
-    VMClass* GetClass() const override {
-        return load_ptr(primitiveClass);
-    }
+    VMClass* GetClass() const override { return load_ptr(primitiveClass); }
 
-    inline size_t GetObjectSize() const override {
-        return sizeof(VMPrimitive);
-    }
+    inline size_t GetObjectSize() const override { return sizeof(VMPrimitive); }
 
-    inline  bool IsEmpty() const {
-        return empty;
-    }
+    inline bool IsEmpty() const { return empty; }
 
-    inline  void SetRoutine(PrimitiveRoutine* rtn, bool empty) {
+    inline void SetRoutine(PrimitiveRoutine* rtn, bool empty) {
         routine = rtn;
         this->empty = empty;
     }
 
-            void SetEmpty(bool value) {empty = value;};
-            VMPrimitive* CloneForMovingGC() const override;
+    void SetEmpty(bool value) { empty = value; };
+    VMPrimitive* CloneForMovingGC() const override;
 
     void Invoke(Interpreter* interp, VMFrame* frm) override {
         routine->Invoke(interp, frm);
     };
 
-    bool IsPrimitive() const override {return true;};
+    bool IsPrimitive() const override { return true; };
 
     void MarkObjectAsInvalid() override {
-        routine = (PrimitiveRoutine*) INVALID_GC_POINTER;
+        routine = (PrimitiveRoutine*)INVALID_GC_POINTER;
     }
 
     bool IsMarkedInvalid() const override {
-        return routine == (PrimitiveRoutine*) INVALID_GC_POINTER;
+        return routine == (PrimitiveRoutine*)INVALID_GC_POINTER;
     }
 
     StdString AsDebugString() const override;
@@ -77,12 +71,11 @@ public:
 private:
     void EmptyRoutine(Interpreter*, VMFrame*);
 
-protected_testable:
-    // protected to be able to access the field in subclass,
-    // for instance VMEvaluationPrimitive needs to GC the primitive object
-    // hold in the special routine subclass
+public:
     PrimitiveRoutine* routine;
 
-private_testable:
+private:
+    make_testable(public);
+
     bool empty;
 };

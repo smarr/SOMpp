@@ -1,4 +1,4 @@
-# pragma once
+#pragma once
 
 #include <cstddef>
 
@@ -7,11 +7,12 @@
 
 class DebugCopyingHeap : public Heap<DebugCopyingHeap> {
     friend class DebugCopyingCollector;
+
 public:
-    explicit DebugCopyingHeap(size_t objectSpaceSize) :
-        Heap<DebugCopyingHeap>(new DebugCopyingCollector(this)),
-        currentHeapSize(objectSpaceSize),
-    collectionLimit((double)objectSpaceSize * 0.9) {}
+    explicit DebugCopyingHeap(size_t objectSpaceSize)
+        : Heap<DebugCopyingHeap>(new DebugCopyingCollector(this)),
+          currentHeapSize(objectSpaceSize),
+          collectionLimit((double)objectSpaceSize * 0.9) {}
 
     AbstractVMObject* AllocateObject(size_t size);
 

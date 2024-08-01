@@ -24,6 +24,8 @@
  THE SOFTWARE.
  */
 
+#include "VMFrame.h"
+
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -36,7 +38,6 @@
 #include "../vm/Print.h"
 #include "ObjectFormats.h"
 #include "VMClass.h"
-#include "VMFrame.h"
 #include "VMMethod.h"
 #include "VMObject.h"
 #include "VMObjectBase.h"
@@ -47,21 +48,21 @@
 // depth is calculated. In that case this method is called.
 VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength) {
     VMMethod* method = from->GetMethod();
-    long length = method->GetNumberOfArguments()
-                    + method->GetNumberOfLocals()
-                    + method->GetMaximumNumberOfStackElements()
-                    + extraLength;
+    long length = method->GetNumberOfArguments() + method->GetNumberOfLocals() +
+                  method->GetMaximumNumberOfStackElements() + extraLength;
 
     size_t additionalBytes = length * sizeof(VMObject*);
-    VMFrame* result = new (GetHeap<HEAP_CLS>(), additionalBytes) VMFrame(length, additionalBytes);
+    VMFrame* result = new (GetHeap<HEAP_CLS>(), additionalBytes)
+        VMFrame(length, additionalBytes);
 
-    result->clazz = nullptr; // result->SetClass(from->GetClass());
+    result->clazz = nullptr;  // result->SetClass(from->GetClass());
 
     // set Frame members
     result->SetPreviousFrame(from->GetPreviousFrame());
     result->SetMethod(method);
     result->SetContext(from->GetContext());
-    result->stack_ptr = (gc_oop_t*)SHIFTED_PTR(result, (size_t)from->stack_ptr - (size_t)from);
+    result->stack_ptr =
+        (gc_oop_t*)SHIFTED_PTR(result, (size_t)from->stack_ptr - (size_t)from);
 
     result->bytecodeIndex = from->bytecodeIndex;
     // result->arguments is set in VMFrame constructor
@@ -69,8 +70,9 @@ VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength) {
 
     // all other fields are indexable via arguments
     // --> until end of Frame
-    gc_oop_t* from_end   = (gc_oop_t*) SHIFTED_PTR(from,   from->GetObjectSize());
-    gc_oop_t* result_end = (gc_oop_t*) SHIFTED_PTR(result, result->GetObjectSize());
+    gc_oop_t* from_end = (gc_oop_t*)SHIFTED_PTR(from, from->GetObjectSize());
+    gc_oop_t* result_end =
+        (gc_oop_t*)SHIFTED_PTR(result, result->GetObjectSize());
 
     long i = 0;
 
@@ -89,43 +91,49 @@ VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength) {
 
 VMFrame* VMFrame::CloneForMovingGC() const {
     size_t addSpace = totalObjectSize - sizeof(VMFrame);
-    VMFrame* clone = new (GetHeap<HEAP_CLS>(), addSpace ALLOC_MATURE) VMFrame(*this);
+    VMFrame* clone =
+        new (GetHeap<HEAP_CLS>(), addSpace ALLOC_MATURE) VMFrame(*this);
     void* destination = SHIFTED_PTR(clone, sizeof(VMFrame));
     const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
     memcpy(destination, source, addSpace);
-    clone->arguments = (gc_oop_t*)&(clone->stack_ptr)+1; //field after stack_ptr
+    clone->arguments =
+        (gc_oop_t*)&(clone->stack_ptr) + 1;  // field after stack_ptr
 
-    // Use of GetMethod() is problematic here, because it may be invalid object while cloning/moving within GC
-    // Use of GetMethod()->GetNumberOfArguments() is problematic here, because it may be invalid object while cloning/moving within GC
+    // Use of GetMethod() is problematic here, because it may be invalid object
+    // while cloning/moving within GC Use of GetMethod()->GetNumberOfArguments()
+    // is problematic here, because it may be invalid object while
+    // cloning/moving within GC
 
 #if GC_TYPE == GENERATIONAL || GC_TYPE == COPYING || GC_TYPE == DEBUG_COPYING
     VMMethod* meth = load_ptr(method);
     if (meth->GetGCField() != 0 && meth->GetGCField() != MASK_OBJECT_IS_OLD) {
-        meth = (VMMethod*) meth->GetGCField();
+        meth = (VMMethod*)meth->GetGCField();
     }
-//    int64_t numArgs = meth->GetNumberOfArgumentsPossiblyFollowingForwardingPointer();
+//    int64_t numArgs =
+//    meth->GetNumberOfArgumentsPossiblyFollowingForwardingPointer();
 #else
     VMMethod* meth = GetMethod();
 #endif
     int64_t numArgs = meth->GetNumberOfArguments();
 
     clone->locals = clone->arguments + numArgs;
-    clone->stack_ptr = (gc_oop_t*)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
+    clone->stack_ptr =
+        (gc_oop_t*)SHIFTED_PTR(clone, (size_t)stack_ptr - (size_t)this);
     return clone;
 }
 
 const long VMFrame::VMFrameNumberOfFields = 0;
 
-VMFrame::VMFrame(size_t, size_t additionalBytes) :
-        VMObject(0, additionalBytes + sizeof(VMFrame)), bytecodeIndex(0), previousFrame(nullptr), context(
-                nullptr), method(nullptr) {
-    arguments = (gc_oop_t*)&(stack_ptr)+1;
+VMFrame::VMFrame(size_t, size_t additionalBytes)
+    : VMObject(0, additionalBytes + sizeof(VMFrame)), bytecodeIndex(0),
+      previousFrame(nullptr), context(nullptr), method(nullptr) {
+    arguments = (gc_oop_t*)&(stack_ptr) + 1;
     locals = arguments;
     stack_ptr = locals;
 
     // initilize all other fields
     // --> until end of Frame
-    gc_oop_t* end = (gc_oop_t*) SHIFTED_PTR(this, totalObjectSize);
+    gc_oop_t* end = (gc_oop_t*)SHIFTED_PTR(this, totalObjectSize);
     size_t i = 0;
     while (arguments + i < end) {
         arguments[i] = nilObject;
@@ -155,8 +163,8 @@ VMFrame* VMFrame::GetOuterContext() {
 }
 
 void VMFrame::WalkObjects(walk_heap_fn walk) {
-    // VMFrame is not a proper SOM object any longer, we don't have a class for it.
-    // clazz = (VMClass*) walk(clazz);
+    // VMFrame is not a proper SOM object any longer, we don't have a class for
+    // it. clazz = (VMClass*) walk(clazz);
 
     if (previousFrame) {
         previousFrame = static_cast<GCFrame*>(walk(previousFrame));
@@ -180,8 +188,8 @@ void VMFrame::WalkObjects(walk_heap_fn walk) {
 long VMFrame::RemainingStackSize() const {
     // - 1 because the stack pointer points at the top entry,
     // so the next entry would be put at stackPointer+1
-    size_t size = ((size_t) this + totalObjectSize - size_t(stack_ptr))
-            / sizeof(VMObject*);
+    size_t size = ((size_t)this + totalObjectSize - size_t(stack_ptr)) /
+                  sizeof(VMObject*);
     return size - 1;
 }
 
@@ -190,23 +198,23 @@ void VMFrame::PrintBytecode() const {
 }
 
 static void print_oop(gc_oop_t vmo) {
-    if (vmo == nullptr)
+    if (vmo == nullptr) {
         Print("nullptr\n");
-    else if (vmo == nilObject)
+    } else if (vmo == nilObject) {
         Print("NIL_OBJECT\n");
-    else {
+    } else {
         AbstractVMObject* o = AS_OBJ(vmo);
         Print(o->AsDebugString() + "\n");
     }
 }
 
 void VMFrame::PrintStack() const {
-    Print(GetMethod()->AsDebugString() + ", bc: " +
-                    to_string(GetBytecodeIndex()) + "\n" + "Args: " +
-                    to_string(GetMethod()->GetNumberOfArguments()) +
-                    " Locals: " + to_string(GetMethod()->GetNumberOfLocals()) +
-                    " MaxStack:" + to_string(GetMethod()->GetMaximumNumberOfStackElements()) +
-                    "\n");
+    Print(GetMethod()->AsDebugString() +
+          ", bc: " + to_string(GetBytecodeIndex()) + "\n" +
+          "Args: " + to_string(GetMethod()->GetNumberOfArguments()) +
+          " Locals: " + to_string(GetMethod()->GetNumberOfLocals()) +
+          " MaxStack:" +
+          to_string(GetMethod()->GetMaximumNumberOfStackElements()) + "\n");
 
     for (size_t i = 0; i < GetMethod()->GetNumberOfArguments(); i++) {
         Print("   arg " + to_string(i) + ": ");
@@ -230,7 +238,7 @@ void VMFrame::PrintStack() const {
         print_oop(locals[local_offset + i]);
     }
 
-    gc_oop_t* end = (gc_oop_t*) SHIFTED_PTR(this, totalObjectSize);
+    gc_oop_t* end = (gc_oop_t*)SHIFTED_PTR(this, totalObjectSize);
     size_t i = 0;
     while (&locals[local_offset + max + i] < end) {
         if (stack_ptr == &locals[local_offset + max + i]) {

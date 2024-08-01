@@ -29,7 +29,7 @@
 #include "../primitivesCore/PrimitiveContainer.h"
 #include "../vmobjects/ObjectFormats.h"
 
-class _Array: public PrimitiveContainer {
+class _Array : public PrimitiveContainer {
 public:
     _Array();
     void New_(Interpreter*, VMFrame*);

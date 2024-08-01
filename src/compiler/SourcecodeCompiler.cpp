@@ -24,6 +24,8 @@
  THE SOFTWARE.
  */
 
+#include "SourcecodeCompiler.h"
+
 #include <fstream>
 #include <ios>
 #include <sstream>
@@ -36,12 +38,10 @@
 #include "../vmobjects/VMSymbol.h"
 #include "ClassGenerationContext.h"
 #include "Parser.h"
-#include "SourcecodeCompiler.h"
 
-
-VMClass* SourcecodeCompiler::CompileClass( const std::string& path,
-        const std::string& file,
-        VMClass* systemClass ) {
+VMClass* SourcecodeCompiler::CompileClass(const std::string& path,
+                                          const std::string& file,
+                                          VMClass* systemClass) {
     VMClass* result = systemClass;
 
     std::string fname = path + fileSeparator + file + ".som";
@@ -59,22 +59,21 @@ VMClass* SourcecodeCompiler::CompileClass( const std::string& path,
     StdString cnameC = cname->GetStdString();
 
     if (file != cnameC) {
-
         ostringstream Str;
         Str << "Filename: " << file << " does not match class name " << cnameC;
 
         showCompilationError(file, Str.str().c_str());
         return nullptr;
     }
-    
+
 #ifdef COMPILER_DEBUG
     ErrorPrint("Compilation finished\n");
 #endif
     return result;
 }
 
-VMClass* SourcecodeCompiler::CompileClassString( const StdString& stream,
-        VMClass* systemClass ) {
+VMClass* SourcecodeCompiler::CompileClassString(const StdString& stream,
+                                                VMClass* systemClass) {
     istringstream ss(stream);
 
     StdString fileName = "repl";
@@ -85,9 +84,8 @@ VMClass* SourcecodeCompiler::CompileClassString( const StdString& stream,
 }
 
 void SourcecodeCompiler::showCompilationError(const StdString& filename,
-        const char* message) {
-    ErrorPrint("Error when compiling " + filename + ":\n" +
-                         message + "\n");
+                                              const char* message) {
+    ErrorPrint("Error when compiling " + filename + ":\n" + message + "\n");
 }
 
 VMClass* SourcecodeCompiler::compile(Parser& parser, VMClass* systemClass) {

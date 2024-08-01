@@ -26,12 +26,11 @@
  THE SOFTWARE.
  */
 
+#include "../misc/defs.h"
 #include "AbstractObject.h"
 #include "IntegerBox.h"
 
-#include "../misc/defs.h"
-
-class VMInteger: public AbstractVMObject {
+class VMInteger : public AbstractVMObject {
 public:
     typedef GCInteger Stored;
 
@@ -43,16 +42,15 @@ public:
     VMClass* GetClass() const override;
     inline size_t GetObjectSize() const override;
 
-    inline int64_t GetHash() const override {
-        return (int64_t) embeddedInteger;
-    }
+    inline int64_t GetHash() const override { return (int64_t)embeddedInteger; }
 
     void MarkObjectAsInvalid() override;
     bool IsMarkedInvalid() const override;
 
     StdString AsDebugString() const override;
 
-private_testable:
+    make_testable(public);
+
     int64_t embeddedInteger;
 };
 
@@ -61,6 +59,6 @@ int64_t VMInteger::GetEmbeddedInteger() const {
 }
 
 size_t VMInteger::GetObjectSize() const {
-    //no need to pad -> sizeof returns padded size anyway
+    // no need to pad -> sizeof returns padded size anyway
     return sizeof(VMInteger);
 }

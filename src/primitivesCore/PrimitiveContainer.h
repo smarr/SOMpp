@@ -31,22 +31,21 @@
 #include "../misc/defs.h"
 #include "../vmobjects/PrimitiveRoutine.h"
 
-///Base class for all container objects holding SOM++ primitives.
-//Primitive container classes need to initialize a std::map<StdString,
-//PrimitiveRoutine*> in order to map smalltalk message names to the method
-//to call.
+/// Base class for all container objects holding SOM++ primitives.
+// Primitive container classes need to initialize a std::map<StdString,
+// PrimitiveRoutine*> in order to map smalltalk message names to the method
+// to call.
 class PrimitiveContainer {
-
 public:
     PrimitiveContainer() = default;
     virtual ~PrimitiveContainer() = default;
 
-    ///Every derived Class must use this method to initialize the methods
-    //map with the mapping of a StdString with the smalltalk message
-    //name and the corresponding functor object. The abstract functor object
-    //class is defined in vmobjects/PrimitiveRoutine. Basically, the only
-    //requirement for those objects is to implement:
-    //  virtual void operator()(VMObject*, VMFrame*)
+    /// Every derived Class must use this method to initialize the methods
+    // map with the mapping of a StdString with the smalltalk message
+    // name and the corresponding functor object. The abstract functor object
+    // class is defined in vmobjects/PrimitiveRoutine. Basically, the only
+    // requirement for those objects is to implement:
+    //   virtual void operator()(VMObject*, VMFrame*)
     virtual void SetPrimitive(const char* name, PrimitiveRoutine* routine);
 
     virtual PrimitiveRoutine* GetPrimitive(const std::string& routineName);
