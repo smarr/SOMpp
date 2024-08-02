@@ -94,6 +94,9 @@ public:
     std::vector<uint8_t> GetBytecodes() { return bytecode; }
 
     bool InlineWhile(Parser& parser, bool isWhileTrue);
+    bool InlineIfTrueOrIfFalse(bool isIfTrue);
+    bool InlineIfTrueFalse(bool isIfTrue);
+    bool InlineAndOr(bool isOr);
 
     inline size_t OffsetOfNextInstruction() { return bytecode.size(); }
 
@@ -107,9 +110,12 @@ public:
 
 private:
     void removeLastBytecodes(size_t numBytecodes);
+    bool hasOneLiteralBlockArgument();
     bool hasTwoLiteralBlockArguments();
     bool lastBytecodeIs(size_t indexFromEnd, uint8_t bytecode);
     std::tuple<vm_oop_t, vm_oop_t> extractBlockMethodsAndRemoveBytecodes();
+    vm_oop_t extractBlockMethodAndRemoveBytecode();
+
     vm_oop_t getLastBlockMethodAndFreeLiteral(uint8_t blockLiteralIdx);
 
     void completeJumpsAndEmitReturningNil(Parser& parser, size_t loopBeginIdx,

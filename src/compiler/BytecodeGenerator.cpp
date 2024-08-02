@@ -278,6 +278,13 @@ size_t EmitJumpOnBoolWithDummyOffset(MethodGenerationContext& mgenc,
     return idx;
 }
 
+size_t EmitJumpWithDumyOffset(MethodGenerationContext& mgenc) {
+    Emit1(mgenc, BC_JUMP, 0);
+    size_t idx = mgenc.AddBytecodeArgumentAndGetIndex(0);
+    mgenc.AddBytecodeArgument(0);
+    return idx;
+}
+
 void EmitJumpBackwardWithOffset(MethodGenerationContext& mgenc,
                                 size_t jumpOffset) {
     uint8_t jumpBytecode =

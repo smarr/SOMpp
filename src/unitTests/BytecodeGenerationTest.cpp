@@ -16,7 +16,6 @@
 #include "../compiler/Parser.h"
 #include "../interpreter/bytecodes.h"
 #include "../misc/StringUtil.h"
-#include "../misc/debug.h"
 #include "../vm/Symbols.h"
 #include "../vmobjects/VMMethod.h"
 
@@ -116,10 +115,26 @@ void BytecodeGenerationTest::testIfPushConstantSame() {
                                         #a. #b. #c. #d.
                                         true ifFalse: [ #a. #b. #c. #d. ]
                                       ) )""");
-    check(bytecodes, {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_CONSTANT_1, BC_POP,
-                      BC_PUSH_CONSTANT_2, BC_POP, BC(BC_PUSH_CONSTANT, 3),
-                      BC_POP, BC(BC_PUSH_CONSTANT, 4), BC(BC_PUSH_BLOCK, 5),
-                      BC(BC_SEND, 6), BC_POP, BC_PUSH_SELF, BC_RETURN_LOCAL});
+    check(bytecodes, {BC_PUSH_CONSTANT_0,
+                      BC_POP,
+                      BC_PUSH_CONSTANT_1,
+                      BC_POP,
+                      BC_PUSH_CONSTANT_2,
+                      BC_POP,
+                      BC(BC_PUSH_CONSTANT, 3),
+                      BC_POP,
+                      BC(BC_PUSH_CONSTANT, 4),
+                      BC(BC_JUMP_ON_TRUE_TOP_NIL, 11, 0),
+                      BC_PUSH_CONSTANT_0,
+                      BC_POP,
+                      BC_PUSH_CONSTANT_1,
+                      BC_POP,
+                      BC_PUSH_CONSTANT_2,
+                      BC_POP,
+                      BC(BC_PUSH_CONSTANT, 3),
+                      BC_POP,
+                      BC_PUSH_SELF,
+                      BC_RETURN_LOCAL});
 }
 
 void BytecodeGenerationTest::testIfPushConstantDifferent() {
@@ -128,10 +143,26 @@ void BytecodeGenerationTest::testIfPushConstantDifferent() {
                                         #a. #b. #c. #d.
                                         true ifFalse: [ #e. #f. #g. #h. ]
                                       ) )""");
-    check(bytecodes, {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_CONSTANT_1, BC_POP,
-                      BC_PUSH_CONSTANT_2, BC_POP, BC(BC_PUSH_CONSTANT, 3),
-                      BC_POP, BC(BC_PUSH_CONSTANT, 4), BC(BC_PUSH_BLOCK, 5),
-                      BC(BC_SEND, 6), BC_POP, BC_PUSH_SELF, BC_RETURN_LOCAL});
+    check(bytecodes, {BC_PUSH_CONSTANT_0,
+                      BC_POP,
+                      BC_PUSH_CONSTANT_1,
+                      BC_POP,
+                      BC_PUSH_CONSTANT_2,
+                      BC_POP,
+                      BC(BC_PUSH_CONSTANT, 3),
+                      BC_POP,
+                      BC(BC_PUSH_CONSTANT, 4),
+                      BC(BC_JUMP_ON_TRUE_TOP_NIL, 14, 0),
+                      BC(BC_PUSH_CONSTANT, 5),
+                      BC_POP,
+                      BC(BC_PUSH_CONSTANT, 6),
+                      BC_POP,
+                      BC(BC_PUSH_CONSTANT, 7),
+                      BC_POP,
+                      BC(BC_PUSH_CONSTANT, 8),
+                      BC_POP,
+                      BC_PUSH_SELF,
+                      BC_RETURN_LOCAL});
 }
 
 void BytecodeGenerationTest::testExplicitReturnSelf() {
@@ -401,6 +432,9 @@ void BytecodeGenerationTest::check(std::vector<uint8_t> actual,
         i += 1;
         bci += bcLength;
     }
+    if (expected.size() != i || actual.size() != bci) {
+        dump(_mgenc);
+    }
 
     CPPUNIT_ASSERT_EQUAL_MESSAGE("All expected bytecodes covered",
                                  expected.size(), i);
@@ -429,11 +463,6 @@ void BytecodeGenerationTest::testWhileInlining(const char* selector,
 /** This test checks whether the jumps in the while loop are correct after it
  * got inlined. */
 void BytecodeGenerationTest::testInliningWhileLoopsWithExpandingBranches() {
-    DebugPrint(
-        "\nTODO: testInliningWhileLoopsWithExpandingBranches is currently "
-        "ignored, because we do not yet support inlining if #ifTrue:\n");
-    return;
-
     auto bytecodes = methodToBytecode(R"""(
         test = (
           #const0. #const1. #const2.
@@ -452,88 +481,227 @@ void BytecodeGenerationTest::testInliningWhileLoopsWithExpandingBranches() {
            // jump offset, to jump to the pop BC after the if/right before the
            // push #end
            BC(BC_JUMP_ON_FALSE_TOP_NIL, 27, 0), BC(BC_PUSH_CONSTANT, 3), BC_POP,
-           BC(BC_PUSH_CONSTANT, 4), BC_POP, BC(BC_PUSH_CONSTANT, 5), BC_POP,
+           BC(BC_PUSH_CONSTANT, 4), BC_POP, BC(BC_PUSH_CONSTANT, 5),
 
            // jump offset, jump to push_nil as result of whileTrue
-           BC(BC_JUMP_ON_FALSE_POP, 15), BC(BC_PUSH_CONSTANT, 6), BC_POP,
+           BC(BC_JUMP_ON_FALSE_POP, 15, 0), BC(BC_PUSH_CONSTANT, 6), BC_POP,
            BC(BC_PUSH_CONSTANT, 7), BC_POP, BC(BC_PUSH_CONSTANT, 8), BC_POP,
 
            // jump offset, jump back to the first PUSH_CONST inside if body,
            // pushing #const3
-           BC_PUSH_NIL, BC_POP,
+           BC(BC_JUMP_BACKWARD, 20, 0), BC_PUSH_NIL, BC_POP,
 
            BC(BC_PUSH_CONSTANT, 9), BC_RETURN_LOCAL});
 }
 
 void BytecodeGenerationTest::testInliningWhileLoopsWithContractingBranches() {
-    DebugPrint(
-        "\nTODO: testInliningWhileLoopsWithContractingBranches is currently "
-        "ignored, because we do not yet support inlining if #ifTrue:\n");
+    auto bytecodes = methodToBytecode(R"""(
+                        test = (
+                        0 ifTrue: [
+                            [ ^ 1 ]
+                                whileTrue: [
+                                ^ 0 ]
+                        ].
+                        ^ #end
+                        ) )""");
 
-    // def test_inlining_while_loop_with_contracting_branches(mgenc):
-    //     """
-    //     This test checks whether the jumps in the while loop are correct
-    //     after it got inlined. The challenge here is
-    //     """
-    //     bytecodes = method_to_bytecodes(
-    //         mgenc,
-    //         """
-    //         test = (
-    //           0 ifTrue: [
-    //             [ ^ 1 ]
-    //                whileTrue: [
-    //                  ^ 0 ]
-    //           ].
-    //           ^ #end
-    //         )
-    //         """,
-    //     )
-    //
-    //     assert len(bytecodes) == 19
-    //     check(
-    //         bytecodes,
-    //         [
-    //             Bytecodes.push_0,
-    //             BC(
-    //                 Bytecodes.jump_on_false_top_nil,
-    //                 15,
-    //                 note="jump offset to jump to the pop after the if, before
-    //                 pushing #end",
-    //             ),
-    //             Bytecodes.push_1,
-    //             Bytecodes.return_local,
-    //             BC(
-    //                 Bytecodes.jump_on_false_pop,
-    //                 9,
-    //                 note="jump offset, jump to push_nil as result of
-    //                 whileTrue",
-    //             ),
-    //             Bytecodes.push_0,
-    //             Bytecodes.return_local,
-    //             Bytecodes.pop,
-    //             BC(
-    //                 Bytecodes.jump_backward,
-    //                 8,
-    //                 note="jump offset, to the push_1 of the condition",
-    //             ),
-    //             Bytecodes.push_nil,
-    //             Bytecodes.pop,
-    //         ],
-    //     )
+    check(bytecodes,
+          {BC_PUSH_0,
+           // jump offset to jump to the pop after the if, before pushing #end
+           BC(BC_JUMP_ON_FALSE_TOP_NIL, 15, 0), BC_PUSH_1, BC_RETURN_LOCAL,
+           // jump offset, jump to push_nil as result of whileTrue
+           BC(BC_JUMP_ON_FALSE_POP, 9, 0), BC_PUSH_0, BC_RETURN_LOCAL, BC_POP,
+           // jump offset, to the push_1 of the condition
+           BC(BC_JUMP_BACKWARD, 8, 0), BC_PUSH_NIL, BC_POP, BC_PUSH_CONSTANT_0,
+           BC_RETURN_LOCAL});
 };
 
+void BytecodeGenerationTest::testIfInlineAndConstantBcLength() {
+    auto bytecodes = methodToBytecode(R"""(
+                                test = (
+                                  #a. #b. #c.
+                                  true ifTrue: [
+                                    true ifFalse: [ #e. #f. #g ] ]
+                                ) )""");
+
+    CPPUNIT_ASSERT_EQUAL((uint8_t)BC_JUMP_ON_TRUE_TOP_NIL, bytecodes.at(13));
+
+    CPPUNIT_ASSERT_EQUAL_MESSAGE(
+        "jump offset, should point to correct bytecode and not be affected by "
+        "changing length of bytecodes in the block",
+        (uint8_t)11, bytecodes.at(14));
+}
+
+void BytecodeGenerationTest::testIfTrueWithLiteralReturn() {
+    ifTrueWithLiteralReturn("0", BC_PUSH_0);
+    ifTrueWithLiteralReturn("1", BC_PUSH_1);
+    ifTrueWithLiteralReturn("-10", BC_PUSH_CONSTANT_1);
+    ifTrueWithLiteralReturn("3333", BC_PUSH_CONSTANT_1);
+    ifTrueWithLiteralReturn("'str'", BC_PUSH_CONSTANT_1);
+    ifTrueWithLiteralReturn("#sym", BC_PUSH_CONSTANT_1);
+    ifTrueWithLiteralReturn("1.1", BC_PUSH_CONSTANT_1);
+    ifTrueWithLiteralReturn("-2342.234", BC_PUSH_CONSTANT_1);
+    ifTrueWithLiteralReturn("true", BC_PUSH_CONSTANT_1);
+    ifTrueWithLiteralReturn("false", BC_PUSH_CONSTANT_1);
+    ifTrueWithLiteralReturn("nil", BC_PUSH_NIL);
+    ifTrueWithLiteralReturn("SomeGlobal", BC(BC_PUSH_GLOBAL, 1));
+    ifTrueWithLiteralReturn("[]", BC(BC_PUSH_BLOCK, 1));
+    ifTrueWithLiteralReturn("[ self ]", BC(BC_PUSH_BLOCK, 1));
+}
+
+void BytecodeGenerationTest::ifTrueWithLiteralReturn(std::string literal,
+                                                     BC bytecode) {
+    std::string source = R"""(      test = (
+                                        self method ifTrue: [ LITERAL ].
+                                    ) )""";
+    bool wasReplaced = ReplacePattern(source, "LITERAL", literal);
+    assert(wasReplaced);
+
+    auto bytecodes = methodToBytecode(source.data());
+
+    bool twoByte2 = bytecode.bytecode == BC_PUSH_GLOBAL ||
+                    bytecode.bytecode == BC_PUSH_BLOCK;
+
+    check(bytecodes,
+          {BC_PUSH_SELF, BC(BC_SEND, 0),
+           BC(BC_JUMP_ON_FALSE_TOP_NIL, twoByte2 ? 5 : 4, 0), bytecode, BC_POP,
+           BC_PUSH_SELF, BC_RETURN_LOCAL});
+
+    tearDown();
+}
+
+void BytecodeGenerationTest::testIfTrueWithSomethingAndLiteralReturn() {
+    ifTrueWithSomethingAndLiteralReturn("0", BC_PUSH_0);
+    ifTrueWithSomethingAndLiteralReturn("1", BC_PUSH_1);
+    ifTrueWithSomethingAndLiteralReturn("-10", BC_PUSH_CONSTANT_2);
+    ifTrueWithSomethingAndLiteralReturn("3333", BC_PUSH_CONSTANT_2);
+    ifTrueWithSomethingAndLiteralReturn("'str'", BC_PUSH_CONSTANT_2);
+    ifTrueWithSomethingAndLiteralReturn("#sym", BC_PUSH_CONSTANT_2);
+    ifTrueWithSomethingAndLiteralReturn("1.1", BC_PUSH_CONSTANT_2);
+    ifTrueWithSomethingAndLiteralReturn("-2342.234", BC_PUSH_CONSTANT_2);
+    ifTrueWithSomethingAndLiteralReturn("true", BC_PUSH_CONSTANT_2);
+    ifTrueWithSomethingAndLiteralReturn("false", BC_PUSH_CONSTANT_2);
+    ifTrueWithSomethingAndLiteralReturn("nil", BC_PUSH_NIL);
+    ifTrueWithSomethingAndLiteralReturn("SomeGlobal", BC(BC_PUSH_GLOBAL, 2));
+    ifTrueWithSomethingAndLiteralReturn("[]", BC(BC_PUSH_BLOCK, 2));
+    ifTrueWithSomethingAndLiteralReturn("[ self ]", BC(BC_PUSH_BLOCK, 2));
+}
+
+void BytecodeGenerationTest::ifTrueWithSomethingAndLiteralReturn(
+    std::string literal, BC bytecode) {
+    // This test is different from the previous one, because the block
+    // method won't be recognized as being trivial
+
+    std::string source = R"""(      test = (
+                                        self method ifTrue: [ #fooBarNonTrivialBlock. LITERAL ].
+                                    ) )""";
+    bool wasReplaced = ReplacePattern(source, "LITERAL", literal);
+    assert(wasReplaced);
+
+    auto bytecodes = methodToBytecode(source.data());
+
+    bool twoByte2 = bytecode.bytecode == BC_PUSH_GLOBAL ||
+                    bytecode.bytecode == BC_PUSH_BLOCK;
+
+    check(
+        bytecodes,
+        {BC_PUSH_SELF, BC(BC_SEND, 0),
+         BC(BC_JUMP_ON_FALSE_TOP_NIL, twoByte2 ? 7 : 6, 0), BC_PUSH_CONSTANT_1,
+         BC_POP, bytecode, BC_POP, BC_PUSH_SELF, BC_RETURN_LOCAL});
+
+    tearDown();
+}
+
+void BytecodeGenerationTest::testIfTrueIfFalseArg() {
+    auto bytecodes = methodToBytecode(R"""( test: arg1 with: arg2 = (
+            #start.
+            self method ifTrue: [ arg1 ] ifFalse: [ arg2 ].
+            #end
+        ) )""");
+
+    check(bytecodes,
+          {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_SELF, BC(BC_SEND, 1),
+           BC(BC_JUMP_ON_FALSE_POP, 7, 0), BC_PUSH_ARG_1, BC(BC_JUMP, 4, 0),
+           BC_PUSH_ARG_2, BC_POP, BC_PUSH_CONSTANT_2, BC_POP, BC_PUSH_SELF,
+           BC_RETURN_LOCAL});
+}
+
+void BytecodeGenerationTest::testIfTrueIfFalseNlrArg1() {
+    auto bytecodes = methodToBytecode(R"""( test: arg1 with: arg2 = (
+            #start.
+            self method ifTrue: [ ^ arg1 ] ifFalse: [ arg2 ].
+            #end
+        ) )""");
+
+    check(bytecodes,
+          {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_SELF, BC(BC_SEND, 1),
+           BC(BC_JUMP_ON_FALSE_POP, 8, 0), BC_PUSH_ARG_1, BC_RETURN_LOCAL,
+           BC(BC_JUMP, 4, 0), BC_PUSH_ARG_2, BC_POP, BC_PUSH_CONSTANT_2, BC_POP,
+           BC_PUSH_SELF, BC_RETURN_LOCAL});
+}
+
+void BytecodeGenerationTest::testIfTrueIfFalseNlrArg2() {
+    auto bytecodes = methodToBytecode(R"""( test: arg1 with: arg2 = (
+            #start.
+            self method ifTrue: [ arg1 ] ifFalse: [ ^ arg2 ].
+            #end
+        ) )""");
+
+    check(bytecodes,
+          {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_SELF, BC(BC_SEND, 1),
+           BC(BC_JUMP_ON_FALSE_POP, 7, 0), BC_PUSH_ARG_1, BC(BC_JUMP, 5, 0),
+           BC_PUSH_ARG_2, BC_RETURN_LOCAL, BC_POP, BC_PUSH_CONSTANT_2, BC_POP,
+           BC_PUSH_SELF, BC_RETURN_LOCAL});
+}
+void BytecodeGenerationTest::testInliningOfOr() {
+    inliningOfOr("or:");
+    inliningOfOr("||");
+}
+
+void BytecodeGenerationTest::inliningOfOr(std::string selector) {
+    std::string source = "test = ( true OR_SEL [ #val ] )";
+    bool wasReplaced = ReplacePattern(source, "OR_SEL", selector);
+    assert(wasReplaced);
+
+    auto bytecodes = methodToBytecode(source.data());
+    check(bytecodes,
+          {BC_PUSH_CONSTANT_0, BC(BC_JUMP_ON_TRUE_POP, 7, 0),
+           // true branch
+           BC_PUSH_CONSTANT_1,  // push the `#val`
+           BC(BC_JUMP, 4, 0),
+           // false branch, jump_on_true target, push true
+           BC_PUSH_CONSTANT_0, BC_POP,
+           // target of the jump in the true branch
+           BC_PUSH_SELF, BC_RETURN_LOCAL});
+
+    tearDown();
+}
+
+void BytecodeGenerationTest::testInliningOfAnd() {
+    inliningOfAnd("and:");
+    inliningOfAnd("&&");
+}
+
+void BytecodeGenerationTest::inliningOfAnd(std::string selector) {
+    std::string source = "test = ( true AND_SEL [ #val ] )";
+    bool wasReplaced = ReplacePattern(source, "AND_SEL", selector);
+    assert(wasReplaced);
+
+    auto bytecodes = methodToBytecode(source.data());
+    check(bytecodes,
+          {BC_PUSH_CONSTANT_0, BC(BC_JUMP_ON_FALSE_POP, 7, 0),
+           // true branch
+           BC_PUSH_CONSTANT_1,  // push the `#val`
+           BC(BC_JUMP, 4, 0),
+           // false branch, jump_on_false target, push false
+           BC_PUSH_CONSTANT_2, BC_POP,
+           // target of the jump in the true branch
+           BC_PUSH_SELF, BC_RETURN_LOCAL});
+
+    tearDown();
+}
+
 /*
-
-
- class BC(object):
-     def __init__(self, bytecode, arg1=None, arg2=None, note=None):
-         self.bytecode = bytecode
-         self.arg1 = arg1
-         self.arg2 = arg2
-         self.note = note
-
-
-
  @pytest.mark.parametrize(
      "operator,bytecode",
      [
@@ -548,119 +716,6 @@ void BytecodeGenerationTest::testInliningWhileLoopsWithContractingBranches() {
      assert len(bytecodes) == 3
      check(bytecodes, [Bytecodes.push_1, bytecode, Bytecodes.return_self])
 
-
-
-
- def test_if_inline_and_constant_bc_length(mgenc):
-     bytecodes = method_to_bytecodes(
-         mgenc,
-         """
-         test = (
-           #a. #b. #c.
-           true ifTrue: [
-             true ifFalse: [ #e. #f. #g ] ]
-         )""",
-     )
-
-     assert Bytecodes.jump_on_true_top_nil == bytecodes[13]
-     assert bytecodes[14] == 11, (
-         "jump offset, should point to correct bytecode"
-         + " and not be affected by changing length of bytecodes in the block"
-     )
-
-
-
-
- @pytest.mark.parametrize(
-     "literal,bytecode",
-     [
-         ("0", Bytecodes.push_0),
-         ("1", Bytecodes.push_1),
-         ("-10", Bytecodes.push_constant_2),
-         ("3333", Bytecodes.push_constant_2),
-         ("'str'", Bytecodes.push_constant_2),
-         ("#sym", Bytecodes.push_constant_2),
-         ("1.1", Bytecodes.push_constant_2),
-         ("-2342.234", Bytecodes.push_constant_2),
-         ("true", Bytecodes.push_constant_2),
-         ("false", Bytecodes.push_constant_2),
-         ("nil", Bytecodes.push_nil),
-         ("SomeGlobal", Bytecodes.push_global),
-         ("[]", Bytecodes.push_block_no_ctx),
-         ("[ self ]", Bytecodes.push_block),
-     ],
- )
- def test_if_true_with_literal_return(mgenc, literal, bytecode):
-     source = """
-         test = (
-             self method ifTrue: [ LITERAL ].
-         )""".replace(
-         "LITERAL", literal
-     )
-     bytecodes = method_to_bytecodes(mgenc, source)
-
-     length = bytecode_length(bytecode)
-
-     assert len(bytecodes) == 10 + length
-     check(
-         bytecodes,
-         [
-             Bytecodes.push_argument,
-             Bytecodes.send_1,
-             Bytecodes.jump_on_false_top_nil,
-             bytecode,
-             Bytecodes.pop,
-             Bytecodes.return_self,
-         ],
-     )
-
-
- @pytest.mark.parametrize(
-     "literal,bytecode",
-     [
-         ("0", Bytecodes.push_0),
-         ("1", Bytecodes.push_1),
-         ("-10", Bytecodes.push_constant),
-         ("3333", Bytecodes.push_constant),
-         ("'str'", Bytecodes.push_constant),
-         ("#sym", Bytecodes.push_constant),
-         ("1.1", Bytecodes.push_constant),
-         ("-2342.234", Bytecodes.push_constant),
-         ("true", Bytecodes.push_constant),
-         ("false", Bytecodes.push_constant),
-         ("nil", Bytecodes.push_nil),
-         ("SomeGlobal", Bytecodes.push_global),
-         ("[]", Bytecodes.push_block_no_ctx),
-         ("[ self ]", Bytecodes.push_block),
-     ],
- )
- def test_if_true_with_something_and_literal_return(mgenc, literal, bytecode):
-     # This test is different from the previous one, because the block
-     # method won't be recognized as being trivial
-     source = """
-         test = (
-             self method ifTrue: [ #fooBarNonTrivialBlock. LITERAL ].
-         )""".replace(
-         "LITERAL", literal
-     )
-     bytecodes = method_to_bytecodes(mgenc, source)
-
-     length = bytecode_length(bytecode)
-
-     assert len(bytecodes) == 12 + length
-     check(
-         bytecodes,
-         [
-             Bytecodes.push_argument,
-             Bytecodes.send_1,
-             Bytecodes.jump_on_false_top_nil,
-             Bytecodes.push_constant_2,
-             Bytecodes.pop,
-             bytecode,
-             Bytecodes.pop,
-             Bytecodes.return_self,
-         ],
-     )
 
 
  @pytest.mark.parametrize(
@@ -1021,79 +1076,6 @@ void BytecodeGenerationTest::testInliningWhileLoopsWithContractingBranches() {
      )
 
 
- def test_if_true_if_false_arg(mgenc):
-     bytecodes = method_to_bytecodes(
-         mgenc,
-         """
-         test: arg1 with: arg2 = (
-             #start.
-             self method ifTrue: [ arg1 ] ifFalse: [ arg2 ].
-             #end
-         )""",
-     )
-
-     assert len(bytecodes) == 23
-     check(
-         bytecodes,
-         [
-             (7, BC(Bytecodes.jump_on_false_pop, 9)),
-             BC(Bytecodes.push_argument, 1, 0),
-             BC(Bytecodes.jump, 6),
-             BC(Bytecodes.push_argument, 2, 0),
-             Bytecodes.pop,
-         ],
-     )
-
-
- def test_if_true_if_false_nlr_arg1(mgenc):
-     bytecodes = method_to_bytecodes(
-         mgenc,
-         """
-         test: arg1 with: arg2 = (
-             #start.
-             self method ifTrue: [ ^ arg1 ] ifFalse: [ arg2 ].
-             #end
-         )""",
-     )
-
-     assert len(bytecodes) == 24
-     check(
-         bytecodes,
-         [
-             (7, BC(Bytecodes.jump_on_false_pop, 10)),
-             BC(Bytecodes.push_argument, 1, 0),
-             Bytecodes.return_local,
-             BC(Bytecodes.jump, 6),
-             BC(Bytecodes.push_argument, 2, 0),
-             Bytecodes.pop,
-         ],
-     )
-
-
- def test_if_true_if_false_nlr_arg2(mgenc):
-     bytecodes = method_to_bytecodes(
-         mgenc,
-         """
-         test: arg1 with: arg2 = (
-             #start.
-             self method ifTrue: [ arg1 ] ifFalse: [ ^ arg2 ].
-             #end
-         )""",
-     )
-
-     assert len(bytecodes) == 24
-     check(
-         bytecodes,
-         [
-             (7, BC(Bytecodes.jump_on_false_pop, 9)),
-             BC(Bytecodes.push_argument, 1, 0),
-             BC(Bytecodes.jump, 7),
-             BC(Bytecodes.push_argument, 2, 0),
-             Bytecodes.return_local,
-             Bytecodes.pop,
-         ],
-     )
-
 
  @pytest.mark.parametrize(
      "sel1,sel2,jump_bytecode",
@@ -1168,14 +1150,14 @@ void BytecodeGenerationTest::testInliningWhileLoopsWithContractingBranches() {
      [
          ("0", Bytecodes.push_0),
          ("1", Bytecodes.push_1),
-         ("-10", Bytecodes.push_constant_2),
-         ("3333", Bytecodes.push_constant_2),
-         ("'str'", Bytecodes.push_constant_2),
-         ("#sym", Bytecodes.push_constant_2),
-         ("1.1", Bytecodes.push_constant_2),
-         ("-2342.234", Bytecodes.push_constant_2),
+         ("-10", BC_PUSH_CONSTANT_2),
+         ("3333", BC_PUSH_CONSTANT_2),
+         ("'str'", BC_PUSH_CONSTANT_2),
+         ("#sym", BC_PUSH_CONSTANT_2),
+         ("1.1", BC_PUSH_CONSTANT_2),
+         ("-2342.234", BC_PUSH_CONSTANT_2),
          ("true", Bytecodes.push_constant_0),
-         ("false", Bytecodes.push_constant_2),
+         ("false", BC_PUSH_CONSTANT_2),
          ("nil", Bytecodes.push_nil),
          ("Nil", Bytecodes.push_global),
          ("UnknownGlobal", Bytecodes.push_global),
@@ -1329,50 +1311,7 @@ void BytecodeGenerationTest::testInliningWhileLoopsWithContractingBranches() {
      )
 
 
- @pytest.mark.parametrize("and_sel", ["and:", "&&"])
- def test_inlining_of_and(mgenc, and_sel):
-     bytecodes = method_to_bytecodes(
-         mgenc, "test = ( true AND_SEL [ #val ] )".replace("AND_SEL", and_sel)
-     )
 
-     assert len(bytecodes) == 11
-     check(
-         bytecodes,
-         [
-             Bytecodes.push_constant_0,
-             BC(Bytecodes.jump_on_false_pop, 7),
-             # true branch
-             Bytecodes.push_constant_2,  # push the `#val`
-             BC(Bytecodes.jump, 5),
-             # false branch, jump_on_false target, push false
-             Bytecodes.push_constant,
-             # target of the jump in the true branch
-             Bytecodes.return_self,
-         ],
-     )
-
-
- @pytest.mark.parametrize("or_sel", ["or:", "||"])
- def test_inlining_of_or(mgenc, or_sel):
-     bytecodes = method_to_bytecodes(
-         mgenc, "test = ( true OR_SEL [ #val ] )".replace("OR_SEL", or_sel)
-     )
-
-     assert len(bytecodes) == 10
-     check(
-         bytecodes,
-         [
-             Bytecodes.push_constant_0,
-             BC(Bytecodes.jump_on_true_pop, 7),
-             # true branch
-             Bytecodes.push_constant_2,  # push the `#val`
-             BC(Bytecodes.jump, 4),
-             # false branch, jump_on_true target, push true
-             Bytecodes.push_constant_0,
-             # target of the jump in the true branch
-             Bytecodes.return_self,
-         ],
-     )
 
 
  def test_field_read_inlining(cgenc, mgenc):
@@ -1389,7 +1328,7 @@ void BytecodeGenerationTest::testInliningWhileLoopsWithContractingBranches() {
              Bytecodes.push_field_0,
              BC(Bytecodes.jump, 4),
              # false branch, jump_on_true target, push true
-             Bytecodes.push_constant_2,
+             BC_PUSH_CONSTANT_2,
              # target of the jump in the true branch
              Bytecodes.return_self,
          ],
