@@ -598,8 +598,8 @@ void Parser::binaryMessage(MethodGenerationContext& mgenc, bool super) {
 
     binaryOperand(mgenc);
 
-    if (!super && (msgSelector == "||" && mgenc.InlineAndOr(true)) ||
-        (msgSelector == "&&" && mgenc.InlineAndOr(false))) {
+    if (!super && ((msgSelector == "||" && mgenc.InlineAndOr(true)) ||
+                   (msgSelector == "&&" && mgenc.InlineAndOr(false)))) {
         return;
     }
 
@@ -645,7 +645,8 @@ void Parser::keywordMessage(MethodGenerationContext& mgenc, bool super) {
 
         if (numParts == 2 &&
             ((kw == "ifTrue:ifFalse:" && mgenc.InlineIfTrueFalse(true)) ||
-             (kw == "ifFalse:ifTrue:" && mgenc.InlineIfTrueFalse(false)))) {
+             (kw == "ifFalse:ifTrue:" && mgenc.InlineIfTrueFalse(false)) ||
+             (kw == "to:do:" && mgenc.InlineToDo()))) {
             return;
         }
     }

@@ -439,6 +439,47 @@ bool MethodGenerationContext::InlineAndOr(bool isOr) {
     return true;
 }
 
+bool MethodGenerationContext::InlineToDo() {
+    // HACK: We do assume that the receiver on the stack is a integer,
+    // HACK: similar to the other inlined messages.
+    // HACK: We don't support anything but integer at the moment.
+    assert(Bytecode::GetBytecodeLength(BC_PUSH_BLOCK) == 2);
+    if (!hasOneLiteralBlockArgument()) {
+        return false;
+    }
+
+    VMMethod* toBeInlined =
+        static_cast<VMMethod*>(extractBlockMethodAndRemoveBytecode());
+
+    toBeInlined->MergeScopeInto(*this);
+
+    const Variable* blockArg = toBeInlined->GetArgument(1, 0);
+    uint8_t iVarIdx = GetInlinedLocalIdx(blockArg);
+
+    isCurrentlyInliningABlock = true;
+    EmitDupSecond(*this);
+
+    size_t loopBeginIdx = OffsetOfNextInstruction();
+    size_t jumpOffsetIdxToEnd = EmitJumpIfGreaterWithDummyOffset(*this);
+
+    EmitDUP(*this);
+
+    EmitPOPLOCAL(*this, iVarIdx, 0);
+
+    toBeInlined->InlineInto(*this, false);
+
+    EmitPOP(*this);
+    EmitINC(*this);
+
+    EmitBackwardsJumpOffsetToTarget(loopBeginIdx);
+
+    PatchJumpOffsetToPointToNextInstruction(jumpOffsetIdxToEnd);
+
+    isCurrentlyInliningABlock = false;
+
+    return true;
+}
+
 void MethodGenerationContext::CompleteLexicalScope() {
     lexicalScope = new LexicalScope(
         outerGenc == nullptr ? nullptr : outerGenc->lexicalScope, arguments,
@@ -446,19 +487,23 @@ void MethodGenerationContext::CompleteLexicalScope() {
 }
 
 void MethodGenerationContext::MergeIntoScope(LexicalScope& scopeToBeInlined) {
-    assert(scopeToBeInlined.GetNumberOfArguments() == 1);
-    size_t numLocals = scopeToBeInlined.GetNumberOfLocals();
-    if (numLocals > 0) {
-        inlineLocals(scopeToBeInlined);
+    if (scopeToBeInlined.GetNumberOfArguments() > 1) {
+        inlineAsLocals(scopeToBeInlined.arguments);
+    }
+
+    if (scopeToBeInlined.GetNumberOfLocals() > 0) {
+        inlineAsLocals(scopeToBeInlined.locals);
     }
 }
 
-void MethodGenerationContext::inlineLocals(LexicalScope& scopeToBeInlined) {
-    for (const Variable& local : scopeToBeInlined.locals) {
-        Variable freshCopy = local.CopyForInlining(this->locals.size());
+void MethodGenerationContext::inlineAsLocals(vector<Variable>& vars) {
+    for (const Variable& var : vars) {
+        Variable freshCopy = var.CopyForInlining(this->locals.size());
         if (freshCopy.IsValid()) {
+            assert(!freshCopy.IsArgument());
+
             // freshCopy can be invalid, because we don't need the $blockSelf
-            std::string qualifiedName = local.MakeQualifiedName();
+            std::string qualifiedName = var.MakeQualifiedName();
             assert(!Contains(this->locals, qualifiedName));
             lexicalScope->AddInlinedLocal(freshCopy);
             this->locals.push_back(freshCopy);

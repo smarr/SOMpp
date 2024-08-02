@@ -58,9 +58,13 @@ void EmitSUPERSEND(MethodGenerationContext& mgenc, VMSymbol* msg);
 void EmitRETURNLOCAL(MethodGenerationContext& mgenc);
 void EmitRETURNNONLOCAL(MethodGenerationContext& mgenc);
 
+void EmitINC(MethodGenerationContext& mgenc);
+void EmitDupSecond(MethodGenerationContext& mgenc);
+
 size_t EmitJumpOnBoolWithDummyOffset(MethodGenerationContext& mgenc,
                                      bool isIfTrue, bool needsPop);
 size_t EmitJumpWithDumyOffset(MethodGenerationContext& mgenc);
+size_t EmitJumpIfGreaterWithDummyOffset(MethodGenerationContext& mgenc);
 void EmitJumpBackwardWithOffset(MethodGenerationContext& mgenc,
                                 size_t jumpOffset);
 size_t Emit3WithDummy(MethodGenerationContext& mgenc, uint8_t bytecode,

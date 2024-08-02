@@ -159,10 +159,15 @@ public:
 
     StdString AsDebugString() const override;
 
-    void InlineInto(MethodGenerationContext& mgenc);
+    void InlineInto(MethodGenerationContext& mgenc, bool mergeScope = true);
 
     void AdaptAfterOuterInlined(uint8_t removedCtxLevel,
                                 MethodGenerationContext& mgencWithInlined);
+
+    void MergeScopeInto(MethodGenerationContext& mgenc);
+    const Variable* GetArgument(size_t index, size_t contextLevel) {
+        return lexicalScope->GetArgument(index, contextLevel);
+    }
 
 private:
     void inlineInto(MethodGenerationContext& mgenc);

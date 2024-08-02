@@ -97,6 +97,7 @@ public:
     bool InlineIfTrueOrIfFalse(bool isIfTrue);
     bool InlineIfTrueFalse(bool isIfTrue);
     bool InlineAndOr(bool isOr);
+    bool InlineToDo();
 
     inline size_t OffsetOfNextInstruction() { return bytecode.size(); }
 
@@ -120,7 +121,7 @@ private:
 
     void completeJumpsAndEmitReturningNil(Parser& parser, size_t loopBeginIdx,
                                           size_t jumpOffsetIdxToSkipLoopBody);
-    void inlineLocals(LexicalScope& scopeToBeInlined);
+    void inlineAsLocals(vector<Variable>& vars);
     void checkJumpOffset(size_t jumpOffset, uint8_t bytecode);
     void resetLastBytecodeBuffer();
 

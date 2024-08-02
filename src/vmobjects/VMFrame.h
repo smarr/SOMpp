@@ -67,6 +67,11 @@ public:
         return result;
     }
 
+    inline vm_oop_t Top2() {
+        vm_oop_t result = load_ptr(*(stack_ptr - 1));
+        return result;
+    }
+
     inline void SetTop(gc_oop_t val) { *stack_ptr = val; }
 
     inline void Push(vm_oop_t obj) {
