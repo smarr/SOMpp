@@ -21,9 +21,10 @@ std::string Variable::MakeQualifiedName() const {
 Variable Variable::CopyForInlining(size_t newIndex) const {
     if (isArgument) {
         if (name == strBlockSelf) {
+            // that's invalid
             return Variable();
         }
-        return Variable(this, newIndex, true);
     }
+    // arguments that are inlined need to turn into variables, too
     return Variable(this, newIndex, false);
 }

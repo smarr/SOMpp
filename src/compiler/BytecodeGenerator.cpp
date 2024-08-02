@@ -254,6 +254,14 @@ void EmitRETURNNONLOCAL(MethodGenerationContext& mgenc) {
     Emit1(mgenc, BC_RETURN_NON_LOCAL, 0);
 }
 
+void EmitINC(MethodGenerationContext& mgenc) {
+    Emit1(mgenc, BC_INC, 0);
+}
+
+void EmitDupSecond(MethodGenerationContext& mgenc) {
+    Emit1(mgenc, BC_DUP_SECOND, 1);
+}
+
 size_t EmitJumpOnBoolWithDummyOffset(MethodGenerationContext& mgenc,
                                      bool isIfTrue, bool needsPop) {
     // Remember: true and false seem flipped here.
@@ -280,6 +288,13 @@ size_t EmitJumpOnBoolWithDummyOffset(MethodGenerationContext& mgenc,
 
 size_t EmitJumpWithDumyOffset(MethodGenerationContext& mgenc) {
     Emit1(mgenc, BC_JUMP, 0);
+    size_t idx = mgenc.AddBytecodeArgumentAndGetIndex(0);
+    mgenc.AddBytecodeArgument(0);
+    return idx;
+}
+
+size_t EmitJumpIfGreaterWithDummyOffset(MethodGenerationContext& mgenc) {
+    Emit1(mgenc, BC_JUMP_IF_GREATER, 0);
     size_t idx = mgenc.AddBytecodeArgumentAndGetIndex(0);
     mgenc.AddBytecodeArgument(0);
     return idx;

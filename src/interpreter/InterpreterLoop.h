@@ -7,6 +7,7 @@ vm_oop_t Start() {
 
     void* loopTargets[] = {&&LABEL_BC_HALT,
                            &&LABEL_BC_DUP,
+                           &&LABEL_BC_DUP_SECOND,
                            &&LABEL_BC_PUSH_LOCAL,
                            &&LABEL_BC_PUSH_LOCAL_0,
                            &&LABEL_BC_PUSH_LOCAL_1,
@@ -40,17 +41,20 @@ vm_oop_t Start() {
                            &&LABEL_BC_SUPER_SEND,
                            &&LABEL_BC_RETURN_LOCAL,
                            &&LABEL_BC_RETURN_NON_LOCAL,
+                           &&LABEL_BC_INC,
                            &&LABEL_BC_JUMP,
                            &&LABEL_BC_JUMP_ON_FALSE_POP,
                            &&LABEL_BC_JUMP_ON_TRUE_POP,
                            &&LABEL_BC_JUMP_ON_FALSE_TOP_NIL,
                            &&LABEL_BC_JUMP_ON_TRUE_TOP_NIL,
+                           &&LABEL_BC_JUMP_IF_GREATER,
                            &&LABEL_BC_JUMP_BACKWARD,
                            &&LABEL_BC_JUMP2,
                            &&LABEL_BC_JUMP2_ON_FALSE_POP,
                            &&LABEL_BC_JUMP2_ON_TRUE_POP,
                            &&LABEL_BC_JUMP2_ON_FALSE_TOP_NIL,
                            &&LABEL_BC_JUMP2_ON_TRUE_TOP_NIL,
+                           &&LABEL_BC_JUMP2_IF_GREATER,
                            &&LABEL_BC_JUMP2_BACKWARD};
 
     goto* loopTargets[currentBytecodes[bytecodeIndexGlobal]];
@@ -64,6 +68,14 @@ LABEL_BC_HALT:
 LABEL_BC_DUP:
     PROLOGUE(1);
     doDup();
+    DISPATCH_NOGC();
+
+LABEL_BC_DUP_SECOND:
+    PROLOGUE(1);
+    {
+        vm_oop_t elem = GetFrame()->GetStackElement(1);
+        GetFrame()->Push(elem);
+    }
     DISPATCH_NOGC();
 
 LABEL_BC_PUSH_LOCAL:
@@ -249,6 +261,11 @@ LABEL_BC_RETURN_NON_LOCAL:
     doReturnNonLocal();
     DISPATCH_NOGC();
 
+LABEL_BC_INC:
+    PROLOGUE(1);
+    doInc();
+    DISPATCH_NOGC();
+
 LABEL_BC_JUMP: {
     uint8_t offset = currentBytecodes[bytecodeIndexGlobal + 1];
     bytecodeIndexGlobal += offset;
@@ -300,6 +317,17 @@ LABEL_BC_JUMP_ON_TRUE_TOP_NIL: {
         GetFrame()->SetTop(nilObject);
     } else {
         GetFrame()->PopVoid();
+        bytecodeIndexGlobal += 3;
+    }
+}
+    DISPATCH_NOGC();
+
+LABEL_BC_JUMP_IF_GREATER: {
+    if (checkIsGreater()) {
+        bytecodeIndexGlobal += currentBytecodes[bytecodeIndexGlobal + 1];
+        GetFrame()->Pop();
+        GetFrame()->Pop();
+    } else {
         bytecodeIndexGlobal += 3;
     }
 }
@@ -371,6 +399,19 @@ LABEL_BC_JUMP2_ON_TRUE_TOP_NIL: {
         GetFrame()->SetTop(nilObject);
     } else {
         GetFrame()->PopVoid();
+        bytecodeIndexGlobal += 3;
+    }
+}
+    DISPATCH_NOGC();
+
+LABEL_BC_JUMP2_IF_GREATER: {
+    if (checkIsGreater()) {
+        bytecodeIndexGlobal +=
+            ComputeOffset(currentBytecodes[bytecodeIndexGlobal + 1],
+                          currentBytecodes[bytecodeIndexGlobal + 2]);
+        GetFrame()->Pop();
+        GetFrame()->Pop();
+    } else {
         bytecodeIndexGlobal += 3;
     }
 }

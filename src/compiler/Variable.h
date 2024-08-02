@@ -34,6 +34,8 @@ public:
 
     Variable CopyForInlining(size_t newIndex) const;
 
+    bool IsArgument() const { return isArgument; }
+
 protected:
     std::string name;
     uint8_t index;

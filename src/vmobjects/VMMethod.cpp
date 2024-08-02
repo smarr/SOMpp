@@ -160,8 +160,10 @@ std::string VMMethod::AsDebugString() const {
            ")";
 }
 
-void VMMethod::InlineInto(MethodGenerationContext& mgenc) {
-    mgenc.MergeIntoScope(*lexicalScope);
+void VMMethod::InlineInto(MethodGenerationContext& mgenc, bool mergeScope) {
+    if (mergeScope) {
+        mgenc.MergeIntoScope(*lexicalScope);
+    }
     inlineInto(mgenc);
 }
 
@@ -194,8 +196,10 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
 
         switch (bytecode) {
             case BC_DUP:
+            case BC_DUP_SECOND: {
                 Emit1(mgenc, bytecode, 1);
                 break;
+            }
             case BC_PUSH_FIELD:
             case BC_PUSH_FIELD_0:
             case BC_PUSH_FIELD_1:
@@ -306,6 +310,17 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
                 break;
             }
 
+            case BC_PUSH_ARG_1:
+            case BC_PUSH_ARG_2: {
+                // this can now happen with inlining #to:do:
+                size_t argIdx = bytecode == BC_PUSH_ARG_1 ? 1 : 2;
+
+                const Variable* arg = lexicalScope->GetArgument(argIdx, 0);
+                size_t inlinedLocalIndex = mgenc.GetInlinedLocalIdx(arg);
+                EmitPUSHLOCAL(mgenc, inlinedLocalIndex, 0);
+                break;
+            }
+
             case BC_PUSH_BLOCK: {
                 VMMethod* blockMethod = (VMMethod*)GetConstant(i);
                 blockMethod->AdaptAfterOuterInlined(1, mgenc);
@@ -380,7 +395,9 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
             case BC_JUMP_ON_FALSE_TOP_NIL:
             case BC_JUMP2:
             case BC_JUMP2_ON_TRUE_TOP_NIL:
-            case BC_JUMP2_ON_FALSE_TOP_NIL: {
+            case BC_JUMP2_ON_FALSE_TOP_NIL:
+            case BC_JUMP_IF_GREATER:
+            case BC_JUMP2_IF_GREATER: {
                 // emit the jump, but instead of the offset, emit a dummy
                 const size_t idx = Emit3WithDummy(mgenc, bytecode, 0);
                 const size_t offset =
@@ -413,8 +430,6 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
 
             case BC_HALT:
             case BC_PUSH_SELF:
-            case BC_PUSH_ARG_1:
-            case BC_PUSH_ARG_2:
             case BC_RETURN_SELF:
             case BC_RETURN_FIELD_0:
             case BC_RETURN_FIELD_1:
@@ -623,4 +638,9 @@ bool operator<(const BackJump& a, const BackJump& b) {
 
 bool operator<(const BackJumpPatch& a, const BackJumpPatch& b) {
     return a.backwardsJumpIdx > b.backwardsJumpIdx;
+}
+
+void VMMethod::MergeScopeInto(MethodGenerationContext& mgenc) {
+    assert(lexicalScope != nullptr);
+    mgenc.MergeIntoScope(*lexicalScope);
 }

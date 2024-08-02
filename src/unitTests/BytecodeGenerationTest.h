@@ -65,6 +65,7 @@ class BytecodeGenerationTest : public CPPUNIT_NS::TestCase {
     CPPUNIT_TEST(testIfTrueIfFalseNlrArg2);
     CPPUNIT_TEST(testInliningOfOr);
     CPPUNIT_TEST(testInliningOfAnd);
+    CPPUNIT_TEST(testInliningOfToDo);
 
     CPPUNIT_TEST(testJumpQueuesOrdering);
 
@@ -158,6 +159,8 @@ private:
     void inliningOfOr(std::string selector);
     void testInliningOfAnd();
     void inliningOfAnd(std::string selector);
+
+    void testInliningOfToDo();
 
     void testJumpQueuesOrdering();
 

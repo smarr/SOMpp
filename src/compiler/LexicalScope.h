@@ -20,6 +20,14 @@ public:
         locals.push_back(var);
     }
 
+    const Variable* GetArgument(size_t index, size_t contextLevel) {
+        if (contextLevel > 0) {
+            return outer->GetArgument(index, contextLevel - 1);
+        }
+
+        return &arguments.at(index);
+    }
+
     const Variable* GetLocal(size_t index, uint8_t ctxLevel) {
         if (ctxLevel > 0) {
             return outer->GetLocal(index, ctxLevel - 1);

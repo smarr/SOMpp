@@ -701,6 +701,29 @@ void BytecodeGenerationTest::inliningOfAnd(std::string selector) {
     tearDown();
 }
 
+void BytecodeGenerationTest::testInliningOfToDo() {
+    auto bytecodes = methodToBytecode("test = ( 1 to: 2 do: [:i | i ] )");
+    check(bytecodes,
+          {BC_PUSH_1, BC_PUSH_CONSTANT_0,
+           BC_DUP_SECOND,  // stack: Top[1, 2, 1]
+
+           BC(BC_JUMP_IF_GREATER, 11, 0),  // consume only on jump
+           BC_DUP,
+
+           BC_POP_LOCAL_0,   // store the i into the local (arg becomes local
+                             // after inlining)
+           BC_PUSH_LOCAL_0,  // push the local on the stack as part of the
+                             // block's code
+           BC_POP,           // cleanup after block
+           BC_INC,           // increment top, the iteration counter
+           BC(BC_JUMP_BACKWARD, 8,
+              0),  // jump back to the jump_if_greater bytecode
+           BC_POP,
+
+           // jump_if_greater target
+           BC_PUSH_SELF, BC_RETURN_LOCAL});
+}
+
 /*
  @pytest.mark.parametrize(
      "operator,bytecode",

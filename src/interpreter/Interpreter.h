@@ -106,6 +106,8 @@ private:
     void doSuperSend(long bytecodeIndex);
     void doReturnLocal();
     void doReturnNonLocal();
+    void doInc();
+    bool checkIsGreater();
 };
 
 inline VMFrame* Interpreter::GetFrame() const {

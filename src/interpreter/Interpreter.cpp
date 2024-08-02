@@ -34,6 +34,7 @@
 #include "../interpreter/bytecodes.h"  // NOLINT(misc-include-cleaner) it's required for InterpreterLoop.h
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
+#include "../vm/Globals.h"
 #include "../vm/IsValidObject.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/IntegerBox.h"
@@ -42,6 +43,7 @@
 #include "../vmobjects/VMArray.h"
 #include "../vmobjects/VMBlock.h"
 #include "../vmobjects/VMClass.h"
+#include "../vmobjects/VMDouble.h"
 #include "../vmobjects/VMFrame.h"
 #include "../vmobjects/VMInvokable.h"
 #include "../vmobjects/VMMethod.h"
@@ -405,6 +407,38 @@ void Interpreter::doReturnNonLocal() {
     }
 
     popFrameAndPushResult(result);
+}
+
+void Interpreter::doInc() {
+    vm_oop_t val = GetFrame()->Top();
+
+    if (IS_TAGGED(val) || CLASS_OF(val) == load_ptr(integerClass)) {
+        int64_t result = (int64_t)INT_VAL(val) + 1;
+        val = NEW_INT(result);
+    } else if (CLASS_OF(val) == load_ptr(doubleClass)) {
+        double d = static_cast<VMDouble*>(val)->GetEmbeddedDouble();
+        val = GetUniverse()->NewDouble(d + 1.0);
+    } else {
+        GetUniverse()->ErrorExit("unsupported");
+    }
+
+    GetFrame()->SetTop(store_root(val));
+}
+
+bool Interpreter::checkIsGreater() {
+    vm_oop_t top = GetFrame()->Top();
+    vm_oop_t top2 = GetFrame()->Top2();
+
+    if ((IS_TAGGED(top) || CLASS_OF(top) == load_ptr(integerClass)) &&
+        (IS_TAGGED(top2) || CLASS_OF(top2) == load_ptr(integerClass))) {
+        return INT_VAL(top) > INT_VAL(top2);
+    } else if ((CLASS_OF(top) == load_ptr(doubleClass)) &&
+               (CLASS_OF(top2) == load_ptr(doubleClass))) {
+        return static_cast<VMDouble*>(top)->GetEmbeddedDouble() >
+               static_cast<VMDouble*>(top2)->GetEmbeddedDouble();
+    }
+
+    return false;
 }
 
 void Interpreter::WalkGlobals(walk_heap_fn walk) {
