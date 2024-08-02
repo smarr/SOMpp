@@ -127,6 +127,11 @@ target_include_directories(SOM++ PRIVATE ${SRC_DIR})
 
 target_link_libraries(SOM++)
 
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+  target_compile_options(SOM++ PRIVATE -O3 -flto)
+  target_link_options(SOM++ PRIVATE -flto)
+endif()
+
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_executable(unittests "")
 
