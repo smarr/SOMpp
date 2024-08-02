@@ -496,7 +496,7 @@ void VMMethod::prepareBackJumpToCurrentAddress(
 void VMMethod::AdaptAfterOuterInlined(
     uint8_t removedCtxLevel, MethodGenerationContext& mgencWithInlined) {
     size_t i = 0;
-    long numBytecodes = GetNumberOfBytecodes();
+    size_t numBytecodes = GetNumberOfBytecodes();
 
     while (i < numBytecodes) {
         uint8_t bytecode = bytecodes[i];
