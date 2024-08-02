@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <cstddef>
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 
@@ -44,7 +45,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
         obj->MarkObjectAsInvalid();
     }
 
-    obj->SetGCField((long)newObj);
+    obj->SetGCField((intptr_t)newObj);
     return tmp_ptr(newObj);
 }
 
