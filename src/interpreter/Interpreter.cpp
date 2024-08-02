@@ -193,6 +193,10 @@ void Interpreter::doPushLocal(long bytecodeIndex) {
     uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
 
+    assert(!(bc1 == 0 && bc2 == 0 && "should have been BC_PUSH_LOCAL_0"));
+    assert(!(bc1 == 1 && bc2 == 0 && "should have been BC_PUSH_LOCAL_1"));
+    assert(!(bc1 == 2 && bc2 == 0 && "should have been BC_PUSH_LOCAL_2"));
+
     vm_oop_t local = GetFrame()->GetLocal(bc1, bc2);
 
     GetFrame()->Push(local);
@@ -207,6 +211,10 @@ void Interpreter::doPushArgument(long bytecodeIndex) {
     uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
 
+    assert(!(bc1 == 0 && bc2 == 0 && "should have been BC_PUSH_SELF"));
+    assert(!(bc1 == 1 && bc2 == 0 && "should have been BC_PUSH_ARG_1"));
+    assert(!(bc1 == 2 && bc2 == 0 && "should have been BC_PUSH_ARG_2"));
+
     vm_oop_t argument = GetFrame()->GetArgument(bc1, bc2);
 
     GetFrame()->Push(argument);
@@ -214,6 +222,9 @@ void Interpreter::doPushArgument(long bytecodeIndex) {
 
 void Interpreter::doPushField(long bytecodeIndex) {
     uint8_t fieldIndex = method->GetBytecode(bytecodeIndex + 1);
+    assert(fieldIndex != 0 && fieldIndex != 1 &&
+           "should have been BC_PUSH_FIELD_0|1");
+
     doPushFieldWithIndex(fieldIndex);
 }
 

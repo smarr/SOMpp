@@ -283,9 +283,9 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
                 }
 
                 if (bytecode == BC_PUSH_LOCAL) {
-                    Emit3(mgenc, bytecode, idx, ctxLevel, 1);
+                    EmitPUSHLOCAL(mgenc, idx, ctxLevel);
                 } else {
-                    Emit3(mgenc, bytecode, idx, ctxLevel, -1);
+                    EmitPOPLOCAL(mgenc, idx, ctxLevel);
                 }
                 break;
             }
