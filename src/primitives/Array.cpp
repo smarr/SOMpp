@@ -35,18 +35,9 @@
 #include "../vmobjects/VMArray.h"
 #include "../vmobjects/VMFrame.h"
 
-_Array::_Array() : PrimitiveContainer() {
-    SetPrimitive("new_", new Routine<_Array>(this, &_Array::New_, true));
-    SetPrimitive("at_", new Routine<_Array>(this, &_Array::At_, false));
-    SetPrimitive("at_put_", new Routine<_Array>(this, &_Array::At_Put_, false));
-    SetPrimitive("length", new Routine<_Array>(this, &_Array::Length, false));
-}
-
-void _Array::At_(Interpreter*, VMFrame* frame) {
-    vm_oop_t idx = frame->Pop();
-    VMArray* self = static_cast<VMArray*>(frame->Pop());
-    vm_oop_t elem = self->GetIndexableField(INT_VAL(idx) - 1);
-    frame->Push(elem);
+static vm_oop_t arrAt_(vm_oop_t leftObj, vm_oop_t idx) {
+    VMArray* self = static_cast<VMArray*>(leftObj);
+    return self->GetIndexableField(INT_VAL(idx) - 1);
 }
 
 void _Array::At_Put_(Interpreter*, VMFrame* frame) {
@@ -57,15 +48,19 @@ void _Array::At_Put_(Interpreter*, VMFrame* frame) {
     self->SetIndexableField(i - 1, value);
 }
 
-void _Array::Length(Interpreter*, VMFrame* frame) {
-    VMArray* self = static_cast<VMArray*>(frame->Pop());
-    vm_oop_t new_int = NEW_INT((int64_t)self->GetNumberOfIndexableFields());
-    frame->Push(new_int);
+static vm_oop_t arrLength(vm_oop_t leftObj) {
+    VMArray* self = static_cast<VMArray*>(leftObj);
+    return NEW_INT((int64_t)self->GetNumberOfIndexableFields());
 }
 
-void _Array::New_(Interpreter*, VMFrame* frame) {
-    vm_oop_t arg = frame->Pop();
-    frame->Pop();
-    long size = INT_VAL(arg);
-    frame->Push(GetUniverse()->NewArray(size));
+static vm_oop_t arrNew_(vm_oop_t, vm_oop_t arg) {
+    int64_t size = INT_VAL(arg);
+    return GetUniverse()->NewArray(size);
+}
+
+_Array::_Array() : PrimitiveContainer() {
+    Add("new_", &arrNew_, true);
+    Add("at_", &arrAt_, false);
+    SetPrimitive("at_put_", new Routine<_Array>(this, &_Array::At_Put_, false));
+    Add("length", &arrLength, false);
 }

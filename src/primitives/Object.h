@@ -32,20 +32,10 @@
 class _Object : public PrimitiveContainer {
 public:
     _Object();
-    void Equalequal(Interpreter*, VMFrame*);
-    void ObjectSize(Interpreter*, VMFrame*);
-    void Hashcode(Interpreter*, VMFrame*);
-    void Inspect(Interpreter*, VMFrame*);
-    void Halt(Interpreter*, VMFrame*);
-
     void Perform(Interpreter*, VMFrame*);
     void PerformWithArguments(Interpreter*, VMFrame*);
     void PerformInSuperclass(Interpreter*, VMFrame*);
     void PerformWithArgumentsInSuperclass(Interpreter*, VMFrame*);
 
-    void InstVarAt(Interpreter*, VMFrame*);
     void InstVarAtPut(Interpreter*, VMFrame*);
-    void InstVarNamed(Interpreter*, VMFrame*);
-
-    void Class(Interpreter*, VMFrame*);
 };

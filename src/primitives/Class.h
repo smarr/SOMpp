@@ -32,10 +32,4 @@
 class _Class : public PrimitiveContainer {
 public:
     _Class();
-    void New(Interpreter*, VMFrame*);
-
-    void Name(Interpreter*, VMFrame*);
-    void Superclass(Interpreter*, VMFrame*);
-    void Fields(Interpreter*, VMFrame*);
-    void Methods(Interpreter*, VMFrame*);
 };

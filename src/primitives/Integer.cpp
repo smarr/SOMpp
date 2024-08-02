@@ -32,10 +32,10 @@
 #include <cstdlib>
 #include <ctime>
 #include <sstream>
+#include <string>
 
 #include "../misc/ParseInteger.h"
 #include "../primitivesCore/PrimitiveContainer.h"
-#include "../primitivesCore/Routine.h"
 #include "../vm/Globals.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
@@ -43,170 +43,102 @@
 #include "../vmobjects/VMFrame.h"
 #include "../vmobjects/VMString.h"
 
-/*
- * This macro performs a coercion check to Double. Depending on
- * the right-hand operand, an Integer operation will have to be resent as a
- * Double operation (this type imposes itselves on the result
- * of an Integer operation).
- */
-#define CHECK_COERCION(obj, receiver, op)                \
-    {                                                    \
-        VMClass* cl = CLASS_OF(obj);                     \
-        if (cl == load_ptr(doubleClass)) {               \
-            resendAsDouble(interp, (op), (receiver),     \
-                           static_cast<VMDouble*>(obj)); \
-            return;                                      \
-        }                                                \
-    }
-
-_Integer::_Integer() : PrimitiveContainer() {
-    srand((unsigned)time(nullptr));
-    SetPrimitive("plus", new Routine<_Integer>(this, &_Integer::Plus, false));
-    SetPrimitive("minus", new Routine<_Integer>(this, &_Integer::Minus, false));
-    SetPrimitive("star", new Routine<_Integer>(this, &_Integer::Star, false));
-    SetPrimitive("rem_", new Routine<_Integer>(this, &_Integer::Rem, false));
-    SetPrimitive("bitAnd_",
-                 new Routine<_Integer>(this, &_Integer::BitwiseAnd, false));
-    SetPrimitive("bitXor_",
-                 new Routine<_Integer>(this, &_Integer::BitwiseXor, false));
-    SetPrimitive("lowerthanlowerthan",
-                 new Routine<_Integer>(this, &_Integer::LeftShift, false));
-    SetPrimitive(
-        "greaterthangreaterthangreaterthan",
-        new Routine<_Integer>(this, &_Integer::UnsignedRightShift, false));
-    SetPrimitive("slash", new Routine<_Integer>(this, &_Integer::Slash, false));
-    SetPrimitive("slashslash",
-                 new Routine<_Integer>(this, &_Integer::Slashslash, false));
-    SetPrimitive("percent",
-                 new Routine<_Integer>(this, &_Integer::Percent, false));
-    SetPrimitive("and", new Routine<_Integer>(this, &_Integer::And, false));
-    SetPrimitive("equal", new Routine<_Integer>(this, &_Integer::Equal, false));
-    SetPrimitive("equalequal",
-                 new Routine<_Integer>(this, &_Integer::EqualEqual, false));
-    SetPrimitive("lowerthan",
-                 new Routine<_Integer>(this, &_Integer::Lowerthan, false));
-    SetPrimitive("asString",
-                 new Routine<_Integer>(this, &_Integer::AsString, false));
-    SetPrimitive("asDouble",
-                 new Routine<_Integer>(this, &_Integer::AsDouble, false));
-    SetPrimitive("as32BitSignedValue",
-                 new Routine<_Integer>(this, &_Integer::As32BitSigned, false));
-    SetPrimitive(
-        "as32BitUnsignedValue",
-        new Routine<_Integer>(this, &_Integer::As32BitUnsigned, false));
-    SetPrimitive("sqrt", new Routine<_Integer>(this, &_Integer::Sqrt, false));
-    SetPrimitive("atRandom",
-                 new Routine<_Integer>(this, &_Integer::AtRandom, false));
-    SetPrimitive("fromString_",
-                 new Routine<_Integer>(this, &_Integer::FromString, true));
-}
-
-//
-// private functions for Integer
-//
-
-void _Integer::resendAsDouble(Interpreter* interp, const char* op,
-                              vm_oop_t left, VMDouble* right) {
-    VMDouble* leftDouble = GetUniverse()->NewDouble((double)INT_VAL(left));
-    vm_oop_t operands[] = {right};
-
-    leftDouble->Send(interp, op, operands, 1);
-}
-
 //
 // arithmetic operations
 //
 
-void _Integer::Plus(Interpreter* interp, VMFrame* frame) {
-    vm_oop_t rightObj = frame->Pop();
-    vm_oop_t leftObj = frame->Pop();
+double coerceDouble(vm_oop_t x);
 
-    CHECK_COERCION(rightObj, leftObj, "+");
+#define doDoubleOpIfNeeded(leftInt, rightObj, op)                 \
+    {                                                             \
+        VMClass* cl = CLASS_OF(rightObj);                         \
+        if (cl == load_ptr(doubleClass)) {                        \
+            double leftDbl = (double)leftInt;                     \
+            double rightDbl = coerceDouble(rightObj);             \
+            return GetUniverse()->NewDouble(leftDbl op rightDbl); \
+        }                                                         \
+    }
 
-    int64_t result = (int64_t)INT_VAL(leftObj) + (int64_t)INT_VAL(rightObj);
-    frame->Push(NEW_INT(result));
+static vm_oop_t intPlus(vm_oop_t leftObj, vm_oop_t rightObj) {
+    assert(CLASS_OF(leftObj) == load_ptr(integerClass) &&
+           "The receiver should always be an int");
+
+    int64_t left = INT_VAL(leftObj);
+    doDoubleOpIfNeeded(left, rightObj, +);
+
+    int64_t result = left + (int64_t)INT_VAL(rightObj);
+    return NEW_INT(result);
 }
 
-void _Integer::BitwiseAnd(Interpreter*, VMFrame* frame) {
-    vm_oop_t rightObj = frame->Pop();
-    vm_oop_t leftObj = frame->Pop();
-
+static vm_oop_t intBitwiseAnd(vm_oop_t leftObj, vm_oop_t rightObj) {
     int64_t result = (int64_t)INT_VAL(leftObj) & (int64_t)INT_VAL(rightObj);
-    frame->Push(NEW_INT(result));
+    return NEW_INT(result);
 }
 
-void _Integer::BitwiseXor(Interpreter*, VMFrame* frame) {
-    vm_oop_t rightObj = frame->Pop();
-    vm_oop_t leftObj = frame->Pop();
-
+static vm_oop_t intBitwiseXor(vm_oop_t leftObj, vm_oop_t rightObj) {
     int64_t result = (int64_t)INT_VAL(leftObj) ^ (int64_t)INT_VAL(rightObj);
-    frame->Push(NEW_INT(result));
+    return NEW_INT(result);
 }
 
-void _Integer::LeftShift(Interpreter*, VMFrame* frame) {
-    vm_oop_t rightObj = frame->Pop();
-    vm_oop_t leftObj = frame->Pop();
-
+static vm_oop_t intLeftShift(vm_oop_t leftObj, vm_oop_t rightObj) {
     int64_t result = (int64_t)INT_VAL(leftObj) << (int64_t)INT_VAL(rightObj);
-    frame->Push(NEW_INT(result));
+    return NEW_INT(result);
 }
 
-void _Integer::UnsignedRightShift(Interpreter*, VMFrame* frame) {
-    vm_oop_t rightObj = frame->Pop();
-    vm_oop_t leftObj = frame->Pop();
-
+static vm_oop_t intUnsignedRightShift(vm_oop_t leftObj, vm_oop_t rightObj) {
     int64_t result = (int64_t)INT_VAL(leftObj) >> (int64_t)INT_VAL(rightObj);
-    frame->Push(NEW_INT(result));
+    return NEW_INT(result);
 }
 
-void _Integer::Minus(Interpreter* interp, VMFrame* frame) {
-    vm_oop_t rightObj = frame->Pop();
-    vm_oop_t leftObj = frame->Pop();
+static vm_oop_t intMinus(vm_oop_t leftObj, vm_oop_t rightObj) {
+    int64_t left = INT_VAL(leftObj);
+    doDoubleOpIfNeeded(left, rightObj, -);
 
-    CHECK_COERCION(rightObj, leftObj, "-");
-
-    int64_t result = (int64_t)INT_VAL(leftObj) - (int64_t)INT_VAL(rightObj);
-    frame->Push(NEW_INT(result));
+    int64_t result = left - (int64_t)INT_VAL(rightObj);
+    return NEW_INT(result);
 }
 
-void _Integer::Star(Interpreter* interp, VMFrame* frame) {
-    vm_oop_t rightObj = frame->Pop();
-    vm_oop_t leftObj = frame->Pop();
+static vm_oop_t intStar(vm_oop_t leftObj, vm_oop_t rightObj) {
+    int64_t left = INT_VAL(leftObj);
+    doDoubleOpIfNeeded(left, rightObj, *);
 
-    CHECK_COERCION(rightObj, leftObj, "*");
-
-    int64_t result = (int64_t)INT_VAL(leftObj) * (int64_t)INT_VAL(rightObj);
-    frame->Push(NEW_INT(result));
+    int64_t result = left * (int64_t)INT_VAL(rightObj);
+    return NEW_INT(result);
 }
 
-void _Integer::Slashslash(Interpreter* interp, VMFrame* frame) {
-    vm_oop_t rightObj = frame->Pop();
-    vm_oop_t leftObj = frame->Pop();
+static vm_oop_t intSlashslash(vm_oop_t leftObj, vm_oop_t rightObj) {
+    int64_t left = INT_VAL(leftObj);
+    doDoubleOpIfNeeded(left, rightObj, /);
 
-    CHECK_COERCION(rightObj, leftObj, "//");
-
-    double result = (double)INT_VAL(leftObj) / (double)INT_VAL(rightObj);
-    frame->Push(GetUniverse()->NewDouble(result));
+    double result = (double)left / (double)INT_VAL(rightObj);
+    return GetUniverse()->NewDouble(result);
 }
 
-void _Integer::Slash(Interpreter* interp, VMFrame* frame) {
-    vm_oop_t rightObj = frame->Pop();
-    vm_oop_t leftObj = frame->Pop();
+static vm_oop_t intSlash(vm_oop_t leftObj, vm_oop_t rightObj) {
+    int64_t left = INT_VAL(leftObj);
+    int64_t right;
 
-    CHECK_COERCION(rightObj, leftObj, "/");
+    VMClass* cl = CLASS_OF(rightObj);
+    if (cl == load_ptr(doubleClass)) {
+        right = (int64_t)((VMDouble*)rightObj)->GetEmbeddedDouble();
+    } else {
+        right = INT_VAL(rightObj);
+    }
 
-    int64_t result = (int64_t)INT_VAL(leftObj) / (int64_t)INT_VAL(rightObj);
-    frame->Push(NEW_INT(result));
+    int64_t result = left / right;
+    return NEW_INT(result);
 }
 
-void _Integer::Percent(Interpreter* interp, VMFrame* frame) {
-    vm_oop_t rightObj = frame->Pop();
-    vm_oop_t leftObj = frame->Pop();
+static vm_oop_t intPercent(vm_oop_t leftObj, vm_oop_t rightObj) {
+    int64_t l = INT_VAL(leftObj);
+    int64_t r;
 
-    CHECK_COERCION(rightObj, leftObj, "%");
-
-    int64_t l = (int64_t)INT_VAL(leftObj);
-    int64_t r = (int64_t)INT_VAL(rightObj);
+    VMClass* cl = CLASS_OF(rightObj);
+    if (cl == load_ptr(doubleClass)) {
+        r = (int64_t)((VMDouble*)rightObj)->GetEmbeddedDouble();
+    } else {
+        r = INT_VAL(rightObj);
+    }
 
     int64_t result = l % r;
 
@@ -214,133 +146,136 @@ void _Integer::Percent(Interpreter* interp, VMFrame* frame) {
         result += r;
     }
 
-    frame->Push(NEW_INT(result));
+    return NEW_INT(result);
 }
 
-void _Integer::Rem(Interpreter* interp, VMFrame* frame) {
-    vm_oop_t rightObj = frame->Pop();
-    vm_oop_t leftObj = frame->Pop();
+vm_oop_t dblPercent(vm_oop_t leftPtr, vm_oop_t rightObj);
 
-    CHECK_COERCION(rightObj, leftObj, "%");
+static vm_oop_t intRem(vm_oop_t leftObj, vm_oop_t rightObj) {
+    VMClass* cl = CLASS_OF(rightObj);
+    if (cl == load_ptr(doubleClass)) {
+        return dblPercent(leftObj, rightObj);
+    }
 
     int64_t l = (int64_t)INT_VAL(leftObj);
     int64_t r = (int64_t)INT_VAL(rightObj);
 
     int64_t result = l - (l / r) * r;
 
-    frame->Push(NEW_INT(result));
+    return NEW_INT(result);
 }
 
-void _Integer::And(Interpreter* interp, VMFrame* frame) {
-    vm_oop_t rightObj = frame->Pop();
-    vm_oop_t leftObj = frame->Pop();
-
-    CHECK_COERCION(rightObj, leftObj, "&");
-
+static vm_oop_t intAnd(vm_oop_t leftObj, vm_oop_t rightObj) {
     int64_t result = (int64_t)INT_VAL(leftObj) & (int64_t)INT_VAL(rightObj);
-    frame->Push(NEW_INT(result));
+    return NEW_INT(result);
 }
 
-void _Integer::Equal(Interpreter* interp, VMFrame* frame) {
-    vm_oop_t rightObj = frame->Pop();
-    vm_oop_t leftObj = frame->Pop();
-
-    CHECK_COERCION(rightObj, leftObj, "=");
+static vm_oop_t intEqual(vm_oop_t leftObj, vm_oop_t rightObj) {
+    int64_t left = INT_VAL(leftObj);
 
     if (IS_TAGGED(rightObj) || CLASS_OF(rightObj) == load_ptr(integerClass)) {
-        if (INT_VAL(leftObj) == INT_VAL(rightObj)) {
-            frame->Push(load_ptr(trueObject));
-        } else {
-            frame->Push(load_ptr(falseObject));
+        if (left == INT_VAL(rightObj)) {
+            return load_ptr(trueObject);
         }
     } else if (CLASS_OF(rightObj) == load_ptr(doubleClass)) {
-        assert(false);
-    } else {
-        frame->Push(load_ptr(falseObject));
+        if (left == ((VMDouble*)rightObj)->GetEmbeddedDouble()) {
+            return load_ptr(trueObject);
+        }
     }
+    return load_ptr(falseObject);
 }
 
-void _Integer::EqualEqual(Interpreter*, VMFrame* frame) {
-    vm_oop_t rightObj = frame->Pop();
-    vm_oop_t leftObj = frame->Pop();
-
+static vm_oop_t intEqualEqual(vm_oop_t leftObj, vm_oop_t rightObj) {
     if (IS_TAGGED(rightObj) || CLASS_OF(rightObj) == load_ptr(integerClass)) {
         if (INT_VAL(leftObj) == INT_VAL(rightObj)) {
-            frame->Push(load_ptr(trueObject));
-        } else {
-            frame->Push(load_ptr(falseObject));
+            return load_ptr(trueObject);
         }
+    }
+    return load_ptr(falseObject);
+}
+
+static vm_oop_t intLowerthan(vm_oop_t leftObj, vm_oop_t rightObj) {
+    int64_t left = INT_VAL(leftObj);
+    doDoubleOpIfNeeded(left, rightObj, <);
+
+    if (left < INT_VAL(rightObj)) {
+        return load_ptr(trueObject);
     } else {
-        frame->Push(load_ptr(falseObject));
+        return load_ptr(falseObject);
     }
 }
 
-void _Integer::Lowerthan(Interpreter* interp, VMFrame* frame) {
-    vm_oop_t rightObj = frame->Pop();
-    vm_oop_t leftObj = frame->Pop();
-
-    CHECK_COERCION(rightObj, leftObj, "<");
-
-    if (INT_VAL(leftObj) < INT_VAL(rightObj)) {
-        frame->Push(load_ptr(trueObject));
-    } else {
-        frame->Push(load_ptr(falseObject));
-    }
-}
-
-void _Integer::AsString(Interpreter*, VMFrame* frame) {
-    vm_oop_t self = frame->Pop();
+static vm_oop_t intAsString(vm_oop_t self) {
     long integer = INT_VAL(self);
     ostringstream Str;
     Str << integer;
-    frame->Push(GetUniverse()->NewString(Str.str()));
+    return GetUniverse()->NewString(Str.str());
 }
 
-void _Integer::AsDouble(Interpreter*, VMFrame* frame) {
-    vm_oop_t self = frame->Pop();
+static vm_oop_t intAsDouble(vm_oop_t self) {
     long integer = INT_VAL(self);
-    frame->Push(GetUniverse()->NewDouble((double)integer));
+    return GetUniverse()->NewDouble((double)integer);
 }
 
-void _Integer::As32BitSigned(Interpreter*, VMFrame* frame) {
-    vm_oop_t self = frame->Pop();
+static vm_oop_t intAs32BitSigned(vm_oop_t self) {
     int64_t integer = INT_VAL(self);
-
-    frame->Push(NEW_INT((int64_t)(int32_t)integer));
+    return NEW_INT((int64_t)(int32_t)integer);
 }
 
-void _Integer::As32BitUnsigned(Interpreter*, VMFrame* frame) {
-    vm_oop_t self = frame->Pop();
+static vm_oop_t intAs32BitUnsigned(vm_oop_t self) {
     int64_t integer = INT_VAL(self);
-
-    frame->Push(NEW_INT((int64_t)(uint32_t)integer));
+    return NEW_INT((int64_t)(uint32_t)integer);
 }
 
-void _Integer::Sqrt(Interpreter*, VMFrame* frame) {
-    vm_oop_t self = frame->Pop();
+static vm_oop_t intSqrt(vm_oop_t self) {
     double result = sqrt((double)INT_VAL(self));
 
     if (result == rint(result)) {
-        frame->Push(NEW_INT((int64_t)result));
+        return NEW_INT((int64_t)result);
     } else {
-        frame->Push(GetUniverse()->NewDouble(result));
+        return GetUniverse()->NewDouble(result);
     }
 }
 
-void _Integer::AtRandom(Interpreter*, VMFrame* frame) {
-    vm_oop_t self = frame->Pop();
+static vm_oop_t intAtRandom(vm_oop_t self) {
     int64_t result =
         INT_VAL(self) *
         rand();  // NOLINT(clang-analyzer-security.insecureAPI.rand)
-    frame->Push(NEW_INT(result));
+    return NEW_INT(result);
 }
 
-void _Integer::FromString(Interpreter*, VMFrame* frame) {
-    VMString* self = (VMString*)frame->Pop();
-    frame->Pop();
+static vm_oop_t intFromString(vm_oop_t, vm_oop_t right) {
+    VMString* self = (VMString*)right;
+    std::string str = self->GetStdString();
 
-    StdString str = self->GetStdString();
+    return ParseInteger(str, 10, false);
+}
 
-    vm_oop_t new_int = ParseInteger(str, 10, false);
-    frame->Push(new_int);
+_Integer::_Integer() : PrimitiveContainer() {
+    srand((unsigned)time(nullptr));
+
+    Add("plus", &intPlus, false);
+    Add("bitAnd_", &intBitwiseAnd, false);
+
+    Add("minus", &intMinus, false);
+    Add("star", &intStar, false);
+    Add("rem_", &intRem, false);
+
+    Add("bitXor_", &intBitwiseXor, false);
+    Add("lowerthanlowerthan", &intLeftShift, false);
+    Add("greaterthangreaterthangreaterthan", &intUnsignedRightShift, false);
+    Add("slash", &intSlash, false);
+    Add("slashslash", &intSlashslash, false);
+    Add("percent", &intPercent, false);
+    Add("and", &intAnd, false);
+    Add("equal", &intEqual, false);
+    Add("equalequal", &intEqualEqual, false);
+    Add("lowerthan", &intLowerthan, false);
+    Add("asString", &intAsString, false);
+    Add("asDouble", &intAsDouble, false);
+    Add("as32BitSignedValue", &intAs32BitSigned, false);
+    Add("as32BitUnsignedValue", &intAs32BitUnsigned, false);
+    Add("sqrt", &intSqrt, false);
+    Add("atRandom", &intAtRandom, false);
+    Add("fromString_", &intFromString, true);
 }

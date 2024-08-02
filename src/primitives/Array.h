@@ -32,8 +32,5 @@
 class _Array : public PrimitiveContainer {
 public:
     _Array();
-    void New_(Interpreter*, VMFrame*);
-    void At_(Interpreter*, VMFrame*);
     void At_Put_(Interpreter*, VMFrame*);
-    void Length(Interpreter*, VMFrame*);
 };

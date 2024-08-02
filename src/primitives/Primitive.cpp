@@ -10,24 +10,14 @@
 #include "../vmobjects/VMMethod.h"
 #include "../vmobjects/VMSymbol.h"  // NOLINT(misc-include-cleaner) it's required to make the types complete
 
-_Primitive::_Primitive() : PrimitiveContainer() {
-    SetPrimitive("signature",
-                 new Routine<_Primitive>(this, &_Primitive::Signature, false));
-    SetPrimitive("holder",
-                 new Routine<_Primitive>(this, &_Primitive::Holder, false));
-    SetPrimitive(
-        "invokeOn_with_",
-        new Routine<_Primitive>(this, &_Primitive::InvokeOn_With_, false));
+static vm_oop_t pHolder(vm_oop_t rcvr) {
+    VMInvokable* self = static_cast<VMInvokable*>(rcvr);
+    return self->GetHolder();
 }
 
-void _Primitive::Holder(Interpreter*, VMFrame* frame) {
-    VMInvokable* self = static_cast<VMInvokable*>(frame->Pop());
-    frame->Push(self->GetHolder());
-}
-
-void _Primitive::Signature(Interpreter*, VMFrame* frame) {
-    VMInvokable* self = static_cast<VMInvokable*>(frame->Pop());
-    frame->Push(self->GetSignature());
+static vm_oop_t pSignature(vm_oop_t rcvr) {
+    VMInvokable* self = static_cast<VMInvokable*>(rcvr);
+    return self->GetSignature();
 }
 
 void _Primitive::InvokeOn_With_(Interpreter* interp, VMFrame* frame) {
@@ -44,4 +34,12 @@ void _Primitive::InvokeOn_With_(Interpreter* interp, VMFrame* frame) {
         frame->Push(arg);
     }
     mthd->Invoke(interp, frame);
+}
+
+_Primitive::_Primitive() : PrimitiveContainer() {
+    Add("signature", &pSignature, false);
+    Add("holder", &pHolder, false);
+    SetPrimitive(
+        "invokeOn_with_",
+        new Routine<_Primitive>(this, &_Primitive::InvokeOn_With_, false));
 }

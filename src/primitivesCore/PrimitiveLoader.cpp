@@ -43,6 +43,7 @@
 #include "../vm/Print.h"
 #include "../vmobjects/PrimitiveRoutine.h"
 #include "PrimitiveContainer.h"
+#include "Primitives.h"
 
 PrimitiveLoader PrimitiveLoader::loader;
 
@@ -83,6 +84,38 @@ PrimitiveRoutine* PrimitiveLoader::GetPrimitiveRoutine(const std::string& cname,
                                                        const std::string& mname,
                                                        bool isPrimitive) {
     return loader.getPrimitiveRoutine(cname, mname, isPrimitive);
+}
+
+UnaryPrim PrimitiveLoader::GetUnaryPrim(const std::string& cname,
+                                        const std::string& mname) {
+    return loader.getUnaryPrim(cname, mname);
+}
+
+UnaryPrim PrimitiveLoader::getUnaryPrim(const std::string& cname,
+                                        const std::string& mname) {
+    if (primitiveObjects.find(cname) == primitiveObjects.end()) {
+        ErrorPrint("Primitive object not found for name: " + cname + "\n");
+        return UnaryPrim();
+    }
+
+    PrimitiveContainer* primitive = primitiveObjects[cname];
+    return primitive->GetSafeUnary(mname);
+}
+
+BinaryPrim PrimitiveLoader::GetBinaryPrim(const std::string& cname,
+                                          const std::string& mname) {
+    return loader.getBinaryPrim(cname, mname);
+}
+
+BinaryPrim PrimitiveLoader::getBinaryPrim(const std::string& cname,
+                                          const std::string& mname) {
+    if (primitiveObjects.find(cname) == primitiveObjects.end()) {
+        ErrorPrint("Primitive object not found for name: " + cname + "\n");
+        return BinaryPrim();
+    }
+
+    PrimitiveContainer* primitive = primitiveObjects[cname];
+    return primitive->GetSafeBinary(mname);
 }
 
 PrimitiveRoutine* PrimitiveLoader::getPrimitiveRoutine(const std::string& cname,

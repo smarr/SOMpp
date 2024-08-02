@@ -40,72 +40,30 @@
 #include "../vmobjects/VMInvokable.h"
 #include "../vmobjects/VMObject.h"
 
-_Object::_Object() : PrimitiveContainer() {
-    SetPrimitive("equalequal",
-                 new Routine<_Object>(this, &_Object::Equalequal, false));
-    SetPrimitive("objectSize",
-                 new Routine<_Object>(this, &_Object::ObjectSize, false));
-    SetPrimitive("hashcode",
-                 new Routine<_Object>(this, &_Object::Hashcode, false));
-    SetPrimitive("inspect",
-                 new Routine<_Object>(this, &_Object::Inspect, false));
-    SetPrimitive("halt", new Routine<_Object>(this, &_Object::Halt, false));
-
-    SetPrimitive("perform_",
-                 new Routine<_Object>(this, &_Object::Perform, false));
-    SetPrimitive(
-        "perform_withArguments_",
-        new Routine<_Object>(this, &_Object::PerformWithArguments, false));
-    SetPrimitive(
-        "perform_inSuperclass_",
-        new Routine<_Object>(this, &_Object::PerformInSuperclass, false));
-    SetPrimitive("perform_withArguments_inSuperclass_",
-                 new Routine<_Object>(
-                     this, &_Object::PerformWithArgumentsInSuperclass, false));
-
-    SetPrimitive("instVarAt_",
-                 new Routine<_Object>(this, &_Object::InstVarAt, false));
-    SetPrimitive("instVarAt_put_",
-                 new Routine<_Object>(this, &_Object::InstVarAtPut, false));
-    SetPrimitive("instVarNamed_",
-                 new Routine<_Object>(this, &_Object::InstVarNamed, false));
-
-    SetPrimitive("class", new Routine<_Object>(this, &_Object::Class, false));
+vm_oop_t objEqualequal(vm_oop_t op2, vm_oop_t op1) {
+    return load_ptr(op1 == op2 ? trueObject : falseObject);
 }
 
-void _Object::Equalequal(Interpreter*, VMFrame* frame) {
-    vm_oop_t op1 = frame->Pop();
-    vm_oop_t op2 = frame->Pop();
-
-    frame->Push(load_ptr(op1 == op2 ? trueObject : falseObject));
+vm_oop_t objObjectSize(vm_oop_t self) {
+    return NEW_INT((int64_t)AS_OBJ(self)->GetObjectSize());
 }
 
-void _Object::ObjectSize(Interpreter*, VMFrame* frame) {
-    vm_oop_t self = frame->Pop();
-
-    frame->Push(NEW_INT((int64_t)AS_OBJ(self)->GetObjectSize()));
-}
-
-void _Object::Hashcode(Interpreter*, VMFrame* frame) {
-    vm_oop_t self = frame->Pop();
-
+vm_oop_t objHashcode(vm_oop_t self) {
     if (IS_TAGGED(self)) {
-        frame->Push(self);
+        return self;
     } else {
-        frame->Push(NEW_INT(AS_OBJ(self)->GetHash()));
+        return NEW_INT(AS_OBJ(self)->GetHash());
     }
 }
 
-void _Object::Inspect(Interpreter*, VMFrame* frame) {
+vm_oop_t objInspect(vm_oop_t) {
     // not implemeted
-    frame->Pop();
-    frame->Push(load_ptr(falseObject));
+    return load_ptr(falseObject);
 }
 
-void _Object::Halt(Interpreter*, VMFrame* frame) {
+vm_oop_t objHalt(vm_oop_t) {
     // not implemeted
-    frame->Pop();
-    frame->Push(load_ptr(falseObject));
+    return load_ptr(falseObject);
 }
 
 void _Object::Perform(Interpreter* interp, VMFrame* frame) {
@@ -161,14 +119,9 @@ void _Object::PerformWithArgumentsInSuperclass(Interpreter* interp,
     invokable->Invoke(interp, frame);
 }
 
-void _Object::InstVarAt(Interpreter*, VMFrame* frame) {
-    vm_oop_t idx = frame->Pop();
-    vm_oop_t self = frame->Pop();
-
-    long field_idx = INT_VAL(idx) - 1;
-    vm_oop_t value = static_cast<VMObject*>(self)->GetField(field_idx);
-
-    frame->Push(value);
+vm_oop_t objInstVarAt(vm_oop_t self, vm_oop_t idx) {
+    int64_t field_idx = INT_VAL(idx) - 1;
+    return static_cast<VMObject*>(self)->GetField(field_idx);
 }
 
 void _Object::InstVarAtPut(Interpreter*, VMFrame* frame) {
@@ -181,17 +134,39 @@ void _Object::InstVarAtPut(Interpreter*, VMFrame* frame) {
     static_cast<VMObject*>(self)->SetField(field_idx, value);
 }
 
-void _Object::InstVarNamed(Interpreter*, VMFrame* frame) {
-    VMSymbol* name = (VMSymbol*)frame->Pop();
-    vm_oop_t self = frame->Pop();
-
+vm_oop_t objInstVarNamed(vm_oop_t self, vm_oop_t nameObj) {
+    VMSymbol* name = (VMSymbol*)nameObj;
     long field_idx = AS_OBJ(self)->GetFieldIndex(name);
-    vm_oop_t value = static_cast<VMObject*>(self)->GetField(field_idx);
-
-    frame->Push(value);
+    return static_cast<VMObject*>(self)->GetField(field_idx);
 }
 
-void _Object::Class(Interpreter*, VMFrame* frame) {
-    vm_oop_t self = frame->Pop();
-    frame->Push(CLASS_OF(self));
+vm_oop_t objClass(vm_oop_t self) {
+    return CLASS_OF(self);
+}
+
+_Object::_Object() : PrimitiveContainer() {
+    Add("equalequal", &objEqualequal, false);
+    Add("objectSize", &objObjectSize, false);
+    Add("hashcode", &objHashcode, false);
+    Add("inspect", &objInspect, false);
+    Add("halt", &objHalt, false);
+
+    SetPrimitive("perform_",
+                 new Routine<_Object>(this, &_Object::Perform, false));
+    SetPrimitive(
+        "perform_withArguments_",
+        new Routine<_Object>(this, &_Object::PerformWithArguments, false));
+    SetPrimitive(
+        "perform_inSuperclass_",
+        new Routine<_Object>(this, &_Object::PerformInSuperclass, false));
+    SetPrimitive("perform_withArguments_inSuperclass_",
+                 new Routine<_Object>(
+                     this, &_Object::PerformWithArgumentsInSuperclass, false));
+
+    Add("instVarAt_", &objInstVarAt, false);
+    SetPrimitive("instVarAt_put_",
+                 new Routine<_Object>(this, &_Object::InstVarAtPut, false));
+    Add("instVarNamed_", &objInstVarNamed, false);
+
+    Add("class", &objClass, false);
 }

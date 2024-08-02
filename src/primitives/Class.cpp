@@ -27,42 +27,41 @@
 #include "Class.h"
 
 #include "../primitivesCore/PrimitiveContainer.h"
-#include "../primitivesCore/Routine.h"
 #include "../vm/Universe.h"
+#include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMClass.h"
 #include "../vmobjects/VMFrame.h"
 #include "../vmobjects/VMSymbol.h"  // NOLINT(misc-include-cleaner) it's required to make the types complete
 
+static vm_oop_t clsNew(vm_oop_t rcvr) {
+    VMClass* self = static_cast<VMClass*>(rcvr);
+    return GetUniverse()->NewInstance(self);
+}
+
+static vm_oop_t clsName(vm_oop_t rcvr) {
+    VMClass* self = static_cast<VMClass*>(rcvr);
+    return self->GetName();
+}
+
+static vm_oop_t clsSuperclass(vm_oop_t rcvr) {
+    VMClass* self = static_cast<VMClass*>(rcvr);
+    return self->GetSuperClass();
+}
+
+static vm_oop_t clsMethods(vm_oop_t rcvr) {
+    VMClass* self = static_cast<VMClass*>(rcvr);
+    return self->GetInstanceInvokables();
+}
+
+static vm_oop_t clsFields(vm_oop_t rcvr) {
+    VMClass* self = static_cast<VMClass*>(rcvr);
+    return self->GetInstanceFields();
+}
+
 _Class::_Class() : PrimitiveContainer() {
-    SetPrimitive("new", new Routine<_Class>(this, &_Class::New, false));
-    SetPrimitive("name", new Routine<_Class>(this, &_Class::Name, false));
-    SetPrimitive("superclass",
-                 new Routine<_Class>(this, &_Class::Superclass, false));
-    SetPrimitive("fields", new Routine<_Class>(this, &_Class::Fields, false));
-    SetPrimitive("methods", new Routine<_Class>(this, &_Class::Methods, false));
-}
-
-void _Class::New(Interpreter*, VMFrame* frame) {
-    VMClass* self = static_cast<VMClass*>(frame->Pop());
-    frame->Push(GetUniverse()->NewInstance(self));
-}
-
-void _Class::Name(Interpreter*, VMFrame* frame) {
-    VMClass* self = static_cast<VMClass*>(frame->Pop());
-    frame->Push(self->GetName());
-}
-
-void _Class::Superclass(Interpreter*, VMFrame* frame) {
-    VMClass* self = static_cast<VMClass*>(frame->Pop());
-    frame->Push(self->GetSuperClass());
-}
-
-void _Class::Methods(Interpreter*, VMFrame* frame) {
-    VMClass* self = static_cast<VMClass*>(frame->Pop());
-    frame->Push(self->GetInstanceInvokables());
-}
-
-void _Class::Fields(Interpreter*, VMFrame* frame) {
-    VMClass* self = static_cast<VMClass*>(frame->Pop());
-    frame->Push(self->GetInstanceFields());
+    Add("new", &clsNew, false);
+    Add("name", &clsName, false);
+    Add("superclass", &clsSuperclass, false);
+    Add("fields", &clsFields, false);
+    Add("methods", &clsMethods, false);
 }

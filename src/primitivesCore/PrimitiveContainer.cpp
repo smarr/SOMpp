@@ -30,10 +30,23 @@
 #include <string>
 
 #include "../vmobjects/PrimitiveRoutine.h"
+#include "Primitives.h"
 
 void PrimitiveContainer::SetPrimitive(const char* name,
                                       PrimitiveRoutine* routine) {
     methods[std::string(name)] = routine;
+}
+
+void PrimitiveContainer::Add(const char* name,
+                             BinaryPrimitiveRoutine routine,
+                             bool classSide) {
+    binaryPrims[std::string(name)] = {routine, classSide};
+}
+
+void PrimitiveContainer::Add(const char* name,
+                             UnaryPrimitiveRoutine routine,
+                             bool classSide) {
+    unaryPrims[std::string(name)] = {routine, classSide};
 }
 
 PrimitiveRoutine* PrimitiveContainer::GetPrimitive(
@@ -42,4 +55,18 @@ PrimitiveRoutine* PrimitiveContainer::GetPrimitive(
         return methods[routineName];
     }
     return nullptr;
+}
+
+BinaryPrim PrimitiveContainer::GetSafeBinary(const std::string& routineName) {
+    if (binaryPrims.find(routineName) != binaryPrims.end()) {
+        return binaryPrims[routineName];
+    }
+    return BinaryPrim();
+}
+
+UnaryPrim PrimitiveContainer::GetSafeUnary(const std::string& routineName) {
+    if (unaryPrims.find(routineName) != unaryPrims.end()) {
+        return unaryPrims[routineName];
+    }
+    return UnaryPrim();
 }

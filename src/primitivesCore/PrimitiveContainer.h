@@ -30,6 +30,7 @@
 
 #include "../misc/defs.h"
 #include "../vmobjects/PrimitiveRoutine.h"
+#include "Primitives.h"
 
 /// Base class for all container objects holding SOM++ primitives.
 // Primitive container classes need to initialize a std::map<StdString,
@@ -50,6 +51,14 @@ public:
 
     PrimitiveRoutine* GetPrimitive(const std::string& routineName);
 
+    UnaryPrim GetSafeUnary(const std::string& routineName);
+    BinaryPrim GetSafeBinary(const std::string& routineName);
+
+    void Add(const char* name, UnaryPrimitiveRoutine, bool classSide);
+    void Add(const char* name, BinaryPrimitiveRoutine, bool classSide);
+
 private:
     std::map<std::string, PrimitiveRoutine*> methods{};
+    std::map<std::string, UnaryPrim> unaryPrims{};
+    std::map<std::string, BinaryPrim> binaryPrims{};
 };

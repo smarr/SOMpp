@@ -31,33 +31,5 @@
 
 class _Integer : public PrimitiveContainer {
 public:
-    void Plus(Interpreter*, VMFrame*);
-    void Minus(Interpreter*, VMFrame*);
-    void Star(Interpreter*, VMFrame*);
-    void Rem(Interpreter*, VMFrame*);
-    void BitwiseAnd(Interpreter*, VMFrame*);
-    void BitwiseXor(Interpreter*, VMFrame*);
-    void LeftShift(Interpreter*, VMFrame*);
-    void UnsignedRightShift(Interpreter*, VMFrame*);
-    void Slash(Interpreter*, VMFrame*);
-    void Slashslash(Interpreter*, VMFrame*);
-    void Percent(Interpreter*, VMFrame*);
-    void And(Interpreter*, VMFrame*);
-    void Equal(Interpreter*, VMFrame*);
-    void EqualEqual(Interpreter*, VMFrame*);
-    void Lowerthan(Interpreter*, VMFrame*);
-    void AsString(Interpreter*, VMFrame*);
-    void AsDouble(Interpreter*, VMFrame*);
-    void As32BitSigned(Interpreter*, VMFrame*);
-    void As32BitUnsigned(Interpreter*, VMFrame*);
-    void Sqrt(Interpreter*, VMFrame*);
-    void AtRandom(Interpreter*, VMFrame*);
-
-    void FromString(Interpreter*, VMFrame*);
-
-    _Integer(void);
-
-private:
-    void resendAsDouble(Interpreter* interp, const char* op, vm_oop_t left,
-                        VMDouble* right);
+    _Integer();
 };

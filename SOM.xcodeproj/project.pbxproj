@@ -88,6 +88,8 @@
 		0A3A3CB11A5D5475004CB03B /* PrimitiveLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F52032B0FA6624C00E75857 /* PrimitiveLoader.cpp */; };
 		0A3A3CB21A5D5476004CB03B /* PrimitiveContainer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F5203290FA6624C00E75857 /* PrimitiveContainer.cpp */; };
 		0A3A3CB31A5D5476004CB03B /* PrimitiveLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F52032B0FA6624C00E75857 /* PrimitiveLoader.cpp */; };
+		0A5A7E912C5D45A00011C783 /* VMSafePrimitive.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A5A7E902C5D45A00011C783 /* VMSafePrimitive.cpp */; };
+		0A5A7E922C5D45A00011C783 /* VMSafePrimitive.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A5A7E902C5D45A00011C783 /* VMSafePrimitive.cpp */; };
 		0A67EA7519ACD43A00830E3B /* CloneObjectsTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A67EA7019ACD43A00830E3B /* CloneObjectsTest.cpp */; };
 		0A67EA7619ACD43A00830E3B /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A67EA7119ACD43A00830E3B /* main.cpp */; };
 		0A67EA7819ACD43A00830E3B /* WalkObjectsTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A67EA7319ACD43A00830E3B /* WalkObjectsTest.cpp */; };
@@ -220,6 +222,9 @@
 		0A335F701832D65100D7CFC8 /* Primitive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Primitive.h; sourceTree = "<group>"; };
 		0A3FABE724F4670D002D4D69 /* BasicInterpreterTests.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.h; fileEncoding = 4; name = BasicInterpreterTests.h; path = unitTests/BasicInterpreterTests.h; sourceTree = "<group>"; };
 		0A5A7E8E2C5A37450011C783 /* StringUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StringUtil.h; sourceTree = "<group>"; };
+		0A5A7E8F2C5D30390011C783 /* VMSafePrimitive.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMSafePrimitive.h; sourceTree = "<group>"; };
+		0A5A7E902C5D45A00011C783 /* VMSafePrimitive.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = VMSafePrimitive.cpp; sourceTree = "<group>"; };
+		0A5A7E932C5DA9A90011C783 /* Primitives.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Primitives.h; sourceTree = "<group>"; };
 		0A67EA6719ACD37200830E3B /* unittests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = unittests; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A67EA7019ACD43A00830E3B /* CloneObjectsTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CloneObjectsTest.cpp; path = unitTests/CloneObjectsTest.cpp; sourceTree = "<group>"; };
 		0A67EA7119ACD43A00830E3B /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = unitTests/main.cpp; sourceTree = "<group>"; };
@@ -600,6 +605,7 @@
 				3F52032B0FA6624C00E75857 /* PrimitiveLoader.cpp */,
 				3F52032C0FA6624C00E75857 /* PrimitiveLoader.h */,
 				3F52032E0FA6624C00E75857 /* Routine.h */,
+				0A5A7E932C5DA9A90011C783 /* Primitives.h */,
 			);
 			path = primitivesCore;
 			sourceTree = "<group>";
@@ -663,6 +669,8 @@
 				3F5203560FA6624C00E75857 /* VMString.h */,
 				3F5203570FA6624C00E75857 /* VMSymbol.cpp */,
 				3F5203580FA6624C00E75857 /* VMSymbol.h */,
+				0A5A7E8F2C5D30390011C783 /* VMSafePrimitive.h */,
+				0A5A7E902C5D45A00011C783 /* VMSafePrimitive.cpp */,
 			);
 			path = vmobjects;
 			sourceTree = "<group>";
@@ -882,6 +890,7 @@
 				0A1886E71832BCDC00A2CBCA /* Heap.cpp in Sources */,
 				0A1886F71832BCF500A2CBCA /* Signature.cpp in Sources */,
 				0A1887351832C10E00A2CBCA /* MarkSweepCollector.cpp in Sources */,
+				0A5A7E912C5D45A00011C783 /* VMSafePrimitive.cpp in Sources */,
 				0A1886FB1832BCF500A2CBCA /* VMBlock.cpp in Sources */,
 				0A1887391832C12E00A2CBCA /* Timer.cpp in Sources */,
 				0A1887021832BCFA00A2CBCA /* VMMethod.cpp in Sources */,
@@ -973,6 +982,7 @@
 				0A67EA7C19ACD74800830E3B /* AbstractObject.cpp in Sources */,
 				0A67EA8E19ACD83200830E3B /* ClassGenerationContext.cpp in Sources */,
 				0A3A3CB31A5D5476004CB03B /* PrimitiveLoader.cpp in Sources */,
+				0A5A7E922C5D45A00011C783 /* VMSafePrimitive.cpp in Sources */,
 				0A67EA8219ACD74800830E3B /* VMDouble.cpp in Sources */,
 				0A67EA9A19ACD85E00830E3B /* Heap.cpp in Sources */,
 				0A67EA8119ACD74800830E3B /* VMClass.cpp in Sources */,
@@ -1034,8 +1044,8 @@
 					src,
 				);
 				OTHER_CFLAGS = (
-					"-DGC_TYPE=DEBUG_COPYING",
-					"-DUSE_TAGGING=false",
+					"-DGC_TYPE=COPYING",
+					"-DUSE_TAGGING=true",
 					"-DDEBUG",
 					"-DLOG_LEVEL=3",
 					"-Wextra",
@@ -1079,8 +1089,8 @@
 					src,
 				);
 				OTHER_CFLAGS = (
-					"-DGC_TYPE=DEBUG_COPYING",
-					"-DUSE_TAGGING=false",
+					"-DGC_TYPE=COPYING",
+					"-DUSE_TAGGING=true",
 					"-DDEBUG",
 					"-DLOG_LEVEL=3",
 					"-Wextra",

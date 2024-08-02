@@ -33,6 +33,7 @@
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../primitivesCore/PrimitiveLoader.h"
+#include "../primitivesCore/Primitives.h"
 #include "../vm/Globals.h"
 #include "../vm/IsValidObject.h"
 #include "../vm/Print.h"
@@ -43,6 +44,7 @@
 #include "VMInvokable.h"
 #include "VMObject.h"
 #include "VMPrimitive.h"
+#include "VMSafePrimitive.h"
 #include "VMSymbol.h"
 
 const size_t VMClass::VMClassNumberOfFields = 4;
@@ -243,6 +245,26 @@ void VMClass::setPrimitives(const std::string& cname, bool classSide) {
 
             VMSymbol* sig = anInvokable->GetSignature();
             std::string selector = sig->GetPlainString();
+
+            if (sig->numberOfArgumentsOfSignature == 1) {
+                // try to use a safe binary prim
+                UnaryPrim unPrim =
+                    PrimitiveLoader::GetUnaryPrim(cname, selector);
+                if (unPrim.IsValid() && unPrim.isClassSide == classSide) {
+                    AddInstanceInvokable(
+                        VMSafePrimitive::GetSafeUnary(sig, unPrim));
+                    continue;
+                }
+            } else if (sig->numberOfArgumentsOfSignature == 2) {
+                // try to use a safe binary prim
+                BinaryPrim binPrim =
+                    PrimitiveLoader::GetBinaryPrim(cname, selector);
+                if (binPrim.IsValid() && binPrim.isClassSide == classSide) {
+                    AddInstanceInvokable(
+                        VMSafePrimitive::GetSafeBinary(sig, binPrim));
+                    continue;
+                }
+            }
 
             PrimitiveRoutine* routine = PrimitiveLoader::GetPrimitiveRoutine(
                 cname, selector, anInvokable->IsPrimitive() && current == this);
