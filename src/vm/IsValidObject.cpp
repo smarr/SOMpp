@@ -113,7 +113,7 @@ bool IsVMSymbol(vm_oop_t obj) {
     return get_vtable(AS_OBJ(obj)) == vt_symbol;
 }
 
-void obtain_vtables_of_known_classes(VMSymbol* className) {
+void obtain_vtables_of_known_classes(VMSymbol* someValidSymbol) {
     // These objects are allocated on the heap. So, they will get GC'ed soon
     // enough.
     VMArray* arr = new (GetHeap<HEAP_CLS>(), 0) VMArray(0, 0);
@@ -142,11 +142,12 @@ void obtain_vtables_of_known_classes(VMSymbol* className) {
     vt_method = get_vtable(mth);
     vt_object = get_vtable(load_ptr(nilObject));
 
-    VMPrimitive* prm = new (GetHeap<HEAP_CLS>(), 0) VMPrimitive(className);
+    VMPrimitive* prm =
+        new (GetHeap<HEAP_CLS>(), 0) VMPrimitive(someValidSymbol);
     vt_primitive = get_vtable(prm);
 
     VMString* str =
         new (GetHeap<HEAP_CLS>(), PADDED_SIZE(1)) VMString(0, nullptr);
     vt_string = get_vtable(str);
-    vt_symbol = get_vtable(className);
+    vt_symbol = get_vtable(someValidSymbol);
 }

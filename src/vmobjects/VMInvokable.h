@@ -48,6 +48,11 @@ public:
 
     void WalkObjects(walk_heap_fn) override;
 
+    void MarkObjectAsInvalid() override {
+        signature = (GCSymbol*)INVALID_GC_POINTER;
+        holder = (GCClass*)INVALID_GC_POINTER;
+    }
+
     make_testable(public);
 
     int64_t hash;

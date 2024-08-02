@@ -38,5 +38,8 @@ void PrimitiveContainer::SetPrimitive(const char* name,
 
 PrimitiveRoutine* PrimitiveContainer::GetPrimitive(
     const std::string& routineName) {
-    return methods[routineName];
+    if (methods.find(routineName) != methods.end()) {
+        return methods[routineName];
+    }
+    return nullptr;
 }

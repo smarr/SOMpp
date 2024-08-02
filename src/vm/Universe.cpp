@@ -439,12 +439,11 @@ VMObject* Universe::InitializeGlobals() {
     // Fix up objectClass
     load_ptr(objectClass)->SetSuperClass(nil);
 
-    obtain_vtables_of_known_classes(nil->GetClass()->GetName());
-
 #if USE_TAGGING
     GlobalBox::updateIntegerBox(NewInteger(1));
 #endif
     InitializeSymbols();
+    obtain_vtables_of_known_classes(load_ptr(symbolSelf));
 
     LoadSystemClass(load_ptr(objectClass));
     LoadSystemClass(load_ptr(classClass));

@@ -150,6 +150,7 @@ public:
     void Invoke(Interpreter* interp, VMFrame* frame) override;
 
     void MarkObjectAsInvalid() override {
+        VMInvokable::MarkObjectAsInvalid();
         indexableFields = (gc_oop_t*)INVALID_GC_POINTER;
     }
 

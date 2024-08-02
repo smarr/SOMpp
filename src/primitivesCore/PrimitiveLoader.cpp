@@ -61,10 +61,8 @@ PrimitiveLoader::PrimitiveLoader() {
 }
 
 PrimitiveLoader::~PrimitiveLoader() {
-    map<std::string, PrimitiveContainer*>::iterator it =
-        primitiveObjects.begin();
-    for (; it != primitiveObjects.end(); ++it) {
-        delete it->second;
+    for (const auto& p : primitiveObjects) {
+        delete p.second;
     }
 }
 
@@ -74,7 +72,7 @@ void PrimitiveLoader::AddPrimitiveObject(const std::string& name,
 }
 
 bool PrimitiveLoader::supportsClass(const std::string& name) {
-    return primitiveObjects[name] != nullptr;
+    return primitiveObjects.find(name) != primitiveObjects.end();
 }
 
 bool PrimitiveLoader::SupportsClass(const std::string& name) {
@@ -90,11 +88,12 @@ PrimitiveRoutine* PrimitiveLoader::GetPrimitiveRoutine(const std::string& cname,
 PrimitiveRoutine* PrimitiveLoader::getPrimitiveRoutine(const std::string& cname,
                                                        const std::string& mname,
                                                        bool isPrimitive) {
-    PrimitiveContainer* primitive = primitiveObjects[cname];
-    if (!primitive) {
+    if (primitiveObjects.find(cname) == primitiveObjects.end()) {
         ErrorPrint("Primitive object not found for name: " + cname + "\n");
         return nullptr;
     }
+
+    PrimitiveContainer* primitive = primitiveObjects[cname];
     PrimitiveRoutine* result = primitive->GetPrimitive(mname);
     if (!result) {
         if (isPrimitive) {
