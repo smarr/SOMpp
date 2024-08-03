@@ -6,7 +6,12 @@ variables:
   PYTHONUNBUFFERED: "true"
 
 before_script:
-  - git submodule update --init
+  - |+
+    git submodule update --init
+    if [ "$MACHINE" = "zullie1" ]; then
+      export PATH=/opt/local/bin:/Users/gitlab-runner/Library/Python/3.12/bin:$PATH
+      export MP='-mp'
+    fi
 
 build_and_test:
   stage: build-and-test
@@ -29,11 +34,13 @@ build_and_test:
         GC: [COPYING]
         INTEGERS: ["-DUSE_TAGGING=true"]
 
-      # Generational GC is broken it seems, use a configuration that mostly works
-      - MACHINE: [yuria, yuria2, yuria3]
+      - MACHINE: [zullie1]
         COMPILER: [clang]
         GC: [GENERATIONAL]
-        INTEGERS: ["-DUSE_TAGGING=false -DCACHE_INTEGER=false"]
+        INTEGERS:
+          - "-DUSE_TAGGING=true"
+          - "-DUSE_TAGGING=false -DCACHE_INTEGER=true"
+          - "-DUSE_TAGGING=false -DCACHE_INTEGER=false"
 
       # Mark-Sweep working, but not super exciting
       - MACHINE: [yuria, yuria2, yuria3]
@@ -47,7 +54,7 @@ build_and_test:
     - rm -rf debug && mkdir debug
 
     - if [ "$COMPILER" = "gcc" ];   then export CC=gcc-13;   export CXX=g++-13; fi
-    - if [ "$COMPILER" = "clang" ]; then export CC=clang-17; export CXX=clang++-17; fi
+    - if [ "$COMPILER" = "clang" ]; then export CC=clang$MP-17; export CXX=clang++$MP-17; fi
 
     # compose a name for this configuration
     - |+
@@ -64,13 +71,13 @@ build_and_test:
 
     - cd release
     - cmake .. $INTEGERS -DGC_TYPE=$GC -DCMAKE_BUILD_TYPE=Release
-    - make -j10
+    - make -j
     - mv SOM++ ../$NAME
     - cd ..
 
     - cd debug
     - cmake .. $INTEGERS -DGC_TYPE=$GC -DCMAKE_BUILD_TYPE=Debug
-    - make -j10
+    - make -j
     - ./SOM++ -cp ../Smalltalk ../TestSuite/TestHarness.som
     - ./unittests -cp ../Smalltalk:../TestSuite/BasicInterpreterTests ../Examples/Hello.som
     - cd ..
@@ -80,13 +87,19 @@ build_and_test:
       if [ "$COMPILER" = "clang" ]; then
         # this is to load balance the SomSom testing
         # only when compiling with Clang, and only on one machine for each integer configuration
-        if [ "$MACHINE $INTEGERS" = "yuria -DUSE_TAGGING=true" ] || [ "$MACHINE $INTEGERS" = "yuria2 -DUSE_TAGGING=false -DCACHE_INTEGER=true" ] || [ "$MACHINE $INTEGERS" = "yuria3 -DUSE_TAGGING=false -DCACHE_INTEGER=false" ]; then
+        if [ "$MACHINE $INTEGERS" = "zullie1 -DUSE_TAGGING=true" ] || [ "$MACHINE $INTEGERS" = "yuria2 -DUSE_TAGGING=false -DCACHE_INTEGER=true" ] || [ "$MACHINE $INTEGERS" = "yuria3 -DUSE_TAGGING=false -DCACHE_INTEGER=false" ]; then
           ./$NAME -cp Smalltalk:TestSuite:core-lib/SomSom/src/compiler:core-lib/SomSom/src/interpreter:core-lib/SomSom/src/primitives:core-lib/SomSom/src/vm:core-lib/SomSom/src/vmobjects core-lib/SomSom/tests/SomSomTests.som
         fi
       fi
 
     # run the benchmarks
-    - rebench --experiment="CI ID $CI_PIPELINE_ID" --branch="$CI_COMMIT_REF_NAME" -c rebench.conf all "e:${NAME}" "m:$MACHINE"
+    - |+
+      if [ "$MACHINE" = "zullie1" ]; then
+        M=''
+      else
+        M="m:$MACHINE"
+      fi
+      rebench --experiment="CI ID $CI_PIPELINE_ID" --branch="$CI_COMMIT_REF_NAME" -c rebench.conf all "e:${NAME}" $M
 
 complete_benchmarking:
   stage: benchmark-completion
