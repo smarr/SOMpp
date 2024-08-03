@@ -200,6 +200,39 @@ static vm_oop_t intLowerthan(vm_oop_t leftObj, vm_oop_t rightObj) {
     }
 }
 
+static vm_oop_t intLowerThanEqual(vm_oop_t leftObj, vm_oop_t rightObj) {
+    int64_t left = INT_VAL(leftObj);
+    doDoubleOpIfNeeded(left, rightObj, <=);
+
+    if (left <= INT_VAL(rightObj)) {
+        return load_ptr(trueObject);
+    } else {
+        return load_ptr(falseObject);
+    }
+}
+
+static vm_oop_t intGreaterThan(vm_oop_t leftObj, vm_oop_t rightObj) {
+    int64_t left = INT_VAL(leftObj);
+    doDoubleOpIfNeeded(left, rightObj, >);
+
+    if (left > INT_VAL(rightObj)) {
+        return load_ptr(trueObject);
+    } else {
+        return load_ptr(falseObject);
+    }
+}
+
+static vm_oop_t intGreaterThanEqual(vm_oop_t leftObj, vm_oop_t rightObj) {
+    int64_t left = INT_VAL(leftObj);
+    doDoubleOpIfNeeded(left, rightObj, >=);
+
+    if (left >= INT_VAL(rightObj)) {
+        return load_ptr(trueObject);
+    } else {
+        return load_ptr(falseObject);
+    }
+}
+
 static vm_oop_t intAsString(vm_oop_t self) {
     long integer = INT_VAL(self);
     ostringstream Str;
@@ -239,6 +272,44 @@ static vm_oop_t intAtRandom(vm_oop_t self) {
     return NEW_INT(result);
 }
 
+static vm_oop_t intAbs(vm_oop_t self) {
+    int64_t result = INT_VAL(self);
+    if (result < 0) {
+        return NEW_INT(abs(result));
+    }
+    return self;
+}
+
+static vm_oop_t intMin(vm_oop_t self, vm_oop_t arg) {
+    int64_t result = INT_VAL(self);
+
+    VMClass* cl = CLASS_OF(arg);
+    if (cl == load_ptr(doubleClass)) {
+        if (result < ((VMDouble*)arg)->GetEmbeddedDouble()) {
+            return self;
+        } else {
+            return arg;
+        }
+    }
+
+    return (result < INT_VAL(arg)) ? self : arg;
+}
+
+static vm_oop_t intMax(vm_oop_t self, vm_oop_t arg) {
+    int64_t result = INT_VAL(self);
+
+    VMClass* cl = CLASS_OF(arg);
+    if (cl == load_ptr(doubleClass)) {
+        if (result > ((VMDouble*)arg)->GetEmbeddedDouble()) {
+            return self;
+        } else {
+            return arg;
+        }
+    }
+
+    return (result > INT_VAL(arg)) ? self : arg;
+}
+
 static vm_oop_t intFromString(vm_oop_t, vm_oop_t right) {
     VMString* self = (VMString*)right;
     std::string str = self->GetStdString();
@@ -275,4 +346,8 @@ _Integer::_Integer() : PrimitiveContainer() {
     Add("<=", &intLowerThanEqual, false);
     Add(">", &intGreaterThan, false);
     Add(">=", &intGreaterThanEqual, false);
+
+    Add("abs", &intAbs, false);
+    Add("min:", &intMin, false);
+    Add("max:", &intMax, false);
 }
