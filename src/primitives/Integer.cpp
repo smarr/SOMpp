@@ -271,4 +271,8 @@ _Integer::_Integer() : PrimitiveContainer() {
     Add("sqrt", &intSqrt, false);
     Add("atRandom", &intAtRandom, false);
     Add("fromString:", &intFromString, true);
+
+    Add("<=", &intLowerThanEqual, false);
+    Add(">", &intGreaterThan, false);
+    Add(">=", &intGreaterThanEqual, false);
 }
