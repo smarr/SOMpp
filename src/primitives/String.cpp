@@ -41,29 +41,9 @@
 #include "../vmobjects/VMString.h"
 #include "../vmobjects/VMSymbol.h"  // NOLINT(misc-include-cleaner) it's required to make the types complete
 
-_String::_String() : PrimitiveContainer() {
-    SetPrimitive("concatenate_",
-                 new Routine<_String>(this, &_String::Concatenate_, false));
-    SetPrimitive("asSymbol",
-                 new Routine<_String>(this, &_String::AsSymbol, false));
-    SetPrimitive("hashcode",
-                 new Routine<_String>(this, &_String::Hashcode, false));
-    SetPrimitive("length", new Routine<_String>(this, &_String::Length, false));
-    SetPrimitive("equal", new Routine<_String>(this, &_String::Equal, false));
-    SetPrimitive(
-        "primSubstringFrom_to_",
-        new Routine<_String>(this, &_String::PrimSubstringFrom_to_, false));
-    SetPrimitive("isWhiteSpace",
-                 new Routine<_String>(this, &_String::IsWhiteSpace, false));
-    SetPrimitive("isLetters",
-                 new Routine<_String>(this, &_String::IsLetters, false));
-    SetPrimitive("isDigits",
-                 new Routine<_String>(this, &_String::IsDigits, false));
-}
-
-void _String::Concatenate_(Interpreter*, VMFrame* frame) {
-    VMString* arg = static_cast<VMString*>(frame->Pop());
-    VMString* self = static_cast<VMString*>(frame->Pop());
+static vm_oop_t strConcatenate_(vm_oop_t leftObj, vm_oop_t rightObj) {
+    VMString* arg = static_cast<VMString*>(rightObj);
+    VMString* self = static_cast<VMString*>(leftObj);
     // TODO: if this really needs to be optimized, than, well, then,
     // NewString should allow to construct it correctly and simply copy
     // from both input strings
@@ -72,34 +52,32 @@ void _String::Concatenate_(Interpreter*, VMFrame* frame) {
 
     StdString result = s + a;
 
-    frame->Push(GetUniverse()->NewString(result));
+    return GetUniverse()->NewString(result);
 }
 
-void _String::AsSymbol(Interpreter*, VMFrame* frame) {
-    VMString* self = static_cast<VMString*>(frame->Pop());
+static vm_oop_t strAsSymbol(vm_oop_t rcvr) {
+    VMString* self = static_cast<VMString*>(rcvr);
     StdString result = self->GetStdString();
-    frame->Push(SymbolFor(result));
+    return SymbolFor(result);
 }
 
-void _String::Hashcode(Interpreter*, VMFrame* frame) {
-    VMString* self = static_cast<VMString*>(frame->Pop());
-    frame->Push(NEW_INT(self->GetHash()));
+static vm_oop_t strHashcode(vm_oop_t rcvr) {
+    VMString* self = static_cast<VMString*>(rcvr);
+    return NEW_INT(self->GetHash());
 }
 
-void _String::Length(Interpreter*, VMFrame* frame) {
-    VMString* self = static_cast<VMString*>(frame->Pop());
+static vm_oop_t strLength(vm_oop_t rcvr) {
+    VMString* self = static_cast<VMString*>(rcvr);
 
     size_t len = self->GetStringLength();
-    frame->Push(NEW_INT((int64_t)len));
+    return NEW_INT((int64_t)len);
 }
 
-void _String::Equal(Interpreter*, VMFrame* frame) {
-    vm_oop_t op1 = frame->Pop();
-    VMString* op2 = static_cast<VMString*>(frame->Pop());
+static vm_oop_t strEqual(vm_oop_t leftObj, vm_oop_t op1) {
+    VMString* op2 = static_cast<VMString*>(leftObj);
 
     if (IS_TAGGED(op1)) {
-        frame->Push(load_ptr(falseObject));
-        return;
+        return load_ptr(falseObject);
     }
 
     VMClass* otherClass = CLASS_OF(op1);
@@ -109,11 +87,10 @@ void _String::Equal(Interpreter*, VMFrame* frame) {
         StdString s2 = op2->GetStdString();
 
         if (s1 == s2) {
-            frame->Push(load_ptr(trueObject));
-            return;
+            return load_ptr(trueObject);
         }
     }
-    frame->Push(load_ptr(falseObject));
+    return load_ptr(falseObject);
 }
 
 void _String::PrimSubstringFrom_to_(Interpreter*, VMFrame* frame) {
@@ -131,8 +108,8 @@ void _String::PrimSubstringFrom_to_(Interpreter*, VMFrame* frame) {
     frame->Push(GetUniverse()->NewString(result));
 }
 
-void _String::IsWhiteSpace(Interpreter*, VMFrame* frame) {
-    VMString* self = static_cast<VMString*>(frame->Pop());
+static vm_oop_t strIsWhiteSpace(vm_oop_t rcvr) {
+    VMString* self = static_cast<VMString*>(rcvr);
 
     size_t len = self->GetStringLength();
 
@@ -140,20 +117,19 @@ void _String::IsWhiteSpace(Interpreter*, VMFrame* frame) {
 
     for (size_t i = 0; i < len; i++) {
         if (!isspace(string[i])) {
-            frame->Push(load_ptr(falseObject));
-            return;
+            return load_ptr(falseObject);
         }
     }
 
     if (len > 0) {
-        frame->Push(load_ptr(trueObject));
+        return load_ptr(trueObject);
     } else {
-        frame->Push(load_ptr(falseObject));
+        return load_ptr(falseObject);
     }
 }
 
-void _String::IsLetters(Interpreter*, VMFrame* frame) {
-    VMString* self = static_cast<VMString*>(frame->Pop());
+static vm_oop_t strIsLetters(vm_oop_t rcvr) {
+    VMString* self = static_cast<VMString*>(rcvr);
 
     size_t len = self->GetStringLength();
 
@@ -161,20 +137,19 @@ void _String::IsLetters(Interpreter*, VMFrame* frame) {
 
     for (size_t i = 0; i < len; i++) {
         if (!isalpha(string[i])) {
-            frame->Push(load_ptr(falseObject));
-            return;
+            return load_ptr(falseObject);
         }
     }
 
     if (len > 0) {
-        frame->Push(load_ptr(trueObject));
+        return load_ptr(trueObject);
     } else {
-        frame->Push(load_ptr(falseObject));
+        return load_ptr(falseObject);
     }
 }
 
-void _String::IsDigits(Interpreter*, VMFrame* frame) {
-    VMString* self = static_cast<VMString*>(frame->Pop());
+static vm_oop_t strIsDigits(vm_oop_t rcvr) {
+    VMString* self = static_cast<VMString*>(rcvr);
 
     size_t len = self->GetStringLength();
 
@@ -182,14 +157,27 @@ void _String::IsDigits(Interpreter*, VMFrame* frame) {
 
     for (size_t i = 0; i < len; i++) {
         if (!isdigit(string[i])) {
-            frame->Push(load_ptr(falseObject));
-            return;
+            return load_ptr(falseObject);
         }
     }
 
     if (len > 0) {
-        frame->Push(load_ptr(trueObject));
+        return load_ptr(trueObject);
     } else {
-        frame->Push(load_ptr(falseObject));
+        return load_ptr(falseObject);
     }
+}
+
+_String::_String() : PrimitiveContainer() {
+    Add("concatenate_", &strConcatenate_, false);
+    Add("asSymbol", &strAsSymbol, false);
+    Add("hashcode", &strHashcode, false);
+    Add("length", &strLength, false);
+    Add("equal", &strEqual, false);
+    SetPrimitive(
+        "primSubstringFrom_to_",
+        new Routine<_String>(this, &_String::PrimSubstringFrom_to_, false));
+    Add("isWhiteSpace", &strIsWhiteSpace, false);
+    Add("isLetters", &strIsLetters, false);
+    Add("isDigits", &strIsDigits, false);
 }

@@ -32,25 +32,4 @@
 class _Double : public PrimitiveContainer {
 public:
     _Double();
-    void Plus(Interpreter*, VMFrame*);
-    void Minus(Interpreter*, VMFrame*);
-    void Star(Interpreter*, VMFrame*);
-    void Cos(Interpreter*, VMFrame*);
-    void Sin(Interpreter*, VMFrame*);
-    void Slashslash(Interpreter*, VMFrame*);
-    void Percent(Interpreter*, VMFrame*);
-    void And(Interpreter*, VMFrame*);
-    void Equal(Interpreter*, VMFrame*);
-    void Lowerthan(Interpreter*, VMFrame*);
-    void AsString(Interpreter*, VMFrame*);
-    void Sqrt(Interpreter*, VMFrame*);
-    void BitwiseXor(Interpreter*, VMFrame*);
-    void Round(Interpreter*, VMFrame*);
-    void AsInteger(Interpreter*, VMFrame*);
-
-    void PositiveInfinity(Interpreter*, VMFrame*);
-    void FromString(Interpreter*, VMFrame*);
-
-private:
-    double coerceDouble(vm_oop_t x);
 };

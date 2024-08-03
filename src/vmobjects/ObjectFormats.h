@@ -86,6 +86,9 @@ class VMInvokable;
 class VMMethod;
 class VMObject;
 class VMPrimitive;
+class VMSafePrimitive;
+class VMSafeUnaryPrimitive;
+class VMSafeBinaryPrimitive;
 class VMString;
 class VMSymbol;
 
@@ -142,6 +145,9 @@ class GCInvokable      : public GCAbstractObject { public: typedef VMInvokable  
 class GCMethod         : public GCInvokable      { public: typedef VMMethod         Loaded; };
 class GCPrimitive      : public GCInvokable      { public: typedef VMPrimitive      Loaded; };
 class GCEvaluationPrimitive : public GCPrimitive { public: typedef VMEvaluationPrimitive Loaded; };
+class GCSafePrimitive  : public GCInvokable      { public: typedef VMSafePrimitive  Loaded; };
+class GCSafeUnaryPrimitive  : public GCSafePrimitive { public: typedef VMSafeUnaryPrimitive  Loaded; };
+class GCSafeBinaryPrimitive  : public GCSafePrimitive { public: typedef VMSafeBinaryPrimitive  Loaded; };
 class GCString         : public GCAbstractObject { public: typedef VMString         Loaded; };
 class GCSymbol         : public GCString         { public: typedef VMSymbol         Loaded; };
 // clang-format on

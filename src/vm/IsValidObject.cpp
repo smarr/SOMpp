@@ -15,6 +15,7 @@
 #include "../vmobjects/VMInteger.h"
 #include "../vmobjects/VMMethod.h"
 #include "../vmobjects/VMObjectBase.h"  // NOLINT(misc-include-cleaner) needed for some GCs
+#include "../vmobjects/VMSafePrimitive.h"
 #include "../vmobjects/VMString.h"
 #include "../vmobjects/VMSymbol.h"
 #include "Globals.h"
@@ -29,6 +30,8 @@ void* vt_integer;
 void* vt_method;
 void* vt_object;
 void* vt_primitive;
+void* vt_safe_un_primitive;
+void* vt_safe_bin_primitive;
 void* vt_string;
 void* vt_symbol;
 
@@ -59,7 +62,8 @@ bool IsValidObject(vm_oop_t obj) {
     bool b = vt == vt_array || vt == vt_block || vt == vt_class ||
              vt == vt_double || vt == vt_eval_primitive || vt == vt_frame ||
              vt == vt_integer || vt == vt_method || vt == vt_object ||
-             vt == vt_primitive || vt == vt_string || vt == vt_symbol;
+             vt == vt_primitive || vt == vt_safe_un_primitive ||
+             vt == vt_safe_bin_primitive || vt == vt_string || vt == vt_symbol;
     if (!b) {
         assert(b && "Expected vtable to be one of the known ones.");
         return false;
@@ -95,6 +99,8 @@ void set_vt_to_null() {
     vt_method = nullptr;
     vt_object = nullptr;
     vt_primitive = nullptr;
+    vt_safe_un_primitive = nullptr;
+    vt_safe_bin_primitive = nullptr;
     vt_string = nullptr;
     vt_symbol = nullptr;
 }
@@ -113,7 +119,7 @@ bool IsVMSymbol(vm_oop_t obj) {
     return get_vtable(AS_OBJ(obj)) == vt_symbol;
 }
 
-void obtain_vtables_of_known_classes(VMSymbol* className) {
+void obtain_vtables_of_known_classes(VMSymbol* someValidSymbol) {
     // These objects are allocated on the heap. So, they will get GC'ed soon
     // enough.
     VMArray* arr = new (GetHeap<HEAP_CLS>(), 0) VMArray(0, 0);
@@ -142,11 +148,20 @@ void obtain_vtables_of_known_classes(VMSymbol* className) {
     vt_method = get_vtable(mth);
     vt_object = get_vtable(load_ptr(nilObject));
 
-    VMPrimitive* prm = new (GetHeap<HEAP_CLS>(), 0) VMPrimitive(className);
+    VMPrimitive* prm =
+        new (GetHeap<HEAP_CLS>(), 0) VMPrimitive(someValidSymbol);
     vt_primitive = get_vtable(prm);
+
+    VMSafeUnaryPrimitive* sbp1 = new (GetHeap<HEAP_CLS>(), 0)
+        VMSafeUnaryPrimitive(someValidSymbol, UnaryPrim());
+    vt_safe_un_primitive = get_vtable(sbp1);
+
+    VMSafeBinaryPrimitive* sbp2 = new (GetHeap<HEAP_CLS>(), 0)
+        VMSafeBinaryPrimitive(someValidSymbol, BinaryPrim());
+    vt_safe_bin_primitive = get_vtable(sbp2);
 
     VMString* str =
         new (GetHeap<HEAP_CLS>(), PADDED_SIZE(1)) VMString(0, nullptr);
     vt_string = get_vtable(str);
-    vt_symbol = get_vtable(className);
+    vt_symbol = get_vtable(someValidSymbol);
 }

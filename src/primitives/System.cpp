@@ -56,13 +56,11 @@
 
 _System* System_;
 
-void _System::Global_(Interpreter*, VMFrame* frame) {
-    VMSymbol* arg = static_cast<VMSymbol*>(frame->Pop());
-    /*VMObject* self = */
-    frame->Pop();
+static vm_oop_t sysGlobal_(vm_oop_t, vm_oop_t rightObj) {
+    VMSymbol* arg = static_cast<VMSymbol*>(rightObj);
     vm_oop_t result = GetUniverse()->GetGlobal(arg);
 
-    frame->Push(result ? result : load_ptr(nilObject));
+    return result ? result : load_ptr(nilObject);
 }
 
 void _System::Global_put_(Interpreter*, VMFrame* frame) {
@@ -71,69 +69,67 @@ void _System::Global_put_(Interpreter*, VMFrame* frame) {
     GetUniverse()->SetGlobal(arg, value);
 }
 
-void _System::HasGlobal_(Interpreter*, VMFrame* frame) {
-    VMSymbol* arg = static_cast<VMSymbol*>(frame->Pop());
-    frame->Pop();  // pop self (system)
+static vm_oop_t sysHasGlobal_(vm_oop_t, vm_oop_t rightObj) {
+    VMSymbol* arg = static_cast<VMSymbol*>(rightObj);
 
     if (GetUniverse()->HasGlobal(arg)) {
-        frame->Push(load_ptr(trueObject));
+        return load_ptr(trueObject);
     } else {
-        frame->Push(load_ptr(falseObject));
+        return load_ptr(falseObject);
     }
 }
 
-void _System::Load_(Interpreter*, VMFrame* frame) {
-    VMSymbol* arg = static_cast<VMSymbol*>(frame->Pop());
-    frame->Pop();
+static vm_oop_t sysLoad_(vm_oop_t, vm_oop_t rightObj) {
+    VMSymbol* arg = static_cast<VMSymbol*>(rightObj);
     VMClass* result = GetUniverse()->LoadClass(arg);
     if (result) {
-        frame->Push(result);
+        return result;
     } else {
-        frame->Push(load_ptr(nilObject));
+        return load_ptr(nilObject);
     }
 }
 
-void _System::Exit_(Interpreter*, VMFrame* frame) {
-    vm_oop_t err = frame->Pop();
-
+static vm_oop_t sysExit_(vm_oop_t, vm_oop_t err) {
     long err_no = INT_VAL(err);
-    if (err_no != ERR_SUCCESS) {
-        frame->PrintStackTrace();
-    }
     GetUniverse()->Quit(err_no);
 }
 
-void _System::PrintString_(Interpreter*, VMFrame* frame) {
-    VMString* arg = static_cast<VMString*>(frame->Pop());
+static vm_oop_t sysPrintString_(vm_oop_t leftObj, vm_oop_t rightObj) {
+    VMString* arg = static_cast<VMString*>(rightObj);
     std::string str = arg->GetStdString();
     Print(str);
+    return leftObj;
 }
 
-void _System::PrintNewline(Interpreter*, VMFrame*) {
+static vm_oop_t sysPrintNewline(vm_oop_t leftObj) {
     Print("\n");
+    return leftObj;
 }
 
-void _System::PrintNewline_(Interpreter*, VMFrame* frame) {
-    VMString* arg = static_cast<VMString*>(frame->Pop());
+static vm_oop_t sysPrintNewline_(vm_oop_t leftObj, vm_oop_t rightObj) {
+    VMString* arg = static_cast<VMString*>(rightObj);
     std::string str = arg->GetStdString();
     Print(str + "\n");
+    return leftObj;
 }
 
-void _System::ErrorPrint_(Interpreter*, VMFrame* frame) {
-    VMString* arg = static_cast<VMString*>(frame->Pop());
+static vm_oop_t sysErrorPrint_(vm_oop_t leftObj, vm_oop_t rightObj) {
+    VMString* arg = static_cast<VMString*>(rightObj);
     std::string str = arg->GetStdString();
     ErrorPrint(str);
+    return leftObj;
 }
 
-void _System::ErrorPrintNewline_(Interpreter*, VMFrame* frame) {
-    VMString* arg = static_cast<VMString*>(frame->Pop());
+static vm_oop_t sysErrorPrintNewline_(vm_oop_t leftObj, vm_oop_t rightObj) {
+    VMString* arg = static_cast<VMString*>(rightObj);
     std::string str = arg->GetStdString();
     ErrorPrint(str + "\n");
+    return leftObj;
 }
 
-void _System::Time(Interpreter*, VMFrame* frame) {
-    /*VMObject* self = */
-    frame->Pop();
+static struct timeval start_time;
+
+static vm_oop_t sysTime(vm_oop_t) {
     struct timeval now;
 
     gettimeofday(&now, nullptr);
@@ -141,12 +137,10 @@ void _System::Time(Interpreter*, VMFrame* frame) {
     long long diff = ((now.tv_sec - start_time.tv_sec) * 1000) +   // seconds
                      ((now.tv_usec - start_time.tv_usec) / 1000);  // useconds
 
-    frame->Push(NEW_INT(diff));
+    return NEW_INT(diff);
 }
 
-void _System::Ticks(Interpreter*, VMFrame* frame) {
-    /*VMObject* self = */
-    frame->Pop();
+static vm_oop_t sysTicks(vm_oop_t) {
     struct timeval now;
 
     gettimeofday(&now, nullptr);
@@ -155,20 +149,18 @@ void _System::Ticks(Interpreter*, VMFrame* frame) {
         ((now.tv_sec - start_time.tv_sec) * 1000 * 1000) +  // seconds
         ((now.tv_usec - start_time.tv_usec));               // useconds
 
-    frame->Push(NEW_INT(diff));
+    return NEW_INT(diff);
 }
 
-void _System::FullGC(Interpreter*, VMFrame* frame) {
-    frame->Pop();
-    GetHeap<HEAP_CLS>()
-        ->requestGC();  // not safe to do it immediatly, will be done when it is
-                        // ok, i.e., in the interpreter loop
-    frame->Push(load_ptr(trueObject));
+static vm_oop_t sysFullGC(vm_oop_t) {
+    // not safe to do it immediatly, will be done when it is ok, i.e., in the
+    // interpreter loop
+    GetHeap<HEAP_CLS>()->requestGC();
+    return load_ptr(trueObject);
 }
 
-void _System::LoadFile_(Interpreter*, VMFrame* frame) {
-    VMString* fileName = static_cast<VMString*>(frame->Pop());
-    frame->Pop();
+static vm_oop_t sysLoadFile_(vm_oop_t, vm_oop_t rightObj) {
+    VMString* fileName = static_cast<VMString*>(rightObj);
 
     std::ifstream file(fileName->GetStdString(), std::ifstream::in);
     if (file.is_open()) {
@@ -176,9 +168,9 @@ void _System::LoadFile_(Interpreter*, VMFrame* frame) {
         buffer << file.rdbuf();
 
         VMString* result = GetUniverse()->NewString(buffer.str());
-        frame->Push(result);
+        return result;
     } else {
-        frame->Push(load_ptr(nilObject));
+        return load_ptr(nilObject);
     }
 }
 
@@ -189,31 +181,22 @@ void _System::PrintStackTrace(Interpreter*, VMFrame* frame) {
 _System::_System(void) : PrimitiveContainer() {
     gettimeofday(&start_time, nullptr);
 
-    SetPrimitive("global_",
-                 new Routine<_System>(this, &_System::Global_, false));
+    Add("global_", &sysGlobal_, false);
     SetPrimitive("global_put_",
                  new Routine<_System>(this, &_System::Global_put_, false));
-    SetPrimitive("hasGlobal_",
-                 new Routine<_System>(this, &_System::HasGlobal_, false));
-    SetPrimitive("load_", new Routine<_System>(this, &_System::Load_, false));
-    SetPrimitive("exit_", new Routine<_System>(this, &_System::Exit_, false));
-    SetPrimitive("printString_",
-                 new Routine<_System>(this, &_System::PrintString_, false));
-    SetPrimitive("printNewline",
-                 new Routine<_System>(this, &_System::PrintNewline, false));
-    SetPrimitive("printNewline_",
-                 new Routine<_System>(this, &_System::PrintNewline_, false));
-    SetPrimitive("errorPrint_",
-                 new Routine<_System>(this, &_System::ErrorPrint_, false));
-    SetPrimitive(
-        "errorPrintln_",
-        new Routine<_System>(this, &_System::ErrorPrintNewline_, false));
-    SetPrimitive("time", new Routine<_System>(this, &_System::Time, false));
-    SetPrimitive("ticks", new Routine<_System>(this, &_System::Ticks, false));
-    SetPrimitive("fullGC", new Routine<_System>(this, &_System::FullGC, false));
+    Add("hasGlobal_", &sysHasGlobal_, false);
+    Add("load_", &sysLoad_, false);
+    Add("exit_", &sysExit_, false);
+    Add("printString_", &sysPrintString_, false);
+    Add("printNewline", &sysPrintNewline, false);
+    Add("printNewline_", &sysPrintNewline_, false);
+    Add("errorPrint_", &sysErrorPrint_, false);
+    Add("errorPrintln_", &sysErrorPrintNewline_, false);
+    Add("time", &sysTime, false);
+    Add("ticks", &sysTicks, false);
+    Add("fullGC", &sysFullGC, false);
 
-    SetPrimitive("loadFile_",
-                 new Routine<_System>(this, &_System::LoadFile_, false));
+    Add("loadFile_", &sysLoadFile_, false);
     SetPrimitive("printStackTrace",
                  new Routine<_System>(this, &_System::PrintStackTrace, false));
 }

@@ -33,7 +33,6 @@
 #include <string>
 
 #include "../primitivesCore/PrimitiveContainer.h"
-#include "../primitivesCore/Routine.h"
 #include "../vm/Globals.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
@@ -46,7 +45,7 @@
  * This function coerces any right-hand parameter to a double, regardless of its
  * true nature. This is to make sure that all Double operations return Doubles.
  */
-double _Double::coerceDouble(vm_oop_t x) {
+double coerceDouble(vm_oop_t x) {
     if (IS_TAGGED(x)) {
         return (double)INT_VAL(x);
     }
@@ -70,152 +69,126 @@ double _Double::coerceDouble(vm_oop_t x) {
  * extract the left-hand operand as an immediate Double. Afterwards, left and
  * right are prepared for the operation.
  */
-#define PREPARE_OPERANDS                                      \
-    double right = coerceDouble(frame->Pop());                \
-    VMDouble* leftObj = static_cast<VMDouble*>(frame->Pop()); \
+#define PREPARE_OPERANDS                                 \
+    double right = coerceDouble(rightObj);               \
+    VMDouble* leftObj = static_cast<VMDouble*>(leftPtr); \
     double left = leftObj->GetEmbeddedDouble();
 
-void _Double::Plus(Interpreter*, VMFrame* frame) {
+static vm_oop_t dblPlus(vm_oop_t leftPtr, vm_oop_t rightObj) {
     PREPARE_OPERANDS;
-    frame->Push(GetUniverse()->NewDouble(left + right));
+    return GetUniverse()->NewDouble(left + right);
 }
 
-void _Double::Minus(Interpreter*, VMFrame* frame) {
+static vm_oop_t dblMinus(vm_oop_t leftPtr, vm_oop_t rightObj) {
     PREPARE_OPERANDS;
-    frame->Push(GetUniverse()->NewDouble(left - right));
+    return GetUniverse()->NewDouble(left - right);
 }
 
-void _Double::Star(Interpreter*, VMFrame* frame) {
+static vm_oop_t dblStar(vm_oop_t leftPtr, vm_oop_t rightObj) {
     PREPARE_OPERANDS;
-    frame->Push(GetUniverse()->NewDouble(left * right));
+    return GetUniverse()->NewDouble(left * right);
 }
 
-void _Double::Cos(Interpreter*, VMFrame* frame) {
-    VMDouble* self = (VMDouble*)frame->Pop();
+static vm_oop_t dblCos(vm_oop_t rcvr) {
+    VMDouble* self = (VMDouble*)rcvr;
     double result = cos(self->GetEmbeddedDouble());
-    frame->Push(GetUniverse()->NewDouble(result));
+    return GetUniverse()->NewDouble(result);
 }
 
-void _Double::Sin(Interpreter*, VMFrame* frame) {
-    VMDouble* self = (VMDouble*)frame->Pop();
+static vm_oop_t dblSin(vm_oop_t rcvr) {
+    VMDouble* self = (VMDouble*)rcvr;
     double result = sin(self->GetEmbeddedDouble());
-    frame->Push(GetUniverse()->NewDouble(result));
+    return GetUniverse()->NewDouble(result);
 }
 
-void _Double::Slashslash(Interpreter*, VMFrame* frame) {
+static vm_oop_t dblSlashslash(vm_oop_t leftPtr, vm_oop_t rightObj) {
     PREPARE_OPERANDS;
-    frame->Push(GetUniverse()->NewDouble(left / right));
+    return GetUniverse()->NewDouble(left / right);
 }
 
-void _Double::Percent(Interpreter*, VMFrame* frame) {
+vm_oop_t dblPercent(vm_oop_t leftPtr, vm_oop_t rightObj) {
     PREPARE_OPERANDS;
-    frame->Push(
-        GetUniverse()->NewDouble((double)((int64_t)left % (int64_t)right)));
-}
-
-void _Double::And(Interpreter*, VMFrame* frame) {
-    PREPARE_OPERANDS;
-    frame->Push(
-        GetUniverse()->NewDouble((double)((int64_t)left & (int64_t)right)));
-}
-
-void _Double::BitwiseXor(Interpreter*, VMFrame* frame) {
-    PREPARE_OPERANDS;
-    frame->Push(
-        GetUniverse()->NewDouble((double)((int64_t)left ^ (int64_t)right)));
+    return GetUniverse()->NewDouble((double)((int64_t)left % (int64_t)right));
 }
 
 /*
  * This function implements strict (bit-wise) equality and is therefore
  * inaccurate.
  */
-void _Double::Equal(Interpreter*, VMFrame* frame) {
+static vm_oop_t dblEqual(vm_oop_t leftPtr, vm_oop_t rightObj) {
     PREPARE_OPERANDS;
     if (left == right) {
-        frame->Push(load_ptr(trueObject));
+        return load_ptr(trueObject);
     } else {
-        frame->Push(load_ptr(falseObject));
+        return load_ptr(falseObject);
     }
 }
 
-void _Double::Lowerthan(Interpreter*, VMFrame* frame) {
+static vm_oop_t dblLowerthan(vm_oop_t leftPtr, vm_oop_t rightObj) {
     PREPARE_OPERANDS;
     if (left < right) {
-        frame->Push(load_ptr(trueObject));
+        return load_ptr(trueObject);
     } else {
-        frame->Push(load_ptr(falseObject));
+        return load_ptr(falseObject);
     }
 }
 
-void _Double::AsString(Interpreter*, VMFrame* frame) {
-    VMDouble* self = static_cast<VMDouble*>(frame->Pop());
+static vm_oop_t dblAsString(vm_oop_t rcvr) {
+    VMDouble* self = static_cast<VMDouble*>(rcvr);
 
     double dbl = self->GetEmbeddedDouble();
     ostringstream Str;
     Str.precision(17);
     Str << dbl;
-    frame->Push(GetUniverse()->NewString(Str.str().c_str()));
+    return GetUniverse()->NewString(Str.str().c_str());
 }
 
-void _Double::Sqrt(Interpreter*, VMFrame* frame) {
-    VMDouble* self = static_cast<VMDouble*>(frame->Pop());
+static vm_oop_t dblSqrt(vm_oop_t rcvr) {
+    VMDouble* self = static_cast<VMDouble*>(rcvr);
     VMDouble* result =
         GetUniverse()->NewDouble(sqrt(self->GetEmbeddedDouble()));
-    frame->Push(result);
+    return result;
 }
 
-void _Double::Round(Interpreter*, VMFrame* frame) {
-    VMDouble* self = (VMDouble*)frame->Pop();
+static vm_oop_t dblRound(vm_oop_t rcvr) {
+    VMDouble* self = (VMDouble*)rcvr;
     int64_t rounded = llround(self->GetEmbeddedDouble());
 
-    frame->Push(NEW_INT(rounded));
+    return NEW_INT(rounded);
 }
 
-void _Double::AsInteger(Interpreter*, VMFrame* frame) {
-    VMDouble* self = (VMDouble*)frame->Pop();
+static vm_oop_t dblAsInteger(vm_oop_t rcvr) {
+    VMDouble* self = (VMDouble*)rcvr;
     int64_t rounded = (int64_t)self->GetEmbeddedDouble();
 
-    frame->Push(NEW_INT(rounded));
+    return NEW_INT(rounded);
 }
 
-void _Double::PositiveInfinity(Interpreter*, VMFrame* frame) {
-    frame->Pop();
-    frame->Push(GetUniverse()->NewDouble(INFINITY));
+static vm_oop_t dblPositiveInfinity(vm_oop_t) {
+    return GetUniverse()->NewDouble(INFINITY);
 }
 
-void _Double::FromString(Interpreter*, VMFrame* frame) {
-    VMString* self = (VMString*)frame->Pop();
-    frame->Pop();
-
+static vm_oop_t dblFromString(vm_oop_t, vm_oop_t rightObj) {
+    VMString* self = (VMString*)rightObj;
     double value =
         stod(std::string(self->GetRawChars(), self->GetStringLength()));
-    frame->Push(GetUniverse()->NewDouble(value));
+    return GetUniverse()->NewDouble(value);
 }
 
 _Double::_Double() : PrimitiveContainer() {
-    SetPrimitive("plus", new Routine<_Double>(this, &_Double::Plus, false));
-    SetPrimitive("minus", new Routine<_Double>(this, &_Double::Minus, false));
-    SetPrimitive("star", new Routine<_Double>(this, &_Double::Star, false));
-    SetPrimitive("cos", new Routine<_Double>(this, &_Double::Cos, false));
-    SetPrimitive("sin", new Routine<_Double>(this, &_Double::Sin, false));
-    SetPrimitive("slashslash",
-                 new Routine<_Double>(this, &_Double::Slashslash, false));
-    SetPrimitive("percent",
-                 new Routine<_Double>(this, &_Double::Percent, false));
-    SetPrimitive("and", new Routine<_Double>(this, &_Double::And, false));
-    SetPrimitive("equal", new Routine<_Double>(this, &_Double::Equal, false));
-    SetPrimitive("lowerthan",
-                 new Routine<_Double>(this, &_Double::Lowerthan, false));
-    SetPrimitive("asString",
-                 new Routine<_Double>(this, &_Double::AsString, false));
-    SetPrimitive("sqrt", new Routine<_Double>(this, &_Double::Sqrt, false));
-    SetPrimitive("bitXor_",
-                 new Routine<_Double>(this, &_Double::BitwiseXor, false));
-    SetPrimitive("round", new Routine<_Double>(this, &_Double::Round, false));
-    SetPrimitive("asInteger",
-                 new Routine<_Double>(this, &_Double::AsInteger, false));
-    SetPrimitive("PositiveInfinity",
-                 new Routine<_Double>(this, &_Double::PositiveInfinity, true));
-    SetPrimitive("fromString_",
-                 new Routine<_Double>(this, &_Double::FromString, true));
+    Add("plus", &dblPlus, false);
+    Add("minus", &dblMinus, false);
+    Add("star", &dblStar, false);
+    Add("cos", &dblCos, false);
+    Add("sin", &dblSin, false);
+    Add("slashslash", &dblSlashslash, false);
+    Add("percent", &dblPercent, false);
+    Add("equal", &dblEqual, false);
+    Add("lowerthan", &dblLowerthan, false);
+    Add("asString", &dblAsString, false);
+    Add("sqrt", &dblSqrt, false);
+    Add("round", &dblRound, false);
+    Add("asInteger", &dblAsInteger, false);
+    Add("PositiveInfinity", &dblPositiveInfinity, true);
+    Add("fromString_", &dblFromString, true);
 }

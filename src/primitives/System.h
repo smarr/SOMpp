@@ -36,23 +36,6 @@ public:
     _System(void);
     virtual ~_System();
 
-    void Global_(Interpreter*, VMFrame*);
     void Global_put_(Interpreter*, VMFrame*);
-    void HasGlobal_(Interpreter*, VMFrame*);
-    void Load_(Interpreter*, VMFrame*);
-    void Exit_(Interpreter*, VMFrame*);
-    void PrintString_(Interpreter*, VMFrame*);
-    void PrintNewline(Interpreter*, VMFrame*);
-    void PrintNewline_(Interpreter*, VMFrame*);
-    void ErrorPrint_(Interpreter*, VMFrame*);
-    void ErrorPrintNewline_(Interpreter*, VMFrame*);
-    void Time(Interpreter*, VMFrame*);
-    void Ticks(Interpreter*, VMFrame*);
-    void FullGC(Interpreter*, VMFrame*);
-
-    void LoadFile_(Interpreter*, VMFrame*);
     void PrintStackTrace(Interpreter*, VMFrame*);
-
-private:
-    struct timeval start_time;
 };

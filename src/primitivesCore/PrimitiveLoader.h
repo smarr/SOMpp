@@ -29,9 +29,11 @@
 #include <map>
 
 #include "../misc/defs.h"
+#include "Primitives.h"
 
 class PrimitiveContainer;
 class PrimitiveRoutine;
+class BinaryPrim;
 
 /// Core class for primitive loading.
 // In order to implement new primitive libraries, you can use this class.
@@ -52,11 +54,21 @@ public:
                                                  const std::string& mname,
                                                  bool isPrimitive);
 
+    static BinaryPrim GetBinaryPrim(const std::string& cname,
+                                    const std::string& mname);
+    static UnaryPrim GetUnaryPrim(const std::string& cname,
+                                  const std::string& mname);
+
 private:
     bool supportsClass(const std::string& name);
     PrimitiveRoutine* getPrimitiveRoutine(const std::string& cname,
                                           const std::string& mname,
                                           bool isPrimitive);
+
+    UnaryPrim getUnaryPrim(const std::string& cname, const std::string& mname);
+
+    BinaryPrim getBinaryPrim(const std::string& cname,
+                             const std::string& mname);
 
     std::map<StdString, PrimitiveContainer*> primitiveObjects{};
 
