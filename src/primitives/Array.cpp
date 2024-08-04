@@ -59,8 +59,8 @@ static vm_oop_t arrNew_(vm_oop_t, vm_oop_t arg) {
 }
 
 _Array::_Array() : PrimitiveContainer() {
-    Add("new_", &arrNew_, true);
-    Add("at_", &arrAt_, false);
-    SetPrimitive("at_put_", new Routine<_Array>(this, &_Array::At_Put_, false));
+    Add("new:", &arrNew_, true);
+    Add("at:", &arrAt_, false);
+    SetPrimitive("at:put:", new Routine<_Array>(this, &_Array::At_Put_, false));
     Add("length", &arrLength, false);
 }

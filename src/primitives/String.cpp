@@ -169,13 +169,13 @@ static vm_oop_t strIsDigits(vm_oop_t rcvr) {
 }
 
 _String::_String() : PrimitiveContainer() {
-    Add("concatenate_", &strConcatenate_, false);
+    Add("concatenate:", &strConcatenate_, false);
     Add("asSymbol", &strAsSymbol, false);
     Add("hashcode", &strHashcode, false);
     Add("length", &strLength, false);
-    Add("equal", &strEqual, false);
+    Add("=", &strEqual, false);
     SetPrimitive(
-        "primSubstringFrom_to_",
+        "primSubstringFrom:to:",
         new Routine<_String>(this, &_String::PrimSubstringFrom_to_, false));
     Add("isWhiteSpace", &strIsWhiteSpace, false);
     Add("isLetters", &strIsLetters, false);

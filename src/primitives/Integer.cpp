@@ -70,11 +70,6 @@ static vm_oop_t intPlus(vm_oop_t leftObj, vm_oop_t rightObj) {
     return NEW_INT(result);
 }
 
-static vm_oop_t intBitwiseAnd(vm_oop_t leftObj, vm_oop_t rightObj) {
-    int64_t result = (int64_t)INT_VAL(leftObj) & (int64_t)INT_VAL(rightObj);
-    return NEW_INT(result);
-}
-
 static vm_oop_t intBitwiseXor(vm_oop_t leftObj, vm_oop_t rightObj) {
     int64_t result = (int64_t)INT_VAL(leftObj) ^ (int64_t)INT_VAL(rightObj);
     return NEW_INT(result);
@@ -254,28 +249,26 @@ static vm_oop_t intFromString(vm_oop_t, vm_oop_t right) {
 _Integer::_Integer() : PrimitiveContainer() {
     srand((unsigned)time(nullptr));
 
-    Add("plus", &intPlus, false);
-    Add("bitAnd_", &intBitwiseAnd, false);
+    Add("+", &intPlus, false);
+    Add("-", &intMinus, false);
+    Add("*", &intStar, false);
+    Add("rem:", &intRem, false);
 
-    Add("minus", &intMinus, false);
-    Add("star", &intStar, false);
-    Add("rem_", &intRem, false);
-
-    Add("bitXor_", &intBitwiseXor, false);
-    Add("lowerthanlowerthan", &intLeftShift, false);
-    Add("greaterthangreaterthangreaterthan", &intUnsignedRightShift, false);
-    Add("slash", &intSlash, false);
-    Add("slashslash", &intSlashslash, false);
-    Add("percent", &intPercent, false);
-    Add("and", &intAnd, false);
-    Add("equal", &intEqual, false);
-    Add("equalequal", &intEqualEqual, false);
-    Add("lowerthan", &intLowerthan, false);
+    Add("bitXor:", &intBitwiseXor, false);
+    Add("<<", &intLeftShift, false);
+    Add(">>>", &intUnsignedRightShift, false);
+    Add("/", &intSlash, false);
+    Add("//", &intSlashslash, false);
+    Add("%", &intPercent, false);
+    Add("&", &intAnd, false);
+    Add("=", &intEqual, false);
+    Add("==", &intEqualEqual, false);
+    Add("<", &intLowerthan, false);
     Add("asString", &intAsString, false);
     Add("asDouble", &intAsDouble, false);
     Add("as32BitSignedValue", &intAs32BitSigned, false);
     Add("as32BitUnsignedValue", &intAs32BitUnsigned, false);
     Add("sqrt", &intSqrt, false);
     Add("atRandom", &intAtRandom, false);
-    Add("fromString_", &intFromString, true);
+    Add("fromString:", &intFromString, true);
 }

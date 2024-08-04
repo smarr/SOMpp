@@ -51,8 +51,7 @@ public:
 
     PrimitiveRoutine* GetPrimitive(const std::string& routineName);
 
-    UnaryPrim GetSafeUnary(const std::string& routineName);
-    BinaryPrim GetSafeBinary(const std::string& routineName);
+    void InstallPrimitives(VMClass* clazz, bool classSide);
 
     void Add(const char* name, UnaryPrimitiveRoutine, bool classSide);
     void Add(const char* name, BinaryPrimitiveRoutine, bool classSide);

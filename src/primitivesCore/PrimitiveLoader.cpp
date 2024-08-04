@@ -41,9 +41,9 @@
 #include "../primitives/Symbol.h"
 #include "../primitives/System.h"
 #include "../vm/Print.h"
+#include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/PrimitiveRoutine.h"
 #include "PrimitiveContainer.h"
-#include "Primitives.h"
 
 PrimitiveLoader PrimitiveLoader::loader;
 
@@ -86,36 +86,20 @@ PrimitiveRoutine* PrimitiveLoader::GetPrimitiveRoutine(const std::string& cname,
     return loader.getPrimitiveRoutine(cname, mname, isPrimitive);
 }
 
-UnaryPrim PrimitiveLoader::GetUnaryPrim(const std::string& cname,
-                                        const std::string& mname) {
-    return loader.getUnaryPrim(cname, mname);
+void PrimitiveLoader::InstallPrimitives(const std::string& cname,
+                                        VMClass* clazz,
+                                        bool classSide) {
+    loader.installPrimitives(cname, clazz, classSide);
 }
 
-UnaryPrim PrimitiveLoader::getUnaryPrim(const std::string& cname,
-                                        const std::string& mname) {
+void PrimitiveLoader::installPrimitives(const std::string& cname,
+                                        VMClass* clazz,
+                                        bool classSide) {
     if (primitiveObjects.find(cname) == primitiveObjects.end()) {
-        ErrorPrint("Primitive object not found for name: " + cname + "\n");
-        return UnaryPrim();
+        return;
     }
 
-    PrimitiveContainer* primitive = primitiveObjects[cname];
-    return primitive->GetSafeUnary(mname);
-}
-
-BinaryPrim PrimitiveLoader::GetBinaryPrim(const std::string& cname,
-                                          const std::string& mname) {
-    return loader.getBinaryPrim(cname, mname);
-}
-
-BinaryPrim PrimitiveLoader::getBinaryPrim(const std::string& cname,
-                                          const std::string& mname) {
-    if (primitiveObjects.find(cname) == primitiveObjects.end()) {
-        ErrorPrint("Primitive object not found for name: " + cname + "\n");
-        return BinaryPrim();
-    }
-
-    PrimitiveContainer* primitive = primitiveObjects[cname];
-    return primitive->GetSafeBinary(mname);
+    primitiveObjects[cname]->InstallPrimitives(clazz, classSide);
 }
 
 PrimitiveRoutine* PrimitiveLoader::getPrimitiveRoutine(const std::string& cname,

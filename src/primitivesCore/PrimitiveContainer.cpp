@@ -26,10 +26,18 @@
 
 #include "PrimitiveContainer.h"
 
+#include <cassert>
+#include <iostream>
 #include <map>
+#include <ostream>
 #include <string>
 
+#include "../vm/Symbols.h"
 #include "../vmobjects/PrimitiveRoutine.h"
+#include "../vmobjects/VMClass.h"
+#include "../vmobjects/VMPrimitive.h"
+#include "../vmobjects/VMSafePrimitive.h"
+#include "../vmobjects/VMSymbol.h"
 #include "Primitives.h"
 
 void PrimitiveContainer::SetPrimitive(const char* name,
@@ -57,16 +65,49 @@ PrimitiveRoutine* PrimitiveContainer::GetPrimitive(
     return nullptr;
 }
 
-BinaryPrim PrimitiveContainer::GetSafeBinary(const std::string& routineName) {
-    if (binaryPrims.find(routineName) != binaryPrims.end()) {
-        return binaryPrims[routineName];
-    }
-    return BinaryPrim();
-}
+void PrimitiveContainer::InstallPrimitives(VMClass* clazz, bool classSide) {
+    for (auto const& p : unaryPrims) {
+        assert(p.second.IsValid());
+        if (classSide != p.second.isClassSide) {
+            continue;
+        }
 
-UnaryPrim PrimitiveContainer::GetSafeUnary(const std::string& routineName) {
-    if (unaryPrims.find(routineName) != unaryPrims.end()) {
-        return unaryPrims[routineName];
+        VMSymbol* sig = SymbolFor(p.first);
+        if (clazz->AddInstanceInvokable(
+                VMSafePrimitive::GetSafeUnary(sig, p.second))) {
+            cout << "Warn: Primitive " << p.first
+                 << " is not in class definition for class "
+                 << clazz->GetName()->GetStdString() << endl;
+        }
     }
-    return UnaryPrim();
+
+    for (auto const& p : binaryPrims) {
+        assert(p.second.IsValid());
+        if (classSide != p.second.isClassSide) {
+            continue;
+        }
+
+        VMSymbol* sig = SymbolFor(p.first);
+        if (clazz->AddInstanceInvokable(
+                VMSafePrimitive::GetSafeBinary(sig, p.second))) {
+            cout << "Warn: Primitive " << p.first
+                 << " is not in class definition for class "
+                 << clazz->GetName()->GetStdString() << endl;
+        }
+    }
+
+    for (auto const& p : methods) {
+        if (classSide != p.second->isClassSide()) {
+            continue;
+        }
+
+        VMSymbol* sig = SymbolFor(p.first);
+        VMPrimitive* prim = VMPrimitive::GetEmptyPrimitive(sig, classSide);
+        prim->SetRoutine(p.second, false);
+        if (clazz->AddInstanceInvokable(prim)) {
+            cout << "Warn: Primitive " << p.first
+                 << " is not in class definition for class "
+                 << clazz->GetName()->GetStdString() << endl;
+        }
+    }
 }

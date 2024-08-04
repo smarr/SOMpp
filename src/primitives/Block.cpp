@@ -50,7 +50,7 @@ void _Block::Restart(Interpreter*, VMFrame* frame) {
 _Block::_Block() : PrimitiveContainer() {
     SetPrimitive("value", new Routine<_Block>(this, &_Block::Value, false));
     SetPrimitive("restart", new Routine<_Block>(this, &_Block::Restart, false));
-    SetPrimitive("value_", new Routine<_Block>(this, &_Block::Value_, false));
-    SetPrimitive("value_with_",
+    SetPrimitive("value:", new Routine<_Block>(this, &_Block::Value_, false));
+    SetPrimitive("value:with:",
                  new Routine<_Block>(this, &_Block::Value_with_, false));
 }

@@ -28,7 +28,6 @@
 
 #include <cstdint>
 #include <cstring>
-#include <sstream>
 #include <string>
 
 #include "../memory/Heap.h"
@@ -69,70 +68,6 @@ VMSymbol* VMSymbol::CloneForMovingGC() const {
 
 VMClass* VMSymbol::GetClass() const {
     return load_ptr(symbolClass);
-}
-
-std::string VMSymbol::GetPlainString() const {
-    ostringstream str;
-    char* chars = this->chars;
-    size_t length = this->length;
-    for (size_t i = 0; i < length; i++) {
-        char c = chars[i];
-        switch (c) {
-            case '~':
-                str << "tilde";
-                break;
-            case '&':
-                str << "and";
-                break;
-            case '|':
-                str << "bar";
-                break;
-            case '*':
-                str << "star";
-                break;
-            case '/':
-                str << "slash";
-                break;
-            case '@':
-                str << "at";
-                break;
-            case '+':
-                str << "plus";
-                break;
-            case '-':
-                str << "minus";
-                break;
-            case '=':
-                str << "equal";
-                break;
-            case '>':
-                str << "greaterthan";
-                break;
-            case '<':
-                str << "lowerthan";
-                break;
-            case ',':
-                str << "comma";
-                break;
-            case '%':
-                str << "percent";
-                break;
-            case '\\':
-                str << "backslash";
-                break;
-            case ':':
-                str << '_';
-                break;
-            default:
-                if (c != 0) {
-                    str << c;
-                }
-                break;
-        }
-    }
-    std::string st = str.str();
-
-    return st;
 }
 
 void VMSymbol::WalkObjects(walk_heap_fn walk) {

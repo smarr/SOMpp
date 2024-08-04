@@ -176,19 +176,19 @@ static vm_oop_t dblFromString(vm_oop_t, vm_oop_t rightObj) {
 }
 
 _Double::_Double() : PrimitiveContainer() {
-    Add("plus", &dblPlus, false);
-    Add("minus", &dblMinus, false);
-    Add("star", &dblStar, false);
+    Add("+", &dblPlus, false);
+    Add("-", &dblMinus, false);
+    Add("*", &dblStar, false);
     Add("cos", &dblCos, false);
     Add("sin", &dblSin, false);
-    Add("slashslash", &dblSlashslash, false);
-    Add("percent", &dblPercent, false);
-    Add("equal", &dblEqual, false);
-    Add("lowerthan", &dblLowerthan, false);
+    Add("//", &dblSlashslash, false);
+    Add("%", &dblPercent, false);
+    Add("=", &dblEqual, false);
+    Add("<", &dblLowerthan, false);
     Add("asString", &dblAsString, false);
     Add("sqrt", &dblSqrt, false);
     Add("round", &dblRound, false);
     Add("asInteger", &dblAsInteger, false);
     Add("PositiveInfinity", &dblPositiveInfinity, true);
-    Add("fromString_", &dblFromString, true);
+    Add("fromString:", &dblFromString, true);
 }

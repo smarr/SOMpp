@@ -145,28 +145,28 @@ vm_oop_t objClass(vm_oop_t self) {
 }
 
 _Object::_Object() : PrimitiveContainer() {
-    Add("equalequal", &objEqualequal, false);
+    Add("==", &objEqualequal, false);
     Add("objectSize", &objObjectSize, false);
     Add("hashcode", &objHashcode, false);
     Add("inspect", &objInspect, false);
     Add("halt", &objHalt, false);
 
-    SetPrimitive("perform_",
+    SetPrimitive("perform:",
                  new Routine<_Object>(this, &_Object::Perform, false));
     SetPrimitive(
-        "perform_withArguments_",
+        "perform:withArguments:",
         new Routine<_Object>(this, &_Object::PerformWithArguments, false));
     SetPrimitive(
-        "perform_inSuperclass_",
+        "perform:inSuperclass:",
         new Routine<_Object>(this, &_Object::PerformInSuperclass, false));
-    SetPrimitive("perform_withArguments_inSuperclass_",
+    SetPrimitive("perform:withArguments:inSuperclass:",
                  new Routine<_Object>(
                      this, &_Object::PerformWithArgumentsInSuperclass, false));
 
-    Add("instVarAt_", &objInstVarAt, false);
-    SetPrimitive("instVarAt_put_",
+    Add("instVarAt:", &objInstVarAt, false);
+    SetPrimitive("instVarAt:put:",
                  new Routine<_Object>(this, &_Object::InstVarAtPut, false));
-    Add("instVarNamed_", &objInstVarNamed, false);
+    Add("instVarNamed:", &objInstVarNamed, false);
 
     Add("class", &objClass, false);
 }

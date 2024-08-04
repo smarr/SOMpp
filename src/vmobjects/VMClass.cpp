@@ -33,18 +33,14 @@
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../primitivesCore/PrimitiveLoader.h"
-#include "../primitivesCore/Primitives.h"
 #include "../vm/Globals.h"
 #include "../vm/IsValidObject.h"
-#include "../vm/Print.h"
 #include "../vm/Universe.h"
 #include "ObjectFormats.h"
-#include "PrimitiveRoutine.h"
 #include "VMArray.h"
 #include "VMInvokable.h"
 #include "VMObject.h"
 #include "VMPrimitive.h"
-#include "VMSafePrimitive.h"
 #include "VMSymbol.h"
 
 const size_t VMClass::VMClassNumberOfFields = 4;
@@ -207,8 +203,8 @@ void VMClass::LoadPrimitives() {
     std::string cname = load_ptr(name)->GetStdString();
 
     if (hasPrimitivesFor(cname)) {
-        setPrimitives(cname, false);
-        GetClass()->setPrimitives(cname, true);
+        PrimitiveLoader::InstallPrimitives(cname, this, false);
+        PrimitiveLoader::InstallPrimitives(cname, GetClass(), true);
     }
 }
 
@@ -221,78 +217,6 @@ size_t VMClass::numberOfSuperInstanceFields() const {
 
 bool VMClass::hasPrimitivesFor(const std::string& cl) const {
     return PrimitiveLoader::SupportsClass(cl);
-}
-
-/*
- * set the routines for primitive marked invokables of the given class
- */
-void VMClass::setPrimitives(const std::string& cname, bool classSide) {
-    VMObject* current = this;
-
-    // Try loading class-specific primitives for all super class' methods as
-    // well.
-    while (current != load_ptr(nilObject)) {
-        VMClass* currentClass = (VMClass*)current;
-
-        // iterate invokables
-        long numInvokables = currentClass->GetNumberOfInstanceInvokables();
-        for (long i = 0; i < numInvokables; i++) {
-            VMInvokable* anInvokable = currentClass->GetInstanceInvokable(i);
-#ifdef __DEBUG
-            ErrorPrint("cname: >" + cname + "<\n" +
-                       anInvokable->GetSignature()->GetStdString() + "\n");
-#endif
-
-            VMSymbol* sig = anInvokable->GetSignature();
-            std::string selector = sig->GetPlainString();
-
-            if (sig->numberOfArgumentsOfSignature == 1) {
-                // try to use a safe binary prim
-                UnaryPrim unPrim =
-                    PrimitiveLoader::GetUnaryPrim(cname, selector);
-                if (unPrim.IsValid() && unPrim.isClassSide == classSide) {
-                    AddInstanceInvokable(
-                        VMSafePrimitive::GetSafeUnary(sig, unPrim));
-                    continue;
-                }
-            } else if (sig->numberOfArgumentsOfSignature == 2) {
-                // try to use a safe binary prim
-                BinaryPrim binPrim =
-                    PrimitiveLoader::GetBinaryPrim(cname, selector);
-                if (binPrim.IsValid() && binPrim.isClassSide == classSide) {
-                    AddInstanceInvokable(
-                        VMSafePrimitive::GetSafeBinary(sig, binPrim));
-                    continue;
-                }
-            }
-
-            PrimitiveRoutine* routine = PrimitiveLoader::GetPrimitiveRoutine(
-                cname, selector, anInvokable->IsPrimitive() && current == this);
-
-            if (routine && classSide == routine->isClassSide()) {
-                VMPrimitive* thePrimitive;
-                if (this == current && anInvokable->IsPrimitive()) {
-                    thePrimitive = static_cast<VMPrimitive*>(anInvokable);
-                } else {
-                    thePrimitive =
-                        VMPrimitive::GetEmptyPrimitive(sig, classSide);
-                    AddInstancePrimitive(thePrimitive);
-                }
-
-                // set routine
-                thePrimitive->SetRoutine(routine, false);
-            } else {
-                if (anInvokable->IsPrimitive() && current == this) {
-                    if (!routine || routine->isClassSide() == classSide) {
-                        ErrorPrint("could not load primitive '" + selector +
-                                   "' for class " + cname + "\n");
-                        GetUniverse()->Quit(ERR_FAIL);
-                    }
-                }
-            }
-        }
-        current = currentClass->GetSuperClass();
-    }
 }
 
 std::string VMClass::AsDebugString() const {
