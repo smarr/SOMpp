@@ -93,19 +93,27 @@ static vm_oop_t strEqual(vm_oop_t leftObj, vm_oop_t op1) {
     return load_ptr(falseObject);
 }
 
-void _String::PrimSubstringFrom_to_(Interpreter*, VMFrame* frame) {
-    vm_oop_t end = frame->Pop();
-    vm_oop_t start = frame->Pop();
-
-    VMString* self = static_cast<VMString*>(frame->Pop());
-    StdString str = self->GetStdString();
+static vm_oop_t strPrimSubstringFromTo(vm_oop_t rcvr, vm_oop_t start, vm_oop_t end) {
+    VMString* self = static_cast<VMString*>(rcvr);
+    std::string str = self->GetStdString();
 
     int64_t s = INT_VAL(start) - 1;
     int64_t e = INT_VAL(end) - 1;
 
-    StdString result = str.substr(s, e - s + 1);
+    std::string result = str.substr(s, e - s + 1);
+    return GetUniverse()->NewString(result);
+}
 
-    frame->Push(GetUniverse()->NewString(result));
+static vm_oop_t strCharAt(vm_oop_t rcvr, vm_oop_t indexPtr) {
+    VMString* self = static_cast<VMString*>(rcvr);
+    int64_t index = INT_VAL(indexPtr) - 1;
+
+
+    if (unlikely(index < 0 || (size_t) index >= self->GetStringLength())) {
+        return GetUniverse()->NewString("Error - index out of bounds");
+    }
+
+    return GetUniverse()->NewString(1, &self->GetRawChars()[index]);
 }
 
 static vm_oop_t strIsWhiteSpace(vm_oop_t rcvr) {
@@ -174,10 +182,11 @@ _String::_String() : PrimitiveContainer() {
     Add("hashcode", &strHashcode, false);
     Add("length", &strLength, false);
     Add("=", &strEqual, false);
-    SetPrimitive(
-        "primSubstringFrom:to:",
-        new Routine<_String>(this, &_String::PrimSubstringFrom_to_, false));
+    Add("primSubstringFrom:to:", &strPrimSubstringFromTo, false);
     Add("isWhiteSpace", &strIsWhiteSpace, false);
     Add("isLetters", &strIsLetters, false);
     Add("isDigits", &strIsDigits, false);
+
+
+    Add("charAt:", &strCharAt, false);
 }
