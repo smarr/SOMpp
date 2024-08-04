@@ -328,6 +328,21 @@ static vm_oop_t intUnequal(vm_oop_t leftObj, vm_oop_t rightObj) {
     }
 }
 
+static vm_oop_t intRange(vm_oop_t leftObj, vm_oop_t rightObj) {
+    int64_t left = INT_VAL(leftObj);
+    int64_t right = INT_VAL(rightObj);
+
+    int64_t numInteger = right - left + 1;
+    VMArray* arr = GetUniverse()->NewArray(numInteger);
+
+    size_t index = 0;
+    for (int64_t i = left; i <= right; i += 1, index += 1) {
+        arr->SetIndexableField(index, NEW_INT(i));
+    }
+
+    return arr;
+}
+
 _Integer::_Integer() : PrimitiveContainer() {
     srand((unsigned)time(nullptr));
 
@@ -363,4 +378,6 @@ _Integer::_Integer() : PrimitiveContainer() {
     Add("abs", &intAbs, false);
     Add("min:", &intMin, false);
     Add("max:", &intMax, false);
+
+    Add("to:", &intRange, false);
 }
