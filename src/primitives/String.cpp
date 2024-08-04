@@ -29,10 +29,10 @@
 #include <cctype>
 #include <cstdint>
 #include <cstdio>
+#include <string>
 
 #include "../misc/defs.h"
 #include "../primitivesCore/PrimitiveContainer.h"
-#include "../primitivesCore/Routine.h"
 #include "../vm/Globals.h"
 #include "../vm/Symbols.h"
 #include "../vm/Universe.h"
@@ -80,6 +80,10 @@ static vm_oop_t strEqual(vm_oop_t leftObj, vm_oop_t op1) {
         return load_ptr(falseObject);
     }
 
+    if (leftObj == op1) {
+        return load_ptr(trueObject);
+    }
+
     VMClass* otherClass = CLASS_OF(op1);
     if (otherClass == load_ptr(stringClass) ||
         otherClass == load_ptr(symbolClass)) {
@@ -93,7 +97,9 @@ static vm_oop_t strEqual(vm_oop_t leftObj, vm_oop_t op1) {
     return load_ptr(falseObject);
 }
 
-static vm_oop_t strPrimSubstringFromTo(vm_oop_t rcvr, vm_oop_t start, vm_oop_t end) {
+static vm_oop_t strPrimSubstringFromTo(vm_oop_t rcvr,
+                                       vm_oop_t start,
+                                       vm_oop_t end) {
     VMString* self = static_cast<VMString*>(rcvr);
     std::string str = self->GetStdString();
 
@@ -108,8 +114,7 @@ static vm_oop_t strCharAt(vm_oop_t rcvr, vm_oop_t indexPtr) {
     VMString* self = static_cast<VMString*>(rcvr);
     int64_t index = INT_VAL(indexPtr) - 1;
 
-
-    if (unlikely(index < 0 || (size_t) index >= self->GetStringLength())) {
+    if (unlikely(index < 0 || (size_t)index >= self->GetStringLength())) {
         return GetUniverse()->NewString("Error - index out of bounds");
     }
 
@@ -186,7 +191,6 @@ _String::_String() : PrimitiveContainer() {
     Add("isWhiteSpace", &strIsWhiteSpace, false);
     Add("isLetters", &strIsLetters, false);
     Add("isDigits", &strIsDigits, false);
-
 
     Add("charAt:", &strCharAt, false);
 }
