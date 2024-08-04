@@ -63,10 +63,10 @@ static vm_oop_t sysGlobal_(vm_oop_t, vm_oop_t rightObj) {
     return result ? result : load_ptr(nilObject);
 }
 
-void _System::Global_put_(Interpreter*, VMFrame* frame) {
-    vm_oop_t value = frame->Pop();
-    VMSymbol* arg = static_cast<VMSymbol*>(frame->Pop());
-    GetUniverse()->SetGlobal(arg, value);
+static vm_oop_t sysGlobalPut(vm_oop_t sys, vm_oop_t sym, vm_oop_t val) {
+    VMSymbol* arg = static_cast<VMSymbol*>(sym);
+    GetUniverse()->SetGlobal(arg, val);
+    return sys;
 }
 
 static vm_oop_t sysHasGlobal_(vm_oop_t, vm_oop_t rightObj) {
@@ -175,8 +175,7 @@ _System::_System(void) : PrimitiveContainer() {
     gettimeofday(&start_time, nullptr);
 
     Add("global:", &sysGlobal_, false);
-    SetPrimitive("global:put:",
-                 new Routine<_System>(this, &_System::Global_put_, false));
+    Add("global:put:", &sysGlobalPut, false);
     Add("hasGlobal:", &sysHasGlobal_, false);
     Add("load:", &sysLoad_, false);
     Add("exit:", &sysExit_, false);

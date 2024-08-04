@@ -36,6 +36,5 @@ public:
     _System(void);
     virtual ~_System();
 
-    void Global_put_(Interpreter*, VMFrame*);
     void PrintStackTrace(Interpreter*, VMFrame*);
 };
