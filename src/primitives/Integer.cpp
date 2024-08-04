@@ -275,7 +275,7 @@ static vm_oop_t intAtRandom(vm_oop_t self) {
 static vm_oop_t intAbs(vm_oop_t self) {
     int64_t result = INT_VAL(self);
     if (result < 0) {
-        return NEW_INT(abs(result));
+        return NEW_INT(-result);
     }
     return self;
 }
@@ -317,6 +317,17 @@ static vm_oop_t intFromString(vm_oop_t, vm_oop_t right) {
     return ParseInteger(str, 10, false);
 }
 
+static vm_oop_t intUnequal(vm_oop_t leftObj, vm_oop_t rightObj) {
+    int64_t left = INT_VAL(leftObj);
+    doDoubleOpIfNeeded(left, rightObj, !=);
+
+    if (left != INT_VAL(rightObj)) {
+        return load_ptr(trueObject);
+    } else {
+        return load_ptr(falseObject);
+    }
+}
+
 _Integer::_Integer() : PrimitiveContainer() {
     srand((unsigned)time(nullptr));
 
@@ -346,6 +357,8 @@ _Integer::_Integer() : PrimitiveContainer() {
     Add("<=", &intLowerThanEqual, false);
     Add(">", &intGreaterThan, false);
     Add(">=", &intGreaterThanEqual, false);
+    Add("<>", &intUnequal, false);
+    Add("~=", &intUnequal, false);
 
     Add("abs", &intAbs, false);
     Add("min:", &intMin, false);
