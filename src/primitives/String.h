@@ -32,5 +32,4 @@
 class _String : public PrimitiveContainer {
 public:
     _String();
-    void PrimSubstringFrom_to_(Interpreter*, VMFrame*);
 };

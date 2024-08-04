@@ -37,6 +37,21 @@ void VMSafeBinaryPrimitive::Invoke(Interpreter*, VMFrame* frame) {
     frame->Push(prim.pointer(leftObj, rightObj));
 }
 
+VMSafePrimitive* VMSafePrimitive::GetSafeTernary(VMSymbol* sig,
+                                                 TernaryPrim prim) {
+    VMSafeTernaryPrimitive* p =
+        new (GetHeap<HEAP_CLS>(), 0) VMSafeTernaryPrimitive(sig, prim);
+    return p;
+}
+
+void VMSafeTernaryPrimitive::Invoke(Interpreter*, VMFrame* frame) {
+    vm_oop_t arg2 = frame->Pop();
+    vm_oop_t arg1 = frame->Pop();
+    vm_oop_t self = frame->Pop();
+
+    frame->Push(prim.pointer(self, arg1, arg2));
+}
+
 std::string VMSafePrimitive::AsDebugString() const {
     return "SafePrim(" + GetClass()->GetName()->GetStdString() + ">>#" +
            GetSignature()->GetStdString() + ")";
@@ -51,5 +66,11 @@ AbstractVMObject* VMSafeUnaryPrimitive::CloneForMovingGC() const {
 AbstractVMObject* VMSafeBinaryPrimitive::CloneForMovingGC() const {
     VMSafeBinaryPrimitive* prim =
         new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMSafeBinaryPrimitive(*this);
+    return prim;
+}
+
+AbstractVMObject* VMSafeTernaryPrimitive::CloneForMovingGC() const {
+    VMSafeTernaryPrimitive* prim =
+        new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMSafeTernaryPrimitive(*this);
     return prim;
 }

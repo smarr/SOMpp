@@ -109,8 +109,8 @@ void CloneObjectsTest::testCloneSymbol() {
                                  clone->GetClass());
     CPPUNIT_ASSERT_EQUAL_MESSAGE("objectSize differs!!", orig->GetObjectSize(),
                                  clone->GetObjectSize());
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("string differs!!!", orig->GetPlainString(),
-                                 clone->GetPlainString());
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("string differs!!!", orig->GetStdString(),
+                                 clone->GetStdString());
     CPPUNIT_ASSERT_EQUAL_MESSAGE("hash differs!!", orig->GetHash(),
                                  clone->GetHash());
 }

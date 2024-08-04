@@ -70,11 +70,6 @@ static vm_oop_t intPlus(vm_oop_t leftObj, vm_oop_t rightObj) {
     return NEW_INT(result);
 }
 
-static vm_oop_t intBitwiseAnd(vm_oop_t leftObj, vm_oop_t rightObj) {
-    int64_t result = (int64_t)INT_VAL(leftObj) & (int64_t)INT_VAL(rightObj);
-    return NEW_INT(result);
-}
-
 static vm_oop_t intBitwiseXor(vm_oop_t leftObj, vm_oop_t rightObj) {
     int64_t result = (int64_t)INT_VAL(leftObj) ^ (int64_t)INT_VAL(rightObj);
     return NEW_INT(result);
@@ -205,6 +200,39 @@ static vm_oop_t intLowerthan(vm_oop_t leftObj, vm_oop_t rightObj) {
     }
 }
 
+static vm_oop_t intLowerThanEqual(vm_oop_t leftObj, vm_oop_t rightObj) {
+    int64_t left = INT_VAL(leftObj);
+    doDoubleOpIfNeeded(left, rightObj, <=);
+
+    if (left <= INT_VAL(rightObj)) {
+        return load_ptr(trueObject);
+    } else {
+        return load_ptr(falseObject);
+    }
+}
+
+static vm_oop_t intGreaterThan(vm_oop_t leftObj, vm_oop_t rightObj) {
+    int64_t left = INT_VAL(leftObj);
+    doDoubleOpIfNeeded(left, rightObj, >);
+
+    if (left > INT_VAL(rightObj)) {
+        return load_ptr(trueObject);
+    } else {
+        return load_ptr(falseObject);
+    }
+}
+
+static vm_oop_t intGreaterThanEqual(vm_oop_t leftObj, vm_oop_t rightObj) {
+    int64_t left = INT_VAL(leftObj);
+    doDoubleOpIfNeeded(left, rightObj, >=);
+
+    if (left >= INT_VAL(rightObj)) {
+        return load_ptr(trueObject);
+    } else {
+        return load_ptr(falseObject);
+    }
+}
+
 static vm_oop_t intAsString(vm_oop_t self) {
     long integer = INT_VAL(self);
     ostringstream Str;
@@ -244,6 +272,44 @@ static vm_oop_t intAtRandom(vm_oop_t self) {
     return NEW_INT(result);
 }
 
+static vm_oop_t intAbs(vm_oop_t self) {
+    int64_t result = INT_VAL(self);
+    if (result < 0) {
+        return NEW_INT(-result);
+    }
+    return self;
+}
+
+static vm_oop_t intMin(vm_oop_t self, vm_oop_t arg) {
+    int64_t result = INT_VAL(self);
+
+    VMClass* cl = CLASS_OF(arg);
+    if (cl == load_ptr(doubleClass)) {
+        if (result < ((VMDouble*)arg)->GetEmbeddedDouble()) {
+            return self;
+        } else {
+            return arg;
+        }
+    }
+
+    return (result < INT_VAL(arg)) ? self : arg;
+}
+
+static vm_oop_t intMax(vm_oop_t self, vm_oop_t arg) {
+    int64_t result = INT_VAL(self);
+
+    VMClass* cl = CLASS_OF(arg);
+    if (cl == load_ptr(doubleClass)) {
+        if (result > ((VMDouble*)arg)->GetEmbeddedDouble()) {
+            return self;
+        } else {
+            return arg;
+        }
+    }
+
+    return (result > INT_VAL(arg)) ? self : arg;
+}
+
 static vm_oop_t intFromString(vm_oop_t, vm_oop_t right) {
     VMString* self = (VMString*)right;
     std::string str = self->GetStdString();
@@ -251,31 +317,67 @@ static vm_oop_t intFromString(vm_oop_t, vm_oop_t right) {
     return ParseInteger(str, 10, false);
 }
 
+static vm_oop_t intUnequal(vm_oop_t leftObj, vm_oop_t rightObj) {
+    int64_t left = INT_VAL(leftObj);
+    doDoubleOpIfNeeded(left, rightObj, !=);
+
+    if (left != INT_VAL(rightObj)) {
+        return load_ptr(trueObject);
+    } else {
+        return load_ptr(falseObject);
+    }
+}
+
+static vm_oop_t intRange(vm_oop_t leftObj, vm_oop_t rightObj) {
+    int64_t left = INT_VAL(leftObj);
+    int64_t right = INT_VAL(rightObj);
+
+    int64_t numInteger = right - left + 1;
+    VMArray* arr = GetUniverse()->NewArray(numInteger);
+
+    size_t index = 0;
+    for (int64_t i = left; i <= right; i += 1, index += 1) {
+        arr->SetIndexableField(index, NEW_INT(i));
+    }
+
+    return arr;
+}
+
 _Integer::_Integer() : PrimitiveContainer() {
     srand((unsigned)time(nullptr));
 
-    Add("plus", &intPlus, false);
-    Add("bitAnd_", &intBitwiseAnd, false);
+    Add("+", &intPlus, false);
+    Add("-", &intMinus, false);
+    Add("*", &intStar, false);
+    Add("rem:", &intRem, false);
 
-    Add("minus", &intMinus, false);
-    Add("star", &intStar, false);
-    Add("rem_", &intRem, false);
-
-    Add("bitXor_", &intBitwiseXor, false);
-    Add("lowerthanlowerthan", &intLeftShift, false);
-    Add("greaterthangreaterthangreaterthan", &intUnsignedRightShift, false);
-    Add("slash", &intSlash, false);
-    Add("slashslash", &intSlashslash, false);
-    Add("percent", &intPercent, false);
-    Add("and", &intAnd, false);
-    Add("equal", &intEqual, false);
-    Add("equalequal", &intEqualEqual, false);
-    Add("lowerthan", &intLowerthan, false);
+    Add("bitXor:", &intBitwiseXor, false);
+    Add("<<", &intLeftShift, false);
+    Add(">>>", &intUnsignedRightShift, false);
+    Add("/", &intSlash, false);
+    Add("//", &intSlashslash, false);
+    Add("%", &intPercent, false);
+    Add("&", &intAnd, false);
+    Add("=", &intEqual, false);
+    Add("==", &intEqualEqual, false);
+    Add("<", &intLowerthan, false);
     Add("asString", &intAsString, false);
     Add("asDouble", &intAsDouble, false);
     Add("as32BitSignedValue", &intAs32BitSigned, false);
     Add("as32BitUnsignedValue", &intAs32BitUnsigned, false);
     Add("sqrt", &intSqrt, false);
     Add("atRandom", &intAtRandom, false);
-    Add("fromString_", &intFromString, true);
+    Add("fromString:", &intFromString, true);
+
+    Add("<=", &intLowerThanEqual, false);
+    Add(">", &intGreaterThan, false);
+    Add(">=", &intGreaterThanEqual, false);
+    Add("<>", &intUnequal, false);
+    Add("~=", &intUnequal, false);
+
+    Add("abs", &intAbs, false);
+    Add("min:", &intMin, false);
+    Add("max:", &intMax, false);
+
+    Add("to:", &intRange, false);
 }

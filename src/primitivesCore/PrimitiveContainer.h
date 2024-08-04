@@ -51,14 +51,15 @@ public:
 
     PrimitiveRoutine* GetPrimitive(const std::string& routineName);
 
-    UnaryPrim GetSafeUnary(const std::string& routineName);
-    BinaryPrim GetSafeBinary(const std::string& routineName);
+    void InstallPrimitives(VMClass* clazz, bool classSide);
 
     void Add(const char* name, UnaryPrimitiveRoutine, bool classSide);
     void Add(const char* name, BinaryPrimitiveRoutine, bool classSide);
+    void Add(const char* name, TernaryPrimitiveRoutine, bool classSide);
 
 private:
     std::map<std::string, PrimitiveRoutine*> methods{};
     std::map<std::string, UnaryPrim> unaryPrims{};
     std::map<std::string, BinaryPrim> binaryPrims{};
+    std::map<std::string, TernaryPrim> ternaryPrims{};
 };

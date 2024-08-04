@@ -46,6 +46,9 @@ public:
 
     inline size_t GetNumberOfIndexableFields() const { return numberOfFields; }
 
+    /** Used from language level, via primitive */
+    VMArray* Copy() const;
+
     VMArray* CopyAndExtendWith(vm_oop_t) const;
     vm_oop_t GetIndexableField(size_t idx) const;
     void SetIndexableField(size_t idx, vm_oop_t value);

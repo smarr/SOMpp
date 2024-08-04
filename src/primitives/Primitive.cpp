@@ -40,6 +40,6 @@ _Primitive::_Primitive() : PrimitiveContainer() {
     Add("signature", &pSignature, false);
     Add("holder", &pHolder, false);
     SetPrimitive(
-        "invokeOn_with_",
+        "invokeOn:with:",
         new Routine<_Primitive>(this, &_Primitive::InvokeOn_With_, false));
 }

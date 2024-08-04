@@ -29,23 +29,21 @@
 #include <cstdint>
 
 #include "../primitivesCore/PrimitiveContainer.h"
-#include "../primitivesCore/Routine.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMArray.h"
 #include "../vmobjects/VMFrame.h"
 
-static vm_oop_t arrAt_(vm_oop_t leftObj, vm_oop_t idx) {
+static vm_oop_t arrAt(vm_oop_t leftObj, vm_oop_t idx) {
     VMArray* self = static_cast<VMArray*>(leftObj);
     return self->GetIndexableField(INT_VAL(idx) - 1);
 }
 
-void _Array::At_Put_(Interpreter*, VMFrame* frame) {
-    vm_oop_t value = frame->Pop();
-    vm_oop_t index = frame->Pop();
-    VMArray* self = static_cast<VMArray*>(frame->GetStackElement(0));
-    long i = INT_VAL(index);
+static vm_oop_t arrAtPut(vm_oop_t rcvr, vm_oop_t index, vm_oop_t value) {
+    VMArray* self = static_cast<VMArray*>(rcvr);
+    int64_t i = INT_VAL(index);
     self->SetIndexableField(i - 1, value);
+    return rcvr;
 }
 
 static vm_oop_t arrLength(vm_oop_t leftObj) {
@@ -53,14 +51,20 @@ static vm_oop_t arrLength(vm_oop_t leftObj) {
     return NEW_INT((int64_t)self->GetNumberOfIndexableFields());
 }
 
-static vm_oop_t arrNew_(vm_oop_t, vm_oop_t arg) {
+static vm_oop_t arrNew(vm_oop_t, vm_oop_t arg) {
     int64_t size = INT_VAL(arg);
     return GetUniverse()->NewArray(size);
 }
 
+static vm_oop_t arrCopy(vm_oop_t rcvr) {
+    VMArray* self = static_cast<VMArray*>(rcvr);
+    return self->Copy();
+}
+
 _Array::_Array() : PrimitiveContainer() {
-    Add("new_", &arrNew_, true);
-    Add("at_", &arrAt_, false);
-    SetPrimitive("at_put_", new Routine<_Array>(this, &_Array::At_Put_, false));
+    Add("new:", &arrNew, true);
+    Add("at:", &arrAt, false);
+    Add("at:put:", &arrAtPut, false);
     Add("length", &arrLength, false);
+    Add("copy", &arrCopy, false);
 }

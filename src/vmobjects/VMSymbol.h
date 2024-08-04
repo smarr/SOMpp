@@ -36,7 +36,6 @@ public:
     typedef GCSymbol Stored;
 
     VMSymbol(const size_t length, const char* const str);
-    StdString GetPlainString() const;
     size_t GetObjectSize() const override;
     VMSymbol* CloneForMovingGC() const override;
     VMClass* GetClass() const override;

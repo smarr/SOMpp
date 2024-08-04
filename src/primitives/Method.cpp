@@ -40,6 +40,6 @@ void _Method::InvokeOn_With_(Interpreter* interp, VMFrame* frame) {
 _Method::_Method() : PrimitiveContainer() {
     Add("signature", &mSignature, false);
     Add("holder", &mHolder, false);
-    SetPrimitive("invokeOn_with_",
+    SetPrimitive("invokeOn:with:",
                  new Routine<_Method>(this, &_Method::InvokeOn_With_, false));
 }

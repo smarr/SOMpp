@@ -36,6 +36,4 @@ public:
     void PerformWithArguments(Interpreter*, VMFrame*);
     void PerformInSuperclass(Interpreter*, VMFrame*);
     void PerformWithArgumentsInSuperclass(Interpreter*, VMFrame*);
-
-    void InstVarAtPut(Interpreter*, VMFrame*);
 };

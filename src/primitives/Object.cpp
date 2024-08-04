@@ -124,14 +124,10 @@ vm_oop_t objInstVarAt(vm_oop_t self, vm_oop_t idx) {
     return static_cast<VMObject*>(self)->GetField(field_idx);
 }
 
-void _Object::InstVarAtPut(Interpreter*, VMFrame* frame) {
-    vm_oop_t value = frame->Pop();
-    vm_oop_t idx = frame->Pop();
-    vm_oop_t self = frame->GetStackElement(0);
-
-    long field_idx = INT_VAL(idx) - 1;
-
+vm_oop_t objInstVarAtPut(vm_oop_t self, vm_oop_t idx, vm_oop_t value) {
+    size_t field_idx = INT_VAL(idx) - 1;
     static_cast<VMObject*>(self)->SetField(field_idx, value);
+    return self;
 }
 
 vm_oop_t objInstVarNamed(vm_oop_t self, vm_oop_t nameObj) {
@@ -145,28 +141,27 @@ vm_oop_t objClass(vm_oop_t self) {
 }
 
 _Object::_Object() : PrimitiveContainer() {
-    Add("equalequal", &objEqualequal, false);
+    Add("==", &objEqualequal, false);
     Add("objectSize", &objObjectSize, false);
     Add("hashcode", &objHashcode, false);
     Add("inspect", &objInspect, false);
     Add("halt", &objHalt, false);
 
-    SetPrimitive("perform_",
+    SetPrimitive("perform:",
                  new Routine<_Object>(this, &_Object::Perform, false));
     SetPrimitive(
-        "perform_withArguments_",
+        "perform:withArguments:",
         new Routine<_Object>(this, &_Object::PerformWithArguments, false));
     SetPrimitive(
-        "perform_inSuperclass_",
+        "perform:inSuperclass:",
         new Routine<_Object>(this, &_Object::PerformInSuperclass, false));
-    SetPrimitive("perform_withArguments_inSuperclass_",
+    SetPrimitive("perform:withArguments:inSuperclass:",
                  new Routine<_Object>(
                      this, &_Object::PerformWithArgumentsInSuperclass, false));
 
-    Add("instVarAt_", &objInstVarAt, false);
-    SetPrimitive("instVarAt_put_",
-                 new Routine<_Object>(this, &_Object::InstVarAtPut, false));
-    Add("instVarNamed_", &objInstVarNamed, false);
+    Add("instVarAt:", &objInstVarAt, false);
+    Add("instVarAt:put:", &objInstVarAtPut, false);
+    Add("instVarNamed:", &objInstVarNamed, false);
 
     Add("class", &objClass, false);
 }

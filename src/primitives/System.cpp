@@ -63,10 +63,10 @@ static vm_oop_t sysGlobal_(vm_oop_t, vm_oop_t rightObj) {
     return result ? result : load_ptr(nilObject);
 }
 
-void _System::Global_put_(Interpreter*, VMFrame* frame) {
-    vm_oop_t value = frame->Pop();
-    VMSymbol* arg = static_cast<VMSymbol*>(frame->Pop());
-    GetUniverse()->SetGlobal(arg, value);
+static vm_oop_t sysGlobalPut(vm_oop_t sys, vm_oop_t sym, vm_oop_t val) {
+    VMSymbol* arg = static_cast<VMSymbol*>(sym);
+    GetUniverse()->SetGlobal(arg, val);
+    return sys;
 }
 
 static vm_oop_t sysHasGlobal_(vm_oop_t, vm_oop_t rightObj) {
@@ -103,13 +103,6 @@ static vm_oop_t sysPrintString_(vm_oop_t leftObj, vm_oop_t rightObj) {
 
 static vm_oop_t sysPrintNewline(vm_oop_t leftObj) {
     Print("\n");
-    return leftObj;
-}
-
-static vm_oop_t sysPrintNewline_(vm_oop_t leftObj, vm_oop_t rightObj) {
-    VMString* arg = static_cast<VMString*>(rightObj);
-    std::string str = arg->GetStdString();
-    Print(str + "\n");
     return leftObj;
 }
 
@@ -181,22 +174,20 @@ void _System::PrintStackTrace(Interpreter*, VMFrame* frame) {
 _System::_System(void) : PrimitiveContainer() {
     gettimeofday(&start_time, nullptr);
 
-    Add("global_", &sysGlobal_, false);
-    SetPrimitive("global_put_",
-                 new Routine<_System>(this, &_System::Global_put_, false));
-    Add("hasGlobal_", &sysHasGlobal_, false);
-    Add("load_", &sysLoad_, false);
-    Add("exit_", &sysExit_, false);
-    Add("printString_", &sysPrintString_, false);
+    Add("global:", &sysGlobal_, false);
+    Add("global:put:", &sysGlobalPut, false);
+    Add("hasGlobal:", &sysHasGlobal_, false);
+    Add("load:", &sysLoad_, false);
+    Add("exit:", &sysExit_, false);
+    Add("printString:", &sysPrintString_, false);
     Add("printNewline", &sysPrintNewline, false);
-    Add("printNewline_", &sysPrintNewline_, false);
-    Add("errorPrint_", &sysErrorPrint_, false);
-    Add("errorPrintln_", &sysErrorPrintNewline_, false);
+    Add("errorPrint:", &sysErrorPrint_, false);
+    Add("errorPrintln:", &sysErrorPrintNewline_, false);
     Add("time", &sysTime, false);
     Add("ticks", &sysTicks, false);
     Add("fullGC", &sysFullGC, false);
 
-    Add("loadFile_", &sysLoadFile_, false);
+    Add("loadFile:", &sysLoadFile_, false);
     SetPrimitive("printStackTrace",
                  new Routine<_System>(this, &_System::PrintStackTrace, false));
 }

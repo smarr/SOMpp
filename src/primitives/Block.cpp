@@ -27,30 +27,5 @@
 #include "Block.h"
 
 #include "../primitivesCore/PrimitiveContainer.h"
-#include "../primitivesCore/Routine.h"
-#include "../vmobjects/VMFrame.h"
 
-void _Block::Value(Interpreter*, VMFrame*) {
-    // intentionally left blank
-}
-
-void _Block::Value_(Interpreter*, VMFrame*) {
-    // intentionally left blank
-}
-
-void _Block::Value_with_(Interpreter*, VMFrame*) {
-    // intentionally left blank
-}
-
-void _Block::Restart(Interpreter*, VMFrame* frame) {
-    frame->SetBytecodeIndex(0);
-    frame->ResetStackPointer();
-}
-
-_Block::_Block() : PrimitiveContainer() {
-    SetPrimitive("value", new Routine<_Block>(this, &_Block::Value, false));
-    SetPrimitive("restart", new Routine<_Block>(this, &_Block::Restart, false));
-    SetPrimitive("value_", new Routine<_Block>(this, &_Block::Value_, false));
-    SetPrimitive("value_with_",
-                 new Routine<_Block>(this, &_Block::Value_with_, false));
-}
+_Block::_Block() : PrimitiveContainer() {}

@@ -58,7 +58,6 @@
 #include "../vmobjects/VMObject.h"
 #include "../vmobjects/VMObjectBase.h"
 #include "../vmobjects/VMString.h"
-#include "../vmobjects/VMSymbol.h"
 #include "Globals.h"
 #include "IsValidObject.h"
 #include "LogAllocation.h"
