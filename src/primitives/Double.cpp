@@ -175,6 +175,60 @@ static vm_oop_t dblFromString(vm_oop_t, vm_oop_t rightObj) {
     return GetUniverse()->NewDouble(value);
 }
 
+static vm_oop_t dblLowerThanEqual(vm_oop_t leftPtr, vm_oop_t rightObj) {
+    PREPARE_OPERANDS;
+    if (left <= right) {
+        return load_ptr(trueObject);
+    } else {
+        return load_ptr(falseObject);
+    }
+}
+
+static vm_oop_t dblGreaterThan(vm_oop_t leftPtr, vm_oop_t rightObj) {
+    PREPARE_OPERANDS;
+    if (left > right) {
+        return load_ptr(trueObject);
+    } else {
+        return load_ptr(falseObject);
+    }
+}
+
+static vm_oop_t dblGreaterThanEqual(vm_oop_t leftPtr, vm_oop_t rightObj) {
+    PREPARE_OPERANDS;
+    if (left >= right) {
+        return load_ptr(trueObject);
+    } else {
+        return load_ptr(falseObject);
+    }
+}
+
+static vm_oop_t dblUnequal(vm_oop_t leftPtr, vm_oop_t rightObj) {
+    PREPARE_OPERANDS;
+    if (left != right) {
+        return load_ptr(trueObject);
+    } else {
+        return load_ptr(falseObject);
+    }
+}
+
+static vm_oop_t dblMin(vm_oop_t leftPtr, vm_oop_t rightObj) {
+    PREPARE_OPERANDS;
+    if (left < right) {
+        return leftPtr;
+    } else {
+        return rightObj;
+    }
+}
+
+static vm_oop_t dblMax(vm_oop_t leftPtr, vm_oop_t rightObj) {
+    PREPARE_OPERANDS;
+    if (left > right) {
+        return leftPtr;
+    } else {
+        return rightObj;
+    }
+}
+
 _Double::_Double() : PrimitiveContainer() {
     Add("+", &dblPlus, false);
     Add("-", &dblMinus, false);
@@ -191,4 +245,12 @@ _Double::_Double() : PrimitiveContainer() {
     Add("asInteger", &dblAsInteger, false);
     Add("PositiveInfinity", &dblPositiveInfinity, true);
     Add("fromString:", &dblFromString, true);
+
+    Add("<=", &dblLowerThanEqual, false);
+    Add(">", &dblGreaterThan, false);
+    Add(">=", &dblGreaterThanEqual, false);
+    Add("<>", &dblUnequal, false);
+    Add("~=", &dblUnequal, false);
+    Add("min:", &dblMin, false);
+    Add("max:", &dblMax, false);
 }
