@@ -124,14 +124,10 @@ vm_oop_t objInstVarAt(vm_oop_t self, vm_oop_t idx) {
     return static_cast<VMObject*>(self)->GetField(field_idx);
 }
 
-void _Object::InstVarAtPut(Interpreter*, VMFrame* frame) {
-    vm_oop_t value = frame->Pop();
-    vm_oop_t idx = frame->Pop();
-    vm_oop_t self = frame->GetStackElement(0);
-
-    long field_idx = INT_VAL(idx) - 1;
-
+vm_oop_t objInstVarAtPut(vm_oop_t self, vm_oop_t idx, vm_oop_t value) {
+    size_t field_idx = INT_VAL(idx) - 1;
     static_cast<VMObject*>(self)->SetField(field_idx, value);
+    return self;
 }
 
 vm_oop_t objInstVarNamed(vm_oop_t self, vm_oop_t nameObj) {
@@ -164,8 +160,7 @@ _Object::_Object() : PrimitiveContainer() {
                      this, &_Object::PerformWithArgumentsInSuperclass, false));
 
     Add("instVarAt:", &objInstVarAt, false);
-    SetPrimitive("instVarAt:put:",
-                 new Routine<_Object>(this, &_Object::InstVarAtPut, false));
+    Add("instVarAt:put:", &objInstVarAtPut, false);
     Add("instVarNamed:", &objInstVarNamed, false);
 
     Add("class", &objClass, false);
