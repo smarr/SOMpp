@@ -119,7 +119,7 @@ void EmitPUSHFIELD(MethodGenerationContext& mgenc, VMSymbol* field) {
     }
 }
 
-void EmitPUSHBLOCK(MethodGenerationContext& mgenc, VMMethod* block) {
+void EmitPUSHBLOCK(MethodGenerationContext& mgenc, VMInvokable* block) {
     const int8_t idx = mgenc.AddLiteralIfAbsent(block);
     Emit2(mgenc, BC_PUSH_BLOCK, idx, 1);
 }

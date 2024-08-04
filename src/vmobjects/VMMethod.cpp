@@ -125,9 +125,10 @@ void VMMethod::SetCachedFrame(VMFrame* frame) {
 }
 #endif
 
-void VMMethod::Invoke(Interpreter* interp, VMFrame* frame) {
+VMFrame* VMMethod::Invoke(Interpreter* interp, VMFrame* frame) {
     VMFrame* frm = interp->PushNewFrame(this);
     frm->CopyArgumentsFrom(frame);
+    return frm;
 }
 
 void VMMethod::SetHolder(VMClass* hld) {
@@ -322,7 +323,7 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
             }
 
             case BC_PUSH_BLOCK: {
-                VMMethod* blockMethod = (VMMethod*)GetConstant(i);
+                VMInvokable* blockMethod = (VMInvokable*)GetConstant(i);
                 blockMethod->AdaptAfterOuterInlined(1, mgenc);
                 EmitPUSHBLOCK(mgenc, blockMethod);
                 break;

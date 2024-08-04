@@ -47,7 +47,13 @@ public:
     void MarkObjectAsInvalid() override;
     bool IsMarkedInvalid() const override;
 
-    void Invoke(Interpreter* interp, VMFrame* frm) override;
+    VMFrame* Invoke(Interpreter* interp, VMFrame* frm) override;
+    void InlineInto(MethodGenerationContext& mgenc,
+                    bool mergeScope = true) final;
+
+    inline size_t GetNumberOfArguments() const final {
+        return numberOfArguments;
+    }
 
 private:
     static VMSymbol* computeSignatureString(long argc);

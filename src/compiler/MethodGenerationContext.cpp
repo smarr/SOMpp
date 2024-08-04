@@ -43,6 +43,7 @@
 #include "../vmobjects/VMMethod.h"
 #include "../vmobjects/VMPrimitive.h"
 #include "../vmobjects/VMSymbol.h"
+#include "../vmobjects/VMTrivialMethod.h"
 #include "BytecodeGenerator.h"
 #include "ClassGenerationContext.h"
 #include "LexicalScope.h"
@@ -51,15 +52,20 @@
 
 MethodGenerationContext::MethodGenerationContext(ClassGenerationContext& holder,
                                                  MethodGenerationContext* outer)
-    : holderGenc(holder), outerGenc(outer), blockMethod(outer != nullptr),
-      signature(nullptr), primitive(false), finished(false),
-      currentStackDepth(0), maxStackDepth(0),
-      maxContextLevel(outer == nullptr ? 0 : outer->GetMaxContextLevel() + 1) {
+    : holderGenc(holder), outerGenc(outer),
+      maxContextLevel(outer == nullptr ? 0 : outer->GetMaxContextLevel() + 1),
+      blockMethod(outer != nullptr), signature(nullptr), primitive(false),
+      finished(false), currentStackDepth(0), maxStackDepth(0) {
     last4Bytecodes = {BC_INVALID, BC_INVALID, BC_INVALID, BC_INVALID};
     isCurrentlyInliningABlock = false;
 }
 
-VMMethod* MethodGenerationContext::Assemble() {
+VMInvokable* MethodGenerationContext::Assemble() {
+    VMTrivialMethod* trivialMethod = assembleTrivialMethod();
+    if (trivialMethod != nullptr) {
+        return trivialMethod;
+    }
+
     // create a method instance with the given number of bytecodes and literals
     size_t numLiterals = literals.size();
     size_t numLocals = locals.size();
@@ -81,6 +87,69 @@ VMMethod* MethodGenerationContext::Assemble() {
 
     // return the method - the holder field is to be set later on!
     return meth;
+}
+
+VMTrivialMethod* MethodGenerationContext::assembleTrivialMethod() {
+    if (lastBytecodeIs(0, BC_RETURN_LOCAL)) {
+        uint8_t pushCandidate = lastBytecodeIsOneOf(1, &IsPushConstBytecode);
+        if (pushCandidate != BC_INVALID) {
+            return assembleLiteralReturn(pushCandidate);
+        }
+
+        if (lastBytecodeIs(1, BC_PUSH_GLOBAL)) {
+            return assembleGlobalReturn();
+        }
+
+        pushCandidate = lastBytecodeIsOneOf(1, &IsPushFieldBytecode);
+        if (pushCandidate != BC_INVALID) {
+            return assembleFieldGetter(pushCandidate);
+        }
+    }
+
+    // because we check for return_self here, we don't consider block methods
+    if (lastBytecodeIs(0, BC_PUSH_SELF)) {
+        assert(!IsBlockMethod());
+        return assembleFieldSetter();
+    }
+
+    uint8_t returnCandidate = lastBytecodeIsOneOf(0, &IsReturnFieldBytecode);
+    if (returnCandidate != BC_INVALID) {
+        return assembleFieldGetterFromReturn(returnCandidate);
+    }
+
+    return nullptr;
+}
+
+VMTrivialMethod* MethodGenerationContext::assembleLiteralReturn(
+    uint8_t pushCandidate) {
+    if (bytecode.size() != (Bytecode::GetBytecodeLength(pushCandidate) +
+                            Bytecode::GetBytecodeLength(BC_RETURN_LOCAL))) {
+        return nullptr;
+    }
+
+    switch (pushCandidate) {
+        case BC_PUSH_0: {
+            return MakeLiteralReturn(signature, arguments, NEW_INT(0));
+        }
+        case BC_PUSH_1: {
+            return MakeLiteralReturn(signature, arguments, NEW_INT(1));
+        }
+        case BC_PUSH_NIL: {
+            return MakeLiteralReturn(signature, arguments, load_ptr(nilObject));
+        }
+        case BC_PUSH_CONSTANT_0:
+        case BC_PUSH_CONSTANT_1:
+        case BC_PUSH_CONSTANT_2:
+        case BC_PUSH_CONSTANT: {
+            if (literals.size() == 1) {
+                return MakeLiteralReturn(signature, arguments, literals.at(0));
+            }
+        }
+    }
+
+    GetUniverse()->ErrorExit(
+        "Unexpected situation when trying to create trivial method that "
+        "returns a literal");
 }
 
 VMPrimitive* MethodGenerationContext::AssemblePrimitive(bool classSide) {
@@ -288,32 +357,32 @@ bool MethodGenerationContext::hasTwoLiteralBlockArguments() {
  * and inlining, where this is used, happens right after the block was added.
  * This also means, we need to remove blocks in reverse order.
  */
-vm_oop_t MethodGenerationContext::getLastBlockMethodAndFreeLiteral(
+VMInvokable* MethodGenerationContext::getLastBlockMethodAndFreeLiteral(
     uint8_t blockLiteralIdx) {
     assert(blockLiteralIdx == literals.size() - 1);
-    vm_oop_t block = literals.back();
+    VMInvokable* block = (VMInvokable*)literals.back();
     literals.pop_back();
     return block;
 }
 
-vm_oop_t MethodGenerationContext::extractBlockMethodAndRemoveBytecode() {
+VMInvokable* MethodGenerationContext::extractBlockMethodAndRemoveBytecode() {
     uint8_t blockLitIdx = bytecode.at(bytecode.size() - 1);
 
     vm_oop_t toBeInlined = getLastBlockMethodAndFreeLiteral(blockLitIdx);
 
     removeLastBytecodes(1);
 
-    return toBeInlined;
+    return (VMInvokable*)toBeInlined;
 }
 
-std::tuple<vm_oop_t, vm_oop_t>
+std::tuple<VMInvokable*, VMInvokable*>
 MethodGenerationContext::extractBlockMethodsAndRemoveBytecodes() {
     uint8_t block1LitIdx = bytecode.at(bytecode.size() - 3);
     uint8_t block2LitIdx = bytecode.at(bytecode.size() - 1);
 
     // grab the blocks' methods for inlining
-    vm_oop_t toBeInlined2 = getLastBlockMethodAndFreeLiteral(block2LitIdx);
-    vm_oop_t toBeInlined1 = getLastBlockMethodAndFreeLiteral(block1LitIdx);
+    VMInvokable* toBeInlined2 = getLastBlockMethodAndFreeLiteral(block2LitIdx);
+    VMInvokable* toBeInlined1 = getLastBlockMethodAndFreeLiteral(block1LitIdx);
 
     removeLastBytecodes(2);
 
@@ -329,8 +398,7 @@ bool MethodGenerationContext::InlineIfTrueOrIfFalse(bool isIfTrue) {
         return false;
     }
 
-    VMMethod* toBeInlined =
-        static_cast<VMMethod*>(extractBlockMethodAndRemoveBytecode());
+    VMInvokable* toBeInlined = extractBlockMethodAndRemoveBytecode();
 
     size_t jumpOffsetIdxToSkipBody =
         EmitJumpOnBoolWithDummyOffset(*this, isIfTrue, false);
@@ -358,10 +426,10 @@ bool MethodGenerationContext::InlineIfTrueFalse(bool isIfTrue) {
 
     assert(Bytecode::GetBytecodeLength(BC_PUSH_BLOCK) == 2);
 
-    std::tuple<vm_oop_t, vm_oop_t> methods =
+    std::tuple<VMInvokable*, VMInvokable*> methods =
         extractBlockMethodsAndRemoveBytecodes();
-    VMMethod* condMethod = static_cast<VMMethod*>(std::get<0>(methods));
-    VMMethod* bodyMethod = static_cast<VMMethod*>(std::get<1>(methods));
+    VMInvokable* condMethod = std::get<0>(methods);
+    VMInvokable* bodyMethod = std::get<1>(methods);
 
     size_t jumpOffsetIdxToSkipTrueBranch =
         EmitJumpOnBoolWithDummyOffset(*this, isIfTrue, true);
@@ -395,10 +463,10 @@ bool MethodGenerationContext::InlineWhile(Parser& parser, bool isWhileTrue) {
 
     assert(Bytecode::GetBytecodeLength(BC_PUSH_BLOCK) == 2);
 
-    std::tuple<vm_oop_t, vm_oop_t> methods =
+    std::tuple<VMInvokable*, VMInvokable*> methods =
         extractBlockMethodsAndRemoveBytecodes();
-    VMMethod* condMethod = static_cast<VMMethod*>(std::get<0>(methods));
-    VMMethod* bodyMethod = static_cast<VMMethod*>(std::get<1>(methods));
+    VMInvokable* condMethod = std::get<0>(methods);
+    VMInvokable* bodyMethod = std::get<1>(methods);
 
     size_t loopBeginIdx = OffsetOfNextInstruction();
 
@@ -428,8 +496,7 @@ bool MethodGenerationContext::InlineAndOr(bool isOr) {
         return false;
     }
 
-    VMMethod* toBeInlined =
-        static_cast<VMMethod*>(extractBlockMethodAndRemoveBytecode());
+    VMInvokable* toBeInlined = extractBlockMethodAndRemoveBytecode();
 
     size_t jumpOffsetIdxToSkipBranch =
         EmitJumpOnBoolWithDummyOffset(*this, !isOr, true);
@@ -460,8 +527,7 @@ bool MethodGenerationContext::InlineToDo() {
         return false;
     }
 
-    VMMethod* toBeInlined =
-        static_cast<VMMethod*>(extractBlockMethodAndRemoveBytecode());
+    VMInvokable* toBeInlined = extractBlockMethodAndRemoveBytecode();
 
     toBeInlined->MergeScopeInto(*this);
 
@@ -500,15 +566,15 @@ void MethodGenerationContext::CompleteLexicalScope() {
 
 void MethodGenerationContext::MergeIntoScope(LexicalScope& scopeToBeInlined) {
     if (scopeToBeInlined.GetNumberOfArguments() > 1) {
-        inlineAsLocals(scopeToBeInlined.arguments);
+        InlineAsLocals(scopeToBeInlined.arguments);
     }
 
     if (scopeToBeInlined.GetNumberOfLocals() > 0) {
-        inlineAsLocals(scopeToBeInlined.locals);
+        InlineAsLocals(scopeToBeInlined.locals);
     }
 }
 
-void MethodGenerationContext::inlineAsLocals(vector<Variable>& vars) {
+void MethodGenerationContext::InlineAsLocals(vector<Variable>& vars) {
     for (const Variable& var : vars) {
         Variable freshCopy = var.CopyForInlining(this->locals.size());
         if (freshCopy.IsValid()) {

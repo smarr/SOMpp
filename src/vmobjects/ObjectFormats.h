@@ -90,6 +90,8 @@ class VMSafePrimitive;
 class VMSafeUnaryPrimitive;
 class VMSafeBinaryPrimitive;
 class VMSafeTernaryPrimitive;
+class VMTrivialMethod;
+class VMLiteralReturn;
 class VMString;
 class VMSymbol;
 
@@ -150,6 +152,8 @@ class GCSafePrimitive  : public GCInvokable      { public: typedef VMSafePrimiti
 class GCSafeUnaryPrimitive  : public GCSafePrimitive { public: typedef VMSafeUnaryPrimitive  Loaded; };
 class GCSafeBinaryPrimitive  : public GCSafePrimitive { public: typedef VMSafeBinaryPrimitive  Loaded; };
 class GCSafeTernaryPrimitive  : public GCSafePrimitive { public: typedef VMSafeTernaryPrimitive  Loaded; };
+class GCTrivialMethod  : public GCInvokable      { public: typedef VMTrivialMethod  Loaded; };
+class GCLiteralReturn  : public GCTrivialMethod      { public: typedef VMLiteralReturn  Loaded; };
 class GCString         : public GCAbstractObject { public: typedef VMString         Loaded; };
 class GCSymbol         : public GCString         { public: typedef VMSymbol         Loaded; };
 // clang-format on

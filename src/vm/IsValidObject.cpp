@@ -1,7 +1,9 @@
 #include "IsValidObject.h"
 
 #include <cassert>
+#include <vector>
 
+#include "../compiler/Variable.h"
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../vmobjects/AbstractObject.h"
@@ -18,6 +20,7 @@
 #include "../vmobjects/VMSafePrimitive.h"
 #include "../vmobjects/VMString.h"
 #include "../vmobjects/VMSymbol.h"
+#include "../vmobjects/VMTrivialMethod.h"
 #include "Globals.h"
 
 void* vt_array;
@@ -33,6 +36,7 @@ void* vt_primitive;
 void* vt_safe_un_primitive;
 void* vt_safe_bin_primitive;
 void* vt_safe_ter_primitive;
+void* vt_literal_return;
 void* vt_string;
 void* vt_symbol;
 
@@ -65,7 +69,7 @@ bool IsValidObject(vm_oop_t obj) {
              vt == vt_integer || vt == vt_method || vt == vt_object ||
              vt == vt_primitive || vt == vt_safe_un_primitive ||
              vt == vt_safe_bin_primitive || vt == vt_safe_ter_primitive ||
-             vt == vt_string || vt == vt_symbol;
+             vt == vt_string || vt == vt_symbol || vt == vt_literal_return;
     if (!b) {
         assert(b && "Expected vtable to be one of the known ones.");
         return false;
@@ -104,6 +108,7 @@ void set_vt_to_null() {
     vt_safe_un_primitive = nullptr;
     vt_safe_bin_primitive = nullptr;
     vt_safe_ter_primitive = nullptr;
+    vt_literal_return = nullptr;
     vt_string = nullptr;
     vt_symbol = nullptr;
 }
@@ -115,6 +120,11 @@ static void* get_vtable(AbstractVMObject* obj) {
 bool IsVMInteger(vm_oop_t obj) {
     assert(vt_integer != nullptr);
     return get_vtable(AS_OBJ(obj)) == vt_integer;
+}
+
+bool IsVMMethod(vm_oop_t obj) {
+    assert(vt_method != nullptr);
+    return get_vtable(AS_OBJ(obj)) == vt_method;
 }
 
 bool IsVMSymbol(vm_oop_t obj) {
@@ -166,6 +176,11 @@ void obtain_vtables_of_known_classes(VMSymbol* someValidSymbol) {
     VMSafeTernaryPrimitive* sbp3 = new (GetHeap<HEAP_CLS>(), 0)
         VMSafeTernaryPrimitive(someValidSymbol, TernaryPrim());
     vt_safe_ter_primitive = get_vtable(sbp3);
+
+    vector<Variable> v;
+    VMLiteralReturn* lr = new (GetHeap<HEAP_CLS>(), 0)
+        VMLiteralReturn(someValidSymbol, v, someValidSymbol);
+    vt_literal_return = get_vtable(lr);
 
     VMString* str =
         new (GetHeap<HEAP_CLS>(), PADDED_SIZE(1)) VMString(0, nullptr);

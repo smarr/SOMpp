@@ -26,6 +26,9 @@
 
 #include "VMInvokable.h"
 
+#include <cstddef>
+
+#include "../vm/Universe.h"
 #include "ObjectFormats.h"
 #include "VMClass.h"
 #include "VMSymbol.h"
@@ -51,4 +54,9 @@ VMClass* VMInvokable::GetHolder() const {
 
 void VMInvokable::SetHolder(VMClass* hld) {
     store_ptr(holder, hld);
+}
+
+const Variable* VMInvokable::GetArgument(size_t, size_t) {
+    GetUniverse()->ErrorExit(
+        "VMInvokable::GetArgument not supported on anything VMMethod");
 }

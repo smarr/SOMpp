@@ -30,6 +30,7 @@
 #include <cstddef>
 #include <string>
 
+#include "../compiler/LexicalScope.h"
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../primitivesCore/Routine.h"
@@ -82,7 +83,7 @@ VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc) {
     return SymbolFor(signatureString);
 }
 
-void VMEvaluationPrimitive::Invoke(Interpreter* interp, VMFrame* frame) {
+VMFrame* VMEvaluationPrimitive::Invoke(Interpreter* interp, VMFrame* frame) {
     // Get the block (the receiver) from the stack
     VMBlock* block =
         static_cast<VMBlock*>(frame->GetStackElement(numberOfArguments - 1));
@@ -90,10 +91,15 @@ void VMEvaluationPrimitive::Invoke(Interpreter* interp, VMFrame* frame) {
     // Get the context of the block...
     VMFrame* context = block->GetContext();
 
-    // Push a new frame and set its context to be the one specified in the block
-    VMFrame* NewFrame = interp->PushNewFrame(block->GetMethod());
-    NewFrame->CopyArgumentsFrom(frame);
-    NewFrame->SetContext(context);
+    VMInvokable* method = block->GetMethod();
+
+    VMFrame* newFrame = method->Invoke(interp, frame);
+
+    // Push set its context to be the one specified in the block
+    if (newFrame != nullptr) {
+        newFrame->SetContext(context);
+    }
+    return nullptr;
 }
 
 std::string VMEvaluationPrimitive::AsDebugString() const {
@@ -109,4 +115,10 @@ void VMEvaluationPrimitive::MarkObjectAsInvalid() {
 
 bool VMEvaluationPrimitive::IsMarkedInvalid() const {
     return numberOfArguments == INVALID_INT_MARKER;
+}
+
+void VMEvaluationPrimitive::InlineInto(MethodGenerationContext&, bool) {
+    GetUniverse()->ErrorExit(
+        "VMEvaluationPrimitive::InlineInto is not supported, and should not be "
+        "reached");
 }

@@ -33,9 +33,9 @@ class VMBlock : public VMObject {
 public:
     typedef GCBlock Stored;
 
-    VMBlock(VMMethod* method, VMFrame* context);
+    VMBlock(VMInvokable* method, VMFrame* context);
 
-    VMMethod* GetMethod() const;
+    VMInvokable* GetMethod() const;
 
     inline VMFrame* GetContext() const { return load_ptr(context); }
 
@@ -48,7 +48,7 @@ public:
 private:
     make_testable(public);
 
-    GCMethod* blockMethod;
+    GCInvokable* blockMethod;
     GCFrame* context;
 
 private:

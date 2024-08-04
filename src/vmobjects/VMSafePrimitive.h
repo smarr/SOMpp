@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../primitivesCore/PrimitiveContainer.h"
+#include "Signature.h"
 
 class VMSafePrimitive : public VMInvokable {
 public:
@@ -10,17 +11,20 @@ public:
 
     VMClass* GetClass() const final { return load_ptr(primitiveClass); }
 
-    inline size_t GetObjectSize() const override {
-        return sizeof(VMSafePrimitive);
-    }
-
     bool IsPrimitive() const final { return true; };
+
+    void InlineInto(MethodGenerationContext& mgenc,
+                    bool mergeScope = true) final;
 
     static VMSafePrimitive* GetSafeUnary(VMSymbol* sig, UnaryPrim prim);
     static VMSafePrimitive* GetSafeBinary(VMSymbol* sig, BinaryPrim prim);
     static VMSafePrimitive* GetSafeTernary(VMSymbol* sig, TernaryPrim prim);
 
     std::string AsDebugString() const final;
+
+    inline size_t GetNumberOfArguments() const final {
+        return Signature::GetNumberOfArguments(load_ptr(signature));
+    }
 };
 
 class VMSafeUnaryPrimitive : public VMSafePrimitive {
@@ -36,7 +40,7 @@ public:
         return sizeof(VMSafeUnaryPrimitive);
     }
 
-    void Invoke(Interpreter*, VMFrame*) override;
+    VMFrame* Invoke(Interpreter*, VMFrame*) override;
 
     AbstractVMObject* CloneForMovingGC() const final;
 
@@ -64,7 +68,7 @@ public:
         return sizeof(VMSafeBinaryPrimitive);
     }
 
-    void Invoke(Interpreter*, VMFrame*) override;
+    VMFrame* Invoke(Interpreter*, VMFrame*) override;
 
     AbstractVMObject* CloneForMovingGC() const final;
 
@@ -92,7 +96,7 @@ public:
         return sizeof(VMSafeTernaryPrimitive);
     }
 
-    void Invoke(Interpreter*, VMFrame*) override;
+    VMFrame* Invoke(Interpreter*, VMFrame*) override;
 
     AbstractVMObject* CloneForMovingGC() const final;
 

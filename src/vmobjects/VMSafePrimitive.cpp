@@ -2,9 +2,11 @@
 
 #include <string>
 
+#include "../compiler/LexicalScope.h"
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../primitivesCore/Primitives.h"
+#include "../vm/Universe.h"
 #include "AbstractObject.h"
 #include "ObjectFormats.h"
 #include "VMClass.h"
@@ -17,10 +19,11 @@ VMSafePrimitive* VMSafePrimitive::GetSafeUnary(VMSymbol* sig, UnaryPrim prim) {
     return p;
 }
 
-void VMSafeUnaryPrimitive::Invoke(Interpreter*, VMFrame* frame) {
+VMFrame* VMSafeUnaryPrimitive::Invoke(Interpreter*, VMFrame* frame) {
     vm_oop_t receiverObj = frame->Pop();
 
     frame->Push(prim.pointer(receiverObj));
+    return nullptr;
 }
 
 VMSafePrimitive* VMSafePrimitive::GetSafeBinary(VMSymbol* sig,
@@ -30,11 +33,12 @@ VMSafePrimitive* VMSafePrimitive::GetSafeBinary(VMSymbol* sig,
     return p;
 }
 
-void VMSafeBinaryPrimitive::Invoke(Interpreter*, VMFrame* frame) {
+VMFrame* VMSafeBinaryPrimitive::Invoke(Interpreter*, VMFrame* frame) {
     vm_oop_t rightObj = frame->Pop();
     vm_oop_t leftObj = frame->Pop();
 
     frame->Push(prim.pointer(leftObj, rightObj));
+    return nullptr;
 }
 
 VMSafePrimitive* VMSafePrimitive::GetSafeTernary(VMSymbol* sig,
@@ -44,12 +48,13 @@ VMSafePrimitive* VMSafePrimitive::GetSafeTernary(VMSymbol* sig,
     return p;
 }
 
-void VMSafeTernaryPrimitive::Invoke(Interpreter*, VMFrame* frame) {
+VMFrame* VMSafeTernaryPrimitive::Invoke(Interpreter*, VMFrame* frame) {
     vm_oop_t arg2 = frame->Pop();
     vm_oop_t arg1 = frame->Pop();
     vm_oop_t self = frame->Pop();
 
     frame->Push(prim.pointer(self, arg1, arg2));
+    return nullptr;
 }
 
 std::string VMSafePrimitive::AsDebugString() const {
@@ -73,4 +78,9 @@ AbstractVMObject* VMSafeTernaryPrimitive::CloneForMovingGC() const {
     VMSafeTernaryPrimitive* prim =
         new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMSafeTernaryPrimitive(*this);
     return prim;
+}
+
+void VMSafePrimitive::InlineInto(MethodGenerationContext&, bool) {
+    GetUniverse()->ErrorExit(
+        "VMPrimitive::InlineInto is not supported, and should not be reached");
 }

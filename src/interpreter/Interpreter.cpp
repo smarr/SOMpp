@@ -243,8 +243,8 @@ void Interpreter::doPushFieldWithIndex(uint8_t fieldIndex) {
 }
 
 void Interpreter::doPushBlock(long bytecodeIndex) {
-    VMMethod* blockMethod =
-        static_cast<VMMethod*>(method->GetConstant(bytecodeIndex));
+    vm_oop_t block = method->GetConstant(bytecodeIndex);
+    VMInvokable* blockMethod = static_cast<VMInvokable*>(block);
 
     long numOfArgs = blockMethod->GetNumberOfArguments();
 
