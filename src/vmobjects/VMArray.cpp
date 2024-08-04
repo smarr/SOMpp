@@ -67,6 +67,17 @@ void VMArray::SetIndexableField(size_t idx, vm_oop_t value) {
     SetField(idx, value);
 }
 
+VMArray* VMArray::Copy() const {
+    VMArray* copy = GetUniverse()->NewArray(GetNumberOfIndexableFields());
+
+    const size_t additionalSpace = totalObjectSize - sizeof(VMArray);
+    void* destination = SHIFTED_PTR(copy, sizeof(VMArray));
+    const void* source = SHIFTED_PTR(this, sizeof(VMArray));
+    memcpy(destination, source, additionalSpace);
+
+    return copy;
+}
+
 VMArray* VMArray::CopyAndExtendWith(vm_oop_t item) const {
     const size_t fields = GetNumberOfIndexableFields();
     VMArray* result = GetUniverse()->NewArray(fields + 1);
