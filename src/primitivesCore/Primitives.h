@@ -4,6 +4,7 @@
 
 using UnaryPrimitiveRoutine = vm_oop_t(vm_oop_t);
 using BinaryPrimitiveRoutine = vm_oop_t(vm_oop_t, vm_oop_t);
+using TernaryPrimitiveRoutine = vm_oop_t(vm_oop_t, vm_oop_t, vm_oop_t);
 
 class UnaryPrim {
 public:
@@ -31,6 +32,21 @@ public:
     void MarkObjectAsInvalid() { pointer = nullptr; }
 
     vm_oop_t (*pointer)(vm_oop_t, vm_oop_t);
+
+    bool isClassSide;
+};
+
+class TernaryPrim {
+public:
+    TernaryPrim(TernaryPrimitiveRoutine ptr, bool classSide)
+        : pointer(ptr), isClassSide(classSide) {}
+    explicit TernaryPrim() : pointer(nullptr), isClassSide(false) {}
+
+    bool IsValid() const { return pointer != nullptr; }
+
+    void MarkObjectAsInvalid() { pointer = nullptr; }
+
+    vm_oop_t (*pointer)(vm_oop_t, vm_oop_t, vm_oop_t);
 
     bool isClassSide;
 };

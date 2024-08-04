@@ -89,6 +89,7 @@ class VMPrimitive;
 class VMSafePrimitive;
 class VMSafeUnaryPrimitive;
 class VMSafeBinaryPrimitive;
+class VMSafeTernaryPrimitive;
 class VMString;
 class VMSymbol;
 
@@ -148,6 +149,7 @@ class GCEvaluationPrimitive : public GCPrimitive { public: typedef VMEvaluationP
 class GCSafePrimitive  : public GCInvokable      { public: typedef VMSafePrimitive  Loaded; };
 class GCSafeUnaryPrimitive  : public GCSafePrimitive { public: typedef VMSafeUnaryPrimitive  Loaded; };
 class GCSafeBinaryPrimitive  : public GCSafePrimitive { public: typedef VMSafeBinaryPrimitive  Loaded; };
+class GCSafeTernaryPrimitive  : public GCSafePrimitive { public: typedef VMSafeTernaryPrimitive  Loaded; };
 class GCString         : public GCAbstractObject { public: typedef VMString         Loaded; };
 class GCSymbol         : public GCString         { public: typedef VMSymbol         Loaded; };
 // clang-format on

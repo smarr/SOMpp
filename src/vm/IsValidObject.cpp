@@ -32,6 +32,7 @@ void* vt_object;
 void* vt_primitive;
 void* vt_safe_un_primitive;
 void* vt_safe_bin_primitive;
+void* vt_safe_ter_primitive;
 void* vt_string;
 void* vt_symbol;
 
@@ -63,7 +64,8 @@ bool IsValidObject(vm_oop_t obj) {
              vt == vt_double || vt == vt_eval_primitive || vt == vt_frame ||
              vt == vt_integer || vt == vt_method || vt == vt_object ||
              vt == vt_primitive || vt == vt_safe_un_primitive ||
-             vt == vt_safe_bin_primitive || vt == vt_string || vt == vt_symbol;
+             vt == vt_safe_bin_primitive || vt == vt_safe_ter_primitive ||
+             vt == vt_string || vt == vt_symbol;
     if (!b) {
         assert(b && "Expected vtable to be one of the known ones.");
         return false;
@@ -101,6 +103,7 @@ void set_vt_to_null() {
     vt_primitive = nullptr;
     vt_safe_un_primitive = nullptr;
     vt_safe_bin_primitive = nullptr;
+    vt_safe_ter_primitive = nullptr;
     vt_string = nullptr;
     vt_symbol = nullptr;
 }
@@ -159,6 +162,10 @@ void obtain_vtables_of_known_classes(VMSymbol* someValidSymbol) {
     VMSafeBinaryPrimitive* sbp2 = new (GetHeap<HEAP_CLS>(), 0)
         VMSafeBinaryPrimitive(someValidSymbol, BinaryPrim());
     vt_safe_bin_primitive = get_vtable(sbp2);
+
+    VMSafeTernaryPrimitive* sbp3 = new (GetHeap<HEAP_CLS>(), 0)
+        VMSafeTernaryPrimitive(someValidSymbol, TernaryPrim());
+    vt_safe_ter_primitive = get_vtable(sbp3);
 
     VMString* str =
         new (GetHeap<HEAP_CLS>(), PADDED_SIZE(1)) VMString(0, nullptr);

@@ -55,9 +55,11 @@ public:
 
     void Add(const char* name, UnaryPrimitiveRoutine, bool classSide);
     void Add(const char* name, BinaryPrimitiveRoutine, bool classSide);
+    void Add(const char* name, TernaryPrimitiveRoutine, bool classSide);
 
 private:
     std::map<std::string, PrimitiveRoutine*> methods{};
     std::map<std::string, UnaryPrim> unaryPrims{};
     std::map<std::string, BinaryPrim> binaryPrims{};
+    std::map<std::string, TernaryPrim> ternaryPrims{};
 };

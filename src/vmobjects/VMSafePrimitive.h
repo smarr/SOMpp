@@ -16,8 +16,9 @@ public:
 
     bool IsPrimitive() const final { return true; };
 
-    static VMSafePrimitive* GetSafeBinary(VMSymbol* sig, BinaryPrim prim);
     static VMSafePrimitive* GetSafeUnary(VMSymbol* sig, UnaryPrim prim);
+    static VMSafePrimitive* GetSafeBinary(VMSymbol* sig, BinaryPrim prim);
+    static VMSafePrimitive* GetSafeTernary(VMSymbol* sig, TernaryPrim prim);
 
     std::string AsDebugString() const final;
 };
@@ -80,4 +81,34 @@ public:
 
 private:
     BinaryPrim prim;
+};
+
+class VMSafeTernaryPrimitive : public VMSafePrimitive {
+public:
+    typedef GCSafeTernaryPrimitive Stored;
+
+    VMSafeTernaryPrimitive(VMSymbol* sig, TernaryPrim prim)
+        : VMSafePrimitive(sig), prim(prim) {
+        write_barrier(this, sig);
+    }
+
+    VMClass* GetClass() const override { return load_ptr(primitiveClass); }
+
+    inline size_t GetObjectSize() const override {
+        return sizeof(VMSafeTernaryPrimitive);
+    }
+
+    void Invoke(Interpreter*, VMFrame*) override;
+
+    AbstractVMObject* CloneForMovingGC() const final;
+
+    void MarkObjectAsInvalid() final {
+        VMSafePrimitive::MarkObjectAsInvalid();
+        prim.MarkObjectAsInvalid();
+    }
+
+    bool IsMarkedInvalid() const final { return !prim.IsValid(); }
+
+private:
+    TernaryPrim prim;
 };

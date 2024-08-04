@@ -57,6 +57,12 @@ void PrimitiveContainer::Add(const char* name,
     unaryPrims[std::string(name)] = {routine, classSide};
 }
 
+void PrimitiveContainer::Add(const char* name,
+                             TernaryPrimitiveRoutine routine,
+                             bool classSide) {
+    ternaryPrims[std::string(name)] = {routine, classSide};
+}
+
 PrimitiveRoutine* PrimitiveContainer::GetPrimitive(
     const std::string& routineName) {
     if (methods.find(routineName) != methods.end()) {
@@ -90,6 +96,21 @@ void PrimitiveContainer::InstallPrimitives(VMClass* clazz, bool classSide) {
         VMSymbol* sig = SymbolFor(p.first);
         if (clazz->AddInstanceInvokable(
                 VMSafePrimitive::GetSafeBinary(sig, p.second))) {
+            cout << "Warn: Primitive " << p.first
+                 << " is not in class definition for class "
+                 << clazz->GetName()->GetStdString() << endl;
+        }
+    }
+
+    for (auto const& p : ternaryPrims) {
+        assert(p.second.IsValid());
+        if (classSide != p.second.isClassSide) {
+            continue;
+        }
+
+        VMSymbol* sig = SymbolFor(p.first);
+        if (clazz->AddInstanceInvokable(
+                VMSafePrimitive::GetSafeTernary(sig, p.second))) {
             cout << "Warn: Primitive " << p.first
                  << " is not in class definition for class "
                  << clazz->GetName()->GetStdString() << endl;
