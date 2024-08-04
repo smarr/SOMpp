@@ -48,18 +48,21 @@ void PrimitiveContainer::SetPrimitive(const char* name,
 void PrimitiveContainer::Add(const char* name,
                              BinaryPrimitiveRoutine routine,
                              bool classSide) {
+    assert(binaryPrims.find(name) == binaryPrims.end());
     binaryPrims[std::string(name)] = {routine, classSide};
 }
 
 void PrimitiveContainer::Add(const char* name,
                              UnaryPrimitiveRoutine routine,
                              bool classSide) {
+    assert(unaryPrims.find(name) == unaryPrims.end());
     unaryPrims[std::string(name)] = {routine, classSide};
 }
 
 void PrimitiveContainer::Add(const char* name,
                              TernaryPrimitiveRoutine routine,
                              bool classSide) {
+    assert(ternaryPrims.find(name) == ternaryPrims.end());
     ternaryPrims[std::string(name)] = {routine, classSide};
 }
 
