@@ -98,4 +98,4 @@ static inline void DebugTrace(const char* fmt, ...) {
 
 std::string DebugGetClassName(vm_oop_t);
 std::string DebugGetClassName(gc_oop_t);
-void DebugDumpMethod(VMMethod* method);
+void DebugDumpMethod(VMInvokable* method);

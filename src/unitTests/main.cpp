@@ -20,6 +20,7 @@
 #include "BasicInterpreterTests.h"
 #include "BytecodeGenerationTest.h"
 #include "CloneObjectsTest.h"
+#include "TrivialMethodTest.h"
 #include "WalkObjectsTest.h"
 
 #if GC_TYPE == GENERATIONAL
@@ -32,6 +33,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(CloneObjectsTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(WriteBarrierTest);
 #endif
 CPPUNIT_TEST_SUITE_REGISTRATION(BytecodeGenerationTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(TrivialMethodTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(BasicInterpreterTests);
 
 int main(int ac, char** av) {

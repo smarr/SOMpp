@@ -15,6 +15,6 @@ std::string DebugGetClassName(gc_oop_t obj) {
     return CLASS_OF(obj)->GetName()->GetStdString();
 }
 
-void DebugDumpMethod(VMMethod* method) {
-    Disassembler::DumpMethod(method, "", false);
+void DebugDumpMethod(VMInvokable* method) {
+    Disassembler::DumpMethod((VMMethod*)method, "", false);
 }

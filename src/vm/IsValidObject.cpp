@@ -132,6 +132,11 @@ bool IsVMSymbol(vm_oop_t obj) {
     return get_vtable(AS_OBJ(obj)) == vt_symbol;
 }
 
+bool IsLiteralReturn(vm_oop_t obj) {
+    assert(vt_literal_return != nullptr);
+    return get_vtable(AS_OBJ(obj)) == vt_literal_return;
+}
+
 void obtain_vtables_of_known_classes(VMSymbol* someValidSymbol) {
     // These objects are allocated on the heap. So, they will get GC'ed soon
     // enough.
