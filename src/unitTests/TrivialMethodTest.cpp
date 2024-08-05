@@ -111,29 +111,44 @@ void TrivialMethodTest::testNonTrivialLiteralReturn() {
     nonTrivialLiteralReturn("nil");
 }
 
+void TrivialMethodTest::globalReturn(std::string source) {
+    std::string s = "test = ( ^ " + source + " )";
+    methodToBytecode(s.data());
+    VMInvokable* m = _mgenc->Assemble();
+
+    std::string expected = "Expected to be trivial: " + s;
+    bool result = IsGlobalReturn(m);
+    CPPUNIT_ASSERT_MESSAGE(expected.data(), result);
+
+    tearDown();
+}
+
+void TrivialMethodTest::testGlobalReturn() {
+    globalReturn("Nil");
+    globalReturn("system");
+    globalReturn("MyClassFooBar");
+}
+
+void TrivialMethodTest::testNonTrivialGlobalReturn() {
+    methodToBytecode("test = ( #foo. ^ system )");
+    VMInvokable* m = _mgenc->Assemble();
+
+    std::string expected =
+        "Expected to be non-trivial: test = ( #foo. ^ system )";
+    bool result = !IsGlobalReturn(m);
+    CPPUNIT_ASSERT_MESSAGE(expected.data(), result);
+}
+
+void TrivialMethodTest::testUnknownGlobalInBlock() {
+    blockToBytecode("[ UnknownGlobalSSSS ]");
+    VMInvokable* m = _bgenc->Assemble();
+
+    std::string expected = "Expected to be trivial: [ UnknownGlobalSSSS ]";
+    bool result = IsGlobalReturn(m);
+    CPPUNIT_ASSERT_MESSAGE(expected.data(), result);
+}
+
 /*
-
- @pytest.mark.parametrize("source", ["Nil", "system", "MyClassFooBar"])
- def test_global_return(mgenc, source):
-     body_or_none = parse_method(mgenc, "test = ( ^ " + source + " )")
-     m = mgenc.assemble(body_or_none)
-     assert isinstance(m, GlobalRead)
-
-
- def test_non_trivial_global_return(mgenc):
-     body_or_none = parse_method(mgenc, "test = ( #foo. ^ system )")
-     m = mgenc.assemble(body_or_none)
-     assert isinstance(m, AstMethod) or isinstance(m, BcMethod)
-
- def test_unknown_global_in_block(bgenc):
-     """
-     In PySOM we can actually support this, in TruffleSOM we can't
-     because of the difference in frame format.
-     """
-     body_or_none = parse_block(bgenc, "[ UnknownGlobalSSSS ]")
-     m = bgenc.assemble(body_or_none)
-     assert isinstance(m, GlobalRead)
-
  def test_field_getter_0(cgenc, mgenc):
      add_field(cgenc, "field")
      body_or_none = parse_method(mgenc, "test = ( ^ field )")

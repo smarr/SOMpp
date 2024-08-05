@@ -9,6 +9,7 @@
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../vm/LogAllocation.h"
+#include "../vm/Universe.h"
 #include "AbstractObject.h"
 #include "ObjectFormats.h"
 #include "VMFrame.h"
@@ -18,6 +19,14 @@ VMTrivialMethod* MakeLiteralReturn(VMSymbol* sig, vector<Variable>& arguments,
     VMLiteralReturn* result =
         new (GetHeap<HEAP_CLS>(), 0) VMLiteralReturn(sig, arguments, literal);
     LOG_ALLOCATION("VMLiteralReturn", result->GetObjectSize());
+    return result;
+}
+
+VMTrivialMethod* MakeGlobalReturn(VMSymbol* sig, vector<Variable>& arguments,
+                                  VMSymbol* globalName) {
+    VMGlobalReturn* result =
+        new (GetHeap<HEAP_CLS>(), 0) VMGlobalReturn(sig, arguments, globalName);
+    LOG_ALLOCATION("VMGlobalReturn", result->GetObjectSize());
     return result;
 }
 
@@ -47,4 +56,39 @@ void VMLiteralReturn::WalkObjects(walk_heap_fn walk) {
 
 void VMLiteralReturn::InlineInto(MethodGenerationContext& mgenc, bool) {
     EmitPUSHCONSTANT(mgenc, load_ptr(literal));
+}
+
+VMFrame* VMGlobalReturn::Invoke(Interpreter* interpreter, VMFrame* frame) {
+    for (int i = 0; i < numberOfArguments; i += 1) {
+        frame->Pop();
+    }
+
+    vm_oop_t value = GetUniverse()->GetGlobal(load_ptr(globalName));
+    if (value != nullptr) {
+        frame->Push(value);
+    } else {
+        interpreter->SendUnknownGlobal(load_ptr(globalName));
+    }
+
+    return nullptr;
+}
+
+void VMGlobalReturn::InlineInto(MethodGenerationContext& mgenc, bool) {
+    EmitPUSHGLOBAL(mgenc, load_ptr(globalName));
+}
+
+void VMGlobalReturn::WalkObjects(walk_heap_fn walk) {
+    VMInvokable::WalkObjects(walk);
+    globalName = (GCSymbol*)walk(globalName);
+}
+
+std::string VMGlobalReturn::AsDebugString() const {
+    return "VMGlobalReturn(" + AS_OBJ(load_ptr(globalName))->AsDebugString() +
+           ")";
+}
+
+AbstractVMObject* VMGlobalReturn::CloneForMovingGC() const {
+    VMGlobalReturn* prim =
+        new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMGlobalReturn(*this);
+    return prim;
 }

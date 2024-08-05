@@ -2,8 +2,10 @@
 
 #include "../compiler/MethodGenerationContext.h"
 #include "../vm/Globals.h"
+#include "ObjectFormats.h"
 #include "Signature.h"
 #include "VMInvokable.h"
+#include "VMSymbol.h"
 
 class VMTrivialMethod : public VMInvokable {
 public:
@@ -40,6 +42,8 @@ private:
 
 VMTrivialMethod* MakeLiteralReturn(VMSymbol* sig, vector<Variable>& arguments,
                                    vm_oop_t literal);
+VMTrivialMethod* MakeGlobalReturn(VMSymbol* sig, vector<Variable>& arguments,
+                                  VMSymbol* globalName);
 
 class VMLiteralReturn : public VMTrivialMethod {
 public:
@@ -77,5 +81,46 @@ public:
 
 private:
     gc_oop_t literal;
+    int numberOfArguments;
+};
+
+class VMGlobalReturn : public VMTrivialMethod {
+public:
+    typedef GCGlobalReturn Stored;
+
+    VMGlobalReturn(VMSymbol* sig, vector<Variable>& arguments,
+                   VMSymbol* globalName)
+        : VMTrivialMethod(sig, arguments),
+          globalName(store_with_separate_barrier(globalName)),
+          numberOfArguments(Signature::GetNumberOfArguments(sig)) {
+        write_barrier(this, sig);
+        write_barrier(this, globalName);
+    }
+
+    inline size_t GetObjectSize() const override {
+        return sizeof(VMLiteralReturn);
+    }
+
+    VMFrame* Invoke(Interpreter*, VMFrame*) override;
+    void InlineInto(MethodGenerationContext& mgenc,
+                    bool mergeScope = true) final;
+
+    AbstractVMObject* CloneForMovingGC() const final;
+
+    void MarkObjectAsInvalid() final {
+        VMTrivialMethod::MarkObjectAsInvalid();
+        globalName = (GCSymbol*)INVALID_GC_POINTER;
+    }
+
+    void WalkObjects(walk_heap_fn) override;
+
+    bool IsMarkedInvalid() const final {
+        return globalName == (GCSymbol*)INVALID_GC_POINTER;
+    }
+
+    std::string AsDebugString() const final;
+
+private:
+    GCSymbol* globalName;
     int numberOfArguments;
 };

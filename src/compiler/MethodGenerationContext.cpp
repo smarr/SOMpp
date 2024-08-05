@@ -152,6 +152,22 @@ VMTrivialMethod* MethodGenerationContext::assembleLiteralReturn(
         "returns a literal");
 }
 
+VMTrivialMethod* MethodGenerationContext::assembleGlobalReturn() {
+    if (bytecode.size() != (Bytecode::GetBytecodeLength(BC_PUSH_GLOBAL) +
+                            Bytecode::GetBytecodeLength(BC_RETURN_LOCAL))) {
+        return nullptr;
+    }
+
+    if (literals.size() != 1) {
+        GetUniverse()->ErrorExit(
+            "Unexpected situation when trying to create trivial method that "
+            "reads a global. New Bytecode?");
+    }
+
+    VMSymbol* globalName = (VMSymbol*)literals.at(0);
+    return MakeGlobalReturn(signature, arguments, globalName);
+}
+
 VMPrimitive* MethodGenerationContext::AssemblePrimitive(bool classSide) {
     return VMPrimitive::GetEmptyPrimitive(signature, classSide);
 }

@@ -10,6 +10,9 @@ class TrivialMethodTest : public TestWithParsing {
     CPPUNIT_TEST(testLiteralNoReturn);
     CPPUNIT_TEST(testBlockLiteralReturn);
     CPPUNIT_TEST(testNonTrivialLiteralReturn);
+    CPPUNIT_TEST(testGlobalReturn);
+    CPPUNIT_TEST(testNonTrivialGlobalReturn);
+    CPPUNIT_TEST(testUnknownGlobalInBlock);
     CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -24,4 +27,10 @@ private:
 
     void testNonTrivialLiteralReturn();
     void nonTrivialLiteralReturn(std::string source);
+
+    void testGlobalReturn();
+    void globalReturn(std::string source);
+
+    void testNonTrivialGlobalReturn();
+    void testUnknownGlobalInBlock();
 };

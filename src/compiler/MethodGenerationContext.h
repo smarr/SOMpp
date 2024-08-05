@@ -119,7 +119,7 @@ public:
 private:
     VMTrivialMethod* assembleTrivialMethod();
     VMTrivialMethod* assembleLiteralReturn(uint8_t pushCandidate);
-    VMTrivialMethod* assembleGlobalReturn() { return nullptr; }
+    VMTrivialMethod* assembleGlobalReturn();
     VMTrivialMethod* assembleFieldGetter(uint8_t pushCandidate) {
         return nullptr;
     }

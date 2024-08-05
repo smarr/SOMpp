@@ -57,6 +57,8 @@ public:
     uint8_t* GetBytecodes() const;
     void WalkGlobals(walk_heap_fn);
 
+    void SendUnknownGlobal(VMSymbol* globalName);
+
 private:
     vm_oop_t GetSelf() const;
 

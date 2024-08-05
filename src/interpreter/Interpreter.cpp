@@ -260,22 +260,25 @@ void Interpreter::doPushGlobal(long bytecodeIndex) {
     if (global != nullptr) {
         GetFrame()->Push(global);
     } else {
-        vm_oop_t arguments[] = {globalName};
-        vm_oop_t self = GetSelf();
-
-        // check if there is enough space on the stack for this unplanned Send
-        // unknowGlobal: needs 2 slots, one for "this" and one for the argument
-        long additionalStackSlots = 2 - GetFrame()->RemainingStackSize();
-        if (additionalStackSlots > 0) {
-            GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
-            // copy current frame into a bigger one and replace the current
-            // frame
-            SetFrame(
-                VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
-        }
-
-        AS_OBJ(self)->Send(this, unknownGlobal, arguments, 1);
+        SendUnknownGlobal(globalName);
     }
+}
+
+void Interpreter::SendUnknownGlobal(VMSymbol* globalName) {
+    vm_oop_t arguments[] = {globalName};
+    vm_oop_t self = GetSelf();
+
+    // check if there is enough space on the stack for this unplanned Send
+    // unknowGlobal: needs 2 slots, one for "this" and one for the argument
+    long additionalStackSlots = 2 - GetFrame()->RemainingStackSize();
+    if (additionalStackSlots > 0) {
+        GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
+        // copy current frame into a bigger one and replace the current
+        // frame
+        SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
+    }
+
+    AS_OBJ(self)->Send(this, unknownGlobal, arguments, 1);
 }
 
 void Interpreter::doPop() {
