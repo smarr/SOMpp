@@ -42,7 +42,7 @@ static const size_t NoOfFields_Class = 4 + NoOfFields_Object;
 static const size_t NoOfFields_Frame = 3 + NoOfFields_Array;
 static const size_t NoOfFields_Block = 2 + NoOfFields_Object;
 static const size_t NoOfFields_Primitive = NoOfFields_Invokable;
-static const size_t NoOfFields_EvaluationPrimitive = 1 + NoOfFields_Primitive;
+static const size_t NoOfFields_EvaluationPrimitive = NoOfFields_Invokable;
 
 static vector<gc_oop_t> walkedObjects;
 /*
@@ -88,7 +88,6 @@ void WalkObjectsTest::testWalkEvaluationPrimitive() {
 
     CPPUNIT_ASSERT(WalkerHasFound(tmp_ptr(evPrim->GetSignature())));
     CPPUNIT_ASSERT(WalkerHasFound(tmp_ptr(evPrim->GetHolder())));
-    CPPUNIT_ASSERT(WalkerHasFound(tmp_ptr(evPrim)));
     CPPUNIT_ASSERT_EQUAL(NoOfFields_EvaluationPrimitive, walkedObjects.size());
 }
 

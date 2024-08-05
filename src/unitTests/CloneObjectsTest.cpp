@@ -192,9 +192,6 @@ void CloneObjectsTest::testCloneEvaluationPrimitive() {
                                  clone->signature);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("holder differs!!", orig->holder,
                                  clone->holder);
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("empty differs!!", orig->empty, clone->empty);
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("routine differs!!", orig->routine,
-                                 clone->routine);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfArguments differs!!",
                                  orig->numberOfArguments,
                                  clone->numberOfArguments);
