@@ -66,6 +66,9 @@ class BytecodeGenerationTest : public CPPUNIT_NS::TestCase {
     CPPUNIT_TEST(testInliningOfOr);
     CPPUNIT_TEST(testInliningOfAnd);
     CPPUNIT_TEST(testInliningOfToDo);
+    CPPUNIT_TEST(testIfArg);
+    CPPUNIT_TEST(testKeywordIfTrueArg);
+    CPPUNIT_TEST(testIfReturnNonLocal);
 
     CPPUNIT_TEST(testJumpQueuesOrdering);
 
@@ -154,6 +157,13 @@ private:
     void testIfTrueIfFalseArg();
     void testIfTrueIfFalseNlrArg1();
     void testIfTrueIfFalseNlrArg2();
+
+    void testIfArg();
+    void ifArg(std::string selector, int8_t jumpBytecode);
+    void testKeywordIfTrueArg();
+
+    void testIfReturnNonLocal();
+    void ifReturnNonLocal(std::string selector, int8_t jumpBytecode);
 
     void testInliningOfOr();
     void inliningOfOr(std::string selector);

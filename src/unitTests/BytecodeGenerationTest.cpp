@@ -682,6 +682,66 @@ void BytecodeGenerationTest::testInliningOfToDo() {
            BC_RETURN_SELF});
 }
 
+void BytecodeGenerationTest::testIfArg() {
+    ifArg("ifTrue:", BC_JUMP_ON_FALSE_TOP_NIL);
+    ifArg("ifFalse:", BC_JUMP_ON_TRUE_TOP_NIL);
+}
+
+void BytecodeGenerationTest::ifArg(std::string selector, int8_t jumpBytecode) {
+    std::string source = R"""(      test: arg = (
+                                         #start.
+                                         self method IF_SELECTOR [ arg ].
+                                         #end
+                                     ) )""";
+    bool wasReplaced = ReplacePattern(source, "IF_SELECTOR", selector);
+    assert(wasReplaced);
+
+    auto bytecodes = methodToBytecode(source.data());
+    check(bytecodes,
+          {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_SELF, BC(BC_SEND, 1),
+           BC(jumpBytecode, 4, 0), BC_PUSH_ARG_1, BC_POP, BC_PUSH_CONSTANT_2,
+           BC_POP, BC_PUSH_SELF, BC_RETURN_LOCAL});
+
+    tearDown();
+}
+
+void BytecodeGenerationTest::testKeywordIfTrueArg() {
+    auto bytecodes = methodToBytecode(R"""(      test: arg = (
+                                                     #start.
+                                                     (self key: 5) ifTrue: [ arg ].
+                                                     #end
+                                                 ) )""");
+    check(bytecodes,
+          {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_SELF, BC_PUSH_CONSTANT_1,
+           BC(BC_SEND, 2), BC(BC_JUMP_ON_FALSE_TOP_NIL, 4, 0), BC_PUSH_ARG_1,
+           BC_POP, BC(BC_PUSH_CONSTANT, 3), BC_POP, BC_PUSH_SELF,
+           BC_RETURN_LOCAL});
+}
+
+void BytecodeGenerationTest::testIfReturnNonLocal() {
+    ifReturnNonLocal("ifTrue:", BC_JUMP_ON_FALSE_TOP_NIL);
+    ifReturnNonLocal("ifFalse:", BC_JUMP_ON_TRUE_TOP_NIL);
+}
+
+void BytecodeGenerationTest::ifReturnNonLocal(std::string selector,
+                                              int8_t jumpBytecode) {
+    std::string source = R"""(      test: arg = (
+                                         #start.
+                                         self method IF_SELECTOR [ ^ arg ].
+                                         #end
+                                     ) )""";
+    bool wasReplaced = ReplacePattern(source, "IF_SELECTOR", selector);
+    assert(wasReplaced);
+
+    auto bytecodes = methodToBytecode(source.data());
+    check(bytecodes,
+          {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_SELF, BC(BC_SEND, 1),
+           BC(jumpBytecode, 5, 0), BC_PUSH_ARG_1, BC_RETURN_LOCAL, BC_POP,
+           BC_PUSH_CONSTANT_2, BC_POP, BC_PUSH_SELF, BC_RETURN_LOCAL});
+
+    tearDown();
+}
+
 /*
  @pytest.mark.parametrize(
      "operator,bytecode",
@@ -696,68 +756,6 @@ void BytecodeGenerationTest::testInliningOfToDo() {
 
      assert len(bytecodes) == 3
      check(bytecodes, [Bytecodes.push_1, bytecode, Bytecodes.return_self])
-
-
-
- @pytest.mark.parametrize(
-     "if_selector,jump_bytecode",
-     [
-         ("ifTrue:", Bytecodes.jump_on_false_top_nil),
-         ("ifFalse:", Bytecodes.jump_on_true_top_nil),
-     ],
- )
- def test_if_arg(mgenc, if_selector, jump_bytecode):
-     bytecodes = method_to_bytecodes(
-         mgenc,
-         """
-         test: arg = (
-             #start.
-             self method IF_SELECTOR [ arg ].
-             #end
-         )""".replace(
-             "IF_SELECTOR", if_selector
-         ),
-     )
-
-     assert len(bytecodes) == 17
-     check(
-         bytecodes,
-         [
-             Bytecodes.push_constant_0,
-             Bytecodes.pop,
-             Bytecodes.push_argument,
-             Bytecodes.send_1,
-             BC(jump_bytecode, 6, note="jump offset"),
-             BC(Bytecodes.push_argument, 1, 0),
-             Bytecodes.pop,
-             Bytecodes.push_constant,
-             Bytecodes.return_self,
-         ],
-     )
-
-
- def test_keyword_if_true_arg(mgenc):
-     bytecodes = method_to_bytecodes(
-         mgenc,
-         """
-         test: arg = (
-             #start.
-             (self key: 5) ifTrue: [ arg ].
-             #end
-         )""",
-     )
-
-     assert len(bytecodes) == 18
-     check(
-         bytecodes,
-         [
-             (6, Bytecodes.send_2),
-             BC(Bytecodes.jump_on_false_top_nil, 6, note="jump offset"),
-             BC(Bytecodes.push_argument, 1, 0),
-             Bytecodes.pop,
-             Bytecodes.push_constant,
-         ],
-     )
 
 
  def test_if_true_and_inc_field(cgenc, mgenc):
@@ -806,39 +804,6 @@ void BytecodeGenerationTest::testInliningOfToDo() {
              Bytecodes.inc,
              Bytecodes.pop,
              Bytecodes.push_constant,
-         ],
-     )
-
-
- @pytest.mark.parametrize(
-     "if_selector,jump_bytecode",
-     [
-         ("ifTrue:", Bytecodes.jump_on_false_top_nil),
-         ("ifFalse:", Bytecodes.jump_on_true_top_nil),
-     ],
- )
- def test_if_return_non_local(mgenc, if_selector, jump_bytecode):
-     bytecodes = method_to_bytecodes(
-         mgenc,
-         """
-         test: arg = (
-             #start.
-             self method IF_SELECTOR [ ^ arg ].
-             #end
-         )""".replace(
-             "IF_SELECTOR", if_selector
-         ),
-     )
-
-     assert len(bytecodes) == 18
-     check(
-         bytecodes,
-         [
-             (5, Bytecodes.send_1),
-             BC(jump_bytecode, 7, note="jump offset"),
-             BC(Bytecodes.push_argument, 1, 0),
-             Bytecodes.return_local,
-             Bytecodes.pop,
          ],
      )
 
