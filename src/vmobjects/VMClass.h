@@ -63,7 +63,6 @@ public:
     VMInvokable* LookupInvokable(VMSymbol*) const;
     long LookupFieldIndex(VMSymbol*) const;
     bool AddInstanceInvokable(VMInvokable*);
-    void AddInstancePrimitive(VMPrimitive*);
     VMSymbol* GetInstanceFieldName(long) const;
     size_t GetNumberOfInstanceFields() const;
     bool HasPrimitives() const;

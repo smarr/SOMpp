@@ -504,7 +504,7 @@ VMClass* Universe::GetBlockClassWithArgs(long numberOfArguments) {
     VMSymbol* name = SymbolFor(Str.str());
     VMClass* result = LoadClassBasic(name, nullptr);
 
-    result->AddInstancePrimitive(new (GetHeap<HEAP_CLS>(), 0)
+    result->AddInstanceInvokable(new (GetHeap<HEAP_CLS>(), 0)
                                      VMEvaluationPrimitive(numberOfArguments));
 
     SetGlobal(name, result);

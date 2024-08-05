@@ -38,12 +38,11 @@
 #include "ObjectFormats.h"
 #include "VMBlock.h"
 #include "VMFrame.h"
-#include "VMPrimitive.h"
 #include "VMSymbol.h"
 
 VMEvaluationPrimitive::VMEvaluationPrimitive(size_t argc)
-    : VMPrimitive(computeSignatureString(argc)), numberOfArguments(argc) {
-    SetRoutine(new EvaluationRoutine(this), false);
+    : VMInvokable(computeSignatureString(argc)), numberOfArguments(argc) {
+    write_barrier(this, load_ptr(signature));
 }
 
 VMEvaluationPrimitive* VMEvaluationPrimitive::CloneForMovingGC() const {
@@ -53,8 +52,7 @@ VMEvaluationPrimitive* VMEvaluationPrimitive::CloneForMovingGC() const {
 }
 
 void VMEvaluationPrimitive::WalkObjects(walk_heap_fn walk) {
-    VMPrimitive::WalkObjects(walk);
-    static_cast<EvaluationRoutine*>(routine)->WalkObjects(walk);
+    VMInvokable::WalkObjects(walk);
 }
 
 VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc) {
@@ -84,12 +82,10 @@ VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc) {
     return SymbolFor(signatureString);
 }
 
-void EvaluationRoutine::Invoke(Interpreter* interp, VMFrame* frame) {
-    VMEvaluationPrimitive* prim = load_ptr(evalPrim);
-
+void VMEvaluationPrimitive::Invoke(Interpreter* interp, VMFrame* frame) {
     // Get the block (the receiver) from the stack
-    long numArgs = prim->GetNumberOfArguments();
-    VMBlock* block = static_cast<VMBlock*>(frame->GetStackElement(numArgs - 1));
+    VMBlock* block =
+        static_cast<VMBlock*>(frame->GetStackElement(numberOfArguments - 1));
 
     // Get the context of the block...
     VMFrame* context = block->GetContext();
@@ -100,10 +96,6 @@ void EvaluationRoutine::Invoke(Interpreter* interp, VMFrame* frame) {
     NewFrame->SetContext(context);
 }
 
-void EvaluationRoutine::WalkObjects(walk_heap_fn walk) {
-    evalPrim = static_cast<GCEvaluationPrimitive*>(walk(evalPrim));
-}
-
 std::string VMEvaluationPrimitive::AsDebugString() const {
     return "VMEvaluationPrimitive(" + to_string(numberOfArguments) + ")";
 }
@@ -111,7 +103,7 @@ std::string VMEvaluationPrimitive::AsDebugString() const {
 #define INVALID_INT_MARKER 9002002002002002002
 
 void VMEvaluationPrimitive::MarkObjectAsInvalid() {
-    VMPrimitive::MarkObjectAsInvalid();
+    VMInvokable::MarkObjectAsInvalid();
     numberOfArguments = INVALID_INT_MARKER;
 }
 

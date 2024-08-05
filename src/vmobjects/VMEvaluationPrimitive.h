@@ -28,7 +28,7 @@
 
 #include "VMPrimitive.h"
 
-class VMEvaluationPrimitive : public VMPrimitive {
+class VMEvaluationPrimitive : public VMInvokable {
 public:
     typedef GCEvaluationPrimitive Stored;
 
@@ -38,14 +38,16 @@ public:
 
     StdString AsDebugString() const override;
 
-    int64_t GetNumberOfArguments() { return numberOfArguments; }
-
     inline size_t GetObjectSize() const override {
         return sizeof(VMEvaluationPrimitive);
     }
 
+    VMClass* GetClass() const final { return load_ptr(primitiveClass); }
+
     void MarkObjectAsInvalid() override;
     bool IsMarkedInvalid() const override;
+
+    void Invoke(Interpreter* interp, VMFrame* frm) override;
 
 private:
     static VMSymbol* computeSignatureString(long argc);
@@ -54,21 +56,4 @@ private:
     make_testable(public);
 
     size_t numberOfArguments;
-};
-
-class EvaluationRoutine : public PrimitiveRoutine {
-private:
-    GCEvaluationPrimitive* evalPrim;
-
-public:
-    EvaluationRoutine(VMEvaluationPrimitive* prim)
-        : PrimitiveRoutine(),
-          // the store without barrier is fine here,
-          // because it's a cyclic structure with `prim` itself,
-          // which will be store in another object,
-          // which will then have a barrier
-          evalPrim(store_with_separate_barrier(prim)) {};
-    void WalkObjects(walk_heap_fn);
-    bool isClassSide() override { return false; }
-    void Invoke(Interpreter* interp, VMFrame* frame) override;
 };

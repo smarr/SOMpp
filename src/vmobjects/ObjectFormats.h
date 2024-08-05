@@ -145,7 +145,7 @@ class GCInteger        : public GCAbstractObject { public: typedef VMInteger    
 class GCInvokable      : public GCAbstractObject { public: typedef VMInvokable      Loaded; };
 class GCMethod         : public GCInvokable      { public: typedef VMMethod         Loaded; };
 class GCPrimitive      : public GCInvokable      { public: typedef VMPrimitive      Loaded; };
-class GCEvaluationPrimitive : public GCPrimitive { public: typedef VMEvaluationPrimitive Loaded; };
+class GCEvaluationPrimitive : public GCInvokable { public: typedef VMEvaluationPrimitive Loaded; };
 class GCSafePrimitive  : public GCInvokable      { public: typedef VMSafePrimitive  Loaded; };
 class GCSafeUnaryPrimitive  : public GCSafePrimitive { public: typedef VMSafeUnaryPrimitive  Loaded; };
 class GCSafeBinaryPrimitive  : public GCSafePrimitive { public: typedef VMSafeBinaryPrimitive  Loaded; };

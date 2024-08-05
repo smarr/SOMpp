@@ -8,7 +8,7 @@ public:
 
     VMSafePrimitive(VMSymbol* sig) : VMInvokable(sig) {}
 
-    VMClass* GetClass() const override { return load_ptr(primitiveClass); }
+    VMClass* GetClass() const final { return load_ptr(primitiveClass); }
 
     inline size_t GetObjectSize() const override {
         return sizeof(VMSafePrimitive);
@@ -31,8 +31,6 @@ public:
         : VMSafePrimitive(sig), prim(prim) {
         write_barrier(this, sig);
     }
-
-    VMClass* GetClass() const override { return load_ptr(primitiveClass); }
 
     inline size_t GetObjectSize() const override {
         return sizeof(VMSafeUnaryPrimitive);
@@ -62,8 +60,6 @@ public:
         write_barrier(this, sig);
     }
 
-    VMClass* GetClass() const override { return load_ptr(primitiveClass); }
-
     inline size_t GetObjectSize() const override {
         return sizeof(VMSafeBinaryPrimitive);
     }
@@ -91,8 +87,6 @@ public:
         : VMSafePrimitive(sig), prim(prim) {
         write_barrier(this, sig);
     }
-
-    VMClass* GetClass() const override { return load_ptr(primitiveClass); }
 
     inline size_t GetObjectSize() const override {
         return sizeof(VMSafeTernaryPrimitive);

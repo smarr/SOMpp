@@ -40,7 +40,6 @@
 #include "VMArray.h"
 #include "VMInvokable.h"
 #include "VMObject.h"
-#include "VMPrimitive.h"
 #include "VMSymbol.h"
 
 const size_t VMClass::VMClassNumberOfFields = 4;
@@ -94,13 +93,6 @@ bool VMClass::AddInstanceInvokable(VMInvokable* ptr) {
               instInvokables->CopyAndExtendWith((vm_oop_t)ptr));
 
     return true;
-}
-
-void VMClass::AddInstancePrimitive(VMPrimitive* ptr) {
-    if (AddInstanceInvokable(ptr)) {
-        // cout << "Warn: Primitive "<<ptr->GetSignature<<" is not in class
-        // definition for class " << name->GetStdString() << endl;
-    }
 }
 
 VMSymbol* VMClass::GetInstanceFieldName(long index) const {
