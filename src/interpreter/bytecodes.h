@@ -135,3 +135,9 @@ inline uint16_t ComputeOffset(uint8_t byte1, uint8_t byte2) {
 }
 
 bool IsJumpBytecode(uint8_t bc);
+uint8_t IsPushConstBytecode(uint8_t bc);
+uint8_t IsPushFieldBytecode(uint8_t bc);
+uint8_t IsPushArgBytecode(uint8_t bc);
+uint8_t IsPopFieldBytecode(uint8_t bc);
+uint8_t IsPopSmthBytecode(uint8_t bc);
+uint8_t IsReturnFieldBytecode(uint8_t bc);

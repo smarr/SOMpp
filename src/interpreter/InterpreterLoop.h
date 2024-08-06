@@ -264,7 +264,8 @@ LABEL_BC_RETURN_NON_LOCAL:
 
 LABEL_BC_RETURN_SELF: {
     PROLOGUE(1);
-    assert(GetFrame()->GetContext() == nullptr && "RETURN_SELF is not allowed in blocks");
+    assert(GetFrame()->GetContext() == nullptr &&
+           "RETURN_SELF is not allowed in blocks");
     popFrameAndPushResult(GetFrame()->GetArgumentInCurrentContext(0));
     DISPATCH_NOGC();
 }

@@ -38,6 +38,8 @@
 
 class Parser;
 
+#define NUM_LAST_BYTECODES 4
+
 class MethodGenerationContext {
 public:
     MethodGenerationContext(ClassGenerationContext& holder,
@@ -84,6 +86,8 @@ public:
     bool IsFinished() const { return finished; }
 
     void RemoveLastBytecode() { bytecode.pop_back(); };
+    void RemoveLastPopForBlockLocalReturn();
+
     size_t GetNumberOfArguments();
     void AddBytecode(uint8_t bc, size_t stackEffect);
     void AddBytecodeArgument(uint8_t bc);
@@ -109,11 +113,26 @@ public:
     void EmitBackwardsJumpOffsetToTarget(size_t loopBeginIdx);
     void PatchJumpOffsetToPointToNextInstruction(size_t indexOfOffset);
 
+    bool OptimizeDupPopPopSequence();
+
 private:
+    bool optimizeIncFieldPush() {
+        // TODO: implement
+        return false;
+    }
+
     void removeLastBytecodes(size_t numBytecodes);
+    void removeLastBytecodeAt(size_t indexFromEnd);
+
     bool hasOneLiteralBlockArgument();
     bool hasTwoLiteralBlockArguments();
+    uint8_t lastBytecodeAt(size_t indexFromEnd);
     bool lastBytecodeIs(size_t indexFromEnd, uint8_t bytecode);
+    uint8_t lastBytecodeIsOneOf(size_t indexFromEnd,
+                                uint8_t (*predicate)(uint8_t));
+
+    size_t getOffsetOfLastBytecode(size_t indexFromEnd);
+
     std::tuple<vm_oop_t, vm_oop_t> extractBlockMethodsAndRemoveBytecodes();
     vm_oop_t extractBlockMethodAndRemoveBytecode();
 
@@ -143,7 +162,7 @@ private:
     size_t currentStackDepth;
     size_t maxStackDepth;
 
-    std::array<uint8_t, 4> last4Bytecodes;
+    std::array<uint8_t, NUM_LAST_BYTECODES> last4Bytecodes;
 
     std::vector<BackJump> inlinedLoops;
 

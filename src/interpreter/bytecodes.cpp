@@ -148,6 +148,88 @@ bool IsJumpBytecode(uint8_t bc) {
     return BC_JUMP <= bc && bc <= BC_JUMP2_BACKWARD;
 }
 
+uint8_t IsPushConstBytecode(uint8_t bc) {
+    switch (bc) {
+        case BC_PUSH_CONSTANT:
+        case BC_PUSH_CONSTANT_0:
+        case BC_PUSH_CONSTANT_1:
+        case BC_PUSH_CONSTANT_2:
+        case BC_PUSH_0:
+        case BC_PUSH_1:
+        case BC_PUSH_NIL:
+            return bc;
+
+        default:
+            return BC_INVALID;
+    }
+}
+
+uint8_t IsPushArgBytecode(uint8_t bc) {
+    switch (bc) {
+        case BC_PUSH_SELF:
+        case BC_PUSH_ARG_1:
+        case BC_PUSH_ARG_2:
+        case BC_PUSH_ARGUMENT:
+            return bc;
+
+        default:
+            return BC_INVALID;
+    }
+}
+
+uint8_t IsPushFieldBytecode(uint8_t bc) {
+    switch (bc) {
+        case BC_PUSH_FIELD:
+        case BC_PUSH_FIELD_0:
+        case BC_PUSH_FIELD_1:
+            return bc;
+
+        default:
+            return BC_INVALID;
+    }
+}
+
+uint8_t IsPopFieldBytecode(uint8_t bc) {
+    switch (bc) {
+        case BC_POP_FIELD:
+        case BC_POP_FIELD_0:
+        case BC_POP_FIELD_1:
+            return bc;
+
+        default:
+            return BC_INVALID;
+    }
+}
+
+uint8_t IsReturnFieldBytecode(uint8_t bc) {
+    switch (bc) {
+        case BC_RETURN_FIELD_0:
+        case BC_RETURN_FIELD_1:
+        case BC_RETURN_FIELD_2:
+            return bc;
+
+        default:
+            return BC_INVALID;
+    }
+}
+
+uint8_t IsPopSmthBytecode(uint8_t bc) {
+    switch (bc) {
+        case BC_POP_LOCAL:
+        case BC_POP_LOCAL_0:
+        case BC_POP_LOCAL_1:
+        case BC_POP_LOCAL_2:
+        case BC_POP_ARGUMENT:
+        case BC_POP_FIELD:
+        case BC_POP_FIELD_0:
+        case BC_POP_FIELD_1:
+            return bc;
+
+        default:
+            return BC_INVALID;
+    }
+}
+
 bool Bytecode::BytecodeDefinitionsAreConsistent() {
     bool namesAndLengthMatch =
         (sizeof(Bytecode::bytecodeNames) / sizeof(char*)) ==

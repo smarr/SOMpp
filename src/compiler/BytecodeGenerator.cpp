@@ -186,7 +186,9 @@ void EmitPUSHGLOBAL(MethodGenerationContext& mgenc, VMSymbol* global) {
 }
 
 void EmitPOP(MethodGenerationContext& mgenc) {
-    Emit1(mgenc, BC_POP, -1);
+    if (!mgenc.OptimizeDupPopPopSequence()) {
+        Emit1(mgenc, BC_POP, -1);
+    }
 }
 
 void EmitPOPLOCAL(MethodGenerationContext& mgenc, long idx, int ctx) {
@@ -247,6 +249,7 @@ void EmitSUPERSEND(MethodGenerationContext& mgenc, VMSymbol* msg) {
 }
 
 void EmitRETURNSELF(MethodGenerationContext& mgenc) {
+    mgenc.OptimizeDupPopPopSequence();
     Emit1(mgenc, BC_RETURN_SELF, 0);
 }
 

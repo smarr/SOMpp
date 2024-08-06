@@ -348,7 +348,8 @@ void Parser::methodBlock(MethodGenerationContext& mgenc) {
     // terminating the last expression, so the last expression's value must be
     // popped off the stack and a ^self be generated
     if (!mgenc.IsFinished()) {
-        // don't need to pop of the value, because RETURN_SELF doesn't need stack space
+        // don't need to pop of the value, because RETURN_SELF doesn't need
+        // stack space
         EmitRETURNSELF(mgenc);
         mgenc.SetFinished();
     }
@@ -422,7 +423,7 @@ void Parser::blockBody(MethodGenerationContext& mgenc, bool seen_period,
             // a POP has been generated which must be elided (blocks always
             // return the value of the last expression, regardless of whether it
             // was terminated with a . or not)
-            mgenc.RemoveLastBytecode();
+            mgenc.RemoveLastPopForBlockLocalReturn();
         }
         if (!is_inlined) {
             // if the block is empty, we need to return nil

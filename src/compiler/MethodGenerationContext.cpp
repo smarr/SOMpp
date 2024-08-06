@@ -240,11 +240,23 @@ size_t MethodGenerationContext::AddBytecodeArgumentAndGetIndex(uint8_t bc) {
     return index;
 }
 
+uint8_t MethodGenerationContext::lastBytecodeAt(size_t indexFromEnd) {
+    assert(indexFromEnd >= 0 && indexFromEnd < NUM_LAST_BYTECODES);
+    return last4Bytecodes[3 - indexFromEnd];
+}
+
 bool MethodGenerationContext::lastBytecodeIs(size_t indexFromEnd,
                                              uint8_t bytecode) {
-    assert(indexFromEnd >= 0 && indexFromEnd < 4);
+    assert(indexFromEnd >= 0 && indexFromEnd < NUM_LAST_BYTECODES);
     uint8_t actual = last4Bytecodes[3 - indexFromEnd];
     return actual == bytecode;
+}
+
+uint8_t MethodGenerationContext::lastBytecodeIsOneOf(
+    size_t indexFromEnd, uint8_t (*predicate)(uint8_t)) {
+    assert(indexFromEnd >= 0 && indexFromEnd < 4);
+    uint8_t actual = last4Bytecodes[3 - indexFromEnd];
+    return predicate(actual);
 }
 
 void MethodGenerationContext::removeLastBytecodes(size_t numBytecodes) {
@@ -600,4 +612,101 @@ void MethodGenerationContext::resetLastBytecodeBuffer() {
     last4Bytecodes[1] = BC_INVALID;
     last4Bytecodes[2] = BC_INVALID;
     last4Bytecodes[3] = BC_INVALID;
+}
+
+size_t MethodGenerationContext::getOffsetOfLastBytecode(size_t indexFromEnd) {
+    size_t bcOffset = bytecode.size();
+    for (size_t i = 0; i < indexFromEnd + 1; i += 1) {
+        uint8_t actual = last4Bytecodes.at(NUM_LAST_BYTECODES - 1 - i);
+        if (actual == BC_INVALID) {
+            GetUniverse()->ErrorExit("The requested bytecode is invalid");
+        }
+
+        bcOffset -= Bytecode::GetBytecodeLength(actual);
+    }
+    return bcOffset;
+}
+
+void MethodGenerationContext::removeLastBytecodeAt(size_t indexFromEnd) {
+    size_t bcOffset = getOffsetOfLastBytecode(indexFromEnd);
+
+    uint8_t bcToBeRemoved =
+        last4Bytecodes.at(NUM_LAST_BYTECODES - 1 - indexFromEnd);
+
+    size_t bcLength = Bytecode::GetBytecodeLength(bcToBeRemoved);
+
+    assert(bcLength > 0 && bcOffset >= 0);
+
+    bytecode.erase(bytecode.begin() + bcOffset,
+                   bytecode.begin() + bcOffset + bcLength);
+}
+
+void MethodGenerationContext::RemoveLastPopForBlockLocalReturn() {
+    if (lastBytecodeIs(0, BC_POP)) {
+        bytecode.pop_back();
+        return;
+    }
+
+    if (lastBytecodeIsOneOf(0, IsPopSmthBytecode) &&
+        !lastBytecodeIs(1, BC_DUP)) {
+        // we just removed the DUP and didn't emit the POP using
+        // optimizeDupPopPopSequence() so, to make blocks work, we need to
+        // reintroduce the DUP
+        size_t index =
+            bytecode.size() - Bytecode::GetBytecodeLength(lastBytecodeAt(0));
+        assert(IsPopSmthBytecode(bytecode.at(index)));
+        bytecode.insert(bytecode.begin() + index, BC_DUP);
+
+        last4Bytecodes[0] = last4Bytecodes[1];
+        last4Bytecodes[1] = last4Bytecodes[2];
+        last4Bytecodes[2] = BC_DUP;
+    }
+
+    if (lastBytecodeAt(0) == BC_INC_FIELD) {
+        // we optimized the sequence to an INC_FIELD, which doesn't modify the
+        // stack but since we need the value to return it from the block, we
+        // need to push it.
+        last4Bytecodes[3] = BC_INC_FIELD_PUSH;
+
+        size_t bcOffset = bytecode.size() - 3;
+
+        // since the bytecodes have the same length, we can just switch the
+        // opcode
+        assert(Bytecode::GetBytecodeLength(BC_INC_FIELD_PUSH) == 3);
+        assert(Bytecode::GetBytecodeLength(BC_INC_FIELD) == 3);
+        assert(bytecode[bcOffset] == BC_INC_FIELD);
+        bytecode[bcOffset] = BC_INC_FIELD_PUSH;
+    }
+}
+
+bool MethodGenerationContext::OptimizeDupPopPopSequence() {
+    // when we are inlining blocks, this already happened
+    // and any new opportunities to apply these optimizations are consequently
+    // at jump targets for blocks, and we can't remove those
+    if (isCurrentlyInliningABlock) {
+        return false;
+    }
+
+    if (lastBytecodeIs(0, BC_INC_FIELD_PUSH)) {
+        return optimizeIncFieldPush();
+    }
+
+    uint8_t popCandidate = lastBytecodeIsOneOf(0, IsPopSmthBytecode);
+    if (popCandidate == BC_INVALID) {
+        return false;
+    }
+
+    if (!lastBytecodeIs(1, BC_DUP)) {
+        return false;
+    }
+
+    removeLastBytecodeAt(1);  // remove DUP
+
+    // adapt last 4 bytecodes
+    assert(last4Bytecodes[3] == popCandidate);
+    last4Bytecodes[2] = last4Bytecodes[1];
+    last4Bytecodes[1] = last4Bytecodes[0];
+    last4Bytecodes[0] = BC_INVALID;
+
+    return true;
 }
