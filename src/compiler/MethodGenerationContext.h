@@ -116,12 +116,14 @@ public:
 
     bool OptimizeDupPopPopSequence();
 
+    bool LastBytecodeIs(size_t indexFromEnd, uint8_t bytecode);
+
 private:
     VMTrivialMethod* assembleTrivialMethod();
     VMTrivialMethod* assembleLiteralReturn(uint8_t pushCandidate);
     VMTrivialMethod* assembleGlobalReturn();
     VMTrivialMethod* assembleFieldGetter(uint8_t pushCandidate);
-    VMTrivialMethod* assembleFieldSetter() { return nullptr; }
+    VMTrivialMethod* assembleFieldSetter();
     VMTrivialMethod* assembleFieldGetterFromReturn(uint8_t pushCandidate) {
         return nullptr;
     }
@@ -137,10 +139,10 @@ private:
     bool hasOneLiteralBlockArgument();
     bool hasTwoLiteralBlockArguments();
     uint8_t lastBytecodeAt(size_t indexFromEnd);
-    bool lastBytecodeIs(size_t indexFromEnd, uint8_t bytecode);
+
     uint8_t lastBytecodeIsOneOf(size_t indexFromEnd,
                                 uint8_t (*predicate)(uint8_t));
-    
+
     size_t getOffsetOfLastBytecode(size_t indexFromEnd);
 
     std::tuple<VMInvokable*, VMInvokable*>

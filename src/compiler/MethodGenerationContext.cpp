@@ -90,13 +90,13 @@ VMInvokable* MethodGenerationContext::Assemble() {
 }
 
 VMTrivialMethod* MethodGenerationContext::assembleTrivialMethod() {
-    if (lastBytecodeIs(0, BC_RETURN_LOCAL)) {
+    if (LastBytecodeIs(0, BC_RETURN_LOCAL)) {
         uint8_t pushCandidate = lastBytecodeIsOneOf(1, &IsPushConstBytecode);
         if (pushCandidate != BC_INVALID) {
             return assembleLiteralReturn(pushCandidate);
         }
 
-        if (lastBytecodeIs(1, BC_PUSH_GLOBAL)) {
+        if (LastBytecodeIs(1, BC_PUSH_GLOBAL)) {
             return assembleGlobalReturn();
         }
 
@@ -106,8 +106,8 @@ VMTrivialMethod* MethodGenerationContext::assembleTrivialMethod() {
         }
     }
 
-    // because we check for return_self here, we don't consider block methods
-    if (lastBytecodeIs(0, BC_PUSH_SELF)) {
+    // because we check for returning self here, we don't consider block methods
+    if (LastBytecodeIs(0, BC_RETURN_SELF)) {
         assert(!IsBlockMethod());
         return assembleFieldSetter();
     }
@@ -190,6 +190,67 @@ VMTrivialMethod* MethodGenerationContext::assembleFieldGetter(
     }
 
     return MakeGetter(signature, arguments, fieldIndex);
+}
+
+VMTrivialMethod* MethodGenerationContext::assembleFieldSetter() {
+    uint8_t popCandidate = lastBytecodeIsOneOf(1, IsPopFieldBytecode);
+    if (popCandidate == BC_INVALID) {
+        return nullptr;
+    }
+
+    uint8_t pushCandidate = lastBytecodeIsOneOf(2, IsPushArgBytecode);
+    if (pushCandidate == BC_INVALID) {
+        return nullptr;
+    }
+
+    size_t lenReturnSelf = Bytecode::GetBytecodeLength(BC_RETURN_SELF);
+    size_t lenInclPop =
+        lenReturnSelf + Bytecode::GetBytecodeLength(popCandidate);
+    if (bytecode.size() !=
+        (lenInclPop + Bytecode::GetBytecodeLength(pushCandidate))) {
+        return nullptr;
+    }
+
+    size_t argIndex = 0;
+
+    switch (pushCandidate) {
+        case BC_PUSH_SELF:
+            argIndex = 0;
+            break;
+        case BC_PUSH_ARG_1:
+            argIndex = 1;
+            break;
+        case BC_PUSH_ARG_2:
+            argIndex = 2;
+            break;
+        case BC_PUSH_ARGUMENT: {
+            argIndex = bytecode.at(bytecode.size() - (lenInclPop + 2));
+            break;
+        }
+        default: {
+            GetUniverse()->ErrorExit("Unexpected bytecode");
+        }
+    }
+
+    size_t fieldIndex = 0;
+
+    switch (popCandidate) {
+        case BC_POP_FIELD_0:
+            fieldIndex = 0;
+            break;
+        case BC_POP_FIELD_1:
+            fieldIndex = 1;
+            break;
+        case BC_POP_FIELD: {
+            fieldIndex = bytecode.at(bytecode.size() - (lenReturnSelf + 1));
+            break;
+        }
+        default: {
+            GetUniverse()->ErrorExit("Unexpected bytecode");
+        }
+    }
+
+    return MakeSetter(signature, arguments, fieldIndex, argIndex);
 }
 
 VMPrimitive* MethodGenerationContext::AssemblePrimitive(bool classSide) {
@@ -354,7 +415,7 @@ uint8_t MethodGenerationContext::lastBytecodeAt(size_t indexFromEnd) {
     return last4Bytecodes[3 - indexFromEnd];
 }
 
-bool MethodGenerationContext::lastBytecodeIs(size_t indexFromEnd,
+bool MethodGenerationContext::LastBytecodeIs(size_t indexFromEnd,
                                              uint8_t bytecode) {
     assert(indexFromEnd >= 0 && indexFromEnd < NUM_LAST_BYTECODES);
     uint8_t actual = last4Bytecodes[3 - indexFromEnd];
@@ -381,15 +442,15 @@ void MethodGenerationContext::removeLastBytecodes(size_t numBytecodes) {
 }
 
 bool MethodGenerationContext::hasOneLiteralBlockArgument() {
-    return lastBytecodeIs(0, BC_PUSH_BLOCK);
+    return LastBytecodeIs(0, BC_PUSH_BLOCK);
 }
 
 bool MethodGenerationContext::hasTwoLiteralBlockArguments() {
-    if (!lastBytecodeIs(0, BC_PUSH_BLOCK)) {
+    if (!LastBytecodeIs(0, BC_PUSH_BLOCK)) {
         return false;
     }
 
-    return lastBytecodeIs(1, BC_PUSH_BLOCK);
+    return LastBytecodeIs(1, BC_PUSH_BLOCK);
 }
 
 /**
@@ -748,13 +809,13 @@ void MethodGenerationContext::removeLastBytecodeAt(size_t indexFromEnd) {
 }
 
 void MethodGenerationContext::RemoveLastPopForBlockLocalReturn() {
-    if (lastBytecodeIs(0, BC_POP)) {
+    if (LastBytecodeIs(0, BC_POP)) {
         bytecode.pop_back();
         return;
     }
 
     if (lastBytecodeIsOneOf(0, IsPopSmthBytecode) &&
-        !lastBytecodeIs(1, BC_DUP)) {
+        !LastBytecodeIs(1, BC_DUP)) {
         // we just removed the DUP and didn't emit the POP using
         // optimizeDupPopPopSequence() so, to make blocks work, we need to
         // reintroduce the DUP
@@ -793,7 +854,7 @@ bool MethodGenerationContext::OptimizeDupPopPopSequence() {
         return false;
     }
 
-    if (lastBytecodeIs(0, BC_INC_FIELD_PUSH)) {
+    if (LastBytecodeIs(0, BC_INC_FIELD_PUSH)) {
         return optimizeIncFieldPush();
     }
 
@@ -802,7 +863,7 @@ bool MethodGenerationContext::OptimizeDupPopPopSequence() {
         return false;
     }
 
-    if (!lastBytecodeIs(1, BC_DUP)) {
+    if (!LastBytecodeIs(1, BC_DUP)) {
         return false;
     }
 

@@ -39,6 +39,7 @@ void* vt_safe_ter_primitive;
 void* vt_literal_return;
 void* vt_global_return;
 void* vt_getter;
+void* vt_setter;
 void* vt_string;
 void* vt_symbol;
 
@@ -72,7 +73,7 @@ bool IsValidObject(vm_oop_t obj) {
              vt == vt_primitive || vt == vt_safe_un_primitive ||
              vt == vt_safe_bin_primitive || vt == vt_safe_ter_primitive ||
              vt == vt_string || vt == vt_symbol || vt == vt_literal_return ||
-             vt == vt_global_return || vt == vt_getter;
+             vt == vt_global_return || vt == vt_getter || vt == vt_setter;
     if (!b) {
         assert(b && "Expected vtable to be one of the known ones.");
         return false;
@@ -114,6 +115,7 @@ void set_vt_to_null() {
     vt_literal_return = nullptr;
     vt_global_return = nullptr;
     vt_getter = nullptr;
+    vt_setter = nullptr;
     vt_string = nullptr;
     vt_symbol = nullptr;
 }
@@ -150,6 +152,11 @@ bool IsGlobalReturn(vm_oop_t obj) {
 bool IsGetter(vm_oop_t obj) {
     assert(vt_getter != nullptr);
     return get_vtable(AS_OBJ(obj)) == vt_getter;
+}
+
+bool IsSetter(vm_oop_t obj) {
+    assert(vt_setter != nullptr);
+    return get_vtable(AS_OBJ(obj)) == vt_setter;
 }
 
 void obtain_vtables_of_known_classes(VMSymbol* someValidSymbol) {
@@ -209,6 +216,10 @@ void obtain_vtables_of_known_classes(VMSymbol* someValidSymbol) {
     VMGetter* get =
         new (GetHeap<HEAP_CLS>(), 0) VMGetter(someValidSymbol, v, 0);
     vt_getter = get_vtable(get);
+
+    VMSetter* set =
+        new (GetHeap<HEAP_CLS>(), 0) VMSetter(someValidSymbol, v, 0, 0);
+    vt_setter = get_vtable(set);
 
     VMString* str =
         new (GetHeap<HEAP_CLS>(), PADDED_SIZE(1)) VMString(0, nullptr);

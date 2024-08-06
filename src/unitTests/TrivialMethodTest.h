@@ -17,6 +17,11 @@ class TrivialMethodTest : public TestWithParsing {
     CPPUNIT_TEST(testFieldGetterN);
     CPPUNIT_TEST(testNonTrivialFieldGetter0);
     CPPUNIT_TEST(testNonTrivialFieldGetterN);
+    CPPUNIT_TEST(testFieldSetter0);
+    CPPUNIT_TEST(testFieldSetterN);
+    CPPUNIT_TEST(testNonTrivialFieldSetter0);
+    CPPUNIT_TEST(testNonTrivialFieldSetterN);
+    CPPUNIT_TEST(testBlockReturn);
     CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -43,4 +48,13 @@ private:
 
     void testNonTrivialFieldGetter0();
     void testNonTrivialFieldGetterN();
+
+    void testFieldSetter0();
+    void fieldSetter0(std::string source);
+    void testFieldSetterN();
+    void fieldSetterN(std::string source);
+    void testNonTrivialFieldSetter0();
+    void testNonTrivialFieldSetterN();
+
+    void testBlockReturn();
 };

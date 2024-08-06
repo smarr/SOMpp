@@ -11,6 +11,7 @@ bool IsVMSymbol(vm_oop_t obj);
 bool IsLiteralReturn(vm_oop_t obj);
 bool IsGlobalReturn(vm_oop_t obj);
 bool IsGetter(vm_oop_t obj);
+bool IsSetter(vm_oop_t obj);
 
 void set_vt_to_null();
 

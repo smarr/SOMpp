@@ -94,6 +94,7 @@ class VMTrivialMethod;
 class VMLiteralReturn;
 class VMGlobalReturn;
 class VMGetter;
+class VMSetter;
 class VMString;
 class VMSymbol;
 
@@ -158,6 +159,7 @@ class GCTrivialMethod  : public GCInvokable      { public: typedef VMTrivialMeth
 class GCLiteralReturn  : public GCTrivialMethod  { public: typedef VMLiteralReturn  Loaded; };
 class GCGlobalReturn   : public GCTrivialMethod  { public: typedef VMGlobalReturn   Loaded; };
 class GCGetter         : public GCTrivialMethod  { public: typedef VMGetter         Loaded; };
+class GCSetter         : public GCTrivialMethod  { public: typedef VMSetter         Loaded; };
 class GCString         : public GCAbstractObject { public: typedef VMString         Loaded; };
 class GCSymbol         : public GCString         { public: typedef VMSymbol         Loaded; };
 // clang-format on

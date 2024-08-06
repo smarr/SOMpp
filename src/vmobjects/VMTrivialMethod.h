@@ -46,6 +46,8 @@ VMTrivialMethod* MakeGlobalReturn(VMSymbol* sig, vector<Variable>& arguments,
                                   VMSymbol* globalName);
 VMTrivialMethod* MakeGetter(VMSymbol* sig, vector<Variable>& arguments,
                             size_t fieldIndex);
+VMTrivialMethod* MakeSetter(VMSymbol* sig, vector<Variable>& arguments,
+                            size_t fieldIndex, size_t argIndex);
 
 class VMLiteralReturn : public VMTrivialMethod {
 public:
@@ -100,7 +102,7 @@ public:
     }
 
     inline size_t GetObjectSize() const override {
-        return sizeof(VMLiteralReturn);
+        return sizeof(VMGlobalReturn);
     }
 
     VMFrame* Invoke(Interpreter*, VMFrame*) override;
@@ -137,9 +139,7 @@ public:
         write_barrier(this, sig);
     }
 
-    inline size_t GetObjectSize() const override {
-        return sizeof(VMLiteralReturn);
-    }
+    inline size_t GetObjectSize() const override { return sizeof(VMGetter); }
 
     VMFrame* Invoke(Interpreter*, VMFrame*) override;
     void InlineInto(MethodGenerationContext& mgenc,
@@ -159,5 +159,43 @@ public:
 
 private:
     size_t fieldIndex;
+    int numberOfArguments;
+};
+
+class VMSetter : public VMTrivialMethod {
+public:
+    typedef GCSetter Stored;
+
+    VMSetter(VMSymbol* sig, vector<Variable>& arguments, size_t fieldIndex,
+             size_t argIndex)
+        : VMTrivialMethod(sig, arguments), fieldIndex(fieldIndex),
+          argIndex(argIndex),
+          numberOfArguments(Signature::GetNumberOfArguments(sig)) {
+        write_barrier(this, sig);
+    }
+
+    inline size_t GetObjectSize() const override { return sizeof(VMSetter); }
+
+    VMFrame* Invoke(Interpreter*, VMFrame*) override;
+    void InlineInto(MethodGenerationContext& mgenc,
+                    bool mergeScope = true) final;
+
+    AbstractVMObject* CloneForMovingGC() const final;
+
+    void MarkObjectAsInvalid() final { VMTrivialMethod::MarkObjectAsInvalid(); }
+
+    bool IsMarkedInvalid() const final {
+        return signature == (GCSymbol*)INVALID_GC_POINTER;
+    }
+
+    void WalkObjects(walk_heap_fn) override;
+
+    std::string AsDebugString() const final;
+
+private:
+    make_testable(public);
+
+    size_t fieldIndex;
+    size_t argIndex;
     int numberOfArguments;
 };

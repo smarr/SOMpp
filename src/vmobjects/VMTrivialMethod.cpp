@@ -40,6 +40,14 @@ VMTrivialMethod* MakeGetter(VMSymbol* sig, vector<Variable>& arguments,
     return result;
 }
 
+VMTrivialMethod* MakeSetter(VMSymbol* sig, vector<Variable>& arguments,
+                            size_t fieldIndex, size_t argIndex) {
+    VMSetter* result = new (GetHeap<HEAP_CLS>(), 0)
+        VMSetter(sig, arguments, fieldIndex, argIndex);
+    LOG_ALLOCATION("VMSetter", result->GetObjectSize());
+    return result;
+}
+
 VMFrame* VMLiteralReturn::Invoke(Interpreter*, VMFrame* frame) {
     for (int i = 0; i < numberOfArguments; i += 1) {
         frame->Pop();
@@ -139,4 +147,48 @@ void VMGetter::WalkObjects(walk_heap_fn walk) {
 
 std::string VMGetter::AsDebugString() const {
     return "VMGetter(fieldIndex: " + to_string(fieldIndex) + ")";
+}
+
+VMFrame* VMSetter::Invoke(Interpreter*, VMFrame* frame) {
+    vm_oop_t value = nullptr;
+    vm_oop_t self = nullptr;
+
+    for (size_t i = numberOfArguments - 1; i > 0; i -= 1) {
+        if (i == argIndex) {
+            value = frame->Pop();
+        } else {
+            frame->Pop();
+        }
+    }
+
+    self = frame->Top();
+    assert(self != nullptr);
+    assert(value != nullptr);
+
+    if (unlikely(IS_TAGGED(self))) {
+        Universe()->ErrorExit("Integers do not have fields!");
+    } else {
+        ((VMObject*)self)->SetField(fieldIndex, value);
+    }
+
+    return nullptr;
+}
+
+void VMSetter::InlineInto(MethodGenerationContext& mgenc, bool) {
+    GetUniverse()->ErrorExit(
+        "We don't currently support blocks for trivial setters");
+}
+
+AbstractVMObject* VMSetter::CloneForMovingGC() const {
+    VMSetter* prim = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMSetter(*this);
+    return prim;
+}
+
+void VMSetter::WalkObjects(walk_heap_fn walk) {
+    VMInvokable::WalkObjects(walk);
+}
+
+std::string VMSetter::AsDebugString() const {
+    return "VMSetter(fieldIndex: " + to_string(fieldIndex) +
+           ", argIndex: " + to_string(argIndex) + ")";
 }

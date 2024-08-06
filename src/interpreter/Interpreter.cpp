@@ -208,14 +208,17 @@ void Interpreter::doPushLocalWithIndex(uint8_t localIndex) {
 }
 
 void Interpreter::doPushArgument(long bytecodeIndex) {
-    uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
-    uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
+    uint8_t argIndex = method->GetBytecode(bytecodeIndex + 1);
+    uint8_t contextLevel = method->GetBytecode(bytecodeIndex + 2);
 
-    assert(!(bc1 == 0 && bc2 == 0 && "should have been BC_PUSH_SELF"));
-    assert(!(bc1 == 1 && bc2 == 0 && "should have been BC_PUSH_ARG_1"));
-    assert(!(bc1 == 2 && bc2 == 0 && "should have been BC_PUSH_ARG_2"));
+    assert(!(argIndex == 0 && contextLevel == 0 &&
+             "should have been BC_PUSH_SELF"));
+    assert(!(argIndex == 1 && contextLevel == 0 &&
+             "should have been BC_PUSH_ARG_1"));
+    assert(!(argIndex == 2 && contextLevel == 0 &&
+             "should have been BC_PUSH_ARG_2"));
 
-    vm_oop_t argument = GetFrame()->GetArgument(bc1, bc2);
+    vm_oop_t argument = GetFrame()->GetArgument(argIndex, contextLevel);
 
     GetFrame()->Push(argument);
 }

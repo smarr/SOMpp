@@ -1,11 +1,13 @@
 #include "TrivialMethodTest.h"
 
 #include <cppunit/TestAssert.h>
+#include <cstddef>
 #include <string>
 
 #include "../compiler/MethodGenerationContext.h"
 #include "../vm/IsValidObject.h"
 #include "../vmobjects/VMInvokable.h"
+#include "../vmobjects/VMTrivialMethod.h"
 
 void TrivialMethodTest::literalReturn(std::string source) {
     std::string s = "test = ( ^ " + source + " )";
@@ -202,54 +204,96 @@ void TrivialMethodTest::testNonTrivialFieldGetterN() {
     CPPUNIT_ASSERT_MESSAGE(expected.data(), result);
 }
 
-/*
- @pytest.mark.parametrize(
-     "source", ["field := val", "field := val.", "field := val. ^ self"]
- )
- def test_field_setter_0(cgenc, mgenc, source):
-     add_field(cgenc, "field")
-     body_or_none = parse_method(mgenc, "test: val = ( " + source + " )")
-     m = mgenc.assemble(body_or_none)
-     assert isinstance(m, FieldWrite)
+void TrivialMethodTest::testFieldSetter0() {
+    fieldSetter0("field := val");
+    fieldSetter0("field := val.");
+    fieldSetter0("field := val. ^ self");
+}
 
+void TrivialMethodTest::fieldSetter0(std::string source) {
+    addField("field");
+    std::string s = "test: val = ( " + source + " )";
+    methodToBytecode(s.data());
 
- @pytest.mark.parametrize(
-     "source", ["field := value", "field := value.", "field := value. ^ self"]
- )
- def test_field_setter_n(cgenc, mgenc, source):
-     add_field(cgenc, "a")
-     add_field(cgenc, "b")
-     add_field(cgenc, "c")
-     add_field(cgenc, "d")
-     add_field(cgenc, "e")
-     add_field(cgenc, "field")
-     body_or_none = parse_method(mgenc, "test: value = ( " + source + " )")
-     m = mgenc.assemble(body_or_none)
-     assert isinstance(m, FieldWrite)
+    VMInvokable* m = _mgenc->Assemble();
 
+    std::string expected = "Expected to be trivial: " + s;
+    bool result = IsSetter(m);
+    CPPUNIT_ASSERT_MESSAGE(expected.data(), result);
 
- def test_non_trivial_field_setter_0(cgenc, mgenc):
-     add_field(cgenc, "field")
-     body_or_none = parse_method(mgenc, "test: val = ( 0. field := value )")
-     m = mgenc.assemble(body_or_none)
-     assert isinstance(m, AstMethod) or isinstance(m, BcMethod)
+    VMSetter* setter = (VMSetter*)m;
+    CPPUNIT_ASSERT_EQUAL(setter->fieldIndex, (size_t)0);
+    CPPUNIT_ASSERT_EQUAL(setter->argIndex, (size_t)1);
+    CPPUNIT_ASSERT_EQUAL(setter->numberOfArguments, 2);
 
+    tearDown();
+}
 
- def test_non_trivial_field_setter_n(cgenc, mgenc):
-     add_field(cgenc, "a")
-     add_field(cgenc, "b")
-     add_field(cgenc, "c")
-     add_field(cgenc, "d")
-     add_field(cgenc, "e")
-     add_field(cgenc, "field")
-     body_or_none = parse_method(mgenc, "test: val = ( 0. field := value )")
-     m = mgenc.assemble(body_or_none)
-     assert isinstance(m, AstMethod) or isinstance(m, BcMethod)
+void TrivialMethodTest::testFieldSetterN() {
+    fieldSetterN("field := arg2");
+    fieldSetterN("field := arg2.");
+    fieldSetterN("field := arg2. ^ self");
+}
 
- def test_block_return(mgenc):
-     body_or_none = parse_method(mgenc, "test = ( ^ [] )")
-     m = mgenc.assemble(body_or_none)
-     assert isinstance(m, AstMethod) or isinstance(m, BcMethod)
+void TrivialMethodTest::fieldSetterN(std::string source) {
+    addField("a");
+    addField("b");
+    addField("c");
+    addField("d");
+    addField("e");
+    addField("field");
+    std::string s = "a: arg1 b: arg2 c: arg3 = ( " + source + " )";
+    methodToBytecode(s.data());
 
+    VMInvokable* m = _mgenc->Assemble();
 
- */
+    std::string expected = "Expected to be trivial: " + s;
+    bool result = IsSetter(m);
+    CPPUNIT_ASSERT_MESSAGE(expected.data(), result);
+
+    VMSetter* setter = (VMSetter*)m;
+    CPPUNIT_ASSERT_EQUAL(setter->fieldIndex, (size_t)5);
+    CPPUNIT_ASSERT_EQUAL(setter->argIndex, (size_t)2);
+    CPPUNIT_ASSERT_EQUAL(setter->numberOfArguments, 4);
+
+    tearDown();
+}
+
+void TrivialMethodTest::testNonTrivialFieldSetter0() {
+    addField("field");
+    std::string s = "test: val = ( 0. field := val )";
+    methodToBytecode(s.data());
+
+    VMInvokable* m = _mgenc->Assemble();
+
+    std::string expected = "Expected to be non-trivial: " + s;
+    bool result = !IsSetter(m);
+    CPPUNIT_ASSERT_MESSAGE(expected.data(), result);
+}
+
+void TrivialMethodTest::testNonTrivialFieldSetterN() {
+    addField("a");
+    addField("b");
+    addField("c");
+    addField("d");
+    addField("e");
+    addField("field");
+    std::string s = "test: val = ( 0. field := val )";
+    methodToBytecode(s.data());
+
+    VMInvokable* m = _mgenc->Assemble();
+
+    std::string expected = "Expected to be non-trivial: " + s;
+    bool result = !IsSetter(m);
+    CPPUNIT_ASSERT_MESSAGE(expected.data(), result);
+}
+
+void TrivialMethodTest::testBlockReturn() {
+    methodToBytecode("test = ( ^ [] )");
+
+    VMInvokable* m = _mgenc->Assemble();
+
+    std::string expected = "Expected to be non-trivial: test = ( ^ [] )";
+    bool result = IsVMMethod(m);
+    CPPUNIT_ASSERT_MESSAGE(expected.data(), result);
+}

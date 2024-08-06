@@ -554,7 +554,7 @@ void BytecodeGenerationTest::ifArg(std::string selector, int8_t jumpBytecode) {
     check(bytecodes,
           {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_SELF, BC(BC_SEND, 1),
            BC(jumpBytecode, 4, 0), BC_PUSH_ARG_1, BC_POP, BC_PUSH_CONSTANT_2,
-           BC_POP, BC_PUSH_SELF, BC_RETURN_LOCAL});
+           BC_RETURN_SELF});
 
     tearDown();
 }
@@ -568,8 +568,7 @@ void BytecodeGenerationTest::testKeywordIfTrueArg() {
     check(bytecodes,
           {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_SELF, BC_PUSH_CONSTANT_1,
            BC(BC_SEND, 2), BC(BC_JUMP_ON_FALSE_TOP_NIL, 4, 0), BC_PUSH_ARG_1,
-           BC_POP, BC(BC_PUSH_CONSTANT, 3), BC_POP, BC_PUSH_SELF,
-           BC_RETURN_LOCAL});
+           BC_POP, BC(BC_PUSH_CONSTANT, 3), BC_RETURN_SELF});
 }
 
 void BytecodeGenerationTest::testIfReturnNonLocal() {
@@ -591,7 +590,7 @@ void BytecodeGenerationTest::ifReturnNonLocal(std::string selector,
     check(bytecodes,
           {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_SELF, BC(BC_SEND, 1),
            BC(jumpBytecode, 5, 0), BC_PUSH_ARG_1, BC_RETURN_LOCAL, BC_POP,
-           BC_PUSH_CONSTANT_2, BC_POP, BC_PUSH_SELF, BC_RETURN_LOCAL});
+           BC_PUSH_CONSTANT_2, BC_RETURN_SELF});
 
     tearDown();
 }
