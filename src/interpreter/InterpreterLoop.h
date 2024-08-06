@@ -41,6 +41,7 @@ vm_oop_t Start() {
                            &&LABEL_BC_SUPER_SEND,
                            &&LABEL_BC_RETURN_LOCAL,
                            &&LABEL_BC_RETURN_NON_LOCAL,
+                           &&LABEL_BC_RETURN_SELF,
                            &&LABEL_BC_INC,
                            &&LABEL_BC_JUMP,
                            &&LABEL_BC_JUMP_ON_FALSE_POP,
@@ -260,6 +261,14 @@ LABEL_BC_RETURN_NON_LOCAL:
     PROLOGUE(1);
     doReturnNonLocal();
     DISPATCH_NOGC();
+
+LABEL_BC_RETURN_SELF: {
+    PROLOGUE(1);
+    assert(GetFrame()->GetContext() == nullptr &&
+           "RETURN_SELF is not allowed in blocks");
+    popFrameAndPushResult(GetFrame()->GetArgumentInCurrentContext(0));
+    DISPATCH_NOGC();
+}
 
 LABEL_BC_INC:
     PROLOGUE(1);

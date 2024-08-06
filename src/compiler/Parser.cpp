@@ -348,9 +348,9 @@ void Parser::methodBlock(MethodGenerationContext& mgenc) {
     // terminating the last expression, so the last expression's value must be
     // popped off the stack and a ^self be generated
     if (!mgenc.IsFinished()) {
-        EmitPOP(mgenc);
-        EmitPUSHARGUMENT(mgenc, 0, 0);
-        EmitRETURNLOCAL(mgenc);
+        // don't need to pop of the value, because RETURN_SELF doesn't need
+        // stack space
+        EmitRETURNSELF(mgenc);
         mgenc.SetFinished();
     }
 
@@ -423,7 +423,7 @@ void Parser::blockBody(MethodGenerationContext& mgenc, bool seen_period,
             // a POP has been generated which must be elided (blocks always
             // return the value of the last expression, regardless of whether it
             // was terminated with a . or not)
-            mgenc.RemoveLastBytecode();
+            mgenc.RemoveLastPopForBlockLocalReturn();
         }
         if (!is_inlined) {
             // if the block is empty, we need to return nil
@@ -435,10 +435,8 @@ void Parser::blockBody(MethodGenerationContext& mgenc, bool seen_period,
         }
     } else if (sym == EndTerm) {
         // it does not matter whether a period has been seen, as the end of the
-        // method has been found (EndTerm) - so it is safe to emit a "return
-        // self"
-        EmitPUSHARGUMENT(mgenc, 0, 0);
-        EmitRETURNLOCAL(mgenc);
+        // method has been found (EndTerm). It's safe to emit a "return self"
+        EmitRETURNSELF(mgenc);
         mgenc.SetFinished();
     } else {
         expression(mgenc);
@@ -450,6 +448,20 @@ void Parser::blockBody(MethodGenerationContext& mgenc, bool seen_period,
 }
 
 void Parser::result(MethodGenerationContext& mgenc) {
+    // try first to parse a `^ self` to emit RETURN_SELF
+    if (!mgenc.IsBlockMethod() && sym == Identifier && text == strSelf) {
+        PeekForNextSymbolFromLexerIfNecessary();
+        if (nextSym == Period || nextSym == EndTerm) {
+            expect(Identifier);
+
+            EmitRETURNSELF(mgenc);
+            mgenc.SetFinished();
+
+            accept(Period);
+            return;
+        }
+    }
+
     expression(mgenc);
 
     if (mgenc.IsBlockMethod()) {
@@ -463,7 +475,7 @@ void Parser::result(MethodGenerationContext& mgenc) {
 }
 
 void Parser::expression(MethodGenerationContext& mgenc) {
-    Peek();
+    PeekForNextSymbolFromLexerIfNecessary();
     if (nextSym == Assign) {
         assignation(mgenc);
     } else {

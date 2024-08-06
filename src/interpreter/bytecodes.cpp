@@ -66,6 +66,7 @@ const uint8_t Bytecode::bytecodeLengths[] = {
     2,  // BC_SUPER_SEND
     1,  // BC_RETURN_LOCAL
     1,  // BC_RETURN_NON_LOCAL
+    1,  // BC_RETURN_SELF
     1,  // BC_INC
 
     3,  // BC_JUMP
@@ -122,21 +123,22 @@ const char* Bytecode::bytecodeNames[] = {
     "SUPER_SEND      ",        // 33
     "RETURN_LOCAL    ",        // 34
     "RETURN_NON_LOCAL",        // 35
-    "INC             ",        // 36
-    "JUMP            ",        // 37
-    "JUMP_ON_FALSE_POP",       // 38
-    "JUMP_ON_TRUE_POP",        // 39
-    "JUMP_ON_FALSE_TOP_NIL",   // 40
-    "JUMP_ON_TRUE_TOP_NIL",    // 41
-    "JUMP_IF_GREATER ",        // 42
-    "JUMP_BACKWARD   ",        // 43
-    "JUMP2           ",        // 44
-    "JUMP2_ON_FALSE_POP",      // 45
-    "JUMP2_ON_TRUE_POP",       // 46
-    "JUMP2_ON_FALSE_TOP_NIL",  // 47
-    "JUMP2_ON_TRUE_TOP_NIL",   // 48
-    "JUMP2_IF_GREATER",        // 49
-    "JUMP2_BACKWARD  ",        // 50
+    "RETURN_SELF     ",        // 36
+    "INC             ",        // 37
+    "JUMP            ",        // 38
+    "JUMP_ON_FALSE_POP",       // 39
+    "JUMP_ON_TRUE_POP",        // 40
+    "JUMP_ON_FALSE_TOP_NIL",   // 41
+    "JUMP_ON_TRUE_TOP_NIL",    // 42
+    "JUMP_IF_GREATER ",        // 43
+    "JUMP_BACKWARD   ",        // 44
+    "JUMP2           ",        // 45
+    "JUMP2_ON_FALSE_POP",      // 46
+    "JUMP2_ON_TRUE_POP",       // 47
+    "JUMP2_ON_FALSE_TOP_NIL",  // 48
+    "JUMP2_ON_TRUE_TOP_NIL",   // 49
+    "JUMP2_IF_GREATER",        // 50
+    "JUMP2_BACKWARD  ",        // 51
 };
 
 bool IsJumpBytecode(uint8_t bc) {
@@ -144,6 +146,88 @@ bool IsJumpBytecode(uint8_t bc) {
     assert((BC_JUMP2_BACKWARD - BC_JUMP) == 13);
 
     return BC_JUMP <= bc && bc <= BC_JUMP2_BACKWARD;
+}
+
+uint8_t IsPushConstBytecode(uint8_t bc) {
+    switch (bc) {
+        case BC_PUSH_CONSTANT:
+        case BC_PUSH_CONSTANT_0:
+        case BC_PUSH_CONSTANT_1:
+        case BC_PUSH_CONSTANT_2:
+        case BC_PUSH_0:
+        case BC_PUSH_1:
+        case BC_PUSH_NIL:
+            return bc;
+
+        default:
+            return BC_INVALID;
+    }
+}
+
+uint8_t IsPushArgBytecode(uint8_t bc) {
+    switch (bc) {
+        case BC_PUSH_SELF:
+        case BC_PUSH_ARG_1:
+        case BC_PUSH_ARG_2:
+        case BC_PUSH_ARGUMENT:
+            return bc;
+
+        default:
+            return BC_INVALID;
+    }
+}
+
+uint8_t IsPushFieldBytecode(uint8_t bc) {
+    switch (bc) {
+        case BC_PUSH_FIELD:
+        case BC_PUSH_FIELD_0:
+        case BC_PUSH_FIELD_1:
+            return bc;
+
+        default:
+            return BC_INVALID;
+    }
+}
+
+uint8_t IsPopFieldBytecode(uint8_t bc) {
+    switch (bc) {
+        case BC_POP_FIELD:
+        case BC_POP_FIELD_0:
+        case BC_POP_FIELD_1:
+            return bc;
+
+        default:
+            return BC_INVALID;
+    }
+}
+
+uint8_t IsReturnFieldBytecode(uint8_t bc) {
+    switch (bc) {
+        case BC_RETURN_FIELD_0:
+        case BC_RETURN_FIELD_1:
+        case BC_RETURN_FIELD_2:
+            return bc;
+
+        default:
+            return BC_INVALID;
+    }
+}
+
+uint8_t IsPopSmthBytecode(uint8_t bc) {
+    switch (bc) {
+        case BC_POP_LOCAL:
+        case BC_POP_LOCAL_0:
+        case BC_POP_LOCAL_1:
+        case BC_POP_LOCAL_2:
+        case BC_POP_ARGUMENT:
+        case BC_POP_FIELD:
+        case BC_POP_FIELD_0:
+        case BC_POP_FIELD_1:
+            return bc;
+
+        default:
+            return BC_INVALID;
+    }
 }
 
 bool Bytecode::BytecodeDefinitionsAreConsistent() {
