@@ -6,91 +6,13 @@
 #include <cstdint>
 #include <cstdio>
 #include <queue>
-#include <sstream>
 #include <string>
 #include <vector>
 
-#include "../compiler/ClassGenerationContext.h"
-#include "../compiler/Disassembler.h"
-#include "../compiler/MethodGenerationContext.h"
-#include "../compiler/Parser.h"
 #include "../interpreter/bytecodes.h"
 #include "../misc/StringUtil.h"
-#include "../vm/Symbols.h"
 #include "../vmobjects/VMMethod.h"
-
-void BytecodeGenerationTest::dump(MethodGenerationContext* mgenc) {
-    Disassembler::DumpMethod(mgenc, "");
-}
-
-void BytecodeGenerationTest::ensureCGenC() {
-    if (_cgenc != nullptr) {
-        return;
-    }
-
-    _cgenc = new ClassGenerationContext();
-    _cgenc->SetName(SymbolFor("Test"));
-}
-
-void BytecodeGenerationTest::ensureMGenC() {
-    if (_mgenc != nullptr) {
-        return;
-    }
-    ensureCGenC();
-
-    _mgenc = new MethodGenerationContext(*_cgenc);
-    std::string self = strSelf;
-    _mgenc->AddArgument(self, {0, 0});
-}
-
-void BytecodeGenerationTest::ensureBGenC() {
-    if (_bgenc != nullptr) {
-        return;
-    }
-    ensureCGenC();
-    ensureMGenC();
-
-    _mgenc->SetSignature(SymbolFor("test"));
-    _bgenc = new MethodGenerationContext(*_cgenc, _mgenc);
-}
-
-void BytecodeGenerationTest::addField(const char* fieldName) {
-    ensureCGenC();
-    _cgenc->AddInstanceField(SymbolFor(fieldName));
-}
-
-std::vector<uint8_t> BytecodeGenerationTest::methodToBytecode(
-    const char* source, bool dumpBytecodes) {
-    ensureMGenC();
-
-    istringstream ss(source);
-
-    std::string fileName = "test";
-    Parser parser(ss, fileName);
-    parser.method(*_mgenc);
-
-    if (dumpBytecodes) {
-        dump(_mgenc);
-    }
-    return _mgenc->GetBytecodes();
-}
-
-std::vector<uint8_t> BytecodeGenerationTest::blockToBytecode(
-    const char* source, bool dumpBytecodes) {
-    ensureBGenC();
-
-    istringstream ss(source);
-
-    std::string fileName = "test";
-    Parser parser(ss, fileName);
-
-    parser.nestedBlock(*_bgenc);
-
-    if (dumpBytecodes) {
-        dump(_bgenc);
-    }
-    return _bgenc->GetBytecodes();
-}
+#include "TestWithParsing.h"
 
 void BytecodeGenerationTest::testEmptyMethodReturnsSelf() {
     auto bytecodes = methodToBytecode("test = ( )");
@@ -332,74 +254,6 @@ void BytecodeGenerationTest::testPopFieldOpt() {
         bytecodes,
         {BC_PUSH_1, BC_POP_FIELD_0, BC_PUSH_1, BC_POP_FIELD_1, BC_PUSH_1,
          BC(BC_POP_FIELD, 2), BC_PUSH_1, BC(BC_POP_FIELD, 3), BC_RETURN_SELF});
-}
-
-void BytecodeGenerationTest::check(std::vector<uint8_t> actual,
-                                   std::vector<BC>
-                                       expected) {
-    size_t i = 0;
-    size_t bci = 0;
-    for (; bci < actual.size() && i < expected.size();) {
-        uint8_t actualBc = actual.at(bci);
-        uint8_t bcLength = Bytecode::GetBytecodeLength(actualBc);
-
-        BC expectedBc = expected.at(i);
-
-        char msg[1000];
-        snprintf(msg, 1000, "Bytecode %zu expected %s but got %s", i,
-                 Bytecode::GetBytecodeName(expectedBc.bytecode),
-                 Bytecode::GetBytecodeName(actualBc));
-        if (expectedBc.bytecode != actualBc) {
-            dump(_mgenc);
-        }
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expectedBc.bytecode, actualBc);
-
-        snprintf(
-            msg, 1000,
-            "Bytecode %zu (%s) was expected to have length %zu, but had %zu", i,
-            Bytecode::GetBytecodeName(actualBc), expectedBc.size,
-            (size_t)bcLength);
-
-        if (expectedBc.size != bcLength) {
-            dump(_mgenc);
-        }
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expectedBc.size, (size_t)bcLength);
-
-        if (bcLength > 1) {
-            snprintf(msg, 1000,
-                     "Bytecode %zu (%s), arg1 expected %hhu but got %hhu", i,
-                     Bytecode::GetBytecodeName(expectedBc.bytecode),
-                     expectedBc.arg1, actual.at(bci + 1));
-            if (expectedBc.arg1 != actual.at(bci + 1)) {
-                dump(_mgenc);
-            }
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expectedBc.arg1,
-                                         actual.at(bci + 1));
-
-            if (bcLength > 2) {
-                snprintf(msg, 1000,
-                         "Bytecode %zu (%s), arg2 expected %hhu but got %hhu",
-                         i, Bytecode::GetBytecodeName(expectedBc.bytecode),
-                         expectedBc.arg2, actual.at(bci + 2));
-                if (expectedBc.arg2 != actual.at(bci + 2)) {
-                    dump(_mgenc);
-                }
-                CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expectedBc.arg2,
-                                             actual.at(bci + 2));
-            }
-        }
-
-        i += 1;
-        bci += bcLength;
-    }
-    if (expected.size() != i || actual.size() != bci) {
-        dump(_mgenc);
-    }
-
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("All expected bytecodes covered",
-                                 expected.size(), i);
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("All actual bytecodes covered", actual.size(),
-                                 bci);
 }
 
 void BytecodeGenerationTest::testWhileInlining(const char* selector,
@@ -682,6 +536,65 @@ void BytecodeGenerationTest::testInliningOfToDo() {
            BC_RETURN_SELF});
 }
 
+void BytecodeGenerationTest::testIfArg() {
+    ifArg("ifTrue:", BC_JUMP_ON_FALSE_TOP_NIL);
+    ifArg("ifFalse:", BC_JUMP_ON_TRUE_TOP_NIL);
+}
+
+void BytecodeGenerationTest::ifArg(std::string selector, int8_t jumpBytecode) {
+    std::string source = R"""(      test: arg = (
+                                         #start.
+                                         self method IF_SELECTOR [ arg ].
+                                         #end
+                                     ) )""";
+    bool wasReplaced = ReplacePattern(source, "IF_SELECTOR", selector);
+    assert(wasReplaced);
+
+    auto bytecodes = methodToBytecode(source.data());
+    check(bytecodes,
+          {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_SELF, BC(BC_SEND, 1),
+           BC(jumpBytecode, 4, 0), BC_PUSH_ARG_1, BC_POP, BC_PUSH_CONSTANT_2,
+           BC_RETURN_SELF});
+
+    tearDown();
+}
+
+void BytecodeGenerationTest::testKeywordIfTrueArg() {
+    auto bytecodes = methodToBytecode(R"""(      test: arg = (
+                                                     #start.
+                                                     (self key: 5) ifTrue: [ arg ].
+                                                     #end
+                                                 ) )""");
+    check(bytecodes,
+          {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_SELF, BC_PUSH_CONSTANT_1,
+           BC(BC_SEND, 2), BC(BC_JUMP_ON_FALSE_TOP_NIL, 4, 0), BC_PUSH_ARG_1,
+           BC_POP, BC(BC_PUSH_CONSTANT, 3), BC_RETURN_SELF});
+}
+
+void BytecodeGenerationTest::testIfReturnNonLocal() {
+    ifReturnNonLocal("ifTrue:", BC_JUMP_ON_FALSE_TOP_NIL);
+    ifReturnNonLocal("ifFalse:", BC_JUMP_ON_TRUE_TOP_NIL);
+}
+
+void BytecodeGenerationTest::ifReturnNonLocal(std::string selector,
+                                              int8_t jumpBytecode) {
+    std::string source = R"""(      test: arg = (
+                                         #start.
+                                         self method IF_SELECTOR [ ^ arg ].
+                                         #end
+                                     ) )""";
+    bool wasReplaced = ReplacePattern(source, "IF_SELECTOR", selector);
+    assert(wasReplaced);
+
+    auto bytecodes = methodToBytecode(source.data());
+    check(bytecodes,
+          {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_SELF, BC(BC_SEND, 1),
+           BC(jumpBytecode, 5, 0), BC_PUSH_ARG_1, BC_RETURN_LOCAL, BC_POP,
+           BC_PUSH_CONSTANT_2, BC_RETURN_SELF});
+
+    tearDown();
+}
+
 /*
  @pytest.mark.parametrize(
      "operator,bytecode",
@@ -696,68 +609,6 @@ void BytecodeGenerationTest::testInliningOfToDo() {
 
      assert len(bytecodes) == 3
      check(bytecodes, [Bytecodes.push_1, bytecode, Bytecodes.return_self])
-
-
-
- @pytest.mark.parametrize(
-     "if_selector,jump_bytecode",
-     [
-         ("ifTrue:", Bytecodes.jump_on_false_top_nil),
-         ("ifFalse:", Bytecodes.jump_on_true_top_nil),
-     ],
- )
- def test_if_arg(mgenc, if_selector, jump_bytecode):
-     bytecodes = method_to_bytecodes(
-         mgenc,
-         """
-         test: arg = (
-             #start.
-             self method IF_SELECTOR [ arg ].
-             #end
-         )""".replace(
-             "IF_SELECTOR", if_selector
-         ),
-     )
-
-     assert len(bytecodes) == 17
-     check(
-         bytecodes,
-         [
-             Bytecodes.push_constant_0,
-             Bytecodes.pop,
-             Bytecodes.push_argument,
-             Bytecodes.send_1,
-             BC(jump_bytecode, 6, note="jump offset"),
-             BC(Bytecodes.push_argument, 1, 0),
-             Bytecodes.pop,
-             Bytecodes.push_constant,
-             Bytecodes.return_self,
-         ],
-     )
-
-
- def test_keyword_if_true_arg(mgenc):
-     bytecodes = method_to_bytecodes(
-         mgenc,
-         """
-         test: arg = (
-             #start.
-             (self key: 5) ifTrue: [ arg ].
-             #end
-         )""",
-     )
-
-     assert len(bytecodes) == 18
-     check(
-         bytecodes,
-         [
-             (6, Bytecodes.send_2),
-             BC(Bytecodes.jump_on_false_top_nil, 6, note="jump offset"),
-             BC(Bytecodes.push_argument, 1, 0),
-             Bytecodes.pop,
-             Bytecodes.push_constant,
-         ],
-     )
 
 
  def test_if_true_and_inc_field(cgenc, mgenc):
@@ -806,39 +657,6 @@ void BytecodeGenerationTest::testInliningOfToDo() {
              Bytecodes.inc,
              Bytecodes.pop,
              Bytecodes.push_constant,
-         ],
-     )
-
-
- @pytest.mark.parametrize(
-     "if_selector,jump_bytecode",
-     [
-         ("ifTrue:", Bytecodes.jump_on_false_top_nil),
-         ("ifFalse:", Bytecodes.jump_on_true_top_nil),
-     ],
- )
- def test_if_return_non_local(mgenc, if_selector, jump_bytecode):
-     bytecodes = method_to_bytecodes(
-         mgenc,
-         """
-         test: arg = (
-             #start.
-             self method IF_SELECTOR [ ^ arg ].
-             #end
-         )""".replace(
-             "IF_SELECTOR", if_selector
-         ),
-     )
-
-     assert len(bytecodes) == 18
-     check(
-         bytecodes,
-         [
-             (5, Bytecodes.send_1),
-             BC(jump_bytecode, 7, note="jump offset"),
-             BC(Bytecodes.push_argument, 1, 0),
-             Bytecodes.return_local,
-             Bytecodes.pop,
          ],
      )
 

@@ -111,7 +111,9 @@ public:
         return maximumNumberOfStackElements;
     }
 
-    inline size_t GetNumberOfArguments() const { return numberOfArguments; }
+    inline size_t GetNumberOfArguments() const final {
+        return numberOfArguments;
+    }
 
     size_t GetNumberOfBytecodes() const { return bcLength; }
     void SetHolder(VMClass* hld) override;
@@ -147,7 +149,7 @@ public:
         store_ptr(indexableFields[idx], item);
     }
 
-    void Invoke(Interpreter* interp, VMFrame* frame) override;
+    VMFrame* Invoke(Interpreter* interp, VMFrame* frame) override;
 
     void MarkObjectAsInvalid() override {
         VMInvokable::MarkObjectAsInvalid();
@@ -160,13 +162,15 @@ public:
 
     StdString AsDebugString() const override;
 
-    void InlineInto(MethodGenerationContext& mgenc, bool mergeScope = true);
+    void InlineInto(MethodGenerationContext& mgenc,
+                    bool mergeScope = true) final;
 
-    void AdaptAfterOuterInlined(uint8_t removedCtxLevel,
-                                MethodGenerationContext& mgencWithInlined);
+    void AdaptAfterOuterInlined(
+        uint8_t removedCtxLevel,
+        MethodGenerationContext& mgencWithInlined) final;
 
-    void MergeScopeInto(MethodGenerationContext& mgenc);
-    const Variable* GetArgument(size_t index, size_t contextLevel) {
+    void MergeScopeInto(MethodGenerationContext& mgenc) override;
+    const Variable* GetArgument(size_t index, size_t contextLevel) override {
         return lexicalScope->GetArgument(index, contextLevel);
     }
 

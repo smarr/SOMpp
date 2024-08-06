@@ -119,7 +119,7 @@ void EmitPUSHFIELD(MethodGenerationContext& mgenc, VMSymbol* field) {
     }
 }
 
-void EmitPUSHBLOCK(MethodGenerationContext& mgenc, VMMethod* block) {
+void EmitPUSHBLOCK(MethodGenerationContext& mgenc, VMInvokable* block) {
     const int8_t idx = mgenc.AddLiteralIfAbsent(block);
     Emit2(mgenc, BC_PUSH_BLOCK, idx, 1);
 }
@@ -322,8 +322,7 @@ size_t Emit3WithDummy(MethodGenerationContext& mgenc, uint8_t bytecode,
     return index;
 }
 
-void EmitPushFieldWithIndex(MethodGenerationContext& mgenc, uint8_t fieldIdx,
-                            uint8_t ctxLevel) {
+void EmitPushFieldWithIndex(MethodGenerationContext& mgenc, uint8_t fieldIdx) {
     // if (ctxLevel == 0) {
     if (fieldIdx == 0) {
         Emit1(mgenc, BC_PUSH_FIELD_0, 1);

@@ -28,11 +28,13 @@
 
 #include <string>
 
+#include "../compiler/LexicalScope.h"
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../primitivesCore/Routine.h"
 #include "../vm/Globals.h"  // NOLINT (misc-include-cleaner)
 #include "../vm/Print.h"
+#include "../vm/Universe.h"
 #include "ObjectFormats.h"
 #include "VMClass.h"
 #include "VMFrame.h"
@@ -60,6 +62,11 @@ VMPrimitive* VMPrimitive::CloneForMovingGC() const {
 void VMPrimitive::EmptyRoutine(Interpreter*, VMFrame*) {
     VMSymbol* sig = GetSignature();
     ErrorPrint("undefined primitive called: " + sig->GetStdString() + "\n");
+}
+
+void VMPrimitive::InlineInto(MethodGenerationContext&, bool) {
+    GetUniverse()->ErrorExit(
+        "VMPrimitive::InlineInto is not supported, and should not be reached");
 }
 
 std::string VMPrimitive::AsDebugString() const {

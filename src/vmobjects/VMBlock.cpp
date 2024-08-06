@@ -32,12 +32,11 @@
 #include "../misc/defs.h"
 #include "ObjectFormats.h"
 #include "VMEvaluationPrimitive.h"
-#include "VMMethod.h"
 #include "VMObject.h"
 
 const int VMBlock::VMBlockNumberOfFields = 2;
 
-VMBlock::VMBlock(VMMethod* method, VMFrame* context)
+VMBlock::VMBlock(VMInvokable* method, VMFrame* context)
     : VMObject(VMBlockNumberOfFields, sizeof(VMBlock)),
       blockMethod(store_with_separate_barrier(method)),
       context(store_with_separate_barrier(context)) {
@@ -51,7 +50,7 @@ VMBlock* VMBlock::CloneForMovingGC() const {
     return clone;
 }
 
-VMMethod* VMBlock::GetMethod() const {
+VMInvokable* VMBlock::GetMethod() const {
     return load_ptr(blockMethod);
 }
 

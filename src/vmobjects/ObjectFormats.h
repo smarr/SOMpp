@@ -90,6 +90,11 @@ class VMSafePrimitive;
 class VMSafeUnaryPrimitive;
 class VMSafeBinaryPrimitive;
 class VMSafeTernaryPrimitive;
+class VMTrivialMethod;
+class VMLiteralReturn;
+class VMGlobalReturn;
+class VMGetter;
+class VMSetter;
 class VMString;
 class VMSymbol;
 
@@ -147,9 +152,14 @@ class GCMethod         : public GCInvokable      { public: typedef VMMethod     
 class GCPrimitive      : public GCInvokable      { public: typedef VMPrimitive      Loaded; };
 class GCEvaluationPrimitive : public GCInvokable { public: typedef VMEvaluationPrimitive Loaded; };
 class GCSafePrimitive  : public GCInvokable      { public: typedef VMSafePrimitive  Loaded; };
-class GCSafeUnaryPrimitive  : public GCSafePrimitive { public: typedef VMSafeUnaryPrimitive  Loaded; };
+class GCSafeUnaryPrimitive   : public GCSafePrimitive { public: typedef VMSafeUnaryPrimitive   Loaded; };
 class GCSafeBinaryPrimitive  : public GCSafePrimitive { public: typedef VMSafeBinaryPrimitive  Loaded; };
-class GCSafeTernaryPrimitive  : public GCSafePrimitive { public: typedef VMSafeTernaryPrimitive  Loaded; };
+class GCSafeTernaryPrimitive : public GCSafePrimitive { public: typedef VMSafeTernaryPrimitive Loaded; };
+class GCTrivialMethod  : public GCInvokable      { public: typedef VMTrivialMethod  Loaded; };
+class GCLiteralReturn  : public GCTrivialMethod  { public: typedef VMLiteralReturn  Loaded; };
+class GCGlobalReturn   : public GCTrivialMethod  { public: typedef VMGlobalReturn   Loaded; };
+class GCGetter         : public GCTrivialMethod  { public: typedef VMGetter         Loaded; };
+class GCSetter         : public GCTrivialMethod  { public: typedef VMSetter         Loaded; };
 class GCString         : public GCAbstractObject { public: typedef VMString         Loaded; };
 class GCSymbol         : public GCString         { public: typedef VMSymbol         Loaded; };
 // clang-format on

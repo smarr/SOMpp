@@ -208,14 +208,17 @@ void Interpreter::doPushLocalWithIndex(uint8_t localIndex) {
 }
 
 void Interpreter::doPushArgument(long bytecodeIndex) {
-    uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
-    uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
+    uint8_t argIndex = method->GetBytecode(bytecodeIndex + 1);
+    uint8_t contextLevel = method->GetBytecode(bytecodeIndex + 2);
 
-    assert(!(bc1 == 0 && bc2 == 0 && "should have been BC_PUSH_SELF"));
-    assert(!(bc1 == 1 && bc2 == 0 && "should have been BC_PUSH_ARG_1"));
-    assert(!(bc1 == 2 && bc2 == 0 && "should have been BC_PUSH_ARG_2"));
+    assert(!(argIndex == 0 && contextLevel == 0 &&
+             "should have been BC_PUSH_SELF"));
+    assert(!(argIndex == 1 && contextLevel == 0 &&
+             "should have been BC_PUSH_ARG_1"));
+    assert(!(argIndex == 2 && contextLevel == 0 &&
+             "should have been BC_PUSH_ARG_2"));
 
-    vm_oop_t argument = GetFrame()->GetArgument(bc1, bc2);
+    vm_oop_t argument = GetFrame()->GetArgument(argIndex, contextLevel);
 
     GetFrame()->Push(argument);
 }
@@ -243,8 +246,8 @@ void Interpreter::doPushFieldWithIndex(uint8_t fieldIndex) {
 }
 
 void Interpreter::doPushBlock(long bytecodeIndex) {
-    VMMethod* blockMethod =
-        static_cast<VMMethod*>(method->GetConstant(bytecodeIndex));
+    vm_oop_t block = method->GetConstant(bytecodeIndex);
+    VMInvokable* blockMethod = static_cast<VMInvokable*>(block);
 
     long numOfArgs = blockMethod->GetNumberOfArguments();
 
@@ -260,22 +263,25 @@ void Interpreter::doPushGlobal(long bytecodeIndex) {
     if (global != nullptr) {
         GetFrame()->Push(global);
     } else {
-        vm_oop_t arguments[] = {globalName};
-        vm_oop_t self = GetSelf();
-
-        // check if there is enough space on the stack for this unplanned Send
-        // unknowGlobal: needs 2 slots, one for "this" and one for the argument
-        long additionalStackSlots = 2 - GetFrame()->RemainingStackSize();
-        if (additionalStackSlots > 0) {
-            GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
-            // copy current frame into a bigger one and replace the current
-            // frame
-            SetFrame(
-                VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
-        }
-
-        AS_OBJ(self)->Send(this, unknownGlobal, arguments, 1);
+        SendUnknownGlobal(globalName);
     }
+}
+
+void Interpreter::SendUnknownGlobal(VMSymbol* globalName) {
+    vm_oop_t arguments[] = {globalName};
+    vm_oop_t self = GetSelf();
+
+    // check if there is enough space on the stack for this unplanned Send
+    // unknowGlobal: needs 2 slots, one for "this" and one for the argument
+    long additionalStackSlots = 2 - GetFrame()->RemainingStackSize();
+    if (additionalStackSlots > 0) {
+        GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
+        // copy current frame into a bigger one and replace the current
+        // frame
+        SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
+    }
+
+    AS_OBJ(self)->Send(this, unknownGlobal, arguments, 1);
 }
 
 void Interpreter::doPop() {

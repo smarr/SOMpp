@@ -548,7 +548,7 @@ bool Parser::primary(MethodGenerationContext& mgenc) {
 
             nestedBlock(bgenc);
 
-            VMMethod* blockMethod = bgenc.Assemble();
+            VMInvokable* blockMethod = bgenc.Assemble();
             EmitPUSHBLOCK(mgenc, blockMethod);
             break;
         }

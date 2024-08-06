@@ -125,9 +125,10 @@ void VMMethod::SetCachedFrame(VMFrame* frame) {
 }
 #endif
 
-void VMMethod::Invoke(Interpreter* interp, VMFrame* frame) {
+VMFrame* VMMethod::Invoke(Interpreter* interp, VMFrame* frame) {
     VMFrame* frm = interp->PushNewFrame(this);
     frm->CopyArgumentsFrom(frame);
+    return frm;
 }
 
 void VMMethod::SetHolder(VMClass* hld) {
@@ -232,9 +233,7 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
 
                 if (bytecode == BC_PUSH_FIELD || bytecode == BC_PUSH_FIELD_0 ||
                     bytecode == BC_PUSH_FIELD_1) {
-                    EmitPushFieldWithIndex(
-              mgenc, idx,
-              0 /* dummy, self is looked up dynamically at the moment. */);
+                    EmitPushFieldWithIndex(mgenc, idx);
                 } else {
                     EmitPopFieldWithIndex(
               mgenc, idx,
@@ -322,7 +321,7 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
             }
 
             case BC_PUSH_BLOCK: {
-                VMMethod* blockMethod = (VMMethod*)GetConstant(i);
+                VMInvokable* blockMethod = (VMInvokable*)GetConstant(i);
                 blockMethod->AdaptAfterOuterInlined(1, mgenc);
                 EmitPUSHBLOCK(mgenc, blockMethod);
                 break;

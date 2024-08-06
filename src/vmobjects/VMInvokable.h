@@ -30,6 +30,10 @@
 #include "VMObject.h"
 #include "VMSymbol.h"
 
+class MethodGenerationContext;
+class Variable;
+class VMFrame;
+
 class VMInvokable : public AbstractVMObject {
 public:
     typedef GCInvokable Stored;
@@ -39,7 +43,18 @@ public:
 
     int64_t GetHash() const override { return hash; }
 
-    virtual void Invoke(Interpreter*, VMFrame*) = 0;
+    virtual VMFrame* Invoke(Interpreter*, VMFrame*) = 0;
+    virtual void InlineInto(MethodGenerationContext& mgenc,
+                            bool mergeScope = true) = 0;
+    virtual void MergeScopeInto(
+        MethodGenerationContext&) { /* NOOP for everything but VMMethods */ }
+    virtual void AdaptAfterOuterInlined(
+        uint8_t removedCtxLevel,
+        MethodGenerationContext&
+            mgencWithInlined) { /* NOOP for everything but VMMethods */ }
+    virtual const Variable* GetArgument(size_t, size_t);
+
+    virtual size_t GetNumberOfArguments() const = 0;
 
     virtual bool IsPrimitive() const;
     VMSymbol* GetSignature() const;
@@ -53,6 +68,7 @@ public:
         holder = (GCClass*)INVALID_GC_POINTER;
     }
 
+protected:
     make_testable(public);
 
     int64_t hash;

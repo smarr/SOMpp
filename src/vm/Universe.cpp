@@ -698,7 +698,7 @@ VMArray* Universe::NewArrayList(std::vector<vm_oop_t>& list) const {
     return result;
 }
 
-VMBlock* Universe::NewBlock(VMMethod* method, VMFrame* context,
+VMBlock* Universe::NewBlock(VMInvokable* method, VMFrame* context,
                             long arguments) {
     VMBlock* result = new (GetHeap<HEAP_CLS>(), 0) VMBlock(method, context);
     result->SetClass(GetBlockClassWithArgs(arguments));

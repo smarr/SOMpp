@@ -46,7 +46,7 @@ public:
                             MethodGenerationContext* outer = nullptr);
     ~MethodGenerationContext();
 
-    VMMethod* Assemble();
+    VMInvokable* Assemble();
     VMPrimitive* AssemblePrimitive(bool classSide);
 
     int8_t FindLiteralIndex(vm_oop_t lit);
@@ -107,6 +107,7 @@ public:
 
     void CompleteLexicalScope();
     void MergeIntoScope(LexicalScope& scopeToBeInlined);
+    void InlineAsLocals(vector<Variable>& vars);
 
     uint8_t GetInlinedLocalIdx(const Variable* var) const;
 
@@ -115,7 +116,18 @@ public:
 
     bool OptimizeDupPopPopSequence();
 
+    bool LastBytecodeIs(size_t indexFromEnd, uint8_t bytecode);
+
 private:
+    VMTrivialMethod* assembleTrivialMethod();
+    VMTrivialMethod* assembleLiteralReturn(uint8_t pushCandidate);
+    VMTrivialMethod* assembleGlobalReturn();
+    VMTrivialMethod* assembleFieldGetter(uint8_t pushCandidate);
+    VMTrivialMethod* assembleFieldSetter();
+    VMTrivialMethod* assembleFieldGetterFromReturn(uint8_t pushCandidate) {
+        return nullptr;
+    }
+
     bool optimizeIncFieldPush() {
         // TODO: implement
         return false;
@@ -127,20 +139,21 @@ private:
     bool hasOneLiteralBlockArgument();
     bool hasTwoLiteralBlockArguments();
     uint8_t lastBytecodeAt(size_t indexFromEnd);
-    bool lastBytecodeIs(size_t indexFromEnd, uint8_t bytecode);
+
     uint8_t lastBytecodeIsOneOf(size_t indexFromEnd,
                                 uint8_t (*predicate)(uint8_t));
 
     size_t getOffsetOfLastBytecode(size_t indexFromEnd);
 
-    std::tuple<vm_oop_t, vm_oop_t> extractBlockMethodsAndRemoveBytecodes();
-    vm_oop_t extractBlockMethodAndRemoveBytecode();
+    std::tuple<VMInvokable*, VMInvokable*>
+    extractBlockMethodsAndRemoveBytecodes();
+    VMInvokable* extractBlockMethodAndRemoveBytecode();
 
-    vm_oop_t getLastBlockMethodAndFreeLiteral(uint8_t blockLiteralIdx);
+    VMInvokable* getLastBlockMethodAndFreeLiteral(uint8_t blockLiteralIdx);
 
     void completeJumpsAndEmitReturningNil(Parser& parser, size_t loopBeginIdx,
                                           size_t jumpOffsetIdxToSkipLoopBody);
-    void inlineAsLocals(vector<Variable>& vars);
+
     void checkJumpOffset(size_t jumpOffset, uint8_t bytecode);
     void resetLastBytecodeBuffer();
 

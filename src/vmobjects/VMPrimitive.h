@@ -27,6 +27,7 @@
  */
 
 #include "PrimitiveRoutine.h"
+#include "Signature.h"
 #include "VMInvokable.h"
 #include "VMObject.h"
 
@@ -52,9 +53,13 @@ public:
     void SetEmpty(bool value) { empty = value; };
     VMPrimitive* CloneForMovingGC() const override;
 
-    void Invoke(Interpreter* interp, VMFrame* frm) override {
+    VMFrame* Invoke(Interpreter* interp, VMFrame* frm) override {
         routine->Invoke(interp, frm);
+        return nullptr;
     };
+
+    void InlineInto(MethodGenerationContext& mgenc,
+                    bool mergeScope = true) final;
 
     bool IsPrimitive() const override { return true; };
 
@@ -67,6 +72,10 @@ public:
     }
 
     StdString AsDebugString() const override;
+
+    inline size_t GetNumberOfArguments() const final {
+        return Signature::GetNumberOfArguments(load_ptr(signature));
+    }
 
 private:
     void EmptyRoutine(Interpreter*, VMFrame*);
