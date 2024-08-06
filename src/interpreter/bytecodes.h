@@ -69,21 +69,22 @@
 #define BC_SUPER_SEND             33
 #define BC_RETURN_LOCAL           34
 #define BC_RETURN_NON_LOCAL       35
-#define BC_INC                    36
-#define BC_JUMP                   37
-#define BC_JUMP_ON_FALSE_POP      38
-#define BC_JUMP_ON_TRUE_POP       39
-#define BC_JUMP_ON_FALSE_TOP_NIL  40
-#define BC_JUMP_ON_TRUE_TOP_NIL   41
-#define BC_JUMP_IF_GREATER        42
-#define BC_JUMP_BACKWARD          43
-#define BC_JUMP2                  44
-#define BC_JUMP2_ON_FALSE_POP     45
-#define BC_JUMP2_ON_TRUE_POP      46
-#define BC_JUMP2_ON_FALSE_TOP_NIL 47
-#define BC_JUMP2_ON_TRUE_TOP_NIL  48
-#define BC_JUMP2_IF_GREATER       49
-#define BC_JUMP2_BACKWARD         50
+#define BC_RETURN_SELF            36
+#define BC_INC                    37
+#define BC_JUMP                   38
+#define BC_JUMP_ON_FALSE_POP      39
+#define BC_JUMP_ON_TRUE_POP       40
+#define BC_JUMP_ON_FALSE_TOP_NIL  41
+#define BC_JUMP_ON_TRUE_TOP_NIL   42
+#define BC_JUMP_IF_GREATER        43
+#define BC_JUMP_BACKWARD          44
+#define BC_JUMP2                  45
+#define BC_JUMP2_ON_FALSE_POP     46
+#define BC_JUMP2_ON_TRUE_POP      47
+#define BC_JUMP2_ON_FALSE_TOP_NIL 48
+#define BC_JUMP2_ON_TRUE_TOP_NIL  49
+#define BC_JUMP2_IF_GREATER       50
+#define BC_JUMP2_BACKWARD         51
 
 #define _LAST_BYTECODE BC_JUMP2_BACKWARD
 
@@ -104,7 +105,6 @@
 #define BC_RETURN_FIELD_0    246
 #define BC_RETURN_FIELD_1    245
 #define BC_RETURN_FIELD_2    244
-#define BC_RETURN_SELF       243
 // clang-format on
 
 // properties of the bytecodes

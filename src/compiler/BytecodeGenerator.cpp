@@ -246,6 +246,10 @@ void EmitSUPERSEND(MethodGenerationContext& mgenc, VMSymbol* msg) {
     Emit2(mgenc, BC_SUPER_SEND, idx, stackEffect);
 }
 
+void EmitRETURNSELF(MethodGenerationContext& mgenc) {
+    Emit1(mgenc, BC_RETURN_SELF, 0);
+}
+
 void EmitRETURNLOCAL(MethodGenerationContext& mgenc) {
     Emit1(mgenc, BC_RETURN_LOCAL, 0);
 }
