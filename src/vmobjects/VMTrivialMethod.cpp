@@ -1,5 +1,7 @@
 #include "VMTrivialMethod.h"
 
+#include <cassert>
+#include <cstddef>
 #include <string>
 #include <vector>
 
@@ -27,6 +29,14 @@ VMTrivialMethod* MakeGlobalReturn(VMSymbol* sig, vector<Variable>& arguments,
     VMGlobalReturn* result =
         new (GetHeap<HEAP_CLS>(), 0) VMGlobalReturn(sig, arguments, globalName);
     LOG_ALLOCATION("VMGlobalReturn", result->GetObjectSize());
+    return result;
+}
+
+VMTrivialMethod* MakeGetter(VMSymbol* sig, vector<Variable>& arguments,
+                            size_t fieldIndex) {
+    VMGetter* result =
+        new (GetHeap<HEAP_CLS>(), 0) VMGetter(sig, arguments, fieldIndex);
+    LOG_ALLOCATION("VMGetter", result->GetObjectSize());
     return result;
 }
 
@@ -91,4 +101,42 @@ AbstractVMObject* VMGlobalReturn::CloneForMovingGC() const {
     VMGlobalReturn* prim =
         new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMGlobalReturn(*this);
     return prim;
+}
+
+VMFrame* VMGetter::Invoke(Interpreter*, VMFrame* frame) {
+    vm_oop_t self = nullptr;
+    for (int i = 0; i < numberOfArguments; i += 1) {
+        self = frame->Pop();
+    }
+
+    assert(self != nullptr);
+
+    vm_oop_t result;
+    if (unlikely(IS_TAGGED(self))) {
+        result = nullptr;
+        Universe()->ErrorExit("Integers do not have fields!");
+    } else {
+        result = ((VMObject*)self)->GetField(fieldIndex);
+    }
+
+    frame->Push(result);
+
+    return nullptr;
+}
+
+void VMGetter::InlineInto(MethodGenerationContext& mgenc, bool) {
+    EmitPushFieldWithIndex(mgenc, fieldIndex);
+}
+
+AbstractVMObject* VMGetter::CloneForMovingGC() const {
+    VMGetter* prim = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMGetter(*this);
+    return prim;
+}
+
+void VMGetter::WalkObjects(walk_heap_fn walk) {
+    VMInvokable::WalkObjects(walk);
+}
+
+std::string VMGetter::AsDebugString() const {
+    return "VMGetter(fieldIndex: " + to_string(fieldIndex) + ")";
 }

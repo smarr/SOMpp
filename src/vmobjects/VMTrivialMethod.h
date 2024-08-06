@@ -44,6 +44,8 @@ VMTrivialMethod* MakeLiteralReturn(VMSymbol* sig, vector<Variable>& arguments,
                                    vm_oop_t literal);
 VMTrivialMethod* MakeGlobalReturn(VMSymbol* sig, vector<Variable>& arguments,
                                   VMSymbol* globalName);
+VMTrivialMethod* MakeGetter(VMSymbol* sig, vector<Variable>& arguments,
+                            size_t fieldIndex);
 
 class VMLiteralReturn : public VMTrivialMethod {
 public:
@@ -122,5 +124,40 @@ public:
 
 private:
     GCSymbol* globalName;
+    int numberOfArguments;
+};
+
+class VMGetter : public VMTrivialMethod {
+public:
+    typedef GCGetter Stored;
+
+    VMGetter(VMSymbol* sig, vector<Variable>& arguments, size_t fieldIndex)
+        : VMTrivialMethod(sig, arguments), fieldIndex(fieldIndex),
+          numberOfArguments(Signature::GetNumberOfArguments(sig)) {
+        write_barrier(this, sig);
+    }
+
+    inline size_t GetObjectSize() const override {
+        return sizeof(VMLiteralReturn);
+    }
+
+    VMFrame* Invoke(Interpreter*, VMFrame*) override;
+    void InlineInto(MethodGenerationContext& mgenc,
+                    bool mergeScope = true) final;
+
+    AbstractVMObject* CloneForMovingGC() const final;
+
+    void MarkObjectAsInvalid() final { VMTrivialMethod::MarkObjectAsInvalid(); }
+
+    bool IsMarkedInvalid() const final {
+        return signature == (GCSymbol*)INVALID_GC_POINTER;
+    }
+
+    void WalkObjects(walk_heap_fn) override;
+
+    std::string AsDebugString() const final;
+
+private:
+    size_t fieldIndex;
     int numberOfArguments;
 };

@@ -148,45 +148,61 @@ void TrivialMethodTest::testUnknownGlobalInBlock() {
     CPPUNIT_ASSERT_MESSAGE(expected.data(), result);
 }
 
+void TrivialMethodTest::testFieldGetter0() {
+    addField("field");
+    methodToBytecode("test = ( ^ field )");
+
+    VMInvokable* m = _mgenc->Assemble();
+
+    std::string expected = "Expected to be trivial: test = ( ^ field )";
+    bool result = IsGetter(m);
+    CPPUNIT_ASSERT_MESSAGE(expected.data(), result);
+}
+
+void TrivialMethodTest::testFieldGetterN() {
+    addField("a");
+    addField("b");
+    addField("c");
+    addField("d");
+    addField("e");
+    addField("field");
+    methodToBytecode("test = ( ^ field )");
+
+    VMInvokable* m = _mgenc->Assemble();
+
+    std::string expected = "Expected to be trivial: test = ( ^ field )";
+    bool result = IsGetter(m);
+    CPPUNIT_ASSERT_MESSAGE(expected.data(), result);
+}
+
+void TrivialMethodTest::testNonTrivialFieldGetter0() {
+    addField("field");
+    methodToBytecode("test = ( 0. ^ field )");
+
+    VMInvokable* m = _mgenc->Assemble();
+
+    std::string expected = "Expected to be non-trivial: test = ( 0. ^ field )";
+    bool result = !IsGetter(m);
+    CPPUNIT_ASSERT_MESSAGE(expected.data(), result);
+}
+
+void TrivialMethodTest::testNonTrivialFieldGetterN() {
+    addField("a");
+    addField("b");
+    addField("c");
+    addField("d");
+    addField("e");
+    addField("field");
+    methodToBytecode("test = ( 0. ^ field )");
+
+    VMInvokable* m = _mgenc->Assemble();
+
+    std::string expected = "Expected to be non-trivial: test = ( 0. ^ field )";
+    bool result = !IsGetter(m);
+    CPPUNIT_ASSERT_MESSAGE(expected.data(), result);
+}
+
 /*
- def test_field_getter_0(cgenc, mgenc):
-     add_field(cgenc, "field")
-     body_or_none = parse_method(mgenc, "test = ( ^ field )")
-     m = mgenc.assemble(body_or_none)
-     assert isinstance(m, FieldRead)
-
-
- def test_field_getter_n(cgenc, mgenc):
-     add_field(cgenc, "a")
-     add_field(cgenc, "b")
-     add_field(cgenc, "c")
-     add_field(cgenc, "d")
-     add_field(cgenc, "e")
-     add_field(cgenc, "field")
-     body_or_none = parse_method(mgenc, "test = ( ^ field )")
-     m = mgenc.assemble(body_or_none)
-     assert isinstance(m, FieldRead)
-
-
- def test_non_trivial_getter_0(cgenc, mgenc):
-     add_field(cgenc, "field")
-     body = parse_method(mgenc, "test = ( 0. ^ field )")
-     m = mgenc.assemble(body)
-     assert isinstance(m, AstMethod) or isinstance(m, BcMethod)
-
-
- def test_non_trivial_getter_n(cgenc, mgenc):
-     add_field(cgenc, "a")
-     add_field(cgenc, "b")
-     add_field(cgenc, "c")
-     add_field(cgenc, "d")
-     add_field(cgenc, "e")
-     add_field(cgenc, "field")
-     body = parse_method(mgenc, "test = ( 0. ^ field )")
-     m = mgenc.assemble(body)
-     assert isinstance(m, AstMethod) or isinstance(m, BcMethod)
-
-
  @pytest.mark.parametrize(
      "source", ["field := val", "field := val.", "field := val. ^ self"]
  )

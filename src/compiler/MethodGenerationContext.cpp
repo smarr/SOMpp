@@ -168,6 +168,30 @@ VMTrivialMethod* MethodGenerationContext::assembleGlobalReturn() {
     return MakeGlobalReturn(signature, arguments, globalName);
 }
 
+VMTrivialMethod* MethodGenerationContext::assembleFieldGetter(
+    uint8_t pushCandidate) {
+    if (bytecode.size() != (Bytecode::GetBytecodeLength(pushCandidate) +
+                            Bytecode::GetBytecodeLength(BC_RETURN_LOCAL))) {
+        return nullptr;
+    }
+
+    size_t fieldIndex;
+    if (pushCandidate == BC_PUSH_FIELD_0) {
+        fieldIndex = 0;
+    } else if (pushCandidate == BC_PUSH_FIELD_1) {
+        fieldIndex = 1;
+    } else {
+        assert(pushCandidate == BC_PUSH_FIELD);
+        // -2: -1 to skip over a 1-byte BC_RETURN_LOCAL,
+        // and of course -1 for length vs offset
+        fieldIndex = bytecode.at(bytecode.size() - 2);
+        assert(fieldIndex > 1 &&
+               "BC_PUSH_FIELD with index 0 or 1 is not optimal");
+    }
+
+    return MakeGetter(signature, arguments, fieldIndex);
+}
+
 VMPrimitive* MethodGenerationContext::AssemblePrimitive(bool classSide) {
     return VMPrimitive::GetEmptyPrimitive(signature, classSide);
 }

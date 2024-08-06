@@ -13,6 +13,10 @@ class TrivialMethodTest : public TestWithParsing {
     CPPUNIT_TEST(testGlobalReturn);
     CPPUNIT_TEST(testNonTrivialGlobalReturn);
     CPPUNIT_TEST(testUnknownGlobalInBlock);
+    CPPUNIT_TEST(testFieldGetter0);
+    CPPUNIT_TEST(testFieldGetterN);
+    CPPUNIT_TEST(testNonTrivialFieldGetter0);
+    CPPUNIT_TEST(testNonTrivialFieldGetterN);
     CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -33,4 +37,10 @@ private:
 
     void testNonTrivialGlobalReturn();
     void testUnknownGlobalInBlock();
+
+    void testFieldGetter0();
+    void testFieldGetterN();
+
+    void testNonTrivialFieldGetter0();
+    void testNonTrivialFieldGetterN();
 };

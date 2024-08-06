@@ -74,6 +74,7 @@ public:
     inline long GetNumberOfFields() const override;
 
     inline vm_oop_t GetField(size_t index) const {
+        assert(numberOfFields > index);
         vm_oop_t result = load_ptr(FIELDS[index]);
         assert(IsValidObject(result));
         return result;
