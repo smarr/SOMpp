@@ -55,6 +55,9 @@ class BytecodeGenerationTest : public TestWithParsing {
     CPPUNIT_TEST(testIfReturnNonLocal);
 
     CPPUNIT_TEST(testJumpQueuesOrdering);
+    CPPUNIT_TEST(testNestedIfs);
+    CPPUNIT_TEST(testNestedIfsAndLocals);
+    CPPUNIT_TEST(testFieldReadInlining);
 
     CPPUNIT_TEST_SUITE_END();
 
@@ -129,4 +132,9 @@ private:
     void testInliningOfToDo();
 
     void testJumpQueuesOrdering();
+
+    void testNestedIfs();
+    void testNestedIfsAndLocals();
+
+    void testFieldReadInlining();
 };

@@ -102,8 +102,8 @@ void TestWithParsing::check(std::vector<uint8_t> actual,
         BC expectedBc = expected.at(i);
 
         char msg[1000];
-        snprintf(msg, 1000, "Bytecode %zu expected %s but got %s", i,
-                 Bytecode::GetBytecodeName(expectedBc.bytecode),
+        snprintf(msg, 1000, "Bytecode no %zu (at: %zu) expected %s but got %s",
+                 i, bci, Bytecode::GetBytecodeName(expectedBc.bytecode),
                  Bytecode::GetBytecodeName(actualBc));
         if (expectedBc.bytecode != actualBc) {
             dump(_mgenc);

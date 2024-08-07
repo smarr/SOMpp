@@ -595,6 +595,62 @@ void BytecodeGenerationTest::ifReturnNonLocal(std::string selector,
     tearDown();
 }
 
+void BytecodeGenerationTest::testNestedIfs() {
+    addField("field");
+    auto bytecodes = methodToBytecode(R"""(      test: arg = (
+                                                     true ifTrue: [
+                                                         false ifFalse: [
+                                                           ^ field - arg
+                                                         ]
+                                                     ]
+                                                 ) )""");
+    check(
+        bytecodes,
+        {BC_PUSH_CONSTANT_0, BC(BC_JUMP_ON_FALSE_TOP_NIL, 12, 0),
+         BC_PUSH_CONSTANT_1, BC(BC_JUMP_ON_TRUE_TOP_NIL, 8, 0), BC_PUSH_FIELD_0,
+         BC_PUSH_ARG_1, BC(BC_SEND, 2), BC_RETURN_LOCAL, BC_RETURN_SELF});
+}
+
+void BytecodeGenerationTest::testNestedIfsAndLocals() {
+    addField("field");
+    auto bytecodes = methodToBytecode(R"""(
+            test: arg = (
+               | a b c d |
+               a := b.
+               true ifTrue: [
+                 | e f g |
+                 e := 2.
+                 c := 3.
+                 false ifFalse: [
+                   | h i j |
+                   h := 1.
+                   ^ i - j - f - g - d ] ] )
+        )""");
+    check(bytecodes, {BC_PUSH_LOCAL_1,
+                      BC_POP_LOCAL_0,
+                      BC_PUSH_CONSTANT_0,
+                      BC(BC_JUMP_ON_FALSE_TOP_NIL, 42, 0),
+                      BC_PUSH_CONSTANT_1,
+                      BC(BC_POP_LOCAL, 4, 0),
+                      BC_PUSH_CONSTANT_2,
+                      BC_POP_LOCAL_2,
+                      BC(BC_PUSH_CONSTANT, 3),
+                      BC(BC_JUMP_ON_TRUE_TOP_NIL, 31, 0),
+                      BC_PUSH_1,
+                      BC(BC_POP_LOCAL, 7, 0),
+                      BC(BC_PUSH_LOCAL, 8, 0),
+                      BC(BC_PUSH_LOCAL, 9, 0),
+                      BC(BC_SEND, 4),
+                      BC(BC_PUSH_LOCAL, 5, 0),
+                      BC(BC_SEND, 4),
+                      BC(BC_PUSH_LOCAL, 6, 0),
+                      BC(BC_SEND, 4),
+                      BC(BC_PUSH_LOCAL, 3, 0),
+                      BC(BC_SEND, 4),
+                      BC_RETURN_LOCAL,
+                      BC_RETURN_SELF});
+}
+
 /*
  @pytest.mark.parametrize(
      "operator,bytecode",
@@ -657,70 +713,6 @@ void BytecodeGenerationTest::ifReturnNonLocal(std::string selector,
              Bytecodes.inc,
              Bytecodes.pop,
              Bytecodes.push_constant,
-         ],
-     )
-
-
- def test_nested_ifs(cgenc, mgenc):
-     add_field(cgenc, "field")
-     bytecodes = method_to_bytecodes(
-         mgenc,
-         """
-         test: arg = (
-             true ifTrue: [
-                 false ifFalse: [
-                   ^ field - arg
-                 ]
-             ]
-         )""",
-     )
-
-     assert len(bytecodes) == 16
-     check(
-         bytecodes,
-         [
-             Bytecodes.push_constant_0,
-             BC(Bytecodes.jump_on_false_top_nil, 14, note="jump offset"),
-             (5, Bytecodes.jump_on_true_top_nil),
-             Bytecodes.push_field_0,
-             BC(Bytecodes.push_argument, 1, 0),
-             Bytecodes.send_2,
-             Bytecodes.return_local,
-             Bytecodes.return_self,
-         ],
-     )
-
-
- def test_nested_ifs_and_locals(cgenc, mgenc):
-     add_field(cgenc, "field")
-     bytecodes = method_to_bytecodes(
-         mgenc,
-         """
-         test: arg = (
-           | a b c d |
-           a := b.
-           true ifTrue: [
-             | e f g |
-             e := 2.
-             c := 3.
-             false ifFalse: [
-               | h i j |
-               h := 1.
-               ^ i - j - f - g - d ] ] )""",
-     )
-
-     assert len(bytecodes) == 54
-     check(
-         bytecodes,
-         [
-             BC(Bytecodes.push_local, 1, 0),
-             BC(Bytecodes.pop_local, 0, 0),
-             (7, BC(Bytecodes.jump_on_false_top_nil, 46)),
-             (12, BC(Bytecodes.pop_local, 4, 0)),
-             (17, BC(Bytecodes.pop_local, 2, 0)),
-             (22, BC(Bytecodes.jump_on_true_top_nil, 31)),
-             (26, BC(Bytecodes.pop_local, 7, 0)),
-             (47, BC(Bytecodes.push_local, 3, 0)),
          ],
      )
 
@@ -1108,33 +1100,22 @@ void BytecodeGenerationTest::ifReturnNonLocal(std::string selector,
              bytecode,
          ],
      )
-
-
-
-
-
- def test_field_read_inlining(cgenc, mgenc):
-     add_field(cgenc, "field")
-     bytecodes = method_to_bytecodes(mgenc, "test = ( true and: [ field ] )")
-
-     assert len(bytecodes) == 10
-     check(
-         bytecodes,
-         [
-             Bytecodes.push_constant_0,
-             BC(Bytecodes.jump_on_false_pop, 7),
-             # true branch
-             Bytecodes.push_field_0,
-             BC(Bytecodes.jump, 4),
-             # false branch, jump_on_true target, push true
-             BC_PUSH_CONSTANT_2,
-             # target of the jump in the true branch
-             Bytecodes.return_self,
-         ],
-     )
-
-
  */
+
+void BytecodeGenerationTest::testFieldReadInlining() {
+    addField("field");
+    auto bytecodes = methodToBytecode("test = ( true and: [ field ] )");
+    check(bytecodes, {BC_PUSH_CONSTANT_0, BC(BC_JUMP_ON_FALSE_POP, 7, 0),
+
+                      // true branch
+                      BC_PUSH_FIELD_0, BC(BC_JUMP, 4, 0),
+
+                      // false branch, jump_on_true target, push true
+                      BC_PUSH_CONSTANT_1,
+
+                      // target of the jump in the true branch
+                      BC_RETURN_SELF});
+}
 
 void BytecodeGenerationTest::testJumpQueuesOrdering() {
     std::priority_queue<Jump> jumps;
