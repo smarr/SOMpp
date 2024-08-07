@@ -390,6 +390,14 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
                 }
                 break;
             }
+            case BC_RETURN_FIELD_0:
+            case BC_RETURN_FIELD_1:
+            case BC_RETURN_FIELD_2: {
+                uint8_t index = bytecode - BC_RETURN_FIELD_0;
+                EmitPushFieldWithIndex(mgenc, index);
+                break;
+            }
+
             case BC_JUMP:
             case BC_JUMP_ON_TRUE_TOP_NIL:
             case BC_JUMP_ON_FALSE_TOP_NIL:
@@ -430,10 +438,7 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
 
             case BC_HALT:
             case BC_PUSH_SELF:
-            case BC_RETURN_SELF:
-            case BC_RETURN_FIELD_0:
-            case BC_RETURN_FIELD_1:
-            case BC_RETURN_FIELD_2: {
+            case BC_RETURN_SELF: {
                 char msg[120];
                 snprintf(
                     msg, 120,

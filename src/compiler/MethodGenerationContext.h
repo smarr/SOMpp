@@ -115,6 +115,7 @@ public:
     void PatchJumpOffsetToPointToNextInstruction(size_t indexOfOffset);
 
     bool OptimizeDupPopPopSequence();
+    bool OptimizeReturnField();
 
     bool LastBytecodeIs(size_t indexFromEnd, uint8_t bytecode);
 
@@ -124,9 +125,7 @@ private:
     VMTrivialMethod* assembleGlobalReturn();
     VMTrivialMethod* assembleFieldGetter(uint8_t pushCandidate);
     VMTrivialMethod* assembleFieldSetter();
-    VMTrivialMethod* assembleFieldGetterFromReturn(uint8_t pushCandidate) {
-        return nullptr;
-    }
+    VMTrivialMethod* assembleFieldGetterFromReturn(uint8_t returnCandidate);
 
     bool optimizeIncFieldPush() {
         // TODO: implement

@@ -42,6 +42,9 @@ vm_oop_t Start() {
                            &&LABEL_BC_RETURN_LOCAL,
                            &&LABEL_BC_RETURN_NON_LOCAL,
                            &&LABEL_BC_RETURN_SELF,
+                           &&LABEL_BC_RETURN_FIELD_0,
+                           &&LABEL_BC_RETURN_FIELD_1,
+                           &&LABEL_BC_RETURN_FIELD_2,
                            &&LABEL_BC_INC,
                            &&LABEL_BC_JUMP,
                            &&LABEL_BC_JUMP_ON_FALSE_POP,
@@ -269,6 +272,21 @@ LABEL_BC_RETURN_SELF: {
     popFrameAndPushResult(GetFrame()->GetArgumentInCurrentContext(0));
     DISPATCH_NOGC();
 }
+
+LABEL_BC_RETURN_FIELD_0:
+    PROLOGUE(1);
+    doReturnFieldWithIndex(0);
+    DISPATCH_NOGC();
+
+LABEL_BC_RETURN_FIELD_1:
+    PROLOGUE(1);
+    doReturnFieldWithIndex(1);
+    DISPATCH_NOGC();
+
+LABEL_BC_RETURN_FIELD_2:
+    PROLOGUE(1);
+    doReturnFieldWithIndex(2);
+    DISPATCH_NOGC();
 
 LABEL_BC_INC:
     PROLOGUE(1);

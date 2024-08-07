@@ -58,6 +58,7 @@ void EmitSUPERSEND(MethodGenerationContext& mgenc, VMSymbol* msg);
 void EmitRETURNSELF(MethodGenerationContext& mgenc);
 void EmitRETURNLOCAL(MethodGenerationContext& mgenc);
 void EmitRETURNNONLOCAL(MethodGenerationContext& mgenc);
+void EmitRETURNFIELD(MethodGenerationContext& mgenc, size_t index);
 
 void EmitINC(MethodGenerationContext& mgenc);
 void EmitDupSecond(MethodGenerationContext& mgenc);

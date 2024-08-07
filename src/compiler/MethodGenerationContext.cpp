@@ -193,6 +193,34 @@ VMTrivialMethod* MethodGenerationContext::assembleFieldGetter(
     return MakeGetter(signature, arguments, fieldIndex);
 }
 
+VMTrivialMethod* MethodGenerationContext::assembleFieldGetterFromReturn(
+    uint8_t returnCandidate) {
+    if (bytecode.size() != Bytecode::GetBytecodeLength(returnCandidate)) {
+        return nullptr;
+    }
+
+    size_t index = 0;
+    switch (returnCandidate) {
+        case BC_RETURN_FIELD_0:
+            index = 0;
+            break;
+
+        case BC_RETURN_FIELD_1:
+            index = 1;
+            break;
+
+        case BC_RETURN_FIELD_2:
+            index = 2;
+            break;
+
+        default:
+            ErrorExit("Unsupported bytecode in assembleFieldGetterFromReturn");
+            break;
+    }
+
+    return MakeGetter(signature, arguments, index);
+}
+
 VMTrivialMethod* MethodGenerationContext::assembleFieldSetter() {
     uint8_t popCandidate = lastBytecodeIsOneOf(1, IsPopFieldBytecode);
     if (popCandidate == BC_INVALID) {
@@ -876,5 +904,42 @@ bool MethodGenerationContext::OptimizeDupPopPopSequence() {
     last4Bytecodes[1] = last4Bytecodes[0];
     last4Bytecodes[0] = BC_INVALID;
 
+    return true;
+}
+
+bool MethodGenerationContext::OptimizeReturnField() {
+    if (isCurrentlyInliningABlock) {
+        return false;
+    }
+
+    uint8_t bc = lastBytecodeAt(0);
+    uint8_t index = 0;
+
+    switch (bc) {
+        case BC_PUSH_FIELD_0:
+            index = 0;
+            break;
+
+        case BC_PUSH_FIELD_1:
+            index = 1;
+            break;
+
+        case BC_PUSH_FIELD:
+            index = bytecode.at(bytecode.size() - 1);
+            assert(index > 1);
+            break;
+
+        default:
+            return false;
+    }
+
+    if (index > 2) {
+        // don't have a special bytecode for this
+        return false;
+    }
+
+    removeLastBytecodes(1);
+    resetLastBytecodeBuffer();
+    EmitRETURNFIELD(*this, index);
     return true;
 }
