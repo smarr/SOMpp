@@ -819,154 +819,109 @@ void BytecodeGenerationTest::testNestedIfsAndLocals() {
              (16, BC(Bytecodes.push_argument, 1, 0, note="arg e")),
          ],
      )
+*/
 
+void BytecodeGenerationTest::testBlockIfTrueArg() {
+    auto bytecodes = blockToBytecode(R"""(
+               [:arg | #start.
+                   self method ifTrue: [ arg ].
+                   #end
+               ] )""");
 
- def test_block_if_true_arg(bgenc):
-     bytecodes = block_to_bytecodes(
-         bgenc,
-         """
-         [:arg | #start.
-             self method ifTrue: [ arg ].
-             #end
-         ]""",
-     )
+    check(bytecodes,
+          {BC_PUSH_CONSTANT_0, BC_POP, BC(BC_PUSH_ARGUMENT, 0, 1),
+           BC(BC_SEND, 1), BC(BC_JUMP_ON_FALSE_TOP_NIL, 4, 0), BC_PUSH_ARG_1,
+           BC_POP, BC_PUSH_CONSTANT_2, BC_RETURN_LOCAL});
+}
 
-     assert len(bytecodes) == 17
-     check(
-         bytecodes,
-         [
-             (5, Bytecodes.send_1),
-             BC(Bytecodes.jump_on_false_top_nil, 6),
-             BC(Bytecodes.push_argument, 1, 0),
-             Bytecodes.pop,
-             Bytecodes.push_constant,
-         ],
-     )
+void BytecodeGenerationTest::testBlockIfTrueMethodArg() {
+    ensureMGenC();
+    std::string argName = "arg";
+    _mgenc->AddArgument(argName, {1, 1});
 
+    auto bytecodes = blockToBytecode(R"""(
+               [ #start.
+                   self method ifTrue: [ arg ].
+                   #end
+               ] )""");
 
- def test_block_if_true_method_arg(mgenc, bgenc):
-     mgenc.add_argument("arg", None, None)
-     bytecodes = block_to_bytecodes(
-         bgenc,
-         """
-         [ #start.
-             self method ifTrue: [ arg ].
-             #end
-         ]""",
-     )
+    check(bytecodes, {BC_PUSH_CONSTANT_0, BC_POP, BC(BC_PUSH_ARGUMENT, 0, 1),
+                      BC(BC_SEND, 1), BC(BC_JUMP_ON_FALSE_TOP_NIL, 6, 0),
+                      BC(BC_PUSH_ARGUMENT, 1, 1), BC_POP, BC_PUSH_CONSTANT_2,
+                      BC_RETURN_LOCAL});
+}
 
-     assert len(bytecodes) == 17
-     check(
-         bytecodes,
-         [
-             (7, BC(Bytecodes.jump_on_false_top_nil, 6)),
-             BC(Bytecodes.push_argument, 1, 1),
-             Bytecodes.pop,
-             Bytecodes.push_constant,
-         ],
-     )
+void BytecodeGenerationTest::testIfTrueIfFalseReturn() {
+    ifTrueIfFalseReturn("ifTrue:", "ifFalse:", BC(BC_JUMP_ON_FALSE_POP, 8, 0));
+    ifTrueIfFalseReturn("ifFalse:", "ifTrue:", BC(BC_JUMP_ON_TRUE_POP, 8, 0));
+}
+void BytecodeGenerationTest::ifTrueIfFalseReturn(std::string sel1,
+                                                 std::string sel2, BC bc) {
+    std::string source = "test: arg1 with: arg2 = ( #start. ^ self method " +
+                         sel1 + " [ ^ arg1 ] " + sel2 + " [ arg2 ] )";
+    auto bytecodes = methodToBytecode(source.data());
 
+    check(bytecodes, {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_SELF, BC(BC_SEND, 1),
+                      bc, BC_PUSH_ARG_1, BC_RETURN_LOCAL, BC(BC_JUMP, 4, 0),
+                      BC_PUSH_ARG_2, BC_RETURN_LOCAL});
+    tearDown();
+}
 
+void BytecodeGenerationTest::testBlockIfReturnNonLocal() {
+    blockIfReturnNonLocal("ifTrue:", BC(BC_JUMP_ON_FALSE_TOP_NIL, 5, 0));
+    blockIfReturnNonLocal("ifFalse:", BC(BC_JUMP_ON_TRUE_TOP_NIL, 5, 0));
+}
 
- @pytest.mark.parametrize(
-     "sel1,sel2,jump_bytecode",
-     [
-         ("ifTrue:", "ifFalse:", Bytecodes.jump_on_false_pop),
-         ("ifFalse:", "ifTrue:", Bytecodes.jump_on_true_pop),
-     ],
- )
- def test_if_true_if_false_return(mgenc, sel1, sel2, jump_bytecode):
-     bytecodes = method_to_bytecodes(
-         mgenc,
-         """
-         test: arg1 with: arg2 = (
-             #start.
-             ^ self method SEL1 [ ^ arg1 ] SEL2 [ arg2 ]
-         )""".replace(
-             "SEL1", sel1
-         ).replace(
-             "SEL2", sel2
-         ),
-     )
-
-     assert len(bytecodes) == 21
-     check(
-         bytecodes,
-         [
-             (7, BC(jump_bytecode, 10)),
-             (14, BC(Bytecodes.jump, 6)),
-         ],
-     )
-
-
-
-
- @pytest.mark.parametrize(
-     "if_selector,jump_bytecode",
-     [
-         ("ifTrue:", Bytecodes.jump_on_false_top_nil),
-         ("ifFalse:", Bytecodes.jump_on_true_top_nil),
-     ],
- )
- def test_block_if_return_non_local(bgenc, if_selector, jump_bytecode):
-     bytecodes = block_to_bytecodes(
-         bgenc,
-         """
-         [:arg |
+void BytecodeGenerationTest::blockIfReturnNonLocal(std::string sel, BC bc) {
+    std::string source = R"""(      [:arg |
              #start.
              self method IF_SELECTOR [ ^ arg ].
              #end
-         ]""".replace(
-             "IF_SELECTOR", if_selector
-         ),
-     )
+         ] )""";
+    bool wasReplaced = ReplacePattern(source, "IF_SELECTOR", sel);
+    assert(wasReplaced);
 
-     assert len(bytecodes) == 19
-     check(
-         bytecodes,
-         [
-             (5, Bytecodes.send_1),
-             BC(jump_bytecode, 8),
-             BC(Bytecodes.push_argument, 1, 0),
-             BC(Bytecodes.return_non_local, 1),
-             Bytecodes.pop,
-         ],
-     )
+    auto bytecodes = blockToBytecode(source.data());
+    check(bytecodes,
+          {BC_PUSH_CONSTANT_0, BC_POP, BC(BC_PUSH_ARGUMENT, 0, 1),
+           BC(BC_SEND, 1), bc, BC_PUSH_ARG_1, BC_RETURN_NON_LOCAL, BC_POP,
+           BC_PUSH_CONSTANT_2, BC_RETURN_LOCAL});
 
+    tearDown();
+}
 
+void BytecodeGenerationTest::testTrivialMethodInlining() {
+    trivialMethodInlining("0", BC_PUSH_0);
+    trivialMethodInlining("1", BC_PUSH_1);
+    trivialMethodInlining("-10", BC_PUSH_CONSTANT_1);
+    trivialMethodInlining("3333", BC_PUSH_CONSTANT_1);
+    trivialMethodInlining("'str'", BC_PUSH_CONSTANT_1);
+    trivialMethodInlining("#sym", BC_PUSH_CONSTANT_1);
+    trivialMethodInlining("1.1", BC_PUSH_CONSTANT_1);
+    trivialMethodInlining("-2342.234", BC_PUSH_CONSTANT_1);
+    trivialMethodInlining("true", BC_PUSH_CONSTANT_0);
+    trivialMethodInlining("false", BC_PUSH_CONSTANT_1);
+    trivialMethodInlining("nil", BC_PUSH_NIL);
+    trivialMethodInlining("Nil", BC(BC_PUSH_GLOBAL, 1));
+    trivialMethodInlining("UnknownGlobal", BC(BC_PUSH_GLOBAL, 1));
+    trivialMethodInlining("[]", BC(BC_PUSH_BLOCK, 1));
+    trivialMethodInlining("[ self ]", BC(BC_PUSH_BLOCK, 1));
+}
 
+void BytecodeGenerationTest::trivialMethodInlining(std::string literal,
+                                                   BC bytecode) {
+    std::string source = "test = ( true ifTrue: [ " + literal + " ] )";
+    auto bytecodes = methodToBytecode(source.data());
 
- @pytest.mark.parametrize(
-     "source,bytecode",
-     [
-         ("0", Bytecodes.push_0),
-         ("1", Bytecodes.push_1),
-         ("-10", BC_PUSH_CONSTANT_2),
-         ("3333", BC_PUSH_CONSTANT_2),
-         ("'str'", BC_PUSH_CONSTANT_2),
-         ("#sym", BC_PUSH_CONSTANT_2),
-         ("1.1", BC_PUSH_CONSTANT_2),
-         ("-2342.234", BC_PUSH_CONSTANT_2),
-         ("true", Bytecodes.push_constant_0),
-         ("false", BC_PUSH_CONSTANT_2),
-         ("nil", Bytecodes.push_nil),
-         ("Nil", Bytecodes.push_global),
-         ("UnknownGlobal", Bytecodes.push_global),
-         ("[]", Bytecodes.push_block_no_ctx),
-     ],
- )
- def test_trivial_method_inlining(mgenc, source, bytecode):
-     bytecodes = method_to_bytecodes(mgenc, "test = ( true ifTrue: [ " + source
- + " ] )") check( bytecodes,
-         [
-             Bytecodes.push_constant_0,
-             Bytecodes.jump_on_false_top_nil,
-             bytecode,
-             Bytecodes.return_self,
-         ],
-     )
+    bool isLongerBytecode = bytecode.bytecode == BC_PUSH_GLOBAL ||
+                            bytecode.bytecode == BC_PUSH_BLOCK;
+    check(bytecodes, {BC_PUSH_CONSTANT_0,
+                      BC(BC_JUMP_ON_FALSE_TOP_NIL, isLongerBytecode ? 5 : 4, 0),
+                      bytecode, BC_RETURN_SELF});
+    tearDown();
+}
 
-
+/*
  @pytest.mark.parametrize("field_num", range(0, 7))
  def test_inc_field(cgenc, mgenc, field_num):
      add_field(cgenc, "field0")
@@ -1069,38 +1024,41 @@ void BytecodeGenerationTest::testNestedIfsAndLocals() {
      )
 
 
- @pytest.mark.parametrize(
-     "field_num,bytecode",
-     [
-         (0, Bytecodes.return_field_0),
-         (1, Bytecodes.return_field_1),
-         (2, Bytecodes.return_field_2),
-         (3, BC(Bytecodes.push_field, 3)),
-         (4, BC(Bytecodes.push_field, 4)),
-     ],
- )
- def test_return_field(cgenc, mgenc, field_num, bytecode):
-     add_field(cgenc, "field0")
-     add_field(cgenc, "field1")
-     add_field(cgenc, "field2")
-     add_field(cgenc, "field3")
-     add_field(cgenc, "field4")
-     add_field(cgenc, "field5")
-     add_field(cgenc, "field6")
 
-     field_name = "field" + str(field_num)
-     bytecodes = method_to_bytecodes(mgenc, "test = ( 1. ^ " + field_name + "
- )")
-
-     check(
-         bytecodes,
-         [
-             Bytecodes.push_1,
-             Bytecodes.pop,
-             bytecode,
-         ],
-     )
  */
+
+void BytecodeGenerationTest::testReturnField() {
+    returnField(0, BC_RETURN_FIELD_0, true);
+    returnField(1, BC_RETURN_FIELD_1, true);
+    returnField(2, BC_RETURN_FIELD_2, true);
+    returnField(3, BC(BC_PUSH_FIELD, 3), false);
+    returnField(4, BC(BC_PUSH_FIELD, 4), false);
+    returnField(5, BC(BC_PUSH_FIELD, 5), false);
+    returnField(6, BC(BC_PUSH_FIELD, 6), false);
+}
+
+void BytecodeGenerationTest::returnField(size_t fieldNum, BC bytecode,
+                                         bool isReturnFieldBc) {
+    addField("field0");
+    addField("field1");
+    addField("field2");
+    addField("field3");
+    addField("field4");
+    addField("field5");
+    addField("field6");
+
+    std::string fieldName = "field" + to_string(fieldNum);
+    std::string source = "test = ( 1. ^ " + fieldName + ")";
+    auto bytecodes = methodToBytecode(source.data());
+    std::vector<BC> expected = {BC_PUSH_1, BC_POP, bytecode};
+
+    if (!isReturnFieldBc) {
+        expected.push_back(BC_RETURN_LOCAL);
+    }
+
+    check(bytecodes, expected);
+    tearDown();
+}
 
 void BytecodeGenerationTest::testFieldReadInlining() {
     addField("field");
