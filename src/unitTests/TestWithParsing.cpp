@@ -18,6 +18,13 @@
 #include "../vmobjects/VMMethod.h"
 
 void TestWithParsing::dump(MethodGenerationContext* mgenc) {
+    if (mgenc == nullptr) {
+        if (_bgenc != nullptr) {
+            mgenc = _bgenc;
+        } else {
+            mgenc = _mgenc;
+        }
+    }
     Disassembler::DumpMethod(mgenc, "");
 }
 
@@ -106,7 +113,7 @@ void TestWithParsing::check(std::vector<uint8_t> actual,
                  i, bci, Bytecode::GetBytecodeName(expectedBc.bytecode),
                  Bytecode::GetBytecodeName(actualBc));
         if (expectedBc.bytecode != actualBc) {
-            dump(_mgenc);
+            dump();
         }
         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expectedBc.bytecode, actualBc);
 
@@ -117,7 +124,7 @@ void TestWithParsing::check(std::vector<uint8_t> actual,
             (size_t)bcLength);
 
         if (expectedBc.size != bcLength) {
-            dump(_mgenc);
+            dump();
         }
         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expectedBc.size, (size_t)bcLength);
 
@@ -127,7 +134,7 @@ void TestWithParsing::check(std::vector<uint8_t> actual,
                      Bytecode::GetBytecodeName(expectedBc.bytecode),
                      expectedBc.arg1, actual.at(bci + 1));
             if (expectedBc.arg1 != actual.at(bci + 1)) {
-                dump(_mgenc);
+                dump();
             }
             CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expectedBc.arg1,
                                          actual.at(bci + 1));
@@ -138,7 +145,7 @@ void TestWithParsing::check(std::vector<uint8_t> actual,
                          i, Bytecode::GetBytecodeName(expectedBc.bytecode),
                          expectedBc.arg2, actual.at(bci + 2));
                 if (expectedBc.arg2 != actual.at(bci + 2)) {
-                    dump(_mgenc);
+                    dump();
                 }
                 CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expectedBc.arg2,
                                              actual.at(bci + 2));
@@ -149,7 +156,7 @@ void TestWithParsing::check(std::vector<uint8_t> actual,
         bci += bcLength;
     }
     if (expected.size() != i || actual.size() != bci) {
-        dump(_mgenc);
+        dump();
     }
 
     CPPUNIT_ASSERT_EQUAL_MESSAGE("All expected bytecodes covered",

@@ -52,7 +52,7 @@ protected:
     std::vector<uint8_t> blockToBytecode(const char* source,
                                          bool dumpBytecodes = false);
 
-    void dump(MethodGenerationContext* mgenc);
+    void dump(MethodGenerationContext* mgenc = nullptr);
 
     void check(std::vector<uint8_t> actual, std::vector<BC> expected);
 };
