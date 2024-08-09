@@ -176,28 +176,7 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes,
                            bytecodes[bc_idx + 2]);
                 break;
             }
-            case BC_PUSH_FIELD: {
-                long fieldIdx = bytecodes[bc_idx + 1];
-                if (method != nullptr && printObjects) {
-                    VMClass* holder =
-                        dynamic_cast<VMClass*>((VMObject*)method->GetHolder());
-                    if (holder) {
-                        VMSymbol* name = holder->GetInstanceFieldName(fieldIdx);
-                        if (name != nullptr) {
-                            DebugPrint("(index: %d) field: %s\n",
-                                       bytecodes[bc_idx + 1],
-                                       name->GetStdString().c_str());
-                        } else {
-                            DebugPrint("(index: %d) field: !nullptr!: error!\n",
-                                       bytecodes[bc_idx + 1]);
-                        }
-                        break;
-                    }
-                }
 
-                DebugPrint("(index: %d)\n", bytecodes[bc_idx + 1]);
-                break;
-            }
             case BC_PUSH_BLOCK: {
                 size_t indent_size = strlen(indent) + 1 + 1;
                 char* nindent = new char[indent_size];
@@ -258,15 +237,23 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes,
                 DebugPrint("argument: %d, context: %d\n", bytecodes[bc_idx + 1],
                            bytecodes[bc_idx + 2]);
                 break;
-            case BC_POP_FIELD: {
+            case BC_INC_FIELD:
+            case BC_INC_FIELD_PUSH:
+            case BC_POP_FIELD:
+            case BC_PUSH_FIELD: {
                 long fieldIdx = bytecodes[bc_idx + 1];
                 if (method != nullptr && printObjects) {
                     VMClass* holder =
                         dynamic_cast<VMClass*>((VMObject*)method->GetHolder());
                     if (holder) {
                         VMSymbol* name = holder->GetInstanceFieldName(fieldIdx);
-                        DebugPrint("(index: %d) field: %s\n", fieldIdx,
-                                   name->GetStdString().c_str());
+                        if (name != nullptr) {
+                            DebugPrint("(index: %d) field: %s\n", fieldIdx,
+                                       name->GetStdString().c_str());
+                        } else {
+                            DebugPrint("(index: %d) field: !nullptr!: error!\n",
+                                       fieldIdx);
+                        }
                     } else {
                         DebugPrint(
                             "(index: %d) block holder is not a class!!\n",
@@ -450,24 +437,6 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
             DebugPrint("\n");
             break;
         }
-        case BC_PUSH_FIELD: {
-            VMFrame* ctxt = frame->GetOuterContext();
-            vm_oop_t arg = ctxt->GetArgumentInCurrentContext(0);
-            uint8_t field_index = BC_1;
-
-            vm_oop_t o = ((VMObject*)arg)->GetField(field_index);
-            VMClass* c = CLASS_OF(o);
-            VMSymbol* cname = c->GetName();
-            long fieldIdx = BC_1;
-            VMSymbol* name =
-                method->GetHolder()->GetInstanceFieldName(fieldIdx);
-            DebugPrint("(index: %d) field: %s <(%s) ", BC_1,
-                       name->GetStdString().c_str(),
-                       cname->GetStdString().c_str());
-            dispatch(o);
-            DebugPrint(">\n");
-            break;
-        }
         case BC_PUSH_BLOCK: {
             DebugPrint("block: (index: %d) ", BC_1);
             VMMethod* meth = dynamic_cast<VMMethod*>(
@@ -540,14 +509,21 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
             DebugPrint(">\n");
             break;
         }
+        case BC_INC_FIELD:
+        case BC_INC_FIELD_PUSH:
+        case BC_PUSH_FIELD:
         case BC_POP_FIELD: {
-            vm_oop_t o = frame->GetStackElement(0);
+            VMFrame* ctxt = frame->GetOuterContext();
+            vm_oop_t arg = ctxt->GetArgumentInCurrentContext(0);
+            uint8_t fieldIndex = BC_1;
+
+            vm_oop_t o = ((VMObject*)arg)->GetField(fieldIndex);
             VMClass* c = CLASS_OF(o);
+            VMSymbol* cname = c->GetName();
             long fieldIdx = BC_1;
             VMSymbol* name =
                 method->GetHolder()->GetInstanceFieldName(fieldIdx);
-            VMSymbol* cname = c->GetName();
-            DebugPrint("(index: %d) field: %s <(%s) ", fieldIdx,
+            DebugPrint("(index: %d) field: %s <(%s) ", BC_1,
                        name->GetStdString().c_str(),
                        cname->GetStdString().c_str());
             dispatch(o);
