@@ -73,5 +73,4 @@ size_t Emit3WithDummy(MethodGenerationContext& mgenc, uint8_t bytecode,
                       size_t stackEffect);
 
 void EmitPushFieldWithIndex(MethodGenerationContext& mgenc, uint8_t fieldIdx);
-void EmitPopFieldWithIndex(MethodGenerationContext& mgenc, uint8_t fieldIdx,
-                           uint8_t ctxLevel);
+void EmitPopFieldWithIndex(MethodGenerationContext& mgenc, uint8_t fieldIdx);

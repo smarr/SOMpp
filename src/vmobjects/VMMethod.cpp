@@ -236,9 +236,7 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
                     bytecode == BC_PUSH_FIELD_1) {
                     EmitPushFieldWithIndex(mgenc, idx);
                 } else {
-                    EmitPopFieldWithIndex(
-              mgenc, idx,
-              0 /* dummy, self is looked up dynamically at the moment. */);
+                    EmitPopFieldWithIndex(mgenc, idx);
                 }
                 break;
             }

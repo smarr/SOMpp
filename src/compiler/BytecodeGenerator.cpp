@@ -221,13 +221,9 @@ void EmitPOPARGUMENT(MethodGenerationContext& mgenc, long idx, int ctx) {
 void EmitPOPFIELD(MethodGenerationContext& mgenc, VMSymbol* field) {
     const uint8_t idx = mgenc.GetFieldIndex(field);
 
-    if (idx == 0) {
-        Emit1(mgenc, BC_POP_FIELD_0, -1);
-    } else if (idx == 1) {
-        Emit1(mgenc, BC_POP_FIELD_1, -1);
-    } else {
-        Emit2(mgenc, BC_POP_FIELD, idx, -1);
     }
+
+    EmitPopFieldWithIndex(mgenc, idx);
 }
 
 void EmitSEND(MethodGenerationContext& mgenc, VMSymbol* msg) {
@@ -359,19 +355,18 @@ void EmitPushFieldWithIndex(MethodGenerationContext& mgenc, uint8_t fieldIdx) {
     Emit2(mgenc, BC_PUSH_FIELD, fieldIdx, 1);
 }
 
-void EmitPopFieldWithIndex(MethodGenerationContext& mgenc, uint8_t fieldIdx,
-                           uint8_t ctxLevel) {
+void EmitPopFieldWithIndex(MethodGenerationContext& mgenc, uint8_t fieldIdx) {
     // if (ctxLevel == 0) {
     if (fieldIdx == 0) {
-        Emit1(mgenc, BC_POP_FIELD_0, 1);
+        Emit1(mgenc, BC_POP_FIELD_0, -1);
         return;
     }
 
     if (fieldIdx == 1) {
-        Emit1(mgenc, BC_POP_FIELD_1, 1);
+        Emit1(mgenc, BC_POP_FIELD_1, -1);
         return;
     }
     // }
 
-    Emit2(mgenc, BC_POP_FIELD, fieldIdx, 1);
+    Emit2(mgenc, BC_POP_FIELD, fieldIdx, -1);
 }
