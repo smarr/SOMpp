@@ -42,6 +42,7 @@
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../vm/Globals.h"
+#include "../vm/Print.h"
 #include "../vm/Universe.h"  // NOLINT(misc-include-cleaner) it's required to make the types complete
 #include "ObjectFormats.h"
 #include "Signature.h"
@@ -439,7 +440,7 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
                     "inlineInto: Found %s bytecode, but it's not expected in a "
                     "block method",
                     Bytecode::GetBytecodeName(bytecode));
-                Universe::ErrorExit(msg);
+                ErrorExit(msg);
                 break;
             }
             default: {
@@ -449,7 +450,7 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
                          "not yet "
                          "supported.",
                          Bytecode::GetBytecodeName(bytecode));
-                Universe::ErrorExit(msg);
+                ErrorExit(msg);
                 break;
             }
         }
@@ -605,7 +606,7 @@ void VMMethod::AdaptAfterOuterInlined(
                     "AdaptAfterOuterInlined: Found %s bytecode, but it's not "
                     "expected in a block method",
                     Bytecode::GetBytecodeName(bytecode));
-                Universe::ErrorExit(msg);
+                ErrorExit(msg);
             }
 
             default: {
@@ -615,7 +616,7 @@ void VMMethod::AdaptAfterOuterInlined(
                          "not yet "
                          "support it.",
                          Bytecode::GetBytecodeName(bytecode));
-                Universe::ErrorExit(msg);
+                ErrorExit(msg);
             }
         }
 

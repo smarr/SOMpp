@@ -6,7 +6,7 @@
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../primitivesCore/Primitives.h"
-#include "../vm/Universe.h"
+#include "../vm/Print.h"
 #include "AbstractObject.h"
 #include "ObjectFormats.h"
 #include "VMClass.h"
@@ -81,6 +81,6 @@ AbstractVMObject* VMSafeTernaryPrimitive::CloneForMovingGC() const {
 }
 
 void VMSafePrimitive::InlineInto(MethodGenerationContext&, bool) {
-    GetUniverse()->ErrorExit(
+    ErrorExit(
         "VMPrimitive::InlineInto is not supported, and should not be reached");
 }

@@ -92,7 +92,7 @@ void Universe::BasicInit() {
     theUniverse = new Universe();
 }
 
-__attribute__((noreturn)) void Universe::Quit(long err) {
+void Universe::Shutdown() {
     ErrorPrint("Time spent in GC: [" +
                to_string(Timer::GCTimer->GetTotalTime()) + "] msec\n");
 #ifdef GENERATE_INTEGER_HISTOGRAM
@@ -136,18 +136,9 @@ __attribute__((noreturn)) void Universe::Quit(long err) {
     }
 #endif
 
-    OutputAllocationLogFile();
-
     if (theUniverse) {
         delete (theUniverse);
     }
-
-    exit((int)err);
-}
-
-__attribute__((noreturn)) void Universe::ErrorExit(const char* err) {
-    ErrorPrint("Runtime error: " + StdString(err) + "\n");
-    Quit(ERR_FAIL);
 }
 
 vector<StdString> Universe::handleArguments(long argc, char** argv) {
@@ -619,7 +610,7 @@ void Universe::LoadSystemClass(VMClass* systemClass) {
 
     if (!result) {
         ErrorPrint("Can't load system class: " + s + "\n");
-        Universe::Quit(ERR_FAIL);
+        Quit(ERR_FAIL);
     }
 
     if (result->HasPrimitives() || result->GetClass()->HasPrimitives()) {

@@ -34,6 +34,7 @@
 
 #include "../primitivesCore/PrimitiveContainer.h"
 #include "../vm/Globals.h"
+#include "../vm/Print.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMDouble.h"
@@ -56,8 +57,7 @@ double coerceDouble(vm_oop_t x) {
     } else if (cl == load_ptr(integerClass)) {
         return (double)static_cast<VMInteger*>(x)->GetEmbeddedInteger();
     } else {
-        GetUniverse()->ErrorExit(
-            "Attempt to apply Double operation to non-number.");
+        ErrorExit("Attempt to apply Double operation to non-number.");
     }
 
     return 0.0f;

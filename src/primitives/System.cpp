@@ -91,7 +91,7 @@ static vm_oop_t sysLoad_(vm_oop_t, vm_oop_t rightObj) {
 
 static vm_oop_t sysExit_(vm_oop_t, vm_oop_t err) {
     long err_no = INT_VAL(err);
-    GetUniverse()->Quit(err_no);
+    Quit(err_no);
 }
 
 static vm_oop_t sysPrintString_(vm_oop_t leftObj, vm_oop_t rightObj) {

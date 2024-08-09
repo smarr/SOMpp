@@ -34,7 +34,6 @@
 #include "../primitivesCore/Routine.h"
 #include "../vm/Globals.h"  // NOLINT (misc-include-cleaner)
 #include "../vm/Print.h"
-#include "../vm/Universe.h"
 #include "ObjectFormats.h"
 #include "VMClass.h"
 #include "VMFrame.h"
@@ -65,7 +64,7 @@ void VMPrimitive::EmptyRoutine(Interpreter*, VMFrame*) {
 }
 
 void VMPrimitive::InlineInto(MethodGenerationContext&, bool) {
-    GetUniverse()->ErrorExit(
+    ErrorExit(
         "VMPrimitive::InlineInto is not supported, and should not be reached");
 }
 

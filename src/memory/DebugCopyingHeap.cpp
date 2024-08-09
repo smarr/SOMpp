@@ -7,7 +7,6 @@
 #include <string>
 
 #include "../vm/Print.h"
-#include "../vm/Universe.h"
 #include "../vmobjects/AbstractObject.h"
 
 void DebugCopyingHeap::switchBuffers(bool increaseMemory) {
@@ -57,7 +56,7 @@ AbstractVMObject* DebugCopyingHeap::AllocateObject(size_t size) {
 
     if (currentHeapUsage > currentHeapSize) {
         ErrorPrint("\nFailed to allocate " + to_string(size) + " Bytes.\n");
-        Universe::Quit(-1);
+        Quit(-1);
     }
 
     // let's see if we have to trigger the GC

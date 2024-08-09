@@ -33,7 +33,7 @@
 #include <string>
 
 #include "../misc/defs.h"
-#include "../vm/Universe.h"
+#include "../vm/Print.h"
 
 Lexer::Lexer(istream& file) : infile(file), peekDone(false) {}
 
@@ -322,7 +322,7 @@ Symbol Lexer::Peek() {
     const LexerState old = state;
 
     if (peekDone) {
-        Universe::ErrorExit("Cannot Peek twice!\n");
+        ErrorExit("Cannot Peek twice!\n");
     }
     GetSym();
     const Symbol nextSym = state.sym;

@@ -7,7 +7,6 @@
 
 #include "../misc/defs.h"
 #include "../vm/Print.h"
-#include "../vm/Universe.h"
 #include "../vmobjects/AbstractObject.h"
 #include "CopyingCollector.h"
 #include "Heap.h"
@@ -52,7 +51,7 @@ void CopyingHeap::switchBuffers(bool increaseMemory) {
         currentBuffer = malloc(newSize);
 
         if (currentBuffer == nullptr) {
-            Universe::ErrorExit("unable to allocate heap memory");
+            ErrorExit("unable to allocate heap memory");
         }
 
         currentBufferEnd = (void*)((size_t)currentBuffer + newSize);
@@ -91,7 +90,7 @@ void CopyingHeap::invalidateOldBuffer() {
         oldBuffer = malloc(currentBufSize);
 
         if (oldBuffer == nullptr) {
-            Universe::ErrorExit("unable to allocate heap memory");
+            ErrorExit("unable to allocate heap memory");
         }
 
         oldBufferEnd = (void*)((size_t)oldBuffer + currentBufSize);
@@ -103,7 +102,7 @@ AbstractVMObject* CopyingHeap::AllocateObject(size_t size) {
     nextFreePosition = (void*)((size_t)nextFreePosition + size);
     if (nextFreePosition > currentBufferEnd) {
         ErrorPrint("\nFailed to allocate " + to_string(size) + " Bytes.\n");
-        Universe::Quit(-1);
+        Quit(-1);
     }
 
     // let's see if we have to trigger the GC

@@ -34,6 +34,7 @@
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../primitivesCore/Routine.h"
+#include "../vm/Print.h"
 #include "../vm/Symbols.h"
 #include "../vm/Universe.h"  // NOLINT(misc-include-cleaner) it's required to make the types complete
 #include "ObjectFormats.h"
@@ -118,7 +119,7 @@ bool VMEvaluationPrimitive::IsMarkedInvalid() const {
 }
 
 void VMEvaluationPrimitive::InlineInto(MethodGenerationContext&, bool) {
-    GetUniverse()->ErrorExit(
+    ErrorExit(
         "VMEvaluationPrimitive::InlineInto is not supported, and should not be "
         "reached");
 }

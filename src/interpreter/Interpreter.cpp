@@ -36,6 +36,7 @@
 #include "../misc/defs.h"
 #include "../vm/Globals.h"
 #include "../vm/IsValidObject.h"
+#include "../vm/Print.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/IntegerBox.h"
 #include "../vmobjects/ObjectFormats.h"
@@ -237,7 +238,7 @@ void Interpreter::doPushFieldWithIndex(uint8_t fieldIndex) {
 
     if (unlikely(IS_TAGGED(self))) {
         o = nullptr;
-        Universe()->ErrorExit("Integers do not have fields!");
+        ErrorExit("Integers do not have fields!");
     } else {
         o = ((VMObject*)self)->GetField(fieldIndex);
     }
@@ -320,7 +321,7 @@ void Interpreter::doPopFieldWithIndex(uint8_t fieldIndex) {
     vm_oop_t o = GetFrame()->Pop();
 
     if (unlikely(IS_TAGGED(self))) {
-        GetUniverse()->ErrorExit("Integers do not have fields that can be set");
+        ErrorExit("Integers do not have fields that can be set");
     } else {
         ((VMObject*)self)->SetField(fieldIndex, o);
     }
@@ -436,7 +437,7 @@ void Interpreter::doInc() {
         double d = static_cast<VMDouble*>(val)->GetEmbeddedDouble();
         val = GetUniverse()->NewDouble(d + 1.0);
     } else {
-        GetUniverse()->ErrorExit("unsupported");
+        ErrorExit("unsupported");
     }
 
     GetFrame()->SetTop(store_root(val));
