@@ -38,6 +38,7 @@
 #include "../interpreter/bytecodes.h"
 #include "../misc/VectorUtil.h"
 #include "../vm/Globals.h"
+#include "../vm/Print.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMMethod.h"
@@ -147,7 +148,7 @@ VMTrivialMethod* MethodGenerationContext::assembleLiteralReturn(
         }
     }
 
-    GetUniverse()->ErrorExit(
+    ErrorExit(
         "Unexpected situation when trying to create trivial method that "
         "returns a literal");
 }
@@ -159,7 +160,7 @@ VMTrivialMethod* MethodGenerationContext::assembleGlobalReturn() {
     }
 
     if (literals.size() != 1) {
-        GetUniverse()->ErrorExit(
+        ErrorExit(
             "Unexpected situation when trying to create trivial method that "
             "reads a global. New Bytecode?");
     }
@@ -228,7 +229,7 @@ VMTrivialMethod* MethodGenerationContext::assembleFieldSetter() {
             break;
         }
         default: {
-            GetUniverse()->ErrorExit("Unexpected bytecode");
+            ErrorExit("Unexpected bytecode");
         }
     }
 
@@ -246,7 +247,7 @@ VMTrivialMethod* MethodGenerationContext::assembleFieldSetter() {
             break;
         }
         default: {
-            GetUniverse()->ErrorExit("Unexpected bytecode");
+            ErrorExit("Unexpected bytecode");
         }
     }
 
@@ -708,7 +709,7 @@ uint8_t MethodGenerationContext::GetInlinedLocalIdx(const Variable* var) const {
         "Unexpected issue trying to find an inlined variable. %s could not "
         "be found.",
         qualifiedName.data());
-    Universe::ErrorExit(msg);
+    ErrorExit(msg);
 }
 
 void MethodGenerationContext::checkJumpOffset(size_t jumpOffset,
@@ -718,7 +719,7 @@ void MethodGenerationContext::checkJumpOffset(size_t jumpOffset,
         snprintf(msg, 100,
                  "The jumpOffset for the %s bytecode is out of range: %zu\n",
                  Bytecode::GetBytecodeName(bytecode), jumpOffset);
-        Universe::ErrorExit(msg);
+        ErrorExit(msg);
     }
 }
 
@@ -786,7 +787,7 @@ size_t MethodGenerationContext::getOffsetOfLastBytecode(size_t indexFromEnd) {
     for (size_t i = 0; i < indexFromEnd + 1; i += 1) {
         uint8_t actual = last4Bytecodes.at(NUM_LAST_BYTECODES - 1 - i);
         if (actual == BC_INVALID) {
-            GetUniverse()->ErrorExit("The requested bytecode is invalid");
+            ErrorExit("The requested bytecode is invalid");
         }
 
         bcOffset -= Bytecode::GetBytecodeLength(actual);

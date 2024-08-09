@@ -34,6 +34,7 @@
 #include "../misc/Timer.h"
 #include "../misc/defs.h"
 #include "../vmobjects/ObjectFormats.h"
+#include "Print.h"
 
 class SourcecodeCompiler;
 
@@ -49,8 +50,6 @@ public:
     // static methods
     static void Start(long argc, char** argv);
     static void BasicInit();
-    __attribute__((noreturn)) static void Quit(long);
-    __attribute__((noreturn)) static void ErrorExit(const char*);
 
     vm_oop_t interpret(StdString className, StdString methodName);
 
@@ -114,6 +113,8 @@ public:
 #endif
     //
 
+    static void Shutdown();
+
 private:
     vm_oop_t interpretMethod(VMObject* receiver, VMInvokable* initialize,
                              VMArray* argumentsArray);
@@ -144,8 +145,7 @@ private:
 inline Universe* GetUniverse() __attribute__((always_inline));
 Universe* GetUniverse() {
     if (DEBUG && Universe::theUniverse == nullptr) {
-        Universe::ErrorExit(
-            "Trying to access uninitialized Universe, exiting.");
+        ErrorExit("Trying to access uninitialized Universe, exiting.");
     }
     return Universe::theUniverse;
 }

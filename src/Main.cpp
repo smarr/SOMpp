@@ -67,5 +67,5 @@ int main(int argc, char** argv) {
 
     Universe::Start(argc, argv);
 
-    Universe::Quit(ERR_SUCCESS);
+    Quit(ERR_SUCCESS);
 }

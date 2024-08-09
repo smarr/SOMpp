@@ -11,6 +11,7 @@
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../vm/LogAllocation.h"
+#include "../vm/Print.h"
 #include "../vm/Universe.h"
 #include "AbstractObject.h"
 #include "ObjectFormats.h"
@@ -122,7 +123,7 @@ VMFrame* VMGetter::Invoke(Interpreter*, VMFrame* frame) {
     vm_oop_t result;
     if (unlikely(IS_TAGGED(self))) {
         result = nullptr;
-        Universe()->ErrorExit("Integers do not have fields!");
+        ErrorExit("Integers do not have fields!");
     } else {
         result = ((VMObject*)self)->GetField(fieldIndex);
     }
@@ -166,7 +167,7 @@ VMFrame* VMSetter::Invoke(Interpreter*, VMFrame* frame) {
     assert(value != nullptr);
 
     if (unlikely(IS_TAGGED(self))) {
-        Universe()->ErrorExit("Integers do not have fields!");
+        ErrorExit("Integers do not have fields!");
     } else {
         ((VMObject*)self)->SetField(fieldIndex, value);
     }
@@ -175,8 +176,7 @@ VMFrame* VMSetter::Invoke(Interpreter*, VMFrame* frame) {
 }
 
 void VMSetter::InlineInto(MethodGenerationContext& mgenc, bool) {
-    GetUniverse()->ErrorExit(
-        "We don't currently support blocks for trivial setters");
+    ErrorExit("We don't currently support blocks for trivial setters");
 }
 
 AbstractVMObject* VMSetter::CloneForMovingGC() const {

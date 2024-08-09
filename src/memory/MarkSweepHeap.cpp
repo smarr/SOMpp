@@ -7,7 +7,6 @@
 
 #include "../memory/Heap.h"
 #include "../vm/Print.h"
-#include "../vm/Universe.h"
 #include "../vmobjects/AbstractObject.h"
 #include "MarkSweepCollector.h"
 
@@ -23,7 +22,7 @@ AbstractVMObject* MarkSweepHeap::AllocateObject(size_t size) {
     AbstractVMObject* newObject = (AbstractVMObject*)malloc(size);
     if (newObject == nullptr) {
         ErrorPrint("\nFailed to allocate " + to_string(size) + " Bytes.\n");
-        Universe::Quit(-1);
+        Quit(-1);
     }
     spcAlloc += size;
     memset((void*)newObject, 0, size);

@@ -185,14 +185,6 @@ void VMFrame::WalkObjects(walk_heap_fn walk) {
     }
 }
 
-long VMFrame::RemainingStackSize() const {
-    // - 1 because the stack pointer points at the top entry,
-    // so the next entry would be put at stackPointer+1
-    size_t size = ((size_t)this + totalObjectSize - size_t(stack_ptr)) /
-                  sizeof(VMObject*);
-    return size - 1;
-}
-
 void VMFrame::PrintBytecode() const {
     Disassembler::DumpMethod(GetMethod(), "  ");
 }

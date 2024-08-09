@@ -35,7 +35,7 @@
 #include "../primitivesCore/PrimitiveLoader.h"
 #include "../vm/Globals.h"
 #include "../vm/IsValidObject.h"
-#include "../vm/Universe.h"
+#include "../vm/Print.h"
 #include "ObjectFormats.h"
 #include "VMArray.h"
 #include "VMInvokable.h"
@@ -65,8 +65,7 @@ VMClass::VMClass(size_t numberOfFields, size_t additionalBytes)
 
 bool VMClass::AddInstanceInvokable(VMInvokable* ptr) {
     if (ptr == nullptr) {
-        GetUniverse()->ErrorExit(
-            "Error: trying to add non-invokable to invokables array");
+        ErrorExit("Error: trying to add non-invokable to invokables array");
         return false;
     }
     // Check whether an invokable with the same signature exists and replace it
@@ -82,7 +81,7 @@ bool VMClass::AddInstanceInvokable(VMInvokable* ptr) {
                 return false;
             }
         } else {
-            GetUniverse()->ErrorExit(
+            ErrorExit(
                 "Invokables array corrupted. "
                 "Either NULL pointer added or pointer to non-invokable.");
             return false;

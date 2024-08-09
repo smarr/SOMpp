@@ -908,7 +908,7 @@ __attribute__((noreturn)) void Parser::parseError(const char* msg,
     ReplacePattern(msgWithMeta, "%(found)s", foundStr);
 
     ErrorPrint(msgWithMeta);
-    GetUniverse()->Quit(ERR_FAIL);
+    Quit(ERR_FAIL);
 }
 
 __attribute__((noreturn)) void Parser::parseError(const char* msg,

@@ -121,7 +121,7 @@ public:
 
     inline vm_oop_t GetConstant(size_t bytecodeIndex) const {
         const uint8_t bc = bytecodes[bytecodeIndex + 1];
-        if (bc >= GetNumberOfIndexableFields()) {
+        if (unlikely(bc >= GetNumberOfIndexableFields())) {
             ErrorPrint("Error: Constant index out of range\n");
             return nullptr;
         }

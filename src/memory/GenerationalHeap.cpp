@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "../vm/Print.h"
-#include "../vm/Universe.h"
 #include "../vmobjects/AbstractObject.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMObjectBase.h"
@@ -39,7 +38,7 @@ AbstractVMObject* GenerationalHeap::AllocateNurseryObject(size_t size) {
     if ((size_t)nextFreePosition > nursery_end) {
         ErrorPrint("\nFailed to allocate " + to_string(size) +
                    " Bytes in nursery.\n");
-        GetUniverse()->Quit(-1);
+        Quit(-1);
     }
     // let's see if we have to trigger the GC
     if (nextFreePosition > collectionLimit) {
@@ -52,7 +51,7 @@ AbstractVMObject* GenerationalHeap::AllocateMatureObject(size_t size) {
     AbstractVMObject* newObject = (AbstractVMObject*)malloc(size);
     if (newObject == nullptr) {
         ErrorPrint("\nFailed to allocate " + to_string(size) + " Bytes.\n");
-        GetUniverse()->Quit(-1);
+        Quit(-1);
     }
     allocatedObjects->push_back(newObject);
     matureObjectsSize += size;

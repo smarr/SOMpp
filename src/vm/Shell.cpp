@@ -37,6 +37,7 @@
 #include "../vmobjects/VMInvokable.h"
 #include "../vmobjects/VMMethod.h"
 #include "Globals.h"
+#include "Print.h"
 #include "Symbols.h"
 #include "Universe.h"
 
@@ -65,7 +66,7 @@ void Shell::Start(Interpreter* interp) {
 #define QUIT_CMD_L 11 + 1
 
     if (bootstrapMethod == nullptr) {
-        GetUniverse()->ErrorExit("Shell needs bootstrap method!");
+        ErrorExit("Shell needs bootstrap method!");
     }
     // the statement to evaluate
     char inbuf[INPUT_MAX_SIZE];
