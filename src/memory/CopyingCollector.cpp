@@ -60,7 +60,7 @@ void CopyingCollector::Collect() {
     heap->switchBuffers(increaseMemory);
     increaseMemory = false;
 
-    GetUniverse()->WalkGlobals(copy_if_necessary);
+    Universe::WalkGlobals(copy_if_necessary);
 
     // now copy all objects that are referenced by the objects we have moved so
     // far

@@ -44,14 +44,14 @@
 #if ADDITIONAL_ALLOCATION
   #define TAG_INTEGER(X)                                            \
       (((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX && \
-        GetUniverse()->NewInteger(0))                               \
+        Universe::NewInteger(0))                                    \
            ? ((vm_oop_t)(((X) << 1) | 1))                           \
-           : (GetUniverse()->NewInteger(X)))
+           : (Universe::NewInteger(X)))
 #else
   #define TAG_INTEGER(X)                                          \
       (((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX) \
            ? ((vm_oop_t)((((uint64_t)(X)) << 1) | 1U))            \
-           : (GetUniverse()->NewInteger(X)))
+           : (Universe::NewInteger(X)))
 #endif
 
 #if USE_TAGGING
@@ -67,7 +67,7 @@
       (IS_TAGGED(X) ? GlobalBox::IntegerBox() : ((AbstractVMObject*)(X)))
 #else
   #define INT_VAL(X) (static_cast<VMInteger*>(X)->GetEmbeddedInteger())
-  #define NEW_INT(X) (GetUniverse()->NewInteger(X))
+  #define NEW_INT(X) (Universe::NewInteger(X))
   #define IS_TAGGED(X) false
   #define CLASS_OF(X) (AS_OBJ(X)->GetClass())
   #define AS_OBJ(X) ((AbstractVMObject*)(X))

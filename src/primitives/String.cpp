@@ -52,7 +52,7 @@ static vm_oop_t strConcatenate_(vm_oop_t leftObj, vm_oop_t rightObj) {
 
     StdString result = s + a;
 
-    return GetUniverse()->NewString(result);
+    return Universe::NewString(result);
 }
 
 static vm_oop_t strAsSymbol(vm_oop_t rcvr) {
@@ -107,7 +107,7 @@ static vm_oop_t strPrimSubstringFromTo(vm_oop_t rcvr,
     int64_t e = INT_VAL(end) - 1;
 
     std::string result = str.substr(s, e - s + 1);
-    return GetUniverse()->NewString(result);
+    return Universe::NewString(result);
 }
 
 static vm_oop_t strCharAt(vm_oop_t rcvr, vm_oop_t indexPtr) {
@@ -115,10 +115,10 @@ static vm_oop_t strCharAt(vm_oop_t rcvr, vm_oop_t indexPtr) {
     int64_t index = INT_VAL(indexPtr) - 1;
 
     if (unlikely(index < 0 || (size_t)index >= self->GetStringLength())) {
-        return GetUniverse()->NewString("Error - index out of bounds");
+        return Universe::NewString("Error - index out of bounds");
     }
 
-    return GetUniverse()->NewString(1, &self->GetRawChars()[index]);
+    return Universe::NewString(1, &self->GetRawChars()[index]);
 }
 
 static vm_oop_t strIsWhiteSpace(vm_oop_t rcvr) {

@@ -76,39 +76,39 @@ double coerceDouble(vm_oop_t x) {
 
 static vm_oop_t dblPlus(vm_oop_t leftPtr, vm_oop_t rightObj) {
     PREPARE_OPERANDS;
-    return GetUniverse()->NewDouble(left + right);
+    return Universe::NewDouble(left + right);
 }
 
 static vm_oop_t dblMinus(vm_oop_t leftPtr, vm_oop_t rightObj) {
     PREPARE_OPERANDS;
-    return GetUniverse()->NewDouble(left - right);
+    return Universe::NewDouble(left - right);
 }
 
 static vm_oop_t dblStar(vm_oop_t leftPtr, vm_oop_t rightObj) {
     PREPARE_OPERANDS;
-    return GetUniverse()->NewDouble(left * right);
+    return Universe::NewDouble(left * right);
 }
 
 static vm_oop_t dblCos(vm_oop_t rcvr) {
     VMDouble* self = (VMDouble*)rcvr;
     double result = cos(self->GetEmbeddedDouble());
-    return GetUniverse()->NewDouble(result);
+    return Universe::NewDouble(result);
 }
 
 static vm_oop_t dblSin(vm_oop_t rcvr) {
     VMDouble* self = (VMDouble*)rcvr;
     double result = sin(self->GetEmbeddedDouble());
-    return GetUniverse()->NewDouble(result);
+    return Universe::NewDouble(result);
 }
 
 static vm_oop_t dblSlashslash(vm_oop_t leftPtr, vm_oop_t rightObj) {
     PREPARE_OPERANDS;
-    return GetUniverse()->NewDouble(left / right);
+    return Universe::NewDouble(left / right);
 }
 
 vm_oop_t dblPercent(vm_oop_t leftPtr, vm_oop_t rightObj) {
     PREPARE_OPERANDS;
-    return GetUniverse()->NewDouble((double)((int64_t)left % (int64_t)right));
+    return Universe::NewDouble((double)((int64_t)left % (int64_t)right));
 }
 
 /*
@@ -140,13 +140,12 @@ static vm_oop_t dblAsString(vm_oop_t rcvr) {
     ostringstream Str;
     Str.precision(17);
     Str << dbl;
-    return GetUniverse()->NewString(Str.str().c_str());
+    return Universe::NewString(Str.str().c_str());
 }
 
 static vm_oop_t dblSqrt(vm_oop_t rcvr) {
     VMDouble* self = static_cast<VMDouble*>(rcvr);
-    VMDouble* result =
-        GetUniverse()->NewDouble(sqrt(self->GetEmbeddedDouble()));
+    VMDouble* result = Universe::NewDouble(sqrt(self->GetEmbeddedDouble()));
     return result;
 }
 
@@ -165,14 +164,14 @@ static vm_oop_t dblAsInteger(vm_oop_t rcvr) {
 }
 
 static vm_oop_t dblPositiveInfinity(vm_oop_t) {
-    return GetUniverse()->NewDouble(INFINITY);
+    return Universe::NewDouble(INFINITY);
 }
 
 static vm_oop_t dblFromString(vm_oop_t, vm_oop_t rightObj) {
     VMString* self = (VMString*)rightObj;
     double value =
         stod(std::string(self->GetRawChars(), self->GetStringLength()));
-    return GetUniverse()->NewDouble(value);
+    return Universe::NewDouble(value);
 }
 
 static vm_oop_t dblLowerThanEqual(vm_oop_t leftPtr, vm_oop_t rightObj) {

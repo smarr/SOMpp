@@ -81,7 +81,7 @@ VMSymbol* VMObject::GetFieldName(long index) const {
 }
 
 void VMObject::Assert(bool value) const {
-    GetUniverse()->Assert(value);
+    Universe::Assert(value);
 }
 
 void VMObject::WalkObjects(walk_heap_fn walk) {

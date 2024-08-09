@@ -81,7 +81,7 @@ vm_oop_t Interpreter::Start() {
 }
 
 VMFrame* Interpreter::PushNewFrame(VMMethod* method) {
-    SetFrame(GetUniverse()->NewFrame(GetFrame(), method));
+    SetFrame(Universe::NewFrame(GetFrame(), method));
     return GetFrame();
 }
 
@@ -135,13 +135,12 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
     if (invokable != nullptr) {
 #ifdef LOG_RECEIVER_TYPES
         std::string name = receiverClass->GetName()->GetStdString();
-        if (GetUniverse()->callStats.find(name) ==
-            GetUniverse()->callStats.end()) {
-            GetUniverse()->callStats[name] = {0, 0};
+        if (Universe::callStats.find(name) == Universe::callStats.end()) {
+            Universe::callStats[name] = {0, 0};
         }
-        GetUniverse()->callStats[name].noCalls++;
+        Universe::callStats[name].noCalls++;
         if (invokable->IsPrimitive()) {
-            GetUniverse()->callStats[name].noPrimitiveCalls++;
+            Universe::callStats[name].noPrimitiveCalls++;
         }
 #endif
         // since an invokable is able to change/use the frame, we have to write
@@ -160,7 +159,7 @@ void Interpreter::triggerDoesNotUnderstand(VMSymbol* signature) {
     vm_oop_t receiver = GetFrame()->GetStackElement(numberOfArgs - 1);
 
     VMArray* argumentsArray =
-        GetUniverse()->NewArray(numberOfArgs - 1);  // without receiver
+        Universe::NewArray(numberOfArgs - 1);  // without receiver
 
     // the receiver should not go into the argumentsArray
     // so, numberOfArgs - 2
@@ -266,14 +265,13 @@ void Interpreter::doPushBlock(long bytecodeIndex) {
 
     long numOfArgs = blockMethod->GetNumberOfArguments();
 
-    GetFrame()->Push(
-        GetUniverse()->NewBlock(blockMethod, GetFrame(), numOfArgs));
+    GetFrame()->Push(Universe::NewBlock(blockMethod, GetFrame(), numOfArgs));
 }
 
 void Interpreter::doPushGlobal(long bytecodeIndex) {
     VMSymbol* globalName =
         static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
-    vm_oop_t global = GetUniverse()->GetGlobal(globalName);
+    vm_oop_t global = Universe::GetGlobal(globalName);
 
     if (global != nullptr) {
         GetFrame()->Push(global);
@@ -358,7 +356,7 @@ void Interpreter::doSend(long bytecodeIndex) {
     assert(IsValidObject(receiverClass));
 
 #ifdef LOG_RECEIVER_TYPES
-    GetUniverse()->receiverTypes[receiverClass->GetName()->GetStdString()]++;
+    Universe::receiverTypes[receiverClass->GetName()->GetStdString()]++;
 #endif
 
     send(signature, receiverClass);
@@ -381,7 +379,7 @@ void Interpreter::doSuperSend(long bytecodeIndex) {
     } else {
         long numOfArgs = Signature::GetNumberOfArguments(signature);
         vm_oop_t receiver = GetFrame()->GetStackElement(numOfArgs - 1);
-        VMArray* argumentsArray = GetUniverse()->NewArray(numOfArgs);
+        VMArray* argumentsArray = Universe::NewArray(numOfArgs);
 
         for (long i = numOfArgs - 1; i >= 0; --i) {
             vm_oop_t o = GetFrame()->Pop();
@@ -449,7 +447,7 @@ void Interpreter::doInc() {
         val = NEW_INT(result);
     } else if (CLASS_OF(val) == load_ptr(doubleClass)) {
         double d = static_cast<VMDouble*>(val)->GetEmbeddedDouble();
-        val = GetUniverse()->NewDouble(d + 1.0);
+        val = Universe::NewDouble(d + 1.0);
     } else {
         ErrorExit("unsupported");
     }

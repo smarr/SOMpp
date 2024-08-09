@@ -58,21 +58,21 @@ _System* System_;
 
 static vm_oop_t sysGlobal_(vm_oop_t, vm_oop_t rightObj) {
     VMSymbol* arg = static_cast<VMSymbol*>(rightObj);
-    vm_oop_t result = GetUniverse()->GetGlobal(arg);
+    vm_oop_t result = Universe::GetGlobal(arg);
 
     return result ? result : load_ptr(nilObject);
 }
 
 static vm_oop_t sysGlobalPut(vm_oop_t sys, vm_oop_t sym, vm_oop_t val) {
     VMSymbol* arg = static_cast<VMSymbol*>(sym);
-    GetUniverse()->SetGlobal(arg, val);
+    Universe::SetGlobal(arg, val);
     return sys;
 }
 
 static vm_oop_t sysHasGlobal_(vm_oop_t, vm_oop_t rightObj) {
     VMSymbol* arg = static_cast<VMSymbol*>(rightObj);
 
-    if (GetUniverse()->HasGlobal(arg)) {
+    if (Universe::HasGlobal(arg)) {
         return load_ptr(trueObject);
     } else {
         return load_ptr(falseObject);
@@ -81,7 +81,7 @@ static vm_oop_t sysHasGlobal_(vm_oop_t, vm_oop_t rightObj) {
 
 static vm_oop_t sysLoad_(vm_oop_t, vm_oop_t rightObj) {
     VMSymbol* arg = static_cast<VMSymbol*>(rightObj);
-    VMClass* result = GetUniverse()->LoadClass(arg);
+    VMClass* result = Universe::LoadClass(arg);
     if (result) {
         return result;
     } else {
@@ -160,7 +160,7 @@ static vm_oop_t sysLoadFile_(vm_oop_t, vm_oop_t rightObj) {
         std::stringstream buffer;
         buffer << file.rdbuf();
 
-        VMString* result = GetUniverse()->NewString(buffer.str());
+        VMString* result = Universe::NewString(buffer.str());
         return result;
     } else {
         return load_ptr(nilObject);

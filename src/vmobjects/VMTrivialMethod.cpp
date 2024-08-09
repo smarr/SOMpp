@@ -82,7 +82,7 @@ VMFrame* VMGlobalReturn::Invoke(Interpreter* interpreter, VMFrame* frame) {
         frame->Pop();
     }
 
-    vm_oop_t value = GetUniverse()->GetGlobal(load_ptr(globalName));
+    vm_oop_t value = Universe::GetGlobal(load_ptr(globalName));
     if (value != nullptr) {
         frame->Push(value);
     } else {

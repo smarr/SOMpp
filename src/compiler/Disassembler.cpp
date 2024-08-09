@@ -63,7 +63,7 @@ void Disassembler::dispatch(vm_oop_t o) {
         DebugPrint("{System Class object}");
     } else if (o == load_ptr(blockClass)) {
         DebugPrint("{Block Class object}");
-    } else if (o == GetUniverse()->GetGlobal(SymbolFor("system"))) {
+    } else if (o == Universe::GetGlobal(SymbolFor("system"))) {
         DebugPrint("{System}");
     } else {
         VMClass* c = CLASS_OF(o);
@@ -489,7 +489,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
         case BC_PUSH_GLOBAL: {
             VMSymbol* name =
                 static_cast<VMSymbol*>(method->GetConstant(bc_idx));
-            vm_oop_t o = GetUniverse()->GetGlobal(name);
+            vm_oop_t o = Universe::GetGlobal(name);
             VMSymbol* cname;
 
             const char* c_cname;

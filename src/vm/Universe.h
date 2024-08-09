@@ -45,114 +45,95 @@ extern short gcVerbosity;
 using namespace std;
 class Universe {
 public:
-    inline Universe* operator->();
-
     // static methods
     static void Start(long argc, char** argv);
     static void BasicInit();
 
-    vm_oop_t interpret(StdString className, StdString methodName);
+    static vm_oop_t interpret(StdString className, StdString methodName);
 
-    long setupClassPath(const StdString& cp);
+    static long setupClassPath(const StdString& cp);
 
-    Interpreter* GetInterpreter() { return interpreter; }
+    static Interpreter* GetInterpreter() { return &interpreter; }
 
-    void Assert(bool) const;
+    static void Assert(bool);
 
     // VMObject instanciation methods. These should probably be refactored to a
     // new class
-    VMArray* NewArray(size_t) const;
+    static VMArray* NewArray(size_t);
 
-    VMArray* NewArrayList(std::vector<vm_oop_t>& list) const;
-    VMArray* NewArrayList(std::vector<VMInvokable*>& list) const;
-    VMArray* NewArrayList(std::vector<VMSymbol*>& list) const;
+    static VMArray* NewArrayList(std::vector<vm_oop_t>& list);
+    static VMArray* NewArrayList(std::vector<VMInvokable*>& list);
+    static VMArray* NewArrayList(std::vector<VMSymbol*>& list);
 
-    VMArray* NewArrayFromStrings(const vector<StdString>&) const;
-    VMArray* NewArrayOfSymbolsFromStrings(const vector<StdString>&) const;
+    static VMArray* NewArrayFromStrings(const vector<StdString>&);
+    static VMArray* NewArrayOfSymbolsFromStrings(const vector<StdString>&);
 
-    VMBlock* NewBlock(VMInvokable*, VMFrame*, long);
-    VMClass* NewClass(VMClass*) const;
-    VMFrame* NewFrame(VMFrame*, VMMethod*) const;
-    VMMethod* NewMethod(VMSymbol*, size_t numberOfBytecodes,
-                        size_t numberOfConstants, size_t numLocals,
-                        size_t maxStackDepth, LexicalScope*,
-                        vector<BackJump>& inlinedLoops) const;
-    VMObject* NewInstance(VMClass*) const;
-    VMObject* NewInstanceWithoutFields() const;
-    VMInteger* NewInteger(int64_t) const;
-    void WalkGlobals(walk_heap_fn);
-    VMDouble* NewDouble(double) const;
-    VMClass* NewMetaclassClass(void) const;
-    VMString* NewString(const StdString&) const;
-    VMString* NewString(const size_t, const char*) const;
-    VMClass* NewSystemClass(void) const;
+    static VMBlock* NewBlock(VMInvokable*, VMFrame*, long);
+    static VMClass* NewClass(VMClass*);
+    static VMFrame* NewFrame(VMFrame*, VMMethod*);
+    static VMMethod* NewMethod(VMSymbol*, size_t numberOfBytecodes,
+                               size_t numberOfConstants, size_t numLocals,
+                               size_t maxStackDepth, LexicalScope*,
+                               vector<BackJump>& inlinedLoops);
+    static VMObject* NewInstance(VMClass*);
+    static VMObject* NewInstanceWithoutFields();
+    static VMInteger* NewInteger(int64_t);
+    static void WalkGlobals(walk_heap_fn);
+    static VMDouble* NewDouble(double);
+    static VMClass* NewMetaclassClass();
+    static VMString* NewString(const StdString&);
+    static VMString* NewString(const size_t, const char*);
+    static VMClass* NewSystemClass();
 
-    void InitializeSystemClass(VMClass*, VMClass*, const char*);
+    static void InitializeSystemClass(VMClass*, VMClass*, const char*);
 
-    vm_oop_t GetGlobal(VMSymbol*);
-    void SetGlobal(VMSymbol* name, vm_oop_t val);
-    bool HasGlobal(VMSymbol*);
-    VMObject* InitializeGlobals();
-    VMClass* GetBlockClass(void) const;
-    VMClass* GetBlockClassWithArgs(long);
+    static vm_oop_t GetGlobal(VMSymbol*);
+    static void SetGlobal(VMSymbol* name, vm_oop_t val);
+    static bool HasGlobal(VMSymbol*);
+    static VMObject* InitializeGlobals();
+    static VMClass* GetBlockClass();
+    static VMClass* GetBlockClassWithArgs(long);
 
-    VMClass* LoadClass(VMSymbol*);
-    void LoadSystemClass(VMClass*);
-    VMClass* LoadClassBasic(VMSymbol*, VMClass*);
-    VMClass* LoadShellClass(StdString&);
+    static VMClass* LoadClass(VMSymbol*);
+    static void LoadSystemClass(VMClass*);
+    static VMClass* LoadClassBasic(VMSymbol*, VMClass*);
+    static VMClass* LoadShellClass(StdString&);
 
-    Universe();
+    Universe() {}
     ~Universe();
 #ifdef LOG_RECEIVER_TYPES
     struct stat_data {
         long noCalls;
         long noPrimitiveCalls;
     };
-    map<StdString, long> receiverTypes;
-    map<StdString, stat_data> callStats;
+    static map<StdString, long> receiverTypes;
+    static map<StdString, stat_data> callStats;
 #endif
     //
 
     static void Shutdown();
 
 private:
-    vm_oop_t interpretMethod(VMObject* receiver, VMInvokable* initialize,
-                             VMArray* argumentsArray);
+    static vm_oop_t interpretMethod(VMObject* receiver, VMInvokable* initialize,
+                                    VMArray* argumentsArray);
 
-    vector<StdString> handleArguments(long argc, char** argv);
-    long getClassPathExt(vector<StdString>& tokens, const StdString& arg) const;
+    static vector<StdString> handleArguments(long argc, char** argv);
+    static long getClassPathExt(vector<StdString>& tokens,
+                                const StdString& arg);
 
-    VMMethod* createBootstrapMethod(VMClass* holder, long numArgsOfMsgSend);
+    static VMMethod* createBootstrapMethod(VMClass* holder,
+                                           long numArgsOfMsgSend);
 
-    friend Universe* GetUniverse();
-    static Universe* theUniverse;
+    static long addClassPath(const StdString& cp);
+    static void printUsageAndExit(char* executable);
 
-    long addClassPath(const StdString& cp);
-    void printUsageAndExit(char* executable) const;
+    static void initialize(long, char**);
 
-    void initialize(long, char**);
+    static long heapSize;
+    static map<GCSymbol*, gc_oop_t> globals;
 
-    long heapSize;
-    map<GCSymbol*, gc_oop_t> globals;
+    static map<long, GCClass*> blockClassesByNoOfArgs;
+    static vector<StdString> classPath;
 
-    map<long, GCClass*> blockClassesByNoOfArgs;
-    vector<StdString> classPath;
-
-    Interpreter* interpreter;
+    static Interpreter interpreter;
 };
-
-// Singleton accessor
-inline Universe* GetUniverse() __attribute__((always_inline));
-Universe* GetUniverse() {
-    if (DEBUG && Universe::theUniverse == nullptr) {
-        ErrorExit("Trying to access uninitialized Universe, exiting.");
-    }
-    return Universe::theUniverse;
-}
-
-Universe* Universe::operator->() {
-    if (DEBUG && theUniverse == nullptr) {
-        ErrorExit("Trying to access uninitialized Universe, exiting.");
-    }
-    return theUniverse;
-}

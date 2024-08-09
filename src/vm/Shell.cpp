@@ -108,7 +108,7 @@ void Shell::Start(Interpreter* interp) {
         statement = ss.str();
 
         ++counter;
-        runClass = GetUniverse()->LoadShellClass(statement);
+        runClass = Universe::LoadShellClass(statement);
         // Compile and load the newly generated class
         if (runClass == nullptr) {
             cout << "can't compile statement.";
@@ -122,7 +122,7 @@ void Shell::Start(Interpreter* interp) {
         currentFrame->SetBytecodeIndex(bytecodeIndex);
 
         // Create and push a new instance of our class on the stack
-        currentFrame->Push(GetUniverse()->NewInstance(runClass));
+        currentFrame->Push(Universe::NewInstance(runClass));
 
         // Push the old value of "it" on the stack
         currentFrame->Push(it);
