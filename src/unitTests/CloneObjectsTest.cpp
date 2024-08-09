@@ -150,9 +150,8 @@ void CloneObjectsTest::testCloneBlock() {
     VMMethod* method =
         Universe::NewMethod(methodSymbol, 0, 0, 0, 0,
                             new LexicalScope(nullptr, {}, {}), inlinedLoops);
-    VMBlock* orig =
-        Universe::NewBlock(method, Universe::GetInterpreter()->GetFrame(),
-                           method->GetNumberOfArguments());
+    VMBlock* orig = Universe::NewBlock(method, Interpreter::GetFrame(),
+                                       method->GetNumberOfArguments());
     VMBlock* clone = orig->CloneForMovingGC();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);

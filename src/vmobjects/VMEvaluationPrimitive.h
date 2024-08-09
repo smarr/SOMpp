@@ -47,7 +47,7 @@ public:
     void MarkObjectAsInvalid() override;
     bool IsMarkedInvalid() const override;
 
-    VMFrame* Invoke(Interpreter* interp, VMFrame* frm) override;
+    VMFrame* Invoke(VMFrame* frm) override;
     void InlineInto(MethodGenerationContext& mgenc,
                     bool mergeScope = true) final;
 
@@ -57,7 +57,7 @@ public:
 
 private:
     static VMSymbol* computeSignatureString(long argc);
-    void evaluationRoutine(Interpreter*, VMFrame*);
+    void evaluationRoutine(VMFrame*);
 
     make_testable(public);
 

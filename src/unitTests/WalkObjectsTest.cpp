@@ -227,9 +227,8 @@ void WalkObjectsTest::testWalkBlock() {
         Universe::NewMethod(methodSymbol, 0, 0, 0, 0,
                             new LexicalScope(nullptr, {}, {}), inlinedLoops);
 
-    VMBlock* block =
-        Universe::NewBlock(method, Universe::GetInterpreter()->GetFrame(),
-                           method->GetNumberOfArguments());
+    VMBlock* block = Universe::NewBlock(method, Interpreter::GetFrame(),
+                                        method->GetNumberOfArguments());
     block->WalkObjects(collectMembers);
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Block, walkedObjects.size());
     CPPUNIT_ASSERT(WalkerHasFound(tmp_ptr(block->GetClass())));

@@ -44,7 +44,6 @@
 #include "../interpreter/bytecodes.h"
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
-#include "../vmobjects/AbstractObject.h"
 #include "../vmobjects/IntegerBox.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMArray.h"
@@ -80,7 +79,6 @@ std::string bm_name;
 
 map<int64_t, int64_t> integerHist;
 
-Interpreter Universe::interpreter;
 map<GCSymbol*, gc_oop_t> Universe::globals;
 map<long, GCClass*> Universe::blockClassesByNoOfArgs;
 vector<StdString> Universe::classPath;
@@ -303,14 +301,14 @@ vm_oop_t Universe::interpretMethod(VMObject* receiver, VMInvokable* initialize,
 
     VMMethod* bootstrapMethod = createBootstrapMethod(load_ptr(systemClass), 2);
 
-    VMFrame* bootstrapFrame = interpreter.PushNewFrame(bootstrapMethod);
+    VMFrame* bootstrapFrame = Interpreter::PushNewFrame(bootstrapMethod);
     bootstrapFrame->Push(receiver);
 
     if (argumentsArray != nullptr) {
         bootstrapFrame->Push(argumentsArray);
     }
 
-    initialize->Invoke(&interpreter, bootstrapFrame);
+    initialize->Invoke(bootstrapFrame);
 
     // reset "-d" indicator
     if (!(trace > 0)) {
@@ -318,9 +316,9 @@ vm_oop_t Universe::interpretMethod(VMObject* receiver, VMInvokable* initialize,
     }
 
     if (dumpBytecodes > 1) {
-        return interpreter.StartAndPrintBytecodes();
+        return Interpreter::StartAndPrintBytecodes();
     }
-    return interpreter.Start();
+    return Interpreter::Start();
 }
 
 void Universe::initialize(long _argc, char** _argv) {
@@ -351,7 +349,7 @@ void Universe::initialize(long _argc, char** _argv) {
         VMMethod* bootstrapMethod =
             createBootstrapMethod(load_ptr(systemClass), 2);
         Shell* shell = new Shell(bootstrapMethod);
-        shell->Start(&interpreter);
+        shell->Start();
         return;
     }
 
@@ -835,7 +833,7 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
         bcIter->second = static_cast<GCClass*>(walk(bcIter->second));
     }
 
-    interpreter.WalkGlobals(walk);
+    Interpreter::WalkGlobals(walk);
 }
 
 VMMethod* Universe::NewMethod(VMSymbol* signature, size_t numberOfBytecodes,

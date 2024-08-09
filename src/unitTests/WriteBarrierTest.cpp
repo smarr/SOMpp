@@ -84,9 +84,8 @@ void WriteBarrierTest::testWriteBlock() {
         Universe::NewMethod(methodSymbol, 0, 0, 0, 0,
                             new LexicalScope(nullptr, {}, {}), inlinedLoops);
 
-    VMBlock* block =
-        Universe::NewBlock(method, Universe::GetInterpreter()->GetFrame(),
-                           method->GetNumberOfArguments());
+    VMBlock* block = Universe::NewBlock(method, Interpreter::GetFrame(),
+                                        method->GetNumberOfArguments());
     TEST_WB_CALLED("VMBlock failed to call writeBarrier when creating", block,
                    block->GetClass());
     TEST_WB_CALLED("VMBlock failed to call writeBarrier when creating", block,
@@ -104,12 +103,12 @@ void WriteBarrierTest::testWriteFrame() {
     // reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
 
-    VMFrame* frame = Universe::GetInterpreter()->GetFrame()->CloneForMovingGC();
+    VMFrame* frame = Interpreter::GetFrame()->CloneForMovingGC();
     frame->SetContext(frame->CloneForMovingGC());
 
-    frame->SetPreviousFrame(Universe::GetInterpreter()->GetFrame());
+    frame->SetPreviousFrame(Interpreter::GetFrame());
     TEST_WB_CALLED("VMFrame failed to call writeBarrier on SetPreviousFrame",
-                   frame, Universe::GetInterpreter()->GetFrame());
+                   frame, Interpreter::GetFrame());
     frame->SetContext(frame->GetContext()->CloneForMovingGC());
     TEST_WB_CALLED("VMFrame failed to call writeBarrier on SetContext", frame,
                    frame->GetContext());
@@ -126,8 +125,7 @@ void WriteBarrierTest::testWriteMethod() {
 
     // reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
-    VMMethod* method =
-        Universe::GetInterpreter()->GetFrame()->GetMethod()->CloneForMovingGC();
+    VMMethod* method = Interpreter::GetFrame()->GetMethod()->CloneForMovingGC();
     method->SetHolder(load_ptr(integerClass));
     TEST_WB_CALLED("VMMethod failed to call writeBarrier on SetHolder", method,
                    load_ptr(integerClass));

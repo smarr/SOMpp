@@ -21,7 +21,7 @@ static vm_oop_t mSignature(vm_oop_t rcvr) {
     return self->GetSignature();
 }
 
-void _Method::InvokeOn_With_(Interpreter* interp, VMFrame* frame) {
+void _Method::InvokeOn_With_(VMFrame* frame) {
     // REM: this is a clone with _Primitive::InvokeOn_With_
     VMArray* args = static_cast<VMArray*>(frame->Pop());
     vm_oop_t rcvr = static_cast<vm_oop_t>(frame->Pop());
@@ -34,7 +34,7 @@ void _Method::InvokeOn_With_(Interpreter* interp, VMFrame* frame) {
         vm_oop_t arg = args->GetIndexableField(i);
         frame->Push(arg);
     }
-    mthd->Invoke(interp, frame);
+    mthd->Invoke(frame);
 }
 
 _Method::_Method() : PrimitiveContainer() {

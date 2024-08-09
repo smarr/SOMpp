@@ -58,7 +58,7 @@ VMPrimitive* VMPrimitive::CloneForMovingGC() const {
     return prim;
 }
 
-void VMPrimitive::EmptyRoutine(Interpreter*, VMFrame*) {
+void VMPrimitive::EmptyRoutine(VMFrame*) {
     VMSymbol* sig = GetSignature();
     ErrorPrint("undefined primitive called: " + sig->GetStdString() + "\n");
 }

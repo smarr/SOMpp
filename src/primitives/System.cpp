@@ -167,7 +167,7 @@ static vm_oop_t sysLoadFile_(vm_oop_t, vm_oop_t rightObj) {
     }
 }
 
-void _System::PrintStackTrace(Interpreter*, VMFrame* frame) {
+void _System::PrintStackTrace(VMFrame* frame) {
     frame->PrintStackTrace();
 }
 

@@ -36,7 +36,7 @@ public:
     ~Shell();
     void SetBootstrapMethod(VMMethod* bsm) { bootstrapMethod = bsm; };
     VMMethod* GetBootstrapMethod() const { return bootstrapMethod; };
-    void Start(Interpreter*);
+    void Start();
 
 private:
     VMMethod* bootstrapMethod;

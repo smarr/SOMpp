@@ -66,26 +66,26 @@ vm_oop_t objHalt(vm_oop_t) {
     return load_ptr(falseObject);
 }
 
-void _Object::Perform(Interpreter* interp, VMFrame* frame) {
+void _Object::Perform(VMFrame* frame) {
     VMSymbol* selector = (VMSymbol*)frame->Pop();
     vm_oop_t self = frame->GetStackElement(0);
 
     VMClass* clazz = CLASS_OF(self);
     VMInvokable* invokable = clazz->LookupInvokable(selector);
 
-    invokable->Invoke(interp, frame);
+    invokable->Invoke(frame);
 }
 
-void _Object::PerformInSuperclass(Interpreter* interp, VMFrame* frame) {
+void _Object::PerformInSuperclass(VMFrame* frame) {
     VMClass* clazz = (VMClass*)frame->Pop();
     VMSymbol* selector = (VMSymbol*)frame->Pop();
 
     VMInvokable* invokable = clazz->LookupInvokable(selector);
 
-    invokable->Invoke(interp, frame);
+    invokable->Invoke(frame);
 }
 
-void _Object::PerformWithArguments(Interpreter* interp, VMFrame* frame) {
+void _Object::PerformWithArguments(VMFrame* frame) {
     VMArray* args = (VMArray*)frame->Pop();
     VMSymbol* selector = (VMSymbol*)frame->Pop();
     vm_oop_t self = frame->GetStackElement(0);
@@ -99,11 +99,10 @@ void _Object::PerformWithArguments(Interpreter* interp, VMFrame* frame) {
     VMClass* clazz = CLASS_OF(self);
     VMInvokable* invokable = clazz->LookupInvokable(selector);
 
-    invokable->Invoke(interp, frame);
+    invokable->Invoke(frame);
 }
 
-void _Object::PerformWithArgumentsInSuperclass(Interpreter* interp,
-                                               VMFrame* frame) {
+void _Object::PerformWithArgumentsInSuperclass(VMFrame* frame) {
     VMClass* clazz = (VMClass*)frame->Pop();
     VMArray* args = (VMArray*)frame->Pop();
     VMSymbol* selector = (VMSymbol*)frame->Pop();
@@ -116,7 +115,7 @@ void _Object::PerformWithArgumentsInSuperclass(Interpreter* interp,
 
     VMInvokable* invokable = clazz->LookupInvokable(selector);
 
-    invokable->Invoke(interp, frame);
+    invokable->Invoke(frame);
 }
 
 vm_oop_t objInstVarAt(vm_oop_t self, vm_oop_t idx) {

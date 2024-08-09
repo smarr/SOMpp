@@ -7,7 +7,6 @@
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMClass.h"  // NOLINT(misc-include-cleaner) it's required to make the types complete
 #include "../vmobjects/VMFrame.h"
-#include "../vmobjects/VMMethod.h"
 #include "../vmobjects/VMSymbol.h"  // NOLINT(misc-include-cleaner) it's required to make the types complete
 
 static vm_oop_t pHolder(vm_oop_t rcvr) {
@@ -20,7 +19,7 @@ static vm_oop_t pSignature(vm_oop_t rcvr) {
     return self->GetSignature();
 }
 
-void _Primitive::InvokeOn_With_(Interpreter* interp, VMFrame* frame) {
+void _Primitive::InvokeOn_With_(VMFrame* frame) {
     // REM: this is a clone with _Primitive::InvokeOn_With_
     VMArray* args = static_cast<VMArray*>(frame->Pop());
     vm_oop_t rcvr = static_cast<vm_oop_t>(frame->Pop());
@@ -33,7 +32,7 @@ void _Primitive::InvokeOn_With_(Interpreter* interp, VMFrame* frame) {
         vm_oop_t arg = args->GetIndexableField(i);
         frame->Push(arg);
     }
-    mthd->Invoke(interp, frame);
+    mthd->Invoke(frame);
 }
 
 _Primitive::_Primitive() : PrimitiveContainer() {

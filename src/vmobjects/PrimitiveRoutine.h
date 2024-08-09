@@ -34,7 +34,7 @@ class PrimitiveRoutine {
 public:
     PrimitiveRoutine() {};
 
-    virtual void Invoke(Interpreter*, VMFrame*) = 0;  // call using operator
+    virtual void Invoke(VMFrame*) = 0;  // call using operator
     virtual bool isClassSide() = 0;
 };
 

@@ -19,7 +19,7 @@ VMSafePrimitive* VMSafePrimitive::GetSafeUnary(VMSymbol* sig, UnaryPrim prim) {
     return p;
 }
 
-VMFrame* VMSafeUnaryPrimitive::Invoke(Interpreter*, VMFrame* frame) {
+VMFrame* VMSafeUnaryPrimitive::Invoke(VMFrame* frame) {
     vm_oop_t receiverObj = frame->Pop();
 
     frame->Push(prim.pointer(receiverObj));
@@ -33,7 +33,7 @@ VMSafePrimitive* VMSafePrimitive::GetSafeBinary(VMSymbol* sig,
     return p;
 }
 
-VMFrame* VMSafeBinaryPrimitive::Invoke(Interpreter*, VMFrame* frame) {
+VMFrame* VMSafeBinaryPrimitive::Invoke(VMFrame* frame) {
     vm_oop_t rightObj = frame->Pop();
     vm_oop_t leftObj = frame->Pop();
 
@@ -48,7 +48,7 @@ VMSafePrimitive* VMSafePrimitive::GetSafeTernary(VMSymbol* sig,
     return p;
 }
 
-VMFrame* VMSafeTernaryPrimitive::Invoke(Interpreter*, VMFrame* frame) {
+VMFrame* VMSafeTernaryPrimitive::Invoke(VMFrame* frame) {
     vm_oop_t arg2 = frame->Pop();
     vm_oop_t arg1 = frame->Pop();
     vm_oop_t self = frame->Pop();

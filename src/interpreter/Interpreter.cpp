@@ -56,9 +56,13 @@ const std::string Interpreter::doesNotUnderstand =
     "doesNotUnderstand:arguments:";
 const std::string Interpreter::escapedBlock = "escapedBlock:";
 
-Interpreter::Interpreter() : frame(nullptr) {}
+VMFrame* Interpreter::frame = nullptr;
+VMMethod* Interpreter::method = nullptr;
 
-Interpreter::~Interpreter() {}
+// The following three variables are used to cache main parts of the
+// current execution context
+long Interpreter::bytecodeIndexGlobal;
+uint8_t* Interpreter::currentBytecodes;
 
 vm_oop_t Interpreter::StartAndPrintBytecodes() {
 #define PROLOGUE(bc_count)               \
@@ -85,20 +89,20 @@ VMFrame* Interpreter::PushNewFrame(VMMethod* method) {
     return GetFrame();
 }
 
-void Interpreter::SetFrame(VMFrame* frame) {
-    if (this->frame != nullptr) {
-        this->frame->SetBytecodeIndex(bytecodeIndexGlobal);
+void Interpreter::SetFrame(VMFrame* frm) {
+    if (frame != nullptr) {
+        frame->SetBytecodeIndex(bytecodeIndexGlobal);
     }
 
-    this->frame = frame;
+    frame = frm;
 
     // update cached values
-    method = frame->GetMethod();
-    bytecodeIndexGlobal = frame->GetBytecodeIndex();
+    method = frm->GetMethod();
+    bytecodeIndexGlobal = frm->GetBytecodeIndex();
     currentBytecodes = method->GetBytecodes();
 }
 
-vm_oop_t Interpreter::GetSelf() const {
+vm_oop_t Interpreter::GetSelf() {
     VMFrame* context = GetFrame()->GetOuterContext();
     return context->GetArgumentInCurrentContext(0);
 }
@@ -146,7 +150,7 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
         // since an invokable is able to change/use the frame, we have to write
         // cached values before, and read cached values after calling
         GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
-        invokable->Invoke(this, GetFrame());
+        invokable->Invoke(GetFrame());
         bytecodeIndexGlobal = GetFrame()->GetBytecodeIndex();
     } else {
         triggerDoesNotUnderstand(signature);
@@ -181,7 +185,7 @@ void Interpreter::triggerDoesNotUnderstand(VMSymbol* signature) {
         SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
     }
 
-    AS_OBJ(receiver)->Send(this, doesNotUnderstand, arguments, 2);
+    AS_OBJ(receiver)->Send(doesNotUnderstand, arguments, 2);
 }
 
 void Interpreter::doDup() {
@@ -294,7 +298,7 @@ void Interpreter::SendUnknownGlobal(VMSymbol* globalName) {
         SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
     }
 
-    AS_OBJ(self)->Send(this, unknownGlobal, arguments, 1);
+    AS_OBJ(self)->Send(unknownGlobal, arguments, 1);
 }
 
 void Interpreter::doPop() {
@@ -375,7 +379,7 @@ void Interpreter::doSuperSend(long bytecodeIndex) {
         static_cast<VMInvokable*>(super->LookupInvokable(signature));
 
     if (invokable != nullptr) {
-        invokable->Invoke(this, GetFrame());
+        invokable->Invoke(GetFrame());
     } else {
         long numOfArgs = Signature::GetNumberOfArguments(signature);
         vm_oop_t receiver = GetFrame()->GetStackElement(numOfArgs - 1);
@@ -387,7 +391,7 @@ void Interpreter::doSuperSend(long bytecodeIndex) {
         }
         vm_oop_t arguments[] = {signature, argumentsArray};
 
-        AS_OBJ(receiver)->Send(this, doesNotUnderstand, arguments, 2);
+        AS_OBJ(receiver)->Send(doesNotUnderstand, arguments, 2);
     }
 }
 
@@ -428,7 +432,7 @@ void Interpreter::doReturnNonLocal() {
                 VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
         }
 
-        AS_OBJ(sender)->Send(this, escapedBlock, arguments, 1);
+        AS_OBJ(sender)->Send(escapedBlock, arguments, 1);
         return;
     }
 
@@ -487,14 +491,14 @@ void Interpreter::startGC() {
     currentBytecodes = method->GetBytecodes();
 }
 
-VMMethod* Interpreter::GetMethod() const {
+VMMethod* Interpreter::GetMethod() {
     return GetFrame()->GetMethod();
 }
 
-uint8_t* Interpreter::GetBytecodes() const {
+uint8_t* Interpreter::GetBytecodes() {
     return method->GetBytecodes();
 }
 
-void Interpreter::disassembleMethod() const {
+void Interpreter::disassembleMethod() {
     Disassembler::DumpBytecode(GetFrame(), GetMethod(), bytecodeIndexGlobal);
 }

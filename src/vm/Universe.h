@@ -53,8 +53,6 @@ public:
 
     static long setupClassPath(const StdString& cp);
 
-    static Interpreter* GetInterpreter() { return &interpreter; }
-
     static void Assert(bool);
 
     // VMObject instanciation methods. These should probably be refactored to a
@@ -134,6 +132,4 @@ private:
 
     static map<long, GCClass*> blockClassesByNoOfArgs;
     static vector<StdString> classPath;
-
-    static Interpreter interpreter;
 };
