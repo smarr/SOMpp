@@ -254,11 +254,32 @@ void EmitRETURNSELF(MethodGenerationContext& mgenc) {
 }
 
 void EmitRETURNLOCAL(MethodGenerationContext& mgenc) {
-    Emit1(mgenc, BC_RETURN_LOCAL, 0);
+    if (!mgenc.OptimizeReturnField()) {
+        Emit1(mgenc, BC_RETURN_LOCAL, 0);
+    }
 }
 
 void EmitRETURNNONLOCAL(MethodGenerationContext& mgenc) {
     Emit1(mgenc, BC_RETURN_NON_LOCAL, 0);
+}
+
+void EmitRETURNFIELD(MethodGenerationContext& mgenc, size_t index) {
+    assert(index <= 2);
+    uint8_t bc = 0;
+    switch (index) {
+        case 0:
+            bc = BC_RETURN_FIELD_0;
+            break;
+
+        case 1:
+            bc = BC_RETURN_FIELD_1;
+            break;
+
+        case 2:
+            bc = BC_RETURN_FIELD_2;
+            break;
+    }
+    Emit1(mgenc, bc, 0);
 }
 
 void EmitINC(MethodGenerationContext& mgenc) {

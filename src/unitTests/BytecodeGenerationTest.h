@@ -55,6 +55,15 @@ class BytecodeGenerationTest : public TestWithParsing {
     CPPUNIT_TEST(testIfReturnNonLocal);
 
     CPPUNIT_TEST(testJumpQueuesOrdering);
+    CPPUNIT_TEST(testNestedIfs);
+    CPPUNIT_TEST(testNestedIfsAndLocals);
+    CPPUNIT_TEST(testFieldReadInlining);
+    CPPUNIT_TEST(testReturnField);
+    CPPUNIT_TEST(testTrivialMethodInlining);
+    CPPUNIT_TEST(testBlockIfTrueArg);
+    CPPUNIT_TEST(testBlockIfTrueMethodArg);
+    CPPUNIT_TEST(testIfTrueIfFalseReturn);
+    CPPUNIT_TEST(testBlockIfReturnNonLocal);
 
     CPPUNIT_TEST_SUITE_END();
 
@@ -129,4 +138,22 @@ private:
     void testInliningOfToDo();
 
     void testJumpQueuesOrdering();
+
+    void testNestedIfs();
+    void testNestedIfsAndLocals();
+
+    void testFieldReadInlining();
+    void testReturnField();
+    void returnField(size_t fieldNum, BC bytecode, bool isReturnFieldBc);
+
+    void testTrivialMethodInlining();
+    void trivialMethodInlining(std::string literal, BC bytecode);
+
+    void testBlockIfTrueArg();
+    void testBlockIfTrueMethodArg();
+    void testIfTrueIfFalseReturn();
+    void ifTrueIfFalseReturn(std::string sel1, std::string sel2, BC bc);
+
+    void testBlockIfReturnNonLocal();
+    void blockIfReturnNonLocal(std::string sel, BC bc);
 };
