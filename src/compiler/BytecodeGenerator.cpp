@@ -221,6 +221,8 @@ void EmitPOPARGUMENT(MethodGenerationContext& mgenc, long idx, int ctx) {
 void EmitPOPFIELD(MethodGenerationContext& mgenc, VMSymbol* field) {
     const uint8_t idx = mgenc.GetFieldIndex(field);
 
+    if (mgenc.OptimizeIncField(idx)) {
+        return;
     }
 
     EmitPopFieldWithIndex(mgenc, idx);
@@ -280,6 +282,14 @@ void EmitRETURNFIELD(MethodGenerationContext& mgenc, size_t index) {
 
 void EmitINC(MethodGenerationContext& mgenc) {
     Emit1(mgenc, BC_INC, 0);
+}
+
+void EmitDEC(MethodGenerationContext& mgenc) {
+    Emit1(mgenc, BC_DEC, 0);
+}
+
+void EmitIncFieldPush(MethodGenerationContext& mgenc, uint8_t fieldIdx) {
+    Emit2(mgenc, BC_INC_FIELD_PUSH, fieldIdx, 1);
 }
 
 void EmitDupSecond(MethodGenerationContext& mgenc) {

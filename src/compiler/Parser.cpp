@@ -604,9 +604,40 @@ void Parser::unaryMessage(MethodGenerationContext& mgenc, bool super) {
     }
 }
 
+bool Parser::tryIncOrDecBytecodes(VMSymbol* msg, bool isSuperSend,
+                                  MethodGenerationContext& mgenc) {
+    if (isSuperSend) {
+        return false;
+    }
+
+    bool isPlus = msg == load_ptr(symbolPlus);
+    bool isMinus = msg == load_ptr(symbolMinus);
+
+    if (!isPlus && !isMinus) {
+        return false;
+    }
+
+    if (sym != Integer || text != "1") {
+        return false;
+    }
+
+    expect(Integer);
+    if (isPlus) {
+        EmitINC(mgenc);
+    } else {
+        assert(isMinus);
+        EmitDEC(mgenc);
+    }
+    return true;
+}
+
 void Parser::binaryMessage(MethodGenerationContext& mgenc, bool super) {
     std::string msgSelector(text);
     VMSymbol* msg = binarySelector();
+
+    if (tryIncOrDecBytecodes(msg, super, mgenc)) {
+        return;
+    }
 
     binaryOperand(mgenc);
 

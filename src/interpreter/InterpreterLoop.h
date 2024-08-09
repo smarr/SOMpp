@@ -46,6 +46,9 @@ vm_oop_t Start() {
                            &&LABEL_BC_RETURN_FIELD_1,
                            &&LABEL_BC_RETURN_FIELD_2,
                            &&LABEL_BC_INC,
+                           &&LABEL_BC_DEC,
+                           &&LABEL_BC_INC_FIELD,
+                           &&LABEL_BC_INC_FIELD_PUSH,
                            &&LABEL_BC_JUMP,
                            &&LABEL_BC_JUMP_ON_FALSE_POP,
                            &&LABEL_BC_JUMP_ON_TRUE_POP,
@@ -291,6 +294,21 @@ LABEL_BC_RETURN_FIELD_2:
 LABEL_BC_INC:
     PROLOGUE(1);
     doInc();
+    DISPATCH_NOGC();
+
+LABEL_BC_DEC:
+    PROLOGUE(1);
+    doDec();
+    DISPATCH_NOGC();
+
+LABEL_BC_INC_FIELD:
+    PROLOGUE(2);
+    doIncField(currentBytecodes[bytecodeIndexGlobal - 1]);
+    DISPATCH_NOGC();
+
+LABEL_BC_INC_FIELD_PUSH:
+    PROLOGUE(2);
+    doIncFieldPush(currentBytecodes[bytecodeIndexGlobal - 1]);
     DISPATCH_NOGC();
 
 LABEL_BC_JUMP: {

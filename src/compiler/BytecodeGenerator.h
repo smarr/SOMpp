@@ -61,6 +61,9 @@ void EmitRETURNNONLOCAL(MethodGenerationContext& mgenc);
 void EmitRETURNFIELD(MethodGenerationContext& mgenc, size_t index);
 
 void EmitINC(MethodGenerationContext& mgenc);
+void EmitDEC(MethodGenerationContext& mgenc);
+void EmitIncFieldPush(MethodGenerationContext& mgenc, uint8_t fieldIdx);
+
 void EmitDupSecond(MethodGenerationContext& mgenc);
 
 size_t EmitJumpOnBoolWithDummyOffset(MethodGenerationContext& mgenc,

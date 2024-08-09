@@ -19,6 +19,9 @@ GCSymbol* symbolBlockSelf;
 GCSymbol* symbolIfTrue;
 GCSymbol* symbolIfFalse;
 
+GCSymbol* symbolPlus;
+GCSymbol* symbolMinus;
+
 VMSymbol* NewSymbol(const size_t length, const char* str) {
     VMSymbol* result =
         new (GetHeap<HEAP_CLS>(), PADDED_SIZE(length)) VMSymbol(length, str);
@@ -43,6 +46,9 @@ void InitializeSymbols() {
     symbolBlockSelf = store_root(SymbolFor("$blockSelf"));
     symbolIfTrue = store_root(SymbolFor("ifTrue:"));
     symbolIfFalse = store_root(SymbolFor("ifFalse:"));
+
+    symbolPlus = store_root(SymbolFor("+"));
+    symbolMinus = store_root(SymbolFor("-"));
 }
 
 void WalkSymbols(walk_heap_fn walk) {
@@ -60,4 +66,7 @@ void WalkSymbols(walk_heap_fn walk) {
     symbolBlockSelf = static_cast<GCSymbol*>(walk(symbolBlockSelf));
     symbolIfTrue = static_cast<GCSymbol*>(walk(symbolIfTrue));
     symbolIfFalse = static_cast<GCSymbol*>(walk(symbolIfFalse));
+
+    symbolPlus = static_cast<GCSymbol*>(walk(symbolPlus));
+    symbolMinus = static_cast<GCSymbol*>(walk(symbolMinus));
 }

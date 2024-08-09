@@ -94,6 +94,9 @@ private:
     std::string variable();
     void messages(MethodGenerationContext& mgenc, bool super);
     void unaryMessage(MethodGenerationContext& mgenc, bool super);
+
+    bool tryIncOrDecBytecodes(VMSymbol* msg, bool isSuperSend,
+                              MethodGenerationContext& mgenc);
     void binaryMessage(MethodGenerationContext& mgenc, bool super);
     bool binaryOperand(MethodGenerationContext& mgenc);
     void keywordMessage(MethodGenerationContext& mgenc, bool super);

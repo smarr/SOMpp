@@ -57,6 +57,11 @@ class BytecodeGenerationTest : public TestWithParsing {
     CPPUNIT_TEST(testJumpQueuesOrdering);
     CPPUNIT_TEST(testNestedIfs);
     CPPUNIT_TEST(testNestedIfsAndLocals);
+
+    CPPUNIT_TEST(testIncDecBytecodes);
+    CPPUNIT_TEST(testIfTrueAndIncField);
+    CPPUNIT_TEST(testIfTrueAndIncArg);
+
     CPPUNIT_TEST(testFieldReadInlining);
     CPPUNIT_TEST(testReturnField);
     CPPUNIT_TEST(testTrivialMethodInlining);
@@ -64,6 +69,11 @@ class BytecodeGenerationTest : public TestWithParsing {
     CPPUNIT_TEST(testBlockIfTrueMethodArg);
     CPPUNIT_TEST(testIfTrueIfFalseReturn);
     CPPUNIT_TEST(testBlockIfReturnNonLocal);
+    CPPUNIT_TEST(testIncField);
+    CPPUNIT_TEST(testIncFieldNonTrivial);
+    CPPUNIT_TEST(testReturnIncFieldFromBlock);
+    CPPUNIT_TEST(testReturnIncField);
+    CPPUNIT_TEST(testFieldReadIncWrite);
 
     CPPUNIT_TEST_SUITE_END();
 
@@ -142,6 +152,12 @@ private:
     void testNestedIfs();
     void testNestedIfsAndLocals();
 
+    void testIncDecBytecodes();
+    void incDecBytecodes(std::string sel, uint8_t bc);
+
+    void testIfTrueAndIncField();
+    void testIfTrueAndIncArg();
+
     void testFieldReadInlining();
     void testReturnField();
     void returnField(size_t fieldNum, BC bytecode, bool isReturnFieldBc);
@@ -156,4 +172,18 @@ private:
 
     void testBlockIfReturnNonLocal();
     void blockIfReturnNonLocal(std::string sel, BC bc);
+
+    void testIncField();
+    void incField(size_t fieldNum);
+
+    void testIncFieldNonTrivial();
+    void incFieldNonTrivial(size_t fieldNum);
+
+    void testReturnIncField();
+    void returnIncField(size_t fieldNum);
+
+    void testReturnIncFieldFromBlock();
+    void returnIncFieldFromBlock(size_t fieldNum);
+
+    void testFieldReadIncWrite();
 };

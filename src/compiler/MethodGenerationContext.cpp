@@ -843,7 +843,7 @@ void MethodGenerationContext::RemoveLastPopForBlockLocalReturn() {
         return;
     }
 
-    if (lastBytecodeIsOneOf(0, IsPopSmthBytecode) &&
+    if (lastBytecodeIsOneOf(0, IsPopSmthBytecode) != BC_INVALID &&
         !LastBytecodeIs(1, BC_DUP)) {
         // we just removed the DUP and didn't emit the POP using
         // optimizeDupPopPopSequence() so, to make blocks work, we need to
@@ -864,14 +864,17 @@ void MethodGenerationContext::RemoveLastPopForBlockLocalReturn() {
         // need to push it.
         last4Bytecodes[3] = BC_INC_FIELD_PUSH;
 
-        size_t bcOffset = bytecode.size() - 3;
+        size_t bcOffset = bytecode.size() - 2;
 
         // since the bytecodes have the same length, we can just switch the
         // opcode
-        assert(Bytecode::GetBytecodeLength(BC_INC_FIELD_PUSH) == 3);
-        assert(Bytecode::GetBytecodeLength(BC_INC_FIELD) == 3);
+        assert(Bytecode::GetBytecodeLength(BC_INC_FIELD_PUSH) == 2);
+        assert(Bytecode::GetBytecodeLength(BC_INC_FIELD) == 2);
         assert(bytecode[bcOffset] == BC_INC_FIELD);
         bytecode[bcOffset] = BC_INC_FIELD_PUSH;
+
+        currentStackDepth += 1;
+        maxStackDepth = max(maxStackDepth, currentStackDepth);
     }
 }
 
@@ -905,6 +908,80 @@ bool MethodGenerationContext::OptimizeDupPopPopSequence() {
     last4Bytecodes[0] = BC_INVALID;
 
     return true;
+}
+
+bool MethodGenerationContext::optimizeIncFieldPush() {
+    assert(Bytecode::GetBytecodeLength(BC_INC_FIELD_PUSH) == 2);
+
+    size_t bcIdx = bytecode.size() - 2;
+    assert(bytecode.at(bcIdx) == BC_INC_FIELD_PUSH);
+
+    bytecode[bcIdx] = BC_INC_FIELD;
+    last4Bytecodes[3] = BC_INC_FIELD;
+
+    return true;
+}
+
+/**
+ * Try using a INC_FIELD bytecode instead of the following sequence.
+ *
+ *  PUSH_FIELD
+ *  INC
+ *  DUP
+ *  POP_FIELD
+ *
+ * return true, if it optimized it.
+ */
+bool MethodGenerationContext::OptimizeIncField(uint8_t fieldIdx) {
+    if (isCurrentlyInliningABlock) {
+        return false;
+    }
+
+    if (!LastBytecodeIs(0, BC_DUP)) {
+        return false;
+    }
+
+    if (!LastBytecodeIs(1, BC_INC)) {
+        return false;
+    }
+
+    uint8_t pushCandidate = lastBytecodeIsOneOf(2, IsPushFieldBytecode);
+    if (pushCandidate == BC_INVALID) {
+        return false;
+    }
+
+    assert(Bytecode::GetBytecodeLength(BC_DUP) == 1);
+    assert(Bytecode::GetBytecodeLength(BC_INC) == 1);
+
+    size_t bcOffset = 1 + 1 + Bytecode::GetBytecodeLength(pushCandidate);
+    uint8_t candidateFieldIdx = 0;
+
+    switch (pushCandidate) {
+        case BC_PUSH_FIELD_0:
+            candidateFieldIdx = 0;
+            break;
+        case BC_PUSH_FIELD_1:
+            candidateFieldIdx = 1;
+            break;
+        case BC_PUSH_FIELD: {
+            assert(bytecode.at(bytecode.size() - bcOffset) == pushCandidate);
+            candidateFieldIdx = bytecode.at((bytecode.size() - bcOffset) + 1);
+            break;
+        }
+
+        default:
+            ErrorExit("Unexpected bytecode");
+            break;
+    }
+
+    if (candidateFieldIdx == fieldIdx) {
+        removeLastBytecodes(3);
+        resetLastBytecodeBuffer();
+        EmitIncFieldPush(*this, fieldIdx);
+        return true;
+    }
+
+    return false;
 }
 
 bool MethodGenerationContext::OptimizeReturnField() {

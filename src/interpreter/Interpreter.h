@@ -109,5 +109,8 @@ private:
     static void doReturnLocal();
     static void doReturnNonLocal();
     static void doInc();
+    static void doDec();
+    static void doIncField(uint8_t fieldIndex);
+    static void doIncFieldPush(uint8_t fieldIndex);
     static bool checkIsGreater();
 };

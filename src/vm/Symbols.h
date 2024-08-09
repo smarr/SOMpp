@@ -22,6 +22,9 @@ extern GCSymbol* symbolBlockSelf;
 extern GCSymbol* symbolIfTrue;
 extern GCSymbol* symbolIfFalse;
 
+extern GCSymbol* symbolPlus;
+extern GCSymbol* symbolMinus;
+
 const char* const strBlockSelf = "$blockSelf";
 const char* const strSuper = "super";
 const char* const strSelf = "self";
