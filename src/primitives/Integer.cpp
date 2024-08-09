@@ -49,14 +49,14 @@
 
 double coerceDouble(vm_oop_t x);
 
-#define doDoubleOpIfNeeded(leftInt, rightObj, op)                 \
-    {                                                             \
-        VMClass* cl = CLASS_OF(rightObj);                         \
-        if (cl == load_ptr(doubleClass)) {                        \
-            double leftDbl = (double)leftInt;                     \
-            double rightDbl = coerceDouble(rightObj);             \
-            return GetUniverse()->NewDouble(leftDbl op rightDbl); \
-        }                                                         \
+#define doDoubleOpIfNeeded(leftInt, rightObj, op)            \
+    {                                                        \
+        VMClass* cl = CLASS_OF(rightObj);                    \
+        if (cl == load_ptr(doubleClass)) {                   \
+            double leftDbl = (double)leftInt;                \
+            double rightDbl = coerceDouble(rightObj);        \
+            return Universe::NewDouble(leftDbl op rightDbl); \
+        }                                                    \
     }
 
 static vm_oop_t intPlus(vm_oop_t leftObj, vm_oop_t rightObj) {
@@ -106,7 +106,7 @@ static vm_oop_t intSlashslash(vm_oop_t leftObj, vm_oop_t rightObj) {
     doDoubleOpIfNeeded(left, rightObj, /);
 
     double result = (double)left / (double)INT_VAL(rightObj);
-    return GetUniverse()->NewDouble(result);
+    return Universe::NewDouble(result);
 }
 
 static vm_oop_t intSlash(vm_oop_t leftObj, vm_oop_t rightObj) {
@@ -237,12 +237,12 @@ static vm_oop_t intAsString(vm_oop_t self) {
     long integer = INT_VAL(self);
     ostringstream Str;
     Str << integer;
-    return GetUniverse()->NewString(Str.str());
+    return Universe::NewString(Str.str());
 }
 
 static vm_oop_t intAsDouble(vm_oop_t self) {
     long integer = INT_VAL(self);
-    return GetUniverse()->NewDouble((double)integer);
+    return Universe::NewDouble((double)integer);
 }
 
 static vm_oop_t intAs32BitSigned(vm_oop_t self) {
@@ -261,7 +261,7 @@ static vm_oop_t intSqrt(vm_oop_t self) {
     if (result == rint(result)) {
         return NEW_INT((int64_t)result);
     } else {
-        return GetUniverse()->NewDouble(result);
+        return Universe::NewDouble(result);
     }
 }
 
@@ -333,7 +333,7 @@ static vm_oop_t intRange(vm_oop_t leftObj, vm_oop_t rightObj) {
     int64_t right = INT_VAL(rightObj);
 
     int64_t numInteger = right - left + 1;
-    VMArray* arr = GetUniverse()->NewArray(numInteger);
+    VMArray* arr = Universe::NewArray(numInteger);
 
     size_t index = 0;
     for (int64_t i = left; i <= right; i += 1, index += 1) {

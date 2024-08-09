@@ -126,8 +126,8 @@ void VMMethod::SetCachedFrame(VMFrame* frame) {
 }
 #endif
 
-VMFrame* VMMethod::Invoke(Interpreter* interp, VMFrame* frame) {
-    VMFrame* frm = interp->PushNewFrame(this);
+VMFrame* VMMethod::Invoke(VMFrame* frame) {
+    VMFrame* frm = Interpreter::PushNewFrame(this);
     frm->CopyArgumentsFrom(frame);
     return frm;
 }

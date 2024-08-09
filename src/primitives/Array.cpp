@@ -53,7 +53,7 @@ static vm_oop_t arrLength(vm_oop_t leftObj) {
 
 static vm_oop_t arrNew(vm_oop_t, vm_oop_t arg) {
     int64_t size = INT_VAL(arg);
-    return GetUniverse()->NewArray(size);
+    return Universe::NewArray(size);
 }
 
 static vm_oop_t arrCopy(vm_oop_t rcvr) {

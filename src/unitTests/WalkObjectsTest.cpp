@@ -62,7 +62,7 @@ bool WalkerHasFound(gc_oop_t obj) {
 
 void WalkObjectsTest::testWalkInteger() {
     walkedObjects.clear();
-    VMInteger* int1 = GetUniverse()->NewInteger(42);
+    VMInteger* int1 = Universe::NewInteger(42);
     int1->WalkObjects(collectMembers);
 
     // Integers have no additional members
@@ -71,7 +71,7 @@ void WalkObjectsTest::testWalkInteger() {
 
 void WalkObjectsTest::testWalkDouble() {
     walkedObjects.clear();
-    VMDouble* d1 = GetUniverse()->NewDouble(432.1);
+    VMDouble* d1 = Universe::NewDouble(432.1);
     d1->WalkObjects(collectMembers);
 
     // Doubles have no additional members
@@ -104,7 +104,7 @@ void WalkObjectsTest::testWalkObject() {
 
 void WalkObjectsTest::testWalkString() {
     walkedObjects.clear();
-    VMString* str1 = GetUniverse()->NewString("str1");
+    VMString* str1 = Universe::NewString("str1");
     str1->WalkObjects(collectMembers);
 
     CPPUNIT_ASSERT_EQUAL(NoOfFields_String, walkedObjects.size());
@@ -120,7 +120,7 @@ void WalkObjectsTest::testWalkSymbol() {
 
 void WalkObjectsTest::testWalkClass() {
     walkedObjects.clear();
-    VMClass* meta = GetUniverse()->NewMetaclassClass();
+    VMClass* meta = Universe::NewMetaclassClass();
     meta->superClass = stringClass;
     meta->WalkObjects(collectMembers);
 
@@ -150,14 +150,14 @@ void WalkObjectsTest::testWalkFrame() {
     VMSymbol* methodSymbol = NewSymbol("frameMethod");
 
     vector<BackJump> inlinedLoops;
-    VMMethod* method = GetUniverse()->NewMethod(
-        methodSymbol, 0, 0, 0, 0, new LexicalScope(nullptr, {}, {}),
-        inlinedLoops);
+    VMMethod* method =
+        Universe::NewMethod(methodSymbol, 0, 0, 0, 0,
+                            new LexicalScope(nullptr, {}, {}), inlinedLoops);
 
-    VMFrame* frame = GetUniverse()->NewFrame(nullptr, method);
+    VMFrame* frame = Universe::NewFrame(nullptr, method);
     frame->SetPreviousFrame(frame->CloneForMovingGC());
     frame->SetContext(frame->CloneForMovingGC());
-    VMInteger* dummyArg = GetUniverse()->NewInteger(1111);
+    VMInteger* dummyArg = Universe::NewInteger(1111);
     frame->SetArgument(0, 0, dummyArg);
     frame->WalkObjects(collectMembers);
 
@@ -205,7 +205,7 @@ void WalkObjectsTest::testWalkMethod() {
 
     vector<BackJump> inlinedLoops;
     VMMethod* method =
-        GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0, scope, inlinedLoops);
+        Universe::NewMethod(methodSymbol, 0, 0, 0, 0, scope, inlinedLoops);
 
     method->SetHolder(load_ptr(symbolClass));
     method->WalkObjects(collectMembers);
@@ -223,13 +223,12 @@ void WalkObjectsTest::testWalkBlock() {
     VMSymbol* methodSymbol = NewSymbol("someMethod");
 
     vector<BackJump> inlinedLoops;
-    VMMethod* method = GetUniverse()->NewMethod(
-        methodSymbol, 0, 0, 0, 0, new LexicalScope(nullptr, {}, {}),
-        inlinedLoops);
+    VMMethod* method =
+        Universe::NewMethod(methodSymbol, 0, 0, 0, 0,
+                            new LexicalScope(nullptr, {}, {}), inlinedLoops);
 
-    VMBlock* block = GetUniverse()->NewBlock(
-        method, GetUniverse()->GetInterpreter()->GetFrame(),
-        method->GetNumberOfArguments());
+    VMBlock* block = Universe::NewBlock(method, Interpreter::GetFrame(),
+                                        method->GetNumberOfArguments());
     block->WalkObjects(collectMembers);
     CPPUNIT_ASSERT_EQUAL(NoOfFields_Block, walkedObjects.size());
     CPPUNIT_ASSERT(WalkerHasFound(tmp_ptr(block->GetClass())));
@@ -239,9 +238,9 @@ void WalkObjectsTest::testWalkBlock() {
 
 void WalkObjectsTest::testWalkArray() {
     walkedObjects.clear();
-    VMString* str1 = GetUniverse()->NewString("str1");
-    VMInteger* int1 = GetUniverse()->NewInteger(42);
-    VMArray* a = GetUniverse()->NewArray(2);
+    VMString* str1 = Universe::NewString("str1");
+    VMInteger* int1 = Universe::NewInteger(42);
+    VMArray* a = Universe::NewArray(2);
     a->SetIndexableField(0, str1);
     a->SetIndexableField(1, int1);
     a->WalkObjects(collectMembers);

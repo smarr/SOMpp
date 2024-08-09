@@ -8,6 +8,7 @@
 #include "../compiler/BytecodeGenerator.h"
 #include "../compiler/MethodGenerationContext.h"
 #include "../compiler/Variable.h"
+#include "../interpreter/Interpreter.h"
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../vm/LogAllocation.h"
@@ -49,7 +50,7 @@ VMTrivialMethod* MakeSetter(VMSymbol* sig, vector<Variable>& arguments,
     return result;
 }
 
-VMFrame* VMLiteralReturn::Invoke(Interpreter*, VMFrame* frame) {
+VMFrame* VMLiteralReturn::Invoke(VMFrame* frame) {
     for (int i = 0; i < numberOfArguments; i += 1) {
         frame->Pop();
     }
@@ -77,16 +78,16 @@ void VMLiteralReturn::InlineInto(MethodGenerationContext& mgenc, bool) {
     EmitPUSHCONSTANT(mgenc, load_ptr(literal));
 }
 
-VMFrame* VMGlobalReturn::Invoke(Interpreter* interpreter, VMFrame* frame) {
+VMFrame* VMGlobalReturn::Invoke(VMFrame* frame) {
     for (int i = 0; i < numberOfArguments; i += 1) {
         frame->Pop();
     }
 
-    vm_oop_t value = GetUniverse()->GetGlobal(load_ptr(globalName));
+    vm_oop_t value = Universe::GetGlobal(load_ptr(globalName));
     if (value != nullptr) {
         frame->Push(value);
     } else {
-        interpreter->SendUnknownGlobal(load_ptr(globalName));
+        Interpreter::SendUnknownGlobal(load_ptr(globalName));
     }
 
     return nullptr;
@@ -112,7 +113,7 @@ AbstractVMObject* VMGlobalReturn::CloneForMovingGC() const {
     return prim;
 }
 
-VMFrame* VMGetter::Invoke(Interpreter*, VMFrame* frame) {
+VMFrame* VMGetter::Invoke(VMFrame* frame) {
     vm_oop_t self = nullptr;
     for (int i = 0; i < numberOfArguments; i += 1) {
         self = frame->Pop();
@@ -150,7 +151,7 @@ std::string VMGetter::AsDebugString() const {
     return "VMGetter(fieldIndex: " + to_string(fieldIndex) + ")";
 }
 
-VMFrame* VMSetter::Invoke(Interpreter*, VMFrame* frame) {
+VMFrame* VMSetter::Invoke(VMFrame* frame) {
     vm_oop_t value = nullptr;
     vm_oop_t self = nullptr;
 

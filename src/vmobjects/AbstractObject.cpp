@@ -17,9 +17,9 @@
 #include "VMInvokable.h"
 #include "VMSymbol.h"
 
-void AbstractVMObject::Send(Interpreter* interp, std::string selectorString,
-                            vm_oop_t* arguments, long argc) {
-    VMFrame* frame = interp->GetFrame();
+void AbstractVMObject::Send(std::string selectorString, vm_oop_t* arguments,
+                            long argc) {
+    VMFrame* frame = Interpreter::GetFrame();
     VMSymbol* selector = SymbolFor(selectorString);
     frame->Push(this);
 
@@ -29,7 +29,7 @@ void AbstractVMObject::Send(Interpreter* interp, std::string selectorString,
 
     VMClass* cl = GetClass();
     VMInvokable* invokable = cl->LookupInvokable(selector);
-    invokable->Invoke(interp, frame);
+    invokable->Invoke(frame);
 }
 
 long AbstractVMObject::GetFieldIndex(VMSymbol* fieldName) const {

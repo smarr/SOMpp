@@ -44,7 +44,6 @@
 #include "../interpreter/bytecodes.h"
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
-#include "../vmobjects/AbstractObject.h"
 #include "../vmobjects/IntegerBox.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMArray.h"
@@ -76,20 +75,22 @@ gc_oop_t prebuildInts[INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE + 1];
 short dumpBytecodes;
 short gcVerbosity;
 
-Universe* Universe::theUniverse = nullptr;
-
 std::string bm_name;
 
 map<int64_t, int64_t> integerHist;
 
+map<GCSymbol*, gc_oop_t> Universe::globals;
+map<long, GCClass*> Universe::blockClassesByNoOfArgs;
+vector<StdString> Universe::classPath;
+long Universe::heapSize;
+
 void Universe::Start(long argc, char** argv) {
     BasicInit();
-    theUniverse->initialize(argc, argv);
+    Universe::initialize(argc, argv);
 }
 
 void Universe::BasicInit() {
     assert(Bytecode::BytecodeDefinitionsAreConsistent());
-    theUniverse = new Universe();
 }
 
 void Universe::Shutdown() {
@@ -135,10 +136,6 @@ void Universe::Shutdown() {
                   << it->second.noCalls - it->second.noPrimitiveCalls << endl;
     }
 #endif
-
-    if (theUniverse) {
-        delete (theUniverse);
-    }
 }
 
 vector<StdString> Universe::handleArguments(long argc, char** argv) {
@@ -194,7 +191,7 @@ vector<StdString> Universe::handleArguments(long argc, char** argv) {
 }
 
 long Universe::getClassPathExt(vector<StdString>& tokens,
-                               const StdString& arg) const {
+                               const StdString& arg) {
 #define EXT_TOKENS 2
     long result = ERR_SUCCESS;
     size_t fpIndex = arg.find_last_of(fileSeparator);
@@ -241,7 +238,7 @@ long Universe::addClassPath(const StdString& cp) {
     return ERR_SUCCESS;
 }
 
-void Universe::printUsageAndExit(char* executable) const {
+void Universe::printUsageAndExit(char* executable) {
     cout << "Usage: " << executable << " [-options] [args...]" << endl << endl;
     cout << "where options include:" << endl;
     cout << "    -cp <directories separated by " << pathSeparator << ">"
@@ -258,10 +255,6 @@ void Universe::printUsageAndExit(char* executable) const {
     cout << "    -h  show this help" << endl;
 
     Quit(ERR_SUCCESS);
-}
-
-Universe::Universe() {
-    interpreter = nullptr;
 }
 
 VMMethod* Universe::createBootstrapMethod(VMClass* holder,
@@ -282,8 +275,6 @@ vm_oop_t Universe::interpret(StdString className, StdString methodName) {
     // Hello World program as part of the unittest main.
 
     bm_name = "BasicInterpreterTests";
-
-    interpreter = new Interpreter();
 
     VMSymbol* classNameSym = SymbolFor(className);
     VMClass* clazz = LoadClass(classNameSym);
@@ -310,14 +301,14 @@ vm_oop_t Universe::interpretMethod(VMObject* receiver, VMInvokable* initialize,
 
     VMMethod* bootstrapMethod = createBootstrapMethod(load_ptr(systemClass), 2);
 
-    VMFrame* bootstrapFrame = interpreter->PushNewFrame(bootstrapMethod);
+    VMFrame* bootstrapFrame = Interpreter::PushNewFrame(bootstrapMethod);
     bootstrapFrame->Push(receiver);
 
     if (argumentsArray != nullptr) {
         bootstrapFrame->Push(argumentsArray);
     }
 
-    initialize->Invoke(interpreter, bootstrapFrame);
+    initialize->Invoke(bootstrapFrame);
 
     // reset "-d" indicator
     if (!(trace > 0)) {
@@ -325,9 +316,9 @@ vm_oop_t Universe::interpretMethod(VMObject* receiver, VMInvokable* initialize,
     }
 
     if (dumpBytecodes > 1) {
-        return interpreter->StartAndPrintBytecodes();
+        return Interpreter::StartAndPrintBytecodes();
     }
-    return interpreter->Start();
+    return Interpreter::Start();
 }
 
 void Universe::initialize(long _argc, char** _argv) {
@@ -344,8 +335,6 @@ void Universe::initialize(long _argc, char** _argv) {
 
     Heap<HEAP_CLS>::InitializeHeap(heapSize);
 
-    interpreter = new Interpreter();
-
 #if CACHE_INTEGER
     // create prebuilt integers
     for (long it = INT_CACHE_MIN_VALUE; it <= INT_CACHE_MAX_VALUE; ++it) {
@@ -360,7 +349,7 @@ void Universe::initialize(long _argc, char** _argv) {
         VMMethod* bootstrapMethod =
             createBootstrapMethod(load_ptr(systemClass), 2);
         Shell* shell = new Shell(bootstrapMethod);
-        shell->Start(interpreter);
+        shell->Start();
         return;
     }
 
@@ -372,10 +361,6 @@ void Universe::initialize(long _argc, char** _argv) {
 }
 
 Universe::~Universe() {
-    if (interpreter) {
-        delete (interpreter);
-    }
-
     // check done inside
     Heap<HEAP_CLS>::DestroyHeap();
 }
@@ -471,13 +456,13 @@ VMObject* Universe::InitializeGlobals() {
     return systemObject;
 }
 
-void Universe::Assert(bool value) const {
+void Universe::Assert(bool value) {
     if (!value) {
         ErrorPrint("Universe::Assert Assertion failed\n");
     }
 }
 
-VMClass* Universe::GetBlockClass() const {
+VMClass* Universe::GetBlockClass() {
     return load_ptr(blockClass);
 }
 
@@ -618,7 +603,7 @@ void Universe::LoadSystemClass(VMClass* systemClass) {
     }
 }
 
-VMArray* Universe::NewArray(size_t size) const {
+VMArray* Universe::NewArray(size_t size) {
     size_t additionalBytes = size * sizeof(VMObject*);
 
     bool outsideNursery;
@@ -644,8 +629,7 @@ VMArray* Universe::NewArray(size_t size) const {
     return result;
 }
 
-VMArray* Universe::NewArrayFromStrings(
-    const vector<std::string>& strings) const {
+VMArray* Universe::NewArrayFromStrings(const vector<std::string>& strings) {
     VMArray* result = NewArray(strings.size());
     size_t j = 0;
     for (const std::string& str : strings) {
@@ -656,7 +640,7 @@ VMArray* Universe::NewArrayFromStrings(
 }
 
 VMArray* Universe::NewArrayOfSymbolsFromStrings(
-    const vector<std::string>& strings) const {
+    const vector<std::string>& strings) {
     VMArray* result = NewArray(strings.size());
     size_t j = 0;
     for (const std::string& str : strings) {
@@ -666,17 +650,17 @@ VMArray* Universe::NewArrayOfSymbolsFromStrings(
     return result;
 }
 
-VMArray* Universe::NewArrayList(std::vector<VMSymbol*>& list) const {
+VMArray* Universe::NewArrayList(std::vector<VMSymbol*>& list) {
     std::vector<vm_oop_t>& objList = (std::vector<vm_oop_t>&)list;
     return NewArrayList(objList);
 }
 
-VMArray* Universe::NewArrayList(std::vector<VMInvokable*>& list) const {
+VMArray* Universe::NewArrayList(std::vector<VMInvokable*>& list) {
     std::vector<vm_oop_t>& objList = (std::vector<vm_oop_t>&)list;
     return NewArrayList(objList);
 }
 
-VMArray* Universe::NewArrayList(std::vector<vm_oop_t>& list) const {
+VMArray* Universe::NewArrayList(std::vector<vm_oop_t>& list) {
     size_t size = list.size();
     VMArray* result = NewArray(size);
 
@@ -698,7 +682,7 @@ VMBlock* Universe::NewBlock(VMInvokable* method, VMFrame* context,
     return result;
 }
 
-VMClass* Universe::NewClass(VMClass* classOfClass) const {
+VMClass* Universe::NewClass(VMClass* classOfClass) {
     size_t numFields = classOfClass->GetNumberOfInstanceFields();
     VMClass* result = nullptr;
 
@@ -716,12 +700,12 @@ VMClass* Universe::NewClass(VMClass* classOfClass) const {
     return result;
 }
 
-VMDouble* Universe::NewDouble(double value) const {
+VMDouble* Universe::NewDouble(double value) {
     LOG_ALLOCATION("VMDouble", sizeof(VMDouble));
     return new (GetHeap<HEAP_CLS>(), 0) VMDouble(value);
 }
 
-VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method) const {
+VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method) {
     VMFrame* result = nullptr;
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     result = method->GetCachedFrame();
@@ -746,7 +730,7 @@ VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method) const {
     return result;
 }
 
-VMObject* Universe::NewInstance(VMClass* classOfInstance) const {
+VMObject* Universe::NewInstance(VMClass* classOfInstance) {
     long numOfFields = classOfInstance->GetNumberOfInstanceFields();
     // the additional space needed is calculated from the number of fields
     long additionalBytes = numOfFields * sizeof(VMObject*);
@@ -759,13 +743,13 @@ VMObject* Universe::NewInstance(VMClass* classOfInstance) const {
     return result;
 }
 
-VMObject* Universe::NewInstanceWithoutFields() const {
+VMObject* Universe::NewInstanceWithoutFields() {
     VMObject* result =
         new (GetHeap<HEAP_CLS>(), 0) VMObject(0, sizeof(VMObject));
     return result;
 }
 
-VMInteger* Universe::NewInteger(int64_t value) const {
+VMInteger* Universe::NewInteger(int64_t value) {
 #ifdef GENERATE_INTEGER_HISTOGRAM
     integerHist[value / INT_HIST_SIZE] = integerHist[value / INT_HIST_SIZE] + 1;
 #endif
@@ -781,7 +765,7 @@ VMInteger* Universe::NewInteger(int64_t value) const {
     return new (GetHeap<HEAP_CLS>(), 0) VMInteger(value);
 }
 
-VMClass* Universe::NewMetaclassClass() const {
+VMClass* Universe::NewMetaclassClass() {
     VMClass* result = new (GetHeap<HEAP_CLS>(), 0) VMClass;
     VMClass* mclass = new (GetHeap<HEAP_CLS>(), 0) VMClass;
     result->SetClass(mclass);
@@ -849,13 +833,13 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
         bcIter->second = static_cast<GCClass*>(walk(bcIter->second));
     }
 
-    interpreter->WalkGlobals(walk);
+    Interpreter::WalkGlobals(walk);
 }
 
 VMMethod* Universe::NewMethod(VMSymbol* signature, size_t numberOfBytecodes,
                               size_t numberOfConstants, size_t numLocals,
                               size_t maxStackDepth, LexicalScope* lexicalScope,
-                              vector<BackJump>& inlinedLoops) const {
+                              vector<BackJump>& inlinedLoops) {
     assert(lexicalScope != nullptr &&
            "A method is expected to have a lexical scope");
 
@@ -884,11 +868,11 @@ VMMethod* Universe::NewMethod(VMSymbol* signature, size_t numberOfBytecodes,
     return result;
 }
 
-VMString* Universe::NewString(const StdString& str) const {
+VMString* Universe::NewString(const StdString& str) {
     return NewString(str.length(), str.c_str());
 }
 
-VMString* Universe::NewString(const size_t length, const char* str) const {
+VMString* Universe::NewString(const size_t length, const char* str) {
     VMString* result =
         new (GetHeap<HEAP_CLS>(), PADDED_SIZE(length)) VMString(length, str);
 
@@ -896,7 +880,7 @@ VMString* Universe::NewString(const size_t length, const char* str) const {
     return result;
 }
 
-VMClass* Universe::NewSystemClass() const {
+VMClass* Universe::NewSystemClass() {
     VMClass* systemClass = new (GetHeap<HEAP_CLS>(), 0) VMClass();
     VMClass* mclass = new (GetHeap<HEAP_CLS>(), 0) VMClass();
 

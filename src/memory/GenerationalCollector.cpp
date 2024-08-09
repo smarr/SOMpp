@@ -86,7 +86,7 @@ void GenerationalCollector::MinorCollection() {
     DebugLog("GenGC MinorCollection\n");
 
     // walk all globals of universe, and implicily the interpreter
-    GetUniverse()->WalkGlobals(&copy_if_necessary);
+    Universe::WalkGlobals(&copy_if_necessary);
 
     // and also all objects that have been detected by the write barriers
     for (vector<size_t>::iterator objIter =
@@ -108,7 +108,7 @@ void GenerationalCollector::MajorCollection() {
     DebugLog("GenGC MajorCollection\n");
 
     // first we have to mark all objects (globals and current frame recursively)
-    GetUniverse()->WalkGlobals(&mark_object);
+    Universe::WalkGlobals(&mark_object);
 
     // now that all objects are marked we can safely delete all allocated
     // objects that are not marked

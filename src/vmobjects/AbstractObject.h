@@ -21,8 +21,6 @@
 
 using namespace std;
 
-class Interpreter;
-
 // this is the base class for all VMObjects
 class AbstractVMObject : public VMObjectBase {
 public:
@@ -31,7 +29,7 @@ public:
     virtual int64_t GetHash() const = 0;
     virtual VMClass* GetClass() const = 0;
     virtual AbstractVMObject* CloneForMovingGC() const = 0;
-    void Send(Interpreter*, StdString, vm_oop_t*, long);
+    void Send(StdString, vm_oop_t*, long);
 
     /** Size in bytes of the object. */
     virtual size_t GetObjectSize() const = 0;

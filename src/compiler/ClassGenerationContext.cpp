@@ -99,26 +99,25 @@ VMClass* ClassGenerationContext::Assemble() {
     std::string ccname = string(name->GetStdString()) + " class";
 
     // Load the super class
-    VMClass* superClass = GetUniverse()->LoadClass(superName);
+    VMClass* superClass = Universe::LoadClass(superName);
 
     // Allocate the class of the resulting class
-    VMClass* resultClass = GetUniverse()->NewClass(load_ptr(metaClassClass));
+    VMClass* resultClass = Universe::NewClass(load_ptr(metaClassClass));
 
     // Initialize the class of the resulting class
-    resultClass->SetInstanceFields(GetUniverse()->NewArrayList(classFields));
-    resultClass->SetInstanceInvokables(
-        GetUniverse()->NewArrayList(classMethods));
+    resultClass->SetInstanceFields(Universe::NewArrayList(classFields));
+    resultClass->SetInstanceInvokables(Universe::NewArrayList(classMethods));
     resultClass->SetName(SymbolFor(ccname));
 
     VMClass* superMClass = superClass->GetClass();
     resultClass->SetSuperClass(superMClass);
 
     // Allocate the resulting class
-    VMClass* result = GetUniverse()->NewClass(resultClass);
+    VMClass* result = Universe::NewClass(resultClass);
 
     // Initialize the resulting class
-    result->SetInstanceFields(GetUniverse()->NewArrayList(instanceFields));
-    result->SetInstanceInvokables(GetUniverse()->NewArrayList(instanceMethods));
+    result->SetInstanceFields(Universe::NewArrayList(instanceFields));
+    result->SetInstanceInvokables(Universe::NewArrayList(instanceMethods));
     result->SetName(name);
     result->SetSuperClass(superClass);
 
@@ -126,12 +125,10 @@ VMClass* ClassGenerationContext::Assemble() {
 }
 
 void ClassGenerationContext::AssembleSystemClass(VMClass* systemClass) {
-    systemClass->SetInstanceInvokables(
-        GetUniverse()->NewArrayList(instanceMethods));
-    systemClass->SetInstanceFields(GetUniverse()->NewArrayList(instanceFields));
+    systemClass->SetInstanceInvokables(Universe::NewArrayList(instanceMethods));
+    systemClass->SetInstanceFields(Universe::NewArrayList(instanceFields));
     // class-bound == class-instance-bound
     VMClass* superMClass = systemClass->GetClass();
-    superMClass->SetInstanceInvokables(
-        GetUniverse()->NewArrayList(classMethods));
-    superMClass->SetInstanceFields(GetUniverse()->NewArrayList(classFields));
+    superMClass->SetInstanceInvokables(Universe::NewArrayList(classMethods));
+    superMClass->SetInstanceFields(Universe::NewArrayList(classFields));
 }

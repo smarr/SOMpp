@@ -61,7 +61,7 @@ Shell::~Shell() {
     // TODO
 }
 
-void Shell::Start(Interpreter* interp) {
+void Shell::Start() {
 #define QUIT_CMD "system exit"
 #define QUIT_CMD_L 11 + 1
 
@@ -78,7 +78,7 @@ void Shell::Start(Interpreter* interp) {
     cout << "SOM Shell. Type \"" << QUIT_CMD << "\" to exit.\n";
 
     // Create a fake bootstrap frame
-    currentFrame = interp->PushNewFrame(GetBootstrapMethod());
+    currentFrame = Interpreter::PushNewFrame(GetBootstrapMethod());
     // Remember the first bytecode index, e.g. index of the halt instruction
     bytecodeIndex = currentFrame->GetBytecodeIndex();
 
@@ -108,21 +108,21 @@ void Shell::Start(Interpreter* interp) {
         statement = ss.str();
 
         ++counter;
-        runClass = GetUniverse()->LoadShellClass(statement);
+        runClass = Universe::LoadShellClass(statement);
         // Compile and load the newly generated class
         if (runClass == nullptr) {
             cout << "can't compile statement.";
             continue;
         }
 
-        currentFrame = interp->GetFrame();
+        currentFrame = Interpreter::GetFrame();
 
         // Go back, so we will evaluate the bootstrap frames halt
         // instruction again
         currentFrame->SetBytecodeIndex(bytecodeIndex);
 
         // Create and push a new instance of our class on the stack
-        currentFrame->Push(GetUniverse()->NewInstance(runClass));
+        currentFrame->Push(Universe::NewInstance(runClass));
 
         // Push the old value of "it" on the stack
         currentFrame->Push(it);
@@ -131,14 +131,14 @@ void Shell::Start(Interpreter* interp) {
         VMInvokable* initialize = runClass->LookupInvokable(SymbolFor("run:"));
 
         // Invoke the run method
-        initialize->Invoke(interp, currentFrame);
+        initialize->Invoke(currentFrame);
 
         // Start the Interpreter
 
         if (dumpBytecodes > 1) {
-            interp->StartAndPrintBytecodes();
+            Interpreter::StartAndPrintBytecodes();
         } else {
-            interp->Start();
+            Interpreter::Start();
         }
 
         // Save the result of the run method

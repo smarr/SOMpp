@@ -68,5 +68,5 @@ static gc_oop_t mark_object(gc_oop_t oop) {
 
 void MarkSweepCollector::markReachableObjects() {
     // This walks the globals of the universe, and the interpreter
-    GetUniverse()->WalkGlobals(mark_object);
+    Universe::WalkGlobals(mark_object);
 }

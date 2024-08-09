@@ -47,7 +47,7 @@ void CloneObjectsTest::testCloneObject() {
 }
 
 void CloneObjectsTest::testCloneInteger() {
-    VMInteger* orig = GetUniverse()->NewInteger(42);
+    VMInteger* orig = Universe::NewInteger(42);
     VMInteger* clone = orig->CloneForMovingGC();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
@@ -61,7 +61,7 @@ void CloneObjectsTest::testCloneInteger() {
 }
 
 void CloneObjectsTest::testCloneDouble() {
-    VMDouble* orig = GetUniverse()->NewDouble(123.4);
+    VMDouble* orig = Universe::NewDouble(123.4);
     VMDouble* clone = orig->CloneForMovingGC();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
@@ -75,7 +75,7 @@ void CloneObjectsTest::testCloneDouble() {
 }
 
 void CloneObjectsTest::testCloneString() {
-    VMString* orig = GetUniverse()->NewString("foobar");
+    VMString* orig = Universe::NewString("foobar");
     VMString* clone = orig->CloneForMovingGC();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
@@ -116,10 +116,10 @@ void CloneObjectsTest::testCloneSymbol() {
 }
 
 void CloneObjectsTest::testCloneArray() {
-    VMArray* orig = GetUniverse()->NewArray(3);
-    orig->SetIndexableField(0, GetUniverse()->NewString("foobar42"));
-    orig->SetIndexableField(1, GetUniverse()->NewString("foobar43"));
-    orig->SetIndexableField(2, GetUniverse()->NewString("foobar44"));
+    VMArray* orig = Universe::NewArray(3);
+    orig->SetIndexableField(0, Universe::NewString("foobar42"));
+    orig->SetIndexableField(1, Universe::NewString("foobar43"));
+    orig->SetIndexableField(2, Universe::NewString("foobar44"));
     VMArray* clone = orig->CloneForMovingGC();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
@@ -147,12 +147,11 @@ void CloneObjectsTest::testCloneBlock() {
     VMSymbol* methodSymbol = NewSymbol("someMethod");
 
     vector<BackJump> inlinedLoops;
-    VMMethod* method = GetUniverse()->NewMethod(
-        methodSymbol, 0, 0, 0, 0, new LexicalScope(nullptr, {}, {}),
-        inlinedLoops);
-    VMBlock* orig = GetUniverse()->NewBlock(
-        method, GetUniverse()->GetInterpreter()->GetFrame(),
-        method->GetNumberOfArguments());
+    VMMethod* method =
+        Universe::NewMethod(methodSymbol, 0, 0, 0, 0,
+                            new LexicalScope(nullptr, {}, {}), inlinedLoops);
+    VMBlock* orig = Universe::NewBlock(method, Interpreter::GetFrame(),
+                                       method->GetNumberOfArguments());
     VMBlock* clone = orig->CloneForMovingGC();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
@@ -203,14 +202,14 @@ void CloneObjectsTest::testCloneFrame() {
     VMSymbol* methodSymbol = NewSymbol("frameMethod");
 
     vector<BackJump> inlinedLoops;
-    VMMethod* method = GetUniverse()->NewMethod(
-        methodSymbol, 0, 0, 0, 0, new LexicalScope(nullptr, {}, {}),
-        inlinedLoops);
+    VMMethod* method =
+        Universe::NewMethod(methodSymbol, 0, 0, 0, 0,
+                            new LexicalScope(nullptr, {}, {}), inlinedLoops);
 
-    VMFrame* orig = GetUniverse()->NewFrame(nullptr, method);
+    VMFrame* orig = Universe::NewFrame(nullptr, method);
     VMFrame* context = orig->CloneForMovingGC();
     orig->SetContext(context);
-    VMInteger* dummyArg = GetUniverse()->NewInteger(1111);
+    VMInteger* dummyArg = Universe::NewInteger(1111);
     orig->SetArgument(0, 0, dummyArg);
     VMFrame* clone = orig->CloneForMovingGC();
 
@@ -237,9 +236,9 @@ void CloneObjectsTest::testCloneMethod() {
     VMSymbol* methodSymbol = NewSymbol("myMethod");
 
     vector<BackJump> inlinedLoops;
-    VMMethod* orig = GetUniverse()->NewMethod(methodSymbol, 0, 0, 0, 0,
-                                              new LexicalScope(nullptr, {}, {}),
-                                              inlinedLoops);
+    VMMethod* orig =
+        Universe::NewMethod(methodSymbol, 0, 0, 0, 0,
+                            new LexicalScope(nullptr, {}, {}), inlinedLoops);
     VMMethod* clone = orig->CloneForMovingGC();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
@@ -266,11 +265,11 @@ void CloneObjectsTest::testCloneMethod() {
 }
 
 void CloneObjectsTest::testCloneClass() {
-    VMClass* orig = GetUniverse()->NewClass(load_ptr(integerClass));
+    VMClass* orig = Universe::NewClass(load_ptr(integerClass));
     orig->SetName(NewSymbol("MyClass"));
     orig->SetSuperClass(load_ptr(doubleClass));
-    orig->SetInstanceFields(GetUniverse()->NewArray(2));
-    orig->SetInstanceInvokables(GetUniverse()->NewArray(4));
+    orig->SetInstanceFields(Universe::NewArray(2));
+    orig->SetInstanceInvokables(Universe::NewArray(4));
     VMClass* clone = orig->CloneForMovingGC();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);

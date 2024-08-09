@@ -44,75 +44,70 @@
 
 class Interpreter {
 public:
-    Interpreter();
-    ~Interpreter();
+    static vm_oop_t StartAndPrintBytecodes();
+    static vm_oop_t Start();
 
-    vm_oop_t StartAndPrintBytecodes();
-    vm_oop_t Start();
+    static VMFrame* PushNewFrame(VMMethod* method);
+    static void SetFrame(VMFrame* frame);
 
-    VMFrame* PushNewFrame(VMMethod* method);
-    void SetFrame(VMFrame* frame);
-    inline VMFrame* GetFrame() const;
-    VMMethod* GetMethod() const;
-    uint8_t* GetBytecodes() const;
-    void WalkGlobals(walk_heap_fn);
+    static inline VMFrame* GetFrame() { return frame; }
 
-    void SendUnknownGlobal(VMSymbol* globalName);
+    static VMMethod* GetMethod();
+    static uint8_t* GetBytecodes();
+    static void WalkGlobals(walk_heap_fn);
+
+    static void SendUnknownGlobal(VMSymbol* globalName);
 
 private:
-    vm_oop_t GetSelf() const;
+    static vm_oop_t GetSelf();
 
-    VMFrame* frame;
-    VMMethod* method;
+    static VMFrame* frame;
+    static VMMethod* method;
 
     // The following three variables are used to cache main parts of the
     // current execution context
-    long bytecodeIndexGlobal;
-    uint8_t* currentBytecodes;
+    static long bytecodeIndexGlobal;
+    static uint8_t* currentBytecodes;
 
     static const StdString unknownGlobal;
     static const StdString doesNotUnderstand;
     static const StdString escapedBlock;
 
-    void startGC();
-    void disassembleMethod() const;
+    static void startGC();
+    static void disassembleMethod();
 
-    VMFrame* popFrame();
-    void popFrameAndPushResult(vm_oop_t result);
+    static VMFrame* popFrame();
+    static void popFrameAndPushResult(vm_oop_t result);
 
-    void send(VMSymbol* signature, VMClass* receiverClass);
+    static void send(VMSymbol* signature, VMClass* receiverClass);
 
-    void triggerDoesNotUnderstand(VMSymbol* signature);
+    static void triggerDoesNotUnderstand(VMSymbol* signature);
 
-    void doDup();
-    void doPushLocal(long bytecodeIndex);
-    void doPushLocalWithIndex(uint8_t localIndex);
-    void doReturnFieldWithIndex(uint8_t fieldIndex);
-    void doPushArgument(long bytecodeIndex);
-    void doPushField(long bytecodeIndex);
-    void doPushFieldWithIndex(uint8_t fieldIndex);
-    void doPushBlock(long bytecodeIndex);
+    static void doDup();
+    static void doPushLocal(long bytecodeIndex);
+    static void doPushLocalWithIndex(uint8_t localIndex);
+    static void doReturnFieldWithIndex(uint8_t fieldIndex);
+    static void doPushArgument(long bytecodeIndex);
+    static void doPushField(long bytecodeIndex);
+    static void doPushFieldWithIndex(uint8_t fieldIndex);
+    static void doPushBlock(long bytecodeIndex);
 
-    inline void doPushConstant(long bytecodeIndex) {
+    static inline void doPushConstant(long bytecodeIndex) {
         vm_oop_t constant = method->GetConstant(bytecodeIndex);
         GetFrame()->Push(constant);
     }
 
-    void doPushGlobal(long bytecodeIndex);
-    void doPop(void);
-    void doPopLocal(long bytecodeIndex);
-    void doPopLocalWithIndex(uint8_t localIndex);
-    void doPopArgument(long bytecodeIndex);
-    void doPopField(long bytecodeIndex);
-    void doPopFieldWithIndex(uint8_t fieldIndex);
-    void doSend(long bytecodeIndex);
-    void doSuperSend(long bytecodeIndex);
-    void doReturnLocal();
-    void doReturnNonLocal();
-    void doInc();
-    bool checkIsGreater();
+    static void doPushGlobal(long bytecodeIndex);
+    static void doPop(void);
+    static void doPopLocal(long bytecodeIndex);
+    static void doPopLocalWithIndex(uint8_t localIndex);
+    static void doPopArgument(long bytecodeIndex);
+    static void doPopField(long bytecodeIndex);
+    static void doPopFieldWithIndex(uint8_t fieldIndex);
+    static void doSend(long bytecodeIndex);
+    static void doSuperSend(long bytecodeIndex);
+    static void doReturnLocal();
+    static void doReturnNonLocal();
+    static void doInc();
+    static bool checkIsGreater();
 };
-
-inline VMFrame* Interpreter::GetFrame() const {
-    return frame;
-}

@@ -38,10 +38,10 @@ void WriteBarrierTest::testWriteArray() {
 
     // reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
-    VMArray* arr = GetUniverse()->NewArray(3);
-    VMInteger* newInt = GetUniverse()->NewInteger(12345);
-    VMString* str = GetUniverse()->NewString("asdfghjkl");
-    VMDouble* doub = GetUniverse()->NewDouble(9876.654);
+    VMArray* arr = Universe::NewArray(3);
+    VMInteger* newInt = Universe::NewInteger(12345);
+    VMString* str = Universe::NewString("asdfghjkl");
+    VMDouble* doub = Universe::NewDouble(9876.654);
     VMClass* cloneClass = load_ptr(arrayClass)->CloneForMovingGC();
     VMClass* clone2Class = cloneClass->CloneForMovingGC();
     arr->SetClass(cloneClass);
@@ -80,13 +80,12 @@ void WriteBarrierTest::testWriteBlock() {
     VMSymbol* methodSymbol = NewSymbol("someMethod");
 
     vector<BackJump> inlinedLoops;
-    VMMethod* method = GetUniverse()->NewMethod(
-        methodSymbol, 0, 0, 0, 0, new LexicalScope(nullptr, {}, {}),
-        inlinedLoops);
+    VMMethod* method =
+        Universe::NewMethod(methodSymbol, 0, 0, 0, 0,
+                            new LexicalScope(nullptr, {}, {}), inlinedLoops);
 
-    VMBlock* block = GetUniverse()->NewBlock(
-        method, GetUniverse()->GetInterpreter()->GetFrame(),
-        method->GetNumberOfArguments());
+    VMBlock* block = Universe::NewBlock(method, Interpreter::GetFrame(),
+                                        method->GetNumberOfArguments());
     TEST_WB_CALLED("VMBlock failed to call writeBarrier when creating", block,
                    block->GetClass());
     TEST_WB_CALLED("VMBlock failed to call writeBarrier when creating", block,
@@ -104,13 +103,12 @@ void WriteBarrierTest::testWriteFrame() {
     // reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
 
-    VMFrame* frame =
-        GetUniverse()->GetInterpreter()->GetFrame()->CloneForMovingGC();
+    VMFrame* frame = Interpreter::GetFrame()->CloneForMovingGC();
     frame->SetContext(frame->CloneForMovingGC());
 
-    frame->SetPreviousFrame(GetUniverse()->GetInterpreter()->GetFrame());
+    frame->SetPreviousFrame(Interpreter::GetFrame());
     TEST_WB_CALLED("VMFrame failed to call writeBarrier on SetPreviousFrame",
-                   frame, GetUniverse()->GetInterpreter()->GetFrame());
+                   frame, Interpreter::GetFrame());
     frame->SetContext(frame->GetContext()->CloneForMovingGC());
     TEST_WB_CALLED("VMFrame failed to call writeBarrier on SetContext", frame,
                    frame->GetContext());
@@ -127,11 +125,7 @@ void WriteBarrierTest::testWriteMethod() {
 
     // reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
-    VMMethod* method = GetUniverse()
-                           ->GetInterpreter()
-                           ->GetFrame()
-                           ->GetMethod()
-                           ->CloneForMovingGC();
+    VMMethod* method = Interpreter::GetFrame()->GetMethod()->CloneForMovingGC();
     method->SetHolder(load_ptr(integerClass));
     TEST_WB_CALLED("VMMethod failed to call writeBarrier on SetHolder", method,
                    load_ptr(integerClass));

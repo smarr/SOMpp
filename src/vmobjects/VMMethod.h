@@ -149,7 +149,7 @@ public:
         store_ptr(indexableFields[idx], item);
     }
 
-    VMFrame* Invoke(Interpreter* interp, VMFrame* frame) override;
+    VMFrame* Invoke(VMFrame* frame) override;
 
     void MarkObjectAsInvalid() override {
         VMInvokable::MarkObjectAsInvalid();

@@ -247,7 +247,7 @@ void Parser::superclass(ClassGenerationContext& cgenc) {
 
     // Load the super class, if it is not nil (break the dependency cycle)
     if (superName != SymbolFor("nil")) {
-        VMClass* superClass = GetUniverse()->LoadClass(superName);
+        VMClass* superClass = Universe::LoadClass(superName);
         cgenc.SetInstanceFieldsOfSuper(superClass->GetInstanceFields());
         cgenc.SetClassFieldsOfSuper(
             superClass->GetClass()->GetInstanceFields());
@@ -260,7 +260,7 @@ void Parser::superclass(ClassGenerationContext& cgenc) {
         vector<StdString> fieldNamesOfClass{"class", "name", "instanceFields",
                                             "instanceInvokables", "superClass"};
         VMArray* fieldNames =
-            GetUniverse()->NewArrayOfSymbolsFromStrings(fieldNamesOfClass);
+            Universe::NewArrayOfSymbolsFromStrings(fieldNamesOfClass);
         cgenc.SetClassFieldsOfSuper(fieldNames);
     }
 }
@@ -748,7 +748,7 @@ vm_oop_t Parser::literalDouble(bool negateValue) {
         d = 0 - d;
     }
     expect(Double);
-    return GetUniverse()->NewDouble(d);
+    return Universe::NewDouble(d);
 }
 
 void Parser::literalSymbol(MethodGenerationContext& mgenc) {
@@ -801,7 +801,7 @@ void Parser::literalArray(MethodGenerationContext& mgenc) {
 void Parser::literalString(MethodGenerationContext& mgenc) {
     StdString s = _string();
 
-    VMString* str = GetUniverse()->NewString(s);
+    VMString* str = Universe::NewString(s);
     EmitPUSHCONSTANT(mgenc, str);
 }
 

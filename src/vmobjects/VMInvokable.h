@@ -43,7 +43,7 @@ public:
 
     int64_t GetHash() const override { return hash; }
 
-    virtual VMFrame* Invoke(Interpreter*, VMFrame*) = 0;
+    virtual VMFrame* Invoke(VMFrame*) = 0;
     virtual void InlineInto(MethodGenerationContext& mgenc,
                             bool mergeScope = true) = 0;
     virtual void MergeScopeInto(

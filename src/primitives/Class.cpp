@@ -35,7 +35,7 @@
 
 static vm_oop_t clsNew(vm_oop_t rcvr) {
     VMClass* self = static_cast<VMClass*>(rcvr);
-    return GetUniverse()->NewInstance(self);
+    return Universe::NewInstance(self);
 }
 
 static vm_oop_t clsName(vm_oop_t rcvr) {

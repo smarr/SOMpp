@@ -53,8 +53,8 @@ public:
     void SetEmpty(bool value) { empty = value; };
     VMPrimitive* CloneForMovingGC() const override;
 
-    VMFrame* Invoke(Interpreter* interp, VMFrame* frm) override {
-        routine->Invoke(interp, frm);
+    VMFrame* Invoke(VMFrame* frm) override {
+        routine->Invoke(frm);
         return nullptr;
     };
 
@@ -78,7 +78,7 @@ public:
     }
 
 private:
-    void EmptyRoutine(Interpreter*, VMFrame*);
+    void EmptyRoutine(VMFrame*);
 
 public:
     PrimitiveRoutine* routine;

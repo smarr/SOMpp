@@ -7,5 +7,5 @@ class _Primitive : public PrimitiveContainer {
 public:
     _Primitive(void);
 
-    void InvokeOn_With_(Interpreter*, VMFrame*);
+    void InvokeOn_With_(VMFrame*);
 };

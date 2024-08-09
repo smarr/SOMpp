@@ -56,9 +56,13 @@ const std::string Interpreter::doesNotUnderstand =
     "doesNotUnderstand:arguments:";
 const std::string Interpreter::escapedBlock = "escapedBlock:";
 
-Interpreter::Interpreter() : frame(nullptr) {}
+VMFrame* Interpreter::frame = nullptr;
+VMMethod* Interpreter::method = nullptr;
 
-Interpreter::~Interpreter() {}
+// The following three variables are used to cache main parts of the
+// current execution context
+long Interpreter::bytecodeIndexGlobal;
+uint8_t* Interpreter::currentBytecodes;
 
 vm_oop_t Interpreter::StartAndPrintBytecodes() {
 #define PROLOGUE(bc_count)               \
@@ -81,24 +85,24 @@ vm_oop_t Interpreter::Start() {
 }
 
 VMFrame* Interpreter::PushNewFrame(VMMethod* method) {
-    SetFrame(GetUniverse()->NewFrame(GetFrame(), method));
+    SetFrame(Universe::NewFrame(GetFrame(), method));
     return GetFrame();
 }
 
-void Interpreter::SetFrame(VMFrame* frame) {
-    if (this->frame != nullptr) {
-        this->frame->SetBytecodeIndex(bytecodeIndexGlobal);
+void Interpreter::SetFrame(VMFrame* frm) {
+    if (frame != nullptr) {
+        frame->SetBytecodeIndex(bytecodeIndexGlobal);
     }
 
-    this->frame = frame;
+    frame = frm;
 
     // update cached values
-    method = frame->GetMethod();
-    bytecodeIndexGlobal = frame->GetBytecodeIndex();
+    method = frm->GetMethod();
+    bytecodeIndexGlobal = frm->GetBytecodeIndex();
     currentBytecodes = method->GetBytecodes();
 }
 
-vm_oop_t Interpreter::GetSelf() const {
+vm_oop_t Interpreter::GetSelf() {
     VMFrame* context = GetFrame()->GetOuterContext();
     return context->GetArgumentInCurrentContext(0);
 }
@@ -135,19 +139,18 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
     if (invokable != nullptr) {
 #ifdef LOG_RECEIVER_TYPES
         std::string name = receiverClass->GetName()->GetStdString();
-        if (GetUniverse()->callStats.find(name) ==
-            GetUniverse()->callStats.end()) {
-            GetUniverse()->callStats[name] = {0, 0};
+        if (Universe::callStats.find(name) == Universe::callStats.end()) {
+            Universe::callStats[name] = {0, 0};
         }
-        GetUniverse()->callStats[name].noCalls++;
+        Universe::callStats[name].noCalls++;
         if (invokable->IsPrimitive()) {
-            GetUniverse()->callStats[name].noPrimitiveCalls++;
+            Universe::callStats[name].noPrimitiveCalls++;
         }
 #endif
         // since an invokable is able to change/use the frame, we have to write
         // cached values before, and read cached values after calling
         GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
-        invokable->Invoke(this, GetFrame());
+        invokable->Invoke(GetFrame());
         bytecodeIndexGlobal = GetFrame()->GetBytecodeIndex();
     } else {
         triggerDoesNotUnderstand(signature);
@@ -160,7 +163,7 @@ void Interpreter::triggerDoesNotUnderstand(VMSymbol* signature) {
     vm_oop_t receiver = GetFrame()->GetStackElement(numberOfArgs - 1);
 
     VMArray* argumentsArray =
-        GetUniverse()->NewArray(numberOfArgs - 1);  // without receiver
+        Universe::NewArray(numberOfArgs - 1);  // without receiver
 
     // the receiver should not go into the argumentsArray
     // so, numberOfArgs - 2
@@ -182,7 +185,7 @@ void Interpreter::triggerDoesNotUnderstand(VMSymbol* signature) {
         SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
     }
 
-    AS_OBJ(receiver)->Send(this, doesNotUnderstand, arguments, 2);
+    AS_OBJ(receiver)->Send(doesNotUnderstand, arguments, 2);
 }
 
 void Interpreter::doDup() {
@@ -266,14 +269,13 @@ void Interpreter::doPushBlock(long bytecodeIndex) {
 
     long numOfArgs = blockMethod->GetNumberOfArguments();
 
-    GetFrame()->Push(
-        GetUniverse()->NewBlock(blockMethod, GetFrame(), numOfArgs));
+    GetFrame()->Push(Universe::NewBlock(blockMethod, GetFrame(), numOfArgs));
 }
 
 void Interpreter::doPushGlobal(long bytecodeIndex) {
     VMSymbol* globalName =
         static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
-    vm_oop_t global = GetUniverse()->GetGlobal(globalName);
+    vm_oop_t global = Universe::GetGlobal(globalName);
 
     if (global != nullptr) {
         GetFrame()->Push(global);
@@ -296,7 +298,7 @@ void Interpreter::SendUnknownGlobal(VMSymbol* globalName) {
         SetFrame(VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
     }
 
-    AS_OBJ(self)->Send(this, unknownGlobal, arguments, 1);
+    AS_OBJ(self)->Send(unknownGlobal, arguments, 1);
 }
 
 void Interpreter::doPop() {
@@ -358,7 +360,7 @@ void Interpreter::doSend(long bytecodeIndex) {
     assert(IsValidObject(receiverClass));
 
 #ifdef LOG_RECEIVER_TYPES
-    GetUniverse()->receiverTypes[receiverClass->GetName()->GetStdString()]++;
+    Universe::receiverTypes[receiverClass->GetName()->GetStdString()]++;
 #endif
 
     send(signature, receiverClass);
@@ -377,11 +379,11 @@ void Interpreter::doSuperSend(long bytecodeIndex) {
         static_cast<VMInvokable*>(super->LookupInvokable(signature));
 
     if (invokable != nullptr) {
-        invokable->Invoke(this, GetFrame());
+        invokable->Invoke(GetFrame());
     } else {
         long numOfArgs = Signature::GetNumberOfArguments(signature);
         vm_oop_t receiver = GetFrame()->GetStackElement(numOfArgs - 1);
-        VMArray* argumentsArray = GetUniverse()->NewArray(numOfArgs);
+        VMArray* argumentsArray = Universe::NewArray(numOfArgs);
 
         for (long i = numOfArgs - 1; i >= 0; --i) {
             vm_oop_t o = GetFrame()->Pop();
@@ -389,7 +391,7 @@ void Interpreter::doSuperSend(long bytecodeIndex) {
         }
         vm_oop_t arguments[] = {signature, argumentsArray};
 
-        AS_OBJ(receiver)->Send(this, doesNotUnderstand, arguments, 2);
+        AS_OBJ(receiver)->Send(doesNotUnderstand, arguments, 2);
     }
 }
 
@@ -430,7 +432,7 @@ void Interpreter::doReturnNonLocal() {
                 VMFrame::EmergencyFrameFrom(GetFrame(), additionalStackSlots));
         }
 
-        AS_OBJ(sender)->Send(this, escapedBlock, arguments, 1);
+        AS_OBJ(sender)->Send(escapedBlock, arguments, 1);
         return;
     }
 
@@ -449,7 +451,7 @@ void Interpreter::doInc() {
         val = NEW_INT(result);
     } else if (CLASS_OF(val) == load_ptr(doubleClass)) {
         double d = static_cast<VMDouble*>(val)->GetEmbeddedDouble();
-        val = GetUniverse()->NewDouble(d + 1.0);
+        val = Universe::NewDouble(d + 1.0);
     } else {
         ErrorExit("unsupported");
     }
@@ -489,14 +491,14 @@ void Interpreter::startGC() {
     currentBytecodes = method->GetBytecodes();
 }
 
-VMMethod* Interpreter::GetMethod() const {
+VMMethod* Interpreter::GetMethod() {
     return GetFrame()->GetMethod();
 }
 
-uint8_t* Interpreter::GetBytecodes() const {
+uint8_t* Interpreter::GetBytecodes() {
     return method->GetBytecodes();
 }
 
-void Interpreter::disassembleMethod() const {
+void Interpreter::disassembleMethod() {
     Disassembler::DumpBytecode(GetFrame(), GetMethod(), bytecodeIndexGlobal);
 }

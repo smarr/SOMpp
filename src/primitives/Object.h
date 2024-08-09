@@ -32,8 +32,8 @@
 class _Object : public PrimitiveContainer {
 public:
     _Object();
-    void Perform(Interpreter*, VMFrame*);
-    void PerformWithArguments(Interpreter*, VMFrame*);
-    void PerformInSuperclass(Interpreter*, VMFrame*);
-    void PerformWithArgumentsInSuperclass(Interpreter*, VMFrame*);
+    void Perform(VMFrame*);
+    void PerformWithArguments(VMFrame*);
+    void PerformInSuperclass(VMFrame*);
+    void PerformWithArgumentsInSuperclass(VMFrame*);
 };

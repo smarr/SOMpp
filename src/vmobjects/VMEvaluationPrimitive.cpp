@@ -33,7 +33,6 @@
 #include "../compiler/LexicalScope.h"
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
-#include "../primitivesCore/Routine.h"
 #include "../vm/Print.h"
 #include "../vm/Symbols.h"
 #include "../vm/Universe.h"  // NOLINT(misc-include-cleaner) it's required to make the types complete
@@ -84,7 +83,7 @@ VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc) {
     return SymbolFor(signatureString);
 }
 
-VMFrame* VMEvaluationPrimitive::Invoke(Interpreter* interp, VMFrame* frame) {
+VMFrame* VMEvaluationPrimitive::Invoke(VMFrame* frame) {
     // Get the block (the receiver) from the stack
     VMBlock* block =
         static_cast<VMBlock*>(frame->GetStackElement(numberOfArguments - 1));
@@ -94,7 +93,7 @@ VMFrame* VMEvaluationPrimitive::Invoke(Interpreter* interp, VMFrame* frame) {
 
     VMInvokable* method = block->GetMethod();
 
-    VMFrame* newFrame = method->Invoke(interp, frame);
+    VMFrame* newFrame = method->Invoke(frame);
 
     // Push set its context to be the one specified in the block
     if (newFrame != nullptr) {

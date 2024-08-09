@@ -66,7 +66,7 @@ public:
         return sizeof(VMLiteralReturn);
     }
 
-    VMFrame* Invoke(Interpreter*, VMFrame*) override;
+    VMFrame* Invoke(VMFrame*) override;
     void InlineInto(MethodGenerationContext& mgenc,
                     bool mergeScope = true) final;
 
@@ -105,7 +105,7 @@ public:
         return sizeof(VMGlobalReturn);
     }
 
-    VMFrame* Invoke(Interpreter*, VMFrame*) override;
+    VMFrame* Invoke(VMFrame*) override;
     void InlineInto(MethodGenerationContext& mgenc,
                     bool mergeScope = true) final;
 
@@ -141,7 +141,7 @@ public:
 
     inline size_t GetObjectSize() const override { return sizeof(VMGetter); }
 
-    VMFrame* Invoke(Interpreter*, VMFrame*) override;
+    VMFrame* Invoke(VMFrame*) override;
     void InlineInto(MethodGenerationContext& mgenc,
                     bool mergeScope = true) final;
 
@@ -176,7 +176,7 @@ public:
 
     inline size_t GetObjectSize() const override { return sizeof(VMSetter); }
 
-    VMFrame* Invoke(Interpreter*, VMFrame*) override;
+    VMFrame* Invoke(VMFrame*) override;
     void InlineInto(MethodGenerationContext& mgenc,
                     bool mergeScope = true) final;
 

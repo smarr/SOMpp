@@ -40,7 +40,7 @@ public:
         return sizeof(VMSafeUnaryPrimitive);
     }
 
-    VMFrame* Invoke(Interpreter*, VMFrame*) override;
+    VMFrame* Invoke(VMFrame*) override;
 
     AbstractVMObject* CloneForMovingGC() const final;
 
@@ -68,7 +68,7 @@ public:
         return sizeof(VMSafeBinaryPrimitive);
     }
 
-    VMFrame* Invoke(Interpreter*, VMFrame*) override;
+    VMFrame* Invoke(VMFrame*) override;
 
     AbstractVMObject* CloneForMovingGC() const final;
 
@@ -96,7 +96,7 @@ public:
         return sizeof(VMSafeTernaryPrimitive);
     }
 
-    VMFrame* Invoke(Interpreter*, VMFrame*) override;
+    VMFrame* Invoke(VMFrame*) override;
 
     AbstractVMObject* CloneForMovingGC() const final;
 
