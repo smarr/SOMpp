@@ -61,6 +61,9 @@ void EmitRETURNNONLOCAL(MethodGenerationContext& mgenc);
 void EmitRETURNFIELD(MethodGenerationContext& mgenc, size_t index);
 
 void EmitINC(MethodGenerationContext& mgenc);
+void EmitDEC(MethodGenerationContext& mgenc);
+void EmitIncFieldPush(MethodGenerationContext& mgenc, uint8_t fieldIdx);
+
 void EmitDupSecond(MethodGenerationContext& mgenc);
 
 size_t EmitJumpOnBoolWithDummyOffset(MethodGenerationContext& mgenc,
@@ -73,5 +76,4 @@ size_t Emit3WithDummy(MethodGenerationContext& mgenc, uint8_t bytecode,
                       size_t stackEffect);
 
 void EmitPushFieldWithIndex(MethodGenerationContext& mgenc, uint8_t fieldIdx);
-void EmitPopFieldWithIndex(MethodGenerationContext& mgenc, uint8_t fieldIdx,
-                           uint8_t ctxLevel);
+void EmitPopFieldWithIndex(MethodGenerationContext& mgenc, uint8_t fieldIdx);

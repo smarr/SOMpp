@@ -236,9 +236,7 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
                     bytecode == BC_PUSH_FIELD_1) {
                     EmitPushFieldWithIndex(mgenc, idx);
                 } else {
-                    EmitPopFieldWithIndex(
-              mgenc, idx,
-              0 /* dummy, self is looked up dynamically at the moment. */);
+                    EmitPopFieldWithIndex(mgenc, idx);
                 }
                 break;
             }
@@ -263,9 +261,7 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
             case BC_INC_FIELD:
             case BC_INC_FIELD_PUSH: {
                 const uint8_t idx = bytecodes[i + 1];
-                const uint8_t ctxLevel = bytecodes[i + 2];
-                assert(ctxLevel > 0);
-                Emit3(mgenc, bytecode, idx, ctxLevel - 1, 1);
+                Emit2(mgenc, bytecode, idx, bytecode == BC_INC_FIELD ? 0 : 1);
                 break;
             }
             case BC_PUSH_LOCAL:

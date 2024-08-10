@@ -74,20 +74,23 @@
 #define BC_RETURN_FIELD_1         38
 #define BC_RETURN_FIELD_2         39
 #define BC_INC                    40
-#define BC_JUMP                   41
-#define BC_JUMP_ON_FALSE_POP      42
-#define BC_JUMP_ON_TRUE_POP       43
-#define BC_JUMP_ON_FALSE_TOP_NIL  44
-#define BC_JUMP_ON_TRUE_TOP_NIL   45
-#define BC_JUMP_IF_GREATER        46
-#define BC_JUMP_BACKWARD          47
-#define BC_JUMP2                  48
-#define BC_JUMP2_ON_FALSE_POP     49
-#define BC_JUMP2_ON_TRUE_POP      50
-#define BC_JUMP2_ON_FALSE_TOP_NIL 51
-#define BC_JUMP2_ON_TRUE_TOP_NIL  52
-#define BC_JUMP2_IF_GREATER       53
-#define BC_JUMP2_BACKWARD         54
+#define BC_DEC                    41
+#define BC_INC_FIELD              42
+#define BC_INC_FIELD_PUSH         43
+#define BC_JUMP                   44
+#define BC_JUMP_ON_FALSE_POP      45
+#define BC_JUMP_ON_TRUE_POP       46
+#define BC_JUMP_ON_FALSE_TOP_NIL  47
+#define BC_JUMP_ON_TRUE_TOP_NIL   48
+#define BC_JUMP_IF_GREATER        49
+#define BC_JUMP_BACKWARD          50
+#define BC_JUMP2                  51
+#define BC_JUMP2_ON_FALSE_POP     52
+#define BC_JUMP2_ON_TRUE_POP      53
+#define BC_JUMP2_ON_FALSE_TOP_NIL 54
+#define BC_JUMP2_ON_TRUE_TOP_NIL  55
+#define BC_JUMP2_IF_GREATER       56
+#define BC_JUMP2_BACKWARD         57
 
 #define _LAST_BYTECODE BC_JUMP2_BACKWARD
 
@@ -98,9 +101,6 @@
 //       they were already named in ported code, and it seemed nicer to just
 //       already include that code
 // clang-format off
-#define BC_INC_FIELD         254
-#define BC_INC_FIELD_PUSH    253
-#define BC_DEC               251
 #define BC_SEND_N            250
 #define BC_SEND_3            249
 #define BC_SEND_2            248

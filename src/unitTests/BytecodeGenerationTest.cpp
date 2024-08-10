@@ -651,70 +651,53 @@ void BytecodeGenerationTest::testNestedIfsAndLocals() {
                       BC_RETURN_SELF});
 }
 
+void BytecodeGenerationTest::testIncDecBytecodes() {
+    incDecBytecodes("+", BC_INC);
+    incDecBytecodes("-", BC_DEC);
+}
+
+void BytecodeGenerationTest::incDecBytecodes(std::string sel, uint8_t bc) {
+    std::string source = "test = ( 1 " + sel + " 1 )";
+    auto bytecodes = methodToBytecode(source.data());
+
+    check(bytecodes, {BC_PUSH_1, bc, BC_RETURN_SELF});
+
+    tearDown();
+}
+
+void BytecodeGenerationTest::testIfTrueAndIncField() {
+    addField("field");
+
+    auto bytecodes = methodToBytecode(R"""(
+                        test: arg = (
+                            #start.
+                            (self key: 5) ifTrue: [ field := field + 1 ].
+                            #end
+                        ) )""");
+
+    check(bytecodes,
+          {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_SELF, BC_PUSH_CONSTANT_1,
+           BC(BC_SEND, 2), BC(BC_JUMP_ON_FALSE_TOP_NIL, 5, 0),
+           BC(BC_INC_FIELD_PUSH, 0), BC_POP, BC(BC_PUSH_CONSTANT, 3),
+           BC_RETURN_SELF});
+}
+
+void BytecodeGenerationTest::testIfTrueAndIncArg() {
+    auto bytecodes = methodToBytecode(R"""(
+                                 test: arg = (
+                                     #start.
+                                     (self key: 5) ifTrue: [ arg + 1 ].
+                                     #end
+                                 ) )""");
+
+    check(bytecodes,
+          {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_SELF, BC_PUSH_CONSTANT_1,
+           BC(BC_SEND, 2), BC(BC_JUMP_ON_FALSE_TOP_NIL, 5, 0), BC_PUSH_ARG_1,
+           BC_INC, BC_POP, BC(BC_PUSH_CONSTANT, 3), BC_RETURN_SELF});
+}
+
 /*
- @pytest.mark.parametrize(
-     "operator,bytecode",
-     [
-         ("+", Bytecodes.inc),
-         ("-", Bytecodes.dec),
-     ],
- )
- def test_inc_dec_bytecodes(mgenc, operator, bytecode):
-     bytecodes = method_to_bytecodes(mgenc, "test = ( 1 OP 1 )".replace("OP",
- operator))
 
-     assert len(bytecodes) == 3
-     check(bytecodes, [Bytecodes.push_1, bytecode, Bytecodes.return_self])
-
-
- def test_if_true_and_inc_field(cgenc, mgenc):
-     add_field(cgenc, "field")
-     bytecodes = method_to_bytecodes(
-         mgenc,
-         """
-         test: arg = (
-             #start.
-             (self key: 5) ifTrue: [ field := field + 1 ].
-             #end
-         )""",
-     )
-
-     assert len(bytecodes) == 18
-     check(
-         bytecodes,
-         [
-             (6, Bytecodes.send_2),
-             BC(Bytecodes.jump_on_false_top_nil, 6, note="jump offset"),
-             Bytecodes.inc_field_push,
-             Bytecodes.pop,
-             Bytecodes.push_constant,
-         ],
-     )
-
-
- def test_if_true_and_inc_arg(mgenc):
-     bytecodes = method_to_bytecodes(
-         mgenc,
-         """
-         test: arg = (
-             #start.
-             (self key: 5) ifTrue: [ arg + 1 ].
-             #end
-         )""",
-     )
-
-     assert len(bytecodes) == 19
-     check(
-         bytecodes,
-         [
-             (6, Bytecodes.send_2),
-             BC(Bytecodes.jump_on_false_top_nil, 7, note="jump offset"),
-             BC(Bytecodes.push_argument, 1, 0),
-             Bytecodes.inc,
-             Bytecodes.pop,
-             Bytecodes.push_constant,
-         ],
-     )
 
 
  def test_nested_ifs_and_non_inlined_blocks(cgenc, mgenc):
@@ -921,111 +904,126 @@ void BytecodeGenerationTest::trivialMethodInlining(std::string literal,
     tearDown();
 }
 
-/*
- @pytest.mark.parametrize("field_num", range(0, 7))
- def test_inc_field(cgenc, mgenc, field_num):
-     add_field(cgenc, "field0")
-     add_field(cgenc, "field1")
-     add_field(cgenc, "field2")
-     add_field(cgenc, "field3")
-     add_field(cgenc, "field4")
-     add_field(cgenc, "field5")
-     add_field(cgenc, "field6")
+void BytecodeGenerationTest::testIncField() {
+    incField(0);
+    incField(1);
+    incField(2);
+    incField(3);
+    incField(4);
+    incField(5);
+    incField(6);
+}
 
-     field_name = "field" + str(field_num)
-     bytecodes = method_to_bytecodes(
-         mgenc, "test = ( " + field_name + " := " + field_name + " + 1 )"
-     )
+void BytecodeGenerationTest::incField(size_t fieldNum) {
+    addField("field0");
+    addField("field1");
+    addField("field2");
+    addField("field3");
+    addField("field4");
+    addField("field5");
+    addField("field6");
 
-     check(
-         bytecodes,
-         [
-             BC(Bytecodes.inc_field, field_num, 0),
-             Bytecodes.return_self,
-         ],
-     )
+    std::string fieldName = "field" + to_string(fieldNum);
+    std::string source =
+        "test = ( " + fieldName + " := " + fieldName + " + 1 )";
 
+    auto bytecodes = methodToBytecode(source.data());
 
- @pytest.mark.parametrize("field_num", range(0, 7))
- def test_inc_field_non_trivial(cgenc, mgenc, field_num):
-     add_field(cgenc, "field0")
-     add_field(cgenc, "field1")
-     add_field(cgenc, "field2")
-     add_field(cgenc, "field3")
-     add_field(cgenc, "field4")
-     add_field(cgenc, "field5")
-     add_field(cgenc, "field6")
+    check(bytecodes, {BC(BC_INC_FIELD, fieldNum), BC_RETURN_SELF});
 
-     field_name = "field" + str(field_num)
-     bytecodes = method_to_bytecodes(
-         mgenc, "test = ( 1. " + field_name + " := " + field_name + " + 1. 2 )"
-     )
-     check(
-         bytecodes,
-         [
-             Bytecodes.push_1,
-             Bytecodes.pop,
-             BC(Bytecodes.inc_field, field_num, 0),
-             Bytecodes.push_constant_1,
-             Bytecodes.return_self,
-         ],
-     )
+    tearDown();
+}
 
+void BytecodeGenerationTest::testIncFieldNonTrivial() {
+    incFieldNonTrivial(0);
+    incFieldNonTrivial(1);
+    incFieldNonTrivial(2);
+    incFieldNonTrivial(3);
+    incFieldNonTrivial(4);
+    incFieldNonTrivial(5);
+    incFieldNonTrivial(6);
+}
 
- @pytest.mark.parametrize("field_num", range(0, 7))
- def test_return_inc_field(cgenc, mgenc, field_num):
-     add_field(cgenc, "field0")
-     add_field(cgenc, "field1")
-     add_field(cgenc, "field2")
-     add_field(cgenc, "field3")
-     add_field(cgenc, "field4")
-     add_field(cgenc, "field5")
-     add_field(cgenc, "field6")
+void BytecodeGenerationTest::incFieldNonTrivial(size_t fieldNum) {
+    addField("field0");
+    addField("field1");
+    addField("field2");
+    addField("field3");
+    addField("field4");
+    addField("field5");
+    addField("field6");
 
-     field_name = "field" + str(field_num)
-     bytecodes = method_to_bytecodes(
-         mgenc, "test = ( #foo. ^ " + field_name + " := " + field_name + " + 1
- )"
-     )
-     check(
-         bytecodes,
-         [
-             Bytecodes.push_constant_0,
-             Bytecodes.pop,
-             BC(Bytecodes.inc_field_push, field_num, 0),
-             Bytecodes.return_local,
-         ],
-     )
+    std::string fieldName = "field" + to_string(fieldNum);
+    std::string source =
+        "test = ( 1. " + fieldName + " := " + fieldName + " + 1. 2 )";
 
+    auto bytecodes = methodToBytecode(source.data());
 
- @pytest.mark.parametrize("field_num", range(0, 7))
- def test_return_inc_field_from_block(cgenc, bgenc, field_num):
-     add_field(cgenc, "field0")
-     add_field(cgenc, "field1")
-     add_field(cgenc, "field2")
-     add_field(cgenc, "field3")
-     add_field(cgenc, "field4")
-     add_field(cgenc, "field5")
-     add_field(cgenc, "field6")
+    check(bytecodes, {BC_PUSH_1, BC_POP, BC(BC_INC_FIELD, fieldNum),
+                      BC_PUSH_CONSTANT_0, BC_RETURN_SELF});
 
-     field_name = "field" + str(field_num)
-     bytecodes = block_to_bytecodes(
-         bgenc, "[ #foo. " + field_name + " := " + field_name + " + 1 ]"
-     )
+    tearDown();
+}
 
-     check(
-         bytecodes,
-         [
-             Bytecodes.push_constant_0,
-             Bytecodes.pop,
-             BC(Bytecodes.inc_field_push, field_num, 1),
-             Bytecodes.return_local,
-         ],
-     )
+void BytecodeGenerationTest::testReturnIncField() {
+    returnIncField(0);
+    returnIncField(1);
+    returnIncField(2);
+    returnIncField(3);
+    returnIncField(4);
+    returnIncField(5);
+    returnIncField(6);
+}
 
+void BytecodeGenerationTest::returnIncField(size_t fieldNum) {
+    addField("field0");
+    addField("field1");
+    addField("field2");
+    addField("field3");
+    addField("field4");
+    addField("field5");
+    addField("field6");
 
+    std::string fieldName = "field" + to_string(fieldNum);
+    std::string source =
+        "test = ( #foo. ^ " + fieldName + " := " + fieldName + " + 1 )";
 
- */
+    auto bytecodes = methodToBytecode(source.data());
+
+    check(bytecodes, {BC_PUSH_CONSTANT_0, BC_POP,
+                      BC(BC_INC_FIELD_PUSH, fieldNum), BC_RETURN_LOCAL});
+
+    tearDown();
+}
+
+void BytecodeGenerationTest::testReturnIncFieldFromBlock() {
+    returnIncFieldFromBlock(0);
+    returnIncFieldFromBlock(1);
+    returnIncFieldFromBlock(2);
+    returnIncFieldFromBlock(3);
+    returnIncFieldFromBlock(4);
+    returnIncFieldFromBlock(5);
+    returnIncFieldFromBlock(6);
+}
+void BytecodeGenerationTest::returnIncFieldFromBlock(size_t fieldNum) {
+    addField("field0");
+    addField("field1");
+    addField("field2");
+    addField("field3");
+    addField("field4");
+    addField("field5");
+    addField("field6");
+
+    std::string fieldName = "field" + to_string(fieldNum);
+    std::string source = "[ #foo. " + fieldName + " := " + fieldName + " + 1 ]";
+
+    auto bytecodes = blockToBytecode(source.data());
+
+    check(bytecodes, {BC_PUSH_CONSTANT_0, BC_POP,
+                      BC(BC_INC_FIELD_PUSH, fieldNum), BC_RETURN_LOCAL});
+
+    tearDown();
+}
 
 void BytecodeGenerationTest::testReturnField() {
     returnField(0, BC_RETURN_FIELD_0, true);
@@ -1115,4 +1113,51 @@ void BytecodeGenerationTest::testJumpQueuesOrdering() {
     backJumpsToPatch.pop();
     CPPUNIT_ASSERT_EQUAL((size_t)32, backJumpsToPatch.top().backwardsJumpIdx);
     backJumpsToPatch.pop();
+}
+
+void BytecodeGenerationTest::testFieldReadIncWrite() {
+    addField("counter");
+    auto bytecodes = methodToBytecode(R""""(
+        benchmark = ( | iter |
+                counter := 0.
+                iter := 20000.
+
+                [ iter > 0 ] whileTrue: [
+                  iter := iter - 1.
+                  counter := counter + 1.
+                  counter := counter + 1.
+                ].
+
+                ^ counter
+            )
+        )"""");
+    check(bytecodes, {// counter := 0
+                      BC_PUSH_0, BC_POP_FIELD_0,
+
+                      // iter := 20000
+                      BC_PUSH_CONSTANT_0, BC_POP_LOCAL_0,
+
+                      // iter > 0
+                      BC_PUSH_LOCAL_0, BC_PUSH_0, BC(BC_SEND, 1),
+
+                      // whileTrue
+                      BC(BC_JUMP_ON_FALSE_POP, 14, 0),
+
+                      // iter := iter - 1
+                      BC_PUSH_LOCAL_0, BC_DEC, BC_POP_LOCAL_0,
+
+                      // counter := counter + 1
+                      BC(BC_INC_FIELD, 0),
+
+                      // counter := counter + 1
+                      BC(BC_INC_FIELD_PUSH, 0),
+
+                      // return to top
+                      BC_POP, BC(BC_JUMP_BACKWARD, 15, 0),
+
+                      // end loop
+                      BC_PUSH_NIL, BC_POP,
+
+                      // ^ counter
+                      BC_RETURN_FIELD_0});
 }

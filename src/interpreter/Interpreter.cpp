@@ -459,6 +459,71 @@ void Interpreter::doInc() {
     GetFrame()->SetTop(store_root(val));
 }
 
+void Interpreter::doDec() {
+    vm_oop_t val = GetFrame()->Top();
+
+    if (IS_TAGGED(val) || CLASS_OF(val) == load_ptr(integerClass)) {
+        int64_t result = (int64_t)INT_VAL(val) - 1;
+        val = NEW_INT(result);
+    } else if (CLASS_OF(val) == load_ptr(doubleClass)) {
+        double d = static_cast<VMDouble*>(val)->GetEmbeddedDouble();
+        val = Universe::NewDouble(d - 1.0);
+    } else {
+        ErrorExit("unsupported");
+    }
+
+    GetFrame()->SetTop(store_root(val));
+}
+
+void Interpreter::doIncField(uint8_t fieldIdx) {
+    vm_oop_t self = GetSelf();
+
+    if (unlikely(IS_TAGGED(self))) {
+        ErrorExit("Integers do not have fields!");
+    }
+
+    VMObject* selfObj = (VMObject*)self;
+
+    vm_oop_t val = selfObj->GetField(fieldIdx);
+
+    if (IS_TAGGED(val) || CLASS_OF(val) == load_ptr(integerClass)) {
+        int64_t result = (int64_t)INT_VAL(val) + 1;
+        val = NEW_INT(result);
+    } else if (CLASS_OF(val) == load_ptr(doubleClass)) {
+        double d = static_cast<VMDouble*>(val)->GetEmbeddedDouble();
+        val = Universe::NewDouble(d + 1.0);
+    } else {
+        ErrorExit("unsupported");
+    }
+
+    selfObj->SetField(fieldIdx, val);
+}
+
+void Interpreter::doIncFieldPush(uint8_t fieldIdx) {
+    vm_oop_t self = GetSelf();
+
+    if (unlikely(IS_TAGGED(self))) {
+        ErrorExit("Integers do not have fields!");
+    }
+
+    VMObject* selfObj = (VMObject*)self;
+
+    vm_oop_t val = selfObj->GetField(fieldIdx);
+
+    if (IS_TAGGED(val) || CLASS_OF(val) == load_ptr(integerClass)) {
+        int64_t result = (int64_t)INT_VAL(val) + 1;
+        val = NEW_INT(result);
+    } else if (CLASS_OF(val) == load_ptr(doubleClass)) {
+        double d = static_cast<VMDouble*>(val)->GetEmbeddedDouble();
+        val = Universe::NewDouble(d + 1.0);
+    } else {
+        ErrorExit("unsupported");
+    }
+
+    selfObj->SetField(fieldIdx, val);
+    GetFrame()->Push(val);
+}
+
 bool Interpreter::checkIsGreater() {
     vm_oop_t top = GetFrame()->Top();
     vm_oop_t top2 = GetFrame()->Top2();
