@@ -150,6 +150,7 @@ public:
     }
 
     VMFrame* Invoke(VMFrame* frame) override;
+    VMFrame* Invoke1(VMFrame* frame) override;
 
     void MarkObjectAsInvalid() override {
         VMInvokable::MarkObjectAsInvalid();

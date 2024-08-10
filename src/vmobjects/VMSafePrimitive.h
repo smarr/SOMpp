@@ -41,6 +41,7 @@ public:
     }
 
     VMFrame* Invoke(VMFrame*) override;
+    VMFrame* Invoke1(VMFrame*) override;
 
     AbstractVMObject* CloneForMovingGC() const final;
 
@@ -69,6 +70,7 @@ public:
     }
 
     VMFrame* Invoke(VMFrame*) override;
+    VMFrame* Invoke1(VMFrame*) override;
 
     AbstractVMObject* CloneForMovingGC() const final;
 
@@ -97,6 +99,7 @@ public:
     }
 
     VMFrame* Invoke(VMFrame*) override;
+    VMFrame* Invoke1(VMFrame*) override;
 
     AbstractVMObject* CloneForMovingGC() const final;
 

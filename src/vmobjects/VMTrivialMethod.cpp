@@ -58,6 +58,13 @@ VMFrame* VMLiteralReturn::Invoke(VMFrame* frame) {
     return nullptr;
 }
 
+VMFrame* VMLiteralReturn::Invoke1(VMFrame* frame) {
+    assert(numberOfArguments == 1);
+    frame->Pop();
+    frame->Push(load_ptr(literal));
+    return nullptr;
+}
+
 AbstractVMObject* VMLiteralReturn::CloneForMovingGC() const {
     VMLiteralReturn* prim =
         new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMLiteralReturn(*this);
@@ -82,6 +89,20 @@ VMFrame* VMGlobalReturn::Invoke(VMFrame* frame) {
     for (int i = 0; i < numberOfArguments; i += 1) {
         frame->Pop();
     }
+
+    vm_oop_t value = Universe::GetGlobal(load_ptr(globalName));
+    if (value != nullptr) {
+        frame->Push(value);
+    } else {
+        Interpreter::SendUnknownGlobal(load_ptr(globalName));
+    }
+
+    return nullptr;
+}
+
+VMFrame* VMGlobalReturn::Invoke1(VMFrame* frame) {
+    assert(numberOfArguments == 1);
+    frame->Pop();
 
     vm_oop_t value = Universe::GetGlobal(load_ptr(globalName));
     if (value != nullptr) {
@@ -118,6 +139,25 @@ VMFrame* VMGetter::Invoke(VMFrame* frame) {
     for (int i = 0; i < numberOfArguments; i += 1) {
         self = frame->Pop();
     }
+
+    assert(self != nullptr);
+
+    vm_oop_t result;
+    if (unlikely(IS_TAGGED(self))) {
+        result = nullptr;
+        ErrorExit("Integers do not have fields!");
+    } else {
+        result = ((VMObject*)self)->GetField(fieldIndex);
+    }
+
+    frame->Push(result);
+
+    return nullptr;
+}
+
+VMFrame* VMGetter::Invoke1(VMFrame* frame) {
+    assert(numberOfArguments == 1);
+    vm_oop_t self = frame->Pop();
 
     assert(self != nullptr);
 
@@ -176,7 +216,11 @@ VMFrame* VMSetter::Invoke(VMFrame* frame) {
     return nullptr;
 }
 
-void VMSetter::InlineInto(MethodGenerationContext& mgenc, bool) {
+VMFrame* VMSetter::Invoke1(VMFrame*) {
+    ErrorExit("VMSetter::Invoke1 should not be reachable");
+}
+
+void VMSetter::InlineInto(MethodGenerationContext&, bool) {
     ErrorExit("We don't currently support blocks for trivial setters");
 }
 

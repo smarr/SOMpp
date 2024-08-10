@@ -124,6 +124,11 @@ public:
     void PrintStackTrace() const;
     long ArgumentStackIndex(long index) const;
     void CopyArgumentsFrom(VMFrame* frame);
+    
+    inline void SetArgument(size_t argIdx, vm_oop_t value) {
+        store_ptr(arguments[argIdx], value);
+    }
+
     void WalkObjects(walk_heap_fn) override;
     VMFrame* CloneForMovingGC() const override;
 
@@ -151,8 +156,6 @@ private:
     gc_oop_t* arguments;
     gc_oop_t* locals;
     gc_oop_t* stack_ptr;
-
-    inline void SetArgument(long index, vm_oop_t value);
 
     static const long VMFrameNumberOfFields;
 };
@@ -199,8 +202,4 @@ void VMFrame::ClearPreviousFrame() {
 
 VMMethod* VMFrame::GetMethod() const {
     return load_ptr(method);
-}
-
-void VMFrame::SetArgument(long index, vm_oop_t value) {
-    store_ptr(arguments[index], value);
 }

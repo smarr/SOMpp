@@ -67,6 +67,8 @@ public:
     }
 
     VMFrame* Invoke(VMFrame*) override;
+    VMFrame* Invoke1(VMFrame*) override;
+
     void InlineInto(MethodGenerationContext& mgenc,
                     bool mergeScope = true) final;
 
@@ -106,6 +108,8 @@ public:
     }
 
     VMFrame* Invoke(VMFrame*) override;
+    VMFrame* Invoke1(VMFrame*) override;
+
     void InlineInto(MethodGenerationContext& mgenc,
                     bool mergeScope = true) final;
 
@@ -142,6 +146,8 @@ public:
     inline size_t GetObjectSize() const override { return sizeof(VMGetter); }
 
     VMFrame* Invoke(VMFrame*) override;
+    VMFrame* Invoke1(VMFrame*) override;
+
     void InlineInto(MethodGenerationContext& mgenc,
                     bool mergeScope = true) final;
 
@@ -177,6 +183,8 @@ public:
     inline size_t GetObjectSize() const override { return sizeof(VMSetter); }
 
     VMFrame* Invoke(VMFrame*) override;
+    VMFrame* Invoke1(VMFrame*) override;
+
     void InlineInto(MethodGenerationContext& mgenc,
                     bool mergeScope = true) final;
 

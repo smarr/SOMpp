@@ -386,7 +386,27 @@ void Interpreter::doUnarySend(long bytecodeIndex) {
     Universe::receiverTypes[receiverClass->GetName()->GetStdString()]++;
 #endif
 
-    send(signature, receiverClass);
+    VMInvokable* invokable = receiverClass->LookupInvokable(signature);
+
+    if (invokable != nullptr) {
+#ifdef LOG_RECEIVER_TYPES
+        std::string name = receiverClass->GetName()->GetStdString();
+        if (Universe::callStats.find(name) == Universe::callStats.end()) {
+            Universe::callStats[name] = {0, 0};
+        }
+        Universe::callStats[name].noCalls++;
+        if (invokable->IsPrimitive()) {
+            Universe::callStats[name].noPrimitiveCalls++;
+        }
+#endif
+        // since an invokable is able to change/use the frame, we have to write
+        // cached values before, and read cached values after calling
+        GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
+        invokable->Invoke1(GetFrame());
+        bytecodeIndexGlobal = GetFrame()->GetBytecodeIndex();
+    } else {
+        triggerDoesNotUnderstand(signature);
+    }
 }
 
 void Interpreter::doSuperSend(long bytecodeIndex) {

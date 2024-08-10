@@ -48,6 +48,7 @@ public:
     bool IsMarkedInvalid() const override;
 
     VMFrame* Invoke(VMFrame* frm) override;
+    VMFrame* Invoke1(VMFrame* frm) override;
     void InlineInto(MethodGenerationContext& mgenc,
                     bool mergeScope = true) final;
 

@@ -132,6 +132,13 @@ VMFrame* VMMethod::Invoke(VMFrame* frame) {
     return frm;
 }
 
+VMFrame* VMMethod::Invoke1(VMFrame* frame) {
+    VMFrame* frm = Interpreter::PushNewFrame(this);
+    frm->SetArgument(0, frame->Top());
+    return frm;
+}
+
+
 void VMMethod::SetHolder(VMClass* hld) {
     VMInvokable::SetHolder(hld);
     SetHolderAll(hld);
