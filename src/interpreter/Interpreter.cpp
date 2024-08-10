@@ -366,6 +366,29 @@ void Interpreter::doSend(long bytecodeIndex) {
     send(signature, receiverClass);
 }
 
+void Interpreter::doUnarySend(long bytecodeIndex) {
+    VMSymbol* signature =
+        static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
+
+    const int numOfArgs = 1;
+
+    vm_oop_t receiver = GetFrame()->GetStackElement(numOfArgs - 1);
+
+    assert(IsValidObject(receiver));
+    // make sure it is really a class
+    assert(dynamic_cast<VMClass*>(CLASS_OF(receiver)) != nullptr);
+
+    VMClass* receiverClass = CLASS_OF(receiver);
+
+    assert(IsValidObject(receiverClass));
+
+#ifdef LOG_RECEIVER_TYPES
+    Universe::receiverTypes[receiverClass->GetName()->GetStdString()]++;
+#endif
+
+    send(signature, receiverClass);
+}
+
 void Interpreter::doSuperSend(long bytecodeIndex) {
     VMSymbol* signature =
         static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));

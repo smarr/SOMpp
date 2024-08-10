@@ -63,6 +63,7 @@ const uint8_t Bytecode::bytecodeLengths[] = {
     1,  // BC_POP_FIELD_0
     1,  // BC_POP_FIELD_1
     2,  // BC_SEND
+    2,  // BC_SEND_1
     2,  // BC_SUPER_SEND
     1,  // BC_RETURN_LOCAL
     1,  // BC_RETURN_NON_LOCAL
@@ -126,31 +127,32 @@ const char* Bytecode::bytecodeNames[] = {
     "POP_FIELD_0     ",        // 30
     "POP_FIELD_1     ",        // 31
     "SEND            ",        // 32
-    "SUPER_SEND      ",        // 33
-    "RETURN_LOCAL    ",        // 34
-    "RETURN_NON_LOCAL",        // 35
-    "RETURN_SELF     ",        // 36
-    "RETURN_FIELD_0  ",        // 37
-    "RETURN_FIELD_1  ",        // 38
-    "RETURN_FIELD_2  ",        // 39
-    "INC             ",        // 40
-    "DEC             ",        // 41
-    "INC_FIELD       ",        // 42
-    "INC_FIELD_PUSH  ",        // 43
-    "JUMP            ",        // 44
-    "JUMP_ON_FALSE_POP",       // 45
-    "JUMP_ON_TRUE_POP",        // 46
-    "JUMP_ON_FALSE_TOP_NIL",   // 47
-    "JUMP_ON_TRUE_TOP_NIL",    // 48
-    "JUMP_IF_GREATER ",        // 49
-    "JUMP_BACKWARD   ",        // 50
-    "JUMP2           ",        // 51
-    "JUMP2_ON_FALSE_POP",      // 52
-    "JUMP2_ON_TRUE_POP",       // 53
-    "JUMP2_ON_FALSE_TOP_NIL",  // 54
-    "JUMP2_ON_TRUE_TOP_NIL",   // 55
-    "JUMP2_IF_GREATER",        // 56
-    "JUMP2_BACKWARD  ",        // 57
+    "SEND_1          ",        // 33
+    "SUPER_SEND      ",        // 34
+    "RETURN_LOCAL    ",        // 35
+    "RETURN_NON_LOCAL",        // 36
+    "RETURN_SELF     ",        // 37
+    "RETURN_FIELD_0  ",        // 38
+    "RETURN_FIELD_1  ",        // 39
+    "RETURN_FIELD_2  ",        // 40
+    "INC             ",        // 41
+    "DEC             ",        // 42
+    "INC_FIELD       ",        // 43
+    "INC_FIELD_PUSH  ",        // 44
+    "JUMP            ",        // 45
+    "JUMP_ON_FALSE_POP",       // 46
+    "JUMP_ON_TRUE_POP",        // 47
+    "JUMP_ON_FALSE_TOP_NIL",   // 48
+    "JUMP_ON_TRUE_TOP_NIL",    // 49
+    "JUMP_IF_GREATER ",        // 50
+    "JUMP_BACKWARD   ",        // 51
+    "JUMP2           ",        // 52
+    "JUMP2_ON_FALSE_POP",      // 53
+    "JUMP2_ON_TRUE_POP",       // 54
+    "JUMP2_ON_FALSE_TOP_NIL",  // 55
+    "JUMP2_ON_TRUE_TOP_NIL",   // 56
+    "JUMP2_IF_GREATER",        // 57
+    "JUMP2_BACKWARD  ",        // 58
 };
 
 bool IsJumpBytecode(uint8_t bc) {
