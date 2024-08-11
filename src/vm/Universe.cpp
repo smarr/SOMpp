@@ -720,11 +720,7 @@ VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method) {
                     method->GetMaximumNumberOfStackElements();
 
     size_t additionalBytes = length * sizeof(VMObject*);
-    result = new (GetHeap<HEAP_CLS>(), additionalBytes)
-        VMFrame(length, additionalBytes);
-    result->method = store_root(method);
-    result->previousFrame = store_root(previousFrame);
-    result->ResetStackPointer();
+    result = new (GetHeap<HEAP_CLS>(), additionalBytes) VMFrame(additionalBytes, method, previousFrame);
 
     LOG_ALLOCATION("VMFrame", result->GetObjectSize());
     return result;

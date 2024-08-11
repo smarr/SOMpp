@@ -42,10 +42,25 @@ public:
 
     static VMFrame* EmergencyFrameFrom(VMFrame* from, long extraLength);
 
-    explicit VMFrame(size_t size, size_t additionalBytes);
+    explicit VMFrame(size_t additionalBytes, VMMethod* method,
+                     VMFrame* previousFrame)
+        : VMObject(0, additionalBytes + sizeof(VMFrame)), bytecodeIndex(0),
+          previousFrame(store_root(previousFrame)), context(nullptr),
+          method(store_root(method)), arguments((gc_oop_t*)&(stack_ptr) + 1),
+          locals(arguments + method->GetNumberOfArguments()),
+          stack_ptr(locals + method->GetNumberOfLocals() - 1) {
+        // initilize all other fields. Don't need to initalize arguments,
+        // because they iwll be copied in still
+        // --> until end of Frame
+        gc_oop_t* end = (gc_oop_t*)SHIFTED_PTR(this, totalObjectSize);
+        size_t i = 0;
+        while (arguments + i < end) {
+            arguments[i] = nilObject;
+            i++;
+        }
+    }
 
     inline VMFrame* GetPreviousFrame() const;
-    inline void SetPreviousFrame(VMFrame*);
     inline void ClearPreviousFrame();
     inline bool HasPreviousFrame() const;
     inline bool IsBootstrapFrame() const;
@@ -55,7 +70,6 @@ public:
     VMFrame* GetContextLevel(long);
     VMFrame* GetOuterContext();
     inline VMMethod* GetMethod() const;
-    void SetMethod(VMMethod*);
 
     inline vm_oop_t Pop() {
         vm_oop_t result = load_ptr(*stack_ptr);
@@ -81,14 +95,6 @@ public:
         assert(RemainingStackSize() > 0);
         ++stack_ptr;
         store_ptr(*stack_ptr, obj);
-    }
-
-    void ResetStackPointer() {
-        // arguments are stored in front of local variables
-        VMMethod* meth = GetMethod();
-        locals = arguments + meth->GetNumberOfArguments();
-        // Set the stack pointer to its initial value thereby clearing the stack
-        stack_ptr = locals + meth->GetNumberOfLocals() - 1;
     }
 
     inline long GetBytecodeIndex() const;
@@ -190,10 +196,6 @@ void VMFrame::SetContext(VMFrame* frm) {
 
 VMFrame* VMFrame::GetPreviousFrame() const {
     return load_ptr(previousFrame);
-}
-
-void VMFrame::SetPreviousFrame(VMFrame* frm) {
-    store_ptr(previousFrame, frm);
 }
 
 void VMFrame::ClearPreviousFrame() {

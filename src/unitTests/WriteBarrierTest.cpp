@@ -106,9 +106,6 @@ void WriteBarrierTest::testWriteFrame() {
     VMFrame* frame = Interpreter::GetFrame()->CloneForMovingGC();
     frame->SetContext(frame->CloneForMovingGC());
 
-    frame->SetPreviousFrame(Interpreter::GetFrame());
-    TEST_WB_CALLED("VMFrame failed to call writeBarrier on SetPreviousFrame",
-                   frame, Interpreter::GetFrame());
     frame->SetContext(frame->GetContext()->CloneForMovingGC());
     TEST_WB_CALLED("VMFrame failed to call writeBarrier on SetContext", frame,
                    frame->GetContext());
