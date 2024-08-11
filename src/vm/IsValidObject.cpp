@@ -159,6 +159,11 @@ bool IsSetter(vm_oop_t obj) {
     return get_vtable(AS_OBJ(obj)) == vt_setter;
 }
 
+bool IsSafeUnaryPrim(vm_oop_t obj) {
+    assert(vt_safe_un_primitive != nullptr);
+    return get_vtable(AS_OBJ(obj)) == vt_safe_un_primitive;
+}
+
 void obtain_vtables_of_known_classes(VMSymbol* someValidSymbol) {
     // These objects are allocated on the heap. So, they will get GC'ed soon
     // enough.
