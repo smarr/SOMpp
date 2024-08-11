@@ -26,6 +26,13 @@ VMFrame* VMSafeUnaryPrimitive::Invoke(VMFrame* frame) {
     return nullptr;
 }
 
+VMFrame* VMSafeUnaryPrimitive::Invoke1(VMFrame* frame) {
+    vm_oop_t receiverObj = frame->Pop();
+
+    frame->Push(prim.pointer(receiverObj));
+    return nullptr;
+}
+
 VMSafePrimitive* VMSafePrimitive::GetSafeBinary(VMSymbol* sig,
                                                 BinaryPrim prim) {
     VMSafeBinaryPrimitive* p =
@@ -39,6 +46,10 @@ VMFrame* VMSafeBinaryPrimitive::Invoke(VMFrame* frame) {
 
     frame->Push(prim.pointer(leftObj, rightObj));
     return nullptr;
+}
+
+VMFrame* VMSafeBinaryPrimitive::Invoke1(VMFrame* frame) {
+    ErrorExit("Unary invoke on binary primitive");
 }
 
 VMSafePrimitive* VMSafePrimitive::GetSafeTernary(VMSymbol* sig,
@@ -55,6 +66,10 @@ VMFrame* VMSafeTernaryPrimitive::Invoke(VMFrame* frame) {
 
     frame->Push(prim.pointer(self, arg1, arg2));
     return nullptr;
+}
+
+VMFrame* VMSafeTernaryPrimitive::Invoke1(VMFrame* frame) {
+    ErrorExit("Unary invoke on binary primitive");
 }
 
 std::string VMSafePrimitive::AsDebugString() const {

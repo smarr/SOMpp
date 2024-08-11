@@ -234,7 +234,7 @@ void EmitSEND(MethodGenerationContext& mgenc, VMSymbol* msg) {
     const int numArgs = Signature::GetNumberOfArguments(msg);
     const size_t stackEffect = -numArgs + 1;  // +1 for the result
 
-    Emit2(mgenc, BC_SEND, idx, stackEffect);
+    Emit2(mgenc, numArgs == 1 ? BC_SEND_1 : BC_SEND, idx, stackEffect);
 }
 
 void EmitSUPERSEND(MethodGenerationContext& mgenc, VMSymbol* msg) {

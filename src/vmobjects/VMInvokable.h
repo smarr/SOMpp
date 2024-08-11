@@ -44,6 +44,7 @@ public:
     int64_t GetHash() const override { return hash; }
 
     virtual VMFrame* Invoke(VMFrame*) = 0;
+    virtual VMFrame* Invoke1(VMFrame*) = 0;
     virtual void InlineInto(MethodGenerationContext& mgenc,
                             bool mergeScope = true) = 0;
     virtual void MergeScopeInto(

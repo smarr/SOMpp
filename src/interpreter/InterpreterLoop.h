@@ -38,6 +38,7 @@ vm_oop_t Start() {
                            &&LABEL_BC_POP_FIELD_0,
                            &&LABEL_BC_POP_FIELD_1,
                            &&LABEL_BC_SEND,
+                           &&LABEL_BC_SEND_1,
                            &&LABEL_BC_SUPER_SEND,
                            &&LABEL_BC_RETURN_LOCAL,
                            &&LABEL_BC_RETURN_NON_LOCAL,
@@ -251,6 +252,11 @@ LABEL_BC_POP_FIELD_1:
 LABEL_BC_SEND:
     PROLOGUE(2);
     doSend(bytecodeIndexGlobal - 2);
+    DISPATCH_GC();
+
+LABEL_BC_SEND_1:
+    PROLOGUE(2);
+    doUnarySend(bytecodeIndexGlobal - 2);
     DISPATCH_GC();
 
 LABEL_BC_SUPER_SEND:

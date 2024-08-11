@@ -66,31 +66,32 @@
 #define BC_POP_FIELD_0            30
 #define BC_POP_FIELD_1            31
 #define BC_SEND                   32
-#define BC_SUPER_SEND             33
-#define BC_RETURN_LOCAL           34
-#define BC_RETURN_NON_LOCAL       35
-#define BC_RETURN_SELF            36
-#define BC_RETURN_FIELD_0         37
-#define BC_RETURN_FIELD_1         38
-#define BC_RETURN_FIELD_2         39
-#define BC_INC                    40
-#define BC_DEC                    41
-#define BC_INC_FIELD              42
-#define BC_INC_FIELD_PUSH         43
-#define BC_JUMP                   44
-#define BC_JUMP_ON_FALSE_POP      45
-#define BC_JUMP_ON_TRUE_POP       46
-#define BC_JUMP_ON_FALSE_TOP_NIL  47
-#define BC_JUMP_ON_TRUE_TOP_NIL   48
-#define BC_JUMP_IF_GREATER        49
-#define BC_JUMP_BACKWARD          50
-#define BC_JUMP2                  51
-#define BC_JUMP2_ON_FALSE_POP     52
-#define BC_JUMP2_ON_TRUE_POP      53
-#define BC_JUMP2_ON_FALSE_TOP_NIL 54
-#define BC_JUMP2_ON_TRUE_TOP_NIL  55
-#define BC_JUMP2_IF_GREATER       56
-#define BC_JUMP2_BACKWARD         57
+#define BC_SEND_1                 33
+#define BC_SUPER_SEND             34
+#define BC_RETURN_LOCAL           35
+#define BC_RETURN_NON_LOCAL       36
+#define BC_RETURN_SELF            37
+#define BC_RETURN_FIELD_0         38
+#define BC_RETURN_FIELD_1         39
+#define BC_RETURN_FIELD_2         40
+#define BC_INC                    41
+#define BC_DEC                    42
+#define BC_INC_FIELD              43
+#define BC_INC_FIELD_PUSH         44
+#define BC_JUMP                   45
+#define BC_JUMP_ON_FALSE_POP      46
+#define BC_JUMP_ON_TRUE_POP       47
+#define BC_JUMP_ON_FALSE_TOP_NIL  48
+#define BC_JUMP_ON_TRUE_TOP_NIL   49
+#define BC_JUMP_IF_GREATER        50
+#define BC_JUMP_BACKWARD          51
+#define BC_JUMP2                  52
+#define BC_JUMP2_ON_FALSE_POP     53
+#define BC_JUMP2_ON_TRUE_POP      54
+#define BC_JUMP2_ON_FALSE_TOP_NIL 55
+#define BC_JUMP2_ON_TRUE_TOP_NIL  56
+#define BC_JUMP2_IF_GREATER       57
+#define BC_JUMP2_BACKWARD         58
 
 #define _LAST_BYTECODE BC_JUMP2_BACKWARD
 
@@ -104,7 +105,6 @@
 #define BC_SEND_N            250
 #define BC_SEND_3            249
 #define BC_SEND_2            248
-#define BC_SEND_1            247
 // clang-format on
 
 // properties of the bytecodes

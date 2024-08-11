@@ -127,7 +127,7 @@ void BytecodeGenerationTest::testSendDupPopFieldReturnLocal() {
     auto bytecodes = methodToBytecode("test = ( ^ field := self method )");
 
     check(bytecodes,
-          {BC_PUSH_SELF, BC(BC_SEND, 0), BC_DUP, BC_POP_FIELD_0,
+          {BC_PUSH_SELF, BC(BC_SEND_1, 0), BC_DUP, BC_POP_FIELD_0,
            BC_RETURN_LOCAL});
 }
 
@@ -136,7 +136,7 @@ void BytecodeGenerationTest::testSendDupPopFieldReturnLocalPeriod() {
     auto bytecodes = methodToBytecode("test = ( ^ field := self method. )");
 
     check(bytecodes,
-          {BC_PUSH_SELF, BC(BC_SEND, 0), BC_DUP, BC_POP_FIELD_0,
+          {BC_PUSH_SELF, BC(BC_SEND_1, 0), BC_DUP, BC_POP_FIELD_0,
            BC_RETURN_LOCAL});
 }
 
@@ -377,7 +377,7 @@ void BytecodeGenerationTest::ifTrueWithLiteralReturn(std::string literal,
                     bytecode.bytecode == BC_PUSH_BLOCK;
 
     check(bytecodes,
-          {BC_PUSH_SELF, BC(BC_SEND, 0),
+          {BC_PUSH_SELF, BC(BC_SEND_1, 0),
            BC(BC_JUMP_ON_FALSE_TOP_NIL, twoByte2 ? 5 : 4, 0), bytecode, BC_POP,
            BC_RETURN_SELF});
 
@@ -418,7 +418,7 @@ void BytecodeGenerationTest::ifTrueWithSomethingAndLiteralReturn(
                     bytecode.bytecode == BC_PUSH_BLOCK;
 
     check(bytecodes,
-          {BC_PUSH_SELF, BC(BC_SEND, 0),
+          {BC_PUSH_SELF, BC(BC_SEND_1, 0),
            BC(BC_JUMP_ON_FALSE_TOP_NIL, twoByte2 ? 7 : 6, 0),
            BC_PUSH_CONSTANT_1, BC_POP, bytecode, BC_POP, BC_RETURN_SELF});
 
@@ -433,7 +433,7 @@ void BytecodeGenerationTest::testIfTrueIfFalseArg() {
         ) )""");
 
     check(bytecodes,
-          {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_SELF, BC(BC_SEND, 1),
+          {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_SELF, BC(BC_SEND_1, 1),
            BC(BC_JUMP_ON_FALSE_POP, 7, 0), BC_PUSH_ARG_1, BC(BC_JUMP, 4, 0),
            BC_PUSH_ARG_2, BC_POP, BC_PUSH_CONSTANT_2, BC_RETURN_SELF});
 }
@@ -446,7 +446,7 @@ void BytecodeGenerationTest::testIfTrueIfFalseNlrArg1() {
         ) )""");
 
     check(bytecodes,
-          {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_SELF, BC(BC_SEND, 1),
+          {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_SELF, BC(BC_SEND_1, 1),
            BC(BC_JUMP_ON_FALSE_POP, 8, 0), BC_PUSH_ARG_1, BC_RETURN_LOCAL,
            BC(BC_JUMP, 4, 0), BC_PUSH_ARG_2, BC_POP, BC_PUSH_CONSTANT_2,
            BC_RETURN_SELF});
@@ -460,7 +460,7 @@ void BytecodeGenerationTest::testIfTrueIfFalseNlrArg2() {
         ) )""");
 
     check(bytecodes,
-          {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_SELF, BC(BC_SEND, 1),
+          {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_SELF, BC(BC_SEND_1, 1),
            BC(BC_JUMP_ON_FALSE_POP, 7, 0), BC_PUSH_ARG_1, BC(BC_JUMP, 5, 0),
            BC_PUSH_ARG_2, BC_RETURN_LOCAL, BC_POP, BC_PUSH_CONSTANT_2,
            BC_RETURN_SELF});
@@ -552,7 +552,7 @@ void BytecodeGenerationTest::ifArg(std::string selector, int8_t jumpBytecode) {
 
     auto bytecodes = methodToBytecode(source.data());
     check(bytecodes,
-          {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_SELF, BC(BC_SEND, 1),
+          {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_SELF, BC(BC_SEND_1, 1),
            BC(jumpBytecode, 4, 0), BC_PUSH_ARG_1, BC_POP, BC_PUSH_CONSTANT_2,
            BC_RETURN_SELF});
 
@@ -588,7 +588,7 @@ void BytecodeGenerationTest::ifReturnNonLocal(std::string selector,
 
     auto bytecodes = methodToBytecode(source.data());
     check(bytecodes,
-          {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_SELF, BC(BC_SEND, 1),
+          {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_SELF, BC(BC_SEND_1, 1),
            BC(jumpBytecode, 5, 0), BC_PUSH_ARG_1, BC_RETURN_LOCAL, BC_POP,
            BC_PUSH_CONSTANT_2, BC_RETURN_SELF});
 
@@ -813,7 +813,7 @@ void BytecodeGenerationTest::testBlockIfTrueArg() {
 
     check(bytecodes,
           {BC_PUSH_CONSTANT_0, BC_POP, BC(BC_PUSH_ARGUMENT, 0, 1),
-           BC(BC_SEND, 1), BC(BC_JUMP_ON_FALSE_TOP_NIL, 4, 0), BC_PUSH_ARG_1,
+           BC(BC_SEND_1, 1), BC(BC_JUMP_ON_FALSE_TOP_NIL, 4, 0), BC_PUSH_ARG_1,
            BC_POP, BC_PUSH_CONSTANT_2, BC_RETURN_LOCAL});
 }
 
@@ -829,7 +829,7 @@ void BytecodeGenerationTest::testBlockIfTrueMethodArg() {
                ] )""");
 
     check(bytecodes, {BC_PUSH_CONSTANT_0, BC_POP, BC(BC_PUSH_ARGUMENT, 0, 1),
-                      BC(BC_SEND, 1), BC(BC_JUMP_ON_FALSE_TOP_NIL, 6, 0),
+                      BC(BC_SEND_1, 1), BC(BC_JUMP_ON_FALSE_TOP_NIL, 6, 0),
                       BC(BC_PUSH_ARGUMENT, 1, 1), BC_POP, BC_PUSH_CONSTANT_2,
                       BC_RETURN_LOCAL});
 }
@@ -844,9 +844,9 @@ void BytecodeGenerationTest::ifTrueIfFalseReturn(std::string sel1,
                          sel1 + " [ ^ arg1 ] " + sel2 + " [ arg2 ] )";
     auto bytecodes = methodToBytecode(source.data());
 
-    check(bytecodes, {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_SELF, BC(BC_SEND, 1),
-                      bc, BC_PUSH_ARG_1, BC_RETURN_LOCAL, BC(BC_JUMP, 4, 0),
-                      BC_PUSH_ARG_2, BC_RETURN_LOCAL});
+    check(bytecodes, {BC_PUSH_CONSTANT_0, BC_POP, BC_PUSH_SELF,
+                      BC(BC_SEND_1, 1), bc, BC_PUSH_ARG_1, BC_RETURN_LOCAL,
+                      BC(BC_JUMP, 4, 0), BC_PUSH_ARG_2, BC_RETURN_LOCAL});
     tearDown();
 }
 
@@ -867,7 +867,7 @@ void BytecodeGenerationTest::blockIfReturnNonLocal(std::string sel, BC bc) {
     auto bytecodes = blockToBytecode(source.data());
     check(bytecodes,
           {BC_PUSH_CONSTANT_0, BC_POP, BC(BC_PUSH_ARGUMENT, 0, 1),
-           BC(BC_SEND, 1), bc, BC_PUSH_ARG_1, BC_RETURN_NON_LOCAL, BC_POP,
+           BC(BC_SEND_1, 1), bc, BC_PUSH_ARG_1, BC_RETURN_NON_LOCAL, BC_POP,
            BC_PUSH_CONSTANT_2, BC_RETURN_LOCAL});
 
     tearDown();

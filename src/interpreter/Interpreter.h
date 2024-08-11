@@ -58,6 +58,8 @@ public:
 
     static void SendUnknownGlobal(VMSymbol* globalName);
 
+    static inline long GetBytecodeIndex() { return bytecodeIndexGlobal; }
+
 private:
     static vm_oop_t GetSelf();
 
@@ -105,6 +107,7 @@ private:
     static void doPopField(long bytecodeIndex);
     static void doPopFieldWithIndex(uint8_t fieldIndex);
     static void doSend(long bytecodeIndex);
+    static void doUnarySend(long bytecodeIndex);
     static void doSuperSend(long bytecodeIndex);
     static void doReturnLocal();
     static void doReturnNonLocal();

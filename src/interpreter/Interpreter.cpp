@@ -147,11 +147,8 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
             Universe::callStats[name].noPrimitiveCalls++;
         }
 #endif
-        // since an invokable is able to change/use the frame, we have to write
-        // cached values before, and read cached values after calling
-        GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
+
         invokable->Invoke(GetFrame());
-        bytecodeIndexGlobal = GetFrame()->GetBytecodeIndex();
     } else {
         triggerDoesNotUnderstand(signature);
     }
@@ -364,6 +361,45 @@ void Interpreter::doSend(long bytecodeIndex) {
 #endif
 
     send(signature, receiverClass);
+}
+
+void Interpreter::doUnarySend(long bytecodeIndex) {
+    VMSymbol* signature =
+        static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
+
+    const int numOfArgs = 1;
+
+    vm_oop_t receiver = frame->GetStackElement(numOfArgs - 1);
+
+    assert(IsValidObject(receiver));
+    // make sure it is really a class
+    assert(dynamic_cast<VMClass*>(CLASS_OF(receiver)) != nullptr);
+
+    VMClass* receiverClass = CLASS_OF(receiver);
+
+    assert(IsValidObject(receiverClass));
+
+#ifdef LOG_RECEIVER_TYPES
+    Universe::receiverTypes[receiverClass->GetName()->GetStdString()]++;
+#endif
+
+    VMInvokable* invokable = receiverClass->LookupInvokable(signature);
+
+    if (invokable != nullptr) {
+#ifdef LOG_RECEIVER_TYPES
+        std::string name = receiverClass->GetName()->GetStdString();
+        if (Universe::callStats.find(name) == Universe::callStats.end()) {
+            Universe::callStats[name] = {0, 0};
+        }
+        Universe::callStats[name].noCalls++;
+        if (invokable->IsPrimitive()) {
+            Universe::callStats[name].noPrimitiveCalls++;
+        }
+#endif
+        invokable->Invoke1(GetFrame());
+    } else {
+        triggerDoesNotUnderstand(signature);
+    }
 }
 
 void Interpreter::doSuperSend(long bytecodeIndex) {

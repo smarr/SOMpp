@@ -58,6 +58,11 @@ public:
         return nullptr;
     };
 
+    VMFrame* Invoke1(VMFrame* frm) override {
+        prim.pointer(frm);
+        return nullptr;
+    };
+
     void InlineInto(MethodGenerationContext& mgenc,
                     bool mergeScope = true) final;
 
