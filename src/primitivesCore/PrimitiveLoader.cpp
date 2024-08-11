@@ -40,9 +40,7 @@
 #include "../primitives/String.h"
 #include "../primitives/Symbol.h"
 #include "../primitives/System.h"
-#include "../vm/Print.h"
 #include "../vmobjects/ObjectFormats.h"
-#include "../vmobjects/PrimitiveRoutine.h"
 #include "PrimitiveContainer.h"
 
 PrimitiveLoader PrimitiveLoader::loader;
@@ -80,12 +78,6 @@ bool PrimitiveLoader::SupportsClass(const std::string& name) {
     return loader.supportsClass(name);
 }
 
-PrimitiveRoutine* PrimitiveLoader::GetPrimitiveRoutine(const std::string& cname,
-                                                       const std::string& mname,
-                                                       bool isPrimitive) {
-    return loader.getPrimitiveRoutine(cname, mname, isPrimitive);
-}
-
 void PrimitiveLoader::InstallPrimitives(const std::string& cname,
                                         VMClass* clazz,
                                         bool classSide) {
@@ -100,24 +92,4 @@ void PrimitiveLoader::installPrimitives(const std::string& cname,
     }
 
     primitiveObjects[cname]->InstallPrimitives(clazz, classSide);
-}
-
-PrimitiveRoutine* PrimitiveLoader::getPrimitiveRoutine(const std::string& cname,
-                                                       const std::string& mname,
-                                                       bool isPrimitive) {
-    if (primitiveObjects.find(cname) == primitiveObjects.end()) {
-        ErrorPrint("Primitive object not found for name: " + cname + "\n");
-        return nullptr;
-    }
-
-    PrimitiveContainer* primitive = primitiveObjects[cname];
-    PrimitiveRoutine* result = primitive->GetPrimitive(mname);
-    if (!result) {
-        if (isPrimitive) {
-            ErrorPrint("method " + mname + " not found in class " + cname +
-                       "\n");
-        }
-        return nullptr;
-    }
-    return result;
 }

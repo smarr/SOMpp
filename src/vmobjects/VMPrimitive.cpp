@@ -31,7 +31,7 @@
 #include "../compiler/LexicalScope.h"
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
-#include "../primitivesCore/Routine.h"
+#include "../primitivesCore/Primitives.h"
 #include "../vm/Globals.h"  // NOLINT (misc-include-cleaner)
 #include "../vm/Print.h"
 #include "ObjectFormats.h"
@@ -39,17 +39,9 @@
 #include "VMFrame.h"
 #include "VMSymbol.h"
 
-VMPrimitive* VMPrimitive::GetEmptyPrimitive(VMSymbol* sig, bool classSide) {
-    VMPrimitive* prim = new (GetHeap<HEAP_CLS>(), 0) VMPrimitive(sig);
-    prim->SetRoutine(
-        new Routine<VMPrimitive>(prim, &VMPrimitive::EmptyRoutine, classSide),
-        true);
-    return prim;
-}
-
-VMPrimitive::VMPrimitive(VMSymbol* signature)
-    : VMInvokable(signature), routine(nullptr), empty(false) {
-    write_barrier(this, signature);
+VMPrimitive* VMPrimitive::GetFramePrim(VMSymbol* sig, FramePrim prim) {
+    VMPrimitive* p = new (GetHeap<HEAP_CLS>(), 0) VMPrimitive(sig, prim);
+    return p;
 }
 
 VMPrimitive* VMPrimitive::CloneForMovingGC() const {
@@ -58,9 +50,18 @@ VMPrimitive* VMPrimitive::CloneForMovingGC() const {
     return prim;
 }
 
-void VMPrimitive::EmptyRoutine(VMFrame*) {
-    VMSymbol* sig = GetSignature();
-    ErrorPrint("undefined primitive called: " + sig->GetStdString() + "\n");
+void emptyRoutine(VMFrame* frame) {
+    ErrorPrint("undefined primitive called\n");
+    frame->PrintStackTrace();
+    ErrorExit("undefined primitive called");
+}
+
+VMPrimitive* VMPrimitive::GetEmptyPrimitive(VMSymbol* sig, bool classSide) {
+    return GetFramePrim(sig, FramePrim(&emptyRoutine, classSide));
+}
+
+bool VMPrimitive::IsEmpty() const {
+    return prim.pointer == &emptyRoutine;
 }
 
 void VMPrimitive::InlineInto(MethodGenerationContext&, bool) {

@@ -189,7 +189,7 @@ void obtain_vtables_of_known_classes(VMSymbol* someValidSymbol) {
     vt_object = get_vtable(load_ptr(nilObject));
 
     VMPrimitive* prm =
-        new (GetHeap<HEAP_CLS>(), 0) VMPrimitive(someValidSymbol);
+        new (GetHeap<HEAP_CLS>(), 0) VMPrimitive(someValidSymbol, FramePrim());
     vt_primitive = get_vtable(prm);
 
     VMSafeUnaryPrimitive* sbp1 = new (GetHeap<HEAP_CLS>(), 0)

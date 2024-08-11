@@ -299,7 +299,6 @@
 		3F52032A0FA6624C00E75857 /* PrimitiveContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrimitiveContainer.h; sourceTree = "<group>"; };
 		3F52032B0FA6624C00E75857 /* PrimitiveLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PrimitiveLoader.cpp; sourceTree = "<group>"; };
 		3F52032C0FA6624C00E75857 /* PrimitiveLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrimitiveLoader.h; sourceTree = "<group>"; };
-		3F52032E0FA6624C00E75857 /* Routine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Routine.h; sourceTree = "<group>"; };
 		3F5203300FA6624C00E75857 /* Shell.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Shell.cpp; sourceTree = "<group>"; };
 		3F5203310FA6624C00E75857 /* Shell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Shell.h; sourceTree = "<group>"; };
 		3F5203320FA6624C00E75857 /* Universe.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Universe.cpp; sourceTree = "<group>"; };
@@ -618,7 +617,6 @@
 				3F52032A0FA6624C00E75857 /* PrimitiveContainer.h */,
 				3F52032B0FA6624C00E75857 /* PrimitiveLoader.cpp */,
 				3F52032C0FA6624C00E75857 /* PrimitiveLoader.h */,
-				3F52032E0FA6624C00E75857 /* Routine.h */,
 				0A5A7E932C5DA9A90011C783 /* Primitives.h */,
 			);
 			path = primitivesCore;

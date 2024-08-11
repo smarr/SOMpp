@@ -50,9 +50,6 @@ public:
     void AddPrimitiveObject(const std::string& name, PrimitiveContainer*);
 
     static bool SupportsClass(const std::string& name);
-    static PrimitiveRoutine* GetPrimitiveRoutine(const std::string& cname,
-                                                 const std::string& mname,
-                                                 bool isPrimitive);
 
     static void InstallPrimitives(const std::string& cname,
                                   VMClass* clazz,
@@ -64,9 +61,6 @@ private:
                            bool classSide);
 
     bool supportsClass(const std::string& name);
-    PrimitiveRoutine* getPrimitiveRoutine(const std::string& cname,
-                                          const std::string& mname,
-                                          bool isPrimitive);
 
     std::map<StdString, PrimitiveContainer*> primitiveObjects{};
 

@@ -33,18 +33,18 @@
 #include <string>
 
 #include "../vm/Symbols.h"
-#include "../vmobjects/PrimitiveRoutine.h"
 #include "../vmobjects/VMClass.h"
 #include "../vmobjects/VMPrimitive.h"
 #include "../vmobjects/VMSafePrimitive.h"
 #include "../vmobjects/VMSymbol.h"
 #include "Primitives.h"
 
-void PrimitiveContainer::SetPrimitive(const char* name,
-                                      PrimitiveRoutine* routine) {
-    methods[std::string(name)] = routine;
+void PrimitiveContainer::Add(const char* name,
+                             FramePrimitiveRoutine routine,
+                             bool classSide) {
+    assert(framePrims.find(name) == framePrims.end());
+    framePrims[std::string(name)] = {routine, classSide};
 }
-
 void PrimitiveContainer::Add(const char* name,
                              BinaryPrimitiveRoutine routine,
                              bool classSide) {
@@ -64,14 +64,6 @@ void PrimitiveContainer::Add(const char* name,
                              bool classSide) {
     assert(ternaryPrims.find(name) == ternaryPrims.end());
     ternaryPrims[std::string(name)] = {routine, classSide};
-}
-
-PrimitiveRoutine* PrimitiveContainer::GetPrimitive(
-    const std::string& routineName) {
-    if (methods.find(routineName) != methods.end()) {
-        return methods[routineName];
-    }
-    return nullptr;
 }
 
 void PrimitiveContainer::InstallPrimitives(VMClass* clazz, bool classSide) {
@@ -120,15 +112,15 @@ void PrimitiveContainer::InstallPrimitives(VMClass* clazz, bool classSide) {
         }
     }
 
-    for (auto const& p : methods) {
-        if (classSide != p.second->isClassSide()) {
+    for (auto const& p : framePrims) {
+        assert(p.second.IsValid());
+        if (classSide != p.second.isClassSide) {
             continue;
         }
 
         VMSymbol* sig = SymbolFor(p.first);
-        VMPrimitive* prim = VMPrimitive::GetEmptyPrimitive(sig, classSide);
-        prim->SetRoutine(p.second, false);
-        if (clazz->AddInstanceInvokable(prim)) {
+        if (clazz->AddInstanceInvokable(
+                VMPrimitive::GetFramePrim(sig, p.second))) {
             cout << "Warn: Primitive " << p.first
                  << " is not in class definition for class "
                  << clazz->GetName()->GetStdString() << endl;
