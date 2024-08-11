@@ -31,7 +31,6 @@
 #include "../vm/Print.h"
 #include "ObjectFormats.h"
 #include "VMClass.h"
-#include "VMSymbol.h"
 
 bool VMInvokable::IsPrimitive() const {
     return false;

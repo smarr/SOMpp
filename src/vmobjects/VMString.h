@@ -32,7 +32,15 @@ class VMString : public AbstractVMObject {
 public:
     typedef GCString Stored;
 
-    VMString(const size_t length, const char* str);
+    VMString(const size_t length, const char* str)
+        : AbstractVMObject(), length(length),
+          // set the chars-pointer to point at the position of the first
+          // character
+          chars((char*)&chars + sizeof(char*)) {
+        for (size_t i = 0; i < length; i++) {
+            chars[i] = str[i];
+        }
+    }
 
     int64_t GetHash() const override {
         uint64_t hash = 5381U;

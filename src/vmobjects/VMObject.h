@@ -64,7 +64,19 @@ public:
     /**
      * numberOfFields - including
      */
-    explicit VMObject(size_t numSubclassFields, size_t totalObjectSize);
+    explicit VMObject(size_t numSubclassFields, size_t totalObjectSize)
+        : totalObjectSize(totalObjectSize),
+          numberOfFields(VMObjectNumberOfFields + numSubclassFields) {
+        assert(IS_PADDED_SIZE(totalObjectSize));
+        assert(totalObjectSize >= sizeof(VMObject));
+
+        // this line would be needed if the VMObject** is used instead of the
+        // macro: FIELDS = (VMObject**)&clazz;
+        hash = (size_t)this;
+
+        nilInitializeFields();
+    }
+
     ~VMObject() override = default;
 
     int64_t GetHash() const override { return hash; }
