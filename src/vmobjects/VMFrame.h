@@ -54,8 +54,8 @@ public:
         // --> until end of Frame
         gc_oop_t* end = (gc_oop_t*)SHIFTED_PTR(this, totalObjectSize);
         size_t i = 0;
-        while (arguments + i < end) {
-            arguments[i] = nilObject;
+        while (locals + i < end) {
+            locals[i] = nilObject;
             i++;
         }
     }
