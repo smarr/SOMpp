@@ -30,7 +30,6 @@
 #include <cstdint>
 
 #include "../primitivesCore/PrimitiveContainer.h"
-#include "../primitivesCore/Routine.h"
 #include "../vm/Globals.h"
 #include "../vm/Universe.h"  // NOLINT(misc-include-cleaner) it's required to make the types complete
 #include "../vmobjects/ObjectFormats.h"
@@ -66,7 +65,7 @@ vm_oop_t objHalt(vm_oop_t) {
     return load_ptr(falseObject);
 }
 
-void _Object::Perform(VMFrame* frame) {
+void objPerform(VMFrame* frame) {
     VMSymbol* selector = (VMSymbol*)frame->Pop();
     vm_oop_t self = frame->GetStackElement(0);
 
@@ -76,7 +75,7 @@ void _Object::Perform(VMFrame* frame) {
     invokable->Invoke(frame);
 }
 
-void _Object::PerformInSuperclass(VMFrame* frame) {
+void objPerformInSuperclass(VMFrame* frame) {
     VMClass* clazz = (VMClass*)frame->Pop();
     VMSymbol* selector = (VMSymbol*)frame->Pop();
 
@@ -85,7 +84,7 @@ void _Object::PerformInSuperclass(VMFrame* frame) {
     invokable->Invoke(frame);
 }
 
-void _Object::PerformWithArguments(VMFrame* frame) {
+void objPerformWithArguments(VMFrame* frame) {
     VMArray* args = (VMArray*)frame->Pop();
     VMSymbol* selector = (VMSymbol*)frame->Pop();
     vm_oop_t self = frame->GetStackElement(0);
@@ -102,7 +101,7 @@ void _Object::PerformWithArguments(VMFrame* frame) {
     invokable->Invoke(frame);
 }
 
-void _Object::PerformWithArgumentsInSuperclass(VMFrame* frame) {
+void objPerformWithArgumentsInSuperclass(VMFrame* frame) {
     VMClass* clazz = (VMClass*)frame->Pop();
     VMArray* args = (VMArray*)frame->Pop();
     VMSymbol* selector = (VMSymbol*)frame->Pop();
@@ -146,17 +145,11 @@ _Object::_Object() : PrimitiveContainer() {
     Add("inspect", &objInspect, false);
     Add("halt", &objHalt, false);
 
-    SetPrimitive("perform:",
-                 new Routine<_Object>(this, &_Object::Perform, false));
-    SetPrimitive(
-        "perform:withArguments:",
-        new Routine<_Object>(this, &_Object::PerformWithArguments, false));
-    SetPrimitive(
-        "perform:inSuperclass:",
-        new Routine<_Object>(this, &_Object::PerformInSuperclass, false));
-    SetPrimitive("perform:withArguments:inSuperclass:",
-                 new Routine<_Object>(
-                     this, &_Object::PerformWithArgumentsInSuperclass, false));
+    Add("perform:", &objPerform, false);
+    Add("perform:withArguments:", &objPerformWithArguments, false);
+    Add("perform:inSuperclass:", &objPerformInSuperclass, false);
+    Add("perform:withArguments:inSuperclass:",
+        &objPerformWithArgumentsInSuperclass, false);
 
     Add("instVarAt:", &objInstVarAt, false);
     Add("instVarAt:put:", &objInstVarAtPut, false);

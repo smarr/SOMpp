@@ -26,6 +26,7 @@
  THE SOFTWARE.
  */
 
+#include "../primitivesCore/Primitives.h"
 #include "PrimitiveRoutine.h"
 #include "Signature.h"
 #include "VMInvokable.h"
@@ -36,25 +37,24 @@ public:
     typedef GCPrimitive Stored;
 
     static VMPrimitive* GetEmptyPrimitive(VMSymbol* sig, bool classSide);
+    static VMPrimitive* GetFramePrim(VMSymbol* sig, FramePrim prim);
 
-    VMPrimitive(VMSymbol* sig);
+    VMPrimitive(VMSymbol* sig, FramePrim prim) : VMInvokable(sig), prim(prim) {
+        write_barrier(this, sig);
+    }
 
     VMClass* GetClass() const final { return load_ptr(primitiveClass); }
 
     inline size_t GetObjectSize() const override { return sizeof(VMPrimitive); }
 
-    inline bool IsEmpty() const { return empty; }
+    bool IsEmpty() const;
 
-    inline void SetRoutine(PrimitiveRoutine* rtn, bool empty) {
-        routine = rtn;
-        this->empty = empty;
-    }
+    inline void SetRoutine(FramePrim p) { prim = p; }
 
-    void SetEmpty(bool value) { empty = value; };
     VMPrimitive* CloneForMovingGC() const override;
 
     VMFrame* Invoke(VMFrame* frm) override {
-        routine->Invoke(frm);
+        prim.pointer(frm);
         return nullptr;
     };
 
@@ -64,12 +64,11 @@ public:
     bool IsPrimitive() const override { return true; };
 
     void MarkObjectAsInvalid() override {
-        routine = (PrimitiveRoutine*)INVALID_GC_POINTER;
+        VMInvokable::MarkObjectAsInvalid();
+        prim.MarkObjectAsInvalid();
     }
 
-    bool IsMarkedInvalid() const override {
-        return routine == (PrimitiveRoutine*)INVALID_GC_POINTER;
-    }
+    bool IsMarkedInvalid() const override { return !prim.IsValid(); }
 
     StdString AsDebugString() const override;
 
@@ -78,13 +77,7 @@ public:
     }
 
 private:
-    void EmptyRoutine(VMFrame*);
-
-public:
-    PrimitiveRoutine* routine;
-
-private:
     make_testable(public);
 
-    bool empty;
+    FramePrim prim;
 };

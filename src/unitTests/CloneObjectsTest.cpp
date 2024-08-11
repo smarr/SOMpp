@@ -175,9 +175,10 @@ void CloneObjectsTest::testClonePrimitive() {
                                  clone->signature);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("holder differs!!", orig->holder,
                                  clone->holder);
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("empty differs!!", orig->empty, clone->empty);
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("routine differs!!", orig->routine,
-                                 clone->routine);
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("routine differs!!", orig->prim.pointer,
+                                 clone->prim.pointer);
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("routine differs!!", orig->prim.isClassSide,
+                                 clone->prim.isClassSide);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("hash differs!!", orig->GetHash(),
                                  clone->GetHash());
 }

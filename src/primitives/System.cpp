@@ -34,7 +34,6 @@
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../primitivesCore/PrimitiveContainer.h"
-#include "../primitivesCore/Routine.h"
 #include "../vm/Globals.h"
 #include "../vm/Print.h"
 #include "../vm/Universe.h"
@@ -167,7 +166,7 @@ static vm_oop_t sysLoadFile_(vm_oop_t, vm_oop_t rightObj) {
     }
 }
 
-void _System::PrintStackTrace(VMFrame* frame) {
+void printStackTrace(VMFrame* frame) {
     frame->PrintStackTrace();
 }
 
@@ -188,8 +187,7 @@ _System::_System(void) : PrimitiveContainer() {
     Add("fullGC", &sysFullGC, false);
 
     Add("loadFile:", &sysLoadFile_, false);
-    SetPrimitive("printStackTrace",
-                 new Routine<_System>(this, &_System::PrintStackTrace, false));
+    Add("printStackTrace", &printStackTrace, false);
 }
 
 _System::~_System() {}

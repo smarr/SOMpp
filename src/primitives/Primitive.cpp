@@ -3,7 +3,6 @@
 #include <cstddef>
 
 #include "../primitivesCore/PrimitiveContainer.h"
-#include "../primitivesCore/Routine.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMClass.h"  // NOLINT(misc-include-cleaner) it's required to make the types complete
 #include "../vmobjects/VMFrame.h"
@@ -19,7 +18,7 @@ static vm_oop_t pSignature(vm_oop_t rcvr) {
     return self->GetSignature();
 }
 
-void _Primitive::InvokeOn_With_(VMFrame* frame) {
+void pInvokeOnWith(VMFrame* frame) {
     // REM: this is a clone with _Primitive::InvokeOn_With_
     VMArray* args = static_cast<VMArray*>(frame->Pop());
     vm_oop_t rcvr = static_cast<vm_oop_t>(frame->Pop());
@@ -38,7 +37,5 @@ void _Primitive::InvokeOn_With_(VMFrame* frame) {
 _Primitive::_Primitive() : PrimitiveContainer() {
     Add("signature", &pSignature, false);
     Add("holder", &pHolder, false);
-    SetPrimitive(
-        "invokeOn:with:",
-        new Routine<_Primitive>(this, &_Primitive::InvokeOn_With_, false));
+    Add("invokeOn:with:", &pInvokeOnWith, false);
 }

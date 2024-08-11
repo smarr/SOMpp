@@ -33,7 +33,7 @@
 #include "Primitives.h"
 
 /// Base class for all container objects holding SOM++ primitives.
-// Primitive container classes need to initialize a std::map<StdString,
+// Primitive container classes need to initialize a std::map<std::string,
 // PrimitiveRoutine*> in order to map smalltalk message names to the method
 // to call.
 class PrimitiveContainer {
@@ -41,24 +41,15 @@ public:
     PrimitiveContainer() = default;
     virtual ~PrimitiveContainer() = default;
 
-    /// Every derived Class must use this method to initialize the methods
-    // map with the mapping of a StdString with the smalltalk message
-    // name and the corresponding functor object. The abstract functor object
-    // class is defined in vmobjects/PrimitiveRoutine. Basically, the only
-    // requirement for those objects is to implement:
-    //   virtual void operator()(VMObject*, VMFrame*)
-    void SetPrimitive(const char* name, PrimitiveRoutine* routine);
-
-    PrimitiveRoutine* GetPrimitive(const std::string& routineName);
-
     void InstallPrimitives(VMClass* clazz, bool classSide);
 
+    void Add(const char* name, FramePrimitiveRoutine, bool classSide);
     void Add(const char* name, UnaryPrimitiveRoutine, bool classSide);
     void Add(const char* name, BinaryPrimitiveRoutine, bool classSide);
     void Add(const char* name, TernaryPrimitiveRoutine, bool classSide);
 
 private:
-    std::map<std::string, PrimitiveRoutine*> methods{};
+    std::map<std::string, FramePrim> framePrims{};
     std::map<std::string, UnaryPrim> unaryPrims{};
     std::map<std::string, BinaryPrim> binaryPrims{};
     std::map<std::string, TernaryPrim> ternaryPrims{};
