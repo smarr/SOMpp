@@ -33,6 +33,9 @@ class Universe;
 
 class VMFrame : public VMObject {
     friend class Universe;
+    friend class Interpreter;
+    friend class Shell;
+    friend class VMMethod;
 
 public:
     typedef GCFrame Stored;
@@ -89,7 +92,6 @@ public:
     }
 
     inline long GetBytecodeIndex() const;
-    inline void SetBytecodeIndex(long);
 
     inline vm_oop_t GetStackElement(long index) const {
         return load_ptr(stack_ptr[-index]);
@@ -124,7 +126,7 @@ public:
     void PrintStackTrace() const;
     long ArgumentStackIndex(long index) const;
     void CopyArgumentsFrom(VMFrame* frame);
-    
+
     inline void SetArgument(size_t argIdx, vm_oop_t value) {
         store_ptr(arguments[argIdx], value);
     }
@@ -158,6 +160,8 @@ private:
     gc_oop_t* stack_ptr;
 
     static const long VMFrameNumberOfFields;
+
+    inline void SetBytecodeIndex(long index) { bytecodeIndex = index; }
 };
 
 bool VMFrame::HasContext() const {
@@ -170,10 +174,6 @@ bool VMFrame::HasPreviousFrame() const {
 
 long VMFrame::GetBytecodeIndex() const {
     return bytecodeIndex;
-}
-
-void VMFrame::SetBytecodeIndex(long index) {
-    bytecodeIndex = index;
 }
 
 bool VMFrame::IsBootstrapFrame() const {

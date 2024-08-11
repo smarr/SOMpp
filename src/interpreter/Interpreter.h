@@ -58,6 +58,8 @@ public:
 
     static void SendUnknownGlobal(VMSymbol* globalName);
 
+    static inline long GetBytecodeIndex() { return bytecodeIndexGlobal; }
+
 private:
     static vm_oop_t GetSelf();
 

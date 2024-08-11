@@ -147,11 +147,8 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
             Universe::callStats[name].noPrimitiveCalls++;
         }
 #endif
-        // since an invokable is able to change/use the frame, we have to write
-        // cached values before, and read cached values after calling
-        GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
+
         invokable->Invoke(GetFrame());
-        bytecodeIndexGlobal = GetFrame()->GetBytecodeIndex();
     } else {
         triggerDoesNotUnderstand(signature);
     }
@@ -372,7 +369,7 @@ void Interpreter::doUnarySend(long bytecodeIndex) {
 
     const int numOfArgs = 1;
 
-    vm_oop_t receiver = GetFrame()->GetStackElement(numOfArgs - 1);
+    vm_oop_t receiver = frame->GetStackElement(numOfArgs - 1);
 
     assert(IsValidObject(receiver));
     // make sure it is really a class
@@ -399,9 +396,6 @@ void Interpreter::doUnarySend(long bytecodeIndex) {
             Universe::callStats[name].noPrimitiveCalls++;
         }
 #endif
-        // since an invokable is able to change/use the frame, we have to write
-        // cached values before, and read cached values after calling
-        GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
         invokable->Invoke1(GetFrame());
         bytecodeIndexGlobal = GetFrame()->GetBytecodeIndex();
     } else {
