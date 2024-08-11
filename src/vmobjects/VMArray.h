@@ -50,8 +50,24 @@ public:
     VMArray* Copy() const;
 
     VMArray* CopyAndExtendWith(vm_oop_t) const;
-    vm_oop_t GetIndexableField(size_t idx) const;
-    void SetIndexableField(size_t idx, vm_oop_t value);
+
+    inline vm_oop_t GetIndexableField(size_t idx) const {
+        if (unlikely(idx > numberOfFields)) {
+            IndexOutOfBounds(idx);
+        }
+        return GetField(idx);
+    }
+
+    inline void SetIndexableField(size_t idx, vm_oop_t value) {
+        if (unlikely(idx > GetNumberOfIndexableFields())) {
+            IndexOutOfBounds(idx);
+        }
+        SetField(idx, value);
+    }
+
+    __attribute__((noreturn)) __attribute__((noinline)) void IndexOutOfBounds(
+        size_t idx) const;
+
     void CopyIndexableFieldsTo(VMArray*) const;
     VMArray* CloneForMovingGC() const override;
 
