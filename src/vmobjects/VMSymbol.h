@@ -51,7 +51,7 @@ private:
     long nextCachePos;
     GCInvokable* cachedInvokable[3];
 
-    VMInvokable* GetCachedInvokable(const VMClass* cls) const {
+    inline VMInvokable* GetCachedInvokable(const VMClass* cls) const {
         if (cls == load_ptr(cachedClass_invokable[0])) {
             return load_ptr(cachedInvokable[0]);
         } else if (cls == load_ptr(cachedClass_invokable[1])) {
