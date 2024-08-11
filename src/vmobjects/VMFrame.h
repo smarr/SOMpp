@@ -31,7 +31,7 @@
 
 class Universe;
 
-class VMFrame : public VMObject {
+class VMFrame : public AbstractVMObject {
     friend class Universe;
     friend class Interpreter;
     friend class Shell;
@@ -44,7 +44,7 @@ public:
 
     explicit VMFrame(size_t additionalBytes, VMMethod* method,
                      VMFrame* previousFrame)
-        : VMObject(0, additionalBytes + sizeof(VMFrame)), bytecodeIndex(0),
+        : totalObjectSize(additionalBytes + sizeof(VMFrame)), bytecodeIndex(0),
           previousFrame(store_root(previousFrame)), context(nullptr),
           method(store_root(method)), arguments((gc_oop_t*)&(stack_ptr) + 1),
           locals(arguments + method->GetNumberOfArguments()),
@@ -58,6 +58,20 @@ public:
             locals[i] = nilObject;
             i++;
         }
+    }
+
+    int64_t GetHash() const final { return 0; /* should never be called */ }
+
+    inline VMClass* GetClass() const final { return nullptr; }
+
+    inline size_t GetObjectSize() const final { return totalObjectSize; }
+
+    void MarkObjectAsInvalid() final {
+        previousFrame = (GCFrame*)INVALID_GC_POINTER;
+    }
+
+    bool IsMarkedInvalid() const final {
+        return previousFrame == (GCFrame*)INVALID_GC_POINTER;
     }
 
     inline VMFrame* GetPreviousFrame() const;
@@ -156,6 +170,7 @@ public:
     make_testable(public);
 
     long bytecodeIndex;
+    size_t totalObjectSize;
 
 private:
     GCFrame* previousFrame;
