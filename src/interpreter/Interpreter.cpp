@@ -397,7 +397,6 @@ void Interpreter::doUnarySend(long bytecodeIndex) {
         }
 #endif
         invokable->Invoke1(GetFrame());
-        bytecodeIndexGlobal = GetFrame()->GetBytecodeIndex();
     } else {
         triggerDoesNotUnderstand(signature);
     }
