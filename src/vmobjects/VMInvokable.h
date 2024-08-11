@@ -58,8 +58,11 @@ public:
     virtual size_t GetNumberOfArguments() const = 0;
 
     virtual bool IsPrimitive() const;
-    VMSymbol* GetSignature() const;
-    VMClass* GetHolder() const;
+
+    inline VMSymbol* GetSignature() const { return load_ptr(signature); }
+
+    VMClass* GetHolder() const { return load_ptr(holder); }
+
     virtual void SetHolder(VMClass* hld);
 
     void WalkObjects(walk_heap_fn) override;
