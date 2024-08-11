@@ -302,6 +302,11 @@ vm_oop_t Universe::interpretMethod(VMObject* receiver, VMInvokable* initialize,
     VMMethod* bootstrapMethod = createBootstrapMethod(load_ptr(systemClass), 2);
 
     VMFrame* bootstrapFrame = Interpreter::PushNewFrame(bootstrapMethod);
+    for (size_t argIdx = 0; argIdx < bootstrapMethod->GetNumberOfArguments();
+         argIdx += 1) {
+        bootstrapFrame->SetArgument((long)argIdx, (long)0, load_ptr(nilObject));
+    }
+
     bootstrapFrame->Push(receiver);
 
     if (argumentsArray != nullptr) {
@@ -721,10 +726,7 @@ VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method) {
 
     size_t additionalBytes = length * sizeof(VMObject*);
     result = new (GetHeap<HEAP_CLS>(), additionalBytes)
-        VMFrame(length, additionalBytes);
-    result->method = store_root(method);
-    result->previousFrame = store_root(previousFrame);
-    result->ResetStackPointer();
+        VMFrame(additionalBytes, method, previousFrame);
 
     LOG_ALLOCATION("VMFrame", result->GetObjectSize());
     return result;

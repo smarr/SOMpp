@@ -53,13 +53,11 @@ VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength) {
 
     size_t additionalBytes = length * sizeof(VMObject*);
     VMFrame* result = new (GetHeap<HEAP_CLS>(), additionalBytes)
-        VMFrame(length, additionalBytes);
+        VMFrame(additionalBytes, method, from->GetPreviousFrame());
 
     result->clazz = nullptr;  // result->SetClass(from->GetClass());
 
     // set Frame members
-    result->SetPreviousFrame(from->GetPreviousFrame());
-    result->SetMethod(method);
     result->SetContext(from->GetContext());
     result->stack_ptr =
         (gc_oop_t*)SHIFTED_PTR(result, (size_t)from->stack_ptr - (size_t)from);
@@ -123,27 +121,6 @@ VMFrame* VMFrame::CloneForMovingGC() const {
 }
 
 const long VMFrame::VMFrameNumberOfFields = 0;
-
-VMFrame::VMFrame(size_t, size_t additionalBytes)
-    : VMObject(0, additionalBytes + sizeof(VMFrame)), bytecodeIndex(0),
-      previousFrame(nullptr), context(nullptr), method(nullptr) {
-    arguments = (gc_oop_t*)&(stack_ptr) + 1;
-    locals = arguments;
-    stack_ptr = locals;
-
-    // initilize all other fields
-    // --> until end of Frame
-    gc_oop_t* end = (gc_oop_t*)SHIFTED_PTR(this, totalObjectSize);
-    size_t i = 0;
-    while (arguments + i < end) {
-        arguments[i] = nilObject;
-        i++;
-    }
-}
-
-void VMFrame::SetMethod(VMMethod* method) {
-    store_ptr(this->method, method);
-}
 
 VMFrame* VMFrame::GetContextLevel(long lvl) {
     VMFrame* current = this;

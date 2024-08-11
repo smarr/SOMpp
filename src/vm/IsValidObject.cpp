@@ -182,9 +182,6 @@ void obtain_vtables_of_known_classes(VMSymbol* someValidSymbol) {
         new (GetHeap<HEAP_CLS>(), 0) VMEvaluationPrimitive(1);
     vt_eval_primitive = get_vtable(ev);
 
-    VMFrame* frm = new (GetHeap<HEAP_CLS>(), 0) VMFrame(0, 0);
-    vt_frame = get_vtable(frm);
-
     VMInteger* i = new (GetHeap<HEAP_CLS>(), 0) VMInteger(0);
     vt_integer = get_vtable(i);
 
@@ -192,6 +189,9 @@ void obtain_vtables_of_known_classes(VMSymbol* someValidSymbol) {
         VMMethod(nullptr, 0, 0, 0, 0, nullptr, nullptr);
     vt_method = get_vtable(mth);
     vt_object = get_vtable(load_ptr(nilObject));
+
+    VMFrame* frm = new (GetHeap<HEAP_CLS>(), 0) VMFrame(0, mth, nullptr);
+    vt_frame = get_vtable(frm);
 
     VMPrimitive* prm =
         new (GetHeap<HEAP_CLS>(), 0) VMPrimitive(someValidSymbol, FramePrim());

@@ -154,8 +154,8 @@ void WalkObjectsTest::testWalkFrame() {
         Universe::NewMethod(methodSymbol, 0, 0, 0, 0,
                             new LexicalScope(nullptr, {}, {}), inlinedLoops);
 
-    VMFrame* frame = Universe::NewFrame(nullptr, method);
-    frame->SetPreviousFrame(frame->CloneForMovingGC());
+    VMFrame* prev = Universe::NewFrame(nullptr, method);
+    VMFrame* frame = Universe::NewFrame(prev, method);
     frame->SetContext(frame->CloneForMovingGC());
     VMInteger* dummyArg = Universe::NewInteger(1111);
     frame->SetArgument(0, 0, dummyArg);
