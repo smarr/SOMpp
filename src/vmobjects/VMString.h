@@ -52,17 +52,30 @@ public:
         return (int64_t)hash;
     }
 
-    inline char* GetRawChars() const;
+    inline char* GetRawChars() const { return chars; }
+
     StdString GetStdString() const;
-    size_t GetStringLength() const;
+
+    inline size_t GetStringLength() const { return length; }
 
     VMString* CloneForMovingGC() const override;
     VMClass* GetClass() const override;
     size_t GetObjectSize() const override;
-    void WalkObjects(walk_heap_fn) override;
 
-    void MarkObjectAsInvalid() override;
-    bool IsMarkedInvalid() const override;
+    inline void WalkObjects(walk_heap_fn) override {
+        // nothing to do
+    }
+
+    void MarkObjectAsInvalid() override {
+        for (size_t i = 0; i < length; i++) {
+            chars[i] = 'z';
+        }
+        chars = (char*)INVALID_GC_POINTER;
+    }
+
+    bool IsMarkedInvalid() const override {
+        return chars == (char*)INVALID_GC_POINTER;
+    }
 
     StdString AsDebugString() const override;
 
@@ -80,7 +93,3 @@ protected:
           length(length),
           chars(adaptedCharsPointer) {};  // constructor to use by VMSymbol
 };
-
-char* VMString::GetRawChars() const {
-    return chars;
-}
