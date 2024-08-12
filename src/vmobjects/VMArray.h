@@ -39,7 +39,12 @@ class VMArray : public VMObject {
 public:
     typedef GCArray Stored;
 
-    explicit VMArray(size_t arraySize, size_t additionalBytes);
+    explicit VMArray(size_t arraySize, size_t additionalBytes)
+        : VMObject(arraySize +
+                       0 /* VMArray is not allowed to have any fields itself */,
+                   additionalBytes + sizeof(VMArray)) {
+        assert(VMArrayNumberOfFields == 0);
+    }
 
     // VMArray doesn't need to customize `void WalkObjects(walk_heap_fn)`,
     // because it doesn't need anything special.
