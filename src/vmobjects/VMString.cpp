@@ -43,21 +43,6 @@ VMString* VMString::CloneForMovingGC() const {
         VMString(length, chars);
 }
 
-void VMString::MarkObjectAsInvalid() {
-    for (size_t i = 0; i < length; i++) {
-        chars[i] = 'z';
-    }
-    chars = (char*)INVALID_GC_POINTER;
-}
-
-bool VMString::IsMarkedInvalid() const {
-    return chars == (char*)INVALID_GC_POINTER;
-}
-
-void VMString::WalkObjects(walk_heap_fn) {
-    // nothing to do
-}
-
 size_t VMString::GetObjectSize() const {
     size_t size = sizeof(VMString) + PADDED_SIZE(length);
     return size;
@@ -65,10 +50,6 @@ size_t VMString::GetObjectSize() const {
 
 VMClass* VMString::GetClass() const {
     return load_ptr(stringClass);
-}
-
-size_t VMString::GetStringLength() const {
-    return length;
 }
 
 std::string VMString::GetStdString() const {

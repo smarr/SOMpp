@@ -40,14 +40,6 @@
 
 const size_t VMArray::VMArrayNumberOfFields = 0;
 
-VMArray::VMArray(size_t arraySize, size_t additionalBytes)
-    : VMObject(
-          arraySize + 0 /* VMArray is not allowed to have any fields itself */,
-          additionalBytes + sizeof(VMArray)) {
-    assert(VMArrayNumberOfFields == 0);
-    nilInitializeFields();
-}
-
 VMArray* VMArray::Copy() const {
     VMArray* copy = Universe::NewArray(GetNumberOfIndexableFields());
 

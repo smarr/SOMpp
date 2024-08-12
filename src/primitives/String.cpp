@@ -29,6 +29,7 @@
 #include <cctype>
 #include <cstdint>
 #include <cstdio>
+#include <cstring>
 #include <string>
 
 #include "../misc/defs.h"
@@ -74,7 +75,7 @@ static vm_oop_t strLength(vm_oop_t rcvr) {
 }
 
 static vm_oop_t strEqual(vm_oop_t leftObj, vm_oop_t op1) {
-    VMString* op2 = static_cast<VMString*>(leftObj);
+    VMString* left = static_cast<VMString*>(leftObj);
 
     if (IS_TAGGED(op1)) {
         return load_ptr(falseObject);
@@ -85,14 +86,18 @@ static vm_oop_t strEqual(vm_oop_t leftObj, vm_oop_t op1) {
     }
 
     VMClass* otherClass = CLASS_OF(op1);
-    if (otherClass == load_ptr(stringClass) ||
-        otherClass == load_ptr(symbolClass)) {
-        StdString s1 = static_cast<VMString*>(op1)->GetStdString();
-        StdString s2 = op2->GetStdString();
+    if (otherClass != load_ptr(stringClass) &&
+        otherClass != load_ptr(symbolClass)) {
+        return load_ptr(falseObject);
+    }
 
-        if (s1 == s2) {
-            return load_ptr(trueObject);
-        }
+    VMString* right = static_cast<VMString*>(op1);
+    if (left->length != right->length) {
+        return load_ptr(falseObject);
+    }
+
+    if (strncmp(left->chars, right->chars, left->length) == 0) {
+        return load_ptr(trueObject);
     }
     return load_ptr(falseObject);
 }
