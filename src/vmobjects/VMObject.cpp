@@ -43,19 +43,6 @@
 // clazz is the only field of VMObject so
 const size_t VMObject::VMObjectNumberOfFields = 0;
 
-VMObject::VMObject(size_t numSubclassFields, size_t totalObjectSize)
-    : totalObjectSize(totalObjectSize),
-      numberOfFields(VMObjectNumberOfFields + numSubclassFields) {
-    assert(IS_PADDED_SIZE(totalObjectSize));
-    assert(totalObjectSize >= sizeof(VMObject));
-
-    // this line would be needed if the VMObject** is used instead of the macro:
-    // FIELDS = (VMObject**)&clazz;
-    hash = (size_t)this;
-
-    nilInitializeFields();
-}
-
 VMObject* VMObject::CloneForMovingGC() const {
     VMObject* clone =
         new (GetHeap<HEAP_CLS>(),

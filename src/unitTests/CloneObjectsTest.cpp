@@ -215,11 +215,8 @@ void CloneObjectsTest::testCloneFrame() {
     VMFrame* clone = orig->CloneForMovingGC();
 
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->clazz, clone->clazz);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("objectSize differs!!", orig->totalObjectSize,
                                  clone->totalObjectSize);
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("numberOfFields differs!!",
-                                 orig->numberOfFields, clone->numberOfFields);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("GetPreviousFrame differs!!",
                                  orig->GetPreviousFrame(),
                                  clone->GetPreviousFrame());

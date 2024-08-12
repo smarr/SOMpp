@@ -48,26 +48,6 @@ VMArray::VMArray(size_t arraySize, size_t additionalBytes)
     nilInitializeFields();
 }
 
-vm_oop_t VMArray::GetIndexableField(size_t idx) const {
-    if (unlikely(idx > GetNumberOfIndexableFields())) {
-        ErrorExit(("Array index out of bounds: Accessing " + to_string(idx) +
-                   ", but array size is only " +
-                   to_string(GetNumberOfIndexableFields()) + "\n")
-                      .c_str());
-    }
-    return GetField(idx);
-}
-
-void VMArray::SetIndexableField(size_t idx, vm_oop_t value) {
-    if (unlikely(idx > GetNumberOfIndexableFields())) {
-        ErrorExit(("Array index out of bounds: Accessing " + to_string(idx) +
-                   ", but array size is only " +
-                   to_string(GetNumberOfIndexableFields()) + "\n")
-                      .c_str());
-    }
-    SetField(idx, value);
-}
-
 VMArray* VMArray::Copy() const {
     VMArray* copy = Universe::NewArray(GetNumberOfIndexableFields());
 
@@ -95,6 +75,12 @@ VMArray* VMArray::CloneForMovingGC() const {
     const void* source = SHIFTED_PTR(this, sizeof(VMArray));
     memcpy(destination, source, addSpace);
     return clone;
+}
+
+void VMArray::IndexOutOfBounds(size_t idx) const {
+    ErrorExit(("Array index out of bounds: Accessing " + to_string(idx) +
+               ", but array size is only " + to_string(numberOfFields) + "\n")
+                  .c_str());
 }
 
 void VMArray::CopyIndexableFieldsTo(VMArray* to) const {

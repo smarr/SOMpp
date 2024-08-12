@@ -141,7 +141,7 @@ typedef GCOop* gc_oop_t;
 // clang-format off
 class GCAbstractObject : public GCOop            { public: typedef AbstractVMObject Loaded; };
 class GCObject         : public GCAbstractObject { public: typedef VMObject         Loaded; };
-class GCFrame          : public GCObject         { public: typedef VMFrame          Loaded; };
+class GCFrame          : public GCAbstractObject { public: typedef VMFrame          Loaded; };
 class GCClass          : public GCObject         { public: typedef VMClass          Loaded; };
 class GCArray          : public GCObject         { public: typedef VMArray          Loaded; };
 class GCBlock          : public GCObject         { public: typedef VMBlock          Loaded; };

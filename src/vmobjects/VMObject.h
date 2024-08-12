@@ -64,14 +64,32 @@ public:
     /**
      * numberOfFields - including
      */
-    explicit VMObject(size_t numSubclassFields, size_t totalObjectSize);
+    explicit VMObject(size_t numSubclassFields, size_t totalObjectSize)
+        : totalObjectSize(totalObjectSize),
+          numberOfFields(VMObjectNumberOfFields + numSubclassFields) {
+        assert(IS_PADDED_SIZE(totalObjectSize));
+        assert(totalObjectSize >= sizeof(VMObject));
+
+        // this line would be needed if the VMObject** is used instead of the
+        // macro: FIELDS = (VMObject**)&clazz;
+        hash = (size_t)this;
+
+        nilInitializeFields();
+    }
+
     ~VMObject() override = default;
 
     int64_t GetHash() const override { return hash; }
-    inline VMClass* GetClass() const override;
+
+    inline VMClass* GetClass() const override {
+        assert(IsValidObject((VMObject*)load_ptr(clazz)));
+        return load_ptr(clazz);
+    }
+
     void SetClass(VMClass* cl) override;
     VMSymbol* GetFieldName(long index) const override;
-    inline long GetNumberOfFields() const override;
+
+    inline long GetNumberOfFields() const override { return numberOfFields; }
 
     inline vm_oop_t GetField(size_t index) const {
         assert(numberOfFields > index);
@@ -121,12 +139,3 @@ protected:
 private:
     static const size_t VMObjectNumberOfFields;
 };
-
-VMClass* VMObject::GetClass() const {
-    assert(IsValidObject((VMObject*)load_ptr(clazz)));
-    return load_ptr(clazz);
-}
-
-long VMObject::GetNumberOfFields() const {
-    return numberOfFields;
-}

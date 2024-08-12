@@ -31,14 +31,9 @@
 #include "../vm/Print.h"
 #include "ObjectFormats.h"
 #include "VMClass.h"
-#include "VMSymbol.h"
 
 bool VMInvokable::IsPrimitive() const {
     return false;
-}
-
-VMSymbol* VMInvokable::GetSignature() const {
-    return load_ptr(signature);
 }
 
 void VMInvokable::WalkObjects(walk_heap_fn walk) {
@@ -46,10 +41,6 @@ void VMInvokable::WalkObjects(walk_heap_fn walk) {
     if (holder) {
         holder = static_cast<GCClass*>(walk(holder));
     }
-}
-
-VMClass* VMInvokable::GetHolder() const {
-    return load_ptr(holder);
 }
 
 void VMInvokable::SetHolder(VMClass* hld) {

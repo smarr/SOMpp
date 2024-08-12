@@ -28,6 +28,9 @@
 
 #include <iostream>
 
+#include "../misc/defs.h"
+#include "ObjectFormats.h"
+#include "VMClass.h"
 #include "VMObject.h"
 #include "VMString.h"
 
@@ -47,7 +50,18 @@ private:
     const GCClass* cachedClass_invokable[3];
     long nextCachePos;
     GCInvokable* cachedInvokable[3];
-    VMInvokable* GetCachedInvokable(const VMClass*) const;
+
+    inline VMInvokable* GetCachedInvokable(const VMClass* cls) const {
+        if (cls == load_ptr(cachedClass_invokable[0])) {
+            return load_ptr(cachedInvokable[0]);
+        } else if (cls == load_ptr(cachedClass_invokable[1])) {
+            return load_ptr(cachedInvokable[1]);
+        } else if (cls == load_ptr(cachedClass_invokable[2])) {
+            return load_ptr(cachedInvokable[2]);
+        }
+        return nullptr;
+    }
+
     void UpdateCachedInvokable(const VMClass* cls, VMInvokable* invo);
 
     friend class Signature;

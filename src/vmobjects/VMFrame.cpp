@@ -55,8 +55,6 @@ VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength) {
     VMFrame* result = new (GetHeap<HEAP_CLS>(), additionalBytes)
         VMFrame(additionalBytes, method, from->GetPreviousFrame());
 
-    result->clazz = nullptr;  // result->SetClass(from->GetClass());
-
     // set Frame members
     result->SetContext(from->GetContext());
     result->stack_ptr =

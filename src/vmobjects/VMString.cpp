@@ -31,22 +31,12 @@
 
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
-#include "AbstractObject.h"
 #include "ObjectFormats.h"
 
 extern GCClass* stringClass;
 
 // this macro could replace the chars member variable
 // #define CHARS ((char*)&clazz+sizeof(VMObject*))
-
-VMString::VMString(const size_t length, const char* str)
-    : AbstractVMObject(), length(length),
-      // set the chars-pointer to point at the position of the first character
-      chars((char*)&chars + sizeof(char*)) {
-    for (size_t i = 0; i < length; i++) {
-        chars[i] = str[i];
-    }
-}
 
 VMString* VMString::CloneForMovingGC() const {
     return new (GetHeap<HEAP_CLS>(), PADDED_SIZE(length) ALLOC_MATURE)
