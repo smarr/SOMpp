@@ -156,8 +156,8 @@ const char* Bytecode::bytecodeNames[] = {
 };
 
 bool IsJumpBytecode(uint8_t bc) {
-    assert(BC_JUMP < BC_JUMP2_BACKWARD);
-    assert((BC_JUMP2_BACKWARD - BC_JUMP) == 13);
+    static_assert(BC_JUMP < BC_JUMP2_BACKWARD);
+    static_assert((BC_JUMP2_BACKWARD - BC_JUMP) == 13);
 
     return BC_JUMP <= bc && bc <= BC_JUMP2_BACKWARD;
 }

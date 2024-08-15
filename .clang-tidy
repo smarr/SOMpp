@@ -1,6 +1,7 @@
 ---
 Checks:          '*include*,
                   misc-const-correctness,
+                  misc-static-assert,
                   bugprone-macro-parentheses,
                   hicpp-uppercase-literal-suffix,
                   -altera-unroll-loops,
