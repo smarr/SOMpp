@@ -79,7 +79,7 @@ Parser::Parser(istream& file, StdString& fname)
 //
 
 bool Parser::symIn(Symbol* ss) {
-    while (*ss) {
+    while (*ss != 0U) {
         if (*ss++ == sym) {
             return true;
         }
@@ -949,7 +949,7 @@ __attribute__((noreturn)) void Parser::parseError(const char* msg,
     StdString expectedStr = "";
 
     Symbol* next = expected;
-    while (*next) {
+    while (*next != 0U) {
         if (first) {
             first = false;
         } else {

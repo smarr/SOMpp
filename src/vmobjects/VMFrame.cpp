@@ -141,10 +141,10 @@ void VMFrame::WalkObjects(walk_heap_fn walk) {
     // VMFrame is not a proper SOM object any longer, we don't have a class for
     // it. clazz = (VMClass*) walk(clazz);
 
-    if (previousFrame) {
+    if (previousFrame != nullptr) {
         previousFrame = static_cast<GCFrame*>(walk(previousFrame));
     }
-    if (context) {
+    if (context != nullptr) {
         context = static_cast<GCFrame*>(walk(context));
     }
     method = static_cast<GCMethod*>(walk(method));
@@ -237,7 +237,7 @@ void VMFrame::PrintStackTrace() const {
         Print(meth->GetHolder()->GetName()->GetStdString());
     }
     Print(">>#" + meth->GetSignature()->GetStdString() + "\n");
-    if (previousFrame) {
+    if (previousFrame != nullptr) {
         load_ptr(previousFrame)->PrintStackTrace();
     }
 }

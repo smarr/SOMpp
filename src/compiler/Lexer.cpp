@@ -246,7 +246,8 @@ Symbol Lexer::GetSym() {
     else _MATCH('.', Period)
         // clang-format on
         else if (_BC == '-') {
-        if (!buf.substr(state.bufp, SEPARATOR.length()).compare(SEPARATOR)) {
+        if (buf.substr(state.bufp, SEPARATOR.length()).compare(SEPARATOR) ==
+            0) {
             state.text.clear();
             while (_BC == '-') {
                 state.text += buf[state.bufp];

@@ -134,7 +134,7 @@ static vm_oop_t strIsWhiteSpace(vm_oop_t rcvr) {
     const char* string = self->GetRawChars();
 
     for (size_t i = 0; i < len; i++) {
-        if (!isspace(string[i])) {
+        if (isspace(string[i]) == 0) {
             return load_ptr(falseObject);
         }
     }
@@ -154,7 +154,7 @@ static vm_oop_t strIsLetters(vm_oop_t rcvr) {
     const char* string = self->GetRawChars();
 
     for (size_t i = 0; i < len; i++) {
-        if (!isalpha(string[i])) {
+        if (isalpha(string[i]) == 0) {
             return load_ptr(falseObject);
         }
     }
@@ -174,7 +174,7 @@ static vm_oop_t strIsDigits(vm_oop_t rcvr) {
     const char* string = self->GetRawChars();
 
     for (size_t i = 0; i < len; i++) {
-        if (!isdigit(string[i])) {
+        if (isdigit(string[i]) == 0) {
             return load_ptr(falseObject);
         }
     }

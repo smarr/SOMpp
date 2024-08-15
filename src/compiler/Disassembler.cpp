@@ -244,7 +244,7 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes,
                 if (method != nullptr && printObjects) {
                     auto* holder =
                         dynamic_cast<VMClass*>((VMObject*)method->GetHolder());
-                    if (holder) {
+                    if (holder != nullptr) {
                         VMSymbol* name = holder->GetInstanceFieldName(fieldIdx);
                         if (name != nullptr) {
                             DebugPrint("(index: %d) field: %s\n", fieldIdx,
@@ -363,7 +363,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
         }
         case BC_DUP: {
             vm_oop_t o = frame->GetStackElement(0);
-            if (o) {
+            if (o != nullptr) {
                 VMClass* c = CLASS_OF(o);
                 VMSymbol* cname = c->GetName();
 
@@ -463,7 +463,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
 
             const char* c_cname;
             StdString c_cname_str;
-            if (o) {
+            if (o != nullptr) {
                 VMClass* c = CLASS_OF(o);
                 cname = c->GetName();
                 c_cname_str = cname->GetStdString();

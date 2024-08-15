@@ -551,7 +551,7 @@ VMClass* Universe::LoadClass(VMSymbol* name) {
 
     result = LoadClassBasic(name, nullptr);
 
-    if (!result) {
+    if (result == nullptr) {
         // we fail silently, it is not fatal that loading a class failed
         return (VMClass*)nilObject;
     }
@@ -572,8 +572,8 @@ VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
     for (auto i = classPath.begin(); i != classPath.end(); ++i) {
         result = SourcecodeCompiler::CompileClass(*i, name->GetStdString(),
                                                   systemClass);
-        if (result) {
-            if (dumpBytecodes) {
+        if (result != nullptr) {
+            if (dumpBytecodes != 0) {
                 Disassembler::Dump(result->GetClass());
                 Disassembler::Dump(result);
             }
@@ -585,7 +585,7 @@ VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
 
 VMClass* Universe::LoadShellClass(StdString& stmt) {
     VMClass* result = SourcecodeCompiler::CompileClassString(stmt, nullptr);
-    if (dumpBytecodes) {
+    if (dumpBytecodes != 0) {
         Disassembler::Dump(result);
     }
     return result;
@@ -595,7 +595,7 @@ void Universe::LoadSystemClass(VMClass* systemClass) {
     VMClass* result = LoadClassBasic(systemClass->GetName(), systemClass);
     StdString const s = systemClass->GetName()->GetStdString();
 
-    if (!result) {
+    if (result == nullptr) {
         ErrorPrint("Can't load system class: " + s + "\n");
         Quit(ERR_FAIL);
     }
@@ -665,7 +665,7 @@ VMArray* Universe::NewArrayList(std::vector<vm_oop_t>& list) {
     size_t const size = list.size();
     VMArray* result = NewArray(size);
 
-    if (result) {
+    if (result != nullptr) {
         for (size_t i = 0; i < size; i += 1) {
             vm_oop_t elem = list[i];
             result->SetIndexableField(i, elem);
@@ -687,7 +687,7 @@ VMClass* Universe::NewClass(VMClass* classOfClass) {
     size_t const numFields = classOfClass->GetNumberOfInstanceFields();
     VMClass* result = nullptr;
 
-    if (numFields) {
+    if (numFields != 0U) {
         size_t const additionalBytes = numFields * sizeof(VMObject*);
         result = new (GetHeap<HEAP_CLS>(), additionalBytes)
             VMClass(numFields, additionalBytes);

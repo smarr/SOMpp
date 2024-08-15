@@ -325,7 +325,7 @@ bool MethodGenerationContext::FindVar(std::string& var, int64_t* index,
                                       int* context, bool* isArgument) {
     if ((*index = IndexOf(locals, var)) == -1) {
         if ((*index = IndexOf(arguments, var)) == -1) {
-            if (!outerGenc) {
+            if (outerGenc == nullptr) {
                 return false;
             } else {
                 (*context)++;

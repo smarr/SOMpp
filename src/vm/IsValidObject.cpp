@@ -85,7 +85,7 @@ bool IsValidObject(vm_oop_t obj) {
         return true;
     }
 #elif GC_TYPE == GENERATIONAL
-    if (!(AS_OBJ(obj)->GetGCField() & MASK_OBJECT_IS_OLD)) {
+    if ((AS_OBJ(obj)->GetGCField() & MASK_OBJECT_IS_OLD) == 0U) {
         if (AS_OBJ(obj)->GetGCField() != 0) {
             // this is a properly forwarded object
             return true;

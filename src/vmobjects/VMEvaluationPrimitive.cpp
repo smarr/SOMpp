@@ -73,7 +73,7 @@ VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc) {
         signatureString += VALUE_S;
         signatureString += COLON_S;
         --argc;
-        while (--argc) {
+        while (--argc != 0) {
             // Add extra value: selector elements if necessary
             signatureString += WITH_S;
         }
