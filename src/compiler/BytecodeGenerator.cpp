@@ -130,11 +130,11 @@ void EmitPUSHCONSTANT(MethodGenerationContext& mgenc, vm_oop_t cst) {
     // we also make sure that we don't miss anything in the else
     // branch of the class check
     if (CLASS_OF(cst) == load_ptr(integerClass)) {
-        if (INT_VAL(cst) == 0ll) {
+        if (INT_VAL(cst) == 0LL) {
             Emit1(mgenc, BC_PUSH_0, 1);
             return;
         }
-        if (INT_VAL(cst) == 1ll) {
+        if (INT_VAL(cst) == 1LL) {
             Emit1(mgenc, BC_PUSH_1, 1);
             return;
         }

@@ -1,5 +1,7 @@
 ---
 Checks:          '*include*,
+                  misc-const-correctness,
+                  hicpp-uppercase-literal-suffix,
                   -altera-unroll-loops,
                   -altera-id-dependent-backward-branch,
                   -bugprone-easily-swappable-parameters,

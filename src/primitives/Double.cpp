@@ -60,7 +60,7 @@ double coerceDouble(vm_oop_t x) {
         ErrorExit("Attempt to apply Double operation to non-number.");
     }
 
-    return 0.0f;
+    return 0.0F;
 }
 
 /*
