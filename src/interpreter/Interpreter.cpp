@@ -567,8 +567,9 @@ bool Interpreter::checkIsGreater() {
     if ((IS_TAGGED(top) || CLASS_OF(top) == load_ptr(integerClass)) &&
         (IS_TAGGED(top2) || CLASS_OF(top2) == load_ptr(integerClass))) {
         return INT_VAL(top) > INT_VAL(top2);
-    } else if ((CLASS_OF(top) == load_ptr(doubleClass)) &&
-               (CLASS_OF(top2) == load_ptr(doubleClass))) {
+    }
+    if ((CLASS_OF(top) == load_ptr(doubleClass)) &&
+        (CLASS_OF(top2) == load_ptr(doubleClass))) {
         return static_cast<VMDouble*>(top)->GetEmbeddedDouble() >
                static_cast<VMDouble*>(top2)->GetEmbeddedDouble();
     }

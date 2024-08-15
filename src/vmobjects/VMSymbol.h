@@ -54,9 +54,13 @@ private:
     inline VMInvokable* GetCachedInvokable(const VMClass* cls) const {
         if (cls == load_ptr(cachedClass_invokable[0])) {
             return load_ptr(cachedInvokable[0]);
-        } else if (cls == load_ptr(cachedClass_invokable[1])) {
+        }
+
+        if (cls == load_ptr(cachedClass_invokable[1])) {
             return load_ptr(cachedInvokable[1]);
-        } else if (cls == load_ptr(cachedClass_invokable[2])) {
+        }
+
+        if (cls == load_ptr(cachedClass_invokable[2])) {
             return load_ptr(cachedInvokable[2]);
         }
         return nullptr;

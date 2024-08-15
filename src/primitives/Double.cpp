@@ -54,11 +54,11 @@ double coerceDouble(vm_oop_t x) {
     VMClass* cl = ((AbstractVMObject*)x)->GetClass();
     if (cl == load_ptr(doubleClass)) {
         return static_cast<VMDouble*>(x)->GetEmbeddedDouble();
-    } else if (cl == load_ptr(integerClass)) {
-        return (double)static_cast<VMInteger*>(x)->GetEmbeddedInteger();
-    } else {
-        ErrorExit("Attempt to apply Double operation to non-number.");
     }
+    if (cl == load_ptr(integerClass)) {
+        return (double)static_cast<VMInteger*>(x)->GetEmbeddedInteger();
+    }
+    ErrorExit("Attempt to apply Double operation to non-number.");
 
     return 0.0F;
 }
@@ -119,18 +119,16 @@ static vm_oop_t dblEqual(vm_oop_t leftPtr, vm_oop_t rightObj) {
     PREPARE_OPERANDS;
     if (left == right) {
         return load_ptr(trueObject);
-    } else {
-        return load_ptr(falseObject);
     }
+    return load_ptr(falseObject);
 }
 
 static vm_oop_t dblLowerthan(vm_oop_t leftPtr, vm_oop_t rightObj) {
     PREPARE_OPERANDS;
     if (left < right) {
         return load_ptr(trueObject);
-    } else {
-        return load_ptr(falseObject);
     }
+    return load_ptr(falseObject);
 }
 
 static vm_oop_t dblAsString(vm_oop_t rcvr) {
@@ -178,54 +176,48 @@ static vm_oop_t dblLowerThanEqual(vm_oop_t leftPtr, vm_oop_t rightObj) {
     PREPARE_OPERANDS;
     if (left <= right) {
         return load_ptr(trueObject);
-    } else {
-        return load_ptr(falseObject);
     }
+    return load_ptr(falseObject);
 }
 
 static vm_oop_t dblGreaterThan(vm_oop_t leftPtr, vm_oop_t rightObj) {
     PREPARE_OPERANDS;
     if (left > right) {
         return load_ptr(trueObject);
-    } else {
-        return load_ptr(falseObject);
     }
+    return load_ptr(falseObject);
 }
 
 static vm_oop_t dblGreaterThanEqual(vm_oop_t leftPtr, vm_oop_t rightObj) {
     PREPARE_OPERANDS;
     if (left >= right) {
         return load_ptr(trueObject);
-    } else {
-        return load_ptr(falseObject);
     }
+    return load_ptr(falseObject);
 }
 
 static vm_oop_t dblUnequal(vm_oop_t leftPtr, vm_oop_t rightObj) {
     PREPARE_OPERANDS;
     if (left != right) {
         return load_ptr(trueObject);
-    } else {
-        return load_ptr(falseObject);
     }
+    return load_ptr(falseObject);
 }
 
 static vm_oop_t dblMin(vm_oop_t leftPtr, vm_oop_t rightObj) {
     PREPARE_OPERANDS;
     if (left < right) {
         return leftPtr;
-    } else {
-        return rightObj;
     }
+    return rightObj;
 }
 
 static vm_oop_t dblMax(vm_oop_t leftPtr, vm_oop_t rightObj) {
     PREPARE_OPERANDS;
     if (left > right) {
         return leftPtr;
-    } else {
-        return rightObj;
     }
+    return rightObj;
 }
 
 _Double::_Double() : PrimitiveContainer() {

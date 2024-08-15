@@ -745,9 +745,8 @@ void Parser::literal(MethodGenerationContext& mgenc) {
 vm_oop_t Parser::literalNumberOop() {
     if (sym == Minus) {
         return negativeDecimal();
-    } else {
-        return literalDecimal(false);
     }
+    return literalDecimal(false);
 }
 
 void Parser::literalNumber(MethodGenerationContext& mgenc) {
@@ -758,9 +757,8 @@ void Parser::literalNumber(MethodGenerationContext& mgenc) {
 vm_oop_t Parser::literalDecimal(bool negateValue) {
     if (sym == Integer) {
         return literalInteger(negateValue);
-    } else {
-        return literalDouble(negateValue);
     }
+    return literalDouble(negateValue);
 }
 
 vm_oop_t Parser::negativeDecimal() {
@@ -840,11 +838,11 @@ void Parser::literalString(MethodGenerationContext& mgenc) {
 VMSymbol* Parser::selector() {
     if (sym == OperatorSequence || symIn(singleOpSyms)) {
         return binarySelector();
-    } else if (sym == Keyword || sym == KeywordSequence) {
-        return keywordSelector();
-    } else {
-        return unarySelector();
     }
+    if (sym == Keyword || sym == KeywordSequence) {
+        return keywordSelector();
+    }
+    return unarySelector();
 }
 
 VMSymbol* Parser::keywordSelector() {

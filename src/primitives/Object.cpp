@@ -50,9 +50,8 @@ vm_oop_t objObjectSize(vm_oop_t self) {
 vm_oop_t objHashcode(vm_oop_t self) {
     if (IS_TAGGED(self)) {
         return self;
-    } else {
-        return NEW_INT(AS_OBJ(self)->GetHash());
     }
+    return NEW_INT(AS_OBJ(self)->GetHash());
 }
 
 vm_oop_t objInspect(vm_oop_t /*unused*/) {

@@ -199,9 +199,8 @@ static vm_oop_t intLowerthan(vm_oop_t leftObj, vm_oop_t rightObj) {
 
     if (left < INT_VAL(rightObj)) {
         return load_ptr(trueObject);
-    } else {
-        return load_ptr(falseObject);
     }
+    return load_ptr(falseObject);
 }
 
 static vm_oop_t intLowerThanEqual(vm_oop_t leftObj, vm_oop_t rightObj) {
@@ -210,9 +209,8 @@ static vm_oop_t intLowerThanEqual(vm_oop_t leftObj, vm_oop_t rightObj) {
 
     if (left <= INT_VAL(rightObj)) {
         return load_ptr(trueObject);
-    } else {
-        return load_ptr(falseObject);
     }
+    return load_ptr(falseObject);
 }
 
 static vm_oop_t intGreaterThan(vm_oop_t leftObj, vm_oop_t rightObj) {
@@ -221,9 +219,8 @@ static vm_oop_t intGreaterThan(vm_oop_t leftObj, vm_oop_t rightObj) {
 
     if (left > INT_VAL(rightObj)) {
         return load_ptr(trueObject);
-    } else {
-        return load_ptr(falseObject);
     }
+    return load_ptr(falseObject);
 }
 
 static vm_oop_t intGreaterThanEqual(vm_oop_t leftObj, vm_oop_t rightObj) {
@@ -232,9 +229,8 @@ static vm_oop_t intGreaterThanEqual(vm_oop_t leftObj, vm_oop_t rightObj) {
 
     if (left >= INT_VAL(rightObj)) {
         return load_ptr(trueObject);
-    } else {
-        return load_ptr(falseObject);
     }
+    return load_ptr(falseObject);
 }
 
 static vm_oop_t intAsString(vm_oop_t self) {
@@ -264,9 +260,8 @@ static vm_oop_t intSqrt(vm_oop_t self) {
 
     if (result == rint(result)) {
         return NEW_INT((int64_t)result);
-    } else {
-        return Universe::NewDouble(result);
     }
+    return Universe::NewDouble(result);
 }
 
 static vm_oop_t intAtRandom(vm_oop_t self) {
@@ -291,9 +286,8 @@ static vm_oop_t intMin(vm_oop_t self, vm_oop_t arg) {
     if (cl == load_ptr(doubleClass)) {
         if (result < ((VMDouble*)arg)->GetEmbeddedDouble()) {
             return self;
-        } else {
-            return arg;
         }
+        return arg;
     }
 
     return (result < INT_VAL(arg)) ? self : arg;
@@ -306,9 +300,8 @@ static vm_oop_t intMax(vm_oop_t self, vm_oop_t arg) {
     if (cl == load_ptr(doubleClass)) {
         if (result > ((VMDouble*)arg)->GetEmbeddedDouble()) {
             return self;
-        } else {
-            return arg;
         }
+        return arg;
     }
 
     return (result > INT_VAL(arg)) ? self : arg;
@@ -327,9 +320,8 @@ static vm_oop_t intUnequal(vm_oop_t leftObj, vm_oop_t rightObj) {
 
     if (left != INT_VAL(rightObj)) {
         return load_ptr(trueObject);
-    } else {
-        return load_ptr(falseObject);
     }
+    return load_ptr(falseObject);
 }
 
 static vm_oop_t intRange(vm_oop_t leftObj, vm_oop_t rightObj) {

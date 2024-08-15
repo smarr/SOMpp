@@ -52,7 +52,8 @@
 void Disassembler::dispatch(vm_oop_t o) {
     if (o == nullptr) {
         return;  // nullptr isn't interesting.
-    } else if (o == load_ptr(nilObject)) {
+    }
+    if (o == load_ptr(nilObject)) {
         DebugPrint("{Nil}");
     } else if (o == load_ptr(trueObject)) {
         DebugPrint("{True}");

@@ -15,7 +15,6 @@ inline size_t IndexOf(std::vector<T>& vec, T elem) {
     auto it = std::find(vec.begin(), vec.end(), elem);
     if (it != vec.end()) {
         return it - vec.begin();
-    } else {
-        return -1;
     }
+    return -1;
 }

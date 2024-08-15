@@ -141,9 +141,8 @@ static vm_oop_t strIsWhiteSpace(vm_oop_t rcvr) {
 
     if (len > 0) {
         return load_ptr(trueObject);
-    } else {
-        return load_ptr(falseObject);
     }
+    return load_ptr(falseObject);
 }
 
 static vm_oop_t strIsLetters(vm_oop_t rcvr) {
@@ -161,9 +160,8 @@ static vm_oop_t strIsLetters(vm_oop_t rcvr) {
 
     if (len > 0) {
         return load_ptr(trueObject);
-    } else {
-        return load_ptr(falseObject);
     }
+    return load_ptr(falseObject);
 }
 
 static vm_oop_t strIsDigits(vm_oop_t rcvr) {
@@ -181,9 +179,8 @@ static vm_oop_t strIsDigits(vm_oop_t rcvr) {
 
     if (len > 0) {
         return load_ptr(trueObject);
-    } else {
-        return load_ptr(falseObject);
     }
+    return load_ptr(falseObject);
 }
 
 _String::_String() : PrimitiveContainer() {

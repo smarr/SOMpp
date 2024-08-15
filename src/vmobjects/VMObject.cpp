@@ -96,9 +96,11 @@ bool VMObject::IsMarkedInvalid() const {
 std::string VMObject::AsDebugString() const {
     if (this == load_ptr(nilObject)) {
         return "nilObject";
-    } else if (this == load_ptr(trueObject)) {
+    }
+    if (this == load_ptr(trueObject)) {
         return "trueObject";
-    } else if (this == load_ptr(falseObject)) {
+    }
+    if (this == load_ptr(falseObject)) {
         return "falseObject";
     }
     return "Object(" + GetClass()->GetName()->GetStdString() + ")";

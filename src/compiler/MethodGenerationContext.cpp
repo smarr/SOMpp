@@ -327,13 +327,12 @@ bool MethodGenerationContext::FindVar(std::string& var, int64_t* index,
         if ((*index = IndexOf(arguments, var)) == -1) {
             if (outerGenc == nullptr) {
                 return false;
-            } else {
-                (*context)++;
-                return outerGenc->FindVar(var, index, context, isArgument);
             }
-        } else {
-            *isArgument = true;
+
+            (*context)++;
+            return outerGenc->FindVar(var, index, context, isArgument);
         }
+        *isArgument = true;
     }
 
     return true;

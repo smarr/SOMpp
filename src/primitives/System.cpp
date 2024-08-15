@@ -73,9 +73,8 @@ static vm_oop_t sysHasGlobal_(vm_oop_t /*unused*/, vm_oop_t rightObj) {
 
     if (Universe::HasGlobal(arg)) {
         return load_ptr(trueObject);
-    } else {
-        return load_ptr(falseObject);
     }
+    return load_ptr(falseObject);
 }
 
 static vm_oop_t sysLoad_(vm_oop_t /*unused*/, vm_oop_t rightObj) {
@@ -83,9 +82,8 @@ static vm_oop_t sysLoad_(vm_oop_t /*unused*/, vm_oop_t rightObj) {
     VMClass* result = Universe::LoadClass(arg);
     if (result != nullptr) {
         return result;
-    } else {
-        return load_ptr(nilObject);
     }
+    return load_ptr(nilObject);
 }
 
 static vm_oop_t sysExit_(vm_oop_t /*unused*/, vm_oop_t err) {
@@ -162,9 +160,8 @@ static vm_oop_t sysLoadFile_(vm_oop_t /*unused*/, vm_oop_t rightObj) {
 
         VMString* result = Universe::NewString(buffer.str());
         return result;
-    } else {
-        return load_ptr(nilObject);
     }
+    return load_ptr(nilObject);
 }
 
 void printStackTrace(VMFrame* frame) {
