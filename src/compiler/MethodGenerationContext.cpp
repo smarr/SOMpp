@@ -409,8 +409,8 @@ bool MethodGenerationContext::AddLocalIfAbsent(std::string& local,
     return true;
 }
 
-void MethodGenerationContext::SetFinished(bool finished) {
-    this->finished = finished;
+void MethodGenerationContext::MarkFinished() {
+    this->finished = true;
 }
 
 bool MethodGenerationContext::HasBytecodes() {

@@ -69,7 +69,7 @@ public:
     int8_t AddLiteralIfAbsent(vm_oop_t lit);
     void UpdateLiteral(vm_oop_t oldValue, uint8_t index, vm_oop_t newValue);
 
-    void SetFinished(bool finished = true);
+    void MarkFinished();
 
     ClassGenerationContext* GetHolder() const { return &holderGenc; }
 

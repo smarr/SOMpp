@@ -352,7 +352,7 @@ void Parser::methodBlock(MethodGenerationContext& mgenc) {
         // don't need to pop of the value, because RETURN_SELF doesn't need
         // stack space
         EmitRETURNSELF(mgenc);
-        mgenc.SetFinished();
+        mgenc.MarkFinished();
     }
 
     expect(EndTerm);
@@ -432,13 +432,13 @@ void Parser::blockBody(MethodGenerationContext& mgenc, bool seen_period,
                 EmitPUSHCONSTANT(mgenc, load_ptr(nilObject));
             }
             EmitRETURNLOCAL(mgenc);
-            mgenc.SetFinished();
+            mgenc.MarkFinished();
         }
     } else if (sym == EndTerm) {
         // it does not matter whether a period has been seen, as the end of the
         // method has been found (EndTerm). It's safe to emit a "return self"
         EmitRETURNSELF(mgenc);
-        mgenc.SetFinished();
+        mgenc.MarkFinished();
     } else {
         expression(mgenc);
         if (accept(Period)) {
@@ -456,7 +456,7 @@ void Parser::result(MethodGenerationContext& mgenc) {
             expect(Identifier);
 
             EmitRETURNSELF(mgenc);
-            mgenc.SetFinished();
+            mgenc.MarkFinished();
 
             accept(Period);
             return;
@@ -471,7 +471,7 @@ void Parser::result(MethodGenerationContext& mgenc) {
         EmitRETURNLOCAL(mgenc);
     }
 
-    mgenc.SetFinished(true);
+    mgenc.MarkFinished();
     accept(Period);
 }
 
@@ -887,7 +887,7 @@ void Parser::nestedBlock(MethodGenerationContext& mgenc) {
             EmitPUSHCONSTANT(mgenc, load_ptr(nilObject));
         }
         EmitRETURNLOCAL(mgenc);
-        mgenc.SetFinished(true);
+        mgenc.MarkFinished();
     }
 
     expect(EndBlock);
