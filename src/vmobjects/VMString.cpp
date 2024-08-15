@@ -44,7 +44,7 @@ VMString* VMString::CloneForMovingGC() const {
 }
 
 size_t VMString::GetObjectSize() const {
-    size_t size = sizeof(VMString) + PADDED_SIZE(length);
+    size_t const size = sizeof(VMString) + PADDED_SIZE(length);
     return size;
 }
 

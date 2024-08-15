@@ -103,10 +103,10 @@ void TestWithParsing::check(std::vector<uint8_t> actual,
     size_t i = 0;
     size_t bci = 0;
     for (; bci < actual.size() && i < expected.size();) {
-        uint8_t actualBc = actual.at(bci);
-        uint8_t bcLength = Bytecode::GetBytecodeLength(actualBc);
+        uint8_t const actualBc = actual.at(bci);
+        uint8_t const bcLength = Bytecode::GetBytecodeLength(actualBc);
 
-        BC expectedBc = expected.at(i);
+        BC const expectedBc = expected.at(i);
 
         char msg[1000];
         snprintf(msg, 1000, "Bytecode no %zu (at: %zu) expected %s but got %s",

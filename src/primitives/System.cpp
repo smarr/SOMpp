@@ -89,13 +89,13 @@ static vm_oop_t sysLoad_(vm_oop_t, vm_oop_t rightObj) {
 }
 
 static vm_oop_t sysExit_(vm_oop_t, vm_oop_t err) {
-    long err_no = INT_VAL(err);
+    long const err_no = INT_VAL(err);
     Quit(err_no);
 }
 
 static vm_oop_t sysPrintString_(vm_oop_t leftObj, vm_oop_t rightObj) {
     VMString* arg = static_cast<VMString*>(rightObj);
-    std::string str = arg->GetStdString();
+    std::string const str = arg->GetStdString();
     Print(str);
     return leftObj;
 }
@@ -107,14 +107,14 @@ static vm_oop_t sysPrintNewline(vm_oop_t leftObj) {
 
 static vm_oop_t sysErrorPrint_(vm_oop_t leftObj, vm_oop_t rightObj) {
     VMString* arg = static_cast<VMString*>(rightObj);
-    std::string str = arg->GetStdString();
+    std::string const str = arg->GetStdString();
     ErrorPrint(str);
     return leftObj;
 }
 
 static vm_oop_t sysErrorPrintNewline_(vm_oop_t leftObj, vm_oop_t rightObj) {
     VMString* arg = static_cast<VMString*>(rightObj);
-    std::string str = arg->GetStdString();
+    std::string const str = arg->GetStdString();
     ErrorPrint(str + "\n");
     return leftObj;
 }
@@ -126,8 +126,9 @@ static vm_oop_t sysTime(vm_oop_t) {
 
     gettimeofday(&now, nullptr);
 
-    long long diff = ((now.tv_sec - start_time.tv_sec) * 1000) +   // seconds
-                     ((now.tv_usec - start_time.tv_usec) / 1000);  // useconds
+    long long const diff =
+        ((now.tv_sec - start_time.tv_sec) * 1000) +   // seconds
+        ((now.tv_usec - start_time.tv_usec) / 1000);  // useconds
 
     return NEW_INT(diff);
 }
@@ -137,7 +138,7 @@ static vm_oop_t sysTicks(vm_oop_t) {
 
     gettimeofday(&now, nullptr);
 
-    long long diff =
+    long long const diff =
         ((now.tv_sec - start_time.tv_sec) * 1000 * 1000) +  // seconds
         ((now.tv_usec - start_time.tv_usec));               // useconds
 
@@ -154,7 +155,7 @@ static vm_oop_t sysFullGC(vm_oop_t) {
 static vm_oop_t sysLoadFile_(vm_oop_t, vm_oop_t rightObj) {
     VMString* fileName = static_cast<VMString*>(rightObj);
 
-    std::ifstream file(fileName->GetStdString(), std::ifstream::in);
+    std::ifstream const file(fileName->GetStdString(), std::ifstream::in);
     if (file.is_open()) {
         std::stringstream buffer;
         buffer << file.rdbuf();

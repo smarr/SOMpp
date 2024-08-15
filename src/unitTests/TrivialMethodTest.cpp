@@ -15,7 +15,7 @@ void TrivialMethodTest::literalReturn(std::string source) {
     VMInvokable* m = _mgenc->Assemble();
 
     std::string expected = "Expected to be trivial: " + s;
-    bool result = IsLiteralReturn(m);
+    bool const result = IsLiteralReturn(m);
     CPPUNIT_ASSERT_MESSAGE(expected.data(), result);
 
     tearDown();
@@ -41,7 +41,7 @@ void TrivialMethodTest::blockLiteralReturn(std::string source) {
     VMInvokable* m = _bgenc->Assemble();
 
     std::string expected = "Expected to be trivial: " + s;
-    bool result = IsLiteralReturn(m);
+    bool const result = IsLiteralReturn(m);
     CPPUNIT_ASSERT_MESSAGE(expected.data(), result);
 
     tearDown();
@@ -67,7 +67,7 @@ void TrivialMethodTest::literalNoReturn(std::string source) {
     VMInvokable* m = _mgenc->Assemble();
 
     std::string expected = "Expected to be non-trivial: " + s;
-    bool result = IsLiteralReturn(m);
+    bool const result = IsLiteralReturn(m);
     CPPUNIT_ASSERT_MESSAGE(expected.data(), !result);
 
     tearDown();
@@ -93,7 +93,7 @@ void TrivialMethodTest::nonTrivialLiteralReturn(std::string source) {
     VMInvokable* m = _mgenc->Assemble();
 
     std::string expected = "Expected to be non-trivial: " + s;
-    bool result = !IsLiteralReturn(m);
+    bool const result = !IsLiteralReturn(m);
     CPPUNIT_ASSERT_MESSAGE(expected.data(), result);
 
     tearDown();
@@ -119,7 +119,7 @@ void TrivialMethodTest::globalReturn(std::string source) {
     VMInvokable* m = _mgenc->Assemble();
 
     std::string expected = "Expected to be trivial: " + s;
-    bool result = IsGlobalReturn(m);
+    bool const result = IsGlobalReturn(m);
     CPPUNIT_ASSERT_MESSAGE(expected.data(), result);
 
     tearDown();
@@ -137,7 +137,7 @@ void TrivialMethodTest::testNonTrivialGlobalReturn() {
 
     std::string expected =
         "Expected to be non-trivial: test = ( #foo. ^ system )";
-    bool result = !IsGlobalReturn(m);
+    bool const result = !IsGlobalReturn(m);
     CPPUNIT_ASSERT_MESSAGE(expected.data(), result);
 }
 
@@ -146,7 +146,7 @@ void TrivialMethodTest::testUnknownGlobalInBlock() {
     VMInvokable* m = _bgenc->Assemble();
 
     std::string expected = "Expected to be trivial: [ UnknownGlobalSSSS ]";
-    bool result = IsGlobalReturn(m);
+    bool const result = IsGlobalReturn(m);
     CPPUNIT_ASSERT_MESSAGE(expected.data(), result);
 }
 
@@ -157,7 +157,7 @@ void TrivialMethodTest::testFieldGetter0() {
     VMInvokable* m = _mgenc->Assemble();
 
     std::string expected = "Expected to be trivial: test = ( ^ field )";
-    bool result = IsGetter(m);
+    bool const result = IsGetter(m);
     CPPUNIT_ASSERT_MESSAGE(expected.data(), result);
 }
 
@@ -173,7 +173,7 @@ void TrivialMethodTest::testFieldGetterN() {
     VMInvokable* m = _mgenc->Assemble();
 
     std::string expected = "Expected to be trivial: test = ( ^ field )";
-    bool result = IsGetter(m);
+    bool const result = IsGetter(m);
     CPPUNIT_ASSERT_MESSAGE(expected.data(), result);
 }
 
@@ -184,7 +184,7 @@ void TrivialMethodTest::testNonTrivialFieldGetter0() {
     VMInvokable* m = _mgenc->Assemble();
 
     std::string expected = "Expected to be non-trivial: test = ( 0. ^ field )";
-    bool result = !IsGetter(m);
+    bool const result = !IsGetter(m);
     CPPUNIT_ASSERT_MESSAGE(expected.data(), result);
 }
 
@@ -200,7 +200,7 @@ void TrivialMethodTest::testNonTrivialFieldGetterN() {
     VMInvokable* m = _mgenc->Assemble();
 
     std::string expected = "Expected to be non-trivial: test = ( 0. ^ field )";
-    bool result = !IsGetter(m);
+    bool const result = !IsGetter(m);
     CPPUNIT_ASSERT_MESSAGE(expected.data(), result);
 }
 
@@ -218,7 +218,7 @@ void TrivialMethodTest::fieldSetter0(std::string source) {
     VMInvokable* m = _mgenc->Assemble();
 
     std::string expected = "Expected to be trivial: " + s;
-    bool result = IsSetter(m);
+    bool const result = IsSetter(m);
     CPPUNIT_ASSERT_MESSAGE(expected.data(), result);
 
     VMSetter* setter = (VMSetter*)m;
@@ -248,7 +248,7 @@ void TrivialMethodTest::fieldSetterN(std::string source) {
     VMInvokable* m = _mgenc->Assemble();
 
     std::string expected = "Expected to be trivial: " + s;
-    bool result = IsSetter(m);
+    bool const result = IsSetter(m);
     CPPUNIT_ASSERT_MESSAGE(expected.data(), result);
 
     VMSetter* setter = (VMSetter*)m;
@@ -267,7 +267,7 @@ void TrivialMethodTest::testNonTrivialFieldSetter0() {
     VMInvokable* m = _mgenc->Assemble();
 
     std::string expected = "Expected to be non-trivial: " + s;
-    bool result = !IsSetter(m);
+    bool const result = !IsSetter(m);
     CPPUNIT_ASSERT_MESSAGE(expected.data(), result);
 }
 
@@ -284,7 +284,7 @@ void TrivialMethodTest::testNonTrivialFieldSetterN() {
     VMInvokable* m = _mgenc->Assemble();
 
     std::string expected = "Expected to be non-trivial: " + s;
-    bool result = !IsSetter(m);
+    bool const result = !IsSetter(m);
     CPPUNIT_ASSERT_MESSAGE(expected.data(), result);
 }
 
@@ -294,6 +294,6 @@ void TrivialMethodTest::testBlockReturn() {
     VMInvokable* m = _mgenc->Assemble();
 
     std::string expected = "Expected to be non-trivial: test = ( ^ [] )";
-    bool result = IsVMMethod(m);
+    bool const result = IsVMMethod(m);
     CPPUNIT_ASSERT_MESSAGE(expected.data(), result);
 }

@@ -50,7 +50,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     AbstractVMObject* obj = AS_OBJ(oop);
     assert(IsValidObject(obj));
 
-    size_t gcField = obj->GetGCField();
+    size_t const gcField = obj->GetGCField();
 
     // if this is an old object already, we don't have to copy
     if ((gcField & MASK_OBJECT_IS_OLD) != 0) {

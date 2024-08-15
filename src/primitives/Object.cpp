@@ -89,7 +89,7 @@ void objPerformWithArguments(VMFrame* frame) {
     VMSymbol* selector = (VMSymbol*)frame->Pop();
     vm_oop_t self = frame->GetStackElement(0);
 
-    size_t num_args = args->GetNumberOfIndexableFields();
+    size_t const num_args = args->GetNumberOfIndexableFields();
     for (size_t i = 0; i < num_args; i++) {
         vm_oop_t arg = args->GetIndexableField(i);
         frame->Push(arg);
@@ -106,7 +106,7 @@ void objPerformWithArgumentsInSuperclass(VMFrame* frame) {
     VMArray* args = (VMArray*)frame->Pop();
     VMSymbol* selector = (VMSymbol*)frame->Pop();
 
-    size_t num_args = args->GetNumberOfIndexableFields();
+    size_t const num_args = args->GetNumberOfIndexableFields();
     for (size_t i = 0; i < num_args; i++) {
         vm_oop_t arg = args->GetIndexableField(i);
         frame->Push(arg);
@@ -118,19 +118,19 @@ void objPerformWithArgumentsInSuperclass(VMFrame* frame) {
 }
 
 vm_oop_t objInstVarAt(vm_oop_t self, vm_oop_t idx) {
-    int64_t field_idx = INT_VAL(idx) - 1;
+    int64_t const field_idx = INT_VAL(idx) - 1;
     return static_cast<VMObject*>(self)->GetField(field_idx);
 }
 
 vm_oop_t objInstVarAtPut(vm_oop_t self, vm_oop_t idx, vm_oop_t value) {
-    size_t field_idx = INT_VAL(idx) - 1;
+    size_t const field_idx = INT_VAL(idx) - 1;
     static_cast<VMObject*>(self)->SetField(field_idx, value);
     return self;
 }
 
 vm_oop_t objInstVarNamed(vm_oop_t self, vm_oop_t nameObj) {
     VMSymbol* name = (VMSymbol*)nameObj;
-    long field_idx = AS_OBJ(self)->GetFieldIndex(name);
+    long const field_idx = AS_OBJ(self)->GetFieldIndex(name);
     return static_cast<VMObject*>(self)->GetField(field_idx);
 }
 

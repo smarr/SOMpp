@@ -26,7 +26,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     AbstractVMObject* obj = AS_OBJ(oop);
     assert(IsValidObject(obj));
 
-    size_t gcField = obj->GetGCField();
+    size_t const gcField = obj->GetGCField();
     // GCField is used as forwarding pointer here
     // if someone has moved before, return the moved object
     if (gcField != 0) {

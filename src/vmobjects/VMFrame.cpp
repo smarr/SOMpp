@@ -48,10 +48,11 @@
 // depth is calculated. In that case this method is called.
 VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength) {
     VMMethod* method = from->GetMethod();
-    long length = method->GetNumberOfArguments() + method->GetNumberOfLocals() +
-                  method->GetMaximumNumberOfStackElements() + extraLength;
+    long const length = method->GetNumberOfArguments() +
+                        method->GetNumberOfLocals() +
+                        method->GetMaximumNumberOfStackElements() + extraLength;
 
-    size_t additionalBytes = length * sizeof(VMObject*);
+    size_t const additionalBytes = length * sizeof(VMObject*);
     VMFrame* result = new (GetHeap<HEAP_CLS>(), additionalBytes)
         VMFrame(additionalBytes, method, from->GetPreviousFrame());
 
@@ -86,7 +87,7 @@ VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength) {
 }
 
 VMFrame* VMFrame::CloneForMovingGC() const {
-    size_t addSpace = totalObjectSize - sizeof(VMFrame);
+    size_t const addSpace = totalObjectSize - sizeof(VMFrame);
     VMFrame* clone =
         new (GetHeap<HEAP_CLS>(), addSpace ALLOC_MATURE) VMFrame(*this);
     void* destination = SHIFTED_PTR(clone, sizeof(VMFrame));
@@ -110,7 +111,7 @@ VMFrame* VMFrame::CloneForMovingGC() const {
 #else
     VMMethod* meth = GetMethod();
 #endif
-    int64_t numArgs = meth->GetNumberOfArguments();
+    int64_t const numArgs = meth->GetNumberOfArguments();
 
     clone->locals = clone->arguments + numArgs;
     clone->stack_ptr =
@@ -195,7 +196,7 @@ void VMFrame::PrintStack() const {
         local_offset++;
     }
 
-    size_t max = GetMethod()->GetMaximumNumberOfStackElements();
+    size_t const max = GetMethod()->GetMaximumNumberOfStackElements();
     for (size_t i = 0; i < max; i++) {
         if (stack_ptr == &locals[local_offset + i]) {
             Print("-> stk " + to_string(i) + ": ");
@@ -251,7 +252,7 @@ void VMFrame::CopyArgumentsFrom(VMFrame* frame) {
     // copy arguments from frame:
     // - arguments are at the top of the stack of frame.
     // - copy them into the argument area of the current frame
-    long num_args = GetMethod()->GetNumberOfArguments();
+    long const num_args = GetMethod()->GetNumberOfArguments();
     for (long i = 0; i < num_args; ++i) {
         vm_oop_t stackElem = frame->GetStackElement(num_args - 1 - i);
         store_ptr(arguments[i], stackElem);

@@ -48,17 +48,17 @@ static vm_oop_t strConcatenate_(vm_oop_t leftObj, vm_oop_t rightObj) {
     // TODO: if this really needs to be optimized, than, well, then,
     // NewString should allow to construct it correctly and simply copy
     // from both input strings
-    StdString a = arg->GetStdString();
-    StdString s = self->GetStdString();
+    StdString const a = arg->GetStdString();
+    StdString const s = self->GetStdString();
 
-    StdString result = s + a;
+    StdString const result = s + a;
 
     return Universe::NewString(result);
 }
 
 static vm_oop_t strAsSymbol(vm_oop_t rcvr) {
     VMString* self = static_cast<VMString*>(rcvr);
-    StdString result = self->GetStdString();
+    StdString const result = self->GetStdString();
     return SymbolFor(result);
 }
 
@@ -70,7 +70,7 @@ static vm_oop_t strHashcode(vm_oop_t rcvr) {
 static vm_oop_t strLength(vm_oop_t rcvr) {
     VMString* self = static_cast<VMString*>(rcvr);
 
-    size_t len = self->GetStringLength();
+    size_t const len = self->GetStringLength();
     return NEW_INT((int64_t)len);
 }
 
@@ -106,18 +106,18 @@ static vm_oop_t strPrimSubstringFromTo(vm_oop_t rcvr,
                                        vm_oop_t start,
                                        vm_oop_t end) {
     VMString* self = static_cast<VMString*>(rcvr);
-    std::string str = self->GetStdString();
+    std::string const str = self->GetStdString();
 
-    int64_t s = INT_VAL(start) - 1;
-    int64_t e = INT_VAL(end) - 1;
+    int64_t const s = INT_VAL(start) - 1;
+    int64_t const e = INT_VAL(end) - 1;
 
-    std::string result = str.substr(s, e - s + 1);
+    std::string const result = str.substr(s, e - s + 1);
     return Universe::NewString(result);
 }
 
 static vm_oop_t strCharAt(vm_oop_t rcvr, vm_oop_t indexPtr) {
     VMString* self = static_cast<VMString*>(rcvr);
-    int64_t index = INT_VAL(indexPtr) - 1;
+    int64_t const index = INT_VAL(indexPtr) - 1;
 
     if (unlikely(index < 0 || (size_t)index >= self->GetStringLength())) {
         return Universe::NewString("Error - index out of bounds");
@@ -129,7 +129,7 @@ static vm_oop_t strCharAt(vm_oop_t rcvr, vm_oop_t indexPtr) {
 static vm_oop_t strIsWhiteSpace(vm_oop_t rcvr) {
     VMString* self = static_cast<VMString*>(rcvr);
 
-    size_t len = self->GetStringLength();
+    size_t const len = self->GetStringLength();
 
     const char* string = self->GetRawChars();
 
@@ -149,7 +149,7 @@ static vm_oop_t strIsWhiteSpace(vm_oop_t rcvr) {
 static vm_oop_t strIsLetters(vm_oop_t rcvr) {
     VMString* self = static_cast<VMString*>(rcvr);
 
-    size_t len = self->GetStringLength();
+    size_t const len = self->GetStringLength();
 
     const char* string = self->GetRawChars();
 
@@ -169,7 +169,7 @@ static vm_oop_t strIsLetters(vm_oop_t rcvr) {
 static vm_oop_t strIsDigits(vm_oop_t rcvr) {
     VMString* self = static_cast<VMString*>(rcvr);
 
-    size_t len = self->GetStringLength();
+    size_t const len = self->GetStringLength();
 
     const char* string = self->GetRawChars();
 

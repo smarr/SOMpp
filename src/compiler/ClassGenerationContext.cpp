@@ -55,7 +55,7 @@ void ClassGenerationContext::AddInstanceField(VMSymbol* field) {
 }
 
 void ClassGenerationContext::SetInstanceFieldsOfSuper(VMArray* fields) {
-    size_t num = fields->GetNumberOfIndexableFields();
+    size_t const num = fields->GetNumberOfIndexableFields();
     for (size_t i = 0; i < num; i++) {
         VMSymbol* fieldName = (VMSymbol*)fields->GetIndexableField(i);
         assert(IsVMSymbol(fieldName));
@@ -64,7 +64,7 @@ void ClassGenerationContext::SetInstanceFieldsOfSuper(VMArray* fields) {
 }
 
 void ClassGenerationContext::SetClassFieldsOfSuper(VMArray* fields) {
-    size_t num = fields->GetNumberOfIndexableFields();
+    size_t const num = fields->GetNumberOfIndexableFields();
     for (size_t i = 0; i < num; i++) {
         VMSymbol* fieldName = (VMSymbol*)fields->GetIndexableField(i);
         assert(IsVMSymbol(fieldName));
@@ -96,7 +96,7 @@ void ClassGenerationContext::AddClassMethod(VMInvokable* method) {
 
 VMClass* ClassGenerationContext::Assemble() {
     // build class class name
-    std::string ccname = string(name->GetStdString()) + " class";
+    std::string const ccname = string(name->GetStdString()) + " class";
 
     // Load the super class
     VMClass* superClass = Universe::LoadClass(superName);

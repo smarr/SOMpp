@@ -26,7 +26,7 @@ void pInvokeOnWith(VMFrame* frame) {
 
     frame->Push(rcvr);
 
-    size_t num_args = args->GetNumberOfIndexableFields();
+    size_t const num_args = args->GetNumberOfIndexableFields();
     for (size_t i = 0; i < num_args; i++) {
         vm_oop_t arg = args->GetIndexableField(i);
         frame->Push(arg);

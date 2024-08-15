@@ -84,7 +84,7 @@ VMMethod* VMMethod::CloneForMovingGC() const {
            GetObjectSize() - sizeof(VMObject));
     clone->indexableFields = (gc_oop_t*)(&(clone->indexableFields) + 2);
 
-    size_t numIndexableFields = GetNumberOfIndexableFields();
+    size_t const numIndexableFields = GetNumberOfIndexableFields();
     clone->bytecodes =
         (uint8_t*)(&(clone->indexableFields) + 2 + numIndexableFields);
 
@@ -102,7 +102,7 @@ void VMMethod::WalkObjects(walk_heap_fn walk) {
     }
 #endif
 
-    size_t numIndexableFields = GetNumberOfIndexableFields();
+    size_t const numIndexableFields = GetNumberOfIndexableFields();
     for (size_t i = 0; i < numIndexableFields; ++i) {
         if (indexableFields[i] != nullptr) {
             indexableFields[i] = walk(indexableFields[i]);
@@ -152,7 +152,7 @@ void VMMethod::SetHolder(VMClass* hld) {
 }
 
 void VMMethod::SetHolderAll(VMClass* hld) {
-    long numIndexableFields = GetNumberOfIndexableFields();
+    long const numIndexableFields = GetNumberOfIndexableFields();
     for (long i = 0; i < numIndexableFields; ++i) {
         vm_oop_t o = GetIndexableField(i);
         if (!IS_TAGGED(o)) {
@@ -303,9 +303,9 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
             case BC_PUSH_LOCAL_0:
             case BC_PUSH_LOCAL_1:
             case BC_PUSH_LOCAL_2: {
-                uint8_t idx = bytecode - BC_PUSH_LOCAL_0;
+                uint8_t const idx = bytecode - BC_PUSH_LOCAL_0;
                 auto* oldVar = lexicalScope->GetLocal(idx, 0);
-                uint8_t newIdx = mgenc.GetInlinedLocalIdx(oldVar);
+                uint8_t const newIdx = mgenc.GetInlinedLocalIdx(oldVar);
                 EmitPUSHLOCAL(mgenc, newIdx, 0);
                 break;
             }
@@ -313,9 +313,9 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
             case BC_POP_LOCAL_0:
             case BC_POP_LOCAL_1:
             case BC_POP_LOCAL_2: {
-                uint8_t idx = bytecode - BC_POP_LOCAL_0;
+                uint8_t const idx = bytecode - BC_POP_LOCAL_0;
                 auto* oldVar = lexicalScope->GetLocal(idx, 0);
-                uint8_t newIdx = mgenc.GetInlinedLocalIdx(oldVar);
+                uint8_t const newIdx = mgenc.GetInlinedLocalIdx(oldVar);
                 EmitPOPLOCAL(mgenc, newIdx, 0);
                 break;
             }
@@ -323,10 +323,10 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
             case BC_PUSH_ARG_1:
             case BC_PUSH_ARG_2: {
                 // this can now happen with inlining #to:do:
-                size_t argIdx = bytecode == BC_PUSH_ARG_1 ? 1 : 2;
+                size_t const argIdx = bytecode == BC_PUSH_ARG_1 ? 1 : 2;
 
                 const Variable* arg = lexicalScope->GetArgument(argIdx, 0);
-                size_t inlinedLocalIndex = mgenc.GetInlinedLocalIdx(arg);
+                size_t const inlinedLocalIndex = mgenc.GetInlinedLocalIdx(arg);
                 EmitPUSHLOCAL(mgenc, inlinedLocalIndex, 0);
                 break;
             }
@@ -403,7 +403,7 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
             case BC_RETURN_FIELD_0:
             case BC_RETURN_FIELD_1:
             case BC_RETURN_FIELD_2: {
-                uint8_t index = bytecode - BC_RETURN_FIELD_0;
+                uint8_t const index = bytecode - BC_RETURN_FIELD_0;
                 EmitPushFieldWithIndex(mgenc, index);
                 break;
             }
@@ -480,7 +480,7 @@ void VMMethod::patchJumpToCurrentAddress(size_t i,
                                          std::priority_queue<Jump>& jumps,
                                          MethodGenerationContext& mgenc) {
     while (!jumps.empty() && jumps.top().originalJumpTargetIdx <= i) {
-        Jump jump = jumps.top();
+        Jump const jump = jumps.top();
         jumps.pop();
 
         assert(
@@ -496,7 +496,7 @@ void VMMethod::prepareBackJumpToCurrentAddress(
     std::priority_queue<BackJumpPatch>& backJumpsToPatch, size_t i,
     MethodGenerationContext& mgenc) {
     while (!backJumps.empty() && backJumps.top().loopBeginIdx <= i) {
-        BackJump jump = backJumps.top();
+        BackJump const jump = backJumps.top();
         backJumps.pop();
 
         assert(
@@ -511,11 +511,11 @@ void VMMethod::prepareBackJumpToCurrentAddress(
 void VMMethod::AdaptAfterOuterInlined(
     uint8_t removedCtxLevel, MethodGenerationContext& mgencWithInlined) {
     size_t i = 0;
-    size_t numBytecodes = GetNumberOfBytecodes();
+    size_t const numBytecodes = GetNumberOfBytecodes();
 
     while (i < numBytecodes) {
-        uint8_t bytecode = bytecodes[i];
-        size_t bcLength = Bytecode::GetBytecodeLength(bytecode);
+        uint8_t const bytecode = bytecodes[i];
+        size_t const bcLength = Bytecode::GetBytecodeLength(bytecode);
 
         switch (bytecode) {
             case BC_DUP:
@@ -560,7 +560,7 @@ void VMMethod::AdaptAfterOuterInlined(
             case BC_POP_ARGUMENT:
             case BC_INC_FIELD_PUSH:
             case BC_INC_FIELD: {
-                uint8_t ctxLevel = bytecodes[i + 2];
+                uint8_t const ctxLevel = bytecodes[i + 2];
                 if (ctxLevel > removedCtxLevel) {
                     bytecodes[i + 2] = ctxLevel - 1;
                 }
@@ -576,16 +576,16 @@ void VMMethod::AdaptAfterOuterInlined(
 
             case BC_PUSH_LOCAL:
             case BC_POP_LOCAL: {
-                uint8_t ctxLevel = bytecodes[i + 2];
+                uint8_t const ctxLevel = bytecodes[i + 2];
                 if (ctxLevel == removedCtxLevel) {
-                    uint8_t idx = bytecodes[i + 1];
+                    uint8_t const idx = bytecodes[i + 1];
 
                     // locals have been inlined into the outer context already
                     // so, we need to look up the right one and fix up the index
                     // at this point, the lexical scope has not been changed
                     // so, we should still be able to find the right one
                     auto* oldVar = lexicalScope->GetLocal(idx, ctxLevel);
-                    uint8_t newIdx =
+                    uint8_t const newIdx =
                         mgencWithInlined.GetInlinedLocalIdx(oldVar);
                     bytecodes[i + 1] = newIdx;
                 } else if (ctxLevel > removedCtxLevel) {

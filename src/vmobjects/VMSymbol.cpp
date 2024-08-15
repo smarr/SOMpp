@@ -55,7 +55,7 @@ VMSymbol::VMSymbol(const size_t length, const char* const str)
 }
 
 size_t VMSymbol::GetObjectSize() const {
-    size_t size = sizeof(VMSymbol) + PADDED_SIZE(length);
+    size_t const size = sizeof(VMSymbol) + PADDED_SIZE(length);
     return size;
 }
 

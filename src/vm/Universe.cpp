@@ -171,7 +171,7 @@ vector<StdString> Universe::handleArguments(long argc, char** argv) {
             printUsageAndExit(argv[0]);
         } else {
             vector<StdString> extPathTokens = vector<StdString>(2);
-            StdString tmpString = StdString(argv[i]);
+            StdString const tmpString = StdString(argv[i]);
             if (getClassPathExt(extPathTokens, tmpString) == ERR_SUCCESS) {
                 addClassPath(extPathTokens[0]);
             }
@@ -294,7 +294,7 @@ vm_oop_t Universe::interpret(StdString className, StdString methodName) {
 vm_oop_t Universe::interpretMethod(VMObject* receiver, VMInvokable* initialize,
                                    VMArray* argumentsArray) {
     /* only trace bootstrap if the number of cmd-line "-d"s is > 2 */
-    short trace = 2 - dumpBytecodes;
+    short const trace = 2 - dumpBytecodes;
     if (!(trace > 0)) {
         dumpBytecodes = 1;
     }
@@ -472,7 +472,7 @@ VMClass* Universe::GetBlockClass() {
 }
 
 VMClass* Universe::GetBlockClassWithArgs(long numberOfArguments) {
-    map<long, GCClass*>::iterator it =
+    map<long, GCClass*>::iterator const it =
         blockClassesByNoOfArgs.find(numberOfArguments);
     if (it != blockClassesByNoOfArgs.end()) {
         return load_ptr(it->second);
@@ -514,7 +514,7 @@ bool Universe::HasGlobal(VMSymbol* name) {
 
 void Universe::InitializeSystemClass(VMClass* systemClass, VMClass* superClass,
                                      const char* name) {
-    StdString s_name(name);
+    StdString const s_name(name);
 
     if (superClass != nullptr) {
         systemClass->SetSuperClass(superClass);
@@ -537,7 +537,7 @@ void Universe::InitializeSystemClass(VMClass* systemClass, VMClass* superClass,
     systemClass->SetName(SymbolFor(s_name));
     ostringstream Str;
     Str << s_name << " class";
-    StdString classClassName(Str.str());
+    StdString const classClassName(Str.str());
     sysClassClass->SetName(SymbolFor(classClassName));
 
     SetGlobal(systemClass->GetName(), systemClass);
@@ -567,7 +567,7 @@ VMClass* Universe::LoadClass(VMSymbol* name) {
 }
 
 VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
-    StdString s_name = name->GetStdString();
+    StdString const s_name = name->GetStdString();
     VMClass* result;
 
     for (vector<StdString>::iterator i = classPath.begin();
@@ -596,7 +596,7 @@ VMClass* Universe::LoadShellClass(StdString& stmt) {
 
 void Universe::LoadSystemClass(VMClass* systemClass) {
     VMClass* result = LoadClassBasic(systemClass->GetName(), systemClass);
-    StdString s = systemClass->GetName()->GetStdString();
+    StdString const s = systemClass->GetName()->GetStdString();
 
     if (!result) {
         ErrorPrint("Can't load system class: " + s + "\n");
@@ -609,7 +609,7 @@ void Universe::LoadSystemClass(VMClass* systemClass) {
 }
 
 VMArray* Universe::NewArray(size_t size) {
-    size_t additionalBytes = size * sizeof(VMObject*);
+    size_t const additionalBytes = size * sizeof(VMObject*);
 
     bool outsideNursery;
 
@@ -666,7 +666,7 @@ VMArray* Universe::NewArrayList(std::vector<VMInvokable*>& list) {
 }
 
 VMArray* Universe::NewArrayList(std::vector<vm_oop_t>& list) {
-    size_t size = list.size();
+    size_t const size = list.size();
     VMArray* result = NewArray(size);
 
     if (result) {
@@ -688,11 +688,11 @@ VMBlock* Universe::NewBlock(VMInvokable* method, VMFrame* context,
 }
 
 VMClass* Universe::NewClass(VMClass* classOfClass) {
-    size_t numFields = classOfClass->GetNumberOfInstanceFields();
+    size_t const numFields = classOfClass->GetNumberOfInstanceFields();
     VMClass* result = nullptr;
 
     if (numFields) {
-        size_t additionalBytes = numFields * sizeof(VMObject*);
+        size_t const additionalBytes = numFields * sizeof(VMObject*);
         result = new (GetHeap<HEAP_CLS>(), additionalBytes)
             VMClass(numFields, additionalBytes);
     } else {
@@ -720,11 +720,11 @@ VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method) {
         return result;
     }
 #endif
-    size_t length = method->GetNumberOfArguments() +
-                    method->GetNumberOfLocals() +
-                    method->GetMaximumNumberOfStackElements();
+    size_t const length = method->GetNumberOfArguments() +
+                          method->GetNumberOfLocals() +
+                          method->GetMaximumNumberOfStackElements();
 
-    size_t additionalBytes = length * sizeof(VMObject*);
+    size_t const additionalBytes = length * sizeof(VMObject*);
     result = new (GetHeap<HEAP_CLS>(), additionalBytes)
         VMFrame(additionalBytes, method, previousFrame);
 
@@ -733,9 +733,9 @@ VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method) {
 }
 
 VMObject* Universe::NewInstance(VMClass* classOfInstance) {
-    long numOfFields = classOfInstance->GetNumberOfInstanceFields();
+    long const numOfFields = classOfInstance->GetNumberOfInstanceFields();
     // the additional space needed is calculated from the number of fields
-    long additionalBytes = numOfFields * sizeof(VMObject*);
+    long const additionalBytes = numOfFields * sizeof(VMObject*);
     VMObject* result = new (GetHeap<HEAP_CLS>(), additionalBytes)
         VMObject(numOfFields, additionalBytes + sizeof(VMObject));
     result->SetClass(classOfInstance);
@@ -860,7 +860,7 @@ VMMethod* Universe::NewMethod(VMSymbol* signature, size_t numberOfBytecodes,
     }
 
     // method needs space for the bytecodes and the pointers to the constants
-    size_t additionalBytes =
+    size_t const additionalBytes =
         PADDED_SIZE(numberOfBytecodes + numberOfConstants * sizeof(VMObject*));
     VMMethod* result = new (GetHeap<HEAP_CLS>(), additionalBytes)
         VMMethod(signature, numberOfBytecodes, numberOfConstants, numLocals,

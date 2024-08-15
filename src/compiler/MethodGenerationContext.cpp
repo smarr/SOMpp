@@ -68,8 +68,8 @@ VMInvokable* MethodGenerationContext::Assemble() {
     }
 
     // create a method instance with the given number of bytecodes and literals
-    size_t numLiterals = literals.size();
-    size_t numLocals = locals.size();
+    size_t const numLiterals = literals.size();
+    size_t const numLocals = locals.size();
     VMMethod* meth =
         Universe::NewMethod(signature, bytecode.size(), numLiterals, numLocals,
                             maxStackDepth, lexicalScope, inlinedLoops);
@@ -81,7 +81,7 @@ VMInvokable* MethodGenerationContext::Assemble() {
     }
 
     // copy bytecodes into method
-    size_t bc_size = bytecode.size();
+    size_t const bc_size = bytecode.size();
     for (size_t i = 0; i < bc_size; i++) {
         meth->SetBytecode(i, bytecode[i]);
     }
@@ -113,7 +113,8 @@ VMTrivialMethod* MethodGenerationContext::assembleTrivialMethod() {
         return assembleFieldSetter();
     }
 
-    uint8_t returnCandidate = lastBytecodeIsOneOf(0, &IsReturnFieldBytecode);
+    uint8_t const returnCandidate =
+        lastBytecodeIsOneOf(0, &IsReturnFieldBytecode);
     if (returnCandidate != BC_INVALID) {
         return assembleFieldGetterFromReturn(returnCandidate);
     }
@@ -222,18 +223,18 @@ VMTrivialMethod* MethodGenerationContext::assembleFieldGetterFromReturn(
 }
 
 VMTrivialMethod* MethodGenerationContext::assembleFieldSetter() {
-    uint8_t popCandidate = lastBytecodeIsOneOf(1, IsPopFieldBytecode);
+    uint8_t const popCandidate = lastBytecodeIsOneOf(1, IsPopFieldBytecode);
     if (popCandidate == BC_INVALID) {
         return nullptr;
     }
 
-    uint8_t pushCandidate = lastBytecodeIsOneOf(2, IsPushArgBytecode);
+    uint8_t const pushCandidate = lastBytecodeIsOneOf(2, IsPushArgBytecode);
     if (pushCandidate == BC_INVALID) {
         return nullptr;
     }
 
-    size_t lenReturnSelf = Bytecode::GetBytecodeLength(BC_RETURN_SELF);
-    size_t lenInclPop =
+    size_t const lenReturnSelf = Bytecode::GetBytecodeLength(BC_RETURN_SELF);
+    size_t const lenInclPop =
         lenReturnSelf + Bytecode::GetBytecodeLength(popCandidate);
     if (bytecode.size() !=
         (lenInclPop + Bytecode::GetBytecodeLength(pushCandidate))) {
@@ -293,13 +294,13 @@ int8_t MethodGenerationContext::FindLiteralIndex(vm_oop_t lit) {
 }
 
 uint8_t MethodGenerationContext::GetFieldIndex(VMSymbol* field) {
-    int16_t idx = holderGenc.GetFieldIndex(field);
+    int16_t const idx = holderGenc.GetFieldIndex(field);
     assert(idx >= 0);
     return idx;
 }
 
 bool Contains(std::vector<Variable>& vec, std::string& name) {
-    for (Variable& v : vec) {
+    for (Variable const& v : vec) {
         if (v.IsNamed(name)) {
             return true;
         }
@@ -310,7 +311,7 @@ bool Contains(std::vector<Variable>& vec, std::string& name) {
 
 size_t IndexOf(std::vector<Variable>& vec, std::string& name) {
     size_t i = 0;
-    for (Variable& v : vec) {
+    for (Variable const& v : vec) {
         if (v.IsNamed(name)) {
             return i;
         }
@@ -356,26 +357,26 @@ void MethodGenerationContext::SetPrimitive(bool prim) {
 
 void MethodGenerationContext::AddArgument(std::string& arg,
                                           const SourceCoordinate& coord) {
-    size_t index = arguments.size();
+    size_t const index = arguments.size();
     arguments.push_back({arg, index, true, coord});
 }
 
 void MethodGenerationContext::AddLocal(std::string& local,
                                        const SourceCoordinate& coord) {
-    size_t index = locals.size();
+    size_t const index = locals.size();
     locals.push_back({local, index, false, coord});
 }
 
 uint8_t MethodGenerationContext::AddLiteral(vm_oop_t lit) {
     assert(!AS_OBJ(lit)->IsMarkedInvalid());
 
-    uint8_t idx = literals.size();
+    uint8_t const idx = literals.size();
     literals.push_back(lit);
     return idx;
 }
 
 int8_t MethodGenerationContext::AddLiteralIfAbsent(vm_oop_t lit) {
-    int8_t idx = IndexOf(literals, lit);
+    int8_t const idx = IndexOf(literals, lit);
     if (idx != -1) {
         assert(idx >= 0 && (size_t)idx < literals.size() &&
                "Expect index to be inside the literals vector.");
@@ -434,7 +435,7 @@ void MethodGenerationContext::AddBytecodeArgument(uint8_t bc) {
 }
 
 size_t MethodGenerationContext::AddBytecodeArgumentAndGetIndex(uint8_t bc) {
-    size_t index = bytecode.size();
+    size_t const index = bytecode.size();
     AddBytecodeArgument(bc);
     return index;
 }
@@ -447,14 +448,14 @@ uint8_t MethodGenerationContext::lastBytecodeAt(size_t indexFromEnd) {
 bool MethodGenerationContext::LastBytecodeIs(size_t indexFromEnd,
                                              uint8_t bytecode) {
     assert(indexFromEnd >= 0 && indexFromEnd < NUM_LAST_BYTECODES);
-    uint8_t actual = last4Bytecodes[3 - indexFromEnd];
+    uint8_t const actual = last4Bytecodes[3 - indexFromEnd];
     return actual == bytecode;
 }
 
 uint8_t MethodGenerationContext::lastBytecodeIsOneOf(
     size_t indexFromEnd, uint8_t (*predicate)(uint8_t)) {
     assert(indexFromEnd >= 0 && indexFromEnd < 4);
-    uint8_t actual = last4Bytecodes[3 - indexFromEnd];
+    uint8_t const actual = last4Bytecodes[3 - indexFromEnd];
     return predicate(actual);
 }
 
@@ -496,7 +497,7 @@ VMInvokable* MethodGenerationContext::getLastBlockMethodAndFreeLiteral(
 }
 
 VMInvokable* MethodGenerationContext::extractBlockMethodAndRemoveBytecode() {
-    uint8_t blockLitIdx = bytecode.at(bytecode.size() - 1);
+    uint8_t const blockLitIdx = bytecode.at(bytecode.size() - 1);
 
     vm_oop_t toBeInlined = getLastBlockMethodAndFreeLiteral(blockLitIdx);
 
@@ -507,8 +508,8 @@ VMInvokable* MethodGenerationContext::extractBlockMethodAndRemoveBytecode() {
 
 std::tuple<VMInvokable*, VMInvokable*>
 MethodGenerationContext::extractBlockMethodsAndRemoveBytecodes() {
-    uint8_t block1LitIdx = bytecode.at(bytecode.size() - 3);
-    uint8_t block2LitIdx = bytecode.at(bytecode.size() - 1);
+    uint8_t const block1LitIdx = bytecode.at(bytecode.size() - 3);
+    uint8_t const block2LitIdx = bytecode.at(bytecode.size() - 1);
 
     // grab the blocks' methods for inlining
     VMInvokable* toBeInlined2 = getLastBlockMethodAndFreeLiteral(block2LitIdx);
@@ -530,7 +531,7 @@ bool MethodGenerationContext::InlineIfTrueOrIfFalse(bool isIfTrue) {
 
     VMInvokable* toBeInlined = extractBlockMethodAndRemoveBytecode();
 
-    size_t jumpOffsetIdxToSkipBody =
+    size_t const jumpOffsetIdxToSkipBody =
         EmitJumpOnBoolWithDummyOffset(*this, isIfTrue, false);
 
     isCurrentlyInliningABlock = true;
@@ -561,13 +562,13 @@ bool MethodGenerationContext::InlineIfTrueFalse(bool isIfTrue) {
     VMInvokable* condMethod = std::get<0>(methods);
     VMInvokable* bodyMethod = std::get<1>(methods);
 
-    size_t jumpOffsetIdxToSkipTrueBranch =
+    size_t const jumpOffsetIdxToSkipTrueBranch =
         EmitJumpOnBoolWithDummyOffset(*this, isIfTrue, true);
 
     isCurrentlyInliningABlock = true;
     condMethod->InlineInto(*this);
 
-    size_t jumpOffsetIdxToSkipFalseBranch = EmitJumpWithDumyOffset(*this);
+    size_t const jumpOffsetIdxToSkipFalseBranch = EmitJumpWithDumyOffset(*this);
 
     PatchJumpOffsetToPointToNextInstruction(jumpOffsetIdxToSkipTrueBranch);
 
@@ -598,12 +599,12 @@ bool MethodGenerationContext::InlineWhile(Parser& parser, bool isWhileTrue) {
     VMInvokable* condMethod = std::get<0>(methods);
     VMInvokable* bodyMethod = std::get<1>(methods);
 
-    size_t loopBeginIdx = OffsetOfNextInstruction();
+    size_t const loopBeginIdx = OffsetOfNextInstruction();
 
     isCurrentlyInliningABlock = true;
     condMethod->InlineInto(*this);
 
-    size_t jumpOffsetIdxToSkipLoopBody =
+    size_t const jumpOffsetIdxToSkipLoopBody =
         EmitJumpOnBoolWithDummyOffset(*this, isWhileTrue, true);
 
     bodyMethod->InlineInto(*this);
@@ -628,14 +629,14 @@ bool MethodGenerationContext::InlineAndOr(bool isOr) {
 
     VMInvokable* toBeInlined = extractBlockMethodAndRemoveBytecode();
 
-    size_t jumpOffsetIdxToSkipBranch =
+    size_t const jumpOffsetIdxToSkipBranch =
         EmitJumpOnBoolWithDummyOffset(*this, !isOr, true);
 
     isCurrentlyInliningABlock = true;
     toBeInlined->InlineInto(*this);
     isCurrentlyInliningABlock = false;
 
-    size_t jumpOffsetIdxToSkipPushTrue = EmitJumpWithDumyOffset(*this);
+    size_t const jumpOffsetIdxToSkipPushTrue = EmitJumpWithDumyOffset(*this);
 
     PatchJumpOffsetToPointToNextInstruction(jumpOffsetIdxToSkipBranch);
     EmitPUSHCONSTANT(*this,
@@ -662,13 +663,13 @@ bool MethodGenerationContext::InlineToDo() {
     toBeInlined->MergeScopeInto(*this);
 
     const Variable* blockArg = toBeInlined->GetArgument(1, 0);
-    uint8_t iVarIdx = GetInlinedLocalIdx(blockArg);
+    uint8_t const iVarIdx = GetInlinedLocalIdx(blockArg);
 
     isCurrentlyInliningABlock = true;
     EmitDupSecond(*this);
 
-    size_t loopBeginIdx = OffsetOfNextInstruction();
-    size_t jumpOffsetIdxToEnd = EmitJumpIfGreaterWithDummyOffset(*this);
+    size_t const loopBeginIdx = OffsetOfNextInstruction();
+    size_t const jumpOffsetIdxToEnd = EmitJumpIfGreaterWithDummyOffset(*this);
 
     EmitDUP(*this);
 
@@ -753,15 +754,15 @@ void MethodGenerationContext::checkJumpOffset(size_t jumpOffset,
 
 void MethodGenerationContext::EmitBackwardsJumpOffsetToTarget(
     size_t loopBeginIdx) {
-    size_t addressOfJump = OffsetOfNextInstruction();
+    size_t const addressOfJump = OffsetOfNextInstruction();
 
     // we are going to jump backward and want a positive value
     // thus we subtract target_address from address_of_jump
-    size_t jumpOffset = addressOfJump - loopBeginIdx;
+    size_t const jumpOffset = addressOfJump - loopBeginIdx;
 
     checkJumpOffset(jumpOffset, BC_JUMP_BACKWARD);
 
-    size_t backwardJumpIdx = OffsetOfNextInstruction();
+    size_t const backwardJumpIdx = OffsetOfNextInstruction();
 
     EmitJumpBackwardWithOffset(*this, jumpOffset);
     inlinedLoops.push_back(BackJump(loopBeginIdx, backwardJumpIdx));
@@ -781,11 +782,11 @@ void MethodGenerationContext::completeJumpsAndEmitReturningNil(
 
 void MethodGenerationContext::PatchJumpOffsetToPointToNextInstruction(
     size_t indexOfOffset) {
-    size_t instructionStart = indexOfOffset - 1;
-    uint8_t bytecode = this->bytecode[instructionStart];
+    size_t const instructionStart = indexOfOffset - 1;
+    uint8_t const bytecode = this->bytecode[instructionStart];
     assert(IsJumpBytecode(bytecode));
 
-    size_t jumpOffset = OffsetOfNextInstruction() - instructionStart;
+    size_t const jumpOffset = OffsetOfNextInstruction() - instructionStart;
     checkJumpOffset(jumpOffset, bytecode);
 
     if (jumpOffset <= 0xFF) {
@@ -813,7 +814,7 @@ void MethodGenerationContext::resetLastBytecodeBuffer() {
 size_t MethodGenerationContext::getOffsetOfLastBytecode(size_t indexFromEnd) {
     size_t bcOffset = bytecode.size();
     for (size_t i = 0; i < indexFromEnd + 1; i += 1) {
-        uint8_t actual = last4Bytecodes.at(NUM_LAST_BYTECODES - 1 - i);
+        uint8_t const actual = last4Bytecodes.at(NUM_LAST_BYTECODES - 1 - i);
         if (actual == BC_INVALID) {
             ErrorExit("The requested bytecode is invalid");
         }
@@ -824,12 +825,12 @@ size_t MethodGenerationContext::getOffsetOfLastBytecode(size_t indexFromEnd) {
 }
 
 void MethodGenerationContext::removeLastBytecodeAt(size_t indexFromEnd) {
-    size_t bcOffset = getOffsetOfLastBytecode(indexFromEnd);
+    size_t const bcOffset = getOffsetOfLastBytecode(indexFromEnd);
 
-    uint8_t bcToBeRemoved =
+    uint8_t const bcToBeRemoved =
         last4Bytecodes.at(NUM_LAST_BYTECODES - 1 - indexFromEnd);
 
-    size_t bcLength = Bytecode::GetBytecodeLength(bcToBeRemoved);
+    size_t const bcLength = Bytecode::GetBytecodeLength(bcToBeRemoved);
 
     assert(bcLength > 0 && bcOffset >= 0);
 
@@ -848,7 +849,7 @@ void MethodGenerationContext::RemoveLastPopForBlockLocalReturn() {
         // we just removed the DUP and didn't emit the POP using
         // optimizeDupPopPopSequence() so, to make blocks work, we need to
         // reintroduce the DUP
-        size_t index =
+        size_t const index =
             bytecode.size() - Bytecode::GetBytecodeLength(lastBytecodeAt(0));
         assert(IsPopSmthBytecode(bytecode.at(index)));
         bytecode.insert(bytecode.begin() + index, BC_DUP);
@@ -864,7 +865,7 @@ void MethodGenerationContext::RemoveLastPopForBlockLocalReturn() {
         // need to push it.
         last4Bytecodes[3] = BC_INC_FIELD_PUSH;
 
-        size_t bcOffset = bytecode.size() - 2;
+        size_t const bcOffset = bytecode.size() - 2;
 
         // since the bytecodes have the same length, we can just switch the
         // opcode
@@ -890,7 +891,7 @@ bool MethodGenerationContext::OptimizeDupPopPopSequence() {
         return optimizeIncFieldPush();
     }
 
-    uint8_t popCandidate = lastBytecodeIsOneOf(0, IsPopSmthBytecode);
+    uint8_t const popCandidate = lastBytecodeIsOneOf(0, IsPopSmthBytecode);
     if (popCandidate == BC_INVALID) {
         return false;
     }
@@ -913,7 +914,7 @@ bool MethodGenerationContext::OptimizeDupPopPopSequence() {
 bool MethodGenerationContext::optimizeIncFieldPush() {
     assert(Bytecode::GetBytecodeLength(BC_INC_FIELD_PUSH) == 2);
 
-    size_t bcIdx = bytecode.size() - 2;
+    size_t const bcIdx = bytecode.size() - 2;
     assert(bytecode.at(bcIdx) == BC_INC_FIELD_PUSH);
 
     bytecode[bcIdx] = BC_INC_FIELD;
@@ -945,7 +946,7 @@ bool MethodGenerationContext::OptimizeIncField(uint8_t fieldIdx) {
         return false;
     }
 
-    uint8_t pushCandidate = lastBytecodeIsOneOf(2, IsPushFieldBytecode);
+    uint8_t const pushCandidate = lastBytecodeIsOneOf(2, IsPushFieldBytecode);
     if (pushCandidate == BC_INVALID) {
         return false;
     }
@@ -953,7 +954,7 @@ bool MethodGenerationContext::OptimizeIncField(uint8_t fieldIdx) {
     assert(Bytecode::GetBytecodeLength(BC_DUP) == 1);
     assert(Bytecode::GetBytecodeLength(BC_INC) == 1);
 
-    size_t bcOffset = 1 + 1 + Bytecode::GetBytecodeLength(pushCandidate);
+    size_t const bcOffset = 1 + 1 + Bytecode::GetBytecodeLength(pushCandidate);
     uint8_t candidateFieldIdx = 0;
 
     switch (pushCandidate) {
@@ -989,7 +990,7 @@ bool MethodGenerationContext::OptimizeReturnField() {
         return false;
     }
 
-    uint8_t bc = lastBytecodeAt(0);
+    uint8_t const bc = lastBytecodeAt(0);
     uint8_t index = 0;
 
     switch (bc) {

@@ -257,8 +257,9 @@ void Parser::superclass(ClassGenerationContext& cgenc) {
         // We avoid here any kind of dynamic solution to avoid further
         // complexity. However, that makes it static, it is going to make it
         // harder to change the definition of Class and Object
-        vector<StdString> fieldNamesOfClass{"class", "name", "instanceFields",
-                                            "instanceInvokables", "superClass"};
+        vector<StdString> const fieldNamesOfClass{
+            "class", "name", "instanceFields", "instanceInvokables",
+            "superClass"};
         VMArray* fieldNames =
             Universe::NewArrayOfSymbolsFromStrings(fieldNamesOfClass);
         cgenc.SetClassFieldsOfSuper(fieldNames);
@@ -362,7 +363,7 @@ VMSymbol* Parser::unarySelector() {
 }
 
 VMSymbol* Parser::binarySelector() {
-    StdString s(text);
+    StdString const s(text);
 
     if (acceptOneOf(singleOpSyms)) {
     } else if (accept(OperatorSequence)) {
@@ -518,7 +519,7 @@ std::string Parser::assignment() {
 }
 
 void Parser::evaluation(MethodGenerationContext& mgenc) {
-    bool super = primary(mgenc);
+    bool const super = primary(mgenc);
     if (symIsIdentifier() || sym == Keyword || sym == OperatorSequence ||
         symIn(binaryOpSyms)) {
         messages(mgenc, super);
@@ -610,8 +611,8 @@ bool Parser::tryIncOrDecBytecodes(VMSymbol* msg, bool isSuperSend,
         return false;
     }
 
-    bool isPlus = msg == load_ptr(symbolPlus);
-    bool isMinus = msg == load_ptr(symbolMinus);
+    bool const isPlus = msg == load_ptr(symbolPlus);
+    bool const isMinus = msg == load_ptr(symbolMinus);
 
     if (!isPlus && !isMinus) {
         return false;
@@ -632,7 +633,7 @@ bool Parser::tryIncOrDecBytecodes(VMSymbol* msg, bool isSuperSend,
 }
 
 void Parser::binaryMessage(MethodGenerationContext& mgenc, bool super) {
-    std::string msgSelector(text);
+    std::string const msgSelector(text);
     VMSymbol* msg = binarySelector();
 
     if (tryIncOrDecBytecodes(msg, super, mgenc)) {
@@ -704,7 +705,7 @@ void Parser::keywordMessage(MethodGenerationContext& mgenc, bool super) {
 }
 
 void Parser::formula(MethodGenerationContext& mgenc) {
-    bool super = binaryOperand(mgenc);
+    bool const super = binaryOperand(mgenc);
 
     // only the first message in a sequence can be a super send
     if (sym == OperatorSequence || symIn(binaryOpSyms)) {
@@ -786,7 +787,7 @@ void Parser::literalSymbol(MethodGenerationContext& mgenc) {
     VMSymbol* symb;
     expect(Pound);
     if (sym == STString) {
-        StdString s = _string();
+        StdString const s = _string();
         symb = SymbolFor(s);
 
     } else {
@@ -830,7 +831,7 @@ void Parser::literalArray(MethodGenerationContext& mgenc) {
 }
 
 void Parser::literalString(MethodGenerationContext& mgenc) {
-    StdString s = _string();
+    StdString const s = _string();
 
     VMString* str = Universe::NewString(s);
     EmitPUSHCONSTANT(mgenc, str);
@@ -847,7 +848,7 @@ VMSymbol* Parser::selector() {
 }
 
 VMSymbol* Parser::keywordSelector() {
-    StdString s(text);
+    StdString const s(text);
     expectOneOf(keywordSelectorSyms);
     VMSymbol* symb = SymbolFor(s);
     return symb;
@@ -871,7 +872,7 @@ void Parser::nestedBlock(MethodGenerationContext& mgenc) {
     // generate Block signature
     StdString block_sig =
         "$blockMethod@" + to_string(lexer.GetCurrentLineNumber());
-    size_t arg_size = mgenc.GetNumberOfArguments();
+    size_t const arg_size = mgenc.GetNumberOfArguments();
     for (size_t i = 1; i < arg_size; i++) {
         block_sig += ":";
     }
@@ -912,7 +913,7 @@ void Parser::blockArguments(MethodGenerationContext& mgenc) {
 
 __attribute__((noreturn)) void Parser::parseError(const char* msg,
                                                   Symbol expected) {
-    StdString expectedStr(symnames[expected]);
+    StdString const expectedStr(symnames[expected]);
     parseError(msg, expectedStr);
 }
 

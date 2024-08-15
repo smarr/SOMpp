@@ -245,10 +245,10 @@ uint8_t IsPopSmthBytecode(uint8_t bc) {
 }
 
 bool Bytecode::BytecodeDefinitionsAreConsistent() {
-    bool namesAndLengthMatch =
+    bool const namesAndLengthMatch =
         (sizeof(Bytecode::bytecodeNames) / sizeof(char*)) ==
         (sizeof(Bytecode::bytecodeLengths) / sizeof(uint8_t));
-    bool lastBytecodeLinesUp =
+    bool const lastBytecodeLinesUp =
         _LAST_BYTECODE ==
         (sizeof(Bytecode::bytecodeLengths) - 1);  // -1 because null terminated
 

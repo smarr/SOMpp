@@ -102,7 +102,7 @@ public:
     VMClass* GetClass() const override { return load_ptr(methodClass); }
 
     inline size_t GetObjectSize() const override {
-        size_t additionalBytes =
+        size_t const additionalBytes =
             PADDED_SIZE(bcLength + numberOfConstants * sizeof(VMObject*));
         return additionalBytes + sizeof(VMMethod);
     }

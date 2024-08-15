@@ -160,8 +160,9 @@ public:
     long RemainingStackSize() const {
         // - 1 because the stack pointer points at the top entry,
         // so the next entry would be put at stackPointer+1
-        size_t size = ((size_t)this + totalObjectSize - size_t(stack_ptr)) /
-                      sizeof(VMObject*);
+        size_t const size =
+            ((size_t)this + totalObjectSize - size_t(stack_ptr)) /
+            sizeof(VMObject*);
         return size - 1;
     }
 

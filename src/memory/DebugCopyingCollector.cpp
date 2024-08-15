@@ -22,7 +22,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     AbstractVMObject* obj = AS_OBJ(oop);
     assert(IsValidObject(obj));
 
-    size_t gcField = obj->GetGCField();
+    size_t const gcField = obj->GetGCField();
     // GCField is used as forwarding pointer here
     // if someone has moved before, return the moved object
     if (gcField != 0) {
@@ -71,7 +71,7 @@ void DebugCopyingCollector::Collect() {
 
     // if semispace is still 50% full after collection, we have to realloc
     // bigger ones -> done in next collection
-    size_t freeSpace = heap->currentHeapSize - heap->currentHeapUsage;
+    size_t const freeSpace = heap->currentHeapSize - heap->currentHeapUsage;
     if (heap->currentHeapUsage > freeSpace) {
         increaseMemory = true;
     }

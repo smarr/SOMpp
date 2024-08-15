@@ -36,7 +36,7 @@ VMSymbol* NewSymbol(const std::string& str) {
 }
 
 VMSymbol* SymbolFor(const std::string& str) {
-    map<string, GCSymbol*>::iterator it = symbolsMap.find(str);
+    map<string, GCSymbol*>::iterator const it = symbolsMap.find(str);
     return (it == symbolsMap.end()) ? NewSymbol(str) : load_ptr(it->second);
 }
 

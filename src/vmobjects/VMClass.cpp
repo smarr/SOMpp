@@ -71,7 +71,8 @@ bool VMClass::AddInstanceInvokable(VMInvokable* ptr) {
     // Check whether an invokable with the same signature exists and replace it
     // if that's the case
     VMArray* instInvokables = load_ptr(instanceInvokables);
-    size_t numIndexableFields = instInvokables->GetNumberOfIndexableFields();
+    size_t const numIndexableFields =
+        instInvokables->GetNumberOfIndexableFields();
     for (size_t i = 0; i < numIndexableFields; ++i) {
         VMInvokable* inv =
             static_cast<VMInvokable*>(instInvokables->GetIndexableField(i));
@@ -95,7 +96,7 @@ bool VMClass::AddInstanceInvokable(VMInvokable* ptr) {
 }
 
 VMSymbol* VMClass::GetInstanceFieldName(long index) const {
-    long numSuperInstanceFields = numberOfSuperInstanceFields();
+    long const numSuperInstanceFields = numberOfSuperInstanceFields();
     if (index >= numSuperInstanceFields) {
         index -= numSuperInstanceFields;
         return static_cast<VMSymbol*>(
@@ -109,7 +110,7 @@ void VMClass::SetInstanceInvokables(VMArray* invokables) {
     store_ptr(instanceInvokables, invokables);
     vm_oop_t nil = load_ptr(nilObject);
 
-    size_t numInvokables = GetNumberOfInstanceInvokables();
+    size_t const numInvokables = GetNumberOfInstanceInvokables();
     for (size_t i = 0; i < numInvokables; ++i) {
         vm_oop_t invo = load_ptr(instanceInvokables)->GetIndexableField(i);
         // check for Nil object
@@ -145,7 +146,7 @@ VMInvokable* VMClass::LookupInvokable(VMSymbol* name) const {
         return invokable;
     }
 
-    long numInvokables = GetNumberOfInstanceInvokables();
+    long const numInvokables = GetNumberOfInstanceInvokables();
     for (long i = 0; i < numInvokables; ++i) {
         invokable = GetInstanceInvokable(i);
         if (invokable->GetSignature() == name) {
@@ -164,7 +165,7 @@ VMInvokable* VMClass::LookupInvokable(VMSymbol* name) const {
 }
 
 long VMClass::LookupFieldIndex(VMSymbol* name) const {
-    long numInstanceFields = GetNumberOfInstanceFields();
+    long const numInstanceFields = GetNumberOfInstanceFields();
     for (long i = 0; i <= numInstanceFields; ++i) {
         // even with GetNumberOfInstanceFields == 0 there is the class field
         if (name == GetInstanceFieldName(i)) {
@@ -180,7 +181,7 @@ size_t VMClass::GetNumberOfInstanceFields() const {
 }
 
 bool VMClass::HasPrimitives() const {
-    long numInvokables = GetNumberOfInstanceInvokables();
+    long const numInvokables = GetNumberOfInstanceInvokables();
     for (long i = 0; i < numInvokables; ++i) {
         VMInvokable* invokable = GetInstanceInvokable(i);
         if (invokable->IsPrimitive()) {
@@ -191,7 +192,7 @@ bool VMClass::HasPrimitives() const {
 }
 
 void VMClass::LoadPrimitives() {
-    std::string cname = load_ptr(name)->GetStdString();
+    std::string const cname = load_ptr(name)->GetStdString();
 
     if (hasPrimitivesFor(cname)) {
         PrimitiveLoader::InstallPrimitives(cname, this, false);

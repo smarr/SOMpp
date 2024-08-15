@@ -14,22 +14,22 @@ using namespace std;
 static mutex output_mutex;
 
 void Print(std::string str) {
-    lock_guard<mutex> lock(output_mutex);
+    lock_guard<mutex> const lock(output_mutex);
     cout << str << flush;
 }
 
 void ErrorPrint(std::string str) {
-    lock_guard<mutex> lock(output_mutex);
+    lock_guard<mutex> const lock(output_mutex);
     cerr << str << flush;
 }
 
 void Print(const char* str) {
-    lock_guard<mutex> lock(output_mutex);
+    lock_guard<mutex> const lock(output_mutex);
     cout << str << flush;
 }
 
 void ErrorPrint(const char* str) {
-    lock_guard<mutex> lock(output_mutex);
+    lock_guard<mutex> const lock(output_mutex);
     cerr << str << flush;
 }
 

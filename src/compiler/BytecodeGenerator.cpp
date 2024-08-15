@@ -315,28 +315,28 @@ size_t EmitJumpOnBoolWithDummyOffset(MethodGenerationContext& mgenc,
 
     Emit1(mgenc, bc, stackEffect);
 
-    size_t idx = mgenc.AddBytecodeArgumentAndGetIndex(0);
+    size_t const idx = mgenc.AddBytecodeArgumentAndGetIndex(0);
     mgenc.AddBytecodeArgument(0);
     return idx;
 }
 
 size_t EmitJumpWithDumyOffset(MethodGenerationContext& mgenc) {
     Emit1(mgenc, BC_JUMP, 0);
-    size_t idx = mgenc.AddBytecodeArgumentAndGetIndex(0);
+    size_t const idx = mgenc.AddBytecodeArgumentAndGetIndex(0);
     mgenc.AddBytecodeArgument(0);
     return idx;
 }
 
 size_t EmitJumpIfGreaterWithDummyOffset(MethodGenerationContext& mgenc) {
     Emit1(mgenc, BC_JUMP_IF_GREATER, 0);
-    size_t idx = mgenc.AddBytecodeArgumentAndGetIndex(0);
+    size_t const idx = mgenc.AddBytecodeArgumentAndGetIndex(0);
     mgenc.AddBytecodeArgument(0);
     return idx;
 }
 
 void EmitJumpBackwardWithOffset(MethodGenerationContext& mgenc,
                                 size_t jumpOffset) {
-    uint8_t jumpBytecode =
+    uint8_t const jumpBytecode =
         jumpOffset <= 0xFF ? BC_JUMP_BACKWARD : BC_JUMP2_BACKWARD;
     Emit3(mgenc, jumpBytecode, jumpOffset & 0xFF, jumpOffset >> 8, 0);
 }
@@ -344,7 +344,7 @@ void EmitJumpBackwardWithOffset(MethodGenerationContext& mgenc,
 size_t Emit3WithDummy(MethodGenerationContext& mgenc, uint8_t bytecode,
                       size_t stackEffect) {
     mgenc.AddBytecode(bytecode, stackEffect);
-    size_t index = mgenc.AddBytecodeArgumentAndGetIndex(0);
+    size_t const index = mgenc.AddBytecodeArgumentAndGetIndex(0);
     mgenc.AddBytecodeArgument(0);
     return index;
 }
