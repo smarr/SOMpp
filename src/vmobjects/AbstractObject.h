@@ -29,8 +29,7 @@ public:
     virtual int64_t GetHash() const = 0;
     virtual VMClass* GetClass() const = 0;
     virtual AbstractVMObject* CloneForMovingGC() const = 0;
-    void Send(std::string /*selectorString*/, vm_oop_t* /*arguments*/,
-              long /*argc*/);
+    void Send(const std::string& selectorString, vm_oop_t* arguments, size_t argc);
 
     /** Size in bytes of the object. */
     virtual size_t GetObjectSize() const = 0;
@@ -43,7 +42,7 @@ public:
     AbstractVMObject() { gcfield = 0; }
     ~AbstractVMObject() override = default;
 
-    inline virtual long GetNumberOfFields() const {
+    inline virtual size_t GetNumberOfFields() const {
         ErrorPrint("this object doesn't support GetNumberOfFields\n");
         return -1;
     }

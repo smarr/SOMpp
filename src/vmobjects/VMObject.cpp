@@ -74,8 +74,8 @@ void VMObject::Assert(bool value) const {
 void VMObject::WalkObjects(walk_heap_fn walk) {
     clazz = static_cast<GCClass*>(walk(clazz));
 
-    long const numFields = GetNumberOfFields();
-    for (long i = 0; i < numFields; ++i) {
+    size_t const numFields = GetNumberOfFields();
+    for (size_t i = 0; i < numFields; ++i) {
         FIELDS[i] = walk(tmp_ptr(GetField(i)));
     }
 }
@@ -83,8 +83,8 @@ void VMObject::WalkObjects(walk_heap_fn walk) {
 void VMObject::MarkObjectAsInvalid() {
     clazz = (GCClass*)INVALID_GC_POINTER;
 
-    long const numFields = GetNumberOfFields();
-    for (long i = 0; i < numFields; ++i) {
+    size_t const numFields = GetNumberOfFields();
+    for (size_t i = 0; i < numFields; ++i) {
         FIELDS[i] = INVALID_GC_POINTER;
     }
 }

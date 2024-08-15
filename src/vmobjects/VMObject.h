@@ -89,7 +89,7 @@ public:
     void SetClass(VMClass* cl) override;
     VMSymbol* GetFieldName(long index) const override;
 
-    inline long GetNumberOfFields() const override { return numberOfFields; }
+    inline size_t GetNumberOfFields() const override { return numberOfFields; }
 
     inline vm_oop_t GetField(size_t index) const {
         assert(numberOfFields > index);
