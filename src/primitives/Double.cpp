@@ -90,13 +90,13 @@ static vm_oop_t dblStar(vm_oop_t leftPtr, vm_oop_t rightObj) {
 }
 
 static vm_oop_t dblCos(vm_oop_t rcvr) {
-    VMDouble* self = (VMDouble*)rcvr;
+    auto* self = (VMDouble*)rcvr;
     double const result = cos(self->GetEmbeddedDouble());
     return Universe::NewDouble(result);
 }
 
 static vm_oop_t dblSin(vm_oop_t rcvr) {
-    VMDouble* self = (VMDouble*)rcvr;
+    auto* self = (VMDouble*)rcvr;
     double const result = sin(self->GetEmbeddedDouble());
     return Universe::NewDouble(result);
 }
@@ -134,7 +134,7 @@ static vm_oop_t dblLowerthan(vm_oop_t leftPtr, vm_oop_t rightObj) {
 }
 
 static vm_oop_t dblAsString(vm_oop_t rcvr) {
-    VMDouble* self = static_cast<VMDouble*>(rcvr);
+    auto* self = static_cast<VMDouble*>(rcvr);
 
     double const dbl = self->GetEmbeddedDouble();
     ostringstream Str;
@@ -144,21 +144,21 @@ static vm_oop_t dblAsString(vm_oop_t rcvr) {
 }
 
 static vm_oop_t dblSqrt(vm_oop_t rcvr) {
-    VMDouble* self = static_cast<VMDouble*>(rcvr);
+    auto* self = static_cast<VMDouble*>(rcvr);
     VMDouble* result = Universe::NewDouble(sqrt(self->GetEmbeddedDouble()));
     return result;
 }
 
 static vm_oop_t dblRound(vm_oop_t rcvr) {
-    VMDouble* self = (VMDouble*)rcvr;
+    auto* self = (VMDouble*)rcvr;
     int64_t const rounded = llround(self->GetEmbeddedDouble());
 
     return NEW_INT(rounded);
 }
 
 static vm_oop_t dblAsInteger(vm_oop_t rcvr) {
-    VMDouble* self = (VMDouble*)rcvr;
-    int64_t const rounded = (int64_t)self->GetEmbeddedDouble();
+    auto* self = (VMDouble*)rcvr;
+    auto const rounded = (int64_t)self->GetEmbeddedDouble();
 
     return NEW_INT(rounded);
 }
@@ -168,7 +168,7 @@ static vm_oop_t dblPositiveInfinity(vm_oop_t) {
 }
 
 static vm_oop_t dblFromString(vm_oop_t, vm_oop_t rightObj) {
-    VMString* self = (VMString*)rightObj;
+    auto* self = (VMString*)rightObj;
     double const value =
         stod(std::string(self->GetRawChars(), self->GetStringLength()));
     return Universe::NewDouble(value);

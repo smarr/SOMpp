@@ -35,7 +35,7 @@
 #include "../vmobjects/VMSymbol.h"
 
 static vm_oop_t symAsString(vm_oop_t rcvr) {
-    VMSymbol* sym = static_cast<VMSymbol*>(rcvr);
+    auto* sym = static_cast<VMSymbol*>(rcvr);
 
     std::string const str = sym->GetStdString();
     return Universe::NewString(str);

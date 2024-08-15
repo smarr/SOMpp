@@ -31,7 +31,7 @@
 #include "../vmobjects/VMSymbol.h"
 
 void CloneObjectsTest::testCloneObject() {
-    VMObject* orig = new (GetHeap<HEAP_CLS>(), 0) VMObject(0, sizeof(VMObject));
+    auto* orig = new (GetHeap<HEAP_CLS>(), 0) VMObject(0, sizeof(VMObject));
     VMObject* clone = orig->CloneForMovingGC();
     CPPUNIT_ASSERT((intptr_t)orig != (intptr_t)clone);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("class differs!!", orig->GetClass(),
@@ -184,8 +184,7 @@ void CloneObjectsTest::testClonePrimitive() {
 }
 
 void CloneObjectsTest::testCloneEvaluationPrimitive() {
-    VMEvaluationPrimitive* orig =
-        new (GetHeap<HEAP_CLS>(), 0) VMEvaluationPrimitive(1);
+    auto* orig = new (GetHeap<HEAP_CLS>(), 0) VMEvaluationPrimitive(1);
     VMEvaluationPrimitive* clone = orig->CloneForMovingGC();
 
     CPPUNIT_ASSERT_EQUAL_MESSAGE("signature differs!!", orig->signature,

@@ -44,7 +44,7 @@
 const size_t VMObject::VMObjectNumberOfFields = 0;
 
 VMObject* VMObject::CloneForMovingGC() const {
-    VMObject* clone =
+    auto* clone =
         new (GetHeap<HEAP_CLS>(),
              totalObjectSize - sizeof(VMObject) ALLOC_MATURE) VMObject(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)),

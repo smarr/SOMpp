@@ -9,20 +9,20 @@
 #include "../vmobjects/VMSymbol.h"  // NOLINT(misc-include-cleaner) it's required to make the types complete
 
 static vm_oop_t pHolder(vm_oop_t rcvr) {
-    VMInvokable* self = static_cast<VMInvokable*>(rcvr);
+    auto* self = static_cast<VMInvokable*>(rcvr);
     return self->GetHolder();
 }
 
 static vm_oop_t pSignature(vm_oop_t rcvr) {
-    VMInvokable* self = static_cast<VMInvokable*>(rcvr);
+    auto* self = static_cast<VMInvokable*>(rcvr);
     return self->GetSignature();
 }
 
 void pInvokeOnWith(VMFrame* frame) {
     // REM: this is a clone with _Primitive::InvokeOn_With_
-    VMArray* args = static_cast<VMArray*>(frame->Pop());
-    vm_oop_t rcvr = static_cast<vm_oop_t>(frame->Pop());
-    VMInvokable* mthd = static_cast<VMInvokable*>(frame->Pop());
+    auto* args = static_cast<VMArray*>(frame->Pop());
+    auto rcvr = static_cast<vm_oop_t>(frame->Pop());
+    auto* mthd = static_cast<VMInvokable*>(frame->Pop());
 
     frame->Push(rcvr);
 

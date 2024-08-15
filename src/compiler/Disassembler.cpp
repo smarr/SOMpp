@@ -89,8 +89,7 @@ void Disassembler::dispatch(vm_oop_t o) {
 void Disassembler::Dump(VMClass* cl) {
     long const numInvokables = cl->GetNumberOfInstanceInvokables();
     for (long i = 0; i < numInvokables; ++i) {
-        VMInvokable* inv =
-            static_cast<VMInvokable*>(cl->GetInstanceInvokable(i));
+        auto* inv = static_cast<VMInvokable*>(cl->GetInstanceInvokable(i));
         // output header and skip if the Invokable is a Primitive
         VMSymbol* sig = inv->GetSignature();
         VMSymbol* cname = cl->GetName();
@@ -213,7 +212,7 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes,
                 if (method != nullptr && printObjects) {
                     vm_oop_t cst = method->GetConstant(bc_idx);
                     if (cst != nullptr) {
-                        VMSymbol* name = static_cast<VMSymbol*>(cst);
+                        auto* name = static_cast<VMSymbol*>(cst);
                         if (name != nullptr) {
                             DebugPrint("(index: %d) value: %s\n",
                                        bytecodes[bc_idx + 1],
@@ -243,7 +242,7 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes,
             case BC_PUSH_FIELD: {
                 long const fieldIdx = bytecodes[bc_idx + 1];
                 if (method != nullptr && printObjects) {
-                    VMClass* holder =
+                    auto* holder =
                         dynamic_cast<VMClass*>((VMObject*)method->GetHolder());
                     if (holder) {
                         VMSymbol* name = holder->GetInstanceFieldName(fieldIdx);
@@ -266,7 +265,7 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes,
             }
             case BC_SEND: {
                 if (method != nullptr && printObjects) {
-                    VMSymbol* name =
+                    auto* name =
                         static_cast<VMSymbol*>(method->GetConstant(bc_idx));
                     DebugPrint("(index: %d) signature: %s\n",
                                bytecodes[bc_idx + 1],
@@ -278,7 +277,7 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes,
             }
             case BC_SUPER_SEND: {
                 if (method != nullptr && printObjects) {
-                    VMSymbol* name =
+                    auto* name =
                         static_cast<VMSymbol*>(method->GetConstant(bc_idx));
                     DebugPrint("(index: %d) signature: %s\n",
                                bytecodes[bc_idx + 1],
@@ -441,7 +440,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
         }
         case BC_PUSH_BLOCK: {
             DebugPrint("block: (index: %d) ", BC_1);
-            VMMethod* meth = dynamic_cast<VMMethod*>(
+            auto* meth = dynamic_cast<VMMethod*>(
                 (AbstractVMObject*)method->GetConstant(bc_idx));
             DumpMethod(meth, "$");
             break;
@@ -458,8 +457,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
             break;
         }
         case BC_PUSH_GLOBAL: {
-            VMSymbol* name =
-                static_cast<VMSymbol*>(method->GetConstant(bc_idx));
+            auto* name = static_cast<VMSymbol*>(method->GetConstant(bc_idx));
             vm_oop_t o = Universe::GetGlobal(name);
             VMSymbol* cname;
 
@@ -534,7 +532,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
         }
         case BC_SUPER_SEND:
         case BC_SEND: {
-            VMSymbol* sel = static_cast<VMSymbol*>(method->GetConstant(bc_idx));
+            auto* sel = static_cast<VMSymbol*>(method->GetConstant(bc_idx));
 
             DebugPrint("(index: %d) signature: %s (", BC_1,
                        sel->GetStdString().c_str());
@@ -542,7 +540,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
             vm_oop_t elem = frame->GetStackElement(
                 Signature::GetNumberOfArguments(sel) - 1);
             VMClass* elemClass = CLASS_OF(elem);
-            VMInvokable* inv =
+            auto* inv =
                 dynamic_cast<VMInvokable*>(elemClass->LookupInvokable(sel));
 
             if (inv != nullptr && inv->IsPrimitive()) {

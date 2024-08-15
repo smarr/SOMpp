@@ -136,8 +136,7 @@ void WriteBarrierTest::testWriteEvaluationPrimitive() {
 
     // reset set...
     GetHeap<HEAP_CLS>()->writeBarrierCalledOn.clear();
-    VMEvaluationPrimitive* evPrim =
-        new (GetHeap<HEAP_CLS>(), 0) VMEvaluationPrimitive(1);
+    auto* evPrim = new (GetHeap<HEAP_CLS>(), 0) VMEvaluationPrimitive(1);
     TEST_WB_CALLED(
         "VMEvaluationPrimitive failed to call writeBarrier when creating",
         evPrim, evPrim->GetClass());

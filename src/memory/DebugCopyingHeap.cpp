@@ -49,7 +49,7 @@ void DebugCopyingHeap::invalidateOldBuffer() {
 }
 
 AbstractVMObject* DebugCopyingHeap::AllocateObject(size_t size) {
-    AbstractVMObject* newObject = (AbstractVMObject*)malloc(size);
+    auto* newObject = (AbstractVMObject*)malloc(size);
     currentHeap.push_back(newObject);
 
     currentHeapUsage += size;

@@ -53,7 +53,7 @@ VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength) {
                         method->GetMaximumNumberOfStackElements() + extraLength;
 
     size_t const additionalBytes = length * sizeof(VMObject*);
-    VMFrame* result = new (GetHeap<HEAP_CLS>(), additionalBytes)
+    auto* result = new (GetHeap<HEAP_CLS>(), additionalBytes)
         VMFrame(additionalBytes, method, from->GetPreviousFrame());
 
     // set Frame members
@@ -67,9 +67,8 @@ VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength) {
 
     // all other fields are indexable via arguments
     // --> until end of Frame
-    gc_oop_t* from_end = (gc_oop_t*)SHIFTED_PTR(from, from->GetObjectSize());
-    gc_oop_t* result_end =
-        (gc_oop_t*)SHIFTED_PTR(result, result->GetObjectSize());
+    auto* from_end = (gc_oop_t*)SHIFTED_PTR(from, from->GetObjectSize());
+    auto* result_end = (gc_oop_t*)SHIFTED_PTR(result, result->GetObjectSize());
 
     long i = 0;
 
@@ -88,7 +87,7 @@ VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength) {
 
 VMFrame* VMFrame::CloneForMovingGC() const {
     size_t const addSpace = totalObjectSize - sizeof(VMFrame);
-    VMFrame* clone =
+    auto* clone =
         new (GetHeap<HEAP_CLS>(), addSpace ALLOC_MATURE) VMFrame(*this);
     void* destination = SHIFTED_PTR(clone, sizeof(VMFrame));
     const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
@@ -206,7 +205,7 @@ void VMFrame::PrintStack() const {
         print_oop(locals[local_offset + i]);
     }
 
-    gc_oop_t* end = (gc_oop_t*)SHIFTED_PTR(this, totalObjectSize);
+    auto* end = (gc_oop_t*)SHIFTED_PTR(this, totalObjectSize);
     size_t i = 0;
     while (&locals[local_offset + max + i] < end) {
         if (stack_ptr == &locals[local_offset + max + i]) {

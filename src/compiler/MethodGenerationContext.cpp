@@ -166,7 +166,7 @@ VMTrivialMethod* MethodGenerationContext::assembleGlobalReturn() {
             "reads a global. New Bytecode?");
     }
 
-    VMSymbol* globalName = (VMSymbol*)literals.at(0);
+    auto* globalName = (VMSymbol*)literals.at(0);
     return MakeGlobalReturn(signature, arguments, globalName);
 }
 
@@ -491,7 +491,7 @@ bool MethodGenerationContext::hasTwoLiteralBlockArguments() {
 VMInvokable* MethodGenerationContext::getLastBlockMethodAndFreeLiteral(
     uint8_t blockLiteralIdx) {
     assert(blockLiteralIdx == literals.size() - 1);
-    VMInvokable* block = (VMInvokable*)literals.back();
+    auto* block = (VMInvokable*)literals.back();
     literals.pop_back();
     return block;
 }

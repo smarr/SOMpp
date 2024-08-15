@@ -34,27 +34,27 @@
 #include "../vmobjects/VMSymbol.h"  // NOLINT(misc-include-cleaner) it's required to make the types complete
 
 static vm_oop_t clsNew(vm_oop_t rcvr) {
-    VMClass* self = static_cast<VMClass*>(rcvr);
+    auto* self = static_cast<VMClass*>(rcvr);
     return Universe::NewInstance(self);
 }
 
 static vm_oop_t clsName(vm_oop_t rcvr) {
-    VMClass* self = static_cast<VMClass*>(rcvr);
+    auto* self = static_cast<VMClass*>(rcvr);
     return self->GetName();
 }
 
 static vm_oop_t clsSuperclass(vm_oop_t rcvr) {
-    VMClass* self = static_cast<VMClass*>(rcvr);
+    auto* self = static_cast<VMClass*>(rcvr);
     return self->GetSuperClass();
 }
 
 static vm_oop_t clsMethods(vm_oop_t rcvr) {
-    VMClass* self = static_cast<VMClass*>(rcvr);
+    auto* self = static_cast<VMClass*>(rcvr);
     return self->GetInstanceInvokables();
 }
 
 static vm_oop_t clsFields(vm_oop_t rcvr) {
-    VMClass* self = static_cast<VMClass*>(rcvr);
+    auto* self = static_cast<VMClass*>(rcvr);
     return self->GetInstanceFields();
 }
 

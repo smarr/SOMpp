@@ -43,8 +43,8 @@
 #include "../vmobjects/VMSymbol.h"  // NOLINT(misc-include-cleaner) it's required to make the types complete
 
 static vm_oop_t strConcatenate_(vm_oop_t leftObj, vm_oop_t rightObj) {
-    VMString* arg = static_cast<VMString*>(rightObj);
-    VMString* self = static_cast<VMString*>(leftObj);
+    auto* arg = static_cast<VMString*>(rightObj);
+    auto* self = static_cast<VMString*>(leftObj);
     // TODO: if this really needs to be optimized, than, well, then,
     // NewString should allow to construct it correctly and simply copy
     // from both input strings
@@ -57,25 +57,25 @@ static vm_oop_t strConcatenate_(vm_oop_t leftObj, vm_oop_t rightObj) {
 }
 
 static vm_oop_t strAsSymbol(vm_oop_t rcvr) {
-    VMString* self = static_cast<VMString*>(rcvr);
+    auto* self = static_cast<VMString*>(rcvr);
     StdString const result = self->GetStdString();
     return SymbolFor(result);
 }
 
 static vm_oop_t strHashcode(vm_oop_t rcvr) {
-    VMString* self = static_cast<VMString*>(rcvr);
+    auto* self = static_cast<VMString*>(rcvr);
     return NEW_INT(self->GetHash());
 }
 
 static vm_oop_t strLength(vm_oop_t rcvr) {
-    VMString* self = static_cast<VMString*>(rcvr);
+    auto* self = static_cast<VMString*>(rcvr);
 
     size_t const len = self->GetStringLength();
     return NEW_INT((int64_t)len);
 }
 
 static vm_oop_t strEqual(vm_oop_t leftObj, vm_oop_t op1) {
-    VMString* left = static_cast<VMString*>(leftObj);
+    auto* left = static_cast<VMString*>(leftObj);
 
     if (IS_TAGGED(op1)) {
         return load_ptr(falseObject);
@@ -91,7 +91,7 @@ static vm_oop_t strEqual(vm_oop_t leftObj, vm_oop_t op1) {
         return load_ptr(falseObject);
     }
 
-    VMString* right = static_cast<VMString*>(op1);
+    auto* right = static_cast<VMString*>(op1);
     if (left->length != right->length) {
         return load_ptr(falseObject);
     }
@@ -105,7 +105,7 @@ static vm_oop_t strEqual(vm_oop_t leftObj, vm_oop_t op1) {
 static vm_oop_t strPrimSubstringFromTo(vm_oop_t rcvr,
                                        vm_oop_t start,
                                        vm_oop_t end) {
-    VMString* self = static_cast<VMString*>(rcvr);
+    auto* self = static_cast<VMString*>(rcvr);
     std::string const str = self->GetStdString();
 
     int64_t const s = INT_VAL(start) - 1;
@@ -116,7 +116,7 @@ static vm_oop_t strPrimSubstringFromTo(vm_oop_t rcvr,
 }
 
 static vm_oop_t strCharAt(vm_oop_t rcvr, vm_oop_t indexPtr) {
-    VMString* self = static_cast<VMString*>(rcvr);
+    auto* self = static_cast<VMString*>(rcvr);
     int64_t const index = INT_VAL(indexPtr) - 1;
 
     if (unlikely(index < 0 || (size_t)index >= self->GetStringLength())) {
@@ -127,7 +127,7 @@ static vm_oop_t strCharAt(vm_oop_t rcvr, vm_oop_t indexPtr) {
 }
 
 static vm_oop_t strIsWhiteSpace(vm_oop_t rcvr) {
-    VMString* self = static_cast<VMString*>(rcvr);
+    auto* self = static_cast<VMString*>(rcvr);
 
     size_t const len = self->GetStringLength();
 
@@ -147,7 +147,7 @@ static vm_oop_t strIsWhiteSpace(vm_oop_t rcvr) {
 }
 
 static vm_oop_t strIsLetters(vm_oop_t rcvr) {
-    VMString* self = static_cast<VMString*>(rcvr);
+    auto* self = static_cast<VMString*>(rcvr);
 
     size_t const len = self->GetStringLength();
 
@@ -167,7 +167,7 @@ static vm_oop_t strIsLetters(vm_oop_t rcvr) {
 }
 
 static vm_oop_t strIsDigits(vm_oop_t rcvr) {
-    VMString* self = static_cast<VMString*>(rcvr);
+    auto* self = static_cast<VMString*>(rcvr);
 
     size_t const len = self->GetStringLength();
 

@@ -262,7 +262,7 @@ void Interpreter::doReturnFieldWithIndex(uint8_t fieldIndex) {
 
 void Interpreter::doPushBlock(long bytecodeIndex) {
     vm_oop_t block = method->GetConstant(bytecodeIndex);
-    VMInvokable* blockMethod = static_cast<VMInvokable*>(block);
+    auto* blockMethod = static_cast<VMInvokable*>(block);
 
     long const numOfArgs = blockMethod->GetNumberOfArguments();
 
@@ -270,7 +270,7 @@ void Interpreter::doPushBlock(long bytecodeIndex) {
 }
 
 void Interpreter::doPushGlobal(long bytecodeIndex) {
-    VMSymbol* globalName =
+    auto* globalName =
         static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
     vm_oop_t global = Universe::GetGlobal(globalName);
 
@@ -341,7 +341,7 @@ void Interpreter::doPopFieldWithIndex(uint8_t fieldIndex) {
 }
 
 void Interpreter::doSend(long bytecodeIndex) {
-    VMSymbol* signature =
+    auto* signature =
         static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
 
     int const numOfArgs = Signature::GetNumberOfArguments(signature);
@@ -364,7 +364,7 @@ void Interpreter::doSend(long bytecodeIndex) {
 }
 
 void Interpreter::doUnarySend(long bytecodeIndex) {
-    VMSymbol* signature =
+    auto* signature =
         static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
 
     const int numOfArgs = 1;
@@ -403,15 +403,15 @@ void Interpreter::doUnarySend(long bytecodeIndex) {
 }
 
 void Interpreter::doSuperSend(long bytecodeIndex) {
-    VMSymbol* signature =
+    auto* signature =
         static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
 
     VMFrame* ctxt = GetFrame()->GetOuterContext();
     VMMethod* realMethod = ctxt->GetMethod();
     VMClass* holder = realMethod->GetHolder();
     assert(holder->HasSuperClass());
-    VMClass* super = (VMClass*)holder->GetSuperClass();
-    VMInvokable* invokable =
+    auto* super = (VMClass*)holder->GetSuperClass();
+    auto* invokable =
         static_cast<VMInvokable*>(super->LookupInvokable(signature));
 
     if (invokable != nullptr) {
@@ -442,7 +442,7 @@ void Interpreter::doReturnNonLocal() {
     VMFrame* context = GetFrame()->GetOuterContext();
 
     if (!context->HasPreviousFrame()) {
-        VMBlock* block =
+        auto* block =
             static_cast<VMBlock*>(GetFrame()->GetArgumentInCurrentContext(0));
         VMFrame* prevFrame = GetFrame()->GetPreviousFrame();
         VMFrame* outerContext = prevFrame->GetOuterContext();
@@ -518,7 +518,7 @@ void Interpreter::doIncField(uint8_t fieldIdx) {
         ErrorExit("Integers do not have fields!");
     }
 
-    VMObject* selfObj = (VMObject*)self;
+    auto* selfObj = (VMObject*)self;
 
     vm_oop_t val = selfObj->GetField(fieldIdx);
 
@@ -542,7 +542,7 @@ void Interpreter::doIncFieldPush(uint8_t fieldIdx) {
         ErrorExit("Integers do not have fields!");
     }
 
-    VMObject* selfObj = (VMObject*)self;
+    auto* selfObj = (VMObject*)self;
 
     vm_oop_t val = selfObj->GetField(fieldIdx);
 

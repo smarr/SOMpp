@@ -40,13 +40,12 @@
 #include "VMSymbol.h"
 
 VMPrimitive* VMPrimitive::GetFramePrim(VMSymbol* sig, FramePrim prim) {
-    VMPrimitive* p = new (GetHeap<HEAP_CLS>(), 0) VMPrimitive(sig, prim);
+    auto* p = new (GetHeap<HEAP_CLS>(), 0) VMPrimitive(sig, prim);
     return p;
 }
 
 VMPrimitive* VMPrimitive::CloneForMovingGC() const {
-    VMPrimitive* prim =
-        new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMPrimitive(*this);
+    auto* prim = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMPrimitive(*this);
     return prim;
 }
 

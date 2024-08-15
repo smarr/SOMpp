@@ -20,7 +20,7 @@
 
 VMTrivialMethod* MakeLiteralReturn(VMSymbol* sig, vector<Variable>& arguments,
                                    vm_oop_t literal) {
-    VMLiteralReturn* result =
+    auto* result =
         new (GetHeap<HEAP_CLS>(), 0) VMLiteralReturn(sig, arguments, literal);
     LOG_ALLOCATION("VMLiteralReturn", result->GetObjectSize());
     return result;
@@ -28,7 +28,7 @@ VMTrivialMethod* MakeLiteralReturn(VMSymbol* sig, vector<Variable>& arguments,
 
 VMTrivialMethod* MakeGlobalReturn(VMSymbol* sig, vector<Variable>& arguments,
                                   VMSymbol* globalName) {
-    VMGlobalReturn* result =
+    auto* result =
         new (GetHeap<HEAP_CLS>(), 0) VMGlobalReturn(sig, arguments, globalName);
     LOG_ALLOCATION("VMGlobalReturn", result->GetObjectSize());
     return result;
@@ -36,7 +36,7 @@ VMTrivialMethod* MakeGlobalReturn(VMSymbol* sig, vector<Variable>& arguments,
 
 VMTrivialMethod* MakeGetter(VMSymbol* sig, vector<Variable>& arguments,
                             size_t fieldIndex) {
-    VMGetter* result =
+    auto* result =
         new (GetHeap<HEAP_CLS>(), 0) VMGetter(sig, arguments, fieldIndex);
     LOG_ALLOCATION("VMGetter", result->GetObjectSize());
     return result;
@@ -44,7 +44,7 @@ VMTrivialMethod* MakeGetter(VMSymbol* sig, vector<Variable>& arguments,
 
 VMTrivialMethod* MakeSetter(VMSymbol* sig, vector<Variable>& arguments,
                             size_t fieldIndex, size_t argIndex) {
-    VMSetter* result = new (GetHeap<HEAP_CLS>(), 0)
+    auto* result = new (GetHeap<HEAP_CLS>(), 0)
         VMSetter(sig, arguments, fieldIndex, argIndex);
     LOG_ALLOCATION("VMSetter", result->GetObjectSize());
     return result;
@@ -66,7 +66,7 @@ VMFrame* VMLiteralReturn::Invoke1(VMFrame* frame) {
 }
 
 AbstractVMObject* VMLiteralReturn::CloneForMovingGC() const {
-    VMLiteralReturn* prim =
+    auto* prim =
         new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMLiteralReturn(*this);
     return prim;
 }
@@ -129,7 +129,7 @@ std::string VMGlobalReturn::AsDebugString() const {
 }
 
 AbstractVMObject* VMGlobalReturn::CloneForMovingGC() const {
-    VMGlobalReturn* prim =
+    auto* prim =
         new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMGlobalReturn(*this);
     return prim;
 }
@@ -179,7 +179,7 @@ void VMGetter::InlineInto(MethodGenerationContext& mgenc, bool) {
 }
 
 AbstractVMObject* VMGetter::CloneForMovingGC() const {
-    VMGetter* prim = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMGetter(*this);
+    auto* prim = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMGetter(*this);
     return prim;
 }
 
@@ -225,7 +225,7 @@ void VMSetter::InlineInto(MethodGenerationContext&, bool) {
 }
 
 AbstractVMObject* VMSetter::CloneForMovingGC() const {
-    VMSetter* prim = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMSetter(*this);
+    auto* prim = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMSetter(*this);
     return prim;
 }
 

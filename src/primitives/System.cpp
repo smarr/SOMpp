@@ -56,20 +56,20 @@
 _System* System_;
 
 static vm_oop_t sysGlobal_(vm_oop_t, vm_oop_t rightObj) {
-    VMSymbol* arg = static_cast<VMSymbol*>(rightObj);
+    auto* arg = static_cast<VMSymbol*>(rightObj);
     vm_oop_t result = Universe::GetGlobal(arg);
 
     return result ? result : load_ptr(nilObject);
 }
 
 static vm_oop_t sysGlobalPut(vm_oop_t sys, vm_oop_t sym, vm_oop_t val) {
-    VMSymbol* arg = static_cast<VMSymbol*>(sym);
+    auto* arg = static_cast<VMSymbol*>(sym);
     Universe::SetGlobal(arg, val);
     return sys;
 }
 
 static vm_oop_t sysHasGlobal_(vm_oop_t, vm_oop_t rightObj) {
-    VMSymbol* arg = static_cast<VMSymbol*>(rightObj);
+    auto* arg = static_cast<VMSymbol*>(rightObj);
 
     if (Universe::HasGlobal(arg)) {
         return load_ptr(trueObject);
@@ -79,7 +79,7 @@ static vm_oop_t sysHasGlobal_(vm_oop_t, vm_oop_t rightObj) {
 }
 
 static vm_oop_t sysLoad_(vm_oop_t, vm_oop_t rightObj) {
-    VMSymbol* arg = static_cast<VMSymbol*>(rightObj);
+    auto* arg = static_cast<VMSymbol*>(rightObj);
     VMClass* result = Universe::LoadClass(arg);
     if (result) {
         return result;
@@ -94,7 +94,7 @@ static vm_oop_t sysExit_(vm_oop_t, vm_oop_t err) {
 }
 
 static vm_oop_t sysPrintString_(vm_oop_t leftObj, vm_oop_t rightObj) {
-    VMString* arg = static_cast<VMString*>(rightObj);
+    auto* arg = static_cast<VMString*>(rightObj);
     std::string const str = arg->GetStdString();
     Print(str);
     return leftObj;
@@ -106,14 +106,14 @@ static vm_oop_t sysPrintNewline(vm_oop_t leftObj) {
 }
 
 static vm_oop_t sysErrorPrint_(vm_oop_t leftObj, vm_oop_t rightObj) {
-    VMString* arg = static_cast<VMString*>(rightObj);
+    auto* arg = static_cast<VMString*>(rightObj);
     std::string const str = arg->GetStdString();
     ErrorPrint(str);
     return leftObj;
 }
 
 static vm_oop_t sysErrorPrintNewline_(vm_oop_t leftObj, vm_oop_t rightObj) {
-    VMString* arg = static_cast<VMString*>(rightObj);
+    auto* arg = static_cast<VMString*>(rightObj);
     std::string const str = arg->GetStdString();
     ErrorPrint(str + "\n");
     return leftObj;
@@ -153,7 +153,7 @@ static vm_oop_t sysFullGC(vm_oop_t) {
 }
 
 static vm_oop_t sysLoadFile_(vm_oop_t, vm_oop_t rightObj) {
-    VMString* fileName = static_cast<VMString*>(rightObj);
+    auto* fileName = static_cast<VMString*>(rightObj);
 
     std::ifstream const file(fileName->GetStdString(), std::ifstream::in);
     if (file.is_open()) {

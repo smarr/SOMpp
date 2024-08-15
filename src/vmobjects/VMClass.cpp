@@ -50,7 +50,7 @@ VMClass::VMClass()
       superClass(nullptr) {}
 
 VMClass* VMClass::CloneForMovingGC() const {
-    VMClass* clone =
+    auto* clone =
         new (GetHeap<HEAP_CLS>(),
              totalObjectSize - sizeof(VMClass) ALLOC_MATURE) VMClass(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)),
@@ -74,7 +74,7 @@ bool VMClass::AddInstanceInvokable(VMInvokable* ptr) {
     size_t const numIndexableFields =
         instInvokables->GetNumberOfIndexableFields();
     for (size_t i = 0; i < numIndexableFields; ++i) {
-        VMInvokable* inv =
+        auto* inv =
             static_cast<VMInvokable*>(instInvokables->GetIndexableField(i));
         if (inv != nullptr) {
             if (ptr->GetSignature() == inv->GetSignature()) {
@@ -116,7 +116,7 @@ void VMClass::SetInstanceInvokables(VMArray* invokables) {
         // check for Nil object
         if (invo != nil) {
             // not Nil, so this actually is an invokable
-            VMInvokable* inv = (VMInvokable*)invo;
+            auto* inv = (VMInvokable*)invo;
             inv->SetHolder(this);
         }
     }

@@ -81,8 +81,7 @@ void WalkObjectsTest::testWalkDouble() {
 void WalkObjectsTest::testWalkEvaluationPrimitive() {
     walkedObjects.clear();
 
-    VMEvaluationPrimitive* evPrim =
-        new (GetHeap<HEAP_CLS>(), 0) VMEvaluationPrimitive(1);
+    auto* evPrim = new (GetHeap<HEAP_CLS>(), 0) VMEvaluationPrimitive(1);
     evPrim->SetHolder(load_ptr(classClass));
     evPrim->WalkObjects(collectMembers);
 
@@ -94,7 +93,7 @@ void WalkObjectsTest::testWalkEvaluationPrimitive() {
 void WalkObjectsTest::testWalkObject() {
     walkedObjects.clear();
 
-    VMObject* obj = new (GetHeap<HEAP_CLS>(), 0) VMObject(0, sizeof(VMObject));
+    auto* obj = new (GetHeap<HEAP_CLS>(), 0) VMObject(0, sizeof(VMObject));
     obj->WalkObjects(collectMembers);
 
     // Objects should only have one member -> Class
@@ -198,8 +197,8 @@ void WalkObjectsTest::testWalkMethod() {
     locals.push_back(makeVar("local1", false));
     locals.push_back(makeVar("local2", false));
 
-    LexicalScope* inner = new LexicalScope(nullptr, argsInner, localsInner);
-    LexicalScope* scope = new LexicalScope(inner, args, locals);
+    auto* inner = new LexicalScope(nullptr, argsInner, localsInner);
+    auto* scope = new LexicalScope(inner, args, locals);
 
     VMSymbol* methodSymbol = NewSymbol("myMethod");
 

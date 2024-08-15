@@ -23,7 +23,7 @@ GCSymbol* symbolPlus;
 GCSymbol* symbolMinus;
 
 VMSymbol* NewSymbol(const size_t length, const char* str) {
-    VMSymbol* result =
+    auto* result =
         new (GetHeap<HEAP_CLS>(), PADDED_SIZE(length)) VMSymbol(length, str);
     symbolsMap[StdString(str, length)] = store_root(result);
 
@@ -36,7 +36,7 @@ VMSymbol* NewSymbol(const std::string& str) {
 }
 
 VMSymbol* SymbolFor(const std::string& str) {
-    map<string, GCSymbol*>::iterator const it = symbolsMap.find(str);
+    auto const it = symbolsMap.find(str);
     return (it == symbolsMap.end()) ? NewSymbol(str) : load_ptr(it->second);
 }
 

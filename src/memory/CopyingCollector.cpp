@@ -64,7 +64,7 @@ void CopyingCollector::Collect() {
 
     // now copy all objects that are referenced by the objects we have moved so
     // far
-    AbstractVMObject* curObject = (AbstractVMObject*)(heap->currentBuffer);
+    auto* curObject = (AbstractVMObject*)(heap->currentBuffer);
     while (curObject < heap->nextFreePosition) {
         curObject->WalkObjects(copy_if_necessary);
         curObject =

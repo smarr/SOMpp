@@ -76,7 +76,7 @@ VMMethod::VMMethod(VMSymbol* signature, size_t bcCount,
 }
 
 VMMethod* VMMethod::CloneForMovingGC() const {
-    VMMethod* clone =
+    auto* clone =
         new (GetHeap<HEAP_CLS>(),
              GetObjectSize() - sizeof(VMMethod) ALLOC_MATURE) VMMethod(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)),
@@ -156,7 +156,7 @@ void VMMethod::SetHolderAll(VMClass* hld) {
     for (long i = 0; i < numIndexableFields; ++i) {
         vm_oop_t o = GetIndexableField(i);
         if (!IS_TAGGED(o)) {
-            VMInvokable* vmi = dynamic_cast<VMInvokable*>(AS_OBJ(o));
+            auto* vmi = dynamic_cast<VMInvokable*>(AS_OBJ(o));
             if (vmi != nullptr) {
                 vmi->SetHolder(hld);
             }
@@ -332,7 +332,7 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
             }
 
             case BC_PUSH_BLOCK: {
-                VMInvokable* blockMethod = (VMInvokable*)GetConstant(i);
+                auto* blockMethod = (VMInvokable*)GetConstant(i);
                 blockMethod->AdaptAfterOuterInlined(1, mgenc);
                 EmitPUSHBLOCK(mgenc, blockMethod);
                 break;
@@ -369,7 +369,7 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
                 break;
             }
             case BC_PUSH_GLOBAL: {
-                VMSymbol* const sym = (VMSymbol*)GetConstant(i);
+                auto* const sym = (VMSymbol*)GetConstant(i);
                 EmitPUSHGLOBAL(mgenc, sym);
                 break;
             }
@@ -378,12 +378,12 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
             case BC_SEND_2:
             case BC_SEND_3:
             case BC_SEND_N: {
-                VMSymbol* const sym = (VMSymbol*)GetConstant(i);
+                auto* const sym = (VMSymbol*)GetConstant(i);
                 EmitSEND(mgenc, sym);
                 break;
             }
             case BC_SUPER_SEND: {
-                VMSymbol* const sym = (VMSymbol*)GetConstant(i);
+                auto* const sym = (VMSymbol*)GetConstant(i);
                 EmitSUPERSEND(mgenc, sym);
                 break;
             }
@@ -568,7 +568,7 @@ void VMMethod::AdaptAfterOuterInlined(
             }
 
             case BC_PUSH_BLOCK: {
-                VMMethod* blockMethod = static_cast<VMMethod*>(GetConstant(i));
+                auto* blockMethod = static_cast<VMMethod*>(GetConstant(i));
                 blockMethod->AdaptAfterOuterInlined(removedCtxLevel + 1,
                                                     mgencWithInlined);
                 break;

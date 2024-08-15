@@ -19,7 +19,7 @@ MarkSweepHeap::MarkSweepHeap(size_t objectSpaceSize)
 }
 
 AbstractVMObject* MarkSweepHeap::AllocateObject(size_t size) {
-    AbstractVMObject* newObject = (AbstractVMObject*)malloc(size);
+    auto* newObject = (AbstractVMObject*)malloc(size);
     if (newObject == nullptr) {
         ErrorPrint("\nFailed to allocate " + to_string(size) + " Bytes.\n");
         Quit(-1);

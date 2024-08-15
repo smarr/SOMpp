@@ -33,7 +33,7 @@ GenerationalHeap::GenerationalHeap(size_t objectSpaceSize)
 }
 
 AbstractVMObject* GenerationalHeap::AllocateNurseryObject(size_t size) {
-    AbstractVMObject* newObject = (AbstractVMObject*)nextFreePosition;
+    auto* newObject = (AbstractVMObject*)nextFreePosition;
     nextFreePosition = (void*)((size_t)nextFreePosition + size);
     if ((size_t)nextFreePosition > nursery_end) {
         ErrorPrint("\nFailed to allocate " + to_string(size) +
@@ -48,7 +48,7 @@ AbstractVMObject* GenerationalHeap::AllocateNurseryObject(size_t size) {
 }
 
 AbstractVMObject* GenerationalHeap::AllocateMatureObject(size_t size) {
-    AbstractVMObject* newObject = (AbstractVMObject*)malloc(size);
+    auto* newObject = (AbstractVMObject*)malloc(size);
     if (newObject == nullptr) {
         ErrorPrint("\nFailed to allocate " + to_string(size) + " Bytes.\n");
         Quit(-1);

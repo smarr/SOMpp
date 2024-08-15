@@ -47,7 +47,7 @@ VMEvaluationPrimitive::VMEvaluationPrimitive(size_t argc)
 }
 
 VMEvaluationPrimitive* VMEvaluationPrimitive::CloneForMovingGC() const {
-    VMEvaluationPrimitive* evPrim =
+    auto* evPrim =
         new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMEvaluationPrimitive(*this);
     return evPrim;
 }
@@ -85,7 +85,7 @@ VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc) {
 
 VMFrame* VMEvaluationPrimitive::Invoke(VMFrame* frame) {
     // Get the block (the receiver) from the stack
-    VMBlock* block =
+    auto* block =
         static_cast<VMBlock*>(frame->GetStackElement(numberOfArguments - 1));
 
     // Get the context of the block...
@@ -105,7 +105,7 @@ VMFrame* VMEvaluationPrimitive::Invoke(VMFrame* frame) {
 VMFrame* VMEvaluationPrimitive::Invoke1(VMFrame* frame) {
     assert(numberOfArguments == 1);
     // Get the block (the receiver) from the stack
-    VMBlock* block = static_cast<VMBlock*>(frame->GetStackElement(0));
+    auto* block = static_cast<VMBlock*>(frame->GetStackElement(0));
 
     // Get the context of the block...
     VMFrame* context = block->GetContext();

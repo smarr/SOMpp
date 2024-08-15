@@ -155,8 +155,8 @@ static vm_oop_t intRem(vm_oop_t leftObj, vm_oop_t rightObj) {
         return dblPercent(leftObj, rightObj);
     }
 
-    int64_t const l = (int64_t)INT_VAL(leftObj);
-    int64_t const r = (int64_t)INT_VAL(rightObj);
+    auto const l = (int64_t)INT_VAL(leftObj);
+    auto const r = (int64_t)INT_VAL(rightObj);
 
     int64_t const result = l - (l / r) * r;
 
@@ -315,7 +315,7 @@ static vm_oop_t intMax(vm_oop_t self, vm_oop_t arg) {
 }
 
 static vm_oop_t intFromString(vm_oop_t, vm_oop_t right) {
-    VMString* self = (VMString*)right;
+    auto* self = (VMString*)right;
     std::string str = self->GetStdString();
 
     return ParseInteger(str, 10, false);
