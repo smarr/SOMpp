@@ -53,7 +53,7 @@ double coerceDouble(vm_oop_t x);
     {                                                        \
         VMClass* cl = CLASS_OF(rightObj);                    \
         if (cl == load_ptr(doubleClass)) {                   \
-            double const leftDbl = (double)leftInt;          \
+            double const leftDbl = (double)(leftInt);        \
             double const rightDbl = coerceDouble(rightObj);  \
             return Universe::NewDouble(leftDbl op rightDbl); \
         }                                                    \

@@ -63,7 +63,7 @@ Shell::~Shell() {
 
 void Shell::Start() {
 #define QUIT_CMD "system exit"
-#define QUIT_CMD_L 11 + 1
+#define QUIT_CMD_L (11 + 1)
 
     if (bootstrapMethod == nullptr) {
         ErrorExit("Shell needs bootstrap method!");

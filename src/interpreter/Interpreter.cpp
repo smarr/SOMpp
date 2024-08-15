@@ -65,10 +65,10 @@ long Interpreter::bytecodeIndexGlobal;
 uint8_t* Interpreter::currentBytecodes;
 
 vm_oop_t Interpreter::StartAndPrintBytecodes() {
-#define PROLOGUE(bc_count)               \
-    {                                    \
-        disassembleMethod();             \
-        bytecodeIndexGlobal += bc_count; \
+#define PROLOGUE(bcCount)                 \
+    {                                     \
+        disassembleMethod();              \
+        bytecodeIndexGlobal += (bcCount); \
     }
 #define HACK_INLINE_START
 #include "InterpreterLoop.h"
@@ -77,8 +77,8 @@ vm_oop_t Interpreter::StartAndPrintBytecodes() {
 
 vm_oop_t Interpreter::Start() {
 #undef PROLOGUE
-#define PROLOGUE(bc_count) \
-    { bytecodeIndexGlobal += bc_count; }
+#define PROLOGUE(bcCount) \
+    { bytecodeIndexGlobal += (bcCount); }
 #define HACK_INLINE_START
 #include "InterpreterLoop.h"
 #undef HACK_INLINE_START
