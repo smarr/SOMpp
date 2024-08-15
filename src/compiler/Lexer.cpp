@@ -32,7 +32,6 @@
 #include <istream>
 #include <string>
 
-#include "../misc/defs.h"
 #include "../vm/Print.h"
 
 Lexer::Lexer(istream& file) : infile(file), peekDone(false) {}
@@ -91,8 +90,8 @@ void Lexer::skipComment() {
         state.text = _BC; \
         state.incPtr();   \
     }
-#define SEPARATOR StdString("----")  // FIXME
-#define PRIMITIVE StdString("primitive")
+#define SEPARATOR std::string("----")  // FIXME
+#define PRIMITIVE std::string("primitive")
 
 void Lexer::lexNumber() {
     state.sym = Integer;

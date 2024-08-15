@@ -48,7 +48,7 @@ public:
     void MarkObjectAsInvalid() override;
     bool IsMarkedInvalid() const override;
 
-    StdString AsDebugString() const override;
+    std::string AsDebugString() const override;
 
 private:
     make_testable(public);

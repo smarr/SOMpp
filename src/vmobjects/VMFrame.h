@@ -166,7 +166,7 @@ public:
         return size - 1;
     }
 
-    StdString AsDebugString() const override;
+    std::string AsDebugString() const override;
 
     make_testable(public);
 

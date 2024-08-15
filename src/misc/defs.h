@@ -175,8 +175,6 @@ typedef DebugCopyingHeap HEAP_CLS;
 #define likely(x) __builtin_expect((x), 1)
 #define unlikely(x) __builtin_expect((x), 0)
 
-typedef std::string StdString;
-
 #if defined(_MSC_VER)
 typedef unsigned long long uint64_t;
 typedef long long int64_t;

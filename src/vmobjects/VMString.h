@@ -54,7 +54,7 @@ public:
 
     inline char* GetRawChars() const { return chars; }
 
-    StdString GetStdString() const;
+    std::string GetStdString() const;
 
     inline size_t GetStringLength() const { return length; }
 
@@ -77,7 +77,7 @@ public:
         return chars == (char*)INVALID_GC_POINTER;
     }
 
-    StdString AsDebugString() const override;
+    std::string AsDebugString() const override;
 
     make_testable(public);
 

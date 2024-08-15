@@ -71,9 +71,9 @@ private:
     static long bytecodeIndexGlobal;
     static uint8_t* currentBytecodes;
 
-    static const StdString unknownGlobal;
-    static const StdString doesNotUnderstand;
-    static const StdString escapedBlock;
+    static const std::string unknownGlobal;
+    static const std::string doesNotUnderstand;
+    static const std::string escapedBlock;
 
     static void startGC();
     static void disassembleMethod();

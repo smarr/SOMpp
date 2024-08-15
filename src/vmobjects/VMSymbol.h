@@ -43,7 +43,7 @@ public:
     VMSymbol* CloneForMovingGC() const override;
     VMClass* GetClass() const override;
 
-    StdString AsDebugString() const override;
+    std::string AsDebugString() const override;
 
 private:
     const int numberOfArgumentsOfSignature;

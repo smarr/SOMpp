@@ -82,6 +82,6 @@ void VMArray::CopyIndexableFieldsTo(VMArray* to) const {
     }
 }
 
-StdString VMArray::AsDebugString() const {
+std::string VMArray::AsDebugString() const {
     return "Array(" + to_string(GetNumberOfIndexableFields()) + ")";
 }

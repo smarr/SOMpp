@@ -35,7 +35,7 @@ void ErrorPrint(const char* str) {
 
 __attribute__((noreturn)) __attribute__((noinline)) void ErrorExit(
     const char* err) {
-    ErrorPrint("Runtime error: " + StdString(err) + "\n");
+    ErrorPrint("Runtime error: " + std::string(err) + "\n");
     Quit(ERR_FAIL);
 }
 

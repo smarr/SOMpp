@@ -41,7 +41,7 @@ public:
 
     VMBlock* CloneForMovingGC() const override;
 
-    StdString AsDebugString() const override;
+    std::string AsDebugString() const override;
 
     static VMEvaluationPrimitive* GetEvaluationPrimitive(int);
 

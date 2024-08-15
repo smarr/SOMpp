@@ -98,7 +98,7 @@ public:
 
     Symbol sym;
     char symc;
-    StdString text;
+    std::string text;
 
     size_t startBufp;
 };
@@ -106,21 +106,21 @@ public:
 class Lexer {
 public:
     Lexer(istream& file);
-    Lexer(const StdString& stream);
+    Lexer(const std::string& stream);
 
     Symbol GetSym();
     Symbol Peek();
 
-    StdString GetText() const { return state.text; }
+    std::string GetText() const { return state.text; }
 
-    StdString GetNextText() const { return stateAfterPeek.text; }
+    std::string GetNextText() const { return stateAfterPeek.text; }
 
-    StdString GetRawBuffer() const {
+    std::string GetRawBuffer() const {
         // for debug
-        return StdString(buf);
+        return std::string(buf);
     }
 
-    StdString GetCurrentLine();
+    std::string GetCurrentLine();
 
     size_t GetCurrentColumn() const {
         return state.startBufp + 1 - state.text.length();
@@ -156,5 +156,5 @@ private:
     LexerState state;
     LexerState stateAfterPeek;
 
-    StdString buf;
+    std::string buf;
 };

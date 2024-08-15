@@ -49,9 +49,9 @@ public:
     static void Start(long argc, char** argv);
     static void BasicInit();
 
-    static vm_oop_t interpret(StdString className, StdString methodName);
+    static vm_oop_t interpret(std::string className, std::string methodName);
 
-    static long setupClassPath(const StdString& cp);
+    static long setupClassPath(const std::string& cp);
 
     static void Assert(bool);
 
@@ -63,8 +63,8 @@ public:
     static VMArray* NewArrayList(std::vector<VMInvokable*>& list);
     static VMArray* NewArrayList(std::vector<VMSymbol*>& list);
 
-    static VMArray* NewArrayFromStrings(const vector<StdString>&);
-    static VMArray* NewArrayOfSymbolsFromStrings(const vector<StdString>&);
+    static VMArray* NewArrayFromStrings(const vector<std::string>&);
+    static VMArray* NewArrayOfSymbolsFromStrings(const vector<std::string>&);
 
     static VMBlock* NewBlock(VMInvokable*, VMFrame*, long);
     static VMClass* NewClass(VMClass*);
@@ -79,7 +79,7 @@ public:
     static void WalkGlobals(walk_heap_fn);
     static VMDouble* NewDouble(double);
     static VMClass* NewMetaclassClass();
-    static VMString* NewString(const StdString&);
+    static VMString* NewString(const std::string&);
     static VMString* NewString(const size_t, const char*);
     static VMClass* NewSystemClass();
 
@@ -95,7 +95,7 @@ public:
     static VMClass* LoadClass(VMSymbol*);
     static void LoadSystemClass(VMClass*);
     static VMClass* LoadClassBasic(VMSymbol*, VMClass*);
-    static VMClass* LoadShellClass(StdString&);
+    static VMClass* LoadShellClass(std::string&);
 
     Universe() {}
     ~Universe();
@@ -104,8 +104,8 @@ public:
         long noCalls;
         long noPrimitiveCalls;
     };
-    static map<StdString, long> receiverTypes;
-    static map<StdString, stat_data> callStats;
+    static map<std::string, long> receiverTypes;
+    static map<std::string, stat_data> callStats;
 #endif
     //
 
@@ -115,14 +115,14 @@ private:
     static vm_oop_t interpretMethod(VMObject* receiver, VMInvokable* initialize,
                                     VMArray* argumentsArray);
 
-    static vector<StdString> handleArguments(long argc, char** argv);
-    static long getClassPathExt(vector<StdString>& tokens,
-                                const StdString& arg);
+    static vector<std::string> handleArguments(long argc, char** argv);
+    static long getClassPathExt(vector<std::string>& tokens,
+                                const std::string& arg);
 
     static VMMethod* createBootstrapMethod(VMClass* holder,
                                            long numArgsOfMsgSend);
 
-    static long addClassPath(const StdString& cp);
+    static long addClassPath(const std::string& cp);
     static void printUsageAndExit(char* executable);
 
     static void initialize(long, char**);
@@ -131,5 +131,5 @@ private:
     static map<GCSymbol*, gc_oop_t> globals;
 
     static map<long, GCClass*> blockClassesByNoOfArgs;
-    static vector<StdString> classPath;
+    static vector<std::string> classPath;
 };

@@ -69,7 +69,7 @@ void Parser::PeekForNextSymbolFromLexerIfNecessary() {
     }
 }
 
-Parser::Parser(istream& file, StdString& fname)
+Parser::Parser(istream& file, std::string& fname)
     : lexer(file), fname(fname), sym(NONE), nextSym(NONE) {
     GetSym();
 }
@@ -257,7 +257,7 @@ void Parser::superclass(ClassGenerationContext& cgenc) {
         // We avoid here any kind of dynamic solution to avoid further
         // complexity. However, that makes it static, it is going to make it
         // harder to change the definition of Class and Object
-        vector<StdString> const fieldNamesOfClass{
+        vector<std::string> const fieldNamesOfClass{
             "class", "name", "instanceFields", "instanceInvokables",
             "superClass"};
         VMArray* fieldNames =
@@ -330,7 +330,7 @@ void Parser::binaryPattern(MethodGenerationContext& mgenc) {
 }
 
 void Parser::keywordPattern(MethodGenerationContext& mgenc) {
-    StdString kw;
+    std::string kw;
     do {
         kw.append(keyword());
 
@@ -363,7 +363,7 @@ VMSymbol* Parser::unarySelector() {
 }
 
 VMSymbol* Parser::binarySelector() {
-    StdString const s(text);
+    std::string const s(text);
 
     if (acceptOneOf(singleOpSyms)) {
     } else if (accept(OperatorSequence)) {
@@ -375,8 +375,8 @@ VMSymbol* Parser::binarySelector() {
     return symb;
 }
 
-StdString Parser::identifier() {
-    StdString s(text);
+std::string Parser::identifier() {
+    std::string s(text);
     if (accept(Primitive)) {
         // text is set
     } else {
@@ -386,8 +386,8 @@ StdString Parser::identifier() {
     return s;
 }
 
-StdString Parser::keyword() {
-    StdString s(text);
+std::string Parser::keyword() {
+    std::string s(text);
     expect(Keyword);
 
     return s;
@@ -666,7 +666,7 @@ bool Parser::binaryOperand(MethodGenerationContext& mgenc) {
 }
 
 void Parser::keywordMessage(MethodGenerationContext& mgenc, bool super) {
-    StdString kw = keyword();
+    std::string kw = keyword();
     int numParts = 1;
 
     formula(mgenc);
@@ -787,7 +787,7 @@ void Parser::literalSymbol(MethodGenerationContext& mgenc) {
     VMSymbol* symb;
     expect(Pound);
     if (sym == STString) {
-        StdString const s = _string();
+        std::string const s = _string();
         symb = SymbolFor(s);
 
     } else {
@@ -831,7 +831,7 @@ void Parser::literalArray(MethodGenerationContext& mgenc) {
 }
 
 void Parser::literalString(MethodGenerationContext& mgenc) {
-    StdString const s = _string();
+    std::string const s = _string();
 
     VMString* str = Universe::NewString(s);
     EmitPUSHCONSTANT(mgenc, str);
@@ -848,14 +848,14 @@ VMSymbol* Parser::selector() {
 }
 
 VMSymbol* Parser::keywordSelector() {
-    StdString const s(text);
+    std::string const s(text);
     expectOneOf(keywordSelectorSyms);
     VMSymbol* symb = SymbolFor(s);
     return symb;
 }
 
-StdString Parser::_string() {
-    StdString s(text);
+std::string Parser::_string() {
+    std::string s(text);
     expect(STString);
     return s;  // <-- Literal strings are At Most BUFSIZ chars long.
 }
@@ -870,7 +870,7 @@ void Parser::nestedBlock(MethodGenerationContext& mgenc) {
     }
 
     // generate Block signature
-    StdString block_sig =
+    std::string block_sig =
         "$blockMethod@" + to_string(lexer.GetCurrentLineNumber());
     size_t const arg_size = mgenc.GetNumberOfArguments();
     for (size_t i = 1; i < arg_size; i++) {
@@ -913,28 +913,28 @@ void Parser::blockArguments(MethodGenerationContext& mgenc) {
 
 __attribute__((noreturn)) void Parser::parseError(const char* msg,
                                                   Symbol expected) {
-    StdString const expectedStr(symnames[expected]);
+    std::string const expectedStr(symnames[expected]);
     parseError(msg, expectedStr);
 }
 
 __attribute__((noreturn)) void Parser::parseError(const char* msg,
-                                                  StdString expected) {
-    StdString msgWithMeta =
-        "%(file)s:%(line)d:%(column)d: error: " + StdString(msg);
+                                                  std::string expected) {
+    std::string msgWithMeta =
+        "%(file)s:%(line)d:%(column)d: error: " + std::string(msg);
 
-    StdString foundStr;
+    std::string foundStr;
     if (_PRINTABLE_SYM) {
-        foundStr = symnames[sym] + StdString(" (") + text + ")";
+        foundStr = symnames[sym] + std::string(" (") + text + ")";
     } else {
         foundStr = symnames[sym];
     }
 
     ReplacePattern(msgWithMeta, "%(file)s", fname);
 
-    StdString line = std::to_string(lexer.GetCurrentLineNumber());
+    std::string line = std::to_string(lexer.GetCurrentLineNumber());
     ReplacePattern(msgWithMeta, "%(line)d", line);
 
-    StdString column = std::to_string(lexer.GetCurrentColumn());
+    std::string column = std::to_string(lexer.GetCurrentColumn());
     ReplacePattern(msgWithMeta, "%(column)d", column);
     ReplacePattern(msgWithMeta, "%(expected)s", expected);
     ReplacePattern(msgWithMeta, "%(found)s", foundStr);
@@ -946,7 +946,7 @@ __attribute__((noreturn)) void Parser::parseError(const char* msg,
 __attribute__((noreturn)) void Parser::parseError(const char* msg,
                                                   Symbol* expected) {
     bool first = true;
-    StdString expectedStr = "";
+    std::string expectedStr = "";
 
     Symbol* next = expected;
     while (*next != 0U) {

@@ -113,7 +113,7 @@ public:
     void MarkObjectAsInvalid() override;
     bool IsMarkedInvalid() const final;
 
-    StdString AsDebugString() const override;
+    std::string AsDebugString() const override;
 
 protected:
     void nilInitializeFields();

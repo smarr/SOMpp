@@ -81,7 +81,7 @@ map<int64_t, int64_t> integerHist;
 
 map<GCSymbol*, gc_oop_t> Universe::globals;
 map<long, GCClass*> Universe::blockClassesByNoOfArgs;
-vector<StdString> Universe::classPath;
+vector<std::string> Universe::classPath;
 long Universe::heapSize;
 
 void Universe::Start(long argc, char** argv) {
@@ -112,7 +112,8 @@ void Universe::Shutdown() {
     std::string file_name_receivers = std::string(bm_name);
     file_name_receivers.append("_receivers.csv");
     fstream receivers(file_name_receivers.c_str(), ios::out);
-    for (map<StdString, long>::iterator it = theUniverse->receiverTypes.begin();
+    for (map<std::string, long>::iterator it =
+             theUniverse->receiverTypes.begin();
          it != theUniverse->receiverTypes.end();
          it++) {
         receivers << it->first << ",  " << it->second << endl;
@@ -124,7 +125,7 @@ void Universe::Shutdown() {
     send_stat << "#name, percentage_primitive_calls, no_primitive_calls, "
                  "no_non_primitive_calls"
               << endl;
-    for (map<StdString, Universe::stat_data>::iterator it =
+    for (map<std::string, Universe::stat_data>::iterator it =
              theUniverse->callStats.begin();
          it != theUniverse->callStats.end();
          it++) {
@@ -138,8 +139,8 @@ void Universe::Shutdown() {
 #endif
 }
 
-vector<StdString> Universe::handleArguments(long argc, char** argv) {
-    vector<StdString> vmArgs = vector<StdString>();
+vector<std::string> Universe::handleArguments(long argc, char** argv) {
+    vector<std::string> vmArgs = vector<std::string>();
     dumpBytecodes = 0;
     gcVerbosity = 0;
 
@@ -148,7 +149,7 @@ vector<StdString> Universe::handleArguments(long argc, char** argv) {
             if ((argc == i + 1) || classPath.size() > 0) {
                 printUsageAndExit(argv[0]);
             }
-            setupClassPath(StdString(argv[++i]));
+            setupClassPath(std::string(argv[++i]));
         } else if (strncmp(argv[i], "-d", 2) == 0) {
             ++dumpBytecodes;
         } else if (strncmp(argv[i], "-g", 2) == 0) {
@@ -170,8 +171,8 @@ vector<StdString> Universe::handleArguments(long argc, char** argv) {
                    (strncmp(argv[i], "--help", 6) == 0)) {
             printUsageAndExit(argv[0]);
         } else {
-            vector<StdString> extPathTokens = vector<StdString>(2);
-            StdString const tmpString = StdString(argv[i]);
+            vector<std::string> extPathTokens = vector<std::string>(2);
+            std::string const tmpString = std::string(argv[i]);
             if (getClassPathExt(extPathTokens, tmpString) == ERR_SUCCESS) {
                 addClassPath(extPathTokens[0]);
             }
@@ -185,19 +186,19 @@ vector<StdString> Universe::handleArguments(long argc, char** argv) {
             vmArgs.push_back(extPathTokens[1]);
         }
     }
-    addClassPath(StdString("."));
+    addClassPath(std::string("."));
 
     return vmArgs;
 }
 
-long Universe::getClassPathExt(vector<StdString>& tokens,
-                               const StdString& arg) {
+long Universe::getClassPathExt(vector<std::string>& tokens,
+                               const std::string& arg) {
 #define EXT_TOKENS 2
     long result = ERR_SUCCESS;
     size_t fpIndex = arg.find_last_of(fileSeparator);
     size_t ssepIndex = arg.find(".som");
 
-    if (fpIndex == StdString::npos) {  // no new path
+    if (fpIndex == std::string::npos) {  // no new path
         // different from CSOM (see also HandleArguments):
         // we still want to strip the suffix from the filename, so
         // we set the start to -1, in order to start the substring
@@ -211,17 +212,17 @@ long Universe::getClassPathExt(vector<StdString>& tokens,
     }
 
     // adding filename (minus ".som" if present) to second slot
-    ssepIndex = ((ssepIndex != StdString::npos) && (ssepIndex > fpIndex))
+    ssepIndex = ((ssepIndex != std::string::npos) && (ssepIndex > fpIndex))
                     ? (ssepIndex - 1)
                     : arg.length();
     tokens[1] = arg.substr(fpIndex + 1, ssepIndex - (fpIndex));
     return result;
 }
 
-long Universe::setupClassPath(const StdString& cp) {
+long Universe::setupClassPath(const std::string& cp) {
     try {
         std::stringstream ss(cp);
-        StdString token;
+        std::string token;
 
         while (getline(ss, token, pathSeparator)) {
             classPath.push_back(token);
@@ -233,7 +234,7 @@ long Universe::setupClassPath(const StdString& cp) {
     }
 }
 
-long Universe::addClassPath(const StdString& cp) {
+long Universe::addClassPath(const std::string& cp) {
     classPath.push_back(cp);
     return ERR_SUCCESS;
 }
@@ -270,7 +271,7 @@ VMMethod* Universe::createBootstrapMethod(VMClass* holder,
     return bootstrapMethod;
 }
 
-vm_oop_t Universe::interpret(StdString className, StdString methodName) {
+vm_oop_t Universe::interpret(std::string className, std::string methodName) {
     // This method assumes that SOM++ was already initialized by executing a
     // Hello World program as part of the unittest main.
 
@@ -331,7 +332,7 @@ void Universe::initialize(long _argc, char** _argv) {
 
     heapSize = 1 * 1024 * 1024;
 
-    vector<StdString> argv = handleArguments(_argc, _argv);
+    vector<std::string> argv = handleArguments(_argc, _argv);
 
     // remember file that was executed (for writing statistics)
     if (argv.size() > 0) {
@@ -513,7 +514,7 @@ bool Universe::HasGlobal(VMSymbol* name) {
 
 void Universe::InitializeSystemClass(VMClass* systemClass, VMClass* superClass,
                                      const char* name) {
-    StdString const s_name(name);
+    std::string const s_name(name);
 
     if (superClass != nullptr) {
         systemClass->SetSuperClass(superClass);
@@ -536,7 +537,7 @@ void Universe::InitializeSystemClass(VMClass* systemClass, VMClass* superClass,
     systemClass->SetName(SymbolFor(s_name));
     ostringstream Str;
     Str << s_name << " class";
-    StdString const classClassName(Str.str());
+    std::string const classClassName(Str.str());
     sysClassClass->SetName(SymbolFor(classClassName));
 
     SetGlobal(systemClass->GetName(), systemClass);
@@ -566,7 +567,7 @@ VMClass* Universe::LoadClass(VMSymbol* name) {
 }
 
 VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
-    StdString const s_name = name->GetStdString();
+    std::string const s_name = name->GetStdString();
     VMClass* result;
 
     for (auto i = classPath.begin(); i != classPath.end(); ++i) {
@@ -583,7 +584,7 @@ VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
     return nullptr;
 }
 
-VMClass* Universe::LoadShellClass(StdString& stmt) {
+VMClass* Universe::LoadShellClass(std::string& stmt) {
     VMClass* result = SourcecodeCompiler::CompileClassString(stmt, nullptr);
     if (dumpBytecodes != 0) {
         Disassembler::Dump(result);
@@ -593,7 +594,7 @@ VMClass* Universe::LoadShellClass(StdString& stmt) {
 
 void Universe::LoadSystemClass(VMClass* systemClass) {
     VMClass* result = LoadClassBasic(systemClass->GetName(), systemClass);
-    StdString const s = systemClass->GetName()->GetStdString();
+    std::string const s = systemClass->GetName()->GetStdString();
 
     if (result == nullptr) {
         ErrorPrint("Can't load system class: " + s + "\n");
@@ -865,7 +866,7 @@ VMMethod* Universe::NewMethod(VMSymbol* signature, size_t numberOfBytecodes,
     return result;
 }
 
-VMString* Universe::NewString(const StdString& str) {
+VMString* Universe::NewString(const std::string& str) {
     return NewString(str.length(), str.c_str());
 }
 

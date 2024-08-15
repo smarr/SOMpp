@@ -161,7 +161,7 @@ public:
         return indexableFields == (gc_oop_t*)INVALID_GC_POINTER;
     }
 
-    StdString AsDebugString() const override;
+    std::string AsDebugString() const override;
 
     void InlineInto(MethodGenerationContext& mgenc,
                     bool mergeScope = true) final;

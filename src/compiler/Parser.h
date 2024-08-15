@@ -38,7 +38,7 @@
 
 class Parser {
 public:
-    Parser(istream& file, StdString& fname);
+    Parser(istream& file, std::string& fname);
     ~Parser() = default;
 
     void Classdef(ClassGenerationContext& cgenc);
@@ -50,7 +50,7 @@ private:
     __attribute__((noreturn)) void parseError(const char* msg,
                                               Symbol* expected);
     __attribute__((noreturn)) void parseError(const char* msg,
-                                              StdString expected);
+                                              std::string expected);
 
     void GetSym();
     void Peek();
@@ -77,8 +77,8 @@ private:
     void methodBlock(MethodGenerationContext& mgenc);
     VMSymbol* unarySelector();
     VMSymbol* binarySelector();
-    StdString identifier();
-    StdString keyword();
+    std::string identifier();
+    std::string keyword();
     std::string argument();
     void blockContents(MethodGenerationContext& mgenc, bool is_inlined);
     void locals(MethodGenerationContext& mgenc);
@@ -115,20 +115,20 @@ private:
     void literalString(MethodGenerationContext& mgenc);
     VMSymbol* selector();
     VMSymbol* keywordSelector();
-    StdString _string();
+    std::string _string();
     void blockPattern(MethodGenerationContext& mgenc);
     void blockArguments(MethodGenerationContext& mgenc);
     void genPushVariable(MethodGenerationContext&, std::string&);
     void genPopVariable(MethodGenerationContext&, std::string&);
 
     Lexer lexer;
-    StdString& fname;
+    std::string& fname;
 
     Symbol sym;
 
-    StdString text;
+    std::string text;
 
     Symbol nextSym;
 
-    StdString nextText;
+    std::string nextText;
 };

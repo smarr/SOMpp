@@ -29,7 +29,7 @@ public:
     virtual int64_t GetHash() const = 0;
     virtual VMClass* GetClass() const = 0;
     virtual AbstractVMObject* CloneForMovingGC() const = 0;
-    void Send(StdString, vm_oop_t*, long);
+    void Send(std::string, vm_oop_t*, long);
 
     /** Size in bytes of the object. */
     virtual size_t GetObjectSize() const = 0;
@@ -37,7 +37,7 @@ public:
     virtual void MarkObjectAsInvalid() = 0;
     virtual bool IsMarkedInvalid() const = 0;
 
-    virtual StdString AsDebugString() const = 0;
+    virtual std::string AsDebugString() const = 0;
 
     AbstractVMObject() { gcfield = 0; }
     ~AbstractVMObject() override = default;

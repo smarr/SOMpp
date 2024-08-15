@@ -258,6 +258,6 @@ void VMFrame::CopyArgumentsFrom(VMFrame* frame) {
     }
 }
 
-StdString VMFrame::AsDebugString() const {
+std::string VMFrame::AsDebugString() const {
     return "VMFrame(" + GetMethod()->AsDebugString() + ")";
 }

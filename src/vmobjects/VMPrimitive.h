@@ -75,7 +75,7 @@ public:
 
     bool IsMarkedInvalid() const override { return !prim.IsValid(); }
 
-    StdString AsDebugString() const override;
+    std::string AsDebugString() const override;
 
     inline size_t GetNumberOfArguments() const final {
         return Signature::GetNumberOfArguments(load_ptr(signature));

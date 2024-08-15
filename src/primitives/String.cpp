@@ -48,17 +48,17 @@ static vm_oop_t strConcatenate_(vm_oop_t leftObj, vm_oop_t rightObj) {
     // TODO: if this really needs to be optimized, than, well, then,
     // NewString should allow to construct it correctly and simply copy
     // from both input strings
-    StdString const a = arg->GetStdString();
-    StdString const s = self->GetStdString();
+    std::string const a = arg->GetStdString();
+    std::string const s = self->GetStdString();
 
-    StdString const result = s + a;
+    std::string const result = s + a;
 
     return Universe::NewString(result);
 }
 
 static vm_oop_t strAsSymbol(vm_oop_t rcvr) {
     auto* self = static_cast<VMString*>(rcvr);
-    StdString const result = self->GetStdString();
+    std::string const result = self->GetStdString();
     return SymbolFor(result);
 }
 

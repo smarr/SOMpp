@@ -69,11 +69,11 @@ public:
     void LoadPrimitives();
     VMClass* CloneForMovingGC() const override;
 
-    StdString AsDebugString() const override;
+    std::string AsDebugString() const override;
 
 private:
-    bool hasPrimitivesFor(const StdString& cl) const;
-    void setPrimitives(const StdString& cname, bool classSide);
+    bool hasPrimitivesFor(const std::string& cl) const;
+    void setPrimitives(const std::string& cname, bool classSide);
     size_t numberOfSuperInstanceFields() const;
 
     static const size_t VMClassNumberOfFields;

@@ -36,7 +36,7 @@ public:
     void WalkObjects(walk_heap_fn) override;
     VMEvaluationPrimitive* CloneForMovingGC() const override;
 
-    StdString AsDebugString() const override;
+    std::string AsDebugString() const override;
 
     inline size_t GetObjectSize() const override {
         return sizeof(VMEvaluationPrimitive);

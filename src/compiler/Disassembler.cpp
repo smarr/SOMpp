@@ -32,7 +32,6 @@
 
 #include "../interpreter/bytecodes.h"
 #include "../misc/debug.h"
-#include "../misc/defs.h"
 #include "../vm/Globals.h"
 #include "../vm/Symbols.h"
 #include "../vm/Universe.h"
@@ -462,7 +461,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
             VMSymbol* cname;
 
             const char* c_cname;
-            StdString c_cname_str;
+            std::string c_cname_str;
             if (o != nullptr) {
                 VMClass* c = CLASS_OF(o);
                 cname = c->GetName();

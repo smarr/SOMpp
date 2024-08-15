@@ -56,7 +56,7 @@ VMClass* SourcecodeCompiler::CompileClass(const std::string& path,
     result = compile(parser, systemClass);
 
     VMSymbol* cname = result->GetName();
-    StdString const cnameC = cname->GetStdString();
+    std::string const cnameC = cname->GetStdString();
 
     if (file != cnameC) {
         ostringstream Str;
@@ -72,18 +72,18 @@ VMClass* SourcecodeCompiler::CompileClass(const std::string& path,
     return result;
 }
 
-VMClass* SourcecodeCompiler::CompileClassString(const StdString& stream,
+VMClass* SourcecodeCompiler::CompileClassString(const std::string& stream,
                                                 VMClass* systemClass) {
     istringstream ss(stream);
 
-    StdString fileName = "repl";
+    std::string fileName = "repl";
     Parser parser(ss, fileName);
 
     VMClass* result = compile(parser, systemClass);
     return result;
 }
 
-void SourcecodeCompiler::showCompilationError(const StdString& filename,
+void SourcecodeCompiler::showCompilationError(const std::string& filename,
                                               const char* message) {
     ErrorPrint("Error when compiling " + filename + ":\n" + message + "\n");
 }
