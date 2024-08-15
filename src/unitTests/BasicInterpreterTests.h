@@ -41,6 +41,7 @@ std::ostream& operator<<(std::ostream& strm, const TestData& data) {
 }
 
 class BasicInterpreterTests : public CPPUNIT_NS::TestFixture {
+    // NOLINTNEXTLINE(misc-const-correctness)
     CPPUNIT_TEST_SUITE(BasicInterpreterTests);
     CPPUNIT_TEST_PARAMETERIZED(
         testBasic,
@@ -196,6 +197,7 @@ private:
         CPPUNIT_FAIL("SOM Value handler missing");
     }
 
+    // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
     void testBasic(TestData data) {
         // The Unit Test harness will initialize Universe for a standard run.
         // This is different from other SOMs.

@@ -7,7 +7,7 @@
 using namespace std;
 
 class WriteBarrierTest : public CPPUNIT_NS::TestCase {
-    CPPUNIT_TEST_SUITE(WriteBarrierTest);
+    CPPUNIT_TEST_SUITE(WriteBarrierTest);  // NOLINT(misc-const-correctness)
     CPPUNIT_TEST(testWriteArray);
     CPPUNIT_TEST(testWriteClass);
     CPPUNIT_TEST(testWriteBlock);

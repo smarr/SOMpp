@@ -9,7 +9,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 class CloneObjectsTest : public CPPUNIT_NS::TestCase {
-    CPPUNIT_TEST_SUITE(CloneObjectsTest);
+    CPPUNIT_TEST_SUITE(CloneObjectsTest);  // NOLINT(misc-const-correctness)
     CPPUNIT_TEST(testCloneObject);
     CPPUNIT_TEST(testCloneInteger);
     CPPUNIT_TEST(testCloneDouble);

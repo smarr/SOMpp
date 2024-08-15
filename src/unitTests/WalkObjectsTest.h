@@ -22,7 +22,7 @@
 using namespace std;
 
 class WalkObjectsTest : public CPPUNIT_NS::TestCase {
-    CPPUNIT_TEST_SUITE(WalkObjectsTest);
+    CPPUNIT_TEST_SUITE(WalkObjectsTest);  // NOLINT(misc-const-correctness)
     CPPUNIT_TEST(testWalkArray);
     CPPUNIT_TEST(testWalkBlock);
     CPPUNIT_TEST(testWalkClass);

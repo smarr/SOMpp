@@ -5,7 +5,7 @@
 #include "TestWithParsing.h"
 
 class TrivialMethodTest : public TestWithParsing {
-    CPPUNIT_TEST_SUITE(TrivialMethodTest);
+    CPPUNIT_TEST_SUITE(TrivialMethodTest);  // NOLINT(misc-const-correctness)
     CPPUNIT_TEST(testLiteralReturn);
     CPPUNIT_TEST(testLiteralNoReturn);
     CPPUNIT_TEST(testBlockLiteralReturn);

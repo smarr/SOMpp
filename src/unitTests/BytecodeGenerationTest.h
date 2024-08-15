@@ -8,6 +8,7 @@
 #include "TestWithParsing.h"
 
 class BytecodeGenerationTest : public TestWithParsing {
+    // NOLINTNEXTLINE(misc-const-correctness)
     CPPUNIT_TEST_SUITE(BytecodeGenerationTest);
     CPPUNIT_TEST(testEmptyMethodReturnsSelf);
     CPPUNIT_TEST(testPushConstant);
