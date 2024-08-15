@@ -42,16 +42,16 @@ public:
     inline void tearDown(void) {}
 
 private:
-    void testWalkArray();
-    void testWalkBlock();
-    void testWalkClass();
-    void testWalkDouble();
-    void testWalkEvaluationPrimitive();
-    void testWalkFrame();
-    void testWalkInteger();
-    void testWalkString();
-    void testWalkMethod();
-    void testWalkObject();
-    void testWalkPrimitive();
-    void testWalkSymbol();
+    static void testWalkArray();
+    static void testWalkBlock();
+    static void testWalkClass();
+    static void testWalkDouble();
+    static void testWalkEvaluationPrimitive();
+    static void testWalkFrame();
+    static void testWalkInteger();
+    static void testWalkString();
+    static void testWalkMethod();
+    static void testWalkObject();
+    static void testWalkPrimitive();
+    static void testWalkSymbol();
 };

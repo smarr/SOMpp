@@ -153,7 +153,7 @@ class BasicInterpreterTests : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST_SUITE_END();
 
 private:
-    void assertEqualsSOMValue(vm_oop_t actualResult, TestData& data) {
+    static void assertEqualsSOMValue(vm_oop_t actualResult, TestData& data) {
         if (data.type == INTEGER) {
             int64_t expected = (intptr_t)data.expectedResult;
             int64_t actual = INT_VAL(actualResult);

@@ -151,7 +151,7 @@ private:
     void completeJumpsAndEmitReturningNil(Parser& parser, size_t loopBeginIdx,
                                           size_t jumpOffsetIdxToSkipLoopBody);
 
-    void checkJumpOffset(size_t jumpOffset, uint8_t bytecode);
+    static void checkJumpOffset(size_t jumpOffset, uint8_t bytecode);
     void resetLastBytecodeBuffer();
 
     ClassGenerationContext& holderGenc;

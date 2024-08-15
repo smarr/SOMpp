@@ -29,16 +29,16 @@ public:
     inline void tearDown(void) {}
 
 private:
-    void testCloneObject();
-    void testCloneInteger();
-    void testCloneDouble();
-    void testCloneString();
-    void testCloneSymbol();
-    void testCloneArray();
-    void testCloneBlock();
-    void testClonePrimitive();
-    void testCloneClass();
-    void testCloneFrame();
-    void testCloneMethod();
-    void testCloneEvaluationPrimitive();
+    static void testCloneObject();
+    static void testCloneInteger();
+    static void testCloneDouble();
+    static void testCloneString();
+    static void testCloneSymbol();
+    static void testCloneArray();
+    static void testCloneBlock();
+    static void testClonePrimitive();
+    static void testCloneClass();
+    static void testCloneFrame();
+    static void testCloneMethod();
+    static void testCloneEvaluationPrimitive();
 };

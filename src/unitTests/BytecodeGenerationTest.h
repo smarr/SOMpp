@@ -147,7 +147,7 @@ private:
 
     void testInliningOfToDo();
 
-    void testJumpQueuesOrdering();
+    static void testJumpQueuesOrdering();
 
     void testNestedIfs();
     void testNestedIfsAndLocals();

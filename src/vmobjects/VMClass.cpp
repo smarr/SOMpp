@@ -207,7 +207,7 @@ size_t VMClass::numberOfSuperInstanceFields() const {
     return 0;
 }
 
-bool VMClass::hasPrimitivesFor(const std::string& cl) const {
+bool VMClass::hasPrimitivesFor(const std::string& cl) {
     return PrimitiveLoader::SupportsClass(cl);
 }
 

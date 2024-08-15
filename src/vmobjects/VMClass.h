@@ -72,7 +72,7 @@ public:
     std::string AsDebugString() const override;
 
 private:
-    bool hasPrimitivesFor(const std::string& cl) const;
+    static bool hasPrimitivesFor(const std::string& cl);
     void setPrimitives(const std::string& cname, bool classSide);
     size_t numberOfSuperInstanceFields() const;
 

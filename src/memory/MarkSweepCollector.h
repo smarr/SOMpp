@@ -10,5 +10,5 @@ public:
     void Collect() override;
 
 private:
-    void markReachableObjects();
+    static void markReachableObjects();
 };

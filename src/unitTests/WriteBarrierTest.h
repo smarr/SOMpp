@@ -21,10 +21,10 @@ public:
     inline void tearDown(void) {}
 
 private:
-    void testWriteArray();
-    void testWriteClass();
-    void testWriteBlock();
-    void testWriteFrame();
-    void testWriteMethod();
-    void testWriteEvaluationPrimitive();
+    static void testWriteArray();
+    static void testWriteClass();
+    static void testWriteBlock();
+    static void testWriteFrame();
+    static void testWriteMethod();
+    static void testWriteEvaluationPrimitive();
 };
