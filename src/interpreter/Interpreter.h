@@ -58,7 +58,7 @@ public:
 
     static void SendUnknownGlobal(VMSymbol* globalName);
 
-    static inline long GetBytecodeIndex() { return bytecodeIndexGlobal; }
+    static inline size_t GetBytecodeIndex() { return bytecodeIndexGlobal; }
 
 private:
     static vm_oop_t GetSelf();
@@ -68,7 +68,7 @@ private:
 
     // The following three variables are used to cache main parts of the
     // current execution context
-    static long bytecodeIndexGlobal;
+    static size_t bytecodeIndexGlobal;
     static uint8_t* currentBytecodes;
 
     static const std::string unknownGlobal;
@@ -86,29 +86,29 @@ private:
     static void triggerDoesNotUnderstand(VMSymbol* signature);
 
     static void doDup();
-    static void doPushLocal(long bytecodeIndex);
+    static void doPushLocal(size_t bytecodeIndex);
     static void doPushLocalWithIndex(uint8_t localIndex);
     static void doReturnFieldWithIndex(uint8_t fieldIndex);
-    static void doPushArgument(long bytecodeIndex);
-    static void doPushField(long bytecodeIndex);
+    static void doPushArgument(size_t bytecodeIndex);
+    static void doPushField(size_t bytecodeIndex);
     static void doPushFieldWithIndex(uint8_t fieldIndex);
-    static void doPushBlock(long bytecodeIndex);
+    static void doPushBlock(size_t bytecodeIndex);
 
-    static inline void doPushConstant(long bytecodeIndex) {
+    static inline void doPushConstant(size_t bytecodeIndex) {
         vm_oop_t constant = method->GetConstant(bytecodeIndex);
         GetFrame()->Push(constant);
     }
 
-    static void doPushGlobal(long bytecodeIndex);
-    static void doPop(void);
-    static void doPopLocal(long bytecodeIndex);
+    static void doPushGlobal(size_t bytecodeIndex);
+    static void doPop();
+    static void doPopLocal(size_t bytecodeIndex);
     static void doPopLocalWithIndex(uint8_t localIndex);
-    static void doPopArgument(long bytecodeIndex);
-    static void doPopField(long bytecodeIndex);
+    static void doPopArgument(size_t bytecodeIndex);
+    static void doPopField(size_t bytecodeIndex);
     static void doPopFieldWithIndex(uint8_t fieldIndex);
-    static void doSend(long bytecodeIndex);
-    static void doUnarySend(long bytecodeIndex);
-    static void doSuperSend(long bytecodeIndex);
+    static void doSend(size_t bytecodeIndex);
+    static void doUnarySend(size_t bytecodeIndex);
+    static void doSuperSend(size_t bytecodeIndex);
     static void doReturnLocal();
     static void doReturnNonLocal();
     static void doInc();

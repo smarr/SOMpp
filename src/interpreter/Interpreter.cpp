@@ -27,6 +27,7 @@
 #include "Interpreter.h"
 
 #include <cassert>
+#include <cstddef>
 #include <cstdint>
 #include <string>
 
@@ -61,7 +62,7 @@ VMMethod* Interpreter::method = nullptr;
 
 // The following three variables are used to cache main parts of the
 // current execution context
-long Interpreter::bytecodeIndexGlobal;
+size_t Interpreter::bytecodeIndexGlobal;
 uint8_t* Interpreter::currentBytecodes;
 
 vm_oop_t Interpreter::StartAndPrintBytecodes() {
@@ -190,7 +191,7 @@ void Interpreter::doDup() {
     GetFrame()->Push(elem);
 }
 
-void Interpreter::doPushLocal(long bytecodeIndex) {
+void Interpreter::doPushLocal(size_t bytecodeIndex) {
     uint8_t const bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t const bc2 = method->GetBytecode(bytecodeIndex + 2);
 
@@ -208,7 +209,7 @@ void Interpreter::doPushLocalWithIndex(uint8_t localIndex) {
     GetFrame()->Push(local);
 }
 
-void Interpreter::doPushArgument(long bytecodeIndex) {
+void Interpreter::doPushArgument(size_t bytecodeIndex) {
     uint8_t const argIndex = method->GetBytecode(bytecodeIndex + 1);
     uint8_t const contextLevel = method->GetBytecode(bytecodeIndex + 2);
 
@@ -224,7 +225,7 @@ void Interpreter::doPushArgument(long bytecodeIndex) {
     GetFrame()->Push(argument);
 }
 
-void Interpreter::doPushField(long bytecodeIndex) {
+void Interpreter::doPushField(size_t bytecodeIndex) {
     uint8_t const fieldIndex = method->GetBytecode(bytecodeIndex + 1);
     assert(fieldIndex != 0 && fieldIndex != 1 &&
            "should have been BC_PUSH_FIELD_0|1");
@@ -260,7 +261,7 @@ void Interpreter::doReturnFieldWithIndex(uint8_t fieldIndex) {
     popFrameAndPushResult(o);
 }
 
-void Interpreter::doPushBlock(long bytecodeIndex) {
+void Interpreter::doPushBlock(size_t bytecodeIndex) {
     vm_oop_t block = method->GetConstant(bytecodeIndex);
     auto* blockMethod = static_cast<VMInvokable*>(block);
 
@@ -269,7 +270,7 @@ void Interpreter::doPushBlock(long bytecodeIndex) {
     GetFrame()->Push(Universe::NewBlock(blockMethod, GetFrame(), numOfArgs));
 }
 
-void Interpreter::doPushGlobal(long bytecodeIndex) {
+void Interpreter::doPushGlobal(size_t bytecodeIndex) {
     auto* globalName =
         static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
     vm_oop_t global = Universe::GetGlobal(globalName);
@@ -302,7 +303,7 @@ void Interpreter::doPop() {
     GetFrame()->Pop();
 }
 
-void Interpreter::doPopLocal(long bytecodeIndex) {
+void Interpreter::doPopLocal(size_t bytecodeIndex) {
     uint8_t const bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t const bc2 = method->GetBytecode(bytecodeIndex + 2);
 
@@ -316,7 +317,7 @@ void Interpreter::doPopLocalWithIndex(uint8_t localIndex) {
     GetFrame()->SetLocal(localIndex, o);
 }
 
-void Interpreter::doPopArgument(long bytecodeIndex) {
+void Interpreter::doPopArgument(size_t bytecodeIndex) {
     uint8_t const bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t const bc2 = method->GetBytecode(bytecodeIndex + 2);
 
@@ -324,7 +325,7 @@ void Interpreter::doPopArgument(long bytecodeIndex) {
     GetFrame()->SetArgument(bc1, bc2, o);
 }
 
-void Interpreter::doPopField(long bytecodeIndex) {
+void Interpreter::doPopField(size_t bytecodeIndex) {
     uint8_t const fieldIndex = method->GetBytecode(bytecodeIndex + 1);
     doPopFieldWithIndex(fieldIndex);
 }
@@ -340,7 +341,7 @@ void Interpreter::doPopFieldWithIndex(uint8_t fieldIndex) {
     }
 }
 
-void Interpreter::doSend(long bytecodeIndex) {
+void Interpreter::doSend(size_t bytecodeIndex) {
     auto* signature =
         static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
 
@@ -363,7 +364,7 @@ void Interpreter::doSend(long bytecodeIndex) {
     send(signature, receiverClass);
 }
 
-void Interpreter::doUnarySend(long bytecodeIndex) {
+void Interpreter::doUnarySend(size_t bytecodeIndex) {
     auto* signature =
         static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
 
@@ -402,7 +403,7 @@ void Interpreter::doUnarySend(long bytecodeIndex) {
     }
 }
 
-void Interpreter::doSuperSend(long bytecodeIndex) {
+void Interpreter::doSuperSend(size_t bytecodeIndex) {
     auto* signature =
         static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
 
