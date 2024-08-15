@@ -7,6 +7,7 @@ Checks:          '*include*,
                   readability-named-parameter,
                   readability-else-after-return,
                   modernize-use-auto,
+                  readability-qualified-auto,
                   readability-implicit-bool-conversion,
                   modernize-return-braced-init-list,
                   bugprone-macro-parentheses,
@@ -24,6 +25,7 @@ Checks:          '*include*,
                   -readability-function-cognitive-complexity,
                   -readability-identifier-length,
                   -cppcoreguidelines-pro-bounds-constant-array-index,
+                  -hicpp-no-array-decay
                  '
 # '*,
 #                  '

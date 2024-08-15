@@ -52,7 +52,7 @@ public:
         // initilize all other fields. Don't need to initalize arguments,
         // because they iwll be copied in still
         // --> until end of Frame
-        gc_oop_t* end = (gc_oop_t*)SHIFTED_PTR(this, totalObjectSize);
+        auto* end = (gc_oop_t*)SHIFTED_PTR(this, totalObjectSize);
         size_t i = 0;
         while (locals + i < end) {
             locals[i] = nilObject;

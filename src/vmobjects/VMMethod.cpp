@@ -304,7 +304,7 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
             case BC_PUSH_LOCAL_1:
             case BC_PUSH_LOCAL_2: {
                 uint8_t const idx = bytecode - BC_PUSH_LOCAL_0;
-                auto* oldVar = lexicalScope->GetLocal(idx, 0);
+                const auto* oldVar = lexicalScope->GetLocal(idx, 0);
                 uint8_t const newIdx = mgenc.GetInlinedLocalIdx(oldVar);
                 EmitPUSHLOCAL(mgenc, newIdx, 0);
                 break;
@@ -314,7 +314,7 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
             case BC_POP_LOCAL_1:
             case BC_POP_LOCAL_2: {
                 uint8_t const idx = bytecode - BC_POP_LOCAL_0;
-                auto* oldVar = lexicalScope->GetLocal(idx, 0);
+                const auto* oldVar = lexicalScope->GetLocal(idx, 0);
                 uint8_t const newIdx = mgenc.GetInlinedLocalIdx(oldVar);
                 EmitPOPLOCAL(mgenc, newIdx, 0);
                 break;
@@ -584,7 +584,7 @@ void VMMethod::AdaptAfterOuterInlined(
                     // so, we need to look up the right one and fix up the index
                     // at this point, the lexical scope has not been changed
                     // so, we should still be able to find the right one
-                    auto* oldVar = lexicalScope->GetLocal(idx, ctxLevel);
+                    const auto* oldVar = lexicalScope->GetLocal(idx, ctxLevel);
                     uint8_t const newIdx =
                         mgencWithInlined.GetInlinedLocalIdx(oldVar);
                     bytecodes[i + 1] = newIdx;

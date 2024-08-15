@@ -147,7 +147,7 @@ void Parser::genPushVariable(MethodGenerationContext& mgenc, std::string& var) {
             EmitPUSHLOCAL(mgenc, index, context);
         }
     } else {
-        auto varSymbol = SymbolFor(var);
+        auto* varSymbol = SymbolFor(var);
         if (mgenc.HasField(varSymbol)) {
             EmitPUSHFIELD(mgenc, varSymbol);
         } else {
@@ -172,7 +172,7 @@ void Parser::genPopVariable(MethodGenerationContext& mgenc, std::string& var) {
             EmitPOPLOCAL(mgenc, index, context);
         }
     } else {
-        auto varSymbol = SymbolFor(var);
+        auto* varSymbol = SymbolFor(var);
         EmitPOPFIELD(mgenc, varSymbol);
     }
 }

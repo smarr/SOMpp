@@ -23,7 +23,7 @@ void MarkSweepCollector::Collect() {
     markReachableObjects();
 
     // in this survivors stack we will remember all objects that survived
-    auto survivors = new vector<AbstractVMObject*>();
+    auto* survivors = new vector<AbstractVMObject*>();
     size_t survivorsSize = 0;
 
     vector<AbstractVMObject*>::iterator iter;
