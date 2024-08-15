@@ -242,11 +242,6 @@ void VMFrame::PrintStackTrace() const {
     }
 }
 
-long VMFrame::ArgumentStackIndex(long index) const {
-    VMMethod* meth = GetMethod();
-    return meth->GetNumberOfArguments() - index - 1;
-}
-
 void VMFrame::CopyArgumentsFrom(VMFrame* frame) {
     // copy arguments from frame:
     // - arguments are at the top of the stack of frame.

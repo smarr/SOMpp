@@ -144,7 +144,6 @@ public:
 
     void SetArgument(uint8_t index, uint8_t contextLevel, vm_oop_t value);
     void PrintStackTrace() const;
-    long ArgumentStackIndex(long index) const;
     void CopyArgumentsFrom(VMFrame* frame);
 
     inline void SetArgument(size_t argIdx, vm_oop_t value) {
