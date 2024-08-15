@@ -19,6 +19,7 @@ Checks:          '*include*,
                   -bugprone-easily-swappable-parameters,
                   -cppcoreguidelines-avoid-do-while,
                   -cppcoreguidelines-owning-memory,
+                  -cppcoreguidelines-pro-type-static-cast-downcast,
                   -llvm-header-guard,
                   -llvmlibc-*,
                   -misc-no-recursion,
@@ -26,7 +27,8 @@ Checks:          '*include*,
                   -readability-function-cognitive-complexity,
                   -readability-identifier-length,
                   -cppcoreguidelines-pro-bounds-constant-array-index,
-                  -hicpp-no-array-decay
+                  -hicpp-no-array-decay,
+                  -misc-use-anonymous-namespace
                  '
 # '*,
 #                  '
