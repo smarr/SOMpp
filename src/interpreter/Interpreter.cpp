@@ -511,7 +511,7 @@ void Interpreter::doDec() {
     GetFrame()->SetTop(store_root(val));
 }
 
-void Interpreter::doIncField(uint8_t fieldIdx) {
+void Interpreter::doIncField(uint8_t fieldIndex) {
     vm_oop_t self = GetSelf();
 
     if (unlikely(IS_TAGGED(self))) {
@@ -520,7 +520,7 @@ void Interpreter::doIncField(uint8_t fieldIdx) {
 
     auto* selfObj = (VMObject*)self;
 
-    vm_oop_t val = selfObj->GetField(fieldIdx);
+    vm_oop_t val = selfObj->GetField(fieldIndex);
 
     if (IS_TAGGED(val) || CLASS_OF(val) == load_ptr(integerClass)) {
         int64_t const result = (int64_t)INT_VAL(val) + 1;
@@ -532,10 +532,10 @@ void Interpreter::doIncField(uint8_t fieldIdx) {
         ErrorExit("unsupported");
     }
 
-    selfObj->SetField(fieldIdx, val);
+    selfObj->SetField(fieldIndex, val);
 }
 
-void Interpreter::doIncFieldPush(uint8_t fieldIdx) {
+void Interpreter::doIncFieldPush(uint8_t fieldIndex) {
     vm_oop_t self = GetSelf();
 
     if (unlikely(IS_TAGGED(self))) {
@@ -544,7 +544,7 @@ void Interpreter::doIncFieldPush(uint8_t fieldIdx) {
 
     auto* selfObj = (VMObject*)self;
 
-    vm_oop_t val = selfObj->GetField(fieldIdx);
+    vm_oop_t val = selfObj->GetField(fieldIndex);
 
     if (IS_TAGGED(val) || CLASS_OF(val) == load_ptr(integerClass)) {
         int64_t const result = (int64_t)INT_VAL(val) + 1;
@@ -556,7 +556,7 @@ void Interpreter::doIncFieldPush(uint8_t fieldIdx) {
         ErrorExit("unsupported");
     }
 
-    selfObj->SetField(fieldIdx, val);
+    selfObj->SetField(fieldIndex, val);
     GetFrame()->Push(val);
 }
 

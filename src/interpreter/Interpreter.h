@@ -48,7 +48,7 @@ public:
     static vm_oop_t Start();
 
     static VMFrame* PushNewFrame(VMMethod* method);
-    static void SetFrame(VMFrame* frame);
+    static void SetFrame(VMFrame* frm);
 
     static inline VMFrame* GetFrame() { return frame; }
 

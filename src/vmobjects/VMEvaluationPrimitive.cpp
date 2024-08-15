@@ -83,17 +83,15 @@ VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc) {
     return SymbolFor(signatureString);
 }
 
-VMFrame* VMEvaluationPrimitive::Invoke(VMFrame* frame) {
+VMFrame* VMEvaluationPrimitive::Invoke(VMFrame* frm) {
     // Get the block (the receiver) from the stack
     auto* block =
-        static_cast<VMBlock*>(frame->GetStackElement(numberOfArguments - 1));
+        static_cast<VMBlock*>(frm->GetStackElement(numberOfArguments - 1));
 
     // Get the context of the block...
     VMFrame* context = block->GetContext();
-
     VMInvokable* method = block->GetMethod();
-
-    VMFrame* newFrame = method->Invoke(frame);
+    VMFrame* newFrame = method->Invoke(frm);
 
     // Push set its context to be the one specified in the block
     if (newFrame != nullptr) {
@@ -102,15 +100,15 @@ VMFrame* VMEvaluationPrimitive::Invoke(VMFrame* frame) {
     return nullptr;
 }
 
-VMFrame* VMEvaluationPrimitive::Invoke1(VMFrame* frame) {
+VMFrame* VMEvaluationPrimitive::Invoke1(VMFrame* frm) {
     assert(numberOfArguments == 1);
     // Get the block (the receiver) from the stack
-    auto* block = static_cast<VMBlock*>(frame->GetStackElement(0));
+    auto* block = static_cast<VMBlock*>(frm->GetStackElement(0));
 
     // Get the context of the block...
     VMFrame* context = block->GetContext();
     VMInvokable* method = block->GetMethod();
-    VMFrame* newFrame = method->Invoke1(frame);
+    VMFrame* newFrame = method->Invoke1(frm);
 
     // Push set its context to be the one specified in the block
     if (newFrame != nullptr) {

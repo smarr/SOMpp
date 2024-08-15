@@ -126,7 +126,7 @@ public:
         return load_ptr(this->locals[localIndex]);
     }
 
-    void SetLocal(long index, long context_level, vm_oop_t);
+    void SetLocal(long index, long contextLevel, vm_oop_t);
 
     inline void SetLocal(long index, vm_oop_t value) {
         store_ptr(locals[index], value);
