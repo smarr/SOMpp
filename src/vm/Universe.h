@@ -53,49 +53,56 @@ public:
 
     static long setupClassPath(const std::string& cp);
 
-    static void Assert(bool);
+    static void Assert(bool /*value*/);
 
     // VMObject instanciation methods. These should probably be refactored to a
     // new class
-    static VMArray* NewArray(size_t);
+    static VMArray* NewArray(size_t /*size*/);
 
     static VMArray* NewArrayList(std::vector<vm_oop_t>& list);
     static VMArray* NewArrayList(std::vector<VMInvokable*>& list);
     static VMArray* NewArrayList(std::vector<VMSymbol*>& list);
 
-    static VMArray* NewArrayFromStrings(const vector<std::string>&);
-    static VMArray* NewArrayOfSymbolsFromStrings(const vector<std::string>&);
+    static VMArray* NewArrayFromStrings(const vector<std::string>& /*strings*/);
+    static VMArray* NewArrayOfSymbolsFromStrings(
+        const vector<std::string>& /*strings*/);
 
-    static VMBlock* NewBlock(VMInvokable*, VMFrame*, long);
-    static VMClass* NewClass(VMClass*);
-    static VMFrame* NewFrame(VMFrame*, VMMethod*);
-    static VMMethod* NewMethod(VMSymbol*, size_t numberOfBytecodes,
+    static VMBlock* NewBlock(VMInvokable* /*method*/, VMFrame* /*context*/,
+                             long /*arguments*/);
+    static VMClass* NewClass(VMClass* /*classOfClass*/);
+    static VMFrame* NewFrame(VMFrame* /*previousFrame*/, VMMethod* /*method*/);
+    static VMMethod* NewMethod(VMSymbol* /*signature*/,
+                               size_t numberOfBytecodes,
                                size_t numberOfConstants, size_t numLocals,
-                               size_t maxStackDepth, LexicalScope*,
+                               size_t maxStackDepth,
+                               LexicalScope* /*lexicalScope*/,
                                vector<BackJump>& inlinedLoops);
-    static VMObject* NewInstance(VMClass*);
+    static VMObject* NewInstance(VMClass* /*classOfInstance*/);
     static VMObject* NewInstanceWithoutFields();
-    static VMInteger* NewInteger(int64_t);
-    static void WalkGlobals(walk_heap_fn);
-    static VMDouble* NewDouble(double);
+    static VMInteger* NewInteger(int64_t /*value*/);
+    static void WalkGlobals(walk_heap_fn /*walk*/);
+    static VMDouble* NewDouble(double /*value*/);
     static VMClass* NewMetaclassClass();
-    static VMString* NewString(const std::string&);
-    static VMString* NewString(const size_t, const char*);
+    static VMString* NewString(const std::string& /*str*/);
+    static VMString* NewString(const size_t /*length*/, const char* /*str*/);
     static VMClass* NewSystemClass();
 
-    static void InitializeSystemClass(VMClass*, VMClass*, const char*);
+    static void InitializeSystemClass(VMClass* /*systemClass*/,
+                                      VMClass* /*superClass*/,
+                                      const char* /*name*/);
 
-    static vm_oop_t GetGlobal(VMSymbol*);
+    static vm_oop_t GetGlobal(VMSymbol* /*name*/);
     static void SetGlobal(VMSymbol* name, vm_oop_t val);
-    static bool HasGlobal(VMSymbol*);
+    static bool HasGlobal(VMSymbol* /*name*/);
     static VMObject* InitializeGlobals();
     static VMClass* GetBlockClass();
-    static VMClass* GetBlockClassWithArgs(long);
+    static VMClass* GetBlockClassWithArgs(long /*numberOfArguments*/);
 
-    static VMClass* LoadClass(VMSymbol*);
-    static void LoadSystemClass(VMClass*);
-    static VMClass* LoadClassBasic(VMSymbol*, VMClass*);
-    static VMClass* LoadShellClass(std::string&);
+    static VMClass* LoadClass(VMSymbol* /*name*/);
+    static void LoadSystemClass(VMClass* /*systemClass*/);
+    static VMClass* LoadClassBasic(VMSymbol* /*name*/,
+                                   VMClass* /*systemClass*/);
+    static VMClass* LoadShellClass(std::string& /*stmt*/);
 
     Universe() {}
     ~Universe();
@@ -125,7 +132,7 @@ private:
     static long addClassPath(const std::string& cp);
     static void printUsageAndExit(char* executable);
 
-    static void initialize(long, char**);
+    static void initialize(long /*_argc*/, char** /*_argv*/);
 
     static long heapSize;
     static map<GCSymbol*, gc_oop_t> globals;

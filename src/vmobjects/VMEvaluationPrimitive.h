@@ -33,7 +33,7 @@ public:
     typedef GCEvaluationPrimitive Stored;
 
     VMEvaluationPrimitive(size_t argc);
-    void WalkObjects(walk_heap_fn) override;
+    void WalkObjects(walk_heap_fn /*unused*/) override;
     VMEvaluationPrimitive* CloneForMovingGC() const override;
 
     std::string AsDebugString() const override;

@@ -43,7 +43,8 @@ public:
 
     std::string AsDebugString() const override;
 
-    static VMEvaluationPrimitive* GetEvaluationPrimitive(int);
+    static VMEvaluationPrimitive* GetEvaluationPrimitive(
+        int /*numberOfArguments*/);
 
 private:
     make_testable(public);

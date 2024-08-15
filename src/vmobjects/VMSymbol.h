@@ -73,5 +73,5 @@ private:
 
     make_testable(public);
 
-    void WalkObjects(walk_heap_fn) override;
+    void WalkObjects(walk_heap_fn /*unused*/) override;
 };

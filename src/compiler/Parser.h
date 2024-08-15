@@ -118,8 +118,10 @@ private:
     std::string _string();
     void blockPattern(MethodGenerationContext& mgenc);
     void blockArguments(MethodGenerationContext& mgenc);
-    static void genPushVariable(MethodGenerationContext&, std::string&);
-    static void genPopVariable(MethodGenerationContext&, std::string&);
+    static void genPushVariable(MethodGenerationContext& /*mgenc*/,
+                                std::string& /*var*/);
+    static void genPopVariable(MethodGenerationContext& /*mgenc*/,
+                               std::string& /*var*/);
 
     Lexer lexer;
     std::string& fname;

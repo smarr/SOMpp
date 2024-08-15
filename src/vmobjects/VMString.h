@@ -62,7 +62,7 @@ public:
     VMClass* GetClass() const override;
     size_t GetObjectSize() const override;
 
-    inline void WalkObjects(walk_heap_fn) override {
+    inline void WalkObjects(walk_heap_fn /*unused*/) override {
         // nothing to do
     }
 

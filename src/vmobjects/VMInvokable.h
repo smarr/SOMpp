@@ -48,12 +48,14 @@ public:
     virtual void InlineInto(MethodGenerationContext& mgenc,
                             bool mergeScope = true) = 0;
     virtual void MergeScopeInto(
-        MethodGenerationContext&) { /* NOOP for everything but VMMethods */ }
+        MethodGenerationContext& /*unused*/) { /* NOOP for everything but
+                                                  VMMethods */
+    }
     virtual void AdaptAfterOuterInlined(
         uint8_t removedCtxLevel,
         MethodGenerationContext&
             mgencWithInlined) { /* NOOP for everything but VMMethods */ }
-    virtual const Variable* GetArgument(size_t, size_t);
+    virtual const Variable* GetArgument(size_t /*unused*/, size_t /*unused*/);
 
     virtual size_t GetNumberOfArguments() const = 0;
 
@@ -65,7 +67,7 @@ public:
 
     virtual void SetHolder(VMClass* hld);
 
-    void WalkObjects(walk_heap_fn) override;
+    void WalkObjects(walk_heap_fn /*unused*/) override;
 
     void MarkObjectAsInvalid() override {
         signature = (GCSymbol*)INVALID_GC_POINTER;

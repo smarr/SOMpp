@@ -54,7 +54,7 @@ public:
 
     static VMMethod* GetMethod();
     static uint8_t* GetBytecodes();
-    static void WalkGlobals(walk_heap_fn);
+    static void WalkGlobals(walk_heap_fn /*walk*/);
 
     static void SendUnknownGlobal(VMSymbol* globalName);
 

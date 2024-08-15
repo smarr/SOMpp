@@ -96,6 +96,6 @@ static inline void DebugTrace(const char* fmt, ...) {
 #undef FprintfPass
 #undef DebugPass
 
-std::string DebugGetClassName(vm_oop_t);
-std::string DebugGetClassName(gc_oop_t);
+std::string DebugGetClassName(vm_oop_t /*obj*/);
+std::string DebugGetClassName(gc_oop_t /*obj*/);
 void DebugDumpMethod(VMInvokable* method);

@@ -29,7 +29,8 @@ public:
     virtual int64_t GetHash() const = 0;
     virtual VMClass* GetClass() const = 0;
     virtual AbstractVMObject* CloneForMovingGC() const = 0;
-    void Send(std::string, vm_oop_t*, long);
+    void Send(std::string /*selectorString*/, vm_oop_t* /*arguments*/,
+              long /*argc*/);
 
     /** Size in bytes of the object. */
     virtual size_t GetObjectSize() const = 0;
@@ -47,15 +48,15 @@ public:
         return -1;
     }
 
-    inline virtual void SetClass(VMClass*) {
+    inline virtual void SetClass(VMClass* /*unused*/) {
         ErrorPrint("this object doesn't support SetClass\n");
     }
 
     long GetFieldIndex(VMSymbol* fieldName) const;
 
-    virtual void WalkObjects(walk_heap_fn) {}
+    virtual void WalkObjects(walk_heap_fn /*unused*/) {}
 
-    inline virtual VMSymbol* GetFieldName(long) const {
+    inline virtual VMSymbol* GetFieldName(long /*unused*/) const {
         ErrorPrint("this object doesn't support GetFieldName\n");
         return nullptr;
     }

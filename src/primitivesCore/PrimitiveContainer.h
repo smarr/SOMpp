@@ -43,10 +43,14 @@ public:
 
     void InstallPrimitives(VMClass* clazz, bool classSide);
 
-    void Add(const char* name, FramePrimitiveRoutine, bool classSide);
-    void Add(const char* name, UnaryPrimitiveRoutine, bool classSide);
-    void Add(const char* name, BinaryPrimitiveRoutine, bool classSide);
-    void Add(const char* name, TernaryPrimitiveRoutine, bool classSide);
+    void Add(const char* name, FramePrimitiveRoutine /*routine*/,
+             bool classSide);
+    void Add(const char* name, UnaryPrimitiveRoutine /*routine*/,
+             bool classSide);
+    void Add(const char* name, BinaryPrimitiveRoutine /*routine*/,
+             bool classSide);
+    void Add(const char* name, TernaryPrimitiveRoutine /*routine*/,
+             bool classSide);
 
 private:
     std::map<std::string, FramePrim> framePrims{};

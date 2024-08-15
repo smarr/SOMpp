@@ -79,9 +79,9 @@ public:
     inline bool HasPreviousFrame() const;
     inline bool IsBootstrapFrame() const;
     inline VMFrame* GetContext() const;
-    inline void SetContext(VMFrame*);
+    inline void SetContext(VMFrame* /*frm*/);
     inline bool HasContext() const;
-    VMFrame* GetContextLevel(long);
+    VMFrame* GetContextLevel(long /*lvl*/);
     VMFrame* GetOuterContext();
     inline VMMethod* GetMethod() const;
 
@@ -126,7 +126,7 @@ public:
         return load_ptr(this->locals[localIndex]);
     }
 
-    void SetLocal(long index, long contextLevel, vm_oop_t);
+    void SetLocal(long index, long contextLevel, vm_oop_t /*value*/);
 
     inline void SetLocal(long index, vm_oop_t value) {
         store_ptr(locals[index], value);
@@ -142,7 +142,7 @@ public:
         return load_ptr(this->arguments[index]);
     }
 
-    void SetArgument(long, long, vm_oop_t);
+    void SetArgument(long /*index*/, long /*contextLevel*/, vm_oop_t /*value*/);
     void PrintStackTrace() const;
     long ArgumentStackIndex(long index) const;
     void CopyArgumentsFrom(VMFrame* frame);
@@ -151,7 +151,7 @@ public:
         store_ptr(arguments[argIdx], value);
     }
 
-    void WalkObjects(walk_heap_fn) override;
+    void WalkObjects(walk_heap_fn /*unused*/) override;
     VMFrame* CloneForMovingGC() const override;
 
     void PrintStack() const;

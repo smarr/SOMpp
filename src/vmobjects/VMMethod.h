@@ -137,7 +137,7 @@ public:
     VMFrame* GetCachedFrame() const;
 #endif
 
-    void WalkObjects(walk_heap_fn) override;
+    void WalkObjects(walk_heap_fn /*unused*/) override;
 
     inline size_t GetNumberOfIndexableFields() const {
         return numberOfConstants;

@@ -47,7 +47,8 @@ class PrimitiveLoader {
 public:
     PrimitiveLoader();
     virtual ~PrimitiveLoader();
-    void AddPrimitiveObject(const std::string& name, PrimitiveContainer*);
+    void AddPrimitiveObject(const std::string& name,
+                            PrimitiveContainer* /*prim*/);
 
     static bool SupportsClass(const std::string& name);
 

@@ -39,10 +39,10 @@ public:
     void AssembleSystemClass(VMClass* systemClass);
 
     bool HasField(VMSymbol* field);
-    void AddInstanceField(VMSymbol*);
-    void AddClassField(VMSymbol*);
-    void AddInstanceMethod(VMInvokable*);
-    void AddClassMethod(VMInvokable*);
+    void AddInstanceField(VMSymbol* /*field*/);
+    void AddClassField(VMSymbol* /*field*/);
+    void AddInstanceMethod(VMInvokable* /*method*/);
+    void AddClassMethod(VMInvokable* /*method*/);
     void SetName(VMSymbol* n) { name = n; }
     void SetSuperName(VMSymbol* sn) { superName = sn; }
     void SetClassSide(bool cs) { classSide = cs; }

@@ -54,7 +54,7 @@ public:
     /** Used from language level, via primitive */
     VMArray* Copy() const;
 
-    VMArray* CopyAndExtendWith(vm_oop_t) const;
+    VMArray* CopyAndExtendWith(vm_oop_t /*item*/) const;
 
     inline vm_oop_t GetIndexableField(size_t idx) const {
         if (unlikely(idx > numberOfFields)) {
@@ -73,7 +73,7 @@ public:
     __attribute__((noreturn)) __attribute__((noinline)) void IndexOutOfBounds(
         size_t idx) const;
 
-    void CopyIndexableFieldsTo(VMArray*) const;
+    void CopyIndexableFieldsTo(VMArray* /*to*/) const;
     VMArray* CloneForMovingGC() const override;
 
     std::string AsDebugString() const override;

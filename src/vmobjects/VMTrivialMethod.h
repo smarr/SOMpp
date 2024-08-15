@@ -66,8 +66,8 @@ public:
         return sizeof(VMLiteralReturn);
     }
 
-    VMFrame* Invoke(VMFrame*) override;
-    VMFrame* Invoke1(VMFrame*) override;
+    VMFrame* Invoke(VMFrame* /*frame*/) override;
+    VMFrame* Invoke1(VMFrame* /*frame*/) override;
 
     void InlineInto(MethodGenerationContext& mgenc,
                     bool mergeScope = true) final;
@@ -79,7 +79,7 @@ public:
         literal = INVALID_GC_POINTER;
     }
 
-    void WalkObjects(walk_heap_fn) override;
+    void WalkObjects(walk_heap_fn /*walk*/) override;
 
     bool IsMarkedInvalid() const final { return literal == INVALID_GC_POINTER; }
 
@@ -107,8 +107,8 @@ public:
         return sizeof(VMGlobalReturn);
     }
 
-    VMFrame* Invoke(VMFrame*) override;
-    VMFrame* Invoke1(VMFrame*) override;
+    VMFrame* Invoke(VMFrame* /*frame*/) override;
+    VMFrame* Invoke1(VMFrame* /*frame*/) override;
 
     void InlineInto(MethodGenerationContext& mgenc,
                     bool mergeScope = true) final;
@@ -120,7 +120,7 @@ public:
         globalName = (GCSymbol*)INVALID_GC_POINTER;
     }
 
-    void WalkObjects(walk_heap_fn) override;
+    void WalkObjects(walk_heap_fn /*walk*/) override;
 
     bool IsMarkedInvalid() const final {
         return globalName == (GCSymbol*)INVALID_GC_POINTER;
@@ -145,8 +145,8 @@ public:
 
     inline size_t GetObjectSize() const override { return sizeof(VMGetter); }
 
-    VMFrame* Invoke(VMFrame*) override;
-    VMFrame* Invoke1(VMFrame*) override;
+    VMFrame* Invoke(VMFrame* /*frame*/) override;
+    VMFrame* Invoke1(VMFrame* /*frame*/) override;
 
     void InlineInto(MethodGenerationContext& mgenc,
                     bool mergeScope = true) final;
@@ -159,7 +159,7 @@ public:
         return signature == (GCSymbol*)INVALID_GC_POINTER;
     }
 
-    void WalkObjects(walk_heap_fn) override;
+    void WalkObjects(walk_heap_fn /*walk*/) override;
 
     std::string AsDebugString() const final;
 
@@ -182,8 +182,8 @@ public:
 
     inline size_t GetObjectSize() const override { return sizeof(VMSetter); }
 
-    VMFrame* Invoke(VMFrame*) override;
-    VMFrame* Invoke1(VMFrame*) override;
+    VMFrame* Invoke(VMFrame* /*frame*/) override;
+    VMFrame* Invoke1(VMFrame* /*unused*/) override;
 
     void InlineInto(MethodGenerationContext& mgenc,
                     bool mergeScope = true) final;
@@ -196,7 +196,7 @@ public:
         return signature == (GCSymbol*)INVALID_GC_POINTER;
     }
 
-    void WalkObjects(walk_heap_fn) override;
+    void WalkObjects(walk_heap_fn /*walk*/) override;
 
     std::string AsDebugString() const final;
 

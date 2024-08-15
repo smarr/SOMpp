@@ -32,7 +32,7 @@
 class Shell {
 public:
     Shell();
-    Shell(VMMethod*);
+    Shell(VMMethod* /*bsm*/);
     ~Shell();
     void SetBootstrapMethod(VMMethod* bsm) { bootstrapMethod = bsm; };
     VMMethod* GetBootstrapMethod() const { return bootstrapMethod; };
