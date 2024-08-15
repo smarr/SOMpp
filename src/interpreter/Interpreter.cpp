@@ -234,7 +234,7 @@ void Interpreter::doPushField(long bytecodeIndex) {
 
 void Interpreter::doPushFieldWithIndex(uint8_t fieldIndex) {
     vm_oop_t self = GetSelf();
-    vm_oop_t o;
+    vm_oop_t o = nullptr;
 
     if (unlikely(IS_TAGGED(self))) {
         o = nullptr;
@@ -248,7 +248,7 @@ void Interpreter::doPushFieldWithIndex(uint8_t fieldIndex) {
 
 void Interpreter::doReturnFieldWithIndex(uint8_t fieldIndex) {
     vm_oop_t self = GetSelf();
-    vm_oop_t o;
+    vm_oop_t o = nullptr;
 
     if (unlikely(IS_TAGGED(self))) {
         o = nullptr;

@@ -302,8 +302,8 @@ size_t EmitJumpOnBoolWithDummyOffset(MethodGenerationContext& mgenc,
     // This is because if the test passes, the block is inlined directly.
     // But if the test fails, we need to jump.
     // Thus, an  `#ifTrue:` needs to generated a jump_on_false.
-    uint8_t bc;
-    size_t stackEffect;
+    uint8_t bc = 0;
+    size_t stackEffect = 0;
 
     if (needsPop) {
         bc = isIfTrue ? BC_JUMP_ON_FALSE_POP : BC_JUMP_ON_TRUE_POP;

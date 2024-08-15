@@ -114,7 +114,7 @@ static vm_oop_t intSlashslash(vm_oop_t leftObj, vm_oop_t rightObj) {
 
 static vm_oop_t intSlash(vm_oop_t leftObj, vm_oop_t rightObj) {
     int64_t const left = INT_VAL(leftObj);
-    int64_t right;
+    int64_t right = 0;
 
     VMClass* cl = CLASS_OF(rightObj);
     if (cl == load_ptr(doubleClass)) {
@@ -129,7 +129,7 @@ static vm_oop_t intSlash(vm_oop_t leftObj, vm_oop_t rightObj) {
 
 static vm_oop_t intPercent(vm_oop_t leftObj, vm_oop_t rightObj) {
     int64_t const l = INT_VAL(leftObj);
-    int64_t r;
+    int64_t r = 0;
 
     VMClass* cl = CLASS_OF(rightObj);
     if (cl == load_ptr(doubleClass)) {

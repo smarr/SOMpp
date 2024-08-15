@@ -177,7 +177,7 @@ VMTrivialMethod* MethodGenerationContext::assembleFieldGetter(
         return nullptr;
     }
 
-    size_t fieldIndex;
+    size_t fieldIndex = 0;
     if (pushCandidate == BC_PUSH_FIELD_0) {
         fieldIndex = 0;
     } else if (pushCandidate == BC_PUSH_FIELD_1) {

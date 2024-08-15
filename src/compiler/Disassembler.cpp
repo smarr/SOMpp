@@ -301,7 +301,7 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes,
                 uint16_t const offset =
                     ComputeOffset(bytecodes[bc_idx + 1], bytecodes[bc_idx + 2]);
 
-                int32_t target;
+                int32_t target = 0;
                 if (bytecode == BC_JUMP_BACKWARD ||
                     bytecode == BC_JUMP2_BACKWARD) {
                     target = ((int32_t)bc_idx) - offset;
@@ -390,8 +390,8 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
         case BC_PUSH_LOCAL_0:
         case BC_PUSH_LOCAL_1:
         case BC_PUSH_LOCAL_2: {
-            uint8_t bc1;
-            uint8_t bc2;
+            uint8_t bc1 = 0;
+            uint8_t bc2 = 0;
             switch (bc) {
                 case BC_PUSH_LOCAL_0:
                     bc1 = 0;
@@ -458,9 +458,9 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
         case BC_PUSH_GLOBAL: {
             auto* name = static_cast<VMSymbol*>(method->GetConstant(bc_idx));
             vm_oop_t o = Universe::GetGlobal(name);
-            VMSymbol* cname;
+            VMSymbol* cname = nullptr;
 
-            const char* c_cname;
+            const char* c_cname = nullptr;
             std::string c_cname_str;
             if (o != nullptr) {
                 VMClass* c = CLASS_OF(o);
@@ -574,7 +574,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
                 ComputeOffset(method->GetBytecode(bc_idx + 1),
                               method->GetBytecode(bc_idx + 2));
 
-            int32_t target;
+            int32_t target = 0;
             if (bc == BC_JUMP_BACKWARD || bc == BC_JUMP2_BACKWARD) {
                 target = ((int32_t)bc_idx) - offset;
             } else {

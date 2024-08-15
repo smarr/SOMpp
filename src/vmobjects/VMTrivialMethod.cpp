@@ -144,7 +144,7 @@ VMFrame* VMGetter::Invoke(VMFrame* frame) {
 
     assert(self != nullptr);
 
-    vm_oop_t result;
+    vm_oop_t result = nullptr;
     if (unlikely(IS_TAGGED(self))) {
         result = nullptr;
         ErrorExit("Integers do not have fields!");
@@ -163,7 +163,7 @@ VMFrame* VMGetter::Invoke1(VMFrame* frame) {
 
     assert(self != nullptr);
 
-    vm_oop_t result;
+    vm_oop_t result = nullptr;
     if (unlikely(IS_TAGGED(self))) {
         result = nullptr;
         ErrorExit("Integers do not have fields!");

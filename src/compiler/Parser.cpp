@@ -236,7 +236,7 @@ void Parser::Classdef(ClassGenerationContext& cgenc) {
 }
 
 void Parser::superclass(ClassGenerationContext& cgenc) {
-    VMSymbol* superName;
+    VMSymbol* superName = nullptr;
     if (sym == Identifier) {
         superName = SymbolFor(text);
         accept(Identifier);
@@ -784,7 +784,7 @@ vm_oop_t Parser::literalDouble(bool negateValue) {
 }
 
 void Parser::literalSymbol(MethodGenerationContext& mgenc) {
-    VMSymbol* symb;
+    VMSymbol* symb = nullptr;
     expect(Pound);
     if (sym == STString) {
         std::string const s = _string();

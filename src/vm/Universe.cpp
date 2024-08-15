@@ -568,7 +568,7 @@ VMClass* Universe::LoadClass(VMSymbol* name) {
 
 VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
     std::string const s_name = name->GetStdString();
-    VMClass* result;
+    VMClass* result = nullptr;
 
     for (auto i = classPath.begin(); i != classPath.end(); ++i) {
         result = SourcecodeCompiler::CompileClass(*i, name->GetStdString(),
@@ -609,7 +609,7 @@ void Universe::LoadSystemClass(VMClass* systemClass) {
 VMArray* Universe::NewArray(size_t size) {
     size_t const additionalBytes = size * sizeof(VMObject*);
 
-    bool outsideNursery;
+    bool outsideNursery = false;
 
 #if GC_TYPE == GENERATIONAL
     // if the array is too big for the nursery, we will directly allocate a
@@ -842,7 +842,7 @@ VMMethod* Universe::NewMethod(VMSymbol* signature, size_t numberOfBytecodes,
            "A method is expected to have a lexical scope");
 
     // turn inlined loops vector into a nullptr terminated array
-    BackJump* inlinedLoopsArr;
+    BackJump* inlinedLoopsArr = nullptr;
     if (inlinedLoops.empty()) {
         inlinedLoopsArr = nullptr;
     } else {
