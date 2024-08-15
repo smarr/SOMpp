@@ -40,7 +40,7 @@ class VMFrame : public AbstractVMObject {
 public:
     typedef GCFrame Stored;
 
-    static VMFrame* EmergencyFrameFrom(VMFrame* from, long extraLength);
+    static VMFrame* EmergencyFrameFrom(VMFrame* from, size_t extraLength);
 
     explicit VMFrame(size_t additionalBytes, VMMethod* method,
                      VMFrame* previousFrame)
@@ -81,7 +81,7 @@ public:
     inline VMFrame* GetContext() const;
     inline void SetContext(VMFrame* /*frm*/);
     inline bool HasContext() const;
-    VMFrame* GetContextLevel(long /*lvl*/);
+    VMFrame* GetContextLevel(uint8_t lvl);
     VMFrame* GetOuterContext();
     inline VMMethod* GetMethod() const;
 
@@ -111,13 +111,13 @@ public:
         store_ptr(*stack_ptr, obj);
     }
 
-    inline long GetBytecodeIndex() const;
+    inline size_t GetBytecodeIndex() const { return bytecodeIndex; }
 
-    inline vm_oop_t GetStackElement(long index) const {
+    inline vm_oop_t GetStackElement(size_t index) const {
         return load_ptr(stack_ptr[-index]);
     }
 
-    inline vm_oop_t GetLocal(long index, long contextLevel) {
+    inline vm_oop_t GetLocal(uint8_t index, uint8_t contextLevel) {
         VMFrame* context = GetContextLevel(contextLevel);
         return load_ptr(context->locals[index]);
     }
@@ -126,23 +126,23 @@ public:
         return load_ptr(this->locals[localIndex]);
     }
 
-    void SetLocal(long index, long contextLevel, vm_oop_t /*value*/);
+    void SetLocal(uint8_t index, uint8_t contextLevel, vm_oop_t value);
 
-    inline void SetLocal(long index, vm_oop_t value) {
+    inline void SetLocal(uint8_t index, vm_oop_t value) {
         store_ptr(locals[index], value);
     }
 
-    inline vm_oop_t GetArgument(long index, long contextLevel) {
+    inline vm_oop_t GetArgument(uint8_t index, uint8_t contextLevel) {
         // get the context
         VMFrame* context = GetContextLevel(contextLevel);
         return load_ptr(context->arguments[index]);
     }
 
-    inline vm_oop_t GetArgumentInCurrentContext(long index) {
+    inline vm_oop_t GetArgumentInCurrentContext(uint8_t index) {
         return load_ptr(this->arguments[index]);
     }
 
-    void SetArgument(long /*index*/, long /*contextLevel*/, vm_oop_t /*value*/);
+    void SetArgument(uint8_t index, uint8_t contextLevel, vm_oop_t value);
     void PrintStackTrace() const;
     long ArgumentStackIndex(long index) const;
     void CopyArgumentsFrom(VMFrame* frame);
@@ -157,7 +157,7 @@ public:
     void PrintStack() const;
     void PrintBytecode() const;
 
-    long RemainingStackSize() const {
+    size_t RemainingStackSize() const {
         // - 1 because the stack pointer points at the top entry,
         // so the next entry would be put at stackPointer+1
         size_t const size =
@@ -170,7 +170,7 @@ public:
 
     make_testable(public);
 
-    long bytecodeIndex;
+    size_t bytecodeIndex;
     size_t totalObjectSize;
 
 private:
@@ -181,9 +181,9 @@ private:
     gc_oop_t* locals;
     gc_oop_t* stack_ptr;
 
-    static const long VMFrameNumberOfFields;
+    static const size_t VMFrameNumberOfFields;
 
-    inline void SetBytecodeIndex(long index) { bytecodeIndex = index; }
+    inline void SetBytecodeIndex(size_t index) { bytecodeIndex = index; }
 };
 
 bool VMFrame::HasContext() const {
@@ -192,10 +192,6 @@ bool VMFrame::HasContext() const {
 
 bool VMFrame::HasPreviousFrame() const {
     return previousFrame != nullptr;
-}
-
-long VMFrame::GetBytecodeIndex() const {
-    return bytecodeIndex;
 }
 
 bool VMFrame::IsBootstrapFrame() const {

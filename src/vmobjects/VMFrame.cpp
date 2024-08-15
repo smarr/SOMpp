@@ -46,7 +46,7 @@
 // when doesNotUnderstand or UnknownGlobal is sent, additional stack slots might
 // be necessary, as these cases are not taken into account when the stack
 // depth is calculated. In that case this method is called.
-VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength) {
+VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, size_t extraLength) {
     VMMethod* method = from->GetMethod();
     long const length = method->GetNumberOfArguments() +
                         method->GetNumberOfLocals() +
@@ -118,9 +118,9 @@ VMFrame* VMFrame::CloneForMovingGC() const {
     return clone;
 }
 
-const long VMFrame::VMFrameNumberOfFields = 0;
+const size_t VMFrame::VMFrameNumberOfFields = 0;
 
-VMFrame* VMFrame::GetContextLevel(long lvl) {
+VMFrame* VMFrame::GetContextLevel(uint8_t lvl) {
     VMFrame* current = this;
     while (lvl > 0) {
         current = current->GetContext();
@@ -218,12 +218,12 @@ void VMFrame::PrintStack() const {
     }
 }
 
-void VMFrame::SetLocal(long index, long contextLevel, vm_oop_t value) {
+void VMFrame::SetLocal(uint8_t index, uint8_t contextLevel, vm_oop_t value) {
     VMFrame* context = GetContextLevel(contextLevel);
     context->SetLocal(index, value);
 }
 
-void VMFrame::SetArgument(long index, long contextLevel, vm_oop_t value) {
+void VMFrame::SetArgument(uint8_t index, uint8_t contextLevel, vm_oop_t value) {
     VMFrame* context = GetContextLevel(contextLevel);
     context->SetArgument(index, value);
 }

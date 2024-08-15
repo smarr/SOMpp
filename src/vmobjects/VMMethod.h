@@ -128,9 +128,9 @@ public:
         return GetIndexableField(bc);
     }
 
-    inline uint8_t GetBytecode(long indx) const { return bytecodes[indx]; }
+    inline uint8_t GetBytecode(size_t indx) const { return bytecodes[indx]; }
 
-    inline void SetBytecode(long indx, uint8_t val) { bytecodes[indx] = val; }
+    inline void SetBytecode(size_t indx, uint8_t val) { bytecodes[indx] = val; }
 
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     void SetCachedFrame(VMFrame* frame);
@@ -145,7 +145,7 @@ public:
 
     VMMethod* CloneForMovingGC() const override;
 
-    inline void SetIndexableField(long idx, vm_oop_t item) {
+    inline void SetIndexableField(size_t idx, vm_oop_t item) {
         store_ptr(indexableFields[idx], item);
     }
 
@@ -181,7 +181,7 @@ private:
 
     inline uint8_t* GetBytecodes() const { return bytecodes; }
 
-    inline vm_oop_t GetIndexableField(long idx) const {
+    inline vm_oop_t GetIndexableField(size_t idx) const {
         return load_ptr(indexableFields[idx]);
     }
 
