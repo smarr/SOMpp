@@ -46,7 +46,7 @@ VMFrame* VMSafeBinaryPrimitive::Invoke(VMFrame* frame) {
     return nullptr;
 }
 
-VMFrame* VMSafeBinaryPrimitive::Invoke1(VMFrame* frame) {
+VMFrame* VMSafeBinaryPrimitive::Invoke1(VMFrame* /*frame*/) {
     ErrorExit("Unary invoke on binary primitive");
 }
 
@@ -65,7 +65,7 @@ VMFrame* VMSafeTernaryPrimitive::Invoke(VMFrame* frame) {
     return nullptr;
 }
 
-VMFrame* VMSafeTernaryPrimitive::Invoke1(VMFrame* frame) {
+VMFrame* VMSafeTernaryPrimitive::Invoke1(VMFrame* /*frame*/) {
     ErrorExit("Unary invoke on binary primitive");
 }
 
@@ -92,7 +92,8 @@ AbstractVMObject* VMSafeTernaryPrimitive::CloneForMovingGC() const {
     return prim;
 }
 
-void VMSafePrimitive::InlineInto(MethodGenerationContext&, bool) {
+void VMSafePrimitive::InlineInto(MethodGenerationContext& /*mgenc*/,
+                                 bool /*mergeScope*/) {
     ErrorExit(
         "VMPrimitive::InlineInto is not supported, and should not be reached");
 }

@@ -769,7 +769,8 @@ void MethodGenerationContext::EmitBackwardsJumpOffsetToTarget(
 }
 
 void MethodGenerationContext::completeJumpsAndEmitReturningNil(
-    Parser& parser, size_t loopBeginIdx, size_t jumpOffsetIdxToSkipLoopBody) {
+    Parser& /*parser*/, size_t loopBeginIdx,
+    size_t jumpOffsetIdxToSkipLoopBody) {
     resetLastBytecodeBuffer();
     EmitPOP(*this);
 

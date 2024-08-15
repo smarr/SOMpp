@@ -22,9 +22,9 @@ Variable Variable::CopyForInlining(size_t newIndex) const {
     if (isArgument) {
         if (name == strBlockSelf) {
             // that's invalid
-            return Variable();
+            return {};
         }
     }
     // arguments that are inlined need to turn into variables, too
-    return Variable(this, newIndex, false);
+    return {this, newIndex, false};
 }

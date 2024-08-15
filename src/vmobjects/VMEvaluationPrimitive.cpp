@@ -134,7 +134,8 @@ bool VMEvaluationPrimitive::IsMarkedInvalid() const {
     return numberOfArguments == INVALID_INT_MARKER;
 }
 
-void VMEvaluationPrimitive::InlineInto(MethodGenerationContext&, bool) {
+void VMEvaluationPrimitive::InlineInto(MethodGenerationContext& /*mgenc*/,
+                                       bool /*mergeScope*/) {
     ErrorExit(
         "VMEvaluationPrimitive::InlineInto is not supported, and should not be "
         "reached");

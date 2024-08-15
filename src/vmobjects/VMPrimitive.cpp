@@ -63,7 +63,8 @@ bool VMPrimitive::IsEmpty() const {
     return prim.pointer == &emptyRoutine;
 }
 
-void VMPrimitive::InlineInto(MethodGenerationContext&, bool) {
+void VMPrimitive::InlineInto(MethodGenerationContext& /*mgenc*/,
+                             bool /*mergeScope*/) {
     ErrorExit(
         "VMPrimitive::InlineInto is not supported, and should not be reached");
 }

@@ -55,12 +55,12 @@ vm_oop_t objHashcode(vm_oop_t self) {
     }
 }
 
-vm_oop_t objInspect(vm_oop_t) {
+vm_oop_t objInspect(vm_oop_t /*unused*/) {
     // not implemeted
     return load_ptr(falseObject);
 }
 
-vm_oop_t objHalt(vm_oop_t) {
+vm_oop_t objHalt(vm_oop_t /*unused*/) {
     // not implemeted
     return load_ptr(falseObject);
 }

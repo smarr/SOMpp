@@ -55,7 +55,7 @@
 
 _System* System_;
 
-static vm_oop_t sysGlobal_(vm_oop_t, vm_oop_t rightObj) {
+static vm_oop_t sysGlobal_(vm_oop_t /*unused*/, vm_oop_t rightObj) {
     auto* arg = static_cast<VMSymbol*>(rightObj);
     vm_oop_t result = Universe::GetGlobal(arg);
 
@@ -68,7 +68,7 @@ static vm_oop_t sysGlobalPut(vm_oop_t sys, vm_oop_t sym, vm_oop_t val) {
     return sys;
 }
 
-static vm_oop_t sysHasGlobal_(vm_oop_t, vm_oop_t rightObj) {
+static vm_oop_t sysHasGlobal_(vm_oop_t /*unused*/, vm_oop_t rightObj) {
     auto* arg = static_cast<VMSymbol*>(rightObj);
 
     if (Universe::HasGlobal(arg)) {
@@ -78,7 +78,7 @@ static vm_oop_t sysHasGlobal_(vm_oop_t, vm_oop_t rightObj) {
     }
 }
 
-static vm_oop_t sysLoad_(vm_oop_t, vm_oop_t rightObj) {
+static vm_oop_t sysLoad_(vm_oop_t /*unused*/, vm_oop_t rightObj) {
     auto* arg = static_cast<VMSymbol*>(rightObj);
     VMClass* result = Universe::LoadClass(arg);
     if (result != nullptr) {
@@ -88,7 +88,7 @@ static vm_oop_t sysLoad_(vm_oop_t, vm_oop_t rightObj) {
     }
 }
 
-static vm_oop_t sysExit_(vm_oop_t, vm_oop_t err) {
+static vm_oop_t sysExit_(vm_oop_t /*unused*/, vm_oop_t err) {
     long const err_no = INT_VAL(err);
     Quit(err_no);
 }
@@ -121,7 +121,7 @@ static vm_oop_t sysErrorPrintNewline_(vm_oop_t leftObj, vm_oop_t rightObj) {
 
 static struct timeval start_time;
 
-static vm_oop_t sysTime(vm_oop_t) {
+static vm_oop_t sysTime(vm_oop_t /*unused*/) {
     struct timeval now;
 
     gettimeofday(&now, nullptr);
@@ -133,7 +133,7 @@ static vm_oop_t sysTime(vm_oop_t) {
     return NEW_INT(diff);
 }
 
-static vm_oop_t sysTicks(vm_oop_t) {
+static vm_oop_t sysTicks(vm_oop_t /*unused*/) {
     struct timeval now;
 
     gettimeofday(&now, nullptr);
@@ -145,14 +145,14 @@ static vm_oop_t sysTicks(vm_oop_t) {
     return NEW_INT(diff);
 }
 
-static vm_oop_t sysFullGC(vm_oop_t) {
+static vm_oop_t sysFullGC(vm_oop_t /*unused*/) {
     // not safe to do it immediatly, will be done when it is ok, i.e., in the
     // interpreter loop
     GetHeap<HEAP_CLS>()->requestGC();
     return load_ptr(trueObject);
 }
 
-static vm_oop_t sysLoadFile_(vm_oop_t, vm_oop_t rightObj) {
+static vm_oop_t sysLoadFile_(vm_oop_t /*unused*/, vm_oop_t rightObj) {
     auto* fileName = static_cast<VMString*>(rightObj);
 
     std::ifstream const file(fileName->GetStdString(), std::ifstream::in);

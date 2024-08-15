@@ -54,9 +54,9 @@ VMClass* VMString::GetClass() const {
 
 std::string VMString::GetStdString() const {
     if (chars == 0) {
-        return std::string("");
+        return {""};
     }
-    return std::string(chars, length);
+    return {chars, length};
 }
 
 std::string VMString::AsDebugString() const {

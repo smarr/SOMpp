@@ -314,7 +314,7 @@ static vm_oop_t intMax(vm_oop_t self, vm_oop_t arg) {
     return (result > INT_VAL(arg)) ? self : arg;
 }
 
-static vm_oop_t intFromString(vm_oop_t, vm_oop_t right) {
+static vm_oop_t intFromString(vm_oop_t /*unused*/, vm_oop_t right) {
     auto* self = (VMString*)right;
     std::string str = self->GetStdString();
 

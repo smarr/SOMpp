@@ -51,7 +51,7 @@ static vm_oop_t arrLength(vm_oop_t leftObj) {
     return NEW_INT((int64_t)self->GetNumberOfIndexableFields());
 }
 
-static vm_oop_t arrNew(vm_oop_t, vm_oop_t arg) {
+static vm_oop_t arrNew(vm_oop_t /*unused*/, vm_oop_t arg) {
     int64_t const size = INT_VAL(arg);
     return Universe::NewArray(size);
 }

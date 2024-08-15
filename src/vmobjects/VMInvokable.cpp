@@ -47,6 +47,6 @@ void VMInvokable::SetHolder(VMClass* hld) {
     store_ptr(holder, hld);
 }
 
-const Variable* VMInvokable::GetArgument(size_t, size_t) {
+const Variable* VMInvokable::GetArgument(size_t /*unused*/, size_t /*unused*/) {
     ErrorExit("VMInvokable::GetArgument not supported on anything VMMethod");
 }

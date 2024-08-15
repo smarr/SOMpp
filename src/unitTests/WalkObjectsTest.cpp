@@ -173,7 +173,7 @@ void WalkObjectsTest::testWalkFrame() {
 
 Variable makeVar(const char* const name, bool isArgument) {
     std::string n = name;
-    return Variable(n, 0, isArgument, {0, 0});
+    return {n, 0, isArgument, {0, 0}};
 }
 
 void WalkObjectsTest::testWalkMethod() {

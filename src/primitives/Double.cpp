@@ -163,11 +163,11 @@ static vm_oop_t dblAsInteger(vm_oop_t rcvr) {
     return NEW_INT(rounded);
 }
 
-static vm_oop_t dblPositiveInfinity(vm_oop_t) {
+static vm_oop_t dblPositiveInfinity(vm_oop_t /*unused*/) {
     return Universe::NewDouble(INFINITY);
 }
 
-static vm_oop_t dblFromString(vm_oop_t, vm_oop_t rightObj) {
+static vm_oop_t dblFromString(vm_oop_t /*unused*/, vm_oop_t rightObj) {
     auto* self = (VMString*)rightObj;
     double const value =
         stod(std::string(self->GetRawChars(), self->GetStringLength()));

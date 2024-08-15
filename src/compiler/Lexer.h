@@ -117,7 +117,7 @@ public:
 
     std::string GetRawBuffer() const {
         // for debug
-        return std::string(buf);
+        return {buf};
     }
 
     std::string GetCurrentLine();
@@ -131,7 +131,7 @@ public:
     bool GetPeekDone() const { return peekDone; }
 
     SourceCoordinate GetCurrentSource() const {
-        return SourceCoordinate(GetCurrentLineNumber(), GetCurrentColumn());
+        return {GetCurrentLineNumber(), GetCurrentColumn()};
     }
 
 private:
