@@ -4,7 +4,7 @@
 
 inline bool ReplacePattern(std::string& str, const char* pattern,
                            const char* replacement) {
-    size_t pos = str.find(pattern);
+    size_t const pos = str.find(pattern);
     if (pos == std::string::npos) {
         return false;
     }
@@ -15,7 +15,7 @@ inline bool ReplacePattern(std::string& str, const char* pattern,
 
 inline bool ReplacePattern(std::string& str, const char* pattern,
                            std::string& replacement) {
-    size_t pos = str.find(pattern);
+    size_t const pos = str.find(pattern);
     if (pos == std::string::npos) {
         return false;
     }

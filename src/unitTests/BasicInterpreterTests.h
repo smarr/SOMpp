@@ -155,23 +155,24 @@ class BasicInterpreterTests : public CPPUNIT_NS::TestFixture {
 private:
     static void assertEqualsSOMValue(vm_oop_t actualResult, TestData& data) {
         if (data.type == INTEGER) {
-            int64_t expected = (intptr_t)data.expectedResult;
-            int64_t actual = INT_VAL(actualResult);
+            int64_t const expected = (intptr_t)data.expectedResult;
+            int64_t const actual = INT_VAL(actualResult);
             CPPUNIT_ASSERT_EQUAL(expected, actual);
             return;
         }
 
         if (data.type == DOUBLE) {
-            double* expected = (double*)data.expectedResult;
-            double actual = ((VMDouble*)actualResult)->GetEmbeddedDouble();
+            auto* expected = (double*)data.expectedResult;
+            double const actual =
+                ((VMDouble*)actualResult)->GetEmbeddedDouble();
             CPPUNIT_ASSERT_DOUBLES_EQUAL(*expected, actual, 1e-15);
             return;
         }
 
         if (data.type == CLASS) {
             char const* expected = (char const*)data.expectedResult;
-            std::string expectedStr = std::string(expected);
-            std::string actual =
+            std::string const expectedStr = std::string(expected);
+            std::string const actual =
                 ((VMClass*)actualResult)->GetName()->GetStdString();
             if (expected != actual) {
                 CPPUNIT_NS::Asserter::failNotEqual(expected, actual,
@@ -182,8 +183,9 @@ private:
 
         if (data.type == SYMBOL) {
             char const* expected = (char const*)data.expectedResult;
-            std::string expectedStr = std::string(expected);
-            std::string actual = ((VMSymbol*)actualResult)->GetStdString();
+            std::string const expectedStr = std::string(expected);
+            std::string const actual =
+                ((VMSymbol*)actualResult)->GetStdString();
             if (expected != actual) {
                 CPPUNIT_NS::Asserter::failNotEqual(expected, actual,
                                                    CPPUNIT_SOURCELINE());
