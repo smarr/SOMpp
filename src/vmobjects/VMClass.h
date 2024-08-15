@@ -60,7 +60,7 @@ public:
     size_t GetNumberOfInstanceInvokables() const;
     VMInvokable* GetInstanceInvokable(long) const;
     void SetInstanceInvokable(long, VMInvokable*);
-    VMInvokable* LookupInvokable(VMSymbol*) const;
+    VMInvokable* LookupInvokable(VMSymbol*);
     long LookupFieldIndex(VMSymbol*) const;
     bool AddInstanceInvokable(VMInvokable*);
     VMSymbol* GetInstanceFieldName(long) const;

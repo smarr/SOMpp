@@ -47,7 +47,7 @@ public:
 
 private:
     const int numberOfArgumentsOfSignature;
-    const GCClass* cachedClass_invokable[3];
+    GCClass* cachedClass_invokable[3];
     long nextCachePos;
     GCInvokable* cachedInvokable[3];
 
@@ -66,7 +66,7 @@ private:
         return nullptr;
     }
 
-    void UpdateCachedInvokable(const VMClass* cls, VMInvokable* invo);
+    void UpdateCachedInvokable(VMClass* cls, VMInvokable* invo);
 
     friend class Signature;
     friend class VMClass;

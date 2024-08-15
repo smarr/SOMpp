@@ -138,7 +138,7 @@ void VMClass::SetInstanceInvokable(long index, VMInvokable* invokable) {
     }
 }
 
-VMInvokable* VMClass::LookupInvokable(VMSymbol* name) const {
+VMInvokable* VMClass::LookupInvokable(VMSymbol* name) {
     assert(IsValidObject(const_cast<VMClass*>(this)));
 
     VMInvokable* invokable = name->GetCachedInvokable(this);

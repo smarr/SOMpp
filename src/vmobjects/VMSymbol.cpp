@@ -82,8 +82,8 @@ std::string VMSymbol::AsDebugString() const {
     return "Symbol(" + GetStdString() + ")";
 }
 
-void VMSymbol::UpdateCachedInvokable(const VMClass* cls, VMInvokable* invo) {
+void VMSymbol::UpdateCachedInvokable(VMClass* cls, VMInvokable* invo) {
     store_ptr(cachedInvokable[nextCachePos], invo);
-    store_ptr(cachedClass_invokable[nextCachePos], const_cast<VMClass*>(cls));
+    store_ptr(cachedClass_invokable[nextCachePos], cls);
     nextCachePos = (nextCachePos + 1) % 3;
 }
