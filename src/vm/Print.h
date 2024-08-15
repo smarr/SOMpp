@@ -2,9 +2,9 @@
 
 #include <string>
 
-void Print(std::string str);
+void Print(const std::string& str);
 void Print(const char* str);
-void ErrorPrint(std::string str);
+void ErrorPrint(const std::string& str);
 void ErrorPrint(const char* str);
 
 __attribute__((noreturn)) __attribute__((noinline)) void Quit(long /*err*/);

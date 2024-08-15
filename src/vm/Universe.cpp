@@ -271,7 +271,8 @@ VMMethod* Universe::createBootstrapMethod(VMClass* holder,
     return bootstrapMethod;
 }
 
-vm_oop_t Universe::interpret(std::string className, std::string methodName) {
+vm_oop_t Universe::interpret(const std::string& className,
+                             const std::string& methodName) {
     // This method assumes that SOM++ was already initialized by executing a
     // Hello World program as part of the unittest main.
 

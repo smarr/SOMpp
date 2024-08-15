@@ -13,12 +13,12 @@ using namespace std;
 
 static mutex output_mutex;
 
-void Print(std::string str) {
+void Print(const std::string& str) {
     lock_guard<mutex> const lock(output_mutex);
     cout << str << flush;
 }
 
-void ErrorPrint(std::string str) {
+void ErrorPrint(const std::string& str) {
     lock_guard<mutex> const lock(output_mutex);
     cerr << str << flush;
 }

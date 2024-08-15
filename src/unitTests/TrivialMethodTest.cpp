@@ -9,7 +9,7 @@
 #include "../vmobjects/VMInvokable.h"
 #include "../vmobjects/VMTrivialMethod.h"
 
-void TrivialMethodTest::literalReturn(std::string source) {
+void TrivialMethodTest::literalReturn(const std::string& source) {
     std::string s = "test = ( ^ " + source + " )";
     methodToBytecode(s.data());
     VMInvokable* m = _mgenc->Assemble();
@@ -35,7 +35,7 @@ void TrivialMethodTest::testLiteralReturn() {
     literalReturn("nil");
 }
 
-void TrivialMethodTest::blockLiteralReturn(std::string source) {
+void TrivialMethodTest::blockLiteralReturn(const std::string& source) {
     std::string s = "[ " + source + " ]";
     blockToBytecode(s.data());
     VMInvokable* m = _bgenc->Assemble();
@@ -61,7 +61,7 @@ void TrivialMethodTest::testBlockLiteralReturn() {
     blockLiteralReturn("nil");
 }
 
-void TrivialMethodTest::literalNoReturn(std::string source) {
+void TrivialMethodTest::literalNoReturn(const std::string& source) {
     std::string s = "test = ( " + source + " )";
     methodToBytecode(s.data());
     VMInvokable* m = _mgenc->Assemble();
@@ -87,7 +87,7 @@ void TrivialMethodTest::testLiteralNoReturn() {
     literalNoReturn("nil");
 }
 
-void TrivialMethodTest::nonTrivialLiteralReturn(std::string source) {
+void TrivialMethodTest::nonTrivialLiteralReturn(const std::string& source) {
     std::string s = "test = ( 1. ^ " + source + " )";
     methodToBytecode(s.data());
     VMInvokable* m = _mgenc->Assemble();
@@ -113,7 +113,7 @@ void TrivialMethodTest::testNonTrivialLiteralReturn() {
     nonTrivialLiteralReturn("nil");
 }
 
-void TrivialMethodTest::globalReturn(std::string source) {
+void TrivialMethodTest::globalReturn(const std::string& source) {
     std::string s = "test = ( ^ " + source + " )";
     methodToBytecode(s.data());
     VMInvokable* m = _mgenc->Assemble();
@@ -210,7 +210,7 @@ void TrivialMethodTest::testFieldSetter0() {
     fieldSetter0("field := val. ^ self");
 }
 
-void TrivialMethodTest::fieldSetter0(std::string source) {
+void TrivialMethodTest::fieldSetter0(const std::string& source) {
     addField("field");
     std::string s = "test: val = ( " + source + " )";
     methodToBytecode(s.data());
@@ -235,7 +235,7 @@ void TrivialMethodTest::testFieldSetterN() {
     fieldSetterN("field := arg2. ^ self");
 }
 
-void TrivialMethodTest::fieldSetterN(std::string source) {
+void TrivialMethodTest::fieldSetterN(const std::string& source) {
     addField("a");
     addField("b");
     addField("c");

@@ -656,7 +656,8 @@ void BytecodeGenerationTest::testIncDecBytecodes() {
     incDecBytecodes("-", BC_DEC);
 }
 
-void BytecodeGenerationTest::incDecBytecodes(std::string sel, uint8_t bc) {
+void BytecodeGenerationTest::incDecBytecodes(const std::string& sel,
+                                             uint8_t bc) {
     std::string source = "test = ( 1 " + sel + " 1 )";
     auto bytecodes = methodToBytecode(source.data());
 
@@ -838,8 +839,9 @@ void BytecodeGenerationTest::testIfTrueIfFalseReturn() {
     ifTrueIfFalseReturn("ifTrue:", "ifFalse:", BC(BC_JUMP_ON_FALSE_POP, 8, 0));
     ifTrueIfFalseReturn("ifFalse:", "ifTrue:", BC(BC_JUMP_ON_TRUE_POP, 8, 0));
 }
-void BytecodeGenerationTest::ifTrueIfFalseReturn(std::string sel1,
-                                                 std::string sel2, BC bc) {
+void BytecodeGenerationTest::ifTrueIfFalseReturn(const std::string& sel1,
+                                                 const std::string& sel2,
+                                                 BC bc) {
     std::string source = "test: arg1 with: arg2 = ( #start. ^ self method " +
                          sel1 + " [ ^ arg1 ] " + sel2 + " [ arg2 ] )";
     auto bytecodes = methodToBytecode(source.data());
@@ -891,7 +893,7 @@ void BytecodeGenerationTest::testTrivialMethodInlining() {
     trivialMethodInlining("[ self ]", BC(BC_PUSH_BLOCK, 1));
 }
 
-void BytecodeGenerationTest::trivialMethodInlining(std::string literal,
+void BytecodeGenerationTest::trivialMethodInlining(const std::string& literal,
                                                    BC bytecode) {
     std::string source = "test = ( true ifTrue: [ " + literal + " ] )";
     auto bytecodes = methodToBytecode(source.data());

@@ -49,7 +49,8 @@ public:
     static void Start(long argc, char** argv);
     static void BasicInit();
 
-    static vm_oop_t interpret(std::string className, std::string methodName);
+    static vm_oop_t interpret(const std::string& className,
+                              const std::string& methodName);
 
     static long setupClassPath(const std::string& cp);
 

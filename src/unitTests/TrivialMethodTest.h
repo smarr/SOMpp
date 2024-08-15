@@ -26,19 +26,19 @@ class TrivialMethodTest : public TestWithParsing {
 
 private:
     void testLiteralReturn();
-    void literalReturn(std::string source);
+    void literalReturn(const std::string& source);
 
     void testBlockLiteralReturn();
-    void blockLiteralReturn(std::string source);
+    void blockLiteralReturn(const std::string& source);
 
     void testLiteralNoReturn();
-    void literalNoReturn(std::string source);
+    void literalNoReturn(const std::string& source);
 
     void testNonTrivialLiteralReturn();
-    void nonTrivialLiteralReturn(std::string source);
+    void nonTrivialLiteralReturn(const std::string& source);
 
     void testGlobalReturn();
-    void globalReturn(std::string source);
+    void globalReturn(const std::string& source);
 
     void testNonTrivialGlobalReturn();
     void testUnknownGlobalInBlock();
@@ -50,9 +50,9 @@ private:
     void testNonTrivialFieldGetterN();
 
     void testFieldSetter0();
-    void fieldSetter0(std::string source);
+    void fieldSetter0(const std::string& source);
     void testFieldSetterN();
-    void fieldSetterN(std::string source);
+    void fieldSetterN(const std::string& source);
     void testNonTrivialFieldSetter0();
     void testNonTrivialFieldSetterN();
 

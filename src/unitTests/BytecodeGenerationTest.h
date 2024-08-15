@@ -154,7 +154,7 @@ private:
     void testNestedIfsAndLocals();
 
     void testIncDecBytecodes();
-    void incDecBytecodes(std::string sel, uint8_t bc);
+    void incDecBytecodes(const std::string& sel, uint8_t bc);
 
     void testIfTrueAndIncField();
     void testIfTrueAndIncArg();
@@ -164,12 +164,13 @@ private:
     void returnField(size_t fieldNum, BC bytecode, bool isReturnFieldBc);
 
     void testTrivialMethodInlining();
-    void trivialMethodInlining(std::string literal, BC bytecode);
+    void trivialMethodInlining(const std::string& literal, BC bytecode);
 
     void testBlockIfTrueArg();
     void testBlockIfTrueMethodArg();
     void testIfTrueIfFalseReturn();
-    void ifTrueIfFalseReturn(std::string sel1, std::string sel2, BC bc);
+    void ifTrueIfFalseReturn(const std::string& sel1, const std::string& sel2,
+                             BC bc);
 
     void testBlockIfReturnNonLocal();
     void blockIfReturnNonLocal(std::string sel, BC bc);
