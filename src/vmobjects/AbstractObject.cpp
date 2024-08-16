@@ -7,6 +7,8 @@
 
 #include "AbstractObject.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <string>
 
 #include "../interpreter/Interpreter.h"
