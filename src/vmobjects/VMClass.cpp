@@ -95,8 +95,8 @@ bool VMClass::AddInstanceInvokable(VMInvokable* ptr) {
     return true;
 }
 
-VMSymbol* VMClass::GetInstanceFieldName(long index) const {
-    long const numSuperInstanceFields = numberOfSuperInstanceFields();
+VMSymbol* VMClass::GetInstanceFieldName(size_t index) const {
+    size_t const numSuperInstanceFields = numberOfSuperInstanceFields();
     if (index >= numSuperInstanceFields) {
         index -= numSuperInstanceFields;
         return static_cast<VMSymbol*>(
@@ -126,12 +126,12 @@ size_t VMClass::GetNumberOfInstanceInvokables() const {
     return load_ptr(instanceInvokables)->GetNumberOfIndexableFields();
 }
 
-VMInvokable* VMClass::GetInstanceInvokable(long index) const {
+VMInvokable* VMClass::GetInstanceInvokable(size_t index) const {
     return static_cast<VMInvokable*>(
         load_ptr(instanceInvokables)->GetIndexableField(index));
 }
 
-void VMClass::SetInstanceInvokable(long index, VMInvokable* invokable) {
+void VMClass::SetInstanceInvokable(size_t index, VMInvokable* invokable) {
     load_ptr(instanceInvokables)->SetIndexableField(index, invokable);
     if (invokable != reinterpret_cast<VMInvokable*>(load_ptr(nilObject))) {
         invokable->SetHolder(this);
@@ -146,8 +146,8 @@ VMInvokable* VMClass::LookupInvokable(VMSymbol* name) {
         return invokable;
     }
 
-    long const numInvokables = GetNumberOfInstanceInvokables();
-    for (long i = 0; i < numInvokables; ++i) {
+    size_t const numInvokables = GetNumberOfInstanceInvokables();
+    for (size_t i = 0; i < numInvokables; ++i) {
         invokable = GetInstanceInvokable(i);
         if (invokable->GetSignature() == name) {
             name->UpdateCachedInvokable(this, invokable);
@@ -164,9 +164,9 @@ VMInvokable* VMClass::LookupInvokable(VMSymbol* name) {
     return nullptr;
 }
 
-long VMClass::LookupFieldIndex(VMSymbol* name) const {
-    long const numInstanceFields = GetNumberOfInstanceFields();
-    for (long i = 0; i <= numInstanceFields; ++i) {
+int64_t VMClass::LookupFieldIndex(VMSymbol* name) const {
+    size_t const numInstanceFields = GetNumberOfInstanceFields();
+    for (size_t i = 0; i <= numInstanceFields; ++i) {
         // even with GetNumberOfInstanceFields == 0 there is the class field
         if (name == GetInstanceFieldName(i)) {
             return i;

@@ -54,7 +54,7 @@ public:
                  bool* isArgument);
     bool HasField(VMSymbol* field);
 
-    uint8_t GetFieldIndex(VMSymbol* field);
+    int64_t GetFieldIndex(VMSymbol* field);
 
     void SetSignature(VMSymbol* sig);
 

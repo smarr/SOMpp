@@ -52,7 +52,7 @@ public:
         ErrorPrint("this object doesn't support SetClass\n");
     }
 
-    long GetFieldIndex(VMSymbol* fieldName) const;
+    int64_t GetFieldIndex(VMSymbol* fieldName) const;
 
     virtual void WalkObjects(walk_heap_fn /*unused*/) {}
 

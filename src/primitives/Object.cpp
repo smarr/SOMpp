@@ -129,8 +129,8 @@ vm_oop_t objInstVarAtPut(vm_oop_t self, vm_oop_t idx, vm_oop_t value) {
 
 vm_oop_t objInstVarNamed(vm_oop_t self, vm_oop_t nameObj) {
     auto* name = (VMSymbol*)nameObj;
-    long const field_idx = AS_OBJ(self)->GetFieldIndex(name);
-    return static_cast<VMObject*>(self)->GetField(field_idx);
+    int64_t const fieldIdx = AS_OBJ(self)->GetFieldIndex(name);
+    return static_cast<VMObject*>(self)->GetField(fieldIdx);
 }
 
 vm_oop_t objClass(vm_oop_t self) {

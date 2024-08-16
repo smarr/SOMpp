@@ -152,8 +152,8 @@ void VMMethod::SetHolder(VMClass* hld) {
 }
 
 void VMMethod::SetHolderAll(VMClass* hld) {
-    long const numIndexableFields = GetNumberOfIndexableFields();
-    for (long i = 0; i < numIndexableFields; ++i) {
+    size_t const numIndexableFields = GetNumberOfIndexableFields();
+    for (size_t i = 0; i < numIndexableFields; ++i) {
         vm_oop_t o = GetIndexableField(i);
         if (!IS_TAGGED(o)) {
             auto* vmi = dynamic_cast<VMInvokable*>(AS_OBJ(o));

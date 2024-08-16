@@ -293,8 +293,8 @@ int8_t MethodGenerationContext::FindLiteralIndex(vm_oop_t lit) {
     return (int8_t)IndexOf(literals, lit);
 }
 
-uint8_t MethodGenerationContext::GetFieldIndex(VMSymbol* field) {
-    int16_t const idx = holderGenc.GetFieldIndex(field);
+int64_t MethodGenerationContext::GetFieldIndex(VMSymbol* field) {
+    int64_t const idx = holderGenc.GetFieldIndex(field);
     assert(idx >= 0);
     return idx;
 }

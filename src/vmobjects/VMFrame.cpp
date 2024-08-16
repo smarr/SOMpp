@@ -48,9 +48,9 @@
 // depth is calculated. In that case this method is called.
 VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, size_t extraLength) {
     VMMethod* method = from->GetMethod();
-    long const length = method->GetNumberOfArguments() +
-                        method->GetNumberOfLocals() +
-                        method->GetMaximumNumberOfStackElements() + extraLength;
+    size_t const length =
+        method->GetNumberOfArguments() + method->GetNumberOfLocals() +
+        method->GetMaximumNumberOfStackElements() + extraLength;
 
     size_t const additionalBytes = length * sizeof(VMObject*);
     auto* result = new (GetHeap<HEAP_CLS>(), additionalBytes)
@@ -70,7 +70,7 @@ VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, size_t extraLength) {
     auto* from_end = (gc_oop_t*)SHIFTED_PTR(from, from->GetObjectSize());
     auto* result_end = (gc_oop_t*)SHIFTED_PTR(result, result->GetObjectSize());
 
-    long i = 0;
+    size_t i = 0;
 
     // copy all fields from other frame
     while (from->arguments + i < from_end) {
@@ -151,7 +151,7 @@ void VMFrame::WalkObjects(walk_heap_fn walk) {
 
     // all other fields are indexable via arguments array
     // --> until end of Frame
-    long i = 0;
+    size_t i = 0;
     while (arguments + i <= stack_ptr) {
         if (arguments[i] != nullptr) {
             arguments[i] = walk(arguments[i]);
@@ -246,8 +246,8 @@ void VMFrame::CopyArgumentsFrom(VMFrame* frame) {
     // copy arguments from frame:
     // - arguments are at the top of the stack of frame.
     // - copy them into the argument area of the current frame
-    long const num_args = GetMethod()->GetNumberOfArguments();
-    for (long i = 0; i < num_args; ++i) {
+    size_t const num_args = GetMethod()->GetNumberOfArguments();
+    for (size_t i = 0; i < num_args; ++i) {
         vm_oop_t stackElem = frame->GetStackElement(num_args - 1 - i);
         store_ptr(arguments[i], stackElem);
     }
