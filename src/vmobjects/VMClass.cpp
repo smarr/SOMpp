@@ -64,8 +64,8 @@ VMClass::VMClass(size_t numberOfFields, size_t additionalBytes)
     : VMObject(numberOfFields + VMClassNumberOfFields,
                additionalBytes + sizeof(VMClass)) {}
 
-bool VMClass::AddInstanceInvokable(VMInvokable* ptr) {
-    if (ptr == nullptr) {
+bool VMClass::AddInstanceInvokable(VMInvokable* invokable) {
+    if (invokable == nullptr) {
         ErrorExit("Error: trying to add non-invokable to invokables array");
         return false;
     }
@@ -78,8 +78,8 @@ bool VMClass::AddInstanceInvokable(VMInvokable* ptr) {
         auto* inv =
             static_cast<VMInvokable*>(instInvokables->GetIndexableField(i));
         if (inv != nullptr) {
-            if (ptr->GetSignature() == inv->GetSignature()) {
-                SetInstanceInvokable(i, ptr);
+            if (invokable->GetSignature() == inv->GetSignature()) {
+                SetInstanceInvokable(i, invokable);
                 return false;
             }
         } else {
@@ -91,7 +91,7 @@ bool VMClass::AddInstanceInvokable(VMInvokable* ptr) {
     }
     // it's a new invokable so we need to expand the invokables array.
     store_ptr(instanceInvokables,
-              instInvokables->CopyAndExtendWith((vm_oop_t)ptr));
+              instInvokables->CopyAndExtendWith((vm_oop_t)invokable));
 
     return true;
 }
