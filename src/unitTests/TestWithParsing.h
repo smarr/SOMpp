@@ -38,9 +38,9 @@ public:
     }
 
 protected:
-    ClassGenerationContext* _cgenc;
-    MethodGenerationContext* _mgenc;
-    MethodGenerationContext* _bgenc;
+    ClassGenerationContext* _cgenc = nullptr;
+    MethodGenerationContext* _mgenc = nullptr;
+    MethodGenerationContext* _bgenc = nullptr;
 
     void ensureCGenC();
     void ensureMGenC();
