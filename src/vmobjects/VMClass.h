@@ -81,6 +81,7 @@ private:
     make_testable(public);
 
     // Remember to update Parser::superclass when the fields are changed
+    // Theses are treated like VMObject fields and initialized that way
     GCSymbol* name;
     GCArray* instanceFields;
     GCArray* instanceInvokables;

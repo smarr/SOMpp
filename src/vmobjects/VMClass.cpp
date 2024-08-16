@@ -45,10 +45,8 @@
 
 const size_t VMClass::VMClassNumberOfFields = 4;
 
-VMClass::VMClass()
-    : VMObject(VMClassNumberOfFields, sizeof(VMClass)), name(nullptr),
-      instanceFields(nullptr), instanceInvokables(nullptr),
-      superClass(nullptr) {}
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
+VMClass::VMClass() : VMObject(VMClassNumberOfFields, sizeof(VMClass)) {}
 
 VMClass* VMClass::CloneForMovingGC() const {
     auto* clone =
@@ -60,6 +58,7 @@ VMClass* VMClass::CloneForMovingGC() const {
     return clone;
 }
 
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
 VMClass::VMClass(size_t numberOfFields, size_t additionalBytes)
     : VMObject(numberOfFields + VMClassNumberOfFields,
                additionalBytes + sizeof(VMClass)) {}
