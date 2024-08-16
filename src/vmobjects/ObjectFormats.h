@@ -59,7 +59,7 @@
       (IS_TAGGED(X) ? ((int64_t)(X) >> 1) \
                     : (((VMInteger*)(X))->GetEmbeddedInteger()))
   #define NEW_INT(X) (TAG_INTEGER((X)))
-  #define IS_TAGGED(X) ((int64_t)X & 1)
+  #define IS_TAGGED(X) ((int64_t)(X) & 1)
   #define CLASS_OF(X)                        \
       (IS_TAGGED(X) ? load_ptr(integerClass) \
                     : ((AbstractVMObject*)(X))->GetClass())

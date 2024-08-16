@@ -608,7 +608,7 @@ void Universe::LoadSystemClass(VMClass* systemClass) {
 VMArray* Universe::NewArray(size_t size) {
     size_t const additionalBytes = size * sizeof(VMObject*);
 
-    bool outsideNursery = false;
+    bool outsideNursery = false;  // NOLINT
 
 #if GC_TYPE == GENERATIONAL
     // if the array is too big for the nursery, we will directly allocate a
@@ -752,7 +752,7 @@ VMInteger* Universe::NewInteger(int64_t value) {
 #endif
 
 #if CACHE_INTEGER
-    size_t index = (size_t)value - (size_t)INT_CACHE_MIN_VALUE;
+    size_t const index = (size_t)value - (size_t)INT_CACHE_MIN_VALUE;
     if (index < (size_t)(INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE)) {
         return static_cast<VMInteger*>(load_ptr(prebuildInts[index]));
     }
