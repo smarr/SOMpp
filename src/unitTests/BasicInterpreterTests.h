@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cppunit/extensions/HelperMacros.h>
+#include <utility>
 
 #include "../vmobjects/VMClass.h"
 #include "../vmobjects/VMDouble.h"
@@ -19,17 +20,17 @@ public:
 
     TestData(std::string className, std::string methodName,
              intptr_t expectedResult, ResultType type)
-        : className(className), methodName(methodName),
+        : className(std::move(className)), methodName(std::move(methodName)),
           expectedResult((void*)expectedResult), type(type) {}
 
     TestData(std::string className, std::string methodName,
              double const* expectedResult, ResultType type)
-        : className(className), methodName(methodName),
+        : className(std::move(className)), methodName(std::move(methodName)),
           expectedResult((void*)expectedResult), type(type) {}
 
     TestData(std::string className, std::string methodName,
              char const* expectedResult, ResultType type)
-        : className(className), methodName(methodName),
+        : className(std::move(className)), methodName(std::move(methodName)),
           expectedResult((void*)expectedResult), type(type) {}
 };
 
