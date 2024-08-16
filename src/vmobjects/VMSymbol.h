@@ -47,9 +47,9 @@ public:
 
 private:
     const int numberOfArgumentsOfSignature;
-    GCClass* cachedClass_invokable[3];
+    GCClass* cachedClass_invokable[3]{};
     long nextCachePos;
-    GCInvokable* cachedInvokable[3];
+    GCInvokable* cachedInvokable[3]{};
 
     inline VMInvokable* GetCachedInvokable(const VMClass* cls) const {
         if (cls == load_ptr(cachedClass_invokable[0])) {

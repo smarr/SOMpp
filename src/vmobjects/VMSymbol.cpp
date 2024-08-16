@@ -50,8 +50,6 @@ VMSymbol::VMSymbol(const size_t length, const char* const str)
     for (; i < length; ++i) {
         chars[i] = str[i];
     }
-    // clear caching fields
-    memset(&cachedClass_invokable, 0, 6 * sizeof(void*) + 1 * sizeof(long));
 }
 
 size_t VMSymbol::GetObjectSize() const {
