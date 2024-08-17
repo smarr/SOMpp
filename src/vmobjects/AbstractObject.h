@@ -54,9 +54,9 @@ public:
 
     int64_t GetFieldIndex(VMSymbol* fieldName) const;
 
-    virtual void WalkObjects(walk_heap_fn /*unused*/) {}
+    virtual void WalkObjects(walk_heap_fn /*walk*/) {}
 
-    inline virtual VMSymbol* GetFieldName(long /*unused*/) const {
+    inline virtual VMSymbol* GetFieldName(size_t /*index*/) const {
         ErrorPrint("this object doesn't support GetFieldName\n");
         return nullptr;
     }

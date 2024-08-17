@@ -57,7 +57,7 @@ public:
     }
 
 private:
-    static VMSymbol* computeSignatureString(long argc);
+    static VMSymbol* computeSignatureString(size_t argc);
     void evaluationRoutine(VMFrame*);
 
     make_testable(public);

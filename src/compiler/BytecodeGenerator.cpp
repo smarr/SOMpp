@@ -65,7 +65,7 @@ void EmitDUP(MethodGenerationContext& mgenc) {
     Emit1(mgenc, BC_DUP, 1);
 }
 
-void EmitPUSHLOCAL(MethodGenerationContext& mgenc, long idx, int ctx) {
+void EmitPUSHLOCAL(MethodGenerationContext& mgenc, size_t idx, size_t ctx) {
     assert(idx >= 0);
     assert(ctx >= 0);
     if (ctx == 0) {
@@ -85,7 +85,7 @@ void EmitPUSHLOCAL(MethodGenerationContext& mgenc, long idx, int ctx) {
     Emit3(mgenc, BC_PUSH_LOCAL, idx, ctx, 1);
 }
 
-void EmitPUSHARGUMENT(MethodGenerationContext& mgenc, long idx, int ctx) {
+void EmitPUSHARGUMENT(MethodGenerationContext& mgenc, size_t idx, size_t ctx) {
     assert(idx >= 0);
     assert(ctx >= 0);
 
@@ -191,7 +191,7 @@ void EmitPOP(MethodGenerationContext& mgenc) {
     }
 }
 
-void EmitPOPLOCAL(MethodGenerationContext& mgenc, long idx, int ctx) {
+void EmitPOPLOCAL(MethodGenerationContext& mgenc, size_t idx, size_t ctx) {
     assert(idx >= 0);
     assert(ctx >= 0);
     if (ctx == 0) {
@@ -214,7 +214,7 @@ void EmitPOPLOCAL(MethodGenerationContext& mgenc, long idx, int ctx) {
     Emit3(mgenc, BC_POP_LOCAL, idx, ctx, -1);
 }
 
-void EmitPOPARGUMENT(MethodGenerationContext& mgenc, long idx, int ctx) {
+void EmitPOPARGUMENT(MethodGenerationContext& mgenc, size_t idx, size_t ctx) {
     Emit3(mgenc, BC_POP_ARGUMENT, idx, ctx, -1);
 }
 

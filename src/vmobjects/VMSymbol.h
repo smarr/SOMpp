@@ -46,9 +46,9 @@ public:
     std::string AsDebugString() const override;
 
 private:
-    const int numberOfArgumentsOfSignature;
+    const size_t numberOfArgumentsOfSignature;
     GCClass* cachedClass_invokable[3]{};
-    long nextCachePos;
+    size_t nextCachePos;
     GCInvokable* cachedInvokable[3]{};
 
     inline VMInvokable* GetCachedInvokable(const VMClass* cls) const {

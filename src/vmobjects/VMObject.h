@@ -87,7 +87,7 @@ public:
     }
 
     void SetClass(VMClass* cl) override;
-    VMSymbol* GetFieldName(long index) const override;
+    VMSymbol* GetFieldName(size_t index) const override;
 
     inline size_t GetNumberOfFields() const override { return numberOfFields; }
 

@@ -56,7 +56,7 @@ void VMEvaluationPrimitive::WalkObjects(walk_heap_fn walk) {
     VMInvokable::WalkObjects(walk);
 }
 
-VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc) {
+VMSymbol* VMEvaluationPrimitive::computeSignatureString(size_t argc) {
 #define VALUE_S "value"
 #define VALUE_LEN 5
 #define WITH_S "with:"

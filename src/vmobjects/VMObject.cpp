@@ -63,7 +63,7 @@ void VMObject::SetClass(VMClass* cl) {
     store_ptr(clazz, cl);
 }
 
-VMSymbol* VMObject::GetFieldName(long index) const {
+VMSymbol* VMObject::GetFieldName(size_t index) const {
     return load_ptr(clazz)->GetInstanceFieldName(index);
 }
 
