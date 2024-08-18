@@ -70,7 +70,7 @@ void Shell::Start() {
     }
     // the statement to evaluate
     char inbuf[INPUT_MAX_SIZE];
-    long bytecodeIndex = 0, counter = 0;
+    size_t bytecodeIndex = 0, counter = 0;
     VMFrame* currentFrame = nullptr;
     VMClass* runClass = nullptr;
     vm_oop_t it = load_ptr(nilObject);  // last evaluation result.

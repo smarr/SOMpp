@@ -139,12 +139,12 @@ void Universe::Shutdown() {
 #endif
 }
 
-vector<std::string> Universe::handleArguments(long argc, char** argv) {
+vector<std::string> Universe::handleArguments(int32_t argc, char** argv) {
     vector<std::string> vmArgs = vector<std::string>();
     dumpBytecodes = 0;
     gcVerbosity = 0;
 
-    for (long i = 1; i < argc; ++i) {
+    for (int32_t i = 1; i < argc; ++i) {
         if (strncmp(argv[i], "-cp", 3) == 0) {
             if ((argc == i + 1) || classPath.size() > 0) {
                 printUsageAndExit(argv[0]);
@@ -155,7 +155,7 @@ vector<std::string> Universe::handleArguments(long argc, char** argv) {
         } else if (strncmp(argv[i], "-g", 2) == 0) {
             ++gcVerbosity;
         } else if (strncmp(argv[i], "-H", 2) == 0) {
-            long heap_size = 0;
+            size_t heap_size = 0;
             char unit[3];
             if (sscanf(argv[i], "-H%ld%2s", &heap_size, unit) == 2) {
                 if (strcmp(unit, "KB") == 0) {
@@ -173,7 +173,7 @@ vector<std::string> Universe::handleArguments(long argc, char** argv) {
         } else {
             vector<std::string> extPathTokens = vector<std::string>(2);
             std::string const tmpString = std::string(argv[i]);
-            if (getClassPathExt(extPathTokens, tmpString) == ERR_SUCCESS) {
+            if (getClassPathExt(extPathTokens, tmpString)) {
                 addClassPath(extPathTokens[0]);
             }
             // Different from CSOM!!!:
@@ -191,10 +191,10 @@ vector<std::string> Universe::handleArguments(long argc, char** argv) {
     return vmArgs;
 }
 
-long Universe::getClassPathExt(vector<std::string>& tokens,
+bool Universe::getClassPathExt(vector<std::string>& tokens,
                                const std::string& arg) {
 #define EXT_TOKENS 2
-    long result = ERR_SUCCESS;
+    bool result = true;
     size_t fpIndex = arg.find_last_of(fileSeparator);
     size_t ssepIndex = arg.find(".som");
 
@@ -206,7 +206,7 @@ long Universe::getClassPathExt(vector<std::string>& tokens,
         fpIndex = -1;
         // instead of returning here directly, we have to remember that
         // there is no new class path and return it later
-        result = ERR_FAIL;
+        result = false;
     } else {
         tokens[0] = arg.substr(0, fpIndex);
     }
@@ -219,7 +219,7 @@ long Universe::getClassPathExt(vector<std::string>& tokens,
     return result;
 }
 
-long Universe::setupClassPath(const std::string& cp) {
+void Universe::setupClassPath(const std::string& cp) {
     try {
         std::stringstream ss(cp);
         std::string token;
@@ -228,15 +228,14 @@ long Universe::setupClassPath(const std::string& cp) {
             classPath.push_back(token);
         }
 
-        return ERR_SUCCESS;
+        return;
     } catch (std::exception e) {
-        return ERR_FAIL;
+        return;
     }
 }
 
-long Universe::addClassPath(const std::string& cp) {
+void Universe::addClassPath(const std::string& cp) {
     classPath.push_back(cp);
-    return ERR_SUCCESS;
 }
 
 void Universe::printUsageAndExit(char* executable) {
@@ -259,7 +258,7 @@ void Universe::printUsageAndExit(char* executable) {
 }
 
 VMMethod* Universe::createBootstrapMethod(VMClass* holder,
-                                          long numArgsOfMsgSend) {
+                                          uint8_t numArgsOfMsgSend) {
     vector<BackJump> inlinedLoops;
     auto* bootStrapScope = new LexicalScope(nullptr, {}, {});
     VMMethod* bootstrapMethod =
@@ -328,7 +327,7 @@ vm_oop_t Universe::interpretMethod(VMObject* receiver, VMInvokable* initialize,
     return Interpreter::Start();
 }
 
-void Universe::initialize(long _argc, char** _argv) {
+void Universe::initialize(int32_t _argc, char** _argv) {
     InitializeAllocationLog();
 
     heapSize = 1 * 1024 * 1024;
@@ -729,9 +728,9 @@ VMFrame* Universe::NewFrame(VMFrame* previousFrame, VMMethod* method) {
 }
 
 VMObject* Universe::NewInstance(VMClass* classOfInstance) {
-    long const numOfFields = classOfInstance->GetNumberOfInstanceFields();
+    size_t const numOfFields = classOfInstance->GetNumberOfInstanceFields();
     // the additional space needed is calculated from the number of fields
-    long const additionalBytes = numOfFields * sizeof(VMObject*);
+    size_t const additionalBytes = numOfFields * sizeof(VMObject*);
     auto* result = new (GetHeap<HEAP_CLS>(), additionalBytes)
         VMObject(numOfFields, additionalBytes + sizeof(VMObject));
     result->SetClass(classOfInstance);

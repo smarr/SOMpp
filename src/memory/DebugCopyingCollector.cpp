@@ -41,7 +41,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
         obj->MarkObjectAsInvalid();
     }
 
-    obj->SetGCField((long)newObj);
+    obj->SetGCField((uintptr_t)newObj);
     return tmp_ptr(newObj);
 }
 

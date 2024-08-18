@@ -52,7 +52,7 @@ public:
     static vm_oop_t interpret(const std::string& className,
                               const std::string& methodName);
 
-    static long setupClassPath(const std::string& cp);
+    static void setupClassPath(const std::string& cp);
 
     static void Assert(bool /*value*/);
 
@@ -123,17 +123,17 @@ private:
     static vm_oop_t interpretMethod(VMObject* receiver, VMInvokable* initialize,
                                     VMArray* argumentsArray);
 
-    static vector<std::string> handleArguments(long argc, char** argv);
-    static long getClassPathExt(vector<std::string>& tokens,
+    static vector<std::string> handleArguments(int32_t argc, char** argv);
+    static bool getClassPathExt(vector<std::string>& tokens,
                                 const std::string& arg);
 
     static VMMethod* createBootstrapMethod(VMClass* holder,
-                                           long numArgsOfMsgSend);
+                                           uint8_t numArgsOfMsgSend);
 
-    static long addClassPath(const std::string& cp);
+    static void addClassPath(const std::string& cp);
     static void printUsageAndExit(char* executable);
 
-    static void initialize(long /*_argc*/, char** /*_argv*/);
+    static void initialize(int32_t _argc, char** _argv);
 
     static size_t heapSize;
     static map<GCSymbol*, gc_oop_t> globals;

@@ -181,8 +181,8 @@ size_t VMClass::GetNumberOfInstanceFields() const {
 }
 
 bool VMClass::HasPrimitives() const {
-    long const numInvokables = GetNumberOfInstanceInvokables();
-    for (long i = 0; i < numInvokables; ++i) {
+    size_t const numInvokables = GetNumberOfInstanceInvokables();
+    for (size_t i = 0; i < numInvokables; ++i) {
         VMInvokable* invokable = GetInstanceInvokable(i);
         if (invokable->IsPrimitive()) {
             return true;

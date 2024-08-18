@@ -122,7 +122,7 @@ std::string VMEvaluationPrimitive::AsDebugString() const {
     return "VMEvaluationPrimitive(" + to_string(numberOfArguments) + ")";
 }
 
-#define INVALID_INT_MARKER 9002002002002002002
+#define INVALID_INT_MARKER 0xFF
 
 void VMEvaluationPrimitive::MarkObjectAsInvalid() {
     VMInvokable::MarkObjectAsInvalid();

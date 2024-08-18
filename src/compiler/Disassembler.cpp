@@ -333,7 +333,7 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes,
  */
 void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method,
                                 size_t bc_idx) {
-    static long long indentc = 0;
+    static int64_t indentc = 0;
     static char ikind = '@';
     uint8_t const bc = BC_0;
     VMClass* cl = method->GetHolder();

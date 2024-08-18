@@ -234,14 +234,14 @@ static vm_oop_t intGreaterThanEqual(vm_oop_t leftObj, vm_oop_t rightObj) {
 }
 
 static vm_oop_t intAsString(vm_oop_t self) {
-    long const integer = INT_VAL(self);
+    int64_t const integer = INT_VAL(self);
     ostringstream Str;
     Str << integer;
     return Universe::NewString(Str.str());
 }
 
 static vm_oop_t intAsDouble(vm_oop_t self) {
-    long const integer = INT_VAL(self);
+    int64_t const integer = INT_VAL(self);
     return Universe::NewDouble((double)integer);
 }
 

@@ -26,6 +26,7 @@
 
 #include "System.h"
 
+#include <cstdint>
 #include <ctime>
 #include <fstream>
 #include <sstream>
@@ -87,7 +88,7 @@ static vm_oop_t sysLoad_(vm_oop_t /*unused*/, vm_oop_t rightObj) {
 }
 
 static vm_oop_t sysExit_(vm_oop_t /*unused*/, vm_oop_t err) {
-    long const err_no = INT_VAL(err);
+    int64_t const err_no = INT_VAL(err);
     Quit(err_no);
 }
 
@@ -124,7 +125,7 @@ static vm_oop_t sysTime(vm_oop_t /*unused*/) {
 
     gettimeofday(&now, nullptr);
 
-    long long const diff =
+    int64_t const diff =
         ((now.tv_sec - start_time.tv_sec) * 1000) +   // seconds
         ((now.tv_usec - start_time.tv_usec) / 1000);  // useconds
 
@@ -136,7 +137,7 @@ static vm_oop_t sysTicks(vm_oop_t /*unused*/) {
 
     gettimeofday(&now, nullptr);
 
-    long long const diff =
+    int64_t const diff =
         ((now.tv_sec - start_time.tv_sec) * 1000 * 1000) +  // seconds
         ((now.tv_usec - start_time.tv_usec));               // useconds
 
