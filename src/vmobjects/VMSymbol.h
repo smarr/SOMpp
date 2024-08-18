@@ -46,7 +46,7 @@ public:
     std::string AsDebugString() const override;
 
 private:
-    const size_t numberOfArgumentsOfSignature;
+    const uint8_t numberOfArgumentsOfSignature;
     GCClass* cachedClass_invokable[3]{};
     size_t nextCachePos;
     GCInvokable* cachedInvokable[3]{};

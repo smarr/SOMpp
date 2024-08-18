@@ -39,14 +39,14 @@
 class SourcecodeCompiler;
 
 // for runtime debug
-extern short dumpBytecodes;
-extern short gcVerbosity;
+extern uint8_t dumpBytecodes;
+extern uint8_t gcVerbosity;
 
 using namespace std;
 class Universe {
 public:
     // static methods
-    static void Start(long argc, char** argv);
+    static void Start(int32_t argc, char** argv);
     static void BasicInit();
 
     static vm_oop_t interpret(const std::string& className,
@@ -68,8 +68,8 @@ public:
     static VMArray* NewArrayOfSymbolsFromStrings(
         const vector<std::string>& /*strings*/);
 
-    static VMBlock* NewBlock(VMInvokable* /*method*/, VMFrame* /*context*/,
-                             long /*arguments*/);
+    static VMBlock* NewBlock(VMInvokable* method, VMFrame* context,
+                             uint8_t arguments);
     static VMClass* NewClass(VMClass* /*classOfClass*/);
     static VMFrame* NewFrame(VMFrame* /*previousFrame*/, VMMethod* /*method*/);
     static VMMethod* NewMethod(VMSymbol* /*signature*/,
@@ -97,7 +97,7 @@ public:
     static bool HasGlobal(VMSymbol* /*name*/);
     static VMObject* InitializeGlobals();
     static VMClass* GetBlockClass();
-    static VMClass* GetBlockClassWithArgs(long /*numberOfArguments*/);
+    static VMClass* GetBlockClassWithArgs(uint8_t numberOfArguments);
 
     static VMClass* LoadClass(VMSymbol* /*name*/);
     static void LoadSystemClass(VMClass* /*systemClass*/);
@@ -135,9 +135,9 @@ private:
 
     static void initialize(long /*_argc*/, char** /*_argv*/);
 
-    static long heapSize;
+    static size_t heapSize;
     static map<GCSymbol*, gc_oop_t> globals;
 
-    static map<long, GCClass*> blockClassesByNoOfArgs;
+    static map<uint8_t, GCClass*> blockClassesByNoOfArgs;
     static vector<std::string> classPath;
 };

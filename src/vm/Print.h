@@ -7,6 +7,6 @@ void Print(const char* str);
 void ErrorPrint(const std::string& str);
 void ErrorPrint(const char* str);
 
-__attribute__((noreturn)) __attribute__((noinline)) void Quit(long /*err*/);
+__attribute__((noreturn)) __attribute__((noinline)) void Quit(int32_t err);
 __attribute__((noreturn)) __attribute__((noinline)) void ErrorExit(
     const char* /*err*/);

@@ -342,7 +342,7 @@ bool MethodGenerationContext::HasField(VMSymbol* field) {
     return holderGenc.HasField(field);
 }
 
-size_t MethodGenerationContext::GetNumberOfArguments() {
+uint8_t MethodGenerationContext::GetNumberOfArguments() {
     return arguments.size();
 }
 

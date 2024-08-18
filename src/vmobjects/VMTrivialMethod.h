@@ -32,7 +32,7 @@ public:
         return &arguments.at(index);
     }
 
-    inline size_t GetNumberOfArguments() const final {
+    inline uint8_t GetNumberOfArguments() const final {
         return Signature::GetNumberOfArguments(load_ptr(signature));
     }
 
@@ -87,7 +87,7 @@ public:
 
 private:
     gc_oop_t literal;
-    int numberOfArguments;
+    uint8_t numberOfArguments;
 };
 
 class VMGlobalReturn : public VMTrivialMethod {
@@ -130,7 +130,7 @@ public:
 
 private:
     GCSymbol* globalName;
-    int numberOfArguments;
+    uint8_t numberOfArguments;
 };
 
 class VMGetter : public VMTrivialMethod {
@@ -165,7 +165,7 @@ public:
 
 private:
     size_t fieldIndex;
-    int numberOfArguments;
+    uint8_t numberOfArguments;
 };
 
 class VMSetter : public VMTrivialMethod {
@@ -205,5 +205,5 @@ private:
 
     size_t fieldIndex;
     size_t argIndex;
-    int numberOfArguments;
+    uint8_t numberOfArguments;
 };

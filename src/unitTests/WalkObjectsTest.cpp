@@ -166,8 +166,8 @@ void WalkObjectsTest::testWalkFrame() {
     // CPPUNIT_ASSERT(WalkerHasFound(frame->bytecodeIndex));
     CPPUNIT_ASSERT(WalkerHasFound(tmp_ptr(dummyArg)));
     CPPUNIT_ASSERT_EQUAL(
-        (long)(NoOfFields_Frame + method->GetNumberOfArguments()),
-        (long)walkedObjects.size() +
+        (size_t)(NoOfFields_Frame + method->GetNumberOfArguments()),
+        (size_t)walkedObjects.size() +
             1);  // + 1 for the class field that's still in there
 }
 

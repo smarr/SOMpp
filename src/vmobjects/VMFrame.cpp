@@ -110,7 +110,7 @@ VMFrame* VMFrame::CloneForMovingGC() const {
 #else
     VMMethod* meth = GetMethod();
 #endif
-    int64_t const numArgs = meth->GetNumberOfArguments();
+    uint8_t const numArgs = meth->GetNumberOfArguments();
 
     clone->locals = clone->arguments + numArgs;
     clone->stack_ptr =
@@ -183,7 +183,7 @@ void VMFrame::PrintStack() const {
           " MaxStack:" +
           to_string(GetMethod()->GetMaximumNumberOfStackElements()) + "\n");
 
-    for (size_t i = 0; i < GetMethod()->GetNumberOfArguments(); i++) {
+    for (uint8_t i = 0; i < GetMethod()->GetNumberOfArguments(); i++) {
         Print("   arg " + to_string(i) + ": ");
         print_oop(arguments[i]);
     }

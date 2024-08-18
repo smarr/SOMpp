@@ -36,7 +36,7 @@
 #include "MarkSweepHeap.h"     // NOLINT(misc-include-cleaner)
 
 template <class HEAP_T>
-void Heap<HEAP_T>::InitializeHeap(long objectSpaceSize) {
+void Heap<HEAP_T>::InitializeHeap(size_t objectSpaceSize) {
     if (theHeap) {
         ErrorPrint(
             "Warning, reinitializing already initialized Heap, "
@@ -64,7 +64,7 @@ void Heap<HEAP_T>::FullGC() {
 }
 
 // Instantitate Template for the heap classes
-template void Heap<HEAP_CLS>::InitializeHeap(long);
+template void Heap<HEAP_CLS>::InitializeHeap(size_t);
 template void Heap<HEAP_CLS>::DestroyHeap();
 template void Heap<HEAP_CLS>::FullGC();
 

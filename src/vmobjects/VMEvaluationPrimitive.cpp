@@ -28,6 +28,7 @@
 
 #include <cassert>
 #include <cstddef>
+#include <cstdint>
 #include <string>
 
 #include "../compiler/LexicalScope.h"
@@ -41,7 +42,7 @@
 #include "VMFrame.h"
 #include "VMSymbol.h"
 
-VMEvaluationPrimitive::VMEvaluationPrimitive(size_t argc)
+VMEvaluationPrimitive::VMEvaluationPrimitive(uint8_t argc)
     : VMInvokable(computeSignatureString(argc)), numberOfArguments(argc) {
     write_barrier(this, load_ptr(signature));
 }

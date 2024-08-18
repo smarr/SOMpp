@@ -33,12 +33,13 @@
 
 class Signature {
 public:
-    inline static int GetNumberOfArguments(VMSymbol* sig) {
+    inline static uint8_t GetNumberOfArguments(VMSymbol* sig) {
         return sig->numberOfArgumentsOfSignature;
     }
 
     static bool IsBinary(VMSymbol* sig);
 
-    static int DetermineNumberOfArguments(const char* sig, const size_t length);
+    static uint8_t DetermineNumberOfArguments(const char* sig,
+                                              const size_t length);
     static bool IsBinary(const char* sig, const size_t length);
 };

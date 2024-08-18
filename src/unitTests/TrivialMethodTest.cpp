@@ -224,7 +224,7 @@ void TrivialMethodTest::fieldSetter0(const std::string& source) {
     auto* setter = (VMSetter*)m;
     CPPUNIT_ASSERT_EQUAL(setter->fieldIndex, (size_t)0);
     CPPUNIT_ASSERT_EQUAL(setter->argIndex, (size_t)1);
-    CPPUNIT_ASSERT_EQUAL(setter->numberOfArguments, 2);
+    CPPUNIT_ASSERT_EQUAL((size_t)setter->numberOfArguments, (size_t)2);
 
     tearDown();
 }
@@ -254,7 +254,7 @@ void TrivialMethodTest::fieldSetterN(const std::string& source) {
     auto* setter = (VMSetter*)m;
     CPPUNIT_ASSERT_EQUAL(setter->fieldIndex, (size_t)5);
     CPPUNIT_ASSERT_EQUAL(setter->argIndex, (size_t)2);
-    CPPUNIT_ASSERT_EQUAL(setter->numberOfArguments, 4);
+    CPPUNIT_ASSERT_EQUAL((size_t)setter->numberOfArguments, (size_t)4);
 
     tearDown();
 }

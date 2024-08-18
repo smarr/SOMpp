@@ -231,7 +231,7 @@ void EmitPOPFIELD(MethodGenerationContext& mgenc, VMSymbol* field) {
 void EmitSEND(MethodGenerationContext& mgenc, VMSymbol* msg) {
     const int8_t idx = mgenc.AddLiteralIfAbsent(msg);
 
-    const int numArgs = Signature::GetNumberOfArguments(msg);
+    const uint8_t numArgs = Signature::GetNumberOfArguments(msg);
     const size_t stackEffect = -numArgs + 1;  // +1 for the result
 
     Emit2(mgenc, numArgs == 1 ? BC_SEND_1 : BC_SEND, idx, stackEffect);
@@ -240,7 +240,7 @@ void EmitSEND(MethodGenerationContext& mgenc, VMSymbol* msg) {
 void EmitSUPERSEND(MethodGenerationContext& mgenc, VMSymbol* msg) {
     const int8_t idx = mgenc.AddLiteralIfAbsent(msg);
 
-    const int numArgs = Signature::GetNumberOfArguments(msg);
+    const uint8_t numArgs = Signature::GetNumberOfArguments(msg);
     const size_t stackEffect = -numArgs + 1;  // +1 for the result
 
     Emit2(mgenc, BC_SUPER_SEND, idx, stackEffect);

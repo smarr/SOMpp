@@ -72,19 +72,19 @@ gc_oop_t prebuildInts[INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE + 1];
 
 // Here we go:
 
-short dumpBytecodes;
-short gcVerbosity;
+uint8_t dumpBytecodes;
+uint8_t gcVerbosity;
 
 std::string bm_name;
 
 map<int64_t, int64_t> integerHist;
 
 map<GCSymbol*, gc_oop_t> Universe::globals;
-map<long, GCClass*> Universe::blockClassesByNoOfArgs;
+map<uint8_t, GCClass*> Universe::blockClassesByNoOfArgs;
 vector<std::string> Universe::classPath;
-long Universe::heapSize;
+size_t Universe::heapSize;
 
-void Universe::Start(long argc, char** argv) {
+void Universe::Start(int32_t argc, char** argv) {
     BasicInit();
     Universe::initialize(argc, argv);
 }
@@ -296,7 +296,7 @@ vm_oop_t Universe::interpret(const std::string& className,
 vm_oop_t Universe::interpretMethod(VMObject* receiver, VMInvokable* initialize,
                                    VMArray* argumentsArray) {
     /* only trace bootstrap if the number of cmd-line "-d"s is > 2 */
-    short const trace = 2 - dumpBytecodes;
+    uint8_t const trace = 2 - dumpBytecodes;
     if (!(trace > 0)) {
         dumpBytecodes = 1;
     }
@@ -306,7 +306,7 @@ vm_oop_t Universe::interpretMethod(VMObject* receiver, VMInvokable* initialize,
     VMFrame* bootstrapFrame = Interpreter::PushNewFrame(bootstrapMethod);
     for (size_t argIdx = 0; argIdx < bootstrapMethod->GetNumberOfArguments();
          argIdx += 1) {
-        bootstrapFrame->SetArgument((long)argIdx, (long)0, load_ptr(nilObject));
+        bootstrapFrame->SetArgument(argIdx, 0, load_ptr(nilObject));
     }
 
     bootstrapFrame->Push(receiver);
@@ -473,7 +473,7 @@ VMClass* Universe::GetBlockClass() {
     return load_ptr(blockClass);
 }
 
-VMClass* Universe::GetBlockClassWithArgs(long numberOfArguments) {
+VMClass* Universe::GetBlockClassWithArgs(uint8_t numberOfArguments) {
     auto const it = blockClassesByNoOfArgs.find(numberOfArguments);
     if (it != blockClassesByNoOfArgs.end()) {
         return load_ptr(it->second);
@@ -482,7 +482,7 @@ VMClass* Universe::GetBlockClassWithArgs(long numberOfArguments) {
     Assert(numberOfArguments < 10);
 
     ostringstream Str;
-    Str << "Block" << numberOfArguments;
+    Str << "Block" << to_string(numberOfArguments);
     VMSymbol* name = SymbolFor(Str.str());
     VMClass* result = LoadClassBasic(name, nullptr);
 
@@ -675,7 +675,7 @@ VMArray* Universe::NewArrayList(std::vector<vm_oop_t>& list) {
 }
 
 VMBlock* Universe::NewBlock(VMInvokable* method, VMFrame* context,
-                            long arguments) {
+                            uint8_t arguments) {
     auto* result = new (GetHeap<HEAP_CLS>(), 0) VMBlock(method, context);
     result->SetClass(GetBlockClassWithArgs(arguments));
 
@@ -823,7 +823,7 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
 
     WalkSymbols(walk);
 
-    map<long, GCClass*>::iterator bcIter;
+    map<uint8_t, GCClass*>::iterator bcIter;
     for (bcIter = blockClassesByNoOfArgs.begin();
          bcIter != blockClassesByNoOfArgs.end();
          bcIter++) {

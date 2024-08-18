@@ -13,6 +13,7 @@
 #include <cppunit/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
+#include <cstdint>
 #include <iostream>
 
 #include "../misc/defs.h"
@@ -36,7 +37,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(BytecodeGenerationTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(TrivialMethodTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(BasicInterpreterTests);
 
-int main(int ac, char** av) {
+int32_t main(int32_t ac, char** av) {
     Universe::Start(ac, av);
 
     //--- Create the event manager and test controller

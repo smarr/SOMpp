@@ -111,7 +111,7 @@ public:
         return maximumNumberOfStackElements;
     }
 
-    inline size_t GetNumberOfArguments() const final {
+    inline uint8_t GetNumberOfArguments() const final {
         return numberOfArguments;
     }
 
@@ -199,7 +199,7 @@ private:
     const size_t numberOfLocals;
     const size_t maximumNumberOfStackElements;
     const size_t bcLength;
-    const size_t numberOfArguments;
+    const uint8_t numberOfArguments;
     const size_t numberOfConstants;
 
 private:

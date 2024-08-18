@@ -1,5 +1,6 @@
 #include "Print.h"
 
+#include <cstdint>
 #include <cstdlib>
 #include <iostream>
 #include <mutex>
@@ -39,12 +40,12 @@ __attribute__((noreturn)) __attribute__((noinline)) void ErrorExit(
     Quit(ERR_FAIL);
 }
 
-__attribute__((noreturn)) __attribute__((noinline)) void Quit(long err) {
+__attribute__((noreturn)) __attribute__((noinline)) void Quit(int32_t err) {
     ErrorPrint("Time spent in GC: [" +
                to_string(Timer::GCTimer->GetTotalTime()) + "] msec\n");
 
     Universe::Shutdown();
 
     OutputAllocationLogFile();
-    exit((int)err);
+    exit(err);
 }

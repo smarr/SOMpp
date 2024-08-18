@@ -57,7 +57,7 @@ public:
             mgencWithInlined) { /* NOOP for everything but VMMethods */ }
     virtual const Variable* GetArgument(size_t /*unused*/, size_t /*unused*/);
 
-    virtual size_t GetNumberOfArguments() const = 0;
+    virtual uint8_t GetNumberOfArguments() const = 0;
 
     virtual bool IsPrimitive() const;
 

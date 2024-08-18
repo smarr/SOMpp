@@ -125,9 +125,9 @@ void Interpreter::popFrameAndPushResult(vm_oop_t result) {
     VMFrame* prevFrame = popFrame();
 
     VMMethod* method = prevFrame->GetMethod();
-    long const numberOfArgs = method->GetNumberOfArguments();
+    uint8_t const numberOfArgs = method->GetNumberOfArguments();
 
-    for (long i = 0; i < numberOfArgs; ++i) {
+    for (uint8_t i = 0; i < numberOfArgs; ++i) {
         GetFrame()->Pop();
     }
 
@@ -156,7 +156,7 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
 }
 
 void Interpreter::triggerDoesNotUnderstand(VMSymbol* signature) {
-    long const numberOfArgs = Signature::GetNumberOfArguments(signature);
+    uint8_t const numberOfArgs = Signature::GetNumberOfArguments(signature);
 
     vm_oop_t receiver = GetFrame()->GetStackElement(numberOfArgs - 1);
 
@@ -265,7 +265,7 @@ void Interpreter::doPushBlock(size_t bytecodeIndex) {
     vm_oop_t block = method->GetConstant(bytecodeIndex);
     auto* blockMethod = static_cast<VMInvokable*>(block);
 
-    long const numOfArgs = blockMethod->GetNumberOfArguments();
+    uint8_t const numOfArgs = blockMethod->GetNumberOfArguments();
 
     GetFrame()->Push(Universe::NewBlock(blockMethod, GetFrame(), numOfArgs));
 }
@@ -345,7 +345,7 @@ void Interpreter::doSend(size_t bytecodeIndex) {
     auto* signature =
         static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
 
-    int const numOfArgs = Signature::GetNumberOfArguments(signature);
+    uint8_t const numOfArgs = Signature::GetNumberOfArguments(signature);
 
     vm_oop_t receiver = GetFrame()->GetStackElement(numOfArgs - 1);
 
@@ -418,11 +418,11 @@ void Interpreter::doSuperSend(size_t bytecodeIndex) {
     if (invokable != nullptr) {
         invokable->Invoke(GetFrame());
     } else {
-        long const numOfArgs = Signature::GetNumberOfArguments(signature);
+        uint8_t const numOfArgs = Signature::GetNumberOfArguments(signature);
         vm_oop_t receiver = GetFrame()->GetStackElement(numOfArgs - 1);
         VMArray* argumentsArray = Universe::NewArray(numOfArgs);
 
-        for (long i = numOfArgs - 1; i >= 0; --i) {
+        for (uint8_t i = numOfArgs - 1; i >= 0; --i) {
             vm_oop_t o = GetFrame()->Pop();
             argumentsArray->SetIndexableField(i, o);
         }
@@ -454,8 +454,8 @@ void Interpreter::doReturnNonLocal() {
 
         // Pop old arguments from stack
         VMMethod* method = GetFrame()->GetMethod();
-        long const numberOfArgs = method->GetNumberOfArguments();
-        for (long i = 0; i < numberOfArgs; ++i) {
+        uint8_t const numberOfArgs = method->GetNumberOfArguments();
+        for (uint8_t i = 0; i < numberOfArgs; ++i) {
             GetFrame()->Pop();
         }
 

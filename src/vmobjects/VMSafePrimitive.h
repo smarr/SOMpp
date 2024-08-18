@@ -22,7 +22,7 @@ public:
 
     std::string AsDebugString() const final;
 
-    inline size_t GetNumberOfArguments() const final {
+    inline uint8_t GetNumberOfArguments() const final {
         return Signature::GetNumberOfArguments(load_ptr(signature));
     }
 };

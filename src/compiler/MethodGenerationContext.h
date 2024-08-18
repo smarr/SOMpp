@@ -88,7 +88,7 @@ public:
     void RemoveLastBytecode() { bytecode.pop_back(); };
     void RemoveLastPopForBlockLocalReturn();
 
-    size_t GetNumberOfArguments();
+    uint8_t GetNumberOfArguments();
     void AddBytecode(uint8_t bc, size_t stackEffect);
     void AddBytecodeArgument(uint8_t bc);
     size_t AddBytecodeArgumentAndGetIndex(uint8_t bc);

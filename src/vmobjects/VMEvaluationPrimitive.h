@@ -32,7 +32,7 @@ class VMEvaluationPrimitive : public VMInvokable {
 public:
     typedef GCEvaluationPrimitive Stored;
 
-    VMEvaluationPrimitive(size_t argc);
+    VMEvaluationPrimitive(uint8_t argc);
     void WalkObjects(walk_heap_fn /*unused*/) override;
     VMEvaluationPrimitive* CloneForMovingGC() const override;
 
@@ -52,7 +52,7 @@ public:
     void InlineInto(MethodGenerationContext& mgenc,
                     bool mergeScope = true) final;
 
-    inline size_t GetNumberOfArguments() const final {
+    inline uint8_t GetNumberOfArguments() const final {
         return numberOfArguments;
     }
 
@@ -62,5 +62,5 @@ private:
 
     make_testable(public);
 
-    size_t numberOfArguments;
+    uint8_t numberOfArguments;
 };

@@ -870,8 +870,8 @@ void Parser::nestedBlock(MethodGenerationContext& mgenc) {
     // generate Block signature
     std::string block_sig =
         "$blockMethod@" + to_string(lexer.GetCurrentLineNumber());
-    size_t const arg_size = mgenc.GetNumberOfArguments();
-    for (size_t i = 1; i < arg_size; i++) {
+    uint8_t const arg_size = mgenc.GetNumberOfArguments();
+    for (uint8_t i = 1; i < arg_size; i++) {
         block_sig += ":";
     }
 

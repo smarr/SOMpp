@@ -87,8 +87,8 @@ void Disassembler::dispatch(vm_oop_t o) {
  * Dump a class and all subsequent methods.
  */
 void Disassembler::Dump(VMClass* cl) {
-    long const numInvokables = cl->GetNumberOfInstanceInvokables();
-    for (long i = 0; i < numInvokables; ++i) {
+    size_t const numInvokables = cl->GetNumberOfInstanceInvokables();
+    for (size_t i = 0; i < numInvokables; ++i) {
         auto* inv = static_cast<VMInvokable*>(cl->GetInstanceInvokable(i));
         // output header and skip if the Invokable is a Primitive
         VMSymbol* sig = inv->GetSignature();
@@ -131,7 +131,7 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes,
 
 #ifdef _DEBUG
         Print("bytecodes: ");
-        for (long i = 0; i < numberOfBytecodes; ++i) {
+        for (size_t i = 0; i < numberOfBytecodes; ++i) {
             Print(to_string((int)(*method)[i]) + " ");
         }
         Print("\n");
@@ -240,7 +240,7 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes,
             case BC_INC_FIELD_PUSH:
             case BC_POP_FIELD:
             case BC_PUSH_FIELD: {
-                long const fieldIdx = bytecodes[bc_idx + 1];
+                uint8_t const fieldIdx = bytecodes[bc_idx + 1];
                 if (method != nullptr && printObjects) {
                     auto* holder =
                         dynamic_cast<VMClass*>((VMObject*)method->GetHolder());
@@ -331,7 +331,8 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes,
 /**
  * Dump bytecode from the frame running
  */
-void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
+void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method,
+                                size_t bc_idx) {
     static long long indentc = 0;
     static char ikind = '@';
     uint8_t const bc = BC_0;
@@ -520,7 +521,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method, long bc_idx) {
             vm_oop_t o = ((VMObject*)arg)->GetField(fieldIndex);
             VMClass* c = CLASS_OF(o);
             VMSymbol* cname = c->GetName();
-            long const fieldIdx = BC_1;
+            uint8_t const fieldIdx = BC_1;
             VMSymbol* name =
                 method->GetHolder()->GetInstanceFieldName(fieldIdx);
             DebugPrint("(index: %d) field: %s <(%s) ", BC_1,

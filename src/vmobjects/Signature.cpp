@@ -27,6 +27,7 @@
 #include "Signature.h"
 
 #include <cstddef>
+#include <cstdint>
 
 #include "VMSymbol.h"
 
@@ -34,8 +35,8 @@ bool Signature::IsBinary(VMSymbol* sig) {
     return sig->numberOfArgumentsOfSignature == 2;
 }
 
-int Signature::DetermineNumberOfArguments(const char* sig,
-                                          const size_t length) {
+uint8_t Signature::DetermineNumberOfArguments(const char* sig,
+                                              const size_t length) {
     // check default binaries
     if (Signature::IsBinary(sig, length)) {
         return 2;
