@@ -165,7 +165,7 @@ void Interpreter::triggerDoesNotUnderstand(VMSymbol* signature) {
 
     // the receiver should not go into the argumentsArray
     // so, numberOfArgs - 2
-    for (long i = numberOfArgs - 2; i >= 0; --i) {
+    for (int64_t i = numberOfArgs - 2; i >= 0; --i) {
         vm_oop_t o = GetFrame()->Pop();
         argumentsArray->SetIndexableField(i, o);
     }
@@ -176,7 +176,7 @@ void Interpreter::triggerDoesNotUnderstand(VMSymbol* signature) {
     // check if current frame is big enough for this unplanned Send
     // doesNotUnderstand: needs 3 slots, one for this, one for method name, one
     // for args
-    long const additionalStackSlots = 3 - GetFrame()->RemainingStackSize();
+    int64_t const additionalStackSlots = 3 - GetFrame()->RemainingStackSize();
     if (additionalStackSlots > 0) {
         GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
         // copy current frame into a bigger one and replace the current frame
@@ -288,7 +288,7 @@ void Interpreter::SendUnknownGlobal(VMSymbol* globalName) {
 
     // check if there is enough space on the stack for this unplanned Send
     // unknowGlobal: needs 2 slots, one for "this" and one for the argument
-    long const additionalStackSlots = 2 - GetFrame()->RemainingStackSize();
+    int64_t const additionalStackSlots = 2 - GetFrame()->RemainingStackSize();
     if (additionalStackSlots > 0) {
         GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
         // copy current frame into a bigger one and replace the current
@@ -461,7 +461,8 @@ void Interpreter::doReturnNonLocal() {
 
         // check if current frame is big enough for this unplanned send
         // #escapedBlock: needs 2 slots, one for self, and one for the block
-        long const additionalStackSlots = 2 - GetFrame()->RemainingStackSize();
+        int64_t const additionalStackSlots =
+            2 - GetFrame()->RemainingStackSize();
         if (additionalStackSlots > 0) {
             GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
             // copy current frame into a bigger one, and replace it

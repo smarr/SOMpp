@@ -343,8 +343,8 @@ void Universe::initialize(int32_t _argc, char** _argv) {
 
 #if CACHE_INTEGER
     // create prebuilt integers
-    for (long it = INT_CACHE_MIN_VALUE; it <= INT_CACHE_MAX_VALUE; ++it) {
-        prebuildInts[(unsigned long)(it - INT_CACHE_MIN_VALUE)] =
+    for (int64_t it = INT_CACHE_MIN_VALUE; it <= INT_CACHE_MAX_VALUE; ++it) {
+        prebuildInts[(size_t)(it - INT_CACHE_MIN_VALUE)] =
             store_root(new (GetHeap<HEAP_CLS>(), 0) VMInteger(it));
     }
 #endif
@@ -799,8 +799,7 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
     falseClass = static_cast<GCClass*>(walk(falseClass));
 
 #if CACHE_INTEGER
-    for (unsigned long i = 0; i < (INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE);
-         i++)
+    for (size_t i = 0; i < (INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE); i++)
   #if USE_TAGGING
         prebuildInts[i] = TAG_INTEGER(INT_CACHE_MIN_VALUE + i);
   #else

@@ -3,6 +3,7 @@
 
 #include <cassert>
 #include <cstddef>
+#include <cstdint>
 
 #include "../memory/Heap.h"
 #include "../misc/Timer.h"
