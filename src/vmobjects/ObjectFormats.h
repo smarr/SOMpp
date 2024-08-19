@@ -45,21 +45,21 @@
   #define TAG_INTEGER(X)                                            \
       (((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX && \
         Universe::NewInteger(0))                                    \
-           ? ((vm_oop_t)(((X) << 1) | 1))                           \
+           ? ((vm_oop_t)(((X) << 1U) | 1U))                         \
            : (Universe::NewInteger(X)))
 #else
   #define TAG_INTEGER(X)                                          \
       (((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX) \
-           ? ((vm_oop_t)((((uint64_t)(X)) << 1) | 1U))            \
+           ? ((vm_oop_t)((((uintptr_t)(X)) << 1U) | 1U))          \
            : (Universe::NewInteger(X)))
 #endif
 
 #if USE_TAGGING
-  #define INT_VAL(X)                      \
-      (IS_TAGGED(X) ? ((int64_t)(X) >> 1) \
+  #define INT_VAL(X)                                                           \
+      (IS_TAGGED(X) ? ((int64_t)(X) >> 1U) /* NOLINT (hicpp-signed-bitwise) */ \
                     : (((VMInteger*)(X))->GetEmbeddedInteger()))
   #define NEW_INT(X) (TAG_INTEGER((X)))
-  #define IS_TAGGED(X) ((int64_t)(X) & 1)
+  #define IS_TAGGED(X) ((bool)((uintptr_t)(X) & 1U))
   #define CLASS_OF(X)                        \
       (IS_TAGGED(X) ? load_ptr(integerClass) \
                     : ((AbstractVMObject*)(X))->GetClass())
