@@ -31,7 +31,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <exception>
 #include <iostream>
 #include <map>
 #include <sstream>
@@ -220,17 +219,11 @@ bool Universe::getClassPathExt(vector<std::string>& tokens,
 }
 
 void Universe::setupClassPath(const std::string& cp) {
-    try {
-        std::stringstream ss(cp);
-        std::string token;
+    std::stringstream ss(cp);
+    std::string token;
 
-        while (getline(ss, token, pathSeparator)) {
-            classPath.push_back(token);
-        }
-
-        return;
-    } catch (std::exception e) {
-        return;
+    while (getline(ss, token, pathSeparator)) {
+        classPath.push_back(token);
     }
 }
 
