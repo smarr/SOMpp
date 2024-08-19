@@ -21,7 +21,7 @@ public:
     [[nodiscard]] bool IsPrimitive() const final { return false; };
 
     void MergeScopeInto(MethodGenerationContext& mgenc) final {
-        if (arguments.size() > 0) {
+        if (!arguments.empty()) {
             mgenc.InlineAsLocals(arguments);
         }
     }

@@ -98,7 +98,7 @@ void Shell::Start() {
 
         inp = std::string(inbuf);
 
-        if (inp.length() == 0) {
+        if (inp.empty()) {
             continue;
         }
 

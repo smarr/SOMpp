@@ -146,7 +146,7 @@ vector<std::string> Universe::handleArguments(int32_t argc, char** argv) {
 
     for (int32_t i = 1; i < argc; ++i) {
         if (strncmp(argv[i], "-cp", 3) == 0) {
-            if ((argc == i + 1) || classPath.size() > 0) {
+            if ((argc == i + 1) || !classPath.empty()) {
                 printUsageAndExit(argv[0]);
             }
             setupClassPath(std::string(argv[++i]));
@@ -239,20 +239,19 @@ void Universe::addClassPath(const std::string& cp) {
 }
 
 void Universe::printUsageAndExit(char* executable) {
-    cout << "Usage: " << executable << " [-options] [args...]" << endl << endl;
-    cout << "where options include:" << endl;
-    cout << "    -cp <directories separated by " << pathSeparator << ">"
-         << endl;
-    cout << "        set search path for application classes" << endl;
-    cout << "    -d  enable disassembling (twice for tracing)" << endl;
-    cout << "    -g  enable garbage collection details:" << endl
-         << "        1x - print statistics when VM shuts down" << endl
-         << "        2x - print statistics upon each collection" << endl
-         << "        3x - print statistics and dump heap upon each " << endl
-         << "collection" << endl;
-    cout << "    -HxMB set the heap size to x MB (default: 1 MB)" << endl;
-    cout << "    -HxKB set the heap size to x KB (default: 1 MB)" << endl;
-    cout << "    -h  show this help" << endl;
+    cout << "Usage: " << executable << " [-options] [args...]\n\n";
+    cout << "where options include:\n";
+    cout << "    -cp <directories separated by " << pathSeparator << ">\n";
+    cout << "        set search path for application classes\n";
+    cout << "    -d  enable disassembling (twice for tracing)\n";
+    cout << "    -g  enable garbage collection details:\n"
+         << "        1x - print statistics when VM shuts down\n"
+         << "        2x - print statistics upon each collection\n"
+         << "        3x - print statistics and dump heap upon each \n"
+         << "collection\n";
+    cout << "    -HxMB set the heap size to x MB (default: 1 MB)\n";
+    cout << "    -HxKB set the heap size to x KB (default: 1 MB)\n";
+    cout << "    -h  show this help\n";
 
     Quit(ERR_SUCCESS);
 }
@@ -335,7 +334,7 @@ void Universe::initialize(int32_t _argc, char** _argv) {
     vector<std::string> argv = handleArguments(_argc, _argv);
 
     // remember file that was executed (for writing statistics)
-    if (argv.size() > 0) {
+    if (!argv.empty()) {
         bm_name = argv[0];
     }
 
@@ -351,7 +350,7 @@ void Universe::initialize(int32_t _argc, char** _argv) {
 
     VMObject* systemObject = InitializeGlobals();
 
-    if (argv.size() == 0) {
+    if (argv.empty()) {
         VMMethod* bootstrapMethod =
             createBootstrapMethod(load_ptr(systemClass), 2);
         auto* shell = new Shell(bootstrapMethod);
