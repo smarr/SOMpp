@@ -453,7 +453,7 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
             case BC_PUSH_SELF:
             case BC_RETURN_SELF: {
                 char msg[120];
-                snprintf(
+                (void)snprintf(
                     msg, 120,
                     "inlineInto: Found %s bytecode, but it's not expected in a "
                     "block method",
@@ -463,11 +463,12 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
             }
             default: {
                 char msg[120];
-                snprintf(msg, 120,
-                         "inlineInto: Found %s bytecode, but inlining of it is "
-                         "not yet "
-                         "supported.",
-                         Bytecode::GetBytecodeName(bytecode));
+                (void)snprintf(
+                    msg, 120,
+                    "inlineInto: Found %s bytecode, but inlining of it is "
+                    "not yet "
+                    "supported.",
+                    Bytecode::GetBytecodeName(bytecode));
                 ErrorExit(msg);
                 break;
             }
@@ -619,7 +620,7 @@ void VMMethod::AdaptAfterOuterInlined(
             case BC_RETURN_FIELD_1:
             case BC_RETURN_FIELD_2: {
                 char msg[120];
-                snprintf(
+                (void)snprintf(
                     msg, 120,
                     "AdaptAfterOuterInlined: Found %s bytecode, but it's not "
                     "expected in a block method",
@@ -629,11 +630,12 @@ void VMMethod::AdaptAfterOuterInlined(
 
             default: {
                 char msg[120];
-                snprintf(msg, 120,
-                         "Found %s bytecode, but AdaptAfterOuterInlined does "
-                         "not yet "
-                         "support it.",
-                         Bytecode::GetBytecodeName(bytecode));
+                (void)snprintf(
+                    msg, 120,
+                    "Found %s bytecode, but AdaptAfterOuterInlined does "
+                    "not yet "
+                    "support it.",
+                    Bytecode::GetBytecodeName(bytecode));
                 ErrorExit(msg);
             }
         }

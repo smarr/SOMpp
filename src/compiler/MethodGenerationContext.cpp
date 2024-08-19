@@ -733,7 +733,7 @@ uint8_t MethodGenerationContext::GetInlinedLocalIdx(const Variable* var) const {
 
     char msg[200];
     std::string qualifiedName = var->MakeQualifiedName();
-    snprintf(
+    (void)snprintf(
         msg, 200,
         "Unexpected issue trying to find an inlined variable. %s could not "
         "be found.",
@@ -745,9 +745,10 @@ void MethodGenerationContext::checkJumpOffset(size_t jumpOffset,
                                               uint8_t bytecode) {
     if (jumpOffset < 0 || jumpOffset > 0xFFFF) {
         char msg[100];
-        snprintf(msg, 100,
-                 "The jumpOffset for the %s bytecode is out of range: %zu\n",
-                 Bytecode::GetBytecodeName(bytecode), jumpOffset);
+        (void)snprintf(
+            msg, 100,
+            "The jumpOffset for the %s bytecode is out of range: %zu\n",
+            Bytecode::GetBytecodeName(bytecode), jumpOffset);
         ErrorExit(msg);
     }
 }

@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <string>
 
+#include "../vm/Print.h"
 #include "../vm/Symbols.h"
 #include "SourceCoordinate.h"
 
@@ -12,8 +13,10 @@ std::string Variable::MakeQualifiedName() const {
     char qualified[100];
     assert(name.size() < 80);
 
-    snprintf(qualified, 100, "%.*s:%zu:%zu", (int)name.size(), name.data(),
-             coord.GetLine(), coord.GetColumn());
+    if (snprintf(qualified, 100, "%.*s:%zu:%zu", (int)name.size(), name.data(),
+                 coord.GetLine(), coord.GetColumn()) < 0) {
+        ErrorExit("failed to MakeQualifiedName");
+    }
 
     return {qualified};
 }

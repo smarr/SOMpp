@@ -33,6 +33,7 @@
 #include "../interpreter/bytecodes.h"
 #include "../misc/debug.h"
 #include "../vm/Globals.h"
+#include "../vm/Print.h"
 #include "../vm/Symbols.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
@@ -182,7 +183,9 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes,
                 DebugPrint("block: (index: %d) ", bytecodes[bc_idx + 1]);
 
                 if (method != nullptr && printObjects) {
-                    snprintf(nindent, indent_size, "%s\t", indent);
+                    if (snprintf(nindent, indent_size, "%s\t", indent) < 0) {
+                        ErrorExit("snprintf failed");
+                    }
                     Disassembler::DumpMethod(
                         static_cast<VMMethod*>(method->GetConstant(bc_idx)),
                         nindent);
