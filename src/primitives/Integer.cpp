@@ -176,7 +176,7 @@ static vm_oop_t intEqual(vm_oop_t leftObj, vm_oop_t rightObj) {
             return load_ptr(trueObject);
         }
     } else if (CLASS_OF(rightObj) == load_ptr(doubleClass)) {
-        if (left == ((VMDouble*)rightObj)->GetEmbeddedDouble()) {
+        if ((double)left == ((VMDouble*)rightObj)->GetEmbeddedDouble()) {
             return load_ptr(trueObject);
         }
     }
@@ -283,7 +283,7 @@ static vm_oop_t intMin(vm_oop_t self, vm_oop_t arg) {
 
     VMClass* cl = CLASS_OF(arg);
     if (cl == load_ptr(doubleClass)) {
-        if (result < ((VMDouble*)arg)->GetEmbeddedDouble()) {
+        if ((double)result < ((VMDouble*)arg)->GetEmbeddedDouble()) {
             return self;
         }
         return arg;
@@ -297,7 +297,7 @@ static vm_oop_t intMax(vm_oop_t self, vm_oop_t arg) {
 
     VMClass* cl = CLASS_OF(arg);
     if (cl == load_ptr(doubleClass)) {
-        if (result > ((VMDouble*)arg)->GetEmbeddedDouble()) {
+        if ((double)result > ((VMDouble*)arg)->GetEmbeddedDouble()) {
             return self;
         }
         return arg;

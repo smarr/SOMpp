@@ -309,8 +309,8 @@ bool Contains(std::vector<Variable>& vec, std::string& name) {
     return false;
 }
 
-size_t IndexOf(std::vector<Variable>& vec, std::string& name) {
-    size_t i = 0;
+int64_t IndexOf(std::vector<Variable>& vec, std::string& name) {
+    int64_t i = 0;
     for (Variable const& v : vec) {
         if (v.IsNamed(name)) {
             return i;
@@ -374,12 +374,13 @@ uint8_t MethodGenerationContext::AddLiteral(vm_oop_t lit) {
     return idx;
 }
 
-int8_t MethodGenerationContext::AddLiteralIfAbsent(vm_oop_t lit) {
-    int8_t const idx = IndexOf(literals, lit);
+uint8_t MethodGenerationContext::AddLiteralIfAbsent(vm_oop_t lit) {
+    int64_t const idx = IndexOf(literals, lit);
     if (idx != -1) {
+        assert(idx < 256);
         assert(idx >= 0 && (size_t)idx < literals.size() &&
                "Expect index to be inside the literals vector.");
-        return idx;
+        return (uint8_t)idx;
     }
     return AddLiteral(lit);
 }
@@ -417,7 +418,7 @@ bool MethodGenerationContext::HasBytecodes() {
     return !bytecode.empty();
 }
 
-void MethodGenerationContext::AddBytecode(uint8_t bc, size_t stackEffect) {
+void MethodGenerationContext::AddBytecode(uint8_t bc, int64_t stackEffect) {
     currentStackDepth += stackEffect;
     maxStackDepth = max(maxStackDepth, currentStackDepth);
 
@@ -460,13 +461,14 @@ uint8_t MethodGenerationContext::lastBytecodeIsOneOf(
 
 void MethodGenerationContext::removeLastBytecodes(size_t numBytecodes) {
     assert(numBytecodes > 0 && numBytecodes <= 4);
-    size_t bytesToRemove = 0;
+    ptrdiff_t bytesToRemove = 0;
 
     for (size_t idxFromEnd = 0; idxFromEnd < numBytecodes; idxFromEnd += 1) {
         bytesToRemove +=
             Bytecode::GetBytecodeLength(last4Bytecodes[3 - idxFromEnd]);
     }
 
+    assert(bytesToRemove > 0);
     bytecode.erase(bytecode.end() - bytesToRemove, bytecode.end());
 }
 
@@ -825,12 +827,12 @@ size_t MethodGenerationContext::getOffsetOfLastBytecode(size_t indexFromEnd) {
 }
 
 void MethodGenerationContext::removeLastBytecodeAt(size_t indexFromEnd) {
-    size_t const bcOffset = getOffsetOfLastBytecode(indexFromEnd);
+    auto const bcOffset = (ptrdiff_t)getOffsetOfLastBytecode(indexFromEnd);
 
     uint8_t const bcToBeRemoved =
         last4Bytecodes.at(NUM_LAST_BYTECODES - 1 - indexFromEnd);
 
-    size_t const bcLength = Bytecode::GetBytecodeLength(bcToBeRemoved);
+    auto const bcLength = (ptrdiff_t)Bytecode::GetBytecodeLength(bcToBeRemoved);
 
     assert(bcLength > 0 && bcOffset >= 0);
 
@@ -849,8 +851,9 @@ void MethodGenerationContext::RemoveLastPopForBlockLocalReturn() {
         // we just removed the DUP and didn't emit the POP using
         // optimizeDupPopPopSequence() so, to make blocks work, we need to
         // reintroduce the DUP
-        size_t const index =
-            bytecode.size() - Bytecode::GetBytecodeLength(lastBytecodeAt(0));
+        auto const index =
+            (ptrdiff_t)bytecode.size() -
+            (ptrdiff_t)Bytecode::GetBytecodeLength(lastBytecodeAt(0));
         assert(IsPopSmthBytecode(bytecode.at(index)));
         bytecode.insert(bytecode.begin() + index, BC_DUP);
 

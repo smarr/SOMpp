@@ -12,7 +12,7 @@ public:
     explicit DebugCopyingHeap(size_t objectSpaceSize)
         : Heap<DebugCopyingHeap>(new DebugCopyingCollector(this)),
           currentHeapSize(objectSpaceSize),
-          collectionLimit((double)objectSpaceSize * 0.9) {}
+          collectionLimit((size_t)((double)objectSpaceSize * 0.9)) {}
 
     AbstractVMObject* AllocateObject(size_t size);
 

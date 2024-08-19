@@ -47,7 +47,7 @@ int64_t Lexer::fillBuffer() {
     std::getline(infile, buf);
     state.lineNumber += 1;
     state.bufp = 0;
-    return buf.length();
+    return (int64_t)buf.length();
 }
 
 //

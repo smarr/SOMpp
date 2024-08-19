@@ -40,18 +40,18 @@
 #include "../vmobjects/VMSymbol.h"
 
 void Emit1(MethodGenerationContext& mgenc, uint8_t bytecode,
-           size_t stackEffect) {
+           int64_t stackEffect) {
     mgenc.AddBytecode(bytecode, stackEffect);
 }
 
 void Emit2(MethodGenerationContext& mgenc, uint8_t bytecode, size_t idx,
-           size_t stackEffect) {
+           int64_t stackEffect) {
     mgenc.AddBytecode(bytecode, stackEffect);
     mgenc.AddBytecodeArgument(idx);
 }
 
 void Emit3(MethodGenerationContext& mgenc, uint8_t bytecode, size_t idx,
-           size_t ctx, size_t stackEffect) {
+           size_t ctx, int64_t stackEffect) {
     mgenc.AddBytecode(bytecode, stackEffect);
     mgenc.AddBytecodeArgument(idx);
     mgenc.AddBytecodeArgument(ctx);
@@ -120,7 +120,7 @@ void EmitPUSHFIELD(MethodGenerationContext& mgenc, VMSymbol* field) {
 }
 
 void EmitPUSHBLOCK(MethodGenerationContext& mgenc, VMInvokable* block) {
-    const int8_t idx = mgenc.AddLiteralIfAbsent(block);
+    const uint8_t idx = mgenc.AddLiteralIfAbsent(block);
     Emit2(mgenc, BC_PUSH_BLOCK, idx, 1);
 }
 
@@ -147,7 +147,7 @@ void EmitPUSHCONSTANT(MethodGenerationContext& mgenc, vm_oop_t cst) {
         return;
     }
 
-    const int8_t idx = mgenc.AddLiteralIfAbsent(cst);
+    const uint8_t idx = mgenc.AddLiteralIfAbsent(cst);
     if (idx == 0) {
         Emit1(mgenc, BC_PUSH_CONSTANT_0, 1);
         return;
@@ -180,7 +180,7 @@ void EmitPUSHGLOBAL(MethodGenerationContext& mgenc, VMSymbol* global) {
     } else if (global == SymbolFor("false")) {
         EmitPUSHCONSTANT(mgenc, load_ptr(falseObject));
     } else {
-        const int8_t idx = mgenc.AddLiteralIfAbsent(global);
+        const uint8_t idx = mgenc.AddLiteralIfAbsent(global);
         Emit2(mgenc, BC_PUSH_GLOBAL, idx, 1);
     }
 }
@@ -229,19 +229,18 @@ void EmitPOPFIELD(MethodGenerationContext& mgenc, VMSymbol* field) {
 }
 
 void EmitSEND(MethodGenerationContext& mgenc, VMSymbol* msg) {
-    const int8_t idx = mgenc.AddLiteralIfAbsent(msg);
+    const uint8_t idx = mgenc.AddLiteralIfAbsent(msg);
 
     const uint8_t numArgs = Signature::GetNumberOfArguments(msg);
-    const size_t stackEffect = -numArgs + 1;  // +1 for the result
+    const int64_t stackEffect = -numArgs + 1;  // +1 for the result
 
     Emit2(mgenc, numArgs == 1 ? BC_SEND_1 : BC_SEND, idx, stackEffect);
 }
 
 void EmitSUPERSEND(MethodGenerationContext& mgenc, VMSymbol* msg) {
-    const int8_t idx = mgenc.AddLiteralIfAbsent(msg);
-
+    const uint8_t idx = mgenc.AddLiteralIfAbsent(msg);
     const uint8_t numArgs = Signature::GetNumberOfArguments(msg);
-    const size_t stackEffect = -numArgs + 1;  // +1 for the result
+    const int64_t stackEffect = -numArgs + 1;  // +1 for the result
 
     Emit2(mgenc, BC_SUPER_SEND, idx, stackEffect);
 }
@@ -303,7 +302,7 @@ size_t EmitJumpOnBoolWithDummyOffset(MethodGenerationContext& mgenc,
     // But if the test fails, we need to jump.
     // Thus, an  `#ifTrue:` needs to generated a jump_on_false.
     uint8_t bc = 0;
-    size_t stackEffect = 0;
+    int64_t stackEffect = 0;
 
     if (needsPop) {
         bc = isIfTrue ? BC_JUMP_ON_FALSE_POP : BC_JUMP_ON_TRUE_POP;
@@ -342,7 +341,7 @@ void EmitJumpBackwardWithOffset(MethodGenerationContext& mgenc,
 }
 
 size_t Emit3WithDummy(MethodGenerationContext& mgenc, uint8_t bytecode,
-                      size_t stackEffect) {
+                      int64_t stackEffect) {
     mgenc.AddBytecode(bytecode, stackEffect);
     size_t const index = mgenc.AddBytecodeArgumentAndGetIndex(0);
     mgenc.AddBytecodeArgument(0);

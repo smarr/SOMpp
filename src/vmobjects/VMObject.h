@@ -72,7 +72,7 @@ public:
 
         // this line would be needed if the VMObject** is used instead of the
         // macro: FIELDS = (VMObject**)&clazz;
-        hash = (size_t)this;
+        hash = (intptr_t)this;
 
         nilInitializeFields();
     }

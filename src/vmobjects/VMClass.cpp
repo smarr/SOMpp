@@ -169,7 +169,7 @@ int64_t VMClass::LookupFieldIndex(VMSymbol* name) const {
     for (size_t i = 0; i <= numInstanceFields; ++i) {
         // even with GetNumberOfInstanceFields == 0 there is the class field
         if (name == GetInstanceFieldName(i)) {
-            return i;
+            return (int64_t)i;
         }
     }
     return -1;

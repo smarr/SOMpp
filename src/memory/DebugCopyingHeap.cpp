@@ -21,7 +21,7 @@ void DebugCopyingHeap::switchBuffers(bool increaseMemory) {
 
     if (increaseMemory) {
         currentHeapSize += currentHeapSize;
-        collectionLimit = (double)currentHeapSize * 0.9;
+        collectionLimit = (size_t)((double)currentHeapSize * 0.9);
     }
 
     currentHeapUsage = 0;
