@@ -357,7 +357,7 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
                 break;
             }
             case BC_POP: {
-                // TODO: PySOM simply does Emit1
+                // TODO(smarr): PySOM simply does Emit1
                 //   not sure whether EmitPOP might cause issues if we try to do
                 //   optimizations here again
                 EmitPOP(mgenc);

@@ -44,7 +44,7 @@
 static vm_oop_t strConcatenate_(vm_oop_t leftObj, vm_oop_t rightObj) {
     auto* arg = static_cast<VMString*>(rightObj);
     auto* self = static_cast<VMString*>(leftObj);
-    // TODO: if this really needs to be optimized, than, well, then,
+    // TODO(smarr): if this really needs to be optimized, than, well, then,
     // NewString should allow to construct it correctly and simply copy
     // from both input strings
     std::string const a = arg->GetStdString();
