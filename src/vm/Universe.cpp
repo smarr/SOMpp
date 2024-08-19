@@ -156,6 +156,7 @@ vector<std::string> Universe::handleArguments(int32_t argc, char** argv) {
         } else if (strncmp(argv[i], "-H", 2) == 0) {
             size_t heap_size = 0;
             char unit[3];
+            // NOLINTNEXTLINE (cert-err34-c)
             if (sscanf(argv[i], "-H%ld%2s", &heap_size, unit) == 2) {
                 if (strcmp(unit, "KB") == 0) {
                     heapSize = heap_size * 1024;
