@@ -33,7 +33,6 @@
 #include <string>
 
 #include "../misc/defs.h"
-#include "../primitivesCore/PrimitiveContainer.h"
 #include "../vm/Globals.h"
 #include "../vm/Symbols.h"
 #include "../vm/Universe.h"

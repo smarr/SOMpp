@@ -34,7 +34,6 @@
 
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
-#include "../primitivesCore/PrimitiveContainer.h"
 #include "../vm/Globals.h"
 #include "../vm/Print.h"
 #include "../vm/Universe.h"

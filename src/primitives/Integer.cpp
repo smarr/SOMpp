@@ -35,7 +35,6 @@
 #include <string>
 
 #include "../misc/ParseInteger.h"
-#include "../primitivesCore/PrimitiveContainer.h"
 #include "../vm/Globals.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"

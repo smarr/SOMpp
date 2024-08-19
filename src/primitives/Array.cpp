@@ -28,7 +28,6 @@
 
 #include <cstdint>
 
-#include "../primitivesCore/PrimitiveContainer.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMArray.h"

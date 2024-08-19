@@ -32,7 +32,6 @@
 #include <sstream>
 #include <string>
 
-#include "../primitivesCore/PrimitiveContainer.h"
 #include "../vm/Globals.h"
 #include "../vm/Print.h"
 #include "../vm/Universe.h"
