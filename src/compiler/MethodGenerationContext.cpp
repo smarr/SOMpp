@@ -322,8 +322,10 @@ int64_t IndexOf(std::vector<Variable>& vec, std::string& name) {
 
 bool MethodGenerationContext::FindVar(std::string& var, int64_t* index,
                                       int* context, bool* isArgument) {
-    if ((*index = IndexOf(locals, var)) == -1) {
-        if ((*index = IndexOf(arguments, var)) == -1) {
+    *index = IndexOf(locals, var);
+    if (*index == -1) {
+        *index = IndexOf(arguments, var);
+        if (*index == -1) {
             if (outerGenc == nullptr) {
                 return false;
             }
