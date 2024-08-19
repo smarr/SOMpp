@@ -80,9 +80,7 @@ static const char* symnames[] = { "NONE", "Integer", "Not", "And", "Or", "Star",
 
 class LexerState {
 public:
-    LexerState()
-        : lineNumber(0), bufp(0), sym(Symbol::NONE), symc(0), text(""),
-          startBufp(0) {}
+    LexerState() = default;
 
     inline size_t incPtr() { return incPtr(1); }
 
@@ -93,14 +91,14 @@ public:
         return cur;
     }
 
-    size_t lineNumber;
-    size_t bufp;
+    size_t lineNumber{0};
+    size_t bufp{0};
 
-    Symbol sym;
-    char symc;
-    std::string text;
+    Symbol sym{Symbol::NONE};
+    char symc{0};
+    std::string text{""};
 
-    size_t startBufp;
+    size_t startBufp{0};
 };
 
 class Lexer {

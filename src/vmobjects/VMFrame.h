@@ -44,9 +44,9 @@ public:
 
     explicit VMFrame(size_t additionalBytes, VMMethod* method,
                      VMFrame* previousFrame)
-        : totalObjectSize(additionalBytes + sizeof(VMFrame)), bytecodeIndex(0),
-          previousFrame(store_root(previousFrame)), context(nullptr),
-          method(store_root(method)), arguments((gc_oop_t*)&(stack_ptr) + 1),
+        : totalObjectSize(additionalBytes + sizeof(VMFrame)),
+          previousFrame(store_root(previousFrame)), method(store_root(method)),
+          arguments((gc_oop_t*)&(stack_ptr) + 1),
           locals(arguments + method->GetNumberOfArguments()),
           stack_ptr(locals + method->GetNumberOfLocals() - 1) {
         // initilize all other fields. Don't need to initalize arguments,
@@ -175,12 +175,12 @@ public:
 
     make_testable(public);
 
-    size_t bytecodeIndex;
+    size_t bytecodeIndex{0};
     size_t totalObjectSize;
 
 private:
     GCFrame* previousFrame;
-    GCFrame* context;
+    GCFrame* context{nullptr};
     GCMethod* method;
     gc_oop_t* arguments;
     gc_oop_t* locals;

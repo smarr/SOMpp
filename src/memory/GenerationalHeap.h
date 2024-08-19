@@ -24,7 +24,7 @@ public:
     explicit GenerationalHeap(size_t objectSpaceSize = 1048576);
     AbstractVMObject* AllocateNurseryObject(size_t size);
     AbstractVMObject* AllocateMatureObject(size_t size);
-    size_t GetMaxNurseryObjectSize();
+    [[nodiscard]] size_t GetMaxNurseryObjectSize() const;
     void writeBarrier(VMObjectBase* holder, vm_oop_t referencedObject);
     inline bool isObjectInNursery(vm_oop_t obj);
 #ifdef UNITTESTS
@@ -50,7 +50,7 @@ inline bool GenerationalHeap::isObjectInNursery(vm_oop_t obj) {
     return (size_t)obj >= (size_t)nursery && (size_t)obj < nursery_end;
 }
 
-inline size_t GenerationalHeap::GetMaxNurseryObjectSize() {
+inline size_t GenerationalHeap::GetMaxNurseryObjectSize() const {
     return maxNurseryObjSize;
 }
 

@@ -69,8 +69,7 @@ void Parser::PeekForNextSymbolFromLexerIfNecessary() {
     }
 }
 
-Parser::Parser(istream& file, std::string& fname)
-    : lexer(file), fname(fname), sym(NONE), nextSym(NONE) {
+Parser::Parser(istream& file, std::string& fname) : lexer(file), fname(fname) {
     GetSym();
 }
 

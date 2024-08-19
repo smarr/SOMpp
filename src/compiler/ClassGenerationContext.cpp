@@ -42,8 +42,7 @@
 #include "../vmobjects/VMInvokable.h"
 #include "../vmobjects/VMSymbol.h"
 
-ClassGenerationContext::ClassGenerationContext()
-    : name(nullptr), superName(nullptr), classSide(false) {}
+ClassGenerationContext::ClassGenerationContext() = default;
 
 void ClassGenerationContext::AddClassField(VMSymbol* field) {
     classFields.push_back(field);

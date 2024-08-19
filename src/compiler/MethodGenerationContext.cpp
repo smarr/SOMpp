@@ -55,11 +55,8 @@ MethodGenerationContext::MethodGenerationContext(ClassGenerationContext& holder,
                                                  MethodGenerationContext* outer)
     : holderGenc(holder), outerGenc(outer),
       maxContextLevel(outer == nullptr ? 0 : outer->GetMaxContextLevel() + 1),
-      blockMethod(outer != nullptr), signature(nullptr), primitive(false),
-      finished(false), lexicalScope(nullptr), currentStackDepth(0),
-      maxStackDepth(0),
-      last4Bytecodes({BC_INVALID, BC_INVALID, BC_INVALID, BC_INVALID}),
-      isCurrentlyInliningABlock(false) {}
+      blockMethod(outer != nullptr),
+      last4Bytecodes({BC_INVALID, BC_INVALID, BC_INVALID, BC_INVALID}) {}
 
 VMInvokable* MethodGenerationContext::Assemble() {
     VMTrivialMethod* trivialMethod = assembleTrivialMethod();

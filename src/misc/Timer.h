@@ -36,5 +36,5 @@ public:
         total = end - last_start;
     }
 
-    double GetTotalTime() { return (double)total / 1000.0; }
+    [[nodiscard]] double GetTotalTime() const { return (double)total / 1000.0; }
 };

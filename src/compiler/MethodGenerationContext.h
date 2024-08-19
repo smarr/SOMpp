@@ -164,21 +164,21 @@ private:
     const uint8_t maxContextLevel;
 
     const bool blockMethod;
-    VMSymbol* signature;
+    VMSymbol* signature{nullptr};
     std::vector<Variable> arguments;
-    bool primitive;
+    bool primitive{false};
     std::vector<Variable> locals;
     std::vector<vm_oop_t> literals;
-    bool finished;
+    bool finished{false};
     std::vector<uint8_t> bytecode;
-    LexicalScope* lexicalScope;
+    LexicalScope* lexicalScope{nullptr};
 
-    size_t currentStackDepth;
-    size_t maxStackDepth;
+    size_t currentStackDepth{0};
+    size_t maxStackDepth{0};
 
     std::array<uint8_t, NUM_LAST_BYTECODES> last4Bytecodes;
 
     std::vector<BackJump> inlinedLoops;
 
-    bool isCurrentlyInliningABlock;
+    bool isCurrentlyInliningABlock{false};
 };

@@ -48,7 +48,7 @@ public:
     void SetClassSide(bool cs) { classSide = cs; }
     VMSymbol* GetName() { return name; };
     VMSymbol* GetSuperName() { return superName; };
-    bool IsClassSide() { return classSide; };
+    [[nodiscard]] bool IsClassSide() const { return classSide; };
 
     int64_t GetFieldIndex(VMSymbol* field);
 
@@ -56,9 +56,9 @@ public:
     void SetClassFieldsOfSuper(VMArray* fields);
 
 private:
-    VMSymbol* name;
-    VMSymbol* superName;
-    bool classSide;
+    VMSymbol* name{nullptr};
+    VMSymbol* superName{nullptr};
+    bool classSide{false};
     std::vector<VMSymbol*> instanceFields;
     std::vector<VMInvokable*> instanceMethods;
     std::vector<VMSymbol*> classFields;

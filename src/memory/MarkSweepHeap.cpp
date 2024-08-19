@@ -12,7 +12,7 @@
 
 MarkSweepHeap::MarkSweepHeap(size_t objectSpaceSize)
     : Heap<MarkSweepHeap>(new MarkSweepCollector(this)),
-      allocatedObjects(new vector<AbstractVMObject*>()), spcAlloc(0),
+      allocatedObjects(new vector<AbstractVMObject*>()),
       // our initial collection limit is 90% of objectSpaceSize
       collectionLimit((size_t)((double)objectSpaceSize * 0.9)) {}
 

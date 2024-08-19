@@ -126,11 +126,11 @@ private:
     Lexer lexer;
     std::string& fname;
 
-    Symbol sym;
+    Symbol sym{NONE};
 
     std::string text;
 
-    Symbol nextSym;
+    Symbol nextSym{NONE};
 
     std::string nextText;
 };
