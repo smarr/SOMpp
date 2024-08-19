@@ -919,11 +919,11 @@ __attribute__((noreturn)) void Parser::parseError(const char* msg,
     std::string msgWithMeta =
         "%(file)s:%(line)d:%(column)d: error: " + std::string(msg);
 
-    std::string foundStr;
+    std::string found;
     if (_PRINTABLE_SYM) {
-        foundStr = symnames[sym] + std::string(" (") + text + ")";
+        found = symnames[sym] + std::string(" (") + text + ")";
     } else {
-        foundStr = symnames[sym];
+        found = symnames[sym];
     }
 
     ReplacePattern(msgWithMeta, "%(file)s", fname);
@@ -934,7 +934,7 @@ __attribute__((noreturn)) void Parser::parseError(const char* msg,
     std::string column = std::to_string(lexer.GetCurrentColumn());
     ReplacePattern(msgWithMeta, "%(column)d", column);
     ReplacePattern(msgWithMeta, "%(expected)s", expected);
-    ReplacePattern(msgWithMeta, "%(found)s", foundStr);
+    ReplacePattern(msgWithMeta, "%(found)s", found);
 
     ErrorPrint(msgWithMeta);
     Quit(ERR_FAIL);
