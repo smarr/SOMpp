@@ -34,7 +34,7 @@
 
 using namespace std;
 
-typedef enum {
+enum Symbol : uint8_t {
     NONE,
     Integer,
     Double,
@@ -68,7 +68,7 @@ typedef enum {
     Keyword,
     KeywordSequence,
     OperatorSequence
-} Symbol;
+};
 
 // clang-format off
 static const char* symnames[] = { "NONE", "Integer", "Not", "And", "Or", "Star",

@@ -9,7 +9,7 @@
 
 using namespace std;
 
-enum ResultType { INTEGER, CLASS, SYMBOL, DOUBLE };
+enum ResultType : uint8_t { INTEGER, CLASS, SYMBOL, DOUBLE };
 
 class TestData {
 public:
