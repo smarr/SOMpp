@@ -943,7 +943,7 @@ __attribute__((noreturn)) void Parser::parseError(const char* msg,
 __attribute__((noreturn)) void Parser::parseError(const char* msg,
                                                   Symbol* expected) {
     bool first = true;
-    std::string expectedStr = "";
+    std::string expectedStr;
 
     Symbol* next = expected;
     while (*next != 0U) {

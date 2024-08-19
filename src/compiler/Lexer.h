@@ -96,7 +96,7 @@ public:
 
     Symbol sym{Symbol::NONE};
     char symc{0};
-    std::string text{""};
+    std::string text;
 
     size_t startBufp{0};
 };
