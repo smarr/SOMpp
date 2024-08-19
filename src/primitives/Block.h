@@ -31,5 +31,5 @@
 
 class _Block : public PrimitiveContainer {
 public:
-    _Block();
+    _Block() = default;
 };

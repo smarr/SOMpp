@@ -25,7 +25,3 @@
  */
 
 #include "Block.h"
-
-#include "../primitivesCore/PrimitiveContainer.h"
-
-_Block::_Block() {}
