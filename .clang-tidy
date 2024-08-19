@@ -1,5 +1,6 @@
 ---
 Checks:          '*include*,
+                  modernize-use-nodiscard,
                   cppcoreguidelines-init-variables,
                   misc-const-correctness,
                   misc-static-assert,

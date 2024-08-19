@@ -39,11 +39,11 @@ public:
     typedef GCSymbol Stored;
 
     VMSymbol(const size_t length, const char* const str);
-    size_t GetObjectSize() const override;
-    VMSymbol* CloneForMovingGC() const override;
-    VMClass* GetClass() const override;
+    [[nodiscard]] size_t GetObjectSize() const override;
+    [[nodiscard]] VMSymbol* CloneForMovingGC() const override;
+    [[nodiscard]] VMClass* GetClass() const override;
 
-    std::string AsDebugString() const override;
+    [[nodiscard]] std::string AsDebugString() const override;
 
 private:
     const uint8_t numberOfArgumentsOfSignature;

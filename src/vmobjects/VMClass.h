@@ -48,33 +48,33 @@ public:
     VMClass();
     VMClass(size_t numberOfFields, size_t additionalBytes);
 
-    VMObject* GetSuperClass() const;
+    [[nodiscard]] VMObject* GetSuperClass() const;
     void SetSuperClass(VMObject* sup);
-    bool HasSuperClass() const;
-    VMSymbol* GetName() const;
+    [[nodiscard]] bool HasSuperClass() const;
+    [[nodiscard]] VMSymbol* GetName() const;
     void SetName(VMSymbol* name);
-    VMArray* GetInstanceFields() const;
+    [[nodiscard]] VMArray* GetInstanceFields() const;
     void SetInstanceFields(VMArray* instFields);
-    VMArray* GetInstanceInvokables() const;
+    [[nodiscard]] VMArray* GetInstanceInvokables() const;
     void SetInstanceInvokables(VMArray* /*invokables*/);
-    size_t GetNumberOfInstanceInvokables() const;
-    VMInvokable* GetInstanceInvokable(size_t index) const;
+    [[nodiscard]] size_t GetNumberOfInstanceInvokables() const;
+    [[nodiscard]] VMInvokable* GetInstanceInvokable(size_t index) const;
     void SetInstanceInvokable(size_t index, VMInvokable* invokable);
     VMInvokable* LookupInvokable(VMSymbol* name);
     int64_t LookupFieldIndex(VMSymbol* name) const;
     bool AddInstanceInvokable(VMInvokable* invokable);
-    VMSymbol* GetInstanceFieldName(size_t index) const;
-    size_t GetNumberOfInstanceFields() const;
-    bool HasPrimitives() const;
+    [[nodiscard]] VMSymbol* GetInstanceFieldName(size_t index) const;
+    [[nodiscard]] size_t GetNumberOfInstanceFields() const;
+    [[nodiscard]] bool HasPrimitives() const;
     void LoadPrimitives();
-    VMClass* CloneForMovingGC() const override;
+    [[nodiscard]] VMClass* CloneForMovingGC() const override;
 
-    std::string AsDebugString() const override;
+    [[nodiscard]] std::string AsDebugString() const override;
 
 private:
     static bool hasPrimitivesFor(const std::string& cl);
     void setPrimitives(const std::string& cname, bool classSide);
-    size_t numberOfSuperInstanceFields() const;
+    [[nodiscard]] size_t numberOfSuperInstanceFields() const;
 
     static const size_t VMClassNumberOfFields;
 

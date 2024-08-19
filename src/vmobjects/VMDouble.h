@@ -34,21 +34,21 @@ public:
 
     VMDouble(double val) : AbstractVMObject(), embeddedDouble(val) {}
 
-    VMDouble* CloneForMovingGC() const override;
-    inline double GetEmbeddedDouble() const;
-    VMClass* GetClass() const override;
-    inline size_t GetObjectSize() const override;
+    [[nodiscard]] VMDouble* CloneForMovingGC() const override;
+    [[nodiscard]] inline double GetEmbeddedDouble() const;
+    [[nodiscard]] VMClass* GetClass() const override;
+    [[nodiscard]] inline size_t GetObjectSize() const override;
 
-    inline int64_t GetHash() const override {
+    [[nodiscard]] inline int64_t GetHash() const override {
         // try to avoid a smart cast of the double value.
         // instead, try to get to the bit pattern as a int64_t
         return (*(int64_t*)&embeddedDouble);
     }
 
     void MarkObjectAsInvalid() override;
-    bool IsMarkedInvalid() const override;
+    [[nodiscard]] bool IsMarkedInvalid() const override;
 
-    std::string AsDebugString() const override;
+    [[nodiscard]] std::string AsDebugString() const override;
 
 private:
     make_testable(public);

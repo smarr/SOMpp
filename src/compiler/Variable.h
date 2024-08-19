@@ -22,19 +22,21 @@ public:
 
     bool IsNamed(std::string& n) const { return name == n; }
 
-    bool IsSame(const Variable& other) const { return coord == other.coord; }
+    [[nodiscard]] bool IsSame(const Variable& other) const {
+        return coord == other.coord;
+    }
 
-    bool IsValid() const { return index != 0xff; }
+    [[nodiscard]] bool IsValid() const { return index != 0xff; }
 
-    inline uint8_t GetIndex() const { return index; }
+    [[nodiscard]] inline uint8_t GetIndex() const { return index; }
 
-    const std::string* GetName() const { return &name; }
+    [[nodiscard]] const std::string* GetName() const { return &name; }
 
-    std::string MakeQualifiedName() const;
+    [[nodiscard]] std::string MakeQualifiedName() const;
 
-    Variable CopyForInlining(size_t newIndex) const;
+    [[nodiscard]] Variable CopyForInlining(size_t newIndex) const;
 
-    bool IsArgument() const { return isArgument; }
+    [[nodiscard]] bool IsArgument() const { return isArgument; }
 
 protected:
     std::string name;

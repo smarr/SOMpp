@@ -111,26 +111,30 @@ public:
     Symbol GetSym();
     Symbol Peek();
 
-    std::string GetText() const { return state.text; }
+    [[nodiscard]] std::string GetText() const { return state.text; }
 
-    std::string GetNextText() const { return stateAfterPeek.text; }
+    [[nodiscard]] std::string GetNextText() const {
+        return stateAfterPeek.text;
+    }
 
-    std::string GetRawBuffer() const {
+    [[nodiscard]] std::string GetRawBuffer() const {
         // for debug
         return {buf};
     }
 
     std::string GetCurrentLine();
 
-    size_t GetCurrentColumn() const {
+    [[nodiscard]] size_t GetCurrentColumn() const {
         return state.startBufp + 1 - state.text.length();
     }
 
-    size_t GetCurrentLineNumber() const { return state.lineNumber; }
+    [[nodiscard]] size_t GetCurrentLineNumber() const {
+        return state.lineNumber;
+    }
 
-    bool GetPeekDone() const { return peekDone; }
+    [[nodiscard]] bool GetPeekDone() const { return peekDone; }
 
-    SourceCoordinate GetCurrentSource() const {
+    [[nodiscard]] SourceCoordinate GetCurrentSource() const {
         return {GetCurrentLineNumber(), GetCurrentColumn()};
     }
 

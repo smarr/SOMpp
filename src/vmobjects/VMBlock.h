@@ -35,13 +35,15 @@ public:
 
     VMBlock(VMInvokable* method, VMFrame* context);
 
-    VMInvokable* GetMethod() const;
+    [[nodiscard]] VMInvokable* GetMethod() const;
 
-    inline VMFrame* GetContext() const { return load_ptr(context); }
+    [[nodiscard]] inline VMFrame* GetContext() const {
+        return load_ptr(context);
+    }
 
-    VMBlock* CloneForMovingGC() const override;
+    [[nodiscard]] VMBlock* CloneForMovingGC() const override;
 
-    std::string AsDebugString() const override;
+    [[nodiscard]] std::string AsDebugString() const override;
 
     static VMEvaluationPrimitive* GetEvaluationPrimitive(
         int /*numberOfArguments*/);

@@ -14,9 +14,11 @@ public:
     VMTrivialMethod(VMSymbol* sig, vector<Variable>& arguments)
         : VMInvokable(sig), arguments(arguments) {}
 
-    VMClass* GetClass() const final { return load_ptr(methodClass); }
+    [[nodiscard]] VMClass* GetClass() const final {
+        return load_ptr(methodClass);
+    }
 
-    bool IsPrimitive() const final { return false; };
+    [[nodiscard]] bool IsPrimitive() const final { return false; };
 
     void MergeScopeInto(MethodGenerationContext& mgenc) final {
         if (arguments.size() > 0) {
@@ -32,7 +34,7 @@ public:
         return &arguments.at(index);
     }
 
-    inline uint8_t GetNumberOfArguments() const final {
+    [[nodiscard]] inline uint8_t GetNumberOfArguments() const final {
         return Signature::GetNumberOfArguments(load_ptr(signature));
     }
 
@@ -62,7 +64,7 @@ public:
         write_barrier(this, literal);
     }
 
-    inline size_t GetObjectSize() const override {
+    [[nodiscard]] inline size_t GetObjectSize() const override {
         return sizeof(VMLiteralReturn);
     }
 
@@ -72,7 +74,7 @@ public:
     void InlineInto(MethodGenerationContext& mgenc,
                     bool mergeScope = true) final;
 
-    AbstractVMObject* CloneForMovingGC() const final;
+    [[nodiscard]] AbstractVMObject* CloneForMovingGC() const final;
 
     void MarkObjectAsInvalid() final {
         VMTrivialMethod::MarkObjectAsInvalid();
@@ -81,9 +83,11 @@ public:
 
     void WalkObjects(walk_heap_fn /*walk*/) override;
 
-    bool IsMarkedInvalid() const final { return literal == INVALID_GC_POINTER; }
+    [[nodiscard]] bool IsMarkedInvalid() const final {
+        return literal == INVALID_GC_POINTER;
+    }
 
-    std::string AsDebugString() const final;
+    [[nodiscard]] std::string AsDebugString() const final;
 
 private:
     gc_oop_t literal;
@@ -103,7 +107,7 @@ public:
         write_barrier(this, globalName);
     }
 
-    inline size_t GetObjectSize() const override {
+    [[nodiscard]] inline size_t GetObjectSize() const override {
         return sizeof(VMGlobalReturn);
     }
 
@@ -113,7 +117,7 @@ public:
     void InlineInto(MethodGenerationContext& mgenc,
                     bool mergeScope = true) final;
 
-    AbstractVMObject* CloneForMovingGC() const final;
+    [[nodiscard]] AbstractVMObject* CloneForMovingGC() const final;
 
     void MarkObjectAsInvalid() final {
         VMTrivialMethod::MarkObjectAsInvalid();
@@ -122,11 +126,11 @@ public:
 
     void WalkObjects(walk_heap_fn /*walk*/) override;
 
-    bool IsMarkedInvalid() const final {
+    [[nodiscard]] bool IsMarkedInvalid() const final {
         return globalName == (GCSymbol*)INVALID_GC_POINTER;
     }
 
-    std::string AsDebugString() const final;
+    [[nodiscard]] std::string AsDebugString() const final;
 
 private:
     GCSymbol* globalName;
@@ -143,7 +147,9 @@ public:
         write_barrier(this, sig);
     }
 
-    inline size_t GetObjectSize() const override { return sizeof(VMGetter); }
+    [[nodiscard]] inline size_t GetObjectSize() const override {
+        return sizeof(VMGetter);
+    }
 
     VMFrame* Invoke(VMFrame* /*frame*/) override;
     VMFrame* Invoke1(VMFrame* /*frame*/) override;
@@ -151,17 +157,17 @@ public:
     void InlineInto(MethodGenerationContext& mgenc,
                     bool mergeScope = true) final;
 
-    AbstractVMObject* CloneForMovingGC() const final;
+    [[nodiscard]] AbstractVMObject* CloneForMovingGC() const final;
 
     void MarkObjectAsInvalid() final { VMTrivialMethod::MarkObjectAsInvalid(); }
 
-    bool IsMarkedInvalid() const final {
+    [[nodiscard]] bool IsMarkedInvalid() const final {
         return signature == (GCSymbol*)INVALID_GC_POINTER;
     }
 
     void WalkObjects(walk_heap_fn /*walk*/) override;
 
-    std::string AsDebugString() const final;
+    [[nodiscard]] std::string AsDebugString() const final;
 
 private:
     size_t fieldIndex;
@@ -180,7 +186,9 @@ public:
         write_barrier(this, sig);
     }
 
-    inline size_t GetObjectSize() const override { return sizeof(VMSetter); }
+    [[nodiscard]] inline size_t GetObjectSize() const override {
+        return sizeof(VMSetter);
+    }
 
     VMFrame* Invoke(VMFrame* /*frame*/) override;
     VMFrame* Invoke1(VMFrame* /*unused*/) override;
@@ -188,17 +196,17 @@ public:
     void InlineInto(MethodGenerationContext& mgenc,
                     bool mergeScope = true) final;
 
-    AbstractVMObject* CloneForMovingGC() const final;
+    [[nodiscard]] AbstractVMObject* CloneForMovingGC() const final;
 
     void MarkObjectAsInvalid() final { VMTrivialMethod::MarkObjectAsInvalid(); }
 
-    bool IsMarkedInvalid() const final {
+    [[nodiscard]] bool IsMarkedInvalid() const final {
         return signature == (GCSymbol*)INVALID_GC_POINTER;
     }
 
     void WalkObjects(walk_heap_fn /*walk*/) override;
 
-    std::string AsDebugString() const final;
+    [[nodiscard]] std::string AsDebugString() const final;
 
 private:
     make_testable(public);

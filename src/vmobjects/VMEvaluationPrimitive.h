@@ -34,25 +34,27 @@ public:
 
     VMEvaluationPrimitive(uint8_t argc);
     void WalkObjects(walk_heap_fn /*unused*/) override;
-    VMEvaluationPrimitive* CloneForMovingGC() const override;
+    [[nodiscard]] VMEvaluationPrimitive* CloneForMovingGC() const override;
 
-    std::string AsDebugString() const override;
+    [[nodiscard]] std::string AsDebugString() const override;
 
-    inline size_t GetObjectSize() const override {
+    [[nodiscard]] inline size_t GetObjectSize() const override {
         return sizeof(VMEvaluationPrimitive);
     }
 
-    VMClass* GetClass() const final { return load_ptr(primitiveClass); }
+    [[nodiscard]] VMClass* GetClass() const final {
+        return load_ptr(primitiveClass);
+    }
 
     void MarkObjectAsInvalid() override;
-    bool IsMarkedInvalid() const override;
+    [[nodiscard]] bool IsMarkedInvalid() const override;
 
     VMFrame* Invoke(VMFrame* frm) override;
     VMFrame* Invoke1(VMFrame* frm) override;
     void InlineInto(MethodGenerationContext& mgenc,
                     bool mergeScope = true) final;
 
-    inline uint8_t GetNumberOfArguments() const final {
+    [[nodiscard]] inline uint8_t GetNumberOfArguments() const final {
         return numberOfArguments;
     }
 

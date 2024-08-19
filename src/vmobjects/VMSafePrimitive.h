@@ -9,9 +9,11 @@ public:
 
     VMSafePrimitive(VMSymbol* sig) : VMInvokable(sig) {}
 
-    VMClass* GetClass() const final { return load_ptr(primitiveClass); }
+    [[nodiscard]] VMClass* GetClass() const final {
+        return load_ptr(primitiveClass);
+    }
 
-    bool IsPrimitive() const final { return true; };
+    [[nodiscard]] bool IsPrimitive() const final { return true; };
 
     void InlineInto(MethodGenerationContext& mgenc,
                     bool mergeScope = true) final;
@@ -20,9 +22,9 @@ public:
     static VMSafePrimitive* GetSafeBinary(VMSymbol* sig, BinaryPrim prim);
     static VMSafePrimitive* GetSafeTernary(VMSymbol* sig, TernaryPrim prim);
 
-    std::string AsDebugString() const final;
+    [[nodiscard]] std::string AsDebugString() const final;
 
-    inline uint8_t GetNumberOfArguments() const final {
+    [[nodiscard]] inline uint8_t GetNumberOfArguments() const final {
         return Signature::GetNumberOfArguments(load_ptr(signature));
     }
 };
@@ -36,21 +38,21 @@ public:
         write_barrier(this, sig);
     }
 
-    inline size_t GetObjectSize() const override {
+    [[nodiscard]] inline size_t GetObjectSize() const override {
         return sizeof(VMSafeUnaryPrimitive);
     }
 
     VMFrame* Invoke(VMFrame* /*frame*/) override;
     VMFrame* Invoke1(VMFrame* /*frame*/) override;
 
-    AbstractVMObject* CloneForMovingGC() const final;
+    [[nodiscard]] AbstractVMObject* CloneForMovingGC() const final;
 
     void MarkObjectAsInvalid() final {
         VMSafePrimitive::MarkObjectAsInvalid();
         prim.MarkObjectAsInvalid();
     }
 
-    bool IsMarkedInvalid() const final { return !prim.IsValid(); }
+    [[nodiscard]] bool IsMarkedInvalid() const final { return !prim.IsValid(); }
 
 private:
     UnaryPrim prim;
@@ -65,21 +67,21 @@ public:
         write_barrier(this, sig);
     }
 
-    inline size_t GetObjectSize() const override {
+    [[nodiscard]] inline size_t GetObjectSize() const override {
         return sizeof(VMSafeBinaryPrimitive);
     }
 
     VMFrame* Invoke(VMFrame* /*frame*/) override;
     VMFrame* Invoke1(VMFrame* /*unused*/) override;
 
-    AbstractVMObject* CloneForMovingGC() const final;
+    [[nodiscard]] AbstractVMObject* CloneForMovingGC() const final;
 
     void MarkObjectAsInvalid() final {
         VMSafePrimitive::MarkObjectAsInvalid();
         prim.MarkObjectAsInvalid();
     }
 
-    bool IsMarkedInvalid() const final { return !prim.IsValid(); }
+    [[nodiscard]] bool IsMarkedInvalid() const final { return !prim.IsValid(); }
 
 private:
     BinaryPrim prim;
@@ -94,21 +96,21 @@ public:
         write_barrier(this, sig);
     }
 
-    inline size_t GetObjectSize() const override {
+    [[nodiscard]] inline size_t GetObjectSize() const override {
         return sizeof(VMSafeTernaryPrimitive);
     }
 
     VMFrame* Invoke(VMFrame* /*frame*/) override;
     VMFrame* Invoke1(VMFrame* /*unused*/) override;
 
-    AbstractVMObject* CloneForMovingGC() const final;
+    [[nodiscard]] AbstractVMObject* CloneForMovingGC() const final;
 
     void MarkObjectAsInvalid() final {
         VMSafePrimitive::MarkObjectAsInvalid();
         prim.MarkObjectAsInvalid();
     }
 
-    bool IsMarkedInvalid() const final { return !prim.IsValid(); }
+    [[nodiscard]] bool IsMarkedInvalid() const final { return !prim.IsValid(); }
 
 private:
     TernaryPrim prim;

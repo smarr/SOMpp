@@ -60,30 +60,34 @@ public:
         }
     }
 
-    int64_t GetHash() const final { return 0; /* should never be called */ }
+    [[nodiscard]] int64_t GetHash() const final {
+        return 0; /* should never be called */
+    }
 
-    inline VMClass* GetClass() const final { return nullptr; }
+    [[nodiscard]] inline VMClass* GetClass() const final { return nullptr; }
 
-    inline size_t GetObjectSize() const final { return totalObjectSize; }
+    [[nodiscard]] inline size_t GetObjectSize() const final {
+        return totalObjectSize;
+    }
 
     void MarkObjectAsInvalid() final {
         previousFrame = (GCFrame*)INVALID_GC_POINTER;
     }
 
-    bool IsMarkedInvalid() const final {
+    [[nodiscard]] bool IsMarkedInvalid() const final {
         return previousFrame == (GCFrame*)INVALID_GC_POINTER;
     }
 
-    inline VMFrame* GetPreviousFrame() const;
+    [[nodiscard]] inline VMFrame* GetPreviousFrame() const;
     inline void ClearPreviousFrame();
-    inline bool HasPreviousFrame() const;
-    inline bool IsBootstrapFrame() const;
-    inline VMFrame* GetContext() const;
+    [[nodiscard]] inline bool HasPreviousFrame() const;
+    [[nodiscard]] inline bool IsBootstrapFrame() const;
+    [[nodiscard]] inline VMFrame* GetContext() const;
     inline void SetContext(VMFrame* /*frm*/);
-    inline bool HasContext() const;
+    [[nodiscard]] inline bool HasContext() const;
     VMFrame* GetContextLevel(uint8_t lvl);
     VMFrame* GetOuterContext();
-    inline VMMethod* GetMethod() const;
+    [[nodiscard]] inline VMMethod* GetMethod() const;
 
     inline vm_oop_t Pop() {
         vm_oop_t result = load_ptr(*stack_ptr);
@@ -111,9 +115,11 @@ public:
         store_ptr(*stack_ptr, obj);
     }
 
-    inline size_t GetBytecodeIndex() const { return bytecodeIndex; }
+    [[nodiscard]] inline size_t GetBytecodeIndex() const {
+        return bytecodeIndex;
+    }
 
-    inline vm_oop_t GetStackElement(size_t index) const {
+    [[nodiscard]] inline vm_oop_t GetStackElement(size_t index) const {
         return load_ptr(stack_ptr[-index]);
     }
 
@@ -151,12 +157,12 @@ public:
     }
 
     void WalkObjects(walk_heap_fn /*unused*/) override;
-    VMFrame* CloneForMovingGC() const override;
+    [[nodiscard]] VMFrame* CloneForMovingGC() const override;
 
     void PrintStack() const;
     void PrintBytecode() const;
 
-    size_t RemainingStackSize() const {
+    [[nodiscard]] size_t RemainingStackSize() const {
         // - 1 because the stack pointer points at the top entry,
         // so the next entry would be put at stackPointer+1
         size_t const size =
@@ -165,7 +171,7 @@ public:
         return size - 1;
     }
 
-    std::string AsDebugString() const override;
+    [[nodiscard]] std::string AsDebugString() const override;
 
     make_testable(public);
 

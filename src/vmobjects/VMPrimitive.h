@@ -43,15 +43,19 @@ public:
         write_barrier(this, sig);
     }
 
-    VMClass* GetClass() const final { return load_ptr(primitiveClass); }
+    [[nodiscard]] VMClass* GetClass() const final {
+        return load_ptr(primitiveClass);
+    }
 
-    inline size_t GetObjectSize() const override { return sizeof(VMPrimitive); }
+    [[nodiscard]] inline size_t GetObjectSize() const override {
+        return sizeof(VMPrimitive);
+    }
 
-    bool IsEmpty() const;
+    [[nodiscard]] bool IsEmpty() const;
 
     inline void SetRoutine(FramePrim p) { prim = p; }
 
-    VMPrimitive* CloneForMovingGC() const override;
+    [[nodiscard]] VMPrimitive* CloneForMovingGC() const override;
 
     VMFrame* Invoke(VMFrame* frm) override {
         prim.pointer(frm);
@@ -66,18 +70,20 @@ public:
     void InlineInto(MethodGenerationContext& mgenc,
                     bool mergeScope = true) final;
 
-    bool IsPrimitive() const override { return true; };
+    [[nodiscard]] bool IsPrimitive() const override { return true; };
 
     void MarkObjectAsInvalid() override {
         VMInvokable::MarkObjectAsInvalid();
         prim.MarkObjectAsInvalid();
     }
 
-    bool IsMarkedInvalid() const override { return !prim.IsValid(); }
+    [[nodiscard]] bool IsMarkedInvalid() const override {
+        return !prim.IsValid();
+    }
 
-    std::string AsDebugString() const override;
+    [[nodiscard]] std::string AsDebugString() const override;
 
-    inline uint8_t GetNumberOfArguments() const final {
+    [[nodiscard]] inline uint8_t GetNumberOfArguments() const final {
         return Signature::GetNumberOfArguments(load_ptr(signature));
     }
 

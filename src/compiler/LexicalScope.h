@@ -14,9 +14,13 @@ public:
         : outer(outer), arguments(std::move(arguments)),
           locals(std::move(locals)) {}
 
-    inline uint8_t GetNumberOfArguments() const { return arguments.size(); }
+    [[nodiscard]] inline uint8_t GetNumberOfArguments() const {
+        return arguments.size();
+    }
 
-    inline size_t GetNumberOfLocals() const { return locals.size(); }
+    [[nodiscard]] inline size_t GetNumberOfLocals() const {
+        return locals.size();
+    }
 
     void AddInlinedLocal(Variable& var) {
         assert(var.GetIndex() == locals.size());

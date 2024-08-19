@@ -71,19 +71,23 @@ public:
 
     void MarkFinished();
 
-    ClassGenerationContext* GetHolder() const { return &holderGenc; }
+    [[nodiscard]] ClassGenerationContext* GetHolder() const {
+        return &holderGenc;
+    }
 
-    MethodGenerationContext* GetOuter() const { return outerGenc; }
+    [[nodiscard]] MethodGenerationContext* GetOuter() const {
+        return outerGenc;
+    }
 
-    uint8_t GetMaxContextLevel() const { return maxContextLevel; }
+    [[nodiscard]] uint8_t GetMaxContextLevel() const { return maxContextLevel; }
 
     VMSymbol* GetSignature() { return signature; }
 
-    bool IsPrimitive() const { return primitive; }
+    [[nodiscard]] bool IsPrimitive() const { return primitive; }
 
-    bool IsBlockMethod() const { return blockMethod; }
+    [[nodiscard]] bool IsBlockMethod() const { return blockMethod; }
 
-    bool IsFinished() const { return finished; }
+    [[nodiscard]] bool IsFinished() const { return finished; }
 
     void RemoveLastBytecode() { bytecode.pop_back(); };
     void RemoveLastPopForBlockLocalReturn();

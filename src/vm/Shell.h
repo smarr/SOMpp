@@ -35,7 +35,9 @@ public:
     Shell(VMMethod* /*bsm*/);
     ~Shell();
     void SetBootstrapMethod(VMMethod* bsm) { bootstrapMethod = bsm; };
-    VMMethod* GetBootstrapMethod() const { return bootstrapMethod; };
+    [[nodiscard]] VMMethod* GetBootstrapMethod() const {
+        return bootstrapMethod;
+    };
     void Start();
 
 private:

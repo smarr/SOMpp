@@ -41,7 +41,7 @@ public:
     explicit VMInvokable(VMSymbol* sig)
         : hash((intptr_t)this), signature(store_with_separate_barrier(sig)) {}
 
-    int64_t GetHash() const override { return hash; }
+    [[nodiscard]] int64_t GetHash() const override { return hash; }
 
     virtual VMFrame* Invoke(VMFrame*) = 0;
     virtual VMFrame* Invoke1(VMFrame*) = 0;
@@ -57,13 +57,15 @@ public:
             mgencWithInlined) { /* NOOP for everything but VMMethods */ }
     virtual const Variable* GetArgument(size_t /*unused*/, size_t /*unused*/);
 
-    virtual uint8_t GetNumberOfArguments() const = 0;
+    [[nodiscard]] virtual uint8_t GetNumberOfArguments() const = 0;
 
-    virtual bool IsPrimitive() const;
+    [[nodiscard]] virtual bool IsPrimitive() const;
 
-    inline VMSymbol* GetSignature() const { return load_ptr(signature); }
+    [[nodiscard]] inline VMSymbol* GetSignature() const {
+        return load_ptr(signature);
+    }
 
-    VMClass* GetHolder() const { return load_ptr(holder); }
+    [[nodiscard]] VMClass* GetHolder() const { return load_ptr(holder); }
 
     virtual void SetHolder(VMClass* hld);
 
