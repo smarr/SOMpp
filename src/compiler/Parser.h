@@ -56,7 +56,7 @@ private:
     void Peek();
     void PeekForNextSymbolFromLexerIfNecessary();
 
-    bool eob(void);
+    bool eob();
 
     bool symIsIdentifier();
 
@@ -65,11 +65,11 @@ private:
     bool acceptOneOf(Symbol* ss);
     bool expect(Symbol s);
     bool expectOneOf(Symbol* ss);
-    void SingleOperator(void);
+    void SingleOperator();
     void superclass(ClassGenerationContext& cgenc);
     void instanceFields(ClassGenerationContext& cgenc);
     void classFields(ClassGenerationContext& cgenc);
-    void primitiveBlock(void);
+    void primitiveBlock();
     void pattern(MethodGenerationContext& mgenc);
     void unaryPattern(MethodGenerationContext& mgenc);
     void binaryPattern(MethodGenerationContext& mgenc);
@@ -107,7 +107,7 @@ private:
     void literalNumber(MethodGenerationContext& mgenc);
     vm_oop_t literalNumberOop();
     vm_oop_t literalDecimal(bool negateValue);
-    vm_oop_t negativeDecimal(void);
+    vm_oop_t negativeDecimal();
     vm_oop_t literalInteger(bool negateValue);
     vm_oop_t literalDouble(bool negateValue);
     void literalArray(MethodGenerationContext& mgenc);

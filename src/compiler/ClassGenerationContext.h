@@ -46,9 +46,9 @@ public:
     void SetName(VMSymbol* n) { name = n; }
     void SetSuperName(VMSymbol* sn) { superName = sn; }
     void SetClassSide(bool cs) { classSide = cs; }
-    VMSymbol* GetName(void) { return name; };
-    VMSymbol* GetSuperName(void) { return superName; };
-    bool IsClassSide(void) { return classSide; };
+    VMSymbol* GetName() { return name; };
+    VMSymbol* GetSuperName() { return superName; };
+    bool IsClassSide() { return classSide; };
 
     int64_t GetFieldIndex(VMSymbol* field);
 

@@ -25,8 +25,8 @@ class CloneObjectsTest : public CPPUNIT_NS::TestCase {
     CPPUNIT_TEST_SUITE_END();
 
 public:
-    inline void setUp(void) {}
-    inline void tearDown(void) {}
+    inline void setUp() {}
+    inline void tearDown() {}
 
 private:
     static void testCloneObject();

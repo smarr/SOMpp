@@ -33,7 +33,7 @@ struct timeval;
 
 class _System : public PrimitiveContainer {
 public:
-    _System(void);
+    _System();
     virtual ~_System();
 
     void PrintStackTrace(VMFrame*);
