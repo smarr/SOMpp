@@ -53,8 +53,8 @@ public:
              bool classSide);
 
 private:
-    std::map<std::string, FramePrim> framePrims{};
-    std::map<std::string, UnaryPrim> unaryPrims{};
-    std::map<std::string, BinaryPrim> binaryPrims{};
-    std::map<std::string, TernaryPrim> ternaryPrims{};
+    std::map<std::string, FramePrim> framePrims;
+    std::map<std::string, UnaryPrim> unaryPrims;
+    std::map<std::string, BinaryPrim> binaryPrims;
+    std::map<std::string, TernaryPrim> ternaryPrims;
 };

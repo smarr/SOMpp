@@ -58,7 +58,7 @@ static vm_oop_t clsFields(vm_oop_t rcvr) {
     return self->GetInstanceFields();
 }
 
-_Class::_Class() : PrimitiveContainer() {
+_Class::_Class() {
     Add("new", &clsNew, false);
     Add("name", &clsName, false);
     Add("superclass", &clsSuperclass, false);

@@ -63,7 +63,7 @@ private:
 
     bool supportsClass(const std::string& name);
 
-    std::map<std::string, PrimitiveContainer*> primitiveObjects{};
+    std::map<std::string, PrimitiveContainer*> primitiveObjects;
 
     static PrimitiveLoader loader;
 };

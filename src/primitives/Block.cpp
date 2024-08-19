@@ -28,4 +28,4 @@
 
 #include "../primitivesCore/PrimitiveContainer.h"
 
-_Block::_Block() : PrimitiveContainer() {}
+_Block::_Block() {}

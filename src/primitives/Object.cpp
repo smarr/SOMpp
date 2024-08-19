@@ -137,7 +137,7 @@ vm_oop_t objClass(vm_oop_t self) {
     return CLASS_OF(self);
 }
 
-_Object::_Object() : PrimitiveContainer() {
+_Object::_Object() {
     Add("==", &objEqualequal, false);
     Add("objectSize", &objObjectSize, false);
     Add("hashcode", &objHashcode, false);

@@ -220,7 +220,7 @@ static vm_oop_t dblMax(vm_oop_t leftPtr, vm_oop_t rightObj) {
     return rightObj;
 }
 
-_Double::_Double() : PrimitiveContainer() {
+_Double::_Double() {
     Add("+", &dblPlus, false);
     Add("-", &dblMinus, false);
     Add("*", &dblStar, false);

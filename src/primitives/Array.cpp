@@ -61,7 +61,7 @@ static vm_oop_t arrCopy(vm_oop_t rcvr) {
     return self->Copy();
 }
 
-_Array::_Array() : PrimitiveContainer() {
+_Array::_Array() {
     Add("new:", &arrNew, true);
     Add("at:", &arrAt, false);
     Add("at:put:", &arrAtPut, false);

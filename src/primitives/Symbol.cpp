@@ -41,6 +41,6 @@ static vm_oop_t symAsString(vm_oop_t rcvr) {
     return Universe::NewString(str);
 }
 
-_Symbol::_Symbol() : PrimitiveContainer() {
+_Symbol::_Symbol() {
     Add("asString", &symAsString, false);
 }

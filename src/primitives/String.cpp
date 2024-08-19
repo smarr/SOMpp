@@ -183,7 +183,7 @@ static vm_oop_t strIsDigits(vm_oop_t rcvr) {
     return load_ptr(falseObject);
 }
 
-_String::_String() : PrimitiveContainer() {
+_String::_String() {
     Add("concatenate:", &strConcatenate_, false);
     Add("asSymbol", &strAsSymbol, false);
     Add("hashcode", &strHashcode, false);

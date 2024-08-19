@@ -33,7 +33,7 @@ public:
     typedef GCString Stored;
 
     VMString(const size_t length, const char* str)
-        : AbstractVMObject(), length(length),
+        : length(length),
           // set the chars-pointer to point at the position of the first
           // character
           chars((char*)&chars + sizeof(char*)) {

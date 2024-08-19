@@ -43,8 +43,7 @@
 #include "../vmobjects/VMSymbol.h"
 
 ClassGenerationContext::ClassGenerationContext()
-    : name(nullptr), superName(nullptr), classSide(false), instanceFields(),
-      instanceMethods(), classFields(), classMethods() {}
+    : name(nullptr), superName(nullptr), classSide(false) {}
 
 void ClassGenerationContext::AddClassField(VMSymbol* field) {
     classFields.push_back(field);

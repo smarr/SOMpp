@@ -169,7 +169,7 @@ void printStackTrace(VMFrame* frame) {
     frame->PrintStackTrace();
 }
 
-_System::_System() : PrimitiveContainer() {
+_System::_System() {
     gettimeofday(&start_time, nullptr);
 
     Add("global:", &sysGlobal_, false);

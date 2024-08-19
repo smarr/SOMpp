@@ -36,7 +36,7 @@ void mInvokeOnWith(VMFrame* frame) {
     mthd->Invoke(frame);
 }
 
-_Method::_Method() : PrimitiveContainer() {
+_Method::_Method() {
     Add("signature", &mSignature, false);
     Add("holder", &mHolder, false);
     Add("invokeOn:with:", &mInvokeOnWith, false);

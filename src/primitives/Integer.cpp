@@ -339,7 +339,7 @@ static vm_oop_t intRange(vm_oop_t leftObj, vm_oop_t rightObj) {
     return arr;
 }
 
-_Integer::_Integer() : PrimitiveContainer() {
+_Integer::_Integer() {
     srand((unsigned)time(nullptr));
 
     Add("+", &intPlus, false);
