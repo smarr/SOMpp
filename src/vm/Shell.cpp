@@ -49,13 +49,9 @@
 #define SHELL_PART_1 " = (run: it = ( | tmp | tmp := ("
 #define SHELL_PART_2 "). 'it = ' print. ^tmp println) )"
 
-Shell::Shell() {
-    bootstrapMethod = nullptr;
-}
+Shell::Shell() : bootstrapMethod(nullptr) {}
 
-Shell::Shell(VMMethod* bsm) {
-    bootstrapMethod = bsm;
-}
+Shell::Shell(VMMethod* bsm) : bootstrapMethod(bsm) {}
 
 void Shell::Start() {
 #define QUIT_CMD "system exit"
