@@ -15,7 +15,7 @@
 
 void MarkSweepCollector::Collect() {
     auto* heap = GetHeap<MarkSweepHeap>();
-    Timer::GCTimer->Resume();
+    Timer::GCTimer.Resume();
     // reset collection trigger
     heap->resetGCTrigger();
 
@@ -48,7 +48,7 @@ void MarkSweepCollector::Collect() {
     // TODO(smarr): Maybe choose another constant to calculate new
     // collectionLimit here
     heap->collectionLimit = 2 * survivorsSize;
-    Timer::GCTimer->Halt();
+    Timer::GCTimer.Halt();
 }
 
 static gc_oop_t mark_object(gc_oop_t oop) {

@@ -52,7 +52,7 @@ void DebugCopyingCollector::Collect() {
     // we assume the old heap is empty, because we want to switch to it
     assert(heap->oldHeap.empty());
 
-    Timer::GCTimer->Resume();
+    Timer::GCTimer.Resume();
     // reset collection trigger
     heap->resetGCTrigger();
 
@@ -77,5 +77,5 @@ void DebugCopyingCollector::Collect() {
         increaseMemory = true;
     }
 
-    Timer::GCTimer->Halt();
+    Timer::GCTimer.Halt();
 }

@@ -130,7 +130,7 @@ void GenerationalCollector::MajorCollection() {
 }
 
 void GenerationalCollector::Collect() {
-    Timer::GCTimer->Resume();
+    Timer::GCTimer.Resume();
     // reset collection trigger
     heap->resetGCTrigger();
 
@@ -139,5 +139,5 @@ void GenerationalCollector::Collect() {
         MajorCollection();
         majorCollectionThreshold = 2 * heap->matureObjectsSize;
     }
-    Timer::GCTimer->Halt();
+    Timer::GCTimer.Halt();
 }

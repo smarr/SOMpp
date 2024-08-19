@@ -1,3 +1,3 @@
 #include "Timer.h"
 
-Timer* Timer::GCTimer = new Timer();
+Timer Timer::GCTimer{};

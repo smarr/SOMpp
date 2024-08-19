@@ -52,7 +52,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
 void CopyingCollector::Collect() {
     DebugLog("CopyGC Collect\n");
 
-    Timer::GCTimer->Resume();
+    Timer::GCTimer.Resume();
     // reset collection trigger
     heap->resetGCTrigger();
 
@@ -80,5 +80,5 @@ void CopyingCollector::Collect() {
         increaseMemory = true;
     }
 
-    Timer::GCTimer->Halt();
+    Timer::GCTimer.Halt();
 }
