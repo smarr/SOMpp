@@ -287,7 +287,7 @@ VMPrimitive* MethodGenerationContext::AssemblePrimitive(bool classSide) {
     return VMPrimitive::GetEmptyPrimitive(signature, classSide);
 }
 
-MethodGenerationContext::~MethodGenerationContext() {}
+MethodGenerationContext::~MethodGenerationContext() = default;
 
 int8_t MethodGenerationContext::FindLiteralIndex(vm_oop_t lit) {
     return (int8_t)IndexOf(literals, lit);

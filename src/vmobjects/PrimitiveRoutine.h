@@ -32,7 +32,7 @@
 // abstract base class
 class PrimitiveRoutine {
 public:
-    PrimitiveRoutine() {};
+    PrimitiveRoutine() = default;
 
     virtual void Invoke(VMFrame*) = 0;  // call using operator
     virtual bool isClassSide() = 0;

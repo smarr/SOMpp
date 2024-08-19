@@ -38,7 +38,7 @@ class VMSymbol : public VMString {
 public:
     typedef GCSymbol Stored;
 
-    VMSymbol(const size_t length, const char* const str);
+    VMSymbol(size_t length, const char* str);
     [[nodiscard]] size_t GetObjectSize() const override;
     [[nodiscard]] VMSymbol* CloneForMovingGC() const override;
     [[nodiscard]] VMClass* GetClass() const override;

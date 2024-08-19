@@ -84,8 +84,8 @@ public:
     static void WalkGlobals(walk_heap_fn /*walk*/);
     static VMDouble* NewDouble(double /*value*/);
     static VMClass* NewMetaclassClass();
-    static VMString* NewString(const std::string& /*str*/);
-    static VMString* NewString(const size_t /*length*/, const char* /*str*/);
+    static VMString* NewString(const std::string& str);
+    static VMString* NewString(size_t length, const char* str);
     static VMClass* NewSystemClass();
 
     static void InitializeSystemClass(VMClass* /*systemClass*/,
@@ -105,7 +105,7 @@ public:
                                    VMClass* /*systemClass*/);
     static VMClass* LoadShellClass(std::string& /*stmt*/);
 
-    Universe() {}
+    Universe() = default;
     ~Universe();
 #ifdef LOG_RECEIVER_TYPES
     struct stat_data {

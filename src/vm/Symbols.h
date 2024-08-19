@@ -12,7 +12,7 @@ void WalkSymbols(walk_heap_fn walk);
 
 #ifdef UNITTESTS
 VMSymbol* NewSymbol(const std::string& str);
-VMSymbol* NewSymbol(const size_t length, const char* str);
+VMSymbol* NewSymbol(size_t length, const char* str);
 #endif
 
 extern GCSymbol* symbolSelf;

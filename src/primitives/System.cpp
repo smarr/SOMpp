@@ -189,4 +189,4 @@ _System::_System() : PrimitiveContainer() {
     Add("printStackTrace", &printStackTrace, false);
 }
 
-_System::~_System() {}
+_System::~_System() = default;

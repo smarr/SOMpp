@@ -39,7 +39,6 @@ public:
 
     static bool IsBinary(VMSymbol* sig);
 
-    static uint8_t DetermineNumberOfArguments(const char* sig,
-                                              const size_t length);
-    static bool IsBinary(const char* sig, const size_t length);
+    static uint8_t DetermineNumberOfArguments(const char* sig, size_t length);
+    static bool IsBinary(const char* sig, size_t length);
 };
