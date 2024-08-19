@@ -322,7 +322,7 @@ vm_oop_t Universe::interpretMethod(VMObject* receiver, VMInvokable* initialize,
 void Universe::initialize(int32_t _argc, char** _argv) {
     InitializeAllocationLog();
 
-    heapSize = 1 * 1024 * 1024;
+    heapSize = 1ULL * 1024 * 1024;
 
     vector<std::string> argv = handleArguments(_argc, _argv);
 
@@ -557,12 +557,11 @@ VMClass* Universe::LoadClass(VMSymbol* name) {
 }
 
 VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
-    std::string const s_name = name->GetStdString();
+    std::string const sName = name->GetStdString();
     VMClass* result = nullptr;
 
     for (auto i = classPath.begin(); i != classPath.end(); ++i) {
-        result = SourcecodeCompiler::CompileClass(*i, name->GetStdString(),
-                                                  systemClass);
+        result = SourcecodeCompiler::CompileClass(*i, sName, systemClass);
         if (result != nullptr) {
             if (dumpBytecodes != 0) {
                 Disassembler::Dump(result->GetClass());
