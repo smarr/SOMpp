@@ -2,7 +2,6 @@
 
 #include <string>
 
-#include "../compiler/LexicalScope.h"
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../primitivesCore/Primitives.h"
@@ -11,6 +10,7 @@
 #include "ObjectFormats.h"
 #include "VMClass.h"
 #include "VMFrame.h"
+#include "VMMethod.h"
 #include "VMSymbol.h"
 
 VMSafePrimitive* VMSafePrimitive::GetSafeUnary(VMSymbol* sig, UnaryPrim prim) {

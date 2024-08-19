@@ -27,7 +27,6 @@
  */
 
 #include "../primitivesCore/Primitives.h"
-#include "PrimitiveRoutine.h"
 #include "Signature.h"
 #include "VMInvokable.h"
 #include "VMObject.h"

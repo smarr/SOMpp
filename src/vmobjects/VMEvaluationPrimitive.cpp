@@ -31,7 +31,6 @@
 #include <cstdint>
 #include <string>
 
-#include "../compiler/LexicalScope.h"
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../vm/Print.h"
@@ -40,6 +39,7 @@
 #include "ObjectFormats.h"
 #include "VMBlock.h"
 #include "VMFrame.h"
+#include "VMMethod.h"
 #include "VMSymbol.h"
 
 VMEvaluationPrimitive::VMEvaluationPrimitive(uint8_t argc)

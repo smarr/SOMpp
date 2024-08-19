@@ -2,6 +2,7 @@
 
 #include "../primitivesCore/PrimitiveContainer.h"
 #include "Signature.h"
+#include "VMInvokable.h"
 
 class VMSafePrimitive : public VMInvokable {
 public:

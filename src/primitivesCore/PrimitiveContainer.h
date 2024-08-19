@@ -29,7 +29,6 @@
 #include <map>
 
 #include "../misc/defs.h"
-#include "../vmobjects/PrimitiveRoutine.h"
 #include "Primitives.h"
 
 /// Base class for all container objects holding SOM++ primitives.
