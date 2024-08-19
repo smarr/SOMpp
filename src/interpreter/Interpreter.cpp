@@ -414,8 +414,7 @@ void Interpreter::doSuperSend(size_t bytecodeIndex) {
     VMClass* holder = realMethod->GetHolder();
     assert(holder->HasSuperClass());
     auto* super = (VMClass*)holder->GetSuperClass();
-    auto* invokable =
-        static_cast<VMInvokable*>(super->LookupInvokable(signature));
+    auto* invokable = super->LookupInvokable(signature);
 
     if (invokable != nullptr) {
         invokable->Invoke(GetFrame());

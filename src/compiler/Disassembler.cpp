@@ -89,7 +89,7 @@ void Disassembler::dispatch(vm_oop_t o) {
 void Disassembler::Dump(VMClass* cl) {
     size_t const numInvokables = cl->GetNumberOfInstanceInvokables();
     for (size_t i = 0; i < numInvokables; ++i) {
-        auto* inv = static_cast<VMInvokable*>(cl->GetInstanceInvokable(i));
+        auto* inv = cl->GetInstanceInvokable(i);
         // output header and skip if the Invokable is a Primitive
         VMSymbol* sig = inv->GetSignature();
         VMSymbol* cname = cl->GetName();
@@ -541,8 +541,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method,
             vm_oop_t elem = frame->GetStackElement(
                 Signature::GetNumberOfArguments(sel) - 1);
             VMClass* elemClass = CLASS_OF(elem);
-            auto* inv =
-                dynamic_cast<VMInvokable*>(elemClass->LookupInvokable(sel));
+            auto* inv = elemClass->LookupInvokable(sel);
 
             if (inv != nullptr && inv->IsPrimitive()) {
                 DebugPrint("*)\n");
