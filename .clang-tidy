@@ -35,10 +35,18 @@ Checks:          '*include*,
                   -hicpp-no-array-decay,
                   -misc-use-anonymous-namespace,
                   -cppcoreguidelines-pro-type-cstyle-cast,
+                  -cppcoreguidelines-avoid-c-arrays,
+                  -hicpp-avoid-c-arrays,
+                  -modernize-avoid-c-arrays,
                   -google-readability-casting,
                   -fuchsia-default-arguments-calls,
                   -cppcoreguidelines-pro-bounds-pointer-arithmetic,
-                  -google-default-arguments
+                  -google-default-arguments,
+                  -readability-redundant-inline-specifier,
+                  -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+                  -cppcoreguidelines-pro-type-vararg,
+                  -hicpp-vararg,
+                  -fuchsia-overloaded-operator
                  '
 WarningsAsErrors: '*'
 HeaderFilterRegex: '^.*/src/.*$'
