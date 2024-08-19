@@ -354,13 +354,13 @@ void MethodGenerationContext::SetPrimitive(bool prim) {
 void MethodGenerationContext::AddArgument(std::string& arg,
                                           const SourceCoordinate& coord) {
     size_t const index = arguments.size();
-    arguments.push_back({arg, index, true, coord});
+    arguments.emplace_back(arg, index, true, coord);
 }
 
 void MethodGenerationContext::AddLocal(std::string& local,
                                        const SourceCoordinate& coord) {
     size_t const index = locals.size();
-    locals.push_back({local, index, false, coord});
+    locals.emplace_back(local, index, false, coord);
 }
 
 uint8_t MethodGenerationContext::AddLiteral(vm_oop_t lit) {
@@ -763,7 +763,7 @@ void MethodGenerationContext::EmitBackwardsJumpOffsetToTarget(
     size_t const backwardJumpIdx = OffsetOfNextInstruction();
 
     EmitJumpBackwardWithOffset(*this, jumpOffset);
-    inlinedLoops.push_back(BackJump(loopBeginIdx, backwardJumpIdx));
+    inlinedLoops.emplace_back(loopBeginIdx, backwardJumpIdx);
 }
 
 void MethodGenerationContext::completeJumpsAndEmitReturningNil(

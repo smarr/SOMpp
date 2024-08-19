@@ -421,7 +421,7 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
                 const size_t offset =
                     ComputeOffset(bytecodes[i + 1], bytecodes[i + 2]);
 
-                jumps.emplace(Jump(i + offset, bytecode, idx));
+                jumps.emplace(i + offset, bytecode, idx);
                 break;
             }
             case BC_JUMP_ON_TRUE_POP:
@@ -432,7 +432,7 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
                 const size_t idx = Emit3WithDummy(mgenc, bytecode, -1);
                 const size_t offset =
                     ComputeOffset(bytecodes[i + 1], bytecodes[i + 2]);
-                jumps.emplace(Jump(i + offset, bytecode, idx));
+                jumps.emplace(i + offset, bytecode, idx);
                 break;
             }
             case BC_JUMP_BACKWARD:
@@ -503,8 +503,8 @@ void VMMethod::prepareBackJumpToCurrentAddress(
             jump.loopBeginIdx == i &&
             "we use the less or equal, but actually expect it to be strictly "
             "equal");
-        backJumpsToPatch.emplace(BackJumpPatch(
-            jump.backwardJumpIdx, mgenc.OffsetOfNextInstruction()));
+        backJumpsToPatch.emplace(jump.backwardJumpIdx,
+                                 mgenc.OffsetOfNextInstruction());
     }
 }
 

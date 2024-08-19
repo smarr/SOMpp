@@ -1053,7 +1053,7 @@ void BytecodeGenerationTest::returnField(size_t fieldNum, BC bytecode,
     std::vector<BC> expected = {BC_PUSH_1, BC_POP, bytecode};
 
     if (!isReturnFieldBc) {
-        expected.push_back(BC_RETURN_LOCAL);
+        expected.emplace_back(BC_RETURN_LOCAL);
     }
 
     check(bytecodes, expected);
@@ -1078,10 +1078,10 @@ void BytecodeGenerationTest::testFieldReadInlining() {
 void BytecodeGenerationTest::testJumpQueuesOrdering() {
     std::priority_queue<Jump> jumps;
 
-    jumps.emplace(Jump(1, BC_JUMP, 0));
-    jumps.emplace(Jump(5, BC_JUMP, 0));
-    jumps.emplace(Jump(8, BC_JUMP, 0));
-    jumps.emplace(Jump(2, BC_JUMP, 0));
+    jumps.emplace(1, BC_JUMP, 0);
+    jumps.emplace(5, BC_JUMP, 0);
+    jumps.emplace(8, BC_JUMP, 0);
+    jumps.emplace(2, BC_JUMP, 0);
 
     CPPUNIT_ASSERT_EQUAL((size_t)1, jumps.top().originalJumpTargetIdx);
     jumps.pop();
@@ -1093,9 +1093,9 @@ void BytecodeGenerationTest::testJumpQueuesOrdering() {
     jumps.pop();
 
     std::priority_queue<BackJump> backJumps;
-    backJumps.emplace(BackJump(13, 9));
-    backJumps.emplace(BackJump(3, 12));
-    backJumps.emplace(BackJump(54, 54));
+    backJumps.emplace(13, 9);
+    backJumps.emplace(3, 12);
+    backJumps.emplace(54, 54);
 
     CPPUNIT_ASSERT_EQUAL((size_t)3, backJumps.top().loopBeginIdx);
     backJumps.pop();
@@ -1105,9 +1105,9 @@ void BytecodeGenerationTest::testJumpQueuesOrdering() {
     backJumps.pop();
 
     std::priority_queue<BackJumpPatch> backJumpsToPatch;
-    backJumpsToPatch.emplace(BackJumpPatch(3, 2));
-    backJumpsToPatch.emplace(BackJumpPatch(32, 44));
-    backJumpsToPatch.emplace(BackJumpPatch(12, 55));
+    backJumpsToPatch.emplace(3, 2);
+    backJumpsToPatch.emplace(32, 44);
+    backJumpsToPatch.emplace(12, 55);
 
     CPPUNIT_ASSERT_EQUAL((size_t)3, backJumpsToPatch.top().backwardsJumpIdx);
     backJumpsToPatch.pop();
