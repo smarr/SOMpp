@@ -496,10 +496,7 @@ vm_oop_t Universe::GetGlobal(VMSymbol* name) {
 
 bool Universe::HasGlobal(VMSymbol* name) {
     auto it = globals.find(tmp_ptr(name));
-    if (it == globals.end()) {
-        return false;
-    }
-    return true;
+    return it != globals.end();
 }
 
 void Universe::InitializeSystemClass(VMClass* systemClass, VMClass* superClass,

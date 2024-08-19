@@ -195,9 +195,9 @@ void Interpreter::doPushLocal(size_t bytecodeIndex) {
     uint8_t const bc1 = method->GetBytecode(bytecodeIndex + 1);
     uint8_t const bc2 = method->GetBytecode(bytecodeIndex + 2);
 
-    assert(!(bc1 == 0 && bc2 == 0 && "should have been BC_PUSH_LOCAL_0"));
-    assert(!(bc1 == 1 && bc2 == 0 && "should have been BC_PUSH_LOCAL_1"));
-    assert(!(bc1 == 2 && bc2 == 0 && "should have been BC_PUSH_LOCAL_2"));
+    assert((bc1 != 0 || bc2 != 0) && "should have been BC_PUSH_LOCAL_0");
+    assert((bc1 != 1 || bc2 != 0) && "should have been BC_PUSH_LOCAL_1");
+    assert((bc1 != 2 || bc2 != 0) && "should have been BC_PUSH_LOCAL_2");
 
     vm_oop_t local = GetFrame()->GetLocal(bc1, bc2);
 
@@ -213,12 +213,12 @@ void Interpreter::doPushArgument(size_t bytecodeIndex) {
     uint8_t const argIndex = method->GetBytecode(bytecodeIndex + 1);
     uint8_t const contextLevel = method->GetBytecode(bytecodeIndex + 2);
 
-    assert(!(argIndex == 0 && contextLevel == 0 &&
-             "should have been BC_PUSH_SELF"));
-    assert(!(argIndex == 1 && contextLevel == 0 &&
-             "should have been BC_PUSH_ARG_1"));
-    assert(!(argIndex == 2 && contextLevel == 0 &&
-             "should have been BC_PUSH_ARG_2"));
+    assert((argIndex != 0 || contextLevel != 0) &&
+           "should have been BC_PUSH_SELF");
+    assert((argIndex != 1 || contextLevel != 0) &&
+           "should have been BC_PUSH_ARG_1");
+    assert((argIndex != 2 || contextLevel != 0) &&
+           "should have been BC_PUSH_ARG_2");
 
     vm_oop_t argument = GetFrame()->GetArgument(argIndex, contextLevel);
 
