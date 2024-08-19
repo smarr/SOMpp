@@ -275,6 +275,9 @@ void EmitRETURNFIELD(MethodGenerationContext& mgenc, size_t index) {
         case 2:
             bc = BC_RETURN_FIELD_2;
             break;
+        default:
+            bc = 0;
+            break;
     }
     Emit1(mgenc, bc, 0);
 }

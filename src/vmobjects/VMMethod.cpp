@@ -243,6 +243,9 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
                             idx = 1;
                             break;
                         }
+                        default: {
+                            ErrorExit("Unexpected bytecode in inlineInto");
+                        }
                     }
                 }
 

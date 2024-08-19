@@ -144,11 +144,13 @@ VMTrivialMethod* MethodGenerationContext::assembleLiteralReturn(
                 return MakeLiteralReturn(signature, arguments, literals.at(0));
             }
         }
-    }
 
-    ErrorExit(
-        "Unexpected situation when trying to create trivial method that "
-        "returns a literal");
+        default: {
+            ErrorExit(
+                "Unexpected situation when trying to create trivial method "
+                "that returns a literal");
+        }
+    }
 }
 
 VMTrivialMethod* MethodGenerationContext::assembleGlobalReturn() {
