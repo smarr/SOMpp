@@ -337,7 +337,7 @@ void EmitJumpBackwardWithOffset(MethodGenerationContext& mgenc,
                                 size_t jumpOffset) {
     uint8_t const jumpBytecode =
         jumpOffset <= 0xFF ? BC_JUMP_BACKWARD : BC_JUMP2_BACKWARD;
-    Emit3(mgenc, jumpBytecode, jumpOffset & 0xFF, jumpOffset >> 8, 0);
+    Emit3(mgenc, jumpBytecode, jumpOffset & 0xFFU, jumpOffset >> 8U, 0);
 }
 
 size_t Emit3WithDummy(MethodGenerationContext& mgenc, uint8_t bytecode,

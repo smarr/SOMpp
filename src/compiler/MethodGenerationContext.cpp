@@ -801,8 +801,8 @@ void MethodGenerationContext::PatchJumpOffsetToPointToNextInstruction(
             this->bytecode[instructionStart] += NUM_SINGLE_BYTE_JUMP_BYTECODES;
         }
         assert(IsJumpBytecode(this->bytecode[instructionStart]));
-        this->bytecode[indexOfOffset] = jumpOffset & 0xFF;
-        this->bytecode[indexOfOffset + 1] = jumpOffset >> 8;
+        this->bytecode[indexOfOffset] = jumpOffset & 0xFFU;
+        this->bytecode[indexOfOffset + 1] = jumpOffset >> 8U;
     }
 }
 

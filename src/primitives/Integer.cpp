@@ -65,25 +65,25 @@ static vm_oop_t intPlus(vm_oop_t leftObj, vm_oop_t rightObj) {
     int64_t const left = INT_VAL(leftObj);
     doDoubleOpIfNeeded(left, rightObj, +);
 
-    int64_t const result = left + (int64_t)INT_VAL(rightObj);
+    int64_t const result = left + INT_VAL(rightObj);
     return NEW_INT(result);
 }
 
 static vm_oop_t intBitwiseXor(vm_oop_t leftObj, vm_oop_t rightObj) {
-    int64_t const result =
-        (int64_t)INT_VAL(leftObj) ^ (int64_t)INT_VAL(rightObj);
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
+    int64_t const result = INT_VAL(leftObj) ^ INT_VAL(rightObj);
     return NEW_INT(result);
 }
 
 static vm_oop_t intLeftShift(vm_oop_t leftObj, vm_oop_t rightObj) {
-    int64_t const result = (int64_t)INT_VAL(leftObj)
-                           << (int64_t)INT_VAL(rightObj);
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
+    int64_t const result = INT_VAL(leftObj) << INT_VAL(rightObj);
     return NEW_INT(result);
 }
 
 static vm_oop_t intUnsignedRightShift(vm_oop_t leftObj, vm_oop_t rightObj) {
-    int64_t const result =
-        (int64_t)INT_VAL(leftObj) >> (int64_t)INT_VAL(rightObj);
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
+    int64_t const result = INT_VAL(leftObj) >> INT_VAL(rightObj);
     return NEW_INT(result);
 }
 
@@ -91,7 +91,7 @@ static vm_oop_t intMinus(vm_oop_t leftObj, vm_oop_t rightObj) {
     int64_t const left = INT_VAL(leftObj);
     doDoubleOpIfNeeded(left, rightObj, -);
 
-    int64_t const result = left - (int64_t)INT_VAL(rightObj);
+    int64_t const result = left - INT_VAL(rightObj);
     return NEW_INT(result);
 }
 
@@ -99,7 +99,7 @@ static vm_oop_t intStar(vm_oop_t leftObj, vm_oop_t rightObj) {
     int64_t const left = INT_VAL(leftObj);
     doDoubleOpIfNeeded(left, rightObj, *);
 
-    int64_t const result = left * (int64_t)INT_VAL(rightObj);
+    int64_t const result = left * INT_VAL(rightObj);
     return NEW_INT(result);
 }
 
@@ -154,8 +154,8 @@ static vm_oop_t intRem(vm_oop_t leftObj, vm_oop_t rightObj) {
         return dblPercent(leftObj, rightObj);
     }
 
-    auto const l = (int64_t)INT_VAL(leftObj);
-    auto const r = (int64_t)INT_VAL(rightObj);
+    auto const l = INT_VAL(leftObj);
+    auto const r = INT_VAL(rightObj);
 
     int64_t const result = l - (l / r) * r;
 
@@ -163,8 +163,8 @@ static vm_oop_t intRem(vm_oop_t leftObj, vm_oop_t rightObj) {
 }
 
 static vm_oop_t intAnd(vm_oop_t leftObj, vm_oop_t rightObj) {
-    int64_t const result =
-        (int64_t)INT_VAL(leftObj) & (int64_t)INT_VAL(rightObj);
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
+    int64_t const result = INT_VAL(leftObj) & INT_VAL(rightObj);
     return NEW_INT(result);
 }
 

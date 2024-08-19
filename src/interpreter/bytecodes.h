@@ -131,7 +131,7 @@ private:
 };
 
 inline uint16_t ComputeOffset(uint8_t byte1, uint8_t byte2) {
-    return ((uint16_t)byte1) | (((uint16_t)byte2) << 8U);
+    return ((uint16_t)byte1) | (uint16_t)(((uint16_t)byte2) << 8U);
 }
 
 bool IsJumpBytecode(uint8_t bc);
