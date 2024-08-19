@@ -79,7 +79,14 @@ Checks:          '*include*,
                   -bugprone-reserved-identifier,
                   -cert-dcl37-c,
                   -cert-dcl51-cpp,
+                  -cert-dcl50-cpp,
+                  -cert-err58-cpp,
+                  -google-global-names-in-headers,
                   -cppcoreguidelines-non-private-member-variables-in-classes,
+                  -cppcoreguidelines-no-malloc,
+                  -hicpp-no-malloc,
+                  -bugprone-casting-through-void,
+                  -performance-no-int-to-ptr
                  '
 WarningsAsErrors: '*'
 HeaderFilterRegex: '^.*/src/.*$'
