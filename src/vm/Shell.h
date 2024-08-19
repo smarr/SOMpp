@@ -32,8 +32,9 @@
 class Shell {
 public:
     Shell();
-    Shell(VMMethod* /*bsm*/);
-    ~Shell();
+    Shell(VMMethod* bsm);
+    ~Shell() = default;
+
     void SetBootstrapMethod(VMMethod* bsm) { bootstrapMethod = bsm; };
     [[nodiscard]] VMMethod* GetBootstrapMethod() const {
         return bootstrapMethod;

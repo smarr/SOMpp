@@ -57,10 +57,6 @@ Shell::Shell(VMMethod* bsm) {
     bootstrapMethod = bsm;
 }
 
-Shell::~Shell() {
-    // TODO
-}
-
 void Shell::Start() {
 #define QUIT_CMD "system exit"
 #define QUIT_CMD_L (11 + 1)
