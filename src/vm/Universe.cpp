@@ -558,8 +558,8 @@ VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
     std::string const sName = name->GetStdString();
     VMClass* result = nullptr;
 
-    for (auto i = classPath.begin(); i != classPath.end(); ++i) {
-        result = SourcecodeCompiler::CompileClass(*i, sName, systemClass);
+    for (auto& i : classPath) {
+        result = SourcecodeCompiler::CompileClass(i, sName, systemClass);
         if (result != nullptr) {
             if (dumpBytecodes != 0) {
                 Disassembler::Dump(result->GetClass());
