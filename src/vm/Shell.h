@@ -32,7 +32,7 @@
 class Shell {
 public:
     Shell();
-    Shell(VMMethod* bsm);
+    explicit Shell(VMMethod* bsm);
     ~Shell() = default;
 
     void SetBootstrapMethod(VMMethod* bsm) { bootstrapMethod = bsm; };

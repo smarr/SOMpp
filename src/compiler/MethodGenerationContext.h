@@ -42,8 +42,8 @@ class Parser;
 
 class MethodGenerationContext {
 public:
-    MethodGenerationContext(ClassGenerationContext& holder,
-                            MethodGenerationContext* outer = nullptr);
+    explicit MethodGenerationContext(ClassGenerationContext& holder,
+                                     MethodGenerationContext* outer = nullptr);
     ~MethodGenerationContext();
 
     VMInvokable* Assemble();

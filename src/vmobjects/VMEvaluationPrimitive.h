@@ -32,7 +32,7 @@ class VMEvaluationPrimitive : public VMInvokable {
 public:
     typedef GCEvaluationPrimitive Stored;
 
-    VMEvaluationPrimitive(uint8_t argc);
+    explicit VMEvaluationPrimitive(uint8_t argc);
     void WalkObjects(walk_heap_fn /*unused*/) override;
     [[nodiscard]] VMEvaluationPrimitive* CloneForMovingGC() const override;
 

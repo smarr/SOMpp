@@ -7,6 +7,7 @@
 
 class BC {
 public:
+    // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
     BC(uint8_t bytecode) : bytecode(bytecode), arg1(0), arg2(0), size(1) {}
 
     BC(uint8_t bytecode, uint8_t arg1)

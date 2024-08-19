@@ -32,7 +32,7 @@ class VMDouble : public AbstractVMObject {
 public:
     typedef GCDouble Stored;
 
-    VMDouble(double val) : embeddedDouble(val) {}
+    explicit VMDouble(double val) : embeddedDouble(val) {}
 
     [[nodiscard]] VMDouble* CloneForMovingGC() const override;
     [[nodiscard]] inline double GetEmbeddedDouble() const;

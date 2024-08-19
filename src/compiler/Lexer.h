@@ -105,8 +105,8 @@ public:
 
 class Lexer {
 public:
-    Lexer(istream& file);
-    Lexer(const std::string& stream);
+    explicit Lexer(istream& file);
+    explicit Lexer(const std::string& stream);
 
     Symbol GetSym();
     Symbol Peek();

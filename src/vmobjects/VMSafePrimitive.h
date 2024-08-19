@@ -7,7 +7,7 @@ class VMSafePrimitive : public VMInvokable {
 public:
     typedef GCSafePrimitive Stored;
 
-    VMSafePrimitive(VMSymbol* sig) : VMInvokable(sig) {}
+    explicit VMSafePrimitive(VMSymbol* sig) : VMInvokable(sig) {}
 
     [[nodiscard]] VMClass* GetClass() const final {
         return load_ptr(primitiveClass);

@@ -9,7 +9,7 @@ using TernaryPrimitiveRoutine = vm_oop_t(vm_oop_t, vm_oop_t, vm_oop_t);
 
 class Prim {
 public:
-    Prim(bool classSide) : isClassSide(classSide) {}
+    explicit Prim(bool classSide) : isClassSide(classSide) {}
     bool isClassSide;
 };
 

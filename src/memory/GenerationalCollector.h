@@ -6,7 +6,7 @@
 class GenerationalHeap;
 class GenerationalCollector : public GarbageCollector<GenerationalHeap> {
 public:
-    GenerationalCollector(GenerationalHeap* heap);
+    explicit GenerationalCollector(GenerationalHeap* heap);
     void Collect() override;
 
 private:

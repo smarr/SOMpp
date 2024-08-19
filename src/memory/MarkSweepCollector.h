@@ -6,7 +6,7 @@
 class MarkSweepHeap;
 class MarkSweepCollector : public GarbageCollector<MarkSweepHeap> {
 public:
-    MarkSweepCollector(MarkSweepHeap* heap) : GarbageCollector(heap) {}
+    explicit MarkSweepCollector(MarkSweepHeap* heap) : GarbageCollector(heap) {}
     void Collect() override;
 
 private:
