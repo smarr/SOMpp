@@ -364,8 +364,7 @@ VMSymbol* Parser::unarySelector() {
 VMSymbol* Parser::binarySelector() {
     std::string const s(text);
 
-    if (acceptOneOf(singleOpSyms)) {
-    } else if (accept(OperatorSequence)) {
+    if (acceptOneOf(singleOpSyms) || accept(OperatorSequence)) {
     } else {
         expect(NONE);
     }
