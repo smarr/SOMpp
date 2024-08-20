@@ -89,13 +89,11 @@ void GenerationalCollector::MinorCollection() {
     Universe::WalkGlobals(&copy_if_necessary);
 
     // and also all objects that have been detected by the write barriers
-    for (auto objIter = heap->oldObjsWithRefToYoungObjs.begin();
-         objIter != heap->oldObjsWithRefToYoungObjs.end();
-         objIter++) {
+    for (size_t const& oldObj : heap->oldObjsWithRefToYoungObjs) {
         // content of oldObjsWithRefToYoungObjs is not altered while iteration,
         // because copy_if_necessary returns old objs only -> ignored by
         // write_barrier
-        auto* obj = (AbstractVMObject*)(*objIter);
+        auto* obj = (AbstractVMObject*)oldObj;
         obj->SetGCField(MASK_OBJECT_IS_OLD);
         obj->WalkObjects(&copy_if_necessary);
     }
@@ -112,10 +110,7 @@ void GenerationalCollector::MajorCollection() {
     // now that all objects are marked we can safely delete all allocated
     // objects that are not marked
     vector<AbstractVMObject*> survivors;
-    for (auto objIter = heap->allocatedObjects.begin();
-         objIter != heap->allocatedObjects.end();
-         objIter++) {
-        AbstractVMObject* obj = *objIter;
+    for (auto* obj : heap->allocatedObjects) {
         assert(IsValidObject(obj));
 
         if ((obj->GetGCField() & MASK_OBJECT_IS_MARKED) != 0) {

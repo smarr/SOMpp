@@ -17,8 +17,8 @@ class WriteBarrierTest : public CPPUNIT_NS::TestCase {
     CPPUNIT_TEST_SUITE_END();
 
 public:
-    inline void setUp() {}
-    inline void tearDown() {}
+    inline void setUp() override {}
+    inline void tearDown() override {}
 
 private:
     static void testWriteArray();

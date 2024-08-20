@@ -25,9 +25,9 @@ public:
 
 class TestWithParsing : public CPPUNIT_NS::TestCase {
 public:
-    inline void setUp() {}
+    inline void setUp() override {}
 
-    inline void tearDown() {
+    inline void tearDown() override {
         delete _cgenc;
         _cgenc = nullptr;
 
