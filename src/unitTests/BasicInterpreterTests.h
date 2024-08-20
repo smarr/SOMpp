@@ -36,7 +36,7 @@ public:
 
 static const double dbl375 = 3.75;
 
-std::ostream& operator<<(std::ostream& strm, const TestData& data) {
+inline std::ostream& operator<<(std::ostream& strm, const TestData& data) {
     strm << data.className << "." << data.methodName;
     return strm;
 }
@@ -173,7 +173,6 @@ private:
 
         if (data.type == CLASS) {
             char const* expected = (char const*)data.expectedResult;
-            std::string const expectedStr = std::string(expected);
             std::string const actual =
                 ((VMClass*)actualResult)->GetName()->GetStdString();
             if (expected != actual) {
@@ -185,7 +184,6 @@ private:
 
         if (data.type == SYMBOL) {
             char const* expected = (char const*)data.expectedResult;
-            std::string const expectedStr = std::string(expected);
             std::string const actual =
                 ((VMSymbol*)actualResult)->GetStdString();
             if (expected != actual) {

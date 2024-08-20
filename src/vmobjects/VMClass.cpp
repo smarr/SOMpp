@@ -45,7 +45,7 @@
 
 const size_t VMClass::VMClassNumberOfFields = 4;
 
-// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 VMClass::VMClass() : VMObject(VMClassNumberOfFields, sizeof(VMClass)) {}
 
 VMClass* VMClass::CloneForMovingGC() const {
@@ -58,7 +58,7 @@ VMClass* VMClass::CloneForMovingGC() const {
     return clone;
 }
 
-// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 VMClass::VMClass(size_t numberOfFields, size_t additionalBytes)
     : VMObject(numberOfFields + VMClassNumberOfFields,
                additionalBytes + sizeof(VMClass)) {}
@@ -133,13 +133,15 @@ VMInvokable* VMClass::GetInstanceInvokable(size_t index) const {
 
 void VMClass::SetInstanceInvokable(size_t index, VMInvokable* invokable) {
     load_ptr(instanceInvokables)->SetIndexableField(index, invokable);
+
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast)
     if (invokable != reinterpret_cast<VMInvokable*>(load_ptr(nilObject))) {
         invokable->SetHolder(this);
     }
 }
 
 VMInvokable* VMClass::LookupInvokable(VMSymbol* name) {
-    assert(IsValidObject(const_cast<VMClass*>(this)));
+    assert(IsValidObject(this));
 
     VMInvokable* invokable = name->GetCachedInvokable(this);
     if (invokable != nullptr) {
