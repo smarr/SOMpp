@@ -5,8 +5,8 @@ public:
     SourceCoordinate(size_t line, size_t column) : line(line), column(column) {}
     SourceCoordinate() : line(0), column(0) {}
 
-    inline size_t GetLine() const { return line; }
-    inline size_t GetColumn() const { return column; }
+    [[nodiscard]] inline size_t GetLine() const { return line; }
+    [[nodiscard]] inline size_t GetColumn() const { return column; }
 
     inline bool operator==(const SourceCoordinate& other) const {
         return line == other.line && column == other.column;

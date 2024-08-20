@@ -28,9 +28,9 @@
 
 #include <cassert>
 #include <cstddef>
+#include <cstdint>
 #include <string>
 
-#include "../compiler/LexicalScope.h"
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../vm/Print.h"
@@ -39,15 +39,16 @@
 #include "ObjectFormats.h"
 #include "VMBlock.h"
 #include "VMFrame.h"
+#include "VMMethod.h"
 #include "VMSymbol.h"
 
-VMEvaluationPrimitive::VMEvaluationPrimitive(size_t argc)
+VMEvaluationPrimitive::VMEvaluationPrimitive(uint8_t argc)
     : VMInvokable(computeSignatureString(argc)), numberOfArguments(argc) {
     write_barrier(this, load_ptr(signature));
 }
 
 VMEvaluationPrimitive* VMEvaluationPrimitive::CloneForMovingGC() const {
-    VMEvaluationPrimitive* evPrim =
+    auto* evPrim =
         new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMEvaluationPrimitive(*this);
     return evPrim;
 }
@@ -56,7 +57,7 @@ void VMEvaluationPrimitive::WalkObjects(walk_heap_fn walk) {
     VMInvokable::WalkObjects(walk);
 }
 
-VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc) {
+VMSymbol* VMEvaluationPrimitive::computeSignatureString(size_t argc) {
 #define VALUE_S "value"
 #define VALUE_LEN 5
 #define WITH_S "with:"
@@ -73,7 +74,7 @@ VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc) {
         signatureString += VALUE_S;
         signatureString += COLON_S;
         --argc;
-        while (--argc) {
+        while (--argc != 0) {
             // Add extra value: selector elements if necessary
             signatureString += WITH_S;
         }
@@ -83,17 +84,15 @@ VMSymbol* VMEvaluationPrimitive::computeSignatureString(long argc) {
     return SymbolFor(signatureString);
 }
 
-VMFrame* VMEvaluationPrimitive::Invoke(VMFrame* frame) {
+VMFrame* VMEvaluationPrimitive::Invoke(VMFrame* frm) {
     // Get the block (the receiver) from the stack
-    VMBlock* block =
-        static_cast<VMBlock*>(frame->GetStackElement(numberOfArguments - 1));
+    auto* block =
+        static_cast<VMBlock*>(frm->GetStackElement(numberOfArguments - 1));
 
     // Get the context of the block...
     VMFrame* context = block->GetContext();
-
     VMInvokable* method = block->GetMethod();
-
-    VMFrame* newFrame = method->Invoke(frame);
+    VMFrame* newFrame = method->Invoke(frm);
 
     // Push set its context to be the one specified in the block
     if (newFrame != nullptr) {
@@ -102,15 +101,15 @@ VMFrame* VMEvaluationPrimitive::Invoke(VMFrame* frame) {
     return nullptr;
 }
 
-VMFrame* VMEvaluationPrimitive::Invoke1(VMFrame* frame) {
+VMFrame* VMEvaluationPrimitive::Invoke1(VMFrame* frm) {
     assert(numberOfArguments == 1);
     // Get the block (the receiver) from the stack
-    VMBlock* block = static_cast<VMBlock*>(frame->GetStackElement(0));
+    auto* block = static_cast<VMBlock*>(frm->GetStackElement(0));
 
     // Get the context of the block...
     VMFrame* context = block->GetContext();
     VMInvokable* method = block->GetMethod();
-    VMFrame* newFrame = method->Invoke1(frame);
+    VMFrame* newFrame = method->Invoke1(frm);
 
     // Push set its context to be the one specified in the block
     if (newFrame != nullptr) {
@@ -123,7 +122,7 @@ std::string VMEvaluationPrimitive::AsDebugString() const {
     return "VMEvaluationPrimitive(" + to_string(numberOfArguments) + ")";
 }
 
-#define INVALID_INT_MARKER 9002002002002002002
+#define INVALID_INT_MARKER 0xFF
 
 void VMEvaluationPrimitive::MarkObjectAsInvalid() {
     VMInvokable::MarkObjectAsInvalid();
@@ -134,7 +133,8 @@ bool VMEvaluationPrimitive::IsMarkedInvalid() const {
     return numberOfArguments == INVALID_INT_MARKER;
 }
 
-void VMEvaluationPrimitive::InlineInto(MethodGenerationContext&, bool) {
+void VMEvaluationPrimitive::InlineInto(MethodGenerationContext& /*mgenc*/,
+                                       bool /*mergeScope*/) {
     ErrorExit(
         "VMEvaluationPrimitive::InlineInto is not supported, and should not be "
         "reached");

@@ -40,19 +40,19 @@ class VMFrame : public AbstractVMObject {
 public:
     typedef GCFrame Stored;
 
-    static VMFrame* EmergencyFrameFrom(VMFrame* from, long extraLength);
+    static VMFrame* EmergencyFrameFrom(VMFrame* from, size_t extraLength);
 
     explicit VMFrame(size_t additionalBytes, VMMethod* method,
                      VMFrame* previousFrame)
-        : totalObjectSize(additionalBytes + sizeof(VMFrame)), bytecodeIndex(0),
-          previousFrame(store_root(previousFrame)), context(nullptr),
-          method(store_root(method)), arguments((gc_oop_t*)&(stack_ptr) + 1),
+        : totalObjectSize(additionalBytes + sizeof(VMFrame)),
+          previousFrame(store_root(previousFrame)), method(store_root(method)),
+          arguments((gc_oop_t*)&(stack_ptr) + 1),
           locals(arguments + method->GetNumberOfArguments()),
           stack_ptr(locals + method->GetNumberOfLocals() - 1) {
         // initilize all other fields. Don't need to initalize arguments,
         // because they iwll be copied in still
         // --> until end of Frame
-        gc_oop_t* end = (gc_oop_t*)SHIFTED_PTR(this, totalObjectSize);
+        auto* end = (gc_oop_t*)SHIFTED_PTR(this, totalObjectSize);
         size_t i = 0;
         while (locals + i < end) {
             locals[i] = nilObject;
@@ -60,30 +60,34 @@ public:
         }
     }
 
-    int64_t GetHash() const final { return 0; /* should never be called */ }
+    [[nodiscard]] int64_t GetHash() const final {
+        return 0; /* should never be called */
+    }
 
-    inline VMClass* GetClass() const final { return nullptr; }
+    [[nodiscard]] inline VMClass* GetClass() const final { return nullptr; }
 
-    inline size_t GetObjectSize() const final { return totalObjectSize; }
+    [[nodiscard]] inline size_t GetObjectSize() const final {
+        return totalObjectSize;
+    }
 
     void MarkObjectAsInvalid() final {
         previousFrame = (GCFrame*)INVALID_GC_POINTER;
     }
 
-    bool IsMarkedInvalid() const final {
+    [[nodiscard]] bool IsMarkedInvalid() const final {
         return previousFrame == (GCFrame*)INVALID_GC_POINTER;
     }
 
-    inline VMFrame* GetPreviousFrame() const;
+    [[nodiscard]] inline VMFrame* GetPreviousFrame() const;
     inline void ClearPreviousFrame();
-    inline bool HasPreviousFrame() const;
-    inline bool IsBootstrapFrame() const;
-    inline VMFrame* GetContext() const;
-    inline void SetContext(VMFrame*);
-    inline bool HasContext() const;
-    VMFrame* GetContextLevel(long);
+    [[nodiscard]] inline bool HasPreviousFrame() const;
+    [[nodiscard]] inline bool IsBootstrapFrame() const;
+    [[nodiscard]] inline VMFrame* GetContext() const;
+    inline void SetContext(VMFrame* /*frm*/);
+    [[nodiscard]] inline bool HasContext() const;
+    VMFrame* GetContextLevel(uint8_t lvl);
     VMFrame* GetOuterContext();
-    inline VMMethod* GetMethod() const;
+    [[nodiscard]] inline VMMethod* GetMethod() const;
 
     inline vm_oop_t Pop() {
         vm_oop_t result = load_ptr(*stack_ptr);
@@ -111,13 +115,15 @@ public:
         store_ptr(*stack_ptr, obj);
     }
 
-    inline long GetBytecodeIndex() const;
+    [[nodiscard]] inline size_t GetBytecodeIndex() const {
+        return bytecodeIndex;
+    }
 
-    inline vm_oop_t GetStackElement(long index) const {
+    [[nodiscard]] inline vm_oop_t GetStackElement(size_t index) const {
         return load_ptr(stack_ptr[-index]);
     }
 
-    inline vm_oop_t GetLocal(long index, long contextLevel) {
+    inline vm_oop_t GetLocal(uint8_t index, uint8_t contextLevel) {
         VMFrame* context = GetContextLevel(contextLevel);
         return load_ptr(context->locals[index]);
     }
@@ -126,63 +132,63 @@ public:
         return load_ptr(this->locals[localIndex]);
     }
 
-    void SetLocal(long index, long context_level, vm_oop_t);
+    void SetLocal(uint8_t index, uint8_t contextLevel, vm_oop_t value);
 
-    inline void SetLocal(long index, vm_oop_t value) {
+    inline void SetLocal(uint8_t index, vm_oop_t value) {
         store_ptr(locals[index], value);
     }
 
-    inline vm_oop_t GetArgument(long index, long contextLevel) {
+    inline vm_oop_t GetArgument(uint8_t index, uint8_t contextLevel) {
         // get the context
         VMFrame* context = GetContextLevel(contextLevel);
         return load_ptr(context->arguments[index]);
     }
 
-    inline vm_oop_t GetArgumentInCurrentContext(long index) {
+    inline vm_oop_t GetArgumentInCurrentContext(uint8_t index) {
         return load_ptr(this->arguments[index]);
     }
 
-    void SetArgument(long, long, vm_oop_t);
+    void SetArgument(uint8_t index, uint8_t contextLevel, vm_oop_t value);
     void PrintStackTrace() const;
-    long ArgumentStackIndex(long index) const;
     void CopyArgumentsFrom(VMFrame* frame);
 
     inline void SetArgument(size_t argIdx, vm_oop_t value) {
         store_ptr(arguments[argIdx], value);
     }
 
-    void WalkObjects(walk_heap_fn) override;
-    VMFrame* CloneForMovingGC() const override;
+    void WalkObjects(walk_heap_fn /*unused*/) override;
+    [[nodiscard]] VMFrame* CloneForMovingGC() const override;
 
     void PrintStack() const;
     void PrintBytecode() const;
 
-    long RemainingStackSize() const {
+    [[nodiscard]] size_t RemainingStackSize() const {
         // - 1 because the stack pointer points at the top entry,
         // so the next entry would be put at stackPointer+1
-        size_t size = ((size_t)this + totalObjectSize - size_t(stack_ptr)) /
-                      sizeof(VMObject*);
+        size_t const size =
+            ((size_t)this + totalObjectSize - size_t(stack_ptr)) /
+            sizeof(VMObject*);
         return size - 1;
     }
 
-    StdString AsDebugString() const override;
+    [[nodiscard]] std::string AsDebugString() const override;
 
     make_testable(public);
 
-    long bytecodeIndex;
+    size_t bytecodeIndex{0};
     size_t totalObjectSize;
 
 private:
     GCFrame* previousFrame;
-    GCFrame* context;
+    GCFrame* context{nullptr};
     GCMethod* method;
     gc_oop_t* arguments;
     gc_oop_t* locals;
     gc_oop_t* stack_ptr;
 
-    static const long VMFrameNumberOfFields;
+    static const size_t VMFrameNumberOfFields;
 
-    inline void SetBytecodeIndex(long index) { bytecodeIndex = index; }
+    inline void SetBytecodeIndex(size_t index) { bytecodeIndex = index; }
 };
 
 bool VMFrame::HasContext() const {
@@ -191,10 +197,6 @@ bool VMFrame::HasContext() const {
 
 bool VMFrame::HasPreviousFrame() const {
     return previousFrame != nullptr;
-}
-
-long VMFrame::GetBytecodeIndex() const {
-    return bytecodeIndex;
 }
 
 bool VMFrame::IsBootstrapFrame() const {

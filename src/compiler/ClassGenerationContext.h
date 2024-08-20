@@ -39,26 +39,26 @@ public:
     void AssembleSystemClass(VMClass* systemClass);
 
     bool HasField(VMSymbol* field);
-    void AddInstanceField(VMSymbol*);
-    void AddClassField(VMSymbol*);
-    void AddInstanceMethod(VMInvokable*);
-    void AddClassMethod(VMInvokable*);
+    void AddInstanceField(VMSymbol* /*field*/);
+    void AddClassField(VMSymbol* /*field*/);
+    void AddInstanceMethod(VMInvokable* /*method*/);
+    void AddClassMethod(VMInvokable* /*method*/);
     void SetName(VMSymbol* n) { name = n; }
     void SetSuperName(VMSymbol* sn) { superName = sn; }
     void SetClassSide(bool cs) { classSide = cs; }
-    VMSymbol* GetName(void) { return name; };
-    VMSymbol* GetSuperName(void) { return superName; };
-    bool IsClassSide(void) { return classSide; };
+    VMSymbol* GetName() { return name; };
+    VMSymbol* GetSuperName() { return superName; };
+    [[nodiscard]] bool IsClassSide() const { return classSide; };
 
-    int16_t GetFieldIndex(VMSymbol* field);
+    int64_t GetFieldIndex(VMSymbol* field);
 
     void SetInstanceFieldsOfSuper(VMArray* fields);
     void SetClassFieldsOfSuper(VMArray* fields);
 
 private:
-    VMSymbol* name;
-    VMSymbol* superName;
-    bool classSide;
+    VMSymbol* name{nullptr};
+    VMSymbol* superName{nullptr};
+    bool classSide{false};
     std::vector<VMSymbol*> instanceFields;
     std::vector<VMInvokable*> instanceMethods;
     std::vector<VMSymbol*> classFields;

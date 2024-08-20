@@ -27,6 +27,7 @@
 #include "Interpreter.h"
 
 #include <cassert>
+#include <cstddef>
 #include <cstdint>
 #include <string>
 
@@ -61,14 +62,14 @@ VMMethod* Interpreter::method = nullptr;
 
 // The following three variables are used to cache main parts of the
 // current execution context
-long Interpreter::bytecodeIndexGlobal;
+size_t Interpreter::bytecodeIndexGlobal;
 uint8_t* Interpreter::currentBytecodes;
 
 vm_oop_t Interpreter::StartAndPrintBytecodes() {
-#define PROLOGUE(bc_count)               \
-    {                                    \
-        disassembleMethod();             \
-        bytecodeIndexGlobal += bc_count; \
+#define PROLOGUE(bcCount)                 \
+    {                                     \
+        disassembleMethod();              \
+        bytecodeIndexGlobal += (bcCount); \
     }
 #define HACK_INLINE_START
 #include "InterpreterLoop.h"
@@ -77,8 +78,8 @@ vm_oop_t Interpreter::StartAndPrintBytecodes() {
 
 vm_oop_t Interpreter::Start() {
 #undef PROLOGUE
-#define PROLOGUE(bc_count) \
-    { bytecodeIndexGlobal += bc_count; }
+#define PROLOGUE(bcCount) \
+    { bytecodeIndexGlobal += (bcCount); }
 #define HACK_INLINE_START
 #include "InterpreterLoop.h"
 #undef HACK_INLINE_START
@@ -124,9 +125,9 @@ void Interpreter::popFrameAndPushResult(vm_oop_t result) {
     VMFrame* prevFrame = popFrame();
 
     VMMethod* method = prevFrame->GetMethod();
-    long numberOfArgs = method->GetNumberOfArguments();
+    uint8_t const numberOfArgs = method->GetNumberOfArguments();
 
-    for (long i = 0; i < numberOfArgs; ++i) {
+    for (uint8_t i = 0; i < numberOfArgs; ++i) {
         GetFrame()->Pop();
     }
 
@@ -155,7 +156,7 @@ void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
 }
 
 void Interpreter::triggerDoesNotUnderstand(VMSymbol* signature) {
-    long numberOfArgs = Signature::GetNumberOfArguments(signature);
+    uint8_t const numberOfArgs = Signature::GetNumberOfArguments(signature);
 
     vm_oop_t receiver = GetFrame()->GetStackElement(numberOfArgs - 1);
 
@@ -164,7 +165,7 @@ void Interpreter::triggerDoesNotUnderstand(VMSymbol* signature) {
 
     // the receiver should not go into the argumentsArray
     // so, numberOfArgs - 2
-    for (long i = numberOfArgs - 2; i >= 0; --i) {
+    for (int64_t i = numberOfArgs - 2; i >= 0; --i) {
         vm_oop_t o = GetFrame()->Pop();
         argumentsArray->SetIndexableField(i, o);
     }
@@ -175,7 +176,8 @@ void Interpreter::triggerDoesNotUnderstand(VMSymbol* signature) {
     // check if current frame is big enough for this unplanned Send
     // doesNotUnderstand: needs 3 slots, one for this, one for method name, one
     // for args
-    long additionalStackSlots = 3 - GetFrame()->RemainingStackSize();
+    int64_t const additionalStackSlots =
+        3 - (int64_t)GetFrame()->RemainingStackSize();
     if (additionalStackSlots > 0) {
         GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
         // copy current frame into a bigger one and replace the current frame
@@ -190,13 +192,13 @@ void Interpreter::doDup() {
     GetFrame()->Push(elem);
 }
 
-void Interpreter::doPushLocal(long bytecodeIndex) {
-    uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
-    uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
+void Interpreter::doPushLocal(size_t bytecodeIndex) {
+    uint8_t const bc1 = method->GetBytecode(bytecodeIndex + 1);
+    uint8_t const bc2 = method->GetBytecode(bytecodeIndex + 2);
 
-    assert(!(bc1 == 0 && bc2 == 0 && "should have been BC_PUSH_LOCAL_0"));
-    assert(!(bc1 == 1 && bc2 == 0 && "should have been BC_PUSH_LOCAL_1"));
-    assert(!(bc1 == 2 && bc2 == 0 && "should have been BC_PUSH_LOCAL_2"));
+    assert((bc1 != 0 || bc2 != 0) && "should have been BC_PUSH_LOCAL_0");
+    assert((bc1 != 1 || bc2 != 0) && "should have been BC_PUSH_LOCAL_1");
+    assert((bc1 != 2 || bc2 != 0) && "should have been BC_PUSH_LOCAL_2");
 
     vm_oop_t local = GetFrame()->GetLocal(bc1, bc2);
 
@@ -208,24 +210,24 @@ void Interpreter::doPushLocalWithIndex(uint8_t localIndex) {
     GetFrame()->Push(local);
 }
 
-void Interpreter::doPushArgument(long bytecodeIndex) {
-    uint8_t argIndex = method->GetBytecode(bytecodeIndex + 1);
-    uint8_t contextLevel = method->GetBytecode(bytecodeIndex + 2);
+void Interpreter::doPushArgument(size_t bytecodeIndex) {
+    uint8_t const argIndex = method->GetBytecode(bytecodeIndex + 1);
+    uint8_t const contextLevel = method->GetBytecode(bytecodeIndex + 2);
 
-    assert(!(argIndex == 0 && contextLevel == 0 &&
-             "should have been BC_PUSH_SELF"));
-    assert(!(argIndex == 1 && contextLevel == 0 &&
-             "should have been BC_PUSH_ARG_1"));
-    assert(!(argIndex == 2 && contextLevel == 0 &&
-             "should have been BC_PUSH_ARG_2"));
+    assert((argIndex != 0 || contextLevel != 0) &&
+           "should have been BC_PUSH_SELF");
+    assert((argIndex != 1 || contextLevel != 0) &&
+           "should have been BC_PUSH_ARG_1");
+    assert((argIndex != 2 || contextLevel != 0) &&
+           "should have been BC_PUSH_ARG_2");
 
     vm_oop_t argument = GetFrame()->GetArgument(argIndex, contextLevel);
 
     GetFrame()->Push(argument);
 }
 
-void Interpreter::doPushField(long bytecodeIndex) {
-    uint8_t fieldIndex = method->GetBytecode(bytecodeIndex + 1);
+void Interpreter::doPushField(size_t bytecodeIndex) {
+    uint8_t const fieldIndex = method->GetBytecode(bytecodeIndex + 1);
     assert(fieldIndex != 0 && fieldIndex != 1 &&
            "should have been BC_PUSH_FIELD_0|1");
 
@@ -234,7 +236,7 @@ void Interpreter::doPushField(long bytecodeIndex) {
 
 void Interpreter::doPushFieldWithIndex(uint8_t fieldIndex) {
     vm_oop_t self = GetSelf();
-    vm_oop_t o;
+    vm_oop_t o = nullptr;
 
     if (unlikely(IS_TAGGED(self))) {
         o = nullptr;
@@ -248,7 +250,7 @@ void Interpreter::doPushFieldWithIndex(uint8_t fieldIndex) {
 
 void Interpreter::doReturnFieldWithIndex(uint8_t fieldIndex) {
     vm_oop_t self = GetSelf();
-    vm_oop_t o;
+    vm_oop_t o = nullptr;
 
     if (unlikely(IS_TAGGED(self))) {
         o = nullptr;
@@ -260,17 +262,17 @@ void Interpreter::doReturnFieldWithIndex(uint8_t fieldIndex) {
     popFrameAndPushResult(o);
 }
 
-void Interpreter::doPushBlock(long bytecodeIndex) {
+void Interpreter::doPushBlock(size_t bytecodeIndex) {
     vm_oop_t block = method->GetConstant(bytecodeIndex);
-    VMInvokable* blockMethod = static_cast<VMInvokable*>(block);
+    auto* blockMethod = static_cast<VMInvokable*>(block);
 
-    long numOfArgs = blockMethod->GetNumberOfArguments();
+    uint8_t const numOfArgs = blockMethod->GetNumberOfArguments();
 
     GetFrame()->Push(Universe::NewBlock(blockMethod, GetFrame(), numOfArgs));
 }
 
-void Interpreter::doPushGlobal(long bytecodeIndex) {
-    VMSymbol* globalName =
+void Interpreter::doPushGlobal(size_t bytecodeIndex) {
+    auto* globalName =
         static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
     vm_oop_t global = Universe::GetGlobal(globalName);
 
@@ -287,7 +289,8 @@ void Interpreter::SendUnknownGlobal(VMSymbol* globalName) {
 
     // check if there is enough space on the stack for this unplanned Send
     // unknowGlobal: needs 2 slots, one for "this" and one for the argument
-    long additionalStackSlots = 2 - GetFrame()->RemainingStackSize();
+    int64_t const additionalStackSlots =
+        2 - (int64_t)GetFrame()->RemainingStackSize();
     if (additionalStackSlots > 0) {
         GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
         // copy current frame into a bigger one and replace the current
@@ -302,9 +305,9 @@ void Interpreter::doPop() {
     GetFrame()->Pop();
 }
 
-void Interpreter::doPopLocal(long bytecodeIndex) {
-    uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
-    uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
+void Interpreter::doPopLocal(size_t bytecodeIndex) {
+    uint8_t const bc1 = method->GetBytecode(bytecodeIndex + 1);
+    uint8_t const bc2 = method->GetBytecode(bytecodeIndex + 2);
 
     vm_oop_t o = GetFrame()->Pop();
 
@@ -316,16 +319,16 @@ void Interpreter::doPopLocalWithIndex(uint8_t localIndex) {
     GetFrame()->SetLocal(localIndex, o);
 }
 
-void Interpreter::doPopArgument(long bytecodeIndex) {
-    uint8_t bc1 = method->GetBytecode(bytecodeIndex + 1);
-    uint8_t bc2 = method->GetBytecode(bytecodeIndex + 2);
+void Interpreter::doPopArgument(size_t bytecodeIndex) {
+    uint8_t const bc1 = method->GetBytecode(bytecodeIndex + 1);
+    uint8_t const bc2 = method->GetBytecode(bytecodeIndex + 2);
 
     vm_oop_t o = GetFrame()->Pop();
     GetFrame()->SetArgument(bc1, bc2, o);
 }
 
-void Interpreter::doPopField(long bytecodeIndex) {
-    uint8_t fieldIndex = method->GetBytecode(bytecodeIndex + 1);
+void Interpreter::doPopField(size_t bytecodeIndex) {
+    uint8_t const fieldIndex = method->GetBytecode(bytecodeIndex + 1);
     doPopFieldWithIndex(fieldIndex);
 }
 
@@ -340,11 +343,11 @@ void Interpreter::doPopFieldWithIndex(uint8_t fieldIndex) {
     }
 }
 
-void Interpreter::doSend(long bytecodeIndex) {
-    VMSymbol* signature =
+void Interpreter::doSend(size_t bytecodeIndex) {
+    auto* signature =
         static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
 
-    int numOfArgs = Signature::GetNumberOfArguments(signature);
+    uint8_t const numOfArgs = Signature::GetNumberOfArguments(signature);
 
     vm_oop_t receiver = GetFrame()->GetStackElement(numOfArgs - 1);
 
@@ -363,8 +366,8 @@ void Interpreter::doSend(long bytecodeIndex) {
     send(signature, receiverClass);
 }
 
-void Interpreter::doUnarySend(long bytecodeIndex) {
-    VMSymbol* signature =
+void Interpreter::doUnarySend(size_t bytecodeIndex) {
+    auto* signature =
         static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
 
     const int numOfArgs = 1;
@@ -402,26 +405,25 @@ void Interpreter::doUnarySend(long bytecodeIndex) {
     }
 }
 
-void Interpreter::doSuperSend(long bytecodeIndex) {
-    VMSymbol* signature =
+void Interpreter::doSuperSend(size_t bytecodeIndex) {
+    auto* signature =
         static_cast<VMSymbol*>(method->GetConstant(bytecodeIndex));
 
     VMFrame* ctxt = GetFrame()->GetOuterContext();
     VMMethod* realMethod = ctxt->GetMethod();
     VMClass* holder = realMethod->GetHolder();
     assert(holder->HasSuperClass());
-    VMClass* super = (VMClass*)holder->GetSuperClass();
-    VMInvokable* invokable =
-        static_cast<VMInvokable*>(super->LookupInvokable(signature));
+    auto* super = (VMClass*)holder->GetSuperClass();
+    auto* invokable = super->LookupInvokable(signature);
 
     if (invokable != nullptr) {
         invokable->Invoke(GetFrame());
     } else {
-        long numOfArgs = Signature::GetNumberOfArguments(signature);
+        uint8_t const numOfArgs = Signature::GetNumberOfArguments(signature);
         vm_oop_t receiver = GetFrame()->GetStackElement(numOfArgs - 1);
         VMArray* argumentsArray = Universe::NewArray(numOfArgs);
 
-        for (long i = numOfArgs - 1; i >= 0; --i) {
+        for (uint8_t i = numOfArgs - 1; i >= 0; --i) {
             vm_oop_t o = GetFrame()->Pop();
             argumentsArray->SetIndexableField(i, o);
         }
@@ -442,7 +444,7 @@ void Interpreter::doReturnNonLocal() {
     VMFrame* context = GetFrame()->GetOuterContext();
 
     if (!context->HasPreviousFrame()) {
-        VMBlock* block =
+        auto* block =
             static_cast<VMBlock*>(GetFrame()->GetArgumentInCurrentContext(0));
         VMFrame* prevFrame = GetFrame()->GetPreviousFrame();
         VMFrame* outerContext = prevFrame->GetOuterContext();
@@ -453,14 +455,15 @@ void Interpreter::doReturnNonLocal() {
 
         // Pop old arguments from stack
         VMMethod* method = GetFrame()->GetMethod();
-        long numberOfArgs = method->GetNumberOfArguments();
-        for (long i = 0; i < numberOfArgs; ++i) {
+        uint8_t const numberOfArgs = method->GetNumberOfArguments();
+        for (uint8_t i = 0; i < numberOfArgs; ++i) {
             GetFrame()->Pop();
         }
 
         // check if current frame is big enough for this unplanned send
         // #escapedBlock: needs 2 slots, one for self, and one for the block
-        long additionalStackSlots = 2 - GetFrame()->RemainingStackSize();
+        int64_t const additionalStackSlots =
+            2 - (int64_t)GetFrame()->RemainingStackSize();
         if (additionalStackSlots > 0) {
             GetFrame()->SetBytecodeIndex(bytecodeIndexGlobal);
             // copy current frame into a bigger one, and replace it
@@ -483,10 +486,10 @@ void Interpreter::doInc() {
     vm_oop_t val = GetFrame()->Top();
 
     if (IS_TAGGED(val) || CLASS_OF(val) == load_ptr(integerClass)) {
-        int64_t result = (int64_t)INT_VAL(val) + 1;
+        int64_t const result = (int64_t)INT_VAL(val) + 1;
         val = NEW_INT(result);
     } else if (CLASS_OF(val) == load_ptr(doubleClass)) {
-        double d = static_cast<VMDouble*>(val)->GetEmbeddedDouble();
+        double const d = static_cast<VMDouble*>(val)->GetEmbeddedDouble();
         val = Universe::NewDouble(d + 1.0);
     } else {
         ErrorExit("unsupported");
@@ -499,10 +502,10 @@ void Interpreter::doDec() {
     vm_oop_t val = GetFrame()->Top();
 
     if (IS_TAGGED(val) || CLASS_OF(val) == load_ptr(integerClass)) {
-        int64_t result = (int64_t)INT_VAL(val) - 1;
+        int64_t const result = (int64_t)INT_VAL(val) - 1;
         val = NEW_INT(result);
     } else if (CLASS_OF(val) == load_ptr(doubleClass)) {
-        double d = static_cast<VMDouble*>(val)->GetEmbeddedDouble();
+        double const d = static_cast<VMDouble*>(val)->GetEmbeddedDouble();
         val = Universe::NewDouble(d - 1.0);
     } else {
         ErrorExit("unsupported");
@@ -511,52 +514,52 @@ void Interpreter::doDec() {
     GetFrame()->SetTop(store_root(val));
 }
 
-void Interpreter::doIncField(uint8_t fieldIdx) {
+void Interpreter::doIncField(uint8_t fieldIndex) {
     vm_oop_t self = GetSelf();
 
     if (unlikely(IS_TAGGED(self))) {
         ErrorExit("Integers do not have fields!");
     }
 
-    VMObject* selfObj = (VMObject*)self;
+    auto* selfObj = (VMObject*)self;
 
-    vm_oop_t val = selfObj->GetField(fieldIdx);
+    vm_oop_t val = selfObj->GetField(fieldIndex);
 
     if (IS_TAGGED(val) || CLASS_OF(val) == load_ptr(integerClass)) {
-        int64_t result = (int64_t)INT_VAL(val) + 1;
+        int64_t const result = (int64_t)INT_VAL(val) + 1;
         val = NEW_INT(result);
     } else if (CLASS_OF(val) == load_ptr(doubleClass)) {
-        double d = static_cast<VMDouble*>(val)->GetEmbeddedDouble();
+        double const d = static_cast<VMDouble*>(val)->GetEmbeddedDouble();
         val = Universe::NewDouble(d + 1.0);
     } else {
         ErrorExit("unsupported");
     }
 
-    selfObj->SetField(fieldIdx, val);
+    selfObj->SetField(fieldIndex, val);
 }
 
-void Interpreter::doIncFieldPush(uint8_t fieldIdx) {
+void Interpreter::doIncFieldPush(uint8_t fieldIndex) {
     vm_oop_t self = GetSelf();
 
     if (unlikely(IS_TAGGED(self))) {
         ErrorExit("Integers do not have fields!");
     }
 
-    VMObject* selfObj = (VMObject*)self;
+    auto* selfObj = (VMObject*)self;
 
-    vm_oop_t val = selfObj->GetField(fieldIdx);
+    vm_oop_t val = selfObj->GetField(fieldIndex);
 
     if (IS_TAGGED(val) || CLASS_OF(val) == load_ptr(integerClass)) {
-        int64_t result = (int64_t)INT_VAL(val) + 1;
+        int64_t const result = (int64_t)INT_VAL(val) + 1;
         val = NEW_INT(result);
     } else if (CLASS_OF(val) == load_ptr(doubleClass)) {
-        double d = static_cast<VMDouble*>(val)->GetEmbeddedDouble();
+        double const d = static_cast<VMDouble*>(val)->GetEmbeddedDouble();
         val = Universe::NewDouble(d + 1.0);
     } else {
         ErrorExit("unsupported");
     }
 
-    selfObj->SetField(fieldIdx, val);
+    selfObj->SetField(fieldIndex, val);
     GetFrame()->Push(val);
 }
 
@@ -567,8 +570,9 @@ bool Interpreter::checkIsGreater() {
     if ((IS_TAGGED(top) || CLASS_OF(top) == load_ptr(integerClass)) &&
         (IS_TAGGED(top2) || CLASS_OF(top2) == load_ptr(integerClass))) {
         return INT_VAL(top) > INT_VAL(top2);
-    } else if ((CLASS_OF(top) == load_ptr(doubleClass)) &&
-               (CLASS_OF(top2) == load_ptr(doubleClass))) {
+    }
+    if ((CLASS_OF(top) == load_ptr(doubleClass)) &&
+        (CLASS_OF(top2) == load_ptr(doubleClass))) {
         return static_cast<VMDouble*>(top)->GetEmbeddedDouble() >
                static_cast<VMDouble*>(top2)->GetEmbeddedDouble();
     }

@@ -45,24 +45,20 @@ VMSymbol::VMSymbol(const size_t length, const char* const str)
                length),
       numberOfArgumentsOfSignature(
           Signature::DetermineNumberOfArguments(str, length)) {
-    nextCachePos = 0;
     size_t i = 0;
     for (; i < length; ++i) {
         chars[i] = str[i];
     }
-    // clear caching fields
-    memset(&cachedClass_invokable, 0, 6 * sizeof(void*) + 1 * sizeof(long));
 }
 
 size_t VMSymbol::GetObjectSize() const {
-    size_t size = sizeof(VMSymbol) + PADDED_SIZE(length);
+    size_t const size = sizeof(VMSymbol) + PADDED_SIZE(length);
     return size;
 }
 
 VMSymbol* VMSymbol::CloneForMovingGC() const {
-    VMSymbol* result =
-        new (GetHeap<HEAP_CLS>(), PADDED_SIZE(length) ALLOC_MATURE)
-            VMSymbol(length, chars);
+    auto* result = new (GetHeap<HEAP_CLS>(), PADDED_SIZE(length) ALLOC_MATURE)
+        VMSymbol(length, chars);
     return result;
 }
 
@@ -71,9 +67,9 @@ VMClass* VMSymbol::GetClass() const {
 }
 
 void VMSymbol::WalkObjects(walk_heap_fn walk) {
-    for (long i = 0; i < nextCachePos; i++) {
-        cachedClass_invokable[i] = static_cast<GCClass*>(
-            walk(const_cast<GCClass*>(cachedClass_invokable[i])));
+    for (size_t i = 0; i < nextCachePos; i++) {
+        cachedClass_invokable[i] =
+            static_cast<GCClass*>(walk(cachedClass_invokable[i]));
         cachedInvokable[i] =
             static_cast<GCInvokable*>(walk(cachedInvokable[i]));
     }
@@ -83,8 +79,8 @@ std::string VMSymbol::AsDebugString() const {
     return "Symbol(" + GetStdString() + ")";
 }
 
-void VMSymbol::UpdateCachedInvokable(const VMClass* cls, VMInvokable* invo) {
+void VMSymbol::UpdateCachedInvokable(VMClass* cls, VMInvokable* invo) {
     store_ptr(cachedInvokable[nextCachePos], invo);
-    store_ptr(cachedClass_invokable[nextCachePos], const_cast<VMClass*>(cls));
+    store_ptr(cachedClass_invokable[nextCachePos], cls);
     nextCachePos = (nextCachePos + 1) % 3;
 }

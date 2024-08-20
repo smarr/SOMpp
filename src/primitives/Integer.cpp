@@ -35,7 +35,6 @@
 #include <string>
 
 #include "../misc/ParseInteger.h"
-#include "../primitivesCore/PrimitiveContainer.h"
 #include "../vm/Globals.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
@@ -53,8 +52,8 @@ double coerceDouble(vm_oop_t x);
     {                                                        \
         VMClass* cl = CLASS_OF(rightObj);                    \
         if (cl == load_ptr(doubleClass)) {                   \
-            double leftDbl = (double)leftInt;                \
-            double rightDbl = coerceDouble(rightObj);        \
+            double const leftDbl = (double)(leftInt);        \
+            double const rightDbl = coerceDouble(rightObj);  \
             return Universe::NewDouble(leftDbl op rightDbl); \
         }                                                    \
     }
@@ -63,55 +62,58 @@ static vm_oop_t intPlus(vm_oop_t leftObj, vm_oop_t rightObj) {
     assert(CLASS_OF(leftObj) == load_ptr(integerClass) &&
            "The receiver should always be an int");
 
-    int64_t left = INT_VAL(leftObj);
+    int64_t const left = INT_VAL(leftObj);
     doDoubleOpIfNeeded(left, rightObj, +);
 
-    int64_t result = left + (int64_t)INT_VAL(rightObj);
+    int64_t const result = left + INT_VAL(rightObj);
     return NEW_INT(result);
 }
 
 static vm_oop_t intBitwiseXor(vm_oop_t leftObj, vm_oop_t rightObj) {
-    int64_t result = (int64_t)INT_VAL(leftObj) ^ (int64_t)INT_VAL(rightObj);
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
+    int64_t const result = INT_VAL(leftObj) ^ INT_VAL(rightObj);
     return NEW_INT(result);
 }
 
 static vm_oop_t intLeftShift(vm_oop_t leftObj, vm_oop_t rightObj) {
-    int64_t result = (int64_t)INT_VAL(leftObj) << (int64_t)INT_VAL(rightObj);
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
+    int64_t const result = INT_VAL(leftObj) << INT_VAL(rightObj);
     return NEW_INT(result);
 }
 
 static vm_oop_t intUnsignedRightShift(vm_oop_t leftObj, vm_oop_t rightObj) {
-    int64_t result = (int64_t)INT_VAL(leftObj) >> (int64_t)INT_VAL(rightObj);
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
+    int64_t const result = INT_VAL(leftObj) >> INT_VAL(rightObj);
     return NEW_INT(result);
 }
 
 static vm_oop_t intMinus(vm_oop_t leftObj, vm_oop_t rightObj) {
-    int64_t left = INT_VAL(leftObj);
+    int64_t const left = INT_VAL(leftObj);
     doDoubleOpIfNeeded(left, rightObj, -);
 
-    int64_t result = left - (int64_t)INT_VAL(rightObj);
+    int64_t const result = left - INT_VAL(rightObj);
     return NEW_INT(result);
 }
 
 static vm_oop_t intStar(vm_oop_t leftObj, vm_oop_t rightObj) {
-    int64_t left = INT_VAL(leftObj);
+    int64_t const left = INT_VAL(leftObj);
     doDoubleOpIfNeeded(left, rightObj, *);
 
-    int64_t result = left * (int64_t)INT_VAL(rightObj);
+    int64_t const result = left * INT_VAL(rightObj);
     return NEW_INT(result);
 }
 
 static vm_oop_t intSlashslash(vm_oop_t leftObj, vm_oop_t rightObj) {
-    int64_t left = INT_VAL(leftObj);
+    int64_t const left = INT_VAL(leftObj);
     doDoubleOpIfNeeded(left, rightObj, /);
 
-    double result = (double)left / (double)INT_VAL(rightObj);
+    double const result = (double)left / (double)INT_VAL(rightObj);
     return Universe::NewDouble(result);
 }
 
 static vm_oop_t intSlash(vm_oop_t leftObj, vm_oop_t rightObj) {
-    int64_t left = INT_VAL(leftObj);
-    int64_t right;
+    int64_t const left = INT_VAL(leftObj);
+    int64_t right = 0;
 
     VMClass* cl = CLASS_OF(rightObj);
     if (cl == load_ptr(doubleClass)) {
@@ -120,13 +122,13 @@ static vm_oop_t intSlash(vm_oop_t leftObj, vm_oop_t rightObj) {
         right = INT_VAL(rightObj);
     }
 
-    int64_t result = left / right;
+    int64_t const result = left / right;
     return NEW_INT(result);
 }
 
 static vm_oop_t intPercent(vm_oop_t leftObj, vm_oop_t rightObj) {
-    int64_t l = INT_VAL(leftObj);
-    int64_t r;
+    int64_t const l = INT_VAL(leftObj);
+    int64_t r = 0;
 
     VMClass* cl = CLASS_OF(rightObj);
     if (cl == load_ptr(doubleClass)) {
@@ -152,28 +154,29 @@ static vm_oop_t intRem(vm_oop_t leftObj, vm_oop_t rightObj) {
         return dblPercent(leftObj, rightObj);
     }
 
-    int64_t l = (int64_t)INT_VAL(leftObj);
-    int64_t r = (int64_t)INT_VAL(rightObj);
+    auto const l = INT_VAL(leftObj);
+    auto const r = INT_VAL(rightObj);
 
-    int64_t result = l - (l / r) * r;
+    int64_t const result = l - (l / r) * r;
 
     return NEW_INT(result);
 }
 
 static vm_oop_t intAnd(vm_oop_t leftObj, vm_oop_t rightObj) {
-    int64_t result = (int64_t)INT_VAL(leftObj) & (int64_t)INT_VAL(rightObj);
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
+    int64_t const result = INT_VAL(leftObj) & INT_VAL(rightObj);
     return NEW_INT(result);
 }
 
 static vm_oop_t intEqual(vm_oop_t leftObj, vm_oop_t rightObj) {
-    int64_t left = INT_VAL(leftObj);
+    int64_t const left = INT_VAL(leftObj);
 
     if (IS_TAGGED(rightObj) || CLASS_OF(rightObj) == load_ptr(integerClass)) {
         if (left == INT_VAL(rightObj)) {
             return load_ptr(trueObject);
         }
     } else if (CLASS_OF(rightObj) == load_ptr(doubleClass)) {
-        if (left == ((VMDouble*)rightObj)->GetEmbeddedDouble()) {
+        if ((double)left == ((VMDouble*)rightObj)->GetEmbeddedDouble()) {
             return load_ptr(trueObject);
         }
     }
@@ -190,90 +193,85 @@ static vm_oop_t intEqualEqual(vm_oop_t leftObj, vm_oop_t rightObj) {
 }
 
 static vm_oop_t intLowerthan(vm_oop_t leftObj, vm_oop_t rightObj) {
-    int64_t left = INT_VAL(leftObj);
+    int64_t const left = INT_VAL(leftObj);
     doDoubleOpIfNeeded(left, rightObj, <);
 
     if (left < INT_VAL(rightObj)) {
         return load_ptr(trueObject);
-    } else {
-        return load_ptr(falseObject);
     }
+    return load_ptr(falseObject);
 }
 
 static vm_oop_t intLowerThanEqual(vm_oop_t leftObj, vm_oop_t rightObj) {
-    int64_t left = INT_VAL(leftObj);
+    int64_t const left = INT_VAL(leftObj);
     doDoubleOpIfNeeded(left, rightObj, <=);
 
     if (left <= INT_VAL(rightObj)) {
         return load_ptr(trueObject);
-    } else {
-        return load_ptr(falseObject);
     }
+    return load_ptr(falseObject);
 }
 
 static vm_oop_t intGreaterThan(vm_oop_t leftObj, vm_oop_t rightObj) {
-    int64_t left = INT_VAL(leftObj);
+    int64_t const left = INT_VAL(leftObj);
     doDoubleOpIfNeeded(left, rightObj, >);
 
     if (left > INT_VAL(rightObj)) {
         return load_ptr(trueObject);
-    } else {
-        return load_ptr(falseObject);
     }
+    return load_ptr(falseObject);
 }
 
 static vm_oop_t intGreaterThanEqual(vm_oop_t leftObj, vm_oop_t rightObj) {
-    int64_t left = INT_VAL(leftObj);
+    int64_t const left = INT_VAL(leftObj);
     doDoubleOpIfNeeded(left, rightObj, >=);
 
     if (left >= INT_VAL(rightObj)) {
         return load_ptr(trueObject);
-    } else {
-        return load_ptr(falseObject);
     }
+    return load_ptr(falseObject);
 }
 
 static vm_oop_t intAsString(vm_oop_t self) {
-    long integer = INT_VAL(self);
+    int64_t const integer = INT_VAL(self);
     ostringstream Str;
     Str << integer;
     return Universe::NewString(Str.str());
 }
 
 static vm_oop_t intAsDouble(vm_oop_t self) {
-    long integer = INT_VAL(self);
+    int64_t const integer = INT_VAL(self);
     return Universe::NewDouble((double)integer);
 }
 
 static vm_oop_t intAs32BitSigned(vm_oop_t self) {
-    int64_t integer = INT_VAL(self);
+    int64_t const integer = INT_VAL(self);
     return NEW_INT((int64_t)(int32_t)integer);
 }
 
 static vm_oop_t intAs32BitUnsigned(vm_oop_t self) {
-    int64_t integer = INT_VAL(self);
+    int64_t const integer = INT_VAL(self);
     return NEW_INT((int64_t)(uint32_t)integer);
 }
 
 static vm_oop_t intSqrt(vm_oop_t self) {
-    double result = sqrt((double)INT_VAL(self));
+    double const result = sqrt((double)INT_VAL(self));
 
     if (result == rint(result)) {
         return NEW_INT((int64_t)result);
-    } else {
-        return Universe::NewDouble(result);
     }
+    return Universe::NewDouble(result);
 }
 
 static vm_oop_t intAtRandom(vm_oop_t self) {
-    int64_t result =
+    int64_t const result =
         INT_VAL(self) *
         rand();  // NOLINT(clang-analyzer-security.insecureAPI.rand)
     return NEW_INT(result);
 }
 
 static vm_oop_t intAbs(vm_oop_t self) {
-    int64_t result = INT_VAL(self);
+    int64_t const result = INT_VAL(self);
     if (result < 0) {
         return NEW_INT(-result);
     }
@@ -281,58 +279,55 @@ static vm_oop_t intAbs(vm_oop_t self) {
 }
 
 static vm_oop_t intMin(vm_oop_t self, vm_oop_t arg) {
-    int64_t result = INT_VAL(self);
+    int64_t const result = INT_VAL(self);
 
     VMClass* cl = CLASS_OF(arg);
     if (cl == load_ptr(doubleClass)) {
-        if (result < ((VMDouble*)arg)->GetEmbeddedDouble()) {
+        if ((double)result < ((VMDouble*)arg)->GetEmbeddedDouble()) {
             return self;
-        } else {
-            return arg;
         }
+        return arg;
     }
 
     return (result < INT_VAL(arg)) ? self : arg;
 }
 
 static vm_oop_t intMax(vm_oop_t self, vm_oop_t arg) {
-    int64_t result = INT_VAL(self);
+    int64_t const result = INT_VAL(self);
 
     VMClass* cl = CLASS_OF(arg);
     if (cl == load_ptr(doubleClass)) {
-        if (result > ((VMDouble*)arg)->GetEmbeddedDouble()) {
+        if ((double)result > ((VMDouble*)arg)->GetEmbeddedDouble()) {
             return self;
-        } else {
-            return arg;
         }
+        return arg;
     }
 
     return (result > INT_VAL(arg)) ? self : arg;
 }
 
-static vm_oop_t intFromString(vm_oop_t, vm_oop_t right) {
-    VMString* self = (VMString*)right;
+static vm_oop_t intFromString(vm_oop_t /*unused*/, vm_oop_t right) {
+    auto* self = (VMString*)right;
     std::string str = self->GetStdString();
 
     return ParseInteger(str, 10, false);
 }
 
 static vm_oop_t intUnequal(vm_oop_t leftObj, vm_oop_t rightObj) {
-    int64_t left = INT_VAL(leftObj);
+    int64_t const left = INT_VAL(leftObj);
     doDoubleOpIfNeeded(left, rightObj, !=);
 
     if (left != INT_VAL(rightObj)) {
         return load_ptr(trueObject);
-    } else {
-        return load_ptr(falseObject);
     }
+    return load_ptr(falseObject);
 }
 
 static vm_oop_t intRange(vm_oop_t leftObj, vm_oop_t rightObj) {
-    int64_t left = INT_VAL(leftObj);
-    int64_t right = INT_VAL(rightObj);
+    int64_t const left = INT_VAL(leftObj);
+    int64_t const right = INT_VAL(rightObj);
 
-    int64_t numInteger = right - left + 1;
+    int64_t const numInteger = right - left + 1;
     VMArray* arr = Universe::NewArray(numInteger);
 
     size_t index = 0;
@@ -343,7 +338,7 @@ static vm_oop_t intRange(vm_oop_t leftObj, vm_oop_t rightObj) {
     return arr;
 }
 
-_Integer::_Integer() : PrimitiveContainer() {
+_Integer::_Integer() {
     srand((unsigned)time(nullptr));
 
     Add("+", &intPlus, false);

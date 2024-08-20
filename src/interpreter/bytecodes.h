@@ -98,7 +98,7 @@
 #define BC_INVALID           255
 // clang-format on
 
-// TODO: port support for these bytecodes
+// TODO(smarr): port support for these bytecodes
 //       they were already named in ported code, and it seemed nicer to just
 //       already include that code
 // clang-format off
@@ -131,7 +131,7 @@ private:
 };
 
 inline uint16_t ComputeOffset(uint8_t byte1, uint8_t byte2) {
-    return ((uint16_t)byte1) | (((uint16_t)byte2) << 8);
+    return ((uint16_t)byte1) | (uint16_t)(((uint16_t)byte2) << 8U);
 }
 
 bool IsJumpBytecode(uint8_t bc);

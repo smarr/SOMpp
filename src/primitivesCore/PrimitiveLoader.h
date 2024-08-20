@@ -32,8 +32,6 @@
 #include "Primitives.h"
 
 class PrimitiveContainer;
-class PrimitiveRoutine;
-class BinaryPrim;
 
 /// Core class for primitive loading.
 // In order to implement new primitive libraries, you can use this class.
@@ -47,7 +45,7 @@ class PrimitiveLoader {
 public:
     PrimitiveLoader();
     virtual ~PrimitiveLoader();
-    void AddPrimitiveObject(const std::string& name, PrimitiveContainer*);
+    void AddPrimitiveObject(const std::string& name, PrimitiveContainer* prim);
 
     static bool SupportsClass(const std::string& name);
 
@@ -62,7 +60,7 @@ private:
 
     bool supportsClass(const std::string& name);
 
-    std::map<StdString, PrimitiveContainer*> primitiveObjects{};
+    std::map<std::string, PrimitiveContainer*> primitiveObjects;
 
     static PrimitiveLoader loader;
 };

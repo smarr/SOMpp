@@ -49,30 +49,23 @@
 #define SHELL_PART_1 " = (run: it = ( | tmp | tmp := ("
 #define SHELL_PART_2 "). 'it = ' print. ^tmp println) )"
 
-Shell::Shell() {
-    bootstrapMethod = nullptr;
-}
+Shell::Shell() : bootstrapMethod(nullptr) {}
 
-Shell::Shell(VMMethod* bsm) {
-    bootstrapMethod = bsm;
-}
-
-Shell::~Shell() {
-    // TODO
-}
+Shell::Shell(VMMethod* bsm) : bootstrapMethod(bsm) {}
 
 void Shell::Start() {
 #define QUIT_CMD "system exit"
-#define QUIT_CMD_L 11 + 1
+#define QUIT_CMD_L (11 + 1)
 
     if (bootstrapMethod == nullptr) {
         ErrorExit("Shell needs bootstrap method!");
     }
     // the statement to evaluate
     char inbuf[INPUT_MAX_SIZE];
-    long bytecodeIndex, counter = 0;
-    VMFrame* currentFrame;
-    VMClass* runClass;
+    size_t bytecodeIndex = 0;
+    size_t counter = 0;
+    VMFrame* currentFrame = nullptr;
+    VMClass* runClass = nullptr;
     vm_oop_t it = load_ptr(nilObject);  // last evaluation result.
 
     cout << "SOM Shell. Type \"" << QUIT_CMD << "\" to exit.\n";
@@ -98,7 +91,7 @@ void Shell::Start() {
 
         inp = std::string(inbuf);
 
-        if (inp.length() == 0) {
+        if (inp.empty()) {
             continue;
         }
 

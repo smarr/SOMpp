@@ -45,7 +45,7 @@ VMBlock::VMBlock(VMInvokable* method, VMFrame* context)
 }
 
 VMBlock* VMBlock::CloneForMovingGC() const {
-    VMBlock* clone;
+    VMBlock* clone = nullptr;
     clone = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMBlock(*this);
     return clone;
 }

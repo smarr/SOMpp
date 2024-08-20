@@ -12,7 +12,7 @@ public:
     explicit DebugCopyingHeap(size_t objectSpaceSize)
         : Heap<DebugCopyingHeap>(new DebugCopyingCollector(this)),
           currentHeapSize(objectSpaceSize),
-          collectionLimit((double)objectSpaceSize * 0.9) {}
+          collectionLimit((size_t)((double)objectSpaceSize * 0.9)) {}
 
     AbstractVMObject* AllocateObject(size_t size);
 
@@ -23,12 +23,12 @@ private:
     void switchBuffers(bool increaseMemory);
     void invalidateOldBuffer();
 
-    vector<AbstractVMObject*> currentHeap{};
+    vector<AbstractVMObject*> currentHeap;
     size_t currentHeapSize;
     size_t currentHeapUsage{0};
     size_t collectionLimit;
 
-    vector<AbstractVMObject*> oldHeap{};
+    vector<AbstractVMObject*> oldHeap;
     size_t oldHeapSize{0};
 
     bool oldHeapIsValid{false};

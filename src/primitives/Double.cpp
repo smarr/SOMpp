@@ -32,7 +32,6 @@
 #include <sstream>
 #include <string>
 
-#include "../primitivesCore/PrimitiveContainer.h"
 #include "../vm/Globals.h"
 #include "../vm/Print.h"
 #include "../vm/Universe.h"
@@ -54,13 +53,13 @@ double coerceDouble(vm_oop_t x) {
     VMClass* cl = ((AbstractVMObject*)x)->GetClass();
     if (cl == load_ptr(doubleClass)) {
         return static_cast<VMDouble*>(x)->GetEmbeddedDouble();
-    } else if (cl == load_ptr(integerClass)) {
-        return (double)static_cast<VMInteger*>(x)->GetEmbeddedInteger();
-    } else {
-        ErrorExit("Attempt to apply Double operation to non-number.");
     }
+    if (cl == load_ptr(integerClass)) {
+        return (double)static_cast<VMInteger*>(x)->GetEmbeddedInteger();
+    }
+    ErrorExit("Attempt to apply Double operation to non-number.");
 
-    return 0.0f;
+    return 0.0F;
 }
 
 /*
@@ -70,9 +69,9 @@ double coerceDouble(vm_oop_t x) {
  * right are prepared for the operation.
  */
 #define PREPARE_OPERANDS                                 \
-    double right = coerceDouble(rightObj);               \
+    double const right = coerceDouble(rightObj);         \
     VMDouble* leftObj = static_cast<VMDouble*>(leftPtr); \
-    double left = leftObj->GetEmbeddedDouble();
+    double const left = leftObj->GetEmbeddedDouble();
 
 static vm_oop_t dblPlus(vm_oop_t leftPtr, vm_oop_t rightObj) {
     PREPARE_OPERANDS;
@@ -90,14 +89,14 @@ static vm_oop_t dblStar(vm_oop_t leftPtr, vm_oop_t rightObj) {
 }
 
 static vm_oop_t dblCos(vm_oop_t rcvr) {
-    VMDouble* self = (VMDouble*)rcvr;
-    double result = cos(self->GetEmbeddedDouble());
+    auto* self = (VMDouble*)rcvr;
+    double const result = cos(self->GetEmbeddedDouble());
     return Universe::NewDouble(result);
 }
 
 static vm_oop_t dblSin(vm_oop_t rcvr) {
-    VMDouble* self = (VMDouble*)rcvr;
-    double result = sin(self->GetEmbeddedDouble());
+    auto* self = (VMDouble*)rcvr;
+    double const result = sin(self->GetEmbeddedDouble());
     return Universe::NewDouble(result);
 }
 
@@ -119,57 +118,55 @@ static vm_oop_t dblEqual(vm_oop_t leftPtr, vm_oop_t rightObj) {
     PREPARE_OPERANDS;
     if (left == right) {
         return load_ptr(trueObject);
-    } else {
-        return load_ptr(falseObject);
     }
+    return load_ptr(falseObject);
 }
 
 static vm_oop_t dblLowerthan(vm_oop_t leftPtr, vm_oop_t rightObj) {
     PREPARE_OPERANDS;
     if (left < right) {
         return load_ptr(trueObject);
-    } else {
-        return load_ptr(falseObject);
     }
+    return load_ptr(falseObject);
 }
 
 static vm_oop_t dblAsString(vm_oop_t rcvr) {
-    VMDouble* self = static_cast<VMDouble*>(rcvr);
+    auto* self = static_cast<VMDouble*>(rcvr);
 
-    double dbl = self->GetEmbeddedDouble();
+    double const dbl = self->GetEmbeddedDouble();
     ostringstream Str;
     Str.precision(17);
     Str << dbl;
-    return Universe::NewString(Str.str().c_str());
+    return Universe::NewString(Str.str());
 }
 
 static vm_oop_t dblSqrt(vm_oop_t rcvr) {
-    VMDouble* self = static_cast<VMDouble*>(rcvr);
+    auto* self = static_cast<VMDouble*>(rcvr);
     VMDouble* result = Universe::NewDouble(sqrt(self->GetEmbeddedDouble()));
     return result;
 }
 
 static vm_oop_t dblRound(vm_oop_t rcvr) {
-    VMDouble* self = (VMDouble*)rcvr;
-    int64_t rounded = llround(self->GetEmbeddedDouble());
+    auto* self = (VMDouble*)rcvr;
+    int64_t const rounded = llround(self->GetEmbeddedDouble());
 
     return NEW_INT(rounded);
 }
 
 static vm_oop_t dblAsInteger(vm_oop_t rcvr) {
-    VMDouble* self = (VMDouble*)rcvr;
-    int64_t rounded = (int64_t)self->GetEmbeddedDouble();
+    auto* self = (VMDouble*)rcvr;
+    auto const rounded = (int64_t)self->GetEmbeddedDouble();
 
     return NEW_INT(rounded);
 }
 
-static vm_oop_t dblPositiveInfinity(vm_oop_t) {
+static vm_oop_t dblPositiveInfinity(vm_oop_t /*unused*/) {
     return Universe::NewDouble(INFINITY);
 }
 
-static vm_oop_t dblFromString(vm_oop_t, vm_oop_t rightObj) {
-    VMString* self = (VMString*)rightObj;
-    double value =
+static vm_oop_t dblFromString(vm_oop_t /*unused*/, vm_oop_t rightObj) {
+    auto* self = (VMString*)rightObj;
+    double const value =
         stod(std::string(self->GetRawChars(), self->GetStringLength()));
     return Universe::NewDouble(value);
 }
@@ -178,57 +175,51 @@ static vm_oop_t dblLowerThanEqual(vm_oop_t leftPtr, vm_oop_t rightObj) {
     PREPARE_OPERANDS;
     if (left <= right) {
         return load_ptr(trueObject);
-    } else {
-        return load_ptr(falseObject);
     }
+    return load_ptr(falseObject);
 }
 
 static vm_oop_t dblGreaterThan(vm_oop_t leftPtr, vm_oop_t rightObj) {
     PREPARE_OPERANDS;
     if (left > right) {
         return load_ptr(trueObject);
-    } else {
-        return load_ptr(falseObject);
     }
+    return load_ptr(falseObject);
 }
 
 static vm_oop_t dblGreaterThanEqual(vm_oop_t leftPtr, vm_oop_t rightObj) {
     PREPARE_OPERANDS;
     if (left >= right) {
         return load_ptr(trueObject);
-    } else {
-        return load_ptr(falseObject);
     }
+    return load_ptr(falseObject);
 }
 
 static vm_oop_t dblUnequal(vm_oop_t leftPtr, vm_oop_t rightObj) {
     PREPARE_OPERANDS;
     if (left != right) {
         return load_ptr(trueObject);
-    } else {
-        return load_ptr(falseObject);
     }
+    return load_ptr(falseObject);
 }
 
 static vm_oop_t dblMin(vm_oop_t leftPtr, vm_oop_t rightObj) {
     PREPARE_OPERANDS;
     if (left < right) {
         return leftPtr;
-    } else {
-        return rightObj;
     }
+    return rightObj;
 }
 
 static vm_oop_t dblMax(vm_oop_t leftPtr, vm_oop_t rightObj) {
     PREPARE_OPERANDS;
     if (left > right) {
         return leftPtr;
-    } else {
-        return rightObj;
     }
+    return rightObj;
 }
 
-_Double::_Double() : PrimitiveContainer() {
+_Double::_Double() {
     Add("+", &dblPlus, false);
     Add("-", &dblMinus, false);
     Add("*", &dblStar, false);

@@ -26,7 +26,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     AbstractVMObject* obj = AS_OBJ(oop);
     assert(IsValidObject(obj));
 
-    size_t gcField = obj->GetGCField();
+    size_t const gcField = obj->GetGCField();
     // GCField is used as forwarding pointer here
     // if someone has moved before, return the moved object
     if (gcField != 0) {
@@ -52,7 +52,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
 void CopyingCollector::Collect() {
     DebugLog("CopyGC Collect\n");
 
-    Timer::GCTimer->Resume();
+    Timer::GCTimer.Resume();
     // reset collection trigger
     heap->resetGCTrigger();
 
@@ -64,7 +64,7 @@ void CopyingCollector::Collect() {
 
     // now copy all objects that are referenced by the objects we have moved so
     // far
-    AbstractVMObject* curObject = (AbstractVMObject*)(heap->currentBuffer);
+    auto* curObject = (AbstractVMObject*)(heap->currentBuffer);
     while (curObject < heap->nextFreePosition) {
         curObject->WalkObjects(copy_if_necessary);
         curObject =
@@ -80,5 +80,5 @@ void CopyingCollector::Collect() {
         increaseMemory = true;
     }
 
-    Timer::GCTimer->Halt();
+    Timer::GCTimer.Halt();
 }

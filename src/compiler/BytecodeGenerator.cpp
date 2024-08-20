@@ -40,18 +40,18 @@
 #include "../vmobjects/VMSymbol.h"
 
 void Emit1(MethodGenerationContext& mgenc, uint8_t bytecode,
-           size_t stackEffect) {
+           int64_t stackEffect) {
     mgenc.AddBytecode(bytecode, stackEffect);
 }
 
 void Emit2(MethodGenerationContext& mgenc, uint8_t bytecode, size_t idx,
-           size_t stackEffect) {
+           int64_t stackEffect) {
     mgenc.AddBytecode(bytecode, stackEffect);
     mgenc.AddBytecodeArgument(idx);
 }
 
 void Emit3(MethodGenerationContext& mgenc, uint8_t bytecode, size_t idx,
-           size_t ctx, size_t stackEffect) {
+           size_t ctx, int64_t stackEffect) {
     mgenc.AddBytecode(bytecode, stackEffect);
     mgenc.AddBytecodeArgument(idx);
     mgenc.AddBytecodeArgument(ctx);
@@ -65,7 +65,7 @@ void EmitDUP(MethodGenerationContext& mgenc) {
     Emit1(mgenc, BC_DUP, 1);
 }
 
-void EmitPUSHLOCAL(MethodGenerationContext& mgenc, long idx, int ctx) {
+void EmitPUSHLOCAL(MethodGenerationContext& mgenc, size_t idx, size_t ctx) {
     assert(idx >= 0);
     assert(ctx >= 0);
     if (ctx == 0) {
@@ -85,7 +85,7 @@ void EmitPUSHLOCAL(MethodGenerationContext& mgenc, long idx, int ctx) {
     Emit3(mgenc, BC_PUSH_LOCAL, idx, ctx, 1);
 }
 
-void EmitPUSHARGUMENT(MethodGenerationContext& mgenc, long idx, int ctx) {
+void EmitPUSHARGUMENT(MethodGenerationContext& mgenc, size_t idx, size_t ctx) {
     assert(idx >= 0);
     assert(ctx >= 0);
 
@@ -120,7 +120,7 @@ void EmitPUSHFIELD(MethodGenerationContext& mgenc, VMSymbol* field) {
 }
 
 void EmitPUSHBLOCK(MethodGenerationContext& mgenc, VMInvokable* block) {
-    const int8_t idx = mgenc.AddLiteralIfAbsent(block);
+    const uint8_t idx = mgenc.AddLiteralIfAbsent(block);
     Emit2(mgenc, BC_PUSH_BLOCK, idx, 1);
 }
 
@@ -130,11 +130,11 @@ void EmitPUSHCONSTANT(MethodGenerationContext& mgenc, vm_oop_t cst) {
     // we also make sure that we don't miss anything in the else
     // branch of the class check
     if (CLASS_OF(cst) == load_ptr(integerClass)) {
-        if (INT_VAL(cst) == 0ll) {
+        if (INT_VAL(cst) == 0LL) {
             Emit1(mgenc, BC_PUSH_0, 1);
             return;
         }
-        if (INT_VAL(cst) == 1ll) {
+        if (INT_VAL(cst) == 1LL) {
             Emit1(mgenc, BC_PUSH_1, 1);
             return;
         }
@@ -147,7 +147,7 @@ void EmitPUSHCONSTANT(MethodGenerationContext& mgenc, vm_oop_t cst) {
         return;
     }
 
-    const int8_t idx = mgenc.AddLiteralIfAbsent(cst);
+    const uint8_t idx = mgenc.AddLiteralIfAbsent(cst);
     if (idx == 0) {
         Emit1(mgenc, BC_PUSH_CONSTANT_0, 1);
         return;
@@ -180,7 +180,7 @@ void EmitPUSHGLOBAL(MethodGenerationContext& mgenc, VMSymbol* global) {
     } else if (global == SymbolFor("false")) {
         EmitPUSHCONSTANT(mgenc, load_ptr(falseObject));
     } else {
-        const int8_t idx = mgenc.AddLiteralIfAbsent(global);
+        const uint8_t idx = mgenc.AddLiteralIfAbsent(global);
         Emit2(mgenc, BC_PUSH_GLOBAL, idx, 1);
     }
 }
@@ -191,7 +191,7 @@ void EmitPOP(MethodGenerationContext& mgenc) {
     }
 }
 
-void EmitPOPLOCAL(MethodGenerationContext& mgenc, long idx, int ctx) {
+void EmitPOPLOCAL(MethodGenerationContext& mgenc, size_t idx, size_t ctx) {
     assert(idx >= 0);
     assert(ctx >= 0);
     if (ctx == 0) {
@@ -214,7 +214,7 @@ void EmitPOPLOCAL(MethodGenerationContext& mgenc, long idx, int ctx) {
     Emit3(mgenc, BC_POP_LOCAL, idx, ctx, -1);
 }
 
-void EmitPOPARGUMENT(MethodGenerationContext& mgenc, long idx, int ctx) {
+void EmitPOPARGUMENT(MethodGenerationContext& mgenc, size_t idx, size_t ctx) {
     Emit3(mgenc, BC_POP_ARGUMENT, idx, ctx, -1);
 }
 
@@ -229,19 +229,18 @@ void EmitPOPFIELD(MethodGenerationContext& mgenc, VMSymbol* field) {
 }
 
 void EmitSEND(MethodGenerationContext& mgenc, VMSymbol* msg) {
-    const int8_t idx = mgenc.AddLiteralIfAbsent(msg);
+    const uint8_t idx = mgenc.AddLiteralIfAbsent(msg);
 
-    const int numArgs = Signature::GetNumberOfArguments(msg);
-    const size_t stackEffect = -numArgs + 1;  // +1 for the result
+    const uint8_t numArgs = Signature::GetNumberOfArguments(msg);
+    const int64_t stackEffect = -numArgs + 1;  // +1 for the result
 
     Emit2(mgenc, numArgs == 1 ? BC_SEND_1 : BC_SEND, idx, stackEffect);
 }
 
 void EmitSUPERSEND(MethodGenerationContext& mgenc, VMSymbol* msg) {
-    const int8_t idx = mgenc.AddLiteralIfAbsent(msg);
-
-    const int numArgs = Signature::GetNumberOfArguments(msg);
-    const size_t stackEffect = -numArgs + 1;  // +1 for the result
+    const uint8_t idx = mgenc.AddLiteralIfAbsent(msg);
+    const uint8_t numArgs = Signature::GetNumberOfArguments(msg);
+    const int64_t stackEffect = -numArgs + 1;  // +1 for the result
 
     Emit2(mgenc, BC_SUPER_SEND, idx, stackEffect);
 }
@@ -276,6 +275,9 @@ void EmitRETURNFIELD(MethodGenerationContext& mgenc, size_t index) {
         case 2:
             bc = BC_RETURN_FIELD_2;
             break;
+        default:
+            bc = 0;
+            break;
     }
     Emit1(mgenc, bc, 0);
 }
@@ -302,8 +304,8 @@ size_t EmitJumpOnBoolWithDummyOffset(MethodGenerationContext& mgenc,
     // This is because if the test passes, the block is inlined directly.
     // But if the test fails, we need to jump.
     // Thus, an  `#ifTrue:` needs to generated a jump_on_false.
-    uint8_t bc;
-    size_t stackEffect;
+    uint8_t bc = 0;
+    int64_t stackEffect = 0;
 
     if (needsPop) {
         bc = isIfTrue ? BC_JUMP_ON_FALSE_POP : BC_JUMP_ON_TRUE_POP;
@@ -315,36 +317,36 @@ size_t EmitJumpOnBoolWithDummyOffset(MethodGenerationContext& mgenc,
 
     Emit1(mgenc, bc, stackEffect);
 
-    size_t idx = mgenc.AddBytecodeArgumentAndGetIndex(0);
+    size_t const idx = mgenc.AddBytecodeArgumentAndGetIndex(0);
     mgenc.AddBytecodeArgument(0);
     return idx;
 }
 
 size_t EmitJumpWithDumyOffset(MethodGenerationContext& mgenc) {
     Emit1(mgenc, BC_JUMP, 0);
-    size_t idx = mgenc.AddBytecodeArgumentAndGetIndex(0);
+    size_t const idx = mgenc.AddBytecodeArgumentAndGetIndex(0);
     mgenc.AddBytecodeArgument(0);
     return idx;
 }
 
 size_t EmitJumpIfGreaterWithDummyOffset(MethodGenerationContext& mgenc) {
     Emit1(mgenc, BC_JUMP_IF_GREATER, 0);
-    size_t idx = mgenc.AddBytecodeArgumentAndGetIndex(0);
+    size_t const idx = mgenc.AddBytecodeArgumentAndGetIndex(0);
     mgenc.AddBytecodeArgument(0);
     return idx;
 }
 
 void EmitJumpBackwardWithOffset(MethodGenerationContext& mgenc,
                                 size_t jumpOffset) {
-    uint8_t jumpBytecode =
+    uint8_t const jumpBytecode =
         jumpOffset <= 0xFF ? BC_JUMP_BACKWARD : BC_JUMP2_BACKWARD;
-    Emit3(mgenc, jumpBytecode, jumpOffset & 0xFF, jumpOffset >> 8, 0);
+    Emit3(mgenc, jumpBytecode, jumpOffset & 0xFFU, jumpOffset >> 8U, 0);
 }
 
 size_t Emit3WithDummy(MethodGenerationContext& mgenc, uint8_t bytecode,
-                      size_t stackEffect) {
+                      int64_t stackEffect) {
     mgenc.AddBytecode(bytecode, stackEffect);
-    size_t index = mgenc.AddBytecodeArgumentAndGetIndex(0);
+    size_t const index = mgenc.AddBytecodeArgumentAndGetIndex(0);
     mgenc.AddBytecodeArgument(0);
     return index;
 }

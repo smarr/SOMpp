@@ -72,26 +72,28 @@ public:
 
         // this line would be needed if the VMObject** is used instead of the
         // macro: FIELDS = (VMObject**)&clazz;
-        hash = (size_t)this;
+        hash = (intptr_t)this;
 
         nilInitializeFields();
     }
 
     ~VMObject() override = default;
 
-    int64_t GetHash() const override { return hash; }
+    [[nodiscard]] int64_t GetHash() const override { return hash; }
 
-    inline VMClass* GetClass() const override {
+    [[nodiscard]] inline VMClass* GetClass() const override {
         assert(IsValidObject((VMObject*)load_ptr(clazz)));
         return load_ptr(clazz);
     }
 
     void SetClass(VMClass* cl) override;
-    VMSymbol* GetFieldName(long index) const override;
+    [[nodiscard]] VMSymbol* GetFieldName(size_t index) const override;
 
-    inline long GetNumberOfFields() const override { return numberOfFields; }
+    [[nodiscard]] inline size_t GetNumberOfFields() const override {
+        return numberOfFields;
+    }
 
-    inline vm_oop_t GetField(size_t index) const {
+    [[nodiscard]] inline vm_oop_t GetField(size_t index) const {
         assert(numberOfFields > index);
         vm_oop_t result = load_ptr(FIELDS[index]);
         assert(IsValidObject(result));
@@ -105,15 +107,17 @@ public:
 
     virtual void Assert(bool value) const;
     void WalkObjects(walk_heap_fn walk) override;
-    VMObject* CloneForMovingGC() const override;
+    [[nodiscard]] VMObject* CloneForMovingGC() const override;
 
     /** The total size of the object on the heap. */
-    inline size_t GetObjectSize() const override { return totalObjectSize; }
+    [[nodiscard]] inline size_t GetObjectSize() const override {
+        return totalObjectSize;
+    }
 
     void MarkObjectAsInvalid() override;
-    bool IsMarkedInvalid() const final;
+    [[nodiscard]] bool IsMarkedInvalid() const final;
 
-    StdString AsDebugString() const override;
+    [[nodiscard]] std::string AsDebugString() const override;
 
 protected:
     void nilInitializeFields();

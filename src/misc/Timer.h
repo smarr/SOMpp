@@ -28,7 +28,7 @@ private:
     int64_t last_start;
 
 public:
-    static Timer* GCTimer;
+    static Timer GCTimer;
     inline void Resume() { last_start = get_microseconds(); }
     inline void Halt() {
         const int64_t end = get_microseconds();
@@ -36,5 +36,5 @@ public:
         total = end - last_start;
     }
 
-    double GetTotalTime() { return (double)total / 1000.0; }
+    [[nodiscard]] double GetTotalTime() const { return (double)total / 1000.0; }
 };

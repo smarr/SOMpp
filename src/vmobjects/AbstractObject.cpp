@@ -7,6 +7,8 @@
 
 #include "AbstractObject.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <string>
 
 #include "../interpreter/Interpreter.h"
@@ -17,13 +19,13 @@
 #include "VMInvokable.h"
 #include "VMSymbol.h"
 
-void AbstractVMObject::Send(std::string selectorString, vm_oop_t* arguments,
-                            long argc) {
+void AbstractVMObject::Send(const std::string& selectorString,
+                            vm_oop_t* arguments, size_t argc) {
     VMFrame* frame = Interpreter::GetFrame();
     VMSymbol* selector = SymbolFor(selectorString);
     frame->Push(this);
 
-    for (long i = 0; i < argc; ++i) {
+    for (size_t i = 0; i < argc; ++i) {
         frame->Push(arguments[i]);
     }
 
@@ -32,6 +34,6 @@ void AbstractVMObject::Send(std::string selectorString, vm_oop_t* arguments,
     invokable->Invoke(frame);
 }
 
-long AbstractVMObject::GetFieldIndex(VMSymbol* fieldName) const {
+int64_t AbstractVMObject::GetFieldIndex(VMSymbol* fieldName) const {
     return GetClass()->LookupFieldIndex(fieldName);
 }

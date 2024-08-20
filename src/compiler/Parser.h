@@ -38,7 +38,7 @@
 
 class Parser {
 public:
-    Parser(istream& file, StdString& fname);
+    Parser(istream& file, std::string& fname);
     ~Parser() = default;
 
     void Classdef(ClassGenerationContext& cgenc);
@@ -50,13 +50,13 @@ private:
     __attribute__((noreturn)) void parseError(const char* msg,
                                               Symbol* expected);
     __attribute__((noreturn)) void parseError(const char* msg,
-                                              StdString expected);
+                                              std::string expected);
 
     void GetSym();
     void Peek();
     void PeekForNextSymbolFromLexerIfNecessary();
 
-    bool eob(void);
+    bool eob();
 
     bool symIsIdentifier();
 
@@ -65,11 +65,11 @@ private:
     bool acceptOneOf(Symbol* ss);
     bool expect(Symbol s);
     bool expectOneOf(Symbol* ss);
-    void SingleOperator(void);
+    void SingleOperator();
     void superclass(ClassGenerationContext& cgenc);
     void instanceFields(ClassGenerationContext& cgenc);
     void classFields(ClassGenerationContext& cgenc);
-    void primitiveBlock(void);
+    void primitiveBlock();
     void pattern(MethodGenerationContext& mgenc);
     void unaryPattern(MethodGenerationContext& mgenc);
     void binaryPattern(MethodGenerationContext& mgenc);
@@ -77,8 +77,8 @@ private:
     void methodBlock(MethodGenerationContext& mgenc);
     VMSymbol* unarySelector();
     VMSymbol* binarySelector();
-    StdString identifier();
-    StdString keyword();
+    std::string identifier();
+    std::string keyword();
     std::string argument();
     void blockContents(MethodGenerationContext& mgenc, bool is_inlined);
     void locals(MethodGenerationContext& mgenc);
@@ -107,7 +107,7 @@ private:
     void literalNumber(MethodGenerationContext& mgenc);
     vm_oop_t literalNumberOop();
     vm_oop_t literalDecimal(bool negateValue);
-    vm_oop_t negativeDecimal(void);
+    vm_oop_t negativeDecimal();
     vm_oop_t literalInteger(bool negateValue);
     vm_oop_t literalDouble(bool negateValue);
     void literalArray(MethodGenerationContext& mgenc);
@@ -115,20 +115,22 @@ private:
     void literalString(MethodGenerationContext& mgenc);
     VMSymbol* selector();
     VMSymbol* keywordSelector();
-    StdString _string();
+    std::string _string();
     void blockPattern(MethodGenerationContext& mgenc);
     void blockArguments(MethodGenerationContext& mgenc);
-    void genPushVariable(MethodGenerationContext&, std::string&);
-    void genPopVariable(MethodGenerationContext&, std::string&);
+    static void genPushVariable(MethodGenerationContext& /*mgenc*/,
+                                std::string& /*var*/);
+    static void genPopVariable(MethodGenerationContext& /*mgenc*/,
+                               std::string& /*var*/);
 
     Lexer lexer;
-    StdString& fname;
+    std::string& fname;
 
-    Symbol sym;
+    Symbol sym{NONE};
 
-    StdString text;
+    std::string text;
 
-    Symbol nextSym;
+    Symbol nextSym{NONE};
 
-    StdString nextText;
+    std::string nextText;
 };

@@ -29,7 +29,6 @@
 #include <map>
 
 #include "../misc/defs.h"
-#include "../vmobjects/PrimitiveRoutine.h"
 #include "Primitives.h"
 
 /// Base class for all container objects holding SOM++ primitives.
@@ -43,14 +42,18 @@ public:
 
     void InstallPrimitives(VMClass* clazz, bool classSide);
 
-    void Add(const char* name, FramePrimitiveRoutine, bool classSide);
-    void Add(const char* name, UnaryPrimitiveRoutine, bool classSide);
-    void Add(const char* name, BinaryPrimitiveRoutine, bool classSide);
-    void Add(const char* name, TernaryPrimitiveRoutine, bool classSide);
+    void Add(const char* name, FramePrimitiveRoutine /*routine*/,
+             bool classSide);
+    void Add(const char* name, UnaryPrimitiveRoutine /*routine*/,
+             bool classSide);
+    void Add(const char* name, BinaryPrimitiveRoutine /*routine*/,
+             bool classSide);
+    void Add(const char* name, TernaryPrimitiveRoutine /*routine*/,
+             bool classSide);
 
 private:
-    std::map<std::string, FramePrim> framePrims{};
-    std::map<std::string, UnaryPrim> unaryPrims{};
-    std::map<std::string, BinaryPrim> binaryPrims{};
-    std::map<std::string, TernaryPrim> ternaryPrims{};
+    std::map<std::string, FramePrim> framePrims;
+    std::map<std::string, UnaryPrim> unaryPrims;
+    std::map<std::string, BinaryPrim> binaryPrims;
+    std::map<std::string, TernaryPrim> ternaryPrims;
 };

@@ -7,6 +7,7 @@
 
 class BC {
 public:
+    // NOLINTNEXTLINE(google-explicit-constructor,hicpp-explicit-conversions)
     BC(uint8_t bytecode) : bytecode(bytecode), arg1(0), arg2(0), size(1) {}
 
     BC(uint8_t bytecode, uint8_t arg1)
@@ -24,9 +25,9 @@ public:
 
 class TestWithParsing : public CPPUNIT_NS::TestCase {
 public:
-    inline void setUp() {}
+    inline void setUp() override {}
 
-    inline void tearDown() {
+    inline void tearDown() override {
         delete _cgenc;
         _cgenc = nullptr;
 
@@ -38,9 +39,9 @@ public:
     }
 
 protected:
-    ClassGenerationContext* _cgenc;
-    MethodGenerationContext* _mgenc;
-    MethodGenerationContext* _bgenc;
+    ClassGenerationContext* _cgenc = nullptr;
+    MethodGenerationContext* _mgenc = nullptr;
+    MethodGenerationContext* _bgenc = nullptr;
 
     void ensureCGenC();
     void ensureMGenC();

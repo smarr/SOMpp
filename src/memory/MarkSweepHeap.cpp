@@ -11,15 +11,13 @@
 #include "MarkSweepCollector.h"
 
 MarkSweepHeap::MarkSweepHeap(size_t objectSpaceSize)
-    : Heap<MarkSweepHeap>(new MarkSweepCollector(this)) {
-    // our initial collection limit is 90% of objectSpaceSize
-    collectionLimit = objectSpaceSize * 0.9;
-    spcAlloc = 0;
-    allocatedObjects = new vector<AbstractVMObject*>();
-}
+    : Heap<MarkSweepHeap>(new MarkSweepCollector(this)),
+      allocatedObjects(new vector<AbstractVMObject*>()),
+      // our initial collection limit is 90% of objectSpaceSize
+      collectionLimit((size_t)((double)objectSpaceSize * 0.9)) {}
 
 AbstractVMObject* MarkSweepHeap::AllocateObject(size_t size) {
-    AbstractVMObject* newObject = (AbstractVMObject*)malloc(size);
+    auto* newObject = (AbstractVMObject*)malloc(size);
     if (newObject == nullptr) {
         ErrorPrint("\nFailed to allocate " + to_string(size) + " Bytes.\n");
         Quit(-1);

@@ -6,12 +6,12 @@
 class GenerationalHeap;
 class GenerationalCollector : public GarbageCollector<GenerationalHeap> {
 public:
-    GenerationalCollector(GenerationalHeap* heap);
+    explicit GenerationalCollector(GenerationalHeap* heap);
     void Collect() override;
 
 private:
     uintptr_t majorCollectionThreshold;
-    size_t matureObjectsSize;
+    size_t matureObjectsSize{0};
     void MajorCollection();
     void MinorCollection();
 };

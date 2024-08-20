@@ -48,39 +48,40 @@ public:
     VMClass();
     VMClass(size_t numberOfFields, size_t additionalBytes);
 
-    VMObject* GetSuperClass() const;
-    void SetSuperClass(VMObject*);
-    bool HasSuperClass() const;
-    VMSymbol* GetName() const;
-    void SetName(VMSymbol*);
-    VMArray* GetInstanceFields() const;
-    void SetInstanceFields(VMArray*);
-    VMArray* GetInstanceInvokables() const;
-    void SetInstanceInvokables(VMArray*);
-    size_t GetNumberOfInstanceInvokables() const;
-    VMInvokable* GetInstanceInvokable(long) const;
-    void SetInstanceInvokable(long, VMInvokable*);
-    VMInvokable* LookupInvokable(VMSymbol*) const;
-    long LookupFieldIndex(VMSymbol*) const;
-    bool AddInstanceInvokable(VMInvokable*);
-    VMSymbol* GetInstanceFieldName(long) const;
-    size_t GetNumberOfInstanceFields() const;
-    bool HasPrimitives() const;
+    [[nodiscard]] VMObject* GetSuperClass() const;
+    void SetSuperClass(VMObject* sup);
+    [[nodiscard]] bool HasSuperClass() const;
+    [[nodiscard]] VMSymbol* GetName() const;
+    void SetName(VMSymbol* name);
+    [[nodiscard]] VMArray* GetInstanceFields() const;
+    void SetInstanceFields(VMArray* instFields);
+    [[nodiscard]] VMArray* GetInstanceInvokables() const;
+    void SetInstanceInvokables(VMArray* /*invokables*/);
+    [[nodiscard]] size_t GetNumberOfInstanceInvokables() const;
+    [[nodiscard]] VMInvokable* GetInstanceInvokable(size_t index) const;
+    void SetInstanceInvokable(size_t index, VMInvokable* invokable);
+    VMInvokable* LookupInvokable(VMSymbol* name);
+    int64_t LookupFieldIndex(VMSymbol* name) const;
+    bool AddInstanceInvokable(VMInvokable* invokable);
+    [[nodiscard]] VMSymbol* GetInstanceFieldName(size_t index) const;
+    [[nodiscard]] size_t GetNumberOfInstanceFields() const;
+    [[nodiscard]] bool HasPrimitives() const;
     void LoadPrimitives();
-    VMClass* CloneForMovingGC() const override;
+    [[nodiscard]] VMClass* CloneForMovingGC() const override;
 
-    StdString AsDebugString() const override;
+    [[nodiscard]] std::string AsDebugString() const override;
 
 private:
-    bool hasPrimitivesFor(const StdString& cl) const;
-    void setPrimitives(const StdString& cname, bool classSide);
-    size_t numberOfSuperInstanceFields() const;
+    static bool hasPrimitivesFor(const std::string& cl);
+    void setPrimitives(const std::string& cname, bool classSide);
+    [[nodiscard]] size_t numberOfSuperInstanceFields() const;
 
     static const size_t VMClassNumberOfFields;
 
     make_testable(public);
 
     // Remember to update Parser::superclass when the fields are changed
+    // Theses are treated like VMObject fields and initialized that way
     GCSymbol* name;
     GCArray* instanceFields;
     GCArray* instanceInvokables;

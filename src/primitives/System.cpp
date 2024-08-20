@@ -26,6 +26,7 @@
 
 #include "System.h"
 
+#include <cstdint>
 #include <ctime>
 #include <fstream>
 #include <sstream>
@@ -33,7 +34,6 @@
 
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
-#include "../primitivesCore/PrimitiveContainer.h"
 #include "../vm/Globals.h"
 #include "../vm/Print.h"
 #include "../vm/Universe.h"
@@ -55,47 +55,45 @@
 
 _System* System_;
 
-static vm_oop_t sysGlobal_(vm_oop_t, vm_oop_t rightObj) {
-    VMSymbol* arg = static_cast<VMSymbol*>(rightObj);
+static vm_oop_t sysGlobal_(vm_oop_t /*unused*/, vm_oop_t rightObj) {
+    auto* arg = static_cast<VMSymbol*>(rightObj);
     vm_oop_t result = Universe::GetGlobal(arg);
 
-    return result ? result : load_ptr(nilObject);
+    return (result != nullptr) ? result : load_ptr(nilObject);
 }
 
 static vm_oop_t sysGlobalPut(vm_oop_t sys, vm_oop_t sym, vm_oop_t val) {
-    VMSymbol* arg = static_cast<VMSymbol*>(sym);
+    auto* arg = static_cast<VMSymbol*>(sym);
     Universe::SetGlobal(arg, val);
     return sys;
 }
 
-static vm_oop_t sysHasGlobal_(vm_oop_t, vm_oop_t rightObj) {
-    VMSymbol* arg = static_cast<VMSymbol*>(rightObj);
+static vm_oop_t sysHasGlobal_(vm_oop_t /*unused*/, vm_oop_t rightObj) {
+    auto* arg = static_cast<VMSymbol*>(rightObj);
 
     if (Universe::HasGlobal(arg)) {
         return load_ptr(trueObject);
-    } else {
-        return load_ptr(falseObject);
     }
+    return load_ptr(falseObject);
 }
 
-static vm_oop_t sysLoad_(vm_oop_t, vm_oop_t rightObj) {
-    VMSymbol* arg = static_cast<VMSymbol*>(rightObj);
+static vm_oop_t sysLoad_(vm_oop_t /*unused*/, vm_oop_t rightObj) {
+    auto* arg = static_cast<VMSymbol*>(rightObj);
     VMClass* result = Universe::LoadClass(arg);
-    if (result) {
+    if (result != nullptr) {
         return result;
-    } else {
-        return load_ptr(nilObject);
     }
+    return load_ptr(nilObject);
 }
 
-static vm_oop_t sysExit_(vm_oop_t, vm_oop_t err) {
-    long err_no = INT_VAL(err);
-    Quit(err_no);
+static vm_oop_t sysExit_(vm_oop_t /*unused*/, vm_oop_t err) {
+    int64_t const err_no = INT_VAL(err);
+    Quit((int32_t)err_no);
 }
 
 static vm_oop_t sysPrintString_(vm_oop_t leftObj, vm_oop_t rightObj) {
-    VMString* arg = static_cast<VMString*>(rightObj);
-    std::string str = arg->GetStdString();
+    auto* arg = static_cast<VMString*>(rightObj);
+    std::string const str = arg->GetStdString();
     Print(str);
     return leftObj;
 }
@@ -106,71 +104,71 @@ static vm_oop_t sysPrintNewline(vm_oop_t leftObj) {
 }
 
 static vm_oop_t sysErrorPrint_(vm_oop_t leftObj, vm_oop_t rightObj) {
-    VMString* arg = static_cast<VMString*>(rightObj);
-    std::string str = arg->GetStdString();
+    auto* arg = static_cast<VMString*>(rightObj);
+    std::string const str = arg->GetStdString();
     ErrorPrint(str);
     return leftObj;
 }
 
 static vm_oop_t sysErrorPrintNewline_(vm_oop_t leftObj, vm_oop_t rightObj) {
-    VMString* arg = static_cast<VMString*>(rightObj);
-    std::string str = arg->GetStdString();
+    auto* arg = static_cast<VMString*>(rightObj);
+    std::string const str = arg->GetStdString();
     ErrorPrint(str + "\n");
     return leftObj;
 }
 
 static struct timeval start_time;
 
-static vm_oop_t sysTime(vm_oop_t) {
-    struct timeval now;
+static vm_oop_t sysTime(vm_oop_t /*unused*/) {
+    struct timeval now {};
 
     gettimeofday(&now, nullptr);
 
-    long long diff = ((now.tv_sec - start_time.tv_sec) * 1000) +   // seconds
-                     ((now.tv_usec - start_time.tv_usec) / 1000);  // useconds
+    int64_t const diff =
+        ((now.tv_sec - start_time.tv_sec) * 1000) +   // seconds
+        ((now.tv_usec - start_time.tv_usec) / 1000);  // useconds
 
     return NEW_INT(diff);
 }
 
-static vm_oop_t sysTicks(vm_oop_t) {
-    struct timeval now;
+static vm_oop_t sysTicks(vm_oop_t /*unused*/) {
+    struct timeval now {};
 
     gettimeofday(&now, nullptr);
 
-    long long diff =
+    int64_t const diff =
         ((now.tv_sec - start_time.tv_sec) * 1000 * 1000) +  // seconds
         ((now.tv_usec - start_time.tv_usec));               // useconds
 
     return NEW_INT(diff);
 }
 
-static vm_oop_t sysFullGC(vm_oop_t) {
+static vm_oop_t sysFullGC(vm_oop_t /*unused*/) {
     // not safe to do it immediatly, will be done when it is ok, i.e., in the
     // interpreter loop
     GetHeap<HEAP_CLS>()->requestGC();
     return load_ptr(trueObject);
 }
 
-static vm_oop_t sysLoadFile_(vm_oop_t, vm_oop_t rightObj) {
-    VMString* fileName = static_cast<VMString*>(rightObj);
+static vm_oop_t sysLoadFile_(vm_oop_t /*unused*/, vm_oop_t rightObj) {
+    auto* fileName = static_cast<VMString*>(rightObj);
 
-    std::ifstream file(fileName->GetStdString(), std::ifstream::in);
+    std::ifstream const file(fileName->GetStdString(), std::ifstream::in);
     if (file.is_open()) {
         std::stringstream buffer;
         buffer << file.rdbuf();
 
         VMString* result = Universe::NewString(buffer.str());
         return result;
-    } else {
-        return load_ptr(nilObject);
     }
+    return load_ptr(nilObject);
 }
 
 void printStackTrace(VMFrame* frame) {
     frame->PrintStackTrace();
 }
 
-_System::_System(void) : PrimitiveContainer() {
+_System::_System() {
     gettimeofday(&start_time, nullptr);
 
     Add("global:", &sysGlobal_, false);
@@ -190,4 +188,4 @@ _System::_System(void) : PrimitiveContainer() {
     Add("printStackTrace", &printStackTrace, false);
 }
 
-_System::~_System() {}
+_System::~_System() = default;

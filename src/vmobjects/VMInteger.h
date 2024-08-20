@@ -37,17 +37,19 @@ public:
     explicit VMInteger(int64_t val) : embeddedInteger(val) {}
     ~VMInteger() override = default;
 
-    inline int64_t GetEmbeddedInteger() const;
-    VMInteger* CloneForMovingGC() const override;
-    VMClass* GetClass() const override;
-    inline size_t GetObjectSize() const override;
+    [[nodiscard]] inline int64_t GetEmbeddedInteger() const;
+    [[nodiscard]] VMInteger* CloneForMovingGC() const override;
+    [[nodiscard]] VMClass* GetClass() const override;
+    [[nodiscard]] inline size_t GetObjectSize() const override;
 
-    inline int64_t GetHash() const override { return (int64_t)embeddedInteger; }
+    [[nodiscard]] inline int64_t GetHash() const override {
+        return (int64_t)embeddedInteger;
+    }
 
     void MarkObjectAsInvalid() override;
-    bool IsMarkedInvalid() const override;
+    [[nodiscard]] bool IsMarkedInvalid() const override;
 
-    StdString AsDebugString() const override;
+    [[nodiscard]] std::string AsDebugString() const override;
 
     make_testable(public);
 

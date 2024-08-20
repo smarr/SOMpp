@@ -46,13 +46,14 @@
 // when doesNotUnderstand or UnknownGlobal is sent, additional stack slots might
 // be necessary, as these cases are not taken into account when the stack
 // depth is calculated. In that case this method is called.
-VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength) {
+VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, size_t extraLength) {
     VMMethod* method = from->GetMethod();
-    long length = method->GetNumberOfArguments() + method->GetNumberOfLocals() +
-                  method->GetMaximumNumberOfStackElements() + extraLength;
+    size_t const length =
+        method->GetNumberOfArguments() + method->GetNumberOfLocals() +
+        method->GetMaximumNumberOfStackElements() + extraLength;
 
-    size_t additionalBytes = length * sizeof(VMObject*);
-    VMFrame* result = new (GetHeap<HEAP_CLS>(), additionalBytes)
+    size_t const additionalBytes = length * sizeof(VMObject*);
+    auto* result = new (GetHeap<HEAP_CLS>(), additionalBytes)
         VMFrame(additionalBytes, method, from->GetPreviousFrame());
 
     // set Frame members
@@ -66,11 +67,10 @@ VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength) {
 
     // all other fields are indexable via arguments
     // --> until end of Frame
-    gc_oop_t* from_end = (gc_oop_t*)SHIFTED_PTR(from, from->GetObjectSize());
-    gc_oop_t* result_end =
-        (gc_oop_t*)SHIFTED_PTR(result, result->GetObjectSize());
+    auto* from_end = (gc_oop_t*)SHIFTED_PTR(from, from->GetObjectSize());
+    auto* result_end = (gc_oop_t*)SHIFTED_PTR(result, result->GetObjectSize());
 
-    long i = 0;
+    size_t i = 0;
 
     // copy all fields from other frame
     while (from->arguments + i < from_end) {
@@ -86,8 +86,8 @@ VMFrame* VMFrame::EmergencyFrameFrom(VMFrame* from, long extraLength) {
 }
 
 VMFrame* VMFrame::CloneForMovingGC() const {
-    size_t addSpace = totalObjectSize - sizeof(VMFrame);
-    VMFrame* clone =
+    size_t const addSpace = totalObjectSize - sizeof(VMFrame);
+    auto* clone =
         new (GetHeap<HEAP_CLS>(), addSpace ALLOC_MATURE) VMFrame(*this);
     void* destination = SHIFTED_PTR(clone, sizeof(VMFrame));
     const void* source = SHIFTED_PTR(this, sizeof(VMFrame));
@@ -110,7 +110,7 @@ VMFrame* VMFrame::CloneForMovingGC() const {
 #else
     VMMethod* meth = GetMethod();
 #endif
-    int64_t numArgs = meth->GetNumberOfArguments();
+    uint8_t const numArgs = meth->GetNumberOfArguments();
 
     clone->locals = clone->arguments + numArgs;
     clone->stack_ptr =
@@ -118,9 +118,9 @@ VMFrame* VMFrame::CloneForMovingGC() const {
     return clone;
 }
 
-const long VMFrame::VMFrameNumberOfFields = 0;
+const size_t VMFrame::VMFrameNumberOfFields = 0;
 
-VMFrame* VMFrame::GetContextLevel(long lvl) {
+VMFrame* VMFrame::GetContextLevel(uint8_t lvl) {
     VMFrame* current = this;
     while (lvl > 0) {
         current = current->GetContext();
@@ -141,17 +141,17 @@ void VMFrame::WalkObjects(walk_heap_fn walk) {
     // VMFrame is not a proper SOM object any longer, we don't have a class for
     // it. clazz = (VMClass*) walk(clazz);
 
-    if (previousFrame) {
+    if (previousFrame != nullptr) {
         previousFrame = static_cast<GCFrame*>(walk(previousFrame));
     }
-    if (context) {
+    if (context != nullptr) {
         context = static_cast<GCFrame*>(walk(context));
     }
     method = static_cast<GCMethod*>(walk(method));
 
     // all other fields are indexable via arguments array
     // --> until end of Frame
-    long i = 0;
+    size_t i = 0;
     while (arguments + i <= stack_ptr) {
         if (arguments[i] != nullptr) {
             arguments[i] = walk(arguments[i]);
@@ -183,7 +183,7 @@ void VMFrame::PrintStack() const {
           " MaxStack:" +
           to_string(GetMethod()->GetMaximumNumberOfStackElements()) + "\n");
 
-    for (size_t i = 0; i < GetMethod()->GetNumberOfArguments(); i++) {
+    for (uint8_t i = 0; i < GetMethod()->GetNumberOfArguments(); i++) {
         Print("   arg " + to_string(i) + ": ");
         print_oop(arguments[i]);
     }
@@ -195,7 +195,7 @@ void VMFrame::PrintStack() const {
         local_offset++;
     }
 
-    size_t max = GetMethod()->GetMaximumNumberOfStackElements();
+    size_t const max = GetMethod()->GetMaximumNumberOfStackElements();
     for (size_t i = 0; i < max; i++) {
         if (stack_ptr == &locals[local_offset + i]) {
             Print("-> stk " + to_string(i) + ": ");
@@ -205,7 +205,7 @@ void VMFrame::PrintStack() const {
         print_oop(locals[local_offset + i]);
     }
 
-    gc_oop_t* end = (gc_oop_t*)SHIFTED_PTR(this, totalObjectSize);
+    auto* end = (gc_oop_t*)SHIFTED_PTR(this, totalObjectSize);
     size_t i = 0;
     while (&locals[local_offset + max + i] < end) {
         if (stack_ptr == &locals[local_offset + max + i]) {
@@ -218,12 +218,12 @@ void VMFrame::PrintStack() const {
     }
 }
 
-void VMFrame::SetLocal(long index, long contextLevel, vm_oop_t value) {
+void VMFrame::SetLocal(uint8_t index, uint8_t contextLevel, vm_oop_t value) {
     VMFrame* context = GetContextLevel(contextLevel);
     context->SetLocal(index, value);
 }
 
-void VMFrame::SetArgument(long index, long contextLevel, vm_oop_t value) {
+void VMFrame::SetArgument(uint8_t index, uint8_t contextLevel, vm_oop_t value) {
     VMFrame* context = GetContextLevel(contextLevel);
     context->SetArgument(index, value);
 }
@@ -237,27 +237,22 @@ void VMFrame::PrintStackTrace() const {
         Print(meth->GetHolder()->GetName()->GetStdString());
     }
     Print(">>#" + meth->GetSignature()->GetStdString() + "\n");
-    if (previousFrame) {
+    if (previousFrame != nullptr) {
         load_ptr(previousFrame)->PrintStackTrace();
     }
-}
-
-long VMFrame::ArgumentStackIndex(long index) const {
-    VMMethod* meth = GetMethod();
-    return meth->GetNumberOfArguments() - index - 1;
 }
 
 void VMFrame::CopyArgumentsFrom(VMFrame* frame) {
     // copy arguments from frame:
     // - arguments are at the top of the stack of frame.
     // - copy them into the argument area of the current frame
-    long num_args = GetMethod()->GetNumberOfArguments();
-    for (long i = 0; i < num_args; ++i) {
+    size_t const num_args = GetMethod()->GetNumberOfArguments();
+    for (size_t i = 0; i < num_args; ++i) {
         vm_oop_t stackElem = frame->GetStackElement(num_args - 1 - i);
         store_ptr(arguments[i], stackElem);
     }
 }
 
-StdString VMFrame::AsDebugString() const {
+std::string VMFrame::AsDebugString() const {
     return "VMFrame(" + GetMethod()->AsDebugString() + ")";
 }

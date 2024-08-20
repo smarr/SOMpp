@@ -103,21 +103,22 @@ void TestWithParsing::check(std::vector<uint8_t> actual,
     size_t i = 0;
     size_t bci = 0;
     for (; bci < actual.size() && i < expected.size();) {
-        uint8_t actualBc = actual.at(bci);
-        uint8_t bcLength = Bytecode::GetBytecodeLength(actualBc);
+        uint8_t const actualBc = actual.at(bci);
+        uint8_t const bcLength = Bytecode::GetBytecodeLength(actualBc);
 
-        BC expectedBc = expected.at(i);
+        BC const expectedBc = expected.at(i);
 
         char msg[1000];
-        snprintf(msg, 1000, "Bytecode no %zu (at: %zu) expected %s but got %s",
-                 i, bci, Bytecode::GetBytecodeName(expectedBc.bytecode),
-                 Bytecode::GetBytecodeName(actualBc));
+        (void)snprintf(msg, 1000,
+                       "Bytecode no %zu (at: %zu) expected %s but got %s", i,
+                       bci, Bytecode::GetBytecodeName(expectedBc.bytecode),
+                       Bytecode::GetBytecodeName(actualBc));
         if (expectedBc.bytecode != actualBc) {
             dump();
         }
         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expectedBc.bytecode, actualBc);
 
-        snprintf(
+        (void)snprintf(
             msg, 1000,
             "Bytecode %zu (%s) was expected to have length %zu, but had %zu", i,
             Bytecode::GetBytecodeName(actualBc), expectedBc.size,
@@ -129,10 +130,10 @@ void TestWithParsing::check(std::vector<uint8_t> actual,
         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expectedBc.size, (size_t)bcLength);
 
         if (bcLength > 1) {
-            snprintf(msg, 1000,
-                     "Bytecode %zu (%s), arg1 expected %hhu but got %hhu", i,
-                     Bytecode::GetBytecodeName(expectedBc.bytecode),
-                     expectedBc.arg1, actual.at(bci + 1));
+            (void)snprintf(msg, 1000,
+                           "Bytecode %zu (%s), arg1 expected %hhu but got %hhu",
+                           i, Bytecode::GetBytecodeName(expectedBc.bytecode),
+                           expectedBc.arg1, actual.at(bci + 1));
             if (expectedBc.arg1 != actual.at(bci + 1)) {
                 dump();
             }
@@ -140,10 +141,11 @@ void TestWithParsing::check(std::vector<uint8_t> actual,
                                          actual.at(bci + 1));
 
             if (bcLength > 2) {
-                snprintf(msg, 1000,
-                         "Bytecode %zu (%s), arg2 expected %hhu but got %hhu",
-                         i, Bytecode::GetBytecodeName(expectedBc.bytecode),
-                         expectedBc.arg2, actual.at(bci + 2));
+                (void)snprintf(
+                    msg, 1000,
+                    "Bytecode %zu (%s), arg2 expected %hhu but got %hhu", i,
+                    Bytecode::GetBytecodeName(expectedBc.bytecode),
+                    expectedBc.arg2, actual.at(bci + 2));
                 if (expectedBc.arg2 != actual.at(bci + 2)) {
                     dump();
                 }

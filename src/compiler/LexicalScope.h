@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utility>
+
 #include "../vmobjects/ObjectFormats.h"
 #include "Variable.h"
 
@@ -9,11 +11,16 @@ class LexicalScope {
 public:
     LexicalScope(LexicalScope* outer, vector<Variable> arguments,
                  vector<Variable> locals)
-        : outer(outer), arguments(arguments), locals(locals) {}
+        : outer(outer), arguments(std::move(arguments)),
+          locals(std::move(locals)) {}
 
-    inline size_t GetNumberOfArguments() const { return arguments.size(); }
+    [[nodiscard]] inline uint8_t GetNumberOfArguments() const {
+        return arguments.size();
+    }
 
-    inline size_t GetNumberOfLocals() const { return locals.size(); }
+    [[nodiscard]] inline size_t GetNumberOfLocals() const {
+        return locals.size();
+    }
 
     void AddInlinedLocal(Variable& var) {
         assert(var.GetIndex() == locals.size());

@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <cstddef>
+#include <cstdint>
 #include <vector>
 
 #include "../misc/debug.h"
@@ -14,13 +15,12 @@
 #include "../vmobjects/VMObjectBase.h"
 #include "GarbageCollector.h"
 
-#define INITIAL_MAJOR_COLLECTION_THRESHOLD (5 * 1024 * 1024)  // 5 MB
+#define INITIAL_MAJOR_COLLECTION_THRESHOLD \
+    ((uintptr_t)5 * 1024U * 1024U)  // 5 MB
 
 GenerationalCollector::GenerationalCollector(GenerationalHeap* heap)
-    : GarbageCollector(heap) {
-    majorCollectionThreshold = INITIAL_MAJOR_COLLECTION_THRESHOLD;
-    matureObjectsSize = 0;
-}
+    : GarbageCollector(heap),
+      majorCollectionThreshold(INITIAL_MAJOR_COLLECTION_THRESHOLD) {}
 
 static gc_oop_t mark_object(gc_oop_t oop) {
     // don't process tagged objects
@@ -50,7 +50,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     AbstractVMObject* obj = AS_OBJ(oop);
     assert(IsValidObject(obj));
 
-    size_t gcField = obj->GetGCField();
+    size_t const gcField = obj->GetGCField();
 
     // if this is an old object already, we don't have to copy
     if ((gcField & MASK_OBJECT_IS_OLD) != 0) {
@@ -89,18 +89,15 @@ void GenerationalCollector::MinorCollection() {
     Universe::WalkGlobals(&copy_if_necessary);
 
     // and also all objects that have been detected by the write barriers
-    for (vector<size_t>::iterator objIter =
-             heap->oldObjsWithRefToYoungObjs->begin();
-         objIter != heap->oldObjsWithRefToYoungObjs->end();
-         objIter++) {
+    for (size_t const& oldObj : heap->oldObjsWithRefToYoungObjs) {
         // content of oldObjsWithRefToYoungObjs is not altered while iteration,
         // because copy_if_necessary returns old objs only -> ignored by
         // write_barrier
-        AbstractVMObject* obj = (AbstractVMObject*)(*objIter);
+        auto* obj = (AbstractVMObject*)oldObj;
         obj->SetGCField(MASK_OBJECT_IS_OLD);
         obj->WalkObjects(&copy_if_necessary);
     }
-    heap->oldObjsWithRefToYoungObjs->clear();
+    heap->oldObjsWithRefToYoungObjs.clear();
     heap->nextFreePosition = heap->nursery;
 }
 
@@ -112,27 +109,22 @@ void GenerationalCollector::MajorCollection() {
 
     // now that all objects are marked we can safely delete all allocated
     // objects that are not marked
-    vector<AbstractVMObject*>* survivors = new vector<AbstractVMObject*>();
-    for (vector<AbstractVMObject*>::iterator objIter =
-             heap->allocatedObjects->begin();
-         objIter != heap->allocatedObjects->end();
-         objIter++) {
-        AbstractVMObject* obj = *objIter;
+    vector<AbstractVMObject*> survivors;
+    for (auto* obj : heap->allocatedObjects) {
         assert(IsValidObject(obj));
 
         if ((obj->GetGCField() & MASK_OBJECT_IS_MARKED) != 0) {
-            survivors->push_back(obj);
+            survivors.push_back(obj);
             obj->SetGCField(MASK_OBJECT_IS_OLD);
         } else {
             heap->FreeObject(obj);
         }
     }
-    delete heap->allocatedObjects;
-    heap->allocatedObjects = survivors;
+    heap->allocatedObjects.swap(survivors);
 }
 
 void GenerationalCollector::Collect() {
-    Timer::GCTimer->Resume();
+    Timer::GCTimer.Resume();
     // reset collection trigger
     heap->resetGCTrigger();
 
@@ -141,5 +133,5 @@ void GenerationalCollector::Collect() {
         MajorCollection();
         majorCollectionThreshold = 2 * heap->matureObjectsSize;
     }
-    Timer::GCTimer->Halt();
+    Timer::GCTimer.Halt();
 }

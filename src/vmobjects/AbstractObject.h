@@ -26,36 +26,38 @@ class AbstractVMObject : public VMObjectBase {
 public:
     typedef GCAbstractObject Stored;
 
-    virtual int64_t GetHash() const = 0;
-    virtual VMClass* GetClass() const = 0;
-    virtual AbstractVMObject* CloneForMovingGC() const = 0;
-    void Send(StdString, vm_oop_t*, long);
+    [[nodiscard]] virtual int64_t GetHash() const = 0;
+    [[nodiscard]] virtual VMClass* GetClass() const = 0;
+    [[nodiscard]] virtual AbstractVMObject* CloneForMovingGC() const = 0;
+    void Send(const std::string& selectorString, vm_oop_t* arguments,
+              size_t argc);
 
     /** Size in bytes of the object. */
-    virtual size_t GetObjectSize() const = 0;
+    [[nodiscard]] virtual size_t GetObjectSize() const = 0;
 
     virtual void MarkObjectAsInvalid() = 0;
-    virtual bool IsMarkedInvalid() const = 0;
+    [[nodiscard]] virtual bool IsMarkedInvalid() const = 0;
 
-    virtual StdString AsDebugString() const = 0;
+    [[nodiscard]] virtual std::string AsDebugString() const = 0;
 
     AbstractVMObject() { gcfield = 0; }
     ~AbstractVMObject() override = default;
 
-    inline virtual long GetNumberOfFields() const {
+    [[nodiscard]] inline virtual size_t GetNumberOfFields() const {
         ErrorPrint("this object doesn't support GetNumberOfFields\n");
         return -1;
     }
 
-    inline virtual void SetClass(VMClass*) {
+    inline virtual void SetClass(VMClass* /*unused*/) {
         ErrorPrint("this object doesn't support SetClass\n");
     }
 
-    long GetFieldIndex(VMSymbol* fieldName) const;
+    int64_t GetFieldIndex(VMSymbol* fieldName) const;
 
-    virtual void WalkObjects(walk_heap_fn) {}
+    virtual void WalkObjects(walk_heap_fn /*walk*/) {}
 
-    inline virtual VMSymbol* GetFieldName(long) const {
+    [[nodiscard]] inline virtual VMSymbol* GetFieldName(
+        size_t /*index*/) const {
         ErrorPrint("this object doesn't support GetFieldName\n");
         return nullptr;
     }

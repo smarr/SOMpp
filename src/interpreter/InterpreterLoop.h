@@ -318,7 +318,7 @@ LABEL_BC_INC_FIELD_PUSH:
     DISPATCH_NOGC();
 
 LABEL_BC_JUMP: {
-    uint8_t offset = currentBytecodes[bytecodeIndexGlobal + 1];
+    uint8_t const offset = currentBytecodes[bytecodeIndexGlobal + 1];
     bytecodeIndexGlobal += offset;
 }
     DISPATCH_NOGC();
@@ -326,7 +326,7 @@ LABEL_BC_JUMP: {
 LABEL_BC_JUMP_ON_FALSE_POP: {
     vm_oop_t val = GetFrame()->Top();
     if (val == load_ptr(falseObject)) {
-        uint8_t offset = currentBytecodes[bytecodeIndexGlobal + 1];
+        uint8_t const offset = currentBytecodes[bytecodeIndexGlobal + 1];
         bytecodeIndexGlobal += offset;
     } else {
         bytecodeIndexGlobal += 3;
@@ -338,7 +338,7 @@ LABEL_BC_JUMP_ON_FALSE_POP: {
 LABEL_BC_JUMP_ON_TRUE_POP: {
     vm_oop_t val = GetFrame()->Top();
     if (val == load_ptr(trueObject)) {
-        uint8_t offset = currentBytecodes[bytecodeIndexGlobal + 1];
+        uint8_t const offset = currentBytecodes[bytecodeIndexGlobal + 1];
         bytecodeIndexGlobal += offset;
     } else {
         bytecodeIndexGlobal += 3;
@@ -350,7 +350,7 @@ LABEL_BC_JUMP_ON_TRUE_POP: {
 LABEL_BC_JUMP_ON_FALSE_TOP_NIL: {
     vm_oop_t val = GetFrame()->Top();
     if (val == load_ptr(falseObject)) {
-        uint8_t offset = currentBytecodes[bytecodeIndexGlobal + 1];
+        uint8_t const offset = currentBytecodes[bytecodeIndexGlobal + 1];
         bytecodeIndexGlobal += offset;
         GetFrame()->SetTop(nilObject);
     } else {
@@ -363,7 +363,7 @@ LABEL_BC_JUMP_ON_FALSE_TOP_NIL: {
 LABEL_BC_JUMP_ON_TRUE_TOP_NIL: {
     vm_oop_t val = GetFrame()->Top();
     if (val == load_ptr(trueObject)) {
-        uint8_t offset = currentBytecodes[bytecodeIndexGlobal + 1];
+        uint8_t const offset = currentBytecodes[bytecodeIndexGlobal + 1];
         bytecodeIndexGlobal += offset;
         GetFrame()->SetTop(nilObject);
     } else {
@@ -385,14 +385,15 @@ LABEL_BC_JUMP_IF_GREATER: {
     DISPATCH_NOGC();
 
 LABEL_BC_JUMP_BACKWARD: {
-    uint8_t offset = currentBytecodes[bytecodeIndexGlobal + 1];
+    uint8_t const offset = currentBytecodes[bytecodeIndexGlobal + 1];
     bytecodeIndexGlobal -= offset;
 }
     DISPATCH_NOGC();
 
 LABEL_BC_JUMP2: {
-    uint16_t offset = ComputeOffset(currentBytecodes[bytecodeIndexGlobal + 1],
-                                    currentBytecodes[bytecodeIndexGlobal + 2]);
+    uint16_t const offset =
+        ComputeOffset(currentBytecodes[bytecodeIndexGlobal + 1],
+                      currentBytecodes[bytecodeIndexGlobal + 2]);
     bytecodeIndexGlobal += offset;
 }
     DISPATCH_NOGC();
@@ -400,7 +401,7 @@ LABEL_BC_JUMP2: {
 LABEL_BC_JUMP2_ON_FALSE_POP: {
     vm_oop_t val = GetFrame()->Top();
     if (val == load_ptr(falseObject)) {
-        uint16_t offset =
+        uint16_t const offset =
             ComputeOffset(currentBytecodes[bytecodeIndexGlobal + 1],
                           currentBytecodes[bytecodeIndexGlobal + 2]);
         bytecodeIndexGlobal += offset;
@@ -414,7 +415,7 @@ LABEL_BC_JUMP2_ON_FALSE_POP: {
 LABEL_BC_JUMP2_ON_TRUE_POP: {
     vm_oop_t val = GetFrame()->Top();
     if (val == load_ptr(trueObject)) {
-        uint16_t offset =
+        uint16_t const offset =
             ComputeOffset(currentBytecodes[bytecodeIndexGlobal + 1],
                           currentBytecodes[bytecodeIndexGlobal + 2]);
         bytecodeIndexGlobal += offset;
@@ -428,7 +429,7 @@ LABEL_BC_JUMP2_ON_TRUE_POP: {
 LABEL_BC_JUMP2_ON_FALSE_TOP_NIL: {
     vm_oop_t val = GetFrame()->Top();
     if (val == load_ptr(falseObject)) {
-        uint16_t offset =
+        uint16_t const offset =
             ComputeOffset(currentBytecodes[bytecodeIndexGlobal + 1],
                           currentBytecodes[bytecodeIndexGlobal + 2]);
         bytecodeIndexGlobal += offset;
@@ -443,7 +444,7 @@ LABEL_BC_JUMP2_ON_FALSE_TOP_NIL: {
 LABEL_BC_JUMP2_ON_TRUE_TOP_NIL: {
     vm_oop_t val = GetFrame()->Top();
     if (val == load_ptr(trueObject)) {
-        uint16_t offset =
+        uint16_t const offset =
             ComputeOffset(currentBytecodes[bytecodeIndexGlobal + 1],
                           currentBytecodes[bytecodeIndexGlobal + 2]);
         bytecodeIndexGlobal += offset;
@@ -469,8 +470,9 @@ LABEL_BC_JUMP2_IF_GREATER: {
     DISPATCH_NOGC();
 
 LABEL_BC_JUMP2_BACKWARD: {
-    uint16_t offset = ComputeOffset(currentBytecodes[bytecodeIndexGlobal + 1],
-                                    currentBytecodes[bytecodeIndexGlobal + 2]);
+    uint16_t const offset =
+        ComputeOffset(currentBytecodes[bytecodeIndexGlobal + 1],
+                      currentBytecodes[bytecodeIndexGlobal + 2]);
     bytecodeIndexGlobal -= offset;
 }
     DISPATCH_NOGC();

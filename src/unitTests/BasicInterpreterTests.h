@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cppunit/extensions/HelperMacros.h>
+#include <utility>
 
 #include "../vmobjects/VMClass.h"
 #include "../vmobjects/VMDouble.h"
@@ -8,7 +9,7 @@
 
 using namespace std;
 
-enum ResultType { INTEGER, CLASS, SYMBOL, DOUBLE };
+enum ResultType : uint8_t { INTEGER, CLASS, SYMBOL, DOUBLE };
 
 class TestData {
 public:
@@ -19,28 +20,29 @@ public:
 
     TestData(std::string className, std::string methodName,
              intptr_t expectedResult, ResultType type)
-        : className(className), methodName(methodName),
+        : className(std::move(className)), methodName(std::move(methodName)),
           expectedResult((void*)expectedResult), type(type) {}
 
     TestData(std::string className, std::string methodName,
              double const* expectedResult, ResultType type)
-        : className(className), methodName(methodName),
+        : className(std::move(className)), methodName(std::move(methodName)),
           expectedResult((void*)expectedResult), type(type) {}
 
     TestData(std::string className, std::string methodName,
              char const* expectedResult, ResultType type)
-        : className(className), methodName(methodName),
+        : className(std::move(className)), methodName(std::move(methodName)),
           expectedResult((void*)expectedResult), type(type) {}
 };
 
 static const double dbl375 = 3.75;
 
-std::ostream& operator<<(std::ostream& strm, const TestData& data) {
+inline std::ostream& operator<<(std::ostream& strm, const TestData& data) {
     strm << data.className << "." << data.methodName;
     return strm;
 }
 
 class BasicInterpreterTests : public CPPUNIT_NS::TestFixture {
+    // NOLINTNEXTLINE(misc-const-correctness)
     CPPUNIT_TEST_SUITE(BasicInterpreterTests);
     CPPUNIT_TEST_PARAMETERIZED(
         testBasic,
@@ -153,25 +155,25 @@ class BasicInterpreterTests : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST_SUITE_END();
 
 private:
-    void assertEqualsSOMValue(vm_oop_t actualResult, TestData& data) {
+    static void assertEqualsSOMValue(vm_oop_t actualResult, TestData& data) {
         if (data.type == INTEGER) {
-            int64_t expected = (intptr_t)data.expectedResult;
-            int64_t actual = INT_VAL(actualResult);
+            auto const expected = (int64_t)(intptr_t)data.expectedResult;
+            int64_t const actual = INT_VAL(actualResult);
             CPPUNIT_ASSERT_EQUAL(expected, actual);
             return;
         }
 
         if (data.type == DOUBLE) {
-            double* expected = (double*)data.expectedResult;
-            double actual = ((VMDouble*)actualResult)->GetEmbeddedDouble();
+            auto* expected = (double*)data.expectedResult;
+            double const actual =
+                ((VMDouble*)actualResult)->GetEmbeddedDouble();
             CPPUNIT_ASSERT_DOUBLES_EQUAL(*expected, actual, 1e-15);
             return;
         }
 
         if (data.type == CLASS) {
             char const* expected = (char const*)data.expectedResult;
-            std::string expectedStr = std::string(expected);
-            std::string actual =
+            std::string const actual =
                 ((VMClass*)actualResult)->GetName()->GetStdString();
             if (expected != actual) {
                 CPPUNIT_NS::Asserter::failNotEqual(expected, actual,
@@ -182,8 +184,8 @@ private:
 
         if (data.type == SYMBOL) {
             char const* expected = (char const*)data.expectedResult;
-            std::string expectedStr = std::string(expected);
-            std::string actual = ((VMSymbol*)actualResult)->GetStdString();
+            std::string const actual =
+                ((VMSymbol*)actualResult)->GetStdString();
             if (expected != actual) {
                 CPPUNIT_NS::Asserter::failNotEqual(expected, actual,
                                                    CPPUNIT_SOURCELINE());
@@ -194,6 +196,7 @@ private:
         CPPUNIT_FAIL("SOM Value handler missing");
     }
 
+    // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
     void testBasic(TestData data) {
         // The Unit Test harness will initialize Universe for a standard run.
         // This is different from other SOMs.

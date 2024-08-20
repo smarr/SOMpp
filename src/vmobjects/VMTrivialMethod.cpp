@@ -20,7 +20,7 @@
 
 VMTrivialMethod* MakeLiteralReturn(VMSymbol* sig, vector<Variable>& arguments,
                                    vm_oop_t literal) {
-    VMLiteralReturn* result =
+    auto* result =
         new (GetHeap<HEAP_CLS>(), 0) VMLiteralReturn(sig, arguments, literal);
     LOG_ALLOCATION("VMLiteralReturn", result->GetObjectSize());
     return result;
@@ -28,7 +28,7 @@ VMTrivialMethod* MakeLiteralReturn(VMSymbol* sig, vector<Variable>& arguments,
 
 VMTrivialMethod* MakeGlobalReturn(VMSymbol* sig, vector<Variable>& arguments,
                                   VMSymbol* globalName) {
-    VMGlobalReturn* result =
+    auto* result =
         new (GetHeap<HEAP_CLS>(), 0) VMGlobalReturn(sig, arguments, globalName);
     LOG_ALLOCATION("VMGlobalReturn", result->GetObjectSize());
     return result;
@@ -36,7 +36,7 @@ VMTrivialMethod* MakeGlobalReturn(VMSymbol* sig, vector<Variable>& arguments,
 
 VMTrivialMethod* MakeGetter(VMSymbol* sig, vector<Variable>& arguments,
                             size_t fieldIndex) {
-    VMGetter* result =
+    auto* result =
         new (GetHeap<HEAP_CLS>(), 0) VMGetter(sig, arguments, fieldIndex);
     LOG_ALLOCATION("VMGetter", result->GetObjectSize());
     return result;
@@ -44,7 +44,7 @@ VMTrivialMethod* MakeGetter(VMSymbol* sig, vector<Variable>& arguments,
 
 VMTrivialMethod* MakeSetter(VMSymbol* sig, vector<Variable>& arguments,
                             size_t fieldIndex, size_t argIndex) {
-    VMSetter* result = new (GetHeap<HEAP_CLS>(), 0)
+    auto* result = new (GetHeap<HEAP_CLS>(), 0)
         VMSetter(sig, arguments, fieldIndex, argIndex);
     LOG_ALLOCATION("VMSetter", result->GetObjectSize());
     return result;
@@ -66,7 +66,7 @@ VMFrame* VMLiteralReturn::Invoke1(VMFrame* frame) {
 }
 
 AbstractVMObject* VMLiteralReturn::CloneForMovingGC() const {
-    VMLiteralReturn* prim =
+    auto* prim =
         new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMLiteralReturn(*this);
     return prim;
 }
@@ -81,7 +81,8 @@ void VMLiteralReturn::WalkObjects(walk_heap_fn walk) {
     literal = walk(literal);
 }
 
-void VMLiteralReturn::InlineInto(MethodGenerationContext& mgenc, bool) {
+void VMLiteralReturn::InlineInto(MethodGenerationContext& mgenc,
+                                 bool /*mergeScope*/) {
     EmitPUSHCONSTANT(mgenc, load_ptr(literal));
 }
 
@@ -114,7 +115,8 @@ VMFrame* VMGlobalReturn::Invoke1(VMFrame* frame) {
     return nullptr;
 }
 
-void VMGlobalReturn::InlineInto(MethodGenerationContext& mgenc, bool) {
+void VMGlobalReturn::InlineInto(MethodGenerationContext& mgenc,
+                                bool /*mergeScope*/) {
     EmitPUSHGLOBAL(mgenc, load_ptr(globalName));
 }
 
@@ -129,7 +131,7 @@ std::string VMGlobalReturn::AsDebugString() const {
 }
 
 AbstractVMObject* VMGlobalReturn::CloneForMovingGC() const {
-    VMGlobalReturn* prim =
+    auto* prim =
         new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMGlobalReturn(*this);
     return prim;
 }
@@ -142,7 +144,7 @@ VMFrame* VMGetter::Invoke(VMFrame* frame) {
 
     assert(self != nullptr);
 
-    vm_oop_t result;
+    vm_oop_t result = nullptr;
     if (unlikely(IS_TAGGED(self))) {
         result = nullptr;
         ErrorExit("Integers do not have fields!");
@@ -161,7 +163,7 @@ VMFrame* VMGetter::Invoke1(VMFrame* frame) {
 
     assert(self != nullptr);
 
-    vm_oop_t result;
+    vm_oop_t result = nullptr;
     if (unlikely(IS_TAGGED(self))) {
         result = nullptr;
         ErrorExit("Integers do not have fields!");
@@ -174,12 +176,12 @@ VMFrame* VMGetter::Invoke1(VMFrame* frame) {
     return nullptr;
 }
 
-void VMGetter::InlineInto(MethodGenerationContext& mgenc, bool) {
+void VMGetter::InlineInto(MethodGenerationContext& mgenc, bool /*mergeScope*/) {
     EmitPushFieldWithIndex(mgenc, fieldIndex);
 }
 
 AbstractVMObject* VMGetter::CloneForMovingGC() const {
-    VMGetter* prim = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMGetter(*this);
+    auto* prim = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMGetter(*this);
     return prim;
 }
 
@@ -216,16 +218,17 @@ VMFrame* VMSetter::Invoke(VMFrame* frame) {
     return nullptr;
 }
 
-VMFrame* VMSetter::Invoke1(VMFrame*) {
+VMFrame* VMSetter::Invoke1(VMFrame* /*unused*/) {
     ErrorExit("VMSetter::Invoke1 should not be reachable");
 }
 
-void VMSetter::InlineInto(MethodGenerationContext&, bool) {
+void VMSetter::InlineInto(MethodGenerationContext& /*mgenc*/,
+                          bool /*mergeScope*/) {
     ErrorExit("We don't currently support blocks for trivial setters");
 }
 
 AbstractVMObject* VMSetter::CloneForMovingGC() const {
-    VMSetter* prim = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMSetter(*this);
+    auto* prim = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMSetter(*this);
     return prim;
 }
 

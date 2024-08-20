@@ -49,14 +49,16 @@ public:
     // VMArray doesn't need to customize `void WalkObjects(walk_heap_fn)`,
     // because it doesn't need anything special.
 
-    inline size_t GetNumberOfIndexableFields() const { return numberOfFields; }
+    [[nodiscard]] inline size_t GetNumberOfIndexableFields() const {
+        return numberOfFields;
+    }
 
     /** Used from language level, via primitive */
-    VMArray* Copy() const;
+    [[nodiscard]] VMArray* Copy() const;
 
-    VMArray* CopyAndExtendWith(vm_oop_t) const;
+    VMArray* CopyAndExtendWith(vm_oop_t /*item*/) const;
 
-    inline vm_oop_t GetIndexableField(size_t idx) const {
+    [[nodiscard]] inline vm_oop_t GetIndexableField(size_t idx) const {
         if (unlikely(idx > numberOfFields)) {
             IndexOutOfBounds(idx);
         }
@@ -73,10 +75,10 @@ public:
     __attribute__((noreturn)) __attribute__((noinline)) void IndexOutOfBounds(
         size_t idx) const;
 
-    void CopyIndexableFieldsTo(VMArray*) const;
-    VMArray* CloneForMovingGC() const override;
+    void CopyIndexableFieldsTo(VMArray* /*to*/) const;
+    [[nodiscard]] VMArray* CloneForMovingGC() const override;
 
-    StdString AsDebugString() const override;
+    [[nodiscard]] std::string AsDebugString() const override;
 
 private:
     static const size_t VMArrayNumberOfFields;

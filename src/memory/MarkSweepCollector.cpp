@@ -14,8 +14,8 @@
 #define GC_MARKED 3456
 
 void MarkSweepCollector::Collect() {
-    MarkSweepHeap* heap = GetHeap<MarkSweepHeap>();
-    Timer::GCTimer->Resume();
+    auto* heap = GetHeap<MarkSweepHeap>();
+    Timer::GCTimer.Resume();
     // reset collection trigger
     heap->resetGCTrigger();
 
@@ -23,7 +23,7 @@ void MarkSweepCollector::Collect() {
     markReachableObjects();
 
     // in this survivors stack we will remember all objects that survived
-    auto survivors = new vector<AbstractVMObject*>();
+    auto* survivors = new vector<AbstractVMObject*>();
     size_t survivorsSize = 0;
 
     vector<AbstractVMObject*>::iterator iter;
@@ -45,9 +45,10 @@ void MarkSweepCollector::Collect() {
     heap->allocatedObjects = survivors;
 
     heap->spcAlloc = survivorsSize;
-    // TODO: Maybe choose another constant to calculate new collectionLimit here
+    // TODO(smarr): Maybe choose another constant to calculate new
+    // collectionLimit here
     heap->collectionLimit = 2 * survivorsSize;
-    Timer::GCTimer->Halt();
+    Timer::GCTimer.Halt();
 }
 
 static gc_oop_t mark_object(gc_oop_t oop) {

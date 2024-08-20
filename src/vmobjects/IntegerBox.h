@@ -9,7 +9,7 @@ public:
     static void WalkGlobals(walk_heap_fn walk);
 
 private:
-    static void updateIntegerBox(VMInteger*);
+    static void updateIntegerBox(VMInteger* /*newValue*/);
     static GCInteger* integerBox;
     friend class Universe;
 };

@@ -32,35 +32,37 @@ class VMEvaluationPrimitive : public VMInvokable {
 public:
     typedef GCEvaluationPrimitive Stored;
 
-    VMEvaluationPrimitive(size_t argc);
-    void WalkObjects(walk_heap_fn) override;
-    VMEvaluationPrimitive* CloneForMovingGC() const override;
+    explicit VMEvaluationPrimitive(uint8_t argc);
+    void WalkObjects(walk_heap_fn /*unused*/) override;
+    [[nodiscard]] VMEvaluationPrimitive* CloneForMovingGC() const override;
 
-    StdString AsDebugString() const override;
+    [[nodiscard]] std::string AsDebugString() const override;
 
-    inline size_t GetObjectSize() const override {
+    [[nodiscard]] inline size_t GetObjectSize() const override {
         return sizeof(VMEvaluationPrimitive);
     }
 
-    VMClass* GetClass() const final { return load_ptr(primitiveClass); }
+    [[nodiscard]] VMClass* GetClass() const final {
+        return load_ptr(primitiveClass);
+    }
 
     void MarkObjectAsInvalid() override;
-    bool IsMarkedInvalid() const override;
+    [[nodiscard]] bool IsMarkedInvalid() const override;
 
     VMFrame* Invoke(VMFrame* frm) override;
     VMFrame* Invoke1(VMFrame* frm) override;
     void InlineInto(MethodGenerationContext& mgenc,
                     bool mergeScope = true) final;
 
-    inline size_t GetNumberOfArguments() const final {
+    [[nodiscard]] inline uint8_t GetNumberOfArguments() const final {
         return numberOfArguments;
     }
 
 private:
-    static VMSymbol* computeSignatureString(long argc);
+    static VMSymbol* computeSignatureString(size_t argc);
     void evaluationRoutine(VMFrame*);
 
     make_testable(public);
 
-    size_t numberOfArguments;
+    uint8_t numberOfArguments;
 };

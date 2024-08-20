@@ -35,7 +35,7 @@
 #include "vmobjects/VMObject.h"
 #include "vmobjects/VMString.h"
 
-int main(int argc, char** argv) {
+int32_t main(int32_t argc, char** argv) {
     cout << "This is SOM++" << endl;
 
     if (GC_TYPE == GENERATIONAL) {

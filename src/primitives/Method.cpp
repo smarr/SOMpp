@@ -2,7 +2,6 @@
 
 #include <cstddef>
 
-#include "../primitivesCore/PrimitiveContainer.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMArray.h"
 #include "../vmobjects/VMClass.h"  // NOLINT(misc-include-cleaner) it's required to make the types complete
@@ -11,24 +10,24 @@
 #include "../vmobjects/VMSymbol.h"  // NOLINT(misc-include-cleaner) it's required to make the types complete
 
 static vm_oop_t mHolder(vm_oop_t rcvr) {
-    VMMethod* self = static_cast<VMMethod*>(rcvr);
+    auto* self = static_cast<VMMethod*>(rcvr);
     return self->GetHolder();
 }
 
 static vm_oop_t mSignature(vm_oop_t rcvr) {
-    VMMethod* self = static_cast<VMMethod*>(rcvr);
+    auto* self = static_cast<VMMethod*>(rcvr);
     return self->GetSignature();
 }
 
 void mInvokeOnWith(VMFrame* frame) {
     // REM: this is a clone with _Primitive::InvokeOn_With_
-    VMArray* args = static_cast<VMArray*>(frame->Pop());
-    vm_oop_t rcvr = static_cast<vm_oop_t>(frame->Pop());
-    VMMethod* mthd = static_cast<VMMethod*>(frame->Pop());
+    auto* args = static_cast<VMArray*>(frame->Pop());
+    auto* rcvr = frame->Pop();
+    auto* mthd = static_cast<VMMethod*>(frame->Pop());
 
     frame->Push(rcvr);
 
-    size_t num_args = args->GetNumberOfIndexableFields();
+    size_t const num_args = args->GetNumberOfIndexableFields();
     for (size_t i = 0; i < num_args; i++) {
         vm_oop_t arg = args->GetIndexableField(i);
         frame->Push(arg);
@@ -36,7 +35,7 @@ void mInvokeOnWith(VMFrame* frame) {
     mthd->Invoke(frame);
 }
 
-_Method::_Method() : PrimitiveContainer() {
+_Method::_Method() {
     Add("signature", &mSignature, false);
     Add("holder", &mHolder, false);
     Add("invokeOn:with:", &mInvokeOnWith, false);

@@ -49,7 +49,7 @@ class Heap {
     friend class GarbageCollector<HEAP_T>;
 
 public:
-    static void InitializeHeap(long objectSpaceSize);
+    static void InitializeHeap(size_t objectSpaceSize);
     static void DestroyHeap();
     explicit Heap(GarbageCollector<HEAP_T>* const gc) : gc(gc) {}
     ~Heap();

@@ -32,7 +32,6 @@
 #include <istream>
 #include <string>
 
-#include "../misc/defs.h"
 #include "../vm/Print.h"
 
 Lexer::Lexer(istream& file) : infile(file), peekDone(false) {}
@@ -48,7 +47,7 @@ int64_t Lexer::fillBuffer() {
     std::getline(infile, buf);
     state.lineNumber += 1;
     state.bufp = 0;
-    return buf.length();
+    return (int64_t)buf.length();
 }
 
 //
@@ -91,8 +90,8 @@ void Lexer::skipComment() {
         state.text = _BC; \
         state.incPtr();   \
     }
-#define SEPARATOR StdString("----")  // FIXME
-#define PRIMITIVE StdString("primitive")
+#define SEPARATOR std::string("----")  // FIXME
+#define PRIMITIVE std::string("primitive")
 
 void Lexer::lexNumber() {
     state.sym = Integer;
@@ -246,7 +245,7 @@ Symbol Lexer::GetSym() {
     else _MATCH('.', Period)
         // clang-format on
         else if (_BC == '-') {
-        if (!buf.substr(state.bufp, SEPARATOR.length()).compare(SEPARATOR)) {
+        if (buf.substr(state.bufp, SEPARATOR.length()) == SEPARATOR) {
             state.text.clear();
             while (_BC == '-') {
                 state.text += buf[state.bufp];
@@ -309,7 +308,7 @@ bool Lexer::hasMoreInput() {
 }
 
 bool Lexer::nextWordInBufferIsPrimitive() {
-    if (0 != buf.substr(state.bufp, PRIMITIVE.length()).compare(PRIMITIVE)) {
+    if (PRIMITIVE != buf.substr(state.bufp, PRIMITIVE.length())) {
         return false;
     }
     if (state.bufp + PRIMITIVE.length() >= buf.length()) {

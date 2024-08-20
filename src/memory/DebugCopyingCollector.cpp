@@ -3,6 +3,7 @@
 
 #include <cassert>
 #include <cstddef>
+#include <cstdint>
 
 #include "../memory/Heap.h"
 #include "../misc/Timer.h"
@@ -22,7 +23,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
     AbstractVMObject* obj = AS_OBJ(oop);
     assert(IsValidObject(obj));
 
-    size_t gcField = obj->GetGCField();
+    size_t const gcField = obj->GetGCField();
     // GCField is used as forwarding pointer here
     // if someone has moved before, return the moved object
     if (gcField != 0) {
@@ -41,7 +42,7 @@ static gc_oop_t copy_if_necessary(gc_oop_t oop) {
         obj->MarkObjectAsInvalid();
     }
 
-    obj->SetGCField((long)newObj);
+    obj->SetGCField((uintptr_t)newObj);
     return tmp_ptr(newObj);
 }
 
@@ -51,7 +52,7 @@ void DebugCopyingCollector::Collect() {
     // we assume the old heap is empty, because we want to switch to it
     assert(heap->oldHeap.empty());
 
-    Timer::GCTimer->Resume();
+    Timer::GCTimer.Resume();
     // reset collection trigger
     heap->resetGCTrigger();
 
@@ -71,10 +72,10 @@ void DebugCopyingCollector::Collect() {
 
     // if semispace is still 50% full after collection, we have to realloc
     // bigger ones -> done in next collection
-    size_t freeSpace = heap->currentHeapSize - heap->currentHeapUsage;
+    size_t const freeSpace = heap->currentHeapSize - heap->currentHeapUsage;
     if (heap->currentHeapUsage > freeSpace) {
         increaseMemory = true;
     }
 
-    Timer::GCTimer->Halt();
+    Timer::GCTimer.Halt();
 }

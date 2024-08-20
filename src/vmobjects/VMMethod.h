@@ -66,7 +66,7 @@ public:
     size_t loopBeginIdx;  // order by
     size_t backwardJumpIdx;
 
-    bool IsValid() const { return loopBeginIdx != -1; }
+    [[nodiscard]] bool IsValid() const { return loopBeginIdx != -1; }
 };
 
 bool operator<(const BackJump& a, const BackJump& b);
@@ -97,29 +97,33 @@ public:
 
     ~VMMethod() override { delete lexicalScope; }
 
-    inline size_t GetNumberOfLocals() const { return numberOfLocals; }
+    [[nodiscard]] inline size_t GetNumberOfLocals() const {
+        return numberOfLocals;
+    }
 
-    VMClass* GetClass() const override { return load_ptr(methodClass); }
+    [[nodiscard]] VMClass* GetClass() const override {
+        return load_ptr(methodClass);
+    }
 
-    inline size_t GetObjectSize() const override {
-        size_t additionalBytes =
+    [[nodiscard]] inline size_t GetObjectSize() const override {
+        size_t const additionalBytes =
             PADDED_SIZE(bcLength + numberOfConstants * sizeof(VMObject*));
         return additionalBytes + sizeof(VMMethod);
     }
 
-    size_t GetMaximumNumberOfStackElements() const {
+    [[nodiscard]] size_t GetMaximumNumberOfStackElements() const {
         return maximumNumberOfStackElements;
     }
 
-    inline size_t GetNumberOfArguments() const final {
+    [[nodiscard]] inline uint8_t GetNumberOfArguments() const final {
         return numberOfArguments;
     }
 
-    size_t GetNumberOfBytecodes() const { return bcLength; }
+    [[nodiscard]] size_t GetNumberOfBytecodes() const { return bcLength; }
     void SetHolder(VMClass* hld) override;
     void SetHolderAll(VMClass* hld);
 
-    inline vm_oop_t GetConstant(size_t bytecodeIndex) const {
+    [[nodiscard]] inline vm_oop_t GetConstant(size_t bytecodeIndex) const {
         const uint8_t bc = bytecodes[bytecodeIndex + 1];
         if (unlikely(bc >= GetNumberOfIndexableFields())) {
             ErrorPrint("Error: Constant index out of range\n");
@@ -128,24 +132,26 @@ public:
         return GetIndexableField(bc);
     }
 
-    inline uint8_t GetBytecode(long indx) const { return bytecodes[indx]; }
+    [[nodiscard]] inline uint8_t GetBytecode(size_t indx) const {
+        return bytecodes[indx];
+    }
 
-    inline void SetBytecode(long indx, uint8_t val) { bytecodes[indx] = val; }
+    inline void SetBytecode(size_t indx, uint8_t val) { bytecodes[indx] = val; }
 
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     void SetCachedFrame(VMFrame* frame);
     VMFrame* GetCachedFrame() const;
 #endif
 
-    void WalkObjects(walk_heap_fn) override;
+    void WalkObjects(walk_heap_fn /*unused*/) override;
 
-    inline size_t GetNumberOfIndexableFields() const {
+    [[nodiscard]] inline size_t GetNumberOfIndexableFields() const {
         return numberOfConstants;
     }
 
-    VMMethod* CloneForMovingGC() const override;
+    [[nodiscard]] VMMethod* CloneForMovingGC() const override;
 
-    inline void SetIndexableField(long idx, vm_oop_t item) {
+    inline void SetIndexableField(size_t idx, vm_oop_t item) {
         store_ptr(indexableFields[idx], item);
     }
 
@@ -157,11 +163,11 @@ public:
         indexableFields = (gc_oop_t*)INVALID_GC_POINTER;
     }
 
-    bool IsMarkedInvalid() const override {
+    [[nodiscard]] bool IsMarkedInvalid() const override {
         return indexableFields == (gc_oop_t*)INVALID_GC_POINTER;
     }
 
-    StdString AsDebugString() const override;
+    [[nodiscard]] std::string AsDebugString() const override;
 
     void InlineInto(MethodGenerationContext& mgenc,
                     bool mergeScope = true) final;
@@ -179,9 +185,9 @@ private:
     void inlineInto(MethodGenerationContext& mgenc);
     std::priority_queue<BackJump> createBackJumpHeap();
 
-    inline uint8_t* GetBytecodes() const { return bytecodes; }
+    [[nodiscard]] inline uint8_t* GetBytecodes() const { return bytecodes; }
 
-    inline vm_oop_t GetIndexableField(long idx) const {
+    [[nodiscard]] inline vm_oop_t GetIndexableField(size_t idx) const {
         return load_ptr(indexableFields[idx]);
     }
 
@@ -199,7 +205,7 @@ private:
     const size_t numberOfLocals;
     const size_t maximumNumberOfStackElements;
     const size_t bcLength;
-    const size_t numberOfArguments;
+    const uint8_t numberOfArguments;
     const size_t numberOfConstants;
 
 private:

@@ -32,10 +32,13 @@
 class Shell {
 public:
     Shell();
-    Shell(VMMethod*);
-    ~Shell();
+    explicit Shell(VMMethod* bsm);
+    ~Shell() = default;
+
     void SetBootstrapMethod(VMMethod* bsm) { bootstrapMethod = bsm; };
-    VMMethod* GetBootstrapMethod() const { return bootstrapMethod; };
+    [[nodiscard]] VMMethod* GetBootstrapMethod() const {
+        return bootstrapMethod;
+    };
     void Start();
 
 private:

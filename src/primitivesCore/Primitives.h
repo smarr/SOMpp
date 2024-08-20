@@ -9,7 +9,7 @@ using TernaryPrimitiveRoutine = vm_oop_t(vm_oop_t, vm_oop_t, vm_oop_t);
 
 class Prim {
 public:
-    Prim(bool classSide) : isClassSide(classSide) {}
+    explicit Prim(bool classSide) : isClassSide(classSide) {}
     bool isClassSide;
 };
 
@@ -19,7 +19,7 @@ public:
         : Prim(classSide), pointer(ptr) {}
     explicit FramePrim() : Prim(false), pointer(nullptr) {}
 
-    bool IsValid() const { return pointer != nullptr; }
+    [[nodiscard]] bool IsValid() const { return pointer != nullptr; }
     void MarkObjectAsInvalid() { pointer = nullptr; }
 
     void (*pointer)(VMFrame*);
@@ -31,7 +31,7 @@ public:
         : Prim(classSide), pointer(ptr) {}
     explicit UnaryPrim() : Prim(false), pointer(nullptr) {}
 
-    bool IsValid() const { return pointer != nullptr; }
+    [[nodiscard]] bool IsValid() const { return pointer != nullptr; }
     void MarkObjectAsInvalid() { pointer = nullptr; }
 
     vm_oop_t (*pointer)(vm_oop_t);
@@ -43,7 +43,7 @@ public:
         : Prim(classSide), pointer(ptr) {}
     explicit BinaryPrim() : Prim(false), pointer(nullptr) {}
 
-    bool IsValid() const { return pointer != nullptr; }
+    [[nodiscard]] bool IsValid() const { return pointer != nullptr; }
 
     void MarkObjectAsInvalid() { pointer = nullptr; }
 
@@ -56,7 +56,7 @@ public:
         : Prim(classSide), pointer(ptr) {}
     explicit TernaryPrim() : Prim(false), pointer(nullptr) {}
 
-    bool IsValid() const { return pointer != nullptr; }
+    [[nodiscard]] bool IsValid() const { return pointer != nullptr; }
 
     void MarkObjectAsInvalid() { pointer = nullptr; }
 

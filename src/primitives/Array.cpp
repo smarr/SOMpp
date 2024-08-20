@@ -28,40 +28,39 @@
 
 #include <cstdint>
 
-#include "../primitivesCore/PrimitiveContainer.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMArray.h"
 #include "../vmobjects/VMFrame.h"
 
 static vm_oop_t arrAt(vm_oop_t leftObj, vm_oop_t idx) {
-    VMArray* self = static_cast<VMArray*>(leftObj);
+    auto* self = static_cast<VMArray*>(leftObj);
     return self->GetIndexableField(INT_VAL(idx) - 1);
 }
 
 static vm_oop_t arrAtPut(vm_oop_t rcvr, vm_oop_t index, vm_oop_t value) {
-    VMArray* self = static_cast<VMArray*>(rcvr);
-    int64_t i = INT_VAL(index);
+    auto* self = static_cast<VMArray*>(rcvr);
+    int64_t const i = INT_VAL(index);
     self->SetIndexableField(i - 1, value);
     return rcvr;
 }
 
 static vm_oop_t arrLength(vm_oop_t leftObj) {
-    VMArray* self = static_cast<VMArray*>(leftObj);
+    auto* self = static_cast<VMArray*>(leftObj);
     return NEW_INT((int64_t)self->GetNumberOfIndexableFields());
 }
 
-static vm_oop_t arrNew(vm_oop_t, vm_oop_t arg) {
-    int64_t size = INT_VAL(arg);
+static vm_oop_t arrNew(vm_oop_t /*unused*/, vm_oop_t arg) {
+    int64_t const size = INT_VAL(arg);
     return Universe::NewArray(size);
 }
 
 static vm_oop_t arrCopy(vm_oop_t rcvr) {
-    VMArray* self = static_cast<VMArray*>(rcvr);
+    auto* self = static_cast<VMArray*>(rcvr);
     return self->Copy();
 }
 
-_Array::_Array() : PrimitiveContainer() {
+_Array::_Array() {
     Add("new:", &arrNew, true);
     Add("at:", &arrAt, false);
     Add("at:put:", &arrAtPut, false);

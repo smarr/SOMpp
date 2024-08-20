@@ -42,9 +42,7 @@
 #include "../vmobjects/VMInvokable.h"
 #include "../vmobjects/VMSymbol.h"
 
-ClassGenerationContext::ClassGenerationContext()
-    : name(nullptr), superName(nullptr), classSide(false), instanceFields(),
-      instanceMethods(), classFields(), classMethods() {}
+ClassGenerationContext::ClassGenerationContext() = default;
 
 void ClassGenerationContext::AddClassField(VMSymbol* field) {
     classFields.push_back(field);
@@ -55,18 +53,18 @@ void ClassGenerationContext::AddInstanceField(VMSymbol* field) {
 }
 
 void ClassGenerationContext::SetInstanceFieldsOfSuper(VMArray* fields) {
-    size_t num = fields->GetNumberOfIndexableFields();
+    size_t const num = fields->GetNumberOfIndexableFields();
     for (size_t i = 0; i < num; i++) {
-        VMSymbol* fieldName = (VMSymbol*)fields->GetIndexableField(i);
+        auto* fieldName = (VMSymbol*)fields->GetIndexableField(i);
         assert(IsVMSymbol(fieldName));
         instanceFields.push_back(fieldName);
     }
 }
 
 void ClassGenerationContext::SetClassFieldsOfSuper(VMArray* fields) {
-    size_t num = fields->GetNumberOfIndexableFields();
+    size_t const num = fields->GetNumberOfIndexableFields();
     for (size_t i = 0; i < num; i++) {
-        VMSymbol* fieldName = (VMSymbol*)fields->GetIndexableField(i);
+        auto* fieldName = (VMSymbol*)fields->GetIndexableField(i);
         assert(IsVMSymbol(fieldName));
         classFields.push_back(fieldName);
     }
@@ -79,7 +77,7 @@ bool ClassGenerationContext::HasField(VMSymbol* field) {
     return Contains(instanceFields, field);
 }
 
-int16_t ClassGenerationContext::GetFieldIndex(VMSymbol* field) {
+int64_t ClassGenerationContext::GetFieldIndex(VMSymbol* field) {
     if (IsClassSide()) {
         return IndexOf(classFields, field);
     }
@@ -96,7 +94,7 @@ void ClassGenerationContext::AddClassMethod(VMInvokable* method) {
 
 VMClass* ClassGenerationContext::Assemble() {
     // build class class name
-    std::string ccname = string(name->GetStdString()) + " class";
+    std::string const ccname = string(name->GetStdString()) + " class";
 
     // Load the super class
     VMClass* superClass = Universe::LoadClass(superName);

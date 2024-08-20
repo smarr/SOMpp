@@ -78,7 +78,7 @@ void PrimitiveContainer::InstallPrimitives(VMClass* clazz, bool classSide) {
                 VMSafePrimitive::GetSafeUnary(sig, p.second))) {
             cout << "Warn: Primitive " << p.first
                  << " is not in class definition for class "
-                 << clazz->GetName()->GetStdString() << endl;
+                 << clazz->GetName()->GetStdString() << '\n';
         }
     }
 
@@ -93,7 +93,7 @@ void PrimitiveContainer::InstallPrimitives(VMClass* clazz, bool classSide) {
                 VMSafePrimitive::GetSafeBinary(sig, p.second))) {
             cout << "Warn: Primitive " << p.first
                  << " is not in class definition for class "
-                 << clazz->GetName()->GetStdString() << endl;
+                 << clazz->GetName()->GetStdString() << '\n';
         }
     }
 
@@ -108,7 +108,7 @@ void PrimitiveContainer::InstallPrimitives(VMClass* clazz, bool classSide) {
                 VMSafePrimitive::GetSafeTernary(sig, p.second))) {
             cout << "Warn: Primitive " << p.first
                  << " is not in class definition for class "
-                 << clazz->GetName()->GetStdString() << endl;
+                 << clazz->GetName()->GetStdString() << '\n';
         }
     }
 
@@ -123,7 +123,7 @@ void PrimitiveContainer::InstallPrimitives(VMClass* clazz, bool classSide) {
                 VMPrimitive::GetFramePrim(sig, p.second))) {
             cout << "Warn: Primitive " << p.first
                  << " is not in class definition for class "
-                 << clazz->GetName()->GetStdString() << endl;
+                 << clazz->GetName()->GetStdString() << '\n';
         }
     }
 }

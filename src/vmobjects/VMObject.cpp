@@ -44,7 +44,7 @@
 const size_t VMObject::VMObjectNumberOfFields = 0;
 
 VMObject* VMObject::CloneForMovingGC() const {
-    VMObject* clone =
+    auto* clone =
         new (GetHeap<HEAP_CLS>(),
              totalObjectSize - sizeof(VMObject) ALLOC_MATURE) VMObject(*this);
     memcpy(SHIFTED_PTR(clone, sizeof(VMObject)),
@@ -63,7 +63,7 @@ void VMObject::SetClass(VMClass* cl) {
     store_ptr(clazz, cl);
 }
 
-VMSymbol* VMObject::GetFieldName(long index) const {
+VMSymbol* VMObject::GetFieldName(size_t index) const {
     return load_ptr(clazz)->GetInstanceFieldName(index);
 }
 
@@ -74,8 +74,8 @@ void VMObject::Assert(bool value) const {
 void VMObject::WalkObjects(walk_heap_fn walk) {
     clazz = static_cast<GCClass*>(walk(clazz));
 
-    long numFields = GetNumberOfFields();
-    for (long i = 0; i < numFields; ++i) {
+    size_t const numFields = GetNumberOfFields();
+    for (size_t i = 0; i < numFields; ++i) {
         FIELDS[i] = walk(tmp_ptr(GetField(i)));
     }
 }
@@ -83,8 +83,8 @@ void VMObject::WalkObjects(walk_heap_fn walk) {
 void VMObject::MarkObjectAsInvalid() {
     clazz = (GCClass*)INVALID_GC_POINTER;
 
-    long numFields = GetNumberOfFields();
-    for (long i = 0; i < numFields; ++i) {
+    size_t const numFields = GetNumberOfFields();
+    for (size_t i = 0; i < numFields; ++i) {
         FIELDS[i] = INVALID_GC_POINTER;
     }
 }
@@ -96,9 +96,11 @@ bool VMObject::IsMarkedInvalid() const {
 std::string VMObject::AsDebugString() const {
     if (this == load_ptr(nilObject)) {
         return "nilObject";
-    } else if (this == load_ptr(trueObject)) {
+    }
+    if (this == load_ptr(trueObject)) {
         return "trueObject";
-    } else if (this == load_ptr(falseObject)) {
+    }
+    if (this == load_ptr(falseObject)) {
         return "falseObject";
     }
     return "Object(" + GetClass()->GetName()->GetStdString() + ")";

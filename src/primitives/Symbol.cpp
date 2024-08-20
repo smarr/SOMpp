@@ -28,19 +28,18 @@
 
 #include <string>
 
-#include "../primitivesCore/PrimitiveContainer.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMFrame.h"
 #include "../vmobjects/VMSymbol.h"
 
 static vm_oop_t symAsString(vm_oop_t rcvr) {
-    VMSymbol* sym = static_cast<VMSymbol*>(rcvr);
+    auto* sym = static_cast<VMSymbol*>(rcvr);
 
-    std::string str = sym->GetStdString();
+    std::string const str = sym->GetStdString();
     return Universe::NewString(str);
 }
 
-_Symbol::_Symbol() : PrimitiveContainer() {
+_Symbol::_Symbol() {
     Add("asString", &symAsString, false);
 }

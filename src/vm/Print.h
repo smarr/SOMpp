@@ -2,10 +2,11 @@
 
 #include <string>
 
-void Print(std::string str);
+void Print(const std::string& str);
 void Print(const char* str);
-void ErrorPrint(std::string str);
+void ErrorPrint(const std::string& str);
 void ErrorPrint(const char* str);
 
-__attribute__((noreturn)) __attribute__((noinline)) void Quit(long);
-__attribute__((noreturn)) __attribute__((noinline)) void ErrorExit(const char*);
+__attribute__((noreturn)) __attribute__((noinline)) void Quit(int32_t err);
+__attribute__((noreturn)) __attribute__((noinline)) void ErrorExit(
+    const char* /*err*/);

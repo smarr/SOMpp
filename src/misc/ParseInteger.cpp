@@ -22,7 +22,7 @@ vm_oop_t ParseInteger(const char* str, int base, bool negateValue) {
 
     const bool rangeError = errno == ERANGE;
     if (rangeError) {
-        // TODO: try a big int library
+        // TODO(smarr): try a big int library
         return NEW_INT(0);
     }
 

@@ -42,8 +42,8 @@ class Parser;
 
 class MethodGenerationContext {
 public:
-    MethodGenerationContext(ClassGenerationContext& holder,
-                            MethodGenerationContext* outer = nullptr);
+    explicit MethodGenerationContext(ClassGenerationContext& holder,
+                                     MethodGenerationContext* outer = nullptr);
     ~MethodGenerationContext();
 
     VMInvokable* Assemble();
@@ -54,7 +54,7 @@ public:
                  bool* isArgument);
     bool HasField(VMSymbol* field);
 
-    uint8_t GetFieldIndex(VMSymbol* field);
+    int64_t GetFieldIndex(VMSymbol* field);
 
     void SetSignature(VMSymbol* sig);
 
@@ -66,30 +66,34 @@ public:
     void SetPrimitive(bool prim = true);
 
     uint8_t AddLiteral(vm_oop_t lit);
-    int8_t AddLiteralIfAbsent(vm_oop_t lit);
+    uint8_t AddLiteralIfAbsent(vm_oop_t lit);
     void UpdateLiteral(vm_oop_t oldValue, uint8_t index, vm_oop_t newValue);
 
-    void SetFinished(bool finished = true);
+    void MarkFinished();
 
-    ClassGenerationContext* GetHolder() const { return &holderGenc; }
+    [[nodiscard]] ClassGenerationContext* GetHolder() const {
+        return &holderGenc;
+    }
 
-    MethodGenerationContext* GetOuter() const { return outerGenc; }
+    [[nodiscard]] MethodGenerationContext* GetOuter() const {
+        return outerGenc;
+    }
 
-    uint8_t GetMaxContextLevel() const { return maxContextLevel; }
+    [[nodiscard]] uint8_t GetMaxContextLevel() const { return maxContextLevel; }
 
     VMSymbol* GetSignature() { return signature; }
 
-    bool IsPrimitive() const { return primitive; }
+    [[nodiscard]] bool IsPrimitive() const { return primitive; }
 
-    bool IsBlockMethod() const { return blockMethod; }
+    [[nodiscard]] bool IsBlockMethod() const { return blockMethod; }
 
-    bool IsFinished() const { return finished; }
+    [[nodiscard]] bool IsFinished() const { return finished; }
 
     void RemoveLastBytecode() { bytecode.pop_back(); };
     void RemoveLastPopForBlockLocalReturn();
 
-    size_t GetNumberOfArguments();
-    void AddBytecode(uint8_t bc, size_t stackEffect);
+    uint8_t GetNumberOfArguments();
+    void AddBytecode(uint8_t bc, int64_t stackEffect);
     void AddBytecodeArgument(uint8_t bc);
     size_t AddBytecodeArgumentAndGetIndex(uint8_t bc);
 
@@ -151,7 +155,7 @@ private:
     void completeJumpsAndEmitReturningNil(Parser& parser, size_t loopBeginIdx,
                                           size_t jumpOffsetIdxToSkipLoopBody);
 
-    void checkJumpOffset(size_t jumpOffset, uint8_t bytecode);
+    static void checkJumpOffset(size_t jumpOffset, uint8_t bytecode);
     void resetLastBytecodeBuffer();
 
     ClassGenerationContext& holderGenc;
@@ -160,21 +164,21 @@ private:
     const uint8_t maxContextLevel;
 
     const bool blockMethod;
-    VMSymbol* signature;
+    VMSymbol* signature{nullptr};
     std::vector<Variable> arguments;
-    bool primitive;
+    bool primitive{false};
     std::vector<Variable> locals;
     std::vector<vm_oop_t> literals;
-    bool finished;
+    bool finished{false};
     std::vector<uint8_t> bytecode;
-    LexicalScope* lexicalScope;
+    LexicalScope* lexicalScope{nullptr};
 
-    size_t currentStackDepth;
-    size_t maxStackDepth;
+    size_t currentStackDepth{0};
+    size_t maxStackDepth{0};
 
     std::array<uint8_t, NUM_LAST_BYTECODES> last4Bytecodes;
 
     std::vector<BackJump> inlinedLoops;
 
-    bool isCurrentlyInliningABlock;
+    bool isCurrentlyInliningABlock{false};
 };

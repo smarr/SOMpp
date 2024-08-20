@@ -33,7 +33,7 @@ public:
     typedef GCString Stored;
 
     VMString(const size_t length, const char* str)
-        : AbstractVMObject(), length(length),
+        : length(length),
           // set the chars-pointer to point at the position of the first
           // character
           chars((char*)&chars + sizeof(char*)) {
@@ -42,7 +42,7 @@ public:
         }
     }
 
-    int64_t GetHash() const override {
+    [[nodiscard]] int64_t GetHash() const override {
         uint64_t hash = 5381U;
 
         for (size_t i = 0; i < length; i++) {
@@ -52,17 +52,17 @@ public:
         return (int64_t)hash;
     }
 
-    inline char* GetRawChars() const { return chars; }
+    [[nodiscard]] inline char* GetRawChars() const { return chars; }
 
-    StdString GetStdString() const;
+    [[nodiscard]] std::string GetStdString() const;
 
-    inline size_t GetStringLength() const { return length; }
+    [[nodiscard]] inline size_t GetStringLength() const { return length; }
 
-    VMString* CloneForMovingGC() const override;
-    VMClass* GetClass() const override;
-    size_t GetObjectSize() const override;
+    [[nodiscard]] VMString* CloneForMovingGC() const override;
+    [[nodiscard]] VMClass* GetClass() const override;
+    [[nodiscard]] size_t GetObjectSize() const override;
 
-    inline void WalkObjects(walk_heap_fn) override {
+    inline void WalkObjects(walk_heap_fn /*unused*/) override {
         // nothing to do
     }
 
@@ -73,11 +73,11 @@ public:
         chars = (char*)INVALID_GC_POINTER;
     }
 
-    bool IsMarkedInvalid() const override {
+    [[nodiscard]] bool IsMarkedInvalid() const override {
         return chars == (char*)INVALID_GC_POINTER;
     }
 
-    StdString AsDebugString() const override;
+    [[nodiscard]] std::string AsDebugString() const override;
 
     make_testable(public);
 

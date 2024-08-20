@@ -12,26 +12,21 @@
 #include "Heap.h"
 
 CopyingHeap::CopyingHeap(size_t objectSpaceSize)
-    : Heap<CopyingHeap>(new CopyingCollector(this)) {
-    size_t bufSize = objectSpaceSize;
-
-    currentBuffer = malloc(bufSize);
-    oldBuffer = malloc(bufSize);
-
-    memset(currentBuffer, 0x0, bufSize);
-    memset(oldBuffer, 0x0, bufSize);
-
-    currentBufferEnd = (void*)((size_t)currentBuffer + bufSize);
-    collectionLimit =
-        (void*)((size_t)currentBuffer + ((size_t)((double)bufSize * 0.9)));
-    nextFreePosition = currentBuffer;
-
-    oldBufferEnd = (void*)((size_t)oldBuffer + bufSize);
-    oldBufferIsValid = false;
+    : Heap<CopyingHeap>(new CopyingCollector(this)),
+      currentBuffer(malloc(objectSpaceSize)),
+      oldBuffer(malloc(objectSpaceSize)),
+      currentBufferEnd((void*)((size_t)currentBuffer + objectSpaceSize)),
+      collectionLimit((void*)((size_t)currentBuffer +
+                              ((size_t)((double)objectSpaceSize * 0.9)))),
+      oldBufferEnd((void*)((size_t)oldBuffer + objectSpaceSize)),
+      nextFreePosition(currentBuffer) {
+    memset(currentBuffer, 0x0, objectSpaceSize);
+    memset(oldBuffer, 0x0, objectSpaceSize);
 }
 
 void CopyingHeap::switchBuffers(bool increaseMemory) {
-    size_t oldBufSizeBeforeSwitch = (size_t)oldBufferEnd - (size_t)oldBuffer;
+    size_t const oldBufSizeBeforeSwitch =
+        (size_t)oldBufferEnd - (size_t)oldBuffer;
 
     void* oldBufferBeforeSwitch = oldBuffer;
     void* oldBufferEndBeforeSwitch = oldBufferEnd;
@@ -47,7 +42,7 @@ void CopyingHeap::switchBuffers(bool increaseMemory) {
         free(oldBufferBeforeSwitch);
         oldBufferEndBeforeSwitch = nullptr;
 
-        size_t newSize = oldBufSizeBeforeSwitch * 2;
+        size_t const newSize = oldBufSizeBeforeSwitch * 2;
         currentBuffer = malloc(newSize);
 
         if (currentBuffer == nullptr) {
@@ -77,8 +72,9 @@ void CopyingHeap::switchBuffers(bool increaseMemory) {
 void CopyingHeap::invalidateOldBuffer() {
     oldBufferIsValid = false;
 
-    size_t currentBufSize = (size_t)currentBufferEnd - (size_t)currentBuffer;
-    size_t oldBufSize = (size_t)oldBufferEnd - (size_t)oldBuffer;
+    size_t const currentBufSize =
+        (size_t)currentBufferEnd - (size_t)currentBuffer;
+    size_t const oldBufSize = (size_t)oldBufferEnd - (size_t)oldBuffer;
 
     if (DEBUG) {
         memset(oldBuffer, 0xFF, oldBufSize);
@@ -98,7 +94,7 @@ void CopyingHeap::invalidateOldBuffer() {
 }
 
 AbstractVMObject* CopyingHeap::AllocateObject(size_t size) {
-    AbstractVMObject* newObject = (AbstractVMObject*)nextFreePosition;
+    auto* newObject = (AbstractVMObject*)nextFreePosition;
     nextFreePosition = (void*)((size_t)nextFreePosition + size);
     if (nextFreePosition > currentBufferEnd) {
         ErrorPrint("\nFailed to allocate " + to_string(size) + " Bytes.\n");
@@ -118,7 +114,7 @@ bool CopyingHeap::IsInCurrentBuffer(AbstractVMObject* obj) {
         return true;
     }
 
-    size_t objAddress = (size_t)obj;
+    auto const objAddress = (size_t)obj;
     return (size_t)currentBuffer <= objAddress &&
            objAddress < (size_t)currentBufferEnd;
 }
@@ -133,7 +129,7 @@ bool CopyingHeap::IsInOldBufferAndOldBufferIsValid(AbstractVMObject* obj) {
         return false;
     }
 
-    size_t objAddress = (size_t)obj;
+    auto const objAddress = (size_t)obj;
     assert((size_t)oldBuffer <= objAddress);
     assert(objAddress < (size_t)oldBufferEnd);
 

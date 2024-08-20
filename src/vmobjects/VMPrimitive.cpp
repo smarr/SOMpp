@@ -28,7 +28,6 @@
 
 #include <string>
 
-#include "../compiler/LexicalScope.h"
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../primitivesCore/Primitives.h"
@@ -37,16 +36,16 @@
 #include "ObjectFormats.h"
 #include "VMClass.h"
 #include "VMFrame.h"
+#include "VMMethod.h"
 #include "VMSymbol.h"
 
 VMPrimitive* VMPrimitive::GetFramePrim(VMSymbol* sig, FramePrim prim) {
-    VMPrimitive* p = new (GetHeap<HEAP_CLS>(), 0) VMPrimitive(sig, prim);
+    auto* p = new (GetHeap<HEAP_CLS>(), 0) VMPrimitive(sig, prim);
     return p;
 }
 
 VMPrimitive* VMPrimitive::CloneForMovingGC() const {
-    VMPrimitive* prim =
-        new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMPrimitive(*this);
+    auto* prim = new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMPrimitive(*this);
     return prim;
 }
 
@@ -64,7 +63,8 @@ bool VMPrimitive::IsEmpty() const {
     return prim.pointer == &emptyRoutine;
 }
 
-void VMPrimitive::InlineInto(MethodGenerationContext&, bool) {
+void VMPrimitive::InlineInto(MethodGenerationContext& /*mgenc*/,
+                             bool /*mergeScope*/) {
     ErrorExit(
         "VMPrimitive::InlineInto is not supported, and should not be reached");
 }

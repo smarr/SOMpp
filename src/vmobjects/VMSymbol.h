@@ -38,36 +38,40 @@ class VMSymbol : public VMString {
 public:
     typedef GCSymbol Stored;
 
-    VMSymbol(const size_t length, const char* const str);
-    size_t GetObjectSize() const override;
-    VMSymbol* CloneForMovingGC() const override;
-    VMClass* GetClass() const override;
+    VMSymbol(size_t length, const char* str);
+    [[nodiscard]] size_t GetObjectSize() const override;
+    [[nodiscard]] VMSymbol* CloneForMovingGC() const override;
+    [[nodiscard]] VMClass* GetClass() const override;
 
-    StdString AsDebugString() const override;
+    [[nodiscard]] std::string AsDebugString() const override;
 
 private:
-    const int numberOfArgumentsOfSignature;
-    const GCClass* cachedClass_invokable[3];
-    long nextCachePos;
-    GCInvokable* cachedInvokable[3];
+    const uint8_t numberOfArgumentsOfSignature;
+    GCClass* cachedClass_invokable[3]{};
+    size_t nextCachePos{0};
+    GCInvokable* cachedInvokable[3]{};
 
     inline VMInvokable* GetCachedInvokable(const VMClass* cls) const {
         if (cls == load_ptr(cachedClass_invokable[0])) {
             return load_ptr(cachedInvokable[0]);
-        } else if (cls == load_ptr(cachedClass_invokable[1])) {
+        }
+
+        if (cls == load_ptr(cachedClass_invokable[1])) {
             return load_ptr(cachedInvokable[1]);
-        } else if (cls == load_ptr(cachedClass_invokable[2])) {
+        }
+
+        if (cls == load_ptr(cachedClass_invokable[2])) {
             return load_ptr(cachedInvokable[2]);
         }
         return nullptr;
     }
 
-    void UpdateCachedInvokable(const VMClass* cls, VMInvokable* invo);
+    void UpdateCachedInvokable(VMClass* cls, VMInvokable* invo);
 
     friend class Signature;
     friend class VMClass;
 
     make_testable(public);
 
-    void WalkObjects(walk_heap_fn) override;
+    void WalkObjects(walk_heap_fn /*unused*/) override;
 };

@@ -34,7 +34,7 @@
 
 using namespace std;
 
-typedef enum {
+enum Symbol : uint8_t {
     NONE,
     Integer,
     Double,
@@ -68,7 +68,7 @@ typedef enum {
     Keyword,
     KeywordSequence,
     OperatorSequence
-} Symbol;
+};
 
 // clang-format off
 static const char* symnames[] = { "NONE", "Integer", "Not", "And", "Or", "Star",
@@ -80,9 +80,7 @@ static const char* symnames[] = { "NONE", "Integer", "Not", "And", "Or", "Star",
 
 class LexerState {
 public:
-    LexerState()
-        : lineNumber(0), bufp(0), sym(Symbol::NONE), symc(0), text(""),
-          startBufp(0) {}
+    LexerState() = default;
 
     inline size_t incPtr() { return incPtr(1); }
 
@@ -93,45 +91,49 @@ public:
         return cur;
     }
 
-    size_t lineNumber;
-    size_t bufp;
+    size_t lineNumber{0};
+    size_t bufp{0};
 
-    Symbol sym;
-    char symc;
-    StdString text;
+    Symbol sym{Symbol::NONE};
+    char symc{0};
+    std::string text;
 
-    size_t startBufp;
+    size_t startBufp{0};
 };
 
 class Lexer {
 public:
-    Lexer(istream& file);
-    Lexer(const StdString& stream);
+    explicit Lexer(istream& file);
+    explicit Lexer(const std::string& stream);
 
     Symbol GetSym();
     Symbol Peek();
 
-    StdString GetText() const { return state.text; }
+    [[nodiscard]] std::string GetText() const { return state.text; }
 
-    StdString GetNextText() const { return stateAfterPeek.text; }
-
-    StdString GetRawBuffer() const {
-        // for debug
-        return StdString(buf);
+    [[nodiscard]] std::string GetNextText() const {
+        return stateAfterPeek.text;
     }
 
-    StdString GetCurrentLine();
+    [[nodiscard]] std::string GetRawBuffer() const {
+        // for debug
+        return {buf};
+    }
 
-    size_t GetCurrentColumn() const {
+    std::string GetCurrentLine();
+
+    [[nodiscard]] size_t GetCurrentColumn() const {
         return state.startBufp + 1 - state.text.length();
     }
 
-    size_t GetCurrentLineNumber() const { return state.lineNumber; }
+    [[nodiscard]] size_t GetCurrentLineNumber() const {
+        return state.lineNumber;
+    }
 
-    bool GetPeekDone() const { return peekDone; }
+    [[nodiscard]] bool GetPeekDone() const { return peekDone; }
 
-    SourceCoordinate GetCurrentSource() const {
-        return SourceCoordinate(GetCurrentLineNumber(), GetCurrentColumn());
+    [[nodiscard]] SourceCoordinate GetCurrentSource() const {
+        return {GetCurrentLineNumber(), GetCurrentColumn()};
     }
 
 private:
@@ -156,5 +158,5 @@ private:
     LexerState state;
     LexerState stateAfterPeek;
 
-    StdString buf;
+    std::string buf;
 };

@@ -2,7 +2,6 @@
 
 #include <string>
 
-#include "../compiler/LexicalScope.h"
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../primitivesCore/Primitives.h"
@@ -11,11 +10,11 @@
 #include "ObjectFormats.h"
 #include "VMClass.h"
 #include "VMFrame.h"
+#include "VMMethod.h"
 #include "VMSymbol.h"
 
 VMSafePrimitive* VMSafePrimitive::GetSafeUnary(VMSymbol* sig, UnaryPrim prim) {
-    VMSafeUnaryPrimitive* p =
-        new (GetHeap<HEAP_CLS>(), 0) VMSafeUnaryPrimitive(sig, prim);
+    auto* p = new (GetHeap<HEAP_CLS>(), 0) VMSafeUnaryPrimitive(sig, prim);
     return p;
 }
 
@@ -35,8 +34,7 @@ VMFrame* VMSafeUnaryPrimitive::Invoke1(VMFrame* frame) {
 
 VMSafePrimitive* VMSafePrimitive::GetSafeBinary(VMSymbol* sig,
                                                 BinaryPrim prim) {
-    VMSafeBinaryPrimitive* p =
-        new (GetHeap<HEAP_CLS>(), 0) VMSafeBinaryPrimitive(sig, prim);
+    auto* p = new (GetHeap<HEAP_CLS>(), 0) VMSafeBinaryPrimitive(sig, prim);
     return p;
 }
 
@@ -48,14 +46,13 @@ VMFrame* VMSafeBinaryPrimitive::Invoke(VMFrame* frame) {
     return nullptr;
 }
 
-VMFrame* VMSafeBinaryPrimitive::Invoke1(VMFrame* frame) {
+VMFrame* VMSafeBinaryPrimitive::Invoke1(VMFrame* /*frame*/) {
     ErrorExit("Unary invoke on binary primitive");
 }
 
 VMSafePrimitive* VMSafePrimitive::GetSafeTernary(VMSymbol* sig,
                                                  TernaryPrim prim) {
-    VMSafeTernaryPrimitive* p =
-        new (GetHeap<HEAP_CLS>(), 0) VMSafeTernaryPrimitive(sig, prim);
+    auto* p = new (GetHeap<HEAP_CLS>(), 0) VMSafeTernaryPrimitive(sig, prim);
     return p;
 }
 
@@ -68,7 +65,7 @@ VMFrame* VMSafeTernaryPrimitive::Invoke(VMFrame* frame) {
     return nullptr;
 }
 
-VMFrame* VMSafeTernaryPrimitive::Invoke1(VMFrame* frame) {
+VMFrame* VMSafeTernaryPrimitive::Invoke1(VMFrame* /*frame*/) {
     ErrorExit("Unary invoke on binary primitive");
 }
 
@@ -78,24 +75,25 @@ std::string VMSafePrimitive::AsDebugString() const {
 }
 
 AbstractVMObject* VMSafeUnaryPrimitive::CloneForMovingGC() const {
-    VMSafeUnaryPrimitive* prim =
+    auto* prim =
         new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMSafeUnaryPrimitive(*this);
     return prim;
 }
 
 AbstractVMObject* VMSafeBinaryPrimitive::CloneForMovingGC() const {
-    VMSafeBinaryPrimitive* prim =
+    auto* prim =
         new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMSafeBinaryPrimitive(*this);
     return prim;
 }
 
 AbstractVMObject* VMSafeTernaryPrimitive::CloneForMovingGC() const {
-    VMSafeTernaryPrimitive* prim =
+    auto* prim =
         new (GetHeap<HEAP_CLS>(), 0 ALLOC_MATURE) VMSafeTernaryPrimitive(*this);
     return prim;
 }
 
-void VMSafePrimitive::InlineInto(MethodGenerationContext&, bool) {
+void VMSafePrimitive::InlineInto(MethodGenerationContext& /*mgenc*/,
+                                 bool /*mergeScope*/) {
     ErrorExit(
         "VMPrimitive::InlineInto is not supported, and should not be reached");
 }

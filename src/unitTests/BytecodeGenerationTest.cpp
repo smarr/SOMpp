@@ -263,7 +263,7 @@ void BytecodeGenerationTest::testWhileInlining(const char* selector,
                                       [ true ] SELECTOR [ arg ].
                                       #end
                                   ) )""";
-    bool wasReplaced = ReplacePattern(source, "SELECTOR", selector);
+    bool const wasReplaced = ReplacePattern(source, "SELECTOR", selector);
     assert(wasReplaced);
 
     auto bytecodes = methodToBytecode(source.data());
@@ -368,13 +368,13 @@ void BytecodeGenerationTest::ifTrueWithLiteralReturn(std::string literal,
     std::string source = R"""(      test = (
                                         self method ifTrue: [ LITERAL ].
                                     ) )""";
-    bool wasReplaced = ReplacePattern(source, "LITERAL", literal);
+    bool const wasReplaced = ReplacePattern(source, "LITERAL", literal);
     assert(wasReplaced);
 
     auto bytecodes = methodToBytecode(source.data());
 
-    bool twoByte2 = bytecode.bytecode == BC_PUSH_GLOBAL ||
-                    bytecode.bytecode == BC_PUSH_BLOCK;
+    bool const twoByte2 = bytecode.bytecode == BC_PUSH_GLOBAL ||
+                          bytecode.bytecode == BC_PUSH_BLOCK;
 
     check(bytecodes,
           {BC_PUSH_SELF, BC(BC_SEND_1, 0),
@@ -409,13 +409,13 @@ void BytecodeGenerationTest::ifTrueWithSomethingAndLiteralReturn(
     std::string source = R"""(      test = (
                                         self method ifTrue: [ #fooBarNonTrivialBlock. LITERAL ].
                                     ) )""";
-    bool wasReplaced = ReplacePattern(source, "LITERAL", literal);
+    bool const wasReplaced = ReplacePattern(source, "LITERAL", literal);
     assert(wasReplaced);
 
     auto bytecodes = methodToBytecode(source.data());
 
-    bool twoByte2 = bytecode.bytecode == BC_PUSH_GLOBAL ||
-                    bytecode.bytecode == BC_PUSH_BLOCK;
+    bool const twoByte2 = bytecode.bytecode == BC_PUSH_GLOBAL ||
+                          bytecode.bytecode == BC_PUSH_BLOCK;
 
     check(bytecodes,
           {BC_PUSH_SELF, BC(BC_SEND_1, 0),
@@ -472,7 +472,7 @@ void BytecodeGenerationTest::testInliningOfOr() {
 
 void BytecodeGenerationTest::inliningOfOr(std::string selector) {
     std::string source = "test = ( true OR_SEL [ #val ] )";
-    bool wasReplaced = ReplacePattern(source, "OR_SEL", selector);
+    bool const wasReplaced = ReplacePattern(source, "OR_SEL", selector);
     assert(wasReplaced);
 
     auto bytecodes = methodToBytecode(source.data());
@@ -496,7 +496,7 @@ void BytecodeGenerationTest::testInliningOfAnd() {
 
 void BytecodeGenerationTest::inliningOfAnd(std::string selector) {
     std::string source = "test = ( true AND_SEL [ #val ] )";
-    bool wasReplaced = ReplacePattern(source, "AND_SEL", selector);
+    bool const wasReplaced = ReplacePattern(source, "AND_SEL", selector);
     assert(wasReplaced);
 
     auto bytecodes = methodToBytecode(source.data());
@@ -547,7 +547,7 @@ void BytecodeGenerationTest::ifArg(std::string selector, int8_t jumpBytecode) {
                                          self method IF_SELECTOR [ arg ].
                                          #end
                                      ) )""";
-    bool wasReplaced = ReplacePattern(source, "IF_SELECTOR", selector);
+    bool const wasReplaced = ReplacePattern(source, "IF_SELECTOR", selector);
     assert(wasReplaced);
 
     auto bytecodes = methodToBytecode(source.data());
@@ -583,7 +583,7 @@ void BytecodeGenerationTest::ifReturnNonLocal(std::string selector,
                                          self method IF_SELECTOR [ ^ arg ].
                                          #end
                                      ) )""";
-    bool wasReplaced = ReplacePattern(source, "IF_SELECTOR", selector);
+    bool const wasReplaced = ReplacePattern(source, "IF_SELECTOR", selector);
     assert(wasReplaced);
 
     auto bytecodes = methodToBytecode(source.data());
@@ -656,7 +656,8 @@ void BytecodeGenerationTest::testIncDecBytecodes() {
     incDecBytecodes("-", BC_DEC);
 }
 
-void BytecodeGenerationTest::incDecBytecodes(std::string sel, uint8_t bc) {
+void BytecodeGenerationTest::incDecBytecodes(const std::string& sel,
+                                             uint8_t bc) {
     std::string source = "test = ( 1 " + sel + " 1 )";
     auto bytecodes = methodToBytecode(source.data());
 
@@ -838,8 +839,9 @@ void BytecodeGenerationTest::testIfTrueIfFalseReturn() {
     ifTrueIfFalseReturn("ifTrue:", "ifFalse:", BC(BC_JUMP_ON_FALSE_POP, 8, 0));
     ifTrueIfFalseReturn("ifFalse:", "ifTrue:", BC(BC_JUMP_ON_TRUE_POP, 8, 0));
 }
-void BytecodeGenerationTest::ifTrueIfFalseReturn(std::string sel1,
-                                                 std::string sel2, BC bc) {
+void BytecodeGenerationTest::ifTrueIfFalseReturn(const std::string& sel1,
+                                                 const std::string& sel2,
+                                                 BC bc) {
     std::string source = "test: arg1 with: arg2 = ( #start. ^ self method " +
                          sel1 + " [ ^ arg1 ] " + sel2 + " [ arg2 ] )";
     auto bytecodes = methodToBytecode(source.data());
@@ -861,7 +863,7 @@ void BytecodeGenerationTest::blockIfReturnNonLocal(std::string sel, BC bc) {
              self method IF_SELECTOR [ ^ arg ].
              #end
          ] )""";
-    bool wasReplaced = ReplacePattern(source, "IF_SELECTOR", sel);
+    bool const wasReplaced = ReplacePattern(source, "IF_SELECTOR", sel);
     assert(wasReplaced);
 
     auto bytecodes = blockToBytecode(source.data());
@@ -891,13 +893,13 @@ void BytecodeGenerationTest::testTrivialMethodInlining() {
     trivialMethodInlining("[ self ]", BC(BC_PUSH_BLOCK, 1));
 }
 
-void BytecodeGenerationTest::trivialMethodInlining(std::string literal,
+void BytecodeGenerationTest::trivialMethodInlining(const std::string& literal,
                                                    BC bytecode) {
     std::string source = "test = ( true ifTrue: [ " + literal + " ] )";
     auto bytecodes = methodToBytecode(source.data());
 
-    bool isLongerBytecode = bytecode.bytecode == BC_PUSH_GLOBAL ||
-                            bytecode.bytecode == BC_PUSH_BLOCK;
+    bool const isLongerBytecode = bytecode.bytecode == BC_PUSH_GLOBAL ||
+                                  bytecode.bytecode == BC_PUSH_BLOCK;
     check(bytecodes, {BC_PUSH_CONSTANT_0,
                       BC(BC_JUMP_ON_FALSE_TOP_NIL, isLongerBytecode ? 5 : 4, 0),
                       bytecode, BC_RETURN_SELF});
@@ -923,7 +925,7 @@ void BytecodeGenerationTest::incField(size_t fieldNum) {
     addField("field5");
     addField("field6");
 
-    std::string fieldName = "field" + to_string(fieldNum);
+    std::string const fieldName = "field" + to_string(fieldNum);
     std::string source =
         "test = ( " + fieldName + " := " + fieldName + " + 1 )";
 
@@ -953,7 +955,7 @@ void BytecodeGenerationTest::incFieldNonTrivial(size_t fieldNum) {
     addField("field5");
     addField("field6");
 
-    std::string fieldName = "field" + to_string(fieldNum);
+    std::string const fieldName = "field" + to_string(fieldNum);
     std::string source =
         "test = ( 1. " + fieldName + " := " + fieldName + " + 1. 2 )";
 
@@ -984,7 +986,7 @@ void BytecodeGenerationTest::returnIncField(size_t fieldNum) {
     addField("field5");
     addField("field6");
 
-    std::string fieldName = "field" + to_string(fieldNum);
+    std::string const fieldName = "field" + to_string(fieldNum);
     std::string source =
         "test = ( #foo. ^ " + fieldName + " := " + fieldName + " + 1 )";
 
@@ -1014,7 +1016,7 @@ void BytecodeGenerationTest::returnIncFieldFromBlock(size_t fieldNum) {
     addField("field5");
     addField("field6");
 
-    std::string fieldName = "field" + to_string(fieldNum);
+    std::string const fieldName = "field" + to_string(fieldNum);
     std::string source = "[ #foo. " + fieldName + " := " + fieldName + " + 1 ]";
 
     auto bytecodes = blockToBytecode(source.data());
@@ -1045,13 +1047,13 @@ void BytecodeGenerationTest::returnField(size_t fieldNum, BC bytecode,
     addField("field5");
     addField("field6");
 
-    std::string fieldName = "field" + to_string(fieldNum);
+    std::string const fieldName = "field" + to_string(fieldNum);
     std::string source = "test = ( 1. ^ " + fieldName + ")";
     auto bytecodes = methodToBytecode(source.data());
     std::vector<BC> expected = {BC_PUSH_1, BC_POP, bytecode};
 
     if (!isReturnFieldBc) {
-        expected.push_back(BC_RETURN_LOCAL);
+        expected.emplace_back(BC_RETURN_LOCAL);
     }
 
     check(bytecodes, expected);
@@ -1076,10 +1078,10 @@ void BytecodeGenerationTest::testFieldReadInlining() {
 void BytecodeGenerationTest::testJumpQueuesOrdering() {
     std::priority_queue<Jump> jumps;
 
-    jumps.emplace(Jump(1, BC_JUMP, 0));
-    jumps.emplace(Jump(5, BC_JUMP, 0));
-    jumps.emplace(Jump(8, BC_JUMP, 0));
-    jumps.emplace(Jump(2, BC_JUMP, 0));
+    jumps.emplace(1, BC_JUMP, 0);
+    jumps.emplace(5, BC_JUMP, 0);
+    jumps.emplace(8, BC_JUMP, 0);
+    jumps.emplace(2, BC_JUMP, 0);
 
     CPPUNIT_ASSERT_EQUAL((size_t)1, jumps.top().originalJumpTargetIdx);
     jumps.pop();
@@ -1091,9 +1093,9 @@ void BytecodeGenerationTest::testJumpQueuesOrdering() {
     jumps.pop();
 
     std::priority_queue<BackJump> backJumps;
-    backJumps.emplace(BackJump(13, 9));
-    backJumps.emplace(BackJump(3, 12));
-    backJumps.emplace(BackJump(54, 54));
+    backJumps.emplace(13, 9);
+    backJumps.emplace(3, 12);
+    backJumps.emplace(54, 54);
 
     CPPUNIT_ASSERT_EQUAL((size_t)3, backJumps.top().loopBeginIdx);
     backJumps.pop();
@@ -1103,9 +1105,9 @@ void BytecodeGenerationTest::testJumpQueuesOrdering() {
     backJumps.pop();
 
     std::priority_queue<BackJumpPatch> backJumpsToPatch;
-    backJumpsToPatch.emplace(BackJumpPatch(3, 2));
-    backJumpsToPatch.emplace(BackJumpPatch(32, 44));
-    backJumpsToPatch.emplace(BackJumpPatch(12, 55));
+    backJumpsToPatch.emplace(3, 2);
+    backJumpsToPatch.emplace(32, 44);
+    backJumpsToPatch.emplace(12, 55);
 
     CPPUNIT_ASSERT_EQUAL((size_t)3, backJumpsToPatch.top().backwardsJumpIdx);
     backJumpsToPatch.pop();
