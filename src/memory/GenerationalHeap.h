@@ -35,13 +35,13 @@ private:
     size_t nursery_end;
     size_t nurserySize;
     size_t maxNurseryObjSize;
-    size_t matureObjectsSize;
+    size_t matureObjectsSize{0};
     void* nextFreePosition;
     void writeBarrier_OldHolder(VMObjectBase* holder,
                                 vm_oop_t referencedObject);
     void* collectionLimit;
-    vector<size_t>* oldObjsWithRefToYoungObjs;
-    vector<AbstractVMObject*>* allocatedObjects;
+    vector<size_t> oldObjsWithRefToYoungObjs;
+    vector<AbstractVMObject*> allocatedObjects;
 };
 
 inline bool GenerationalHeap::isObjectInNursery(vm_oop_t obj) {

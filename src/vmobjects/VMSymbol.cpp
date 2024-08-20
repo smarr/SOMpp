@@ -45,7 +45,6 @@ VMSymbol::VMSymbol(const size_t length, const char* const str)
                length),
       numberOfArgumentsOfSignature(
           Signature::DetermineNumberOfArguments(str, length)) {
-    nextCachePos = 0;
     size_t i = 0;
     for (; i < length; ++i) {
         chars[i] = str[i];

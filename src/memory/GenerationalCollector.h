@@ -11,7 +11,7 @@ public:
 
 private:
     uintptr_t majorCollectionThreshold;
-    size_t matureObjectsSize;
+    size_t matureObjectsSize{0};
     void MajorCollection();
     void MinorCollection();
 };

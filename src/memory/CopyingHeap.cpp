@@ -12,22 +12,16 @@
 #include "Heap.h"
 
 CopyingHeap::CopyingHeap(size_t objectSpaceSize)
-    : Heap<CopyingHeap>(new CopyingCollector(this)) {
-    size_t const bufSize = objectSpaceSize;
-
-    currentBuffer = malloc(bufSize);
-    oldBuffer = malloc(bufSize);
-
-    memset(currentBuffer, 0x0, bufSize);
-    memset(oldBuffer, 0x0, bufSize);
-
-    currentBufferEnd = (void*)((size_t)currentBuffer + bufSize);
-    collectionLimit =
-        (void*)((size_t)currentBuffer + ((size_t)((double)bufSize * 0.9)));
-    nextFreePosition = currentBuffer;
-
-    oldBufferEnd = (void*)((size_t)oldBuffer + bufSize);
-    oldBufferIsValid = false;
+    : Heap<CopyingHeap>(new CopyingCollector(this)),
+      currentBuffer(malloc(objectSpaceSize)),
+      oldBuffer(malloc(objectSpaceSize)),
+      currentBufferEnd((void*)((size_t)currentBuffer + objectSpaceSize)),
+      collectionLimit((void*)((size_t)currentBuffer +
+                              ((size_t)((double)objectSpaceSize * 0.9)))),
+      oldBufferEnd((void*)((size_t)oldBuffer + objectSpaceSize)),
+      nextFreePosition(currentBuffer) {
+    memset(currentBuffer, 0x0, objectSpaceSize);
+    memset(oldBuffer, 0x0, objectSpaceSize);
 }
 
 void CopyingHeap::switchBuffers(bool increaseMemory) {

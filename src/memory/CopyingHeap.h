@@ -26,5 +26,5 @@ private:
     void* oldBufferEnd;
 
     void* nextFreePosition;
-    bool oldBufferIsValid;
+    bool oldBufferIsValid{false};
 };

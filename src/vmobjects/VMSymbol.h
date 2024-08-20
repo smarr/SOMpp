@@ -48,7 +48,7 @@ public:
 private:
     const uint8_t numberOfArgumentsOfSignature;
     GCClass* cachedClass_invokable[3]{};
-    size_t nextCachePos;
+    size_t nextCachePos{0};
     GCInvokable* cachedInvokable[3]{};
 
     inline VMInvokable* GetCachedInvokable(const VMClass* cls) const {

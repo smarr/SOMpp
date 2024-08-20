@@ -1,5 +1,8 @@
 ---
 Checks:          '*include*,
+                  bugprone-branch-clone,
+                  cppcoreguidelines-prefer-member-initializer,
+                  bugprone-implicit-widening-of-multiplication-result,
                   modernize-use-nodiscard,
                   cppcoreguidelines-init-variables,
                   misc-const-correctness,
