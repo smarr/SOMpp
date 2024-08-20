@@ -137,7 +137,7 @@ static vm_oop_t dblAsString(vm_oop_t rcvr) {
     ostringstream Str;
     Str.precision(17);
     Str << dbl;
-    return Universe::NewString(Str.str().c_str());
+    return Universe::NewString(Str.str());
 }
 
 static vm_oop_t dblSqrt(vm_oop_t rcvr) {

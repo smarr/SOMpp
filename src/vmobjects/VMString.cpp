@@ -53,7 +53,7 @@ VMClass* VMString::GetClass() const {
 }
 
 std::string VMString::GetStdString() const {
-    if (chars == 0) {
+    if (chars == nullptr) {
         return {""};
     }
     return {chars, length};
