@@ -64,7 +64,7 @@
 #include "Symbols.h"
 
 #if CACHE_INTEGER
-gc_oop_t prebuildInts[INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE + 1];
+static gc_oop_t prebuildInts[INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE + 1];
 #endif
 
 #define INT_HIST_SIZE 1
@@ -74,9 +74,9 @@ gc_oop_t prebuildInts[INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE + 1];
 uint8_t dumpBytecodes;
 uint8_t gcVerbosity;
 
-std::string bm_name;
+static std::string bm_name;
 
-map<int64_t, int64_t> integerHist;
+static map<int64_t, int64_t> integerHist;
 
 map<GCSymbol*, gc_oop_t> Universe::globals;
 map<uint8_t, GCClass*> Universe::blockClassesByNoOfArgs;

@@ -23,25 +23,25 @@
 #include "../vmobjects/VMTrivialMethod.h"
 #include "Globals.h"
 
-void* vt_array;
-void* vt_block;
-void* vt_class;
-void* vt_double;
-void* vt_eval_primitive;
-void* vt_frame;
-void* vt_integer;
-void* vt_method;
-void* vt_object;
-void* vt_primitive;
-void* vt_safe_un_primitive;
-void* vt_safe_bin_primitive;
-void* vt_safe_ter_primitive;
-void* vt_literal_return;
-void* vt_global_return;
-void* vt_getter;
-void* vt_setter;
-void* vt_string;
-void* vt_symbol;
+static void* vt_array;
+static void* vt_block;
+static void* vt_class;
+static void* vt_double;
+static void* vt_eval_primitive;
+static void* vt_frame;
+static void* vt_integer;
+static void* vt_method;
+static void* vt_object;
+static void* vt_primitive;
+static void* vt_safe_un_primitive;
+static void* vt_safe_bin_primitive;
+static void* vt_safe_ter_primitive;
+static void* vt_literal_return;
+static void* vt_global_return;
+static void* vt_getter;
+static void* vt_setter;
+static void* vt_string;
+static void* vt_symbol;
 
 bool IsValidObject(vm_oop_t obj) {
     if (!DEBUG) {
