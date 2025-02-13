@@ -2,6 +2,7 @@
 Checks:          '*,
                   -altera-id-dependent-backward-branch,
                   -altera-unroll-loops,
+                  -boost-use-ranges,
                   -bugprone-casting-through-void,
                   -bugprone-easily-swappable-parameters,
                   -bugprone-reserved-identifier,
