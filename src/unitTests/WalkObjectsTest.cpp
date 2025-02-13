@@ -48,14 +48,14 @@ static vector<gc_oop_t> walkedObjects;
 /*
  * This method simply pushes all objects into the vector walkedObjects
  */
-gc_oop_t collectMembers(gc_oop_t obj) {
+static gc_oop_t collectMembers(gc_oop_t obj) {
     walkedObjects.push_back(obj);
     return obj;
 }
 /*
  * Helper function that searches the result vector for a field
  */
-bool WalkerHasFound(gc_oop_t obj) {
+static bool WalkerHasFound(gc_oop_t obj) {
     return find(walkedObjects.begin(), walkedObjects.end(), obj) !=
            walkedObjects.end();
 }
@@ -171,7 +171,7 @@ void WalkObjectsTest::testWalkFrame() {
             1);  // + 1 for the class field that's still in there
 }
 
-Variable makeVar(const char* const name, bool isArgument) {
+static Variable makeVar(const char* const name, bool isArgument) {
     std::string n = name;
     return {n, 0, isArgument, {0, 0}};
 }

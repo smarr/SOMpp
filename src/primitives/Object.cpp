@@ -38,32 +38,32 @@
 #include "../vmobjects/VMInvokable.h"
 #include "../vmobjects/VMObject.h"
 
-vm_oop_t objEqualequal(vm_oop_t op2, vm_oop_t op1) {
+static vm_oop_t objEqualequal(vm_oop_t op2, vm_oop_t op1) {
     return load_ptr(op1 == op2 ? trueObject : falseObject);
 }
 
-vm_oop_t objObjectSize(vm_oop_t self) {
+static vm_oop_t objObjectSize(vm_oop_t self) {
     return NEW_INT((int64_t)AS_OBJ(self)->GetObjectSize());
 }
 
-vm_oop_t objHashcode(vm_oop_t self) {
+static vm_oop_t objHashcode(vm_oop_t self) {
     if (IS_TAGGED(self)) {
         return self;
     }
     return NEW_INT(AS_OBJ(self)->GetHash());
 }
 
-vm_oop_t objInspect(vm_oop_t /*unused*/) {
+static vm_oop_t objInspect(vm_oop_t /*unused*/) {
     // not implemeted
     return load_ptr(falseObject);
 }
 
-vm_oop_t objHalt(vm_oop_t /*unused*/) {
+static vm_oop_t objHalt(vm_oop_t /*unused*/) {
     // not implemeted
     return load_ptr(falseObject);
 }
 
-void objPerform(VMFrame* frame) {
+static void objPerform(VMFrame* frame) {
     auto* selector = (VMSymbol*)frame->Pop();
     vm_oop_t self = frame->GetStackElement(0);
 
@@ -73,7 +73,7 @@ void objPerform(VMFrame* frame) {
     invokable->Invoke(frame);
 }
 
-void objPerformInSuperclass(VMFrame* frame) {
+static void objPerformInSuperclass(VMFrame* frame) {
     auto* clazz = (VMClass*)frame->Pop();
     auto* selector = (VMSymbol*)frame->Pop();
 
@@ -82,7 +82,7 @@ void objPerformInSuperclass(VMFrame* frame) {
     invokable->Invoke(frame);
 }
 
-void objPerformWithArguments(VMFrame* frame) {
+static void objPerformWithArguments(VMFrame* frame) {
     auto* args = (VMArray*)frame->Pop();
     auto* selector = (VMSymbol*)frame->Pop();
     vm_oop_t self = frame->GetStackElement(0);
@@ -99,7 +99,7 @@ void objPerformWithArguments(VMFrame* frame) {
     invokable->Invoke(frame);
 }
 
-void objPerformWithArgumentsInSuperclass(VMFrame* frame) {
+static void objPerformWithArgumentsInSuperclass(VMFrame* frame) {
     auto* clazz = (VMClass*)frame->Pop();
     auto* args = (VMArray*)frame->Pop();
     auto* selector = (VMSymbol*)frame->Pop();
@@ -115,24 +115,24 @@ void objPerformWithArgumentsInSuperclass(VMFrame* frame) {
     invokable->Invoke(frame);
 }
 
-vm_oop_t objInstVarAt(vm_oop_t self, vm_oop_t idx) {
+static vm_oop_t objInstVarAt(vm_oop_t self, vm_oop_t idx) {
     int64_t const field_idx = INT_VAL(idx) - 1;
     return static_cast<VMObject*>(self)->GetField(field_idx);
 }
 
-vm_oop_t objInstVarAtPut(vm_oop_t self, vm_oop_t idx, vm_oop_t value) {
+static vm_oop_t objInstVarAtPut(vm_oop_t self, vm_oop_t idx, vm_oop_t value) {
     size_t const field_idx = INT_VAL(idx) - 1;
     static_cast<VMObject*>(self)->SetField(field_idx, value);
     return self;
 }
 
-vm_oop_t objInstVarNamed(vm_oop_t self, vm_oop_t nameObj) {
+static vm_oop_t objInstVarNamed(vm_oop_t self, vm_oop_t nameObj) {
     auto* name = (VMSymbol*)nameObj;
     int64_t const fieldIdx = AS_OBJ(self)->GetFieldIndex(name);
     return static_cast<VMObject*>(self)->GetField(fieldIdx);
 }
 
-vm_oop_t objClass(vm_oop_t self) {
+static vm_oop_t objClass(vm_oop_t self) {
     return CLASS_OF(self);
 }
 

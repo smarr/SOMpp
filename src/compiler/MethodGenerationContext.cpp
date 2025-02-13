@@ -298,7 +298,7 @@ int64_t MethodGenerationContext::GetFieldIndex(VMSymbol* field) {
     return idx;
 }
 
-bool Contains(std::vector<Variable>& vec, std::string& name) {
+static bool Contains(std::vector<Variable>& vec, std::string& name) {
     for (Variable const& v : vec) {
         if (v.IsNamed(name)) {
             return true;
@@ -308,7 +308,7 @@ bool Contains(std::vector<Variable>& vec, std::string& name) {
     return false;
 }
 
-int64_t IndexOf(std::vector<Variable>& vec, std::string& name) {
+static int64_t IndexOf(std::vector<Variable>& vec, std::string& name) {
     int64_t i = 0;
     for (Variable const& v : vec) {
         if (v.IsNamed(name)) {

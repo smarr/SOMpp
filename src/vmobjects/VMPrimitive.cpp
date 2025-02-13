@@ -49,7 +49,7 @@ VMPrimitive* VMPrimitive::CloneForMovingGC() const {
     return prim;
 }
 
-void emptyRoutine(VMFrame* frame) {
+static void emptyRoutine(VMFrame* frame) {
     ErrorPrint("undefined primitive called\n");
     frame->PrintStackTrace();
     ErrorExit("undefined primitive called");

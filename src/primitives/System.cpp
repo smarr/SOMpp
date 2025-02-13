@@ -164,7 +164,7 @@ static vm_oop_t sysLoadFile_(vm_oop_t /*unused*/, vm_oop_t rightObj) {
     return load_ptr(nilObject);
 }
 
-void printStackTrace(VMFrame* frame) {
+static void printStackTrace(VMFrame* frame) {
     frame->PrintStackTrace();
 }
 
