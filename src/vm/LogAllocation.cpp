@@ -7,13 +7,13 @@
 std::map<std::string, struct alloc_data> allocationStats;
 #endif
 
-void InitializeAllocationLog() {
+void InitializeAllocationLog() {  // NOLINT(misc-use-internal-linkage)
 #ifdef GENERATE_ALLOCATION_STATISTICS
     allocationStats["VMArray"] = {0, 0};
 #endif
 }
 
-void OutputAllocationLogFile() {
+void OutputAllocationLogFile() {  // NOLINT(misc-use-internal-linkage)
 #ifdef GENERATE_ALLOCATION_STATISTICS
     std::string file_name_allocation = std::string(bm_name);
     file_name_allocation.append("_allocation_statistics.csv");
