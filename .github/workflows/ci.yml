@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   test_soms:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     # continue-on-error: true
     strategy:
       fail-fast: false # we want all jobs to run, because they may fail independently
@@ -26,24 +26,24 @@ jobs:
         run: |
           sudo apt-get install libcppunit-dev
 
-      - name: Install Clang 18
+      - name: Install Clang 19
         run: |
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-          sudo add-apt-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main"
+          sudo add-apt-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-19 main"
           sudo apt-get update
-          sudo apt-get install -y clang-18 clang-tidy-18
+          sudo apt-get install -y clang-19 clang-tidy-19
         if: matrix.compiler == 'clang'
 
       - name: Install Clang Format
-        run: sudo apt-get install -y clang-format-18
+        run: sudo apt-get install -y clang-format-19
         if: matrix.compiler == 'clang' && matrix.gc == 'GENERATIONAL'
 
       - name: Build SOM VM
         run: |
           if [ "${{ matrix.compiler }}" = "clang" ]
           then
-            export CC=clang-18
-            export CXX=clang++-18
+            export CC=clang-19
+            export CXX=clang++-19
           else
             export CC=gcc
             export CXX=g++
@@ -68,12 +68,12 @@ jobs:
       - name: Clang Tidy
         if: matrix.compiler == 'clang'
         run: |
-          clang-tidy-18 --config-file=.clang-tidy src/**/*.cpp -- -fdiagnostics-absolute-paths -DGC_TYPE=${{ matrix.gc}} ${{ matrix.integers }} -DUNITTESTS
+          clang-tidy-19 --config-file=.clang-tidy src/**/*.cpp -- -fdiagnostics-absolute-paths -DGC_TYPE=${{ matrix.gc}} ${{ matrix.integers }} -DUNITTESTS
 
       - name: Clang Format
         if: matrix.compiler == 'clang' && matrix.gc == 'GENERATIONAL'
         run: |
-          clang-format-18 --dry-run --style=file --Werror src/*.cpp  src/**/*.cpp src/**/*.h
+          clang-format-19 --dry-run --style=file --Werror src/*.cpp  src/**/*.cpp src/**/*.h
 
       # Disabled because it's too slow with the sanitizers
       # - name: Test SomSom
