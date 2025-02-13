@@ -843,8 +843,8 @@ VMMethod* Universe::NewMethod(VMSymbol* signature, size_t numberOfBytecodes,
     }
 
     // method needs space for the bytecodes and the pointers to the constants
-    size_t const additionalBytes =
-        PADDED_SIZE(numberOfBytecodes + numberOfConstants * sizeof(VMObject*));
+    size_t const additionalBytes = PADDED_SIZE(
+        numberOfBytecodes + (numberOfConstants * sizeof(VMObject*)));
     auto* result = new (GetHeap<HEAP_CLS>(), additionalBytes)
         VMMethod(signature, numberOfBytecodes, numberOfConstants, numLocals,
                  maxStackDepth, lexicalScope, inlinedLoopsArr);

@@ -107,7 +107,7 @@ public:
 
     [[nodiscard]] inline size_t GetObjectSize() const override {
         size_t const additionalBytes =
-            PADDED_SIZE(bcLength + numberOfConstants * sizeof(VMObject*));
+            PADDED_SIZE(bcLength + (numberOfConstants * sizeof(VMObject*)));
         return additionalBytes + sizeof(VMMethod);
     }
 
