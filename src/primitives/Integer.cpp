@@ -41,12 +41,11 @@
 #include "../vmobjects/VMDouble.h"
 #include "../vmobjects/VMFrame.h"
 #include "../vmobjects/VMString.h"
+#include "Double.h"
 
 //
 // arithmetic operations
 //
-
-static double coerceDouble(vm_oop_t x);
 
 #define doDoubleOpIfNeeded(leftInt, rightObj, op)            \
     {                                                        \
@@ -145,8 +144,6 @@ static vm_oop_t intPercent(vm_oop_t leftObj, vm_oop_t rightObj) {
 
     return NEW_INT(result);
 }
-
-static vm_oop_t dblPercent(vm_oop_t leftPtr, vm_oop_t rightObj);
 
 static vm_oop_t intRem(vm_oop_t leftObj, vm_oop_t rightObj) {
     VMClass* cl = CLASS_OF(rightObj);
