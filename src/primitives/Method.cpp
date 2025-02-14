@@ -19,7 +19,7 @@ static vm_oop_t mSignature(vm_oop_t rcvr) {
     return self->GetSignature();
 }
 
-void mInvokeOnWith(VMFrame* frame) {
+static void mInvokeOnWith(VMFrame* frame) {
     // REM: this is a clone with _Primitive::InvokeOn_With_
     auto* args = static_cast<VMArray*>(frame->Pop());
     auto* rcvr = frame->Pop();

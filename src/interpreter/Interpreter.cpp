@@ -78,8 +78,10 @@ vm_oop_t Interpreter::StartAndPrintBytecodes() {
 
 vm_oop_t Interpreter::Start() {
 #undef PROLOGUE
-#define PROLOGUE(bcCount) \
-    { bytecodeIndexGlobal += (bcCount); }
+#define PROLOGUE(bcCount)                 \
+    {                                     \
+        bytecodeIndexGlobal += (bcCount); \
+    }
 #define HACK_INLINE_START
 #include "InterpreterLoop.h"
 #undef HACK_INLINE_START

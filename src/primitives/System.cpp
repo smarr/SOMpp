@@ -53,7 +53,7 @@
 
 #endif
 
-_System* System_;
+static _System* System_;
 
 static vm_oop_t sysGlobal_(vm_oop_t /*unused*/, vm_oop_t rightObj) {
     auto* arg = static_cast<VMSymbol*>(rightObj);
@@ -120,7 +120,7 @@ static vm_oop_t sysErrorPrintNewline_(vm_oop_t leftObj, vm_oop_t rightObj) {
 static struct timeval start_time;
 
 static vm_oop_t sysTime(vm_oop_t /*unused*/) {
-    struct timeval now {};
+    struct timeval now{};
 
     gettimeofday(&now, nullptr);
 
@@ -132,7 +132,7 @@ static vm_oop_t sysTime(vm_oop_t /*unused*/) {
 }
 
 static vm_oop_t sysTicks(vm_oop_t /*unused*/) {
-    struct timeval now {};
+    struct timeval now{};
 
     gettimeofday(&now, nullptr);
 
@@ -164,7 +164,7 @@ static vm_oop_t sysLoadFile_(vm_oop_t /*unused*/, vm_oop_t rightObj) {
     return load_ptr(nilObject);
 }
 
-void printStackTrace(VMFrame* frame) {
+static void printStackTrace(VMFrame* frame) {
     frame->PrintStackTrace();
 }
 

@@ -38,7 +38,7 @@
  * macro for padding - only word-aligned memory must be allocated
  */
 #define PADDED_SIZE(N) \
-    ((((size_t)(N)) + (sizeof(void*) - 1) & ~(sizeof(void*) - 1)))
+    (((((size_t)(N)) + (sizeof(void*) - 1)) & ~(sizeof(void*) - 1)))
 
 #define IS_PADDED_SIZE(N) ((N) == PADDED_SIZE((N)))
 
@@ -47,11 +47,15 @@ using namespace std;
 template <class HEAP_T>
 class Heap {
     friend class GarbageCollector<HEAP_T>;
+    friend HEAP_T;
+
+private:
+    explicit Heap(GarbageCollector<HEAP_T>* const gc) : gc(gc) {}
 
 public:
     static void InitializeHeap(size_t objectSpaceSize);
     static void DestroyHeap();
-    explicit Heap(GarbageCollector<HEAP_T>* const gc) : gc(gc) {}
+
     ~Heap();
     inline void requestGC() { gcWasRequested = true; }
     inline void resetGCTrigger() { gcWasRequested = false; }

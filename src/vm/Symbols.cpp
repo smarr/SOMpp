@@ -10,7 +10,7 @@
 #include "../vmobjects/VMSymbol.h"
 #include "LogAllocation.h"
 
-map<std::string, GCSymbol*> symbolsMap;
+static map<std::string, GCSymbol*> symbolsMap;
 
 GCSymbol* symbolSelf;
 GCSymbol* symbolSuper;

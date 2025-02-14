@@ -2,6 +2,7 @@
 Checks:          '*,
                   -altera-id-dependent-backward-branch,
                   -altera-unroll-loops,
+                  -boost-use-ranges,
                   -bugprone-casting-through-void,
                   -bugprone-easily-swappable-parameters,
                   -bugprone-reserved-identifier,
@@ -59,6 +60,7 @@ Checks:          '*,
                   -readability-identifier-length,
                   -readability-magic-numbers,
                   -readability-redundant-inline-specifier,
+                  -readability-use-std-min-max,
                  '
 WarningsAsErrors: '*'
 HeaderFilterRegex: '^.*/src/.*$'

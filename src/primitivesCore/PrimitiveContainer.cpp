@@ -29,7 +29,6 @@
 #include <cassert>
 #include <iostream>
 #include <map>
-#include <ostream>
 #include <string>
 
 #include "../vm/Symbols.h"
