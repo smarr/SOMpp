@@ -181,6 +181,8 @@ public:
         return lexicalScope->GetArgument(index, contextLevel);
     }
 
+    void Dump(const char* indent, bool printObjects) override;
+
 private:
     void inlineInto(MethodGenerationContext& mgenc);
     std::priority_queue<BackJump> createBackJumpHeap();

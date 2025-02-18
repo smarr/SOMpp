@@ -28,6 +28,8 @@ public:
     [[nodiscard]] inline uint8_t GetNumberOfArguments() const final {
         return Signature::GetNumberOfArguments(load_ptr(signature));
     }
+
+    void Dump(const char* indent, bool printObjects) override;
 };
 
 class VMSafeUnaryPrimitive : public VMSafePrimitive {

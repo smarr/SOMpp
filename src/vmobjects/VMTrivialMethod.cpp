@@ -10,6 +10,7 @@
 #include "../compiler/Variable.h"
 #include "../interpreter/Interpreter.h"
 #include "../memory/Heap.h"
+#include "../misc/debug.h"
 #include "../misc/defs.h"
 #include "../vm/LogAllocation.h"
 #include "../vm/Print.h"
@@ -239,4 +240,8 @@ void VMSetter::WalkObjects(walk_heap_fn walk) {
 std::string VMSetter::AsDebugString() const {
     return "VMSetter(fieldIndex: " + to_string(fieldIndex) +
            ", argIndex: " + to_string(argIndex) + ")";
+}
+
+void VMTrivialMethod::Dump(const char* /*indent*/, bool /*printObjects*/) {
+    DebugPrint("<trivial method>\n");
 }

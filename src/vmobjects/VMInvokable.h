@@ -76,6 +76,8 @@ public:
         holder = (GCClass*)INVALID_GC_POINTER;
     }
 
+    virtual void Dump(const char* indent, bool printObjects) = 0;
+
 protected:
     make_testable(public);
 
