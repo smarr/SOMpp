@@ -522,7 +522,7 @@ MethodGenerationContext::extractBlockMethodsAndRemoveBytecodes() {
     return {toBeInlined1, toBeInlined2};
 }
 
-bool MethodGenerationContext::InlineIfTrueOrIfFalse(bool isIfTrue) {
+bool MethodGenerationContext::InlineThenBranch(JumpCondition condition) {
     // HACK: We do assume that the receiver on the stack is a boolean,
     // HACK: similar to the IfTrueIfFalseNode.
     // HACK: We don't support anything but booleans at the moment.
@@ -534,7 +534,7 @@ bool MethodGenerationContext::InlineIfTrueOrIfFalse(bool isIfTrue) {
     VMInvokable* toBeInlined = extractBlockMethodAndRemoveBytecode();
 
     size_t const jumpOffsetIdxToSkipBody =
-        EmitJumpOnBoolWithDummyOffset(*this, isIfTrue, false);
+        EmitJumpOnWithDummyOffset(*this, condition, false);
 
     isCurrentlyInliningABlock = true;
 
@@ -548,7 +548,7 @@ bool MethodGenerationContext::InlineIfTrueOrIfFalse(bool isIfTrue) {
     return true;
 }
 
-bool MethodGenerationContext::InlineIfTrueFalse(bool isIfTrue) {
+bool MethodGenerationContext::InlineThenElseBranches(JumpCondition condition) {
     // HACK: We do assume that the receiver on the stack is a boolean,
     // HACK: similar to the IfTrueIfFalseNode.
     // HACK: We don't support anything but booleans at the moment.
@@ -565,7 +565,7 @@ bool MethodGenerationContext::InlineIfTrueFalse(bool isIfTrue) {
     VMInvokable* bodyMethod = std::get<1>(methods);
 
     size_t const jumpOffsetIdxToSkipTrueBranch =
-        EmitJumpOnBoolWithDummyOffset(*this, isIfTrue, true);
+        EmitJumpOnWithDummyOffset(*this, condition, true);
 
     isCurrentlyInliningABlock = true;
     condMethod->InlineInto(*this);
@@ -607,7 +607,7 @@ bool MethodGenerationContext::InlineWhile(Parser& parser, bool isWhileTrue) {
     condMethod->InlineInto(*this);
 
     size_t const jumpOffsetIdxToSkipLoopBody =
-        EmitJumpOnBoolWithDummyOffset(*this, isWhileTrue, true);
+        EmitJumpOnWithDummyOffset(*this, isWhileTrue ? ON_FALSE: ON_TRUE, true);
 
     bodyMethod->InlineInto(*this);
 
@@ -632,7 +632,7 @@ bool MethodGenerationContext::InlineAndOr(bool isOr) {
     VMInvokable* toBeInlined = extractBlockMethodAndRemoveBytecode();
 
     size_t const jumpOffsetIdxToSkipBranch =
-        EmitJumpOnBoolWithDummyOffset(*this, !isOr, true);
+        EmitJumpOnWithDummyOffset(*this, isOr ? ON_TRUE : ON_FALSE, true);
 
     isCurrentlyInliningABlock = true;
     toBeInlined->InlineInto(*this);

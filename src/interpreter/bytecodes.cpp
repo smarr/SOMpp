@@ -81,6 +81,10 @@ const uint8_t Bytecode::bytecodeLengths[] = {
     3,  // BC_JUMP_ON_TRUE_POP
     3,  // BC_JUMP_ON_FALSE_TOP_NIL
     3,  // BC_JUMP_ON_TRUE_TOP_NIL
+    3,  // BC_JUMP_ON_NOT_NIL_POP
+    3,  // BC_JUMP_ON_NIL_POP
+    3,  // BC_JUMP_ON_NOT_NIL_TOP_TOP
+    3,  // BC_JUMP_ON_NIL_TOP_TOP
     3,  // BC_JUMP_IF_GREATER
     3,  // BC_JUMP_BACKWARD
 
@@ -89,6 +93,10 @@ const uint8_t Bytecode::bytecodeLengths[] = {
     3,  // BC_JUMP2_ON_TRUE_POP
     3,  // BC_JUMP2_ON_FALSE_TOP_NIL
     3,  // BC_JUMP2_ON_TRUE_TOP_NIL
+    3,  // BC_JUMP2_ON_NOT_NIL_POP
+    3,  // BC_JUMP2_ON_NIL_POP
+    3,  // BC_JUMP2_ON_NOT_NIL_TOP_TOP
+    3,  // BC_JUMP2_ON_NIL_TOP_TOP
     3,  // BC_JUMP2_IF_GREATER
     3,  // BC_JUMP2_BACKWARD
 };
@@ -144,20 +152,28 @@ const char* Bytecode::bytecodeNames[] = {
     "JUMP_ON_TRUE_POP",        // 47
     "JUMP_ON_FALSE_TOP_NIL",   // 48
     "JUMP_ON_TRUE_TOP_NIL",    // 49
-    "JUMP_IF_GREATER ",        // 50
-    "JUMP_BACKWARD   ",        // 51
-    "JUMP2           ",        // 52
-    "JUMP2_ON_FALSE_POP",      // 53
-    "JUMP2_ON_TRUE_POP",       // 54
-    "JUMP2_ON_FALSE_TOP_NIL",  // 55
-    "JUMP2_ON_TRUE_TOP_NIL",   // 56
-    "JUMP2_IF_GREATER",        // 57
-    "JUMP2_BACKWARD  ",        // 58
+    "JUMP_ON_NOT_NIL_POP",     // 50
+    "JUMP_ON_NIL_POP ",        // 51
+    "JUMP_ON_NOT_NIL_TOP_TOP", // 52
+    "JUMP_ON_NIL_TOP_TOP",     // 53
+    "JUMP_IF_GREATER ",        // 54
+    "JUMP_BACKWARD   ",        // 55
+    "JUMP2           ",        // 56
+    "JUMP2_ON_FALSE_POP",      // 57
+    "JUMP2_ON_TRUE_POP",       // 58
+    "JUMP2_ON_FALSE_TOP_NIL",  // 59
+    "JUMP2_ON_TRUE_TOP_NIL",   // 60
+    "JUMP2_ON_NOT_NIL_POP",    // 61
+    "JUMP2_ON_NIL_POP ",       // 62
+    "JUMP2_ON_NOT_NIL_TOP_TOP",// 63
+    "JUMP2_ON_NIL_TOP_TOP",    // 64
+    "JUMP2_IF_GREATER",        // 65
+    "JUMP2_BACKWARD  ",        // 66
 };
 
 bool IsJumpBytecode(uint8_t bc) {
     static_assert(BC_JUMP < BC_JUMP2_BACKWARD);
-    static_assert((BC_JUMP2_BACKWARD - BC_JUMP) == 13);
+    static_assert((BC_JUMP2_BACKWARD - BC_JUMP) == 21);
 
     return BC_JUMP <= bc && bc <= BC_JUMP2_BACKWARD;
 }

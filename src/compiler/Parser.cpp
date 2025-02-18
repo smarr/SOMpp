@@ -678,8 +678,10 @@ void Parser::keywordMessage(MethodGenerationContext& mgenc, bool super) {
 
     if (!super) {
         if (numParts == 1 &&
-            ((kw == "ifTrue:" && mgenc.InlineIfTrueOrIfFalse(true)) ||
-             (kw == "ifFalse:" && mgenc.InlineIfTrueOrIfFalse(false)) ||
+            ((kw == "ifTrue:" && mgenc.InlineThenBranch(ON_FALSE)) ||
+             (kw == "ifFalse:" && mgenc.InlineThenBranch(ON_TRUE)) ||
+             (kw == "ifNil:" && mgenc.InlineThenBranch(ON_NOT_NIL)) ||
+             (kw == "ifNotNil:" && mgenc.InlineThenBranch(ON_NIL)) ||
              (kw == "whileTrue:" && mgenc.InlineWhile(*this, true)) ||
              (kw == "whileFalse:" && mgenc.InlineWhile(*this, false)) ||
              (kw == "or:" && mgenc.InlineAndOr(true)) ||
@@ -688,8 +690,10 @@ void Parser::keywordMessage(MethodGenerationContext& mgenc, bool super) {
         }
 
         if (numParts == 2 &&
-            ((kw == "ifTrue:ifFalse:" && mgenc.InlineIfTrueFalse(true)) ||
-             (kw == "ifFalse:ifTrue:" && mgenc.InlineIfTrueFalse(false)) ||
+            ((kw == "ifTrue:ifFalse:" && mgenc.InlineThenElseBranches(ON_FALSE)) ||
+             (kw == "ifFalse:ifTrue:" && mgenc.InlineThenElseBranches(ON_TRUE)) ||
+             (kw == "ifNil:ifNotNil:" && mgenc.InlineThenElseBranches(ON_NOT_NIL)) ||
+             (kw == "ifNotNil:ifNil:" && mgenc.InlineThenElseBranches(ON_NIL)) ||
              (kw == "to:do:" && mgenc.InlineToDo()))) {
             return;
         }

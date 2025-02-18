@@ -40,6 +40,10 @@ class Parser;
 
 #define NUM_LAST_BYTECODES 4
 
+enum JumpCondition {
+    ON_TRUE, ON_FALSE, ON_NIL, ON_NOT_NIL
+};
+
 class MethodGenerationContext {
 public:
     explicit MethodGenerationContext(ClassGenerationContext& holder,
@@ -102,8 +106,8 @@ public:
     std::vector<uint8_t> GetBytecodes() { return bytecode; }
 
     bool InlineWhile(Parser& parser, bool isWhileTrue);
-    bool InlineIfTrueOrIfFalse(bool isIfTrue);
-    bool InlineIfTrueFalse(bool isIfTrue);
+    bool InlineThenElseBranches(JumpCondition condition);
+    bool InlineThenBranch(JumpCondition condition);
     bool InlineAndOr(bool isOr);
     bool InlineToDo();
 

@@ -567,12 +567,20 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method,
         case BC_JUMP_ON_TRUE_POP:
         case BC_JUMP_ON_FALSE_TOP_NIL:
         case BC_JUMP_ON_TRUE_TOP_NIL:
+        case BC_JUMP_ON_NOT_NIL_POP   :
+        case BC_JUMP_ON_NIL_POP       :
+        case BC_JUMP_ON_NOT_NIL_TOP_TOP:
+        case BC_JUMP_ON_NIL_TOP_TOP   :
         case BC_JUMP_BACKWARD:
         case BC_JUMP2:
         case BC_JUMP2_ON_FALSE_POP:
         case BC_JUMP2_ON_TRUE_POP:
         case BC_JUMP2_ON_FALSE_TOP_NIL:
         case BC_JUMP2_ON_TRUE_TOP_NIL:
+        case BC_JUMP2_ON_NOT_NIL_POP   :
+        case BC_JUMP2_ON_NIL_POP       :
+        case BC_JUMP2_ON_NOT_NIL_TOP_TOP:
+        case BC_JUMP2_ON_NIL_TOP_TOP   :
         case BC_JUMP2_BACKWARD: {
             uint16_t const offset =
                 ComputeOffset(method->GetBytecode(bc_idx + 1),
