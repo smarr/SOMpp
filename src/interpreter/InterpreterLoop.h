@@ -308,7 +308,13 @@ LABEL_BC_RETURN_FIELD_2:
 LABEL_BC_INC:
     PROLOGUE(1);
     doInc();
+#if USE_TAGGING
     DISPATCH_NOGC();
+#else
+// without integer tagging doInc() allocates memory and the IfNil benchmark
+// will allocate, but not reach a GC point, and run out of memory
+DISPATCH_GC();
+#endif
 
 LABEL_BC_DEC:
     PROLOGUE(1);
