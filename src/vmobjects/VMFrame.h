@@ -120,7 +120,7 @@ public:
     }
 
     [[nodiscard]] inline vm_oop_t GetStackElement(size_t index) const {
-        return load_ptr(stack_ptr[-index]);
+        return load_ptr(stack_ptr[-std::make_signed_t<int64_t>(index)]);
     }
 
     inline vm_oop_t GetLocal(uint8_t index, uint8_t contextLevel) {
