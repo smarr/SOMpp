@@ -97,7 +97,7 @@ build_and_test:
       if [ "$MACHINE" = "zullie1" ]; then
         M=''
       else
-        M="m:$MACHINE"
+        M="t:$MACHINE"
       fi
       rebench --experiment="CI ID $CI_PIPELINE_ID" --branch="$CI_COMMIT_REF_NAME" -c rebench.conf all "e:${NAME}" $M
 
