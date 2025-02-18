@@ -58,6 +58,8 @@ public:
         return numberOfArguments;
     }
 
+    void Dump(const char* indent, bool printObjects) override;
+
 private:
     static VMSymbol* computeSignatureString(size_t argc);
     void evaluationRoutine(VMFrame*);

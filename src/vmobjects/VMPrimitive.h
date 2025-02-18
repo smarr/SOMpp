@@ -86,6 +86,8 @@ public:
         return Signature::GetNumberOfArguments(load_ptr(signature));
     }
 
+    void Dump(const char* indent, bool printObjects) override;
+
 private:
     make_testable(public);
 

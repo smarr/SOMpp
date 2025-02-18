@@ -37,6 +37,9 @@ public:
     static void DumpMethod(VMMethod* method, const char* indent,
                            bool printObjects = true);
     static void DumpMethod(MethodGenerationContext* mgenc, const char* indent);
+    static void extracted(uint8_t bc1, uint8_t bc2, VMClass* cl,
+                          VMFrame* frame);
+
     static void DumpBytecode(VMFrame* frame, VMMethod* method, size_t bc_idx);
 
 private:
@@ -45,4 +48,9 @@ private:
     static void dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes,
                            const char* indent, VMMethod* method,
                            bool printObjects);
+
+    static void printArgument(uint8_t idx, uint8_t ctx, VMClass* cl,
+                              VMFrame* frame);
+    static void printPopLocal(uint8_t idx, uint8_t ctx, VMFrame* frame);
+    static void printNth(uint8_t idx, VMFrame* frame, const char* op);
 };

@@ -3,6 +3,7 @@
 #include <string>
 
 #include "../memory/Heap.h"
+#include "../misc/debug.h"
 #include "../misc/defs.h"
 #include "../primitivesCore/Primitives.h"
 #include "../vm/Print.h"
@@ -96,4 +97,8 @@ void VMSafePrimitive::InlineInto(MethodGenerationContext& /*mgenc*/,
                                  bool /*mergeScope*/) {
     ErrorExit(
         "VMPrimitive::InlineInto is not supported, and should not be reached");
+}
+
+void VMSafePrimitive::Dump(const char* /*indent*/, bool /*printObjects*/) {
+    DebugPrint("<primitive>\n");
 }

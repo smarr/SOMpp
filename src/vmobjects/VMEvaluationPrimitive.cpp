@@ -32,6 +32,7 @@
 #include <string>
 
 #include "../memory/Heap.h"
+#include "../misc/debug.h"
 #include "../misc/defs.h"
 #include "../vm/Print.h"
 #include "../vm/Symbols.h"
@@ -138,4 +139,9 @@ void VMEvaluationPrimitive::InlineInto(MethodGenerationContext& /*mgenc*/,
     ErrorExit(
         "VMEvaluationPrimitive::InlineInto is not supported, and should not be "
         "reached");
+}
+
+void VMEvaluationPrimitive::Dump(const char* /*indent*/,
+                                 bool /*printObjects*/) {
+    DebugPrint("<primitive>\n");
 }

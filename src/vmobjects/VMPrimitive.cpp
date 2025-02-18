@@ -29,6 +29,7 @@
 #include <string>
 
 #include "../memory/Heap.h"
+#include "../misc/debug.h"
 #include "../misc/defs.h"
 #include "../primitivesCore/Primitives.h"
 #include "../vm/Globals.h"  // NOLINT (misc-include-cleaner)
@@ -72,4 +73,8 @@ void VMPrimitive::InlineInto(MethodGenerationContext& /*mgenc*/,
 std::string VMPrimitive::AsDebugString() const {
     return "Primitive(" + GetClass()->GetName()->GetStdString() + ">>#" +
            GetSignature()->GetStdString() + ")";
+}
+
+void VMPrimitive::Dump(const char* /*indent*/, bool /*printObjects*/) {
+    DebugPrint("<primitive>\n");
 }

@@ -34,6 +34,7 @@
 #include <string>
 
 #include "../compiler/BytecodeGenerator.h"
+#include "../compiler/Disassembler.h"
 #include "../compiler/LexicalScope.h"
 #include "../compiler/MethodGenerationContext.h"
 #include "../compiler/Variable.h"
@@ -162,6 +163,10 @@ void VMMethod::SetHolderAll(VMClass* hld) {
             }
         }
     }
+}
+
+void VMMethod::Dump(const char* indent, bool printObjects) {
+    Disassembler::DumpMethod(this, indent, printObjects);
 }
 
 std::string VMMethod::AsDebugString() const {
