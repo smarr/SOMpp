@@ -606,8 +606,8 @@ bool MethodGenerationContext::InlineWhile(Parser& parser, bool isWhileTrue) {
     isCurrentlyInliningABlock = true;
     condMethod->InlineInto(*this);
 
-    size_t const jumpOffsetIdxToSkipLoopBody =
-        EmitJumpOnWithDummyOffset(*this, isWhileTrue ? ON_FALSE: ON_TRUE, true);
+    size_t const jumpOffsetIdxToSkipLoopBody = EmitJumpOnWithDummyOffset(
+        *this, isWhileTrue ? ON_FALSE : ON_TRUE, true);
 
     bodyMethod->InlineInto(*this);
 

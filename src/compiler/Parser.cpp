@@ -52,6 +52,7 @@
 #include "../vmobjects/VMSymbol.h"
 #include "BytecodeGenerator.h"
 #include "Lexer.h"
+#include "MethodGenerationContext.h"
 
 void Parser::GetSym() {
     sym = lexer.GetSym();
@@ -678,10 +679,14 @@ void Parser::keywordMessage(MethodGenerationContext& mgenc, bool super) {
 
     if (!super) {
         if (numParts == 1 &&
-            ((kw == "ifTrue:" && mgenc.InlineThenBranch(ON_FALSE)) ||
-             (kw == "ifFalse:" && mgenc.InlineThenBranch(ON_TRUE)) ||
-             (kw == "ifNil:" && mgenc.InlineThenBranch(ON_NOT_NIL)) ||
-             (kw == "ifNotNil:" && mgenc.InlineThenBranch(ON_NIL)) ||
+            ((kw == "ifTrue:" &&
+              mgenc.InlineThenBranch(JumpCondition::ON_FALSE)) ||
+             (kw == "ifFalse:" &&
+              mgenc.InlineThenBranch(JumpCondition::ON_TRUE)) ||
+             (kw == "ifNil:" &&
+              mgenc.InlineThenBranch(JumpCondition::ON_NOT_NIL)) ||
+             (kw == "ifNotNil:" &&
+              mgenc.InlineThenBranch(JumpCondition::ON_NIL)) ||
              (kw == "whileTrue:" && mgenc.InlineWhile(*this, true)) ||
              (kw == "whileFalse:" && mgenc.InlineWhile(*this, false)) ||
              (kw == "or:" && mgenc.InlineAndOr(true)) ||
@@ -690,10 +695,14 @@ void Parser::keywordMessage(MethodGenerationContext& mgenc, bool super) {
         }
 
         if (numParts == 2 &&
-            ((kw == "ifTrue:ifFalse:" && mgenc.InlineThenElseBranches(ON_FALSE)) ||
-             (kw == "ifFalse:ifTrue:" && mgenc.InlineThenElseBranches(ON_TRUE)) ||
-             (kw == "ifNil:ifNotNil:" && mgenc.InlineThenElseBranches(ON_NOT_NIL)) ||
-             (kw == "ifNotNil:ifNil:" && mgenc.InlineThenElseBranches(ON_NIL)) ||
+            ((kw == "ifTrue:ifFalse:" &&
+              mgenc.InlineThenElseBranches(JumpCondition::ON_FALSE)) ||
+             (kw == "ifFalse:ifTrue:" &&
+              mgenc.InlineThenElseBranches(JumpCondition::ON_TRUE)) ||
+             (kw == "ifNil:ifNotNil:" &&
+              mgenc.InlineThenElseBranches(JumpCondition::ON_NOT_NIL)) ||
+             (kw == "ifNotNil:ifNil:" &&
+              mgenc.InlineThenElseBranches(JumpCondition::ON_NIL)) ||
              (kw == "to:do:" && mgenc.InlineToDo()))) {
             return;
         }

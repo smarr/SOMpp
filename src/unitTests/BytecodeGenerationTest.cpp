@@ -841,7 +841,8 @@ void BytecodeGenerationTest::testIfTrueIfFalseReturn() {
     ifTrueIfFalseReturn("ifTrue:", "ifFalse:", BC(BC_JUMP_ON_FALSE_POP, 8, 0));
     ifTrueIfFalseReturn("ifFalse:", "ifTrue:", BC(BC_JUMP_ON_TRUE_POP, 8, 0));
 
-    ifTrueIfFalseReturn("ifNil:", "ifNotNil:", BC(BC_JUMP_ON_NOT_NIL_POP, 8, 0));
+    ifTrueIfFalseReturn(
+        "ifNil:", "ifNotNil:", BC(BC_JUMP_ON_NOT_NIL_POP, 8, 0));
     ifTrueIfFalseReturn("ifNotNil:", "ifNil:", BC(BC_JUMP_ON_NIL_POP, 8, 0));
 }
 void BytecodeGenerationTest::ifTrueIfFalseReturn(const std::string& sel1,

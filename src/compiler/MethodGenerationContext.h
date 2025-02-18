@@ -40,9 +40,7 @@ class Parser;
 
 #define NUM_LAST_BYTECODES 4
 
-enum JumpCondition {
-    ON_TRUE, ON_FALSE, ON_NIL, ON_NOT_NIL
-};
+enum JumpCondition : std::uint8_t { ON_TRUE, ON_FALSE, ON_NIL, ON_NOT_NIL };
 
 class MethodGenerationContext {
 public:
