@@ -18,3 +18,8 @@ std::string DebugGetClassName(gc_oop_t obj) {
 void DebugDumpMethod(VMInvokable* method) {
     Disassembler::DumpMethod((VMMethod*)method, "", false);
 }
+
+void DebugDumpMethod(MethodGenerationContext* mgenc) {
+    Disassembler::DumpMethod(mgenc, "");
+}
+

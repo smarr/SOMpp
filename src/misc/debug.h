@@ -29,6 +29,7 @@
 #include <cstdarg>
 #include <cstdio>
 
+#include "../compiler/MethodGenerationContext.h"
 #include "../vmobjects/ObjectFormats.h"
 
 #define FprintfPass(f, x)         \
@@ -99,3 +100,4 @@ static inline void DebugTrace(const char* fmt, ...) {
 std::string DebugGetClassName(vm_oop_t /*obj*/);
 std::string DebugGetClassName(gc_oop_t /*obj*/);
 void DebugDumpMethod(VMInvokable* method);
+void DebugDumpMethod(MethodGenerationContext* mgenc);
