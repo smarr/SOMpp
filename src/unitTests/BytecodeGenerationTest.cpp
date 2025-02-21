@@ -536,7 +536,7 @@ void BytecodeGenerationTest::testInliningOfToDo() {
            BC_RETURN_SELF});
 }
 
-std::vector<uint8_t> GetBytecodes(VMMethod* method) {
+static std::vector<uint8_t> GetBytecodes(VMMethod* method) {
     std::vector<uint8_t> bcs(method->bcLength);
 
     for (size_t i = 0; i < method->bcLength; i += 1) {
@@ -562,12 +562,11 @@ void BytecodeGenerationTest::testToDoBlockBlockInlinedSelf() {
            BC(BC_JUMP_IF_GREATER, 15, 0),  // consume only on jump
            BC_DUP,
 
-           BC_POP_LOCAL_2,   // store the `a`
-           BC_PUSH_LOCAL_0,  // push the `l1` on the stack
-           BC(BC_PUSH_BLOCK, 1),
-           BC(BC_SEND, 2),   // send #do:
+           BC_POP_LOCAL_2,                        // store the `a`
+           BC_PUSH_LOCAL_0,                       // push the `l1` on the stack
+           BC(BC_PUSH_BLOCK, 1), BC(BC_SEND, 2),  // send #do:
            BC_POP,
-           BC_INC,           // increment top, the iteration counter
+           BC_INC,  // increment top, the iteration counter
 
            // jump back to the jump_if_greater bytecode
            BC(BC_JUMP_BACKWARD, 12, 0),
@@ -575,16 +574,13 @@ void BytecodeGenerationTest::testToDoBlockBlockInlinedSelf() {
            // jump_if_greater target
            BC_RETURN_SELF});
 
-    VMMethod* block = (VMMethod*) _mgenc->GetLiteral(1);
-    check(GetBytecodes(block), {
-        BC_PUSH_ARG_1,
-        BC(BC_JUMP_ON_FALSE_TOP_NIL, 15, 0),
-        BC(BC_PUSH_LOCAL, 2, 1), // load the `a`
-        BC_INC,
-        BC_DUP,
-        BC(BC_POP_LOCAL, 1, 1),
-        BC_RETURN_LOCAL
-    }, block);
+    auto* block = (VMMethod*)_mgenc->GetLiteral(1);
+    check(GetBytecodes(block),
+          {BC_PUSH_ARG_1, BC(BC_JUMP_ON_FALSE_TOP_NIL, 15, 0),
+           BC(BC_PUSH_LOCAL, 2, 1),  // load the `a`
+           BC_POP, BC(BC_PUSH_LOCAL, 1, 1), BC_INC, BC_DUP,
+           BC(BC_POP_LOCAL, 1, 1), BC_RETURN_LOCAL},
+          block);
 }
 
 void BytecodeGenerationTest::testIfArg() {

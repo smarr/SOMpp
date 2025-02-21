@@ -116,6 +116,7 @@ public:
     void InlineAsLocals(vector<Variable>& vars);
 
     uint8_t GetInlinedLocalIdx(const Variable* var) const;
+    const Variable* GetInlinedVariable(const Variable* oldVar) const;
 
     void EmitBackwardsJumpOffsetToTarget(size_t loopBeginIdx);
     void PatchJumpOffsetToPointToNextInstruction(size_t indexOfOffset);
@@ -185,7 +186,5 @@ private:
     bool isCurrentlyInliningABlock{false};
 
     make_testable(public);
-    vm_oop_t GetLiteral(size_t idx) {
-        return literals.at(idx);
-    }
+    vm_oop_t GetLiteral(size_t idx) { return literals.at(idx); }
 };
