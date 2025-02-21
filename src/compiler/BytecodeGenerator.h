@@ -66,8 +66,8 @@ void EmitIncFieldPush(MethodGenerationContext& mgenc, uint8_t fieldIdx);
 
 void EmitDupSecond(MethodGenerationContext& mgenc);
 
-size_t EmitJumpOnBoolWithDummyOffset(MethodGenerationContext& mgenc,
-                                     bool isIfTrue, bool needsPop);
+size_t EmitJumpOnWithDummyOffset(MethodGenerationContext& mgenc,
+                                 JumpCondition condition, bool needsPop);
 size_t EmitJumpWithDumyOffset(MethodGenerationContext& mgenc);
 size_t EmitJumpIfGreaterWithDummyOffset(MethodGenerationContext& mgenc);
 void EmitJumpBackwardWithOffset(MethodGenerationContext& mgenc,

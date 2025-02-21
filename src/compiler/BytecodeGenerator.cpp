@@ -38,6 +38,7 @@
 #include "../vmobjects/Signature.h"
 #include "../vmobjects/VMMethod.h"
 #include "../vmobjects/VMSymbol.h"
+#include "MethodGenerationContext.h"
 
 void Emit1(MethodGenerationContext& mgenc, uint8_t bytecode,
            int64_t stackEffect) {
@@ -298,21 +299,31 @@ void EmitDupSecond(MethodGenerationContext& mgenc) {
     Emit1(mgenc, BC_DUP_SECOND, 1);
 }
 
-size_t EmitJumpOnBoolWithDummyOffset(MethodGenerationContext& mgenc,
-                                     bool isIfTrue, bool needsPop) {
+size_t EmitJumpOnWithDummyOffset(MethodGenerationContext& mgenc,
+                                 JumpCondition condition, bool needsPop) {
     // Remember: true and false seem flipped here.
     // This is because if the test passes, the block is inlined directly.
     // But if the test fails, we need to jump.
     // Thus, an  `#ifTrue:` needs to generated a jump_on_false.
     uint8_t bc = 0;
-    int64_t stackEffect = 0;
+    int64_t const stackEffect = needsPop ? -1 : 0;
 
-    if (needsPop) {
-        bc = isIfTrue ? BC_JUMP_ON_FALSE_POP : BC_JUMP_ON_TRUE_POP;
-        stackEffect = -1;
-    } else {
-        bc = isIfTrue ? BC_JUMP_ON_FALSE_TOP_NIL : BC_JUMP_ON_TRUE_TOP_NIL;
-        stackEffect = 0;
+    switch (condition) {
+        case JumpCondition::ON_TRUE:
+            bc = needsPop ? BC_JUMP_ON_TRUE_POP : BC_JUMP_ON_TRUE_TOP_NIL;
+            break;
+
+        case JumpCondition::ON_FALSE:
+            bc = needsPop ? BC_JUMP_ON_FALSE_POP : BC_JUMP_ON_FALSE_TOP_NIL;
+            break;
+
+        case JumpCondition::ON_NIL:
+            bc = needsPop ? BC_JUMP_ON_NIL_POP : BC_JUMP_ON_NIL_TOP_TOP;
+            break;
+
+        case JumpCondition::ON_NOT_NIL:
+            bc = needsPop ? BC_JUMP_ON_NOT_NIL_POP : BC_JUMP_ON_NOT_NIL_TOP_TOP;
+            break;
     }
 
     Emit1(mgenc, bc, stackEffect);

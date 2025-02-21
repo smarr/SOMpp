@@ -539,6 +539,8 @@ void BytecodeGenerationTest::testInliningOfToDo() {
 void BytecodeGenerationTest::testIfArg() {
     ifArg("ifTrue:", BC_JUMP_ON_FALSE_TOP_NIL);
     ifArg("ifFalse:", BC_JUMP_ON_TRUE_TOP_NIL);
+    ifArg("ifNil:", BC_JUMP_ON_NOT_NIL_TOP_TOP);
+    ifArg("ifNotNil:", BC_JUMP_ON_NIL_TOP_TOP);
 }
 
 void BytecodeGenerationTest::ifArg(std::string selector, int8_t jumpBytecode) {
@@ -838,6 +840,10 @@ void BytecodeGenerationTest::testBlockIfTrueMethodArg() {
 void BytecodeGenerationTest::testIfTrueIfFalseReturn() {
     ifTrueIfFalseReturn("ifTrue:", "ifFalse:", BC(BC_JUMP_ON_FALSE_POP, 8, 0));
     ifTrueIfFalseReturn("ifFalse:", "ifTrue:", BC(BC_JUMP_ON_TRUE_POP, 8, 0));
+
+    ifTrueIfFalseReturn(
+        "ifNil:", "ifNotNil:", BC(BC_JUMP_ON_NOT_NIL_POP, 8, 0));
+    ifTrueIfFalseReturn("ifNotNil:", "ifNil:", BC(BC_JUMP_ON_NIL_POP, 8, 0));
 }
 void BytecodeGenerationTest::ifTrueIfFalseReturn(const std::string& sel1,
                                                  const std::string& sel2,

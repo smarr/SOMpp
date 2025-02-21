@@ -83,15 +83,23 @@
 #define BC_JUMP_ON_TRUE_POP       47
 #define BC_JUMP_ON_FALSE_TOP_NIL  48
 #define BC_JUMP_ON_TRUE_TOP_NIL   49
-#define BC_JUMP_IF_GREATER        50
-#define BC_JUMP_BACKWARD          51
-#define BC_JUMP2                  52
-#define BC_JUMP2_ON_FALSE_POP     53
-#define BC_JUMP2_ON_TRUE_POP      54
-#define BC_JUMP2_ON_FALSE_TOP_NIL 55
-#define BC_JUMP2_ON_TRUE_TOP_NIL  56
-#define BC_JUMP2_IF_GREATER       57
-#define BC_JUMP2_BACKWARD         58
+#define BC_JUMP_ON_NOT_NIL_POP    50
+#define BC_JUMP_ON_NIL_POP        51
+#define BC_JUMP_ON_NOT_NIL_TOP_TOP 52
+#define BC_JUMP_ON_NIL_TOP_TOP    53
+#define BC_JUMP_IF_GREATER        54
+#define BC_JUMP_BACKWARD          55
+#define BC_JUMP2                  56
+#define BC_JUMP2_ON_FALSE_POP     57
+#define BC_JUMP2_ON_TRUE_POP      58
+#define BC_JUMP2_ON_FALSE_TOP_NIL 59
+#define BC_JUMP2_ON_TRUE_TOP_NIL  60
+#define BC_JUMP2_ON_NOT_NIL_POP   61
+#define BC_JUMP2_ON_NIL_POP       62
+#define BC_JUMP2_ON_NOT_NIL_TOP_TOP 63
+#define BC_JUMP2_ON_NIL_TOP_TOP   64
+#define BC_JUMP2_IF_GREATER       65
+#define BC_JUMP2_BACKWARD         66
 
 #define _LAST_BYTECODE BC_JUMP2_BACKWARD
 

@@ -55,6 +55,10 @@ vm_oop_t Start() {
                            &&LABEL_BC_JUMP_ON_TRUE_POP,
                            &&LABEL_BC_JUMP_ON_FALSE_TOP_NIL,
                            &&LABEL_BC_JUMP_ON_TRUE_TOP_NIL,
+                           &&LABEL_BC_JUMP_ON_NOT_NIL_POP,
+                           &&LABEL_BC_JUMP_ON_NIL_POP,
+                           &&LABEL_BC_JUMP_ON_NOT_NIL_TOP_TOP,
+                           &&LABEL_BC_JUMP_ON_NIL_TOP_TOP,
                            &&LABEL_BC_JUMP_IF_GREATER,
                            &&LABEL_BC_JUMP_BACKWARD,
                            &&LABEL_BC_JUMP2,
@@ -62,6 +66,10 @@ vm_oop_t Start() {
                            &&LABEL_BC_JUMP2_ON_TRUE_POP,
                            &&LABEL_BC_JUMP2_ON_FALSE_TOP_NIL,
                            &&LABEL_BC_JUMP2_ON_TRUE_TOP_NIL,
+                           &&LABEL_BC_JUMP2_ON_NOT_NIL_POP,
+                           &&LABEL_BC_JUMP2_ON_NIL_POP,
+                           &&LABEL_BC_JUMP2_ON_NOT_NIL_TOP_TOP,
+                           &&LABEL_BC_JUMP2_ON_NIL_TOP_TOP,
                            &&LABEL_BC_JUMP2_IF_GREATER,
                            &&LABEL_BC_JUMP2_BACKWARD};
 
@@ -300,7 +308,13 @@ LABEL_BC_RETURN_FIELD_2:
 LABEL_BC_INC:
     PROLOGUE(1);
     doInc();
+#if USE_TAGGING
     DISPATCH_NOGC();
+#else
+// without integer tagging doInc() allocates memory and the IfNil benchmark
+// will allocate, but not reach a GC point, and run out of memory
+DISPATCH_GC();
+#endif
 
 LABEL_BC_DEC:
     PROLOGUE(1);
@@ -366,6 +380,56 @@ LABEL_BC_JUMP_ON_TRUE_TOP_NIL: {
         uint8_t const offset = currentBytecodes[bytecodeIndexGlobal + 1];
         bytecodeIndexGlobal += offset;
         GetFrame()->SetTop(nilObject);
+    } else {
+        GetFrame()->PopVoid();
+        bytecodeIndexGlobal += 3;
+    }
+}
+    DISPATCH_NOGC();
+
+LABEL_BC_JUMP_ON_NOT_NIL_POP: {
+    vm_oop_t val = GetFrame()->Top();
+    if (val != load_ptr(nilObject)) {
+        uint8_t const offset = currentBytecodes[bytecodeIndexGlobal + 1];
+        bytecodeIndexGlobal += offset;
+    } else {
+        bytecodeIndexGlobal += 3;
+    }
+    GetFrame()->PopVoid();
+}
+    DISPATCH_NOGC();
+
+LABEL_BC_JUMP_ON_NIL_POP: {
+    vm_oop_t val = GetFrame()->Top();
+    if (val == load_ptr(nilObject)) {
+        uint8_t const offset = currentBytecodes[bytecodeIndexGlobal + 1];
+        bytecodeIndexGlobal += offset;
+    } else {
+        bytecodeIndexGlobal += 3;
+    }
+    GetFrame()->PopVoid();
+}
+    DISPATCH_NOGC();
+
+LABEL_BC_JUMP_ON_NOT_NIL_TOP_TOP: {
+    vm_oop_t val = GetFrame()->Top();
+    if (val != load_ptr(nilObject)) {
+        uint8_t const offset = currentBytecodes[bytecodeIndexGlobal + 1];
+        bytecodeIndexGlobal += offset;
+        // GetFrame()->SetTop(val);
+    } else {
+        GetFrame()->PopVoid();
+        bytecodeIndexGlobal += 3;
+    }
+}
+    DISPATCH_NOGC();
+
+LABEL_BC_JUMP_ON_NIL_TOP_TOP: {
+    vm_oop_t val = GetFrame()->Top();
+    if (val == load_ptr(nilObject)) {
+        uint8_t const offset = currentBytecodes[bytecodeIndexGlobal + 1];
+        bytecodeIndexGlobal += offset;
+        // GetFrame()->SetTop(val);
     } else {
         GetFrame()->PopVoid();
         bytecodeIndexGlobal += 3;
@@ -449,6 +513,64 @@ LABEL_BC_JUMP2_ON_TRUE_TOP_NIL: {
                           currentBytecodes[bytecodeIndexGlobal + 2]);
         bytecodeIndexGlobal += offset;
         GetFrame()->SetTop(nilObject);
+    } else {
+        GetFrame()->PopVoid();
+        bytecodeIndexGlobal += 3;
+    }
+}
+    DISPATCH_NOGC();
+
+LABEL_BC_JUMP2_ON_NOT_NIL_POP: {
+    vm_oop_t val = GetFrame()->Top();
+    if (val != load_ptr(nilObject)) {
+        uint16_t const offset =
+            ComputeOffset(currentBytecodes[bytecodeIndexGlobal + 1],
+                          currentBytecodes[bytecodeIndexGlobal + 2]);
+        bytecodeIndexGlobal += offset;
+    } else {
+        bytecodeIndexGlobal += 3;
+    }
+    GetFrame()->PopVoid();
+}
+    DISPATCH_NOGC();
+
+LABEL_BC_JUMP2_ON_NIL_POP: {
+    vm_oop_t val = GetFrame()->Top();
+    if (val == load_ptr(nilObject)) {
+        uint16_t const offset =
+            ComputeOffset(currentBytecodes[bytecodeIndexGlobal + 1],
+                          currentBytecodes[bytecodeIndexGlobal + 2]);
+        bytecodeIndexGlobal += offset;
+    } else {
+        bytecodeIndexGlobal += 3;
+    }
+    GetFrame()->PopVoid();
+}
+    DISPATCH_NOGC();
+
+LABEL_BC_JUMP2_ON_NOT_NIL_TOP_TOP: {
+    vm_oop_t val = GetFrame()->Top();
+    if (val != load_ptr(nilObject)) {
+        uint16_t const offset =
+            ComputeOffset(currentBytecodes[bytecodeIndexGlobal + 1],
+                          currentBytecodes[bytecodeIndexGlobal + 2]);
+        bytecodeIndexGlobal += offset;
+        // GetFrame()->SetTop(val);
+    } else {
+        GetFrame()->PopVoid();
+        bytecodeIndexGlobal += 3;
+    }
+}
+    DISPATCH_NOGC();
+
+LABEL_BC_JUMP2_ON_NIL_TOP_TOP: {
+    vm_oop_t val = GetFrame()->Top();
+    if (val == load_ptr(nilObject)) {
+        uint16_t const offset =
+            ComputeOffset(currentBytecodes[bytecodeIndexGlobal + 1],
+                          currentBytecodes[bytecodeIndexGlobal + 2]);
+        bytecodeIndexGlobal += offset;
+        // GetFrame()->SetTop(val);
     } else {
         GetFrame()->PopVoid();
         bytecodeIndexGlobal += 3;

@@ -34,6 +34,7 @@
 #include <string>
 
 #include "../compiler/BytecodeGenerator.h"
+#include "../compiler/Disassembler.h"
 #include "../compiler/LexicalScope.h"
 #include "../compiler/MethodGenerationContext.h"
 #include "../compiler/Variable.h"
@@ -162,6 +163,10 @@ void VMMethod::SetHolderAll(VMClass* hld) {
             }
         }
     }
+}
+
+void VMMethod::Dump(const char* indent, bool printObjects) {
+    Disassembler::DumpMethod(this, indent, printObjects);
 }
 
 std::string VMMethod::AsDebugString() const {
@@ -414,9 +419,13 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
             case BC_JUMP:
             case BC_JUMP_ON_TRUE_TOP_NIL:
             case BC_JUMP_ON_FALSE_TOP_NIL:
+            case BC_JUMP_ON_NOT_NIL_TOP_TOP:
+            case BC_JUMP_ON_NIL_TOP_TOP:
             case BC_JUMP2:
             case BC_JUMP2_ON_TRUE_TOP_NIL:
             case BC_JUMP2_ON_FALSE_TOP_NIL:
+            case BC_JUMP2_ON_NOT_NIL_TOP_TOP:
+            case BC_JUMP2_ON_NIL_TOP_TOP:
             case BC_JUMP_IF_GREATER:
             case BC_JUMP2_IF_GREATER: {
                 // emit the jump, but instead of the offset, emit a dummy
@@ -430,7 +439,11 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
             case BC_JUMP_ON_TRUE_POP:
             case BC_JUMP_ON_FALSE_POP:
             case BC_JUMP2_ON_TRUE_POP:
-            case BC_JUMP2_ON_FALSE_POP: {
+            case BC_JUMP2_ON_FALSE_POP:
+            case BC_JUMP_ON_NOT_NIL_POP:
+            case BC_JUMP_ON_NIL_POP:
+            case BC_JUMP2_ON_NOT_NIL_POP:
+            case BC_JUMP2_ON_NIL_POP: {
                 // emit the jump, but instead of the offset, emit a dummy
                 const size_t idx = Emit3WithDummy(mgenc, bytecode, -1);
                 const size_t offset =
@@ -548,12 +561,20 @@ void VMMethod::AdaptAfterOuterInlined(
             case BC_JUMP_ON_TRUE_POP:
             case BC_JUMP_ON_FALSE_TOP_NIL:
             case BC_JUMP_ON_FALSE_POP:
+            case BC_JUMP_ON_NOT_NIL_TOP_TOP:
+            case BC_JUMP_ON_NIL_TOP_TOP:
+            case BC_JUMP_ON_NOT_NIL_POP:
+            case BC_JUMP_ON_NIL_POP:
             case BC_JUMP_BACKWARD:
             case BC_JUMP2:
             case BC_JUMP2_ON_TRUE_TOP_NIL:
             case BC_JUMP2_ON_TRUE_POP:
             case BC_JUMP2_ON_FALSE_TOP_NIL:
             case BC_JUMP2_ON_FALSE_POP:
+            case BC_JUMP2_ON_NOT_NIL_TOP_TOP:
+            case BC_JUMP2_ON_NIL_TOP_TOP:
+            case BC_JUMP2_ON_NOT_NIL_POP:
+            case BC_JUMP2_ON_NIL_POP:
             case BC_JUMP2_BACKWARD: {
                 // these bytecodes do not use context and don't need to be
                 // adapted

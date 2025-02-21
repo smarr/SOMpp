@@ -81,6 +81,10 @@ const uint8_t Bytecode::bytecodeLengths[] = {
     3,  // BC_JUMP_ON_TRUE_POP
     3,  // BC_JUMP_ON_FALSE_TOP_NIL
     3,  // BC_JUMP_ON_TRUE_TOP_NIL
+    3,  // BC_JUMP_ON_NOT_NIL_POP
+    3,  // BC_JUMP_ON_NIL_POP
+    3,  // BC_JUMP_ON_NOT_NIL_TOP_TOP
+    3,  // BC_JUMP_ON_NIL_TOP_TOP
     3,  // BC_JUMP_IF_GREATER
     3,  // BC_JUMP_BACKWARD
 
@@ -89,75 +93,87 @@ const uint8_t Bytecode::bytecodeLengths[] = {
     3,  // BC_JUMP2_ON_TRUE_POP
     3,  // BC_JUMP2_ON_FALSE_TOP_NIL
     3,  // BC_JUMP2_ON_TRUE_TOP_NIL
+    3,  // BC_JUMP2_ON_NOT_NIL_POP
+    3,  // BC_JUMP2_ON_NIL_POP
+    3,  // BC_JUMP2_ON_NOT_NIL_TOP_TOP
+    3,  // BC_JUMP2_ON_NIL_TOP_TOP
     3,  // BC_JUMP2_IF_GREATER
     3,  // BC_JUMP2_BACKWARD
 };
 
 const char* Bytecode::bytecodeNames[] = {
-    "HALT            ",        // 0
-    "DUP             ",        // 1
-    "DUP_SECOND      ",        // 2
-    "PUSH_LOCAL      ",        // 3
-    "PUSH_LOCAL_0    ",        // 4
-    "PUSH_LOCAL_1    ",        // 5
-    "PUSH_LOCAL_2    ",        // 6
-    "PUSH_ARGUMENT   ",        // 7
-    "PUSH_SELF       ",        // 8
-    "PUSH_ARG_1      ",        // 9
-    "PUSH_ARG_2      ",        // 10
-    "PUSH_FIELD      ",        // 11
-    "PUSH_FIELD_0    ",        // 12
-    "PUSH_FIELD_1    ",        // 13
-    "PUSH_BLOCK      ",        // 14
-    "PUSH_CONSTANT   ",        // 15
-    "PUSH_CONSTANT_0 ",        // 16
-    "PUSH_CONSTANT_1 ",        // 17
-    "PUSH_CONSTANT_2 ",        // 18
-    "PUSH_0          ",        // 19
-    "PUSH_1          ",        // 20
-    "PUSH_NIL        ",        // 21
-    "PUSH_GLOBAL     ",        // 22
-    "POP             ",        // 23
-    "POP_LOCAL       ",        // 24
-    "POP_LOCAL_0     ",        // 25
-    "POP_LOCAL_1     ",        // 26
-    "POP_LOCAL_2     ",        // 27
-    "POP_ARGUMENT    ",        // 28
-    "POP_FIELD       ",        // 29
-    "POP_FIELD_0     ",        // 30
-    "POP_FIELD_1     ",        // 31
-    "SEND            ",        // 32
-    "SEND_1          ",        // 33
-    "SUPER_SEND      ",        // 34
-    "RETURN_LOCAL    ",        // 35
-    "RETURN_NON_LOCAL",        // 36
-    "RETURN_SELF     ",        // 37
-    "RETURN_FIELD_0  ",        // 38
-    "RETURN_FIELD_1  ",        // 39
-    "RETURN_FIELD_2  ",        // 40
-    "INC             ",        // 41
-    "DEC             ",        // 42
-    "INC_FIELD       ",        // 43
-    "INC_FIELD_PUSH  ",        // 44
-    "JUMP            ",        // 45
-    "JUMP_ON_FALSE_POP",       // 46
-    "JUMP_ON_TRUE_POP",        // 47
-    "JUMP_ON_FALSE_TOP_NIL",   // 48
-    "JUMP_ON_TRUE_TOP_NIL",    // 49
-    "JUMP_IF_GREATER ",        // 50
-    "JUMP_BACKWARD   ",        // 51
-    "JUMP2           ",        // 52
-    "JUMP2_ON_FALSE_POP",      // 53
-    "JUMP2_ON_TRUE_POP",       // 54
-    "JUMP2_ON_FALSE_TOP_NIL",  // 55
-    "JUMP2_ON_TRUE_TOP_NIL",   // 56
-    "JUMP2_IF_GREATER",        // 57
-    "JUMP2_BACKWARD  ",        // 58
+    "HALT            ",          // 0
+    "DUP             ",          // 1
+    "DUP_SECOND      ",          // 2
+    "PUSH_LOCAL      ",          // 3
+    "PUSH_LOCAL_0    ",          // 4
+    "PUSH_LOCAL_1    ",          // 5
+    "PUSH_LOCAL_2    ",          // 6
+    "PUSH_ARGUMENT   ",          // 7
+    "PUSH_SELF       ",          // 8
+    "PUSH_ARG_1      ",          // 9
+    "PUSH_ARG_2      ",          // 10
+    "PUSH_FIELD      ",          // 11
+    "PUSH_FIELD_0    ",          // 12
+    "PUSH_FIELD_1    ",          // 13
+    "PUSH_BLOCK      ",          // 14
+    "PUSH_CONSTANT   ",          // 15
+    "PUSH_CONSTANT_0 ",          // 16
+    "PUSH_CONSTANT_1 ",          // 17
+    "PUSH_CONSTANT_2 ",          // 18
+    "PUSH_0          ",          // 19
+    "PUSH_1          ",          // 20
+    "PUSH_NIL        ",          // 21
+    "PUSH_GLOBAL     ",          // 22
+    "POP             ",          // 23
+    "POP_LOCAL       ",          // 24
+    "POP_LOCAL_0     ",          // 25
+    "POP_LOCAL_1     ",          // 26
+    "POP_LOCAL_2     ",          // 27
+    "POP_ARGUMENT    ",          // 28
+    "POP_FIELD       ",          // 29
+    "POP_FIELD_0     ",          // 30
+    "POP_FIELD_1     ",          // 31
+    "SEND            ",          // 32
+    "SEND_1          ",          // 33
+    "SUPER_SEND      ",          // 34
+    "RETURN_LOCAL    ",          // 35
+    "RETURN_NON_LOCAL",          // 36
+    "RETURN_SELF     ",          // 37
+    "RETURN_FIELD_0  ",          // 38
+    "RETURN_FIELD_1  ",          // 39
+    "RETURN_FIELD_2  ",          // 40
+    "INC             ",          // 41
+    "DEC             ",          // 42
+    "INC_FIELD       ",          // 43
+    "INC_FIELD_PUSH  ",          // 44
+    "JUMP            ",          // 45
+    "JUMP_ON_FALSE_POP",         // 46
+    "JUMP_ON_TRUE_POP",          // 47
+    "JUMP_ON_FALSE_TOP_NIL",     // 48
+    "JUMP_ON_TRUE_TOP_NIL",      // 49
+    "JUMP_ON_NOT_NIL_POP",       // 50
+    "JUMP_ON_NIL_POP ",          // 51
+    "JUMP_ON_NOT_NIL_TOP_TOP",   // 52
+    "JUMP_ON_NIL_TOP_TOP",       // 53
+    "JUMP_IF_GREATER ",          // 54
+    "JUMP_BACKWARD   ",          // 55
+    "JUMP2           ",          // 56
+    "JUMP2_ON_FALSE_POP",        // 57
+    "JUMP2_ON_TRUE_POP",         // 58
+    "JUMP2_ON_FALSE_TOP_NIL",    // 59
+    "JUMP2_ON_TRUE_TOP_NIL",     // 60
+    "JUMP2_ON_NOT_NIL_POP",      // 61
+    "JUMP2_ON_NIL_POP ",         // 62
+    "JUMP2_ON_NOT_NIL_TOP_TOP",  // 63
+    "JUMP2_ON_NIL_TOP_TOP",      // 64
+    "JUMP2_IF_GREATER",          // 65
+    "JUMP2_BACKWARD  ",          // 66
 };
 
 bool IsJumpBytecode(uint8_t bc) {
     static_assert(BC_JUMP < BC_JUMP2_BACKWARD);
-    static_assert((BC_JUMP2_BACKWARD - BC_JUMP) == 13);
+    static_assert((BC_JUMP2_BACKWARD - BC_JUMP) == 21);
 
     return BC_JUMP <= bc && bc <= BC_JUMP2_BACKWARD;
 }
