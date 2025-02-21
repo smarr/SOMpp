@@ -3,6 +3,7 @@
 #include <string>
 
 #include "../compiler/Disassembler.h"
+#include "../compiler/MethodGenerationContext.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMClass.h"
 #include "../vmobjects/VMSymbol.h"
@@ -22,4 +23,3 @@ void DebugDumpMethod(VMInvokable* method) {
 void DebugDumpMethod(MethodGenerationContext* mgenc) {
     Disassembler::DumpMethod(mgenc, "");
 }
-
