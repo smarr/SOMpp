@@ -536,6 +536,7 @@ void VMMethod::AdaptAfterOuterInlined(
 
         switch (bytecode) {
             case BC_DUP:
+            case BC_DUP_SECOND:
             case BC_PUSH_CONSTANT:
             case BC_PUSH_CONSTANT_0:
             case BC_PUSH_CONSTANT_1:
