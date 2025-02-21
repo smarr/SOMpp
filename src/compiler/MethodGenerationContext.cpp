@@ -743,7 +743,8 @@ uint8_t MethodGenerationContext::GetInlinedLocalIdx(const Variable* var) const {
     ErrorExit(msg);
 }
 
-const Variable* MethodGenerationContext::GetInlinedVariable(const Variable* oldVar) const {
+const Variable* MethodGenerationContext::GetInlinedVariable(
+    const Variable* oldVar) const {
     for (const Variable& v : locals) {
         if (v.IsSame(*oldVar)) {
             return &v;
@@ -762,9 +763,7 @@ const Variable* MethodGenerationContext::GetInlinedVariable(const Variable* oldV
 
     char msg[100];
     const std::string* name = oldVar->GetName();
-    (void)snprintf(
-        msg, 100,
-        "Failed to find inlined variable named %s.\n",
+    (void)snprintf(msg, 100, "Failed to find inlined variable named %s.\n",
                    name->c_str());
     ErrorExit(msg);
 }
