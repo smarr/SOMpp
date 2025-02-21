@@ -107,8 +107,7 @@ std::vector<uint8_t> TestWithParsing::blockToBytecode(const char* source,
 }
 
 void TestWithParsing::check(std::vector<uint8_t> actual,
-                            std::vector<BC>
-                                expected, VMMethod* toDump) {
+                            std::vector<BC> expected, VMMethod* toDump) {
     size_t i = 0;
     size_t bci = 0;
     for (; bci < actual.size() && i < expected.size();) {
