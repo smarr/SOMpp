@@ -550,6 +550,8 @@ void VMMethod::AdaptAfterOuterInlined(
             case BC_INC:
             case BC_DEC:
             case BC_JUMP:
+            case BC_INC_FIELD_PUSH: // just field index, implicit/dynamic self lookup in SOM++
+            case BC_INC_FIELD: // just field index, implicit/dynamic self lookup in SOM++
             case BC_JUMP_ON_TRUE_TOP_NIL:
             case BC_JUMP_ON_TRUE_POP:
             case BC_JUMP_ON_FALSE_TOP_NIL:
@@ -567,9 +569,7 @@ void VMMethod::AdaptAfterOuterInlined(
             }
 
             case BC_PUSH_ARGUMENT:
-            case BC_POP_ARGUMENT:
-            case BC_INC_FIELD_PUSH:
-            case BC_INC_FIELD: {
+            case BC_POP_ARGUMENT: {
                 uint8_t const ctxLevel = bytecodes[i + 2];
                 if (ctxLevel > removedCtxLevel) {
                     bytecodes[i + 2] = ctxLevel - 1;
