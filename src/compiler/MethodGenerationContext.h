@@ -181,4 +181,9 @@ private:
     std::vector<BackJump> inlinedLoops;
 
     bool isCurrentlyInliningABlock{false};
+
+    make_testable(public);
+    vm_oop_t GetLiteral(size_t idx) {
+        return literals.at(idx);
+    }
 };

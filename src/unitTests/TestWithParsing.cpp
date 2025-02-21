@@ -28,6 +28,15 @@ void TestWithParsing::dump(MethodGenerationContext* mgenc) {
     Disassembler::DumpMethod(mgenc, "");
 }
 
+void TestWithParsing::dump(VMMethod* method) {
+    if (method != nullptr) {
+        Disassembler::DumpMethod(method, "");
+        return;
+    }
+
+    dump(static_cast<MethodGenerationContext*>(nullptr));
+}
+
 void TestWithParsing::ensureCGenC() {
     if (_cgenc != nullptr) {
         return;
@@ -99,7 +108,7 @@ std::vector<uint8_t> TestWithParsing::blockToBytecode(const char* source,
 
 void TestWithParsing::check(std::vector<uint8_t> actual,
                             std::vector<BC>
-                                expected) {
+                                expected, VMMethod* toDump) {
     size_t i = 0;
     size_t bci = 0;
     for (; bci < actual.size() && i < expected.size();) {
@@ -114,7 +123,7 @@ void TestWithParsing::check(std::vector<uint8_t> actual,
                        bci, Bytecode::GetBytecodeName(expectedBc.bytecode),
                        Bytecode::GetBytecodeName(actualBc));
         if (expectedBc.bytecode != actualBc) {
-            dump();
+            dump(toDump);
         }
         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expectedBc.bytecode, actualBc);
 
@@ -125,7 +134,7 @@ void TestWithParsing::check(std::vector<uint8_t> actual,
             (size_t)bcLength);
 
         if (expectedBc.size != bcLength) {
-            dump();
+            dump(toDump);
         }
         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expectedBc.size, (size_t)bcLength);
 
@@ -135,7 +144,7 @@ void TestWithParsing::check(std::vector<uint8_t> actual,
                            i, Bytecode::GetBytecodeName(expectedBc.bytecode),
                            expectedBc.arg1, actual.at(bci + 1));
             if (expectedBc.arg1 != actual.at(bci + 1)) {
-                dump();
+                dump(toDump);
             }
             CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expectedBc.arg1,
                                          actual.at(bci + 1));
@@ -147,7 +156,7 @@ void TestWithParsing::check(std::vector<uint8_t> actual,
                     Bytecode::GetBytecodeName(expectedBc.bytecode),
                     expectedBc.arg2, actual.at(bci + 2));
                 if (expectedBc.arg2 != actual.at(bci + 2)) {
-                    dump();
+                    dump(toDump);
                 }
                 CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expectedBc.arg2,
                                              actual.at(bci + 2));
@@ -158,7 +167,7 @@ void TestWithParsing::check(std::vector<uint8_t> actual,
         bci += bcLength;
     }
     if (expected.size() != i || actual.size() != bci) {
-        dump();
+        dump(toDump);
     }
 
     CPPUNIT_ASSERT_EQUAL_MESSAGE("All expected bytecodes covered",

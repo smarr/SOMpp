@@ -187,8 +187,6 @@ private:
     void inlineInto(MethodGenerationContext& mgenc);
     std::priority_queue<BackJump> createBackJumpHeap();
 
-    [[nodiscard]] inline uint8_t* GetBytecodes() const { return bytecodes; }
-
     [[nodiscard]] inline vm_oop_t GetIndexableField(size_t idx) const {
         return load_ptr(indexableFields[idx]);
     }
@@ -203,6 +201,8 @@ private:
                                           MethodGenerationContext& mgenc);
 
     make_testable(public);
+
+    [[nodiscard]] inline uint8_t* GetBytecodes() const { return bytecodes; }
 
     const size_t numberOfLocals;
     const size_t maximumNumberOfStackElements;
