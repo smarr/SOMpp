@@ -743,6 +743,32 @@ uint8_t MethodGenerationContext::GetInlinedLocalIdx(const Variable* var) const {
     ErrorExit(msg);
 }
 
+const Variable* MethodGenerationContext::GetInlinedVariable(const Variable* oldVar) const {
+    for (const Variable& v : locals) {
+        if (v.IsSame(*oldVar)) {
+            return &v;
+        }
+    }
+
+    for (const Variable& v : arguments) {
+        if (v.IsSame(*oldVar)) {
+            return &v;
+        }
+    }
+
+    if (outerGenc != nullptr) {
+        return outerGenc->GetInlinedVariable(oldVar);
+    }
+
+    char msg[100];
+    const std::string* name = oldVar->GetName();
+    (void)snprintf(
+        msg, 100,
+        "Failed to find inlined variable named %s.\n",
+                   name->c_str());
+    ErrorExit(msg);
+}
+
 void MethodGenerationContext::checkJumpOffset(size_t jumpOffset,
                                               uint8_t bytecode) {
     if (jumpOffset < 0 || jumpOffset > 0xFFFF) {

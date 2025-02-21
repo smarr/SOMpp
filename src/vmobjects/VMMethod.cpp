@@ -570,9 +570,25 @@ void VMMethod::AdaptAfterOuterInlined(
 
             case BC_PUSH_ARGUMENT:
             case BC_POP_ARGUMENT: {
+                uint8_t const idx = bytecodes[i + 1];
                 uint8_t const ctxLevel = bytecodes[i + 2];
-                if (ctxLevel > removedCtxLevel) {
-                    bytecodes[i + 2] = ctxLevel - 1;
+
+                uint8_t const newContextLevel = ctxLevel > removedCtxLevel ? ctxLevel - 1 : ctxLevel;
+
+                const Variable* oldArg = lexicalScope->GetArgument(idx, ctxLevel);
+                const Variable* newVar = mgencWithInlined.GetInlinedVariable(oldArg);
+
+                if (newVar->IsArgument()) {
+                    if (ctxLevel > removedCtxLevel) {
+                        bytecodes[i + 2] = newContextLevel;
+                    }
+                    assert(newVar->GetIndex() == idx);
+                } else {
+                    bytecodes[i] = bytecode == BC_PUSH_ARGUMENT ? BC_PUSH_LOCAL : BC_POP_LOCAL;
+                    bytecodes[i + 1] = newVar->GetIndex();
+                    if (ctxLevel > removedCtxLevel) {
+                        bytecodes[i + 2] = newContextLevel;
+                    }
                 }
                 break;
             }

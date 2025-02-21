@@ -580,6 +580,8 @@ void BytecodeGenerationTest::testToDoBlockBlockInlinedSelf() {
         BC_PUSH_ARG_1,
         BC(BC_JUMP_ON_FALSE_TOP_NIL, 15, 0),
         BC(BC_PUSH_LOCAL, 2, 1), // load the `a`
+        BC_POP,
+        BC(BC_PUSH_LOCAL, 1, 1),
         BC_INC,
         BC_DUP,
         BC(BC_POP_LOCAL, 1, 1),
