@@ -121,7 +121,7 @@ public:
 
     [[nodiscard]] size_t GetNumberOfBytecodes() const { return bcLength; }
     void SetHolder(VMClass* hld) override;
-    void SetHolderAll(VMClass* hld);
+    void SetHolderAll(VMClass* hld) const;
 
     [[nodiscard]] inline vm_oop_t GetConstant(size_t bytecodeIndex) const {
         const uint8_t bc = bytecodes[bytecodeIndex + 1];
@@ -187,12 +187,6 @@ private:
     void inlineInto(MethodGenerationContext& mgenc);
     std::priority_queue<BackJump> createBackJumpHeap();
 
-    [[nodiscard]] inline uint8_t* GetBytecodes() const { return bytecodes; }
-
-    [[nodiscard]] inline vm_oop_t GetIndexableField(size_t idx) const {
-        return load_ptr(indexableFields[idx]);
-    }
-
     static void prepareBackJumpToCurrentAddress(
         std::priority_queue<BackJump>& backJumps,
         std::priority_queue<BackJumpPatch>& backJumpsToPatch, size_t i,
@@ -203,6 +197,12 @@ private:
                                           MethodGenerationContext& mgenc);
 
     make_testable(public);
+
+    [[nodiscard]] inline uint8_t* GetBytecodes() const { return bytecodes; }
+
+    [[nodiscard]] inline vm_oop_t GetIndexableField(size_t idx) const {
+        return load_ptr(indexableFields[idx]);
+    }
 
     const size_t numberOfLocals;
     const size_t maximumNumberOfStackElements;

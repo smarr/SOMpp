@@ -172,8 +172,11 @@ const char* Bytecode::bytecodeNames[] = {
 };
 
 bool IsJumpBytecode(uint8_t bc) {
-    static_assert(BC_JUMP < BC_JUMP2_BACKWARD);
-    static_assert((BC_JUMP2_BACKWARD - BC_JUMP) == 21);
+    static_assert(
+        BC_JUMP < BC_JUMP2_BACKWARD,
+        "make sure the nummeric value of jump bytecodes is as expected");
+    static_assert((BC_JUMP2_BACKWARD - BC_JUMP) == 21,
+                  "we expect there to be 22 jump bytecodes");
 
     return BC_JUMP <= bc && bc <= BC_JUMP2_BACKWARD;
 }

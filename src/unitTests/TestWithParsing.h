@@ -54,6 +54,10 @@ protected:
                                          bool dumpBytecodes = false);
 
     void dump(MethodGenerationContext* mgenc = nullptr);
+    void dump(VMMethod* method = nullptr);
 
-    void check(std::vector<uint8_t> actual, std::vector<BC> expected);
+    void check(std::vector<uint8_t> actual,
+               std::vector<BC>
+                   expected,
+               VMMethod* toDump = nullptr);
 };

@@ -152,7 +152,7 @@ void VMMethod::SetHolder(VMClass* hld) {
     SetHolderAll(hld);
 }
 
-void VMMethod::SetHolderAll(VMClass* hld) {
+void VMMethod::SetHolderAll(VMClass* hld) const {
     size_t const numIndexableFields = GetNumberOfIndexableFields();
     for (size_t i = 0; i < numIndexableFields; ++i) {
         vm_oop_t o = GetIndexableField(i);
@@ -536,6 +536,7 @@ void VMMethod::AdaptAfterOuterInlined(
 
         switch (bytecode) {
             case BC_DUP:
+            case BC_DUP_SECOND:
             case BC_PUSH_CONSTANT:
             case BC_PUSH_CONSTANT_0:
             case BC_PUSH_CONSTANT_1:
@@ -557,6 +558,10 @@ void VMMethod::AdaptAfterOuterInlined(
             case BC_INC:
             case BC_DEC:
             case BC_JUMP:
+            case BC_INC_FIELD_PUSH:  // just field index, implicit/dynamic self
+                                     // lookup in SOM++
+            case BC_INC_FIELD:       // just field index, implicit/dynamic self
+                                     // lookup in SOM++
             case BC_JUMP_ON_TRUE_TOP_NIL:
             case BC_JUMP_ON_TRUE_POP:
             case BC_JUMP_ON_FALSE_TOP_NIL:
@@ -582,12 +587,30 @@ void VMMethod::AdaptAfterOuterInlined(
             }
 
             case BC_PUSH_ARGUMENT:
-            case BC_POP_ARGUMENT:
-            case BC_INC_FIELD_PUSH:
-            case BC_INC_FIELD: {
+            case BC_POP_ARGUMENT: {
+                uint8_t const idx = bytecodes[i + 1];
                 uint8_t const ctxLevel = bytecodes[i + 2];
-                if (ctxLevel > removedCtxLevel) {
-                    bytecodes[i + 2] = ctxLevel - 1;
+
+                uint8_t const newContextLevel =
+                    ctxLevel > removedCtxLevel ? ctxLevel - 1 : ctxLevel;
+
+                const Variable* oldArg =
+                    lexicalScope->GetArgument(idx, ctxLevel);
+                const Variable* newVar =
+                    mgencWithInlined.GetInlinedVariable(oldArg);
+
+                if (newVar->IsArgument()) {
+                    if (ctxLevel > removedCtxLevel) {
+                        bytecodes[i + 2] = newContextLevel;
+                    }
+                    assert(newVar->GetIndex() == idx);
+                } else {
+                    bytecodes[i] = bytecode == BC_PUSH_ARGUMENT ? BC_PUSH_LOCAL
+                                                                : BC_POP_LOCAL;
+                    bytecodes[i + 1] = newVar->GetIndex();
+                    if (ctxLevel > removedCtxLevel) {
+                        bytecodes[i + 2] = newContextLevel;
+                    }
                 }
                 break;
             }

@@ -26,6 +26,9 @@
  THE SOFTWARE.
  */
 
+#include <cstdint>
+#include <type_traits>
+
 #include "../vmobjects/VMArray.h"
 #include "../vmobjects/VMMethod.h"
 

@@ -536,6 +536,128 @@ void BytecodeGenerationTest::testInliningOfToDo() {
            BC_RETURN_SELF});
 }
 
+static std::vector<uint8_t> GetBytecodes(VMMethod* method) {
+    std::vector<uint8_t> bcs(method->bcLength);
+
+    for (size_t i = 0; i < method->bcLength; i += 1) {
+        bcs.at(i) = method->GetBytecode(i);
+    }
+    return bcs;
+}
+
+void BytecodeGenerationTest::testToDoBlockBlockInlinedSelf() {
+    auto bytecodes = methodToBytecode(R"""(
+                                      test = (
+                                        | l1 l2 |
+                                        1 to: 2 do: [:a |
+                                            l1 do: [:b |
+                                            b ifTrue: [
+                                                a.
+                                                l2 := l2 + 1 ] ] ]
+                                      ) )""");
+    check(bytecodes,
+          {BC_PUSH_1, BC_PUSH_CONSTANT_0,
+           BC_DUP_SECOND,  // stack: Top[1, 2, 1]
+
+           BC(BC_JUMP_IF_GREATER, 15, 0),  // consume only on jump
+           BC_DUP,
+
+           BC_POP_LOCAL_2,                        // store the `a`
+           BC_PUSH_LOCAL_0,                       // push the `l1` on the stack
+           BC(BC_PUSH_BLOCK, 1), BC(BC_SEND, 2),  // send #do:
+           BC_POP,
+           BC_INC,  // increment top, the iteration counter
+
+           // jump back to the jump_if_greater bytecode
+           BC(BC_JUMP_BACKWARD, 12, 0),
+
+           // jump_if_greater target
+           BC_RETURN_SELF});
+
+    auto* block = (VMMethod*)_mgenc->GetLiteral(1);
+    check(GetBytecodes(block),
+          {BC_PUSH_ARG_1, BC(BC_JUMP_ON_FALSE_TOP_NIL, 15, 0),
+           BC(BC_PUSH_LOCAL, 2, 1),  // load the `a`
+           BC_POP, BC(BC_PUSH_LOCAL, 1, 1), BC_INC, BC_DUP,
+           BC(BC_POP_LOCAL, 1, 1), BC_RETURN_LOCAL},
+          block);
+}
+
+void BytecodeGenerationTest::testToDoWithMoreEmbeddedBlocksAndArgAccess() {
+    auto bytecodes = methodToBytecode(R"""(
+                                        transferEntries: oldStorage = (
+                                          1 to: oldStorage length do: [:i |
+                                            | current |
+                                            current := oldStorage at: i.
+                                            current notInlined: [
+                                              oldStorage at: i put: nil.
+                                              current next
+                                                noInline: [ i. current. #foo ]
+                                                noInline: [
+                                                  self splitBucket: oldStorage bucket: i head: current ] ] ]
+                                        ) )""");
+    check(bytecodes,
+          {BC_PUSH_1, BC_PUSH_ARG_1, BC(BC_SEND_1, 0),
+           BC_DUP_SECOND,  //~
+
+           BC(BC_JUMP_IF_GREATER, 20, 0),  // consume only on jump
+           BC_DUP,
+
+           BC_POP_LOCAL_0,   // i
+           BC_PUSH_ARG_1,    // oldStorage
+           BC_PUSH_LOCAL_0,  // i
+           BC(BC_SEND, 1),   // #at:
+
+           BC_POP_LOCAL_1,        // current
+           BC_PUSH_LOCAL_1,       // current
+           BC(BC_PUSH_BLOCK, 2),  // ~
+           BC(BC_SEND, 3),        // send #notInlined:
+           BC_POP,
+           BC_INC,  // increment top, the iteration counter
+
+           // jump back to the jump_if_greater bytecode
+           BC(BC_JUMP_BACKWARD, 17, 0),
+
+           // jump_if_greater target
+           BC_RETURN_SELF});
+
+    auto* block = (VMMethod*)_mgenc->GetLiteral(2);
+    check(GetBytecodes(block),
+          {BC(BC_PUSH_ARGUMENT, 1, 1),   // oldStorage
+           BC(BC_PUSH_LOCAL, 0, 1),      // i
+           BC_PUSH_NIL, BC(BC_SEND, 0),  // #at:put:
+           BC_POP,
+
+           BC(BC_PUSH_LOCAL, 1, 1),  // current
+           BC(BC_SEND_1, 1),         // #next
+           BC(BC_PUSH_BLOCK, 2),     //~
+           BC(BC_PUSH_BLOCK, 3),     //~
+           BC(BC_SEND, 4),           // #noInline:noInline:
+           BC_RETURN_LOCAL},
+          block);
+
+    // [ i. current. #foo ]
+    auto* block2 = (VMMethod*)block->GetIndexableField(2);
+    check(GetBytecodes(block2),
+          {BC(BC_PUSH_LOCAL, 0, 2),  // i
+           BC_POP,                   //~
+           BC(BC_PUSH_LOCAL, 1, 2),  // current
+           BC_POP,                   //~
+           BC_PUSH_CONSTANT_0, BC_RETURN_LOCAL},
+          block2);
+
+    // [ self splitBucket: oldStorage bucket: i head: current ]
+    auto* block3 = (VMMethod*)block->GetIndexableField(3);
+    check(GetBytecodes(block3),
+          {BC(BC_PUSH_ARGUMENT, 0, 2),  // self
+           BC(BC_PUSH_ARGUMENT, 1, 2),  // oldStorage
+           BC(BC_PUSH_LOCAL, 0, 2),     // i
+           BC(BC_PUSH_LOCAL, 1, 2),     // current
+           BC(BC_SEND, 0),              // #splitBucket:bucket:head:
+           BC_RETURN_LOCAL},
+          block3);
+}
+
 void BytecodeGenerationTest::testIfArg() {
     ifArg("ifTrue:", BC_JUMP_ON_FALSE_TOP_NIL);
     ifArg("ifFalse:", BC_JUMP_ON_TRUE_TOP_NIL);

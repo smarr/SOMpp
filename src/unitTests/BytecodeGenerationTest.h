@@ -10,6 +10,7 @@
 class BytecodeGenerationTest : public TestWithParsing {
     // NOLINTNEXTLINE(misc-const-correctness)
     CPPUNIT_TEST_SUITE(BytecodeGenerationTest);
+
     CPPUNIT_TEST(testEmptyMethodReturnsSelf);
     CPPUNIT_TEST(testPushConstant);
     CPPUNIT_TEST(testIfPushConstantSame);
@@ -50,7 +51,11 @@ class BytecodeGenerationTest : public TestWithParsing {
     CPPUNIT_TEST(testIfTrueIfFalseNlrArg2);
     CPPUNIT_TEST(testInliningOfOr);
     CPPUNIT_TEST(testInliningOfAnd);
+
     CPPUNIT_TEST(testInliningOfToDo);
+    CPPUNIT_TEST(testToDoBlockBlockInlinedSelf);
+    CPPUNIT_TEST(testToDoWithMoreEmbeddedBlocksAndArgAccess);
+
     CPPUNIT_TEST(testIfArg);
     CPPUNIT_TEST(testKeywordIfTrueArg);
     CPPUNIT_TEST(testIfReturnNonLocal);
@@ -147,6 +152,8 @@ private:
     void inliningOfAnd(std::string selector);
 
     void testInliningOfToDo();
+    void testToDoBlockBlockInlinedSelf();
+    void testToDoWithMoreEmbeddedBlocksAndArgAccess();
 
     static void testJumpQueuesOrdering();
 
