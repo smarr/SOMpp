@@ -152,7 +152,7 @@ void VMMethod::SetHolder(VMClass* hld) {
     SetHolderAll(hld);
 }
 
-void VMMethod::SetHolderAll(VMClass* hld) {
+void VMMethod::SetHolderAll(VMClass* hld) const {
     size_t const numIndexableFields = GetNumberOfIndexableFields();
     for (size_t i = 0; i < numIndexableFields; ++i) {
         vm_oop_t o = GetIndexableField(i);

@@ -121,7 +121,7 @@ public:
 
     [[nodiscard]] size_t GetNumberOfBytecodes() const { return bcLength; }
     void SetHolder(VMClass* hld) override;
-    void SetHolderAll(VMClass* hld);
+    void SetHolderAll(VMClass* hld) const;
 
     [[nodiscard]] inline vm_oop_t GetConstant(size_t bytecodeIndex) const {
         const uint8_t bc = bytecodes[bytecodeIndex + 1];
