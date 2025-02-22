@@ -10,6 +10,7 @@
 class BytecodeGenerationTest : public TestWithParsing {
     // NOLINTNEXTLINE(misc-const-correctness)
     CPPUNIT_TEST_SUITE(BytecodeGenerationTest);
+
     CPPUNIT_TEST(testEmptyMethodReturnsSelf);
     CPPUNIT_TEST(testPushConstant);
     CPPUNIT_TEST(testIfPushConstantSame);
@@ -53,6 +54,7 @@ class BytecodeGenerationTest : public TestWithParsing {
 
     CPPUNIT_TEST(testInliningOfToDo);
     CPPUNIT_TEST(testToDoBlockBlockInlinedSelf);
+    CPPUNIT_TEST(testToDoWithMoreEmbeddedBlocksAndArgAccess);
 
     CPPUNIT_TEST(testIfArg);
     CPPUNIT_TEST(testKeywordIfTrueArg);
@@ -151,6 +153,7 @@ private:
 
     void testInliningOfToDo();
     void testToDoBlockBlockInlinedSelf();
+    void testToDoWithMoreEmbeddedBlocksAndArgAccess();
 
     static void testJumpQueuesOrdering();
 

@@ -187,10 +187,6 @@ private:
     void inlineInto(MethodGenerationContext& mgenc);
     std::priority_queue<BackJump> createBackJumpHeap();
 
-    [[nodiscard]] inline vm_oop_t GetIndexableField(size_t idx) const {
-        return load_ptr(indexableFields[idx]);
-    }
-
     static void prepareBackJumpToCurrentAddress(
         std::priority_queue<BackJump>& backJumps,
         std::priority_queue<BackJumpPatch>& backJumpsToPatch, size_t i,
@@ -203,6 +199,10 @@ private:
     make_testable(public);
 
     [[nodiscard]] inline uint8_t* GetBytecodes() const { return bytecodes; }
+
+    [[nodiscard]] inline vm_oop_t GetIndexableField(size_t idx) const {
+        return load_ptr(indexableFields[idx]);
+    }
 
     const size_t numberOfLocals;
     const size_t maximumNumberOfStackElements;
