@@ -46,7 +46,7 @@
 
 class Interpreter {
 public:
-    static vm_oop_t StartAndPrintBytecodes();
+    template <bool PrintBytecodes>
     static vm_oop_t Start();
 
     static VMFrame* PushNewFrame(VMMethod* method);
