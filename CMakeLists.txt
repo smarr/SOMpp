@@ -17,7 +17,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-cmake_minimum_required (VERSION 3.12)
+cmake_minimum_required (VERSION 3.20)
 project(SOMpp LANGUAGES CXX)
 
 set(CMAKE_PROJECT_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
@@ -49,6 +49,20 @@ file(GLOB PRIMITIVESCORE_SRC ${PRIMITIVESCORE_DIR}/*.cpp)
 
 file(GLOB UNITTEST_SRC    ${UNITTEST_DIR}/*.cpp)
 
+set(SOM_SRC "")
+list(APPEND SOM_SRC
+  ${COMPILER_SRC}
+  ${INTERPRETER_SRC}
+  ${MEMORY_SRC}
+  ${MISC_SRC}
+  ${VM_SRC}
+  ${VMOBJECTS_SRC}
+
+  ${MAIN_SRC}
+  ${PRIMITIVES_SRC}
+  ${PRIMITIVESCORE_SRC}
+)
+
 option(USE_TAGGING "Enable immediate integers using tagging" FALSE)
 set(GC_TYPE "COPYING" CACHE STRING "Select the type of GC to be used: COPYING, MARK_SWEEP, GENERATIONAL")
 
@@ -64,6 +78,18 @@ option(UNSAFE_FRAME_OPTIMIZATION "Enable unsafe frame optimization" FALSE)
 option(ADDITIONAL_ALLOCATION     "Enable additional allocations" FALSE)
 
 option(FOR_PROFILING "Compile for profiling" FALSE)
+
+# Options to control PGO
+option(ENABLE_PGO "Enable Profile-Guided Optimization" OFF)
+option(PGO_PHASE "PGO phase (GENERATE, USE, or AUTO)" "")
+
+# Path for profile data
+set(PROFILE_DATA_DIR "${CMAKE_BINARY_DIR}/pgo_data")
+set(PROFILE_RAW_FILE "${PROFILE_DATA_DIR}/prof-%p.profraw")
+set(PROFILE_DATA_FILE "${PROFILE_DATA_DIR}/app.profdata")
+
+# Sample workload command - customize this for your application
+set(PGO_WORKLOAD_COMMAND "${CMAKE_BINARY_DIR}/SOM++ -cp ${ROOT_DIR}/core-lib/Smalltalk ${ROOT_DIR}/core-lib/TestSuite/TestHarness.som")
 
 if (USE_TAGGING)
   add_definitions(-DUSE_TAGGING)
@@ -105,19 +131,11 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   add_definitions(-fdiagnostics-absolute-paths)
 endif()
 
+
+
 add_executable(SOM++ "")
 
-target_sources(SOM++ PRIVATE
-  ${COMPILER_SRC}
-  ${INTERPRETER_SRC}
-  ${MEMORY_SRC}
-  ${MISC_SRC}
-  ${VM_SRC}
-  ${VMOBJECTS_SRC}
-
-  ${MAIN_SRC}
-  ${PRIMITIVES_SRC}
-  ${PRIMITIVESCORE_SRC})
+target_sources(SOM++ PRIVATE ${SOM_SRC})
 
 target_compile_options(SOM++ PRIVATE
   -m64
@@ -177,3 +195,120 @@ add_test(
 add_test(
   NAME benchmarks
   COMMAND SOM++ -cp ${ROOT_DIR}/Smalltalk:${ROOT_DIR}/Examples/Benchmarks/LanguageFeatures ${ROOT_DIR}/Examples/Benchmarks/All.som)
+
+function(extract_compiler_suffix compiler_name output_var)
+    get_filename_component(name_only "${compiler_name}" NAME)
+
+    if(name_only MATCHES "[^-]+(-.+)$")
+        set(${output_var} "${CMAKE_MATCH_1}" PARENT_SCOPE)
+        message(STATUS "Detected compiler suffix: ${CMAKE_MATCH_1}")
+    else()
+        set(${output_var} "" PARENT_SCOPE)
+        message(STATUS "No version suffix detected for compiler: ${name_only}")
+    endif()
+endfunction()
+
+# Configure PGO if enabled
+if(ENABLE_PGO)
+    # Determine the correct llvm-profdata tool for Clang
+    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        # Extract version suffix from Clang compiler path
+        get_filename_component(COMPILER_NAME "${CMAKE_CXX_COMPILER}" NAME)
+        extract_compiler_suffix("${COMPILER_NAME}" COMPILER_SUFFIX)
+        set(PROFDATA_BASE_NAME "llvm-profdata")
+        set(PROFDATA_TOOL "${PROFDATA_BASE_NAME}${COMPILER_SUFFIX}")
+
+        find_program(LLVM_PROFDATA ${PROFDATA_TOOL})
+        if(NOT LLVM_PROFDATA)
+            find_program(LLVM_PROFDATA "llvm-profdata")
+        endif()
+
+        if(NOT LLVM_PROFDATA)
+            set(LLVM_PROFDATA "${PROFDATA_TOOL}")
+            message(WARNING "Could not find ${PROFDATA_TOOL}, defaulting to ${LLVM_PROFDATA}")
+        endif()
+
+        message(STATUS "Using LLVM profdata tool: ${LLVM_PROFDATA}")
+    endif()
+
+
+    # Create directory for profile data
+    file(MAKE_DIRECTORY ${PROFILE_DATA_DIR})
+
+    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        message(STATUS "Build with PGO")
+
+        # First, create the instrumented build
+        target_compile_options(SOM++ PRIVATE -fprofile-instr-generate)
+        target_link_options(SOM++ PRIVATE -fprofile-instr-generate)
+
+        # Add custom command to run the app with test workload after building
+        add_custom_command(
+            TARGET SOM++ POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E env LLVM_PROFILE_FILE=${PROFILE_RAW_FILE} ${CMAKE_BINARY_DIR}/SOM++ -cp ${ROOT_DIR}/core-lib/Smalltalk ${ROOT_DIR}/core-lib/TestSuite/TestHarness.som
+            COMMAND ${LLVM_PROFDATA} merge -output=${PROFILE_DATA_FILE} ${PROFILE_RAW_FILE}
+            COMMENT "Running instrumented binary to generate profile data"
+        )
+
+        # Create optimized version of the app
+        add_executable(SOM++opt ${SOM_SRC})
+        target_include_directories(SOM++opt PRIVATE include)
+        target_compile_options(SOM++opt PRIVATE -fprofile-instr-use=${PROFILE_DATA_FILE})
+        target_link_options(SOM++opt PRIVATE -fprofile-instr-use=${PROFILE_DATA_FILE})
+
+        # Make the optimized version depend on the instrumented version
+        add_dependencies(SOM++opt SOM++)
+
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+        # PGO with GCC
+        if(PGO_PHASE STREQUAL "GENERATE")
+            # Instrumentation build
+            message(STATUS "Configuring GCC instrumentation build for PGO")
+            target_compile_options(my_app PRIVATE -fprofile-generate=${PROFILE_DATA_DIR})
+            target_link_options(my_app PRIVATE -fprofile-generate=${PROFILE_DATA_DIR})
+
+        elseif(PGO_PHASE STREQUAL "USE")
+            # Optimization build using profile data
+            message(STATUS "Configuring GCC optimization build using PGO data")
+            target_compile_options(my_app PRIVATE -fprofile-use=${PROFILE_DATA_DIR})
+            target_link_options(my_app PRIVATE -fprofile-use=${PROFILE_DATA_DIR})
+
+        elseif(PGO_PHASE STREQUAL "AUTO")
+            # Automatically handle both phases
+            message(STATUS "Configuring GCC automatic PGO")
+
+            # First, create the instrumented build
+            target_compile_options(my_app PRIVATE -fprofile-generate=${PROFILE_DATA_DIR})
+            target_link_options(my_app PRIVATE -fprofile-generate=${PROFILE_DATA_DIR})
+
+            # Add custom command to run the app with test workload after building
+            add_custom_command(
+                TARGET my_app POST_BUILD
+                COMMAND ${WORKLOAD_COMMAND}
+                COMMENT "Running instrumented binary to generate profile data"
+            )
+
+            # Create optimized version of the app
+            add_executable(my_app_optimized ${MY_APP_SOURCES})
+            target_include_directories(my_app_optimized PRIVATE include)
+            target_compile_options(my_app_optimized PRIVATE -fprofile-use=${PROFILE_DATA_DIR})
+            target_link_options(my_app_optimized PRIVATE -fprofile-use=${PROFILE_DATA_DIR})
+
+            # Make the optimized version depend on the instrumented version
+            add_dependencies(my_app_optimized my_app)
+        endif()
+    endif()
+endif()
+
+# Add a custom target to run PGO workflow end-to-end (convenience target)
+add_custom_target(pgo_workflow
+    COMMAND ${CMAKE_COMMAND} -E echo "Running full PGO workflow"
+    COMMAND ${CMAKE_COMMAND} -E make_directory build_pgo_gen
+    COMMAND ${CMAKE_COMMAND} -E chdir build_pgo_gen ${CMAKE_COMMAND} -DENABLE_PGO=ON -DPGO_PHASE=GENERATE ..
+    COMMAND ${CMAKE_COMMAND} -E chdir build_pgo_gen ${CMAKE_COMMAND} --build .
+    COMMAND ${CMAKE_COMMAND} -E chdir build_pgo_gen ${WORKLOAD_COMMAND}
+    COMMAND ${CMAKE_COMMAND} -E make_directory build_pgo_use
+    COMMAND ${CMAKE_COMMAND} -E chdir build_pgo_use ${CMAKE_COMMAND} -DENABLE_PGO=ON -DPGO_PHASE=USE ..
+    COMMAND ${CMAKE_COMMAND} -E chdir build_pgo_use ${CMAKE_COMMAND} --build .
+    COMMENT "Running complete PGO workflow: generate profile -> use profile"
+)
