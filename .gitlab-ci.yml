@@ -50,9 +50,6 @@ build_and_test:
 
   tags: [$MACHINE]
   script:
-    - rm -rf release && mkdir release
-    - rm -rf debug && mkdir debug
-
     - if [ "$COMPILER" = "gcc" ];   then export CC=gcc-13;   export CXX=g++-13; fi
     - if [ "$COMPILER" = "clang" ]; then export CC=clang$MP-18; export CXX=clang++$MP-18; fi
 
@@ -70,6 +67,7 @@ build_and_test:
       NAME=`echo "$NAME" | tr '[:upper:]' '[:lower:]'`
 
     - |+
+      rm -rf debug && mkdir debug
       cd debug
       cmake .. $INTEGERS -DGC_TYPE=$GC -DCMAKE_BUILD_TYPE=Debug
       make -j
@@ -78,6 +76,7 @@ build_and_test:
       cd ..
 
     - |+
+      rm -rf release && mkdir release
       cd release
       cmake .. $INTEGERS -DGC_TYPE=$GC -DCMAKE_BUILD_TYPE=Release -DENABLE_PGO=ON
       make -j
