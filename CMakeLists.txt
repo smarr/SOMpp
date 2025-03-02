@@ -86,7 +86,8 @@ option(PGO_PHASE "PGO phase (GENERATE, USE, or AUTO)" "")
 # Path for profile data
 set(PROFILE_DATA_DIR "${CMAKE_BINARY_DIR}/pgo_data")
 set(PROFILE_RAW_FILE "${PROFILE_DATA_DIR}/prof-%p.profraw")
-set(PROFILE_DATA_FILE "${PROFILE_DATA_DIR}/app.profdata")
+set(PROFILE_RAW_FILE_COLLECT "${PROFILE_DATA_DIR}/prof-*.profraw")
+set(PROFILE_DATA_FILE "${PROFILE_DATA_DIR}/SOM++.profdata")
 
 # Sample workload command - customize this for your application
 set(PGO_WORKLOAD_COMMAND "${CMAKE_BINARY_DIR}/SOM++ -cp ${ROOT_DIR}/core-lib/Smalltalk ${ROOT_DIR}/core-lib/TestSuite/TestHarness.som")
@@ -242,11 +243,19 @@ if(ENABLE_PGO)
         target_compile_options(SOM++ PRIVATE -fprofile-instr-generate)
         target_link_options(SOM++ PRIVATE -fprofile-instr-generate)
 
-        # Add custom command to run the app with test workload after building
         add_custom_command(
             TARGET SOM++ POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E env LLVM_PROFILE_FILE=${PROFILE_RAW_FILE} ${CMAKE_BINARY_DIR}/SOM++ -cp ${ROOT_DIR}/core-lib/Smalltalk ${ROOT_DIR}/core-lib/TestSuite/TestHarness.som
-            COMMAND ${LLVM_PROFDATA} merge -output=${PROFILE_DATA_FILE} ${PROFILE_RAW_FILE}
+            COMMAND pwd
+            WORKING_DIRECTORY ${ROOT_DIR}
+            COMMAND ${CMAKE_COMMAND} rebench -R -c ${ROOT_DIR}/rebench.conf SOM++pgo-training
+            COMMENT "Running Tests and ReBench to collect profile data"
+        )
+
+        add_custom_command(
+            TARGET SOM++ POST_BUILD
+            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+            COMMAND ${LLVM_PROFDATA} merge -output=${PROFILE_DATA_FILE} ${PROFILE_RAW_FILE_COLLECT}
             COMMENT "Running instrumented binary to generate profile data"
         )
 
