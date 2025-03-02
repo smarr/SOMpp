@@ -248,7 +248,7 @@ if(ENABLE_PGO)
             COMMAND ${CMAKE_COMMAND} -E env LLVM_PROFILE_FILE=${PROFILE_RAW_FILE} ${CMAKE_BINARY_DIR}/SOM++ -cp ${ROOT_DIR}/core-lib/Smalltalk ${ROOT_DIR}/core-lib/TestSuite/TestHarness.som
             COMMAND pwd
             WORKING_DIRECTORY ${ROOT_DIR}
-            COMMAND ${CMAKE_COMMAND} rebench -R -c ${ROOT_DIR}/rebench.conf SOM++pgo-training
+            COMMAND rebench -R -c ${ROOT_DIR}/rebench.conf SOM++pgo-training
             COMMENT "Running Tests and ReBench to collect profile data"
         )
 
