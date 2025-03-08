@@ -29,6 +29,13 @@
 
 // some MACROS for integer tagging
 /**
+ * The second-highest bit of a 64bit integer is not useable, because we need it
+ * for tagging at the other end. The highest bit is the sign, which we want/need
+ * and can use though.
+ */
+#define VMTAGGED_INT_OUT_OUF_RANGE_BITS 0x4000'0000'0000'0000LL
+
+/**
  * max value for tagged integers
  * 01111111 11111111 ... 11111111 1111111X
  *
@@ -41,16 +48,29 @@
  */
 #define VMTAGGEDINTEGER_MIN (-0x4000000000000000LL)
 
+#ifdef __GNUC__
+  #define VMTAGGED_INTEGER_WITHIN_RANGE_CHECK(X) \
+      ((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX)
+#else
+__attribute__((always_inline)) inline bool VMTAGGED_INTEGER_WITHIN_RANGE_CHECK(
+    int64_t X) {
+    int64_t overflow_check_result;
+
+    __builtin_add_overflow(X, VMTAGGED_INT_OUT_OUF_RANGE_BITS,
+                           &overflow_check_result);
+    return overflow_check_result >= 0;
+}
+#endif
+
 #if ADDITIONAL_ALLOCATION
-  #define TAG_INTEGER(X)                                            \
-      (((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX && \
-        Universe::NewInteger(0))                                    \
-           ? ((vm_oop_t)(((X) << 1U) | 1U))                         \
+  #define TAG_INTEGER(X)                                                   \
+      ((VMTAGGED_INTEGER_WITHIN_RANGE_CHECK(X) && Universe::NewInteger(0)) \
+           ? ((vm_oop_t)(((X) << 1U) | 1U))                                \
            : (Universe::NewInteger(X)))
 #else
-  #define TAG_INTEGER(X)                                          \
-      (((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX) \
-           ? ((vm_oop_t)((((uintptr_t)(X)) << 1U) | 1U))          \
+  #define TAG_INTEGER(X)                                 \
+      ((VMTAGGED_INTEGER_WITHIN_RANGE_CHECK(X))          \
+           ? ((vm_oop_t)((((uintptr_t)(X)) << 1U) | 1U)) \
            : (Universe::NewInteger(X)))
 #endif
 

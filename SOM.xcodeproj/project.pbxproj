@@ -142,6 +142,7 @@
 		0AB80AD42C392B78006B6419 /* Print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AB80AD12C392B78006B6419 /* Print.cpp */; };
 		0AB80AD82C394806006B6419 /* Globals.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AB80AD72C394806006B6419 /* Globals.cpp */; };
 		0AB80AD92C394806006B6419 /* Globals.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AB80AD72C394806006B6419 /* Globals.cpp */; };
+		0AF394562D7B91990036FDEF /* TaggingTests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AF394552D7B91990036FDEF /* TaggingTests.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -252,6 +253,8 @@
 		0AB80AD62C3947F7006B6419 /* Globals.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Globals.h; sourceTree = "<group>"; };
 		0AB80AD72C394806006B6419 /* Globals.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Globals.cpp; sourceTree = "<group>"; };
 		0AB80ADA2C39AC27006B6419 /* InterpreterLoop.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InterpreterLoop.h; sourceTree = "<group>"; };
+		0AF394542D7B91990036FDEF /* TaggingTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TaggingTests.h; path = unitTests/TaggingTests.h; sourceTree = "<group>"; };
+		0AF394552D7B91990036FDEF /* TaggingTests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TaggingTests.cpp; path = unitTests/TaggingTests.cpp; sourceTree = "<group>"; };
 		3F5202F10FA6624C00E75857 /* BytecodeGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BytecodeGenerator.cpp; sourceTree = "<group>"; };
 		3F5202F20FA6624C00E75857 /* BytecodeGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = BytecodeGenerator.h; sourceTree = "<group>"; tabWidth = 4; };
 		3F5202F30FA6624C00E75857 /* ClassGenerationContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClassGenerationContext.cpp; sourceTree = "<group>"; };
@@ -448,6 +451,8 @@
 		0A67EA7A19ACD44000830E3B /* unittests */ = {
 			isa = PBXGroup;
 			children = (
+				0AF394542D7B91990036FDEF /* TaggingTests.h */,
+				0AF394552D7B91990036FDEF /* TaggingTests.cpp */,
 				0A3FABE724F4670D002D4D69 /* BasicInterpreterTests.h */,
 				0A67EA7019ACD43A00830E3B /* CloneObjectsTest.cpp */,
 				0A67EA7119ACD43A00830E3B /* main.cpp */,
@@ -976,6 +981,7 @@
 				0A3A3CAA1A5D546D004CB03B /* Symbol.cpp in Sources */,
 				0A67EA8619ACD74800830E3B /* VMMethod.cpp in Sources */,
 				0A67EA7519ACD43A00830E3B /* CloneObjectsTest.cpp in Sources */,
+				0AF394562D7B91990036FDEF /* TaggingTests.cpp in Sources */,
 				0A67EA7919ACD43A00830E3B /* WriteBarrierTest.cpp in Sources */,
 				0A67EA9819ACD85300830E3B /* GenerationalCollector.cpp in Sources */,
 				0A67EA7B19ACD72C00830E3B /* VMInvokable.cpp in Sources */,

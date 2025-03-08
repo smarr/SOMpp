@@ -21,6 +21,7 @@
 #include "BasicInterpreterTests.h"
 #include "BytecodeGenerationTest.h"
 #include "CloneObjectsTest.h"
+#include "TaggingTests.h"
 #include "TrivialMethodTest.h"
 #include "WalkObjectsTest.h"
 
@@ -28,6 +29,7 @@
   #include "WriteBarrierTest.h"
 #endif
 
+CPPUNIT_TEST_SUITE_REGISTRATION(TaggingTests);
 CPPUNIT_TEST_SUITE_REGISTRATION(WalkObjectsTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(CloneObjectsTest);
 #if GC_TYPE == GENERATIONAL
