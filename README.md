@@ -30,7 +30,7 @@ the [main project page][SOMst] for links to the VM implementations.
 SOM++ uses CMake for building:
 
     $ mkdir cmake-build && cd cmake-build
-    $ cmake ..
+    $ cmake -DCMAKE_BUILD_TYPE=Release ..
     $ make
 
 Afterwards, the tests can be executed with:
@@ -44,10 +44,6 @@ A simple Hello World program is executed with:
 **Note**: On Linux, the library search path needs to be adapted:
 
     $ export LD_LIBRARY_PATH=.
-
-The debug version of CSOM can be built using the `debug` target:
-
-    $ make debug
 
 Information on previous authors are included in the AUTHORS file. This code is
 distributed under the MIT License. Please see the LICENSE file for details.
