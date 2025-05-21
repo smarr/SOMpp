@@ -56,6 +56,7 @@
 #include "../vmobjects/VMObject.h"
 #include "../vmobjects/VMObjectBase.h"
 #include "../vmobjects/VMString.h"
+#include "../vmobjects/VMVector.h"
 #include "Globals.h"
 #include "IsValidObject.h"
 #include "LogAllocation.h"
@@ -418,6 +419,7 @@ VMObject* Universe::InitializeGlobals() {
     nilClass = store_root(NewSystemClass());
     classClass = store_root(NewSystemClass());
     arrayClass = store_root(NewSystemClass());
+    vectorClass = store_root(NewSystemClass());
     symbolClass = store_root(NewSystemClass());
     methodClass = store_root(NewSystemClass());
     integerClass = store_root(NewSystemClass());
@@ -433,6 +435,8 @@ VMObject* Universe::InitializeGlobals() {
                           "Metaclass");
     InitializeSystemClass(load_ptr(nilClass), load_ptr(objectClass), "Nil");
     InitializeSystemClass(load_ptr(arrayClass), load_ptr(objectClass), "Array");
+    InitializeSystemClass(load_ptr(vectorClass), load_ptr(objectClass),
+                          "Vector");
     InitializeSystemClass(load_ptr(methodClass), load_ptr(arrayClass),
                           "Method");
     InitializeSystemClass(load_ptr(stringClass), load_ptr(objectClass),
@@ -460,6 +464,7 @@ VMObject* Universe::InitializeGlobals() {
     LoadSystemClass(load_ptr(metaClassClass));
     LoadSystemClass(load_ptr(nilClass));
     LoadSystemClass(load_ptr(arrayClass));
+    LoadSystemClass(load_ptr(vectorClass));
     LoadSystemClass(load_ptr(methodClass));
     LoadSystemClass(load_ptr(symbolClass));
     LoadSystemClass(load_ptr(integerClass));
@@ -627,6 +632,41 @@ void Universe::LoadSystemClass(VMClass* systemClass) {
     if (result->HasPrimitives() || result->GetClass()->HasPrimitives()) {
         result->LoadPrimitives();
     }
+}
+
+// Should create a new instance of Vector
+VMVector* Universe::NewVector(size_t size) {
+    size_t const additionalBytes = size * sizeof(VMObject*);
+
+    bool outsideNursery = false;  // NOLINT
+
+#if GC_TYPE == GENERATIONAL
+    outsideNursery = additionalBytes + sizeof(VMVector) >
+                     GetHeap<HEAP_CLS>()->GetMaxNurseryObjectSize();
+
+#endif
+
+    auto* result = new (GetHeap<HEAP_CLS>(),
+                        additionalBytes ALLOC_OUTSIDE_NURSERY(outsideNursery))
+        VMVector(size, additionalBytes);
+    if ((GC_TYPE == GENERATIONAL) && outsideNursery) {
+        result->SetGCField(MASK_OBJECT_IS_OLD);
+    }
+
+    result->SetClass(load_ptr(vectorClass));
+
+    // Create and initialize instance variables:
+    auto* firstInt = Universe::NewInteger(1);          // first := 1
+    auto* lastInt = Universe::NewInteger(1);           // last := 1
+    auto* storageArray = Universe::NewArray(size);     // storage := new Array of given size
+
+    // Set instance variables on the VMVector in the correct order:
+    result->SetField(0, firstInt);       // first
+    result->SetField(1, lastInt);        // last
+    result->SetField(2, storageArray);   // storage
+
+    LOG_ALLOCATION("VMVector", result->GetObjectSize());
+    return result;
 }
 
 VMArray* Universe::NewArray(size_t size) {
