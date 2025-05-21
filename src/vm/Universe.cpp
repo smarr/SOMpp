@@ -636,34 +636,12 @@ void Universe::LoadSystemClass(VMClass* systemClass) {
 
 // Should create a new instance of Vector
 VMVector* Universe::NewVector(size_t size) {
-    size_t const additionalBytes = size * sizeof(VMObject*);
-
-    bool outsideNursery = false;  // NOLINT
-
-#if GC_TYPE == GENERATIONAL
-    outsideNursery = additionalBytes + sizeof(VMVector) >
-                     GetHeap<HEAP_CLS>()->GetMaxNurseryObjectSize();
-
-#endif
-
-    auto* result = new (GetHeap<HEAP_CLS>(),
-                        additionalBytes ALLOC_OUTSIDE_NURSERY(outsideNursery))
-        VMVector(size, additionalBytes);
-    if ((GC_TYPE == GENERATIONAL) && outsideNursery) {
-        result->SetGCField(MASK_OBJECT_IS_OLD);
-    }
-
+    vm_oop_t first = NEW_INT(1);
+    vm_oop_t last = NEW_INT(1);
+    auto* storageArray = NewArray(size);
+    auto* result =
+        new (GetHeap<HEAP_CLS>(), 0) VMVector(first, last, storageArray);
     result->SetClass(load_ptr(vectorClass));
-
-    // Create and initialize instance variables:
-    auto* firstInt = Universe::NewInteger(1);          // first := 1
-    auto* lastInt = Universe::NewInteger(1);           // last := 1
-    auto* storageArray = Universe::NewArray(size);     // storage := new Array of given size
-
-    // Set instance variables on the VMVector in the correct order:
-    result->SetField(0, firstInt);       // first
-    result->SetField(1, lastInt);        // last
-    result->SetField(2, storageArray);   // storage
 
     LOG_ALLOCATION("VMVector", result->GetObjectSize());
     return result;

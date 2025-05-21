@@ -10,33 +10,27 @@ class VMVector : public VMObject {
 public:
     typedef GCVector Stored;
 
-    explicit VMVector(size_t vectorSize, size_t additionalBytes)
-        : VMObject(vectorSize +
-                  VMVectorNumberOfFields, 
-                  additionalBytes + sizeof(VMVector)) {
-        assert(VMVectorNumberOfFields == 3);
-    }
+    explicit VMVector(vm_oop_t first, vm_oop_t last, VMArray* storage);
 
     [[nodiscard]] inline vm_oop_t GetIndexableField(size_t index) {
-        VMArray* storage = GetFieldArray(this);
-        VMInteger* first = GetFieldFirst(this);
-        VMInteger* last = GetFieldLast(this);
-        if (index < first->GetEmbeddedInteger() || index > last->GetEmbeddedInteger()) {
+        int64_t const first = INT_VAL(load_ptr(this->first));
+        int64_t const last = INT_VAL(load_ptr(this->last));
+        VMArray* const storage = load_ptr(this->storage);
+        if (index < first || index > last) {
             IndexOutOfBounds(index);
-            // TODO: check if this would be correct
+            // TODO(smarr): check if this would be correct
         }
-        vm_oop_t returned = storage->GetIndexableField(first->GetEmbeddedInteger()+index-1);
+        vm_oop_t returned = storage->GetIndexableField(first + index - 1);
         return returned;
     }
 
-    VMArray* GetFieldArray(vm_oop_t) const;
-    VMInteger* GetFieldFirst(vm_oop_t) const;
-    VMInteger* GetFieldLast(vm_oop_t) const;
+    static __attribute__((noreturn)) __attribute__((noinline)) void
+    IndexOutOfBounds(size_t idx);
 
-    __attribute__((noreturn)) __attribute__((noinline)) void IndexOutOfBounds(
-    size_t idx) const;
+private:
+    static const size_t VMVectorNumberOfFields;
 
-
-    private:
-        static const size_t VMVectorNumberOfFields;
+    gc_oop_t first;
+    gc_oop_t last;
+    GCArray* storage;
 };

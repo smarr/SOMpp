@@ -174,7 +174,8 @@ void obtain_vtables_of_known_classes(VMSymbol* someValidSymbol) {
     auto* arr = new (GetHeap<HEAP_CLS>(), 0) VMArray(0, 0);
     vt_array = get_vtable(arr);
 
-    auto* vec = new (GetHeap<HEAP_CLS>(), 0) VMVector(0, 0);
+    auto* vec =
+        new (GetHeap<HEAP_CLS>(), 0) VMVector(nullptr, nullptr, nullptr);
     vt_vector = get_vtable(vec);
 
     auto* blck = new (GetHeap<HEAP_CLS>(), 0) VMBlock(nullptr, nullptr);
