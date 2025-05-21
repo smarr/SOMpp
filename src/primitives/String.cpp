@@ -37,6 +37,7 @@
 #include "../vm/Symbols.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
+#include "../vmobjects/VMBigInteger.h"  // NOLINT(misc-include-cleaner)
 #include "../vmobjects/VMFrame.h"
 #include "../vmobjects/VMString.h"
 #include "../vmobjects/VMSymbol.h"  // NOLINT(misc-include-cleaner) it's required to make the types complete
@@ -107,8 +108,8 @@ static vm_oop_t strPrimSubstringFromTo(vm_oop_t rcvr,
     auto* self = static_cast<VMString*>(rcvr);
     std::string const str = self->GetStdString();
 
-    int64_t const s = INT_VAL(start) - 1;
-    int64_t const e = INT_VAL(end) - 1;
+    int64_t const s = SMALL_INT_VAL(start) - 1;
+    int64_t const e = SMALL_INT_VAL(end) - 1;
 
     std::string const result = str.substr(s, e - s + 1);
     return Universe::NewString(result);
@@ -116,7 +117,7 @@ static vm_oop_t strPrimSubstringFromTo(vm_oop_t rcvr,
 
 static vm_oop_t strCharAt(vm_oop_t rcvr, vm_oop_t indexPtr) {
     auto* self = static_cast<VMString*>(rcvr);
-    int64_t const index = INT_VAL(indexPtr) - 1;
+    int64_t const index = SMALL_INT_VAL(indexPtr) - 1;
 
     if (unlikely(index < 0 || (size_t)index >= self->GetStringLength())) {
         return Universe::NewString("Error - index out of bounds");

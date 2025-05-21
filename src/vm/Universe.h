@@ -30,6 +30,7 @@
 #include <vector>
 
 #include "../interpreter/Interpreter.h"
+#include "../lib/InfInt.h"
 #include "../memory/Heap.h"
 #include "../misc/Timer.h"
 #include "../misc/defs.h"
@@ -81,6 +82,10 @@ public:
     static VMObject* NewInstance(VMClass* /*classOfInstance*/);
     static VMObject* NewInstanceWithoutFields();
     static VMInteger* NewInteger(int64_t /*value*/);
+    static VMBigInteger* NewBigInteger(const InfInt&& /*value*/);
+    static VMBigInteger* NewBigIntegerFromInt(int64_t /*value*/);
+    static VMBigInteger* NewBigIntegerFromStr(const char* /*value*/,
+                                              bool /* negateValue */);
     static void WalkGlobals(walk_heap_fn /*walk*/);
     static VMDouble* NewDouble(double /*value*/);
     static VMClass* NewMetaclassClass();

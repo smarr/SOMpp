@@ -36,29 +36,29 @@
 #include "../vm/Print.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
+#include "../vmobjects/VMBigInteger.h"
 #include "../vmobjects/VMDouble.h"
 #include "../vmobjects/VMFrame.h"
-#include "../vmobjects/VMInteger.h"
 #include "../vmobjects/VMString.h"
 
 /*
  * This function coerces any right-hand parameter to a double, regardless of its
  * true nature. This is to make sure that all Double operations return Doubles.
  */
-double coerceDouble(vm_oop_t x) {
-    if (IS_TAGGED(x)) {
-        return (double)INT_VAL(x);
+static double coerceDouble(vm_oop_t x) {
+    if (IS_SMALL_INT(x)) {
+        return (double)SMALL_INT_VAL(x);
     }
 
-    VMClass* cl = ((AbstractVMObject*)x)->GetClass();
-    if (cl == load_ptr(doubleClass)) {
-        return static_cast<VMDouble*>(x)->GetEmbeddedDouble();
+    if (IS_DOUBLE(x)) {
+        return AS_DOUBLE(x);
     }
-    if (cl == load_ptr(integerClass)) {
-        return (double)static_cast<VMInteger*>(x)->GetEmbeddedInteger();
+
+    if (IS_BIG_INT(x)) {
+        return AS_BIG_INT(x)->embeddedInteger.toDouble();
     }
+
     ErrorExit("Attempt to apply Double operation to non-number.");
-
     return 0.0F;
 }
 

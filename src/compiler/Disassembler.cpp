@@ -38,6 +38,7 @@
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/Signature.h"
+#include "../vmobjects/VMBigInteger.h"
 #include "../vmobjects/VMClass.h"
 #include "../vmobjects/VMDouble.h"
 #include "../vmobjects/VMFrame.h"
@@ -66,6 +67,10 @@ void Disassembler::dispatch(vm_oop_t o) {
         DebugPrint("{Block Class object}");
     } else if (o == Universe::GetGlobal(SymbolFor("system"))) {
         DebugPrint("{System}");
+    } else if (IS_SMALL_INT(o)) {
+        DebugPrint("%lld", SMALL_INT_VAL(o));
+    } else if (IS_BIG_INT(o)) {
+        DebugPrint("%s", AS_BIG_INT(o)->embeddedInteger.toString().c_str());
     } else {
         VMClass* c = CLASS_OF(o);
         if (c == load_ptr(stringClass)) {
@@ -73,8 +78,6 @@ void Disassembler::dispatch(vm_oop_t o) {
                        static_cast<VMString*>(o)->GetStdString().c_str());
         } else if (c == load_ptr(doubleClass)) {
             DebugPrint("%g", static_cast<VMDouble*>(o)->GetEmbeddedDouble());
-        } else if (c == load_ptr(integerClass)) {
-            DebugPrint("%lld", INT_VAL(o));
         } else if (c == load_ptr(symbolClass)) {
             DebugPrint("#%s",
                        static_cast<VMSymbol*>(o)->GetStdString().c_str());

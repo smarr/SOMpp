@@ -35,17 +35,20 @@
 #include <map>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "../compiler/Disassembler.h"
 #include "../compiler/LexicalScope.h"
 #include "../compiler/SourcecodeCompiler.h"
 #include "../interpreter/bytecodes.h"
+#include "../lib/InfInt.h"
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
 #include "../vmobjects/IntegerBox.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMArray.h"
+#include "../vmobjects/VMBigInteger.h"
 #include "../vmobjects/VMBlock.h"
 #include "../vmobjects/VMClass.h"
 #include "../vmobjects/VMDouble.h"
@@ -785,6 +788,19 @@ VMInteger* Universe::NewInteger(int64_t value) {
 
     LOG_ALLOCATION("VMInteger", sizeof(VMInteger));
     return new (GetHeap<HEAP_CLS>(), 0) VMInteger(value);
+}
+
+VMBigInteger* Universe::NewBigInteger(const InfInt&& value) {
+    return new (GetHeap<HEAP_CLS>(), 0) VMBigInteger(std::move(value));
+}
+
+VMBigInteger* Universe::NewBigIntegerFromStr(const char* value,
+                                             bool negateValue) {
+    return new (GetHeap<HEAP_CLS>(), 0) VMBigInteger(value, negateValue);
+}
+
+VMBigInteger* Universe::NewBigIntegerFromInt(int64_t value) {
+    return new (GetHeap<HEAP_CLS>(), 0) VMBigInteger(value);
 }
 
 VMClass* Universe::NewMetaclassClass() {

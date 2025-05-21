@@ -29,6 +29,13 @@
 
 // some MACROS for integer tagging
 /**
+ * The second-highest bit of a 64bit integer is not useable, because we need it
+ * for tagging at the other end. The highest bit is the sign, which we want/need
+ * and can use though.
+ */
+#define VMTAGGED_INT_OUT_OUF_RANGE_BITS 0x4000'0000'0000'0000LL
+
+/**
  * max value for tagged integers
  * 01111111 11111111 ... 11111111 1111111X
  *
@@ -41,34 +48,59 @@
  */
 #define VMTAGGEDINTEGER_MIN (-0x4000000000000000LL)
 
-#if ADDITIONAL_ALLOCATION
-  #define TAG_INTEGER(X)                                            \
-      (((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX && \
-        Universe::NewInteger(0))                                    \
-           ? ((vm_oop_t)(((X) << 1U) | 1U))                         \
-           : (Universe::NewInteger(X)))
+#ifdef __GNUC__
+  #define VMTAGGED_INTEGER_WITHIN_RANGE_CHECK(X) \
+      ((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX)
 #else
-  #define TAG_INTEGER(X)                                          \
-      (((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX) \
-           ? ((vm_oop_t)((((uintptr_t)(X)) << 1U) | 1U))          \
-           : (Universe::NewInteger(X)))
+__attribute__((always_inline)) inline bool VMTAGGED_INTEGER_WITHIN_RANGE_CHECK(
+    int64_t X) {
+    int64_t overflow_check_result;
+
+    __builtin_add_overflow(X, VMTAGGED_INT_OUT_OUF_RANGE_BITS,
+                           &overflow_check_result);
+    return overflow_check_result >= 0;
+}
+#endif
+
+#if ADDITIONAL_ALLOCATION
+  #define TAG_INTEGER(X)                                                   \
+      ((VMTAGGED_INTEGER_WITHIN_RANGE_CHECK(X) && Universe::NewInteger(0)) \
+           ? ((vm_oop_t)(((X) << 1U) | 1U))                                \
+           : (Universe::NewBigIntegerFromInt(X)))
+#else
+  #define TAG_INTEGER(X)                                 \
+      ((VMTAGGED_INTEGER_WITHIN_RANGE_CHECK(X))          \
+           ? ((vm_oop_t)((((uintptr_t)(X)) << 1U) | 1U)) \
+           : (Universe::NewBigIntegerFromInt(X)))
 #endif
 
 #if USE_TAGGING
   #define INT_VAL(X)                                                           \
       (IS_TAGGED(X) ? ((int64_t)(X) >> 1U) /* NOLINT (hicpp-signed-bitwise) */ \
                     : (((VMInteger*)(X))->GetEmbeddedInteger()))
+  #define SMALL_INT_VAL(X) \
+      ((int64_t)(X) >> 1U) /* NOLINT (hicpp-signed-bitwise) */
   #define NEW_INT(X) (TAG_INTEGER((X)))
   #define IS_TAGGED(X) ((bool)((uintptr_t)(X) & 1U))
+  #define IS_SMALL_INT(X) IS_TAGGED(X)
+  #define IS_BIG_INT(X) IsVMBigInteger(X)
+  #define AS_BIG_INT(X) (static_cast<VMBigInteger*>(X))
+  #define IS_DOUBLE(X) IsVMDouble(X)
+  #define AS_DOUBLE(X) (static_cast<VMDouble*>(X)->GetEmbeddedDouble())
   #define CLASS_OF(X)                        \
       (IS_TAGGED(X) ? load_ptr(integerClass) \
                     : ((AbstractVMObject*)(X))->GetClass())
   #define AS_OBJ(X) \
       (IS_TAGGED(X) ? GlobalBox::IntegerBox() : ((AbstractVMObject*)(X)))
 #else
-  #define INT_VAL(X) (static_cast<VMInteger*>(X)->GetEmbeddedInteger())
+  #define SMALL_INT_VAL(X) (static_cast<VMInteger*>(X)->GetEmbeddedInteger())
   #define NEW_INT(X) (Universe::NewInteger(X))
   #define IS_TAGGED(X) false
+  #define IS_SMALL_INT(X) IsVMInteger(X)
+  #define IS_BIG_INT(X) IsVMBigInteger(X)
+  #define AS_BIG_INT(X) (static_cast<VMBigInteger*>(X))
+  #define IS_DOUBLE(X) IsVMDouble(X)
+  #define AS_DOUBLE(X) (static_cast<VMDouble*>(X)->GetEmbeddedDouble())
   #define CLASS_OF(X) (AS_OBJ(X)->GetClass())
   #define AS_OBJ(X) ((AbstractVMObject*)(X))
 #endif
@@ -81,6 +113,7 @@ class VMClass;
 class VMDouble;
 class VMEvaluationPrimitive;
 class VMFrame;
+class VMBigInteger;
 class VMInteger;
 class VMInvokable;
 class VMMethod;
@@ -147,6 +180,7 @@ class GCArray          : public GCObject         { public: typedef VMArray      
 class GCBlock          : public GCObject         { public: typedef VMBlock          Loaded; };
 class GCDouble         : public GCAbstractObject { public: typedef VMDouble         Loaded; };
 class GCInteger        : public GCAbstractObject { public: typedef VMInteger        Loaded; };
+class GCBigInteger     : public GCAbstractObject { public: typedef VMBigInteger     Loaded; };
 class GCInvokable      : public GCAbstractObject { public: typedef VMInvokable      Loaded; };
 class GCMethod         : public GCInvokable      { public: typedef VMMethod         Loaded; };
 class GCPrimitive      : public GCInvokable      { public: typedef VMPrimitive      Loaded; };
