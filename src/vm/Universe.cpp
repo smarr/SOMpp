@@ -830,6 +830,7 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
     nilClass = static_cast<GCClass*>(walk(nilClass));
     integerClass = static_cast<GCClass*>(walk(integerClass));
     arrayClass = static_cast<GCClass*>(walk(arrayClass));
+    vectorClass = static_cast<GCClass*>(walk(vectorClass));
     methodClass = static_cast<GCClass*>(walk(methodClass));
     symbolClass = static_cast<GCClass*>(walk(symbolClass));
     primitiveClass = static_cast<GCClass*>(walk(primitiveClass));

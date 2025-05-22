@@ -20,8 +20,8 @@ VMVector::VMVector(vm_oop_t first, vm_oop_t last, VMArray* storage)
     write_barrier(this, storage);
 }
 
-void VMVector::IndexOutOfBounds(size_t idx) {
+void VMVector::IndexOutOfBounds(size_t idx, size_t size) {
     ErrorExit(("vector index out of bounds: Accessing " + to_string(idx) +
-               ", but vector size is only " + "\n")
+               ", but vector size is only " + to_string(size) + "\n")
                   .c_str());
 }
