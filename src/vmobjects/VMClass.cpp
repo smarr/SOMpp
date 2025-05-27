@@ -39,6 +39,7 @@
 #include "../vm/Print.h"
 #include "ObjectFormats.h"
 #include "VMArray.h"
+#include "VMVector.h"
 #include "VMInvokable.h"
 #include "VMObject.h"
 #include "VMSymbol.h"
@@ -183,6 +184,12 @@ size_t VMClass::GetNumberOfInstanceFields() const {
 }
 
 bool VMClass::HasPrimitives() const {
+
+    // Return true for Vector class, has primitives but not marked in Vector.som file
+    if (this->GetName()->GetStdString() == "Vector") {
+        return true;
+    }
+
     size_t const numInvokables = GetNumberOfInstanceInvokables();
     for (size_t i = 0; i < numInvokables; ++i) {
         VMInvokable* invokable = GetInstanceInvokable(i);
