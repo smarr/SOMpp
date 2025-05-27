@@ -91,5 +91,5 @@ protected:
         :  // set the chars-pointer to point at the position of the first
            // character as determined in the VMSymbol constructor
           length(length),
-          chars(adaptedCharsPointer) {};  // constructor to use by VMSymbol
+          chars(adaptedCharsPointer){};  // constructor to use by VMSymbol
 };

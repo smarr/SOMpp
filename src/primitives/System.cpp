@@ -120,7 +120,7 @@ static vm_oop_t sysErrorPrintNewline_(vm_oop_t leftObj, vm_oop_t rightObj) {
 static struct timeval start_time;
 
 static vm_oop_t sysTime(vm_oop_t /*unused*/) {
-    struct timeval now{};
+    struct timeval now {};
 
     gettimeofday(&now, nullptr);
 
@@ -132,7 +132,7 @@ static vm_oop_t sysTime(vm_oop_t /*unused*/) {
 }
 
 static vm_oop_t sysTicks(vm_oop_t /*unused*/) {
-    struct timeval now{};
+    struct timeval now {};
 
     gettimeofday(&now, nullptr);
 
