@@ -7,14 +7,17 @@
 #include "../vmobjects/VMFrame.h"
 #include "../vmobjects/VMVector.h"
 
-static vm_oop_t vecNew(vm_oop_t /*unused*/) {
+static vm_oop_t vecNew(vm_oop_t clazz) {
+    auto* classPtr = static_cast<VMClass*>(clazz);
     int64_t const size = 50;
-    return Universe::NewVector(size);
+    VMVector* vec = Universe::NewVector(size, classPtr);
+    return vec;
 }
 
-static vm_oop_t vecNewSize(vm_oop_t /*unused*/, vm_oop_t arg) {
+static vm_oop_t vecNewSize(vm_oop_t clazz, vm_oop_t arg) {
+    auto* classPtr = static_cast<VMClass*>(clazz);
     int64_t const size = INT_VAL(arg);
-    return Universe::NewVector(size);
+    return Universe::NewVector(size, static_cast<VMClass*>(clazz));
 }
 
 static vm_oop_t vecAt(vm_oop_t obj, vm_oop_t arg) {

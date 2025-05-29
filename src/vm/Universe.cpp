@@ -635,14 +635,13 @@ void Universe::LoadSystemClass(VMClass* systemClass) {
 }
 
 // Should create a new instance of Vector
-VMVector* Universe::NewVector(size_t size) {
+VMVector* Universe::NewVector(size_t size, VMClass* cls) {
     vm_oop_t first = NEW_INT(1);
     vm_oop_t last = NEW_INT(1);
     auto* storageArray = NewArray(size);
     auto* result =
         new (GetHeap<HEAP_CLS>(), 0) VMVector(first, last, storageArray);
-    result->SetClass(load_ptr(vectorClass));
-
+    result->SetClass(cls);
     LOG_ALLOCATION("VMVector", result->GetObjectSize());
     return result;
 }

@@ -7,6 +7,7 @@
 #include "../vmobjects/VMObject.h"
 #include "ObjectFormats.h"
 #include "VMArray.h"
+#include "../vm/Symbols.h"
 
 class VMVector : public VMObject {
 public:
@@ -21,7 +22,7 @@ public:
         VMArray* const storage = load_ptr(this->storage);
 
         if (index < 1 || index > last - first) { // Check this error handling again
-            IndexOutOfBounds(index, (last - first));
+            IndexOutOfBounds(index, (last - first), "Vector: error when getting an item.");
             // TODO(smarr): check if this would be correct
         }
         vm_oop_t returned = storage->GetIndexableField((first - 1) + (index - 1)); // Convert to 0-indexing
@@ -46,7 +47,7 @@ public:
         int64_t const last = INT_VAL(load_ptr(this->last));
         VMArray* const storage = load_ptr(this->storage);
         if (index < 1 || index > first + last) {
-            IndexOutOfBounds(index, (last - first));
+            IndexOutOfBounds(index, (last - first), "Vector: error when setting an item.");
             // TODO(smarr): check if this would be correct
         }
         storage->SetIndexableField(first + index - 2, value);
@@ -80,8 +81,10 @@ public:
     inline vm_oop_t RemoveLast() {
         int64_t last = INT_VAL(load_ptr(this->last));
         int64_t first = INT_VAL(load_ptr(this->first));
-        if (last <= 1) {
-            ErrorExit("Cannot remove last element from an empty vector.");
+        if (last == first) {
+            vm_oop_t errorMsg = Universe::NewString("Vector: error when removing Last item.");
+            vm_oop_t args[1] = { errorMsg };
+            return this->SendWithResult("error:", args, 1);
         }
         return Remove(NEW_INT(last - first)); // Last-First gives the (User) index of the last element in 1-indexing
     }
@@ -89,8 +92,11 @@ public:
     inline vm_oop_t RemoveFirst() {
         // This method will just increment the first index
         int64_t first = INT_VAL(load_ptr(this->first));
+        int64_t last = INT_VAL(load_ptr(this->last));
         if (first >= INT_VAL(load_ptr(this->last))) {
-            ErrorExit("Cannot remove first element from an empty vector.");
+            vm_oop_t errorMsg = Universe::NewString("Vector: error when removing First item.");
+            vm_oop_t args[1] = { errorMsg };
+            return this->SendWithResult("error:", args, 1);
         }
         vm_oop_t itemToRemove = GetIndexableField(1); // This is 1 because GetIndexableField handles 1 to 0 indexing
         first += 1;  // Increment the first index
@@ -165,7 +171,7 @@ public:
         }
 
         if (index < 1 || index > last - first) {
-            IndexOutOfBounds(index, (last - first));
+            IndexOutOfBounds(index, (last - first), "Vector: error when removing an item.");
         }
 
         vm_oop_t itemToRemove = GetIndexableField(index);
@@ -204,8 +210,12 @@ public:
 
     }
 
-    static __attribute__((noreturn)) __attribute__((noinline)) void
-    IndexOutOfBounds(size_t idx, size_t size);
+    __attribute__((noreturn)) __attribute__((noinline)) void
+    IndexOutOfBounds(size_t idx, size_t size, string errorMessage);
+
+    vm_oop_t SendWithResult(const std::string& selectorString,
+                            vm_oop_t* arguments,
+                            size_t argc);
 
 private:
     static const size_t VMVectorNumberOfFields;
