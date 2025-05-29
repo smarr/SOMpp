@@ -435,7 +435,8 @@ VMObject* Universe::InitializeGlobals() {
                           "Metaclass");
     InitializeSystemClass(load_ptr(nilClass), load_ptr(objectClass), "Nil");
     InitializeSystemClass(load_ptr(arrayClass), load_ptr(objectClass), "Array");
-    InitializeSystemClass(load_ptr(vectorClass), load_ptr(objectClass), "Vector");
+    InitializeSystemClass(load_ptr(vectorClass), load_ptr(objectClass),
+                          "Vector");
     InitializeSystemClass(load_ptr(methodClass), load_ptr(arrayClass),
                           "Method");
     InitializeSystemClass(load_ptr(stringClass), load_ptr(objectClass),
@@ -629,7 +630,8 @@ void Universe::LoadSystemClass(VMClass* systemClass) {
     }
 
     // Vector has primitive methods and should be loaded (This is temporary)
-    if (result->HasPrimitives() || result->GetClass()->HasPrimitives() || result->GetName()->GetStdString() == "Vector") {
+    if (result->HasPrimitives() || result->GetClass()->HasPrimitives() ||
+        result->GetName()->GetStdString() == "Vector") {
         result->LoadPrimitives();
     }
 }

@@ -42,7 +42,6 @@
 #include "VMInvokable.h"
 #include "VMObject.h"
 #include "VMSymbol.h"
-#include "VMVector.h"
 
 const size_t VMClass::VMClassNumberOfFields = 4;
 
