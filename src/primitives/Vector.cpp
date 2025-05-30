@@ -68,7 +68,7 @@ static vm_oop_t removeObject(vm_oop_t obj, vm_oop_t other) {
 
 static vm_oop_t contains(vm_oop_t obj, vm_oop_t other) {
     auto* self = static_cast<VMVector*>(obj);
-    return self->contains(other);
+    return self->Contains(other);
 }
 
 static vm_oop_t indexOf(vm_oop_t obj, vm_oop_t other) {
