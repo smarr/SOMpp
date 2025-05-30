@@ -153,7 +153,8 @@ typedef DebugCopyingHeap HEAP_CLS;
 #ifndef UNITTESTS
   #define make_testable(label)
 #else
-  #define make_testable(label) label:
+  #define make_testable(label) \
+  label:
 #endif
 
 //

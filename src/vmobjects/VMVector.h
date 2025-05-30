@@ -15,7 +15,7 @@ public:
 
     explicit VMVector(vm_oop_t first, vm_oop_t last, VMArray* storage);
 
-/* Getter Methods */
+    /* Getter Methods */
 
     /* handles 1 - 0 indexing give the SOM index to this function */
     [[nodiscard]] vm_oop_t GetIndexableField(size_t index);
@@ -33,7 +33,7 @@ public:
         return returned;
     }
 
-/* Setter Methods */
+    /* Setter Methods */
 
     /* handles 1 - 0 indexing give the SOM index to this function */
     void SetIndexableField(size_t index, vm_oop_t value);
@@ -41,7 +41,7 @@ public:
     /* Append an item to end of Vector */
     void Append(vm_oop_t value);
 
-/* Remove Methods */
+    /* Remove Methods */
 
     vm_oop_t RemoveLast();
 
@@ -51,13 +51,13 @@ public:
 
     vm_oop_t Remove(vm_oop_t inx);
 
-/* General Utility Methods */
+    /* General Utility Methods */
 
     /* Return the index if object is located, else return -1 for not found*/
     [[nodiscard]] vm_oop_t IndexOf(vm_oop_t other);
 
     /* True if object located, false otherwise */
-    [[nodiscard]] inline vm_oop_t Contains(vm_oop_t other){
+    [[nodiscard]] inline vm_oop_t Contains(vm_oop_t other) {
         vm_oop_t where = VMVector::IndexOf(other);
         if (INT_VAL(where) < 0) {
             return load_ptr(falseObject);
@@ -76,7 +76,8 @@ public:
     /* Return the underlying array */
     [[nodiscard]] vm_oop_t StorageArray();
 
-    static __attribute__((noreturn)) __attribute__((noinline)) void IndexOutOfBounds(size_t idx, size_t size);
+    static __attribute__((noreturn)) __attribute__((noinline)) void
+    IndexOutOfBounds(size_t idx, size_t size);
 
 private:
     static const size_t VMVectorNumberOfFields;
