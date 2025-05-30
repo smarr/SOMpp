@@ -2,10 +2,13 @@
 
 #include <cassert>
 #include <cstddef>
+#include <cstdint>
 #include <cstring>
 #include <string>
 
+#include "../interpreter/Interpreter.h"
 #include "../misc/defs.h"
+#include "../vm/Globals.h"
 #include "../vm/Print.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
