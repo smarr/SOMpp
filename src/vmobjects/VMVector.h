@@ -36,7 +36,7 @@ public:
     /* Setter Methods */
 
     /* handles 1 - 0 indexing give the SOM index to this function */
-    void SetIndexableField(size_t index, vm_oop_t value);
+    vm_oop_t SetIndexableField(size_t index, vm_oop_t value);
 
     /* Append an item to end of Vector */
     void Append(vm_oop_t value);

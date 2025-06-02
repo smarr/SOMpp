@@ -37,7 +37,7 @@ vm_oop_t VMVector::GetIndexableField(size_t index) {
     return returned;
 }
 
-void VMVector::SetIndexableField(size_t index, vm_oop_t value) {
+vm_oop_t VMVector::SetIndexableField(size_t index, vm_oop_t value) {
     int64_t const first = INT_VAL(load_ptr(this->first));
     int64_t const last = INT_VAL(load_ptr(this->last));
     VMArray* const storage = load_ptr(this->storage);
@@ -45,6 +45,7 @@ void VMVector::SetIndexableField(size_t index, vm_oop_t value) {
         IndexOutOfBounds(index, (last - first));
     }
     storage->SetIndexableField(first + index - 2, value);
+    return value;
 }
 
 void VMVector::Append(vm_oop_t value) {

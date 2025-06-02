@@ -31,8 +31,7 @@ static vm_oop_t vecAtPut(vm_oop_t obj, vm_oop_t at, vm_oop_t put) {
     int64_t const index = INT_VAL(at);         // Set the index looking for
     // Call method to set the value at index. That deals with 1to0 indexing
     // conversion
-    self->SetIndexableField(index, put);
-    return put;  // Return the value that was set
+    return self->SetIndexableField(index, put);
 }
 
 static vm_oop_t vecAppend(vm_oop_t obj, vm_oop_t arg) {
