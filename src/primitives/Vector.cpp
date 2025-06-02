@@ -65,16 +65,6 @@ static vm_oop_t removeObject(vm_oop_t obj, vm_oop_t other) {
     return self->RemoveObj(other);
 }
 
-static vm_oop_t contains(vm_oop_t obj, vm_oop_t other) {
-    auto* self = static_cast<VMVector*>(obj);
-    return self->Contains(other);
-}
-
-static vm_oop_t indexOf(vm_oop_t obj, vm_oop_t other) {
-    auto* self = static_cast<VMVector*>(obj);
-    return self->IndexOf(other);
-}
-
 static vm_oop_t vecSize(vm_oop_t obj) {
     auto* self = static_cast<VMVector*>(obj);
     return self->Size();
@@ -95,8 +85,6 @@ _Vector::_Vector() {
     Add("last", &vecLast, false);
     Add("remove", &removeLast, false);
     Add("removeFirst", &removeFirst, false);
-    Add("contains:", &contains, false);
-    Add("indexOf:", &indexOf, false);
     Add("size", &vecSize, false);
     Add("remove:", &removeObject, false);
     Add("asArray", &asArray, false);

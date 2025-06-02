@@ -53,19 +53,6 @@ public:
 
     /* General Utility Methods */
 
-    /* Return the index if object is located, else return -1 for not found*/
-    [[nodiscard]] vm_oop_t IndexOf(vm_oop_t other);
-
-    /* True if object located, false otherwise */
-    [[nodiscard]] inline vm_oop_t Contains(vm_oop_t other) {
-        vm_oop_t where = VMVector::IndexOf(other);
-        if (INT_VAL(where) < 0) {
-            return load_ptr(falseObject);
-        }
-
-        return load_ptr(trueObject);
-    }
-
     /* Size of the Vector */
     [[nodiscard]] inline vm_oop_t Size() {
         const int64_t first = INT_VAL(load_ptr(this->first));
