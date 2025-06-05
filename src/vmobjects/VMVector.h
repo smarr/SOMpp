@@ -51,6 +51,8 @@ public:
 
     vm_oop_t Remove(vm_oop_t inx);
 
+    void RemoveAll();
+
     /* General Utility Methods */
 
     /* Size of the Vector */
@@ -58,6 +60,11 @@ public:
         const int64_t first = INT_VAL(load_ptr(this->first));
         const int64_t last = INT_VAL(load_ptr(this->last));
         return NEW_INT(last - first);
+    }
+
+    [[nodiscard]] inline vm_oop_t Capacity() {
+        VMArray* storage = load_ptr(this->storage);
+        return NEW_INT(storage->GetNumberOfIndexableFields());
     }
 
     /* Return the underlying array */

@@ -66,9 +66,20 @@ static vm_oop_t removeObject(vm_oop_t obj, vm_oop_t other) {
     return self->RemoveObj(other);
 }
 
+static vm_oop_t removeAll(vm_oop_t obj) {
+    auto* self = static_cast<VMVector*>(obj);
+    self->RemoveAll();
+    return self;
+}
+
 static vm_oop_t vecSize(vm_oop_t obj) {
     auto* self = static_cast<VMVector*>(obj);
     return self->Size();
+}
+
+static vm_oop_t capacity(vm_oop_t obj) {
+    auto* self = static_cast<VMVector*>(obj);
+    return self->Capacity();
 }
 
 static vm_oop_t asArray(vm_oop_t obj) {
@@ -76,6 +87,8 @@ static vm_oop_t asArray(vm_oop_t obj) {
     return self->StorageArray();
 }
 
+/* Handles initialization of primitives separately to object creation */
+/* Object is created when statics are loaded and no .som file has been read */
 void _Vector::LateInitialize(size_t hash) {
 #ifdef USE_VECTOR_PRIMITIVES
     // Hashes of the class which can be used to determine source code
@@ -97,7 +110,8 @@ void _Vector::LateInitialize(size_t hash) {
     } else if (hash == awfyVecHash) {
         cout << "Vector: Loading awfy vector primitives. " << endl;
 
-        // Can take removeAll method
+        Add("removeAll", &removeAll, false);
+        Add("capacity", &capacity, false);
     }
 
     // Install implementation independent methods (For AWFY or core-lib)

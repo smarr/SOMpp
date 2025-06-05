@@ -157,6 +157,13 @@ vm_oop_t VMVector::Remove(vm_oop_t inx) {
     return itemToRemove;
 }
 
+void VMVector::RemoveAll() {
+    this->first = store_ptr(this->first, NEW_INT(1));
+    this->last = store_ptr(this->last, NEW_INT(1));
+    VMArray* newArray = Universe::NewArray(50);
+    this->storage = store_ptr(this->storage, newArray);
+}
+
 vm_oop_t VMVector::StorageArray() {
     const int64_t first = INT_VAL(load_ptr(this->first));
     const int64_t last = INT_VAL(load_ptr(this->last));
