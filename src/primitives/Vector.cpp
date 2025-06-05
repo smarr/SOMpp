@@ -1,5 +1,6 @@
 #include "Vector.h"
 
+#include <cstddef>
 #include <cstdint>
 
 #include "../vm/Universe.h"
@@ -75,19 +76,48 @@ static vm_oop_t asArray(vm_oop_t obj) {
     return self->StorageArray();
 }
 
-_Vector::_Vector() {
+void _Vector::LateInitialize(size_t hash) {
 #ifdef USE_VECTOR_PRIMITIVES
-    Add("new", &vecNew, true);
-    Add("new:", &vecNewSize, true);
-    Add("at:", &vecAt, false);
-    Add("at:put:", &vecAtPut, false);
-    Add("append:", &vecAppend, false);
-    Add("first", &vecFirst, false);
-    Add("last", &vecLast, false);
-    Add("remove", &removeLast, false);
-    Add("removeFirst", &removeFirst, false);
-    Add("size", &vecSize, false);
-    Add("remove:", &removeObject, false);
-    Add("asArray", &asArray, false);
+    // Hashes of the class which can be used to determine source code
+    // Both hashes computed using std::hash<std::string>
+    size_t stdVecHash = 6847463072365130734;   // Correct as of 04/06/2025
+    size_t awfyVecHash = 4760964668761413413;  // Correct as of 04/06/2025
+
+    cout << "Vector Source Hash" << hash << endl;
+
+    // Install implementation specific methods
+    if (hash == stdVecHash) {
+        cout << "Vector: Loading core-lib vector primitives." << endl;
+
+        Add("first", &vecFirst, false);
+        Add("last", &vecLast, false);
+        Add("remove", &removeLast, false);
+        Add("asArray", &asArray, false);
+
+    } else if (hash == awfyVecHash) {
+        cout << "Vector: Loading awfy vector primitives. " << endl;
+
+        // Can take removeAll method
+    }
+
+    // Install implementation independent methods (For AWFY or core-lib)
+    if (hash == stdVecHash || hash == awfyVecHash) {
+        cout << "Vector: Installing independent Primitives. " << endl;
+
+        Add("new", &vecNew, true);
+        Add("new:", &vecNewSize, true);
+        Add("at:", &vecAt, false);
+        Add("at:put:", &vecAtPut, false);
+        Add("append:", &vecAppend, false);
+        Add("removeFirst", &removeFirst, false);
+        Add("remove:", &removeObject, false);
+        Add("size", &vecSize, false);
+
+    } else {
+        cout << "Vector: Unknown Vector hash. No primitive methods installed"
+             << endl;
+    }
 #endif
 }
+
+_Vector::_Vector() = default;
