@@ -32,7 +32,6 @@
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
-#include <functional>
 #include <iostream>
 #include <map>
 #include <sstream>
@@ -44,6 +43,7 @@
 #include "../compiler/SourcecodeCompiler.h"
 #include "../interpreter/bytecodes.h"
 #include "../memory/Heap.h"
+#include "../misc/Hasher.h"
 #include "../misc/defs.h"
 #include "../primitives/Vector.h"
 #include "../primitivesCore/PrimitiveLoader.h"
@@ -617,43 +617,29 @@ VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
                 Disassembler::Dump(result);
             }
 
+            /* This section can be used to delay the loading of primitives */
+
             // Now load our Vector class and add its primitives
             if (sName == "Vector") {
-                // This is a hack to get the hash of the Vector class
                 if (systemClass != nullptr) {
                     if (systemClass->GetName()->GetStdString() == "Vector") {
                         // Like this to pass clang-tidy checks
-                        ifstream hashingRead{};
+                        const ifstream hashingRead{};
                         std::string fname = i;
                         fname += fileSeparator;
                         fname += sName;
                         fname += ".som";
 
-                        hashingRead.open(fname.c_str(), std::ios_base::in);
-                        if (!hashingRead.is_open()) {
-                            // No file found
-                        } else {
-                            std::string line;
-                            std::ostringstream ss;
-                            while (std::getline(hashingRead, line)) {
-                                ss << line << '\n';
-                            }
-                            const std::string fileContents = ss.str();
-                            hashingRead.close();
+                        const std::string file = Hasher::GetFile(fname);
+                        const size_t hash = Hasher::HashString(file);
 
-                            // Hash the file contents
-                            size_t hash = 0;
-                            const std::hash<std::string> hasher;
-                            hash = hasher(fileContents);
-                            auto* primitiveContainer =
-                                PrimitiveLoader::GetInstance()->GetObject(
-                                    "Vector");
-                            auto* vectorInstance =
-                                dynamic_cast<_Vector*>(primitiveContainer);
-                            if (vectorInstance != nullptr) {
-                                // Now initialize primitives
-                                vectorInstance->LateInitialize(hash);
-                            }
+                        auto* primitiveContainer =
+                            PrimitiveLoader::GetInstance()->GetObject("Vector");
+                        auto* vectorInstance =
+                            dynamic_cast<_Vector*>(primitiveContainer);
+                        if (vectorInstance != nullptr) {
+                            // Now add primitives
+                            vectorInstance->LateInitialize(hash);
                         }
                     }
                 }

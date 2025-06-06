@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <iostream>
 
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
@@ -93,14 +94,14 @@ void _Vector::LateInitialize(size_t hash) {
 #ifdef USE_VECTOR_PRIMITIVES
     // Hashes of the class which can be used to determine source code
     // Both hashes computed using std::hash<std::string>
-    size_t stdVecHash = 6847463072365130734;   // Correct as of 04/06/2025
-    size_t awfyVecHash = 4760964668761413413;  // Correct as of 04/06/2025
+    const size_t stdVecHash = 6847463072365130734;   // Correct as of 04/06/2025
+    const size_t awfyVecHash = 4760964668761413413;  // Correct as of 04/06/2025
 
-    cout << "Vector Source Hash" << hash << endl;
+    cout << "Vector Source Hash" << hash << "\n";
 
     // Install implementation specific methods
     if (hash == stdVecHash) {
-        cout << "Vector: Loading core-lib vector primitives." << endl;
+        cout << "Vector: Loading core-lib vector primitives." << "\n";
 
         Add("first", &vecFirst, false);
         Add("last", &vecLast, false);
@@ -108,7 +109,7 @@ void _Vector::LateInitialize(size_t hash) {
         Add("asArray", &asArray, false);
 
     } else if (hash == awfyVecHash) {
-        cout << "Vector: Loading awfy vector primitives. " << endl;
+        cout << "Vector: Loading awfy vector primitives. " << "\n";
 
         Add("removeAll", &removeAll, false);
         Add("capacity", &capacity, false);
@@ -116,7 +117,7 @@ void _Vector::LateInitialize(size_t hash) {
 
     // Install implementation independent methods (For AWFY or core-lib)
     if (hash == stdVecHash || hash == awfyVecHash) {
-        cout << "Vector: Installing independent Primitives. " << endl;
+        cout << "Vector: Installing independent Primitives. " << "\n";
 
         Add("new", &vecNew, true);
         Add("new:", &vecNewSize, true);
@@ -129,7 +130,7 @@ void _Vector::LateInitialize(size_t hash) {
 
     } else {
         cout << "Vector: Unknown Vector hash. No primitive methods installed"
-             << endl;
+             << "\n";
     }
 #endif
 }
