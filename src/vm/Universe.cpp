@@ -620,7 +620,7 @@ VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
             /* This section can be used to delay the loading of primitives */
 
             // Now load our Vector class and add its primitives
-            if (sName == "Vector") {
+            if (sName == "Vector" && USE_VECTOR_PRIMITIVES == true) {
                 if (systemClass != nullptr) {
                     if (systemClass->GetName()->GetStdString() == "Vector") {
                         // Like this to pass clang-tidy checks
@@ -669,7 +669,8 @@ void Universe::LoadSystemClass(VMClass* systemClass) {
 
     // Vector has primitive methods and should be loaded (This is temporary)
     if (result->HasPrimitives() || result->GetClass()->HasPrimitives() ||
-        result->GetName()->GetStdString() == "Vector") {
+        (result->GetName()->GetStdString() == "Vector" &&
+         USE_VECTOR_PRIMITIVES == true)) {
         result->LoadPrimitives();
     }
 }
