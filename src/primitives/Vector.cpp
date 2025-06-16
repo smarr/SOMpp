@@ -85,7 +85,7 @@ static vm_oop_t capacity(vm_oop_t obj) {
 
 static vm_oop_t asArray(vm_oop_t obj) {
     auto* self = static_cast<VMVector*>(obj);
-    return self->StorageArray();
+    return self->copyStorageArray();
 }
 
 /* Handles initialization of primitives separately to object creation */

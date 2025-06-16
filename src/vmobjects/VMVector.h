@@ -68,10 +68,9 @@ public:
     }
 
     /* Return the underlying array */
-    [[nodiscard]] vm_oop_t StorageArray();
+    [[nodiscard]] vm_oop_t copyStorageArray();
 
-    static __attribute__((noreturn)) __attribute__((noinline)) void
-    IndexOutOfBounds(size_t idx, size_t size);
+    vm_oop_t IndexOutOfBounds();
 
 private:
     static const size_t VMVectorNumberOfFields;

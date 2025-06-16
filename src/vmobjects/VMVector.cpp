@@ -30,7 +30,7 @@ vm_oop_t VMVector::GetIndexableField(size_t index) {
     VMArray* const storage = load_ptr(this->storage);
 
     if (index < 1 || index > last - first) {  // Check this error handling again
-        IndexOutOfBounds(index, (last - first));
+        IndexOutOfBounds();
     }
     vm_oop_t returned = storage->GetIndexableField(
         (first - 1) + (index - 1));  // Convert to 0-indexing
@@ -43,7 +43,7 @@ vm_oop_t VMVector::SetIndexableField(size_t index, vm_oop_t value) {
     int64_t const last = INT_VAL(load_ptr(this->last));
     VMArray* const storage = load_ptr(this->storage);
     if (index < 1 || index > first + last) {
-        IndexOutOfBounds(index, (last - first));
+        IndexOutOfBounds();
     }
     vm_oop_t curVal = storage->GetIndexableField(first + index - 2);
     storage->SetIndexableField(first + index - 2, value);
@@ -140,7 +140,7 @@ vm_oop_t VMVector::Remove(vm_oop_t inx) {
     }
 
     if (index < 1 || index > last - first) {
-        IndexOutOfBounds(index, (last - first));
+        IndexOutOfBounds();
     }
 
     vm_oop_t itemToRemove = GetIndexableField(index);
@@ -160,11 +160,12 @@ vm_oop_t VMVector::Remove(vm_oop_t inx) {
 void VMVector::RemoveAll() {
     this->first = store_ptr(this->first, NEW_INT(1));
     this->last = store_ptr(this->last, NEW_INT(1));
-    VMArray* newArray = Universe::NewArray(50);
+    VMArray* storage = load_ptr(this->storage);
+    VMArray* newArray = Universe::NewArray(storage->GetNumberOfIndexableFields());
     this->storage = store_ptr(this->storage, newArray);
 }
 
-vm_oop_t VMVector::StorageArray() {
+vm_oop_t VMVector::copyStorageArray() {
     const int64_t first = INT_VAL(load_ptr(this->first));
     const int64_t last = INT_VAL(load_ptr(this->last));
     VMArray* storage = load_ptr(this->storage);
@@ -178,8 +179,12 @@ vm_oop_t VMVector::StorageArray() {
 }
 
 /* Rename as a more specifc error function */
-void VMVector::IndexOutOfBounds(size_t idx, size_t size) {
-    ErrorExit(("vector index out of bounds: Accessing " + to_string(idx) +
-               ", but vector size is only " + to_string(size) + "\n")
-                  .c_str());
+vm_oop_t VMVector::IndexOutOfBounds() {
+    // VMSafe*Primitive::Invoke will push it right back to the same frame
+    VMFrame* frame = Interpreter::GetFrame();
+    vm_oop_t errorMsg =
+        Universe::NewString("Vector: Index out of bounds");
+    vm_oop_t args[1] = {errorMsg};
+    this->Send("error:", args, 1);
+    return frame->Pop();
 }

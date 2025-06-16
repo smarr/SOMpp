@@ -630,8 +630,8 @@ VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
                         fname += sName;
                         fname += ".som";
 
-                        const std::string file = Hasher::GetFile(fname);
-                        const size_t hash = Hasher::HashString(file);
+                        const std::string file = ByteCodeHasher::GetFile(fname);
+                        const size_t hash = ByteCodeHasher::HashString(file);
 
                         auto* primitiveContainer =
                             PrimitiveLoader::GetInstance()->GetObject("Vector");

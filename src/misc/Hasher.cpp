@@ -10,12 +10,12 @@
 using namespace std;
 
 /* Hash a string with standard cpp hash function */
-size_t Hasher::HashString(const std::string& str) {
+size_t ByteCodeHasher::HashString(const std::string& str) {
     const std::hash<std::string> hasher;
     return hasher(str);
 }
 
-std::string Hasher::GetFile(const std::string& pathWithFileName) {
+std::string ByteCodeHasher::GetFile(const std::string& pathWithFileName) {
     ifstream hashingRead{};
     hashingRead.open(pathWithFileName.c_str(), std::ios_base::in);
     if (!hashingRead.is_open()) {
