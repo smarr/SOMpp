@@ -712,6 +712,38 @@ VMArray* Universe::NewArray(size_t size) {
     return result;
 }
 
+VMArray* Universe::NewExpandedArrayFromArray(size_t size, VMArray* array) {
+    size_t const additionalBytes = size * sizeof(VMObject*);
+
+    bool outsideNursery = false;  // NOLINT
+
+    size_t const currentArraySize = array->GetNumberOfIndexableFields();
+
+#if GC_TYPE == GENERATIONAL
+    // if the array is too big for the nursery, we will directly allocate a
+    // mature object
+    outsideNursery = additionalBytes + sizeof(VMArray) >
+                     GetHeap<HEAP_CLS>()->GetMaxNurseryObjectSize();
+#endif
+
+    auto* result = new (GetHeap<HEAP_CLS>(),
+                        additionalBytes ALLOC_OUTSIDE_NURSERY(outsideNursery))
+        VMArray(size, additionalBytes, currentArraySize);
+    if ((GC_TYPE == GENERATIONAL) && outsideNursery) {
+        result->SetGCField(MASK_OBJECT_IS_OLD);
+    }
+
+    result->SetClass(load_ptr(arrayClass));
+
+    LOG_ALLOCATION("VMArray", result->GetObjectSize());
+
+    // Now copy the contents of the old array into the new one
+    for (size_t i = 0; i < currentArraySize; ++i) {
+        result->SetIndexableField(i, array->GetIndexableField(i));
+    }
+    return result;
+}
+
 VMArray* Universe::NewArrayFromStrings(const vector<std::string>& strings) {
     VMArray* result = NewArray(strings.size());
     size_t j = 0;

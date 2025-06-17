@@ -9,7 +9,6 @@
 #include "../interpreter/Interpreter.h"
 #include "../misc/defs.h"
 #include "../vm/Globals.h"
-#include "../vm/Print.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
 
@@ -57,8 +56,8 @@ void VMVector::Append(vm_oop_t value) {
     if (last >= storage->GetNumberOfIndexableFields()) {  // Expand the array
         // Expand by the correct amount *2 by default in the native som
         // implementation
-        VMArray* newStorage =
-            Universe::NewArray(storage->GetNumberOfIndexableFields() * 2);
+        VMArray* newStorage = Universe::NewExpandedArrayFromArray(
+            storage->GetNumberOfIndexableFields() * 2, storage);
 
         storage->CopyIndexableFieldsTo(newStorage);
         newStorage->SetIndexableField(last - 1, value);
@@ -161,7 +160,8 @@ void VMVector::RemoveAll() {
     this->first = store_ptr(this->first, NEW_INT(1));
     this->last = store_ptr(this->last, NEW_INT(1));
     VMArray* storage = load_ptr(this->storage);
-    VMArray* newArray = Universe::NewArray(storage->GetNumberOfIndexableFields());
+    VMArray* newArray =
+        Universe::NewArray(storage->GetNumberOfIndexableFields());
     this->storage = store_ptr(this->storage, newArray);
 }
 
@@ -182,8 +182,7 @@ vm_oop_t VMVector::copyStorageArray() {
 vm_oop_t VMVector::IndexOutOfBounds() {
     // VMSafe*Primitive::Invoke will push it right back to the same frame
     VMFrame* frame = Interpreter::GetFrame();
-    vm_oop_t errorMsg =
-        Universe::NewString("Vector: Index out of bounds");
+    vm_oop_t errorMsg = Universe::NewString("Vector: Index out of bounds");
     vm_oop_t args[1] = {errorMsg};
     this->Send("error:", args, 1);
     return frame->Pop();
