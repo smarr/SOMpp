@@ -11,6 +11,9 @@ class Prim {
 public:
     explicit Prim(bool classSide) : isClassSide(classSide) {}
     bool isClassSide;
+    /* Hash is determined for each method so the correct primitive can be
+     * assigned */
+    size_t hash = 0;
 };
 
 class FramePrim : public Prim {

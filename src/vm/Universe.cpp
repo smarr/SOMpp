@@ -31,7 +31,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <fstream>
 #include <iostream>
 #include <map>
 #include <sstream>
@@ -619,31 +618,41 @@ VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
 
             /* This section can be used to delay the loading of primitives */
 
+#ifdef USE_VECTOR_PRIMITIVES
             // Now load our Vector class and add its primitives
             if (sName == "Vector" && USE_VECTOR_PRIMITIVES == true) {
-                if (systemClass != nullptr) {
-                    if (systemClass->GetName()->GetStdString() == "Vector") {
-                        // Like this to pass clang-tidy checks
-                        const ifstream hashingRead{};
-                        std::string fname = i;
-                        fname += fileSeparator;
-                        fname += sName;
-                        fname += ".som";
+                auto* hashes = new std::map<std::string, size_t>();
 
-                        const std::string file = ByteCodeHasher::GetFile(fname);
-                        const size_t hash = ByteCodeHasher::HashString(file);
+                const size_t numInvokables =
+                    result->GetNumberOfInstanceInvokables();
+                for (size_t i = 0; i < numInvokables; ++i) {
+                    auto* invokable = static_cast<VMInvokable*>(
+                        result->GetInstanceInvokables()->GetField(i));
 
-                        auto* primitiveContainer =
-                            PrimitiveLoader::GetInstance()->GetObject("Vector");
-                        auto* vectorInstance =
-                            dynamic_cast<_Vector*>(primitiveContainer);
-                        if (vectorInstance != nullptr) {
-                            // Now add primitives
-                            vectorInstance->LateInitialize(hash);
-                        }
+                    if (auto* method = dynamic_cast<VMMethod*>(invokable)) {
+                        auto* bytecodes = method->GetBytecodes();
+                        // NOLINT
+                        const std::string bytecodeStr(
+                            static_cast<const char*>(
+                                static_cast<const void*>(bytecodes)),
+                            method->GetNumberOfBytecodes());
+
+                        const std::string signature =
+                            method->GetSignature()->GetStdString();
+                        (*hashes)[signature] =
+                            ByteCodeHasher::HashString(bytecodeStr);
                     }
                 }
+
+                PrimitiveContainer* primContainer =
+                    PrimitiveLoader::GetInstance()->GetObject("Vector");
+                auto* vectorInstance = dynamic_cast<_Vector*>(primContainer);
+                if (vectorInstance != nullptr) {
+                    // Now add primitives
+                    vectorInstance->LateInitialize(hashes);
+                }
             }
+#endif
             return result;
         }
     }

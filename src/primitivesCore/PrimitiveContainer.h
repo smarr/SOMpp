@@ -26,6 +26,7 @@
  THE SOFTWARE.
  */
 
+#include <iostream>
 #include <map>
 
 #include "../misc/defs.h"
@@ -50,6 +51,16 @@ public:
              bool classSide);
     void Add(const char* name, TernaryPrimitiveRoutine /*routine*/,
              bool classSide);
+
+    /* For adding hash */
+    void Add(const char* name, FramePrimitiveRoutine /*routine*/,
+             bool classSize, size_t hash);
+    void Add(const char* name, UnaryPrimitiveRoutine /*routine*/,
+             bool classSize, size_t hash);
+    void Add(const char* name, BinaryPrimitiveRoutine /*routine*/,
+             bool classSize, size_t hash);
+    void Add(const char* name, TernaryPrimitiveRoutine /*routine*/,
+             bool classSize, size_t hash);
 
 private:
     std::map<std::string, FramePrim> framePrims;

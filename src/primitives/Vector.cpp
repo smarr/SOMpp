@@ -2,7 +2,8 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <iostream>
+#include <map>
+#include <string>
 
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
@@ -88,50 +89,108 @@ static vm_oop_t asArray(vm_oop_t obj) {
     return self->copyStorageArray();
 }
 
+/*
+core-lib
+
+at: 6078227970640332630
+at:put: 6078227970640332630
+first 130651218016064188
+last 1947622275005066112
+append: 2297668033614959926
+remove 3806281540898964462
+remove: 14432638981619695090
+isEmpty 16935082123893034051
+size 16935082123893034051
+capacity 16935082123893034051
+asArray 1836700529089583015
+removeFirst 3806281540898964462
+
+awfy-differences
+at: 130651218016064188
+at:put: 14777839075779364226
+append: 2297668033614959926
+isEmpty: 16935082123893034051
+removeFirst: 17123654466142159564
+removeAll: 4619310252099508733
+remove: 14432638981619695090
+size 16935082123893034051
+capcity 16935082123893034051
+*/
+
 /* Handles initialization of primitives separately to object creation */
 /* Object is created when statics are loaded and no .som file has been read */
-void _Vector::LateInitialize(size_t hash) {
+void _Vector::LateInitialize(std::map<std::string, size_t>* hashes) {
 #ifdef USE_VECTOR_PRIMITIVES
-    // Hashes of the class which can be used to determine source code
-    // Both hashes computed using std::hash<std::string>
-    const size_t stdVecHash = 6847463072365130734;   // Correct as of 04/06/2025
-    const size_t awfyVecHash = 4760964668761413413;  // Correct as of 04/06/2025
 
-    cout << "Vector Source Hash" << hash << "\n";
+    // cout<<"at: hash " << (*hashes)["at:"] << endl;
+    // cout<<"at:put: hash " << (*hashes)["at:put:"] << endl;
+    // cout<<"first hash " << (*hashes)["first"] << endl;
+    // cout<<"last hash " << (*hashes)["last"] << endl;
+    // cout<<"append: hash " << (*hashes)["append:"] << endl;
+    // cout<<"remove hash " << (*hashes)["remove"] << endl;
+    // cout<<"remove: hash " << (*hashes)["remove:"] << endl;
+    // cout<<"size hash " << (*hashes)["size"] << endl;
+    // cout<<"capacity hash " << (*hashes)["capacity"] << endl;
+    // cout<<"asArray hash " << (*hashes)["asArray"] << endl;
+    // cout<<"removeFirst hash " << (*hashes)["removeFirst"] << endl;
+    // cout<<"removeAll hash " << (*hashes)["removeAll"] << endl;
 
-    // Install implementation specific methods
-    if (hash == stdVecHash) {
-        cout << "Vector: Loading core-lib vector primitives." << "\n";
+    /* A map of hashes with the key being method signature are added here */
+    if ((*hashes)["at:"] == 15701225123643718540ULL ||
+        (*hashes)["at:"] == 6812223825622950441ULL) {
+        Add("at:", &vecAt, false);
+    }
 
+    if ((*hashes)["at:put:"] == 15701225123643718540ULL ||
+        (*hashes)["at:put:"] == 1424373843580326011ULL) {
+        Add("at:put:", &vecAtPut, false);
+    }
+
+    if ((*hashes)["first"] == 10026279788538546667ULL) {
         Add("first", &vecFirst, false);
+    }
+
+    if ((*hashes)["last"] == 12704268779516119438ULL) {
         Add("last", &vecLast, false);
+    }
+
+    if ((*hashes)["append:"] == 13118885541413071290ULL ||
+        (*hashes)["append:"] == 13118885541413071290ULL) {
+        Add("append:", &vecAppend, false);
+    }
+
+    if ((*hashes)["remove"] == 1325639674086910439ULL) {
         Add("remove", &removeLast, false);
-        Add("asArray", &asArray, false);
+    }
 
-    } else if (hash == awfyVecHash) {
-        cout << "Vector: Loading awfy vector primitives. " << "\n";
+    if ((*hashes)["remove:"] == 18423337479191764055ULL ||
+        (*hashes)["remove:"] == 18423337479191764055ULL) {
+        Add("remove:", &removeObject, false);
+    }
 
-        Add("removeAll", &removeAll, false);
+    if ((*hashes)["size"] == 275685630939944626ULL ||
+        (*hashes)["size"] == 275685630939944626ULL) {
+        Add("size", &vecSize, false);
+    }
+
+    if ((*hashes)["capacity"] == 12474412091446719372ULL ||
+        (*hashes)["capacity"] == 12474412091446719372ULL) {
         Add("capacity", &capacity, false);
     }
 
-    // Install implementation independent methods (For AWFY or core-lib)
-    if (hash == stdVecHash || hash == awfyVecHash) {
-        cout << "Vector: Installing independent Primitives. " << "\n";
-
-        Add("new", &vecNew, true);
-        Add("new:", &vecNewSize, true);
-        Add("at:", &vecAt, false);
-        Add("at:put:", &vecAtPut, false);
-        Add("append:", &vecAppend, false);
-        Add("removeFirst", &removeFirst, false);
-        Add("remove:", &removeObject, false);
-        Add("size", &vecSize, false);
-
-    } else {
-        cout << "Vector: Unknown Vector hash. No primitive methods installed"
-             << "\n";
+    if ((*hashes)["asArray"] == 10354287759150596565ULL) {
+        Add("asArray", &asArray, false);
     }
+
+    if ((*hashes)["removeFirst"] == 10589921408041234885ULL ||
+        (*hashes)["removeFirst"] == 14759376054960058883ULL) {
+        Add("removeFirst", &removeFirst, false);
+    }
+
+    if ((*hashes)["removeAll"] == 13065396693477551925ULL) {
+        Add("removeAll", &removeAll, false);
+    }
+
 #endif
 }
 
