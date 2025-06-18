@@ -596,7 +596,7 @@ VMClass* Universe::LoadClass(VMSymbol* name) {
     }
 
     if (result->HasPrimitives() || result->GetClass()->HasPrimitives()) {
-        result->LoadPrimitives();
+        result->LoadPrimitives(true);
     }
 
     SetGlobal(name, result);
@@ -678,7 +678,7 @@ void Universe::LoadSystemClass(VMClass* systemClass) {
     if (result->HasPrimitives() || result->GetClass()->HasPrimitives() ||
         (result->GetName()->GetStdString() == "Vector" &&
          USE_VECTOR_PRIMITIVES == true)) {
-        result->LoadPrimitives();
+        result->LoadPrimitives(false);
     }
 }
 
