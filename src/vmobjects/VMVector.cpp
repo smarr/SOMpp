@@ -29,7 +29,7 @@ vm_oop_t VMVector::GetIndexableField(size_t index) {
     VMArray* const storage = load_ptr(this->storage);
 
     if (index < 1 || index > last - first) {  // Check this error handling again
-        IndexOutOfBounds();
+        return IndexOutOfBounds();
     }
     vm_oop_t returned = storage->GetIndexableField(
         (first - 1) + (index - 1));  // Convert to 0-indexing
@@ -42,7 +42,7 @@ vm_oop_t VMVector::SetIndexableField(size_t index, vm_oop_t value) {
     int64_t const last = INT_VAL(load_ptr(this->last));
     VMArray* const storage = load_ptr(this->storage);
     if (index < 1 || index > first + last) {
-        IndexOutOfBounds();
+        return IndexOutOfBounds();
     }
     vm_oop_t curVal = storage->GetIndexableField(first + index - 2);
     storage->SetIndexableField(first + index - 2, value);
@@ -139,7 +139,7 @@ vm_oop_t VMVector::Remove(vm_oop_t inx) {
     }
 
     if (index < 1 || index > last - first) {
-        IndexOutOfBounds();
+        return IndexOutOfBounds();
     }
 
     vm_oop_t itemToRemove = GetIndexableField(index);
@@ -178,7 +178,7 @@ vm_oop_t VMVector::copyStorageArray() {
     return result;
 }
 
-/* Rename as a more specifc error function */
+/* Rename as a more specific error function */
 vm_oop_t VMVector::IndexOutOfBounds() {
     // VMSafe*Primitive::Invoke will push it right back to the same frame
     VMFrame* frame = Interpreter::GetFrame();
