@@ -184,6 +184,8 @@ public:
 
     void Dump(const char* indent, bool printObjects) override;
 
+    [[nodiscard]] inline uint8_t* GetBytecodes() const { return bytecodes; }
+
 private:
     void inlineInto(MethodGenerationContext& mgenc, const Parser& parser);
     std::priority_queue<BackJump> createBackJumpHeap();
@@ -198,8 +200,6 @@ private:
                                           MethodGenerationContext& mgenc);
 
     make_testable(public);
-
-    [[nodiscard]] inline uint8_t* GetBytecodes() const { return bytecodes; }
 
     [[nodiscard]] inline vm_oop_t GetIndexableField(size_t idx) const {
         return load_ptr(indexableFields[idx]);
