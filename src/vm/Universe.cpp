@@ -618,9 +618,8 @@ VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
 
             /* This section can be used to delay the loading of primitives */
 
-#ifdef USE_VECTOR_PRIMITIVES
             // Now load our Vector class and add its primitives
-            if (sName == "Vector" && USE_VECTOR_PRIMITIVES == true) {
+            if (USE_VECTOR_PRIMITIVES && sName == "Vector") {
                 auto* hashes = new std::map<std::string, size_t>();
 
                 const size_t numInvokables =
@@ -652,7 +651,6 @@ VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
                     vectorInstance->LateInitialize(hashes);
                 }
             }
-#endif
             return result;
         }
     }

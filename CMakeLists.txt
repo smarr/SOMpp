@@ -57,7 +57,7 @@ set(INT_CACHE_MIN_VALUE -5  CACHE STRING "Lower bound of cached integers")
 set(INT_CACHE_MAX_VALUE 100 CACHE STRING "Upper bound of cached integers")
 option(GENERATE_INTEGER_HISTOGRAM "Generate histogram of allocated integers" FALSE)
 
-option(USE_VECTOR_PRIMITIVES "Use the c++ implemented vector primitives" TRUE)
+option(USE_VECTOR_PRIMITIVES "Use Vector primitives" TRUE)
 
 option(GENERATE_ALLOCATION_STATISTICS "Generate allocation statistics" FALSE)
 
