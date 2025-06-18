@@ -23,12 +23,12 @@ VMVector::VMVector(vm_oop_t first, vm_oop_t last, VMArray* storage)
     write_barrier(this, storage);
 }
 
-vm_oop_t VMVector::GetIndexableField(size_t index) {
+vm_oop_t VMVector::GetStorage(int64_t index) {
     int64_t const first = INT_VAL(load_ptr(this->first));
     int64_t const last = INT_VAL(load_ptr(this->last));
     VMArray* const storage = load_ptr(this->storage);
 
-    if (index < 1 || index > last - first) {  // Check this error handling again
+    if (index < 1 || index > last - first) {
         return IndexOutOfBounds();
     }
     vm_oop_t returned = storage->GetIndexableField(
@@ -37,7 +37,7 @@ vm_oop_t VMVector::GetIndexableField(size_t index) {
 }
 
 /* Returns the value currently held at that location */
-vm_oop_t VMVector::SetIndexableField(size_t index, vm_oop_t value) {
+vm_oop_t VMVector::SetStorage(int64_t index, vm_oop_t value) {
     int64_t const first = INT_VAL(load_ptr(this->first));
     int64_t const last = INT_VAL(load_ptr(this->last));
     VMArray* const storage = load_ptr(this->storage);
@@ -104,7 +104,7 @@ vm_oop_t VMVector::RemoveFirst() {
         this->Send("error:", args, 1);
         return frame->Pop();
     }
-    vm_oop_t itemToRemove = GetIndexableField(
+    vm_oop_t itemToRemove = GetStorage(
         1);      // This is 1 because GetIndexableField handles 1 to 0 indexing
     first += 1;  // Increment the first index
     this->first = store_ptr(this->first, NEW_INT(first));
@@ -138,10 +138,10 @@ vm_oop_t VMVector::Remove(vm_oop_t inx) {
         return IndexOutOfBounds();
     }
 
-    vm_oop_t itemToRemove = GetIndexableField(index);
+    vm_oop_t itemToRemove = GetStorage(index);
 
     // Shift all elements after the index to the left
-    for (size_t i = index; i < last - first; ++i) {
+    for (int64_t i = index; i < last - first; ++i) {
         storage->SetIndexableField(first + i - 1,
                                    storage->GetIndexableField(first + i));
     }

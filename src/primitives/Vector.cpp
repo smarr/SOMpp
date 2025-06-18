@@ -25,7 +25,7 @@ static vm_oop_t vecNewSize(vm_oop_t clazz, vm_oop_t arg) {
 static vm_oop_t vecAt(vm_oop_t obj, vm_oop_t arg) {
     auto* self = static_cast<VMVector*>(obj);
     int64_t const index = INT_VAL(arg);
-    return self->GetIndexableField(index);
+    return self->GetStorage(index);
 }
 
 static vm_oop_t vecAtPut(vm_oop_t obj, vm_oop_t at, vm_oop_t put) {
@@ -33,7 +33,7 @@ static vm_oop_t vecAtPut(vm_oop_t obj, vm_oop_t at, vm_oop_t put) {
     int64_t const index = INT_VAL(at);         // Set the index looking for
     // Call method to set the value at index. That deals with 1to0 indexing
     // conversion
-    return self->SetIndexableField(index, put);
+    return self->SetStorage(index, put);
 }
 
 static vm_oop_t vecAppend(vm_oop_t obj, vm_oop_t arg) {

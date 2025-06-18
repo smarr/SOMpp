@@ -18,25 +18,25 @@ public:
     /* Getter Methods */
 
     /* handles 1 - 0 indexing give the SOM index to this function */
-    [[nodiscard]] vm_oop_t GetIndexableField(size_t index);
+    [[nodiscard]] vm_oop_t GetStorage(int64_t index);
 
     /* Return the first element */
     [[nodiscard]] inline vm_oop_t GetFirst() {
-        vm_oop_t returned = GetIndexableField(1);
+        vm_oop_t returned = GetStorage(1);
         return returned;
     }
 
     /* Return the last element */
     [[nodiscard]] inline vm_oop_t GetLast() {
         const int64_t last = INT_VAL(load_ptr(this->last));
-        vm_oop_t returned = GetIndexableField(last - 1);
+        vm_oop_t returned = GetStorage(last - 1);
         return returned;
     }
 
     /* Setter Methods */
 
     /* handles 1 - 0 indexing give the SOM index to this function */
-    vm_oop_t SetIndexableField(size_t index, vm_oop_t value);
+    vm_oop_t SetStorage(int64_t index, vm_oop_t value);
 
     /* Append an item to end of Vector */
     void Append(vm_oop_t value);
