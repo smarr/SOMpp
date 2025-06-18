@@ -76,6 +76,7 @@ static vm_oop_t asArray(vm_oop_t obj) {
 }
 
 _Vector::_Vector() {
+#ifdef USE_VECTOR_PRIMITIVES
     Add("new", &vecNew, true);
     Add("new:", &vecNewSize, true);
     Add("at:", &vecAt, false);
@@ -88,4 +89,5 @@ _Vector::_Vector() {
     Add("size", &vecSize, false);
     Add("remove:", &removeObject, false);
     Add("asArray", &asArray, false);
+#endif
 }

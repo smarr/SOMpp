@@ -168,6 +168,12 @@ static void printVmConfig() {
         cout << "\tnot caching integers\n";
     }
 
+    if (USE_VECTOR_PRIMITIVES) {
+        cout << "\tVector primitives: enabled\n";
+    } else {
+        cout << "\tVector primitives: disabled\n";
+    }
+
     cout << "--------------------------------------\n";
 }
 
