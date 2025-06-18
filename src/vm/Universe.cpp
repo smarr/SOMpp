@@ -93,8 +93,11 @@ void Universe::BasicInit() {
 }
 
 void Universe::Shutdown() {
-    ErrorPrint("Time spent in GC: [" +
-               to_string(Timer::GCTimer.GetTotalTime()) + "] msec\n");
+    if (gcVerbosity > 0) {
+        ErrorPrint("Time spent in GC: [" +
+                   to_string(Timer::GCTimer.GetTotalTime()) + "] msec\n");
+    }
+
 #ifdef GENERATE_INTEGER_HISTOGRAM
     std::string file_name_hist = std::string(bm_name);
     file_name_hist.append("_integer_histogram.csv");
