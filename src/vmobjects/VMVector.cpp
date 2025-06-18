@@ -134,10 +134,6 @@ vm_oop_t VMVector::Remove(vm_oop_t inx) {
     VMArray* storage = load_ptr(this->storage);
     int64_t index = INT_VAL(inx);
 
-    if ((last - first) != 0 && index == 0) {
-        index = index;
-    }
-
     if (index < 1 || index > last - first) {
         return IndexOutOfBounds();
     }

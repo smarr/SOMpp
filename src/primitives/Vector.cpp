@@ -18,7 +18,6 @@ static vm_oop_t vecNew(vm_oop_t clazz) {
 }
 
 static vm_oop_t vecNewSize(vm_oop_t clazz, vm_oop_t arg) {
-    auto* classPtr = static_cast<VMClass*>(clazz);
     int64_t const size = INT_VAL(arg);
     return Universe::NewVector(size, static_cast<VMClass*>(clazz));
 }
