@@ -93,8 +93,11 @@ void Universe::BasicInit() {
 }
 
 void Universe::Shutdown() {
-    ErrorPrint("Time spent in GC: [" +
-               to_string(Timer::GCTimer.GetTotalTime()) + "] msec\n");
+    if (gcVerbosity > 0) {
+        ErrorPrint("Time spent in GC: [" +
+                   to_string(Timer::GCTimer.GetTotalTime()) + "] msec\n");
+    }
+
 #ifdef GENERATE_INTEGER_HISTOGRAM
     std::string file_name_hist = std::string(bm_name);
     file_name_hist.append("_integer_histogram.csv");
@@ -138,6 +141,35 @@ void Universe::Shutdown() {
 #endif
 }
 
+static void printVmConfig() {
+    if (GC_TYPE == GENERATIONAL) {
+        cout << "\tgarbage collector: generational\n";
+    } else if (GC_TYPE == COPYING) {
+        cout << "\tgarbage collector: copying\n";
+    } else if (GC_TYPE == MARK_SWEEP) {
+        cout << "\tgarbage collector: mark-sweep\n";
+    } else if (GC_TYPE == DEBUG_COPYING) {
+        cout << "\tgarbage collector: debug copying\n";
+    } else {
+        cout << "\tgarbage collector: unknown\n";
+    }
+
+    if (USE_TAGGING) {
+        cout << "\twith tagged integers\n";
+    } else {
+        cout << "\tnot tagging integers\n";
+    }
+
+    if (CACHE_INTEGER) {
+        cout << "\tcaching integers from " << INT_CACHE_MIN_VALUE << " to "
+             << INT_CACHE_MAX_VALUE << "\n";
+    } else {
+        cout << "\tnot caching integers\n";
+    }
+
+    cout << "--------------------------------------\n";
+}
+
 vector<std::string> Universe::handleArguments(int32_t argc, char** argv) {
     vector<std::string> vmArgs = vector<std::string>();
     dumpBytecodes = 0;
@@ -151,6 +183,8 @@ vector<std::string> Universe::handleArguments(int32_t argc, char** argv) {
             setupClassPath(std::string(argv[++i]));
         } else if (strncmp(argv[i], "-d", 2) == 0) {
             ++dumpBytecodes;
+        } else if (strncmp(argv[i], "-cfg", 4) == 0) {
+            printVmConfig();
         } else if (strncmp(argv[i], "-g", 2) == 0) {
             ++gcVerbosity;
         } else if (strncmp(argv[i], "-H", 2) == 0) {
@@ -235,14 +269,16 @@ void Universe::addClassPath(const std::string& cp) {
 void Universe::printUsageAndExit(char* executable) {
     cout << "Usage: " << executable << " [-options] [args...]\n\n";
     cout << "where options include:\n";
-    cout << "    -cp <directories separated by " << pathSeparator << ">\n";
-    cout << "        set search path for application classes\n";
-    cout << "    -d  enable disassembling (twice for tracing)\n";
-    cout << "    -g  enable garbage collection details:\n"
-         << "        1x - print statistics when VM shuts down\n"
-         << "        2x - print statistics upon each collection\n"
-         << "        3x - print statistics and dump heap upon each \n"
-         << "collection\n";
+    cout << "    -cp  <directories separated by " << pathSeparator << ">\n";
+    cout << "         set search path for application classes\n";
+    cout << "    -d   enable disassembling (twice for tracing)\n";
+    cout << "    -cfg print VM configuration\n";
+    cout
+        << "    -g   enable garbage collection details:\n"
+        << "         1x - print statistics when VM shuts down\n"
+        << "         2x - print statistics upon each collection\n"
+        << "         3x - print statistics and dump heap upon each collection\n"
+        << "\n";
     cout << "    -HxMB set the heap size to x MB (default: 1 MB)\n";
     cout << "    -HxKB set the heap size to x KB (default: 1 MB)\n";
     cout << "    -h  show this help\n";

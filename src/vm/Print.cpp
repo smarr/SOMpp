@@ -41,9 +41,6 @@ __attribute__((noreturn)) __attribute__((noinline)) void ErrorExit(
 }
 
 __attribute__((noreturn)) __attribute__((noinline)) void Quit(int32_t err) {
-    ErrorPrint("Time spent in GC: [" +
-               to_string(Timer::GCTimer.GetTotalTime()) + "] msec\n");
-
     Universe::Shutdown();
 
     OutputAllocationLogFile();
