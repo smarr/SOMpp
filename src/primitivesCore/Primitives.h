@@ -9,18 +9,17 @@ using TernaryPrimitiveRoutine = vm_oop_t(vm_oop_t, vm_oop_t, vm_oop_t);
 
 class Prim {
 public:
-    explicit Prim(bool classSide) : isClassSide(classSide) {}
+    explicit Prim(bool classSide, size_t hash) : isClassSide(classSide), hash(hash) {}
+
     bool isClassSide;
-    /* Hash is determined for each method so the correct primitive can be
-     * assigned */
-    size_t hash = 0;
+    size_t hash;
 };
 
 class FramePrim : public Prim {
 public:
-    FramePrim(FramePrimitiveRoutine ptr, bool classSide)
-        : Prim(classSide), pointer(ptr) {}
-    explicit FramePrim() : Prim(false), pointer(nullptr) {}
+    FramePrim(FramePrimitiveRoutine ptr, bool classSide, size_t hash)
+        : Prim(classSide, hash), pointer(ptr) {}
+    explicit FramePrim() : Prim(false, 0), pointer(nullptr) {}
 
     [[nodiscard]] bool IsValid() const { return pointer != nullptr; }
     void MarkObjectAsInvalid() { pointer = nullptr; }
@@ -30,9 +29,9 @@ public:
 
 class UnaryPrim : public Prim {
 public:
-    UnaryPrim(UnaryPrimitiveRoutine ptr, bool classSide)
-        : Prim(classSide), pointer(ptr) {}
-    explicit UnaryPrim() : Prim(false), pointer(nullptr) {}
+    UnaryPrim(UnaryPrimitiveRoutine ptr, bool classSide, size_t hash)
+        : Prim(classSide, hash), pointer(ptr) {}
+    explicit UnaryPrim() : Prim(false, 0), pointer(nullptr) {}
 
     [[nodiscard]] bool IsValid() const { return pointer != nullptr; }
     void MarkObjectAsInvalid() { pointer = nullptr; }
@@ -42,9 +41,9 @@ public:
 
 class BinaryPrim : public Prim {
 public:
-    BinaryPrim(BinaryPrimitiveRoutine ptr, bool classSide)
-        : Prim(classSide), pointer(ptr) {}
-    explicit BinaryPrim() : Prim(false), pointer(nullptr) {}
+    BinaryPrim(BinaryPrimitiveRoutine ptr, bool classSide, size_t hash)
+        : Prim(classSide, hash), pointer(ptr) {}
+    explicit BinaryPrim() : Prim(false, 0), pointer(nullptr) {}
 
     [[nodiscard]] bool IsValid() const { return pointer != nullptr; }
 
@@ -55,9 +54,9 @@ public:
 
 class TernaryPrim : public Prim {
 public:
-    TernaryPrim(TernaryPrimitiveRoutine ptr, bool classSide)
-        : Prim(classSide), pointer(ptr) {}
-    explicit TernaryPrim() : Prim(false), pointer(nullptr) {}
+    TernaryPrim(TernaryPrimitiveRoutine ptr, bool classSide, size_t hash)
+        : Prim(classSide, hash), pointer(ptr) {}
+    explicit TernaryPrim() : Prim(false, 0), pointer(nullptr) {}
 
     [[nodiscard]] bool IsValid() const { return pointer != nullptr; }
 
