@@ -42,7 +42,6 @@
 #include "../compiler/SourcecodeCompiler.h"
 #include "../interpreter/bytecodes.h"
 #include "../memory/Heap.h"
-#include "../misc/Hasher.h"
 #include "../misc/defs.h"
 #include "../primitives/Vector.h"
 #include "../primitivesCore/PrimitiveLoader.h"
@@ -629,17 +628,9 @@ VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
                         result->GetInstanceInvokables()->GetField(i));
 
                     if (auto* method = dynamic_cast<VMMethod*>(invokable)) {
-                        auto* bytecodes = method->GetBytecodes();
-                        // NOLINT
-                        const std::string bytecodeStr(
-                            static_cast<const char*>(
-                                static_cast<const void*>(bytecodes)),
-                            method->GetNumberOfBytecodes());
-
                         const std::string signature =
                             method->GetSignature()->GetStdString();
-                        (*hashes)[signature] =
-                            ByteCodeHasher::HashString(bytecodeStr);
+                        (*hashes)[signature] = method->GetBytecodeHash();
                     }
                 }
 

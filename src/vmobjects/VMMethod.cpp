@@ -710,3 +710,10 @@ void VMMethod::MergeScopeInto(MethodGenerationContext& mgenc) {
     assert(lexicalScope != nullptr);
     mgenc.MergeIntoScope(*lexicalScope);
 }
+
+size_t VMMethod::GetBytecodeHash() const {
+    const std::hash<std::string> hashFn;
+    const char* const bytecodePtr = reinterpret_cast<char*>(bytecodes);
+    std::string bytecodeString(bytecodePtr, bcLength);
+    return hashFn(bytecodeString);
+}
