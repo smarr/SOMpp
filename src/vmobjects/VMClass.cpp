@@ -29,6 +29,7 @@
 #include <cassert>
 #include <cstdint>
 #include <cstring>
+#include <iostream>
 #include <string>
 
 #include "../memory/Heap.h"
@@ -90,7 +91,7 @@ PrimInstallResult VMClass::InstallPrimitive(VMInvokable* invokable,
         }
 
         if (invokable->GetSignature() == inv->GetSignature()) {
-            PrimInstallResult result;
+            PrimInstallResult result = PrimInstallResult::NULL_ARG;
             bool hashMismatch = false;
             size_t seenHash = 0;
 

@@ -43,8 +43,6 @@
 #include "../interpreter/bytecodes.h"
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
-#include "../primitives/Vector.h"
-#include "../primitivesCore/PrimitiveLoader.h"
 #include "../vmobjects/IntegerBox.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMArray.h"

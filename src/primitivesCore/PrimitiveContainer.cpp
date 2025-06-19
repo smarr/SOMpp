@@ -27,12 +27,15 @@
 #include "PrimitiveContainer.h"
 
 #include <cassert>
+#include <cstddef>
 #include <iostream>
 #include <map>
 #include <string>
+#include <utility>
 
 #include "../vm/Symbols.h"
 #include "../vmobjects/VMClass.h"
+#include "../vmobjects/VMInvokable.h"
 #include "../vmobjects/VMPrimitive.h"
 #include "../vmobjects/VMSafePrimitive.h"
 #include "../vmobjects/VMSymbol.h"
@@ -145,7 +148,7 @@ void PrimitiveContainer::installPrimitives(
 
         VMSymbol* sig = SymbolFor(p.first);
 
-        PrimInstallResult result = clazz->InstallPrimitive(
+        PrimInstallResult const result = clazz->InstallPrimitive(
             makePrimFn(sig, prim1), prim1.bytecodeHash, !prim2.IsValid());
         if (result == PrimInstallResult::INSTALLED_ADDED && showWarning) {
             cout << "Warn: Primitive " << p.first

@@ -2,9 +2,8 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <map>
-#include <string>
 
+#include "../misc/defs.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMFrame.h"

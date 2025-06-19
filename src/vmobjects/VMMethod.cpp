@@ -30,6 +30,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <functional>
 #include <queue>
 #include <string>
 
@@ -713,7 +714,8 @@ void VMMethod::MergeScopeInto(MethodGenerationContext& mgenc) {
 
 size_t VMMethod::GetBytecodeHash() const {
     const std::hash<std::string> hashFn;
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast)
     const char* const bytecodePtr = reinterpret_cast<char*>(bytecodes);
-    std::string bytecodeString(bytecodePtr, bcLength);
+    std::string const bytecodeString(bytecodePtr, bcLength);
     return hashFn(bytecodeString);
 }
