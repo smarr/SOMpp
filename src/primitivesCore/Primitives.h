@@ -9,10 +9,11 @@ using TernaryPrimitiveRoutine = vm_oop_t(vm_oop_t, vm_oop_t, vm_oop_t);
 
 class Prim {
 public:
-    explicit Prim(bool classSide, size_t hash) : isClassSide(classSide), hash(hash) {}
+    explicit Prim(bool classSide, size_t bytecodeHash)
+        : isClassSide(classSide), bytecodeHash(bytecodeHash) {}
 
     bool isClassSide;
-    size_t hash;
+    size_t bytecodeHash;
 };
 
 class FramePrim : public Prim {

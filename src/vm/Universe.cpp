@@ -527,8 +527,9 @@ VMClass* Universe::GetBlockClassWithArgs(uint8_t numberOfArguments) {
     VMSymbol* name = SymbolFor(Str.str());
     VMClass* result = LoadClassBasic(name, nullptr);
 
-    result->AddInstanceInvokable(new (GetHeap<HEAP_CLS>(), 0)
-                                     VMEvaluationPrimitive(numberOfArguments));
+    result->InstallPrimitive(new (GetHeap<HEAP_CLS>(), 0)
+                                 VMEvaluationPrimitive(numberOfArguments),
+                             0, false);
 
     SetGlobal(name, result);
     blockClassesByNoOfArgs[numberOfArguments] = store_root(result);
@@ -615,33 +616,6 @@ VMClass* Universe::LoadClassBasic(VMSymbol* name, VMClass* systemClass) {
                 Disassembler::Dump(result);
             }
 
-            /* This section can be used to delay the loading of primitives */
-
-            // Now load our Vector class and add its primitives
-            if (USE_VECTOR_PRIMITIVES && sName == "Vector") {
-                auto* hashes = new std::map<std::string, size_t>();
-
-                const size_t numInvokables =
-                    result->GetNumberOfInstanceInvokables();
-                for (size_t i = 0; i < numInvokables; ++i) {
-                    auto* invokable = static_cast<VMInvokable*>(
-                        result->GetInstanceInvokables()->GetField(i));
-
-                    if (auto* method = dynamic_cast<VMMethod*>(invokable)) {
-                        const std::string signature =
-                            method->GetSignature()->GetStdString();
-                        (*hashes)[signature] = method->GetBytecodeHash();
-                    }
-                }
-
-                PrimitiveContainer* primContainer =
-                    PrimitiveLoader::GetInstance()->GetObject("Vector");
-                auto* vectorInstance = dynamic_cast<_Vector*>(primContainer);
-                if (vectorInstance != nullptr) {
-                    // Now add primitives
-                    vectorInstance->LateInitialize(hashes);
-                }
-            }
             return result;
         }
     }

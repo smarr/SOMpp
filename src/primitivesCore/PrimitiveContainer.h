@@ -61,18 +61,18 @@ public:
     void Add(const char* name, TernaryPrimitiveRoutine /*routine*/,
              bool classSize, size_t hash);
 
-    void Add(const char* name, bool classSize, FramePrimitiveRoutine /*routine*/,
-              size_t hash1, FramePrimitiveRoutine /*routine*/,
-             size_t hash2);
-    void Add(const char* name, bool classSize, UnaryPrimitiveRoutine /*routine*/,
-             size_t hash1, UnaryPrimitiveRoutine /*routine*/,
-             size_t hash2);
-    void Add(const char* name, bool classSize, BinaryPrimitiveRoutine /*routine*/,
-             size_t hash1, BinaryPrimitiveRoutine /*routine*/,
-             size_t hash2);
-    void Add(const char* name, bool classSize, TernaryPrimitiveRoutine /*routine*/,
-             size_t hash1, TernaryPrimitiveRoutine /*routine*/,
-             size_t hash2);
+    void Add(const char* name, bool classSize,
+             FramePrimitiveRoutine /*routine*/, size_t hash1,
+             FramePrimitiveRoutine /*routine*/, size_t hash2);
+    void Add(const char* name, bool classSize,
+             UnaryPrimitiveRoutine /*routine*/, size_t hash1,
+             UnaryPrimitiveRoutine /*routine*/, size_t hash2);
+    void Add(const char* name, bool classSize,
+             BinaryPrimitiveRoutine /*routine*/, size_t hash1,
+             BinaryPrimitiveRoutine /*routine*/, size_t hash2);
+    void Add(const char* name, bool classSize,
+             TernaryPrimitiveRoutine /*routine*/, size_t hash1,
+             TernaryPrimitiveRoutine /*routine*/, size_t hash2);
 
 private:
     std::map<std::string, std::pair<FramePrim, FramePrim>> framePrims;
@@ -80,6 +80,9 @@ private:
     std::map<std::string, std::pair<BinaryPrim, BinaryPrim>> binaryPrims;
     std::map<std::string, std::pair<TernaryPrim, TernaryPrim>> ternaryPrims;
 
-    template<class PrimT>
-    void installPrimitives(bool classSide, bool showWarning, VMClass* clazz, std::map<std::string, std::pair<PrimT, PrimT>>& prims, VMInvokable*(*makePrimFn)(VMSymbol* sig, PrimT));
+    template <class PrimT>
+    void installPrimitives(
+        bool classSide, bool showWarning, VMClass* clazz,
+        std::map<std::string, std::pair<PrimT, PrimT>>& prims,
+        VMInvokable* (*makePrimFn)(VMSymbol* sig, PrimT));
 };

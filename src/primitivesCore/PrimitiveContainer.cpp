@@ -42,58 +42,98 @@ void PrimitiveContainer::Add(const char* name,
                              FramePrimitiveRoutine routine,
                              bool classSide) {
     assert(framePrims.find(name) == framePrims.end());
-    framePrims[std::string(name)] = {FramePrim(routine, classSide, 0), FramePrim()};
+    framePrims[std::string(name)] = {FramePrim(routine, classSide, 0),
+                                     FramePrim()};
 }
 void PrimitiveContainer::Add(const char* name,
                              BinaryPrimitiveRoutine routine,
                              bool classSide) {
     assert(binaryPrims.find(name) == binaryPrims.end());
-    binaryPrims[std::string(name)] = {BinaryPrim(routine, classSide, 0), BinaryPrim()};
+    binaryPrims[std::string(name)] = {BinaryPrim(routine, classSide, 0),
+                                      BinaryPrim()};
 }
 
 void PrimitiveContainer::Add(const char* name,
                              UnaryPrimitiveRoutine routine,
                              bool classSide) {
     assert(unaryPrims.find(name) == unaryPrims.end());
-    unaryPrims[std::string(name)] = {UnaryPrim(routine, classSide, 0), UnaryPrim()};
+    unaryPrims[std::string(name)] = {UnaryPrim(routine, classSide, 0),
+                                     UnaryPrim()};
 }
 
 void PrimitiveContainer::Add(const char* name,
                              TernaryPrimitiveRoutine routine,
                              bool classSide) {
     assert(ternaryPrims.find(name) == ternaryPrims.end());
-    ternaryPrims[std::string(name)] = {TernaryPrim(routine, classSide, 0), TernaryPrim()};
+    ternaryPrims[std::string(name)] = {TernaryPrim(routine, classSide, 0),
+                                       TernaryPrim()};
 }
 
-void PrimitiveContainer::Add(const char* name,
-                             FramePrimitiveRoutine routine,
+void PrimitiveContainer::Add(const char* name, FramePrimitiveRoutine routine,
                              bool classSide, size_t hash) {
     assert(framePrims.find(name) == framePrims.end());
-    framePrims[std::string(name)] = {FramePrim(routine, classSide, hash), FramePrim()};
+    framePrims[std::string(name)] = {FramePrim(routine, classSide, hash),
+                                     FramePrim()};
 }
-void PrimitiveContainer::Add(const char* name,
-                             BinaryPrimitiveRoutine routine,
+
+void PrimitiveContainer::Add(const char* name, BinaryPrimitiveRoutine routine,
                              bool classSide, size_t hash) {
     assert(binaryPrims.find(name) == binaryPrims.end());
-    binaryPrims[std::string(name)] = {BinaryPrim(routine, classSide, hash), BinaryPrim()};
+    binaryPrims[std::string(name)] = {BinaryPrim(routine, classSide, hash),
+                                      BinaryPrim()};
 }
 
-void PrimitiveContainer::Add(const char* name,
-                             UnaryPrimitiveRoutine routine,
+void PrimitiveContainer::Add(const char* name, UnaryPrimitiveRoutine routine,
                              bool classSide, size_t hash) {
     assert(unaryPrims.find(name) == unaryPrims.end());
-    unaryPrims[std::string(name)] = {UnaryPrim(routine, classSide, hash), UnaryPrim()};
+    unaryPrims[std::string(name)] = {UnaryPrim(routine, classSide, hash),
+                                     UnaryPrim()};
 }
 
-void PrimitiveContainer::Add(const char* name,
-                             TernaryPrimitiveRoutine routine,
+void PrimitiveContainer::Add(const char* name, TernaryPrimitiveRoutine routine,
                              bool classSide, size_t hash) {
     assert(ternaryPrims.find(name) == ternaryPrims.end());
-    ternaryPrims[std::string(name)] = {TernaryPrim(routine, classSide, hash), TernaryPrim()};
+    ternaryPrims[std::string(name)] = {TernaryPrim(routine, classSide, hash),
+                                       TernaryPrim()};
 }
 
-template<class PrimT>
-void PrimitiveContainer::installPrimitives(bool classSide, bool showWarning, VMClass* clazz, std::map<std::string, std::pair<PrimT, PrimT>>& prims, VMInvokable*(*makePrimFn)(VMSymbol* sig, PrimT)) {
+void PrimitiveContainer::Add(const char* name, bool classSide,
+                             FramePrimitiveRoutine routine1, size_t hash1,
+                             FramePrimitiveRoutine routine2, size_t hash2) {
+    assert(framePrims.find(name) == framePrims.end());
+    framePrims[std::string(name)] = {FramePrim(routine1, classSide, hash1),
+                                     FramePrim(routine2, classSide, hash2)};
+}
+
+void PrimitiveContainer::Add(const char* name, bool classSide,
+                             BinaryPrimitiveRoutine routine1, size_t hash1,
+                             BinaryPrimitiveRoutine routine2, size_t hash2) {
+    assert(binaryPrims.find(name) == binaryPrims.end());
+    binaryPrims[std::string(name)] = {BinaryPrim(routine1, classSide, hash1),
+                                      BinaryPrim(routine2, classSide, hash2)};
+}
+
+void PrimitiveContainer::Add(const char* name, bool classSide,
+                             UnaryPrimitiveRoutine routine1, size_t hash1,
+                             UnaryPrimitiveRoutine routine2, size_t hash2) {
+    assert(unaryPrims.find(name) == unaryPrims.end());
+    unaryPrims[std::string(name)] = {UnaryPrim(routine1, classSide, hash1),
+                                     UnaryPrim(routine2, classSide, hash2)};
+}
+
+void PrimitiveContainer::Add(const char* name, bool classSide,
+                             TernaryPrimitiveRoutine routine1, size_t hash1,
+                             TernaryPrimitiveRoutine routine2, size_t hash2) {
+    assert(ternaryPrims.find(name) == ternaryPrims.end());
+    ternaryPrims[std::string(name)] = {TernaryPrim(routine1, classSide, hash1),
+                                       TernaryPrim(routine2, classSide, hash2)};
+}
+
+template <class PrimT>
+void PrimitiveContainer::installPrimitives(
+    bool classSide, bool showWarning, VMClass* clazz,
+    std::map<std::string, std::pair<PrimT, PrimT>>& prims,
+    VMInvokable* (*makePrimFn)(VMSymbol* sig, PrimT)) {
     for (auto const& p : prims) {
         PrimT prim1 = std::get<0>(p.second);
         PrimT prim2 = std::get<0>(p.second);
@@ -104,28 +144,30 @@ void PrimitiveContainer::installPrimitives(bool classSide, bool showWarning, VMC
         }
 
         VMSymbol* sig = SymbolFor(p.first);
-        if (clazz->AddInstanceInvokable(makePrimFn(sig, prim1)) && showWarning) {
+
+        PrimInstallResult result = clazz->InstallPrimitive(
+            makePrimFn(sig, prim1), prim1.bytecodeHash, !prim2.IsValid());
+        if (result == PrimInstallResult::INSTALLED_ADDED && showWarning) {
             cout << "Warn: Primitive " << p.first
                  << " is not in class definition for class "
                  << clazz->GetName()->GetStdString() << '\n';
-        }
-
-        if (!prim2.IsValid()) {
-            return;
-        }
-
-        assert(prim1.isClassSide == prim2.isClassSide);
-        if (clazz->AddInstanceInvokable(makePrimFn(sig, prim2)) && showWarning) {
-            cout << "Warn: Primitive " << p.first
-                 << " is not in class definition for class "
-                 << clazz->GetName()->GetStdString() << '\n';
+        } else if (result == PrimInstallResult::HASH_MISMATCH &&
+                   prim2.IsValid()) {
+            assert(prim1.isClassSide == prim2.isClassSide);
+            clazz->InstallPrimitive(makePrimFn(sig, prim2), prim2.bytecodeHash,
+                                    true);
         }
     }
 }
 
-void PrimitiveContainer::InstallPrimitives(VMClass* clazz, bool classSide, bool showWarning) {
-    installPrimitives(classSide, showWarning, clazz, unaryPrims, VMSafePrimitive::GetSafeUnary);
-    installPrimitives(classSide, showWarning, clazz, binaryPrims, VMSafePrimitive::GetSafeBinary);
-    installPrimitives(classSide, showWarning, clazz, ternaryPrims, VMSafePrimitive::GetSafeTernary);
-    installPrimitives(classSide, showWarning, clazz, framePrims, VMPrimitive::GetFramePrim);
+void PrimitiveContainer::InstallPrimitives(VMClass* clazz, bool classSide,
+                                           bool showWarning) {
+    installPrimitives(classSide, showWarning, clazz, unaryPrims,
+                      VMSafePrimitive::GetSafeUnary);
+    installPrimitives(classSide, showWarning, clazz, binaryPrims,
+                      VMSafePrimitive::GetSafeBinary);
+    installPrimitives(classSide, showWarning, clazz, ternaryPrims,
+                      VMSafePrimitive::GetSafeTernary);
+    installPrimitives(classSide, showWarning, clazz, framePrims,
+                      VMPrimitive::GetFramePrim);
 }

@@ -6,5 +6,4 @@
 class _Vector : public PrimitiveContainer {
 public:
     _Vector();
-    void LateInitialize(std::map<std::string, size_t>* hashes);
 };
