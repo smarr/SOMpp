@@ -33,8 +33,7 @@ VMFrame* VMSafeUnaryPrimitive::Invoke1(VMFrame* frame) {
     return nullptr;
 }
 
-VMInvokable* VMSafePrimitive::GetSafeBinary(VMSymbol* sig,
-                                                BinaryPrim prim) {
+VMInvokable* VMSafePrimitive::GetSafeBinary(VMSymbol* sig, BinaryPrim prim) {
     auto* p = new (GetHeap<HEAP_CLS>(), 0) VMSafeBinaryPrimitive(sig, prim);
     return p;
 }
@@ -51,8 +50,7 @@ VMFrame* VMSafeBinaryPrimitive::Invoke1(VMFrame* /*frame*/) {
     ErrorExit("Unary invoke on binary primitive");
 }
 
-VMInvokable* VMSafePrimitive::GetSafeTernary(VMSymbol* sig,
-                                                 TernaryPrim prim) {
+VMInvokable* VMSafePrimitive::GetSafeTernary(VMSymbol* sig, TernaryPrim prim) {
     auto* p = new (GetHeap<HEAP_CLS>(), 0) VMSafeTernaryPrimitive(sig, prim);
     return p;
 }
