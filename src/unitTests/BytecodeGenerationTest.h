@@ -6,6 +6,7 @@
 #include "../compiler/MethodGenerationContext.h"
 #include "../interpreter/bytecodes.h"
 #include "TestWithParsing.h"
+#include <cppunit/TestAssert.h>
 
 class BytecodeGenerationTest : public TestWithParsing {
     // NOLINTNEXTLINE(misc-const-correctness)

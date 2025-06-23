@@ -1,8 +1,8 @@
 #ifndef MURMUR3HASH_H
 #define MURMUR3HASH_H
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 class Murmur3Hash {
 public:
