@@ -1,6 +1,5 @@
 #include "Vector.h"
 
-#include <cstddef>
 #include <cstdint>
 
 #include "../misc/defs.h"
