@@ -139,7 +139,7 @@ void PrimitiveContainer::installPrimitives(
     VMInvokable* (*makePrimFn)(VMSymbol* sig, PrimT)) {
     for (auto const& p : prims) {
         PrimT prim1 = std::get<0>(p.second);
-        PrimT prim2 = std::get<0>(p.second);
+        PrimT prim2 = std::get<1>(p.second);
 
         assert(prim1.IsValid());
         if (classSide != prim1.isClassSide) {
