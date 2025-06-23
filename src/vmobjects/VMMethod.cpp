@@ -43,6 +43,7 @@
 #include "../interpreter/bytecodes.h"
 #include "../memory/Heap.h"
 #include "../misc/defs.h"
+#include "../misc/Murmur3Hash.h"
 #include "../vm/Globals.h"
 #include "../vm/Print.h"
 #include "../vm/Universe.h"  // NOLINT(misc-include-cleaner) it's required to make the types complete
@@ -717,5 +718,9 @@ size_t VMMethod::GetBytecodeHash() const {
     // NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast)
     const char* const bytecodePtr = reinterpret_cast<char*>(bytecodes);
     std::string const bytecodeString(bytecodePtr, bcLength);
-    return hashFn(bytecodeString);
+    return Murmur3Hash::murmur3_32(
+        reinterpret_cast<const uint8_t*>(bytecodePtr),
+        strlen(bytecodePtr),
+        0x00000000
+    );
 }

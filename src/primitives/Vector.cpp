@@ -95,20 +95,19 @@ _Vector::_Vector() {
     // If they need to be updated, the corresponding primitive implementations
     // likely need to be adapted, too.
 
-    Add("at:", false, &vecAt, 15701225123643718540ULL, &vecAt,
-        6812223825622950441ULL);
-    Add("at:put:", false, &vecAtPut, 15701225123643718540ULL, &vecAtPut,
-        1424373843580326011ULL);
+    Add("at:", false, &vecAt, 1078057473, &vecAt,
+        3362920797);
+    Add("at:put:", false, &vecAtPut, 1078057473, &vecAtPut,
+        3362920797);
 
-    Add("first", &vecFirst, false, 10026279788538546667ULL);
-    Add("last", &vecLast, false, 12704268779516119438ULL);
-    Add("append:", &vecAppend, false, 13118885541413071290ULL);
-    Add("remove", &removeLast, false, 1325639674086910439ULL);
-    Add("remove:", &removeObject, false, 18423337479191764055ULL);
-    Add("size", &vecSize, false, 275685630939944626ULL);
-    Add("capacity", &capacity, false, 12474412091446719372ULL);
-    Add("asArray", &asArray, false, 10354287759150596565ULL);
-    Add("removeFirst", false, &removeFirst, 10589921408041234885ULL,
-        &removeFirst, 14759376054960058883ULL);
-    Add("removeAll", &removeAll, false, 13065396693477551925ULL);
+    Add("first", &vecFirst, false, 1725815466);
+    Add("last", &vecLast, false, 1725815466);
+    Add("append:", &vecAppend, false, 318093777);
+    Add("remove", &removeLast, false, 1725815466);
+    Add("remove:", &removeObject, false, 3449745100);
+    Add("size", &vecSize, false, 198675311);
+    Add("capacity", &capacity, false, 4108221081);
+    Add("asArray", &asArray, false, 3449745100);
+    Add("removeFirst", &removeFirst, false, 1725815466);
+    Add("removeAll", &removeAll, false, 1510429688);
 };
