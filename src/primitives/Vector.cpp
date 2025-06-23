@@ -2,7 +2,6 @@
 
 #include <cstdint>
 
-#include "../misc/defs.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMFrame.h"
