@@ -41,7 +41,6 @@ static vm_oop_t vecAtPut(vm_oop_t obj, vm_oop_t at, vm_oop_t put) {
 }
 
 static vm_oop_t vecAtPutAWFY(vm_oop_t obj, vm_oop_t at, vm_oop_t put) {
-    cout<<"Running AWFY Prim"<<endl;
     auto* self = static_cast<VMVector*>(obj);  // Cast itself as a VMVector
     int64_t const index = INT_VAL(at);         // Set the index looking for
     // Call method to set the value at index. That does not deal with 1to0
