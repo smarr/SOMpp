@@ -52,7 +52,6 @@ PrimitiveLoader* PrimitiveLoader::GetInstance() {
 
 PrimitiveLoader::PrimitiveLoader() {
     AddPrimitiveObject("Array", new _Array());
-    // Vector caled but no primitive methods registered (Check LoadClassBasic)
     AddPrimitiveObject("Vector", new _Vector());
     AddPrimitiveObject("Block", new _Block());
     AddPrimitiveObject("Class", new _Class());
