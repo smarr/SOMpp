@@ -23,6 +23,21 @@ VMVector::VMVector(vm_oop_t first, vm_oop_t last, VMArray* storage)
     write_barrier(this, storage);
 }
 
+vm_oop_t VMVector::AWFYGetStorage(int64_t index) {
+    // This is a method that is used by the AWFY tests, it does not handle
+    // 1-0 indexing conversion
+    int64_t const first = INT_VAL(load_ptr(this->first));
+    int64_t const last = INT_VAL(load_ptr(this->last));
+    VMArray* const storage = load_ptr(this->storage);
+
+    if (index > storage->GetNumberOfIndexableFields()) {
+        return IndexOutOfBounds();
+    }
+    vm_oop_t returned = storage->GetIndexableField(
+        (first - 1) + (index - 1));  // Convert to 0-indexing
+    return returned;
+}
+
 vm_oop_t VMVector::GetStorage(int64_t index) {
     int64_t const first = INT_VAL(load_ptr(this->first));
     int64_t const last = INT_VAL(load_ptr(this->last));
@@ -47,6 +62,29 @@ vm_oop_t VMVector::SetStorage(int64_t index, vm_oop_t value) {
     vm_oop_t curVal = storage->GetIndexableField(first + index - 2);
     storage->SetIndexableField(first + index - 2, value);
     return curVal;
+}
+
+/* AWFY Vector can expand on at:put: core-lib vector cannot*/
+void VMVector::SetStorageAWFY(int64_t index, vm_oop_t value) {
+    int64_t first = INT_VAL(load_ptr(this->first));
+    int64_t last = INT_VAL(load_ptr(this->last));
+    VMArray* storage = load_ptr(this->storage);
+
+    if (index > storage->GetNumberOfIndexableFields()) {
+        // Expand the array
+        VMArray* newStorage = Universe::NewExpandedArrayFromArray(
+            storage->GetNumberOfIndexableFields() * 2, storage);
+
+        newStorage->SetIndexableField(index - 1, value);
+
+        this->storage = store_ptr(this->storage, newStorage);
+
+    } else {
+        // Just set the new value
+        storage->SetIndexableField(first + index - 2, value);
+        last+=1;
+        this->last = store_ptr(this->last, NEW_INT(last));
+    }
 }
 
 void VMVector::Append(vm_oop_t value) {

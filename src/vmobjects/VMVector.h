@@ -19,6 +19,7 @@ public:
 
     /* handles 1 - 0 indexing give the SOM index to this function */
     [[nodiscard]] vm_oop_t GetStorage(int64_t index);
+    [[nodiscard]] vm_oop_t AWFYGetStorage(int64_t index);
 
     /* Return the first element */
     [[nodiscard]] inline vm_oop_t GetFirst() {
@@ -37,6 +38,7 @@ public:
 
     /* handles 1 - 0 indexing give the SOM index to this function */
     vm_oop_t SetStorage(int64_t index, vm_oop_t value);
+    void SetStorageAWFY(int64_t index, vm_oop_t value);
 
     /* Append an item to end of Vector */
     void Append(vm_oop_t value);

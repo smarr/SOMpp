@@ -26,12 +26,28 @@ static vm_oop_t vecAt(vm_oop_t obj, vm_oop_t arg) {
     return self->GetStorage(index);
 }
 
+static vm_oop_t vecAtAWFY(vm_oop_t obj, vm_oop_t arg) {
+    auto* self = static_cast<VMVector*>(obj);
+    int64_t const index = INT_VAL(arg);
+    return self->AWFYGetStorage(index);
+}
+
 static vm_oop_t vecAtPut(vm_oop_t obj, vm_oop_t at, vm_oop_t put) {
     auto* self = static_cast<VMVector*>(obj);  // Cast itself as a VMVector
     int64_t const index = INT_VAL(at);         // Set the index looking for
     // Call method to set the value at index. That deals with 1to0 indexing
     // conversion
     return self->SetStorage(index, put);
+}
+
+static vm_oop_t vecAtPutAWFY(vm_oop_t obj, vm_oop_t at, vm_oop_t put) {
+    cout<<"Running AWFY Prim"<<endl;
+    auto* self = static_cast<VMVector*>(obj);  // Cast itself as a VMVector
+    int64_t const index = INT_VAL(at);         // Set the index looking for
+    // Call method to set the value at index. That does not deal with 1to0
+    // indexing conversion
+    self->SetStorageAWFY(index, put);
+    return self;
 }
 
 static vm_oop_t vecAppend(vm_oop_t obj, vm_oop_t arg) {
@@ -95,9 +111,9 @@ _Vector::_Vector() {
     // If they need to be updated, the corresponding primitive implementations
     // likely need to be adapted, too.
 
-    Add("at:", false, &vecAt, 1078057473, &vecAt,
+    Add("at:", false, &vecAt, 1078057473, &vecAtAWFY,
         3362920797);
-    Add("at:put:", false, &vecAtPut, 1078057473, &vecAtPut,
+    Add("at:put:", false, &vecAtPut, 1078057473, &vecAtPutAWFY,
         3362920797);
 
     Add("first", &vecFirst, false, 1725815466);
