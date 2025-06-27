@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "../memory/Heap.h"
+#include "../misc/debug.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/AbstractObject.h"
 #include "../vmobjects/IntegerBox.h"
@@ -14,6 +15,8 @@
 #define GC_MARKED 3456
 
 void MarkSweepCollector::Collect() {
+    DebugLog("MarkSweep Collect\n");
+
     auto* heap = GetHeap<MarkSweepHeap>();
     Timer::GCTimer.Resume();
     // reset collection trigger

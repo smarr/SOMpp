@@ -124,6 +124,7 @@ void GenerationalCollector::MajorCollection() {
 }
 
 void GenerationalCollector::Collect() {
+    DebugLog("GenGC Collect\n");
     Timer::GCTimer.Resume();
     // reset collection trigger
     heap->resetGCTrigger();
