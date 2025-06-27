@@ -116,6 +116,26 @@ void Disassembler::DumpMethod(MethodGenerationContext* mgenc,
     dumpMethod(bytecodes.data(), bytecodes.size(), indent, nullptr, true);
 }
 
+static void PrintFieldAccess(VMMethod* method, bool printObjects,
+                             uint8_t const fieldIdx) {
+    if (method != nullptr && printObjects) {
+        auto* holder = dynamic_cast<VMClass*>((VMObject*)method->GetHolder());
+        if (holder != nullptr) {
+            VMSymbol* name = holder->GetInstanceFieldName(fieldIdx);
+            if (name != nullptr) {
+                DebugPrint("(index: %d) field: %s\n", fieldIdx,
+                           name->GetStdString().c_str());
+            } else {
+                DebugPrint("(index: %d) field: !nullptr!: error!\n", fieldIdx);
+            }
+        } else {
+            DebugPrint("(index: %d) block holder is not a class!!\n", fieldIdx);
+        }
+    } else {
+        DebugPrint("(index: %d)\n", fieldIdx);
+    }
+}
+
 void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes,
                               const char* indent, VMMethod* method,
                               bool printObjects) {
@@ -152,7 +172,8 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes,
         switch (bytecode) {
             case BC_PUSH_0:
             case BC_PUSH_1:
-            case BC_PUSH_NIL: {
+            case BC_PUSH_NIL:
+            case BC_RETURN_SELF: {
                 // no more details to be printed
                 break;
             }
@@ -260,26 +281,12 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes,
             case BC_POP_FIELD:
             case BC_PUSH_FIELD: {
                 uint8_t const fieldIdx = bytecodes[bc_idx + 1];
-                if (method != nullptr && printObjects) {
-                    auto* holder =
-                        dynamic_cast<VMClass*>((VMObject*)method->GetHolder());
-                    if (holder != nullptr) {
-                        VMSymbol* name = holder->GetInstanceFieldName(fieldIdx);
-                        if (name != nullptr) {
-                            DebugPrint("(index: %d) field: %s\n", fieldIdx,
-                                       name->GetStdString().c_str());
-                        } else {
-                            DebugPrint("(index: %d) field: !nullptr!: error!\n",
-                                       fieldIdx);
-                        }
-                    } else {
-                        DebugPrint(
-                            "(index: %d) block holder is not a class!!\n",
-                            fieldIdx);
-                    }
-                } else {
-                    DebugPrint("(index: %d)\n", fieldIdx);
-                }
+                PrintFieldAccess(method, printObjects, fieldIdx);
+                break;
+            }
+            case BC_POP_FIELD_1:
+            case BC_PUSH_FIELD_1: {
+                PrintFieldAccess(method, printObjects, 1);
                 break;
             }
             case BC_SEND:
@@ -397,6 +404,16 @@ void Disassembler::printNth(uint8_t idx, VMFrame* frame, const char* op) {
         DebugPrint("<to %s: address: %p", op, (void*)o);
     }
     DebugPrint(">\n");
+}
+
+void Disassembler::printConstantAccess(vm_oop_t constant, uint8_t index) {
+    VMClass* c = CLASS_OF(constant);
+    VMSymbol* cname = c->GetName();
+
+    DebugPrint("(index: %d) value: (%s) ", index,
+               cname->GetStdString().c_str());
+    dispatch(constant);
+    DebugPrint("\n");
 }
 
 /**
@@ -528,13 +545,22 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method,
         }
         case BC_PUSH_CONSTANT: {
             vm_oop_t constant = method->GetConstant(bc_idx);
-            VMClass* c = CLASS_OF(constant);
-            VMSymbol* cname = c->GetName();
-
-            DebugPrint("(index: %d) value: (%s) ", BC_1,
-                       cname->GetStdString().c_str());
-            dispatch(constant);
-            DebugPrint("\n");
+            printConstantAccess(constant, BC_1);
+            break;
+        }
+        case BC_PUSH_CONSTANT_0: {
+            vm_oop_t constant = method->GetIndexableField(0);
+            printConstantAccess(constant, 0);
+            break;
+        }
+        case BC_PUSH_CONSTANT_1: {
+            vm_oop_t constant = method->GetIndexableField(1);
+            printConstantAccess(constant, 1);
+            break;
+        }
+        case BC_PUSH_CONSTANT_2: {
+            vm_oop_t constant = method->GetIndexableField(2);
+            printConstantAccess(constant, 2);
             break;
         }
         case BC_PUSH_GLOBAL: {
