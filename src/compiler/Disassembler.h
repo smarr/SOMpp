@@ -53,4 +53,5 @@ private:
                               VMFrame* frame);
     static void printPopLocal(uint8_t idx, uint8_t ctx, VMFrame* frame);
     static void printNth(uint8_t idx, VMFrame* frame, const char* op);
+    static void printConstantAccess(vm_oop_t constant, uint8_t index);
 };
