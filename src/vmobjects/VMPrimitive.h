@@ -66,7 +66,7 @@ public:
         return nullptr;
     };
 
-    void InlineInto(MethodGenerationContext& mgenc,
+    void InlineInto(MethodGenerationContext& mgenc, const Parser& parser,
                     bool mergeScope = true) final;
 
     [[nodiscard]] bool IsPrimitive() const override { return true; };

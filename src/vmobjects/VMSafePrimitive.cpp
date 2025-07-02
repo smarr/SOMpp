@@ -94,6 +94,7 @@ AbstractVMObject* VMSafeTernaryPrimitive::CloneForMovingGC() const {
 }
 
 void VMSafePrimitive::InlineInto(MethodGenerationContext& /*mgenc*/,
+                                 const Parser& /*parser*/,
                                  bool /*mergeScope*/) {
     ErrorExit(
         "VMPrimitive::InlineInto is not supported, and should not be reached");

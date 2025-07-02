@@ -65,7 +65,7 @@ bool VMPrimitive::IsEmpty() const {
 }
 
 void VMPrimitive::InlineInto(MethodGenerationContext& /*mgenc*/,
-                             bool /*mergeScope*/) {
+                             const Parser& /*parser*/, bool /*mergeScope*/) {
     ErrorExit(
         "VMPrimitive::InlineInto is not supported, and should not be reached");
 }

@@ -45,6 +45,8 @@ public:
     void method(MethodGenerationContext& mgenc);
     void nestedBlock(MethodGenerationContext& mgenc);
 
+    __attribute__((noreturn)) void ParseError(const char* msg) const;
+
 private:
     __attribute__((noreturn)) void parseError(const char* msg, Symbol expected);
     __attribute__((noreturn)) void parseError(const char* msg,
@@ -118,10 +120,10 @@ private:
     std::string _string();
     void blockPattern(MethodGenerationContext& mgenc);
     void blockArguments(MethodGenerationContext& mgenc);
-    static void genPushVariable(MethodGenerationContext& /*mgenc*/,
-                                std::string& /*var*/);
-    static void genPopVariable(MethodGenerationContext& /*mgenc*/,
-                               std::string& /*var*/);
+    void genPushVariable(MethodGenerationContext& /*mgenc*/,
+                         std::string& /*var*/) const;
+    void genPopVariable(MethodGenerationContext& /*mgenc*/,
+                        std::string& /*var*/) const;
 
     Lexer lexer;
     std::string& fname;

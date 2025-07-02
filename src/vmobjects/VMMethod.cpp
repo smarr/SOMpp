@@ -181,11 +181,12 @@ std::string VMMethod::AsDebugString() const {
            ")";
 }
 
-void VMMethod::InlineInto(MethodGenerationContext& mgenc, bool mergeScope) {
+void VMMethod::InlineInto(MethodGenerationContext& mgenc, const Parser& parser,
+                          bool mergeScope) {
     if (mergeScope) {
         mgenc.MergeIntoScope(*lexicalScope);
     }
-    inlineInto(mgenc);
+    inlineInto(mgenc, parser);
 }
 
 std::priority_queue<BackJump> VMMethod::createBackJumpHeap() {
@@ -200,7 +201,8 @@ std::priority_queue<BackJump> VMMethod::createBackJumpHeap() {
     return loops;
 }
 
-void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
+void VMMethod::inlineInto(MethodGenerationContext& mgenc,
+                          const Parser& parser) {
     std::priority_queue<Jump>
         jumps;  // priority queue sorted by originalJumpTargetIdx
     std::priority_queue<BackJump> backJumps = createBackJumpHeap();
@@ -269,7 +271,7 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
                 assert(ctxLevel > 0);
 
                 assert(bytecode == BC_POP_ARGUMENT);
-                EmitPOPARGUMENT(mgenc, idx, ctxLevel - 1);
+                EmitPOPARGUMENT(mgenc, parser, idx, ctxLevel - 1);
                 break;
             }
             case BC_PUSH_ARGUMENT: {
@@ -277,7 +279,7 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
                 const uint8_t ctxLevel = bytecodes[i + 2];
                 assert(ctxLevel > 0);
 
-                EmitPUSHARGUMENT(mgenc, idx, ctxLevel - 1);
+                EmitPUSHARGUMENT(mgenc, parser, idx, ctxLevel - 1);
                 break;
             }
             case BC_INC_FIELD:
@@ -301,9 +303,9 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
                 }
 
                 if (bytecode == BC_PUSH_LOCAL) {
-                    EmitPUSHLOCAL(mgenc, idx, ctxLevel);
+                    EmitPUSHLOCAL(mgenc, parser, idx, ctxLevel);
                 } else {
-                    EmitPOPLOCAL(mgenc, idx, ctxLevel);
+                    EmitPOPLOCAL(mgenc, parser, idx, ctxLevel);
                 }
                 break;
             }
@@ -314,7 +316,7 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
                 uint8_t const idx = bytecode - BC_PUSH_LOCAL_0;
                 const auto* oldVar = lexicalScope->GetLocal(idx, 0);
                 uint8_t const newIdx = mgenc.GetInlinedLocalIdx(oldVar);
-                EmitPUSHLOCAL(mgenc, newIdx, 0);
+                EmitPUSHLOCAL(mgenc, parser, newIdx, 0);
                 break;
             }
 
@@ -324,7 +326,7 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
                 uint8_t const idx = bytecode - BC_POP_LOCAL_0;
                 const auto* oldVar = lexicalScope->GetLocal(idx, 0);
                 uint8_t const newIdx = mgenc.GetInlinedLocalIdx(oldVar);
-                EmitPOPLOCAL(mgenc, newIdx, 0);
+                EmitPOPLOCAL(mgenc, parser, newIdx, 0);
                 break;
             }
 
@@ -335,19 +337,19 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
 
                 const Variable* arg = lexicalScope->GetArgument(argIdx, 0);
                 size_t const inlinedLocalIndex = mgenc.GetInlinedLocalIdx(arg);
-                EmitPUSHLOCAL(mgenc, inlinedLocalIndex, 0);
+                EmitPUSHLOCAL(mgenc, parser, inlinedLocalIndex, 0);
                 break;
             }
 
             case BC_PUSH_BLOCK: {
                 auto* blockMethod = (VMInvokable*)GetConstant(i);
                 blockMethod->AdaptAfterOuterInlined(1, mgenc);
-                EmitPUSHBLOCK(mgenc, blockMethod);
+                EmitPUSHBLOCK(mgenc, parser, blockMethod);
                 break;
             }
             case BC_PUSH_CONSTANT: {
                 vm_oop_t literal = GetConstant(i);
-                EmitPUSHCONSTANT(mgenc, literal);
+                EmitPUSHCONSTANT(mgenc, parser, literal);
                 break;
             }
             case BC_PUSH_CONSTANT_0:
@@ -355,7 +357,7 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
             case BC_PUSH_CONSTANT_2: {
                 const uint8_t literalIdx = bytecode - BC_PUSH_CONSTANT_0;
                 vm_oop_t literal = GetIndexableField(literalIdx);
-                EmitPUSHCONSTANT(mgenc, literal);
+                EmitPUSHCONSTANT(mgenc, parser, literal);
                 break;
             }
             case BC_PUSH_0:
@@ -378,7 +380,7 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
             }
             case BC_PUSH_GLOBAL: {
                 auto* const sym = (VMSymbol*)GetConstant(i);
-                EmitPUSHGLOBAL(mgenc, sym);
+                EmitPUSHGLOBAL(mgenc, parser, sym);
                 break;
             }
             case BC_SEND:
@@ -387,12 +389,12 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
             case BC_SEND_3:
             case BC_SEND_N: {
                 auto* const sym = (VMSymbol*)GetConstant(i);
-                EmitSEND(mgenc, sym);
+                EmitSEND(mgenc, parser, sym);
                 break;
             }
             case BC_SUPER_SEND: {
                 auto* const sym = (VMSymbol*)GetConstant(i);
-                EmitSUPERSEND(mgenc, sym);
+                EmitSUPERSEND(mgenc, parser, sym);
                 break;
             }
             case BC_RETURN_LOCAL: {
@@ -404,7 +406,7 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc) {
                     assert(mgenc.GetMaxContextLevel() > 0);
                     EmitRETURNNONLOCAL(mgenc);
                 } else {
-                    EmitRETURNLOCAL(mgenc);
+                    EmitRETURNLOCAL(mgenc, parser);
                 }
                 break;
             }

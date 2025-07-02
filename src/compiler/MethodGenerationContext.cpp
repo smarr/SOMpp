@@ -31,6 +31,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
+#include <limits>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -48,6 +49,7 @@
 #include "BytecodeGenerator.h"
 #include "ClassGenerationContext.h"
 #include "LexicalScope.h"
+#include "Parser.h"
 #include "SourceCoordinate.h"
 #include "Variable.h"
 
@@ -367,15 +369,24 @@ void MethodGenerationContext::AddLocal(std::string& local,
     locals.emplace_back(local, index, false, coord);
 }
 
-uint8_t MethodGenerationContext::AddLiteral(vm_oop_t lit) {
+uint8_t MethodGenerationContext::AddLiteral(vm_oop_t lit,
+                                            const Parser& parser) {
     assert(!AS_OBJ(lit)->IsMarkedInvalid());
 
-    uint8_t const idx = literals.size();
+    size_t const index = literals.size();
+
+    if (index > std::numeric_limits<int8_t>::max()) {
+        parser.ParseError(
+            "The method has too many literals. You may be able to split up "
+            "this method into multiple.");
+    }
+
     literals.push_back(lit);
-    return idx;
+    return index;
 }
 
-uint8_t MethodGenerationContext::AddLiteralIfAbsent(vm_oop_t lit) {
+uint8_t MethodGenerationContext::AddLiteralIfAbsent(vm_oop_t lit,
+                                                    const Parser& parser) {
     int64_t const idx = IndexOf(literals, lit);
     if (idx != -1) {
         assert(idx < 256);
@@ -383,7 +394,7 @@ uint8_t MethodGenerationContext::AddLiteralIfAbsent(vm_oop_t lit) {
                "Expect index to be inside the literals vector.");
         return (uint8_t)idx;
     }
-    return AddLiteral(lit);
+    return AddLiteral(lit, parser);
 }
 
 void MethodGenerationContext::UpdateLiteral(vm_oop_t oldValue, uint8_t index,
@@ -431,11 +442,11 @@ void MethodGenerationContext::AddBytecode(uint8_t bc, int64_t stackEffect) {
     last4Bytecodes[3] = bc;
 }
 
-void MethodGenerationContext::AddBytecodeArgument(uint8_t bc) {
-    bytecode.push_back(bc);
+void MethodGenerationContext::AddBytecodeArgument(uint8_t arg) {
+    bytecode.push_back(arg);
 }
 
-size_t MethodGenerationContext::AddBytecodeArgumentAndGetIndex(uint8_t bc) {
+size_t MethodGenerationContext::AddBytecodeArgumentAndGetIndex(size_t bc) {
     size_t const index = bytecode.size();
     AddBytecodeArgument(bc);
     return index;
@@ -522,7 +533,8 @@ MethodGenerationContext::extractBlockMethodsAndRemoveBytecodes() {
     return {toBeInlined1, toBeInlined2};
 }
 
-bool MethodGenerationContext::InlineThenBranch(JumpCondition condition) {
+bool MethodGenerationContext::InlineThenBranch(const Parser& parser,
+                                               JumpCondition condition) {
     // HACK: We do assume that the receiver on the stack is a boolean,
     // HACK: similar to the IfTrueIfFalseNode.
     // HACK: We don't support anything but booleans at the moment.
@@ -538,7 +550,7 @@ bool MethodGenerationContext::InlineThenBranch(JumpCondition condition) {
 
     isCurrentlyInliningABlock = true;
 
-    toBeInlined->InlineInto(*this);
+    toBeInlined->InlineInto(*this, parser);
     PatchJumpOffsetToPointToNextInstruction(jumpOffsetIdxToSkipBody);
 
     // with the jumping, it's best to prevent any subsequent optimizations here
@@ -548,7 +560,8 @@ bool MethodGenerationContext::InlineThenBranch(JumpCondition condition) {
     return true;
 }
 
-bool MethodGenerationContext::InlineThenElseBranches(JumpCondition condition) {
+bool MethodGenerationContext::InlineThenElseBranches(const Parser& parser,
+                                                     JumpCondition condition) {
     // HACK: We do assume that the receiver on the stack is a boolean,
     // HACK: similar to the IfTrueIfFalseNode.
     // HACK: We don't support anything but booleans at the moment.
@@ -568,7 +581,7 @@ bool MethodGenerationContext::InlineThenElseBranches(JumpCondition condition) {
         EmitJumpOnWithDummyOffset(*this, condition, true);
 
     isCurrentlyInliningABlock = true;
-    condMethod->InlineInto(*this);
+    condMethod->InlineInto(*this, parser);
 
     size_t const jumpOffsetIdxToSkipFalseBranch = EmitJumpWithDumyOffset(*this);
 
@@ -577,7 +590,7 @@ bool MethodGenerationContext::InlineThenElseBranches(JumpCondition condition) {
     // prevent optimizations between blocks to avoid issues with jump targets
     resetLastBytecodeBuffer();
 
-    bodyMethod->InlineInto(*this);
+    bodyMethod->InlineInto(*this, parser);
 
     isCurrentlyInliningABlock = false;
 
@@ -589,7 +602,8 @@ bool MethodGenerationContext::InlineThenElseBranches(JumpCondition condition) {
     return true;
 }
 
-bool MethodGenerationContext::InlineWhile(Parser& parser, bool isWhileTrue) {
+bool MethodGenerationContext::InlineWhile(const Parser& parser,
+                                          bool isWhileTrue) {
     if (!hasTwoLiteralBlockArguments()) {
         return false;
     }
@@ -604,12 +618,12 @@ bool MethodGenerationContext::InlineWhile(Parser& parser, bool isWhileTrue) {
     size_t const loopBeginIdx = OffsetOfNextInstruction();
 
     isCurrentlyInliningABlock = true;
-    condMethod->InlineInto(*this);
+    condMethod->InlineInto(*this, parser);
 
     size_t const jumpOffsetIdxToSkipLoopBody = EmitJumpOnWithDummyOffset(
         *this, isWhileTrue ? ON_FALSE : ON_TRUE, true);
 
-    bodyMethod->InlineInto(*this);
+    bodyMethod->InlineInto(*this, parser);
 
     completeJumpsAndEmitReturningNil(parser, loopBeginIdx,
                                      jumpOffsetIdxToSkipLoopBody);
@@ -619,7 +633,7 @@ bool MethodGenerationContext::InlineWhile(Parser& parser, bool isWhileTrue) {
     return true;
 }
 
-bool MethodGenerationContext::InlineAndOr(bool isOr) {
+bool MethodGenerationContext::InlineAndOr(const Parser& parser, bool isOr) {
     // HACK: We do assume that the receiver on the stack is a boolean,
     // HACK: similar to the IfTrueIfFalseNode.
     // HACK: We don't support anything but booleans at the moment.
@@ -635,13 +649,13 @@ bool MethodGenerationContext::InlineAndOr(bool isOr) {
         EmitJumpOnWithDummyOffset(*this, isOr ? ON_TRUE : ON_FALSE, true);
 
     isCurrentlyInliningABlock = true;
-    toBeInlined->InlineInto(*this);
+    toBeInlined->InlineInto(*this, parser);
     isCurrentlyInliningABlock = false;
 
     size_t const jumpOffsetIdxToSkipPushTrue = EmitJumpWithDumyOffset(*this);
 
     PatchJumpOffsetToPointToNextInstruction(jumpOffsetIdxToSkipBranch);
-    EmitPUSHCONSTANT(*this,
+    EmitPUSHCONSTANT(*this, parser,
                      isOr ? load_ptr(trueObject) : load_ptr(falseObject));
 
     PatchJumpOffsetToPointToNextInstruction(jumpOffsetIdxToSkipPushTrue);
@@ -651,7 +665,7 @@ bool MethodGenerationContext::InlineAndOr(bool isOr) {
     return true;
 }
 
-bool MethodGenerationContext::InlineToDo() {
+bool MethodGenerationContext::InlineToDo(const Parser& parser) {
     // HACK: We do assume that the receiver on the stack is a integer,
     // HACK: similar to the other inlined messages.
     // HACK: We don't support anything but integer at the moment.
@@ -675,9 +689,9 @@ bool MethodGenerationContext::InlineToDo() {
 
     EmitDUP(*this);
 
-    EmitPOPLOCAL(*this, iVarIdx, 0);
+    EmitPOPLOCAL(*this, parser, iVarIdx, 0);
 
-    toBeInlined->InlineInto(*this, false);
+    toBeInlined->InlineInto(*this, parser, false);
 
     EmitPOP(*this);
     EmitINC(*this);
@@ -797,7 +811,7 @@ void MethodGenerationContext::EmitBackwardsJumpOffsetToTarget(
 }
 
 void MethodGenerationContext::completeJumpsAndEmitReturningNil(
-    Parser& /*parser*/, size_t loopBeginIdx,
+    const Parser& parser, size_t loopBeginIdx,
     size_t jumpOffsetIdxToSkipLoopBody) {
     resetLastBytecodeBuffer();
     EmitPOP(*this);
@@ -805,7 +819,7 @@ void MethodGenerationContext::completeJumpsAndEmitReturningNil(
     EmitBackwardsJumpOffsetToTarget(loopBeginIdx);
 
     PatchJumpOffsetToPointToNextInstruction(jumpOffsetIdxToSkipLoopBody);
-    EmitPUSHCONSTANT(*this, load_ptr(nilObject));
+    EmitPUSHCONSTANT(*this, parser, load_ptr(nilObject));
     resetLastBytecodeBuffer();
 }
 
@@ -1015,7 +1029,7 @@ bool MethodGenerationContext::OptimizeIncField(uint8_t fieldIdx) {
     return false;
 }
 
-bool MethodGenerationContext::OptimizeReturnField() {
+bool MethodGenerationContext::OptimizeReturnField(const Parser& parser) {
     if (isCurrentlyInliningABlock) {
         return false;
     }
@@ -1048,6 +1062,6 @@ bool MethodGenerationContext::OptimizeReturnField() {
 
     removeLastBytecodes(1);
     resetLastBytecodeBuffer();
-    EmitRETURNFIELD(*this, index);
+    EmitRETURNFIELD(*this, parser, index);
     return true;
 }

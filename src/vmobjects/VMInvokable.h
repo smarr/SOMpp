@@ -33,6 +33,7 @@
 class MethodGenerationContext;
 class Variable;
 class VMFrame;
+class Parser;
 
 class VMInvokable : public AbstractVMObject {
 public:
@@ -46,7 +47,7 @@ public:
     virtual VMFrame* Invoke(VMFrame*) = 0;
     virtual VMFrame* Invoke1(VMFrame*) = 0;
     virtual void InlineInto(MethodGenerationContext& mgenc,
-                            bool mergeScope = true) = 0;
+                            const Parser& parser, bool mergeScope = true) = 0;
     virtual void MergeScopeInto(
         MethodGenerationContext& /*unused*/) { /* NOOP for everything but
                                                   VMMethods */

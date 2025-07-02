@@ -131,7 +131,8 @@ bool Parser::expectOneOf(Symbol* ss) {
     return false;
 }
 
-void Parser::genPushVariable(MethodGenerationContext& mgenc, std::string& var) {
+void Parser::genPushVariable(MethodGenerationContext& mgenc,
+                             std::string& var) const {
     // The purpose of this function is to find out whether the variable to be
     // pushed on the stack is a local variable, argument, or object field. This
     // is done by examining all available lexical contexts, starting with the
@@ -142,21 +143,22 @@ void Parser::genPushVariable(MethodGenerationContext& mgenc, std::string& var) {
 
     if (mgenc.FindVar(var, &index, &context, &is_argument)) {
         if (is_argument) {
-            EmitPUSHARGUMENT(mgenc, index, context);
+            EmitPUSHARGUMENT(mgenc, *this, index, context);
         } else {
-            EmitPUSHLOCAL(mgenc, index, context);
+            EmitPUSHLOCAL(mgenc, *this, index, context);
         }
     } else {
         auto* varSymbol = SymbolFor(var);
         if (mgenc.HasField(varSymbol)) {
-            EmitPUSHFIELD(mgenc, varSymbol);
+            EmitPUSHFIELD(mgenc, *this, varSymbol);
         } else {
-            EmitPUSHGLOBAL(mgenc, varSymbol);
+            EmitPUSHGLOBAL(mgenc, *this, varSymbol);
         }
     }
 }
 
-void Parser::genPopVariable(MethodGenerationContext& mgenc, std::string& var) {
+void Parser::genPopVariable(MethodGenerationContext& mgenc,
+                            std::string& var) const {
     // The purpose of this function is to find out whether the variable to be
     // popped off the stack is a local variable, argument, or object field. This
     // is done by examining all available lexical contexts, starting with the
@@ -167,13 +169,13 @@ void Parser::genPopVariable(MethodGenerationContext& mgenc, std::string& var) {
 
     if (mgenc.FindVar(var, &index, &context, &is_argument)) {
         if (is_argument) {
-            EmitPOPARGUMENT(mgenc, index, context);
+            EmitPOPARGUMENT(mgenc, *this, index, context);
         } else {
-            EmitPOPLOCAL(mgenc, index, context);
+            EmitPOPLOCAL(mgenc, *this, index, context);
         }
     } else {
         auto* varSymbol = SymbolFor(var);
-        EmitPOPFIELD(mgenc, varSymbol);
+        EmitPOPFIELD(mgenc, *this, varSymbol);
     }
 }
 
@@ -430,9 +432,9 @@ void Parser::blockBody(MethodGenerationContext& mgenc, bool seen_period,
         if (!is_inlined) {
             // if the block is empty, we need to return nil
             if (mgenc.IsBlockMethod() && !mgenc.HasBytecodes()) {
-                EmitPUSHCONSTANT(mgenc, load_ptr(nilObject));
+                EmitPUSHCONSTANT(mgenc, *this, load_ptr(nilObject));
             }
-            EmitRETURNLOCAL(mgenc);
+            EmitRETURNLOCAL(mgenc, *this);
             mgenc.MarkFinished();
         }
     } else if (sym == EndTerm) {
@@ -469,7 +471,7 @@ void Parser::result(MethodGenerationContext& mgenc) {
     if (mgenc.IsBlockMethod()) {
         EmitRETURNNONLOCAL(mgenc);
     } else {
-        EmitRETURNLOCAL(mgenc);
+        EmitRETURNLOCAL(mgenc, *this);
     }
 
     mgenc.MarkFinished();
@@ -551,7 +553,7 @@ bool Parser::primary(MethodGenerationContext& mgenc) {
             nestedBlock(bgenc);
 
             VMInvokable* blockMethod = bgenc.Assemble();
-            EmitPUSHBLOCK(mgenc, blockMethod);
+            EmitPUSHBLOCK(mgenc, *this, blockMethod);
             break;
         }
         default:
@@ -600,9 +602,9 @@ void Parser::unaryMessage(MethodGenerationContext& mgenc, bool super) {
     VMSymbol* msg = unarySelector();
 
     if (super) {
-        EmitSUPERSEND(mgenc, msg);
+        EmitSUPERSEND(mgenc, *this, msg);
     } else {
-        EmitSEND(mgenc, msg);
+        EmitSEND(mgenc, *this, msg);
     }
 }
 
@@ -643,15 +645,15 @@ void Parser::binaryMessage(MethodGenerationContext& mgenc, bool super) {
 
     binaryOperand(mgenc);
 
-    if (!super && ((msgSelector == "||" && mgenc.InlineAndOr(true)) ||
-                   (msgSelector == "&&" && mgenc.InlineAndOr(false)))) {
+    if (!super && ((msgSelector == "||" && mgenc.InlineAndOr(*this, true)) ||
+                   (msgSelector == "&&" && mgenc.InlineAndOr(*this, false)))) {
         return;
     }
 
     if (super) {
-        EmitSUPERSEND(mgenc, msg);
+        EmitSUPERSEND(mgenc, *this, msg);
     } else {
-        EmitSEND(mgenc, msg);
+        EmitSEND(mgenc, *this, msg);
     }
 }
 
@@ -680,30 +682,30 @@ void Parser::keywordMessage(MethodGenerationContext& mgenc, bool super) {
     if (!super) {
         if (numParts == 1 &&
             ((kw == "ifTrue:" &&
-              mgenc.InlineThenBranch(JumpCondition::ON_FALSE)) ||
+              mgenc.InlineThenBranch(*this, JumpCondition::ON_FALSE)) ||
              (kw == "ifFalse:" &&
-              mgenc.InlineThenBranch(JumpCondition::ON_TRUE)) ||
+              mgenc.InlineThenBranch(*this, JumpCondition::ON_TRUE)) ||
              (kw == "ifNil:" &&
-              mgenc.InlineThenBranch(JumpCondition::ON_NOT_NIL)) ||
+              mgenc.InlineThenBranch(*this, JumpCondition::ON_NOT_NIL)) ||
              (kw == "ifNotNil:" &&
-              mgenc.InlineThenBranch(JumpCondition::ON_NIL)) ||
+              mgenc.InlineThenBranch(*this, JumpCondition::ON_NIL)) ||
              (kw == "whileTrue:" && mgenc.InlineWhile(*this, true)) ||
              (kw == "whileFalse:" && mgenc.InlineWhile(*this, false)) ||
-             (kw == "or:" && mgenc.InlineAndOr(true)) ||
-             (kw == "and:" && mgenc.InlineAndOr(false)))) {
+             (kw == "or:" && mgenc.InlineAndOr(*this, true)) ||
+             (kw == "and:" && mgenc.InlineAndOr(*this, false)))) {
             return;
         }
 
         if (numParts == 2 &&
             ((kw == "ifTrue:ifFalse:" &&
-              mgenc.InlineThenElseBranches(JumpCondition::ON_FALSE)) ||
+              mgenc.InlineThenElseBranches(*this, JumpCondition::ON_FALSE)) ||
              (kw == "ifFalse:ifTrue:" &&
-              mgenc.InlineThenElseBranches(JumpCondition::ON_TRUE)) ||
+              mgenc.InlineThenElseBranches(*this, JumpCondition::ON_TRUE)) ||
              (kw == "ifNil:ifNotNil:" &&
-              mgenc.InlineThenElseBranches(JumpCondition::ON_NOT_NIL)) ||
+              mgenc.InlineThenElseBranches(*this, JumpCondition::ON_NOT_NIL)) ||
              (kw == "ifNotNil:ifNil:" &&
-              mgenc.InlineThenElseBranches(JumpCondition::ON_NIL)) ||
-             (kw == "to:do:" && mgenc.InlineToDo()))) {
+              mgenc.InlineThenElseBranches(*this, JumpCondition::ON_NIL)) ||
+             (kw == "to:do:" && mgenc.InlineToDo(*this)))) {
             return;
         }
     }
@@ -711,9 +713,9 @@ void Parser::keywordMessage(MethodGenerationContext& mgenc, bool super) {
     VMSymbol* msg = SymbolFor(kw);
 
     if (super) {
-        EmitSUPERSEND(mgenc, msg);
+        EmitSUPERSEND(mgenc, *this, msg);
     } else {
-        EmitSEND(mgenc, msg);
+        EmitSEND(mgenc, *this, msg);
     }
 }
 
@@ -764,7 +766,7 @@ vm_oop_t Parser::literalNumberOop() {
 
 void Parser::literalNumber(MethodGenerationContext& mgenc) {
     vm_oop_t lit = literalNumberOop();
-    EmitPUSHCONSTANT(mgenc, lit);
+    EmitPUSHCONSTANT(mgenc, *this, lit);
 }
 
 vm_oop_t Parser::literalDecimal(bool negateValue) {
@@ -804,7 +806,7 @@ void Parser::literalSymbol(MethodGenerationContext& mgenc) {
     } else {
         symb = selector();
     }
-    EmitPUSHCONSTANT(mgenc, symb);
+    EmitPUSHCONSTANT(mgenc, *this, symb);
 }
 
 void Parser::literalArray(MethodGenerationContext& mgenc) {
@@ -817,20 +819,20 @@ void Parser::literalArray(MethodGenerationContext& mgenc) {
     VMSymbol* atPutMessage = SymbolFor("at:put:");
 
     const uint8_t arraySizeLiteralIndex =
-        mgenc.AddLiteral(arraySizePlaceholder);
+        mgenc.AddLiteral(arraySizePlaceholder, *this);
 
     // create bytecode sequence for instantiating new array
-    EmitPUSHGLOBAL(mgenc, arrayClassName);
+    EmitPUSHGLOBAL(mgenc, *this, arrayClassName);
     EmitPUSHCONSTANT(mgenc, arraySizeLiteralIndex);
-    EmitSEND(mgenc, newMessage);
+    EmitSEND(mgenc, *this, newMessage);
 
     int64_t i = 1;
 
     while (sym != EndTerm) {
         vm_oop_t pushIndex = NEW_INT(i);
-        EmitPUSHCONSTANT(mgenc, pushIndex);
+        EmitPUSHCONSTANT(mgenc, *this, pushIndex);
         literal(mgenc);
-        EmitSEND(mgenc, atPutMessage);
+        EmitSEND(mgenc, *this, atPutMessage);
         i += 1;
     }
 
@@ -845,7 +847,7 @@ void Parser::literalString(MethodGenerationContext& mgenc) {
     std::string const s = _string();
 
     VMString* str = Universe::NewString(s);
-    EmitPUSHCONSTANT(mgenc, str);
+    EmitPUSHCONSTANT(mgenc, *this, str);
 }
 
 VMSymbol* Parser::selector() {
@@ -897,9 +899,9 @@ void Parser::nestedBlock(MethodGenerationContext& mgenc) {
     if (!mgenc.IsFinished()) {
         if (!mgenc.HasBytecodes()) {
             // if the block is empty, we need to return nil
-            EmitPUSHCONSTANT(mgenc, load_ptr(nilObject));
+            EmitPUSHCONSTANT(mgenc, *this, load_ptr(nilObject));
         }
-        EmitRETURNLOCAL(mgenc);
+        EmitRETURNLOCAL(mgenc, *this);
         mgenc.MarkFinished();
     }
 
@@ -949,6 +951,22 @@ __attribute__((noreturn)) void Parser::parseError(const char* msg,
     ReplacePattern(msgWithMeta, "%(column)d", column);
     ReplacePattern(msgWithMeta, "%(expected)s", expected);
     ReplacePattern(msgWithMeta, "%(found)s", found);
+
+    ErrorPrint(msgWithMeta);
+    Quit(ERR_FAIL);
+}
+
+__attribute__((noreturn)) void Parser::ParseError(const char* msg) const {
+    std::string msgWithMeta =
+        "%(file)s:%(line)d:%(column)d: error: " + std::string(msg);
+
+    ReplacePattern(msgWithMeta, "%(file)s", fname);
+
+    std::string line = std::to_string(lexer.GetCurrentLineNumber());
+    ReplacePattern(msgWithMeta, "%(line)d", line);
+
+    std::string column = std::to_string(lexer.GetCurrentColumn());
+    ReplacePattern(msgWithMeta, "%(column)d", column);
 
     ErrorPrint(msgWithMeta);
     Quit(ERR_FAIL);
