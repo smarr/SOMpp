@@ -13,4 +13,4 @@ private:
     static inline uint32_t murmur_32_scramble(uint32_t k);
 };
 
-#endif // MURMUR3HASH_H
+#endif  // MURMUR3HASH_H

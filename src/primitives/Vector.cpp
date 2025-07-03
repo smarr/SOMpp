@@ -2,7 +2,6 @@
 
 #include <cstdint>
 
-#include "../misc/defs.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMFrame.h"
@@ -110,10 +109,8 @@ _Vector::_Vector() {
     // If they need to be updated, the corresponding primitive implementations
     // likely need to be adapted, too.
 
-    Add("at:", false, &vecAt, 1078057473, &vecAtAWFY,
-        3362920797);
-    Add("at:put:", false, &vecAtPut, 1078057473, &vecAtPutAWFY,
-        3362920797);
+    Add("at:", false, &vecAt, 1078057473, &vecAtAWFY, 3362920797);
+    Add("at:put:", false, &vecAtPut, 1078057473, &vecAtPutAWFY, 3362920797);
 
     Add("first", &vecFirst, false, 1725815466);
     Add("last", &vecLast, false, 1725815466);

@@ -11,6 +11,6 @@ class HashingTest : public TestWithParsing {
 
 private:
     static void testMurmur3HashWithSeeds();
-    static void testMurmur3HashWithSeed(const void* key, size_t len, uint32_t seed, uint32_t expectedHash);
-
+    static void testMurmur3HashWithSeed(const void* key, size_t len,
+                                        uint32_t seed, uint32_t expectedHash);
 };

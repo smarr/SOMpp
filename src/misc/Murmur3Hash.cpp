@@ -1,9 +1,11 @@
 #include "Murmur3Hash.h"
+
 #include <cstdint>
 #include <cstring>
 
 // static member function defined as part of Murmur3Hash
-uint32_t Murmur3Hash::murmur3_32(const uint8_t* key, size_t len, uint32_t seed) {
+uint32_t Murmur3Hash::murmur3_32(const uint8_t* key, size_t len,
+                                 uint32_t seed) {
     uint32_t h = seed;
     uint32_t k = 0;
 

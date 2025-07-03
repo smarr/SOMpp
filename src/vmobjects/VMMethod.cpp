@@ -721,6 +721,5 @@ size_t VMMethod::GetBytecodeHash() const {
         // NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast)
         reinterpret_cast<const uint8_t*>(bytecodePtr),
         strlen(bytecodePtr),
-        0x00000000
-    );
+        0x00000000);
 }
