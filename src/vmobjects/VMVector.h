@@ -72,7 +72,8 @@ public:
     /* Return the underlying array */
     [[nodiscard]] vm_oop_t copyStorageArray();
 
-    vm_oop_t IndexOutOfBounds();
+    vm_oop_t IndexOutOfBounds(size_t maxSize, size_t indexAccessed);
+    vm_oop_t IndexOutOfBoundsAWFY();
 
 private:
     static const size_t VMVectorNumberOfFields;

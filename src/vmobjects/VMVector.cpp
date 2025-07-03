@@ -31,7 +31,7 @@ vm_oop_t VMVector::AWFYGetStorage(int64_t index) {
     VMArray* const storage = load_ptr(this->storage);
 
     if (index > storage->GetNumberOfIndexableFields()) {
-        return IndexOutOfBounds();
+        return load_ptr(nilObject); // AWFY does not handle an IndexOutOfBounds in this case
     }
     vm_oop_t returned = storage->GetIndexableField(
         (first - 1) + (index - 1));  // Convert to 0-indexing
@@ -44,7 +44,7 @@ vm_oop_t VMVector::GetStorage(int64_t index) {
     VMArray* const storage = load_ptr(this->storage);
 
     if (index < 1 || index > last - first) {
-        return IndexOutOfBounds();
+        return IndexOutOfBounds(first+last-1, index);
     }
     vm_oop_t returned = storage->GetIndexableField(
         (first - 1) + (index - 1));  // Convert to 0-indexing
@@ -57,7 +57,7 @@ vm_oop_t VMVector::SetStorage(int64_t index, vm_oop_t value) {
     int64_t const last = INT_VAL(load_ptr(this->last));
     VMArray* const storage = load_ptr(this->storage);
     if (index < 1 || index > first + last) {
-        return IndexOutOfBounds();
+        return IndexOutOfBounds(first+last-1, index);
     }
     vm_oop_t curVal = storage->GetIndexableField(first + index - 2);
     storage->SetIndexableField(first + index - 2, value);
@@ -173,7 +173,7 @@ vm_oop_t VMVector::Remove(vm_oop_t inx) {
     int64_t const index = INT_VAL(inx);
 
     if (index < 1 || index > last - first) {
-        return IndexOutOfBounds();
+        return IndexOutOfBounds(first+last-1, index);
     }
 
     vm_oop_t itemToRemove = GetStorage(index);
@@ -213,11 +213,17 @@ vm_oop_t VMVector::copyStorageArray() {
 }
 
 /* Rename as a more specific error function */
-vm_oop_t VMVector::IndexOutOfBounds() {
+vm_oop_t VMVector::IndexOutOfBounds(size_t maxSize, size_t indexAccessed) {
     // VMSafe*Primitive::Invoke will push it right back to the same frame
     VMFrame* frame = Interpreter::GetFrame();
-    vm_oop_t errorMsg = Universe::NewString("Vector: Index out of bounds");
+    vm_oop_t errorMsg = Universe::NewString("Vector[1.." + std::to_string(maxSize) + "]: Index " + std::to_string(indexAccessed) + " out of bounds");
     vm_oop_t args[1] = {errorMsg};
     this->Send("error:", args, 1);
+    return frame->Pop();
+}
+
+vm_oop_t VMVector::IndexOutOfBoundsAWFY(){
+    VMFrame* frame = Interpreter::GetFrame();
+    this->Send("println", nullptr, 1);
     return frame->Pop();
 }
