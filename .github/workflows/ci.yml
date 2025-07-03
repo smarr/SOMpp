@@ -27,6 +27,11 @@ jobs:
         run: |
           sudo apt-get install libcppunit-dev
 
+      - name: Install Pytest
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install pytest
+
       - name: Install Clang 19
         run: |
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
@@ -60,6 +65,10 @@ jobs:
         run: |
           cd cmake-build
           ./unittests -cp ../Smalltalk:../TestSuite/BasicInterpreterTests ../Examples/Hello.som
+
+      - name: Run Integration Tests
+        run: | 
+          EXECUTABLE=./cmake-build/SOM++ CLASSPATH=./Smalltalk pytest
 
       - name: Run Tests on SOM VM
         run: |
