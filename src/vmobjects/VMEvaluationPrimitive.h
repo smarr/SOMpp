@@ -51,7 +51,7 @@ public:
 
     VMFrame* Invoke(VMFrame* frm) override;
     VMFrame* Invoke1(VMFrame* frm) override;
-    void InlineInto(MethodGenerationContext& mgenc,
+    void InlineInto(MethodGenerationContext& mgenc, const Parser& parser,
                     bool mergeScope = true) final;
 
     [[nodiscard]] inline uint8_t GetNumberOfArguments() const final {

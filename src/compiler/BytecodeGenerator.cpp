@@ -29,6 +29,7 @@
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 
 #include "../interpreter/bytecodes.h"
 #include "../vm/Globals.h"
@@ -39,19 +40,20 @@
 #include "../vmobjects/VMMethod.h"
 #include "../vmobjects/VMSymbol.h"
 #include "MethodGenerationContext.h"
+#include "Parser.h"
 
 void Emit1(MethodGenerationContext& mgenc, uint8_t bytecode,
            int64_t stackEffect) {
     mgenc.AddBytecode(bytecode, stackEffect);
 }
 
-void Emit2(MethodGenerationContext& mgenc, uint8_t bytecode, size_t idx,
+void Emit2(MethodGenerationContext& mgenc, uint8_t bytecode, uint8_t idx,
            int64_t stackEffect) {
     mgenc.AddBytecode(bytecode, stackEffect);
     mgenc.AddBytecodeArgument(idx);
 }
 
-void Emit3(MethodGenerationContext& mgenc, uint8_t bytecode, size_t idx,
+void Emit3(MethodGenerationContext& mgenc, uint8_t bytecode, uint8_t idx,
            size_t ctx, int64_t stackEffect) {
     mgenc.AddBytecode(bytecode, stackEffect);
     mgenc.AddBytecodeArgument(idx);
@@ -66,9 +68,23 @@ void EmitDUP(MethodGenerationContext& mgenc) {
     Emit1(mgenc, BC_DUP, 1);
 }
 
-void EmitPUSHLOCAL(MethodGenerationContext& mgenc, size_t idx, size_t ctx) {
-    assert(idx >= 0);
-    assert(ctx >= 0);
+void EmitPUSHLOCAL(MethodGenerationContext& mgenc, const Parser& parser,
+                   size_t index, size_t context) {
+    if (index > std::numeric_limits<uint8_t>::max()) {
+        parser.ParseError(
+            "The method has too many local variables. You may be able to split "
+            "up this method into multiple to avoid the issue.");
+    }
+
+    if (context > std::numeric_limits<uint8_t>::max()) {
+        parser.ParseError(
+            "This block is too deeply nested. You may be able to split up this "
+            "method into multiple to avoid the issue.");
+    }
+
+    const uint8_t idx = index;
+    const uint8_t ctx = context;
+
     if (ctx == 0) {
         if (idx == 0) {
             Emit1(mgenc, BC_PUSH_LOCAL_0, 1);
@@ -86,9 +102,22 @@ void EmitPUSHLOCAL(MethodGenerationContext& mgenc, size_t idx, size_t ctx) {
     Emit3(mgenc, BC_PUSH_LOCAL, idx, ctx, 1);
 }
 
-void EmitPUSHARGUMENT(MethodGenerationContext& mgenc, size_t idx, size_t ctx) {
-    assert(idx >= 0);
-    assert(ctx >= 0);
+void EmitPUSHARGUMENT(MethodGenerationContext& mgenc, const Parser& parser,
+                      size_t index, size_t context) {
+    if (index > std::numeric_limits<uint8_t>::max()) {
+        parser.ParseError(
+            "The method has too many arguments. You may be able to split up "
+            "this method into multiple to avoid the issue.");
+    }
+
+    if (context > std::numeric_limits<uint8_t>::max()) {
+        parser.ParseError(
+            "This block is too deeply nested. You may be able to split up this "
+            "method into multiple to avoid the issue.");
+    }
+
+    const uint8_t idx = index;
+    const uint8_t ctx = context;
 
     if (ctx == 0) {
         if (idx == 0) {
@@ -109,23 +138,27 @@ void EmitPUSHARGUMENT(MethodGenerationContext& mgenc, size_t idx, size_t ctx) {
     Emit3(mgenc, BC_PUSH_ARGUMENT, idx, ctx, 1);
 }
 
-void EmitPUSHFIELD(MethodGenerationContext& mgenc, VMSymbol* field) {
-    const uint8_t idx = mgenc.GetFieldIndex(field);
-    if (idx == 0) {
-        Emit1(mgenc, BC_PUSH_FIELD_0, 1);
-    } else if (idx == 1) {
-        Emit1(mgenc, BC_PUSH_FIELD_1, 1);
-    } else {
-        Emit2(mgenc, BC_PUSH_FIELD, idx, 1);
+void EmitPUSHFIELD(MethodGenerationContext& mgenc, const Parser& parser,
+                   VMSymbol* field) {
+    const int64_t idx = mgenc.GetFieldIndex(field);
+    if (idx < 0 || idx > std::numeric_limits<uint8_t>::max()) {
+        parser.ParseError(
+            "The method tries to access a field that cannot be represented in "
+            "the SOM++ bytecodes. Make sure this class and its superclasses "
+            "have less than 256 fields in total.");
     }
+
+    EmitPushFieldWithIndex(mgenc, idx);
 }
 
-void EmitPUSHBLOCK(MethodGenerationContext& mgenc, VMInvokable* block) {
-    const uint8_t idx = mgenc.AddLiteralIfAbsent(block);
+void EmitPUSHBLOCK(MethodGenerationContext& mgenc, const Parser& parser,
+                   VMInvokable* block) {
+    const uint8_t idx = mgenc.AddLiteralIfAbsent(block, parser);
     Emit2(mgenc, BC_PUSH_BLOCK, idx, 1);
 }
 
-void EmitPUSHCONSTANT(MethodGenerationContext& mgenc, vm_oop_t cst) {
+void EmitPUSHCONSTANT(MethodGenerationContext& mgenc, const Parser& parser,
+                      vm_oop_t cst) {
     // this isn't very robust with respect to initialization order
     // so, we check here, and hope it's working, but alternatively
     // we also make sure that we don't miss anything in the else
@@ -148,7 +181,7 @@ void EmitPUSHCONSTANT(MethodGenerationContext& mgenc, vm_oop_t cst) {
         return;
     }
 
-    const uint8_t idx = mgenc.AddLiteralIfAbsent(cst);
+    const uint8_t idx = mgenc.AddLiteralIfAbsent(cst, parser);
     if (idx == 0) {
         Emit1(mgenc, BC_PUSH_CONSTANT_0, 1);
         return;
@@ -173,15 +206,16 @@ void EmitPUSHCONSTANTString(MethodGenerationContext& mgenc, VMString* str) {
     Emit2(mgenc, BC_PUSH_CONSTANT, mgenc.FindLiteralIndex(str), 1);
 }
 
-void EmitPUSHGLOBAL(MethodGenerationContext& mgenc, VMSymbol* global) {
+void EmitPUSHGLOBAL(MethodGenerationContext& mgenc, const Parser& parser,
+                    VMSymbol* global) {
     if (global == SymbolFor("nil")) {
-        EmitPUSHCONSTANT(mgenc, load_ptr(nilObject));
+        EmitPUSHCONSTANT(mgenc, parser, load_ptr(nilObject));
     } else if (global == SymbolFor("true")) {
-        EmitPUSHCONSTANT(mgenc, load_ptr(trueObject));
+        EmitPUSHCONSTANT(mgenc, parser, load_ptr(trueObject));
     } else if (global == SymbolFor("false")) {
-        EmitPUSHCONSTANT(mgenc, load_ptr(falseObject));
+        EmitPUSHCONSTANT(mgenc, parser, load_ptr(falseObject));
     } else {
-        const uint8_t idx = mgenc.AddLiteralIfAbsent(global);
+        const uint8_t idx = mgenc.AddLiteralIfAbsent(global, parser);
         Emit2(mgenc, BC_PUSH_GLOBAL, idx, 1);
     }
 }
@@ -192,9 +226,23 @@ void EmitPOP(MethodGenerationContext& mgenc) {
     }
 }
 
-void EmitPOPLOCAL(MethodGenerationContext& mgenc, size_t idx, size_t ctx) {
-    assert(idx >= 0);
-    assert(ctx >= 0);
+void EmitPOPLOCAL(MethodGenerationContext& mgenc, const Parser& parser,
+                  size_t index, size_t context) {
+    if (index > std::numeric_limits<uint8_t>::max()) {
+        parser.ParseError(
+            "The method has too many local variables. You may be able to split "
+            "up this method into multiple to avoid the issue.");
+    }
+
+    if (context > std::numeric_limits<uint8_t>::max()) {
+        parser.ParseError(
+            "This block is too deeply nested. You may be able to split up this "
+            "method into multiple to avoid the issue.");
+    }
+
+    const uint8_t idx = index;
+    const uint8_t ctx = context;
+
     if (ctx == 0) {
         if (idx == 0) {
             Emit1(mgenc, BC_POP_LOCAL_0, -1);
@@ -215,12 +263,32 @@ void EmitPOPLOCAL(MethodGenerationContext& mgenc, size_t idx, size_t ctx) {
     Emit3(mgenc, BC_POP_LOCAL, idx, ctx, -1);
 }
 
-void EmitPOPARGUMENT(MethodGenerationContext& mgenc, size_t idx, size_t ctx) {
+void EmitPOPARGUMENT(MethodGenerationContext& mgenc, const Parser& parser,
+                     size_t idx, size_t ctx) {
+    if (idx > std::numeric_limits<uint8_t>::max()) {
+        parser.ParseError(
+            "The method has too many arguments. You may be able to split up "
+            "this method into multiple to avoid the issue.");
+    }
+
+    if (ctx > std::numeric_limits<uint8_t>::max()) {
+        parser.ParseError(
+            "This block is too deeply nested. You may be able to split up this "
+            "method into multiple to avoid the issue.");
+    }
+
     Emit3(mgenc, BC_POP_ARGUMENT, idx, ctx, -1);
 }
 
-void EmitPOPFIELD(MethodGenerationContext& mgenc, VMSymbol* field) {
-    const uint8_t idx = mgenc.GetFieldIndex(field);
+void EmitPOPFIELD(MethodGenerationContext& mgenc, const Parser& parser,
+                  VMSymbol* field) {
+    const int64_t idx = mgenc.GetFieldIndex(field);
+    if (idx < 0 || idx > std::numeric_limits<uint8_t>::max()) {
+        parser.ParseError(
+            "The method tries to access a field that cannot be represented in "
+            "the SOM++ bytecodes. Make sure this class and its superclasses "
+            "have less than 256 fields in total.");
+    }
 
     if (mgenc.OptimizeIncField(idx)) {
         return;
@@ -229,8 +297,9 @@ void EmitPOPFIELD(MethodGenerationContext& mgenc, VMSymbol* field) {
     EmitPopFieldWithIndex(mgenc, idx);
 }
 
-void EmitSEND(MethodGenerationContext& mgenc, VMSymbol* msg) {
-    const uint8_t idx = mgenc.AddLiteralIfAbsent(msg);
+void EmitSEND(MethodGenerationContext& mgenc, const Parser& parser,
+              VMSymbol* msg) {
+    const uint8_t idx = mgenc.AddLiteralIfAbsent(msg, parser);
 
     const uint8_t numArgs = Signature::GetNumberOfArguments(msg);
     const int64_t stackEffect = -numArgs + 1;  // +1 for the result
@@ -238,8 +307,9 @@ void EmitSEND(MethodGenerationContext& mgenc, VMSymbol* msg) {
     Emit2(mgenc, numArgs == 1 ? BC_SEND_1 : BC_SEND, idx, stackEffect);
 }
 
-void EmitSUPERSEND(MethodGenerationContext& mgenc, VMSymbol* msg) {
-    const uint8_t idx = mgenc.AddLiteralIfAbsent(msg);
+void EmitSUPERSEND(MethodGenerationContext& mgenc, const Parser& parser,
+                   VMSymbol* msg) {
+    const uint8_t idx = mgenc.AddLiteralIfAbsent(msg, parser);
     const uint8_t numArgs = Signature::GetNumberOfArguments(msg);
     const int64_t stackEffect = -numArgs + 1;  // +1 for the result
 
@@ -251,8 +321,8 @@ void EmitRETURNSELF(MethodGenerationContext& mgenc) {
     Emit1(mgenc, BC_RETURN_SELF, 0);
 }
 
-void EmitRETURNLOCAL(MethodGenerationContext& mgenc) {
-    if (!mgenc.OptimizeReturnField()) {
+void EmitRETURNLOCAL(MethodGenerationContext& mgenc, const Parser& parser) {
+    if (!mgenc.OptimizeReturnField(parser)) {
         Emit1(mgenc, BC_RETURN_LOCAL, 0);
     }
 }
@@ -261,18 +331,21 @@ void EmitRETURNNONLOCAL(MethodGenerationContext& mgenc) {
     Emit1(mgenc, BC_RETURN_NON_LOCAL, 0);
 }
 
-void EmitRETURNFIELD(MethodGenerationContext& mgenc, size_t index) {
-    assert(index <= 2);
+void EmitRETURNFIELD(MethodGenerationContext& mgenc, const Parser& parser,
+                     size_t index) {
+    if (index > 2) {
+        parser.ParseError(
+            "Internal Error: EmitRETURNFIELD has unsupported argument");
+    }
+
     uint8_t bc = 0;
     switch (index) {
         case 0:
             bc = BC_RETURN_FIELD_0;
             break;
-
         case 1:
             bc = BC_RETURN_FIELD_1;
             break;
-
         case 2:
             bc = BC_RETURN_FIELD_2;
             break;

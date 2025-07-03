@@ -83,8 +83,8 @@ void VMLiteralReturn::WalkObjects(walk_heap_fn walk) {
 }
 
 void VMLiteralReturn::InlineInto(MethodGenerationContext& mgenc,
-                                 bool /*mergeScope*/) {
-    EmitPUSHCONSTANT(mgenc, load_ptr(literal));
+                                 const Parser& parser, bool /*mergeScope*/) {
+    EmitPUSHCONSTANT(mgenc, parser, load_ptr(literal));
 }
 
 VMFrame* VMGlobalReturn::Invoke(VMFrame* frame) {
@@ -117,8 +117,8 @@ VMFrame* VMGlobalReturn::Invoke1(VMFrame* frame) {
 }
 
 void VMGlobalReturn::InlineInto(MethodGenerationContext& mgenc,
-                                bool /*mergeScope*/) {
-    EmitPUSHGLOBAL(mgenc, load_ptr(globalName));
+                                const Parser& parser, bool /*mergeScope*/) {
+    EmitPUSHGLOBAL(mgenc, parser, load_ptr(globalName));
 }
 
 void VMGlobalReturn::WalkObjects(walk_heap_fn walk) {
@@ -177,7 +177,8 @@ VMFrame* VMGetter::Invoke1(VMFrame* frame) {
     return nullptr;
 }
 
-void VMGetter::InlineInto(MethodGenerationContext& mgenc, bool /*mergeScope*/) {
+void VMGetter::InlineInto(MethodGenerationContext& mgenc,
+                          const Parser& /*parser*/, bool /*mergeScope*/) {
     EmitPushFieldWithIndex(mgenc, fieldIndex);
 }
 
@@ -224,7 +225,7 @@ VMFrame* VMSetter::Invoke1(VMFrame* /*unused*/) {
 }
 
 void VMSetter::InlineInto(MethodGenerationContext& /*mgenc*/,
-                          bool /*mergeScope*/) {
+                          const Parser& /*parser*/, bool /*mergeScope*/) {
     ErrorExit("We don't currently support blocks for trivial setters");
 }
 

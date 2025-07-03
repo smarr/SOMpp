@@ -34,31 +34,43 @@
 
 void Emit1(MethodGenerationContext& mgenc, uint8_t bytecode,
            int64_t stackEffect);
-void Emit2(MethodGenerationContext& mgenc, uint8_t bytecode, size_t idx,
+void Emit2(MethodGenerationContext& mgenc, uint8_t bytecode, uint8_t idx,
            int64_t stackEffect);
-void Emit3(MethodGenerationContext& mgenc, uint8_t bytecode, size_t idx,
+void Emit3(MethodGenerationContext& mgenc, uint8_t bytecode, uint8_t idx,
            size_t ctx, int64_t stackEffect);
 
 void EmitHALT(MethodGenerationContext& mgenc);
 void EmitDUP(MethodGenerationContext& mgenc);
-void EmitPUSHLOCAL(MethodGenerationContext& mgenc, size_t idx, size_t ctx);
-void EmitPUSHARGUMENT(MethodGenerationContext& mgenc, size_t idx, size_t ctx);
-void EmitPUSHFIELD(MethodGenerationContext& mgenc, VMSymbol* field);
-void EmitPUSHBLOCK(MethodGenerationContext& mgenc, VMInvokable* block);
-void EmitPUSHCONSTANT(MethodGenerationContext& mgenc, vm_oop_t cst);
+void EmitPUSHLOCAL(MethodGenerationContext& mgenc, const Parser& parser,
+                   size_t index, size_t context);
+void EmitPUSHARGUMENT(MethodGenerationContext& mgenc, const Parser& parser,
+                      size_t index, size_t context);
+void EmitPUSHFIELD(MethodGenerationContext& mgenc, const Parser& parser,
+                   VMSymbol* field);
+void EmitPUSHBLOCK(MethodGenerationContext& mgenc, const Parser& parser,
+                   VMInvokable* block);
+void EmitPUSHCONSTANT(MethodGenerationContext& mgenc, const Parser& parser,
+                      vm_oop_t cst);
 void EmitPUSHCONSTANT(MethodGenerationContext& mgenc, uint8_t literalIndex);
 void EmitPUSHCONSTANTString(MethodGenerationContext& mgenc, VMString* str);
-void EmitPUSHGLOBAL(MethodGenerationContext& mgenc, VMSymbol* global);
+void EmitPUSHGLOBAL(MethodGenerationContext& mgenc, const Parser& parser,
+                    VMSymbol* global);
 void EmitPOP(MethodGenerationContext& mgenc);
-void EmitPOPLOCAL(MethodGenerationContext& mgenc, size_t idx, size_t ctx);
-void EmitPOPARGUMENT(MethodGenerationContext& mgenc, size_t idx, size_t ctx);
-void EmitPOPFIELD(MethodGenerationContext& mgenc, VMSymbol* field);
-void EmitSEND(MethodGenerationContext& mgenc, VMSymbol* msg);
-void EmitSUPERSEND(MethodGenerationContext& mgenc, VMSymbol* msg);
+void EmitPOPLOCAL(MethodGenerationContext& mgenc, const Parser& parser,
+                  size_t index, size_t context);
+void EmitPOPARGUMENT(MethodGenerationContext& mgenc, const Parser& parser,
+                     size_t idx, size_t ctx);
+void EmitPOPFIELD(MethodGenerationContext& mgenc, const Parser& parser,
+                  VMSymbol* field);
+void EmitSEND(MethodGenerationContext& mgenc, const Parser& parser,
+              VMSymbol* msg);
+void EmitSUPERSEND(MethodGenerationContext& mgenc, const Parser& parser,
+                   VMSymbol* msg);
 void EmitRETURNSELF(MethodGenerationContext& mgenc);
-void EmitRETURNLOCAL(MethodGenerationContext& mgenc);
+void EmitRETURNLOCAL(MethodGenerationContext& mgenc, const Parser& parser);
 void EmitRETURNNONLOCAL(MethodGenerationContext& mgenc);
-void EmitRETURNFIELD(MethodGenerationContext& mgenc, size_t index);
+void EmitRETURNFIELD(MethodGenerationContext& mgenc, const Parser& parser,
+                     size_t index);
 
 void EmitINC(MethodGenerationContext& mgenc);
 void EmitDEC(MethodGenerationContext& mgenc);

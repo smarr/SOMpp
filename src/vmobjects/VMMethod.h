@@ -37,6 +37,7 @@
 
 class MethodGenerationContext;
 class Interpreter;
+class Parser;
 
 class Jump {
 public:
@@ -169,7 +170,7 @@ public:
 
     [[nodiscard]] std::string AsDebugString() const override;
 
-    void InlineInto(MethodGenerationContext& mgenc,
+    void InlineInto(MethodGenerationContext& mgenc, const Parser& parser,
                     bool mergeScope = true) final;
 
     void AdaptAfterOuterInlined(
@@ -184,7 +185,7 @@ public:
     void Dump(const char* indent, bool printObjects) override;
 
 private:
-    void inlineInto(MethodGenerationContext& mgenc);
+    void inlineInto(MethodGenerationContext& mgenc, const Parser& parser);
     std::priority_queue<BackJump> createBackJumpHeap();
 
     static void prepareBackJumpToCurrentAddress(

@@ -135,6 +135,7 @@ bool VMEvaluationPrimitive::IsMarkedInvalid() const {
 }
 
 void VMEvaluationPrimitive::InlineInto(MethodGenerationContext& /*mgenc*/,
+                                       const Parser& /*parser*/,
                                        bool /*mergeScope*/) {
     ErrorExit(
         "VMEvaluationPrimitive::InlineInto is not supported, and should not be "

@@ -73,7 +73,7 @@ public:
     VMFrame* Invoke(VMFrame* /*frame*/) override;
     VMFrame* Invoke1(VMFrame* /*frame*/) override;
 
-    void InlineInto(MethodGenerationContext& mgenc,
+    void InlineInto(MethodGenerationContext& mgenc, const Parser& parser,
                     bool mergeScope = true) final;
 
     [[nodiscard]] AbstractVMObject* CloneForMovingGC() const final;
@@ -116,7 +116,7 @@ public:
     VMFrame* Invoke(VMFrame* /*frame*/) override;
     VMFrame* Invoke1(VMFrame* /*frame*/) override;
 
-    void InlineInto(MethodGenerationContext& mgenc,
+    void InlineInto(MethodGenerationContext& mgenc, const Parser& parser,
                     bool mergeScope = true) final;
 
     [[nodiscard]] AbstractVMObject* CloneForMovingGC() const final;
@@ -156,7 +156,7 @@ public:
     VMFrame* Invoke(VMFrame* /*frame*/) override;
     VMFrame* Invoke1(VMFrame* /*frame*/) override;
 
-    void InlineInto(MethodGenerationContext& mgenc,
+    void InlineInto(MethodGenerationContext& mgenc, const Parser& parser,
                     bool mergeScope = true) final;
 
     [[nodiscard]] AbstractVMObject* CloneForMovingGC() const final;
@@ -195,7 +195,7 @@ public:
     VMFrame* Invoke(VMFrame* /*frame*/) override;
     VMFrame* Invoke1(VMFrame* /*unused*/) override;
 
-    void InlineInto(MethodGenerationContext& mgenc,
+    void InlineInto(MethodGenerationContext& mgenc, const Parser& parser,
                     bool mergeScope = true) final;
 
     [[nodiscard]] AbstractVMObject* CloneForMovingGC() const final;

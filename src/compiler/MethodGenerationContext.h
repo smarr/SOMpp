@@ -67,8 +67,8 @@ public:
 
     void SetPrimitive(bool prim = true);
 
-    uint8_t AddLiteral(vm_oop_t lit);
-    uint8_t AddLiteralIfAbsent(vm_oop_t lit);
+    uint8_t AddLiteral(vm_oop_t lit, const Parser& parser);
+    uint8_t AddLiteralIfAbsent(vm_oop_t lit, const Parser& parser);
     void UpdateLiteral(vm_oop_t oldValue, uint8_t index, vm_oop_t newValue);
 
     void MarkFinished();
@@ -96,18 +96,18 @@ public:
 
     uint8_t GetNumberOfArguments();
     void AddBytecode(uint8_t bc, int64_t stackEffect);
-    void AddBytecodeArgument(uint8_t bc);
-    size_t AddBytecodeArgumentAndGetIndex(uint8_t bc);
+    void AddBytecodeArgument(uint8_t arg);
+    size_t AddBytecodeArgumentAndGetIndex(size_t bc);
 
     bool HasBytecodes();
 
     std::vector<uint8_t> GetBytecodes() { return bytecode; }
 
-    bool InlineWhile(Parser& parser, bool isWhileTrue);
-    bool InlineThenElseBranches(JumpCondition condition);
-    bool InlineThenBranch(JumpCondition condition);
-    bool InlineAndOr(bool isOr);
-    bool InlineToDo();
+    bool InlineWhile(const Parser& parser, bool isWhileTrue);
+    bool InlineThenElseBranches(const Parser& parser, JumpCondition condition);
+    bool InlineThenBranch(const Parser& parser, JumpCondition condition);
+    bool InlineAndOr(const Parser& parser, bool isOr);
+    bool InlineToDo(const Parser& parser);
 
     inline size_t OffsetOfNextInstruction() { return bytecode.size(); }
 
@@ -123,7 +123,7 @@ public:
 
     bool OptimizeDupPopPopSequence();
     bool OptimizeIncField(uint8_t fieldIdx);
-    bool OptimizeReturnField();
+    bool OptimizeReturnField(const Parser& parser);
 
     bool LastBytecodeIs(size_t indexFromEnd, uint8_t bytecode);
 
@@ -155,7 +155,8 @@ private:
 
     VMInvokable* getLastBlockMethodAndFreeLiteral(uint8_t blockLiteralIdx);
 
-    void completeJumpsAndEmitReturningNil(Parser& parser, size_t loopBeginIdx,
+    void completeJumpsAndEmitReturningNil(const Parser& parser,
+                                          size_t loopBeginIdx,
                                           size_t jumpOffsetIdxToSkipLoopBody);
 
     static void checkJumpOffset(size_t jumpOffset, uint8_t bytecode);
