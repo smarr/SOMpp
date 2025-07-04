@@ -2,6 +2,7 @@
 
 #include <cstdint>
 
+#include "../misc/defs.h" // NOLINT(build/include)
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMFrame.h"
