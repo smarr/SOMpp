@@ -102,7 +102,7 @@ static vm_oop_t intLeftShift(vm_oop_t leftObj, vm_oop_t rightObj) {
     if (IS_SMALL_INT(leftObj) && IS_SMALL_INT(rightObj)) {
         int64_t const left = SMALL_INT_VAL(leftObj);
         int64_t const right = SMALL_INT_VAL(rightObj);
-        auto const numberOfLeadingZeros = std::countl_zero((uint64_t) left);
+        auto const numberOfLeadingZeros = std::countl_zero((uint64_t)left);
 
         if (64 - numberOfLeadingZeros + right > 63) {
             return Universe::NewBigInteger(InfInt(left) << right);
@@ -118,9 +118,10 @@ static vm_oop_t intLeftShift(vm_oop_t leftObj, vm_oop_t rightObj) {
 
 static vm_oop_t intUnsignedRightShift(vm_oop_t leftObj, vm_oop_t rightObj) {
     if (IS_SMALL_INT(leftObj) && IS_SMALL_INT(rightObj)) {
+        uint64_t left = SMALL_INT_VAL(leftObj);
+
         // NOLINTNEXTLINE(hicpp-signed-bitwise)
-        int64_t const result =
-            SMALL_INT_VAL(leftObj) >> SMALL_INT_VAL(rightObj);
+        int64_t const result = left >> SMALL_INT_VAL(rightObj);
         return NEW_INT(result);
     }
 
@@ -295,15 +296,18 @@ static vm_oop_t intAnd(vm_oop_t leftObj, vm_oop_t rightObj) {
 
 static vm_oop_t intEqual(vm_oop_t leftObj, vm_oop_t rightObj) {
     if (IS_SMALL_INT(leftObj)) {
+        int64_t left = SMALL_INT_VAL(leftObj);
+
         if (IS_SMALL_INT(rightObj)) {
-            return leftObj == rightObj ? load_ptr(trueObject)
-                                       : load_ptr(falseObject);
+            int64_t right = SMALL_INT_VAL(rightObj);
+            return left == right ? load_ptr(trueObject) : load_ptr(falseObject);
         }
 
         if (IS_DOUBLE(rightObj)) {
-            auto const left = (double)SMALL_INT_VAL(leftObj);
+            auto const leftDouble = (double)left;
             double const right = AS_DOUBLE(rightObj);
-            return left == right ? load_ptr(trueObject) : load_ptr(falseObject);
+            return leftDouble == right ? load_ptr(trueObject)
+                                       : load_ptr(falseObject);
         }
 
         return load_ptr(falseObject);
@@ -319,8 +323,9 @@ static vm_oop_t intEqual(vm_oop_t leftObj, vm_oop_t rightObj) {
 static vm_oop_t intEqualEqual(vm_oop_t leftObj, vm_oop_t rightObj) {
     if (IS_SMALL_INT(leftObj)) {
         if (IS_SMALL_INT(rightObj)) {
-            return leftObj == rightObj ? load_ptr(trueObject)
-                                       : load_ptr(falseObject);
+            return SMALL_INT_VAL(leftObj) == SMALL_INT_VAL(rightObj)
+                       ? load_ptr(trueObject)
+                       : load_ptr(falseObject);
         }
         return load_ptr(falseObject);
     }
@@ -334,15 +339,14 @@ static vm_oop_t intEqualEqual(vm_oop_t leftObj, vm_oop_t rightObj) {
 
 inline static bool lowerThan(vm_oop_t leftObj, vm_oop_t rightObj) {
     if (IS_SMALL_INT(leftObj)) {
+        int64_t left = SMALL_INT_VAL(leftObj);
         if (IS_SMALL_INT(rightObj)) {
-            return leftObj < rightObj;
+            return left < SMALL_INT_VAL(rightObj);
         }
-
-        int64_t const left = SMALL_INT_VAL(leftObj);
 
         if (IS_DOUBLE(rightObj)) {
             double const right = AS_DOUBLE(rightObj);
-            return leftObj < rightObj;
+            return left < right;
         }
 
         assert(IS_BIG_INT(rightObj));
@@ -373,17 +377,16 @@ static vm_oop_t intLowerthan(vm_oop_t leftObj, vm_oop_t rightObj) {
 
 static vm_oop_t intLowerThanEqual(vm_oop_t leftObj, vm_oop_t rightObj) {
     if (IS_SMALL_INT(leftObj)) {
-        if (IS_SMALL_INT(rightObj)) {
-            return leftObj <= rightObj ? load_ptr(trueObject)
-                                       : load_ptr(falseObject);
-        }
-
         int64_t const left = SMALL_INT_VAL(leftObj);
+
+        if (IS_SMALL_INT(rightObj)) {
+            return left <= SMALL_INT_VAL(rightObj) ? load_ptr(trueObject)
+                                                   : load_ptr(falseObject);
+        }
 
         if (IS_DOUBLE(rightObj)) {
             double const right = AS_DOUBLE(rightObj);
-            return leftObj <= rightObj ? load_ptr(trueObject)
-                                       : load_ptr(falseObject);
+            return left <= right ? load_ptr(trueObject) : load_ptr(falseObject);
         }
 
         assert(IS_BIG_INT(rightObj));
@@ -415,17 +418,16 @@ static vm_oop_t intLowerThanEqual(vm_oop_t leftObj, vm_oop_t rightObj) {
 
 static vm_oop_t intGreaterThan(vm_oop_t leftObj, vm_oop_t rightObj) {
     if (IS_SMALL_INT(leftObj)) {
-        if (IS_SMALL_INT(rightObj)) {
-            return leftObj > rightObj ? load_ptr(trueObject)
-                                      : load_ptr(falseObject);
-        }
-
         int64_t const left = SMALL_INT_VAL(leftObj);
+
+        if (IS_SMALL_INT(rightObj)) {
+            return left > SMALL_INT_VAL(rightObj) ? load_ptr(trueObject)
+                                                  : load_ptr(falseObject);
+        }
 
         if (IS_DOUBLE(rightObj)) {
             double const right = AS_DOUBLE(rightObj);
-            return leftObj > rightObj ? load_ptr(trueObject)
-                                      : load_ptr(falseObject);
+            return left > right ? load_ptr(trueObject) : load_ptr(falseObject);
         }
 
         assert(IS_BIG_INT(rightObj));
@@ -457,17 +459,16 @@ static vm_oop_t intGreaterThan(vm_oop_t leftObj, vm_oop_t rightObj) {
 
 static vm_oop_t intGreaterThanEqual(vm_oop_t leftObj, vm_oop_t rightObj) {
     if (IS_SMALL_INT(leftObj)) {
-        if (IS_SMALL_INT(rightObj)) {
-            return leftObj >= rightObj ? load_ptr(trueObject)
-                                       : load_ptr(falseObject);
-        }
-
         int64_t const left = SMALL_INT_VAL(leftObj);
+
+        if (IS_SMALL_INT(rightObj)) {
+            return left >= SMALL_INT_VAL(rightObj) ? load_ptr(trueObject)
+                                                   : load_ptr(falseObject);
+        }
 
         if (IS_DOUBLE(rightObj)) {
             double const right = AS_DOUBLE(rightObj);
-            return leftObj >= rightObj ? load_ptr(trueObject)
-                                       : load_ptr(falseObject);
+            return left >= right ? load_ptr(trueObject) : load_ptr(falseObject);
         }
 
         assert(IS_BIG_INT(rightObj));
@@ -589,17 +590,16 @@ static vm_oop_t intFromString(vm_oop_t /*unused*/, vm_oop_t right) {
 
 static vm_oop_t intUnequal(vm_oop_t leftObj, vm_oop_t rightObj) {
     if (IS_SMALL_INT(leftObj)) {
-        if (IS_SMALL_INT(rightObj)) {
-            return leftObj != rightObj ? load_ptr(trueObject)
-                                       : load_ptr(falseObject);
-        }
-
         int64_t const left = SMALL_INT_VAL(leftObj);
+
+        if (IS_SMALL_INT(rightObj)) {
+            return left != SMALL_INT_VAL(rightObj) ? load_ptr(trueObject)
+                                                   : load_ptr(falseObject);
+        }
 
         if (IS_DOUBLE(rightObj)) {
             double const right = AS_DOUBLE(rightObj);
-            return leftObj != rightObj ? load_ptr(trueObject)
-                                       : load_ptr(falseObject);
+            return left != right ? load_ptr(trueObject) : load_ptr(falseObject);
         }
 
         assert(IS_BIG_INT(rightObj));
