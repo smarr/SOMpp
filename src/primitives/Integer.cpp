@@ -291,6 +291,12 @@ static vm_oop_t intAnd(vm_oop_t leftObj, vm_oop_t rightObj) {
         return NEW_INT(result);
     }
 
+    if (IS_BIG_INT(leftObj) && IS_SMALL_INT(rightObj)) {
+        VMBigInteger* left = AS_BIG_INT(leftObj);
+        int64_t l = left->embeddedInteger.truncateToInt64();
+        return NEW_INT(l & SMALL_INT_VAL(rightObj));
+    }
+
     ErrorExit("#& not supported on non-small-int arguments");
 }
 

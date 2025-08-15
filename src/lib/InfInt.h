@@ -169,6 +169,7 @@ public:
     [[nodiscard]] uint64_t toUnsignedLongLong() const;  // throw
 
     [[nodiscard]] int truncateToInt() const;
+    [[nodiscard]] int64_t truncateToInt64() const;
     [[nodiscard]] int64_t toLongLongForHash() const;
 
     [[nodiscard]] double toDouble() const;
@@ -824,6 +825,15 @@ inline int64_t InfInt::toLong() const {
         std::cerr << "Out of LONG bounds: " << *this << '\n';
 #endif
     }
+    int64_t result = 0;
+    for (int i = (int)val.size() - 1; i >= 0; --i) {
+        result = result * BASE + val[i];
+    }
+    return pos ? result : -result;
+}
+
+inline int64_t InfInt::truncateToInt64() const {
+    // PROFINY_SCOPE
     int64_t result = 0;
     for (int i = (int)val.size() - 1; i >= 0; --i) {
         result = result * BASE + val[i];
