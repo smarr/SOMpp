@@ -26,6 +26,7 @@
 
 #include "Integer.h"
 
+#include <bit>
 #include <cassert>
 #include <cmath>
 #include <cstdint>
@@ -43,7 +44,6 @@
 #include "../vmobjects/VMDouble.h"  // NOLINT(misc-include-cleaner)
 #include "../vmobjects/VMFrame.h"
 #include "../vmobjects/VMString.h"
-#include "Double.h"
 
 //
 // arithmetic operations
@@ -100,9 +100,16 @@ static vm_oop_t intBitwiseXor(vm_oop_t leftObj, vm_oop_t rightObj) {
 
 static vm_oop_t intLeftShift(vm_oop_t leftObj, vm_oop_t rightObj) {
     if (IS_SMALL_INT(leftObj) && IS_SMALL_INT(rightObj)) {
+        int64_t const left = SMALL_INT_VAL(leftObj);
+        int64_t const right = SMALL_INT_VAL(rightObj);
+        auto const numberOfLeadingZeros = std::countl_zero((uint64_t) left);
+
+        if (64 - numberOfLeadingZeros + right > 63) {
+            return Universe::NewBigInteger(InfInt(left) << right);
+        }
+
         // NOLINTNEXTLINE(hicpp-signed-bitwise)
-        int64_t const result = SMALL_INT_VAL(leftObj)
-                               << SMALL_INT_VAL(rightObj);
+        int64_t const result = left << right;
         return NEW_INT(result);
     }
 

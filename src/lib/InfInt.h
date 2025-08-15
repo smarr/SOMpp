@@ -142,6 +142,7 @@ public:
     InfInt operator/(const InfInt& rhs) const;  // throw
     InfInt operator%(const InfInt& rhs) const;  // throw
     InfInt operator*(ELEM_TYPE rhs) const;
+    InfInt operator<<(int64_t rhs) const;
 
     /* relational operations */
     bool operator==(const InfInt& rhs) const;
@@ -559,6 +560,15 @@ inline InfInt InfInt::operator*(const InfInt& rhs) const {
     result.pos = (result.val.size() == 1 && result.val[0] == 0)
                      ? true
                      : (pos == rhs.pos);
+    return result;
+}
+
+inline InfInt InfInt::operator<<(const int64_t rhs) const {
+    const InfInt two(2);
+    InfInt result = *this;
+    for (int64_t i = 0; i < rhs; i += 1) {
+        result *= two;
+    }
     return result;
 }
 
