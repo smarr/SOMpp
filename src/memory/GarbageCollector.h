@@ -27,16 +27,20 @@
  */
 
 #include "../misc/defs.h"
+#include "../vm/Print.h"
 #include "../vmobjects/ObjectFormats.h"
 
+class IGarbageCollector {
+public:
+    virtual ~IGarbageCollector() = default;
+    virtual void Collect() = 0;
+};
+
 template <class HEAP_T>
-class GarbageCollector {
+class GarbageCollector : public IGarbageCollector {
 public:
     explicit GarbageCollector(HEAP_T* h) : heap(h) {}
-    virtual ~GarbageCollector() = default;
-    virtual void Collect() = 0;
-    void PrintGCStat() const;
-    void PrintCollectStat() const;
+    ~GarbageCollector() override = default;
 
 protected:
     HEAP_T* const heap;
