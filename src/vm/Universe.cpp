@@ -142,13 +142,13 @@ void Universe::Shutdown() {
 }
 
 static void printVmConfig() {
-    if (GC_TYPE == GENERATIONAL) {
+    if (GC_TYPE == GENERATIONAL) {  // NOLINT(misc-redundant-expression)
         cout << "\tgarbage collector: generational\n";
-    } else if (GC_TYPE == COPYING) {
+    } else if (GC_TYPE == COPYING) {  // NOLINT(misc-redundant-expression)
         cout << "\tgarbage collector: copying\n";
-    } else if (GC_TYPE == MARK_SWEEP) {
+    } else if (GC_TYPE == MARK_SWEEP) {  // NOLINT(misc-redundant-expression)
         cout << "\tgarbage collector: mark-sweep\n";
-    } else if (GC_TYPE == DEBUG_COPYING) {
+    } else if (GC_TYPE == DEBUG_COPYING) {  // NOLINT(misc-redundant-expression)
         cout << "\tgarbage collector: debug copying\n";
     } else {
         cout << "\tgarbage collector: unknown\n";
@@ -644,6 +644,7 @@ VMArray* Universe::NewArray(size_t size) {
     auto* result = new (GetHeap<HEAP_CLS>(),
                         additionalBytes ALLOC_OUTSIDE_NURSERY(outsideNursery))
         VMArray(size, additionalBytes);
+    // NOLINTNEXTLINE(misc-redundant-expression)
     if ((GC_TYPE == GENERATIONAL) && outsideNursery) {
         result->SetGCField(MASK_OBJECT_IS_OLD);
     }
