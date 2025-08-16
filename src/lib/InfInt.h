@@ -149,6 +149,9 @@ public:
     bool operator>(const InfInt& rhs) const;
     bool operator>=(const InfInt& rhs) const;
 
+    /* basic properties */
+    [[nodiscard]] bool isZero() const;
+
     /* integer square root */
     [[nodiscard]] InfInt intSqrt() const;  // throw
 
@@ -378,7 +381,7 @@ inline InfInt& InfInt::operator*=(const InfInt& rhs) {
 
 inline InfInt& InfInt::operator/=(const InfInt& rhs) {
     // PROFINY_SCOPE
-    if (rhs == InfInt()) {  // TODO(smarr): replace by a isZero() check
+    if (rhs.isZero()) {
 #ifdef INFINT_USE_EXCEPTIONS
         throw InfIntException("division by zero");
 #else
@@ -528,7 +531,7 @@ inline InfInt InfInt::operator<<(const int64_t rhs) const {
 
 inline InfInt InfInt::operator/(const InfInt& rhs) const {
     // PROFINY_SCOPE
-    if (rhs == InfInt()) {  // TODO(smarr): replace by a isZero() check
+    if (rhs.isZero()) {
 #ifdef INFINT_USE_EXCEPTIONS
         throw InfIntException("division by zero");
 #else
@@ -555,7 +558,7 @@ inline InfInt InfInt::operator/(const InfInt& rhs) const {
 
 inline InfInt InfInt::operator%(const InfInt& rhs) const {
     // PROFINY_SCOPE
-    if (rhs == InfInt()) {  // TODO(smarr): replace by a isZero() check
+    if (rhs.isZero()) {
 #ifdef INFINT_USE_EXCEPTIONS
         throw InfIntException("division by zero");
 #else
@@ -727,6 +730,10 @@ inline void InfInt::optimizeSqrtSearchBounds(InfInt& lo, InfInt& hi) const {
     if (hi > hdn) {
         hi = hdn;
     }
+}
+
+inline bool InfInt::isZero() const {
+    return val.size() == 1 && val[0] == 0;
 }
 
 inline InfInt InfInt::intSqrt() const {
