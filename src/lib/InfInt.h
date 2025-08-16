@@ -19,7 +19,7 @@
  *      toString:       converts it to a string
  *
  *   There are also conversion methods which allow conversion to primitive
- * types: toInt, toLong, toLongLong, toUnsignedInt, toUnsignedLong,
+ * types: toLong, toLongLong, toUnsignedLong,
  * toUnsignedLongLong.
  *
  *   You may define INFINT_USE_EXCEPTIONS and library methods will start raising
@@ -102,13 +102,10 @@ class InfInt {
 
 public:
     /* constructors */
-    InfInt();
+    InfInt();  // Positive Zero Constructor
     explicit InfInt(const char* c);
     explicit InfInt(const std::string& s);
-    explicit InfInt(int l);
     explicit InfInt(int64_t l);
-    explicit InfInt(unsigned int l);
-    explicit InfInt(uint64_t l);
     InfInt(const InfInt& l);
 
     /* assignment operators */
@@ -166,10 +163,8 @@ public:
     [[nodiscard]] std::string toString() const;
 
     /* conversion to primitive types */
-    [[nodiscard]] int toInt() const;                    // throw
     [[nodiscard]] int64_t toLong() const;               // throw
     [[nodiscard]] int64_t toLongLong() const;           // throw
-    [[nodiscard]] unsigned int toUnsignedInt() const;   // throw
     [[nodiscard]] uint64_t toUnsignedLong() const;      // throw
     [[nodiscard]] uint64_t toUnsignedLongLong() const;  // throw
 
@@ -193,6 +188,7 @@ private:
     bool pos{};                  // true if number is positive
 };
 
+// Positive Zero Constructor
 inline InfInt::InfInt() : pos(true) {
     // PROFINY_SCOPE
     val.push_back((ELEM_TYPE)0);
@@ -206,28 +202,6 @@ inline InfInt::InfInt(const char* c) {
 inline InfInt::InfInt(const std::string& s) {
     // PROFINY_SCOPE
     fromString(s);
-}
-
-inline InfInt::InfInt(int l) : pos(l >= 0) {
-    // PROFINY_SCOPE
-    bool subtractOne = false;
-    if (l == INT_MIN) {
-        subtractOne = true;
-        ++l;
-    }
-
-    if (!pos) {
-        l = -l;
-    }
-    do {
-        div_t dt = my_div(l, BASE);
-        val.push_back((ELEM_TYPE)dt.rem);
-        l = dt.quot;
-    } while (l > 0);
-
-    if (subtractOne) {
-        --*this;
-    }
 }
 
 inline InfInt::InfInt(int64_t l) : pos(l >= 0) {
@@ -250,22 +224,6 @@ inline InfInt::InfInt(int64_t l) : pos(l >= 0) {
     if (subtractOne) {
         --*this;
     }
-}
-
-inline InfInt::InfInt(unsigned int l) : pos(true) {
-    // PROFINY_SCOPE
-    do {
-        val.push_back((ELEM_TYPE)(l % BASE));
-        l = l / BASE;
-    } while (l > 0);
-}
-
-inline InfInt::InfInt(uint64_t l) : pos(true) {
-    // PROFINY_SCOPE
-    do {
-        val.push_back((ELEM_TYPE)(l % BASE));
-        l = l / BASE;
-    } while (l > 0);
 }
 
 inline InfInt::InfInt(const InfInt& l) : pos(l.pos), val(l.val) {
@@ -350,12 +308,7 @@ inline InfInt& InfInt::operator=(uint64_t l) {
     return *this;
 }
 
-inline InfInt& InfInt::operator=(const InfInt& l) {
-    // PROFINY_SCOPE
-    pos = l.pos;
-    val = l.val;
-    return *this;
-}
+inline InfInt& InfInt::operator=(const InfInt& l) = default;
 
 inline InfInt& InfInt::operator++() {
     // PROFINY_SCOPE
@@ -424,7 +377,7 @@ inline InfInt& InfInt::operator*=(const InfInt& rhs) {
 
 inline InfInt& InfInt::operator/=(const InfInt& rhs) {
     // PROFINY_SCOPE
-    if (rhs == InfInt(0)) {  // TODO(smarr): replace by a isZero() check
+    if (rhs == InfInt()) {  // TODO(smarr): replace by a isZero() check
 #ifdef INFINT_USE_EXCEPTIONS
         throw InfIntException("division by zero");
 #else
@@ -564,7 +517,7 @@ inline InfInt InfInt::operator*(const InfInt& rhs) const {
 }
 
 inline InfInt InfInt::operator<<(const int64_t rhs) const {
-    const InfInt two(2);
+    const InfInt two(2ULL);
     InfInt result = *this;
     for (int64_t i = 0; i < rhs; i += 1) {
         result *= two;
@@ -574,12 +527,12 @@ inline InfInt InfInt::operator<<(const int64_t rhs) const {
 
 inline InfInt InfInt::operator/(const InfInt& rhs) const {
     // PROFINY_SCOPE
-    if (rhs == InfInt(0)) {  // TODO(smarr): replace by a isZero() check
+    if (rhs == InfInt()) {  // TODO(smarr): replace by a isZero() check
 #ifdef INFINT_USE_EXCEPTIONS
         throw InfIntException("division by zero");
 #else
         std::cerr << "Division by zero!" << '\n';
-        return InfInt(0);
+        return {};
 #endif
     }
     InfInt Q;
@@ -601,12 +554,12 @@ inline InfInt InfInt::operator/(const InfInt& rhs) const {
 
 inline InfInt InfInt::operator%(const InfInt& rhs) const {
     // PROFINY_SCOPE
-    if (rhs == InfInt(0)) {  // TODO(smarr): replace by a isZero() check
+    if (rhs == InfInt()) {  // TODO(smarr): replace by a isZero() check
 #ifdef INFINT_USE_EXCEPTIONS
         throw InfIntException("division by zero");
 #else
         std::cerr << "Division by zero!" << '\n';
-        return InfInt(0);
+        return {};
 #endif
     }
     InfInt R;
@@ -762,7 +715,7 @@ inline bool InfInt::operator>=(const InfInt& rhs) const {
 
 inline void InfInt::optimizeSqrtSearchBounds(InfInt& lo, InfInt& hi) const {
     // PROFINY_SCOPE
-    InfInt hdn(1);
+    InfInt hdn(1ULL);
     for (int i = (int)this->numberOfDigits() / 2; i >= 2; --i) {
         hdn *= 10;
     }
@@ -777,23 +730,23 @@ inline void InfInt::optimizeSqrtSearchBounds(InfInt& lo, InfInt& hi) const {
 
 inline InfInt InfInt::intSqrt() const {
     // PROFINY_SCOPE
-    if (*this <= InfInt(0)) {  // TODO(smarr): replace by a more specific check
+    if (*this <= InfInt()) {  // TODO(smarr): replace by a more specific check
 #ifdef INFINT_USE_EXCEPTIONS
         throw InfIntException("intSqrt called for non-positive integer");
 #else
         std::cerr << "intSqrt called for non-positive integer: " << *this
                   << '\n';
-        return InfInt(0);
+        return {};
 #endif
     }
-    InfInt hi = *this / InfInt(2) + InfInt(1);
-    InfInt lo(0);
+    InfInt hi = *this / InfInt(2ULL) + InfInt(1ULL);
+    InfInt lo = InfInt();
     InfInt mid;
     InfInt mid2;
     optimizeSqrtSearchBounds(lo, hi);
     do {
-        mid = (hi + lo) / InfInt(2);  // 8 factor
-        mid2 = mid * mid;             // 1 factor
+        mid = (hi + lo) / InfInt(2ULL);  // 8 factor
+        mid2 = mid * mid;                // 1 factor
         if (mid2 == *this) {
             lo = mid;
             break;
@@ -803,7 +756,7 @@ inline InfInt InfInt::intSqrt() const {
         } else {
             hi = mid;
         }
-    } while (lo < hi - InfInt(1) && mid2 != *this);
+    } while (lo < hi - InfInt(1ULL) && mid2 != *this);
     return lo;
 }
 
@@ -852,22 +805,6 @@ inline std::string InfInt::toString() const {
 inline size_t InfInt::size() const {
     // PROFINY_SCOPE
     return (val.size() * sizeof(ELEM_TYPE)) + sizeof(bool);
-}
-
-inline int InfInt::toInt() const {
-    // PROFINY_SCOPE
-    if (*this > InfInt(INT_MAX) || *this < InfInt(INT_MIN)) {
-#ifdef INFINT_USE_EXCEPTIONS
-        throw InfIntException("out of bounds");
-#else
-        std::cerr << "Out of INT bounds: " << *this << '\n';
-#endif
-    }
-    int result = 0;
-    for (int i = (int)val.size() - 1; i >= 0; --i) {
-        result = result * BASE + val[i];
-    }
-    return pos ? result : -result;
 }
 
 inline int InfInt::truncateToInt() const {
@@ -925,22 +862,6 @@ inline double InfInt::toDouble() const {
         result = result * BASE + val[i];
     }
     return pos ? result : -result;
-}
-
-inline unsigned int InfInt::toUnsignedInt() const {
-    // PROFINY_SCOPE
-    if (!pos || *this > InfInt(UINT_MAX)) {
-#ifdef INFINT_USE_EXCEPTIONS
-        throw InfIntException("out of bounds");
-#else
-        std::cerr << "Out of UINT bounds: " << *this << '\n';
-#endif
-    }
-    unsigned int result = 0;
-    for (int i = (int)val.size() - 1; i >= 0; --i) {
-        result = result * BASE + val[i];
-    }
-    return result;
 }
 
 inline uint64_t InfInt::toUnsignedLong() const {
