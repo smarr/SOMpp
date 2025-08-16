@@ -142,6 +142,7 @@
 		0AB80AD42C392B78006B6419 /* Print.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AB80AD12C392B78006B6419 /* Print.cpp */; };
 		0AB80AD82C394806006B6419 /* Globals.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AB80AD72C394806006B6419 /* Globals.cpp */; };
 		0AB80AD92C394806006B6419 /* Globals.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AB80AD72C394806006B6419 /* Globals.cpp */; };
+		0ACA17172E509E6100FAC36B /* InfIntTests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0ACA17162E509E6100FAC36B /* InfIntTests.cpp */; };
 		0AF394592D7CA9860036FDEF /* VMBigInteger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AF394582D7CA9860036FDEF /* VMBigInteger.cpp */; };
 		0AF3945A2D7CA9860036FDEF /* VMBigInteger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AF394582D7CA9860036FDEF /* VMBigInteger.cpp */; };
 /* End PBXBuildFile section */
@@ -254,6 +255,8 @@
 		0AB80AD62C3947F7006B6419 /* Globals.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Globals.h; sourceTree = "<group>"; };
 		0AB80AD72C394806006B6419 /* Globals.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Globals.cpp; sourceTree = "<group>"; };
 		0AB80ADA2C39AC27006B6419 /* InterpreterLoop.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InterpreterLoop.h; sourceTree = "<group>"; };
+		0ACA17152E509E6100FAC36B /* InfIntTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = InfIntTests.h; path = unitTests/InfIntTests.h; sourceTree = "<group>"; };
+		0ACA17162E509E6100FAC36B /* InfIntTests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = InfIntTests.cpp; path = unitTests/InfIntTests.cpp; sourceTree = "<group>"; };
 		0AF394542D7B91990036FDEF /* TaggingTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TaggingTests.h; path = unitTests/TaggingTests.h; sourceTree = "<group>"; };
 		0AF394572D7CA9860036FDEF /* VMBigInteger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMBigInteger.h; sourceTree = "<group>"; };
 		0AF394582D7CA9860036FDEF /* VMBigInteger.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = VMBigInteger.cpp; sourceTree = "<group>"; };
@@ -458,10 +461,12 @@
 				0A3FABE724F4670D002D4D69 /* BasicInterpreterTests.h */,
 				0A67EA7019ACD43A00830E3B /* CloneObjectsTest.cpp */,
 				0A67EA7119ACD43A00830E3B /* main.cpp */,
+				0ACA17152E509E6100FAC36B /* InfIntTests.h */,
+				0ACA17162E509E6100FAC36B /* InfIntTests.cpp */,
 				0A67EAA319ACE09700830E3B /* CloneObjectsTest.h */,
 				0A67EAA519ACE09700830E3B /* WalkObjectsTest.h */,
-				0A67EAA619ACE09700830E3B /* WriteBarrierTest.h */,
 				0A67EA7319ACD43A00830E3B /* WalkObjectsTest.cpp */,
+				0A67EAA619ACE09700830E3B /* WriteBarrierTest.h */,
 				0A67EA7419ACD43A00830E3B /* WriteBarrierTest.cpp */,
 				0A1C98562C3DD87300735850 /* unitTests/BytecodeGenerationTest.h */,
 				0A1C98572C3DD88500735850 /* unitTests/BytecodeGenerationTest.cpp */,
@@ -1016,6 +1021,7 @@
 				0AB80AD02C392811006B6419 /* IsValidObject.cpp in Sources */,
 				0A67EA9519ACD83900830E3B /* Interpreter.cpp in Sources */,
 				0A67EA8A19ACD74800830E3B /* VMSymbol.cpp in Sources */,
+				0ACA17172E509E6100FAC36B /* InfIntTests.cpp in Sources */,
 				0A67EA7C19ACD74800830E3B /* AbstractObject.cpp in Sources */,
 				0A67EA8E19ACD83200830E3B /* ClassGenerationContext.cpp in Sources */,
 				0A3A3CB31A5D5476004CB03B /* PrimitiveLoader.cpp in Sources */,
