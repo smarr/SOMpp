@@ -44,6 +44,7 @@
 #include "../vm/Symbols.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
+#include "../vmobjects/VMBigInteger.h"  // NOLINT(misc-include-cleaner)
 #include "../vmobjects/VMClass.h"
 #include "../vmobjects/VMDouble.h"  // NOLINT(misc-include-cleaner) it's required to make the types complete
 #include "../vmobjects/VMMethod.h"
@@ -782,7 +783,7 @@ vm_oop_t Parser::negativeDecimal() {
 }
 
 vm_oop_t Parser::literalInteger(bool negateValue) {
-    vm_oop_t i = ParseInteger(text.c_str(), 10, negateValue);
+    vm_oop_t i = ParseInteger(text.c_str(), negateValue);
     expect(Integer);
     return i;
 }

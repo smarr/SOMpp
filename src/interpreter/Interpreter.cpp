@@ -43,6 +43,7 @@
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/Signature.h"
 #include "../vmobjects/VMArray.h"
+#include "../vmobjects/VMBigInteger.h"  // NOLINT(misc-include-cleaner)
 #include "../vmobjects/VMBlock.h"
 #include "../vmobjects/VMClass.h"
 #include "../vmobjects/VMDouble.h"
@@ -1077,8 +1078,8 @@ void Interpreter::doReturnNonLocal() {
 void Interpreter::doInc() {
     vm_oop_t val = GetFrame()->Top();
 
-    if (IS_TAGGED(val) || CLASS_OF(val) == load_ptr(integerClass)) {
-        int64_t const result = (int64_t)INT_VAL(val) + 1;
+    if (IS_SMALL_INT(val)) {
+        int64_t const result = SMALL_INT_VAL(val) + 1;
         val = NEW_INT(result);
     } else if (CLASS_OF(val) == load_ptr(doubleClass)) {
         double const d = static_cast<VMDouble*>(val)->GetEmbeddedDouble();
@@ -1093,8 +1094,8 @@ void Interpreter::doInc() {
 void Interpreter::doDec() {
     vm_oop_t val = GetFrame()->Top();
 
-    if (IS_TAGGED(val) || CLASS_OF(val) == load_ptr(integerClass)) {
-        int64_t const result = (int64_t)INT_VAL(val) - 1;
+    if (IS_SMALL_INT(val)) {
+        int64_t const result = SMALL_INT_VAL(val) - 1;
         val = NEW_INT(result);
     } else if (CLASS_OF(val) == load_ptr(doubleClass)) {
         double const d = static_cast<VMDouble*>(val)->GetEmbeddedDouble();
@@ -1117,8 +1118,8 @@ void Interpreter::doIncField(uint8_t fieldIndex) {
 
     vm_oop_t val = selfObj->GetField(fieldIndex);
 
-    if (IS_TAGGED(val) || CLASS_OF(val) == load_ptr(integerClass)) {
-        int64_t const result = (int64_t)INT_VAL(val) + 1;
+    if (IS_SMALL_INT(val)) {
+        int64_t const result = SMALL_INT_VAL(val) + 1;
         val = NEW_INT(result);
     } else if (CLASS_OF(val) == load_ptr(doubleClass)) {
         double const d = static_cast<VMDouble*>(val)->GetEmbeddedDouble();
@@ -1141,8 +1142,8 @@ void Interpreter::doIncFieldPush(uint8_t fieldIndex) {
 
     vm_oop_t val = selfObj->GetField(fieldIndex);
 
-    if (IS_TAGGED(val) || CLASS_OF(val) == load_ptr(integerClass)) {
-        int64_t const result = (int64_t)INT_VAL(val) + 1;
+    if (IS_SMALL_INT(val)) {
+        int64_t const result = SMALL_INT_VAL(val) + 1;
         val = NEW_INT(result);
     } else if (CLASS_OF(val) == load_ptr(doubleClass)) {
         double const d = static_cast<VMDouble*>(val)->GetEmbeddedDouble();
@@ -1159,14 +1160,11 @@ bool Interpreter::checkIsGreater() {
     vm_oop_t top = GetFrame()->Top();
     vm_oop_t top2 = GetFrame()->Top2();
 
-    if ((IS_TAGGED(top) || CLASS_OF(top) == load_ptr(integerClass)) &&
-        (IS_TAGGED(top2) || CLASS_OF(top2) == load_ptr(integerClass))) {
-        return INT_VAL(top) > INT_VAL(top2);
+    if (IS_SMALL_INT(top) && IS_SMALL_INT(top2)) {
+        return SMALL_INT_VAL(top) > SMALL_INT_VAL(top2);
     }
-    if ((CLASS_OF(top) == load_ptr(doubleClass)) &&
-        (CLASS_OF(top2) == load_ptr(doubleClass))) {
-        return static_cast<VMDouble*>(top)->GetEmbeddedDouble() >
-               static_cast<VMDouble*>(top2)->GetEmbeddedDouble();
+    if (IS_DOUBLE(top) && IS_DOUBLE(top2)) {
+        return AS_DOUBLE(top) > AS_DOUBLE(top2);
     }
 
     return false;

@@ -9,6 +9,7 @@
 #include "../vmobjects/AbstractObject.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMArray.h"
+#include "../vmobjects/VMBigInteger.h"
 #include "../vmobjects/VMBlock.h"
 #include "../vmobjects/VMClass.h"  // NOLINT(misc-include-cleaner) it's required to make the types complete
 #include "../vmobjects/VMDouble.h"
@@ -30,6 +31,7 @@ static void* vt_double;
 static void* vt_eval_primitive;
 static void* vt_frame;
 static void* vt_integer;
+static void* vt_big_integer;
 static void* vt_method;
 static void* vt_object;
 static void* vt_primitive;
@@ -69,10 +71,11 @@ bool IsValidObject(vm_oop_t obj) {
     void* vt = *(void**)obj;
     bool b = vt == vt_array || vt == vt_block || vt == vt_class ||
              vt == vt_double || vt == vt_eval_primitive || vt == vt_frame ||
-             vt == vt_integer || vt == vt_method || vt == vt_object ||
-             vt == vt_primitive || vt == vt_safe_un_primitive ||
-             vt == vt_safe_bin_primitive || vt == vt_safe_ter_primitive ||
-             vt == vt_string || vt == vt_symbol || vt == vt_literal_return ||
+             vt == vt_integer || vt == vt_big_integer || vt == vt_method ||
+             vt == vt_object || vt == vt_primitive ||
+             vt == vt_safe_un_primitive || vt == vt_safe_bin_primitive ||
+             vt == vt_safe_ter_primitive || vt == vt_string ||
+             vt == vt_symbol || vt == vt_literal_return ||
              vt == vt_global_return || vt == vt_getter || vt == vt_setter;
     if (!b) {
         assert(b && "Expected vtable to be one of the known ones.");
@@ -106,6 +109,7 @@ void set_vt_to_null() {
     vt_eval_primitive = nullptr;
     vt_frame = nullptr;
     vt_integer = nullptr;
+    vt_big_integer = nullptr;
     vt_method = nullptr;
     vt_object = nullptr;
     vt_primitive = nullptr;
@@ -127,6 +131,16 @@ static void* get_vtable(AbstractVMObject* obj) {
 bool IsVMInteger(vm_oop_t obj) {
     assert(vt_integer != nullptr);
     return get_vtable(AS_OBJ(obj)) == vt_integer;
+}
+
+bool IsVMDouble(vm_oop_t obj) {
+    assert(vt_double != nullptr);
+    return get_vtable(AS_OBJ(obj)) == vt_double;
+}
+
+bool IsVMBigInteger(vm_oop_t obj) {
+    assert(vt_big_integer != nullptr);
+    return get_vtable(AS_OBJ(obj)) == vt_big_integer;
 }
 
 bool IsVMMethod(vm_oop_t obj) {
@@ -183,6 +197,9 @@ void obtain_vtables_of_known_classes(VMSymbol* someValidSymbol) {
 
     auto* i = new (GetHeap<HEAP_CLS>(), 0) VMInteger(0);
     vt_integer = get_vtable(i);
+
+    auto* bi = new (GetHeap<HEAP_CLS>(), 0) VMBigInteger("0", false);
+    vt_big_integer = get_vtable(bi);
 
     auto* mth = new (GetHeap<HEAP_CLS>(), 0)
         VMMethod(nullptr, 0, 0, 0, 0, nullptr, nullptr);

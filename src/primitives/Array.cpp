@@ -31,16 +31,17 @@
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMArray.h"
+#include "../vmobjects/VMBigInteger.h"  // NOLINT(misc-include-cleaner)
 #include "../vmobjects/VMFrame.h"
 
 static vm_oop_t arrAt(vm_oop_t leftObj, vm_oop_t idx) {
     auto* self = static_cast<VMArray*>(leftObj);
-    return self->GetIndexableField(INT_VAL(idx) - 1);
+    return self->GetIndexableField(SMALL_INT_VAL(idx) - 1);
 }
 
 static vm_oop_t arrAtPut(vm_oop_t rcvr, vm_oop_t index, vm_oop_t value) {
     auto* self = static_cast<VMArray*>(rcvr);
-    int64_t const i = INT_VAL(index);
+    int64_t const i = SMALL_INT_VAL(index);
     self->SetIndexableField(i - 1, value);
     return rcvr;
 }
@@ -51,7 +52,7 @@ static vm_oop_t arrLength(vm_oop_t leftObj) {
 }
 
 static vm_oop_t arrNew(vm_oop_t /*unused*/, vm_oop_t arg) {
-    int64_t const size = INT_VAL(arg);
+    int64_t const size = SMALL_INT_VAL(arg);
     return Universe::NewArray(size);
 }
 

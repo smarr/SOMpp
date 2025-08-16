@@ -33,6 +33,7 @@
 #include "../vm/Universe.h"  // NOLINT(misc-include-cleaner) it's required to make the types complete
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/VMArray.h"
+#include "../vmobjects/VMBigInteger.h"  // NOLINT(misc-include-cleaner)
 #include "../vmobjects/VMClass.h"  // NOLINT(misc-include-cleaner) it's required to make the types complete
 #include "../vmobjects/VMFrame.h"
 #include "../vmobjects/VMInvokable.h"
@@ -116,12 +117,12 @@ static void objPerformWithArgumentsInSuperclass(VMFrame* frame) {
 }
 
 static vm_oop_t objInstVarAt(vm_oop_t self, vm_oop_t idx) {
-    int64_t const field_idx = INT_VAL(idx) - 1;
+    int64_t const field_idx = SMALL_INT_VAL(idx) - 1;
     return static_cast<VMObject*>(self)->GetField(field_idx);
 }
 
 static vm_oop_t objInstVarAtPut(vm_oop_t self, vm_oop_t idx, vm_oop_t value) {
-    size_t const field_idx = INT_VAL(idx) - 1;
+    size_t const field_idx = SMALL_INT_VAL(idx) - 1;
     static_cast<VMObject*>(self)->SetField(field_idx, value);
     return self;
 }

@@ -164,11 +164,11 @@ void EmitPUSHCONSTANT(MethodGenerationContext& mgenc, const Parser& parser,
     // we also make sure that we don't miss anything in the else
     // branch of the class check
     if (CLASS_OF(cst) == load_ptr(integerClass)) {
-        if (INT_VAL(cst) == 0LL) {
+        if (SMALL_INT_VAL(cst) == 0LL) {
             Emit1(mgenc, BC_PUSH_0, 1);
             return;
         }
-        if (INT_VAL(cst) == 1LL) {
+        if (SMALL_INT_VAL(cst) == 1LL) {
             Emit1(mgenc, BC_PUSH_1, 1);
             return;
         }

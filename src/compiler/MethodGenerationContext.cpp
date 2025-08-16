@@ -42,6 +42,7 @@
 #include "../vm/Print.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
+#include "../vmobjects/VMBigInteger.h"  // NOLINT(misc-include-cleaner)
 #include "../vmobjects/VMMethod.h"
 #include "../vmobjects/VMPrimitive.h"
 #include "../vmobjects/VMSymbol.h"

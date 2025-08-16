@@ -34,5 +34,4 @@ public:
     _Double();
 };
 
-double coerceDouble(vm_oop_t x);
 vm_oop_t dblPercent(vm_oop_t leftPtr, vm_oop_t rightObj);
