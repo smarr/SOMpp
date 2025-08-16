@@ -37,9 +37,9 @@ bool VMBigInteger::IsMarkedInvalid() const {
 }
 
 vm_oop_t VMBigInteger::Add(int64_t value) const {
-    InfInt const result = embeddedInteger + InfInt(value);
     // TODO(smarr): try to fit into SmallInt
-    return new (GetHeap<HEAP_CLS>(), 0) VMBigInteger(std::move(result));
+    return new (GetHeap<HEAP_CLS>(), 0)
+        VMBigInteger(embeddedInteger + InfInt(value));
 }
 
 vm_oop_t VMBigInteger::Add(vm_oop_t value) const {
@@ -55,22 +55,21 @@ vm_oop_t VMBigInteger::Add(vm_oop_t value) const {
 
     assert(IS_BIG_INT(value) && "assume rcvr is a big int now");
 
-    InfInt const result = embeddedInteger + AS_BIG_INT(value)->embeddedInteger;
     // TODO(smarr): try to fit into SmallInt
-    return new (GetHeap<HEAP_CLS>(), 0) VMBigInteger(std::move(result));
+    return new (GetHeap<HEAP_CLS>(), 0)
+        VMBigInteger(embeddedInteger + AS_BIG_INT(value)->embeddedInteger);
 }
 
 vm_oop_t VMBigInteger::SubtractFrom(int64_t value) const {
     InfInt const left = InfInt(value);
-    InfInt const result = left - embeddedInteger;
     // TODO(smarr): try to fit into SmallInt
-    return new (GetHeap<HEAP_CLS>(), 0) VMBigInteger(std::move(result));
+    return new (GetHeap<HEAP_CLS>(), 0) VMBigInteger(left - embeddedInteger);
 }
 
 vm_oop_t VMBigInteger::Subtract(vm_oop_t value) const {
     if (IS_SMALL_INT(value)) {
-        InfInt const result = embeddedInteger - InfInt(SMALL_INT_VAL(value));
-        return new (GetHeap<HEAP_CLS>(), 0) VMBigInteger(std::move(result));
+        return new (GetHeap<HEAP_CLS>(), 0)
+            VMBigInteger(embeddedInteger - InfInt(SMALL_INT_VAL(value)));
     }
 
     if (IS_DOUBLE(value)) {
@@ -81,21 +80,21 @@ vm_oop_t VMBigInteger::Subtract(vm_oop_t value) const {
 
     assert(IS_BIG_INT(value) && "assume rcvr is a big int now");
 
-    InfInt const result = embeddedInteger - AS_BIG_INT(value)->embeddedInteger;
     // TODO(smarr): try to fit into SmallInt
-    return new (GetHeap<HEAP_CLS>(), 0) VMBigInteger(std::move(result));
+    return new (GetHeap<HEAP_CLS>(), 0)
+        VMBigInteger(embeddedInteger - AS_BIG_INT(value)->embeddedInteger);
 }
 
 vm_oop_t VMBigInteger::Multiply(int64_t value) const {
-    InfInt const result = embeddedInteger * InfInt(value);
     // TODO(smarr): try to fit into SmallInt
-    return new (GetHeap<HEAP_CLS>(), 0) VMBigInteger(std::move(result));
+    return new (GetHeap<HEAP_CLS>(), 0)
+        VMBigInteger(embeddedInteger * InfInt(value));
 }
 
 vm_oop_t VMBigInteger::Multiply(vm_oop_t value) const {
     if (IS_SMALL_INT(value)) {
-        InfInt const result = embeddedInteger * InfInt(SMALL_INT_VAL(value));
-        return new (GetHeap<HEAP_CLS>(), 0) VMBigInteger(std::move(result));
+        return new (GetHeap<HEAP_CLS>(), 0)
+            VMBigInteger(embeddedInteger * InfInt(SMALL_INT_VAL(value)));
     }
 
     if (IS_DOUBLE(value)) {
@@ -106,21 +105,21 @@ vm_oop_t VMBigInteger::Multiply(vm_oop_t value) const {
 
     assert(IS_BIG_INT(value) && "assume rcvr is a big int now");
 
-    InfInt const result = embeddedInteger * AS_BIG_INT(value)->embeddedInteger;
     // TODO(smarr): try to fit into SmallInt
-    return new (GetHeap<HEAP_CLS>(), 0) VMBigInteger(std::move(result));
+    return new (GetHeap<HEAP_CLS>(), 0)
+        VMBigInteger(embeddedInteger * AS_BIG_INT(value)->embeddedInteger);
 }
 
 vm_oop_t VMBigInteger::DivisionFrom(int64_t value) const {
-    InfInt const result = InfInt(value) / embeddedInteger;
     // TODO(smarr): try to fit into SmallInt
-    return new (GetHeap<HEAP_CLS>(), 0) VMBigInteger(std::move(result));
+    return new (GetHeap<HEAP_CLS>(), 0)
+        VMBigInteger(InfInt(value) / embeddedInteger);
 }
 
 vm_oop_t VMBigInteger::DivideBy(vm_oop_t value) const {
     if (IS_SMALL_INT(value)) {
-        InfInt const result = embeddedInteger / InfInt(SMALL_INT_VAL(value));
-        return new (GetHeap<HEAP_CLS>(), 0) VMBigInteger(std::move(result));
+        return new (GetHeap<HEAP_CLS>(), 0)
+            VMBigInteger(embeddedInteger / InfInt(SMALL_INT_VAL(value)));
     }
 
     if (IS_DOUBLE(value)) {
@@ -131,21 +130,21 @@ vm_oop_t VMBigInteger::DivideBy(vm_oop_t value) const {
 
     assert(IS_BIG_INT(value) && "assume rcvr is a big int now");
 
-    InfInt const result = embeddedInteger / AS_BIG_INT(value)->embeddedInteger;
     // TODO(smarr): try to fit into SmallInt
-    return new (GetHeap<HEAP_CLS>(), 0) VMBigInteger(std::move(result));
+    return new (GetHeap<HEAP_CLS>(), 0)
+        VMBigInteger(embeddedInteger / AS_BIG_INT(value)->embeddedInteger);
 }
 
 vm_oop_t VMBigInteger::ModuloFrom(int64_t value) const {
-    InfInt const result = InfInt(value) % embeddedInteger;
     // TODO(smarr): try to fit into SmallInt
-    return new (GetHeap<HEAP_CLS>(), 0) VMBigInteger(std::move(result));
+    return new (GetHeap<HEAP_CLS>(), 0)
+        VMBigInteger(InfInt(value) % embeddedInteger);
 }
 
 vm_oop_t VMBigInteger::Modulo(vm_oop_t value) const {
     if (IS_SMALL_INT(value)) {
-        InfInt const result = embeddedInteger % InfInt(SMALL_INT_VAL(value));
-        return new (GetHeap<HEAP_CLS>(), 0) VMBigInteger(std::move(result));
+        return new (GetHeap<HEAP_CLS>(), 0)
+            VMBigInteger(embeddedInteger % InfInt(SMALL_INT_VAL(value)));
     }
 
     if (IS_DOUBLE(value)) {
@@ -156,12 +155,12 @@ vm_oop_t VMBigInteger::Modulo(vm_oop_t value) const {
 
     assert(IS_BIG_INT(value) && "assume rcvr is a big int now");
 
-    InfInt const result = embeddedInteger % AS_BIG_INT(value)->embeddedInteger;
     // TODO(smarr): try to fit into SmallInt
-    return new (GetHeap<HEAP_CLS>(), 0) VMBigInteger(std::move(result));
+    return new (GetHeap<HEAP_CLS>(), 0)
+        VMBigInteger(embeddedInteger % AS_BIG_INT(value)->embeddedInteger);
 }
 
-vm_oop_t VMBigInteger::Negate() const {
+vm_oop_t VMBigInteger::Negate() {
     if (embeddedInteger < InfInt()) {
         return new (GetHeap<HEAP_CLS>(), 0) VMBigInteger(-embeddedInteger);
     }

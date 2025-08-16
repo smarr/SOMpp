@@ -10,8 +10,6 @@ public:
 
     explicit VMBigInteger(const char* value, bool negate)
         : embeddedInteger(negate ? -InfInt(value) : InfInt(value)) {}
-    VMBigInteger(const VMBigInteger& obj)
-        : embeddedInteger(obj.embeddedInteger) {}
     explicit VMBigInteger(int64_t value) : embeddedInteger(InfInt(value)) {}
     explicit VMBigInteger(const InfInt&& value) : embeddedInteger(value) {}
 
@@ -53,7 +51,7 @@ public:
     [[nodiscard]] vm_oop_t ModuloFrom(int64_t /*value*/) const;
     vm_oop_t Modulo(vm_oop_t /*value*/) const;
 
-    [[nodiscard]] vm_oop_t Negate() const;
+    [[nodiscard]] vm_oop_t Negate();
 
     vm_oop_t IsEqual(VMBigInteger* /*o*/) const;
 

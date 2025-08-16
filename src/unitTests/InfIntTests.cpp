@@ -1,6 +1,7 @@
 #include "InfIntTests.h"
 
 #include <cppunit/TestAssert.h>
+#include <cstdint>
 
 #include "../lib/InfInt.h"
 
@@ -21,7 +22,8 @@ void InfIntTest::testBasicNumbers() {
     CPPUNIT_ASSERT_EQUAL(int64_t(211109453791743LL), a48bitNum.toLongLong());
 
     InfInt const a63bitNum(int64_t(8070661641701720575LL));
-    CPPUNIT_ASSERT_EQUAL(int64_t(8070661641701720575LL), a63bitNum.toLongLong());
+    CPPUNIT_ASSERT_EQUAL(int64_t(8070661641701720575LL),
+                         a63bitNum.toLongLong());
 }
 
 void InfIntTest::testIsZero() {

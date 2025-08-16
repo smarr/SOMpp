@@ -106,7 +106,7 @@ public:
     explicit InfInt(const char* c);
     explicit InfInt(const std::string& s);
     explicit InfInt(int64_t l);
-    InfInt(const InfInt& l);
+    InfInt(const InfInt& l) = default;
 
     /* assignment operators */
     InfInt& operator=(const char* c);
@@ -230,10 +230,6 @@ inline InfInt::InfInt(int64_t l) : pos(l >= 0) {
     }
 }
 
-inline InfInt::InfInt(const InfInt& l) : pos(l.pos), val(l.val) {
-    // PROFINY_SCOPE
-}
-
 inline InfInt& InfInt::operator=(const char* c) {
     // PROFINY_SCOPE
     fromString(c);
@@ -265,6 +261,7 @@ inline InfInt& InfInt::operator=(int l) {
         l = dt.quot;
     } while (l > 0);
 
+    // NOLINTNEXTLINE(cppcoreguidelines-c-copy-assignment-signature,misc-unconventional-assign-operator)
     return subtractOne ? --*this : *this;
 }
 
@@ -287,6 +284,7 @@ inline InfInt& InfInt::operator=(int64_t l) {
         l = dt.quot;
     } while (l > 0);
 
+    // NOLINTNEXTLINE(cppcoreguidelines-c-copy-assignment-signature,misc-unconventional-assign-operator)
     return subtractOne ? --*this : *this;
 }
 
@@ -352,6 +350,7 @@ inline InfInt& InfInt::operator+=(const InfInt& rhs) {
     for (size_t i = 0; i < val.size(); ++i) {
         val[i] =
             (pos ? val[i] : -val[i]) +
+            // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
             (i < rhs.val.size() ? (rhs.pos ? rhs.val[i] : -rhs.val[i]) : 0);
     }
     correct();
@@ -366,6 +365,7 @@ inline InfInt& InfInt::operator-=(const InfInt& rhs) {
     for (size_t i = 0; i < val.size(); ++i) {
         val[i] =
             (pos ? val[i] : -val[i]) -
+            // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
             (i < rhs.val.size() ? (rhs.pos ? rhs.val[i] : -rhs.val[i]) : 0);
     }
     correct();
@@ -458,7 +458,9 @@ inline InfInt InfInt::operator+(const InfInt& rhs) const {
                       0);
     for (size_t i = 0; i < val.size() || i < rhs.val.size(); ++i) {
         result.val[i] =
+            // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
             (i < val.size() ? (pos ? val[i] : -val[i]) : 0) +
+            // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
             (i < rhs.val.size() ? (rhs.pos ? rhs.val[i] : -rhs.val[i]) : 0);
     }
     result.correct();
@@ -472,7 +474,9 @@ inline InfInt InfInt::operator-(const InfInt& rhs) const {
                       0);
     for (size_t i = 0; i < val.size() || i < rhs.val.size(); ++i) {
         result.val[i] =
+            // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
             (i < val.size() ? (pos ? val[i] : -val[i]) : 0) -
+            // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
             (i < rhs.val.size() ? (rhs.pos ? rhs.val[i] : -rhs.val[i]) : 0);
     }
     result.correct();
@@ -778,29 +782,39 @@ inline char InfInt::digitAt(size_t i) const {
         return -1;
 #endif
     }
-    return (val[i / DIGIT_COUNT] / powersOfTen[i % DIGIT_COUNT]) % 10;
+    return static_cast<char>(
+        (val[i / DIGIT_COUNT] / powersOfTen[i % DIGIT_COUNT]) % 10);
 }
 
 inline size_t InfInt::numberOfDigits() const {
     // PROFINY_SCOPE
-    return ((val.size() - 1) * DIGIT_COUNT) +
-           (val.back() > 99999999
-                ? 9
-                : (val.back() > 9999999
-                       ? 8
-                       : (val.back() > 999999
-                              ? 7
-                              : (val.back() > 99999
-                                     ? 6
-                                     : (val.back() > 9999
-                                            ? 5
-                                            : (val.back() > 999
-                                                   ? 4
-                                                   : (val.back() > 99
-                                                          ? 3
-                                                          : (val.back() > 9
-                                                                 ? 2
-                                                                 : 1))))))));
+    auto lastVal = val.back();
+    size_t const baseDigits = (val.size() - 1) * DIGIT_COUNT;
+    if (lastVal > 99999999) {
+        return baseDigits + 9;
+    }
+    if (lastVal > 9999999) {
+        return baseDigits + 8;
+    }
+    if (lastVal > 999999) {
+        return baseDigits + 7;
+    }
+    if (lastVal > 99999) {
+        return baseDigits + 6;
+    }
+    if (lastVal > 9999) {
+        return baseDigits + 5;
+    }
+    if (lastVal > 999) {
+        return baseDigits + 4;
+    }
+    if (lastVal > 99) {
+        return baseDigits + 3;
+    }
+    if (lastVal > 9) {
+        return baseDigits + 2;
+    }
+    return baseDigits + 1;
 }
 
 inline std::string InfInt::toString() const {
@@ -932,7 +946,7 @@ inline void InfInt::truncateToBase() {
 inline bool InfInt::equalizeSigns() {
     // PROFINY_SCOPE
     bool isPositive = true;
-    int i = (int)((val.size()))-1;
+    int i = (int)((val.size())) - 1;
     for (; i >= 0; --i) {
         if (val[i] != 0) {
             isPositive = val[i--] > 0;
@@ -1020,6 +1034,7 @@ inline void InfInt::fromString(const std::string& s) {
     val.reserve((s.size() / DIGIT_COUNT) + 1);
     int i = (int)s.size() - DIGIT_COUNT;
     for (; i >= 0; i -= DIGIT_COUNT) {
+        // NOLINTNEXTLINE(cert-err34-c)
         val.push_back(atoi(s.substr(i, DIGIT_COUNT).c_str()));
     }
     if (i > -DIGIT_COUNT) {
@@ -1027,6 +1042,7 @@ inline void InfInt::fromString(const std::string& s) {
         if (ss.size() == 1 && ss[0] == '-') {
             pos = false;
         } else {
+            // NOLINTNEXTLINE(cert-err34-c)
             val.push_back(atoi(ss.c_str()));
         }
     }
