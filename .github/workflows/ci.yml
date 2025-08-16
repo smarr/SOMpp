@@ -31,7 +31,10 @@ jobs:
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
           sudo add-apt-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-20 main"
           sudo apt-get update
-          sudo apt-get install -y clang-20 clang-tidy-20
+          for i in 1 2 3; do
+            sudo apt-get install -y clang-20 clang-tidy-20 && break
+            sleep 17
+          done
         if: matrix.compiler == 'clang'
 
       - name: Install Clang Format
