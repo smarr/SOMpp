@@ -4,7 +4,6 @@
 #include <cmath>
 #include <cstdint>
 #include <string>
-#include <utility>
 
 #include "../memory/Heap.h"
 #include "../misc/defs.h"

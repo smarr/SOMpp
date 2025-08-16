@@ -26,7 +26,6 @@
 
 #include "Integer.h"
 
-#include <bit>  // NOLINT(misc-include-cleaner)
 #include <cassert>
 #include <cmath>
 #include <cstdint>
@@ -105,7 +104,7 @@ static vm_oop_t intLeftShift(vm_oop_t leftObj, vm_oop_t rightObj) {
         int64_t const right = SMALL_INT_VAL(rightObj);
 
         // NOLINTNEXTLINE(misc-include-cleaner)
-        auto const numberOfLeadingZeros = std::countl_zero((uint64_t)left);
+        auto const numberOfLeadingZeros = __builtin_clzll((uint64_t)left);
 
         if (64 - numberOfLeadingZeros + right > 63) {
             return Universe::NewBigInteger(InfInt(left) << right);
