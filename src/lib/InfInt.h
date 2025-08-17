@@ -151,6 +151,7 @@ public:
 
     /* basic properties */
     [[nodiscard]] bool isZero() const;
+    [[nodiscard]] bool isWithinSmallIntRange() const;
 
     /* integer square root */
     [[nodiscard]] InfInt intSqrt() const;  // throw
@@ -739,6 +740,81 @@ inline bool InfInt::isZero() const {
     return val.size() == 1 && val[0] == 0;
 }
 
+inline bool InfInt::isWithinSmallIntRange() const {
+    // this is implemented based on the <= and >= operators
+    // and the known encoding of VMTAGGEDINTEGER_MAX and VMTAGGEDINTEGER_MIN as
+    // an InfInt
+    if (pos) {
+        // if the value is positive, we only need to check it against
+        // VMTAGGEDINTEGER_MAX
+
+        // if it has more than 3 parts, we now it's out of range,
+        // but if it has less, then we know it's within range.
+        size_t const size = val.size();
+        if (size > 3) {
+            return false;
+        }
+        if (size < 3) {
+            return true;
+        }
+
+        // now we look at the individual parts
+        // starting at the most significant
+        if (val[2] < 4) {
+            return true;
+        }
+        if (val[2] > 4) {
+            return false;
+        }
+
+        if (val[1] < 611686018) {
+            return true;
+        }
+        if (val[1] > 611686018) {
+            return false;
+        }
+
+        if (val[0] <= 427387903) {
+            return true;
+        }
+        return false;
+    }
+
+    // if the value is negative, we only need to check it against
+    // VMTAGGEDINTEGER_MIN
+
+    // if it has more than 3 parts, we now it's out of range,
+    // but if it has less, then we know it's within range.
+    size_t const size = val.size();
+    if (size > 3) {
+        return false;
+    }
+    if (size < 3) {
+        return true;
+    }
+
+    // now we look at the individual parts
+    // starting at the most significant
+    if (val[2] < 4) {
+        return true;
+    }
+    if (val[2] > 4) {
+        return false;
+    }
+
+    if (val[1] < 611686018) {
+        return true;
+    }
+    if (val[1] > 611686018) {
+        return false;
+    }
+
+    if (val[0] <= 427387904) {
+        return true;
+    }
+    return false;
+}
+
 inline InfInt InfInt::intSqrt() const {
     // PROFINY_SCOPE
     if (*this <= InfInt()) {  // TODO(smarr): replace by a more specific check
@@ -860,7 +936,6 @@ inline int64_t InfInt::truncateToInt64() const {
     }
     return pos ? result : -result;
 }
-
 
 inline int64_t InfInt::toLongLongForHash() const {
     int64_t result = 0;

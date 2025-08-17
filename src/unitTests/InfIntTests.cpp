@@ -4,6 +4,7 @@
 #include <cstdint>
 
 #include "../lib/InfInt.h"
+#include "../vmobjects/ObjectFormats.h"
 
 void InfIntTest::testBasicNumbers() {
     InfInt const zero(int64_t(0LL));
@@ -22,8 +23,7 @@ void InfIntTest::testBasicNumbers() {
     CPPUNIT_ASSERT_EQUAL(int64_t(211109453791743LL), a48bitNum.toInt64());
 
     InfInt const a63bitNum(int64_t(8070661641701720575LL));
-    CPPUNIT_ASSERT_EQUAL(int64_t(8070661641701720575LL),
-                         a63bitNum.toInt64());
+    CPPUNIT_ASSERT_EQUAL(int64_t(8070661641701720575LL), a63bitNum.toInt64());
 }
 
 void InfIntTest::testIsZero() {
@@ -42,4 +42,34 @@ void InfIntTest::testIsZero() {
     InfInt const negZeroStr("-0");
     CPPUNIT_ASSERT_EQUAL(int64_t(0LL), negZeroStr.toInt64());
     CPPUNIT_ASSERT(negZeroStr.isZero());
+}
+
+void InfIntTest::testIsWithinSmallIntRange() {
+    InfInt const smallIntMax(VMTAGGEDINTEGER_MAX);
+    CPPUNIT_ASSERT_EQUAL(int64_t(VMTAGGEDINTEGER_MAX), smallIntMax.toInt64());
+    CPPUNIT_ASSERT(smallIntMax.isWithinSmallIntRange());
+
+    InfInt const smallIntMin(VMTAGGEDINTEGER_MIN);
+    CPPUNIT_ASSERT_EQUAL(int64_t(VMTAGGEDINTEGER_MIN), smallIntMin.toInt64());
+    CPPUNIT_ASSERT(smallIntMin.isWithinSmallIntRange());
+
+    InfInt const smallIntMaxPlusOne(VMTAGGEDINTEGER_MAX + 1LL);
+    CPPUNIT_ASSERT_EQUAL(int64_t(VMTAGGEDINTEGER_MAX + 1LL),
+                         smallIntMaxPlusOne.toInt64());
+    CPPUNIT_ASSERT(!smallIntMaxPlusOne.isWithinSmallIntRange());
+
+    InfInt const smallIntMinMinusOne(VMTAGGEDINTEGER_MIN - 1LL);
+    CPPUNIT_ASSERT_EQUAL(int64_t(VMTAGGEDINTEGER_MIN - 1LL),
+                         smallIntMinMinusOne.toInt64());
+    CPPUNIT_ASSERT(!smallIntMinMinusOne.isWithinSmallIntRange());
+
+    InfInt const smallIntMaxMinusOne(VMTAGGEDINTEGER_MAX - 1LL);
+    CPPUNIT_ASSERT_EQUAL(int64_t(VMTAGGEDINTEGER_MAX - 1LL),
+                         smallIntMaxMinusOne.toInt64());
+    CPPUNIT_ASSERT(smallIntMaxMinusOne.isWithinSmallIntRange());
+
+    InfInt const smallIntMinPlusOne(VMTAGGEDINTEGER_MIN + 1LL);
+    CPPUNIT_ASSERT_EQUAL(int64_t(VMTAGGEDINTEGER_MIN + 1LL),
+                         smallIntMinPlusOne.toInt64());
+    CPPUNIT_ASSERT(smallIntMinPlusOne.isWithinSmallIntRange());
 }
