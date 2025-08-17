@@ -790,7 +790,10 @@ VMInteger* Universe::NewInteger(int64_t value) {
     return new (GetHeap<HEAP_CLS>(), 0) VMInteger(value);
 }
 
-VMBigInteger* Universe::NewBigInteger(InfInt&& value) {
+vm_oop_t Universe::NewInt(InfInt&& value) {
+    if (value.isWithinSmallIntRange()) {
+        return NEW_INT(value.toInt64());
+    }
     return new (GetHeap<HEAP_CLS>(), 0) VMBigInteger(std::move(value));
 }
 

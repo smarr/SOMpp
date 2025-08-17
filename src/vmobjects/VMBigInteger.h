@@ -9,9 +9,15 @@ public:
     typedef GCBigInteger Stored;
 
     explicit VMBigInteger(const char* value, bool negate)
-        : embeddedInteger(negate ? -InfInt(value) : InfInt(value)) {}
-    explicit VMBigInteger(int64_t value) : embeddedInteger(InfInt(value)) {}
-    explicit VMBigInteger(const InfInt&& value) : embeddedInteger(value) {}
+        : embeddedInteger(negate ? -InfInt(value) : InfInt(value)) {
+        assert(!embeddedInteger.isWithinSmallIntRange());
+    }
+    explicit VMBigInteger(int64_t value) : embeddedInteger(InfInt(value)) {
+        assert(!embeddedInteger.isWithinSmallIntRange());
+    }
+    explicit VMBigInteger(const InfInt&& value) : embeddedInteger(value) {
+        assert(!embeddedInteger.isWithinSmallIntRange());
+    }
 
     ~VMBigInteger() override = default;
 
@@ -27,7 +33,7 @@ public:
     }
 
     [[nodiscard]] inline int64_t GetHash() const override {
-        return embeddedInteger.toLongLong();
+        return embeddedInteger.toInt64();
     }
 
     void MarkObjectAsInvalid() override;

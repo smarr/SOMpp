@@ -50,7 +50,8 @@
 
 #ifdef __GNUC__
   #define VMTAGGED_INTEGER_WITHIN_RANGE_CHECK(X) \
-      ((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX)
+      ((int64_t(X) >= VMTAGGEDINTEGER_MIN) &&    \
+       (int64_t(X) <= VMTAGGEDINTEGER_MAX))
 #else
 __attribute__((always_inline)) inline bool VMTAGGED_INTEGER_WITHIN_RANGE_CHECK(
     int64_t X) {
@@ -65,7 +66,7 @@ __attribute__((always_inline)) inline bool VMTAGGED_INTEGER_WITHIN_RANGE_CHECK(
 #if ADDITIONAL_ALLOCATION
   #define TAG_INTEGER(X)                                                   \
       ((VMTAGGED_INTEGER_WITHIN_RANGE_CHECK(X) && Universe::NewInteger(0)) \
-           ? ((vm_oop_t)(((X) << 1U) | 1U))                                \
+           ? ((vm_oop_t)((((uintptr_t)(X)) << 1U) | 1U))                   \
            : (Universe::NewBigIntegerFromInt(X)))
 #else
   #define TAG_INTEGER(X)                                 \
@@ -75,9 +76,6 @@ __attribute__((always_inline)) inline bool VMTAGGED_INTEGER_WITHIN_RANGE_CHECK(
 #endif
 
 #if USE_TAGGING
-  #define INT_VAL(X)                                                           \
-      (IS_TAGGED(X) ? ((int64_t)(X) >> 1U) /* NOLINT (hicpp-signed-bitwise) */ \
-                    : (((VMInteger*)(X))->GetEmbeddedInteger()))
   #define SMALL_INT_VAL(X) \
       ((int64_t)(X) >> 1U) /* NOLINT (hicpp-signed-bitwise) */
   #define NEW_INT(X) (TAG_INTEGER((X)))

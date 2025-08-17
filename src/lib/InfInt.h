@@ -19,7 +19,7 @@
  *      toString:       converts it to a string
  *
  *   There are also conversion methods which allow conversion to primitive
- * types: toLong, toLongLong, toUnsignedLong,
+ * types: toInt64, toUnsignedLong,
  * toUnsignedLongLong.
  *
  *   You may define INFINT_USE_EXCEPTIONS and library methods will start raising
@@ -151,6 +151,7 @@ public:
 
     /* basic properties */
     [[nodiscard]] bool isZero() const;
+    [[nodiscard]] bool isWithinSmallIntRange() const;
 
     /* integer square root */
     [[nodiscard]] InfInt intSqrt() const;  // throw
@@ -166,8 +167,7 @@ public:
     [[nodiscard]] std::string toString() const;
 
     /* conversion to primitive types */
-    [[nodiscard]] int64_t toLong() const;               // throw
-    [[nodiscard]] int64_t toLongLong() const;           // throw
+    [[nodiscard]] int64_t toInt64() const;              // throw
     [[nodiscard]] uint64_t toUnsignedLong() const;      // throw
     [[nodiscard]] uint64_t toUnsignedLongLong() const;  // throw
 
@@ -740,6 +740,81 @@ inline bool InfInt::isZero() const {
     return val.size() == 1 && val[0] == 0;
 }
 
+inline bool InfInt::isWithinSmallIntRange() const {
+    // this is implemented based on the <= and >= operators
+    // and the known encoding of VMTAGGEDINTEGER_MAX and VMTAGGEDINTEGER_MIN as
+    // an InfInt
+    if (pos) {
+        // if the value is positive, we only need to check it against
+        // VMTAGGEDINTEGER_MAX
+
+        // if it has more than 3 parts, we now it's out of range,
+        // but if it has less, then we know it's within range.
+        size_t const size = val.size();
+        if (size > 3) {
+            return false;
+        }
+        if (size < 3) {
+            return true;
+        }
+
+        // now we look at the individual parts
+        // starting at the most significant
+        if (val[2] < 4) {
+            return true;
+        }
+        if (val[2] > 4) {
+            return false;
+        }
+
+        if (val[1] < 611686018) {
+            return true;
+        }
+        if (val[1] > 611686018) {
+            return false;
+        }
+
+        if (val[0] <= 427387903) {
+            return true;
+        }
+        return false;
+    }
+
+    // if the value is negative, we only need to check it against
+    // VMTAGGEDINTEGER_MIN
+
+    // if it has more than 3 parts, we now it's out of range,
+    // but if it has less, then we know it's within range.
+    size_t const size = val.size();
+    if (size > 3) {
+        return false;
+    }
+    if (size < 3) {
+        return true;
+    }
+
+    // now we look at the individual parts
+    // starting at the most significant
+    if (val[2] < 4) {
+        return true;
+    }
+    if (val[2] > 4) {
+        return false;
+    }
+
+    if (val[1] < 611686018) {
+        return true;
+    }
+    if (val[1] > 611686018) {
+        return false;
+    }
+
+    if (val[0] <= 427387904) {
+        return true;
+    }
+    return false;
+}
+
 inline InfInt InfInt::intSqrt() const {
     // PROFINY_SCOPE
     if (*this <= InfInt()) {  // TODO(smarr): replace by a more specific check
@@ -837,7 +912,7 @@ inline int InfInt::truncateToInt() const {
     return pos ? result : -result;
 }
 
-inline int64_t InfInt::toLong() const {
+inline int64_t InfInt::toInt64() const {
     // PROFINY_SCOPE
     if (*this > InfInt(INT64_MAX) || *this < InfInt(INT64_MIN)) {
 #ifdef INFINT_USE_EXCEPTIONS
@@ -855,22 +930,6 @@ inline int64_t InfInt::toLong() const {
 
 inline int64_t InfInt::truncateToInt64() const {
     // PROFINY_SCOPE
-    int64_t result = 0;
-    for (int i = (int)val.size() - 1; i >= 0; --i) {
-        result = result * BASE + val[i];
-    }
-    return pos ? result : -result;
-}
-
-inline int64_t InfInt::toLongLong() const {
-    // PROFINY_SCOPE
-    if (*this > InfInt(INT64_MAX) || *this < InfInt(INT64_MIN)) {
-#ifdef INFINT_USE_EXCEPTIONS
-        throw InfIntException("out of bounds");
-#else
-        std::cerr << "Out of LLONG bounds: " << *this << '\n';
-#endif
-    }
     int64_t result = 0;
     for (int i = (int)val.size() - 1; i >= 0; --i) {
         result = result * BASE + val[i];
