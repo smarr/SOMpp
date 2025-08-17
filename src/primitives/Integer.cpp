@@ -69,7 +69,7 @@ static vm_oop_t intPlus(vm_oop_t leftObj, vm_oop_t rightObj) {
             if (unlikely(__builtin_add_overflow(left, right, &result))) {
                 InfInt const l(left);
                 InfInt const r(right);
-                return Universe::NewBigInteger(l + r);
+                return Universe::NewInt(l + r);
             }
             return NEW_INT(result);
         }
@@ -107,7 +107,7 @@ static vm_oop_t intLeftShift(vm_oop_t leftObj, vm_oop_t rightObj) {
         auto const numberOfLeadingZeros = __builtin_clzll((uint64_t)left);
 
         if (64 - numberOfLeadingZeros + right > 63) {
-            return Universe::NewBigInteger(InfInt(left) << right);
+            return Universe::NewInt(InfInt(left) << right);
         }
 
         // NOLINTNEXTLINE(hicpp-signed-bitwise)
@@ -143,7 +143,7 @@ static vm_oop_t intMinus(vm_oop_t leftObj, vm_oop_t rightObj) {
             if (unlikely(__builtin_sub_overflow(left, right, &result))) {
                 InfInt const l(left);
                 InfInt const r(right);
-                return Universe::NewBigInteger(l - r);
+                return Universe::NewInt(l - r);
             }
             return NEW_INT(result);
         }
@@ -172,7 +172,7 @@ static vm_oop_t intStar(vm_oop_t leftObj, vm_oop_t rightObj) {
             if (unlikely(__builtin_mul_overflow(left, right, &result))) {
                 InfInt const l(left);
                 InfInt const r(right);
-                return Universe::NewBigInteger(l * r);
+                return Universe::NewInt(l * r);
             }
             return NEW_INT(result);
         }

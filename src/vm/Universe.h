@@ -82,7 +82,9 @@ public:
     static VMObject* NewInstance(VMClass* /*classOfInstance*/);
     static VMObject* NewInstanceWithoutFields();
     static VMInteger* NewInteger(int64_t /*value*/);
-    static VMBigInteger* NewBigInteger(InfInt&& /*value*/);
+
+    static vm_oop_t NewInt(InfInt&& /*value*/);
+
     static VMBigInteger* NewBigIntegerFromInt(int64_t /*value*/);
     static VMBigInteger* NewBigIntegerFromStr(const char* /*value*/,
                                               bool /* negateValue */);
