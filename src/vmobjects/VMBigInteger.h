@@ -27,7 +27,7 @@ public:
     }
 
     [[nodiscard]] inline int64_t GetHash() const override {
-        return embeddedInteger.toLongLong();
+        return embeddedInteger.toInt64();
     }
 
     void MarkObjectAsInvalid() override;

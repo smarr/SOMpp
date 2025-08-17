@@ -19,7 +19,7 @@
  *      toString:       converts it to a string
  *
  *   There are also conversion methods which allow conversion to primitive
- * types: toLong, toLongLong, toUnsignedLong,
+ * types: toInt64, toUnsignedLong,
  * toUnsignedLongLong.
  *
  *   You may define INFINT_USE_EXCEPTIONS and library methods will start raising
@@ -166,8 +166,7 @@ public:
     [[nodiscard]] std::string toString() const;
 
     /* conversion to primitive types */
-    [[nodiscard]] int64_t toLong() const;               // throw
-    [[nodiscard]] int64_t toLongLong() const;           // throw
+    [[nodiscard]] int64_t toInt64() const;              // throw
     [[nodiscard]] uint64_t toUnsignedLong() const;      // throw
     [[nodiscard]] uint64_t toUnsignedLongLong() const;  // throw
 
@@ -837,7 +836,7 @@ inline int InfInt::truncateToInt() const {
     return pos ? result : -result;
 }
 
-inline int64_t InfInt::toLong() const {
+inline int64_t InfInt::toInt64() const {
     // PROFINY_SCOPE
     if (*this > InfInt(INT64_MAX) || *this < InfInt(INT64_MIN)) {
 #ifdef INFINT_USE_EXCEPTIONS
@@ -862,21 +861,6 @@ inline int64_t InfInt::truncateToInt64() const {
     return pos ? result : -result;
 }
 
-inline int64_t InfInt::toLongLong() const {
-    // PROFINY_SCOPE
-    if (*this > InfInt(INT64_MAX) || *this < InfInt(INT64_MIN)) {
-#ifdef INFINT_USE_EXCEPTIONS
-        throw InfIntException("out of bounds");
-#else
-        std::cerr << "Out of LLONG bounds: " << *this << '\n';
-#endif
-    }
-    int64_t result = 0;
-    for (int i = (int)val.size() - 1; i >= 0; --i) {
-        result = result * BASE + val[i];
-    }
-    return pos ? result : -result;
-}
 
 inline int64_t InfInt::toLongLongForHash() const {
     int64_t result = 0;
