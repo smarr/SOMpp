@@ -198,7 +198,8 @@ void obtain_vtables_of_known_classes(VMSymbol* someValidSymbol) {
     auto* i = new (GetHeap<HEAP_CLS>(), 0) VMInteger(0);
     vt_integer = get_vtable(i);
 
-    auto* bi = new (GetHeap<HEAP_CLS>(), 0) VMBigInteger("0", false);
+    auto* bi =
+        new (GetHeap<HEAP_CLS>(), 0) VMBigInteger("4611686018427387904", false);
     vt_big_integer = get_vtable(bi);
 
     auto* mth = new (GetHeap<HEAP_CLS>(), 0)
