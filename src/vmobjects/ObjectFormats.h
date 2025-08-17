@@ -50,7 +50,8 @@
 
 #ifdef __GNUC__
   #define VMTAGGED_INTEGER_WITHIN_RANGE_CHECK(X) \
-      ((X) >= VMTAGGEDINTEGER_MIN && (X) <= VMTAGGEDINTEGER_MAX)
+      ((int64_t(X) >= VMTAGGEDINTEGER_MIN) &&    \
+       (int64_t(X) <= VMTAGGEDINTEGER_MAX))
 #else
 __attribute__((always_inline)) inline bool VMTAGGED_INTEGER_WITHIN_RANGE_CHECK(
     int64_t X) {
@@ -65,7 +66,7 @@ __attribute__((always_inline)) inline bool VMTAGGED_INTEGER_WITHIN_RANGE_CHECK(
 #if ADDITIONAL_ALLOCATION
   #define TAG_INTEGER(X)                                                   \
       ((VMTAGGED_INTEGER_WITHIN_RANGE_CHECK(X) && Universe::NewInteger(0)) \
-           ? ((vm_oop_t)(((X) << 1U) | 1U))                                \
+           ? ((vm_oop_t)((((uintptr_t)(X)) << 1U) | 1U))                   \
            : (Universe::NewBigIntegerFromInt(X)))
 #else
   #define TAG_INTEGER(X)                                 \
