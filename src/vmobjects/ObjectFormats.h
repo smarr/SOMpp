@@ -75,9 +75,6 @@ __attribute__((always_inline)) inline bool VMTAGGED_INTEGER_WITHIN_RANGE_CHECK(
 #endif
 
 #if USE_TAGGING
-  #define INT_VAL(X)                                                           \
-      (IS_TAGGED(X) ? ((int64_t)(X) >> 1U) /* NOLINT (hicpp-signed-bitwise) */ \
-                    : (((VMInteger*)(X))->GetEmbeddedInteger()))
   #define SMALL_INT_VAL(X) \
       ((int64_t)(X) >> 1U) /* NOLINT (hicpp-signed-bitwise) */
   #define NEW_INT(X) (TAG_INTEGER((X)))
