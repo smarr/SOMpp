@@ -1,6 +1,4 @@
-known_failures:
-  - Tests/int18.som
-
+known_failures: []
 
 failing_as_unspecified:
   - Tests/arbint_double_div_err.som
