@@ -5,7 +5,7 @@
 #include <sys/time.h>
 
 static int64_t get_microseconds() {
-#if defined(CLOCK_PROCESS_CPUTIME_ID)
+#ifdef CLOCK_PROCESS_CPUTIME_ID
     // this is for Linux
     timespec now{};
     if (clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now) != 0) {

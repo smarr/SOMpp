@@ -85,14 +85,14 @@ inline const char* InfIntException::what() const throw() {
 inline static div_t my_div(int num, int denom) {
     div_t result;
     result.quot = num / denom;
-    result.rem = num - denom * result.quot;
+    result.rem = num - (denom * result.quot);
     return result;
 }
 
 inline static lldiv_t my_lldiv(int64_t num, int64_t denom) {
     lldiv_t result;
     result.quot = num / denom;
-    result.rem = num - denom * result.quot;
+    result.rem = num - (denom * result.quot);
     return result;
 }
 
@@ -907,7 +907,7 @@ inline size_t InfInt::size() const {
 inline int InfInt::truncateToInt() const {
     int result = 0;
     for (int i = (int)val.size() - 1; i >= 0; --i) {
-        result = result * BASE + val[i];
+        result = (result * BASE) + val[i];
     }
     return pos ? result : -result;
 }
@@ -923,7 +923,7 @@ inline int64_t InfInt::toInt64() const {
     }
     int64_t result = 0;
     for (int i = (int)val.size() - 1; i >= 0; --i) {
-        result = result * BASE + val[i];
+        result = (result * BASE) + val[i];
     }
     return pos ? result : -result;
 }
@@ -932,7 +932,7 @@ inline int64_t InfInt::truncateToInt64() const {
     // PROFINY_SCOPE
     int64_t result = 0;
     for (int i = (int)val.size() - 1; i >= 0; --i) {
-        result = result * BASE + val[i];
+        result = (result * BASE) + val[i];
     }
     return pos ? result : -result;
 }
@@ -940,7 +940,7 @@ inline int64_t InfInt::truncateToInt64() const {
 inline int64_t InfInt::toLongLongForHash() const {
     int64_t result = 0;
     for (int i = (int)val.size() - 1; i >= 0; --i) {
-        result = result * BASE + val[i];
+        result = (result * BASE) + val[i];
     }
     return pos ? result : -result;
 }
@@ -949,7 +949,7 @@ inline double InfInt::toDouble() const {
     double result = 0;
 
     for (int i = (int)val.size() - 1; i >= 0; --i) {
-        result = result * BASE + val[i];
+        result = (result * BASE) + val[i];
     }
     return pos ? result : -result;
 }
@@ -965,7 +965,7 @@ inline uint64_t InfInt::toUnsignedLong() const {
     }
     uint64_t result = 0;
     for (int i = (int)val.size() - 1; i >= 0; --i) {
-        result = result * BASE + val[i];
+        result = (result * BASE) + val[i];
     }
     return result;
 }
@@ -981,7 +981,7 @@ inline uint64_t InfInt::toUnsignedLongLong() const {
     }
     uint64_t result = 0;
     for (int i = (int)val.size() - 1; i >= 0; --i) {
-        result = result * BASE + val[i];
+        result = (result * BASE) + val[i];
     }
     return result;
 }
