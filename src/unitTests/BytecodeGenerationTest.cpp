@@ -945,7 +945,7 @@ void BytecodeGenerationTest::testBlockIfTrueArg() {
 void BytecodeGenerationTest::testBlockIfTrueMethodArg() {
     ensureMGenC();
     std::string argName = "arg";
-    _mgenc->AddArgument(argName, {1, 1});
+    _mgenc->AddArgument(argName, {1, 1}, nullptr);
 
     auto bytecodes = blockToBytecode(R"""(
                [ #start.

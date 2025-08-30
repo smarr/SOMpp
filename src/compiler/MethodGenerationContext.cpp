@@ -358,7 +358,14 @@ void MethodGenerationContext::SetPrimitive(bool prim) {
 }
 
 void MethodGenerationContext::AddArgument(std::string& arg,
-                                          const SourceCoordinate& coord) {
+                                          const SourceCoordinate& coord,
+                                          const Parser* parser) {
+    if (Contains(arguments, arg)) {
+        std::string const msg =
+            "A method cannot have two arguments with the same name `" + arg +
+            "` in class " + holderGenc.GetName()->GetStdString() + ".\n";
+        ParseError(parser, msg.c_str());
+    }
     size_t const index = arguments.size();
     arguments.emplace_back(arg, index, true, coord);
 }
@@ -401,15 +408,6 @@ void MethodGenerationContext::UpdateLiteral(vm_oop_t oldValue, uint8_t index,
                                             vm_oop_t newValue) {
     assert(literals.at(index) == oldValue);
     literals[index] = newValue;
-}
-
-bool MethodGenerationContext::AddArgumentIfAbsent(
-    std::string& arg, const SourceCoordinate& coord) {
-    if (Contains(locals, arg)) {
-        return false;
-    }
-    AddArgument(arg, coord);
-    return true;
 }
 
 bool MethodGenerationContext::AddLocalIfAbsent(std::string& local,

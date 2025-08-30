@@ -54,7 +54,7 @@ void TestWithParsing::ensureMGenC() {
 
     _mgenc = new MethodGenerationContext(*_cgenc);
     std::string self = strSelf;
-    _mgenc->AddArgument(self, {0, 0});
+    _mgenc->AddArgument(self, {0, 0}, nullptr);
 }
 
 void TestWithParsing::ensureBGenC() {
