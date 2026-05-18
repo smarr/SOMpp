@@ -614,10 +614,13 @@ static vm_oop_t intUnequal(vm_oop_t leftObj, vm_oop_t rightObj) {
                                                       : load_ptr(falseObject);
         }
 
-        assert(IS_BIG_INT(rightObj));
-        return AS_BIG_INT(rightObj)->embeddedInteger != InfInt(left)
-                   ? load_ptr(trueObject)
-                   : load_ptr(falseObject);
+        if (IS_BIG_INT(rightObj)) {
+            return AS_BIG_INT(rightObj)->embeddedInteger != InfInt(left)
+                       ? load_ptr(trueObject)
+                       : load_ptr(falseObject);
+        }
+
+        return load_ptr(trueObject);
     }
 
     assert(IS_BIG_INT(leftObj) && "assume big int");
@@ -635,10 +638,12 @@ static vm_oop_t intUnequal(vm_oop_t leftObj, vm_oop_t rightObj) {
         //        load_ptr(trueObject) : load_ptr(falseObject);
     }
 
-    assert(IS_BIG_INT(rightObj) && "assume big int");
-    return (left->embeddedInteger != AS_BIG_INT(rightObj)->embeddedInteger)
-               ? load_ptr(trueObject)
-               : load_ptr(falseObject);
+    if (IS_BIG_INT(rightObj)) {
+        return (left->embeddedInteger != AS_BIG_INT(rightObj)->embeddedInteger)
+                   ? load_ptr(trueObject)
+                   : load_ptr(falseObject);
+    }
+    return load_ptr(trueObject);
 }
 
 static vm_oop_t intRange(vm_oop_t leftObj, vm_oop_t rightObj) {

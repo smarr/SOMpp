@@ -185,20 +185,21 @@ vector<std::string> Universe::handleArguments(int32_t argc, char** argv) {
     vector<std::string> vmArgs = vector<std::string>();
     dumpBytecodes = 0;
     gcVerbosity = 0;
+    bool sawOtherArgs = false;
 
     for (int32_t i = 1; i < argc; ++i) {
-        if (strncmp(argv[i], "-cp", 3) == 0) {
+        if (!sawOtherArgs && strncmp(argv[i], "-cp", 3) == 0) {
             if ((argc == i + 1) || !classPath.empty()) {
                 printUsageAndExit(argv[0]);
             }
             setupClassPath(std::string(argv[++i]));
-        } else if (strncmp(argv[i], "-d", 2) == 0) {
+        } else if (!sawOtherArgs && strncmp(argv[i], "-d", 2) == 0) {
             ++dumpBytecodes;
-        } else if (strncmp(argv[i], "-cfg", 4) == 0) {
+        } else if (!sawOtherArgs && strncmp(argv[i], "-cfg", 4) == 0) {
             printVmConfig();
-        } else if (strncmp(argv[i], "-g", 2) == 0) {
+        } else if (!sawOtherArgs && strncmp(argv[i], "-g", 2) == 0) {
             ++gcVerbosity;
-        } else if (strncmp(argv[i], "-H", 2) == 0) {
+        } else if (!sawOtherArgs && strncmp(argv[i], "-H", 2) == 0) {
             size_t heap_size = 0;
             char unit[3];
             // NOLINTNEXTLINE (cert-err34-c)
@@ -211,28 +212,30 @@ vector<std::string> Universe::handleArguments(int32_t argc, char** argv) {
             } else {
                 printUsageAndExit(argv[0]);
             }
-
-        } else if ((strncmp(argv[i], "-h", 2) == 0) ||
-                   (strncmp(argv[i], "--help", 6) == 0)) {
+        } else if (!sawOtherArgs && ((strncmp(argv[i], "-h", 2) == 0) ||
+                                     (strncmp(argv[i], "--help", 6) == 0))) {
             printUsageAndExit(argv[0]);
-        } else if ((strncmp(argv[i], "-prim-hash-check", 16)) == 0) {
+        } else if (!sawOtherArgs &&
+                   (strncmp(argv[i], "-prim-hash-check", 16)) == 0) {
             abortOnCoreLibHashMismatch = true;
         } else {
-            vector<std::string> extPathTokens = vector<std::string>(2);
+            sawOtherArgs = true;
+
             std::string const tmpString = std::string(argv[i]);
-            if (getClassPathExt(extPathTokens, tmpString)) {
-                addClassPath(extPathTokens[0]);
-            }
-            // Different from CSOM!!!:
-            // In CSOM there is an else, where the original filename is pushed
-            // into the vm_args. But unlike the class name in extPathTokens
-            // (extPathTokens[1]) that could still have the .som suffix though.
-            // So in SOM++ getClassPathExt will strip the suffix and add it to
-            // extPathTokens even if there is no new class path present. So we
-            // can in any case do the following:
-            vmArgs.push_back(extPathTokens[1]);
+            vmArgs.push_back(tmpString);
         }
     }
+
+    if (!vmArgs.empty()) {
+        vector<std::string> extPathTokens = vector<std::string>(2);
+        std::string const firstArg = vmArgs[0];
+        if (getClassPathExt(extPathTokens, firstArg)) {
+            addClassPath(extPathTokens[0]);
+        }
+
+        vmArgs[0] = extPathTokens[1];
+    }
+
     addClassPath(std::string("."));
 
     return vmArgs;

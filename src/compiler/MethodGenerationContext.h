@@ -60,9 +60,9 @@ public:
 
     void SetSignature(VMSymbol* sig);
 
-    void AddArgument(std::string& arg, const SourceCoordinate& coord);
+    void AddArgument(std::string& arg, const SourceCoordinate& coord,
+                     const Parser* parser);
     void AddLocal(std::string& local, const SourceCoordinate& coord);
-    bool AddArgumentIfAbsent(std::string& arg, const SourceCoordinate& coord);
     bool AddLocalIfAbsent(std::string& local, const SourceCoordinate& coord);
 
     void SetPrimitive(bool prim = true);

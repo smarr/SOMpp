@@ -136,3 +136,6 @@ private:
 
     std::string nextText;
 };
+
+__attribute__((noreturn)) void ParseError(const Parser* parser,
+                                          const char* msg);

@@ -1,18 +1,24 @@
-known_failures:
-  - Tests/int18.som
-
+known_failures: []
 
 failing_as_unspecified:
+  # Requires Spec: SOM #134
   - Tests/arbint_double_div_err.som
-  - Tests/arbint_double_div_zero_err.som
   - Tests/arbint_modulus_err.som
+  
+  # Requires Spec: SOM #135
+  - Tests/arbint_double_div_zero_err.som
+
+  # Needs to specify or reduce requirements for parse errors
+  - Tests/call2.som
+
+  # Requires Spec: SOM #132
   - Tests/array_at_idx0_err.som
   - Tests/array_at_idx2_err.som
   - Tests/array_at_idx_err.som
   - Tests/array_at_negative_idx_err.som
   - Tests/array_at_put_idx0_err.som
   - Tests/array_at_put_idx2_err.som
-  - Tests/call2.som
+
 
   # I think this one is about E vs e, but maybe also double rendering and e+59 or e59
   - Tests/double2.som
@@ -28,6 +34,7 @@ failing_as_unspecified:
 
 
   # I think IEEE allows for infinities here, and we probably want that
+  # Requires Spec: SOM #22
   - Tests/double1.som
   - Tests/double3.som
   - Tests/double4.som
@@ -146,6 +153,7 @@ failing_as_unspecified:
   - Tests/mutate_fields.som
 
   # specify true, false, nil as literals not globals
+  # Requires Spec: SOM #26
   - Tests/system_global.som
   
   # utf8 support required
