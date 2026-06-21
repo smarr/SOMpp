@@ -221,6 +221,10 @@ private:
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     GCFrame* cachedFrame;
 #endif
+
+#ifdef BYTECODE_HEATMAP
+    uint64_t* heatmap;
+#endif
     gc_oop_t* indexableFields;
     uint8_t* bytecodes;
 };
