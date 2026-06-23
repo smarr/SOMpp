@@ -1,11 +1,18 @@
 #pragma once
 
 #ifdef GENERATE_ALLOCATION_STATISTICS
+  #include <map>
+  #include <string>
+
+using std::map;
+using std::string;
+
 struct alloc_data {
     long noObjects;
     long sizeObjects;
 };
-std::map<std::string, struct alloc_data> allocationStats;
+extern map<std::string, struct alloc_data> allocationStats;
+
   #define LOG_ALLOCATION(TYPE, SIZE)                     \
       {                                                  \
           struct alloc_data tmp = allocationStats[TYPE]; \
