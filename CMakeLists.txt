@@ -128,6 +128,66 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   add_definitions(-fdiagnostics-absolute-paths)
 endif()
 
+option(FIND_COMPATIBLE_CLANG_STDLIB_INCLUDE_DIRS
+  "Find the C++ standard library known to be compatible with the Clang toolchain"
+  TRUE)
+
+set(SOM_CLANG_STDLIB_INCLUDE_DIRS "")
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND FIND_COMPATIBLE_CLANG_STDLIB_INCLUDE_DIRS AND UNIX AND NOT APPLE)
+  string(REGEX MATCH "^[0-9]+" SOM_CLANG_VERSION_MAJOR "${CMAKE_CXX_COMPILER_VERSION}")
+
+  if(NOT SOM_CLANG_VERSION_MAJOR)
+    message(WARNING "Could not determine Clang major version from '${CMAKE_CXX_COMPILER_VERSION}'.")
+  else()
+    set(SOM_CLANG_STDLIB_CANDIDATES "")
+    if(SOM_CLANG_VERSION_MAJOR LESS 20)
+      set(SOM_CLANG_STDLIB_CANDIDATES 14 13 12 11)
+    elseif(SOM_CLANG_VERSION_MAJOR LESS 22)
+      set(SOM_CLANG_STDLIB_CANDIDATES 15 14 13 12 11)
+    else()
+      set(SOM_CLANG_STDLIB_CANDIDATES 16 15 14 13 12 11)
+    endif()
+
+    foreach(SOM_STDLIB_VERSION IN LISTS SOM_CLANG_STDLIB_CANDIDATES)
+      set(SOM_STDLIB_BASE_DIR "/usr/include/c++/${SOM_STDLIB_VERSION}")
+      if(EXISTS "${SOM_STDLIB_BASE_DIR}")
+        set(SOM_STDLIB_ARCH_DIRS "")
+        if(CMAKE_LIBRARY_ARCHITECTURE)
+          list(APPEND SOM_STDLIB_ARCH_DIRS "/usr/include/${CMAKE_LIBRARY_ARCHITECTURE}/c++/${SOM_STDLIB_VERSION}")
+          list(APPEND SOM_STDLIB_ARCH_DIRS "${SOM_STDLIB_BASE_DIR}/${CMAKE_LIBRARY_ARCHITECTURE}")
+        endif()
+        if(CMAKE_SYSTEM_PROCESSOR)
+          list(APPEND SOM_STDLIB_ARCH_DIRS "/usr/include/${CMAKE_SYSTEM_PROCESSOR}-linux-gnu/c++/${SOM_STDLIB_VERSION}")
+        endif()
+
+        set(SOM_STDLIB_ARCH_DIR "")
+        foreach(SOM_CANDIDATE_ARCH_DIR IN LISTS SOM_STDLIB_ARCH_DIRS)
+          if(SOM_CANDIDATE_ARCH_DIR AND EXISTS "${SOM_CANDIDATE_ARCH_DIR}")
+            set(SOM_STDLIB_ARCH_DIR "${SOM_CANDIDATE_ARCH_DIR}")
+            break()
+          endif()
+        endforeach()
+
+        set(SOM_CLANG_STDLIB_VERSION "${SOM_STDLIB_VERSION}")
+        set(SOM_CLANG_STDLIB_INCLUDE_DIRS "${SOM_STDLIB_BASE_DIR}")
+        if(SOM_STDLIB_ARCH_DIR)
+          list(APPEND SOM_CLANG_STDLIB_INCLUDE_DIRS "${SOM_STDLIB_ARCH_DIR}")
+        endif()
+        break()
+      endif()
+    endforeach()
+
+    if(SOM_CLANG_STDLIB_INCLUDE_DIRS)
+      add_compile_options(-nostdinc++)
+      message(STATUS
+        "Clang ${SOM_CLANG_VERSION_MAJOR}: using libstdc++ headers v${SOM_CLANG_STDLIB_VERSION}: ${SOM_CLANG_STDLIB_INCLUDE_DIRS}")
+    else()
+      message(WARNING
+        "Clang ${SOM_CLANG_VERSION_MAJOR}: no compatible libstdc++ headers found under /usr/include/c++; using compiler defaults.")
+    endif()
+  endif()
+endif()
+
 add_executable(SOM++ "")
 
 target_sources(SOM++ PRIVATE
@@ -147,6 +207,9 @@ target_compile_options(SOM++ PRIVATE
   -Wno-endif-labels)
 
 target_include_directories(SOM++ PRIVATE ${SRC_DIR})
+if(SOM_CLANG_STDLIB_INCLUDE_DIRS)
+  target_include_directories(SOM++ SYSTEM PRIVATE ${SOM_CLANG_STDLIB_INCLUDE_DIRS})
+endif()
 
 target_link_libraries(SOM++)
 
@@ -178,6 +241,9 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   target_include_directories(unittests PRIVATE
     ${SRC_DIR}
     /opt/local/include)
+  if(SOM_CLANG_STDLIB_INCLUDE_DIRS)
+    target_include_directories(unittests SYSTEM PRIVATE ${SOM_CLANG_STDLIB_INCLUDE_DIRS})
+  endif()
 
   find_library(LIB_CPPUNIT
     NAMES cppunit
