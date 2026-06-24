@@ -189,6 +189,12 @@ public:
 
     void ResetBytecodeIndex();
 
+#ifdef UNSAFE_FRAME_OPTIMIZATION
+    void SetPreviousFrameOnReuse(VMFrame* previousFrame) {
+        this->previousFrame = store_root(previousFrame);
+    }
+#endif
+
 private:
     GCFrame* previousFrame;
     GCFrame* context{nullptr};
