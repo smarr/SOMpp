@@ -144,7 +144,7 @@ public:
 
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     void SetCachedFrame(VMFrame* frame);
-    VMFrame* GetCachedFrame() const;
+    GCFrame* GetCachedFrame() const;
 #endif
 
     void WalkObjects(walk_heap_fn /*unused*/) override;
