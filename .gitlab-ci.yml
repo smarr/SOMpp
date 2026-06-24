@@ -12,6 +12,7 @@ before_script:
       export PATH=/opt/local/bin:/Users/gitlab-runner/Library/Python/3.12/bin:$PATH
       export MP='-mp'
     fi
+    export PATH=$HOME/.local/bin:$PATH
 
 build_and_test:
   stage: build-and-test
