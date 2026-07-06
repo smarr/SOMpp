@@ -20,7 +20,7 @@ build_and_test:
           - yuria3
         MACHINE_LOCATION: [kent]
         COMPILER: [clang, gcc]
-        GC: [COPYING]
+        GC: [COPYING, PAGED_MARK_SWEEP]
         CMAKE_FLAGS:
           - "-DUSE_TAGGING=true"
           - "-DUSE_TAGGING=false -DCACHE_INTEGER=false -DUSE_VECTOR_PRIMITIVES=false"
@@ -44,7 +44,7 @@ build_and_test:
 
       - MACHINE: [yuria4]
         MACHINE_LOCATION: [kent]
-        GC: [COPYING, MARK_SWEEP, GENERATIONAL]
+        GC: [COPYING, MARK_SWEEP, GENERATIONAL, PAGED_MARK_SWEEP]
         COMPILER: [clang]
         CMAKE_FLAGS:
           - "-DUSE_TAGGING=true"
@@ -52,7 +52,7 @@ build_and_test:
       - MACHINE: [cassius]
         MACHINE_LOCATION: [ssw]
         COMPILER: [clang, gcc]
-        GC: [GENERATIONAL, COPYING, MARK_SWEEP]
+        GC: [GENERATIONAL, COPYING, MARK_SWEEP, PAGED_MARK_SWEEP]
         CMAKE_FLAGS:
           - "-DUSE_TAGGING=true"
       

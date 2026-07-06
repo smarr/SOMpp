@@ -15,6 +15,7 @@
 #include "../memory/DebugMarkSweepHeap.h"
 #include "../memory/GenerationalHeap.h"
 #include "../memory/MarkSweepHeap.h"
+#include "../memory/PagedMarkSweepHeap.h"
 #include "../misc/defs.h"
 #include "../vm/Print.h"
 #include "ObjectFormats.h"
