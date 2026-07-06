@@ -47,7 +47,7 @@ build_and_test:
       # Mark-Sweep working, but not super exciting
       - MACHINE: [yuria, yuria2, yuria3]
         MACHINE_LOCATION: [kent]
-        COMPILER: [gcc]
+        COMPILER: [gcc, clang]
         GC: [MARK_SWEEP]
         CMAKE_FLAGS: ["-DUSE_TAGGING=true"]
       
@@ -69,7 +69,7 @@ build_and_test:
       - MACHINE: [cassius]
         MACHINE_LOCATION: [ssw]
         COMPILER: [clang, gcc]
-        GC: [GENERATIONAL]
+        GC: [GENERATIONAL, MARK_SWEEP]
         CMAKE_FLAGS:
           - "-DUSE_TAGGING=true"
       
