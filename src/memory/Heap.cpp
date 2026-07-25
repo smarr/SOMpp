@@ -34,6 +34,7 @@
 #include "DebugCopyingHeap.h"    // NOLINT(misc-include-cleaner)
 #include "DebugMarkSweepHeap.h"  // NOLINT(misc-include-cleaner)
 #include "GenerationalHeap.h"    // NOLINT(misc-include-cleaner)
+#include "MarkSweepHeap.h"       // NOLINT(misc-include-cleaner)
 
 #if DEBUG
 bool gcStressMode = false;
@@ -79,6 +80,10 @@ template Heap<GenerationalHeap>::~Heap();
 class CopyingHeap;
 template CopyingHeap* Heap<CopyingHeap>::theHeap;
 template Heap<CopyingHeap>::~Heap();
+
+class MarkSweepHeap;
+template MarkSweepHeap* Heap<MarkSweepHeap>::theHeap;
+template Heap<MarkSweepHeap>::~Heap();
 
 class DebugMarkSweepHeap;
 template DebugMarkSweepHeap* Heap<DebugMarkSweepHeap>::theHeap;

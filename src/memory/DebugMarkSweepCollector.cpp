@@ -19,13 +19,10 @@ void DebugMarkSweepCollector::Collect() {
 
     auto* heap = GetHeap<DebugMarkSweepHeap>();
     Timer::GCTimer.Resume();
-    // reset collection trigger
     heap->resetGCTrigger();
 
-    // now mark all reachables
     markReachableObjects();
 
-    // in this survivors stack we will remember all objects that survived
     auto* survivors = new vector<AbstractVMObject*>();
     size_t survivorsSize = 0;
 
@@ -48,8 +45,6 @@ void DebugMarkSweepCollector::Collect() {
     heap->allocatedObjects = survivors;
 
     heap->spcAlloc = survivorsSize;
-    // TODO(smarr): Maybe choose another constant to calculate new
-    // collectionLimit here
     heap->collectionLimit = 2 * survivorsSize;
     Timer::GCTimer.Halt();
 }
@@ -71,6 +66,5 @@ static gc_oop_t mark_object(gc_oop_t oop) {
 }
 
 void DebugMarkSweepCollector::markReachableObjects() {
-    // This walks the globals of the universe, and the interpreter
     Universe::WalkGlobals(mark_object);
 }

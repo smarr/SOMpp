@@ -4,7 +4,7 @@
 #include "Heap.h"
 
 // Debug-only Mark/Sweep heap: the simple reference implementation that
-// malloc()s/free()s every object and tracks them in a side list.
+// malloc()s/free()s every object and tracks them in a vector.
 class DebugMarkSweepHeap : public Heap<DebugMarkSweepHeap> {
     friend class DebugMarkSweepCollector;
 

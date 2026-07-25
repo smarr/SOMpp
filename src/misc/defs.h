@@ -66,8 +66,9 @@
 //
 #define GENERATIONAL 1
 #define COPYING 2
-#define DEBUG_MARK_SWEEP 3
-#define DEBUG_COPYING 4
+#define MARK_SWEEP 3
+#define DEBUG_MARK_SWEEP 4
+#define DEBUG_COPYING 5
 
 #if GC_TYPE == GENERATIONAL
 class GenerationalHeap;
@@ -80,6 +81,13 @@ typedef GenerationalHeap HEAP_CLS;
 #elif GC_TYPE == COPYING
 class CopyingHeap;
 typedef CopyingHeap HEAP_CLS;
+  #define write_barrier(obj, value_ptr)
+  #define ALLOC_MATURE
+  #define ALLOC_OUTSIDE_NURSERY(X)
+  #define ALLOC_OUTSIDE_NURSERY_DECL
+#elif GC_TYPE == MARK_SWEEP
+class MarkSweepHeap;
+typedef MarkSweepHeap HEAP_CLS;
   #define write_barrier(obj, value_ptr)
   #define ALLOC_MATURE
   #define ALLOC_OUTSIDE_NURSERY(X)
