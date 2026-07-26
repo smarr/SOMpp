@@ -63,8 +63,8 @@ inline void GenerationalHeap::writeBarrier(VMObjectBase* holder,
     assert(IsValidObject(referencedObject));
     assert(IsValidObject(holder));
 
-    const size_t gcfield = *(((size_t*)holder) + 1);
-    if ((gcfield & 6U /* MASK_OBJECT_IS_OLD + MASK_SEEN_BY_WRITE_BARRIER */) ==
+    const size_t gcField = *(((size_t*)holder) + 1);
+    if ((gcField & 6U /* MASK_OBJECT_IS_OLD + MASK_SEEN_BY_WRITE_BARRIER */) ==
         2U /* MASK_OBJECT_IS_OLD */) {
         writeBarrier_OldHolder(holder, referencedObject);
     }
