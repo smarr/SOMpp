@@ -21,7 +21,7 @@ class GenerationalHeap : public Heap<GenerationalHeap> {
     friend class GenerationalCollector;
 
 public:
-    explicit GenerationalHeap(size_t objectSpaceSize = 1048576);
+    explicit GenerationalHeap(size_t objectSpaceSize);
     AbstractVMObject* AllocateNurseryObject(size_t size);
     AbstractVMObject* AllocateMatureObject(size_t size);
     [[nodiscard]] size_t GetMaxNurseryObjectSize() const;

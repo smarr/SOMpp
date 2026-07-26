@@ -7,7 +7,7 @@ class MarkSweepHeap : public Heap<MarkSweepHeap> {
     friend class MarkSweepCollector;
 
 public:
-    explicit MarkSweepHeap(size_t objectSpaceSize = 1048576);
+    explicit MarkSweepHeap(size_t objectSpaceSize);
     AbstractVMObject* AllocateObject(size_t size);
 
 private:
