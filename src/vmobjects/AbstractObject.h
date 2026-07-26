@@ -83,14 +83,12 @@ public:
         void* result = nullptr;
 #if GC_TYPE == GENERATIONAL
         if (outsideNursery) {
-            result =
-                (void*)heap->AllocateMatureObject(numBytes + additionalBytes);
+            result = heap->AllocateMatureObject(numBytes + additionalBytes);
         } else {
-            result =
-                (void*)heap->AllocateNurseryObject(numBytes + additionalBytes);
+            result = heap->AllocateNurseryObject(numBytes + additionalBytes);
         }
 #else
-        result = (void*)heap->AllocateObject(numBytes + additionalBytes);
+        result = heap->AllocateObject(numBytes + additionalBytes);
 #endif
 
         assert(result != INVALID_VM_POINTER);

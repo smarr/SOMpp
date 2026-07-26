@@ -22,8 +22,8 @@ class GenerationalHeap : public Heap<GenerationalHeap> {
 
 public:
     explicit GenerationalHeap(size_t objectSpaceSize);
-    AbstractVMObject* AllocateNurseryObject(size_t size);
-    AbstractVMObject* AllocateMatureObject(size_t size);
+    void* AllocateNurseryObject(size_t size);
+    void* AllocateMatureObject(size_t size);
     [[nodiscard]] size_t GetMaxNurseryObjectSize() const;
     void writeBarrier(VMObjectBase* holder, vm_oop_t referencedObject);
     inline bool isObjectInNursery(vm_oop_t obj);
