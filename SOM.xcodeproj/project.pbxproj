@@ -146,12 +146,12 @@
 		0AB80AD82C394806006B6419 /* Globals.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AB80AD72C394806006B6419 /* Globals.cpp */; };
 		0AB80AD92C394806006B6419 /* Globals.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AB80AD72C394806006B6419 /* Globals.cpp */; };
 		0ACA17172E509E6100FAC36B /* InfIntTests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0ACA17162E509E6100FAC36B /* InfIntTests.cpp */; };
-		0AF394592D7CA9860036FDEF /* VMBigInteger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AF394582D7CA9860036FDEF /* VMBigInteger.cpp */; };
-		0AF3945A2D7CA9860036FDEF /* VMBigInteger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AF394582D7CA9860036FDEF /* VMBigInteger.cpp */; };
 		0AEFFE542E01A97E00CA4C4C /* Vector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AEFFE532E01A97E00CA4C4C /* Vector.cpp */; };
 		0AEFFE552E01A97E00CA4C4C /* Vector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AEFFE532E01A97E00CA4C4C /* Vector.cpp */; };
 		0AEFFE582E01A99300CA4C4C /* VMVector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AEFFE572E01A99300CA4C4C /* VMVector.cpp */; };
 		0AEFFE592E01A99300CA4C4C /* VMVector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AEFFE572E01A99300CA4C4C /* VMVector.cpp */; };
+		0AF394592D7CA9860036FDEF /* VMBigInteger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AF394582D7CA9860036FDEF /* VMBigInteger.cpp */; };
+		0AF3945A2D7CA9860036FDEF /* VMBigInteger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AF394582D7CA9860036FDEF /* VMBigInteger.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -265,17 +265,16 @@
 		0AB80AD52C392BAD006B6419 /* Print.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Print.h; sourceTree = "<group>"; };
 		0AB80AD62C3947F7006B6419 /* Globals.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Globals.h; sourceTree = "<group>"; };
 		0AB80AD72C394806006B6419 /* Globals.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Globals.cpp; sourceTree = "<group>"; };
-		0AB80ADA2C39AC27006B6419 /* InterpreterLoop.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InterpreterLoop.h; sourceTree = "<group>"; };
 		0ACA17152E509E6100FAC36B /* InfIntTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = InfIntTests.h; path = unitTests/InfIntTests.h; sourceTree = "<group>"; };
 		0ACA17162E509E6100FAC36B /* InfIntTests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = InfIntTests.cpp; path = unitTests/InfIntTests.cpp; sourceTree = "<group>"; };
-		0AF394542D7B91990036FDEF /* TaggingTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TaggingTests.h; path = unitTests/TaggingTests.h; sourceTree = "<group>"; };
-		0AF394572D7CA9860036FDEF /* VMBigInteger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMBigInteger.h; sourceTree = "<group>"; };
-		0AF394582D7CA9860036FDEF /* VMBigInteger.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = VMBigInteger.cpp; sourceTree = "<group>"; };
-		0AF3945C2D7CAAF80036FDEF /* InfInt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InfInt.h; sourceTree = "<group>"; };
 		0AEFFE522E01A97E00CA4C4C /* Vector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Vector.h; sourceTree = "<group>"; };
 		0AEFFE532E01A97E00CA4C4C /* Vector.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Vector.cpp; sourceTree = "<group>"; };
 		0AEFFE562E01A99300CA4C4C /* VMVector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMVector.h; sourceTree = "<group>"; };
 		0AEFFE572E01A99300CA4C4C /* VMVector.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = VMVector.cpp; sourceTree = "<group>"; };
+		0AF394542D7B91990036FDEF /* TaggingTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TaggingTests.h; path = unitTests/TaggingTests.h; sourceTree = "<group>"; };
+		0AF394572D7CA9860036FDEF /* VMBigInteger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMBigInteger.h; sourceTree = "<group>"; };
+		0AF394582D7CA9860036FDEF /* VMBigInteger.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = VMBigInteger.cpp; sourceTree = "<group>"; };
+		0AF3945C2D7CAAF80036FDEF /* InfInt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InfInt.h; sourceTree = "<group>"; };
 		3F5202F10FA6624C00E75857 /* BytecodeGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BytecodeGenerator.cpp; sourceTree = "<group>"; };
 		3F5202F20FA6624C00E75857 /* BytecodeGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = BytecodeGenerator.h; sourceTree = "<group>"; tabWidth = 4; };
 		3F5202F30FA6624C00E75857 /* ClassGenerationContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClassGenerationContext.cpp; sourceTree = "<group>"; };
@@ -1107,7 +1106,7 @@
 					src,
 				);
 				OTHER_CFLAGS = (
-					"-DGC_TYPE=COPYING",
+					"-DGC_TYPE=GENERATIONAL",
 					"-DUSE_TAGGING=true",
 					"-DDEBUG",
 					"-DLOG_LEVEL=3",
@@ -1152,7 +1151,7 @@
 					src,
 				);
 				OTHER_CFLAGS = (
-					"-DGC_TYPE=COPYING",
+					"-DGC_TYPE=GENERATIONAL",
 					"-DUSE_TAGGING=true",
 					"-DDEBUG",
 					"-DLOG_LEVEL=3",
@@ -1313,7 +1312,7 @@
 				MAKE_ARGS = debug;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
-					"-DGC_TYPE=COPYING",
+					"-DGC_TYPE=GENERATIONAL",
 					"-DUSE_TAGGING=false",
 					"-DDEBUG",
 					"-DLOG_LEVEL=3",
@@ -1360,7 +1359,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
 				MAKE_ARGS = all;
 				OTHER_CFLAGS = (
-					"-DGC_TYPE=COPYING",
+					"-DGC_TYPE=GENERATIONAL",
 					"-DUSE_TAGGING=false",
 					"-DDEBUG",
 					"-DLOG_LEVEL=3",

@@ -26,6 +26,10 @@
  THE SOFTWARE.
  */
 
+// I want to have some debugging capabilities that allow me to flag a frame as
+// having escaped at run time. And I should then make sure that a flagged frame
+// is never cached. And a cached frame is never flagged on reusing it.
+
 #include <cstdint>
 #include <type_traits>
 

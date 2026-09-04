@@ -98,18 +98,18 @@ VMMethod* VMMethod::CloneForMovingGC() const {
 void VMMethod::WalkObjects(walk_heap_fn walk) {
     VMInvokable::WalkObjects(walk);
 
-#ifdef FRAME_OPTIMIZATION
-    if (cachedFrame != nullptr) {
-        cachedFrame = static_cast<GCFrame*>(walk(cachedFrame));
-    }
-#endif
-
     size_t const numIndexableFields = GetNumberOfIndexableFields();
     for (size_t i = 0; i < numIndexableFields; ++i) {
         if (indexableFields[i] != nullptr) {
             indexableFields[i] = walk(indexableFields[i]);
         }
     }
+
+#ifdef FRAME_OPTIMIZATION
+    if (cachedFrame != nullptr) {
+        cachedFrame = static_cast<GCFrame*>(walk(cachedFrame));
+    }
+#endif
 }
 
 #ifdef FRAME_OPTIMIZATION
