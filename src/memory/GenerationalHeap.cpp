@@ -36,7 +36,7 @@ AbstractVMObject* GenerationalHeap::AllocateNurseryObject(size_t size) {
         Quit(-1);
     }
     // let's see if we have to trigger the GC
-    if (nextFreePosition > collectionLimit) {
+    if (nextFreePosition > collectionLimit || gcStressMode) {
         requestGC();
     }
     return newObject;
@@ -50,6 +50,9 @@ AbstractVMObject* GenerationalHeap::AllocateMatureObject(size_t size) {
     }
     allocatedObjects.push_back(newObject);
     matureObjectsSize += size;
+    if (gcStressMode) {
+        requestGC();
+    }
     return newObject;
 }
 
