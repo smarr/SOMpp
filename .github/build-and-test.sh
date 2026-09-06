@@ -61,8 +61,16 @@ test_somsom() {
 }
 
 set_m() {
-  if [ "$MACHINE" = "zullie1" ]; then
+  if [ "$MACHINE" = "zullie1" ] || [ "$MACHINE" = "cassius" ]; then
     export M=''
+  # for benchmarking we treat these machines like the yuria ones, just to
+  # have some load balancing
+  elif [ "$MACHINE" = "brutus" ]; then
+    export M="t:yuria"
+  elif [ "$MACHINE" = "laertes" ]; then
+    export M="t:yuria2"
+  elif [ "$MACHINE" = "ophelia" ]; then
+    export M="t:yuria3"
   else
     export M="t:$MACHINE"
   fi

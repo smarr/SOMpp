@@ -18,6 +18,7 @@ build_and_test:
           - yuria
           - yuria2
           - yuria3
+        MACHINE_LOCATION: [kent]
         COMPILER: [clang]
         GC: [COPYING]
         CMAKE_FLAGS:
@@ -28,11 +29,13 @@ build_and_test:
 
       # Track GCC only for one configuration
       - MACHINE: [yuria, yuria2, yuria3]
+        MACHINE_LOCATION: [kent]
         COMPILER: [gcc]
         GC: [COPYING]
         CMAKE_FLAGS: ["-DUSE_TAGGING=true"]
 
       - MACHINE: [zullie1]
+        MACHINE_LOCATION: [kent]
         COMPILER: [clang]
         GC: [GENERATIONAL]
         CMAKE_FLAGS:
@@ -43,11 +46,28 @@ build_and_test:
 
       # Mark-Sweep working, but not super exciting
       - MACHINE: [yuria, yuria2, yuria3]
+        MACHINE_LOCATION: [kent]
         COMPILER: [gcc]
         GC: [MARK_SWEEP]
         CMAKE_FLAGS: ["-DUSE_TAGGING=true"]
+      
+      - MACHINE: [laertes, ophelia, brutus]
+        MACHINE_LOCATION: [ssw]
+        GC: [GENERATIONAL]
+        COMPILER: [clang, gcc]
+        CMAKE_FLAGS:
+          - "-DUSE_TAGGING=true"
+          - "-DUSE_TAGGING=false -DCACHE_INTEGER=false -DUSE_VECTOR_PRIMITIVES=false"
+      
+      - MACHINE: [cassius]
+        MACHINE_LOCATION: [ssw]
+        COMPILER: [clang, gcc]
+        GC: [GENERATIONAL]
+        CMAKE_FLAGS:
+          - "-DUSE_TAGGING=true"
+      
 
-  tags: [kent-$MACHINE]
+  tags: [$MACHINE_LOCATION-$MACHINE]
   script:
     - prepare_build_folders
     - set_compiler
@@ -60,7 +80,7 @@ build_and_test:
       if [ "$COMPILER" = "clang" ]; then
         # this is to load balance the SomSom testing
         # only when compiling with Clang, and only on one machine for each integer configuration
-        if [ "$MACHINE $CMAKE_FLAGS" = "zullie1 -DUSE_TAGGING=true" ] || [ "$MACHINE $CMAKE_FLAGS" = "yuria2 -DUSE_TAGGING=false -DCACHE_INTEGER=true" ] || [ "$MACHINE $CMAKE_FLAGS" = "yuria3 -DUSE_TAGGING=false -DCACHE_INTEGER=false" ]; then
+        if [ "$MACHINE $CMAKE_FLAGS" = "zullie1 -DUSE_TAGGING=true" ] || [ "$MACHINE $CMAKE_FLAGS" = "yuria2 -DUSE_TAGGING=false -DCACHE_INTEGER=true" ] || [ "$MACHINE $CMAKE_FLAGS" = "yuria3 -DUSE_TAGGING=false -DCACHE_INTEGER=false" ] || [ "$MACHINE $CMAKE_FLAGS" = "brutus -DUSE_TAGGING=true" ]; then
           test_somsom
         fi
       fi
