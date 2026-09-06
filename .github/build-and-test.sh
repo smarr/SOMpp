@@ -15,8 +15,21 @@ prepare_build_folders() {
 }
 
 set_compiler() {
-  if [ "$COMPILER" = "gcc" ];   then export CC=gcc-13;   export CXX=g++-13; fi
+  echo "set_compiler: COMPILER: $COMPILER, MACHINE_LOCATION: $MACHINE_LOCATION"
+  if [ "$COMPILER" = "gcc" ];   then
+    if [ "$MACHINE_LOCATION" = "ssw" ]; then
+      # Debian Trixie's standard compiler is GCC 14, and we use libstdc++
+      # from it, even for older GCCs. Probably something that could be fixed in CMake...
+      export CC=gcc-14;
+      export CXX=g++-14;
+    else
+      export CC=gcc-13;
+      export CXX=g++-13;
+    fi
+  fi
   if [ "$COMPILER" = "clang" ]; then export CC=clang$MP-18; export CXX=clang++$MP-18; fi
+
+  echo "set_compiler: CC: $CC, CXX: $CXX"
 }
 
 determine_name() {
@@ -60,7 +73,7 @@ test_somsom() {
   ./$NAME -cp Smalltalk:TestSuite:core-lib/SomSom/src/compiler:core-lib/SomSom/src/interpreter:core-lib/SomSom/src/primitives:core-lib/SomSom/src/vm:core-lib/SomSom/src/vmobjects core-lib/SomSom/tests/SomSomTests.som
 }
 
-set_m() {
+set_machine_tag_and_experiment() {
   if [ "$MACHINE" = "zullie1" ] || [ "$MACHINE" = "cassius" ]; then
     export M=''
   # for benchmarking we treat these machines like the yuria ones, just to
@@ -73,5 +86,17 @@ set_m() {
     export M="t:yuria3"
   else
     export M="t:$MACHINE"
+  fi
+  echo "set_machine_tag_and_experiment: MACHINE: $MACHINE, M: $M"
+
+  if [ "$MACHINE_LOCATION" = "ssw" ]; then
+    if [ "$MACHINE" = "cassius" ]; then
+      # cassius is comparably slow, so, use the old settings
+      export EXPERIMENT="SOM++"
+    else
+      export EXPERIMENT="SOM++-ssw"
+    fi
+  else
+    export EXPERIMENT="SOM++"
   fi
 }

@@ -86,8 +86,9 @@ build_and_test:
       fi
 
     - |+
-      set m
-      rebench --experiment="CI ID $CI_PIPELINE_ID" --branch="$CI_COMMIT_REF_NAME" -c rebench.conf all "e:${NAME}" $M
+      set -o xtrace
+      set_machine_tag_and_experiment
+      rebench --experiment="CI ID $CI_PIPELINE_ID" --branch="$CI_COMMIT_REF_NAME" -c rebench.conf ${EXPERIMENT} "e:${NAME}" $M
 
 complete_benchmarking:
   stage: benchmark-completion
