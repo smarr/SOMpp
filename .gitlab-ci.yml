@@ -58,7 +58,14 @@ build_and_test:
         CMAKE_FLAGS:
           - "-DUSE_TAGGING=true"
           - "-DUSE_TAGGING=false -DCACHE_INTEGER=false -DUSE_VECTOR_PRIMITIVES=false"
-      
+
+      - MACHINE: [yuria4]
+        MACHINE_LOCATION: [kent]
+        GC: [DEBUG_COPYING]
+        COMPILER: [clang]
+        CMAKE_FLAGS:
+          - "-DUSE_TAGGING=true"
+
       - MACHINE: [cassius]
         MACHINE_LOCATION: [ssw]
         COMPILER: [clang, gcc]
