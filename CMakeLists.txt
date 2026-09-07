@@ -207,7 +207,6 @@ target_sources(SOM++ PRIVATE
   ${PRIMITIVESCORE_SRC})
 
 target_compile_options(SOM++ PRIVATE
-  -m64
   -Wno-endif-labels)
 
 target_include_directories(SOM++ PRIVATE ${SRC_DIR})
