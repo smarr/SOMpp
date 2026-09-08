@@ -35,6 +35,12 @@
 #include "GenerationalHeap.h"  // NOLINT(misc-include-cleaner)
 #include "MarkSweepHeap.h"     // NOLINT(misc-include-cleaner)
 
+#if DEBUG
+bool gcStressMode = false;
+#else
+// it's defined as false
+#endif
+
 template <class HEAP_T>
 void Heap<HEAP_T>::InitializeHeap(size_t objectSpaceSize) {
     if (theHeap) {

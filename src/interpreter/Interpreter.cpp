@@ -447,7 +447,7 @@ LABEL_BC_JUMP_ON_FALSE_TOP_NIL: {
     if (val == load_ptr(falseObject)) {
         uint8_t const offset = currentBytecodes[bytecodeIndexGlobal + 1];
         bytecodeIndexGlobal += offset;
-        GetFrame()->SetTop(nilObject);
+        GetFrame()->SetTop(load_ptr(nilObject));
     } else {
         GetFrame()->PopVoid();
         bytecodeIndexGlobal += 3;
@@ -460,7 +460,7 @@ LABEL_BC_JUMP_ON_TRUE_TOP_NIL: {
     if (val == load_ptr(trueObject)) {
         uint8_t const offset = currentBytecodes[bytecodeIndexGlobal + 1];
         bytecodeIndexGlobal += offset;
-        GetFrame()->SetTop(nilObject);
+        GetFrame()->SetTop(load_ptr(nilObject));
     } else {
         GetFrame()->PopVoid();
         bytecodeIndexGlobal += 3;
@@ -578,7 +578,7 @@ LABEL_BC_JUMP2_ON_FALSE_TOP_NIL: {
             ComputeOffset(currentBytecodes[bytecodeIndexGlobal + 1],
                           currentBytecodes[bytecodeIndexGlobal + 2]);
         bytecodeIndexGlobal += offset;
-        GetFrame()->SetTop(nilObject);
+        GetFrame()->SetTop(load_ptr(nilObject));
     } else {
         GetFrame()->PopVoid();
         bytecodeIndexGlobal += 3;
@@ -593,7 +593,7 @@ LABEL_BC_JUMP2_ON_TRUE_TOP_NIL: {
             ComputeOffset(currentBytecodes[bytecodeIndexGlobal + 1],
                           currentBytecodes[bytecodeIndexGlobal + 2]);
         bytecodeIndexGlobal += offset;
-        GetFrame()->SetTop(nilObject);
+        GetFrame()->SetTop(load_ptr(nilObject));
     } else {
         GetFrame()->PopVoid();
         bytecodeIndexGlobal += 3;
@@ -1094,7 +1094,7 @@ void Interpreter::doInc() {
         ErrorExit("unsupported");
     }
 
-    GetFrame()->SetTop(store_root(val));
+    GetFrame()->SetTop(val);
 }
 
 void Interpreter::doDec() {
@@ -1110,7 +1110,7 @@ void Interpreter::doDec() {
         ErrorExit("unsupported");
     }
 
-    GetFrame()->SetTop(store_root(val));
+    GetFrame()->SetTop(val);
 }
 
 void Interpreter::doIncField(uint8_t fieldIndex) {

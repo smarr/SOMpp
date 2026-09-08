@@ -54,8 +54,8 @@ make_and_test_debug_build() {
   cd debug || exit 1
   cmake .. $CMAKE_FLAGS -DGC_TYPE=$GC -DCMAKE_BUILD_TYPE=Debug
   make -j
-  ./SOM++ -cfg -cp ../Smalltalk ../TestSuite/TestHarness.som
-  ./unittests -cfg -cp ../Smalltalk:../TestSuite/BasicInterpreterTests ../Examples/Hello.som
+  ./SOM++ -gc-stress -cfg -cp ../Smalltalk ../TestSuite/TestHarness.som
+  ./unittests -gc-stress -cfg -cp ../Smalltalk:../TestSuite/BasicInterpreterTests ../Examples/Hello.som
   ./SOM++ -prim-hash-check -cp ../Smalltalk ../Examples/Benchmarks/BenchmarkHarness.som VectorBenchmark 1 1
   cd ..
 }

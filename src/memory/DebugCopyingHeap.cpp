@@ -8,6 +8,7 @@
 
 #include "../vm/Print.h"
 #include "../vmobjects/AbstractObject.h"
+#include "Heap.h"
 
 void DebugCopyingHeap::switchBuffers(bool increaseMemory) {
     assert(
@@ -60,7 +61,7 @@ AbstractVMObject* DebugCopyingHeap::AllocateObject(size_t size) {
     }
 
     // let's see if we have to trigger the GC
-    if (currentHeapUsage > collectionLimit) {
+    if (currentHeapUsage > collectionLimit || gcStressMode) {
         requestGC();
     }
 
