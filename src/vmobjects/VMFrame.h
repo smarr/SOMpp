@@ -208,8 +208,8 @@ public:
     void ResetBytecodeIndex();
 
 #ifdef FRAME_OPTIMIZATION
-    void SetPreviousFrameOnReuse(VMFrame* previousFrame) {
-        this->previousFrame = store_root(previousFrame);
+    void SetPreviousFrameOnReuse(VMFrame* prevFrame) {
+        store_ptr(previousFrame, prevFrame);
     }
 #endif
 
