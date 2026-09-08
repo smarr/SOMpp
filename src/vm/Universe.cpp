@@ -203,7 +203,12 @@ vector<std::string> Universe::handleArguments(int32_t argc, char** argv) {
         } else if (!sawOtherArgs && strncmp(argv[i], "-cfg", 4) == 0) {
             printVmConfig();
         } else if (!sawOtherArgs && strncmp(argv[i], "-gc-stress", 10) == 0) {
+#if DEBUG
             gcStressMode = true;
+#else
+            ErrorPrint(
+                "gc-stress mode is only available in debug builds of SOM++");
+#endif
         } else if (!sawOtherArgs && strncmp(argv[i], "-g", 2) == 0) {
             ++gcVerbosity;
         } else if (!sawOtherArgs && strncmp(argv[i], "-H", 2) == 0) {
