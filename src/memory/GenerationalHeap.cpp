@@ -29,7 +29,8 @@ GenerationalHeap::GenerationalHeap(size_t objectSpaceSize)
 
 void* GenerationalHeap::AllocateNurseryObject(size_t size) {
     void* newObject = nextFreePosition;
-    nextFreePosition = (void*)((size_t)nextFreePosition + size);
+    nextFreePosition =
+        static_cast<void*>(static_cast<char*>(nextFreePosition) + size);
     if ((size_t)nextFreePosition > nursery_end) {
         ErrorPrint("\nFailed to allocate " + to_string(size) +
                    " Bytes in nursery.\n");
