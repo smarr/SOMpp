@@ -27,9 +27,10 @@ GenerationalHeap::GenerationalHeap(size_t objectSpaceSize)
     memset(nursery, 0x0, objectSpaceSize);
 }
 
-AbstractVMObject* GenerationalHeap::AllocateNurseryObject(size_t size) {
-    auto* newObject = (AbstractVMObject*)nextFreePosition;
-    nextFreePosition = (void*)((size_t)nextFreePosition + size);
+void* GenerationalHeap::AllocateNurseryObject(size_t size) {
+    void* newObject = nextFreePosition;
+    nextFreePosition =
+        static_cast<void*>(static_cast<char*>(nextFreePosition) + size);
     if ((size_t)nextFreePosition > nursery_end) {
         ErrorPrint("\nFailed to allocate " + to_string(size) +
                    " Bytes in nursery.\n");
@@ -42,13 +43,13 @@ AbstractVMObject* GenerationalHeap::AllocateNurseryObject(size_t size) {
     return newObject;
 }
 
-AbstractVMObject* GenerationalHeap::AllocateMatureObject(size_t size) {
-    auto* newObject = (AbstractVMObject*)malloc(size);
+void* GenerationalHeap::AllocateMatureObject(size_t size) {
+    void* newObject = malloc(size);
     if (newObject == nullptr) {
         ErrorPrint("\nFailed to allocate " + to_string(size) + " Bytes.\n");
         Quit(-1);
     }
-    allocatedObjects.push_back(newObject);
+    allocatedObjects.push_back(static_cast<AbstractVMObject*>(newObject));
     matureObjectsSize += size;
     if (gcStressMode) {
         requestGC();

@@ -16,17 +16,17 @@ MarkSweepHeap::MarkSweepHeap(size_t objectSpaceSize)
       // our initial collection limit is 90% of objectSpaceSize
       collectionLimit((size_t)((double)objectSpaceSize * 0.9)) {}
 
-AbstractVMObject* MarkSweepHeap::AllocateObject(size_t size) {
-    auto* newObject = (AbstractVMObject*)malloc(size);
+void* MarkSweepHeap::AllocateObject(size_t size) {
+    void* newObject = malloc(size);
     if (newObject == nullptr) {
         ErrorPrint("\nFailed to allocate " + to_string(size) + " Bytes.\n");
         Quit(-1);
     }
     spcAlloc += size;
-    memset((void*)newObject, 0, size);
+    memset(newObject, 0, size);
     // AbstractObjects (Integer,...) have no Size field anymore -> set within
     // VMObject's new operator
-    allocatedObjects->push_back(newObject);
+    allocatedObjects->push_back(static_cast<AbstractVMObject*>(newObject));
     // let's see if we have to trigger the GC
     if (spcAlloc >= collectionLimit || gcStressMode) {
         requestGC();
