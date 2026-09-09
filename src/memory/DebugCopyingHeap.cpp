@@ -51,6 +51,11 @@ void DebugCopyingHeap::invalidateOldBuffer() {
 
 void* DebugCopyingHeap::AllocateObject(size_t size) {
     void* newObject = malloc(size);
+    if (newObject == nullptr) {
+        ErrorPrint("\nFailed to allocate " + to_string(size) + " Bytes.\n");
+        Quit(-1);
+    }
+
     currentHeap.push_back(static_cast<AbstractVMObject*>(newObject));
 
     currentHeapUsage += size;
