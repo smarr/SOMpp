@@ -273,6 +273,7 @@ if(CLANG_TIDY_EXE)
   if(RUN_CLANG_TIDY_EXE)
     add_custom_target(check-tidy
       COMMAND ${RUN_CLANG_TIDY_EXE}
+        -quiet
         -clang-tidy-binary ${CLANG_TIDY_EXE}
         -p ${CMAKE_BINARY_DIR}
         ${TIDY_SOURCE_FILES}
@@ -283,6 +284,7 @@ if(CLANG_TIDY_EXE)
     find_program(CLANG_APPLY_REPLACEMENT_BINARY NAMES clang-apply-replacements-mp-22 clang-apply-replacements-22 clang-apply-replacements)
     add_custom_target(tidy
       COMMAND ${RUN_CLANG_TIDY_EXE}
+        -quiet
         -clang-tidy-binary ${CLANG_TIDY_EXE}
         -clang-apply-replacements-binary ${CLANG_APPLY_REPLACEMENT_BINARY}
         -p ${CMAKE_BINARY_DIR}
