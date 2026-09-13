@@ -35,6 +35,7 @@
 #include "DebugMarkSweepHeap.h"  // NOLINT(misc-include-cleaner)
 #include "GenerationalHeap.h"    // NOLINT(misc-include-cleaner)
 #include "MarkSweepHeap.h"       // NOLINT(misc-include-cleaner)
+#include "PagedMarkSweepHeap.h"  // NOLINT(misc-include-cleaner)
 
 #if DEBUG
 bool gcStressMode = false;
@@ -88,3 +89,7 @@ template Heap<MarkSweepHeap>::~Heap();
 class DebugMarkSweepHeap;
 template DebugMarkSweepHeap* Heap<DebugMarkSweepHeap>::theHeap;
 template Heap<DebugMarkSweepHeap>::~Heap();
+
+class PagedMarkSweepHeap;
+template PagedMarkSweepHeap* Heap<PagedMarkSweepHeap>::theHeap;
+template Heap<PagedMarkSweepHeap>::~Heap();
