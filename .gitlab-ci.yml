@@ -19,20 +19,11 @@ build_and_test:
           - yuria2
           - yuria3
         MACHINE_LOCATION: [kent]
-        COMPILER: [clang]
+        COMPILER: [clang, gcc]
         GC: [COPYING]
         CMAKE_FLAGS:
           - "-DUSE_TAGGING=true"
-          - "-DUSE_TAGGING=false -DCACHE_INTEGER=true"
-          - "-DUSE_TAGGING=false -DCACHE_INTEGER=false"
           - "-DUSE_TAGGING=false -DCACHE_INTEGER=false -DUSE_VECTOR_PRIMITIVES=false"
-
-      # Track GCC only for one configuration
-      - MACHINE: [yuria, yuria2, yuria3]
-        MACHINE_LOCATION: [kent]
-        COMPILER: [gcc]
-        GC: [COPYING]
-        CMAKE_FLAGS: ["-DUSE_TAGGING=true"]
 
       - MACHINE: [zullie1]
         MACHINE_LOCATION: [kent]
@@ -40,16 +31,8 @@ build_and_test:
         GC: [GENERATIONAL]
         CMAKE_FLAGS:
           - "-DUSE_TAGGING=true"
-          - "-DUSE_TAGGING=false -DCACHE_INTEGER=true"
-          - "-DUSE_TAGGING=false -DCACHE_INTEGER=false"
           - "-DUSE_TAGGING=false -DCACHE_INTEGER=false -DUSE_VECTOR_PRIMITIVES=false"
 
-      # Mark-Sweep working, but not super exciting
-      - MACHINE: [yuria, yuria2, yuria3]
-        MACHINE_LOCATION: [kent]
-        COMPILER: [gcc]
-        GC: [MARK_SWEEP]
-        CMAKE_FLAGS: ["-DUSE_TAGGING=true"]
       
       - MACHINE: [laertes, ophelia, brutus]
         MACHINE_LOCATION: [ssw]
@@ -61,7 +44,7 @@ build_and_test:
 
       - MACHINE: [yuria4]
         MACHINE_LOCATION: [kent]
-        GC: [DEBUG_COPYING]
+        GC: [COPYING, MARK_SWEEP, GENERATIONAL]
         COMPILER: [clang]
         CMAKE_FLAGS:
           - "-DUSE_TAGGING=true"
@@ -69,7 +52,7 @@ build_and_test:
       - MACHINE: [cassius]
         MACHINE_LOCATION: [ssw]
         COMPILER: [clang, gcc]
-        GC: [GENERATIONAL]
+        GC: [GENERATIONAL, COPYING, MARK_SWEEP]
         CMAKE_FLAGS:
           - "-DUSE_TAGGING=true"
       
