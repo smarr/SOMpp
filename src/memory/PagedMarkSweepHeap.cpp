@@ -10,35 +10,21 @@
 #include "../vmobjects/AbstractObject.h"
 #include "PagedMarkSweepCollector.h"
 
-// Objects larger than this use the large-object space; smaller ones are
-// bucketed into size classes.
 static const size_t MAX_SMALL_OBJECT_SIZE = 2048;
 static const size_t ALIGNMENT = sizeof(void*);
 static const size_t NUM_SIZE_CLASSES = MAX_SMALL_OBJECT_SIZE / ALIGNMENT;
 
-static inline size_t sizeToClass(size_t size) {
-    return (size - 1) / ALIGNMENT;
-}
 static inline size_t cellSizeForClass(size_t classIndex) {
     return (classIndex + 1) * ALIGNMENT;
 }
 
-// Page granularity; must be >= the largest size class.
+// Pages must be >= the largest size class.
 static const size_t PAGE_SIZE = (size_t)32 * 1024;
 
 static const size_t GC_UNMARKED = 0;
 
-// Access a cell's gcField via the non-virtual accessors, so the sweeper and the
-// mark phase agree on its location and it works on a free (unconstructed) cell.
-static inline size_t cellMark(void* cell) {
-    return ((AbstractVMObject*)cell)->GetGCField();
-}
-static inline void setCellMark(void* cell, size_t value) {
-    ((AbstractVMObject*)cell)->SetGCField(value);
-}
-
 size_t PagedMarkSweepHeap::sizeClassIndex(size_t size) {
-    return sizeToClass(size);
+    return (size - 1) / ALIGNMENT;
 }
 
 PagedMarkSweepHeap::PagedMarkSweepHeap(size_t objectSpaceSize)
@@ -87,7 +73,7 @@ void PagedMarkSweepHeap::carveNewPage(size_t classIndex) {
     for (size_t i = 0; i < numCells; i++) {
         char* p = memory + (i * cellSize);
         // keep the unmarked invariant explicit so the sweeper reclaims it
-        setCellMark(p, GC_UNMARKED);
+        ((AbstractVMObject*)p)->SetGCField(GC_UNMARKED);
         auto* cell = (FreeListEntry*)p;
         cell->next = head;
         head = cell;
@@ -110,7 +96,7 @@ bool PagedMarkSweepHeap::sweepPageAt(size_t classIndex, size_t pageIndex) {
 
     for (size_t i = 0; i < numCells; i++) {
         char* p = base + (i * cellSize);
-        if (cellMark(p) == epoch) {
+        if (((AbstractVMObject*)p)->GetGCField() == epoch) {
             liveCells += 1;
             continue;
         }
@@ -134,7 +120,7 @@ bool PagedMarkSweepHeap::sweepPageAt(size_t classIndex, size_t pageIndex) {
         localTail->next = freeLists[classIndex];
         freeLists[classIndex] = localHead;
     }
-    page->sweptEpoch = epoch;
+    page->sweptLastAtEpoch = epoch;
     return false;
 }
 
@@ -142,7 +128,8 @@ bool PagedMarkSweepHeap::sweepNextPage(size_t classIndex) {
     auto& pages = classPages[classIndex];
     while (sweepCursor[classIndex] < pages.size()) {
         size_t const idx = sweepCursor[classIndex];
-        if (pages[idx]->sweptEpoch == epoch) {  // already swept this cycle
+        if (pages[idx]->sweptLastAtEpoch ==
+            epoch) {  // already swept this cycle
             sweepCursor[classIndex]++;
             continue;
         }
@@ -186,8 +173,6 @@ void* PagedMarkSweepHeap::AllocateObject(size_t size) {
     FreeListEntry* cell = freeLists[classIndex];
     freeLists[classIndex] = cell->next;
 
-    // zero the requested bytes (also sets gcField to GC_UNMARKED); padding
-    // bytes are never read as fields
     memset(cell, 0, size);
 
     accountAllocation(size);

@@ -1,4 +1,20 @@
 #pragma once
+/*
+ * A mark-and-sweep garbage collector.
+ *
+ * The heap is divided into pages, and a page represents a single size class.
+ * There are a lot of size classes, one for every 8-byte size.
+ * Thus, sizes are precise and have no internal fragmentation beyond alignment.
+ * The maximum size class is MAX_SMALL_OBJECT_SIZE (2048 bytes).
+ * Larger objects are allocated directly with malloc.
+ *
+ * Marking happens after a GC was triggered.
+ *
+ * Sweeping is lazy, except for large objects.
+ *
+ * A collection itself only marks. Dead objects are reclaimed as part of
+ * allocation when there's no free space in the size class.
+ */
 
 #include <cstddef>
 #include <vector>
@@ -14,7 +30,7 @@ class PagedMarkSweepHeap : public Heap<PagedMarkSweepHeap> {
     // NOLINTNEXTLINE(altera-struct-pack-align): FPGA-specific, not relevant
     struct Page {
         char* memory;
-        size_t sweptEpoch;  // last epoch this page was swept in
+        size_t sweptLastAtEpoch;
     };
 
 public:
