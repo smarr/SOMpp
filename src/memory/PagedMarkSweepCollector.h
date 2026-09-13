@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "../misc/defs.h"
 #include "GarbageCollector.h"
 
@@ -12,4 +14,9 @@ public:
 
 private:
     static void markReachableObjects();
+
+public:
+    static size_t epoch;
+    static size_t markedBytes;
+    static std::vector<AbstractVMObject*> markStack;
 };

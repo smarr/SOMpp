@@ -24,11 +24,9 @@
 #include "../vmobjects/VMFrame.h"
 #include "PagedMarkSweepHeap.h"
 
-// File scope so the static mark callback can reach them; the worklist is reused
-// across collections.
-static size_t s_epoch = 0;
-static size_t s_markedBytes = 0;
-static std::vector<AbstractVMObject*> s_markStack;
+size_t PagedMarkSweepCollector::epoch = 0;
+size_t PagedMarkSweepCollector::markedBytes = 0;
+std::vector<AbstractVMObject*> PagedMarkSweepCollector::markStack;
 
 void PagedMarkSweepCollector::Collect() {
     DebugLog("PagedMarkSweep Collect\n");
@@ -39,9 +37,9 @@ void PagedMarkSweepCollector::Collect() {
 
     // New cycle. The epoch only increases, so a survivor marked in an older
     // cycle is never mistaken for live now -- no mark reset needed.
-    heap->epoch++;
-    s_epoch = heap->epoch;
-    s_markedBytes = 0;
+    heap->epoch += 1;
+    epoch = heap->epoch;
+    markedBytes = 0;
 
     // Drop all free lists (re-harvested by sweeping). This is what guarantees
     // no allocation into a not-yet-swept page, so any cell without the current
@@ -58,7 +56,7 @@ void PagedMarkSweepCollector::Collect() {
     // Sweep the large-object space eagerly (few objects, so cheap).
     std::vector<AbstractVMObject*> survivingLarge;
     for (auto* obj : heap->largeObjects) {
-        if (obj->GetGCField() == heap->epoch) {
+        if (obj->GetGCField() == epoch) {
             survivingLarge.push_back(obj);
         } else {
             heap->FreeObject(obj);
@@ -69,11 +67,11 @@ void PagedMarkSweepCollector::Collect() {
     // Small dead objects (and empty pages) are reclaimed lazily during
     // allocation, not here, keeping this pause to just the mark phase.
 
-    heap->spcAlloc = s_markedBytes;
+    heap->spcAlloc = markedBytes;
     // Collect again after allocating ~max(live, a heap's worth). The floor
     // makes the heap size (-H / objectSpaceSize) actually govern GC frequency,
     // like the copying collector, instead of collecting every ~live bytes.
-    size_t const grown = 2 * s_markedBytes;
+    size_t const grown = 2 * markedBytes;
     heap->collectionLimit =
         grown > heap->minCollectionLimit ? grown : heap->minCollectionLimit;
     Timer::GCTimer.Halt();
@@ -88,23 +86,23 @@ static gc_oop_t mark_object(gc_oop_t oop) {
 
     AbstractVMObject* obj = AS_OBJ(oop);
 
-    if (obj->GetGCField() == s_epoch) {
+    if (obj->GetGCField() == PagedMarkSweepCollector::epoch) {
         return oop;
     }
 
-    obj->SetGCField(s_epoch);
-    s_markedBytes += obj->GetObjectSize();
-    s_markStack.push_back(obj);
+    obj->SetGCField(PagedMarkSweepCollector::epoch);
+    PagedMarkSweepCollector::markedBytes += obj->GetObjectSize();
+    PagedMarkSweepCollector::markStack.push_back(obj);
     return oop;
 }
 
 void PagedMarkSweepCollector::markReachableObjects() {
-    s_markStack.clear();
+    markStack.clear();
     Universe::WalkGlobals(mark_object);
 
-    while (!s_markStack.empty()) {
-        AbstractVMObject* obj = s_markStack.back();
-        s_markStack.pop_back();
+    while (!markStack.empty()) {
+        AbstractVMObject* obj = markStack.back();
+        markStack.pop_back();
         obj->WalkObjects(mark_object);
     }
 }

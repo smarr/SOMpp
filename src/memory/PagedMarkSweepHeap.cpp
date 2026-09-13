@@ -111,7 +111,7 @@ bool PagedMarkSweepHeap::sweepPageAt(size_t classIndex, size_t pageIndex) {
     for (size_t i = 0; i < numCells; i++) {
         char* p = base + (i * cellSize);
         if (cellMark(p) == epoch) {
-            liveCells++;
+            liveCells += 1;
             continue;
         }
         auto* cell = (FreeListEntry*)p;  // dead or already-free -> reclaim
