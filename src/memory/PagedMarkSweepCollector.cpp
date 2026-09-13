@@ -1,11 +1,13 @@
 #include "PagedMarkSweepCollector.h"
 
+#include <cassert>
 #include <cstddef>
 #include <utility>
 #include <vector>
 
 #include "../memory/Heap.h"
 #include "../misc/debug.h"
+#include "../vm/IsValidObject.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/AbstractObject.h"
 #include "../vmobjects/IntegerBox.h"
@@ -67,6 +69,7 @@ static gc_oop_t mark_object(gc_oop_t oop) {
     }
 
     AbstractVMObject* obj = AS_OBJ(oop);
+    assert(IsValidObject(obj));
 
     if (obj->GetGCField() == PagedMarkSweepCollector::epoch) {
         return oop;

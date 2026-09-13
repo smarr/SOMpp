@@ -48,7 +48,7 @@ PagedMarkSweepHeap::~PagedMarkSweepHeap() {
 
 void PagedMarkSweepHeap::accountAllocation(size_t bytes) {
     spcAlloc += bytes;
-    if (spcAlloc >= collectionLimit) {
+    if (spcAlloc >= collectionLimit || gcStressMode) {
         requestGC();
     }
 }
