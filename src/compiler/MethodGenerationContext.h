@@ -73,6 +73,14 @@ public:
 
     void MarkFinished();
 
+    void MarkAccessingOuterScopes() {
+        MethodGenerationContext* mgenc = this;
+        while (mgenc != nullptr) {
+            mgenc->accessesVariablesOfOuterScope = true;
+            mgenc = mgenc->GetOuter();
+        }
+    }
+
     void MarkAsDoingNonLocalReturn() {
         throwsNonLocalReturn = true;
 
@@ -137,6 +145,10 @@ public:
 
     bool LastBytecodeIs(size_t indexFromEnd, uint8_t bytecode);
 
+    [[nodiscard]] bool RequiresClosureContext() const {
+        return throwsNonLocalReturn || accessesVariablesOfOuterScope;
+    }
+
 private:
     VMTrivialMethod* assembleTrivialMethod();
     VMTrivialMethod* assembleLiteralReturn(uint8_t pushCandidate);
@@ -198,6 +210,8 @@ private:
     bool isCurrentlyInliningABlock{false};
 
     bool throwsNonLocalReturn{false};
+    bool accessesVariablesOfOuterScope{false};
+
     make_testable(public);
     vm_oop_t GetLiteral(size_t idx) { return literals.at(idx); }
 };
