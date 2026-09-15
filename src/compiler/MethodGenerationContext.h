@@ -73,6 +73,16 @@ public:
 
     void MarkFinished();
 
+    void MarkAsDoingNonLocalReturn() {
+        throwsNonLocalReturn = true;
+
+        MethodGenerationContext* ctx = outerGenc;
+        while (ctx->outerGenc != nullptr) {
+            ctx->throwsNonLocalReturn = true;
+            ctx = ctx->outerGenc;
+        }
+    }
+
     [[nodiscard]] ClassGenerationContext* GetHolder() const {
         return &holderGenc;
     }
@@ -187,6 +197,7 @@ private:
 
     bool isCurrentlyInliningABlock{false};
 
+    bool throwsNonLocalReturn{false};
     make_testable(public);
     vm_oop_t GetLiteral(size_t idx) { return literals.at(idx); }
 };

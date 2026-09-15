@@ -351,6 +351,7 @@ void EmitRETURNLOCAL(MethodGenerationContext& mgenc, const Parser& parser) {
 
 void EmitRETURNNONLOCAL(MethodGenerationContext& mgenc) {
     Emit1(mgenc, BC_RETURN_NON_LOCAL, 0);
+    mgenc.MarkAsDoingNonLocalReturn();
 }
 
 void EmitRETURNFIELD(MethodGenerationContext& mgenc, const Parser& parser,
