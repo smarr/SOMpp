@@ -296,6 +296,7 @@ int8_t MethodGenerationContext::FindLiteralIndex(vm_oop_t lit) {
 }
 
 int64_t MethodGenerationContext::GetFieldIndex(VMSymbol* field) {
+    MarkAccessingOuterScopes();
     int64_t const idx = holderGenc.GetFieldIndex(field);
     return idx;
 }
@@ -333,7 +334,12 @@ bool MethodGenerationContext::FindVar(std::string& var, int64_t* index,
             }
 
             (*context)++;
-            return outerGenc->FindVar(var, index, context, isArgument);
+            bool const result =
+                outerGenc->FindVar(var, index, context, isArgument);
+            if (result) {
+                accessesVariablesOfOuterScope = true;
+            }
+            return result;
         }
         *isArgument = true;
     }
