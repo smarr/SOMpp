@@ -484,7 +484,7 @@ void MethodGenerationContext::removeLastBytecodes(size_t numBytecodes) {
 
 bool MethodGenerationContext::lastBytecodeIsPushBlock(size_t indexFromEnd) {
     return LastBytecodeIs(indexFromEnd, BC_PUSH_BLOCK) ||
-           LastBytecodeIs(indexFromEnd, BC_PUSH_BLOCK_WITHOUT_CONTEXT);
+           LastBytecodeIs(indexFromEnd, BC_PUSH_BLOCK_NO_CTX);
 }
 
 bool MethodGenerationContext::hasOneLiteralBlockArgument() {

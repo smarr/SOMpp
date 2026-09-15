@@ -167,7 +167,7 @@ void EmitPUSHBLOCK(MethodGenerationContext& mgenc, const Parser& parser,
     if (withContext) {
         Emit2(mgenc, BC_PUSH_BLOCK, idx, 1);
     } else {
-        Emit2(mgenc, BC_PUSH_BLOCK_WITHOUT_CONTEXT, idx, 1);
+        Emit2(mgenc, BC_PUSH_BLOCK_NO_CTX, idx, 1);
     }
 }
 
