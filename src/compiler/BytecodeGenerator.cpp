@@ -161,13 +161,11 @@ void EmitPUSHFIELD(MethodGenerationContext& mgenc, const Parser& parser,
 }
 
 void EmitPUSHBLOCK(MethodGenerationContext& mgenc, const Parser& parser,
-                   VMInvokable* block) {
+                   VMInvokable* block, bool withContext) {
     const uint8_t idx = mgenc.AddLiteralIfAbsent(block, parser);
 
-    const bool needsContext = block->RequiresClosureContext();
-    if (needsContext) {
+    if (withContext) {
         Emit2(mgenc, BC_PUSH_BLOCK, idx, 1);
-        mgenc.SetRequiresClosureContext();
     } else {
         Emit2(mgenc, BC_PUSH_BLOCK_WITHOUT_CONTEXT, idx, 1);
     }

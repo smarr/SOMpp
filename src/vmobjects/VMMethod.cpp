@@ -350,7 +350,8 @@ void VMMethod::inlineInto(MethodGenerationContext& mgenc,
             case BC_PUSH_BLOCK_WITHOUT_CONTEXT: {
                 auto* blockMethod = (VMInvokable*)GetConstant(i);
                 blockMethod->AdaptAfterOuterInlined(1, mgenc);
-                EmitPUSHBLOCK(mgenc, parser, blockMethod);
+                EmitPUSHBLOCK(mgenc, parser, blockMethod,
+                              bytecode == BC_PUSH_BLOCK);
                 break;
             }
             case BC_PUSH_CONSTANT: {
