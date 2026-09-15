@@ -471,6 +471,7 @@ void Parser::result(MethodGenerationContext& mgenc) {
 
     if (mgenc.IsBlockMethod()) {
         EmitRETURNNONLOCAL(mgenc);
+        mgenc.MarkAsDoingNonLocalReturn();
     } else {
         EmitRETURNLOCAL(mgenc, *this);
     }
