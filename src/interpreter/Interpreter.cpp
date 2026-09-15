@@ -243,12 +243,12 @@ LABEL_BC_PUSH_FIELD_1:
 
 LABEL_BC_PUSH_BLOCK:
     PROLOGUE(2);
-    doPushBlock(bytecodeIndexGlobal - 2, true);
+    doPushBlock(bytecodeIndexGlobal - 2);
     DISPATCH_GC();
 
 LABEL_BC_PUSH_BLOCK_NO_CTX:
     PROLOGUE(2);
-    doPushBlock(bytecodeIndexGlobal - 2, false);
+    doPushBlockWithoutContext(bytecodeIndexGlobal - 2);
     DISPATCH_GC();
 
 LABEL_BC_PUSH_CONSTANT:
@@ -860,19 +860,20 @@ void Interpreter::doReturnFieldWithIndex(uint8_t fieldIndex) {
     popFrameAndPushResult(o);
 }
 
-void Interpreter::doPushBlock(size_t bytecodeIndex, bool withContext) {
+void Interpreter::doPushBlock(size_t bytecodeIndex) {
     vm_oop_t block = method->GetConstant(bytecodeIndex);
     auto* blockMethod = static_cast<VMInvokable*>(block);
 
     uint8_t const numOfArgs = blockMethod->GetNumberOfArguments();
-    if (withContext) {
-        assert(blockMethod->RequiresClosureContext());
-        GetFrame()->Push(
-            Universe::NewBlock(blockMethod, GetFrame(), numOfArgs));
-    } else {
-        assert(!blockMethod->RequiresClosureContext());
-        GetFrame()->Push(Universe::NewBlock(blockMethod, nullptr, numOfArgs));
-    }
+    GetFrame()->Push(Universe::NewBlock(blockMethod, GetFrame(), numOfArgs));
+}
+
+void Interpreter::doPushBlockWithoutContext(size_t bytecodeIndex) {
+    vm_oop_t block = method->GetConstant(bytecodeIndex);
+    auto* blockMethod = static_cast<VMInvokable*>(block);
+
+    uint8_t const numOfArgs = blockMethod->GetNumberOfArguments();
+    GetFrame()->Push(Universe::NewBlock(blockMethod, nullptr, numOfArgs));
 }
 
 void Interpreter::doPushGlobal(size_t bytecodeIndex) {
