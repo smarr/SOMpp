@@ -102,6 +102,7 @@ vm_oop_t Interpreter::Start() {
                                        &&LABEL_BC_PUSH_FIELD_0,
                                        &&LABEL_BC_PUSH_FIELD_1,
                                        &&LABEL_BC_PUSH_BLOCK,
+                                       &&LABEL_BC_PUSH_BLOCK_NO_CTX,
                                        &&LABEL_BC_PUSH_CONSTANT,
                                        &&LABEL_BC_PUSH_CONSTANT_0,
                                        &&LABEL_BC_PUSH_CONSTANT_1,
@@ -153,8 +154,7 @@ vm_oop_t Interpreter::Start() {
                                        &&LABEL_BC_JUMP2_ON_NOT_NIL_TOP_TOP,
                                        &&LABEL_BC_JUMP2_ON_NIL_TOP_TOP,
                                        &&LABEL_BC_JUMP2_IF_GREATER,
-                                       &&LABEL_BC_JUMP2_BACKWARD,
-                                       &&LABEL_BC_PUSH_BLOCK_WITHOUT_CONTEXT};
+                                       &&LABEL_BC_JUMP2_BACKWARD};
 
     goto* loopTargets[currentBytecodes[bytecodeIndexGlobal]];
 
@@ -246,7 +246,7 @@ LABEL_BC_PUSH_BLOCK:
     doPushBlock(bytecodeIndexGlobal - 2, true);
     DISPATCH_GC();
 
-LABEL_BC_PUSH_BLOCK_WITHOUT_CONTEXT:
+LABEL_BC_PUSH_BLOCK_NO_CTX:
     PROLOGUE(2);
     doPushBlock(bytecodeIndexGlobal - 2, false);
     DISPATCH_GC();

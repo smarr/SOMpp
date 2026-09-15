@@ -224,7 +224,7 @@ void Disassembler::dumpMethod(uint8_t* bytecodes, size_t numberOfBytecodes,
             }
 
             case BC_PUSH_BLOCK:
-            case BC_PUSH_BLOCK_WITHOUT_CONTEXT: {
+            case BC_PUSH_BLOCK_NO_CTX: {
                 size_t const indent_size = strlen(indent) + 1 + 1;
                 char* nindent = new char[indent_size];
                 DebugPrint("block: (index: %d) ", bytecodes[bc_idx + 1]);
@@ -560,7 +560,7 @@ void Disassembler::DumpBytecode(VMFrame* frame, VMMethod* method,
             break;
         }
         case BC_PUSH_BLOCK:
-        case BC_PUSH_BLOCK_WITHOUT_CONTEXT: {
+        case BC_PUSH_BLOCK_NO_CTX: {
             DebugPrint("block: (index: %d) ", BC_1);
             auto* invk = dynamic_cast<VMInvokable*>(
                 (AbstractVMObject*)method->GetConstant(bc_idx));
