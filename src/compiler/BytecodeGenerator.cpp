@@ -36,6 +36,7 @@
 #include "../vm/Globals.h"
 #include "../vm/IsValidObject.h"
 #include "../vm/Symbols.h"
+#include "../vm/Universe.h"
 #include "../vmobjects/ObjectFormats.h"
 #include "../vmobjects/Signature.h"
 #include "../vmobjects/VMMethod.h"
@@ -231,6 +232,9 @@ void EmitPUSHGLOBAL(MethodGenerationContext& mgenc, const Parser& parser,
     } else {
         const uint8_t idx = mgenc.AddLiteralIfAbsent(global, parser);
         Emit2(mgenc, BC_PUSH_GLOBAL, idx, 1);
+        if (!Universe::HasGlobal(global)) {
+            mgenc.MarkAccessingOuterScopes();
+        }
     }
 }
 
