@@ -198,6 +198,21 @@ typedef PagedMarkSweepHeap HEAP_CLS;
 #define likely(x) __builtin_expect((x), 1)
 #define unlikely(x) __builtin_expect((x), 0)
 
+//
+// Statistics
+//
+#ifndef STATS_INT_HIST
+  #define STATS_INT_HIST false
+#endif
+
+#ifndef STATS_ALLOC
+  #define STATS_ALLOC false
+#endif
+
+#ifndef STATS_CALLS
+  #define STATS_CALLS false
+#endif
+
 #ifdef _MSC_VER
 typedef unsigned long long uint64_t;
 typedef long long int64_t;

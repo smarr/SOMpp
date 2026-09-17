@@ -38,6 +38,7 @@
 #include "../vm/Globals.h"
 #include "../vm/IsValidObject.h"
 #include "../vm/Print.h"
+#include "../vm/Statistics.h"
 #include "../vm/Universe.h"
 #include "../vmobjects/IntegerBox.h"
 #include "../vmobjects/ObjectFormats.h"
@@ -734,20 +735,12 @@ void Interpreter::popFrameAndPushResult(vm_oop_t result) {
 }
 
 void Interpreter::send(VMSymbol* signature, VMClass* receiverClass) {
+    recordStat(ReceiverType, receiverClass);
+
     VMInvokable* invokable = receiverClass->LookupInvokable(signature);
 
     if (invokable != nullptr) {
-#ifdef LOG_RECEIVER_TYPES
-        std::string name = receiverClass->GetName()->GetStdString();
-        if (Universe::callStats.find(name) == Universe::callStats.end()) {
-            Universe::callStats[name] = {0, 0};
-        }
-        Universe::callStats[name].noCalls++;
-        if (invokable->IsPrimitive()) {
-            Universe::callStats[name].noPrimitiveCalls++;
-        }
-#endif
-
+        recordStat(CallStats, receiverClass, invokable);
         invokable->Invoke(GetFrame());
     } else {
         triggerDoesNotUnderstand(signature);
@@ -957,11 +950,6 @@ void Interpreter::doSend(size_t bytecodeIndex) {
     VMClass* receiverClass = CLASS_OF(receiver);
 
     assert(IsValidObject(receiverClass));
-
-#ifdef LOG_RECEIVER_TYPES
-    Universe::receiverTypes[receiverClass->GetName()->GetStdString()]++;
-#endif
-
     send(signature, receiverClass);
 }
 
@@ -980,24 +968,11 @@ void Interpreter::doUnarySend(size_t bytecodeIndex) {
     VMClass* receiverClass = CLASS_OF(receiver);
 
     assert(IsValidObject(receiverClass));
-
-#ifdef LOG_RECEIVER_TYPES
-    Universe::receiverTypes[receiverClass->GetName()->GetStdString()]++;
-#endif
-
+    recordStat(ReceiverType, receiverClass);
     VMInvokable* invokable = receiverClass->LookupInvokable(signature);
 
     if (invokable != nullptr) {
-#ifdef LOG_RECEIVER_TYPES
-        std::string name = receiverClass->GetName()->GetStdString();
-        if (Universe::callStats.find(name) == Universe::callStats.end()) {
-            Universe::callStats[name] = {0, 0};
-        }
-        Universe::callStats[name].noCalls++;
-        if (invokable->IsPrimitive()) {
-            Universe::callStats[name].noPrimitiveCalls++;
-        }
-#endif
+        recordStat(CallStats, receiverClass, invokable);
         invokable->Invoke1(GetFrame());
     } else {
         triggerDoesNotUnderstand(signature);

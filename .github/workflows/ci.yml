@@ -109,10 +109,9 @@ jobs:
         run: |
           build_options=(
               "BYTECODE_HEATMAP"
-              "GENERATE_ALLOCATION_STATISTICS"
-              "LOG_RECEIVER_TYPES"
               "UNSAFE_FRAME_OPTIMIZATION"
               "ADDITIONAL_ALLOCATION"
+              "STATS_INT_HIST=true -DSTATS_ALLOC=true -DSTATS_CALLS"
           )
 
           for opt in "${build_options[@]}"; do
