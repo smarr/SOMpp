@@ -89,14 +89,5 @@ set_machine_tag_and_experiment() {
   fi
   echo "set_machine_tag_and_experiment: MACHINE: $MACHINE, M: $M"
 
-  if [ "$MACHINE_LOCATION" = "ssw" ]; then
-    if [ "$MACHINE" = "cassius" ]; then
-      # cassius is comparably slow, so, use the old settings
-      export EXPERIMENT="SOM++"
-    else
-      export EXPERIMENT="SOM++-ssw"
-    fi
-  else
-    export EXPERIMENT="SOM++"
-  fi
+  export EXPERIMENT="SOM++"
 }
