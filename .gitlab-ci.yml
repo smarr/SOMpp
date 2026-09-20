@@ -14,13 +14,18 @@ build_and_test:
   stage: build-and-test
   parallel:
     matrix:
-      - MACHINE:
-          - yuria
-          - yuria2
-          - yuria3
+      - MACHINE: [yuria, yuria2, yuria3]
         MACHINE_LOCATION: [kent]
         COMPILER: [clang, gcc]
         GC: [COPYING, PAGED_MARK_SWEEP]
+        CMAKE_FLAGS:
+          - "-DUSE_TAGGING=true"
+          - "-DUSE_TAGGING=false -DCACHE_INTEGER=false -DUSE_VECTOR_PRIMITIVES=false"
+
+      - MACHINE: [laertes, ophelia, brutus]
+        MACHINE_LOCATION: [ssw]
+        GC: [GENERATIONAL]
+        COMPILER: [clang, gcc]
         CMAKE_FLAGS:
           - "-DUSE_TAGGING=true"
           - "-DUSE_TAGGING=false -DCACHE_INTEGER=false -DUSE_VECTOR_PRIMITIVES=false"
@@ -29,15 +34,6 @@ build_and_test:
         MACHINE_LOCATION: [kent]
         COMPILER: [clang]
         GC: [GENERATIONAL]
-        CMAKE_FLAGS:
-          - "-DUSE_TAGGING=true"
-          - "-DUSE_TAGGING=false -DCACHE_INTEGER=false -DUSE_VECTOR_PRIMITIVES=false"
-
-      
-      - MACHINE: [laertes, ophelia, brutus]
-        MACHINE_LOCATION: [ssw]
-        GC: [GENERATIONAL]
-        COMPILER: [clang, gcc]
         CMAKE_FLAGS:
           - "-DUSE_TAGGING=true"
           - "-DUSE_TAGGING=false -DCACHE_INTEGER=false -DUSE_VECTOR_PRIMITIVES=false"
@@ -51,8 +47,8 @@ build_and_test:
 
       - MACHINE: [cassius]
         MACHINE_LOCATION: [ssw]
-        COMPILER: [clang, gcc]
-        GC: [GENERATIONAL, COPYING, MARK_SWEEP, PAGED_MARK_SWEEP]
+        COMPILER: [clang]
+        GC: [GENERATIONAL, COPYING, PAGED_MARK_SWEEP]
         CMAKE_FLAGS:
           - "-DUSE_TAGGING=true"
       

@@ -66,17 +66,15 @@ file(GLOB PRIMITIVESCORE_SRC ${PRIMITIVESCORE_DIR}/*.cpp)
 
 file(GLOB UNITTEST_SRC    ${UNITTEST_DIR}/*.cpp)
 
-option(USE_TAGGING "Enable immediate integers using tagging" FALSE)
-set(GC_TYPE "COPYING" CACHE STRING "Select the type of GC to be used: COPYING, MARK_SWEEP, PAGED_MARK_SWEEP, DEBUG_MARK_SWEEP, GENERATIONAL")
+set(GC_TYPE "GENERATIONAL" CACHE STRING
+  "Select the type of GC to be used: COPYING, MARK_SWEEP, PAGED_MARK_SWEEP, DEBUG_MARK_SWEEP, GENERATIONAL")
 
-option(CACHE_INTEGER "Enable caching of boxed integers" FALSE)
+option(USE_TAGGING    "Enable immediate integers using tagging" TRUE)
+option(CACHE_INTEGER  "Enable caching of boxed integers" FALSE)
 set(INT_CACHE_MIN_VALUE -5  CACHE STRING "Lower bound of cached integers")
 set(INT_CACHE_MAX_VALUE 100 CACHE STRING "Upper bound of cached integers")
-option(BYTECODE_HEATMAP "Count per-method bytecode hits and show them in the disassembler" FALSE)
 
-option(USE_VECTOR_PRIMITIVES "Use Vector primitives" TRUE)
-
-
+option(USE_VECTOR_PRIMITIVES     "Use Vector primitives" TRUE)
 option(UNSAFE_FRAME_OPTIMIZATION "Enable unsafe frame optimization" FALSE)
 option(ADDITIONAL_ALLOCATION     "Enable additional allocations" FALSE)
 
@@ -114,9 +112,13 @@ if (STATS_CALLS)
   add_definitions(-DSTATS_CALLS=true)
 endif ()
 
+option(BYTECODE_HEATMAP
+  "Count per-method bytecode hits and show them in the disassembler" FALSE)
 if (BYTECODE_HEATMAP)
   add_definitions(-DBYTECODE_HEATMAP)
 endif ()
+
+
 if(USE_VECTOR_PRIMITIVES)
   add_definitions(-DUSE_VECTOR_PRIMITIVES=true)
 else ()
@@ -154,7 +156,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND FIND_COMPATIBLE_CLANG_STDLIB_INCLU
     set(CLANG_STDLIB_CANDIDATES "")
     if(CLANG_VERSION_MAJOR LESS 20)
       set(CLANG_STDLIB_CANDIDATES 14 13 12 11)
-    elseif(CLANG_VERSION_MAJOR LESS 22)
+    elseif(CLANG_VERSION_MAJOR LESS 24)
       set(CLANG_STDLIB_CANDIDATES 15 14 13 12 11)
     else()
       set(CLANG_STDLIB_CANDIDATES 16 15 14 13 12 11)
