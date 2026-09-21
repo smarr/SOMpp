@@ -861,6 +861,7 @@ void Interpreter::doReturnFieldWithIndex(uint8_t fieldIndex) {
 }
 
 void Interpreter::doPushBlock(size_t bytecodeIndex) {
+    recordStat(BlockStats, false);
     vm_oop_t block = method->GetConstant(bytecodeIndex);
     auto* blockMethod = static_cast<VMInvokable*>(block);
 
@@ -869,6 +870,7 @@ void Interpreter::doPushBlock(size_t bytecodeIndex) {
 }
 
 void Interpreter::doPushBlockWithoutContext(size_t bytecodeIndex) {
+    recordStat(BlockStats, true);
     vm_oop_t block = method->GetConstant(bytecodeIndex);
     auto* blockMethod = static_cast<VMInvokable*>(block);
 
