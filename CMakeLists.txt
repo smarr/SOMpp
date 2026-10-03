@@ -59,6 +59,7 @@ file(GLOB MEMORY_SRC      ${MEMORY_DIR}/*.cpp)
 file(GLOB MISC_SRC        ${MISC_DIR}/*.cpp)
 file(GLOB VM_SRC          ${VM_DIR}/*.cpp)
 file(GLOB VMOBJECTS_SRC   ${VMOBJECTS_DIR}/*.cpp)
+file(GLOB CPPUNIT_SRC     ${ROOT_DIR}/cppunit/src/cppunit/*.cpp)
 
 file(GLOB MAIN_SRC           ${SRC_DIR}/*.cpp)
 file(GLOB PRIMITIVES_SRC     ${PRIMITIVES_DIR}/*.cpp)
@@ -240,6 +241,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     ${MISC_SRC}
     ${VM_SRC}
     ${VMOBJECTS_SRC}
+    ${CPPUNIT_SRC}
 
     ${PRIMITIVES_SRC}
     ${PRIMITIVESCORE_SRC}
@@ -252,16 +254,10 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 
   target_include_directories(unittests PRIVATE
     ${SRC_DIR}
-    /opt/local/include)
+    ${ROOT_DIR}/cppunit/include)
   if(CLANG_STDLIB_INCLUDE_DIRS)
     target_include_directories(unittests SYSTEM PRIVATE ${CLANG_STDLIB_INCLUDE_DIRS})
   endif()
-
-  find_library(LIB_CPPUNIT
-    NAMES cppunit
-    HINTS /opt/local/lib)
-
-  target_link_libraries(unittests ${LIB_CPPUNIT})
 endif()
 
 find_program(CLANG_TIDY_EXE NAMES clang-tidy-22 clang-tidy-mp-22 clang-tidy)
