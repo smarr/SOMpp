@@ -118,6 +118,24 @@ public:
         store_ptr(*stack_ptr, obj);
     }
 
+    /* Only valid for tagged integers, nil, true, and false.
+     * nil, true, and false are roots, and do not need the read barrier. */
+    inline void SetTopNoBarrier(vm_oop_t val) {
+        assert(IS_TAGGED(val) || val == load_ptr(nilObject) ||
+               val == load_ptr(trueObject) || val == load_ptr(falseObject));
+        *stack_ptr = store_with_separate_barrier(val);
+    }
+
+    /* Only valid for tagged integers, nil, true, and false.
+     * nil, true, and false are roots, and do not need the read barrier. */
+    inline void PushNoBarrier(vm_oop_t obj) {
+        assert(IS_TAGGED(obj) || obj == load_ptr(nilObject) ||
+               obj == load_ptr(trueObject) || obj == load_ptr(falseObject));
+        assert(RemainingStackSize() > 0);
+        ++stack_ptr;
+        SetTopNoBarrier(obj);
+    }
+
     [[nodiscard]] inline size_t GetBytecodeIndex() const {
         return bytecodeIndex;
     }
