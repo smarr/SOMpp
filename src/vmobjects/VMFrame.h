@@ -118,6 +118,23 @@ public:
         store_ptr(*stack_ptr, obj);
     }
 
+    /* Stores that skip the write barrier. Only valid for tagged integers,
+     * which are not heap objects, and for nil, true, and false. The latter are
+     * allocated in the nursery, but promoted by the first GC and never moved
+     * again. A frame can only be old after a GC, so storing them into a frame
+     * never needs the write barrier. */
+    inline void SetTopNoBarrier(vm_oop_t val) {
+        assert(IS_TAGGED(val) || val == load_ptr(nilObject) ||
+               val == load_ptr(trueObject) || val == load_ptr(falseObject));
+        *stack_ptr = store_with_separate_barrier(val);
+    }
+
+    inline void PushNoBarrier(vm_oop_t obj) {
+        assert(RemainingStackSize() > 0);
+        ++stack_ptr;
+        SetTopNoBarrier(obj);
+    }
+
     [[nodiscard]] inline size_t GetBytecodeIndex() const {
         return bytecodeIndex;
     }
