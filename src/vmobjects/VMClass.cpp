@@ -146,14 +146,8 @@ PrimInstallResult VMClass::InstallPrimitive(VMInvokable* invokable,
 }
 
 VMSymbol* VMClass::GetInstanceFieldName(size_t index) const {
-    size_t const numSuperInstanceFields = numberOfSuperInstanceFields();
-    if (index >= numSuperInstanceFields) {
-        index -= numSuperInstanceFields;
-        return static_cast<VMSymbol*>(
-            load_ptr(instanceFields)->GetIndexableField(index));
-    }
-    assert(HasSuperClass());
-    return ((VMClass*)load_ptr(superClass))->GetInstanceFieldName(index);
+    return static_cast<VMSymbol*>(
+        load_ptr(instanceFields)->GetIndexableField(index));
 }
 
 void VMClass::SetInstanceInvokables(VMArray* invokables) {
@@ -218,8 +212,7 @@ VMInvokable* VMClass::LookupInvokable(VMSymbol* name) {
 
 int64_t VMClass::LookupFieldIndex(VMSymbol* name) const {
     size_t const numInstanceFields = GetNumberOfInstanceFields();
-    for (size_t i = 0; i <= numInstanceFields; ++i) {
-        // even with GetNumberOfInstanceFields == 0 there is the class field
+    for (size_t i = 0; i < numInstanceFields; ++i) {
         if (name == GetInstanceFieldName(i)) {
             return (int64_t)i;
         }
@@ -228,8 +221,7 @@ int64_t VMClass::LookupFieldIndex(VMSymbol* name) const {
 }
 
 size_t VMClass::GetNumberOfInstanceFields() const {
-    return load_ptr(instanceFields)->GetNumberOfIndexableFields() +
-           numberOfSuperInstanceFields();
+    return load_ptr(instanceFields)->GetNumberOfIndexableFields();
 }
 
 bool VMClass::HasPrimitives() const {
@@ -251,13 +243,6 @@ void VMClass::LoadPrimitives(bool showWarning) {
         PrimitiveLoader::InstallPrimitives(
             cname, GetClass(), true, showWarning);
     }
-}
-
-size_t VMClass::numberOfSuperInstanceFields() const {
-    if (HasSuperClass()) {
-        return ((VMClass*)load_ptr(superClass))->GetNumberOfInstanceFields();
-    }
-    return 0;
 }
 
 bool VMClass::hasPrimitivesFor(const std::string& cl) {
