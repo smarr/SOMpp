@@ -455,9 +455,9 @@ VMObject* Universe::InitializeGlobals() {
     // Fix up objectClass
     load_ptr(objectClass)->SetSuperClass(nil);
 
-#if USE_TAGGING
-    GlobalBox::updateIntegerBox(NewInteger(1));
-#endif
+    if (USE_TAGGING) {
+        GlobalBox::updateIntegerBox(NewInteger(1));
+    }
     InitializeSymbols();
     obtain_vtables_of_known_classes(load_ptr(symbolSelf));
 
@@ -873,9 +873,9 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
     trueObject = static_cast<GCObject*>(walk(trueObject));
     falseObject = static_cast<GCObject*>(walk(falseObject));
 
-#if USE_TAGGING
-    GlobalBox::WalkGlobals(walk);
-#endif
+    if (USE_TAGGING) {
+        GlobalBox::WalkGlobals(walk);
+    }
 
     objectClass = static_cast<GCClass*>(walk(objectClass));
     classClass = static_cast<GCClass*>(walk(classClass));
