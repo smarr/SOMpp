@@ -898,11 +898,7 @@ void Universe::WalkGlobals(walk_heap_fn walk) {
 
 #if CACHE_INTEGER
     for (size_t i = 0; i < (INT_CACHE_MAX_VALUE - INT_CACHE_MIN_VALUE); i++) {
-  #if USE_TAGGING
-        prebuildInts[i] = TAG_INTEGER(INT_CACHE_MIN_VALUE + i);
-  #else
         prebuildInts[i] = walk(prebuildInts[i]);
-  #endif
     }
 #endif
 
