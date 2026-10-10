@@ -276,17 +276,25 @@ LABEL_BC_PUSH_CONSTANT_2:
 
 LABEL_BC_PUSH_0:
     PROLOGUE(1);
-    GetFrame()->Push(NEW_INT(0));
+    if (USE_TAGGING) {
+        GetFrame()->PushNoBarrier(NEW_INT(0));
+    } else {
+        GetFrame()->Push(NEW_INT(0));
+    }
     DISPATCH_NOGC();
 
 LABEL_BC_PUSH_1:
     PROLOGUE(1);
-    GetFrame()->Push(NEW_INT(1));
+    if (USE_TAGGING) {
+        GetFrame()->PushNoBarrier(NEW_INT(1));
+    } else {
+        GetFrame()->Push(NEW_INT(1));
+    }
     DISPATCH_NOGC();
 
 LABEL_BC_PUSH_NIL:
     PROLOGUE(1);
-    GetFrame()->Push(load_ptr(nilObject));
+    GetFrame()->PushNoBarrier(load_ptr(nilObject));
     DISPATCH_NOGC();
 
 LABEL_BC_PUSH_GLOBAL:
@@ -390,13 +398,14 @@ LABEL_BC_RETURN_FIELD_2:
 LABEL_BC_INC:
     PROLOGUE(1);
     doInc();
-#if USE_TAGGING
-    DISPATCH_NOGC();
-#else
-    // without integer tagging doInc() allocates memory and the IfNil benchmark
-    // will allocate, but not reach a GC point, and run out of memory
-    DISPATCH_GC();
-#endif
+    if (USE_TAGGING) {
+        DISPATCH_NOGC();
+    } else {
+        // without integer tagging doInc() allocates memory and the IfNil
+        // benchmark will allocate, but not reach a GC point, and run out of
+        // memory
+        DISPATCH_GC();
+    }
 
 LABEL_BC_DEC:
     PROLOGUE(1);
@@ -448,7 +457,7 @@ LABEL_BC_JUMP_ON_FALSE_TOP_NIL: {
     if (val == load_ptr(falseObject)) {
         uint8_t const offset = currentBytecodes[bytecodeIndexGlobal + 1];
         bytecodeIndexGlobal += offset;
-        GetFrame()->SetTop(load_ptr(nilObject));
+        GetFrame()->SetTopNoBarrier(load_ptr(nilObject));
     } else {
         GetFrame()->PopVoid();
         bytecodeIndexGlobal += 3;
@@ -461,7 +470,7 @@ LABEL_BC_JUMP_ON_TRUE_TOP_NIL: {
     if (val == load_ptr(trueObject)) {
         uint8_t const offset = currentBytecodes[bytecodeIndexGlobal + 1];
         bytecodeIndexGlobal += offset;
-        GetFrame()->SetTop(load_ptr(nilObject));
+        GetFrame()->SetTopNoBarrier(load_ptr(nilObject));
     } else {
         GetFrame()->PopVoid();
         bytecodeIndexGlobal += 3;
@@ -579,7 +588,7 @@ LABEL_BC_JUMP2_ON_FALSE_TOP_NIL: {
             ComputeOffset(currentBytecodes[bytecodeIndexGlobal + 1],
                           currentBytecodes[bytecodeIndexGlobal + 2]);
         bytecodeIndexGlobal += offset;
-        GetFrame()->SetTop(load_ptr(nilObject));
+        GetFrame()->SetTopNoBarrier(load_ptr(nilObject));
     } else {
         GetFrame()->PopVoid();
         bytecodeIndexGlobal += 3;
@@ -594,7 +603,7 @@ LABEL_BC_JUMP2_ON_TRUE_TOP_NIL: {
             ComputeOffset(currentBytecodes[bytecodeIndexGlobal + 1],
                           currentBytecodes[bytecodeIndexGlobal + 2]);
         bytecodeIndexGlobal += offset;
-        GetFrame()->SetTop(load_ptr(nilObject));
+        GetFrame()->SetTopNoBarrier(load_ptr(nilObject));
     } else {
         GetFrame()->PopVoid();
         bytecodeIndexGlobal += 3;
@@ -1069,7 +1078,11 @@ void Interpreter::doInc() {
         ErrorExit("unsupported");
     }
 
-    GetFrame()->SetTop(val);
+    if (IS_TAGGED(val)) {
+        GetFrame()->SetTopNoBarrier(val);
+    } else {
+        GetFrame()->SetTop(val);
+    }
 }
 
 void Interpreter::doDec() {
@@ -1085,7 +1098,11 @@ void Interpreter::doDec() {
         ErrorExit("unsupported");
     }
 
-    GetFrame()->SetTop(val);
+    if (IS_TAGGED(val)) {
+        GetFrame()->SetTopNoBarrier(val);
+    } else {
+        GetFrame()->SetTop(val);
+    }
 }
 
 void Interpreter::doIncField(uint8_t fieldIndex) {
@@ -1134,7 +1151,11 @@ void Interpreter::doIncFieldPush(uint8_t fieldIndex) {
     }
 
     selfObj->SetField(fieldIndex, val);
-    GetFrame()->Push(val);
+    if (IS_TAGGED(val)) {
+        GetFrame()->PushNoBarrier(val);
+    } else {
+        GetFrame()->Push(val);
+    }
 }
 
 bool Interpreter::checkIsGreater() {
