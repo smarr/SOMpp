@@ -20,6 +20,7 @@
 #include "../vm/Universe.h"
 #include "BasicInterpreterTests.h"
 #include "BytecodeGenerationTest.h"
+#include "ClassFieldsTest.h"
 #include "CloneObjectsTest.h"
 #include "HashingTest.h"
 #include "InfIntTests.h"
@@ -40,6 +41,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(BytecodeGenerationTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(TrivialMethodTest);
 CPPUNIT_TEST_SUITE_REGISTRATION(BasicInterpreterTests);
 CPPUNIT_TEST_SUITE_REGISTRATION(HashingTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(ClassFieldsTest);
 
 int32_t main(int32_t ac, char** av) {
     Universe::Start(ac, av);
