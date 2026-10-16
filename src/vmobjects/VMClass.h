@@ -86,9 +86,9 @@ private:
     void setPrimitives(const std::string& cname, bool classSide);
     [[nodiscard]] size_t numberOfSuperInstanceFields() const;
 
-    static const size_t VMClassNumberOfFields;
-
     make_testable(public);
+
+    static const size_t VMClassNumberOfFields;
 
     // Remember to update Parser::superclass when the fields are changed
     // Theses are treated like VMObject fields and initialized that way
