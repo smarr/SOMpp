@@ -70,6 +70,7 @@
 #define DEBUG_MARK_SWEEP 4
 #define DEBUG_COPYING 5
 #define PAGED_MARK_SWEEP 6
+#define DSW_PAGED_MARK_SWEEP 7
 
 #if GC_TYPE == GENERATIONAL
 class GenerationalHeap;
@@ -115,6 +116,14 @@ typedef DebugCopyingHeap HEAP_CLS;
 #elif GC_TYPE == PAGED_MARK_SWEEP
 class PagedMarkSweepHeap;
 typedef PagedMarkSweepHeap HEAP_CLS;
+  #define write_barrier(obj, value_ptr)
+  #define ALLOC_MATURE
+  #define ALLOC_OUTSIDE_NURSERY(X)
+  #define ALLOC_OUTSIDE_NURSERY_DECL
+  #define GC_MOVES_OBJECTS false
+#elif GC_TYPE == DSW_PAGED_MARK_SWEEP
+class DSWPagedMarkSweepHeap;
+typedef DSWPagedMarkSweepHeap HEAP_CLS;
   #define write_barrier(obj, value_ptr)
   #define ALLOC_MATURE
   #define ALLOC_OUTSIDE_NURSERY(X)

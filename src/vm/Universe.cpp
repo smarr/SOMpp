@@ -116,6 +116,8 @@ static void printVmConfig() {
         cout << "\tgarbage collector: debug copying\n";
     } else if (GC_TYPE == PAGED_MARK_SWEEP) {
         cout << "\tgarbage collector: paged mark-sweep\n";
+    } else if (GC_TYPE == DSW_PAGED_MARK_SWEEP) {
+        cout << "\tgarbage collector: Deutsch-Schorr-Waite paged mark-sweep\n";
     } else {
         cout << "\tgarbage collector: unknown\n";
     }

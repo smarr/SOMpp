@@ -179,6 +179,7 @@ public:
     }
 
     void WalkObjects(walk_heap_fn /*unused*/) override;
+    [[nodiscard]] gc_oop_t* GetGCSlot(size_t index) override;
     [[nodiscard]] VMFrame* CloneForMovingGC() const override;
 
     void PrintStack() const;

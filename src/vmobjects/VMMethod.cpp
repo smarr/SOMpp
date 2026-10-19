@@ -106,6 +106,11 @@ void VMMethod::WalkObjects(walk_heap_fn walk) {
     }
 }
 
+gc_oop_t* VMMethod::GetGCSlot(size_t index) {
+#warning "TODO: Not yet implemented"
+    return nullptr;
+}
+
 VMFrame* VMMethod::Invoke(VMFrame* frame) {
     // since an invokable is able to change/use the frame, we have to write
     // cached values before, and read cached values after calling

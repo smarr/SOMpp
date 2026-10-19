@@ -30,12 +30,13 @@
 
 #include "../misc/defs.h"
 #include "../vm/Print.h"
-#include "CopyingHeap.h"         // NOLINT(misc-include-cleaner)
-#include "DebugCopyingHeap.h"    // NOLINT(misc-include-cleaner)
-#include "DebugMarkSweepHeap.h"  // NOLINT(misc-include-cleaner)
-#include "GenerationalHeap.h"    // NOLINT(misc-include-cleaner)
-#include "MarkSweepHeap.h"       // NOLINT(misc-include-cleaner)
-#include "PagedMarkSweepHeap.h"  // NOLINT(misc-include-cleaner)
+#include "CopyingHeap.h"            // NOLINT(misc-include-cleaner)
+#include "DSWPagedMarkSweepHeap.h"  // NOLINT(misc-include-cleaner)
+#include "DebugCopyingHeap.h"       // NOLINT(misc-include-cleaner)
+#include "DebugMarkSweepHeap.h"     // NOLINT(misc-include-cleaner)
+#include "GenerationalHeap.h"       // NOLINT(misc-include-cleaner)
+#include "MarkSweepHeap.h"          // NOLINT(misc-include-cleaner)
+#include "PagedMarkSweepHeap.h"     // NOLINT(misc-include-cleaner)
 
 #if DEBUG
 bool gcStressMode = false;
@@ -93,3 +94,7 @@ template Heap<DebugMarkSweepHeap>::~Heap();
 class PagedMarkSweepHeap;
 template PagedMarkSweepHeap* Heap<PagedMarkSweepHeap>::theHeap;
 template Heap<PagedMarkSweepHeap>::~Heap();
+
+class DSWPagedMarkSweepHeap;
+template DSWPagedMarkSweepHeap* Heap<DSWPagedMarkSweepHeap>::theHeap;
+template Heap<DSWPagedMarkSweepHeap>::~Heap();

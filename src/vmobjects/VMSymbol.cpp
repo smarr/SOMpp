@@ -73,6 +73,11 @@ void VMSymbol::WalkObjects(walk_heap_fn walk) {
     }
 }
 
+gc_oop_t* VMSymbol::GetGCSlot(size_t index) {
+#warning "TODO: Not yet implemented"
+    return nullptr;
+}
+
 std::string VMSymbol::AsDebugString() const {
     return "Symbol(" + GetStdString() + ")";
 }

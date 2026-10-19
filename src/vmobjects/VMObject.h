@@ -123,6 +123,7 @@ public:
 
     virtual void Assert(bool value) const;
     void WalkObjects(walk_heap_fn walk) override;
+    [[nodiscard]] gc_oop_t* GetGCSlot(size_t index) override;
     [[nodiscard]] VMObject* CloneForMovingGC() const override;
 
     /** The total size of the object on the heap. */

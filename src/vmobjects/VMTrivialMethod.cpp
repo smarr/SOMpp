@@ -82,6 +82,11 @@ void VMLiteralReturn::WalkObjects(walk_heap_fn walk) {
     walk_ptr(literal, walk);
 }
 
+gc_oop_t* VMLiteralReturn::GetGCSlot(size_t index) {
+#warning "TODO: Not yet implemented"
+    return nullptr;
+}
+
 void VMLiteralReturn::InlineInto(MethodGenerationContext& mgenc,
                                  const Parser& parser, bool /*mergeScope*/) {
     EmitPUSHCONSTANT(mgenc, parser, load_ptr(literal));
@@ -124,6 +129,11 @@ void VMGlobalReturn::InlineInto(MethodGenerationContext& mgenc,
 void VMGlobalReturn::WalkObjects(walk_heap_fn walk) {
     VMInvokable::WalkObjects(walk);
     walk_ptr(globalName, walk);
+}
+
+gc_oop_t* VMGlobalReturn::GetGCSlot(size_t index) {
+#warning "TODO: Not yet implemented"
+    return nullptr;
 }
 
 std::string VMGlobalReturn::AsDebugString() const {

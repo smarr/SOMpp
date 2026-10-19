@@ -71,6 +71,7 @@ public:
     virtual void SetHolder(VMClass* hld);
 
     void WalkObjects(walk_heap_fn /*unused*/) override;
+    [[nodiscard]] gc_oop_t* GetGCSlot(size_t index) override;
 
     void MarkObjectAsInvalid() override {
         signature = (GCSymbol*)INVALID_GC_POINTER;
@@ -81,6 +82,9 @@ public:
 
 protected:
     make_testable(public);
+
+    /** Number of slots returned by VMInvokable::GetGCSlot(). */
+    static constexpr size_t NumberOfGCSlots = 2;
 
     int64_t hash;
 

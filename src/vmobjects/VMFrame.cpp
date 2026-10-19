@@ -161,6 +161,11 @@ void VMFrame::WalkObjects(walk_heap_fn walk) {
     }
 }
 
+gc_oop_t* VMFrame::GetGCSlot(size_t index) {
+#warning "TODO: Not yet implemented"
+    return nullptr;
+}
+
 void VMFrame::PrintBytecode() const {
     Disassembler::DumpMethod(GetMethod(), "  ");
 }

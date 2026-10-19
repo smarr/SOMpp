@@ -84,6 +84,7 @@ public:
     }
 
     void WalkObjects(walk_heap_fn /*walk*/) override;
+    [[nodiscard]] gc_oop_t* GetGCSlot(size_t index) override;
 
     [[nodiscard]] bool IsMarkedInvalid() const final {
         return literal == INVALID_GC_POINTER;
@@ -127,6 +128,7 @@ public:
     }
 
     void WalkObjects(walk_heap_fn /*walk*/) override;
+    [[nodiscard]] gc_oop_t* GetGCSlot(size_t index) override;
 
     [[nodiscard]] bool IsMarkedInvalid() const final {
         return globalName == (GCSymbol*)INVALID_GC_POINTER;

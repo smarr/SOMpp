@@ -143,6 +143,7 @@ public:
     inline void SetBytecode(size_t indx, uint8_t val) { bytecodes[indx] = val; }
 
     void WalkObjects(walk_heap_fn /*unused*/) override;
+    [[nodiscard]] gc_oop_t* GetGCSlot(size_t index) override;
 
     [[nodiscard]] inline size_t GetNumberOfIndexableFields() const {
         return numberOfConstants;

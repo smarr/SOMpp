@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include "../memory/CopyingHeap.h"
+#include "../memory/DSWPagedMarkSweepHeap.h"
 #include "../memory/DebugCopyingHeap.h"
 #include "../memory/DebugMarkSweepHeap.h"
 #include "../memory/GenerationalHeap.h"
@@ -57,6 +58,15 @@ public:
     int64_t GetFieldIndex(VMSymbol* fieldName) const;
 
     virtual void WalkObjects(walk_heap_fn /*walk*/) {}
+
+    /**
+     * Returns the address of the slot with the given index, or
+     * nullptr if there is no such slot. Slots should be
+     * in the same order in which WalkObjects visits them.
+     */
+    [[nodiscard]] virtual gc_oop_t* GetGCSlot(size_t /*index*/) {
+        return nullptr;
+    }
 
     [[nodiscard]] inline virtual VMSymbol* GetFieldName(
         size_t /*index*/) const {

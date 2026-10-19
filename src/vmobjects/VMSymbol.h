@@ -46,6 +46,7 @@ public:
     [[nodiscard]] std::string AsDebugString() const override;
 
     void WalkObjects(walk_heap_fn /*unused*/) override;
+    [[nodiscard]] gc_oop_t* GetGCSlot(size_t index) override;
 
 private:
     const uint8_t numberOfArgumentsOfSignature;

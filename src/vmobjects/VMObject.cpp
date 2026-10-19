@@ -87,6 +87,11 @@ void VMObject::WalkObjects(walk_heap_fn walk) {
     }
 }
 
+gc_oop_t* VMObject::GetGCSlot(size_t index) {
+#warning "TODO: Not yet implemented"
+    return nullptr;
+}
+
 void VMObject::MarkObjectAsInvalid() {
     clazz = (GCClass*)INVALID_GC_POINTER;
 

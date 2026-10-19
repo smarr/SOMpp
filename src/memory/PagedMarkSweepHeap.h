@@ -27,7 +27,6 @@ class PagedMarkSweepHeap : public Heap<PagedMarkSweepHeap> {
     struct FreeListEntry {
         FreeListEntry* next;
     };
-    // NOLINTNEXTLINE(altera-struct-pack-align): FPGA-specific, not relevant
     struct Page {
         char* memory;
         size_t sweptLastAtEpoch;

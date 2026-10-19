@@ -43,6 +43,11 @@ void VMInvokable::WalkObjects(walk_heap_fn walk) {
     }
 }
 
+gc_oop_t* VMInvokable::GetGCSlot(size_t index) {
+#warning "TODO: Not yet implemented"
+    return nullptr;
+}
+
 void VMInvokable::SetHolder(VMClass* hld) {
     store_ptr(holder, hld);
 }

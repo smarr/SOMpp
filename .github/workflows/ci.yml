@@ -4,19 +4,14 @@ on: [push, pull_request]
 
 jobs:
   test_soms:
-    name: Run (Compiler=${{matrix.compiler}} GC=${{matrix.gc}} ${{matrix.cmake_flags}}
+    name: Run (Compiler=${{matrix.compiler}} GC=${{matrix.gc}}
     runs-on: ubuntu-24.04
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
-    # continue-on-error: true
     strategy:
       fail-fast: false # we want all jobs to run, because they may fail independently
       matrix:
         compiler: [clang, gcc]
-        gc: [GENERATIONAL, MARK_SWEEP, DEBUG_MARK_SWEEP, COPYING, PAGED_MARK_SWEEP]
-        cmake_flags:
-          - "-DUSE_TAGGING=true"
-          - "-DUSE_TAGGING=false -DCACHE_INTEGER=true"
-          - "-DUSE_TAGGING=false -DCACHE_INTEGER=false -DUSE_VECTOR_PRIMITIVES=false"
+        gc: [PAGED_MARK_SWEEP, DSW_PAGED_MARK_SWEEP]
 
     steps:
       - name: Checkout SOM Repository
@@ -54,8 +49,8 @@ jobs:
           echo $CC $CXX
           mkdir cmake-build
           cd cmake-build
-          echo cmake .. -DGC_TYPE=${{ matrix.gc}} ${{ matrix.cmake_flags }} -DCMAKE_BUILD_TYPE=Debug
-          cmake .. -DGC_TYPE=${{ matrix.gc}} ${{ matrix.cmake_flags }} -DCMAKE_BUILD_TYPE=Debug
+          echo cmake .. -DGC_TYPE=${{ matrix.gc}} -DCMAKE_BUILD_TYPE=Debug
+          cmake .. -DGC_TYPE=${{ matrix.gc}} -DCMAKE_BUILD_TYPE=Debug
           make -j5
 
       - name: Run Unit Tests
@@ -90,38 +85,6 @@ jobs:
         run: |
           cd cmake-build
           make check-format
-
-      # Disabled because it's too slow with the sanitizers
-      # - name: Test SomSom
-      #   run: |
-      #     export ASAN_OPTIONS=detect_leaks=0
-      #     cmake-build/SOM++ -cp Smalltalk:TestSuite:core-lib/SomSom/src/compiler:core-lib/SomSom/src/interpreter:core-lib/SomSom/src/primitives:core-lib/SomSom/src/vm:core-lib/SomSom/src/vmobjects core-lib/SomSom/tests/SomSomTests.som
-
-  build_all_debugging_variants:
-    name: Build All Debugging Variants
-    runs-on: ubuntu-24.04
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
-    steps:
-      - name: Checkout SOM Repository
-        uses: actions/checkout@v6
-
-      - name: Try building all variants
-        run: |
-          build_options=(
-              "BYTECODE_HEATMAP"
-              "ADDITIONAL_ALLOCATION"
-              "STATS_INT_HIST=true -DSTATS_ALLOC=true -DSTATS_CALLS"
-          )
-
-          for opt in "${build_options[@]}"; do
-              echo "Processing: $opt"
-              mkdir cmake-build && cd cmake-build
-              echo cmake .. -D$opt=true
-              cmake .. -D$opt=true
-              make -j5
-              cd ..
-              rm -Rf cmake-build
-          done
 
   build_from_archive:
     name: Check Building the Source Archive

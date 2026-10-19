@@ -66,10 +66,10 @@ file(GLOB PRIMITIVESCORE_SRC ${PRIMITIVESCORE_DIR}/*.cpp)
 
 file(GLOB UNITTEST_SRC    ${UNITTEST_DIR}/*.cpp)
 
-set(GC_TYPE "GENERATIONAL" CACHE STRING
-  "Select the type of GC to be used: COPYING, MARK_SWEEP, PAGED_MARK_SWEEP, DEBUG_MARK_SWEEP, GENERATIONAL")
+set(GC_TYPE "DSW_PAGED_MARK_SWEEP" CACHE STRING
+  "Select the type of GC to be used: COPYING, MARK_SWEEP, PAGED_MARK_SWEEP, DSW_PAGED_MARK_SWEEP, DEBUG_MARK_SWEEP, GENERATIONAL")
 
-option(USE_TAGGING    "Enable immediate integers using tagging" TRUE)
+option(USE_TAGGING    "Enable immediate integers using tagging" FALSE)
 option(CACHE_INTEGER  "Enable caching of boxed integers" FALSE)
 set(INT_CACHE_MIN_VALUE -5  CACHE STRING "Lower bound of cached integers")
 set(INT_CACHE_MAX_VALUE 100 CACHE STRING "Upper bound of cached integers")
