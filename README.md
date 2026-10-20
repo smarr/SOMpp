@@ -136,6 +136,13 @@ make format
 ```
 
 
+Source Archive
+--------------
+
+To create a source archive, use `.github/archive.sh`.
+This creates a tar ball with SOM++ and the core-lib.
+
+
 Build Status
 ------------
 
