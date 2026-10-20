@@ -104,14 +104,14 @@ void VMMethod::WalkObjects(walk_heap_fn walk) {
 
 #ifdef UNSAFE_FRAME_OPTIMIZATION
     if (cachedFrame != nullptr) {
-        cachedFrame = static_cast<GCFrame*>(walk(cachedFrame));
+        walk_ptr(cachedFrame, walk);
     }
 #endif
 
     size_t const numIndexableFields = GetNumberOfIndexableFields();
     for (size_t i = 0; i < numIndexableFields; ++i) {
         if (indexableFields[i] != nullptr) {
-            indexableFields[i] = walk(indexableFields[i]);
+            walk_ptr(indexableFields[i], walk);
         }
     }
 }

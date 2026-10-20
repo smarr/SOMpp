@@ -14,5 +14,5 @@ VMInteger* GlobalBox::IntegerBox() {
 }
 
 void GlobalBox::WalkGlobals(walk_heap_fn walk) {
-    integerBox = static_cast<GCInteger*>(walk(integerBox));
+    walk_ptr(integerBox, walk);
 }

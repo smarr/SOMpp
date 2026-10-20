@@ -79,7 +79,7 @@ std::string VMLiteralReturn::AsDebugString() const {
 
 void VMLiteralReturn::WalkObjects(walk_heap_fn walk) {
     VMInvokable::WalkObjects(walk);
-    literal = walk(literal);
+    walk_ptr(literal, walk);
 }
 
 void VMLiteralReturn::InlineInto(MethodGenerationContext& mgenc,
@@ -123,7 +123,7 @@ void VMGlobalReturn::InlineInto(MethodGenerationContext& mgenc,
 
 void VMGlobalReturn::WalkObjects(walk_heap_fn walk) {
     VMInvokable::WalkObjects(walk);
-    globalName = (GCSymbol*)walk(globalName);
+    walk_ptr(globalName, walk);
 }
 
 std::string VMGlobalReturn::AsDebugString() const {

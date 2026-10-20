@@ -25,6 +25,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+#include <type_traits>
+
 #include "../misc/defs.h"
 
 // some MACROS for integer tagging
@@ -233,3 +235,17 @@ inline typename T::Stored* store_with_separate_barrier(T* vm_val) {
     write_barrier(this, val)
 
 typedef gc_oop_t (*walk_heap_fn)(gc_oop_t);
+
+/**
+ * Wrapper for `walk` to assign the pointer back when we have a moving GC.
+ */
+template <typename T>
+inline void walk_ptr(T*& ptr, walk_heap_fn walk) {
+    static_assert(std::is_base_of_v<GCOop, T>,
+                  "walk_ptr() expects a stored GC* pointer");
+    if constexpr (GC_MOVES_OBJECTS) {
+        ptr = static_cast<T*>(walk(ptr));
+    } else {
+        walk(ptr);
+    }
+}
