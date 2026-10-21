@@ -79,6 +79,7 @@ typedef GenerationalHeap HEAP_CLS;
   #define ALLOC_MATURE , true
   #define ALLOC_OUTSIDE_NURSERY(X) , (X)
   #define ALLOC_OUTSIDE_NURSERY_DECL , bool outsideNursery = false
+  #define GC_MOVES_OBJECTS true
 #elif GC_TYPE == COPYING
 class CopyingHeap;
 typedef CopyingHeap HEAP_CLS;
@@ -86,6 +87,7 @@ typedef CopyingHeap HEAP_CLS;
   #define ALLOC_MATURE
   #define ALLOC_OUTSIDE_NURSERY(X)
   #define ALLOC_OUTSIDE_NURSERY_DECL
+  #define GC_MOVES_OBJECTS true
 #elif GC_TYPE == MARK_SWEEP
 class MarkSweepHeap;
 typedef MarkSweepHeap HEAP_CLS;
@@ -93,6 +95,7 @@ typedef MarkSweepHeap HEAP_CLS;
   #define ALLOC_MATURE
   #define ALLOC_OUTSIDE_NURSERY(X)
   #define ALLOC_OUTSIDE_NURSERY_DECL
+  #define GC_MOVES_OBJECTS false
 #elif GC_TYPE == DEBUG_MARK_SWEEP
 class DebugMarkSweepHeap;
 typedef DebugMarkSweepHeap HEAP_CLS;
@@ -100,6 +103,7 @@ typedef DebugMarkSweepHeap HEAP_CLS;
   #define ALLOC_MATURE
   #define ALLOC_OUTSIDE_NURSERY(X)
   #define ALLOC_OUTSIDE_NURSERY_DECL
+  #define GC_MOVES_OBJECTS false
 #elif GC_TYPE == DEBUG_COPYING
 class DebugCopyingHeap;
 typedef DebugCopyingHeap HEAP_CLS;
@@ -107,6 +111,7 @@ typedef DebugCopyingHeap HEAP_CLS;
   #define ALLOC_MATURE
   #define ALLOC_OUTSIDE_NURSERY(X)
   #define ALLOC_OUTSIDE_NURSERY_DECL
+  #define GC_MOVES_OBJECTS true
 #elif GC_TYPE == PAGED_MARK_SWEEP
 class PagedMarkSweepHeap;
 typedef PagedMarkSweepHeap HEAP_CLS;
@@ -114,6 +119,7 @@ typedef PagedMarkSweepHeap HEAP_CLS;
   #define ALLOC_MATURE
   #define ALLOC_OUTSIDE_NURSERY(X)
   #define ALLOC_OUTSIDE_NURSERY_DECL
+  #define GC_MOVES_OBJECTS false
 #endif
 
 //

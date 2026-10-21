@@ -79,11 +79,11 @@ void VMObject::Assert(bool value) const {
 }
 
 void VMObject::WalkObjects(walk_heap_fn walk) {
-    clazz = static_cast<GCClass*>(walk(clazz));
+    walk_ptr(clazz, walk);
 
     size_t const numFields = GetNumberOfFields();
     for (size_t i = 0; i < numFields; ++i) {
-        FIELDS[i] = walk(tmp_ptr(GetField(i)));
+        walk_ptr(FIELDS[i], walk);
     }
 }
 

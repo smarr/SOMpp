@@ -1173,12 +1173,20 @@ bool Interpreter::checkIsGreater() {
 }
 
 void Interpreter::WalkGlobals(walk_heap_fn walk) {
-    method = load_ptr(static_cast<GCMethod*>(walk(tmp_ptr(method))));
+    // The method and frame statics are roots, but for they are hot, and we keep
+    // them as VMOops. So, here, we need a little more special handling.
+    GCMethod* m = tmp_ptr(method);
+    walk_ptr(m, walk);
+    if constexpr (GC_MOVES_OBJECTS) {
+        method = load_ptr(m);
+    }
 
-    // Get the current frame and mark it.
-    // Since marking is done recursively, this automatically
-    // marks the whole stack
-    frame = load_ptr(static_cast<GCFrame*>(walk(tmp_ptr(frame))));
+    // Mark the current frame, which marks the whole stack recursively.
+    GCFrame* f = tmp_ptr(frame);
+    walk_ptr(f, walk);
+    if constexpr (GC_MOVES_OBJECTS) {
+        frame = load_ptr(f);
+    }
 }
 
 void Interpreter::startGC() {

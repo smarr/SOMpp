@@ -57,16 +57,16 @@ void WalkSymbols(walk_heap_fn walk) {
     for (symbolIter = symbolsMap.begin(); symbolIter != symbolsMap.end();
          symbolIter++) {
         // insert overwrites old entries inside the internal map
-        symbolIter->second = static_cast<GCSymbol*>(walk(symbolIter->second));
+        walk_ptr(symbolIter->second, walk);
     }
 
     // reassign symbols
-    symbolSelf = static_cast<GCSymbol*>(walk(symbolSelf));
-    symbolSuper = static_cast<GCSymbol*>(walk(symbolSuper));
-    symbolBlockSelf = static_cast<GCSymbol*>(walk(symbolBlockSelf));
-    symbolIfTrue = static_cast<GCSymbol*>(walk(symbolIfTrue));
-    symbolIfFalse = static_cast<GCSymbol*>(walk(symbolIfFalse));
+    walk_ptr(symbolSelf, walk);
+    walk_ptr(symbolSuper, walk);
+    walk_ptr(symbolBlockSelf, walk);
+    walk_ptr(symbolIfTrue, walk);
+    walk_ptr(symbolIfFalse, walk);
 
-    symbolPlus = static_cast<GCSymbol*>(walk(symbolPlus));
-    symbolMinus = static_cast<GCSymbol*>(walk(symbolMinus));
+    walk_ptr(symbolPlus, walk);
+    walk_ptr(symbolMinus, walk);
 }

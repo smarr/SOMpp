@@ -68,10 +68,8 @@ VMClass* VMSymbol::GetClass() const {
 
 void VMSymbol::WalkObjects(walk_heap_fn walk) {
     for (size_t i = 0; i < nextCachePos; i++) {
-        cachedClass_invokable[i] =
-            static_cast<GCClass*>(walk(cachedClass_invokable[i]));
-        cachedInvokable[i] =
-            static_cast<GCInvokable*>(walk(cachedInvokable[i]));
+        walk_ptr(cachedClass_invokable[i], walk);
+        walk_ptr(cachedInvokable[i], walk);
     }
 }
 

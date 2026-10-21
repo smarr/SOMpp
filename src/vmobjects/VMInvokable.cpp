@@ -37,9 +37,9 @@ bool VMInvokable::IsPrimitive() const {
 }
 
 void VMInvokable::WalkObjects(walk_heap_fn walk) {
-    signature = static_cast<GCSymbol*>(walk(signature));
+    walk_ptr(signature, walk);
     if (holder != nullptr) {
-        holder = static_cast<GCClass*>(walk(holder));
+        walk_ptr(holder, walk);
     }
 }
 

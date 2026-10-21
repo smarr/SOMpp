@@ -143,19 +143,19 @@ void VMFrame::WalkObjects(walk_heap_fn walk) {
     // it. clazz = (VMClass*) walk(clazz);
 
     if (previousFrame != nullptr) {
-        previousFrame = static_cast<GCFrame*>(walk(previousFrame));
+        walk_ptr(previousFrame, walk);
     }
     if (context != nullptr) {
-        context = static_cast<GCFrame*>(walk(context));
+        walk_ptr(context, walk);
     }
-    method = static_cast<GCMethod*>(walk(method));
+    walk_ptr(method, walk);
 
     // all other fields are indexable via arguments array
     // --> until end of Frame
     size_t i = 0;
     while (arguments + i <= stack_ptr) {
         if (arguments[i] != nullptr) {
-            arguments[i] = walk(arguments[i]);
+            walk_ptr(arguments[i], walk);
         }
         i++;
     }
