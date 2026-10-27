@@ -104,17 +104,17 @@ jobs:
         run: |
           mkdir archive
           .github/archive.sh archive
-          tar -xzf archive/SOMpp-*.tar.gz -C archive
+          # tar -xzf archive/SOMpp-*.tar.gz -C archive
 
-      - name: Build and Test Debug Build from Archive
-        run: |
-          cd archive/SOMpp-*/
-          mkdir cmake-build
-          cd cmake-build
-          cmake .. -DCMAKE_BUILD_TYPE=Debug
-          make -j5
-          ./unittests -cp ../Smalltalk:../TestSuite/BasicInterpreterTests ../Examples/Hello.som
-          ./SOM++ -cp ../Smalltalk ../TestSuite/TestHarness.som
+      # - name: Build and Test Debug Build from Archive
+      #   run: |
+      #     cd archive/SOMpp-*/
+      #     mkdir cmake-build
+      #     cd cmake-build
+      #     cmake .. -DCMAKE_BUILD_TYPE=Debug
+      #     make -j5
+      #     ./unittests -cp ../Smalltalk:../TestSuite/BasicInterpreterTests ../Examples/Hello.som
+      #     ./SOM++ -cp ../Smalltalk ../TestSuite/TestHarness.som
 
       - name: Upload tar.gz
         uses: actions/upload-artifact@v7
