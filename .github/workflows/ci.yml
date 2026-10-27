@@ -115,3 +115,17 @@ jobs:
           make -j5
           ./unittests -cp ../Smalltalk:../TestSuite/BasicInterpreterTests ../Examples/Hello.som
           ./SOM++ -cp ../Smalltalk ../TestSuite/TestHarness.som
+
+      - name: Upload tar.gz
+        uses: actions/upload-artifact@v7
+        with:
+          path: ${{ env.ARCHIVE }}
+          archive: false
+          if-no-files-found: error
+
+      - name: Upload zip
+        uses: actions/upload-artifact@v7
+        with:
+          path: ${{ env.ZIP }}
+          archive: false
+          if-no-files-found: error

@@ -23,5 +23,14 @@ mkdir "$STAGING_DIR/$NAME"
 (cd "$ROOT_DIR" && git ls-files -z --recurse-submodules | tar -cf - --null -T -) \
   | tar -xf - -C "$STAGING_DIR/$NAME"
 
-tar -czf "$ARCHIVE" -C "$STAGING_DIR" "$NAME"
+tar -cf - -C "$STAGING_DIR" "$NAME" | gzip -9 > "$ARCHIVE"
+
 echo "Created $ARCHIVE"
+
+ZIP="${ARCHIVE%.tar.gz}.zip"
+(cd "$STAGING_DIR" && zip -9 -r -y -q "$ZIP" "$NAME")
+
+echo "Created $ZIP"
+
+echo "ARCHIVE=$ARCHIVE" >> "$GITHUB_ENV"
+echo "ZIP=$ZIP" >> "$GITHUB_ENV"
